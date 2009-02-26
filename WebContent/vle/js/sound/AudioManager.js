@@ -65,16 +65,21 @@ AudioManager.prototype.setCurrentNode = function(node) {
 				//alert('audio' + audio);
 			}
 			
-			//alert('Node: ' + vle.audioManager.isPlaying + ",:" + nodeAudioElement);
+			//alert('Audiomanager.js. vle.audiomanager.isplaying: ' + vle.audioManager.isPlaying + ", nodeaudioelement:" + nodeAudioElement);
 			if (vle.audioManager.isPlaying) {
 				//alert('play' + vle.getCurrentNode().audio);
 				if (vle.getCurrentNode().audio != null) {
 					vle.getCurrentNode().audio.play();
-					//alert('highlight:' + nodeAudioElement.getAttribute("id"));
-					vle.contentPanel.highlight(nodeAudioElement.getAttribute("id"));
-					var playPauseAudioElement = document.getElementById("playPause");
-					removeClassFromElement("playPause", "play");
-					addClassToElement("playPause", "pause");					
+					if (nodeAudioElement != null) {
+						//alert('highlight:' + nodeAudioElement.getAttribute("elementId"));
+						vle.contentPanel.highlight(nodeAudioElement.getAttribute("elementId"));
+						var playPauseAudioElement = document.getElementById("playPause");
+						removeClassFromElement("playPause", "play");
+						addClassToElement("playPause", "pause");					
+					} else {
+						// this can be reached if the nodeaudio is not defined, but it's still trying to
+						// play a 'no audio exists' mp3.
+					}
 				}
 			}
 		}

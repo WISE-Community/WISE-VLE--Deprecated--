@@ -252,17 +252,10 @@ alert("Please note: this is an alpha prototype. Version Feb. 25, 2009");
 	
 var vle = null;
 function render() {
-	  //var xmlDoc= loadXMLDoc("POC2v8.otml");
-	  //var project = new PasOtmlProject(xmlDoc);
 	  var xmlDocObj = new LoadXMLDocObj();
 	  var project = new PasOtmlProject(xmlDocObj);
-	  xmlDocObj.load("uccp_lesson_0.otml");
+	  xmlDocObj.load("POC2v8.otml");
 	  vle.audioManager = new AudioManager(true);	  
-	  //var dfs = new DFS(project.rootNode);
-	  //vle = new VLE();
-	  //vle.setProject(project);
-	  //vle.navigationLogic = new NavigationLogic(dfs);
-	  //vle.renderNode("0:0:0");
 }
 
 function loadFromString(xmlString) {

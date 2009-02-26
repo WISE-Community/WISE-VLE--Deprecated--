@@ -20,6 +20,5 @@ ContentPanel.prototype.render = function(nodeId) {
  */
 ContentPanel.prototype.highlight = function(elementIdentifier) {
 	var elementToHighlight = window.frames["ifrm"].document.getElementById(elementIdentifier);
-	elementToHighlight.style.background.color = "yellow";
-	//alert("contentpanel.js. Node:" + node + ", id:" + node.id);
+	elementToHighlight.style.backgroundColor = "yellow";
 }

@@ -403,7 +403,7 @@ Once opened the Journal will stay active until you save and close it.</p>
                   </jaxbXML>
                 </OTNote>
                 <OTIntroPage id="5a67ffef-c098-11dd-a66e-956dcc81477b" title="Start Page (click here to start)" authorNotes="" hoverString="Pas Step" speechText="Welcome to Level Up Programming, an introductory programming course offered by the University of California College Prep. Our goal is to help you learn fundamental skills for programming in the Java programming language, and have fun along the way! This window is the overall environment in which you will read and do much of the work for this course. We'll start by exploring the kinds of things you'll be seeing and doing. To proceed, click Watching Videos, in the menu at the left side of this window.">
-                  <nodeaudio id="centeredDiv" url="assets/audio/StartPage.mp3" />
+                  <nodeaudio id="centeredDiv" elementId="centeredDiv" url="assets/audio/StartPage.mp3" />
                   <content>&lt;html&gt;
 &lt;head&gt;
 &lt;base href="http://tels-group.soe.berkeley.edu/uccp/Assets/" /&gt;
@@ -435,11 +435,16 @@ Our goal is to help you learn fundamental skills for programming in the Java pro
 &lt;div class="doit"&gt;To proceed, click &lt;i&gt;Watching Videos&lt;/i&gt;, in the menu at the left side of this window.&lt;/div&gt;
 
 &lt;/div&gt;  &lt;!-- end of #centered div--&gt;
+
+&lt;div id="noncenteredDiv"&gt;
+this is stuff that shouldn't be highlighted!!!
+&lt;/div&gt;  &lt;!-- end of #noncentered div--&gt;
+
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTIntroPage>
                 <OTVideoPage id="400cb73e-c098-11dd-a66e-956dcc81477b" title="Watching Videos" authorNotes="" hoverString="Pas Step" speechText="This is a video screen. Click the play button below lower right corner to start the video. To see a text transcript click Transcript and scroll down.">
-                  <nodeaudio id="400cb73e-c098-11dd-a66e-956dcc81477b" url="assets/audio/WatchingVideos.mp3" />
+                  <nodeaudio id="400cb73e-c098-11dd-a66e-956dcc81477b" elementId="centeredDiv" url="assets/audio/WatchingVideos.mp3" />
                   <content>&lt;html lang="en"&gt;
 &lt;head&gt;
 &lt;base href="http://tels-group.soe.berkeley.edu/uccp/Assets/" /&gt;
@@ -478,7 +483,7 @@ To see a text transcript click "Transcript" and scroll down.&lt;/p&gt;
 &lt;/html&gt;</content>
                 </OTVideoPage>
                 <OTReadingPage id="6904b120-c098-11dd-a66e-956dcc81477b" title="Sample  &quot;Reading&quot; Page" authorNotes="" hoverString="Pas Step" speechText="Reading pages are used to Introduce you to new concepts.  If a concept is particularly important, we'll highlight it in a key concept box over to the right. Explain a new wrinkle, or detail, to a concept that you've been working with for a while. Define a new vocabulary word.  New terms, like recursion, will be highlighted and will appear in a Vocabulary box to the right.  Click any vocabulary term in the box to see its matching definition in the Course Glossary. We'll keep these reading pages short as possible. But keep in mind that they generally contain important information, so don't skip them just to jump ahead to the assignments.">
-                  <nodeaudio id="6904b120-c098-11dd-a66e-956dcc81477b" url="assets/audio/SampleReadingPage.mp3" />
+                  <nodeaudio id="6904b120-c098-11dd-a66e-956dcc81477b" elementId="centeredDiv" url="assets/audio/SampleReadingPage.mp3" />
                   <content>&lt;html&gt;
 &lt;head&gt;
 &lt;base href="http://tels-group.soe.berkeley.edu/uccp/Assets/" /&gt;
@@ -531,6 +536,7 @@ to the assignments. &lt;/p&gt;
 &lt;/html&gt;</content>
                 </OTReadingPage>
                 <OTExamplePage id="27e730d5-ca06-11dd-b7ed-755d667551cc" title="Sample &quot;Example&quot; Page" authorNotes="" hoverString="Pas Step" speechText="This is a sample Example page.  It is a lot like a reading page, but here we'll focus on a real world or programming example to help you better understand a particular concept.">
+				  <nodeaudio id="400cb73e-c098-11dd-a66e-956dcc81477b" elementId="centeredDiv" url="assets/audio/WatchingVideos.mp3" />
                   <content>&lt;html&gt;
 &lt;head&gt;
 
@@ -548,9 +554,10 @@ to the assignments. &lt;/p&gt;
         &lt;div class="Example"&gt;&lt;/div&gt;
 &lt;/div&gt;
 
+
 &lt;div id="mainCol"&gt;
 
-&lt;h3&gt;Could You Give Me an Example of That?&lt;/h3&gt;
+&lt;h3&gt;Could You please Give Me an Example of That?&lt;/h3&gt;
 
 &lt;p&gt;This is a sample "Example" page.  It is a lot like a reading page, but 
 here we'll focus on a real world or programming example to help you better understand
@@ -558,18 +565,13 @@ a particular concept.&lt;/p&gt;
 
 &lt;/div&gt;
 
-&lt;div id="marginCol"&gt;
-
-&lt;div class="warning top50"&gt;This icon indicates a Warning, which highlights a common problem or 
-misunderstanding that students often encounter.&lt;/div&gt; 
-
-&lt;/div&gt;
-
-&lt;/div&gt;  &lt;!-- end of #marginCol div--&gt;
+aa
 
 &lt;/div&gt;  &lt;!-- end of #centered div--&gt;
 
-&lt;/body&gt;&lt;/html&gt;</content>
+&lt;/body&gt;
+&lt;/html&gt;
+                </content>
                 </OTExamplePage>
                 <OTFillin id="8cdfc194-c17d-11dd-81ab-f7aeed438204" title="Sample &quot;Fill-In&quot; Step" authorNotes="" hoverString="Pas Step" authoringUrl="http://128.32.157.151:8080/webapp/author/brainstorm/authorbrainstorm.html?brainstormId=20" discussionId="20" url="http://www.google.com/" />
                 <OTMatchSequence id="1475a592-aac0-11dd-8fe2-a728984a84db" title="Sample &quot;Self-Check&quot;" authorNotes="" hoverString="Pas Step" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
@@ -1114,6 +1116,8 @@ Our goal is to help you learn fundamental skills for programming in the Java pro
 &lt;div class="doit"&gt;To proceed, click &lt;i&gt;Watching Videos&lt;/i&gt;, in the menu at the left side of this window.&lt;/div&gt;
 
 &lt;/div&gt;  &lt;!-- end of #centered div--&gt;
+
+
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTIntroPage>
