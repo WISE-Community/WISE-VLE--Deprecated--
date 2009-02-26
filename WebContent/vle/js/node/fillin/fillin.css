@@ -1,0 +1,148 @@
+
+#promptdiv {
+	font-size:.92em;
+	color:#000;
+	width:600px;
+	margin:15px 10px 5px 10px;
+	font-weight:bold;
+}
+
+.instructionsReminder {
+	float:right;
+	text-align:right;
+	margin: 12px 15px 0 0 ;
+	font-size:.8em;
+	color:#333333;
+}
+
+#currentFillBlankParagraph {
+	margin: 0 auto;
+	width:780px;
+	padding:10px 0;
+	text-align:left;
+	}
+	
+#currentFillBlankParagraph #leftColumn { 
+	float:left;
+	width:82%;
+	padding:10px 0;
+	background-color:#FFCE8E;
+	}
+	
+#currentFillBlankParagraph #rightColumn {
+	padding:10px 0;
+	text-align:center;
+	margin-left:83%;
+	background-color:#6883BA;
+	color:#FFF;
+	}
+	
+#questionTypeVerticalLabel {
+	font-size:.9em;
+	line-height:120%;
+	font-weight:bold;
+	text-transform:uppercase;
+	margin:5px 0 0 0 ;
+}
+
+.itemLabel {
+	font-size:.7em;
+	text-transform:uppercase;
+	color:#543F23;
+	margin:2px 0 0 15px;
+	font-weight:bold;
+}
+
+#nonInteractiveDiv p {
+	margin: 5px 15px 10px 15px;
+	font-size:.9em;
+	line-height:190%;
+}
+
+#nonInteractiveDiv input{
+	position:relative;
+	bottom:4px;
+	font-family:"Courier New",Courier,monospace;
+	font-size:1.0em;
+	color:#333;
+	background-color:#FFCE8E;
+	border:none;
+	border-bottom:1px solid black;
+	text-align:center;
+	width:120px;
+	margin: 0 6px;
+	
+}
+
+#nonInteractiveDiv .activeBlank {
+	font-family:"Courier New",Courier,monospace;
+	color:#164CBA;
+	background-color:#FFCE8E;
+	border:none;
+	border-bottom:1px solid #164CBA;
+	text-align:center;
+	font-size:1.0em;
+	font-weight:bold;
+	width:120px;
+	margin: 0 6px;
+}
+
+#nonInteractiveDiv .completedBlank {
+	font-family:"Courier New",Courier,monospace;
+	color:green;
+	border:none;
+	font-size:1.0em;
+}
+
+#interactiveDiv {
+	width:70%;
+	margin:5px 20px 10px 70px;
+	text-transform:uppercase;
+	padding:2px;
+	font-size:.85em;
+	color:#164CBA;
+	vertical-align:text-top;
+}
+
+#responsebox {
+	width:50%; 
+	height:40px;
+	font-style:normal;
+	font-weight:bold;
+	color:#164CBA;
+	border:1px solid #333;
+	padding:10px;
+	margin: 0 0 0 10px;
+	font-size:1.1em;
+	line-height:1.3em;
+}
+
+#clearBoth {
+	clear:both;
+	margin:0px;
+	padding:0px;
+}
+
+#triesContainer {
+	margin:15px auto 8px auto;
+	border-collapse:collapse;
+	text-align:left;
+	background-color:#CCCCCC;
+	border:1px solid #666666;
+	}
+
+#triesContainer th {
+	font-size:.8em;
+	color:#333;
+	margin:0px;
+	padding:2px 0 2px 20px;
+}
+
+#triesContainer td {
+	font-size:.8em;
+	color:#333;
+	margin:0px;
+	padding:2px 20px;
+	font-weight:bold;
+}
+

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	* Copyright (c) 2007 Encore Research Group, University of Toronto
+	* 
+	* This library is free software; you can redistribute it and/or
+	* modify it under the terms of the GNU Lesser General Public
+	* License as published by the Free Software Foundation; either
+	* version 2.1 of the License, or (at your option) any later version.
+	*
+	* This library is distributed in the hope that it will be useful,
+	* but WITHOUT ANY WARRANTY; without even the implied warranty of
+	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	* Lesser General Public License for more details.
+	*
+	* You should have received a copy of the GNU Lesser General Public
+	* License along with this library; if not, write to the Free Software
+	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+-->
+
+<!-- $Id$ -->
+
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.sf.sail</groupId>
+	<artifactId>vlewrapper</artifactId>
+	<packaging>war</packaging>
+	<name>VLE Wrapper</name>
+	<version>0.1.0-SNAPSHOT</version>
+	<url>http://sail.sourceforge.net/</url>
+	<developers>
+		<developer>
+			<id>hiroki</id>
+			<name>Hiroki Terashima</name>
+			<email>honchikun@gmail.com</email>
+			<organization>TELS</organization>
+			<organizationUrl>
+				http://www.telscenter.org/
+			</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+	</developers>
+	<scm>
+	</scm>
+	<issueManagement>
+		<system>Jira</system>
+		<url>http://www.telscenter.org/jira/</url>
+	</issueManagement>
+	<build>
+		<finalName>vlewrapper</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>		
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<!-- this is relative to the pom.xml directory -->
+							<directory>
+								WebContent/WEB-INF
+							</directory>
+							<!-- enable filtering -->
+							<filtering>true</filtering>
+							<includes>
+								<include>web.xml</include>
+							</includes>
+							<!-- override the destination directory for this resource -->
+							<targetPath>WEB-INF</targetPath>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+		
+		</plugins>
+	</build>
+	<repositories>
+		<repository>
+			<id>eclipse-repo</id>
+			<name>oaw-eclipse-repo</name>
+			<url>http://www.openarchitectureware.org/m2</url>
+		</repository>
+		<repository>
+			<id>tels-repo-internal-snapshot</id>
+			<name>TELS internal repository snapshot</name>
+			<url>http://repo.telscenter.org/internal_snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>concord-repo-internal-snapshot</id>
+			<name>concord internal repository snapshot</name>
+			<url>
+				http://source.concord.org/maven2/internal_snapshot/
+			</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>java.net-maven2-repository</id>
+			<name>javanettasks maven repository</name>
+			<url>		
+		         http://download.java.net/maven/2
+			</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>		
+		<repository>
+			<id>jboss-maven2-repository</id>
+			<name>jboss maven repository</name>
+			<url>		
+		         http://repository.jboss.org/maven2
+			</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>		
+	</repositories>
+	<pluginRepositories>
+	</pluginRepositories>
+	<dependencies>
+	</dependencies>
+	<reporting>
+	</reporting>
+</project>

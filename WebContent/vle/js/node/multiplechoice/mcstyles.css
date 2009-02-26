@@ -1,0 +1,93 @@
+.instructionsReminder {
+	float:right;
+	text-align:right;
+	margin: 12px 15px 0 0 ;
+	font-size:.8em;
+	color:#333333;
+}
+
+#currentQuestionBox {
+	margin: 0 auto;
+	width:780px;
+	padding:10px 0;
+	text-align:left;
+	}
+	
+#currentQuestionBox #leftColumn { 
+	float:left;
+	width:722px;
+	padding:10px 0;
+	background-color:#FFD9ac;
+	}
+	
+#currentQuestionBox #rightColumn {
+	float:right;
+	width:50px;
+	padding:10px 0;
+	text-align:center;
+	background-color:#6883BA;
+	color:#FFF;
+	}
+
+#questionTypeVerticalLabel {
+	font-size:.9em;
+	line-height:110%;
+	text-transform:uppercase;
+	margin:5px 0 0 0 ;
+}
+
+.itemLabel {
+	font-size:.7em;
+	text-transform:uppercase;
+	margin:5px 0 0 15px;
+}
+
+#promptdiv {
+	font-size:1.0em;
+	color:#000;
+	margin:3px 10px 15px 15px;
+	font-weight:bold;
+}
+
+#radiobuttondiv {
+	font-size:.9em;
+	margin: 10px 20px 40px 20px;
+	line-height:1.7em;
+}
+
+.radiobutton {
+	font-size:2.0em;
+	}
+
+#submitbuttonDiv {
+	text-align:center;
+	margin:5px;
+	}
+	
+#submitbuttonDiv input{
+	font-size:.8em;
+	font-weight:bold;
+	}
+	
+#statusMessages {
+	text-align:center;
+	margin:10px auto;
+	padding:10px;
+	}
+
+#numberAttemptsDiv, #lastAttemptDiv {
+	display:inline;
+	font-size:.8em;
+	color:#333;
+	margin:0;
+	padding:0;
+	}
+	
+#feedbackDiv {
+	width:70%;
+	font-size:.9em;
+	margin:10px auto;
+	padding:2px;
+	text-align:center;
+	color:#19253D;
+}

@@ -1,0 +1,109 @@
+<html>
+<title>Teacher Tickertape Pop-Up Window</title>
+<head>
+
+<link rel="stylesheet" type="text/css" href="css/tickertape.css" />
+<script type="text/javascript" src="js/ticker/ticker.js"></script>
+
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Sam Skin CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+
+<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+
+</head>
+<body onload="poll();">
+	
+<div id="tickerMainContainer">	
+	
+	<div id="header">
+		<div class="tickerBoxHeader">teacher</div>
+		<div id="headerText1">Teacher TickerTape</div>
+		<div id="headerText2">Teacher TickerTape</div>
+		<div id="signIn">Viewer: [Matt Fishbach]</div>
+		<div id="currentTime">Current Time:  [3:24pm, 2/25/2009]</div>
+	</div>
+	
+	<div id="controlbar">
+		<div class="tickerBoxHeader">Controls</div>
+		<table>
+			<tr>
+				<td id="displayDropdown">
+					<dl>
+						<dt>Display:</dt>
+						<dd>[Drop Down Menu, default = "All Student Work"]</dd>
+					</dl>
+				</td>
+				<td id="whoDropdown">
+					<dl>
+						<dt>Who:</dt>
+						<dd>[Drop Down Menu, default = "All Periods"]</dd>
+				</td>
+				<td id="sortDropdown">
+					<dl>
+						<dt>Sort:</dt>
+						<dd>[Drop Down Menu, default = "Latest to Oldest"]</dd>
+					</dl>
+				</td>
+				<td id="timeDropdown">
+					<dl>
+						<dt>Time Range:</dt>
+						<dd>[Drop Down Menu, default = "Today only"]</dd>
+					</dl>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div id="studentwork">
+		
+		<div class="tickerBoxHeader">student work submissions</div>
+		
+		<table class="noteSubmission">
+			<tr>
+				<th>[MattFish, Hiroki Terashima]</th>
+				<th>[3:24pm, 2/25/2009]</th>
+			</tr>
+			<tr>
+				<td colspan="2"><div id="studentnote1">Student Note Submission goes here</div></td>
+			</tr>
+		</table>
+		
+		<table class="autoAssessSubmission">
+			<tr>
+				<th>[MattFish, Hiroki Terashima]</th>
+				<th>[3:24pm, 2/25/2009]</th>
+			</tr>
+			<tr>
+				<td colspan="2">Status for the auto assessment item goes here.  <br/>
+					Ex:  "Challenge Q completed on 3rd try for 4 point." <br/>
+					Ex:  "Instant Quiz (5 Qs) completed for 15 points." <br/>
+					Ex:  "Instant Quiz (8 Qs) completed successfully." 
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="closeButton">CLOSE BUTTON HERE</div>
+	
+</div>	  <!-- End of tickerMainContainer -->	
+	
+</body>
+</html>

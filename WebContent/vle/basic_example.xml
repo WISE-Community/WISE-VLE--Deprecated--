@@ -1,0 +1,250 @@
+<node id="0">
+	<node id="0:0">
+		<node id="0:0:0" type="reading">
+			<tts ref="blah.mp3" />
+			<content>
+&lt;html&gt;
+
+&lt;head&gt;
+
+&lt;base href="http://tels-group.soe.berkeley.edu/uccp/Assets/" /&gt;
+
+&lt;link href="css/UCCP.css" media="screen" rel="stylesheet"  type="text/css" /&gt;
+
+&lt;/head&gt;
+
+
+
+&lt;body&gt;
+
+
+
+&lt;div id="centeredDiv"&gt;
+
+
+
+&lt;div id="locationBar"&gt;
+
+        &lt;div class="Unit1"&gt;UNIT 1&lt;/div&gt;
+
+        &lt;div class="Reading"&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;div id="mainCol"&gt;
+
+
+
+&lt;h3&gt;Sample Reading Page&lt;/h3&gt;
+
+
+
+&lt;p&gt;Reading pages are used to:&lt;/p&gt;
+
+
+
+&lt;ul&gt;
+
+    &lt;li&gt;Introduce you to new concepts.  If a concept is particularly important, we'll
+
+highlight it in a "key concept" box over to the right.&lt;/li&gt;
+
+    &lt;li&gt;Explain a new wrinkle, or detail, to a concept that you've been working with for a while.&lt;/li&gt;
+
+    &lt;li&gt;Define a new vocabulary word.  New terms, like &lt;span class="vocab"&gt;recursion&lt;/span&gt;, will be highlighted and will appear 
+
+in a "Vocabulary" box to the right.  Click any vocabulary term in the box to see its matching definition in the Course Glossary.&lt;/li&gt;
+
+&lt;/ul&gt;
+
+
+
+&lt;p&gt;We'll keep these reading pages short as possible.  But keep in mind that they generally contain important information, so don't skip them just to jump ahead
+
+to the assignments. &lt;/p&gt;
+
+
+
+&lt;/div&gt;
+
+
+
+
+
+&lt;div id="marginCol"&gt;
+
+
+
+    &lt;div class="key top50"&gt;Key points appear out here in the right margin, highlighted with a special Key icon. &lt;/div&gt;
+
+
+
+    &lt;div class="vocab top75"&gt;
+
+          &lt;p&gt;&lt;i&gt;Click the vocabulary term below to see its definition.&lt;/i&gt;&lt;/p&gt;
+
+          &lt;p&gt;&lt;a href="page/glossary.php" target=_glossary&gt;Recursion&lt;/a&gt;&lt;/p&gt;
+
+    &lt;/div&gt;
+
+
+
+&lt;/div&gt;
+
+
+
+&lt;/div&gt;  &lt;!-- end of #centered div--&gt;
+
+&lt;/body&gt;
+
+
+
+&lt;/html&gt;				
+			</content>
+		</node>
+		<node id="0:0:1" type="openresponse">
+			<tts href="" />
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+
+                        <correctResponse interpretation="choice 3" />
+
+                      </responseDeclaration>
+
+                      <responseDeclaration identifier="TEXT_ASSMT_0" />
+
+                      <responseDeclaration identifier="TEXT_ASSMT_1" />
+
+                      <responseDeclaration identifier="CHOICE_ASSMT_0">
+
+                        <correctResponse>
+
+                          <value isDefault="false" isCorrect="false">SIMPLE_CHOICE_ID1</value>
+
+                        </correctResponse>
+
+                      </responseDeclaration>
+
+                      <itemBody>
+
+                        <extendedTextInteraction hasInlineFeedback="false" responseIdentifier="TEXT_ASSMT_0" expectedLines="10">
+
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+
+&lt;head&gt;
+
+&lt;meta name="generator"
+
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+
+&lt;title&gt;&lt;/title&gt;
+
+&lt;link
+
+href="../common/css/htmlAssessment.css"
+href="openresponse.css"
+href="http://tels-group.soe.berkeley.edu/uccp/Assets/css/UCCP.css"
+
+media="screen" rel="stylesheet" type="text/css" /&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+&lt;p class="selfCheckQuestion"&gt;If you are in high school, do you plan on taking the AP Computer science test? Why or why not?&lt;/p&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</prompt>
+
+                        </extendedTextInteraction>
+             </itemBody>
+       </assessmentItem>				
+			</node>
+			
+			
+		</node>
+	<node id="0:1">
+		<node id="0:1:0" type="video">
+			<content>
+				&lt;html lang="en"&gt;
+
+&lt;head&gt;
+
+&lt;base href="http://tels-group.soe.berkeley.edu/uccp/Assets/" /&gt;
+
+&lt;link href="css/UCCP.css" media="screen" rel="stylesheet"  type="text/css" /&gt;
+
+&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+
+&lt;/head&gt;
+
+
+
+&lt;body&gt;
+
+
+
+&lt;div id="centeredDiv"&gt;
+
+
+
+&lt;div id="locationBar"&gt;
+
+        &lt;div class="Unit1"&gt;UNIT 1&lt;/div&gt;
+
+        &lt;div class="Video"&gt;&lt;/div&gt;
+
+&lt;/div&gt;
+
+
+
+&lt;h3&gt;An Introduction&lt;/h3&gt;
+
+
+
+&lt;p&gt;This is a video screen!!!.  Click the "play" button below (lower right corner) to start the video.  
+
+To see a text transcript click "Transcript" and scroll down.&lt;/p&gt;
+
+
+
+&lt;iframe id="videoAndControls" height="640" 
+
+
+
+               src="video/inc_introduction.html"
+
+
+
+&gt;  Your browser doesn't support iFrames.  In order to watch videos, you'll need to find
+
+ a browser that does, or go directly to &lt;a
+
+
+
+              href="video/inc_introduction.html"
+
+
+
+&gt;the video page&lt;/a&gt;. &lt;/iframe&gt;
+
+
+
+&lt;/div&gt;  &lt;!-- end of #centered div--&gt;
+
+	
+
+&lt;/body&gt;
+
+&lt;/html&gt;</content>			
+		</node>
+	</node>
+</node>

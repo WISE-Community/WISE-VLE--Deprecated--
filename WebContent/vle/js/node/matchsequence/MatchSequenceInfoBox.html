@@ -1,0 +1,58 @@
+
+<html>
+
+<head>
+<link rel="stylesheet" type="text/css" href="../common/css/htmlAssessment.css" />
+<link rel="stylesheet" type="text/css" href="../common/css/niftyCorners.css" />
+
+<!--  Nifty Cube for Rounded Corners -->
+
+<script type="text/javascript" src="../common/js/niftycube.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+Nifty("div#assessmentTypeCenteredDiv","large, all");
+Nifty("div#InfoBoxClose a","transparent, large, all");
+}
+</script>
+
+</head>
+
+<body id="assessmentBody">
+
+<div id="assessmentTypeCenteredDiv">
+
+<div id="assessmentTitle">Match -- Match & Sequence</div>
+
+<div id="assessmentDescription">
+	<p><b>Match</b></p>
+    	<ul>
+    		<li>Drag and drop each Choice into its matching target box. Click <i>Check Answers</i> to review the accuracy of your placements.</li>
+    		<li>Move answers highlighted in <span class="red">red</span> to a different target box. Then click <i>Check Answers</i> again. 
+    		When all answers are highlighted in <span class="green">green</span> you've completed the question!</li>
+    	</ul>
+    <p><b>Match & Sequence</b></p>
+    	<ul>
+    		<li>Drag and drop each Choice into its matching target box. Then sequence the choices within each box into the most logical order. 
+    		Then click <i>Check Answers</i> to review the accuracy of your placements.</li>
+    		<li>Move answers highlighted in <span class="red">red</span> to a different target box.</li>
+    		<li>Move answers highlighted in <span class="yellow">yellow</span> to a different position within their current target box.</li>
+    		
+    	</ul>
+    <p><i>Tips</i></p>
+    	<ul>
+    		<li>All choices must be placed into a target box before you can click <i>Check Answers</i>.</li>
+    		<li>Try to rearrange many incorrect (red and yellow) answers at a time between each use of <i>Check Answers</i>, in order to minimize the overall number of tries needed to solve the question. 
+    		But if you're having trouble getting yellow answers into the correct sequence ordering, try moving just one at a time between each use of <i>Check Answers</i>.</li>
+    	</ul>
+    		
+</div>
+
+
+<div id="InfoBoxClose">
+    <a href="JavaScript:window.close()">Close</a>
+</div>
+
+</div>   <!-- end centered Div -->
+
+</body>
+</html>
