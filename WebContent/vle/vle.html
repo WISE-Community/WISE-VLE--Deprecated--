@@ -116,7 +116,7 @@ alert("Please note: this is an alpha prototype. Version Feb. 25, 2009");
 	<div id="toolsArea">
 		
 		  <dl class="dropdown">
-		  <dt id="one-ddheader" onclick="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
+		  <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
 		  		project menu
 				<img src="./assets/images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
 		</dt>
@@ -252,7 +252,7 @@ alert("Please note: this is an alpha prototype. Version Feb. 25, 2009");
 	
 var vle = null;
 function render() {
-	  //var xmlDoc= loadXMLDoc("uccp_lesson_0.otml");
+	  //var xmlDoc= loadXMLDoc("POC2v8.otml");
 	  //var project = new PasOtmlProject(xmlDoc);
 	  var xmlDocObj = new LoadXMLDocObj();
 	  var project = new PasOtmlProject(xmlDocObj);
