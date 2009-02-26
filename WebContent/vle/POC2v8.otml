@@ -336,7 +336,7 @@
         <OTSharingBundle />
       </bundles>
       <root>
-        <OTPasProject id="971534ac-3f22-11dd-b240-cde0bfdd2411" title="Using Conditionals: Part 3, Virtual Pet" isAuthoringMode="false">
+        <OTPasProject id="971534ac-3f22-11dd-b240-cde0bfdd2411" title="Using Conditionals: Part 3 -- Virtual Pet" isAuthoringMode="false">
           <journalAlbum>
             <OTJournalAlbum id="4db44b59-5cff-11dd-a4b6-9b08a7b15b3c">
               <entries>
@@ -383,7 +383,6 @@
 
 &lt;!--   &lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/style.css" /&gt;    --&gt;
 &lt;!--    &lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/layout.css" /&gt;    --&gt;
-
 
 &lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
 
@@ -454,10 +453,10 @@ Sample MC Question Here
 
 
 &lt;/body&gt;&lt;/html&gt;</prompt>
-                          <simpleChoice fixed="true" identifier="choice 1" />
-                          <simpleChoice fixed="true" identifier="choice 2" />
-                          <simpleChoice fixed="true" identifier="choice 3" />
-                          <simpleChoice fixed="true" identifier="choice 4" />
+                          <simpleChoice fixed="true" identifier="choice 1">Choice A</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2">Choice A</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3">Choice A</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4">Choice A</simpleChoice>
                         </choiceInteraction>
                       </itemBody>
                     </assessmentItem>
@@ -577,10 +576,9 @@ Click the adjacent EDIT button, then type your introduction here (overwrite thes
 &lt;head&gt;
 &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
 
-&lt;base href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/" /&gt;
+&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
 
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/style.css" /&gt;
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/layout.css" /&gt;
+&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
 
 
 &lt;title&gt;Proof of Concept 2&lt;/title&gt;
@@ -593,77 +591,77 @@ Click the adjacent EDIT button, then type your introduction here (overwrite thes
 &lt;div class="content"&gt;
  
 &lt;p&gt; Now it's time to put your knowledge of conditionals into practice.  For the next few days, you'll
-work on the &lt;em&gt;Virtual Pet&lt;/em&gt; mini-project.
+work on the &lt;span class="vocab"&gt;Virtual Pet&lt;/span&gt; mini-project.
 &lt;/p&gt;
+
+&lt;img class="left" src="./art/constructor_bots/hover_right.png" /&gt;
 
 &lt;p&gt;Constructor children need to have toys to play with, of course.  One toy, 
 popular for Constructors as well as humans, is a little handheld device in which a pet "lives".
-The pet has &lt;em&gt;moods&lt;/em&gt;, such as happiness or pain, and shows its current mood(s) through an image and a message on the toy.  The owner of the toy can make the pet behave in certain ways.  And, often, when the pet does something, its mood changes.
+The pet has &lt;em&gt;moods&lt;/em&gt;, such as happiness or pain, and shows its current mood(s) through an image and a message on the toy.  The owner of the toy can make the pet &lt;em&gt;behave&lt;/em&gt; in certain ways.  And, often, when the pet does something, its mood changes.
 &lt;/p&gt;
 
-&lt;p&gt;Constant is, like you, learning to program in Java.  And, like you will be shortly, is writing a Java program that will act like a fully working Virtual Pet toy &amp;mdash one inside a computer.  The toy will be better than any she can buy, though, because &lt;em&gt;she&lt;/em&gt; gets to decide what she can do to the pet, and what happens afterwards.
+&lt;p&gt;Cam is, like you, learning to program in Java. She, like you will be shortly, is writing a Java program that will act like a fully working Virtual Pet toy &amp;mdash one inside a computer.  The toy will be better than any she can buy, though, because she gets to decide what she can do to the pet, and what happens afterwards.
 &lt;/p&gt;
+
 
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTReadingPage>
-                <OTSimulationPage id="4687bcae-0230-11de-9062-13382964bfbf" title="Launch BlueJ" authorNotes="" hoverString="Pas Step" speechText="">
+                <OTExamplePage id="ee4a9d1b-0452-11de-9e80-e9f7a2343f8e" title="Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="">
                   <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
 &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
 
-&lt;base href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/" /&gt;
+&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
 
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/style.css" /&gt;
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/layout.css" /&gt;
-
+&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
 
 &lt;title&gt;Proof of Concept 2&lt;/title&gt;
 &lt;/head&gt;
 
 &lt;body&gt;
 
-&lt;div class="header"&gt;Launch BlueJ&lt;/div&gt;
+&lt;div class="header"&gt;Launch Cam's BlueJ Project&lt;/div&gt;
 
 &lt;div class="content"&gt;
  
-&lt;p&gt;Let's use BlueJ to open up Constant's first attempt at writing a Virtual Pet toy, and take a look at 
+&lt;p&gt;Let's use BlueJ to open Cam's first attempt at writing a Virtual Pet toy, and take a look at 
 what she did.  
 &lt;/p&gt;
 
-&lt;p class="openbluejproj"&gt;Open the "constant-v1" project. 
+&lt;div class="openbluejproj"&gt;Open the "cam-v1" project. 
+&lt;/div&gt;
+
+
+&lt;p&gt;As you can see, there is a single class, named &lt;tt&gt;VirtualPet&lt;/tt&gt;. 
+Each object of this class representa a virtual pet toy.
 &lt;/p&gt;
 
-&lt;!-- Should VirtualPetFace be hidden?  It could be...--&gt;
+&lt;div class="doit"&gt;Make a &lt;tt&gt;VirtualPet&lt;/tt&gt; object now, using the &lt;vocab&gt;object bench&lt;/vocab&gt; in the usual way.  You can name it anything you like.
+&lt;/div&gt;
 
-&lt;p&gt;As you can see, there is a single class, named &lt;code&gt;VirtualPet&lt;/code&gt;. 
-Objects of this class represent the virtual pet toy.  Make a &lt;code&gt;VirtualPet&lt;/code&gt; object now, using the &lt;vocab&gt;object bench&lt;/vocab&gt; in the usual way.  
+&lt;p&gt;A window will open, containing an image that represents the mood of the Virtual Pet you just made.  Cam has programmed the Virtual Pet to show a "normal" mood at the start.
 &lt;/p&gt;
 
-&lt;p&gt;A window will open, containing an image that represents the mood of the Virtual Pet you just made.  Constant has programmed the Virtual Pet to show a "normal" mood at the start.
+&lt;p&gt;The virtual pet has behaviors that you can invoke in the usual way.  You'll see the methods "feed", "exercise", and "sleep". 
 &lt;/p&gt;
 
-&lt;p&gt;The virtual pet has behaviors that you can invoke in the usual way.  You'll see the methods "feed", "exercise", and "sleep".  See what happens!
-&lt;/p&gt;
+&lt;div class="doit"&gt;Invoke those methods now on your &lt;tt&gt;VirtualPet&lt;/tt&gt; object, and see what happens!
+&lt;/div&gt;
 
-[Vocab callout pending:  "invoke methods"]
 
 &lt;/body&gt;
 &lt;/html&gt;</content>
-                </OTSimulationPage>
-              </stepList>
-            </OTPasActivity>
-            <OTPasActivity id="ea2774f5-0210-11de-9062-13382964bfbf" title="Programming" authorNotes="">
-              <stepList>
-                <OTExamplePage id="3a36821b-0230-11de-9062-13382964bfbf" title="Programming Analysis" authorNotes="" hoverString="Pas Step" speechText="">
+                </OTExamplePage>
+                <OTExamplePage id="3a36821b-0230-11de-9062-13382964bfbf" title="Explore the Code" authorNotes="" hoverString="Pas Step" speechText="">
                   <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
 &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
 
-&lt;base href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/" /&gt;
+&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
 
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/style.css" /&gt;
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/layout.css" /&gt;
+&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
 
 
 &lt;title&gt;Proof of Concept 2&lt;/title&gt;
@@ -671,7 +669,7 @@ Objects of this class represent the virtual pet toy.  Make a &lt;code&gt;Virtual
 
 &lt;body&gt;
 
-&lt;div class="header"&gt;Programming Analysis&lt;/div&gt;
+&lt;div class="header"&gt;Explore the Code&lt;/div&gt;
 
 &lt;div class="content"&gt;
  
@@ -692,6 +690,10 @@ Objects of this class represent the virtual pet toy.  Make a &lt;code&gt;Virtual
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTExamplePage>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="ea2774f5-0210-11de-9062-13382964bfbf" title="Programming" authorNotes="">
+              <stepList>
                 <OTExamplePage id="569d69f5-ee64-11dd-b081-1b1eed2735e4" title="Experiment" authorNotes="" hoverString="Pas Step" speechText="">
                   <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
@@ -830,10 +832,9 @@ a pet could get hungrier and hungrier forever.  At some point the pet should, we
 &lt;head&gt;
 &lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
 
-&lt;base href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/" /&gt;
+&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
 
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/style.css" /&gt;
-&lt;link rel="stylesheet" href="http://tels-berkeley.soe.berkeley.edu/uccp/Assets/css/layout.css" /&gt;
+&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
 
 
 &lt;title&gt;Proof of Concept 2&lt;/title&gt;
@@ -845,13 +846,11 @@ a pet could get hungrier and hungrier forever.  At some point the pet should, we
 
 &lt;div class="content"&gt;
  
-BRAINSTORM STEP GOES HERE
+&lt;div id="brainstorm"&gt;
 
-&lt;br&gt;
+&lt;p&gt;Compare the following two solutions for the problem above&amp;mdash;changing the mood to "dead" if the hunger is over 12&amp;mdash;&lt;code&gt;sleep&lt;/code&gt; method:&lt;/p&gt;
 
-&lt;p&gt;Compare the following two solutions for the problem above&amp;mdash;changing the mood to "dead" if the hunger is over 12&amp;mdash;&lt;code&gt;sleep&lt;/code&gt; method: 
-
-&lt;table border="1" cellspacing="2" cellpadding="2"&gt;
+&lt;table&gt;
 &lt;tr&gt;
 &lt;td&gt;
 &lt;strong&gt;Version A&lt;/strong&gt;&lt;br&gt;
@@ -864,7 +863,7 @@ public void sleep() {&lt;br&gt;
 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage("awww, I got too hungry!");&lt;Br&gt;
 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage("dead");&lt;br&gt;
 &amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;br&gt;
-}&lt;br&gt;
+}
 &lt;/code&gt;
 &lt;/td&gt;
 &lt;td&gt;
@@ -879,7 +878,7 @@ public void sleep() {&lt;br&gt;
 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage("zzzzzzzzzz");&lt;br&gt;
 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage("asleep");&lt;br&gt;
 &amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;br&gt;
-}&lt;br&gt;
+}
 &lt;/code&gt;
 &lt;/td&gt;
 &lt;/tr&gt;
@@ -888,10 +887,14 @@ public void sleep() {&lt;br&gt;
 &lt;!--note, by including the setMessage call, these will definitely be different.  We could leave the 
 setMessage call out, to just have the 'flickering' image issue?  I kinda like it this way, though -- maybe
 you should have two messages, maybe not.  --&gt;
-&lt;p&gt;Will these two versions behave identically, from the standpoint of someone playing with the toy?  If not, how will the difference show up, and which version do you think is better?  Why?
-&lt;/p&gt;
+&lt;p&gt;Will these two versions behave identically, from the standpoint of someone playing with the toy?  If not, how will the difference show up, and which version do you think is better?  Why?&lt;/p&gt;
+
+&lt;/div&gt;
+
+&lt;/div&gt;
+
 &lt;/body&gt;
-&lt;/html&gt;</content>
+&lt;/html&gt;&gt;</content>
                 </OTExamplePage>
                 <OTSimulationPage id="89f9a0b4-029e-11de-aa46-594d426d2420" title="Debug" authorNotes="" hoverString="Pas Step" speechText="">
                   <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
@@ -920,6 +923,35 @@ you should have two messages, maybe not.  --&gt;
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTSimulationPage>
+                <OTExamplePage id="8549cd72-044e-11de-9e80-e9f7a2343f8e" title="Thinking Ahead..." authorNotes="" hoverString="Pas Step" speechText="">
+                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+
+&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
+
+&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
+
+
+&lt;title&gt;Proof of Concept 2&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+&lt;div class="header"&gt;Brainstorm Discussion&lt;/div&gt;
+
+&lt;div class="content"&gt;
+ 
+	&lt;div id="brainstorm"&gt;
+		&lt;img class="right" src="./art/constructor_bots/short_right.png" width="200px" /&gt;
+		&lt;p&gt;Suggest one or two additional features to add to &lt;tt&gt;VirtualPet&lt;/tt&gt;.  Consider methods, instance variables, and interactions between them.&lt;/p&gt;
+	&lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</content>
+                </OTExamplePage>
               </stepList>
             </OTPasActivity>
             <OTPasActivity id="cf0de551-0210-11de-9062-13382964bfbf" title="Summary" authorNotes="">

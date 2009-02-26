@@ -254,6 +254,7 @@ var vle = null;
 function render() {
 	  var xmlDocObj = new LoadXMLDocObj();
 	  var project = new PasOtmlProject(xmlDocObj);
+	  xmlDocObj.load("POC2v9.otml");
 	  xmlDocObj.load("POC2v8.otml");
 	  vle.audioManager = new AudioManager(true);	  
 }
