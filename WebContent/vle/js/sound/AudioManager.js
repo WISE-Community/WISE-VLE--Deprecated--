@@ -12,7 +12,7 @@ soundManager.onload = function(){
  * Object for controlling audio
  */
 function AudioManager(isPlaying) {
-	alert('here');
+	//alert('here');
 	this.currentAudio = null;
     this.isPlaying = false;
 	this.isSoundManagerLoaded = false;
@@ -65,12 +65,12 @@ AudioManager.prototype.setCurrentNode = function(node) {
 				//alert('audio' + audio);
 			}
 			
-			alert('Node: ' + vle.audioManager.isPlaying + ",:" + nodeAudioElement);
+			//alert('Node: ' + vle.audioManager.isPlaying + ",:" + nodeAudioElement);
 			if (vle.audioManager.isPlaying) {
 				//alert('play' + vle.getCurrentNode().audio);
 				if (vle.getCurrentNode().audio != null) {
 					vle.getCurrentNode().audio.play();
-					alert('highlight:' + nodeAudioElement.getAttribute("id"));
+					//alert('highlight:' + nodeAudioElement.getAttribute("id"));
 					vle.contentPanel.highlight(nodeAudioElement.getAttribute("id"));
 					var playPauseAudioElement = document.getElementById("playPause");
 					removeClassFromElement("playPause", "play");

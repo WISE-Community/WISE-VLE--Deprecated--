@@ -19,7 +19,7 @@ function NoteNode(nodeType) {
     //If we haven't built our panel using existing markup,
     //we can set its content via script:
     notePanel.setHeader("My Notes");
-    notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"js/node/openresponse/note.html\" onload=\"alert('noteloaded you!');\"><iframe>");
+    notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"js/node/openresponse/note.html\"><iframe>");
     //Although we configured many properties in the
     //constructor, we can configure more properties or 
     //change existing ones after our Panel has been
@@ -30,21 +30,21 @@ function NoteNode(nodeType) {
 }
 
 function loadNote() {
-	alert('loadNote function called');
+	//alert('loadNote function called');
 	window.frames["noteiframe"].loadContentXMLString("<assessmentItem xmlns='http://www.imsglobal.org/xsd/imsqti_v2p0' xmlns:ns3='http://www.w3.org/1998/Math/MathML' xmlns:ns2='http://www.w3.org/1999/xlink' timeDependent='false' adaptive='false'><responseDeclaration identifier='CHOICE_SELF_CHECK_ID'><correctResponse interpretation='choice 3' /></responseDeclaration><responseDeclaration identifier='TEXT_ASSMT_0' /><responseDeclaration identifier='TEXT_ASSMT_1' /><responseDeclaration identifier='CHOICE_ASSMT_0'><correctResponse><value isDefault='false' isCorrect='false'>SIMPLE_CHOICE_ID1</value></correctResponse></responseDeclaration><itemBody><extendedTextInteraction hasInlineFeedback='false' responseIdentifier='TEXT_ASSMT_0' expectedLines='10'><prompt>&lt;!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'&gt;&lt;html xmlns='http://www.w3.org/1999/xhtml'&gt;&lt;head&gt;&lt;meta name='generator' content='HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org' /&gt;&lt;title&gt;&lt;/title&gt;&lt;link href='../common/css/htmlAssessment.css' href='openresponse.css' href='http://tels-group.soe.berkeley.edu/uccp/Assets/css/UCCP.css' media='screen' rel='stylesheet' type='text/css' /&gt;&lt;/head&gt;&lt;body&gt;&lt;p class='selfCheckQuestion'&gt;If you are in high school, do you plan on taking the AP Computer science test? Why or why not?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</prompt></extendedTextInteraction></itemBody></assessmentItem>");
 	//window.frames["noteiframe"].loadFromVLE(this, vle);
-	alert('done loadNote function');
+	//alert('done loadNote function');
 }
 
 NoteNode.prototype.render = function(contentpanel) {
-	alert('notenode.render');
+	//alert('notenode.render');
 	notePanel.cfg.setProperty("visible", true);
 	loadNote();
     //window.frames["ifrm"].location = "js/node/openresponse/openresponse.html";
 } 
 
 NoteNode.prototype.load = function() {
-	alert('notenode.load');
+	//alert('notenode.load');
 	window.frames["noteiframe"].loadContentXMLString("<assessmentItem xmlns='http://www.imsglobal.org/xsd/imsqti_v2p0' xmlns:ns3='http://www.w3.org/1998/Math/MathML' xmlns:ns2='http://www.w3.org/1999/xlink' timeDependent='false' adaptive='false'><responseDeclaration identifier='CHOICE_SELF_CHECK_ID'><correctResponse interpretation='choice 3' /></responseDeclaration><responseDeclaration identifier='TEXT_ASSMT_0' /><responseDeclaration identifier='TEXT_ASSMT_1' /><responseDeclaration identifier='CHOICE_ASSMT_0'><correctResponse><value isDefault='false' isCorrect='false'>SIMPLE_CHOICE_ID1</value></correctResponse></responseDeclaration><itemBody><extendedTextInteraction hasInlineFeedback='false' responseIdentifier='TEXT_ASSMT_0' expectedLines='10'><prompt>&lt;!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'&gt;&lt;html xmlns='http://www.w3.org/1999/xhtml'&gt;&lt;head&gt;&lt;meta name='generator' content='HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org' /&gt;&lt;title&gt;&lt;/title&gt;&lt;link href='../common/css/htmlAssessment.css' href='openresponse.css' href='http://tels-group.soe.berkeley.edu/uccp/Assets/css/UCCP.css' media='screen' rel='stylesheet' type='text/css' /&gt;&lt;/head&gt;&lt;body&gt;&lt;p class='selfCheckQuestion'&gt;If you are in high school, do you plan on taking the AP Computer science test? Why or why not?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</prompt></extendedTextInteraction></itemBody></assessmentItem>");
 	window.frames["noteiframe"].loadFromVLE(this, vle);
 }
