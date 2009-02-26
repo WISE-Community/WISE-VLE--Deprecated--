@@ -1,5 +1,5 @@
 var htmlPageTypes = new Array("OTReadingPage", "OTIntroPage", "OTVideoPage", "OTExamplePage", "OTDisplayPage", "OTEvidence");
-var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ");
+var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz");
 
 /*
  * Override
@@ -22,6 +22,7 @@ NodeFactory.createNode = function (nodeType){
 			case "OTJournalStep": return new JournalNode(); break;
 			case "OTNote": return new NoteNode(); break;
 			case "OutsideUrl": return new OutsideUrlNode(); break;
+			case "OTQuiz": return new MultipleChoiceNode(); break;
 			case "OTBlueJ": return new BlueJNode(); break;
 			default: break;
 		}

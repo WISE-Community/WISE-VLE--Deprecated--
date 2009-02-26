@@ -19,6 +19,11 @@ function renderMC() {
   mc = new MC(xmlDoc);
   mc.render();
 }
+function renderMCFromString(txt) {
+  xmlDoc=loadXMLString(txt);
+  mc = new MC(xmlDoc);
+  mc.render();
+}
 </script>
 
 <!--  Javascript Pop up window -->
