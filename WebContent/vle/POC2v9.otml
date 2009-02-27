@@ -374,60 +374,9 @@
           <activityList>
             <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="A1.  Introduction" authorNotes="">
               <stepList>
-                <OTIntroPage id="78545128-0234-11de-9062-13382964bfbf" title="S1.  Objectives" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;div class="header"&gt;Objectives&lt;/div&gt;
-
-&lt;div id="content"&gt;
-  
-  &lt;div class="bubbleBox"&gt;
-    &lt;div class="bubbleDivLeft"&gt;
-      &lt;div class="blue speech talkLeft"&gt; &lt;img src="./art/constructor_bots/short_right.png" /&gt;
-        &lt;div id="objectivesText"&gt;
-          &lt;p&gt;Welcome back! Thanks again for helping me stamp out those bugs in the last section.  You're the best.&lt;/p&gt;
-          &lt;p&gt;So, Cam, what's on the plate for today?&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;div class="bubbleBox"&gt;
-    &lt;div class="bubbleDivRight"&gt;
-      &lt;div class="green speech talkRight"&gt; &lt;img src="./art/constructor_bots/tall_right.png" /&gt;
-        &lt;div id="objectivesText"&gt;
-          &lt;p&gt;Here's our objectives for this section, Bolt.&lt;/p&gt;
-          &lt;ul&gt;
-            &lt;li&gt;Review the previous section (Instant Quiz, 4 questions)&lt;/li&gt;
-            &lt;li&gt;Modify a "Virtual Pet" module using BlueJ.&lt;/li&gt;
-            &lt;li&gt;Learn about Varied-State Conditionals.&lt;/li&gt;
-          &lt;/ul&gt;
-          &lt;p&gt;Let's get started!&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTIntroPage>
+                <OutsideUrl id="a1s1" title="S1.  Objectives">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a1s1.html</url>
+				</OutsideUrl>
                 <OTQuiz id="f686315b-0212-11de-9062-13382964bfbf" title="S2.  Instant Quiz 1/4" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
                   <jaxbXML>
                     <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
@@ -566,261 +515,31 @@ Click the adjacent EDIT button, then type your introduction here (overwrite thes
             </OTPasActivity>
             <OTPasActivity id="af231e8c-0210-11de-9062-13382964bfbf" title="A2:  Explore New Ideas" authorNotes="">
               <stepList>
-                <OTReadingPage id="e6a4256a-01e1-11de-9062-13382964bfbf" title="S1.  Introduction to Virtual Pets" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Introduction to Virtual Pet&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt; Now it's time to put your knowledge of conditionals into practice.  For the next few days, you'll
-work on the &lt;span class="vocab"&gt;Virtual Pet&lt;/span&gt; mini-project.
-&lt;/p&gt;
-
-&lt;img class="left" src="./art/constructor_bots/hover_right.png" /&gt;
-
-&lt;p&gt;Constructor children need to have toys to play with, of course.  One toy, 
-popular for Constructors as well as humans, is a little handheld device in which a pet "lives".
-The pet has &lt;em&gt;moods&lt;/em&gt;, such as happiness or pain, and shows its current mood(s) through an image and a message on the toy.  The owner of the toy can make the pet &lt;em&gt;behave&lt;/em&gt; in certain ways.  And, often, when the pet does something, its mood changes.
-&lt;/p&gt;
-
-&lt;p&gt;Cam is, like you, learning to program in Java. She, like you will be shortly, is writing a Java program that will act like a fully working Virtual Pet toy &amp;mdash one inside a computer.  The toy will be better than any she can buy, though, because she gets to decide what she can do to the pet, and what happens afterwards.
-&lt;/p&gt;
-
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTReadingPage>
-                <OTExamplePage id="ee4a9d1b-0452-11de-9e80-e9f7a2343f8e" title="S2.  Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Launch Cam's BlueJ Project&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;Let's use BlueJ to open Cam's first attempt at writing a Virtual Pet toy, and take a look at 
-what she did.  
-&lt;/p&gt;
-
-&lt;div class="openbluejproj"&gt;Open the "cam-v1" project. 
-&lt;/div&gt;
-
-
-&lt;p&gt;As you can see, there is a single class, named &lt;tt&gt;VirtualPet&lt;/tt&gt;. 
-Each object of this class representa a virtual pet toy.
-&lt;/p&gt;
-
-&lt;div class="doit"&gt;Make a &lt;tt&gt;VirtualPet&lt;/tt&gt; object now, using the &lt;vocab&gt;object bench&lt;/vocab&gt; in the usual way.  You can name it anything you like.
-&lt;/div&gt;
-
-&lt;p&gt;A window will open, containing an image that represents the mood of the Virtual Pet you just made.  Cam has programmed the Virtual Pet to show a "normal" mood at the start.
-&lt;/p&gt;
-
-&lt;p&gt;The virtual pet has behaviors that you can invoke in the usual way.  You'll see the methods "feed", "exercise", and "sleep". 
-&lt;/p&gt;
-
-&lt;div class="doit"&gt;Invoke those methods now on your &lt;tt&gt;VirtualPet&lt;/tt&gt; object, and see what happens!
-&lt;/div&gt;
-
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="3a36821b-0230-11de-9062-13382964bfbf" title="S3.  Explore the Code 1" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Explore the Code 1&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;Now, let's look at the Java code that Cam wrote.&lt;/p&gt;
-
-&lt;div class="doit"&gt;Open the editor for &lt;tt&gt;VirtualPet&lt;/tt&gt; class, and examine the code. &lt;/div&gt;
-&lt;h4&gt;Tip 1 of 4&lt;/h4&gt;
-
-&lt;div class="bubbleBox"&gt;
-    &lt;div class="bubbleDivRight"&gt;
-      &lt;div class="green speech talkRight"&gt; &lt;img src="./art/constructor_bots/tall_right.png" /&gt;
-        &lt;div id="objectivesText"&gt;
-          &lt;p&gt;The comment at the top shows the version and the author.  We are going to be looking at other versions of Cam's code, adding functionality and debugging for her.  Edit that comment to help you keep track of which version you are working on.
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-
-
-&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="5b391e6f-0453-11de-9e80-e9f7a2343f8e" title="S4.  Explore the Code 2" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Explore the Code 2&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;Now, let's look at the Java code that Cam wrote.&lt;/p&gt;
-
-&lt;div class="doit"&gt;Open the editor for &lt;tt&gt;VirtualPet&lt;/tt&gt; class, and examine the code. &lt;/div&gt;
-
-&lt;h4&gt;Tip 2 of 4&lt;/h4&gt;
-
-&lt;p&gt;The first &lt;span class="vocab"&gt;instance variable&lt;/span&gt; uses the special class &lt;tt&gt;VirtualPetFace&lt;/tt&gt; that we wrote for Cam and you.  It takes care of the images, the messages, and so forth; its details aren't important.  How it's controlled to show the image and messages that you want &lt;em&gt;is&lt;/em&gt; important &amp;mdash; more on that below.
-&lt;/p&gt;
-
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="64456730-0453-11de-9e80-e9f7a2343f8e" title="S5.  Explore the Code 3" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Explore the Code 3&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;Now, let's look at the Java code that Cam wrote.&lt;/p&gt;
-
-&lt;div class="doit"&gt;Open the editor for &lt;tt&gt;VirtualPet&lt;/tt&gt; class, and examine the code. &lt;/div&gt;
-
-&lt;h4&gt;Tip 3 of 4&lt;/h4&gt;
-
-&lt;p&gt;You can see the &lt;span class="vocab"&gt;constructor&lt;/span&gt; and the three methods that you explored: &lt;tt&gt;feed&lt;/tt&gt;, &lt;tt&gt;exercise&lt;/tt&gt;, and &lt;tt&gt;sleep&lt;/tt&gt;.  Look at how the methods set the message and the image for the virtual pet: they use the &lt;tt&gt;VirtualPetFace&lt;/tt&gt; object (stored in the &lt;tt&gt;face&lt;/tt&gt; instance variable) to call the methods &lt;tt&gt;setMessage&lt;/tt&gt; and &lt;tt&gt;setImage&lt;/tt&gt;.  Each of those takes a &lt;span class="vocab"&gt;string&lt;/span&gt; as its &lt;span class="vocab"&gt;argument&lt;/span&gt;.
-&lt;/p&gt;
-
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="6b6ac781-0453-11de-9e80-e9f7a2343f8e" title="S6.  Explore the Code 4" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Explore the Code 4&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;Now, let's look at the Java code that Cam wrote.&lt;/p&gt;
-
-&lt;div class="doit"&gt;Open the editor for &lt;tt&gt;VirtualPet&lt;/tt&gt; class, and examine the code. &lt;/div&gt;
-
-&lt;h4&gt;Tip 4 of 4&lt;/h4&gt;
-
-&lt;p&gt; The second instance variable, &lt;tt&gt;hunger&lt;/tt&gt;, represents how hungry the pet is.  Each of the methods has some effect on it.  We'll look more closely at it in a bit.  
-&lt;/p&gt;
-
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
+                <OutsideUrl id="a2s1" title="S1.  Introduction to Virtual Pets">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s1.html</url>
+				</OutsideUrl>
+				<OutsideUrl id="a2s2" title="S2.  Open Cam's BlueJ Project">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s2.html</url>
+				</OutsideUrl>                
+				<OutsideUrl id="a2s3" title="S3.  Explore the Code 1">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s3.html</url>
+				</OutsideUrl>
+                <OutsideUrl id="a2s4" title="S4.  Explore the Code 2">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s4.html</url>
+				</OutsideUrl>
+                <OutsideUrl id="a2s5" title="S5.  Explore the Code 3">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s5.html</url>
+				</OutsideUrl>
+                <OutsideUrl id="a2s6" title="S6.  Explore the Code 4">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s6.html</url>
+				</OutsideUrl>
               </stepList>
             </OTPasActivity>
             <OTPasActivity id="ea2774f5-0210-11de-9062-13382964bfbf" title="Programming" authorNotes="">
               <stepList>
-                <OTExamplePage id="569d69f5-ee64-11dd-b081-1b1eed2735e4" title="Make a Quick Fix" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Make a Quick Fix&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p class="doit"&gt;
-You may have noticed that Cam's pet doesn't say anything when it sleeps.  Add a Java statement so the pet gives an appropriate message (e.g., "zzzzzzz") when it is told to sleep.  Make sure to test your code!
-&lt;/p&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
+                <OutsideUrl id="a3s1" title="Make a Quick Fix">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s1.html</url>
+				</OutsideUrl>
                 <OTSelfAssessment id="08608547-0458-11de-9e80-e9f7a2343f8e" title="How Does Hunger Work?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
                   <jaxbXML>
                     <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
@@ -882,305 +601,38 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
 &lt;/body&gt;
 &lt;/html&gt;</introductionHtml>
                 </OTSelfAssessment>
-                <OTExamplePage id="6bdb497c-0458-11de-9e80-e9f7a2343f8e" title="Fill in the Blank" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html&gt;&lt;head&gt;&lt;/head&gt;
-
-&lt;body&gt;
-
-
-
-FILL IN THE BLANK CONTENT HERE
-
-
-&lt;/body&gt;&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="1a0c2c6e-0455-11de-9e80-e9f7a2343f8e" title="Making Hunger Realistic 1" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Making Hunger Realistic 1&lt;/div&gt;
-
-&lt;div class="content"&gt;
-
-&lt;p&gt;Lets help Cam make her virtual pet a little more interesting.  Obviously, it isn't realistic that 
-a pet could get hungrier and hungrier forever.  At some point the pet should, well, perish.
-&lt;/p&gt;
-
-&lt;p class="doit"&gt;Add code so that, if the pet's &lt;tt&gt;hunger&lt;/tt&gt; variable goes over &lt;tt&gt;12&lt;/tt&gt;, it dies.
-&lt;/p&gt;
-
-&lt;p&gt;Do this in the "cam-v1" project.  (Remember, you can always grab the code in the original project again from the &lt;a href="page"&gt;course resources&lt;/a&gt;).  Some tips you might keep in mind:
-&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;
-Q: How do I make a pet dead with a Java statement?
-&lt;li&gt;
-A: Being "dead" is just another mood for the Virtual Pet.  You can't just type in any mood name, however; we've only provided initial images for some moods.  The moods "dead", "skeleton", and "pushingdaisies" will work fine, however.  
-
-&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="4f596219-0456-11de-9e80-e9f7a2343f8e" title="Making Hunger Realistic 2" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Making Hunger Realistic 2&lt;/div&gt;
-
-&lt;div class="content"&gt;
-
-&lt;p&gt;Lets help Cam make her virtual pet a little more interesting.  Obviously, it isn't realistic that 
-a pet could get hungrier and hungrier forever.  At some point the pet should, well, perish.
-&lt;/p&gt;
-
-&lt;p class="doit"&gt;Add code so that, if the pet's &lt;tt&gt;hunger&lt;/tt&gt; variable goes over &lt;tt&gt;12&lt;/tt&gt;, it dies.
-&lt;/p&gt;
-
-&lt;p&gt;Do this in the "cam-v1" project.  (Remember, you can always grab the code in the original project again from the &lt;a href="page"&gt;course resources&lt;/a&gt;).  Some tips you might keep in mind:
-&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;
-
-&lt;li&gt;Q: Where should I put Java code to check whether &lt;tt&gt;hunger&lt;/tt&gt; has gone above &lt;tt&gt;12&lt;/tt&gt;? 
-&lt;li&gt;A: Think about what is easiest to do and will be simplest to read.  A good first thought is wherever the mood image gets set.  Another thought is only in places where the &lt;tt&gt;hunger&lt;/tt&gt; variable gets changed.  
-
-
-&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="55675efa-0456-11de-9e80-e9f7a2343f8e" title="Making Hunger Realistic 3" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Making Hunger Realistic 3&lt;/div&gt;
-
-&lt;div class="content"&gt;
-
-&lt;p&gt;Lets help Cam make her virtual pet a little more interesting.  Obviously, it isn't realistic that 
-a pet could get hungrier and hungrier forever.  At some point the pet should, well, perish.
-&lt;/p&gt;
-
-&lt;p class="doit"&gt;Add code so that, if the pet's &lt;tt&gt;hunger&lt;/tt&gt; variable goes over &lt;tt&gt;12&lt;/tt&gt;, it dies.
-&lt;/p&gt;
-
-&lt;p&gt;Do this in the "cam-v1" project.  (Remember, you can always grab the code in the original project again from the &lt;a href="page"&gt;course resources&lt;/a&gt;).  Some tips you might keep in mind:
-&lt;/p&gt;
-
-&lt;ul&gt; 
-&lt;li&gt;Q: If death is just a mood, then won't behaviors invoked later change the mood, and bring the pet back to life?&lt;/li&gt;
-&lt;li&gt;A: Well... yes.  You don't need to worry about that for now, but you might think about how you would fix that.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
+               	<OutsideUrl id="a3s3" title="Fill in the Blank">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s3.html</url>
+			   	</OutsideUrl>
+                <OutsideUrl id="a3s4" title="Making Hunger Realistic 1">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s4.html</url>
+				</OutsideUrl>
+				<OutsideUrl id="a3s5" title="Making Hunger Realistic 2">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s5.html</url>
+				</OutsideUrl>
+                <OutsideUrl id="a3s6" title="Making Hunger Realistic 3">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s6.html</url>
+				</OutsideUrl>
               </stepList>
             </OTPasActivity>
             <OTPasActivity id="c0e6d94f-0210-11de-9062-13382964bfbf" title="A4:  Connect Ideas" authorNotes="">
               <stepList>
-                <OTExamplePage id="533cb803-029e-11de-aa46-594d426d2420" title="S1:  Is there a Better Way to Die?" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Is There a Better Way to Die?  (Brainstorm Discussion)&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;div id="brainstorm"&gt;
-
-&lt;p&gt;Compare the following two solutions for the problem above&amp;mdash;changing the mood to "dead" if the hunger is over 12&amp;mdash;&lt;tt&gt;sleep&lt;/tt&gt; method:&lt;/p&gt;
-
-&lt;table&gt;
-&lt;tr&gt;
-&lt;td&gt;
-&lt;strong&gt;Version A&lt;/strong&gt;&lt;br&gt;
-&lt;code&gt;
-public &lt;span class="redtext"&gt;void&lt;/span&gt; sleep() {&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;hunger = hunger + 1;&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage(&lt;span class="greentext"&gt;"zzzzzzzzzz"&lt;/span&gt;);&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage(&lt;span class="greentext"&gt;"asleep"&lt;/span&gt;);&lt;br&gt;    
-&amp;nbsp;&amp;nbsp;&amp;nbsp;if (hunger &gt; 12) {&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage(&lt;span class="greentext"&gt;"I got too hungry!"&lt;/span&gt;);&lt;Br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage(&lt;span class="greentext"&gt;"dead"&lt;/span&gt;);&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;br&gt;
-}&lt;br&gt;
-&lt;/code&gt;
-&lt;/td&gt;
-&lt;td&gt;
-&lt;strong&gt;Version B&lt;/strong&gt;&lt;br&gt;
-&lt;code&gt;
-public &lt;span class="redtext"&gt;void&lt;/span&gt; sleep() {&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;hunger = hunger + 1;&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;if (hunger &gt; 12) {&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage(&lt;span class="greentext"&gt;"I got too hungry!"&lt;/span&gt;);&lt;Br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage(&lt;span class="greentext"&gt;"dead"&lt;/span&gt;);&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;} else {&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage(&lt;span class="greentext"&gt;"zzzzzzzzzz"&lt;/span&gt;);&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage(&lt;span class="greentext"&gt;"asleep"&lt;/span&gt;);&lt;br&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;br&gt;
-}&lt;br&gt;
-&lt;/code&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;p&gt;Will these two versions behave identically, from the standpoint of someone playing with the toy?  If not, how will the difference show up, and which version do you think is better?  Why?&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="56d03331-0455-11de-9e80-e9f7a2343f8e" title="Squash the Bugs" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Squash the Bugs (Representing 'Tiredness')&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;To make things more entertaining, Constant tried to add "tiredness" to her Virtual Pet.  Her idea was to add a new instance variable, naming it &lt;code&gt;tired&lt;/code&gt;, and changing the behaviors so that the value of 
-&lt;code&gt;tired&lt;/code&gt; is changed.  But, things aren't working quite right.
-&lt;/p&gt;
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
-                <OTExamplePage id="8549cd72-044e-11de-9e80-e9f7a2343f8e" title="Thinking Ahead..." authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Brainstorm Discussion&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-	&lt;div id="brainstorm"&gt;
-		&lt;img class="right" src="./art/constructor_bots/short_right.png" width="200px" /&gt;
-		&lt;p&gt;Suggest one or two additional features to add to &lt;tt&gt;VirtualPet&lt;/tt&gt;.  Consider methods, instance variables, and interactions between them.&lt;/p&gt;
-	&lt;/div&gt;
-
-&lt;/div&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
+                <OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Outside Url Example: QuestionAnswer">
+					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
+				</OutsideUrl>
+                <OutsideUrl id="a4s2" title="Squash the Bugs">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a4s2.html</url>
+				</OutsideUrl>
+				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d765dd" title="Outside Url Example: QuestionAnswer">
+					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=43</url>
+				</OutsideUrl>
               </stepList>
             </OTPasActivity>
             <OTPasActivity id="cf0de551-0210-11de-9062-13382964bfbf" title="Summary" authorNotes="">
               <stepList>
-                <OTExamplePage id="4c4a31a1-0230-11de-9062-13382964bfbf" title="Section Summary" authorNotes="" hoverString="Pas Step" speechText="">
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
-
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
-
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
-
-
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;div class="header"&gt;Section Summary&lt;/div&gt;
-
-&lt;div class="content"&gt;
- 
-&lt;p&gt;Today, you got a first look at the virtual pet project, examining code from the constructor Cam.  
-&lt;/p&gt;
-
-&lt;p&gt;You added code to test how hungry a pet was, and looked at different possible solutions.
-&lt;/p&gt;
-
-&lt;p&gt;You also debugged Cam's code to add "tiredness" to her solution, making her pet more interesting.
-&lt;/p&gt;
-
-&lt;p&gt;In just this short time, the code we ended up with got somewhat complicated.  
-Next time, we'll start looking into how to use &lt;vocab&gt;helper methods&lt;/vocab&gt; to make the &lt;tt&gt;VirtualPet&lt;/tt&gt; class much more manageable.  
-After that, we look into how careful testing can help you be sure that changes you make do not introduce bugs.  
-Eventually, you'll spend a few days with free rein to make your own virtual pet toy, the crazier the better!  Its for kids to play with, afterall.  &lt;/p&gt;
-
-
-&lt;/body&gt;
-&lt;/html&gt;</content>
-                </OTExamplePage>
+                <OutsideUrl id="a5s1" title="Section Summary">
+    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a5s1.html</url>
+				</OutsideUrl>
               </stepList>
             </OTPasActivity>
           </activityList>
