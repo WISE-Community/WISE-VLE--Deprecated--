@@ -94,7 +94,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #projectLogoBox a{text-decoration:none }
 	
 #projectLogoBox:hover{
-	outline: 2px dotted red;
+	outline: 1px dotted #FFFF00;
 	cursor:pointer;
 	}
 	
@@ -151,7 +151,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	 
 #audioControls a.rewind:hover { 
      background-image: url(../assets/images/audio_rewind_roll.png);  
-	 outline:1px dotted red;
+	 cursor:pointer;
      } 
 	 
 #audioControls a.play {  
@@ -165,7 +165,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	 
 #audioControls a.play:hover { 
      background-image: url(../assets/images/audio_play_roll.png);  
-	 outline:1px dotted red;
+	 cursor:pointer;
      } 
 
 #audioControls a.pause {  
@@ -179,7 +179,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	 
 #audioControls a.pause:hover { 
      background-image: url(../assets/images/audio_pause_roll.png);  
-	 outline:1px dotted red;
+     cursor:pointer;
      } 
 	 
 #audioControls .rightPadding {padding:0 5px 0 10px;}
@@ -215,7 +215,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	text-align:center;     }
 	
 #hostBrandingBox a:hover{
-	outline: 2px dotted red;
+	outline: 1px dotted #FFFF00;
+	cursor:pointer;
 	}
 
 /* STEP CONTROL BAR */
@@ -265,7 +266,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 .stepTypeLabel a:hover {
 	color:#FFFF00;
-	font-weight:bold;
 		}
 
 .gradingStatus  {
@@ -290,7 +290,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 		}
 		
 #stepNavButtons a:hover {
-	outline:1px dotted red;
+	outline: 1px dotted #FFFF00;
+	cursor:pointer;
 		}
 
 <!-- Anchor-Based Button Layout using TABLE-->
