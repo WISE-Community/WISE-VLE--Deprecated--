@@ -63,7 +63,7 @@ PasOtmlProject.prototype.onLoadedEvent = function(type, args, me) {
 	vle.setProject(me);
 	vle.navigationLogic = new NavigationLogic(dfs);
 	vle.setConnection(new ConnectionManager());
-	vle.renderNode("0:0:0");
+	setTimeout("vle.renderNode('0:0:0')", 1000);
 }
 
 PasOtmlProject.prototype.generateNode = function() {

@@ -42,7 +42,7 @@ OutsideUrlNode.prototype.getShowAllWorkHtml = function(){
     return showAllWorkHtmlSoFar;
 }
 
-NoteNode.prototype.getDataXML = function(nodeStates) {
+OutsideUrlNode.prototype.getDataXML = function(nodeStates) {
 	var dataXML = "";
 	for (var i=0; i < nodeStates.length; i++) {
 		var state = nodeStates[i];

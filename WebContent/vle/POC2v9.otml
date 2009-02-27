@@ -376,141 +376,7 @@
               <stepList>
                 <OutsideUrl id="a1s1" title="S1.  Objectives">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a1s1.html</url>
-				</OutsideUrl>
-                <OTQuiz id="f686315b-0212-11de-9062-13382964bfbf" title="S2.  Instant Quiz 1/4" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
-                  <jaxbXML>
-                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
-                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
-                        <correctResponse interpretation="choice 3" />
-                      </responseDeclaration>
-                      <responseDeclaration identifier="CHOICE_ASSMT_0">
-                        <correctResponse>
-                          <value isDefault="false" isCorrect="false">SIMPLE_CHOICE_ID1</value>
-                        </correctResponse>
-                      </responseDeclaration>
-                      <itemBody>
-                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;html&gt;&lt;body style="font-size:1.2em; font-weight:bold; font-family:Verdana, Arial,Helvetica; width:400px; margin:20px 0 10px 0 ; color:#3333FF; line-height:120%;"&gt;
-
-
-Sample MC Question Here
-
-
-&lt;/body&gt;&lt;/html&gt;</prompt>
-                          <simpleChoice fixed="true" identifier="choice 1">Choice A</simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 2">Choice A</simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 3">Choice A</simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 4">Choice A</simpleChoice>
-                        </choiceInteraction>
-                      </itemBody>
-                    </assessmentItem>
-                  </jaxbXML>
-                  <introductionHtml>&lt;html&gt;&lt;body style="font-size:1.2em; font-weight:bold; font-family:Verdana, Arial,Helvetica; width:400px; margin:20px 0 10px 0 ; color:#3333FF; line-height:120%;"&gt;
-
-
-Click the adjacent EDIT button, then type your introduction here (overwrite these instructions).Your question will automatically be formatted with HTML.
-
-
-&lt;/body&gt;&lt;/html&gt;</introductionHtml>
-                </OTQuiz>
-                <OTQuiz id="23142340-0213-11de-9062-13382964bfbf" title="S3.  Instant Quiz 2/4" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="false" randomChoiceOrder="false">
-                  <jaxbXML>
-                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
-                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
-                        <correctResponse interpretation="choice 3" />
-                      </responseDeclaration>
-                      <responseDeclaration identifier="TEXT_ASSMT_0" />
-                      <itemBody>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="TEXT_ASSMT_0" expectedLines="3">
-                          <prompt>&lt;html&gt;&lt;body style="font-size:1.2em; font-weight:bold; font-family:Verdana, Arial,Helvetica; width:400px; margin:20px 0 10px 0 ; color:#3333FF; line-height:120%;"&gt;
-
-
-Open Response Question Goes Here
-
-
-&lt;/body&gt;&lt;/html&gt;</prompt>
-                        </extendedTextInteraction>
-                      </itemBody>
-                    </assessmentItem>
-                  </jaxbXML>
-                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta name="generator"
-content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
-&lt;title&gt;&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;/body&gt;
-&lt;/html&gt;</introductionHtml>
-                </OTQuiz>
-                <OTQuiz id="5ad65c49-0215-11de-9062-13382964bfbf" title="S4.  Instant Quiz 3/4" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
-                  <jaxbXML>
-                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
-                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
-                        <correctResponse interpretation="choice 3" />
-                      </responseDeclaration>
-                      <itemBody>
-                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;html&gt;&lt;body style="font-size:1.2em; font-weight:bold; font-family:Verdana, Arial,Helvetica; width:400px; margin:20px 0 10px 0 ; color:#3333FF; line-height:120%;"&gt;
-
-
-Match &amp; Sequence question goes here
-
-
-&lt;/body&gt;&lt;/html&gt;</prompt>
-                          <simpleChoice fixed="true" identifier="choice 1" />
-                          <simpleChoice fixed="true" identifier="choice 2" />
-                          <simpleChoice fixed="true" identifier="choice 3" />
-                          <simpleChoice fixed="true" identifier="choice 4" />
-                        </choiceInteraction>
-                      </itemBody>
-                    </assessmentItem>
-                  </jaxbXML>
-                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta name="generator"
-content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
-&lt;title&gt;&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;/body&gt;
-&lt;/html&gt;</introductionHtml>
-                </OTQuiz>
-                <OTQuiz id="477e7eb4-0213-11de-9062-13382964bfbf" title="S5.  Instant Quiz 4/4" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
-                  <jaxbXML>
-                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
-                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
-                        <correctResponse interpretation="choice 3" />
-                      </responseDeclaration>
-                      <itemBody>
-                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;html&gt;&lt;body style="font-size:1.2em; font-weight:bold; font-family:Verdana, Arial,Helvetica; width:400px; margin:20px 0 10px 0 ; color:#3333FF; line-height:120%;"&gt;
-
-
-FILL THE BLANK style question goes here
-
-
-&lt;/body&gt;&lt;/html&gt;</prompt>
-                          <simpleChoice fixed="true" identifier="choice 1" />
-                          <simpleChoice fixed="true" identifier="choice 2" />
-                          <simpleChoice fixed="true" identifier="choice 3" />
-                          <simpleChoice fixed="true" identifier="choice 4" />
-                        </choiceInteraction>
-                      </itemBody>
-                    </assessmentItem>
-                  </jaxbXML>
-                  <introductionHtml>&lt;html&gt;&lt;body style="font-size:1.2em; font-weight:bold; font-family:Verdana, Arial,Helvetica; width:400px; margin:20px 0 10px 0 ; color:#3333FF; line-height:120%;"&gt;
-
-
-Click the adjacent EDIT button, then type your introduction here (overwrite these instructions).Your question will automatically be formatted with HTML.
-
-
-&lt;/body&gt;&lt;/html&gt;</introductionHtml>
-                </OTQuiz>
+				</OutsideUrl>                
               </stepList>
             </OTPasActivity>
             <OTPasActivity id="af231e8c-0210-11de-9062-13382964bfbf" title="A2:  Explore New Ideas" authorNotes="">
@@ -518,9 +384,10 @@ Click the adjacent EDIT button, then type your introduction here (overwrite thes
                 <OutsideUrl id="a2s1" title="S1.  Introduction to Virtual Pets">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s1.html</url>
 				</OutsideUrl>
-				<OutsideUrl id="a2s2" title="S2.  Open Cam's BlueJ Project">
-    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s2.html</url>
-				</OutsideUrl>                
+                <OTBlueJ id="a2s2" title="S2.  Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
+                  <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;Your friend accidentally changed the getPlayersFinalChoice method in Monty class and now the code doesn't compile. Find out what is preventing the code from compiling and fix it.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
+                  <projectPath>/cam-v1</projectPath>
+                </OTBlueJ>
 				<OutsideUrl id="a2s3" title="S3.  Explore the Code 1">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s3.html</url>
 				</OutsideUrl>
@@ -540,8 +407,8 @@ Click the adjacent EDIT button, then type your introduction here (overwrite thes
                 <OutsideUrl id="a3s1" title="Make a Quick Fix">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s1.html</url>
 				</OutsideUrl>
-                <OTSelfAssessment id="08608547-0458-11de-9e80-e9f7a2343f8e" title="How Does Hunger Work?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
-                  <jaxbXML>
+                <OTQuiz id="08608547-0458-11de-9e80-e9f7a2343f8e" title="How Does Hunger Work?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <jaxbXML><![CDATA[
                     <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
                       <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
                         <correctResponse interpretation="choice 3" />
@@ -561,30 +428,15 @@ the following behaviors in order:&lt;/p&gt;
 &lt;li&gt;Exercise&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/body&gt;&lt;/html&gt;</prompt>
-                          <simpleChoice fixed="true" identifier="choice 1">
-                            <feedbackInline identifier="choice 1" showHide="show" />
-                            0
-                          </simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 2">
-                            <feedbackInline identifier="choice 2" showHide="show" />
-                            3
-                          </simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 3">
-                            <feedbackInline identifier="choice 3" showHide="show" />
-                            7
-                          </simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 4">
-                            <feedbackInline identifier="choice 4" showHide="show" />
-                            8
-                          </simpleChoice>
-                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5">
-                            <feedbackInline identifier="SIMPLE_CHOICE_ID5" />
-                            We cant know.
-                          </simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show" >feedback 1</feedbackInline>0</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >feedback 2</feedbackInline>3</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >feedback 3</feedbackInline>7</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >feedback 4</feedbackInline>8</simpleChoice>
+                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >feedback 5</feedbackInline>We can not know.</simpleChoice>
                         </choiceInteraction>
                       </itemBody>
                     </assessmentItem>
-                  </jaxbXML>
+                  ]]></jaxbXML>
                   <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
@@ -600,10 +452,30 @@ the pet is at any particular time. Some behaviors increase the
 value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&gt;
 &lt;/body&gt;
 &lt;/html&gt;</introductionHtml>
-                </OTSelfAssessment>
-               	<OutsideUrl id="a3s3" title="Fill in the Blank">
-    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s3.html</url>
-			   	</OutsideUrl>
+                </OTQuiz>
+				<OTFillin id="a3s3" title="Fill in the Blank">
+					<jaxbXML><![CDATA[
+						<assessmentItem xmlns='http://www.imsglobal.org/xsd/imsqti_v2p0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.imsglobal.org/xsd/imsqti_v2p0 imsqti_v2p0.xsd' identifier='textEntry' title='Dido' adaptive='false' timeDependent='false'>
+							<responseDeclaration identifier='response_0' cardinality='single' baseType='string'>
+								<correctResponse>
+									<value>hunger &lt; 0</value>
+								</correctResponse>
+								<mapping defaultValue='0'>
+									<mapEntry mapKey='hunger &lt; 0' mappedValue='1'/>
+									<mapEntry mapKey='hunger&lt;0' mappedValue='1'/>
+									<mapEntry mapKey='hunger &lt;= 0' mappedValue='1'/>
+									<mapEntry mapKey='hunger&lt;=0' mappedValue='1'/>
+								</mapping>
+							</responseDeclaration>
+							<outcomeDeclaration identifier='SCORE' cardinality='single' baseType='float'/>
+							<itemBody>
+								<htmltext>&lt;p&gt;Fill in the blank in the code below so that the rewritten &lt;tt&gt;feed&lt;/tt&gt; method has exactly the same effect on &lt;tt&gt;hunger&lt;/tt&gt; as the original.&lt;/p&gt;&lt;code&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;public &lt;span class='redtext'&gt;void&lt;/span&gt; feed ( ) { &lt;br&gt;  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;hunger = hunger - 10; &lt;br&gt;  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if ( </htmltext><textEntryInteraction responseIdentifier='response_0' expectedLength='15'/><htmltext>  ) {    &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &amp;nbsp;&amp;nbsp;&amp;nbsp;hunger = 0; &lt;br&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setMessage('Yum, thanks');&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;face.setImage('normal'); &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;} &lt;br&gt;&lt;/code&gt;
+								</htmltext>
+							</itemBody>
+							<responseProcessing template='http://www.imsglobal.org/question/qti_v2p0/rptemplates/map_response'/>
+						</assessmentItem>
+						]]></jaxbXML>
+				</OTFillin>                
                 <OutsideUrl id="a3s4" title="Making Hunger Realistic 1">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s4.html</url>
 				</OutsideUrl>
@@ -620,9 +492,10 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
                 <OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Outside Url Example: QuestionAnswer">
 					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
 				</OutsideUrl>
-                <OutsideUrl id="a4s2" title="Squash the Bugs">
-    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a4s2.html</url>
-				</OutsideUrl>
+				<OTBlueJ id="a4s2" title="Squash the Bugs" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
+                  <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
+                  <projectPath>/cam-v2</projectPath>
+                </OTBlueJ>				
 				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d765dd" title="Outside Url Example: QuestionAnswer">
 					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=43</url>
 				</OutsideUrl>
