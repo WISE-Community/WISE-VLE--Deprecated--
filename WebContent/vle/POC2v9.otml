@@ -447,6 +447,7 @@
                 <OTBlueJ id="a2s2" title="S2.  Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
                   <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;Your friend accidentally changed the getPlayersFinalChoice method in Monty class and now the code doesn't compile. Find out what is preventing the code from compiling and fix it.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
                   <projectPath>/cam-v1</projectPath>
+                  <url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s2.html</url>
                 </OTBlueJ>
 				<OutsideUrl id="a2s3" title="S3.  Explore the Code 1">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s3.html</url>
@@ -555,6 +556,7 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
 				<OTBlueJ id="a4s2" title="Squash the Bugs" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
                   <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
                   <projectPath>/cam-v2</projectPath>
+                  <url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a4s2.html</url>
                 </OTBlueJ>				
 				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d765dd" title="Outside Url Example: QuestionAnswer">
 					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=43</url>
