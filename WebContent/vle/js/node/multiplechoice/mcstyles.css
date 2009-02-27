@@ -15,14 +15,14 @@
 	
 #currentQuestionBox #leftColumn { 
 	float:left;
-	width:722px;
+	width:80%;
 	padding:10px 0;
 	background-color:#FFD9ac;
 	}
 	
 #currentQuestionBox #rightColumn {
 	float:right;
-	width:50px;
+	margin-left:81%;
 	padding:10px 0;
 	text-align:center;
 	background-color:#6883BA;
