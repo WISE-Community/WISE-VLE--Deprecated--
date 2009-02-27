@@ -374,10 +374,70 @@
           <activityList>
             <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="A1.  Introduction" authorNotes="">
               <stepList>
-                <OutsideUrl id="a1s1" title="S1.  Objectives">
-    				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a1s1.html</url>
-				</OutsideUrl>                
-              </stepList>
+<OTIntroPage id="78545128-0234-11de-9062-13382964bfbf" title="S1.  Objectives" authorNotes="" hoverString="Pas Step" speechText="">
+                  <nodeaudios>
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio1" elementId="audio1" url="assets/audio/NoAudioAvailable.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio2" elementId="audio2" url="assets/audio/WatchingVideos.mp3" />
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio3" elementId="audio3" url="assets/audio/NoAudioAvailable.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio4" elementId="audio4" url="assets/audio/WatchingVideos.mp3" />
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio5" elementId="audio5" url="assets/audio/NoAudioAvailable.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio6" elementId="audio6" url="assets/audio/WatchingVideos.mp3" />
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio7" elementId="audio7" url="assets/audio/NoAudioAvailable.mp3" />                  
+                  </nodeaudios>
+                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+
+&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
+
+&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
+
+&lt;title&gt;Proof of Concept 2&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class="header"&gt;Objectives&lt;/div&gt;
+
+&lt;div id="content"&gt;
+  
+  &lt;div class="bubbleBox"&gt;
+    &lt;div class="bubbleDivLeft"&gt;
+      &lt;div class="blue speech talkLeft"&gt; &lt;img src="./art/constructor_bots/short_right.png" /&gt;
+        &lt;div id="objectivesText"&gt;
+          &lt;p id="audio1"&gt;Welcome back! Thanks again for helping me stamp out those bugs in the last section.  You're the best.&lt;/p&gt;
+          &lt;p id="audio2"&gt;So, Cam, what's on the plate for today?&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;div class="bubbleBox"&gt;
+    &lt;div class="bubbleDivRight"&gt;
+      &lt;div class="green speech talkRight"&gt; &lt;img src="./art/constructor_bots/tall_right.png" /&gt;
+        &lt;div id="objectivesText"&gt;
+          &lt;p id="audio3"&gt;Here's our objectives for this section, Bolt.&lt;/p&gt;
+          &lt;ul&gt;
+            &lt;li id="audio4"&gt;Review the previous section (Instant Quiz, 4 questions)&lt;/li&gt;
+            &lt;li id="audio5"&gt;Modify a "Virtual Pet" module using BlueJ.&lt;/li&gt;
+            &lt;li id="audio6"&gt;Learn about Varied-State Conditionals.&lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;p id="audio7"&gt;Let's get started!&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</content>
+                </OTIntroPage>
+                </stepList>
             </OTPasActivity>
             <OTPasActivity id="af231e8c-0210-11de-9062-13382964bfbf" title="A2:  Explore New Ideas" authorNotes="">
               <stepList>
@@ -432,7 +492,7 @@ the following behaviors in order:&lt;/p&gt;
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >feedback 2</feedbackInline>3</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >feedback 3</feedbackInline>7</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >feedback 4</feedbackInline>8</simpleChoice>
-                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >feedback 5</feedbackInline>We can not know.</simpleChoice>
+                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >feedback 5</feedbackInline>We cannot know.</simpleChoice>
                         </choiceInteraction>
                       </itemBody>
                     </assessmentItem>

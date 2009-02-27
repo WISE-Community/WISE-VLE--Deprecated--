@@ -53,7 +53,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #projectLeftBox {
 	position:relative;
 	float:left;
-	background-image:url(../assets/images/gradient_leftbox.png);
+	background-image:url(../assets/images/gradient_leftBox.png);
 	background-repeat:repeat-x; 
 	width:210px; 
 	height:650px;
