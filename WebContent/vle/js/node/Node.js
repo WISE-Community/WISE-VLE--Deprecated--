@@ -7,6 +7,7 @@ function Node(nodeType) {
 	this.title = null;
 	
 	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
+	this.audios = [];
 	
 	if (nodeType != null) {
 		this.type = nodeType;
@@ -52,14 +53,26 @@ Node.prototype.setCurrentNode = function() {
 	}
 }
 
-Node.prototype.getNodeAudioElement = function() {
-	nodeAudioElement = this.element.getElementsByTagName('nodeaudio');
-	if (nodeAudioElement != null) {
-		return nodeAudioElement[0];
-	} else {
-		return null;
-	}
+Node.prototype.getNodeAudioElements = function() {
+	var nodeAudioElements = this.element.getElementsByTagName('nodeaudio');
+	return nodeAudioElements;
 }
+
+/**
+ * Play the audio that is right after the specified elementId
+ * @return
+ */
+Node.prototype.playAudioNextAudio = function(elementId) {
+	for (var i=0; i < this.audios.length; i++) {
+		var audio = this.audios[i];
+		if (audio.elementId == elementId) {
+			this.audios[i+1].play();
+			return;
+		}
+	}
+	alert('error: no audio left to play');
+}
+
 /**
  * Renders itself to the specified content panel
  */

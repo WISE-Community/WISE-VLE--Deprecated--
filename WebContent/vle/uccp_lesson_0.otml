@@ -370,7 +370,7 @@ Once opened the Journal will stay active until you save and close it.</p>
             <OTPasActivity id="cfe5e62b-a777-11dd-ba59-7385082dba88" title="Unit 1: Introduction" authorNotes="">
               <stepList>
 				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Outside Url Example: wise2">
-					<url>http://wise.berkeley.edu</url>
+					<url>http://tels-group.soe.berkeley.edu/uccp/Assets/css/UCCP.html</url>
 				</OutsideUrl>
 				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651b" title="Outside Url Example: google">
 					<url>http://google.com</url>
@@ -444,7 +444,10 @@ this is stuff that shouldn't be highlighted!!!
 &lt;/html&gt;</content>
                 </OTIntroPage>
                 <OTVideoPage id="400cb73e-c098-11dd-a66e-956dcc81477b" title="Watching Videos" authorNotes="" hoverString="Pas Step" speechText="This is a video screen. Click the play button below lower right corner to start the video. To see a text transcript click Transcript and scroll down.">
-                  <nodeaudio id="400cb73e-c098-11dd-a66e-956dcc81477b" elementId="centeredDiv" url="assets/audio/WatchingVideos.mp3" />
+                  <nodeaudios>
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-956dcc81477c" elementId="noaudioavailableDiv" url="assets/audio/NoAudioAvailable.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-956dcc81477b" elementId="centeredDiv" url="assets/audio/WatchingVideos.mp3" />
+                  </nodeaudios>
                   <content>&lt;html lang="en"&gt;
 &lt;head&gt;
 &lt;base href="http://tels-group.soe.berkeley.edu/uccp/Assets/" /&gt;
@@ -454,6 +457,11 @@ this is stuff that shouldn't be highlighted!!!
 
 &lt;body&gt;
 
+&lt;div id="noaudioavailableDiv"&gt;
+   No Audio Available for this step.
+&lt;/div&gt;  &lt;!-- end of #noaudioavailableDiv--&gt;
+	
+	
 &lt;div id="centeredDiv"&gt;
 
 &lt;div id="locationBar"&gt;
@@ -478,7 +486,7 @@ To see a text transcript click "Transcript" and scroll down.&lt;/p&gt;
 &gt;the video page&lt;/a&gt;. &lt;/iframe&gt;
 
 &lt;/div&gt;  &lt;!-- end of #centered div--&gt;
-	
+
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTVideoPage>
