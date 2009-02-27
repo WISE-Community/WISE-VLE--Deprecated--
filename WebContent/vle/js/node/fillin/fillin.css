@@ -24,7 +24,7 @@
 	
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
-	width:80%;
+	width:77%;
 	padding:10px 0;
 	background-color:#FFCE8E;
 	}
@@ -32,19 +32,11 @@
 #currentFillBlankParagraph #rightColumn {
 	padding:10px 0;
 	text-align:center;
-	margin-left:81%;
+	margin-left:79%;
 	background-color:#6883BA;
 	color:#FFF;
 	}
 	
-#questionTypeVerticalLabel {
-	font-size:.9em;
-	line-height:120%;
-	font-weight:bold;
-	text-transform:uppercase;
-	margin:5px 0 0 0 ;
-}
-
 .itemLabel {
 	font-size:.7em;
 	text-transform:uppercase;
