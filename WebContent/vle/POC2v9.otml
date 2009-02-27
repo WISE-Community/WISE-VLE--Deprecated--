@@ -376,13 +376,10 @@
               <stepList>
 <OTIntroPage id="78545128-0234-11de-9062-13382964bfbf" title="S1.  Objectives" authorNotes="" hoverString="Pas Step" speechText="">
                   <nodeaudios>
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio1" elementId="audio1" url="assets/audio/NoAudioAvailable.mp3" />                  
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio2" elementId="audio2" url="assets/audio/WatchingVideos.mp3" />
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio3" elementId="audio3" url="assets/audio/NoAudioAvailable.mp3" />                  
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio4" elementId="audio4" url="assets/audio/WatchingVideos.mp3" />
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio5" elementId="audio5" url="assets/audio/NoAudioAvailable.mp3" />                  
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio6" elementId="audio6" url="assets/audio/WatchingVideos.mp3" />
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio7" elementId="audio7" url="assets/audio/NoAudioAvailable.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio1" elementId="audio1" url="assets/audio/a1s1_1.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio2" elementId="audio2" url="assets/audio/a1s1_2.mp3" />
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio3" elementId="audio3" url="assets/audio/a1s1_3.mp3" />                  
+                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio4" elementId="audio4" url="assets/audio/a1s1_4.mp3" />
                   </nodeaudios>
                   <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
 &lt;head&gt;
@@ -404,7 +401,7 @@
       &lt;div class="blue speech talkLeft"&gt; &lt;img src="./art/constructor_bots/short_right.png" /&gt;
         &lt;div id="objectivesText"&gt;
           &lt;p id="audio1"&gt;Welcome back! Thanks again for helping me stamp out those bugs in the last section.  You're the best.&lt;/p&gt;
-          &lt;p id="audio2"&gt;So, Cam, what's on the plate for today?&lt;/p&gt;
+          &lt;p id="audio2"&gt;So, Constance, what's on the plate for today?&lt;/p&gt;
         &lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;
@@ -422,13 +419,14 @@
     &lt;div class="bubbleDivRight"&gt;
       &lt;div class="green speech talkRight"&gt; &lt;img src="./art/constructor_bots/tall_right.png" /&gt;
         &lt;div id="objectivesText"&gt;
-          &lt;p id="audio3"&gt;Here's our objectives for this section, Bolt.&lt;/p&gt;
+          &lt;p id="audio3"&gt;Here's our objectives for this section, Bolt
           &lt;ul&gt;
-            &lt;li id="audio4"&gt;Review the previous section (Instant Quiz, 4 questions)&lt;/li&gt;
-            &lt;li id="audio5"&gt;Modify a "Virtual Pet" module using BlueJ.&lt;/li&gt;
-            &lt;li id="audio6"&gt;Learn about Varied-State Conditionals.&lt;/li&gt;
+            &lt;li&gt;Review the previous section (Instant Quiz, 4 questions)&lt;/li&gt;
+            &lt;li&gt;Modify a "Virtual Pet" module using BlueJ.&lt;/li&gt;
+            &lt;li&gt;Learn about Varied-State Conditionals.&lt;/li&gt;
           &lt;/ul&gt;
-          &lt;p id="audio7"&gt;Let's get started!&lt;/p&gt;
+          &lt;/p&gt;
+          &lt;p id="audio4"&gt;Let's get started!&lt;/p&gt;
         &lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;

@@ -104,13 +104,17 @@ AudioManager.prototype.setCurrentNode = function(node) {
 						vle.getCurrentNode().audios.push(audio);
 					}
 				}
-				vle.getCurrentNode().audios[0].play();
+				if (vle.audioManager.isPlaying) {
+					vle.getCurrentNode().audios[0].play();
+				}
 			} else {
 				audio = soundManager.createSound({
 					id: 'NoAudioAvailable',
 					url: 'assets/audio/NoAudioAvailable.mp3'
 				})
-				audio.play();
+				if (vle.audioManager.isPlaying) {
+					audio.play();
+				}
 			}
 			
 			
@@ -173,7 +177,6 @@ AudioManager.prototype.playPauseStepAudio = function() {
 		this.isPlaying = false;
 		removeClassFromElement("playPause", "pause");
 		addClassToElement("playPause", "play");
-		vle.contentPanel.unhigh
 	} else {
 		this.isPlaying = true;
 		removeClassFromElement("playPause", "play");
