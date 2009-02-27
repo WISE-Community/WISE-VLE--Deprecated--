@@ -55,7 +55,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 						var audio = soundManager.createSound({
 							id: nodeAudioElement.getAttribute("id"),
 							url: nodeAudioElement.getAttribute("url"),
-							onplay: function() { vle.contentPanel.highlightElement(this.elementId, "yellow");},
+							onplay: function() { vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");},
 							whileplaying: function() {
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "play");
@@ -68,7 +68,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");									
 							},							
 							onfinish: function() { 
-								vle.contentPanel.highlightElement(this.elementId, audio.originalBGColor); 
+								vle.contentPanel.highlightElement(this.elementId, "0px"); 
 								vle.getCurrentNode().playAudioNextAudio(this.elementId);
 								}
 						});
@@ -80,7 +80,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 						var audio = soundManager.createSound({
 							id: nodeAudioElement.getAttribute("id"),
 							url: nodeAudioElement.getAttribute("url"),
-							onplay: function() { vle.contentPanel.highlightElement(this.elementId, "yellow");},
+							onplay: function() { vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");},
 							whileplaying: function() {
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "play");
@@ -93,7 +93,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");									
 							},
 							onfinish: function() { 
-								vle.contentPanel.highlightElement(this.elementId, audio.originalBGColor); 
+								vle.contentPanel.highlightElement(this.elementId, "0px"); 
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "pause");
 								addClassToElement("playPause", "play");									

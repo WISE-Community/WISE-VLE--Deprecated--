@@ -20,5 +20,5 @@ ContentPanel.prototype.render = function(nodeId) {
  */
 ContentPanel.prototype.highlightElement = function(elementIdentifier, highlightColor) {
 	var elementToHighlight = window.frames["ifrm"].document.getElementById(elementIdentifier);
-	elementToHighlight.style.backgroundColor = highlightColor;
+	elementToHighlight.style.outline = highlightColor;
 }
