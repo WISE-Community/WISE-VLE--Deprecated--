@@ -550,7 +550,7 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
             </OTPasActivity>
             <OTPasActivity id="c0e6d94f-0210-11de-9062-13382964bfbf" title="A4:  Connect Ideas" authorNotes="">
               <stepList>
-                <OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Outside Url Example: QuestionAnswer">
+                <OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Is there a better way to die?">
 					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
 				</OutsideUrl>
 				<OTBlueJ id="a4s2" title="Squash the Bugs" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
@@ -558,7 +558,7 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
                   <projectPath>/cam-v2</projectPath>
                   <url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a4s2.html</url>
                 </OTBlueJ>				
-				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d765dd" title="Outside Url Example: QuestionAnswer">
+				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d765dd" title="Thinking Ahead...">
 					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=43</url>
 				</OutsideUrl>
               </stepList>
