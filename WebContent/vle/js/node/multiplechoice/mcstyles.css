@@ -15,26 +15,19 @@
 	
 #currentQuestionBox #leftColumn { 
 	float:left;
-	width:80%;
+	width:76%;
 	padding:10px 0;
 	background-color:#FFD9ac;
 	}
 	
 #currentQuestionBox #rightColumn {
 	float:right;
-	margin-left:81%;
+	margin-left:78%;
 	padding:10px 0;
 	text-align:center;
 	background-color:#6883BA;
 	color:#FFF;
 	}
-
-#questionTypeVerticalLabel {
-	font-size:.9em;
-	line-height:110%;
-	text-transform:uppercase;
-	margin:5px 0 0 0 ;
-}
 
 .itemLabel {
 	font-size:.7em;
