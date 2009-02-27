@@ -372,9 +372,9 @@
             </OTJournalAlbum>
           </journalAlbum>
           <activityList>
-            <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="A1.  Introduction" authorNotes="">
+            <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="Introduction" authorNotes="">
               <stepList>
-<OTIntroPage id="78545128-0234-11de-9062-13382964bfbf" title="S1.  Objectives" authorNotes="" hoverString="Pas Step" speechText="">
+<OTIntroPage id="78545128-0234-11de-9062-13382964bfbf" title="Objectives" authorNotes="" hoverString="Pas Step" speechText="">
                   <nodeaudios>
                      <nodeaudio id="400cb73e-c098-11dd-a66e-audio1" elementId="audio1" url="assets/audio/a1s1_1.mp3" />                  
                      <nodeaudio id="400cb73e-c098-11dd-a66e-audio2" elementId="audio2" url="assets/audio/a1s1_2.mp3" />
@@ -419,13 +419,13 @@
     &lt;div class="bubbleDivRight"&gt;
       &lt;div class="green speech talkRight"&gt; &lt;img src="./art/constructor_bots/tall_right.png" /&gt;
         &lt;div id="objectivesText"&gt;
-          &lt;p id="audio3"&gt;Here's our objectives for this section, Bolt
+          &lt;div id="audio3"&gt;Here's our objectives for this section, Bolt
           &lt;ul&gt;
             &lt;li&gt;Review the previous section (Instant Quiz, 4 questions)&lt;/li&gt;
             &lt;li&gt;Modify a "Virtual Pet" module using BlueJ.&lt;/li&gt;
             &lt;li&gt;Learn about Varied-State Conditionals.&lt;/li&gt;
           &lt;/ul&gt;
-          &lt;/p&gt;
+          &lt;/div&gt;
           &lt;p id="audio4"&gt;Let's get started!&lt;/p&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -435,7 +435,7 @@
 &lt;/body&gt;
 &lt;/html&gt;</content>
                 </OTIntroPage>
-                <OTMatchSequence id="1475a592-aac0-11dd-8fe2-a728984a84db" title="S2. Match Me" authorNotes="" hoverString="Pas Step" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                <OTMatchSequence id="1475a592-aac0-11dd-8fe2-a728984a84db" title="Match Me" authorNotes="" hoverString="Pas Step" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
                   <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
@@ -593,26 +593,26 @@ Which of the following items contain a computer?  Drag the Answers over to the c
                 </OTMatchSequence>
                 </stepList>
             </OTPasActivity>
-            <OTPasActivity id="af231e8c-0210-11de-9062-13382964bfbf" title="A2:  Explore New Ideas" authorNotes="">
+            <OTPasActivity id="af231e8c-0210-11de-9062-13382964bfbf" title="Explore New Ideas" authorNotes="">
               <stepList>
-                <OutsideUrl id="a2s1" title="S1.  Introduction to Virtual Pets">
+                <OutsideUrl id="a2s1" title="Introduction to Virtual Pets">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s1.html</url>
 				</OutsideUrl>
-                <OTBlueJ id="a2s2" title="S2.  Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
+                <OTBlueJ id="a2s2" title="Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
                   <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;Your friend accidentally changed the getPlayersFinalChoice method in Monty class and now the code doesn't compile. Find out what is preventing the code from compiling and fix it.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
                   <projectPath>/cam-v1</projectPath>
                   <url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s2.html</url>
                 </OTBlueJ>
-				<OutsideUrl id="a2s3" title="S3.  Explore the Code 1">
+				<OutsideUrl id="a2s3" title="Explore the Code 1">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s3.html</url>
 				</OutsideUrl>
-                <OutsideUrl id="a2s4" title="S4.  Explore the Code 2">
+                <OutsideUrl id="a2s4" title="Explore the Code 2">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s4.html</url>
 				</OutsideUrl>
-                <OutsideUrl id="a2s5" title="S5.  Explore the Code 3">
+                <OutsideUrl id="a2s5" title="Explore the Code 3">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s5.html</url>
 				</OutsideUrl>
-                <OutsideUrl id="a2s6" title="S6.  Explore the Code 4">
+                <OutsideUrl id="a2s6" title="Explore the Code 4">
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s6.html</url>
 				</OutsideUrl>
               </stepList>
@@ -702,7 +702,7 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
 				</OutsideUrl>
               </stepList>
             </OTPasActivity>
-            <OTPasActivity id="c0e6d94f-0210-11de-9062-13382964bfbf" title="A4:  Connect Ideas" authorNotes="">
+            <OTPasActivity id="c0e6d94f-0210-11de-9062-13382964bfbf" title="Connect Ideas" authorNotes="">
               <stepList>
                 <OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Is there a better way to die?">
 					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>

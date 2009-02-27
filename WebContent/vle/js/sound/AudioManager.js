@@ -110,8 +110,14 @@ AudioManager.prototype.setCurrentNode = function(node) {
 			} else {
 				audio = soundManager.createSound({
 					id: 'NoAudioAvailable',
-					url: 'assets/audio/NoAudioAvailable.mp3'
-				})
+					url: 'assets/audio/NoAudioAvailable.mp3',
+					whileplaying: function() {
+						var playPauseAudioElement = document.getElementById("playPause");
+						removeClassFromElement("playPause", "play");
+						addClassToElement("playPause", "pause");
+						vle.getCurrentNode().audio = this;
+					}					
+				});
 				if (vle.audioManager.isPlaying) {
 					audio.play();
 				}
