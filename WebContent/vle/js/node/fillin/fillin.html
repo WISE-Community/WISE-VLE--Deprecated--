@@ -37,7 +37,7 @@
 <script type="text/javascript" src="fillinstate.js" ></script>                
 <script type="text/javascript" src="fillin.js" ></script>                
 
-<script type="text/javascript">
+<script type="text/javascript"><!--
 var or;   // global variable so it can be accessed by other functions
 var states = [];  // array of FILLINSTATE objects
 
@@ -61,9 +61,9 @@ function edit() {
  * xmlString contains QTI-coded xml content
  */
 function loadXMLString(xmlString) {
-	  var xmlDoc=loadXMLDocFromString(xmlString);	
+	  var xmlDoc=loadXMLDocFromString(xmlString);
 	  fi = new FILLIN(xmlDoc);
-	  fi.render();	
+	  fi.render(currentTextEntryInteractionIndex);
 }
 
 function checkAnswer() {
@@ -85,7 +85,7 @@ function next() {
 	fi.render(currentTextEntryInteractionIndex);
 }
 
-</script>
+--></script>
 
 <!--  Javascript Pop up window -->
 <script type="text/javascript">

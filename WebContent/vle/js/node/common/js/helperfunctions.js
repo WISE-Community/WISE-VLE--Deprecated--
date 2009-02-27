@@ -16,17 +16,21 @@ function createElement(doc, type, attrArgs){
 };
 
 function removeClassFromElement(identifier, classString) {
+	/*
 	YUI().use('node', function(Y) {
 		var node = Y.get('#'+identifier);
 		node.removeClass(classString);
 	});
+	*/
 }
 
 function addClassToElement(identifier, classString) {
+	/*
 	YUI().use('node', function(Y) {
 		var node = Y.get('#'+identifier);
 		node.addClass(classString);
 	});
+	*/
 }
 
 /**
