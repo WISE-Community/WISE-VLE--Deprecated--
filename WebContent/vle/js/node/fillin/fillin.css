@@ -24,7 +24,7 @@
 	
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
-	width:82%;
+	width:80%;
 	padding:10px 0;
 	background-color:#FFCE8E;
 	}
@@ -32,7 +32,7 @@
 #currentFillBlankParagraph #rightColumn {
 	padding:10px 0;
 	text-align:center;
-	margin-left:83%;
+	margin-left:81%;
 	background-color:#6883BA;
 	color:#FFF;
 	}
