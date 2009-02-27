@@ -8,9 +8,9 @@ function BlueJNode(nodeType) {
 
 BlueJNode.prototype.render = function(contentpanel) {
 	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	window.frames["ifrm"].document.open();	
-	window.frames["ifrm"].document.write(content);   
-	window.frames["ifrm"].document.close(); 		
+	window.frames["ifrm"].document.open();
+	window.frames["ifrm"].document.write(content);
+	window.frames["ifrm"].document.close();
 	this.projectPath = this.element.getElementsByTagName("projectPath")[0].firstChild.nodeValue;
 }
 

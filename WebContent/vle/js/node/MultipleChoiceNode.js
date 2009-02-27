@@ -13,4 +13,5 @@ MultipleChoiceNode.prototype.render = function(contentpanel) {
 MultipleChoiceNode.prototype.load = function() {
 	var xmlNode = this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
 	window.frames["ifrm"].renderMCFromString(xmlNode);
+	document.getElementById('topStepTitle').innerHTML = this.title;
 }

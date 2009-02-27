@@ -6,7 +6,6 @@ function HtmlNode(nodeType) {
 }
 
 HtmlNode.prototype.render = function(contentpanel) {
-	//alert('htmlnode.render');
 	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
 	window.frames["ifrm"].document.open();	
 	window.frames["ifrm"].document.write(content);   

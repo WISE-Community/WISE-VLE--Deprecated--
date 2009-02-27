@@ -84,6 +84,7 @@ Node.prototype.render = function(contentpanel) {
 
 Node.prototype.load = function() {
 	//alert("Node.load called");
+	document.getElementById('topStepTitle').innerHTML = this.title;
 }
 
 

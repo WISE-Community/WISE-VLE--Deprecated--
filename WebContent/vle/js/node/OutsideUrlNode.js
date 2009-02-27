@@ -6,14 +6,15 @@ function OutsideUrlNode(nodeType) {
 }
 
 OutsideUrlNode.prototype.render = function(contentpanel) {
-	window.frames["ifrm"].document.open();	
+	window.frames["ifrm"].document.open();
 	window.frames["ifrm"].location = "js/node/outsideurl/outsideurl.html";
-	window.frames["ifrm"].document.close();	
+	window.frames["ifrm"].document.close();
 }
 
 OutsideUrlNode.prototype.load = function() {
 	var url = this.element.getElementsByTagName("url")[0].firstChild.nodeValue;
-	window.frames["ifrm"].loadUrl(url);
+		window.frames["ifrm"].loadUrl(url);
+	document.getElementById('topStepTitle').innerHTML = this.title;
 }
 
 
