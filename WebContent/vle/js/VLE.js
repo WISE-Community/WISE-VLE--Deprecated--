@@ -76,6 +76,10 @@ VLE.prototype.renderPrevNode = function() {
 		alert("prev is not defined.");
 	}
 	var prevNode = this.navigationLogic.getPrevNode(currentNode);
+	while (prevNode.type == "Activity") {
+		prevNode = this.navigationLogic.getPrevNode(prevNode);
+	}
+
 	if (prevNode == null) {
 		alert("prevNode does not exist");
 	} else {
@@ -89,6 +93,9 @@ VLE.prototype.renderNextNode = function() {
 		alert("next is not defined.");
 	}
 	var nextNode = this.navigationLogic.getNextNode(currentNode);
+	while (nextNode.type == "Activity") {
+		nextNode = this.navigationLogic.getNextNode(nextNode);
+	}
 	if (nextNode == null) {
 		alert("nextNode does not exist");
 	} else {

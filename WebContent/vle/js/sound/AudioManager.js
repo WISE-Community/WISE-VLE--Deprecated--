@@ -55,7 +55,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 						var audio = soundManager.createSound({
 							id: nodeAudioElement.getAttribute("id"),
 							url: nodeAudioElement.getAttribute("url"),
-							onplay: function() { vle.contentPanel.highlightElement(this.elementId, true);},
+							onplay: function() { vle.contentPanel.highlightElement(this.elementId, "yellow");},
 							whileplaying: function() {
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "play");
@@ -68,18 +68,19 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");									
 							},							
 							onfinish: function() { 
-								vle.contentPanel.highlightElement(this.elementId, false); 
+								vle.contentPanel.highlightElement(this.elementId, audio.originalBGColor); 
 								vle.getCurrentNode().playAudioNextAudio(this.elementId);
 								}
 						});
 						audio.elementId = nodeAudioElement.getAttribute("elementId");
+						audio.originalBGColor = window.frames["ifrm"].document.getElementById(audio.elementId).style.backgroundColor;
 						vle.getCurrentNode().audios.push(audio);
 					} else {  // this is the last audio for this node, so upon finishing, don't need to go to the next audio.
 						//alert('audiomanager, else, i:' + i + ", elementId: " + nodeAudioElement.getAttribute("elementId"));
 						var audio = soundManager.createSound({
 							id: nodeAudioElement.getAttribute("id"),
 							url: nodeAudioElement.getAttribute("url"),
-							onplay: function() { vle.contentPanel.highlightElement(this.elementId, true);},
+							onplay: function() { vle.contentPanel.highlightElement(this.elementId, "yellow");},
 							whileplaying: function() {
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "play");
@@ -92,13 +93,14 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");									
 							},
 							onfinish: function() { 
-								vle.contentPanel.highlightElement(this.elementId, false); 
+								vle.contentPanel.highlightElement(this.elementId, audio.originalBGColor); 
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "pause");
 								addClassToElement("playPause", "play");									
 								}
 						});
 						audio.elementId = nodeAudioElement.getAttribute("elementId");
+						audio.originalBGColor = window.frames["ifrm"].document.getElementById(audio.elementId).style.backgroundColor;
 						vle.getCurrentNode().audios.push(audio);
 					}
 				}

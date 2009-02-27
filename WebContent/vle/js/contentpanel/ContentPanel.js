@@ -18,11 +18,7 @@ ContentPanel.prototype.render = function(nodeId) {
 /**
  * Highlights the element with the specified identifier within the contentpanel
  */
-ContentPanel.prototype.highlightElement = function(elementIdentifier, doHighlight) {
+ContentPanel.prototype.highlightElement = function(elementIdentifier, highlightColor) {
 	var elementToHighlight = window.frames["ifrm"].document.getElementById(elementIdentifier);
-	if (doHighlight) {		
-		elementToHighlight.style.backgroundColor = "yellow";
-	} else {
-		elementToHighlight.style.backgroundColor = "white";
-	}
+	elementToHighlight.style.backgroundColor = highlightColor;
 }
