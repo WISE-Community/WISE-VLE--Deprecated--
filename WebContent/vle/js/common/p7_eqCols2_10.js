@@ -32,4 +32,3 @@ function P7_eqA2(el,p,pt){ //v2.1.0 by PVII-www.projectseven.com
  g.style.paddingBottom=np+"px";if(np<pt){np+=inc;
  setTimeout("P7_eqA2('"+el+"',"+np+","+pt+")",sp);}
 }
-}
