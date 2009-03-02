@@ -119,7 +119,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 					}					
 				});
 				if (vle.audioManager.isPlaying) {
-					audio.play();
+					//audio.play();
 				}
 			}
 			
