@@ -83,6 +83,7 @@ margin-bottom:5px;
 
 #choicesColumn ul {
 width:190px;
+margin-bottom:10px;
 }
 
 #choicesColumn .bucketlabel {
@@ -93,21 +94,23 @@ font-size:.8em;
 color:#000;
 padding:0 6px;
 letter-spacing:1px;
-margin-left:3px;
+margin-left:12px;
 }
 
 #bucketsAndFeedbackColumn {
-float:right;
+float:left;
+margin-left:12px;
 }
 
 #bucketsAndFeedbackColumn .bucketblock {
-width:535px;
+width:100%;
 display:table;
 }
 
 #bucketsAndFeedbackColumn .bucketlabel {
 text-align:left;
 font-size:.8em;
+font-weight:bold
 color:#000;
 padding:0 6px;
 margin: 0 0 3px 0;
@@ -115,19 +118,19 @@ margin: 0 0 3px 0;
 
 #bucketsAndFeedbackColumn ul{
 padding:5px 3px 30px 3px;
-margin-bottom:20px;
+margin-bottom:10px;
 }
 
 #bucketsAndFeedbackColumn #feedbackdiv_yes ul {
-float:right;
+float:left;
 font-size:.85em;
-width:295px;
+width:66%;
 }
 
 #bucketsAndFeedbackColumn #feedbackdiv_no ul {
-float:right;
+float:left;
 font-size:.85em;
-width:295px;
+width:66%;
 }
 
 #feedbackDiv {
@@ -135,31 +138,36 @@ width:295px;
 	margin:5px auto 0 auto;
 	padding:2px;
 	text-align:center;
-	font-size:.9em;
-	color:#19253D;
+	font-size:.8em;
+	color:#000;
 }
 
 #triesContainer {
-	width:100%;
-	margin:8px 0 8px 0 ;
+	color:#333;
+	margin:4px 20px;
 	padding:0;
 	text-align:center;
+	background-color:#CCC;
+	-moz-border-radius-topleft:4px;
+	-moz-border-radius-topright:4px;
+	-moz-border-radius-bottomleft:4px;
+	-moz-border-radius-bottomright:4px;
 	}
 
 #triesContainer #totalTries {
-	font-size:.9em;
+	font-size:.8em;
 	color:#333;
 	margin:0px;
 	padding:2px;
 }
 
 #triesContainer #remainingTries {
-	font-size:.9em;
+	font-size:.8em;
 	color:#333;
 	margin:0px;
 	padding:2px;
 }
 
 #roboArt {
-	margin:40px 0 10px 0;
+	margin:20px 0 10px 0;
 	}
