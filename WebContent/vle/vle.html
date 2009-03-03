@@ -66,12 +66,16 @@ Nifty("ul.toolsButtons a","transparent");
 render();
 //parent.foo2();
 }
+
+function projectSummary(){
+	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
+};
 </script>
 
 <!--  Javascript Pop up window -->
 
 <script type="text/javascript">
-
+var runId = null;
 var newWin = null;
 function popUp(strURL, strType, strHeight, strWidth) {
  if (newWin != null && !newWin.closed)
@@ -123,6 +127,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		    <ul>
 		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
 		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
+		      <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>
 		      <li><a class="underline">Save</a></li>
 			  <li><a class="underline2">Save & Exit</a></li>
 			  <li><a class="underline">Report an Issue</a></li>
@@ -256,12 +261,13 @@ function render() {
 	  vle.audioManager = new AudioManager(true);	  
 }
 
-function loadFromString(xmlString) {
+function loadFromString(xmlString, runid) {
 	//alert('load this: ' + xmlString);
 	  var xmlDocObj = new LoadXMLDocObj();
 	  var project = new PasOtmlProject(xmlDocObj);
 	  xmlDocObj.loadString(xmlString);
-	  vle.audioManager = new AudioManager(true);	  
+	  vle.audioManager = new AudioManager(true);
+	  runId = runid;	  
 	  //parent.foo();
 }
 

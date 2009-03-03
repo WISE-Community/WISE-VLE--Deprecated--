@@ -36,6 +36,28 @@ Project.prototype.generateNode = function(element) {
 	return thisNode;
 }
 
+Project.prototype.getSummaryProjectHTML = function(){
+	var projectHTML = "<h3>Project Summary</h3>";
+	
+	function getNodeInfo(node, depth){
+		var html = "<br>";
+		var tab = '&nbsp;';
+		
+		for(var y=0;y<(depth*2);y++){
+			html = html + tab;
+		};
+		
+		html = html + node.type + '   ' + node.getTitle();
+		for(var z=0;z<node.children.length;z++){
+			html = html + getNodeInfo(node.children[z], depth + 1);
+		};
+		return html;
+	};
+	
+	projectHTML = projectHTML + getNodeInfo(this.rootNode, 0);
+	return projectHTML;
+};
+
 Project.prototype.getShowAllWorkHtml = function() {
 	alert("Project.getShowAllWorkHtml not yet implemented");
 	return this.rootNode.id;

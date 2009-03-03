@@ -32,7 +32,9 @@ NodeFactory.createNode = function (nodeType){
 	}
 }
 
-
+//TODO: make PasOtmlProject 'really' inherit from Project and make getSummaryProjectHTML
+// a function of parent Project
+//
 //PasOtmlProject.prototype = new Project();
 PasOtmlProject.prototype.constructor = PasOtmlProject;
 PasOtmlProject.prototype.parent = Project.prototype;
@@ -112,6 +114,28 @@ PasOtmlProject.prototype.generateNode = function() {
 		activityId++;
 	}
 }
+
+PasOtmlProject.prototype.getSummaryProjectHTML = function(){
+	var projectHTML = "<h3>Project Summary</h3>";
+	
+	function getNodeInfo(node, depth){
+		var html = "<br>";
+		var tab = '&nbsp;';
+		
+		for(var y=0;y<(depth*2);y++){
+			html = html + tab;
+		};
+		
+		html = html + node.type + '   ' + node.getTitle();
+		for(var z=0;z<node.children.length;z++){
+			html = html + getNodeInfo(node.children[z], depth + 1);
+		};
+		return html;
+	};
+	
+	projectHTML = projectHTML + getNodeInfo(this.rootNode, 0);
+	return projectHTML;
+};
 
 PasOtmlProject.prototype.getShowAllWorkHtml = function() {
 	var htmlSoFar = "";
