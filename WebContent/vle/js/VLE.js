@@ -265,7 +265,7 @@ VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 	}
 	var newNodeVisit = new NODE_VISIT(node);
 	this.visitedNodes.push(newNodeVisit);
-	alert(this.getDataXML());
+	//alert(this.getDataXML());
 }
 
 contentPanelOnLoad = function(){
