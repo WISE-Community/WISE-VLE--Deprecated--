@@ -1,3 +1,7 @@
+/*
+ * Node
+ */
+
 function Node(nodeType) {
 	this.id = null;
 	this.parent = null;
@@ -113,6 +117,12 @@ Node.prototype.getShowAllWorkHtml = function(){
     return showAllWorkHtmlSoFar;
 }
 
-Node.prototype.getDataXML = function() {
-	return "";
+Node.prototype.getDataXML = function(nodeStates) {
+	//alert(2 + ": " + nodeStates);
+	var dataXML = "";
+	for (var i=0; i < nodeStates.length; i++) {
+		var state = nodeStates[i];
+		dataXML += "<state>" + state.getDataXML() + "</state>";
+	}
+	return dataXML;
 }

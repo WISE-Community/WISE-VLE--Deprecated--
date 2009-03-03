@@ -22,6 +22,32 @@ function MC(xmlDoc) {
 	}
 }
 
+/**
+ * Load states from specified VLE.
+ * @param {Object} vle
+ */
+MC.prototype.loadFromVLE = function(node, vle) {
+	this.vle = vle;
+	this.node = node;
+	this.loadState();
+	this.render();
+}
+
+/**
+ * Loads state from VLE_STATE.
+ * @param {Object} vleState
+ */
+MC.prototype.loadState = function() {
+	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
+		var nodeVisit = this.vle.state.visitedNodes[i];
+		if (nodeVisit.node == this.node) {
+			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
+				states.push(nodeVisit.nodeStates[j]);
+			}
+		}
+	}
+}
+
 //gets and returns a CHOICE object given the CHOICE's identifier
 MC.prototype.getCHOICEByIdentifier = function(identifier) {
 	for (var i=0;i<this.choices.length;i++) {
@@ -111,7 +137,7 @@ function tryAgain() {
  * Checks Answer and updates display with correctness and feedback
  * Disables "Check Answer" button and enables "Try Again" button
  */
-function checkAnswer() {
+MC.prototype.checkAnswer = function() {
 	var isCheckAnswerDisabled = hasClass("checkAnswerButton", "disabledLink");
 
 	if (isCheckAnswerDisabled) {
@@ -134,7 +160,11 @@ function checkAnswer() {
 			if (choice) {
 				var feedbackdiv = document.getElementById('feedbackdiv');
 				feedbackdiv.innerHTML = choice.getFeedbackText();
+				
 				states.push(new MCSTATE(choiceIdentifier));
+				if (this.vle != null) {
+					this.vle.state.getCurrentNodeVisit().nodeStates.push(new MCSTATE(choiceIdentifier));
+				}
 			} else {
 				alert('error');
 			}

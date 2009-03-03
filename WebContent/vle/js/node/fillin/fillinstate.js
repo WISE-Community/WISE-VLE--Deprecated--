@@ -11,3 +11,7 @@ function FILLINSTATE(textEntryInteractionIndex, response) {
 FILLINSTATE.prototype.print = function() {
 	//alert(this.timestamp + "\n" + this.choiceIdentifier);
 }
+
+FILLINSTATE.prototype.getDataXML = function() {
+	return "<textEntryInteractionIndex>" + this.textEntryInteractionIndex + "</textEntryInteractionIndex><response>" + this.response + "</response><timestamp>" + this.timestamp + "</timestamp";
+}

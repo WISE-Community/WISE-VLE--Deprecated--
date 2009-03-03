@@ -1,3 +1,7 @@
+/*
+ * BlueJNode is a child of outsideurl at the moment
+ */
+
 BlueJNode.prototype = new Node();
 BlueJNode.prototype.constructor = BlueJNode;
 BlueJNode.prototype.parent = Node.prototype;
@@ -52,4 +56,8 @@ BlueJNode.prototype.getShowAllWorkHtml = function(){
         showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
     }
     return showAllWorkHtmlSoFar;
+}
+
+BlueJNode.prototype.getDataXML = function(nodeStates) {
+	return BlueJNode.prototype.parent.getDataXML(nodeStates);
 }

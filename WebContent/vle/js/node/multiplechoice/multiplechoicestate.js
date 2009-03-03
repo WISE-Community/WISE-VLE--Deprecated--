@@ -9,3 +9,7 @@ function MCSTATE(choiceIdentifier) {
 MCSTATE.prototype.print = function() {
 	//alert(this.timestamp + "\n" + this.choiceIdentifier);
 }
+
+MCSTATE.prototype.getDataXML = function() {
+	return "<choiceIdentifier>" + this.choiceIdentifier + "</choiceIdentifier><timestamp>" + this.timestamp + "</timestamp";
+}

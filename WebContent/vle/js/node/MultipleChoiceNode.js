@@ -1,3 +1,7 @@
+/*
+ * MultipleChoiceNode
+ */
+
 MultipleChoiceNode.prototype = new Node();
 MultipleChoiceNode.prototype.constructor = MultipleChoiceNode;
 MultipleChoiceNode.prototype.parent = Node.prototype;
@@ -11,7 +15,15 @@ MultipleChoiceNode.prototype.render = function(contentpanel) {
 
 
 MultipleChoiceNode.prototype.load = function() {
-	var xmlNode = this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
-	window.frames["ifrm"].renderMCFromString(xmlNode);
+	//var xmlNode = this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
+	//window.frames["ifrm"].renderMCFromString(xmlNode);
+	
+	//these steps are now loaded from the vle/otml
+	window.frames["ifrm"].loadFromVLE(this, vle);
 	document.getElementById('topStepTitle').innerHTML = this.title;
+}
+
+MultipleChoiceNode.prototype.getDataXML = function(nodeStates) {
+	//alert(1 + ": " + nodeStates);
+	return MultipleChoiceNode.prototype.parent.getDataXML(nodeStates);
 }

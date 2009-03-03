@@ -224,11 +224,12 @@ NODE_VISIT.prototype.getDataXML = function() {
 	
 	dataXML += "<node_visit>";
 	
-	dataXML += "<node>";
+	dataXML += "<node><type>";
 	dataXML += this.node.type;
-	dataXML += "</node>";
+	dataXML += "</type></node>";
 	
 	dataXML += "<nodeStates>";
+	//alert(0 + ": " + this.nodeStates);
 	dataXML += this.node.getDataXML(this.nodeStates);
 	dataXML += "</nodeStates>";
 	
@@ -264,6 +265,7 @@ VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 	}
 	var newNodeVisit = new NODE_VISIT(node);
 	this.visitedNodes.push(newNodeVisit);
+	alert(this.getDataXML());
 }
 
 contentPanelOnLoad = function(){

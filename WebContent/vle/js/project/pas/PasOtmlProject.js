@@ -17,13 +17,13 @@ NodeFactory.createNode = function (nodeType){
 		return new HtmlNode(nodeType);
 	} else if (customPageTypes.indexOf(nodeType) > -1) {
 		switch (nodeType) {
-			case "OTMatchSequence": return new MatchSequenceNode(); break;
-			case "OTFillin": return new FillinNode(); break;
-			case "OTJournalStep": return new JournalNode(); break;
-			case "OTNote": return new NoteNode(); break;
-			case "OutsideUrl": return new OutsideUrlNode(); break;
-			case "OTQuiz": return new MultipleChoiceNode(); break;
-			case "OTBlueJ": return new BlueJNode(); break;
+			case "OTMatchSequence": return new MatchSequenceNode("OTMatchSequence"); break;
+			case "OTFillin": return new FillinNode("OTFillin"); break;
+			case "OTJournalStep": return new JournalNode("OTJournalStep"); break;
+			case "OTNote": return new NoteNode("OTNote"); break;
+			case "OutsideUrl": return new OutsideUrlNode("OutsideUrl"); break;
+			case "OTQuiz": return new MultipleChoiceNode("OTQuiz"); break;
+			case "OTBlueJ": return new BlueJNode("OTBlueJ"); break;
 			default: break;
 		}
 		return new CustomNode(nodeType);

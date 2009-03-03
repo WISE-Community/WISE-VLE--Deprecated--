@@ -16,6 +16,32 @@ function FILLIN(xmlDoc) {
 }
 
 /**
+ * Load states from specified VLE.
+ * @param {Object} vle
+ */
+FILLIN.prototype.loadFromVLE = function(node, vle) {
+	this.vle = vle;
+	this.node = node;
+	this.loadState();
+	this.render();
+}
+
+/**
+ * Loads state from VLE_STATE.
+ * @param {Object} vleState
+ */
+FILLIN.prototype.loadState = function() {
+	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
+		var nodeVisit = this.vle.state.visitedNodes[i];
+		if (nodeVisit.node == this.node) {
+			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
+				states.push(nodeVisit.nodeStates[j]);
+			}
+		}
+	}
+}
+
+/**
  * Renders the Fill-in step at specified textInteractionEntryIndex state. All 
  * textInteractionEntries before the specified index will reveal the correct response.
  */
@@ -111,6 +137,9 @@ FILLIN.prototype.checkAnswer = function() {
 	
 	// add a new STATE
 	states.push(new FILLINSTATE(currentTextEntryInteractionIndex, studentAnswerText));
+	if (this.vle != null) {
+		this.vle.state.getCurrentNodeVisit().nodeStates.push(new FILLINSTATE(currentTextEntryInteractionIndex, studentAnswerText));
+	}
 	
 	// update feedback
 	var feedbackDiv = document.getElementById("feedbackDiv");

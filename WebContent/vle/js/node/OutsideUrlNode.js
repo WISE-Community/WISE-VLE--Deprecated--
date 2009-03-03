@@ -1,3 +1,7 @@
+/*
+ * OutsideUrlNode
+ */
+
 OutsideUrlNode.prototype = new Node();
 OutsideUrlNode.prototype.constructor = OutsideUrlNode;
 OutsideUrlNode.prototype.parent = Node.prototype;
@@ -44,10 +48,5 @@ OutsideUrlNode.prototype.getShowAllWorkHtml = function(){
 }
 
 OutsideUrlNode.prototype.getDataXML = function(nodeStates) {
-	var dataXML = "";
-	for (var i=0; i < nodeStates.length; i++) {
-		var state = nodeStates[i];
-		dataXML += "<state>" + state.getDataXML() + "</state>";
-	}
-	return dataXML;
+	return OutsideUrlNode.prototype.parent.getDataXML(nodeStates);
 }

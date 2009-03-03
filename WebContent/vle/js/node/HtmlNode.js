@@ -1,3 +1,7 @@
+/*
+ * HtmlNode
+ */
+
 HtmlNode.prototype = new Node();
 HtmlNode.prototype.constructor = HtmlNode;
 HtmlNode.prototype.parent = Node.prototype;
@@ -37,4 +41,8 @@ HtmlNode.prototype.getShowAllWorkHtml = function(){
         showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
     }
     return showAllWorkHtmlSoFar;
+}
+
+HtmlNode.prototype.getDataXML = function(nodeStates) {
+	return HtmlNode.prototype.parent.getDataXML(nodeStates);
 }
