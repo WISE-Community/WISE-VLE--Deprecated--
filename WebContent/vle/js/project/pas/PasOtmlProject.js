@@ -1,6 +1,19 @@
 var htmlPageTypes = new Array("OTReadingPage", "OTIntroPage", "OTVideoPage", "OTExamplePage", "OTDisplayPage", "OTEvidence");
 var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz");
 
+// IE 7 doesn't have indexOf method.........
+if(!Array.indexOf){
+    Array.prototype.indexOf = function(obj){
+        for(var i=0; i<this.length; i++){
+            if(this[i]==obj){
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+
 /*
  * Override
  */
@@ -17,6 +30,13 @@ NodeFactory.createNode = function (nodeType){
 		return new HtmlNode(nodeType);
 	} else if (customPageTypes.indexOf(nodeType) > -1) {
 		switch (nodeType) {
+			case "OTMatchSequence": return new MatchSequenceNode(); break;
+			case "OTFillin": return new FillinNode(); break;
+			case "OTJournalStep": return new JournalNode(); break;
+			case "OTNote": return new NoteNode(); break;
+			case "OutsideUrl": return new OutsideUrlNode("outsideurl"); break;
+			case "OTQuiz": return new MultipleChoiceNode(); break;
+			case "OTBlueJ": return new BlueJNode(); break;
 			case "OTMatchSequence": return new MatchSequenceNode("OTMatchSequence"); break;
 			case "OTFillin": return new FillinNode("OTFillin"); break;
 			case "OTJournalStep": return new JournalNode("OTJournalStep"); break;
@@ -58,6 +78,11 @@ function PasOtmlProject(xmlDocObj) {
 }
 
 PasOtmlProject.prototype.onLoadedEvent = function(type, args, me) {
+	//alert("pasotmlproject.js, onloadedevent");
+	//alert("args: " + args);
+	//alert("args.length: " + args.length);
+	//alert("args[0]: " + args[0]);
+	me.xmlDoc = args[0];
 	me.generateNode();
 	//alert(me.rootNode.id);
 	var dfs = new DFS(me.rootNode);
@@ -65,10 +90,12 @@ PasOtmlProject.prototype.onLoadedEvent = function(type, args, me) {
 	vle.setProject(me);
 	vle.navigationLogic = new NavigationLogic(dfs);
 	vle.setConnection(new ConnectionManager());
-	setTimeout("vle.renderNode('0:0:0')", 1000);
+	setTimeout("vle.renderNode('0:1:0')", 3000);
 }
 
 PasOtmlProject.prototype.generateNode = function() {
+	//alert(this.xmlDoc);
+	//alert('pasOtmlproject.generateNode: ' + this.xmlDocObj + ", " + this.xmlDocObj.xmlDoc);
 	this.rootNode = new Node();
 	this.rootNode.type = "Project";
 	this.rootNode.id = 0;
@@ -88,7 +115,9 @@ PasOtmlProject.prototype.generateNode = function() {
 
 	var activityId = 0;
 	var stepId = 0;
-	var activities = this.xmlDocObj.xmlDoc.getElementsByTagName("OTPasActivity");
+	//var activities = this.xmlDocObj.xmlDoc.getElementsByTagName("OTPasActivity"); works for ff but not ie...stupid ie
+	var activities = this.xmlDoc.getElementsByTagName("OTPasActivity");
+	//alert('activities.length:' + activities.length);
 	for (var i=0; i < activities.length; i++) {
 		stepId = 0;
 		var activity = activities[i];
@@ -98,7 +127,9 @@ PasOtmlProject.prototype.generateNode = function() {
 		activityNode.setType("Activity");
 		activityNode.title = activity.getAttribute('title');
 		var childNodes = activity.getElementsByTagName("stepList")[0].childNodes;
+		//alert('activityId: ' + activityId + ', childnodes.length:' + childNodes.length);
 		for (var j=0; j < childNodes.length; j++) {
+			//alert('child: ' + j);
 			if (childNodes[j].nodeName != "#text") {
 				var stepNode = NodeFactory.createNode(childNodes[j].nodeName);
 				stepNode.parent = activityNode;
