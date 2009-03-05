@@ -39,3 +39,20 @@ MSSTATE.prototype.getXMLString = function() {
 	xmlString += "</state>";
 	return xmlString;
 }
+
+MSSTATE.prototype.getDataXML = function() {
+	//implement me
+//	return "<response>" + this.response + "</response><timestamp>" + this.timestamp + "</timestamp>";
+}
+
+MSSTATE.prototype.parseDataXML = function(stateXML) {
+	//implement me
+//	var reponse = stateXML.getElementsByTagName("reponse")[0];
+//	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
+//	
+//	if(reponse == undefined || timestamp == undefined) {
+//		return null;
+//	} else {
+//		return new OPENRESPONSESTATE(choiceIdentifier.textContent, timestamp.textContent);		
+//	}
+}

@@ -46,3 +46,8 @@ HtmlNode.prototype.getShowAllWorkHtml = function(){
 HtmlNode.prototype.getDataXML = function(nodeStates) {
 	return HtmlNode.prototype.parent.getDataXML(nodeStates);
 }
+
+HtmlNode.prototype.parseDataXML = function(nodeStatesXML) {
+	var statesArrayObject = new Array();
+	return statesArrayObject;
+}

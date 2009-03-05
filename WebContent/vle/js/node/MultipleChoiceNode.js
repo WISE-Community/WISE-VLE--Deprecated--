@@ -24,6 +24,26 @@ MultipleChoiceNode.prototype.load = function() {
 }
 
 MultipleChoiceNode.prototype.getDataXML = function(nodeStates) {
-	//alert(1 + ": " + nodeStates);
 	return MultipleChoiceNode.prototype.parent.getDataXML(nodeStates);
+}
+
+/**
+ * 
+ * @param nodeStatesXML xml nodeStates object that contains xml state objects
+ * @return an array populated with state object instances
+ */
+MultipleChoiceNode.prototype.parseDataXML = function(nodeStatesXML) {
+	var statesXML = nodeStatesXML.getElementsByTagName("state");
+	var statesArrayObject = new Array();
+	for(var x=0; x<statesXML.length; x++) {
+		var stateXML = statesXML[x];
+		
+		/*
+		 * parse an individual stateXML object to create an actual instance
+		 * of an MCSTATE object and put it into the array that we will return
+		 */
+		statesArrayObject.push(MCSTATE.prototype.parseDataXML(stateXML));
+	}
+	
+	return statesArrayObject;
 }

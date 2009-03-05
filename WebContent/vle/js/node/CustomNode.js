@@ -94,3 +94,24 @@ CustomNode.prototype.getDataXMLOld = function() {
 CustomNode.prototype.getDataXML = function(nodeStates) {
 	return CustomNode.prototype.parent.getDataXML(nodeStates);
 }
+
+/**
+ * 
+ * @param nodeStatesXML xml nodeStates object that contains xml state objects
+ * @return an array populated with state object instances
+ */
+CustomNode.prototype.parseDataXML = function(nodeStatesXML) {
+	var statesXML = nodeStatesXML.getElementsByTagName("state");
+	var statesArrayObject = new Array();
+	for(var x=0; x<statesXML.length; x++) {
+		var stateXML = statesXML[x];
+		//alert("OPENRESPONSESTATE: " + OPENRESPONSESTATE.prototype.getDataXML());
+		/*
+		 * parse an individual stateXML object to create an actual instance
+		 * of an X object and put it into the array that we will return
+		 */
+		statesArrayObject.push(OPENRESPONSESTATE.prototype.parseDataXML(stateXML));
+	}
+	
+	return statesArrayObject;
+}

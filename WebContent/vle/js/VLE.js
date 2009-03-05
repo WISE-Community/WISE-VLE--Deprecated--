@@ -208,11 +208,51 @@ VLE_STATE.prototype.getDataXML = function() {
 	return dataXML;
 }
 
+VLE_STATE.prototype.parseDataXML = function(xmlString) {
+	var vleStateObject = new VLE_STATE();
+	
+	var xmlDoc = null;
+	try {
+		//Internet Explorer
+		xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+		xmlDoc.loadXML(xmlString);
+	} catch(e) {
+		try {
+		//Firefox, Mozilla, Opera, etc.
+			var parser=new DOMParser();
+			xmlDoc=parser.parseFromString(xmlString,"text/xml");
+		} catch(e) {
+			alert(e.message);
+		}
+	}
+	
+	var vleStateXML = xmlDoc.getElementsByTagName("vle_state")[0];
+	
+	var nodeVisitNodesXML = vleStateXML.getElementsByTagName("node_visit");
+    for (var i=0; i< nodeVisitNodesXML.length; i++) {
+    	var nodeVisit = nodeVisitNodesXML[i];
+    	var nodeVisitObject = NODE_VISIT.prototype.parseDataXML(nodeVisit);
+    	vleStateObject.visitedNodes.push(nodeVisitObject);
+    }
+	
+    alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
+	return vleStateObject;
+}
+
+
+
 function NODE_VISIT(node) {
 	this.node = node;
 	this.nodeStates = [];
 	this.visitStartTime = new Date();
 	this.visitEndTime = null;
+}
+
+function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
+	this.node = node;
+	this.nodeStates = nodeStates;
+	this.visitStartTime = visitStartTime;
+	this.visitEndTime = visitEndTime;
 }
 
 /**
@@ -229,7 +269,6 @@ NODE_VISIT.prototype.getDataXML = function() {
 	dataXML += "</type></node>";
 	
 	dataXML += "<nodeStates>";
-	//alert(0 + ": " + this.nodeStates);
 	dataXML += this.node.getDataXML(this.nodeStates);
 	dataXML += "</nodeStates>";
 	
@@ -244,6 +283,23 @@ NODE_VISIT.prototype.getDataXML = function() {
 	dataXML += "</node_visit>";
 	
 	return dataXML;
+}
+
+NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
+	//find the node type and create a corresponding node object
+	var nodeType = nodeVisitXML.getElementsByTagName("type")[0].textContent;
+	var nodeObject = NodeFactory.createNode(nodeType);
+	
+	var visitStartTime = nodeVisitXML.getElementsByTagName("visitStartTime")[0].textContent;
+	var visitEndTime = nodeVisitXML.getElementsByTagName("visitEndTime")[0].textContent;
+
+	//retrieve an array of node state objects
+	var nodeStatesArrayObject = nodeObject.parseDataXML(nodeVisitXML.getElementsByTagName("nodeStates")[0]);
+	
+	//create a node_visit object with the new node object
+	var nodeVisitObject = new NODE_VISIT(nodeObject, nodeStatesArrayObject, visitStartTime, visitEndTime);
+	
+	return nodeVisitObject;
 }
 
 /**

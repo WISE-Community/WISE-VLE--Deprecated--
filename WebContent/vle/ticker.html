@@ -4,6 +4,25 @@
 
 <link rel="stylesheet" type="text/css" href="css/tickertape.css" />
 <script type="text/javascript" src="js/ticker/ticker.js"></script>
+<script type="text/javascript" src="js/VLE.js"></script>
+<script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="js/node/CustomNode.js"></script>
+<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/node/NoteNode.js"></script>
+<script type="text/javascript" src="js/node/JournalNode.js"></script>
+<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="js/project/Project.js"></script>
+<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
+
+<script type="text/javascript" src="js/node/fillin/fillinstate.js"></script>
+<script type="text/javascript" src="js/node/matchsequence/matchsequencestate.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/multiplechoicestate.js"></script>
+<script type="text/javascript" src="js/node/openresponse/openresponsestate.js"></script>
+<script type="text/javascript" src="js/node/outsideurl/outsideurlstate.js"></script>
 
 <!-- Dependency --> 
 <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
@@ -102,6 +121,7 @@
 		</table>
 	</div>
 	<div id="closeButton">CLOSE BUTTON HERE</div>
+	<div id="refreshButtonDiv"><input type="button" onclick="javascript:createVLEStateObject()" value="Refresh" /></div>
 	
 </div>	  <!-- End of tickerMainContainer -->	
 	

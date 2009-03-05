@@ -126,3 +126,10 @@ Node.prototype.getDataXML = function(nodeStates) {
 	}
 	return dataXML;
 }
+
+Node.prototype.parseDataXML = function(nodeXML) {
+	var nodeType = nodeXML.getElementsByTagName("type");
+	var nodeObject = new Node(nodeType);
+	
+	return nodeObject;
+}

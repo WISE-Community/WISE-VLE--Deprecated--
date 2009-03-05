@@ -32,13 +32,22 @@ FillinNode.prototype.getDataXML = function(nodeStates) {
 	return FillinNode.prototype.parent.getDataXML(nodeStates);
 }
 
+/**
+ * 
+ * @param nodeStatesXML xml nodeStates object that contains xml state objects
+ * @return an array populated with state object instances
+ */
 FillinNode.prototype.parseDataXML = function(nodeStatesXML) {
 	var statesXML = nodeStatesXML.getElementsByTagName("state");
 	var statesArrayObject = new Array();
 	for(var x=0; x<statesXML.length; x++) {
 		var stateXML = statesXML[x];
 		
-		statesArrayObject.push(FILLIN.prototype.parseDataXML(stateXML));
+		/*
+		 * parse an individual stateXML object to create an actual instance
+		 * of an FILLINSTATE object and put it into the array that we will return
+		 */
+		statesArrayObject.push(FILLINSTATE.prototype.parseDataXML(stateXML));
 	}
 	
 	return statesArrayObject;
