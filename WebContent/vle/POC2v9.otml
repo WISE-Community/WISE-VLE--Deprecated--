@@ -374,66 +374,67 @@
           <activityList>
             <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="Introduction" authorNotes="">
               <stepList>
-<OTIntroPage id="78545128-0234-11de-9062-13382964bfbf" title="Objectives" authorNotes="" hoverString="Pas Step" speechText="">
+<OTIntroPage id="a1s1" title="Objectives" authorNotes="" hoverString="Pas Step" speechText="">
                   <nodeaudios>
                      <nodeaudio id="400cb73e-c098-11dd-a66e-audio1" elementId="audio1" url="assets/audio/a1s1_1.mp3" />                  
                      <nodeaudio id="400cb73e-c098-11dd-a66e-audio2" elementId="audio2" url="assets/audio/a1s1_2.mp3" />
                      <nodeaudio id="400cb73e-c098-11dd-a66e-audio3" elementId="audio3" url="assets/audio/a1s1_3.mp3" />                  
                      <nodeaudio id="400cb73e-c098-11dd-a66e-audio4" elementId="audio4" url="assets/audio/a1s1_4.mp3" />
                   </nodeaudios>
-                  <content>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8" /&gt;
+                  <content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-&lt;base href="http://uccpdev.berkeley.edu/uccp-assets/" /&gt;
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
 
-&lt;link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" /&gt;
+<link rel="stylesheet" href="http://uccpdev.berkeley.edu/uccp-assets/css/UCCP.css" />
 
-&lt;title&gt;Proof of Concept 2&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;div class="header"&gt;Objectives&lt;/div&gt;
+<title>Proof of Concept 2</title>
+</head>
+<body>
+<div class="header">Objectives</div>
 
-&lt;div id="content"&gt;
+<div id="content">
   
-  &lt;div class="bubbleBox"&gt;
-    &lt;div class="bubbleDivLeft"&gt;
-      &lt;div class="blue speech talkLeft"&gt; &lt;img src="./art/constructor_bots/short_right.png" /&gt;
-        &lt;div id="objectivesText"&gt;
-          &lt;p id="audio1"&gt;Welcome back! Thanks again for helping me stamp out those bugs in the last section.  You're the best.&lt;/p&gt;
-          &lt;p id="audio2"&gt;So, Constance, what's on the plate for today?&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;br&gt;
-  &lt;div class="bubbleBox"&gt;
-    &lt;div class="bubbleDivRight"&gt;
-      &lt;div class="green speech talkRight"&gt; &lt;img src="./art/constructor_bots/tall_right.png" /&gt;
-        &lt;div id="objectivesText"&gt;
-          &lt;div id="audio3"&gt;Here's our objectives for this section, Bolt
-          &lt;ul&gt;
-            &lt;li&gt;Review the previous section (Instant Quiz, 4 questions)&lt;/li&gt;
-            &lt;li&gt;Modify a "Virtual Pet" module using BlueJ.&lt;/li&gt;
-            &lt;li&gt;Learn about Varied-State Conditionals.&lt;/li&gt;
-          &lt;/ul&gt;
-          &lt;/div&gt;
-          &lt;p id="audio4"&gt;Let's get started!&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;</content>
+  <div class="bubbleBox">
+    <div class="bubbleDivLeft">
+      <div class="blue speech talkLeft"> <img src="./art/constructor_bots/short_right.png" />
+        <div id="objectivesText">
+          <p id="audio1">Welcome back! Thanks again for helping me stamp out those bugs in the last section.  You're the best.</p>
+          <p id="audio2">So, Constance, what's on the plate for today?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <div class="bubbleBox">
+    <div class="bubbleDivRight">
+      <div class="green speech talkRight"> <img src="./art/constructor_bots/tall_right.png" />
+        <div id="objectivesText">
+          <div id="audio3">Here's our objectives for this section, Bolt
+          <ul>
+            <li>Review the previous section (Instant Quiz, 4 questions)</li>
+            <li>Modify a "Virtual Pet" module using BlueJ.</li>
+            <li>Learn about Varied-State Conditionals.</li>
+          </ul>
+          </div>
+          <p id="audio4">Let's get started!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>]]></content>
                 </OTIntroPage>
 <OTFillin id="a1s2" title="Complete &lt;tt&gt;studentGrade&lt;/tt&gt;">
                   <nodeaudios>
