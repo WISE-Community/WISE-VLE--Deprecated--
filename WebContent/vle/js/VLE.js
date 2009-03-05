@@ -235,7 +235,7 @@ VLE_STATE.prototype.parseDataXML = function(xmlString) {
     	vleStateObject.visitedNodes.push(nodeVisitObject);
     }
 	
-    alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
+    //alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
 	return vleStateObject;
 }
 

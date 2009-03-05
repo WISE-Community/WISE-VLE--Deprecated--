@@ -1,14 +1,16 @@
 /**
  * Object for storing state information of MultipleChoice item.
  */
-function MCSTATE(choiceIdentifier) {
-	this.timestamp = new Date();
-	this.choiceIdentifier = choiceIdentifier;   // which choice the student chose.
-}
 
 function MCSTATE(choiceIdentifier, timestamp) {
-	this.timestamp = timestamp;
 	this.choiceIdentifier = choiceIdentifier;   // which choice the student chose.
+	
+	if(arguments.length == 1) {
+		//if the second argument (timestamp) was ommitted just set it to the current time
+		this.timestamp = new Date();
+	} else {
+		this.timestamp = timestamp;
+	}
 }
 
 MCSTATE.prototype.print = function() {

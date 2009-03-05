@@ -436,6 +436,9 @@
 &lt;/html&gt;</content>
                 </OTIntroPage>
 <OTFillin id="a1s2" title="Complete &lt;tt&gt;studentGrade&lt;/tt&gt;">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a1s2" url="assets/audio/a1s2.mp3" />                  
+                  </nodeaudios>
 					<jaxbXML><![CDATA[
 						<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -524,29 +527,40 @@ Complete a function &lt;tt&gt;studentGrade&lt;/tt&gt; that takes in a score betw
               <stepList>
                 <OutsideUrl id="a2s1" title="Introduction to Virtual Pets">
                   <nodeaudios>
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio1" elementId="audio1" url="assets/audio/a1s1_1.mp3" />                  
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio2" elementId="audio2" url="assets/audio/a1s1_2.mp3" />
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio3" elementId="audio3" url="assets/audio/a1s1_3.mp3" />                  
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio4" elementId="audio4" url="assets/audio/a1s1_4.mp3" />
-                     <nodeaudio id="400cb73e-c098-11dd-a66e-audio5" elementId="audio5" url="assets/audio/a1s1_4.mp3" />
+                     <nodeaudio id="audio-a2s1" url="assets/audio/a2s1.mp3" />                  
                   </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s1.html</url>
 				</OutsideUrl>
                 <OTBlueJ id="a2s2" title="Open Cam's BlueJ Project" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a2s2" url="assets/audio/a2s2.mp3" />                  
+                  </nodeaudios>
                   <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;Your friend accidentally changed the getPlayersFinalChoice method in Monty class and now the code doesn't compile. Find out what is preventing the code from compiling and fix it.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
                   <projectPath>/cam-v1</projectPath>
                   <url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s2.html</url>
                 </OTBlueJ>
 				<OutsideUrl id="a2s3" title="Explore the Code 1">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a2s3" url="assets/audio/a2s3.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s3.html</url>
 				</OutsideUrl>
                 <OutsideUrl id="a2s4" title="Explore the Code 2">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a2s4" url="assets/audio/a2s4.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s4.html</url>
 				</OutsideUrl>
                 <OutsideUrl id="a2s5" title="Explore the Code 3">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a2s5" url="assets/audio/a2s5.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s6.html</url>
 				</OutsideUrl>
                 <OutsideUrl id="a2s6" title="Explore the Code 4">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a2s6" url="assets/audio/a2s6.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a2s6.html</url>
 				</OutsideUrl>
               </stepList>
@@ -554,9 +568,15 @@ Complete a function &lt;tt&gt;studentGrade&lt;/tt&gt; that takes in a score betw
             <OTPasActivity id="ea2774f5-0210-11de-9062-13382964bfbf" title="Programming" authorNotes="">
               <stepList>
                 <OutsideUrl id="a3s1" title="Make a Quick Fix">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a3s1" url="assets/audio/a3s1.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s1.html</url>
 				</OutsideUrl>
                 <OTQuiz id="08608547-0458-11de-9e80-e9f7a2343f8e" title="How Does Hunger Work?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a3s2" url="assets/audio/a3s2.mp3" />                  
+                  </nodeaudios>
                   <jaxbXML><![CDATA[
                     <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
                       <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
@@ -603,6 +623,9 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
 &lt;/html&gt;</introductionHtml>
                 </OTQuiz>
 				<OTFillin id="a3s3" title="Fill in the Blank">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a3s3" url="assets/audio/a3s3.mp3" />                  
+                  </nodeaudios>
 					<jaxbXML><![CDATA[
 						<assessmentItem xmlns='http://www.imsglobal.org/xsd/imsqti_v2p0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.imsglobal.org/xsd/imsqti_v2p0 imsqti_v2p0.xsd' identifier='textEntry' title='Dido' adaptive='false' timeDependent='false'>
 							<responseDeclaration identifier='response_0' cardinality='single' baseType='string'>
@@ -626,12 +649,21 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
 						]]></jaxbXML>
 				</OTFillin>                
                 <OutsideUrl id="a3s4" title="Making Hunger Realistic 1">
+                  <nodeaudios>
+                     <nodeaudio id="audio-a3s4" url="assets/audio/a3s4.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s4.html</url>
 				</OutsideUrl>
 				<OutsideUrl id="a3s5" title="Making Hunger Realistic 2">
+				  <nodeaudios>
+                     <nodeaudio id="audio-a3s5" url="assets/audio/a3s5.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s5.html</url>
 				</OutsideUrl>
                 <OutsideUrl id="a3s6" title="Making Hunger Realistic 3">
+				  <nodeaudios>
+                     <nodeaudio id="audio-a3s6" url="assets/audio/a3s6.mp3" />                  
+                  </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a3s6.html</url>
 				</OutsideUrl>
               </stepList>
@@ -639,14 +671,23 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
             <OTPasActivity id="c0e6d94f-0210-11de-9062-13382964bfbf" title="Connect Ideas" authorNotes="">
               <stepList>
                 <OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d7651c" title="Is there a better way to die?">
-					<url>http://localhost:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
+                	<nodeaudios>
+                     <nodeaudio id="audio-a4s1" url="assets/audio/a4s1.mp3" />                  
+                    </nodeaudios>
+					<url>http://pact.eecs.berkeley.edu:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
 				</OutsideUrl>
 				<OTBlueJ id="a4s2" title="Squash the Bugs" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
+                	<nodeaudios>
+                     <nodeaudio id="audio-a4s2" url="assets/audio/a4s2.mp3" />                  
+                    </nodeaudios>
                   <content>&lt;html&gt;&lt;img src='http://school.discoveryeducation.com/clipart/images/computer.gif' /&gt;&lt;p&gt;&lt;/p&gt;&lt;br&gt;&lt;p&gt;Start BlueJ manually and then in the menu choose Tools>Open Current BlueJ Project&lt;/p&gt;&lt;/html&gt;</content>
                   <projectPath>/cam-v2</projectPath>
                   <url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a4s2.html</url>
                 </OTBlueJ>				
 				<OutsideUrl id="623bf42b-5db6-11dd-ace9-3f6ab6d765dd" title="Thinking Ahead...">
+                	<nodeaudios>
+                     <nodeaudio id="audio-a4s3" url="assets/audio/a4s3.mp3" />                  
+                    </nodeaudios>
 					<url>http://pact.eecs.berkeley.edu:10088/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=43</url>
 				</OutsideUrl>
               </stepList>
@@ -654,6 +695,9 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
             <OTPasActivity id="cf0de551-0210-11de-9062-13382964bfbf" title="Summary" authorNotes="">
               <stepList>
                 <OutsideUrl id="a5s1" title="Section Summary">
+                	<nodeaudios>
+                     <nodeaudio id="audio-a4s1" url="assets/audio/a4s1.mp3" />                  
+                    </nodeaudios>
     				<url>http://uccpdev.berkeley.edu:10080/uccp-assets/curriculum/POC/a5s1.html</url>
 				</OutsideUrl>
               </stepList>

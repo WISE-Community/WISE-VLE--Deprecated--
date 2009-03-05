@@ -2,9 +2,14 @@
  * Object for storing state information of OpenResponse item.
  * @author Hiroki Terashima
  */
-function OPENRESPONSESTATE(response) {
-	this.timestamp = new Date();
+function OPENRESPONSESTATE(response, timestamp) {
 	this.response = response;   // which choice the student chose.
+	if(arguments.length == 1) {
+		//if the second argument (timestamp) was ommitted just set it to the current time
+		this.timestamp = new Date();
+	} else {
+		this.timestamp = timestamp;
+	}
 }
 
 OPENRESPONSESTATE.prototype.print = function() {

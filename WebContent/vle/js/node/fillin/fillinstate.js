@@ -2,20 +2,21 @@
  * Object for storing state information of FILL-IN item.
  * @author Hiroki Terashima
  */
-function FILLINSTATE(textEntryInteractionIndex, response) {
-	this.timestamp = new Date();
-	this.textEntryInteractionIndex = textEntryInteractionIndex;  // which blank the student answered.
-	this.response = response;   // what the student wrote in the blank.
-}
 
 /**
  * For re-creating the student's vle_state from their xml for
  * researcher/teacher display
  */
 function FILLINSTATE(textEntryInteractionIndex, response, timestamp) {
-	this.timestamp = timestamp;
 	this.textEntryInteractionIndex = textEntryInteractionIndex;  // which blank the student answered.
 	this.response = response;   // what the student wrote in the blank.
+	
+	if(arguments.length == 2) {
+		//if the third argument (timestamp) was ommitted just set it to the current time
+		this.timestamp = new Date();
+	} else {
+		this.timestamp = timestamp;
+	}
 }
 
 FILLINSTATE.prototype.print = function() {

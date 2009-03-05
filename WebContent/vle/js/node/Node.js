@@ -118,7 +118,7 @@ Node.prototype.getShowAllWorkHtml = function(){
 }
 
 Node.prototype.getDataXML = function(nodeStates) {
-	//alert(2 + ": " + nodeStates);
+	//alert("this.id: " + this.id);
 	var dataXML = "";
 	for (var i=0; i < nodeStates.length; i++) {
 		var state = nodeStates[i];
