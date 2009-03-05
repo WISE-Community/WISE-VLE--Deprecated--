@@ -111,14 +111,18 @@
 	padding:0px;
 }
 
-#triesContainer {
+#triesDiv {
+	text-align:center;
+}
+
+#triesContainer{
 	margin:5px auto 5px auto;
 	border-collapse:collapse;
-	text-align:left;
 	background-color:#CCCCCC;
-	}
+}
 
 #triesContainer th {
+	text-align:left;
 	font-size:.75em;
 	color:#333;
 	margin:0px;
@@ -126,6 +130,7 @@
 }
 
 #triesContainer td {
+	text-align:left;
 	font-size:.75em;
 	color:#333;
 	margin:0px;
