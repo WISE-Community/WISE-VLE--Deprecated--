@@ -17,14 +17,13 @@
 
 #currentFillBlankParagraph {
 	margin: 0 auto;
-	padding:10px 0;
+	padding:10px 0 0 0;
 	text-align:left;
 	}
 	
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
 	width:77%;
-	padding:10px 0;
 	background-color:#FFCE8E;
 	}
 	
@@ -45,7 +44,7 @@
 }
 
 #nonInteractiveDiv p {
-	margin: 5px 15px 10px 15px;
+	margin: 5px 15px 20px 15px;
 	font-size:.9em;
 	line-height:190%;
 }
@@ -86,26 +85,24 @@
 }
 
 #interactiveDiv {
-	width:70%;
-	margin:5px 20px 10px 40px;
+	width:80%;
+	margin:15px 5px 15px 40px;
 	text-transform:uppercase;
 	padding:2px;
-	font-size:.85em;
+	font-size:.80em;
 	color:#164CBA;
 	vertical-align:text-top;
 }
 
 #responsebox {
-	width:50%; 
-	height:40px;
+	width:60%; 
 	font-style:normal;
 	font-weight:bold;
 	color:#164CBA;
 	border:1px solid #333;
-	padding:10px;
-	margin: 0 0 0 10px;
+	padding:5px;
+	margin-left:10px;
 	font-size:1.1em;
-	line-height:1.3em;
 }
 
 #clearBoth {
@@ -115,7 +112,7 @@
 }
 
 #triesContainer {
-	margin:15px auto 8px auto;
+	margin:10px auto 8px auto;
 	border-collapse:collapse;
 	text-align:left;
 	background-color:#CCCCCC;

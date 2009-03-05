@@ -125,7 +125,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 window.onload=function(){
 Nifty("div#locationBar2","bottom,small");
 Nifty("div#questionCountBox","bl tr, large");
-Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
+Nifty("div#leftColumn,div#rightColumn","none bll tr big");
 
 }
 </script>
@@ -157,7 +157,6 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 	
 	<div id="leftColumn">
 			<div id="nonInteractiveDiv"></div>
-			<br/>
 			<div id="interactiveDiv"></div>
 	</div>
 	
@@ -168,8 +167,6 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 
 <div id="clearBoth"></div>
 
-<div id="feedbackDiv"></div>   <!-- styled in htmlAssessment.css -->
-
 <!-- Anchor-Based Button Layout using TABLE -->
 
 	<div id="buttonDiv">
@@ -177,9 +174,12 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 		   <tr>
 		   	<td><a href="#" id="checkAnswerButton" onClick="javascript:checkAnswer();" >Check Blank</a></td>
 		   	<td><a href="#" id="tryAgainButton" onClick="javascript:tryAgain();" >Try Again</a></td>
+		   	<td><a href="#" id="nextButton" onClick="javascript:next();" >Next</a></td>
 	   	   </tr>
 	   	 </table>
 	</div>
+
+<div id="feedbackDiv"></div>   <!-- styled in htmlAssessment.css -->
 
 <table id="triesContainer">
 	<tr>

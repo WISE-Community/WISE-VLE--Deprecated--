@@ -189,18 +189,14 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 		}
 
 #feedbackDiv {
-	width:70%;
-	margin:20px auto 10px auto;
-	padding:2px;
+	width:80%;
+	margin:0px auto;
 	text-align:center;
 	color:#19253D;
 }
 
-#feedbackDiv.incorrect {
-	color:red;
-	font-size:1.3em;
-}
-
+#feedbackDiv.correct {color:green;}
+#feedbackDiv.incorrect {color:red;}
 
 #clearBoth {
 	clear:both;
@@ -227,7 +223,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	
 #buttonTable{
   border-collapse:collapse;
-  margin:0px auto 0 auto;
+  margin:15px auto 0 auto;
   }
 
 #buttonTable a {
