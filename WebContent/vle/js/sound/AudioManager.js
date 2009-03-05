@@ -57,9 +57,9 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							url: nodeAudioElement.getAttribute("url"),
 							onplay: function() { 
 							//alert('onplay');
-							if (vle.getCurrentNode().type != null && vle.getCurrentNode().type == "outsideurl") {
+							if (vle.getCurrentNode().type != null && vle.getCurrentNode().type == "HtmlNode") {
 								//alert('about to call highlight');
-							//vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
+							    vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
 							}
 							},
 							whileplaying: function() {
@@ -74,7 +74,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");									
 							},							
 							onfinish: function() { 
-								//vle.contentPanel.highlightElement(this.elementId, "0px"); 
+								vle.contentPanel.highlightElement(this.elementId, "0px"); 
 								vle.getCurrentNode().playAudioNextAudio(this.elementId);
 								}
 						});
@@ -84,8 +84,8 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							id: nodeAudioElement.getAttribute("id"),
 							url: nodeAudioElement.getAttribute("url"),
 							onplay: function() { 
-							if (vle.getCurrentNode().type != null && vle.getCurrentNode().type == "outsideurl") {
-								//vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
+							if (vle.getCurrentNode().type != null && vle.getCurrentNode().type == "HtmlNode") {
+								vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
 							}},
 							whileplaying: function() {
 								var playPauseAudioElement = document.getElementById("playPause");
@@ -99,7 +99,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");									
 							},
 							onfinish: function() { 
-								//vle.contentPanel.highlightElement(this.elementId, "0px"); 
+								vle.contentPanel.highlightElement(this.elementId, "0px"); 
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "pause");
 								addClassToElement("playPause", "play");									

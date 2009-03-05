@@ -27,7 +27,7 @@ NodeFactory.createNode = function (nodeType){
 	if (nodeType == null) {
 		return new Node();		
 	} else if (htmlPageTypes.indexOf(nodeType) > -1) {
-		return new HtmlNode(nodeType);
+		return new HtmlNode("HtmlNode");
 	} else if (customPageTypes.indexOf(nodeType) > -1) {
 		switch (nodeType) {
 			case "OTMatchSequence": return new MatchSequenceNode(); break;
@@ -90,7 +90,7 @@ PasOtmlProject.prototype.onLoadedEvent = function(type, args, me) {
 	vle.setProject(me);
 	vle.navigationLogic = new NavigationLogic(dfs);
 	vle.setConnection(new ConnectionManager());
-	setTimeout("vle.renderNode('0:1:0')", 3000);
+	setTimeout("vle.renderNode('0:0:0')", 1000);
 }
 
 PasOtmlProject.prototype.generateNode = function(xmlDoc) {

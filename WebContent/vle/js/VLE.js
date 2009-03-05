@@ -240,19 +240,17 @@ VLE_STATE.prototype.parseDataXML = function(xmlString) {
 }
 
 
-
-function NODE_VISIT(node) {
-	this.node = node;
-	this.nodeStates = [];
-	this.visitStartTime = new Date();
-	this.visitEndTime = null;
-}
-
 function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 	this.node = node;
-	this.nodeStates = nodeStates;
-	this.visitStartTime = visitStartTime;
-	this.visitEndTime = visitEndTime;
+	if (arguments.length == 1) {
+		this.nodeStates = [];
+		this.visitStartTime = new Date();
+		this.visitEndTime = null;
+	} else {
+		this.nodeStates = nodeStates;
+		this.visitStartTime = visitStartTime;
+		this.visitEndTime = visitEndTime;
+	}
 }
 
 /**

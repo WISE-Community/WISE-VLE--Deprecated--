@@ -44,7 +44,8 @@ HtmlNode.prototype.getShowAllWorkHtml = function(){
 }
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {
-	return HtmlNode.prototype.parent.getDataXML(nodeStates);
+	return "";
+	// return HtmlNode.prototype.parent.getDataXML(nodeStates); todo: geoff add state to htmlnode
 }
 
 HtmlNode.prototype.parseDataXML = function(nodeStatesXML) {
