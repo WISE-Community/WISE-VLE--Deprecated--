@@ -23,12 +23,12 @@
 	
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
-	width:77%;
+	width:78%;
 	background-color:#FFCE8E;
 	}
 	
 #currentFillBlankParagraph #rightColumn {
-	padding:10px 0;
+	padding:25px 0;
 	text-align:center;
 	margin-left:79%;
 	background-color:#6883BA;
@@ -85,8 +85,8 @@
 }
 
 #interactiveDiv {
-	width:80%;
-	margin:15px 5px 15px 40px;
+	width:85%;
+	margin:15px 5px 15px 30px;
 	text-transform:uppercase;
 	padding:2px;
 	font-size:.80em;
@@ -112,21 +112,21 @@
 }
 
 #triesContainer {
-	margin:10px auto 8px auto;
+	margin:5px auto 5px auto;
 	border-collapse:collapse;
 	text-align:left;
 	background-color:#CCCCCC;
 	}
 
 #triesContainer th {
-	font-size:.8em;
+	font-size:.75em;
 	color:#333;
 	margin:0px;
 	padding:2px 0 2px 20px;
 }
 
 #triesContainer td {
-	font-size:.8em;
+	font-size:.75em;
 	color:#333;
 	margin:0px;
 	padding:2px 20px;
