@@ -73,6 +73,7 @@ function PasOtmlProject(xmlDocObj) {
 	this.xmlDocObj = xmlDocObj;
 	this.xmlDoc = null;
 	this.rootNode = null;
+	vle = new VLE();
 
 	this.xmlDocObj.loadedEvent.subscribe(this.onLoadedEvent, this);
 }
@@ -86,14 +87,13 @@ PasOtmlProject.prototype.onLoadedEvent = function(type, args, me) {
 	me.generateNode();
 	//alert(me.rootNode.id);
 	var dfs = new DFS(me.rootNode);
-	vle = new VLE();
 	vle.setProject(me);
 	vle.navigationLogic = new NavigationLogic(dfs);
 	vle.setConnection(new ConnectionManager());
 	setTimeout("vle.renderNode('0:1:0')", 3000);
 }
 
-PasOtmlProject.prototype.generateNode = function() {
+PasOtmlProject.prototype.generateNode = function(xmlDoc) {
 	//alert(this.xmlDoc);
 	//alert('pasOtmlproject.generateNode: ' + this.xmlDocObj + ", " + this.xmlDocObj.xmlDoc);
 	this.rootNode = new Node();
@@ -116,7 +116,17 @@ PasOtmlProject.prototype.generateNode = function() {
 	var activityId = 0;
 	var stepId = 0;
 	//var activities = this.xmlDocObj.xmlDoc.getElementsByTagName("OTPasActivity"); works for ff but not ie...stupid ie
-	var activities = this.xmlDoc.getElementsByTagName("OTPasActivity");
+	var activities = null;
+	if (xmlDoc) {
+		//alert('xmlDoc:' + xmlDoc);
+		//alert(xmlDoc);
+		activities = xmlDoc.getElementsByTagName("OTPasActivity");
+		//alert('activites.length0:' + activities.length);
+		this.xmlDoc = xmlDoc;
+	} else {
+		//alert('no xmldoc. resorting to this.xmlDoc');
+		activities = this.xmlDoc.getElementsByTagName("OTPasActivity");
+	}
 	//alert('activities.length:' + activities.length);
 	for (var i=0; i < activities.length; i++) {
 		stepId = 0;

@@ -32,13 +32,10 @@ function LoadXMLDocObj(){
 LoadXMLDocObj.prototype.load = function(dname) {
 		
 try //Internet Explorer
-  {	  alert("trying IE");
-
-  this.xmlDoc = "abc";
-  alert("ie0, this.xmlDoc: " + this.xmlDoc);
-  this.xmlDoc = null;
-  alert("ie1, this.xmlDoc: " + this.xmlDoc);
+  {
   this.xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+  alert('ERROR: LOADING FROM XML FILE IN  IE DOES NOT CURRENTLY WORK. EXITING.');
+  return;
   alert("ie2, this.xmlDoc: " + this.xmlDoc);
   //this.xmlDoc = new ActiveXObject("Microsoft.XMLHTTP");
   //alert("ie3, this.xmlDoc: " + this.xmlDoc);
@@ -75,6 +72,8 @@ LoadXMLDocObj.prototype.loadString = function(txt){
 	try //Internet Explorer
 	{
 		this.xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+		//alert('ERROR: LOADING FROM XMLSTRING IN  IE DOES NOT CURRENTLY WORK. EXITING.');
+		//return;
 		this.xmlDoc.async = "false";
 		this.xmlDoc.loadXML(txt);
 		this.loadedEvent.fire(this.xmlDoc);
@@ -95,47 +94,3 @@ LoadXMLDocObj.prototype.loadString = function(txt){
 	}
 	return (null);
 }		
-
-function loadXMLString(txt) 
-{
-try //Internet Explorer
-  {
-  xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-  xmlDoc.async="false";
-  xmlDoc.loadXML(txt);
-  return(xmlDoc); 
-  }
-catch(e)
-  {
-  try //Firefox, Mozilla, Opera, etc.
-    {
-    parser=new DOMParser();
-    xmlDoc=parser.parseFromString(txt,"text/xml");
-    return(xmlDoc);
-    }
-  catch(e) {alert(e.message)}
-  }
-return(null);
-}
-
-function loadXMLDocFromString(txt) 
-{
-try //Internet Explorer
-  {
-  xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-  xmlDoc.async="false";
-  xmlDoc.loadXML(txt);
-  return(xmlDoc); 
-  }
-catch(e)
-  {
-  try //Firefox, Mozilla, Opera, etc.
-    {
-    parser=new DOMParser();
-    xmlDoc=parser.parseFromString(txt,"text/xml");
-    return(xmlDoc);
-    }
-  catch(e) {alert(e.message)}
-  }
-return(null);
-}
