@@ -15,11 +15,12 @@ MultipleChoiceNode.prototype.render = function(contentpanel) {
 
 
 MultipleChoiceNode.prototype.load = function() {
-	//var xmlNode = this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
-	//window.frames["ifrm"].renderMCFromString(xmlNode);
+	var xmlNode = this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
+	window.frames["ifrm"].renderMCFromString(xmlNode);
 	
-	//these steps are now loaded from the vle/otml
-	window.frames["ifrm"].loadFromVLE(this, vle);
+	//these steps are now loaded from the vle/otml, this does not work for some reason
+	//window.frames["ifrm"].loadFromVLE(this, vle);
+	
 	document.getElementById('topStepTitle').innerHTML = this.title;
 }
 
