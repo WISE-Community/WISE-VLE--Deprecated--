@@ -1,6 +1,8 @@
 
 /* CORE LAYOUT STYLES */
 
+* {padding:0; margin:0}
+
 body {
 	/* font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
@@ -9,15 +11,12 @@ body {
 	margin: 4px;
 	background-color:#666;
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
-	background-repeat:repeat;; 
-	
+	background-repeat:repeat;
 	}
 	
 img {border: 0px;}
-* {padding:0; margin:0}
 
 /* This override presents Firefox browser from drawing an ugly dotted line around the focus Input button */
-
 button::-moz-focus-inner,
 input[type="reset"]::-moz-focus-inner,
 input[type="button"]::-moz-focus-inner,
@@ -80,8 +79,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	height:609px;
 	overflow:auto;
 	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;  }
-	
+	-moz-border-radius-topright:8px;  
+}
+
+#contentDiv {padding:0;margin:0;}
+iframe {padding:0;margin:0;}
+#ifrm {padding:0;margin:0;}
+
 /* STYLES FOR PROJECT LEFT BOX */
 
 #projectLogoBox{
