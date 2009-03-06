@@ -59,5 +59,5 @@ BlueJNode.prototype.getShowAllWorkHtml = function(){
 }
 
 BlueJNode.prototype.getDataXML = function(nodeStates) {
-	return BlueJNode.prototype.parent.getDataXML(nodeStates);
+	return this.projectPath;
 }
