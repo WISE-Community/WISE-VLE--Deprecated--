@@ -70,7 +70,11 @@ public class VLEGetData extends HttpServlet {
         try
         {
             stmt = conn.createStatement();
-            stmt.execute("create table vledata (id bigint auto_increment, data longtext, primary key(id))");
+            stmt.execute("create table vledata (id bigint auto_increment, dataId bigint UNIQUE NOT NULL, data longtext, primary key(id));");
+            stmt.close();
+            
+            stmt = conn.createStatement();
+            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) UNIQUE NOT NULL, dataId bigint UNIQUE NOT NULL, primary key(id), foreign key (dataId) references vledata (dataId) ON DELETE CASCADE)");
             stmt.close();
         }
         catch (SQLException sqlExcept)
@@ -82,25 +86,35 @@ public class VLEGetData extends HttpServlet {
     
     private static void printData(HttpServletRequest request, HttpServletResponse response)
     {
+    	String userNameStr = request.getParameter("userName");
     	String idStr = request.getParameter("dataId");
+    	
         try
         {
             stmt = conn.createStatement();
-            ResultSet results = stmt.executeQuery("select data from vledata where dataId=" + idStr);
-            ResultSetMetaData rsmd = results.getMetaData();
-            int numberCols = rsmd.getColumnCount();
-            {
-                //print Column Names
-                //System.out.print(rsmd.getColumnLabel(i)+"\t\t");  
+            ResultSet results = null;
+            
+            /*
+             * We will try to look up the data for the userName but
+             * if that was not passed as an argument we will look
+             * up the data for the dataId  
+             */
+            if(userNameStr != null && !userNameStr.equals("")) {
+            	//user has requested data for a username
+            	results = stmt.executeQuery("select vledata.data from username_to_dataid, vledata where username_to_dataid.dataId = vledata.dataId and username_to_dataid.userName = '" + userNameStr + "'");
+            } else if(idStr != null && !idStr.equals("")) {
+            	//user has requested data for a dataid
+                results = stmt.executeQuery("select data from vledata where dataId = '" + idStr + "'");
+            }
+            
+            if(results != null) {
+            	while(results.next())
+                {
+                	response.getWriter().print(results.getString(1));
+                }
+                results.close();
             }
 
-            //System.out.println("\n-------------------------------------------------");
-
-            while(results.next())
-            {
-            	response.getWriter().print(results.getString(1));
-            }
-            results.close();
             stmt.close();
         }
         catch (SQLException sqlExcept)

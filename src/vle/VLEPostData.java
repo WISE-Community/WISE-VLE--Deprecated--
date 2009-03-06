@@ -82,7 +82,11 @@ public class VLEPostData extends HttpServlet {
         try
         {
             stmt = conn.createStatement();
-            stmt.execute("create table vledata (id bigint auto_increment, data longtext, primary key(id))");
+            stmt.execute("create table vledata (id bigint auto_increment, dataId bigint UNIQUE NOT NULL, data longtext, primary key(id));");
+            stmt.close();
+            
+            stmt = conn.createStatement();
+            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) UNIQUE NOT NULL, dataId bigint UNIQUE NOT NULL, primary key(id), foreign key (dataId) references vledata (dataId) ON DELETE CASCADE)");
             stmt.close();
         }
         catch (SQLException sqlExcept)
@@ -92,29 +96,92 @@ public class VLEPostData extends HttpServlet {
     }
     private static void postData(HttpServletRequest request,
 			HttpServletResponse response) {
+    	String userNameStr = request.getParameter("userName");
     	String idStr = request.getParameter("dataId");
     	String postDataStr = request.getParameter("data");
-    	if (idStr == null || postDataStr == null ||
-    			idStr == "") {
+    	if (postDataStr == null) {
     		System.out.println("no need to save data");
     		return;
     	}
     	   try
            {
     		   stmt = conn.createStatement();
-
-    		   //check if the id already has an entry in the table
-    		   ResultSet results = stmt.executeQuery("select * from vledata where dataId=" + idStr);
+    		   ResultSet results = null;
     		   
-    		   if(results.next()) {
-    			   //the id already exists so just update that row
-    			   System.out.println("update vledata set data='" + postDataStr + "' where dataId=" + idStr);
-    			   stmt.execute("update vledata set data='" + postDataStr + "' where dataId=" + idStr);
-               } else {
-            	   //the id does not exist so we will create a new row
-            	   System.out.println("insert into vledata (data, dataId) values ('" + postDataStr + "', '" + idStr + "')");
-            	   stmt.execute("insert into vledata (data, dataId) values ('" + postDataStr + "', '" + idStr + "')");
-               }
+    		   if(userNameStr != null && !userNameStr.equals("")) {
+    			   //see if the username exists in the db
+    			   results = stmt.executeQuery("select * from username_to_dataid where userName = '" + userNameStr + "'");
+    			   
+        		   if(results != null && results.next()) {
+        			   //username exists in the db
+        			   
+        			   /*
+        			    * get the corresponding dataId for the username
+        			    * note: this may be different than the post parameter 
+        			    * dataId due to user error, at this point we will
+        			    * just ignore the dataId post parameter the user
+        			    * has passed in
+        			    */
+        			   
+        			   //retrieve the dataId column value
+        			   String dataId = results.getString(3);
+        			   
+        			   //look for the dataId in the vledata table
+        			   results = stmt.executeQuery("select * from vledata where dataId = '" + dataId + "'");
+        			   
+        			   //check if the corresponding dataId for the username exists in vledata table
+        			   if(results != null && results.next()) {
+        				   //dataId exists in db so we will update it
+        				   stmt.execute("update vledata set data = '" + postDataStr + "' where dataId = '" + dataId + "'");
+        			   } else {
+        				   //dataId does not exist in db so we will create it
+        				   stmt.execute("insert into vledata (dataId, data) values ('" + dataId + "', '" + postDataStr + "')");
+        			   }
+        		   } else {
+        			   //username does not exist in db
+        			   
+        			   if(idStr != null && !idStr.equals("")) {
+        				   /*
+        				    * dataId was passed in so we will create the new
+        				    * row with the mapping of userName and dataId 
+        				    */
+        				   stmt.execute("insert into username_to_dataid (userName, dataId) values ('" + userNameStr + "', '" + idStr + "')");
+        				   
+        				   //look for the post parameter dataId in the vledata table
+        				   results = stmt.executeQuery("select * from vledata where dataId = '" + idStr + "'");
+        				   
+        				   if(results != null && results.next()) {
+        					   //dataId exists in db so we will update it
+        					   stmt.execute("update vledata set data='" + postDataStr + "' where dataId='" + idStr + "'");
+        				   } else {
+        					   //dataId does not exist in db so we will create it
+        					   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
+        				   }
+        			   }
+        			   
+        			   /*
+        			    * if userName does not exist in db and dataId was not
+        			    * passed in as an argument, no rows will be created
+        			    * or changed because in order to create a new userName
+        			    * row we also need a dataId
+        			    */
+        		   }
+    		   } else if(idStr != null && !idStr.equals("")) {
+    			   //username was not pass in but dataId was pass in
+    			   
+    			 //look for the post parameter dataId in the vledata table
+    			   results = stmt.executeQuery("select dataId from vledata where dataId = '" + idStr + "'");
+    			   
+    			   //check if the id already has an entry in the table
+        		   if(results != null && results.next()) {
+        			 //dataId exists in db so we will update it
+        			   String dataId = results.getString(1);
+        			   stmt.execute("update vledata set data='" + postDataStr + "' where dataId='" + idStr + "'");
+        		   } else {
+        				//dataId does not exist in db so we will create it
+        			   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
+        		   }
+    		   }
     		   
                stmt.close();
            }
