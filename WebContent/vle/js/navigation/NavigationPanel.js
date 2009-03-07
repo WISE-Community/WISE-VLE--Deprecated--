@@ -51,13 +51,13 @@ NavigationPanel.prototype.getNavigationHtml = function(node) {
 	
     
     if (node.children.length > 0) {
-		htmlSoFar += "<div class=\"collapsed\"><span>"+node.getTitle()+"</span>";
+		htmlSoFar += "<div class=\"collapsed\" id=\"" + node.id + "_menu\"><span>"+node.getTitle()+"</span>";
 		for (var i = 0; i < node.children.length; i++) {
 			htmlSoFar += this.getNavigationHtml(node.children[i]);
 		}
 		htmlSoFar += "</div>";
 	} else {
-		htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\">" + node.getTitle() + "</a>";
+		htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + node.getTitle() + "</a>";
 	}
 	return htmlSoFar;
 }

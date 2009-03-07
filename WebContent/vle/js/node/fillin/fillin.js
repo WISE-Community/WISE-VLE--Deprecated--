@@ -88,7 +88,17 @@ FILLIN.prototype.generateNonInteractiveDivHtml = function(node) {
 			var responseIdStr = children[i].getAttribute('responseIdentifier');
 			var responseId = responseIdStr.substring(responseIdStr.indexOf("_")+1, responseIdStr.length);
 			if (parseInt(responseId) < currentTextEntryInteractionIndex) {
-				this.html += "<input type=\'text\' class=\"completedBlank\" disabled value=\""+ this.textEntryInteractions[parseInt(responseId)].responseDeclaration.correctResponse +"\"></input>";
+				var studentResponse;
+				// changing to actual student response -- if not found, revert to correct answer
+				for(var z=0;z<states.length;z++){
+					if(states[z].textEntryInteractionIndex==currentTextEntryInteractionIndex - 1){
+						studentResponse = states[z].response;
+					};
+				};
+				if(studentResponse==null){
+					studentResponse = this.textEntryInteractions[parseInt(responseId)].responseDeclaration.correctResponse;
+				};
+				this.html += "<input type=\'text\' class=\"completedBlank\" disabled value=\""+ studentResponse +"\"></input>";
 			} else {
 				var humanIndex = parseInt(responseId)+1;
 				if (responseId == currentTextEntryInteractionIndex) {    // add activeBlank class if the box is current box.

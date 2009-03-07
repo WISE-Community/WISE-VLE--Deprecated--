@@ -118,18 +118,21 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		
 		  <dl class="dropdown">
 		  <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
-		  		<div id="menuTitle">project menu</div>
+		  		<div id="menuTitle">course menu</div>
 				<img src="./assets/images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
 		</dt>
 		
 		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
 		    <ul>
+		      <!-- requested changes have been remarked out -->
+		      <li><a class="underline2" href="http://uccpdev.berkeley.edu/uccp-assests/page/index.html">Resources</a></li>
 		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
 		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
-		      <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>
-		      <li><a class="underline">Save</a></li>
-			  <li><a class="underline2">Save & Exit</a></li>
-			  <li><a class="underline">Report an Issue</a></li>
+		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
+		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
+			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
+			  <li><a class="underline" onclick="alert('not yet implemented');">Print</a></li>
+			  <!-- <li><a class="underline">Report an Issue</a></li>   -->
 		    </ul>
 		  </dd>
 		</dl>
