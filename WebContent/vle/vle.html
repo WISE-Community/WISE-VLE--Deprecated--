@@ -1,10 +1,8 @@
 <html>
 <title>Loading Sample PAS Project to Virtual Learning Environment</title>
 <head>
-<!--  
 <script type="text/javascript" src="js/sound/soundmanager/script/soundmanager2.js"></script>
 <script type="text/javascript" src="js/sound/AudioManager.js"></script>
--->
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="js/VLE.js"></script>
@@ -168,45 +166,6 @@ function popUp(strURL, strType, strHeight, strWidth) {
 					
 			<div id="navigationMenuBox" >
 				    <div id="my_menu" class="sdmenu">
-					  <div>
-				        <span>A1: Lessons Goals</span>
-				        <a href="">Step1: name for the step here</a>
-				        <a href="">Step2: name for the step here</a>
-					  </div>
-				      <div class="collapsed">
-				        <span>A2: My Ideas</span>
-				       <a href="">Step1: Here's an example of a very long step name</a>
-				        <a href="">Step2: name for the step here</a>
-						<a href="">Step3: name for the step here</a>
-						<a href="">Step4: name for the step here</a>
-						<a href="">Step5: name for the step here</a>
-				      </div>
-				      <div class="collapsed">
-				       <span>A3: Explore New Ideas</span>
-				        <a href="">Step1: another example of a long and intrguing step name</a>
-				        <a href="">Step2: name for the step here</a>
-						<a href="">Step3: name for the step here</a>
-						<a href="">Step4: name for the step here</a>
-						<a href="">Step5: name for the step here</a>
-				      </div>
-					  <div class="collapsed">
-				       <span>A4: Test My Knowledge</span>
-				       <a href="">Step1: name for the step here</a>
-				        <a href="">Step2: name for the step here</a>
-						<a href="">Step3: name for the step here</a>
-					 </div>
-				      <div class="collapsed">
-				       <span>A5: Power Programming</span>
-				       <a href="">Step1: name for the step here</a>
-				        <a href="">Step2: name for the step here</a>
-						<a href="">Step3: name for the step here</a>
-						<a href="">Ste4: name for the step here</a>
-				      </div>
-					  <div class="collapsed">
-				       <span>A6: Sum It Up</span>
-				       <a href="">Step1: name for the step here</a>
-				        <a href="">Step2: name for the step here</a>
-					   </div>							
 				   	</div>
 		    </div>   <!-- end of #navigationMenuBox -->
 	</div>   <!-- end of #navigationArea -->
@@ -267,8 +226,8 @@ function render() {
 			vle.setProject(project);
 			vle.navigationLogic = new NavigationLogic(dfs);
 			vle.setConnection(new ConnectionManager());
-			setTimeout("vle.renderNode('0:1:0')", 3000);
-		  
+			setTimeout("vle.renderNode('0:0:0')", 3000);
+			vle.audioManager = new AudioManager(true);	  
 		  //alert('success:' + o.responseText);
 	  },
 	  failure: function(o) { alert('failure');},
@@ -292,10 +251,11 @@ function render() {
 
 function loadFromString(xmlString, runid) {
 	//alert('load this: ' + xmlString);
-	  var xmlDocObj = new LoadXMLDocObj();
-	  var project = new PasOtmlProject(xmlDocObj);
-	  xmlDocObj.loadString(xmlString);
-	  vle.audioManager = new AudioManager(true);
+	  //var xmlDocObj = new LoadXMLDocObj();
+	  //var project = new PasOtmlProject(xmlDocObj);
+	  //xmlDocObj.loadString(xmlString);
+	  render();
+	  //vle.audioManager = new AudioManager(true);
 	  runId = runid;	  
 	  //parent.foo();
 }
