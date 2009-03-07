@@ -31,6 +31,7 @@ public class VLEPostData extends HttpServlet {
 	throws ServletException, IOException {
         createConnection();
         postData(request, response);
+        shutdown();
 	}
 	
 	/**
@@ -42,6 +43,7 @@ public class VLEPostData extends HttpServlet {
 	throws ServletException, IOException {
         createConnection();
         postData(request, response);
+        shutdown();
 	}
 		
 
@@ -224,33 +226,12 @@ public class VLEPostData extends HttpServlet {
     }
     
 
-    private static void shutdown()
-    {
-    	 try
-         {
-             stmt = conn.createStatement();
-             stmt.execute("SHUTDOWN");
-             stmt.close();
-         }
-         catch (SQLException sqlExcept)
-         {
-             sqlExcept.printStackTrace();
-         }    	
-        try
-        {
-            if (stmt != null)
-            {
-                stmt.close();
-            }
-            if (conn != null)
-            {
-                conn.close();
-            }           
-        }
-        catch (SQLException sqlExcept)
-        {
-            
-        }
-
+    private static void shutdown() {
+    	try {
+    		conn.close();
+    	} catch(SQLException sqlExcept) {
+    		sqlExcept.printStackTrace();
+    	}
     }
+
 }
