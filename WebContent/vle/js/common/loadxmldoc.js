@@ -85,7 +85,7 @@ LoadXMLDocObj.prototype.loadString = function(txt){
 			parser = new DOMParser();
 			this.xmlDoc = parser.parseFromString(txt, "text/xml");
  	 		//alert('done loading!');
-  			this.loadedEvent.fire(null);
+  			this.loadedEvent.fire(this.xmlDoc);
 			//return (xmlDoc);
 		} 
 		catch (e) {

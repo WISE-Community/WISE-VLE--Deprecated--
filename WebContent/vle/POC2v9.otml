@@ -371,7 +371,7 @@
               </entries>
             </OTJournalAlbum>
           </journalAlbum>
-          <activityList>
+          <activityList>           
             <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="Introduction" authorNotes="">
               <stepList>
 <OTIntroPage id="a1s1" title="Objectives" authorNotes="" hoverString="Pas Step" speechText="">
@@ -675,7 +675,7 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
                 	<nodeaudios>
                      <nodeaudio id="audio-a4s1" url="assets/audio/a4s1.mp3" />                  
                     </nodeaudios>
-					<url>http://pact.eecs.berkeley.edu:8080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
+					<url>http://pact.eecs.berkeley.edu:10080/webapp/student/brainstorm/studentbrainstorm.html?brainstormId=42</url>
 				</OutsideUrl>
 				<OTBlueJ id="a4s2" title="Squash the Bugs" authorNotes="" hoverString="Pas Step" speechText="BlueJ Step.">
                 	<nodeaudios>

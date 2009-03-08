@@ -67,11 +67,21 @@ VLE.prototype.renderNode = function(nodeId){
 		if(this.connectionManager != null) {
 			this.connectionManager.post(vle.user);
 		}
+		this.expandActivity(nodeId);   // always expand the navigation bar
     }
 }
 
+VLE.prototype.expandActivity = function(nodeId) {
+	var idStr = new String(nodeId);
+	var newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
+	if(newActivityId){			
+		submenu = document.getElementById(newActivityId + "_menu");
+		submenu.className = "";
+		myMenu.expandMenu(submenu);
+	};
+}
 VLE.prototype.renderPrevNode = function() {
-	var newActivityId;
+	//var newActivityId;
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
 		alert("prev is not defined.");
@@ -79,42 +89,42 @@ VLE.prototype.renderPrevNode = function() {
 	var prevNode = this.navigationLogic.getPrevNode(currentNode);
 	while (prevNode.type == "Activity") {
 		prevNode = this.navigationLogic.getPrevNode(prevNode);
-		var idStr = new String(prevNode.id);
-		newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
+		//var idStr = new String(prevNode.id);
+		//newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
 	}
 	
 	if (prevNode == null) {
 		alert("prevNode does not exist");
 	} else {
 		this.renderNode(prevNode.id);		
-		if(newActivityId){			
-			submenu = document.getElementById(newActivityId + "_menu");
-			submenu.className = "";
-			myMenu.expandMenu(submenu);
-		};
+		//if(newActivityId){			
+			//submenu = document.getElementById(newActivityId + "_menu");
+			//submenu.className = "";
+			//myMenu.expandMenu(submenu);
+		//};
 	}
 }
 
 VLE.prototype.renderNextNode = function() {
-	var newActivityId;
+	//var newActivityId;
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
 		alert("next is not defined.");
 	}
 	var nextNode = this.navigationLogic.getNextNode(currentNode);
 	while (nextNode.type == "Activity") {
-		newActivityId = nextNode.id;
+		//newActivityId = nextNode.id;
 		nextNode = this.navigationLogic.getNextNode(nextNode);
 	}
 	if (nextNode == null) {
 		alert("nextNode does not exist");
 	} else {
 		this.renderNode(nextNode.id);
-		if(newActivityId){			
-			submenu = document.getElementById(newActivityId + "_menu");
-			submenu.className = "";
-			myMenu.expandMenu(submenu);
-		};
+		//if(newActivityId){			
+			//submenu = document.getElementById(newActivityId + "_menu");
+			//submenu.className = "";
+			//myMenu.expandMenu(submenu);
+		//};
 	}
 }
 

@@ -62,6 +62,8 @@ window.onload=function(){
 Nifty("div#none","bottom");
 Nifty("div#navigationBox","big");
 Nifty("ul.toolsButtons a","transparent");
+render();
+//parent.foo2();
 }
 
 function projectSummary(){
@@ -116,21 +118,18 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		
 		  <dl class="dropdown">
 		  <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
-		  		<div id="menuTitle">course menu</div>
+		  		project menu
 				<img src="./assets/images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
 		</dt>
 		
 		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
 		    <ul>
-		      <!-- requested changes have been remarked out -->
-		      <li><a class="underline2" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
 		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
 		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
-		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
-		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
-			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
-			  <li><a class="underline" onclick="alert('not yet implemented');">Print</a></li>
-			  <!-- <li><a class="underline">Report an Issue</a></li>   -->
+		      <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>
+		      <li><a class="underline">Save</a></li>
+			  <li><a class="underline2">Save & Exit</a></li>
+			  <li><a class="underline">Report an Issue</a></li>
 		    </ul>
 		  </dd>
 		</dl>
@@ -221,46 +220,45 @@ function render() {
 	  success: function(o) { 
 		  var xmlDocObj = new LoadXMLDocObj();
 		  xmlDocObj.xmlDoc = o.responseXML;
+		  //alert(o.responseXML);
+		  var xmlDocToParse = o.responseXML;
+		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
+			  //alert('stupid ie time');
+			  //alert(o.responseText);
+			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
+			  windowsXMLDoc.async = "false";
+			  windowsXMLDoc.loadXML(o.responseText);
+			  xmlDocToParse = windowsXMLDoc;
+			  //alert('done');
+			  //alert(xmlDocToParse);
+			  //alert('done done');
+		  }		  
 		  var project = new PasOtmlProject(xmlDocObj);
+		  
 		  project.xmlDoc = o.responseXML;
-		  project.generateNode();
+		  project.generateNode(xmlDocToParse);
 			//alert(me.rootNode.id);
 			var dfs = new DFS(project.rootNode);
 			vle.setProject(project);
 			vle.navigationLogic = new NavigationLogic(dfs);
 			vle.setConnection(new ConnectionManager());
-			setTimeout("vle.renderNode('0:0:0')", 3000);
 			vle.audioManager = new AudioManager(true);	  
+			
+			setTimeout("vle.renderNode('0:0:0')", 1000);
+		  
 		  //alert('success:' + o.responseText);
 	  },
 	  failure: function(o) { alert('failure');},
 	  argument: ["a", "b", "c"]
 	}
 
-	var sUrl = "vle.html?getRunManager=true&runId=${runId}";
 	var transaction = YAHOO.util.Connect.asyncRequest('GET', "POC2v9.otml", callback, null);
-
-	
-	  //xmlDocObj.load("POC2v9.otml");
-	  //xmlDocObj.load("all_step_types.otml");
-	  //vle.audioManager = new AudioManager(true);	  
 	
 	  //var xmlDocObj = new LoadXMLDocObj();
 	  //var project = new PasOtmlProject(xmlDocObj);
 	  //xmlDocObj.load("POC2v9.otml");
 	  //xmlDocObj.load("all_step_types.otml");
 	  //vle.audioManager = new AudioManager(true);	  
-}
-
-function loadFromString(xmlString, runid) {
-	//alert('load this: ' + xmlString);
-	  //var xmlDocObj = new LoadXMLDocObj();
-	  //var project = new PasOtmlProject(xmlDocObj);
-	  //xmlDocObj.loadString(xmlString);
-	  render();
-	  //vle.audioManager = new AudioManager(true);
-	  runId = runid;	  
-	  //parent.foo();
 }
 
 var myMenu;
@@ -269,4 +267,3 @@ var myMenu;
 <div id="soundmanager-debug"></div>
 </body>
 </html>
-
