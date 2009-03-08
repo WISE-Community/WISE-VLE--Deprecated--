@@ -69,6 +69,10 @@ VLE.prototype.renderNode = function(nodeId){
 		}
 		this.expandActivity(nodeId);   // always expand the navigation bar
     }
+    var loadingMessageDiv = document.getElementById("loadingMessageDiv");
+    if(loadingMessageDiv != null && loadingMessageDiv != undefined) {
+    	loadingMessageDiv.innerHTML = "";
+    }
 }
 
 VLE.prototype.expandActivity = function(nodeId) {
