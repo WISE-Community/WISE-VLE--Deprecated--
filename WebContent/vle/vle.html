@@ -123,9 +123,10 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
 		    <ul>
 		      <!-- requested changes have been remarked out -->
-		      <li><a class="underline2" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
-		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
-		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
+		      <li><a class="underline2" target=_blank href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
+		      <!-- <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>  -->
+		      <!-- <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>  -->
+		      <li><a onclick="alert('not yet styled');" class="underline2">Show All Work</a></li>
 		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
 		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
 			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
@@ -143,7 +144,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 				<div class="unit">Unit 3: Section 1</div>
 			</div>
 	<div id="logInBox">
-		<p>SignIn: Keyser Soze</p>
+		<p>SignIn: Sample Student</p>
 	</div>
 			
 	</div>
@@ -215,7 +216,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 	
 	
 var vle = null;
-function render() {
+function render(xmlString, runid, workgroupId) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -230,7 +231,8 @@ function render() {
 			vle.navigationLogic = new NavigationLogic(dfs);
 			vle.setConnection(new ConnectionManager());
 			setTimeout("vle.renderNode('0:0:0')", 3000);
-			vle.audioManager = new AudioManager(true);	  
+			vle.audioManager = new AudioManager(true);
+			vle.user = workgroupId;
 		  //alert('success:' + o.responseText);
 	  },
 	  failure: function(o) { alert('failure');},
@@ -252,13 +254,14 @@ function render() {
 	  //vle.audioManager = new AudioManager(true);	  
 }
 
-function loadFromString(xmlString, runid) {
+function loadFromString(xmlString, runid, workgroupId) {
 	//alert('load this: ' + xmlString);
 	  //var xmlDocObj = new LoadXMLDocObj();
 	  //var project = new PasOtmlProject(xmlDocObj);
 	  //xmlDocObj.loadString(xmlString);
-	  render();
+	  render(xmlString, runid, workgroupId);
 	  //vle.audioManager = new AudioManager(true);
+	  
 	  runId = runid;	  
 	  //parent.foo();
 }

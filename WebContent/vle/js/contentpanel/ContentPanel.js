@@ -20,9 +20,15 @@ ContentPanel.prototype.render = function(nodeId) {
  */
 ContentPanel.prototype.highlightElement = function(elementIdentifier, highlightColor) {
 	//alert('contentpanel.highlightelement' + elementIdentifier + "," + highlightColor);
+	//alert(top.ifrm);
+	//alert(top.ifrm);
+	//alert(top.ifrm.outsideurliframe);
+	//alert(top.ifrm.outsideurliframe.document);
 	//window.frames["ifrm"].highlight(elementIdentifier, highlightColor);
 	if(elementIdentifier != null) {
 		var elementToHighlight = window.frames["ifrm"].document.getElementById(elementIdentifier);
-		elementToHighlight.style.outline = highlightColor;
+		if (elementToHighlight) {
+			elementToHighlight.style.outline = highlightColor;
+		}
 	}
 }

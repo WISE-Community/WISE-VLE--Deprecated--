@@ -29,7 +29,7 @@ function AudioManager(isPlaying) {
 AudioManager.prototype.setCurrentNode = function(node) {
 	//alert('auiomanager.setCurrentNode' + vle.audioManager.isSoundManagerLoaded);
 	soundManager.stopAll();
-
+	vle.getCurrentNode().audios = [];
 	var soundId = this.id;
 	var audio = null;
 		if (true) {
@@ -57,7 +57,8 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							url: nodeAudioElement.getAttribute("url"),
 							onplay: function() { 
 							//alert('onplay');
-							if (vle.getCurrentNode().type != null && vle.getCurrentNode().type == "HtmlNode") {
+							if (vle.getCurrentNode().type != null && 
+									vle.getCurrentNode().type == "HtmlNode")  {
 								//alert('about to call highlight');
 							    vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
 							}
@@ -76,15 +77,18 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							onfinish: function() { 
 								vle.contentPanel.highlightElement(this.elementId, "0px"); 
 								vle.getCurrentNode().playAudioNextAudio(this.elementId);
-								}
+							}
 						});
-					} else {  // this is the last audio for this node, so upon finishing, don't need to go to the next audio.
+					} else {  
+						// this is the last audio for this node, so upon finishing, don't need to go to the next audio.
+						// upon finishing, remember to set currentnode.audio to be the first audio for the step.
 						//alert('audiomanager, else, i:' + i + ", elementId: " + nodeAudioElement.getAttribute("elementId"));
 						var audio = soundManager.createSound({
 							id: nodeAudioElement.getAttribute("id"),
 							url: nodeAudioElement.getAttribute("url"),
 							onplay: function() { 
-							if (vle.getCurrentNode().type != null && vle.getCurrentNode().type == "HtmlNode") {
+							if (vle.getCurrentNode().type != null && 
+									vle.getCurrentNode().type == "HtmlNode") {
 								vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
 							}},
 							whileplaying: function() {
@@ -102,20 +106,12 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								vle.contentPanel.highlightElement(this.elementId, "0px"); 
 								var playPauseAudioElement = document.getElementById("playPause");
 								removeClassFromElement("playPause", "pause");
-								addClassToElement("playPause", "play");									
-								}
+								addClassToElement("playPause", "play");	
+							}
 						});
 					}
 					audio.elementId = nodeAudioElement.getAttribute("elementId");
-					if (node.type != null && node.type == "outsideurl") {
-						//alert('outsideurl!');
-						//audio.originalBGColor = window.frames["ifrm"].document.getElementById("outsideurliframe").document.getElementById(audio.elementId).style.backgroundColor;
-					} else {
-						//alert('not outsideurl');
-						//audio.originalBGColor = window.frames["ifrm"].document.getElementById(audio.elementId).style.backgroundColor;
-					}
 					vle.getCurrentNode().audios.push(audio);
-					
 				}
 				if (vle.audioManager.isPlaying) {
 					vle.getCurrentNode().audios[0].play();
@@ -131,61 +127,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 						vle.getCurrentNode().audio = this;
 					}					
 				});
-				if (vle.audioManager.isPlaying) {
-					//audio.play();
-				}
 			}
-			
-			
-			
-			// experimental end
-			
-			
-			/*
-			//alert('ho');
-			//stepAudioElement.innerHTML = "Play";		
-			//alert('soundManager != null');
-			var nodeAudioElement = vle.getCurrentNode().getNodeAudioElements();
-			
-			if (vle.audioManager != null &&
-			vle.getCurrentNode().audio == null) {
-				if (nodeAudioElement == null) {
-						audio = soundManager.createSound({
-							id: 'NoAudioAvailable',
-							url: 'assets/audio/NoAudioAvailable.mp3'
-						})
-						vle.getCurrentNode().audio = audio;
-				}
-				else {
-						audio = soundManager.createSound({
-							id: nodeAudioElement.getAttribute("id"),
-							url: nodeAudioElement.getAttribute("url"),
-							onplay: function() { vle.contentPanel.highlightElement(nodeAudioElement.getAttribute("elementId"), true);},
-							onfinish: function() { vle.contentPanel.highlightElement(nodeAudioElement.getAttribute("elementId"), false);	}
-						})
-						vle.getCurrentNode().audio = audio;
-						
-				}
-				//alert('audio' + audio);
-			}
-			
-			//alert('Audiomanager.js. vle.audiomanager.isplaying: ' + vle.audioManager.isPlaying + ", nodeaudioelement:" + nodeAudioElement);
-			if (vle.audioManager.isPlaying) {
-				//alert('play' + vle.getCurrentNode().audio);
-				if (vle.getCurrentNode().audio != null) {
-					vle.getCurrentNode().audio.play();
-					if (nodeAudioElement != null) {
-						//alert('highlight:' + nodeAudioElement.getAttribute("elementId"));
-						var playPauseAudioElement = document.getElementById("playPause");
-						removeClassFromElement("playPause", "play");
-						addClassToElement("playPause", "pause");					
-					} else {
-						// this can be reached if the nodeaudio is not defined, but it's still trying to
-						// play a 'no audio exists' mp3.
-					}
-				}
-			}
-			*/
 		}
 }
 
