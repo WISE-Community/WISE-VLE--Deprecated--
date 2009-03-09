@@ -598,11 +598,11 @@ the following behaviors in order:&lt;/p&gt;
 &lt;li&gt;Exercise&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/body&gt;&lt;/html&gt;</prompt>
-                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show" >feedback 1</feedbackInline>0</simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >feedback 2</feedbackInline>3</simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >feedback 3</feedbackInline>7</simpleChoice>
-                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >feedback 4</feedbackInline>8</simpleChoice>
-                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >feedback 5</feedbackInline>We cannot know.</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show" >&lt;br&gt;Nope. The first statement after each method changes the hunger variable.</feedbackInline>0</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >&lt;br&gt;Nope. In the class, the first statement in the exercise and sleep methods changes the hunger variable by adding something to it, not by setting its value directly.</feedbackInline>3</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >&lt;br&gt;Yes!</feedbackInline>7</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >&lt;br&gt;Nope. Remember, when the feed behavior is invoked, hunger either gets set to 0 or is reduced by 10.</feedbackInline>8</simpleChoice>
+                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >&lt;br&gt;No, we really can know this exactly. There is no randomness involved: the methods do specific things to the hunger variable.</feedbackInline>We cannot know.</simpleChoice>
                         </choiceInteraction>
                       </itemBody>
                     </assessmentItem>
