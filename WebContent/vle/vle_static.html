@@ -209,23 +209,19 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 <div id="showAllWorkDiv"></div>
 
-
-
 </div>  <!-- centerDiv -->
 <script type="text/javascript">
-	
-	
 var vle = null;
 function render() {
 	var callback =
 	{
 	  success: function(o) { 
 		  var xmlDocObj = new LoadXMLDocObj();
-		  xmlDocObj.xmlDoc = o.responseXML;
+		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
 		  //alert(o.responseXML);
 		  var xmlDocToParse = o.responseXML;
 		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
-			  //alert('stupid ie time');
+			  // WINDOWS IE
 			  //alert(o.responseText);
 			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
 			  windowsXMLDoc.async = "false";
@@ -235,18 +231,19 @@ function render() {
 			  //alert(xmlDocToParse);
 			  //alert('done done');
 		  }		  
-		  var project = new PasOtmlProject(xmlDocObj);
+		  //var project = new PasOtmlProject(xmlDocObj);
+		  var project = new PasOtmlProject();
 		  
-		  project.xmlDoc = o.responseXML;
+		  project.xmlDoc = xmlDocToParse;
 		  project.generateNode(xmlDocToParse);
-			//alert(me.rootNode.id);
-			var dfs = new DFS(project.rootNode);
-			vle.setProject(project);
-			vle.navigationLogic = new NavigationLogic(dfs);
-			vle.setConnection(new ConnectionManager());
-			vle.audioManager = new AudioManager(true);	  
+		  vle = new VLE();
+		  vle.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  vle.navigationLogic = new NavigationLogic(dfs);
+		  vle.setConnection(new ConnectionManager());
+		  vle.audioManager = new AudioManager(true);	  
 			
-			setTimeout("vle.renderNode('0:0:0')", 1000);
+		  setTimeout("vle.renderNode('0:0:0')", 1000);
 		  
 		  //alert('success:' + o.responseText);
 	  },
@@ -254,13 +251,8 @@ function render() {
 	  argument: ["a", "b", "c"]
 	}
 
+	// fetch the OTML.
 	var transaction = YAHOO.util.Connect.asyncRequest('GET', "POC2v9.otml", callback, null);
-	
-	  //var xmlDocObj = new LoadXMLDocObj();
-	  //var project = new PasOtmlProject(xmlDocObj);
-	  //xmlDocObj.load("POC2v9.otml");
-	  //xmlDocObj.load("all_step_types.otml");
-	  //vle.audioManager = new AudioManager(true);	  
 }
 
 var myMenu;

@@ -66,24 +66,25 @@ function PasOtmlProject(xmlDocObj) {
 	this.xmlDocObj = xmlDocObj;
 	this.xmlDoc = null;
 	this.rootNode = null;
-	vle = new VLE();
+	//vle = new VLE();
 
-	this.xmlDocObj.loadedEvent.subscribe(this.onLoadedEvent, this);
+	//this.xmlDocObj.loadedEvent.subscribe(this.onLoadedEvent, this);
 }
 
 PasOtmlProject.prototype.onLoadedEvent = function(type, args, me) {
 	//alert("pasotmlproject.js, onloadedevent");
 	//alert("args: " + args);
 	//alert("args.length: " + args.length);
-	//alert("args[0]: " + args[0]);
-	me.xmlDoc = args[0];
-	me.generateNode();
+	alert("PasOtmlProject.onLoadedEvent called, args[0]: " + args[0]);
+	//me.xmlDoc = args[0];
+	//me.generateNode();
 	//alert(me.rootNode.id);
-	var dfs = new DFS(me.rootNode);
-	vle.setProject(me);
-	vle.navigationLogic = new NavigationLogic(dfs);
-	vle.setConnection(new ConnectionManager());
-	setTimeout("vle.renderNode('0:0:0')", 1000);
+	//var dfs = new DFS(me.rootNode);
+	//vle.setProject(me);
+	//vle.navigationLogic = new NavigationLogic(dfs);
+	//vle.setConnection(new ConnectionManager());
+	//setTimeout("vle.renderNode('0:0:0')", 1000);
+	//alert('done rendering node');
 }
 
 PasOtmlProject.prototype.generateNode = function(xmlDoc) {
@@ -111,13 +112,14 @@ PasOtmlProject.prototype.generateNode = function(xmlDoc) {
 	//var activities = this.xmlDocObj.xmlDoc.getElementsByTagName("OTPasActivity"); works for ff but not ie...stupid ie
 	var activities = null;
 	if (xmlDoc) {
-		//alert('xmlDoc:' + xmlDoc);
+		//lert('xmlDoc:' + xmlDoc);
 		//alert(xmlDoc);
 		activities = xmlDoc.getElementsByTagName("OTPasActivity");
 		//alert('activites.length0:' + activities.length);
 		this.xmlDoc = xmlDoc;
 	} else {
 		//alert('no xmldoc. resorting to this.xmlDoc');
+		//alert(this.xmlDoc);
 		activities = this.xmlDoc.getElementsByTagName("OTPasActivity");
 	}
 	//alert('activities.length:' + activities.length);
