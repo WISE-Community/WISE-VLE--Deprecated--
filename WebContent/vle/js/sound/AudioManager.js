@@ -60,7 +60,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							if (vle.getCurrentNode().type != null && 
 									vle.getCurrentNode().type == "HtmlNode")  {
 								//alert('about to call highlight');
-							    vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
+							    vle.contentPanel.highlightElement(this.elementId, "3px dotted #CC6633");
 							}
 							},
 							whileplaying: function() {
