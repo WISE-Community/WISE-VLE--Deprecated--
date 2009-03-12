@@ -1,0 +1,40 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
+<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
+<script type="text/javascript" src="multiplechoicestate.js"></script>
+<script type="text/javascript" src="mc.js"></script>
+
+<script type="text/javascript">
+function previewFrameLoaded() {
+	alert('preview frame loaded! now load the string content');
+	window.frames["previewFrame"].load();
+	// instantiate MC object, set in the prviewFrame.mc variable
+
+  	//mc.render();
+	//var mc = window.frames["previewFrame"].mc = newMC;
+	//alert(window.frames["previewFrame"].mc.promptText);
+	//alert(window.frames["previewFrame"].mc.responseIdentifier);
+	//window.frames["previewFrame"].refresh();
+}	
+
+function rendered() {
+	alert('rendered');
+	var mcObj = window.frames["previewFrame"].mc;
+	mcObj.promptText = "starbucks sux";
+	mcObj.render();
+}
+
+function sourceUpdated() {
+	//alert('source updated, please update previewframe');
+}
+</script>
+</head>
+<body>
+<textarea id="source" rows="50" cols="50" onkeyup="sourceUpdated();">
+</textarea>
+<iframe id="previewFrame" width="500px" height="500px" name="previewFrame" src="multiplechoice_plain.html" onload="previewFrameLoaded();">
+</iframe>
+</body>
+</html>
