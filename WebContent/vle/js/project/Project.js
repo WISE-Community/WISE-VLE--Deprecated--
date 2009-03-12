@@ -1,39 +1,49 @@
 var	htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
 var qtiAssessmentPageTypes = new Array("openresponse");
 
+var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode");
+
 function NodeFactory() {
 	this.htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
 	this.qtiAssessmentPageTypes = new Array("openresponse");
 }
 
-NodeFactory.createNode = function (nodeType){
-	if (nodeType == null) {
-		return new Node();		
-	} else if (htmlPageTypes.indexOf(nodeType) > -1) {
-		return new HtmlNode(nodeType);
-	} else if (qtiAssessmentPageTypes.indexOf(nodeType) > -1) {
-		return new CustomNode(nodeType);
-	} else {
-		return new Node();		
+NodeFactory.createNode = function (element) {
+	var nodeName = element.nodeName;
+	if (acceptedTagNames.indexOf(nodeName) > -1) {
+		if (nodeName == "HtmlNode") {
+			//alert('htmlnode');
+			return new HtmlNode("HtmlNode");
+		} else if (nodeName == "MultipleChoiceNode"){
+			//alert('mcnode');
+			return new MultipleChoiceNode("MutipleChoiceNode");
+		} else {
+			//alert('NOT HtmlNode');
+			return new Node();
+		}
 	}
 }
+
 function Project(xmlDoc) {
 	this.xmlDoc = xmlDoc;
 	this.rootNode = this.generateNode(this.xmlDoc.firstChild);
 }
 
 Project.prototype.generateNode = function(element) {
-	var nodeType = element.getAttribute('type');
-	var thisNode = NodeFactory.createNode(nodeType);
-	thisNode.element = element;
-	thisNode.id = element.getAttribute('id');
-	var children = element.childNodes;
-	for (var i = 0; i < children.length; i++) {
-		if (children[i].nodeName == "node") {
-			thisNode.addChildNode(this.generateNode(children[i]));
+	//var nodeType = element.getAttribute('type');
+	//var thisNode = NodeFactory.createNode(nodeType);
+	var thisNode = NodeFactory.createNode(element);
+	if (thisNode) {
+		thisNode.element = element;
+		thisNode.id = element.getAttribute('id');
+		var children = element.childNodes;
+		for (var i = 0; i < children.length; i++) {
+			if (acceptedTagNames.indexOf(children[i].nodeName) > -1) {
+				thisNode.addChildNode(this.generateNode(children[i]));
+			}
 		}
+		return thisNode;
 	}
-	return thisNode;
 }
 
 Project.prototype.getSummaryProjectHTML = function(){

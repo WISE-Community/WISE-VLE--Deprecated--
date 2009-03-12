@@ -58,7 +58,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							onplay: function() { 
 							//alert('onplay');
 							if (vle.getCurrentNode().type != null && 
-									vle.getCurrentNode().type == "HtmlNode")  {
+									(vle.getCurrentNode().type == "HtmlNode" || vle.getCurrentNode().type == "OTBlueJ"))  {
 								//alert('about to call highlight');
 							    vle.contentPanel.highlightElement(this.elementId, "3px dotted #CC6633");
 							}
@@ -88,7 +88,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 							url: nodeAudioElement.getAttribute("url"),
 							onplay: function() { 
 							if (vle.getCurrentNode().type != null && 
-									vle.getCurrentNode().type == "HtmlNode") {
+									(vle.getCurrentNode().type == "HtmlNode" || vle.getCurrentNode().type == "OTBlueJ")) {
 								vle.contentPanel.highlightElement(this.elementId, "3px dotted #FFFF00");
 							}},
 							whileplaying: function() {

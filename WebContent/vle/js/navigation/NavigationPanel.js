@@ -12,11 +12,7 @@ NavigationPanel.prototype.render = function() {
 	for (var i = 0; i < this.rootNode.children.length; i++) {
 			navHtml += this.getNavigationHtml(this.rootNode.children[i]);
 	}
-	//var navHtml = this.getNavigationHtml(this.rootNode);
 	document.getElementById("my_menu").innerHTML = navHtml;
-	myMenu = new SDMenu("my_menu");
-	//alert(myMenu.submenus.length);
-	myMenu.init();
 }
 
 NavigationPanel.prototype.toggleVisibility = function() {
@@ -46,12 +42,12 @@ NavigationPanel.prototype.getNavigationHtml = function(node) {
 	}
 	
 	if (vle.visibilityLogic != null && !vle.visibilityLogic.isNodeVisible(vle.state, node)) {
+		//alert('hiddenNode');
 		classString += " hiddenNode";
 	}
-	
     
     if (node.children.length > 0) {
-		htmlSoFar += "<div class=\"collapsed\" id=\"" + node.id + "_menu\"><span>"+node.getTitle()+"</span>";
+		htmlSoFar += "<div class=\"collapsed "+ classString +"\" id=\"" + node.id + "_menu\"><span>"+node.getTitle()+"</span>";
 		for (var i = 0; i < node.children.length; i++) {
 			htmlSoFar += this.getNavigationHtml(node.children[i]);
 		}
@@ -59,5 +55,6 @@ NavigationPanel.prototype.getNavigationHtml = function(node) {
 	} else {
 		htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + node.getTitle() + "</a>";
 	}
+    //alert(htmlSoFar);
 	return htmlSoFar;
 }

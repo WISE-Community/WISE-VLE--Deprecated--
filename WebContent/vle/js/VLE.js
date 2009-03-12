@@ -50,7 +50,7 @@ VLE.prototype.renderNode = function(nodeId){
 			nodeToVisit = this.visibilityLogic.getNextVisibleNode(this.state, this.project.rootNode);
 		}
     }
-    else {
+    else {    	
         nodeToVisit = this.project.rootNode.getNodeById(nodeId);
     }
 	
@@ -85,7 +85,6 @@ VLE.prototype.expandActivity = function(nodeId) {
 	};
 }
 VLE.prototype.renderPrevNode = function() {
-	//var newActivityId;
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
 		alert("prev is not defined.");
@@ -93,42 +92,28 @@ VLE.prototype.renderPrevNode = function() {
 	var prevNode = this.navigationLogic.getPrevNode(currentNode);
 	while (prevNode.type == "Activity") {
 		prevNode = this.navigationLogic.getPrevNode(prevNode);
-		//var idStr = new String(prevNode.id);
-		//newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
 	}
 	
 	if (prevNode == null) {
 		alert("prevNode does not exist");
 	} else {
 		this.renderNode(prevNode.id);		
-		//if(newActivityId){			
-			//submenu = document.getElementById(newActivityId + "_menu");
-			//submenu.className = "";
-			//myMenu.expandMenu(submenu);
-		//};
 	}
 }
 
 VLE.prototype.renderNextNode = function() {
-	//var newActivityId;
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
 		alert("next is not defined.");
 	}
 	var nextNode = this.navigationLogic.getNextNode(currentNode);
 	while (nextNode.type == "Activity") {
-		//newActivityId = nextNode.id;
 		nextNode = this.navigationLogic.getNextNode(nextNode);
 	}
 	if (nextNode == null) {
 		alert("nextNode does not exist");
 	} else {
 		this.renderNode(nextNode.id);
-		//if(newActivityId){			
-			//submenu = document.getElementById(newActivityId + "_menu");
-			//submenu.className = "";
-			//myMenu.expandMenu(submenu);
-		//};
 	}
 }
 
