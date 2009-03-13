@@ -7,6 +7,7 @@ function VLE() {
 	this.contentPanel = null;
 	this.audioManager = null;
 	this.connectionManager = null;
+	this.journal = null;
 }
 
 /**
@@ -49,9 +50,8 @@ VLE.prototype.renderNode = function(nodeId){
 		} else {
 			nodeToVisit = this.visibilityLogic.getNextVisibleNode(this.state, this.project.rootNode);
 		}
-    }
-    else {    	
-        nodeToVisit = this.project.rootNode.getNodeById(nodeId);
+    } else {
+        nodeToVisit = this.getNodeById(nodeId);
     }
 	
 	if (nodeToVisit == null) {
@@ -76,12 +76,14 @@ VLE.prototype.renderNode = function(nodeId){
 }
 
 VLE.prototype.expandActivity = function(nodeId) {
-	var idStr = new String(nodeId);
-	var newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
-	if(newActivityId){			
-		submenu = document.getElementById(newActivityId + "_menu");
-		submenu.className = "";
-		myMenu.expandMenu(submenu);
+	if(nodeId.charAt(0)!='J'){
+		var idStr = new String(nodeId);
+		var newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
+		if(newActivityId){			
+			submenu = document.getElementById(newActivityId + "_menu");
+			submenu.className = "";
+			myMenu.expandMenu(submenu);
+		};
 	};
 }
 VLE.prototype.renderPrevNode = function() {
@@ -97,7 +99,7 @@ VLE.prototype.renderPrevNode = function() {
 	if (prevNode == null) {
 		alert("prevNode does not exist");
 	} else {
-		this.renderNode(prevNode.id);		
+		this.renderNode(prevNode.id);
 	}
 }
 
@@ -178,6 +180,21 @@ VLE.prototype.showAllWork = function(){
     YAHOO.example.container.showallwork.show();
 }
 
+VLE.prototype.setJournal = function(journal){
+	this.journal = journal;
+};
+
+VLE.prototype.getJournal = function(){
+	return this.journal;
+};
+
+VLE.prototype.getNodeById = function(nodeId){
+	if(nodeId.charAt(0)=='J'){
+		return this.journal.rootNode.getNodeById(nodeId);
+	} else {
+		return this.project.rootNode.getNodeById(nodeId);
+	};
+};
 
 function VLE_STATE() {
 	this.visitedNodes = [];  // array of NODE_VISIT objects

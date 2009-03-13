@@ -38,6 +38,12 @@ function loadContentXMLString(xmlString) {
 }
 
 /**
+ * call this after or has been initialized
+ */
+function loadState(vle_state) {
+    or.loadState(vle_state);
+}
+/**
  * sets VLE, loads state
  */
 function loadFromVLE(node, vle) {

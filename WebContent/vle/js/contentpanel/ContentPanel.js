@@ -7,7 +7,7 @@ function ContentPanel(project, rootNode) {
  * @Override vle.ContentPanel.prototype.render()
  */
 ContentPanel.prototype.render = function(nodeId) {
-	var node = this.rootNode.getNodeById(nodeId);
+	var node = vle.getNodeById(nodeId);
 	//alert("contentpanel.js. Node:" + node + ", id:" + node.id);
 	if (node == null) {
 		alert('ContentPanel.js. node with nodeId: ' + nodeId + 'does not exist');

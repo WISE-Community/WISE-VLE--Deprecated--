@@ -27,7 +27,7 @@
  * Given xmldocument, will create a new instance of the MatchSequence object and 
  * populate its attributes. Does not render anything on the screen (see MS.render() for rendering).
  */
-function MS(xmlDoc) {
+function MS(xmlDoc, customCheck) {
     this.xmlDoc = xmlDoc;
     this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
     this.responseDeclaration = null;
@@ -41,7 +41,12 @@ function MS(xmlDoc) {
     this.sourceBucket = null;
     this.buckets = [];  // includes only targetbuckets
     this.correctState = this.getCorrectState();
-
+    this.customCheck = null;
+    
+    if(customCheck!=null){
+    	this.customCheck = new Function("state", customCheck);
+    };
+	
     if (this.itemBody.getElementsByTagName('followupFeedback').length > 0) {
     	this.followupFeedbackText = this.itemBody.getElementsByTagName('followupFeedback')[0].firstChild.nodeValue;
     }
@@ -261,80 +266,94 @@ MS.prototype.checkAnswer = function() {
 	if (isCheckAnswerDisabled) {
 		return;
 	}
-
-	var state = ms.getState();   // state is a MSSTATE instance
-	// clean out old feedback
-	for (var i=0; i < state.buckets.length; i++) {
-		var bucket = state.buckets[i];
-		var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
-		feedbackDivElement.innerHTML = "";  // clean out old feedback
-	}
 	
-	if (state.sourceBucket.choices.length > 0) {
-		// there are choices still in the sourceBucket, so the student is not done
-		alert('Please move each Choice into a Target box before checking your results.');
+	if(this.customCheck!=null){
+		var feedback = this.customCheck(ms.getState());
+		var message;
+		if(feedback.getSuccess()){
+			message = "<font color='008B00'>" + feedback.getMessage() + "</font>";
+			this.setChoicesDraggable(false);
+			document.getElementById('checkAnswerButton').className = 'disabledLink';
+		} else {
+			message = "<font color='8B0000'>" + feedback.getMessage() + "</font>";
+		};
+		document.getElementById("feedbackDiv").innerHTML = message;
+		
 	} else {
-		//addClassToElement("checkAnswerButton", "disabledLink");
-		//this.setChoicesDraggable(false);
-		var numCorrectChoices = 0;
-		var numWrongChoices = 0;
+		var state = ms.getState();   // state is a MSSTATE instance
+		// clean out old feedback
 		for (var i=0; i < state.buckets.length; i++) {
 			var bucket = state.buckets[i];
 			var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
-			var feedbackHTMLString = "";
-			for (var j=0; j < bucket.choices.length; j++) {
-				// get feedback object for this choice in this bucket
-				var feedback = this.getFeedback(bucket.identifier,bucket.choices[j].identifier,j);
-
-				if (feedback) {
-					if (feedback.isCorrect) {
-						removeClassFromElement(bucket.choices[j].identifier, "incorrect");						
-						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");						
-						addClassToElement(bucket.choices[j].identifier, "correct");
-						feedbackHTMLString += "<li class=\"feedback_li correct\">"+ bucket.choices[j].text + ": " + feedback.feedbackText +"</li>";
-						numCorrectChoices++;
-					} else {
-						removeClassFromElement(bucket.choices[j].identifier, "correct");
-						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");																			
-						addClassToElement(bucket.choices[j].identifier, "incorrect");					
-						//removeClassFromElement("resetWrongChoicesButton", "disabledLink");
-						feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + feedback.feedbackText +"</li>";
-						numWrongChoices++;
-					}
-				} else {   // there was no feedback, which could mean that the choice was in right bucket but wrong order
-					if (this.isOrdered && this.isInRightBucketButWrongOrder(bucket.identifier,bucket.choices[j].identifier,j)) {   // correct bucket, wrong order
-						removeClassFromElement(bucket.choices[j].identifier, "correct");												
-						removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
-						addClassToElement(bucket.choices[j].identifier, "wrongorder");						
-						feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
-						numWrongChoices++;
-					} else {
-						removeClassFromElement(bucket.choices[j].identifier, "correct");												
-						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
-						addClassToElement(bucket.choices[j].identifier, "incorrect");						
-						feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
-						numWrongChoices++;
+			feedbackDivElement.innerHTML = "";  // clean out old feedback
+		}
+		
+		if (state.sourceBucket.choices.length > 0) {
+			// there are choices still in the sourceBucket, so the student is not done
+			alert('Please move each Choice into a Target box before checking your results.');
+		} else {
+			//addClassToElement("checkAnswerButton", "disabledLink");
+			//this.setChoicesDraggable(false);
+			var numCorrectChoices = 0;
+			var numWrongChoices = 0;
+			for (var i=0; i < state.buckets.length; i++) {
+				var bucket = state.buckets[i];
+				var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
+				var feedbackHTMLString = "";
+				for (var j=0; j < bucket.choices.length; j++) {
+					// get feedback object for this choice in this bucket
+					var feedback = this.getFeedback(bucket.identifier,bucket.choices[j].identifier,j);
+	
+					if (feedback) {
+						if (feedback.isCorrect) {
+							removeClassFromElement(bucket.choices[j].identifier, "incorrect");						
+							removeClassFromElement(bucket.choices[j].identifier, "wrongorder");						
+							addClassToElement(bucket.choices[j].identifier, "correct");
+							feedbackHTMLString += "<li class=\"feedback_li correct\">"+ bucket.choices[j].text + ": " + feedback.feedbackText +"</li>";
+							numCorrectChoices++;
+						} else {
+							removeClassFromElement(bucket.choices[j].identifier, "correct");
+							removeClassFromElement(bucket.choices[j].identifier, "wrongorder");																			
+							addClassToElement(bucket.choices[j].identifier, "incorrect");					
+							//removeClassFromElement("resetWrongChoicesButton", "disabledLink");
+							feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + feedback.feedbackText +"</li>";
+							numWrongChoices++;
+						}
+					} else {   // there was no feedback, which could mean that the choice was in right bucket but wrong order
+						if (this.isOrdered && this.isInRightBucketButWrongOrder(bucket.identifier,bucket.choices[j].identifier,j)) {   // correct bucket, wrong order
+							removeClassFromElement(bucket.choices[j].identifier, "correct");												
+							removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
+							addClassToElement(bucket.choices[j].identifier, "wrongorder");						
+							feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
+							numWrongChoices++;
+						} else {
+							removeClassFromElement(bucket.choices[j].identifier, "correct");												
+							removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
+							addClassToElement(bucket.choices[j].identifier, "incorrect");						
+							feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
+							numWrongChoices++;
+						}
 					}
 				}
+				if (feedbackHTMLString != "") {
+					feedbackDivElement.innerHTML = "<ul class=\"feedback_ul\">"+ feedbackHTMLString + "</ul>";
+				}
 			}
-			if (feedbackHTMLString != "") {
-				feedbackDivElement.innerHTML = "<ul class=\"feedback_ul\">"+ feedbackHTMLString + "</ul>";
+	
+			// update feedback div
+			var feedbackDiv = document.getElementById("feedbackDiv");
+			if (numWrongChoices == 0) {
+				feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
+				if (this.followupFeedbackText != null) {
+					feedbackDiv.innerHTML += "<br/>";
+					feedbackDiv.innerHTML += this.followupFeedbackText;
+				}
+				this.setChoicesDraggable(false);
+			} else {
+				var totalNumChoices = numCorrectChoices + numWrongChoices;
+				feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
+				
 			}
-		}
-
-		// update feedback div
-		var feedbackDiv = document.getElementById("feedbackDiv");
-		if (numWrongChoices == 0) {
-			feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
-			if (this.followupFeedbackText != null) {
-				feedbackDiv.innerHTML += "<br/>";
-				feedbackDiv.innerHTML += this.followupFeedbackText;
-			}
-			this.setChoicesDraggable(false);
-		} else {
-			var totalNumChoices = numCorrectChoices + numWrongChoices;
-			feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
-			
 		}
 	}
 }

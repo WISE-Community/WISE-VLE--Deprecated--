@@ -95,9 +95,9 @@ Node.prototype.load = function() {
 Node.prototype.getShowAllWorkHtml = function(){
     var showAllWorkHtmlSoFar = "<h4>" + this.title + "</h4>";
     var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
-    
     if (nodeVisitArray.length > 0) {
         var states = [];
+        var latestNodeVisit = nodeVisitArray[nodeVisitArray.length -1];
         for (var i = 0; i < nodeVisitArray.length; i++) {
             var nodeVisit = nodeVisitArray[i];
             for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
@@ -105,7 +105,20 @@ Node.prototype.getShowAllWorkHtml = function(){
             }
         }
         var latestState = states[states.length - 1];
-        showAllWorkHtmlSoFar += "(checkmark goes here!) You have visited this page.";
+        showAllWorkHtmlSoFar += "You have last visited this page";
+        
+        if(latestNodeVisit!=null){
+        	showAllWorkHtmlSoFar += " beginning on " + latestNodeVisit.visitStartTime;
+        	if(latestNodeVisit.visitEndTime==null){
+        		showAllWorkHtmlSoFar += " with no end time recorded.";
+        	} else {
+        		showAllWorkHtmlSoFar += " ending on " + latestNodeVisit.visitEndTime;
+        	};
+        };
+        
+        if(latestState!=null){
+        	showAllWorkHtmlSoFar += '<br><br>Your work during this visit: ' + latestState.response;
+        };
     }
     else {
         showAllWorkHtmlSoFar += "You have NOT visited this page yet.";

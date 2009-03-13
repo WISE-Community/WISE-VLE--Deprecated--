@@ -102,7 +102,7 @@ function setResponseBoxEnabled(doEnable) {
  * part2 example: attempt
  * part2 example2: revision
  */
-function displayNumberAttempts(part1, part2) {
+function displayNumberAttempts(part1, part2, states) {
 	var nextAttemptNum = states.length + 1;
 	var nextAttemptString = "";
 	if (nextAttemptNum == 1) {
@@ -125,7 +125,7 @@ function displayNumberAttempts(part1, part2) {
  * javascript Date method reference:
  * http://www.w3schools.com/jsref/jsref_obj_date.asp
  */
-function displayLastAttempt() {
+function displayLastAttempt(states) {
 	if (states.length > 0) {
 	    var t = states[states.length - 1].timestamp;
 	    var month = t.getMonth() + 1;

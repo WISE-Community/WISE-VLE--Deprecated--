@@ -17,10 +17,9 @@
 
 <script type="text/javascript">
 var or;   // global variable so it can be accessed by other functions
-var states = [];  // array of OPENRESPONSESTATE objects
+
 
 function save() {
-	//alert("save or: " + or);
   or.save();
 }
 
@@ -29,14 +28,19 @@ function edit() {
 }
 
 /**
+ * call this after or has been initialized
+ */
+function loadStateAndRender(vle, states) {
+    or.loadState(states);
+    or.setVLE(vle);
+    or.render();
+}
+
+/**
  * xmlString contains QTI-coded xml content
  */
 function loadContentXMLString(xmlString) {
-	  //alert("before or: " + or);
-	  var xmlDoc=loadXMLDocFromString(xmlString);	
-	  or = new OPENRESPONSE(xmlDoc);
-	  or.render();	
-	  //alert("after or: " + or);
+	  or = new OPENRESPONSE(xmlString);
 }
 
 /**

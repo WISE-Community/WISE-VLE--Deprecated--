@@ -35,16 +35,25 @@ function NoteNode(nodeType) {
 
 function loadNote() {
 	//alert('loadNote function called');
-	window.frames["noteiframe"].loadContentXMLString("<assessmentItem xmlns='http://www.imsglobal.org/xsd/imsqti_v2p0' xmlns:ns3='http://www.w3.org/1998/Math/MathML' xmlns:ns2='http://www.w3.org/1999/xlink' timeDependent='false' adaptive='false'><responseDeclaration identifier='CHOICE_SELF_CHECK_ID'><correctResponse interpretation='choice 3' /></responseDeclaration><responseDeclaration identifier='TEXT_ASSMT_0' /><responseDeclaration identifier='TEXT_ASSMT_1' /><responseDeclaration identifier='CHOICE_ASSMT_0'><correctResponse><value isDefault='false' isCorrect='false'>SIMPLE_CHOICE_ID1</value></correctResponse></responseDeclaration><itemBody><extendedTextInteraction hasInlineFeedback='false' responseIdentifier='TEXT_ASSMT_0' expectedLines='10'><prompt>&lt;!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'&gt;&lt;html xmlns='http://www.w3.org/1999/xhtml'&gt;&lt;head&gt;&lt;meta name='generator' content='HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org' /&gt;&lt;title&gt;&lt;/title&gt;&lt;link href='../common/css/htmlAssessment.css' href='openresponse.css' href='http://tels-group.soe.berkeley.edu/uccp/Assets/css/UCCP.css' media='screen' rel='stylesheet' type='text/css' /&gt;&lt;/head&gt;&lt;body&gt;&lt;p class='selfCheckQuestion'&gt;If you are in high school, do you plan on taking the AP Computer science test? Why or why not?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</prompt></extendedTextInteraction></itemBody></assessmentItem>");
 	//window.frames["noteiframe"].loadFromVLE(this, vle);
 	//alert('done loadNote function');
 }
 
 NoteNode.prototype.render = function(contentpanel) {
-	//alert('notenode.render');
+	var nodeVisits = vle.state.getNodeVisitsByNodeId(this.id);
+	var states = [];
+	for (var i=0; i < vle.state.visitedNodes.length; i++) {
+		var nodeVisit = vle.state.visitedNodes[i];
+		if (nodeVisit.node.id == this.id) {
+			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
+				states.push(nodeVisit.nodeStates[j]);
+			}
+		}
+	}
+	//window.frames["noteiframe"].loadContentXMLString("<assessmentItem xmlns='http://www.imsglobal.org/xsd/imsqti_v2p0' xmlns:ns3='http://www.w3.org/1998/Math/MathML' xmlns:ns2='http://www.w3.org/1999/xlink' timeDependent='false' adaptive='false'><responseDeclaration identifier='CHOICE_SELF_CHECK_ID'><correctResponse interpretation='choice 3' /></responseDeclaration><responseDeclaration identifier='TEXT_ASSMT_0' /><responseDeclaration identifier='TEXT_ASSMT_1' /><responseDeclaration identifier='CHOICE_ASSMT_0'><correctResponse><value isDefault='false' isCorrect='false'>SIMPLE_CHOICE_ID1</value></correctResponse></responseDeclaration><itemBody><extendedTextInteraction hasInlineFeedback='false' responseIdentifier='TEXT_ASSMT_0' expectedLines='10'><prompt>&lt;!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'&gt;&lt;html xmlns='http://www.w3.org/1999/xhtml'&gt;&lt;head&gt;&lt;meta name='generator' content='HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org' /&gt;&lt;title&gt;&lt;/title&gt;&lt;link href='../common/css/htmlAssessment.css' href='openresponse.css' href='http://tels-group.soe.berkeley.edu/uccp/Assets/css/UCCP.css' media='screen' rel='stylesheet' type='text/css' /&gt;&lt;/head&gt;&lt;body&gt;&lt;p class='selfCheckQuestion'&gt;If you are in high school, do you plan on taking the AP Computer science test? Why or why not?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</prompt></extendedTextInteraction></itemBody></assessmentItem>");
+	window.frames["noteiframe"].loadContentXMLString(this.element);
+	window.frames["noteiframe"].loadStateAndRender(vle, states);
 	notePanel.cfg.setProperty("visible", true);
-	loadNote();
-    //window.frames["ifrm"].location = "js/node/openresponse/openresponse.html";
 } 
 
 NoteNode.prototype.load = function() {
@@ -62,17 +71,28 @@ NoteNode.prototype.getShowAllWorkHtml = function(){
     
     if (nodeVisitArray.length > 0) {
         var states = [];
+        var latestNodeVisit = nodeVisitArray[nodeVisitArray.length -1];
         for (var i = 0; i < nodeVisitArray.length; i++) {
             var nodeVisit = nodeVisitArray[i];
             for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
                 states.push(nodeVisit.nodeStates[j]);
             }
         }
+        
+        if(latestNodeVisit!=null){
+        	showAllWorkHtmlSoFar += " beginning on " + latestNodeVisit.visitStartTime;
+        	if(latestNodeVisit.visitEndTime==null){
+        		showAllWorkHtmlSoFar += " with no end time recorded.";
+        	} else {
+        		showAllWorkHtmlSoFar += " ending on " + latestNodeVisit.visitEndTime;
+        	};
+        };
+        
 		if (states.length > 0) {
 			var latestState = states[states.length - 1];
-			showAllWorkHtmlSoFar += "(checkmark goes here!) You have visited this page. You wrote:<br/>" + latestState.response;
+			showAllWorkHtmlSoFar += "<br><br>You wrote:<br/>" + latestState.response;
 		} else {
-			showAllWorkHtmlSoFar += "(checkmark goes here!) You have visited this page, but you haven't done any work";
+			showAllWorkHtmlSoFar += "<br><br>No work has been recorded!";
 		}
     }
     else {

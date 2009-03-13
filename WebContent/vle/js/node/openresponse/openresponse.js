@@ -3,7 +3,7 @@ function OPENRESPONSE(xmlDoc) {
   this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
   this.expectedLines = this.xmlDoc.getElementsByTagName('extendedTextInteraction')[0].getAttribute('expectedLines');
   this.vle = null;
-  this.node = null;
+  this.states = [];
 }
 
 /**
@@ -17,7 +17,7 @@ OPENRESPONSE.prototype.save = function() {
 	var isSaveDisabled = hasClass("saveButton", "disabledLink");
 
 	if (!isSaveDisabled) {
-		states.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
+		this.states.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
 		if (this.vle != null) {
 			//alert('here');
 			this.vle.state.getCurrentNodeVisit().nodeStates.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
@@ -41,7 +41,7 @@ OPENRESPONSE.prototype.edit = function() {
 		removeClassFromElement("saveButton", "disabledLink");
 		addClassToElement("editButton", "disabledLink");
 		setResponseBoxEnabled(true);
-		displayNumberAttempts("This is your", "revision. Click <i>Save</i> to save your work");
+		displayNumberAttempts("This is your", "revision. Click <i>Save</i> to save your work", this.states);
 	}
 }
 
@@ -56,12 +56,23 @@ OPENRESPONSE.prototype.render = function() {
 
 	// set text area size: set row based on expectedLines
 	document.getElementById('responseBox').setAttribute('rows', this.expectedLines);
-	if (states.length > 0) {
-			document.getElementById('responseBox').innerHTML = states[states.length - 1].response;
+	if (this.states.length > 0) {
+		document.getElementById('responseBox').value = this.states[this.states.length - 1].response;
+	} else {
+		this.clean();
 	}
-	displayNumberAttempts("This is your", "revision");
+	displayNumberAttempts("This is your", "revision", this.states);
 	addClassToElement("editButton", "disabledLink");
 }
+
+/**
+ * resets the elements to original clean state
+ */
+ OPENRESPONSE.prototype.clean = function(){
+ 	document.getElementById('responseBox').value = "";
+ 	removeClassFromElement("saveButton", "disabledLink");
+	setResponseBoxEnabled(true);
+ };
 
 /**
  * Load states from specified VLE.
@@ -70,7 +81,7 @@ OPENRESPONSE.prototype.render = function() {
 OPENRESPONSE.prototype.loadFromVLE = function(node, vle) {
 	this.vle = vle;
 	this.node = node;
-	this.loadState();
+	this.loadState(vle.state);
 	this.render();
 }
 
@@ -78,13 +89,11 @@ OPENRESPONSE.prototype.loadFromVLE = function(node, vle) {
  * Loads state from VLE_STATE.
  * @param {Object} vleState
  */
-OPENRESPONSE.prototype.loadState = function() {
-	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
-		var nodeVisit = this.vle.state.visitedNodes[i];
-		if (nodeVisit.node == this.node) {
-			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
-				states.push(nodeVisit.nodeStates[j]);
-			}
-		}
-	}
+OPENRESPONSE.prototype.loadState = function(states) {
+	this.states = states;
 }
+
+
+OPENRESPONSE.prototype.setVLE = function(vle){
+	this.vle = vle;
+};
