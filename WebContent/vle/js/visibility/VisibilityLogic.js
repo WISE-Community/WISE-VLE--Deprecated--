@@ -2,9 +2,13 @@ function VisibilityLogic(algorithm) {
 	this.algorithm = algorithm;
 }
 
-VisibilityLogic.prototype.isNodeVisible = function(state, nodeToVisit) {
+VisibilityLogic.prototype.isNodeVisible = function(state, nodeToVisit, eventType) {
 	if (this.algorithm != null) {
-		return this.algorithm.isNodeVisible(state, nodeToVisit);
+		var soFar = false;
+		for (var i=0; i<this.algorithm.length; i++) {
+			soFar = soFar || this.algorithm[i].isNodeVisible(state, nodeToVisit, eventType);
+		}
+		return soFar;
 	}
 	return true;
 }
@@ -16,7 +20,14 @@ VisibilityLogic.prototype.isNodeVisible = function(state, nodeToVisit) {
  */
 VisibilityLogic.prototype.getNextVisibleNode = function(state, node) {
 	if (this.algorithm != null) {
-		return this.algorithm.getNextVisibleNode(state, node);
+		var soFar = node;
+		for (var i=0; i<this.algorithm.length; i++) {
+			var nextNode = this.algorithm[i].getNextVisibleNode(state, node);
+			if (nextNode) {
+				soFar = nextNode;
+			}
+		}
+		return soFar;
 	}
 	return node;
 }

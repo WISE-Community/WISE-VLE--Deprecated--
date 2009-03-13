@@ -1,4 +1,8 @@
 function MC(xmlDoc) {
+	this.loadFromXmlDoc(xmlDoc);
+}
+
+MC.prototype.loadFromXmlDoc = function(xmlDoc) {
 	this.xmlDoc = xmlDoc;
 	this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
 	this.responseIdentifier = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('responseIdentifier');
@@ -20,8 +24,8 @@ function MC(xmlDoc) {
 			this.correctResponseInterpretation = responseDeclaration.getElementsByTagName('correctResponse')[0].getAttribute('interpretation'); 
 		}
 	}
-}
 
+}
 /**
  * Load states from specified VLE.
  * @param {Object} vle
@@ -83,7 +87,7 @@ MC.prototype.render = function() {
 	addClassToElement("checkAnswerButton", "disabledLink");
 	addClassToElement("tryAgainButton", "disabledLink");
 	clearFeedbackDiv();
-	displayNumberAttempts("This is your", "attempt");
+	displayNumberAttempts("This is your", "attempt", states);
 }
 
 /**
@@ -160,10 +164,19 @@ MC.prototype.checkAnswer = function() {
 			if (choice) {
 				var feedbackdiv = document.getElementById('feedbackdiv');
 				feedbackdiv.innerHTML = choice.getFeedbackText();
-				
-				states.push(new MCSTATE(choiceIdentifier));
+				var mcState = new MCSTATE(choiceIdentifier);
+				mcState.isCorrect = (choiceIdentifier == mc.correctResponseInterpretation);
+				states.push(mcState);
+				//alert('vle:' + this.vle);
 				if (this.vle != null) {
-					this.vle.state.getCurrentNodeVisit().nodeStates.push(new MCSTATE(choiceIdentifier));
+					this.vle.state.getCurrentNodeVisit().nodeStates.push(mcState);
+				}
+				
+				//alert('node:' + this.node);
+				if (this.node != null) {
+					//alert('firing: ' + this.node.nodeSessionEndedEvent + ";");
+					// we're loading from the VLE, and have access to the node, so fire the ended session event
+					this.node.nodeSessionEndedEvent.fire(null);
 				}
 			} else {
 				alert('error');

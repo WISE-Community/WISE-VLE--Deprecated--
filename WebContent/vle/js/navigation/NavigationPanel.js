@@ -7,10 +7,10 @@ function NavigationPanel(rootNode) {
  * this is because the library we're using for the navigation animation
  * only works with 3-levels.
  */
-NavigationPanel.prototype.render = function() {
+NavigationPanel.prototype.render = function(eventType) {
 	var navHtml = "";  
 	for (var i = 0; i < this.rootNode.children.length; i++) {
-			navHtml += this.getNavigationHtml(this.rootNode.children[i]);
+			navHtml += this.getNavigationHtml(this.rootNode.children[i], eventType);
 	}
 	document.getElementById("my_menu").innerHTML = navHtml;
 }
@@ -28,7 +28,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 	}
 }
 
-NavigationPanel.prototype.getNavigationHtml = function(node) {
+NavigationPanel.prototype.getNavigationHtml = function(node, eventType) {
 	var htmlSoFar = "";
 	var classString = "node";
 	
@@ -41,15 +41,15 @@ NavigationPanel.prototype.getNavigationHtml = function(node) {
 		classString += " currentNode";
 	}
 	
-	if (vle.visibilityLogic != null && !vle.visibilityLogic.isNodeVisible(vle.state, node)) {
+	if (vle.visibilityLogic != null && !vle.visibilityLogic.isNodeVisible(vle.state, node, eventType)) {
 		//alert('hiddenNode');
 		classString += " hiddenNode";
 	}
     
     if (node.children.length > 0) {
-		htmlSoFar += "<div class=\"collapsed "+ classString +"\" id=\"" + node.id + "_menu\"><span>"+node.getTitle()+"</span>";
+		htmlSoFar += "<div class=\""+ classString +"\" id=\"" + node.id + "_menu\"><span onclick=\"expandMenu('"+ node.id +"_menu')\">"+node.getTitle()+"</span>";
 		for (var i = 0; i < node.children.length; i++) {
-			htmlSoFar += this.getNavigationHtml(node.children[i]);
+			htmlSoFar += this.getNavigationHtml(node.children[i], eventType);
 		}
 		htmlSoFar += "</div>";
 	} else {

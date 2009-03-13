@@ -9,6 +9,7 @@ function Node(nodeType) {
 	this.element = null;
 	this.type = null;
 	this.title = null;
+	this.nodeSessionEndedEvent = new YAHOO.util.CustomEvent("nodeSessionEndedEvent");
 	
 	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
 	this.audios = [];

@@ -4,6 +4,7 @@
 
 function MCSTATE(choiceIdentifier, timestamp) {
 	this.choiceIdentifier = choiceIdentifier;   // which choice the student chose.
+	this.isCorrect = null;
 	
 	if(arguments.length == 1) {
 		//if the second argument (timestamp) was ommitted just set it to the current time

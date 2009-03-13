@@ -61,18 +61,30 @@ VLE.prototype.renderNode = function(nodeId){
     if (this.navigationLogic == null || this.navigationLogic.canVisitNode(this.state, nodeToVisit)) {
         var currentNode = nodeToVisit;
         vle.state.setCurrentNodeVisit(currentNode);
-        this.navigationPanel.render();
+        this.navigationPanel.render('render');
         this.contentPanel.render(currentNode.id);
 		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
 		if(this.connectionManager != null) {
 			this.connectionManager.post(vle.user);
 		}
+        //alert('a:' + currentNode.nodeSessionEndedEvent);
+        //alert('b:' + this.onNodeSessionEndedEvent);
+        currentNode.nodeSessionEndedEvent.subscribe(this.onNodeSessionEndedEvent, this); // add the listener for this node
+
 		this.expandActivity(nodeId);   // always expand the navigation bar
     }
     var loadingMessageDiv = document.getElementById("loadingMessageDiv");
     if(loadingMessageDiv != null && loadingMessageDiv != undefined) {
     	loadingMessageDiv.innerHTML = "";
     }
+}
+
+/**
+ * When a node session has ended, re-render the navigation panel, as some nodes might have
+ * become visible/invisible.
+ */
+VLE.prototype.onNodeSessionEndedEvent = function(type, args, me) {
+   me.navigationPanel.render(type);
 }
 
 VLE.prototype.expandActivity = function(nodeId) {
@@ -269,7 +281,6 @@ VLE_STATE.prototype.parseDataXML = function(xmlString) {
     //alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
 	return vleStateObject;
 }
-
 
 function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 	this.node = node;

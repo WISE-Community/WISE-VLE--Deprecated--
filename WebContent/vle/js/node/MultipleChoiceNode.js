@@ -19,7 +19,7 @@ MultipleChoiceNode.prototype.load = function() {
 	window.frames["ifrm"].renderMCFromString(xmlNode);
 	
 	//these steps are now loaded from the vle/otml, this does not work for some reason
-	//window.frames["ifrm"].loadFromVLE(this, vle);
+	window.frames["ifrm"].loadFromVLE(this, vle);
 	
 	document.getElementById('topStepTitle').innerHTML = this.title;
 }
