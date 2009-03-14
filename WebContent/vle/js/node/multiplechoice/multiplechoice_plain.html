@@ -12,30 +12,72 @@
 <script type="text/javascript" src="multiplechoicestate.js"></script>
 <script type="text/javascript" src="mc.js"></script>
 <script type="text/javascript">
-var mc;   // global variable so it can be accessed by other functions
-
+var mcObj;   // global variable so it can be accessed by other functions
+var node;
 var states = [];  // array of MCSTATE objects
 
 function refresh() {
-	alert('fresh called');
-	  mc.render();
+	mcObj.render();
 }
 
-function load() {
-  	var xmlDoc=loadXMLDoc("multiplechoice.xml");
-  	mc = new MC(xmlDoc);
-  	parent.rendered();  	
+/*
+ * This is called by multiplechoice_authoring.html after it has
+ * set the node.
+ */
+function loadAuthoring() {
+	//retrieve the content
+  	var xmlString = node.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
+
+	//create an xml object from the xmlString
+	if(window.ActiveXObject) {
+		xmlObj=new ActiveXObject("Microsoft.XMLDOM");
+		xmlObj.async="false";
+		xmlObj.loadXML(xmlString);
+	} else {
+		var parser=new DOMParser();
+		xmlObj=parser.parseFromString(xmlString,"text/xml");
+	}
+
+	//create the mc object
+  	mcObj = new MC(xmlObj);
+
+  	//render the mc object so that it's content gets loaded in this html page
+	mcObj.render();
+	
+  	/*
+  	 * calls afterAuthoringLoaded() in multiplechoice_authoring.html so that
+  	 * multiplechoice_authoring.html can do what it needs to do with the mc
+  	 * object.
+  	 */
+  	parent.afterAuthoringLoaded();
 }
 
 function renderMCFromString(txt) {
   xmlDoc=loadXMLString(txt);
-  mc = new MC(xmlDoc);
-  mc.render();
+  mcObj = new MC(xmlDoc);
+  mcObj.render();
 }
 
 function checkAnswer() {
-	mc.checkAnswer();
+	mcObj.checkAnswer();
 }
+
+/**
+ * 1) if shuffle is on, shuffle choices
+ * 2) clears feedbackdiv
+ * 3) enables checkAnswerButton
+ * 4) hides tryAgainButton
+ */
+function tryAgain() {
+	var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
+
+	if (isTryAgainDisabled) {
+		return;
+	}
+
+	mcObj.render();
+}
+
 </script>
 
 <!--  Javascript Pop up window -->

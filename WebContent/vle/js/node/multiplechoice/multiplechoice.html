@@ -31,6 +31,22 @@ function checkAnswer() {
 	mc.checkAnswer();
 }
 
+/**
+ * 1) if shuffle is on, shuffle choices
+ * 2) clears feedbackdiv
+ * 3) enables checkAnswerButton
+ * 4) hides tryAgainButton
+ */
+function tryAgain() {
+	var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
+
+	if (isTryAgainDisabled) {
+		return;
+	}
+
+	mc.render();
+}
+
 function loadFromVLE(node, vle) {
 	mc.loadFromVLE(node, vle);
 }

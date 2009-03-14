@@ -9,9 +9,14 @@ function MultipleChoiceNode(nodeType) {
 	this.type = nodeType;
 }
 
-MultipleChoiceNode.prototype.render = function(contentpanel) {
-	window.frames["ifrm"].location = "js/node/multiplechoice/multiplechoice.html";
-} 
+MultipleChoiceNode.prototype.render = function(contentPanel) {
+	if(contentpanel == null) {
+		window.frames["ifrm"].location = "js/node/multiplechoice/multiplechoice.html";
+	} else {
+		contentPanel.location = "js/node/multiplechoice/multiplechoice.html";
+	}
+}
+
 
 
 MultipleChoiceNode.prototype.load = function() {

@@ -1,8 +1,8 @@
 function MC(xmlDoc) {
-	this.loadFromXmlDoc(xmlDoc);
+	this.loadXMLDoc(xmlDoc);
 }
 
-MC.prototype.loadFromXmlDoc = function(xmlDoc) {
+MC.prototype.loadXMLDoc = function(xmlDoc) {
 	this.xmlDoc = xmlDoc;
 	this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
 	this.responseIdentifier = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('responseIdentifier');
@@ -112,30 +112,14 @@ function CHOICE(choiceDOM) {
  * feedback associated with this choice
  * PAS-1075 stuff would go in this function
  */
-CHOICE.prototype.getFeedbackText = function() {
-	if (this.identifier == mc.correctResponseInterpretation) {
+CHOICE.prototype.getFeedbackText = function(mcObj) {
+	if (this.identifier == mcObj.correctResponseInterpretation) {
 		return "CORRECT " + this.feedbackText;
 	} else {
 		return "INCORRECT " + this.feedbackText;
 	}
 }
 
-
-/**
- * 1) if shuffle is on, shuffle choices
- * 2) clears feedbackdiv
- * 3) enables checkAnswerButton
- * 4) hides tryAgainButton
- */
-function tryAgain() {
-	var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
-
-	if (isTryAgainDisabled) {
-		return;
-	}
-
-	mc.render();
-}
 
 /**
  * Checks Answer and updates display with correctness and feedback
@@ -160,12 +144,12 @@ MC.prototype.checkAnswer = function() {
 			var choiceIdentifier = inputbuttons[i].getAttribute('id');  // identifier of the choice that was selected
 
 			// use the identifier to get the correctness and feedback
-			var choice = mc.getCHOICEByIdentifier(choiceIdentifier);
+			var choice = this.getCHOICEByIdentifier(choiceIdentifier);
 			if (choice) {
 				var feedbackdiv = document.getElementById('feedbackdiv');
-				feedbackdiv.innerHTML = choice.getFeedbackText();
+				feedbackdiv.innerHTML = choice.getFeedbackText(this);
 				var mcState = new MCSTATE(choiceIdentifier);
-				mcState.isCorrect = (choiceIdentifier == mc.correctResponseInterpretation);
+				mcState.isCorrect = (choiceIdentifier == this.correctResponseInterpretation);
 				states.push(mcState);
 				//alert('vle:' + this.vle);
 				if (this.vle != null) {

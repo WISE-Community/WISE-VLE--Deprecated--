@@ -7,14 +7,39 @@ HtmlNode.prototype.constructor = HtmlNode;
 HtmlNode.prototype.parent = Node.prototype;
 function HtmlNode(nodeType) {
 	this.type = nodeType;
+	this.content = null;
 }
 
-HtmlNode.prototype.render = function(contentpanel) {
-	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	window.frames["ifrm"].document.open();	
-	window.frames["ifrm"].document.write(content);   
-	window.frames["ifrm"].document.close(); 		
+HtmlNode.prototype.setContent = function(content) {
+	//update the content attribute that contains the html
+	this.content = content;
+	
+	//update the element node so it contains the new html the user just authored
+	this.element.getElementsByTagName("content")[0].firstChild.nodeValue = content;
+}
 
+HtmlNode.prototype.render = function(contentPanel) {
+	if(this.content == null) {
+		/*
+		 * the first time render is called this needs to be set because
+		 * it doesn't work in the constructor for some reason. we should
+		 * look into that in the future.
+		 */
+		this.content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
+	}
+	
+	if(contentPanel == null) {
+		/*
+		 * this will be the default iframe to render in if no contentPanel
+		 * is passed
+		 */
+		contentPanel = window.frames["ifrm"];
+	}
+	
+	//write the content into the contentPanel, this will render the html in that panel
+	contentPanel.document.open();
+	contentPanel.document.write(this.content);
+	contentPanel.document.close();
 }
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {
