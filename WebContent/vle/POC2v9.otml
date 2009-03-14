@@ -819,7 +819,7 @@ the code. </div>
 </html>
                   ]]></content>
                 </OTIntroPage>
-                <OTQuiz id="08608547-0458-11de-9e80-e9f7a2343f8e" title="How Does Hunger Work?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                <OTQuiz id="a3s2" title="How Does Hunger Work?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
                   <nodeaudios>
                      <nodeaudio id="audio-a3s2" url="assets/audio/a3s2.mp3" />                  
                   </nodeaudios>
