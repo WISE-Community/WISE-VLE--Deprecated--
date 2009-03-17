@@ -113,7 +113,14 @@ function CHOICE(choiceDOM) {
  * PAS-1075 stuff would go in this function
  */
 CHOICE.prototype.getFeedbackText = function(mcObj) {
-	if (this.identifier == mcObj.correctResponseInterpretation) {
+	if(mcObj.correctResponseInterpretation == null || mcObj.correctResponseInterpretation == "") {
+		/*
+		 * if there is no correct answer, just return the feedback,
+		 * this situation may occur when the student is just filling
+		 * out a form
+		 */
+		return this.feedbackText;
+	} else if (this.identifier == mcObj.correctResponseInterpretation) {
 		return "CORRECT " + this.feedbackText;
 	} else {
 		return "INCORRECT " + this.feedbackText;
