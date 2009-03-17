@@ -1,5 +1,5 @@
 var htmlPageTypes = new Array("OTReadingPage", "OTIntroPage", "OTVideoPage", "OTExamplePage", "OTDisplayPage", "OTEvidence");
-var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz", "Reference");
+var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz", "OTQuizCheckBox", "Reference");
 
 // IE 7 doesn't have indexOf method.........
 if(!Array.indexOf){
@@ -27,7 +27,7 @@ NodeFactory.createNode = function (nodeType){
 	if (nodeType == null) {
 		return new Node();		
 	} else if (htmlPageTypes.indexOf(nodeType) > -1) {
-		return new HtmlNode("HtmlNode");
+		return new HtmlNode(nodeType);
 	} else if (customPageTypes.indexOf(nodeType) > -1) {
 		switch (nodeType) {
 			case "OTMatchSequence": return new MatchSequenceNode("OTMatchSequence"); break;
@@ -36,6 +36,7 @@ NodeFactory.createNode = function (nodeType){
 			case "OTNote": return new NoteNode("OTNote"); break;
 			case "OutsideUrl": return new OutsideUrlNode("OutsideUrl"); break;
 			case "OTQuiz": return new MultipleChoiceNode("OTQuiz"); break;
+			case "OTQuizCheckBox": return new MultipleChoiceCheckBoxNode("OTQuizCheckBox"); break;
 			case "OTBlueJ": return new BlueJNode("OTBlueJ"); break;
 			case "Reference": return new ReferenceNode("Reference"); break;
 			default: break;
@@ -189,6 +190,11 @@ PasOtmlProject.prototype.getShowAllWorkHtml = function() {
 		}
 	}
 	return htmlSoFar;
+}
+
+PasOtmlProject.prototype.exportProject = function() {
+	var exportXML = this.rootNode.exportNode();
+	return exportXML;
 }
 
 Node.prototype.isLocked = function() {
