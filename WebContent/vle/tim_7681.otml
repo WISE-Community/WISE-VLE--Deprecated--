@@ -218,7 +218,7 @@
 </OTQuiz>
 
 
-<OTQuiz id="a1s10" title="Q6">
+<OTQuizCheckBox id="a1s10" title="Q6">
 	<jaxbXML><![CDATA[
 <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
                       <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
@@ -234,7 +234,7 @@
                       </itemBody>
                     </assessmentItem>
 	]]></jaxbXML>
-</OTQuiz>
+</OTQuizCheckBox>
 
 
 <OTQuiz id="a1s11" title="Q7">
@@ -305,7 +305,7 @@
                 </OTIntroPage>
 
 
-<OTQuiz id="a1s14" title="Q8">
+<OTQuizCheckBox id="a1s14" title="Q8">
 	<jaxbXML><![CDATA[
 <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
                       <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
@@ -323,7 +323,7 @@
                       </itemBody>
                     </assessmentItem>
 	]]></jaxbXML>
-</OTQuiz>
+</OTQuizCheckBox>
 
 <OTIntroPage id="a1s15" title="Make a Connection" authorNotes="" hoverString="Pas Step" speechText="">
                   <content><![CDATA[
