@@ -36,10 +36,16 @@ HtmlNode.prototype.render = function(contentPanel) {
 		contentPanel = window.frames["ifrm"];
 	}
 	
+	if (contentPanel.document) {
 	//write the content into the contentPanel, this will render the html in that panel
 	contentPanel.document.open();
 	contentPanel.document.write(this.content);
 	contentPanel.document.close();
+	} else {
+		window.frames["ifrm"].document.open();
+		window.frames["ifrm"].document.write(this.content);
+		window.frames["ifrm"].document.close();
+	}
 }
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {

@@ -3,7 +3,7 @@ function Menu(id) {
 		return false;
 	this.menu = document.getElementById(id);
 	this.submenus = this.menu.getElementsByTagName("div");
-	this.remember = true;
+	this.remember = false;
 	this.speed = 5;
 	this.markCurrent = true;
 	this.oneSmOnly = false;

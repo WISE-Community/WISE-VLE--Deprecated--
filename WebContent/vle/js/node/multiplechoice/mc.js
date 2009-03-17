@@ -79,9 +79,12 @@ MC.prototype.render = function() {
 
 	for(var i=0;i<this.choices.length;i++) {
 		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type':'radio', 'name':'radiobutton', 'value':this.choices[i].identifier, 'class':'radiobutton', 'onClick':"javascript:enableCheckAnswerButton('true');"});
-		var radiobuttonText = document.createTextNode(this.choices[i].text);
+		var radiobuttonTextDiv = document.createElement("div");
+		radiobuttonTextDiv.innerHTML = this.choices[i].text;
+		//var radiobuttonText = document.createTextNode(this.choices[i].text);
+		//radiobuttonTextDiv.appendChild(radiobuttonText);
 		radiobuttondiv.appendChild(radiobuttonElement);
-		radiobuttondiv.appendChild(radiobuttonText);
+		radiobuttondiv.appendChild(radiobuttonTextDiv);
 		radiobuttondiv.appendChild(createElement(document, 'br', {}));
 	}
 	addClassToElement("checkAnswerButton", "disabledLink");

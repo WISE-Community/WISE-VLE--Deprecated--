@@ -45,7 +45,7 @@ ConnectionManager.prototype.post = function(user) {
 	 */ 
 	postData = 'dataId=' + userId + '&data=' + this.vle.getDataXML();
 	//the async call to send the data back to the db
-	YAHOO.util.Connect.asyncRequest('POST', this.postURL, callback, postData);
+	//YAHOO.util.Connect.asyncRequest('POST', this.postURL, callback, postData);
 }
 
 ConnectionManager.prototype.get = function() {

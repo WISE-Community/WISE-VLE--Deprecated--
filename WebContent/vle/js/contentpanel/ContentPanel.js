@@ -12,7 +12,8 @@ ContentPanel.prototype.render = function(nodeId) {
 	if (node == null) {
 		alert('ContentPanel.js. node with nodeId: ' + nodeId + 'does not exist');
 	}
-	node.render(this);
+	//node.render(this);  this should be used in the future.
+	node.render();
 }
 
 /**

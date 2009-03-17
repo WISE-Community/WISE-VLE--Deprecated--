@@ -10,9 +10,12 @@ function MultipleChoiceNode(nodeType) {
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
-	if(contentpanel == null) {
+	//alert(contentPanel);
+	if(contentPanel == null) {
+		//alert('setting ifram location');
 		window.frames["ifrm"].location = "js/node/multiplechoice/multiplechoice.html";
 	} else {
+		//alert('else');
 		contentPanel.location = "js/node/multiplechoice/multiplechoice.html";
 	}
 }
