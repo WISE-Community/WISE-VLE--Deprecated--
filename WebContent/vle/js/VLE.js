@@ -366,7 +366,7 @@ VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 
 contentPanelOnLoad = function(){
 	//alert('here' + vle);
-	if (vle != null) {
+	if (vle && vle != null) {
 	var currentNode = vle.getCurrentNode();
 	currentNode.load();
 	}

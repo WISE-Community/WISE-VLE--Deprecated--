@@ -83,7 +83,7 @@ MC_CHECKBOX.prototype.render = function() {
 		radiobuttondiv.removeChild(radiobuttondiv.firstChild);
 	}
 	for(var i=0;i<this.choices.length;i++) {
-		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type':'checkbox', 'name':'checkbox', 'value':this.choices[i].identifier, 'class':'checkbox', 'onClick':"javascript:enableCheckAnswerButton('true');"});
+		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type':'checkbox', 'name':'checkbox', 'value':this.choices[i].identifier, 'class':'checkbox', 'onclick':"javascript:enableCheckAnswerButton('true');"});
 		var radiobuttonText = document.createTextNode(this.choices[i].text);
 		radiobuttondiv.appendChild(radiobuttonElement);
 		radiobuttondiv.appendChild(radiobuttonText);
@@ -92,8 +92,15 @@ MC_CHECKBOX.prototype.render = function() {
 	addClassToElement("checkAnswerButton", "disabledLink");
 	addClassToElement("tryAgainButton", "disabledLink");
 	clearFeedbackDiv();
-	displayNumberAttempts("This is your", "attempt", states);
-}
+	if (this.correctResponseInterpretation == null || this.correctResponseInterpretation == "") {
+		// if there is no correct answer to this question (ie, when they're filling out a form),
+		// change button to say "save answer" and "edit answer" instead of "check answer" and "try again"
+		// and don't show the number of attempts.
+		document.getElementById("checkAnswerButton").innerHTML = "Save Answer";
+		document.getElementById("tryAgainButton").innerHTML = "Edit Answer";
+	} else {
+		displayNumberAttempts("This is your", "attempt", states);
+	}}
 
 /**
  * SAMPLE choiceDOM:
