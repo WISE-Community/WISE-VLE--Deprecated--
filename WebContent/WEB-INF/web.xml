@@ -31,4 +31,14 @@
     <url-pattern>/postdata.html</url-pattern>
   </servlet-mapping>
   
+    <servlet>
+    <servlet-name>echopostdata</servlet-name>
+    <servlet-class>utils.EchoPostData</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>echopostdata</servlet-name>
+    <url-pattern>/echo.html</url-pattern>
+  </servlet-mapping>
+  
 </web-app>
