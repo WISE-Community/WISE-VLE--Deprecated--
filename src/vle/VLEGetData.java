@@ -44,58 +44,33 @@ public class VLEGetData extends HttpServlet {
 			return;
 		}
 		
-		Long dataId = Long.parseLong(idStr);
-		if(dataId != null){
+		//parse ids
+		String[] ids = idStr.split(":");
+		
+		if(ids != null && ids.length > 0){
 			try{
 				stmt = conn.createStatement();
 	    		ResultSet results = null;
 	    		
-	    		if(dataId==-1){
-	    			//retrieve latest data from db for every dataId there is
+		    	//open XML String
+		    	response.getWriter().write("<vle_states>");
+		    		
+	    		//then retrieve latest data for each of the ids
+	    		for(int x = 0; x < ids.length; x++){
+	    			results = stmt.executeQuery("select data from vledata where dataId=" + ids[x] + " order by timestamp desc");
+	    			results.first();
 	    			
+	    			//add first result (latest entry by timestamp) to XML String
+	    			response.getWriter().write("<workgroup dataId=" + ids[x] +">" + results.getString(1) + "</workgroup>");
 	    			
-	    			
-	    			//first get unique ids
-	    			results = stmt.executeQuery("select distinct dataId from vledata");
-	    			
-	    			List<String> ids = new LinkedList<String>();
-	    			while(results.next()){
-	    				ids.add(results.getString(1));
-	    				//results2 = stmt.executeQuery("select data from vledata where dataId=" + results.getString(1) + " order by timestamp desc");
-	    			}
 	    			results.close();
 	    			results = null;
-	    			
-	    			if(ids.size() > 0){
-		    			//open XML String
-		    			response.getWriter().write("<vle_states>");
-		    			
-	    				//then retrieve latest data for each of the ids
-	    				for(int x = 0;x < ids.size();x++){
-	    					results = stmt.executeQuery("select data from vledata where dataId=" + ids.get(x) + " order by timestamp desc");
-	    					results.first();
-	    					
-	    					//add first result (latest entry by timestamp) to XML String
-	    					response.getWriter().write(results.getString(1));
-	    					
-	    					results.close();
-	    					results = null;
-	    				}
-	    				
-	    				//close XML String
-		    			response.getWriter().write("</vle_states>");
-	    			}
-	    		} else {
-	    			//retrieve latest data from db for the given dataId
-	    			results = stmt.executeQuery("select data from vledata where dataId=" + dataId + " order by timestamp desc");
-	    		
-		    		//return first row and write to response
-		    		results.first();
-		    		response.getWriter().write(results.getString(1));
-		    		results.close();
 	    		}
+	    				
+	    		//close XML String
+		    	response.getWriter().write("</vle_states>");
 	    		
-	    		stmt.close();
+		    	stmt.close();
 			} catch (SQLException sqlExcept){
 	            sqlExcept.printStackTrace();
 	        } catch (IOException e){
