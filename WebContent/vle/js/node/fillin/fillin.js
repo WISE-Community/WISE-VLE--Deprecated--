@@ -1,4 +1,8 @@
 function FILLIN(xmlDoc) {
+	this.loadXMLDoc(xmlDoc);
+}
+
+FILLIN.prototype.loadXMLDoc = function(xmlDoc) {
   this.xmlDoc = xmlDoc;
   this.itemBody = this.xmlDoc.getElementsByTagName('itemBody')[0];
   this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
