@@ -89,7 +89,14 @@ Node.prototype.render = function(contentpanel) {
 
 Node.prototype.load = function() {
 	//alert("Node.load called");
-	document.getElementById('topStepTitle').innerHTML = this.title;
+	//document.getElementById('topStepTitle').innerHTML = this.title;
+	this.setTopStepTitle();
+}
+
+Node.prototype.setTopStepTitle = function() {
+	if(document.getElementById('topStepTitle') != null) {
+		document.getElementById('topStepTitle').innerHTML = this.title;
+	}
 }
 
 
@@ -132,7 +139,6 @@ Node.prototype.getShowAllWorkHtml = function(){
 }
 
 Node.prototype.getDataXML = function(nodeStates) {
-	//alert("this.id: " + this.id);
 	var dataXML = "";
 	for (var i=0; i < nodeStates.length; i++) {
 		var state = nodeStates[i];
@@ -141,9 +147,50 @@ Node.prototype.getDataXML = function(nodeStates) {
 	return dataXML;
 }
 
+//not used, seems like NodeFactory.createNode() is used instead
 Node.prototype.parseDataXML = function(nodeXML) {
-	var nodeType = nodeXML.getElementsByTagName("type");
-	var nodeObject = new Node(nodeType);
-	
+	var nodeType = nodeXML.getElementsByTagName("type")[0].textContent;
+	var id = nodeXML.getElementsByTagName("id")[0].textContent;
+	//var nodeObject = new Node(nodeType);
+	var nodeObject = NodeFactory.createNode(nodeType);
+	nodeObject.id = id;
 	return nodeObject;
+}
+
+Node.prototype.exportNode = function(node) {
+	var exportXML = "";
+
+	exportXML += this.exportNodeHeader(node);
+	
+	if(this.children.length != 0) {
+		for(var x=0; x<this.children.length; x++) {
+			exportXML += this.children[x].exportNode();
+		}
+	} else {
+		//this node is a leaf node
+		
+	}
+	
+	exportXML += this.exportNodeFooter();
+	
+	return exportXML;
+}
+
+Node.prototype.exportNodeHeader = function(node) {
+	var exportXML = "";
+
+	exportXML += "<" + this.type;
+	exportXML += " id=\"" + this.id + "\"";
+	exportXML += " title=\"" + this.title + "\"";
+	exportXML += ">";
+	
+	return exportXML;
+}
+
+Node.prototype.exportNodeFooter = function(node) {
+	var exportXML = "";
+	
+	exportXML += "</" + this.type + ">";
+	
+	return exportXML;
 }

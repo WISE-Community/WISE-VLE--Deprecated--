@@ -47,7 +47,11 @@ MatchSequenceNode.prototype.parseDataXML = function(nodeStatesXML) {
 		 * parse an individual stateXML object to create an actual instance
 		 * of an MSSTATE object and put it into the array that we will return
 		 */
-		statesArrayObject.push(MSSTATE.prototype.parseDataXML(stateXML));
+		var stateObject = MSSTATE.prototype.parseDataXML(stateXML);
+		
+		if(stateObject != null) {
+			statesArrayObject.push(stateObject);
+		}
 	}
 	
 	return statesArrayObject;

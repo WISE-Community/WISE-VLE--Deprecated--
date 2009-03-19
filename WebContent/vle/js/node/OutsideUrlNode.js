@@ -15,12 +15,34 @@ OutsideUrlNode.prototype.render = function(contentpanel) {
 	window.frames["ifrm"].document.close();
 }
 
-OutsideUrlNode.prototype.load = function() {
+OutsideUrlNode.prototype.load = function(contentPanel) {
 	var url = this.element.getElementsByTagName("url")[0].firstChild.nodeValue;
+	
+	if(contentPanel == null) {
 		window.frames["ifrm"].loadUrl(url);
-	document.getElementById('topStepTitle').innerHTML = this.title;
+	} else {
+		contentPanel.loadUrl(url);
+	}
+	
+	//document.getElementById('topStepTitle').innerHTML = this.title;
+	this.parent.setTopStepTitle();
 }
+
 
 OutsideUrlNode.prototype.getDataXML = function(nodeStates) {
 	return OutsideUrlNode.prototype.parent.getDataXML(nodeStates);
+}
+
+OutsideUrlNode.prototype.exportNode = function() {
+	var exportXML = "";
+	
+	exportXML += this.exportNodeHeader();
+	
+	exportXML += "<url>";
+	exportXML += this.element.getElementsByTagName("url")[0].firstChild.nodeValue;
+	exportXML += "</url>";
+	
+	exportXML += this.exportNodeFooter();
+	
+	return exportXML;
 }

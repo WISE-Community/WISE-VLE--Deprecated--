@@ -57,3 +57,18 @@ HtmlNode.prototype.parseDataXML = function(nodeStatesXML) {
 	var statesArrayObject = new Array();
 	return statesArrayObject;
 }
+
+
+HtmlNode.prototype.exportNode = function() {
+	var exportXML = "";
+	
+	exportXML += this.exportNodeHeader();
+	
+	exportXML += "<content><![CDATA[";
+	exportXML += this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
+	exportXML += "]]></content>";
+	
+	exportXML += this.exportNodeFooter();
+	
+	return exportXML;
+}

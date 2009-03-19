@@ -10,11 +10,19 @@ function BlueJNode(nodeType) {
 	this.projectPath = "";
 }
 
-BlueJNode.prototype.render = function(contentpanel) {
+BlueJNode.prototype.render = function(contentPanel) {
 	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	window.frames["ifrm"].document.open();
-	window.frames["ifrm"].document.write(content);
-	window.frames["ifrm"].document.close();
+	
+	if(contentPanel == null) {
+		window.frames["ifrm"].document.open();
+		window.frames["ifrm"].document.write(content);
+		window.frames["ifrm"].document.close();
+	} else {
+		contentPanel.document.open();
+		contentPanel.document.write(content);
+		contentPanel.document.close();
+	}
+	
 	
 	//window.frames["ifrm"].document.open();
 	//window.frames["ifrm"].location = "js/node/outsideurl/outsideurl.html";

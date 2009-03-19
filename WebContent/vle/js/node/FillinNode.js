@@ -52,3 +52,17 @@ FillinNode.prototype.parseDataXML = function(nodeStatesXML) {
 	
 	return statesArrayObject;
 }
+
+FillinNode.prototype.exportNode = function() {
+	var exportXML = "";
+	
+	exportXML += this.exportNodeHeader();
+	
+	exportXML += "<jaxbXML><![CDATA[";
+	exportXML += this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
+	exportXML += "]]></jaxbXML>";
+	
+	exportXML += this.exportNodeFooter();
+	
+	return exportXML;
+}

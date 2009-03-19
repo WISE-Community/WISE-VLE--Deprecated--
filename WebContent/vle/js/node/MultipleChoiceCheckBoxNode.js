@@ -48,7 +48,11 @@ MultipleChoiceCheckBoxNode.prototype.parseDataXML = function(nodeStatesXML) {
 		 * parse an individual stateXML object to create an actual instance
 		 * of an MCSTATE object and put it into the array that we will return
 		 */
-		statesArrayObject.push(MCSTATE.prototype.parseDataXML(stateXML));
+		var stateObject = MCCBSTATE.prototype.parseDataXML(stateXML);
+		
+		if(stateObject != null) {
+			statesArrayObject.push(stateObject);
+		}
 	}
 	
 	return statesArrayObject;

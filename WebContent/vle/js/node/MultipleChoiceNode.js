@@ -10,12 +10,9 @@ function MultipleChoiceNode(nodeType) {
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
-	//alert(contentPanel);
 	if(contentPanel == null) {
-		//alert('setting ifram location');
 		window.frames["ifrm"].location = "js/node/multiplechoice/multiplechoice.html";
 	} else {
-		//alert('else');
 		contentPanel.location = "js/node/multiplechoice/multiplechoice.html";
 	}
 }
@@ -53,6 +50,32 @@ MultipleChoiceNode.prototype.parseDataXML = function(nodeStatesXML) {
 		 */
 		statesArrayObject.push(MCSTATE.prototype.parseDataXML(stateXML));
 	}
-	
 	return statesArrayObject;
+}
+
+MultipleChoiceNode.prototype.exportNode = function() {
+	var exportXML = "";
+	
+	exportXML += this.exportNodeHeader();
+	
+	exportXML += "<jaxbXML><![CDATA[";
+	exportXML += this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
+	exportXML += "]]></jaxbXML>";
+	
+	exportXML += this.exportNodeFooter();
+	
+	return exportXML;
+}
+
+MultipleChoiceNode.prototype.getHumanReadableForm = function(states) {
+	var humanReadableText = "";
+	for(var x=0; x<states.length; x++) {
+		humanReadableText += states[x].choiceIdentifier;
+	}
+	return humanReadableText;
+}
+
+MultipleChoiceNode.prototype.createAggregateNode(mcXML) {
+	var mc = new MC(mcXML);
+	return new MultipleChoiceAggregateNode(mc);
 }
