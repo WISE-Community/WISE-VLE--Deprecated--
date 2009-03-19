@@ -82,6 +82,7 @@ VLE.prototype.renderNode = function(nodeId){
     if(loadingMessageDiv != null && loadingMessageDiv != undefined) {
     	loadingMessageDiv.innerHTML = "";
     }
+    // fire currenct changed event
 }
 
 /**

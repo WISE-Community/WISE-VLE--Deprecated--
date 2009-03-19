@@ -1,7 +1,7 @@
 var	htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
 var qtiAssessmentPageTypes = new Array("openresponse");
 
-var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode");
+var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode", "sequence");
 
 function NodeFactory() {
 	this.htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
@@ -17,8 +17,10 @@ NodeFactory.createNode = function (element) {
 		} else if (nodeName == "MultipleChoiceNode"){
 			//alert('mcnode');
 			return new MultipleChoiceNode("MutipleChoiceNode");
+		} else if (nodeName == "sequence") {
+			//alert('sequence node');
+			return new Node();
 		} else {
-			//alert('NOT HtmlNode');
 			return new Node();
 		}
 	}
@@ -26,7 +28,17 @@ NodeFactory.createNode = function (element) {
 
 function Project(xmlDoc) {
 	this.xmlDoc = xmlDoc;
-	this.rootNode = this.generateNode(this.xmlDoc.firstChild);
+	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
+	//alert('1:' + this.xmlDoc.firstChild.nodeName);
+	if (this.xmlDoc.getElementsByTagName("sequence").length > 0) {
+		// this is a Learning Design-inspired project <repos>...</repos><sequence>...</sequence>
+		//alert('LD');
+		this.rootNode = this.generateNodeFromSequenceFile(this.xmlDoc);
+	} else {
+		// this is a node project <node><node></node></node>
+		//alert('non-LD');
+		this.rootNode = this.generateNode(this.xmlDoc.firstChild);
+	}
 }
 
 Project.prototype.generateNode = function(element) {
@@ -38,12 +50,56 @@ Project.prototype.generateNode = function(element) {
 		thisNode.id = element.getAttribute('id');
 		var children = element.childNodes;
 		for (var i = 0; i < children.length; i++) {
-			if (acceptedTagNames.indexOf(children[i].nodeName) > -1) {
+			if (acceptedTagNames.indexOf(children[i].nodeName) > -1) {	
 				thisNode.addChildNode(this.generateNode(children[i]));
 			}
 		}
 		return thisNode;
 	}
+}
+
+Project.prototype.generateNodeFromSequenceFile = function(xmlDoc) {
+	// go through the nodes in <repos>...</repos> tag and create Nodes for each.
+	// put them in allNodes array as we go.
+	var allNodes = [];
+	var nodeElements = xmlDoc.getElementsByTagName("nodes")[0].childNodes;
+	for (var i=0; i < nodeElements.length; i++) {
+		var element = nodeElements[i];
+		if (element.nodeName != "#text")  {
+			var thisNode = NodeFactory.createNode(element);
+			thisNode.title = element.getAttribute('title');
+			thisNode.id = element.getAttribute('identifier');
+			thisNode.filename = element.getElementsByTagName('ref')[0].getAttribute("filename");
+			thisNode.element = element;
+			allNodes.push(thisNode);
+		}
+	}
+	
+	// go through the <sequence>...</sequence> section, and create the rootNode
+	var sequenceElement = xmlDoc.getElementsByTagName("sequence")[0];
+	var sequenceNode = NodeFactory.createNode(sequenceElement);
+	sequenceNode.element = sequenceElement;
+	var sequenceReferenceElements = sequenceElement.childNodes;   // this is the same as node-ref
+	for (var j=0; j < sequenceReferenceElements.length; j++) {
+		if (sequenceReferenceElements[j].nodeName != "#text")  {
+			var referenceIdentifier = sequenceReferenceElements[j].getAttribute("ref");   // ie a2s1, a3s4, ids that are defined in nodes in the repos section.
+			var referencedNode = findNodeById(allNodes, referenceIdentifier);
+			sequenceNode.addChildNode(referencedNode);
+		}
+	}
+	return sequenceNode;
+}
+
+/*
+ * finds the node with the specified id in the specified array
+ */
+function findNodeById(nodesArray, id) {
+	for (var k=0; k<nodesArray.length; k++) {
+		if (nodesArray[k].id == id) {
+			return nodesArray[k];
+		}
+	}
+	return null;
 }
 
 Project.prototype.getSummaryProjectHTML = function(){

@@ -75,15 +75,21 @@ MC.prototype.render = function() {
 	while(radiobuttondiv.hasChildNodes()) {
 		radiobuttondiv.removeChild(radiobuttondiv.firstChild);
 	}
-
+	
 	for(var i=0;i<this.choices.length;i++) {
+		var tableElement = createElement(document, 'table', {});
+		var trElement = createElement(document, 'tr', {});
+		var td1Element = createElement(document, 'td', {});
+		tableElement.appendChild(trElement);
+		trElement.appendChild(td1Element);
 		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type':'radio', 'name':'radiobutton', 'value':this.choices[i].identifier, 'class':'radiobutton', 'onclick':"enableCheckAnswerButton('true');"});
+		td1Element.appendChild(radiobuttonElement);
+		var td2Element = createElement(document, 'td', {});
+		trElement.appendChild(td2Element);
 		var radiobuttonTextDiv = document.createElement("div");
 		radiobuttonTextDiv.innerHTML = this.choices[i].text;
-		//var radiobuttonText = document.createTextNode(this.choices[i].text);
-		//radiobuttonTextDiv.appendChild(radiobuttonText);
-		radiobuttondiv.appendChild(radiobuttonElement);
-		radiobuttondiv.appendChild(radiobuttonTextDiv);
+		td2Element.appendChild(radiobuttonTextDiv);
+		radiobuttondiv.appendChild(tableElement);
 		radiobuttondiv.appendChild(createElement(document, 'br', {}));
 	}
 	addClassToElement("checkAnswerButton", "disabledLink");

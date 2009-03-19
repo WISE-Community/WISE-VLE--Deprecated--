@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<otrunk id="33754150-b594-11d9-9669-0800200c9a66">
+  <objects>
+    <OTSystem>
+      <includes>
+        <OTInclude href="http://tels-group.soe.berkeley.edu/aperritano/predefined-sensor-graphs.otml" />
+      </includes>
+      <root>
+        <OTPasProject id="971534ac-3f22-11dd-b240-cde0bfdd2411" title="Using Conditionals: Part 3 -- Virtual Pet" isAuthoringMode="false">
+          <journalAlbum>
+            <OTJournalAlbum id="4db44b59-5cff-11dd-a4b6-9b08a7b15b3c">
+              <entries>
+                <OTJournalPage title="Journal Page 1" studentPage="false" creationTime="Aug 22 at 1:07" notes="Add a note describing this journalPage...">
+                  <parts>
+                    <OTCompoundDoc>
+                      <documentRefs>
+                        <OTText id="9305318c-7303-11dd-b0b7-63524403b921" name="Text field" rows="2" />
+                      </documentRefs>
+                      <bodyText>
+                        Hi I am a Journal 1.
+                        <br />
+                        <br />
+                        <object refid="9305318c-7303-11dd-b0b7-63524403b921" />
+                        <br />
+                      </bodyText>
+                    </OTCompoundDoc>
+                    <OTCompoundDoc>
+                      <documentRefs>
+                        <OTText id="9305318d-7303-11dd-b0b7-63524403b921" name="Text field" rows="2" />
+                      </documentRefs>
+                      <bodyText>
+                        Hi I am an answer to a part 2.
+                        <br />
+                        <br />
+                        <object refid="9305318d-7303-11dd-b0b7-63524403b921" />
+                        <br />
+                      </bodyText>
+                    </OTCompoundDoc>
+                  </parts>
+                </OTJournalPage>
+              </entries>
+            </OTJournalAlbum>
+          </journalAlbum>
+          <activityList>           
+            <OTPasActivity id="108577c9-ffa2-11dd-b2c3-7bd89c45bea2" title="Introduction" authorNotes="">
+              <stepList>
+<OTIntroPage id="a1s1" title="Instructions" authorNotes="" hoverString="Pas Step" speechText="">
+                  <content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP_mobile.css" />
+</head>
+<body>
+<p>
+Now observe each fish species for 5 minutes. Once every minute, use the questions below to collect data on what the fish was doing during that minute while you watched it. You may want to read the questions below BEFORE you start your observations. 
+</p>
+</body>
+</html>                  
+]]></content>
+                </OTIntroPage>
+                
+<OTQuiz id="a1s2" title="Q1">
+	<jaxbXML><![CDATA[
+	<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/bf_tuna.jpg" /&gt;</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/leop_shark.jpg" /&gt;</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/bl_rkfish.jpg" /&gt;</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/halibut.jpg" /&gt;</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuiz id="a1s3" title="Q2">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Bluefin tuna</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Leopard Shark</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Blue rockfish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>Halibut</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+
+<OTQuizCheckBox id="a1s4" title="Q3">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;3. During MINUTE ONE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>sitting/lying around</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>protecting a nest</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuizCheckBox>
+
+<OTQuiz id="a1s5" title="Q4">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;4. During MINTE ONE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuizCheckBox id="a1s6" title="Q5">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;5. During MINUTE TWO, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>sitting/lying around</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>protecting a nest</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuizCheckBox>
+
+
+<OTQuiz id="a1s7" title="Q6">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;6. During MINTE TWO, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+
+<OTQuizCheckBox id="a1s8" title="Q7">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;7. During MINUTE THREE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>sitting/lying around</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>protecting a nest</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuizCheckBox>
+
+
+<OTQuiz id="a1s9" title="Q8">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;8. During MINTE THREE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuizCheckBox id="a1s10" title="Q9">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;9. During MINUTE FOUR, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>sitting/lying around</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>protecting a nest</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuizCheckBox>
+
+
+<OTQuiz id="a1s11" title="Q10">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;10. During MINTE FOUR, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuizCheckBox id="a1s12" title="Q11">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;11. During MINUTE FIVE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>sitting/lying around</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>protecting a nest</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuizCheckBox>
+
+
+<OTQuiz id="a1s13" title="Q12">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;12. During MINTE FIVE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+
+<OTQuiz id="a1s14" title="Q13">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;13. After watching your fish, which term(s) do you think best describes the behavioral adaptation that serves to protect this fish? (choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Hides in crevices</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Forms schools</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Comes out only at night</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>None of the above</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>I can't tell</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuiz id="a1s15" title="Q14">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;14. When swimming, this fish...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>"Hovers"</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Is constantly moving</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Moves very slowly</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>"Hops" from rock to rock</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>This fish doesn't swim much</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuiz id="a1s16" title="Q15">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;15. Generally speaking, this fish was most often...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Hiding</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Hovering</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Randomly Swimming</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show">&lt;br&gt;</feedbackInline>Schooling</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5"><feedbackInline identifier="choice 5" showHide="show">&lt;br&gt;</feedbackInline>Sitting</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuiz id="a1s17" title="Q16">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;16.Most of the time, this fish...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Stays in the open water</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Stays under cover</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+
+<OTQuiz id="a1s18" title="Q17">
+	<jaxbXML><![CDATA[
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation=""/>
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;p&gt;17.While I was watching this fish, it...(choose one)&lt;/p&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Stayed by itself</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Stayed near other fish</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Stayed in a school of similar fish Swimming</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+	]]></jaxbXML>
+</OTQuiz>
+                </stepList>
+            </OTPasActivity>
+            
+          </activityList>
+        </OTPasProject>
+      </root>
+      <library>
+        <OTCompoundDoc name="top-menu" showEditBar="false">
+          <bodyText>
+            <div class="top-menu">
+              <table>
+                <tr>
+                  <td>
+                    <object refid="${[no menu in author mode]}" viewid="textsize-choice-view" />
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </bodyText>
+        </OTCompoundDoc>
+      </library>
+    </OTSystem>
+  </objects>
+</otrunk>
+
