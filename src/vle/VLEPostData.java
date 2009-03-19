@@ -131,14 +131,9 @@ public class VLEPostData extends HttpServlet {
         			   //look for the dataId in the vledata table
         			   results = stmt.executeQuery("select * from vledata where dataId = '" + dataId + "'");
         			   
-        			   //check if the corresponding dataId for the username exists in vledata table
-        			   if(results != null && results.next()) {
-        				   //dataId exists in db so we will update it
-        				   stmt.execute("update vledata set data = '" + postDataStr + "' where dataId = '" + dataId + "'");
-        			   } else {
-        				   //dataId does not exist in db so we will create it
+        			   //We will always create a new row in database for incoming queries
         				   stmt.execute("insert into vledata (dataId, data) values ('" + dataId + "', '" + postDataStr + "')");
-        			   }
+        			  // }
         		   } else {
         			   //username does not exist in db
         			   
@@ -152,13 +147,9 @@ public class VLEPostData extends HttpServlet {
         				   //look for the post parameter dataId in the vledata table
         				   results = stmt.executeQuery("select * from vledata where dataId = '" + idStr + "'");
         				   
-        				   if(results != null && results.next()) {
-        					   //dataId exists in db so we will update it
-        					   stmt.execute("update vledata set data='" + postDataStr + "' where dataId='" + idStr + "'");
-        				   } else {
-        					   //dataId does not exist in db so we will create it
-        					   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
-        				   }
+        					//We will always create a new row in database for incoming queries 
+        				   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
+        				   //}
         			   }
         			   
         			   /*
@@ -173,16 +164,10 @@ public class VLEPostData extends HttpServlet {
     			   
     			 //look for the post parameter dataId in the vledata table
     			   results = stmt.executeQuery("select dataId from vledata where dataId = '" + idStr + "'");
-    			   
-    			   //check if the id already has an entry in the table
-        		   if(results != null && results.next()) {
-        			 //dataId exists in db so we will update it
-        			   String dataId = results.getString(1);
-        			   stmt.execute("update vledata set data='" + postDataStr + "' where dataId='" + idStr + "'");
-        		   } else {
-        				//dataId does not exist in db so we will create it
-        			   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
-        		   }
+    			     			   
+    			 //We will always create a new row in database for incoming queries
+    			   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
+        		  // }
     		   }
     		   
                stmt.close();

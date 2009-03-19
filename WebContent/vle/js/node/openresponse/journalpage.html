@@ -86,6 +86,9 @@ function createMenu(){
 		for(var q=0;q<childIds.length;q++){
 			text = text + "<a href=\"#\" onclick=\"window.parent.vle.renderNode('" + childIds[q] + "')\">" + childTitles[q] + "</a><br>";
 		};
+		
+		text = text + "<br><input type=\"button\" id=\"createCustom\" value=\"Create Custom Entry\" onclick=\"window.parent.vle.journal.createCustomElement()\"/>";
+		
 		div.innerHTML = text;
 		
 		document.getElementById('leftColumn').appendChild(div);

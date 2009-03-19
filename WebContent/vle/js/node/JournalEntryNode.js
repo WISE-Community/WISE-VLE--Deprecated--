@@ -12,7 +12,6 @@ function JournalEntryNode(nodeType) {
 
 
 JournalEntryNode.prototype.render = function(contentpanel){
-	var nodeVisits = vle.state.getNodeVisitsByNodeId(this.id);
 	var states = [];
 	for (var i=0; i < vle.state.visitedNodes.length; i++) {
 		var nodeVisit = vle.state.visitedNodes[i];

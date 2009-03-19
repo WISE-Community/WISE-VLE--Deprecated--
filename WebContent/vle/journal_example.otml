@@ -346,21 +346,9 @@
 <jaxbXML>
                     <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(96163)">
                       <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
-                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
-                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
-                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_4" />
                       <itemBody>
                         <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
                           <prompt>How many handshakes are too many?</prompt>
-                        </extendedTextInteraction>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
-                          <prompt>Partner #1: How many earths would be needed to support everyone if we all lived the way that you do?</prompt>
-                        </extendedTextInteraction>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
-                          <prompt>Partner #2:  How many football fields of land are required to support your lifestyle?</prompt>
-                        </extendedTextInteraction>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_4" expectedLines="6">
-                          <prompt>Partner #2: How many earths would be needed to support everyone if we all lived the way that you do?</prompt>
                         </extendedTextInteraction>
                       </itemBody>
                     </assessmentItem>
@@ -375,21 +363,9 @@
 <jaxbXML>
                     <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(96163)">
                       <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
-                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
-                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
-                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_4" />
                       <itemBody>
                         <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
                           <prompt>What would happen if I only had a brain?</prompt>
-                        </extendedTextInteraction>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
-                          <prompt>Partner #1: How many earths would be needed to support everyone if we all lived the way that you do?</prompt>
-                        </extendedTextInteraction>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
-                          <prompt>Partner #2:  How many football fields of land are required to support your lifestyle?</prompt>
-                        </extendedTextInteraction>
-                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_4" expectedLines="6">
-                          <prompt>Partner #2: How many earths would be needed to support everyone if we all lived the way that you do?</prompt>
                         </extendedTextInteraction>
                       </itemBody>
                     </assessmentItem>

@@ -75,7 +75,7 @@ MultipleChoiceNode.prototype.getHumanReadableForm = function(states) {
 	return humanReadableText;
 }
 
-MultipleChoiceNode.prototype.createAggregateNode(mcXML) {
+MultipleChoiceNode.prototype.createAggregateNode = function(mcXML) {
 	var mc = new MC(mcXML);
 	return new MultipleChoiceAggregateNode(mc);
 }

@@ -8,6 +8,7 @@ function VLE() {
 	this.audioManager = null;
 	this.connectionManager = null;
 	this.journal = null;
+	this.postNodes = [];
 }
 
 /**
@@ -65,7 +66,11 @@ VLE.prototype.renderNode = function(nodeId){
         this.contentPanel.render(currentNode.id);
 		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
 		if(this.connectionManager != null) {
-			this.connectionManager.post(vle.user);
+			for(var q=0;q<this.postNodes.length;q++){
+				if(currentNode.id==this.postNodes[q]){
+					this.connectionManager.post(vle.user);
+				};
+			};
 		}
         //alert('a:' + currentNode.nodeSessionEndedEvent);
         //alert('b:' + this.onNodeSessionEndedEvent);
@@ -94,7 +99,7 @@ VLE.prototype.expandActivity = function(nodeId) {
 		if(newActivityId){			
 			submenu = document.getElementById(newActivityId + "_menu");
 			submenu.className = "";
-			myMenu.expandMenu(submenu);
+			//myMenu.expandMenu(submenu);
 		};
 	};
 }
@@ -282,6 +287,7 @@ VLE_STATE.prototype.parseDataXML = function(xmlString) {
 	return vleStateObject;
 }
 
+
 function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 	this.node = node;
 	if (arguments.length == 1) {
@@ -386,4 +392,29 @@ VLE.prototype.getDataXML = function() {
 	//retrieve the xml for the current state of the vle
 	var dataXML = this.state.getDataXML();
 	return dataXML;
+}
+
+VLE.prototype.saveStudentData = function(){
+	this.connectionManager.post(vle.user, true);
+};
+
+VLE.prototype.getLastStateTimestamp = function(){
+	var nodeVisits = this.state.visitedNodes;
+	var lastDate = new Date().setTime(0);
+	for(var y=0;y<nodeVisits.length;y++){
+		if(nodeVisits[y].visitEndTime){
+			var currentDate = nodeVisits[y].visitEndTime;
+			if(currentDate>lastDate){
+				lastDate = currentDate;
+			};
+		};
+	};
+	return lastDate;
+};
+
+VLE.prototype.saveLocally = function(){
+	if(confirm("Saving locally requires a file download. If you do not wish to do this, cancel now! Otherwise, click OK.")){
+		document.getElementById('localData').value = this.getDataXML();
+		document.getElementById('saveLocal').submit();
+	};
 }

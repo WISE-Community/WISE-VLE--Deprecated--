@@ -13,10 +13,6 @@ function ReferenceNode(nodeType) {
 };
 
 ReferenceNode.prototype.render = function(){
-	
-	//referenceNodeId = this.element.getElementsByTagName('referenceNodeId')[0].firstChild.nodeValue;
-	//parameters = this.element.getElementsByTagName('parameters')[0]
-	
 	if(this.parameters){
 		referencedNode = vle.getNodeById(this.referenceNodeId);
 		if(referencedNode.setParameters){
