@@ -27,8 +27,8 @@ MCSTATE.prototype.getDataXML = function() {
 }
 
 MCSTATE.prototype.parseDataXML = function(stateXML) {
-	var choiceIdentifier = stateXML.getElementsByTagName("choiceIdentifier")[0].;
-	var timestamp = stateXML.getElementsByTagName("timestamp")[0].;
+	var choiceIdentifier = stateXML.getElementsByTagName("choiceIdentifier")[0];
+	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
 	
 	if(choiceIdentifier == undefined || timestamp == undefined) {
 		return null;
