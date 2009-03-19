@@ -14,6 +14,10 @@ function MCSTATE(choiceIdentifier, timestamp) {
 	}
 }
 
+MCSTATE.prototype.getIdentifier = function() {
+	return this.choiceIdentifier;
+}
+
 MCSTATE.prototype.print = function() {
 	//alert(this.timestamp + "\n" + this.choiceIdentifier);
 }
@@ -23,12 +27,18 @@ MCSTATE.prototype.getDataXML = function() {
 }
 
 MCSTATE.prototype.parseDataXML = function(stateXML) {
-	var choiceIdentifier = stateXML.getElementsByTagName("choiceIdentifier")[0];
-	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
+	var choiceIdentifier = stateXML.getElementsByTagName("choiceIdentifier")[0].;
+	var timestamp = stateXML.getElementsByTagName("timestamp")[0].;
 	
 	if(choiceIdentifier == undefined || timestamp == undefined) {
 		return null;
 	} else {
 		return new MCSTATE(choiceIdentifier.textContent, timestamp.textContent);		
 	}
+}
+
+MCSTATE.prototype.getHumanReadableForm = function() {
+	var humanReadableText = "";
+	humanReadableText += "choice: " + this.choiceIdentifier;
+	return humanReadableText;
 }

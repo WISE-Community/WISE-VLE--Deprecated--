@@ -3,14 +3,21 @@
  * The choices array contains all the choices the student chose for a
  * single submission.
  */
-function MCCBSTATE(timestamp) {
-	this.choices = new Array();
+function MCCBSTATE(timestamp, choicesArray) {
 	this.isCorrect = null;
-	
-	if(arguments.length == 1) {
-		this.timestamp = timestamp;
-	} else {
+
+	//use the current time or the argument timestamp passed in
+	if(arguments.length == 0) {
 		this.timestamp = new Date();
+	} else {
+		this.timestamp = timestamp;
+	}
+	
+	//if a choices array was passed in, set it, otherwise create an empty array
+	if(arguments.length == 2){
+		this.choices = choicesArray;
+	} else {
+		this.choices = new Array();
 	}
 }
 
@@ -38,12 +45,21 @@ MCCBSTATE.prototype.getDataXML = function() {
 }
 
 MCCBSTATE.prototype.parseDataXML = function(stateXML) {
-	var choiceIdentifier = stateXML.getElementsByTagName("choiceIdentifier")[0];
+	var choicesXML = stateXML.getElementsByTagName("choices")[0];
+	var choicesXMLArray = choicesXML.getElementsByTagName("choice");
+	var choiceArray = new Array();
+	
+	for(var x=0; x<choicesXMLArray.length; x++) {
+		var choice = choicesXMLArray[x];
+		var choiceValue = choice.textContent;
+		choiceArray.push(choiceValue);
+	}
+	
 	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
 	
-	if(choiceIdentifier == undefined || timestamp == undefined) {
+	if(timestamp == undefined || choiceArray.length == 0) {
 		return null;
 	} else {
-		return new MCCBSTATE(choiceIdentifier.textContent, timestamp.textContent);		
+		return new MCCBSTATE(timestamp.textContent, choiceArray);		
 	}
 }
