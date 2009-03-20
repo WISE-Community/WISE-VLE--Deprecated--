@@ -236,44 +236,17 @@ function render() {
 	  success: function(o) { 
 		  var xmlDocObj = new LoadXMLDocObj();
 		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
-		  //alert(o.responseXML);
-		  //alert(o.responseText);
 		  var xmlDocToParse = o.responseXML;
-		  /*
-		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
-			  // WINDOWS IE
-			  //alert(o.responseText);
-			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
-			  windowsXMLDoc.async = "false";
-			  windowsXMLDoc.loadXML(o.responseText);
-			  xmlDocToParse = windowsXMLDoc;
-			  //alert('done');
-			  //alert(xmlDocToParse);
-			  //alert('done done');
-		  }	
-		  */	  
-		  //var project = new PasOtmlProject(xmlDocObj);
+		
 		  var project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
-		  project.generateNode(xmlDocToParse);
 		  vle = new VLE();
 		  vle.setProject(project);
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
-		  //vle.visibilityLogic = new VisibilityLogic(new Array(new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2"))));
-         //											);
-		  //vle.visibilityLogic = new VisibilityLogic(new Array(
-			//		new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2")),
-              //  	new CorrectnessBranchingVisibility(
-                //    	project.rootNode, 
-                    //	new Array("0:0:1",new Array("0:1", "0:1:0")), 
-                  //  	new Array("0:0:2",new Array("0:2", "0:2:0", "0:2:1")))
-                //	)
-			//);
-
-		  //vle.audioManager = new AudioManager(true);	  
+		 
 		  myMenu = new Menu("my_menu");
           myMenu.init();
 			
@@ -286,7 +259,7 @@ function render() {
 	}
 
 	// fetch the OTML.
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "testproject/project1.sequence", callback, null);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', "testproject/project1.project", callback, null);
 }
 
 var myMenu;

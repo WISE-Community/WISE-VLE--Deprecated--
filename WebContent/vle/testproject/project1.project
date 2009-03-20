@@ -12,6 +12,8 @@
 </nodes>
 <sequence identifier="project1_sequence">
   <node-ref ref="mc1" />
+  <node-ref ref="mc1" />
+  <node-ref ref="mc1" />
   <node-ref ref="a2s1" />
   <node-ref ref="a2s1" />
   <node-ref ref="a2s1" />

@@ -10,6 +10,7 @@ function NodeFactory() {
 
 NodeFactory.createNode = function (element) {
 	var nodeName = element.nodeName;
+	//alert('here we go:' + nodeName);
 	if (acceptedTagNames.indexOf(nodeName) > -1) {
 		if (nodeName == "HtmlNode") {
 			//alert('htmlnode');
@@ -33,7 +34,7 @@ function Project(xmlDoc) {
 	if (this.xmlDoc.getElementsByTagName("sequence").length > 0) {
 		// this is a Learning Design-inspired project <repos>...</repos><sequence>...</sequence>
 		//alert('LD');
-		this.rootNode = this.generateNodeFromSequenceFile(this.xmlDoc);
+		this.rootNode = this.generateNodeFromProjectFile(this.xmlDoc);
 	} else {
 		// this is a node project <node><node></node></node>
 		//alert('non-LD');
@@ -42,6 +43,7 @@ function Project(xmlDoc) {
 }
 
 Project.prototype.generateNode = function(element) {
+	//alert('project generateNode method');
 	//var nodeType = element.getAttribute('type');
 	//var thisNode = NodeFactory.createNode(nodeType);
 	var thisNode = NodeFactory.createNode(element);
@@ -58,7 +60,7 @@ Project.prototype.generateNode = function(element) {
 	}
 }
 
-Project.prototype.generateNodeFromSequenceFile = function(xmlDoc) {
+Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	// go through the nodes in <repos>...</repos> tag and create Nodes for each.
 	// put them in allNodes array as we go.
 	var allNodes = [];
