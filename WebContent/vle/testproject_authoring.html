@@ -27,8 +27,9 @@
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
-
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/authoring/AuthoringTool.js"></script>
+<script type="text/javascript" src="js/authoring/authoring.js"></script>
 <script type="text/javascript" src="js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="js/VLE.js"></script>
 <script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
@@ -53,6 +54,7 @@
 <script type="text/javascript" src="js/common/sdmenu.js"></script>
 <script type="text/javascript" src="js/common/dropdown.js"></script>
 
+<link rel="stylesheet" type="text/css" href="css/authoring/authoring.css" />
 <link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
 <link rel="stylesheet" type="text/css" href="css/navigation.css" />
 <link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
@@ -64,11 +66,31 @@ var project;
 
 //a string that temporarily contains the node id we want to author
 var nodeIdToAuthor = null;
- 
+
+// a string that temporarily contains the filename that we want to author
+var filenameToAuthor = null;
+
+// filename of this project (not page/step), should end with .project
+var thisFilename = null;
+
+var ddList = [];  // list of all draggable nodes
+
+var authoringTool = new AuthoringTool();
 
 window.onload=function(){
 	//loads the project into the authoring tool
 	loadProject();
+}
+
+function save() {
+	  if(confirm("Saving locally requires a file download. If you do not wish to do this, cancel now! Otherwise, click OK.")){
+		  var projectString = project.generateProjectFileString();
+	      document.getElementById('localData').value = projectString;
+	      if (thisFilename != null) {
+	      	document.getElementById('form_filename').value = thisFilename;
+	      }
+	      document.getElementById('saveLocal').submit();
+	   };
 }
 
 /*
@@ -111,19 +133,28 @@ function setNodeToAuthor(nodeId) {
 </script>
 </head>
 
-<body>
+<body class="yui-skin-sam" onload="loadProject('testproject/project1_modified.project');">
 <p>Authoring Tool</p>
+<input type="button" value="save" onclick="save()" />
+<!--  for posting the text for echo servlet -->
+<form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
+    <input type="hidden" name="name" id="form_filename" value="myData"/>
+    <input type="hidden" name="data" id="localData" value=""/>
+</form>
 
 <div id="navAuthoringDiv">
 </div>
 	
 <div id="nodeAuthoringDiv">
-    <iframe id="authoringFrame" name="authoringFrame" width="800px" height="500px" onload="authoringFrameLoaded();"></iframe>
+<!--  
+    <iframe id="authoringFrame" scrolling="no" name="authoringFrame" width="1024px" height="768px" onload="authoringFrameLoaded();"></iframe>
+-->
 </div>
 
 <script type="text/javascript">
-	
-function loadProject() {
+
+function loadProject(filename) {
+	thisFilename = filename;
 	var callback =
 	{
 		success: function(o) { 
@@ -131,6 +162,7 @@ function loadProject() {
 		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
 		  var xmlDocToParse = o.responseXML;
 		  //alert(xmlDocToParse);
+		  //alert(o.responseText);
 		  project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
@@ -146,15 +178,17 @@ function loadProject() {
 	  failure: function(o) { alert('failure');},
 	  argument: ["a", "b", "c"]
 	}
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "testproject/project1.project", callback, null);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
 }
 
 /*
  * Displays all of the nodes in order, in the main window
  */
 function displayProject(project) {
-	//document.getElementById("navAuthoringDiv").innerHTML = getNodeHtml(project.rootNode);
-	displayNodeAuthoringDiv(project.rootNode);
+	document.getElementById("navAuthoringDiv").innerHTML = getNavigationHtml(project.rootNode);
+    renderAuthoringYUI();
+
+	//displayNodeAuthoringDiv(project.rootNode);
 	//document.getElementById("nodeAuthoringDiv");
 }
 
@@ -174,23 +208,49 @@ function author(nodeId) {
 	var nodeToAuthor = project.rootNode.getNodeById(nodeId);
 	if (nodeToAuthor.filename != null) {
 		nodeIdToAuthor = nodeId;
+		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
+		filenameToAuthor = nodeToAuthor.filename;
+		//alert('fnt:' + filenameToAuthor);
 		//alert('here: ' + nodeToAuthor.type + "," + nodeToAuthor.filename);
 		if (nodeToAuthor.type == "HtmlNode") {
 			//alert('is htmlnode');
-			window.frames["authoringFrame"].location = "author_htmlpage.html"
+			//window.frames["authoringFrame"].location = "author_htmlpage.html";   // for iframe solution...might be deprecated.
+			popupAuthoringWindow("author_htmlpage.html", nodeId);
 		} else {
 			//alert('is not htmlnode, only mc is authorable right now');
-			window.frames["authoringFrame"].location = "author_multiplechoice.html"
-			//document.getElementById("authoringFrame").setAttribute("location", "author_multiplechoice.html");
+			//window.frames["authoringFrame"].location = "author_multiplechoice.html";     // for iframe solution...might be deprecated.
+			//document.getElementById("authoringFrame").setAttribute("location", "author_multiplechoice.html");  
+			popupAuthoringWindow("author_multiplechoice.html", nodeId);
 		}
-		
-		//document.getElementById("authoringFrame").setAttribute("onload", "authoringFrameLoaded('"+nodeId+"')");
-		//window.frames["authoringFrame"].location = nodeToAuthor.filename;
-		//alert('done');
 	} else {
 		alert('sorry, no authoring tool exists for this step yet');
 	}
 }
+
+
+/*
+ * Pops up window for authoring individual nodes. Param: url, url to open
+ */
+function popupAuthoringWindow(url, nodeId) {
+	window.open(url, nodeId, "toolbar=no,width=1024,height=768,menubar=no");
+}
+
+/*
+ * called when the authoring window (popup) fires a loaded event.
+ */
+function authoringWindowLoaded() {
+	//alert('authoringframeloaded called: ' + nodeIdToAuthor);
+	// we only care if the user has specified a node to author. if not, just ignore this event
+	if (nodeIdToAuthor != null) {
+		//alert('authoringframeloaded, nodeIdToAuthor is set: ' + nodeIdToAuthor);
+		// each authoring page has a load AuthoringFromFile function
+		//var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
+		//alert(window.frames[nodeIdToAuthor]);
+		//window[nodeIdToAuthor].loadAuthoringFromFile(nodeToAuthor.filename);
+		//window.frames["authoringFrame"].loadAuthoringFromFile(nodeToAuthor.filename);
+	} 
+}
+
 
 /*
  * called when the authoringFrame fires a loaded event.
@@ -249,21 +309,23 @@ function displayNodeAuthoringDiv(node) {
 /*
  * Returns html of the specified node and of all its children
  */
-function getNodeHtml(node) {
-	var htmlSoFar = "<div id='" + node.id + "'";
+function getNavigationHtml(node) {
+	var htmlSoFar = "";
 	if (node.children.length > 0) {
 		// if it's a sequence node...
-		htmlSoFar += ">";
+		htmlSoFar = "<ul id='" + node.id + "'>";
+		//htmlSoFar += node.id + ", " + node.title;
+		for(var x=0; x<node.children.length; x++) {
+			htmlSoFar += getNavigationHtml(node.children[x]);
+		}
+		htmlSoFar += "</ul>";
 	} else {
 		// otherwise it's a leaf node
-		htmlSoFar += " ondblclick=\"alert('open up authoring');\" >";
+		var parentNode = node.parent;
+		htmlSoFar = "<li id='" + node.id + "' class='draggable' ondblclick=\"author('"+ node.id + "');\" >";
+		htmlSoFar += node.id + ", " + node.title;
+		htmlSoFar += "</li>";
 	}
-	htmlSoFar += node.id + ", " + node.title;
-	for(var x=0; x<node.children.length; x++) {
-		htmlSoFar += getNodeHtml(node.children[x]);
-	}
-	htmlSoFar += "</div>";
-
     return htmlSoFar;
 }
 

@@ -45,6 +45,24 @@ function save() {
 	   };
 }
 
+/*
+ * Called by this page's Body.onload
+ */
+function authoringPageLoaded() {
+	if (opener) {
+		//alert('opener exists, calling its authoring_window loaded function');
+		//alert(opener);
+		if (opener.filenameToAuthor) {
+			//alert('opener.filenameToAuthor exists, it is: ' + opener.filenameToAuthor);
+			loadAuthoringFromFile(opener.filenameToAuthor);
+		}
+		opener.authoringWindowLoaded();
+	} else {
+		alert('parent does not exist, loading default page');
+		loadAuthoringFromFile('testproject/a2s1.html');
+	}
+}
+
 /**
  * Load the html authoring view from the specified filename
  * filename points to a plain old html file.
@@ -130,7 +148,7 @@ function sourceUpdated() {
 }
 </script>
 </head>
-<body onload="loadAuthoringFromFile('testproject/a2s1.html');">
+<body onload="authoringPageLoaded();">
 <input type="button" value="save" onclick="save()" />
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>

@@ -17,10 +17,12 @@ NodeFactory.createNode = function (element) {
 			return new HtmlNode("HtmlNode");
 		} else if (nodeName == "MultipleChoiceNode"){
 			//alert('mcnode');
-			return new MultipleChoiceNode("MutipleChoiceNode");
+			return new MultipleChoiceNode("MultipleChoiceNode");
 		} else if (nodeName == "sequence") {
 			//alert('sequence node');
-			return new Node();
+			var sequenceNode = new Node("sequence");
+			sequenceNode.id = element.getAttribute("identifier");
+			return sequenceNode;
 		} else {
 			return new Node();
 		}
@@ -29,6 +31,8 @@ NodeFactory.createNode = function (element) {
 
 function Project(xmlDoc) {
 	this.xmlDoc = xmlDoc;
+	this.allLeafNodes = [];
+	this.allSequenceNodes = [];
 	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
 	//alert('1:' + this.xmlDoc.firstChild.nodeName);
 	if (this.xmlDoc.getElementsByTagName("sequence").length > 0) {
@@ -63,7 +67,8 @@ Project.prototype.generateNode = function(element) {
 Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	// go through the nodes in <repos>...</repos> tag and create Nodes for each.
 	// put them in allNodes array as we go.
-	var allNodes = [];
+	this.allLeafNodes = [];
+	this.allSequenceNodes = [];
 	var nodeElements = xmlDoc.getElementsByTagName("nodes")[0].childNodes;
 	for (var i=0; i < nodeElements.length; i++) {
 		var element = nodeElements[i];
@@ -73,7 +78,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			thisNode.id = element.getAttribute('identifier');
 			thisNode.filename = element.getElementsByTagName('ref')[0].getAttribute("filename");
 			thisNode.element = element;
-			allNodes.push(thisNode);
+			this.allLeafNodes.push(thisNode);
 		}
 	}
 	
@@ -85,11 +90,54 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	for (var j=0; j < sequenceReferenceElements.length; j++) {
 		if (sequenceReferenceElements[j].nodeName != "#text")  {
 			var referenceIdentifier = sequenceReferenceElements[j].getAttribute("ref");   // ie a2s1, a3s4, ids that are defined in nodes in the repos section.
-			var referencedNode = findNodeById(allNodes, referenceIdentifier);
+			var referencedNode = findNodeById(this.allLeafNodes, referenceIdentifier);
 			sequenceNode.addChildNode(referencedNode);
 		}
 	}
+	this.allSequenceNodes.push(sequenceNode);
 	return sequenceNode;
+}
+
+/*
+ * updates the sequence and updates the node.
+ * param sequenceArray is an array of references to leaf nodes
+ */
+Project.prototype.updateSequence = function(sequenceArray) {
+	//alert('here:' + sequenceArray.length);
+	var sequenceNode = new Node("sequence");
+	sequenceNode.id = this.rootNode.id;
+	for (var i=0; i < sequenceArray.length; i++) {
+		var referencedNode = findNodeById(this.allLeafNodes, sequenceArray[i]);
+		sequenceNode.addChildNode(referencedNode);
+	}
+	this.rootNode = sequenceNode;
+	this.allSequenceNodes[0] = sequenceNode;
+}
+
+/*
+ * Returns a string that can be saved back into a .project file
+ */
+Project.prototype.generateProjectFileString = function() {
+	var fileStringSoFar = "<project>\n";
+	// print out all of the nodes
+	fileStringSoFar += "<nodes>\n";
+	for (var i=0; i < this.allLeafNodes.length; i++) {
+		var currentNode = this.allLeafNodes[i];
+		fileStringSoFar += currentNode.generateProjectFileString();
+	}
+	fileStringSoFar += "</nodes>\n";
+	// print out the sequence
+	for (var j=0; j < this.allSequenceNodes.length; j++) {
+		var seqNode = this.allSequenceNodes[j];
+		fileStringSoFar += "<sequence identifier=\""+ seqNode.id +"\">\n";
+		for (var k=0; k < seqNode.children.length; k++) {
+			var referencedNode = seqNode.children[k];
+			fileStringSoFar += "    <node-ref ref=\""+referencedNode.id+"\" />\n";
+		}
+		fileStringSoFar += "</sequence>\n";
+	}
+	fileStringSoFar += "</project>";
+	return fileStringSoFar;
 }
 
 /*

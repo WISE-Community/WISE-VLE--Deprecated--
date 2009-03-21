@@ -10,6 +10,7 @@ function Node(nodeType) {
 	this.type = null;
 	this.title = null;
 	this.nodeSessionEndedEvent = new YAHOO.util.CustomEvent("nodeSessionEndedEvent");
+	this.filename = null;
 	
 	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
 	this.audios = [];
@@ -32,6 +33,7 @@ Node.prototype.getTitle = function() {
 
 Node.prototype.addChildNode = function(childNode) {
 	this.children.push(childNode);
+	childNode.parent = this;
 }
 
 Node.prototype.getNodeById = function(nodeId) {
@@ -136,6 +138,18 @@ Node.prototype.getShowAllWorkHtml = function(){
         showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
     }
     return showAllWorkHtmlSoFar;
+}
+
+/*
+ * Returns a string representation of this node that can be saved back into
+ * a .profile file
+ */
+Node.prototype.generateProjectFileString = function() {
+	var fileStringSoFar = "<" + this.type + " identifier=\"" + this.id + "\"";
+	fileStringSoFar += " title=\""+this.title+"\">\n";
+	fileStringSoFar += "    <ref filename=\""+this.filename+"\" />\n";
+	fileStringSoFar += "</" + this.type + ">\n";
+	return fileStringSoFar;
 }
 
 Node.prototype.getDataXML = function(nodeStates) {
