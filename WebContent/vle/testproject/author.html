@@ -1,7 +1,7 @@
 <html>
 <head>
-<script type="text/javascript" src="js/sound/soundmanager/script/soundmanager2.js"></script>
-<script type="text/javascript" src="js/sound/AudioManager.js"></script>
+<script type="text/javascript" src="../js/sound/soundmanager/script/soundmanager2.js"></script>
+<script type="text/javascript" src="../js/sound/AudioManager.js"></script>
 
 <!-- Dependency --> 
 <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
@@ -28,36 +28,36 @@
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-<script type="text/javascript" src="js/authoring/AuthoringTool.js"></script>
-<script type="text/javascript" src="js/authoring/authoring.js"></script>
-<script type="text/javascript" src="js/common/helperfunctions.js"></script>
-<script type="text/javascript" src="js/VLE.js"></script>
-<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
-<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
-<script type="text/javascript" src="js/navigation/DFS.js"></script>
-<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
-<script type="text/javascript" src="js/common/loadxmldoc.js"></script>
-<script type="text/javascript" src="js/node/Node.js"></script>
-<script type="text/javascript" src="js/node/HtmlNode.js"></script>
-<script type="text/javascript" src="js/node/CustomNode.js"></script>
-<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
-<script type="text/javascript" src="js/node/FillinNode.js"></script>
-<script type="text/javascript" src="js/node/NoteNode.js"></script>
-<script type="text/javascript" src="js/node/JournalNode.js"></script>
-<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
-<script type="text/javascript" src="js/node/BlueJNode.js"></script>
-<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
-<script type="text/javascript" src="js/project/Project.js"></script>
-<script type="text/javascript" src="js/io/ConnectionManager.js"></script>
+<script type="text/javascript" src="../js/authoring/AuthoringTool.js"></script>
+<script type="text/javascript" src="../js/authoring/authoring.js"></script>
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript" src="../js//VLE.js"></script>
+<script type="text/javascript" src="../js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="../js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="../js/navigation/DFS.js"></script>
+<script type="text/javascript" src="../js/navigation/NavigationPanel.js"></script>
+<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/node/Node.js"></script>
+<script type="text/javascript" src="../js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="../js/node/CustomNode.js"></script>
+<script type="text/javascript" src="../js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="../js/node/FillinNode.js"></script>
+<script type="text/javascript" src="../js/node/NoteNode.js"></script>
+<script type="text/javascript" src="../js/node/JournalNode.js"></script>
+<script type="text/javascript" src="../js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="../js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="../js/project/Project.js"></script>
+<script type="text/javascript" src="../js/io/ConnectionManager.js"></script>
 
-<script type="text/javascript" src="js/common/niftycube.js"></script>
-<script type="text/javascript" src="js/common/sdmenu.js"></script>
-<script type="text/javascript" src="js/common/dropdown.js"></script>
+<script type="text/javascript" src="../js/common/niftycube.js"></script>
+<script type="text/javascript" src="../js/common/sdmenu.js"></script>
+<script type="text/javascript" src="../js/common/dropdown.js"></script>
 
-<link rel="stylesheet" type="text/css" href="css/authoring/authoring.css" />
-<link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
-<link rel="stylesheet" type="text/css" href="css/navigation.css" />
-<link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
+<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css" />
+<link rel="stylesheet" type="text/css" href="../css/niftyCube.css" />
+<link rel="stylesheet" type="text/css" href="../css/navigation.css" />
+<link rel="stylesheet" type="text/css" href="../css/sdmenu.css" />
 
 
 
@@ -91,6 +91,10 @@ function save() {
 	      }
 	      document.getElementById('saveLocal').submit();
 	   };
+}
+
+function preview() {
+	popupPreviewWindow('preview.html', 'PreviewWindow');
 }
 
 /*
@@ -133,7 +137,7 @@ function setNodeToAuthor(nodeId) {
 </script>
 </head>
 
-<body class="yui-skin-sam" onload="loadProject('testproject/project1_modified.project');">
+<body class="yui-skin-sam" onload="loadProject('project1.project');">
 <p>Authoring Tool</p>
 <input type="button" value="save" onclick="save()" />
 <!--  for posting the text for echo servlet -->
@@ -141,6 +145,8 @@ function setNodeToAuthor(nodeId) {
     <input type="hidden" name="name" id="form_filename" value="myData"/>
     <input type="hidden" name="data" id="localData" value=""/>
 </form>
+
+<input type="button" value="preview" onclick="preview()" />
 
 <div id="navAuthoringDiv">
 </div>
@@ -209,7 +215,8 @@ function getNavigationHtml(node) {
 		// otherwise it's a leaf node
 		var parentNode = node.parent;
 		htmlSoFar = "<li id='" + node.id + "' class='draggable' ondblclick=\"author('"+ node.id + "');\" >";
-		htmlSoFar += "<textarea onfocus=\"nodeTitleOnFocus('"+node.id+"');\" onblur=\"nodeTitleOnBlur('"+node.id+"');\" id='"+ node.id +"'>"+ node.title +"</textarea>";
+		//htmlSoFar += "<textarea onfocus=\"nodeTitleOnFocus('"+node.id+"');\" onblur=\"nodeTitleOnBlur('"+node.id+"');\" id='"+ node.id +"'>"+ node.title +"</textarea>";
+		htmlSoFar += "<textarea id='"+ node.id +"'>"+ node.title +"</textarea>";
 		htmlSoFar += "</li>";
 	}
     return htmlSoFar;
@@ -257,6 +264,13 @@ function author(nodeId) {
  */
 function popupAuthoringWindow(url, nodeId) {
 	window.open(url, nodeId, "toolbar=no,width=1024,height=768,menubar=no");
+}
+
+/*
+ * Pops up window for authoring individual nodes. Param: url, url to open
+ */
+function popupPreviewWindow(url, name) {
+	window.open(url, name, "toolbar=no,width=1024,height=768,menubar=no");
 }
 
 /*

@@ -1,13 +1,13 @@
 <project>
 <nodes>
 <HtmlNode identifier="a2s1" title="Introduction to Virtual Pets">
-      <ref filename="testproject/a2s1.html" />
+      <ref filename="a2s1.html" />
 </HtmlNode>
 <HtmlNode identifier="a2s3" title="Explore the Code 1">
-      <ref filename="testproject/a2s3.html" />
+      <ref filename="a2s3.html" />
 </HtmlNode>
 <MultipleChoiceNode identifier="mc1" title="multiplechoice">
-      <ref filename="testproject/multiplechoiceexample.mc" />
+      <ref filename="multiplechoiceexample.mc" />
 </MultipleChoiceNode>
 </nodes>
 <sequence identifier="project1_sequence">
