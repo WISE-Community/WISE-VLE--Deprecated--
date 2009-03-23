@@ -85,6 +85,264 @@ value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&
 &lt;/html&gt;</introductionHtml>		
 		</MultipleChoiceNode>					
 	</node>
+	<node id="0:0">
+		<HtmlNode id="0:0:0" type="reading">
+			<content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+<body>
+
+ACTIVITY 1 STEP 1
+
+</body>
+</html>                  
+]]></content>
+		</HtmlNode>	
+<HtmlNode id="0:0:1" type="reading">
+			<content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+<body>
+
+ACTIVITY 1 STEP 2
+
+</body>
+</html>                  
+]]></content>
+		</HtmlNode>
+		<MultipleChoiceNode id="0:0:2" type="multiplechoice">
+                  <jaxbXML><![CDATA[
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation="choice 3" />
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;What would the value of the virtual pet's &lt;tt&gt;hunger&lt;/tt&gt;
+variable be if, immediately after the pet was created, she invoked
+the following behaviors in order:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Sleep&lt;/li&gt;
+&lt;li&gt;Feed&lt;/li&gt;
+&lt;li&gt;Feed&lt;/li&gt;
+&lt;li&gt;Exercise&lt;/li&gt;
+&lt;li&gt;Sleep&lt;/li&gt;
+&lt;li&gt;Exercise&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/body&gt;&lt;/html&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show" >&lt;br&gt;Nope. The first statement after each method changes the hunger variable.</feedbackInline>0</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >&lt;br&gt;Nope. In the class, the first statement in the exercise and sleep methods changes the hunger variable by adding something to it, not by setting its value directly.</feedbackInline>3</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >&lt;br&gt;Yes!</feedbackInline>7</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >&lt;br&gt;Nope. Remember, when the feed behavior is invoked, hunger either gets set to 0 or is reduced by 10.</feedbackInline>8</simpleChoice>
+                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >&lt;br&gt;No, we really can know this exactly. There is no randomness involved: the methods do specific things to the hunger variable.</feedbackInline>We cannot know.</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  ]]></jaxbXML>
+                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;There is a second instance variable in Cam's code:. Cam is using
+the &lt;tt&gt;hunger&lt;/tt&gt; instance variable to keep track of how hungry
+the pet is at any particular time. Some behaviors increase the
+value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</introductionHtml>		
+		</MultipleChoiceNode>					
+	</node>
+	<node id="0:0">
+		<HtmlNode id="0:0:0" type="reading">
+			<content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+<body>
+
+ACTIVITY 1 STEP 1
+
+</body>
+</html>                  
+]]></content>
+		</HtmlNode>	
+<HtmlNode id="0:0:1" type="reading">
+			<content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+<body>
+
+ACTIVITY 1 STEP 2
+
+</body>
+</html>                  
+]]></content>
+		</HtmlNode>
+		<MultipleChoiceNode id="0:0:2" type="multiplechoice">
+                  <jaxbXML><![CDATA[
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation="choice 3" />
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;What would the value of the virtual pet's &lt;tt&gt;hunger&lt;/tt&gt;
+variable be if, immediately after the pet was created, she invoked
+the following behaviors in order:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Sleep&lt;/li&gt;
+&lt;li&gt;Feed&lt;/li&gt;
+&lt;li&gt;Feed&lt;/li&gt;
+&lt;li&gt;Exercise&lt;/li&gt;
+&lt;li&gt;Sleep&lt;/li&gt;
+&lt;li&gt;Exercise&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/body&gt;&lt;/html&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show" >&lt;br&gt;Nope. The first statement after each method changes the hunger variable.</feedbackInline>0</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >&lt;br&gt;Nope. In the class, the first statement in the exercise and sleep methods changes the hunger variable by adding something to it, not by setting its value directly.</feedbackInline>3</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >&lt;br&gt;Yes!</feedbackInline>7</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >&lt;br&gt;Nope. Remember, when the feed behavior is invoked, hunger either gets set to 0 or is reduced by 10.</feedbackInline>8</simpleChoice>
+                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >&lt;br&gt;No, we really can know this exactly. There is no randomness involved: the methods do specific things to the hunger variable.</feedbackInline>We cannot know.</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  ]]></jaxbXML>
+                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;There is a second instance variable in Cam's code:. Cam is using
+the &lt;tt&gt;hunger&lt;/tt&gt; instance variable to keep track of how hungry
+the pet is at any particular time. Some behaviors increase the
+value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</introductionHtml>		
+		</MultipleChoiceNode>					
+	</node>
+	<node id="0:0">
+		<HtmlNode id="0:0:0" type="reading">
+			<content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+<body>
+
+ACTIVITY 1 STEP 1
+
+</body>
+</html>                  
+]]></content>
+		</HtmlNode>	
+<HtmlNode id="0:0:1" type="reading">
+			<content><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="http://uccpdev.berkeley.edu/uccp-assets/" />
+
+<link rel="stylesheet" href="css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+<body>
+
+ACTIVITY 1 STEP 2
+
+</body>
+</html>                  
+]]></content>
+		</HtmlNode>
+		<MultipleChoiceNode id="0:0:2" type="multiplechoice">
+                  <jaxbXML><![CDATA[
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+                      <responseDeclaration identifier="CHOICE_SELF_CHECK_ID">
+                        <correctResponse interpretation="choice 3" />
+                      </responseDeclaration>
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
+                          <prompt>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;What would the value of the virtual pet's &lt;tt&gt;hunger&lt;/tt&gt;
+variable be if, immediately after the pet was created, she invoked
+the following behaviors in order:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Sleep&lt;/li&gt;
+&lt;li&gt;Feed&lt;/li&gt;
+&lt;li&gt;Feed&lt;/li&gt;
+&lt;li&gt;Exercise&lt;/li&gt;
+&lt;li&gt;Sleep&lt;/li&gt;
+&lt;li&gt;Exercise&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/body&gt;&lt;/html&gt;</prompt>
+                          <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show" >&lt;br&gt;Nope. The first statement after each method changes the hunger variable.</feedbackInline>0</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show" >&lt;br&gt;Nope. In the class, the first statement in the exercise and sleep methods changes the hunger variable by adding something to it, not by setting its value directly.</feedbackInline>3</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >&lt;br&gt;Yes!</feedbackInline>7</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >&lt;br&gt;Nope. Remember, when the feed behavior is invoked, hunger either gets set to 0 or is reduced by 10.</feedbackInline>8</simpleChoice>
+                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5"><feedbackInline identifier="SIMPLE_CHOICE_ID5" >&lt;br&gt;No, we really can know this exactly. There is no randomness involved: the methods do specific things to the hunger variable.</feedbackInline>We cannot know.</simpleChoice>
+                        </choiceInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  ]]></jaxbXML>
+                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;There is a second instance variable in Cam's code:. Cam is using
+the &lt;tt&gt;hunger&lt;/tt&gt; instance variable to keep track of how hungry
+the pet is at any particular time. Some behaviors increase the
+value of &lt;tt&gt;hunger&lt;/tt&gt;. That is, make the pet get hungrier.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</introductionHtml>		
+		</MultipleChoiceNode>					
+	</node>		
 	<node id="0:1">
 	    <HtmlNode id="0:1:0">
 <content><![CDATA[

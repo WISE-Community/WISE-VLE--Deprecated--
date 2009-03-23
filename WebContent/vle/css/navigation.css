@@ -8,7 +8,7 @@ body {
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
 	text-align: center;
-	margin: 4px;
+	margin: 5px 5px 10px 5px;
 	background-color:#666;
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
@@ -54,10 +54,15 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	float:left;
 	background-image:url(../assets/images/gradient_leftBox.png);
 	background-repeat:repeat-x; 
+	background-color:#6699FF;
 	width:210px; 
-	height:650px;
+	height:662px;
 	border:1px solid #333;
 	    }
+
+#projectRightBoxMain {
+
+	 }
 
 #projectRightUpperBox {
 	margin: 0 0 3px 216px;
@@ -75,8 +80,9 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #projectRightLowerBox {
 	background-color:#FFF;
 	border:1px solid #333;
+	padding:0px;
 	margin: 0 0 0 216px;
-	height:609px;
+	min-height:609px;
 	overflow:auto;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-topright:8px;  
@@ -189,7 +195,7 @@ iframe {padding:0;margin:0;}
 #audioControls .rightPadding {padding:0 5px 0 10px;}
 
 #navigationArea {
-	margin: 0px 0 0 0 ;
+	margin: 0px 0 35px 0 ;
 	}
 
 #navMenuControls {
@@ -208,7 +214,7 @@ iframe {padding:0;margin:0;}
 	}	
 	
 #navigationMenuBox {
-	height:425px;
+	height:475px;
 	overflow-y:auto;
 	overflow-x:hidden;
 }

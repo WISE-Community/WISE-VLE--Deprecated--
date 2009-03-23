@@ -124,6 +124,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 	<div class="journalFooter"></div>
 </div>
 	
+
 <div id="projectLeftBox">
 		
 	<div id="toolsArea">
@@ -194,6 +195,8 @@ function popUp(strURL, strType, strHeight, strWidth) {
 	
 </div>    <!-- end of #projectLeftBox-->
 
+<div id="projectRightBoxMain">  <!-- overall container for right Box-->
+
 <div id="projectRightUpperBox">
 	<div id="stepInfoBar">
 		<div class="currentLessonSection">Lesson 3.1</div>
@@ -219,6 +222,8 @@ function popUp(strURL, strType, strHeight, strWidth) {
 </iframe>
 </div>
 </div>
+
+</div>   <!-- end of overall container for right Box-->
 
 <div id="showAllWorkDiv"></div>
 
@@ -262,6 +267,7 @@ function render() {
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
 		  //vle.visibilityLogic = new VisibilityLogic(new Array(new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2"))));
+		  /*
 		  vle.visibilityLogic = new VisibilityLogic(new Array(
 				  											new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2")),
 				                                          	new CorrectnessBranchingVisibility(
@@ -278,6 +284,7 @@ function render() {
 						                                        )				                                              	
 			                                              	)
         											);
+        											*/
 		  //vle.visibilityLogic = new VisibilityLogic(new Array(
 			//		new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2")),
               //  	new CorrectnessBranchingVisibility(
