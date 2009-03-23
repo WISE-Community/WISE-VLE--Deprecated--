@@ -7,6 +7,9 @@ MultipleChoiceNode.prototype.constructor = MultipleChoiceNode;
 MultipleChoiceNode.prototype.parent = Node.prototype;
 function MultipleChoiceNode(nodeType) {
 	this.type = nodeType;
+	
+	//mainly used for the ticker
+	this.mc = null;
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
@@ -29,6 +32,10 @@ MultipleChoiceNode.prototype.load = function() {
 	document.getElementById('topStepTitle').innerHTML = this.title;
 }
 
+/**
+ * @return an xml string that represents the current state of this
+ * node which includes the student's submitted data
+ */
 MultipleChoiceNode.prototype.getDataXML = function(nodeStates) {
 	return MultipleChoiceNode.prototype.parent.getDataXML(nodeStates);
 }
@@ -36,7 +43,7 @@ MultipleChoiceNode.prototype.getDataXML = function(nodeStates) {
 /**
  * 
  * @param nodeStatesXML xml nodeStates object that contains xml state objects
- * @return an array populated with state object instances
+ * @return an array populated with real state object instances
  */
 MultipleChoiceNode.prototype.parseDataXML = function(nodeStatesXML) {
 	var statesXML = nodeStatesXML.getElementsByTagName("state");
@@ -53,6 +60,13 @@ MultipleChoiceNode.prototype.parseDataXML = function(nodeStatesXML) {
 	return statesArrayObject;
 }
 
+/**
+ * Creates XML string representation of this node
+ * @return an XML MultipleChoiceNode string that includes the content
+ * of the node. this is for authoring when we want to convert the
+ * project back from the authored object into an xml representation 
+ * for saving.
+ */
 MultipleChoiceNode.prototype.exportNode = function() {
 	var exportXML = "";
 	
@@ -67,15 +81,53 @@ MultipleChoiceNode.prototype.exportNode = function() {
 	return exportXML;
 }
 
-MultipleChoiceNode.prototype.getHumanReadableForm = function(states) {
-	var humanReadableText = "";
-	for(var x=0; x<states.length; x++) {
-		humanReadableText += states[x].choiceIdentifier;
+/**
+ * Retrieves the latest student work for this node and returns it in
+ * a query entry object
+ * @param vle the vle that this node has been loaded into, this vle
+ * 		is related to a specific student, so all the work in this vle
+ * 		is for just one student
+ * @return a MultipleChoiceQueryEntry that contains the latest student
+ * 		work for this node. return null if this student has not accessed
+ * 		this step yet.
+ */
+MultipleChoiceNode.prototype.getLatestWork = function(vle, dataId) {
+	var latestState = null;
+	
+	//setup the mc object by loading in the content of the step
+	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//load the states from the vle into the mc object
+	this.mc.loadForTicker(this, vle);
+	
+	//get the most recent student work for this step
+	latestState = this.mc.getLatestState(this.id);
+	
+	if(latestState == null) {
+		//the student has not accessed or completed this step yet
+		return null;
 	}
-	return humanReadableText;
+	
+	//create and return a query entry object
+	return new MultipleChoiceQueryEntry(dataId, this.id, this.mc.promptText, latestState.getIdentifier(), this.mc.getCHOICEByIdentifier(latestState.getIdentifier()).text);
 }
 
-MultipleChoiceNode.prototype.createAggregateNode = function(mcXML) {
-	var mc = new MC(mcXML);
-	return new MultipleChoiceAggregateNode(mc);
+/**
+ * Create a query container that will contain all the query entries
+ * @param vle the vle that this node has been loaded into, this vle
+ * 		is related to a specific student, so all the work in this vle
+ * 		is for just one student
+ * @return a MultipleChoiceQueryContainer that will contain all the
+ * 		query entries for a specific nodeId as well as accumulated 
+ * 		metadata about all those entries such as count totals, etc.
+ */
+MultipleChoiceNode.prototype.makeQueryContainer = function(vle) {
+	//setup the mc object by loading in the content of the step
+	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//load the states from the vle into the mc object
+	this.mc.loadForTicker(this, vle);
+	
+	//create and return a query container object
+	return new MultipleChoiceQueryContainer(this.id, this.mc.promptText, this.mc.choiceToValueArray);
 }

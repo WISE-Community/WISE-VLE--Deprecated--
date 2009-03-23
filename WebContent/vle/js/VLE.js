@@ -21,6 +21,14 @@ VLE.prototype.setProject = function(project) {
 }
 
 /**
+ * Set the vle state for this vle. For use mainly in ticker.
+ * @param vleState a VLE_STATE object
+ */
+VLE.prototype.setVLEState = function(vleState) {
+	this.state = vleState;
+}
+
+/**
  * stops and rewinds audio
  */
 VLE.prototype.rewindStepAudio = function() {
@@ -214,6 +222,10 @@ VLE.prototype.getNodeById = function(nodeId){
 	};
 };
 
+VLE.prototype.getLeafNodeIds = function() {
+	return this.project.rootNode.getLeafNodeIds();
+}
+
 function VLE_STATE() {
 	this.visitedNodes = [];  // array of NODE_VISIT objects
 }
@@ -231,13 +243,13 @@ VLE_STATE.prototype.getCurrentNodeVisit = function() {
  * @param {Object} nodeId
  */
 VLE_STATE.prototype.getNodeVisitsByNodeId = function(nodeId) {
-	var nodeVisitsForThisNode = [];
+	var nodeVisitsForThisNodeId = [];
 	for (var i=0; i<this.visitedNodes.length;i++) {
 		if (this.visitedNodes[i].node.id==nodeId) {
-			nodeVisitsForThisNode.push(this.visitedNodes[i]);
+			nodeVisitsForThisNodeId.push(this.visitedNodes[i]);
 		}		
 	}
-	return nodeVisitsForThisNode;
+	return nodeVisitsForThisNodeId;
 }
 
 /**
@@ -257,10 +269,49 @@ VLE_STATE.prototype.getDataXML = function() {
 	return dataXML;
 }
 
-VLE_STATE.prototype.parseDataXML = function(xmlString) {
+/**
+ * Takes in an vle state XML object and creates a real VLE_STATE object.
+ * @param vleStateXML an XML object
+ */
+VLE_STATE.prototype.parseDataXML = function(vleStateXML) {
 	var vleStateObject = new VLE_STATE();
 	
+	var nodeVisitNodesXML = vleStateXML.getElementsByTagName("node_visit");
+	
+	//loop through all the node_visit nodes
+    for (var i=0; i< nodeVisitNodesXML.length; i++) {
+    	var nodeVisit = nodeVisitNodesXML[i];
+    	
+    	//ask the NODE_VISIT static function to create a real NODE_VISIT object
+    	var nodeVisitObject = NODE_VISIT.prototype.parseDataXML(nodeVisit);
+    	
+    	//add the real NODE_VISIT object into this VLE_STATE
+    	vleStateObject.visitedNodes.push(nodeVisitObject);
+    }
+	
+    //alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
+    return vleStateObject;
+}
+
+/**
+ * Receives an xml string and creates an xml object out of it. Then
+ * using the xml object, it creates an array of real VLE_STATE object.
+ * @param xmlString xml string that contains multiple workgroup/vle_state
+ * 		nodes. e.g.
+ * 
+ * <vle_states>
+ * 		<workgroup dataId='1'><vle_state>...</vle_state></workgroup>
+ * 		<workgroup dataId='2'><vle_state>...</vle_state></workgroup>
+ * 		<workgroup dataId='3'><vle_state>...</vle_state></workgroup>
+ * </vle_states>
+ * 
+ * @return an array of VLE_STATE objects. dataId will be used for 
+ * 		the index/key
+ */
+VLE_STATE.prototype.parseVLEStatesDataXML = function(xmlString) {
 	var xmlDoc = null;
+	
+	//create an xml object out of the xml string
 	try {
 		//Internet Explorer
 		xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
@@ -275,23 +326,30 @@ VLE_STATE.prototype.parseDataXML = function(xmlString) {
 		}
 	}
 	
-	var vleStateXML = xmlDoc.getElementsByTagName("vle_state")[0];
+	var vleStatesArray = new Array();
 	
-	var nodeVisitNodesXML = vleStateXML.getElementsByTagName("node_visit");
-    for (var i=0; i< nodeVisitNodesXML.length; i++) {
-    	var nodeVisit = nodeVisitNodesXML[i];
-    	var nodeVisitObject = NODE_VISIT.prototype.parseDataXML(nodeVisit);
-    	vleStateObject.visitedNodes.push(nodeVisitObject);
-    }
+	//retrieve all the workgroups
+	var workgroupsXML = xmlDoc.getElementsByTagName("workgroup");
 	
-    //alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
-	return vleStateObject;
+	/*
+	 * loop through the workgroups and populate the array. The dataId
+	 * will serve as the index/key.
+	 */
+	for(var x=0; x<workgroupsXML.length; x++) {
+		var dataId = workgroupsXML[x].attributes.getNamedItem("dataId").nodeValue;
+		var vleState = workgroupsXML[x].getElementsByTagName("vle_state")[0];
+		
+		//create a real VLE_STATE object from the xml object and put it in the array
+		vleStatesArray[dataId] = VLE_STATE.prototype.parseDataXML(vleState);
+	}
+	
+	return vleStatesArray;
 }
-
 
 function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 	this.node = node;
 	if (arguments.length == 1) {
+		//set default values if they aren't provided
 		this.nodeStates = [];
 		this.visitStartTime = new Date();
 		this.visitEndTime = null;
@@ -305,6 +363,17 @@ function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 /**
  * @return xml representation of the node_visit object which
  * 		includes node type, visitStart, visitEnd time, etc.
+ * 		e.g.
+ * 
+ * <node_visit>
+ * 		<node>
+ * 			<type></type>
+ * 			<id></id>
+ * 		</node>
+ * 		<nodeStates></nodeStates>
+ * 		<visitStartTime></visitStartTime>
+ * 		<visitEndTime></visitEndTime>
+ * </node_visit>
  */
 NODE_VISIT.prototype.getDataXML = function() {
 	var dataXML = "";
@@ -313,7 +382,9 @@ NODE_VISIT.prototype.getDataXML = function() {
 	
 	dataXML += "<node><type>";
 	dataXML += this.node.type;
-	dataXML += "</type></node>";
+	dataXML += "</type><id>";
+	dataXML += this.node.id;
+	dataXML += "</id></node>";
 	
 	dataXML += "<nodeStates>";
 	dataXML += this.node.getDataXML(this.nodeStates);
@@ -332,11 +403,16 @@ NODE_VISIT.prototype.getDataXML = function() {
 	return dataXML;
 }
 
+/**
+ * Turns a node visit xml object into a real NODE_VISIT object
+ * @param nodeVisitXML and xml object
+ * @return a real NODE_VISIT object
+ */
 NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
-	//find the node type and create a corresponding node object
-	var nodeType = nodeVisitXML.getElementsByTagName("type")[0].textContent;
-	var nodeObject = NodeFactory.createNode(nodeType);
+	//ask the NODE static function to create the node
+	var nodeObject = Node.prototype.parseDataXML(nodeVisitXML);
 	
+	//get the start and end times
 	var visitStartTime = nodeVisitXML.getElementsByTagName("visitStartTime")[0].textContent;
 	var visitEndTime = nodeVisitXML.getElementsByTagName("visitEndTime")[0].textContent;
 
@@ -368,7 +444,6 @@ VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 	}
 	var newNodeVisit = new NODE_VISIT(node);
 	this.visitedNodes.push(newNodeVisit);
-	//alert(this.getDataXML());
 }
 
 contentPanelOnLoad = function(){

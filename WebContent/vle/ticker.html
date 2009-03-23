@@ -2,28 +2,6 @@
 <title>Teacher Tickertape Pop-Up Window</title>
 <head>
 
-<link rel="stylesheet" type="text/css" href="css/tickertape.css" />
-<script type="text/javascript" src="js/ticker/ticker.js"></script>
-<script type="text/javascript" src="js/VLE.js"></script>
-<script type="text/javascript" src="js/node/Node.js"></script>
-<script type="text/javascript" src="js/node/HtmlNode.js"></script>
-<script type="text/javascript" src="js/node/CustomNode.js"></script>
-<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
-<script type="text/javascript" src="js/node/FillinNode.js"></script>
-<script type="text/javascript" src="js/node/NoteNode.js"></script>
-<script type="text/javascript" src="js/node/JournalNode.js"></script>
-<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
-<script type="text/javascript" src="js/node/BlueJNode.js"></script>
-<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
-<script type="text/javascript" src="js/project/Project.js"></script>
-<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
-
-<script type="text/javascript" src="js/node/fillin/fillinstate.js"></script>
-<script type="text/javascript" src="js/node/matchsequence/matchsequencestate.js"></script>
-<script type="text/javascript" src="js/node/multiplechoice/multiplechoicestate.js"></script>
-<script type="text/javascript" src="js/node/openresponse/openresponsestate.js"></script>
-<script type="text/javascript" src="js/node/outsideurl/outsideurlstate.js"></script>
-
 <!-- Dependency --> 
 <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
 
@@ -48,82 +26,61 @@
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
+
+<link rel="stylesheet" type="text/css" href="css/tickertape.css" />
+<script type="text/javascript" src="js/ticker/ticker.js"></script>
+<script type="text/javascript" src="js/VLE.js"></script>
+<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="js/visibility/VisibilityLogic.js"></script>
+<script type="text/javascript" src="js/visibility/OnlyShowSelectedNodes.js"></script>
+<script type="text/javascript" src="js/visibility/CorrectnessBranchingVisibility.js"></script>
+<script type="text/javascript" src="js/navigation/DFS.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
+
+<script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="js/node/CustomNode.js"></script>
+<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/node/NoteNode.js"></script>
+<script type="text/javascript" src="js/node/JournalNode.js"></script>
+<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceCheckBoxNode.js"></script>
+<script type="text/javascript" src="js/project/Project.js"></script>
+<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
+
+<script type="text/javascript" src="js/node/QueryEntry.js"></script>
+<script type="text/javascript" src="js/node/StudentWorkQueryObject.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryContainer.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryContainer.js"></script>
+
+<script type="text/javascript" src="js/node/fillin/fillinstate.js"></script>
+<script type="text/javascript" src="js/node/matchsequence/matchsequencestate.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/multiplechoicestate.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
+<script type="text/javascript" src="js/node/openresponse/openresponsestate.js"></script>
+<script type="text/javascript" src="js/node/outsideurl/outsideurlstate.js"></script>
+
+<script type="text/javascript" src="js/node/multiplechoice/mc.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
+
+<script type="text/javascript" src="js/node/common/js/loadxmldoc.js"></script>
+<script type="text/javascript">
+var studentWorkQueryObject;
+
+</script>
 </head>
-<body onload="poll();">
+<body onload="createVLEStateObject()">
+<div id="refreshButtonDiv"><input type="button" onclick="javascript:createVLEStateObject()" value="Home Page" /></div>
 	
 <div id="tickerMainContainer">	
-	
-	<div id="header">
-		<div class="tickerBoxHeader">teacher</div>
-		<div id="headerText1">Teacher TickerTape</div>
-		<div id="headerText2">Teacher TickerTape</div>
-		<div id="signIn">Viewer: [Matt Fishbach]</div>
-		<div id="currentTime">Current Time:  [3:24pm, 2/25/2009]</div>
-	</div>
-	
-	<div id="controlbar">
-		<div class="tickerBoxHeader">Controls</div>
-		<table>
-			<tr>
-				<td id="displayDropdown">
-					<dl>
-						<dt>Display:</dt>
-						<dd>[Drop Down Menu, default = "All Student Work"]</dd>
-					</dl>
-				</td>
-				<td id="whoDropdown">
-					<dl>
-						<dt>Who:</dt>
-						<dd>[Drop Down Menu, default = "All Periods"]</dd>
-				</td>
-				<td id="sortDropdown">
-					<dl>
-						<dt>Sort:</dt>
-						<dd>[Drop Down Menu, default = "Latest to Oldest"]</dd>
-					</dl>
-				</td>
-				<td id="timeDropdown">
-					<dl>
-						<dt>Time Range:</dt>
-						<dd>[Drop Down Menu, default = "Today only"]</dd>
-					</dl>
-				</td>
-			</tr>
-		</table>
-	</div>
-	
-	<div id="studentwork">
-		
-		<div class="tickerBoxHeader">student work submissions</div>
-		
-		<table class="noteSubmission">
-			<tr>
-				<th>[MattFish, Hiroki Terashima]</th>
-				<th>[3:24pm, 2/25/2009]</th>
-			</tr>
-			<tr>
-				<td colspan="2"><div id="studentnote1">Student Note Submission goes here</div></td>
-			</tr>
-		</table>
-		
-		<table class="autoAssessSubmission">
-			<tr>
-				<th>[MattFish, Hiroki Terashima]</th>
-				<th>[3:24pm, 2/25/2009]</th>
-			</tr>
-			<tr>
-				<td colspan="2">Status for the auto assessment item goes here.  <br/>
-					Ex:  "Challenge Q completed on 3rd try for 4 point." <br/>
-					Ex:  "Instant Quiz (5 Qs) completed for 15 points." <br/>
-					Ex:  "Instant Quiz (8 Qs) completed successfully." 
-				</td>
-			</tr>
-		</table>
-	</div>
-	<div id="closeButton">CLOSE BUTTON HERE</div>
-	<div id="refreshButtonDiv"><input type="button" onclick="javascript:createVLEStateObject()" value="Refresh" /></div>
-	
+
 </div>	  <!-- End of tickerMainContainer -->	
-	
+
 </body>
 </html>

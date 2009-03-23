@@ -29,6 +29,10 @@ MultipleChoiceCheckBoxNode.prototype.load = function() {
 	document.getElementById('topStepTitle').innerHTML = this.title;
 }
 
+/**
+ * @return an xml string that represents the current state of this
+ * node which includes the student's submitted data
+ */
 MultipleChoiceCheckBoxNode.prototype.getDataXML = function(nodeStates) {
 	return MultipleChoiceCheckBoxNode.prototype.parent.getDataXML(nodeStates);
 }
@@ -58,6 +62,13 @@ MultipleChoiceCheckBoxNode.prototype.parseDataXML = function(nodeStatesXML) {
 	return statesArrayObject;
 }
 
+/**
+ * 
+ * @return an XML MultipleChoiceCheckBoxNode string that includes 
+ * the content of the node. this is for authoring when we want to 
+ * convert the project back from the authored object into an xml  
+ * representation for saving.
+ */
 MultipleChoiceCheckBoxNode.prototype.exportNode = function() {
 	var exportXML = "";
 	
@@ -70,4 +81,64 @@ MultipleChoiceCheckBoxNode.prototype.exportNode = function() {
 	exportXML += this.exportNodeFooter();
 	
 	return exportXML;
+}
+
+/**
+ * Retrieves the latest student work for this node and returns it in
+ * a query entry object
+ * @param vle the vle that this node has been loaded into, this vle
+ * 		is related to a specific student, so all the work in this vle
+ * 		is for just one student
+ * @return a MultipleChoiceCheckBoxQueryEntry that contains the latest student
+ * 		work for this node. return null if this student has not accessed
+ * 		this step yet.
+ */
+MultipleChoiceCheckBoxNode.prototype.getLatestWork = function(vle, dataId) {
+	var latestState = null;
+	
+	//setup the mc object by loading in the content of the step
+	this.mccb = new MC_CHECKBOX(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//load the states from the vle into the mccb object
+	this.mccb.loadForTicker(this, vle);
+	
+	//get the most recent student work for this step
+	latestState = this.mccb.getLatestState(this.id);
+	
+	if(latestState == null) {
+		//the student has not accessed or completed this step yet
+		return null;
+	}
+	
+	/*
+	 * an array that contains the choices this student chose
+	 * (key, value) = (choiceId, choiceValue)
+	 */
+	var choiceIdToValue = new Array();
+	for(var x=0; x<latestState.choices.length; x++) {
+		choiceIdToValue[latestState.choices[x]] = this.mccb.getCHOICEByIdentifier(latestState.choices[x]).text;
+	}
+
+	//create and return a query entry object
+	return new MultipleChoiceCheckBoxQueryEntry(dataId, this.id, this.mccb.promptText, choiceIdToValue);
+}
+
+/**
+ * Create a query container that will contain all the query entries
+ * @param vle the vle that this node has been loaded into, this vle
+ * 		is related to a specific student, so all the work in this vle
+ * 		is for just one student
+ * @return a MultipleChoiceCheckBoxQueryContainer that will contain all the
+ * 		query entries for a specific nodeId as well as accumulated 
+ * 		metadata about all those entries such as count totals, etc.
+ */
+MultipleChoiceCheckBoxNode.prototype.makeQueryContainer = function(vle) {
+	//setup the mccb object by loading in the content of the step
+	this.mccb = new MC_CHECKBOX(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//load the states from the vle into the mc object
+	this.mccb.loadForTicker(this, vle);
+	
+	//create and return a query container object
+	return new MultipleChoiceCheckBoxQueryContainer(this.id, this.mccb.promptText, this.mccb.choiceToValueArray);
 }

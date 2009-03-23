@@ -51,6 +51,27 @@ Node.prototype.getNodeById = function(nodeId) {
 }
 
 /**
+ * Retrieves all the leaf nodes below this node, such as its children
+ * or grandchildren, or great grandchildren, etc.
+ * @return all the leaf nodes below this node, or itself if this is
+ * 		a leaf node
+ */
+Node.prototype.getLeafNodeIds = function() {
+	var nodeIdArray = new Array();
+	if(this.children.length == 0) {
+		//if this is a leaf node, add itself to the array of leaf nodes
+		nodeIdArray.push(this.id);
+	} else {
+		for (var i=0; i < this.children.length; i++) {
+			//loop through this node's children to search for leaf nodes
+			nodeIdArray = nodeIdArray.concat(this.children[i].getLeafNodeIds());
+		}
+	}
+	
+	return nodeIdArray;
+}
+
+/**
  * Sets this node as the currentNode. Perform functions like
  * loading audio for the node.
  */
@@ -161,16 +182,29 @@ Node.prototype.getDataXML = function(nodeStates) {
 	return dataXML;
 }
 
-//not used, seems like NodeFactory.createNode() is used instead
+/**
+ * Converts an xml object of a node and makes a real Node object
+ * @param nodeXML an xml object of a node
+ * @return a real Node object depending on the type specified in
+ * 		the xml object
+ */
 Node.prototype.parseDataXML = function(nodeXML) {
 	var nodeType = nodeXML.getElementsByTagName("type")[0].textContent;
 	var id = nodeXML.getElementsByTagName("id")[0].textContent;
-	//var nodeObject = new Node(nodeType);
+
+	//create the correct type of node
 	var nodeObject = NodeFactory.createNode(nodeType);
 	nodeObject.id = id;
+	
 	return nodeObject;
 }
 
+/**
+ * Creates an xml string representation of this node so that it
+ * can be saved in the authoring tool.
+ * @param node a real Node object
+ * @return xml string representation of the node
+ */
 Node.prototype.exportNode = function(node) {
 	var exportXML = "";
 
@@ -182,7 +216,6 @@ Node.prototype.exportNode = function(node) {
 		}
 	} else {
 		//this node is a leaf node
-		
 	}
 	
 	exportXML += this.exportNodeFooter();
@@ -190,6 +223,13 @@ Node.prototype.exportNode = function(node) {
 	return exportXML;
 }
 
+/**
+ * Returns the opening node tag
+ * @param node the node we are creating xml string for
+ * @return xml string e.g.
+ * 
+ * <HtmlNode id='0:0:0' title='Introduction'>
+ */
 Node.prototype.exportNodeHeader = function(node) {
 	var exportXML = "";
 
@@ -201,10 +241,28 @@ Node.prototype.exportNodeHeader = function(node) {
 	return exportXML;
 }
 
+/**
+ * Returns the closing node tag
+ * @param node the node we are creating xml string for
+ * @return xml string e.g.
+ * 
+ * </HtmlNode>
+ */
 Node.prototype.exportNodeFooter = function(node) {
 	var exportXML = "";
 	
 	exportXML += "</" + this.type + ">";
 	
 	return exportXML;
+}
+
+/**
+ * This function is for displaying student work in the ticker.
+ * All node types that don't implement this method will inherit
+ * this function that just returns null. If null is returned from
+ * this method, the ticker will just skip over the node when
+ * displaying student data in the ticker.
+ */
+Node.prototype.getLatestWork = function(vle, dataId) {
+	return null;
 }

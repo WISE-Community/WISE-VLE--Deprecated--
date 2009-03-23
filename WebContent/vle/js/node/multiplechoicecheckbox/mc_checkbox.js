@@ -15,6 +15,7 @@ MC_CHECKBOX.prototype.loadXMLDoc = function(xmlDoc) {
 	this.responseIdentifier = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('responseIdentifier');
 	this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
 	this.choices = [];
+	this.choiceToValueArray = new Array();
 
 	var choicesDOM = this.xmlDoc.getElementsByTagName('simpleChoice');
 
@@ -22,6 +23,7 @@ MC_CHECKBOX.prototype.loadXMLDoc = function(xmlDoc) {
 	for (var i=0;i<choicesDOM.length;i++) {
 		var choice = new CHOICE(choicesDOM[i]);
 		this.choices.push(choice);
+		this.choiceToValueArray[choice.identifier] = choice.text;
 	}
 
 	// find out which choice is the correct choice
@@ -45,6 +47,18 @@ MC_CHECKBOX.prototype.loadFromVLE = function(node, vle) {
 }
 
 /**
+ * Load the state for this MC given the node and vle but do
+ * not call render
+ * @param node
+ * @param vle
+ */
+MC_CHECKBOX.prototype.loadForTicker = function(node, vle) {
+	this.vle = vle;
+	this.node = node;
+	this.loadState();
+}
+
+/**
  * Loads state from VLE_STATE.
  * @param {Object} vleState
  */
@@ -57,6 +71,25 @@ MC_CHECKBOX.prototype.loadState = function() {
 			}
 		}
 	}
+}
+
+/**
+ * Get that student's latest submission for this node. The node
+ * is specific to a student.
+ * @param nodeId the id of the node we want the student's work from
+ * @return the newest NODE_STATE for this node
+ */
+MC_CHECKBOX.prototype.getLatestState = function(nodeId) {
+	var nodeVisits = this.vle.state.getNodeVisitsByNodeId(nodeId);
+	var nodeVisit = nodeVisits[nodeVisits.length - 1];
+	
+	if(nodeVisit == null) {
+		//the student has not accessed this step yet
+		return null;
+	}
+	
+	var nodeState = nodeVisit.nodeStates[nodeVisit.nodeStates.length - 1];
+	return nodeState;
 }
 
 //gets and returns a CHOICE object given the CHOICE's identifier

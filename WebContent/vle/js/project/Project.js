@@ -10,7 +10,6 @@ function NodeFactory() {
 
 NodeFactory.createNode = function (element) {
 	var nodeName = element.nodeName;
-	//alert('here we go:' + nodeName);
 	if (acceptedTagNames.indexOf(nodeName) > -1) {
 		if (nodeName == "HtmlNode") {
 			//alert('htmlnode');
@@ -56,7 +55,7 @@ Project.prototype.generateNode = function(element) {
 		thisNode.id = element.getAttribute('id');
 		var children = element.childNodes;
 		for (var i = 0; i < children.length; i++) {
-			if (acceptedTagNames.indexOf(children[i].nodeName) > -1) {	
+			if (acceptedTagNames.indexOf(children[i].nodeName) > -1) {
 				thisNode.addChildNode(this.generateNode(children[i]));
 			}
 		}
@@ -177,6 +176,17 @@ Project.prototype.getSummaryProjectHTML = function(){
 Project.prototype.getShowAllWorkHtml = function() {
 	alert("Project.getShowAllWorkHtml not yet implemented");
 	return this.rootNode.id;
+}
+
+/**
+ * Returns an xml string that represents this project. This is used
+ * by the authoring tool to return the project in xml so it can be
+ * saved.
+ * @return an xml string that represents the project
+ */
+Project.prototype.exportProject = function() {
+	var exportXML = this.rootNode.exportNode();
+	return exportXML;
 }
 
 /**
