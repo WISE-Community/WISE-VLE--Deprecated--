@@ -119,11 +119,11 @@ public class VLEGetData extends HttpServlet {
         try
         {
             stmt = conn.createStatement();
-            stmt.execute("create table vledata (id bigint auto_increment, dataId bigint UNIQUE NOT NULL, data longtext, primary key(id));");
+            stmt.execute("create table vledata (id bigint auto_increment, dataId bigint NOT NULL, data longtext, timestamp timestamp not null, primary key(id));");
             stmt.close();
             
             stmt = conn.createStatement();
-            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) UNIQUE NOT NULL, dataId bigint UNIQUE NOT NULL, primary key(id), foreign key (dataId) references vledata (dataId) ON DELETE CASCADE)");
+            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) UNIQUE NOT NULL, dataId bigint UNIQUE NOT NULL, primary key(id));");
             stmt.close();
         }
         catch (SQLException sqlExcept)
