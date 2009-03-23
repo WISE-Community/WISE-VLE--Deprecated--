@@ -1,4 +1,3 @@
-<html>
 <head>
 <script type="text/javascript" src="../js/sound/soundmanager/script/soundmanager2.js"></script>
 <script type="text/javascript" src="../js/sound/AudioManager.js"></script>
@@ -138,24 +137,45 @@ function setNodeToAuthor(nodeId) {
 </head>
 
 <body class="yui-skin-sam" onload="loadProject('project1.project');">
-<p>Authoring Tool</p>
-<input type="button" value="save" onclick="save()" />
-<!--  for posting the text for echo servlet -->
-<form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
-    <input type="hidden" name="name" id="form_filename" value="myData"/>
-    <input type="hidden" name="data" id="localData" value=""/>
-</form>
 
-<input type="button" value="preview" onclick="preview()" />
-
-<div id="navAuthoringDiv">
+<div id="authorHeader">
+	<h2>Authoring Tool</h2>
+	<table>
+	  <tr>
+	  	<td><input type="button" value="save" onclick="save()" /></td>
+	  	<td><input type="button" value="preview" onclick="preview()" /></td>
+			<!--  for posting the text for echo servlet -->
+		<td>	<form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
+			    <input type="hidden" name="name" id="form_filename" value="myData"/>
+			    <input type="hidden" name="data" id="localData" value=""/>
+				</form>
+		</td>
+	   </tr>
+	 </table>
 </div>
+
+<div id="navigationTitle">Navigation Structure</div> 
 	
-<div id="nodeAuthoringDiv">
-<!--  
-    <iframe id="authoringFrame" scrolling="no" name="authoringFrame" width="1024px" height="768px" onload="authoringFrameLoaded();"></iframe>
--->
+<div id="navAuthoringDiv">
+ 
+	<div id="nodeAuthoringDiv">
+			<!--  
+	    		<iframe id="authoringFrame" scrolling="no" name="authoringFrame" width="1024px" height="768px" onload="authoringFrameLoaded();"></iframe>
+			-->
+		</div>
+
 </div>
+
+<div class="clearFloats" />
+
+<div id="navigationInstructions">
+	<ul>
+	<li>To RENAME an item: Click once on its text, type your edits, press Return key to save changes.</li>
+	<li>To MOVE an item: Click and Drag the blue border for the item.</li>
+	<li>To EDIT an item: Double click the item.</li>
+	</ul>	
+</div> 
+
 
 <script type="text/javascript">
 

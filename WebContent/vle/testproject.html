@@ -137,13 +137,13 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
 		    <ul>
 		      <!-- requested changes have been remarked out -->
-		      <li><a class="underline2" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
+		      <li><a class="underline" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
 		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
 		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
 		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
-		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
-			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
-			  <li><a class="underline" onclick="alert('not yet implemented');">Print</a></li>
+		      <li><a class="underline" onclick="alert('not yet implemented');">Backup Work Locally</a></li>
+			  <li><a class="underline2" onclick="alert('not yet implemented');">Print</a></li>
+			  <li><a class="underline" onclick="alert('not yet implemented');">Return to Home Page</a></li>
 			  <!-- <li><a class="underline">Report an Issue</a></li>   -->
 		    </ul>
 		  </dd>
@@ -200,7 +200,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
     	<div class="instantQuizIcon"></div>
 		<div class="stepTypeLabel">
     		<a href="InstantQuizInfoBox.html" id="topStepTitle" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Instant Quiz</a>
-		    <span class="gradingStatus">(Grading Off)</span>
+		    <span class="gradingStatus"></span>
 			<span class="subStepCounter"></span> 
 		</div>
 		<div id="stepNavButtons">
