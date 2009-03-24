@@ -250,7 +250,7 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 	}
 	
 	//retrieve the xml node object for myClassInfo
-	var myClassInfoXML = userAndClassInfoXMLObject.getElemntsByTagname("myClassInfo")[0];
+	var myClassInfoXML = userAndClassInfoXMLObject.getElementsByTagName("myClassInfo")[0];
 	
 	if(myClassInfoXML != null) {
 		var myClassInfo = new CLASS_INFO();

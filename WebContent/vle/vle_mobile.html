@@ -87,7 +87,8 @@ window.onload=function(){
 Nifty("div#none","bottom");
 Nifty("div#navigationBox","big");
 Nifty("ul.toolsButtons a","transparent");
-render();
+//render();
+//render("tim2.otml", "http://localhost:8080/webapp/student/vle/vle.html?runId=66&getUserInfo=true");
 //parent.foo2();
 }
 
@@ -119,7 +120,9 @@ function popUp(strURL, strType, strHeight, strWidth) {
  newWin.focus();
 }
 
-function loadFromString(contentURL, userURL) {
+function load(contentURL, userURL) {
+	alert('contenturl: ' + contentURL);
+	alert('userURL: ' + userURL);
 	render(contentURL, userURL);
 }
 
@@ -245,6 +248,7 @@ function expandMenu(menuId) {
 	myMenu.expandMenu(document.getElementById(menuId));
 }
 
+
 /**
  * Setup and display the project
  *
@@ -275,7 +279,6 @@ function render(contentURL, userURL) {
 		  }	
 		  */	  
 		  var project = new PasOtmlProject(xmlDocObj);
-		  //var project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
 		  project.generateNode(xmlDocToParse);
@@ -284,61 +287,34 @@ function render(contentURL, userURL) {
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
-		  //vle.visibilityLogic = new VisibilityLogic(new Array(new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2"))));
-		  /*
-		  vle.visibilityLogic = new VisibilityLogic(new Array(
-				  											new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2")),
-				                                          	new CorrectnessBranchingVisibility(
-						                                      	project.rootNode,
-						                                      	"0:0:2", 
-				                                              	new Array("0:2", "0:2:0", "0:2:1", "0:3", "0:3:0", "0:3:1"),
-				                                              	new Array("0:1", "0:1:0", "0:1:1") 
-				                                              	),
-				                                            new CorrectnessBranchingVisibility(
-								                                project.rootNode,
-								                                "0:1:1", 
-						                                        new Array("0:2", "0:2:0", "0:2:1", "0:3", "0:3:0", "0:3:1"),
-						                                        new Array("0:1", "0:1:0", "0:1:1") 
-						                                        )				                                              	
-			                                              	)
-        											);
-         */
-		  //vle.visibilityLogic = new VisibilityLogic(new Array(
-			//		new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2")),
-              //  	new CorrectnessBranchingVisibility(
-                //    	project.rootNode, 
-                    //	new Array("0:0:1",new Array("0:1", "0:1:0")), 
-                  //  	new Array("0:0:2",new Array("0:2", "0:2:0", "0:2:1")))
-                //	)
-			//);
-
-		  //vle.audioManager = new AudioManager(true);	  
 		  myMenu = new Menu("my_menu");
           myMenu.init();
 			
 		  setTimeout("vle.renderNode('0:0:0')", 1000);
 		  vle.toggleNavigationPanelVisibility();
-		  
-		  //alert('success:' + o.responseText);
-
-		  var userCallback = {
-			success: function(o) {
-				alert('user success');
-				vle.loadUserAndClassInfo(o.responseXML);
-		  	},
-			failure: function(o) {
-				alert('Error: Unable to load user info');
-			}
-		  }
-
-		  YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
 	  },
-	  failure: function(o) { alert('failure');},
+	  failure: function(o) { alert('failure, could not get content');},
 	  argument: ["a", "b", "c"]
-	}
+	};
 
 	// fetch the OTML.
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', 'tim2.otml', contentCallback, null);
+	alert('vle_mobile.html, contentURL: ' + contentURL);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentURL, contentCallback, null);
+
+	// fetch user data
+	var userCallback = {
+				success: function(o) {
+					alert('userxml: ' + o.responseXML);
+					alert('responsexml: ' + o.responseText);
+					vle.loadUserAndClassInfo(o.responseXML);
+			  	},
+				failure: function(o) {
+					alert('Error: Unable to load user info');
+				},
+				argument: ["a", "b", "c"]
+	};
+	alert('vle_mobile.html, userURL: ' + userURL);
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
 }
 
 var myMenu;
