@@ -40,5 +40,15 @@
     <servlet-name>echopostdata</servlet-name>
     <url-pattern>/echo.html</url-pattern>
   </servlet-mapping>
+
+    <servlet>
+    <servlet-name>nodecrud</servlet-name>
+    <servlet-class>vle.NodeCRUD</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>nodecrud</servlet-name>
+    <url-pattern>/nodecrud.html</url-pattern>
+  </servlet-mapping>
   
 </web-app>

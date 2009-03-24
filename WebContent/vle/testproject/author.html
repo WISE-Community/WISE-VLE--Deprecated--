@@ -92,6 +92,19 @@ function save() {
 	   };
 }
 
+function newNode(nodeType) { 
+	if (nodeType == "HtmlNode") {
+		alert('create html');
+	} else if (nodeType == "MultipleChoiceNode") {
+		alert('create mc');
+	} else {
+		alert("ERROR: don't know how to create: " + nodeType);
+	}
+	document.getElementById('action').value = 'create';
+    document.getElementById('data1').value = nodeType;
+    document.getElementById('nodeCRUDForm').submit();
+}
+
 function preview() {
 	popupPreviewWindow('preview.html', 'PreviewWindow');
 }
@@ -137,6 +150,17 @@ function setNodeToAuthor(nodeId) {
 </head>
 
 <body class="yui-skin-sam" onload="loadProject('project1.project');">
+<p>Authoring Tool</p>
+<input type="button" value="create new html page" onclick="newNode('HtmlNode');" />
+<input type="button" value="create new multiple choice page" onclick="newNode('MultipleChoiceNode');" />
+<input type="button" value="save" onclick="save()" />
+<input type="button" value="preview" onclick="preview()" />
+<!--  for posting the text for echo servlet -->
+<form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
+    <input type="hidden" name="name" id="form_filename" value="myData"/>
+    <input type="hidden" name="data" id="localData" value=""/>
+</form>
+
 
 <div id="authorHeader">
 	<h2>Authoring Tool</h2>
@@ -153,6 +177,13 @@ function setNodeToAuthor(nodeId) {
 	   </tr>
 	 </table>
 </div>
+
+<!--  for posting to nodeCRUD servlet -->
+<form name="nodeCRUDForm" id='nodeCRUDForm' action="../../nodecrud.html" method="POST">
+    <input type="hidden" name="action" id="action" value="create"/>  <!--  action can be 'create', 'update', 'delete' -->
+    <input type="hidden" name="data1" id="data1" value=""/>
+    <input type="hidden" name="data2" id="data2" value=""/>
+</form>
 
 <div id="navigationTitle">Navigation Structure</div> 
 	
