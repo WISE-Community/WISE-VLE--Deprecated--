@@ -61,7 +61,7 @@ public class VLEGetData extends HttpServlet {
 	    			results.first();
 	    			
 	    			//add first result (latest entry by timestamp) to XML String
-	    			response.getWriter().write("<workgroup dataId=" + ids[x] +">" + results.getString(1) + "</workgroup>");
+	    			response.getWriter().write("<workgroup dataId='" + ids[x] +"'>" + results.getString(1) + "</workgroup>");
 	    			
 	    			results.close();
 	    			results = null;
