@@ -52,9 +52,18 @@
 <script type="text/javascript" src="js/node/BlueJNode.js"></script>
 <script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
 <script type="text/javascript" src="js/node/MultipleChoiceCheckBoxNode.js"></script>
+<script type="text/javascript" src="js/node/TickerNode.js"></script>
 <script type="text/javascript" src="js/project/Project.js"></script>
 <script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
 <script type="text/javascript" src="js/io/ConnectionManager.js"></script>
+
+<!-- Ticker Query Files -->
+<script type="text/javascript" src="js/node/QueryEntry.js"></script>
+<script type="text/javascript" src="js/node/StudentWorkQueryObject.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryContainer.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryContainer.js"></script>
 
 <script type="text/javascript" src="js/common/niftycube.js"></script>
 <script type="text/javascript" src="js/navigation/menu.js"></script>
@@ -72,6 +81,8 @@
 <link rel="stylesheet" type="text/css" href="css/visibility/visibility.css" />
 
 <script type="text/javascript">
+var studentWorkQueryObject;
+
 window.onload=function(){
 Nifty("div#none","bottom");
 Nifty("div#navigationBox","big");
@@ -106,6 +117,10 @@ function popUp(strURL, strType, strHeight, strWidth) {
      strHeight+",width="+strWidth;
  newWin = window.open(strURL, 'newWin', strOptions);
  newWin.focus();
+}
+
+function loadFromString(contentURL, userURL) {
+	render(contentURL, userURL);
 }
 
 var vle = null;
@@ -230,8 +245,16 @@ function expandMenu(menuId) {
 	myMenu.expandMenu(document.getElementById(menuId));
 }
 
-function render() {
-	var callback =
+/**
+ * Setup and display the project
+ *
+ * @param contentURL a url to the project file, we will use a get
+ *		request to obtain the project file
+ * @param userURL a url to the user info, we will use a get request
+ *		to obtain the user info 
+ */
+function render(contentURL, userURL) {
+	var contentCallback =
 	{
 	  success: function(o) { 
 		  var xmlDocObj = new LoadXMLDocObj();
@@ -297,13 +320,25 @@ function render() {
 		  vle.toggleNavigationPanelVisibility();
 		  
 		  //alert('success:' + o.responseText);
+
+		  var userCallback = {
+			success: function(o) {
+				alert('user success');
+				vle.loadUserAndClassInfo(o.responseXML);
+		  	},
+			failure: function(o) {
+				alert('Error: Unable to load user info');
+			}
+		  }
+
+		  YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
 	  },
 	  failure: function(o) { alert('failure');},
 	  argument: ["a", "b", "c"]
 	}
 
 	// fetch the OTML.
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "tim2.otml", callback, null);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', 'tim2.otml', contentCallback, null);
 }
 
 var myMenu;
