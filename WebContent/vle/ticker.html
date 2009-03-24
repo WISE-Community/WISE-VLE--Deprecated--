@@ -28,7 +28,6 @@
 
 
 <link rel="stylesheet" type="text/css" href="css/tickertape.css" />
-<script type="text/javascript" src="js/ticker/ticker.js"></script>
 <script type="text/javascript" src="js/VLE.js"></script>
 <script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
 <script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
@@ -52,6 +51,7 @@
 <script type="text/javascript" src="js/project/Project.js"></script>
 <script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
 
+<script type="text/javascript" src="js/node/ticker/ticker.js"></script>
 <script type="text/javascript" src="js/node/QueryEntry.js"></script>
 <script type="text/javascript" src="js/node/StudentWorkQueryObject.js"></script>
 <script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
@@ -75,8 +75,8 @@ var studentWorkQueryObject;
 
 </script>
 </head>
-<body onload="createVLEStateObject()">
-<div id="refreshButtonDiv"><input type="button" onclick="javascript:createVLEStateObject()" value="Home Page" /></div>
+<body onload="createStudentWorkQueryObject()">
+<div id="refreshButtonDiv"><input type="button" onclick="createStudentWorkQueryObject()" value="Home Page" /></div>
 	
 <div id="tickerMainContainer">	
 
