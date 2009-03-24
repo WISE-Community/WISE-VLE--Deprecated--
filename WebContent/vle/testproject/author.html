@@ -150,26 +150,19 @@ function setNodeToAuthor(nodeId) {
 </head>
 
 <body class="yui-skin-sam" onload="loadProject('project1.project');">
-<p>Authoring Tool</p>
-<input type="button" value="create new html page" onclick="newNode('HtmlNode');" />
-<input type="button" value="create new multiple choice page" onclick="newNode('MultipleChoiceNode');" />
-<input type="button" value="save" onclick="save()" />
-<input type="button" value="preview" onclick="preview()" />
-<!--  for posting the text for echo servlet -->
-<form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
-    <input type="hidden" name="name" id="form_filename" value="myData"/>
-    <input type="hidden" name="data" id="localData" value=""/>
-</form>
 
+<div id="centeredDiv">
 
 <div id="authorHeader">
-	<h2>Authoring Tool</h2>
+	<h2>WISE 4 Authoring Tool</h2>
 	<table>
 	  <tr>
+	  	<td><input type="button" value="create new html page" onclick="newNode('HtmlNode');" /></td>
+	  	<td><input type="button" value="create new multiple choice page" onclick="newNode('MultipleChoiceNode');" /></td>
 	  	<td><input type="button" value="save" onclick="save()" /></td>
 	  	<td><input type="button" value="preview" onclick="preview()" /></td>
 			<!--  for posting the text for echo servlet -->
-		<td>	<form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
+		<td style="display:hidden;"><form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
 			    <input type="hidden" name="name" id="form_filename" value="myData"/>
 			    <input type="hidden" name="data" id="localData" value=""/>
 				</form>
@@ -200,11 +193,12 @@ function setNodeToAuthor(nodeId) {
 <div class="clearFloats" />
 
 <div id="navigationInstructions">
-	<ul>
-	<li>To RENAME an item: Click once on its text, type your edits, press Return key to save changes.</li>
-	<li>To MOVE an item: Click and Drag the blue border for the item.</li>
-	<li>To EDIT an item: Double click the item.</li>
-	</ul>	
+	<p>Instructions:</p>
+	<ol>
+	<li>RENAME an item by clicking once on its text.  Type your changes and press the Return key.</li>
+	<li>MOVE an item by click/dragging on its blue border.</li>
+	<li>EDIT content for an item by double clicking.  A separate editor will launch.</li>
+	</ol>	
 </div> 
 
 
@@ -397,6 +391,8 @@ function displayNodeAuthoringDiv(node) {
 }
 
 </script>
+
+</div>  <!-- centerDiv -->
 
 </body>
 
