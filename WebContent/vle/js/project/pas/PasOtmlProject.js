@@ -1,5 +1,5 @@
 var htmlPageTypes = new Array("OTReadingPage", "OTIntroPage", "OTVideoPage", "OTExamplePage", "OTDisplayPage", "OTEvidence");
-var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz", "OTQuizCheckBox", "Reference");
+var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz", "OTQuizCheckBox", "Reference", "Ticker");
 
 // IE 7 doesn't have indexOf method.........
 if(!Array.indexOf){
@@ -39,6 +39,7 @@ NodeFactory.createNode = function (nodeType){
 			case "OTQuizCheckBox": return new MultipleChoiceCheckBoxNode("OTQuizCheckBox"); break;
 			case "OTBlueJ": return new BlueJNode("OTBlueJ"); break;
 			case "Reference": return new ReferenceNode("Reference"); break;
+			case "Ticker": return new TickerNode("Ticker"); break;
 			default: break;
 		}
 		return new CustomNode(nodeType);
