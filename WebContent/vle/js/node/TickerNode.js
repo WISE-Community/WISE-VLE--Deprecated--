@@ -11,7 +11,11 @@ function TickerNode(nodeType) {
 }
 
 TickerNode.prototype.render = function(contentpanel) {
-	window.frames["ifrm"].document.open();
+	//window.frames["ifrm"].document.open();
 	window.frames["ifrm"].location = "js/node/ticker/ticker.html";
-	window.frames["ifrm"].document.close();
+	//window.frames["ifrm"].document.close();
+}
+
+TickerNode.prototype.parseDataXML = function(nodeStatesXML) {
+	return new Array();
 }

@@ -98,10 +98,10 @@ StudentWorkQueryObject.prototype.addDataIdEntry = function(dataId, queryEntry, n
 	 * created in the constructor when reading in the vle?
 	 */
 	if(dataIdContainer == null) {
-		dataIdContainer = new Array();
+		dataIdContainer = new StudentQueryContainer(dataId);
 	}
 
-	dataIdContainer.push(queryEntry);
+	dataIdContainer.addQueryEntry(queryEntry);
 	
 	//is this line below needed or will it update the reference automatically?
 	this.dataIdArray[dataId] = dataIdContainer;
@@ -115,7 +115,13 @@ StudentWorkQueryObject.prototype.addDataIdEntry = function(dataId, queryEntry, n
  * @return all the work for a specific student
  */
 StudentWorkQueryObject.prototype.getWorkByStudentId = function(dataId) {
-	//TODO
+	var dataIdContainer = this.dataIdArray[dataId];
+	 
+	return dataIdContainer;
+}
+
+StudentWorkQueryObject.prototype.getWorkByStudentIdAndActivity = function(dataId, activityNodeId) {
+
 }
 
 /**

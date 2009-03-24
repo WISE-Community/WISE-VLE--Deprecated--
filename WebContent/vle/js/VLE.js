@@ -83,8 +83,7 @@ VLE.prototype.renderNode = function(nodeId){
 					if(vle.myUserInfo != null) {
 						this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName);
 					} else {
-						//if myUserInfo is null, don't do anything for now
-						//this.connectionManager.post();
+						this.connectionManager.post();
 					}
 				};
 			};
@@ -270,8 +269,32 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 		//set the class info in this vle instance
 		this.myClassInfo = myClassInfo;
 	}
+	
+	//load the student data
+	this.loadVLEState(this.myUserInfo.workgroupId, this);
 }
 
+/**
+ * Loads the student's latest work from the last time they worked on it
+ * @param dataId the workgroupId
+ * @param vle this vle
+ */
+VLE.prototype.loadVLEState = function(dataId, vle) {
+	var getURL = "../getdata.html?dataId=" + dataId;
+	
+	var callback = {
+		success: function(o) {
+			var xmlObj = o.responseXML;
+			var vleStateXMLObj = xmlObj.getElementsByTagName("vle_state")[0];
+			var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
+			vle.setVLEState(vleStateObj);
+		},
+		failure: function(o) {
+		}
+	};
+	
+	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
+}
 
 function USER_INFO(workgroupId, userName) {
 	this.workgroupId = workgroupId;
@@ -428,10 +451,8 @@ VLE_STATE.prototype.parseVLEStatesDataXMLString = function(xmlString) {
 
 VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
 	var vleStatesArray = new Array();
-	
 	//retrieve all the workgroups
 	var workgroupsXML = xmlObject.getElementsByTagName("workgroup");
-	
 	/*
 	 * loop through the workgroups and populate the array. The dataId
 	 * will serve as the index/key.
@@ -443,7 +464,6 @@ VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
 		//create a real VLE_STATE object from the xml object and put it in the array
 		vleStatesArray[dataId] = VLE_STATE.prototype.parseDataXML(vleState);
 	}
-	
 	return vleStatesArray;
 }
 

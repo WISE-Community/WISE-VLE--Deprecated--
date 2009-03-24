@@ -58,8 +58,10 @@
 <script type="text/javascript" src="js/io/ConnectionManager.js"></script>
 
 <!-- Ticker Query Files -->
+<script type="text/javascript" src="js/node/ticker/ticker.js"></script>
 <script type="text/javascript" src="js/node/QueryEntry.js"></script>
 <script type="text/javascript" src="js/node/StudentWorkQueryObject.js"></script>
+<script type="text/javascript" src="js/node/ticker/StudentQueryObject.js"></script>
 <script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
 <script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryContainer.js"></script>
 <script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryEntry.js"></script>
@@ -121,8 +123,6 @@ function popUp(strURL, strType, strHeight, strWidth) {
 }
 
 function load(contentURL, userURL) {
-	alert('contenturl: ' + contentURL);
-	alert('userURL: ' + userURL);
 	render(contentURL, userURL);
 }
 
@@ -248,7 +248,6 @@ function expandMenu(menuId) {
 	myMenu.expandMenu(document.getElementById(menuId));
 }
 
-
 /**
  * Setup and display the project
  *
@@ -279,6 +278,7 @@ function render(contentURL, userURL) {
 		  }	
 		  */	  
 		  var project = new PasOtmlProject(xmlDocObj);
+		  //var project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
 		  project.generateNode(xmlDocToParse);
@@ -298,7 +298,7 @@ function render(contentURL, userURL) {
 	};
 
 	// fetch the OTML.
-	alert('vle_mobile.html, contentURL: ' + contentURL);
+	//alert('vle_mobile.html, contentURL: ' + contentURL);
 	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentURL, contentCallback, null);
 
 	// fetch user data
@@ -313,7 +313,7 @@ function render(contentURL, userURL) {
 				},
 				argument: ["a", "b", "c"]
 	};
-	alert('vle_mobile.html, userURL: ' + userURL);
+	//alert('vle_mobile.html, userURL: ' + userURL);
 	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
 }
 
