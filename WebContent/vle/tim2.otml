@@ -391,6 +391,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                     </assessmentItem>
 	]]></jaxbXML>
 </OTQuiz>
+					<Ticker id="a1s19" title="Ticker"></Ticker>
                 </stepList>
             </OTPasActivity>
             

@@ -1,0 +1,87 @@
+<html>
+<title>Teacher Tickertape Pop-Up Window</title>
+<head>
+
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Sam Skin CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+
+<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="css/tickertape.css" />
+<script type="text/javascript" src="js/ticker/ticker.js"></script>
+<script type="text/javascript" src="js/VLE.js"></script>
+<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="js/visibility/VisibilityLogic.js"></script>
+<script type="text/javascript" src="js/visibility/OnlyShowSelectedNodes.js"></script>
+<script type="text/javascript" src="js/visibility/CorrectnessBranchingVisibility.js"></script>
+<script type="text/javascript" src="js/navigation/DFS.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
+
+<script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="js/node/CustomNode.js"></script>
+<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/node/NoteNode.js"></script>
+<script type="text/javascript" src="js/node/JournalNode.js"></script>
+<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceCheckBoxNode.js"></script>
+<script type="text/javascript" src="js/project/Project.js"></script>
+<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
+
+<script type="text/javascript" src="js/node/ticker/ticker.js"></script>
+<script type="text/javascript" src="js/node/QueryEntry.js"></script>
+<script type="text/javascript" src="js/node/StudentWorkQueryObject.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryContainer.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryContainer.js"></script>
+
+<script type="text/javascript" src="js/node/fillin/fillinstate.js"></script>
+<script type="text/javascript" src="js/node/matchsequence/matchsequencestate.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/multiplechoicestate.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
+<script type="text/javascript" src="js/node/openresponse/openresponsestate.js"></script>
+<script type="text/javascript" src="js/node/outsideurl/outsideurlstate.js"></script>
+
+<script type="text/javascript" src="js/node/multiplechoice/mc.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
+
+<script type="text/javascript" src="js/node/common/js/loadxmldoc.js"></script>
+<script type="text/javascript">
+var studentWorkQueryObject;
+
+</script>
+</head>
+<body onload="createStudentWorkQueryObject()">
+<div id="refreshButtonDiv"><input type="button" onclick="createStudentWorkQueryObject()" value="Home Page" /></div>
+	
+<div id="tickerMainContainer">	
+
+</div>	  <!-- End of tickerMainContainer -->	
+
+</body>
+</html>

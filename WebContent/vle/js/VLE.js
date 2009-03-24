@@ -9,6 +9,8 @@ function VLE() {
 	this.connectionManager = null;
 	this.journal = null;
 	this.postNodes = [];
+	this.myUserInfo = null;
+	this.myClassInfo = null;
 }
 
 /**
@@ -74,9 +76,16 @@ VLE.prototype.renderNode = function(nodeId){
         this.contentPanel.render(currentNode.id);
 		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
 		if(this.connectionManager != null) {
+			//set postNodes to contain all the leaf nodes
+			this.postNodes = this.getLeafNodeIds();
 			for(var q=0;q<this.postNodes.length;q++){
 				if(currentNode.id==this.postNodes[q]){
-					this.connectionManager.post(vle.user);
+					if(vle.myUserInfo != null) {
+						this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName);
+					} else {
+						//if myUserInfo is null, don't do anything for now
+						//this.connectionManager.post();
+					}
 				};
 			};
 		}
@@ -226,6 +235,77 @@ VLE.prototype.getLeafNodeIds = function() {
 	return this.project.rootNode.getLeafNodeIds();
 }
 
+/**
+ * Takes in an xml object and sets the myUserInfo and myClassInfo
+ * @param userAndClassInfoXMLObject an xml object containing user and
+ * 		class info
+ */
+VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
+	//retrieve the xml node object for myUserInfo
+	var myUserInfoXML = userAndClassInfoXMLObject.getElementsByTagName("myUserInfo")[0];
+	
+	if(myUserInfoXML != null ) {
+		//create and set my user info in this vle instance
+		this.myUserInfo = USER_INFO.prototype.parseUserInfo(myUserInfoXML);
+	}
+	
+	//retrieve the xml node object for myClassInfo
+	var myClassInfoXML = userAndClassInfoXMLObject.getElemntsByTagname("myClassInfo")[0];
+	
+	if(myClassInfoXML != null) {
+		var myClassInfo = new CLASS_INFO();
+
+		//create and set the teacher
+		var teacherInfoXML = myClassInfoXML.getElementsByTagName("teacherUserInfo")[0];
+		myClassInfo.teacher = USER_INFO.prototype.parseUserInfo(teacherInfoXML);
+		
+		//create and set all the classmates
+		var classmateUserInfoXMLList = myClassInfoXML.getElementsByTagName("classmateUserInfo");
+		for(var x=0; x<classmateUserInfoXMLList.length; x++) {
+			var classmateUserInfoXML = classmateUserInfoXMLList[x];
+			var classmateUserInfo = USER_INFO.prototype.parseUserInfo(classmateUserInfoXML);
+			myClassInfo.addClassmate(classmateUserInfo);
+		}
+		
+		//set the class info in this vle instance
+		this.myClassInfo = myClassInfo;
+	}
+}
+
+
+function USER_INFO(workgroupId, userName) {
+	this.workgroupId = workgroupId;
+	this.userName = userName;
+}
+
+/**
+ * Takes an xml object and returns a real USER_INFO object.
+ * @param userInfoXML an xml object containing workgroupId and userName
+ * @return a new USER_INFO object with populated workgropuId and userName
+ */
+USER_INFO.prototype.parseUserInfo = function(userInfoXML) {
+	var userInfo = new USER_INFO();
+	userInfo.workgroupId = userInfoXML.getElementsByTagName("workgroupId")[0].nodeValue;
+	userInfo.userName = userInfoXML.getElementsByTagName("userName")[0].nodeValue;
+	return userInfo;
+}
+
+function CLASS_INFO() {
+	this.teacher = null;
+	
+	//an array of USER_INFO objects
+	this.classmates = new Array();
+}
+
+/**
+ * 
+ * @param classmate a USER_INFO object
+ * @return
+ */
+CLASS_INFO.prototype.addClassmate = function(classmate) {
+	this.classMates.push(classmate);
+}
+
 function VLE_STATE() {
 	this.visitedNodes = [];  // array of NODE_VISIT objects
 }
@@ -308,7 +388,7 @@ VLE_STATE.prototype.parseDataXML = function(vleStateXML) {
  * @return an array of VLE_STATE objects. dataId will be used for 
  * 		the index/key
  */
-VLE_STATE.prototype.parseVLEStatesDataXML = function(xmlString) {
+VLE_STATE.prototype.parseVLEStatesDataXMLString = function(xmlString) {
 	var xmlDoc = null;
 	
 	//create an xml object out of the xml string
@@ -330,6 +410,27 @@ VLE_STATE.prototype.parseVLEStatesDataXML = function(xmlString) {
 	
 	//retrieve all the workgroups
 	var workgroupsXML = xmlDoc.getElementsByTagName("workgroup");
+	
+	/*
+	 * loop through the workgroups and populate the array. The dataId
+	 * will serve as the index/key.
+	 */
+	for(var x=0; x<workgroupsXML.length; x++) {
+		var dataId = workgroupsXML[x].attributes.getNamedItem("dataId").nodeValue;
+		var vleState = workgroupsXML[x].getElementsByTagName("vle_state")[0];
+		
+		//create a real VLE_STATE object from the xml object and put it in the array
+		vleStatesArray[dataId] = VLE_STATE.prototype.parseDataXML(vleState);
+	}
+	
+	return vleStatesArray;
+}
+
+VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
+	var vleStatesArray = new Array();
+	
+	//retrieve all the workgroups
+	var workgroupsXML = xmlObject.getElementsByTagName("workgroup");
 	
 	/*
 	 * loop through the workgroups and populate the array. The dataId
@@ -471,7 +572,7 @@ VLE.prototype.getDataXML = function() {
 }
 
 VLE.prototype.saveStudentData = function(){
-	this.connectionManager.post(vle.user, true);
+	this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName, true);
 };
 
 VLE.prototype.getLastStateTimestamp = function(){

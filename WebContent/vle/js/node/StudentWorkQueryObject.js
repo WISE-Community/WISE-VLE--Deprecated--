@@ -33,6 +33,9 @@ function StudentWorkQueryObject(vleStatesArray, project) {
 	
 	//key = dataId, value = array of query entries, basically a 2d array
 	this.dataIdArray = new Array();
+	
+	//compile and populate the student data into our arrays
+	this.compileQueryEntries();
 }
 
 /**

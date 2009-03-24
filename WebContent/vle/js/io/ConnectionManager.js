@@ -23,16 +23,16 @@ ConnectionManager.prototype.setGetURL = function(getURL) {
 /**
  * Sends the user's navigation and student data back to the vle db
  */
-ConnectionManager.prototype.post = function(user, save) {
-	var userId = user;
+ConnectionManager.prototype.post = function(workgroupId, userName, save) {
+	var workgroupId = user;
 	var save = save;
 	var postData;
 	
-	if (userId == null) {
-		userId = this.id;
+	if (workgroupId == null) {
+		workgroupId = this.id;
 	}
 	
-	if(userId < 0) {
+	if(workgroupId < 0) {
 		//return;
 	}	
 
@@ -41,7 +41,7 @@ ConnectionManager.prototype.post = function(user, save) {
 	 * the data to send back to the db which includes id, and the xml
 	 * representation of the students navigation and work 
 	 */ 
-	postData = 'dataId=' + userId + '&data=' + this.vle.getDataXML();
+	postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
 
 	var callback = {
 		success: function(o) {
