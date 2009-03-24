@@ -85,7 +85,7 @@ visibility:hidden;
 	background-image:none;
 	cursor:move;
 	list-style-type:none;
-	margin:4px;
+	margin:0px 4px 5px 4px;
 	padding: 2px 5px;
 	position:relative;
 	-moz-border-radius:4px;
@@ -102,10 +102,9 @@ visibility:hidden;
 	padding:2px;
 }
 
-#navAuthoringDiv ul li textarea:hover {
-	color:#3333FF;
-	font-weight:bold;
-	}
+#navAuthoringDiv ul li textarea:focus {
+	background-color:#FFCCCC;
+}
 
 #navAuthoringDiv ul li.choice {
 	background-color:#CCCCFF;
@@ -134,3 +133,49 @@ border:1px solid #004C6D;
 background-color:#FF3333;
 border:1px solid #004C6D;
 }
+
+ 
+/* STYLES FOR EDITOR WINDOW  */
+
+#editorHeader {
+	background-color:#cc66CC;
+	border:1px solid #333;
+	padding:5px 8px;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+}
+
+#editorHeader .header {
+	font-size:1.2em;
+	font-weight: bold;
+	line-height:100%;
+}
+
+#editorHeader input {
+	float:right;
+	margin-right:15px;
+	font-size:.8em;
+	font-weight: bold;
+}
+
+#editorTable {
+	border-collapse:collapse;
+	width:100%;
+	height:100%;
+	margin:4px 0 0 0 ;
+} 
+ 
+#editorTable #editorCol1 {
+	border:1px solid #000;
+	padding:3px;
+} 
+
+#editorTable #editorCol1 textarea {
+	border:0;
+}
+
+#editorTable #editorCol2 {
+	width:780px;
+	padding: 0 3px 3px 3px;
+} 

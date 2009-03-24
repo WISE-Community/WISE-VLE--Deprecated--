@@ -37,10 +37,6 @@
 
 <sequence identifier="project1_sequence">
   <node-ref ref="a1s1" />
-  <sequence identifier="project1_sub_sequence">
-     <node-ref ref="a1s1" />
-     <sequqe
-  </sequence>
   <node-ref ref="mc1" />
   <node-ref ref="a2s1" />
   <node-ref ref="a2s2" />
