@@ -30,6 +30,9 @@
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
+<script type="text/javascript">
+var vle = null;
+</script>
 
 <script type="text/javascript" src="js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="js/VLE.js"></script>
@@ -126,7 +129,6 @@ function load(contentURL, userURL) {
 	render(contentURL, userURL);
 }
 
-var vle = null;
 </script>
 
 </head>
@@ -304,8 +306,8 @@ function render(contentURL, userURL) {
 	// fetch user data
 	var userCallback = {
 				success: function(o) {
-					alert('userxml: ' + o.responseXML);
-					alert('responsexml: ' + o.responseText);
+					//alert('userxml: ' + o.responseXML);
+					//alert('responsexml: ' + o.responseText);
 					vle.loadUserAndClassInfo(o.responseXML);
 			  	},
 				failure: function(o) {

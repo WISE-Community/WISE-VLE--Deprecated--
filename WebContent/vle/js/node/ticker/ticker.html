@@ -76,11 +76,15 @@
 <script type="text/javascript">
 var studentWorkQueryObject;
 
-
+var vleRef = null;
+function tickerLoaded(vle) {
+	vleRef = vle
+	createStudentWorkQueryObject(vle);
+}
 </script>
 </head>
-<body onload="createStudentWorkQueryObject()">
-<div id="refreshButtonDiv"><input type="button" onClick="createStudentWorkQueryObject()" value="Home Page" /></div>
+<body>
+<div id="refreshButtonDiv"><input type="button" onclick="createStudentWorkQueryObject(vleRef);" value="Home Page" /></div>
 	
 <div id="tickerMainContainer">	
 

@@ -16,6 +16,12 @@ TickerNode.prototype.render = function(contentpanel) {
 	//window.frames["ifrm"].document.close();
 }
 
+
+
+TickerNode.prototype.load = function() {
+	window.frames["ifrm"].tickerLoaded(vle)
+}
+
 TickerNode.prototype.parseDataXML = function(nodeStatesXML) {
 	return new Array();
 }

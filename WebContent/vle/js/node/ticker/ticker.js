@@ -49,8 +49,15 @@ function getAndUpdate() {
 	
 }
 
-function createStudentWorkQueryObject(xml) {
-	var classMateDataIds = "1:2";
+function createStudentWorkQueryObject(vle) {
+	var classmatesArray = vle.getClassUsers();
+	var classMateDataIds = "";
+	for (var i =0; i < classmatesArray.length; i++) {
+		classMateDataIds += classmatesArray[i].workgroupId + ":";
+	}
+	if (classMateDataIds.length > 0) {
+		classMateDataIds = classMateDataIds.substring(0, classMateDataIds.length - 1);
+	}
 	var getURL = "../../../../getdata.html?dataId=" + classMateDataIds;
 	
 	var callback = {
