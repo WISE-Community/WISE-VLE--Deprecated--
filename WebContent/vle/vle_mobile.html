@@ -79,14 +79,13 @@ var vle = null;
 <script type="text/javascript" src="js/common/dropdown.js"></script>
 
 <link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
-<link rel="stylesheet" type="text/css" href="css/navigation_mobile.css" />
-
 <link rel="stylesheet" type="text/css" href="css/navigation/testnavigation.css" />
+<link rel="stylesheet" type="text/css" href="css/visibility/visibility.css" />
+<link rel="stylesheet" type="text/css" href="css/navigation_mobile.css" />
 
 <!--  no navigation styling for now
 <link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
  -->
-<link rel="stylesheet" type="text/css" href="css/visibility/visibility.css" />
 
 <script type="text/javascript">
 var studentWorkQueryObject;
@@ -222,15 +221,16 @@ function load(contentURL, userURL, getDataUrl) {
 
 <div id="projectRightUpperBox">
 	<div id="stepInfoBar">
-		<div class="currentLessonSection">Lesson 3.1</div>
+		<div class="currentLessonSection"></div>
 		<div class="stepTypeLabel">
     		<a id="topStepTitle"></a>
 			<span class="subStepCounter"></span> 
 		</div>
 		<div id="stepNavButtons">
-    		<a onclick="vle.renderPrevNode();" ><img src="./assets/images/go-previous.png" alt="Previous Arrow" width="76" height="76" border="0" /></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<a onclick="vle.renderNextNode();" ><img src="./assets/images/go-next.png" alt="Previous Arrow" width="76" height="76" border="0" /></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<a onclick="vle.toggleNavigationPanelVisibility();"><img src="./assets/images/view-fullscreen.png" alt="Previous Arrow" width="76" height="76" border="0" /></a>
+    		<ul>
+    		<a onclick="vle.renderPrevNode();" ><img align="top" src="./assets/images/go-previous.png" alt="Previous Arrow" width="72" height="72" border="0" />Prev</a>
+			<a onclick="vle.renderNextNode();" ><img align="top" src="./assets/images/go-next.png" alt="Previous Arrow" width="72" height="72" border="0" />Next</a>
+			<a onclick="vle.toggleNavigationPanelVisibility();"><img class="hackPosition" align="top" src="./assets/images/view-fullscreen.png" alt="Previous Arrow" width="60" height="60" border="0" />NavBar</a>
 		</div>
     	
 	</div>

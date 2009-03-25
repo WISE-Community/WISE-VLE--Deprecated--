@@ -8,15 +8,13 @@ body {
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
 	text-align: center;
-	margin: 4px;
+	margin: 0px;
 	background-color:#666;
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
 	}
 	
 img {border: 0px;}
-
-p {font-size: 2em;}
 
 /* This override presents Firefox browser from drawing an ugly dotted line around the focus Input button */
 button::-moz-focus-inner,
@@ -47,7 +45,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #centeredDiv {
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
-	width: 1000px;
+	width: 960px;
 	text-align:left;
 	margin: 0 auto;   	}
 
@@ -56,15 +54,17 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	float:left;
 	background-image:url(../assets/images/gradient_leftBox.png);
 	background-repeat:repeat-x; 
+	background-color:#6699FF;
 	width:210px; 
-	height:650px;
+	min-height:650px;
 	border:1px solid #333;
 	    }
 
 #projectRightUpperBox {
 	margin: 0 0 3px 216px;
 	padding:0;
-	background-image:url(../assets/images/gradient_stepInfoBar40v2.png);
+	background-image:url(../assets/images/gradient_stepInfoBar80v1.png);
+	height:65px;
 	background-repeat:repeat-x; 
 	background-position:0 0px;
 	border:1px solid #333;
@@ -79,7 +79,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	border:1px solid #333;
 	margin: 0 0 0 216px;
 	/* height:609px; */
-	height:1024px;
 	overflow:auto;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-topright:8px;  
@@ -211,7 +210,7 @@ iframe {padding:0;margin:0;}
 	}	
 	
 #navigationMenuBox {
-	height:425px;
+	min-height:425px;
 	overflow-y:auto;
 	overflow-x:hidden;
 }
@@ -237,7 +236,6 @@ iframe {padding:0;margin:0;}
 	position:relative;
 	color:#333;
 	padding:0;
-	height:68px;
 	text-indent:-8000px;
 	font-size:.7em;
 	text-transform:uppercase;
@@ -258,10 +256,9 @@ iframe {padding:0;margin:0;}
 	
 .stepTypeLabel {
 	position:absolute;
-	top:9px;
-	height:36px;
-	left:52px;
-	font-size:.8em;
+	top:16px;
+	left:25px;
+	font-size:1.4em;
 	}
 
 .stepTypeLabel a:visited, .stepTypeLabel a:link {
@@ -288,19 +285,30 @@ iframe {padding:0;margin:0;}
 		
 #stepNavButtons {
 	position:absolute;
-	top:2px;
-	right:10px;
+	top:17px;
+	right:5px;
 		}
 
 #stepNavButtons a {
-	margin: 0 2px;
+	font-size:1.4em;
+	margin: 0 25px  40px 0;
+	padding:0px 0 0 10px; 
+	color:#333;
 		}
 		
 #stepNavButtons a:hover {
-	outline: 1px dotted #FFFF00;
+	outline: 2px dotted #FFFF00;
 	cursor:pointer;
 		}
+		
+#stepNavButtons img {
+	margin-top:-20px;
+		}
 
+#stepNavButtons .hackPosition{
+	margin-top:-14px;
+		}
+		
 <!-- Anchor-Based Button Layout using TABLE-->
 
 .buttonDiv {
