@@ -37,7 +37,6 @@ MultipleChoiceCheckBoxQueryContainer.prototype.addQueryEntry = function(queryEnt
 	var choices = queryEntry.getChoices();
 	//update the count for the choiceIds that were chosen
 	for(var x=0; x<choices.length; x++) {
-		alert(choices[x]);
 		this.choiceIdCount[choices[x]] = this.choiceIdCount[choices[x]] + 1;
 	}
 }
@@ -107,6 +106,7 @@ MultipleChoiceCheckBoxQueryContainer.prototype.printContainer = function() {
 	 */
 	for(var z=0; z<choiceIds.length; z++) {
 		var choiceId2 = choiceIds[z];
+		if (choiceId2 != "indexOf") {
 		var percentage = 0;
 		var choiceCount = this.retrieveCount(choiceId2);
 		if(total != 0) {
@@ -114,6 +114,7 @@ MultipleChoiceCheckBoxQueryContainer.prototype.printContainer = function() {
 		}
 		print += this.choiceIdToValue[choiceId2] + ": " + choiceCount + " [" + percentage + "%]";
 		print += "<br>";
+		}
 	}
 	
 	print += "Total: " + total;

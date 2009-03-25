@@ -11,6 +11,7 @@ function VLE() {
 	this.postNodes = [];
 	this.myUserInfo = null;
 	this.myClassInfo = null;
+	this.getDataUrl = null;
 }
 
 /**
@@ -286,7 +287,7 @@ VLE.prototype.getWorkgroupId = function() {
 	}
 }
 
-VLE.prototype.getUserName = function(userName) {
+VLE.prototype.setUserName = function(userName) {
 	if(this.myUserInfo != null) {
 		this.myUserInfo.userName;
 	}
@@ -298,7 +299,7 @@ VLE.prototype.setWorkgroupId = function(workgroupId) {
 	}
 }
 
-VLE.prototype.setUserName = function() {
+VLE.prototype.getUserName = function() {
 	if(this.myUserInfo != null) {
 		return this.myUserInfo.userName;
 	} else {

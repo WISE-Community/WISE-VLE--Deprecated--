@@ -58,7 +58,8 @@ function createStudentWorkQueryObject(vle) {
 	if (classMateDataIds.length > 0) {
 		classMateDataIds = classMateDataIds.substring(0, classMateDataIds.length - 1);
 	}
-	var getURL = "http://localhost:8080/vlewrapper/getdata.html?dataId=" + classMateDataIds;
+	
+	var getURL = vle.getDataUrl + "?dataId=" + classMateDataIds;
 	
 	var callback = {
 			success: function(o) {
@@ -101,8 +102,10 @@ function createStudentWorkQueryObject(vle) {
 				document.getElementById('tickerMainContainer').innerHTML = "";
 
 				for(var x=0; x<nodeIds.length; x++) {
+					if (nodeIds[x] != "indexOf") {
 					document.getElementById('tickerMainContainer').innerHTML += "<a href='#' onClick='javascript:printNodeId(\"" + nodeIds[x] + "\")'>" + studentWorkQueryObject.getPromptByNodeId(nodeIds[x]) + "</a>";
 					document.getElementById('tickerMainContainer').innerHTML += "<br>";
+					}
 				}
 	
 			},

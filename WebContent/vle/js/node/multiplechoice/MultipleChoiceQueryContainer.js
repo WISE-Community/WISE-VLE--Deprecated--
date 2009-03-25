@@ -103,6 +103,8 @@ MultipleChoiceQueryContainer.prototype.printContainer = function() {
 	 */
 	for(var z=0; z<choiceIds.length; z++) {
 		var choiceId2 = choiceIds[z];
+		if (choiceId2 != "indexOf") {
+			
 		var choiceCount = this.retrieveCount(choiceId2);
 		var percentage = 0;
 		if(total != 0) {
@@ -110,6 +112,7 @@ MultipleChoiceQueryContainer.prototype.printContainer = function() {
 		}
 		print += this.choiceIdToValue[choiceId2] + ": " + choiceCount + " [" + percentage + "%]";
 		print += "<br>";
+		}
 	}
 	
 	print += "Total: " + total;
