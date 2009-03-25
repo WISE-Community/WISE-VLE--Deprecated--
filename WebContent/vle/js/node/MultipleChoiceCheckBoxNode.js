@@ -93,7 +93,7 @@ MultipleChoiceCheckBoxNode.prototype.exportNode = function() {
  * 		work for this node. return null if this student has not accessed
  * 		this step yet.
  */
-MultipleChoiceCheckBoxNode.prototype.getLatestWork = function(vle, dataId) {
+MultipleChoiceCheckBoxNode.prototype.getLatestWork = function(vle) {
 	var latestState = null;
 	
 	//setup the mc object by loading in the content of the step
@@ -114,13 +114,13 @@ MultipleChoiceCheckBoxNode.prototype.getLatestWork = function(vle, dataId) {
 	 * an array that contains the choices this student chose
 	 * (key, value) = (choiceId, choiceValue)
 	 */
-	var choiceIdToValue = new Array();
+	var choiceIdToValue = {};
 	for(var x=0; x<latestState.choices.length; x++) {
 		choiceIdToValue[latestState.choices[x]] = this.mccb.getCHOICEByIdentifier(latestState.choices[x]).text;
 	}
 
 	//create and return a query entry object
-	return new MultipleChoiceCheckBoxQueryEntry(dataId, vle.getUserName(), this.id, this.mccb.promptText, choiceIdToValue);
+	return new MultipleChoiceCheckBoxQueryEntry(vle.getWorkgroupId(), vle.getUserName(), this.id, this.mccb.promptText, choiceIdToValue);
 }
 
 /**

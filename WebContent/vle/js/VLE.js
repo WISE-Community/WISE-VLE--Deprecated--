@@ -286,7 +286,19 @@ VLE.prototype.getWorkgroupId = function() {
 	}
 }
 
-VLE.prototype.getUserName = function() {
+VLE.prototype.getUserName = function(userName) {
+	if(this.myUserInfo != null) {
+		this.myUserInfo.userName;
+	}
+}
+
+VLE.prototype.setWorkgroupId = function(workgroupId) {
+	if(this.myUserInfo != null) {
+		this.myUserInfo.workgroupId = workgroupId;
+	}
+}
+
+VLE.prototype.setUserName = function() {
 	if(this.myUserInfo != null) {
 		return this.myUserInfo.userName;
 	} else {
@@ -319,11 +331,10 @@ VLE.prototype.loadVLEState = function(dataId, vle) {
 			var xmlObj = o.responseXML;
 			var vleStateXMLObj = xmlObj.getElementsByTagName("vle_state")[0];
 			if (vleStateXMLObj) {
-				//alert('found vle state, loading it');
 				var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
 				vle.setVLEState(vleStateObj);
 			} else {
-				//alert('no previous vle state');
+				alert('no previous vle state');
 			}
 		},
 		failure: function(o) {
@@ -370,6 +381,14 @@ function VLE_STATE() {
 	this.visitedNodes = [];  // array of NODE_VISIT objects
 	this.userName = null; //lets put this here for now, sssssh
 	this.dataId = null;
+}
+
+VLE_STATE.prototype.setUserName = function(userName) {
+	this.userName = userName;
+}
+
+VLE_STATE.prototype.setDataId = function(dataId) {
+	this.dataId = dataId;
 }
 
 VLE_STATE.prototype.getCurrentNodeVisit = function() {
@@ -504,7 +523,8 @@ VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
 		//create a real VLE_STATE object from the xml object and put it in the array
 		var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
 		vleStateObj.userName = userName;
-		vleStatesArray[dataId] = vleStateObj;
+		vleStateObj.dataId = dataId;
+		vleStatesArray.push(vleStateObj);
 	}
 	return vleStatesArray;
 }

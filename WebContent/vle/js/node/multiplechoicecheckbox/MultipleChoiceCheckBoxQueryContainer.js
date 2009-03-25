@@ -20,7 +20,7 @@ function MultipleChoiceCheckBoxQueryContainer(nodeId, prompt, choiceIdToValue) {
 	
 	//an array that has (key, value) = (choiceId, choiceValue)
 	this.choiceIdToValue = choiceIdToValue;
-	this.choiceIdCount = new Array();
+	this.choiceIdCount = {};
 	
 	for(var choiceId in this.choiceIdToValue) {
 		this.choiceIdCount[choiceId] = 0;
@@ -35,9 +35,9 @@ MultipleChoiceCheckBoxQueryContainer.prototype.addQueryEntry = function(queryEnt
 	this.queryEntryArray.push(queryEntry);
 	
 	var choices = queryEntry.getChoices();
-	
 	//update the count for the choiceIds that were chosen
 	for(var x=0; x<choices.length; x++) {
+		alert(choices[x]);
 		this.choiceIdCount[choices[x]] = this.choiceIdCount[choices[x]] + 1;
 	}
 }

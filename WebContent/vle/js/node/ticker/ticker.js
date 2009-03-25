@@ -58,7 +58,7 @@ function createStudentWorkQueryObject(vle) {
 	if (classMateDataIds.length > 0) {
 		classMateDataIds = classMateDataIds.substring(0, classMateDataIds.length - 1);
 	}
-	var getURL = "../../../../getdata.html?dataId=" + classMateDataIds;
+	var getURL = "http://localhost:8080/vlewrapper/getdata.html?dataId=" + classMateDataIds;
 	
 	var callback = {
 			success: function(o) {
@@ -93,10 +93,8 @@ function createStudentWorkQueryObject(vle) {
 				    	return;
 				    }
 				}
-				xmlDoc.async=false;
-				xmlDoc.load("../../../tim2.otml");
-				var project = new PasOtmlProject(xmlDoc);
-				project.generateNode(xmlDoc);
+				var project = vle.project;
+				//project.generateNode(xmlDoc);
 				studentWorkQueryObject = new StudentWorkQueryObject(vleStates, project);
 
 				var nodeIds = studentWorkQueryObject.getNodeIds();
@@ -109,11 +107,10 @@ function createStudentWorkQueryObject(vle) {
 	
 			},
 			failure: function(o) {
-				alert('failure: ' + o.statusText + ' ' + o.argument);
-			}
-	
+				alert('failure: ' + o.statusText + ',' + o.responseXML + ',' + o.responseText + ',' + o.argument);
+			},
+			argument: ["a", "b", "c"]
 	};
-	
 	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
 }
 

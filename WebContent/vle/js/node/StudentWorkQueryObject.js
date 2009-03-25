@@ -21,7 +21,7 @@ function StudentWorkQueryObject(vleStatesArray, project) {
 	 * loop through the states and create a VLE for each state
 	 * the key will be the dataId
 	 */
-	for(var x in this.vleStates) {
+	for(var x=0; x<this.vleStates.length; x++) {
 		var vle = new VLE();
 		var vleState = this.vleStates[x];
 		var userInfo = new USER_INFO(vleState.workgroupId, vleState.userName);
@@ -30,7 +30,7 @@ function StudentWorkQueryObject(vleStatesArray, project) {
 		vle.myUserInfo = userInfo;
 		vle.setVLEState(vleState);
 		
-		this.vleArray[x] = vle;
+		this.vleArray.push(vle);
 	}
 	
 	//key = nodeId, value = array of query entries, basically a 2d array
@@ -165,9 +165,9 @@ StudentWorkQueryObject.prototype.getPromptByNodeId = function(nodeId) {
 StudentWorkQueryObject.prototype.compileQueryEntries = function() {
 	
 	//loop through the vle for each dataId/student
-	for(var dataId in this.vleArray) {
+	for(var y=0; y< this.vleArray.length; y++) {
 		//obtain a vle for a specific dataId/student
-		var vle = this.vleArray[dataId];
+		var vle = this.vleArray[y];
 		var nodeIds = vle.getLeafNodeIds();
 		
 		//loop through all the nodes in the project
@@ -177,7 +177,7 @@ StudentWorkQueryObject.prototype.compileQueryEntries = function() {
 			var node = vle.getNodeById(nodeId);
 			
 			//get the latest work the student has done for this node
-			var queryEntry = node.getLatestWork(vle, dataId);
+			var queryEntry = node.getLatestWork(vle);
 			
 			/*
 			 * queryEntry may be null if the node does not require students
@@ -185,7 +185,7 @@ StudentWorkQueryObject.prototype.compileQueryEntries = function() {
 			 */
 			if(queryEntry != null) {
 				//add an entry into the dataIdArray
-				this.addDataIdEntry(dataId, queryEntry, node, vle);
+				this.addDataIdEntry(vle.getWorkgroupId(), queryEntry, node, vle);
 				
 				//add an entry into the nodeIdArray
 				this.addNodeIdEntry(nodeId, queryEntry, node, vle);

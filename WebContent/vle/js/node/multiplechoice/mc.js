@@ -8,6 +8,8 @@ MC.prototype.loadXMLDoc = function(xmlDoc) {
 	this.responseIdentifier = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('responseIdentifier');
 	this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
 	this.choices = [];
+	this.states = [];
+
 	this.choiceToValueArray = new Array();
 
 	var choicesDOM = this.xmlDoc.getElementsByTagName('simpleChoice');
@@ -57,9 +59,9 @@ MC.prototype.loadForTicker = function(node, vle) {
 MC.prototype.loadState = function() {
 	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
 		var nodeVisit = this.vle.state.visitedNodes[i];
-		if (nodeVisit.node == this.node) {
+		if (nodeVisit.node.id == this.node.id) {
 			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
-				states.push(nodeVisit.nodeStates[j]);
+				this.states.push(nodeVisit.nodeStates[j]);
 			}
 		}
 	}
@@ -135,7 +137,7 @@ MC.prototype.render = function() {
 		document.getElementById("checkAnswerButton").innerHTML = "Save Answer";
 		document.getElementById("tryAgainButton").innerHTML = "Edit Answer";
 	} else {
-		displayNumberAttempts("This is your", "attempt", states);
+		displayNumberAttempts("This is your", "attempt", this.states);
 	}
 }
 
@@ -206,7 +208,7 @@ MC.prototype.checkAnswer = function() {
 				feedbackdiv.innerHTML = choice.getFeedbackText(this);
 				var mcState = new MCSTATE(choiceIdentifier);
 				mcState.isCorrect = (choiceIdentifier == this.correctResponseInterpretation);
-				states.push(mcState);
+				this.states.push(mcState);
 				//alert('vle:' + this.vle);
 				if (this.vle != null) {
 					this.vle.state.getCurrentNodeVisit().nodeStates.push(mcState);

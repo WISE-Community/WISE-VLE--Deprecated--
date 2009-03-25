@@ -48,9 +48,9 @@ MultipleChoiceNode.prototype.getDataXML = function(nodeStates) {
 MultipleChoiceNode.prototype.parseDataXML = function(nodeStatesXML) {
 	var statesXML = nodeStatesXML.getElementsByTagName("state");
 	var statesArrayObject = new Array();
+	
 	for(var x=0; x<statesXML.length; x++) {
 		var stateXML = statesXML[x];
-		
 		/*
 		 * parse an individual stateXML object to create an actual instance
 		 * of an MCSTATE object and put it into the array that we will return
@@ -91,7 +91,7 @@ MultipleChoiceNode.prototype.exportNode = function() {
  * 		work for this node. return null if this student has not accessed
  * 		this step yet.
  */
-MultipleChoiceNode.prototype.getLatestWork = function(vle, dataId) {
+MultipleChoiceNode.prototype.getLatestWork = function(vle) {
 	var latestState = null;
 	
 	//setup the mc object by loading in the content of the step
@@ -109,7 +109,7 @@ MultipleChoiceNode.prototype.getLatestWork = function(vle, dataId) {
 	}
 	
 	//create and return a query entry object
-	return new MultipleChoiceQueryEntry(dataId, vle.getUserName(), this.id, this.mc.promptText, latestState.getIdentifier(), this.mc.getCHOICEByIdentifier(latestState.getIdentifier()).text);
+	return new MultipleChoiceQueryEntry(vle.getWorkgroupId(), vle.getUserName(), this.id, this.mc.promptText, latestState.getIdentifier(), this.mc.getCHOICEByIdentifier(latestState.getIdentifier()).text);
 }
 
 /**
