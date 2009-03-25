@@ -17,8 +17,9 @@ MultipleChoiceQueryEntry.prototype.parent = QueryEntry.prototype;
  * @param choiceId the choiceId for this query entry
  * @param choiceValue the user displayed value for the query entry
  */
-function MultipleChoiceQueryEntry(dataId, nodeId, prompt, choiceId, choiceValue) {
+function MultipleChoiceQueryEntry(dataId, userName, nodeId, prompt, choiceId, choiceValue) {
 	this.dataId = dataId;
+	this.userName = userName;
 	this.nodeId = nodeId;
 	this.prompt = prompt;
 	this.choiceId = choiceId;
@@ -30,5 +31,5 @@ function MultipleChoiceQueryEntry(dataId, nodeId, prompt, choiceId, choiceValue)
  * @return html that displays the student's work
  */
 MultipleChoiceQueryEntry.prototype.printEntry = function() {
-	return "[User " + this.dataId + "] answered " + this.choiceValue;
+	return "[" + this.userName + "] answered " + this.choiceValue;
 }

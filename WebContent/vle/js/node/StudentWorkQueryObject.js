@@ -23,8 +23,13 @@ function StudentWorkQueryObject(vleStatesArray, project) {
 	 */
 	for(var x in this.vleStates) {
 		var vle = new VLE();
+		var vleState = this.vleStates[x];
+		var userInfo = new USER_INFO(vleState.workgroupId, vleState.userName);
+		
 		vle.setProject(this.project);
-		vle.setVLEState(this.vleStates[x]);
+		vle.myUserInfo = userInfo;
+		vle.setVLEState(vleState);
+		
 		this.vleArray[x] = vle;
 	}
 	

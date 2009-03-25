@@ -109,7 +109,7 @@ MultipleChoiceNode.prototype.getLatestWork = function(vle, dataId) {
 	}
 	
 	//create and return a query entry object
-	return new MultipleChoiceQueryEntry(dataId, this.id, this.mc.promptText, latestState.getIdentifier(), this.mc.getCHOICEByIdentifier(latestState.getIdentifier()).text);
+	return new MultipleChoiceQueryEntry(dataId, vle.getUserName(), this.id, this.mc.promptText, latestState.getIdentifier(), this.mc.getCHOICEByIdentifier(latestState.getIdentifier()).text);
 }
 
 /**

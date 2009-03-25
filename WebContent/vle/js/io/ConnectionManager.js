@@ -24,6 +24,8 @@ ConnectionManager.prototype.setGetURL = function(getURL) {
  * Sends the user's navigation and student data back to the vle db
  */
 ConnectionManager.prototype.post = function(workgroupId, userName, save) {
+	workgroupId = "1";
+	userName = "geoff";
 	var save = save;
 	var postData;
 	

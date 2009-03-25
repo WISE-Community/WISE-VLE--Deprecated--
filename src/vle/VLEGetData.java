@@ -57,12 +57,13 @@ public class VLEGetData extends HttpServlet {
 		    		
 	    		//then retrieve latest data for each of the ids
 	    		for(int x = 0; x < ids.length; x++){
-	    			results = stmt.executeQuery("select data from vledata where dataId=" + ids[x] + " order by timestamp desc");
+	    			//select username_to_dataid.username, vledata.data from username_to_dataid, vledata where username_to_dataid.dataId = vledata.dataId and vledata.dataId="1" order by timestamp desc;
+	    			results = stmt.executeQuery("select username_to_dataid.username, vledata.data from username_to_dataid, vledata where username_to_dataid.dataId = vledata.dataId and vledata.dataId=" + ids[x] + " order by timestamp desc;");
 	    			
 	    			//check if there were any results, if first() is false, there were no results
 	    			if(results.first() != false) {
 	    				//add first result (latest entry by timestamp) to XML String
-		    			response.getWriter().write("<workgroup dataId='" + ids[x] +"'>" + results.getString(1) + "</workgroup>");
+		    			response.getWriter().write("<workgroup dataId='" + ids[x] +"' userName='" + results.getString(1) + "'>" + results.getString(2) + "</workgroup>");
 		    			//System.out.println("<workgroup dataId='" + ids[x] +"'>" + results.getString(1) + "</workgroup>");
 	    			}
 	    			

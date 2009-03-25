@@ -274,6 +274,23 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 	this.loadVLEState(this.myUserInfo.workgroupId, this);
 }
 
+ 
+VLE.prototype.getWorkgroupId = function() {
+	if(this.myUserInfo != null) {
+		return this.myUserInfo.workgroupId;
+	} else {
+		return "";
+	}
+}
+
+VLE.prototype.getUserName = function() {
+	if(this.myUserInfo != null) {
+		return this.myUserInfo.userName;
+	} else {
+		return "";
+	}
+}
+
 /**
  * Loads the student's latest work from the last time they worked on it
  * @param dataId the workgroupId
@@ -331,6 +348,8 @@ CLASS_INFO.prototype.addClassmate = function(classmate) {
 
 function VLE_STATE() {
 	this.visitedNodes = [];  // array of NODE_VISIT objects
+	this.userName = null; //lets put this here for now, sssssh
+	this.dataId = null;
 }
 
 VLE_STATE.prototype.getCurrentNodeVisit = function() {
@@ -459,10 +478,13 @@ VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
 	 */
 	for(var x=0; x<workgroupsXML.length; x++) {
 		var dataId = workgroupsXML[x].attributes.getNamedItem("dataId").nodeValue;
-		var vleState = workgroupsXML[x].getElementsByTagName("vle_state")[0];
+		var userName = workgroupsXML[x].attributes.getNamedItem("userName").nodeValue;
+		var vleStateXMLObj = workgroupsXML[x].getElementsByTagName("vle_state")[0];
 		
 		//create a real VLE_STATE object from the xml object and put it in the array
-		vleStatesArray[dataId] = VLE_STATE.prototype.parseDataXML(vleState);
+		var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
+		vleStateObj.userName = userName;
+		vleStatesArray[dataId] = vleStateObj;
 	}
 	return vleStatesArray;
 }

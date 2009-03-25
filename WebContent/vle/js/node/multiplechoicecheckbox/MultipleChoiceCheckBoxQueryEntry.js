@@ -17,8 +17,9 @@ MultipleChoiceCheckBoxQueryEntry.prototype.parent = QueryEntry.prototype;
  * @param choiceIdToValue an array that contains all the choices the
  * 		student chose. The array contains (key, value) = (choiceId, choiceValue)
  */
-function MultipleChoiceCheckBoxQueryEntry(dataId, nodeId, prompt, choiceIdToValue) {
+function MultipleChoiceCheckBoxQueryEntry(dataId, userName, nodeId, prompt, choiceIdToValue) {
 	this.dataId = dataId;
+	this.userName = userName;
 	this.nodeId = nodeId;
 	this.prompt = prompt;
 	
@@ -34,7 +35,7 @@ function MultipleChoiceCheckBoxQueryEntry(dataId, nodeId, prompt, choiceIdToValu
  * @return html that displays the student's work
  */
 MultipleChoiceCheckBoxQueryEntry.prototype.printEntry = function() {
-	var print = "[User " + this.dataId + "] answered <br>";
+	var print = "[" + this.userName + "] answered <br>";
 	for(var choiceId in this.choiceIdToValue) {
 		print += this.choiceIdToValue[choiceId];
 		print += "<br>";

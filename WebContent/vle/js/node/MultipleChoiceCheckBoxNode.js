@@ -120,7 +120,7 @@ MultipleChoiceCheckBoxNode.prototype.getLatestWork = function(vle, dataId) {
 	}
 
 	//create and return a query entry object
-	return new MultipleChoiceCheckBoxQueryEntry(dataId, this.id, this.mccb.promptText, choiceIdToValue);
+	return new MultipleChoiceCheckBoxQueryEntry(dataId, vle.getUserName(), this.id, this.mccb.promptText, choiceIdToValue);
 }
 
 /**
