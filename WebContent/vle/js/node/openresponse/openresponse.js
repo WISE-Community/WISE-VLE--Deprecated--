@@ -1,5 +1,6 @@
 function OPENRESPONSE(xmlDoc) {
   this.xmlDoc = xmlDoc;
+  alert(this.xmlDoc);
   this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
   this.expectedLines = this.xmlDoc.getElementsByTagName('extendedTextInteraction')[0].getAttribute('expectedLines');
   this.vle = null;
@@ -148,12 +149,16 @@ OPENRESPONSE.prototype.setVLE = function(vle){
 };
 
 OPENRESPONSE.prototype.isCustomJournalEntry = function(){
-	var id = this.xmlDoc.getAttribute('id');
-	if(id.charAt(0)=='J' && id.charAt(2)=='0' && id.charAt(4)=='S'){
-		return true;
-	} else {
-		return false;
+	var id;
+	if(this.xmlDoc.getAttribute){
+		id = this.xmlDoc.getAttribute('id');
+		if(id.charAt(0)=='J' && id.charAt(2)=='0' && id.charAt(4)=='S'){
+			return true;
+		} else {
+			return false;
+		};
 	};
+	return false;
 };
 
 OPENRESPONSE.prototype.createStandardPrompt = function(){

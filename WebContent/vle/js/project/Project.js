@@ -9,7 +9,12 @@ function NodeFactory() {
 }
 
 NodeFactory.createNode = function (element) {
-	var nodeName = element.nodeName;
+	var nodeName;
+	if(element.nodeName){
+		nodeName = element.nodeName;	//create from element
+	} else {
+		nodeName = element;				//create from string
+	};
 	if (acceptedTagNames.indexOf(nodeName) > -1) {
 		if (nodeName == "HtmlNode") {
 			//alert('htmlnode');
@@ -44,6 +49,42 @@ function Project(xmlDoc) {
 		this.rootNode = this.generateNode(this.xmlDoc.firstChild);
 	}
 }
+
+Project.prototype.createNewNode = function(nodeType, filename){
+	var node = NodeFactory.createNode(nodeType);
+	node.filename = filename;
+	node.id = this.generateUniqueId();
+	node.title = 'default title';
+	node.element = null;
+	this.allLeafNodes.push(node);
+	return node;
+};
+
+Project.prototype.generateUniqueId = function(){
+	var id = 0;
+	while(true){
+		var node = this.getNodeById(id);
+		if(node){
+			id++;
+		} else {
+			return id;
+		};
+	};
+};
+
+Project.prototype.getNodeById = function(nodeId){
+	var node;
+	node = this.rootNode.getNodeById(nodeId);
+	if(node){
+		return node;
+	} else {
+		for(var t=0;t<this.allLeafNodes.length;t++){
+			if(this.allLeafNodes[t].id==nodeId){
+				return this.allLeafNodes[t];
+			};
+		};
+	};
+};
 
 Project.prototype.generateNode = function(element) {
 	//alert('project generateNode method');
@@ -81,28 +122,37 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 		}
 	}
 	
-	// go through the <sequence>...</sequence> section, and create the rootNode
-	var sequenceElement = xmlDoc.getElementsByTagName("sequence")[0];
-	var sequenceNode = NodeFactory.createNode(sequenceElement);
-	sequenceNode.element = sequenceElement;
-	var sequenceReferenceElements = sequenceElement.childNodes;   // this is the same as node-ref
-	for (var j=0; j < sequenceReferenceElements.length; j++) {
-		if (sequenceReferenceElements[j].nodeName != "#text")  {
-			var referenceIdentifier = sequenceReferenceElements[j].getAttribute("ref");   // ie a2s1, a3s4, ids that are defined in nodes in the repos section.
-			var referencedNode = findNodeById(this.allLeafNodes, referenceIdentifier);
-			sequenceNode.addChildNode(referencedNode);
+	return this.generateSequence(xmlDoc.getElementsByTagName("sequence")[0]);
+}
+
+/**
+ * Given a sequence node, generates all referenced nodes
+ * including children sequence nodes
+ */
+Project.prototype.generateSequence = function(sequence){
+	var sequenceNode = NodeFactory.createNode(sequence);
+	sequenceNode.element = sequence;
+	var childElements = sequence.childNodes;   //either a node-ref or another sequence
+	for (var j=0; j < childElements.length; j++) {
+		if (childElements[j].nodeName != "#text")  {
+			if(childElements[j].nodeName=='sequence'){
+				sequenceNode.addChildNode(this.generateSequence(childElements[j]));
+			} else {
+				var referenceIdentifier = childElements[j].getAttribute("ref");   // ie a2s1, a3s4, ids that are defined in nodes in the repos section.
+				var referencedNode = findNodeById(this.allLeafNodes, referenceIdentifier);
+				sequenceNode.addChildNode(referencedNode);
+			};
 		}
 	}
 	this.allSequenceNodes.push(sequenceNode);
-	return sequenceNode;
-}
+	return sequenceNode;	
+};
 
 /*
  * updates the sequence and updates the node.
  * param sequenceArray is an array of references to leaf nodes
  */
 Project.prototype.updateSequence = function(sequenceArray) {
-	//alert('here:' + sequenceArray.length);
 	var sequenceNode = new Node("sequence");
 	sequenceNode.id = this.rootNode.id;
 	for (var i=0; i < sequenceArray.length; i++) {
@@ -125,19 +175,37 @@ Project.prototype.generateProjectFileString = function() {
 		fileStringSoFar += currentNode.generateProjectFileString();
 	}
 	fileStringSoFar += "</nodes>\n";
+	
 	// print out the sequence
-	for (var j=0; j < this.allSequenceNodes.length; j++) {
-		var seqNode = this.allSequenceNodes[j];
-		fileStringSoFar += "<sequence identifier=\""+ seqNode.id +"\">\n";
-		for (var k=0; k < seqNode.children.length; k++) {
-			var referencedNode = seqNode.children[k];
-			fileStringSoFar += "    <node-ref ref=\""+referencedNode.id+"\" />\n";
-		}
-		fileStringSoFar += "</sequence>\n";
-	}
+	if(this.allSequenceNodes.length>0){
+		fileStringSoFar += this.generateSequenceFileString(this.rootNode, 0);
+	};
+	
 	fileStringSoFar += "</project>";
 	return fileStringSoFar;
 }
+
+Project.prototype.generateSequenceFileString = function(node, depth) {
+	var space = "";
+	for(var o=0;o<depth;o++){
+		space += "     ";
+	};
+	if(node.type=='sequence'){
+		alert(node.children.length);
+		if(node.children.length>0){
+			retStr = space + "<sequence identifier=\"" + node.id + "\">\n";
+				for(var z=0;z<node.children.length;z++){
+					retStr += this.generateSequenceFileString(node.children[z], depth + 1);
+				};
+			retStr += space + "</sequence>\n";
+			return retStr;
+		} else {
+			return;
+		};
+	} else {
+		return space + "<node-ref ref=\"" + node.id + "\"/>\n";
+	};
+};
 
 /*
  * finds the node with the specified id in the specified array

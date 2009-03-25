@@ -92,17 +92,21 @@ function save() {
 	   };
 }
 
-function newNode(nodeType) { 
-	if (nodeType == "HtmlNode") {
-		alert('create html');
-	} else if (nodeType == "MultipleChoiceNode") {
-		alert('create mc');
-	} else {
-		alert("ERROR: don't know how to create: " + nodeType);
-	}
-	document.getElementById('action').value = 'create';
-    document.getElementById('data1').value = nodeType;
-    document.getElementById('nodeCRUDForm').submit();
+function newNode(nodeType) {
+	var url = "../../nodecrud.html";
+	
+	var callback = {
+		success:function(o){
+			var filename = o.responseText;
+			var node = project.createNewNode(nodeType, filename);
+			document.getElementById("navAuthoringDiv").innerHTML = getNavigationHtml(project.rootNode, project.allLeafNodes);
+    		renderAuthoringYUI();
+		},
+		failure:function(o){alert('failure creating new node')},
+		scope:this
+	};
+	
+	var trans = YAHOO.util.Connect.asyncRequest('POST', url, callback, "action=create&data1=" + nodeType);
 }
 
 function preview() {
@@ -162,7 +166,7 @@ function setNodeToAuthor(nodeId) {
 	  	<td><input type="button" value="save" onclick="save()" /></td>
 	  	<td><input type="button" value="preview" onclick="preview()" /></td>
 			<!--  for posting the text for echo servlet -->
-		<td style="display:hidden;"><form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
+		<td style="display:hidden;"><form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
 			    <input type="hidden" name="name" id="form_filename" value="myData"/>
 			    <input type="hidden" name="data" id="localData" value=""/>
 				</form>
@@ -170,13 +174,6 @@ function setNodeToAuthor(nodeId) {
 	   </tr>
 	 </table>
 </div>
-
-<!--  for posting to nodeCRUD servlet -->
-<form name="nodeCRUDForm" id='nodeCRUDForm' action="../../nodecrud.html" method="POST">
-    <input type="hidden" name="action" id="action" value="create"/>  <!--  action can be 'create', 'update', 'delete' -->
-    <input type="hidden" name="data1" id="data1" value=""/>
-    <input type="hidden" name="data2" id="data2" value=""/>
-</form>
 
 <div id="navigationTitle">Navigation Structure</div> 
 	
@@ -190,7 +187,7 @@ function setNodeToAuthor(nodeId) {
 
 </div>
 
-<div class="clearFloats" />
+<div id="clearFloats" class="clearFloats" />
 
 <div id="navigationInstructions">
 	<p>Instructions:</p>
@@ -246,11 +243,11 @@ function displayProject(project) {
 /*
  * Returns html of the specified node and of all its children
  */
-function getNavigationHtml(node) {
+function getNavigationHtml(node, floaters) {
 	var htmlSoFar = "";
 	if (node.children.length > 0) {
 		// if it's a sequence node...
-		htmlSoFar = "<ul id='" + node.id + "'>";
+		htmlSoFar = "<ul id='" + node.id + "' class='container'>";
 		//htmlSoFar += node.id + ", " + node.title;
 		for(var x=0; x<node.children.length; x++) {
 			htmlSoFar += getNavigationHtml(node.children[x]);
@@ -264,6 +261,7 @@ function getNavigationHtml(node) {
 		htmlSoFar += "<textarea id='"+ node.id +"'>"+ node.title +"</textarea>";
 		htmlSoFar += "</li>";
 	}
+	
     return htmlSoFar;
 }
 
@@ -281,10 +279,10 @@ function nodeTitleOnBlur(nodeId) {
  */
 function author(nodeId) {
 	//alert('author: ' + nodeId);
-	var nodeToAuthor = project.rootNode.getNodeById(nodeId);
+	var nodeToAuthor = project.getNodeById(nodeId);
 	if (nodeToAuthor.filename != null) {
 		nodeIdToAuthor = nodeId;
-		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
+		var nodeToAuthor = project.getNodeById(nodeIdToAuthor); //is this needed?
 		filenameToAuthor = nodeToAuthor.filename;
 		//alert('fnt:' + filenameToAuthor);
 		//alert('here: ' + nodeToAuthor.type + "," + nodeToAuthor.filename);

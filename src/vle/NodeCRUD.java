@@ -33,7 +33,8 @@ private static final long serialVersionUID = 1L;
 		
 		if (action.equals("create")) {
 			String nodeType = request.getParameter(DATA1);
-			createNewNode(nodeType);
+			String absolutePath = createNewNode(nodeType);
+			response.getWriter().write(absolutePath);
 		} else if (action.equals("delete")) {
 			
 		} else {
@@ -44,7 +45,7 @@ private static final long serialVersionUID = 1L;
 		//response.getWriter().print(request.getParameter(DATA));
 	}
 	
-	private void createNewNode(String nodeType) {
+	private String createNewNode(String nodeType) {
 		String fileNameExtension = "";
 		if (nodeType.equals("HtmlNode")) {
 			fileNameExtension = ".html";
@@ -56,12 +57,11 @@ private static final long serialVersionUID = 1L;
 		  try {
 			 String fileName = new String(i + fileNameExtension);
 		        File file = new File(fileName);
-		    
 		        // Create file if it does not exist
 		        boolean success = file.createNewFile();
 		        if (success) {
 		            // File did not exist and was created
-		        	break;
+		        	return fileName;
 		        } else {
 		            // File already exists
 		        	i++;

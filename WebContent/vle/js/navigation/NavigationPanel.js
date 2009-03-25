@@ -28,9 +28,15 @@ NavigationPanel.prototype.toggleVisibility = function() {
 	}
 }
 
-NavigationPanel.prototype.getNavigationHtml = function(node, eventType) {
+NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
 	var htmlSoFar = "";
 	var classString = "node";
+	var space = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	var deep = depth;
+	
+	if(!deep){
+		deep = 0;
+	};
 	
 	if (node == null) {
 		// this is for nodes that don't appear in navigation
@@ -47,12 +53,16 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType) {
 	}
     
     if (node.children.length > 0) {
-		htmlSoFar += "<div class=\""+ classString +"\" id=\"" + node.id + "_menu\"><span onclick=\"expandMenu('"+ node.id +"_menu')\">"+node.getTitle()+"</span>";
+		//htmlSoFar += "<div class=\""+ classString +"\" id=\"" + node.id + "_menu\"><span onclick=\"expandMenu('"+ node.id +"_menu')\">"+node.getTitle()+"</span>";
 		for (var i = 0; i < node.children.length; i++) {
-			htmlSoFar += this.getNavigationHtml(node.children[i], eventType);
+			htmlSoFar += this.getNavigationHtml(node.children[i], eventType, deep + 1);
 		}
-		htmlSoFar += "</div>";
+		//htmlSoFar += "</div>";
 	} else {
+		htmlSoFar += "<br>";
+		for(var t=0;t<depth;t++){
+			htmlSoFar += space;
+		};
 		htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + node.getTitle() + "</a>";
 	}
     //alert(htmlSoFar);
