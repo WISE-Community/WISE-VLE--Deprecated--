@@ -461,7 +461,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;3. During MINUTE ONE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S3. During MINUTE ONE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
@@ -481,7 +481,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;4. During MINTE ONE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S4. During MINTE ONE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
@@ -499,7 +499,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;5. During MINUTE TWO, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S5. During MINUTE TWO, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
@@ -520,7 +520,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;6. During MINTE TWO, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S6. During MINTE TWO, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
@@ -539,7 +539,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;7. During MINUTE THREE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S7. During MINUTE THREE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
@@ -560,7 +560,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;8. During MINTE THREE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S8. During MINTE THREE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
@@ -578,7 +578,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;9. During MINUTE FOUR, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S9. During MINUTE FOUR, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
@@ -599,7 +599,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;10. During MINTE FOUR, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S10. During MINTE FOUR, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
@@ -617,7 +617,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;11. During MINUTE FIVE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S11. During MINUTE FIVE, this fish was...  (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>swimming</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>feeding</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>chasing other fish</simpleChoice>
@@ -638,7 +638,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;12. During MINTE FIVE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S12. During MINTE FIVE, this fish spent most of its time...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Near the top of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>In the middle of the tank</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>On the bottom of the tank</simpleChoice>
@@ -657,7 +657,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;13. After watching your fish, which term(s) do you think best describes the behavioral adaptation that serves to protect this fish? (choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S13. After watching your fish, which term(s) do you think best describes the behavioral adaptation that serves to protect this fish? (choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Hides in crevices</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Forms schools</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Comes out only at night</simpleChoice>
@@ -677,7 +677,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;14. When swimming, this fish...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S14. When swimming, this fish...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>"Hovers"</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Is constantly moving</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Moves very slowly</simpleChoice>
@@ -697,7 +697,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;15. Generally speaking, this fish was most often...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S15. Generally speaking, this fish was most often...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Hiding</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Hovering</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Randomly Swimming</simpleChoice>
@@ -717,7 +717,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;16.Most of the time, this fish...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S16.Most of the time, this fish...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Stays in the open water</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Stays under cover</simpleChoice>
                         </choiceInteraction>
@@ -734,7 +734,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;17.While I was watching this fish, it...(choose one)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A2S17.While I was watching this fish, it...(choose one)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Stayed by itself</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Stayed near other fish</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Stayed in a school of similar fish Swimming</simpleChoice>
@@ -1126,7 +1126,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/crevalle_jack.jpg" /&gt;</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/summer_flounder.jpg" /&gt;</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/black_drum.jpg" /&gt;</simpleChoice>
@@ -1145,7 +1145,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Crevalle Jack</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Summer Flounder</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Black Drum</simpleChoice>
@@ -1164,7 +1164,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;3. Which term best describes the mouth of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S3. Which term best describes the mouth of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Terminal (on the end)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Ventral (on the bottom)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Subterminal (pointed down)</simpleChoice>
@@ -1199,7 +1199,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;4. How would you describe the coloration of your fish? &lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S4. How would you describe the coloration of your fish? &lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Camouflaged</simpleChoice>
 <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Countershading</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Disruptive</simpleChoice>
@@ -1263,7 +1263,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;5. Which of the following best describes the body shape of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S5. Which of the following best describes the body shape of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Elongate (eel-like)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Fusiform (torpedo shaped)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Ovate (flat, round, plate-like)</simpleChoice>
@@ -1284,7 +1284,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;6. Does your fish have (check all that apply)...&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S6. Does your fish have (check all that apply)...&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Fins that flatten</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Warm body core</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Venomous Spines</simpleChoice>
@@ -1303,7 +1303,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;7. How would you describe the tail of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S7. How would you describe the tail of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Forked</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Truncate (squared off)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Rounded</simpleChoice>
@@ -1371,7 +1371,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;8. What does your fish eat? (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S8. What does your fish eat? (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Fish</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Plankton</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Crustaceans</simpleChoice>
@@ -1407,7 +1407,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;9. In which habitat does your species of fish primarily live?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A4S9. In which habitat does your species of fish primarily live?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Rocky Shore</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Sandy  Bottom</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Open Water</simpleChoice>
@@ -1447,7 +1447,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/crevalle_jack.jpg" /&gt;</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/summer_flounder.jpg" /&gt;</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/black_drum.jpg" /&gt;</simpleChoice>
@@ -1466,7 +1466,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Crevalle Jack</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Summer Flounder</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Black Drum</simpleChoice>
@@ -1485,7 +1485,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;3. Which term best describes the mouth of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S3. Which term best describes the mouth of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Terminal (on the end)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Ventral (on the bottom)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Subterminal (pointed down)</simpleChoice>
@@ -1520,7 +1520,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;4. How would you describe the coloration of your fish? &lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S4. How would you describe the coloration of your fish? &lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Camouflaged</simpleChoice>
 <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Countershading</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Disruptive</simpleChoice>
@@ -1584,7 +1584,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;5. Which of the following best describes the body shape of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S5. Which of the following best describes the body shape of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Elongate (eel-like)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Fusiform (torpedo shaped)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Ovate (flat, round, plate-like)</simpleChoice>
@@ -1605,7 +1605,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;6. Does your fish have (check all that apply)...&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S6. Does your fish have (check all that apply)...&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Fins that flatten</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Warm body core</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Venomous Spines</simpleChoice>
@@ -1624,7 +1624,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;7. How would you describe the tail of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S7. How would you describe the tail of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Forked</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Truncate (squared off)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Rounded</simpleChoice>
@@ -1692,7 +1692,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;8. What does your fish eat? (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S8. What does your fish eat? (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Fish</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Plankton</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Crustaceans</simpleChoice>
@@ -1728,7 +1728,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;9. In which habitat does your species of fish primarily live?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A5S9. In which habitat does your species of fish primarily live?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Rocky Shore</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Sandy  Bottom</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Open Water</simpleChoice>
@@ -1769,7 +1769,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S1. Choose the fish for which you'll be collecting data by clicking the button next to its picture. &lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/crevalle_jack.jpg" /&gt;</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/summer_flounder.jpg" /&gt;</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>&lt;img height="100" width="100" src="http://tels-group.soe.berkeley.edu:16080/hirokiterashima/images/black_drum.jpg" /&gt;</simpleChoice>
@@ -1788,7 +1788,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S2. Select the name of the fish you chose above&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Crevalle Jack</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Summer Flounder</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Black Drum</simpleChoice>
@@ -1807,7 +1807,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;3. Which term best describes the mouth of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S3. Which term best describes the mouth of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Terminal (on the end)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Ventral (on the bottom)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Subterminal (pointed down)</simpleChoice>
@@ -1842,7 +1842,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;4. How would you describe the coloration of your fish? &lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S4. How would you describe the coloration of your fish? &lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Camouflaged</simpleChoice>
 <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Countershading</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Disruptive</simpleChoice>
@@ -1906,7 +1906,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;5. Which of the following best describes the body shape of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S5. Which of the following best describes the body shape of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Elongate (eel-like)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Fusiform (torpedo shaped)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Ovate (flat, round, plate-like)</simpleChoice>
@@ -1927,7 +1927,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;6. Does your fish have (check all that apply)...&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S6. Does your fish have (check all that apply)...&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Fins that flatten</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Warm body core</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Venomous Spines</simpleChoice>
@@ -1946,7 +1946,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;7. How would you describe the tail of your fish?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S7. How would you describe the tail of your fish?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Forked</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Truncate (squared off)</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Rounded</simpleChoice>
@@ -2014,7 +2014,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;8. What does your fish eat? (check all that apply)&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S8. What does your fish eat? (check all that apply)&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Fish</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Plankton</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Crustaceans</simpleChoice>
@@ -2050,7 +2050,7 @@ Now observe each fish species for 5 minutes. Once every minute, use the question
                       </responseDeclaration>
                       <itemBody>
                         <choiceInteraction hasInlineFeedback="true" responseIdentifier="CHOICE_SELF_CHECK_ID" maxChoices="1" shuffle="false">
-                          <prompt>&lt;p&gt;9. In which habitat does your species of fish primarily live?&lt;/p&gt;</prompt>
+                          <prompt>&lt;p&gt;A6S9. In which habitat does your species of fish primarily live?&lt;/p&gt;</prompt>
                           <simpleChoice fixed="true" identifier="choice 1"><feedbackInline identifier="choice 1" showHide="show">&lt;br&gt;</feedbackInline>Rocky Shore</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">&lt;br&gt;</feedbackInline>Sandy  Bottom</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show">&lt;br&gt;</feedbackInline>Open Water</simpleChoice>

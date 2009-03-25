@@ -55,3 +55,21 @@ MultipleChoiceCheckBoxQueryEntry.prototype.getChoices = function() {
 	}
 	return choices;
 }
+
+/**
+ * Gets html representation of the student's work for "View Work By Student".
+ * @return an html string that displays the prompt and the choices the student chose
+ */
+MultipleChoiceCheckBoxQueryEntry.prototype.printStudentEntry = function() {
+	var print = "";
+	
+	print += this.prompt;
+	print += "<br>";
+	
+	for(var choiceId in this.choiceIdToValue) {
+		print += this.choiceIdToValue[choiceId];
+		print += "<br>";
+	}
+	
+	return print;
+}

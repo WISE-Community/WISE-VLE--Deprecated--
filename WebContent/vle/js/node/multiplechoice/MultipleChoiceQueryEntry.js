@@ -33,3 +33,19 @@ function MultipleChoiceQueryEntry(dataId, userName, nodeId, prompt, choiceId, ch
 MultipleChoiceQueryEntry.prototype.printEntry = function() {
 	return "[" + this.userName + "] answered " + this.choiceValue;
 }
+
+/**
+ * Gets html representation of the student's work for "View Work By Student".
+ * @return an html string that displays the prompt and the choice the student chose
+ */
+MultipleChoiceQueryEntry.prototype.printStudentEntry = function() {
+	var print = "";
+	
+	print += this.prompt;
+	print += "<br>";
+	
+	print += this.choiceValue;
+	print += "<br>";
+	
+	return print;
+}

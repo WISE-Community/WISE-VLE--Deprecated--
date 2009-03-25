@@ -24,7 +24,7 @@ function StudentWorkQueryObject(vleStatesArray, project) {
 	for(var x=0; x<this.vleStates.length; x++) {
 		var vle = new VLE();
 		var vleState = this.vleStates[x];
-		var userInfo = new USER_INFO(vleState.workgroupId, vleState.userName);
+		var userInfo = new USER_INFO(vleState.dataId, vleState.userName);
 		
 		vle.setProject(this.project);
 		vle.myUserInfo = userInfo;
@@ -42,6 +42,8 @@ function StudentWorkQueryObject(vleStatesArray, project) {
 	//compile and populate the student data into our arrays
 	this.compileQueryEntries();
 }
+
+
 
 /**
  * Adds a query entry to the nodeId container
@@ -86,6 +88,20 @@ StudentWorkQueryObject.prototype.getNodeIds = function() {
 }
 
 /**
+ * Retrieve an array with all the dataIds that we have data for
+ * @return an array that contains all the dataIds
+ */
+StudentWorkQueryObject.prototype.getDataIds = function() {
+	var dataIds = new Array();
+	
+	for(var dataId in this.dataIdArray) {
+		dataIds.push(dataId);
+	}
+	return dataIds;
+}
+
+
+/**
  * Adds a query entry to the dataId container
  * @param dataId the id of the data/student. e.g. '5'
  * @param queryEntry the query entry object that contains the student data
@@ -95,7 +111,7 @@ StudentWorkQueryObject.prototype.getNodeIds = function() {
 StudentWorkQueryObject.prototype.addDataIdEntry = function(dataId, queryEntry, node, vle) {
 	//dataIdContainer contains all the entries for a specific dataId
 	var dataIdContainer = this.dataIdArray[dataId];
-	
+
 	/*
 	 * create a new query container if it wasn't created before, this 
 	 * may occur when this is the first time an entry is added
@@ -103,7 +119,7 @@ StudentWorkQueryObject.prototype.addDataIdEntry = function(dataId, queryEntry, n
 	 * created in the constructor when reading in the vle?
 	 */
 	if(dataIdContainer == null) {
-		dataIdContainer = new StudentQueryContainer(dataId);
+		dataIdContainer = new StudentQueryContainer(dataId, vle.getUserName());
 	}
 
 	dataIdContainer.addQueryEntry(queryEntry);
@@ -142,6 +158,18 @@ StudentWorkQueryObject.prototype.getWorkByNodeId = function(nodeId) {
 }
 
 /**
+ * Returns the query container for a specific dataId
+ * @param dataId the id/workgroup of the user we want work for
+ * @return the dataIdContainer that contains all the query entries
+ * 		for a specific node
+ */
+StudentWorkQueryObject.prototype.getWorkByDataId = function(dataId) {
+	var dataIdContainer = this.dataIdArray[dataId];
+	
+	return dataIdContainer;
+}
+
+/**
  * Returns the prompt for a specific node
  * @param nodeId the id of the node we want the prompt of
  * @return the prompt for the node
@@ -157,6 +185,15 @@ StudentWorkQueryObject.prototype.getPromptByNodeId = function(nodeId) {
 	return nodeIdContainer.prompt;
 }
 
+/**
+ * Returns the userName for a specific dataId/workgroupId
+ * @param dataId the id/workgroupId that we want the userName for
+ * @return the userName for the dataId/workgroupId
+ */
+StudentWorkQueryObject.prototype.getUserNameByDataId = function(dataId) {
+	var dataIdContainer = this.dataIdArray[dataId];
+	return dataIdContainer.userName;
+}
 
 /**
  * Compiles all the data into query entries and query containers so we

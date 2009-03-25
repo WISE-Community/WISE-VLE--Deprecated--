@@ -9,9 +9,8 @@ function StudentQueryContainer(dataId, userName) {
 }
 
 /**
- * 
- * @param queryEntry
- * @return
+ * Adds a query entry into the query container
+ * @param queryEntry a query entry
  */
 StudentQueryContainer.prototype.addQueryEntry = function(queryEntry) {
 	this.queryEntryArray.push(queryEntry);
@@ -74,4 +73,19 @@ StudentQueryContainer.prototype.printEntriesFromActivity = function(activityNode
 		var queryEntry = entriesFromActivity[x];
 		print += queryEntry.printEntry();
 	}
+}
+
+/**
+ * Prints out all of a user's work
+ * @return an html string that contains the userName and all the user's work
+ */
+StudentQueryContainer.prototype.printContainer = function() {
+	var print = "";
+	print += "<br>[" + this.userName + "]<br><br><hr>";
+	
+	for(var x=0; x<this.queryEntryArray.length; x++) {
+		print += this.queryEntryArray[x].printStudentEntry();
+		print += "<br><br><hr>";
+	}
+	return print;
 }

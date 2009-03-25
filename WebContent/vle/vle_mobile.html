@@ -262,6 +262,8 @@ function expandMenu(menuId) {
  *		to obtain the user info 
  */
 function render(contentURL, userURL, getDataUrl) {
+	//alert('contentURL: ' + contentURL);
+	vle = new VLE();
 	var contentCallback =
 	{
 	  success: function(o) { 
@@ -287,7 +289,7 @@ function render(contentURL, userURL, getDataUrl) {
 		  
 		  project.xmlDoc = xmlDocToParse;
 		  project.generateNode(xmlDocToParse);
-		  vle = new VLE();
+		  
 		  vle.setProject(project);
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
@@ -310,6 +312,7 @@ function render(contentURL, userURL, getDataUrl) {
 	// fetch user data
 	var userCallback = {
 				success: function(o) {
+					//alert('userURL: ' + userURL);
 					//alert('userxml: ' + o.responseXML);
 					//alert('responsexml: ' + o.responseText);
 					vle.loadUserAndClassInfo(o.responseXML);
