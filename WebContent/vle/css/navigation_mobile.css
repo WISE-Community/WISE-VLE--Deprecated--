@@ -225,12 +225,50 @@ iframe {padding:0;margin:0;}
 	cursor:pointer;
 	}
 
-/* STEP CONTROL BAR */
+/* CURRENT STEP DISPLAYL BAR */
 
 #stepInfoBar {
 	position:relative;
 	width:100%;
 	}
+	
+.stepTypeLabel {
+	position:absolute;
+	top:16px;
+	left:25px;
+	font-size:1.4em;
+	color:#0000CC;
+	}
+	
+#topStepTitle {
+	font-variant:small-caps;
+	font-weight:700;
+}
+	
+#stepNavButtons {
+	position:absolute;
+	top:17px;
+	right:5px;
+		}
+
+#stepNavButtons a {
+	font-size:1.3em;
+	margin: 0 25px  40px 0;
+	padding:0px 0 0 10px; 
+	color:#006600;
+		}
+		
+#stepNavButtons a:hover {
+	color:#FFFF00;
+		}
+		
+#stepNavButtons img {
+	margin-top:-20px;
+		}
+
+#stepNavButtons .menuAnchor img {
+	margin-top:-14px;
+}
 
 .currentLessonSection {
 	position:relative;
@@ -254,23 +292,7 @@ iframe {padding:0;margin:0;}
 	background-position:center right;	
 	}
 	
-.stepTypeLabel {
-	position:absolute;
-	top:16px;
-	left:25px;
-	font-size:1.4em;
-	}
 
-.stepTypeLabel a:visited, .stepTypeLabel a:link {
-	color:#333;
-	font-weight:bold;
-	letter-spacing:.5px;
-	padding:0px 2px;
-			}	
-
-.stepTypeLabel a:hover {
-	color:#FFFF00;
-		}
 
 .gradingStatus  {
 	color:#333;
@@ -282,32 +304,7 @@ iframe {padding:0;margin:0;}
 	font-weight:bold;
 	margin-left:10px;
 		}
-		
-#stepNavButtons {
-	position:absolute;
-	top:17px;
-	right:5px;
-		}
 
-#stepNavButtons a {
-	font-size:1.4em;
-	margin: 0 25px  40px 0;
-	padding:0px 0 0 10px; 
-	color:#333;
-		}
-		
-#stepNavButtons a:hover {
-	outline: 2px dotted #FFFF00;
-	cursor:pointer;
-		}
-		
-#stepNavButtons img {
-	margin-top:-20px;
-		}
-
-#stepNavButtons .hackPosition{
-	margin-top:-14px;
-		}
 		
 <!-- Anchor-Based Button Layout using TABLE-->
 
