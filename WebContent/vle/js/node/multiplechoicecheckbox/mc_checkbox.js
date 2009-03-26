@@ -74,22 +74,34 @@ MC_CHECKBOX.prototype.loadState = function() {
 }
 
 /**
- * Get that student's latest submission for this node. The node
- * is specific to a student.
+ * Get that student's latest submission for this node that has work. 
+ * The node is specific to a student.
  * @param nodeId the id of the node we want the student's work from
  * @return the newest NODE_STATE for this node
  */
 MC_CHECKBOX.prototype.getLatestState = function(nodeId) {
 	var nodeVisits = this.vle.state.getNodeVisitsByNodeId(nodeId);
-	var nodeVisit = nodeVisits[nodeVisits.length - 1];
 	
-	if(nodeVisit == null) {
-		//the student has not accessed this step yet
-		return null;
+	/*
+	 * loop through all the nodeVisits and find the latest nodeVisit
+	 * that has content in the nodeStates
+	 */
+	for(var x=0; x<nodeVisits.length; x++) {
+		//loop through the nodeVisits starting from the end
+		var nodeVisit = nodeVisits[nodeVisits.length - (x + 1)];
+		if(nodeVisit != null) {
+			//an array of nodeStates
+			var nodeStates = nodeVisit.nodeStates;
+			
+			//check if there is anything in the nodeStates
+			if(nodeStates != null && nodeStates.length > 0) {
+				//get the latest nodeState
+				var nodeState = nodeStates[nodeStates.length - 1];
+				return nodeState;
+			}
+		}
 	}
-	
-	var nodeState = nodeVisit.nodeStates[nodeVisit.nodeStates.length - 1];
-	return nodeState;
+	return null;
 }
 
 //gets and returns a CHOICE object given the CHOICE's identifier
