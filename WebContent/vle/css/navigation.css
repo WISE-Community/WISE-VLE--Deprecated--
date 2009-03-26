@@ -291,18 +291,28 @@ iframe {padding:0;margin:0;}
 		
 #stepNavButtons {
 	position:absolute;
-	top:2px;
+	top:6px;
 	right:10px;
 		}
 
 #stepNavButtons a {
-	padding:0 40px;
+	font-size:.6em;
+	padding:0px 0 0 0px; 
+	color:#003300;
+	letter-spacing:-.5px;
 			}
 		
-#stepNavButtons a:hover {
-	outline: 1px dotted #FFFF00;
-	cursor:pointer;
+#stepNavButtons a:hover { 
+	color:#FFFF00;
 		}
+
+#stepNavButtons img {
+	margin-top:-8px;
+		}
+
+#stepNavButtons .menuAnchor img {
+	margin-right:-5px;
+}
 
 <!-- Anchor-Based Button Layout using TABLE-->
 

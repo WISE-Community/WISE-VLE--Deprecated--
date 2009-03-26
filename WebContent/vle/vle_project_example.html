@@ -62,7 +62,7 @@
 <link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
 <link rel="stylesheet" type="text/css" href="css/navigation.css" />
 
-<link rel="stylesheet" type="text/css" href="css/navigation/testnavigation.css" />
+<link rel="stylesheet" type="text/css" href="css/navigation/leftmenu.css" />
 
 <!--  no navigation styling for now
 <link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
@@ -207,9 +207,9 @@ function popUp(strURL, strType, strHeight, strWidth) {
 			<span class="subStepCounter"></span> 
 		</div>
 		<div id="stepNavButtons">
-    		<a onclick="vle.renderPrevNode();" ><img src="./assets/images/go-previous.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
-			<a onclick="vle.renderNextNode();" ><img src="./assets/images/go-next.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
-			<a onclick="vle.toggleNavigationPanelVisibility();"><img src="./assets/images/view-fullscreen.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
+		    		<a onclick="vle.renderPrevNode();" title="Previous step"><img align="middle" src="./assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
+    		<a onclick="vle.renderNextNode();" title="Next step" ><img align="middle" src="./assets/images/go-next.png" alt="Next Arrow"  border="0" />Next</a>
+			<a class="menuAnchor" onclick="vle.toggleNavigationPanelVisibility();" title="Hide/Show the Navigation Menu"><img align="middle" src="./assets/images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a>
 		</div>
     	
 	</div>
