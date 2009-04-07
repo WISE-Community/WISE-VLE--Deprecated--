@@ -1,5 +1,6 @@
 /**
 * ReferenceNode
+* author: patrick lawler
 */
 
 ReferenceNode.prototype = new Node();

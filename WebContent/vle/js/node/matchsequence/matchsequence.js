@@ -130,7 +130,7 @@ MS.prototype.render = function() {
     document.getElementById('play').innerHTML = bucketsHtml;
     renderYUI();   // calls YUI functions to make choices into draggables and buckets into dragtargets.
 	//addClassToElement("resetWrongChoicesButton", "disabledLink");
-    displayNumberAttempts("This is your", "attempt.");
+    displayNumberAttempts("This is your", "attempt.", states);
 }
 
 /**

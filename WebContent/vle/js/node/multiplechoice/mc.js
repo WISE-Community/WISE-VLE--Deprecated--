@@ -165,7 +165,9 @@ function CHOICE(choiceDOM) {
 	this.dom = choiceDOM;
 	this.identifier = this.dom.getAttribute('identifier');
 	this.text = this.dom.lastChild.nodeValue;    // text choices that students will see.. can be html
-	this.feedbackText = this.dom.getElementsByTagName('feedbackInline')[0].firstChild.nodeValue;
+	if(this.dom.getElementsByTagName('feedbackInline')[0]){
+		this.feedbackText = this.dom.getElementsByTagName('feedbackInline')[0].firstChild.nodeValue;
+	};
 }
 
 /**

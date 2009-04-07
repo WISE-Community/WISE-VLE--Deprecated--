@@ -11,7 +11,6 @@ onNodeDropped = function(draggedNode, droppedNode) {
 	// get the sequence by inspecting the DOM, and then tell project to
 	// update the sequence
     //Get the list of li's with class draggable in the lists and make them draggable
-    
     var sequenceArray = [];
     //var startSequence = document.getElementById('navAuthoringDiv').firstChild;
 	YUI().use('node', function(Y) {
@@ -24,3 +23,4 @@ onNodeDropped = function(draggedNode, droppedNode) {
 	});
 	project.updateSequence(sequenceArray);
 }
+

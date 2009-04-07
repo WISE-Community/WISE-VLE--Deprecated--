@@ -1,0 +1,414 @@
+<head>
+<script type="text/javascript" src="../js/sound/soundmanager/script/soundmanager2.js"></script>
+<script type="text/javascript" src="../js/sound/AudioManager.js"></script>
+
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Sam Skin CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+
+<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+<script type="text/javascript" src="../js/authoring/AuthoringTool.js"></script>
+<script type="text/javascript" src="../js/authoring/authoring.js"></script>
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript" src="../js//VLE.js"></script>
+<script type="text/javascript" src="../js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="../js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="../js/navigation/DFS.js"></script>
+<script type="text/javascript" src="../js/navigation/NavigationPanel.js"></script>
+<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/node/Node.js"></script>
+<script type="text/javascript" src="../js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="../js/node/CustomNode.js"></script>
+<script type="text/javascript" src="../js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="../js/node/FillinNode.js"></script>
+<script type="text/javascript" src="../js/node/NoteNode.js"></script>
+<script type="text/javascript" src="../js/node/JournalNode.js"></script>
+<script type="text/javascript" src="../js/node/JournalEntryNode.js"></script>
+<script type="text/javascript" src="../js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="../js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="../js/project/Project.js"></script>
+<script type="text/javascript" src="../js/io/ConnectionManager.js"></script>
+
+<script type="text/javascript" src="../js/common/niftycube.js"></script>
+<script type="text/javascript" src="../js/common/sdmenu.js"></script>
+<script type="text/javascript" src="../js/common/dropdown.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css" />
+<link rel="stylesheet" type="text/css" href="../css/niftyCube.css" />
+<link rel="stylesheet" type="text/css" href="../css/navigation.css" />
+<link rel="stylesheet" type="text/css" href="../css/sdmenu.css" />
+
+
+
+<script type='text/javascript'>
+var project;
+var authoringStyle = '_easy';
+
+//a string that temporarily contains the node id we want to author
+var nodeIdToAuthor = null;
+
+// a string that temporarily contains the filename that we want to author
+var filenameToAuthor = null;
+
+// filename of this project (not page/step), should end with .project
+var thisFilename = null;
+
+var ddList = [];  // list of all draggable nodes
+
+var authoringTool = new AuthoringTool();
+
+window.onload=function(){
+	//loads the project into the authoring tool
+	loadProject();
+}
+
+function save() {
+	  if(confirm("Saving locally requires a file download. If you do not wish to do this, cancel now! Otherwise, click OK.")){
+		  var projectString = project.generateProjectFileString();
+	      document.getElementById('localData').value = projectString;
+	      if (thisFilename != null) {
+	      	document.getElementById('form_filename').value = thisFilename;
+	      }
+	      document.getElementById('saveLocal').submit();
+	   };
+}
+
+function newNode(nodeType) {
+	var url = "../../nodecrud.html";
+	
+	var callback = {
+		success:function(o){
+			var filename = o.responseText;
+			var node = project.createNewNode(nodeType, filename);
+			document.getElementById("navAuthoringDiv").innerHTML = getNavigationHtml(project.rootNode, project.allLeafNodes);
+    		renderAuthoringYUI();
+		},
+		failure:function(o){alert('failure creating new node')},
+		scope:this
+	};
+	
+	var trans = YAHOO.util.Connect.asyncRequest('POST', url, callback, "action=create&data1=" + nodeType);
+}
+
+function preview() {
+	popupPreviewWindow('preview.html', 'PreviewWindow');
+}
+
+/*
+ * This is called onload of the 'authoringFrame' iframe
+ */
+function authoringFrameOnLoad() {
+	/*
+	 * if project is null, it means this is the first time this page has been
+	 * loaded and also the first time the authoringFrame iframe has been
+	 * loaded so the project has not been loaded yet. This is ok, we only
+	 * need this function to set the node after the user has clicked on a
+	 * step.
+	 */
+	if(project != null) {
+		//pass the node that we're going to author to the authoringFrame
+		window.frames["authoringFrame"].node = project.rootNode.getNodeById(nodeIdToAuthor);
+
+		/*
+		 * call load on the html page that is in the authoringFrame
+		 * so that the page in the authoringFrame can do what it needs to
+		 * do with the node we just gave it above
+		 */
+		window.frames["authoringFrame"].loadAuthoring();
+	}
+}
+
+/*
+ * Remembers the nodeId we currently want to author in a global variable so we
+ * can call project.rootNode.getNodeById(nodeIdToAuthor) later to retrieve
+ * the node. nodeId is a string.
+ */
+function setNodeToAuthor(nodeId) {
+	/*
+	 * sets the node to be authored so later in authoringFrameLoaded()
+	 * we know which node to pass to the authoringFrame
+	 */
+	nodeIdToAuthor = nodeId;
+}
+
+function updateAuthoringView(val){
+	if(val==true || val=='true'){
+		authoringStyle = '_easy';
+	} else {
+		authoringStyle = '';
+	};
+};
+</script>
+</head>
+
+<body class="yui-skin-sam" onload="loadProject('project1.project');">
+
+<div id="centeredDiv">
+
+<div id="authorHeader">
+	<h2>WISE 4 Authoring Tool</h2>
+	<table>
+	  <tr>
+	  	<td><input type="button" value="create new html page" onclick="newNode('HtmlNode');" /></td>
+	  	<td><input type="button" value="create new multiple choice page" onclick="newNode('MultipleChoiceNode');" /></td>
+	  	<td><input type="button" value="save" onclick="save()" /></td>
+	  	<td><input type="button" value="preview" onclick="preview()" /></td>
+	  	<td>
+	  		Select option for editing individual files:
+	  		<br>
+	  		<label for='easy'>Easy</label>
+	  		<input type='radio' id='easy' value='true' onclick='updateAuthoringView(true)' name='authoringStyle' CHECKED/><br>
+	  		<label for='advanced'>Advanced</label>
+	  		<input type='radio' id='advanced' value='false' onclick='updateAuthoringView(false)' name='authoringStyle'/>
+	  	</td>
+			<!--  for posting the text for echo servlet -->
+		<td style="display:hidden;"><form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
+			    <input type="hidden" name="name" id="form_filename" value="myData"/>
+			    <input type="hidden" name="data" id="localData" value=""/>
+				</form>
+		</td>
+	   </tr>
+	 </table>
+</div>
+
+<div id="navigationTitle">Navigation Structure</div> 
+	
+<div id="navAuthoringDiv">
+ 
+	<div id="nodeAuthoringDiv">
+			<!--  
+	    		<iframe id="authoringFrame" scrolling="no" name="authoringFrame" width="1024px" height="768px" onload="authoringFrameLoaded();"></iframe>
+			-->
+		</div>
+
+</div>
+
+<div id="clearFloats" class="clearFloats" />
+
+<div id="navigationInstructions">
+	<p>Instructions:</p>
+	<ol>
+	<li>RENAME an item by clicking once on its text.  Type your changes and press the Return key.</li>
+	<li>MOVE an item by click/dragging on its blue border.</li>
+	<li>EDIT content for an item by double clicking.  A separate editor will launch.</li>
+	</ol>	
+</div> 
+
+
+<script type="text/javascript">
+
+function loadProject(filename) {
+	thisFilename = filename;
+	var callback =
+	{
+		success: function(o) { 
+		  var xmlDocObj = new LoadXMLDocObj();
+		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
+		  var xmlDocToParse = o.responseXML;
+		  //alert(xmlDocToParse);
+		  //alert(o.responseText);
+		  project = new Project(xmlDocToParse);
+		  
+		  project.xmlDoc = xmlDocToParse;
+		  vle = new VLE();
+		  vle.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  vle.navigationLogic = new NavigationLogic(dfs);
+		  vle.setConnection(new ConnectionManager());
+		 
+          displayProject(project);
+          //alert('length:' + project.rootNode.children.length);
+	  },			
+	  failure: function(o) { alert('failure');},
+	  argument: ["a", "b", "c"]
+	}
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+}
+
+/*
+ * Displays all of the nodes in order, in the main window
+ */
+function displayProject(project) {
+	document.getElementById("navAuthoringDiv").innerHTML = getNavigationHtml(project.rootNode);
+    renderAuthoringYUI();
+
+	//displayNodeAuthoringDiv(project.rootNode);
+	//document.getElementById("nodeAuthoringDiv");
+}
+
+/*
+ * Returns html of the specified node and of all its children
+ */
+function getNavigationHtml(node, floaters) {
+	var htmlSoFar = "";
+	if (node.children.length > 0) {
+		// if it's a sequence node...
+		htmlSoFar = "<ul id='" + node.id + "' class='container'>";
+		//htmlSoFar += node.id + ", " + node.title;
+		for(var x=0; x<node.children.length; x++) {
+			htmlSoFar += getNavigationHtml(node.children[x]);
+		}
+		htmlSoFar += "</ul>";
+	} else {
+		// otherwise it's a leaf node
+		var parentNode = node.parent;
+		htmlSoFar = "<li id='" + node.id + "' class='draggable' ondblclick=\"author('"+ node.id + "');\" >";
+		//htmlSoFar += "<textarea onfocus=\"nodeTitleOnFocus('"+node.id+"');\" onblur=\"nodeTitleOnBlur('"+node.id+"');\" id='"+ node.id +"'>"+ node.title +"</textarea>";
+		htmlSoFar += "<textarea id='"+ node.id +"'>"+ node.title +"</textarea>";
+		htmlSoFar += "</li>";
+	}
+	
+    return htmlSoFar;
+}
+
+function nodeTitleOnFocus(nodeId) {
+	alert('on focus:' + nodeId);
+}
+
+function nodeTitleOnBlur(nodeId) {
+	alert('on blur:' + nodeId);
+}
+
+/*
+ * This function is called when the user wants to 
+ * author the specified node.
+ */
+function author(nodeId) {
+	//alert('author: ' + nodeId);
+	var nodeToAuthor = project.getNodeById(nodeId);
+	if (nodeToAuthor.filename != null) {
+		nodeIdToAuthor = nodeId;
+		var nodeToAuthor = project.getNodeById(nodeIdToAuthor); //is this needed? - the same thing only a few lines up
+		filenameToAuthor = nodeToAuthor.filename;
+		if (nodeToAuthor.type == "HtmlNode") {
+			popupAuthoringWindow("author_htmlpage" + authoringStyle + ".html", nodeId);
+		} else if(nodeToAuthor.type == "FillinNode") {
+			popupAuthoringWindow("author_fillin" + authoringStyle + ".html", nodeId);
+		} else if(nodeToAuthor.type == 'NoteNode' || nodeToAuthor.type == 'JournalEntryNode'){
+			popupAuthoringWindow('author_openresponse' + authoringStyle + '.html', nodeId);
+		} else if(nodeToAuthor.type == 'MatchSequenceNode'){
+			popupAuthoringWindow('author_matchsequence' + authoringStyle + '.html', nodeId);
+		} else if(nodeToAuthor.type == 'OutsideUrlNode'){
+			popupAuthoringWindow('author_outsideurl' + authoringStyle + '.html', nodeId);
+		} else if(nodeToAuthor.type == 'MultipleChoiceNode'){
+			popupAuthoringWindow("author_multiplechoice" + authoringStyle + ".html", nodeId);
+		} else {
+			alert('sorry, no authoring tool exists for this step yet');
+		}
+	} else {
+		alert('sorry, no authoring tool exists for this step yet');
+	}
+}
+
+
+/*
+ * Pops up window for authoring individual nodes. Param: url, url to open
+ */
+function popupAuthoringWindow(url, nodeId) {
+	var child = window.open(url, nodeId, "toolbar=no,width=1024,height=768,menubar=no");
+};
+
+/*
+ * Pops up window for authoring individual nodes. Param: url, url to open
+ */
+function popupPreviewWindow(url, name) {
+	window.open(url, name, "toolbar=no,width=1024,height=768,menubar=no");
+}
+
+/*
+ * called when the authoring window (popup) fires a loaded event.
+ */
+function authoringWindowLoaded(fun) {
+	// we only care if the user has specified a node to author. if not, just ignore this event
+	if (nodeIdToAuthor != null) {
+	
+		// fun is the function passed in from opened window to process the file
+		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
+		fun(nodeToAuthor.filename);
+	} 
+}
+
+
+/*
+ * called when the authoringFrame fires a loaded event.
+ */
+function authoringFrameLoaded() {
+	//alert('authoringframeloaded called: ' + nodeIdToAuthor);
+	// we only care if the user has specified a node to author. if not, just ignore this event
+	if (nodeIdToAuthor != null) {
+		//alert('authoringframeloaded, nodeIdToAuthor is set: ' + nodeIdToAuthor);
+		// each authoring page has a load AuthoringFromFile function
+		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
+		window.frames["authoringFrame"].loadAuthoringFromFile(nodeToAuthor.filename);
+	} 
+}
+/*
+ * called when iframe in the navAuthoringDiv is loaded. Then, for that iframe,
+ * load the authoring page from file.
+ */
+function naviframeloaded(nodeId) {
+	if (nodeId == "a2s3") {
+		var frameId = "ifrm_" + nodeId;
+		//window.frames[frameId].loadAuthoringFromFile("testproject/a2s3.html");
+	}
+}
+/*
+ * Constructs the part of the authoring tool where we display the working
+ * node authoring window.
+ */
+function displayNodeAuthoringDiv(node) {
+	//alert('here');
+	if (node.children.length > 0) {
+		// if it's a sequence node...
+	} else {
+		// otherwise it's a leaf node
+
+		// dynamically create an iframe for authoring this
+		var div = document.createElement("div");
+		div.setAttribute("id", "div_" + node.id);
+		div.setAttribute("ondblclick", "author(\""+ node.id +"\");");
+		var el = document.createElement("iframe");
+		el.setAttribute("id", "ifrm_" + node.id);
+		el.setAttribute("onload", "naviframeloaded('"+node.id+"')");
+		div.appendChild(el);
+		document.getElementById("navAuthoringDiv").appendChild(div);
+		//alert(node.type);
+		if (node.type == "HtmlNode") {
+			el.setAttribute("src", "author_htmlpage.html");
+		} else {
+			el.setAttribute("src", "author_multiplechoice.html");
+		}
+	}
+	for(var x=0; x<node.children.length; x++) {
+		displayNodeAuthoringDiv(node.children[x]);
+	}
+}
+
+</script>
+
+</div>  <!-- centerDiv -->
+
+</body>
+
+</html>

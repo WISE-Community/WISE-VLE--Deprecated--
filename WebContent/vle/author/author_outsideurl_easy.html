@@ -1,0 +1,152 @@
+<!-- @author: patrick lawler -->
+<html>
+<head>
+
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Sam Skin CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+
+<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+
+<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript" src="../js/node/Node.js"></script>
+<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
+
+<script type="text/javascript" src="../js/node/multiplechoice/multiplechoicestate.js"></script>
+<script type="text/javascript" src="../js/node/multiplechoice/mc.js"></script>
+<script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
+
+<script type="text/javascript">
+var xmlPage;
+
+function generatePage(){
+	var parent = document.getElementById('dynamicParent');
+	
+	//wipe out old
+	parent.removeChild(document.getElementById('dynamicPage'));
+	
+	//create new
+	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
+	var urlText = document.createTextNode('Enter/Edit URL: ');
+	var urlInput = createElement(document, 'input', {type: 'text', id: 'urlInput', size: '100', value: xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue, onkeyup: "sourceUpdated()"});
+	
+	pageDiv.appendChild(urlText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(urlInput);
+	
+	parent.appendChild(pageDiv);
+};
+
+/**
+ * returns a <br> element
+ */
+function createBreak(){
+	return createElement(document, 'br', null);
+};
+
+function save() {
+		  if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
+			  var htmlString;
+			  
+			if(window.ActiveXObject) {
+				htmlString = xmlPage.xml;
+			} else {
+				htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+			}
+			  
+		      document.getElementById('localData').value = htmlString;
+		      if (thisFilename != null) {
+		      	document.getElementById('form_filename').value = thisFilename;
+		      }
+		      document.getElementById('saveLocal').submit();
+		   };
+};
+
+/**
+ * Load the authoring view from the specified filename
+ * filename points to a plain old file.
+ */
+function loadAuthoringFromFile(filename) {
+	thisFilename = filename
+	var callback =
+	{
+	  success: function(o) { 
+	  var xmlDocToParse = o.responseXML;
+
+		/**
+		 * sets local xml and then generates the left panel
+		 * of this page dynamically
+		 */
+		xmlPage = o.responseXML;
+		generatePage();
+		
+		//retrieve the xmlString from the mcObj
+		var xmlString = "";
+		if(window.ActiveXObject) {
+			xmlString = xmlDocToParse.xml;
+		} else {
+			xmlString = (new XMLSerializer()).serializeToString(xmlDocToParse);
+		}
+
+		window.frames["previewFrame"].loadUrl(xmlDocToParse.getElementsByTagName('url')[0].firstChild.nodeValue);
+
+		  },
+		  failure: function(o) { alert('failure');},
+		  argument: ["a", "b", "c"]
+	}
+
+	// fetch the file
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+}
+
+/*
+ * Called when 'keyup' event is received on sourceTextArea on this page.
+ * gets the text in the textarea and re-renders the previewFrame
+ */
+function sourceUpdated() {
+	xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue = document.getElementById('urlInput').value;
+
+	window.frames["previewFrame"].loadUrl(xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue);
+}
+
+function loaded(){
+	if(window.opener){
+		window.opener.authoringWindowLoaded(loadAuthoringFromFile);
+	};
+};
+</script>
+</head>
+<body onload="loaded()">
+<input type="button" value="save" onclick="save()" />
+<table border='1' bgcolor='white' style='width:100%;height:100%'>
+	<tr>
+   		<td width='50%' id="dynamicParent"><div id="dynamicPage"></div></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../js/node/outsideurl/outsideurl.html'></iframe></td>
+	</tr>
+</table>
+<!--  for posting the text for echo servlet -->
+<form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
+    <input type="hidden" name="name" id="form_filename" value="myData"/>
+    <input type="hidden" name="data" id="localData" value=""/>
+</form>
+</body>
+</html>

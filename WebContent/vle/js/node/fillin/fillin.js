@@ -10,7 +10,6 @@ FILLIN.prototype.loadXMLDoc = function(xmlDoc) {
   this.html = "";
   this.elementSS = [];
   this.textEntryInteractions = [];
-  
   var textEntryInteractions = this.itemBody.getElementsByTagName('textEntryInteraction');
   for (var i=0; i < textEntryInteractions.length; i++) {
 	  var textEntryInteraction = new TEXTENTRYINTERACTION(textEntryInteractions[i]);

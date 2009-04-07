@@ -1,6 +1,5 @@
 function OPENRESPONSE(xmlDoc) {
   this.xmlDoc = xmlDoc;
-  alert(this.xmlDoc);
   this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
   this.expectedLines = this.xmlDoc.getElementsByTagName('extendedTextInteraction')[0].getAttribute('expectedLines');
   this.vle = null;

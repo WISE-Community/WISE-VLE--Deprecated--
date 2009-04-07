@@ -1,0 +1,155 @@
+<html>
+	<head>
+		<script type="text/javascript" src="js/common/helperfunctions.js"></script>
+		<script type="text/javascript">
+			var mainPage = window.opener;
+			
+			/**
+			 * Generates this page
+			 */
+			function generatePage(){
+				var parent = document.getElementById('choices');
+				var choices = mainPage.getChoices();
+				var selectedChoiceId = mainPage.getSelectedChoiceIdentifier();
+				var instructions = document.createTextNode('Select a choice below and then select the containers you wish to create feedback for this choice.');
+				
+				var selectChoice = createElement(document, 'select', {id: 'selectChoice'});
+				var selectChoiceText = document.createTextNode('Available Choices');
+				for(var p=0;p<choices.length;p++){
+					var option = createElement(document, 'option', {id: 'choiceOption_' + choices[p].getAttribute('identifier'), name: 'choiceOption', value: choices[p].getAttribute('identifier'), onclick: 'choiceSelected()'});
+					option.text = choices[p].firstChild.nodeValue;
+					if(selectedChoiceId){
+						if(option.value==selectedChoiceId){
+							option.selected = true;
+						};
+					} else {
+						if(p==0){
+							option.selected = true;
+						};
+					};
+					selectChoice.appendChild(option);
+				};
+				
+				parent.appendChild(instructions);
+				parent.appendChild(createBreak());
+				parent.appendChild(createBreak());
+				parent.appendChild(selectChoiceText);
+				parent.appendChild(createBreak());
+				parent.appendChild(selectChoice);
+				
+				generateContainers();
+			};
+			
+			/**
+			 * Generates the selection input for containers and appends
+			 * them to the containerTable
+			 */
+			function generateContainers(){
+				var containers = mainPage.getGapMultiples();
+				var selectedContainerId = mainPage.getSelectedContainerIdentifier();
+				var parent = document.getElementById('containerRow');
+				var containerTD = createElement(document, 'td', {id: 'containerTD'});
+				var containerSelect = createElement(document, 'select', {id: 'containerSelect', size: containers.length});
+				var containerSelectText = document.createTextNode('Select a container below to edit the feedback for the selected choice if a student were to put this choice in that container.');
+				
+				for(var q=0;q<containers.length;q++){
+					var option = createElement(document, 'option', {id: 'containerOption_' + containers[q].getAttribute('identifier'), name: 'containerOption', value: containers[q].getAttribute('identifier'), onclick: 'containerSelected("' + containers[q].getAttribute('identifier') + '")'});
+					option.text = containers[q].firstChild.nodeValue;
+					if(selectedContainerId){
+						if(selectedContainerId==option.value){
+							option.selected = true;
+							containerSelected(option.value);
+						};
+					} else {
+						if(q==0){
+							option.selected = true;
+							containerSelected(option.value);
+						};
+					};
+					containerSelect.appendChild(option);
+				};
+				
+				containerTD.appendChild(containerSelectText);
+				containerTD.appendChild(createBreak());
+				containerTD.appendChild(containerSelect);
+				parent.appendChild(containerTD);
+			};
+			
+			/**
+			 * When a container is selected, creates a textarea to edit
+			 * feedback and updates the xmlPage
+			 */
+			 function containerSelected(identifier){
+			 	var choiceId = getSelectedChoice();
+			 	var parent = document.getElementById('feedbackTD');
+			 	
+			 	if(document.getElementById('feedbackInput')){
+			 		parent.removeChild(document.getElementById('feedbackInput'));
+			 	};
+			 	
+			 	var feedbackInput = createElement(document, 'textarea', {rows: '3', cols: '50', id: 'feedbackInput', onkeyup: 'feedbackUpdated("' + choiceId + '","' + identifier + '")'});
+			 	var feedback = mainPage.getValueByChoiceAndFieldIdentifiers(choiceId, identifier);
+			 	
+			 	if(feedback){
+			 		feedbackInput.value = feedback.firstChild.nodeValue;
+			 	} else {
+			 		mainPage.createNewFeedback(choiceId, identifier);
+			 	};
+			 	
+			 	parent.appendChild(feedbackInput);
+			 };
+			 
+			 /**
+			  * When a choice is selected, gets selected containerId and
+			  * calls containerSelected with that ID so that it generates
+			  * feedback associated with both choice and container
+			  */
+			function choiceSelected(identifier){
+				containerSelected(getSelectedContainer());
+			};
+			 
+			/**
+			 * updates the corresponding feedback element in xmlPage with the
+			 * text in the input given the choice identifier and the container identifier
+			 */
+			function feedbackUpdated(choiceId, containerId){
+				mainPage.updateFeedback(choiceId, containerId, document.getElementById('feedbackInput').value);
+			};
+			
+			/**
+			 * returns the value (identifier) of the currently selected choice
+			 */
+			 function getSelectedChoice(){
+			 	return document.getElementsByName('choiceOption')[document.getElementById('selectChoice').selectedIndex].value;
+			 };
+			 
+			 /**
+			  * returns the value (identifier) of the currently selected container
+			  * returns undefined if no container is selected
+			  */
+			 function getSelectedContainer(){
+			 	return document.getElementsByName('containerOption')[document.getElementById('containerSelect').selectedIndex].value;
+			 };
+			 
+			/**
+			 * returns a <br> element
+			 */
+			function createBreak(){
+				return createElement(document, 'br', null);
+			};
+		</script>
+	</head>
+	
+	<body onload="generatePage()">
+		<div id='mainDiv'>
+			<div id='choices'>
+			</div>
+			<br>
+			<div id='edit'>
+				<table id='feedback'><tr id='containerRow'></tr><tr id='feedbackRow'><td id='feedbackTD'>Feedback:<br></td></tr></table>
+				<br><br>
+				<input type='button' value='Done' onclick='window.close()'/>
+			</div>
+		</div>
+	</body>
+</html>
