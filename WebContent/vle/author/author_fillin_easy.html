@@ -29,10 +29,6 @@
 <script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="../js/node/Node.js"></script>
-<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
-
-<script type="text/javascript" src="../js/node/multiplechoice/multiplechoicestate.js"></script>
-<script type="text/javascript" src="../js/node/multiplechoice/mc.js"></script>
 
 <script type="text/javascript">
 var xmlPage;
@@ -142,7 +138,7 @@ function generateFillins(){
 		var endStart = fillinIndexes[g].split('|');
 		var text = document.createTextNode('Blank #' + (g + 1) + ':');
 		var removeButton = createElement(document, 'input', {type: 'button', value: 'Remove Fillin', onclick: 'removeFillin()'});
-		var radio = createElement(document, 'input', {type: 'radio', id: 'radio_' + g, value: fillin[g], name: 'fillinRadio'});
+		var radio = createElement(document, 'input', {type: 'radio', id: 'radio_' + g, value: fillin[g], name: 'fillinRadio', onclick: 'fillinClick("' + fillin[g] + '", ' + g + ')'});
 		var input = createElement(document, 'input', {type: 'text', id: 'input_' + g, name: 'input_' + g, onclick: 'fillinClick("' + fillin[g] + '", ' + g + ')', onkeyup: 'changeSelected(' + g + ')', value: fullText.substring(endStart[0], endStart[1])});
 		
 		fillinTD.appendChild(createBreak());
@@ -188,16 +184,46 @@ function removeFillin(){
 	var identifier = getSelectedIdentifier();
 	
 	if(identifier){
-		var parent = xmlPage.getElementsByTagName('assessmentItem')[0]
-		parent.removeChild(getDeclaration(identifier));
+		var declarations = xmlPage.getElementsByTagName('responseDeclaration');
+		var foundIndex;
 		
-		parent = xmlPage.getElementsByTagName('itemBody')[0];
-		parent.removeChild(getInteraction(identifier));
+		//find the right location to remove because the remainder will need to be upddated
+		for(var h=0;h<declarations.length;h++){
+			if(declarations[h].getAttribute('identifier')==identifier){ // this is it, need to remove and update remaining identifiers
+				var parent = xmlPage.getElementsByTagName('assessmentItem')[0];
+				parent.removeChild(getDeclaration(identifier));
+				
+				parent = xmlPage.getElementsByTagName('itemBody')[0];
+				parent.removeChild(getInteraction(identifier));
+				foundIndex = h;
+			};
+		};
+		
+		//now update remaining
+		for(var t=0;t<declarations.length;t++){
+			if(t>=foundIndex){
+				decrementIdentifiers(declarations[t]);
+			};
+		};
 		
 		generatePage();
 		updatePreview();
 	} else {
 		alert('Please select a fillin that you wish to remove first');
+	};
+};
+
+function decrementIdentifiers(declaration){
+	var interactions = xmlPage.getElementsByTagName('textEntryInteraction');
+	var identifier = declaration.getAttribute('identifier');
+	var newNum = parseInt(identifier.substring(identifier.length - 1, identifier.length)) - 1;
+	declaration.setAttribute('identifier', 'response_' + newNum);
+		
+	for(var z=0;z<interactions.length;z++){
+		if(interactions[z].getAttribute('responseIdentifier')==identifier){
+			interactions[z].setAttribute('responseIdentifier', 'response_' + newNum);
+			break;
+		};
 	};
 };
 
@@ -265,7 +291,7 @@ function retrieveInteractionText(identifier){
  */
 function generateAllowableAnswers(identifier){
 	var allowableTD = createElement(document, 'td', {id: 'allowableTable'});
-	var allowableText = document.createTextNode('edit/add allowable answers');
+	var allowableText = document.createTextNode('Edit/add allowable answers for blank #' + getLineNumber(identifier));
 	var declaration = getDeclaration(identifier);
 	var addButton = createElement(document, 'input', {type: 'button', value: 'Add New', onclick: 'addNewAllowable("' + identifier + '")'});
 	
@@ -286,6 +312,13 @@ function generateAllowableAnswers(identifier){
 	allowableTD.appendChild(createBreak());
 	allowableTD.appendChild(addButton);
 	return allowableTD;
+};
+
+/**
+ * Returns the blank number associated with this identifier
+ */
+function getLineNumber(identifier){
+	return parseInt(identifier.substring(identifier.length - 1, identifier.length)) + 1;
 };
 
 /**
@@ -654,6 +687,7 @@ function sourceUpdated() {
 						if(start < (runningText + currentText).length){ //this is where the change was made, update text
 							body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + currentText.substring(end - runningText.length, currentText.length);
 							charCount -= difference;
+							generateFullText();
 							updatePreview();
 							return;
 						} else { //keep looking, the change was not here
@@ -708,14 +742,14 @@ function updatePreview(){
 };
 
 function loaded(){
-	if(window.opener){
-		window.opener.authoringWindowLoaded(loadAuthoringFromFile);
+	if(window.parent){
+		loadAuthoringFromFile(window.parent.filename);
+		window.parent.childSave = save;
 	};
 };
 </script>
 </head>
 <body onload="loaded()">
-<input type="button" value="save" onclick="save()" />
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
 		<td width='50%' id="dynamicParent"><div id="dynamicPage"></div></td>

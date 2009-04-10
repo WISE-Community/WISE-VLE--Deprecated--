@@ -1,5 +1,8 @@
 <project>
 	<nodes>
+		<BrainstormNode identifier='bs' title='Brainstorm'>
+			<ref filename='brainstormexample.bs'/>
+		</BrainstormNode>
 		<FillinNode identifier='fillin' title='This fillin'>
 			<ref filename='fillinexample.fi'/>
 		</FillinNode>
@@ -23,6 +26,7 @@
 		</OutsideUrlNode>
 	</nodes>
 	<sequence identifier="project1_sequence">
+		<node-ref ref='bs'/>
 		<node-ref ref='fillin'/>
 		<node-ref ref='note'/>
 		<node-ref ref='match'/>

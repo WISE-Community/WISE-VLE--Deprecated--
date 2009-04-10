@@ -47,6 +47,7 @@
 <script type="text/javascript" src="../js/node/OutsideUrlNode.js"></script>
 <script type="text/javascript" src="../js/node/BlueJNode.js"></script>
 <script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="../js/node/BrainstormNode.js"></script>
 <script type="text/javascript" src="../js/project/Project.js"></script>
 <script type="text/javascript" src="../js/io/ConnectionManager.js"></script>
 
@@ -63,7 +64,8 @@
 
 <script type='text/javascript'>
 var project;
-var authoringStyle = '_easy';
+var easyMode = true; //the mode that gets passed to the individual authoring pages
+var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
 
 //a string that temporarily contains the node id we want to author
 var nodeIdToAuthor = null;
@@ -152,11 +154,14 @@ function setNodeToAuthor(nodeId) {
 	nodeIdToAuthor = nodeId;
 }
 
+/**
+ * Updates the type of authoring view will be rendered
+ */
 function updateAuthoringView(val){
 	if(val==true || val=='true'){
-		authoringStyle = '_easy';
+		easyMode = true;
 	} else {
-		authoringStyle = '';
+		easyMode = false;
 	};
 };
 </script>
@@ -302,25 +307,28 @@ function author(nodeId) {
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor); //is this needed? - the same thing only a few lines up
 		filenameToAuthor = nodeToAuthor.filename;
 		if (nodeToAuthor.type == "HtmlNode") {
-			popupAuthoringWindow("author_htmlpage" + authoringStyle + ".html", nodeId);
+			htmlPageName = 'author_htmlpage';
 		} else if(nodeToAuthor.type == "FillinNode") {
-			popupAuthoringWindow("author_fillin" + authoringStyle + ".html", nodeId);
+			htmlPageName = 'author_fillin';
 		} else if(nodeToAuthor.type == 'NoteNode' || nodeToAuthor.type == 'JournalEntryNode'){
-			popupAuthoringWindow('author_openresponse' + authoringStyle + '.html', nodeId);
+			htmlPageName = 'author_openresponse';
 		} else if(nodeToAuthor.type == 'MatchSequenceNode'){
-			popupAuthoringWindow('author_matchsequence' + authoringStyle + '.html', nodeId);
+			htmlPageName = 'author_matchsequence';
 		} else if(nodeToAuthor.type == 'OutsideUrlNode'){
-			popupAuthoringWindow('author_outsideurl' + authoringStyle + '.html', nodeId);
+			htmlPageName = 'author_outsideurl';
 		} else if(nodeToAuthor.type == 'MultipleChoiceNode'){
-			popupAuthoringWindow("author_multiplechoice" + authoringStyle + ".html", nodeId);
+			htmlPageName = 'author_multiplechoice';
+		} else if(nodeToAuthor.type == 'BrainstormNode'){
+			htmlPageName = 'author_brainstorm';
 		} else {
 			alert('sorry, no authoring tool exists for this step yet');
+			return;
 		}
+		popupAuthoringWindow('author_framed.html', nodeId);
 	} else {
 		alert('sorry, no authoring tool exists for this step yet');
 	}
 }
-
 
 /*
  * Pops up window for authoring individual nodes. Param: url, url to open
@@ -345,7 +353,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName);
 	} 
 }
 

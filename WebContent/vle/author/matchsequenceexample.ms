@@ -8,12 +8,6 @@
 					<value isDefault="false" isCorrect="true" choiceIdentifier="line4" fieldIdentifier="lonelyBucket" order="2">This belongs here!</value>
 					<value isDefault="false" isCorrect="true" choiceIdentifier="line5" fieldIdentifier="lonelyBucket" order="4">This belongs here!</value>
 					<value isDefault='true' isCorrect='false' fieldIdentifier='lonelyBucket'>&lt;html&gt;&lt;body  class='feedback'&gt;this is the defualt&lt;/body&gt;&lt;/html&gt;</value>
-					<value isDefault="false" isCorrect="false" choiceIdentifier="line1" fieldIdentifier="lonelyBucket">Does this belong here!</value>
-					<value isDefault="false" isCorrect="true" choiceIdentifier="line2" fieldIdentifier="lonelyBucket">Does this belong here!</value>
-					<value isDefault="false" isCorrect="true" choiceIdentifier="line3" fieldIdentifier="lonelyBucket">Does this belong here!</value>
-					<value isDefault="false" isCorrect="true" choiceIdentifier="line4" fieldIdentifier="lonelyBucket">Does this belong here!</value>
-					<value isDefault="false" isCorrect="true" choiceIdentifier="line5" fieldIdentifier="lonelyBucket">Does this belong here!</value>
-					<value isDefault='true' isCorrect='false' fieldIdentifier='lonelyBucket'>&lt;html&gt;&lt;body  class='feedback'&gt;this is the defualt&lt;/body&gt;&lt;/html&gt;</value>
 				</correctResponse>
 				<mapping defaultValue='0.0'>
 					<mapEntry mappedValue='1.0' mapKey='gapTextType' />
@@ -21,27 +15,13 @@
 			</responseDeclaration>
 			<itemBody>
 				<gapMatchInteraction hasInlineFeedback='true' responseIdentifier='MATCH_ASSMT_1' shuffle='true' ordered="true">
-					<prompt>
-						&lt;html&gt;&lt;body  class='matchprompt' style='font-size:14px; font-family:Verdana, Arial,Helvetica; width:550px; margin:20px 0 10px 0 ; color:#0000FF; line-height:120%;'&gt;Construct a method doMath that takes a number and returns that number multiplied by 3 and then incremented by 1. Place your answers in the box on the right in the correct order, then click 'Check Answers' to check your choices.&lt;/body&gt;&lt;/html&gt;
-					</prompt>
-					<gapText identifier='line1' matchMax='1'>
-						&lt;html&gt;&lt;body class='choice'&gt;num=num*3;&lt;/body&gt;&lt;/html&gt;
-					</gapText>
-					<gapText identifier='line2' matchMax='1'>
-						&lt;html&gt;&lt;body class='choice'&gt;return num;&lt;/body&gt;&lt;/html&gt;
-					</gapText>
-					<gapText identifier='line3' matchMax='1'>
-						&lt;html&gt;&lt;body class='choice'&gt;public int doMath(int num)&lt;/body&gt;&lt;/html&gt;
-					</gapText>
-					<gapText identifier='line4' matchMax='1'>
-						&lt;html&gt;&lt;body class='choice'&gt;num=num+1;&lt;/body&gt;&lt;/html&gt;
-					</gapText>
-					<gapText identifier='line5' matchMax='1'>
-						&lt;html&gt;&lt;body class='choice'&gt;}&lt;/body&gt;&lt;/html&gt;
-					</gapText>
-					<gapMultiple identifier='lonelyBucket' ordinal='false' numberOfEntries='0'>
-						&lt;html&gt;&lt;body class='slot'&gt;Place the lines on the left in the correct order:&lt;/body&gt;&lt;/html&gt;
-					</gapMultiple>
+					<prompt>&lt;html&gt;&lt;body  class='matchprompt' style='font-size:14px; font-family:Verdana, Arial,Helvetica; width:550px; margin:20px 0 10px 0 ; color:#0000FF; line-height:120%;'&gt;Construct a method doMath that takes a number and returns that number multiplied by 3 and then incremented by 1. Place your answers in the box on the right in the correct order, then click 'Check Answers' to check your choices.&lt;/body&gt;&lt;/html&gt;</prompt>
+					<gapText identifier='line1' matchMax='1'>&lt;html&gt;&lt;body class='choice'&gt;num=num*3;&lt;/body&gt;&lt;/html&gt;</gapText>
+					<gapText identifier='line2' matchMax='1'>&lt;html&gt;&lt;body class='choice'&gt;return num;&lt;/body&gt;&lt;/html&gt;</gapText>
+					<gapText identifier='line3' matchMax='1'>&lt;html&gt;&lt;body class='choice'&gt;public int doMath(int num)&lt;/body&gt;&lt;/html&gt;</gapText>
+					<gapText identifier='line4' matchMax='1'>&lt;html&gt;&lt;body class='choice'&gt;num=num+1;&lt;/body&gt;&lt;/html&gt;</gapText>
+					<gapText identifier='line5' matchMax='1'>&lt;html&gt;&lt;body class='choice'&gt;}&lt;/body&gt;&lt;/html&gt;</gapText>
+					<gapMultiple identifier='lonelyBucket' ordinal='false' numberOfEntries='0'>&lt;html&gt;&lt;body class='slot'&gt;Place the lines on the left in the correct order:&lt;/body&gt;&lt;/html&gt;</gapMultiple>
 				</gapMatchInteraction>
 			</itemBody>
 		</assessmentItem>

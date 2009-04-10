@@ -1,0 +1,45 @@
+<!-- @author: patrick lawler -->
+<html>
+	<head>
+		<script type="text/javascript">
+			var mainPage;
+			var parentPage;
+			var choice;
+			var container;
+			
+			function loaded(){
+				parentPage = window.opener;
+				mainPage = window.opener.mainPage;
+				choice = window.opener.currentChoice;
+				container = window.opener.currentContainer;
+				
+				var feedbackInput = document.getElementById('feedbackInput');
+				var feedback = mainPage.getValueByChoiceAndFieldIdentifiers(choice, container);
+				
+				if(feedback && feedback.firstChild){
+					feedbackInput.value = feedback.firstChild.nodeValue;
+				};
+			};
+			
+			function updateFeedback(){
+				var feedbackInput = document.getElementById('feedbackInput');
+				var feedback = mainPage.getValueByChoiceAndFieldIdentifiers(choice, container);
+			 	
+			 	if(!feedback){
+			 		mainPage.createNewFeedback(choice, container);
+			 		feedback = mainPage.getValueByChoiceAndFieldIdentifiers(choice, container);
+			 	};
+			 	mainPage.updateFeedback(choice, container, feedbackInput.value);
+			 	
+			 	parentPage.generateTable();
+			};
+		</script>
+	</head>
+	<body onload='loaded()'>
+		<div>
+			Enter/Edit Feedback:<br>
+			<input id='feedbackInput' type='text' size='45' onkeyup='updateFeedback()'/><br>
+			<input type='button' value='Done' onclick='self.close()'/>
+		</div>
+	</body>
+</html>

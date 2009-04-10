@@ -1,0 +1,103 @@
+<!-- @author: patrick lawler -->
+
+<html>
+<head>
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript">
+var filename;
+var easyMode;
+var rootPageName;
+var childSave;
+
+/**
+ * Removes previous, creates a new frame, determines the 
+ * correct page based on variables and sets that as the
+ * frame source and appends new frame to page
+ */
+function changeFramed(){
+	var parent = document.getElementById('frameDiv');
+	var old = document.getElementById('authorFrame');
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	var page = rootPageName;
+	if(easyMode){
+		page += '_easy.html';
+	} else {
+		page += '.html';
+	};
+	
+	var authorFrame = createElement(document, 'iframe', {name: 'authorFrame', id: 'authorFrame', width: '100%', height: '95%', frameborder: '0', src: page});
+	
+	parent.appendChild(authorFrame);
+};
+
+/**
+ * Toggles value of easyMode and calls changeFramed() when option clicked
+ */
+function modeChanged(val){
+	if(val==true || val=='true'){
+		easyMode = true;
+	} else {
+		easyMode = false;
+	};
+	changeFramed();
+};
+
+/**
+ * function given to parent window so that we can set certain
+ * critical variables here
+ */
+function setVars(fn, m, pn){
+	filename = fn;
+	easyMode = m;
+	rootPageName = pn;
+	
+	if(easyMode){
+		document.getElementById('easyTrue').checked = true;
+	} else {
+		document.getElementById('easyFalse').checked = true;
+	};
+};
+
+/**
+ * calls function from parent with local function to get vars from
+ * parent and then calls changeFramed() to create new frame with 
+ * correct authoring page
+ */
+function loaded(){
+	if(window.opener){
+		window.opener.authoringWindowLoaded(setVars);
+		changeFramed();
+	};
+};
+
+function save(){
+	childSave();
+};
+</script>
+</head>
+<body onload='loaded()'>
+	<div id='main'>
+		<div id='header'>
+			<table>
+				<tr>
+					<td>
+						Option for editing files:<br>
+						<input type='radio' id='easyTrue' name='radioMode' onclick='modeChanged(true)'>Easy</input><br>
+						<input type='radio' id='easyFalse' name='radioMode' onclick='modeChanged(false)'/>Advanced</input>
+					</td>
+					<td>
+						<input type='button' value='Save' onclick='save()'/>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id='frameDiv'>
+			<iframe id='authorFrame' name='authorFrame' width='100%' height='90%'></iframe>
+		</div>
+	</div>
+</body>
+</html>

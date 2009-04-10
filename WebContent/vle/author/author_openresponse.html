@@ -95,14 +95,14 @@ function sourceUpdated() {
 }
 
 function loaded(){
-	if(window.opener){
-		window.opener.authoringWindowLoaded(loadAuthoringFromFile);
+	if(window.parent){
+		loadAuthoringFromFile(window.parent.filename);
+		window.parent.childSave = save;
 	};
 };
 </script>
 </head>
 <body onload='loaded()'>
-<input type="button" value="save" onclick="save()" />
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
    		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
