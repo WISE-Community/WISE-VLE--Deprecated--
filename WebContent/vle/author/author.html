@@ -60,6 +60,7 @@
 <link rel="stylesheet" type="text/css" href="../css/navigation.css" />
 <link rel="stylesheet" type="text/css" href="../css/sdmenu.css" />
 
+<link rel="shortcut icon" href="../images/favicon_panda.ico">
 
 
 <script type='text/javascript'>
@@ -172,21 +173,26 @@ function updateAuthoringView(val){
 <div id="centeredDiv">
 
 <div id="authorHeader">
-	<h2>WISE 4 Authoring Tool</h2>
+	<h2>WISE 4 Authoring Tool &nbsp;<img src="../assets/images/favicon_panda.ico" alt="WISE Panada" border="0" /></h2>
 	<table>
 	  <tr>
-	  	<td><input type="button" value="create new html page" onclick="newNode('HtmlNode');" /></td>
-	  	<td><input type="button" value="create new multiple choice page" onclick="newNode('MultipleChoiceNode');" /></td>
-	  	<td><input type="button" value="save" onclick="save()" /></td>
-	  	<td><input type="button" value="preview" onclick="preview()" /></td>
-	  	<td>
-	  		Select option for editing individual files:
-	  		<br>
-	  		<label for='easy'>Easy</label>
-	  		<input type='radio' id='easy' value='true' onclick='updateAuthoringView(true)' name='authoringStyle' CHECKED/><br>
-	  		<label for='advanced'>Advanced</label>
-	  		<input type='radio' id='advanced' value='false' onclick='updateAuthoringView(false)' name='authoringStyle'/>
-	  	</td>
+		<td><input type="button" value="Create New Node (pop-up selector)" onclick="" /></td>
+		<td><input type="button" value="Delete Selected Node" onclick="" /></td>
+		<td><input type="button" value="Indent Selected Node" onclick="" /></td>
+		<td><input type="button" value="Outdent Selected Node" onclick="" /></td>
+	  	<td><input type="button" value="Save Project" onclick="save()" /></td>
+	  	<td><input type="button" value="Export Project" onclick="" /></td>
+	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
+			  <!--  
+			  	<td>
+			  		Select option for editing individual files:
+			  		<br>
+			  		<label for='easy'>Easy</label>
+			  		<input type='radio' id='easy' value='true' onclick='updateAuthoringView(true)' name='authoringStyle' CHECKED/><br>
+			  		<label for='advanced'>Advanced</label>
+			  		<input type='radio' id='advanced' value='false' onclick='updateAuthoringView(false)' name='authoringStyle'/>
+			  	</td>
+			   -->
 			<!--  for posting the text for echo servlet -->
 		<td style="display:hidden;"><form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
 			    <input type="hidden" name="name" id="form_filename" value="myData"/>
@@ -197,26 +203,45 @@ function updateAuthoringView(val){
 	 </table>
 </div>
 
-<div id="navigationTitle">Navigation Structure</div> 
+<table id="authoringTable">
+	<tr>
+		<td class="authorTableHeader">Assigned Nodes</td>
+		<td class="authorTableHeader">Unassigned Nodes</td>
+		<td class="authorTableHeader">Preview</td>
+	</tr>
 	
-<div id="navAuthoringDiv">
- 
-	<div id="nodeAuthoringDiv">
-			<!--  
+	<tr>
+		<td id="assignedcontainer">
+			<div id="navAuthoringDiv">
+ 				<div id="nodeAuthoringDiv">
+				<!--  
 	    		<iframe id="authoringFrame" scrolling="no" name="authoringFrame" width="1024px" height="768px" onload="authoringFrameLoaded();"></iframe>
-			-->
-		</div>
-
-</div>
-
+				-->
+				</div>
+			</div>
+		</td>
+		<td id="unassignedcontainer">
+			<div >
+				unassigned nodes go here
+			</div>
+		</td>
+		<td id="previewcontainer">
+			<div >
+				preview for selected node appears here
+			</div>
+		</td>
+	</tr>
+</table>
+			
 <div id="clearFloats" class="clearFloats" />
 
 <div id="navigationInstructions">
 	<p>Instructions:</p>
 	<ol>
-	<li>RENAME an item by clicking once on its text.  Type your changes and press the Return key.</li>
-	<li>MOVE an item by click/dragging on its blue border.</li>
-	<li>EDIT content for an item by double clicking.  A separate editor will launch.</li>
+	<li>SELECT a node by clicking on its text.</li>
+	<li>RENAME a node by clicking once on its text and typing changes.  Press Return key to save changes.</li>
+	<li>REORDER a node by click-dragging on its blue border.</li>
+	<li>EDIT a node for an item by double clicking.  A separate editor will launch.</li>
 	</ol>	
 </div> 
 
