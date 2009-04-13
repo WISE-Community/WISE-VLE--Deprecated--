@@ -58,6 +58,7 @@
 
 <script type="text/javascript">
 var xmlPage;
+var currentResponse;
 
 /**
  * Generates this page dynamically based on the content of xmlPage
@@ -77,6 +78,7 @@ function generatePage(){
 	
 	generateOptions();
 	generatePrompt();
+	generateCannedResponses();
 };
 
 /**
@@ -264,6 +266,48 @@ function generatePrompt(){
 };
 
 /**
+ * Generates the cannedResponses element and removes previous
+ */
+function generateCannedResponses(){
+	var parent = document.getElementById('dynamicPage');
+	var old = document.getElementById('cannedResponsesDiv');
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	var cannedResponsesDiv = createElement(document, 'div', {id: 'cannedResponsesDiv'});
+	var cannedResponsesDivText = document.createTextNode('Edit/Create canned responses');
+	var createButton = createElement(document, 'input', {type: 'button', value: 'Create New Response', onclick: 'createNewResponse()'});
+	var removeButton = createElement(document, 'input', {type: 'button', value: 'Remove Response', onclick: 'removeResponse()'});
+	var responses = xmlPage.getElementsByTagName('response');
+	
+	parent.appendChild(createBreak());
+	cannedResponsesDiv.appendChild(cannedResponsesDivText);
+	parent.appendChild(createBreak());
+	for(var t=0;t<responses.length;t++){
+		var title = responses[t].getAttribute('name');
+		var val = responses[t].firstChild.nodeValue;
+		var responseTitleText = document.createTextNode('Name: ');
+		var responseTitleInput = createElement(document, 'input', {type: 'text', id: 'responseInput_' + title, value: title, onkeyup: 'responseNameChanged("' + title + '")', onclick: 'responseSelected("' + title + '")'});
+		var responseValueText = document.createTextNode('Response: ');
+		var responseValueInput = createElement(document, 'textarea', {id: 'responseValue_' + title, onkeyup: 'responseValueChanged("' + title + '")', onclick: 'responseSelected("' + title + '")'});
+		responseValueInput.value = val;
+		
+		cannedResponsesDiv.appendChild(createBreak());
+		cannedResponsesDiv.appendChild(responseTitleText);
+		cannedResponsesDiv.appendChild(responseTitleInput);
+		cannedResponsesDiv.appendChild(responseValueText);
+		cannedResponsesDiv.appendChild(responseValueInput);
+	};
+	
+	cannedResponsesDiv.appendChild(createBreak());
+	cannedResponsesDiv.appendChild(createButton);
+	cannedResponsesDiv.appendChild(removeButton);
+	parent.appendChild(cannedResponsesDiv);
+};
+
+/**
  * Returns the value of the title attribute in xmlPage
  */
 function getTitle(){
@@ -395,6 +439,89 @@ function getPrompt(){
  */
 function updatePrompt(){
 	xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild.nodeValue = document.getElementById('promptInput').value;
+	updatePreview();
+};
+
+/**
+ * Returns the canned responses found in xmlPage
+ */
+function getResponses(){
+	return xmlPage.getElementsByTagName('response');
+};
+
+/**
+ * Given the name, returns the associated canned response in xmlPage
+ */
+function getResponse(name){
+	var responses = getResponses();
+	for(var c=0;c<responses.length;c++){
+		if(responses[c].getAttribute('name')==name){
+			return responses[c];
+		};
+	};
+};
+
+/**
+ * Given an existing name, updates associated name in xmlPage
+ */
+function responseNameChanged(name){
+	var input = document.getElementById('responseInput_' + name);
+	var responseInput = document.getElementById('responseValue_' + name);
+	var val = input.value;
+	var response = getResponse(name);
+	input.id = 'responseInput_' + val;
+	input.setAttribute('onkeyup', 'responseNameChanged("' + val + '")');
+	input.setAttribute('onclick', 'responseSelected("' + val + '")');
+	input.value = val;
+	responseInput.id = 'responseValue_' + val;
+	responseInput.setAttribute('onkeyup', 'responseValueChanged("' + val + '")');
+	responseInput.setAttribute('onclick', 'responseSelected("' + val + '")');
+	updatePreview();
+	response.setAttribute('name', val);
+	updatePreview();
+};
+
+/**
+ * Given an existing name, updates the associated value in xmlPage
+ */
+function responseValueChanged(name){
+	getResponse(name).firstChild.nodeValue = document.getElementById('responseValue_' + name).value;
+	updatePreview();
+};
+
+/**
+ * sets the global currentResponse to the currently selected response
+ */
+function responseSelected(name){
+	currentResponse = getResponse(name);
+};
+
+/**
+ * Removes the currently selected response, if none, alerts
+ */
+function removeResponse(){
+	if(currentResponse){
+		xmlPage.getElementsByTagName('cannedResponses')[0].removeChild(currentResponse);
+		generatePage();
+		updatePreview();
+	} else {
+		alert('No response is selected for removal. Please select a response and try again.');
+	};
+};
+
+/**
+ * Creates a new canned response
+ */
+function createNewResponse(){
+	var parent = xmlPage.getElementsByTagName('cannedResponses')[0];
+	var response = xmlPage.createElement('response');
+	var emptyValue = xmlPage.createTextNode('');
+	
+	response.setAttribute('name', 'Enter name');
+	response.appendChild(emptyValue);
+	
+	parent.appendChild(response);
+	generatePage();
 	updatePreview();
 };
 

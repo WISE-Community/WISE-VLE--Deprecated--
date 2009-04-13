@@ -24,25 +24,32 @@
  -->
 <html>
 <head>
-<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
-<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
-
-<script type="text/javascript">
+<script type='text/javascript'>
 var brainstorm = parent.brainstorm;
 
 function loaded(){
-	brainstorm.brainliteLoaded(document);
+	brainstorm.responsePageLoaded(document);
+};
+
+function save(){
+	brainstorm.save(document);
 };
 </script>
 </head>
-<body onload="loaded()">
+<body onload='loaded()'>
 	<div id='main'>
-		Q&A:<br><br>
-		<p>Think about the following question for a couple of minutes and when you are ready to respond, click continue</p><br>
-		<p>Question:</p>
-		<div id="questionPrompt"></div><br>
-		<input id="butt" type='button' value='continue' onclick='brainstorm.renderResponsePage()'/>
+		<div id='questionDiv'>
+			Question:
+		</div>
+		<br>
+		<div id='responses'>
+			Responses:<br>
+		</div><br><br>
+		<div id='studentResponseDiv'>
+			Enter your response.
+			<textarea id='studentResponse' rows='3' cols = '75'></textarea>
+			<input type='button' value='save' onclick='save()'/>
+		</div>
 	</div>
 </body>
 </html>

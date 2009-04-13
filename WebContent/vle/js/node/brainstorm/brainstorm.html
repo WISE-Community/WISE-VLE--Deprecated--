@@ -29,6 +29,7 @@
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../common/js/helperfunctions.js"></script>
 <script type="text/javascript" src="brainstorm.js" ></script>
+<script type="text/javascript" src="brainstormstate.js"></script>
 
 <script type="text/javascript">
 var brainstorm;
@@ -37,10 +38,6 @@ function loadXMLString(xmlString){
 	var xmlDoc=loadXMLDocFromString(xmlString);
 	brainstorm = new BRAINSTORM(xmlDoc);
 	brainstorm.render();
-};
-
-function getBrainstorm(){
-	return brainstorm;
 };
 </script>
 </head>

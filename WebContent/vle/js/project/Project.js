@@ -59,7 +59,7 @@ function Project(xmlDoc) {
 		// this is a node project <node><node></node></node>
 		//alert('non-LD');
 		this.rootNode = this.generateNode(this.xmlDoc.firstChild);
-	}
+	} 
 }
 
 Project.prototype.createNewNode = function(nodeType, filename){
@@ -203,7 +203,6 @@ Project.prototype.generateSequenceFileString = function(node, depth) {
 		space += "     ";
 	};
 	if(node.type=='sequence'){
-		alert(node.children.length);
 		if(node.children.length>0){
 			retStr = space + "<sequence identifier=\"" + node.id + "\">\n";
 				for(var z=0;z<node.children.length;z++){

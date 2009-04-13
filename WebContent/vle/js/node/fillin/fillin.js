@@ -73,10 +73,12 @@ FILLIN.prototype.render = function(textInteractionEntryIndex) {
  */
 FILLIN.prototype.generateInteractiveDivHtml = function(textInteractionEntryIndex) {
 	var textInteractionEntry = this.textEntryInteractions[parseInt(textInteractionEntryIndex)];
-	var responseId = textInteractionEntry.responseIdentifier;
-	var expectedLength = textInteractionEntry.expectedLength;
-	var humanIndex = parseInt(textInteractionEntryIndex)+1;
-	return "<b>Answer for blank #"+humanIndex+": </b><input maxLength=\""+expectedLength+"\" id=\"responseBox\" type=\"text\"></input>";
+	if(textInteractionEntry){
+		var responseId = textInteractionEntry.responseIdentifier;
+		var expectedLength = textInteractionEntry.expectedLength;
+		var humanIndex = parseInt(textInteractionEntryIndex)+1;
+		return "<b>Answer for blank #"+humanIndex+": </b><input maxLength=\""+expectedLength+"\" id=\"responseBox\" type=\"text\"></input>";
+	};
 }
 
 /**
@@ -85,7 +87,7 @@ FILLIN.prototype.generateInteractiveDivHtml = function(textInteractionEntryIndex
 FILLIN.prototype.generateNonInteractiveDivHtml = function(node) {
 	var children = node.childNodes;
 	for (var i=0; i < children.length; i++) {
-		if (children[i].nodeName == "htmltext") {
+		if (children[i].nodeName == "htmltext" && children[i].firstChild) {
 			this.html += children[i].firstChild.nodeValue;
 		} else if (children[i].nodeName == "textEntryInteraction") {
 			var responseIdStr = children[i].getAttribute('responseIdentifier');

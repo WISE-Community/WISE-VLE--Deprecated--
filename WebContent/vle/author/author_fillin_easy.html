@@ -564,25 +564,32 @@ function overlaps(start, end){
 	var realStart;
 	var realEnd;
 	
-	if(difference > 0){
-		realStart = start + difference
-		realEnd = end + difference
-	} else {
+	if(difference > 0){ //deleting text
 		realStart = start;
-		realEnd = end;
+		realEnd = end + difference;
+	} else { //adding text
+		realStart = start + difference - 1;
+		realEnd = end - 1;
 	};
-	
-	for(var x=0;x<body.childNodes.length;x++){
-		if(body.childNodes[x].nodeName!="#text"){
-			if(body.childNodes[x].nodeName=='htmltext'){
-				runningText += spaceMaker(body.childNodes[x].firstChild.nodeValue);
-			} else if(body.childNodes[x].nodeName=='textEntryInteraction'){
-				var currentText = retrieveInteractionText(body.childNodes[x].getAttribute('responseIdentifier'));
-				var fullLength = (runningText + currentText).length;
-				if((realStart > runningText.length && realStart < fullLength) || (end > runningText.length && end < fullLength)){
-					return true;
+		
+	if(difference==0){//no change
+		return false;
+	} else {//changed look for overlap
+		for(var x=0;x<body.childNodes.length;x++){
+			if(body.childNodes[x].nodeName!="#text"){
+				if(body.childNodes[x].nodeName=='htmltext'){
+					runningText += spaceMaker(body.childNodes[x].firstChild.nodeValue);
+				} else if(body.childNodes[x].nodeName=='textEntryInteraction'){
+					var currentText = retrieveInteractionText(body.childNodes[x].getAttribute('responseIdentifier'));
+					var fullLength = (runningText + currentText).length;
+					if((runningText.length > realStart && runningText.length < realEnd) || (fullLength > realStart && runningText < realEnd)){
+						return true;
+					};
+					if(realStart >= runningText.length && realStart < fullLength){
+						return true;
+					};
+					runningText += currentText;
 				};
-				runningText += currentText;
 			};
 		};
 	};
@@ -665,10 +672,6 @@ function loadAuthoringFromFile(filename) {
 	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
 }
 
-/*
- * Called when 'keyup' event is received TextArea on this page.
- * gets the text in the textarea and re-renders the previewFrame
- */
 function sourceUpdated() {	
 	if(validate()){
 		var difference = getDifference();
@@ -684,12 +687,18 @@ function sourceUpdated() {
 				if(body.childNodes[x].nodeName!="#text"){
 					if(body.childNodes[x].nodeName=='htmltext'){
 						var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
-						if(start < (runningText + currentText).length){ //this is where the change was made, update text
-							body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + currentText.substring(end - runningText.length, currentText.length);
-							charCount -= difference;
-							generateFullText();
-							updatePreview();
-							return;
+						if(start <= (runningText + currentText).length){ //this is where the change was made, update text
+							if(end <= (runningText + currentText).length){ //entire deletion occurs within this node
+								body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + currentText.substring(end - runningText.length, currentText.length);
+								charCount -= difference;
+								generateFullText();
+								updatePreview();
+								return;
+							} else { //deletion goes beyond this node
+								body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length);
+								runningText += currentText;
+								start = runningText.length
+							};
 						} else { //keep looking, the change was not here
 							runningText += currentText;
 						};
@@ -698,6 +707,9 @@ function sourceUpdated() {
 					};
 				};
 			};
+			charCount -= difference;
+			generateFullText();
+			updatePreview();
 		} else { //text has been added
 			var end = document.getElementById('questionInput').selectionStart;
 			var start = end + difference;
@@ -710,7 +722,7 @@ function sourceUpdated() {
 				if(body.childNodes[x].nodeName!="#text"){
 					if(body.childNodes[x].nodeName=='htmltext'){
 						var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
-						if(start < (runningText + currentText).length){ //this is where the change was made, update text
+						if(start <= (runningText + currentText).length){ //this is where the change was made, update text
 							body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + newText + currentText.substring(start - runningText.length, currentText.length);
 							charCount += newText.length;
 							generateFullText();

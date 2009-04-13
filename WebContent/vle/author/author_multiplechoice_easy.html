@@ -26,6 +26,8 @@
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+
 <script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="../js/node/Node.js"></script>
@@ -34,8 +36,128 @@
 <script type="text/javascript" src="../js/node/multiplechoice/multiplechoicestate.js"></script>
 <script type="text/javascript" src="../js/node/multiplechoice/mc.js"></script>
 
+<link rel="stylesheet" type="text/css" href="../css/authoring/author_multiplechoice.css" />
+
 <script type="text/javascript">
 var xmlPage;
+
+var ddList = [];
+
+/*****											    *****|
+ * The following functions are used by YUI for the drag *|
+ * and drop stuff on this page						    *|
+ *****											    *****/
+function generateDD(){
+	//clear previous list of draggable elements
+	ddList = [];
+	
+	YUI().use('dd-constrain', 'dd-proxy', 'dd-drop', function(Y) {
+	    //Listen for all drop:over events
+	    Y.DD.DDM.on('drop:over', function(e) {
+	        //Get a reference to out drag and drop nodes
+	        var drag = e.drag.get('node'),
+	            drop = e.drop.get('node');
+	        
+	        //Are we dropping on a li node?
+	        if (drop.get('tagName').toLowerCase() === 'li') {
+	            //Are we not going up?
+	            if (!goingUp) {
+	                drop = drop.get('nextSibling');
+	            }
+	            //Add the node to this list
+	            e.drop.get('node').get('parentNode').insertBefore(drag, drop);
+	            //Resize this nodes shim, so we can drop on it later.
+	            e.drop.sizeShim();
+	        }
+	    });
+	    //Listen for all drag:drag events
+	    Y.DD.DDM.on('drag:drag', function(e) {
+	        //Get the last y point
+	        var y = e.target.lastXY[1];
+	        //is it greater than the lastY var?
+	        if (y < lastY) {
+	            //We are going up
+	            goingUp = true;
+	        } else {
+	            //We are going down..
+	            goingUp = false;
+	        }
+	        //Cache for next check
+	        lastY = y;
+	    });
+	    //Listen for all drag:start events
+	    Y.DD.DDM.on('drag:start', function(e) {
+	        //Get our drag object
+	        var drag = e.target;
+	        //Set some styles here
+	        drag.get('node').setStyle('opacity', '.25');
+	        drag.get('dragNode').set('innerHTML', drag.get('node').get('innerHTML'));
+	        drag.get('dragNode').setStyles({
+	            opacity: '.5',
+	            borderColor: drag.get('node').getStyle('borderColor'),
+	            backgroundColor: drag.get('node').getStyle('backgroundColor')
+	        });
+	    });
+	    //Listen for a drag:end events
+	    Y.DD.DDM.on('drag:end', function(e) {
+	        var drag = e.target;
+	        //Put out styles back
+	        drag.get('node').setStyles({
+	            visibility: '',
+	            opacity: '1'
+	        });
+	        //authoringTool.onNodeDropped(drag);
+	    });
+	    //Listen for all drag:drophit events
+	    Y.DD.DDM.on('drag:drophit', function(e) {
+	        var drop = e.drop.get('node'),
+	            drag = e.drag.get('node');
+	
+	        //if we are not on an li, we must have been dropped on a ul
+	        if (drop.get('tagName').toLowerCase() !== 'li') {
+	            if (!drop.contains(drag)) {
+	                drop.appendChild(drag);
+	            }
+	            onNodeDropped(drag, drop);
+	        }
+	    });
+	    
+	    //Static Vars
+	    var goingUp = false, lastY = 0;
+	
+	    //Get the list of li's with class draggable in the lists and make them draggable
+	    var lis = Y.Node.all('#answerDiv ul li.draggable');
+	    if (lis != null) {
+	    	lis.each(function(v, k) {
+	    		var dd = new Y.DD.Drag({
+	    			node: v,
+	    			proxy: true,
+	    			moveOnEnd: false,
+	    			constrain2node: '#answerDiv',
+	    			target: {
+	    			padding: '0 0 0 20'
+	    		}
+	    		});
+	    		ddList.push(dd);
+	    	});
+	    }
+	
+	    //Create simple targets for the lists..
+	    var uls = Y.Node.all('#answerDiv ul');    
+	    uls.each(function(v, k) {
+	        var tar = new Y.DD.Drop({
+	            node: v
+	        });
+	    });
+	});
+};
+
+function onNodeDropped(dragged, dropped){
+	sourceUpdated();
+};
+/*****												******|
+ * End functions used by YUI for the drag and drop stuff *|
+ *****												******/
 
 /**
  * Removes previous elements and generates a new page with the
@@ -74,6 +196,8 @@ function generatePage(){
 	pageDiv.appendChild(createElement(document, 'input', {type: "button", value: "Clear Correct Choice", onclick: "clearCorrectChoice()"}));
 	
 	parent.appendChild(pageDiv);
+	
+	generateDD();
 };
 
 function generateShuffle(){
@@ -141,12 +265,15 @@ function generatePrompt(){
  */
 function generateAnswers(){
 	var answerElements = [];
-	var answerTable = createElement(document, 'table', {id: 'answerTable'});
-	answerTable.appendChild(generateAnswerTableHead());
+	var answerDiv = createElement(document, 'div', {id: 'answerDiv', name: 'answerDiv'});
+	var answerUL = createElement(document, 'ul', {id: 'answerUL', class: 'container'});
+	
 	
 	var answers = xmlPage.getElementsByTagName('simpleChoice');
 	for(var h=0;h<answers.length;h++){
 		var answerText = null;
+		var answerTextLabel = document.createTextNode('Answer: ');
+		var feedbackTextLabel = document.createTextNode('Feedback:');
 		feedback = generateFeedback(answers[h], h);
 		options = generateOptions(h, answers.length);
 		for(var n=0;n<answers[h].childNodes.length;n++){
@@ -154,34 +281,20 @@ function generateAnswers(){
 				answerText = answers[h].childNodes[n].nodeValue;
 			};
 		};
-		var newRow = createElement(document, 'tr', {name: "answerRow"});
-		var answerTD = createElement(document, 'td');
+		var answerLI = createElement(document, 'li', {id: 'answerLI_' + h, name: 'answerLI', class: 'draggable'});
 		var answer = createElement(document, 'input', {type: 'text', name: "answerInput", value: answerText, onkeyup: "sourceUpdated()"});
-		answerTD.appendChild(answer);
-		
-		newRow.appendChild(answerTD);
-		newRow.appendChild(feedback);
-		newRow.appendChild(options);
-		answerTable.appendChild(newRow);
+		answerLI.appendChild(answerTextLabel);
+		answerLI.appendChild(answer);
+		answerLI.appendChild(createBreak());
+		answerLI.appendChild(feedbackTextLabel);
+		answerLI.appendChild(feedback);
+		answerLI.appendChild(createBreak());
+		answerLI.appendChild(options);
+		answerUL.appendChild(answerLI);
 	};
-	return answerTable;
-};
-
-/**
- * Returns a dynamically generated Header for the answer table
- */
-function generateAnswerTableHead(){
-	var tableHead = createElement(document, 'tr');
-	var tableAnswer = createElement(document, 'td');
-	var tableFeedback = createElement(document, 'td');
-	var tableOption = createElement(document, 'td');
-	tableAnswer.innerHTML = "ANSWER";
-	tableFeedback.innerHTML = "FEEDBACK";
-	tableOption.innerHTML = "OPTIONS";
-	tableHead.appendChild(tableAnswer);
-	tableHead.appendChild(tableFeedback);
-	tableHead.appendChild(tableOption);
-	return tableHead;
+	
+	answerDiv.appendChild(answerUL);
+	return answerDiv;
 };
 
 /**
@@ -190,7 +303,6 @@ function generateAnswerTableHead(){
  * feedback is not available
  */
 function generateFeedback(simpleChoice, index){
-	var feedbackTD = createElement(document, 'td', {id: "feedbackTD_" + index});
 	var feedback = simpleChoice.getElementsByTagName('feedbackInline');
 	if(hasInlineFeedback()){
 		if(feedback==null || feedback[0]==null){
@@ -202,8 +314,7 @@ function generateFeedback(simpleChoice, index){
 	} else {
 		var feedbackEl = createElement(document, 'div', {id: 'feedbackInput_' + index, name: 'feedbackInput_' + index});
 	};
-	feedbackTD.appendChild(feedbackEl);
-	return feedbackTD;
+	return feedbackEl;
 };
 
 /**
@@ -211,37 +322,20 @@ function generateFeedback(simpleChoice, index){
  * for the given simpleChoice XML.
  */
 function generateOptions(index, length){
-	var options = createElement(document, 'td');
+	var options = createElement(document, 'div');
 	var outStr;
 	
 	if(xmlPage.getElementsByTagName('correctResponse')[0].getAttribute('interpretation') == xmlPage.getElementsByTagName('simpleChoice')[index].getAttribute('identifier')){
-		outStr = '<input CHECKED type="radio" name="correctRadio" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is the correct Choice';
+		outStr = '<input CHECKED type="radio" name="correctRadio" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is the correct Choice ';
 	} else {
-		outStr = '<input type="radio" name="correctRadio" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is the correct Choice';
+		outStr = '<input type="radio" name="correctRadio" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is the correct Choice ';
 	};
 	
-	outStr = outStr + '<br><a href="#" onclick="removeChoice(' + index + ')">Remove Choice</a>';
-	
-	if(index!=0){
-		outStr = outStr + '<br><a href="#" onclick="moveUp(' + index + ')">move up</a>';
-	};
-	
-	if(index!=(length-1)){
-		outStr = outStr + '<br><a href="#" onclick="moveDown(' + index + ')">move down</a>';
-	};
+	outStr = outStr + '<a href="#" onclick="removeChoice(' + index + ')">Remove Choice</a>';
 	
 	options.innerHTML = outStr;
 	return options;
 };
-
-/**
- * Removes previous button and creates input text field for feedback
- */
-//function createFeedbackForChoice(index){
-//	var feedbackParent = document.getElementById('feedbackTD_' + index);
-//	feedbackParent.removeChild(document.getElementById('feedbackInput_' + index));
-//	feedbackParent.appendChild(createElement(document, 'input', {type: 'text', id: 'feedbackInput_' + index}));
-//};
 
 /**
  * returns a <br> element
@@ -258,10 +352,10 @@ function createPrompt(){
 };
 
 function createAnswer(parent){
-	var answers = document.getElementsByName('answerRow');
+	var answers = document.getElementsByName('answerLI');
 	for(var d=0;d<answers.length;d++){
-		var answer = answers[d].childNodes[0].childNodes[0];
-		var feedback = answers[d].childNodes[1].childNodes[0];
+		var answer = answers[d].childNodes[1];
+		var feedback = answers[d].childNodes[4];
 		var simpleChoice = xmlPage.createElement('simpleChoice');
 		var simpleText = xmlPage.createTextNode(answer.value);
 		simpleChoice.setAttribute('fixed', "true");
@@ -271,7 +365,7 @@ function createAnswer(parent){
 			simpleChoice.appendChild(createFeedback(feedback, simpleChoice.getAttribute('identifier')));
 		};
 		
-		if(answers[d].childNodes[2].childNodes[0].checked){
+		if(answers[d].childNodes[6].childNodes[0].checked){
 			xmlPage.getElementsByTagName('correctResponse')[0].setAttribute('interpretation', simpleChoice.getAttribute('identifier'));	
 		};
 		
@@ -287,26 +381,6 @@ function createFeedback(feedback, identifier){
 	feedbackEl.setAttribute('identifier', identifier);
 	feedbackEl.appendChild(feedbackText);
 	return feedbackEl;
-};
-
-function moveUp(index){
-	var parent = xmlPage.getElementsByTagName('choiceInteraction')[0];
-	var nodeToMove = parent.getElementsByTagName('simpleChoice')[index];
-	var previousNode = nodeToMove.previousSibling;
-	parent.removeChild(nodeToMove);
-	parent.insertBefore(nodeToMove, previousNode);
-	regenerateAnswers();
-	sourceUpdated();
-};
-
-function moveDown(index){
-	var parent = xmlPage.getElementsByTagName('choiceInteraction')[0];
-	var nodeToMove = parent.getElementsByTagName('simpleChoice')[index];
-	var nextNode = nodeToMove.nextSibling.nextSibling;
-	parent.removeChild(nodeToMove);
-	parent.insertBefore(nodeToMove, nextNode);
-	regenerateAnswers();
-	sourceUpdated();
 };
 
 function removeChoice(index){
@@ -347,10 +421,11 @@ function createNewFeedback(simpleChoice){
 
 function regenerateAnswers(){
 	var parent = document.getElementById('dynamicPage');
-	parent.removeChild(document.getElementById('answerTable'));
+	parent.removeChild(document.getElementById('answerDiv'));
 	var answer = generateAnswers();
 	var nextNode = document.getElementById('createNewButton');
 	parent.insertBefore(answer, nextNode);
+	generateDD();
 };
 
 function shuffleChange(val){
@@ -393,6 +468,7 @@ function clearCorrectChoice(){
 		radios[p].checked = false;
 	};
 	xmlPage.getElementsByTagName('correctResponse')[0].setAttribute('interpretation', '');
+	sourceUpdated();
 };
 
 /**
@@ -428,6 +504,7 @@ function hasInlineFeedback(){
 function feedbackOptionChange(val){
 	xmlPage.getElementsByTagName(xmlPage.getElementsByTagName('choiceInteraction')[0].setAttribute('hasInlineFeedback', val));
 	regenerateAnswers();
+	//generateDD();
 	sourceUpdated();
 };
 

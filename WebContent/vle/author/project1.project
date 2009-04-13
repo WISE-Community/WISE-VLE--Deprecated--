@@ -34,13 +34,5 @@
 		<node-ref ref='url'/>
   		<node-ref ref="a1s1" />
  		<node-ref ref="mc1" />
-		<sequence identifier="inside_sequence">
-			<node-ref ref="mc1" />
-			<sequence identifier="inside_inside_sequence">
-				<node-ref ref="a1s1" />
-			</sequence>
-		</sequence>
-		<node-ref ref="fillin" />
-		<node-ref ref="entry" />
 	</sequence>
 </project>

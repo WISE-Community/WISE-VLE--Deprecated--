@@ -21,7 +21,7 @@ the following behaviors in order:&lt;/p&gt;
                           <simpleChoice fixed="true" identifier="choice 2"><feedbackInline identifier="choice 2" showHide="show">Nope, this isn't right</feedbackInline>3</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 3"><feedbackInline identifier="choice 3" showHide="show" >&lt;br&gt;Yes!</feedbackInline>7</simpleChoice>
                           <simpleChoice fixed="true" identifier="choice 4"><feedbackInline identifier="choice 4" showHide="show" >&lt;br&gt;Nope. Remember, when the feed behavior is invoked, hunger either gets set to 0 or is reduced by 10.</feedbackInline>8</simpleChoice>
-                          <simpleChoice fixed="true" identifier="SIMPLE_CHOICE_ID5">We cannot know.</simpleChoice>
+                          <simpleChoice fixed="true" identifier="choice 5">We cannot know.</simpleChoice>
                         </choiceInteraction>
                       </itemBody>
   </assessmentItem></jaxbXML>
