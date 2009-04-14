@@ -28,7 +28,7 @@ public class EchoPostData extends HttpServlet{
 		String name = request.getParameter(NAME);
 		
 		response.setContentType("text/plain");
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + name + ".txt\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
 		response.getWriter().print(request.getParameter(DATA));
 	}
 	
