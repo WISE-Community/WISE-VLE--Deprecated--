@@ -131,6 +131,9 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			thisNode.filename = element.getElementsByTagName('ref')[0].getAttribute("filename");
 			thisNode.element = element;
 			this.allLeafNodes.push(thisNode);
+			if(thisNode.type=='NoteNode' || thisNode.type=='Brainstorm'){
+				thisNode.retrieveFile();
+			};
 		}
 	}
 	

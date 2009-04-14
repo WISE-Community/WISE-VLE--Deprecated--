@@ -266,3 +266,47 @@ Node.prototype.exportNodeFooter = function(node) {
 Node.prototype.getLatestWork = function(vle, dataId) {
 	return null;
 }
+
+/**
+ * for nodes that are loaded from project files, retrieves the file
+ * and sets this.element = xml
+ */
+Node.prototype.retrieveFile = function(){
+	if(this.filename!=null){
+		var callback = {
+			success:function(o){
+				if(o.responseXML){
+					this.element = o.responseXML;
+				} else {
+					if(loadXMLDocFromString){
+						var anotherTry = loadXMLDocFromString(o.responseText);
+						if(anotherTry){
+							this.element = anotherTry;
+						} else {
+							alert('possibly mal-formed xml, unable to load from file');
+						};
+					};
+				};
+			},
+			failure:function(o){ alert('unable to retrieve file');},
+			scope:this
+		};
+		
+		YAHOO.util.Connect.asyncRequest('GET', this.filename, callback, null);
+	} else {
+		alert('no file is specified, unable to retrieve data');
+	};
+};
+
+/**
+ * Returns a string of this.element
+ */
+Node.prototype.getXMLString = function(){
+	var xmlString;
+	if(window.ActiveXObject) {
+		xmlString = this.element.xml;
+	} else {
+		xmlString = (new XMLSerializer()).serializeToString(this.element);
+	};
+	return xmlString;
+};

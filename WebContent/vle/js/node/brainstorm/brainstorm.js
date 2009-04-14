@@ -8,6 +8,7 @@
 function BRAINSTORM(xmlDoc){
 	this.serverless = true;
 	this.states = [];
+	this.vle = null;
 	this.loadXMLDoc(xmlDoc);
 };
 
@@ -27,7 +28,7 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
 	this.questionType = this.assessmentItem.getAttribute('identifier');
 };
 
-BRAINSTORM.prototype.render = function(){
+BRAINSTORM.prototype.render = function(){	
 	var parent = document.getElementById('frameDiv');
 	var old = document.getElementById('brainstormFrame');
 	
@@ -38,7 +39,12 @@ BRAINSTORM.prototype.render = function(){
 	
 	//create new frame
 	if(this.serverless){
-		var frame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainlite.html'});
+		if (this.states!=null && this.states.length > 0) { //already visited, skip to next page
+			this.renderResponsePage();
+			return;
+		} else {
+			var frame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainlite.html'});
+		};
 	} else {
 		var frame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainfull.html'});
 	};
@@ -62,7 +68,11 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 
 BRAINSTORM.prototype.renderResponsePage = function(){
 	var parent = document.getElementById('frameDiv');
-	parent.removeChild(document.getElementById('brainstormFrame'));
+	var old = document.getElementById('brainstormFrame');
+	
+	if(old){
+		parent.removeChild(document.getElementById('brainstormFrame'));
+	};
 	
 	var newFrame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainliteresponse.html'});
 	parent.appendChild(newFrame);
@@ -80,19 +90,32 @@ BRAINSTORM.prototype.responsePageLoaded = function(frameDoc){
 		responsesParent.appendChild(response);
 		responsesParent.appendChild(createElement(frameDoc, 'br'));
 	};
+	
+	if (this.states!=null && this.states.length > 0) {
+		frameDoc.getElementById('studentResponse').value = this.states[this.states.length - 1].response;
+	};
 };
 
 BRAINSTORM.prototype.save = function(frameDoc){
 	var response = frameDoc.getElementById('studentResponse').value
 	if(response){
-		this.states.push(new BRAINSTORMSTATE(response));
+		var currentState = new BRAINSTORMSTATE(response);
+		this.states.push(currentState);
+		if(this.vle){
+			this.vle.state.getCurrentNodeVisit().nodeStates.push(currentState);
+		};
 	};
-	alert(this.states.length);
 };
 
 BRAINSTORM.prototype.loadState = function(states){
 	if(states){
 		this.states = states;
+	};
+};
+
+BRAINSTORM.prototype.loadVLE = function(vle){
+	if(vle){
+		this.vle = vle;
 	};
 };
 

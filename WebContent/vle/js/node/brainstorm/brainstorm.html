@@ -34,6 +34,13 @@
 <script type="text/javascript">
 var brainstorm;
 
+function loadXMLAndStateAndVLE(xmlDoc, states, vle){
+	brainstorm = new BRAINSTORM(xmlDoc);
+	brainstorm.loadState(states);
+	brainstorm.loadVLE(vle);
+	brainstorm.render();
+};
+
 function loadXMLString(xmlString){
 	var xmlDoc=loadXMLDocFromString(xmlString);
 	brainstorm = new BRAINSTORM(xmlDoc);

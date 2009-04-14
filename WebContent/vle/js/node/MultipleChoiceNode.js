@@ -13,24 +13,27 @@ function MultipleChoiceNode(nodeType) {
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
+	if(this.filename!=null){ //load element from file
+		this.retrieveFile();
+	};
+	
 	if(contentPanel == null) {
-		window.frames["ifrm"].location = "js/node/multiplechoice/multiplechoice.html";
+		window.frames["ifrm"].location = "/vlewrapper/vle/js/node/multiplechoice/multiplechoice.html";
 	} else {
-		contentPanel.location = "js/node/multiplechoice/multiplechoice.html";
-	}
-}
+		contentPanel.location = "/vlewrapper/vle/js/node/multiplechoice/multiplechoice.html";
+	};
+};
 
 
 
-MultipleChoiceNode.prototype.load = function() {
-	var xmlNode = this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
-	window.frames["ifrm"].renderMCFromString(xmlNode);
+MultipleChoiceNode.prototype.load = function() {	
+	window.frames["ifrm"].renderMCFromString(this.getXMLString());
 	
 	//these steps are now loaded from the vle/otml, this does not work for some reason
 	window.frames["ifrm"].loadFromVLE(this, vle);
-	
+		
 	document.getElementById('topStepTitle').innerHTML = this.title;
-}
+};
 
 /**
  * @return an xml string that represents the current state of this

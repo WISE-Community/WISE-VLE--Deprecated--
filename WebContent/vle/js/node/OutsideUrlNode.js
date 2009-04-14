@@ -10,8 +10,12 @@ function OutsideUrlNode(nodeType) {
 }
 
 OutsideUrlNode.prototype.render = function(contentpanel) {
+	if(this.filename!=null){ //load element from file
+		this.retrieveFile();
+	};
+	
 	window.frames["ifrm"].document.open();
-	window.frames["ifrm"].location = "js/node/outsideurl/outsideurl.html";
+	window.frames["ifrm"].location = "/vlewrapper/vle/js/node/outsideurl/outsideurl.html";
 	window.frames["ifrm"].document.close();
 }
 

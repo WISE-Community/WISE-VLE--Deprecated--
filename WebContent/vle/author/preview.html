@@ -1,6 +1,9 @@
 <html>
 <title>Loading Sample PAS Project to Virtual Learning Environment</title>
 <head>
+<script type="text/javascript" src="../js/sound/soundmanager/script/soundmanager2.js"></script>
+<script type="text/javascript" src="../js/sound/AudioManager.js"></script>
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 
 
 <!-- Dependency --> 
@@ -8,42 +11,6 @@
 
 <!-- Event source file -->
 <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
-
-<script type="text/javascript" src="js/sound/soundmanager/script/soundmanager2.js"></script>
-<script type="text/javascript" src="js/sound/AudioManager.js"></script>
-<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-<script type="text/javascript" src="js/common/helperfunctions.js"></script>
-<script type="text/javascript" src="js/VLE.js"></script>
-<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
-<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
-<script type="text/javascript" src="js/navigation/DFS.js"></script>
-<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
-<script type="text/javascript" src="js/common/loadxmldoc.js"></script>
-<script type="text/javascript" src="js/node/Node.js"></script>
-<script type="text/javascript" src="js/node/HtmlNode.js"></script>
-<script type="text/javascript" src="js/node/CustomNode.js"></script>
-<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
-<script type="text/javascript" src="js/node/FillinNode.js"></script>
-<script type="text/javascript" src="js/node/NoteNode.js"></script>
-<script type="text/javascript" src="js/node/JournalNode.js"></script>
-<script type="text/javascript" src="js/node/JournalEntryNode.js"></script>
-<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
-<script type="text/javascript" src="js/node/BlueJNode.js"></script>
-<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
-<script type="text/javascript" src="js/node/ReferenceNode.js"></script>
-<script type="text/javascript" src="js/project/Project.js"></script>
-<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
-<script type="text/javascript" src="js/io/ConnectionManager.js"></script>
-<script type="text/javascript" src="js/node/JournalEntryNode.js"></script>
-<script type="text/javascript" src="js/journal/Journal.js"></script>
-
-<script type="text/javascript" src="js/common/niftycube.js"></script>
-<script type="text/javascript" src="js/common/sdmenu.js"></script>
-<script type="text/javascript" src="js/common/dropdown.js"></script>
-
-<link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
-<link rel="stylesheet" type="text/css" href="css/navigation.css" />
-<link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
 
 <!-- Sam Skin CSS -->
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
@@ -63,6 +30,50 @@
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
+
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript" src="../js/VLE.js"></script>
+<script type="text/javascript" src="../js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="../js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="../js/visibility/VisibilityLogic.js"></script>
+<script type="text/javascript" src="../js/visibility/OnlyShowSelectedNodes.js"></script>
+<script type="text/javascript" src="../js/visibility/CorrectnessBranchingVisibility.js"></script>
+<script type="text/javascript" src="../js/navigation/DFS.js"></script>
+<script type="text/javascript" src="../js/navigation/NavigationPanel.js"></script>
+<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/node/Node.js"></script>
+<script type="text/javascript" src="../js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="../js/node/CustomNode.js"></script>
+<script type="text/javascript" src="../js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="../js/node/FillinNode.js"></script>
+<script type="text/javascript" src="../js/node/NoteNode.js"></script>
+<script type="text/javascript" src="../js/node/JournalNode.js"></script>
+<script type="text/javascript" src="../js/node/JournalEntryNode.js"></script>
+<script type="text/javascript" src="../js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="../js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="../js/node/BrainstormNode.js"></script>
+<script type="text/javascript" src="../js/project/Project.js"></script>
+<script type="text/javascript" src="../js/io/ConnectionManager.js"></script>
+
+<script type="text/javascript" src="../js/common/niftycube.js"></script>
+<script type="text/javascript" src="../js/navigation/menu.js"></script>
+
+<script type="text/javascript" src="../js/common/dropdown.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/niftyCube.css" />
+<link rel="stylesheet" type="text/css" href="../css/navigation.css" />
+
+<link rel="stylesheet" type="text/css" href="../css/navigation/testnavigation.css" />
+
+<!--  no navigation styling for now
+<link rel="stylesheet" type="text/css" href="../css/sdmenu.css" />
+ -->
+<link rel="stylesheet" type="text/css" href="../css/visibility/visibility.css" />
+
+<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
+
 <script type="text/javascript">
 window.onload=function(){
 Nifty("div#none","bottom");
@@ -72,32 +83,8 @@ render();
 //parent.foo2();
 }
 
-window.onbeforeunload = function(){
-	if(!vle.connectionManager.statesSaved()){
-		return "Your data has not been saved. If you continue your data may be lost!";
-	};
-}; 
-
 function projectSummary(){
 	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
-};
-
-function getData(){
-	var callback = {
-		success: function(o){alert(o.responseXML); alert(o.responseText);},
-		failure: function(o){alert('failed');}
-	};
-	
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "../getdata.html?dataId=-2", callback, null);
-};
-
-function getAllData(){
-	var callback = {
-		success: function(o){alert(o.responseXML); alert(o.responseText);},
-		failure: function(o){alert('failed');}
-	};
-	
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "../getdata.html?dataId=4:5:6", callback, null);
 };
 </script>
 
@@ -142,12 +129,6 @@ function popUp(strURL, strType, strHeight, strWidth) {
 	<div class="journalFooter"></div>
 </div>
 	
-<div id="journalEntryPanel">
-	<div class="journalHead"></div>
-	<div class="journalBody"></div>
-	<div class="journalFooter"></div>
-</div>
-
 <div id="projectLeftBox">
 		
 	<div id="toolsArea">
@@ -162,15 +143,12 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		    <ul>
 		      <!-- requested changes have been remarked out -->
 		      <li><a class="underline2" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
-		      <li><a onclick="vle.renderNode('J:0');" class="underline">Show My Journal</a></li>
+		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
 		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
 		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
-		      <li><a class="underline" onclick="vle.saveStudentData();">Save</a></li>
-		      <li><a class="underline" onclick="vle.saveLocally()">Save Locally</a></li>
-			  <li><a class="underline" onclick="alert('not yet implemented');">Save & Exit</a></li>
+		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
+			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
 			  <li><a class="underline" onclick="alert('not yet implemented');">Print</a></li>
-			  <li><a class="underline" onclick="getData()">get data</a></li>
-			  <li><a class="underline" onclick="getAllData()">get all data</a></li>
 			  <!-- <li><a class="underline">Report an Issue</a></li>   -->
 		    </ul>
 		  </dd>
@@ -189,6 +167,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 			
 	</div>
 
+<!--  NO AUDIO FOR THIS EXAMPLE
 		<div id="audioControls">
 			<table>
 				<tr>
@@ -198,16 +177,16 @@ function popUp(strURL, strType, strHeight, strWidth) {
 				</tr>
 			</table>
 		</div>
-	
+-->	
 	<div id="navigationArea">
 
 			 <!-- <div class="sectionHeader">Navigation</div> -->
-		
+		<!--  
 			<div id="navMenuControls">
 				        <input type="button" value="Expand All" onclick="myMenu.expandAll()" />
 				        <input type="button" value="Collapse All" onclick="myMenu.collapseAll()" />
 					</div>
-					
+					-->
 			<div id="navigationMenuBox" >
 				    <div id="my_menu" class="sdmenu">
 				   	</div>
@@ -247,17 +226,14 @@ function popUp(strURL, strType, strHeight, strWidth) {
 </div>
 
 <div id="showAllWorkDiv"></div>
-<form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
-	<input type="hidden" name="name" value="myData"/>
-	<input type="hidden" name="data" id="localData" value=""/>
-</form>
 
 </div>  <!-- centerDiv -->
 <script type="text/javascript">
-	
-	
 var vle = null;
-var nodeIds = ['0:0:1', '0:1:0', '0:2:1'];
+
+//function expandMenu(menuId) {
+//	myMenu.expandMenu(document.getElementById(menuId));
+//}
 
 function render() {
 	var callback =
@@ -265,44 +241,30 @@ function render() {
 	  success: function(o) { 
 		  var xmlDocObj = new LoadXMLDocObj();
 		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
-		  //alert(o.responseXML);
 		  var xmlDocToParse = o.responseXML;
-		// if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
-			  // WINDOWS IE
-			  //alert(o.responseText);
-		//	  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
-		//	  windowsXMLDoc.async = "false";
-		//	  windowsXMLDoc.loadXML(o.responseText);
-		//	  xmlDocToParse = windowsXMLDoc;
-			  //alert('done');
-			  //alert(xmlDocToParse);
-			  //alert('done done');
-		 // }		  
-		  //var project = new PasOtmlProject(xmlDocObj);
-		  var project = new Project();
-		  var journal = new Journal(xmlDocToParse.getElementsByTagName('Journal')[0]);
-		  journal.element = journal.xmlDoc;	 
+		
+		  var project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
-		  project.generateNode(xmlDocToParse);
 		  vle = new VLE();
 		  vle.setProject(project);
-		  vle.setJournal(journal);
-		  vle.postNodes = nodeIds;
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
-		  vle.audioManager = new AudioManager(true);	  
+		 
+		  myMenu = new Menu("my_menu");
+          myMenu.init();
 			
-		  setTimeout("vle.renderNode('0:0:0')", 1000);
+		  setTimeout("vle.renderNode('a1s1')", 1000);
+		  
+		  //alert('success:' + o.responseText);
 	  },
 	  failure: function(o) { alert('failure');},
 	  argument: ["a", "b", "c"]
 	}
 
 	// fetch the OTML.
-	//var transaction = YAHOO.util.Connect.asyncRequest('GET', "journal_example.otml", callback, null);
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "author/project1.project", callback, null);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', "project1.project", callback, null);
 }
 
 var myMenu;

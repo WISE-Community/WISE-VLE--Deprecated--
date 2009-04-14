@@ -12,6 +12,10 @@ function JournalEntryNode(nodeType) {
 
 
 JournalEntryNode.prototype.render = function(contentpanel){
+	if(this.filename!=null){ //load element from file
+		this.retrieveFile();
+	};
+	
 	var states = [];
 	for (var i=0; i < vle.state.visitedNodes.length; i++) {
 		var nodeVisit = vle.state.visitedNodes[i];

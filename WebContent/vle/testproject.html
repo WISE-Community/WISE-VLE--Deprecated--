@@ -48,9 +48,11 @@
 <script type="text/javascript" src="js/node/FillinNode.js"></script>
 <script type="text/javascript" src="js/node/NoteNode.js"></script>
 <script type="text/javascript" src="js/node/JournalNode.js"></script>
+<script type="text/javascript" src="js/node/JournalEntryNode.js"></script>
 <script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
 <script type="text/javascript" src="js/node/BlueJNode.js"></script>
 <script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="js/node/BrainstormNode.js"></script>
 <script type="text/javascript" src="js/project/Project.js"></script>
 <script type="text/javascript" src="js/io/ConnectionManager.js"></script>
 
@@ -250,7 +252,7 @@ function render() {
 		  myMenu = new Menu("my_menu");
           myMenu.init();
 			
-		  setTimeout("vle.renderNode('a2s1')", 1000);
+		  setTimeout("vle.renderNode('fillin')", 1000);
 		  
 		  //alert('success:' + o.responseText);
 	  },
@@ -259,7 +261,7 @@ function render() {
 	}
 
 	// fetch the OTML.
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "testproject/project1.project", callback, null);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', "testproject.project", callback, null);
 }
 
 var myMenu;
