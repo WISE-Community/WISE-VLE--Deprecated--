@@ -25,14 +25,37 @@
 			<ref filename='author/outsideurlexample.ou'/>
 		</OutsideUrlNode>
 	</nodes>
-	<sequence identifier="project1_sequence">
-		<node-ref ref='bs'/>
-		<node-ref ref='fillin'/>
-		<node-ref ref='note'/>
-		<node-ref ref='match'/>
-		<node-ref ref='entry'/>
-		<node-ref ref='url'/>
-  		<node-ref ref="a1s1" />
- 		<node-ref ref="mc1" />
-	</sequence>
+	<sequences>
+		<sequence identifier="inside1">
+			<node-ref ref='note'/>
+			<node-ref ref='match'/>
+			<sequence-ref ref='inside2'/>
+		</sequence>
+		<sequence identifier="inside2">
+			<node-ref ref='fillin'/>
+			<node-ref ref='entry'/>
+			<sequence-ref ref='inside3'/>
+			<sequence-ref ref='inside4'/>
+		</sequence>
+		<sequence identifier="project1_sequence">
+			<node-ref ref='bs'/>
+			<sequence-ref ref='inside1'/>
+			<sequence-ref ref='inside3'/>
+			<node-ref ref='url'/>
+		</sequence>
+		<sequence identifier="inside3">
+			<sequence-ref ref='inside4'/>
+	  		<node-ref ref="a1s1" />
+	 		<node-ref ref="mc1" />
+		</sequence>
+		<sequence identifier="inside4">
+	  		<node-ref ref="a1s1" />
+	 		<node-ref ref="mc1" />
+		</sequence>
+	</sequences>
+	<method>
+		<startpoint>
+			<sequence-ref ref="project1_sequence"/>
+		</startpoint>
+	</method>
 </project>

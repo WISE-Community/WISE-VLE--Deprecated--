@@ -232,7 +232,9 @@ VLE.prototype.getNodeById = function(nodeId){
 };
 
 VLE.prototype.getLeafNodeIds = function() {
-	return this.project.rootNode.getLeafNodeIds();
+	var nodeIds = [];
+	this.project.rootNode.getLeafNodeIds(nodeIds);
+	return nodeIds;
 }
 
 /**

@@ -12,6 +12,10 @@ function CustomJournalEntryNode(nodeType) {
 }
 
 CustomJournalEntryNode.prototype.render = function(contentpanel){
+	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
+		this.retrieveFile();
+	};
+	
 	var states = [];
 	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
 		var nodeVisit = this.vle.state.visitedNodes[i];

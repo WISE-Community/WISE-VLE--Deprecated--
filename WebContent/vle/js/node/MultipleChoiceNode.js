@@ -13,7 +13,7 @@ function MultipleChoiceNode(nodeType) {
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
-	if(this.filename!=null){ //load element from file
+	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
 		this.retrieveFile();
 	};
 	

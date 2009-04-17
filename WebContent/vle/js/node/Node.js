@@ -56,20 +56,28 @@ Node.prototype.getNodeById = function(nodeId) {
  * @return all the leaf nodes below this node, or itself if this is
  * 		a leaf node
  */
-Node.prototype.getLeafNodeIds = function() {
-	var nodeIdArray = new Array();
-	if(this.children.length == 0) {
-		//if this is a leaf node, add itself to the array of leaf nodes
-		nodeIdArray.push(this.id);
-	} else {
-		for (var i=0; i < this.children.length; i++) {
-			//loop through this node's children to search for leaf nodes
-			nodeIdArray = nodeIdArray.concat(this.children[i].getLeafNodeIds());
-		}
-	}
-	
-	return nodeIdArray;
-}
+Node.prototype.getLeafNodeIds = function(arr) {	
+	if(this.children.length==0 && arr.indexOf(this.id)=='-1'){ //it is a leaf node and does not already exist in array
+		arr.push(this.id);
+	} else { //must be a sequence node
+		for(var i=0;i<this.children.length;i++){
+			this.children[i].getLeafNodeIds(arr);
+		};
+	};
+};
+//	var nodeIdArray = new Array();
+//	if(this.children.length == 0) {
+//		//if this is a leaf node, add itself to the array of leaf nodes
+//		nodeIdArray.push(this.id);
+//	} else {
+//		for (var i=0; i < this.children.length; i++) {
+//			//loop through this node's children to search for leaf nodes
+//			nodeIdArray = nodeIdArray.concat(this.children[i].getLeafNodeIds());
+//		}
+//	}
+//	
+//	return nodeIdArray;
+//}
 
 /**
  * Sets this node as the currentNode. Perform functions like

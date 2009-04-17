@@ -49,6 +49,8 @@ function Project(xmlDoc) {
 	this.xmlDoc = xmlDoc;
 	this.allLeafNodes = [];
 	this.allSequenceNodes = [];
+	this.lazyLoading = false;
+	
 	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
 	//alert('1:' + this.xmlDoc.firstChild.nodeName);
 	if (this.xmlDoc.getElementsByTagName("sequence").length > 0) {
@@ -85,23 +87,20 @@ Project.prototype.generateUniqueId = function(){
 };
 
 Project.prototype.getNodeById = function(nodeId){
-	var node;
-	node = this.rootNode.getNodeById(nodeId);
-	if(node){
-		return node;
-	} else {
-		for(var t=0;t<this.allLeafNodes.length;t++){
-			if(this.allLeafNodes[t].id==nodeId){
-				return this.allLeafNodes[t];
-			};
+	for(var t=0;t<this.allLeafNodes.length;t++){
+		if(this.allLeafNodes[t].id==nodeId){
+			return this.allLeafNodes[t];
 		};
 	};
+	for(var p=0;p<this.allSequenceNodes.length;p++){
+		if(this.allSequenceNodes[p].id==nodeId){
+			return this.allSequenceNodes[p];
+		};
+	};
+	return null;
 };
 
 Project.prototype.generateNode = function(element) {
-	//alert('project generateNode method');
-	//var nodeType = element.getAttribute('type');
-	//var thisNode = NodeFactory.createNode(nodeType);
 	var thisNode = NodeFactory.createNode(element);
 	if (thisNode) {
 		thisNode.element = element;
@@ -120,7 +119,6 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	// go through the nodes in <repos>...</repos> tag and create Nodes for each.
 	// put them in allNodes array as we go.
 	this.allLeafNodes = [];
-	this.allSequenceNodes = [];
 	var nodeElements = xmlDoc.getElementsByTagName("nodes")[0].childNodes;
 	for (var i=0; i < nodeElements.length; i++) {
 		var element = nodeElements[i];
@@ -131,36 +129,117 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			thisNode.filename = element.getElementsByTagName('ref')[0].getAttribute("filename");
 			thisNode.element = element;
 			this.allLeafNodes.push(thisNode);
-			if(thisNode.type=='NoteNode' || thisNode.type=='Brainstorm'){
+			if(this.lazyLoading){ //load as needed
+				if(thisNode.type=='NoteNode'){//this one always needs it now
+					thisNode.retrieveFile();
+				};
+			} else { //load it now
 				thisNode.retrieveFile();
 			};
 		}
 	}
 	
-	return this.generateSequence(xmlDoc.getElementsByTagName("sequence")[0]);
+	//return this.generateSequence(xmlDoc.getElementsByTagName("sequence")[0]);
+	return this.generateSequences(xmlDoc);
 }
 
 /**
- * Given a sequence node, generates all referenced nodes
- * including children sequence nodes
+ * Given the xml, generates all sequence nodes and returns the
+ * sequence node specified as the start point
  */
-Project.prototype.generateSequence = function(sequence){
-	var sequenceNode = NodeFactory.createNode(sequence);
-	sequenceNode.element = sequence;
-	var childElements = sequence.childNodes;   //either a node-ref or another sequence
-	for (var j=0; j < childElements.length; j++) {
-		if (childElements[j].nodeName != "#text")  {
-			if(childElements[j].nodeName=='sequence'){
-				sequenceNode.addChildNode(this.generateSequence(childElements[j]));
-			} else {
-				var referenceIdentifier = childElements[j].getAttribute("ref");   // ie a2s1, a3s4, ids that are defined in nodes in the repos section.
-				var referencedNode = findNodeById(this.allLeafNodes, referenceIdentifier);
-				sequenceNode.addChildNode(referencedNode);
+Project.prototype.generateSequences = function(xmlDoc){
+	this.allSequenceNodes = [];
+	var startingSequence = null;
+	
+	//generate the sequence nodes
+	var sequences = xmlDoc.getElementsByTagName('sequence');
+	for(var e=0;e<sequences.length;e++){
+		var sequenceNode = NodeFactory.createNode(sequences[e]);
+		sequenceNode.element = sequences[e];
+		this.allSequenceNodes.push(sequenceNode);
+	};
+	
+	//get startingSequence
+	var startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
+	
+	//validate that there are no loops
+	if(startingSequence){
+		var stack = [];
+		if(this.validateNoLoops(startingSequence.id, stack)){
+			//All OK, add children to sequences
+			var visited = [];
+			this.populateSequences(startingSequence.id, visited);
+			return startingSequence;
+		} else {
+			alert('Please check your sequence references. Infinite loop discovered or duplicate ids');
+			return null;
+		};
+	} else {
+		alert('Invalid start sequence specified in project, please check the start point reference');
+		return;
+	};
+};
+
+/**
+ * Given the sequence id and stack, returns true if there are
+ * no infinite loops within the project, otherwise returns false
+ */
+Project.prototype.validateNoLoops = function(id, stack){
+	if(stack.indexOf(id)==-1){ //id not found in stack - continue checking
+		var childrenIds = this.getChildrenSequenceIds(id);
+		if(childrenIds.length>0){ //sequence has 1 or more sequences as children - continue checking
+			stack.push(id);
+			for(var b=0;b<childrenIds.length;b++){ // check children
+				if(!this.validateNoLoops(childrenIds[b], stack)){
+					return false; //found loop or duplicate id
+				};
 			};
-		}
-	}
-	this.allSequenceNodes.push(sequenceNode);
-	return sequenceNode;	
+			stack.pop(id); //children OK
+			return true;
+		} else { // no children ids to check - this is last sequence node so no loops or duplicates
+			return true;
+		};
+	} else { //id found in stack, infinite loop or duplicate id
+		return false;
+	};
+	alert('why here?');
+};
+
+/**
+ * Given the start sequence Id, populates All Children nodes
+ */
+Project.prototype.populateSequences = function(id, visited){
+	var sequence = this.getNodeById(id);
+	var children = sequence.element.childNodes;
+	for(var j=0;j<children.length;j++){
+		if(children[j].nodeName!='#text'){
+			var childNode = this.getNodeById(children[j].getAttribute('ref'));
+			sequence.children.push(childNode);
+			if(children[j].nodeName=='sequence-ref'){
+				if(visited.indexOf(childNode.id)==-1){
+					visited.push(childNode.id);
+					this.populateSequences(childNode.id, visited);
+				};
+			};
+		};
+	};
+	
+};
+
+/**
+ * Given a sequence ID, returns an array of ids for any
+ * children sequences
+ */
+Project.prototype.getChildrenSequenceIds = function(id){
+	var sequence = this.getNodeById(id);
+	var childrenIds = [];
+	var refs = sequence.element.getElementsByTagName('sequence-ref');
+	
+	for(var e=0;e<refs.length;e++){
+		childrenIds.push(refs[e].getAttribute('ref'));
+	};
+	
+	return childrenIds;
 };
 
 /*

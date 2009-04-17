@@ -10,7 +10,7 @@ function OutsideUrlNode(nodeType) {
 }
 
 OutsideUrlNode.prototype.render = function(contentpanel) {
-	if(this.filename!=null){ //load element from file
+	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
 		this.retrieveFile();
 	};
 	
