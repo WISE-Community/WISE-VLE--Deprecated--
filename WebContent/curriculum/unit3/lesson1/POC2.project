@@ -1,17 +1,29 @@
 <project>
 	<nodes>
-		<HtmlNode identifier='a1s1' title='Objectives'>
+		<HtmlNode identifier='a1s1' title='A1.1 Objectives'>
 			<ref filename='a1s1.html' />
 		</HtmlNode>
-		
-		<FillinNode identifier='a1s2fill' title='Quick Review'>
+		<FillinNode identifier='a1s2fill' title='A1.2 Quick Review'>
 			<ref filename='a1s2fill.fi'/>
 		</FillinNode>
-		
-				<HtmlNode identifier='a1s1test' title='test page'>
-			<ref filename='a1s1test.html' />
+		<HtmlNode identifier='a2s1' title='A2.1 Introduction to the VP'>
+			<ref filename='a2s1.html' />
 		</HtmlNode>
-		
+		<HtmlNode identifier='a2s2' title='A2.2 Open BlueJ Project'>
+			<ref filename='a2s2.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s3' title='A2.3 Explore the Code 1'>
+			<ref filename='a2s3.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s4' title='A2.4 Explore the Code 2'>
+			<ref filename='a2s4.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s5' title='A2.5 Explore the Code 3'>
+			<ref filename='a2s5.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s6' title='A2.6 Explore the Code 4'>
+			<ref filename='a2s6.html' />
+		</HtmlNode>
 		
 	</nodes>
 	
@@ -19,7 +31,13 @@
 	<sequence identifier='sequence1'>
 		<node-ref ref='a1s1'  />
 		<node-ref ref='a1s2fill'  />
-		<node-ref ref='a1s1test'  /> 			
+		<node-ref ref='a2s1'  /> 	
+		<node-ref ref='a2s2'  /> 
+		<node-ref ref='a2s3'  />
+		<node-ref ref='a2s4'  /> 	
+		<node-ref ref='a2s5'  /> 	
+		<node-ref ref='a2s6'  /> 	
+				
 	</sequence>
 	</sequences>
 	

@@ -38,7 +38,7 @@ var fiObj = null;
 //var node; //a MultipleChoiceNode
 
 function save() {
-	  if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
+	  if(confirm("Click OK to save the file locally.")){
 		  var htmlString = document.getElementById('sourceTextArea').value;
 	      document.getElementById('localData').value = htmlString;
 	      if (thisFilename != null) {

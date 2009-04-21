@@ -25,16 +25,15 @@
 	float:left;
 	width:78%;
 	background-color:#FFCE8E;
-	min-height:600px;
+	min-height:375px;
 	}
 	
 #currentFillBlankParagraph #rightColumn {
-	padding:25px 0;
 	text-align:center;
 	margin-left:79%;
 	background-color:#6883BA;
 	color:#FFF;
-	min-height:600px;
+	min-height:375px;
 	}
 	
 .itemLabel {

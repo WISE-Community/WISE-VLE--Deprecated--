@@ -47,15 +47,18 @@ function generatePage(){
 	
 	//create new elements
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
-	var questionText = document.createTextNode('Enter question fully here including the most correct response for desired fill-in-the-blanks. To create a new fillin, highlight the text you wish to make a fillin and then click on the "Create Fillin" button. To edit or remove existing fillins, select the appropriate fillin below.');
-	var questionInput = createElement(document, 'textarea', {id: 'questionInput', cols: '75', rows: '10', wrap: 'hard', onkeyup: 'sourceUpdated()'});
+	var questionText = document.createTextNode('QUESTION');
+	var questionText2 = document.createTextNode('Type your question below. To create fill-in blanks, highlight a section of text and click the TRANSFORM button. To edit or remove existing fillins, select the matching radio button.');
+	var questionInput = createElement(document, 'textarea', {id: 'questionInput', cols: '90', rows: '30', wrap: 'hard', onkeyup: 'sourceUpdated()'});
 	var fillinText = document.createTextNode('Edit/Remove existing fillins');
 	questionInput.innerHTML = fullText;
 	charCount = questionInput.value.length;
 	
-	var createFillin = createElement(document, 'input', {type: 'button', onclick: 'createFillin()', value: 'Create Fillin'});
+	var createFillin = createElement(document, 'input', {type: 'button', onclick: 'createFillin()', value: 'Transform Highlighted Text into Fill-Blank'});
 	
 	pageDiv.appendChild(questionText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(questionText2);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(questionInput);
 	pageDiv.appendChild(createBreak());
@@ -618,7 +621,7 @@ function spaceMaker(text){
 };
 
 function save() {
-	   	if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
+	   	if(confirm("Click OK to save the file locally.")){
 			  var htmlString;
 			  
 			if(window.ActiveXObject) {
