@@ -155,11 +155,11 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		<div id="projectLogoBox">
 		<a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="../../../vle/assets/images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
 			<div id="projectCurriculum">
-				<div class="title">Level Up! Programming</div>
-				<div class="unit">Unit 3: Section 1</div>
+				<div class="title">UCCP AP Computer Science</div>
+				<div class="unit">Unit 3: Lesson 1</div>
 			</div>
 	<div id="logInBox">
-		<p>Hello, Keyser Soze</p>
+		<p>Hello, Sample Student</p>
 	</div>
 			
 	</div>
@@ -201,8 +201,8 @@ function popUp(strURL, strType, strHeight, strWidth) {
     	<div class="instantQuizIcon"></div>
 		<div class="stepInformation">
 			<span id="topStepTitle"></span>
-		    <span class="stepTypeLabel">(<a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Step Type</a>, </span>
-			<span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Grade Style</a>)</span> 
+		    <span class="stepTypeLabel">(<a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Display step</a></span>
+			<span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a>)</span> 
 		</div>
 		<div id="stepNavButtons">
     		<a onclick="vle.renderPrevNode();" title="Previous step"><img align="middle" src="../../../vle/assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
@@ -215,7 +215,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 <div id="projectRightLowerBox">
 <div id="contentDiv" align="center"><div id="loadingMessageDiv"><br><br><br><br><br><br>Loading...</div>
-<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" width="100%" height="100%" frameborder="0">
+<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0">
  [Content for browsers that don't support iframes goes here.]
 </iframe>
 </div>
@@ -250,7 +250,7 @@ function render() {
 		  myMenu = new Menu("my_menu");
           myMenu.init();
 			
-		  setTimeout("vle.renderNode('fillin')", 1000);
+		  setTimeout("vle.renderNode('a1s1')", 1000);
 		  
 		  //alert('success:' + o.responseText);
 	  },
@@ -259,7 +259,7 @@ function render() {
 	}
 
 	// fetch the OTML.
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', "lesson22.project", callback, null);
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', "POC2.project", callback, null);
 }
 
 var myMenu;

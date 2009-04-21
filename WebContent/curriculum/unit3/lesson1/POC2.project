@@ -1,0 +1,32 @@
+<project>
+	<nodes>
+		<HtmlNode identifier='a1s1' title='Objectives'>
+			<ref filename='a1s1.html' />
+		</HtmlNode>
+		
+		<FillinNode identifier='a1s2fill' title='Quick Review'>
+			<ref filename='a1s2fill.fi'/>
+		</FillinNode>
+		
+				<HtmlNode identifier='a1s1test' title='test page'>
+			<ref filename='a1s1test.html' />
+		</HtmlNode>
+		
+		
+	</nodes>
+	
+	<sequences>
+	<sequence identifier='sequence1'>
+		<node-ref ref='a1s1'  />
+		<node-ref ref='a1s2fill'  />
+		<node-ref ref='a1s1test'  /> 			
+	</sequence>
+	</sequences>
+	
+	<method>
+		<startpoint>
+			<sequence-ref ref='sequence1'/>
+		</startpoint>
+	</method>
+	
+</project>
