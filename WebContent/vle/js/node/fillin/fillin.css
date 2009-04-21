@@ -25,6 +25,7 @@
 	float:left;
 	width:78%;
 	background-color:#FFCE8E;
+	min-height:600px;
 	}
 	
 #currentFillBlankParagraph #rightColumn {
@@ -33,6 +34,7 @@
 	margin-left:79%;
 	background-color:#6883BA;
 	color:#FFF;
+	min-height:600px;
 	}
 	
 .itemLabel {
