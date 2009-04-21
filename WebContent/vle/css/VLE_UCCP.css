@@ -8,7 +8,7 @@ body {
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
 	text-align: center;
-	margin: 5px 5px 10px 5px;
+	margin: 5px;
 	background-color:#666;
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
@@ -79,15 +79,20 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	border:1px solid #333;
 	padding:0px;
 	margin: 0 0 0 216px;
-	min-height:609px;
+	min-height:621px;
 	overflow:auto;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-topright:8px;  
 }
 
 #contentDiv {padding:0;margin:0;}
-iframe {padding:0;margin:0;}
-#ifrm {padding:0;margin:0;}
+
+#ifrm {
+	padding:0;
+	margin:0;
+	width:100%;
+	min-height:620px;
+	}
 
 /* STYLES FOR PROJECT LEFT BOX */
 
@@ -466,7 +471,7 @@ iframe {padding:0;margin:0;}
 .dropdown dd {position:absolute; overflow:hidden; width:210px; display:none; background:#fff; z-index:200; opacity:0}
 .dropdown ul {width:208px; border:2px solid #9ac1c9; list-style:none; border-top:none}
 .dropdown li {display:inline}
-.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#333; text-decoration:none; background:#eaf0f2; width:208px}
+.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#CCC; text-decoration:none; background:#333; width:208px}
 .dropdown a:hover {
 	background:#d9e1e4;
 	background-color:#FFFF00;

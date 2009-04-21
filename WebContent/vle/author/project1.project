@@ -25,14 +25,21 @@
 			<ref filename='outsideurlexample.ou'/>
 		</OutsideUrlNode>
 	</nodes>
-	<sequence identifier="project1_sequence">
-		<node-ref ref='bs'/>
-		<node-ref ref='fillin'/>
-		<node-ref ref='note'/>
-		<node-ref ref='match'/>
-		<node-ref ref='entry'/>
-		<node-ref ref='url'/>
-  		<node-ref ref="a1s1" />
- 		<node-ref ref="mc1" />
-	</sequence>
+	<sequences>
+		<sequence identifier="project1_sequence">
+			<node-ref ref='bs'/>
+			<node-ref ref='fillin'/>
+			<node-ref ref='note'/>
+			<node-ref ref='match'/>
+			<node-ref ref='entry'/>
+			<node-ref ref='url'/>
+	  		<node-ref ref="a1s1" />
+	 		<node-ref ref="mc1" />
+		</sequence>
+	</sequences>
+	<method>
+		<startpoint>
+			<sequence-ref ref="project1_sequence"/>
+		</startpoint>
+	</method>
 </project>
