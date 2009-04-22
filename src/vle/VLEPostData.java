@@ -72,6 +72,7 @@ public class VLEPostData extends HttpServlet {
         	//create a connection to the mysql db
         	Class.forName("com.mysql.jdbc.Driver").newInstance();
         	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/vle_database", "sailuser", "sailpass");
+        	//conn = DriverManager.getConnection("jdbc:mysql://uccpdev.berkeley.edu:10086/vle_database", "uccp", "uccp!!!");
         }
         catch (Exception except)
         {
@@ -88,7 +89,7 @@ public class VLEPostData extends HttpServlet {
             stmt.close();
             
             stmt = conn.createStatement();
-            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) UNIQUE NOT NULL, dataId bigint UNIQUE NOT NULL, primary key(id));");
+            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) NOT NULL, dataId bigint NOT NULL, primary key(id));");
             stmt.close();
         }
         catch (SQLException sqlExcept)
@@ -110,30 +111,24 @@ public class VLEPostData extends HttpServlet {
     		   stmt = conn.createStatement();
     		   ResultSet results = null;
     		   
+    		   if(idStr != null && !idStr.equals("")) {
+    			   //dataId was pass in. in this case, always use the dataId, regardless of whether the username was passed in.
+    			   
+    			 //look for the post parameter dataId in the vledata table
+    			   results = stmt.executeQuery("select dataId from vledata where dataId = '" + idStr + "'");
+    			     			   
+    			 //We will always create a new row in database for incoming queries
+    			   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
+        		  // }
+    		   } 
+    		   
     		   if(userNameStr != null && !userNameStr.equals("")) {
     			   //see if the username exists in the db
-    			   results = stmt.executeQuery("select * from username_to_dataid where userName = '" + userNameStr + "'");
+    			   results = stmt.executeQuery("select * from username_to_dataid where userName = '" + userNameStr + "' and dataId='" + idStr + "'");
     			   
         		   if(results != null && results.next()) {
-        			   //username exists in the db
-        			   
-        			   /*
-        			    * get the corresponding dataId for the username
-        			    * note: this may be different than the post parameter 
-        			    * dataId due to user error, at this point we will
-        			    * just ignore the dataId post parameter the user
-        			    * has passed in
-        			    */
-        			   
-        			   //retrieve the dataId column value
-        			   String dataId = results.getString(3);
-        			   
-        			   //look for the dataId in the vledata table
-        			   results = stmt.executeQuery("select * from vledata where dataId = '" + dataId + "'");
-        			   
-        			   //We will always create a new row in database for incoming queries
-        				   stmt.execute("insert into vledata (dataId, data) values ('" + dataId + "', '" + postDataStr + "')");
-        			  // }
+        			   // do nothing
+        			 
         		   } else {
         			   //username does not exist in db
         			   
@@ -143,13 +138,6 @@ public class VLEPostData extends HttpServlet {
         				    * row with the mapping of userName and dataId 
         				    */
         				   stmt.execute("insert into username_to_dataid (userName, dataId) values ('" + userNameStr + "', '" + idStr + "')");
-        				   
-        				   //look for the post parameter dataId in the vledata table
-        				   results = stmt.executeQuery("select * from vledata where dataId = '" + idStr + "'");
-        				   
-        					//We will always create a new row in database for incoming queries 
-        				   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
-        				   //}
         			   }
         			   
         			   /*
@@ -159,16 +147,7 @@ public class VLEPostData extends HttpServlet {
         			    * row we also need a dataId
         			    */
         		   }
-    		   } else if(idStr != null && !idStr.equals("")) {
-    			   //username was not pass in but dataId was pass in
-    			   
-    			 //look for the post parameter dataId in the vledata table
-    			   results = stmt.executeQuery("select dataId from vledata where dataId = '" + idStr + "'");
-    			     			   
-    			 //We will always create a new row in database for incoming queries
-    			   stmt.execute("insert into vledata (dataId, data) values ('" + idStr + "', '" + postDataStr + "')");
-        		  // }
-    		   }
+    		   } 
     		   
                stmt.close();
            }

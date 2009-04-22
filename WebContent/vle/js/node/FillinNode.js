@@ -14,7 +14,7 @@ FillinNode.prototype.render = function(contentpanel) {
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].location = "/vlewrapper/vle/js/node/fillin/fillin.html";
+	window.frames["ifrm"].location = "vle/js/node/fillin/fillin.html";
 };
 
 

@@ -15,7 +15,7 @@ OutsideUrlNode.prototype.render = function(contentpanel) {
 	};
 	
 	window.frames["ifrm"].document.open();
-	window.frames["ifrm"].location = "/vlewrapper/vle/js/node/outsideurl/outsideurl.html";
+	window.frames["ifrm"].location = "vle/js/node/outsideurl/outsideurl.html";
 	window.frames["ifrm"].document.close();
 }
 

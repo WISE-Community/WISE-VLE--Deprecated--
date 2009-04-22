@@ -14,7 +14,7 @@ MatchSequenceNode.prototype.render = function(contentpanel) {
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].location = "/vlewrapper/vle/js/node/matchsequence/matchsequence.html";
+	window.frames["ifrm"].location = "vle/js/node/matchsequence/matchsequence.html";
 } 
 
 

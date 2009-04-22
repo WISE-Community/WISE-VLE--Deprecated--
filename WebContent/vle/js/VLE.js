@@ -170,6 +170,7 @@ VLE.prototype.print = function() {
 	window.print();
 }
 
+
 VLE.prototype.getNodeVisitedInfo = function() {
 	var infoInHtml = "";
 	for (var i=0; i < vle.state.visitedNodes.length; i++) {
@@ -179,9 +180,9 @@ VLE.prototype.getNodeVisitedInfo = function() {
 	document.getElementById("experimentaloutput").innerHTML = infoInHtml;
 }
 
-VLE.prototype.showAllWork = function(){
+VLE.prototype.showAllWork = function(doGrading){
     var allWorkHtml = "";
-	allWorkHtml = "<div style=\"width: 950px; text-align:left; height: 550px; overflow: auto\">" + this.project.getShowAllWorkHtml() + "</div>";
+	allWorkHtml = "<div style=\"width: 950px; text-align:left; height: 550px; overflow: auto\">" + this.project.getShowAllWorkHtml(this.project.rootNode, doGrading) + "</div>";
     YAHOO.namespace("example.container");
     var content = document.getElementById("showAllWorkDiv");
     
@@ -215,6 +216,9 @@ VLE.prototype.showAllWork = function(){
     YAHOO.example.container.showallwork.show();
 }
 
+VLE.prototype.showGradingTool = function() {
+}
+
 VLE.prototype.setJournal = function(journal){
 	this.journal = journal;
 };
@@ -228,7 +232,7 @@ VLE.prototype.getNodeById = function(nodeId){
 		return this.journal.rootNode.getNodeById(nodeId);
 	} else {
 		return this.project.rootNode.getNodeById(nodeId);
-	};
+	}
 };
 
 VLE.prototype.getLeafNodeIds = function() {
@@ -276,8 +280,8 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 		this.myClassInfo = myClassInfo;
 	}
 	
-	//load the student data
-	this.loadVLEState(this.myUserInfo.workgroupId, this);
+	//load the student data...This should be called outside of this function
+	//this.loadVLEState(this.myUserInfo.workgroupId, this);
 }
 
  
@@ -327,11 +331,14 @@ VLE.prototype.getClassUsers = function() {
  * @param vle this vle
  */
 VLE.prototype.loadVLEState = function(dataId, vle) {
-	var getURL = "../getdata.html?dataId=" + dataId;
+	var getURL = this.getDataUrl;
+	//var getURL = "../getdata.html?dataId=" + dataId;
+	//alert("vle.js, getURL:" + getURL);
 	
 	var callback = {
 		success: function(o) {
 			var xmlObj = o.responseXML;
+			//alert('vle.js, loadvlestate, responsetext: ' + o.responseText);
 			var vleStateXMLObj = xmlObj.getElementsByTagName("vle_state")[0];
 			if (vleStateXMLObj) {
 				var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
@@ -343,7 +350,6 @@ VLE.prototype.loadVLEState = function(dataId, vle) {
 		failure: function(o) {
 		}
 	};
-	
 	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
 }
 
@@ -596,15 +602,16 @@ NODE_VISIT.prototype.getDataXML = function() {
  */
 NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
 	//ask the NODE static function to create the node
-	var nodeObject = Node.prototype.parseDataXML(nodeVisitXML);
-	
+	//var nodeObject = Node.prototype.parseDataXML(nodeVisitXML);
+	var nodeObject = vle.getNodeById(nodeVisitXML.getElementsByTagName("id")[0].textContent);
+	//alert('vle.js, nodeObject:' + nodeObject);
 	//get the start and end times
 	var visitStartTime = nodeVisitXML.getElementsByTagName("visitStartTime")[0].textContent;
 	var visitEndTime = nodeVisitXML.getElementsByTagName("visitEndTime")[0].textContent;
 
 	//retrieve an array of node state objects
 	var nodeStatesArrayObject = nodeObject.parseDataXML(nodeVisitXML.getElementsByTagName("nodeStates")[0]);
-	
+
 	//create a node_visit object with the new node object
 	var nodeVisitObject = new NODE_VISIT(nodeObject, nodeStatesArrayObject, visitStartTime, visitEndTime);
 	

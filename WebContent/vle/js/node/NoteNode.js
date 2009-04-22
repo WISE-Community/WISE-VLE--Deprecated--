@@ -10,27 +10,29 @@ function NoteNode(nodeType) {
 	
 	//The second argument passed to the
     //constructor is a configuration object:
-	notePanel = new YAHOO.widget.Panel("notePanel", {
-        width: "600px",
-        height: "600px",
-        fixedcenter: false,
-        constraintoviewport: true,
-        underlay: "shadow",
-        close: true,
-        visible: false,
-        draggable: true
-    });
-    //If we haven't built our panel using existing markup,
-    //we can set its content via script:
-    notePanel.setHeader("My Notes");
-    notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"/vlewrapper/vle/js/node/openresponse/note.html\"><iframe>");
-    //Although we configured many properties in the
-    //constructor, we can configure more properties or 
-    //change existing ones after our Panel has been
-    //instantiated:
-    
-    notePanel.cfg.setProperty("underlay", "matte");
-	notePanel.render();
+	if (notePanel == null) {
+		notePanel = new YAHOO.widget.Panel("notePanel", {
+			width: "600px",
+			height: "600px",
+			fixedcenter: false,
+			constraintoviewport: true,
+			underlay: "shadow",
+			close: true,
+			visible: false,
+			draggable: true
+		});
+		//If we haven't built our panel using existing markup,
+		//we can set its content via script:
+		notePanel.setHeader("My Notes");
+		notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"vle/js/node/openresponse/note.html\"><iframe>");
+		//Although we configured many properties in the
+		//constructor, we can configure more properties or 
+		//change existing ones after our Panel has been
+		//instantiated:
+
+		notePanel.cfg.setProperty("underlay", "matte");
+		notePanel.render();
+	}
 }
 
 function loadNote() {
@@ -40,6 +42,7 @@ function loadNote() {
 }
 
 NoteNode.prototype.render = function(contentpanel) {	
+	//alert('notenode render begin');
 	var nodeVisits = vle.state.getNodeVisitsByNodeId(this.id);
 	var states = [];
 	for (var i=0; i < vle.state.visitedNodes.length; i++) {
@@ -54,6 +57,7 @@ NoteNode.prototype.render = function(contentpanel) {
 	window.frames["noteiframe"].loadContentXMLString(this.element);
 	window.frames["noteiframe"].loadStateAndRender(vle, states);
 	notePanel.cfg.setProperty("visible", true);
+	//alert('notenode render end');
 } 
 
 NoteNode.prototype.load = function() {
@@ -66,7 +70,7 @@ NoteNode.prototype.load = function() {
 
 
 NoteNode.prototype.getShowAllWorkHtml = function(){
-    var showAllWorkHtmlSoFar = "<h4>" + this.title + "</h4>";
+    var showAllWorkHtmlSoFar = "";
     var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
     
     if (nodeVisitArray.length > 0) {

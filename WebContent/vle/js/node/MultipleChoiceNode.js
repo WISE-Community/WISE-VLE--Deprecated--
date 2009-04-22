@@ -18,9 +18,9 @@ MultipleChoiceNode.prototype.render = function(contentPanel) {
 	};
 	
 	if(contentPanel == null) {
-		window.frames["ifrm"].location = "/vlewrapper/vle/js/node/multiplechoice/multiplechoice.html";
+		window.frames["ifrm"].location = "vle/js/node/multiplechoice/multiplechoice.html";
 	} else {
-		contentPanel.location = "/vlewrapper/vle/js/node/multiplechoice/multiplechoice.html";
+		contentPanel.location = "vle/js/node/multiplechoice/multiplechoice.html";
 	};
 };
 

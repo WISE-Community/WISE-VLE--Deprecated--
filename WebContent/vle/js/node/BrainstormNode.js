@@ -16,7 +16,7 @@ BrainstormNode.prototype.render = function(contentpanel){
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].location = "/vlewrapper/vle/js/node/brainstorm/brainstorm.html";
+	window.frames["ifrm"].location = "vle/js/node/brainstorm/brainstorm.html";
 };
 
 BrainstormNode.prototype.load = function(){

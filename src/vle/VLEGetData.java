@@ -111,6 +111,7 @@ public class VLEGetData extends HttpServlet {
         	//create a connection to the mysql db
         	Class.forName("com.mysql.jdbc.Driver").newInstance();
         	conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/vle_database", "sailuser", "sailpass");
+        	//conn = DriverManager.getConnection("jdbc:mysql://uccpdev.berkeley.edu:10086/vle_database", "uccp", "uccp!!!");
         }
         catch (Exception except)
         {
@@ -127,7 +128,7 @@ public class VLEGetData extends HttpServlet {
             stmt.close();
             
             stmt = conn.createStatement();
-            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) UNIQUE NOT NULL, dataId bigint UNIQUE NOT NULL, primary key(id));");
+            stmt.execute("create table username_to_dataid (id bigint auto_increment, userName varchar(20) NOT NULL, dataId bigint NOT NULL, primary key(id));");
             stmt.close();
         }
         catch (SQLException sqlExcept)
@@ -152,12 +153,12 @@ public class VLEGetData extends HttpServlet {
              * if that was not passed as an argument we will look
              * up the data for the dataId  
              */
-            if(userNameStr != null && !userNameStr.equals("")) {
-            	//user has requested data for a username
-            	results = stmt.executeQuery("select vledata.data from username_to_dataid, vledata where username_to_dataid.dataId = vledata.dataId and username_to_dataid.userName = '" + userNameStr + "'");
-            } else if(idStr != null && !idStr.equals("")) {
+            if(idStr != null && !idStr.equals("")) {
             	//user has requested data for a dataid
                 results = stmt.executeQuery("select data from vledata where dataId = '" + idStr + "'");
+            } else if(userNameStr != null && !userNameStr.equals("")) {
+            	//user has requested data for a username
+            	results = stmt.executeQuery("select vledata.data from username_to_dataid, vledata where username_to_dataid.dataId = vledata.dataId and username_to_dataid.userName = '" + userNameStr + "'");
             }
             
             if(results != null) {

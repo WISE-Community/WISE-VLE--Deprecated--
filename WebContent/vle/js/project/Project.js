@@ -14,6 +14,7 @@ NodeFactory.createNode = function (element) {
 		nodeName = element.nodeName;	//create from element
 	} else {
 		nodeName = element;				//create from string
+		alert('Project.js, nodeName:' + nodeName);
 	};
 	if (acceptedTagNames.indexOf(nodeName) > -1) {
 		if (nodeName == "HtmlNode") {
@@ -45,8 +46,9 @@ NodeFactory.createNode = function (element) {
 	}
 }
 
-function Project(xmlDoc) {
+function Project(xmlDoc, contentBaseUrl) {
 	this.xmlDoc = xmlDoc;
+	this.contentBaseUrl = contentBaseUrl;
 	this.allLeafNodes = [];
 	this.allSequenceNodes = [];
 	this.lazyLoading = false;
@@ -66,7 +68,7 @@ function Project(xmlDoc) {
 
 Project.prototype.createNewNode = function(nodeType, filename){
 	var node = NodeFactory.createNode(nodeType);
-	node.filename = filename;
+	node.filename = this.makeFileName(filename);
 	node.id = this.generateUniqueId();
 	node.title = 'default title';
 	node.element = null;
@@ -126,7 +128,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			var thisNode = NodeFactory.createNode(element);
 			thisNode.title = element.getAttribute('title');
 			thisNode.id = element.getAttribute('identifier');
-			thisNode.filename = element.getElementsByTagName('ref')[0].getAttribute("filename");
+			thisNode.filename = this.makeFileName(element.getElementsByTagName('ref')[0].getAttribute("filename"));
 			thisNode.element = element;
 			this.allLeafNodes.push(thisNode);
 			if(this.lazyLoading){ //load as needed
@@ -143,6 +145,12 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	return this.generateSequences(xmlDoc);
 }
 
+Project.prototype.makeFileName = function(filename) {
+	if (this.contentBaseUrl != null) {
+		return this.contentBaseUrl + "/" + filename;
+	}
+	return filename;
+}
 /**
  * Given the xml, generates all sequence nodes and returns the
  * sequence node specified as the start point
@@ -334,9 +342,28 @@ Project.prototype.getSummaryProjectHTML = function(){
 	return projectHTML;
 };
 
-Project.prototype.getShowAllWorkHtml = function() {
-	alert("Project.getShowAllWorkHtml not yet implemented");
-	return this.rootNode.id;
+Project.prototype.getShowAllWorkHtml = function(node, doGrading) {
+	var htmlSoFar = "";
+	if (node.children.length > 0) {
+		// this is a sequence node
+		for (var i = 0; i < node.children.length; i++) {
+			htmlSoFar += this.getShowAllWorkHtml(node.children[i], doGrading);
+		}
+	} else {
+		// this is a leaf node
+	    htmlSoFar += "<h4>" + node.title + "</h4>";
+	    if (doGrading) {
+		    htmlSoFar += "<table border='1'>";
+		    htmlSoFar += "<tr><th>Work</th><th>Grading</th></tr>";
+			htmlSoFar += "<tr><td>" + node.getShowAllWorkHtml() + "</td>";
+			htmlSoFar += "<td><textarea rows='10' cols='10'></textarea></td></tr>";
+			htmlSoFar += "</table>";
+	    } else {
+			htmlSoFar += node.getShowAllWorkHtml();
+	    }
+		htmlSoFar += "<br/><br/>";
+	}
+	return htmlSoFar;
 }
 
 /**

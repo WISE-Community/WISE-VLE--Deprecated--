@@ -132,7 +132,7 @@ Node.prototype.setTopStepTitle = function() {
 
 
 Node.prototype.getShowAllWorkHtml = function(){
-    var showAllWorkHtmlSoFar = "<h4>" + this.title + "</h4>";
+	var showAllWorkHtmlSoFar = "";
     var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
     if (nodeVisitArray.length > 0) {
         var states = [];
@@ -199,11 +199,13 @@ Node.prototype.getDataXML = function(nodeStates) {
 Node.prototype.parseDataXML = function(nodeXML) {
 	var nodeType = nodeXML.getElementsByTagName("type")[0].textContent;
 	var id = nodeXML.getElementsByTagName("id")[0].textContent;
+	alert('nodetype, id:' + nodeType + "," + id);
 
 	//create the correct type of node
 	var nodeObject = NodeFactory.createNode(nodeType);
+	alert('nodeObject: ' + nodeObject + ", type:" + nodeObject.type);
 	nodeObject.id = id;
-	
+	alert('nodeObject.id:' + nodeObject.id);
 	return nodeObject;
 }
 
@@ -296,7 +298,7 @@ Node.prototype.retrieveFile = function(){
 					};
 				};
 			},
-			failure:function(o){ alert('unable to retrieve file');},
+			failure:function(o){ alert('unable to retrieve file:' + this.filename); alert(window.location);},
 			scope:this
 		};
 		
