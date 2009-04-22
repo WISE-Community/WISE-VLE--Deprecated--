@@ -75,16 +75,42 @@
 <script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
 
 <script type="text/javascript">
+var currentProjectName = window.opener.currentProjectName;
+
 window.onload=function(){
 Nifty("div#none","bottom");
 Nifty("div#navigationBox","big");
 Nifty("ul.toolsButtons a","transparent");
-render();
+loadProjectFromServer(currentProjectName);
 //parent.foo2();
 }
 
 function projectSummary(){
 	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
+};
+
+function loadProjectFromServer(projectName){
+	var callback =
+	{
+		success: function(o) {
+		  var xmlDocToParse = o.responseXML;
+		  project = new Project(xmlDocToParse);
+		  
+		  project.xmlDoc = xmlDocToParse;
+		  vle = new VLE();
+		  vle.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  vle.navigationLogic = new NavigationLogic(dfs);
+		  vle.setConnection(new ConnectionManager());
+		 
+          var startId = project.getStartNodeId();
+          
+          setTimeout("vle.renderNode('" + startId + "')", 1000);
+	  },			
+	  failure: function(o) { alert('unable to retrieve project from server');},
+	  scope:this
+	}
+	var transaction = YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project');
 };
 </script>
 

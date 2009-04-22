@@ -6,7 +6,11 @@ MC.prototype.loadXMLDoc = function(xmlDoc) {
 	this.xmlDoc = xmlDoc;
 	this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
 	this.responseIdentifier = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('responseIdentifier');
-	this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	if(xmlDoc.getElementsByTagName('prompt')[0].firstChild){
+		this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	} else {
+		this.promptText = "";
+	};
 	this.choices = [];
 	this.states = [];
 
@@ -164,7 +168,11 @@ MC.prototype.render = function() {
 function CHOICE(choiceDOM) {
 	this.dom = choiceDOM;
 	this.identifier = this.dom.getAttribute('identifier');
-	this.text = this.dom.lastChild.nodeValue;    // text choices that students will see.. can be html
+	if(this.dom.lastChild){
+		this.text = this.dom.lastChild.nodeValue;    // text choices that students will see.. can be html
+	} else {
+		this.text = "";
+	};
 	if(this.dom.getElementsByTagName('feedbackInline')[0]){
 		this.feedbackText = this.dom.getElementsByTagName('feedbackInline')[0].firstChild.nodeValue;
 	};

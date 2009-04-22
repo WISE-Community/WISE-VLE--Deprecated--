@@ -30,31 +30,37 @@
 <script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="../js/node/Node.js"></script>
-<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
-
-<script type="text/javascript" src="../js/node/multiplechoice/multiplechoicestate.js"></script>
-<script type="text/javascript" src="../js/node/multiplechoice/mc.js"></script>
 
 <script type="text/javascript">
 var msObj = null;
+var saved = true;
 
-function save() {
-	  if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
-		  var htmlString = document.getElementById('sourceTextArea').value;
-	      document.getElementById('localData').value = htmlString;
-	      if (thisFilename != null) {
-	      	document.getElementById('form_filename').value = thisFilename;
-	      }
-	      document.getElementById('saveLocal').submit();
-	   };
-}
+function getSaved(){
+	return saved;
+};
+
+function save(){
+	var htmlString = document.getElementById('sourceTextArea').value;
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
+			};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
+};
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename) {
-	thisFilename = filename
+function loadAuthoringFromFile(filename, projectName) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -89,11 +95,10 @@ function loadAuthoringFromFile(filename) {
 
 		  },
 		  failure: function(o) { alert('failure');},
-		  argument: ["a", "b", "c"]
+		  scope:this
 	}
 
-	// fetch the file
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
 /*
@@ -101,8 +106,7 @@ function loadAuthoringFromFile(filename) {
  * gets the text in the textarea and re-renders the previewFrame
  */
 function sourceUpdated() {
-	//retrieve the authored text
-	//var xmlString = document.getElementById('sourceTextArea').value;
+	saved = false;
 	var xmlString = "";
 	var customCheck = "";
 	var xmlDoc=loadXMLDocFromString(document.getElementById('sourceTextArea').value);
@@ -130,8 +134,9 @@ function sourceUpdated() {
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
 		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
 	};
 };
 </script>

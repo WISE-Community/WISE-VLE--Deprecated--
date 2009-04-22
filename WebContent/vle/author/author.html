@@ -27,8 +27,9 @@
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-<script type="text/javascript" src="../js/authoring/AuthoringTool.js"></script>
+<!-- <script type="text/javascript" src="../js/authoring/AuthoringTool.js"></script>    -->
 <script type="text/javascript" src="../js/authoring/authoring.js"></script>
+<script type="text/javascript" src="../js/authoring/newauthoring.js"></script>
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="../js//VLE.js"></script>
 <script type="text/javascript" src="../js/contentpanel/ContentPanel.js"></script>
@@ -67,6 +68,7 @@
 var project;
 var easyMode = true; //the mode that gets passed to the individual authoring pages
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
+var currentProjectName;
 
 //a string that temporarily contains the node id we want to author
 var nodeIdToAuthor = null;
@@ -78,14 +80,51 @@ var filenameToAuthor = null;
 var thisFilename = null;
 
 var ddList = [];  // list of all draggable nodes
+var targets = [];
 
-var authoringTool = new AuthoringTool();
+//var authoringTool = new AuthoringTool();
 
-window.onload=function(){
-	//loads the project into the authoring tool
-	loadProject();
-}
+/*****											    *****|
+ * The following functions are used by YUI for the drag *|
+ * and drop stuff on this page						    *|
+ *****											    *****/
+//function generateDD(){
+//	ddList = [];
+//	targets = [];
+//}; 
 
+function createTargets(){
+	var target = new YAHOO.util.DDTarget(document.getElementById('projectDiv'), 'project');
+	targets.push(target);
+	
+	var sequences = document.getElementsByName('sequenceContainer');
+	for(var h=0;h<sequences.length;h++){
+		target = new YAHOO.util.DDTarget(sequences[h], 'sequences');
+		targets.push(target);
+	};
+	
+	target = new YAHOO.util.DDTarget(document.getElementById('allNodesDiv'), 'nodes');
+	targets.push(target);
+};
+
+function createDraggables(){
+	var sequences = document.getElementsByName('sequences');
+	for(var z=0;z<sequences.length;z++){
+		var dd = new YAHOO.util.DDProxy(sequences[z], 'sequences');
+		dd.addToGroup('project');
+		ddList.push(dd);
+	};
+	
+	var nodes = document.getElementsByName('nodes');
+	for(var w=0;w<nodes.length;w++){
+		var dd = new YAHOO.util.DDProxy(nodes[w], 'sequences');
+		dd.addToGroup('nodes');
+		ddList.push(dd);
+	};
+};
+/*****												******|
+ * End functions used by YUI for the drag and drop stuff *|
+ *****												******/
 function save() {
 	  if(confirm("Saving locally requires a file download. If you do not wish to do this, cancel now! Otherwise, click OK.")){
 		  var projectString = project.generateProjectFileString();
@@ -97,26 +136,13 @@ function save() {
 	   };
 }
 
-function newNode(nodeType) {
-	var url = "../../nodecrud.html";
-	
-	var callback = {
-		success:function(o){
-			var filename = o.responseText;
-			var node = project.createNewNode(nodeType, filename);
-			document.getElementById("navAuthoringDiv").innerHTML = getNavigationHtml(project.rootNode, project.allLeafNodes);
-    		renderAuthoringYUI();
-		},
-		failure:function(o){alert('failure creating new node')},
-		scope:this
-	};
-	
-	var trans = YAHOO.util.Connect.asyncRequest('POST', url, callback, "action=create&data1=" + nodeType);
-}
-
 function preview() {
-	popupPreviewWindow('preview.html', 'PreviewWindow');
-}
+	if(currentProjectName){
+		popupPreviewWindow('preview.html', 'PreviewWindow');
+	} else {
+		alert('Please open or create a new project to preview. Exiting...');
+	};
+};
 
 /*
  * This is called onload of the 'authoringFrame' iframe
@@ -155,20 +181,112 @@ function setNodeToAuthor(nodeId) {
 	nodeIdToAuthor = nodeId;
 }
 
-/**
- * Updates the type of authoring view will be rendered
- */
-function updateAuthoringView(val){
-	if(val==true || val=='true'){
-		easyMode = true;
+function openProject(){
+	window.open("openproject.html", "Open Project", "toolbar=no,width=500,height=350,menubar=no");
+};
+
+function createNewProject(){
+	window.open("createproject.html", "Create Project", "toolbar=no,width=500,height=350,menubar=no");
+};
+
+function createNewSequence(){
+	if(currentProjectName){
+		window.open("createsequence.html", "Create Sequence", "toolbar=no,width=500,height=350,menubar=no");
 	} else {
-		easyMode = false;
+		alert('Please open or create a new project before creating a sequence. Exiting...');
 	};
+};
+
+function createNewNode(){
+	if(currentProjectName){
+		window.open("createnode.html", "Create Node", "toolbar=no,width=500,height=350,menubar=no");
+	} else {
+		alert('Please open or create a new project before creating a node. Exiting...');
+	};
+};
+
+function editProjectFile(){
+	if(currentProjectName){
+		window.open('editprojectfile.html', 'Edit Project', "toolbar=no,width=800,height=600,menubar=no");
+	} else {
+		alert('Please open or create a new project before editing the project file. Exiting...');
+	};
+};
+
+function loadProjectFromServer(projectName){
+	currentProjectName = projectName;
+	var callback =
+	{
+		success: function(o) {
+		  var xmlDocToParse = o.responseXML;
+		  project = new Project(xmlDocToParse);
+		  
+		  project.xmlDoc = xmlDocToParse;
+		  vle = new VLE();
+		  vle.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  vle.navigationLogic = new NavigationLogic(dfs);
+		  vle.setConnection(new ConnectionManager());
+		 
+          displayProject(project);
+          document.getElementById('currentProject').innerHTML = '<h3>Current Project: ' + projectName + '</h3>';
+	  },			
+	  failure: function(o) { alert('unable to retrieve project from server');},
+	  scope:this
+	}
+	var transaction = YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project');
+};
+
+function populateNodes(){
+	var nodes = project.allLeafNodes;
+	var parent = document.getElementById('nodesTD');
+	var old = document.getElementById('nodesUL');
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	var ul = createElement(document, 'ul', {id: 'nodesUL'});
+	
+	for(var v=0;v<nodes.length;v++){
+		var li = createElement(document, 'li', {id: nodes[v].id, name: 'nodes', class: 'draggable'});
+		li.innerHTML = nodes[v].title;
+		ul.appendChild(li);
+	};
+
+	parent.appendChild(ul);
+};
+
+function populateSequences(){
+	var nodes = project.allSequenceNodes;
+	var parent = document.getElementById('sequencesTD');
+	var old = document.getElementById('sequencesUL');
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	var ul = createElement(document, 'ul', {id: 'sequencesUL'});
+	
+	for(var v=0;v<nodes.length;v++){
+		var sequenceName = nodes[v].id;
+		var li = createElement(document, 'li', {id: 'li_' + sequenceName, name: 'sequences', class: 'draggable'});
+		var sequenceTitle = document.createTextNode(sequenceName);
+		var insideUL = createElement(document, 'ul', {id: sequenceName, name: 'sequenceContainer', class: 'container'});
+		var placeholder = createElement(document, 'li', {id: sequenceName + '_LI', class: 'draggable'});
+		
+		insideUL.appendChild(placeholder);
+		li.appendChild(sequenceTitle);
+		li.appendChild(insideUL);
+		ul.appendChild(li);
+	};
+
+	parent.appendChild(ul);
 };
 </script>
 </head>
 
-<body class="yui-skin-sam" onload="loadProject('project1.project');">
+<body class="yui-skin-sam">
 
 <div id="centeredDiv">
 
@@ -176,23 +294,17 @@ function updateAuthoringView(val){
 	<h2>WISE 4 Authoring Tool &nbsp;<img src="../assets/images/favicon_panda.ico" alt="WISE Panada" border="0" /></h2>
 	<table>
 	  <tr>
-		<td><input type="button" value="Create New Node (pop-up selector)" onclick="" /></td>
+	  	<td><input type="button" value="Open Project" onclick="openProject()"/></td>
+	  	<td><input type="button" value="Create New Project" onclick="createNewProject()"/></td>
+	  	<td><input type="button" value="Create New Sequence" onclick="createNewSequence()"/></td>
+		<td><input type="button" value="Create New Node" onclick="createNewNode()" /></td>
 		<td><input type="button" value="Delete Selected Node" onclick="" /></td>
 		<td><input type="button" value="Indent Selected Node" onclick="" /></td>
 		<td><input type="button" value="Outdent Selected Node" onclick="" /></td>
 	  	<td><input type="button" value="Save Project" onclick="save()" /></td>
 	  	<td><input type="button" value="Export Project" onclick="" /></td>
 	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
-			  <!--  
-			  	<td>
-			  		Select option for editing individual files:
-			  		<br>
-			  		<label for='easy'>Easy</label>
-			  		<input type='radio' id='easy' value='true' onclick='updateAuthoringView(true)' name='authoringStyle' CHECKED/><br>
-			  		<label for='advanced'>Advanced</label>
-			  		<input type='radio' id='advanced' value='false' onclick='updateAuthoringView(false)' name='authoringStyle'/>
-			  	</td>
-			   -->
+			 
 			<!--  for posting the text for echo servlet -->
 		<td style="display:hidden;"><form name="saveLocal" id='saveLocal' action="../../echo.html" method="POST">
 			    <input type="hidden" name="name" id="form_filename" value="myData"/>
@@ -204,20 +316,39 @@ function updateAuthoringView(val){
 </div>
 
 <table id="authoringTable">
+	<tr><td id='currentProject'><h3>Current Project: </h3></td></tr>
 	<tr>
-		<td class="authorTableHeader">Assigned Nodes</td>
-		<td class="authorTableHeader">Preview</td>
+	<tr>
+		<td class="authorTableHeader" width="70%">Edit Project</td>
+		<td class="authorTableHeader" width="30%">Preview</td>
 	</tr>
-	
+	<tr>
+		<td>
+			<b>Please Note:</b> drag and drop for All Sequences and All Nodes is currently <b>NOT</b> implemented.<br>
+			But you can edit the project file directly here when you are done creating sequences and nodes.<br>
+			<input type="button" value="Edit Project File" onclick='editProjectFile()'/>
+		</td>
+	</tr>
 	<tr>
 		<td id="assignedcontainer">
-			<div id="navAuthoringDiv">
- 				<div id="nodeAuthoringDiv">
-				<!--  
-	    		<iframe id="authoringFrame" scrolling="no" name="authoringFrame" width="1024px" height="768px" onload="authoringFrameLoaded();"></iframe>
-				-->
-				</div>
-			</div>
+			<table id="ddTable" width='100%'>
+				<tr>
+					<td id='projectTitle'>Project Structure</td>
+					<td id='sequencesTitle'>All Sequences</td>
+					<td id='nodesTitle'>All Nodes</td>
+				</tr>
+				<tr>
+					<td id='projectTD'>
+						<ul id='projectUL'></ul>
+					</td>
+					<td id='sequencesTD'>
+						<ul id='sequencesUL'></ul>
+					</td>
+					<td id='nodesTD'>
+						<ul id='nodesUL'></ul>
+					</td>
+				</tr>
+			</table>
 		</td>
 		<td id="previewcontainer">
 			<div >
@@ -248,10 +379,8 @@ function loadProject(filename) {
 	{
 		success: function(o) { 
 		  var xmlDocObj = new LoadXMLDocObj();
-		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
+		  xmlDocObj.xmlDoc = o.responseXML;   
 		  var xmlDocToParse = o.responseXML;
-		  //alert(xmlDocToParse);
-		  //alert(o.responseText);
 		  project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
@@ -262,7 +391,6 @@ function loadProject(filename) {
 		  vle.setConnection(new ConnectionManager());
 		 
           displayProject(project);
-          //alert('length:' + project.rootNode.children.length);
 	  },			
 	  failure: function(o) { alert('failure');},
 	  argument: ["a", "b", "c"]
@@ -274,11 +402,12 @@ function loadProject(filename) {
  * Displays all of the nodes in order, in the main window
  */
 function displayProject(project) {
-	document.getElementById("navAuthoringDiv").innerHTML = getNavigationHtml(project.rootNode);
-    renderAuthoringYUI();
-
-	//displayNodeAuthoringDiv(project.rootNode);
-	//document.getElementById("nodeAuthoringDiv");
+	document.getElementById("projectTD").innerHTML = getNavigationHtml(project.rootNode);
+ 	renderAuthoringYUI();
+	
+	populateSequences();
+	populateNodes();
+	//generateDD();
 }
 
 /*
@@ -286,22 +415,24 @@ function displayProject(project) {
  */
 function getNavigationHtml(node, floaters) {
 	var htmlSoFar = "";
-	if (node.children.length > 0) {
-		// if it's a sequence node...
-		htmlSoFar = "<ul id='" + node.id + "' class='container'>";
-		//htmlSoFar += node.id + ", " + node.title;
-		for(var x=0; x<node.children.length; x++) {
-			htmlSoFar += getNavigationHtml(node.children[x]);
+	if(node){
+		if (node.children.length > 0) {
+			// if it's a sequence node...
+			htmlSoFar = "<ul id='" + node.id + "' class='container'>";
+			//htmlSoFar += node.id + ", " + node.title;
+			for(var x=0; x<node.children.length; x++) {
+				htmlSoFar += getNavigationHtml(node.children[x]);
+			}
+			htmlSoFar += "</ul>";
+		} else {
+			// otherwise it's a leaf node
+			var parentNode = node.parent;
+			htmlSoFar = "<li id='" + node.id + "' class='draggable' ondblclick=\"author('"+ node.id + "');\" >";
+			//htmlSoFar += "<textarea onfocus=\"nodeTitleOnFocus('"+node.id+"');\" onblur=\"nodeTitleOnBlur('"+node.id+"');\" id='"+ node.id +"'>"+ node.title +"</textarea>";
+			htmlSoFar += "<textarea id='"+ node.id +"'>"+ node.title +"</textarea>";
+			htmlSoFar += "</li>";
 		}
-		htmlSoFar += "</ul>";
-	} else {
-		// otherwise it's a leaf node
-		var parentNode = node.parent;
-		htmlSoFar = "<li id='" + node.id + "' class='draggable' ondblclick=\"author('"+ node.id + "');\" >";
-		//htmlSoFar += "<textarea onfocus=\"nodeTitleOnFocus('"+node.id+"');\" onblur=\"nodeTitleOnBlur('"+node.id+"');\" id='"+ node.id +"'>"+ node.title +"</textarea>";
-		htmlSoFar += "<textarea id='"+ node.id +"'>"+ node.title +"</textarea>";
-		htmlSoFar += "</li>";
-	}
+	};
 	
     return htmlSoFar;
 }
@@ -372,7 +503,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName);
 	} 
 }
 
@@ -390,48 +521,6 @@ function authoringFrameLoaded() {
 		window.frames["authoringFrame"].loadAuthoringFromFile(nodeToAuthor.filename);
 	} 
 }
-/*
- * called when iframe in the navAuthoringDiv is loaded. Then, for that iframe,
- * load the authoring page from file.
- */
-function naviframeloaded(nodeId) {
-	if (nodeId == "a2s3") {
-		var frameId = "ifrm_" + nodeId;
-		//window.frames[frameId].loadAuthoringFromFile("testproject/a2s3.html");
-	}
-}
-/*
- * Constructs the part of the authoring tool where we display the working
- * node authoring window.
- */
-function displayNodeAuthoringDiv(node) {
-	//alert('here');
-	if (node.children.length > 0) {
-		// if it's a sequence node...
-	} else {
-		// otherwise it's a leaf node
-
-		// dynamically create an iframe for authoring this
-		var div = document.createElement("div");
-		div.setAttribute("id", "div_" + node.id);
-		div.setAttribute("ondblclick", "author(\""+ node.id +"\");");
-		var el = document.createElement("iframe");
-		el.setAttribute("id", "ifrm_" + node.id);
-		el.setAttribute("onload", "naviframeloaded('"+node.id+"')");
-		div.appendChild(el);
-		document.getElementById("navAuthoringDiv").appendChild(div);
-		//alert(node.type);
-		if (node.type == "HtmlNode") {
-			el.setAttribute("src", "author_htmlpage.html");
-		} else {
-			el.setAttribute("src", "author_multiplechoice.html");
-		}
-	}
-	for(var x=0; x<node.children.length; x++) {
-		displayNodeAuthoringDiv(node.children[x]);
-	}
-}
-
 </script>
 
 </div>  <!-- centerDiv -->

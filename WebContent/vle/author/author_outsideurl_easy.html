@@ -37,6 +37,11 @@
 
 <script type="text/javascript">
 var xmlPage;
+var saved = true;
+
+function getSaved(){
+	return saved;
+};
 
 function generatePage(){
 	var parent = document.getElementById('dynamicParent');
@@ -47,7 +52,12 @@ function generatePage(){
 	//create new
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
 	var urlText = document.createTextNode('Enter/Edit URL: ');
-	var urlInput = createElement(document, 'input', {type: 'text', id: 'urlInput', size: '100', value: xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue, onkeyup: "sourceUpdated()"});
+	if(xmlPage.getElementsByTagName('url')[0].firstChild){
+		var val = xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue;
+	} else {
+		var val = "";
+	};
+	var urlInput = createElement(document, 'input', {type: 'text', id: 'urlInput', size: '100', value: val, onkeyup: "sourceUpdated()"});
 	
 	pageDiv.appendChild(urlText);
 	pageDiv.appendChild(createBreak());
@@ -63,30 +73,34 @@ function createBreak(){
 	return createElement(document, 'br', null);
 };
 
-function save() {
-		  if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
-			  var htmlString;
-			  
-			if(window.ActiveXObject) {
-				htmlString = xmlPage.xml;
-			} else {
-				htmlString = (new XMLSerializer()).serializeToString(xmlPage);
-			}
-			  
-		      document.getElementById('localData').value = htmlString;
-		      if (thisFilename != null) {
-		      	document.getElementById('form_filename').value = thisFilename;
-		      }
-		      document.getElementById('saveLocal').submit();
-		   };
+function save(){
+	var htmlString;
+	
+	if(window.ActiveXObject) {
+		htmlString = xmlPage.xml;
+	} else {
+		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+	};
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
+			};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
 };
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename) {
-	thisFilename = filename
+function loadAuthoringFromFile(filename, projectName) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -107,15 +121,16 @@ function loadAuthoringFromFile(filename) {
 			xmlString = (new XMLSerializer()).serializeToString(xmlDocToParse);
 		}
 
-		window.frames["previewFrame"].loadUrl(xmlDocToParse.getElementsByTagName('url')[0].firstChild.nodeValue);
+		if(xmlPage.getElementsByTagName('url')[0].firstChild){
+			window.frames["previewFrame"].loadUrl(xmlDocToParse.getElementsByTagName('url')[0].firstChild.nodeValue);
+		};
 
 		  },
 		  failure: function(o) { alert('failure');},
-		  argument: ["a", "b", "c"]
+		  scope: this
 	}
 
-	// fetch the file
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
 /*
@@ -123,15 +138,23 @@ function loadAuthoringFromFile(filename) {
  * gets the text in the textarea and re-renders the previewFrame
  */
 function sourceUpdated() {
-	xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue = document.getElementById('urlInput').value;
+	saved = false;
+	
+	if(xmlPage.getElementsByTagName('url')[0].firstChild){
+		xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue = document.getElementById('urlInput').value;
+	} else {
+		var text = xmlPage.createTextNode(document.getElementById('urlInput').value);
+		xmlPage.getElementsByTagName('url')[0].appendChild(text);
+	};
 
 	window.frames["previewFrame"].loadUrl(xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue);
 }
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
 		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
 	};
 };
 </script>

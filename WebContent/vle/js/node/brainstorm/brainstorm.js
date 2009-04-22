@@ -1,3 +1,4 @@
+
 /**
  * A representation of a Brainstorm which can be either 
  * open_response or single_choice (not implemented) and
@@ -22,7 +23,11 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
 	this.isRichTextEditorAllowed = this.xmlDoc.getAttribute('isRichTextEditorAllowed');
 	this.isPollEnded = this.xmlDoc.getAttribute('isPollEnded');
 	this.isInstantPollActive = this.xmlDoc.getAttribute('isInstantPollActive');
-	this.prompt = this.assessmentItem.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	if(this.assessmentItem.getElementsByTagName('prompt')[0].firstChild){
+		this.prompt = this.assessmentItem.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	} else {
+		this.prompt = "";
+	};
 	this.cannedResponses = xmlDoc.getElementsByTagName('response');
 
 	this.questionType = this.assessmentItem.getAttribute('identifier');

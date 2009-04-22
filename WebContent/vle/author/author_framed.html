@@ -8,6 +8,8 @@ var filename;
 var easyMode;
 var rootPageName;
 var childSave;
+var projectName;
+var getSaved;
 
 /**
  * Removes previous, creates a new frame, determines the 
@@ -15,6 +17,12 @@ var childSave;
  * frame source and appends new frame to page
  */
 function changeFramed(){
+	if(getSaved){
+		if(!getSaved() && childSave){
+			childSave();
+		};
+	};
+	
 	var parent = document.getElementById('frameDiv');
 	var old = document.getElementById('authorFrame');
 	
@@ -50,10 +58,11 @@ function modeChanged(val){
  * function given to parent window so that we can set certain
  * critical variables here
  */
-function setVars(fn, m, pn){
+function setVars(fn, m, pn, prn){
 	filename = fn;
 	easyMode = m;
 	rootPageName = pn;
+	projectName = prn;
 	
 	if(easyMode){
 		document.getElementById('easyTrue').checked = true;
@@ -78,6 +87,9 @@ function save(){
 	childSave();
 };
 
+window.onbeforeunload = function(){
+	childSave();
+};
 </script>
 </head>
 <body onload='loaded()'>

@@ -1,0 +1,147 @@
+<!--
+ * Copyright (c) 2009 Regents of the University of California (Regents). Created
+ * by TELS, Graduate School of Education, University of California at Berkeley.
+ *
+ * This software is distributed under the GNU Lesser General Public License, v2.
+ *
+ * Permission is hereby granted, without written agreement and without license
+ * or royalty fees, to use, copy, modify, and distribute this software and its
+ * documentation for any purpose, provided that the above copyright notice and
+ * the following two paragraphs appear in all copies of this software.
+ *
+ * REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE. THE SOFTWAREAND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+ * HEREUNDER IS PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE
+ * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *
+ * IN NO EVENT SHALL REGENTS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+ * SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS,
+ * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
+ * REGENTS HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author: patrick lawler 
+ -->
+ 
+<html>
+<head>
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript">
+var nodeCreated = false;
+
+function save(){
+	if(validate()){
+		var filename = document.getElementById('nodeInput').value;
+		var title = document.getElementById('nodeTitle').value
+		var type = document.getElementById('nodeSelect').options[document.getElementById('nodeSelect').selectedIndex].value
+		var callback = {
+			success: function(o){
+				var response = o.responseText;
+				if(response=='exists'){
+					alert('A node with the same filename already exists. Please change the filename and try again.');
+				} else if(response=='nodeNotProject'){
+					alert('Unable to attach node to project, please see administrator.');
+				} else if(response=='success'){
+					alert('Node successfully created for this project. If you are done creating nodes, choose cancel.');
+					clearFields();
+					nodeCreated = true;
+				} else {
+					alert('Error creating node on server');
+				};
+			},
+			failure: function(o){alert('unable to create node on server');},
+			scope: this
+		};
+		
+		YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=createNode&param1=' + window.opener.currentProjectName + '&param2=' + filename + '&param3=' + title + '&param4=' + type);
+	};
+};
+
+function validate(){
+	var val = document.getElementById('nodeInput').value;
+	if(val==null || val==""){
+		alert('Please enter a filename for your node. Exiting...');
+		return false;
+	};
+	
+	var nodes = window.opener.project.allLeafNodes;
+	for(var q=0;q<nodes.length;q++){
+		if(nodes[q].id==val){
+			alert('Found a duplicate identifier. Identifiers and filenames are equivalent. Possibly there is a filename of a different node type that is the same. Please choose a different filename and try again. Exiting...');
+			return false;
+		};
+	};
+	
+	val = document.getElementById('nodeTitle').value;
+	if(val==null || val==""){
+		alert('Please enter a title for the node. Exiting...');
+		return false;
+	};
+	
+	var select = document.getElementById('nodeSelect');
+	val = select.options[select.selectedIndex].value;
+	if(val==null || val==""){
+		alert('Please select a node type. Exiting...');
+		return false;
+	};
+	
+	return true;
+};
+
+function clearFields(){
+	document.getElementById('nodeSelect').selectedIndex = 0;
+	document.getElementById('nodeTitle').value = "";
+	document.getElementById('nodeInput').value = "";
+};
+
+window.onbeforeunload = function(){
+	if(nodeCreated){
+		window.opener.loadProjectFromServer(window.opener.currentProjectName);
+	};
+};
+</script>
+
+</head>
+<body>
+<div id='main'>
+	<div id='nodeNameDiv'>
+		Please enter a UNIQUE filename for the Node.
+		<input type='text' id='nodeInput' size='40'/><br>
+	</div>
+	<div id='nodeTitleDiv'>
+		<br>Please enter a Title for the Node<br>
+		<input type='text' id='nodeTitle' size='40'/><br>
+	</div>
+	<div id='selectNodeDiv'>
+		<br>Please select a node type.<br>
+		<select id='nodeSelect'>
+			<option value=""></option>
+			<option value="BrainstormNode">brainstorm</option>
+			<option value="FillinNode">fillin</option>
+			<option value="HtmlNode">html</option>
+			<option value="MatchSequenceNode">matchsequence</option>
+			<option value="MultipleChoiceNode">multiplechoice</option>
+			<option value="NoteNode">note</option>
+			<option value="JournalEntryNode">journal entry</option>
+			<option value="OutsideUrlNode">outsideurl</option>
+		</select><br>
+		<input type='button' value='Save' onclick='save()'/>
+		<input type='button' value='Cancel' onclick='window.close()'/>
+	</div>
+</div>
+</body>
+</html>

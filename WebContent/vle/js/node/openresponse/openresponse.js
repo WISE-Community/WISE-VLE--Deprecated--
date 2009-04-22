@@ -1,6 +1,10 @@
 function OPENRESPONSE(xmlDoc) {
   this.xmlDoc = xmlDoc;
-  this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+  if(this.xmlDoc.getElementsByTagName('prompt')[0].firstChild){
+  	this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+  } else {
+  	this.promptText = "";
+  };
   this.expectedLines = this.xmlDoc.getElementsByTagName('extendedTextInteraction')[0].getAttribute('expectedLines');
   this.vle = null;
   this.states = [];

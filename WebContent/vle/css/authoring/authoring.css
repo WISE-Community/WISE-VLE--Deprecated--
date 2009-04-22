@@ -72,12 +72,12 @@
 	border-radius: 6px;
 }
 
-#navAuthoringDiv {
+#projectTD {
 	padding:0px;
 	margin:0px;
 }	
 
-#navAuthoringDiv :after {
+#projectTD :after {
 	clear: both;
 	content: '.';
 	display: block;
@@ -85,11 +85,11 @@
 	visibility: hidden;
 }
 
-#navAuthoringDiv ul {
+#projectTD ul {
 	
 }
 
-#navAuthoringDiv ul li {
+#projectTD ul li {
 	font-size: .85em;
 	border: 1px solid transparent;
 	background-color: #3399ff;
@@ -101,24 +101,57 @@
 	position: relative;
 }
 
-#navAuthoringDiv ul li:hover {
+#projectTD ul li:hover {
 	border: 1px solid #000;
 }
 
-#navAuthoringDiv ul li textarea {
+#projectTD ul li textarea {
 	margin: 0 20px;
 	padding: 4px;
 	width: 300px;
 	height: 22px;
 	}
 
-#navAuthoringDiv ul li textarea:focus {
+#projectTD ul li textarea:focus {
 	background-color: #FFCCCC;
 }
 
-#navAuthoringDiv ul li.choice {
+#projectTD ul li.choice {
 	background-color: #CCCCFF;
 	border: 1px solid #333;
+}
+
+#ddTable {
+	padding:0px;
+	margin:0px;
+}	
+
+#ddTable :after {
+	clear: both;
+	content: '.';
+	display: block;
+	height: 0;
+	visibility: hidden;
+}
+
+#ddTable tr {
+
+}
+
+#ddTable tr ul{
+
+}
+
+#ddTable tr ul li {
+	font-size: .85em;
+	border: 1px solid transparent;
+	background-color: #3399ff;
+	background-image: none;
+	cursor: move;
+	list-style-type: none;
+	margin: 6px 5px;
+	padding: 2px 5px;
+	position: relative;
 }
 
 .bucket ul {

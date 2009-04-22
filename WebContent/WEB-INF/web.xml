@@ -41,14 +41,13 @@
     <url-pattern>/echo.html</url-pattern>
   </servlet-mapping>
 
-    <servlet>
-    <servlet-name>nodecrud</servlet-name>
-    <servlet-class>vle.NodeCRUD</servlet-class>
+  <servlet>
+  	<servlet-name>filemanager</servlet-name>
+  	<servlet-class>utils.FileManager</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>nodecrud</servlet-name>
-    <url-pattern>/nodecrud.html</url-pattern>
+    <servlet-name>filemanager</servlet-name>
+    <url-pattern>/filemanager.html</url-pattern>
   </servlet-mapping>
-  
 </web-app>

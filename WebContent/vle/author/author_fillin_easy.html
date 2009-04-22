@@ -36,6 +36,11 @@ var fullText;
 var fillin = [];
 var fillinIndexes = [];
 var charCount;
+var saved = true;
+
+function getSaved(){
+	return saved;
+};
 
 function generatePage(){
 	var parent = document.getElementById('dynamicParent');
@@ -86,7 +91,7 @@ function generateFullText(){
 	var text = xmlPage.getElementsByTagName('itemBody')[0];
 	for(var x=0;x<text.childNodes.length;x++){
 		if(text.childNodes[x].nodeName!="#text"){
-			if(text.childNodes[x].nodeName=='htmltext'){
+			if(text.childNodes[x].nodeName=='htmltext' && text.childNodes[x].firstChild){
 				html = html + spaceMaker(text.childNodes[x].firstChild.nodeValue);
 				currentIndex += spaceMaker(text.childNodes[x].firstChild.nodeValue).length;
 			} else if(text.childNodes[x].nodeName=='textEntryInteraction'){
@@ -421,8 +426,8 @@ function getLineNumber(identifier){
  * in the questionInput textarea
  */
 function createFillin(){
-	var start = document.getElementById('questionInput').selectionStart + 1;
-	var end = document.getElementById('questionInput').selectionEnd + 1;
+	var start = document.getElementById('questionInput').selectionStart;
+	var end = document.getElementById('questionInput').selectionEnd;
 	
 	//make sure there are no overlaps
 	if(overlaps(start, end)){
@@ -580,7 +585,7 @@ function overlaps(start, end){
 	} else {//changed look for overlap
 		for(var x=0;x<body.childNodes.length;x++){
 			if(body.childNodes[x].nodeName!="#text"){
-				if(body.childNodes[x].nodeName=='htmltext'){
+				if(body.childNodes[x].nodeName=='htmltext' && body.childNodes[x].firstChild){
 					runningText += spaceMaker(body.childNodes[x].firstChild.nodeValue);
 				} else if(body.childNodes[x].nodeName=='textEntryInteraction'){
 					var currentText = retrieveInteractionText(body.childNodes[x].getAttribute('responseIdentifier'));
@@ -620,30 +625,34 @@ function spaceMaker(text){
 	return text.toString().replace(/&nbsp;/g, ' ');
 };
 
-function save() {
-	   	if(confirm("Click OK to save the file locally.")){
-			  var htmlString;
-			  
-			if(window.ActiveXObject) {
-				htmlString = xmlPage.xml;
-			} else {
-				htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+function save(){
+	var htmlString;
+	
+	if(window.ActiveXObject) {
+		htmlString = xmlPage.xml;
+	} else {
+		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+	};
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
 			};
-			  
-		    document.getElementById('localData').value = htmlString;
-		    if (thisFilename != null) {
-		    	document.getElementById('form_filename').value = thisFilename;
-		    };
-		    document.getElementById('saveLocal').submit();
-		};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
 };
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename) {
-	thisFilename = filename
+function loadAuthoringFromFile(filename, projectName) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -668,11 +677,10 @@ function loadAuthoringFromFile(filename) {
 
 		  },
 		  failure: function(o) { alert('failure');},
-		  argument: ["a", "b", "c"]
+		  scope:this
 	}
 
-	// fetch the file
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
 function sourceUpdated() {	
@@ -681,6 +689,7 @@ function sourceUpdated() {
 		if(difference==0){ //do nothing, no changes
 			return;
 		} else if(difference>0){ //text has been removed
+			saved = false;
 			var start = document.getElementById('questionInput').selectionStart + 1;
 			var end = start + difference;
 			var body = xmlPage.getElementsByTagName('itemBody')[0];
@@ -714,30 +723,52 @@ function sourceUpdated() {
 			generateFullText();
 			updatePreview();
 		} else { //text has been added
+			saved = false;
 			var end = document.getElementById('questionInput').selectionStart;
 			var start = end + difference;
 			var newText = document.getElementById('questionInput').value.substring(start, end); //get new chars
 			var body = xmlPage.getElementsByTagName('itemBody')[0];
 			var runningText = '';
 			
-			start += 1;
-			for(var x=0;x<body.childNodes.length;x++){
-				if(body.childNodes[x].nodeName!="#text"){
-					if(body.childNodes[x].nodeName=='htmltext'){
-						var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
-						if(start <= (runningText + currentText).length){ //this is where the change was made, update text
-							body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + newText + currentText.substring(start - runningText.length, currentText.length);
-							charCount += newText.length;
-							generateFullText();
-							updatePreview();
-							return;
-						} else {
-							runningText += currentText;
+			if(body.childNodes.length>0){
+				for(var x=0;x<body.childNodes.length;x++){
+					if(body.childNodes[x].nodeName!="#text"){
+						if(body.childNodes[x].nodeName=='htmltext'){
+							if(body.childNodes[x].firstChild){
+								var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
+								if(start <= (runningText + currentText).length){ //this is where the change was made, update text
+									body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + newText + currentText.substring(start - runningText.length, currentText.length);
+									charCount += newText.length;
+									generateFullText();
+									updatePreview();
+									return;
+								} else {
+									runningText += currentText;
+								};
+							} else { // no data in prompt - add it
+								var newTextNode = xmlPage.createTextNode(newText);
+								var newTextEl = xmlPage.createElement('htmltext');
+								newTextEl.appendChild(newTextNode);
+								body.appendChild(newTextEl);
+								charCount += newText.length;
+								generateFullText();
+								updatePreview();
+								return;
+							};
+						} else if(body.childNodes[x].nodeName=='textEntryInteraction'){
+							runningText += retrieveInteractionText(body.childNodes[x].getAttribute('responseIdentifier'));
 						};
-					} else if(body.childNodes[x].nodeName=='textEntryInteraction'){
-						runningText += retrieveInteractionText(body.childNodes[x].getAttribute('responseIdentifier'));
 					};
 				};
+			} else {
+				var newTextNode = xmlPage.createTextNode(newText);
+				var newTextEl = xmlPage.createElement('htmltext');
+				newTextEl.appendChild(newTextNode);
+				body.appendChild(newTextEl);
+				charCount += newText.length;
+				generateFullText();
+				updatePreview();
+				return;
 			};
 		};
 	} else {
@@ -746,6 +777,7 @@ function sourceUpdated() {
 };
 
 function updatePreview(){
+	saved = false;
 	var xmlString;
 	if(window.ActiveXObject) {
 		xmlString = xmlPage.xml;
@@ -758,8 +790,9 @@ function updatePreview(){
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
 		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
 	};
 };
 </script>

@@ -37,6 +37,11 @@
 
 <script type="text/javascript">
 var xmlPage;
+var saved = true;
+
+function getSaved(){
+	return saved;
+};
 
 function generatePage(){
 	var parent = document.getElementById('dynamicParent');
@@ -65,7 +70,11 @@ function generatePage(){
 		notOrder.checked = true;
 	};
 	
-	prompt.value = getPrompt().firstChild.nodeValue;
+	if(getPrompt().firstChild){
+		prompt.value = getPrompt().firstChild.nodeValue;
+	} else {
+		prompt.value = "";
+	};
 	
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
@@ -294,7 +303,12 @@ function getPrompt(){
  * in prompt textarea box
  */
 function updatePrompt(){
-	getPrompt().firstChild.nodeValue = document.getElementById('promptArea').value;
+	if(getPrompt().firstChild){
+		getPrompt().firstChild.nodeValue = document.getElementById('promptArea').value;
+	} else {
+		var text = xmlPage.createTextNode(document.getElementById('promptArea').value);
+		getPrompt().appendChild(text);
+	};
 	updatePreview();
 };
 
@@ -881,35 +895,34 @@ function createSpace(){
 	return document.createTextNode(' ');
 };
 
-
-function save() {
-	   	if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
-			if(validateOrdering()){
-				var htmlString;
-				  
-				if(window.ActiveXObject) {
-					htmlString = xmlPage.xml;
-				} else {
-					htmlString = (new XMLSerializer()).serializeToString(xmlPage);
-				};
-				  
-			    document.getElementById('localData').value = htmlString;
-			    if (thisFilename != null) {
-			    	document.getElementById('form_filename').value = thisFilename;
-			    };
-			    document.getElementById('saveLocal').submit();
-			} else {
-				alert('There is a problem with the ordering. Check to make sure that there are no duplicates and that all indexes are sequential.');
+function save(){
+	var htmlString;
+	
+	if(window.ActiveXObject) {
+		htmlString = xmlPage.xml;
+	} else {
+		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+	};
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
 			};
-		};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
 };
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename) {
-	thisFilename = filename
+function loadAuthoringFromFile(filename, projectName) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -935,7 +948,7 @@ function loadAuthoringFromFile(filename) {
 				customCheck = xmlDoc.getElementsByTagName('customCheck')[0].firstChild.nodeValue;
 			};
 		}
-
+		
 		if(customCheck != null && customCheck != ""){
 			window.frames["previewFrame"].loadXMLString(xmlString, customCheck);
 		} else {
@@ -944,17 +957,17 @@ function loadAuthoringFromFile(filename) {
 
 		  },
 		  failure: function(o) { alert('failure');},
-		  argument: ["a", "b", "c"]
+		  scope: this
 	}
 
-	// fetch the file
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
 /**
  * Updates the preview portion with the modifications in xmlPage
  */
  function updatePreview(){
+ 	saved = false;
  	var customCheck;
  	var xmlString;
  	
@@ -977,8 +990,9 @@ function loadAuthoringFromFile(filename) {
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
 		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
 	};
 };
 </script>

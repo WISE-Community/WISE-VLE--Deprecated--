@@ -74,14 +74,14 @@ YUI().use('dd-constrain', 'dd-proxy', 'dd-drop', function(Y) {
     var goingUp = false, lastY = 0;
 
     //Get the list of li's with class draggable in the lists and make them draggable
-    var lis = Y.Node.all('#navAuthoringDiv ul li.draggable');
+    var lis = Y.Node.all('#projectTD ul li.draggable');
     if (lis != null) {
     	lis.each(function(v, k) {
     		var dd = new Y.DD.Drag({
     			node: v,
     			proxy: true,
     			moveOnEnd: false,
-    			constrain2node: '#navAuthoringDiv',
+    			constrain2node: '#projectTD',
     			target: {
     			padding: '0 0 0 20'
     		}
@@ -91,12 +91,14 @@ YUI().use('dd-constrain', 'dd-proxy', 'dd-drop', function(Y) {
     }
 
     //Create simple targets for the lists..
-    var uls = Y.Node.all('#navAuthoringDiv ul');    
-    uls.each(function(v, k) {
-        var tar = new Y.DD.Drop({
-            node: v
-        });
-    });
+    var uls = Y.Node.all('#projectTD ul');
+    if(uls){  
+	    uls.each(function(v, k) {
+	        var tar = new Y.DD.Drop({
+	            node: v
+	        });
+	    });
+	};
     
 });
 }

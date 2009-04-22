@@ -40,6 +40,7 @@
 
 <script type="text/javascript">
 var xmlPage;
+var saved = true;
 
 var ddList = [];
 
@@ -159,6 +160,10 @@ function onNodeDropped(dragged, dropped){
  * End functions used by YUI for the drag and drop stuff *|
  *****												******/
 
+function getSaved(){
+	return saved;
+};
+
 /**
  * Removes previous elements and generates a new page with the
  * appropriate elements from this xmlPage
@@ -253,7 +258,11 @@ function generateFeedbackOptions(){
  * for this xmlPage
  */
 function generatePrompt(){
-	var prompt = xmlPage.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	if(xmlPage.getElementsByTagName('prompt')[0].firstChild){
+		var prompt = xmlPage.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	} else {
+		var prompt = "";
+	};
 	var promptInput = createElement(document, 'textarea', {id: 'promptText', name: 'promptText', cols: '50', rows: '6', wrap: 'hard', onkeyup: "sourceUpdated()"});
 	promptInput.value = prompt;
 	return promptInput 
@@ -438,24 +447,27 @@ function correctChoiceChange(index){
 	sourceUpdated();
 };
 
-function save() {
-	if(validate()){
-		  if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
-			  var htmlString;
-			  
-			if(window.ActiveXObject) {
-				htmlString = xmlPage.xml;
-			} else {
-				htmlString = (new XMLSerializer()).serializeToString(xmlPage);
-			}
-			  
-		      document.getElementById('localData').value = htmlString;
-		      if (thisFilename != null) {
-		      	document.getElementById('form_filename').value = thisFilename;
-		      }
-		      document.getElementById('saveLocal').submit();
-		   };
+function save(){
+	var htmlString;
+	
+	if(window.ActiveXObject) {
+		htmlString = xmlPage.xml;
+	} else {
+		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
 	};
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
+			};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
 };
 
 /**
@@ -512,8 +524,7 @@ function feedbackOptionChange(val){
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename) {
-	thisFilename = filename
+function loadAuthoringFromFile(filename, projectName) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -538,11 +549,10 @@ function loadAuthoringFromFile(filename) {
 
 		  },
 		  failure: function(o) { alert('failure');},
-		  argument: ["a", "b", "c"]
+		  scope: this
 	}
 
-	// fetch the file
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
 /*
@@ -550,6 +560,7 @@ function loadAuthoringFromFile(filename) {
  * gets the text in the textarea and re-renders the previewFrame
  */
 function sourceUpdated() {
+	saved = false;
 	//retrieve the authored text
 	var parent = xmlPage.getElementsByTagName('choiceInteraction')[0];
 	while(parent.firstChild){  //removes all children (prompt, simpleResponse) from choiceInteraction
@@ -571,8 +582,9 @@ function sourceUpdated() {
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
 		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
 	};
 };
 </script>

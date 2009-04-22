@@ -168,8 +168,10 @@ Project.prototype.generateSequences = function(xmlDoc){
 	};
 	
 	//get startingSequence
-	var startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
-	
+	if(xmlDoc.getElementsByTagName('startpoint')[0].childNodes.length>0){
+		var startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
+	};
+		
 	//validate that there are no loops
 	if(startingSequence){
 		var stack = [];
@@ -183,7 +185,7 @@ Project.prototype.generateSequences = function(xmlDoc){
 			return null;
 		};
 	} else {
-		alert('Invalid start sequence specified in project, please check the start point reference');
+		alert('No start sequence specified in project, this can be changed in the authoring tool');
 		return;
 	};
 };
@@ -365,6 +367,30 @@ Project.prototype.getShowAllWorkHtml = function(node, doGrading) {
 	}
 	return htmlSoFar;
 }
+
+/**
+ * Returns the first renderable node Id given the structure of 
+ * the project (starting with the rootNode
+ */
+Project.prototype.getStartNodeId = function(){
+	return id = this.getFirstNonSequenceNodeId(this.rootNode);
+};
+
+/**
+ * Helper function for getStartNodeId()
+ */
+Project.prototype.getFirstNonSequenceNodeId = function(node){
+	if(node.type=='sequence'){
+		for(var y=0;y<node.children.length;y++){
+			var id = this.getFirstNonSequenceNodeId(node.children[y]);
+			if(id!=null){
+				return id;
+			};
+		};
+	} else {
+		return node.id;
+	};
+};
 
 /**
  * Returns an xml string that represents this project. This is used

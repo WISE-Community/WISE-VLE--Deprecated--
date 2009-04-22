@@ -59,6 +59,7 @@
 <script type="text/javascript">
 var xmlPage;
 var currentResponse;
+var saved = true;
 
 /**
  * Generates this page dynamically based on the content of xmlPage
@@ -431,7 +432,11 @@ function updateExpectedLines(){
  * Returns the value of the prompt element in xmlPage
  */
 function getPrompt(){
-	return xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	if(xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild){
+		return xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild.nodeValue;
+	} else {
+		return "";
+	};
 };
 
 /**
@@ -525,34 +530,43 @@ function createNewResponse(){
 	updatePreview();
 };
 
-function save() {
-	   	if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
-			  var htmlString;
-			  
-			if(window.ActiveXObject) {
-				htmlString = xmlPage.xml;
-			} else {
-				htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+function save(){
+	var htmlString;
+	
+	if(window.ActiveXObject) {
+		htmlString = xmlPage.xml;
+	} else {
+		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
+	};
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
 			};
-			  
-		    document.getElementById('localData').value = htmlString;
-		    if (thisFilename != null) {
-		    	document.getElementById('form_filename').value = thisFilename;
-		    };
-		    document.getElementById('saveLocal').submit();
-		};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
+};
+
+function getSaved(){
+	return saved;
 };
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename) {
-	thisFilename = filename
+function loadAuthoringFromFile(filename, projectName) {
 	var callback =
 	{
 	  success: function(o) { 
 	  var xmlDocToParse = o.responseXML;
+	  
 		/**
 		 * sets local xml and then generates the left panel
 		 * of this page dynamically
@@ -560,26 +574,26 @@ function loadAuthoringFromFile(filename) {
 		xmlPage = o.responseXML;
 		generatePage();
 	
-		//retrieve the xmlString from the mcObj
+		//retrieve the xmlString
 		var xmlString = "";
 		if(window.ActiveXObject) {
 			xmlString = xmlDocToParse.xml;
 		} else {
 			xmlString = (new XMLSerializer()).serializeToString(xmlDocToParse);
 		}
-
+		
 		window.frames["previewFrame"].loadXMLString(xmlString);
 
-		  },
+	  },
 		  failure: function(o) { alert('failure');},
-		  argument: ["a", "b", "c"]
+		  scope: this
 	}
-
-	// fetch the file
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
 function updatePreview(){
+	saved = false;
 	var xmlString;
 	if(window.ActiveXObject) {
 		xmlString = xmlPage.xml;
@@ -592,8 +606,9 @@ function updatePreview(){
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
 		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
 	};
 };
 
@@ -610,6 +625,7 @@ function createBreak(){
 function createSpace(){
 	return document.createTextNode(' ');
 };
+
 </script>
 </head>
 <body onload="loaded()">

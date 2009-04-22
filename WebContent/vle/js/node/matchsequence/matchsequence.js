@@ -35,7 +35,11 @@ function MS(xmlDoc, customCheck) {
     this.itemBody = this.xmlDoc.getElementsByTagName('itemBody')[0];
     this.isOrdered = this.itemBody.getElementsByTagName('gapMatchInteraction')[0].getAttribute('ordered') == 'true'; // true iff this is MatchSequence (ordering of choices in bucket matters)
     this.responseIdentifier = this.itemBody.getElementsByTagName('gapMatchInteraction')[0].getAttribute('responseIdentifier');
-    this.promptText = this.itemBody.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+    if(this.itemBody.getElementsByTagName('prompt')[0].firstChild){
+    	this.promptText = this.itemBody.getElementsByTagName('prompt')[0].firstChild.nodeValue;
+    } else {
+    	this.promptText = "";
+    };
     this.followupFeedbackText = null;
     this.choices = [];
     this.sourceBucket = null;

@@ -20,10 +20,12 @@ function DFS(rootNode) {
  * @param {Object} node
  */
 DFS.prototype.findVisitingOrder = function(node) {
-	this.visitingOrder.push(node);
-	for (var i=0; i < node.children.length; i++) {
-		this.findVisitingOrder(node.children[i]);
-	}
+	if(node){
+		this.visitingOrder.push(node);
+		for (var i=0; i < node.children.length; i++) {
+			this.findVisitingOrder(node.children[i]);
+		}
+	};
 }
 
 /**

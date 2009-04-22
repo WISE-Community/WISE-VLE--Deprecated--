@@ -1,3 +1,6 @@
+function encodeString(text){
+	return encodeURIComponent(text);
+};
 
 function createAttribute(doc, node, type, val){
 	var attribute = doc.createAttribute(type);
