@@ -216,6 +216,127 @@ VLE.prototype.showAllWork = function(doGrading){
     YAHOO.example.container.showallwork.show();
 }
 
+/**
+ * This returns html that displays the student's progress e.g.
+ * 
+ * <table><tr><td>aa11</td><td>7%</td><td>Q15 (0:0:15)</td><td>Q6 (0:0:6), Q7 (0:0:7), Q8 (0:0:8), Q9 (0:0:9), Q11 (0:0:11), Q12 (0:0:12), Q13 (0:0:13), Q14 (0:0:14)</td></tr></table>
+ * 
+ * @param vle the vle object that has it's vle_state populated with 
+ * 		student data
+ * @return an html string that displays the student user name,
+ * 		percentage completion of project, current step they're on,
+ * 		and steps they skipped
+ */
+VLE.prototype.getProgress = function() {
+	var progressHtml = "";
+	
+	/*
+	 * all the nodes/steps in the project
+	 * (node and step are the same in this context)
+	 */
+	var nodeIds = this.getLeafNodeIds();
+	
+	//a counter to keep track of the number of nodes visited by the student
+	var nodesVisited = 0;
+	
+	//the last step the student visited
+	var lastNodeIdVisitedByStudent = "";
+	
+	//keeps track of nodes that might have been skipped
+	var nodesPossiblySkipped = "";
+	
+	//keeps track of the nodes that were skipped
+	var nodesSkipped = "";
+	
+	//loop through all the nodes in the project
+	for(var x=0; x<nodeIds.length; x++) {
+		//obtain a specific node from the vle
+		var nodeId = nodeIds[x];
+		var nodeTitle = this.getNodeById(nodeId).title;
+		var nodeTitleAndId = nodeTitle + " (" + nodeId + ")"
+		
+		/*
+		 * get all the node visits by this student that the vle represents
+		 * for this node
+		 */
+		nodeVisitsForNodeId = this.state.getNodeVisitsByNodeId(nodeId);
+		
+		if(nodeVisitsForNodeId.length != 0) {
+			//the student has visited this step
+			
+			/*
+			 * increment the count of nodes visited so we can calculate
+			 * the percentage of project completed
+			 */
+			nodesVisited++;
+			
+			/*
+			 * remember this current node because it may be the last node
+			 * the student visited
+			 */
+			lastNodeIdVisitedByStudent = nodeTitleAndId;
+			
+			
+			if(nodesPossiblySkipped != "") {
+				//if there were any previous nodes possibly skipped, add a comma
+				if(nodesSkipped != "") {
+					nodesSkipped += ", ";
+				}
+				
+				/*
+				 * add the nodes possibly skipped to the nodes skipped
+				 * because now we know they really did skip these nodes
+				 * because the current node, which comes after the 
+				 * possibly skipped nodes has been visited
+				 */
+				nodesSkipped += nodesPossiblySkipped;
+				
+				//clear out the nodes possibly skipped
+				nodesPossiblySkipped = "";
+			}
+		} else {
+			/*
+			 * the student has not visited this step so we will remember
+			 * this step. if we find that the student has visited a step
+			 * after this step, that means this step was skipped, otherwise
+			 * it just means the student has only gotten this far in the
+			 * project and did not actually skip any steps
+			 */
+			
+			//add a comma if there were previous nodes possibly skipped
+			if(nodesPossiblySkipped != "") {
+				nodesPossiblySkipped += ", ";
+			}
+			
+			//add the current node to the nodes possibly skipped
+			nodesPossiblySkipped += nodeTitleAndId;
+		}
+	}
+	
+	//output the data in html form
+	progressHtml += "<table>";
+	progressHtml += "<tr>";
+	
+	//username
+	progressHtml += "<td>" + this.getUserName() + "</td>";
+	
+	//percentage of project completed
+	progressHtml += "<td>" + Math.floor(nodesVisited * 100 / nodeIds.length) + "%" + "</td>";
+	
+	//furthest node the student visited
+	progressHtml += "<td>" + lastNodeIdVisitedByStudent + "</td>";
+	
+	//the nodes the student skipped
+	progressHtml += "<td>" + nodesSkipped + "</td>";
+	
+	progressHtml += "</tr>";
+	progressHtml += "</table>";
+	
+	alert(progressHtml);
+	
+	return progressHtml;
+}
+
 VLE.prototype.showGradingTool = function() {
 }
 
