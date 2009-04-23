@@ -6,7 +6,8 @@ function Node(nodeType) {
 	this.id = null;
 	this.parent = null;
 	this.children = [];   // children Nodes. If children is empty, it means that this is a leaf node
-	this.element = null;
+	this.element = null;   // element in XML
+	this.elementText = null;   // element in Text
 	this.type = null;
 	this.title = null;
 	this.nodeSessionEndedEvent = new YAHOO.util.CustomEvent("nodeSessionEndedEvent");
@@ -297,6 +298,9 @@ Node.prototype.retrieveFile = function(){
 						};
 					};
 				};
+				if (o.responseText) {
+				    this.elementText = o.responseText;
+				}
 			},
 			failure:function(o){ alert('unable to retrieve file:' + this.filename); alert(window.location);},
 			scope:this

@@ -20,7 +20,12 @@ HtmlNode.prototype.setContent = function(content) {
 }
 
 HtmlNode.prototype.render = function(contentPanel) {
-	if (this.filename != null) {
+	if (this.elementText != null) {
+		window.frames["ifrm"].document.open();
+		window.frames["ifrm"].document.write(this.elementText);
+		window.frames["ifrm"].document.close();
+		return;
+	} else if (this.filename != null) {
 	
 		if(window.ActiveXObject) {
 			this.content = this.element.xml;
