@@ -59,7 +59,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
 		}
 		//htmlSoFar += "</div>";
 	} else {
-		htmlSoFar += "<br>";
+		htmlSoFar ;
 		for(var t=0;t<depth;t++){
 			htmlSoFar += space;
 		};
