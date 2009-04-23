@@ -21,8 +21,16 @@ HtmlNode.prototype.setContent = function(content) {
 
 HtmlNode.prototype.render = function(contentPanel) {
 	if (this.filename != null) {
-		// if filename is specified, load html from the specified file.
-		window.frames["ifrm"].location = this.filename;
+	
+		if(window.ActiveXObject) {
+			this.content = this.element.xml;
+		} else {
+			this.content = (new XMLSerializer()).serializeToString(this.element);
+		};
+		
+		window.frames["ifrm"].document.open();
+		window.frames["ifrm"].document.write(this.content);
+		window.frames["ifrm"].document.close();
 		return;
 	} else if(this.content == null) {
 		/*
