@@ -35,9 +35,11 @@ public final class Template {
 			"<nodes>" + NL +
 			"</nodes>" + NL +
 			"<sequences>" + NL +
+			getSequenceTemplate("master") + NL +
 			"</sequences>" + NL +
 			"<method>" + NL +
 			"<startpoint>" + NL +
+			"<sequence-ref ref=\"master\"/>" + NL +
 			"</startpoint>" + NL +
 			"</method>" + NL +
 			"</project>";
@@ -46,7 +48,7 @@ public final class Template {
 	public static String getProjectNodeTemplate(String node, String name, String title, String ext){
 		return "<" + node + " identifier=\"" + name + "\" title=\"" + title + "\">" + NL +
 			"<ref filename=\"" + name + ext + "\"/>" + NL + 
-			"</" + node + ">";
+			"</" + node + ">" + NL;
 	}
 	
 	public static String getSequenceTemplate(String name){

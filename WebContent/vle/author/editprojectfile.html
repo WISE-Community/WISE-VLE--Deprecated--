@@ -43,10 +43,14 @@
 var projectName = window.opener.currentProjectName;
 
 function loaded(){
+	var formatProject = function(text){
+		return text.replace(/>/g, '>\n');
+	};
+	
 	var callback =
 	{
 		success: function(o) {
-			document.getElementById('projectText').value = o.responseText;
+			document.getElementById('projectText').value = formatProject(o.responseText);
 	  },			
 	  failure: function(o) { alert('unable to retrieve project file from server');},
 	  scope:this

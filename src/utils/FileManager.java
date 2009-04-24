@@ -2,22 +2,31 @@ package utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
  * Servlet implementation class for Servlet: FileManager
+ * 
+ * @author patrick lawler
  */
  public class FileManager extends HttpServlet implements Servlet{
    static final long serialVersionUID = 1L;
@@ -34,11 +43,13 @@ import javax.servlet.http.HttpServletResponse;
    
    private final static String PROJECT_DIRECTORY = "projects";
    
+   private final static String ZIP_DIRECTORY = "zipped_projects";
+   
 	/* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+
 	}  	
 	
 	/* (non-Java-doc)
@@ -60,6 +71,8 @@ import javax.servlet.http.HttpServletResponse;
 				response.getWriter().write(this.createNode(request));
 			} else if(command.equals("createSequence")){
 				response.getWriter().write(this.createSequence(request));
+			} else if(command.equals("exportProject")){
+				this.exportProject(request, response);
 			} else {
 				throw new ServletException("This servlet does not understand this command: " + command);
 			}
@@ -67,7 +80,7 @@ import javax.servlet.http.HttpServletResponse;
 			throw new ServletException("No command has been provided, unable to do anything.");
 		}
 	}
-	
+
 	/**
 	 * Returns true if project directory exists, if not returns whether the
 	 * creation of the project directory was successful
@@ -410,6 +423,68 @@ import javax.servlet.http.HttpServletResponse;
 			throw new IOException("Could not insert new sequence in project file.");
 		} else {
 			throw new IOException("Unable to locate project file.");
+		}
+	}
+	
+	private void exportProject(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy_kk.mm.ss");
+		ensureZipDir();
+		File parent = new File(PROJECT_DIRECTORY);
+		File zipParent = new File(ZIP_DIRECTORY);
+		File dir = new File(parent, request.getParameter(PARAM1));
+		File zipFile = new File(zipParent, request.getParameter(PARAM1) + "_" + sdf.format(new Date()) + ".zip");
+		
+		if(dir.exists()){
+			if(dir.isDirectory()){
+				if(zipFile.exists()){
+					zipFile.delete();
+				}
+				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
+				this.zipIt(dir, zos);
+				zos.close();
+				
+				response.setContentType("application/zip");
+				response.setContentLength((int)zipFile.length());
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + zipFile.getName() + "\"");
+				
+				byte[] buffer = new byte[4096];
+				DataInputStream dis = new DataInputStream(new FileInputStream(zipFile));
+				ServletOutputStream sop = response.getOutputStream();
+				int length = 0;
+				while((dis != null) && (length = dis.read(buffer)) != -1){
+					sop.write(buffer, 0, length);
+				}
+			} else {
+				throw new IOException("The specified location is not a directory.");
+			}
+		} else {
+			throw new IOException("Unable to find the project directory.");
+		}
+	}
+	
+	private void zipIt(File dir, ZipOutputStream zos) throws IOException{
+		String list[] = dir.list();
+		byte buffer[] = new byte[4096];
+		int in = 0;
+		
+		for(int x=0;x<list.length;x++){
+			File file = new File(dir, list[x]);
+			FileInputStream fis = new FileInputStream(file);
+			ZipEntry entry = new ZipEntry(file.getPath());
+			zos.putNextEntry(entry);
+			while((in = fis.read(buffer)) != - 1){
+				zos.write(buffer, 0, in);
+			}
+			fis.close();
+		}
+	}
+	
+	private boolean ensureZipDir(){
+		File file = new File(ZIP_DIRECTORY);
+		if(file.isDirectory()){
+			return true;
+		} else {
+			return file.mkdir();
 		}
 	}
 }

@@ -5,6 +5,7 @@
 function generateDD(){
 	//clear previous list of draggable elements
 	ddList = [];
+	targetsList = [];
 	
 	YUI().use('dd-constrain', 'dd-proxy', 'dd-drop', function(Y) {
 	    //Listen for all drop:over events
@@ -74,7 +75,6 @@ function generateDD(){
 	            if (!drop.contains(drag)) {
 	                drop.appendChild(drag);
 	            }
-	            alert(drop.get('id'));alert(drag.get('id'));
 	            onNodeDropped(drag, drop);
 	        }
 	    });
@@ -90,8 +90,24 @@ function generateDD(){
 	    			node: v,
 	    			proxy: true,
 	    			moveOnEnd: false,
-	    			//constrain2node: '#sequenceContainer',
-	    			group: 'sequence',
+	    			groups: ['sequence', 'trash'],
+	    			target: {
+	    			padding: '0 0 0 20'
+	    		}
+	    		});
+	    		ddList.push(dd);
+	    	});
+	    }
+	    
+	    //reference nodes in a sequence
+	    var lis = Y.Node.all('#ddTable tr ul li ul li.draggable');
+	    if(lis != null){
+	    	lis.each(function(v, k) {
+	    		var dd = new Y.DD.Drag({
+	    			node: v,
+	    			proxy: true,
+	    			moveOnEnd: false,
+	    			groups: ['sequence', 'trash'],
 	    			target: {
 	    			padding: '0 0 0 20'
 	    		}
@@ -102,23 +118,51 @@ function generateDD(){
 	    
 	    var targets = document.getElementsByName('sequenceContainer');
 	    for(var f=0;f<targets.length;f++){
-	    	createSimpleTarget(Y, targets[f]);
+	    	createSequenceTargets(Y, targets[f]);
 	    };
-	    //Create simple targets for the lists..
-	    //var uls = Y.Node.all('#sequenceContainer ul');    
-	    //uls.each(function(v, k) {
-	    //   var tar = new Y.DD.Drop({
-	    //        node: v
-	    //   });
-	    //});
+	    
+	    createTrashTarget(Y);
 	});
 };
 
-function createSimpleTarget(Y, el){
-	var tar = new Y.DD.Drop({node: el, group: 'sequence'});
+function createSequenceTargets(Y, el){
+	var tar = new Y.DD.Drop({node: el, groups: ['sequence']});
+	targetsList.push(tar);
+};
+
+function createTrashTarget(Y){
+	var tar = new Y.DD.Drop({node: document.getElementById('trash'), groups: ['trash']});
+	targetsList.push(tar);
+};
+
+function removeDragged(el){
+	var nodeId = el.get('id');
+	var docEl = document.getElementById(nodeId);
+	var parent = docEl.parentNode;
+	
+	parent.removeChild(docEl);
+	project.removeNodeById(nodeId);
+};
+
+function removeReferencedNode(el){
+	var nodeId = el.get('id');
+	var docEl = document.getElementById(nodeId);
+	var parent = docEl.parentNode;
+	var parentChildIds = nodeId.split('|');
+	
+	parent.removeChild(docEl);
+	project.removeReferenceFromSequence(parentChildIds[0], parentChildIds[1]);
 };
 
 function onNodeDropped(dragged, dropped){
+	if(dropped.get('id')=='trash'){
+		if(document.getElementById(dragged.get('id')).getAttribute('name')=='ref-node'){
+			removeReferencedNode(dragged);
+		} else {
+			removeDragged(dragged);
+		};
+	};
+	populateSequences();
 	populateNodes();
 	generateDD();
 };

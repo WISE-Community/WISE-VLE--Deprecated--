@@ -55,7 +55,7 @@ function Project(xmlDoc, contentBaseUrl) {
 	
 	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
 	//alert('1:' + this.xmlDoc.firstChild.nodeName);
-	if (this.xmlDoc.getElementsByTagName("sequence").length > 0) {
+	if (this.xmlDoc.getElementsByTagName("sequences").length > 0) {
 		// this is a Learning Design-inspired project <repos>...</repos><sequence>...</sequence>
 		//alert('LD');
 		this.rootNode = this.generateNodeFromProjectFile(this.xmlDoc);
@@ -192,7 +192,7 @@ Project.prototype.generateSequences = function(xmlDoc){
 
 /**
  * Given the sequence id and stack, returns true if there are
- * no infinite loops within the project, otherwise returns false
+ * no infinite loops within the given start sequence, otherwise returns false
  */
 Project.prototype.validateNoLoops = function(id, stack){
 	if(stack.indexOf(id)==-1){ //id not found in stack - continue checking
@@ -389,6 +389,54 @@ Project.prototype.getFirstNonSequenceNodeId = function(node){
 		};
 	} else {
 		return node.id;
+	};
+};
+
+/**
+ * Removes the node from the project
+ */
+Project.prototype.removeNodeById = function(id){
+	for(var o=0;o<this.allSequenceNodes.length;o++){
+		if(this.allSequenceNodes[o].id==id){
+			this.allSequenceNodes.splice(o,1);
+			this.removeAllNodeReferences(id);
+			return;
+		};
+	};
+	for(var q=0;q<this.allLeafNodes.length;q++){
+		if(this.allLeafNodes[q].id==id){
+			this.allLeafNodes.splice(q,1);
+			this.removeAllNodeReferences(id);
+			return;
+		};
+	};
+};
+
+/**
+ * Removes all references of the node with the given id
+ * from sequences in this project
+ */
+Project.prototype.removeAllNodeReferences = function(id){
+	for(var w=0;w<this.allSequenceNodes.length;w++){
+		for(var e=0;e<this.allSequenceNodes[w].children.length;e++){
+			if(this.allSequenceNodes[w].children[e].id==id){
+				this.allSequenceNodes[w].children.splice(e, 1);
+			};
+		};
+	};
+};
+
+/**
+ * Removes the node associated with the given refId from the sequence
+ * associated with the given seqId
+ */
+Project.prototype.removeReferenceFromSequence = function(seqId, refId){
+	var sequence = this.getNodeById(seqId);
+	for(var t=0;t<sequence.children.length;t++){
+		if(sequence.children[t].id==refId){
+			sequence.children.splice(t, 1);
+			return;
+		};
 	};
 };
 
