@@ -291,7 +291,7 @@ function generateAnswers(){
 			};
 		};
 		var answerLI = createElement(document, 'li', {id: 'answerLI_' + h, name: 'answerLI', class: 'draggable'});
-		var answer = createElement(document, 'input', {type: 'text', name: "answerInput", value: answerText, wrap: 'soft', onkeyup: "sourceUpdated()"});
+		var answer = createElement(document, 'input', {type: 'text', name: "answerInput", value: answerText, wrap: 'hard', onkeyup: "sourceUpdated()"});
 		answerLI.appendChild(answerTextLabel);
 		answerLI.appendChild(answer);
 		answerLI.appendChild(createBreak());
@@ -318,7 +318,7 @@ function generateFeedback(simpleChoice, index){
 			createNewFeedback(simpleChoice);
 			feedback = simpleChoice.getElementsByTagName('feedbackInline');
 		};
-		var feedbackEl = createElement(document, 'input', {type: 'text', wrap: 'soft', id: 'feedbackInput_' + index, name: "feedbackInput", onkeyup: "sourceUpdated()"});
+		var feedbackEl = createElement(document, 'input', {type: 'text', wrap: 'hard', id: 'feedbackInput_' + index, name: "feedbackInput", onkeyup: "sourceUpdated()"});
 		feedbackEl.value = feedback[0].firstChild.nodeValue;
 	} else {
 		var feedbackEl = createElement(document, 'div', {id: 'feedbackInput_' + index, name: 'feedbackInput_' + index});
