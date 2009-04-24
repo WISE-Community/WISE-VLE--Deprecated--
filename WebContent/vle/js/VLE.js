@@ -253,7 +253,7 @@ VLE.prototype.getProgress = function() {
 		//obtain a specific node from the vle
 		var nodeId = nodeIds[x];
 		var nodeTitle = this.getNodeById(nodeId).title;
-		var nodeTitleAndId = nodeTitle + " (" + nodeId + ")"
+		var nodeTitleAndId = nodeTitle + " (" + nodeId + ")";
 		
 		/*
 		 * get all the node visits by this student that the vle represents
@@ -314,25 +314,25 @@ VLE.prototype.getProgress = function() {
 	}
 	
 	//output the data in html form
-	progressHtml += "<table>";
+	progressHtml += "<table width='100%'>";
 	progressHtml += "<tr>";
 	
 	//username
-	progressHtml += "<td>" + this.getUserName() + "</td>";
+	progressHtml += "<td width='20%'>" + this.getUserName() + "</td>";
 	
 	//percentage of project completed
-	progressHtml += "<td>" + Math.floor(nodesVisited * 100 / nodeIds.length) + "%" + "</td>";
+	progressHtml += "<td width='20%'>" + Math.floor(nodesVisited * 100 / nodeIds.length) + "%" + "</td>";
 	
 	//furthest node the student visited
-	progressHtml += "<td>" + lastNodeIdVisitedByStudent + "</td>";
+	progressHtml += "<td width='20%'>" + lastNodeIdVisitedByStudent + "</td>";
 	
 	//the nodes the student skipped
-	progressHtml += "<td>" + nodesSkipped + "</td>";
+	progressHtml += "<td width='40%'>" + nodesSkipped + "</td>";
 	
 	progressHtml += "</tr>";
 	progressHtml += "</table>";
 	
-	alert(progressHtml);
+	//alert(progressHtml);
 	
 	return progressHtml;
 }
@@ -449,13 +449,13 @@ VLE.prototype.getClassUsers = function() {
 /**
  * Loads the student's latest work from the last time they worked on it
  * @param dataId the workgroupId
- * @param vle this vle
  */
-VLE.prototype.loadVLEState = function(dataId, vle) {
+VLE.prototype.loadVLEState = function(vle) {
 	var getURL = this.getDataUrl;
+
 	//var getURL = "../getdata.html?dataId=" + dataId;
 	//alert("vle.js, getURL:" + getURL);
-	
+		
 	var callback = {
 		success: function(o) {
 			var xmlObj = o.responseXML;
@@ -540,6 +540,7 @@ VLE_STATE.prototype.getNodeVisitsByNodeId = function(nodeId) {
 			nodeVisitsForThisNodeId.push(this.visitedNodes[i]);
 		}		
 	}
+	//alert("nodeId: " + nodeId + "<br>nodeVisitsForThisNodeId: " + nodeVisitsForThisNodeId.length);
 	return nodeVisitsForThisNodeId;
 }
 

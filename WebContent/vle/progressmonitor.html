@@ -1,0 +1,176 @@
+<html>
+<head>
+<script type="text/javascript" src="js/sound/soundmanager/script/soundmanager2.js"></script>
+<script type="text/javascript" src="js/sound/AudioManager.js"></script>
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+
+
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Sam Skin CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+
+<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+
+<script type="text/javascript">
+var vle = null;
+</script>
+
+<script type="text/javascript" src="js/common/helperfunctions.js"></script>
+<script type="text/javascript" src="js/VLE.js"></script>
+<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="js/visibility/VisibilityLogic.js"></script>
+<script type="text/javascript" src="js/visibility/OnlyShowSelectedNodes.js"></script>
+<script type="text/javascript" src="js/visibility/CorrectnessBranchingVisibility.js"></script>
+<script type="text/javascript" src="js/navigation/DFS.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
+<script type="text/javascript" src="js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="js/node/CustomNode.js"></script>
+<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/node/NoteNode.js"></script>
+<script type="text/javascript" src="js/node/JournalNode.js"></script>
+<script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
+<script type="text/javascript" src="js/node/BlueJNode.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/multiplechoicestate.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/mc.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
+<script type="text/javascript" src="js/node/MultipleChoiceCheckBoxNode.js"></script>
+<script type="text/javascript" src="js/node/TickerNode.js"></script>
+<script type="text/javascript" src="js/project/Project.js"></script>
+<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
+<script type="text/javascript" src="js/io/ConnectionManager.js"></script>
+
+<!-- Ticker Query Files -->
+<script type="text/javascript" src="js/node/ticker/ticker.js"></script>
+<script type="text/javascript" src="js/node/QueryEntry.js"></script>
+<script type="text/javascript" src="js/node/StudentWorkQueryObject.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoice/MultipleChoiceQueryContainer.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryEntry.js"></script>
+<script type="text/javascript" src="js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryContainer.js"></script>
+
+<script type="text/javascript" src="js/common/niftycube.js"></script>
+<script type="text/javascript" src="js/navigation/menu.js"></script>
+
+<script type="text/javascript" src="js/common/dropdown.js"></script>
+
+<link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
+<link rel="stylesheet" type="text/css" href="css/navigation/testnavigation.css" />
+<link rel="stylesheet" type="text/css" href="css/visibility/visibility.css" />
+<link rel="stylesheet" type="text/css" href="css/navigation_mobile.css" />
+</head>
+
+<script type="text/javascript">
+
+
+
+function load(contentUrl, userInfoUrl, getDataUrl, workgroupId) {
+	//contentUrl = "http://localhost:8080/vlewrapper/vle/tim2.otml";
+	//document.getElementById("progressDiv").innerHTML = "contentUrl: " + contentUrl + "<br>userInfoUrl: " + userInfoUrl + "<br>getDataUrl: " + getDataUrl + "<br>workgroupId: " + workgroupId;
+
+	vle = new VLE();
+	var contentCallback =
+	{
+	  success: function(o) { 
+		  var xmlDocObj = new LoadXMLDocObj();
+		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
+		  //alert(o.responseXML);
+		  var xmlDocToParse = o.responseXML;
+		  /*
+		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
+			  // WINDOWS IE
+			  //alert(o.responseText);
+			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
+			  windowsXMLDoc.async = "false";
+			  windowsXMLDoc.loadXML(o.responseText);
+			  xmlDocToParse = windowsXMLDoc;
+			  //alert('done');
+			  //alert(xmlDocToParse);
+			  //alert('done done');
+		  }	
+		  */	  
+		  var project = new PasOtmlProject(xmlDocObj);
+		  //var project = new Project(xmlDocToParse);
+		  
+		  project.xmlDoc = xmlDocToParse;
+		  project.generateNode(xmlDocToParse);
+		  
+		  vle.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  vle.navigationLogic = new NavigationLogic(dfs);
+		  vle.setConnection(new ConnectionManager());
+		  vle.getDataUrl = getDataUrl;
+		  vle.loadVLEState(vle);
+		  //myMenu = new Menu("my_menu");
+          //myMenu.init();
+			
+		  //setTimeout("vle.renderNode('0:0:0')", 1000);
+		  //vle.toggleNavigationPanelVisibility();
+
+		  /*
+		   * wait some time before calculating the progress because we need to
+		   * wait for the loadVLEState() call above to complete before we
+		   * getProgress().
+		   */
+		  //setTimeout("document.getElementById('progressDiv').innerHTML += vle.getProgress()", 2000);
+	  },
+	  failure: function(o) { alert('failure, could not get content');},
+	  argument: ["a", "b", "c"]
+	};
+
+	// fetch the OTML.
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentUrl, contentCallback, null);
+
+	// fetch user data
+	var userCallback = {
+				success: function(o) {
+					//alert('userURL: ' + userURL);
+					//alert('userxml: ' + o.responseXML);
+					//alert('responsexml: ' + o.responseText);
+					vle.loadUserAndClassInfo(o.responseXML);
+			  	},
+				failure: function(o) {
+					alert('Error: Unable to load user info');
+				},
+				argument: ["a", "b", "c"]
+	};
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', userInfoUrl, userCallback, null);
+
+	/*
+	 * tell the parent that we are done loading so the parent can move on and
+	 * do what it needs to do after we are done loading
+	 */
+	setTimeout("parent.contentPanelFinishedLoading(" + workgroupId + ")", 2000);
+}
+
+function displayProgress() {
+	document.getElementById('progressDiv').innerHTML += vle.getProgress();
+}
+
+</script>
+
+<div id="progressDiv"></div>
+</html>
