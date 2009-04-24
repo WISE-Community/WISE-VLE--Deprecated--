@@ -1,5 +1,5 @@
 <html>
-<title>Loading Sample PAS Project to Virtual Learning Environment</title>
+<title>Web-Based VLE Master Template</title>
 <head>
 <script type="text/javascript" src="vle/js/sound/soundmanager/script/soundmanager2.js"></script>
 <script type="text/javascript" src="vle/js/sound/AudioManager.js"></script>
@@ -29,7 +29,6 @@
 
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
-
 
 <script type="text/javascript" src="vle/js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="vle/js/VLE.js"></script>
@@ -61,9 +60,10 @@
 
 <script type="text/javascript" src="vle/js/common/dropdown.js"></script>
 
+<link rel="shortcut icon" href="vle/assets/images/robots/favicon_robot.ico">
+
 <link rel="stylesheet" type="text/css" href="vle/css/niftyCube.css" />
 <link rel="stylesheet" type="text/css" href="vle/css/navigation.css" />
-
 <link rel="stylesheet" type="text/css" href="vle/css/navigation/testnavigation.css" />
 
 <!--  no navigation styling for now
@@ -168,14 +168,14 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
 		    <ul>
 		      <!-- requested changes have been remarked out -->
-		      <li><a class="underline2" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
-		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
+		      <li><a class="underline" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Project Assets</a></li>
+		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show Journal</a></li>
 		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
 		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
-		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
-			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
-			  <li><a class="underline" onclick="alert('not yet implemented');">Print</a></li>
-			  <!-- <li><a class="underline">Report an Issue</a></li>   -->
+		      <li><a class="underline" onclick="alert('not yet implemented');">Export Work</a></li>
+			  <li><a class="underline2" onclick="alert('not yet implemented');">Print</a></li>
+			  <li><a class="underline" onclick="alert('not yet implemented');">Goto Home Page</a></li>
+			  <!-- <li><a class="underline">Report an Issue</a></li> --> 
 		    </ul>
 		  </dd>
 		</dl>
@@ -184,11 +184,11 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		<div id="projectLogoBox">
 		<a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="vle/assets/images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
 			<div id="projectCurriculum">
-				<div class="title">Level Up! Programming</div>
-				<div class="unit">Unit 3: Section 1</div>
+				<div class="title">UCCP AP Computer Science</div>
+				<div class="unit">Unit 3: Lesson 1</div>
 			</div>
 	<div id="logInBox">
-		<p>Hello, Keyser Soze</p>
+		<p>Hello, Sample Student!</p>
 	</div>
 			
 	</div>
@@ -227,28 +227,25 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 <div id="projectRightUpperBox">
 	<div id="stepInfoBar">
-		<div class="currentLessonSection">Lesson 3.1</div>
     	<div class="instantQuizIcon"></div>
-		<div class="stepTypeLabel">
-    		<a href="InstantQuizInfoBox.html" id="topStepTitle" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Instant Quiz</a>
-		    <span class="gradingStatus">(Grading Off)</span>
-			<span class="subStepCounter"></span> 
+		<div class="stepInformation">
+			<span id="topStepTitle"></span>
+		    <span class="stepTypeLabel">(<a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Display step</a>)</span>
+			<span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span> 
 		</div>
 		<div id="stepNavButtons">
-    		<a onclick="vle.renderPrevNode();" ><img src="vle/assets/images/go-previous.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
-			<a onclick="vle.renderNextNode();" ><img src="vle/assets/images/go-next.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
-			<a onclick="vle.toggleNavigationPanelVisibility();"><img src="vle/assets/images/view-fullscreen.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
+    		<a onclick="vle.renderPrevNode();" title="Previous step"><img align="middle" src="vle/assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
+    		<a onclick="vle.renderNextNode();" title="Next step" ><img align="middle" src="vle/assets/images/go-next.png" alt="Next Arrow" border="0" />Next</a>
+			<a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img align="middle" src="vle/assets/images/NavBar-Switch32.png" alt="Menu On/Off "  border="0" />Menu</a>
 		</div>
-    	
-	</div>
+    </div>
 </div>
 
 <div id="projectRightLowerBox">
-<div id="contentDiv" align="center"><div id="loadingMessageDiv"><br><br><br><br><br><br>Loading...</div>
-<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" width="100%" height="100%" frameborder="0">
+	<div id="contentDiv" align="center"><div id="loadingMessageDiv"><br><br><br><br><br><br>Loading...</div>
+	<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0">
  [Content for browsers that don't support iframes goes here.]
-</iframe>
-</div>
+	</iframe>
 </div>
 
 <div id="showAllWorkDiv"></div>

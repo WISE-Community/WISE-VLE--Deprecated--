@@ -177,8 +177,8 @@ function generatePage(){
 	//create new
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
 	var promptText = document.createTextNode('Edit prompt: ');
-	var answerText = document.createTextNode('Edit/Create Answers and feedback here: ');
-	var shuffleText = document.createTextNode('Shuffle Options');
+	var answerText = document.createTextNode('Answers & Feedback:');
+	var shuffleText = document.createTextNode('Shuffle answers before next try');
 	var feedbackText = document.createTextNode('Feedback Options');
 	
 	pageDiv.appendChild(shuffleText);
@@ -197,8 +197,8 @@ function generatePage(){
 	pageDiv.appendChild(answerText);
 	pageDiv.appendChild(generateAnswers());
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(createElement(document, 'input', {type: "button", id: "createNewButton", value: "Create New Choice", onclick: "createNewChoice()"}));
-	pageDiv.appendChild(createElement(document, 'input', {type: "button", value: "Clear Correct Choice", onclick: "clearCorrectChoice()"}));
+	pageDiv.appendChild(createElement(document, 'input', {type: "button", id: "createNewButton", value: "Create New Answer", onclick: "createNewChoice()"}));
+	pageDiv.appendChild(createElement(document, 'input', {type: "button", value: "Reset Correct Answer selection", onclick: "clearCorrectChoice()"}));
 	
 	parent.appendChild(pageDiv);
 	
@@ -263,7 +263,7 @@ function generatePrompt(){
 	} else {
 		var prompt = "";
 	};
-	var promptInput = createElement(document, 'textarea', {id: 'promptText', name: 'promptText', cols: '50', rows: '6', wrap: 'hard', onkeyup: "sourceUpdated()"});
+	var promptInput = createElement(document, 'textarea', {id: 'promptText', name: 'promptText', cols: '85', rows: '8', wrap: 'hard', onkeyup: "sourceUpdated()"});
 	promptInput.value = prompt;
 	return promptInput 
 };
@@ -291,7 +291,7 @@ function generateAnswers(){
 			};
 		};
 		var answerLI = createElement(document, 'li', {id: 'answerLI_' + h, name: 'answerLI', class: 'draggable'});
-		var answer = createElement(document, 'input', {type: 'text', name: "answerInput", value: answerText, onkeyup: "sourceUpdated()"});
+		var answer = createElement(document, 'input', {type: 'text', name: "answerInput", value: answerText, wrap: 'soft', onkeyup: "sourceUpdated()"});
 		answerLI.appendChild(answerTextLabel);
 		answerLI.appendChild(answer);
 		answerLI.appendChild(createBreak());
@@ -318,7 +318,7 @@ function generateFeedback(simpleChoice, index){
 			createNewFeedback(simpleChoice);
 			feedback = simpleChoice.getElementsByTagName('feedbackInline');
 		};
-		var feedbackEl = createElement(document, 'input', {type: 'text', id: 'feedbackInput_' + index, name: "feedbackInput", onkeyup: "sourceUpdated()"});
+		var feedbackEl = createElement(document, 'input', {type: 'text', wrap: 'soft', id: 'feedbackInput_' + index, name: "feedbackInput", onkeyup: "sourceUpdated()"});
 		feedbackEl.value = feedback[0].firstChild.nodeValue;
 	} else {
 		var feedbackEl = createElement(document, 'div', {id: 'feedbackInput_' + index, name: 'feedbackInput_' + index});

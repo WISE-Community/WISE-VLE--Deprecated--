@@ -8,7 +8,7 @@ body {
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
 	text-align: center;
-	margin: 5px 5px 10px 5px;
+	margin: 3px;
 	background-color:#666;
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
@@ -47,7 +47,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	width: 1000px;
 	text-align:left;
-	margin: 0 auto;   	}
+	margin: 0 auto; 
+	 	}
 
 #projectLeftBox {
 	position:relative;
@@ -56,15 +57,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background-repeat:repeat-x; 
 	background-color:#6699FF;
 	width:210px; 
-	height:662px;
+	min-height:654px;
+	height:100%;
 	border:1px solid #333;
 	    }
 
-#projectRightBoxMain {
-
-	 }
-
 #projectRightUpperBox {
+	height:36px;
 	margin: 0 0 3px 216px;
 	padding:0;
 	background-image:url(../assets/images/gradient_stepInfoBar40v2.png);
@@ -75,22 +74,26 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	-moz-border-radius-topright:8px;
 	-moz-border-radius-bottomleft:8px;
 	-moz-border-radius-bottomright:8px;
-	}
+}
 	
 #projectRightLowerBox {
+	position:relative;
 	background-color:#FFF;
 	border:1px solid #333;
 	padding:0px;
 	margin: 0 0 0 216px;
-	min-height:609px;
-	overflow:auto;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-topright:8px;  
 }
 
 #contentDiv {padding:0;margin:0;}
-iframe {padding:0;margin:0;}
-#ifrm {padding:0;margin:0;}
+
+#ifrm {
+	padding:0;
+	margin:0;
+	width:100%;
+	height:94%;
+	}
 
 /* STYLES FOR PROJECT LEFT BOX */
 
@@ -214,9 +217,27 @@ iframe {padding:0;margin:0;}
 	}	
 	
 #navigationMenuBox {
-	height:475px;
+	min-height:475px;
 	overflow-y:auto;
 	overflow-x:hidden;
+	margin-left:2px;
+}
+
+#navigationMenuBox a {
+	font-size:.8em;
+	line-height:130%;
+	display:block;
+	padding:4px;
+	margin:0 2px 0 0 
+	}
+	
+#navigationMenuBox a.currentNode{
+	background-color:#3333CC;
+	color:FFF;
+	}
+
+#navigationMenuBox a:hover{
+	color:#FFFF00;
 }
 
 #hostBrandingBox{
@@ -236,22 +257,10 @@ iframe {padding:0;margin:0;}
 	width:100%;
 	}
 
-.currentLessonSection {
-	position:relative;
-	color:#333;
-	padding:0;
-	height:36px;
-	text-indent:-8000px;
-	font-size:.7em;
-	text-transform:uppercase;
-	letter-spacing:2.4px;
-	font-weight:bold;
-}
-
 .instantQuizIcon {
 	position:absolute;
 	top:3px;
-	left:14px;
+	left:10px;
 	width:28px;
 	height:28px;
 	background-image:url(../assets/images/Icon-Instant-Quiz28.png);
@@ -259,59 +268,58 @@ iframe {padding:0;margin:0;}
 	background-position:center right;	
 	}
 	
-.stepTypeLabel {
+.stepInformation {
 	position:absolute;
-	top:9px;
-	height:36px;
-	left:52px;
-	font-size:.8em;
+	top:7px;
+	left:45px;
 	}
 
-.stepTypeLabel a:visited, .stepTypeLabel a:link {
+#topStepTitle  {
 	color:#333;
+	font-size:.75em;
 	font-weight:bold;
-	letter-spacing:.5px;
-	padding:0px 2px;
+	font-style:italic;
+	margin-right:5px;
 			}	
 
-.stepTypeLabel a:hover {
+.stepTypeLabel, .gradeTypeLabel  {
+	color:#666;
+	font-size:.7em;
+		}
+
+.stepTypeLabel a:visited, .stepTypeLabel a:link, .gradeTypeLabel a:visited, .gradeTypeLabel a:link  {
+	color:#666;
+	text-decoration:none;
+		}
+		
+.stepTypeLabel a:hover, .gradeTypeLabel a:hover {
 	color:#FFFF00;
 		}
 
-.gradingStatus  {
-	color:#333;
-	font-size:.8em;
-		}
-		
-.subStepCounter  {
-	color:#333;
-	font-weight:bold;
-	margin-left:10px;
-		}
 		
 #stepNavButtons {
 	position:absolute;
 	top:6px;
-	right:10px;
+	right:0px;
 		}
 
 #stepNavButtons a {
-	font-size:.6em;
-	padding:0px 0 0 0px; 
-	color:#003300;
-	letter-spacing:-.5px;
-			}
+	font-size:.70em;
+	margin: 0 5px  0 0;
+	color:#666;
+		}
 		
-#stepNavButtons a:hover { 
+#stepNavButtons a:hover {
 	color:#FFFF00;
 		}
-
+		
 #stepNavButtons img {
 	margin-top:-8px;
 		}
 
-#stepNavButtons .menuAnchor img {
+#stepNavButtons .menuSwitcher img {
 	margin-right:-5px;
+	margin-left:-5px;
 }
 
 <!-- Anchor-Based Button Layout using TABLE-->
@@ -446,7 +454,7 @@ iframe {padding:0;margin:0;}
 .green {background-color:#009900;color:#FFF;padding:0px 3px 1px 3px;margin:0;}
 
 
-/* TOOLS MENU DROP DOWN STLING */
+/* TOOLS MENU DROP DOWN STYLING */
 
 .dropdown {width:210px;}
 
@@ -473,7 +481,7 @@ iframe {padding:0;margin:0;}
 .dropdown dd {position:absolute; overflow:hidden; width:210px; display:none; background:#fff; z-index:200; opacity:0}
 .dropdown ul {width:208px; border:2px solid #9ac1c9; list-style:none; border-top:none}
 .dropdown li {display:inline}
-.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#333; text-decoration:none; background:#eaf0f2; width:208px}
+.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#CCC; text-decoration:none; background:#333; width:208px}
 .dropdown a:hover {
 	background:#d9e1e4;
 	background-color:#FFFF00;
