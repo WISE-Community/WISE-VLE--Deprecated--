@@ -28,9 +28,7 @@
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-<!-- <script type="text/javascript" src="vle/js/authoring/AuthoringTool.js"></script>
-<script type="text/javascript" src="vle/js/authoring/authoring.js"></script>     -->
-<script type="text/javascript" src="vle/js/authoring/newauthoring.js"></script>
+<script type="text/javascript" src="vle/js/authoring/authoring.js"></script>
 <script type="text/javascript" src="vle/js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="vle/js//VLE.js"></script>
 <script type="text/javascript" src="vle/js/contentpanel/ContentPanel.js"></script>
@@ -70,6 +68,7 @@ var project;
 var easyMode = true; //the mode that gets passed to the individual authoring pages
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
 var currentProjectName;
+var projectSaved = true;
 
 var openProjectDialog;
 var createProjectDialog;
@@ -84,9 +83,6 @@ var filenameToAuthor = null;
 
 // filename of this project (not page/step), should end with .project
 var thisFilename = null;
-
-var ddList = [];  // list of all draggable nodes
-var targetsList = [];
 
 window.onload = function(){
 	initializeOpenProjectDialog();
@@ -351,17 +347,36 @@ function initializeCreateNodeDialog(){
 };
 
 function openProject(){
-	openProjectDialog.show();
+	if(!projectSaved){
+		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+			openProjectDialog.show();
+		};
+	} else {
+		openProjectDialog.show();
+	};
 };
 
 function createNewProject(){
-	createProjectDialog.show();
+	if(!projectSaved){
+		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+			createProjectDialog.show();
+		};
+	} else {
+		createProjectDialog.show();
+	};
 };
 
 function createNewSequence(){
 	if(currentProjectName){
-		document.getElementById('sequenceProjectName').value = currentProjectName;
-		createSequenceDialog.show();
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				document.getElementById('sequenceProjectName').value = currentProjectName;
+				createSequenceDialog.show();
+			};
+		} else {
+			document.getElementById('sequenceProjectName').value = currentProjectName;
+			createSequenceDialog.show();
+		};
 	} else {
 		alert('Please open or create a new project before creating a sequence. Exiting...');
 	};
@@ -369,8 +384,15 @@ function createNewSequence(){
 
 function createNewNode(){
 	if(currentProjectName){
-		document.getElementById('nodeProjectName').value = currentProjectName;
-		createNodeDialog.show();
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				document.getElementById('nodeProjectName').value = currentProjectName;
+			createNodeDialog.show();
+			};
+		} else {
+			document.getElementById('nodeProjectName').value = currentProjectName;
+			createNodeDialog.show();
+		};
 	} else {
 		alert('Please open or create a new project before creating a node. Exiting...');
 	};
@@ -378,7 +400,13 @@ function createNewNode(){
 
 function editProjectFile(){
 	if(currentProjectName){
-		window.open('vle/author/editprojectfile.html', 'Edit Project', "toolbar=no,width=800,height=600,menubar=no");
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				window.open('vle/author/editprojectfile.html', 'Edit Project', "toolbar=no,width=800,height=600,menubar=no");
+			};
+		} else {
+			window.open('vle/author/editprojectfile.html', 'Edit Project', "toolbar=no,width=800,height=600,menubar=no");
+		};
 	} else {
 		alert('Please open or create a new project before editing the project file. Exiting...');
 	};
@@ -386,10 +414,49 @@ function editProjectFile(){
 
 function exportProject(){
 	if(currentProjectName){
-		document.getElementById('exportProjectName').value = currentProjectName;
-		document.getElementById('exportProject').submit();
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				document.getElementById('exportProjectName').value = currentProjectName;
+				document.getElementById('exportProject').submit();
+			};
+		} else {
+			document.getElementById('exportProjectName').value = currentProjectName;
+			document.getElementById('exportProject').submit();
+		};
 	} else {
 		alert('Please open the project you wish to export first. Exiting...');
+	};
+};
+
+function saveProject(){
+	var setProjectSaved = function(){
+		projectSaved = true;
+	};
+	
+	if(currentProjectName){
+		var data = project.projectXML();
+		
+		var callback = {
+			success: function(o){
+				if(o.responseText!='success'){
+					alert('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.');
+					alert(data);
+				} else {
+					setProjectSaved();
+					loadProjectFromServer(currentProjectName);
+					alert('project saved');
+				};
+			},
+			failure: function(o){
+				alert('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.');
+				alert(data);
+			},
+			scope: this
+		};
+		
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project&param3=' + data);
+	} else {
+		alert('Please open or create a new project before attempting to save.');
 	};
 };
 
@@ -417,6 +484,21 @@ function loadProjectFromServer(projectName){
 	var transaction = YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project');
 };
 
+function nodeTitleChanged(id){
+	projectSaved = false;
+	var node = project.getNodeById(id);
+	node.title = document.getElementById(id + '_title').value;
+};
+
+function sequenceTitleChanged(oldId){
+	var node = project.getNodeById(oldId);
+	var newId = document.getElementById(oldId + '_input').value;
+	
+	node.id = newId;
+	
+	saveProject();
+};
+
 function populateNodes(){
 	var nodes = project.allLeafNodes;
 	var parent = document.getElementById('nodesTD');
@@ -430,7 +512,7 @@ function populateNodes(){
 	
 	for(var v=0;v<nodes.length;v++){
 		var li = createElement(document, 'li', {id: nodes[v].id, name: 'nodes', class: 'draggable', ondblclick: 'author("' + nodes[v].id + '")'});
-		var title = createElement(document, 'input', {id: nodes[v].id + '_title', value: nodes[v].title, size: '30'});
+		var title = createElement(document, 'input', {id: nodes[v].id + '_title', value: nodes[v].title, size: '30', onchange: 'nodeTitleChanged("' + nodes[v].id + '")'});
 		li.appendChild(title);
 		ul.appendChild(li);
 	};
@@ -452,17 +534,21 @@ function populateSequences(){
 	for(var v=0;v<nodes.length;v++){
 		var stack = [];
 		var sequenceName = nodes[v].id;
-		
+		var sequenceTitleDiv = createElement(document, 'div', {id: sequenceName, name: 'sequenceTitleDiv', class: 'draggable'});
+		var sequenceTitle = createElement(document, 'input', {type: 'text', id: sequenceName + '_input', name: 'sequenceTitle', value: sequenceName, onchange: 'sequenceTitleChanged("' + sequenceName + '")'});
+			
 		if(project.validateNoLoops(sequenceName, stack)){
-			var sequenceTitle = document.createTextNode(sequenceName);
+			sequenceTitleDiv.appendChild(sequenceTitle);
 		} else {
 			alert('An infinite loop has been detected in sequence: ' + sequenceName + ', and has been flagged. Please remove this sequence from the project or resolve the infinite loop');
-			var sequenceTitle = document.createTextNode(sequenceName + ': INFINITE LOOP');
+			var loopText = document.createTextNode('INFINITE LOOP: ');
+			sequenceTitleDiv.appendChild(loopText);
+			sequenceTitleDiv.appendChild(sequenceTitle);
 		};
 		
-		var li = createElement(document, 'li', {id: sequenceName, name: 'sequences', class: 'draggable'});
-
-		li.appendChild(populateReferences(sequenceName, sequenceTitle));
+		var li = createElement(document, 'li', {id: sequenceName + '_LI', name: 'sequences'});
+		
+		li.appendChild(populateReferences(sequenceName, sequenceTitleDiv));
 		ul.appendChild(li);
 	};
 
@@ -472,19 +558,19 @@ function populateSequences(){
 function populateReferences(sequenceId, titleEl){
 	var insideUL = createElement(document, 'ul', {id: sequenceId + '_container', name: 'sequenceContainer', class: 'container'});
 	var sequence = project.getNodeById(sequenceId);
-	var placeholder = createElement(document, 'li', {id: sequenceId + '_LI'});
+	var placeholder = createElement(document, 'li', {id: sequenceId + '_LI', name: 'placeholder'});
 	
 	insideUL.appendChild(titleEl);
 	insideUL.appendChild(placeholder);
 	
 	if(sequence.children.length>0){
 		for(var s=0;s<sequence.children.length;s++){
-			var child = createElement(document, 'li', {id: sequenceId + '|' + sequence.children[s].id, name: 'ref-node', class: 'draggable'});
+			var child = createElement(document, 'li', {id: sequenceId + '|' + sequence.children[s].id + '|' + s, name: 'ref-node', class: 'draggable'});
 			
-			if(sequence.children[s].nodeType=='sequence'){
-				var title = document.createTextNode(sequence.children[s].id);
+			if(sequence.children[s].type=='sequence'){
+				var title = document.createTextNode('Sequence: ' + sequence.children[s].id);
 			} else {
-				var title = document.createTextNode(sequence.children[s].title);
+				var title = document.createTextNode('Node: ' + sequence.children[s].title);
 			};
 			
 			child.appendChild(title);
@@ -509,12 +595,12 @@ function populateReferences(sequenceId, titleEl){
 	  	<td><input type="button" value="Create New Project" onclick="createNewProject()"/></td>
 	  	<td><input type="button" value="Create New Sequence" onclick="createNewSequence()"/></td>
 		<td><input type="button" value="Create New Node" onclick="createNewNode()" /></td>
-		<td><input type="button" value="Delete Selected Node" onclick="" /></td>
-		<td><input type="button" value="Indent Selected Node" onclick="" /></td>
-		<td><input type="button" value="Outdent Selected Node" onclick="" /></td>
-	  	<td><input type="button" value="Save Project" onclick="" /></td>
+	  	<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
 	  	<td><input type="button" value="Export Project" onclick="exportProject()" /></td>
 	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
+	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()"/></td>
+		<td><input type="button" value="Indent Selected Node" onclick="" /></td>
+		<td><input type="button" value="Outdent Selected Node" onclick="" /></td>
 	   </tr>
 	 </table>
 </div>
@@ -523,16 +609,8 @@ function populateReferences(sequenceId, titleEl){
 	<tr><td id='currentProject'><h3>Current Project: </h3></td></tr>
 	<tr>
 	<tr>
-		<td class="authorTableHeader" width="45%">Edit Project</td>
-		<td width="10%"></td>
-		<td class="authorTableHeader" width="45%">Preview</td>
-	</tr>
-	<tr>
-		<td>
-			<b>Please Note:</b> drag and drop for All Sequences and All Nodes is currently <b>NOT</b> implemented.<br>
-			But you can edit the project file directly here when you are done creating sequences and nodes.<br>
-			<input type="button" value="Edit Project File" onclick='editProjectFile()'/>
-		</td>
+		<td class="authorTableHeader" width="70%">Edit Project</td>
+		<td class="authorTableHeader" width="30%">Preview</td>
 	</tr>
 	<tr>
 		<td id="assignedcontainer">
@@ -548,17 +626,17 @@ function populateReferences(sequenceId, titleEl){
 					<td id='nodesTD'>
 						<ul id='nodesUL'></ul>
 					</td>
+					<td id='garbageDump'>
+						<div id='trash' class='trash'>Garbage</div>
+					</td>
 				</tr>
 			</table>
 		</td>
-		<td id='garbageDump'>
-			<div id='trash' class='trash'>Garbage</div>
-		</td>
-		<td id="previewcontainer">
+		<!-- TODO - Not yet implemented <td id="previewcontainer">
 			<div >
 				preview for selected node appears here
 			</div>
-		</td>
+		</td>   -->
 	</tr>
 </table>
 			
@@ -650,7 +728,7 @@ function populateReferences(sequenceId, titleEl){
 function displayProject(project) {	
 	populateSequences();
 	populateNodes();
-	//generateDD();
+	generateDD();
 }
 
 function nodeTitleOnFocus(nodeId) {
@@ -718,7 +796,7 @@ function authoringWindowLoaded(fun) {
 	if (nodeIdToAuthor != null) {
 	
 		// fun is the function passed in from opened window to process the file
-		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
+		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
 		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName);
 	} 
 }

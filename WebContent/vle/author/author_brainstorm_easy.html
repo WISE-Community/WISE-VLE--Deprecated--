@@ -443,7 +443,12 @@ function getPrompt(){
  * Updates the value of the prompt element in xmlPage
  */
 function updatePrompt(){
-	xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild.nodeValue = document.getElementById('promptInput').value;
+	if(xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild){
+		xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].firstChild.nodeValue = document.getElementById('promptInput').value;
+	} else {
+		var promptText = xmlPage.createTextNode(document.getElementById('promptInput').value);
+		xmlPage.getElementsByTagName('Brainstorm')[0].getElementsByTagName('prompt')[0].appendChild(promptText);
+	};
 	updatePreview();
 };
 

@@ -20,7 +20,11 @@ OutsideUrlNode.prototype.render = function(contentpanel) {
 }
 
 OutsideUrlNode.prototype.load = function(contentPanel) {
-	var url = this.element.getElementsByTagName("url")[0].firstChild.nodeValue;
+	if(this.element.getElementsByTagName("url")[0].firstChild){
+		var url = this.element.getElementsByTagName("url")[0].firstChild.nodeValue;
+	} else {
+		var url = "";
+	};
 	
 	if(contentPanel == null) {
 		window.frames["ifrm"].loadUrl(url);

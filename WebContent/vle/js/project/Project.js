@@ -174,16 +174,17 @@ Project.prototype.generateSequences = function(xmlDoc){
 		
 	//validate that there are no loops
 	if(startingSequence){
-		var stack = [];
-		if(this.validateNoLoops(startingSequence.id, stack)){
-			//All OK, add children to sequences
-			var visited = [];
-			this.populateSequences(startingSequence.id, visited);
-			return startingSequence;
-		} else {
-			alert('Please check your sequence references. Infinite loop discovered or duplicate ids');
-			return null;
+		for(var s=0;s<this.allSequenceNodes.length;s++){
+			var stack = [];
+			if(this.validateNoLoops(this.allSequenceNodes[s].id, stack, 'file')){
+				//All OK, add children to sequence
+				this.populateSequences(this.allSequenceNodes[s].id);
+			} else {
+				alert('Please check your sequence references. Infinite loop discovered.');
+				return null;
+			};
 		};
+		return startingSequence;
 	} else {
 		alert('No start sequence specified in project, this can be changed in the authoring tool');
 		return;
@@ -194,9 +195,9 @@ Project.prototype.generateSequences = function(xmlDoc){
  * Given the sequence id and stack, returns true if there are
  * no infinite loops within the given start sequence, otherwise returns false
  */
-Project.prototype.validateNoLoops = function(id, stack){
+Project.prototype.validateNoLoops = function(id, stack, from){
 	if(stack.indexOf(id)==-1){ //id not found in stack - continue checking
-		var childrenIds = this.getChildrenSequenceIds(id);
+		var childrenIds = this.getChildrenSequenceIds(id, from);
 		if(childrenIds.length>0){ //sequence has 1 or more sequences as children - continue checking
 			stack.push(id);
 			for(var b=0;b<childrenIds.length;b++){ // check children
@@ -212,41 +213,44 @@ Project.prototype.validateNoLoops = function(id, stack){
 	} else { //id found in stack, infinite loop or duplicate id
 		return false;
 	};
-	alert('why here?');
 };
 
 /**
- * Given the start sequence Id, populates All Children nodes
+ * Given the a sequence Id, populates All Children nodes
  */
-Project.prototype.populateSequences = function(id, visited){
+Project.prototype.populateSequences = function(id){
 	var sequence = this.getNodeById(id);
 	var children = sequence.element.childNodes;
 	for(var j=0;j<children.length;j++){
 		if(children[j].nodeName!='#text'){
 			var childNode = this.getNodeById(children[j].getAttribute('ref'));
 			sequence.children.push(childNode);
-			if(children[j].nodeName=='sequence-ref'){
-				if(visited.indexOf(childNode.id)==-1){
-					visited.push(childNode.id);
-					this.populateSequences(childNode.id, visited);
-				};
-			};
 		};
 	};
-	
 };
 
 /**
- * Given a sequence ID, returns an array of ids for any
- * children sequences
+ * Given a sequence ID and location from (file or project), returns an 
+ * array of ids for any children sequences
  */
-Project.prototype.getChildrenSequenceIds = function(id){
+Project.prototype.getChildrenSequenceIds = function(id, from){
 	var sequence = this.getNodeById(id);
 	var childrenIds = [];
-	var refs = sequence.element.getElementsByTagName('sequence-ref');
 	
-	for(var e=0;e<refs.length;e++){
-		childrenIds.push(refs[e].getAttribute('ref'));
+	if(from=='file'){
+		var refs = sequence.element.getElementsByTagName('sequence-ref');
+		
+		for(var e=0;e<refs.length;e++){
+			childrenIds.push(refs[e].getAttribute('ref'));
+		};
+	} else {
+		var children = sequence.children;
+		
+		for(var e=0;e<children.length;e++){
+			if(children[e].type=='sequence'){
+				childrenIds.push(children[e].id);
+			};
+		};
 	};
 	
 	return childrenIds;
@@ -428,16 +432,57 @@ Project.prototype.removeAllNodeReferences = function(id){
 
 /**
  * Removes the node associated with the given refId from the sequence
- * associated with the given seqId
+ * associated with the given seqId at the given location
  */
-Project.prototype.removeReferenceFromSequence = function(seqId, refId){
+Project.prototype.removeReferenceFromSequence = function(seqId, refId, location){
 	var sequence = this.getNodeById(seqId);
-	for(var t=0;t<sequence.children.length;t++){
-		if(sequence.children[t].id==refId){
-			sequence.children.splice(t, 1);
-			return;
-		};
+	//for(var t=0;t<sequence.children.length;t++){
+	//	if(sequence.children[t].id==refId){
+	//		sequence.children.splice(t, 1);
+	//		return;
+	//	};
+	//};
+	sequence.children.splice(location, 1);
+};
+
+/**
+ * Adds the sequence given the associates addSeqId to the sequence
+ * with the associated toSeqId at the given location
+ */
+Project.prototype.addSequenceToSequence = function(addSeqId, toSeqId, location){
+	var addSeq = this.getNodeById(addSeqId);
+	var toSeq = this.getNodeById(toSeqId);
+	
+	toSeq.children.splice(location, 0, addSeq); //inserts
+};
+
+/**
+ * Adds the node associated with the given nodeId to the sequence
+ * associated with the given seqId at the given location
+ */
+Project.prototype.addNodeToSequence = function(nodeId, seqId, location){
+	var addNode = this.getNodeById(nodeId);
+	var sequence = this.getNodeById(seqId);
+	
+	sequence.children.splice(location, 0, addNode); //inserts
+};
+
+Project.prototype.projectXML = function(){
+	var xml = "<project>\n<nodes>\n";
+	
+	for(var k=0;k<this.allLeafNodes.length;k++){
+		xml += this.allLeafNodes[k].nodeDefinitionXML();
 	};
+	
+	xml += "</nodes>\n<sequences>\n";
+	
+	for(var j=0;j<this.allSequenceNodes.length;j++){
+		xml += this.allSequenceNodes[j].nodeDefinitionXML();
+	};
+	
+	xml += "</sequences>\n<method>\n<startpoint>" + this.rootNode.nodeReferenceXML() + "</startpoint>\n</method>\n</project>";
+	
+	return xml;
 };
 
 /**

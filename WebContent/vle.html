@@ -30,6 +30,7 @@
 <!-- Connection manager -->
 <script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
+
 <script type="text/javascript" src="vle/js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="vle/js/VLE.js"></script>
 <script type="text/javascript" src="vle/js/contentpanel/ContentPanel.js"></script>
@@ -64,6 +65,7 @@
 
 <link rel="stylesheet" type="text/css" href="vle/css/niftyCube.css" />
 <link rel="stylesheet" type="text/css" href="vle/css/navigation.css" />
+
 <link rel="stylesheet" type="text/css" href="vle/css/navigation/testnavigation.css" />
 
 <!--  no navigation styling for now
@@ -75,15 +77,21 @@
 <script type="text/javascript" src="vle/js/node/common/js/loadxmldoc.js"></script>
 
 <script type="text/javascript">
-var currentProjectName = window.opener.currentProjectName;
+var currentProjectName;
 
 window.onload=function(){
-Nifty("div#none","bottom");
-Nifty("div#navigationBox","big");
-Nifty("ul.toolsButtons a","transparent");
-loadProjectFromServer(currentProjectName);
-//parent.foo2();
-}
+	if(window.opener){
+		currentProjectName = window.opener.currentProjectName;
+	};
+	
+	Nifty("div#none","bottom");
+	Nifty("div#navigationBox","big");
+	Nifty("ul.toolsButtons a","transparent");
+	
+	if(currentProjectName){
+		loadProjectFromServer(currentProjectName);
+	};
+};
 
 function projectSummary(){
 	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
@@ -238,7 +246,8 @@ function popUp(strURL, strType, strHeight, strWidth) {
     		<a onclick="vle.renderNextNode();" title="Next step" ><img align="middle" src="vle/assets/images/go-next.png" alt="Next Arrow" border="0" />Next</a>
 			<a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img align="middle" src="vle/assets/images/NavBar-Switch32.png" alt="Menu On/Off "  border="0" />Menu</a>
 		</div>
-    </div>
+    	
+	</div>
 </div>
 
 <div id="projectRightLowerBox">

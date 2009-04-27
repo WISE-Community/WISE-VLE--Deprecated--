@@ -211,6 +211,35 @@ Node.prototype.parseDataXML = function(nodeXML) {
 }
 
 /**
+ * Returns the appropriate string node definition for this node
+ */
+Node.prototype.nodeDefinitionXML = function(){
+	if(this.type=='sequence'){
+		var xml = "<sequence identifier=\"" + this.id + "\">\n";
+		for(var l=0;l<this.children.length;l++){
+			xml += this.children[l].nodeReferenceXML();
+		};
+		xml += "</sequence>\n";
+	} else {
+		var xml = "<" + this.type + " identifier=\"" + this.id + "\" title=\"" + this.title + "\">\n";
+		xml += "\t<ref filename=\"" + this.filename + "\"/>\n";
+		xml += "</" + this.type + ">\n";
+	};
+	return xml;
+};
+
+/**
+ * Returns the appropriate string node reference for this node
+ */
+Node.prototype.nodeReferenceXML = function(){
+	if(this.type=='sequence'){
+		return "<sequence-ref ref=\"" + this.id + "\"/>\n";
+	} else {
+		return "<node-ref ref=\"" + this.id + "\"/>\n";
+	};
+};
+
+/**
  * Creates an xml string representation of this node so that it
  * can be saved in the authoring tool.
  * @param node a real Node object
