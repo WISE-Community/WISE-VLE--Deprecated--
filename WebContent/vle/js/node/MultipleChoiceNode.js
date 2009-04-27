@@ -116,6 +116,19 @@ MultipleChoiceNode.prototype.getLatestWork = function(vle) {
 }
 
 /**
+ * Returns the prompt for this node by loading the MC content and then
+ * obtaining it from the MC
+ * @return the prompt for this node
+ */
+MultipleChoiceNode.prototype.getPrompt = function() {
+	//create the MC object so we can retrieve the prompt from it
+	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//return the prompt as a string
+	return this.mc.promptText;
+}
+
+/**
  * Create a query container that will contain all the query entries
  * @param vle the vle that this node has been loaded into, this vle
  * 		is related to a specific student, so all the work in this vle
@@ -133,4 +146,19 @@ MultipleChoiceNode.prototype.makeQueryContainer = function(vle) {
 	
 	//create and return a query container object
 	return new MultipleChoiceQueryContainer(this.id, this.mc.promptText, this.mc.choiceToValueArray);
+}
+
+/**
+ * Translate an identifier to the corresponding value such as
+ * choice1 to "The fish was swimming"
+ * We need to create an MC object in order to look up the identifiers
+ * @param identifier the id of the choice
+ * @return the string value of the choice
+ */
+MultipleChoiceNode.prototype.translateIdentifiersToValues = function(identifier) {
+	//create an MC object so we can look up the value corresponding to an identifier
+	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//return the value as a string
+	return this.mc.getCHOICEByIdentifier(identifier).text;
 }

@@ -38,3 +38,11 @@ FILLINSTATE.prototype.parseDataXML = function(stateXML) {
 		return new FILLINSTATE(textEntryInteractionIndex.textContent, response.textContent, timestamp.textContent);
 	}
 }
+
+/**
+ * Returns what the student typed
+ * @return the answer the student typed
+ */
+FILLINSTATE.prototype.getStudentWork = function() {
+	return this.response;
+}

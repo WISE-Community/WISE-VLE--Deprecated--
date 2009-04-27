@@ -78,3 +78,11 @@ MCCBSTATE.prototype.parseDataXML = function(stateXML) {
 		return new MCCBSTATE(timestamp.textContent, choiceArray);		
 	}
 }
+
+/**
+ * Returns the array of choices the student chose
+ * @return the array of choice identifiers the student chose
+ */
+MCCBSTATE.prototype.getStudentWork = function() {
+	return this.choices;
+}

@@ -353,3 +353,13 @@ Node.prototype.getXMLString = function(){
 	};
 	return xmlString;
 };
+
+/**
+ * This is the default implementation of getPrompt which just returns
+ * an empty string. Nodes that actually utilize a prompt will implement
+ * this themselves
+ * @return an empty string since this is the parent implementation
+ */
+Node.prototype.getPrompt = function() {
+	return "";
+}

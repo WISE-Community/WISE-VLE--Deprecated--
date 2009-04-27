@@ -170,7 +170,39 @@ function displayProgress() {
 	document.getElementById('progressDiv').innerHTML += vle.getProgress();
 }
 
+function save() {
+	  //if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
+		  //var htmlString = document.getElementById('sourceTextArea').value;
+	
+	  //retrieve the current timestamp so we can use it in the file name
+	  var currentTime = new Date();
+	  thisFilename = vle.getUserName() + "." + 
+	  		currentTime.getFullYear() + "." + (currentTime.getMonth() + 1) + "." + currentTime.getDate() +
+	  		".csv";  
+
+	  //retrieve the text to be stored in the file
+	  var htmlString = vle.getCSV();
+
+	  //set the text into the variable whose content will be stored in the file
+      document.getElementById('localData').value = htmlString;
+
+      if (thisFilename != null) {
+      	document.getElementById('form_filename').value = thisFilename;
+      }
+
+      /*
+       * this submits the hidden form and asks the user to confirm
+       * that they want to save the file to their local system
+       */
+      document.getElementById('saveLocal').submit();
+	   //};
+}
+
 </script>
 
 <div id="progressDiv"></div>
+<form name="saveLocal" id='saveLocal' action="../echo.html" method="POST">
+    <input type="hidden" name="name" id="form_filename" value="myData"/>
+    <input type="hidden" name="data" id="localData" value=""/>
+</form>
 </html>

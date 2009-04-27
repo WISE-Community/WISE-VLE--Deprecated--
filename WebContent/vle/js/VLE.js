@@ -318,16 +318,22 @@ VLE.prototype.getProgress = function() {
 	progressHtml += "<tr>";
 	
 	//username
-	progressHtml += "<td width='20%'>" + this.getUserName() + "</td>";
+	progressHtml += "<td width='15%'>" + this.getUserName() + "</td>";
 	
 	//percentage of project completed
-	progressHtml += "<td width='20%'>" + Math.floor(nodesVisited * 100 / nodeIds.length) + "%" + "</td>";
+	progressHtml += "<td width='15%'>" + Math.floor(nodesVisited * 100 / nodeIds.length) + "%" + "</td>";
 	
 	//furthest node the student visited
-	progressHtml += "<td width='20%'>" + lastNodeIdVisitedByStudent + "</td>";
+	progressHtml += "<td width='15%'>" + lastNodeIdVisitedByStudent + "</td>";
 	
 	//the nodes the student skipped
 	progressHtml += "<td width='40%'>" + nodesSkipped + "</td>";
+	
+	/*
+	 * the save button that allows the user to save the student's
+	 * data as a csv file
+	 */ 
+	progressHtml += "<td width='15'><input type='button' value='Save as CSV File' onclick='save()' /></td>";
 	
 	progressHtml += "</tr>";
 	progressHtml += "</table>";
@@ -740,6 +746,14 @@ NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
 	return nodeVisitObject;
 }
 
+/*
+ * Get the last node state that was placed in the nodeStates array
+ */
+NODE_VISIT.prototype.getLatestState = function() {
+	//retrieve the last nodeState in the array of nodeStates
+	return this.nodeStates[this.nodeStates.length - 1];
+}
+
 /**
  * Sets a new NODE_VISIT, containing info on where the student 
  * is current on.
@@ -808,4 +822,77 @@ VLE.prototype.saveLocally = function(){
 		document.getElementById('localData').value = this.getDataXML();
 		document.getElementById('saveLocal').submit();
 	};
+}
+
+/**
+ * Create a string containing the student's data in CSV form. The first
+ * row contains the node titles and the second row contains the students
+ * answers. The answers are the latest answers the student has submitted.
+ * @return a string containing the student's answers in CSV form
+ */
+VLE.prototype.getCSV = function() {
+	//the string for the first row of the CSV file
+	var nodesCSV = "";
+	
+	//the string for the second row of the CSV file
+	var studentDataCSV = "";
+	
+	/*
+	 * all the nodes/steps in the project
+	 * (node and step are the same in this context)
+	 */
+	var nodeIds = this.getLeafNodeIds();
+	
+	//loop through all the nodes in the project
+	for(var x=0; x<nodeIds.length; x++) {
+		//obtain a specific node from the vle
+		var nodeId = nodeIds[x];
+		var nodeTitle = this.getNodeById(nodeId).title;
+		var node = this.getNodeById(nodeId);
+		
+		//add the node title and prompt to the first row
+		nodesCSV += "\"" + nodeTitle + ":" + node.getPrompt() + "\"";
+		
+		/*
+		 * get all the node visits by this student that the vle represents
+		 * for this node
+		 */
+		nodeVisitsForNodeId = this.state.getNodeVisitsByNodeId(nodeId);
+		
+		if(nodeVisitsForNodeId.length != 0) {
+			//the student has visited the node
+			
+			//obtain the latest state/latest answers from the student
+			var latestNodeVisitForNode = nodeVisitsForNodeId[nodeVisitsForNodeId.length - 1];
+			var latestState = latestNodeVisitForNode.getLatestState();
+			
+			if(latestState != null) {
+				if(node instanceof MultipleChoiceNode || node instanceof MultipleChoiceCheckBoxNode) {
+					/*
+					 * we need to translate identifiers to values for these
+					 * nodes. latestState.getStudentWork() will return
+					 * a string or an array depending on which node type.
+					 * node.translateIdentifiersToValues() must then know
+					 * what is being passed in. for future nodes make sure
+					 * latestState.getStudentWork() and 
+					 * node.translateIdentifiersToValues()
+					 * coordinate with each other
+					 */
+					studentDataCSV += "\"" + node.translateIdentifiersToValues(latestState.getStudentWork()) + "\"";	
+				} else {
+					studentDataCSV += "\"" + latestState.getStudentWork() + "\"";
+				}
+				
+			}
+		}
+		
+		//add commas to delimit nodes and answers
+		if(x != nodeIds.length - 1) {
+			nodesCSV += ",";
+			studentDataCSV += ",";
+		}
+	}
+	
+	//combine the two rows separated by a new line
+	return nodesCSV + "\n" + studentDataCSV;
 }

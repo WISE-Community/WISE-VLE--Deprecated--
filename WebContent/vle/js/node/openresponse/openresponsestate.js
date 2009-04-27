@@ -34,3 +34,11 @@ OPENRESPONSESTATE.prototype.parseDataXML = function(stateXML) {
 		return new OPENRESPONSESTATE(reponse.textContent, timestamp.textContent);		
 	}
 }
+
+/**
+ * Returns what the student typed
+ * @return the answer the student typed
+ */
+OPENRESPONSESTATE.prototype.getStudentWork = function() {
+	return this.response;
+}

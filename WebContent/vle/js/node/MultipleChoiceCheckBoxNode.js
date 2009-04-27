@@ -124,6 +124,19 @@ MultipleChoiceCheckBoxNode.prototype.getLatestWork = function(vle) {
 }
 
 /**
+ * Get the prompt for this node
+ * @return the prompt as a string
+ */
+MultipleChoiceCheckBoxNode.prototype.getPrompt = function() {
+	//create an MC_CHECKBOX object so we can obtain the prompt
+	this.mccb = new MC_CHECKBOX(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	//return the prompt
+	return this.mccb.promptText;
+}
+
+
+/**
  * Create a query container that will contain all the query entries
  * @param vle the vle that this node has been loaded into, this vle
  * 		is related to a specific student, so all the work in this vle
@@ -141,4 +154,32 @@ MultipleChoiceCheckBoxNode.prototype.makeQueryContainer = function(vle) {
 	
 	//create and return a query container object
 	return new MultipleChoiceCheckBoxQueryContainer(this.id, this.mccb.promptText, this.mccb.choiceToValueArray);
+}
+
+/**
+ * Translate an array of identifiers to the corresponding values such as
+ * [choice1, choice2] to "[The fish was swimming", "The fish was eating"]
+ * We need to create an MC_CHECKBOX object in order to look up the identifiers
+ * @param identifiers the array of choices
+ * @return a comma delimited string containing the values
+ */
+MultipleChoiceCheckBoxNode.prototype.translateIdentifiersToValues = function(identifiers) {
+	//create an MC_CHECKBOX object to obtain the values for the identifiers
+	this.mccb = new MC_CHECKBOX(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	
+	var translatedAnswers = "";
+	
+	//loop through the identifiers passed to the function
+	for(var x=0; x<identifiers.length; x++) {
+		//add a comma to separate the values
+		if(translatedAnswers != "") {
+			translatedAnswers += ",";
+		}
+		
+		//obtain the value for the identifier
+		translatedAnswers += this.mccb.getCHOICEByIdentifier(identifiers[x]).text;
+	}
+	
+	//return the string of values separated by commas
+	return translatedAnswers;
 }

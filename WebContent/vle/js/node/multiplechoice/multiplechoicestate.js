@@ -42,3 +42,11 @@ MCSTATE.prototype.getHumanReadableForm = function() {
 	humanReadableText += "choice: " + this.choiceIdentifier;
 	return humanReadableText;
 }
+
+/**
+ * Returns the choice the student chose
+ * @return the choice identifier the student chose
+ */
+MCSTATE.prototype.getStudentWork = function() {
+	return this.choiceIdentifier;
+}
