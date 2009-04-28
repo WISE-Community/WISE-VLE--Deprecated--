@@ -170,21 +170,38 @@ function displayProgress() {
 	document.getElementById('progressDiv').innerHTML += vle.getProgress();
 }
 
-function save() {
+function save(format) {
 	  //if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
 		  //var htmlString = document.getElementById('sourceTextArea').value;
 	
 	  //retrieve the current timestamp so we can use it in the file name
 	  var currentTime = new Date();
 	  thisFilename = vle.getUserName() + "." + 
-	  		currentTime.getFullYear() + "." + (currentTime.getMonth() + 1) + "." + currentTime.getDate() +
-	  		".csv";  
+	  		currentTime.getFullYear() + "." + (currentTime.getMonth() + 1) + "." + currentTime.getDate();
 
-	  //retrieve the text to be stored in the file
-	  var htmlString = vle.getCSV();
 
+	  //the string that will contain the content we will put in the file
+	  var contentString = "";
+	  
+	  if(format == "simpleCSV") {
+		thisFilename += ".csv";
+		
+		//retrieve the simplified csv which only contains the latest answers
+		contentString = vle.getSimpleCSV();
+	  } else if(format == "detailedCSV") {
+		thisFilename += ".csv";
+		  
+		//retrieve the detailed csv which contains all revisions of the student's answers
+		contentString = vle.exportToFile(format);
+	  } else if(format == "HTML") {
+		thisFilename += ".html";
+
+		//retrieve html which contains all revisions of the student's answers
+		contentString = vle.exportToFile(format);
+	  }
+	  
 	  //set the text into the variable whose content will be stored in the file
-      document.getElementById('localData').value = htmlString;
+      document.getElementById('localData').value = contentString;
 
       if (thisFilename != null) {
       	document.getElementById('form_filename').value = thisFilename;

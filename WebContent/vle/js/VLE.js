@@ -333,13 +333,28 @@ VLE.prototype.getProgress = function() {
 	progressHtml += "<td width='15%'>" + lastNodeIdVisitedByStudent + "</td>";
 	
 	//the nodes the student skipped
-	progressHtml += "<td width='40%'>" + nodesSkipped + "</td>";
+	progressHtml += "<td width='30%'>" + nodesSkipped + "</td>";
 	
 	/*
 	 * the save button that allows the user to save the student's
-	 * data as a csv file
+	 * data as a csv file. this only saves the student's latest
+	 * answers
 	 */ 
-	progressHtml += "<td width='15'><input type='button' value='Save as CSV File' onclick='save()' /></td>";
+	progressHtml += "<td width='25%'><input type='button' value='Save Only Latest Answers as CSV File' onclick='save(\"simpleCSV\")' /><br><br>";
+	
+	/*
+	 * the save button that allows the user to save the student's
+	 * data as a csv file. this saves all the revisions of the
+	 * student's answers.
+	 */
+	progressHtml += "<input type='button' value='Save All Answer Revisions as CSV File' onclick='save(\"detailedCSV\")' /><br><br>";
+	
+	/*
+	 * the save button that allows the user to save the student's
+	 * data as an html file. this saves all the revisions of the
+	 * student's answers.
+	 */
+	progressHtml += "<input type='button' value='Save All Answer Revisions as HTML File' onclick='save(\"HTML\")' /></td>";
 	
 	progressHtml += "</tr>";
 	progressHtml += "</table>";
@@ -564,12 +579,20 @@ VLE_STATE.prototype.getDataXML = function() {
 	var dataXML = "";
 	dataXML += "<vle_state>";
 	
+	dataXML += this.getVisitedNodesDataXML();
+	
+	dataXML += "</vle_state>";
+	return dataXML;
+}
+
+VLE_STATE.prototype.getVisitedNodesDataXML = function() {
+	var dataXML = "";
+	
 	//loop through all the visited nodes and retrieve the xml for each node
 	for (var i=0; i<this.visitedNodes.length;i++) {
 		dataXML += this.visitedNodes[i].getDataXML();
 	}
 	
-	dataXML += "</vle_state>";
 	return dataXML;
 }
 
@@ -836,7 +859,7 @@ VLE.prototype.saveLocally = function(){
  * answers. The answers are the latest answers the student has submitted.
  * @return a string containing the student's answers in CSV form
  */
-VLE.prototype.getCSV = function() {
+VLE.prototype.getSimpleCSV = function() {
 	//the string for the first row of the CSV file
 	var nodesCSV = "";
 	
@@ -901,4 +924,116 @@ VLE.prototype.getCSV = function() {
 	
 	//combine the two rows separated by a new line
 	return nodesCSV + "\n" + studentDataCSV;
+}
+
+/**
+ * Exports the student's data to a string
+ * @param format the format of the data
+ * @return a string containing the content that will be in the file
+ */
+VLE.prototype.exportToFile = function(format) {
+	var rows = new Array();
+	
+	/*
+	 * all the nodes/steps in the project
+	 * (node and step are the same in this context)
+	 */
+	var nodeIds = this.getLeafNodeIds();
+	
+	//loop through all the nodes in the project
+	for(var x=0; x<nodeIds.length; x++) {
+		var nodeRow = "";
+		
+		//obtain a specific node from the vle
+		var nodeId = nodeIds[x];
+		var nodeTitle = this.getNodeById(nodeId).title;
+		var node = this.getNodeById(nodeId);
+		
+		//add the node title and prompt to the first row
+		
+		
+		if(format == "detailedCSV") {
+			nodeRow += "\"" + nodeTitle + ":" + node.getPrompt() + "\",";
+		} else if(format == "HTML") {
+			nodeRow += "<tr><td>" + nodeTitle + ":" + node.getPrompt() + "</td>";
+		}
+		
+		/*
+		 * get all the node visits by this student that the vle represents
+		 * for this node
+		 */
+		nodeVisitsForNodeId = this.state.getNodeVisitsByNodeId(nodeId);
+		
+		//loop through all the node visits for this node
+		for(var y=0; y<nodeVisitsForNodeId.length; y++) {
+			//the student has visited the node
+			var nodeVisit = nodeVisitsForNodeId[y];
+			
+			var nodeStates = nodeVisit.nodeStates;
+			
+			//loop through all the states in the node visit
+			for(var z=0; z<nodeStates.length; z++) {
+				var nodeState = nodeStates[z];
+				
+				if(node instanceof MultipleChoiceNode || node instanceof MultipleChoiceCheckBoxNode) {
+					/*
+					 * we need to translate identifiers to values for these
+					 * nodes. latestState.getStudentWork() will return
+					 * a string or an array depending on which node type.
+					 * node.translateIdentifiersToValues() must then know
+					 * what is being passed in. for future nodes make sure
+					 * latestState.getStudentWork() and 
+					 * node.translateIdentifiersToValues()
+					 * coordinate with each other
+					 */
+					
+					
+					if(format == "detailedCSV") {
+						nodeRow += "\"" + node.translateIdentifiersToValues(nodeState.getStudentWork()) + "\",";
+					} else if(format == "HTML") {
+						nodeRow += "<td>" + node.translateIdentifiersToValues(nodeState.getStudentWork()) + "</td>";
+					}
+				} else {
+					
+					
+					if(format == "detailedCSV") {
+						nodeRow += "\"" + nodeState.getStudentWork() + "\",";
+					} else if(format == "HTML") {
+						nodeRow += "<td>" + nodeState.getStudentWork() + "</td>";
+					}
+				}
+			}
+		}
+		
+		if(format == "detailedCSV") {
+			rows.push(nodeRow);
+		} else if(format == "HTML") {
+			rows.push(nodeRow + "</tr>");
+		}
+		
+	}
+	
+	var csvText = "";
+	
+	if(format == "HTML") {
+		csvText += "<table border='1'>";
+	}
+	
+	for(var rowNum=0; rowNum<rows.length; rowNum++) {
+		if(format == "detailedCSV") {
+			csvText += rows[rowNum] + "\n";
+		} else if(format == "HTML") {
+			csvText += rows[rowNum];
+		}
+	}
+	
+	if(format == "HTML") {
+		csvText += "</table>";
+	}
+	
+	return csvText;
+}
+
+VLE.prototype.getHTML = function() {
+	
 }
