@@ -60,7 +60,7 @@
 <link rel="stylesheet" type="text/css" href="vle/css/navigation.css" />
 <link rel="stylesheet" type="text/css" href="vle/css/sdmenu.css" />
 
-<link rel="shortcut icon" href="../images/favicon_panda.ico">
+<link rel="shortcut icon" href="vle/images/favicon_panda.ico">
 
 
 <script type='text/javascript'>
@@ -588,16 +588,16 @@ function populateReferences(sequenceId, titleEl){
 <div id="centeredDiv">
 
 <div id="authorHeader">
-	<h2>WISE 4 Authoring Tool &nbsp;<img src="../assets/images/favicon_panda.ico" alt="WISE Panada" border="0" /></h2>
+    <div id="pandaLogo"><img src="vle/assets/images/favicon_panda.ico" alt="WISE Panada" width="32" border="0" /></div>
+	<h2>WISE 4 Authoring Tool</h2>
 	<table>
 	  <tr>
 		<td><input type="button" value="Open Project" onclick="openProject()"/></td>
 	  	<td><input type="button" value="Create New Project" onclick="createNewProject()"/></td>
 	  	<td><input type="button" value="Create New Activity" onclick="createNewSequence()"/></td>
 		<td><input type="button" value="Create New Node" onclick="createNewNode()" /></td>
-	  </tr>
-	  <tr>
-	  	<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
+	  	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
 	  	<td><input type="button" value="Export Project" onclick="exportProject()" /></td>
 	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
 	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()"/></td
@@ -605,13 +605,9 @@ function populateReferences(sequenceId, titleEl){
 	</table>
 </div>
 
+<div id="currentProject">Current Title = ?</div>
+
 <table id="authoringTable">
-	<tr><td id='currentProject'><h3>Current Project: </h3></td></tr>
-	<tr>
-	<tr>
-		<td class="authorTableHeader" width="100%">Edit Project</td>
-		<!-- <td class="authorTableHeader" width="30%">Preview</td>   -->
-	</tr>
 	<tr>
 		<td id="assignedcontainer">
 			<table id="ddTable" width='100%'>
@@ -627,7 +623,7 @@ function populateReferences(sequenceId, titleEl){
 						<ul id='nodesUL'></ul>
 					</td>
 					<td id='garbageDump'>
-						<div id='trash' class='trash'>Garbage</div>
+						<div id='trash' class='trash'>Trash Bin</div>
 					</td>
 				</tr>
 			</table>
@@ -642,7 +638,7 @@ function populateReferences(sequenceId, titleEl){
 			
 <div id="clearFloats" class="clearFloats" />
 
-<div id="navigationInstructions">
+<div id="navigationInstructions" style="display:none;">
 	<p>Instructions:</p>
 	<ol>
 	<li>SELECT a node by clicking on its text.</li>
