@@ -9,6 +9,7 @@ function HtmlNode(nodeType) {
 	this.type = nodeType;
 	this.content = null;
 	this.filename = null;
+	this.audios = [];
 }
 
 HtmlNode.prototype.setContent = function(content) {

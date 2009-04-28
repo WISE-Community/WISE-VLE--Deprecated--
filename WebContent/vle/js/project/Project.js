@@ -85,7 +85,7 @@ Project.prototype.generateUniqueId = function(){
 		} else {
 			return id;
 		};
-	};
+	}
 };
 
 Project.prototype.getNodeById = function(nodeId){
@@ -123,14 +123,25 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	this.allLeafNodes = [];
 	var nodeElements = xmlDoc.getElementsByTagName("nodes")[0].childNodes;
 	for (var i=0; i < nodeElements.length; i++) {
-		var element = nodeElements[i];
-		if (element.nodeName != "#text")  {
-			var thisNode = NodeFactory.createNode(element);
-			thisNode.title = element.getAttribute('title');
-			thisNode.id = element.getAttribute('identifier');
-			thisNode.filename = this.makeFileName(element.getElementsByTagName('ref')[0].getAttribute("filename"));
-			thisNode.element = element;
+		var currElement = nodeElements[i];
+		if (currElement.nodeName != "#text")  {
+			var thisNode = NodeFactory.createNode(currElement);
+			thisNode.title = currElement.getAttribute('title');
+			thisNode.id = currElement.getAttribute('identifier');
+			thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
+			thisNode.element = currElement;
+			// create node audios for this node
+			var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');
+			for (var k=0; k < nodeAudioElements.length; k++) {
+				var nodeAudioId = nodeAudioElements[k].getAttribute("id");
+				var nodeAudioUrl = nodeAudioElements[k].getAttribute("url");
+				var elementId = nodeAudioElements[k].getAttribute("elementId");
+				var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementId);
+				thisNode.audios.push(nodeAudio);
+			}
+			
 			this.allLeafNodes.push(thisNode);
+			//alert('1 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
 			if(this.lazyLoading){ //load as needed
 				if(thisNode.type=='NoteNode'){//this one always needs it now
 					thisNode.retrieveFile();
@@ -138,6 +149,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			} else { //load it now
 				thisNode.retrieveFile();
 			};
+			//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
 		}
 	}
 	
@@ -224,7 +236,7 @@ Project.prototype.populateSequences = function(id){
 	for(var j=0;j<children.length;j++){
 		if(children[j].nodeName!='#text'){
 			var childNode = this.getNodeById(children[j].getAttribute('ref'));
-			sequence.children.push(childNode);
+			sequence.addChildNode(childNode);			
 		};
 	};
 };

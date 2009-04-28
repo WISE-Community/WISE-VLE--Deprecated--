@@ -90,9 +90,23 @@ Node.prototype.setCurrentNode = function() {
 	}
 }
 
-Node.prototype.getNodeAudioElements = function() {
-	var nodeAudioElements = this.element.getElementsByTagName('nodeaudio');
-	return nodeAudioElements;
+Node.prototype.getNodeAudios = function() {
+	//this.alertNodeInfo('getNodeAudioElement');
+	//var nodeAudioElements = this.element.getElementsByTagName('nodeaudio');
+	//alert(this.element.getElementsByTagName('nodeaudio').length);
+	//return nodeAudioElements;
+	if (this.id = "a1s1") {
+		alert('node.js, getNodeAudios, this.audios.length:' + this.audios.length);
+	}
+	return this.audios;
+}
+
+// alerts vital information about this node
+Node.prototype.alertNodeInfo = function(where) {
+	alert('node.js, ' + where + '\nthis.id:' + this.id 
+			+ '\nthis.title:' + this.title 
+			+ '\nthis.filename:' + this.filename
+			+ '\nthis.element:' + this.element);
 }
 
 /**
@@ -362,4 +376,16 @@ Node.prototype.getXMLString = function(){
  */
 Node.prototype.getPrompt = function() {
 	return "";
+}
+
+function NodeAudio(id, url, elementId) {
+	this.id = id;
+	this.url = url;
+	this.elementId = elementId;
+	this.audio = null;
+}
+
+NodeAudio.prototype.play = function() {
+	//alert('node.js, nodeaduios.play:' + this.id + "," + this.url);
+	this.audio.play();
 }

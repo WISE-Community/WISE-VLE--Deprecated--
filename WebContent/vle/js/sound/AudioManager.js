@@ -1,8 +1,8 @@
-soundManager.url = 'js/sound/soundmanager/swf/'; // directory where SM2 .SWFs live
+soundManager.url = 'vle/js/sound/soundmanager/swf/'; // directory where SM2 .SWFs live
 var mySound = null;
-soundManager.debugMode = false;
+soundManager.debugMode = true;
 soundManager.onload = function(){
-	//alert('loaded');
+	//alert('autiodmanager.js, loaded');
 	vle.audioManager.isSoundManagerLoaded=true;
 	vle.audioManager.setCurrentNode(vle.getCurrentNode());
 } 
@@ -27,9 +27,11 @@ function AudioManager(isPlaying) {
  * If this.isPlaying is true, starts playing
  */
 AudioManager.prototype.setCurrentNode = function(node) {
-	//alert('auiomanager.setCurrentNode' + vle.audioManager.isSoundManagerLoaded);
+	//alert('auiomanager.setCurrentNode, node.id:' + node.id + '\n' 
+	//		+ vle.audioManager.isSoundManagerLoaded + '\n'
+	//		+ 'audios.length:' + node.audios.length);
 	soundManager.stopAll();
-	vle.getCurrentNode().audios = [];
+	//vle.getCurrentNode().audios = [];
 	var soundId = this.id;
 	var audio = null;
 		if (true) {
@@ -45,7 +47,8 @@ AudioManager.prototype.setCurrentNode = function(node) {
 			
 			// experimental start
 			
-			var nodeAudioElements = vle.getCurrentNode().getNodeAudioElements();
+			var nodeAudioElements = node.audios;
+			//alert('audiomanager.js, nodeaudioelements.length:' + nodeAudioElements.length);
 			if (nodeAudioElements.length > 0) {
 				for (var i=0; i < nodeAudioElements.length; i++) {
 					var nodeAudioElement = nodeAudioElements[i];
@@ -53,8 +56,8 @@ AudioManager.prototype.setCurrentNode = function(node) {
 						//alert('audiomanager, if, i:' + i + ", elementId: " + nodeAudioElement.getAttribute("elementId"));
 						// this audio is not the last audio for this node, so upon finishing, it should move to the next audio in the sequence.
 						var audio = soundManager.createSound({
-							id: nodeAudioElement.getAttribute("id"),
-							url: nodeAudioElement.getAttribute("url"),
+							id: nodeAudioElement.id,
+							url: nodeAudioElement.url,
 							onplay: function() { 
 							//alert('onplay');
 							if (vle.getCurrentNode().type != null && 
@@ -79,13 +82,15 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								vle.getCurrentNode().playAudioNextAudio(this.elementId);
 							}
 						});
+						audio.elementId = nodeAudioElement.elementId;
+						nodeAudioElement.audio = audio;
 					} else {  
 						// this is the last audio for this node, so upon finishing, don't need to go to the next audio.
 						// upon finishing, remember to set currentnode.audio to be the first audio for the step.
 						//alert('audiomanager, else, i:' + i + ", elementId: " + nodeAudioElement.getAttribute("elementId"));
 						var audio = soundManager.createSound({
-							id: nodeAudioElement.getAttribute("id"),
-							url: nodeAudioElement.getAttribute("url"),
+							id: nodeAudioElement.id,
+							url: nodeAudioElement.url,
 							onplay: function() { 
 							if (vle.getCurrentNode().type != null && 
 									(vle.getCurrentNode().type == "HtmlNode" || vle.getCurrentNode().type == "OTBlueJ")) {
@@ -109,9 +114,10 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								addClassToElement("playPause", "play");	
 							}
 						});
+						audio.elementId = nodeAudioElement.elementId;
+						nodeAudioElement.audio = audio;
 					}
-					audio.elementId = nodeAudioElement.getAttribute("elementId");
-					vle.getCurrentNode().audios.push(audio);
+					//vle.getCurrentNode().audios.push(audio);
 				}
 				if (vle.audioManager.isPlaying) {
 					vle.getCurrentNode().audios[0].play();

@@ -53,11 +53,16 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
 	}
     
     if (node.children.length > 0) {
-		//htmlSoFar += "<div class=\""+ classString +"\" id=\"" + node.id + "_menu\"><span onclick=\"expandMenu('"+ node.id +"_menu')\">"+node.getTitle()+"</span>";
-		for (var i = 0; i < node.children.length; i++) {
+    	var submenu = document.getElementById(node.id + "_menu");
+    	if (submenu && submenu.className) {
+    		htmlSoFar += "<div class=\""+ submenu.className +"\" id=\"" + node.id + "_menu\"><span onclick=\"myMenu.toggleMenu(document.getElementById('"+ node.id +"_menu'))\">"+node.getTitle()+"</span>";
+    	} else {
+    		htmlSoFar += "<div class=\""+ classString +"\" id=\"" + node.id + "_menu\"><span onclick=\"myMenu.toggleMenu(document.getElementById('"+ node.id +"_menu'))\">"+node.getTitle()+"</span>";
+    	}
+    	for (var i = 0; i < node.children.length; i++) {
 			htmlSoFar += this.getNavigationHtml(node.children[i], eventType, deep + 1);
 		}
-		//htmlSoFar += "</div>";
+		htmlSoFar += "</div>";
 	} else {
 		htmlSoFar ;
 		for(var t=0;t<depth;t++){

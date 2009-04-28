@@ -114,11 +114,17 @@ VLE.prototype.expandActivity = function(nodeId) {
 	if(nodeId.charAt(0)!='J'){
 		var idStr = new String(nodeId);
 		var newActivityId = idStr.substring(0, idStr.lastIndexOf(":"));
+		var node = this.getNodeById(nodeId);
 		if(newActivityId){			
 			submenu = document.getElementById(newActivityId + "_menu");
+			//submenu.className = "";
+			myMenu.expandMenu(submenu);
+		}
+		if (node.parent) {
+			submenu = document.getElementById(node.parent.id + "_menu");
 			submenu.className = "";
 			//myMenu.expandMenu(submenu);
-		};
+		}
 	};
 }
 VLE.prototype.renderPrevNode = function() {
@@ -127,7 +133,7 @@ VLE.prototype.renderPrevNode = function() {
 		alert("prev is not defined.");
 	}
 	var prevNode = this.navigationLogic.getPrevNode(currentNode);
-	while (prevNode.type == "Activity") {
+	while (prevNode != null && (prevNode.type == "Activity" || prevNode.children.length > 0)) {
 		prevNode = this.navigationLogic.getPrevNode(prevNode);
 	}
 	
@@ -144,7 +150,7 @@ VLE.prototype.renderNextNode = function() {
 		alert("next is not defined.");
 	}
 	var nextNode = this.navigationLogic.getNextNode(currentNode);
-	while (nextNode.type == "Activity") {
+	while (nextNode != null && (nextNode.type == "Activity" || nextNode.children.length > 0)) {
 		nextNode = this.navigationLogic.getNextNode(nextNode);
 	}
 	if (nextNode == null) {
