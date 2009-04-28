@@ -108,28 +108,7 @@
 }	
 
 #ddTable :after {
-	clear: both;
-	content: '.';
-	display: block;
-	height: 0;
-	visibility: hidden;
-}
-
-#ddTable tr {
-
-}
-
-#ddTable tr ul{
-
-}
-
-#ddTable tr ul li {
-	font-size: .85em;
-	border: 1px solid transparent;
-	background-color: #676767;
-	background-image: none;
-	cursor: move;
-	list-style-type: none;
+	clear: both;t
 	margin: 6px 5px;
 	padding: 2px 5px;
 	position: relative;
