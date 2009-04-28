@@ -1,6 +1,6 @@
 soundManager.url = 'vle/js/sound/soundmanager/swf/'; // directory where SM2 .SWFs live
 var mySound = null;
-soundManager.debugMode = true;
+soundManager.debugMode = false;
 soundManager.onload = function(){
 	//alert('autiodmanager.js, loaded');
 	vle.audioManager.isSoundManagerLoaded=true;
