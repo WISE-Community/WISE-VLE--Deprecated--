@@ -130,7 +130,8 @@ function loadProjectFromServer(projectName){
           var startId = project.getStartNodeId();
           
           setTimeout("vle.renderNode('" + startId + "')", 1000);
-          myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
+          myMenu = new SDMenu('my_menu'); 
+          myMenu.init();
 	  },			
 	  failure: function(o) { alert('unable to retrieve project from server');},
 	  scope:this
