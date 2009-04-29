@@ -62,3 +62,7 @@ FillinNode.prototype.exportNode = function() {
 	
 	return exportXML;
 }
+
+FillinNode.prototype.translateStudentWork = function(studentWork) {
+	return studentWork;
+}

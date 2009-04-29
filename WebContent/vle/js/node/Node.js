@@ -171,7 +171,7 @@ Node.prototype.getShowAllWorkHtml = function(){
         };
         
         if(latestState!=null){
-        	showAllWorkHtmlSoFar += '<br><br>Your work during this visit: ' + latestState.response;
+        	showAllWorkHtmlSoFar += '<br><br>Your work during this visit: ' + this.translateStudentWork(latestState.getStudentWork());
         };
     }
     else {
@@ -350,6 +350,7 @@ Node.prototype.retrieveFile = function(){
 		};
 		
 		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + this.filename);
+		//YAHOO.util.Connect.asyncRequest('POST', this.filename, callback, null);
 	} else {
 		alert('no file is specified, unable to retrieve data');
 	};
@@ -378,6 +379,19 @@ Node.prototype.getPrompt = function() {
 	return "";
 }
 
+/**
+ * Translates students work into human readable form. Some nodes,
+ * such as mc and mccb require translation from identifiers to 
+ * values, while other nodes do not. Each node will implement
+ * their own translateStudentWork() function and perform translation
+ * if necessary. This is just a dummy parent implementation.
+ * @param studentWork the student's work, could be a string or array
+ * @return a string of the student's work in human readable form.
+ */
+Node.prototype.translateStudentWork = function(studentWork) {
+	return studentWork;
+}
+
 function NodeAudio(id, url, elementId) {
 	this.id = id;
 	this.url = url;
@@ -389,3 +403,4 @@ NodeAudio.prototype.play = function() {
 	//alert('node.js, nodeaduios.play:' + this.id + "," + this.url);
 	this.audio.play();
 }
+

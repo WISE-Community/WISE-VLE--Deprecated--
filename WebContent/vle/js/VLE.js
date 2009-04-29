@@ -957,8 +957,6 @@ VLE.prototype.exportToFile = function(format) {
 		var node = this.getNodeById(nodeId);
 		
 		//add the node title and prompt to the first row
-		
-		
 		if(format == "detailedCSV") {
 			nodeRow += "\"" + nodeTitle + ":" + node.getPrompt() + "\",";
 		} else if(format == "HTML") {
@@ -982,32 +980,20 @@ VLE.prototype.exportToFile = function(format) {
 			for(var z=0; z<nodeStates.length; z++) {
 				var nodeState = nodeStates[z];
 				
-				if(node instanceof MultipleChoiceNode || node instanceof MultipleChoiceCheckBoxNode) {
-					/*
-					 * we need to translate identifiers to values for these
-					 * nodes. latestState.getStudentWork() will return
-					 * a string or an array depending on which node type.
-					 * node.translateIdentifiersToValues() must then know
-					 * what is being passed in. for future nodes make sure
-					 * latestState.getStudentWork() and 
-					 * node.translateIdentifiersToValues()
-					 * coordinate with each other
-					 */
-					
-					
-					if(format == "detailedCSV") {
-						nodeRow += "\"" + node.translateIdentifiersToValues(nodeState.getStudentWork()) + "\",";
-					} else if(format == "HTML") {
-						nodeRow += "<td>" + node.translateIdentifiersToValues(nodeState.getStudentWork()) + "</td>";
-					}
-				} else {
-					
-					
-					if(format == "detailedCSV") {
-						nodeRow += "\"" + nodeState.getStudentWork() + "\",";
-					} else if(format == "HTML") {
-						nodeRow += "<td>" + nodeState.getStudentWork() + "</td>";
-					}
+				/*
+				 * we need to translate identifiers to values for some
+				 * nodes. latestState.getStudentWork() will return
+				 * a string or an array depending on which node type.
+				 * node.translateIdentifiersToValues() must then know
+				 * what is being passed in. for future nodes make sure
+				 * latestState.getStudentWork() and node.translateStudentWork()
+				 * coordinate with each other. some node do not not require
+				 * any translation so they will just return what was passed in.
+				 */
+				if(format == "detailedCSV") {
+					nodeRow += "\"" + node.translateStudentWork(nodeState.getStudentWork()) + "\",";
+				} else if(format == "HTML") {
+					nodeRow += "<td>" + node.translateStudentWork(nodeState.getStudentWork()) + "</td>";
 				}
 			}
 		}
@@ -1022,18 +1008,24 @@ VLE.prototype.exportToFile = function(format) {
 	
 	var csvText = "";
 	
+	//start the table if we are outputting html
 	if(format == "HTML") {
 		csvText += "<table border='1'>";
 	}
 	
+	/*
+	 * append all the rows together as one string 
+	 */
 	for(var rowNum=0; rowNum<rows.length; rowNum++) {
 		if(format == "detailedCSV") {
+			//csv needs new line
 			csvText += rows[rowNum] + "\n";
 		} else if(format == "HTML") {
 			csvText += rows[rowNum];
 		}
 	}
 	
+	//close the table if we are outputting html
 	if(format == "HTML") {
 		csvText += "</table>";
 	}

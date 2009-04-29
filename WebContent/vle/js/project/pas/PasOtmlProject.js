@@ -179,18 +179,19 @@ PasOtmlProject.prototype.getSummaryProjectHTML = function(){
 	return projectHTML;
 };
 
-PasOtmlProject.prototype.getShowAllWorkHtml = function() {
-	var htmlSoFar = "";
-	var activityNodes = this.rootNode.children;
-	for (var i=0; i<activityNodes.length;i++) {
-		htmlSoFar += "<h3>Activity: " + activityNodes[i].title +"</h3>";
-		var stepNodesInActivity = activityNodes[i].children;
-		for (var j = 0; j < stepNodesInActivity.length; j++) {
-			htmlSoFar += stepNodesInActivity[j].getShowAllWorkHtml();
-			htmlSoFar += "<br/><br/>";
-		}
-	}
-	return htmlSoFar;
+PasOtmlProject.prototype.getShowAllWorkHtml = function(node, doGrading) {
+//	var htmlSoFar = "";
+//	var activityNodes = this.rootNode.children;
+//	for (var i=0; i<activityNodes.length;i++) {
+//		htmlSoFar += "<h3>Activity: " + activityNodes[i].title +"</h3>";
+//		var stepNodesInActivity = activityNodes[i].children;
+//		for (var j = 0; j < stepNodesInActivity.length; j++) {
+//			htmlSoFar += stepNodesInActivity[j].getShowAllWorkHtml();
+//			htmlSoFar += "<br/><br/>";
+//		}
+//	}
+//	return htmlSoFar;
+	return this.parent.getShowAllWorkHtml(node, doGrading);
 }
 
 PasOtmlProject.prototype.exportProject = function() {

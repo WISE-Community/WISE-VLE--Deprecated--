@@ -65,6 +65,7 @@ var vle = null;
 <script type="text/javascript" src="js/node/JournalEntryNode.js"></script>
 <script type="text/javascript" src="js/node/TickerNode.js"></script>
 <script type="text/javascript" src="js/project/Project.js"></script>
+<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
 <script type="text/javascript" src="js/io/ConnectionManager.js"></script>
 
 <!-- Ticker Query Files -->
@@ -253,6 +254,7 @@ function expandMenu(menuId) {
  *		to obtain the user info 
  */
 function render(contentURL, userURL, getDataUrl, contentBaseUrl) {
+	//contentURL = "http://localhost:8080/vlewrapper/vle/tim2.otml";
 	//alert('contentURL: ' + contentURL + "\n\nuserURL:" + userURL + "\n\ngetDataUrl:" + getDataUrl + "\n\ncontentBaseUrl:" + contentBaseUrl);
 	vle = new VLE();
 	var contentCallback =
@@ -275,6 +277,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl) {
 			  //alert('done done');
 		  }	
 		  */	  
+		  //var project = new PasOtmlProject(xmlDocObj);
 		  var project = new Project(xmlDocToParse, contentBaseUrl);
 		  project.xmlDoc = xmlDocToParse;
 		  project.generateNode(xmlDocToParse);
@@ -284,6 +287,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl) {
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
 		  vle.getDataUrl = getDataUrl;
+		  //vle.loadVLEState(vle);
 		  myMenu = new Menu("my_menu");
           myMenu.init();
 			

@@ -163,7 +163,7 @@ MultipleChoiceCheckBoxNode.prototype.makeQueryContainer = function(vle) {
  * @param identifiers the array of choices
  * @return a comma delimited string containing the values
  */
-MultipleChoiceCheckBoxNode.prototype.translateIdentifiersToValues = function(identifiers) {
+MultipleChoiceCheckBoxNode.prototype.translateStudentWork = function(identifiers) {
 	//create an MC_CHECKBOX object to obtain the values for the identifiers
 	this.mccb = new MC_CHECKBOX(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
 	

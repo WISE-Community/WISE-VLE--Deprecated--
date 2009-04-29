@@ -155,7 +155,7 @@ MultipleChoiceNode.prototype.makeQueryContainer = function(vle) {
  * @param identifier the id of the choice
  * @return the string value of the choice
  */
-MultipleChoiceNode.prototype.translateIdentifiersToValues = function(identifier) {
+MultipleChoiceNode.prototype.translateStudentWork = function(identifier) {
 	//create an MC object so we can look up the value corresponding to an identifier
 	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
 	

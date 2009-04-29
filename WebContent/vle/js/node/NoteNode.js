@@ -133,3 +133,14 @@ NoteNode.prototype.parseDataXML = function(nodeStatesXML) {
 	
 	return statesArrayObject;
 }
+
+/**
+ * Notes do not require translation of student's work so we will just
+ * return what was passed in. Translation is only required by nodes
+ * such as mc or mccb to translate their identifiers to values.
+ * @param studentWork the student's work
+ * @return the student's work
+ */
+NoteNode.prototype.translateStudentWork = function(studentWork) {
+	return studentWork;
+}
