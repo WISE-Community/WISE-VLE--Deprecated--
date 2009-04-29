@@ -12,6 +12,7 @@ function VLE() {
 	this.myUserInfo = null;
 	this.myClassInfo = null;
 	this.getDataUrl = null;
+        this.postDataUrl = null;
 }
 
 /**
@@ -610,10 +611,15 @@ VLE_STATE.prototype.parseDataXML = function(vleStateXML) {
     	var nodeVisit = nodeVisitNodesXML[i];
     	
     	//ask the NODE_VISIT static function to create a real NODE_VISIT object
-    	var nodeVisitObject = NODE_VISIT.prototype.parseDataXML(nodeVisit);
+    	var nodeForNodeVisit = vle.getNodeById(nodeVisit.getElementsByTagName("id")[0].textContent);
     	
-    	//add the real NODE_VISIT object into this VLE_STATE
-    	vleStateObject.visitedNodes.push(nodeVisitObject);
+    	// first check that the node exists in the project
+    	if (nodeForNodeVisit && nodeForNodeVisit != null) {
+    		var nodeVisitObject = NODE_VISIT.prototype.parseDataXML(nodeVisit);
+    	
+    		//add the real NODE_VISIT object into this VLE_STATE
+    		vleStateObject.visitedNodes.push(nodeVisitObject);
+    	}
     }
 	
     //alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
@@ -761,6 +767,7 @@ NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
 	//ask the NODE static function to create the node
 	//var nodeObject = Node.prototype.parseDataXML(nodeVisitXML);
 	var nodeObject = vle.getNodeById(nodeVisitXML.getElementsByTagName("id")[0].textContent);
+
 	//alert('vle.js, nodeObject:' + nodeObject);
 	//get the start and end times
 	var visitStartTime = nodeVisitXML.getElementsByTagName("visitStartTime")[0].textContent;
