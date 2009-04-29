@@ -454,7 +454,7 @@ function createFillin(){
 			location = k + 1;
 		};
 	};
-	
+	alert(fullText.substring(start, end));
 	//then update xmlPage (textentry interaction, responsedeclaration, refresh)
 	var identifier = 'response_' + location;
 	createResponseDeclaration(identifier, fullText.substring(start, end), location);
@@ -529,7 +529,7 @@ function createTextInteraction(identifier, start, end, fillinText){
 	var body = xmlPage.getElementsByTagName('itemBody')[0];
 	for(var x=0;x<body.childNodes.length;x++){
 		if(body.childNodes[x].nodeName!="#text"){
-			if(body.childNodes[x].nodeName=='htmltext'){
+			if(body.childNodes[x].nodeName=='htmltext' && body.childNodes[x].firstChild){
 				//grab current text
 				var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
 				//if start and end is included - then we need to modify existing element
@@ -704,15 +704,16 @@ function sourceUpdated() {
 			return;
 		} else if(difference>0){ //text has been removed
 			saved = false;
-			var start = document.getElementById('questionInput').selectionStart + 1;
+			var start = document.getElementById('questionInput').selectionStart;
 			var end = start + difference;
 			var body = xmlPage.getElementsByTagName('itemBody')[0];
 			var runningText = '';
-			
+			//alert('s ' + start + '   e ' + end);
 			for(var x=0;x<body.childNodes.length;x++){
 				if(body.childNodes[x].nodeName!="#text"){
-					if(body.childNodes[x].nodeName=='htmltext'){
+					if(body.childNodes[x].nodeName=='htmltext' && body.childNodes[x].firstChild){
 						var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
+						//alert('current ' + currentText + '  total len ' + (runningText + currentText).length);
 						if(start <= (runningText + currentText).length){ //this is where the change was made, update text
 							if(end <= (runningText + currentText).length){ //entire deletion occurs within this node
 								body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + currentText.substring(end - runningText.length, currentText.length);
@@ -743,13 +744,15 @@ function sourceUpdated() {
 			var newText = document.getElementById('questionInput').value.substring(start, end); //get new chars
 			var body = xmlPage.getElementsByTagName('itemBody')[0];
 			var runningText = '';
-			
+			//alert('s ' + start + '  e ' + end + '  newText ' + newText);
+			//start += 1;
 			if(body.childNodes.length>0){
 				for(var x=0;x<body.childNodes.length;x++){
 					if(body.childNodes[x].nodeName!="#text"){
 						if(body.childNodes[x].nodeName=='htmltext'){
 							if(body.childNodes[x].firstChild){
 								var currentText = spaceMaker(body.childNodes[x].firstChild.nodeValue);
+								//alert('total l ' + (runningText + currentText).length + '  s ' + start + '  e ' + end);
 								if(start <= (runningText + currentText).length){ //this is where the change was made, update text
 									body.childNodes[x].firstChild.nodeValue = currentText.substring(0, start - runningText.length) + newText + currentText.substring(start - runningText.length, currentText.length);
 									charCount += newText.length;
@@ -759,11 +762,9 @@ function sourceUpdated() {
 								} else {
 									runningText += currentText;
 								};
-							} else { // no data in prompt - add it
+							} else { // no data in prompt - if this is the location add it here
 								var newTextNode = xmlPage.createTextNode(newText);
-								var newTextEl = xmlPage.createElement('htmltext');
-								newTextEl.appendChild(newTextNode);
-								body.appendChild(newTextEl);
+								body.childNodes[x].appendChild(newTextNode);
 								charCount += newText.length;
 								generateFullText();
 								updatePreview();
