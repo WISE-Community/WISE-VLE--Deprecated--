@@ -6,6 +6,9 @@ function ConnectionManager(vle) {
 	this.lastSavedTimestamp = null;
 	
 	this.echoURL = "../echo.html";
+        if (vle && vle != null && vle.postDataUrl != null) {
+           this.postURL = vle.postDataUrl;
+        }
 }
 
 ConnectionManager.prototype.setVLE = function(vle) {
