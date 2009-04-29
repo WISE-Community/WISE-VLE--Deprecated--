@@ -140,7 +140,6 @@ MC.prototype.render = function() {
 		radiobuttonTextDiv.innerHTML = this.choices[i].text;
 		td2Element.appendChild(radiobuttonTextDiv);
 		radiobuttondiv.appendChild(tableElement);
-		radiobuttondiv.appendChild(createElement(document, 'br', {}));
 	}
 	addClassToElement("checkAnswerButton", "disabledLink");
 	addClassToElement("tryAgainButton", "disabledLink");

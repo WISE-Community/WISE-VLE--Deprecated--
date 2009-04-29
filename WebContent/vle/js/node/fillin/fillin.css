@@ -24,14 +24,12 @@
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
 	width:78%;
-	background-color:#FFCE8E;
 	min-height:375px;
 	}
-	
+	 
 #currentFillBlankParagraph #rightColumn {
 	text-align:center;
 	margin-left:79%;
-	background-color:#6883BA;
 	color:#FFF;
 	min-height:375px;
 	}
@@ -49,6 +47,20 @@
 	font-size:.9em;
 	line-height:190%;
 }
+
+#nonInteractiveDiv blockquote {
+	margin: 10px;
+	font-size:.9em;
+	line-height:150%;
+}
+
+#nonInteractiveDiv #codeBlock {
+	border-left:3px solid #334B7B;
+	margin:5px 5px 40px 20px;
+	padding-left:15px;
+	white-space:pre;
+	font-family: monospace;
+	}
 
 #nonInteractiveDiv input{
 	position:relative;

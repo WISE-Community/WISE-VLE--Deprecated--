@@ -14,19 +14,23 @@
 	
 #currentQuestionBox #leftColumn { 
 	float:left;
-	width:76%;
+	width:78%;
 	padding:10px 0;
-	background-color:#FFD9ac;
+	height:400px;
 	}
 	
 #currentQuestionBox #rightColumn {
-	margin-left:77%;
+	margin-left:79%;
 	padding:10px 0;
 	text-align:center;
-	background-color:#6883BA;
 	color:#FFF;
+	height:400px;
 	}
 
+#currentQuestionBox #rightColumn img {
+	margin:50px 0 0 0 ;
+}
+	
 .itemLabel {
 	font-size:.7em;
 	text-transform:uppercase;
@@ -70,21 +74,20 @@ input *{color:red}
 	
 #statusMessages {
 	text-align:center;
-	margin:10px auto;
-	padding:10px;
+	margin:5px auto;
+	padding:5px;
 	}
 
 #numberAttemptsDiv, #lastAttemptDiv {
 	display:inline;
 	font-size:.8em;
-	color:#333;
 	margin:0;
 	padding:0;
 	}
 	
 #feedbackDiv {
-	width:70%;
-	font-size:.9em;
+	width:85%;
+	font-size:.85em;
 	margin:5px auto;
 	padding:2px;
 	text-align:center;

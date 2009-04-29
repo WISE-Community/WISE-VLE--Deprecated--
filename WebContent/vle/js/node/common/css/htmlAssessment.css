@@ -32,47 +32,33 @@ h5 {font-size:.9em; }
 h6 {font-size:.8em; }
 p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
+/*    This is the middle toned 88.236 palette  */
 
-.BG1 {background-color:#164CBA;color:#FFF;}
-.BG2 {background-color:#6883BA;color:#000;}
-.BG3 {background-color:#FF9D1E;color:#000;}
-.BG4 {background-color:#FFE6C6;color:#000;}
-.BG5 {background-color:#FFCE8E;color:#000;}
+.color1 {color:#164CBA;}   /* vibrant blue */
+.color2 {color:#6883BA;}   /* mid blue */
+.color3 {color:#919EBA;}   /* light blue */
+.color4 {color:#334B7B;}   /* dark blue */
+.color5 {color:#19253D;}   /* very dark blue */
+.color6 {color:#4E628B;}
+.color7 {color:#FF9D1E;}  /* bold orange */
+.color8 {color:#FFCE8E;}  /* mid tan */
+.color9 {color:#FFE6C6;}  /* light tan */
+.color10 {color:#a97e46;}  /* brown */
+.color11 {color:#543f23;}  /* dark red */
+.color12 {color:#bf9a6b;}
 
-.Color1 {color:#164CBA;}
-.Color2 {color:#6883BA;}
-.Color3 {color:#FF9D1E;}
-.Color4 {color:#FFE6C6;}
-.Color5 {color:#FFCE8E;}
-
-/*    This is the bright 236.100 palette
-.BG1 {background-color:#003EBA;color:#FFF;}
-.BG2 {background-color:#5D7CBA;color:#000;}
-.BG3 {background-color:#FF9000;color:#000;}
-.BG4 {background-color:#FFE3BF;color:#000;}
-.BG5 {background-color:#FFC77F;color:#000;}
-
-.Color1 {color:#003EBA;}
-.Color2 {color:#5D7CBA;}
-.Color3 {color:#FF9000;}
-.Color4 {color:#FFE3BF;}
-.Color5 {color:#FFC77F;}
-*/
-
-/*    This is the more subdued 236.65 palette
-
-.BG1 {background-color:#4169BA;color:#FFF;}
-.BG2 {background-color:#7D91BA;color:#000;}
-.BG3 {background-color:#FFB759;color:#000;}
-.BG4 {background-color:#FFEDD5;color:#000;}
-.BG5 {background-color:#FFDBAC;color:#000;}
-
-.Color1 {color:#4169BA;}
-.Color2 {color:#7D91BA;}
-.Color3 {color:#FFB759;}
-.Color4 {color:#FFEDD5;}
-.Color5 {color:#FFDBAC;}
-*/
+.bg1 {background-color:#164CBA;color:#FFF;}
+.bg2 {background-color:#6883BA;color:#000;}
+.bg3 {background-color:#919EBA;color:#000;}
+.bg4 {background-color:#334B7B;color:#FFF;}
+.bg5 {background-color:#19253D;color:#FFF;}
+.bg6 {background-color:#4E628B;color:#FFF;}
+.bg7 {background-color:#FF9D1E;color:#000;}
+.bg8 {background-color:#FFCE8E;color:#000;}
+.bg9 {background-color:#FFE6C6;color:#000;}
+.bg10 {background-color:#a97e46;color:#000;}
+.bg11 {background-color:#543f23;color:#FFF;}
+.bg12 {background-color:#bf9a6b;color:#000;}
 
 #centeredDiv {
 	background-color:#FFFFFF;
@@ -180,7 +166,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 		}
 
 #feedbackDiv {
-	width:80%;
+	width:85%;
 	margin:0px auto;
 	text-align:center;
 	color:#19253D;
@@ -214,7 +200,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	
 #buttonTable{
   border-collapse:collapse;
-  margin:15px auto 0 auto;
+  margin:10px auto;
   }
 
 #buttonTable a {
