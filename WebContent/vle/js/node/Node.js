@@ -331,6 +331,19 @@ Node.prototype.retrieveFile = function(){
 			success:function(o){
 				if(o.responseXML){
 					this.element = o.responseXML;
+					
+					/***						***|
+				   	 * Extra work needed for IE *|
+				   	 ***						***/
+				  	 if(window.ActiveXObject){
+					  	 var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+					  	 ieXML.async = "false";
+					  	 ieXML.loadXML(o.responseText);
+					  	 this.element = ieXML;
+				  	 };
+				  	 /***						***|
+				   	 * End extra work for IE	  *|
+				   	 ***						***/
 				} else {
 					if(loadXMLDocFromString){
 						var anotherTry = loadXMLDocFromString(o.responseText);
@@ -350,7 +363,6 @@ Node.prototype.retrieveFile = function(){
 		};
 		
 		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + this.filename);
-		//YAHOO.util.Connect.asyncRequest('POST', this.filename, callback, null);
 	} else {
 		alert('no file is specified, unable to retrieve data');
 	};

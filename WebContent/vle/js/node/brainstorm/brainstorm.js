@@ -14,7 +14,7 @@ function BRAINSTORM(xmlDoc){
 };
 
 BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
-	this.xmlDoc = xmlDoc.getElementsByTagName('Brainstorm')[0];
+	this.xmlDoc = xmlDoc.getElementsByTagName('Brainstorm')[0];	
 	this.assessmentItem = this.xmlDoc.getElementsByTagName('assessmentItem')[0];
 	this.title = this.xmlDoc.getAttribute('title');
 	this.isAnonymousAllowed = this.xmlDoc.getAttribute('isAnonAllowed');
@@ -33,27 +33,21 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
 	this.questionType = this.assessmentItem.getAttribute('identifier');
 };
 
-BRAINSTORM.prototype.render = function(){	
-	var parent = document.getElementById('frameDiv');
-	var old = document.getElementById('brainstormFrame');
+BRAINSTORM.prototype.render = function(){
+	var parent = document.getElementById('contentDiv');
+	var frame = document.getElementById('brainstormFrame');
 	
-	//remove previous frame if it exists
-	if(old){
-		parent.removeChild(old);
-	};
-	
-	//create new frame
+	//set new src for frame
 	if(this.serverless){
 		if (this.states!=null && this.states.length > 0) { //already visited, skip to next page
 			this.renderResponsePage();
 			return;
 		} else {
-			var frame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainlite.html'});
+			frame.src = 'brainlite.html';
 		};
 	} else {
-		var frame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainfull.html'});
+		frame.src = 'brainfull.html';
 	};
-	parent.appendChild(frame);
 };
 
 BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
@@ -72,15 +66,9 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 };
 
 BRAINSTORM.prototype.renderResponsePage = function(){
-	var parent = document.getElementById('frameDiv');
-	var old = document.getElementById('brainstormFrame');
+	var frame = document.getElementById('brainstormFrame');
 	
-	if(old){
-		parent.removeChild(document.getElementById('brainstormFrame'));
-	};
-	
-	var newFrame = createElement(document, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0', src: 'brainliteresponse.html'});
-	parent.appendChild(newFrame);
+	frame.src = 'brainliteresponse.html';
 };
 
 BRAINSTORM.prototype.responsePageLoaded = function(frameDoc){

@@ -89,6 +89,7 @@ function generateFullText(){
 	var currentIndex = 0;
 	var html = '';
 	var text = xmlPage.getElementsByTagName('itemBody')[0];
+	
 	for(var x=0;x<text.childNodes.length;x++){
 		if(text.childNodes[x].nodeName!="#text"){
 			if(text.childNodes[x].nodeName=='htmltext' && text.childNodes[x].firstChild){
@@ -657,15 +658,28 @@ function loadAuthoringFromFile(filename, projectName) {
 	{
 	  success: function(o) { 
 	  var xmlDocToParse = o.responseXML;
-	
+
+		  /***						***|
+		   * Extra work needed for IE *|
+		   ***						***/
+		  if(window.ActiveXObject){
+		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+		  	ieXML.async = "false";
+		  	ieXML.loadXML(o.responseText);
+		  	xmlDocToParse = ieXML;
+		  };
+		  /***						***|
+		   * End extra work for IE	  *|
+		   ***						***/
+		
 		/**
 		 * sets local xml and then generates the left panel
 		 * of this page dynamically
 		 */
-		xmlPage = o.responseXML;
+		xmlPage = xmlDocToParse;
 		generatePage();
-	
-		//retrieve the xmlString from the mcObj
+		
+		//retrieve the xmlString from the obj
 		var xmlString = "";
 		if(window.ActiveXObject) {
 			xmlString = xmlDocToParse.xml;

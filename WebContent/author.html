@@ -1,3 +1,4 @@
+
 <html>
 <head>
 <script type="text/javascript" src="vle/js/sound/soundmanager/script/soundmanager2.js"></script>
@@ -25,7 +26,7 @@
 <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
 
 <!-- Connection manager -->
-<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 <script type="text/javascript" src="vle/js/authoring/authoring.js"></script>
@@ -64,6 +65,19 @@
 
 
 <script type='text/javascript'>
+/***						***|
+ * Extra work needed for IE   *|
+ ***						***/
+var ieBites; //needed for the processing of dynamically created elements later
+if(window.ActiveXObject){
+	ieBites = true;
+} else {
+	ieBites = false;
+};
+/***						***|
+ * End extra work for IE	  *|
+ ***						***/
+ 
 var project;
 var easyMode = true; //the mode that gets passed to the individual authoring pages
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
@@ -74,6 +88,7 @@ var openProjectDialog;
 var createProjectDialog;
 var createSequenceDialog;
 var createNodeDialog;
+var editProjectFileDialog;
 
 //a string that temporarily contains the node id we want to author
 var nodeIdToAuthor = null;
@@ -84,11 +99,12 @@ var filenameToAuthor = null;
 // filename of this project (not page/step), should end with .project
 var thisFilename = null;
 
-window.onload = function(){
+function loaded(){
 	initializeOpenProjectDialog();
 	initializeCreateProjectDialog();
 	initializeCreateSequenceDialog();
 	initializeCreateNodeDialog();
+	initializeEditProjectFileDialog();
 };
 
 function preview() {
@@ -139,9 +155,11 @@ function setNodeToAuthor(nodeId) {
 function initializeOpenProjectDialog(){
 	var addOption = function(name){
 		var parent = document.getElementById('selectProject');
-		var option = createElement(document, 'option', {name: 'projectOption', val: name});
-		option.text = name;
+		var option = createElement(document, 'option', {name: 'projectOption'});
+		
 		parent.appendChild(option);
+		option.text = name;
+		option.value = name;
 	};
 
 	var handleCancel = function(){
@@ -154,8 +172,7 @@ function initializeOpenProjectDialog(){
 			for(var a=0;a<projects.length;a++){
 				addOption(projects[a]);
 			};
-			
-			openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, modal:true, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
+			openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
 			openProjectDialog.render();
 		},
 		failure:function(o){alert('unable to retrieve projects from server');},
@@ -167,6 +184,7 @@ function initializeOpenProjectDialog(){
 
 function optionSelected(){
 	var name = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+
 	if(name!=null && name!=""){
 		loadProjectFromServer(name);
 		openProjectDialog.hide();
@@ -188,7 +206,7 @@ function initializeCreateProjectDialog(){
 		this.cancel();
 	};
 	
-	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"300px", fixedcenter:true, visible:false, modal:true, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createProjectDialog.callback = {
 		success:function(o){ //return of -1 = already exists, 0 = failed to create, 1 = success
 			var response = o.responseText;
@@ -256,7 +274,7 @@ function initializeCreateSequenceDialog(){
 		this.cancel();
 	};
 	
-	createSequenceDialog = new YAHOO.widget.Dialog('createSequenceDialog', {width :"300px", fixedcenter:true, visible:false, modal:true, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createSequenceDialog = new YAHOO.widget.Dialog('createSequenceDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createSequenceDialog.callback = {
 		success: function(o){
 			var response = o.responseText;
@@ -323,7 +341,7 @@ function initializeCreateNodeDialog(){
 		this.cancel();
 	};
 	
-	createNodeDialog = new YAHOO.widget.Dialog('createNodeDialog', {width :"300px", fixedcenter:true, visible:false, modal:true, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createNodeDialog = new YAHOO.widget.Dialog('createNodeDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createNodeDialog.callback = {
 		success: function(o){
 			var response = o.responseText;
@@ -344,6 +362,37 @@ function initializeCreateNodeDialog(){
 	createNodeDialog.validate = validate;
 	
 	createNodeDialog.render();
+};
+
+function initializeEditProjectFileDialog(){
+	//initialize dialog
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	var doSuccess = function(){
+		loadProjectFromServer(currentProjectName);
+		editProjectFileDialog.hide();
+	};
+	
+	editProjectFileDialog = new YAHOO.widget.Dialog('editProjectFileDialog', {width :"700px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	editProjectFileDialog.callback = {
+		success: function(o){
+			if(o.responseText!='success'){
+				alert('Failed save to server');
+			} else {
+				doSuccess();
+			};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	editProjectFileDialog.render();
 };
 
 function openProject(){
@@ -387,7 +436,7 @@ function createNewNode(){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				document.getElementById('nodeProjectName').value = currentProjectName;
-			createNodeDialog.show();
+				createNodeDialog.show();
 			};
 		} else {
 			document.getElementById('nodeProjectName').value = currentProjectName;
@@ -402,14 +451,38 @@ function editProjectFile(){
 	if(currentProjectName){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				window.open('vle/author/editprojectfile.html', 'Edit Project', "toolbar=no,width=800,height=600,menubar=no");
+				retrieveProjectFile();
+				document.getElementById('editProjectFileProjectName').value = currentProjectName;
+				document.getElementById('editProjectFileFileName').value = currentProjectName + '.project';
+				editProjectFileDialog.show();
 			};
 		} else {
-			window.open('vle/author/editprojectfile.html', 'Edit Project', "toolbar=no,width=800,height=600,menubar=no");
+			retrieveProjectFile();
+			document.getElementById('editProjectFileProjectName').value = currentProjectName;
+			document.getElementById('editProjectFileFileName').value = currentProjectName + '.project';
+			editProjectFileDialog.show();
 		};
 	} else {
 		alert('Please open or create a new project before editing the project file. Exiting...');
 	};
+};
+
+function retrieveProjectFile(){
+	var formatProject = function(text){
+		return text.replace(/>/g, '>\n');
+	};
+	
+	var retrieveProjectCallback =
+	{
+		success: function(o) {
+			document.getElementById('projectText').value = formatProject(o.responseText);
+	  },			
+	  failure: function(o) { alert('unable to retrieve project file from server');},
+	  scope:this
+	}
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project');
+	
 };
 
 function exportProject(){
@@ -466,22 +539,35 @@ function loadProjectFromServer(projectName){
 	{
 		success: function(o) {
 		  var xmlDocToParse = o.responseXML;
-		  project = new Project(xmlDocToParse);
 		  
+		  /***						***|
+		   * Extra work needed for IE *|
+		   ***						***/
+		  if(window.ActiveXObject){
+		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+		  	ieXML.async = "false";
+		  	ieXML.loadXML(o.responseText);
+		  	xmlDocToParse = ieXML;
+		  };
+		  /***						***|
+		   * End extra work for IE	  *|
+		   ***						***/
+		   
+		  project = new Project(xmlDocToParse);
 		  project.xmlDoc = xmlDocToParse;
 		  vle = new VLE();
 		  vle.setProject(project);
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
-		 
           displayProject(project);
           document.getElementById('currentProject').innerHTML = '<h3>Current Project: ' + projectName + '</h3>';
 	  },			
 	  failure: function(o) { alert('unable to retrieve project from server');},
 	  scope:this
 	}
-	var transaction = YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project');
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project');
 };
 
 function nodeTitleChanged(id){
@@ -509,16 +595,24 @@ function populateNodes(){
 	};
 	
 	var ul = createElement(document, 'ul', {id: 'nodesUL'});
+	parent.appendChild(ul);
 	
 	for(var v=0;v<nodes.length;v++){
-		var li = createElement(document, 'li', {id: nodes[v].id, name: 'nodes', class: 'draggable', ondblclick: 'author("' + nodes[v].id + '")'});
-		var title = createElement(document, 'input', {id: nodes[v].id + '_title', value: nodes[v].title, size: '30', onchange: 'nodeTitleChanged("' + nodes[v].id + '")'});
-		li.appendChild(title);
-		ul.appendChild(li);
+		if(ieBites){ 
+			var li = document.createElement('<li id=\'' + nodes[v].id + '\' name=\'nodes\' class=\'draggable\' ondblclick=\'author("' + nodes[v].id + '")\'/>');
+			ul.appendChild(li);
+			var title = document.createElement('<input id=\'' + nodes[v].id + '_title\' size=\'30\' value=\'' + nodes[v].title + '\' onchange=\'nodeTitleChanged("' + nodes[v].id + '")\'/>');
+			li.appendChild(title);
+		} else {
+			var li = createElement(document, 'li', {'id': nodes[v].id, 'name': 'nodes', 'class': 'draggable', 'ondblclick': 'author("' + nodes[v].id + '")'});
+			ul.appendChild(li);
+			var title = createElement(document, 'input', {'id': nodes[v].id + '_title', 'value': nodes[v].title, 'size': '30', 'onchange': 'nodeTitleChanged("' + nodes[v].id + '")'});
+			li.appendChild(title);		
+		};
 	};
-
-	parent.appendChild(ul);
 };
+
+
 
 function populateSequences(){
 	var nodes = project.allSequenceNodes;
@@ -530,193 +624,66 @@ function populateSequences(){
 	};
 	
 	var ul = createElement(document, 'ul', {id: 'sequencesUL'});
+	parent.appendChild(ul);
 	
 	for(var v=0;v<nodes.length;v++){
 		var stack = [];
 		var sequenceName = nodes[v].id;
-		var sequenceTitleDiv = createElement(document, 'div', {id: sequenceName, name: 'sequenceTitleDiv', class: 'draggable'});
-		var sequenceTitle = createElement(document, 'input', {type: 'text', id: sequenceName + '_input', name: 'sequenceTitle', value: sequenceName, onchange: 'sequenceTitleChanged("' + sequenceName + '")'});
-			
-		if(project.validateNoLoops(sequenceName, stack)){
+		if(ieBites){
+			var li = document.createElement('<li id=\'' + sequenceName + '_LI\' name=\'sequences\'/>');
+			ul.appendChild(li);
+			var insideUL = document.createElement('<ul id=\'' + sequenceName + '_container\' name=\'sequenceContainer\' class=\'container\'/>');
+			li.appendChild(insideUL);
+			var sequenceTitleDiv = document.createElement('<div id=\'' + sequenceName + '\' name=\'sequenceTitleDiv\' class=\'draggable\'/>');
+			insideUL.appendChild(sequenceTitleDiv);
+			var sequenceTitle = document.createElement('<input type=\'text\' id=\'' + sequenceName + '_input\' name=\'sequenceTitle\' value=\'' + sequenceName + '\' onchange=\'sequenceTitleChanged("' + sequenceName + '")\'/>');
 			sequenceTitleDiv.appendChild(sequenceTitle);
+			var placeholder = document.createElement('<li id=\'' + sequenceName + '_LI\' name=\'placeholder\'/>');
+			insideUL.appendChild(placeholder);
 		} else {
+			var sequenceTitleDiv = createElement(document, 'div', {id: sequenceName, name: 'sequenceTitleDiv', 'class': 'draggable'});
+			var sequenceTitle = createElement(document, 'input', {type: 'text', id: sequenceName + '_input', name: 'sequenceTitle', value: sequenceName, onchange: 'sequenceTitleChanged("' + sequenceName + '")'});
+			var li = createElement(document, 'li', {id: sequenceName + '_LI', name: 'sequences'});
+			var insideUL = createElement(document, 'ul', {id: sequenceName + '_container', name: 'sequenceContainer', 'class': 'container'});
+			var placeholder = createElement(document, 'li', {id: sequenceName + '_LI', name: 'placeholder'});
+			ul.appendChild(li);
+			li.appendChild(insideUL);
+			insideUL.appendChild(sequenceTitleDiv);
+			sequenceTitleDiv.appendChild(sequenceTitle);
+			insideUL.appendChild(placeholder);
+		};
+			
+		if(!project.validateNoLoops(sequenceName, stack)){
 			alert('An infinite loop has been detected in sequence: ' + sequenceName + ', and has been flagged. Please remove this sequence from the project or resolve the infinite loop');
 			var loopText = document.createTextNode('INFINITE LOOP: ');
-			sequenceTitleDiv.appendChild(loopText);
-			sequenceTitleDiv.appendChild(sequenceTitle);
+			sequenceTitleDiv.insertBefore(loopText, sequenceTitleDiv.firstChild);
 		};
 		
-		var li = createElement(document, 'li', {id: sequenceName + '_LI', name: 'sequences'});
-		
-		li.appendChild(populateReferences(sequenceName, sequenceTitleDiv));
-		ul.appendChild(li);
+		populateReferences(sequenceName, insideUL);
 	};
-
-	parent.appendChild(ul);
 };
 
-function populateReferences(sequenceId, titleEl){
-	var insideUL = createElement(document, 'ul', {id: sequenceId + '_container', name: 'sequenceContainer', class: 'container'});
+function populateReferences(sequenceId, insideUL){
 	var sequence = project.getNodeById(sequenceId);
-	var placeholder = createElement(document, 'li', {id: sequenceId + '_LI', name: 'placeholder'});
 	
-	insideUL.appendChild(titleEl);
-	insideUL.appendChild(placeholder);
-	
-	if(sequence.children.length>0){
-		for(var s=0;s<sequence.children.length;s++){
-			var child = createElement(document, 'li', {id: sequenceId + '|' + sequence.children[s].id + '|' + s, name: 'ref-node', class: 'draggable'});
-			
-			if(sequence.children[s].type=='sequence'){
-				var title = document.createTextNode('Sequence: ' + sequence.children[s].id);
-			} else {
-				var title = document.createTextNode('Node: ' + sequence.children[s].title);
-			};
-			
-			child.appendChild(title);
-			insideUL.appendChild(child);
+	for(var s=0;s<sequence.children.length;s++){
+		if(ieBites){
+			var child = document.createElement('<li id=\'' + sequenceId + '|' + sequence.children[s].id + '|' + s + '\' name=\'ref-node\' class=\'draggable\'/>');
+		} else {
+			var child = createElement(document, 'li', {id: sequenceId + '|' + sequence.children[s].id + '|' + s, name: 'ref-node', 'class': 'draggable'});
 		};
+		
+		insideUL.appendChild(child);
+
+		if(sequence.children[s].type=='sequence'){
+			var title = document.createTextNode('Sequence: ' + sequence.children[s].id);
+		} else {
+			var title = document.createTextNode('Node: ' + sequence.children[s].title);
+		};
+		
+		child.appendChild(title);
 	};
-	
-	return insideUL;
 };
-</script>
-</head>
-
-<body class="yui-skin-sam">
-
-<div id="centeredDiv">
-
-<div id="authorHeader">
-    <div id="pandaLogo"><img src="vle/assets/images/favicon_panda.ico" alt="WISE Panada" width="32" border="0" /></div>
-	<h2>WISE 4 Authoring Tool</h2>
-	<table>
-	  <tr>
-		<td><input type="button" value="Open Project" onclick="openProject()"/></td>
-	  	<td><input type="button" value="Create New Project" onclick="createNewProject()"/></td>
-	  	<td><input type="button" value="Create New Activity" onclick="createNewSequence()"/></td>
-		<td><input type="button" value="Create New Node" onclick="createNewNode()" /></td>
-	  	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
-	  	<td><input type="button" value="Export Project" onclick="exportProject()" /></td>
-	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
-	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()"/></td
-	  </tr>
-	</table>
-</div>
-
-<div id="currentProject">Current Title = ?</div>
-
-<table id="authoringTable">
-	<tr>
-		<td id="assignedcontainer">
-			<table id="ddTable" width='100%'>
-				<tr>
-					<td id='sequencesTitle' width="50%">All Sequences</td>
-					<td id='nodesTitle' width="50%">All Nodes</td>
-				</tr>
-				<tr>
-					<td id='sequencesTD'>
-						<ul id='sequencesUL'></ul>
-					</td>
-					<td id='nodesTD'>
-						<ul id='nodesUL'></ul>
-					</td>
-					<td id='garbageDump'>
-						<div id='trash' class='trash'>Trash Bin</div>
-					</td>
-				</tr>
-			</table>
-		</td>
-		<!-- TODO - Not yet implemented <td id="previewcontainer">
-			<div >
-				preview for selected node appears here
-			</div>
-		</td>   -->
-	</tr>
-</table>
-			
-<div id="clearFloats" class="clearFloats" />
-
-<div id="navigationInstructions" style="display:none;">
-	<p>Instructions:</p>
-	<ol>
-	<li>SELECT a node by clicking on its text.</li>
-	<li>RENAME a node by clicking once on its text and typing changes.  Press Return key to save changes.</li>
-	<li>REORDER a node by click-dragging on its blue border.</li>
-	<li>EDIT a node for an item by double clicking.  A separate editor will launch.</li>
-	</ol>	
-</div> 
-
-<div id="notePanel">
-	<div class="noteHead"></div>
-	<div class="noteBody"></div>
-	<div class="noteFooter"></div>
-</div>
-
-<div id='createProjectDialog'>
-	<div class='hd'>Please enter a unique Project Name</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<input type='hidden' id='commandInput' name='command' value='createProject'/>
-			<input type='text' id='projectInput' name='param1'/>
-		</form>
-	</div>
-</div>
-
-<div id='openProjectDialog'>
-	<div class='hd'>Select a project from the list below to open it.</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<select id='selectProject' onchange='optionSelected()'>
-				<option name='placeholderOption' value='' text=''/>
-			</select>
-		</form>
-	</div>
-</div>
-
-<div id='createSequenceDialog'>
-	<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<input type='hidden' id='sequenceCreateCommand' name='command' value='createSequence'/>
-			<input type='hidden' id='sequenceProjectName' name='param1'/>
-			<input type='text' size='40' id='createSequenceInput' name='param2'/>
-		</form>
-	</div>
-</div>
-
-<div id='createNodeDialog'>
-	<div class='hd'>Create New Node</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<input type='hidden' id='nodeCreateCommand' name='command' value='createNode'/>
-			<input type='hidden' id='nodeProjectName' name='param1'/>
-			<label for='createNodeName'>Please enter a UNIQUE filename for the Node.</label>
-			<input type='text' size='40' id='createNodeName' name='param2'/>
-			<label for='createNodeTitle'>Please enter a Title for the Node</label>
-			<input type='text' size='40' id='createNodeTitle' name='param3'/>
-			<label for='createNodeType'>Please select a node type.</label>
-			<select id='createNodeType' name='param4'>
-				<option value=""></option>
-				<option value="BrainstormNode">brainstorm</option>
-				<option value="FillinNode">fillin</option>
-				<option value="HtmlNode">html</option>
-				<option value="MatchSequenceNode">matchsequence</option>
-				<option value="MultipleChoiceNode">multiplechoice</option>
-				<option value="NoteNode">note</option>
-				<option value="JournalEntryNode">journal entry</option>
-				<option value="OutsideUrlNode">outsideurl</option>
-			</select>
-		</form>
-	</div>
-</div>
-
-<form id='exportProject' method='POST' action='filemanager.html'>
-	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
-	<input type='hidden' id='exportProjectName' name='param1'/>
-</form>
-<script type="text/javascript">
 
 /*
  * Displays all of the nodes in order, in the main window
@@ -740,11 +707,10 @@ function nodeTitleOnBlur(nodeId) {
  * author the specified node.
  */
 function author(nodeId) {
-	//alert('author: ' + nodeId);
 	var nodeToAuthor = project.getNodeById(nodeId);
 	if (nodeToAuthor.filename != null) {
 		nodeIdToAuthor = nodeId;
-		var nodeToAuthor = project.getNodeById(nodeIdToAuthor); //is this needed? - the same thing only a few lines up
+		//var nodeToAuthor = project.getNodeById(nodeIdToAuthor); //is this needed? - the same thing only a few lines up
 		filenameToAuthor = nodeToAuthor.filename;
 		if (nodeToAuthor.type == "HtmlNode") {
 			htmlPageName = 'author_htmlpage';
@@ -812,6 +778,148 @@ function authoringFrameLoaded() {
 	} 
 }
 </script>
+</head>
+
+<body class="yui-skin-sam" onload='loaded()'>
+
+<div id="centeredDiv">
+
+<div id="authorHeader">
+    <div id="pandaLogo"><img src="vle/assets/images/favicon_panda.ico" alt="WISE Panada" width="32" border="0" /></div>
+	<h2>WISE 4 Authoring Tool</h2>
+	<table>
+	  <tr>
+	  	<td><input type="button" value="Open Project" onclick="openProject()"/></td>
+	  	<td><input type="button" value="Create New Project" onclick="createNewProject()"/></td>
+	  	<td><input type="button" value="Create New Activity" onclick="createNewSequence()"/></td>
+		<td><input type="button" value="Create New Node" onclick="createNewNode()" /></td>
+	  	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
+	  	<td><input type="button" value="Export Project" onclick="exportProject()" /></td>
+	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
+	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()"/></td>
+	   </tr>
+	 </table>
+</div>
+
+<div id="currentProject">Current Title = ?</div>
+
+<table id="authoringTable">
+	<tr>
+		<td id="assignedcontainer">
+			<table id="ddTable" width='100%'>
+				<tr>
+					<td id='sequencesTitle' width="50%">All Sequences</td>
+					<td id='nodesTitle' width="50%">All Nodes</td>
+				</tr>
+				<tr>
+					<td id='sequencesTD'>
+						<ul id='sequencesUL'></ul>
+					</td>
+					<td id='nodesTD'>
+						<ul id='nodesUL'></ul>
+					</td>
+					<td id='garbageDump'>
+						<div id='trash' class='trash'>Trash Bin</div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+			
+<div id="clearFloats" class="clearFloats" />
+
+<div id="navigationInstructions" style="display:none;">
+	<p>Instructions:</p>
+	<ol>
+	<li>SELECT a node by clicking on its text.</li>
+	<li>RENAME a node by clicking once on its text and typing changes.  Press Return key to save changes.</li>
+	<li>REORDER a node by click-dragging on its blue border.</li>
+	<li>EDIT a node for an item by double clicking.  A separate editor will launch.</li>
+	</ol>	
+</div> 
+
+<div id="notePanel">
+	<div class="noteHead"></div>
+	<div class="noteBody"></div>
+	<div class="noteFooter"></div>
+</div>
+
+<div id='createProjectDialog'>
+	<div class='hd'>Please enter a unique Project Name</div>
+	<div class='bd'>
+		<form method='POST' action='filemanager.html'>
+			<input type='hidden' id='commandInput' name='command' value='createProject'/>
+			<input type='text' id='projectInput' name='param1'/>
+		</form>
+	</div>
+</div>
+
+<div id='openProjectDialog'>
+	<div class='hd'>Select a project from the list below to open it.</div>
+	<div class='bd'>
+		<form method='POST' action='filemanager.html'>
+			<select id='selectProject' onchange='optionSelected()'>
+				<option name='placeholderOption' value=''/>
+			</select>
+		</form>
+	</div>
+</div>
+
+<div id='createSequenceDialog'>
+	<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
+	<div class='bd'>
+		<form method='POST' action='filemanager.html'>
+			<input type='hidden' id='sequenceCreateCommand' name='command' value='createSequence'/>
+			<input type='hidden' id='sequenceProjectName' name='param1'/>
+			<input type='text' size='40' id='createSequenceInput' name='param2'/>
+		</form>
+	</div>
+</div>
+
+<div id='createNodeDialog'>
+	<div class='hd'>Create New Node</div>
+	<div class='bd'>
+		<form method='POST' action='filemanager.html'>
+			<input type='hidden' id='nodeCreateCommand' name='command' value='createNode'/>
+			<input type='hidden' id='nodeProjectName' name='param1'/>
+			<label for='createNodeName'>Please enter a UNIQUE filename for the Node.</label>
+			<input type='text' size='40' id='createNodeName' name='param2'/>
+			<label for='createNodeTitle'>Please enter a Title for the Node</label>
+			<input type='text' size='40' id='createNodeTitle' name='param3'/>
+			<label for='createNodeType'>Please select a node type.</label>
+			<select id='createNodeType' name='param4'>
+				<option value=""></option>
+				<option value="BrainstormNode">brainstorm</option>
+				<option value="FillinNode">fillin</option>
+				<option value="HtmlNode">html</option>
+				<option value="MatchSequenceNode">matchsequence</option>
+				<option value="MultipleChoiceNode">multiplechoice</option>
+				<option value="NoteNode">note</option>
+				<option value="JournalEntryNode">journal entry</option>
+				<option value="OutsideUrlNode">outsideurl</option>
+			</select>
+		</form>
+	</div>
+</div>
+
+<div id="editProjectFileDialog">
+	<div class='hd'>Edit Project File</div>
+	<div class='bd'>
+		<form method='POST' action='filemanager.html'>
+			<input type='hidden' name='command' value='updateFile'/>
+			<input type='hidden' id='editProjectFileProjectName' name='param1'/>
+			<input type='hidden' id='editProjectFileFileName' name='param2'/>
+			<textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3'/></textarea>
+		</form>
+	</div>
+</div>
+
+<form id='exportProject' method='POST' action='filemanager.html'>
+	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
+	<input type='hidden' id='exportProjectName' name='param1'/>
+</form>
 
 </div>  <!-- centerDiv -->
 

@@ -74,8 +74,8 @@ function generatePage(){
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
 	var optionsDiv = createElement(document, 'div', {id:'optionsDiv'});
 	
-	pageDiv.appendChild(optionsDiv);
 	parent.appendChild(pageDiv);
+	pageDiv.appendChild(optionsDiv);
 	
 	generateOptions();
 	generatePrompt();
@@ -100,9 +100,34 @@ function generateOptions(){
 	var optionsRow1 = createElement(document, 'tr', {id: 'optionsRow1'});
 	var optionsRow2 = createElement(document, 'tr', {id: 'optionsRow2'});
 	
+	if(nextChild){
+		parent.insertBefore(optionsDiv, nextChild);
+	} else {
+		parent.appendChild(optionsDiv);
+	};
+	
+	optionsDiv.appendChild(optionsText);
+	optionsDiv.appendChild(createBreak());
+	optionsDiv.appendChild(optionsTable);
+	optionsDiv.appendChild(createBreak());
+	
+	optionsTable.appendChild(optionsRow1);
+	optionsTable.appendChild(optionsRow2);
+	
+	var expectedLinesText = document.createTextNode('Expected lines');
+	var expectedLinesInput = createElement(document, 'input', {type: 'text', id: 'expectedLines', onkeyup: 'updateExpectedLines()', value: getExpectedLines()});
+	
+	optionsDiv.appendChild(expectedLinesText);
+	optionsDiv.appendChild(expectedLinesInput);
+	
 	var titleTD = createElement(document, 'td', {id: 'titleTD'});
 	var titleText = document.createTextNode('Title: ');
 	var titleInput = createElement(document, 'input', {type: 'text', id: 'titleInput', onkeyup: 'updateTitle()', value: getTitle()});
+	
+	optionsRow1.appendChild(titleTD);
+	
+	titleTD.appendChild(titleText);
+	titleTD.appendChild(titleInput);
 	
 	var gatedTD = createElement(document, 'td', {id: 'gatedTD'});
 	var gatedText = document.createTextNode('Is Brainstorm gated?');
@@ -140,9 +165,6 @@ function generateOptions(){
 	var instantPollNoText = document.createTextNode('Instant Poll IS NOT active');
 	var instantPollYesRadio = createElement(document, 'input', {type: 'radio', name: 'instantPoll', onclick: 'updateInstantPoll(true)'});
 	var instantPollNoRadio = createElement(document, 'input', {type: 'radio', name: 'instantPoll', onclick: 'updateInstantPoll(false)'});
-	
-	var expectedLinesText = document.createTextNode('Expected lines');
-	var expectedLinesInput = createElement(document, 'input', {type: 'text', id: 'expectedLines', onkeyup: 'updateExpectedLines()', value: getExpectedLines()});
 	
 	if(getInstantPoll()=='true'){
 		instantPollYesRadio.checked = true;
@@ -214,30 +236,11 @@ function generateOptions(){
 	gatedTD.appendChild(gatedNoRadio);
 	gatedTD.appendChild(gatedNoText);
 	
-	titleTD.appendChild(titleText);
-	titleTD.appendChild(titleInput);
-	
-	optionsRow1.appendChild(titleTD);
 	optionsRow1.appendChild(gatedTD);
 	optionsRow1.appendChild(displayNameTD);
 	optionsRow2.appendChild(richTextEditorTD);
 	optionsRow2.appendChild(pollEndedTD);
 	optionsRow2.appendChild(instantPollTD);
-	optionsTable.appendChild(optionsRow1);
-	optionsTable.appendChild(optionsRow2);
-	
-	optionsDiv.appendChild(optionsText);
-	optionsDiv.appendChild(createBreak());
-	optionsDiv.appendChild(optionsTable);
-	optionsDiv.appendChild(createBreak());
-	optionsDiv.appendChild(expectedLinesText);
-	optionsDiv.appendChild(expectedLinesInput);
-	
-	if(nextChild){
-		parent.insertBefore(optionsDiv, nextChild);
-	} else {
-		parent.appendChild(optionsDiv);
-	};
 };
 
 /**
@@ -571,12 +574,25 @@ function loadAuthoringFromFile(filename, projectName) {
 	{
 	  success: function(o) { 
 	  var xmlDocToParse = o.responseXML;
+
+		  /***						***|
+		   * Extra work needed for IE *|
+		   ***						***/
+		  if(window.ActiveXObject){
+		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+		  	ieXML.async = "false";
+		  	ieXML.loadXML(o.responseText);
+		  	xmlDocToParse = ieXML;
+		  };
+		  /***						***|
+		   * End extra work for IE	  *|
+		   ***						***/
 	  
 		/**
 		 * sets local xml and then generates the left panel
 		 * of this page dynamically
 		 */
-		xmlPage = o.responseXML;
+		xmlPage = xmlDocToParse;
 		generatePage();
 	
 		//retrieve the xmlString

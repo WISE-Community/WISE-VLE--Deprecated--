@@ -9,6 +9,9 @@ function createAttribute(doc, node, type, val){
 };
 
 function createElement(doc, type, attrArgs){
+	if(window.ActiveXObject){
+		return createIEElement(doc, type, attrArgs);
+	};
 	var newElement = doc.createElement(type);
 	if(attrArgs!=null){
 		for(var option in attrArgs){
@@ -16,6 +19,18 @@ function createElement(doc, type, attrArgs){
 		};
 	};
 	return newElement;
+};
+
+function createIEElement(doc, type, attrArgs){
+	var elString = '<' + type;
+	
+	for(var option in attrArgs){
+		elString += ' ' + option + '=\'' + attrArgs[option] + '\'';
+	};
+	
+	elString += '/>';
+	
+	return doc.createElement(elString);
 };
 
 function removeClassFromElement(identifier, classString) {

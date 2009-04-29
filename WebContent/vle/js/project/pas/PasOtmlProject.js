@@ -1,19 +1,6 @@
 var htmlPageTypes = new Array("OTReadingPage", "OTIntroPage", "OTVideoPage", "OTExamplePage", "OTDisplayPage", "OTEvidence");
 var customPageTypes = new Array("OTMatchSequence", "OTFillin", "OTStudentAssessment", "OTQuestionAnswer", "OTJournalStep", "OTNote", "OutsideUrl", "OTBlueJ", "OTQuiz", "OTQuizCheckBox", "Reference", "Ticker");
 
-// IE 7 doesn't have indexOf method.........
-if(!Array.indexOf){
-    Array.prototype.indexOf = function(obj){
-        for(var i=0; i<this.length; i++){
-            if(this[i]==obj){
-                return i;
-            }
-        }
-        return -1;
-    }
-}
-
-
 /*
  * Override
  */

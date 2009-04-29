@@ -71,6 +71,7 @@ VLE.prototype.renderNode = function(nodeId){
 		alert("VLE: nodeToVisit is null Exception. Exiting");
 		return;
 	}
+	
     if (this.navigationLogic == null || this.navigationLogic.canVisitNode(this.state, nodeToVisit)) {
         var currentNode = nodeToVisit;
         vle.state.setCurrentNodeVisit(currentNode);
@@ -125,7 +126,7 @@ VLE.prototype.expandActivity = function(nodeId) {
 			submenu = document.getElementById(node.parent.id + "_menu");
 			submenu.className = "";
 			//myMenu.expandMenu(submenu);
-		}
+		};
 	};
 }
 VLE.prototype.renderPrevNode = function() {
@@ -477,6 +478,7 @@ VLE.prototype.getClassUsers = function() {
 /**
  * Loads the student's latest work from the last time they worked on it
  * @param dataId the workgroupId
+ * @param vle this vle
  */
 VLE.prototype.loadVLEState = function(vle) {
 	var getURL = this.getDataUrl;
@@ -1035,4 +1037,16 @@ VLE.prototype.exportToFile = function(format) {
 
 VLE.prototype.getHTML = function() {
 	
+}
+
+// IE 7 doesn't have indexOf method.........
+if(!Array.indexOf){
+    Array.prototype.indexOf = function(obj){
+        for(var i=0; i<this.length; i++){
+            if(this[i]==obj){
+                return i;
+            }
+        }
+        return -1;
+    }
 }
