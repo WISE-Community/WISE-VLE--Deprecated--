@@ -223,23 +223,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	margin-left:2px;
 }
 
-#navigationMenuBox a {
-	font-size:.8em;
-	line-height:130%;
-	display:block;
-	padding:4px;
-	margin:0 2px 0 0 
-	}
-	
-#navigationMenuBox a.currentNode{
-	background-color:#3333CC;
-	color:FFF;
-	}
-
-#navigationMenuBox a:hover{
-	color:#FFFF00;
-}
-
 #hostBrandingBox{
 	position:absolute;
 	bottom:0px;

@@ -107,8 +107,26 @@
 	margin:0px;
 }	
 
+
 #ddTable :after {
-	clear: both;t
+	clear: both;
+	content: '.';
+	display: block;
+	height: 0;
+	visibility: hidden;
+}
+
+#ddTable tr {}
+#ddTable tr ul{}
+
+#ddTable tr ul li {
+	font-size: .9em;
+	border: 1px solid transparent;
+	background-color: #676767;
+	color:#99FFCC;
+	background-image: none;
+	cursor: move;
+	list-style-type: none;
 	margin: 6px 5px;
 	padding: 2px 5px;
 	position: relative;

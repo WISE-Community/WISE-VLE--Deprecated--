@@ -31,7 +31,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
 	var htmlSoFar = "";
 	var classString = "node";
-	var space = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	var space = "";
 	var deep = depth;
 	
 	if(!deep){
