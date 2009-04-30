@@ -31,17 +31,33 @@ h5 {font-size:.9em; }
 h6 {font-size:.8em; }
 p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
-.BG1 {background-color:#164CBA;color:#FFF;}
-.BG2 {background-color:#6883BA;color:#000;}
-.BG3 {background-color:#FF9D1E;color:#000;}
-.BG4 {background-color:#FFE6C6;color:#000;}
-.BG5 {background-color:#FFCE8E;color:#000;}
+/*    This is the middle toned 88.236 palette  */
 
-.Color1 {color:#164CBA;}
-.Color2 {color:#6883BA;}
-.Color3 {color:#FF9D1E;}
-.Color4 {color:#FFE6C6;}
-.Color5 {color:#FFCE8E;}
+.color1 {color:#164CBA;}   /* vibrant blue */
+.color2 {color:#6883BA;}   /* mid blue */
+.color3 {color:#919EBA;}   /* light blue */
+.color4 {color:#334B7B;}   /* dark blue */
+.color5 {color:#19253D;}   /* very dark blue */
+.color6 {color:#4E628B;}
+.color7 {color:#FF9D1E;}  /* bold orange */
+.color8 {color:#FFCE8E;}  /* mid tan */
+.color9 {color:#FFE6C6;}  /* light tan */
+.color10 {color:#a97e46;}  /* brown */
+.color11 {color:#543f23;}  /* dark red */
+.color12 {color:#bf9a6b;}
+
+.bg1 {background-color:#164CBA;color:#FFF;}
+.bg2 {background-color:#6883BA;color:#000;}
+.bg3 {background-color:#919EBA;color:#000;}
+.bg4 {background-color:#334B7B;color:#FFF;}
+.bg5 {background-color:#19253D;color:#FFF;}
+.bg6 {background-color:#4E628B;color:#FFF;}
+.bg7 {background-color:#FF9D1E;color:#000;}
+.bg8 {background-color:#FFCE8E;color:#000;}
+.bg9 {background-color:#FFE6C6;color:#000;}
+.bg10 {background-color:#a97e46;color:#000;}
+.bg11 {background-color:#543f23;color:#FFF;}
+.bg12 {background-color:#bf9a6b;color:#000;}
 
 #centeredDiv {
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
@@ -217,6 +233,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}	
 	
 #navigationMenuBox {
+	height:62%;
 	overflow-y:auto;
 	overflow-x:hidden;
 	margin-left:2px;

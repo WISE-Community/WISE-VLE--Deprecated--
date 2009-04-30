@@ -244,4 +244,16 @@
 }
 
 
+/* STYLES FOR BRAINSTORM EDITOR WINDOW  */
+
+#promptDiv textarea {
+	background-color:#FFE6C6;
+}
+
+#cannedResponsesDiv input.button{
+	margin:10px 10px 10px 15px;
+	color:#000099;
+	font-style:bold;
+	font-size:1.0em;
+}
 
