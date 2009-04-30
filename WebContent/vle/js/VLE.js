@@ -769,7 +769,9 @@ NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
 	//ask the NODE static function to create the node
 	//var nodeObject = Node.prototype.parseDataXML(nodeVisitXML);
 	var nodeObject = vle.getNodeById(nodeVisitXML.getElementsByTagName("id")[0].textContent);
-
+	if (!nodeObject || nodeObject == null) {
+		return null;
+	}
 	//alert('vle.js, nodeObject:' + nodeObject);
 	//get the start and end times
 	var visitStartTime = nodeVisitXML.getElementsByTagName("visitStartTime")[0].textContent;
