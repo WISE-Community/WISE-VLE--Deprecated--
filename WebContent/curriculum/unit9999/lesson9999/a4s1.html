@@ -1,0 +1,58 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<base href="http://veritas.eecs.berkeley.edu/apcsa/" />
+<link rel="stylesheet" href="./css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+
+<body>
+
+<div class="header" id="audio1">Is There a Better Way to Die?  (Brainstorm Discussion)</div>
+
+<div id="brainstorm">
+
+<p id="audio2">Compare the following two solutions for the problem above&mdash;changing the mood to "dead" if the hunger is over 12&mdash;<tt>sleep</tt> method:</p>
+
+<table>
+<tr>
+<td>
+<strong>Version A</strong><br>
+<code>
+public <span class="redtext">void</span> sleep() {<br>
+&nbsp;&nbsp;&nbsp;hunger = hunger + 1;<br>
+&nbsp;&nbsp;&nbsp;face.setMessage(<span class="greentext">"zzzzzzzzzz"</span>);<br>
+&nbsp;&nbsp;&nbsp;face.setImage(<span class="greentext">"asleep"</span>);<br>    
+&nbsp;&nbsp;&nbsp;if (hunger > 12) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;face.setMessage(<span class="greentext">"I got too hungry!"</span>);<Br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;face.setImage(<span class="greentext">"dead"</span>);<br>
+&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+</code>
+</td>
+<td>
+<strong>Version B</strong><br>
+<code>
+public <span class="redtext">void</span> sleep() {<br>
+&nbsp;&nbsp;&nbsp;hunger = hunger + 1;<br>
+&nbsp;&nbsp;&nbsp;if (hunger > 12) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;face.setMessage(<span class="greentext">"I got too hungry!"</span>);<Br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;face.setImage(<span class="greentext">"dead"</span>);<br>
+&nbsp;&nbsp;&nbsp;} else {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;face.setMessage(<span class="greentext">"zzzzzzzzzz"</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;face.setImage(<span class="greentext">"asleep"</span>);<br>
+&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+</code>
+</td>
+</tr>
+</table>
+
+<p id="audio3">Will these two versions behave identically, from the standpoint of someone playing with the toy?  If not, how will the difference show up, and which version do you think is better?  Why?</p>
+
+</div>
+
+</body>
+</html>

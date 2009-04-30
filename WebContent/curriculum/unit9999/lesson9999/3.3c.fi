@@ -1,0 +1,15 @@
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p0 imsqti_v2p0.xsd" identifier="FILLIN" adaptive="false" timeDependent="false"><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"/><itemBody><htmltext xmlns="">&lt;blockquotedFill in the blank in the code below so that the rewritten &lt;tt&gt;feed&lt;/tt&gt; method has exactly the same effect on &lt;tt&gt;hunger&lt;/tt&gt; as the original.&lt;/blockquote&gt;
+
+&lt;div id="codeBlock"&gt;
+
+public voidp feed ( ) {
+      hunger = hunger - 10;
+      if ( ) {
+          hunger = 0;
+      }
+      face.setMessage('Yum, thanks');
+      face.setImage('normal');
+   } 
+
+&lt;/div&gt;
+</htmltext></itemBody><responseProcessing template="http://www.imsglobal.org/question/qti_v2p0/rptemplates/map_response"/></assessmentItem>
