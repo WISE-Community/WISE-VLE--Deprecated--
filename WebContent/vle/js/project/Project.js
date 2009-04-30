@@ -134,7 +134,15 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');
 			for (var k=0; k < nodeAudioElements.length; k++) {
 				var nodeAudioId = nodeAudioElements[k].getAttribute("id");
-				var nodeAudioUrl = nodeAudioElements[k].getAttribute("url");
+				var nodeAudioUrl = "";
+			        if (this.contentBaseUrl != null) {
+					nodeAudioUrl += this.contentBaseUrl + "/";
+				}
+				// ignore contentBaseUrl if nodeaudiourl is absolute, ie, starts with http://...
+				if (nodeAudioElements[k].getAttribute("url").search('http:') > -1) {
+					nodeAudioUrl = "";
+				}
+				nodeAudioUrl += nodeAudioElements[k].getAttribute("url");  
 				var elementId = nodeAudioElements[k].getAttribute("elementId");
 				var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementId);
 				thisNode.audios.push(nodeAudio);
