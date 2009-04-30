@@ -42,9 +42,11 @@
 			var workgroupId = 3;  //"${workgroup.id}";
 			var userInfoUrl = null; //= 'script/getUserInfo.php?runId=65';  // "${userInfoUrl}";
 			var getDataUrl = 'script/getVisits.php?users=146'; //"${getDataUrl}";
-                        var postDataUrl = "../postVisits.php"; //'script/postVisits.php?user=146'; 
-                        var contentBaseUrl = "http://localhost:8080/vlewrapper/curriculum/unit9999/lesson9999";  // 'curriculum/unit4/lesson22';  //"${contentBaseUrl}";
-                        var contentUrl = contentBaseUrl + "/lesson9999.xml";
+                        var postDataUrl = null; //"../postVisits.php"; //'script/postVisits.php?user=146'; 
+                        //var contentBaseUrl = "http://localhost:8080/vlewrapper/curriculum/unit9999/lesson9999";  // 'curriculum/unit4/lesson22';  //"${contentBaseUrl}";
+                        //var contentUrl = contentBaseUrl + "/lesson9999.xml";
+                        var contentBaseUrl = "http://localhost:8080/vlewrapper/curriculum/wise4-35512";  // 'curriculum/unit4/lesson22';  //"${contentBaseUrl}";
+                        var contentUrl = contentBaseUrl + "/35512.xml";
                         alert('view.php \ncontentBaseUrl:' + contentBaseUrl + '\npostDataUrl:' + postDataUrl + '\ncontentUrl:' + contentUrl);
 			window.frames["topifrm"].load(contentUrl, userInfoUrl, getDataUrl, contentBaseUrl, postDataUrl);
 		}

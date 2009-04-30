@@ -6,9 +6,10 @@ function ConnectionManager(vle) {
 	this.lastSavedTimestamp = null;
 	
 	this.echoURL = "../echo.html";
-        if (vle && vle != null && vle.postDataUrl != null) {
-           this.postURL = vle.postDataUrl;
-        }
+	if (vle && vle != null && vle.postDataUrl != null) {
+    	this.postURL = vle.postDataUrl;
+    }
+	this.lastPostStates = "";
 }
 
 ConnectionManager.prototype.setVLE = function(vle) {
@@ -27,6 +28,14 @@ ConnectionManager.prototype.setGetURL = function(getURL) {
  * Sends the user's navigation and student data back to the vle db
  */
 ConnectionManager.prototype.post = function(workgroupId, userName, save) {
+	alert('ConnectionManager.post()');
+	
+	if(this.postURL == null) {
+		return;
+	}
+	
+	alert('after');
+	
 	var save = save;
 	var postData;
 	
@@ -45,6 +54,15 @@ ConnectionManager.prototype.post = function(workgroupId, userName, save) {
 	 */ 
 	postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
 
+	var currentPostStates = this.vle.state.getVisitedNodesDataXML();
+	var dif = currentPostStates.replace(this.lastPostStates, "");
+	
+	//alert("last: " + this.lastPostStates);
+	//alert("current: " + this.vle.state.getVisitedNodesDataXML());
+	//alert("dif: " + dif);
+	
+	this.lastPostStates = this.vle.state.getVisitedNodesDataXML();
+	
 	var callback = {
 		success: function(o) {
 			var time = vle.getLastStateTimestamp();

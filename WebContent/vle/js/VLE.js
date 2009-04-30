@@ -828,6 +828,7 @@ contentPanelOnLoad = function(){
 VLE.prototype.setConnection = function(connectionManager) {
 	this.connectionManager = connectionManager;
 	this.connectionManager.setVLE(this);
+	this.connectionManager.setPostURL(this.postDataUrl);
 }
 
 /**
