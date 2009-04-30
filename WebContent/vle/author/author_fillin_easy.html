@@ -454,7 +454,7 @@ function createFillin(){
 			location = k + 1;
 		};
 	};
-	alert(fullText.substring(start, end));
+	
 	//then update xmlPage (textentry interaction, responsedeclaration, refresh)
 	var identifier = 'response_' + location;
 	createResponseDeclaration(identifier, fullText.substring(start, end), location);
@@ -646,7 +646,7 @@ function save(){
 		scope:this
 	};
 	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
 };
 
 /**
@@ -697,9 +697,10 @@ function loadAuthoringFromFile(filename, projectName) {
 	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
 }
 
-function sourceUpdated() {	
+function sourceUpdated() {
 	if(validate()){
 		var difference = getDifference();
+		//alert(difference);
 		if(difference==0){ //do nothing, no changes
 			return;
 		} else if(difference>0){ //text has been removed
@@ -746,7 +747,7 @@ function sourceUpdated() {
 			var runningText = '';
 			//alert('s ' + start + '  e ' + end + '  newText ' + newText);
 			//start += 1;
-			if(body.childNodes.length>0){
+			if(body.childNodes.length>0 && (body.getElementsByTagName('htmltext').length > 0 || body.getElementsByTagName('textEntryInteraction').length > 0)){
 				for(var x=0;x<body.childNodes.length;x++){
 					if(body.childNodes[x].nodeName!="#text"){
 						if(body.childNodes[x].nodeName=='htmltext'){

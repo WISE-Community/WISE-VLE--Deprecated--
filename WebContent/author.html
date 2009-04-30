@@ -467,15 +467,11 @@ function editProjectFile(){
 	};
 };
 
-function retrieveProjectFile(){
-	var formatProject = function(text){
-		return text.replace(/>/g, '>\n');
-	};
-	
+function retrieveProjectFile(){	
 	var retrieveProjectCallback =
 	{
 		success: function(o) {
-			document.getElementById('projectText').value = formatProject(o.responseText);
+			document.getElementById('projectText').value = o.responseText;
 	  },			
 	  failure: function(o) { alert('unable to retrieve project file from server');},
 	  scope:this
@@ -598,10 +594,6 @@ function populateNodes(){
 	parent.appendChild(ul);
 	
 	for(var v=0;v<nodes.length;v++){
-		var li = createElement(document, 'li', {id: nodes[v].id, name: 'nodes', class: 'draggable', ondblclick: 'author("' + nodes[v].id + '")'});
-		var title = createElement(document, 'input', {id: nodes[v].id + '_title', value: nodes[v].title, size: '50', onchange: 'nodeTitleChanged("' + nodes[v].id + '")'});
-		li.appendChild(title);
-		ul.appendChild(li);
 		if(ieBites){ 
 			var li = document.createElement('<li id=\'' + nodes[v].id + '\' name=\'nodes\' class=\'draggable\' ondblclick=\'author("' + nodes[v].id + '")\'/>');
 			ul.appendChild(li);

@@ -28,7 +28,7 @@ package utils;
  */
 public final class Template {
 	
-	private final static String NL = System.getProperty("line.separator");
+	public final static String NL = System.getProperty("line.separator");
 
 	public static String getProjectTemplate(){
 		return "<project>" + NL + 

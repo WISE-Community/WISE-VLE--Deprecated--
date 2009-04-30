@@ -56,7 +56,7 @@ function save(){
 		scope:this
 	};
 	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeString(htmlString));
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
 };
 
 /**

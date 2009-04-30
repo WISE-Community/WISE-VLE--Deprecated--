@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -177,10 +178,10 @@ import javax.servlet.http.HttpServletResponse;
 				String current;
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				while((current = br.readLine()) != null){
-					out += current;
+					out += current + Template.NL;
 				}
 				br.close();
-				return out;				
+				return out;
 			} else {
 				throw new FileNotFoundException("Unable to locate file");
 			}
@@ -201,14 +202,18 @@ import javax.servlet.http.HttpServletResponse;
 		File parent = new File(PROJECT_DIRECTORY);
 		String project = request.getParameter(PARAM1);
 		String filename = request.getParameter(PARAM2);
-		String data = request.getParameter(PARAM3);
+		String data = this.decode(request.getParameter(PARAM3));
 		
 		File dir = new File(parent, project);
 		if(dir.exists()){
 			File file = new File(dir, filename);
 			if(file.exists()){
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-				bw.write(this.decode(data));
+				String[] pieces = data.split("\n");
+				for(int y = 0;y < pieces.length;y++){
+					bw.write(pieces[y]);
+					bw.newLine();
+				}
 				bw.close();
 				return "success";
 			} else {
@@ -233,6 +238,21 @@ import javax.servlet.http.HttpServletResponse;
 			System.out.println(e.getMessage());
 			return null;
 		} 
+	}
+	
+	/**
+	 * Encodes the given text in UTF-8 format and returns it
+	 * 
+	 * @param text
+	 * @return
+	 */
+	private String encode(String text){
+		try{
+			return URLEncoder.encode(text, "utf-8");
+		} catch(Exception e){
+			System.out.println(e.getMessage());
+			return null;
+		}
 	}
 	
 	/**
