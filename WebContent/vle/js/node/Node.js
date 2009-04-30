@@ -361,8 +361,11 @@ Node.prototype.retrieveFile = function(){
 			failure:function(o){ alert('unable to retrieve file:' + this.filename); alert(window.location);},
 			scope:this
 		};
-		
-		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + this.filename);
+        if (this.filename.search(/http:/) > -1 || this.filename.search('/') > -1) {
+            YAHOO.util.Connect.asyncRequest('GET', this.filename, callback, null);
+        } else {
+            YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + this.filename);
+        }		
 	} else {
 		alert('no file is specified, unable to retrieve data');
 	};

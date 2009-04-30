@@ -1,18 +1,17 @@
 /*
  * NoteNode is a child of openresponse
  */
-
+var notePanel;
 NoteNode.prototype = new Node();
 NoteNode.prototype.constructor = NoteNode;
 NoteNode.prototype.parent = Node.prototype;
 function NoteNode(nodeType) {
 	this.type = nodeType;
-	this.notePanel;
 	
 	//The second argument passed to the
     //constructor is a configuration object:
-	if (this.notePanel == null) {
-		this.notePanel = new YAHOO.widget.Panel("notePanel", {
+	if (notePanel == null) {
+		notePanel = new YAHOO.widget.Panel("notePanel", {
 			width: "600px",
 			height: "600px",
 			fixedcenter: false,
@@ -23,11 +22,11 @@ function NoteNode(nodeType) {
 			draggable: true
 		});
 		
-		this.notePanel.setHeader("My Notes");
-		this.notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"vle/js/node/openresponse/note.html\"><iframe>");
+		notePanel.setHeader("My Notes");
+		notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"vle/js/node/openresponse/note.html\"><iframe>");
 
-		this.notePanel.cfg.setProperty("underlay", "matte");
-		this.notePanel.render();
+		notePanel.cfg.setProperty("underlay", "matte");
+		notePanel.render();
 	}
 }
 
@@ -47,7 +46,7 @@ NoteNode.prototype.render = function(contentpanel) {
 	};
 	window.frames["noteiframe"].loadContentXMLString(this.element);
 	window.frames["noteiframe"].loadStateAndRender(vle, states);
-	this.notePanel.cfg.setProperty("visible", true);
+	notePanel.cfg.setProperty("visible", true);
 } 
 
 NoteNode.prototype.load = function() {
