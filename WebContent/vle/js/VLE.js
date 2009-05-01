@@ -72,13 +72,20 @@ VLE.prototype.renderNode = function(nodeId){
 		return;
 	}
 	
+	//alert('vle.js: middle');
     if (this.navigationLogic == null || this.navigationLogic.canVisitNode(this.state, nodeToVisit)) {
         var currentNode = nodeToVisit;
+		//alert('vle.js, in if case, nodeToVisit:' + nodeToVisit);
         vle.state.setCurrentNodeVisit(currentNode);
+		//alert('vle.js, after vle.state.setCurrentnodevisit');
         this.navigationPanel.render('render');
+		//alert('vle.js, after navigationPanel.render');
         this.contentPanel.render(currentNode.id);
+		//alert('vle.js, after contentpanel.render:' + currentNode.id);
 		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
+		//alert('vle.js, before connectionmanager null check');
 		if(this.connectionManager != null) {
+			//alert('vle.js, connectionmanager not null');
 			//set postNodes to contain all the leaf nodes
 			this.postNodes = this.getLeafNodeIds();
 			for(var q=0;q<this.postNodes.length;q++){
@@ -91,16 +98,24 @@ VLE.prototype.renderNode = function(nodeId){
 				};
 			};
 		}
+		//alert('vle.js, before subscribe');
         //alert('a:' + currentNode.nodeSessionEndedEvent);
         //alert('b:' + this.onNodeSessionEndedEvent);
         currentNode.nodeSessionEndedEvent.subscribe(this.onNodeSessionEndedEvent, this); // add the listener for this node
-
+	    //alert('vle.js, before expandactivity');
 		this.expandActivity(nodeId);   // always expand the navigation bar
     }
+	//alert('vle.js, rendernode: done');
     var loadingMessageDiv = document.getElementById("loadingMessageDiv");
     if(loadingMessageDiv != null && loadingMessageDiv != undefined) {
     	loadingMessageDiv.innerHTML = "";
     }
+	
+	// adjust height of iframe
+	//alert('doc size:' + document.getElementById("projectLeftBox").offsetHeight + "," + document.getElementById("projectLeftBox").currentStyle.height);
+	//alert('padding bottom: ' + document.getElementById("projectRightUpperBox").style.marginBottom);
+	document.getElementById("ifrm").style.height = 
+		document.getElementById("projectLeftBox").offsetHeight - document.getElementById("projectRightUpperBox").offsetHeight - 3;
     // fire currenct changed event
 }
 
