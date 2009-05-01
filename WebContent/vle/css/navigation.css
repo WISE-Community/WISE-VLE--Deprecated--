@@ -115,9 +115,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #projectLogoBox{
 	text-align:center;
-	padding:5px 0;
-	margin:4px 0;
-	border-bottom:2px solid #666;    
+	padding:4px 0;
+	/* border-bottom:2px solid #666; */   
 	}
 
 #projectLogoBox a{text-decoration:none }
@@ -151,21 +150,23 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-size:.75em;
 	text-align:center; 
  }
+ 
+ #loginTime{
+	color:#990000;
+	margin-top:3px;
+	font-size:.75em;
+	text-align:center; 
+ }
 	
 #audioControls  {
-	width:80%;
-	margin:0 auto;
 	background-color:#CCC;
-	border:1px solid #999;
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-	-moz-border-radius-bottomleft:8px;
-	-moz-border-radius-bottomright:8px;
+	border-top:1px solid #666;
+	border-bottom:1px solid #666;
+	padding:2px 0;
 	}	
 	
 #audioControls table {
 	border-collapse:collapse;
-	margin:0px auto;
 	font-size:.6em;	
 		}
 	
@@ -233,7 +234,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}	
 	
 #navigationMenuBox {
-	height:62%;
+	height:63%;
 	overflow-y:auto;
 	overflow-x:hidden;
 	margin-left:2px;

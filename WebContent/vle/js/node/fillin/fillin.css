@@ -55,7 +55,8 @@
 }
 
 #nonInteractiveDiv #codeBlock {
-	border-left:3px solid #334B7B;
+	border-left:10px solid #334B7B;
+	color:#334B7B;
 	margin:5px 5px 40px 20px;
 	padding-left:15px;
 	white-space:pre;

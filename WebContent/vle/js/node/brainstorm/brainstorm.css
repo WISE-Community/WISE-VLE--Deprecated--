@@ -1,3 +1,13 @@
+#frameDiv {
+	background-color:yellow;
+	border:20px solid black;
+}
+
+#iframe {
+	background-color:yellow;
+	border:20px solid black;
+}
+
 .center {text-align:center;}
 
 #brain_title {
