@@ -251,6 +251,12 @@ function popUp(strURL, strType, strHeight, strWidth) {
 </div>    <!-- end of #projectLeftBox-->
 
 <div id="projectRightUpperBox">
+	<div id="stepNavButtons">
+    		 <a onclick="vle.renderPrevNode();" title="Previous step"><img align="middle" src="vle/assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
+			 <a onclick="vle.renderNextNode();" title="Next step"><img align="middle" src="vle/assets/images/go-next.png" alt="Next Arrow" border="0" />Next</a>
+			 <a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img align="middle" src="vle/assets/images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a>
+        </div>
+		
 	<div id="stepInfoBar">
     	<div class="instantQuizIcon"></div>
 		<div class="stepInformation">
@@ -258,9 +264,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 		    <span class="stepTypeLabel">(<a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Display step</a>)</span>
 			<span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span> 
 		</div>
-		<div id="stepNavButtons">
-    		 <a onclick="vle.renderPrevNode();" title="Previous step"><img align="middle" src="vle/assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a><a onclick="vle.renderNextNode();" title="Next step"><img align="middle" src="vle/assets/images/go-next.png" alt="Next Arrow" border="0" />Next</a><a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img align="middle" src="vle/assets/images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a>
-        </div>
+		
 	</div>
 </div>
 
