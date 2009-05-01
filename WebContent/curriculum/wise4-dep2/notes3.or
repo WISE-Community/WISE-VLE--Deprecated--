@@ -1,0 +1,114 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(99089)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_4"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_5"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_6"/>
+    <itemBody>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Set the heat energy
+slider to "high". Choose the metal bar and then turn on the light
+bulb. What direction does the heat energy appear to spread?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;What causes the heat
+to spread along the bar?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Keep the energy slider
+at "high". Choose the wood bar and then turn on the light bulb.
+Note how long it takes for the chocolate chips to melt.&lt;/p&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Next, choose the glass
+bar next and then turn on the light bulb. Note how long it takes
+for the chocolate chips to melt. On which of the three bars do the
+chocolate chips melt the fastest?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_4" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Explain why the
+different bars transmit heat at different speeds.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_5" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Now set the heat
+energy slider to "low". Choose the glass bar and turn on the light
+bulb. Again note how long it takes for the chocolate chips to melt.
+What happens when you reduce the heat energy?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_6" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Why does reducing the
+heat energy have this effect?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

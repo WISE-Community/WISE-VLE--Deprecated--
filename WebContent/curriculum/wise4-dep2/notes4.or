@@ -1,0 +1,183 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(99090)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_4"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_5"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_6"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_7"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_8"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_9"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_10"/>
+    <itemBody>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Explain why the
+molecules near the heat source behave differently from the
+molecules that are far away.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Describe the behavior
+of the molecules close to the heat source and the behavior of the
+molecules far away from the heat source.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Explain how the
+interactions between molecules cause heat energy to spread along
+the bar.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_4" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;In what direction(s)
+can heat energy be transmitted due to interactions between
+molecules.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_5" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;How do the molecules
+behave once the heat energy has spread evenly from one end of the
+bar to the other.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_6" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;What effect does
+increasing the heat energy have on the behavior of the
+molecules?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_7" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Explain why increasing
+the heat energy has this effect.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_8" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;If we assume that this
+bar is made of wood, how would the behavior of the molecules be
+different if it were made of metal?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_9" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Once the bar is evenly
+heated, imagine that you turn off the heat source and allow the bar
+to cool down. Which part(s) of the bar will cool off fastest?&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_10" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p style="font-family: Verdana, sans-serif;"&gt;Explain how the
+interactions of the molecules cause this pattern of cooling
+down.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

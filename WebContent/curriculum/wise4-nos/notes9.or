@@ -1,0 +1,32 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(99270)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="identifier" cardinality="single" identifier="NOTE_RESPONSE_1">
+        <correctResponse>
+            <value isDefault="false" isCorrect="false">choice</value>
+        </correctResponse>
+    </responseDeclaration>
+    <itemBody>
+        <choiceInteraction hasInlineFeedback="false" responseIdentifier="NOTE_RESPONSE_1" maxChoices="1" shuffle="false">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;b&gt;&lt;i&gt;When is a mathematical model more appropriate?&lt;br /&gt;
+&lt;/i&gt;&lt;/b&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+            <simpleChoice identifier="choice0">A. When the process to be modeled cannot be accurately described by a set of rule or instructions.
+</simpleChoice>
+            <simpleChoice identifier="choice1">B. When the process to be modeled can be accurately described by a set of rule or instructions.
+</simpleChoice>
+            <simpleChoice identifier="choice2">C. When the process to be modeled is highly complex with poorly understood underlying principles.
+</simpleChoice>
+            <simpleChoice identifier="choice3">D. When the process to be modeled involves numbers.</simpleChoice>
+        </choiceInteraction>
+    </itemBody>
+</assessmentItem>

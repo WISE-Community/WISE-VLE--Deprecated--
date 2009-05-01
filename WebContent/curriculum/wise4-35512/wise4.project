@@ -1,0 +1,71 @@
+<project>
+	<nodes>
+		<HtmlNode identifier='evidence1' title='1.1 the question'>
+			<ref filename='evidence1.html'/>
+		</HtmlNode>
+		<HtmlNode identifier='evidence2' title='1.2 How do gasoline powered cars work?'>
+			<ref filename='evidence2.html'/>
+		</HtmlNode>
+		<NoteNode identifier='notes1' title='1.3 Notes: energy in gasoline powered cars'>
+			<ref filename='notes1.or'/>
+		</NoteNode>
+		<HtmlNode identifier='evidence3' title='1.4 What is gasoline?'>
+			<ref filename='evidence3.html'/>
+		</HtmlNode>
+		<NoteNode identifier='notes2' title='1.5 Why did they catch on fire?'>
+			<ref filename='notes2.or'/>
+		</NoteNode>
+		<HtmlNode identifier='evidence4' title='1.6 Greenhouse effects'>
+			<ref filename='evidence4.html'/>
+		</HtmlNode>
+		<NoteNode identifier='notes3' title='1.7 Increasing Carbon Dioxide'>
+			<ref filename='notes3.or'/>
+		</NoteNode>
+		<HtmlNode identifier='evidence5' title='2.1 Activity introduction'>
+			<ref filename='evidence5.html'/>
+		</HtmlNode>
+		<HtmlNode identifier='evidence6' title=' Hydrogen fuel cell'>
+			<ref filename='evidence6.html'/>
+		</HtmlNode>
+		<HtmlNode identifier='evidence7' title='How Do Car Fuel Cells Work? GM'>
+			<ref filename='evidence7.html'/>
+		</HtmlNode>
+		<HtmlNode identifier='evidence8' title='Inside a hydrogen fuel cell'>
+			<ref filename='evidence8.html'/>
+		</HtmlNode>
+		<NoteNode identifier='notes4' title='Notes: Hydrogen fuel cell'>
+			<ref filename='notes4.or'/>
+		</NoteNode>
+		<HtmlNode identifier='evidence9' title='Current status of Hydrogen fuel cell cars'>
+			<ref filename='evidence9.html'/>
+		</HtmlNode>
+		<NoteNode identifier='notes5' title='Replace gasoline cars?'>
+			<ref filename='notes5.or'/>
+		</NoteNode>
+	</nodes>
+	<sequences>
+		<sequence identifier='activity1'>
+			<node-ref ref='evidence1'/>
+			<node-ref ref='evidence2'/>
+			<node-ref ref='notes1'/>
+			<node-ref ref='evidence3'/>
+			<node-ref ref='notes2'/>
+			<node-ref ref='evidence4'/>
+			<node-ref ref='notes3'/>
+		</sequence>
+		<sequence identifier='activity2'>
+			<node-ref ref='evidence5'/>
+			<node-ref ref='evidence6'/>
+			<node-ref ref='evidence7'/>
+			<node-ref ref='evidence8'/>
+			<node-ref ref='notes4'/>
+			<node-ref ref='evidence9'/>
+			<node-ref ref='notes5'/>
+		</sequence>
+	</sequences>
+	<method>
+		<startpoint>
+			<sequence-ref ref='activity1'/>
+		</startpoint>
+	</method>
+</project>
