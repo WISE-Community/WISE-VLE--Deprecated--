@@ -1,0 +1,78 @@
+.center {text-align:center;}
+
+#brain_title {
+	background-color:#FF9D1E;
+	padding:8px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	font-size:1.1em;
+	font-weight:bold;
+	text-align:center;
+	vertical-align:bottom;
+	letter-spacing:1.6px;
+}
+
+#brain_instructions {
+	text-align:center;
+	color:#334B7B;
+	}
+
+#main  {
+	text-align:center;
+}
+	
+	
+#questionprompt, #questionDiv {
+	padding:10px;
+	background-color:#FFE6C6;
+	color:#000;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	}
+
+#questionprompt table, #questionDiv table {
+	border-collapse:collapse;
+	margin:0 auto;
+	}
+
+#questionprompt table th, #questionDiv table th {
+	background-color:#334B7B;
+	color:#CCC;
+	border:1px solid black;
+	padding: 4px 15px;
+	text-align:left
+	}
+	
+#questionprompt table td, #questionDiv table td {
+	background-color:#919EBA;
+	color:#000;
+	border:1px solid black;
+	padding: 10px 15px;
+		}
+	
+	
+	
+	
+	
+	
+	
+	
+
+#main input {
+	background-color:#919EBA;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	border:1px solid black;
+	font-weight:bold;
+	padding:5px 15px;
+	margin:10px 0;
+	}
+	
+#main input:hover {
+	background-color:#FFFF00;
+	}
+
+

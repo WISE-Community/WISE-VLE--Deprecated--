@@ -28,7 +28,10 @@
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../common/js/helperfunctions.js"></script>
 
+<link rel="stylesheet" type="text/css" href="./brainstorm.css">
+
 <script type="text/javascript">
+	
 var brainstorm = parent.brainstorm;
 
 function loaded(){
@@ -37,11 +40,13 @@ function loaded(){
 </script>
 </head>
 <body onload="loaded()">
-	<div id='main'>
-		<div id="title">Student Brainstorm</div>
-		<p>Read the passage below.  When you're ready to write a response, click the Continue button.<p>
-				<div id="questionPrompt"></div><br>
-		<input id="butt" type='button' value='continue' onclick='brainstorm.renderResponsePage()'/>
-	</div>
+	<div id="main">
+		<div id="brain_title">Student Brainstorm</div>
+		<p id="brain_instructions">Read the brainstorm topic below.  When you're ready to write your response, click the <em>Continue</em> button.<p>
+				<div id="questionPrompt"></div>
+				
+ 		<input id="butt" type='button' value='continue' onclick='brainstorm.renderResponsePage()'/>
+
+ 	</div>
 </body>
 </html>

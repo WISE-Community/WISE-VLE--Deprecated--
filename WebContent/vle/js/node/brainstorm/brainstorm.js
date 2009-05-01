@@ -75,7 +75,7 @@ BRAINSTORM.prototype.responsePageLoaded = function(frameDoc){
 	var responsesParent = frameDoc.getElementById('responses');
 	var promptParent = frameDoc.getElementById('questionDiv');
 	
-	promptParent.innerHTML = 'Question: <br>' + this.prompt;
+	promptParent.innerHTML = 'Brainstorm Topic: <br>' + this.prompt;
 	
 	for(var p=0;p<this.cannedResponses.length;p++){
 		var response = createElement(frameDoc, 'textarea', {rows: '3', cols:  '75', disabled: true, id: this.cannedResponses[p].getAttribute('name')});

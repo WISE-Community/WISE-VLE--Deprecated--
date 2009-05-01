@@ -35,20 +35,24 @@ function save(){
 	brainstorm.save(document);
 };
 </script>
+
+<link rel="stylesheet" type="text/css" href="./brainstorm.css">
+
 </head>
 <body onload='loaded()'>
-	<div id='main'>
+	<div id="main">
 		<div id='questionDiv'>
-			Question:
+			question content goes here
 		</div>
 		<br>
 		<div id='responses'>
-			Responses:<br>
-		</div><br><br>
+			Sample responses from previous students:<br>
+		</div><br/>
 		<div id='studentResponseDiv'>
-			Enter your response.
-			<textarea id='studentResponse' rows='3' cols = '75'></textarea>
-			<input type='button' value='save' onclick='save()'/>
+			Write your response below:
+			<br><textarea id='studentResponse' rows='5' cols = '85'></textarea>
+			<br/>
+			<input type='button' value='post your response' onclick='save()'/>
 		</div>
 	</div>
 </body>
