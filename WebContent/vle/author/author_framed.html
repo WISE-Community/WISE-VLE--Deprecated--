@@ -10,6 +10,7 @@ var rootPageName;
 var childSave;
 var projectName;
 var getSaved;
+var project;
 
 /**
  * Removes previous, creates a new frame, determines the 
@@ -58,11 +59,12 @@ function modeChanged(val){
  * function given to parent window so that we can set certain
  * critical variables here
  */
-function setVars(fn, m, pn, prn){
+function setVars(fn, m, pn, prn, pr){
 	filename = fn;
 	easyMode = m;
 	rootPageName = pn;
 	projectName = prn;
+	project = pr;
 	
 	if(easyMode){
 		document.getElementById('easyTrue').checked = true;

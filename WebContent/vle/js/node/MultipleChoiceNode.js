@@ -36,6 +36,25 @@ MultipleChoiceNode.prototype.load = function() {
 };
 
 /**
+ * Renders barebones mc by entity other than VLE
+ */
+MultipleChoiceNode.prototype.renderLite = function(frame){
+	if(this.filename!=null && vle.project.lazyLoading){
+		this.retrieveFile();
+	};
+	
+	window.frames['ifrm'].frames[frame].location = "vle/js/node/multiplechoice/multiplechoicelite.html";
+};
+
+/**
+ * Loads barebones mc by entity other than VLE
+ */
+MultipleChoiceNode.prototype.loadLite = function(frame){
+	var str = this.getXMLString();
+	setTimeout(function(){window.frames['ifrm'].frames[frame].renderMCFromString(str);}, 2000);
+};
+
+/**
  * @return an xml string that represents the current state of this
  * node which includes the student's submitted data
  */

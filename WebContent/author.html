@@ -49,6 +49,7 @@
 <script type="text/javascript" src="vle/js/node/BlueJNode.js"></script>
 <script type="text/javascript" src="vle/js/node/MultipleChoiceNode.js"></script>
 <script type="text/javascript" src="vle/js/node/BrainstormNode.js"></script>
+<script type="text/javascript" src="vle/js/node/GlueNode.js"></script>
 <script type="text/javascript" src="vle/js/project/Project.js"></script>
 <script type="text/javascript" src="vle/js/io/ConnectionManager.js"></script>
 
@@ -722,6 +723,8 @@ function author(nodeId) {
 			htmlPageName = 'author_multiplechoice';
 		} else if(nodeToAuthor.type == 'BrainstormNode'){
 			htmlPageName = 'author_brainstorm';
+		} else if(nodeToAuthor.type == 'GlueNode'){
+			htmlPageName = 'author_glue';
 		} else {
 			alert('sorry, no authoring tool exists for this step yet');
 			return;
@@ -755,7 +758,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, project);
 	} 
 }
 
@@ -895,6 +898,7 @@ function authoringFrameLoaded() {
 				<option value="NoteNode">note</option>
 				<option value="JournalEntryNode">journal entry</option>
 				<option value="OutsideUrlNode">outsideurl</option>
+				<option value="GlueNode">glue</option>
 			</select>
 		</form>
 	</div>

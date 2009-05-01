@@ -13,6 +13,7 @@ MC.prototype.loadXMLDoc = function(xmlDoc) {
 	};
 	this.choices = [];
 	this.states = [];
+	this.answered = false;
 
 	this.choiceToValueArray = new Array();
 
@@ -43,6 +44,16 @@ MC.prototype.loadFromVLE = function(node, vle) {
 	this.loadState();
 	this.render();
 }
+
+/**
+ * Load states and VLE and then calls renderLite
+ */
+MC.prototype.loadLite = function(node, vle){
+	this.vle = vle;
+	this.node = node;
+	this.loadState();
+	this.renderLite();
+};
 
 /**
  * Load the state for this MC given the node and vle but do
@@ -156,6 +167,35 @@ MC.prototype.render = function() {
 	}
 }
 
+MC.prototype.renderLite = function(){
+	// render the prompt
+	var promptdiv = document.getElementById('promptDiv');
+	promptdiv.innerHTML=this.promptText;
+
+	// render choices
+	var radiobuttondiv = document.getElementById('radiobuttondiv');
+	while(radiobuttondiv.hasChildNodes()) {
+		radiobuttondiv.removeChild(radiobuttondiv.firstChild);
+	}
+	
+	for(var i=0;i<this.choices.length;i++) {
+		var tableElement = createElement(document, 'table', {});
+		var trElement = createElement(document, 'tr', {});
+		var td1Element = createElement(document, 'td', {});
+		tableElement.appendChild(trElement);
+		trElement.appendChild(td1Element);
+		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type':'radio', 'name':'radiobutton', 'value':this.choices[i].identifier, 'class':'radiobutton', onclick:'answered()'});
+		td1Element.appendChild(radiobuttonElement);
+		var td2Element = createElement(document, 'td', {});
+		trElement.appendChild(td2Element);
+		var radiobuttonTextDiv = document.createElement("div");
+		radiobuttonTextDiv.innerHTML = this.choices[i].text;
+		td2Element.appendChild(radiobuttonTextDiv);
+		radiobuttondiv.appendChild(tableElement);
+		radiobuttondiv.appendChild(createElement(document, 'br', {}));
+	};
+};
+
 /**
  * SAMPLE choiceDOM:
  *
@@ -174,6 +214,11 @@ function CHOICE(choiceDOM) {
 	};
 	if(this.dom.getElementsByTagName('feedbackInline')[0]){
 		this.feedbackText = this.dom.getElementsByTagName('feedbackInline')[0].firstChild.nodeValue;
+		if(!this.feedbackText){
+			this.feedbackText = "";
+		};
+	} else {
+		this.feedbackText = "";
 	};
 }
 
@@ -185,18 +230,18 @@ function CHOICE(choiceDOM) {
  * PAS-1075 stuff would go in this function
  */
 CHOICE.prototype.getFeedbackText = function(mcObj) {
-	if(mcObj.correctResponseInterpretation == null || mcObj.correctResponseInterpretation == "") {
-		/*
-		 * if there is no correct answer, just return the feedback,
-		 * this situation may occur when the student is just filling
-		 * out a form
-		 */
-		return this.feedbackText;
-	} else if (this.identifier == mcObj.correctResponseInterpretation) {
-		return "CORRECT " + this.feedbackText;
-	} else {
-		return "INCORRECT " + this.feedbackText;
-	}
+		if(mcObj.correctResponseInterpretation == null || mcObj.correctResponseInterpretation == "") {
+			/*
+			 * if there is no correct answer, just return the feedback,
+			 * this situation may occur when the student is just filling
+			 * out a form
+			 */
+			return this.feedbackText;
+		} else if (this.identifier == mcObj.correctResponseInterpretation) {
+			return "CORRECT " + this.feedbackText;
+		} else {
+			return "INCORRECT " + this.feedbackText;
+		}
 }
 
 
@@ -248,6 +293,36 @@ MC.prototype.checkAnswer = function() {
 	}
 }
 
+/**
+ * Checks answer, updates feedbackDiv and returns the state object
+ */
+MC.prototype.checkAnswerLite = function(){
+	var inputbuttons = document.getElementById('radiobuttondiv').getElementsByTagName('input');
+	for (var i=0;i<inputbuttons.length;i++) {
+		var checked = inputbuttons[i].checked;
+		if (checked) {
+			var choiceIdentifier = inputbuttons[i].getAttribute('id');  // identifier of the choice that was selected
+
+			// use the identifier to get the correctness and feedback
+			var choice = this.getCHOICEByIdentifier(choiceIdentifier);
+			if (choice) {
+				var feedbackdiv = document.getElementById('feedbackdiv');
+				feedbackdiv.innerHTML = choice.getFeedbackText(this);
+				var mcState = new MCSTATE(choiceIdentifier);
+				mcState.isCorrect = (choiceIdentifier == this.correctResponseInterpretation);
+				this.states.push(mcState);
+				
+				if (this.vle != null) {
+					this.vle.state.getCurrentNodeVisit().nodeStates.push(mcState);
+				}
+				
+				return mcState;
+			} else {
+				alert('error checking choice for mc');
+			}
+		}
+	}
+};
 
 /**
  * enable checkAnswerButton

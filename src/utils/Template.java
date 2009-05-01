@@ -72,6 +72,8 @@ public final class Template {
 			return getJournalEntryTemplate();
 		} else if(type.equals("OutsideUrlNode")){
 			return getOutsideUrlTemplate();
+		} else if(type.equals("GlueNode")){
+			return getGlueTemplate();
 		} else {
 			return "";
 		}
@@ -179,5 +181,9 @@ public final class Template {
 			"<cannedResponses>" + NL +
 			"</cannedResponses>" + NL +
 			"</Brainstorm>";
+	}
+	
+	private static String getGlueTemplate(){
+		return "<Glue>" + NL + "<prompt></prompt>" + NL + "<children></children>" + NL + "</Glue>";
 	}
 }

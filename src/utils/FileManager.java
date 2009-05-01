@@ -354,6 +354,8 @@ import javax.servlet.http.HttpServletResponse;
 			return ".or";
 		} else if(type.equals("OutsideUrlNode")){
 			return ".ou";
+		} else if(type.equals("GlueNode")){
+			return ".glue";
 		} else {
 			throw new ServletException("I don't know how to handle nodes of type: " + type);
 		}
