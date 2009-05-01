@@ -50,4 +50,14 @@
     <servlet-name>filemanager</servlet-name>
     <url-pattern>/filemanager.html</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>vleview</servlet-name>
+    <servlet-class>vle.VLEView</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vleview</servlet-name>
+    <url-pattern>/view.html</url-pattern>
+  </servlet-mapping>	
 </web-app>

@@ -41,13 +41,13 @@
 			var runId = 4; //"${runId}";
 			var workgroupId = 3;  //"${workgroup.id}";
 			var userInfoUrl = null; //= 'script/getUserInfo.php?runId=65';  // "${userInfoUrl}";
+
 			var getDataUrl = 'script/getVisits.php?users=146'; //"${getDataUrl}";
-                        var postDataUrl = null; //"../postVisits.php"; //'script/postVisits.php?user=146'; 
-                        //var contentBaseUrl = "http://localhost:8080/vlewrapper/curriculum/unit9999/lesson9999";  // 'curriculum/unit4/lesson22';  //"${contentBaseUrl}";
-                        //var contentUrl = contentBaseUrl + "/lesson9999.xml";
-                        var contentBaseUrl = "http://localhost:8080/vlewrapper/curriculum/wise4-35512";  // 'curriculum/unit4/lesson22';  //"${contentBaseUrl}";
-                        var contentUrl = contentBaseUrl + "/35512.xml";
-                        alert('view.php \ncontentBaseUrl:' + contentBaseUrl + '\npostDataUrl:' + postDataUrl + '\ncontentUrl:' + contentUrl);
+            var postDataUrl = null; //"../postVisits.php"; //'script/postVisits.php?user=146'; 
+
+            var contentBaseUrl = '<%= request.getAttribute("contentBaseUrl") %>';
+            var contentUrl = '<%= request.getAttribute("contentUrl") %>';
+            //alert('view.php \ncontentBaseUrl:' + contentBaseUrl + '\npostDataUrl:' + postDataUrl + '\ncontentUrl:' + contentUrl);
 			window.frames["topifrm"].load(contentUrl, userInfoUrl, getDataUrl, contentBaseUrl, postDataUrl);
 		}
 	</script>
@@ -230,7 +230,7 @@ var runManager = new RunManager();
 </head>
 <body class=" yui-skin-sam">
 <div id="wait"></div> 
-<iframe id="topifrm" src="view.html" onload="topiframeOnLoad();" name="topifrm" scrolling="auto"
+<iframe id="topifrm" src="view_vle.html" onload="topiframeOnLoad();" name="topifrm" scrolling="auto"
  width="100%" height="100%" frameborder="0">
  [Content for browsers that don't support iframes goes here.]
 </iframe>

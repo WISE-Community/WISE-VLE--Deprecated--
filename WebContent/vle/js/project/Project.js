@@ -126,6 +126,13 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 		var currElement = nodeElements[i];
 		if (currElement.nodeName != "#text")  {
 			var thisNode = NodeFactory.createNode(currElement);
+			if(thisNode == null) {
+				/*
+				 * we are unable to create the specified node type probably
+				 * because it does not exist in wise4
+				 */
+				break;
+			}
 			thisNode.title = currElement.getAttribute('title');
 			thisNode.id = currElement.getAttribute('identifier');
 			thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
