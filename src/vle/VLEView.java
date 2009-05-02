@@ -39,28 +39,31 @@ public class VLEView extends HttpServlet {
 		 */
 		if(projectId == 1) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/unit9999/lesson9999";
-			contentUrl = getServletUrl(request) + "/curriculum/unit9999/lesson9999/lesson9999.xml";
+			contentUrl = contentBaseUrl +  "/lesson9999.xml";
 		} else if(projectId == 2) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35510";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-35510/wise4-35510.xml";
+			contentUrl = contentBaseUrl +  "/wise4-35510.xml";
 		} else if(projectId == 3) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35511";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-35511/wise4-35511.xml";
+			contentUrl = contentBaseUrl +  "/wise4-35511.xml";
 		} else if(projectId == 4) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35512";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-35512/wise4-35512.xml";
+			contentUrl = contentBaseUrl +  "/wise4-35512.xml";
 		} else if(projectId == 5) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35513";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-35513/wise4-35513.xml";
+			contentUrl = contentBaseUrl +  "/wise4-35513.xml";
 		} else if(projectId == 6) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-dep1";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-dep1/wise4-dep1.xml";
+			contentUrl = contentBaseUrl +  "/wise4-dep1.xml";
 		} else if(projectId == 7) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-dep2";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-dep2/wise4-dep2.xml";
+			contentUrl = contentBaseUrl +  "/wise4-dep2.xml";
 		} else if(projectId == 8) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-nos";
-			contentUrl = getServletUrl(request) + "/curriculum/wise4-nos/wise4-nos.xml";
+			contentUrl = contentBaseUrl + "/wise4-nos.xml";
+		} else if(projectId == -1) {
+			contentBaseUrl = getServletUrl(request) + "/curriculum/unit3/lesson1";
+			contentUrl = contentBaseUrl +  "/lesson1.xml";
 		}
 		
 		//set the content urls in the request so the jsp can retrieve them

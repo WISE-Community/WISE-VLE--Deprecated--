@@ -1,7 +1,7 @@
 var	htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
 var qtiAssessmentPageTypes = new Array("openresponse");
 
-var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode", "sequence", "FillinNode", "MatchSequenceNode", "NoteNode", "JournalEntryNode", "OutsideUrlNode", "BrainstormNode", "GlueNode");
+var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode", "sequence", "FillinNode", "MatchSequenceNode", "NoteNode", "JournalEntryNode", "OutsideUrlNode", "BrainstormNode", "GlueNode", "FlashNode");
 
 function NodeFactory() {
 	this.htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
@@ -35,6 +35,8 @@ NodeFactory.createNode = function (element) {
 			return new OutsideUrlNode('OutsideUrlNode');
 		} else if (nodeName == 'BrainstormNode'){
 			return new BrainstormNode('BrainstormNode');
+		} else if (nodeName == 'FlashNode') {
+			return new FlashNode('FlashNode');
 		} else if (nodeName == 'GlueNode'){
 			return new GlueNode('GlueNode');
 		} else if (nodeName == "sequence") {

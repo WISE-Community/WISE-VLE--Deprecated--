@@ -1,0 +1,87 @@
+<project>
+	<nodes>
+		<HtmlNode identifier='a1s1' title='A1.1 Objectives'>
+			<ref filename='a1s1.html' />
+		</HtmlNode>
+		<FillinNode identifier='a1s2fill' title='A1.2 Quick Review With a Really Really Really Long Title'>
+			<ref filename='a1s2fill.fi'/>
+		</FillinNode>
+		<HtmlNode identifier='a2s1' title='A2.1 Introduction to the VP'>
+			<ref filename='a2s1.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s2' title='A2.2 Open BlueJ Project'>
+			<ref filename='a2s2.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s3' title='A2.3 Explore the Code 1'>
+			<ref filename='a2s3.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s4' title='A2.4 Explore the Code 2'>
+			<ref filename='a2s4.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s5' title='A2.5 Explore the Code 3'>
+			<ref filename='a2s5.html' />
+		</HtmlNode>
+		<HtmlNode identifier='a2s6' title='A2.6 Explore the Code 4'>
+			<ref filename='a2s6.html' />
+		</HtmlNode>
+		
+		<HtmlNode identifier='a3s1' title='A3.1 Make A Quick Fix'>
+			<ref filename='a3s1.html' />
+		</HtmlNode>
+		
+		<HtmlNode identifier='a3s4' title='A3.4 Making Hunger Realistic 1'>
+			<ref filename='a3s4.html' />
+		</HtmlNode>
+		
+		<HtmlNode identifier='a3s5' title='A3.5 Making Hunger Realistic 2'>
+			<ref filename='a3s5.html' />
+		</HtmlNode>
+		
+		<HtmlNode identifier='a3s6' title='A3.6 Making Hunger Realistic 3'>
+			<ref filename='a3s6.html' />
+		</HtmlNode>
+		
+		<HtmlNode identifier='a4s2' title='A4.2 Squash the Bugs'>
+			<ref filename='a4s2.html' />
+		</HtmlNode>
+		
+		<HtmlNode identifier='a5s1' title='A5.1 Lesson Summary'>
+			<ref filename='a5s1.html' />
+		</HtmlNode>
+		
+		<FlashNode identifier='flash1' title='Flash-JS demo'>
+			<ref filename='flash_js_demo.swf' />
+		</FlashNode>
+	</nodes>
+	
+	<sequences>
+	<sequence identifier="startsequence">
+		<sequence-ref ref="sequence1" />
+	</sequence>
+	<sequence identifier='sequence1'>
+		<node-ref ref='flash1'  /> 	
+		<node-ref ref='a1s1'  />
+		<node-ref ref='a1s2fill'  />
+		<node-ref ref='a2s1'  /> 	
+		<node-ref ref='a2s2'  /> 
+		<node-ref ref='a2s3'  />
+		<node-ref ref='a2s4'  /> 	
+		<node-ref ref='a2s5'  /> 	
+		<node-ref ref='a2s6'  /> 	
+		<node-ref ref='a3s1'  /> 	
+		<node-ref ref='a3s4'  /> 	
+		<node-ref ref='a3s5'  /> 
+		<node-ref ref='a3s6'  /> 	
+		<node-ref ref='a4s2'  /> 	
+		<node-ref ref='a5s1'  /> 		
+					
+	</sequence>
+	</sequences>
+	
+	<method>
+		<startpoint>
+			<sequence-ref ref='startsequence'/>
+		</startpoint>
+	</method>
+	
+</project>

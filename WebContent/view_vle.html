@@ -43,6 +43,7 @@
 <script type="text/javascript" src="vle/js/navigation/NavigationPanel.js"></script>
 <script type="text/javascript" src="vle/js/common/loadxmldoc.js"></script>
 <script type="text/javascript" src="vle/js/node/Node.js"></script>
+<script type="text/javascript" src="vle/js/node/FlashNode.js"></script>
 <script type="text/javascript" src="vle/js/node/HtmlNode.js"></script>
 <script type="text/javascript" src="vle/js/node/CustomNode.js"></script>
 <script type="text/javascript" src="vle/js/node/MatchSequenceNode.js"></script>
@@ -118,7 +119,7 @@ function loadProjectFromServer(projectName){
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager(vle));
-		  vle.audioManager = null; // new AudioManager(false);	  
+		  vle.audioManager = new AudioManager(true);	  
           var startId = project.getStartNodeId();
           
           setTimeout("vle.renderNode('" + startId + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
@@ -285,7 +286,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 	vle = new VLE();
 	vle.getDataUrl = getDataUrl;
     vle.postDataUrl = postDataUrl;
-	vle.audioManager = null; new AudioManager(false);	  
+	vle.audioManager = new AudioManager(true);	  
 	var contentCallback =
 	{
 	  success: function(o) { 
