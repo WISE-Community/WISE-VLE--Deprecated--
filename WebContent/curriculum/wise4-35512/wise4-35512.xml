@@ -42,6 +42,30 @@
 		<NoteNode identifier='notes5' title='Replace gasoline cars?'>
 			<ref filename='notes5.or'/>
 		</NoteNode>
+		<GlueNode identifier="selftest.st" title="Self Test">
+			<ref filename="selftest.st.glue"/>
+		</GlueNode>
+		<MultipleChoiceNode identifier="mc1" title="Question 1">
+			<ref filename="mc1.mc"/>
+		</MultipleChoiceNode>
+		<MultipleChoiceNode identifier="mc2" title="Question 2">
+			<ref filename="mc2.mc"/>
+		</MultipleChoiceNode>
+		<MultipleChoiceNode identifier="mc3" title="Question 3">
+			<ref filename="mc3.mc"/>
+		</MultipleChoiceNode>
+		<MultipleChoiceNode identifier="mc4" title="Question 4">
+			<ref filename="mc4.mc"/>
+		</MultipleChoiceNode>
+		<MultipleChoiceNode identifier="mc5" title="Question 5">
+			<ref filename="mc5.mc"/>
+		</MultipleChoiceNode>
+		<MultipleChoiceNode identifier="mc6" title="Question 6">
+			<ref filename="mc6.mc"/>
+		</MultipleChoiceNode>
+		<MultipleChoiceNode identifier="mc7" title="Question 7">
+			<ref filename="mc7.mc"/>
+		</MultipleChoiceNode>
 	</nodes>
 	<sequences>
 		<sequence identifier='startsequence'>
@@ -63,6 +87,7 @@
 			<node-ref ref='evidence7'/>
 			<node-ref ref='evidence8'/>
 			<node-ref ref='notes4'/>
+			<node-ref ref='selftest.st'/>
 			<node-ref ref='evidence9'/>
 			<node-ref ref='notes5'/>
 		</sequence>
