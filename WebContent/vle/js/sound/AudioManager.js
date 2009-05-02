@@ -27,15 +27,15 @@ function AudioManager(isPlaying) {
  * If this.isPlaying is true, starts playing
  */
 AudioManager.prototype.setCurrentNode = function(node) {
-	alert('auiomanager.setCurrentNode, node.id:' + node.id + '\n' 
-			+ vle.audioManager.isSoundManagerLoaded + '\n'
-			+ 'audios.length:' + node.audios.length);
+	//alert('auiomanager.setCurrentNode, node.id:' + node.id + '\n' 
+	//		+ vle.audioManager.isSoundManagerLoaded + '\n'
+	//		+ 'audios.length:' + node.audios.length);
 	soundManager.stopAll();
 	//vle.getCurrentNode().audios = [];
 	var soundId = this.id;
 	var audio = null;
 		if (true) {
-			alert('audiomanager.issoundmanagerloaded');
+			//alert('audiomanager.issoundmanagerloaded');
 			var stepAudioElement = document.getElementById("stepAudio");
 			//vle.audioManager.isPlaying = false;
 			if (!vle.audioManager.isPlaying) {
@@ -48,7 +48,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 			// experimental start
 			
 			var nodeAudioElements = node.audios;
-			alert('audiomanager.js, nodeaudioelements.length:' + nodeAudioElements.length);
+			//alert('audiomanager.js, nodeaudioelements.length:' + nodeAudioElements.length);
 			if (nodeAudioElements.length > 0) {
 				for (var i=0; i < nodeAudioElements.length; i++) {
 					var nodeAudioElement = nodeAudioElements[i];
