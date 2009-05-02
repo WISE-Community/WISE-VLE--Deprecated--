@@ -28,14 +28,3 @@ CustomJournalEntryNode.prototype.render = function(contentpanel){
 	window.parent.parent.frames["journaliframe"].frames["journalentryiframe"].loadContentXMLString(this.element);
 	window.parent.parent.frames["journaliframe"].frames["journalentryiframe"].loadStateAndRender(this.vle, states);
 }
-
-
-CustomJournalEntryNode.prototype.load = function() {
-	alert("loading JournalEntryNode");
-}
-
-CustomJournalEntryNode.prototype.setCurrentNode = function() {
-	if (this.vle.audioManager != null) {
-		this.vle.audioManager.setCurrentNode(this);
-	}
-}

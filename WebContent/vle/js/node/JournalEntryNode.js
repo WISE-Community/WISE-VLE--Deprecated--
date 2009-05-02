@@ -3,9 +3,9 @@
  * author: patrick lawler
  */
 
-JournalEntryNode.prototype = new Node();
+JournalEntryNode.prototype = new OpenResponseNode();
 JournalEntryNode.prototype.constructor = JournalEntryNode;
-JournalEntryNode.prototype.parent = Node.prototype;
+JournalEntryNode.prototype.parent = OpenResponseNode.prototype;
 function JournalEntryNode(nodeType) {
 	this.type = nodeType;
 }	
@@ -27,9 +27,4 @@ JournalEntryNode.prototype.render = function(contentpanel){
 	}
 	window.parent.frames["journaliframe"].frames["journalentryiframe"].loadContentXMLString(this.element);
 	window.parent.frames["journaliframe"].frames["journalentryiframe"].loadStateAndRender(vle, states);
-}
-
-
-JournalEntryNode.prototype.load = function() {
-	alert("loading JournalEntryNode");
 }
