@@ -354,6 +354,7 @@ Node.prototype.retrieveFile = function(){
 						};
 					};
 				};
+				
 				if (o.responseText) {
 				    this.elementText = o.responseText;
 				}

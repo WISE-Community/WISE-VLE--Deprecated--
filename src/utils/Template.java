@@ -74,6 +74,8 @@ public final class Template {
 			return getOutsideUrlTemplate();
 		} else if(type.equals("GlueNode")){
 			return getGlueTemplate();
+		} else if(type.equals("OpenResponseNode")){
+			return getOpenResponseTemplate();
 		} else {
 			return "";
 		}
@@ -85,6 +87,22 @@ public final class Template {
 	 */
 	private static String getOutsideUrlTemplate() {
 		return "<OutsideUrl>" + NL + "<url></url>" + NL + "</OutsideUrl>";
+	}
+	
+	/**
+	 * Returns an Open Response Template
+	 */
+	private static String getOpenResponseTemplate(){
+		return "<OpenResponse>" + NL + 
+			"<assessmentItem xmlns=\"http://www.imsglobal.org/xsd/imsqti_v2p0\" xmlns:ns3=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" timeDependent=\"false\" adaptive=\"false\" identifier=\"Entry\">" + NL +
+			"<responseDeclaration baseType=\"string\" cardinality=\"single\" identifier=\"JournalEntry\"/>" + NL +
+			"<itemBody>" + NL +
+			"<extendedTextInteraction hasInlineFeedback=\"false\" placeholderText=\"\" responseIdentifier=\"JournalEntry\" expectedLines=\"0\">" + NL +
+			"<prompt></prompt>" + NL +
+			"</extendedTextInteraction>" + NL +
+			"</itemBody>" + NL +
+			"</assessmentItem>" + NL +
+			"</OpenResponse>";
 	}
 
 	/**

@@ -47,6 +47,7 @@ OPENRESPONSE.prototype.save = function() {
 			};
 			document.getElementById('promptInput').setAttribute('disabled', 'disabled');
 		} else {
+			alert('or or note');
 			this.states.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
 			if (this.vle != null) {
 				this.vle.state.getCurrentNodeVisit().nodeStates.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
@@ -103,6 +104,7 @@ OPENRESPONSE.prototype.render = function() {
 
 	// set text area size: set row based on expectedLines
 	document.getElementById('responseBox').setAttribute('rows', this.expectedLines);
+	alert(this.states); alert(this.states.length);
 	if (this.states!=null && this.states.length > 0) {
 		document.getElementById('responseBox').value = this.states[this.states.length - 1].response;
 		removeClassFromElement("editButton", "disabledLink");

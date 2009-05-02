@@ -12,12 +12,11 @@
 <script type="text/javascript" src="../common/js/helperfunctions.js"></script>
 <script type="text/javascript" src="openresponsestate.js" ></script>                
 <script type="text/javascript" src="openresponse.js" ></script>                
-
+<script type="text/javascript" src="../Node.js"></script>
 
 
 <script type="text/javascript">
 var or;   // global variable so it can be accessed by other functions
-var states = [];  // array of OPENRESPONSESTATE objects
 
 function save() {
   or.save();
@@ -31,23 +30,16 @@ function edit() {
  * xmlString contains QTI-coded xml content
  */
 function loadContentXMLString(xmlString) {
-	//alert('openresponse');
-	  var xmlDoc=loadXMLDocFromString(xmlString);	
-	  or = new OPENRESPONSE(xmlDoc);
-	  or.render();	
-}
+	  or = new OPENRESPONSE(xmlString);
+};
 
 /**
  * call this after or has been initialized
  */
-function loadState(vle_state) {
-    or.loadState(vle_state);
-}
-/**
- * sets VLE, loads state
- */
-function loadFromVLE(node, vle) {
-	or.loadFromVLE(node, vle);
+function loadStateAndRender(vle, states) {
+    or.loadState(states);
+    or.setVLE(vle);
+    or.render();
 }
 
 function checkAnswer() {
@@ -101,15 +93,16 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 	    <td id="questionType">Open Response</td>
 		<td id="questionHelp"><a href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank">&nbsp&nbsp&nbsp</a></td>
 		</tr>
-		</tr>
 	</table>
 </div>   <!-- end of questionNumberBox -->
 
 <div id="currentQuestionBox">
 	
 	<div id="leftColumn">
-		<div class="itemLabel Color1">question</div>
-		<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
+		<div id='type' class="itemLabel Color1">question</div>
+		<div id="promptType">
+			<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
+		</div>
 		<div class="itemLabel Color1">response</div>
 		<div id="responseBoxDiv">
 			<textarea id="responseBox"></textarea>
@@ -133,14 +126,8 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 		   <tr>
 		   	<td><a href="#" id="saveButton" onClick="javascript:save();" >Save</a></td>
 		   	<td><a href="#" id="editButton" onClick="javascript:edit();" class="disabledLink" >Edit</a></td>
-		   	<td><a href="#" id="nextQuestionButton" onClick="" class="disabledLink" >Previous Q</a></td>
-		   	<td><a href="#" id="nextQuestionButton" onClick="" class="disabledLink" >Next Q</a></td>
 	   	   </tr>
 	   	 </table>
 	</div>
-
-
-
-
 </body>
 </html>

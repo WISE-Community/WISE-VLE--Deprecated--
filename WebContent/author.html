@@ -50,6 +50,7 @@
 <script type="text/javascript" src="vle/js/node/MultipleChoiceNode.js"></script>
 <script type="text/javascript" src="vle/js/node/BrainstormNode.js"></script>
 <script type="text/javascript" src="vle/js/node/GlueNode.js"></script>
+<script type="text/javascript" src="vle/js/node/OpenResponseNode.js"></script>
 <script type="text/javascript" src="vle/js/project/Project.js"></script>
 <script type="text/javascript" src="vle/js/io/ConnectionManager.js"></script>
 
@@ -713,7 +714,7 @@ function author(nodeId) {
 			htmlPageName = 'author_htmlpage';
 		} else if(nodeToAuthor.type == "FillinNode") {
 			htmlPageName = 'author_fillin';
-		} else if(nodeToAuthor.type == 'NoteNode' || nodeToAuthor.type == 'JournalEntryNode'){
+		} else if(nodeToAuthor.type == 'NoteNode' || nodeToAuthor.type == 'JournalEntryNode' || nodeToAuthor.type == 'OpenResponseNode'){
 			htmlPageName = 'author_openresponse';
 		} else if(nodeToAuthor.type == 'MatchSequenceNode'){
 			htmlPageName = 'author_matchsequence';
@@ -899,6 +900,7 @@ function authoringFrameLoaded() {
 				<option value="JournalEntryNode">journal entry</option>
 				<option value="OutsideUrlNode">outsideurl</option>
 				<option value="GlueNode">glue</option>
+				<option value="OpenResponseNode">open response</option>
 			</select>
 		</form>
 	</div>
