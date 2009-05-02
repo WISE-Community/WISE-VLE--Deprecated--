@@ -120,7 +120,7 @@ import javax.servlet.http.HttpServletResponse;
 		boolean success;
 		success = newDir.mkdir();
 		if(success){
-			File newFile = new File(newDir, name + ".project");
+			File newFile = new File(newDir, name + ".project.xml");
 			success = newFile.createNewFile();
 			if(success){
 				FileOutputStream fop = new FileOutputStream(newFile);
@@ -309,7 +309,7 @@ import javax.servlet.http.HttpServletResponse;
 	private boolean addNodeToProject(String project, String template) throws IOException{
 		File parent = new File(PROJECT_DIRECTORY);
 		File dir = new File(parent, project);
-		File file = new File(dir, project + ".project");
+		File file = new File(dir, project + ".project.xml");
 		
 		if(file.exists()){
 			int line = 1;
@@ -422,7 +422,7 @@ import javax.servlet.http.HttpServletResponse;
 		String name = request.getParameter(PARAM2);
 		
 		File dir = new File(parent, project);
-		File file = new File(dir, project + ".project");
+		File file = new File(dir, project + ".project.xml");
 		
 		if(file.exists()){
 			int line = 1;

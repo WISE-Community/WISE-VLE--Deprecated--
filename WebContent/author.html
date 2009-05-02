@@ -97,7 +97,7 @@ var nodeIdToAuthor = null;
 // a string that temporarily contains the filename that we want to author
 var filenameToAuthor = null;
 
-// filename of this project (not page/step), should end with .project
+// filename of this project (not page/step), should end with .project.xml
 var thisFilename = null;
 
 function loaded(){
@@ -454,13 +454,13 @@ function editProjectFile(){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				retrieveProjectFile();
 				document.getElementById('editProjectFileProjectName').value = currentProjectName;
-				document.getElementById('editProjectFileFileName').value = currentProjectName + '.project';
+				document.getElementById('editProjectFileFileName').value = currentProjectName + '.project.xml';
 				editProjectFileDialog.show();
 			};
 		} else {
 			retrieveProjectFile();
 			document.getElementById('editProjectFileProjectName').value = currentProjectName;
-			document.getElementById('editProjectFileFileName').value = currentProjectName + '.project';
+			document.getElementById('editProjectFileFileName').value = currentProjectName + '.project.xml';
 			editProjectFileDialog.show();
 		};
 	} else {
@@ -478,7 +478,7 @@ function retrieveProjectFile(){
 	  scope:this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project');
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project.xml');
 	
 };
 
@@ -524,7 +524,7 @@ function saveProject(){
 			scope: this
 		};
 		
-		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project&param3=' + data);
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project.xml&param3=' + data);
 	} else {
 		alert('Please open or create a new project before attempting to save.');
 	};
@@ -564,7 +564,7 @@ function loadProjectFromServer(projectName){
 	  scope:this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project');
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project.xml');
 };
 
 function nodeTitleChanged(id){
