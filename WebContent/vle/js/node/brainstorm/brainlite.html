@@ -27,12 +27,13 @@
 <script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 <script type="text/javascript" src="../common/js/helperfunctions.js"></script>
-
 <link rel="stylesheet" type="text/css" href="./brainstorm.css">
-
 <script type="text/javascript">
-	
 var brainstorm = parent.brainstorm;
+
+function save(){
+	brainstorm.save(document);
+};
 
 function loaded(){
 	brainstorm.brainliteLoaded(document);
@@ -40,13 +41,20 @@ function loaded(){
 </script>
 </head>
 <body onload="loaded()">
-	<div id="main">
+	<div id='main'>
 		<div id="brain_title">Student Brainstorm</div>
 		<p id="brain_instructions">Read the brainstorm topic below.  When you're ready to write your response, click the <em>Continue</em> button.<p>
-				<div id="questionPrompt"></div>
-				
- 		<input id="butt" type='button' value='continue' onclick='brainstorm.renderResponsePage()'/>
-
- 	</div>
+		<div id="questionPrompt"></div><br>
+		<div id='studentResponseDiv'>
+			Enter your response.
+			<textarea id='studentResponse' rows='3' cols = '75'></textarea>
+			<input id='butt' type='button' value='save' onclick='save()'/><div id='saveMsg'></div>
+		</div>
+		<br>
+		
+		Other Student Responses:<br>
+		<div id='responses'>
+		</div>
+	</div>
 </body>
 </html>

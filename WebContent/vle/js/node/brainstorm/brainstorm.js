@@ -39,12 +39,7 @@ BRAINSTORM.prototype.render = function(){
 	
 	//set new src for frame
 	if(this.serverless){
-		if (this.states!=null && this.states.length > 0) { //already visited, skip to next page
-			this.renderResponsePage();
-			return;
-		} else {
-			frame.src = 'brainlite.html';
-		};
+		frame.src = 'brainlite.html';
 	} else {
 		frame.src = 'brainfull.html';
 	};
@@ -52,7 +47,7 @@ BRAINSTORM.prototype.render = function(){
 
 BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 	var parent = frameDoc.getElementById('main');
-	var nextNode = frameDoc.getElementById('butt');
+	var nextNode = frameDoc.getElementById('studentResponseDiv');
 	var old = frameDoc.getElementById('questionPrompt');
 	
 	if(old){
@@ -63,29 +58,34 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 	newQuestion.innerHTML = this.prompt;
 	
 	parent.insertBefore(newQuestion, nextNode);
-};
-
-BRAINSTORM.prototype.renderResponsePage = function(){
-	var frame = document.getElementById('brainstormFrame');
-	
-	frame.src = 'brainliteresponse.html';
-};
-
-BRAINSTORM.prototype.responsePageLoaded = function(frameDoc){
-	var responsesParent = frameDoc.getElementById('responses');
-	var promptParent = frameDoc.getElementById('questionDiv');
-	
-	promptParent.innerHTML = 'Brainstorm Topic: <br>' + this.prompt;
-	
-	for(var p=0;p<this.cannedResponses.length;p++){
-		var response = createElement(frameDoc, 'textarea', {rows: '3', cols:  '75', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
-		response.value = this.cannedResponses[p].firstChild.nodeValue;
-		responsesParent.appendChild(response);
-		responsesParent.appendChild(createElement(frameDoc, 'br'));
-	};
 	
 	if (this.states!=null && this.states.length > 0) {
 		frameDoc.getElementById('studentResponse').value = this.states[this.states.length - 1].response;
+		this.showCannedResponses(frameDoc);
+	};
+	
+	if(this.isGated=='false' || this.isGated==false){
+		this.showCannedResponses(frameDoc);
+	};
+};
+
+BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
+	var responsesParent = frameDoc.getElementById('responses');
+	
+	while(responsesParent.firstChild){
+		responsesParent.removeChild(responsesParent.firstChild);
+	};
+	
+	for(var p=0;p<this.cannedResponses.length;p++){
+		var response = createElement(frameDoc, 'textarea', {rows: '3', cols:  '75', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
+		var responseTitle = createElement(frameDoc, 'div', {id: 'responseTitle_' + this.cannedResponses[p].getAttribute('name')});
+		responseTitle.innerHTML = 'Title: ' + this.cannedResponses[p].getAttribute('name');
+		responseTitle.appendChild(createElement(frameDoc, 'br'));
+		responseTitle.appendChild(response);
+		response.value = this.cannedResponses[p].firstChild.nodeValue;
+		
+		responsesParent.appendChild(responseTitle);
+		responsesParent.appendChild(createElement(frameDoc, 'br'));
 	};
 };
 
@@ -97,7 +97,9 @@ BRAINSTORM.prototype.save = function(frameDoc){
 		if(this.vle){
 			this.vle.state.getCurrentNodeVisit().nodeStates.push(currentState);
 		};
+		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>"
 	};
+	this.showCannedResponses(frameDoc);
 };
 
 BRAINSTORM.prototype.loadState = function(states){
