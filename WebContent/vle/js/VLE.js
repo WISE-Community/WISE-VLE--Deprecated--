@@ -106,7 +106,7 @@ VLE.prototype.renderNode = function(nodeId){
 	//alert('doc size:' + document.getElementById("projectLeftBox").offsetHeight + "," + document.getElementById("projectLeftBox").currentStyle.height);
 	//alert('padding bottom: ' + document.getElementById("projectRightUpperBox").style.marginBottom);
 	document.getElementById("ifrm").style.height = 
-		document.getElementById("projectLeftBox").offsetHeight - document.getElementById("projectRightUpperBox").offsetHeight - 3;
+		document.getElementById("projectLeftBox").offsetHeight - document.getElementById("projectRightUpperBox").offsetHeight - 5;
     // fire currenct changed event
 }
 

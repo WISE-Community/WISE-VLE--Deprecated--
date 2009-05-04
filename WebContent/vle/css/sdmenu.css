@@ -37,6 +37,7 @@ div.sdmenu div span:hover {
 
 div.sdmenu div.collapsed span {
 	background-image: url(../assets/images/collapsed.gif);
+	
 }
 div.sdmenu div a {
 	padding: 3px 4px 3px 8px;
