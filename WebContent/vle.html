@@ -216,10 +216,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 				<div class="unit">Unit 3: Lesson 1</div>
 			</div>
 	<div id="logInBox">
-		<p>Hello, Sample Student!</p>
-	</div>
-	<div id="logInTime">
-		<p>Mon 5/12, 10:32am</p>
+		<span>Hello, MyName</span><span>&nbsp&nbsp|&nbsp&nbsp</span><span>Mon 5/12 10:32am</span>
 	</div>
 			
 	</div>
@@ -254,10 +251,14 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 <div id="projectRightUpperBox">
 	<div id="stepNavButtons">
-    		 <a onclick="vle.renderPrevNode();" title="Previous step"><img align="middle" src="vle/assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
-			 <a onclick="vle.renderNextNode();" title="Next step"><img align="middle" src="vle/assets/images/go-next.png" alt="Next Arrow" border="0" />Next</a>
-			 <a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img align="middle" src="vle/assets/images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a>
-        </div>
+    	<table>
+    		<tr>
+    			<td><a onclick="vle.renderPrevNode();" title="Previous step"><img src="vle/assets/images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a></td>
+				<td><a onclick="vle.renderNextNode();" title="Next step"><img src="vle/assets/images/go-next.png" alt="Next Arrow" border="0" />Next</a></td>
+				<td><a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img src="vle/assets/images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a></td>
+    		</tr>
+    	</table>		 
+	</div>
 		
 	<div id="stepInfoBar">
     	<div class="instantQuizIcon"></div>
@@ -272,7 +273,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 <div id="projectRightLowerBox">
 	<div id="contentDiv" align="center"><div id="loadingMessageDiv"><br><br><br><br><br><br>Loading...</div>
-	<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0">
+	<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0" width="100%">
  [Content for browsers that don't support iframes goes here.]
 	</iframe>
 </div>
