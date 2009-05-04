@@ -33,6 +33,14 @@ GlueNode.prototype.load = function(){
 	window.frames["ifrm"].loadXMLAndStateAndVLE(this.element, states, vle);
 };
 
+GlueNode.prototype.renderPrev = function(){
+	window.frames["ifrm"].renderPrev();
+};
+
+GlueNode.prototype.renderNext = function(){
+	window.frames["ifrm"].renderNext();
+};
+
 GlueNode.prototype.getDataXML = function(nodeStates) {
 	return GlueNode.prototype.parent.getDataXML(nodeStates);
 };

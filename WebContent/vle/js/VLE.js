@@ -151,16 +151,21 @@ VLE.prototype.renderPrevNode = function() {
 	if (this.navigationLogic == null) {
 		alert("prev is not defined.");
 	}
-	var prevNode = this.navigationLogic.getPrevNode(currentNode);
-	while (prevNode != null && (prevNode.type == "Activity" || prevNode.children.length > 0)) {
-		prevNode = this.navigationLogic.getPrevNode(prevNode);
-	}
 	
-	if (prevNode == null) {
-		alert("prevNode does not exist");
+	if(currentNode.type=='GlueNode'){
+		currentNode.renderPrev();
 	} else {
-		this.renderNode(prevNode.id);
-	}
+		var prevNode = this.navigationLogic.getPrevNode(currentNode);
+		while (prevNode != null && (prevNode.type == "Activity" || prevNode.children.length > 0)) {
+			prevNode = this.navigationLogic.getPrevNode(prevNode);
+		}
+		
+		if (prevNode == null) {
+			alert("prevNode does not exist");
+		} else {
+			this.renderNode(prevNode.id);
+		}
+	};
 }
 
 VLE.prototype.renderNextNode = function() {
@@ -168,15 +173,20 @@ VLE.prototype.renderNextNode = function() {
 	if (this.navigationLogic == null) {
 		alert("next is not defined.");
 	}
-	var nextNode = this.navigationLogic.getNextNode(currentNode);
-	while (nextNode != null && (nextNode.type == "Activity" || nextNode.children.length > 0)) {
-		nextNode = this.navigationLogic.getNextNode(nextNode);
-	}
-	if (nextNode == null) {
-		alert("nextNode does not exist");
+	
+	if(currentNode.type=='GlueNode'){
+		currentNode.renderNext();
 	} else {
-		this.renderNode(nextNode.id);
-	}
+		var nextNode = this.navigationLogic.getNextNode(currentNode);
+		while (nextNode != null && (nextNode.type == "Activity" || nextNode.children.length > 0)) {
+			nextNode = this.navigationLogic.getNextNode(nextNode);
+		}
+		if (nextNode == null) {
+			alert("nextNode does not exist");
+		} else {
+			this.renderNode(nextNode.id);
+		}
+	};
 }
 
 VLE.prototype.getCurrentNode = function() {
