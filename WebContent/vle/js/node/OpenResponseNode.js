@@ -33,6 +33,25 @@ OpenResponseNode.prototype.load = function() {
 	window.frames["ifrm"].loadStateAndRender(vle, states);
 };
 
+/**
+ * Renders barebones open response
+ */
+OpenResponseNode.prototype.renderLite = function(frame){
+	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
+		this.retrieveFile();
+	};
+	
+	window.frames["ifrm"].frames[frame].location = "vle/js/node/openresponse/openresponselite.html";
+};
+
+/**
+ * Loades barebones open response
+ */
+OpenResponseNode.prototype.loadLite = function(frame){
+	var str = this.getXMLString();
+	setTimeout(function(){window.frames['ifrm'].frames[frame].renderORFromString(str);}, 2000);
+};
+
 OpenResponseNode.prototype.parseDataXML = function(nodeStatesXML) {
 	var statesXML = nodeStatesXML.getElementsByTagName("state");
 	var statesArrayObject = new Array();

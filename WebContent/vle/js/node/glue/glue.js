@@ -12,6 +12,8 @@
  	this.children = [];
  	this.xmlDoc = xmlDoc;
  	this.frames = [];
+ 	
+ 	this.parseXMLDoc();
  };
  
  GLUE.prototype.parseXMLDoc = function(){
@@ -33,6 +35,11 @@
  	this.frames = [];
  	document.getElementById('promptDiv').innerHTML = this.prompt;
  	var parent = document.getElementById('framesDiv');
+ 	
+ 	while(parent.firstChild){
+ 		parent.removeChild(parent.firstChild);
+ 	};
+ 	
  	for(var b=0;b<this.children.length;b++){
  		var frame = createElement(document, 'iframe', {id:'f'+this.children[b].id, name:'f'+this.children[b].id, width:'100%'});
  		parent.appendChild(frame);
@@ -42,6 +49,11 @@
  	};
  	
  	var buttonParent = document.getElementById('buttonsDiv');
+ 	
+ 	while(buttonParent.firstChild){
+ 		buttonParent.removeChild(buttonParent.firstChild);
+ 	};
+ 	
  	var saveButt = createElement(document, 'input', {id: 'saveButton', type: 'button', value: 'save', onclick: 'save()'});
  	var editButt = createElement(document, 'input', {id: 'editButton', type: 'button', value: 'edit', onclick: 'edit()'});
  	buttonParent.appendChild(saveButt);
@@ -51,7 +63,7 @@
 GLUE.prototype.save = function(){
  	//make sure all of the questions have been answered
  	for(var n=0;n<this.frames.length;n++){
- 		var answer = window.frames[this.frames[n].name].mc.answered;
+ 		var answer = window.frames[this.frames[n].name].getAnswered();
  		if(!answer){
  			alert('You must answer all of the questions before continuing');
  			return;
@@ -61,7 +73,7 @@ GLUE.prototype.save = function(){
  	//check the individual answers and add to glue state
  	var childstates = "";
  	for(var m=0;m<this.frames.length;m++){
- 		var childState = window.frames[this.frames[m].name].mc.checkAnswerLite();
+ 		var childState = window.frames[this.frames[m].name].checkAnswerLite();
  		var childId = this.frames[m].name.substring(1, this.frames[m].name.length);
  		childstates += '<childState childId=' + childId + '>' + childState.getDataXML() + '</childState>';
  	};

@@ -9,6 +9,7 @@ function OPENRESPONSE(xmlDoc) {
   this.vle = null;
   this.states = [];
   this.customJournalTimestamp;
+  this.answered = false;
 }
 
 /**
@@ -112,6 +113,52 @@ OPENRESPONSE.prototype.render = function() {
 	} else {
 		document.getElementById("numberAttemptsDiv").innerHTML = "This is your first revision.";
 		this.clean();
+	}
+}
+
+OPENRESPONSE.prototype.renderLite = function(){
+	//prompt
+	document.getElementById('promptType').removeChild(document.getElementById('promptDiv'));
+	this.createStandardPrompt();
+	document.getElementById('promptDiv').innerHTML=this.promptText;
+	document.getElementById('type').innerHTML = 'question';
+	
+	//response
+	document.getElementById('responseBox').setAttribute('rows', this.expectedLines);
+	document.getElementById('responseBox').setAttribute('onkeyup', 'answered()');
+	if (this.states!=null && this.states.length > 0) {
+		document.getElementById('responseBox').value = this.states[this.states.length - 1].response;
+	};
+};
+
+/**
+ * Load states and VLE and then calls renderLite
+ */
+OPENRESPONSE.prototype.loadLite = function(node, vle){
+	this.vle = vle;
+	this.node = node;
+	this.setState();
+	this.renderLite();
+};
+
+OPENRESPONSE.prototype.checkAnswerLite = function(){
+	var orState = new OPENRESPONSESTATE(document.getElementById('responseBox').value);
+	this.states.push(orState);
+	if (this.vle != null) {
+		this.vle.state.getCurrentNodeVisit().nodeStates.push(orState);
+	};
+	
+	return orState;
+};
+
+OPENRESPONSE.prototype.setState = function() {
+	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
+		var nodeVisit = this.vle.state.visitedNodes[i];
+		if (nodeVisit.node.id == this.node.id) {
+			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
+				this.states.push(nodeVisit.nodeStates[j]);
+			}
+		}
 	}
 }
 
