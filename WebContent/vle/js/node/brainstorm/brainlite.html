@@ -42,16 +42,16 @@ function loaded(){
 </head>
 <body onload="loaded()">
 	<div id='main'>
-		<div id="brain_title">Student Brainstorm</div>
-		<p id="brain_instructions">Read the brainstorm topic below.  When you're ready to write your response, click the <em>Continue</em> button.<p>
-		<div id="questionPrompt"></div><br>
+		<div id="brain_title">Student Brainstorm: Self Guided</div>
+		<p id="brain_instructions">Read the brainstorm topic below, then write your response in the blank box.<br/>
+		Click <em>Save</em> to save your work and review responses from other students.<p>
+		<div id="questionPrompt"></div>
 		<div id='studentResponseDiv'>
-			Enter your response.
-			<textarea id='studentResponse' rows='3' cols = '75'></textarea>
+			<br/>My Response:<br/>
+			<textarea id='studentResponse' rows='5' cols = '80'></textarea><br/>
 			<input id='butt' type='button' value='save' onclick='save()'/><div id='saveMsg'></div>
 		</div>
 		<br>
-		
 		Other Student Responses:<br>
 		<div id='responses'>
 		</div>
