@@ -79,17 +79,7 @@ VLE.prototype.renderNode = function(nodeId){
         this.contentPanel.render(currentNode.id);
 		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
 		if(this.connectionManager != null) {
-			//set postNodes to contain all the leaf nodes
-			this.postNodes = this.getLeafNodeIds();
-			for(var q=0;q<this.postNodes.length;q++){
-				if(currentNode.id==this.postNodes[q]){
-					if(vle.myUserInfo != null) {
-						this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName);
-					} else {
-						this.connectionManager.post();
-					}
-				};
-			};
+			this.postToConnectionManager(currentNode);
 		}
         //alert('a:' + currentNode.nodeSessionEndedEvent);
         //alert('b:' + this.onNodeSessionEndedEvent);
@@ -108,6 +98,25 @@ VLE.prototype.renderNode = function(nodeId){
 	document.getElementById("ifrm").style.height = 
 		document.getElementById("projectLeftBox").offsetHeight - document.getElementById("projectRightUpperBox").offsetHeight - 5;
     // fire currenct changed event
+}
+
+
+/**
+ * Posts the latest state to the server.
+ * @param currentNode
+ */
+VLE.prototype.postToConnectionManager = function(currentNode) {
+	//set postNodes to contain all the leaf nodes
+	this.postNodes = this.getLeafNodeIds();
+	for(var q=0;q<this.postNodes.length;q++){
+		if(currentNode.id==this.postNodes[q]){
+			if(vle.myUserInfo != null) {
+				this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName);
+			} else {
+				this.connectionManager.post();
+			}
+		};
+	};
 }
 
 /**
@@ -512,6 +521,18 @@ VLE.prototype.loadVLEState = function(vle) {
 	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
 }
 
+/**
+ * This should be called when the browser window that contains the vle
+ * closes so we can perform clean up.
+ */
+VLE.prototype.closeVLE = function() {
+	//set the endVisitTime to the current time for the current state
+	this.state.endCurrentNodeVisit();
+	
+	//post the latest student data to the server
+	this.postToConnectionManager(this.getCurrentNode());
+}
+
 function USER_INFO(workgroupId, userName) {
 	this.workgroupId = workgroupId;
 	this.userName = userName;
@@ -567,6 +588,11 @@ VLE_STATE.prototype.getCurrentNodeVisit = function() {
 	}
 }
 
+VLE_STATE.prototype.endCurrentNodeVisit = function() {
+	var currentNodeVisit = this.getCurrentNodeVisit();
+	currentNodeVisit.visitEndTime = new Date();
+}
+
 /**
  * Returns an array of NODE_VISITS for the specified nodeId
  * @param {Object} nodeId
@@ -602,6 +628,24 @@ VLE_STATE.prototype.getVisitedNodesDataXML = function() {
 	//loop through all the visited nodes and retrieve the xml for each node
 	for (var i=0; i<this.visitedNodes.length;i++) {
 		dataXML += this.visitedNodes[i].getDataXML();
+	}
+	
+	return dataXML;
+}
+
+/**
+ * Gets all the node visits that have non null visitEndTime fields.
+ * This should be all the nodes except the most recent node the
+ * student is on because they have not exited the step yet.
+ */
+VLE_STATE.prototype.getCompletelyVisitedNodesDataXML = function() {
+	var dataXML = "";
+	
+	//loop through all the visited nodes and retrieve the xml for each node
+	for (var i=0; i<this.visitedNodes.length;i++) {
+		if(this.visitedNodes[i].visitEndTime != null) {
+			dataXML += this.visitedNodes[i].getDataXML();
+		}
 	}
 	
 	return dataXML;

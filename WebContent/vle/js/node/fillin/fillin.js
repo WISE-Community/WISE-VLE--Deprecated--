@@ -30,6 +30,14 @@ FILLIN.prototype.loadFromVLE = function(node, vle) {
 }
 
 /**
+ * Obtains a handle on the vle so that the fillin can access the
+ * state of the VLE when it checks answer.
+ */
+FILLIN.prototype.setVLE = function(vle) {
+	this.vle = vle;
+}
+
+/**
  * Loads state from VLE_STATE.
  * @param {Object} vleState
  */

@@ -14,6 +14,7 @@ function ConnectionManager(vle) {
 
 ConnectionManager.prototype.setVLE = function(vle) {
 	this.vle = vle;
+	this.lastPostStates = vle.state.getVisitedNodesDataXML();
 }
 
 ConnectionManager.prototype.setPostURL = function(postURL) {
@@ -44,22 +45,22 @@ ConnectionManager.prototype.post = function(workgroupId, userName, save) {
 		//return;
 	}	
 
+	//obtain the current post states
+	var currentPostStates = this.vle.state.getCompletelyVisitedNodesDataXML();
+	
+	//get the diff between the current and the last posted states
+	var diff = currentPostStates.replace(this.lastPostStates, "");
+	
+	//update the lastPostStates to be the current
+	this.lastPostStates = currentPostStates;
 
 	/*
 	 * the data to send back to the db which includes id, and the xml
 	 * representation of the students navigation and work 
 	 */ 
-	postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
+	//postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
+	postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + diff;
 
-	var currentPostStates = this.vle.state.getVisitedNodesDataXML();
-	var dif = currentPostStates.replace(this.lastPostStates, "");
-	
-	//alert("last: " + this.lastPostStates);
-	//alert("current: " + this.vle.state.getVisitedNodesDataXML());
-	//alert("dif: " + dif);
-	
-	this.lastPostStates = this.vle.state.getVisitedNodesDataXML();
-	
 	var callback = {
 		success: function(o) {
 			var time = vle.getLastStateTimestamp();

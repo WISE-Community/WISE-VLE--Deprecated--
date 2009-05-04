@@ -60,10 +60,11 @@ function edit() {
 /**
  * xmlString contains QTI-coded xml content
  */
-function loadXMLString(xmlString) {
+function loadXMLString(xmlString, vle) {
 	  var xmlDoc=loadXMLDocFromString(xmlString);
 	  fi = new FILLIN(xmlDoc);
 	  fi.render(currentTextEntryInteractionIndex);
+	  fi.setVLE(vle);
 }
 
 function checkAnswer() {
