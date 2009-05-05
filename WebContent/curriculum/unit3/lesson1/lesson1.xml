@@ -52,6 +52,9 @@
 		<FlashNode identifier='flash1' title='Flash-JS demo'>
 			<ref filename='flash_js_demo.swf' />
 		</FlashNode>
+		<FlashNode identifier='testflash' title='Flash-JS demo'>
+			<ref filename='testflash.html' />
+		</FlashNode>
 	</nodes>
 	
 	<sequences>
@@ -59,7 +62,7 @@
 		<sequence-ref ref="sequence1" />
 	</sequence>
 	<sequence identifier='sequence1'>
-		<node-ref ref='flash1'  /> 	
+		<node-ref ref='testflash'  /> 	
 		<node-ref ref='a1s1'  />
 		<node-ref ref='a1s2fill'  />
 		<node-ref ref='a2s1'  /> 	

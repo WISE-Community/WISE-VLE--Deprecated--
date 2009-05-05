@@ -303,12 +303,3 @@ function render(flashFile) {
 		'salign', ''
 		); //end AC code
 }
-
-function callToFlash()
-{
-	thisMovie("flash_js_demo").callToFlash();
-}
-
-function showJsAlert() {
-	alert("hi");
-}

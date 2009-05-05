@@ -18,9 +18,6 @@ function FlashNode(nodeType) {
 FlashNode.prototype.setContent = function(content) {
 	//update the content attribute that contains the html
 	this.content = content;
-	
-	//update the element node so it contains the new html the user just authored...why is this needed?
-	//this.element.getElementsByTagName("content")[0].firstChild.nodeValue = content;
 }
 
 
@@ -29,19 +26,66 @@ FlashNode.prototype.render = function(contentPanel) {
 		this.retrieveFile();
 	};
 	
+	if (this.elementText != null) {
+		this.content = this.elementText;
+		this.writeHTML(window.frames["ifrm"].document);
+		return;
+	} else if (this.filename != null) {
+	
+		if(window.ActiveXObject) {
+			this.content = this.element.xml;
+		} else {
+			this.content = (new XMLSerializer()).serializeToString(this.element);
+		};
+		
+		this.writeHTML(window.frames["ifrm"].document);
+		return;
+	} else if(this.content == null) {
+		this.content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
+	}
+	
 	if(contentPanel == null) {
-		window.frames["ifrm"].location = "vle/js/node/flash/flash_js.html";
+		contentPanel = window.frames["ifrm"];
+	}
+	
+	if (contentPanel.document) {
+		this.writeHTML(contentPanel.document);
 	} else {
-		contentPanel.location = "vle/js/node/flash/flash_js.html";
+		this.writeHTML(window.frames["ifrm"].document);
+	}
+};
+
+FlashNode.prototype.writeHTML = function(doc){
+	this.replaceVars(doc);
+	doc.open();
+	doc.write(this.content);
+	doc.close();
+};
+
+FlashNode.prototype.replaceVars = function(){
+	var objSrchStrStart = '<param name="movie" value="';
+	var objSrchStrEnd = '"/>';
+	var base = vle.project.contentBaseUrl;
+	if(base){
+		base = base + '/';
+	} else {
+		base = "";
+	};
+	
+	var obs = this.content.match(/<object.*>(.|\n|\r)*<\/object.*>/i);
+	for(var z=0;z<obs.length;z++){
+		if(obs[z] && obs[z]!="" && obs[z]!='\n' && obs[z]!='\r' && obs[z]!='\t'){
+			var startIndex = obs[z].indexOf(objSrchStrStart) + objSrchStrStart.length;
+			var endIndex = obs[z].indexOf('"', startIndex);
+			var filename = obs[z].substring(startIndex, endIndex);
+			var exp = new RegExp(filename, 'g');
+			this.content = this.content.replace(exp, base + filename);
+		};
 	};
 };
 
-FlashNode.prototype.load = function() {	
-	var filenameWithoutExtention = this.filename.substring(0, this.filename.indexOf(".swf"));
-	window.frames["ifrm"].render(filenameWithoutExtention);
-	
-	//these steps are now loaded from the vle/otml, this does not work for some reason
-	//window.frames["ifrm"].loadFromVLE(this, vle);
+FlashNode.prototype.load = function() {
+	this.createFlashJSInterface();
 		
 	document.getElementById('topStepTitle').innerHTML = this.title;
 };
@@ -70,3 +114,14 @@ FlashNode.prototype.exportNode = function() {
 	
 	return exportXML;
 }
+
+FlashNode.prototype.createFlashJSInterface = function(){
+	window.frames["ifrm"].showJsAlert = function(){alert('calling js from flash');};
+	window.frames["ifrm"].callToFlash = function(flashObjId){
+		if(navigator.appName.indexOf("Microsoft")!=-1){
+			window.frames["ifrm"].window[flashObjId].callToFlash();
+		} else {
+			window.frames["ifrm"].document[flashObjId].callToFlash();
+		};
+	};
+};
