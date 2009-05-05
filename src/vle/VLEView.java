@@ -36,31 +36,31 @@ public class VLEView extends HttpServlet {
 		 * the mapping from projectId to content urls is hardcoded now until
 		 * we get the database tables set up
 		 */
-		if(projectIdString.equals(1)) {
+		if(projectIdString.equals("1")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/unit9999/lesson9999";
 			contentUrl = contentBaseUrl +  "/lesson9999.project.xml";
-		} else if(projectIdString.equals(2)) {
+		} else if(projectIdString.equals("2")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35510";
 			contentUrl = contentBaseUrl +  "/wise4-35510.xml";
-		} else if(projectIdString.equals(3)) {
+		} else if(projectIdString.equals("3")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35511";
 			contentUrl = contentBaseUrl +  "/wise4-35511.xml";
-		} else if(projectIdString.equals(4)) {
+		} else if(projectIdString.equals("4")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35512";
 			contentUrl = contentBaseUrl +  "/wise4-35512.xml";
-		} else if(projectIdString.equals(5)) {
+		} else if(projectIdString.equals("5")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35513";
 			contentUrl = contentBaseUrl +  "/wise4-35513.xml";
-		} else if(projectIdString.equals(6)) {
+		} else if(projectIdString.equals("6")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-dep1";
 			contentUrl = contentBaseUrl +  "/wise4-dep1.xml";
-		} else if(projectIdString.equals(7)) {
+		} else if(projectIdString.equals("7")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-dep2";
 			contentUrl = contentBaseUrl +  "/wise4-dep2.xml";
-		} else if(projectIdString.equals(8)) {
+		} else if(projectIdString.equals("8")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-nos";
 			contentUrl = contentBaseUrl + "/wise4-nos.xml";
-		} else if(projectIdString.equals(-1)) {
+		} else if(projectIdString.equals("-1")) {
 			contentBaseUrl = getServletUrl(request) + "/curriculum/unit3/lesson1";
 			contentUrl = contentBaseUrl +  "/lesson1.xml";
 		} else if(projectIdString.equals("asu_demo1")) {
