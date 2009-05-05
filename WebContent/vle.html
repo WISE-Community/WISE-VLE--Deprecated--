@@ -128,6 +128,7 @@ function loadProjectFromServer(projectName){
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
+		  vle.audioManager = new AudioManager(true);
 		 
           var startId = project.getStartNodeId();
           

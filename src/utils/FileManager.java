@@ -120,7 +120,8 @@ import javax.servlet.http.HttpServletResponse;
 		boolean success;
 		success = newDir.mkdir();
 		if(success){
-			File newFile = new File(newDir, name + ".project.xml");
+			String fileName = name + ".project.xml";
+			File newFile = new File(newDir, fileName);
 			success = newFile.createNewFile();
 			if(success){
 				FileOutputStream fop = new FileOutputStream(newFile);
