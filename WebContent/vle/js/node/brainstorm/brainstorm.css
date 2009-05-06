@@ -16,6 +16,7 @@
 #brain_instructions {
 	text-align:center;
 	color:#334B7B;
+	font-size:.9em;
 	}
 
 #questionprompt, #questionDiv {

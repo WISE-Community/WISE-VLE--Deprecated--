@@ -279,6 +279,34 @@
 	width:90%;
 }
 
+/* STYLES FOR ALL EDITORS  */
+
+#dynamicParent {
+	vertical-align:top;
+}
+
+#header {
+	background-color:#919EBA;
+	border:1px solid #334B7B;
+	padding:2px;
+	margin-bottom:2px;
+}
+
+#header #authorNavButtons {
+	width:400px;
+	text-align:center;
+}
+
+#header #authorNavButtons input{
+	font-weight:bold;
+	padding:2px 10px;
+	margin:0 5px;
+}
+
+#header #authorNavButtons input:hover{
+	background-color:#FFFF00;
+}
+
 
 /* STYLES FOR BRAINSTORM EDITOR WINDOW  */
 
@@ -305,3 +333,18 @@
 	font-size:1.0em;
 }
 
+
+
+/* STYLES FOR MATCH AND SEQUENCE EDITOR WINDOW  */
+
+#editorTitle {
+	color:#19253D;
+	font-size:1.1em;
+	letter-spacing:1.5px;
+	font-variant:small-caps;
+	margin:0 0 4px 0;
+}
+
+#containerTable input  {
+	width:250px;
+	}

@@ -39,13 +39,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .color3 {color:#919EBA;}   /* light blue */
 .color4 {color:#334B7B;}   /* dark blue */
 .color5 {color:#19253D;}   /* very dark blue */
-.color6 {color:#4E628B;}
+.color6 {color:#4E628B;}   /* REVERSE dark purple blue */
 .color7 {color:#FF9D1E;}  /* bold orange */
 .color8 {color:#FFCE8E;}  /* mid tan */
 .color9 {color:#FFE6C6;}  /* light tan */
 .color10 {color:#a97e46;}  /* brown */
 .color11 {color:#543f23;}  /* dark red */
-.color12 {color:#bf9a6b;}
+.color12 {color:#bf9a6b;}  /* lighter brown */
 
 .bg1 {background-color:#164CBA;color:#FFF;}
 .bg2 {background-color:#6883BA;color:#000;}
@@ -146,8 +146,18 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	padding: 0 15px 0 20px;
 	color:#333333;
 		}
-		
-#questionTable #questionHelp, .instructionsReminder a {
+
+.instructionsReminder a { 
+	font-size:.8em;
+	color:#333;
+	padding:2px 5px;	
+	}
+
+.instructionsReminder a:hover {
+	background-color:#FFFF00;
+}
+
+#questionTable #questionHelp {
 	width:16px;
 	height:16px;
 	background-image:url(../images/infoIcon.png);
@@ -156,12 +166,12 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	padding:0;
 		}
 
-#questionTable #questionHelp a, .instructionsReminder a {
+#questionTable #questionHelp a {
 	outline:0px;
 	text-decoration:none;
 		}
 		
-#questionTable #questionHelp:hover, .instructionsReminder a:hover {
+#questionTable #questionHelp:hover{
 	background-image:url(../images/infoIconRollover.png);
 		}
 
@@ -189,11 +199,11 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}
 
 #statusDiv {
-	width:70%;
+	width:80%;
 	margin:5px auto 0 auto;
 	padding:2px;
 	text-align:center;
-	font-size:.9em;
+	font-size:.8em;
 	color:#19253D;
 	color:#333;
 	}

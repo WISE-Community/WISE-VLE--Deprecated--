@@ -2,6 +2,10 @@
 
 <html>
 <head>
+
+<!-- AUTHOR CSS -->
+<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript">
 var filename;
@@ -100,13 +104,13 @@ window.onbeforeunload = function(){
 			<table>
 				<tr>
 					<td>
-						Option for editing files:<br>
-						<input type='radio' id='easyTrue' name='radioMode' onclick='modeChanged(true)'>Easy</input><br>
+						Editor View:
+						<input type='radio' id='easyTrue' name='radioMode' onclick='modeChanged(true)'>Simple</input>
 						<input type='radio' id='easyFalse' name='radioMode' onclick='modeChanged(false)'/>Advanced</input>
 					</td>
-					<td>
-						<input type='button' value='Save' onclick='save()'/><br>
-						<input type='button' value='Return to main authoring page' onclick='self.close()'/>
+					<td id="authorNavButtons">
+						<input type='button' value='Save Work' onclick='save()'/>
+						<input type='button' value='Return to Main Authoring Page' onclick='self.close()'/>
 					</td>
 				</tr>
 			</table>
