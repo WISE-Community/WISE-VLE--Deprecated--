@@ -857,12 +857,14 @@ function authoringFrameLoaded() {
 </div>
 
 <div id='openProjectDialog'>
-	<div class='hd'>Select a project from the list below to open it.</div>
+	<div class='hd'>Select a project from <br/>the list below to open it.</div>
 	<div class='bd'>
+		<br/>
 		<form method='POST' action='filemanager.html'>
-			<select id='selectProject' onchange='optionSelected()'>
+			<select id='selectProject' onchange='optionSelected()'>	 
 				<option name='placeholderOption' value=''/>
 			</select>
+			<br/><br/>
 		</form>
 	</div>
 </div>

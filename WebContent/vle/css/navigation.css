@@ -109,7 +109,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	padding:0;
 	margin:0;
 	width:100%;
-	height:50%;
 	}
 
 /* STYLES FOR PROJECT LEFT BOX */
@@ -147,18 +146,12 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-weight:bold;
 	     }
 		 	
-#loginBox{
-	font-size:.75em;
+#loginBox {
+	font-size:.6em;
 	text-align:center; 
+	margin-top:3px;
  }
  
- #loginTime{
-	color:#990000;
-	margin-top:3px;
-	font-size:.75em;
-	text-align:center; 
- }
-	
 #audioControls  {
 	background-color:#CCC;
 	border-top:1px solid #666;
@@ -236,7 +229,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}	
 	
 #navigationMenuBox {
-	height:64%;
+	height:65%;
 	overflow-y:auto;
 	overflow-x:hidden;
 	margin-left:2px;
@@ -300,7 +293,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 		
 #stepNavButtons {
 	position:absolute;
-	top:6px;
 	right:4px;
 		}
 
@@ -308,20 +300,19 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-size:.70em;
 	margin: 0 5px  0 0;
 	color:#666;
+	cursor:pointer;
 		}
 		
 #stepNavButtons a:hover {
 	color:#FFFF00;
+	cursor:pointer;
 		}
 		
-#stepNavButtons img {
-	margin-top:-8px;
-		}
-
-#stepNavButtons .menuSwitcher img {
-	margin-right:-5px;
-	margin-left:-5px;
+#stepNavButtons img  {
+	vertical-align:middle;
 }
+
+
 
 <!-- Anchor-Based Button Layout using TABLE-->
 

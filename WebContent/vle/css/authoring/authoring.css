@@ -273,11 +273,29 @@
 	padding: 0 3px 3px 3px;
 }
 
+/* AUTHOR TOOL POP UP WINDOWS  */
+
+#openProjectDialog select {
+	width:90%;
+}
+
 
 /* STYLES FOR BRAINSTORM EDITOR WINDOW  */
 
 #promptDiv textarea {
 	background-color:#FFE6C6;
+}
+
+#cannedResponsesDiv input{
+	margin-left:25px;
+	width:300px;
+}
+
+#cannedResponsesDiv textarea{
+	width:500px;
+	height:46px;
+	margin-top:5px;
+	overflow-y:auto;
 }
 
 #cannedResponsesDiv input.button{

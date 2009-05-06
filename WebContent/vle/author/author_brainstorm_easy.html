@@ -284,7 +284,7 @@ function generateCannedResponses(){
 	};
 	
 	var cannedResponsesDiv = createElement(document, 'div', {id: 'cannedResponsesDiv'});
-	var cannedResponsesDivText = document.createTextNode('Edit/Create canned responses');
+	var cannedResponsesDivText = document.createTextNode('Edit/Create canned student responses', {class:'cannedResponsesTitle'});
 	var createButton = createElement(document, 'input', {type: 'button', class:'button', value: 'Create New Response', onclick: 'createNewResponse()'});
 	var removeButton = createElement(document, 'input', {type: 'button', class:'button', value: 'Remove Response', onclick: 'removeResponse()'});
 	var responses = xmlPage.getElementsByTagName('response');
@@ -308,6 +308,7 @@ function generateCannedResponses(){
 		cannedResponsesDiv.appendChild(createBreak());
 		cannedResponsesDiv.appendChild(responseTitleText);
 		cannedResponsesDiv.appendChild(responseTitleInput);
+		cannedResponsesDiv.appendChild(createBreak());
 		cannedResponsesDiv.appendChild(responseValueText);
 		cannedResponsesDiv.appendChild(responseValueInput);
 	};
