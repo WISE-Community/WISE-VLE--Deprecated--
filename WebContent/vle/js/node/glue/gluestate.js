@@ -4,7 +4,7 @@
 function GLUESTATE(response, timestamp){
 	this.response = response;
 	if(arguments.length == 1) {
-		this.timestamp = new Date();
+		this.timestamp = new Date().toUTCString();
 	} else {
 		this.timestamp = timestamp;
 	};

@@ -8,7 +8,7 @@ function MCCBSTATE(timestamp, choicesArray) {
 
 	//use the current time or the argument timestamp passed in
 	if(arguments.length == 0) {
-		this.timestamp = new Date();
+		this.timestamp = new Date().toUTCString();
 	} else {
 		this.timestamp = timestamp;
 	}

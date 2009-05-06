@@ -13,7 +13,7 @@ function FILLINSTATE(textEntryInteractionIndex, response, timestamp) {
 	
 	if(arguments.length == 2) {
 		//if the third argument (timestamp) was ommitted just set it to the current time
-		this.timestamp = new Date();
+		this.timestamp = new Date().toUTCString();
 	} else {
 		this.timestamp = timestamp;
 	}

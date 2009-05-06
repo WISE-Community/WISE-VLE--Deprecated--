@@ -29,7 +29,8 @@ ConnectionManager.prototype.setGetURL = function(getURL) {
  * Sends the user's navigation and student data back to the vle db
  */
 ConnectionManager.prototype.post = function(workgroupId, userName, save) {
-	
+	//this.postURL = "http://localhost:8080/vlewrapper/postdata.html";
+
 	if(this.postURL == null) {
 		return;
 	}
@@ -59,7 +60,7 @@ ConnectionManager.prototype.post = function(workgroupId, userName, save) {
 	 * representation of the students navigation and work 
 	 */ 
 	//postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
-	postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + diff;
+	postData = 'userId=' + workgroupId + '&data=' + diff;
 
 	var callback = {
 		success: function(o) {

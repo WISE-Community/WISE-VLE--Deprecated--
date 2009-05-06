@@ -27,8 +27,8 @@ OPENRESPONSE.prototype.save = function() {
 			if(this.vle.getNodeById(this.xmlDoc.getAttribute('id'))){
 				//custom journal entry node already exists, just update here
 				var node = this.vle.getNodeById(this.xmlDoc.getAttribute('id'));
-				this.states.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value));
-				this.vle.state.getCurrentNodeVisit().nodeStates.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value)); 
+				this.states.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date().toUTCString(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value));
+				this.vle.state.getCurrentNodeVisit().nodeStates.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date().toUTCString(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value)); 
 				
 				//update title and prompt if necessary
 				if(node.title!=document.getElementById('promptInput').value){
@@ -41,8 +41,8 @@ OPENRESPONSE.prototype.save = function() {
 				//custom journal entry node does not exist, create, create state and re-render the journal
 				var customNode = this.createNode();
 				this.vle.state.setCurrentNodeVisit(customNode);
-				this.states.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value));
-				this.vle.state.getCurrentNodeVisit().nodeStates.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value));
+				this.states.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date().toUTCString(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value));
+				this.vle.state.getCurrentNodeVisit().nodeStates.push(new CUSTOMJOURNALENTRYSTATE(document.getElementById('responseBox').value, new Date().toUTCString(), this.xmlDoc.getAttribute('id'), document.getElementById('promptInput').value));
 				this.vle.getNodeById('J:0').setParameters(this.xmlDoc.getAttribute('id'));
 				this.vle.renderNode('J:0');
 			};
@@ -92,7 +92,7 @@ OPENRESPONSE.prototype.render = function() {
 			this.promptText = "";
 		};
 		document.getElementById('promptInput').value = this.promptText;
-		this.customJournalTimestamp = new Date();
+		this.customJournalTimestamp = new Date().toUTCString();
 		if(this.states!=null && this.states.length > 0){
 			document.getElementById('promptInput').setAttribute('disabled', 'disabled');
 		}

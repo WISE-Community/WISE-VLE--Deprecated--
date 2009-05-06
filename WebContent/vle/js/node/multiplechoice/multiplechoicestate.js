@@ -8,7 +8,7 @@ function MCSTATE(choiceIdentifier, timestamp) {
 	
 	if(arguments.length == 1) {
 		//if the second argument (timestamp) was ommitted just set it to the current time
-		this.timestamp = new Date();
+		this.timestamp = new Date().toUTCString();
 	} else {
 		this.timestamp = timestamp;
 	}

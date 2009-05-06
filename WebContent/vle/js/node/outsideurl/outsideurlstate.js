@@ -3,7 +3,7 @@
  * @author Hiroki Terashima
  */
 function OUTSIDEURLSTATE(response) {
-	this.timestamp = new Date();
+	this.timestamp = new Date().toUTCString();
 	this.response = response;   // which choice the student chose.
 }
 

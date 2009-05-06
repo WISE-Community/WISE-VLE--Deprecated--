@@ -600,7 +600,7 @@ VLE_STATE.prototype.getCurrentNodeVisit = function() {
 
 VLE_STATE.prototype.endCurrentNodeVisit = function() {
 	var currentNodeVisit = this.getCurrentNodeVisit();
-	currentNodeVisit.visitEndTime = new Date();
+	currentNodeVisit.visitEndTime = new Date().toUTCString();
 }
 
 /**
@@ -770,7 +770,7 @@ function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 	if (arguments.length == 1) {
 		//set default values if they aren't provided
 		this.nodeStates = [];
-		this.visitStartTime = new Date();
+		this.visitStartTime = new Date().toUTCString();
 		this.visitEndTime = null;
 	} else {
 		this.nodeStates = nodeStates;
@@ -871,7 +871,7 @@ VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 	
 	// set endtime on previous 
 	if (currentNodeVisit != null) {
-		currentNodeVisit.visitEndTime = new Date();
+		currentNodeVisit.visitEndTime = new Date().toUTCString();
 	}
 	var newNodeVisit = new NODE_VISIT(node);
 	this.visitedNodes.push(newNodeVisit);
