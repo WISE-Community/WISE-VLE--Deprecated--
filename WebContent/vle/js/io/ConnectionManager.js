@@ -51,7 +51,8 @@ ConnectionManager.prototype.post = function(workgroupId, userName, save) {
 	
 	//get the diff between the current and the last posted states
 	var diff = currentPostStates.replace(this.lastPostStates, "");
-	
+	diff = "<vle_state>" + diff + "</vle_state>";
+
 	//update the lastPostStates to be the current
 	this.lastPostStates = currentPostStates;
 
