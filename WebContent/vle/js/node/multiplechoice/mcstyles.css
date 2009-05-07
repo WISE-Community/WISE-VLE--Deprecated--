@@ -16,7 +16,7 @@
 	float:left;
 	width:78%;
 	padding:10px 0;
-	height:400px;
+	min-height:425px;
 	}
 	
 #currentQuestionBox #rightColumn {
@@ -24,11 +24,11 @@
 	padding:10px 0;
 	text-align:center;
 	color:#FFF;
-	height:400px;
+	min-height:425px;
 	}
 
 #currentQuestionBox #rightColumn img {
-	margin:50px 0 0 0 ;
+	margin:80px 0 0 0 ;
 }
 	
 .itemLabel {
@@ -38,10 +38,24 @@
 }
 
 #promptdiv {
-	font-size:1.0em;
+	font-size:.8em;
 	color:#000;
 	margin:3px 10px 15px 15px;
 	font-weight:bold;
+	line-height:150%;
+}
+
+#promptdiv p {
+	font-size:.9em;
+	font-weight:normal;
+}
+
+#promptdiv a:link, #promptdiv a:visied {
+	color:#000;
+}
+
+#promptdiv a:hover {
+	background-color:#FFFF00;
 }
 
 #promptdiv tt {
@@ -56,11 +70,11 @@
 }
 
 #radiobuttondiv {
-	margin: 10px 20px 20px 20px;
+	margin: 10px;
 }
 
 #radiobuttondiv table td {
-	font-size:.9em;
+	font-size:.80em;
 	vertical-align:top;
 	padding:2px 2px 6px 2px;
 }
