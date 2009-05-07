@@ -91,15 +91,17 @@ BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
 
 BRAINSTORM.prototype.save = function(frameDoc){
 	var response = frameDoc.getElementById('studentResponse').value
-	if(response){
+	if(response && response!=""){
 		var currentState = new BRAINSTORMSTATE(response);
 		this.states.push(currentState);
 		if(this.vle){
 			this.vle.state.getCurrentNodeVisit().nodeStates.push(currentState);
 		};
-		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>"
+		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>";
+		this.showCannedResponses(frameDoc);
+	} else {
+		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>nothing to save</font>";
 	};
-	this.showCannedResponses(frameDoc);
 };
 
 BRAINSTORM.prototype.loadState = function(states){
