@@ -57,7 +57,12 @@
 
 #radiobuttondiv {
 	margin: 10px 20px 20px 20px;
+}
+
+#radiobuttondiv table td {
 	font-size:.9em;
+	vertical-align:top;
+	padding:2px 2px 6px 2px;
 }
 
 input *{color:red}
