@@ -7,6 +7,10 @@
 			var currentContainer = null;
 			var currentChoice = null;
 			
+			window.onbeforeunload=function(){
+				mainPage.updatePreview();
+			};
+			
 			/**
 			 * Generates this page
 			 */
@@ -75,13 +79,16 @@
 			 			if(val){ //feedback exists
 			 				var html;
 			 				if(val.getAttribute('isCorrect')=='true'){
-			 					html = "<font color='008900'>" + val.firstChild.nodeValue + "</font>";
+			 					feedbackTD.setAttribute('bgcolor', '#99FFCC');
+			 					html = val.firstChild.nodeValue;
 			 				} else {
-			 					html = "<font color='8B0000'>" + val.firstChild.nodeValue + "</font>";
+			 					feedbackTD.setAttribute('bgcolor', '#FF9999');
+			 					html = val.firstChild.nodeValue;
 			 				};
 			 				feedbackTD.innerHTML = html;
 			 			} else { //feedback not there
-			 				feedbackTD.innerHTML = "<font color='8B0000'>Create Feedback</font>";
+			 				feedbackTD.setAttribute('bgcolor', '#FF9999');
+			 				feedbackTD.innerHTML = 'Create Feedback';
 			 			};
 			 			
 			 			row.appendChild(feedbackTD);

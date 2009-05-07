@@ -54,8 +54,9 @@ function generatePage(){
 	
 	//create new elements
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
-	var prompt = createElement(document, 'textarea', {id: 'promptArea', rows: '10', cols: '75', wrap: 'hard', onkeyup: 'updatePrompt()'});
+	var prompt = createElement(document, 'textarea', {id: 'promptArea', rows: '10', cols: '75', wrap: 'hard', onchange: 'updatePrompt()'});
 	var promptText = document.createTextNode('Edit prompt:');
+	var orderingDiv = createElement(document, 'div', {id: 'orderingOptions'});
 	var order = createElement(document, 'input', {type: 'radio', id: 'ordered', name: 'ordered', value: true, onclick: 'updateOrdered("true")'});
 	var notOrder = createElement(document, 'input', {type: 'radio', id: 'notOrdered', name: 'ordered', value: false, onclick: 'updateOrdered("false")'});
 	var orderedText = document.createTextNode('Select ordering option');
@@ -79,15 +80,18 @@ function generatePage(){
 		prompt.value = "";
 	};
 	
+	orderingDiv.appendChild(orderedText);
+	orderingDiv.appendChild(createBreak());
+	orderingDiv.appendChild(order);
+	orderingDiv.appendChild(orderText);
+	orderingDiv.appendChild(createBreak());
+	orderingDiv.appendChild(notOrder);
+	orderingDiv.appendChild(notOrderText);
+	
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(prompt);
-	pageDiv.appendChild(orderedText);
-	pageDiv.appendChild(order);
-	pageDiv.appendChild(orderText);
-	pageDiv.appendChild(notOrder);
-	pageDiv.appendChild(notOrderText);
-	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(orderingDiv);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(addNewButton);
 	pageDiv.appendChild(removeContainerButton);
@@ -103,7 +107,6 @@ function generatePage(){
 	parent.appendChild(pageDiv);
 	
 	generateContainers();
-	customCheck();
 };
 
 /**
@@ -127,16 +130,17 @@ function generateContainerTable(){
  	var parent = document.getElementById('containerTable');
  	var gaps = getGapMultiples();
  	
- 	//remove old element tr element
- 	parent.removeChild(document.getElementById('containerRow'));
- 	
- 	var row = createElement(document, 'tr', {id: 'containerRow'});
+ 	//remove old tr elements
+ 	var rows = document.getElementsByName('containerRow');
+ 	for(var v=0;v<rows.length;v++){
+ 		parent.removeChild(rows[v]);
+ 	};
  	
  	for(var u=0;u<gaps.length;u++){
+ 		var row = createElement(document, 'tr', {id: 'containerRow', name: 'containerRow'});
  		row.appendChild(generateContainer(gaps[u], u));
+ 		parent.appendChild(row);
  	};
-
- 	parent.appendChild(row);
  };
 
 /**
@@ -147,7 +151,7 @@ function generateContainer(gap, index){
 	var identifier = gap.getAttribute('identifier');
 	var containerTD = createElement(document, 'td', {id: 'containerTD_' + identifier});
 	var radioContainer = createElement(document, 'input', {type: 'radio', name: 'radioContainer', id: 'radioContainer_' + identifier, onclick: 'containerSelected("radioContainer_' + identifier + '")', value: identifier});
-	var textContainer = createElement(document, 'input', {type: 'text', id: 'textContainer_' + identifier, onclick: 'containerSelected("radioContainer_' + identifier + '")', onkeyup: 'containerTextUpdated("' + identifier + '")'});
+	var textContainer = createElement(document, 'input', {type: 'text', id: 'textContainer_' + identifier, onclick: 'containerSelected("radioContainer_' + identifier + '")', onchange: 'containerTextUpdated("' + identifier + '")'});
 	var choiceDiv = createElement(document, 'div', {id: 'choiceDiv_' + identifier});
 	var titleText = document.createTextNode('Title: ');
 	var targetText = document.createTextNode('Target Box ' + index);
@@ -156,10 +160,10 @@ function generateContainer(gap, index){
 		textContainer.value = gap.firstChild.nodeValue;
 	};
 	
+	containerTD.appendChild(radioContainer);
 	containerTD.appendChild(targetText);
 	containerTD.appendChild(createBreak());
 	containerTD.appendChild(titleText);
-	containerTD.appendChild(radioContainer);
 	containerTD.appendChild(textContainer);
 	containerTD.appendChild(choiceDiv);
 	
@@ -193,7 +197,7 @@ function generateChoice(choice, gapIdentifier){
 	var row = createElement(document, 'tr', {id: 'choiceRow_'+ identifier});
 	var td = createElement(document, 'td', {id: 'choiceTD_' + identifier});
 	var radioChoice = createElement(document, 'input', {type: 'radio', name: 'radioChoice_' + gapIdentifier, onclick: 'choiceSelected("' + identifier + '", "' + gapIdentifier + '")', value: identifier});
-	var textChoice = createElement(document, 'input', {type: 'text', id: 'textChoice_' + identifier, onclick: 'choiceSelected("' + identifier + '", "' + gapIdentifier + '")', onkeyup: 'choiceTextUpdated("' + identifier + '")'});
+	var textChoice = createElement(document, 'input', {type: 'text', id: 'textChoice_' + identifier, onclick: 'choiceSelected("' + identifier + '", "' + gapIdentifier + '")', onchange: 'choiceTextUpdated("' + identifier + '")'});
 	var ordered = createElement(document, 'input', {type: 'text', size: '1', id: 'orderChoice_' + identifier, onclick: 'choiceSelected("' + identifier + '", "' + gapIdentifier + '")', onkeyup: 'orderUpdated("' + identifier + '")'});
 	var textOrder = document.createTextNode('order pos:');
 	
@@ -214,83 +218,6 @@ function generateChoice(choice, gapIdentifier){
 	return row;
 };
 
-/**
- * If a custom check element is specified in xmlPage, creates a textarea for editing, if
- * not, creates a button so that the user can create one
- */
-function customCheck(){
-	var custom = xmlPage.getElementsByTagName('customCheck');
-	var customText = document.createTextNode('You can override the default behaviour of the match sequence by specifying a function here. This function receives the state as a parameter and requires that a custom defined object with the following methods to be returned: getSuccess() - return true when the response from the student is correct, false otherwise; getMessage() - return a String with a custom message based on the state.'); 
-	var parent = document.getElementById('dynamicPage');
-	
-	var old = document.getElementById('customDiv');
-	if(old){
-		var parent = old.parentNode;
-		parent.removeChild(old);
-	};
-	
-	var customDiv = createElement(document, 'div', {id: 'customDiv'});
-	
-	customDiv.appendChild(customText);
-	customDiv.appendChild(createBreak());
-	
-	if(custom!=null && custom.length>0){
-		var customBox = createElement(document, 'textarea', {id: 'customCheck', cols: '75', rows: '5', onkeyup: 'updateCustom()'});
-		var remove = createElement(document, 'input', {type: 'button', value: 'Remove Custom Check', onclick: 'removeCustom()'});
-		
-		customBox.value = custom[0].firstChild.nodeValue;
-		
-		customDiv.appendChild(customBox);
-		customDiv.appendChild(createBreak());
-		customDiv.appendChild(remove);
-	} else {
-		var customButton = createElement(document, 'input', {type: 'button', value: 'Create Custom Check', onclick: 'createCustom()'});
-		
-		customDiv.appendChild(customButton);
-	};
-	
-	parent.appendChild(customDiv);
-};
-
-/**
- * Removes the customCheck element from xmlPage and refreshes
- */
-function removeCustom(){
-	if(confirm('Removing the custom function can not be undone. Are you sure you wish to continue?')){
-		var parent = xmlPage.getElementsByTagName('MatchSequence')[0];
-		
-		parent.removeChild(xmlPage.getElementsByTagName('customCheck')[0]);
-		generatePage();
-	};
-};
-
-/**
- * Creates a customCheck element in xmlPage and generates the necessary inputs
- * for the user to edit/create a custom check
- */
-function createCustom(){
-	var parent = xmlPage.getElementsByTagName('MatchSequence')[0];
-	var custom = xmlPage.createElement('customCheck');
-	var customText = xmlPage.createTextNode('');
-	
-	custom.appendChild(customText);
-	parent.appendChild(custom);
-	customCheck();
-};
-
-/**
- * Updates the text of the customCheck in xmlPage
- */
-function updateCustom(){
-	var customVal = document.getElementById('customCheck').value;
-	var parent = xmlPage.getElementsByTagName('customCheck')[0];
-	
-	parent.removeChild(parent.firstChild);
-	var child = xmlPage.createCDATASection(customVal);
-	parent.appendChild(child);
-	
-	updatePreview();
-};
 
 /**
  * Returns the prompt element in xmlPage
@@ -799,7 +726,6 @@ function updateFeedback(choiceId, containerId, text){
 		} else {
 			val.appendChild(xmlPage.createTextNode(text));
 		};
-		updatePreview();
 	} else {
 		alert('unable to update feedback');
 	};

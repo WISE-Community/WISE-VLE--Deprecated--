@@ -69,7 +69,7 @@ function Project(xmlDoc, contentBaseUrl) {
 		// this is a node project <node><node></node></node>
 		//alert('non-LD');
 		this.rootNode = this.generateNode(this.xmlDoc.firstChild);
-	} 
+	}
 }
 
 Project.prototype.createNewNode = function(nodeType, filename){

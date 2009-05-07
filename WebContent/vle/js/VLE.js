@@ -1,4 +1,6 @@
 function VLE() {
+	this.eventManager = new EventManager();
+    this.eventManager.addEvent(this, 'renderNode');
 	this.state = new VLE_STATE();
 	this.project = null;
 	this.navigationLogic = null;
@@ -12,7 +14,7 @@ function VLE() {
 	this.myUserInfo = null;
 	this.myClassInfo = null;
 	this.getDataUrl = null;
-        this.postDataUrl = null;
+    this.postDataUrl = null;
 }
 
 /**
