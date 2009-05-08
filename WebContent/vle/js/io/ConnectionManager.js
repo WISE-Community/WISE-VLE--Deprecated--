@@ -14,7 +14,7 @@ function ConnectionManager(vle) {
 
 ConnectionManager.prototype.setVLE = function(vle) {
 	this.vle = vle;
-	this.lastPostStates = vle.state.getVisitedNodesDataXML();
+	this.lastPostStates = vle.state.getCompletelyVisitedNodesDataXML();
 }
 
 ConnectionManager.prototype.setPostURL = function(postURL) {
@@ -51,37 +51,39 @@ ConnectionManager.prototype.post = function(workgroupId, userName, save) {
 	
 	//get the diff between the current and the last posted states
 	var diff = currentPostStates.replace(this.lastPostStates, "");
-	diff = "<vle_state>" + diff + "</vle_state>";
+        if (diff != null && diff != "") {
+		diff = "<vle_state>" + diff + "</vle_state>";
 
-	//update the lastPostStates to be the current
-	this.lastPostStates = currentPostStates;
+		//update the lastPostStates to be the current
+		this.lastPostStates = currentPostStates;
 
-	/*
-	 * the data to send back to the db which includes id, and the xml
-	 * representation of the students navigation and work 
-	 */ 
-	//postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
-	postData = 'userId=' + workgroupId + '&data=' + diff;
+		/*
+		 * the data to send back to the db which includes id, and the xml
+		 * representation of the students navigation and work 
+		 */ 
+		//postData = 'dataId=' + workgroupId + '&userName=' + userName + '&data=' + this.vle.getDataXML();
+		postData = 'userId=' + workgroupId + '&data=' + diff;
 
-	var callback = {
-		success: function(o) {
-			var time = vle.getLastStateTimestamp();
-			if(time!=null && time!=0){
-				this.lastSavedTimestamp = time;
-			};
-		},
+		var callback = {
+			success: function(o) {
+				var time = vle.getLastStateTimestamp();
+				if(time!=null && time!=0){
+					this.lastSavedTimestamp = time;
+				};
+			},
 		
-		failure: function(o) {
-			if(save){
-				alert('failed update to server - server may be unavailable. In the next popup window, copy text and save it in a document somewhere.');
-				alert(vle.getDataXML());
-			};			
-		},
-		scope:this
-	};
+			failure: function(o) {
+				if(save){
+					alert('failed update to server - server may be unavailable. In the next popup window, copy text and save it in a document somewhere.');
+					alert(vle.getDataXML());
+				};			
+			},
+			scope:this
+		};
 	
-	//the async call to send the data back to the db
-	YAHOO.util.Connect.asyncRequest('POST', this.postURL, callback, postData);
+		//the async call to send the data back to the db
+		YAHOO.util.Connect.asyncRequest('POST', this.postURL, callback, postData);
+	}
 }
 
 ConnectionManager.prototype.get = function() {
