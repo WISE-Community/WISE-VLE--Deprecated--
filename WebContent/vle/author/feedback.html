@@ -1,6 +1,10 @@
 <!-- @author: patrick lawler -->
 <html>
 	<head>
+		
+	<!-- AUTHOR CSS -->
+	<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+
 		<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 		<script type="text/javascript">
 			var mainPage = window.opener;
@@ -16,7 +20,7 @@
 			 */
 			function generatePage(){
 				var parent = document.getElementById('mainDiv');
-				var instructions = document.createTextNode('Click on the feedback you wish to create or edit in the table below. Click done when finished.');
+				var instructions = document.createTextNode('Click any colored field to add/edit its text. Click "Done" when finished.');
 				
 				parent.appendChild(instructions);
 				parent.appendChild(createBreak());

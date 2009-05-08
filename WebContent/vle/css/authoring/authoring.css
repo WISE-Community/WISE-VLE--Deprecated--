@@ -334,7 +334,6 @@
 }
 
 
-
 /* STYLES FOR MATCH AND SEQUENCE EDITOR WINDOW  */
 
 #editorTitle {
@@ -345,6 +344,37 @@
 	margin:0 0 4px 0;
 }
 
-#containerTable input  {
-	width:250px;
+#containerRow input  {
+	width:550px;
+	text-align:left;
 	}
+
+#orderingOptions {
+	padding:5px 10px;
+	margin:20px 0 -10px 0px;
+	background-color:#CCC;
+}
+
+#orderingOptions input {
+	margin:0 10px;
+	vertical-align:middle;
+}
+	
+#doneButton {
+	font-size:1.1em;
+	font-weight:bold;
+	background-color:#CCC;
+	border:1px solid #000;
+	padding:5px 40px;
+	margin:20px auto;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+}
+
+#doneButton:hover {
+	background-color:#FFFF00;
+}
+
+	
+	

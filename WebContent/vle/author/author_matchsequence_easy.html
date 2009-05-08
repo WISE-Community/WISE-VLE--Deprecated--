@@ -59,9 +59,9 @@ function generatePage(){
 	var orderingDiv = createElement(document, 'div', {id: 'orderingOptions'});
 	var order = createElement(document, 'input', {type: 'radio', id: 'ordered', name: 'ordered', value: true, onclick: 'updateOrdered("true")'});
 	var notOrder = createElement(document, 'input', {type: 'radio', id: 'notOrdered', name: 'ordered', value: false, onclick: 'updateOrdered("false")'});
-	var orderedText = document.createTextNode('Select ordering option');
-	var orderText = document.createTextNode('ordered');
-	var notOrderText = document.createTextNode('not ordered');
+	var orderedText = document.createTextNode('Select ordering option:');
+	var orderText = document.createTextNode('Choices have a specific sequential order per Target');
+	var notOrderText = document.createTextNode('Choices are unordered per Target');
 	var addNewButton = createElement(document, 'input', {type: 'button', id: 'addContainerButton', onclick: 'addContainer()', value: 'Add Container'});
  	var createNew = createElement(document, 'input', {type: 'button', value: 'Create New Choice', onclick: 'addChoice()'});
 	var removeChoice = createElement(document, 'input', {type: 'button', value: 'Remove Choice', onclick: 'removeChoice()'});
