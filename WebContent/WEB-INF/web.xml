@@ -31,6 +31,26 @@
     <url-pattern>/postdata.html</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>vlegetannotations</servlet-name>
+    <servlet-class>vle.VLEGetAnnotations</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlegetannotations</servlet-name>
+    <url-pattern>/getannotations.html</url-pattern>
+  </servlet-mapping>	
+  
+  <servlet>
+    <servlet-name>vlepostannotations</servlet-name>
+    <servlet-class>vle.VLEPostAnnotations</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlepostannotations</servlet-name>
+    <url-pattern>/postannotations.html</url-pattern>
+  </servlet-mapping>
+  
     <servlet>
     <servlet-name>echopostdata</servlet-name>
     <servlet-class>utils.EchoPostData</servlet-class>
