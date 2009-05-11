@@ -140,16 +140,16 @@ function getProjectDir(){
 				var path = settings.getElementsByTagName('projectsPath');
 				if(path && path[0] && path[0].firstChild){
 					projectDir = path[0].firstChild.nodeValue;
-					
-					var els = document.getElementsByName('projectDir');
-					for(var g=0;g<els.length;g++){
-						els[g].value = projectDir;
-					};
-					
-					initializeOpenProjectDialog();
 				} else {
-					alert('unable to find projectDir in settings.');
+					projectDir = "";
 				};
+				
+				var els = document.getElementsByName('projectDir');
+				for(var g=0;g<els.length;g++){
+						els[g].value = projectDir;
+				};
+				
+				initializeOpenProjectDialog();
 			} else {
 				alert("Error retrieving settings");
 			};

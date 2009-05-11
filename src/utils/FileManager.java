@@ -61,6 +61,11 @@ import javax.servlet.http.HttpServletResponse;
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String command = request.getParameter(COMMAND);
 		projectDir = request.getParameter(PROJECT_DIRECTORY);
+		if(projectDir==null || projectDir.equals("")){
+			File file = new File(".");
+			file = new File(file, "projects");
+			projectDir = file.getCanonicalPath();
+		}
 		
 		if(command!=null && ensureProjectDir()){
 			if(command.equals("createProject")){
