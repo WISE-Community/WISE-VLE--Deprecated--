@@ -1,6 +1,9 @@
 function VLE() {
 	this.eventManager = new EventManager();
-    this.eventManager.addEvent(this, 'renderNode');
+    this.eventManager.addEvent(this, 'projectLoading');
+    this.eventManager.addEvent(this, 'projectLoadingComplete');
+    this.eventManager.addEvent(this, 'learnerDataLoading');
+    this.eventManager.addEvent(this, 'learnerDataLoadingComplete');
 	this.state = new VLE_STATE();
 	this.project = null;
 	this.navigationLogic = null;
@@ -24,6 +27,7 @@ VLE.prototype.setProject = function(project) {
 	this.project = project;
 	this.navigationPanel = new NavigationPanel(project.rootNode);
 	this.contentPanel = new ContentPanel(project, project.rootNode);
+	this.eventManager.fire('projectLoadingComplete');
 }
 
 /**

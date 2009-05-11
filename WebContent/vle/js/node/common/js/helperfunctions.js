@@ -1,3 +1,10 @@
+function convertToHTML(text){
+	text = text.replace(/\n/g, '<br>');
+	text = text.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+	text = text.replace(/\s/g, '&nbsp;');
+	text = text.replace(/\r/g, '<br>');
+	return text;
+};
 
 function createAttribute(doc, node, type, val){
 	var attribute = doc.createAttribute(type);

@@ -80,10 +80,14 @@
 
 <script type="text/javascript">
 var currentProjectName;
+var projectDisplayName;
+var projectDir
 
 window.onload=function(){
 	if(window.opener){
 		currentProjectName = window.opener.currentProjectName;
+		projectDisplayName = window.opener.projectDisplayName;
+		projectDir = window.opener.projectDir;
 	};
 	
 	Nifty("div#none","bottom");
@@ -91,7 +95,7 @@ window.onload=function(){
 	Nifty("ul.toolsButtons a","transparent");
 	
 	if(currentProjectName){
-		loadProjectFromServer(currentProjectName);
+		loadProjectFromServer();
 	} else { ///REMOVE - FOR TESTING ONLY
 		currentProjectName = 'test';
 		loadProjectFromServer('test'); 
@@ -140,7 +144,7 @@ function loadProjectFromServer(projectName){
 	  failure: function(o) { alert('unable to retrieve project from server');},
 	  scope:this
 	}
-	var transaction = YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project.xml');
+	var transaction = YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
 };
 </script>
 

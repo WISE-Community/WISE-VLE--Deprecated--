@@ -85,6 +85,7 @@ var project;
 var easyMode = true; //the mode that gets passed to the individual authoring pages
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
 var currentProjectName;
+var projectDisplayName;
 var projectSaved = true;
 
 var openProjectDialog;
@@ -92,6 +93,8 @@ var createProjectDialog;
 var createSequenceDialog;
 var createNodeDialog;
 var editProjectFileDialog;
+
+var projectDir;
 
 //a string that temporarily contains the node id we want to author
 var nodeIdToAuthor = null;
@@ -103,11 +106,59 @@ var filenameToAuthor = null;
 var thisFilename = null;
 
 function loaded(){
-	initializeOpenProjectDialog();
+	getProjectDir();
 	initializeCreateProjectDialog();
 	initializeCreateSequenceDialog();
 	initializeCreateNodeDialog();
 	initializeEditProjectFileDialog();
+};
+
+function getProjectDir(){
+	var settings;
+	var callback = {
+		success: function(o){
+			if(o.responseXML){
+			  settings = o.responseXML;
+			  
+			  /***						***|
+			   * Extra work needed for IE *|
+			   ***						***/
+			  if(window.ActiveXObject){
+			  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+			  	ieXML.async = "false";
+			  	ieXML.loadXML(o.responseText);
+			  	settings = ieXML;
+			  };
+			  /***						***|
+			   * End extra work for IE	  *|
+			   ***						***/
+			} else {
+				settings = loadXMLDocFromString(o.responseText);
+			};
+			
+			if(settings){
+				var path = settings.getElementsByTagName('projectsPath');
+				if(path && path[0] && path[0].firstChild){
+					projectDir = path[0].firstChild.nodeValue;
+					
+					var els = document.getElementsByName('projectDir');
+					for(var g=0;g<els.length;g++){
+						els[g].value = projectDir;
+					};
+					
+					initializeOpenProjectDialog();
+				} else {
+					alert('unable to find projectDir in settings.');
+				};
+			} else {
+				alert("Error retrieving settings");
+			};
+		},
+		failure: function(o){},
+		scope: this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('GET', 'settings.xml', callback, null);
 };
 
 function preview() {
@@ -182,7 +233,7 @@ function initializeOpenProjectDialog(){
 		scope:this
 	};
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList");
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectDir=" + projectDir);
 };
 
 function optionSelected(){
@@ -195,10 +246,9 @@ function optionSelected(){
 };
 
 function initializeCreateProjectDialog(){
-	var doSuccess = function(){
-		currentProjectName = document.getElementById('projectInput').value;
+	var doSuccess = function(dirNum){
+		loadProjectFromServer(dirNum + ': ' + document.getElementById('projectInput').value);
 		document.getElementById('projectInput').value = "";
-		loadProjectFromServer(currentProjectName);
 	};
 
 	var handleSubmit = function(){
@@ -211,16 +261,13 @@ function initializeCreateProjectDialog(){
 	
 	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createProjectDialog.callback = {
-		success:function(o){ //return of -1 = already exists, 0 = failed to create, 1 = success
+		success:function(o){//0 = failed to create, >0 = success
 			var response = o.responseText;
-			if(response==-1){
-				alert('A project with this name already exists. Please create each project with a unique name.');
-				return;
-			} else if(response==0){
+			if(response==0){
 				alert('Server was unable to create the specified project folder or file. Please try again.');
 				return;
-			} else if(response==1){
-				doSuccess();
+			} else if(response>0){
+				doSuccess(response);
 			} else {
 				alert('Unable to understand response from server, the project may or may not have been created. Try opening the project before trying to create it again.');
 				return;
@@ -246,7 +293,7 @@ function initializeCreateProjectDialog(){
 function initializeCreateSequenceDialog(){
 	var doSuccess = function(){
 		document.getElementById('createSequenceInput').value = "";
-		loadProjectFromServer(currentProjectName);
+		loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
 		createSequenceDialog.hide();
 	};
 	
@@ -301,7 +348,7 @@ function initializeCreateNodeDialog(){
 		document.getElementById('createNodeType').selectedIndex = 0;
 		document.getElementById('createNodeName').value = "";
 		document.getElementById('createNodeTitle').value = "";
-		loadProjectFromServer(currentProjectName);
+		loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
 		createNodeDialog.hide();
 	};
 	
@@ -378,7 +425,7 @@ function initializeEditProjectFileDialog(){
 	};
 	
 	var doSuccess = function(){
-		loadProjectFromServer(currentProjectName);
+		loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
 		editProjectFileDialog.hide();
 	};
 	
@@ -456,13 +503,13 @@ function editProjectFile(){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				retrieveProjectFile();
 				document.getElementById('editProjectFileProjectName').value = currentProjectName;
-				document.getElementById('editProjectFileFileName').value = currentProjectName + '.project.xml';
+				document.getElementById('editProjectFileFileName').value = projectDisplayName + '.project.xml';
 				editProjectFileDialog.show();
 			};
 		} else {
 			retrieveProjectFile();
 			document.getElementById('editProjectFileProjectName').value = currentProjectName;
-			document.getElementById('editProjectFileFileName').value = currentProjectName + '.project.xml';
+			document.getElementById('editProjectFileFileName').value = projectDisplayName + '.project.xml';
 			editProjectFileDialog.show();
 		};
 	} else {
@@ -480,7 +527,7 @@ function retrieveProjectFile(){
 	  scope:this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project.xml');
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
 	
 };
 
@@ -515,7 +562,7 @@ function saveProject(){
 					alert(data);
 				} else {
 					setProjectSaved();
-					loadProjectFromServer(currentProjectName);
+					loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
 					alert('project saved');
 				};
 			},
@@ -526,14 +573,15 @@ function saveProject(){
 			scope: this
 		};
 		
-		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectName + '&param2=' + currentProjectName + '.project.xml&param3=' + data);
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&param3=' + data + '&projectDir=' + projectDir);
 	} else {
 		alert('Please open or create a new project before attempting to save.');
 	};
 };
 
 function loadProjectFromServer(projectName){
-	currentProjectName = projectName;
+	currentProjectName = projectName.substring(0, projectName.indexOf(':'));
+	projectDisplayName = projectName.substring(projectName.indexOf(':') + 2, projectName.length);
 	var callback =
 	{
 		success: function(o) {
@@ -560,13 +608,13 @@ function loadProjectFromServer(projectName){
 		  vle.navigationLogic = new NavigationLogic(dfs);
 		  vle.setConnection(new ConnectionManager());
           displayProject(project);
-          document.getElementById('currentProject').innerHTML = '<h3>Current Project: ' + projectName + '</h3>';
+          document.getElementById('currentProject').innerHTML = '<h3>Current Project: ' + projectDisplayName + '</h3>';
 	  },			
 	  failure: function(o) { alert('unable to retrieve project from server');},
 	  scope:this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + projectName + '.project.xml');
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
 };
 
 function nodeTitleChanged(id){
@@ -760,7 +808,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, project);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, projectDisplayName, projectDir, project);
 	} 
 }
 
@@ -848,9 +896,10 @@ function authoringFrameLoaded() {
 </div>
 
 <div id='createProjectDialog'>
-	<div class='hd'>Please enter a unique Project Name</div>
+	<div class='hd'>Please enter a project name</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
+			<input type='hidden' name='projectDir'/>
 			<input type='hidden' id='commandInput' name='command' value='createProject'/>
 			<input type='text' id='projectInput' name='param1'/>
 		</form>
@@ -862,6 +911,7 @@ function authoringFrameLoaded() {
 	<div class='bd'>
 		<br/>
 		<form method='POST' action='filemanager.html'>
+			<input type='hidden' name='projectDir'/>
 			<select id='selectProject' onchange='optionSelected()'>
 				<option name='placeholderOption' value=''/>
 			</select>
@@ -874,6 +924,7 @@ function authoringFrameLoaded() {
 	<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
+			<input type='hidden' name='projectDir'/>
 			<input type='hidden' id='sequenceCreateCommand' name='command' value='createSequence'/>
 			<input type='hidden' id='sequenceProjectName' name='param1'/>
 			<input type='text' size='40' id='createSequenceInput' name='param2'/>
@@ -885,6 +936,7 @@ function authoringFrameLoaded() {
 	<div class='hd'>Create New Node</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
+			<input type='hidden' name='projectDir'/>
 			<input type='hidden' id='nodeCreateCommand' name='command' value='createNode'/>
 			<input type='hidden' id='nodeProjectName' name='param1'/>
 			<label for='createNodeName'>Please enter a UNIQUE filename for the Node.</label>
@@ -913,6 +965,7 @@ function authoringFrameLoaded() {
 	<div class='hd'>Edit Project File</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
+			<input type='hidden' name='projectDir'/>
 			<input type='hidden' name='command' value='updateFile'/>
 			<input type='hidden' id='editProjectFileProjectName' name='param1'/>
 			<input type='hidden' id='editProjectFileFileName' name='param2'/>
@@ -922,6 +975,7 @@ function authoringFrameLoaded() {
 </div>
 
 <form id='exportProject' method='POST' action='filemanager.html'>
+	<input type='hidden' name='projectDir'/>
 	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
 	<input type='hidden' id='exportProjectName' name='param1'/>
 </form>

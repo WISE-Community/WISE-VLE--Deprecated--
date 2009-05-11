@@ -41,7 +41,7 @@ function loadXMLAndStateAndVLE(xmlDoc, states, vle){
 	glue.render();
 };
 
-function loadXMLString(xmlString){
+function loadFromXMLString(xmlString){
 	var xmlDoc=loadXMLDocFromString(xmlString);
 	glue = new GLUE(xmlDoc);
 	glue.render();

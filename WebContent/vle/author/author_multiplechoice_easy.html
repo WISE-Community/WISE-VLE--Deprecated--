@@ -35,6 +35,8 @@
 
 <script type="text/javascript" src="../js/node/multiplechoice/multiplechoicestate.js"></script>
 <script type="text/javascript" src="../js/node/multiplechoice/mc.js"></script>
+<script type="text/javascript" src="../js/authoring/author_helper.js"></script>
+<script type="text/javascript" src="../js/authoring/author_easy_helper.js"></script>
 
 <link rel="stylesheet" type="text/css" href="../css/authoring/author_multiplechoice.css" />
 
@@ -159,10 +161,6 @@ function onNodeDropped(dragged, dropped){
 /*****												******|
  * End functions used by YUI for the drag and drop stuff *|
  *****												******/
-
-function getSaved(){
-	return saved;
-};
 
 /**
  * Removes previous elements and generates a new page with the
@@ -346,13 +344,6 @@ function generateOptions(index, length){
 	return options;
 };
 
-/**
- * returns a <br> element
- */
-function createBreak(){
-	return createElement(document, 'br', null);
-};
-
 function createPrompt(){
 	var prompt = xmlPage.createElement('prompt');
 	var promptText = xmlPage.createTextNode(document.getElementById('promptText').value);
@@ -447,29 +438,6 @@ function correctChoiceChange(index){
 	sourceUpdated();
 };
 
-function save(){
-	var htmlString;
-	
-	if(window.ActiveXObject) {
-		htmlString = xmlPage.xml;
-	} else {
-		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
-	};
-	
-	var callback = {
-		success: function(o){
-			saved = true;
-			if(o.responseText!='success'){
-				alert('Failed save to server');
-			};
-		},
-		failure: function(o){alert('Unable to save file to server');},
-		scope:this
-	};
-	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
-};
-
 /**
  * Removes check from all correct choice radio buttons and updates
  * xmlPage so that there is no correct choice
@@ -516,57 +484,8 @@ function hasInlineFeedback(){
 function feedbackOptionChange(val){
 	xmlPage.getElementsByTagName(xmlPage.getElementsByTagName('choiceInteraction')[0].setAttribute('hasInlineFeedback', val));
 	regenerateAnswers();
-	//generateDD();
 	sourceUpdated();
 };
-
-/**
- * Load the authoring view from the specified filename
- * filename points to a plain old file.
- */
-function loadAuthoringFromFile(filename, projectName) {
-	var callback =
-	{
-	  success: function(o) { 
-	  var xmlDocToParse = o.responseXML;
-		
-		/***						***|
-		   * Extra work needed for IE *|
-		   ***						***/
-		  if(window.ActiveXObject){
-		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
-		  	ieXML.async = "false";
-		  	ieXML.loadXML(o.responseText);
-		  	xmlDocToParse = ieXML;
-		  };
-		  /***						***|
-		   * End extra work for IE	  *|
-		   ***						***/
-		   
-		/**
-		 * sets local xml and then generates the left panel
-		 * of this page dynamically
-		 */
-		xmlPage = xmlDocToParse;
-		generatePage();
-			
-		//retrieve the xmlString from the mcObj
-		var xmlString = "";
-		if(window.ActiveXObject) {
-			xmlString = xmlDocToParse.xml;
-		} else {
-			xmlString = (new XMLSerializer()).serializeToString(xmlDocToParse);
-		}
-
-		window.frames["previewFrame"].renderMCFromString(xmlString);
-
-		  },
-		  failure: function(o) { alert('failure');},
-		  scope: this
-	}
-
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
-}
 
 /*
  * Called when 'keyup' event is received on sourceTextArea on this page.
@@ -590,16 +509,8 @@ function sourceUpdated() {
 		xmlString = (new XMLSerializer()).serializeToString(xmlPage);
 	}
 
-	window.frames["previewFrame"].renderMCFromString(xmlString);
+	window.frames["previewFrame"].loadFromXMLString(xmlString);
 }
-
-function loaded(){
-	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
-		window.parent.childSave = save;
-		window.parent.getSaved = getSaved;
-	};
-};
 </script>
 </head>
 <body onload="loaded()">

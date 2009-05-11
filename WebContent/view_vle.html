@@ -118,6 +118,7 @@ function loadProjectFromServer(projectName){
 		success: function(o) {
 		  var xmlDocToParse = o.responseXML;
 		  vle = new VLE();
+		  vle.eventManager.fire('projectLoading');
 		  project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;

@@ -20,39 +20,7 @@ function refresh() {
 	mcObj.render();
 }
 
-/*
- * This is called by multiplechoice_authoring.html after it has
- * set the node.
- */
-function loadAuthoring() {
-	//retrieve the content
-  	var xmlString = node.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue;
-
-	//create an xml object from the xmlString
-	if(window.ActiveXObject) {
-		xmlObj=new ActiveXObject("Microsoft.XMLDOM");
-		xmlObj.async="false";
-		xmlObj.loadXML(xmlString);
-	} else {
-		var parser=new DOMParser();
-		xmlObj=parser.parseFromString(xmlString,"text/xml");
-	}
-
-	//create the mc object
-  	mcObj = new MC(xmlObj);
-
-  	//render the mc object so that it's content gets loaded in this html page
-	mcObj.render();
-	
-  	/*
-  	 * calls afterAuthoringLoaded() in multiplechoice_authoring.html so that
-  	 * multiplechoice_authoring.html can do what it needs to do with the mc
-  	 * object.
-  	 */
-  	parent.afterAuthoringLoaded();
-}
-
-function renderMCFromString(txt) {
+function loadFromXMLString(txt) {
   xmlDoc=loadXMLString(txt);
   mcObj = new MC(xmlDoc);
   mcObj.render();

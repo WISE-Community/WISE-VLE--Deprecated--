@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  */
  public class FileManager extends HttpServlet implements Servlet{
    static final long serialVersionUID = 1L;
-
+   
    private final static String COMMAND = "command";
    
    private final static String PARAM1 = "param1";
@@ -42,9 +42,11 @@ import javax.servlet.http.HttpServletResponse;
    
    private final static String PARAM4 = "param4";
    
-   private final static String PROJECT_DIRECTORY = "projects";
+   private final static String PROJECT_DIRECTORY = "projectDir";
    
    private final static String ZIP_DIRECTORY = "zipped_projects";
+   
+   private String projectDir;
    
 	/* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,6 +60,7 @@ import javax.servlet.http.HttpServletResponse;
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String command = request.getParameter(COMMAND);
+		projectDir = request.getParameter(PROJECT_DIRECTORY);
 		
 		if(command!=null && ensureProjectDir()){
 			if(command.equals("createProject")){
@@ -89,7 +92,7 @@ import javax.servlet.http.HttpServletResponse;
 	 * @return boolean
 	 */
 	private boolean ensureProjectDir(){
-		File file = new File(PROJECT_DIRECTORY);
+		File file = new File(projectDir);
 		if(file.isDirectory()){
 			return true;
 		} else {
@@ -107,33 +110,40 @@ import javax.servlet.http.HttpServletResponse;
 	 */
 	private int createProject(HttpServletRequest request) throws IOException{
 		String name = request.getParameter(PARAM1);
-		File parent = new File(PROJECT_DIRECTORY);
-		String children[] = parent.list();
+		File parent = new File(projectDir);
 		
-		for(String child : children){
-			if(child.equals(name)){
-				return -1;
-			}
-		}
+		File newDir = this.createNewProjectDir(parent);
 		
-		File newDir = new File(parent, name);
-		boolean success;
-		success = newDir.mkdir();
+		File newFile = new File(newDir, name + ".project.xml");
+		boolean	success = newFile.createNewFile();
 		if(success){
-			String fileName = name + ".project.xml";
-			File newFile = new File(newDir, fileName);
-			success = newFile.createNewFile();
-			if(success){
-				FileOutputStream fop = new FileOutputStream(newFile);
-				fop.write(Template.getProjectTemplate().getBytes());
-				fop.flush();
-				fop.close();
-				return 1;
-			} else {
-				return 0;
-			}
+			FileOutputStream fop = new FileOutputStream(newFile);
+			fop.write(Template.getProjectTemplate().getBytes());
+			fop.flush();
+			fop.close();
+			return Integer.parseInt(newDir.getName());
 		} else {
 			return 0;
+		}
+	}
+	
+	/**
+	 * Given a parent directory, attempts to generate and return
+	 * a unique project directory
+	 * 
+	 * @param parent
+	 * @return
+	 */
+	private File createNewProjectDir(File parent){
+		Integer counter = 1;
+		
+		while(true){
+			File tryMe = new File(parent, String.valueOf(counter));
+			if(!tryMe.exists()){
+				tryMe.mkdir();
+				return tryMe;
+			}
+			counter++;
 		}
 	}
 	
@@ -144,7 +154,7 @@ import javax.servlet.http.HttpServletResponse;
 	 * @return String
 	 */
 	private String getProjectList(){
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		String children[] = parent.list();
 		String list = "";
 		
@@ -152,10 +162,32 @@ import javax.servlet.http.HttpServletResponse;
 			if(x!=0){
 				list += "|";
 			}
-			list += children[x];
+			list += children[x] + ": " + this.getProjectName(parent, children[x]);
 		}
 		
 		return list;
+	}
+	
+	/**
+	 * Given the parent directory and the name of the child directory,
+	 * returns the project name from the associated .project.xml file
+	 * 
+	 * @param parent
+	 * @param dirName
+	 * @return
+	 */
+	private String getProjectName(File parent, String dirName){
+		String projectName = "";
+		File child = new File(parent, dirName);
+		String files[] = child.list();
+		
+		for(int z=0;z<files.length;z++){
+			if(files[z].contains(".project.xml")){
+				projectName = files[z].substring(0, files[z].length() - 12);
+			}
+		}
+		
+		return projectName;
 	}
 	
 	/**
@@ -167,7 +199,7 @@ import javax.servlet.http.HttpServletResponse;
 	 * @throws IOException
 	 */
 	private String retrieveFile(HttpServletRequest request) throws IOException{
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		String project = request.getParameter(PARAM1);
 		String filename = request.getParameter(PARAM2);
 		
@@ -200,7 +232,7 @@ import javax.servlet.http.HttpServletResponse;
 	 * @throws IOException
 	 */
 	private String updateFile(HttpServletRequest request) throws IOException{
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		String project = request.getParameter(PARAM1);
 		String filename = request.getParameter(PARAM2);
 		String data = this.decode(request.getParameter(PARAM3));
@@ -265,7 +297,7 @@ import javax.servlet.http.HttpServletResponse;
 	 * @return String
 	 */
 	private String createNode(HttpServletRequest request) throws IOException, ServletException{
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		String project = request.getParameter(PARAM1);
 		String filename = request.getParameter(PARAM2);
 		String title = request.getParameter(PARAM3);
@@ -308,9 +340,18 @@ import javax.servlet.http.HttpServletResponse;
 	 * @throws IOException
 	 */
 	private boolean addNodeToProject(String project, String template) throws IOException{
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		File dir = new File(parent, project);
-		File file = new File(dir, project + ".project.xml");
+		String children[] = dir.list();
+		String projectFilename = "";
+		
+		for(int m=0;m<children.length;m++){
+			if(children[m].contains(".project.xml")){
+				projectFilename = children[m];
+			}
+		}
+		
+		File file = new File(dir, projectFilename);
 		
 		if(file.exists()){
 			int line = 1;
@@ -418,12 +459,21 @@ import javax.servlet.http.HttpServletResponse;
 	 * @throws IOException
 	 */
 	private String createSequence(HttpServletRequest request) throws IOException{
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		String project = request.getParameter(PARAM1);
 		String name = request.getParameter(PARAM2);
 		
 		File dir = new File(parent, project);
-		File file = new File(dir, project + ".project.xml");
+		String children[] = dir.list();
+		String projectFilename = "";
+		
+		for(int m=0;m<children.length;m++){
+			if(children[m].contains(".project.xml")){
+				projectFilename = children[m];
+			}
+		}
+		
+		File file = new File(dir, projectFilename);
 		
 		if(file.exists()){
 			int line = 1;
@@ -452,7 +502,7 @@ import javax.servlet.http.HttpServletResponse;
 	private void exportProject(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy_kk.mm.ss");
 		ensureZipDir();
-		File parent = new File(PROJECT_DIRECTORY);
+		File parent = new File(projectDir);
 		File zipParent = new File(ZIP_DIRECTORY);
 		File dir = new File(parent, request.getParameter(PARAM1));
 		File zipFile = new File(zipParent, request.getParameter(PARAM1) + "_" + sdf.format(new Date()) + ".zip");

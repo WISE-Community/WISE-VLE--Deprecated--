@@ -20,7 +20,7 @@ function refresh() {
 	mcObj.render();
 }
 
-function renderMCFromString(txt) {
+function loadFromXMLString(txt) {
   xmlDoc=loadXMLString(txt);
   mcObj = new MC(xmlDoc);
   mcObj.render();

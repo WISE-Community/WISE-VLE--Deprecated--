@@ -94,7 +94,7 @@ function edit() {
 /**
  * xmlString contains QTI-coded xml content
  */
-function loadXMLString(xmlString) {
+function loadFromXMLString(xmlString) {
 	  var xmlDoc=loadXMLDocFromString(xmlString);
 	  fillinObj = new FILLIN(xmlDoc);
 	  fillinObj.render(currentTextEntryInteractionIndex);

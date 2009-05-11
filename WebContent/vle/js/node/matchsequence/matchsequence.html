@@ -56,7 +56,7 @@ function renderMS() {
 /**
  * xmlString contains QTI-coded xml content
  */
-function loadXMLString(xmlString, customCheck) {
+function loadFromXMLString(xmlString, customCheck) {
 	  var xmlDoc=loadXMLDocFromString(xmlString);
 	  ms = new MS(xmlDoc, customCheck);
 	  ms.render();	

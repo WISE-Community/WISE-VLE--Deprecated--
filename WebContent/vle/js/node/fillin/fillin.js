@@ -96,7 +96,7 @@ FILLIN.prototype.generateNonInteractiveDivHtml = function(node) {
 	var children = node.childNodes;
 	for (var i=0; i < children.length; i++) {
 		if (children[i].nodeName == "htmltext" && children[i].firstChild) {
-			this.html += children[i].firstChild.nodeValue;
+			this.html += convertToHTML(children[i].firstChild.nodeValue);
 		} else if (children[i].nodeName == "textEntryInteraction") {
 			var responseIdStr = children[i].getAttribute('responseIdentifier');
 			var responseId = responseIdStr.substring(responseIdStr.indexOf("_")+1, responseIdStr.length);

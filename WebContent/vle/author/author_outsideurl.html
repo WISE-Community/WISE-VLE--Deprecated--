@@ -56,14 +56,14 @@ function save(){
 		scope:this
 	};
 	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString) + '&projectDir=' + parent.projectDir);
 };
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename, projectName) {
+function loadAuthoringFromFile(filename, projectName, projectDir) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -90,7 +90,7 @@ function loadAuthoringFromFile(filename, projectName) {
 		  scope: this
 	}
 
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename + '&projectDir=' + projectDir);
 }
 
 /*
@@ -108,7 +108,7 @@ function sourceUpdated() {
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectDir);
 		window.parent.childSave = save;
 		window.parent.getSaved = getSaved;
 	};

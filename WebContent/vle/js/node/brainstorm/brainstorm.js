@@ -55,7 +55,7 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 	};
 	
 	var newQuestion = createElement(frameDoc, 'div', {id: 'questionPrompt'});
-	newQuestion.innerHTML = this.prompt;
+	newQuestion.innerHTML = convertToHTML(this.prompt);
 	
 	parent.insertBefore(newQuestion, nextNode);
 	

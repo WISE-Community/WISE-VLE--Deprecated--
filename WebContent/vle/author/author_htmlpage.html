@@ -29,38 +29,19 @@
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="../js/node/Node.js"></script>
 <script type="text/javascript" src="../js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="../js/authoring/author_helper.js"></script>
+<script type="text/javascript" src="../js/authoring/author_advanced_helper.js"></script>
 
 <script type="text/javascript">
 var node; //an HtmlNode
 var thisFilename = null;
 var saved = true;
 
-function getSaved(){
-	return saved;
-};
-
-function save(){
-	var htmlString = document.getElementById('sourceTextArea').value;
-	
-	var callback = {
-		success: function(o){
-			saved = true;
-			if(o.responseText!='success'){
-				alert('Failed save to server');
-			};
-		},
-		failure: function(o){alert('Unable to save file to server');},
-		scope:this
-	};
-	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
-};
-
 /**
  * Load the html authoring view from the specified filename
  * filename points to a plain old html file.
  */
-function loadAuthoringFromFile(filename, projectName) {
+function loadAuthoringFromFile(filename, projectName, projectDir) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -79,11 +60,7 @@ function loadAuthoringFromFile(filename, projectName) {
 	  scope: this
 	}
 
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
-}
-
-function previewFrameOnLoad() {
-	//nothing needs to be done here right now 
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename + '&projectDir=' + projectDir);
 }	
 
 /*
@@ -98,13 +75,6 @@ function loadAuthoring() {
 		//set the text in the left text area to contain the html from the node
 		document.getElementById('sourceTextArea').value = node.content;
 	}
-}
-
-/*
- * 
- */
-function afterAuthoringLoaded() {
-	//nothing needs to be done here right now
 }
 
 /*
@@ -123,21 +93,13 @@ function sourceUpdated() {
 	//tell the node to render itself in the previewFrame iframe
 	node.render(window.frames["previewFrame"]);
 }
-
-function loaded(){
-	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
-		window.parent.childSave = save;
-		window.parent.getSaved = getSaved;
-	};
-};
 </script>
 </head>
 <body onload="loaded();">
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
    		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
-   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' onload='previewFrameOnLoad();'></iframe></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame'></iframe></td>
 	</tr>
 </table>
 <!--  for posting the text for echo servlet -->

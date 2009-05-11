@@ -129,7 +129,7 @@ MC.prototype.getCHOICEByIdentifier = function(identifier) {
 MC.prototype.render = function() {
 	// render the prompt
 	var promptdiv = document.getElementById('promptDiv');
-	promptdiv.innerHTML=this.promptText;
+	promptdiv.innerHTML=convertToHTML(this.promptText);
 
 	// render choices
 	var radiobuttondiv = document.getElementById('radiobuttondiv');
@@ -170,7 +170,7 @@ MC.prototype.render = function() {
 MC.prototype.renderLite = function(){
 	// render the prompt
 	var promptdiv = document.getElementById('promptDiv');
-	promptdiv.innerHTML=this.promptText;
+	promptdiv.innerHTML=convertToHTML(this.promptText);
 
 	// render choices
 	var radiobuttondiv = document.getElementById('radiobuttondiv');

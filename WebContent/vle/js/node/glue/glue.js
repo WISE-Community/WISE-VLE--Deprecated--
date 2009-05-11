@@ -35,7 +35,7 @@
  GLUE.prototype.render = function(){
  	this.frames = [];
  	var parent = document.getElementById('framesDiv');
- 	document.getElementById('promptDiv').innerHTML = this.prompt;
+ 	document.getElementById('promptDiv').innerHTML = convertToHTML(this.prompt);
  	
  	for(var b=0;b<this.children.length;b++){
  		var frame = createElement(document, 'iframe', {id:'f'+this.children[b].id, name:'f'+this.children[b].id, width:'100%'});

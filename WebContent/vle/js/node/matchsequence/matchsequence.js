@@ -118,7 +118,7 @@ function addOrderToChoice(identifier, orderNumber) {
 MS.prototype.render = function() {
 	// render the prompt
 	var promptdiv = document.getElementById('promptDiv');
-	promptdiv.innerHTML=this.promptText;
+	promptdiv.innerHTML=convertToHTML(this.promptText);
 	  
     var bucketsHtml = "";
     document.getElementById('play').innerHTML = "";
