@@ -515,10 +515,11 @@ VLE.prototype.getClassUsers = function() {
  */
 VLE.prototype.loadVLEState = function(vle) {
 	var getURL = this.getDataUrl;
+	
+	if (vle.myUserInfo.workgroupId) {
+		getURL += "?userId=" + vle.myUserInfo.workgroupId;
+	}
 
-	//var getURL = "../getdata.html?dataId=" + dataId;
-	//alert("vle.js, getURL:" + getURL);
-		
 	var callback = {
 		success: function(o) {
 			var xmlObj = o.responseXML;
