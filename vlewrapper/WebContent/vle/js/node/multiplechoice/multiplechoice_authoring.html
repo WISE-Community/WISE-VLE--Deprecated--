@@ -1,0 +1,102 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
+<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
+<script type="text/javascript" src="multiplechoicestate.js"></script>
+<script type="text/javascript" src="mc.js"></script>
+
+<script type="text/javascript">
+var mcObj;
+var node; //a MultipleChoiceNode
+
+function previewFrameOnLoad() {
+	//nothing needs to be done here right now
+}	
+
+/*
+ * This is called by the authoring_tool.html after it has
+ * set the node.
+ */
+function loadAuthoring() {
+	//pass the node that we're going to author to the previewFrame
+	window.frames["previewFrame"].node = node;
+
+	/*
+	 * call load on the html page that is in the previewFrame
+	 * so that the page in the previewFrame can do what it needs to
+	 * do with the node we just gave it above
+	 */
+	window.frames["previewFrame"].loadAuthoring();
+}
+
+/*
+ * Called by multiplechoice_plain.html after it has loaded and rendered
+ * the mcObj. We will obtain that mcObj and retrieve the xml from it
+ * so we can display it to the user to author. 
+ */
+function afterAuthoringLoaded() {
+	/*
+	 * retrieve the mcObj from the previewFrame iframe so that this
+	 * page has access to that same object
+	 */
+	mcObj = window.frames["previewFrame"].mcObj;
+	alert(mcObj);
+
+	//retrieve the xmlString from the mcObj
+	var xmlString = "";
+	if(window.ActiveXObject) {
+		xmlString = mcObj.xmlDoc.xml;
+	} else {
+		xmlString = (new XMLSerializer()).serializeToString(mcObj.xmlDoc);
+	}
+
+	/*
+	 * display the xmlString to the user in the left area so they can
+	 * edit and author it. 
+	 */
+	document.getElementById('sourceTextArea').value = xmlString;
+}
+
+/*
+ * Called to send the authored text back to the mc object so the
+ * mc object can update itself and reflect the changes the author
+ * has made.
+ */
+function sourceUpdated() {
+	//retrieve the authored text
+	var xmlString = document.getElementById('sourceTextArea').value;
+
+	var xmlObj = null;
+	//parse the authored xml text into an xml object
+	if(window.ActiveXObject) {
+		//for IE
+		xmlObj=new ActiveXObject("Microsoft.XMLDOM");
+		xmlObj.async="false";
+		xmlObj.loadXML(xmlString);
+	} else {
+		//for Firefox, etc.
+		var parser=new DOMParser();
+		xmlObj=parser.parseFromString(xmlString,"text/xml");
+	}
+
+	//set the xmlDoc into the mc object
+	mcObj.loadXMLDoc(xmlObj);
+
+	//render the mc object so the changes are reflected
+	mcObj.render();
+
+	//update the node element so it contains the updated content
+	node.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue = xmlString;
+}
+</script>
+</head>
+<body>
+<table border='1' bgcolor='white' style='width:100%;height:100%'>
+	<tr>
+   		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='multiplechoice_plain.html' onload='previewFrameOnLoad();'></iframe></td>
+	</tr>
+</table>
+</body>
+</html>

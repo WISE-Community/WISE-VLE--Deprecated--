@@ -1,0 +1,177 @@
+<html>
+<title>Loading Sample PAS Project to Virtual Learning Environment</title>
+<head>
+<script type="text/javascript" src="js/VLE.js"></script>
+<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="js/navigation/DFS.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
+<script type="text/javascript" src="js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="js/node/CustomNode.js"></script>
+<script type="text/javascript" src="js/project/Project.js"></script>
+
+<script type="text/javascript" src="js/common/niftycube.js"></script>
+<script type="text/javascript" src="js/common/sdmenu.js"></script>
+
+<link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
+<link rel="stylesheet" type="text/css" href="css/navigation.css" />
+<link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
+
+<link rel="stylesheet" type="text/css" href="css/navigation.css" />
+
+<script type="text/javascript">
+window.onload=function(){
+Nifty("div#navigationBox","big");
+Nifty("ul.toolsButtons a","transparent");
+
+}
+</script>
+
+</head>
+<body>
+	
+<div id="centeredDiv">	
+
+
+
+	
+<div id="projectLeftBox">
+	
+	<div id="projectLogoBox" class="genericLayout">
+		Project Art/Logo Goes Here
+	</div>
+	
+	<div id="projectTitle" class="genericLayout">
+		Project Title or Title+Unit+Lesson Goes Here
+	</div>
+	
+	<div id="logInBox" class="genericLayout">
+		Current User Name(s) Goes Here
+	</div>
+	
+	<div id="toolsArea">
+		
+		<div class="sectionHeader">Tools</div>
+		
+		<ul class="toolsButtons">
+			<li><a href="#">journal</a></li>
+			<li><a href="#">all work</a></li>
+			<li><a href="#">print</a></li>
+		</ul>
+		<ul class="toolsButtons">
+			<li><a href="#">save</a></li>
+			<li><a href="#">save+exit</a></li>
+			<li><a href="#" class="condensedText">report issue</a></li>
+		</ul>
+
+		</div>
+		
+	<div id="navigationArea">
+
+			<div class="sectionHeader">Navigation</div>
+		
+			<div id="menuControls">
+				        <input type="button" value="Expand All" onclick="myMenu.expandAll()" />
+				        <input type="button" value="Collapse All" onclick="myMenu.collapseAll()" />
+					</div>
+					
+			<div id="navigationMenuBox" >
+				    <div id="my_menu" class="sdmenu">
+					  <div>
+				        <span>A1: Lessons Goals</span>
+				        <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+					  </div>
+				      <div class=collapsed>
+				        <span>A2: My Ideas</span>
+				       <a href="">Step1: Here's an example of a very long step name</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+						<a href="">Step4: name for the step here</a>
+						<a href="">Step5: name for the step here</a>
+				      </div>
+				      <div class="collapsed">
+				       <span>A3: Explore New Ideas</span>
+				        <a href="">Step1: another example of a long and intrguing step name</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+						<a href="">Step4: name for the step here</a>
+						<a href="">Step5: name for the step here</a>
+				      </div>
+					  <div class="collapsed">
+				       <span>A4: Test My Knowledge</span>
+				       <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+					 </div>
+				      <div class="collapsed">
+				       <span>A5: Power Programming</span>
+				       <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+						<a href="">Ste4: name for the step here</a>
+				      </div>
+					  <div class="collapsed">
+				       <span>A6: Sum It Up</span>
+				       <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+					   </div>							
+				   	</div>
+		    </div>   <!-- end of #navigationMenuBox -->
+	</div>   <!-- end of #navigationArea -->
+		
+	<div id="hostBrandingBox">
+		Host Branding Goes Here
+	</div>
+	
+</div>    <!-- end of #projectLeftBox-->
+
+<div id="projectRightBox">
+	<div id="contentDiv">
+<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();"
+ width="100%" height="100%" frameborder="0">
+ [Content for browsers that don't support iframes goes here.]
+</iframe>
+</div>
+</div>
+
+
+
+
+
+<div id="experimental">	experimental section<br/>
+<div id="experimentalbuttons">
+<input type="button" onclick="vle.getNodeVisitedInfo();" value="Get Node Visit Information" />
+</div>
+<div id="experimentaloutput">
+</div>
+</div>
+
+</div>  <!-- centerDiv -->
+<script type="text/javascript">
+var vle = null;
+function render() {
+	  var xmlDoc=loadXMLDoc("basic_example.xml");
+	  var project = new Project(xmlDoc);
+	  var dfs = new DFS(project.rootNode);
+	  vle = new VLE();
+	  vle.setProject(project);
+	  vle.navigationLogic = new NavigationLogic(dfs);
+	  vle.renderNode("0:0:0");
+}
+
+render();
+
+function toggleNavigationPanelVisibility() {
+	vle.toggleNavigationPanelVisibility();
+}
+
+</script>
+        <div id="hideshownavigation" onclick="toggleNavigationPanelVisibility();">
+	    <input type="button" value="TOGGLE NAV BAR" />
+        </div>
+
+</body>
+</html>

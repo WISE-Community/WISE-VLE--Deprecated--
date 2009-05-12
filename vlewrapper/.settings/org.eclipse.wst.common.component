@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+<wb-module deploy-name="vlewrapper">
+<wb-resource deploy-path="/" source-path="/WebContent"/>
+<wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+<wb-resource deploy-path="/WEB-INF/classes" source-path="/WebContent/WEB-INF/lib"/>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/mysql-connector-java-5.1.7-bin.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<property name="java-output-path"/>
+<property name="context-root" value="vlewrapper"/>
+</wb-module>
+</project-modules>

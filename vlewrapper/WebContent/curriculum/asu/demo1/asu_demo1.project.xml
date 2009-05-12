@@ -1,0 +1,32 @@
+<project>
+<nodes>
+<HtmlNode identifier="2d_demo" title="2-D Unity Demo">
+	<ref filename="2d_example.html"/>
+</HtmlNode>
+<HtmlNode identifier="2d_shooter_demo" title="2-D Unity Shooter Demo">
+	<ref filename="2d_shooter_example.html"/>
+</HtmlNode>
+<FlashNode identifier='testflash' title='Flash-JS demo'>
+	<ref filename='testflash.html' />
+</FlashNode>
+<MatchSequenceNode identifier="match" title="match sequence">
+	<ref filename="match.ms"/>
+</MatchSequenceNode>
+</nodes>
+<sequences>
+<sequence identifier="startsequence">
+<sequence-ref ref="Section 1:  Introduction"/>
+</sequence>
+<sequence identifier="Section 1:  Introduction">
+<node-ref ref="2d_demo"/>
+<node-ref ref="2d_shooter_demo"/>
+<node-ref ref="testflash"/>
+<node-ref ref="match"/>
+</sequence>
+
+</sequences>
+<method>
+<startpoint><sequence-ref ref="startsequence"/>
+</startpoint>
+</method>
+</project>

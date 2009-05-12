@@ -1,0 +1,117 @@
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">
+ <responseDeclaration identifier="MATCH_ASSMT_1">
+ <correctResponse>
+ <value isDefault="false" isCorrect="true" choiceIdentifier="i0" fieldIdentifier="illustrated" order="0">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the egg stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="i1" fieldIdentifier="illustrated" order="1">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the larva/caterpillar stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="i2" fieldIdentifier="illustrated" order="2">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the Pupa stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="i3" fieldIdentifier="illustrated" order="3">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the adult emerging from chrysalis.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="i4" fieldIdentifier="illustrated" order="4">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the Butterfly stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="p0" fieldIdentifier="photo" order="0">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the egg stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="p1" fieldIdentifier="photo" order="1">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the larva/caterpillar stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="p2" fieldIdentifier="photo" order="2">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the Pupa stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="p3" fieldIdentifier="photo" order="3">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the adult emerging from chrysalis.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="true" choiceIdentifier="p4" fieldIdentifier="photo" order="4">&lt;html&gt;&lt;body class="feedback"&gt;
+Right, this is the Butterfly stage.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="false" choiceIdentifier="i0" fieldIdentifier="photo">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not a photo.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="false" choiceIdentifier="i1" fieldIdentifier="photo">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not a photo.
+&lt;/body&gt;&lt;/html&gt;</value>
+ <value isDefault="false" isCorrect="false" choiceIdentifier="i2" fieldIdentifier="photo">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not a photo.
+&lt;/body&gt;&lt;/html&gt;</value>
+ <value isDefault="false" isCorrect="false" choiceIdentifier="i3" fieldIdentifier="photo">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not a photo.
+&lt;/body&gt;&lt;/html&gt;</value>
+ <value isDefault="false" isCorrect="false" choiceIdentifier="i4" fieldIdentifier="photo">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not a photo.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="false" choiceIdentifier="p0" fieldIdentifier="illustrated">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not an illustration.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ <value isDefault="false" isCorrect="false" choiceIdentifier="p1" fieldIdentifier="illustrated">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not an illustration.
+&lt;/body&gt;&lt;/html&gt;</value>
+ <value isDefault="false" isCorrect="false" choiceIdentifier="p2" fieldIdentifier="illustrated">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not an illustration.
+&lt;/body&gt;&lt;/html&gt;</value>
+ <value isDefault="false" isCorrect="false" choiceIdentifier="p3" fieldIdentifier="illustrated">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not an illustration.
+&lt;/body&gt;&lt;/html&gt;</value>
+ <value isDefault="false" isCorrect="false" choiceIdentifier="p4" fieldIdentifier="illustrated">&lt;html&gt;&lt;body class="feedback"&gt;
+This is not an illustration.
+&lt;/body&gt;&lt;/html&gt;</value>
+
+ </correctResponse>
+ <mapping defaultValue="0.0">
+ <mapEntry mappedValue="1.0" mapKey="gapTextType" />
+ </mapping>
+ </responseDeclaration>
+ <responseDeclaration identifier="CHOICE_ASSMT_1">
+ <correctResponse>
+ <value isDefault="false" isCorrect="false">SIMPLE_CHOICE_ID1</value>
+
+ </correctResponse>
+ </responseDeclaration>
+<itemBody>
+  <gapMatchInteraction hasInlineFeedback="true" responseIdentifier="MATCH_ASSMT_1" shuffle="true" ordered="true">
+
+ <prompt>
+ 	&lt;html&gt;&lt;body class="matchprompt" style="font-size:14px; font-family:Verdana, Arial,Helvetica; width:250px; margin:20px 0 10px 0 ; color:#0000FF; line-height:120%;"&gt;
+	Goal: Match and sequence the choices to reflect the stages in the life cycle of a Monarch butterfly.&lt;/body&gt;&lt;/html&gt;
+</prompt>
+<followupFeedback>&lt;html&gt;&lt;body class="matchprompt" style="font-size:14px; font-family:Verdana, Arial,Helvetica; width:550px; margin:20px 0 10px 0 ; color:#0000FF; line-height:120%;"&gt;
+You can watch a video of the metamorphosis by clicking &lt;a href="http://www.youtube.com/watch?v=NnJA_BkPF_Y"&gt;here&lt;/a&gt;
+&lt;/body&gt;&lt;/html&gt;
+</followupFeedback>
+ <gapText identifier="i0" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/IllustratedCycle/illustration1.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="i1" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/IllustratedCycle/illustration2.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="i2" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/IllustratedCycle/illustration3.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="i3" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/IllustratedCycle/illustration4.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="i4" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/IllustratedCycle/illustration5.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+
+ <gapText identifier="p0" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/PhotographicCycle/Photo1.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="p1" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/PhotographicCycle/Photo2.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="p2" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/PhotographicCycle/Photo3.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="p3" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/PhotographicCycle/Photo4.png" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+ <gapText identifier="p4" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;&lt;img src="http://tels-group.soe.berkeley.edu:16080/webassessment/common/images/PhotographicCycle/Photo5.jpg" /&gt;&lt;/body&gt;&lt;/html&gt;</gapText>
+
+ <gapMultiple identifier="illustrated" ordinal="true" numberOfEntries="0">&lt;html&gt;&lt;body class="slot"&gt;Stages of the Butterfly Lifecycle (illustrated):&lt;/body&gt;&lt;/html&gt;</gapMultiple>
+ <gapMultiple identifier="photo" ordinal="true" numberOfEntries="0">&lt;html&gt;&lt;body class="slot"&gt;Stages of the Butterfly Lifecycle (photographs):&lt;/body&gt;&lt;/html&gt;</gapMultiple>
+
+ </gapMatchInteraction>
+ </itemBody>
+ </assessmentItem>

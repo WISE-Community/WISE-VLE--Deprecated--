@@ -1,0 +1,47 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../common/css/htmlAssessment.css" />
+<link rel="stylesheet" type="text/css" href="mclitestyles.css" />
+<link rel="stylesheet" type="text/css" href="../common/css/niftyCorners.css" />
+
+<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
+<script type="text/javascript" src="multiplechoicestate.js"></script>
+<script type="text/javascript" src="mc.js"></script>
+<script type="text/javascript">
+var mc;
+
+function renderMCFromString(txt) {
+  xmlDoc=loadXMLString(txt);
+  mc = new MC(xmlDoc);
+  mc.renderLite();
+}
+
+function loadLite(node, vle) {
+	mc.loadLite(node, vle);
+}
+
+function answered(){
+	mc.answered=true;
+};
+
+function getAnswered(){
+	return mc.answered;
+};
+
+function checkAnswerLite(){
+	return mc.checkAnswerLite();
+};
+</script>
+</head>
+<body>
+<div id="main">
+	<div id="mcDiv">
+		<div id="promptDiv">Prompt goes here.</div>
+		<div id="radiobuttondiv"></div>
+	</div>
+	<div id='feedbackdiv'></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<html>
+<title>Loading Sample PAS Project to Virtual Learning Environment</title>
+<head>
+<script type="text/javascript" src="js/VLE.js"></script>
+<script type="text/javascript" src="js/contentpanel/ContentPanel.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationLogic.js"></script>
+<script type="text/javascript" src="js/navigation/DFS.js"></script>
+<script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
+<script type="text/javascript" src="js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/HtmlNode.js"></script>
+<script type="text/javascript" src="js/node/CustomNode.js"></script>
+<script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/project/Project.js"></script>
+<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
+
+
+<script type="text/javascript" src="js/sound/soundmanager/script/soundmanager2.js"></script>
+<script type="text/javascript" src="js/sound/PageAudio.js"></script>
+
+<script type="text/javascript" src="js/common/niftycube.js"></script>
+<script type="text/javascript" src="js/common/sdmenu.js"></script>
+<script type="text/javascript" src="js/common/dropdown.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/fonts/fonts-min.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.6.0/build/container/assets/skins/sam/container.css" />
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/utilities/utilities.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.6.0/build/container/container-min.js"></script>
+
+
+
+<link rel="stylesheet" type="text/css" href="css/niftyCube.css" />
+<link rel="stylesheet" type="text/css" href="css/navigation.css" />
+<link rel="stylesheet" type="text/css" href="css/sdmenu.css" />
+
+<link rel="stylesheet" type="text/css" href="css/navigation.css" />
+
+
+<script type="text/javascript">
+window.onload=function(){
+Nifty("div#navigationBox","big");
+Nifty("ul.toolsButtons a","transparent");
+
+}
+
+
+</script>
+
+
+</head>
+<body class=" yui-skin-sam">
+	
+<div id="centeredDiv">	
+
+
+
+	
+<div id="projectLeftBox">
+	
+	<div id="projectLogoBox">
+		<a href=""><img src="images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0" /></a>
+	</div>
+	
+	<div id="projectCurriculum">
+		<div class="title">AP Programming 101E</div>
+		<div class="unit">Unit 3: Section 1</div>
+	</div>
+	
+	<div id="logInBox">
+		<p>SignIn: Keyser Soze</p>
+	</div>
+	
+		<div id="toolsArea">
+		
+		  <dl class="dropdown">
+		  <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
+		  		tools
+				<img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
+		</dt>
+		
+		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
+		    <ul>
+		      <li><a class="underline">My Journal</a></li>
+		      <li><a onclick="vle.showAllWork();" class="underline">Show All Work</a></li>
+		      <li><a class="underline">Save</a></li>
+			  <li><a class="underline2">Save & Exit</a></li>
+			  <li><a class="underline2">Report an Issue</a></li>
+		    </ul>
+		  </dd>
+		</dl>
+	</div>
+	
+	<div id="audioControls">
+		<table>
+			<tr>
+				<td>Audio Controls</td>
+				<td><a class="rewind" onclick="rewindStepAudio();"></a></td>
+				<td><a class="playpause" onclick="playPauseStepAudio();"></a></td>
+			</tr>
+		</table>
+	</div>
+		
+	<div id="navigationArea">
+
+			<div class="sectionHeader">Navigation</div>
+		
+			<div id="menuControls">
+				        <input type="button" value="Expand All" onclick="myMenu.expandAll()" />
+				        <input type="button" value="Collapse All" onclick="myMenu.collapseAll()" />
+					</div>
+					
+			<div id="navigationMenuBox" >
+				    <div id="my_menu" class="sdmenu">
+					  <div>
+				        <span>A1: Lessons Goals</span>
+				        <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+					  </div>
+				      <div class=collapsed>
+				        <span>A2: My Ideas</span>
+				       <a href="">Step1: Here's an example of a very long step name</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+						<a href="">Step4: name for the step here</a>
+						<a href="">Step5: name for the step here</a>
+				      </div>
+				      <div class="collapsed">
+				       <span>A3: Explore New Ideas</span>
+				        <a href="">Step1: another example of a long and intrguing step name</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+						<a href="">Step4: name for the step here</a>
+						<a href="">Step5: name for the step here</a>
+				      </div>
+					  <div class="collapsed">
+				       <span>A4: Test My Knowledge</span>
+				       <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+					 </div>
+				      <div class="collapsed">
+				       <span>A5: Power Programming</span>
+				       <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+						<a href="">Step3: name for the step here</a>
+						<a href="">Ste4: name for the step here</a>
+				      </div>
+					  <div class="collapsed">
+				       <span>A6: Sum It Up</span>
+				       <a href="">Step1: name for the step here</a>
+				        <a href="">Step2: name for the step here</a>
+					   </div>							
+				   	</div>
+		    </div>   <!-- end of #navigationMenuBox -->
+	</div>   <!-- end of #navigationArea -->
+		
+	<div id="hostBrandingBox">
+		<a href=""><img src="images/UCCP-Logo.png" alt="UCCP College Prep Online Logo" width="210" height="32" border="0" /></a>
+	</div>
+	
+</div>    <!-- end of #projectLeftBox-->
+
+<div id="projectRightUpperBox">
+	<div id="stepInfoBar">
+		<div class="currentLessonSection">Lesson 3.1</div>
+    	<div class="instantQuizIcon"></div>
+		<div class="stepTypeLabel">
+    		<a href="InstantQuizInfoBox.html" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Instant Quiz</a>
+		    <span class="gradingStatus">(Grading Off)</span>
+			<span class="subStepCounter">Question 1 of 8</span> 
+		</div>
+		<div id="stepNavButtons">
+    		<a onclick="vle.renderPrevNode();" ><img src="images/go-previous.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
+			<a onclick="vle.renderNextNode();" ><img src="images/go-next.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
+			<a onclick="vle.toggleNavigationPanelVisibility();"><img src="images/view-fullscreen.png" alt="Previous Arrow" width="32" height="32" border="0" /></a>
+		</div>
+    	
+	</div>
+</div>
+
+<div id="projectRightLowerBox">
+	<div id="contentDiv">
+<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();"
+ width="100%" height="100%" frameborder="0">
+ [Content for browsers that don't support iframes goes here.]
+</iframe>
+</div>
+</div>
+
+<div id="showAllWorkDiv"></div>
+</div>  <!-- centerDiv -->
+<script type="text/javascript">
+var vle = null;
+function render() {
+	  var xmlDoc=loadXMLDoc("mitosis.30067.otml");
+	  var project = new PasOtmlProject(xmlDoc);
+	  var dfs = new DFS(project.rootNode);
+	  vle = new VLE();
+	  vle.setProject(project);
+	  vle.navigationLogic = new NavigationLogic(dfs);
+	  vle.renderNode("0:0:0");
+}
+render();
+function toggleNavigationPanelVisibility() {
+	vle.toggleNavigationPanelVisibility();
+}
+var myMenu;
+</script>
+<div id="soundmanager-debug"></div>
+
+</body>
+</html>

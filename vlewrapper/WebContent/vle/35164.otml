@@ -1,0 +1,1990 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<otrunk id="33754150-b594-11d9-9669-0800200c9a66">
+  <imports>
+    <import class="org.concord.otrunk.OTSystem" />
+    <import class="org.concord.otrunk.view.OTViewEntry" />
+    <import class="org.concord.otrunk.view.OTViewBundle" />
+    <import class="org.concord.otrunk.OTInclude" />
+    <import class="org.telscenter.pas.otrunk.skeleton.OTPasProject" />
+    <import class="org.telscenter.pas.otrunk.skeleton.OTPasActivity" />
+    <import class="org.telscenter.pas.otrunk.skeleton.OTPasStep" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTDisplayPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTEvidence" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTHelloWorld" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTOutsideLink" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTNote" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTStudentAssessment" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTSelfAssessment" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTChallengeQuestion" />
+    <import class="org.telscenter.pas.otrunk.skeleton.OTGenericOTrunkStep" />
+    <import class="org.concord.graph.util.state.OTDrawingTool" />
+    <import class="org.concord.otrunk.view.OTViewMode" />
+    <import class="org.concord.data.state.OTDataStore" />
+    <import class="org.concord.otrunk.graph.OTDataCollectorViewConfig" />
+    <import class="org.concord.data.state.OTDataChannelDescription" />
+    <import class="org.concord.data.state.OTDataField" />
+    <import class="org.concord.data.state.OTWaveGenerator" />
+    <import class="org.concord.data.state.OTMultiWaveGenerator" />
+    <import class="org.concord.data.state.OTWave" />
+    <import class="org.concord.datagraph.state.OTDataGraph" />
+    <import class="org.concord.datagraph.state.OTDataAxis" />
+    <import class="org.concord.datagraph.state.OTDataGraphable" />
+    <import class="org.concord.datagraph.state.OTDataCollector" />
+    <import class="org.concord.datagraph.state.OTMultiDataGraph" />
+    <import class="org.concord.datagraph.state.OTDataPointLabel" />
+    <import class="org.concord.datagraph.state.OTDataPointRuler" />
+    <import class="org.concord.graph.util.state.OTDrawingTool" />
+    <import class="org.concord.graph.util.state.OTDrawingStamp" />
+    <import class="org.concord.graph.util.state.OTDrawingImageIcon" />
+    <import class="org.concord.graph.util.state.OTDrawingShape" />
+    <import class="org.concord.graph.util.state.OTPointTextLabel" />
+    <import class="org.concord.otrunk.util.OTSharingBundle" />
+    <import class="org.concord.otrunk.view.document.OTCompoundDoc" />
+    <import class="org.concord.otrunk.view.document.OTDocumentViewConfig" />
+    <import class="org.concord.otrunk.view.OTObjectEditViewConfig" />
+    <import class="org.concord.data.state.OTDataStore" />
+    <import class="org.concord.data.state.OTDataChannelDescription" />
+    <import class="org.concord.data.state.OTDataField" />
+    <import class="org.concord.data.state.OTDataTable" />
+    <import class="org.concord.datagraph.state.OTDataGraph" />
+    <import class="org.concord.datagraph.state.OTDataAxis" />
+    <import class="org.concord.datagraph.state.OTDataGraphable" />
+    <import class="org.concord.datagraph.state.OTDataCollector" />
+    <import class="org.concord.datagraph.state.OTMultiDataGraph" />
+    <import class="org.concord.datagraph.state.OTPluginView" />
+    <import class="org.concord.datagraph.state.OTDataBarGraphable" />
+    <import class="org.concord.framework.otrunk.view.OTFrame" />
+    <import class="org.concord.graph.util.state.OTDrawingTool" />
+    <import class="org.concord.graph.util.state.OTDrawingStamp" />
+    <import class="org.concord.graph.util.state.OTDrawingImageIcon" />
+    <import class="org.concord.graph.util.state.OTDrawingShape" />
+    <import class="org.concord.graph.util.state.OTDrawingTool2" />
+    <import class="org.concord.graph.util.state.OTPointTextLabel" />
+    <import class="org.concord.multimedia.state.OTSoundDataCollector" />
+    <import class="org.concord.multimedia.state.OTSoundDataProducer" />
+    <import class="org.concord.otrunk.OTInclude" />
+    <import class="org.concord.otrunk.OTSystem" />
+    <import class="org.concord.otrunk.browser.mozswing.OTMozSwing" />
+    <import class="org.concord.otrunk.graph.OTDataCollectorViewConfig" />
+    <import class="org.concord.otrunk.overlay.OTOverlay" />
+    <import class="org.concord.otrunk.script.ui.OTScriptObject" />
+    <import class="org.concord.otrunk.script.ui.OTScriptVariable" />
+    <import class="org.concord.otrunk.script.ui.OTScriptVariableComponent" />
+    <import class="org.concord.otrunk.script.ui.OTScriptVariableView" />
+    <import class="org.concord.otrunk.script.js.OTJavascript" />
+    <import class="org.concord.otrunk.script.OTScriptEngineBundle" />
+    <import class="org.concord.otrunk.script.OTScriptEngineEntry" />
+    <import class="org.concord.otrunk.ui.OTButton" />
+    <import class="org.concord.otrunk.ui.OTCardContainer" />
+    <import class="org.concord.otrunk.ui.OTChoice" />
+    <import class="org.concord.otrunk.ui.OTChoiceMultiple" />
+    <import class="org.concord.otrunk.ui.OTImage" />
+    <import class="org.concord.otrunk.ui.OTModeSwitcher" />
+    <import class="org.concord.otrunk.ui.OTSoundPlayer" />
+    <import class="org.concord.otrunk.ui.OTText" />
+    <import class="org.concord.otrunk.ui.swing.OTChoiceViewConfig" />
+    <import class="org.concord.otrunk.view.OTFolderObject" />
+    <import class="org.concord.otrunk.view.OTObjectEditViewConfig" />
+    <import class="org.concord.otrunk.view.OTViewChild" />
+    <import class="org.concord.otrunk.view.OTViewEntry" />
+    <import class="org.concord.otrunk.view.OTViewBundle" />
+    <import class="org.concord.otrunk.view.OTViewMode" />
+    <import class="org.concord.otrunk.view.document.OTCompoundDoc" />
+    <import class="org.concord.otrunk.view.document.OTCssText" />
+    <import class="org.concord.otrunk.view.document.edit.OTDocumentEditViewConfig" />
+    <import class="org.concord.otrunk.view.prototype.OTPrototypeViewEntry" />
+    <import class="org.concord.otrunk.view.prototype.OTPrototypeEventController" />
+    <import class="org.concord.otrunk.view.prototype.OTPrototypeMapEntry" />
+    <import class="org.concord.otrunkmw.OTModelerPage" />
+    <import class="org.concord.otrunknl4.OTNLogoModel" />
+    <import class="org.concord.otrunkcck.OTCCKModel" />
+    <import class="org.concord.otrunkphet.balloons.OTPhetBalloonsModel" />
+    <import class="org.concord.sensor.state.OTDeviceConfig" />
+    <import class="org.concord.sensor.state.OTExperimentRequest" />
+    <import class="org.concord.sensor.state.OTInterfaceManager" />
+    <import class="org.concord.sensor.state.OTSensorDataProxy" />
+    <import class="org.concord.sensor.state.OTSensorRequest" />
+    <import class="org.concord.sensor.state.OTZeroSensor" />
+    <import class="org.concord.otrunk.view.OTViewService" />
+    <import class="org.concord.otrunk.view.document.OTTextObject" />
+    <import class="org.concord.otrunk.ui.OTChoiceWithFeedback" />
+    <import class="org.telscenter.pas.otrunk.skeleton.OTPasHint" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTPedagogicaStep" />
+    <import class="org.telscenter.pas.otrunk.skeleton.journal.OTJournalAlbum" />
+    <import class="org.telscenter.pas.otrunk.skeleton.journal.OTJournalPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.journal.OTJournalSnapshotButton" />
+    <import class="org.telscenter.pas.otrunk.skeleton.journal.OTJournalSnapshotButtonView" />
+    <import class="org.concord.otrunk.ui.snapshot.OTSnapshot" />
+    <import class="org.concord.otrunk.ui.snapshot.OTSnapshotAlbum" />
+    <import class="org.concord.otrunk.ui.snapshot.OTSnapshotChooser" />
+    <import class="org.telscenter.pas.otrunk.skeleton.journal.OTJournalStep" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTQuiz" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTIntroPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTCartoonPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTExamplePage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTQuestionAnswer" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTBrainstorm" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTHomeworkPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTReadingPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTSimulationPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTSplashPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTSummaryPage" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTTryit" />
+    <import class="org.telscenter.pas.otrunk.skeleton.steps.OTVideoPage" />
+  </imports>
+  <objects>
+    <OTSystem>
+      <includes>
+        <OTInclude href="http://tels-group.soe.berkeley.edu/aperritano/predefined-sensor-graphs.otml" />
+      </includes>
+      <bundles>
+        <OTViewBundle>
+          <viewEntries>
+            <OTViewEntry objectClass="org.telscenter.pas.otrunk.skeleton.OTPasProject" viewClass="org.telscenter.pas.otrunk.skeleton.OTPasProjectView" />
+            <OTViewEntry local_id="sound-grapher-view" viewClass="org.concord.multimedia.state.ui.OTSoundDataCollectorView" objectClass="org.concord.multimedia.state.OTSoundDataCollector" />
+            <OTViewEntry local_id="mw-view" objectClass="org.concord.otrunkmw.OTModelerPage" viewClass="org.concord.otrunkmw.OTModelerPageView" />
+            <OTViewEntry objectClass="org.concord.otrunk.OTIncludeRootObject" viewClass="org.concord.otrunk.OTIncludeRootObjectView" />
+            <OTViewEntry local_id="moz-swing-view" objectClass="org.concord.otrunk.browser.mozswing.OTMozSwing" viewClass="org.concord.otrunk.browser.mozswing.OTMozSwingView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTModeSwitcher" viewClass="org.concord.otrunk.ui.swing.OTModeSwitcherView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTImage" viewClass="org.concord.otrunk.ui.swing.OTImageView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTModeSwitcher" viewClass="org.concord.otrunk.ui.swing.OTModeSwitcherView" />
+            <OTViewEntry local_id="snapshot_button_view" objectClass="org.telscenter.pas.otrunk.skeleton.journal.OTJournalSnapshotButton" viewClass="org.telscenter.pas.otrunk.skeleton.journal.OTJournalSnapshotButtonView" />
+            <OTViewEntry local_id="snapshot-chooser-view" objectClass="org.concord.otrunk.ui.snapshot.OTSnapshotChooser" viewClass="org.concord.otrunk.ui.snapshot.OTSnapshotChooserView" />
+            <OTViewEntry local_id="journal_album_view" objectClass="org.telscenter.pas.otrunk.skeleton.journal.OTJournalAlbum" viewClass="org.telscenter.pas.otrunk.skeleton.journal.OTJournalAlbumView" />
+            <OTDocumentViewConfig local_id="compound_doc_view" objectClass="org.concord.otrunk.view.document.OTCompoundDoc" viewClass="org.concord.otrunk.view.document.OTDocumentView">
+              <cssBlocks>
+                <OTCssText cssText="body { font-size: 18; FONT-STYLE: normal; FONT-FAMILY: Verdana, Arial; FONT-VARIANT: normal; TEXT-DECORATION: none }" />
+              </cssBlocks>
+            </OTDocumentViewConfig>
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTButton" viewClass="org.concord.otrunk.ui.swing.OTButtonView" />
+            <OTViewEntry local_id="script-view" objectClass="org.concord.otrunk.script.ui.OTScriptObject" viewClass="org.concord.otrunk.script.ui.OTScriptObjectView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTButton" viewClass="org.concord.otrunk.ui.swing.OTButtonView" />
+            <OTChoiceViewConfig local_id="choice-checkbox-view" objectClass="org.concord.otrunk.ui.OTChoiceMultiple" viewClass="org.concord.otrunk.ui.swing.OTChoiceCheckBoxView" useViewsAsChoices="true" />
+            <OTChoiceViewConfig local_id="choice-radio-view" objectClass="org.concord.otrunk.ui.OTChoice" viewClass="org.concord.otrunk.ui.swing.OTChoiceRadioButtonView" useViewsAsChoices="true" />
+            <OTViewEntry id="453a61b0-e18b-11dc-95ff-0800200c9a66" objectClass="org.concord.otrunk.ui.OTChoice" viewClass="org.concord.otrunk.ui.swing.OTChoiceComboBoxView" />
+            <OTViewEntry objectClass="org.concord.otrunk.script.ui.OTScriptObject" viewClass="org.concord.otrunk.script.ui.OTScriptObjectView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTCardContainer" viewClass="org.concord.otrunk.ui.swing.OTCardContainerView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTBorderContainer" viewClass="org.concord.otrunk.ui.swing.OTBorderContainerView" />
+            <OTViewEntry objectClass="org.concord.otrunk.ui.OTPlacementContainer" viewClass="org.concord.otrunk.ui.swing.OTPlacementContainerView" />
+            <OTViewEntry id="be713960-e18a-11dc-95ff-0800200c9a66" objectClass="org.concord.otrunk.ui.OTText" viewClass="org.concord.otrunk.ui.swing.OTTextEditView" />
+            <OTViewEntry id="c93a7460-e18a-11dc-95ff-0800200c9a66" objectClass="org.concord.otrunk.ui.OTText" viewClass="org.concord.otrunk.ui.swing.OTTextView" />
+            <OTViewEntry local_id="data-collector-view" viewClass="org.concord.datagraph.state.OTDataCollectorView" objectClass="org.concord.datagraph.state.OTDataCollector" />
+            <OTViewEntry viewClass="org.concord.datagraph.state.OTDataGraphView" objectClass="org.concord.datagraph.state.OTDataGraph" />
+            <OTViewEntry viewClass="org.concord.data.state.OTDataFieldView" objectClass="org.concord.data.state.OTDataField" />
+            <OTViewEntry local_id="drawing-view" viewClass="org.concord.datagraph.state.OTDataDrawingToolView" objectClass="org.concord.graph.util.state.OTDrawingTool" />
+            <OTViewEntry viewClass="org.concord.datagraph.state.OTMultiDataGraphView" objectClass="org.concord.datagraph.state.OTMultiDataGraph" />
+            <OTViewEntry local_id="cck-view" objectClass="org.concord.otrunkcck.OTCCKModel" viewClass="org.concord.otrunkcck.OTCCKModelView" />
+            <OTViewEntry local_id="data-table-view" objectClass="org.concord.data.state.OTDataTable" viewClass="org.concord.data.state.OTDataTableView" />
+            <OTViewEntry local_id="netlogo-view" viewClass="org.concord.otrunknl4.OTNLogoModelView" objectClass="org.concord.otrunknl4.OTNLogoModel" />
+            <OTViewEntry objectClass="org.concord.otrunkphet.balloons.OTPhetBalloonsModel" viewClass="org.concord.otrunkphet.balloons.OTPhetBalloonsModelView" />
+            <OTViewEntry local_id="sound-player-view" objectClass="org.concord.otrunk.ui.OTSoundPlayer" viewClass="org.concord.otrunk.ui.swing.OTSoundPlayerView" />
+            <OTPrototypeViewEntry id="textsize-choice-view" objectClass="org.concord.otrunk.OTSystem" viewClass="org.concord.otrunk.view.prototype.OTPrototypeView" copyPrototype="false">
+              <viewEntry>
+                <object refid="453a61b0-e18b-11dc-95ff-0800200c9a66" />
+              </viewEntry>
+              <prototype>
+                <OTChoice>
+                  <choices>
+                    <OTOverlay id="da41a2a0-c44e-11dc-95ff-0800200c9a66" name="Small text">
+                      <deltaObjectMap>
+                        <entry key="23cc14f0-c44f-11dc-95ff-0800200c9a66">
+                          <OTCssText src="file:/Users/geoffreykwan/dev/workspaces/vleworkspace/WISE Project Converter/src/test/css/otrunk-small-font.css" />
+                        </entry>
+                      </deltaObjectMap>
+                    </OTOverlay>
+                    <OTOverlay id="6cc8e2b0-c44e-11dc-95ff-0800200c9a66" name="Normal text" />
+                    <OTOverlay id="7ba31210-c44e-11dc-95ff-0800200c9a66" name="Large text">
+                      <deltaObjectMap>
+                        <entry key="23cc14f0-c44f-11dc-95ff-0800200c9a66">
+                          <OTCssText src="file:/Users/geoffreykwan/dev/workspaces/vleworkspace/WISE Project Converter/src/test/css/otrunk-large-font.css" />
+                        </entry>
+                      </deltaObjectMap>
+                    </OTOverlay>
+                  </choices>
+                </OTChoice>
+              </prototype>
+              <controller>
+                <OTPrototypeEventController>
+                  <mapping>
+                    <OTPrototypeMapEntry modelProperty="overlays[0]" prototypeProperty="currentChoice" />
+                  </mapping>
+                </OTPrototypeEventController>
+              </controller>
+            </OTPrototypeViewEntry>
+            <OTPrototypeViewEntry objectClass="org.concord.otrunk.OTSystem" viewClass="org.concord.otrunk.view.prototype.OTPrototypeView" copyPrototype="false">
+              <viewEntry>
+                <object refid="453a61b0-e18b-11dc-95ff-0800200c9a66" />
+              </viewEntry>
+              <prototype>
+                <OTChoice>
+                  <choices>
+                    <OTOverlay name="English" />
+                  </choices>
+                </OTChoice>
+              </prototype>
+              <controller>
+                <OTPrototypeEventController>
+                  <mapping>
+                    <OTPrototypeMapEntry modelProperty="overlays[1]" prototypeProperty="currentChoice" />
+                  </mapping>
+                </OTPrototypeEventController>
+              </controller>
+            </OTPrototypeViewEntry>
+            <OTViewEntry objectClass="org.concord.graph.util.state.OTDrawingTool2" viewClass="org.concord.datagraph.state.OTDataDrawingToolView" />
+          </viewEntries>
+          <modes>
+            <OTViewMode name="authoring">
+              <map>
+                <entry key="be713960-e18a-11dc-95ff-0800200c9a66">
+                  <OTViewEntry objectClass="org.concord.otrunk.ui.OTText" viewClass="org.concord.otrunk.ui.swing.OTTextEditEditView" />
+                </entry>
+                <entry key="${journal_album_view}">
+                  <OTViewEntry objectClass="org.telscenter.pas.otrunk.skeleton.journal.OTJournalAlbum" viewClass="org.telscenter.pas.otrunk.skeleton.journal.OTJournalAlbumEditView" />
+                </entry>
+                <entry key="${sound-grapher-view}">
+                  <OTViewEntry viewClass="org.concord.multimedia.state.ui.OTSoundDataCollectorEditView" objectClass="org.concord.multimedia.state.OTSoundDataCollector" />
+                </entry>
+                <entry key="${moz-swing-view}">
+                  <OTViewEntry objectClass="org.concord.otrunk.browser.mozswing.OTMozSwing" viewClass="org.concord.otrunk.browser.mozswing.OTMozSwingEditView" />
+                </entry>
+                <entry key="${choice-radio-view}">
+                  <OTChoiceViewConfig objectClass="org.concord.otrunk.ui.OTChoice" viewClass="org.concord.otrunk.ui.swing.OTChoiceComboBoxEditView" useViewsAsChoices="true" />
+                </entry>
+                <entry key="${choice-checkbox-view}">
+                  <OTChoiceViewConfig objectClass="org.concord.otrunk.ui.OTChoiceMultiple" viewClass="org.concord.otrunk.ui.swing.OTChoiceComboBoxEditView" useViewsAsChoices="true" />
+                </entry>
+                <entry key="${data-table-view}">
+                  <OTViewEntry objectClass="org.concord.data.state.OTDataTable" viewClass="org.concord.otrunk.ui.swing.OTDataTableEditView" />
+                </entry>
+                <entry key="${netlogo-view}">
+                  <OTViewEntry viewClass="org.concord.otrunknl4.OTNLogoModelEditView" objectClass="org.concord.otrunknl4.OTNLogoModel" />
+                </entry>
+                <entry key="${compound_doc_view}">
+                  <OTDocumentEditViewConfig objectClass="org.concord.otrunk.view.document.OTCompoundDoc" viewClass="org.concord.otrunk.view.document.edit.OTDocumentEditView">
+                    <documentViewConfig>
+                      <object refid="${compound_doc_view}" />
+                    </documentViewConfig>
+                    <objectsToInsert>
+                      <OTText name="Text field" />
+                      <OTDrawingTool2 name="Draw tool" />
+                      <OTChoice name="Multiple-choice (single answer)" />
+                      <OTChoiceMultiple name="Multiple-choice (check boxes)" />
+                      <OTDataTable name="Data table" showLastRowForAddingNew="true">
+                        <dataStore>
+                          <OTDataStore numberChannels="2" />
+                        </dataStore>
+                      </OTDataTable>
+                      <OTDataCollector name="Data graph" title="Data graph">
+                        <source>
+                          <OTDataGraphable name="Data Graph" connectPoints="true" controllable="true" yColumn="1" drawMarks="false" color="16711680" xColumn="0" lineWidth="2.0">
+                            <dataStore>
+                              <OTDataStore />
+                            </dataStore>
+                          </OTDataGraphable>
+                        </source>
+                        <xDataAxis>
+                          <OTDataAxis max="60.0" units="s" min="0.0" label="Time" />
+                        </xDataAxis>
+                        <yDataAxis>
+                          <OTDataAxis max="40.0" units="" min="0.0" label="" />
+                        </yDataAxis>
+                      </OTDataCollector>
+                      <OTSoundPlayer name="Sound player" />
+                      <OTSoundDataCollector name="Sound grapher" title="Data graph">
+                        <source>
+                          <OTDataGraphable drawMarks="false" color="255" connectPoints="true" xColumn="0" yColumn="1" name="vf" lineWidth="2.0">
+                            <dataProducer>
+                              <OTSoundDataProducer isFFT="false" />
+                            </dataProducer>
+                            <dataStore>
+                              <OTDataStore />
+                            </dataStore>
+                          </OTDataGraphable>
+                        </source>
+                        <xDataAxis>
+                          <OTDataAxis max="0.06" units="ms" min="0.0" label="Time" />
+                        </xDataAxis>
+                        <yDataAxis>
+                          <OTDataAxis max="150.0" units="" min="-150.0" label="" />
+                        </yDataAxis>
+                      </OTSoundDataCollector>
+                    </objectsToInsert>
+                  </OTDocumentEditViewConfig>
+                </entry>
+                <entry key="${cck-view}">
+                  <OTViewEntry objectClass="org.concord.otrunkcck.OTCCKModel" viewClass="org.concord.otrunkcck.OTCCKModelEditView" />
+                </entry>
+                <entry key="${data-collector-view}">
+                  <OTDataCollectorViewConfig viewClass="org.concord.otrunk.graph.OTDataCollectorEditView" objectClass="org.concord.datagraph.state.OTDataCollector">
+                    <predefinedGraphs>
+                      <object refid="088786c2-8719-11dc-8314-0800200c9a66" />
+                    </predefinedGraphs>
+                  </OTDataCollectorViewConfig>
+                </entry>
+                <entry key="${drawing-view}">
+                  <OTViewEntry viewClass="org.concord.otrunk.graph.OTDataDrawingToolEditView" objectClass="org.concord.graph.util.state.OTDrawingTool" />
+                </entry>
+                <entry key="${sound-player-view}">
+                  <OTViewEntry objectClass="org.concord.otrunk.ui.OTSoundPlayer" viewClass="org.concord.otrunk.ui.swing.OTSoundPlayerEditView" />
+                </entry>
+                <entry key="${mw-view}">
+                  <OTViewEntry objectClass="org.concord.otrunkmw.OTModelerPage" viewClass="org.concord.otrunkmw.OTModelerPageEditView" />
+                </entry>
+              </map>
+            </OTViewMode>
+          </modes>
+        </OTViewBundle>
+        <OTSharingBundle />
+      </bundles>
+      <root>
+        <OTPasProject id="971534ac-3f22-11dd-b240-cde0bfdd2411" title="Adaptation And Marine Conservation - OSER Edits 3/3/09 Copy-3/13/09" isAuthoringMode="false">
+          <journalAlbum>
+            <OTJournalAlbum id="4db44b59-5cff-11dd-a4b6-9b08a7b15b3c">
+              <entries>
+                <OTJournalPage title="Journal Page 1" studentPage="false" creationTime="Aug 22 at 1:07" notes="Add a note describing this journalPage...">
+                  <parts>
+                    <OTCompoundDoc>
+                      <documentRefs>
+                        <OTText id="9305318c-7303-11dd-b0b7-63524403b921" name="Text field" rows="10" />
+                      </documentRefs>
+                      <bodyText>
+                        Replace me with a question or prompt.
+                        <br />
+                        <br />
+                        <object refid="9305318c-7303-11dd-b0b7-63524403b921" />
+                        <br />
+                      </bodyText>
+                    </OTCompoundDoc>
+                  </parts>
+                </OTJournalPage>
+              </entries>
+            </OTJournalAlbum>
+          </journalAlbum>
+          <activityList>
+            <OTPasActivity id="0cc77500-1011-11de-8d15-3bdbd19b9b59" title="Introduction" authorNotes="">
+              <stepList>
+                <OTDisplayPage id="0cc88671-1011-11de-8d15-3bdbd19b9b59" title="Project Overview" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="&quot;Hi, my name is Amanda. I am here to ask you questions which should help you reflect on important issues as you do this project.&quot;" />
+                    <OTPasHint text="Do you think people adapt to their habitats the same way other animals do?" />
+                    <OTPasHint text="Can you think of some way another animal has adapted to its habitat?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+4&gt;PROJECT OVERVIEW&lt;/FONT&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;FONT SIZE=+3&gt;I&lt;/FONT&gt;&lt;FONT SIZE=+1&gt;n this project, we will begin by spending a few days in the classroom learning about how fish (and other marine species) adapt to their habitat:
+&lt;ul&gt;
+&lt;li&gt;What does it mean to be 'adapted'?&lt;/li&gt;
+&lt;li&gt;How does an organism adapt to its habitat?&lt;/li&gt; 
+&lt;li&gt;How does adaptation relate to important issues in the environment?&lt;/li&gt;
+&lt;/ul&gt; 
+ 
+Next, we will visit Jenkinson's Aquarium where we'll use mobile devices to record our observations of fish species.  When we return, we'll combine all the observations from the whole class, looking for connections between the habitats in which fish live and traits like body shape or color.  Finally, we will think about how adaptation is connected to marine conservation problems.  We will discuss these issues online, debating issues like whether or not think fish with certain traits can live only in particular habitats.&lt;/P&gt;&lt;/FONT&gt;&lt;/BODY&gt;
+
+&lt;!C- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/3856/bftuna.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Monterey Bay Aquarium&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!C- END templated image --!&gt;
+
+
+
+
+
+&lt;!-- BEGIN templated image --&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/35164/lookdown_Mote_Marine_Aquarium.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Mote Marine Aquarium&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --&gt;</content>
+                </OTDisplayPage>
+                <OTDisplayPage id="0cca8248-1011-11de-8d15-3bdbd19b9b59" title="Why Study This?" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="Have you ever eaten shrimp or other seafood?  Have you ever heard of fish that we should avoid eating?" />
+                    <OTPasHint text="Why should we be careful about what we eat?  Is it just because we shouldn't kill so many of a certain fish, or perhaps because of the methods of fishing -- like bottom trawling -- that can also be destructive?" />
+                    <OTPasHint text="Would Brittney's idea about protecting parts of the ocean floor work?  Would the lobsters adapt under this plan, or just survive?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+4&gt;WHY STUDY THIS?&lt;/FONT&gt;
+&lt;p&gt;
+&lt;P&gt;&lt;font size=+3&gt;W&lt;/font&gt;&lt;font size=+1&gt;hy should we learn about adaptation?  Is the topic only significant to scientists?
+&lt;p&gt;
+Here's a recent conversation between a few students who were discussing what to eat for lunch.  Hopefully, it will help you understand why adaptation is important to everyone.&lt;/P&gt;
+&lt;p&gt;
+&lt;!C- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/3856/seafood.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;&lt;!C- END templated image --!&gt;
+&lt;p&gt;
+&lt;p&gt;Simon:&lt;i&gt; "I'm so hungry from walking around the aquarium all day.  I feel like I could eat a whale!  Just kidding of course.  Hey, let's grab some dinner at the restaurant here in the aquarium."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Brittney: &lt;i&gt;"Great idea Simon.  I'm starved!"&lt;/i&gt;
+&lt;p&gt;
+The students head to the restaurant, sit down and begin to look at the menu.
+&lt;p&gt;
+&lt;p&gt;Luis:&lt;i&gt; "Wait a minute, look at all the seafood on the menu! Didn't that exhibit on Vanishing Wildlife warn against eating seafood? And yet, here it is on the menu at the restaurant IN THE AQUARIUM!"&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Brittney:&lt;i&gt; "I don't think they said 'Don't eat seafood'. I think there were &lt;b&gt;some&lt;/b&gt; seafood choices that they suggested were better than others."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt; Luis: &lt;i&gt;"I know it said not to eat anything that was caught with those nets that scrape the bottom of the ocean.  It said those nets, I think they're called bottom trawls, destroy the habitat down there as they catch the fish."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Simon:&lt;i&gt; "Oh, I remember that part.  Hey, don't lobster live down there? I LOVE lobster!  I hope they don't destroy all the lobsters' homes.  It sounds like a silly argument to me though:  Trees grow back after they've been harvested -- as long as the foresters don't chop them all down, right?.  The stuff on the ocean bottom can, too."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Brittney: &lt;i&gt;"But where will your precious lobster live in the meantime?"&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Simon: &lt;i&gt;"They'll just adapt.  You know, maybe they'll get a thicker shell or learn to eat new food or something."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Luis: &lt;i&gt;"That's not how it works! Lobsters can't just change their shells or their diet all of a sudden. They would just die."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Simon:&lt;i&gt; "Why not?  My sister moved from here to Wisconsin, where it's REALLY cold.  At first she couldn't even go outside, and now she barely ever wears a coat until it's below freezing. "&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Luis: &lt;i&gt;"That's different - and not what biologists mean by the term "adapt".  Adaptation is when a species actually changes its appearance, diet or behavior over a long time span.  Like how giraffes's necks became gradually longer and longer.  It's not like their necks got real long all of a sudden.  It takes many generations of birth and death.  So there's no way the lobsters that were on the ocean floor would be able to adapt.  They would just die."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Brittney: &lt;i&gt;"Well, maybe if the ocean trawlers left some of the ocean bottom alone, then some lobsters would survive while the parts of the ocean floor that were trawled could recover."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Luis:&lt;i&gt; "Sounds good, but for now I don't want to eat anything that is caught by bottom trawls, that will destroy the home of my  lobsters - lets make sure we ask one of the aquarium docents about this.  I want to understand the issue of which seafoods I should be avoiding."&lt;/i&gt; 
+&lt;p&gt;
+&lt;p&gt;Simone: &lt;i&gt;"Yeah, it's complicated.  For now let's just stick to the&lt;/i&gt; &lt;A HREF="http://www.montereybayaquarium.org/cr/cr_seafoodwatch/sfw_resources.aspx"&gt;Monterey Bay Aquarium's seafood watch list&lt;/A&gt;</content>
+                </OTDisplayPage>
+                <OTNote id="0ccaa95f-1011-11de-8d15-3bdbd19b9b59" title="Any ideas?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="Have you ever thought about what why some plants and animals that live in similar habitats look kind of similar?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102302)">
+                      <responseDeclaration baseType="identifier" cardinality="single" identifier="NOTE_RESPONSE_1">
+                        <correctResponse>
+                          <value isDefault="false" isCorrect="false">choice</value>
+                        </correctResponse>
+                      </responseDeclaration>
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="NOTE_RESPONSE_1" maxChoices="1" shuffle="false">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What are your initial thoughts? Can the lobster adapt to a new
+environment? (make your choice by clicking the button next to your
+answer below)
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                          <simpleChoice identifier="choice0">The lobster can adapt.</simpleChoice>
+                          <simpleChoice identifier="choice1">The lobster can NOT adapt.</simpleChoice>
+                          <simpleChoice identifier="choice2">We don't know.</simpleChoice>
+                        </choiceInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We chose [type in your answer here] because..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why did you choose the answer you did?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTDisplayPage id="0e68f012-1011-11de-8d15-3bdbd19b9b59" title="Where should we begin?" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="What evidence will help you understand how marine life adapts to a specific environment?" />
+                    <OTPasHint text="What are some ways Artic animals (seals, whales, polar bears) have adapted to the very cold water and climate?" />
+                    <OTPasHint text="If a large area of forest is destroyed by fire what happens to the animals that live there?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+2&gt;O&lt;/font size&gt;ver the next few days, including our trip to the aquarium, we'll be collecting observations about real fish.  We'll look at where certain fish live, and how they are specially adapted to their habitat. As you investigate, try to keep in mind the questions and points that Simon, Luis, and Brittney were discussing: 
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;C&lt;/font size&gt;ould lobster (or other marine species like fish) &lt;b&gt;adapt&lt;/b&gt; to a new area?  
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;C&lt;/font size&gt;ould lobster or fish develop adaptations that allow them to live in the area that was impacted by trawls or other human impacts?
+&lt;p&gt;
+&lt;p&gt; &lt;font size=+2&gt;L&lt;/font size&gt;et's start by thinking about what it means for some fish to "be adapted" to their ocean habitat.
+
+
+&lt;!-- BEGIN templated image --&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/lobster_100.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of NOAA&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --&gt;</content>
+                </OTDisplayPage>
+                <OTGenericOTrunkStep id="0e691729-1011-11de-8d15-3bdbd19b9b59" title="Fish Sorting" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="Be patient, the draw tool takes a while to load. If you are confused on how to use the tool select the next hint." />
+                    <OTPasHint text="You should first select the stamp tool that is the bottom tool in the left blue border. When you select this tool you will see a new button along the top blue border where you can select different shapes of fish tails for your stamp." />
+                    <OTPasHint text="The select tool is the top tool that looks like a black arrow. Placing your cursor over a tool will name the tool in the upper left corner of the blue border." />
+                  </hintList>
+                  <target>
+                    <OTCompoundDoc>
+                      <documentRefs>
+                        <OTDrawingTool2 id="0cba2e8f-1011-11de-8d15-3bdbd19b9b59" />
+                      </documentRefs>
+                      <bodyText>
+                        <h2>Errors</h2>
+                        <p>
+                          This page is printed if there is an error in the page that cannot be automatically fixed.  Check for lines with
+                          <b>Error</b>
+                          in them.
+                        </p>
+                        Tidy (vers Sep 26, 2004) Parsing "Wisedraw2"
+                        <br />
+                        line 1 column 246 - Warning: missing &lt;!DOCTYPE&gt; declaration
+                        <br />
+                        line 1 column 246 - Warning: plain text isn't allowed in &lt;head&gt; elements
+                        <br />
+                        line 1 column 246 - Warning: inserting missing 'title' element
+                        <br />
+                        line 1 column 353 - Error: &lt;bold&gt; is not recognized!
+                        <br />
+                        line 1 column 353 - Warning: discarding unexpected &lt;bold&gt;
+                        <br />
+                        line 1 column 361 - Warning: discarding unexpected &lt;/bold&gt;
+                        <br />
+                        Wisedraw2: Document content looks like HTML 4.01
+                        <br />
+                        5 warnings, 1 error were found!
+                        <br />
+                        This document has errors that must be fixed before
+                        <br />
+                        using HTML Tidy to generate a tidied up version.
+                        <br />
+                        <object refid="0cba2e8f-1011-11de-8d15-3bdbd19b9b59" />
+                      </bodyText>
+                    </OTCompoundDoc>
+                  </target>
+                </OTGenericOTrunkStep>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="0eb64c11-1011-11de-8d15-3bdbd19b9b59" title="What Does It Mean To Be &quot;Adapted&quot;?" authorNotes="">
+              <stepList>
+                <OTEvidence id="0eb64c12-1011-11de-8d15-3bdbd19b9b59" title="3 Principles of Adapation" authorNotes="" hoverString="Pas Step" speechText="" evidenceTitle="General Principles of Adaptation">
+                  <hintList>
+                    <OTPasHint text="Can you think of some good examples of how an animal species has adapted to its habitat?" />
+                    <OTPasHint text="Scientists often live for months in the Antarctic, have humans adapted to that habitat?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+2&gt;E&lt;/font&gt;very species is adapted to its environment.  Within a species, genetic traits are passed from one generation to another.  Such traits include body shape, color, or even behaviors (like when fish swim in schools for protection).  These traits are passed on through the parents' DNA, just like when human parents pass on their own size, skin and eye color to their children. &lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;p&gt;&lt;font size=+2&gt;W&lt;/font&gt;e will break down adaptation into 3 general principles that are similar to the way Darwin thought about how evolution could occur.  These principles are:
+&lt;p&gt;
+&lt;p&gt;&lt;center&gt;&lt;font size=+1&gt;&lt;i&gt;&lt;b&gt;Variation&lt;/b&gt; within populations
+&lt;p&gt;Inheritance over &lt;b&gt;Generations&lt;/b&gt;
+&lt;p&gt;&lt;b&gt;Natural Selection&lt;/b&gt;&lt;/i&gt;&lt;/font&gt;&lt;/center&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he first principle is that of &lt;b&gt;variation&lt;/b&gt;.  There is variation within any species.  Sometimes the variations are hard to see or observe, but there is often a considerable amount of variation that can easily be recognized like the color of these tree snails.
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/snails.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Chip Clark&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he second principle is that of &lt;b&gt;inheritance over multiple generations.&lt;/b&gt;  Keep in mind, the process of adaptation happens over long periods of time.  "How long" depends on how frequently the species reproduces: once per year (like humans), six times per year (like rabbits), or hundreds of times per day (like bacteria).  It also depends on how much pressure there is for the species to adapt.  How long do you think it took for giraffes to adapt to a habitat that has leaves high up on a tree?  The idea that &lt;i&gt;adaptation occurs over many generations&lt;/i&gt; is our final principle.&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he third principle is that of &lt;b&gt;natural selection&lt;/b&gt;.  Traits like body shape or color can change gradually over many generations as a result of changes in the environment -- including temperature changes, new predators, or changing food supply.  Because of variation in offspring (babies), one of an animal's babies might be slightly better suited to survive than any others.  For example, perhaps it is a little faster, or just the right color.  Then its siblings will likely be eaten, and it will remain to pass on its genes to future generations.  In this way, slight changes in traits are passed on through many generations, based on "pressures" from their environment.  This process is called &lt;b&gt;"natural selection"&lt;/b&gt; because nature is selecting which traits become prominent in a species. &lt;/p&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/kelpfish2-01.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;</content>
+                  <attribution>Evidence created 10/21/2002 by Tim Zimmerman
+Modified 5/4/2003 by Stephanie Sisk-Hilton.
+Modified 10/25/2003 by Tim Zimmerma
+Modified 10/27/03 by Jim Slotta</attribution>
+                </OTEvidence>
+                <OTNote id="0eb75d87-1011-11de-8d15-3bdbd19b9b59" title="What do you think?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="Why are polar bears white?" />
+                    <OTPasHint text="Are they all pure white?" />
+                    <OTPasHint text="If the color of snow changed to red, how long would it take for the polar bears to adapt to the changed color of it habitat?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102303)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The species that adapted was...  The trait that adapted was..." responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What is one example of an animal species that adapted to its
+environment? Describe the trait that adapted in that species-- part
+of its body? Its color, or some behavior?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The pressure from the environment that caused that adaptation was..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What was the pressure from the environment that caused that
+adaptation?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think it took approximately ________ generations. This many generations occurred in ________ years." responseIdentifier="NOTE_RESPONSE_3" expectedLines="3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+How many generations do you think it required for that adaptation?
+(take a guess!) How many years do you think it took for that many
+generations to pass?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTStudentAssessment id="0eb7d2be-1011-11de-8d15-3bdbd19b9b59" title="Everyday use of &quot;adapt&quot;" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="Do you think people adapt to their habitats the same way other animals do?" />
+                    <OTPasHint text="Scientists often live for months in the Antarctic, have humans adapted to that habitat?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="master8637:page1:part1(9435)">
+                      <responseDeclaration baseType="identifier" cardinality="single" identifier="PRIMARY_RESPONSE1">
+                        <correctResponse>
+                          <value isDefault="false" isCorrect="false">choice</value>
+                        </correctResponse>
+                      </responseDeclaration>
+                      <responseDeclaration baseType="string" cardinality="single" identifier="EXPLAINATION_RESPONSE1" />
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="PRIMARY_RESPONSE1" maxChoices="1" shuffle="false">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Which of the examples below is the closest to the scientific use of
+the term "adaptation"?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                          <simpleChoice identifier="choice1">"I lost my after school job.  Now I'm going to have to adapt to having less money."</simpleChoice>
+                          <simpleChoice identifier="choice2">"We are moving to Alaska.  I really hope I can adapt quickly to the colder climate."</simpleChoice>
+                          <simpleChoice identifier="choice3">"Humans have adapted to living in almost every habitat on land, I'm sure we can adapt to warmer global temperatures."</simpleChoice>
+                          <simpleChoice identifier="choice4">"I'm going off to college next year and I think it will take me a while to adapt to the college lifestyle."</simpleChoice>
+                        </choiceInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="EXPLAINATION_RESPONSE1">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your choice.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Let's think about how we often here the term "adapt" used in
+everyday language. Have you every used the term in your everyday
+language?
+&lt;/body&gt;
+&lt;/html&gt;</introductionHtml>
+                </OTStudentAssessment>
+                <OTEvidence id="0eb90b43-1011-11de-8d15-3bdbd19b9b59" title="Humans and Ocean Habitats" authorNotes="" hoverString="Pas Step" speechText="" evidenceTitle="Marine Conservation Issues">
+                  <hintList>
+                    <OTPasHint text="If a habitat such as a reef is destroyed how long will it take to restore the reef as a healthy habitat?" />
+                    <OTPasHint text="If we know that human activities are destroying a habitat why do we continue to do it?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+2&gt;W&lt;/font&gt;e will be looking closely at several ocean habitats: the rocky bottom, the kelp forest, and coral reefs.  These are known as "complex habitats" - where abundant sea life is typically found.  In contrast, the majority of the ocean floor is often referred to as a "biological desert" because the number of plants and animals found there is relatively small.
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/oceanbottom.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;A Typical Ocean Floor Scene&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt; Image courtesy of NOAA&lt;/A&gt;&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he ocean's kelp forests and coral reefs are teaming with life, and are what most people think of when they think of underwater habitats.  Unfortunately, humans are having huge impacts on many of these areas.  This project will try to present some of these issues in terms of their impact on animals' ability to &lt;b&gt;adapt&lt;/b&gt;.
+&lt;p&gt; 
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/rockybottom.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Kip Evans of the National Geographic Society&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;ake a look at this link below.  It will show you a short animation on trawling.  While you are looking at the animation, think about how this is detrimental to the ocean environment in the long term.  Can you think of how the principles of adaptation might be used to explain some of those long-term impacts?  How many &lt;b&gt;generations&lt;/b&gt; might it take for an animal to adapt to changes caused by trawling?  Use the &lt;b&gt;back&lt;/b&gt; button to return to this page.
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.mbayaq.org/cr/cr_seafoodwatch/sfw_gear.asp#trawl"&gt;Bottom Trawling Animation&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he rocky bottom habitat is being destroyed at alarming rates.  Dr. Elliot Norse has likened this destruction to a "clear cutting" of the ocean bottom.  In other words: trawling and dredging are like clear cutting a forest on the land, which leaves nothing behind but bare ground.  Visit the following link and read about habitat destruction in the ocean environment.  
+&lt;p&gt;
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.mbayaq.org/cr/cr_seafoodwatch/sfw_hd.asp"&gt;Habitat Destruction by Trawling/Dredging&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+
+&lt;p&gt;&lt;font size=+2&gt;C&lt;/font&gt;ould the idea of &lt;b&gt;natural selection&lt;/b&gt; help explain why such activities might be harmful to the ocean environment?  Think about that while you are visiting this next web site.
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.pbs.org/wgbh/evolution/library/01/6/l_016_02.html"&gt;Natural Selection&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+&lt;p&gt;
+
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;R&lt;/font&gt;ocky habitats are not the only habitats that are disappearing.  Coral reefs, thought to be one of the most productive habitats on earth, are dying in many parts of the world.  The loss of coral reefs is due to the die-off of the coral itself - which is actually a living animal!  There is a symbiotic relationship between the coral animal and small algae-like organisms (called zooxanthellae), neither of which can survive without the other.  When the coral are under stress, they expell the zooxanthellae.  Because the zooxanthellae are responsible for giving the coral color, the coral looks white after the zooxanthellae are expelled. This is referred to as "coral bleaching".  
+&lt;p&gt;
+&lt;font size=+2&gt;C&lt;/font&gt;oral bleaching is occurring at an alarming rate.  While scientists are still not certain of the cause of this die-off, many agree that it is related to human factors such as increased water temperature (from global warming), increased nutrients (chemicals from agricultural run-off, which can be harmful when added to the ocean chemistry) and turbid water (cloudy with sand particles due to increased erosion).   Take a look at the following link that shows the difference between a healthy coral reef and a bleached reef.  How do you think this type of habitat destruction is impacting the fish that live there?
+&lt;p&gt;
+
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/Coral.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Healthy Reef&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/coral-bleaching-01-230.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of NOAA&lt;/CENTER&gt;
+&lt;CENTER&gt;Bleached Reef&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;C&lt;/font&gt;orals and coral reef fishes are know to have considerable variation even within species.  Do you think reducing coral habitat will reduce or change the amount of variation in those populations that rely on coral habitat?  Take a look at this link below and read more about variation in populations.&lt;p&gt;
+&lt;p&gt;
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.pbs.org/wgbh/evolution/library/01/5/l_015_04.html"&gt;Variation in Populations&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;</content>
+                  <attribution>Evidence created 4/30/2003 by Tim Zimmerman
+Modified on 10/26/03 by Jim Slotta
+Modified 4/30/2003 by Stephanie Sisk-Hilton.</attribution>
+                </OTEvidence>
+                <OTDisplayPage id="0eb95968-1011-11de-8d15-3bdbd19b9b59" title="A Few Words About Electronic Discussions" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="Who are the most important parties in this debate?  &quot;Parties&quot; are people who care and/or are involved with this debate. What perspectives must be considered?" />
+                    <OTPasHint text="Will any solution satisfy everyone?" />
+                  </hintList>
+                  <content>&lt;STYLE TYPE="text/css"&gt;
+P {font-family:Arial, Helvetica;font-size:14pt;color:#330000;margin:6px 3px}
+SPAN.cap {font-size:20pt}
+SPAN.em {color:#993300}
+P.h1 {font-family:Arial, Helvetica;font-size:28pt;font-weight:bold;color:#993300;text-align:center;margin:2px}
+P.h2 {font-family:Arial, Helvetica;font-size:18pt;font-weight:bold;color:#96071F;text-align:center;margin:2px}
+P.h3 {font-family:Arial, Helvetica;font-size:18pt;font-weight:bold;color:#96071F;text-align:center;margin:2px}
+P.h4 {font-family:Times;font-size:12pt;font-weight:bold;margin:2px}
+SPAN.earth {font-family:Arial, Helvetica;font-size:16pt;color:#4189AC;text-align:center;margin:2px}
+&lt;/STYLE&gt;
+&lt;CENTER&gt;
+&lt;TABLE BORDER="4" CELLPADDING="15" CELLSPACING="0" BORDERCOLOR=#DEB887 WIDTH="67%"&gt;
+&lt;TR&gt;&lt;TD BGCOLOR=#EOFFFF&gt;
+&lt;P CLASS="h3"&gt;Why are these a problem?&lt;/P&gt;
+&lt;/TD&gt;&lt;/TR&gt;&lt;TR&gt;&lt;TD BGCOLOR=#FFFFFF
+&lt;br&gt;
+&lt;p&gt;In this WISE project, you will participate in two electronic discussions with your classmates.  You should think about the human impacts on the marine environment and how you could support your statements/claims with ideas about evolution and adaptation.  If we destroy marine habitats, will they return quickly?  If not, could the species that live there go someplace else?  Could they adapt to the new/changed environment?  How do the choices we make every day impact the marine environment?&lt;/p&gt;
+&lt;p&gt;
+&lt;b&gt;&lt;font size = +1&gt; &lt;center&gt; NOTICE!!!!!
+&lt;p&gt;
+&lt;P&gt;
+ABOUT USING THE WISE ONLINE DISCUSSION:
+&lt;P&gt;
+&lt;/center&gt; &lt;/font&gt;&lt;/b&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt; This is not a chat room.  Its purpose is not for you and your classmates to have random discussions.  You are expected to discuss the topic at hand.&lt;/p&gt;&lt;/li&gt;
+&lt;P&gt;
+&lt;li&gt;&lt;p&gt; WISE Online discussions are supposed to be a chance for you to exchange ideas about the topic with your classmates.  This is something that we don't often get a chance to do in science class!&lt;/p&gt;&lt;/li&gt;
+&lt;p&gt;
+&lt;li&gt;&lt;p&gt; Any comments that you make in this discussion are added to your project portfolio and &lt;b&gt;your teacher will grade your participation &lt;/b&gt;based on how well you have contributed.&lt;/li&gt;
+&lt;p&gt;
+&lt;/ul&gt;
+&lt;p&gt;
+&lt;p&gt;
+&lt;b&gt;&lt;font size = +2&gt;&lt;center&gt;&lt;p&gt;
+What is your perspective?&lt;/font&gt;&lt;/center&gt;&lt;/b&gt;&lt;/p&gt;
+
+&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;</content>
+                </OTDisplayPage>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="102f0925-1011-11de-8d15-3bdbd19b9b59" title="Variety Is The Spice Of Life!" authorNotes="">
+              <stepList>
+                <OTEvidence id="102f0926-1011-11de-8d15-3bdbd19b9b59" title="How Much Variation Occurs Naturally?" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/25/2003 by Tim Zimmerman" evidenceTitle="Under Normal Circumstances...">
+                  <hintList>
+                    <OTPasHint text="What are some natural variations in the human population? Why might those variations be important?" />
+                    <OTPasHint text="How do you think  the greenish kelp fish could give birth to such different-looking babies?" />
+                    <OTPasHint text="Without naturally occurring variation, do you think there could be adapatation?  Why or why not?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+3&gt;M&lt;/font&gt;&lt;font size=+1&gt;any populations contain individuals with anatomical features that vary under normal circumstances.  Kelpfish are a good example.  Though these fish are named after the large kelp in which they hide and trive, they are known to vary in color from a greenish-yellow to a rusty red.  Looking at these color variations, you might think they are different fish species, but they are just color variations similar to eye color in people.&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;B&lt;/font&gt;&lt;font size=+1&gt;elow is a picture of a kelp forest an a kelpfish hinding in some kelp fronds.  Notice how well the kelpfish blends in with the kelp.  This is how this fish got its name.&lt;/font&gt;&lt;p&gt;
+&lt;p&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/more_kelp.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Annie Crawley&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+
+&lt;p&gt;
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/yellow_kelpfish.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;L&lt;/font&gt;&lt;font size=+1&gt;et's take a look at the amount of &lt;b&gt;variation&lt;/b&gt; in the color of young kelpfish that two kelpfish, even two that look similar in color, could produce. &lt;/font&gt;
+ 
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/kelpfish_test_copy.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;</content>
+                </OTEvidence>
+                <OTNote id="102f7e5d-1011-11de-8d15-3bdbd19b9b59" title="Why is there variation?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="Consider an example when having a spread of colors might be helpful.  Why is it helpful?" />
+                    <OTPasHint text="Consider an example when having a spread of colors might lead to trouble for the baby fish.  Why is it a problem?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102304)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think that the kelpfish have babies that vary in color because..." responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why do you think the kelpfish have some babies that vary in color?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The babies that will most likely survive are colored..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Which babies will be most likely to survive from predators?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTEvidence id="102fa572-1011-11de-8d15-3bdbd19b9b59" title="With or without variation.." authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/25/2003 by Tim Zimmerman and Jim Slotta" evidenceTitle="Baby Kelp Fish - what's their color?">
+                  <hintList>
+                    <OTPasHint text="Think about how variation is important in evolution.  When the environment changes dramatically over a period of many years - as occurs in an ice age - why would it be important to have variation in a species' young?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+3&gt;W&lt;/font&gt;&lt;font size=+1&gt;hat if there were &lt;i&gt;no&lt;/i&gt; variation?  Let's imagine the following "thought experiment":  &lt;/font&gt;
+&lt;p&gt;
+
+&lt;p&gt;&lt;font size=+3&gt;I&lt;/font&gt;&lt;font size=+1&gt;magine that two kelp fish produce 50 babies in each generation, and that on average two of those babies survive into adulthood.  The other 48 are eaten by predator fish.  Its a dangerous world for a kelp fish, and camouflage is the best defense.&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;&lt;u&gt;C&lt;/u&gt;&lt;/font&gt;&lt;font size=+1&gt;&lt;u&gt;onsider two different possible situations:  &lt;/u&gt;&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;I&lt;/font&gt;&lt;font size=+1&gt;n the first scenario, let's imagine that all 50 babies were the same exact color as the parents, like the following picture:&lt;/font&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/UniformColorDraw.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image created by Jim Slotta&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;F&lt;/font&gt;&lt;font size=+1&gt;or the second scenario, let's imagine that the baby fish &lt;b&gt;varied&lt;/b&gt; in color, with most being the color of the parents, but some being lighter and some being darker, as in the following picture:&lt;/font&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7720/VaryingColorDraw.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image created by Jim Slotta&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;
+&lt;p&gt;
+&lt;font size = +2&gt;W&lt;/font&gt;&lt;font size=+1&gt;hich do you think would be closer to the way it happens in real life?  Which babies are the most likely to be eaten, assuming the kelp forest is like the one pictured with the parents? &lt;/font&gt; 
+&lt;p&gt;&lt;font size=+3&gt;N&lt;/font&gt;&lt;font size=+1&gt;ow imagine that the environment undergoes a change through natural occurring events.  Many of natural changes are not directly caused by the activities of people.  One known environmental change is called El Nino -- a large scale meteorological event that causes water along the coast of California to warm up over a span of several years.   A strong El Nino can last for many years and cause the water temperatures in northern California to rise above 68 degrees -- killing off the kelp forests.&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;&lt;font size=+3&gt;C&lt;/font&gt;&lt;font size=+1&gt;onsider the two possible sets of babies pictured above.  During an El Nino event, where much of the Kelp dies off, the water becomes much brighter, and lighter color fish have an advantage.  Under such conditions of environmental change, would it be better to have young that were all the same color or better if the young that were a variety of colors?&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;</content>
+                </OTEvidence>
+                <OTNote id="102fa575-1011-11de-8d15-3bdbd19b9b59" title="Who will survive?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="In a normal environment (before El Nino), the babies that were the same color as the parents would be most likely to survive - since they would be camouflaged.  But when the Kelp died off, what color babies would be hardest for predators to see?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102305)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="It would be bettter if the babies were an identical color to their parents it would be better if there were variation in the color of the young We're not sure which would be better." responseIdentifier="NOTE_RESPONSE_1">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+In an El Nino event, would it be better for the survival of
+kelpfish to have babies that are all the same exact color as their
+parents, or would it be better to have a variety of colors?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think it would be better to have [lots; little] variation because..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your choice above. Try to connect your answer to
+ideas about how a species could adapt to the changing environment.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTNote id="102fcc88-1011-11de-8d15-3bdbd19b9b59" title="Impacting Variation" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="How can humans impact whether a species has varying offspring?" />
+                    <OTPasHint text="If humans take all the lighter colored fish of a certain species, will this change the overall pattern observed within all the babies of the next generation?  What will happen to the species over the long run if humans continue taking the lightest color members of the species?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102306)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Yes, humans can impact variation observed within a fish species No, humans cannot impact variation of a fish species" responseIdentifier="NOTE_RESPONSE_1">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Do you think humans can impact the variation observed within a fish
+species? (note: this is not the same as impacting the variation of
+a single fish's offspring).
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think humans ____can/cannot____  impact the variation of a fish species because..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your answer from the last question.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTEvidence id="102fcc8d-1011-11de-8d15-3bdbd19b9b59" title="Variation and Coral Bleaching" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 4/30/2003 by Tim Zimmerman" evidenceTitle="Variation and Coral Bleaching">
+                  <content>&lt;font size=+3&gt;C&lt;/font&gt;&lt;font size=+1&gt;oral reefs have a high number of individuals and a high diversity of fish and coral species (meaning lots of different species).  This provides for a high genetic diversity.  For example, The Great Barrier Reef near Australia has almost 1,500 fish species, more than 700 species of coral, and over 4,000 species of mollusks (clam, snail and their relatives).  It's also extremely dense with lots of organisms in one area.  This provides opportunities for cross breeding.  Such cross breeding can &lt;i&gt;increase variation&lt;/i&gt; within any population. &lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;D&lt;/font&gt;&lt;font size=+1&gt;iscuss with your partner how the loss of coral reef habitat could impact the ability of species that live here to adapt and survive.  Consider how &lt;b&gt;&lt;i&gt;variation&lt;/b&gt;&lt;/i&gt; within a population (the color of the fish, how it feeds, what foods it eats) might change when corals die due to coral bleaching?&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/gbreef.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Great Barrier Reef Scene&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;</content>
+                </OTEvidence>
+                <OTNote id="102ff39e-1011-11de-8d15-3bdbd19b9b59" title="Marine Issues and Variation" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="Think about how variation comes about.  Now think about human impacts." />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102307)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_4" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Yes, we think they could impact variation No, we don't think they could impact variation" responseIdentifier="NOTE_RESPONSE_1" expectedLines="3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Do you think habitat impacts resulting from bottom trawling or
+coral bleaching could impact variation within fish populations?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think habitat impacts from trawling or coral bleeching ___could/could not___ impact the variation because..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your answer from the last question.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Fishing Pollution (oil, pesticides, other chemicals, etc,) Litter Fish Farming None of these would impact variation" responseIdentifier="NOTE_RESPONSE_3" expectedLines="3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Are there other human activities that could impact variation within
+fish populations? Describe one of you own ideas and explain your
+answer.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think that ____insert you choice here___.  Our explaination is..." responseIdentifier="NOTE_RESPONSE_4" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why did you choose the answer you did?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="15dff211-1011-11de-8d15-3bdbd19b9b59" title="Natural Selection" authorNotes="">
+              <stepList>
+                <OTEvidence id="15dff212-1011-11de-8d15-3bdbd19b9b59" title="What is Natural Selection?" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/29/2003 by Tim Zimmerman" evidenceTitle="How did the giraffe's neck get so long?">
+                  <content>&lt;p&gt;&lt;font size=+3&gt;D&lt;/font&gt;&lt;font size=+1&gt;o you think the shape of a lobster's body is in any way related to where it lives?  Had Simone's favorite food "adapted to it's habitat"?  If so, how?&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;D&lt;/font&gt;&lt;font size=+1&gt;arwin pondered some similar questions while attempting to come up with a mechanism, a process that would explain how a creature changes to "fit" its environment.  His solution was the idea of &lt;b&gt;natural selection&lt;/b&gt;.&lt;/font&gt;  
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/sm_cabezon2.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;How well does this cabezon "fit" into its habitat?&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;&lt;font size=+3&gt;N&lt;/font&gt;&lt;font size=+1&gt;atural Selection is a process whereby a pressure in the environment  eliminates individuals in a population that do not "fit well" (scientists would say they have a "low fitness") into their habitats.  If a fish can easily be seen, it might be eaten by a predator, this is an example of the pressure to not become dinner.  Pressure can come from other creatures (such as predators), from the environment (such as salty water versus fresh water), from basic needs (such as the pressure to get food and nutrients), or other animal of the same species (such as finding a mate).  These are often called "selective pressures" because by getting rid of those individuals that don't fit in, the pressures are "selecting" which individuals will survive.  The creatures that fit into their habitat well, have traits (color, shape, limbs, behaviors) that allow them to avoid those selective pressures.  Since they survive, they pass on their genes and their babies can now avoid the selective pressures.  This all happens  in nature (and is naturally occurring) so it's called...yup, natural selection.&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;A&lt;/font&gt;&lt;font size=+1&gt;s we learned earlier, there is natural variation in all populations.  So, if an individual animal has really dark colors and another has really light colors, one might be more "fit" and then survives to pass on their genes.  This process can take a long time, but we'll discuss that a little later.&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;A&lt;/font&gt;&lt;font size=+1&gt;ll of this may sound a bit confusing, but once you apply these ideas to a particular organism, it makes a bit more sense.  Let's consider some examples from the marine world.&lt;/font&gt;
+&lt;p&gt;</content>
+                </OTEvidence>
+                <OTEvidence id="15dff213-1011-11de-8d15-3bdbd19b9b59" title="&quot;What big teeth you have Granny&quot;" authorNotes="" hoverString="Pas Step" speechText="" evidenceTitle="Body, Tail Shape and Mouth Location">
+                  <hintList>
+                    <OTPasHint text="Have you ever thought about what why some plants and animals that live in similar habitats look kind of similar?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+3&gt;S&lt;/font&gt;&lt;font size=+1&gt;pecies can adapt in many ways.  One form of adaptation is exemplified in the animals' shape, size, color and other anatomical adaptations.  The different shapes, colors, mouth parts, and tail parts all work together to help the fish survive.  These are adaptations that are the easiest to observe.  Here, try it for yourself:&lt;/font&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated image --&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/35164/striped_bass_usfishandwildlifeservice.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of US Fish and Wildlife&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --&gt;
+&lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;L&lt;/font&gt;&lt;font size=+1&gt;ook at this photo of a striped bass (above).  What do you notice about this fish ?  How is it shaped?  Where is its mouth located?&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;C&lt;/font&gt;&lt;font size=+1&gt;ompare the  with these flatfish, called winter flounder, below:&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated image --&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/35164/winterflounder_usgs.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of USGS&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;W&lt;/font&gt;&lt;font size=+1&gt;hat is the shape of this fish?  Can you find its mouth?  Is there anything different about its eyes?&lt;/font&gt;&lt;/P&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;T&lt;/font&gt;&lt;font size=+1&gt;hese next two links have some technical terms that help scientists to describe fish shapes and parts.  Pay attention to the pictures and try to connect them to the terms.  Notice the different mouth shapes.  Can you think of the food or prey that a fish with each type of mouth might eat?  How about the tail shapes?&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;I&lt;/font&gt;&lt;font size=+1&gt;n the next link, first look at examples A through F on the top of the page and notice the different shapes a fish could have.  How are these shapes explained by ideas of natural selection?  Then scroll down and look at the different types of mouths.  Again, what does natural selection have to do with the shape of the mouth of a fish?  When you're done, use the button labeled "What big teeth you have Granny?" on the left side of the screen to return here.&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.meer.org/general-fish-mouths.htm"&gt;Fish body shapes and mouth types&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;BR&gt;
+&lt;!-- END templated link --!&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;T&lt;/font&gt;&lt;font size=+1&gt;his link below is similar to the one above but it has example of fish tails too.  What type of tail might be best for fast, long distance swimming?  Take a look.&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.meer.org/general-fish-tails-fins.htm"&gt;Fish fins and tails&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+&lt;p&gt;
+&lt;p&gt;</content>
+                  <attribution>Evidence created 10/21/2002 by Tim Zimmerman
+Modified on 10/29/03 by Tim Zimmerman</attribution>
+                </OTEvidence>
+                <OTNote id="15dff216-1011-11de-8d15-3bdbd19b9b59" title="Fish shapes?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102308)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="elongate (snake or eel shaped) round (like a ball) flattened top to bottom (like a pancake) flattened side to side" responseIdentifier="NOTE_RESPONSE_1">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What might be a typical body shape of a fish that lives on the
+bottom of the ocean? (click on the button next to your answer)
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We believe the typical body shape of a fish that lives on the bottom of the ocean is [insert your answer here] because..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why did you choose the answer you chose above?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The adaptive advantage is..." responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why is it helpful (or what is the adaptive advantage) for a salmon
+to have a fusiform shaped body?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTEvidence id="15e04037-1011-11de-8d15-3bdbd19b9b59" title="The color connection" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/21/2002 by Tim Zimmerman" evidenceTitle="Changing Anatomy: Coloration">
+                  <hintList>
+                    <OTPasHint text="Why does a tiger have stripes or why do some moths have spots on their wings that look like the eyes of a much bigger animal?" />
+                    <OTPasHint text="Would a blue shark that was light on &lt;b&gt;top&lt;/b&gt; and dark on the &lt;b&gt;bottom&lt;/b&gt; be able to sneak up on prey?" />
+                  </hintList>
+                  <content>&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/3856/sculpin_J_belanger.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Can you see the fish in this photo?&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;&lt;font size=+3&gt;C&lt;/font&gt;&lt;font size=+1&gt;oloration is another Anatomical adaptation.  Color can be used in many ways and for many different reasons.  Can you think of why a salmon is colored the way it is?  Take a look at the top half of this site to learn more about how the color of a fish might tell you something about that fish.&lt;/font&gt;&lt;/P&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.flmnh.ufl.edu/fish/Education/Adapt/Adapt.htm"&gt;Coloration of Fishes&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+&lt;p&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/3856/blueshrk_j_belanger.JPG"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;&lt;font size=+3&gt;H&lt;/font&gt;&lt;font size=+1&gt;ere's another link that might help with some common terms used to describe different color patterns scientists have seen on fishes.  How would you describe the coloration of a blue shark (pictured above) using these terms?&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.tetra-fish.com/aquademics/shapecolor.html"&gt;Body Shape and Coloration&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+&lt;p&gt;
+
+&lt;p&gt;</content>
+                </OTEvidence>
+                <OTNote id="15e0403c-1011-11de-8d15-3bdbd19b9b59" title="Fish colors?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102309)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="disruptive countershading camouflaged" responseIdentifier="NOTE_RESPONSE_1">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What term best describes the coloration of the blue shark?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="We think a blue shark has (type in your answer here) coloration because..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why would blue sharks have this type of coloration?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTEvidence id="15e0674d-1011-11de-8d15-3bdbd19b9b59" title="Patterns in the Data" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/21/2002 by Tim Zimmerman" evidenceTitle="Observing (Looking for) Patterns">
+                  <hintList>
+                    <OTPasHint text="Why do birds have different types of beaks or mammals different types of feet?" />
+                    <OTPasHint text="Why is it important for a scientist to understand patterns?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+3&gt;M&lt;/font&gt;&lt;font size=+1&gt;any scientists, especially field biologists, use observation as a means of collecting data about the world around them (just as Charles Darwin did).  The scientists then look for patterns (trends or correlations) within these data.  Though this is not the whole story.  If a pattern or correlation is noticed, the scientist then attempts to explain why this pattern is occuring.  A model is often created using the best information available to determine what "causal mechanisms" might be involved.  The data you will collect at the aquarium is observational data for which you will be able to notice correlations and patterns.  These patterns, along with some knowledge about possible causes, will help you make connections between the pattern and the possible causes.&lt;/font&gt;&lt;/P&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;F&lt;/font&gt;&lt;font size=+1&gt;or example, a "cause" might be predation.  Let's consider a "hypothetical" (not real) population of mice that lives in the desert.  Since the desert habitat is mostly a light tan color, what might be the cause of most of the mice being tan in color?  If there were some mice that were brightly colored, say orange, they would get eaten by a predator and only the tan colored mice would survive.  The tan mice would pass on their "tan genes" to the next generation of mice.  Then, the "cause" of the mice being tan in color is that they adapted to their habitat BECAUSE of the pressure of being eaten by a predator.  Another example might be the behavior of sitting and waiting for food to drift by instead of going in search of food.  So the "cause" of the behavioral adaptation is that those fish who wait for the food to come by, spend less energy and thus have a better chance of surviving and passing on their genes to the next generation.&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+
+
+
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/blennie.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;</content>
+                </OTEvidence>
+                <OTEvidence id="15e06752-1011-11de-8d15-3bdbd19b9b59" title="Surviving in a Habitat" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/21/2002 by Tim Zimmerman" evidenceTitle="How to &quot;Build-A-Fish&quot;">
+                  <hintList>
+                    <OTPasHint text="Which comes first, thinking about the habitat or designing the fish?" />
+                    <OTPasHint text="Try to make your fish come up with a &quot;dead fish&quot; in the survive-o-meter.  Do this by thinking of what &lt;b&gt;doesn't&lt;/b&gt; work well in that habitat." />
+                    <OTPasHint text="When you think about the fish in a given habitat, what are some characteristics they have in common?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+3&gt;U&lt;/font&gt;&lt;font size=+1&gt;sing ideas of natural selection, how would you create a fish so that it would best "fit" into its habitat?  What traits would be beneficial to the suvival of a fish that lives in a coral reef?  Would it be different from a fish you would build to survive in a kelp forest?&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;G&lt;/font&gt;&lt;font size=+1&gt;o to this next site and try to apply some of what you've learned so far to "build a fish".  What makes the fish you build survive?  Can you think of other stategies to figure out what traits allow a fish to survive in a particular habitat?  Can you build a fish that will &lt;i&gt;NOT&lt;/i&gt; survive in a particular habitat?  If you can, why does it &lt;i&gt;NOT&lt;/i&gt; survive?  In other words, can you give your fish traits that make it "die"?  If so, what are they?&lt;/font&gt;&lt;/p&gt;
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://sv.berkeley.edu/showcase/flash/fish.html"&gt;Build a fish&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+
+&lt;p&gt;</content>
+                </OTEvidence>
+                <OTNote id="15e06759-1011-11de-8d15-3bdbd19b9b59" title="Did your fish survive?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="What problems would it cause your fish if you chose a different tail type?" />
+                    <OTPasHint text="What problems would it cause your fish if you chose a different mouth type?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102310)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_4" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="round elongate fusiform flattened" responseIdentifier="NOTE_RESPONSE_1" expectedLines="3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Which body shape allowed your fish to survive in the rocky shore?
+(select your answer below)
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="terminal (on the end) ventral (on the bottom) pointy snout" responseIdentifier="NOTE_RESPONSE_2" expectedLines="3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Which mouth type was better for surviving in the coral reef
+habitat? (select your answer below)
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The [insert your answer here] mouth worked best in the coral reef habitat because..." responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Why do think that mouth type worked better in the coral reef
+habitat?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Our fish did NOT survive in the ___ insert habitat___ habitat.  The traits our fish had were...  Those traits did not allow the fish to survive the selective pressures because..." responseIdentifier="NOTE_RESPONSE_4" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Where you able to "kill" your fish? Which habitat did you use and
+what traits did your fish have when it could not survive? Explain
+why those traits are not adaptive.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="1cac36ae-1011-11de-8d15-3bdbd19b9b59" title="Inheritance Over Time" authorNotes="">
+              <stepList>
+                <OTEvidence id="1cac36af-1011-11de-8d15-3bdbd19b9b59" title="Generations for Adaptation" authorNotes="" hoverString="Pas Step" speechText="" evidenceTitle="Generation After Generation">
+                  <hintList>
+                    <OTPasHint text="Do you think people adapt to their habitats the same way other animals do?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+2&gt;W&lt;/font&gt;e often here the term "adapt" used in everyday language.  However, scientists use the term in a very specific way.  They are referring to changes that occur as a result of &lt;b&gt;natural selection&lt;/b&gt; working on existing &lt;b&gt;variation&lt;/b&gt; within a population.  These changes often take long periods of time to become a trait in all the individuals in a population.  The time periods vary from species to species depending on how quickly they reproduce.  Adaptation, then, can only occur over several generations.  One individual cannot adapt during its lifetime.  Again, the only way adaptation can occur is by passing on genes to the next generation.  If it takes a year or more for the "next generation" to be born, then adaptation will take many years.  Let's look at an example.
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;A&lt;/font&gt;s we've already learned, natural variation occurs in all populations.  The variation is dependent upon the genetic makeup of each individual.  Those genes for that variation can be passed on during reproduction.  So, if a species reproduces often, the opportunity for changes in the population are much greater. &lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;L&lt;/font&gt;et's consider the giant kelpfish again and compare the number of generations that they can produce in one year compared to the number of generations that a leopard shark can produce in one year.  To make our example clear, we will assume things are a little simpler than the really are, but, the basic ideas about numbers of generations hold true.&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;B&lt;/font&gt;oth these fishes live in and among the kelp.  The color and patterns that help conceal them in the kelp forest varies considerably from individual to individual.  Although the leopard shark has fewer young than the kelpfish during each generation (4-40 young for the leopard shark versus 200+ eggs for the kelpfish), the number of fish that survive to reproduce is similar for both the kelpfish and the leopard shark, approximately 2.  We will assume that the kelpfish can produce up to 3 generations in one year, while the leopard sharks will only produce 1 generation each year because of the long gestation period (the time it takes from fertilization of eggs to hatching of the eggs).&lt;/p&gt;
+&lt;p&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/leop_shark4.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of NOAA&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;L&lt;/font&gt;et's consider the El Nino kelp forest scenario again.  Remember that in this scenario, the water has warmed and over several years much of the kelp has died.  When this happens there is less kelp so the water is brighter than when the kelp forest is thriving.  Do you think one of these fish will be able to adapt more quickly than the other?</content>
+                  <attribution>Evidence created 4/30/2003 by Tim Zimmerman
+Modified on 10/26/03 by Tim Zimmerman</attribution>
+                </OTEvidence>
+                <OTNote id="1cac36b2-1011-11de-8d15-3bdbd19b9b59" title="Make a prediction" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102311)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="For the giant kelpfish, we think it will take...  For the leopard shark, we think it will take..." responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Both of these fish will need to adapt to the changed habitat in
+order to survive. How many generations do you think it will take
+for each of these species to adapt?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Yes, it will take the leopard shark longer to adapt Yes, it will take the giant kelpfish longer to adapt No, they will adapt in about the same amount of time" responseIdentifier="NOTE_RESPONSE_2" expectedLines="3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Do you think it will take one species longer to adapt than the
+other species?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Our reasoning is..." responseIdentifier="NOTE_RESPONSE_3" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your reasoning for the answer you chose above.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTEvidence id="1cac5cc3-1011-11de-8d15-3bdbd19b9b59" title="Simulation of Generations" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/28/2003 by Tim Zimmerman" evidenceTitle="Comparing Time and Generation">
+                  <content>&lt;p&gt;&lt;font size=+2&gt;O&lt;/font&gt;k, let's just review the parameters (the numbers and assumptions that went into creating the simulation) before you actually view the simulation. 
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+1&gt;&lt;u&gt;Leopard Sharks&lt;/u&gt;&lt;/font&gt;
+&lt;p&gt;-- reproduce once per year resulting in 1 generation per year
+&lt;p&gt;-- 2 young survive to reproductive age
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+1&gt;&lt;u&gt;Giant Kelpfish&lt;/u&gt;&lt;/font&gt;
+&lt;p&gt;-- reproduce 3 times per year resulting in 3 generations per year
+&lt;p&gt;-- 2 young survive to reproductive age
+&lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he simulation will run in Quicktime and will open automatically in a separate window.  This will allow you to pause the simulation (with the button in the lower left corner), play it "one step at a time" (with the buttons in the lower right corner), and play it as many times as you want.
+&lt;p&gt;
+&lt;p&gt;&lt;b&gt;Things you should look for while the simulation is running:&lt;/b&gt;
+&lt;p&gt;*Pay attention to the number of generations and the number of years. 
+&lt;p&gt;*Notice the difference between the changes that occur based on the number of &lt;b&gt;generations&lt;/b&gt; and those that occur during the number of &lt;b&gt;years&lt;/b&gt;.  Is there a difference?  Is it different between the kelpfish and the leopard sharks?
+&lt;p&gt;* Compare the shade of the darkest fish in the starting (original) population to the darkest shade in the kelpfish and separately to the leopard sharks.  Are they different?
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;N&lt;/font&gt;ow, it is time to view the simulation.  NOTE: &lt;b&gt;It will take a little time for the simulation to load, so be patient.  It will start running as soon as the window opens.&lt;/b&gt;
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://wise.berkeley.edu/upload/7681/rev_fshshk_gen_2.mov"&gt;Click Here for Simulation&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;</content>
+                </OTEvidence>
+                <OTStudentAssessment id="1cac5cc4-1011-11de-8d15-3bdbd19b9b59" title="So What Did You Find?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="master8638:page1:part1(9454)">
+                      <responseDeclaration baseType="identifier" cardinality="single" identifier="PRIMARY_RESPONSE1">
+                        <correctResponse>
+                          <value isDefault="false" isCorrect="false">choice</value>
+                        </correctResponse>
+                      </responseDeclaration>
+                      <responseDeclaration baseType="string" cardinality="single" identifier="EXPLAINATION_RESPONSE1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="PRIMARY_RESPONSE2" />
+                      <responseDeclaration baseType="identifier" cardinality="single" identifier="PRIMARY_RESPONSE3">
+                        <correctResponse>
+                          <value isDefault="false" isCorrect="false">choice</value>
+                        </correctResponse>
+                      </responseDeclaration>
+                      <responseDeclaration baseType="string" cardinality="single" identifier="EXPLAINATION_RESPONSE3" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="PRIMARY_RESPONSE4" />
+                      <itemBody>
+                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="PRIMARY_RESPONSE1" maxChoices="1" shuffle="false">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Which fish population had more of the fish adapt by becoming a
+lighter shade of yellow?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                          <simpleChoice identifier="choice1">Giant Kelpfish</simpleChoice>
+                          <simpleChoice identifier="choice2">Leopard Sharks</simpleChoice>
+                        </choiceInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="EXPLAINATION_RESPONSE1">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your answer choice:
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="PRIMARY_RESPONSE2">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please write a few sentences that will explain the difference
+between measuring adaptation in terms of years and measuring
+adaptation in terms of generations. Does one generation equal one
+year? Based on the number of generations produced by a species each
+year, could the time it takes for an organism to adapt vary from
+species to species? Why or why not?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <choiceInteraction hasInlineFeedback="false" responseIdentifier="PRIMARY_RESPONSE3" maxChoices="1" shuffle="false">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Which of the statements below best explains whether an organism can
+adapt to human impacts to the environment such as those impacts
+caused by trawling and coral bleaching?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                          <simpleChoice identifier="choice1">It will take a long time for animals to adapt</simpleChoice>
+                          <simpleChoice identifier="choice2">It depends on the reproductive rates of the organisms</simpleChoice>
+                          <simpleChoice identifier="choice3">Organisms can never adapt to human impacts</simpleChoice>
+                        </choiceInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="EXPLAINATION_RESPONSE3">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Please explain your answer choice:
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="PRIMARY_RESPONSE4">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Could lobster adapt to habitat loss caused by trawling or coral
+bleaching? Yes or No? Please explain you answer with a few
+sentences below.
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                  <introductionHtml>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What did you notice during the simulation?
+&lt;/body&gt;
+&lt;/html&gt;</introductionHtml>
+                </OTStudentAssessment>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="1f54e7b2-1011-11de-8d15-3bdbd19b9b59" title="Practice and Preparation" authorNotes="">
+              <stepList>
+                <OTEvidence id="1f54e7b3-1011-11de-8d15-3bdbd19b9b59" title="Final Trip Preparation" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/21/2002 by Tim Zimmerman" evidenceTitle="Trip Preparation">
+                  <content>&lt;p&gt;&lt;font size=+2&gt;N&lt;/font&gt;ow we need to prepare for the trip to the aquarium.  You will have several fish for which you will collect data.  Everyone will collect data on 4 species.  These fish are pictured below and on your Palm computers.&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;A&lt;/font&gt;lright, now we need to do two more things to prepare for our trip to the aquarium:
+&lt;p&gt;
+&lt;p&gt;		1. Take out a notebook to bring with you tomorrow.  In the notebook, write down some questions you would like to answer during your visit.  How about some questions about your species, it's habitat or adaptations.  You can also use the notebook to write down observations or other questions that arise during the visit.&lt;/p&gt;
+&lt;p&gt;		2. Write down list of agreed upon items for data collection from the Brainstorming exercise back in the last Step.  If you don't remember, click on the Step in the Inquiry Map on the left.&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;T&lt;/font&gt;he fish you will collect data on are:
+&lt;p&gt;
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/bf_tuna.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Bluefin Tuna&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/leop_shark.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Leopard Shark&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/bl_rkfish.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Blue Rockfish&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/halibut.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Halibut&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;</content>
+                </OTEvidence>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="223a7ba1-1011-11de-8d15-3bdbd19b9b59" title="Upload Data from Palm Pilot" authorNotes="">
+              <stepList>
+                <OTDisplayPage id="223a7ba2-1011-11de-8d15-3bdbd19b9b59" title="Upoad Forms with Data to WISE" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="&quot;Be sure to follow your teacher's instructions carefully.&quot;" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+3&gt;S&lt;/font&gt;&lt;font size=+1&gt;o, how was your trip to the aquarium?  Data from your Palm handheld have already been uploaded to WISE.  In the next Activity, you'll be looking at data collected from the aquarium and trying to connect specfic examples from these data to ideas of adaptation and conservation.&lt;/font&gt;&lt;/p&gt;</content>
+                </OTDisplayPage>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="2d4d916f-1011-11de-8d15-3bdbd19b9b59" title="Working With Data" authorNotes="">
+              <stepList>
+                <OTEvidence id="2d4db880-1011-11de-8d15-3bdbd19b9b59" title="Patterns in the Data" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 11/23/2001 by Tim Zimmerman" evidenceTitle="Scientists Look for Patterns in Data">
+                  <hintList>
+                    <OTPasHint text="Why do birds have different types of beaks or mammals different types of feet?" />
+                    <OTPasHint text="Why is it important for a meteorologist to understand weather patterns?" />
+                  </hintList>
+                  <content>&lt;p&gt;&lt;font size=+2&gt;N&lt;/font&gt;ow it's time to look for patterns in the data you collected at the aquarium.  All data that you and your classmates collected during your visit to the aquarium will be displayed in the next couple of Steps.  There will be a lot of data!  First you'll be looking at the Behavioral data. This will help you get a feel for the type of information your class collected, how these data are displayed, and how to "filter" these data to make sense of them.  What do the numbers represent?  How about the bars?  See if you can see any patterns.  You can use the "filtering tool" to help you sort through your data.  Below are some exaples of how to use this tool.&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;&lt;font size=+2&gt;W&lt;/font&gt;hen you first go to the Data Analysis Step, you will see a Filter Tool at the top of the screen.  The screen looks a bit confusing at first, but it will make more sense with use.  This Tool will allow you to select Items so you can look at a smaller sample of your data instead of looking at all of it at once.  Pay particular attention to the check boxes.  Here is an example of what the screne will first look like.  Notice how all the blue check boxes are checked.  This means ALL data will be presented below the Filter Tool.&lt;/p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/1stfilterscrn.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Original Filter Page&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;&lt;font size=+2&gt;L&lt;/font&gt;et's say you want to find data that is only associated with one fish, for example, the Leopard Shark to see if you can recognize any adpatations of the Leopard Shark.  To do this, you could click on the "just this" in the parentheses in the Leopard Shark row.  The Tool will then automatically remove the checks from all the boxes EXCEPT the "just this" box.  The Filter Tool will then look like the one below.  You must then scroll to the bottom of the Filter Tool and click on the "Filter" box.&lt;/p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/2ndfilterscrn.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Filtering Using "Just This" Tool&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+
+&lt;p&gt;&lt;font size=+2&gt;U&lt;/font&gt;sing the "Just This" Filter for Leopard will give you all data collected ONLY for Leopard Sharks.  You could also filter for "Lunate Tail" and you will get data ONLY associtated with that trait.  This information might help you answer questions you have about how particular fish adapt to their habitat or which traits are commonly found on fish that live in certain habitats.
+
+&lt;p&gt;&lt;font size=+2&gt;Y&lt;/font&gt;ou might also want to see data for 2 or more Items.  Multiple filers can help to narrow these data down, but the information you get might be a bit confusing.  If you were interested to see if most fish with Terminal mouths also had Countershading and Fusiform bodies, you could Filter for these items by UNCHECKING everything EXCEPT Terminal, Countershading and Fusiform.  The Filter Tool will look like the picture below and the data you will then see will only pertain to those Items.  You must then scroll to the bottom of the Filter Tool and click on the "Filter" box.&lt;/p&gt;
+&lt;p&gt;
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/3rdfilterscrn.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Filtering for 3 Selected Items&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;O&lt;/font&gt;k, now it time to take a look at the Behavioral data and get used to using the Filtering Tool before you go on to looking for patterns in the Anatomical data.</content>
+                </OTEvidence>
+                <OTNote id="2d4db885-1011-11de-8d15-3bdbd19b9b59" title="What did you find in the Data?" authorNotes="" hoverString="Pas Step" speechText="" isInjectPrompt="false" lockStudentAnswers="true" randomChoiceOrder="false">
+                  <hintList>
+                    <OTPasHint text="Did you see any really big numbers or any really small numbers?" />
+                    <OTPasHint text="Sometimes, patterns in data are easier to see if you focus on only two parameters (that is, two pieces of information) at a time.  Is there a pattern in the shape of the fish and where they live?" />
+                    <OTPasHint text="Are some patterns easier to observe than others?" />
+                  </hintList>
+                  <jaxbXML>
+                    <assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false" identifier="MasterWorkNote(102312)">
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1" />
+                      <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2" />
+                      <itemBody>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The fish that has the most number of Behavioral Data responses is..." responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Were there lots of people who collected data on one fish more that
+others? If so, which one?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                        <extendedTextInteraction hasInlineFeedback="false" placeholderText="To us, it looks like _____ fish spent the first minute Swimming." responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+                          <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+How many fish spent the first minute Swimming?
+&lt;/body&gt;
+&lt;/html&gt;</prompt>
+                        </extendedTextInteraction>
+                      </itemBody>
+                    </assessmentItem>
+                  </jaxbXML>
+                </OTNote>
+                <OTDisplayPage id="2d4ddf9c-1011-11de-8d15-3bdbd19b9b59" title="Looking At Anatomical Data" authorNotes="" hoverString="Pas Step" speechText="">
+                  <content>&lt;p&gt;&lt;font size=+3&gt;A&lt;/font&gt;&lt;font size=+1&gt;lright, hopefully you're getting the hang of looking at your data.  We are going to move on to the Anatomical data you collected.  Reviewing these data allows you to ask questions about particular adaptations.  For example, if you want to see Items associated with fish that live in the Kelp Forest, you can click the "just this" for Kelp Forest and see all data for fish that are found in that habitat.  You'll get a chance to look through these data and then have an opportunity to use these data in conjunction with ideas of adaptation.&lt;/font&gt;&lt;/p&gt;</content>
+                </OTDisplayPage>
+              </stepList>
+            </OTPasActivity>
+            <OTPasActivity id="43513fbc-1011-11de-8d15-3bdbd19b9b59" title="Putting It All Together" authorNotes="">
+              <stepList>
+                <OTEvidence id="435166cd-1011-11de-8d15-3bdbd19b9b59" title="How Would Darwin Explain Things?" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 10/23/2003 by Tim Zimmerman" evidenceTitle="Supporting Claims of Adaptation">
+                  <content>&lt;p&gt;&lt;font size=+2&gt;O&lt;/font&gt;ver the past several days, we've been learning about adaptation.  Recall that adaptation involves natural &lt;b&gt;variation&lt;/b&gt; within populations.  These variations are sometimes beneficial, sometimes useless (or even make survival more difficult), and sometimes have no effect.  These variations can lead to adaptation through &lt;b&gt;natural selection&lt;/b&gt; where those with beneficial variations survive and pass on genes for the beneficial variations to their young.  This process can only happen through passing genes through many &lt;b&gt;generations&lt;/b&gt; over time.
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;W&lt;/font&gt;e have talked about how species adapt to their habitats, such as the color of kelpfish, shape of eels that live in rocks or the color of a cabezon so it looks like the rocks in which it lives.  Another way species adapt and survive is not by looking like the background (camouflage) but by looking like some organism that has adapted a way to keep predators away (a form of mimicry).
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;M&lt;/font&gt;ost people have heard the story of the viceroy butterfly.  The viceroy is non-poisonous but it looks very much like the monarch butterfly which &lt;i&gt;is&lt;/i&gt; poisonous.  The idea is that birds won't eat the viceroy because it has &lt;b&gt;adapted&lt;/b&gt; to look like something the birds will throw up later.  There is a marine equivalent of the viceroy/monarch story.  This story is about animals that mimic the beautiful but poisonous, "shell-less" (actually, they have a tiny shell, but that's another story) snails called nudibranchs.
+&lt;p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+2&gt;C&lt;/font&gt;heck out some of these beautiful creatures in this next link.
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.cybereef.com/nudiroundup/Pages/roundup.htm"&gt;Some Beautiful but Poisonous Nudibranchs&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+
+&lt;p&gt;&lt;font size=+2&gt;N&lt;/font&gt;ow check out  this site that shows examples of many, many non-poisonous marine flatworms and the poisonous nudibranchs they mimic.  In all the pairs of photos, the non-poisonous flatworm is on top and the nudibranch on the bottom.  While you are looking at these amazing photos, think about how the flatworms ended up looking so much like the nudibranchs.  In particular think about:
+
+&lt;p&gt; -- &lt;i&gt;WHAT&lt;/i&gt; was the adaptation?
+&lt;p&gt; -- &lt;i&gt;HOW&lt;/i&gt; did that change take place in the animal population?
+&lt;p&gt; -- What do we need to know to consider &lt;i&gt;HOW LONG&lt;/&gt; such an adaptation might take?
+
+&lt;!-- BEGIN templated link --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;FONT SIZE=+2&gt;&lt;A HREF="http://www.rzuser.uni-heidelberg.de/~bu6/Introduction06.html"&gt;Flatworm/Nudibranch Mimics&lt;/A&gt;&lt;/font&gt;&lt;/CENTER&gt;&lt;p&gt;
+&lt;!-- END templated link --!&gt;
+
+
+&lt;p&gt;&lt;font size=+3&gt;H&lt;/font&gt;&lt;font size=+1&gt;ow would you develop ad argument that the flatworms adapted to their environment by mimicking the nudibranchs?&lt;/font&gt;
+
+&lt;!-- BEGIN templated image --!&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/shawl_nudib_belanger.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --!&gt;</content>
+                </OTEvidence>
+                <OTEvidence id="435166ce-1011-11de-8d15-3bdbd19b9b59" title="Human Impacts and Adaptation" authorNotes="" hoverString="Pas Step" speechText="" attribution="Evidence created 5/8/2003 by Tim Zimmerman" evidenceTitle="Trawling and Dredging">
+                  <content>&lt;p&gt;&lt;font size=+3&gt;S&lt;/font&gt;&lt;font size=+1&gt;o, let's get back to the discussion you read about in the begining of the project.  The one the students were having in the restaurant.  Remember?  
+&lt;p&gt; _______________________________
+&lt;p&gt;
+&lt;p&gt;Brittney: &lt;i&gt;"But where will your precious lobster live in the meantime?"&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Simone: &lt;i&gt;"They'll just adapt.  You know, maybe they'll get a thicker shell or learn to eat new food or something."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Luis: &lt;i&gt;"That's not how it works! Lobsters can't just change their shells or their diet all of a sudden. They would just die."&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt;Simone:&lt;i&gt; "Why not?  My sister moved from here to Wisconsin, where it's REALLY cold.  At first she couldn't even go outside, and now she barely ever wears a coat until it's below freezing. "&lt;/i&gt;
+&lt;p&gt;
+&lt;p&gt; ...
+&lt;p&gt;
+&lt;p&gt;Brittney: &lt;i&gt;"Well maybe if the ocean trawlers left some of the ocean bottom alone, then some lobsters would survive while the parts of the ocean floor that were trawled could recover."&lt;/i&gt;&lt;/font&gt;
+&lt;p&gt;
+&lt;p&gt;_______________________________
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;N&lt;/font&gt;&lt;font size=+1&gt;ow that you've had some time to learn about adaptation, what do you think about statements like Simone's that "they'll just adapt?"  What about Brittney's claim that "if they leave some of the ocean bottom alone, then some lobsters would survive while the parts of the ocean floor that were trawled could recover."  &lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;p&gt;&lt;font size=+3&gt;I&lt;/font&gt;&lt;font size=+1&gt;n the next activity, you'll be asked to develop an argument about whether the lobster could adapt to human impacts.  Your argument should be well supported with evidence and justifications -- not just an off-the-cuff belief with no evidence to support it.  You should give examples of specific adaptations you found during your trip to the aquarium to support your claims.&lt;/p&gt;</content>
+                </OTEvidence>
+                <OTGenericOTrunkStep id="435166cf-1011-11de-8d15-3bdbd19b9b59" title="Revisiting Fish Sorting" authorNotes="" hoverString="Pas Step" speechText="">
+                  <hintList>
+                    <OTPasHint text="Be patient, the draw tool takes a while to load. If you are confused on how to use the tool select the next hint." />
+                    <OTPasHint text="You should first select the stamp tool that is the bottom tool in the left blue border. When you select this tool you will see a new button along the top blue border where you can select different shapes of fish tails for your stamp." />
+                    <OTPasHint text="The select tool is the top tool that looks like a black arrow. Placing your cursor over a tool will name the tool in the upper left corner of the blue border." />
+                  </hintList>
+                  <target>
+                    <OTCompoundDoc>
+                      <documentRefs>
+                        <OTDrawingTool2 id="37ad0da1-1011-11de-8d15-3bdbd19b9b59" backgroundImage="http://wise.berkeley.edu/upload/5392/ocean_bottom.gif">
+                          <stamps>
+                            <OTDrawingStamp alwaysOn="true" src="http://wise.berkeley.edu/upload/7681/fusiformshape.gif" />
+                            <OTDrawingStamp alwaysOn="true" src="http://wise.berkeley.edu/upload/7681/depressedshape.gif" />
+                            <OTDrawingStamp alwaysOn="true" src="http://wise.berkeley.edu/upload/7681/eelshaped.gif" />
+                            <OTDrawingStamp alwaysOn="true" src="http://wise.berkeley.edu/upload/7681/laterallyshaped.gif" />
+                          </stamps>
+                        </OTDrawingTool2>
+                      </documentRefs>
+                      <bodyText>
+                        <p>
+                          <font size="+2">Y</font>
+                          ou've seen this Tool before. Again,
+place the fish in the habitat in which you think belongs. To do
+this, Click the "Stamp" corresponding to each Fish Type, then place
+that fish in its appropriate habitat. Next, type in a reason for
+your placement of the fish.
+                          <b>Be sure to connect these
+explanations to ideas of adaptation</b>
+                          .
+                        </p>
+                        <object refid="37ad0da1-1011-11de-8d15-3bdbd19b9b59" />
+                      </bodyText>
+                    </OTCompoundDoc>
+                  </target>
+                </OTGenericOTrunkStep>
+                <OTDisplayPage id="435166d6-1011-11de-8d15-3bdbd19b9b59" title="This Is The End" authorNotes="" hoverString="Pas Step" speechText="">
+                  <content>&lt;p&gt;&lt;font size=+3&gt;T&lt;/font&gt;&lt;font size=+1&gt;his is the end of this WISE project.  Hope you enjoyed it and I bet, whether you wanted to or not, you learned something.&lt;/font&gt;&lt;/p&gt;
+
+
+
+&lt;!-- BEGIN templated image --&gt;
+&lt;BR&gt;
+&lt;CENTER&gt;&lt;IMG SRC="http://wise.berkeley.edu/upload/7681/surfkelp.jpg"&gt;&lt;/CENTER&gt;&lt;BR&gt;
+&lt;CENTER&gt;Image courtesy of Joe Belanger&lt;/CENTER&gt;
+&lt;BR&gt;
+&lt;!-- END templated image --&gt;</content>
+                </OTDisplayPage>
+              </stepList>
+            </OTPasActivity>
+          </activityList>
+        </OTPasProject>
+      </root>
+      <library>
+        <OTCompoundDoc name="top-menu" showEditBar="false">
+          <bodyText>
+            <div class="top-menu">
+              <table>
+                <tr>
+                  <td>
+                    <object refid="${[no menu in author mode]}" viewid="textsize-choice-view" />
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </bodyText>
+        </OTCompoundDoc>
+      </library>
+    </OTSystem>
+  </objects>
+</otrunk>
+

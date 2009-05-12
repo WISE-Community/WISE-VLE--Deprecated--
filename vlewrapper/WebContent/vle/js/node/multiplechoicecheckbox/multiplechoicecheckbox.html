@@ -1,0 +1,167 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../common/css/htmlAssessment.css" />
+<link rel="stylesheet" type="text/css" href="mcstyles.css" />
+<link rel="stylesheet" type="text/css" href="../common/css/niftyCorners.css" />
+
+
+
+<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
+<script type="text/javascript" src="multiplechoicecheckboxstate.js"></script>
+<script type="text/javascript" src="mc_checkbox.js"></script>
+<script type="text/javascript">
+
+/* 
+ * Note from Geoff
+ * all names labeled mc should be changed to mc_checkbox but will
+ * left alone for now and cleaned up later for the sake of getting this
+ * working quickly for tim.
+ */
+var mc;   // global variable so it can be accessed by other functions
+
+var states = [];  // array of MCCBSTATE objects
+ 
+function renderMC() {
+  xmlDoc=loadXMLDoc("multiplechoice.xml");
+  mc = new MC_CHECKBOX(xmlDoc);
+  mc.render();
+}
+function renderMCFromString(txt) {
+  xmlDoc=loadXMLString(txt);
+  mc = new MC_CHECKBOX(xmlDoc);
+  mc.render();
+}
+
+function checkAnswer() {
+	mc.checkAnswer();
+}
+
+/**
+ * 1) if shuffle is on, shuffle choices
+ * 2) clears feedbackdiv
+ * 3) enables checkAnswerButton
+ * 4) hides tryAgainButton
+ */
+function tryAgain() {
+	var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
+
+	if (isTryAgainDisabled) {
+		return;
+	}
+
+	mc.render();
+}
+
+function loadFromVLE(node, vle) {
+	mc.loadFromVLE(node, vle);
+}
+</script>
+
+<!--  Javascript Pop up window -->
+<script type="text/javascript">
+
+var newWin = null;
+function popUp(strURL, strType, strHeight, strWidth) {
+ if (newWin != null && !newWin.closed)
+   newWin.close();
+ var strOptions="";
+ if (strType=="console")
+   strOptions="resizable,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="fixed")
+   strOptions="status,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="elastic")
+   strOptions="toolbar,menubar,scrollbars,"+
+     "resizable,location,height="+
+     strHeight+",width="+strWidth;
+ newWin = window.open(strURL, 'newWin', strOptions);
+ newWin.focus();
+}
+
+</script>
+
+<!--  Nifty Cube for Rounded Corners -->
+
+<script type="text/javascript" src="../common/js/niftycube.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+Nifty("div#locationBar2","bottom,small");
+Nifty("div#questionCountBox","big, top");
+Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
+}
+</script>
+
+</head>
+
+<body>
+
+<div id="centeredDiv">
+
+<div id="questionCountBox" class="BG3">
+<div class="instructionsReminder">For instructions click &nbsp;<a
+	href="MultipleChoiceInfoBox.html"
+	onclick="popUp(this.href,'console',700,720);return false;"
+	target="_blank">&nbsp;&nbsp;&nbsp;&nbsp;</a></div>
+<table id="questionTable">
+	<tr>
+		<td id="questionNumber">Question X of Y:</td>
+		<td id="questionType">Multiple Choice</td>
+		<td id="questionHelp"><a href="MultipleChoiceInfoBox.html"
+			onclick="popUp(this.href,'console',700,720);return false;"
+			target="_blank">&nbsp&nbsp&nbsp</a></td>
+	</tr>
+</table>
+</div>
+<!-- end of questionNumberBox -->
+
+<div id="currentQuestionBox">
+
+<div id="leftColumn">
+<div class="itemLabel Color1">question</div>
+<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
+<div class="itemLabel Color1">response</div>
+<div id="radiobuttondiv"></div>
+</div>
+
+<!--  
+<div id="rightColumn" class="BG1">
+	<img src="../../../images/multi_choice.png" alt="Robot Art Open Response" width="100" height="250" border="0" />
+</div>
+-->
+<div id="clearBoth"></div>
+
+<div id="statusMessages">
+<div id="numberAttemptsDiv"></div>
+<div id="lastAttemptDiv"></div>
+</div>
+
+<!-- Anchor-Based Button Layout using TABLE -->
+
+<div id="buttonDiv">
+<div id="statusDiv">
+<div id="numberAttemptsDiv"></div>
+</div>
+<table id="buttonTable">
+	<tr>
+		<td><a href="#" id="checkAnswerButton"
+			onClick="javascript:checkAnswer();">Check Answer</a></td>
+		<td><a href="#" id="tryAgainButton"
+			onClick="javascript:tryAgain();" class="disabledLink">Try Again</a></td>
+	</tr>
+</table>
+</div>
+
+<div id="feedbackdiv"></div>
+
+</div>
+<!-- end centered Div -->
+
+<script type="text/javascript">
+//renderMC();
+</script>
+
+</body>
+</html>

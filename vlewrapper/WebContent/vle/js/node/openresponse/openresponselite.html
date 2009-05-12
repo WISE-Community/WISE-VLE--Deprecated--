@@ -1,0 +1,104 @@
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="../common/css/htmlAssessment.css" />
+<link rel="stylesheet" type="text/css" href="openresponse.css" />
+<link rel="stylesheet" type="text/css" href="../common/css/niftyCorners.css" />
+
+<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
+<!-- YUI Seed -->
+<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
+<script type="text/javascript" src="openresponsestate.js" ></script>                
+<script type="text/javascript" src="openresponse.js" ></script>                
+<script type="text/javascript" src="../Node.js"></script>
+
+
+<script type="text/javascript">
+var or;   // global variable so it can be accessed by other functions
+
+function save() {
+  or.save();
+}
+
+function edit() {
+	  or.edit();
+}
+
+function renderORFromString(txt) {
+  xmlDoc=loadXMLString(txt);
+  or = new OPENRESPONSE(xmlDoc);
+  or.renderLite();
+}
+
+function loadLite(node, vle) {
+	or.loadLite(node, vle);
+}
+
+function answered(){
+	or.answered=true;
+};
+
+function getAnswered(){
+	return or.answered;
+};
+
+function checkAnswerLite(){
+	return or.checkAnswerLite();
+};
+</script>
+
+<!--  Javascript Pop up window -->
+<script type="text/javascript">
+
+var newWin = null;
+function popUp(strURL, strType, strHeight, strWidth) {
+ if (newWin != null && !newWin.closed)
+   newWin.close();
+ var strOptions="";
+ if (strType=="console")
+   strOptions="resizable,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="fixed")
+   strOptions="status,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="elastic")
+   strOptions="toolbar,menubar,scrollbars,"+
+     "resizable,location,height="+
+     strHeight+",width="+strWidth;
+ newWin = window.open(strURL, 'newWin', strOptions);
+ newWin.focus();
+}
+
+</script>
+
+<!--  Nifty Cube for Rounded Corners -->
+
+<script type="text/javascript" src="../common/js/niftycube.js"></script>
+<script type="text/javascript">
+ window.onload=function(){
+Nifty("div#locationBar2","bottom,small");
+Nifty("div#questionCountBox","big, top");
+Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
+}
+</script>
+</head>
+
+<body>
+
+<div id="main">
+	
+	<div id="orDiv">
+		<div id='type' class="itemLabel Color1">question</div>
+		<div id="promptType">
+			<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
+		</div>
+		<div class="itemLabel Color1">response</div>
+		<div id="responseBoxDiv">
+			<textarea id="responseBox"></textarea>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<base href="http://veritas.eecs.berkeley.edu/apcsa/" />
+<link rel="stylesheet" href="./css/UCCP.css" />
+
+<title>Proof of Concept 2</title>
+</head>
+
+<body>
+
+<div class="header" id="audio1">Squash the Bugs (Representing 'Tiredness')</div>
+
+<div id="marginCol">
+
+    <div class="help top150">
+        <p>Help Guide:</p>
+        <a href="page/help.php?topic=inspecting%20an%20object" target="_blank">how to inspect an object</a>		
+    </div>
+
+	<div class="vocab top75">
+			<a href="page/glossary.php?term=compile" target="_blank">compile</a>					
+	</div>
+</div>
+
+<div id="mainCol">
+
+    <p id="audio2">To make things more entertaining, Cam  added "tiredness" to her Virtual Pet. &nbsp; Her idea was to add a
+    new instance variable, naming it <tt>tiredness</tt>, and adding Java statements to the behaviors so
+    that the value of <tt>tiredness</tt> is changed. &nbsp;Things, however, aren't working quite right.  In fact, she can't even get her code to <span class="vocab">compile</span>!</p>
+    
+    <div class="openbluejproj">
+        <p id="audio3">Open this project in BlueJ: <tt>"cam-v2"</tt> (in BlueJ, go to <b>Tools>Open Current BlueJ Project</b> to have BlueJ automatically open this project for you).
+        <br>Then fix Cam's code.</p>
+    </div>
+    
+    <p id="audio4">You'll need to make sure of a few points:</p>
+    
+    <ul>
+    <li id="audio5">Confirm that the code compiles! 
+    </li>
+    <li id="audio6">If <tt>tiredness</tt> ever goes above <tt>15</tt>, the pet should be set to the "asleep" mood. 
+    </li>
+    <li id="audio7">The <tt>sleep</tt> behavior should always reset <tt>tiredness</tt>, while <tt>exercise</tt> and <tt>feed</tt> add <tt>5</tt> and <tt>2</tt> to <tt>tiredness</tt> respectively.
+    </li>
+    <li id="audio8">If the pet is both dead (<tt>hunger</tt> over <tt>12</tt>) and asleep (<tt>tiredness</tt> over <tt>15</tt>) then the pet should die.  That is, death takes precedence over falling asleep!
+    </li>
+    </ul>
+    
+    <p id="audio9">Don't forget that <span class="vocab">inspecting an object</span> is a useful way of checking on the values of its instance variables.</p>
+
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
+<script type="text/javascript" src="../common/js/helperfunctions.js"></script>
+
+<script type="text/javascript">
+var node; //an HtmlNode
+
+
+/**
+ * Load the html authoring view from the specified filename
+ * filename points to a plain old html file.
+ */
+function loadAuthoringFromFile(filename) {
+	var callback =
+	{
+	  success: function(o) { 
+		  var xmlDocObj = new LoadXMLDocObj();
+		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
+		  //alert(o.responseXML);
+		  //alert(o.responseText);
+		  var xmlDocToParse = o.responseXML;
+		  /*
+		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
+			  // WINDOWS IE
+			  //alert(o.responseText);
+			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
+			  windowsXMLDoc.async = "false";
+			  windowsXMLDoc.loadXML(o.responseText);
+			  xmlDocToParse = windowsXMLDoc;
+			  //alert('done');
+			  //alert(xmlDocToParse);
+			  //alert('done done');
+		  }	
+		  */	  
+		  //var project = new PasOtmlProject(xmlDocObj);
+		  var project = new Project(xmlDocToParse);
+		  
+		  project.xmlDoc = xmlDocToParse;
+		  project.generateNode(xmlDocToParse);
+		  vle = new VLE();
+		  vle.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  vle.navigationLogic = new NavigationLogic(dfs);
+		  vle.setConnection(new ConnectionManager());
+		  //vle.visibilityLogic = new VisibilityLogic(new Array(new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2"))));
+         //											);
+		  //vle.visibilityLogic = new VisibilityLogic(new Array(
+			//		new OnlyShowSelectedNodes(project.rootNode, new Array("0:0", "0:0:0", "0:0:1", "0:0:2")),
+              //  	new CorrectnessBranchingVisibility(
+                //    	project.rootNode, 
+                    //	new Array("0:0:1",new Array("0:1", "0:1:0")), 
+                  //  	new Array("0:0:2",new Array("0:2", "0:2:0", "0:2:1")))
+                //	)
+			//);
+
+		  //vle.audioManager = new AudioManager(true);	  
+		  myMenu = new Menu("my_menu");
+          myMenu.init();
+			
+		  setTimeout("vle.renderNode('a2s1')", 1000);
+		  
+		  //alert('success:' + o.responseText);
+	  },
+	  failure: function(o) { alert('failure');},
+	  argument: ["a", "b", "c"]
+	}
+
+	// fetch the file
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', filename, callback, null);
+}
+
+function previewFrameOnLoad() {
+	//nothing needs to be done here right now 
+}	
+
+/*
+ * This is called by the authoring_tool.html after it has
+ * set the node.
+ */
+function loadAuthoring() {
+	if(node != null) {
+		//tell the node to render itself in the previewFrame right iframe
+		node.render(window.frames["previewFrame"]);
+
+		//set the text in the left text area to contain the html from the node
+		document.getElementById('sourceTextArea').value = node.content;
+	}
+}
+
+/*
+ * 
+ */
+function afterAuthoringLoaded() {
+	//nothing needs to be done here right now
+}
+
+/*
+ * Called to send the authored text back to the previewFrame so the
+ * previewFrame can update itself and reflect the changes the author
+ * has made.
+ */
+function sourceUpdated() {
+	//retrieve the authored text
+	var htmlString = document.getElementById('sourceTextArea').value;
+
+	//set the authored html into the HtmlNode
+	node.setContent(htmlString);
+
+	//tell the node to render itself in the previewFrame iframe
+	node.render(window.frames["previewFrame"]);
+}
+</script>
+</head>
+<body onload="loadAuthoringFromFile('testproject/project1.sequence');">
+<table border='1' bgcolor='white' style='width:100%;height:100%'>
+	<tr>
+   		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' onload='previewFrameOnLoad();'></iframe></td>
+	</tr>
+</table>
+</body>
+</html>

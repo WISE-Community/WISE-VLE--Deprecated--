@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>
+	vlewrapper</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+	
+  <servlet>
+    <servlet-name>vlegetdata</servlet-name>
+    <servlet-class>vle.VLEGetData</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlegetdata</servlet-name>
+    <url-pattern>/getdata.html</url-pattern>
+  </servlet-mapping>	
+  
+  <servlet>
+    <servlet-name>vlepostdata</servlet-name>
+    <servlet-class>vle.VLEPostData</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlepostdata</servlet-name>
+    <url-pattern>/postdata.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>vlegetannotations</servlet-name>
+    <servlet-class>vle.VLEGetAnnotations</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlegetannotations</servlet-name>
+    <url-pattern>/getannotations.html</url-pattern>
+  </servlet-mapping>	
+  
+  <servlet>
+    <servlet-name>vlepostannotations</servlet-name>
+    <servlet-class>vle.VLEPostAnnotations</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlepostannotations</servlet-name>
+    <url-pattern>/postannotations.html</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <servlet-name>echopostdata</servlet-name>
+    <servlet-class>utils.EchoPostData</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>echopostdata</servlet-name>
+    <url-pattern>/echo.html</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+  	<servlet-name>filemanager</servlet-name>
+  	<servlet-class>utils.FileManager</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>filemanager</servlet-name>
+    <url-pattern>/filemanager.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>vleview</servlet-name>
+    <servlet-class>vle.VLEView</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vleview</servlet-name>
+    <url-pattern>/view.html</url-pattern>
+  </servlet-mapping>	
+</web-app>

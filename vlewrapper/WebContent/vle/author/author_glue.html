@@ -1,0 +1,147 @@
+<!--
+ * Copyright (c) 2009 Regents of the University of California (Regents). Created
+ * by TELS, Graduate School of Education, University of California at Berkeley.
+ *
+ * This software is distributed under the GNU Lesser General Public License, v2.
+ *
+ * Permission is hereby granted, without written agreement and without license
+ * or royalty fees, to use, copy, modify, and distribute this software and its
+ * documentation for any purpose, provided that the above copyright notice and
+ * the following two paragraphs appear in all copies of this software.
+ *
+ * REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE. THE SOFTWAREAND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+ * HEREUNDER IS PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE
+ * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *
+ * IN NO EVENT SHALL REGENTS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+ * SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS,
+ * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
+ * REGENTS HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author: patrick lawler 
+ -->
+<html>
+<head>
+
+<!-- Dependency --> 
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+
+<!-- Event source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+
+<!-- Sam Skin CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
+
+<!-- Dependencies -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+
+<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
+
+<!-- Source file -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
+
+<!-- Connection manager -->
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
+
+<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
+<script type="text/javascript" src="../js/node/Node.js"></script>
+<script type="text/javascript" src="../js/node/GlueNode.js"></script>
+
+<script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
+
+<script type="text/javascript">
+var saved = true;
+
+function save(){
+	var htmlString = document.getElementById('sourceTextArea').value;
+	
+	var callback = {
+		success: function(o){
+			saved = true;
+			if(o.responseText!='success'){
+				alert('Failed save to server');
+			};
+		},
+		failure: function(o){alert('Unable to save file to server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
+};
+
+/**
+ * Load the authoring view from the specified filename
+ * filename points to a plain old file.
+ */
+function loadAuthoringFromFile(filename, projectName) {
+	var callback =
+	{
+	  success: function(o) { 
+	  var xmlDocToParse = o.responseXML;
+	
+		/*
+		 * display the xmlString to the user in the left area so they can
+		 * edit and author it. 
+		 */
+		document.getElementById('sourceTextArea').value = o.responseText;
+	
+		//retrieve the xmlString from the mcObj
+		var xmlString = "";
+		if(window.ActiveXObject) {
+			xmlString = xmlDocToParse.xml;
+		} else {
+			xmlString = (new XMLSerializer()).serializeToString(xmlDocToParse);
+		}
+
+		window.frames["previewFrame"].loadXMLString(xmlString);
+
+		},
+		failure: function(o) { alert('failure');},
+		scope: this
+	}
+
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename);
+}
+
+/*
+ * Called when 'keyup' event is received on sourceTextArea on this page.
+ * gets the text in the textarea and re-renders the previewFrame
+ */
+function sourceUpdated() {
+	saved = false;
+	//retrieve the authored text
+	var xmlString = document.getElementById('sourceTextArea').value;
+
+	window.frames["previewFrame"].loadXMLString(xmlString);
+}
+
+function getSaved(){
+	return saved;
+};
+
+function loaded(){
+	if(window.parent){
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName);
+		window.parent.childSave = save;
+		window.parent.getSaved = getSaved;
+	};
+};
+</script>
+</head>
+<body onload="loaded()">
+It is recommended that you use the easy authoring for Glue.
+<table border='1' bgcolor='white' style='width:100%;height:100%'>
+	<tr>
+   		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../js/node/brainstorm/brainstorm.html'></iframe></td>
+	</tr>
+</table>
+</body>
+</html>

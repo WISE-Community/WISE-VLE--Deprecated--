@@ -1,0 +1,209 @@
+<project>
+<nodes>
+<FillinNode identifier="a1s2fill" title="1.2  Quick Review">
+	<ref filename="a1s2fill.fi"/>
+	 <nodeaudios>
+      <nodeaudio elementId="audio1" id="a1s2_audio1" url="audio/a1s2_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a1s2_audio2" url="audio/a1s2_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a1s2_audio3" url="audio/a1s2_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a1s2_audio4" url="audio/a1s2_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a1s2_audio5" url="audio/a1s2_5.mp3" />
+    </nodeaudios>
+</FillinNode>
+<HtmlNode identifier="a2s1" title="2.1  Introduction to the VP">
+	<ref filename="a2s1.html"/>
+    <nodeaudios>
+      <nodeaudio elementId="audio1" id="a2s1_audio1" url="audio/a2s1_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a2s1_audio2" url="audio/a2s1_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a2s1_audio3" url="audio/a2s1_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a2s1_audio4" url="audio/a2s1_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a2s1_audio5" url="audio/a2s1_5.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a2s2" title="2.2 Open BlueJ Project">
+	<ref filename="a2s2.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a2s2_audio1" url="audio/a2s2_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a2s2_audio2" url="audio/a2s2_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a2s2_audio3" url="audio/a2s2_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a2s2_audio4" url="audio/a2s2_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a2s2_audio5" url="audio/a2s2_5.mp3" />
+  	  <nodeaudio elementId="audio6" id="a2s2_audio6" url="audio/a2s2_6.mp3" />
+	  <nodeaudio elementId="audio7" id="a2s2_audio7" url="audio/a2s2_7.mp3" />
+	  <nodeaudio elementId="audio8" id="a2s2_audio8" url="audio/a2s2_8.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a2s3" title="2.3  Explore the Code 1">
+	<ref filename="a2s3.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a2s3_audio1" url="audio/a2s3_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a2s3_audio2" url="audio/a2s3_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a2s3_audio3" url="audio/a2s3_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a2s3_audio4" url="audio/a2s3_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a2s3_audio5" url="audio/a2s3_5.mp3" />
+  	  <nodeaudio elementId="audio6" id="a2s3_audio6" url="audio/a2s3_6.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a2s4" title="2.4  Explore the Code 2">
+	<ref filename="a2s4.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a2s4_audio1" url="audio/a2s4_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a2s4_audio2" url="audio/a2s4_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a2s4_audio3" url="audio/a2s4_3.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a2s5" title="2.5  Explore the Code 3">
+	<ref filename="a2s5.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a2s5_audio1" url="audio/a2s5_1.mp3" />
+	  <nodeaudio elementId="audio4" id="a2s5_audio4" url="audio/a2s5_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a2s5_audio5" url="audio/a2s5_5.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a2s6" title="2.6  Explore the Code 4">
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a2s6_audio1" url="audio/a2s6_1.mp3" />
+	  <nodeaudio elementId="audio4" id="a2s6_audio4" url="audio/a2s6_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a2s6_audio5" url="audio/a2s6_5.mp3" />
+    </nodeaudios>
+	<ref filename="a2s6.html"/>
+</HtmlNode>
+<HtmlNode identifier="a3s1" title="3.1  Make A Quick Fix">
+	<ref filename="a3s1.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a3s1_audio1" url="audio/a3s1_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a3s1_audio2" url="audio/a3s1_2.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<MultipleChoiceNode identifier="a3s2" title="3.2  How Does Hunger Work?">
+	<ref filename="a3s2.mc"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a3s2_audio1" url="audio/a3s2.mp3" />
+    </nodeaudios>
+</MultipleChoiceNode>
+<FillinNode identifier="3.3c" title="3.3  Fill in the Blank">
+	<ref filename="3.3c.fi"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a3s3_audio1" url="audio/a3s3.mp3" />
+    </nodeaudios>
+</FillinNode>
+<HtmlNode identifier="a3s4" title="3.4  Making Hunger Realistic 1">
+	<ref filename="a3s4.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a3s4_audio1" url="audio/a3s4_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a3s4_audio2" url="audio/a3s4_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a3s4_audio3" url="audio/a3s4_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a3s4_audio4" url="audio/a3s4_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a3s4_audio5" url="audio/a3s4_5.mp3" />
+  	  <nodeaudio elementId="audio6" id="a3s4_audio6" url="audio/a3s4_6.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a3s5" title="3.5 Making Hunger Realistic 2">
+	<ref filename="a3s5.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a3s5_audio1" url="audio/a3s5_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a3s5_audio2" url="audio/a3s5_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a3s5_audio3" url="audio/a3s5_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a3s5_audio4" url="audio/a3s5_4.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a3s6" title="3.6  Making Hunger Realistic 3">
+	<ref filename="a3s6.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a3s6_audio1" url="audio/a3s6_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a3s6_audio2" url="audio/a3s6_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a3s6_audio3" url="audio/a3s6_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a3s6_audio4" url="audio/a3s6_4.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<BrainstormNode identifier="a4s1" title="4.1  Is there a Better Way to Die?">
+	<ref filename="a4.1.bs"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a4s1_audio1" url="audio/a4s1.mp3" />
+    </nodeaudios>
+</BrainstormNode>
+<HtmlNode identifier="a4s2" title="4.2 Squash the Bugs">
+	<ref filename="a4s2.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a4s2_audio1" url="audio/a4s2_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a4s2_audio2" url="audio/a4s2_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a4s2_audio3" url="audio/a4s2_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a4s2_audio4" url="audio/a4s2_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a4s2_audio5" url="audio/a4s2_5.mp3" />
+  	  <nodeaudio elementId="audio6" id="a4s2_audio6" url="audio/a4s2_6.mp3" />
+   	  <nodeaudio elementId="audio7" id="a4s2_audio7" url="audio/a4s2_7.mp3" />
+  	  <nodeaudio elementId="audio8" id="a4s2_audio8" url="audio/a4s2_8.mp3" />
+  	  <nodeaudio elementId="audio9" id="a4s2_audio9" url="audio/a4s2_9.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<BrainstormNode identifier="a4s3" title="4.3 Virtual Pet Brainstorm">
+	<ref filename="a4.3.bs"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a4s3_audio1" url="audio/a4s3.mp3" />
+    </nodeaudios>
+</BrainstormNode>
+<HtmlNode identifier="a5s1" title="5.1 Lesson Summary">
+	<ref filename="a5s1.html"/>
+	<nodeaudios>
+      <nodeaudio elementId="audio1" id="a5s1_audio1" url="audio/a5s1_1.mp3" />
+	  <nodeaudio elementId="audio2" id="a5s1_audio2" url="audio/a5s1_2.mp3" />
+	  <nodeaudio elementId="audio3" id="a5s1_audio3" url="audio/a5s1_3.mp3" />
+	  <nodeaudio elementId="audio4" id="a5s1_audio4" url="audio/a5s1_4.mp3" />
+	  <nodeaudio elementId="audio5" id="a5s1_audio5" url="audio/a5s1_5.mp3" />
+  	  <nodeaudio elementId="audio6" id="a5s1_audio6" url="audio/a5s1_6.mp3" />
+    </nodeaudios>
+</HtmlNode>
+<HtmlNode identifier="a1s1b" title="1.1 Objectives">
+    <nodeaudios>
+      <nodeaudio elementId="audio0" id="a1s1_audio0" url="audio/a1s1_0.mp3" />
+	  <nodeaudio elementId="audio1" id="a1s1_audio1" url="audio/a1s1_1.mp3" />
+      <nodeaudio elementId="audio2" id="a1s1_audio2" url="audio/a1s1_2.mp3" />
+      <nodeaudio elementId="audio3" id="a1s1_audio3" url="audio/a1s1_3.mp3" />
+      <nodeaudio elementId="audio4" id="a1s1_audio4" url="audio/a1s1_4.mp3" />
+    </nodeaudios>
+	<ref filename="a1s1b.html"/>
+</HtmlNode>
+</nodes>
+
+<sequences>
+<sequence identifier="startsequence">
+<sequence-ref ref="Section 1:  Introduction"/>
+<sequence-ref ref="2:  New Ideas"/>
+<sequence-ref ref="3:  Programming Challenges"/>
+<sequence-ref ref="4:  Connect Ideas"/>
+<sequence-ref ref="5:  Wrap It Up!"/>
+</sequence>
+<sequence identifier="Section 1:  Introduction">
+<node-ref ref="a1s1b"/>
+<node-ref ref="a1s2fill"/>
+</sequence>
+<sequence identifier="2:  New Ideas">
+<node-ref ref="a2s1"/>
+<node-ref ref="a2s2"/>
+<node-ref ref="a2s3"/>
+<node-ref ref="a2s4"/>
+<node-ref ref="a2s5"/>
+<node-ref ref="a2s6"/>
+</sequence>
+<sequence identifier="3:  Programming Challenges">
+<node-ref ref="a3s1"/>
+<node-ref ref="a3s2"/>
+<node-ref ref="3.3c"/>
+<node-ref ref="a3s4"/>
+<node-ref ref="a3s5"/>
+<node-ref ref="a3s6"/>
+</sequence>
+<sequence identifier="4:  Connect Ideas">
+<node-ref ref="a4s1"/>
+<node-ref ref="a4s2"/>
+<node-ref ref="a4s3"/>
+</sequence>
+<sequence identifier="5:  Wrap It Up!">
+<node-ref ref="a5s1"/>
+</sequence>
+</sequences>
+<method>
+<startpoint><sequence-ref ref="startsequence"/>
+</startpoint>
+</method>
+</project>

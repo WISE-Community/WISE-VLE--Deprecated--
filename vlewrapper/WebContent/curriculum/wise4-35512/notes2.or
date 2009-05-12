@@ -1,0 +1,32 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(102889)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1"/>
+    <itemBody>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_1" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;style type="text/css"&gt;
+/*&lt;![CDATA[*/
+&lt;!--
+.style7 {font-family: Arial, Helvetica, sans-serif; font-size: 16px; }
+.style9 {font-size: 16px}
+--&gt;
+/*]]&gt;*/
+&lt;/style&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p align="left" class="style7 style9"&gt;The picture on the right
+shows a car accident near San Diego. &lt;img
+src="http://wise.berkeley.edu/upload/23947/car_collide_fire.jpg" /&gt;&lt;/p&gt;
+&lt;p align="left" class="style7 style9"&gt;A car and a SUV crashed and
+were both on fire. &lt;strong&gt;Why did they catch on fire?&lt;/strong&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

@@ -1,0 +1,61 @@
+<project>
+	<nodes>
+		<BrainstormNode identifier='bs' title='Brainstorm'>
+			<ref filename='author/brainstormexample.bs'/>
+		</BrainstormNode>
+		<FillinNode identifier='fillin' title='This fillin'>
+			<ref filename='author/fillinexample.fi'/>
+		</FillinNode>
+		<NoteNode identifier='note' title='My Note'>
+			<ref filename='author/noteexample.or'/>
+		</NoteNode>
+		<JournalEntryNode identifier='entry' title='My Journal Entry'>
+			<ref filename='author/journalentryexample.or'/>
+		</JournalEntryNode>
+		<HtmlNode identifier="a1s1" title="Objectives">
+			<ref filename="author/a1s1.html" />
+		</HtmlNode>
+		<MultipleChoiceNode identifier="mc1" title="multiplechoice">
+			<ref filename="author/multiplechoiceexample.mc" />
+		</MultipleChoiceNode>
+		<MatchSequenceNode identifier='match' title='Match sequence'>
+			<ref filename='author/matchsequenceexample.ms'/>
+		</MatchSequenceNode>
+		<OutsideUrlNode identifier='url' title='Outside URL'>
+			<ref filename='author/outsideurlexample.ou'/>
+		</OutsideUrlNode>
+	</nodes>
+	<sequences>
+		<sequence identifier="inside1">
+			<node-ref ref='note'/>
+			<node-ref ref='match'/>
+			<sequence-ref ref='inside2'/>
+		</sequence>
+		<sequence identifier="inside2">
+			<node-ref ref='fillin'/>
+			<node-ref ref='entry'/>
+			<sequence-ref ref='inside3'/>
+			<sequence-ref ref='inside4'/>
+		</sequence>
+		<sequence identifier="project1_sequence">
+			<node-ref ref='bs'/>
+			<sequence-ref ref='inside1'/>
+			<sequence-ref ref='inside3'/>
+			<node-ref ref='url'/>
+		</sequence>
+		<sequence identifier="inside3">
+			<sequence-ref ref='inside4'/>
+	  		<node-ref ref="a1s1" />
+	 		<node-ref ref="mc1" />
+		</sequence>
+		<sequence identifier="inside4">
+	  		<node-ref ref="a1s1" />
+	 		<node-ref ref="mc1" />
+		</sequence>
+	</sequences>
+	<method>
+		<startpoint>
+			<sequence-ref ref="project1_sequence"/>
+		</startpoint>
+	</method>
+</project>
