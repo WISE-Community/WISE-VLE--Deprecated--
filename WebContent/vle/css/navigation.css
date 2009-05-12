@@ -8,7 +8,7 @@ body {
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
 	text-align: center;
-	margin: 3px;
+	margin: 3px 0px;
 	background-color:#666;
 	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
@@ -72,7 +72,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background-image:url(../assets/images/gradient_leftBox.png);
 	background-repeat:repeat-x; 
 	background-color:#6699FF;
-	width:210px; 
+	width:225px; 
 	min-height:624px;
 	height:99%;
 	border:1px solid #333;
@@ -81,7 +81,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #projectRightUpperBox {
 	position:relative;
 	height:36px;
-	margin: 0 0 3px 216px;
+	margin: 0 0 3px 231px;
 	padding:0;
 	background-image:url(../assets/images/gradient_stepInfoBar40v2.png);
 	background-repeat:repeat-x; 
@@ -98,7 +98,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background-color:#FFF;
 	border:1px solid #333;
 	padding:0px;
-	margin: 0 0 0 216px;
+	margin: 0 0 0 231px;
 	-moz-border-radius-topleft:8px;
 	-moz-border-radius-topright:8px;  
 }
@@ -462,7 +462,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 /* TOOLS MENU DROP DOWN STYLING */
 
-.dropdown {width:210px;}
+.dropdown {width:225px;}
 
 .dropdown dt { 
 	border-bottom:2px solid #999; 
@@ -484,10 +484,10 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background:url(../assets/images/robots/toolbar_bg3.png);
 	cursor:pointer;
 	}
-.dropdown dd {position:absolute; overflow:hidden; width:210px; display:none; background:#fff; z-index:200; opacity:0}
-.dropdown ul {width:208px; border:2px solid #9ac1c9; list-style:none; border-top:none}
+.dropdown dd {position:absolute; overflow:hidden; width:225px; display:none; background:#fff; z-index:200; opacity:0}
+.dropdown ul {width:225px; border:2px solid #9ac1c9; list-style:none; border-top:none}
 .dropdown li {display:inline}
-.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#CCC; text-decoration:none; background:#333; width:208px}
+.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#CCC; text-decoration:none; background:#333; width:225px}
 .dropdown a:hover {
 	background:#d9e1e4;
 	background-color:#FFFF00;

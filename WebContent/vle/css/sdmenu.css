@@ -3,11 +3,12 @@
 }
    
 div.sdmenu {
-	width: 190px;
+	width: 215px;
 	font-family: Arial, sans-serif;
 	font-size: .72em;
 	padding-bottom: 10px;
 	background: url(../assets/images/bottomBlue190.png) no-repeat  right bottom;
+	background: url(../assets/images/titleBlue.png) repeat-x;
 	color: #fff;
 }
 div.sdmenu div {
@@ -16,6 +17,7 @@ div.sdmenu div {
 }
 div.sdmenu div:first-child {
 	background: url(../assets/images/toptitleBlue190.png) no-repeat;
+	background: url(../assets/images/titleBlue.png) repeat-x;
 }
 div.sdmenu div.collapsed {
 	height: 21px;

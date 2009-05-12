@@ -101,9 +101,9 @@ function generateOptions(){
 	//create new options elements
 	var optionsDiv = createElement(document, 'div', {id:'optionsDiv'});
 	var optionsText = document.createTextNode('Available Options:');
-	var optionsTable = createElement(document, 'table', {id: 'optionsTable'});
-	var optionsRow1 = createElement(document, 'tr', {id: 'optionsRow1'});
-	var optionsRow2 = createElement(document, 'tr', {id: 'optionsRow2'});
+	var optionsTable = createElement(document, 'table', {id:'optionsTable'});
+	var optionsRow1 = createElement(document, 'tr', {id:'optionsRow1'});
+	var optionsRow2 = createElement(document, 'tr', {id:'optionsRow2'});
 	
 	if(nextChild){
 		parent.insertBefore(optionsDiv, nextChild);
@@ -119,7 +119,7 @@ function generateOptions(){
 	optionsTable.appendChild(optionsRow1);
 	optionsTable.appendChild(optionsRow2);
 	
-	var expectedLinesText = document.createTextNode('Expected lines');
+	var expectedLinesText = document.createTextNode('Size of student response box (#rows): ');
 	var expectedLinesInput = createElement(document, 'input', {type: 'text', id: 'expectedLines', onkeyup: 'updateExpectedLines()', value: getExpectedLines()});
 	
 	optionsDiv.appendChild(expectedLinesText);
@@ -136,24 +136,24 @@ function generateOptions(){
 	
 	var gatedTD = createElement(document, 'td', {id: 'gatedTD'});
 	var gatedText = document.createTextNode('Is Brainstorm gated?');
-	var gatedYesText = document.createTextNode('is gated');
-	var gatedNoText = document.createTextNode('is not gated');
+	var gatedYesText = document.createTextNode('Yes. Student must post a response before seing peer responses');
+	var gatedNoText = document.createTextNode('No. Student sees peer responses immediately');
 	var gatedYesRadio = createElement(document, 'input', {type: 'radio', name: 'isGated', onclick: 'updateGated(true)'});
 	var gatedNoRadio = createElement(document, 'input', {type: 'radio', name: 'isGated', onclick: 'updateGated(false)'});
 	
 	var displayNameTD = createElement(document, 'td', {id: 'displayNameTD'});
-	var displayNameText = document.createTextNode('When responses are submitted by students, how are they labeled?');
-	var displayNameUserOnlyText = document.createTextNode('Username only');
-	var displayNameAnonymousOnlyText = document.createTextNode('Anonymous only');
-	var displayNameUserOrAnonymousText = document.createTextNode('Username or Anonymous');
+	var displayNameText = document.createTextNode('When response is submitted by student, how is it labeled?');
+	var displayNameUserOnlyText = document.createTextNode('Username');
+	var displayNameAnonymousOnlyText = document.createTextNode('Anonymous');
+	var displayNameUserOrAnonymousText = document.createTextNode('Student selects Username or Anonymous');
 	var displayNameUserOnlyRadio = createElement(document, 'input', {type: 'radio', name: 'displayName', onclick: 'updateDisplayName(0)'});
 	var displayNameAnonymousOnlyRadio = createElement(document, 'input', {type: 'radio', name: 'displayName', onclick: 'updateDisplayName(1)'});
 	var displayNameUserOrAnonymousRadio = createElement(document, 'input', {type: 'radio', name: 'displayName', onclick: 'updateDisplayName(2)'});
 	
 	var richTextEditorTD = createElement(document, 'td', {id: 'richTextEditorTD'});
 	var richTextEditorText = document.createTextNode('Rich Text Editor');
-	var richTextEditorYesText = document.createTextNode('rich text editor allowed');
-	var richTextEditorNoText = document.createTextNode('rich text editor NOT allowed');
+	var richTextEditorYesText = document.createTextNode('Rich editor visible to student');
+	var richTextEditorNoText = document.createTextNode('Rich 	editor not visible');
 	var richTextEditorYesRadio = createElement(document, 'input', {type: 'radio', name: 'richText', onclick: 'updateRichText(true)'});
 	var richTextEditorNoRadio = createElement(document, 'input', {type: 'radio', name: 'richText', onclick: 'updateRichText(false)'});
 	

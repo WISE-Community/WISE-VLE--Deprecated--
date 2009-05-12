@@ -333,6 +333,17 @@
 	font-size:1.0em;
 }
 
+#optionsTable {
+	border-collapse:collapse;
+	background-color:#ccc;
+}
+
+#optionsTable td {
+	border:1px solid #333;
+	padding:3px;
+	vertical-align:top;
+	font-size:.9em;
+}
 
 /* STYLES FOR MATCH AND SEQUENCE EDITOR WINDOW  */
 
