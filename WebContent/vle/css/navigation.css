@@ -192,7 +192,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      background-image: url(../assets/images/audio_play_roll.png);  
 	 cursor:pointer;
      } 
-
+    
 #audioControls a.pause {  
      display: block;  
      width: 40px;  
@@ -206,7 +206,21 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      background-image: url(../assets/images/audio_pause_roll.png);  
      cursor:pointer;
      } 
+
+#audioControls a.forward {  
+     display: block;  
+     width: 40px;  
+     height: 16px; 
+     background-image: url(../assets/images/audio_forward.png);  
+     background-repeat: no-repeat;
+	 background-position:center -3px;
+     }
 	 
+#audioControls a.pause:forward { 
+     background-image: url(../assets/images/audio_forward_roll.png);  
+     cursor:pointer;
+     } 
+     
 #audioControls .rightPadding {padding:0 5px 0 10px;}
 
 #navigationArea {
