@@ -54,6 +54,7 @@
 <script type="text/javascript" src="vle/js/node/OutsideUrlNode.js"></script>
 <script type="text/javascript" src="vle/js/node/BlueJNode.js"></script>
 <script type="text/javascript" src="vle/js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="vle/js/node/multiplechoice/multiplechoicestate.js"></script>
 <script type="text/javascript" src="vle/js/node/BrainstormNode.js"></script>
 <script type="text/javascript" src="vle/js/node/GlueNode.js"></script>
 <script type="text/javascript" src="vle/js/project/Project.js"></script>
@@ -70,9 +71,6 @@
 <link rel="stylesheet" type="text/css" href="vle/css/niftyCube.css" />
 <link rel="stylesheet" type="text/css" href="vle/css/navigation.css" />
 
-<link rel="stylesheet" type="text/css" href="vle/css/navigation/testnavigation.css" />
-
-<!--   <link rel="stylesheet" type="text/css" href="vle/css/navigation/testnavigation.css" />  --><!--  no navigation styling for now -->
 <script type="text/javascript" src="vle/js/common/sdmenu.js"></script>
 <link rel="stylesheet" type="text/css" href="vle/css/sdmenu.css" />
 <link rel="stylesheet" type="text/css" href="vle/css/visibility/visibility.css" />
@@ -82,7 +80,9 @@
 <script type="text/javascript">
 var currentProjectName;
 var projectDisplayName;
-var projectDir
+var projectDir;
+var vle = null;
+
 
 function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 	render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
@@ -136,6 +136,28 @@ function popUp(strURL, strType, strHeight, strWidth) {
  newWin = window.open(strURL, 'newWin', strOptions);
  newWin.focus();
 }
+
+/**
+ * Setup and display the project
+ *
+ * @param contentURL a url to the project file, we will use a get
+ *		request to obtain the project file
+ * @param userURL a url to the user info, we will use a get request
+ *		to obtain the user info 
+ */
+function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
+	vle = new VLE();
+	vle.getDataUrl = getDataUrl;
+    vle.postDataUrl = postDataUrl;
+	vle.loadProject(contentURL, contentBaseUrl);
+	vle.loadLearnerData(userURL);
+};
+
+window.onbeforeunload = function(){
+	vle.closeVLE();
+}
+
+
 </script>
 
 </head>
@@ -260,32 +282,6 @@ function popUp(strURL, strType, strHeight, strWidth) {
 <div id="showAllWorkDiv"></div>
 
 </div>  <!-- centerDiv -->
-<script type="text/javascript">
-var vle = null;
-
-/**
- * Setup and display the project
- *
- * @param contentURL a url to the project file, we will use a get
- *		request to obtain the project file
- * @param userURL a url to the user info, we will use a get request
- *		to obtain the user info 
- */
-function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
-	vle = new VLE();
-	vle.getDataUrl = getDataUrl;
-    vle.postDataUrl = postDataUrl;
-	vle.audioManager = new AudioManager(true);  
-	vle.loadProject(contentURL, contentBaseUrl);
-	vle.loadLearnerData(userURL);
-};
-
-window.onbeforeunload = function(){
-	//alert("closing3");
-	vle.closeVLE();
-}
-
-</script>
 <div id="soundmanager-debug"></div>
 </body>
 </html>
