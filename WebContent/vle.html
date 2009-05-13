@@ -78,7 +78,6 @@
 <script type="text/javascript" src="vle/js/node/common/js/loadxmldoc.js"></script>
 
 <script type="text/javascript">
-var currentProjectName;
 var currentProjectPath;
 var vle = null;
 
@@ -88,7 +87,6 @@ function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 
 window.onload=function(){
 	if(window.opener){
-		currentProjectName = window.opener.currentProjectName;
 		currentProjectPath = window.opener.currentProjectPath;
 	};
 	
@@ -96,7 +94,7 @@ window.onload=function(){
 	Nifty("div#navigationBox","big");
 	Nifty("ul.toolsButtons a","transparent");
 	
-	if(currentProjectPath && currentProjectName){
+	if(currentProjectPath){
 		loadProjectFromServer();
 	};
 };

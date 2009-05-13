@@ -148,6 +148,7 @@ function getProjectPaths(){
 						primaryPath = primary[0].getElementsByTagName('path');
 						if(primaryPath && primaryPath[0] && primaryPath[0].firstChild){
 							primaryPath = primaryPath[0].firstChild.nodeValue;
+							projectPaths += '~' + primaryPath;
 						} else {
 							primaryPath = "";
 						};
@@ -217,11 +218,10 @@ function optionSelected(){
 };
 
 function setProjectPathAndName(path){
+	currentProjectPath = path;
 	if(path.indexOf('\\')!=-1){
-		currentProjectPath = path.substring(0, path.lastIndexOf('\\'));
 		currentProjectName = path.substring(path.lastIndexOf('\\') + 1, path.length);
 	} else {
-		currentProjectPath = path.substring(0, path.lastIndexOf('/'));
 		currentProjectName = path.substring(path.lastIndexOf('/') + 1, path.length);
 	};
 };
@@ -440,15 +440,13 @@ function createNewProject(){
 };
 
 function createNewSequence(){
-	if(currentProjectName){
+	if(currentProjectPath){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				document.getElementById('sequenceProjectName').value = currentProjectName;
 				document.getElementById('sequenceProjectPath').value = currentProjectPath;
 				createSequenceDialog.show();
 			};
 		} else {
-			document.getElementById('sequenceProjectName').value = currentProjectName;
 			document.getElementById('sequenceProjectPath').value = currentProjectPath;
 			createSequenceDialog.show();
 		};
@@ -458,15 +456,13 @@ function createNewSequence(){
 };
 
 function createNewNode(){
-	if(currentProjectName){
+	if(currentProjectPath){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				document.getElementById('nodeProjectName').value = currentProjectName;
 				document.getElementById('nodeProjectPath').value = currentProjectPath;
 				createNodeDialog.show();
 			};
 		} else {
-			document.getElementById('nodeProjectName').value = currentProjectName;
 			document.getElementById('nodeProjectPath').value = currentProjectPath;
 			createNodeDialog.show();
 		};
@@ -481,13 +477,11 @@ function editProjectFile(){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				retrieveProjectFile();
 				document.getElementById('editProjectFileProjectName').value = currentProjectPath;
-				document.getElementById('editProjectFileFileName').value = currentProjectName;
 				editProjectFileDialog.show();
 			};
 		} else {
 			retrieveProjectFile();
 			document.getElementById('editProjectFileProjectName').value = currentProjectPath;
-			document.getElementById('editProjectFileFileName').value = currentProjectName;
 			editProjectFileDialog.show();
 		};
 	} else {
@@ -530,7 +524,7 @@ function saveProject(){
 		projectSaved = true;
 	};
 	
-	if(currentProjectName){
+	if(currentProjectPath){
 		var data = project.projectXML();
 		
 		var callback = {
@@ -550,7 +544,7 @@ function saveProject(){
 			scope: this
 		};
 		
-		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=' + currentProjectName + '&param3=' + data);
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=~project~&param3=' + data);
 	} else {
 		alert('Please open or create a new project before attempting to save.');
 	};
@@ -843,7 +837,6 @@ function authoringWindowLoaded(fun) {
 		<form method='POST' action='filemanager.html'>
 			<input type='hidden' id='sequenceCreateCommand' name='command' value='createSequence'/>
 			<input type='hidden' id='sequenceProjectPath' name='param1'/>
-			<input type='hidden' id='sequenceProjectName' name='param3'/>
 			<input type='text' size='40' id='createSequenceInput' name='param2'/>
 		</form>
 	</div>
@@ -855,7 +848,6 @@ function authoringWindowLoaded(fun) {
 		<form method='POST' action='filemanager.html'>
 			<input type='hidden' id='nodeCreateCommand' name='command' value='createNode'/>
 			<input type='hidden' id='nodeProjectPath' name='param1'/>
-			<input type='hidden' id='nodeProjectName' name='param5'/>
 			<label for='createNodeName'>Please enter a UNIQUE filename for the Node.</label>
 			<input type='text' size='40' id='createNodeName' name='param2'/>
 			<label for='createNodeTitle'>Please enter a Title for the Node</label>
@@ -884,7 +876,7 @@ function authoringWindowLoaded(fun) {
 		<form method='POST' action='filemanager.html'>
 			<input type='hidden' name='command' value='updateFile'/>
 			<input type='hidden' id='editProjectFileProjectName' name='param1'/>
-			<input type='hidden' id='editProjectFileFileName' name='param2'/>
+			<input type='hidden' id='editProjectFileFileName' name='param2' value='~project~'/>
 			<textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3'/></textarea>
 		</form>
 	</div>

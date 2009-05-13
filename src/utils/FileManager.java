@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -44,8 +43,6 @@ import javax.servlet.http.HttpServletResponse;
    private final static String PARAM3 = "param3";
    
    private final static String PARAM4 = "param4";
-   
-   private final static String PARAM5 = "param5";
    
    private final static String PROJECT_PATHS = "projectPaths";
    
@@ -222,34 +219,12 @@ import javax.servlet.http.HttpServletResponse;
 	 * @param path
 	 * @return
 	 */
-	private boolean visited(List visited, String path){
+	private boolean visited(List<String> visited, String path){
 		if(visited.contains(path)){
 			return true;
 		} else {
 			return false;
 		}
-	}
-	
-	/**
-	 * Given the parent directory and the name of the child directory,
-	 * returns the project name from the associated .project.xml file
-	 * 
-	 * @param parent
-	 * @param dirName
-	 * @return
-	 */
-	private String getProjectName(File parent, String dirName){
-		String projectName = "";
-		File child = new File(parent, dirName);
-		String files[] = child.list();
-		
-		for(int z=0;z<files.length;z++){
-			if(files[z].contains(".project.xml")){
-				projectName = files[z].substring(0, files[z].length() - 12);
-			}
-		}
-		
-		return projectName;
 	}
 	
 	/**
@@ -264,9 +239,14 @@ import javax.servlet.http.HttpServletResponse;
 		String path = request.getParameter(PARAM1);
 		String filename = request.getParameter(PARAM2);
 		
-		File dir = new File(path);
+		File dir = new File(path).getParentFile();
 		if(dir.exists()){
-			File file = new File(dir, filename);
+			File file = null;
+			if(filename.equals("~project~")){
+				file = new File(path);
+			} else {
+				file = new File(dir, filename);
+			}
 			if(file.exists()){
 				String out = "";
 				String current;
@@ -280,7 +260,7 @@ import javax.servlet.http.HttpServletResponse;
 				throw new FileNotFoundException("Unable to locate file: " + filename);
 			}
 		} else {
-			throw new IOException("Unable to find project:" + project);
+			throw new IOException("Unable to find project:" + path);
 		}
 	}
 	
@@ -297,9 +277,14 @@ import javax.servlet.http.HttpServletResponse;
 		String filename = request.getParameter(PARAM2);
 		String data = this.decode(request.getParameter(PARAM3));
 		
-		File dir = new File(projectPath);
+		File dir = new File(projectPath).getParentFile();
 		if(dir.exists()){
-			File file = new File(dir, filename);
+			File file = null;
+			if(filename.equals("~project~")){
+				file = new File(projectPath);
+			} else {
+				file = new File(dir, filename);
+			}
 			if(file.exists()){
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 				String[] pieces = data.split("\n");
@@ -334,21 +319,6 @@ import javax.servlet.http.HttpServletResponse;
 	}
 	
 	/**
-	 * Encodes the given text in UTF-8 format and returns it
-	 * 
-	 * @param text
-	 * @return
-	 */
-	private String encode(String text){
-		try{
-			return URLEncoder.encode(text, "utf-8");
-		} catch(Exception e){
-			System.out.println(e.getMessage());
-			return null;
-		}
-	}
-	
-	/**
 	 * Given a request, extracts the project name, the file name
 	 * and the node type to be created and creates the node and
 	 * adds it to the associated project.
@@ -361,9 +331,8 @@ import javax.servlet.http.HttpServletResponse;
 		String filename = request.getParameter(PARAM2);
 		String title = request.getParameter(PARAM3);
 		String type = request.getParameter(PARAM4);
-		String projectName = request.getParameter(PARAM5);
 		
-		File dir = new File(projectPath);
+		File dir = new File(projectPath).getParentFile();
 		if(dir.exists()){
 			File file = new File(dir, filename + this.getExtension(type));
 			if(file.exists()){
@@ -375,7 +344,7 @@ import javax.servlet.http.HttpServletResponse;
 					fop.write(Template.getNodeTemplate(type).getBytes());
 					fop.flush();
 					fop.close();
-					File parent = new File(new File(projectPath), projectName);
+					File parent = new File(projectPath);
 					if(this.addNodeToProject(parent, Template.getProjectNodeTemplate(type, filename, title, this.getExtension(type)))){
 						return "success";
 					} else {
@@ -509,9 +478,8 @@ import javax.servlet.http.HttpServletResponse;
 	private String createSequence(HttpServletRequest request) throws IOException{
 		String projectPath = request.getParameter(PARAM1);
 		String name = request.getParameter(PARAM2);
-		String projectName = request.getParameter(PARAM3);
 				
-		File file = new File(new File(projectPath), projectName);
+		File file = new File(projectPath);
 		
 		if(file.exists()){
 			int line = 1;
@@ -541,7 +509,7 @@ import javax.servlet.http.HttpServletResponse;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy_kk.mm.ss");
 		ensureZipDir();
 		File zipParent = new File(ZIP_DIRECTORY);
-		File dir = new File(request.getParameter(PARAM1));
+		File dir = new File(request.getParameter(PARAM1)).getParentFile();
 		File zipFile = new File(zipParent, dir.getName() + "_" + sdf.format(new Date()) + ".zip");
 		
 		if(dir.exists()){

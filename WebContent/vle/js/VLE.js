@@ -641,7 +641,7 @@ VLE.prototype.loadProjectFromServer = function(author){
 	}
 	
 	this.eventManager.fire('projectLoading');
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + currentProjectName);
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=~project~');
 };
 
 /**
