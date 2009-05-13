@@ -29,19 +29,15 @@
 <script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
 <script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript" src="../js/node/Node.js"></script>
-<script type="text/javascript" src="../js/node/MultipleChoiceNode.js"></script>
 
-<script type="text/javascript" src="../js/node/multiplechoice/multiplechoicestate.js"></script>
-<script type="text/javascript" src="../js/node/multiplechoice/mc.js"></script>
 <script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
+<script type="text/javascript" src="../js/authoring/author_helper.js"></script>
+<script type="text/javascript" src="../js/authoring/author_easy_helper.js"></script>
 
 <script type="text/javascript">
 var xmlPage;
 var saved = true;
 
-function getSaved(){
-	return saved;
-};
 
 function generatePage(){
 	var parent = document.getElementById('dynamicParent');
@@ -66,41 +62,12 @@ function generatePage(){
 	parent.appendChild(pageDiv);
 };
 
-/**
- * returns a <br> element
- */
-function createBreak(){
-	return createElement(document, 'br', null);
-};
-
-function save(){
-	var htmlString;
-	
-	if(window.ActiveXObject) {
-		htmlString = xmlPage.xml;
-	} else {
-		htmlString = (new XMLSerializer()).serializeToString(xmlPage);
-	};
-	
-	var callback = {
-		success: function(o){
-			saved = true;
-			if(o.responseText!='success'){
-				alert('Failed save to server');
-			};
-		},
-		failure: function(o){alert('Unable to save file to server');},
-		scope:this
-	};
-	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectName + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString) + '&projectDir=' + parent.projectDir);
-};
 
 /**
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename, projectName, projectDir) {
+function loadAuthoringFromFile(filename, projectName, projectPath) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -143,7 +110,7 @@ function loadAuthoringFromFile(filename, projectName, projectDir) {
 		  scope: this
 	}
 
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectName + '&param2=' + filename + '&projectDir=' + projectDir);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + '&param2=' + filename);
 }
 
 /*
@@ -162,14 +129,6 @@ function sourceUpdated() {
 
 	window.frames["previewFrame"].loadUrl(xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue);
 }
-
-function loaded(){
-	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectDir);
-		window.parent.childSave = save;
-		window.parent.getSaved = getSaved;
-	};
-};
 </script>
 </head>
 <body onload="loaded()">

@@ -79,10 +79,8 @@
 
 <script type="text/javascript">
 var currentProjectName;
-var projectDisplayName;
-var projectDir;
+var currentProjectPath;
 var vle = null;
-
 
 function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 	render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
@@ -91,15 +89,14 @@ function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 window.onload=function(){
 	if(window.opener){
 		currentProjectName = window.opener.currentProjectName;
-		projectDisplayName = window.opener.projectDisplayName;
-		projectDir = window.opener.projectDir;
+		currentProjectPath = window.opener.currentProjectPath;
 	};
 	
 	Nifty("div#none","bottom");
 	Nifty("div#navigationBox","big");
 	Nifty("ul.toolsButtons a","transparent");
 	
-	if(currentProjectName){
+	if(currentProjectPath && currentProjectName){
 		loadProjectFromServer();
 	};
 };
@@ -108,9 +105,9 @@ function projectSummary(){
 	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
 };
 
-function loadProjectFromServer(projectName){
+function loadProjectFromServer(){
 	vle = new VLE();
-	vle.loadProjectFromServer(projectName);
+	vle.loadProjectFromServer();
 };
 </script>
 

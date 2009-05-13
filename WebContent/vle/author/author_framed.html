@@ -13,8 +13,7 @@ var easyMode;
 var rootPageName;
 var childSave;
 var projectName;
-var projectDisplayName;
-var projectDir;
+var projectPath;
 var getSaved;
 var project;
 
@@ -65,13 +64,12 @@ function modeChanged(val){
  * function given to parent window so that we can set certain
  * critical variables here
  */
-function setVars(fn, m, pn, prn, dpn, pd, pr){
+function setVars(fn, m, pn, prn, pp, pr){
 	filename = fn;
 	easyMode = m;
 	rootPageName = pn;
 	projectName = prn;
-	displayProjectName = dpn;
-	projectDir = pd;
+	projectPath = pp;
 	project = pr;
 	
 	if(easyMode){

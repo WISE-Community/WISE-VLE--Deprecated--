@@ -603,7 +603,7 @@ VLE.prototype.loadLearnerData = function(userURL){
 /**
  * Given a projectName, loads the specified project from the server
  */
-VLE.prototype.loadProjectFromServer = function(projectName){
+VLE.prototype.loadProjectFromServer = function(author){
 	
 	var callback =
 		{
@@ -629,13 +629,19 @@ VLE.prototype.loadProjectFromServer = function(projectName){
 		  this.setProject(project);
 		  this.setConnection(new ConnectionManager());
 		  this.audioManager = new AudioManager(true);
+		  
+		  if(!author){
+			  var startId = this.project.getStartNodeId();
+			    
+			  setTimeout("vle.renderNode('" + startId + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
+		  };
 	  },			
 	  failure: function(o) { alert('unable to retrieve project from server');},
 	  scope:this
 	}
 	
 	this.eventManager.fire('projectLoading');
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + currentProjectName);
 };
 
 /**

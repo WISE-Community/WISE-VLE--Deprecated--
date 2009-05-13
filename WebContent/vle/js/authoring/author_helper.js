@@ -4,7 +4,7 @@ function getSaved(){
 
 function loaded(){
 	if(window.parent){
-		loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectDir);
+		loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath);
 		window.parent.childSave = save;
 		window.parent.getSaved = getSaved;
 	};

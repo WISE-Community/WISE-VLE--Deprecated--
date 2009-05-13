@@ -85,7 +85,7 @@ var project;
 var easyMode = true; //the mode that gets passed to the individual authoring pages
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
 var currentProjectName;
-var projectDisplayName;
+var currentProjectPath;
 var projectSaved = true;
 
 var openProjectDialog;
@@ -94,18 +94,19 @@ var createSequenceDialog;
 var createNodeDialog;
 var editProjectFileDialog;
 
-var projectDir;
+var projectPaths; //a | delimited string of the project paths specified in settings.xml
+var primaryPath = ""; //the default path to create new projects
 var nodeIdToAuthor = null;
 
 function loaded(){
-	getProjectDir();
+	getProjectPaths();
 	initializeCreateProjectDialog();
 	initializeCreateSequenceDialog();
 	initializeCreateNodeDialog();
 	initializeEditProjectFileDialog();
 };
 
-function getProjectDir(){
+function getProjectPaths(){
 	var settings;
 	var callback = {
 		success: function(o){
@@ -129,16 +130,30 @@ function getProjectDir(){
 			};
 			
 			if(settings){
-				var path = settings.getElementsByTagName('projectsPath');
+				var path = settings.getElementsByTagName('projectPaths');
+				projectPaths = "";
 				if(path && path[0] && path[0].firstChild){
-					projectDir = path[0].firstChild.nodeValue;
-				} else {
-					projectDir = "";
-				};
-				
-				var els = document.getElementsByName('projectDir');
-				for(var g=0;g<els.length;g++){
-						els[g].value = projectDir;
+					var paths = path[0].getElementsByTagName('path');
+					for(var u=0;u<paths.length;u++){
+						if(paths[u] && paths[u].firstChild){
+							projectPaths += paths[u].firstChild.nodeValue;
+							if(u!=paths.length-1){
+								projectPaths += '~';
+							};
+						};
+					};
+					
+					var primary = settings.getElementsByTagName('primaryPath');
+					if(primary && primary[0] && primary[0].firstChild){
+						primaryPath = primary[0].getElementsByTagName('path');
+						if(primaryPath && primaryPath[0] && primaryPath[0].firstChild){
+							primaryPath = primaryPath[0].firstChild.nodeValue;
+						} else {
+							primaryPath = "";
+						};
+					} else {
+						primaryPath = "";
+					};
 				};
 				
 				initializeOpenProjectDialog();
@@ -188,21 +203,33 @@ function initializeOpenProjectDialog(){
 		scope:this
 	};
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectDir=" + projectDir);
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectPaths=" + projectPaths);
 };
 
 function optionSelected(){
-	var name = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+	var path = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+	setProjectPathAndName(path);
 
-	if(name!=null && name!=""){
-		loadProjectFromServer(name);
+	if(path!=null && path!=""){
+		loadProjectFromServer();
 		openProjectDialog.hide();
 	};
 };
 
+function setProjectPathAndName(path){
+	if(path.indexOf('\\')!=-1){
+		currentProjectPath = path.substring(0, path.lastIndexOf('\\'));
+		currentProjectName = path.substring(path.lastIndexOf('\\') + 1, path.length);
+	} else {
+		currentProjectPath = path.substring(0, path.lastIndexOf('/'));
+		currentProjectName = path.substring(path.lastIndexOf('/') + 1, path.length);
+	};
+};
+
 function initializeCreateProjectDialog(){
-	var doSuccess = function(dirNum){
-		loadProjectFromServer(dirNum + ': ' + document.getElementById('projectInput').value);
+	var doSuccess = function(path){
+		setProjectPathAndName(path);
+		loadProjectFromServer();
 		document.getElementById('projectInput').value = "";
 	};
 
@@ -216,17 +243,8 @@ function initializeCreateProjectDialog(){
 	
 	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createProjectDialog.callback = {
-		success:function(o){//0 = failed to create, >0 = success
-			var response = o.responseText;
-			if(response==0){
-				alert('Server was unable to create the specified project folder or file. Please try again.');
-				return;
-			} else if(response>0){
-				doSuccess(response);
-			} else {
-				alert('Unable to understand response from server, the project may or may not have been created. Try opening the project before trying to create it again.');
-				return;
-			};
+		success:function(o){
+			doSuccess(o.responseText);
 		},
 		failure:function(o){alert('unable to create new project on server');},
 		scope:this
@@ -248,7 +266,7 @@ function initializeCreateProjectDialog(){
 function initializeCreateSequenceDialog(){
 	var doSuccess = function(){
 		document.getElementById('createSequenceInput').value = "";
-		loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
+		loadProjectFromServer();
 		createSequenceDialog.hide();
 	};
 	
@@ -303,7 +321,7 @@ function initializeCreateNodeDialog(){
 		document.getElementById('createNodeType').selectedIndex = 0;
 		document.getElementById('createNodeName').value = "";
 		document.getElementById('createNodeTitle').value = "";
-		loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
+		loadProjectFromServer();
 		createNodeDialog.hide();
 	};
 	
@@ -380,7 +398,7 @@ function initializeEditProjectFileDialog(){
 	};
 	
 	var doSuccess = function(){
-		loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
+		loadProjectFromServer();
 		editProjectFileDialog.hide();
 	};
 	
@@ -411,6 +429,7 @@ function openProject(){
 };
 
 function createNewProject(){
+	document.getElementById('createNewProjectPath').value = primaryPath;
 	if(!projectSaved){
 		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 			createProjectDialog.show();
@@ -425,10 +444,12 @@ function createNewSequence(){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				document.getElementById('sequenceProjectName').value = currentProjectName;
+				document.getElementById('sequenceProjectPath').value = currentProjectPath;
 				createSequenceDialog.show();
 			};
 		} else {
 			document.getElementById('sequenceProjectName').value = currentProjectName;
+			document.getElementById('sequenceProjectPath').value = currentProjectPath;
 			createSequenceDialog.show();
 		};
 	} else {
@@ -441,10 +462,12 @@ function createNewNode(){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				document.getElementById('nodeProjectName').value = currentProjectName;
+				document.getElementById('nodeProjectPath').value = currentProjectPath;
 				createNodeDialog.show();
 			};
 		} else {
 			document.getElementById('nodeProjectName').value = currentProjectName;
+			document.getElementById('nodeProjectPath').value = currentProjectPath;
 			createNodeDialog.show();
 		};
 	} else {
@@ -457,14 +480,14 @@ function editProjectFile(){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				retrieveProjectFile();
-				document.getElementById('editProjectFileProjectName').value = currentProjectName;
-				document.getElementById('editProjectFileFileName').value = projectDisplayName + '.project.xml';
+				document.getElementById('editProjectFileProjectName').value = currentProjectPath;
+				document.getElementById('editProjectFileFileName').value = currentProjectName;
 				editProjectFileDialog.show();
 			};
 		} else {
 			retrieveProjectFile();
-			document.getElementById('editProjectFileProjectName').value = currentProjectName;
-			document.getElementById('editProjectFileFileName').value = projectDisplayName + '.project.xml';
+			document.getElementById('editProjectFileProjectName').value = currentProjectPath;
+			document.getElementById('editProjectFileFileName').value = currentProjectName;
 			editProjectFileDialog.show();
 		};
 	} else {
@@ -482,7 +505,7 @@ function retrieveProjectFile(){
 	  scope:this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + currentProjectName);
 	
 };
 
@@ -490,11 +513,11 @@ function exportProject(){
 	if(currentProjectName){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				document.getElementById('exportProjectName').value = currentProjectName;
+				document.getElementById('exportProjectName').value = currentProjectPath;
 				document.getElementById('exportProject').submit();
 			};
 		} else {
-			document.getElementById('exportProjectName').value = currentProjectName;
+			document.getElementById('exportProjectName').value = currentProjectPath;
 			document.getElementById('exportProject').submit();
 		};
 	} else {
@@ -517,7 +540,6 @@ function saveProject(){
 					alert(data);
 				} else {
 					setProjectSaved();
-					loadProjectFromServer(currentProjectName + ': ' + projectDisplayName);
 					alert('project saved');
 				};
 			},
@@ -528,7 +550,7 @@ function saveProject(){
 			scope: this
 		};
 		
-		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&param3=' + data + '&projectDir=' + projectDir);
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=' + currentProjectName + '&param3=' + data);
 	} else {
 		alert('Please open or create a new project before attempting to save.');
 	};
@@ -649,14 +671,11 @@ function populateReferences(sequenceId, insideUL){
 	};
 };
 
-function loadProjectFromServer(projectName){
-	currentProjectName = projectName.substring(0, projectName.indexOf(':'));
-	projectDisplayName = projectName.substring(projectName.indexOf(':') + 2, projectName.length);
-
+function loadProjectFromServer(){	
 	vle = new VLE();
 	vle.eventManager.subscribe('projectLoadingComplete', function(){populateSequences(); populateNodes(); generateDD(); project = vle.project});
-	vle.loadProjectFromServer(projectName);
-	document.getElementById('currentProject').innerHTML = 'Current Title = ' + projectDisplayName;
+	vle.loadProjectFromServer(true);
+	document.getElementById('currentProject').innerHTML = 'Current Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
 };
 
 /*
@@ -716,7 +735,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, projectDisplayName, projectDir, project);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project);
 	} 
 }
 </script>
@@ -798,8 +817,8 @@ function authoringWindowLoaded(fun) {
 	<div class='hd'>Please enter a project name</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
-			<input type='hidden' name='projectDir'/>
 			<input type='hidden' id='commandInput' name='command' value='createProject'/>
+			<input type='hidden' id='createNewProjectPath' name='param2'/>
 			<input type='text' id='projectInput' name='param1'/>
 		</form>
 	</div>
@@ -810,7 +829,6 @@ function authoringWindowLoaded(fun) {
 	<div class='bd'>
 		<br/>
 		<form method='POST' action='filemanager.html'>
-			<input type='hidden' name='projectDir'/>
 			<select id='selectProject' onchange='optionSelected()'>
 				<option name='placeholderOption' value=''/>
 			</select>
@@ -823,9 +841,9 @@ function authoringWindowLoaded(fun) {
 	<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
-			<input type='hidden' name='projectDir'/>
 			<input type='hidden' id='sequenceCreateCommand' name='command' value='createSequence'/>
-			<input type='hidden' id='sequenceProjectName' name='param1'/>
+			<input type='hidden' id='sequenceProjectPath' name='param1'/>
+			<input type='hidden' id='sequenceProjectName' name='param3'/>
 			<input type='text' size='40' id='createSequenceInput' name='param2'/>
 		</form>
 	</div>
@@ -835,9 +853,9 @@ function authoringWindowLoaded(fun) {
 	<div class='hd'>Create New Node</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
-			<input type='hidden' name='projectDir'/>
 			<input type='hidden' id='nodeCreateCommand' name='command' value='createNode'/>
-			<input type='hidden' id='nodeProjectName' name='param1'/>
+			<input type='hidden' id='nodeProjectPath' name='param1'/>
+			<input type='hidden' id='nodeProjectName' name='param5'/>
 			<label for='createNodeName'>Please enter a UNIQUE filename for the Node.</label>
 			<input type='text' size='40' id='createNodeName' name='param2'/>
 			<label for='createNodeTitle'>Please enter a Title for the Node</label>
@@ -864,7 +882,6 @@ function authoringWindowLoaded(fun) {
 	<div class='hd'>Edit Project File</div>
 	<div class='bd'>
 		<form method='POST' action='filemanager.html'>
-			<input type='hidden' name='projectDir'/>
 			<input type='hidden' name='command' value='updateFile'/>
 			<input type='hidden' id='editProjectFileProjectName' name='param1'/>
 			<input type='hidden' id='editProjectFileFileName' name='param2'/>
@@ -874,7 +891,6 @@ function authoringWindowLoaded(fun) {
 </div>
 
 <form id='exportProject' method='POST' action='filemanager.html'>
-	<input type='hidden' name='projectDir'/>
 	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
 	<input type='hidden' id='exportProjectName' name='param1'/>
 </form>

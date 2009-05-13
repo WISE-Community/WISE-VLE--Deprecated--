@@ -29,7 +29,7 @@ MatchSequenceNode.prototype.load = function() {
 		xmlCustomCheck = null;
 	};
 	
-	window.frames["ifrm"].loadXMLString(this.getXMLString(), xmlCustomCheck);
+	window.frames["ifrm"].loadFromXMLString(this.getXMLString(), xmlCustomCheck);
 	document.getElementById('topStepTitle').innerHTML = this.title;
 }
 
