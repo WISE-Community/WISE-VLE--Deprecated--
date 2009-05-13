@@ -8,6 +8,9 @@
 <!-- Event source file -->
 <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
 
+<!-- AUTHOR CSS -->
+<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+
 <!-- Sam Skin CSS -->
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
 
@@ -48,8 +51,8 @@ function generatePage(){
 	
 	//create new
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage'});
-	var promptText = document.createTextNode("Enter/Edit prompt text: ");
-	var linesText = document.createTextNode("Enter expected number of lines for response: ");
+	var promptText = document.createTextNode("Question for Student:");
+	var linesText = document.createTextNode("Size of Student Response Box (# rows):");
 	
 	pageDiv.appendChild(linesText);
 	pageDiv.appendChild(createBreak());
@@ -69,7 +72,7 @@ function generateLines(){
 };
 
 function generatePrompt(){
-	var prompt = createElement(document, 'textarea', {id: 'promptInput', name: 'promptInput', cols: '50', rows: '6', wrap: 'hard', onkeyup: "sourceUpdated()"});
+	var prompt = createElement(document, 'textarea', {id: 'promptInput', name: 'promptInput', cols: '85', rows: '35', wrap: 'hard', onkeyup: "sourceUpdated()"});
 	if(xmlPage.getElementsByTagName('prompt')[0].firstChild){
 		prompt.value = xmlPage.getElementsByTagName('prompt')[0].firstChild.nodeValue;
 	} else {

@@ -34,12 +34,16 @@
 			 	parentPage.generateTable();
 			};
 		</script>
+		
+<!-- AUTHOR CSS -->
+<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+
 	</head>
 	<body onload='loaded()'>
 		<div>
-			Enter/Edit Feedback:<br>
-			<input id='feedbackInput' type='text' size='45' onchange='updateFeedback()'/><br>
-			<input type='button' value='Done' onclick='self.close()'/>
+			Enter/Edit Feedback: <br>
+			<textarea id='feedbackInput' type='text' cols='85' rows='10'onchange='updateFeedback()'></textarea><br>
+			<input id="doneButton" type='button' value='Done' onclick='self.close()'/>
 		</div>
 	</body>
 </html>

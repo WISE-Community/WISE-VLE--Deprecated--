@@ -1,8 +1,33 @@
 #promptdiv {
-	font-size:1.2em;
+	font-size:.9em;
 	color:#000;
-	margin:3px 10px 8px 15px;
+	margin:3px 10px 15px 15px;
+	line-height:150%;
+}
+
+#promptdiv p {
+	font-size:1em;
 	font-weight:bold;
+}
+
+#promptdiv a:link, #promptdiv a:visited {
+	color:#000;
+}
+
+#promptdiv a:hover {
+	background-color:#FFFF00;
+}
+
+#promptdiv tt {
+	font-size:150%;
+	font-weight:700;
+}
+
+#promptdiv ol {
+	font-size:1em;
+	text-transform:uppercase;
+	margin-left:15px;
+	font-weight:normal;
 }
 
 .instructionsReminder {
