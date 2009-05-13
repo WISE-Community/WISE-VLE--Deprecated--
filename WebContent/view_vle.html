@@ -298,8 +298,6 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 	var contentCallback =
 	{
 	  success: function(o) { 
-		  var xmlDocObj = new LoadXMLDocObj();
-		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
 		  //alert(o.responseXML);
 		  var xmlDocToParse = o.responseXML;
 		  /*

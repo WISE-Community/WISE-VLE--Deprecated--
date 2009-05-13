@@ -44,6 +44,8 @@ var vle = null;
 <script type="text/javascript" src="js/navigation/NavigationPanel.js"></script>
 <script type="text/javascript" src="js/common/loadxmldoc.js"></script>
 <script type="text/javascript" src="js/node/Node.js"></script>
+<script type="text/javascript" src="js/node/OpenResponseNode.js"></script>
+<script type="text/javascript" src="js/node/openresponse/openresponsestate.js"></script>
 <script type="text/javascript" src="js/node/HtmlNode.js"></script>
 <script type="text/javascript" src="js/node/CustomNode.js"></script>
 <script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
@@ -58,10 +60,12 @@ var vle = null;
 <script type="text/javascript" src="js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
 <script type="text/javascript" src="js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
 <script type="text/javascript" src="js/node/MultipleChoiceCheckBoxNode.js"></script>
+<script type="text/javascript" src="js/node/BrainstormNode.js"></script>
+<script type="text/javascript" src="js/node/GlueNode.js"></script>
 <script type="text/javascript" src="js/node/TickerNode.js"></script>
 <script type="text/javascript" src="js/project/Project.js"></script>
-<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
 <script type="text/javascript" src="js/io/ConnectionManager.js"></script>
+<script type="text/javascript" src="js/events/events.js"></script>
 
 <!-- Ticker Query Files -->
 <script type="text/javascript" src="js/node/ticker/ticker.js"></script>
@@ -87,17 +91,15 @@ var vle = null;
 
 
 
-function load(contentUrl, userInfoUrl, getDataUrl, workgroupId) {
+function load(contentUrl, contentBaseUrl, userInfoUrl, getDataUrl, workgroupId) {
 	//contentUrl = "http://localhost:8080/vlewrapper/vle/tim2.otml";
 	//document.getElementById("progressDiv").innerHTML = "contentUrl: " + contentUrl + "<br>userInfoUrl: " + userInfoUrl + "<br>getDataUrl: " + getDataUrl + "<br>workgroupId: " + workgroupId;
-
 	vle = new VLE();
+	vle.getDataUrl = getDataUrl;
+	
 	var contentCallback =
 	{
 	  success: function(o) { 
-		  var xmlDocObj = new LoadXMLDocObj();
-		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
-		  //alert(o.responseXML);
 		  var xmlDocToParse = o.responseXML;
 		  /*
 		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
@@ -112,7 +114,7 @@ function load(contentUrl, userInfoUrl, getDataUrl, workgroupId) {
 			  //alert('done done');
 		  }	
 		  */	  
-		  var project = new PasOtmlProject(xmlDocObj);
+		  var project = new Project(xmlDocToParse, contentBaseUrl);
 		  //var project = new Project(xmlDocToParse);
 		  
 		  project.xmlDoc = xmlDocToParse;
@@ -121,8 +123,6 @@ function load(contentUrl, userInfoUrl, getDataUrl, workgroupId) {
 		  vle.setProject(project);
 		  var dfs = new DFS(project.rootNode);
 		  vle.navigationLogic = new NavigationLogic(dfs);
-		  vle.setConnection(new ConnectionManager());
-		  vle.getDataUrl = getDataUrl;
 		  vle.loadVLEState(vle);
 		  //myMenu = new Menu("my_menu");
           //myMenu.init();

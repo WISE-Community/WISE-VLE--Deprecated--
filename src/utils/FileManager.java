@@ -221,10 +221,10 @@ import javax.servlet.http.HttpServletResponse;
 				br.close();
 				return out;
 			} else {
-				throw new FileNotFoundException("Unable to locate file");
+				throw new FileNotFoundException("Unable to locate file: " + filename);
 			}
 		} else {
-			throw new IOException("Unable to find the project");
+			throw new IOException("Unable to find project:" + project);
 		}
 	}
 	

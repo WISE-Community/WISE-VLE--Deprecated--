@@ -141,7 +141,11 @@ MultipleChoiceNode.prototype.getLatestWork = function(vle) {
  */
 MultipleChoiceNode.prototype.getPrompt = function() {
 	//create the MC object so we can retrieve the prompt from it
-	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	//alert('mcnode.js, nodeId:' + this.id);
+	//alert(this.getXMLString());
+	var xmlDoc=loadXMLString(this.getXMLString());
+	//alert(xmlDoc);
+	this.mc = new MC(xmlDoc);
 	
 	//return the prompt as a string
 	return this.mc.promptText;
@@ -176,7 +180,7 @@ MultipleChoiceNode.prototype.makeQueryContainer = function(vle) {
  */
 MultipleChoiceNode.prototype.translateStudentWork = function(identifier) {
 	//create an MC object so we can look up the value corresponding to an identifier
-	this.mc = new MC(loadXMLString(this.element.getElementsByTagName("jaxbXML")[0].firstChild.nodeValue));
+	this.mc = new MC(loadXMLString(this.getXMLString()));
 	
 	//return the value as a string
 	return this.mc.getCHOICEByIdentifier(identifier).text;

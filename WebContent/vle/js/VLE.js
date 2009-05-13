@@ -523,7 +523,7 @@ VLE.prototype.loadVLEState = function(vle) {
 	var getURL = this.getDataUrl;
 		
 	
-	if (vle.myUserInfo.workgroupId) {
+	if (vle.myUserInfo && vle.myUserInfo.workgroupId) {
 		getURL += "?userId=" + vle.myUserInfo.workgroupId;
 	}
 
@@ -1088,7 +1088,7 @@ VLE.prototype.getSimpleCSV = function() {
 					 * node.translateIdentifiersToValues()
 					 * coordinate with each other
 					 */
-					studentDataCSV += "\"" + node.translateIdentifiersToValues(latestState.getStudentWork()) + "\"";	
+					studentDataCSV += "\"" + node.translateStudentWork(latestState.getStudentWork()) + "\"";	
 				} else {
 					studentDataCSV += "\"" + latestState.getStudentWork() + "\"";
 				}
