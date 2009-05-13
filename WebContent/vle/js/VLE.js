@@ -1,9 +1,5 @@
 function VLE() {
 	this.eventManager = new EventManager();
-    this.eventManager.addEvent(this, 'projectLoading');
-    this.eventManager.addEvent(this, 'projectLoadingComplete');
-    this.eventManager.addEvent(this, 'learnerDataLoading');
-    this.eventManager.addEvent(this, 'learnerDataLoadingComplete');
 	this.state = new VLE_STATE();
 	this.project = null;
 	this.navigationLogic = null;
@@ -18,7 +14,17 @@ function VLE() {
 	this.myClassInfo = null;
 	this.getDataUrl = null;
     this.postDataUrl = null;
+    this.startEventsAndListeners();
 }
+
+VLE.prototype.startEventsAndListeners = function(){
+    this.eventManager.addEvent(this, 'projectLoading');
+    this.eventManager.addEvent(this, 'projectLoadingComplete');
+    this.eventManager.addEvent(this, 'learnerDataLoading');
+    this.eventManager.addEvent(this, 'learnerDataLoadingComplete');
+    
+    this.eventManager.inititializeLoading([['projectLoading', 'projectLoadingComplete', 'project'], ['learnerDataLoading', 'learnerDataLoadingComplete', 'learner data']]);
+};
 
 /**
  * Sets the Project to render
@@ -515,6 +521,7 @@ VLE.prototype.getClassUsers = function() {
  */
 VLE.prototype.loadVLEState = function(vle) {
 	var getURL = this.getDataUrl;
+		
 	
 	if (vle.myUserInfo.workgroupId) {
 		getURL += "?userId=" + vle.myUserInfo.workgroupId;
@@ -531,12 +538,105 @@ VLE.prototype.loadVLEState = function(vle) {
 			} else {
 				alert('no previous vle state');
 			}
+			vle.eventManager.fire('learnerDataLoadingComplete');
 		},
 		failure: function(o) {
+			vle.eventManager.fire('learnerDataLoadingComplete');
 		}
 	};
 	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
 }
+
+/**
+ * Given the content URL, loads a project in the VLE
+ */
+VLE.prototype.loadProject = function(contentURL, contentBaseUrl){
+	var contentCallback =
+	{
+	  success: function(o) {
+		  var xmlDocToParse = o.responseXML;
+	  
+		  var project = new Project(xmlDocToParse, contentBaseUrl);
+		  project.xmlDoc = xmlDocToParse;
+		  project.generateNode(xmlDocToParse);
+		  
+		  this.setProject(project);
+		  var dfs = new DFS(project.rootNode);
+		  this.navigationLogic = new NavigationLogic(dfs);
+
+		  this.setConnection(new ConnectionManager(this));
+
+		    var startId = this.project.getStartNodeId();
+		    
+			setTimeout("vle.renderNode('" + startId + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
+	  },
+	  failure: function(o) { alert('failure, could not get content');},
+	  scope: this
+	};
+	
+	this.eventManager.fire('projectLoading');
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentURL, contentCallback, null);
+};
+
+/**
+ * Given a user URL, loads learner data for this vle and project
+ */
+VLE.prototype.loadLearnerData = function(userURL){
+	var userCallback = {
+				success: function(o) {
+					this.loadUserAndClassInfo(o.responseXML);
+					//load the student data
+					this.loadVLEState(this);
+			  	},
+				failure: function(o) {
+					alert('Error: Unable to load user info');
+				},
+				scope: this
+	};
+	
+	if (userURL && userURL != null) {
+		this.eventManager.fire('learnerDataLoading');
+		YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
+	};
+};
+
+/**
+ * Given a projectName, loads the specified project from the server
+ */
+VLE.prototype.loadProjectFromServer = function(projectName){
+	
+	var callback =
+		{
+		success: function(o) {
+		  var xmlDocToParse = o.responseXML;
+		  
+		  /***						***|
+		   * Extra work needed for IE *|
+		   ***						***/
+		  if(window.ActiveXObject){
+		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+		  	ieXML.async = "false";
+		  	ieXML.loadXML(o.responseText);
+		  	xmlDocToParse = ieXML;
+		  };
+		  /***						***|
+		   * End extra work for IE	  *|
+		   ***						***/
+		  
+		  project = new Project(xmlDocToParse);
+		  project.xmlDoc = xmlDocToParse;
+		  
+		  this.setProject(project);
+		  this.setConnection(new ConnectionManager());
+		  this.audioManager = new AudioManager(true);
+	  },			
+	  failure: function(o) { alert('unable to retrieve project from server');},
+	  scope:this
+	}
+	
+	this.eventManager.fire('projectLoading');
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
+};
 
 /**
  * This should be called when the browser window that contains the vle

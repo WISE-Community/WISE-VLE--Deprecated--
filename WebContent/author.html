@@ -95,15 +95,7 @@ var createNodeDialog;
 var editProjectFileDialog;
 
 var projectDir;
-
-//a string that temporarily contains the node id we want to author
 var nodeIdToAuthor = null;
-
-// a string that temporarily contains the filename that we want to author
-var filenameToAuthor = null;
-
-// filename of this project (not page/step), should end with .project.xml
-var thisFilename = null;
 
 function loaded(){
 	getProjectDir();
@@ -168,43 +160,6 @@ function preview() {
 		alert('Please open or create a new project to preview. Exiting...');
 	};
 };
-
-/*
- * This is called onload of the 'authoringFrame' iframe
- */
-function authoringFrameOnLoad() {
-	/*
-	 * if project is null, it means this is the first time this page has been
-	 * loaded and also the first time the authoringFrame iframe has been
-	 * loaded so the project has not been loaded yet. This is ok, we only
-	 * need this function to set the node after the user has clicked on a
-	 * step.
-	 */
-	if(project != null) {
-		//pass the node that we're going to author to the authoringFrame
-		window.frames["authoringFrame"].node = project.rootNode.getNodeById(nodeIdToAuthor);
-
-		/*
-		 * call load on the html page that is in the authoringFrame
-		 * so that the page in the authoringFrame can do what it needs to
-		 * do with the node we just gave it above
-		 */
-		window.frames["authoringFrame"].loadAuthoring();
-	}
-}
-
-/*
- * Remembers the nodeId we currently want to author in a global variable so we
- * can call project.rootNode.getNodeById(nodeIdToAuthor) later to retrieve
- * the node. nodeId is a string.
- */
-function setNodeToAuthor(nodeId) {
-	/*
-	 * sets the node to be authored so later in authoringFrameLoaded()
-	 * we know which node to pass to the authoringFrame
-	 */
-	nodeIdToAuthor = nodeId;
-}
 
 function initializeOpenProjectDialog(){
 	var addOption = function(name){
@@ -579,44 +534,6 @@ function saveProject(){
 	};
 };
 
-function loadProjectFromServer(projectName){
-	currentProjectName = projectName.substring(0, projectName.indexOf(':'));
-	projectDisplayName = projectName.substring(projectName.indexOf(':') + 2, projectName.length);
-	var callback =
-	{
-		success: function(o) {
-		  var xmlDocToParse = o.responseXML;
-		  
-		  /***						***|
-		   * Extra work needed for IE *|
-		   ***						***/
-		  if(window.ActiveXObject){
-		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
-		  	ieXML.async = "false";
-		  	ieXML.loadXML(o.responseText);
-		  	xmlDocToParse = ieXML;
-		  };
-		  /***						***|
-		   * End extra work for IE	  *|
-		   ***						***/
-		   
-		  project = new Project(xmlDocToParse);
-		  project.xmlDoc = xmlDocToParse;
-		  vle = new VLE();
-		  vle.setProject(project);
-		  var dfs = new DFS(project.rootNode);
-		  vle.navigationLogic = new NavigationLogic(dfs);
-		  vle.setConnection(new ConnectionManager());
-          displayProject(project);
-          document.getElementById('currentProject').innerHTML = '<h3>Current Project: ' + projectDisplayName + '</h3>';
-	  },			
-	  failure: function(o) { alert('unable to retrieve project from server');},
-	  scope:this
-	}
-	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectName + '&param2=' + projectDisplayName + '.project.xml&projectDir=' + projectDir);
-};
-
 function nodeTitleChanged(id){
 	projectSaved = false;
 	var node = project.getNodeById(id);
@@ -732,22 +649,15 @@ function populateReferences(sequenceId, insideUL){
 	};
 };
 
-/*
- * Displays all of the nodes in order, in the main window
- */
-function displayProject(project) {	
-	populateSequences();
-	populateNodes();
-	generateDD();
-}
+function loadProjectFromServer(projectName){
+	currentProjectName = projectName.substring(0, projectName.indexOf(':'));
+	projectDisplayName = projectName.substring(projectName.indexOf(':') + 2, projectName.length);
 
-function nodeTitleOnFocus(nodeId) {
-	alert('on focus:' + nodeId);
-}
-
-function nodeTitleOnBlur(nodeId) {
-	alert('on blur:' + nodeId);
-}
+	vle = new VLE();
+	vle.eventManager.subscribe('projectLoadingComplete', function(){populateSequences(); populateNodes(); generateDD(); project = vle.project});
+	vle.loadProjectFromServer(projectName);
+	document.getElementById('currentProject').innerHTML = 'Current Title = ' + projectDisplayName;
+};
 
 /*
  * This function is called when the user wants to 
@@ -757,8 +667,6 @@ function author(nodeId) {
 	var nodeToAuthor = project.getNodeById(nodeId);
 	if (nodeToAuthor.filename != null) {
 		nodeIdToAuthor = nodeId;
-		//var nodeToAuthor = project.getNodeById(nodeIdToAuthor); //is this needed? - the same thing only a few lines up
-		filenameToAuthor = nodeToAuthor.filename;
 		if (nodeToAuthor.type == "HtmlNode") {
 			htmlPageName = 'author_htmlpage';
 		} else if(nodeToAuthor.type == "FillinNode") {
@@ -809,21 +717,6 @@ function authoringWindowLoaded(fun) {
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
 		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, projectDisplayName, projectDir, project);
-	} 
-}
-
-
-/*
- * called when the authoringFrame fires a loaded event.
- */
-function authoringFrameLoaded() {
-	//alert('authoringframeloaded called: ' + nodeIdToAuthor);
-	// we only care if the user has specified a node to author. if not, just ignore this event
-	if (nodeIdToAuthor != null) {
-		//alert('authoringframeloaded, nodeIdToAuthor is set: ' + nodeIdToAuthor);
-		// each authoring page has a load AuthoringFromFile function
-		var nodeToAuthor = project.rootNode.getNodeById(nodeIdToAuthor);
-		window.frames["authoringFrame"].loadAuthoringFromFile(nodeToAuthor.filename);
 	} 
 }
 </script>
@@ -888,6 +781,12 @@ function authoringFrameLoaded() {
 	<li>EDIT a node for an item by double clicking.  A separate editor will launch.</li>
 	</ol>	
 </div> 
+
+<div id='loading'>
+	<div class='hd'></div>
+	<div class='bd'></div>
+	<div class='ft'></div>
+</div>
 
 <div id="notePanel">
 	<div class="noteHead"></div>
