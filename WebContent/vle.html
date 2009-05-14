@@ -48,6 +48,7 @@
 <script type="text/javascript" src="vle/js/node/CustomNode.js"></script>
 <script type="text/javascript" src="vle/js/node/MatchSequenceNode.js"></script>
 <script type="text/javascript" src="vle/js/node/FillinNode.js"></script>
+<script type="text/javascript" src="vle/js/node/fillin/fillinstate.js"></script>
 <script type="text/javascript" src="vle/js/node/NoteNode.js"></script>
 <script type="text/javascript" src="vle/js/node/JournalNode.js"></script>
 <script type="text/javascript" src="vle/js/node/JournalEntryNode.js"></script>
@@ -148,6 +149,18 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
 	vle.loadLearnerData(userURL);
 };
 
+/**
+ * Setup and display the project
+ *
+ * @param contentURL a url to the project file, we will use a get
+ *		request to obtain the project file
+ * @param userURL a url to the user info, we will use a get request
+ *		to obtain the user info 
+ */
+function renderProgressMonitor(contentURL, userURL, getDataUrl, contentBaseUrl, workgroupId) {
+	render(contentURL, userURL, getDataUrl, contentBaseUrl, null);	
+	setTimeout("parent.contentPanelFinishedLoading(" + workgroupId + ")", 3000);
+};
 window.onbeforeunload = function(){
 	vle.closeVLE();
 }
@@ -273,10 +286,15 @@ window.onbeforeunload = function(){
  [Content for browsers that don't support iframes goes here.]
 	</iframe>
 </div>
-
+</div>
+</div>  <!-- centeredDiv -->
 <div id="showAllWorkDiv"></div>
+<div id="progressDiv"></div>
+<form name="saveLocal" id='saveLocal' action="echo.html" method="POST">
+    <input type="hidden" name="name" id="form_filename" value="myData"/>
+    <input type="hidden" name="data" id="localData" value=""/>
+</form>
 
-</div>  <!-- centerDiv -->
 <div id="soundmanager-debug"></div>
 </body>
 </html>

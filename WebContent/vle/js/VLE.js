@@ -381,21 +381,21 @@ VLE.prototype.getProgress = function() {
 	 * data as a csv file. this only saves the student's latest
 	 * answers
 	 */ 
-	progressHtml += "<td width='25%'><input type='button' value='Save Only Latest Answers as CSV File' onclick='save(\"simpleCSV\")' /><br><br>";
+	progressHtml += "<td width='25%'><input type='button' value='Save Only Latest Answers as CSV File' onclick='saveStudentWorkToFile(\"simpleCSV\")' /><br><br>";
 	
 	/*
 	 * the save button that allows the user to save the student's
 	 * data as a csv file. this saves all the revisions of the
 	 * student's answers.
 	 */
-	progressHtml += "<input type='button' value='Save All Answer Revisions as CSV File' onclick='save(\"detailedCSV\")' /><br><br>";
+	progressHtml += "<input type='button' value='Save All Answer Revisions as CSV File' onclick='saveStudentWorkToFile(\"detailedCSV\")' /><br><br>";
 	
 	/*
 	 * the save button that allows the user to save the student's
 	 * data as an html file. this saves all the revisions of the
 	 * student's answers.
 	 */
-	progressHtml += "<input type='button' value='Save All Answer Revisions as HTML File' onclick='save(\"HTML\")' /></td>";
+	progressHtml += "<input type='button' value='Save All Answer Revisions as HTML File' onclick='saveStudentWorkToFile(\"HTML\")' /></td>";
 	
 	progressHtml += "</tr>";
 	progressHtml += "</table>";
@@ -536,7 +536,7 @@ VLE.prototype.loadVLEState = function(vle) {
 				var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
 				vle.setVLEState(vleStateObj);
 			} else {
-				alert('no previous vle state');
+				//alert('no previous vle state');
 			}
 			vle.eventManager.fire('learnerDataLoadingComplete');
 		},
@@ -1215,6 +1215,57 @@ VLE.prototype.exportToFile = function(format) {
 
 VLE.prototype.getHTML = function() {
 	
+}
+
+VLE.prototype.displayProgress = function() {
+	document.getElementById('centeredDiv').style.display = "none";
+	document.getElementById('progressDiv').innerHTML += vle.getProgress();
+}
+
+
+function saveStudentWorkToFile(format) {
+	  //if(confirm("Saving locally requires a file download. If you do not wish to do this, click CANCEL now. Otherwise, click OK.")){
+		  //var htmlString = document.getElementById('sourceTextArea').value;
+	
+	  //retrieve the current timestamp so we can use it in the file name
+	  var currentTime = new Date();
+	  thisFilename = vle.getUserName() + "." + 
+	  		currentTime.getFullYear() + "." + (currentTime.getMonth() + 1) + "." + currentTime.getDate();
+
+
+	  //the string that will contain the content we will put in the file
+	  var contentString = "";
+	  
+	  if(format == "simpleCSV") {
+		thisFilename += ".csv";
+		
+		//retrieve the simplified csv which only contains the latest answers
+		contentString = vle.getSimpleCSV();
+	  } else if(format == "detailedCSV") {
+		thisFilename += ".csv";
+		  
+		//retrieve the detailed csv which contains all revisions of the student's answers
+		contentString = vle.exportToFile(format);
+	  } else if(format == "HTML") {
+		thisFilename += ".html";
+
+		//retrieve html which contains all revisions of the student's answers
+		contentString = vle.exportToFile(format);
+	  }
+	  
+	  //set the text into the variable whose content will be stored in the file
+      document.getElementById('localData').value = contentString;
+
+      if (thisFilename != null) {
+      	document.getElementById('form_filename').value = thisFilename;
+      }
+
+      /*
+       * this submits the hidden form and asks the user to confirm
+       * that they want to save the file to their local system
+       */
+      document.getElementById('saveLocal').submit();
+	   //};
 }
 
 // IE 7 doesn't have indexOf method.........

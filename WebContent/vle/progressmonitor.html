@@ -50,6 +50,7 @@ var vle = null;
 <script type="text/javascript" src="js/node/CustomNode.js"></script>
 <script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
 <script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/node/fillin/fillinstate.js"></script>
 <script type="text/javascript" src="js/node/NoteNode.js"></script>
 <script type="text/javascript" src="js/node/JournalNode.js"></script>
 <script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
@@ -89,81 +90,20 @@ var vle = null;
 
 <script type="text/javascript">
 
-
-
 function load(contentUrl, contentBaseUrl, userInfoUrl, getDataUrl, workgroupId) {
 	//contentUrl = "http://localhost:8080/vlewrapper/vle/tim2.otml";
 	//document.getElementById("progressDiv").innerHTML = "contentUrl: " + contentUrl + "<br>userInfoUrl: " + userInfoUrl + "<br>getDataUrl: " + getDataUrl + "<br>workgroupId: " + workgroupId;
 	vle = new VLE();
 	vle.getDataUrl = getDataUrl;
+	vle.loadProject(contentUrl, contentBaseUrl);
+	vle.loadLearnerData(userInfoUrl);
 	
-	var contentCallback =
-	{
-	  success: function(o) { 
-		  var xmlDocToParse = o.responseXML;
-		  /*
-		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
-			  // WINDOWS IE
-			  //alert(o.responseText);
-			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
-			  windowsXMLDoc.async = "false";
-			  windowsXMLDoc.loadXML(o.responseText);
-			  xmlDocToParse = windowsXMLDoc;
-			  //alert('done');
-			  //alert(xmlDocToParse);
-			  //alert('done done');
-		  }	
-		  */	  
-		  var project = new Project(xmlDocToParse, contentBaseUrl);
-		  //var project = new Project(xmlDocToParse);
-		  
-		  project.xmlDoc = xmlDocToParse;
-		  project.generateNode(xmlDocToParse);
-		  
-		  vle.setProject(project);
-		  var dfs = new DFS(project.rootNode);
-		  vle.navigationLogic = new NavigationLogic(dfs);
-		  vle.loadVLEState(vle);
-		  //myMenu = new Menu("my_menu");
-          //myMenu.init();
-			
-		  //setTimeout("vle.renderNode('0:0:0')", 1000);
-		  //vle.toggleNavigationPanelVisibility();
-
-		  /*
-		   * wait some time before calculating the progress because we need to
-		   * wait for the loadVLEState() call above to complete before we
-		   * getProgress().
-		   */
-		  //setTimeout("document.getElementById('progressDiv').innerHTML += vle.getProgress()", 2000);
-	  },
-	  failure: function(o) { alert('failure, could not get content');},
-	  argument: ["a", "b", "c"]
-	};
-
-	// fetch the OTML.
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentUrl, contentCallback, null);
-
-	// fetch user data
-	var userCallback = {
-				success: function(o) {
-					//alert('userURL: ' + userURL);
-					//alert('userxml: ' + o.responseXML);
-					//alert('responsexml: ' + o.responseText);
-					vle.loadUserAndClassInfo(o.responseXML);
-			  	},
-				failure: function(o) {
-					alert('Error: Unable to load user info');
-				},
-				argument: ["a", "b", "c"]
-	};
-	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', userInfoUrl, userCallback, null);
 
 	/*
 	 * tell the parent that we are done loading so the parent can move on and
 	 * do what it needs to do after we are done loading
 	 */
-	setTimeout("parent.contentPanelFinishedLoading(" + workgroupId + ")", 2000);
+	setTimeout("parent.contentPanelFinishedLoading(" + workgroupId + ")", 3000);
 }
 
 function displayProgress() {
