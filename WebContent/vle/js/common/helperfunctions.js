@@ -1,11 +1,3 @@
-function convertToHTML(text){
-	text = text.replace(/\n/g, '<br>');
-	text = text.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-	text = text.replace(/\s/g, '&nbsp;');
-	text = text.replace(/\r/g, '<br>');
-	return text;
-};
-
 function encodeString(text){
 	return encodeURIComponent(text);
 };

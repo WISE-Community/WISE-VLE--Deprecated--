@@ -98,7 +98,7 @@ OPENRESPONSE.prototype.render = function() {
 		}
 	} else {
 		this.createStandardPrompt();
-		document.getElementById('promptDiv').innerHTML=convertToHTML(this.promptText);
+		document.getElementById('promptDiv').innerHTML=this.promptText;
 		document.getElementById('type').innerHTML = 'question';
 	};
 
@@ -120,7 +120,7 @@ OPENRESPONSE.prototype.renderLite = function(){
 	//prompt
 	document.getElementById('promptType').removeChild(document.getElementById('promptDiv'));
 	this.createStandardPrompt();
-	document.getElementById('promptDiv').innerHTML=convertToHTML(this.promptText);
+	document.getElementById('promptDiv').innerHTML=this.promptText;
 	document.getElementById('type').innerHTML = 'question';
 	
 	//response
