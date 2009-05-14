@@ -1,5 +1,5 @@
 /**
- * An interface to YUI for managing custom events
+ * A wrapper to YUI for managing custom events
  */
 function EventManager(){
 	this.eventObs = [];
@@ -46,7 +46,8 @@ EventManager.prototype.subscribe = function(event, fun, co){
 };
 
 /**
- * Fires the event of the given name (event)
+ * Fires the event of the given name (event) passing
+ * in the Optional arguments
  */
 EventManager.prototype.fire = function(event, args){
 	var index = this.eventNames.indexOf(event);
@@ -73,6 +74,10 @@ EventManager.prototype.unsubscribe = function(fun){
 	};
 };
 
+
+/**
+ * Given a list of lists, creates and initializes a new LoadingManager
+ */
 EventManager.prototype.inititializeLoading = function(args){
 	this.loadingManager = new LoadingManager(this);
 	this.loadingManager.initialize(args);

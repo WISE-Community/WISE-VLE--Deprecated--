@@ -33,7 +33,6 @@ VLE.prototype.setProject = function(project) {
 	this.project = project;
 	this.navigationPanel = new NavigationPanel(project.rootNode);
 	this.contentPanel = new ContentPanel(project, project.rootNode);
-	this.eventManager.fire('projectLoadingComplete');
 }
 
 /**
@@ -568,7 +567,7 @@ VLE.prototype.loadProject = function(contentURL, contentBaseUrl){
 
 		    var startId = this.project.getStartNodeId();
 		    
-			setTimeout("vle.renderNode('" + startId + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
+			setTimeout("vle.renderNode('" + startId + "'); vle.eventManager.fire('" + 'projectLoadingComplete' + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
 	  },
 	  failure: function(o) { alert('failure, could not get content');},
 	  scope: this
@@ -635,6 +634,7 @@ VLE.prototype.loadProjectFromServer = function(author){
 			    
 			  setTimeout("vle.renderNode('" + startId + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
 		  };
+		  this.eventManager.fire('projectLoadingComplete');
 	  },			
 	  failure: function(o) { alert('unable to retrieve project from server');},
 	  scope:this
