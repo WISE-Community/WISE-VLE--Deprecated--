@@ -581,12 +581,12 @@ function populateNodes(){
 		if(ieBites){ 
 			var li = document.createElement('<li id=\'' + nodes[v].id + '\' name=\'nodes\' class=\'draggable\' ondblclick=\'author("' + nodes[v].id + '")\'/>');
 			ul.appendChild(li);
-			var title = document.createElement('<input id=\'' + nodes[v].id + '_title\' size=\'30\' value=\'' + nodes[v].title + '\' onchange=\'nodeTitleChanged("' + nodes[v].id + '")\'/>');
+			var title = document.createElement('<input id=\'' + nodes[v].id + '_title\' size=\'45\' value=\'' + nodes[v].title + '\' onchange=\'nodeTitleChanged("' + nodes[v].id + '")\'/>');
 			li.appendChild(title);
 		} else {
 			var li = createElement(document, 'li', {'id': nodes[v].id, 'name': 'nodes', 'class': 'draggable', 'ondblclick': 'author("' + nodes[v].id + '")'});
 			ul.appendChild(li);
-			var title = createElement(document, 'input', {'id': nodes[v].id + '_title', 'value': nodes[v].title, 'size': '30', 'onchange': 'nodeTitleChanged("' + nodes[v].id + '")'});
+			var title = createElement(document, 'input', {'id': nodes[v].id + '_title', 'value': nodes[v].title, 'size': '45', 'onchange': 'nodeTitleChanged("' + nodes[v].id + '")'});
 			li.appendChild(title);		
 		};
 	};

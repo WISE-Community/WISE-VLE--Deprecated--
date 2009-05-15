@@ -4,12 +4,13 @@
    
 div.sdmenu {
 	width: 215px;
-	font-family: Arial, sans-serif;
-	font-size: .72em;
+	font-family:Arial,Verdana,"Lucida Grande","Lucida Sans Unicode",Arial,sans-serif;
+	font-size: .6em;
 	padding-bottom: 10px;
 	background: url(../assets/images/bottomBlue190.png) no-repeat  right bottom;
 	background: url(../assets/images/titleBlue.png) repeat-x;
 	color: #fff;
+	font-size-adjust: 0.6;
 }
 div.sdmenu div {
 	background: url(../assets/images/titleBlue.png) repeat-x;
