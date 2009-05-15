@@ -93,6 +93,7 @@ var createProjectDialog;
 var createSequenceDialog;
 var createNodeDialog;
 var editProjectFileDialog;
+var importProjectDialog;
 
 var projectPaths; //a | delimited string of the project paths specified in settings.xml
 var primaryPath = ""; //the default path to create new projects
@@ -104,6 +105,7 @@ function loaded(){
 	initializeCreateSequenceDialog();
 	initializeCreateNodeDialog();
 	initializeEditProjectFileDialog();
+	initializeImportProjectDialog();
 };
 
 function getProjectPaths(){
@@ -177,7 +179,7 @@ function preview() {
 	};
 };
 
-function initializeOpenProjectDialog(){
+function initializeOpenProjectDialog(bool){
 	var addOption = function(name){
 		var parent = document.getElementById('selectProject');
 		var option = createElement(document, 'option', {name: 'projectOption'});
@@ -193,12 +195,23 @@ function initializeOpenProjectDialog(){
 	
 	var callback = {
 		success:function(o){
+			var parent = document.getElementById('selectProject');
+			while(parent.firstChild){
+				parent.removeChild(parent.firstChild);
+			};
+			var placeholder = createElement(document, 'option', {name: 'placeholderOption'});
+			parent.appendChild(placeholder);
+			placeholder.value = '';
+			
 			var projects = o.responseText.split('|');
 			for(var a=0;a<projects.length;a++){
 				addOption(projects[a]);
 			};
 			openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
 			openProjectDialog.render();
+			if(bool){
+				openProjectDialog.show();
+			};
 		},
 		failure:function(o){alert('unable to retrieve projects from server');},
 		scope:this
@@ -418,14 +431,47 @@ function initializeEditProjectFileDialog(){
 	editProjectFileDialog.render();
 };
 
+function initializeImportProjectDialog(){
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	var doSuccess = function(val){
+		alert('val ' + val);
+		if(val=='success'){
+			alert('zipped project uploaded successfully');
+		};
+	};
+	
+	importProjectDialog = new YAHOO.widget.Dialog('importProjectDialog', {width :"450px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Import", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	importProjectDialog.callback = {
+		success: function(o){
+			alert('response ' + o.responseText);
+			doSuccess(o.responseText);
+		},
+		failure: function(o){},
+		scope: this
+	};
+	
+	importProjectDialog.render();
+};
+
 function openProject(){
 	if(!projectSaved){
 		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-			openProjectDialog.show();
+			updateAvailableProjects();
 		};
 	} else {
-		openProjectDialog.show();
+		updateAvailableProjects();
 	};
+};
+
+function updateAvailableProjects(){
+	initializeOpenProjectDialog(true);
 };
 
 function createNewProject(){
@@ -516,6 +562,18 @@ function exportProject(){
 		};
 	} else {
 		alert('Please open the project you wish to export first. Exiting...');
+	};
+};
+
+function importProject(){
+	if(currentProjectName && !projectSaved){
+		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+			document.getElementById('importProjectPath').value = primaryPath;
+			importProjectDialog.show();
+		};
+	} else {
+		document.getElementById('importProjectPath').value = primaryPath;
+		importProjectDialog.show();
 	};
 };
 
@@ -751,6 +809,7 @@ function authoringWindowLoaded(fun) {
 	  	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
 		<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
 	  	<td><input type="button" value="Export Project" onclick="exportProject()" /></td>
+	  	<td><input type="button" value="Import Project" onclick="importProject()"/></td>
 	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
 	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()"/></td>
 	   </tr>
@@ -885,6 +944,12 @@ function authoringWindowLoaded(fun) {
 <form id='exportProject' method='POST' action='filemanager.html'>
 	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
 	<input type='hidden' id='exportProjectName' name='param1'/>
+</form>
+
+<form id='importProjectDialog' method='POST' action='filemanager.html' enctype="multipart/form-data">
+	<input type='hidden' id='importProjectPath' name='param1'/>
+	<label for='importFile'>Enter or browse to ZIP file of a project you wish to upload</label>
+	<input type='file' id='importFile' name='param2' size='45' accept='application/zip'/>
 </form>
 
 </div>  <!-- centerDiv -->

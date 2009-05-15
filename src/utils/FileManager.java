@@ -1,5 +1,7 @@
 package utils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -11,11 +13,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import java.text.SimpleDateFormat;
 
@@ -25,6 +29,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.output.DeferredFileOutputStream;
 
 /**
  * Servlet implementation class for Servlet: FileManager
@@ -78,6 +89,15 @@ import javax.servlet.http.HttpServletResponse;
 				this.exportProject(request, response);
 			} else {
 				throw new ServletException("This servlet does not understand this command: " + command);
+			}
+		} else if(ServletFileUpload.isMultipartContent(request)){
+			response.setContentType("text/html; charset=UTF-8");
+			try{
+				this.importProject(request);
+				response.getWriter().print("success");
+			} catch(Exception e){
+				e.printStackTrace();
+				response.getWriter().write("failed");
 			}
 		} else {
 			throw new ServletException("No command has been provided, unable to do anything.");
@@ -547,8 +567,9 @@ import javax.servlet.http.HttpServletResponse;
 		
 		for(int x=0;x<list.length;x++){
 			File file = new File(dir, list[x]);
+			File zipNamed = new File(dir.getName(), list[x]);
 			FileInputStream fis = new FileInputStream(file);
-			ZipEntry entry = new ZipEntry(file.getPath());
+			ZipEntry entry = new ZipEntry(zipNamed.getPath());
 			zos.putNextEntry(entry);
 			while((in = fis.read(buffer)) != - 1){
 				zos.write(buffer, 0, in);
@@ -563,6 +584,74 @@ import javax.servlet.http.HttpServletResponse;
 			return true;
 		} else {
 			return file.mkdir();
+		}
+	}
+	
+	private boolean importProject(HttpServletRequest request) throws IOException, FileUploadException, Exception{
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		File temp = new File("temp");
+		
+		if(!temp.exists()){
+			temp.mkdir();
+		};
+		
+		factory.setRepository(temp);
+		if(ServletFileUpload.isMultipartContent(request)){
+			List items = upload.parseRequest(request);
+			Iterator iter = items.iterator();
+			String path = null;
+			while(iter.hasNext()){
+				FileItem item = (FileItem) iter.next();
+				if(item.isFormField()){
+					if(item.getFieldName().equals(PARAM1)){
+						path = item.getString();
+					} else {
+						throw new IOException("I was not expecting field name of: " + item.getFieldName());
+					}
+				} else {
+					if(path!=null){
+						File parentDir = new File(path);
+						if(!parentDir.exists()){
+							parentDir.mkdir();
+						}
+						File newFile = new File(temp, "tempZipFile");
+						item.write(newFile);
+						ZipFile zf = new ZipFile(newFile);
+						Enumeration entries = zf.entries();
+						
+						while(entries.hasMoreElements()){
+							ZipEntry entry = (ZipEntry)entries.nextElement();
+							if(!entry.isDirectory()){
+								BufferedInputStream bis = new BufferedInputStream(zf.getInputStream(entry));
+							    int size;
+							    byte[] buffer = new byte[4096];
+							    File file = new File(path, entry.getName());
+							    if(file.getParentFile()!=null && !file.getParentFile().exists()){
+							    	file.getParentFile().mkdirs();
+							    }
+							    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file), buffer.length);
+							    while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
+							    	bos.write(buffer, 0, size);
+							    }
+							    bos.flush();
+							    bos.close();
+							    bis.close();
+							} else {
+								File file = new File(path, entry.getName());
+								if(!file.exists()){
+									file.mkdir();
+								}
+							}
+						}
+					} else {
+						throw new IOException("Unable to determine path to unzip files to");
+					}
+				}
+			}
+			return true;
+		} else {
+			throw new IOException("The request does not contain multipart content, cannot upload file.");
 		}
 	}
 }
