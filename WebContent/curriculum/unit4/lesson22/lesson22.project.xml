@@ -34,18 +34,22 @@
 		</OutsideUrlNode>
 	</nodes>
 	<sequences>
+		<sequence identifier="activity1">
+					<node-ref ref='bs1'/>
+			<node-ref ref='note'/>
+			<node-ref ref='match'/>
+			<node-ref ref='entry'/>
+			<node-ref ref='url'/>
+	  		<node-ref ref='a1s1' />
+	 		<node-ref ref='mc1' />
+	 		<node-ref ref='fillin'/>
+	 		 <node-ref ref='fillin2'/>
+	 		 <node-ref ref='a1s2' /> 
+		</sequence>
 	<sequence identifier="project1_sequence">
-		<node-ref ref='bs1'/>
-		<node-ref ref='note'/>
-		<node-ref ref='match'/>
-		<node-ref ref='entry'/>
-		<node-ref ref='url'/>
-  		<node-ref ref='a1s1' />
- 		<node-ref ref='mc1' />
- 		<node-ref ref='fillin'/>
- 		 <node-ref ref='fillin2'/>
- 		 <node-ref ref='a1s2' /> 		
+		<sequence-ref ref="activity1" />
 	</sequence>
+	
 	</sequences>
 	<method>
 		<startpoint>
