@@ -612,6 +612,8 @@ function nodeTitleChanged(id){
 	projectSaved = false;
 	var node = project.getNodeById(id);
 	node.title = document.getElementById(id + '_title').value;
+	
+	saveProject();
 };
 
 function sequenceTitleChanged(oldId){
