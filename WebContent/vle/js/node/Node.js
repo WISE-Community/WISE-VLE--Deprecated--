@@ -231,17 +231,21 @@ Node.prototype.parseDataXML = function(nodeXML) {
  */
 Node.prototype.nodeDefinitionXML = function(){
 	if(this.type=='sequence'){
-		var xml = "<sequence identifier=\"" + this.id + "\">\n";
+		var xml = "<sequence identifier=\"" + makeSafe(this.id) + "\">\n";
 		for(var l=0;l<this.children.length;l++){
 			xml += this.children[l].nodeReferenceXML();
 		};
 		xml += "</sequence>\n";
 	} else {
-		var xml = "<" + this.type + " identifier=\"" + this.id + "\" title=\"" + this.title + "\">\n";
+		var xml = "<" + this.type + " identifier=\"" + makeSafe(this.id) + "\" title=\"" + makeSafe(this.title) + "\">\n";
 		xml += "\t<ref filename=\"" + this.filename + "\"/>\n";
 		xml += "</" + this.type + ">\n";
 	};
 	return xml;
+};
+
+function makeSafe(text){
+	return text.replace(/\&/g, '&amp;');
 };
 
 /**
@@ -249,9 +253,9 @@ Node.prototype.nodeDefinitionXML = function(){
  */
 Node.prototype.nodeReferenceXML = function(){
 	if(this.type=='sequence'){
-		return "<sequence-ref ref=\"" + this.id + "\"/>\n";
+		return "<sequence-ref ref=\"" + makeSafe(this.id) + "\"/>\n";
 	} else {
-		return "<node-ref ref=\"" + this.id + "\"/>\n";
+		return "<node-ref ref=\"" + makeSafe(this.id) + "\"/>\n";
 	};
 };
 
