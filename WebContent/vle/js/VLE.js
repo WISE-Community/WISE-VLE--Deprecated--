@@ -561,7 +561,7 @@ VLE.prototype.loadVLEState = function() {
 		getURL += "?userId=" + vle.myUserInfo.workgroupId;
 	}
 	
-	this.connectionManager.loadVLEState(getURL, this);
+	this.connectionManager.loadVLEState(getURL, this.processLoadVLEStateResponse);
 }
 
 /**
@@ -572,10 +572,10 @@ VLE.prototype.processLoadVLEStateResponse = function(response){
 		var vleStateXMLObj = response.getElementsByTagName("vle_state")[0];
 		if (vleStateXMLObj) {
 			var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
-			this.setVLEState(vleStateObj);
+			vle.setVLEState(vleStateObj);
 		};
 	};
-	this.eventManager.fire('learnerDataLoadingComplete');
+	vle.eventManager.fire('learnerDataLoadingComplete');
 };
 
 /**

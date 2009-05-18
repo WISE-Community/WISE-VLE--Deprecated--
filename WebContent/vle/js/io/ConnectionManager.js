@@ -90,15 +90,16 @@ ConnectionManager.prototype.statesSaved = function(){
 	return(vle.getLastStateTimestamp()==this.lastSavedTimestamp);
 };
 
-ConnectionManager.prototype.loadVLEState = function(getURL, vle) {
+ConnectionManager.prototype.loadVLEState = function(getURL, handler) {
 
 	var callback = {
 		success: function(o) {
-			vle.processLoadVLEStateResponse(o.responseXML);
+			handler(o.responseXML);
 		},
-		failure: function(o) {}
+		failure: function(o) {},
+		scope:this
 	};
-	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
+	YAHOO.util.Connect.asyncRequest('GET', getURL, callback, null);
 };
 
 /**
