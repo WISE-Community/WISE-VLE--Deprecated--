@@ -207,10 +207,12 @@ function initializeOpenProjectDialog(bool){
 			for(var a=0;a<projects.length;a++){
 				addOption(projects[a]);
 			};
-			openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
-			openProjectDialog.render();
+			
 			if(bool){
 				openProjectDialog.show();
+			} else {
+				openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
+				openProjectDialog.render();
 			};
 		},
 		failure:function(o){alert('unable to retrieve projects from server');},
