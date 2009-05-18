@@ -56,29 +56,45 @@ public class VLEPostAnnotations extends HttpServlet {
         	String toWorkgroup = request.getParameter("toWorkgroup");
         	String fromWorkgroup = request.getParameter("fromWorkgroup");
         	String type = request.getParameter("type");
-        	String annotation = request.getParameter("annotation");
+        	String value = request.getParameter("value");
         	
         	stmt = conn.createStatement();
         	ResultSet results = null;
         	
-        	if(annotation == null || annotation.equals("")) {
+        	if(value == null || value.equals("")) {
         		//if no annotation was provided, do nothing and return
         		return;
         	} else {
+        		StringBuffer annotationEntry = new StringBuffer();
+        		annotationEntry.append("<annotationEntry>");
+        		annotationEntry.append("<runId>" + runId + "</runId>");
+        		annotationEntry.append("<nodeId>" + nodeId + "</nodeId>");
+        		annotationEntry.append("<toWorkgroup>" + toWorkgroup + "</toWorkgroup>");
+        		annotationEntry.append("<fromWorkgroup>" + fromWorkgroup + "</fromWorkgroup>");
+        		annotationEntry.append("<type>" + type + "</type>");
+        		annotationEntry.append("<value>" + value + "</value>");
+        		//annotationBundle.append("<postTime>" +  + "</postTime>");
+        		annotationEntry.append("</annotationEntry>");
+        		
         		//the query to see if the row already exists in the table
-        		String selectStmt = "select * from annotations where runId=" + runId + " and nodeId='" + nodeId + "' and toWorkgroup='" + toWorkgroup + "' and fromWorkgroup='" + fromWorkgroup + "' and type='" + type + "' and annotation='" + annotation + "'";
+        		String selectStmt = "select * from annotations where runId=" + runId + " and nodeId='" + nodeId + "' and toWorkgroup='" + toWorkgroup + "' and fromWorkgroup='" + fromWorkgroup + "' and type='" + type + "' and value='" + annotationEntry + "'";
         		System.out.println(selectStmt);
         		results = stmt.executeQuery(selectStmt);
         		
         		//check if the row already exists
         		if(results.first() == false) {
         			//the row does not exist so we will insert it
-        			String insertStmt = "insert into annotations(runId, nodeId, toWorkgroup, fromWorkgroup, type, annotation) values(" + runId + ", '" + nodeId + "', " + toWorkgroup + ", " + fromWorkgroup + ", '" + type + "', '" + annotation + "')";
+        			String insertStmt = "insert into annotations(runId, nodeId, toWorkgroup, fromWorkgroup, type, value) values(" + runId + ", '" + nodeId + "', " + toWorkgroup + ", " + fromWorkgroup + ", '" + type + "', '" + annotationEntry + "')";
         			System.out.println(insertStmt);
         			stmt.execute(insertStmt);
         		}
+        		
+        		//send the annotationEntry xml to the response so the user can get the xml
+        		response.getWriter().write(annotationEntry.toString());
         	}
     	} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 

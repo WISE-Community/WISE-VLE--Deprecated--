@@ -57,7 +57,7 @@ public class VLEGetAnnotations extends HttpServlet {
 	    	String type = request.getParameter("type");
 	    	
 	    	//compile the query depending on which parameters were provided
-	    	StringBuffer selectStmt = new StringBuffer("select annotation from annotations where");
+	    	StringBuffer selectStmt = new StringBuffer("select value from annotations where");
 	    	boolean needAnd = false;
 	    	
 	    	//check if we need to add runId to where clause
@@ -108,10 +108,15 @@ public class VLEGetAnnotations extends HttpServlet {
 	    	System.out.println(selectStmt);
 	    	results = stmt.executeQuery(selectStmt.toString());
 	    	
+	    	//wrap all the individual annotation tags in a parent annotations tag
+	    	response.getWriter().write("<annotations>");
+	    			
 	    	while(results.next()) {
 	    		//output all the rows that were returned
 	    		response.getWriter().write(results.getString(1));
 	    	}
+	    	
+	    	response.getWriter().write("</annotations>");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

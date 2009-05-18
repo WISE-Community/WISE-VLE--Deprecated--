@@ -72,8 +72,8 @@ public class VLEGetData extends VLEServlet {
 						String dateFormat = "%a, %e %b %Y %H:%i:%S GMT";
 
 						//the query to obtain all the data for a student
-						String selectQuery = "select nodeId, nodeType, date_format(startTime, '" + dateFormat + "'), date_format(endTime, '" + dateFormat + "'), nodeStates from vle_visits where userId=" + ids[x];
-
+						String selectQuery = "select nodeId, nodeType, date_format(startTime, '" + dateFormat + "'), date_format(endTime, '" + dateFormat + "'), data from vle_visits where userId=" + ids[x];
+						//System.out.println(selectQuery);
 						//run the query
 						results = stmt.executeQuery(selectQuery);
 
@@ -85,7 +85,7 @@ public class VLEGetData extends VLEServlet {
 							vleState.append("<type>" + results.getString("nodeType") + "</type>");
 							vleState.append("<id>" + results.getString("nodeId") + "</id>");
 							vleState.append("</node>");
-							vleState.append("<nodeStates>" + results.getString("nodeStates") + "</nodeStates>");
+							vleState.append("<nodeStates>" + results.getString("data") + "</nodeStates>");
 							
 							//the visitStartTime column is the 3rd in our selectQuery from above
 							vleState.append("<visitStartTime>" + results.getString(3) + "</visitStartTime>");
