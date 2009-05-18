@@ -101,12 +101,13 @@ var postAnnotationsUrl;
 var studentInfoUrl;
 var teacherInfoUrl;
 var getStudentDataUrl;
+var runId = null;
 </script>
 
 <!--  Javascript Pop up window -->
 
 <script type="text/javascript">
-var runId = null;
+
 var newWin = null;
 function popUp(strURL, strType, strHeight, strWidth) {
  if (newWin != null && !newWin.closed)
@@ -126,10 +127,10 @@ function popUp(strURL, strType, strHeight, strWidth) {
  newWin.focus();
 }
 
-function load(contentUrl, studentInfoUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, teacherInfoUrl) {
+function load(contentUrl, studentInfoUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, teacherInfoUrl, runId) {
 	//create the VLE
 	vle = new VLE();
-	render(contentUrl, studentInfoUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, teacherInfoUrl);
+	render(contentUrl, studentInfoUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, teacherInfoUrl, runId);
 }
 
 /**
@@ -137,11 +138,11 @@ function load(contentUrl, studentInfoUrl, getDataUrl, contentBaseUrl, getAnnotat
  * successful, it will create a local Annotation object and place it in
  * our array of Annotations so our local copy is up to date
  */
-function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value) {
+function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value, runId) {
 	//alert("nodeId: " + nodeId + "\ntoWorkgroup: " + toWorkgroup + "\nfromWorkgroup: " + fromWorkgroup + "\ntype: " + type + "\nvalue: " + value);
 
 	//build the post annotation url with get arguments
-	var postAnnotationURL = postAnnotationsUrl + "?nodeId=" + nodeId + "&toWorkgroup=" + toWorkgroup + "&fromWorkgroup=" + fromWorkgroup + "&type=" + type + "&value=" + value;
+	var postAnnotationURL = postAnnotationsUrl + "?runId=" + runId + "&nodeId=" + nodeId + "&toWorkgroup=" + toWorkgroup + "&fromWorkgroup=" + fromWorkgroup + "&type=" + type + "&value=" + value;
 	
 	var postAnnotationCallback =
 	{
@@ -188,7 +189,7 @@ function expandMenu(menuId) {
  * @param userURL a url to the user info, we will use a get request
  *		to obtain the user info 
  */
-function render(contentUrl, studentInfoUrl, getStudentDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, teacherInfoUrl) {
+function render(contentUrl, studentInfoUrl, getStudentDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, teacherInfoUrl, runId) {
 	//alert('contentURL: ' + contentUrl + "\n\nstudentInfoUrl:" + studentInfoUrl + "\n\ngetDataUrl:" + getDataUrl + "\n\ncontentBaseUrl:" + contentBaseUrl + "\n\ngetAnnotationsUrl: " + getAnnotationsUrl + "\n\npostAnnotationsUrl: " + postAnnotationsUrl + "\n\nteacherInfoUrl: " + teacherInfoUrl);
 	
 	//remember urls will will require later
@@ -197,6 +198,7 @@ function render(contentUrl, studentInfoUrl, getStudentDataUrl, contentBaseUrl, g
 	this.studentInfoUrl = studentInfoUrl;
 	this.teacherInfoUrl = teacherInfoUrl;
 	this.getStudentDataUrl = getStudentDataUrl;
+	this.runId = runId;
 
 	//set the url to retreive the student data
 	vle.getDataUrl = getStudentDataUrl;
@@ -326,13 +328,13 @@ function getGradeByWorkgroupHtml(node, annotations) {
 			htmlSoFar += "<td><textarea rows='10' cols='10' id='annotationTextArea" + node.id + "'>" + annotation.value + "</textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			htmlSoFar += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + node.id + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + node.id + "\").value)'></td></tr>";
+			htmlSoFar += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + node.id + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + node.id + "\").value, " + annotation.runId + ")'></td></tr>";
 		} else {
 			//the annotation does not exist so we will leave the text area blank
 			htmlSoFar += "<td><textarea rows='10' cols='10' id='annotationTextArea" + node.id + "'></textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			htmlSoFar += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + node.id + "\", " + studentWorkgroupId + ", " + teacherWorkgroupId + ", \"comment\", document.getElementById(\"annotationTextArea" + node.id + "\").value)'></td></tr>";
+			htmlSoFar += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + node.id + "\", " + studentWorkgroupId + ", " + teacherWorkgroupId + ", \"comment\", document.getElementById(\"annotationTextArea" + node.id + "\").value, " + runId + ")'></td></tr>";
 		}
 		
 		htmlSoFar += "</table>";
