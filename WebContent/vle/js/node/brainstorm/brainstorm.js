@@ -77,9 +77,9 @@ BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
 	};
 	
 	for(var p=0;p<this.cannedResponses.length;p++){
-		var response = createElement(frameDoc, 'textarea', {rows: '3', cols:  '75', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
+		var response = createElement(frameDoc, 'textarea', {rows: '7', cols:  '80', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
 		var responseTitle = createElement(frameDoc, 'div', {id: 'responseTitle_' + this.cannedResponses[p].getAttribute('name')});
-		responseTitle.innerHTML = 'Title: ' + this.cannedResponses[p].getAttribute('name');
+		responseTitle.innerHTML = 'Posted By: &nbsp;' + this.cannedResponses[p].getAttribute('name');
 		responseTitle.appendChild(createElement(frameDoc, 'br'));
 		responseTitle.appendChild(response);
 		response.value = this.cannedResponses[p].firstChild.nodeValue;

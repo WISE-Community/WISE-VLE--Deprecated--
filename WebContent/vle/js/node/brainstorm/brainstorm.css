@@ -76,4 +76,14 @@
 	background-color:#FFFF00;
 	}
 
+#responses {
+	text-align:left;
+	font-weight:bold;
+	color:red;
+	margin-left:25px;
+}
 
+#responses textarea {
+	font-weight:normal;
+	color:#000;
+}
