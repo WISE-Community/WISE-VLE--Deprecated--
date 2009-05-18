@@ -278,7 +278,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl) {
 		  }	
 		  */	  
 		  //var project = new PasOtmlProject(xmlDocObj);
-		  var project = new Project(xmlDocToParse, contentBaseUrl);
+		  var project = new Project(xmlDocToParse, contentBaseUrl, vle.connectionManager);
 		  project.xmlDoc = xmlDocToParse;
 		  project.generateNode(xmlDocToParse);
 		  

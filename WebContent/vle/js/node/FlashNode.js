@@ -8,7 +8,8 @@
 FlashNode.prototype = new Node();
 FlashNode.prototype.constructor = FlashNode;
 FlashNode.prototype.parent = Node.prototype;
-function FlashNode(nodeType) {
+function FlashNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	this.content = null;
 	this.filename = null;

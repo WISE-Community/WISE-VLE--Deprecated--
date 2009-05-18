@@ -7,7 +7,8 @@
 GlueNode.prototype = new Node();
 GlueNode.prototype.constructor = GlueNode;
 GlueNode.prototype.parent = Node.prototype;
-function GlueNode(nodeType) {
+function GlueNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 };
 

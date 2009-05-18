@@ -5,7 +5,8 @@
 CustomNode.prototype = new Node();
 CustomNode.prototype.constructor = CustomNode;
 CustomNode.prototype.parent = Node.prototype;
-function CustomNode(nodeType) {
+function CustomNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }
 

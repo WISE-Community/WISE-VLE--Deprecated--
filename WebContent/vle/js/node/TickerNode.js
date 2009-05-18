@@ -6,7 +6,8 @@ TickerNode.prototype = new Node();
 TickerNode.prototype.constructor = TickerNode;
 TickerNode.prototype.parent = Node.prototype;
 
-function TickerNode(nodeType) {
+function TickerNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }
 

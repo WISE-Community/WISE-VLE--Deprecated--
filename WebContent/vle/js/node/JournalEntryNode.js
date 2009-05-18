@@ -6,7 +6,8 @@
 JournalEntryNode.prototype = new OpenResponseNode();
 JournalEntryNode.prototype.constructor = JournalEntryNode;
 JournalEntryNode.prototype.parent = OpenResponseNode.prototype;
-function JournalEntryNode(nodeType) {
+function JournalEntryNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }	
 

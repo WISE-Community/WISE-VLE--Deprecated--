@@ -8,7 +8,7 @@ function NodeFactory() {
 	this.qtiAssessmentPageTypes = new Array("openresponse");
 }
 
-NodeFactory.createNode = function (element) {
+NodeFactory.createNode = function (element, connectionManager) {
 	var nodeName;
 	if(element.nodeName){
 		nodeName = element.nodeName;	//create from element
@@ -19,31 +19,31 @@ NodeFactory.createNode = function (element) {
 	if (acceptedTagNames.indexOf(nodeName) > -1) {
 		if (nodeName == "HtmlNode") {
 			//alert('htmlnode');
-			return new HtmlNode("HtmlNode");
+			return new HtmlNode("HtmlNode", connectionManager);
 		} else if (nodeName == "MultipleChoiceNode"){
 			//alert('mcnode');
-			return new MultipleChoiceNode("MultipleChoiceNode");
+			return new MultipleChoiceNode("MultipleChoiceNode", connectionManager);
 		} else if(nodeName == 'FillinNode'){
-			return new FillinNode('FillinNode');
+			return new FillinNode('FillinNode', connectionManager);
 		} else if (nodeName == 'NoteNode'){
-			return new NoteNode('NoteNode');
+			return new NoteNode('NoteNode', connectionManager);
 		} else if (nodeName == 'JournalEntryNode'){
-			return new JournalEntryNode('JournalEntryNode');
+			return new JournalEntryNode('JournalEntryNode', connectionManager);
 		} else if (nodeName == 'MatchSequenceNode'){
-			return new MatchSequenceNode('MatchSequenceNode');
+			return new MatchSequenceNode('MatchSequenceNode', connectionManager);
 		} else if (nodeName == 'OutsideUrlNode'){
-			return new OutsideUrlNode('OutsideUrlNode');
+			return new OutsideUrlNode('OutsideUrlNode', connectionManager);
 		} else if (nodeName == 'BrainstormNode'){
-			return new BrainstormNode('BrainstormNode');
+			return new BrainstormNode('BrainstormNode', connectionManager);
 		} else if (nodeName == 'FlashNode') {
-			return new FlashNode('FlashNode');
+			return new FlashNode('FlashNode', connectionManager);
 		} else if (nodeName == 'GlueNode'){
-			return new GlueNode('GlueNode');
+			return new GlueNode('GlueNode', connectionManager);
 		} else if (nodeName == 'OpenResponseNode'){
-			return new OpenResponseNode('OpenResponseNode');
+			return new OpenResponseNode('OpenResponseNode', connectionManager);
 		} else if (nodeName == "sequence") {
 			//alert('sequence node');
-			var sequenceNode = new Node("sequence");
+			var sequenceNode = new Node("sequence", connectionManager);
 			sequenceNode.id = element.getAttribute("identifier");
 			return sequenceNode;
 		} else {
@@ -52,12 +52,13 @@ NodeFactory.createNode = function (element) {
 	}
 }
 
-function Project(xmlDoc, contentBaseUrl) {
+function Project(xmlDoc, contentBaseUrl, connectionManager) {
 	this.xmlDoc = xmlDoc;
 	this.contentBaseUrl = contentBaseUrl;
 	this.allLeafNodes = [];
 	this.allSequenceNodes = [];
 	this.lazyLoading = false;
+	this.connectionManager = connectionManager;
 	
 	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
 	//alert('1:' + this.xmlDoc.firstChild.nodeName);

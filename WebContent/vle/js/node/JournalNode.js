@@ -5,7 +5,8 @@
 JournalNode.prototype = new Node();
 JournalNode.prototype.constructor = JournalNode;
 JournalNode.prototype.parent = Node.prototype;
-function JournalNode(nodeType) {
+function JournalNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	this.activeChild = null;	
 	

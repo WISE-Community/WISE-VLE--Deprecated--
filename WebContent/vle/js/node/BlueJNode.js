@@ -5,7 +5,8 @@
 BlueJNode.prototype = new Node();
 BlueJNode.prototype.constructor = BlueJNode;
 BlueJNode.prototype.parent = Node.prototype;
-function BlueJNode(nodeType) {
+function BlueJNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = "OTBlueJ";
 	this.projectPath = "";
 }

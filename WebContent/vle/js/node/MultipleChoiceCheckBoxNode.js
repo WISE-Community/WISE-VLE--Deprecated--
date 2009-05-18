@@ -5,7 +5,8 @@
 MultipleChoiceCheckBoxNode.prototype = new Node();
 MultipleChoiceCheckBoxNode.prototype.constructor = MultipleChoiceCheckBoxNode;
 MultipleChoiceCheckBoxNode.prototype.parent = Node.prototype;
-function MultipleChoiceCheckBoxNode(nodeType) {
+function MultipleChoiceCheckBoxNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }
 

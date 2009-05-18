@@ -5,7 +5,8 @@
 HtmlNode.prototype = new Node();
 HtmlNode.prototype.constructor = HtmlNode;
 HtmlNode.prototype.parent = Node.prototype;
-function HtmlNode(nodeType) {
+function HtmlNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	this.content = null;
 	this.filename = null;

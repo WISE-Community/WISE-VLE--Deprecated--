@@ -5,7 +5,8 @@
 FillinNode.prototype = new Node();
 FillinNode.prototype.constructor = FillinNode;
 FillinNode.prototype.parent = Node.prototype;
-function FillinNode(nodeType) {
+function FillinNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }
 

@@ -5,7 +5,8 @@
 MatchSequenceNode.prototype = new Node();
 MatchSequenceNode.prototype.constructor = MatchSequenceNode;
 MatchSequenceNode.prototype.parent = Node.prototype;
-function MatchSequenceNode(nodeType) {
+function MatchSequenceNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }
 

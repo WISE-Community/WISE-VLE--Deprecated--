@@ -2,7 +2,9 @@
  * Node
  */
 
-function Node(nodeType) {
+function Node(nodeType, connectionManager) {
+	this.contentLoaded = false;
+	this.connectionManager = connectionManager;
 	this.id = null;
 	this.parent = null;
 	this.children = [];   // children Nodes. If children is empty, it means that this is a leaf node
@@ -327,49 +329,33 @@ Node.prototype.getLatestWork = function(vle, dataId) {
  */
 Node.prototype.retrieveFile = function(){
 	if(this.filename!=null){
-		var callback = {
-			success:function(o){
-				if(o.responseXML){
-					this.element = o.responseXML;
-					
-					/***						***|
-				   	 * Extra work needed for IE *|
-				   	 ***						***/
-				  	 if(window.ActiveXObject){
-					  	 var ieXML = new ActiveXObject("Microsoft.XMLDOM");
-					  	 ieXML.async = "false";
-					  	 ieXML.loadXML(o.responseText);
-					  	 this.element = ieXML;
-				  	 };
-				  	 /***						***|
-				   	 * End extra work for IE	  *|
-				   	 ***						***/
-				} else {
-					if(loadXMLDocFromString){
-						var anotherTry = loadXMLDocFromString(o.responseText);
-						if(anotherTry){
-							this.element = anotherTry;
-						} else {
-							alert('possibly mal-formed xml, unable to load from file');
-						};
-					};
+		if(this.connectionManager==null && vle){
+			//set event to fire and set this node's variable when content is loaded
+			var setLoaded = function(type, args, obj){
+				if(obj && obj.id==this.id){
+					obj.contentLoaded = true;
 				};
-				
-				if (o.responseText) {
-				    this.elementText = o.responseText;
-				}
-			},
-			failure:function(o){ alert('unable to retrieve file:' + this.filename); alert(window.location);},
-			scope:this
+			};
+			vle.eventManager.addEvent(this, 'nodeLoadingContentComplete_' + this.id);
+			vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, setLoaded, this);
+			
+			//retrieve content
+			this.connectionManager = vle.connectionManager;
+			this.connectionManager.retrieveFile(this.processRetrieveFileResponse, this);
 		};
-        if (this.filename.search(/http:/) > -1 || this.filename.search('/') > -1) {
-            YAHOO.util.Connect.asyncRequest('GET', this.filename, callback, null);
-        } else {
-            YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + this.filename);
-        }		
 	} else {
 		alert('no file is specified, unable to retrieve data');
 	};
+};
+
+/**
+ * Handles the response from the call to connectionManager's retrieve File function
+ */
+Node.prototype.processRetrieveFileResponse = function(responseXML, responseText, node){
+	node.xmlDoc = responseXML;
+	node.element = responseXML;
+	node.elementText = responseText;
+	vle.eventManager.fire('nodeLoadingContentComplete_' + node.id);
 };
 
 /**

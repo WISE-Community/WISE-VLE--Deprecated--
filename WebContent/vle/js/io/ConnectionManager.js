@@ -1,19 +1,15 @@
-function ConnectionManager(vle) {
+function ConnectionManager() {
 	this.postURL = "../postdata.html";
 	this.getURL = "";
-	this.vle = vle;
 	this.id = -2;
 	this.lastSavedTimestamp = null;
 	
 	this.echoURL = "../echo.html";
-	if (vle && vle != null && vle.postDataUrl != null) {
-    	this.postURL = vle.postDataUrl;
-    }
+    this.postURL;
 	this.lastPostStates = "";
 }
 
-ConnectionManager.prototype.setVLE = function(vle) {
-	this.vle = vle;
+ConnectionManager.prototype.setPostStates = function(vle) {
 	this.lastPostStates = vle.state.getCompletelyVisitedNodesDataXML();
 }
 
@@ -28,7 +24,7 @@ ConnectionManager.prototype.setGetURL = function(getURL) {
 /**
  * Sends the user's navigation and student data back to the vle db
  */
-ConnectionManager.prototype.post = function(workgroupId, userName, save) {
+ConnectionManager.prototype.post = function(workgroupId, vle, save) {
 	//this.postURL = "http://localhost:8080/vlewrapper/postdata.html";
 
 	if(this.postURL == null) {
@@ -47,7 +43,7 @@ ConnectionManager.prototype.post = function(workgroupId, userName, save) {
 	}	
 
 	//obtain the current post states
-	var currentPostStates = this.vle.state.getCompletelyVisitedNodesDataXML();
+	var currentPostStates = vle.state.getCompletelyVisitedNodesDataXML();
 	
 	//get the diff between the current and the last posted states
 	var diff = currentPostStates.replace(this.lastPostStates, "");
@@ -92,4 +88,119 @@ ConnectionManager.prototype.get = function() {
 
 ConnectionManager.prototype.statesSaved = function(){
 	return(vle.getLastStateTimestamp()==this.lastSavedTimestamp);
+};
+
+ConnectionManager.prototype.loadVLEState = function(getURL, handler) {
+
+	var callback = {
+		success: function(o) {
+			handler(o.responseXML);
+		},
+		failure: function(o) {}
+	};
+	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
+};
+
+/**
+ * Given the content URL, loads a project in the VLE
+ */
+ConnectionManager.prototype.loadProject = function(contentURL, handler, contentBaseUrl){
+	var callback =
+	{
+	  success: function(o) {
+		handler(o.responseXML, contentBaseUrl);
+	  },
+	  failure: function(o) { alert('failure, could not get content');},
+	  scope: this
+	};
+	
+	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentURL, callback, null);
+};
+
+/**
+ * Given a user URL, loads learner data for this vle and project
+ */
+ConnectionManager.prototype.loadLearnerData = function(userURL, handler){
+	var callback = {
+				success: function(o) {
+					handler(o.responseXML);
+			  	},
+				failure: function(o) {
+					alert('Error: Unable to load user info');
+				},
+				scope: this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('GET', userURL, callback, null);
+};
+
+/**
+ * Given a projectName, loads the specified project from the server
+ */
+ConnectionManager.prototype.loadProjectFromServer = function(handler){
+	var callback =
+		{
+		success: function(o) {
+		  var xmlDocToParse = o.responseXML;
+		  
+		  /***						***|
+		   * Extra work needed for IE *|
+		   ***						***/
+		  if(window.ActiveXObject){
+		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+		  	ieXML.async = "false";
+		  	ieXML.loadXML(o.responseText);
+		  	xmlDocToParse = ieXML;
+		  };
+		  /***						***|
+		   * End extra work for IE	  *|
+		   ***						***/
+		  		   
+		  handler(xmlDocToParse);
+	  },			
+	  failure: function(o) { alert('unable to retrieve project from server'); return false;},
+	  scope:this
+	}
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=~project~');
+};
+
+ConnectionManager.prototype.retrieveFile = function(handler, node){
+	var callback = {
+		success:function(o){
+			var responseXML = o.responseXML;
+							
+			/***						***|
+			 * Extra work needed for IE *|
+			 ***						***/
+			 if(window.ActiveXObject){
+			 	 var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+			 	 ieXML.async = "false";
+			 	 ieXML.loadXML(o.responseText);
+			 	 responseXML = ieXML;
+			 };
+			/***						***|
+			 * End extra work for IE	  *|
+			 ***						***/
+			
+			if(!responseXML && loadXMLDocFromString){
+				var anotherTry = loadXMLDocFromString(o.responseText);
+				if(anotherTry){
+					responseXML = anotherTry;
+				} else {
+					alert('possibly mal-formed xml, unable to load from file');
+				};
+			};
+			
+			handler(responseXML, o.responseText, node);
+		},
+		failure:function(o){ alert('unable to retrieve file:' + node.filename); alert(window.location);},
+		scope:this
+	};
+		
+    if (node.filename.search(/http:/) > -1 || node.filename.search('/') > -1) {
+    	YAHOO.util.Connect.asyncRequest('GET', node.filename, callback, null);
+    } else {
+        YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + node.filename);
+    };
 };

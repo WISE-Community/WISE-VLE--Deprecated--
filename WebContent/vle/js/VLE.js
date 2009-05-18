@@ -7,7 +7,7 @@ function VLE() {
 	this.navigationPanel = null;
 	this.contentPanel = null;
 	this.audioManager = null;
-	this.connectionManager = null;
+	this.connectionManager = new ConnectionManager();
 	this.journal = null;
 	this.postNodes = [];
 	this.myUserInfo = null;
@@ -24,6 +24,34 @@ VLE.prototype.startEventsAndListeners = function(){
     this.eventManager.addEvent(this, 'learnerDataLoadingComplete');
     
     this.eventManager.inititializeLoading([['projectLoading', 'projectLoadingComplete', 'project'], ['learnerDataLoading', 'learnerDataLoadingComplete', 'learner data']]);
+
+	var renderNodeListener = function(){
+		if(vle && vle.project){
+			var startId = vle.project.getStartNodeId();
+			if(startId){
+				vle.renderNode(startId);
+			};
+		} else {
+			alert('VLE and project not ready to load any nodes');
+		};
+	};
+	
+	var startMenuListener = function(){
+		var menuEl = document.getElementById('my_menu');
+		if(menuEl && myMenu){
+			myMenu = new SDMenu('my_menu');
+		};
+	};
+	
+	var menuInitializerListener = function(){
+		if(myMenu){
+			myMenu.init();
+		};
+	};
+	
+	this.eventManager.subscribe('projectLoadingComplete', renderNodeListener);
+	this.eventManager.subscribe('projectLoadingComplete', startMenuListener);
+	this.eventManager.subscribe('projectLoadingComplete', menuInitializerListener);
 };
 
 /**
@@ -122,9 +150,9 @@ VLE.prototype.postToConnectionManager = function(currentNode) {
 	for(var q=0;q<this.postNodes.length;q++){
 		if(currentNode.id==this.postNodes[q]){
 			if(vle.myUserInfo != null) {
-				this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName);
+				this.connectionManager.post(vle.myUserInfo.workgroupId, this);
 			} else {
-				this.connectionManager.post();
+				this.connectionManager.post(null, this);
 			}
 		};
 	};
@@ -518,130 +546,108 @@ VLE.prototype.getClassUsers = function() {
  * @param dataId the workgroupId
  * @param vle this vle
  */
-VLE.prototype.loadVLEState = function(vle) {
+VLE.prototype.loadVLEState = function() {
 	var getURL = this.getDataUrl;
-		
-	
 	if (vle.myUserInfo && vle.myUserInfo.workgroupId) {
 		getURL += "?userId=" + vle.myUserInfo.workgroupId;
 	}
-
-	var callback = {
-		success: function(o) {
-			var xmlObj = o.responseXML;
-			//alert('vle.js, loadvlestate, responsetext: ' + o.responseText);
-			var vleStateXMLObj = xmlObj.getElementsByTagName("vle_state")[0];
-			if (vleStateXMLObj) {
-				var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
-				vle.setVLEState(vleStateObj);
-			} else {
-				//alert('no previous vle state');
-			}
-			vle.eventManager.fire('learnerDataLoadingComplete');
-		},
-		failure: function(o) {
-			vle.eventManager.fire('learnerDataLoadingComplete');
-		}
-	};
-	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
+	
+	this.connectionManager.loadVLEState(getURL, this.processLoadVLEStateResponse);
 }
+
+/**
+ * Process the response from connection manager's async call to loadevlestate
+ */
+VLE.prototype.processLoadVLEStateResponse = function(response){
+	if(response){
+		var vleStateXMLObj = response.getElementsByTagName("vle_state")[0];
+		if (vleStateXMLObj) {
+			var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
+			this.setVLEState(vleStateObj);
+		};
+	};
+	this.eventManager.fire('learnerDataLoadingComplete');
+};
 
 /**
  * Given the content URL, loads a project in the VLE
  */
 VLE.prototype.loadProject = function(contentURL, contentBaseUrl){
-	var contentCallback =
-	{
-	  success: function(o) {
-		  var xmlDocToParse = o.responseXML;
-	  
-		  var project = new Project(xmlDocToParse, contentBaseUrl);
-		  project.xmlDoc = xmlDocToParse;
-		  project.generateNode(xmlDocToParse);
-		  
-		  this.setProject(project);
-		  var dfs = new DFS(project.rootNode);
-		  this.navigationLogic = new NavigationLogic(dfs);
+	this.eventManager.fire('projectLoading');
+	this.connectionManager.loadProject(contentURL, this.processLoadProjectResponse, contentBaseUrl);
+};
 
-		  this.setConnection(new ConnectionManager(this));
-
-		    var startId = this.project.getStartNodeId();
-		    
-			setTimeout("vle.renderNode('" + startId + "'); vle.eventManager.fire('" + 'projectLoadingComplete' + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
-	  },
-	  failure: function(o) { alert('failure, could not get content');},
-	  scope: this
+/**
+ * Processes the response to the connectionManagers LoadProject function
+ */
+VLE.prototype.processLoadProjectResponse = function(response, contentBaseUrl){
+	if(response){
+		var project = new Project(response, contentBaseUrl, vle.connectionManager);
+		project.xmlDoc = response;
+		project.generateNode(response);
+	
+		vle.setProject(project);
+		var dfs = new DFS(project.rootNode);
+		vle.navigationLogic = new NavigationLogic(dfs);
 	};
 	
-	this.eventManager.fire('projectLoading');
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentURL, contentCallback, null);
+	var startId = vle.project.getStartNodeId();
+	if(startId){
+		var startNode = vle.getNodeById(startId);
+		if(!startNode.contentLoaded){
+			var waitForStartNodeContent = function(type, args, obj){
+				vle.eventManager.fire('projectLoadingComplete');
+			};
+			vle.eventManager.subscribe('nodeLoadingContentComplete_' + startNode.id, waitForStartNodeContent);
+		} else {
+			vle.eventManager.fire('projectLoadingComplete');
+		};
+	} else {
+		vle.eventManager.fire('projectLoadingComplete');
+	}; 
 };
 
 /**
  * Given a user URL, loads learner data for this vle and project
  */
 VLE.prototype.loadLearnerData = function(userURL){
-	var userCallback = {
-				success: function(o) {
-					this.loadUserAndClassInfo(o.responseXML);
-					//load the student data
-					this.loadVLEState(this);
-			  	},
-				failure: function(o) {
-					alert('Error: Unable to load user info');
-				},
-				scope: this
-	};
-	
 	if (userURL && userURL != null) {
 		this.eventManager.fire('learnerDataLoading');
-		YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
+		this.connectionManager.loadLearnerData(this.processLoadLearnerDataResponse);
 	};
 };
 
 /**
+ * Handles response from connectionManagers loadLearnerData function
+ */
+VLE.prototype.processLoadLearnerDataResponse = function(response){
+	if(response){
+		vle.loadUserAndClassInfo(o.responseXML);
+		vle.loadVLEState(vle);
+	};
+}; 
+
+/**
  * Given a projectName, loads the specified project from the server
  */
-VLE.prototype.loadProjectFromServer = function(author){
+VLE.prototype.loadProjectFromServer = function(author){	
+	vle.eventManager.fire('projectLoading');
 	
-	var callback =
-		{
-		success: function(o) {
-		  var xmlDocToParse = o.responseXML;
-		  
-		  /***						***|
-		   * Extra work needed for IE *|
-		   ***						***/
-		  if(window.ActiveXObject){
-		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
-		  	ieXML.async = "false";
-		  	ieXML.loadXML(o.responseText);
-		  	xmlDocToParse = ieXML;
-		  };
-		  /***						***|
-		   * End extra work for IE	  *|
-		   ***						***/
-		  
-		  project = new Project(xmlDocToParse);
-		  project.xmlDoc = xmlDocToParse;
-		  
-		  this.setProject(project);
-		  this.setConnection(new ConnectionManager());
-		  this.audioManager = new AudioManager(true);
-		  
-		  if(!author){
-			  var startId = this.project.getStartNodeId();
-			    
-			  setTimeout("vle.renderNode('" + startId + "'); myMenu = new SDMenu('my_menu'); myMenu.init();", 1000);
-		  };
-		  this.eventManager.fire('projectLoadingComplete');
-	  },			
-	  failure: function(o) { alert('unable to retrieve project from server');},
-	  scope:this
-	}
-	
-	this.eventManager.fire('projectLoading');
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=~project~');
+	this.connectionManager.loadProjectFromServer(this.processLoadProjectFromServerResponse, author);
+};
+
+/**
+ * Handles the server response from the connectionManagers call to loadProjectFromSErver
+ */
+VLE.prototype.processLoadProjectFromServerResponse = function(response){
+		if(response){
+			project = new Project(response, null, vle.connectionManager);
+			project.xmlDoc = response;
+			
+			vle.setProject(project);
+			vle.audioManager = new AudioManager(true);
+		};
+		vle.eventManager.fire('projectLoadingComplete');
 };
 
 /**
@@ -1002,7 +1008,7 @@ contentPanelOnLoad = function(){
 
 VLE.prototype.setConnection = function(connectionManager) {
 	this.connectionManager = connectionManager;
-	this.connectionManager.setVLE(this);
+	this.connectionManager.setPostStates(this);
 	this.connectionManager.setPostURL(this.postDataUrl);
 }
 
@@ -1016,7 +1022,7 @@ VLE.prototype.getDataXML = function() {
 }
 
 VLE.prototype.saveStudentData = function(){
-	this.connectionManager.post(vle.myUserInfo.workgroupId, vle.myUserInfo.userName, true);
+	this.connectionManager.post(vle.myUserInfo.workgroupId, this, true);
 };
 
 VLE.prototype.getLastStateTimestamp = function(){

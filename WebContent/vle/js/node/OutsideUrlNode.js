@@ -5,7 +5,8 @@
 OutsideUrlNode.prototype = new Node();
 OutsideUrlNode.prototype.constructor = OutsideUrlNode;
 OutsideUrlNode.prototype.parent = Node.prototype;
-function OutsideUrlNode(nodeType) {
+function OutsideUrlNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 }
 

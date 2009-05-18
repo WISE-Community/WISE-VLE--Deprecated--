@@ -6,7 +6,8 @@
 CustomJournalEntryNode.prototype = new JournalEntryNode();
 CustomJournalEntryNode.prototype.constructor = CustomJournalEntryNode;
 CustomJournalEntryNode.prototype.parent = JournalEntryNode.prototype;
-function CustomJournalEntryNode(nodeType) {
+function CustomJournalEntryNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	this.vle;
 }

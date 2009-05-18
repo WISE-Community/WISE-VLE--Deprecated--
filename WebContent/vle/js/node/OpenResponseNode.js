@@ -6,7 +6,8 @@
 OpenResponseNode.prototype = new Node();
 OpenResponseNode.prototype.constructor = OpenResponseNode;
 OpenResponseNode.prototype.parent = Node.prototype;
-function OpenResponseNode(nodeType) {
+function OpenResponseNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 };
 

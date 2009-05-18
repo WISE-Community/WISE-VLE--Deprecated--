@@ -5,7 +5,8 @@
 MultipleChoiceNode.prototype = new Node();
 MultipleChoiceNode.prototype.constructor = MultipleChoiceNode;
 MultipleChoiceNode.prototype.parent = Node.prototype;
-function MultipleChoiceNode(nodeType) {
+function MultipleChoiceNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	
 	//mainly used for the ticker

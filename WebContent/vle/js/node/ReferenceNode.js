@@ -7,7 +7,8 @@ ReferenceNode.prototype = new Node();
 ReferenceNode.prototype.constructor = ReferenceNode;
 ReferenceNode.prototype.parent = Node.prototype;
 
-function ReferenceNode(nodeType) {
+function ReferenceNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	this.referenceNodeId = null;
 	this.parameters = null;

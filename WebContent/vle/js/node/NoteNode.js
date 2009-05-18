@@ -5,7 +5,8 @@ var notePanel;
 NoteNode.prototype = new OpenResponseNode();
 NoteNode.prototype.constructor = NoteNode;
 NoteNode.prototype.parent = OpenResponseNode.prototype;
-function NoteNode(nodeType) {
+function NoteNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	
 	//The second argument passed to the

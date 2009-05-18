@@ -7,7 +7,8 @@
 BrainstormNode.prototype = new Node();
 BrainstormNode.prototype.constructor = BrainstormNode;
 BrainstormNode.prototype.parent = Node.prototype;
-function BrainstormNode(nodeType) {
+function BrainstormNode(nodeType, connectionManager) {
+	this.connectionManager = connectionManager;
 	this.type = nodeType;
 };
 
