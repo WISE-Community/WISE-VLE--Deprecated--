@@ -123,14 +123,14 @@ MS.prototype.render = function() {
     var bucketsHtml = "";
     document.getElementById('play').innerHTML = "";
     var choicesBucketHtml = this.getBucketHtml(this.sourceBucket);
-    bucketsHtml += "<div id=\"choicesColumn\">"+ choicesBucketHtml +"</div>";
-    bucketsHtml += "<div id=\"bucketsAndFeedbackColumn\">";
+    bucketsHtml += "<table><tr><td><div id=\"choicesColumn\">"+ choicesBucketHtml +"</div></td>";
+    bucketsHtml += "<td><div id=\"bucketsAndFeedbackColumn\">";
     for (var i=0; i < this.buckets.length; i++) {
         var currentBucket = this.buckets[i];
         var currentBucketHtml = this.getBucketHtml(currentBucket);
         bucketsHtml += currentBucketHtml;
     }
-    bucketsHtml += "</div>";
+    bucketsHtml += "</div></td></tr></table>";
     document.getElementById('play').innerHTML = bucketsHtml;
     renderYUI();   // calls YUI functions to make choices into draggables and buckets into dragtargets.
 	//addClassToElement("resetWrongChoicesButton", "disabledLink");
@@ -152,8 +152,8 @@ MS.prototype.getBucketHtml = function(bucket) {
 		}
 	}
 
-	bucketHtml = "<div class=\"bucketblock\"><div class=\"bucketlabel\" >"+ bucket.text + "</div>" +
-	"<div class=\"bucket\"><ul name=\"bucket_ul\" class=\"bucket_ul\" id=" + bucket.identifier +">"+choicesInBucketHtml+"</ul></div><div id=\"feedbackdiv_"+ bucket.identifier +"\"></div></div>";
+	bucketHtml = "<div class=\"bucketblock\"><div class=\"bucketlabel\" >"+ bucket.text + "</div><table><tr><td>" +
+	"<div class=\"bucket\"><ul name=\"bucket_ul\" class=\"bucket_ul\" id=" + bucket.identifier +">"+choicesInBucketHtml+"</ul></div></td><td><div id=\"feedbackdiv_"+ bucket.identifier +"\"></div></td></tr></table></div>";
 
 	return bucketHtml;
 }
