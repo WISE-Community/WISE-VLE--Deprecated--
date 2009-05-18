@@ -21,7 +21,7 @@ MC_CHECKBOX.prototype.loadXMLDoc = function(xmlDoc) {
 
 	// instantiate choices
 	for (var i=0;i<choicesDOM.length;i++) {
-		var choice = new CHOICE(choicesDOM[i]);
+		var choice = new MC_CHECKBOX_CHOICE(choicesDOM[i]);
 		this.choices.push(choice);
 		this.choiceToValueArray[choice.identifier] = choice.text;
 	}
@@ -104,7 +104,7 @@ MC_CHECKBOX.prototype.getLatestState = function(nodeId) {
 	return null;
 }
 
-//gets and returns a CHOICE object given the CHOICE's identifier
+//gets and returns a MC_CHECKBOX_CHOICE object given the MC_CHECKBOX_CHOICE's identifier
 MC_CHECKBOX.prototype.getCHOICEByIdentifier = function(identifier) {
 	for (var i=0;i<this.choices.length;i++) {
 		if (this.choices[i].identifier == identifier) {
@@ -155,7 +155,7 @@ MC_CHECKBOX.prototype.render = function() {
  *   It can add them together about once a second.
  * </simpleChoice>
  */
-function CHOICE(choiceDOM) {
+function MC_CHECKBOX_CHOICE(choiceDOM) {
 	this.dom = choiceDOM;
 	this.identifier = this.dom.getAttribute('identifier');
 	this.text = this.dom.lastChild.nodeValue;    // text choices that students will see.. can be html
@@ -169,7 +169,7 @@ function CHOICE(choiceDOM) {
  * feedback associated with this choice
  * PAS-1075 stuff would go in this function
  */
-CHOICE.prototype.getFeedbackText = function(mcObj) {
+MC_CHECKBOX_CHOICE.prototype.getFeedbackText = function(mcObj) {
 	if(mcObj.correctResponseInterpretation == null || mcObj.correctResponseInterpretation == "") {
 		/*
 		 * if there is no correct answer, just return the feedback,

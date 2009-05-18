@@ -42,6 +42,11 @@ OutsideUrlNode.prototype.getDataXML = function(nodeStates) {
 	return OutsideUrlNode.prototype.parent.getDataXML(nodeStates);
 }
 
+
+OutsideUrlNode.prototype.parseDataXML = function(nodeStatesXML) {
+	return new Array();
+}
+
 OutsideUrlNode.prototype.exportNode = function() {
 	var exportXML = "";
 	

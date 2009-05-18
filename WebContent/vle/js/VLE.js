@@ -15,6 +15,7 @@ function VLE() {
 	this.getDataUrl = null;
     this.postDataUrl = null;
     this.startEventsAndListeners();
+    this.annotations = null;
 }
 
 VLE.prototype.startEventsAndListeners = function(){
@@ -22,6 +23,9 @@ VLE.prototype.startEventsAndListeners = function(){
     this.eventManager.addEvent(this, 'projectLoadingComplete');
     this.eventManager.addEvent(this, 'learnerDataLoading');
     this.eventManager.addEvent(this, 'learnerDataLoadingComplete');
+    
+    this.eventManager.addEvent(this, 'loadUserAndClassInfo');
+    this.eventManager.addEvent(this, 'loadUserAndClassInfoComplete');
     
     this.eventManager.inititializeLoading([['projectLoading', 'projectLoadingComplete', 'project'], ['learnerDataLoading', 'learnerDataLoadingComplete', 'learner data']]);
 
@@ -59,8 +63,8 @@ VLE.prototype.startEventsAndListeners = function(){
  */
 VLE.prototype.setProject = function(project) {
 	this.project = project;
-	this.navigationPanel = new NavigationPanel(project.rootNode);
 	this.contentPanel = new ContentPanel(project, project.rootNode);
+	this.navigationPanel = new NavigationPanel(project.rootNode);
 }
 
 /**
@@ -463,6 +467,8 @@ VLE.prototype.getLeafNodeIds = function() {
  * 		class info
  */
 VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
+	this.eventManager.fire('loadUserAndClassInfo');
+	
 	//retrieve the xml node object for myUserInfo
 	var myUserInfoXML = userAndClassInfoXMLObject.getElementsByTagName("myUserInfo")[0];
 	
@@ -498,6 +504,8 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 	
 	//load the student data...This should be called outside of this function
 	//this.loadVLEState(this.myUserInfo.workgroupId, this);
+	
+	this.eventManager.fire('loadUserAndClassInfoComplete');
 }
 
  
@@ -548,11 +556,12 @@ VLE.prototype.getClassUsers = function() {
  */
 VLE.prototype.loadVLEState = function() {
 	var getURL = this.getDataUrl;
+		
 	if (vle.myUserInfo && vle.myUserInfo.workgroupId) {
 		getURL += "?userId=" + vle.myUserInfo.workgroupId;
 	}
 	
-	this.connectionManager.loadVLEState(getURL, this.processLoadVLEStateResponse);
+	this.connectionManager.loadVLEState(getURL, this);
 }
 
 /**

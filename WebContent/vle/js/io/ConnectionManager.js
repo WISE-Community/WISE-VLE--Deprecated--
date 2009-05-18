@@ -90,11 +90,11 @@ ConnectionManager.prototype.statesSaved = function(){
 	return(vle.getLastStateTimestamp()==this.lastSavedTimestamp);
 };
 
-ConnectionManager.prototype.loadVLEState = function(getURL, handler) {
+ConnectionManager.prototype.loadVLEState = function(getURL, vle) {
 
 	var callback = {
 		success: function(o) {
-			handler(o.responseXML);
+			vle.processLoadVLEStateResponse(o.responseXML);
 		},
 		failure: function(o) {}
 	};

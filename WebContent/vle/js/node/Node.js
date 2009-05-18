@@ -148,7 +148,7 @@ Node.prototype.setTopStepTitle = function() {
 }
 
 
-Node.prototype.getShowAllWorkHtml = function(){
+Node.prototype.getShowAllWorkHtml = function(vle){
 	var showAllWorkHtmlSoFar = "";
     var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
     if (nodeVisitArray.length > 0) {

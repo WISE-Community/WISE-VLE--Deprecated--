@@ -203,7 +203,7 @@ Project.prototype.generateSequences = function(xmlDoc){
 	
 	//get startingSequence
 	if(xmlDoc.getElementsByTagName('startpoint')[0].childNodes.length>0){
-		var startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
+		startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
 	};
 		
 	//validate that there are no loops
