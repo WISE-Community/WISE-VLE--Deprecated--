@@ -23,6 +23,10 @@ margin:6px;
 padding:6px;
 }
 
+#play table td {
+vertical-align:top;
+}
+
 #play:after {
 clear:both;
 content:'.';
@@ -41,11 +45,11 @@ width:210px;
 }
 
 #play ul li {
-font-size:.85em;
+font-size:.8em;
 background-image:none;
 cursor:move;
 list-style-type:none;
-margin:4px;
+margin:3px;
 padding: 2px 5px;
 position:relative;
 }
@@ -105,13 +109,13 @@ margin-left:12px;
 
 #bucketsAndFeedbackColumn .bucketblock {
 width:100%;
-display:table;
+display:block;
 }
 
 #bucketsAndFeedbackColumn .bucketlabel {
 text-align:left;
 font-size:.8em;
-font-weight:bold
+font-weight:bold;
 color:#000;
 padding:0 6px;
 margin: 0 0 3px 0;
@@ -122,16 +126,10 @@ padding:5px 3px 30px 3px;
 margin-bottom:10px;
 }
 
-#bucketsAndFeedbackColumn #feedbackdiv_yes ul {
-float:left;
-font-size:.85em;
-width:66%;
-}
-
-#bucketsAndFeedbackColumn #feedbackdiv_no ul {
-float:left;
-font-size:.85em;
-width:66%;
+.feedback_ul {
+	text-align:left;
+	font-size:.75em;
+	width:400px;
 }
 
 #feedbackDiv {

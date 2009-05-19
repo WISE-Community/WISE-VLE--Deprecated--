@@ -59,6 +59,12 @@
 	color:#FFF;
 	}
 
+#fullColumn { 
+	float:left;
+	padding:10px;
+	background-color:#FFD9ac;
+	}
+	
 #questionTypeVerticalLabel {
 	font-size:.9em;
 	line-height:130%;
