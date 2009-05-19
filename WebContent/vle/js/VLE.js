@@ -42,7 +42,8 @@ VLE.prototype.startEventsAndListeners = function(){
 	
 	var startMenuListener = function(){
 		var menuEl = document.getElementById('my_menu');
-		if(menuEl && myMenu){
+		
+		if(menuEl){
 			myMenu = new SDMenu('my_menu');
 		};
 	};
@@ -654,6 +655,8 @@ VLE.prototype.processLoadProjectFromServerResponse = function(response){
 			project.xmlDoc = response;
 			
 			vle.setProject(project);
+			var dfs = new DFS(project.rootNode);
+			vle.navigationLogic = new NavigationLogic(dfs);
 			vle.audioManager = new AudioManager(true);
 		};
 		vle.eventManager.fire('projectLoadingComplete');
