@@ -41,7 +41,7 @@ ConnectionManager.prototype.launchNext = function(){
 
 ConnectionManager.prototype.orderByPriority = function(a, b){
 	if(a.priority < b.priority){ return -1};
-	if(a.priority > b.priotiry){ return 1};
+	if(a.priority > b.priority){ return 1};
 	if(a.priority == b.priority) { return 0};
 };
 
