@@ -7,7 +7,7 @@ function VLE() {
 	this.navigationPanel = null;
 	this.contentPanel = null;
 	this.audioManager = null;
-	this.connectionManager = new ConnectionManager();
+	this.connectionManager = new ConnectionManager(this.eventManager);
 	this.journal = null;
 	this.postNodes = [];
 	this.myUserInfo = null;
@@ -16,6 +16,7 @@ function VLE() {
     this.postDataUrl = null;
     this.startEventsAndListeners();
     this.annotations = null;
+    this.lastPostStates = "";
 }
 
 VLE.prototype.startEventsAndListeners = function(){
@@ -144,7 +145,6 @@ VLE.prototype.renderNode = function(nodeId){
     // fire currenct changed event
 }
 
-
 /**
  * Posts the latest state to the server.
  * @param currentNode
@@ -154,14 +154,29 @@ VLE.prototype.postToConnectionManager = function(currentNode) {
 	this.postNodes = this.getLeafNodeIds();
 	for(var q=0;q<this.postNodes.length;q++){
 		if(currentNode.id==this.postNodes[q]){
-			if(vle.myUserInfo != null) {
-				this.connectionManager.post(vle.myUserInfo.workgroupId, this);
-			} else {
-				this.connectionManager.post(null, this);
-			}
+			var currentPostStates = this.state.getCompletelyVisitedNodesDataXML();
+			var diff = currentPostStates.replace(this.lastPostStates, "");
+			if(diff != null && diff != ""){
+				var url;
+				if(this.postDataUrl){
+					url = this.postDataUrl;
+				} else {
+					url = "postdata.html";
+				};
+				this.lastPostStates = currentPostStates;
+				if(vle.myUserInfo != null) {
+					this.connectionManager.request('POST', 3, url, {userId: vle.myUserInfo, data: diff}, this.processPostResponse);
+				} else {
+					this.connectionManager.request('POST', 3, url, {userId: '-2', data: diff}, this.processPostResponse);
+				};
+			};
 		};
 	};
-}
+};
+
+VLE.prototype.processPostResponse = function(responseText, responseXML){
+
+};
 
 /**
  * When a node session has ended, re-render the navigation panel, as some nodes might have
@@ -555,22 +570,20 @@ VLE.prototype.getClassUsers = function() {
  * @param dataId the workgroupId
  * @param vle this vle
  */
-VLE.prototype.loadVLEState = function() {
-	var getURL = this.getDataUrl;
-		
+VLE.prototype.loadVLEState = function() {		
 	if (vle.myUserInfo && vle.myUserInfo.workgroupId) {
-		getURL += "?userId=" + vle.myUserInfo.workgroupId;
-	}
-	
-	this.connectionManager.loadVLEState(getURL, this.processLoadVLEStateResponse);
-}
+		this.connectionManager.request('GET', 2, this.getDataUrl, {userId: vle.myUserInfo.workgroupId}, this.processLoadVLEStateResponse);
+	} else {
+		this.connectionManager.request('GET', 2, this.getDataUrl, null, this.processLoadVLEStateResponse);
+	};
+};
 
 /**
  * Process the response from connection manager's async call to loadevlestate
  */
-VLE.prototype.processLoadVLEStateResponse = function(response){
-	if(response){
-		var vleStateXMLObj = response.getElementsByTagName("vle_state")[0];
+VLE.prototype.processLoadVLEStateResponse = function(responseText, responseXML){
+	if(responseXML){
+		var vleStateXMLObj = responseXML.getElementsByTagName("vle_state")[0];
 		if (vleStateXMLObj) {
 			var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
 			vle.setVLEState(vleStateObj);
@@ -584,17 +597,17 @@ VLE.prototype.processLoadVLEStateResponse = function(response){
  */
 VLE.prototype.loadProject = function(contentURL, contentBaseUrl){
 	this.eventManager.fire('projectLoading');
-	this.connectionManager.loadProject(contentURL, this.processLoadProjectResponse, contentBaseUrl);
+	this.connectionManager.request('GET', 1, contentURL, null, this.processLoadProjectResponse, contentBaseUrl);
 };
 
 /**
  * Processes the response to the connectionManagers LoadProject function
  */
-VLE.prototype.processLoadProjectResponse = function(response, contentBaseUrl){
-	if(response){
-		var project = new Project(response, contentBaseUrl, vle.connectionManager);
-		project.xmlDoc = response;
-		project.generateNode(response);
+VLE.prototype.processLoadProjectResponse = function(responseText, responseXML, contentBaseUrl){
+	if(responseXML){
+		var project = new Project(responseXML, contentBaseUrl, vle.connectionManager);
+		project.xmlDoc = responseXML;
+		project.generateNode(responseXML);
 	
 		vle.setProject(project);
 		var dfs = new DFS(project.rootNode);
@@ -623,16 +636,16 @@ VLE.prototype.processLoadProjectResponse = function(response, contentBaseUrl){
 VLE.prototype.loadLearnerData = function(userURL){
 	if (userURL && userURL != null) {
 		this.eventManager.fire('learnerDataLoading');
-		this.connectionManager.loadLearnerData(this.processLoadLearnerDataResponse);
+		this.connectionManager.request('GET', 1, userURL, null, this.processLoadLearnerDataResponse);
 	};
 };
 
 /**
  * Handles response from connectionManagers loadLearnerData function
  */
-VLE.prototype.processLoadLearnerDataResponse = function(response){
-	if(response){
-		vle.loadUserAndClassInfo(o.responseXML);
+VLE.prototype.processLoadLearnerDataResponse = function(responseText, responseXML){
+	if(responseXML){
+		vle.loadUserAndClassInfo(responseXML);
 		vle.loadVLEState(vle);
 	};
 }; 
@@ -642,17 +655,16 @@ VLE.prototype.processLoadLearnerDataResponse = function(response){
  */
 VLE.prototype.loadProjectFromServer = function(author){	
 	vle.eventManager.fire('projectLoading');
-	
-	this.connectionManager.loadProjectFromServer(this.processLoadProjectFromServerResponse, author);
+	this.connectionManager.request('POST', 1, 'filemanager.html', {command:'retrieveFile', param1: currentProjectPath, param2: '~project~'}, this.processLoadProjectFromServerResponse);
 };
 
 /**
  * Handles the server response from the connectionManagers call to loadProjectFromSErver
  */
-VLE.prototype.processLoadProjectFromServerResponse = function(response){
-		if(response){
-			project = new Project(response, null, vle.connectionManager);
-			project.xmlDoc = response;
+VLE.prototype.processLoadProjectFromServerResponse = function(responseText, responseXML){
+		if(responseXML){
+			project = new Project(responseXML, null, vle.connectionManager);
+			project.xmlDoc = responseXML;
 			
 			vle.setProject(project);
 			var dfs = new DFS(project.rootNode);

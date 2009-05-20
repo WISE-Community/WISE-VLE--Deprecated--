@@ -74,6 +74,24 @@ EventManager.prototype.unsubscribe = function(fun){
 	};
 };
 
+/**
+ * Returns a list of available custom events
+ */
+EventManager.prototype.getEventsList = function(){
+	return this.eventNames;
+};
+
+/**
+ * Returns true if the given name is an available event,
+ * otherwise, returns false
+ */
+EventManager.prototype.isEvent = function(event){
+	if(this.eventNames.indexOf(event)==-1){
+		return false;
+	} else {
+		return true;
+	};
+};
 
 /**
  * Given a list of lists, creates and initializes a new LoadingManager
