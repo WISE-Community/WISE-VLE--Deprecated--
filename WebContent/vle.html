@@ -82,10 +82,6 @@
 var currentProjectPath;
 var vle = null;
 
-function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
-	render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
-};
-
 window.onload=function(){
 	if(window.opener){
 		currentProjectPath = window.opener.currentProjectPath;
@@ -142,6 +138,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
  *		to obtain the user info 
  */
 function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
+	//alert('vle.html\ncontentURL:'+contentURL+'\nuserURL:'+userURL+'\ngetDataUrl:'+getDataUrl+'\ncontentBaseUrl:'+contentBaseUrl+'\npostDataUrl:'+postDataUrl);
 	vle = new VLE();
 	vle.getDataUrl = getDataUrl;
     vle.postDataUrl = postDataUrl;
@@ -161,6 +158,15 @@ function renderProgressMonitor(contentURL, userURL, getDataUrl, contentBaseUrl, 
 	render(contentURL, userURL, getDataUrl, contentBaseUrl, null);	
 	setTimeout("parent.contentPanelFinishedLoading(" + workgroupId + ")", 3000);
 };
+
+/**
+ * initializes the vle by reading in the vle config
+ */
+function initializeVLEFromVLEConfig(vleConfigUrl) {
+	vle = new VLE();
+	vle.initialize(vleConfigUrl);
+}
+
 window.onbeforeunload = function(){
 	vle.closeVLE();
 }

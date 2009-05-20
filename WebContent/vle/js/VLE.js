@@ -1,4 +1,5 @@
 function VLE() {
+	this.config = null;
 	this.eventManager = new EventManager();
 	this.state = new VLE_STATE();
 	this.project = null;
@@ -20,6 +21,8 @@ function VLE() {
 }
 
 VLE.prototype.startEventsAndListeners = function(){
+	this.eventManager.addEvent(this, 'vleConfigLoading');
+	this.eventManager.addEvent(this, 'vleConfigLoadingComplete');
     this.eventManager.addEvent(this, 'projectLoading');
     this.eventManager.addEvent(this, 'projectLoadingComplete');
     this.eventManager.addEvent(this, 'learnerDataLoading');
@@ -124,7 +127,9 @@ VLE.prototype.renderNode = function(nodeId){
         this.contentPanel.render(currentNode.id);
 		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
 		if(this.connectionManager != null) {
-			this.postToConnectionManager(currentNode);
+			if (this.config != null && this.config.mode == "run") {
+				this.postToConnectionManager(currentNode);
+			}
 		}
         //alert('a:' + currentNode.nodeSessionEndedEvent);
         //alert('b:' + this.onNodeSessionEndedEvent);
@@ -490,8 +495,8 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 	
 	if(myUserInfoXML != null ) {
 		//create and set my user info in this vle instance
-		//alert(myUserInfoXML.getElementsByTagName("workgroupId")[0].firstChild.nodeValue);
-		//alert(myUserInfoXML.getElementsByTagName("userName")[0].firstChild.nodeValue);
+		alert(myUserInfoXML.getElementsByTagName("workgroupId")[0].firstChild.nodeValue);
+		alert(myUserInfoXML.getElementsByTagName("userName")[0].firstChild.nodeValue);
 		this.myUserInfo = USER_INFO.prototype.parseUserInfo(myUserInfoXML);
 		//alert(this.myUserInfo.userName);
 	}
@@ -504,7 +509,9 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 
 		//create and set the teacher
 		var teacherInfoXML = myClassInfoXML.getElementsByTagName("teacherUserInfo")[0];
-		myClassInfo.teacher = USER_INFO.prototype.parseUserInfo(teacherInfoXML);
+		if (teacherInfoXML && teacherInfoXML != null) {
+			myClassInfo.teacher = USER_INFO.prototype.parseUserInfo(teacherInfoXML);
+		}
 		
 		//create and set all the classmates
 		var classmateUserInfoXMLList = myClassInfoXML.getElementsByTagName("classmateUserInfo");
@@ -591,6 +598,72 @@ VLE.prototype.processLoadVLEStateResponse = function(responseText, responseXML){
 	};
 	vle.eventManager.fire('learnerDataLoadingComplete');
 };
+
+/**
+ * Given the vleConfigUrl, fetches the VLE Config file and starts up the VLE
+ * @param vleConfigUrl
+ * @return
+ */
+VLE.prototype.initialize = function(vleConfigUrl) {
+	this.eventManager.fire('vleConfigLoading');
+	this.connectionManager.request('GET', 1, vleConfigUrl, null, this.processRetrievedVLEConfig);
+}
+
+VLE.prototype.processRetrievedVLEConfig = function(responseText, responseXML) {
+	if (responseXML) {
+		var vleConfig = new VLEConfig();
+		vleConfig.parse(responseXML);
+		vle.initializeFromConfig(vleConfig);
+		vle.config = vleConfig;
+	}
+}
+
+/**
+ * Object for storing VLE Configuration
+ * These include:
+ * - postDataUrl, where to post student data
+ * - getDataUrl, where to get the student data from
+ * - contentUrl, where the .project file is
+ * - contentBaseUrl, base url of content
+ * - userInfoUrl, where to get user information
+ */
+function VLEConfig() {
+	this.mode;
+	this.postDataUrl;
+	this.getDataUrl;
+	this.contentUrl;
+	this.contentBaseUrl;
+	this.userInfoUrl;
+}
+
+/**
+ * function for parsing the response into attributes.
+ * @param response
+ * @return
+ */
+VLEConfig.prototype.parse = function(responseXML) {
+	this.mode = responseXML.getElementsByTagName("mode")[0].firstChild.nodeValue;
+	this.contentUrl = responseXML.getElementsByTagName("contentUrl")[0].firstChild.nodeValue;
+	this.contentBaseUrl = responseXML.getElementsByTagName("contentBaseUrl")[0].firstChild.nodeValue;
+	this.userInfoUrl = responseXML.getElementsByTagName("userInfoUrl")[0].firstChild.nodeValue;
+
+	if (this.mode == "run") {
+		this.getDataUrl = responseXML.getElementsByTagName("getDataUrl")[0].firstChild.nodeValue;
+		this.postDataUrl = responseXML.getElementsByTagName("postDataUrl")[0].firstChild.nodeValue;
+	}
+}
+
+/**
+ * Given a VLE config object, loads the project and user data
+ */
+VLE.prototype.initializeFromConfig = function(vleConfig) {
+	vle.getDataUrl = vleConfig.getDataUrl;
+    vle.postDataUrl = vleConfig.postDataUrl;
+	vle.loadProject(vleConfig.contentUrl, vleConfig.contentBaseUrl);
+	if (vleConfig.mode == "run") {
+		vle.loadLearnerData(vleConfig.userInfoUrl);
+	}
+}
 
 /**
  * Given the content URL, loads a project in the VLE
