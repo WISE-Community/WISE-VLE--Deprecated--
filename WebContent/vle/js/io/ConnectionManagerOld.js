@@ -82,10 +82,6 @@ ConnectionManager.prototype.post = function(workgroupId, vle, save) {
 	}
 }
 
-ConnectionManager.prototype.get = function() {
-	//TODO: implement if needed
-}
-
 ConnectionManager.prototype.statesSaved = function(){
 	return(vle.getLastStateTimestamp()==this.lastSavedTimestamp);
 };
@@ -204,4 +200,68 @@ ConnectionManager.prototype.retrieveFile = function(handler, node){
     } else {
         YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + node.filename);
     };
+};
+
+
+function Connection(url, cArgs, handler, hArgs, em){
+	this.em = em;
+};
+
+Connection.prototype.startRequest = function(eventName){
+	var en = eventName;
+	var callback = {
+		success: function(o){
+			this.em.fire('end' + en, [o.responseText, o.responseXML]);
+		},
+		failure: function(o){alert('connection request failed, please check parameters or if server is available');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest(this.type, this.url, callback, this.params);
+};
+
+GetConnection.prototype = new Connection();
+GetConnection.prototype.constructore = GetConnection;
+GetConnection.prototype.parent = Connection.prototype;
+function GetConnection(url, cArgs, handler, hArgs, em){
+	this.type = 'GET';
+	this.em = em;
+	this.url = url;
+	this.cArgs = cArgs,
+	this.handler = handler;
+	this.hArgs = hArgs;
+	this.params = null;
+	this.parseConnectionArgs();
+};
+
+GetConnection.prototype.parseConnectionArgs = function(){
+	if(this.cArgs && this.cArgs.length>0){
+		for(var p in this.cArgs){
+			this.url += '&' + p + '=' + this.cArgs[p];
+		};
+		this.url.replace(/\&/, '?');
+	};
+};
+
+PostConnection.prototype = new Connection();
+PostConnection.prototype.constructor = PostConnection;
+PostConnection.prototype.parent = Connection.prototype;
+function PostConnection(url, cArgs, handler, hArgs){
+	this.type = 'POST';
+	this.url = url;
+	this.cArgs = cArgs,
+	this.handler = handler;
+	this.hArgs = hArgs;
+	this.params = null;
+	this.parseConnectionArgs();
+};
+
+PostConnection.prototype.parseConnectionArgs = function(){
+	if(this.cArgs && this.cArgs.length>0){
+		this.params = '';
+		for(var p in this.cArgs){
+			this.params += '&' + p + '=' + this.cArgs[p];
+		};
+		this.params.replace(/\&/, '');
+	};
 };
