@@ -153,7 +153,7 @@ function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value, runId) 
 			 * our local array is up to date
 			 */
 			var annotation = Annotation.prototype.parseDataXML(o.responseXML);
-			
+			vle.annotations.addAnnotation(annotation);
 		},
 		failure: function(o) {
 			alert('Error: Unable to load user info');
