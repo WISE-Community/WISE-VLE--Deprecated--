@@ -65,6 +65,12 @@ Annotations.prototype.parseDataXML = function(annotationsXML) {
 	return annotations;
 }
 
+/**
+ * Retrieves the latest annotation for the given nodeId
+ * @param nodeId the nodeId to retrieve the annotation for
+ * @return the latest annotation for the nodeId or null if none are found
+ * 		for the nodeId
+ */
 Annotations.prototype.getLatestAnnotationForNodeId = function(nodeId) {
 	var annotation = null;
 	
@@ -79,6 +85,11 @@ Annotations.prototype.getLatestAnnotationForNodeId = function(nodeId) {
 	return annotation;
 }
 
+/**
+ * Retrieves all the annotations for a nodeId
+ * @param nodeId the nodeId to retrieve annotations for
+ * @return an array containing the annotations for the nodeId
+ */
 Annotations.prototype.getAnnotationsByNodeId = function(nodeId) {
 	var annotations = new Array();
 	
@@ -93,6 +104,11 @@ Annotations.prototype.getAnnotationsByNodeId = function(nodeId) {
 	return annotations;
 }
 
+/**
+ * Retrieves all the annotations for the toWorkgroup (student workgroup)
+ * @param toWorkgroup the student workgroup id
+ * @return an array containing the annotations for the toWorkgroup
+ */
 Annotations.prototype.getAnnotationsByToWorkgroup = function(toWorkgroup) {
 	var annotations = new Array();
 	
@@ -107,6 +123,51 @@ Annotations.prototype.getAnnotationsByToWorkgroup = function(toWorkgroup) {
 	return annotations;
 }
 
+/**
+ * Retrieves all the annotations for with the given nodeId and toWorkgroup
+ * @param nodeId the id of the node
+ * @param toWorkgroup the id of the student workgroup
+ * @return an array containing the annotations with the nodeId and toWorkgroup
+ */
+Annotations.prototype.getAnnotationsByNodeIdAndToWorkgroup = function(nodeId, toWorkgroup) {
+	var annotations = new Array();
+	
+	for(var x=0; x<this.annotationsArray.length; x++) {
+		var annotation = this.annotationsArray[x];
+		
+		if(annotation.nodeId == nodeId && annotation.toWorkgroup == toWorkgroup) {
+			annotations.push(annotation);
+		}
+	}
+	
+	return annotations;
+}
+
+/**
+ * Retrieves the latest annotation with the given nodeId and toWorkgroup
+ * @param nodeId the id of the node
+ * @param toWorkgroup the id of the student workgroup
+ * @return the latest annotation for the given nodeId and toWorkgroup
+ */
+Annotations.prototype.getLatestAnnotationByNodeIdAndToWorkgroupAndFromWorkgroup = function(nodeId, toWorkgroup, fromWorkgroup) {
+	var annotation = null;
+	
+	for(var x=0; x<this.annotationsArray.length; x++) {
+		var tempAnnotation = this.annotationsArray[x];
+		
+		if(tempAnnotation.nodeId == nodeId && tempAnnotation.toWorkgroup == toWorkgroup && tempAnnotation.fromWorkgroup == fromWorkgroup) {
+			annotation = tempAnnotation;
+		}
+	}
+	
+	return annotation;
+}
+
+/**
+ * Retrieves all the annotations for the given fromWorkgroup (workgroup giving the comment/grade)
+ * @param fromWorkgroup the workgroup giving the comment/grade
+ * @return an array of annotations written by the fromWorkgroup
+ */
 Annotations.prototype.getAnnotationsByFromWorkgroup = function(fromWorkgroup) {
 	var annotations = new Array();
 	
@@ -121,6 +182,11 @@ Annotations.prototype.getAnnotationsByFromWorkgroup = function(fromWorkgroup) {
 	return annotations;
 }
 
+/**
+ * Retrieves all the annotations with the given type 
+ * @param type the type of annotation e.g. comment, grade, etc.
+ * @return an array containing all the annotations with the given type
+ */
 Annotations.prototype.getAnnotationsByType = function(type) {
 	var annotations = new Array();
 	

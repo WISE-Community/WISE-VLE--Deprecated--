@@ -49,7 +49,11 @@ var vle = null;
 <script type="text/javascript" src="js/node/CustomNode.js"></script>
 <script type="text/javascript" src="js/node/MatchSequenceNode.js"></script>
 <script type="text/javascript" src="js/node/FillinNode.js"></script>
+<script type="text/javascript" src="js/node/fillin/fillinstate.js"></script>
+<script type="text/javascript" src="js/node/OpenResponseNode.js"></script>
 <script type="text/javascript" src="js/node/NoteNode.js"></script>
+<script type="text/javascript" src="js/node/openresponse/openresponse.js"></script>
+<script type="text/javascript" src="js/node/openresponse/openresponsestate.js"></script>
 <script type="text/javascript" src="js/node/JournalNode.js"></script>
 <script type="text/javascript" src="js/node/OutsideUrlNode.js"></script>
 <script type="text/javascript" src="js/node/BlueJNode.js"></script>
@@ -59,10 +63,14 @@ var vle = null;
 <script type="text/javascript" src="js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
 <script type="text/javascript" src="js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
 <script type="text/javascript" src="js/node/MultipleChoiceCheckBoxNode.js"></script>
+<script type="text/javascript" src="js/node/BrainstormNode.js"></script>
+<script type="text/javascript" src="js/node/JournalEntryNode.js"></script>
 <script type="text/javascript" src="js/node/TickerNode.js"></script>
 <script type="text/javascript" src="js/project/Project.js"></script>
-<script type="text/javascript" src="js/project/pas/PasOtmlProject.js"></script>
 <script type="text/javascript" src="js/io/ConnectionManager.js"></script>
+<script type="text/javascript" src="js/events/events.js"></script>
+<script type="text/javascript" src="js/grading/Annotation.js"></script>
+<script type="text/javascript" src="js/grading/Annotations.js"></script>
 
 <!-- Ticker Query Files -->
 <script type="text/javascript" src="js/node/ticker/ticker.js"></script>
@@ -104,6 +112,16 @@ function projectSummary(){
 <!--  Javascript Pop up window -->
 
 <script type="text/javascript">
+var contentUrl;
+var userUrl;
+var getDataUrl;
+var teacherId;
+var studentWorkgroupIds;
+var vleStates;
+var getAnnotationsUrl;
+var postAnnotationsUrl;
+var annotations;
+
 var runId = null;
 var newWin = null;
 function popUp(strURL, strType, strHeight, strWidth) {
@@ -124,8 +142,49 @@ function popUp(strURL, strType, strHeight, strWidth) {
  newWin.focus();
 }
 
-function load(contentURL, userURL, getDataUrl) {
-	render(contentURL, userURL, getDataUrl);
+function load(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId) {
+	//alert("contentURL: " + contentUrl + "\n\nuserURL: " + userUrl + "\n\ngetDataUrl: " + getDataUrl + "\n\ncontentBaseUrl: " + contentBaseUrl + "\n\ngetAnnotationsUrl: " + getAnnotationsUrl + "\n\npostAnnotationsUrl: " + postAnnotationsUrl);
+	this.contentUrl = contentUrl;
+	this.userUrl = userUrl;
+	this.getDataUrl = getDataUrl;
+	this.getAnnotationsUrl = getAnnotationsUrl;
+	this.postAnnotationsUrl = postAnnotationsUrl; 
+	this.runId = runId;
+	
+	render(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId);
+}
+
+/**
+ * Posts the new or updated annotation back to the server and if that was 
+ * successful, it will create a local Annotation object and place it in
+ * our array of Annotations so our local copy is up to date
+ */
+function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value, runId) {
+	//alert("nodeId: " + nodeId + "\ntoWorkgroup: " + toWorkgroup + "\nfromWorkgroup: " + fromWorkgroup + "\ntype: " + type + "\nvalue: " + value);
+
+	//build the post annotation url with get arguments
+	var postAnnotationURL = postAnnotationsUrl + "?runId=" + runId + "&nodeId=" + nodeId + "&toWorkgroup=" + toWorkgroup + "&fromWorkgroup=" + fromWorkgroup + "&type=" + type + "&value=" + value;
+	
+	var postAnnotationCallback =
+	{
+		success: function(o) {
+			/*
+			 * if the post was successful it will be returned back to us
+			 * and we will then create a local Annotation object so that
+			 * our local array is up to date
+			 */
+			var annotation = Annotation.prototype.parseDataXML(o.responseXML);
+			annotations.addAnnotation(annotation);
+		},
+		failure: function(o) {
+			alert('Error: Unable to load user info');
+		},
+		argument: ["a", "b", "c"],
+		scope:this
+	};
+
+	//make the call to post the annotation
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', postAnnotationURL, postAnnotationCallback, null);
 }
 
 </script>
@@ -133,106 +192,9 @@ function load(contentURL, userURL, getDataUrl) {
 </head>
 
 <body class=" yui-skin-sam">
-<div id="centeredDiv">	
 
-<div id="notePanel">
-	<div class="noteHead"></div>
-	<div class="noteBody"></div>
-	<div class="noteFooter"></div>
-</div>
+<div id="gradeByStepDiv"></div>
 
-<div id="journalPanel">
-	<div class="journalHead"></div>
-	<div class="journalBody"></div>
-	<div class="journalFooter"></div>
-</div>
-	
-<div id="projectLeftBox">
-		
-	<div id="toolsArea">
-		
-		  <dl class="dropdown">
-		  <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
-		  		<div id="menuTitle">course menu</div>
-				<img src="./assets/images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
-		</dt>
-		
-		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
-		    <ul>
-		      <!-- requested changes have been remarked out -->
-		      <li><a class="underline2" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Resources</a></li>
-		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show My Journal</a></li>
-		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
-		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
-		      <li><a class="underline" onclick="alert('not yet implemented');">Save</a></li>
-			  <li><a class="underline2" onclick="alert('not yet implemented');">Save & Exit</a></li>
-			  <li><a class="underline" onclick="alert('not yet implemented');">Print</a></li>
-			  <!-- <li><a class="underline">Report an Issue</a></li>   -->
-		    </ul>
-		  </dd>
-		</dl>
-	</div>
-	
-		<div id="projectLogoBox">
-		<a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="./assets/images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
-			<div id="projectCurriculum">
-				<div class="title">Level Up! Programming</div>
-				<div class="unit">Unit 3: Section 1</div>
-			</div>
-	<div id="logInBox">
-	</div>
-			
-	</div>
-
-	<div id="navigationArea">
-
-			 <!-- <div class="sectionHeader">Navigation</div> -->
-		<!--  
-			<div id="navMenuControls">
-				        <input type="button" value="Expand All" onclick="myMenu.expandAll()" />
-				        <input type="button" value="Collapse All" onclick="myMenu.collapseAll()" />
-					</div>
-					-->
-			<div id="navigationMenuBox" >
-				    <div id="my_menu" class="sdmenu">
-				   	</div>
-		    </div>   <!-- end of #navigationMenuBox -->
-	</div>   <!-- end of #navigationArea -->
-		
-	<div id="hostBrandingBox">
-		<a href=""><img src="./assets/images/UCCP-Logo.png" alt="UCCP College Prep Online Logo" width="210" height="32" border="0" /></a>
-	</div>
-	
-</div>    <!-- end of #projectLeftBox-->
-
-<div id="projectRightUpperBox">
-	<div id="stepInfoBar">
-		<div class="currentLessonSection"></div>
-		<div class="stepTypeLabel">
-    		<a id="topStepTitle"></a>
-			<span class="subStepCounter"></span> 
-		</div>
-		<div id="stepNavButtons">
-    		<a onclick="vle.renderPrevNode();" title="Previous step"><img align="top" src="./assets/images/go-previous.png" alt="Previous Arrow" width="72" height="72" border="0" />Prev</a>
-    		<a onclick="vle.renderNextNode();" title="Next step" ><img align="top" src="./assets/images/go-next.png" alt="Next Arrow" width="72" height="72" border="0" />Next</a>
-			<a class="menuAnchor" onclick="vle.toggleNavigationPanelVisibility();" title="Hide/Show the Navigation Menu"><img align="top" src="./assets/images/NavBar-Switch32.png" alt="Menu On/Off " width="72" height="60" border="0" />Menu</a>
-	
-		</div>
-    	
-	</div>
-</div>
-
-<div id="projectRightLowerBox">
-<div id="contentDiv" align="center"><div id="loadingMessageDiv"><br><br><br><br><br><br>Loading...</div>
-<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" width="100%" height="100%" frameborder="0">
- [Content for browsers that don't support iframes goes here.]
-</iframe>
-</div>
-</div>
-
-<div id="showAllWorkDiv"></div>
-
-</div>  <!-- centerDiv -->
 <script type="text/javascript">
 
 function expandMenu(menuId) {
@@ -247,73 +209,251 @@ function expandMenu(menuId) {
  * @param userURL a url to the user info, we will use a get request
  *		to obtain the user info 
  */
-function render(contentURL, userURL, getDataUrl) {
-	//alert('contentURL: ' + contentURL);
+function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId) {
 	vle = new VLE();
-	var contentCallback =
-	{
-	  success: function(o) { 
-		  var xmlDocObj = new LoadXMLDocObj();
-		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
-		  //alert(o.responseXML);
-		  var xmlDocToParse = o.responseXML;
-		  /*
-		  if (o.responseXML.getElementsByTagName("OTPasActivity").length == 0) {
-			  // WINDOWS IE
-			  //alert(o.responseText);
-			  var windowsXMLDoc = new ActiveXObject("Microsoft.XMLDOM");
-			  windowsXMLDoc.async = "false";
-			  windowsXMLDoc.loadXML(o.responseText);
-			  xmlDocToParse = windowsXMLDoc;
-			  //alert('done');
-			  //alert(xmlDocToParse);
-			  //alert('done done');
-		  }	
-		  */	  
-		  var project = new PasOtmlProject(xmlDocObj);
-		  //var project = new Project(xmlDocToParse);
-		  
-		  project.xmlDoc = xmlDocToParse;
-		  project.generateNode(xmlDocToParse);
-		  
-		  vle.setProject(project);
-		  var dfs = new DFS(project.rootNode);
-		  vle.navigationLogic = new NavigationLogic(dfs);
-		  vle.setConnection(new ConnectionManager());
-		  vle.getDataUrl = getDataUrl;
-		  myMenu = new Menu("my_menu");
-          myMenu.init();
-			
-		  setTimeout("vle.renderNode('0:0:18')", 1000);
-		  vle.toggleNavigationPanelVisibility();
-		  vle.toggleVisibility("topPanel");
-	  },
-	  failure: function(o) { alert('failure, could not get content');},
-	  argument: ["a", "b", "c"]
-	};
 
-	// fetch the OTML.
-	//alert('vle_mobile.html, contentURL: ' + contentURL);
-	var transaction = YAHOO.util.Connect.asyncRequest('GET', contentURL, contentCallback, null);
+	//load the project content
+	vle.loadProject(contentUrl, contentBaseUrl);
 
-	// fetch user data
-	var userCallback = {
-				success: function(o) {
-					//alert('userURL: ' + userURL);
-					//alert('userxml: ' + o.responseXML);
-					//alert('responsexml: ' + o.responseText);
-					vle.loadUserAndClassInfo(o.responseXML);
-			  	},
-				failure: function(o) {
-					alert('Error: Unable to load user info');
-				},
-				argument: ["a", "b", "c"]
+	//retrieve the workgroup ids for the students
+	getStudentUserInfo();
+
+	//setup events
+	vle.eventManager.addEvent(vle, 'getStudentUserInfoComplete');
+	vle.eventManager.addEvent(vle, 'getStudentWorkComplete');
+
+	/*
+	 * when we are done retrieving the student workgroup ids, we will
+	 * retrieve the work from all the students
+	 */
+	vle.eventManager.subscribe("getStudentUserInfoComplete", getStudentWork);
+
+	/*
+	 * when we are done retrieving the student work, we will retrieve
+	 * the annotations
+	 */
+	vle.eventManager.subscribe("getStudentWorkComplete", getAnnotations);
+}
+
+/**
+ * Retrieve the student workgroupIds
+ */
+function getStudentUserInfo() {
+	var studentWorkCallback = {
+			success: function(o) {
+				//parse and load the xml that contains the workgroup ids
+				vle.loadUserAndClassInfo(o.responseXML);
+
+				//get the teacher workgroup id
+				teacherId = vle.getWorkgroupId();
+
+				//retrieve all the student users
+				studentWorkgroupIds = new Array();
+				classUsers = vle.getClassUsers();
+
+				//loop through all the classmates
+				for(var x=0; x<classUsers.length; x++) {
+					//all users including the teacher are stored as a classmate right now
+					if(classUsers[x].workgroupId != teacherId) {
+						/*
+						 * if the user is not the teacher, add it to the 
+						 * student workgroup ids array
+						 */
+						studentWorkgroupIds.push(classUsers[x].workgroupId);
+					}
+				}
+
+				//fire this event to notify others that we are done getting the student workgroup ids
+				vle.eventManager.fire("getStudentUserInfoComplete");
+			},
+			failure: function(o) {
+				alert("Failed to load student work");
+			},
+			argument: ["a", "b", "c"],
+			scope:this
 	};
-	//alert('vle_mobile.html, userURL: ' + userURL);
-	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', userURL, userCallback, null);
+	YAHOO.util.Connect.asyncRequest('GET', userUrl, studentWorkCallback);
+		
+}
+
+/**
+ * This should only be called after getStudentUserInfo() has been called.
+ * This just appends all the student workgroup ids together seperated by :
+ * e.g.
+ * 139:143:152
+ * @return a string containing the student workgroup ids delimited by :
+ */
+function getStudentWorkgoupIds() {
+	var ids = "";
+
+	//loop through all the student workgroup ids
+	for(var x=0; x<studentWorkgroupIds.length; x++) {
+		if(ids != "") {
+			/*
+			 * if this is not the first workgroup id, we need to seperate
+			 * it from the previous id with a :
+			 */
+			ids += ":";
+		}
+		ids += studentWorkgroupIds[x];
+	}
+	return ids;
+}
+
+/**
+ * Retrieve the student work from the db
+ */
+function getStudentWork() {
+	var getStudentDataUrl = getDataUrl + "?userId=" + getStudentWorkgoupIds();
+	var studentWorkCallback = {
+			success: function(o) {
+				var xmlObject = o.responseXML;
+
+				//parse all the vlestates for all the students
+				vleStates = VLE_STATE.prototype.parseVLEStatesDataXMLObject(xmlObject);
+
+				/*
+				 * display links for all the steps so the user can click on a
+				 * link and see everyone's work for that step
+				 */
+				displaySteps();
+
+				//fire the event to nofity others that we are done getting the student work
+				vle.eventManager.fire("getStudentWorkComplete");
+			},
+			failure: function(o) {
+				alert("Failed to load student work");
+			},
+			argument: ["a", "b", "c"],
+			scope:this
+	};
+	YAHOO.util.Connect.asyncRequest('GET', getStudentDataUrl, studentWorkCallback);
+}
+
+/**
+ * Retrieve all the annotations for this run
+ */
+function getAnnotations() {
+	var annotationCallback = {
+			success: function(o) {
+				//parse the xml annotations object that contains all the annotations
+				annotations = Annotations.prototype.parseDataXML(o.responseXML);
+		  	},
+			failure: function(o) {
+				alert('Error: Unable to load user info');
+			},
+			argument: ["a", "b", "c"],
+			scope:this
+	};
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', getAnnotationsUrl, annotationCallback, null);
+}
+
+/**
+ * Displays all the steps in the project as links. When a step is clicked on,
+ * the user will be brought to a page that displays all the work for that
+ * step from all students in the run.
+ */
+function displaySteps() {
+	var displayStepsHtml = "";
+
+	//retrieve all the nodeIds
+	var nodeIds = vle.getLeafNodeIds();
+
+	/*
+	 * loop through all the nodeIds and create a link for each, each link will
+	 * bring the user to the grading page for that step/node
+	 */
+	for(var x=0; x<nodeIds.length; x++) {
+		displayStepsHtml += "<a href='#' onClick='getGradeByStepHtml(\"" + nodeIds[x] + "\")'>" + nodeIds[x] + "</a>";
+		displayStepsHtml += "<br><br>";
+	}
+
+	//set the html in the div so the user can see it
+	document.getElementById('gradeByStepDiv').innerHTML = displayStepsHtml;
+}
+
+/**
+ * Displays the grading view for a step which includes all the student ids,
+ * student work, and grading text box
+ * @param nodeId the step to display the grading view for
+ */
+function getGradeByStepHtml(nodeId) {
+	var gradeByStepHtml = "";
+
+	/*
+	 * add the button that allows the user to get back to the screen to choose
+	 * the step
+	 */
+	gradeByStepHtml += "<input type='button' value='Go Back to Steps' onClick='displaySteps()'>";
+
+	//create the table that displays all the student data, student work, and grading text box
+	gradeByStepHtml += "<table border='1'";
+
+	//add the header for the table
+	gradeByStepHtml += "<tr><th>Workgroup Id</th><th>Work</th><th>Grading</th></tr>";
+
+	//loop through all the vleStates, each vleState is for a workgroup
+	for(var x=0; x<vleStates.length; x++) {
+		//get a vleState
+		var vleState = vleStates[x];
+
+		var studentWork = "";
+
+		//get the latest node visit for the given nodeId
+		var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
+
+		//check if there was a node visit and if that had node states
+		if(latestNodeVisit != null && latestNodeVisit.nodeStates != null) {
+			if(latestNodeVisit.nodeStates.length != 0) {
+				//if there were node states, we will retrieve the last state to display the student work from it
+				studentWork = latestNodeVisit.nodeStates[latestNodeVisit.nodeStates.length - 1].getStudentWork();
+			}                            			
+		}
+
+		var annotation = null;
+
+		//get the latest annotation for this node, studentWorkgroupId, and teacherId if it exists
+		if(annotations.getLatestAnnotationByNodeIdAndToWorkgroupAndFromWorkgroup(nodeId, vleState.dataId, teacherId) != null) {
+			annotation = annotations.getLatestAnnotationByNodeIdAndToWorkgroupAndFromWorkgroup(nodeId, vleState.dataId, teacherId);
+		}
+
+		gradeByStepHtml += "<tr>";
+
+		//display the student workgroup id
+		gradeByStepHtml += "<td>" + vleState.dataId + "</td>";
+
+		//display the student work for this step/node
+		gradeByStepHtml += "<td>" + studentWork + "</td>";
+
+		/*
+		 * display the grading text box and save annotation button
+		 */
+		if(annotation != null) {
+			//the annotation exists so we will populate the values from the annotation
+			gradeByStepHtml += "<td><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'>" + annotation.value + "</textarea></td>";
+
+			//add the save annotation button that will save the annotation to the db when clicked
+			gradeByStepHtml += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + annotation.runId + ")'></td></tr>";
+		} else {
+			//the annotation does not exist so we will leave the text area blank
+			gradeByStepHtml += "<td><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'></textarea></td>";
+
+			//add the save annotation button that will save the annotation to the db when clicked
+			gradeByStepHtml += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></td></tr>";
+		}
+		
+
+		gradeByStepHtml += "</tr>";
+	}
+
+	gradeByStepHtml += "</table>";
+
+	//set the html in the div so the user can see it
+	document.getElementById('gradeByStepDiv').innerHTML = gradeByStepHtml;
 }
 
 var myMenu;
+
 
 </script>
 <div id="soundmanager-debug"></div>

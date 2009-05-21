@@ -495,8 +495,8 @@ VLE.prototype.loadUserAndClassInfo = function(userAndClassInfoXMLObject) {
 	
 	if(myUserInfoXML != null ) {
 		//create and set my user info in this vle instance
-		alert(myUserInfoXML.getElementsByTagName("workgroupId")[0].firstChild.nodeValue);
-		alert(myUserInfoXML.getElementsByTagName("userName")[0].firstChild.nodeValue);
+		//alert(myUserInfoXML.getElementsByTagName("workgroupId")[0].firstChild.nodeValue);
+		//alert(myUserInfoXML.getElementsByTagName("userName")[0].firstChild.nodeValue);
 		this.myUserInfo = USER_INFO.prototype.parseUserInfo(myUserInfoXML);
 		//alert(this.myUserInfo.userName);
 	}
@@ -835,6 +835,30 @@ VLE_STATE.prototype.getNodeVisitsByNodeId = function(nodeId) {
 }
 
 /**
+ * Get the latest node visit object for the nodeId
+ * @param nodeId the nodeId we want the latest node visit for
+ * @return the latest node visit for the nodeId
+ */
+VLE_STATE.prototype.getLatestNodeVisitByNodeId = function(nodeId) {
+	var latestNodeVisitForThisNodeId = null;
+	
+	//loop through all the node visits
+	for (var i=0; i<this.visitedNodes.length;i++) {
+		
+		//check if the current node visit has the nodeId we are looking for
+		if (this.visitedNodes[i].node.id==nodeId) {
+			/*
+			 * remember this node visit as the latest for now, if we find
+			 * a node visit in the future with the right nodeId, this will be 
+			 * overriden
+			 */
+			latestNodeVisitForThisNodeId = this.visitedNodes[i];
+		}		
+	}
+	return latestNodeVisitForThisNodeId;
+}
+
+/**
  * @return xml representation of the state of the vle which
  * 		includes student data as well as navigation info
  */
@@ -968,7 +992,7 @@ VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
 	 * will serve as the index/key.
 	 */
 	for(var x=0; x<workgroupsXML.length; x++) {
-		var dataId = workgroupsXML[x].attributes.getNamedItem("dataId").nodeValue;
+		var dataId = workgroupsXML[x].attributes.getNamedItem("userId").nodeValue;
 		var userName = workgroupsXML[x].attributes.getNamedItem("userName").nodeValue;
 		var vleStateXMLObj = workgroupsXML[x].getElementsByTagName("vle_state")[0];
 		
