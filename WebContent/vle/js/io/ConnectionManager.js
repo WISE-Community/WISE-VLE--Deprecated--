@@ -91,7 +91,7 @@ function GetConnection(priority, url, cArgs, handler, hArgs, em){
 
 GetConnection.prototype.parseConnectionArgs = function(){
 	var first = true;
-	if(this.cArgs && this.cArgs.length>0){
+	if(this.cArgs){
 		for(var p in this.cArgs){
 			if(first){
 				first = false;
