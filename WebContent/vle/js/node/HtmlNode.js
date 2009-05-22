@@ -24,7 +24,7 @@ HtmlNode.prototype.setContent = function(content) {
 HtmlNode.prototype.render = function(contentPanel) {
 	if (this.elementText != null) {
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.elementText);
+		window.frames["ifrm"].document.write(this.injectBaseRef(this.elementText));
 		window.frames["ifrm"].document.close();
 		return;
 	} else if (this.filename != null) {
@@ -67,6 +67,26 @@ HtmlNode.prototype.render = function(contentPanel) {
 		window.frames["ifrm"].document.close();
 	}
 }
+
+/**
+ * Injects base ref in the head of the html if base-ref is not found, and returns the result
+ * @param content
+ * @return
+ */
+HtmlNode.prototype.injectBaseRef = function(content) {
+	if (content.search(/<base/i) > -1) {
+		// no injection needed because base is already in the html
+		return content
+	} else {
+		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "/' />";
+		var headPosition = content.indexOf("<head>");
+		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
+		newContent += baseRefTag;
+		newContent += content.substring(headPosition+6);
+		return newContent;
+	}
+}
+
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {
 	return "";
