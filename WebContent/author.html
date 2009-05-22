@@ -87,6 +87,8 @@ var htmlPageName; //the root name of the html that gets passed to the individual
 var currentProjectName;
 var currentProjectPath;
 var projectSaved = true;
+var projectsLoaded = new YAHOO.util.CustomEvent("projectListLoaded");
+var pathsLoaded = new YAHOO.util.CustomEvent("pathsLoaded");
 
 var openProjectDialog;
 var createProjectDialog;
@@ -98,6 +100,79 @@ var importProjectDialog;
 var projectPaths; //a | delimited string of the project paths specified in settings.xml
 var primaryPath = ""; //the default path to create new projects
 var nodeIdToAuthor = null;
+
+var portalUrl;
+var portalProjectId;
+
+function setPortalMode(url, command, id){
+	portalUrl = url;
+	
+	if(command && command!=''){
+		if(command=='createProject'){
+			var show = function(){
+				createNewProject();
+			};
+			pathsLoaded.subscribe(show);
+		} else if(command=='editProject'){
+			setProjectPathAndName(decodeURIComponent(id));
+			loadProjectFromServer();
+		};
+	};
+	
+	projectsLoaded.subscribe(updatePortalProjects);
+};
+
+function updatePortalProjects(){
+	var handler = function(responseText, responseXML){
+		var addOption = function(name){
+			var parent = document.getElementById('selectProject');
+			var option = createElement(document, 'option', {name: 'projectOption'});
+			
+			parent.appendChild(option);
+			option.text = name;
+			option.value = name;
+		};
+		
+		var parent = document.getElementById('selectProject');
+		while(parent.firstChild){
+			parent.removeChild(parent.firstChild);
+		};
+		var placeholder = createElement(document, 'option', {name: 'placeholderOption'});
+		parent.appendChild(placeholder);
+		placeholder.value = '';
+		
+		var paths = responseXML.getElementsByTagName('path');
+		for(var y=0;y<paths.length;y++){
+			if(paths[y].firstChild){
+				addOption(paths[y].firstChild.nodeValue);
+			};
+		};
+	};
+
+	var callback = {
+		success: function(o){handler(o.responseText, o.responseXML);},
+		failuer: function(o){alert('unable to retrieve portal projects');},
+		scope: this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', portalUrl, callback, 'command=projectList');
+};
+
+function createPortalProject(path, name){
+	if(vle){
+		var handler = function(responseText, responseXML){
+			if(responseText){
+				portalProjectId = responseText;
+				updatePortalProjects();
+			} else {
+				alert('failed to create project in portal');
+			};
+		};
+		vle.connectionManager.request('POST', 3, portalUrl, {command: 'createProject', param1: path, param2: name}, handler);
+	} else {
+		alert('vle not available to author new project in portal');
+	};
+};
 
 function loaded(){
 	getProjectPaths();
@@ -159,6 +234,7 @@ function getProjectPaths(){
 					};
 				};
 				
+				pathsLoaded.fire();
 				initializeOpenProjectDialog();
 			} else {
 				alert("Error retrieving settings");
@@ -214,6 +290,7 @@ function initializeOpenProjectDialog(bool){
 				openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
 				openProjectDialog.render();
 			};
+			projectsLoaded.fire();
 		},
 		failure:function(o){alert('unable to retrieve projects from server');},
 		scope:this
@@ -245,6 +322,9 @@ function initializeCreateProjectDialog(){
 	var doSuccess = function(path){
 		setProjectPathAndName(path);
 		loadProjectFromServer();
+		if(portalUrl){
+			createPortalProject(path, document.getElementById('projectInput').value);
+		};
 		document.getElementById('projectInput').value = "";
 	};
 
@@ -465,10 +545,20 @@ function initializeImportProjectDialog(){
 function openProject(){
 	if(!projectSaved){
 		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-			updateAvailableProjects();
+			if(!portalUrl){
+				updateAvailableProjects();
+			} else {
+				updatePortalProjects();
+				openProjectDialog.show();
+			};
 		};
 	} else {
-		updateAvailableProjects();
+		if(!portalUrl){
+			updateAvailableProjects();
+		} else {
+			updatePortalProjects();
+			openProjectDialog.show();
+		};
 	};
 };
 

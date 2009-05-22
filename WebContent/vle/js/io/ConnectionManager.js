@@ -1,3 +1,6 @@
+/**
+ * ConnectionManager manages and prioritizes GET and POST requests
+ */
 function ConnectionManager(em) {
 	this.em = em;
 	this.MAX = 5;
@@ -6,6 +9,10 @@ function ConnectionManager(em) {
 	this.counter = 0;
 };
 
+/**
+ * Creates a connection object based on type, queues and starts a request depending
+ * on how many are in queue.
+ */
 ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs){
 
 	var connection;
@@ -22,6 +29,10 @@ ConnectionManager.prototype.request = function(type, priority, url, cArgs, handl
 	this.launchNext();
 };
 
+/**
+ * Sorts the queue according to priority and if the number of
+ * requests does not exceed this.MAX, launches the next request
+ */
 ConnectionManager.prototype.launchNext = function(){
 	if(this.queue.length>0){
 		if(this.running<this.MAX){
@@ -39,12 +50,18 @@ ConnectionManager.prototype.launchNext = function(){
 	};
 };
 
+/**
+ * Function used by array.sort to order by priority
+ */
 ConnectionManager.prototype.orderByPriority = function(a, b){
 	if(a.priority < b.priority){ return -1};
 	if(a.priority > b.priority){ return 1};
 	if(a.priority == b.priority) { return 0};
 };
 
+/**
+ * Generates a unique event name
+ */
 ConnectionManager.prototype.generateEventName = function(){
 	while(true){
 		var name = 'connectionEnded' + this.counter;
@@ -55,10 +72,17 @@ ConnectionManager.prototype.generateEventName = function(){
 	};
 };
 
+/**
+ * A Connection object encapsulates all of the necessary variables
+ * to make a async request to a url
+ */
 function Connection(priority, url, cArgs, handler, hArgs, em){
 	this.em = em;
 };
 
+/**
+ * Launches the request that this connection represents
+ */
 Connection.prototype.startRequest = function(eventName){
 	var en = eventName;
 	
@@ -74,6 +98,10 @@ Connection.prototype.startRequest = function(eventName){
 	YAHOO.util.Connect.asyncRequest(this.type, this.url, callback, this.params);
 };
 
+/**
+ * a Child of Connection, a GetConnection Object represents a GET
+ * async request
+ */
 GetConnection.prototype = new Connection();
 GetConnection.prototype.constructor = GetConnection;
 GetConnection.prototype.parent = Connection.prototype;
@@ -89,6 +117,9 @@ function GetConnection(priority, url, cArgs, handler, hArgs, em){
 	this.parseConnectionArgs();
 };
 
+/**
+ * parses the connection arguments and appends them to the URL
+ */
 GetConnection.prototype.parseConnectionArgs = function(){
 	var first = true;
 	if(this.cArgs){
@@ -104,6 +135,10 @@ GetConnection.prototype.parseConnectionArgs = function(){
 	};
 };
 
+/**
+ * A child of Connection, a PostConnection object represents
+ * an async POST request
+ */
 PostConnection.prototype = new Connection();
 PostConnection.prototype.constructor = PostConnection;
 PostConnection.prototype.parent = Connection.prototype;
@@ -119,6 +154,9 @@ function PostConnection(priority, url, cArgs, handler, hArgs, em){
 	this.parseConnectionArgs();
 };
 
+/**
+ * parses and sets the necessary parameters for a POST request
+ */
 PostConnection.prototype.parseConnectionArgs = function(){
 	var first = true;
 	if(this.cArgs){

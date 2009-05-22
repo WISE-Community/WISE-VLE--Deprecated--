@@ -131,7 +131,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 	var nodeElements = xmlDoc.getElementsByTagName("nodes")[0].childNodes;
 	for (var i=0; i < nodeElements.length; i++) {
 		var currElement = nodeElements[i];
-		if (currElement.nodeName != "#text")  {
+		if (currElement.nodeName != "#text" && currElement.nodeName != '#comment')  {
 			var thisNode = NodeFactory.createNode(currElement);
 			if(thisNode == null) {
 				/*
@@ -256,7 +256,7 @@ Project.prototype.populateSequences = function(id){
 	var sequence = this.getNodeById(id);
 	var children = sequence.element.childNodes;
 	for(var j=0;j<children.length;j++){
-		if(children[j].nodeName!='#text'){
+		if(children[j].nodeName!='#text' && children[j].nodeName!='#comment'){
 			var childNode = this.getNodeById(children[j].getAttribute('ref'));
 			sequence.addChildNode(childNode);			
 		};
