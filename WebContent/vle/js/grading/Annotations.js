@@ -3,7 +3,7 @@
  */
 
 function Annotations() {
-	this.annotationsArray = null;
+	this.annotationsArray = new Array();
 }
 
 /**
@@ -149,13 +149,17 @@ Annotations.prototype.getAnnotationsByNodeIdAndToWorkgroup = function(nodeId, to
  * @param toWorkgroup the id of the student workgroup
  * @return the latest annotation for the given nodeId and toWorkgroup
  */
-Annotations.prototype.getLatestAnnotationByNodeIdAndToWorkgroupAndFromWorkgroup = function(nodeId, toWorkgroup, fromWorkgroup) {
+Annotations.prototype.getLatestAnnotation = function(runId, nodeId, toWorkgroup, fromWorkgroup, type) {
 	var annotation = null;
 	
 	for(var x=0; x<this.annotationsArray.length; x++) {
 		var tempAnnotation = this.annotationsArray[x];
 		
-		if(tempAnnotation.nodeId == nodeId && tempAnnotation.toWorkgroup == toWorkgroup && tempAnnotation.fromWorkgroup == fromWorkgroup) {
+		if(tempAnnotation.runId == runId && 
+				tempAnnotation.nodeId == nodeId &&
+				tempAnnotation.toWorkgroup == toWorkgroup && 
+				tempAnnotation.fromWorkgroup == fromWorkgroup &&
+				tempAnnotation.type == type) {
 			annotation = tempAnnotation;
 		}
 	}

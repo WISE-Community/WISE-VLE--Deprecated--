@@ -50,6 +50,26 @@
     <url-pattern>/postannotations.html</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>vlepostflag</servlet-name>
+    <servlet-class>vle.VLEPostFlag</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlepostflag</servlet-name>
+    <url-pattern>/postflag.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>vlegetflag</servlet-name>
+    <servlet-class>vle.VLEGetFlag</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlegetflag</servlet-name>
+    <url-pattern>/getflag.html</url-pattern>
+  </servlet-mapping>
+  
     <servlet>
     <servlet-name>echopostdata</servlet-name>
     <servlet-class>utils.EchoPostData</servlet-class>

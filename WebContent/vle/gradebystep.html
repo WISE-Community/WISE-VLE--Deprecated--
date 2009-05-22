@@ -71,6 +71,8 @@ var vle = null;
 <script type="text/javascript" src="js/events/events.js"></script>
 <script type="text/javascript" src="js/grading/Annotation.js"></script>
 <script type="text/javascript" src="js/grading/Annotations.js"></script>
+<script type="text/javascript" src="js/grading/Flag.js"></script>
+<script type="text/javascript" src="js/grading/Flags.js"></script>
 
 <!-- Ticker Query Files -->
 <script type="text/javascript" src="js/node/ticker/ticker.js"></script>
@@ -122,6 +124,10 @@ var getAnnotationsUrl;
 var postAnnotationsUrl;
 var annotations;
 
+var getFlagsUrl;
+var postFlagsUrl;
+var flags;
+
 var runId = null;
 var newWin = null;
 function popUp(strURL, strType, strHeight, strWidth) {
@@ -142,7 +148,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
  newWin.focus();
 }
 
-function load(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId) {
+function load(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId, getFlagsUrl, postFlagsUrl) {
 	//alert("contentURL: " + contentUrl + "\n\nuserURL: " + userUrl + "\n\ngetDataUrl: " + getDataUrl + "\n\ncontentBaseUrl: " + contentBaseUrl + "\n\ngetAnnotationsUrl: " + getAnnotationsUrl + "\n\npostAnnotationsUrl: " + postAnnotationsUrl);
 	this.contentUrl = contentUrl;
 	this.userUrl = userUrl;
@@ -150,6 +156,9 @@ function load(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl
 	this.getAnnotationsUrl = getAnnotationsUrl;
 	this.postAnnotationsUrl = postAnnotationsUrl; 
 	this.runId = runId;
+
+	this.getFlagsUrl = getFlagsUrl;
+	this.postFlagsUrl = postFlagsUrl;
 	
 	render(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId);
 }
@@ -187,6 +196,56 @@ function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value, runId) 
 	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', postAnnotationURL, postAnnotationCallback, null);
 }
 
+/**
+ * Posts the flag to the server and if it was successful, we will update our
+ * local copy of the flags
+ * @param nodeId the id of the node
+ * @param toWorkgroup id of the student
+ * @param fromWorkgroup id of the teacher
+ * @param checked boolean value whether the check box was checked or not
+ * @param studentWork the student's work
+ * @param runId the id of the run
+ */
+function saveFlag(nodeId, toWorkgroup, fromWorkgroup, checked, studentWork, runId) {
+	//alert("nodeId: " + nodeId + "\ntoWorkgroup: " + toWorkgroup + "\nfromWorkgroup: " + fromWorkgroup + "\ntype: " + type + "\nvalue: " + value);
+	
+	//build the post flag url with get arguments
+	var postFlagUrl = postFlagsUrl + "?runId=" + runId + "&nodeId=" + nodeId + "&toWorkgroup=" + toWorkgroup + "&fromWorkgroup=" + fromWorkgroup + "&studentWork=" + studentWork;
+
+	//check if we are flagging or unflagging the flag
+	if(checked == false) {
+		//add the action of unflag if we are unflagging
+		postFlagUrl += "&action=unflag";
+	}
+
+	var postFlagCallback =
+	{
+		success: function(o) {
+			
+			if(checked == false) {
+				//if we are unflagging, remove the flag from our local array
+				flags.removeFlag(runId + '', nodeId, toWorkgroup + '', fromWorkgroup + '', studentWork);
+			} else {
+				/*
+				 * if the post was successful it will be returned back to us
+				 * and we will then create a local Flag object so that
+				 * our local array is up to date
+				 */
+				var flag = Flag.prototype.parseDataXML(o.responseXML);
+				flags.addFlag(flag);
+			}
+		},
+		failure: function(o) {
+			alert('Error: Unable to load user info');
+		},
+		argument: ["a", "b", "c"],
+		scope:this
+	};
+
+	//make the call to post the annotation
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', postFlagUrl, postFlagCallback, null);
+}
+
 </script>
 
 </head>
@@ -209,7 +268,7 @@ function expandMenu(menuId) {
  * @param userURL a url to the user info, we will use a get request
  *		to obtain the user info 
  */
-function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId) {
+function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId, getFlagsUrl, postFlagsUrl) {
 	vle = new VLE();
 
 	//load the project content
@@ -221,6 +280,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsU
 	//setup events
 	vle.eventManager.addEvent(vle, 'getStudentUserInfoComplete');
 	vle.eventManager.addEvent(vle, 'getStudentWorkComplete');
+	vle.eventManager.addEvent(vle, 'getAnnotationsComplete');
 
 	/*
 	 * when we are done retrieving the student workgroup ids, we will
@@ -233,6 +293,8 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, getAnnotationsU
 	 * the annotations
 	 */
 	vle.eventManager.subscribe("getStudentWorkComplete", getAnnotations);
+
+	vle.eventManager.subscribe("getAnnotationsComplete", getFlags);
 }
 
 /**
@@ -338,6 +400,7 @@ function getAnnotations() {
 			success: function(o) {
 				//parse the xml annotations object that contains all the annotations
 				annotations = Annotations.prototype.parseDataXML(o.responseXML);
+				vle.eventManager.fire("getAnnotationsComplete");
 		  	},
 			failure: function(o) {
 				alert('Error: Unable to load user info');
@@ -346,6 +409,25 @@ function getAnnotations() {
 			scope:this
 	};
 	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', getAnnotationsUrl, annotationCallback, null);
+}
+
+/**
+ * Retrieve all the flags for this run
+ */
+function getFlags() {
+	var flagCallback = {
+			success: function(o) {
+				//parse the xml flags object that contains all the flags
+				flags = Flags.prototype.parseDataXML(o.responseXML);
+		  	},
+			failure: function(o) {
+				alert('Error: Unable to load user info');
+			},
+			argument: ["a", "b", "c"],
+			scope:this
+	};
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', getFlagsUrl, flagCallback, null);
+
 }
 
 /**
@@ -390,7 +472,7 @@ function getGradeByStepHtml(nodeId) {
 	gradeByStepHtml += "<table border='1'";
 
 	//add the header for the table
-	gradeByStepHtml += "<tr><th>Workgroup Id</th><th>Work</th><th>Grading</th></tr>";
+	gradeByStepHtml += "<tr><th>Workgroup Id</th><th>Work</th><th>Grading</th><th>Save Annotation</th><th>Flag</th></tr>";
 
 	//loop through all the vleStates, each vleState is for a workgroup
 	for(var x=0; x<vleStates.length; x++) {
@@ -410,12 +492,7 @@ function getGradeByStepHtml(nodeId) {
 			}                            			
 		}
 
-		var annotation = null;
-
-		//get the latest annotation for this node, studentWorkgroupId, and teacherId if it exists
-		if(annotations.getLatestAnnotationByNodeIdAndToWorkgroupAndFromWorkgroup(nodeId, vleState.dataId, teacherId) != null) {
-			annotation = annotations.getLatestAnnotationByNodeIdAndToWorkgroupAndFromWorkgroup(nodeId, vleState.dataId, teacherId);
-		}
+		var annotation = annotations.getLatestAnnotation(runId, nodeId, vleState.dataId, teacherId, "comment");
 
 		gradeByStepHtml += "<tr>";
 
@@ -433,15 +510,26 @@ function getGradeByStepHtml(nodeId) {
 			gradeByStepHtml += "<td><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'>" + annotation.value + "</textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			gradeByStepHtml += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + annotation.runId + ")'></td></tr>";
+			gradeByStepHtml += "<td><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + annotation.runId + ")'></td>";
 		} else {
 			//the annotation does not exist so we will leave the text area blank
 			gradeByStepHtml += "<td><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'></textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			gradeByStepHtml += "<td><input type='button' name='submitAnnotation' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></td></tr>";
+			gradeByStepHtml += "<td><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></td>";
 		}
+
+		//get the flag (if any) that corresponds to the row we are displaying
+		var flag = flags.getFlag(runId, nodeId, vleState.dataId, teacherId);
+		var checked = "";
 		
+		if(flag != null) {
+			//if there was a flag then we will set the checkbox to checked
+			checked = "checked";
+		}
+
+		//display the checkbox for the flagging
+		gradeByStepHtml += "<td><input type='checkbox' name='flagCheckBox" + vleState.dataId + "' id='flagCheckBox" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", document.getElementById(\"flagCheckBox" + vleState.dataId + "\").checked, \"" + studentWork + "\", " + runId + ")' + " + checked + "></td>";
 
 		gradeByStepHtml += "</tr>";
 	}
