@@ -76,17 +76,35 @@ public class VLEPostAnnotations extends HttpServlet {
         		//annotationBundle.append("<postTime>" +  + "</postTime>");
         		annotationEntry.append("</annotationEntry>");
         		
+        		
         		//the query to see if the row already exists in the table
-        		String selectStmt = "select * from annotations where runId=" + runId + " and nodeId='" + nodeId + "' and toWorkgroup='" + toWorkgroup + "' and fromWorkgroup='" + fromWorkgroup + "' and type='" + type + "' and value='" + annotationEntry + "'";
+        		//String selectStmt = "select * from annotations where runId=" + runId + " and nodeId='" + nodeId + "' and toWorkgroup='" + toWorkgroup + "' and fromWorkgroup='" + fromWorkgroup + "' and type='" + type + "' and value='" + annotationEntry + "'";
+        		String selectStmt = "select * from annotations where runId=" + runId + " and nodeId='" + nodeId + "' and toWorkgroup='" + toWorkgroup + "' and fromWorkgroup='" + fromWorkgroup + "' and type='" + type + "'";
         		System.out.println(selectStmt);
         		results = stmt.executeQuery(selectStmt);
         		
         		//check if the row already exists
-        		if(results.first() == false) {
+        		if(results.last() == false) {
         			//the row does not exist so we will insert it
         			String insertStmt = "insert into annotations(runId, nodeId, toWorkgroup, fromWorkgroup, type, value) values(" + runId + ", '" + nodeId + "', " + toWorkgroup + ", " + fromWorkgroup + ", '" + type + "', '" + annotationEntry + "')";
         			System.out.println(insertStmt);
         			stmt.execute(insertStmt);
+        		} else {
+        			/*
+        			 * the row does exist so we must check whether the
+        			 * annotation value is the same as the latest value
+        			 */
+        			if(!results.getString("value").equals(annotationEntry.toString())) {
+        				/*
+        				 * the last value was not the same as the current one
+        				 * so we will add the current one into the table. if
+        				 * the last value was the same as the current one, we
+        				 * will just ignore the current one.
+        				 */
+        				String insertStmt = "insert into annotations(runId, nodeId, toWorkgroup, fromWorkgroup, type, value) values(" + runId + ", '" + nodeId + "', " + toWorkgroup + ", " + fromWorkgroup + ", '" + type + "', '" + annotationEntry + "')";
+            			System.out.println(insertStmt);
+            			stmt.execute(insertStmt);
+        			}
         		}
         		
         		//send the annotationEntry xml to the response so the user can get the xml
