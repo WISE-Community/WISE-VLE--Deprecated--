@@ -188,7 +188,7 @@ public final class Template {
 	}
 
 	private static String getBrainstormTemplate() {
-		return "<Brainstorm title=\"\" isGated=\"false\" displayName=\"0\" isRichTextEditorAllowed=\"true\" isPollEnded=\"false\" isInstantPollActive=\"false\">" + NL +
+		return "<Brainstorm title=\"\" isGated=\"true\" displayName=\"0\" isRichTextEditorAllowed=\"true\" isPollEnded=\"false\" isInstantPollActive=\"false\">" + NL +
 			"<assessmentItem xmlns=\"http://www.imsglobal.org/xsd/imsqti_v2p0\" xmlns:ns3=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" timeDependent=\"false\" adaptive=\"false\">" + NL +
 			"<itemBody>" + NL +
 			"<extendedTextInteraction responseIdentifier=\"BRAINSTORM\" expectedLines=\"0\">" + NL +
