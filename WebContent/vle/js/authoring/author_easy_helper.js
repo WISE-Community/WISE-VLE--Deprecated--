@@ -26,7 +26,7 @@ function save(){
  * Load the authoring view from the specified filename
  * filename points to a plain old file.
  */
-function loadAuthoringFromFile(filename, projectName, projectPath) {
+function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator) {
 	var callback =
 	{
 	  success: function(o) { 
@@ -67,7 +67,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath) {
 		  scope: this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + '&param2=' + filename);
+	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
 }
 
 function updatePreview(){

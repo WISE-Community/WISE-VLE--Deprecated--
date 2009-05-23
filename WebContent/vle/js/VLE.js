@@ -685,6 +685,7 @@ VLE.prototype.processLoadProjectResponse = function(responseText, responseXML, c
 		vle.setProject(project);
 		var dfs = new DFS(project.rootNode);
 		vle.navigationLogic = new NavigationLogic(dfs);
+		vle.audioManager = new AudioManager(true);
 	};
 	
 	var startId = vle.project.getStartNodeId();
@@ -728,7 +729,7 @@ VLE.prototype.processLoadLearnerDataResponse = function(responseText, responseXM
  */
 VLE.prototype.loadProjectFromServer = function(author){	
 	vle.eventManager.fire('projectLoading');
-	this.connectionManager.request('POST', 1, 'filemanager.html', {command:'retrieveFile', param1: currentProjectPath, param2: '~project~'}, this.processLoadProjectFromServerResponse);
+	this.connectionManager.request('POST', 1, 'filemanager.html', {command:'retrieveFile', param1: currentProjectPath + pathSeparator + currentProjectName}, this.processLoadProjectFromServerResponse);
 };
 
 /**
@@ -742,7 +743,6 @@ VLE.prototype.processLoadProjectFromServerResponse = function(responseText, resp
 			vle.setProject(project);
 			var dfs = new DFS(project.rootNode);
 			vle.navigationLogic = new NavigationLogic(dfs);
-			vle.audioManager = new AudioManager(true);
 		};
 		vle.eventManager.fire('projectLoadingComplete');
 };

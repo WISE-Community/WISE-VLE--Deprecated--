@@ -14,6 +14,7 @@ var rootPageName;
 var childSave;
 var projectName;
 var projectPath;
+var pathSeparator;
 var getSaved;
 var project;
 
@@ -64,13 +65,14 @@ function modeChanged(val){
  * function given to parent window so that we can set certain
  * critical variables here
  */
-function setVars(fn, m, pn, prn, pp, pr){
+function setVars(fn, m, pn, prn, pp, pr, ps){
 	filename = fn;
 	easyMode = m;
 	rootPageName = pn;
 	projectName = prn;
 	projectPath = pp;
 	project = pr;
+	pathSeparator = ps;
 	
 	if(easyMode){
 		document.getElementById('easyTrue').checked = true;

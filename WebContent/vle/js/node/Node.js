@@ -348,7 +348,7 @@ Node.prototype.retrieveFile = function(){
 			if (this.filename.search(/http:/) > -1 || this.filename.search('/') > -1) {
 				this.connectionManager.request('GET', 1, this.filename, null, this.processRetrieveFileResponse, this);
 		    } else {
-		    	this.connectionManager.request('POST', 1, 'filemanager.html', {command: 'retrieveFile', param1: currentProjectPath, param2: this.filename}, this.processRetrieveFileResponse, this);
+		    	this.connectionManager.request('POST', 1, 'filemanager.html', {command: 'retrieveFile', param1: currentProjectPath + pathSeparator + this.filename}, this.processRetrieveFileResponse, this);
 		    };
 		};
 	} else {

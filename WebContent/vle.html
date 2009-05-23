@@ -80,11 +80,16 @@
 
 <script type="text/javascript">
 var currentProjectPath;
+var currentProjectName;
+var pathSeparator;
+var basePath;
 var vle = null;
 
 window.onload=function(){
 	if(window.opener){
 		currentProjectPath = window.opener.currentProjectPath;
+		currentProjectName = window.opener.currentProjectName;
+		pathSeparator = window.opener.pathSeparator;
 	};
 	
 	Nifty("div#none","bottom");
@@ -92,7 +97,7 @@ window.onload=function(){
 	Nifty("ul.toolsButtons a","transparent");
 	
 	if(currentProjectPath){
-		loadProjectFromServer();
+		loadProject();
 	};
 };
 
@@ -100,9 +105,11 @@ function projectSummary(){
 	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
 };
 
-function loadProjectFromServer(){
+function loadProject(){
+	var contentUrl = '/vlewrapper/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
+	var contentBaseUrl = '/vlewrapper/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
 	vle = new VLE();
-	vle.loadProjectFromServer();
+	vle.loadProject(contentUrl, contentBaseUrl);
 };
 </script>
 
@@ -138,7 +145,6 @@ function popUp(strURL, strType, strHeight, strWidth) {
  *		to obtain the user info 
  */
 function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
-	//alert('vle.html\ncontentURL:'+contentURL+'\nuserURL:'+userURL+'\ngetDataUrl:'+getDataUrl+'\ncontentBaseUrl:'+contentBaseUrl+'\npostDataUrl:'+postDataUrl);
 	vle = new VLE();
 	vle.getDataUrl = getDataUrl;
     vle.postDataUrl = postDataUrl;

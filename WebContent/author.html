@@ -86,6 +86,7 @@ var easyMode = true; //the mode that gets passed to the individual authoring pag
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
 var currentProjectName;
 var currentProjectPath;
+var pathSeparator;
 var projectSaved = true;
 var projectsLoaded = new YAHOO.util.CustomEvent("projectListLoaded");
 var pathsLoaded = new YAHOO.util.CustomEvent("pathsLoaded");
@@ -310,11 +311,14 @@ function optionSelected(){
 };
 
 function setProjectPathAndName(path){
-	currentProjectPath = path;
 	if(path.indexOf('\\')!=-1){
+		currentProjectPath = path.substring(0, path.lastIndexOf('\\'));
 		currentProjectName = path.substring(path.lastIndexOf('\\') + 1, path.length);
+		pathSeparator = '\\';
 	} else {
+		currentProjectPath = path.substring(0, path.lastIndexof('/'));
 		currentProjectName = path.substring(path.lastIndexOf('/') + 1, path.length);
+		pathSeparator = '/';
 	};
 };
 
@@ -523,7 +527,6 @@ function initializeImportProjectDialog(){
 	};
 	
 	var doSuccess = function(val){
-		alert('val ' + val);
 		if(val=='success'){
 			alert('zipped project uploaded successfully');
 		};
@@ -532,7 +535,6 @@ function initializeImportProjectDialog(){
 	importProjectDialog = new YAHOO.widget.Dialog('importProjectDialog', {width :"450px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Import", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	importProjectDialog.callback = {
 		success: function(o){
-			alert('response ' + o.responseText);
 			doSuccess(o.responseText);
 		},
 		failure: function(o){},
@@ -581,11 +583,11 @@ function createNewSequence(){
 	if(currentProjectPath){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				document.getElementById('sequenceProjectPath').value = currentProjectPath;
+				document.getElementById('sequenceProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
 				createSequenceDialog.show();
 			};
 		} else {
-			document.getElementById('sequenceProjectPath').value = currentProjectPath;
+			document.getElementById('sequenceProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
 			createSequenceDialog.show();
 		};
 	} else {
@@ -597,11 +599,11 @@ function createNewNode(){
 	if(currentProjectPath){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				document.getElementById('nodeProjectPath').value = currentProjectPath;
+				document.getElementById('nodeProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
 				createNodeDialog.show();
 			};
 		} else {
-			document.getElementById('nodeProjectPath').value = currentProjectPath;
+			document.getElementById('nodeProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
 			createNodeDialog.show();
 		};
 	} else {
@@ -615,11 +617,13 @@ function editProjectFile(){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
 				retrieveProjectFile();
 				document.getElementById('editProjectFileProjectName').value = currentProjectPath;
+				document.getElementById('editProjectFileFileName').value = currentProjectName;
 				editProjectFileDialog.show();
 			};
 		} else {
 			retrieveProjectFile();
 			document.getElementById('editProjectFileProjectName').value = currentProjectPath;
+			document.getElementById('editProjectFileFileName').value = currentProjectName;
 			editProjectFileDialog.show();
 		};
 	} else {
@@ -637,7 +641,7 @@ function retrieveProjectFile(){
 	  scope:this
 	}
 	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectPath + '&param2=' + currentProjectName);
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName);
 	
 };
 
@@ -694,7 +698,7 @@ function saveProject(){
 			scope: this
 		};
 		
-		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=~project~&param3=' + encodeURIComponent(data));
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=' + currentProjectName + '&param3=' + encodeURIComponent(data));
 	} else {
 		alert('Please open or create a new project before attempting to save.');
 	};
@@ -822,7 +826,7 @@ function populateReferences(sequenceId, insideUL){
 function loadProjectFromServer(){	
 	vle = new VLE();
 	vle.eventManager.subscribe('projectLoadingComplete', function(){populateSequences(); populateNodes(); generateDD(); project = vle.project});
-	vle.loadProjectFromServer(true);
+	vle.loadProjectFromServer();
 	document.getElementById('currentProject').innerHTML = 'Current Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
 };
 
@@ -883,7 +887,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to process the file
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator);
 	} 
 }
 </script>
@@ -1031,7 +1035,7 @@ function authoringWindowLoaded(fun) {
 		<form method='POST' action='filemanager.html'>
 			<input type='hidden' name='command' value='updateFile'/>
 			<input type='hidden' id='editProjectFileProjectName' name='param1'/>
-			<input type='hidden' id='editProjectFileFileName' name='param2' value='~project~'/>
+			<input type='hidden' id='editProjectFileFileName' name='param2'/>
 			<textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3'/></textarea>
 		</form>
 	</div>

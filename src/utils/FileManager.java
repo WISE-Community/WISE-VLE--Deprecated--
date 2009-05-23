@@ -63,7 +63,10 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+		String command = request.getParameter(COMMAND);
+		if(command.equals("retrieveFile")){
+			response.getWriter().write(this.retrieveFile(request));
+		}
 	}  	
 	
 	/* (non-Java-doc)
@@ -257,30 +260,19 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
 	 */
 	private String retrieveFile(HttpServletRequest request) throws IOException{
 		String path = request.getParameter(PARAM1);
-		String filename = request.getParameter(PARAM2);
-		
-		File dir = new File(path).getParentFile();
-		if(dir.exists()){
-			File file = null;
-			if(filename.equals("~project~")){
-				file = new File(path);
-			} else {
-				file = new File(dir, filename);
+
+		File file = new File(path);
+		if(file.exists()){
+			String out = "";
+			String current;
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			while((current = br.readLine()) != null){
+				out += current + Template.NL;
 			}
-			if(file.exists()){
-				String out = "";
-				String current;
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				while((current = br.readLine()) != null){
-					out += current + Template.NL;
-				}
-				br.close();
-				return out;
-			} else {
-				throw new FileNotFoundException("Unable to locate file: " + filename);
-			}
+			br.close();
+			return out;
 		} else {
-			throw new IOException("Unable to find project:" + path);
+			throw new FileNotFoundException("Unable to locate file: " + file.getAbsolutePath());
 		}
 	}
 	
@@ -297,14 +289,9 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
 		String filename = request.getParameter(PARAM2);
 		String data = this.decode(request.getParameter(PARAM3));
 		
-		File dir = new File(projectPath).getParentFile();
+		File dir = new File(projectPath);
 		if(dir.exists()){
-			File file = null;
-			if(filename.equals("~project~")){
-				file = new File(projectPath);
-			} else {
-				file = new File(dir, filename);
-			}
+			File file = new File(dir, filename);
 			if(file.exists()){
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 				String[] pieces = data.split("\n");
@@ -529,7 +516,7 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
 		SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy_kk.mm.ss");
 		ensureZipDir();
 		File zipParent = new File(ZIP_DIRECTORY);
-		File dir = new File(request.getParameter(PARAM1)).getParentFile();
+		File dir = new File(request.getParameter(PARAM1));
 		File zipFile = new File(zipParent, dir.getName() + "_" + sdf.format(new Date()) + ".zip");
 		
 		if(dir.exists()){

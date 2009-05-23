@@ -3,6 +3,7 @@ var mySound = null;
 soundManager.debugMode = false;
 soundManager.onload = function(){
 	//alert('autiodmanager.js, loaded');
+
 	vle.audioManager.isSoundManagerLoaded=true;
 	vle.audioManager.setCurrentNode(vle.getCurrentNode());
 } 

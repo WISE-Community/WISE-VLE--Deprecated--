@@ -181,7 +181,11 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 
 Project.prototype.makeFileName = function(filename) {
 	if (this.contentBaseUrl != null) {
-		return this.contentBaseUrl + "/" + filename;
+		if(this.contentBaseUrl.lastIndexOf('\\')!=-1){
+			return this.contentBaseUrl + '\\' + filename;
+		} else {
+			return this.contentBaseUrl + "/" + filename;
+		};
 	}
 	return filename;
 }
