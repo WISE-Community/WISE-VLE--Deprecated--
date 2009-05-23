@@ -29,7 +29,7 @@ function Flag(runId, nodeId, toWorkgroup, fromWorkgroup, studentWork, postTime) 
  * @return a Flag object
  */
 Flag.prototype.parseDataXML = function(flagXML) {
-	var flag = new Annotation();
+	var flag = new Flag();
 	
 	//populate the fields from the xml object
 	try {
