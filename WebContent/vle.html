@@ -55,12 +55,24 @@
 <script type="text/javascript" src="vle/js/node/OutsideUrlNode.js"></script>
 <script type="text/javascript" src="vle/js/node/BlueJNode.js"></script>
 <script type="text/javascript" src="vle/js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="vle/js/node/multiplechoice/mc.js"></script>
+<script type="text/javascript" src="vle/js/node/MultipleChoiceNode.js"></script>
+<script type="text/javascript" src="vle/js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
+<script type="text/javascript" src="vle/js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
+<script type="text/javascript" src="vle/js/node/MultipleChoiceCheckBoxNode.js"></script>
 <script type="text/javascript" src="vle/js/node/multiplechoice/multiplechoicestate.js"></script>
+<script type="text/javascript" src="vle/js/node/openresponse/openresponsestate.js"></script>
 <script type="text/javascript" src="vle/js/node/BrainstormNode.js"></script>
+<script type="text/javascript" src="vle/js/node/brainstorm/brainstormstate.js"></script>
 <script type="text/javascript" src="vle/js/node/GlueNode.js"></script>
 <script type="text/javascript" src="vle/js/project/Project.js"></script>
 <script type="text/javascript" src="vle/js/io/ConnectionManager.js"></script>
 <script type="text/javascript" src="vle/js/events/events.js"></script>
+<script type="text/javascript" src="vle/js/notification/NotificationManager.js"></script>
+<script type="text/javascript" src="vle/js/run/RunManager.js"></script>
+<script type="text/javascript" src="vle/js/grading/Flag.js"></script>
+<script type="text/javascript" src="vle/js/grading/Flags.js"></script>
+
 
 <script type="text/javascript" src="vle/js/common/niftycube.js"></script>
 <script type="text/javascript" src="vle/js/navigation/menu.js"></script>
@@ -287,6 +299,9 @@ window.onbeforeunload = function(){
 			<span id="topStepTitle"></span>
 		    <span class="stepTypeLabel">(<a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Display step</a>)</span>
 			<span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span> 
+			<span id="flagDiv">
+	   <a href="#" id="flagButton" onClick="javascript:vle.displayFlaggedItems();" >Show Me Flagged Items</a>
+	</span>
 		</div>
 		
 	</div>

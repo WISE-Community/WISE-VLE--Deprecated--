@@ -63,7 +63,7 @@ public class VLEGetData extends VLEServlet {
 				for(int x = 0; x < ids.length; x++) {
 					try {
 						//each student's data will be wrapped in workgroup tags
-						StringBuffer vleState = new StringBuffer("<workgroup userId='" + ids[x] + "'>");
+						StringBuffer vleState = new StringBuffer("<workgroup userName='" + ids[x] + "' userId='" + ids[x] + "'>");
 
 						//start this student's vle_state
 						vleState.append("<vle_state>");

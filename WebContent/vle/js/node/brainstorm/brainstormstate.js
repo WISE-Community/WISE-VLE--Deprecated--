@@ -28,3 +28,7 @@ BRAINSTORMSTATE.prototype.parseDataXML = function(stateXML) {
 		return new BRAINSTORMSTATE(reponse.textContent, timestamp.textContent);		
 	}
 };
+
+BRAINSTORMSTATE.prototype.getStudentWork = function() {
+	return this.response;
+}

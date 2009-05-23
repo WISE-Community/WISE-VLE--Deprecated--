@@ -8,6 +8,7 @@ function VLE() {
 	this.navigationPanel = null;
 	this.contentPanel = null;
 	this.audioManager = null;
+	this.notificationManager = new NotificationManager(false);  // for alerting users
 	this.connectionManager = new ConnectionManager(this.eventManager);
 	this.journal = null;
 	this.postNodes = [];
@@ -18,6 +19,9 @@ function VLE() {
     this.startEventsAndListeners();
     this.annotations = null;
     this.lastPostStates = "";
+    this.runManager = null;
+    this.runId = null;
+    this.currentNode = null;   // points to current node
 }
 
 VLE.prototype.startEventsAndListeners = function(){
@@ -30,17 +34,21 @@ VLE.prototype.startEventsAndListeners = function(){
     
     this.eventManager.addEvent(this, 'loadUserAndClassInfo');
     this.eventManager.addEvent(this, 'loadUserAndClassInfoComplete');
-    
+
+    this.eventManager.addEvent(this, 'lockScreenEvent');
+    this.eventManager.addEvent(this, 'unlockScreenEvent');
+
     this.eventManager.inititializeLoading([['projectLoading', 'projectLoadingComplete', 'project'], ['learnerDataLoading', 'learnerDataLoadingComplete', 'learner data']]);
 
 	var renderNodeListener = function(){
+		this.alert('renderNodeListener', "debug");
 		if(vle && vle.project){
 			var startId = vle.project.getStartNodeId();
 			if(startId){
 				vle.renderNode(startId);
 			};
 		} else {
-			alert('VLE and project not ready to load any nodes');
+			this.error('VLE and project not ready to load any nodes');
 		};
 	};
 	
@@ -58,9 +66,23 @@ VLE.prototype.startEventsAndListeners = function(){
 		};
 	};
 	
+	var lockScreenEventListener = function() {
+		if (vle){ 
+			vle.lockscreen();
+		};
+	};
+
+	var unlockScreenEventListener = function() {
+		if (vle){ 
+			vle.unlockscreen();
+		};
+	};
+
 	this.eventManager.subscribe('projectLoadingComplete', renderNodeListener);
 	this.eventManager.subscribe('projectLoadingComplete', startMenuListener);
 	this.eventManager.subscribe('projectLoadingComplete', menuInitializerListener);
+	this.eventManager.subscribe('lockScreenEvent', lockScreenEventListener);
+	this.eventManager.subscribe('unlockScreenEvent', unlockScreenEventListener);
 };
 
 /**
@@ -104,6 +126,7 @@ VLE.prototype.playPauseStepAudio = function() {
  * @param {Object} nodeId
  */
 VLE.prototype.renderNode = function(nodeId){
+	this.alert('renderNode, nodeId:' + nodeId, 'debug');
     var nodeToVisit = null;
     if (nodeId == null) {
 		if (this.state.visitedNodes.length > 0) {
@@ -116,7 +139,7 @@ VLE.prototype.renderNode = function(nodeId){
     }
 	
 	if (nodeToVisit == null) {
-		alert("VLE: nodeToVisit is null Exception. Exiting");
+		this.error("VLE: nodeToVisit is null Exception. Exiting");
 		return;
 	}
 	
@@ -148,6 +171,7 @@ VLE.prototype.renderNode = function(nodeId){
 	document.getElementById("ifrm").style.height = 
 		document.getElementById("projectLeftBox").offsetHeight - document.getElementById("projectRightUpperBox").offsetHeight - 5;
     // fire currenct changed event
+	this.currentNode = currentNode;
 }
 
 /**
@@ -170,7 +194,7 @@ VLE.prototype.postToConnectionManager = function(currentNode) {
 				};
 				this.lastPostStates = currentPostStates;
 				if(vle.myUserInfo != null) {
-					this.connectionManager.request('POST', 3, url, {userId: vle.myUserInfo, data: diff}, this.processPostResponse);
+					this.connectionManager.request('POST', 3, url, {userId: vle.myUserInfo.workgroupId, data: diff}, this.processPostResponse);
 				} else {
 					this.connectionManager.request('POST', 3, url, {userId: '-2', data: diff}, this.processPostResponse);
 				};
@@ -213,7 +237,7 @@ VLE.prototype.expandActivity = function(nodeId) {
 VLE.prototype.renderPrevNode = function() {
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
-		alert("prev is not defined.");
+		this.alert("prev is not defined.");
 	}
 	
 	if(currentNode.type=='GlueNode'){
@@ -225,7 +249,7 @@ VLE.prototype.renderPrevNode = function() {
 		}
 		
 		if (prevNode == null) {
-			alert("prevNode does not exist");
+			this.alert("prevNode does not exist");
 		} else {
 			this.renderNode(prevNode.id);
 		}
@@ -235,7 +259,7 @@ VLE.prototype.renderPrevNode = function() {
 VLE.prototype.renderNextNode = function() {
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
-		alert("next is not defined.");
+		this.alert("next is not defined.");
 	}
 	
 	if(currentNode.type=='GlueNode'){
@@ -246,19 +270,75 @@ VLE.prototype.renderNextNode = function() {
 			nextNode = this.navigationLogic.getNextNode(nextNode);
 		}
 		if (nextNode == null) {
-			alert("nextNode does not exist");
+			this.alert("nextNode does not exist");
 		} else {
 			this.renderNode(nextNode.id);
 		}
 	};
 }
 
+/**
+ * Returns the node that the user is currently viewing.
+ * @return
+ */
 VLE.prototype.getCurrentNode = function() {
+	return this.currentNode;
+	/*
 	var nodeVisit = this.state.getCurrentNodeVisit();
 	if (nodeVisit != null) {
 		return nodeVisit.node;
 	}
 	return null;
+	*/
+}
+
+/**
+ * displays flagged items in Contentpanel for currentNode
+ * This only works if the VLE is running in a portal context and the
+ * runId is set.
+ */
+VLE.prototype.displayFlaggedItems = function() {
+	if (this.config == null || this.config.getFlagsUrl == null) {
+		return;
+	}
+	var currentNodeId = this.getCurrentNode().id;
+	var runId = this.runManager.runId;
+	
+	var getFlagsUrl = this.config.getFlagsUrl + "&nodeId=" + currentNodeId;;
+	var flagCallback = {
+			success: function(o) {
+				//parse the xml flags object that contains all the flags for this run/node
+				flags = Flags.prototype.parseDataXML(o.responseXML);
+				
+				//create the html that will display the flagged items
+				var flagHtml = "";
+				flagHtml += "<table border='1'>";
+				flagHtml += "<tr><th>Flagged Responses</th></tr>";
+				
+				if(flags.flagsArray.length == 0) {
+					//nofity the user if there were no flagged items
+					flagHtml += "<tr><td>No flagged responses</td></tr>";;
+				} else {
+					//loop through all the flagged items
+					for(var x=0; x<flags.flagsArray.length; x++) {
+						flagHtml += "<tr><td>" + flags.flagsArray[x].studentWork + "</td></tr>";
+					}
+				}
+				
+				flagHtml += "</table>";
+				
+				//set the html into the iframe so the student can see it
+				window.frames["ifrm"].document.open();
+				window.frames["ifrm"].document.write(flagHtml);
+				window.frames["ifrm"].document.close();
+		  	},
+			failure: function(o) {
+				alert('Error: Unable to load user info');
+			},
+			argument: ["a", "b", "c"],
+			scope:this
+	};
+	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', getFlagsUrl, flagCallback, null);
 }
 
 VLE.prototype.toggleNavigationPanelVisibility = function() {
@@ -269,6 +349,13 @@ VLE.prototype.print = function() {
 	window.print();
 }
 
+VLE.prototype.alert = function(message, type) {
+	this.notificationManager.alert(message, type);
+}
+
+VLE.prototype.error = function(message) {
+	this.notificationManager.error(message);
+}
 
 VLE.prototype.getNodeVisitedInfo = function() {
 	var infoInHtml = "";
@@ -605,11 +692,13 @@ VLE.prototype.processLoadVLEStateResponse = function(responseText, responseXML){
  * @return
  */
 VLE.prototype.initialize = function(vleConfigUrl) {
+	//alert("vle.js, initialize: "+ vleConfigUrl);
 	this.eventManager.fire('vleConfigLoading');
 	this.connectionManager.request('GET', 1, vleConfigUrl, null, this.processRetrievedVLEConfig);
 }
 
 VLE.prototype.processRetrievedVLEConfig = function(responseText, responseXML) {
+	//alert('processRegtrieveVLEConfig, xml:' + responseXML + '\ntext:' + responseText);
 	if (responseXML) {
 		var vleConfig = new VLEConfig();
 		vleConfig.parse(responseXML);
@@ -629,11 +718,15 @@ VLE.prototype.processRetrievedVLEConfig = function(responseText, responseXML) {
  */
 function VLEConfig() {
 	this.mode;
+	this.runId;
 	this.postDataUrl;
 	this.getDataUrl;
 	this.contentUrl;
 	this.contentBaseUrl;
 	this.userInfoUrl;
+	this.runInfoUrl;
+	this.runInfoRequestInterval;
+	this.getFlagsUrl;
 }
 
 /**
@@ -646,10 +739,14 @@ VLEConfig.prototype.parse = function(responseXML) {
 	this.contentUrl = responseXML.getElementsByTagName("contentUrl")[0].firstChild.nodeValue;
 	this.contentBaseUrl = responseXML.getElementsByTagName("contentBaseUrl")[0].firstChild.nodeValue;
 	this.userInfoUrl = responseXML.getElementsByTagName("userInfoUrl")[0].firstChild.nodeValue;
-
+	this.runId = responseXML.getElementsByTagName('runId')[0].firstChild.nodeValue;
+	
 	if (this.mode == "run") {
+		this.getFlagsUrl = responseXML.getElementsByTagName("getFlagsUrl")[0].firstChild.nodeValue;
 		this.getDataUrl = responseXML.getElementsByTagName("getDataUrl")[0].firstChild.nodeValue;
 		this.postDataUrl = responseXML.getElementsByTagName("postDataUrl")[0].firstChild.nodeValue;
+		this.runInfoUrl = responseXML.getElementsByTagName("runInfoUrl")[0].firstChild.nodeValue;
+		this.runInfoRequestInterval = responseXML.getElementsByTagName("runInfoRequestInterval")[0].firstChild.nodeValue;
 	}
 }
 
@@ -657,11 +754,17 @@ VLEConfig.prototype.parse = function(responseXML) {
  * Given a VLE config object, loads the project and user data
  */
 VLE.prototype.initializeFromConfig = function(vleConfig) {
+	//alert('initializefromconfig, vleconfig:' + vleConfig);
 	vle.getDataUrl = vleConfig.getDataUrl;
     vle.postDataUrl = vleConfig.postDataUrl;
+    vle.runId = vleConfig.runId;
 	vle.loadProject(vleConfig.contentUrl, vleConfig.contentBaseUrl);
 	if (vleConfig.mode == "run") {
+		//alert('vleConfig.mode is run, userInfourl:' + vleConfig.userInfoUrl);
 		vle.loadLearnerData(vleConfig.userInfoUrl);
+		if (vleConfig.runInfoUrl != null && vleConfig.runInfoRequestInterval != null) {
+			vle.runManager = new RunManager(vleConfig.runInfoUrl, parseInt(vleConfig.runInfoRequestInterval), this.connectionManager, this.eventManager, vleConfig.runId);
+		}
 	}
 }
 
@@ -743,8 +846,9 @@ VLE.prototype.processLoadProjectFromServerResponse = function(responseText, resp
 			vle.setProject(project);
 			var dfs = new DFS(project.rootNode);
 			vle.navigationLogic = new NavigationLogic(dfs);
+			vle.audioManager = new AudioManager(true);
+			vle.eventManager.fire('projectLoadingComplete');
 		};
-		vle.eventManager.fire('projectLoadingComplete');
 };
 
 /**
@@ -959,7 +1063,7 @@ VLE_STATE.prototype.parseVLEStatesDataXMLString = function(xmlString) {
 			var parser=new DOMParser();
 			xmlDoc=parser.parseFromString(xmlString,"text/xml");
 		} catch(e) {
-			alert(e.message);
+			vle.error(e.message);
 		}
 	}
 	
@@ -1405,4 +1509,61 @@ if(!Array.indexOf){
         }
         return -1;
     }
+}
+
+VLE.prototype.lockscreen = function() {
+	YAHOO.namespace("example.container");
+
+    if (!YAHOO.example.container.wait) {
+
+        // Initialize the temporary Panel to display while waiting for external content to load
+
+        YAHOO.example.container.wait = 
+                new YAHOO.widget.Panel("wait",  
+                                                { width: "240px", 
+                                                  fixedcenter: true, 
+                                                  close: false, 
+                                                  draggable: false, 
+                                                  zindex:4,
+                                                  modal: true,
+                                                  visible: false
+                                                } 
+                                            );
+
+        YAHOO.example.container.wait.setHeader("Locked Screen");
+        YAHOO.example.container.wait.setBody("<table><tr align='center'>Your teacher has locked your screen.</tr><tr align='center'></tr><table>");
+        YAHOO.example.container.wait.render(document.body);
+
+    }
+	// Show the Panel
+    YAHOO.example.container.wait.show();
+    YAHOO.example.container.wait.cfg.setProperty("visible", true);
+    
+}
+
+VLE.prototype.unlockscreen = function() {
+	YAHOO.namespace("example.container");
+
+    if (!YAHOO.example.container.wait) {
+
+        // Initialize the temporary Panel to display while waiting for external content to load
+
+        YAHOO.example.container.wait = 
+                new YAHOO.widget.Panel("wait",  
+                                                { width: "240px", 
+                                                  fixedcenter: true, 
+                                                  close: false, 
+                                                  draggable: false, 
+                                                  zindex:4,
+                                                  modal: true,
+                                                  visible: false
+                                                } 
+                                            );
+
+        YAHOO.example.container.wait.setHeader("Loading, please wait...");
+        YAHOO.example.container.wait.setBody("<table><tr align='center'>Teacher has locked your screen. Please talk to your teacher.</tr><tr align='center'></tr><table>");
+        YAHOO.example.container.wait.render(document.body);
+
+    }
+	YAHOO.example.container.wait.hide();
 }
