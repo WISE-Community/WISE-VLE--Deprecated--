@@ -30,8 +30,7 @@ BrainstormNode.prototype.load = function(){
 			};
 		};
 	};
-	
-	window.frames["ifrm"].loadXMLAndStateAndVLE(this.element, states, vle);
+	window.frames["ifrm"].loadXMLAndStateAndVLE(this.element, states, vle, this.id);
 	//window.frames["ifrm"].loadStateAndVLE(states, vle);
 };
 

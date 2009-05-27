@@ -1,4 +1,4 @@
-<Brainstorm title="Bigger" isGated='false' displayName='2' isRichTextEditorAllowed='true' isPollEnded='false' isInstantPollActive='false'>
+<Brainstorm title="Bigger" serverless='false' isGated='false' displayName='2' isRichTextEditorAllowed='true' isPollEnded='false' isInstantPollActive='false'>
 	<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" timeDependent="false" adaptive="false">>
 		<itemBody>
 			<extendedTextInteraction responseIdentifier="OPEN_RESPONSE" expectedLines="10">

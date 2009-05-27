@@ -47,6 +47,7 @@
 <script type="text/javascript" src="vle/js/node/HtmlNode.js"></script>
 <script type="text/javascript" src="vle/js/node/CustomNode.js"></script>
 <script type="text/javascript" src="vle/js/node/MatchSequenceNode.js"></script>
+<script type="text/javascript" src="vle/js/node/matchsequence/matchsequencestate.js"></script>
 <script type="text/javascript" src="vle/js/node/FillinNode.js"></script>
 <script type="text/javascript" src="vle/js/node/fillin/fillinstate.js"></script>
 <script type="text/javascript" src="vle/js/node/NoteNode.js"></script>
@@ -146,6 +147,10 @@ function popUp(strURL, strType, strHeight, strWidth) {
      strHeight+",width="+strWidth;
  newWin = window.open(strURL, 'newWin', strOptions);
  newWin.focus();
+}
+
+function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
+	render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
 }
 
 /**

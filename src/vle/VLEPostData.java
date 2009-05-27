@@ -44,6 +44,7 @@ public class VLEPostData extends VLEServlet {
     
     private static void postData(HttpServletRequest request,
 			HttpServletResponse response) {
+    	String runId = request.getParameter("runId");
     	String userId = request.getParameter("userId");
     	String data = request.getParameter("data");
     	
@@ -115,13 +116,13 @@ public class VLEPostData extends VLEServlet {
     	    		String timeStampFormat = "%a, %e %b %Y %H:%i:%S GMT";
 
     	    		//check if the row already exists in the db
-    	    		String selectStmt = "select * from vle_visits where userId='" + userId + "' and nodeId='" + nodeId + "' and nodeType='" + nodeType + "' and startTime=str_to_date('" + visitStartTime + "', '" + timeStampFormat + "') and endTime=str_to_date('" + visitEndTime + "', '" + timeStampFormat + "');";
+    	    		String selectStmt = "select * from vle_visits where courseId='" + runId + "' and userId='" + userId + "' and nodeId='" + nodeId + "' and nodeType='" + nodeType + "' and startTime=str_to_date('" + visitStartTime + "', '" + timeStampFormat + "') and endTime=str_to_date('" + visitEndTime + "', '" + timeStampFormat + "');";
     	    		System.out.println(selectStmt);
     	    		results = stmt.executeQuery(selectStmt);
 
     	    		if(results.first() == false) {
     	    			//if the row does not exist, we will insert it
-    	    			String insertStmt = "insert into vle_visits(userId, nodeId, nodeType, startTime, endTime, data) values(" + userId + ", '" + nodeId + "', '" + nodeType + "', str_to_date('" + visitStartTime + "', '" + timeStampFormat + "'), str_to_date('" + visitEndTime + "', '" + timeStampFormat + "'), '" + nodeStates + "')";
+    	    			String insertStmt = "insert into vle_visits(courseId, userId, nodeId, nodeType, startTime, endTime, data) values(" + runId + ", " + userId + ", '" + nodeId + "', '" + nodeType + "', str_to_date('" + visitStartTime + "', '" + timeStampFormat + "'), str_to_date('" + visitEndTime + "', '" + timeStampFormat + "'), '" + nodeStates + "')";
     	    			System.out.println(insertStmt);
     	    			stmt.execute(insertStmt);
     	    		}

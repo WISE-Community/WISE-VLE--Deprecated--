@@ -24,6 +24,9 @@
  -->
 <html>
 <head>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
+<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
 
 <script type="text/javascript" src="../common/js/loadxmldoc.js"></script>
 <script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
@@ -34,16 +37,16 @@
 <script type="text/javascript">
 var brainstorm;
 
-function loadXMLAndStateAndVLE(xmlDoc, states, vle){
-	brainstorm = new BRAINSTORM(xmlDoc);
+function loadXMLAndStateAndVLE(xmlDoc, states, vle, nodeId){
+	brainstorm = new BRAINSTORM(xmlDoc, nodeId);
 	brainstorm.loadState(states);
 	brainstorm.loadVLE(vle);
 	brainstorm.render();
 };
 
-function loadFromXMLString(xmlString){
+function loadFromXMLString(xmlString, nodeId){
 	var xmlDoc=loadXMLDocFromString(xmlString);
-	brainstorm = new BRAINSTORM(xmlDoc);
+	brainstorm = new BRAINSTORM(xmlDoc, nodeId);
 	brainstorm.render();
 };
 </script>

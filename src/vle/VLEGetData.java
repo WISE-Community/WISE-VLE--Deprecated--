@@ -39,29 +39,76 @@ public class VLEGetData extends VLEServlet {
 	 */
 	private static void getData(HttpServletRequest request,
 			HttpServletResponse response) {
-		//obtain the userId get parameter
+		/*
+		 * obtain the get parameters. there are two use cases at the moment.
+		 * 1. only userId is provided (multiple userIds can be delimited by :)
+		 * 		e.g. 139:143:155
+		 * 2. only runId and nodeId are provided
+		 */
 		String idStr = request.getParameter("userId");
+		String runId = request.getParameter("runId");
+		String nodeId = request.getParameter("nodeId");
 
-		//do nothing if no id(s) were passed in
-		if(idStr==null || idStr == ""){
-    		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
+		ResultSet results = null;
+		try {
+			stmt = conn.createStatement();
+			
+			//do nothing if no id(s) were passed in
+			if(idStr==null || idStr.equals("")) {
+				/*
+				 * this case is when there is no userId passed as a GET
+				 * argument but runId and nodeId are passed
+				 */
+				
+				//the format to parse the timestamp
+				String dateFormat = "%a, %e %b %Y %H:%i:%S GMT";
 
-		//the get request can be for multiple ids that are delimited by ':'
-		String[] ids = idStr.split(":");
+				//the query to obtain all the data for a nodeId for a specific runId
+				String selectQuery = "select userId, courseId, nodeId, nodeType, date_format(postTime, '" + dateFormat + "'), date_format(startTime, '" + dateFormat + "'), date_format(endTime, '" + dateFormat + "'), data from vle_visits where courseId=" + runId + " and nodeId='" + nodeId + "'";
 
-		if(ids != null && ids.length > 0){
-			try {
-				stmt = conn.createStatement();
-				ResultSet results = null;
+				System.out.println(selectQuery);
 
-				//start the xml string
-				response.getWriter().write("<vle_state>");
+				//run the query
+				results = stmt.executeQuery(selectQuery);
 
-				//then retrieve data for each of the ids
-				for(int x = 0; x < ids.length; x++) {
-					try {
+				/*
+				 * we need to wrap all the workgroup tags in a workgroups tag
+				 * in order for the xml to be proper
+				 */
+				response.getWriter().write("<workgroups>");
+				while(results.next()) {
+					//create the xml for the workgroup tag
+					StringBuffer brainstormPost = new StringBuffer();
+					brainstormPost.append("<workgroup userId='" + results.getString("userId") + "'>");
+					brainstormPost.append("<runId>" + results.getString("courseId") + "</runId>");
+					brainstormPost.append("<nodeId>" + results.getString("nodeId") + "</nodeId>");
+					brainstormPost.append("<nodeType>" + results.getString("nodeType") + "</nodeType>");
+					brainstormPost.append("<postTime>" + results.getString(5) + "</postTime>");
+					brainstormPost.append("<startTime>" + results.getString(6) + "</startTime>");
+					brainstormPost.append("<endTime>" + results.getString(7) + "</endTime>");
+					brainstormPost.append("<data>" + results.getString("data") + "</data>");
+					brainstormPost.append("</workgroup>");
+					
+					response.getWriter().write(brainstormPost.toString());
+				}
+				response.getWriter().write("</workgroups>");
+				
+				results.close();
+				stmt.close();
+			} else {
+				//this case is when userId is passed in as a GET argument
+				
+				//the get request can be for multiple ids that are delimited by ':'
+				String[] ids = idStr.split(":");
+
+				if(ids != null && ids.length > 0){
+
+
+					//start the xml string
+					response.getWriter().write("<vle_state>");
+
+					//then retrieve data for each of the ids
+					for(int x = 0; x < ids.length; x++) {
 						//each student's data will be wrapped in workgroup tags
 						StringBuffer vleState = new StringBuffer("<workgroup userName='" + ids[x] + "' userId='" + ids[x] + "'>");
 
@@ -86,13 +133,13 @@ public class VLEGetData extends VLEServlet {
 							vleState.append("<id>" + results.getString("nodeId") + "</id>");
 							vleState.append("</node>");
 							vleState.append("<nodeStates>" + results.getString("data") + "</nodeStates>");
-							
+
 							//the visitStartTime column is the 3rd in our selectQuery from above
 							vleState.append("<visitStartTime>" + results.getString(3) + "</visitStartTime>");
-							
+
 							//the visitEndTime column is the 4th in our selectQuery from above
 							vleState.append("<visitEndTime>" + results.getString(4) + "</visitEndTime>");
-							
+
 							vleState.append("</node_visit>");
 						}
 
@@ -103,23 +150,24 @@ public class VLEGetData extends VLEServlet {
 						vleState.append("</workgroup>");
 
 						response.getWriter().write(vleState.toString());
-					} catch (SQLException sqlExcept){
-						sqlExcept.printStackTrace();
-					} catch (IOException e){
-						e.printStackTrace();
 					}
+
+					//close the xml string
+					response.getWriter().write("</vle_state>");
+
+					
+					results.close();
+					stmt.close();
 				}
-				
-				//close the xml string
-				response.getWriter().write("</vle_state>");
-
-				//close the mysql connections
-				results.close();
-				stmt.close();
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
-
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
+
 	}
 }
