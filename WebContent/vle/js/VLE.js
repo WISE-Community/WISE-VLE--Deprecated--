@@ -194,9 +194,9 @@ VLE.prototype.postToConnectionManager = function(currentNode) {
 				};
 				this.lastPostStates = currentPostStates;
 				if(vle.myUserInfo != null) {
-					this.connectionManager.request('POST', 3, url, {userId: vle.myUserInfo.workgroupId, data: diff}, this.processPostResponse);
+					this.connectionManager.request('POST', 3, url, {runId: this.runId, userId: vle.myUserInfo.workgroupId, data: diff}, this.processPostResponse);
 				} else {
-					this.connectionManager.request('POST', 3, url, {userId: '-2', data: diff}, this.processPostResponse);
+					this.connectionManager.request('POST', 3, url, {runId: this.runId, userId: '-2', data: diff}, this.processPostResponse);
 				};
 			};
 		};
