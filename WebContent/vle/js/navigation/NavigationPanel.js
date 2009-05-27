@@ -1,5 +1,7 @@
-function NavigationPanel(rootNode) {
+function NavigationPanel(rootNode, autostep) {
 	this.rootNode = rootNode;
+	this.autoStep = autostep;
+	this.currentStepNum;
 }
 
 /*
@@ -8,6 +10,7 @@ function NavigationPanel(rootNode) {
  * only works with 3-levels.
  */
 NavigationPanel.prototype.render = function(eventType) {
+	this.currentStepNum = 1;
 	var navHtml = "";  
 	for (var i = 0; i < this.rootNode.children.length; i++) {
 			navHtml += this.getNavigationHtml(this.rootNode.children[i], eventType);
@@ -68,7 +71,13 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
 		for(var t=0;t<depth;t++){
 			htmlSoFar += space;
 		};
-		htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + node.getTitle() + "</a>";
+		
+		if(this.autoStep){
+			htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">Step " + this.currentStepNum + ": " + node.getTitle() + "</a>";
+			this.currentStepNum ++;
+		} else {
+			htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + node.getTitle() + "</a>";
+		};
 	}
     //alert(htmlSoFar);
 	return htmlSoFar;

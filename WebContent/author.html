@@ -54,6 +54,10 @@
 <script type="text/javascript" src="vle/js/project/Project.js"></script>
 <script type="text/javascript" src="vle/js/io/ConnectionManager.js"></script>
 <script type="text/javascript" src="vle/js/events/events.js"></script>
+<script type="text/javascript" src="vle/js/notification/NotificationManager.js"></script>
+<script type="text/javascript" src="vle/js/run/RunManager.js"></script>
+<script type="text/javascript" src="vle/js/grading/Flag.js"></script>
+<script type="text/javascript" src="vle/js/grading/Flags.js"></script>
 
 <script type="text/javascript" src="vle/js/common/niftycube.js"></script>
 <script type="text/javascript" src="vle/js/common/sdmenu.js"></script>
@@ -82,6 +86,7 @@ if(window.ActiveXObject){
  ***						***/
  
 var project;
+var currentStepNum;
 var easyMode = true; //the mode that gets passed to the individual authoring pages
 var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
 var currentProjectName;
@@ -753,6 +758,7 @@ function populateNodes(){
 
 
 function populateSequences(){
+	currentStepNum = 1;
 	var nodes = project.allSequenceNodes;
 	var parent = document.getElementById('sequencesTD');
 	var old = document.getElementById('sequencesUL');
@@ -816,16 +822,34 @@ function populateReferences(sequenceId, insideUL){
 		if(sequence.children[s].type=='sequence'){
 			var title = document.createTextNode('Sequence: ' + sequence.children[s].id);
 		} else {
-			var title = document.createTextNode('Node: ' + sequence.children[s].title);
+			if(project.autoStep){
+				var title = document.createTextNode('Step ' + currentStepNum + ': ' + sequence.children[s].title);
+				currentStepNum ++;
+			} else {
+				var title = document.createTextNode('Node: ' + sequence.children[s].title);
+			};
 		};
 		
 		child.appendChild(title);
 	};
 };
 
-function loadProjectFromServer(){	
+function loadProjectFromServer(){
+	var processOnLoad = function(){
+		project = vle.project
+		if(project && project.autoStep==true){
+			document.getElementById('autoStepCheck1').checked = true;
+		} else {
+			document.getElementById('autoStepCheck1').checked = false;
+		};
+		
+		populateSequences();
+		populateNodes();
+		generateDD();
+	};
+	
 	vle = new VLE();
-	vle.eventManager.subscribe('projectLoadingComplete', function(){populateSequences(); populateNodes(); generateDD(); project = vle.project});
+	vle.eventManager.subscribe('projectLoadingComplete', processOnLoad);
 	vle.loadProjectFromServer();
 	document.getElementById('currentProject').innerHTML = 'Current Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
 };
@@ -890,6 +914,21 @@ function authoringWindowLoaded(fun) {
 		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator);
 	} 
 }
+
+/**
+ * updates labeling and project when autoStep option is changed
+ */
+function autoStepChanged(){
+	projectSaved = false;
+
+	if(project){
+		project.autoStep = document.getElementById('autoStepCheck1').checked;
+		populateSequences();
+		populateNodes();
+		generateDD();
+	};
+};
+
 </script>
 </head>
 
@@ -923,7 +962,9 @@ function authoringWindowLoaded(fun) {
 		<td id="assignedcontainer">
 			<table id="ddTable" width='100%'>
 				<tr>
-					<td id='sequencesTitle' width="50%">All Sequences</td>
+					<td id='sequencesTitle' width="50%">All Sequences &nbsp;&nbsp;
+						<input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()'/> Auto-number steps
+					</td>
 					<td id='nodesTitle' width="50%">All Nodes</td>
 				</tr>
 				<tr>

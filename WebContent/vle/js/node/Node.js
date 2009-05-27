@@ -345,7 +345,7 @@ Node.prototype.retrieveFile = function(){
 			
 			//retrieve content
 			this.connectionManager = vle.connectionManager;
-			if (this.filename.search(/http:/) > -1 || this.filename.search('/') > -1) {
+			if (this.filename.search(/http:/) > -1 || this.filename.substring(0,1)=='/') {
 				this.connectionManager.request('GET', 1, this.filename, null, this.processRetrieveFileResponse, this);
 		    } else {
 		    	this.connectionManager.request('POST', 1, 'filemanager.html', {command: 'retrieveFile', param1: currentProjectPath + pathSeparator + this.filename}, this.processRetrieveFileResponse, this);

@@ -91,7 +91,7 @@ VLE.prototype.startEventsAndListeners = function(){
 VLE.prototype.setProject = function(project) {
 	this.project = project;
 	this.contentPanel = new ContentPanel(project, project.rootNode);
-	this.navigationPanel = new NavigationPanel(project.rootNode);
+	this.navigationPanel = new NavigationPanel(project.rootNode, project.autoStep);
 }
 
 /**
@@ -849,6 +849,7 @@ VLE.prototype.processLoadProjectFromServerResponse = function(responseText, resp
 			vle.audioManager = new AudioManager(true);
 			vle.eventManager.fire('projectLoadingComplete');
 		};
+		vle.eventManager.fire('projectLoadingComplete');
 };
 
 /**

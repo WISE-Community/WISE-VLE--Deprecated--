@@ -78,7 +78,14 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 		// no injection needed because base is already in the html
 		return content
 	} else {
-		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "/' />";
+		var separator;
+		if(this.filename.indexOf('\\')!=-1){
+			separator = '\\';
+		} else {
+			separator = '/';
+		};
+		
+		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + separator +"' />";
 		var headPosition = content.indexOf("<head>");
 		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
 		newContent += baseRefTag;

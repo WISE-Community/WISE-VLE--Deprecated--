@@ -59,6 +59,18 @@ function Project(xmlDoc, contentBaseUrl, connectionManager) {
 	this.allSequenceNodes = [];
 	this.lazyLoading = false;
 	this.connectionManager = connectionManager;
+	this.autoStep;
+	
+	var val = xmlDoc.getElementsByTagName('project')[0].getAttribute('autoStep');
+	if(val){
+		if(val=='true'){
+			this.autoStep = true;
+		} else {
+			this.autoStep = false;
+		};
+	} else {
+		this.autoStep = true;
+	}; 
 	
 	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
 	//alert('1:' + this.xmlDoc.firstChild.nodeName);
@@ -299,6 +311,7 @@ Project.prototype.getChildrenSequenceIds = function(id, from){
  * param sequenceArray is an array of references to leaf nodes
  */
 Project.prototype.updateSequence = function(sequenceArray) {
+	alert('update sequence');
 	var sequenceNode = new Node("sequence");
 	sequenceNode.id = this.rootNode.id;
 	for (var i=0; i < sequenceArray.length; i++) {
@@ -506,7 +519,7 @@ Project.prototype.addNodeToSequence = function(nodeId, seqId, location){
 };
 
 Project.prototype.projectXML = function(){
-	var xml = "<project>\n<nodes>\n";
+	var xml = "<project autoStep=\"" + this.autoStep + "\">\n<nodes>\n";
 	
 	for(var k=0;k<this.allLeafNodes.length;k++){
 		xml += this.allLeafNodes[k].nodeDefinitionXML();

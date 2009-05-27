@@ -31,7 +31,7 @@ public final class Template {
 	public final static String NL = System.getProperty("line.separator");
 
 	public static String getProjectTemplate(){
-		return "<project>" + NL + 
+		return "<project autoStep=\"true\">" + NL + 
 			"<nodes>" + NL +
 			"</nodes>" + NL +
 			"<sequences>" + NL +
