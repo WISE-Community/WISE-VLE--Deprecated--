@@ -13,7 +13,7 @@ NavigationPanel.prototype.render = function(eventType) {
 	this.currentStepNum = 1;
 	var navHtml = "";  
 	for (var i = 0; i < this.rootNode.children.length; i++) {
-			navHtml += this.getNavigationHtml(this.rootNode.children[i], eventType);
+			navHtml += this.getNavigationHtml(this.rootNode.children[i], eventType, 0, i + 1);
 	}
 	document.getElementById("my_menu").innerHTML = navHtml;
 }
@@ -31,7 +31,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 	}
 }
 
-NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
+NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth, position) {
 	var htmlSoFar = "";
 	var classString = "node";
 	var space = "";
@@ -63,8 +63,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
     		htmlSoFar += "<div class=\""+ classString +"\" id=\"" + node.id + "_menu\"><span onclick=\"myMenu.toggleMenu(document.getElementById('"+ node.id +"_menu'))\">"+node.getTitle()+"</span>";
     	}
     	for (var i = 0; i < node.children.length; i++) {
-			htmlSoFar += this.getNavigationHtml(node.children[i], eventType, deep + 1);
-		}
+    		htmlSoFar += this.getNavigationHtml(node.children[i], eventType, deep + 1, position + '.' + (i + 1));
+    	};
 		htmlSoFar += "</div>";
 	} else {
 		htmlSoFar ;
@@ -73,10 +73,10 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth) {
 		};
 		
 		if(this.autoStep){
-			htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">Step " + this.currentStepNum + ": " + node.getTitle() + "</a>";
+			htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">Step " + this.currentStepNum + ": " + position + " " + node.getTitle() + "</a>";
 			this.currentStepNum ++;
 		} else {
-			htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + node.getTitle() + "</a>";
+			htmlSoFar += "<a class=\"" + classString + "\" onclick=\"vle.renderNode('" + node.id + "');\" id=\"" + node.id + "_menu\">" + position + " " + node.getTitle() + "</a>";
 		};
 	}
     //alert(htmlSoFar);

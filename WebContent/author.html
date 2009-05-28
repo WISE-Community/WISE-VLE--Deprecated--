@@ -321,7 +321,7 @@ function setProjectPathAndName(path){
 		currentProjectName = path.substring(path.lastIndexOf('\\') + 1, path.length);
 		pathSeparator = '\\';
 	} else {
-		currentProjectPath = path.substring(0, path.lastIndexof('/'));
+		currentProjectPath = path.substring(0, path.lastIndexOf('/'));
 		currentProjectName = path.substring(path.lastIndexOf('/') + 1, path.length);
 		pathSeparator = '/';
 	};
