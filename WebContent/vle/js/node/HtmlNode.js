@@ -25,7 +25,7 @@ HtmlNode.prototype.setContent = function(content) {
 HtmlNode.prototype.render = function(contentPanel) {
 	if (this.elementText != null) {
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.resolveSrc(this.elementText));
+		window.frames["ifrm"].document.write(this.injectBaseRef(this.resolveSrc(this.elementText)));
 		window.frames["ifrm"].document.close();
 		return;
 	} else if (this.filename != null) {
@@ -37,7 +37,7 @@ HtmlNode.prototype.render = function(contentPanel) {
 		};
 		
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.resolveSrc(this.content));
+		window.frames["ifrm"].document.write(this.injectBaseRef(this.resolveSrc(this.content)));
 		window.frames["ifrm"].document.close();
 		return;
 	} else if(this.content == null) {
@@ -60,11 +60,11 @@ HtmlNode.prototype.render = function(contentPanel) {
 	if (contentPanel.document) {
 		//write the content into the contentPanel, this will render the html in that panel
 		contentPanel.document.open();
-		contentPanel.document.write(this.resolveSrc(this.content));
+		contentPanel.document.write(this.injectBaseRef(this.resolveSrc(this.content)));
 		contentPanel.document.close();
 	} else {
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.resolveSrc(this.content));
+		window.frames["ifrm"].document.write(this.injectBaseRef(this.resolveSrc(this.content)));
 		window.frames["ifrm"].document.close();
 	}
 }
@@ -86,7 +86,11 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 			separator = '/';
 		};
 		
-		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "' />";
+		if(this.contentBase){
+			var baseRefTag = "<base href='" + this.contentBase + "' />";
+		} else {
+			var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "' />";
+		};
 		var headPosition = content.indexOf("<head>");
 		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
 		newContent += baseRefTag;
