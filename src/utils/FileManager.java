@@ -31,11 +31,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.output.DeferredFileOutputStream;
 
 /**
  * Servlet implementation class for Servlet: FileManager
@@ -56,6 +54,8 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
    private final static String PARAM4 = "param4";
    
    private final static String PROJECT_PATHS = "projectPaths";
+   
+   private final static String HOSTED_PROJECT_PATHS = "hostedProjectPaths";
    
    private final static String ZIP_DIRECTORY = "zipped_projects";
    
@@ -80,6 +80,8 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
 				response.getWriter().write(this.createProject(request));
 			} else if(command.equals("projectList")){
 				response.getWriter().write(this.getProjectList(request));
+			} else if(command.equals("hostedProjectList")){
+				response.getWriter().write(this.getHostedProjectList(request));
 			} else if(command.equals("retrieveFile")){
 				response.getWriter().write(this.retrieveFile(request));
 			} else if(command.equals("updateFile")){
@@ -196,6 +198,45 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
 				}
 			}
 			return projectList;
+		} else {
+			return "";
+		}
+	}
+	
+	private String getHostedProjectList(HttpServletRequest request) throws IOException{
+		String rawPaths = request.getParameter(HOSTED_PROJECT_PATHS);
+		String[] paths = rawPaths.split("~");
+		List<String> visited = new ArrayList<String>();
+		List<String> projects = new ArrayList<String>();
+		String projectsList = "";
+		
+		if(paths!=null && paths.length>0){
+			for(int p=0;p<paths.length;p++){
+				File f = new File(paths[p]);
+				getProjectFiles(f, projects, visited);
+			}
+			
+			for(int z=0;z<projects.size();z++){
+				String separator;
+				String rawPath = projects.get(z);
+				
+				if(rawPath.contains("/")){
+					separator = "/";
+				} else {
+					separator = "\\";
+				}
+				
+				String toWebContent = rawPath.substring(0, rawPath.indexOf("WebContent") - 1);
+				String hostPath = "/" + toWebContent.substring(toWebContent.lastIndexOf(separator) + 1, toWebContent.length());
+				String contentPath = rawPath.substring(rawPath.indexOf("WebContent") + 10, rawPath.length());
+				contentPath = contentPath.replace("\\", "/");
+				
+				projectsList += rawPath + "~" + hostPath + contentPath;
+				if(z!=projects.size()-1){
+					projectsList += "|";
+				}
+			}
+			return projectsList;
 		} else {
 			return "";
 		}

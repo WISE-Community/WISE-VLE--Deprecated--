@@ -94,6 +94,7 @@
 <script type="text/javascript">
 var currentProjectPath;
 var currentProjectName;
+var hostedProject;
 var pathSeparator;
 var basePath;
 var vle = null;
@@ -102,14 +103,19 @@ window.onload=function(){
 	if(window.opener){
 		currentProjectPath = window.opener.currentProjectPath;
 		currentProjectName = window.opener.currentProjectName;
+		hostedProject = window.opener.hostedProject;
 		pathSeparator = window.opener.pathSeparator;
+	} else {
+		hostedProject = null;
 	};
 	
 	Nifty("div#none","bottom");
 	Nifty("div#navigationBox","big");
 	Nifty("ul.toolsButtons a","transparent");
 	
-	if(currentProjectPath){
+	if(hostedProject){
+		render(window.opener.hostedContentURL, null, null, window.opener.hostedContentBaseURL, null);
+	} else if(currentProjectPath){
 		loadProject();
 	};
 };

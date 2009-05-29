@@ -104,6 +104,12 @@ var editProjectFileDialog;
 var importProjectDialog;
 
 var projectPaths; //a | delimited string of the project paths specified in settings.xml
+var hostedProjectPaths;
+var hostedPaths = [];
+var hostedURLs = [];
+var hostedProject = false;
+var hostedContentBaseURL;
+var hostedContentURL;
 var primaryPath = ""; //the default path to create new projects
 var nodeIdToAuthor = null;
 
@@ -157,7 +163,7 @@ function updatePortalProjects(){
 
 	var callback = {
 		success: function(o){handler(o.responseText, o.responseXML);},
-		failuer: function(o){alert('unable to retrieve portal projects');},
+		failure: function(o){alert('unable to retrieve portal projects');},
 		scope: this
 	};
 	
@@ -215,7 +221,19 @@ function getProjectPaths(){
 			if(settings){
 				var path = settings.getElementsByTagName('projectPaths');
 				projectPaths = "";
+				hostedProjectPaths = "";
+				
 				if(path && path[0] && path[0].firstChild){
+					var hosted = path[0].getElementsByTagName('hosted');
+					for(var i=0;i<hosted.length;i++){
+						if(hosted[i] && hosted[i].firstChild){
+							hostedProjectPaths += hosted[i].firstChild.nodeValue;
+							if(i!=hosted.length-1){
+								hostedProjectPaths += '~';
+							};
+						};
+					};
+				
 					var paths = path[0].getElementsByTagName('path');
 					for(var u=0;u<paths.length;u++){
 						if(paths[u] && paths[u].firstChild){
@@ -296,7 +314,12 @@ function initializeOpenProjectDialog(bool){
 				openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
 				openProjectDialog.render();
 			};
-			projectsLoaded.fire();
+			
+			if(hostedProjectPaths!=null && hostedProjectPaths!=""){
+				getHostedProjects(addOption);
+			} else {
+				projectsLoaded.fire();
+			};
 		},
 		failure:function(o){alert('unable to retrieve projects from server');},
 		scope:this
@@ -305,9 +328,39 @@ function initializeOpenProjectDialog(bool){
 	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectPaths=" + projectPaths);
 };
 
+function getHostedProjects(addOption){
+	hostedPaths = [];
+	hostedURLs = [];
+	var callback = {
+		success: function(o){
+			var hosted = o.responseText.split('|');
+			for(var b=0;b<hosted.length;b++){
+				var pathUrl = hosted[b].split('~');
+				hostedPaths.push(pathUrl[0]);
+				hostedURLs.push(pathUrl[1]);	
+				addOption(pathUrl[0]);
+			};
+			projectsLoaded.fire();
+		},
+		failure: function(o){alert('unable to retrieve hosted projects from server');},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=hostedProjectList&hostedProjectPaths=" + hostedProjectPaths);
+};
+
 function optionSelected(){
 	var path = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
 	setProjectPathAndName(path);
+	
+	var index = hostedPaths.indexOf(path);
+	if(index!=-1){
+		hostedProject = true;
+		hostedContentURL = hostedURLs[index];
+		hostedContentBaseURL = hostedContentURL.substring(0, hostedContentURL.lastIndexOf('/'));
+	} else {
+		hostedProject = false;
+	};
 
 	if(path!=null && path!=""){
 		loadProjectFromServer();

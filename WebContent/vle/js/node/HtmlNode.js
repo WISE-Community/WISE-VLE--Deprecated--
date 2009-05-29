@@ -24,7 +24,7 @@ HtmlNode.prototype.setContent = function(content) {
 HtmlNode.prototype.render = function(contentPanel) {
 	if (this.elementText != null) {
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.injectBaseRef(this.elementText));
+		window.frames["ifrm"].document.write(this.resolveSrc(this.elementText));
 		window.frames["ifrm"].document.close();
 		return;
 	} else if (this.filename != null) {
@@ -36,7 +36,7 @@ HtmlNode.prototype.render = function(contentPanel) {
 		};
 		
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.content);
+		window.frames["ifrm"].document.write(this.resolveSrc(this.content));
 		window.frames["ifrm"].document.close();
 		return;
 	} else if(this.content == null) {
@@ -85,7 +85,7 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 			separator = '/';
 		};
 		
-		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + separator +"' />";
+		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "' />";
 		var headPosition = content.indexOf("<head>");
 		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
 		newContent += baseRefTag;
@@ -94,6 +94,21 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 	}
 }
 
+/**
+ * Replaces all relative src links with absolute links
+ */
+HtmlNode.prototype.resolveSrc = function(content){
+	var separator;
+	if(this.filename.indexOf('\\')!=-1){
+		separator = '\\';
+	} else {
+		separator = '/';
+	};
+	
+	var newContent = content.replace(/(src=\')(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
+	newContent = newContent.replace(/(src=\")(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
+	return newContent;
+};
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {
 	return "";

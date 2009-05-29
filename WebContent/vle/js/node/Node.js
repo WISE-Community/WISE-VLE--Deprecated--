@@ -360,6 +360,9 @@ Node.prototype.retrieveFile = function(){
  * Handles the response from the call to connectionManager
  */
 Node.prototype.processRetrieveFileResponse = function(responseText, responseXML, node){
+	if(!responseXML){
+		responseXML = loadXMLString(responseText);
+	};
 	node.xmlDoc = responseXML;
 	node.element = responseXML;
 	node.elementText = responseText;
