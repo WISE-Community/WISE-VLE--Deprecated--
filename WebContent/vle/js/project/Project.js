@@ -183,6 +183,10 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			} else { //load it now
 				thisNode.retrieveFile();
 			};
+			
+			if(thisNode.type=='HtmlNode'){
+				thisNode.contentBase = this.contentBaseUrl;
+			};
 			//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
 		}
 	}

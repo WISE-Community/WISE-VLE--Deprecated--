@@ -896,6 +896,10 @@ function loadProjectFromServer(){
 			document.getElementById('autoStepCheck1').checked = false;
 		};
 		
+		if(hostedProject){
+			project.contentBaseUrl = hostedContentBaseURL;
+		};
+		
 		populateSequences();
 		populateNodes();
 		generateDD();

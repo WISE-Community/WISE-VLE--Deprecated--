@@ -830,7 +830,7 @@ VLE.prototype.processLoadLearnerDataResponse = function(responseText, responseXM
 /**
  * Given a projectName, loads the specified project from the server
  */
-VLE.prototype.loadProjectFromServer = function(author){	
+VLE.prototype.loadProjectFromServer = function(){	
 	vle.eventManager.fire('projectLoading');
 	this.connectionManager.request('POST', 1, 'filemanager.html', {command:'retrieveFile', param1: currentProjectPath + pathSeparator + currentProjectName}, this.processLoadProjectFromServerResponse);
 };

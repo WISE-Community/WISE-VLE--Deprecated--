@@ -11,6 +11,7 @@ function HtmlNode(nodeType, connectionManager) {
 	this.content = null;
 	this.filename = null;
 	this.audios = [];
+	this.contentBase;
 }
 
 HtmlNode.prototype.setContent = function(content) {
@@ -59,11 +60,11 @@ HtmlNode.prototype.render = function(contentPanel) {
 	if (contentPanel.document) {
 		//write the content into the contentPanel, this will render the html in that panel
 		contentPanel.document.open();
-		contentPanel.document.write(this.content);
+		contentPanel.document.write(this.resolveSrc(this.content));
 		contentPanel.document.close();
 	} else {
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.content);
+		window.frames["ifrm"].document.write(this.resolveSrc(this.content));
 		window.frames["ifrm"].document.close();
 	}
 }
@@ -84,7 +85,7 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 		} else {
 			separator = '/';
 		};
-		
+		alert(vle.project.contentBaseUrl);
 		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "' />";
 		var headPosition = content.indexOf("<head>");
 		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
@@ -99,15 +100,25 @@ HtmlNode.prototype.injectBaseRef = function(content) {
  */
 HtmlNode.prototype.resolveSrc = function(content){
 	var separator;
-	if(this.filename.indexOf('\\')!=-1){
-		separator = '\\';
+	if(this.filename){
+		if(this.filename.indexOf('\\')!=-1){
+			separator = '\\';
+		} else {
+			separator = '/';
+		};
 	} else {
 		separator = '/';
 	};
-	
-	var newContent = content.replace(/(src=\')(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
-	newContent = newContent.replace(/(src=\")(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
-	return newContent;
+	alert(this.contentBase);
+	if(this.contentBase){
+		//var newContent = content.replace(/(src=\')(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
+		//newContent = newContent.replace(/(src=\")(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
+		//return newContent;
+		var newContent = content.replace(/(src=\')(?!http|\/)/g, "$1" + this.contentBase + separator);
+		newContent = newContent.replace(/(src=\")(?!http|\/)/g, "$1" + this.contentBase + separator);
+		return newContent;
+	};
+	return content;
 };
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {

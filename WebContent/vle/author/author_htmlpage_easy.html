@@ -71,10 +71,12 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		  	  
 		  node = new HtmlNode();
 		  node.setContent(htmlContent);
+		  node.contentBase = window.parent.project.contentBaseUrl;
 		  document.getElementById('sourceTextArea').value = htmlContent;
-		  window.frames["previewFrame"].document.open();
-		  window.frames["previewFrame"].document.write(htmlContent);
-		  window.frames["previewFrame"].document.close();
+		  node.render(window.frames["previewFrame"]);
+		  //window.frames["previewFrame"].document.open();
+		  //window.frames["previewFrame"].document.write(htmlContent);
+		  //window.frames["previewFrame"].document.close();
 		  //htmlNode.render(window.frames["previewFrame"]);
 	  },
 	  failure: function(o) { alert('failure');},
@@ -82,20 +84,6 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 	}
 
 	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
-}
-
-/*
- * This is called by the authoring_tool.html after it has
- * set the node.
- */
-function loadAuthoring() {
-	if(node != null) {
-		//tell the node to render itself in the previewFrame right iframe
-		node.render(window.frames["previewFrame"]);
-
-		//set the text in the left text area to contain the html from the node
-		document.getElementById('sourceTextArea').value = node.content;
-	}
 }
 
 /*
