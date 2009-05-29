@@ -85,7 +85,7 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 		} else {
 			separator = '/';
 		};
-		alert(vle.project.contentBaseUrl);
+		
 		var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "' />";
 		var headPosition = content.indexOf("<head>");
 		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
@@ -109,7 +109,7 @@ HtmlNode.prototype.resolveSrc = function(content){
 	} else {
 		separator = '/';
 	};
-	alert(this.contentBase);
+	
 	if(this.contentBase){
 		//var newContent = content.replace(/(src=\')(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);
 		//newContent = newContent.replace(/(src=\")(?!http|\/)/g, "$1" + vle.project.contentBaseUrl + separator);

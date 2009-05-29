@@ -338,7 +338,7 @@ function getHostedProjects(addOption){
 				var pathUrl = hosted[b].split('~');
 				hostedPaths.push(pathUrl[0]);
 				hostedURLs.push(pathUrl[1]);	
-				addOption(pathUrl[0]);
+				addOption(pathUrl[1]);
 			};
 			projectsLoaded.fire();
 		},
@@ -351,17 +351,19 @@ function getHostedProjects(addOption){
 
 function optionSelected(){
 	var path = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
-	setProjectPathAndName(path);
 	
-	var index = hostedPaths.indexOf(path);
+	var index = hostedURLs.indexOf(path);
 	if(index!=-1){
 		hostedProject = true;
-		hostedContentURL = hostedURLs[index];
+		hostedContentURL = path;
 		hostedContentBaseURL = hostedContentURL.substring(0, hostedContentURL.lastIndexOf('/'));
+		path = hostedPaths[index];
 	} else {
 		hostedProject = false;
 	};
-
+		
+	setProjectPathAndName(path);
+	
 	if(path!=null && path!=""){
 		loadProjectFromServer();
 		openProjectDialog.hide();
