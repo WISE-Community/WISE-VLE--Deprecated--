@@ -74,10 +74,6 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		  node.contentBase = window.parent.project.contentBaseUrl;
 		  document.getElementById('sourceTextArea').value = htmlContent;
 		  node.render(window.frames["previewFrame"]);
-		  //window.frames["previewFrame"].document.open();
-		  //window.frames["previewFrame"].document.write(htmlContent);
-		  //window.frames["previewFrame"].document.close();
-		  //htmlNode.render(window.frames["previewFrame"]);
 	  },
 	  failure: function(o) { alert('failure');},
 	  scope: this
