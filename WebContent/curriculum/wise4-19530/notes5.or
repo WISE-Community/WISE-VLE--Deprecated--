@@ -1,0 +1,68 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(62313)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3"/>
+    <itemBody>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_1" expectedLines="3">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+How you would change your graphs to match the graphs in the
+simulator?&lt;br /&gt;
+&lt;br /&gt;
+&lt;center&gt;&lt;img width="285" height="265"
+src="http://wise.berkeley.edu/upload/16965/2_airbag_graphs_2.GIF" /&gt;&lt;/center&gt;
+&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="Segment A: Segment B: Segment C: Segment D: Segment E:" responseIdentifier="NOTE_RESPONSE_2" expectedLines="6">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Describe the airbag's motion during time segments A, B, C, D, and
+E. Use phrases like "not moving", "constant speed", "speeding up",
+"slowing down".&lt;br /&gt;
+&lt;br /&gt;
+&lt;center&gt;&lt;img width="285" height="265"
+src="http://wise.berkeley.edu/upload/16965/2_airbag_graphs_2.GIF" /&gt;&lt;/center&gt;
+&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_3" expectedLines="3">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+On the velocity graph, why is segment D steeper than segment
+B?&lt;br /&gt;
+&lt;br /&gt;
+&lt;center&gt;&lt;img width="285" height="265"
+src="http://wise.berkeley.edu/upload/16965/2_airbag_graphs_2.GIF" /&gt;&lt;/center&gt;
+&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

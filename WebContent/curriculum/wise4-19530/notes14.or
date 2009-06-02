@@ -1,0 +1,45 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(62287)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="identifier" cardinality="single" identifier="NOTE_RESPONSE_1">
+        <correctResponse>
+            <value isDefault="false" isCorrect="false">choice</value>
+        </correctResponse>
+    </responseDeclaration>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2"/>
+    <itemBody>
+        <choiceInteraction hasInlineFeedback="false" responseIdentifier="NOTE_RESPONSE_1" maxChoices="1" shuffle="false">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+If you were to include the capability for the car's black box to
+produce either POSITION graphs or VELOCITY graphs, which would you
+choose?
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+            <simpleChoice identifier="choice0">POSITION graphs
+</simpleChoice>
+            <simpleChoice identifier="choice1">VELOCITY graphs</simpleChoice>
+        </choiceInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="" responseIdentifier="NOTE_RESPONSE_2" expectedLines="3">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Explain your answer.
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

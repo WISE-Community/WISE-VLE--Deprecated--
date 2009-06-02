@@ -1,0 +1,67 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(62286)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_3"/>
+    <itemBody>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The driver was (safe/unsafe).  In this accident..." responseIdentifier="NOTE_RESPONSE_1" expectedLines="3">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Describe in as much detail as you can the accident situation that
+produced this POSITION vs. time graph. Was the driver likely
+injured by the airbag in this case? &lt;br /&gt;
+&lt;center&gt;&lt;img
+src="http://wise.berkeley.edu/upload/19530/p-tgraph1.JPG" /&gt;&lt;/center&gt;
+&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The driver was (safe/unsafe).  In this accident..." responseIdentifier="NOTE_RESPONSE_2" expectedLines="3">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Describe in as much detail as you can the accident situation that
+produced this POSITION vs. time graph. Was the driver likely
+injured by the airbag in this case? &lt;br /&gt;
+&lt;center&gt;&lt;img
+src="http://wise.berkeley.edu/upload/19530/p-tgraph2.JPG" /&gt;&lt;/center&gt;
+&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="The driver was (safe/unsafe).  In this accident..." responseIdentifier="NOTE_RESPONSE_3" expectedLines="3">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Describe in as much detail as you can the accident situation that
+produced this POSITION vs. time graph. Was the driver likely
+injured by the airbag in this case? &lt;br /&gt;
+&lt;center&gt;&lt;img
+src="http://wise.berkeley.edu/upload/19530/p-tgraph3.JPG" /&gt;&lt;/center&gt;
+&lt;br /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

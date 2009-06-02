@@ -1,0 +1,36 @@
+<assessmentItem timeDependent="false" adaptive="false" identifier="MasterWorkNote(71531)" xmlns:ns3="http://www.w3.org/1998/Math/MathML" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0">
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_1"/>
+    <responseDeclaration baseType="string" cardinality="single" identifier="NOTE_RESPONSE_2"/>
+    <itemBody>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="simulation #1?    simulation #2?    simulation #3?" responseIdentifier="NOTE_RESPONSE_1" expectedLines="12">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+What did you learn from...
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+        <extendedTextInteraction hasInlineFeedback="false" placeholderText="predict the weather:    train athletes:    understand chemical reactions:" responseIdentifier="NOTE_RESPONSE_2" expectedLines="12">
+            <prompt>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta name="generator"
+content="HTML Tidy for Java (vers. 26 Sep 2004), see www.w3.org" /&gt;
+&lt;title&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+Describe how you think computer simulations might be used to...
+&lt;/body&gt;
+&lt;/html&gt;
+</prompt>
+        </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>
