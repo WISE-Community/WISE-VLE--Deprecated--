@@ -1,3 +1,103 @@
-<OutsideUrl id="concordmodelsavejar5" title="OutsideUrl">
-	<url>http://test.jbreitbart.net/AirbagsModel/bin-debug/AirbagsModel.html</url>
-</OutsideUrl>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.1 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Airbags Model (Flash)</title>
+	<link rel="stylesheet" type="text/css" href="airbags.css">
+	<script type="text/javascript" src="swfobject.js"></script>
+<style media="screen" type="text/css">#flexApplication {visibility:hidden}</style>
+	<script type="text/javascript">
+/* Set up parameter selection options */
+function setup() {
+	var insertForm = "Position:<select name='position' id='position'>";
+	for (var i=0; i<26; i++){
+		var val = i*.02;
+		var text = "<option value='" + val + "'>" + val + "</option>";
+		insertForm += text;
+	}
+	insertForm += "</select><br />Velocity:<select name='velocity' id='velocity'>";
+	
+	var insertVel = "";
+	for (var i=-10; i<1; i++){
+		var text = "<option value='" + i + "'>" + i + "</option>";
+		insertForm += text;
+	}
+	insertForm += "</select><br />Time (delay):<select name='time' id='time'>";
+	
+	var insertTime = "";
+	for (var i=0; i<10; i++){
+		var val = i*.01;
+		var text = "<option value='" + val + "'>" + val + "</option>";
+		insertForm += text;
+	}
+	insertForm += "</select>";
+	
+	document.getElementById('parameters').innerHTML += insertForm;
+}
+
+/* Get user input parameters and send to Flex model */
+function setParameters() {
+	var position = document.getElementById('position').value;
+	var velocity = document.getElementById('velocity').value;
+	var time = document.getElementById('time').value;
+	getFlexApp('AirbagsModel').newParameters(position, velocity, time);
+}
+
+function exportParameters(position, velocity, time) {
+	document.getElementById('position').value = position;
+	document.getElementById('velocity').value = velocity;
+	document.getElementById('time').value = time;
+	document.getElementById('submit').disabled = false;
+}
+
+function disableParameterButton(){
+	document.getElementById('submit').disabled = true;
+}
+
+function alertState() {
+	getFlexApp('AirbagsModel').showParameters();
+}
+function showState(position, velocity, time) {
+	alert("Dummy position: " + position + " m\r\nDummy velocity: " + velocity + " m\/s\r\nDummy time delay: " + time + " s");
+}
+
+function getFlexApp(movieName) {
+	if (navigator.appName.indexOf('Microsoft') != -1) {
+		return window[movieName];
+	}
+	else {
+		return document[movieName];
+	}
+}
+	
+	</script>
+	
+</head><div FirebugVersion="1.3.3" style="display: none;" id="_firebugConsole"></div><body onload="setup()">
+
+<div id="model">
+	<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" id="AirbagsModel" height="600" width="650">
+	    <param name="movie" value="AirbagsModel.swf">
+	    <param name="allowScriptAccess" value="always">
+	    <embed pluginspage="http://www.adobe.com/go/getflashplayer" flashvars="" src="AirbagsModel.swf" name="AirbagsModel" height="600" width="650">
+	    
+	    <!--[if !IE]>
+	    <object type="application/x-shockwave-flash" data="AirbagsModel.swf" width="650" height="600" 
+	    id="AirbagsModel" name="AirbagsModel"/>-->
+	    <!--<![endif]
+	    <p>This content requires the Adobe Flash Player. <a href=http://www.adobe.com/go/getflash/>Get Flash.</a></p>-->
+	    <!--[if !IE]>-->
+	    </object>
+	    <!--<![endif]-->
+	
+</div>
+
+<div id="controls">
+	<p>Set Parameters:</p>
+	<form id="parameters">
+	Position:<select name="position" id="position"><option value="0">0</option><option value="0.02">0.02</option><option value="0.04">0.04</option><option value="0.06">0.06</option><option value="0.08">0.08</option><option value="0.1">0.1</option><option value="0.12">0.12</option><option value="0.14">0.14</option><option value="0.16">0.16</option><option value="0.18">0.18</option><option value="0.2">0.2</option><option value="0.22">0.22</option><option value="0.24">0.24</option><option value="0.26">0.26</option><option value="0.28">0.28</option><option value="0.3">0.3</option><option value="0.32">0.32</option><option value="0.34">0.34</option><option value="0.36">0.36</option><option value="0.38">0.38</option><option value="0.4">0.4</option><option value="0.42">0.42</option><option value="0.44">0.44</option><option value="0.46">0.46</option><option value="0.48">0.48</option><option value="0.5">0.5</option></select><br>Velocity:<select name="velocity" id="velocity"><option value="-10">-10</option><option value="-9">-9</option><option value="-8">-8</option><option value="-7">-7</option><option value="-6">-6</option><option value="-5">-5</option><option value="-4">-4</option><option value="-3">-3</option><option value="-2">-2</option><option value="-1">-1</option><option value="0">0</option></select><br>Time (delay):<select name="time" id="time"><option value="0">0</option><option value="0.01">0.01</option><option value="0.02">0.02</option><option value="0.03">0.03</option><option value="0.04">0.04</option><option value="0.05">0.05</option><option value="0.06">0.06</option><option value="0.07">0.07</option><option value="0.08">0.08</option><option value="0.09">0.09</option></select></form>
+	<p><button id="submit" onclick="setParameters()">Commit</button></p>
+	<p><button id="submit" onclick="alertState()">Show Current Parameters</button></p>
+</div>
+
+</body></html>
