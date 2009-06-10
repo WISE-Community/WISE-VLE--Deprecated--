@@ -92,6 +92,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				response.getWriter().write(this.createSequence(request));
 			} else if(command.equals("exportProject")){
 				this.exportProject(request, response);
+			} else if(command.equals("removeFile")){
+				response.getWriter().write(this.removeFile(request));
 			} else {
 				throw new ServletException("This servlet does not understand this command: " + command);
 			}
@@ -203,6 +205,55 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		}
 	}
 	
+	private String getHostedProjectList(HttpServletRequest request) throws IOException{
+		String rawPaths = request.getParameter(HOSTED_PROJECT_PATHS);
+		String[] paths = rawPaths.split("~");
+		List<String> visited = new ArrayList<String>();
+		List<String> projects = new ArrayList<String>();
+		String projectsList = "";
+		
+		if(paths!=null && paths.length>0){
+			for(int p=0;p<paths.length;p++){
+				File f = new File(paths[p]);
+				getProjectFiles(f, projects, visited);
+			}
+			
+			for(int z=0;z<projects.size();z++){
+				String separator;
+				String rawPath = projects.get(z);
+				
+				if(rawPath.contains("/")){
+					separator = "/";
+				} else {
+					separator = "\\";
+				}
+				
+				String toWebContent = rawPath.substring(0, rawPath.indexOf("WebContent") - 1);
+				String hostPath = "/" + toWebContent.substring(toWebContent.lastIndexOf(separator) + 1, toWebContent.length());
+				String contentPath = rawPath.substring(rawPath.indexOf("WebContent") + 10, rawPath.length());
+				contentPath = contentPath.replace("\\", "/");
+				
+				projectsList += rawPath + "~" + hostPath + contentPath;
+				if(z!=projects.size()-1){
+					projectsList += "|";
+				}
+			}
+			return projectsList;
+		} else {
+			return "";
+		}
+	}
+	
+	/**
+	 * Returns a delimited string '|' of a '~' delimited path~url to
+	 * hosted projects. The path is the absolute path and the url starts
+	 * at the root of the hosted project. Throws IOException if project
+	 * directory does not exist.
+	 * 
+	 * @param request
+	 * @return String
+	 * @throws IOException
+	 */
 	private String getHostedProjectList(HttpServletRequest request) throws IOException{
 		String rawPaths = request.getParameter(HOSTED_PROJECT_PATHS);
 		String[] paths = rawPaths.split("~");
@@ -376,35 +427,80 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 	 */
 	private String createNode(HttpServletRequest request) throws IOException, ServletException{
 		String projectPath = request.getParameter(PARAM1);
-		String filename = request.getParameter(PARAM2);
+		String nodeClass = request.getParameter(PARAM2);
 		String title = request.getParameter(PARAM3);
 		String type = request.getParameter(PARAM4);
+		String filename = "";
 		
 		File dir = new File(projectPath).getParentFile();
 		if(dir.exists()){
-			File file = new File(dir, filename + this.getExtension(type));
-			if(file.exists()){
-				return "exists";
-			} else {
-				boolean success = file.createNewFile();
-				if(success){
-					FileOutputStream fop = new FileOutputStream(file);
-					fop.write(Template.getNodeTemplate(type).getBytes());
-					fop.flush();
-					fop.close();
-					File parent = new File(projectPath);
-					if(this.addNodeToProject(parent, Template.getProjectNodeTemplate(type, filename, title, this.getExtension(type)))){
-						return "success";
-					} else {
-						return "nodeNotProject";
-					}
+			File file = generateUniqueFile(dir, this.getExtension(type));
+			boolean success = file.createNewFile();
+			if(success){
+				filename = file.getName();
+				FileOutputStream fop = new FileOutputStream(file);
+				fop.write(Template.getNodeTemplate(type).getBytes());
+				fop.flush();
+				fop.close();
+				File parent = new File(projectPath);
+				if(this.addNodeToProject(parent, Template.getProjectNodeTemplate(type, filename, title, nodeClass))){
+					return "success";
 				} else {
-					throw new IOException("Unable to create new Node");
+					return "nodeNotProject";
 				}
+			} else {
+				throw new IOException("Unable to create new Node");
 			}
 		} else {
 			throw new IOException("Unable to find project");
 		}
+	}
+	
+	/**
+	 * Given a parent directory <code>File</code> and a file
+	 * extension <code>String</code> generates and returns a
+	 * <code>File</code> with a unique filename.
+	 *  
+	 * @param parent
+	 * @param ext
+	 * @return File
+	 */
+	private File generateUniqueFile(File parent, String ext){
+		String name = "node_";
+		int count = 0;
+		
+		while(true){
+			File file = new File(parent, name + count + ext);
+			if(!file.exists()){
+				if(!duplicateName(parent, name + count)){
+					return file;
+				}
+			}
+			count ++;
+		}
+	}
+	
+	/**
+	 * Returns true if any of the children files in the directory
+	 * of the given parent <code>File</code> have the same root name
+	 * as the given name <code>String</code>, otherwise, returns false.
+	 * 
+	 * @param parent
+	 * @param name
+	 * @return boolean
+	 */
+	private boolean duplicateName(File parent, String name){
+		String[] children = parent.list();
+		for(int i=0;i<children.length;i++){
+			File childFile = new File(parent, children[i]);
+			if(!childFile.isDirectory()){
+				String childName = children[i].substring(0, children[i].lastIndexOf("."));
+				if(childName.equals(name)){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -526,6 +622,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 	private String createSequence(HttpServletRequest request) throws IOException{
 		String projectPath = request.getParameter(PARAM1);
 		String name = request.getParameter(PARAM2);
+		String id = request.getParameter(PARAM3);
 				
 		File file = new File(projectPath);
 		
@@ -537,7 +634,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				current = current.trim();
 				if(current.equals("</sequences>")){
 					br.close();
-					if(this.insertTemplateBefore(file, Template.getSequenceTemplate(name), line)){
+					if(this.insertTemplateBefore(file, Template.getSequenceTemplate(id, name), line)){
 						return "success";
 					} else {
 						throw new IOException("Unable to insert sequence in project file.");
@@ -550,6 +647,36 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 			throw new IOException("Could not insert new sequence in project file.");
 		} else {
 			throw new IOException("Unable to locate project file.");
+		}
+	}
+	
+	/**
+	 * Given a <code>HttpServletRequest</code> request with params param1 (project path)
+	 * and param2 (filename), attempts to remove the specified file.
+	 * 
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 */
+	private String removeFile(HttpServletRequest request) throws IOException{
+		String projectPath = request.getParameter(PARAM1);
+		String filename = request.getParameter(PARAM2);
+		
+		File parent = new File(projectPath);
+		if(parent.exists()){
+			File child = new File(parent, filename);
+			if(child.exists()){
+				boolean success = child.delete();
+				if(success){
+					return "success";
+				} else {
+					return "failure";
+				}
+			} else{
+				throw new IOException("Unable to locate file: " + child.getAbsolutePath());
+			}
+		} else {
+			throw new IOException("Unable to locate project directory: " + projectPath);
 		}
 	}
 	
@@ -615,6 +742,17 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		}
 	}
 	
+	/**
+	 * Given a multipart content request, uploads and unzips a project into the same
+	 * directory structure as it is stored in the zip file starting at the given
+	 * path in the request.
+	 * 
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 * @throws FileUploadException
+	 * @throws Exception
+	 */
 	private boolean importProject(HttpServletRequest request) throws IOException, FileUploadException, Exception{
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload(factory);

@@ -1,100 +1,7 @@
 <html>
 <head>
 <title>Grade By Step</title>
-<script type="text/javascript" src="vle/js/sound/soundmanager/script/soundmanager2.js"></script>
-<script type="text/javascript" src="vle/js/sound/AudioManager.js"></script>
-<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-
-
-<!-- Dependency --> 
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
-
-<!-- Event source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
-
-<!-- Sam Skin CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
-
-<!-- Dependencies -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-
-<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
-
-<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
-
-<!-- Source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
-
-<!-- Connection manager -->
-<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
-
-<script type="text/javascript">
-var vle = null;
-</script>
-
-<script type="text/javascript" src="vle/js/common/helperfunctions.js"></script>
-<script type="text/javascript" src="vle/js/VLE.js"></script>
-<script type="text/javascript" src="vle/js/contentpanel/ContentPanel.js"></script>
-<script type="text/javascript" src="vle/js/navigation/NavigationLogic.js"></script>
-<script type="text/javascript" src="vle/js/visibility/VisibilityLogic.js"></script>
-<script type="text/javascript" src="vle/js/visibility/OnlyShowSelectedNodes.js"></script>
-<script type="text/javascript" src="vle/js/visibility/CorrectnessBranchingVisibility.js"></script>
-<script type="text/javascript" src="vle/js/navigation/DFS.js"></script>
-<script type="text/javascript" src="vle/js/navigation/NavigationPanel.js"></script>
-<script type="text/javascript" src="vle/js/common/loadxmldoc.js"></script>
-<script type="text/javascript" src="vle/js/node/Node.js"></script>
-<script type="text/javascript" src="vle/js/node/HtmlNode.js"></script>
-<script type="text/javascript" src="vle/js/node/CustomNode.js"></script>
-<script type="text/javascript" src="vle/js/node/MatchSequenceNode.js"></script>
-<script type="text/javascript" src="vle/js/node/FillinNode.js"></script>
-<script type="text/javascript" src="vle/js/node/fillin/fillinstate.js"></script>
-<script type="text/javascript" src="vle/js/node/OpenResponseNode.js"></script>
-<script type="text/javascript" src="vle/js/node/NoteNode.js"></script>
-<script type="text/javascript" src="vle/js/node/openresponse/openresponse.js"></script>
-<script type="text/javascript" src="vle/js/node/openresponse/openresponsestate.js"></script>
-<script type="text/javascript" src="vle/js/node/JournalNode.js"></script>
-<script type="text/javascript" src="vle/js/node/OutsideUrlNode.js"></script>
-<script type="text/javascript" src="vle/js/node/BlueJNode.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoice/multiplechoicestate.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoice/mc.js"></script>
-<script type="text/javascript" src="vle/js/node/MultipleChoiceNode.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoicecheckbox/mc_checkbox.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoicecheckbox/multiplechoicecheckboxstate.js"></script>
-<script type="text/javascript" src="vle/js/node/MultipleChoiceCheckBoxNode.js"></script>
-<script type="text/javascript" src="vle/js/node/BrainstormNode.js"></script>
-<script type="text/javascript" src="vle/js/node/brainstorm/brainstormstate.js"></script>
-<script type="text/javascript" src="vle/js/node/JournalEntryNode.js"></script>
-<script type="text/javascript" src="vle/js/node/TickerNode.js"></script>
-<script type="text/javascript" src="vle/js/project/Project.js"></script>
-<script type="text/javascript" src="vle/js/io/ConnectionManager.js"></script>
-<script type="text/javascript" src="vle/js/events/events.js"></script>
-<script type="text/javascript" src="vle/js/grading/Annotation.js"></script>
-<script type="text/javascript" src="vle/js/grading/Annotations.js"></script>
-<script type="text/javascript" src="vle/js/grading/Flag.js"></script>
-<script type="text/javascript" src="vle/js/grading/Flags.js"></script>
-<script type="text/javascript" src="vle/js/notification/NotificationManager.js"></script>
-<script type="text/javascript" src="vle/js/run/RunManager.js"></script>
-<!-- Ticker Query Files -->
-<script type="text/javascript" src="vle/js/node/ticker/ticker.js"></script>
-<script type="text/javascript" src="vle/js/node/QueryEntry.js"></script>
-<script type="text/javascript" src="vle/js/node/StudentWorkQueryObject.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoice/MultipleChoiceQueryEntry.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoice/MultipleChoiceQueryContainer.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryEntry.js"></script>
-<script type="text/javascript" src="vle/js/node/multiplechoicecheckbox/MultipleChoiceCheckBoxQueryContainer.js"></script>
-
-<script type="text/javascript" src="vle/js/common/niftycube.js"></script>
-<script type="text/javascript" src="vle/js/navigation/menu.js"></script>
-
-<script type="text/javascript" src="vle/js/common/dropdown.js"></script>
-
-<link rel="stylesheet" type="text/css" href="vle/css/niftyCube.css" />
-<link rel="stylesheet" type="text/css" href="vle/css/navigation/testnavigation.css" />
-<link rel="stylesheet" type="text/css" href="vle/css/visibility/visibility.css" />
-<link rel="stylesheet" type="text/css" href="vle/css/navigation_mobile.css" />
-
+<script type="text/javascript" src="vle/util/scriptloader.js"></script>
 <!--  no navigation styling for now
 <link rel="stylesheet" type="text/css" href="vle/css/sdmenu.css" />
  -->
@@ -102,10 +9,20 @@ var vle = null;
 <script type="text/javascript">
 var studentWorkQueryObject;
 
+/**
+ * Called after all the js files are loaded
+ */
+function afterScriptsLoad(){
+	//after all the js files have been loaded, render the gradebystep display
+	render(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId);
+}
+
+/**
+ * Called when the page starts to load
+ */
 window.onload=function(){
-Nifty("div#none","bottom");
-Nifty("div#navigationBox","big");
-Nifty("ul.toolsButtons a","transparent");
+	//load all the js files
+	scriptloader.initialize(document, afterScriptsLoad, 'main');
 }
 
 function projectSummary(){
@@ -125,7 +42,7 @@ var vleStates;
 var getAnnotationsUrl;
 var postAnnotationsUrl;
 var annotations;
-
+var contentBaseUrl;
 var getFlagsUrl;
 var postFlagsUrl;
 var flags;
@@ -150,19 +67,22 @@ function popUp(strURL, strType, strHeight, strWidth) {
  newWin.focus();
 }
 
+/**
+ * This gets called by gradebystep.jsp in the topiframeOnLoad() function.
+ * We will just remember all the url arguments to use them later when
+ * in afterScriptsLoad() when we call render().
+ */
 function load(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId, getFlagsUrl, postFlagsUrl) {
 	//alert("contentURL: " + contentUrl + "\n\nuserURL: " + userUrl + "\n\ngetDataUrl: " + getDataUrl + "\n\ncontentBaseUrl: " + contentBaseUrl + "\n\ngetAnnotationsUrl: " + getAnnotationsUrl + "\n\npostAnnotationsUrl: " + postAnnotationsUrl);
 	this.contentUrl = contentUrl;
 	this.userUrl = userUrl;
 	this.getDataUrl = getDataUrl;
+	this.contentBaseUrl = contentBaseUrl;
 	this.getAnnotationsUrl = getAnnotationsUrl;
 	this.postAnnotationsUrl = postAnnotationsUrl; 
 	this.runId = runId;
-
 	this.getFlagsUrl = getFlagsUrl;
 	this.postFlagsUrl = postFlagsUrl;
-	
-	render(contentUrl, userUrl, getDataUrl, contentBaseUrl, getAnnotationsUrl, postAnnotationsUrl, runId);
 }
 
 /**

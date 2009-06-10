@@ -31,11 +31,11 @@ public final class Template {
 	public final static String NL = System.getProperty("line.separator");
 
 	public static String getProjectTemplate(){
-		return "<project autoStep=\"true\">" + NL + 
+		return "<project autoStep=\"true\" stepLevelNum=\"false\">" + NL + 
 			"<nodes>" + NL +
 			"</nodes>" + NL +
 			"<sequences>" + NL +
-			getSequenceTemplate("master") + NL +
+			getSequenceTemplate("master", "master") + NL +
 			"</sequences>" + NL +
 			"<method>" + NL +
 			"<startpoint>" + NL +
@@ -45,14 +45,14 @@ public final class Template {
 			"</project>";
 	}
 	
-	public static String getProjectNodeTemplate(String node, String name, String title, String ext){
-		return "<" + node + " identifier=\"" + name + "\" title=\"" + title + "\">" + NL +
-			"<ref filename=\"" + name + ext + "\"/>" + NL + 
+	public static String getProjectNodeTemplate(String node, String name, String title, String nodeClass){
+		return "<" + node + " identifier=\"" + name + "\" title=\"" + title + "\" class=\"" + nodeClass + "\">" + NL +
+			"<ref filename=\"" + name + "\"/>" + NL + 
 			"</" + node + ">" + NL;
 	}
 	
-	public static String getSequenceTemplate(String name){
-		return "<sequence identifier=\"" + name + "\">" + NL + "</sequence>";
+	public static String getSequenceTemplate(String id, String title){
+		return "<sequence identifier=\"" + id + "\" title=\"" + title + "\">" + NL + "</sequence>";
 	}
 	
 	public static String getNodeTemplate(String type){
@@ -203,5 +203,20 @@ public final class Template {
 	
 	private static String getGlueTemplate(){
 		return "<Glue>" + NL + "<prompt></prompt>" + NL + "<children></children>" + NL + "</Glue>";
+	}
+	
+	private static String getChallengeQuestionTemplate(){
+		return "<ChallengeQuestion>" + NL + 
+			"<assessmentItem xmlns=\"http://www.imsglobal.org/xsd/imsqti_v2p0\" xmlns:ns3=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" timeDependent=\"false\" adaptive=\"false\">" + NL +
+			"<responseDeclaration identifier=\"SINGLE_CHOICE\">" + NL +
+			"<correctResponse interpretation=\"\"/>" + NL +
+			"</responseDeclaration>" + NL +
+			"<itemBody>" + NL +
+			"<choiceInteraction hasInlineFeedback=\"false\" responseIdentifier=\"SINGLE_CHOICE\" maxChoices=\"1\" shuffle=\"false\">" + NL +
+			"<prompt></prompt>" + NL +
+			"</choiceInteraction>" + NL +
+			"</itemBody>" + NL +
+			"</assessmentItem>" + NL +
+			"</ChallengeQuestion>";
 	}
 }
