@@ -113,7 +113,7 @@ HtmlNode.prototype.injectBaseRef = function(content) {
 		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
 		
 		if(this.contentBase){
-			var baseRefTag = "<base href='" + domain + this.contentBase + "/'/>";
+			var baseRefTag = "<base href='" + this.contentBase + "/'/>";
 		} else {
 			return content
 		};
