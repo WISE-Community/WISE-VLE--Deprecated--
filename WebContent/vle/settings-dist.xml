@@ -1,0 +1,18 @@
+<!-- 
+   Copy this file into settings.xml, and modify settings.xml to suit your filesystem
+   1) DO NOT make changes to this file unless it's a change everybody else should get.
+   2) DO NOT COMMIT SETTINGS.XML
+ -->
+<config>
+	<!--  projectPaths is where the authoring tool will look for projects -->
+	<projectPaths>
+		<path>c:\incoming\projects</path>
+		<path>c:\program files\eclipse\projects</path>
+		<path>c:\projects</path>
+		<path>c:\incoming\projects\a test</path>
+		<hosted>c:\incoming\working\projects\WebContent</hosted>
+	</projectPaths>
+	<primaryPath>
+		<path>c:\incoming\projects</path>
+	</primaryPath>
+</config>

@@ -1,0 +1,13 @@
+<!-- 
+   Copy this file into settings.xml, and modify settings.xml to suit your filesystem
+   1) DO NOT make changes to this file unless it's a change everybody else should get.
+   2) DO NOT COMMIT SETTINGS.XML
+ -->
+<config>
+	<!--  projectPaths is where the authoring tool will look for projects -->
+	<projectPaths>
+	</projectPaths>
+	<primaryPath>
+		<path>/Users/hirokiterashima/Sites/apcsa/curriculum</path>
+	</primaryPath>
+</config>
