@@ -3,35 +3,22 @@
 <head>
 
 <!-- Dependency --> 
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/yahoo/yahoo-min.js" ></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/event/event-min.js" ></script>
+<link rel="stylesheet" type="text/css" href="../yui/yui_2.7.0b/build/container/assets/skins/sam/container.css">
+<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/animation/animation-min.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/container/container-min.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/connection/connection-min.js"></script>
 
-<!-- Event source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
-
-<!-- Sam Skin CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
-
-<!-- Dependencies -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-
-<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
-
-<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
-
-<!-- Source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
-
-<!-- Connection manager -->
-<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
-
-<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
-<script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
-<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
-<script type="text/javascript" src="../js/node/Node.js"></script>
-<script type="text/javascript" src="../js/authoring/author_helper.js"></script>
-<script type="text/javascript" src="../js/authoring/author_advanced_helper.js"></script>
+<script type="text/javascript" src="../common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../node/common/js/loadxmldoc.js"></script>
+<script type="text/javascript" src="../common/helperfunctions.js"></script>
+<script type="text/javascript" src="../node/Node.js"></script>
+<script type="text/javascript" src="author_helper.js"></script>
+<script type="text/javascript" src="author_advanced_helper.js"></script>
 
 <script type="text/javascript">
 var saved = true;
@@ -78,7 +65,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		  scope:this
 	}
 
-	YAHOO.util.Connect.asyncRequest('POST', '../../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
+	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
 }
 
 /*
@@ -117,7 +104,7 @@ function sourceUpdated() {
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
    		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
-   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../js/node/matchsequence/matchsequence.html'></iframe></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../node/matchsequence/matchsequence.html'></iframe></td>
 	</tr>
 </table>
 <!--  for posting the text for echo servlet -->

@@ -3,10 +3,8 @@
 <html>
 <head>
 
-<!-- AUTHOR CSS -->
-<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+<script type="text/javascript" src="../util/scriptloader.js"></script>
 
-<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
 <script type="text/javascript">
 var filename;
 var easyMode;
@@ -17,6 +15,7 @@ var projectPath;
 var pathSeparator;
 var getSaved;
 var project;
+var iconPath;
 
 /**
  * Removes previous, creates a new frame, determines the 
@@ -65,7 +64,7 @@ function modeChanged(val){
  * function given to parent window so that we can set certain
  * critical variables here
  */
-function setVars(fn, m, pn, prn, pp, pr, ps){
+function setVars(fn, m, pn, prn, pp, pr, ps, ip){
 	filename = fn;
 	easyMode = m;
 	rootPageName = pn;
@@ -73,12 +72,14 @@ function setVars(fn, m, pn, prn, pp, pr, ps){
 	projectPath = pp;
 	project = pr;
 	pathSeparator = ps;
+	iconPath = ip;
 	
 	if(easyMode){
 		document.getElementById('easyTrue').checked = true;
 	} else {
 		document.getElementById('easyFalse').checked = true;
 	};
+	document.getElementById('iconDiv').innerHTML = iconPath;
 };
 
 /**
@@ -86,11 +87,15 @@ function setVars(fn, m, pn, prn, pp, pr, ps){
  * parent and then calls changeFramed() to create new frame with 
  * correct authoring page
  */
-function loaded(){
+function afterScriptsLoaded(){
 	if(window.opener){
 		window.opener.authoringWindowLoaded(setVars);
 		changeFramed();
 	};
+};
+
+function loaded(){
+	scriptloader.initialize(document, afterScriptsLoaded, 'author_framed');
 };
 
 function save(){
@@ -107,6 +112,7 @@ window.onbeforeunload = function(){
 		<div id='header'>
 			<table>
 				<tr>
+					<td id='iconTD'><div id='iconDiv'></div></td>
 					<td>
 						Editor View:
 						<input type='radio' id='easyTrue' name='radioMode' onclick='modeChanged(true)'>Simple</input>

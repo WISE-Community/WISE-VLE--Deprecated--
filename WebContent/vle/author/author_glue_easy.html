@@ -26,49 +26,33 @@
 <head>
 
 <!-- Dependency --> 
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js" ></script>
-
-<!-- Event source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js" ></script>
-
-<!-- Sam Skin CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/container/assets/skins/sam/container.css">
-
-<!-- AUTHOR CSS -->
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/yahoo/yahoo-min.js" ></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/event/event-min.js" ></script>
+<link rel="stylesheet" type="text/css" href="../yui/yui_2.7.0b/build/container/assets/skins/sam/container.css">
 <link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/animation/animation-min.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/container/container-min.js"></script>
+<script type="text/javascript" src="../yui/yui_2.7.0b/build/connection/connection-min.js"></script>
 
-<!-- Dependencies -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script src="../yui/yui_3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
 
-<!-- OPTIONAL: Animation (only required if using ContainerEffect) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/animation/animation-min.js"></script>
+<script type="text/javascript" src="../common/loadxmldoc.js"></script>
+<script type="text/javascript" src="../common/helperfunctions.js"></script>
+<script type="text/javascript" src="../node/Node.js"></script>
+<script type="text/javascript" src="../node/GlueNode.js"></script>
+<script type="text/javascript" src="author_glue.js"></script>
 
-<!-- OPTIONAL: Drag & Drop (only required if enabling Drag & Drop) -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dragdrop/dragdrop-min.js"></script>
-
-<!-- Source file -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/container/container-min.js"></script>
-
-<!-- Connection manager -->
-<script src="http://yui.yahooapis.com/2.7.0/build/connection/connection-min.js"></script>
-
-<script src="http://yui.yahooapis.com/3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-
-<script type="text/javascript" src="../js/common/loadxmldoc.js"></script>
-<script type="text/javascript" src="../js/common/helperfunctions.js"></script>
-<script type="text/javascript" src="../js/node/Node.js"></script>
-<script type="text/javascript" src="../js/node/GlueNode.js"></script>
-<script type="text/javascript" src="../js/authoring/author_glue.js"></script>
-
-<script type="text/javascript" src="../js/node/common/js/loadxmldoc.js"></script>
-<script type="text/javascript" src="../js/authoring/author_helper.js"></script>
-<script type="text/javascript" src="../js/authoring/author_easy_helper.js"></script>
+<script type="text/javascript" src="../node/common/js/loadxmldoc.js"></script>
+<script type="text/javascript" src="author_helper.js"></script>
+<script type="text/javascript" src="author_easy_helper.js"></script>
 
 <script type="text/javascript">
 var xmlPage;
 var saved = true;
 var project = window.parent.project;
-var allowedGlue = new Array('MultipleChoiceNode', 'OpenResponseNode');
+var allowedGlue = new Array('MultipleChoiceNode', 'OpenResponseNode', 'HtmlNode');
 
 function generatePage(){
 	var parent = document.getElementById('dynamicParent');
@@ -225,7 +209,7 @@ function updatePrompt(){
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
 		<td width='50%' id="dynamicParent"><div id="dynamicPage"></div></td>
-   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../js/node/glue/glue.html'></iframe></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../node/glue/glue.html'></iframe></td>
 	</tr>
 </table>
 </body>
