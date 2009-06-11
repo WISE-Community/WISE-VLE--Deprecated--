@@ -91,7 +91,7 @@ Connection.prototype.startRequest = function(eventName){
 			this.em.fire(en);
 			this.handler(o.responseText, o.responseXML, this.hArgs);
 		},
-		failure: function(o){alert('connection request failed, please check parameters or if server is available');},
+		failure: function(o){},
 		scope:this
 	};
 	
@@ -174,3 +174,6 @@ PostConnection.prototype.parseConnectionArgs = function(){
 		};
 	};
 };
+
+//used to notify scriptloader that this script has finished loading
+scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/io/ConnectionManager.js");
