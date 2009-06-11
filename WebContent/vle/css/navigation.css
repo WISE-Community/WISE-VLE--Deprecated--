@@ -10,7 +10,7 @@ body {
 	text-align: center;
 	margin: 3px 0px;
 	background-color:#666;
-	background-image:url(../assets/images/robots/surrounding_bg3.png);
+	background-image:url(../images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
 	}
 	
@@ -60,7 +60,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .bg12 {background-color:#bf9a6b;color:#000;}
 
 #centeredDiv {
-	background-image:url(../assets/images/robots/surrounding_bg3.png);
+	background-image:url(../images/robots/surrounding_bg3.png);
 	width: 1000px;
 	text-align:left;
 	margin: 0 auto; 
@@ -69,7 +69,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #projectLeftBox {
 	position:relative;
 	float:left;
-	background-image:url(../assets/images/gradient_leftBox.png);
+	background-image:url(../images/gradient_leftBox.png);
 	background-repeat:repeat-x; 
 	background-color:#6699FF;
 	width:225px; 
@@ -83,7 +83,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	height:36px;
 	margin: 0 0 3px 231px;
 	padding:0;
-	background-image:url(../assets/images/gradient_stepInfoBar40v2.png);
+	background-image:url(../images/gradient_stepInfoBar40v2.png);
 	background-repeat:repeat-x; 
 	background-position:0 0px;
 	border:1px solid #333;
@@ -169,13 +169,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      display: block;  
      width: 40px;  
      height: 16px; 
-     background-image: url(../assets/images/audio_rewind.png);  
+     background-image: url(../images/audio_rewind.png);  
      background-position:center -3px;	
 	 background-repeat: no-repeat;
      }
 	 
 #audioControls a.rewind:hover { 
-     background-image: url(../assets/images/audio_rewind_roll.png);  
+     background-image: url(../images/audio_rewind_roll.png);  
 	 cursor:pointer;
      } 
 	 
@@ -183,13 +183,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      display: block;  
      width: 34px;  
      height: 16px; 
-     background-image: url(../assets/images/audio_play.png);  
+     background-image: url(../images/audio_play.png);  
      background-repeat: no-repeat;
 	 background-position:center -3px;
      }
 	 
 #audioControls a.play:hover { 
-     background-image: url(../assets/images/audio_play_roll.png);  
+     background-image: url(../images/audio_play_roll.png);  
 	 cursor:pointer;
      } 
     
@@ -197,13 +197,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      display: block;  
      width: 40px;  
      height: 16px; 
-     background-image: url(../assets/images/audio_pause.png);  
+     background-image: url(../images/audio_pause.png);  
      background-repeat: no-repeat;
 	 background-position:center -3px;
      }
 	 
 #audioControls a.pause:hover { 
-     background-image: url(../assets/images/audio_pause_roll.png);  
+     background-image: url(../images/audio_pause_roll.png);  
      cursor:pointer;
      } 
 
@@ -211,13 +211,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      display: block;  
      width: 40px;  
      height: 16px; 
-     background-image: url(../assets/images/audio_forward.png);  
+     background-image: url(../images/audio_forward.png);  
      background-repeat: no-repeat;
 	 background-position:center -3px;
      }
 	 
 #audioControls a.pause:forward { 
-     background-image: url(../assets/images/audio_forward_roll.png);  
+     background-image: url(../images/audio_forward_roll.png);  
      cursor:pointer;
      } 
      
@@ -272,7 +272,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	left:10px;
 	width:28px;
 	height:28px;
-	background-image:url(../assets/images/Icon-Instant-Quiz28.png);
+	background-image:url(../images/Icon-Instant-Quiz28.png);
 	background-repeat:no-repeat; 
 	background-position:center right;	
 	}
@@ -359,7 +359,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
   background:#FFF;
   color:#000;
   border:0px;
-  background-image:url(../assets/images/ButtonActive.png);
+  background-image:url(../images/ButtonActive.png);
   background-repeat:no-repeat;
   background-color:#FFF;
   text-decoration:none;
@@ -377,14 +377,14 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
   color:#164CBA; 
   background:#FFF;
   border:0;
-  background-image:url(../assets/images/ButtonRollover.png);
+  background-image:url(../images/ButtonRollover.png);
   background-repeat:no-repeat;
         }
     
  #buttonTable a:hover.disabledLink {
     background-color:#FFF;
 	border:0;
-	background-image:url(../assets/images/ButtonInactive.png);
+	background-image:url(../images/ButtonInactive.png);
 	color:#999999;
 	outline-style: none;
     }
@@ -392,7 +392,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #buttonTable .disabledLink {
 	background-color:#FFF;
 	border:0;
-	background-image:url(../assets/images/ButtonInactive.png);
+	background-image:url(../images/ButtonInactive.png);
 	color:#999999;
 	outline:0;
 }
@@ -470,7 +470,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-weight:bold; 
 	letter-spacing:1.5px;
 	font-variant:small-caps;
-	background:url(../assets/images/robots/toolbar_bg2.png)
+	background:url(../images/robots/toolbar_bg2.png)
 	}
 	
 .dropdown #menuTitle {padding:2px 0px 2px 10px; }	
@@ -481,7 +481,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	top:6px;	}
 	
 .dropdown dt:hover {
-	background:url(../assets/images/robots/toolbar_bg3.png);
+	background:url(../images/robots/toolbar_bg3.png);
 	cursor:pointer;
 	}
 .dropdown dd {position:absolute; overflow:hidden; width:225px; display:none; background:#fff; z-index:200; opacity:0}
@@ -499,7 +499,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 /* SHOW ALL WORK STYLES */
 
 #showallwork .bd h3 {
-	background-image:url(../assets/images/gradient_ShowAllWork1.png);
+	background-image:url(../images/gradient_ShowAllWork1.png);
 	background-repeat:repeat-x; 
 	color:#FFF;
 	padding:4px 10px;
@@ -531,6 +531,4 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	right:0px;
 	font-size:.8em;
 	}
-	
-
 	

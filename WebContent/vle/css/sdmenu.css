@@ -7,18 +7,18 @@ div.sdmenu {
 	font-family:Arial,Verdana,"Lucida Grande","Lucida Sans Unicode",Arial,sans-serif;
 	font-size: .6em;
 	padding-bottom: 10px;
-	background: url(../assets/images/bottomBlue190.png) no-repeat  right bottom;
-	background: url(../assets/images/titleBlue.png) repeat-x;
+	background: url(../images/bottomBlue190.png) no-repeat  right bottom;
+	background: url(../images/titleBlue.png) repeat-x;
 	color: #fff;
 	font-size-adjust: 0.6;
 }
 div.sdmenu div {
-	background: url(../assets/images/titleBlue.png) repeat-x;
+	background: url(../images/titleBlue.png) repeat-x;
 	overflow: hidden;
 }
 div.sdmenu div:first-child {
-	background: url(../assets/images/toptitleBlue190.png) no-repeat;
-	background: url(../assets/images/titleBlue.png) repeat-x;
+	background: url(../images/toptitleBlue190.png) no-repeat;
+	background: url(../images/titleBlue.png) repeat-x;
 }
 div.sdmenu div.collapsed {
 	height: 21px;
@@ -29,7 +29,7 @@ div.sdmenu div span {
 	padding: 3px 8px 3px 27px;
 	font-weight:400;
 	color: white;
-	background: url(../assets/images/expanded.gif) no-repeat 8px center;
+	background: url(../images/expanded.gif) no-repeat 8px center;
 	cursor:pointer;
 	border-bottom: 1px solid #ddd;
 }
@@ -39,7 +39,7 @@ div.sdmenu div span:hover {
 }
 
 div.sdmenu div.collapsed span {
-	background-image: url(../assets/images/collapsed.gif);
+	background-image: url(../images/collapsed.gif);
 	
 }
 div.sdmenu div a {
