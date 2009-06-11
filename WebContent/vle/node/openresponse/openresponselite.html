@@ -1,0 +1,100 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../../util/scriptloader.js"></script>
+
+<script type="text/javascript">
+var or;   // global variable so it can be accessed by other functions
+
+function save() {
+  or.save();
+}
+
+function edit() {
+	  or.edit();
+}
+
+function renderORFromString(txt) {
+	var params = [txt];
+	scriptloader.initialize(document, renderAfterScriptsLoad, 'openresponse', params);
+}
+
+function renderAfterScriptsLoad(params){
+	xmlDoc=loadXMLString(params[0]);
+	or = new OPENRESPONSE(xmlDoc);
+	or.renderLite();
+	afterScriptsLoad();
+};
+
+function loadLite(node, vle) {
+	or.loadLite(node, vle);
+}
+
+function answered(){
+	or.answered=true;
+};
+
+function getAnswered(){
+	return or.answered;
+};
+
+function checkAnswerLite(){
+	return or.checkAnswerLite();
+};
+</script>
+
+<!--  Javascript Pop up window -->
+<script type="text/javascript">
+
+var newWin = null;
+function popUp(strURL, strType, strHeight, strWidth) {
+ if (newWin != null && !newWin.closed)
+   newWin.close();
+ var strOptions="";
+ if (strType=="console")
+   strOptions="resizable,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="fixed")
+   strOptions="status,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="elastic")
+   strOptions="toolbar,menubar,scrollbars,"+
+     "resizable,location,height="+
+     strHeight+",width="+strWidth;
+ newWin = window.open(strURL, 'newWin', strOptions);
+ newWin.focus();
+}
+
+</script>
+
+<script type="text/javascript">
+function afterScriptsLoad(){
+	Nifty("div#locationBar2","bottom,small");
+	Nifty("div#questionCountBox","big, top");
+}
+
+window.onload = function(){
+	if(!window.parent){
+		scriptloader.initialize(document, afterScriptsLoad, 'openresponse');
+	};
+};
+</script>
+</head>
+
+<body>
+
+<div id="main">
+	
+	<div id="orDiv">
+		<div id='type' class="itemLabel Color1">question</div>
+		<div id="promptType">
+			<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
+		</div>
+		<div class="itemLabel Color1">response</div>
+		<div id="responseBoxDiv">
+			<textarea id="responseBox"></textarea>
+		</div>
+	</div>
+</div>
+</body>
+</html>

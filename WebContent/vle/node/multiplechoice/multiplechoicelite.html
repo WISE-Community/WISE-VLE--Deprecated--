@@ -1,0 +1,52 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../../util/scriptloader.js"></script>
+
+<script type="text/javascript">
+var mc;
+
+function renderMCFromString(txt) {
+	var params = [txt];
+	scriptloader.initialize(document, renderAfterScriptsLoad, 'multiplechoice', params);
+};
+
+function renderAfterScriptsLoad(params){
+	xmlDoc=loadXMLString(params[0]);
+	mc = new MC(xmlDoc);
+	mc.renderLite();
+};
+
+function loadLite(node, vle) {
+	mc.loadLite(node, vle);
+}
+
+function answered(){
+	mc.answered=true;
+};
+
+function getAnswered(){
+	return mc.answered;
+};
+
+function checkAnswerLite(){
+	return mc.checkAnswerLite();
+};
+
+window.onload = function(){
+	if(!window.parent){
+		scriptloader.initialize(document, null, 'multiplechoice');
+	};
+};
+</script>
+</head>
+<body>
+<div id="main">
+	<div id="mcDiv">
+		<div id="promptDiv">Prompt goes here.</div>
+		<div id="radiobuttondiv"></div>
+	</div>
+	<div id='feedbackdiv'></div>
+</div>
+</body>
+</html>

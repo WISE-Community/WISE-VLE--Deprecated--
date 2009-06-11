@@ -1,0 +1,327 @@
+.yui-dd-proxy {
+text-align:left;
+}
+
+/* STYLING FOR ALL ASSESSMENT ITEM TYPES  (StudentCheck, Student Quiz, Teacher Check, TeacherQuiz) */
+
+body {
+	/* font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
+	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
+	font-size: 100%;
+	text-align: center;
+	background-color:#FFFFFF;
+	}
+	
+img {border: 0px;}
+
+/* This override presents Firefox browser from drawing an ugly dotted line around the focus Input button */
+
+button::-moz-focus-inner,
+input[type="reset"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner,
+input[type="file"] > input[type="button"]::-moz-focus-inner {
+border: none;
+}
+
+h1 {font-size:2.0em;} 
+h2 {font-size:1.5em; }
+h3 {font-size:1.4em;}
+h4 {font-size:1.2em;}
+h5 {font-size:.9em; }
+h6 {font-size:.8em; }
+p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
+
+/*    This is the middle toned 88.236 palette  */
+
+.color1 {color:#164CBA;}   /* vibrant blue */
+.color2 {color:#6883BA;}   /* mid blue */
+.color3 {color:#919EBA;}   /* light blue */
+.color4 {color:#334B7B;}   /* dark blue */
+.color5 {color:#19253D;}   /* very dark blue */
+.color6 {color:#4E628B;}   /* REVERSE dark purple blue */
+.color7 {color:#FF9D1E;}  /* bold orange */
+.color8 {color:#FFCE8E;}  /* mid tan */
+.color9 {color:#FFE6C6;}  /* light tan */
+.color10 {color:#a97e46;}  /* brown */
+.color11 {color:#543f23;}  /* dark red */
+.color12 {color:#bf9a6b;}  /* lighter brown */
+
+.bg1 {background-color:#164CBA;color:#FFF;}
+.bg2 {background-color:#6883BA;color:#000;}
+.bg3 {background-color:#919EBA;color:#000;}
+.bg4 {background-color:#334B7B;color:#FFF;}
+.bg5 {background-color:#19253D;color:#FFF;}
+.bg6 {background-color:#4E628B;color:#FFF;}
+.bg7 {background-color:#FF9D1E;color:#000;}
+.bg8 {background-color:#FFCE8E;color:#000;}
+.bg9 {background-color:#FFE6C6;color:#000;}
+.bg10 {background-color:#a97e46;color:#000;}
+.bg11 {background-color:#543f23;color:#FFF;}
+.bg12 {background-color:#bf9a6b;color:#000;}
+
+#centeredDiv {
+	background-color:#FFFFFF;
+	text-align:left;
+	padding: 0;
+	margin: 0 auto;
+	}
+
+#locationBar2 {
+	position:relative;
+	margin: 10px 0 12px 0;
+	padding:3px 0;
+	width:780px;
+	background-image:url(../images/Step_Header_Bar_Gradient2.png);
+	background-repeat:repeat-x; 
+	background-position:0 0px;		
+	}
+	
+.Unit1 {
+	color:#CCCCFF;
+	padding:5px 5px 5px 10px;
+	font-size:.7em;
+	text-transform:uppercase;
+	letter-spacing:2.4px;
+	font-weight:bold;
+}
+
+.stepTypeLabel {
+	position:absolute;
+	top:28%;
+	right:40px;
+	font-size:.7em;
+		}
+
+.stepTypeLabel {
+	color:#CCCCFF;
+}
+
+.stepTypeLabel a:visited, .stepTypeLabel a:link {
+	color:#CCCCFF;
+	font-weight:bold;
+	letter-spacing:.5px;
+	padding:0px 2px;
+			}	
+
+.stepTypeLabel a:hover {
+	color:#FFFF00;
+	font-weight:bold;
+		}
+	
+.selfCheckIcon, .teacherCheckIcon{
+	position:absolute;
+	top:28%;
+	right:10px;
+	width:16px;
+	height:16px;
+	background-image:url(http://sailportal.googlecode.com/svn/webapp/trunk/src/main/webapp/themes/tels/default/images/UCCP/Icon-Intro-16.png);
+	background-repeat:no-repeat; 
+	background-position:center right;	
+	}
+
+#questionCountBox {
+	margin:0;
+	padding:0;
+	}
+	
+#questionTable {
+	border-collapse:collapse;
+	margin:8px 15px 8px 15px;
+	}
+
+#questionTable td {
+	font-size:1.2em;
+	color:#000;
+}
+	
+#questionTable #questionNumber {
+	font-size:1.0em;
+	padding: 0 ;
+		}
+
+#questionTable #questionType {
+	font-size:1.0em;
+	text-transform:uppercase;
+	padding: 0 15px 0 20px;
+	color:#333333;
+		}
+
+.instructionsReminder a { 
+	font-size:.8em;
+	color:#333;
+	padding:2px 5px;	
+	}
+
+.instructionsReminder a:hover {
+	background-color:#FFFF00;
+}
+
+#questionTable #questionHelp {
+	width:16px;
+	height:16px;
+	background-image:url(../images/infoIcon.png);
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	padding:0;
+		}
+
+#questionTable #questionHelp a {
+	outline:0px;
+	text-decoration:none;
+		}
+		
+#questionTable #questionHelp:hover{
+	background-image:url(../images/infoIconRollover.png);
+		}
+
+#feedbackDiv {
+	width:85%;
+	margin:0px auto;
+	text-align:center;
+	color:#19253D;
+}
+
+#feedbackDiv.correct {color:green;}
+#feedbackDiv.incorrect {color:red;}
+
+#clearBoth {
+	clear:both;
+	margin:0px;
+	padding:0px;
+}
+
+<!-- Anchor-Based Button Layout using TABLE-->
+
+.buttonDiv {
+	text-align:center;
+	width:780px;
+	}
+
+#statusDiv {
+	width:80%;
+	margin:5px auto 0 auto;
+	padding:2px;
+	text-align:center;
+	font-size:.8em;
+	color:#19253D;
+	color:#333;
+	}
+	
+#buttonTable{
+  border-collapse:collapse;
+  margin:10px auto;
+  }
+
+#buttonTable a {
+  display:block;
+  padding:8px 0px 0 0 ;
+  margin:0px 4px;
+  text-transform:uppercase;
+  font: bold 85% Verdana,Arial,sans-serif;
+  background:#FFF;
+  color:#000;
+  border:0px;
+  background-image:url(../images/ButtonActive.png);
+  background-repeat:no-repeat;
+  background-color:#FFF;
+  text-decoration:none;
+  text-align:center;
+  height:37px;
+  width:157px;
+  outline:0;
+  }
+  
+ #buttonTable a.tightened {
+  letter-spacing:-1px;
+  }
+  
+#buttonTable a:hover {
+  color:#164CBA; 
+  background:#FFF;
+  border:0;
+  background-image:url(../images/ButtonRollover.png);
+  background-repeat:no-repeat;
+        }
+    
+ #buttonTable a:hover.disabledLink {
+    background-color:#FFF;
+	border:0;
+	background-image:url(../images/ButtonInactive.png);
+	color:#999999;
+	outline-style: none;
+    }
+
+#buttonTable .disabledLink {
+	background-color:#FFF;
+	border:0;
+	background-image:url(../images/ButtonInactive.png);
+	color:#999999;
+	outline:0;
+}
+
+/* STYLING FOR ALL POP-UP STEP INFORMATION WINDOWS */
+
+#stepBody, #assessmentBody {
+	background-color:#CCCCCC;
+}	
+
+#infoBoxCenteredDiv, #assessmentTypeCenteredDiv{
+	background-color:#FFF;
+	width: 620px;
+	text-align:left;
+	padding: 25px 10px;
+	margin: 20px auto;
+	}
+	
+#stepTitle, #assessmentTitle {
+	font-size:1.4em;
+	font-weight:bold;
+	color:#19253D;
+	margin:25px 10px 0 10px;
+	border-bottom:1px ridge #CCFFFF;
+	}
+
+#assessmentDescription p {
+	text-transform:uppercase;
+	color:#19253D;
+	font-weight:bold;
+	margin:15px 0 0 15px;	}
+		
+#stepDescription ul, #assessmentDescription ul {
+	font-size:.8em;
+	line-height:135%;
+	padding:0px;
+	margin:15px 0 15px 30px;	}
+	
+#stepDescription li, #assessmentDescription li {
+	color:#19253D;
+	margin-bottom:15px; 	}
+		
+#InfoBoxClose {
+	text-align:center;
+	margin:30px auto;	}
+
+#InfoBoxClose a {
+	display:block;
+	margin:0 auto;
+	width:9em;
+	padding:5px 0;
+	font: bold 100% Verdana,Arial,sans-serif;
+    text-transform:uppercase;
+    background: #6883BA;
+    color: #333;
+    text-decoration:none;
+    text-align:center; }
+    
+#InfoBoxClose a:hover{
+	background: #FFCC00;
+	color:#333	}
+		
+.red {background-color:#CC0000;color:#FFF;padding:0px 3px 1px 3px;margin:0;}
+.yellow {background-color:#FFFF33;color:#999;padding:0px 3px 1px 3px;margin:0;}
+.green {background-color:#009900;color:#FFF;padding:0px 3px 1px 3px;margin:0;}
+
+		
+
+

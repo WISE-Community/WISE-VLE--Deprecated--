@@ -1,0 +1,172 @@
+.yui-dd-proxy {
+text-align:left;
+}
+
+#promptdiv {
+	font-size:.92em;
+	color:#000;
+	margin:20px 10px;
+	font-weight:bold;
+	text-align:left;
+}
+
+.instructionsReminder {
+	float:right;
+	text-align:right;
+	margin: 12px 15px 0 0 ;
+	font-size:.8em;
+	color:#333333;
+}
+
+#play {
+margin:6px;
+padding:6px;
+}
+
+#play table td {
+vertical-align:top;
+}
+
+#play:after {
+clear:both;
+content:'.';
+display:block;
+height:0;
+visibility:hidden;
+}
+
+#play ul {
+border:1px solid black;
+float:left;
+margin:3px;
+padding: 5px;
+position:relative;
+width:210px;
+}
+
+#play ul li {
+font-size:.8em;
+background-image:none;
+cursor:move;
+list-style-type:none;
+margin:3px;
+padding: 2px 5px;
+position:relative;
+}
+
+#play ul li.choice {
+background-color:#6699FF;
+border:1px solid #004C6D;
+}
+
+.bucket ul {background-color:#FFF;}
+.feedback_ul {background-color:#FFF;}
+
+.choice {
+	background-color:red;
+	}
+	
+#play ul li.correct {
+background-color:#CCFF99;
+border:1px solid #004C6D;
+}
+
+#play ul li.wrongorder {
+background-color:yellow;
+border:1px solid #004C6D;
+}
+
+#play ul li.incorrect {
+background-color:#FF3333;
+border:1px solid #004C6D;
+}
+
+#choicesColumn ul{
+min-height:0px;
+margin-bottom:5px;
+}
+
+#choicesColumn ul {
+width:190px;
+margin-bottom:10px;
+}
+
+#choicesColumn .bucketlabel {
+width:180px;
+text-align:center;
+text-transform:uppercase;
+font-size:.8em;
+color:#000;
+padding:0 6px;
+letter-spacing:1px;
+margin-left:12px;
+}
+
+#bucketsAndFeedbackColumn {
+float:left;
+margin-left:12px;
+}
+
+#bucketsAndFeedbackColumn .bucketblock {
+width:100%;
+display:block;
+}
+
+#bucketsAndFeedbackColumn .bucketlabel {
+text-align:left;
+font-size:.8em;
+font-weight:bold;
+color:#000;
+padding:0 6px;
+margin: 0 0 3px 0;
+}
+
+#bucketsAndFeedbackColumn ul{
+padding:5px 3px 30px 3px;
+margin-bottom:10px;
+}
+
+.feedback_ul {
+	text-align:left;
+	font-size:.75em;
+	width:400px;
+}
+
+#feedbackDiv {
+	width:70%;
+	margin:5px auto 0 auto;
+	padding:2px;
+	text-align:center;
+	font-size:.8em;
+	color:#000;
+}
+
+#triesContainer {
+	color:#333;
+	margin:4px 20px;
+	padding:0;
+	text-align:center;
+	background-color:#CCC;
+	-moz-border-radius-topleft:4px;
+	-moz-border-radius-topright:4px;
+	-moz-border-radius-bottomleft:4px;
+	-moz-border-radius-bottomright:4px;
+	}
+
+#triesContainer #totalTries {
+	font-size:.8em;
+	color:#333;
+	margin:0px;
+	padding:2px;
+}
+
+#triesContainer #remainingTries {
+	font-size:.8em;
+	color:#333;
+	margin:0px;
+	padding:2px;
+}
+
+#roboArt {
+	margin:10px 0;
+	}

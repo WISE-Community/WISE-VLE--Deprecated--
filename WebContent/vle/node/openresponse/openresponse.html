@@ -1,0 +1,124 @@
+<html>
+<head>
+
+<script type="text/javascript" src="../../util/scriptloader.js"></script>
+
+<script type="text/javascript">
+var or;   // global variable so it can be accessed by other functions
+
+function save() {
+  or.save();
+}
+
+function edit() {
+	  or.edit();
+}
+
+/**
+ * called after or has been initialized and scripts loaded
+ */
+function loadAfterScriptsLoad(params){
+	or = new OPENRESPONSE(params[0]);
+	or.loadState(params[2]);
+    or.setVLE(params[1]);
+    or.render();
+    afterScriptsLoad();
+};
+
+/**
+ * xmlString contains QTI-coded xml content
+ */
+function loadContentXMLString(xmlString, vle, states) {
+	var params = [xmlString, vle, states];
+	scriptloader.initialize(document, loadAfterScriptsLoad, 'openresponse', params);
+}
+
+function checkAnswer() {
+	or.checkAnswer();
+}
+</script>
+
+<!--  Javascript Pop up window -->
+<script type="text/javascript">
+
+var newWin = null;
+function popUp(strURL, strType, strHeight, strWidth) {
+ if (newWin != null && !newWin.closed)
+   newWin.close();
+ var strOptions="";
+ if (strType=="console")
+   strOptions="resizable,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="fixed")
+   strOptions="status,height="+
+     strHeight+",width="+strWidth;
+ if (strType=="elastic")
+   strOptions="toolbar,menubar,scrollbars,"+
+     "resizable,location,height="+
+     strHeight+",width="+strWidth;
+ newWin = window.open(strURL, 'newWin', strOptions);
+ newWin.focus();
+}
+
+</script>
+
+<script type="text/javascript">
+function afterScriptsLoad(){
+	Nifty("div#locationBar2","bottom,small");
+	Nifty("div#questionCountBox","big, top");
+}
+
+window.onload = function(){
+	if(!window.parent){
+		scriptloader.initialize(document, afterScriptsLoad, 'openresponse');
+	};
+};
+</script>
+</head>
+
+<body>
+
+<div id="questionCountBox" class="BG3">
+	<div class="instructionsReminder"><a href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank">instructions</a></div>
+	<table id="questionTable">
+		<tr>
+		<td id="questionNumber">Question X of Y:</td>
+	    <td id="questionType">Open Response</td>
+		<td id="questionHelp"><a href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank">&nbsp&nbsp&nbsp</a></td>
+		</tr>
+	</table>
+</div>   <!-- end of questionNumberBox -->
+
+<div id="currentQuestionBox">
+	
+	<div id="fullColumn">
+		<div id='type' class="itemLabel Color1">question</div>
+		<div id="promptType">
+			<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
+		</div>
+		<div class="itemLabel Color1">response</div>
+		<div id="responseBoxDiv">
+			<textarea id="responseBox"></textarea>
+		</div>
+	</div>
+	
+</div>
+
+<div id="clearBoth"></div>
+
+<!-- Anchor-Based Button Layout using TABLE -->
+
+	<div id="buttonDiv">
+		<div id="statusDiv">
+			<div id="numberAttemptsDiv"></div>
+		</div>
+		<table id="buttonTable">
+		   <tr>
+		   	<td><a href="#" id="saveButton" onClick="javascript:save();" >Save</a></td>
+		   	<td><a href="#" id="editButton" onClick="javascript:edit();" class="disabledLink" >Edit</a></td>
+	   	   </tr>
+	   	 </table>
+	</div>
+	
+</body>
+</html>
