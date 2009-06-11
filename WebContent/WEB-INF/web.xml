@@ -77,7 +77,7 @@
 
   <servlet-mapping>
     <servlet-name>echopostdata</servlet-name>
-    <url-pattern>/echo.html</url-pattern>
+    <url-pattern>/vle/echo.html</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -87,7 +87,7 @@
 
   <servlet-mapping>
     <servlet-name>filemanager</servlet-name>
-    <url-pattern>/filemanager.html</url-pattern>
+    <url-pattern>/vle/filemanager.html</url-pattern>
   </servlet-mapping>
   
   <servlet>

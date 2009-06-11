@@ -294,6 +294,55 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 	}
 	
 	/**
+	 * Returns a delimited string '|' of a '~' delimited path~url to
+	 * hosted projects. The path is the absolute path and the url starts
+	 * at the root of the hosted project. Throws IOException if project
+	 * directory does not exist.
+	 * 
+	 * @param request
+	 * @return String
+	 * @throws IOException
+	 */
+	private String getHostedProjectList(HttpServletRequest request) throws IOException{
+		String rawPaths = request.getParameter(HOSTED_PROJECT_PATHS);
+		String[] paths = rawPaths.split("~");
+		List<String> visited = new ArrayList<String>();
+		List<String> projects = new ArrayList<String>();
+		String projectsList = "";
+		
+		if(paths!=null && paths.length>0){
+			for(int p=0;p<paths.length;p++){
+				File f = new File(paths[p]);
+				getProjectFiles(f, projects, visited);
+			}
+			
+			for(int z=0;z<projects.size();z++){
+				String separator;
+				String rawPath = projects.get(z);
+				
+				if(rawPath.contains("/")){
+					separator = "/";
+				} else {
+					separator = "\\";
+				}
+				
+				String toWebContent = rawPath.substring(0, rawPath.indexOf("WebContent") - 1);
+				String hostPath = "/" + toWebContent.substring(toWebContent.lastIndexOf(separator) + 1, toWebContent.length());
+				String contentPath = rawPath.substring(rawPath.indexOf("WebContent") + 10, rawPath.length());
+				contentPath = contentPath.replace("\\", "/");
+				
+				projectsList += rawPath + "~" + hostPath + contentPath;
+				if(z!=projects.size()-1){
+					projectsList += "|";
+				}
+			}
+			return projectsList;
+		} else {
+			return "";
+		}
+	}
+	
+	/**
 	 * Given a file, a List of projects, and a list of visited directories, 
 	 * recursively adds any project files to the list of projects that are
 	 * in any subdirectories (n-deep).
