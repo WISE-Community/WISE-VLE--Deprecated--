@@ -21,7 +21,7 @@ var workgroupId = null;
  * hosted, sets appropriate variables, then loads project with
  * necessary variables.
  */
-function afterScriptsLoad(){
+function afterScriptsLoad(){	
 	if(window.opener){
 		currentProjectPath = window.opener.currentProjectPath;
 		currentProjectName = window.opener.currentProjectName;
@@ -30,7 +30,7 @@ function afterScriptsLoad(){
 	} else {
 		hostedProject = null;
 	};
-	
+			
 	Nifty("div#none","bottom");
 	Nifty("div#navigationBox","big");
 	Nifty("ul.toolsButtons a","transparent");
@@ -41,13 +41,16 @@ function afterScriptsLoad(){
 		loadProject();
 	};
 };
-
 /**
  * Loads scripts for this page (found in scriptloader.js) passing in
  * document and a function to be run after scripts are loaded
  */
 window.onload=function(){
-		if (window.parent) {
+		if(window.opener){			
+			var args = [];
+			args.push(afterScriptsLoad);
+			scriptloader.initialize(document, window.opener.scriptsLoaded, 'main', args);
+		} else if (window.parent) {
 			var args = [];
 			args.push(window.name);
 			scriptloader.initialize(document, window.parent.scriptsLoaded, 'main', args);
@@ -164,10 +167,14 @@ contentPanelOnLoad = function(){
 		}
 
 		//display the title of the project in the upper left box
-		if(document.getElementById("title") != null) {
+		if(document.getElementById("title") != null && vle.getProjectTitle() != null) {
 			document.getElementById("title").innerHTML = vle.getProjectTitle();
+			document.getElementsByTagName("title")[0].innerHTML = vle.getProjectTitle();
+			if (window.parent) {
+				window.parent.document.title = vle.getProjectTitle();
+			}
 		}
-
+		
 		//display the "Show Me Flagged Items" link if flagging is enabled
 		if(vle.runManager != null && vle.runManager.isFlaggingEnabled) {
 			document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
@@ -233,8 +240,8 @@ contentPanelOnLoad = function(){
 		<div id="projectLogoBox">
 		<a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
 			<div id="projectCurriculum">
-				<div id="title" class="title">UCCP AP Computer Science</div>
-				<div id="unit" class="unit">Unit 3: Lesson 1</div>
+				<div id="courseName" class="courseName">UCCP AP Computer Science</div>
+				<div id="title" class="title">Unit 3 Lesson 1</div>
 			</div>
 	<div id="logInBox">
 		<span>Hello, MyName</span><span>&nbsp&nbsp|&nbsp&nbsp</span><span>Mon 5/12 10:32am</span>
