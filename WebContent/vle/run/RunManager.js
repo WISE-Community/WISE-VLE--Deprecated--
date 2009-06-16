@@ -11,7 +11,9 @@ function RunManager(runInfoUrl, runInfoRequestInterval, connectionManager, event
 	this.showNodeId = null;
 	this.isFlaggingEnabled = false;
 	
-	setInterval("vle.runManager.poll();", this.pollInterval);	  // start the polling
+	if (this.pollInterval && this.pollInterval != null && this.pollInterval != "" && parseInt(this.pollInterval) > 0) {
+		setInterval("vle.runManager.poll();", this.pollInterval);	  // start the polling
+	}
 }
 
 /*
