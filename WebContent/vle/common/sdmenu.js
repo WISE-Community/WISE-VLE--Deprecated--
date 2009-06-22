@@ -22,15 +22,15 @@ SDMenu.prototype.init = function() {
 				break;
 			}
 	}
-	if (this.remember) {
-		var regex = new RegExp("sdmenu_" + encodeURIComponent(this.menu.id) + "=([01]+)");
-		var match = regex.exec(document.cookie);
-		if (match) {
-			var states = match[1].split("");
-			for (var i = 0; i < states.length; i++)
-				this.submenus[i].className = (states[i] == 0 ? "collapsed" : "");
-		}
-	}
+	
+	//open first menu, collapse all others
+	for(var k=0;k<this.submenus.length;k++){
+		if(k==0){
+			this.submenus[k].className = "";
+		} else {
+			this.submenus[k].className = "collapsed";
+		};
+	};
 };
 SDMenu.prototype.toggleMenu = function(submenu) {
 	if (submenu.className == "collapsed")
@@ -79,11 +79,57 @@ SDMenu.prototype.collapseMenu = function(submenu) {
 };
 SDMenu.prototype.collapseOthers = function(submenu) {
 	if (this.oneSmOnly) {
-		for (var i = 0; i < this.submenus.length; i++)
-			if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed")
+		for (var i = 0; i < this.submenus.length; i++){
+			if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed"){
 				this.collapseMenu(this.submenus[i]);
-	}
+			};
+		};
+	};
 };
+SDMenu.prototype.forceCollapseOthers = function(submenu){
+	for (var i = 0; i < this.submenus.length; i++){
+		if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed"){
+			this.collapseMenu(this.submenus[i]);
+		};
+	};
+};
+
+/**
+ * Collapse all items in the nav except for the ones in the argument
+ * array
+ * @param submenuArray an array containing DOM elements to keep open
+ */
+SDMenu.prototype.forceCollapseOthersNDeep = function(submenuArray){
+	//loop through all the elements in the nav menu
+	for (var i = 0; i < this.submenus.length; i++){
+		/*
+		 * boolean variable to keep track if the current element
+		 * was found in the argument array
+		 */
+		var menuInParent = false;
+		
+		//loop through all the elements to keep open
+		for(var x=0; x<submenuArray.length; x++) {
+			if(submenuArray[x] == this.submenus[i]) {
+				/*
+				 * the nav element was found in the argument array so
+				 * we will keep expand it to open it
+				 */
+				this.expandMenu(this.submenus[i]);
+				menuInParent = true;
+			}
+		}
+
+		/*
+		 * if the nav menu item was not found in the argument array
+		 * we will collapse it
+		 */
+		if(!menuInParent) {
+			this.collapseMenu(this.submenus[i]);
+		}
+	};
+};
+
 SDMenu.prototype.expandAll = function() {
 	var oldOneSmOnly = this.oneSmOnly;
 	this.oneSmOnly = false;

@@ -1,93 +1,25 @@
 <html>
 <head>
 
-<!-- Dependency --> 
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/yahoo/yahoo-min.js" ></script>
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/event/event-min.js" ></script>
-<link rel="stylesheet" type="text/css" href="../yui/yui_2.7.0b/build/container/assets/skins/sam/container.css">
-<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/animation/animation-min.js"></script>
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js"></script>
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/container/container-min.js"></script>
-<script type="text/javascript" src="../yui/yui_2.7.0b/build/connection/connection-min.js"></script>
-
-<script type="text/javascript" src="../common/loadxmldoc.js"></script>
-<script type="text/javascript" src="../common/helperfunctions.js"></script>
-<script type="text/javascript" src="../node/Node.js"></script>
-<script type="text/javascript" src="../node/HtmlNode.js"></script>
-<script type="text/javascript" src="author_helper.js"></script>
-<script type="text/javascript" src="author_easy_helper.js"></script>
+<script type="text/javascript" src="../util/scriptloader.js"></script>
 
 <script type="text/javascript">
-var node; //an HtmlNode
-var thisFilename = null;
-var saved = true;
-
-
-function save(){
-	var htmlString = document.getElementById('sourceTextArea').value;
-	
-	var callback = {
-		success: function(o){
-			saved = true;
-			if(o.responseText!='success'){
-				alert('Failed save to server');
-			};
-		},
-		failure: function(o){alert('Unable to save file to server');},
-		scope:this
-	};
-	
-	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=updateFile&param1=' + parent.projectPath + '&param2=' + parent.filename + '&param3=' + encodeURIComponent(htmlString));
+/**
+ * Loads common authoring js
+ */
+function loadScripts(){
+	scriptloader.initialize(document, loadHtml, 'author');
 };
 
 /**
- * Load the html authoring view from the specified filename
- * filename points to a plain old html file.
+ * Loads easy html authoring specific js
  */
-function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator) {
-	var callback =
-	{
-	  success: function(o) { 
-		  var xmlDocObj = new LoadXMLDocObj();
-		  xmlDocObj.xmlDoc = o.responseXML;   // o.responseXML is the OTML
-		  //alert(o.responseXML);
-		  htmlContent = o.responseText;
-		  var xmlDocToParse = o.responseXML;
-		  	  
-		  node = new HtmlNode();
-		  node.setContent(htmlContent);
-		  node.contentBase = window.parent.project.contentBaseUrl;
-		  document.getElementById('sourceTextArea').value = htmlContent;
-		  node.render(window.frames["previewFrame"]);
-	  },
-	  failure: function(o) { alert('failure');},
-	  scope: this
-	}
-
-	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
-}
-
-/*
- * Called to send the authored text back to the previewFrame so the
- * previewFrame can update itself and reflect the changes the author
- * has made.
- */
-function sourceUpdated() {
-	saved = false;
-	//retrieve the authored text
-	var htmlString = document.getElementById('sourceTextArea').value;
-
-	//set the authored html into the HtmlNode
-	node.setContent(htmlString);
-
-	//tell the node to render itself in the previewFrame iframe
-	node.render(window.frames["previewFrame"]);
-}
+function loadHtml(){
+	scriptloader.initialize(document, loaded, 'author_html_easy');
+};
 </script>
 </head>
-<body onload="loaded();">
+<body onload="loadScripts();">
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
    		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>

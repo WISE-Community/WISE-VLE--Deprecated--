@@ -1,7 +1,7 @@
 var	htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
 var qtiAssessmentPageTypes = new Array("openresponse");
 
-var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode", "sequence", "FillinNode", "MatchSequenceNode", "NoteNode", "JournalEntryNode", "OutsideUrlNode", "BrainstormNode", "GlueNode", "OpenResponseNode", "FlashNode");
+var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode", "sequence", "FillinNode", "MatchSequenceNode", "NoteNode", "JournalEntryNode", "OutsideUrlNode", "BrainstormNode", "GlueNode", "OpenResponseNode", "FlashNode", "BlueJNode");
 
 function NodeFactory() {
 	this.htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
@@ -14,14 +14,11 @@ NodeFactory.createNode = function (element, connectionManager) {
 		nodeName = element.nodeName;	//create from element
 	} else {
 		nodeName = element;				//create from string
-		alert('Project.js, nodeName:' + nodeName);
 	};
 	if (acceptedTagNames.indexOf(nodeName) > -1) {
 		if (nodeName == "HtmlNode") {
-			//alert('htmlnode');
 			return new HtmlNode("HtmlNode", connectionManager);
 		} else if (nodeName == "MultipleChoiceNode"){
-			//alert('mcnode');
 			return new MultipleChoiceNode("MultipleChoiceNode", connectionManager);
 		} else if(nodeName == 'FillinNode'){
 			return new FillinNode('FillinNode', connectionManager);
@@ -41,8 +38,9 @@ NodeFactory.createNode = function (element, connectionManager) {
 			return new GlueNode('GlueNode', connectionManager);
 		} else if (nodeName == 'OpenResponseNode'){
 			return new OpenResponseNode('OpenResponseNode', connectionManager);
+		} else if (nodeName == 'BlueJNode'){
+			return new BlueJNode('BlueJNode', connectionManager);
 		} else if (nodeName == "sequence") {
-			//alert('sequence node');
 			var sequenceNode = new Node("sequence", connectionManager);
 			sequenceNode.id = element.getAttribute("identifier");
 			sequenceNode.title = element.getAttribute('title');
@@ -72,6 +70,7 @@ function Project(xmlDoc, contentBaseUrl, connectionManager) {
 			this.autoStep = false;
 		};
 	} else {
+		notificationManager.notify('autoStep attribute of project file was not specified, using default value: true', 2);
 		this.autoStep = true;
 	}; 
 	
@@ -83,6 +82,7 @@ function Project(xmlDoc, contentBaseUrl, connectionManager) {
 			this.stepLevelNumbering = false;
 		};
 	} else {
+		notificationManager.notify('stepLevelNum attribute of project file was not specified, using default value: false', 2);
 		this.stepLevelNumbering = false;
 	};
 	
@@ -100,6 +100,7 @@ function Project(xmlDoc, contentBaseUrl, connectionManager) {
 
 	//obtain the project title
 	this.title = this.xmlDoc.getElementsByTagName('project')[0].getAttribute('title');
+	this.printSummaryReportsToConsole();
 }
 
 Project.prototype.createNewNode = function(nodeType, filename){
@@ -169,10 +170,33 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 				 */
 				break;
 			}
-			thisNode.title = currElement.getAttribute('title');
-			thisNode.id = currElement.getAttribute('identifier');
-			thisNode.class = currElement.getAttribute('class');
-			thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
+			//validate identifier attribute
+			if(!currElement.getAttribute('identifier')){
+				notificationManager.notify('No identifier attribute for node in project file.', 3);
+			} else {
+				thisNode.id = currElement.getAttribute('identifier');
+				if(this.idExists(thisNode.id)){
+					notificationManager.notify('Duplicate node id: ' + thisNode.id + ' found in project', 3);
+				};
+			};
+			//validate title attribute
+			if(!currElement.getAttribute('title')){
+				notificationManager.notify('No title attribute for node with id: ' + thisNode.id, 2);
+			} else {
+				thisNode.title = currElement.getAttribute('title');
+			};
+			//validate class attribute
+			if(!currElement.getAttribute('class')){
+				notificationManager.notify('No class attribute for node with id: ' + thisNode.id, 2);
+			} else {
+				thisNode.class = currElement.getAttribute('class');
+			};
+			//validate filename reference attribute
+			if(!currElement.getElementsByTagName('ref')[0].getAttribute('filename')){
+				notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
+			} else {
+				thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
+			};
 			thisNode.element = currElement;
 			// create node audios for this node
 			var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');
@@ -235,13 +259,19 @@ Project.prototype.generateSequences = function(xmlDoc){
 	var sequences = xmlDoc.getElementsByTagName('sequence');
 	for(var e=0;e<sequences.length;e++){
 		var sequenceNode = NodeFactory.createNode(sequences[e]);
+		//validate id
+		if(this.idExists(sequenceNode.id)){
+			notificationManager.notify('Duplicate sequence id: ' + sequenceNode.id + ' found in project.', 3);
+		};
 		sequenceNode.element = sequences[e];
 		this.allSequenceNodes.push(sequenceNode);
 	};
 	
 	//get startingSequence
-	if(xmlDoc.getElementsByTagName('startpoint')[0].childNodes.length>0){
+	if(xmlDoc.getElementsByTagName('startpoint')[0].childNodes.length>0 && xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0] && xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref')){
 		startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
+	} else {
+		notificationManager.notify('No starting sequence specified for this project', 3);
 	};
 		
 	//validate that there are no loops
@@ -252,13 +282,13 @@ Project.prototype.generateSequences = function(xmlDoc){
 				//All OK, add children to sequence
 				this.populateSequences(this.allSequenceNodes[s].id);
 			} else {
-				alert('Please check your sequence references. Infinite loop discovered.');
+				notificationManager.notify('Infinite loop discovered in sequences, check sequence references', 3);
 				return null;
 			};
 		};
 		return startingSequence;
 	} else {
-		alert('No start sequence specified in project, this can be changed in the authoring tool');
+		//no starting sequence specified, just return
 		return;
 	};
 };
@@ -295,8 +325,18 @@ Project.prototype.populateSequences = function(id){
 	var children = sequence.element.childNodes;
 	for(var j=0;j<children.length;j++){
 		if(children[j].nodeName!='#text' && children[j].nodeName!='#comment'){
-			var childNode = this.getNodeById(children[j].getAttribute('ref'));
-			sequence.addChildNode(childNode);			
+			//validate reference attribute
+			if(!children[j].getAttribute('ref')){
+				notificationManager.notify('Unable to find reference for a node specified for sequence with id: ' + id + ', check this entry in the project file', 2);
+			} else {
+				var childNode = this.getNodeById(children[j].getAttribute('ref'));
+				//validate node was defined
+				if(!childNode){
+					notificationManager.notify('Node reference ' + children[j].getAttribute('ref') + ' exists in sequence node ' + id + ' but the node has not been defined and does not exist.', 2);
+				} else {
+					sequence.addChildNode(childNode);
+				};
+			};			
 		};
 	};
 };
@@ -307,6 +347,12 @@ Project.prototype.populateSequences = function(id){
  */
 Project.prototype.getChildrenSequenceIds = function(id, from){
 	var sequence = this.getNodeById(id);
+	//validate sequence reference
+	if(!sequence){
+		notificationManager.notify('Sequence with id: ' + id + ' is referenced but this sequence does not exist.', 2);
+		return [];
+	};
+	
 	var childrenIds = [];
 	
 	if(from=='file'){
@@ -328,12 +374,15 @@ Project.prototype.getChildrenSequenceIds = function(id, from){
 	return childrenIds;
 };
 
+Project.prototype.idExists = function(id){
+	return this.getNodeById(id);
+};
+
 /*
  * updates the sequence and updates the node.
  * param sequenceArray is an array of references to leaf nodes
  */
 Project.prototype.updateSequence = function(sequenceArray) {
-	alert('update sequence');
 	var sequenceNode = new Node("sequence");
 	sequenceNode.id = this.rootNode.id;
 	for (var i=0; i < sequenceArray.length; i++) {
@@ -457,15 +506,19 @@ Project.prototype.getStartNodeId = function(){
  * Helper function for getStartNodeId()
  */
 Project.prototype.getFirstNonSequenceNodeId = function(node){
-	if(node.type=='sequence'){
-		for(var y=0;y<node.children.length;y++){
-			var id = this.getFirstNonSequenceNodeId(node.children[y]);
-			if(id!=null){
-				return id;
+	if(node){
+		if(node.type=='sequence'){
+			for(var y=0;y<node.children.length;y++){
+				var id = this.getFirstNonSequenceNodeId(node.children[y]);
+				if(id!=null){
+					return id;
+				};
 			};
+		} else {
+			return node.id;
 		};
 	} else {
-		return node.id;
+		notificationManager.notify('Cannot get start node! Possibly no start sequence is specified or invalid node exists in project.', 2);
 	};
 };
 
@@ -626,8 +679,6 @@ Node.prototype.render = function(contentpanel) {
 		window.frames["ifrm"].document.close(); 	
 	}
 }
-
-
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/project/Project.js");

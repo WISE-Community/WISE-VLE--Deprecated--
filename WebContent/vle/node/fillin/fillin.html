@@ -43,8 +43,8 @@ function edit() {
 /**
  * xmlString contains QTI-coded xml content
  */
-function loadXMLString(xmlString, vle) {
-	 var params = [xmlString, vle];
+function loadXMLString(xmlDoc, vle) {
+	 var params = [xmlDoc, vle];
 	 scriptloader.initialize(document, loadXMLStringAfterScriptsLoad, 'fillin', params);
 }
 
@@ -52,8 +52,8 @@ function loadXMLString(xmlString, vle) {
  * Runs after the scripts for this page have been dynamically loaded
  */
 function loadXMLStringAfterScriptsLoad(params){
-	 var xmlDoc=loadXMLDocFromString(params[0]);
-	  fi = new FILLIN(xmlDoc);
+	 //var xmlDoc=loadXMLDocFromString(params[0]);
+	  fi = new FILLIN(params[0]);
 	  fi.render(currentTextEntryInteractionIndex);
 	  fi.setVLE(params[1]);
 	  afterScriptsLoad();

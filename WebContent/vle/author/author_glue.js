@@ -151,3 +151,6 @@ function onGlueNodeDropped(dragged, dropped){
 /*****												******|
  * End functions used by YUI for the drag and drop stuff *|
  *****												******/
+ 
+ //used to notify scriptloader that this script has finished loading
+scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/author_glue.js");

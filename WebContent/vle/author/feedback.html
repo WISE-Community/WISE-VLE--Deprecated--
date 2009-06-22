@@ -1,11 +1,8 @@
 <!-- @author: patrick lawler -->
 <html>
 	<head>
-		
-	<!-- AUTHOR CSS -->
-	<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
+		<script type="text/javascript" src="../util/scriptloader.js"></script>
 
-		<script type="text/javascript" src="../common/helperfunctions.js"></script>
 		<script type="text/javascript">
 			var mainPage = window.opener;
 			var currentContainer = null;
@@ -13,6 +10,10 @@
 			
 			window.onbeforeunload=function(){
 				mainPage.updatePreview();
+			};
+			
+			function loadScripts(){
+				scriptloader.initialize(document, generatePage, 'feedback');
 			};
 			
 			/**
@@ -124,7 +125,7 @@
 		</script>
 	</head>
 	
-	<body onload="generatePage()">
+	<body onload="loadScripts()">
 		<div id='mainDiv'>
 		</div>
 	</body>

@@ -119,7 +119,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	/* border-bottom:2px solid #666; */   
 	}
 
-#projectLogoBox a{text-decoration:none }
+#projectLogoBox a  {text-decoration:none }
 	
 #projectLogoBox:hover{
 	outline: 1px dotted #FFFF00;
@@ -135,6 +135,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #projectCurriculum .title{
 	font-size:1.0em;
+	font-weight:bold;
 	padding:0;
 	margin:0;
 	     }
@@ -149,7 +150,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #loginBox {
 	font-size:.6em;
 	text-align:center; 
-	margin-top:3px;
  }
  
 #audioControls  {
@@ -229,7 +229,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #navMenuControls {
 	padding:0;
-	margin:0 0 5px 0 ;
+	margin:4px 0 4px 0 ;
 	text-align:center;
 	vertical-align:middle;  }
 
@@ -243,7 +243,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}	
 	
 #navigationMenuBox {
-	height:65%;
+	height:69%;
 	overflow-y:auto;
 	overflow-x:hidden;
 	margin-left:2px;
@@ -254,10 +254,29 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	bottom:0px;
 	text-align:center;     }
 	
-#hostBrandingBox a:hover{
-	outline: 1px dotted #FFFF00;
-	cursor:pointer;
+#hostBrandingBox a img:hover{
+	outline:2px dotted #FFFF00;
+	 }
+	
+#hostBrandingBox p{
+	position:absolute;
+	bottom:10px;
+	left:104px;
+	text-align:left;
+	font-size:.6em;
+	letter-spacing:1px;
+	line-height:120%;
 	}
+	
+#hostBrandingBox p a:link, #hostBrandingBox a:visited {
+	color:#999;
+	text-decoration:none;
+	outline:none;
+	}
+	
+#hostBrandingBox p a:hover {
+	color:#FFFF00;
+		}
 
 /* STEP CONTROL BAR */
 
@@ -265,46 +284,23 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	position:relative;
 	width:100%;
 	}
-
-.instantQuizIcon {
-	position:absolute;
-	top:3px;
-	left:10px;
-	width:28px;
-	height:28px;
-	background-image:url(../images/Icon-Instant-Quiz28.png);
-	background-repeat:no-repeat; 
-	background-position:center right;	
-	}
 	
-.stepInformation {
+#stepIcon {
 	position:absolute;
-	top:7px;
-	left:45px;
-	}
+	top:4px;
+	left:6px;
+}
 
 #topStepTitle  {
+	position:absolute;
+	top:10px;
+	left:42px;
 	color:#333;
 	font-size:.75em;
 	font-weight:bold;
 	font-style:italic;
-	margin-right:5px;
 			}	
 
-.stepTypeLabel, .gradeTypeLabel  {
-	color:#666;
-	font-size:.7em;
-		}
-
-.stepTypeLabel a:visited, .stepTypeLabel a:link, .gradeTypeLabel a:visited, .gradeTypeLabel a:link  {
-	color:#666;
-	text-decoration:none;
-		}
-		
-.stepTypeLabel a:hover, .gradeTypeLabel a:hover {
-	color:#FFFF00;
-		}
-		
 #stepNavButtons {
 	position:absolute;
 	right:4px;

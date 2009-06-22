@@ -77,8 +77,8 @@ function edit() {
 /**
  * xmlString contains QTI-coded xml content
  */
-function loadFromXMLString(xmlString) {
-	  var xmlDoc=loadXMLDocFromString(xmlString);
+function loadFromXMLString(xmlDoc) {
+	  //var xmlDoc=loadXMLDocFromString(xmlString);
 	  fillinObj = new FILLIN(xmlDoc);
 	  fillinObj.render(currentTextEntryInteractionIndex);
 }

@@ -69,19 +69,6 @@ Node.prototype.getLeafNodeIds = function(arr) {
 		};
 	};
 };
-//	var nodeIdArray = new Array();
-//	if(this.children.length == 0) {
-//		//if this is a leaf node, add itself to the array of leaf nodes
-//		nodeIdArray.push(this.id);
-//	} else {
-//		for (var i=0; i < this.children.length; i++) {
-//			//loop through this node's children to search for leaf nodes
-//			nodeIdArray = nodeIdArray.concat(this.children[i].getLeafNodeIds());
-//		}
-//	}
-//	
-//	return nodeIdArray;
-//}
 
 /**
  * Sets this node as the currentNode. Perform functions like
@@ -94,22 +81,15 @@ Node.prototype.setCurrentNode = function() {
 }
 
 Node.prototype.getNodeAudios = function() {
-	//this.alertNodeInfo('getNodeAudioElement');
-	//var nodeAudioElements = this.element.getElementsByTagName('nodeaudio');
-	//alert(this.element.getElementsByTagName('nodeaudio').length);
-	//return nodeAudioElements;
-	if (this.id = "a1s1") {
-		alert('node.js, getNodeAudios, this.audios.length:' + this.audios.length);
-	}
 	return this.audios;
 }
 
 // alerts vital information about this node
 Node.prototype.alertNodeInfo = function(where) {
-	alert('node.js, ' + where + '\nthis.id:' + this.id 
+	notificationManager.notify('node.js, ' + where + '\nthis.id:' + this.id 
 			+ '\nthis.title:' + this.title 
 			+ '\nthis.filename:' + this.filename
-			+ '\nthis.element:' + this.element);
+			+ '\nthis.element:' + this.element, 3);
 }
 
 /**
@@ -124,7 +104,7 @@ Node.prototype.playAudioNextAudio = function(elementId) {
 			return;
 		}
 	}
-	alert('error: no audio left to play');
+	notificationManager.notify('error: no audio left to play', 2);
 }
 
 /**
@@ -137,15 +117,6 @@ Node.prototype.render = function(contentpanel) {
 
 
 Node.prototype.load = function() {
-	//alert("Node.load called");
-	//document.getElementById('topStepTitle').innerHTML = this.title;
-	this.setTopStepTitle();
-}
-
-Node.prototype.setTopStepTitle = function() {
-	if(document.getElementById('topStepTitle') != null) {
-		document.getElementById('topStepTitle').innerHTML = this.title;
-	}
 }
 
 
@@ -217,13 +188,13 @@ Node.prototype.getDataXML = function(nodeStates) {
 Node.prototype.parseDataXML = function(nodeXML) {
 	var nodeType = nodeXML.getElementsByTagName("type")[0].textContent;
 	var id = nodeXML.getElementsByTagName("id")[0].textContent;
-	alert('nodetype, id:' + nodeType + "," + id);
+	//alert('nodetype, id:' + nodeType + "," + id);
 
 	//create the correct type of node
 	var nodeObject = NodeFactory.createNode(nodeType);
-	alert('nodeObject: ' + nodeObject + ", type:" + nodeObject.type);
+	//alert('nodeObject: ' + nodeObject + ", type:" + nodeObject.type);
 	nodeObject.id = id;
-	alert('nodeObject.id:' + nodeObject.id);
+	//alert('nodeObject.id:' + nodeObject.id);
 	return nodeObject;
 }
 
@@ -357,7 +328,7 @@ Node.prototype.retrieveFile = function(){
 		    };
 		};
 	} else {
-		alert('no file is specified, unable to retrieve data');
+		notificationManager.notify('No filename is specified for node with id: ' + this.id + ' in the node, unable to retrieve content for this node.', 3);
 	};
 };
 
@@ -410,6 +381,42 @@ Node.prototype.translateStudentWork = function(studentWork) {
 	return studentWork;
 }
 
+/**
+ * Get the view style if the node is a sequence. If this node
+ * is a sequence and no view style is defined, the default will
+ * be the 'normal' view style.
+ * @return the view style of the sequence or null if this
+ * 		node is not a sequence
+ */
+Node.prototype.getView = function() {
+	/*
+	 * check that this node is a sequence.
+	 */
+	if(this.isSequence()) {
+		if(this.element.getAttribute('view') == null) {
+			//return the default view style if none was specified
+			return 'normal';
+		} else {
+			//return the view style for the sequence
+			return this.element.getAttribute('view');
+		}
+	} else {
+		//this node is not a sequence so we will return null
+		return null;
+	}
+}
+
+/**
+ * Returns whether this node is a sequence node. There is the case
+ * where a sequence node does not have any steps in it in which case
+ * this function would return the wrong value but a sequence with
+ * no steps in it doesn't really make sense anyway.
+ * @return whether this node is a sequence node
+ */
+Node.prototype.isSequence = function() {
+	return this.children.length > 0;
+}
+
 function NodeAudio(id, url, elementId) {
 	this.id = id;
 	this.url = url;
@@ -418,7 +425,6 @@ function NodeAudio(id, url, elementId) {
 }
 
 NodeAudio.prototype.play = function() {
-	//alert('node.js, nodeaduios.play:' + this.id + "," + this.url);
 	this.audio.play();
 }
 

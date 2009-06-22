@@ -8,17 +8,17 @@ div.sdmenu {
 	font-size: .6em;
 	padding-bottom: 10px;
 	background: url(../images/bottomBlue190.png) no-repeat  right bottom;
-	background: url(../images/titleBlue.png) repeat-x;
+	background: url(../images/titleBlue19.png) repeat-x;
 	color: #fff;
 	font-size-adjust: 0.6;
 }
 div.sdmenu div {
-	background: url(../images/titleBlue.png) repeat-x;
+	background: url(../images/titleBlue19.png) repeat-x;
 	overflow: hidden;
 }
 div.sdmenu div:first-child {
 	background: url(../images/toptitleBlue190.png) no-repeat;
-	background: url(../images/titleBlue.png) repeat-x;
+	background: url(../images/titleBlu19.png) repeat-x;
 }
 div.sdmenu div.collapsed {
 	height: 21px;
@@ -40,10 +40,15 @@ div.sdmenu div span:hover {
 
 div.sdmenu div.collapsed span {
 	background-image: url(../images/collapsed.gif);
-	
 }
+
+div.sdmenu div img {
+	float:left;
+	margin:0px 6px 0px 4px;
+}
+
 div.sdmenu div a {
-	padding: 3px 4px 3px 8px;
+	padding: 3px 8px 3px 0px;
 	background: #eee;
 	display: block;
 	border-bottom: 1px solid #ddd;
@@ -55,14 +60,19 @@ div.sdmenu div a.currentNode {
 	color:#000;
 }
 
-div.sdmenu div a.substep {
-	background-color:red;
-	padding-left:20px;
-	font-style:italic;
-	font-size:.9em;
-}
-
 div.sdmenu div a:hover {
 	color: #996600;
 	cursor:pointer;
+}
+
+div.sdmenu div .depth3 {
+	margin-left:5px;
+}
+
+div.sdmenu div .depth4 {
+	margin-left:10px;
+}
+
+div.sdmenu div .depth5 {
+	margin-left:15px;
 }

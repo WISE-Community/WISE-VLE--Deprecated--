@@ -32,9 +32,6 @@ OutsideUrlNode.prototype.load = function(contentPanel) {
 	} else {
 		contentPanel.loadUrl(url);
 	}
-	
-	//document.getElementById('topStepTitle').innerHTML = this.title;
-	this.parent.setTopStepTitle();
 }
 
 

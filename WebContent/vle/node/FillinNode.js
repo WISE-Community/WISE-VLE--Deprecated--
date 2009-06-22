@@ -18,9 +18,8 @@ FillinNode.prototype.render = function(contentpanel) {
 	window.frames["ifrm"].location = "node/fillin/fillin.html";
 };
 
-
 FillinNode.prototype.load = function() {
-	window.frames["ifrm"].loadXMLString(this.getXMLString(), vle);
+	window.frames["ifrm"].loadXMLString(this.element, vle);
 	
 	document.getElementById('topStepTitle').innerHTML = this.title;
 }

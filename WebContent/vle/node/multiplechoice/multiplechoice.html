@@ -1,146 +1,150 @@
 <html>
-<head>
-<script type="text/javascript" src="../../util/scriptloader.js"></script>
-
-<script type="text/javascript">
-var mc;   // global variable so it can be accessed by other functions
-
-function renderMCFromString(txt) {
-	var params = [txt];
-	scriptloader.initialize(document, renderAfterScriptsLoad, 'multiplechoice', params);
-}
-
-function renderAfterScriptsLoad(params){
-	xmlDoc=loadXMLString(params[0]);
-	mc = new MC(xmlDoc);
-	mc.render();
-	afterScriptsLoad();
-};
-
-function checkAnswer() {
-	mc.checkAnswer();
-}
-
-/**
- * 1) if shuffle is on, shuffle choices
- * 2) clears feedbackdiv
- * 3) enables checkAnswerButton
- * 4) hides tryAgainButton
- */
-function tryAgain() {
-	var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
-
-	if (isTryAgainDisabled) {
-		return;
-	}
-
-	mc.render();
-}
-
-function loadFromVLE(node, vle) {
-	mc.loadFromVLE(node, vle);
-}
-</script>
-
-<!--  Javascript Pop up window -->
-<script type="text/javascript">
-
-var newWin = null;
-function popUp(strURL, strType, strHeight, strWidth) {
- if (newWin != null && !newWin.closed)
-   newWin.close();
- var strOptions="";
- if (strType=="console")
-   strOptions="resizable,height="+
-     strHeight+",width="+strWidth;
- if (strType=="fixed")
-   strOptions="status,height="+
-     strHeight+",width="+strWidth;
- if (strType=="elastic")
-   strOptions="toolbar,menubar,scrollbars,"+
-     "resizable,location,height="+
-     strHeight+",width="+strWidth;
- newWin = window.open(strURL, 'newWin', strOptions);
- newWin.focus();
-}
-
-</script>
-
-<script type="text/javascript">
-function afterScriptsLoad(){
-	Nifty("div#locationBar2","bottom,small");
-	Nifty("div#questionCountBox","big, top");
-}
-
-window.onload = function(){
-	if(!window.parent){
-		scriptloader.initialize(document, afterScriptsLoad, 'multiplechoice');
-	};
-};
-</script>
-
-</head>
-
-<body>
-
-<div id="centeredDiv">
-
-<div id="questionCountBox" class="bg7">
-<div class="instructionsReminder"><a href="MultipleChoiceInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;"
-	target="_blank">instructions</a></div>
-	
-<table id="questionTable">
-	<tr>
-		<td id="questionNumber">Question X of Y:</td>
-		<td id="questionType">Multiple Choice</td>
-		<td id="questionHelp"><a href="MultipleChoiceInfoBox.html"
-			onclick="popUp(this.href,'console',700,720);return false;"
-			target="_blank">&nbsp&nbsp&nbsp</a></td>
-	</tr>
-</table>
-</div>
-<!-- end of questionNumberBox -->
-
-<div id="currentQuestionBox">
-
-<div id="leftColumn" class="bg8">
-<div class="itemLabel color1">question</div>
-<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
-<div class="itemLabel color1">response</div>
-<div id="radiobuttondiv"></div>
-</div>
-
-<div id="rightColumn" class="bg2">
-	<img src="../../../images/multi_choice.png" alt="Robot Art Open Response" width="100" height="250" border="0" />
-</div>
-
-<div id="clearBoth"></div>
-
-<div id="statusMessages">
-<div id="numberAttemptsDiv"></div>
-<div id="lastAttemptDiv"></div>
-</div>
-
-<!-- Anchor-Based Button Layout using TABLE -->
-
-<div id="buttonDiv">
-<div id="statusDiv">
-<div id="numberAttemptsDiv"></div>
-</div>
-<table id="buttonTable">
-	<tr>
-		<td><a href="#" id="checkAnswerButton"
-			onClick="javascript:checkAnswer();">Check Answer</a></td>
-		<td><a href="#" id="tryAgainButton"
-			onClick="javascript:tryAgain();" class="disabledLink">Try Again</a></td>
-	</tr>
-</table>
-</div>
-
-<div id="feedbackdiv"></div>
-
-</div>
-<!-- end centered Div -->
-
-</body>
+    <head>
+        <script type="text/javascript" src="../../util/scriptloader.js">
+        </script>
+        <script type="text/javascript">
+            var mc; // global variable so it can be accessed by other functions
+            function renderMCFromString(txt, node, vle){
+                var params = [txt, node, vle];
+                scriptloader.initialize(document, renderAfterScriptsLoad, 'multiplechoice', params);
+            }
+            
+            function renderAfterScriptsLoad(params){
+                xmlDoc = loadXMLString(params[0]);
+                mc = new MC(xmlDoc);
+                mc.render();
+                afterScriptsLoad();
+                mc.loadFromVLE(params[1], params[2]);
+            };
+            
+            function checkAnswer(){
+                mc.checkAnswer();
+            }
+            
+            /**
+             * 1) if shuffle is on, shuffle choices
+             * 2) clears feedbackdiv
+             * 3) enables checkAnswerButton
+             * 4) hides tryAgainButton
+             */
+            function tryAgain(){
+                var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
+                
+                if (isTryAgainDisabled) {
+                    return;
+                }
+                
+                mc.render();
+            }
+        </script>
+        <!--  Javascript Pop up window -->
+        <script type="text/javascript">
+            
+            var newWin = null;
+            function popUp(strURL, strType, strHeight, strWidth){
+                if (newWin != null && !newWin.closed) 
+                    newWin.close();
+                var strOptions = "";
+                if (strType == "console") 
+                    strOptions = "resizable,height=" +
+                    strHeight +
+                    ",width=" +
+                    strWidth;
+                if (strType == "fixed") 
+                    strOptions = "status,height=" +
+                    strHeight +
+                    ",width=" +
+                    strWidth;
+                if (strType == "elastic") 
+                    strOptions = "toolbar,menubar,scrollbars," +
+                    "resizable,location,height=" +
+                    strHeight +
+                    ",width=" +
+                    strWidth;
+                newWin = window.open(strURL, 'newWin', strOptions);
+                newWin.focus();
+            }
+        </script>
+        <script type="text/javascript">
+            function afterScriptsLoad(){
+                Nifty("div#locationBar2", "bottom,small");
+                Nifty("div#questionCountBox", "big, top");
+            }
+            
+            window.onload = function(){
+                if (!window.parent) {
+                    scriptloader.initialize(document, afterScriptsLoad, 'multiplechoice');
+                };
+                };
+        </script>
+    </head>
+    <body>
+        <div id="centeredDiv">
+        <div id="questionCountBox" class="bg7">
+            <table class="instructionsReminder">
+                <tr>
+                    <td>
+                        <div id="helpIcon">
+                            <a href="MultipleChoiceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                        </div>
+                    </td>
+                    <td>
+                        <a id="helpTextLink" href="MultipleChoiceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                    </td>
+                </tr>
+            </table>
+            <div id="questionTable">
+                <div id="questionType">
+                    Multiple Choice
+                </div>
+            </div>
+        </div>
+        <!-- end of questionCountBox -->
+        <div id="currentQuestionBox">
+            <div id="leftColumn" class="bg8">
+                <div class="itemLabel color1">
+                    question
+                </div>
+                <div id="promptDiv">
+                    Prompt goes here. This text will automatically be replaced by actual prompt.
+                </div>
+                <div class="itemLabel color1">
+                    answers
+                </div>
+                <div id="radiobuttondiv">
+                </div>
+                <div id="feedbackdiv">
+                </div>
+            </div>
+            <div id="rightColumn" class="bg2">
+                <img src="../../images/robots/multi_choice.png" alt="Robot Art Open Response" width="100" height="250" border="0" />
+            </div>
+            <div id="clearBoth">
+            </div>
+            <div id="statusMessages">
+                <div id="numberAttemptsDiv">
+                </div>
+                <div id="lastAttemptDiv">
+                </div>
+            </div>
+            <!-- Anchor-Based Button Layout using TABLE -->
+            <div id="buttonDiv">
+                <div id="statusDiv">
+                    <div id="numberAttemptsDiv">
+                    </div>
+                </div>
+                <table id="buttonTable">
+                    <tr>
+                        <td>
+                            <a href="#" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                        </td>
+                        <td>
+                            <a href="#" id="tryAgainButton" onClick="javascript:tryAgain();" class="disabledLink">Try Again</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- end centered Div -->
+    </body>
 </html>

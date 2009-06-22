@@ -1,4 +1,5 @@
 function FILLIN(xmlDoc) {
+	this.customCheck = null;
 	this.loadXMLDoc(xmlDoc);
 }
 
@@ -16,6 +17,9 @@ FILLIN.prototype.loadXMLDoc = function(xmlDoc) {
 	  textEntryInteraction.setResponseDeclaration(this.responseDeclarations);
 	  this.textEntryInteractions.push(textEntryInteraction);
   }
+  if(this.xmlDoc.getElementsByTagName('customCheck')[0]){
+  	this.customCheck = new Function('states', decodeURIComponent(this.xmlDoc.getElementsByTagName('customCheck')[0].firstChild.nodeValue));
+  };
 }
 
 /**
@@ -164,28 +168,66 @@ FILLIN.prototype.checkAnswer = function() {
 		this.vle.state.getCurrentNodeVisit().nodeStates.push(new FILLINSTATE(currentTextEntryInteractionIndex, studentAnswerText));
 	}
 	
-	// update feedback
 	var feedbackDiv = document.getElementById("feedbackDiv");
-	if (textEntryInteraction.isCorrect(studentAnswerText)) {
-		removeClassFromElement("feedbackDiv", "incorrect");
-		addClassToElement("feedbackDiv", "correct");	
-		addClassToElement("tryAgainButton", "disabledLink");
-		removeClassFromElement("nextButton", "disabledLink");
+	if(this.customCheck!=null){
+		//custom processing
+		var customResponse = this.customCheck(states);
+		if(customResponse.correct){	
+			addClassToElement("tryAgainButton", "disabledLink");
+			removeClassFromElement("nextButton", "disabledLink");
+			document.getElementsByName("activeBlank")[0].value = studentAnswerText;
+			
+			if(customResponse.complete){
+				addClassToElement("nextButton", "disabledLink");
+			};
+		};
 		
-		feedbackDiv.innerHTML = "Correct.";
-		document.getElementsByName("activeBlank")[0].value = studentAnswerText;   // display activeBlank with correctAnswer
-		if (currentTextEntryInteractionIndex+1 < this.textEntryInteractions.length) {
+		feedbackDiv.innerHTML = customResponse.feedback;
+	} else{
+		// default processing
+		if (textEntryInteraction.isCorrect(studentAnswerText)) {
+			removeClassFromElement("feedbackDiv", "incorrect");
+			addClassToElement("feedbackDiv", "correct");	
+			addClassToElement("tryAgainButton", "disabledLink");
+			removeClassFromElement("nextButton", "disabledLink");
+			
+			feedbackDiv.innerHTML = "Correct.";
+			document.getElementsByName("activeBlank")[0].value = studentAnswerText;   // display activeBlank with correctAnswer
+			if (currentTextEntryInteractionIndex+1 < this.textEntryInteractions.length) {
+			} else {
+				addClassToElement("nextButton", "disabledLink");
+				feedbackDiv.innerHTML += " You successfully filled all of the blanks.  Impressive work!";			
+				feedbackDiv.innerHTML += this.getCorrectText(this.textEntryInteractions.length, states.length);			
+			}
 		} else {
-			addClassToElement("nextButton", "disabledLink");
-			feedbackDiv.innerHTML += " You successfully filled all of the blanks.  Impressive work!";			
-			feedbackDiv.innerHTML += " You successfully filled " + this.textEntryInteractions.length + " blanks in " + states.length + " tries.";			
+			removeClassFromElement("feedbackDiv", "correct");
+			addClassToElement("feedbackDiv", "incorrect");		
+			feedbackDiv.innerHTML = "Not correct or misspelled";
 		}
-	} else {
-		removeClassFromElement("feedbackDiv", "correct");
-		addClassToElement("feedbackDiv", "incorrect");		
-		feedbackDiv.innerHTML = "Not correct or misspelled";
-	}
+	};
 }
+
+/**
+ * Returns grammatically correct feedback based on the
+ * given number of blanks and tries
+ */
+FILLIN.prototype.getCorrectText = function(blanks, tries){
+	var outStr = " You successfully filled ";
+	
+	if(blanks==1){
+		outStr += "1 blank in ";
+	} else {
+		outStr += blanks + " blanks in ";
+	};
+	
+	if(tries==1){
+		outStr += "1 try.";
+	} else {
+		outStr += tries + " tries.";
+	};
+	
+	return outStr;
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/fillin/fillin.js");

@@ -169,7 +169,7 @@ VLE_STATE.prototype.parseVLEStatesDataXMLString = function(xmlString) {
 			var parser=new DOMParser();
 			xmlDoc=parser.parseFromString(xmlString,"text/xml");
 		} catch(e) {
-			vle.error(e.message);
+			notificationManager.notify(e.message, 3);
 		}
 	}
 	

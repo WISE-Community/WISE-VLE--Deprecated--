@@ -7,7 +7,7 @@ BlueJNode.prototype.constructor = BlueJNode;
 BlueJNode.prototype.parent = Node.prototype;
 function BlueJNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
-	this.type = "OTBlueJ";
+	this.type = "BlueJNode";
 	this.projectPath = "";
 }
 
@@ -46,6 +46,23 @@ BlueJNode.prototype.getDataXML = function() {
 
 BlueJNode.prototype.getDataXML = function(nodeStates) {
 	return this.projectPath;
+}
+
+/**
+ * This function is called when the vle is parsing the student's
+ * data to retrieve previous work the student has submitted.
+ * The array we return will just have one element in it which
+ * will be the name of the project.
+ * @param nodeStatesXML the node states xml within the node visit
+ * 		for the current node visit we are parsing
+ * @return an array with the name of the project in it
+ */
+BlueJNode.prototype.parseDataXML = function(nodeStatesXML) {
+	var statesArrayObject = new Array();
+	if(nodeStatesXML.firstChild != null) {
+		statesArrayObject.push(nodeStatesXML.firstChild.nodeValue);
+	}
+	return statesArrayObject;
 }
 
 //used to notify scriptloader that this script has finished loading

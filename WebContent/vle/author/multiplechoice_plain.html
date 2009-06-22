@@ -1,16 +1,8 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="../node/common/css/htmlAssessment.css" />
-<link rel="stylesheet" type="text/css" href="../node/multiplechoice/mcstyles.css" />
-<link rel="stylesheet" type="text/css" href="../node/common/css/niftyCorners.css" />
 
+<script type="text/javascript" src="../util/scriptloader.js"></script>
 
-
-<script type="text/javascript" src="../node/common/js/loadxmldoc.js"></script>
-<script src="../yui/yui_3.0.0pr2/build/yui/yui-min.js" type="text/javascript"></script>
-<script type="text/javascript" src="../node/common/js/helperfunctions.js"></script>
-<script type="text/javascript" src="../node/multiplechoice/multiplechoicestate.js"></script>
-<script type="text/javascript" src="../node/multiplechoice/mc.js"></script>
 <script type="text/javascript">
 var mcObj;   // global variable so it can be accessed by other functions
 var node;
@@ -21,10 +13,16 @@ function refresh() {
 }
 
 function loadFromXMLString(txt) {
-  xmlDoc=loadXMLString(txt);
-  mcObj = new MC(xmlDoc);
-  mcObj.render();
+	var params = [txt];
+	scriptloader.initialize(document, loadAfterScriptsLoad, 'multiplechoice', params);
 }
+
+function loadAfterScriptsLoad(params){
+	xmlDoc=loadXMLString(params[0]);
+	mcObj = new MC(xmlDoc);
+	mcObj.render();
+	afterScriptsLoad();
+};
 
 function checkAnswer() {
 	mcObj.checkAnswer();
@@ -72,15 +70,17 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 </script>
 
-<!--  Nifty Cube for Rounded Corners -->
-
-<script type="text/javascript" src="../js/node/common/js/niftycube.js"></script>
 <script type="text/javascript">
-window.onload=function(){
-Nifty("div#locationBar2","bottom,small");
-Nifty("div#questionCountBox","big, top");
-Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
+function afterScriptsLoad(){
+	Nifty("div#locationBar2","bottom,small");
+	Nifty("div#questionCountBox","big, top");
 }
+
+window.onload = function(){
+	if(!window.parent){
+		scriptloader.initialize(document, afterScriptsLoad, 'multiplechoice');
+	};
+};
 </script>
 
 </head>
@@ -102,7 +102,6 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 			onclick="popUp(this.href,'console',700,720);return false;"
 			target="_blank">&nbsp&nbsp&nbsp</a></td>
 	</tr>
-	</tr>
 </table>
 </div>
 <!-- end of questionNumberBox -->
@@ -117,7 +116,7 @@ Nifty("div#leftColumn,div#rightColumn","same-height none bll tr big");
 </div>
 
 <div id="rightColumn" class="BG1">
-	<img src="../../../images/multi_choice.png" alt="Robot Art Open Response" width="100" height="250" border="0" />
+	<img src="../images/multi_choice.png" alt="Robot Art Open Response" width="100" height="250" border="0" />
 </div>
 
 <div id="clearBoth"></div>

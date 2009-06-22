@@ -1,11 +1,16 @@
 <!-- @author: patrick lawler -->
 <html>
 	<head>
+		<script type="text/javascript" src="../util/scriptloader.js"></script>
 		<script type="text/javascript">
 			var mainPage;
 			var parentPage;
 			var choice;
 			var container;
+			
+			function loadScripts(){
+				scriptloader.initialize(document, loaded, 'feedback');
+			};
 			
 			function loaded(){
 				parentPage = window.opener;
@@ -34,12 +39,9 @@
 			 	parentPage.generateTable();
 			};
 		</script>
-		
-<!-- AUTHOR CSS -->
-<link rel="stylesheet" type="text/css" href="../css/authoring/authoring.css">
 
 	</head>
-	<body onload='loaded()'>
+	<body onload='loadScripts()'>
 		<div>
 			Enter/Edit Feedback: <br>
 			<textarea id='feedbackInput' type='text' cols='85' rows='10'onchange='updateFeedback()'></textarea><br>

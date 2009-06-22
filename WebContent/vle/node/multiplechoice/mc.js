@@ -148,6 +148,7 @@ MC.prototype.render = function() {
 		var td2Element = createElement(document, 'td', {});
 		trElement.appendChild(td2Element);
 		var radiobuttonTextDiv = document.createElement("div");
+		radiobuttonTextDiv.setAttribute("id", "choicetext:" + this.choices[i].identifier);
 		radiobuttonTextDiv.innerHTML = this.choices[i].text;
 		td2Element.appendChild(radiobuttonTextDiv);
 		radiobuttondiv.appendChild(tableElement);
@@ -271,9 +272,16 @@ MC.prototype.checkAnswer = function() {
 			var choice = this.getCHOICEByIdentifier(choiceIdentifier);
 			if (choice) {
 				var feedbackdiv = document.getElementById('feedbackdiv');
+				var choiceTextDiv = document.getElementById("choicetext:" + choiceIdentifier);
 				feedbackdiv.innerHTML = choice.getFeedbackText(this);
 				var mcState = new MCSTATE(choiceIdentifier);
 				mcState.isCorrect = (choiceIdentifier == this.correctResponseInterpretation);
+				if (mcState.isCorrect) {
+					choiceTextDiv.setAttribute("class", "correct");
+				} else {
+					choiceTextDiv.setAttribute("class", "incorrect");
+				}
+				
 				this.states.push(mcState);
 				//alert('vle:' + this.vle);
 				if (this.vle != null) {

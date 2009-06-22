@@ -59,4 +59,7 @@ function sourceUpdated() {
 	var xmlString = document.getElementById('sourceTextArea').value;
 
 	window.frames["previewFrame"].loadFromXMLString(xmlString);
-}
+};
+
+//used to notify scriptloader that this script has finished loading
+scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/author_advanced_helper.js");

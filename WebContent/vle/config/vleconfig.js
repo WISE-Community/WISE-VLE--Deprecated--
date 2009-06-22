@@ -34,6 +34,16 @@ VLEConfig.prototype.parse = function(responseXML) {
 	this.userInfoUrl = responseXML.getElementsByTagName("userInfoUrl")[0].firstChild.nodeValue;
 	this.runId = responseXML.getElementsByTagName('runId')[0].firstChild.nodeValue;
 	this.theme = responseXML.getElementsByTagName('theme')[0];
+
+	if (responseXML.getElementsByTagName('startNode') &&
+			responseXML.getElementsByTagName('startNode')[0] != null) {
+		this.startNode = responseXML.getElementsByTagName('startNode')[0].firstChild.nodeValue;
+	}
+	
+	if (responseXML.getElementsByTagName('mainNav') &&
+			responseXML.getElementsByTagName('mainNav')[0] != null) {
+		this.mainNav = responseXML.getElementsByTagName('mainNav')[0].firstChild.nodeValue;
+	}
 	
 	//check to make sure theme was defined in xml, if so, check to see if value is valid and set it,
 	//otherwise default to WISE as a theme.
