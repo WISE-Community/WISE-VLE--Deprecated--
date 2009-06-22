@@ -83,7 +83,6 @@ var scriptloader = {
                    "vle/node/CustomNode.js",
                    "vle/node/MatchSequenceNode.js",
                    "vle/node/FillinNode.js",
-                   "vle/node/fillin/fillinstate.js",
                    "vle/node/FlashNode.js",
                    "vle/node/NoteNode.js",
                    "vle/node/JournalNode.js",
@@ -91,7 +90,6 @@ var scriptloader = {
                    "vle/node/OutsideUrlNode.js", 
                    "vle/node/BlueJNode.js", 
                    "vle/node/MultipleChoiceNode.js",
-                   "vle/node/multiplechoice/mc.js",
                    "vle/node/BrainstormNode.js",
                    "vle/node/GlueNode.js", 
                    "vle/project/Project.js", 
@@ -105,10 +103,30 @@ var scriptloader = {
                    "vle/common/sdmenu.js", 
                    "vle/common/dropdown.js",
                    "vle/author/author_helper.js",
+                   "vle/util/projectutils.js",
                    "vle/grading/Annotation.js",
                    "vle/grading/Annotations.js",
                    "vle/grading/Flag.js",
-                   "vle/grading/Flags.js"],
+                   "vle/grading/Flags.js",
+      				"vle/node/common/js/helperfunctions.js",
+       				"vle/node/brainstorm/brainstorm.js",
+       				"vle/node/brainstorm/brainstormstate.js",
+    				"vle/node/fillin/textentryinteraction.js",
+    				"vle/node/fillin/fillinstate.js",
+    				"vle/node/fillin/fillin.js",
+    				"vle/node/glue/glue.js",
+    				"vle/node/glue/gluestate.js",
+    				"vle/node/matchsequence/matchsequenceyui.js",
+    				"vle/node/matchsequence/matchsequencefeedback.js",
+    				"vle/node/matchsequence/matchsequencebucket.js",
+    				"vle/node/matchsequence/matchsequencechoice.js",
+    				"vle/node/matchsequence/matchsequencestate.js",
+    				"vle/node/matchsequence/matchsequence.js",
+    				"vle/node/multiplechoice/multiplechoicestate.js",
+    				"vle/node/multiplechoice/mc.js",
+    				"vle/node/openresponse/openresponsestate.js",
+    				"vle/node/openresponse/openresponse.js",
+    				"vle/node/openresponse/customjournalentrystate.js"],
         	brain: ["vle/node/common/js/loadxmldoc.js",
         				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
         				"vle/node/common/js/helperfunctions.js"],
@@ -158,7 +176,7 @@ var scriptloader = {
         				"vle/node/openresponse/openresponse.js",
         				"vle/node/openresponse/customjournalentrystate.js"],
         	author_framed: ["vle/common/helperfunctions.js"],
-        	author_easy: ["vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js",
+        	author: ["vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js",
         				"vle/yui/yui_2.7.0b/build/event/event-min.js",
         				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
         				"vle/yui/yui_2.7.0b/build/animation/animation-min.js",
@@ -167,11 +185,48 @@ var scriptloader = {
         				"vle/yui/yui_2.7.0b/build/connection/connection-min.js",
         				"vle/common/loadxmldoc.js",
         				"vle/common/helperfunctions.js",
-        				"vle/node/Node.js",
-        				"vle/node/BrainstormNode.js",
-        				"author_helper.js",
-        				"author_easy_helper.js",
-        				"vle/node/common/js/loadxmldoc.js"]
+        				"vle/author/author_helper.js",
+        				"vle/node/common/js/loadxmldoc.js"],
+        	author_matchsequence_easy: ["vle/author/author_easy_helper.js",
+        				"vle/author/js/matchsequence_easy.js"],
+        	author_matchsequence_advanced: ["vle/author/author_advanced_helper.js",
+        				"vle/author/js/matchsequence_advanced.js"],
+        	author_brainstorm_easy: ["vle/author/author_easy_helper.js",
+        				"vle/author/js/brainstorm_easy.js"],
+        	author_brainstorm_advanced: ["vle/author/author_advanced_helper.js",
+        				"vle/author/js/brainstorm_advanced.js"],
+        	author_fillin_easy: ["vle/author/author_easy_helper.js",
+        				"vle/author/js/fillin_easy.js"],
+        	author_fillin_advanced: ["vle/author/author_advanced_helper.js",
+        				"vle/author/js/fillin_advanced.js"],
+        	author_html_easy: ["vle/node/Node.js",
+        				"vle/node/HtmlNode.js",
+        				"vle/author/author_easy_helper.js",
+        				"vle/author/js/html_easy.js"],
+        	author_html_advanced: ["vle/node/Node.js",
+        				"vle/node/HtmlNode.js",
+        				"vle/author/author_advanced_helper.js",
+        				"vle/author/js/html_advanced.js"],
+        	author_glue_easy: ["vle/author/author_glue.js",
+        				"vle/author/author_easy_helper.js",
+        				"vle/author/js/glue_easy.js"],
+        	author_glue_advanced: ["vle/author/author_glue.js",
+        				"vle/author/author_advanced_helper.js",
+        				"vle/author/js/glue_advanced.js"],
+        	author_multiplechoice_easy: ["vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/author/author_easy_helper.js",
+        				"vle/author/js/multiplechoice_easy.js"],
+        	author_multiplechoice_advanced: ["vle/author/author_advanced_helper.js",
+        				"vle/author/js/multiplechoice_advanced.js"],
+        	author_openresponse_easy: ["vle/author/author_easy_helper.js",
+        				"vle/author/js/openresponse_easy.js"],
+        	author_openresponse_advanced: ["vle/author/author_advanced_helper.js",
+        				"vle/author/js/openresponse_advanced.js"],
+        	author_outsideurl_easy: ["vle/author/author_easy_helper.js",
+        				"vle/author/js/outsideurl_easy.js"],
+        	author_outsideurl_advanced: ["vle/author/author_advanced_helper.js",
+        				"vle/author/js/outsideurl_advanced.js"],
+        	feedback: ["vle/common/helperfunctions.js"]
     },
     css: {
     	main: ["vle/yui/yui_2.7.0b/build/container/assets/skins/sam/container.css", 
@@ -179,7 +234,9 @@ var scriptloader = {
 	           "vle/css/niftyCube.css", 
 	           "vle/css/navigation.css",
 	           "vle/css/sdmenu.css"],
-	    brain: ["vle/node/brainstorm/brainstorm.css"],
+	    brain: ["vle/node/common/css/htmlAssessment.css",
+				 "vle/node/brainstorm/brainstorm.css",
+				 "vle/node/common/css/niftyCorners.css"],
 	    fillin: ["vle/node/common/css/htmlAssessment.css",
 	    		"vle/node/fillin/fillin.css",
 	    		"vle/node/common/css/niftyCorners.css"],
@@ -195,8 +252,10 @@ var scriptloader = {
 	    		"vle/node/openresponse/openresponse.css",
 	    		"vle/node/common/css/niftyCorners.css"],
 	    author_framed: ["vle/css/authoring/authoring.css"],
-	    author_easy: ["vle/yui/yui_2.7.0b/build/container/assets/skins/sam/container.css",
-        				"vle/css/authoring/authoring.css"]
+	    author: ["vle/yui/yui_2.7.0b/build/container/assets/skins/sam/container.css",
+        				"vle/css/authoring/authoring.css"],
+        author_multiplechoice_easy: ["vle/css/authoring/author_multiplechoice.css"],
+       	feedback: ["vle/css/authoring/authoring.css"]
     },
     //scripts holds all of the script objects that are created
     //dynamically from the javascripts and css' specified
@@ -207,16 +266,15 @@ var scriptloader = {
 	name: '',
 	//params to be run with custom function after scripts load
 	params: null,
-	//initializes scriptloader with provided document and function
+	//initializes scriptloader with provided document, function and params
 	//to run once script loading complete. Generates the script
-	//objects based on the javascripts and css' specfied by @param: name
+	//objects based on the javascripts and css' specfied by given name
 	initialize: function(doc, fun, name, params){
 		this.doc = doc;
 		this.afterLoad = fun;
 		this.params = params;
 		var loc = this.doc.location.toString();
 		this.baseUrl = loc.substring(0, loc.lastIndexOf('/vle/') + 1);  
-		this.scripts = {};
 		this.count = 0;
 		this.name = name;
 		this.generateScripts(this.javascripts[name], this.css[name]);
@@ -247,9 +305,11 @@ var scriptloader = {
 	//loads the javascript specfied by the given javascript url (@param script)
 	//into this.doc
 	loadScript: function(script){
-		var s = this.scripts[script];
+		var s = this.scripts[this.baseUrl + script];
 		if(s && s.loaded==false){
 			this.doc.getElementsByTagName('head')[0].appendChild(createElement(this.doc, 'script', {type: 'text/javascript', src: s.url}));
+		} else if(s && s.loaded==true){
+			this.listener();
 		};
 	},
 	//loads all of the javascripts specified in the given
@@ -264,9 +324,9 @@ var scriptloader = {
 	//loads the css specfied by the given css url
 	//into this.doc
 	loadCss: function(css){
-		var s = this.scripts[css];
+		var s = this.scripts[this.baseUrl + css];
 		if(s && s.loaded==false){
-			this.doc.getElementsByTagName('head')[0].appendChild(createElement(this.doc, 'link', {rel: 'stylesheet', type: 'text/css', href: css}));
+			this.doc.getElementsByTagName('head')[0].appendChild(createElement(this.doc, 'link', {rel: 'stylesheet', type: 'text/css', href: s.url}));
 		};
 	},
 	//loads all of the css' specified in the given
@@ -283,23 +343,24 @@ var scriptloader = {
 	generateScripts: function(scripts, css){
 		if(scripts){
 			for(var p=0;p<scripts.length;p++){
-				scripts[p] = this.baseUrl + scripts[p];
 				this.createScript(scripts[p]);
 			};
 		};
 		
 		if(css){
 			for(var q=0;q<css.length;q++){
-				css[q] = this.baseUrl + css[q];
 				this.createScript(css[q]);
 			};
 		};
 	},
 	//Creates the script object specified by the given urlStr
+	//if it does not already exist
 	createScript: function(urlStr){
-		this.scripts[urlStr] = {
-			url: urlStr,
-			loaded: false
+		if(!this.scripts[this.baseUrl + urlStr]){
+			this.scripts[this.baseUrl + urlStr] = {
+				url: this.baseUrl + urlStr,
+				loaded: false
+			};
 		};
 	}
 };

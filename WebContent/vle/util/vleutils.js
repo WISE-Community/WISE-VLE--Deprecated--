@@ -177,6 +177,80 @@ VLE.prototype.exportToTimeline = function(format) {
 }
 
 /**
+ * This should be cleaned up/refactored and commented by Geoff in the future.
+ */
+VLE.prototype.exportToTimeline = function(format) {
+	var rows = new Array();
+	
+	rows.push("timestamp, elapsedTime (since stepStart in seconds), timeType, nodeType, stepId, studentWork");
+	
+	for(var x=0; x<this.state.visitedNodes.length; x++) {
+		var nodeVisit = this.state.visitedNodes[x];
+		var node = nodeVisit.node;
+		
+		var nodeVisitStartRow = "";
+		nodeVisitStartRow += nodeVisit.visitStartTime.replace(",", "") + ", ";
+		nodeVisitStartRow += 0 + ", ";
+		nodeVisitStartRow += "stepStart, ";
+		nodeVisitStartRow += nodeVisit.node.type + ", ";
+		nodeVisitStartRow += nodeVisit.node.id + ", ";
+		nodeVisitStartRow += "N/A";
+		rows.push(nodeVisitStartRow);
+		
+		for(var y=0; y<nodeVisit.nodeStates.length; y++) {
+			var nodeState = nodeVisit.nodeStates[y];
+			var nodeStateRow = "";
+			nodeStateRow += nodeState.timestamp.replace(",", "") + ", ";
+			nodeStateRow += ((new Date(nodeState.timestamp).getTime() - new Date(nodeVisit.visitStartTime).getTime()) / 1000) + ", ";
+			nodeStateRow += "studentSubmission, ";
+			nodeStateRow += nodeVisit.node.type + ", ";
+			nodeStateRow += nodeVisit.node.id + ", ";
+			nodeStateRow += node.translateStudentWork(nodeState.getStudentWork());
+			rows.push(nodeStateRow);
+		}
+		
+		var nodeVisitEndRow = "";
+		if(nodeVisit.visitEndTime != null) {
+			nodeVisitEndRow += nodeVisit.visitEndTime.replace(",", "") + ", ";
+		} else {
+			nodeVisitEndRow += "null, ";
+		}
+		nodeVisitEndRow += ((new Date(nodeVisit.visitEndTime).getTime() - new Date(nodeVisit.visitStartTime).getTime()) / 1000) + ", ";
+		nodeVisitEndRow += "stepEnd, ";
+		nodeVisitEndRow += nodeVisit.node.type + ", ";
+		nodeVisitEndRow += nodeVisit.node.id + ", ";
+		nodeVisitEndRow += "N/A";
+		rows.push(nodeVisitEndRow);
+	}
+	
+	var csvText = "";
+	
+	//start the table if we are outputting html
+	if(format == "HTML") {
+		csvText += "<table border='1'>";
+	}
+	
+	/*
+	 * append all the rows together as one string 
+	 */
+	for(var rowNum=0; rowNum<rows.length; rowNum++) {
+		if(format == "timelineCSV") {
+			//csv needs new line
+			csvText += rows[rowNum] + "\n";
+		} else if(format == "HTML") {
+			csvText += rows[rowNum];
+		}
+	}
+	
+	//close the table if we are outputting html
+	if(format == "HTML") {
+		csvText += "</table>";
+	}
+	
+	return csvText;
+}
+
+/**
  * Create a string containing the student's data in CSV form. The first
  * row contains the node titles and the second row contains the students
  * answers. The answers are the latest answers the student has submitted.
@@ -266,7 +340,7 @@ VLE.prototype.saveLocally = function(){
  */
 VLE.prototype.displayProgress = function() {
 	document.getElementById('centeredDiv').style.display = "none";
-	document.getElementById('progressDiv').innerHTML += vle.getProgress();
+	document.getElementById('progressDiv').innerHTML = vle.getProgress();
 }
 
 //used to notify scriptloader that this script has finished loading

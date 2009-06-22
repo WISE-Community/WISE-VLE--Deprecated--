@@ -8,7 +8,6 @@ function VLE() {
 	this.navigationPanel = null;
 	this.contentPanel = null;
 	this.audioManager = null;
-	this.notificationManager = new NotificationManager(false);  // for alerting users
 	this.connectionManager = new ConnectionManager(this.eventManager);
 	this.journal = null;
 	this.postNodes = [];
@@ -41,14 +40,39 @@ VLE.prototype.startEventsAndListeners = function(){
     this.eventManager.inititializeLoading([['projectLoading', 'projectLoadingComplete', 'project'], ['learnerDataLoading', 'learnerDataLoadingComplete', 'learner data']]);
 
 	var renderNodeListener = function(){
-		this.alert('renderNodeListener', "debug");
+		notificationManager.notify('renderNodeListener', 4);
 		if(vle && vle.project){
 			var startId = vle.project.getStartNodeId();
+
+			
+			if (vle.config != null && vle.config.startNode && vle.config.startNode != null) {
+				startId = vle.config.startNode;
+			}
+			
 			if(startId){
 				vle.renderNode(startId);
 			};
+			
+			//display the title of the project in the upper left box
+			if(document.getElementById("title") != null && vle.getProjectTitle() != null) {
+				document.getElementById("title").innerHTML = vle.getProjectTitle();
+				document.getElementsByTagName("title")[0].innerHTML = vle.getProjectTitle();
+				if (window.parent) {
+					window.parent.document.title = window.parent.document.title + ": " + vle.getProjectTitle();
+				}
+			}
+			
+			//display the user name in the upper left box
+			if(document.getElementById("logInBox") != null) {
+				document.getElementById("logInBox").innerHTML = "Hello " + vle.getUserName();
+			}
+			
+			//display the "Show Me Flagged Items" link if flagging is enabled
+			if(vle.runManager != null && vle.runManager.isFlaggingEnabled) {
+				document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
+			}
 		} else {
-			this.error('VLE and project not ready to load any nodes');
+			notificationManager.notify('VLE and project not ready to load any nodes', 3);
 		};
 	};
 	
@@ -63,6 +87,15 @@ VLE.prototype.startEventsAndListeners = function(){
 	var menuInitializerListener = function(){
 		if(myMenu){
 			myMenu.init();
+		};
+		
+		
+		if (vle.config != null && vle.config.mainNav && vle.config.mainNav != null) {
+			var mainNav = vle.config.mainNav;
+			
+			if (mainNav == 'none') {
+				vle.toggleNavigationPanelVisibility();
+			};
 		};
 	};
 	
@@ -126,7 +159,7 @@ VLE.prototype.playPauseStepAudio = function() {
  * @param {Object} nodeId
  */
 VLE.prototype.renderNode = function(nodeId){
-	this.alert('renderNode, nodeId:' + nodeId, 'debug');
+	notificationManager.notify('renderNode, nodeId:' + nodeId, 4);
     var nodeToVisit = null;
     if (nodeId == null) {
 		if (this.state.visitedNodes.length > 0) {
@@ -139,7 +172,7 @@ VLE.prototype.renderNode = function(nodeId){
     }
 	
 	if (nodeToVisit == null) {
-		this.error("VLE: nodeToVisit is null Exception. Exiting");
+		notificationManager.notify("VLE: nodeToVisit is null Exception. Exiting", 3);
 		return;
 	}
 	
@@ -157,9 +190,9 @@ VLE.prototype.renderNode = function(nodeId){
         //alert('a:' + currentNode.nodeSessionEndedEvent);
         //alert('b:' + this.onNodeSessionEndedEvent);
         currentNode.nodeSessionEndedEvent.subscribe(this.onNodeSessionEndedEvent, this); // add the listener for this node
-
 		this.expandActivity(nodeId);   // always expand the navigation bar
     }
+    
     var loadingMessageDiv = document.getElementById("loadingMessageDiv");
     if(loadingMessageDiv != null && loadingMessageDiv != undefined) {
     	loadingMessageDiv.innerHTML = "";
@@ -227,7 +260,6 @@ VLE.prototype.expandActivity = function(nodeId) {
 		var node = this.getNodeById(nodeId);
 		if(newActivityId){			
 			submenu = document.getElementById(newActivityId + "_menu");
-			//submenu.className = "";
 			myMenu.expandMenu(submenu);
 		}
 		if (node.parent) {
@@ -235,14 +267,13 @@ VLE.prototype.expandActivity = function(nodeId) {
 			if(submenu){
 				submenu.className = "";
 			};
-			//myMenu.expandMenu(submenu);
 		};
 	};
 }
 VLE.prototype.renderPrevNode = function() {
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
-		this.alert("prev is not defined.");
+		notificationManager.notify("prev is not defined.", 3);
 	}
 	
 	if(currentNode.type=='GlueNode'){
@@ -254,9 +285,17 @@ VLE.prototype.renderPrevNode = function() {
 		}
 		
 		if (prevNode == null) {
-			this.alert("prevNode does not exist");
+			notificationManager.notify("prevNode does not exist", 3);
 		} else {
 			this.renderNode(prevNode.id);
+			
+			//obtain all the parents, grandparents, etc of this node
+			var enclosingNavParents = this.getEnclosingNavParents(prevNode);
+			
+			if(enclosingNavParents != null && enclosingNavParents.length != 0) {
+				//collapse all nodes except parents, grandparents, etc
+				myMenu.forceCollapseOthersNDeep(enclosingNavParents);	
+			}
 		}
 	};
 }
@@ -264,7 +303,7 @@ VLE.prototype.renderPrevNode = function() {
 VLE.prototype.renderNextNode = function() {
 	var currentNode = this.getCurrentNode();
 	if (this.navigationLogic == null) {
-		this.alert("next is not defined.");
+		notificationManager.notify("next is not defined.", 3);
 	}
 	
 	if(currentNode.type=='GlueNode'){
@@ -275,11 +314,57 @@ VLE.prototype.renderNextNode = function() {
 			nextNode = this.navigationLogic.getNextNode(nextNode);
 		}
 		if (nextNode == null) {
-			this.alert("nextNode does not exist");
+			notificationManager.notify("nextNode does not exist", 3);
 		} else {
 			this.renderNode(nextNode.id);
+			
+			//obtain all the parents, grandparents, etc of this node
+			var enclosingNavParents = this.getEnclosingNavParents(nextNode);
+			
+			if(enclosingNavParents != null && enclosingNavParents.length != 0) {
+				//collapse all nodes except parents, grandparents, etc
+				myMenu.forceCollapseOthersNDeep(enclosingNavParents);	
+			}
 		}
 	};
+}
+
+
+/**
+ * Obtain an array of the parent, grandparent, etc. basically the parent,
+ * the parent's parent, the parent's parent's parent, etc. so that when
+ * the nav menu is displaying a project that is n-levels deep, we know
+ * which parents to keep open. We need to keep all of these ancestors
+ * open and not just the immediate parent.
+ * @param node the node we are currently on
+ * @param enclosingNavParents an array containing all the parents
+ * @return the array of ancestors
+ */
+VLE.prototype.getEnclosingNavParents = function(node, enclosingNavParents) {
+	//initialize the ancestors array
+	if(enclosingNavParents == null) {
+		enclosingNavParents = new Array();
+	}
+	
+	if(node != null && node.parent != null) {
+		//see if the parent has an element in the nav
+		var parentNavElement = document.getElementById(node.parent.id + '_menu');
+		if(parentNavElement != null) {
+			/*
+			 * the parent does have an element in the nav so we will add it
+			 * to our array of ancestors
+			 */
+			enclosingNavParents.push(parentNavElement);
+		}
+		//look for the ancestors of the parent recursively
+		return this.getEnclosingNavParents(node.parent, enclosingNavParents);
+	} else {
+		/*
+		 * we have reached to top of the parent tree so we will now
+		 * return the ancestor array
+		 */
+		return enclosingNavParents;
+	}
 }
 
 /**
@@ -336,7 +421,7 @@ VLE.prototype.displayFlaggedItems = function() {
 				window.frames["ifrm"].document.close();
 		  	},
 			failure: function(o) {
-				alert('Error: Unable to load user info');
+				notificationManager.notify('Error: Unable to load user info', 3);
 			},
 			argument: ["a", "b", "c"],
 			scope:this
@@ -350,14 +435,6 @@ VLE.prototype.toggleNavigationPanelVisibility = function() {
 
 VLE.prototype.print = function() {
 	window.print();
-}
-
-VLE.prototype.alert = function(message, type) {
-	this.notificationManager.alert(message, type);
-}
-
-VLE.prototype.error = function(message) {
-	this.notificationManager.error(message);
 }
 
 VLE.prototype.getNodeVisitedInfo = function() {
@@ -754,7 +831,12 @@ VLE.prototype.processLoadVLEStateResponse = function(responseText, responseXML){
 		vle.state.visitedNodes.push(newNodeVisit);
 	}
 	
-	vle.eventManager.fire('learnerDataLoadingComplete');
+	/*
+	 * fire the event that this function is done, also pass in the workgroupId
+	 * which is used by the progress monitor, if this is not being called
+	 * by the progress monitor, the workgroupId can just be ignored
+	 */
+	vle.eventManager.fire('learnerDataLoadingComplete', vle.getWorkgroupId());
 };
 
 /**
@@ -794,7 +876,7 @@ VLE.prototype.initializeFromConfig = function(vleConfig) {
 		if (vleConfig.runInfoUrl != null && vleConfig.runInfoRequestInterval != null) {
 			vle.runManager = new RunManager(vleConfig.runInfoUrl, parseInt(vleConfig.runInfoRequestInterval), this.connectionManager, this.eventManager, vleConfig.runId);
 		}
-	}
+	}	
 }
 
 /**
@@ -822,6 +904,7 @@ VLE.prototype.processLoadProjectResponse = function(responseText, responseXML, c
 	};
 	
 	var startId = vle.project.getStartNodeId();
+	
 	if(startId){
 		var startNode = vle.getNodeById(startId);
 		if(!startNode.contentLoaded){

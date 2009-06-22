@@ -6,6 +6,8 @@
 <config>
 	<!--  projectPaths is where the authoring tool will look for projects -->
 	<projectPaths>
+		<path>c:\incoming\projects</path>
+		<hosted>c:\incoming\working\contentrepository\WebContent</hosted>
 	</projectPaths>
 	<primaryPath>
 		<path>/Users/hirokiterashima/Sites/apcsa/curriculum</path>

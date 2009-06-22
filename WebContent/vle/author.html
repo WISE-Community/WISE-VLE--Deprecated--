@@ -82,7 +82,7 @@ function updatePortalProjects(){
 
 	var callback = {
 		success: function(o){handler(o.responseText, o.responseXML);},
-		failure: function(o){alert('unable to retrieve portal projects');},
+		failure: function(o){notificationManager.notify('unable to retrieve portal projects', 3);},
 		scope: this
 	};
 	
@@ -96,13 +96,17 @@ function createPortalProject(path, name){
 				portalProjectId = responseText;
 				updatePortalProjects();
 			} else {
-				alert('failed to create project in portal');
+				notificationManager.notify('failed to create project in portal', 3);
 			};
 		};
 		vle.connectionManager.request('POST', 3, portalUrl, {command: 'createProject', param1: path, param2: name}, handler);
 	} else {
-		alert('vle not available to author new project in portal');
+		notificationManager.notify('vle not available to author new project in portal', 3);
 	};
+};
+
+function scriptsLoaded(params){
+	params[0]();
 };
 
 function afterScriptsLoad(){
@@ -186,7 +190,7 @@ function getProjectPaths(){
 				pathsLoaded.fire();
 				initializeOpenProjectDialog();
 			} else {
-				alert("Error retrieving settings");
+				notificationManager.notify("Error retrieving settings", 3);
 			};
 		},
 		failure: function(o){},
@@ -200,7 +204,7 @@ function preview() {
 	if(currentProjectName){
 		popupPreviewWindow('vle.html', 'PreviewWindow');
 	} else {
-		alert('Please open or create a new project to preview. Exiting...');
+		notificationManager.notify('Please open or create a new project to preview. Exiting...', 3);
 	};
 };
 
@@ -246,7 +250,7 @@ function initializeOpenProjectDialog(bool){
 				projectsLoaded.fire();
 			};
 		},
-		failure:function(o){alert('unable to retrieve projects from server');},
+		failure:function(o){notificationManager.notify('unable to retrieve projects from server', 3);},
 		scope:this
 	};
 	
@@ -267,7 +271,7 @@ function getHostedProjects(addOption){
 			};
 			projectsLoaded.fire();
 		},
-		failure: function(o){alert('unable to retrieve hosted projects from server');},
+		failure: function(o){notificationManager.notify('unable to retrieve hosted projects from server', 3);},
 		scope:this
 	};
 	
@@ -330,14 +334,14 @@ function initializeCreateProjectDialog(){
 		success:function(o){
 			doSuccess(o.responseText);
 		},
-		failure:function(o){alert('unable to create new project on server');},
+		failure:function(o){notificationManager.notify('unable to create new project on server', 3);},
 		scope:this
 	};
 	
 	createProjectDialog.validate = function(){
 		var data = this.getData();
 		if(data.param1==null || data.param1==""){
-			alert('A project name must be supplied before creating a project');
+			notificationManager.notify('A project name must be supplied before creating a project', 3);
 			return false;
 		} else {
 			return true;
@@ -359,13 +363,13 @@ function initializeCreateSequenceDialog(){
 		var nodes = project.allSequenceNodes;
 	
 		if(name==null || name==""){
-			alert('Please enter a name before creating a sequence');
+			notificationManager.notify('Please enter a name before creating a sequence', 3);
 			return false;
 		};
 	
 		for(var s=0;s<nodes.length;s++){
 			if(nodes[s].id==name){
-				alert('A sequence with that name already exists. Please change the name and try again.');
+				notificationManager.notify('A sequence with that name already exists. Please change the name and try again.', 3);
 				return false;
 			};
 		};
@@ -388,10 +392,10 @@ function initializeCreateSequenceDialog(){
 			if(response=='success'){
 				doSuccess();
 			} else {
-				alert('Unable to create new sequence on server.');
+				notificationManager.notify('Unable to create new sequence on server.', 3);
 			};
 		},
-		failure: function(o){alert('failed creating sequence on server');},
+		failure: function(o){notificationManager.notify('failed creating sequence on server', 3);},
 		scope: this
 	};
 	
@@ -453,14 +457,14 @@ function initializeCreateNodeDialog(){
 	var validate = function(){		
 		val = document.getElementById('createNodeTitle').value;
 		if(val==null || val==""){
-			alert('Please enter a title for the node. Exiting...');
+			notificationManager.notify('Please enter a title for the node. Exiting...', 3);
 			return false;
 		};
 	
 		var select = document.getElementById('createNodeType');
 		val = select.options[select.selectedIndex].value;
 		if(val==null || val==""){
-			alert('Please select a node type. Exiting...');
+			notificationManager.notify('Please select a node type. Exiting...', 3);
 			return false;
 		};
 	
@@ -480,16 +484,16 @@ function initializeCreateNodeDialog(){
 		success: function(o){
 			var response = o.responseText;
 			if(response=='exists'){
-				alert('A node with the same filename already exists. Please change the filename and try again.');
+				notificationManager.notify('A node with the same filename already exists. Please change the filename and try again.', 3);
 			} else if(response=='nodeNotProject'){
-				alert('Unable to attach node to project, please see administrator.');
+				notificationManager.notify('Unable to attach node to project, please see administrator.', 3);
 			} else if(response=='success'){
 				doSuccess();
 			} else {
-				alert('Error creating node on server');
+				notificationManager.notify('Error creating node on server', 3);
 			};
 		},
-		failure: function(o){alert('unable to create node on server');},
+		failure: function(o){notificationManager.notify('unable to create node on server', 3);},
 		scope: this
 	};
 	
@@ -517,12 +521,12 @@ function initializeEditProjectFileDialog(){
 	editProjectFileDialog.callback = {
 		success: function(o){
 			if(o.responseText!='success'){
-				alert('Failed save to server');
+				notificationManager.notify('Failed save to server', 3);
 			} else {
 				doSuccess();
 			};
 		},
-		failure: function(o){alert('Unable to save file to server');},
+		failure: function(o){notificationManager.notify('Unable to save file to server', 3);},
 		scope:this
 	};
 	
@@ -540,7 +544,7 @@ function initializeImportProjectDialog(){
 	
 	var doSuccess = function(val){
 		if(val=='success'){
-			alert('zipped project uploaded successfully');
+			notificationManager.notify('zipped project uploaded successfully', 3);
 		};
 	};
 	
@@ -605,7 +609,7 @@ function createNewSequence(){
 			createSequenceDialog.show();
 		};
 	} else {
-		alert('Please open or create a new project before creating a sequence. Exiting...');
+		notificationManager.notify('Please open or create a new project before creating a sequence. Exiting...', 3);
 	};
 };
 
@@ -651,7 +655,7 @@ function createNewNode(){
 			createNodeDialog.show();
 		};
 	} else {
-		alert('Please open or create a new project before creating a node. Exiting...');
+		notificationManager.notify('Please open or create a new project before creating a node. Exiting...', 3);
 	};
 };
 
@@ -671,7 +675,7 @@ function editProjectFile(){
 			editProjectFileDialog.show();
 		};
 	} else {
-		alert('Please open or create a new project before editing the project file. Exiting...');
+		notificationManager.notify('Please open or create a new project before editing the project file. Exiting...', 3);
 	};
 };
 
@@ -681,7 +685,7 @@ function retrieveProjectFile(){
 		success: function(o) {
 			document.getElementById('projectText').value = o.responseText;
 	  },			
-	  failure: function(o) { alert('unable to retrieve project file from server');},
+	  failure: function(o) { notificationManager.notify('unable to retrieve project file from server', 3);},
 	  scope:this
 	}
 	
@@ -701,7 +705,7 @@ function exportProject(){
 			document.getElementById('exportProject').submit();
 		};
 	} else {
-		alert('Please open the project you wish to export first. Exiting...');
+		notificationManager.notify('Please open the project you wish to export first. Exiting...', 3);
 	};
 };
 
@@ -732,23 +736,23 @@ function saveProject(){
 		var callback = {
 			success: function(o){
 				if(o.responseText!='success'){
-					alert('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.');
-					alert(data);
+					notificationManager.notify('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.', 3);
+					notificationManager.notify(data, 3);
 				} else {
 					setProjectSaved();
-					alert('project saved');
+					notificationManager.notify('project saved', 3);
 				};
 			},
 			failure: function(o){
-				alert('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.');
-				alert(data);
+				notificationManager.notify('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.', 3);
+				notificationManager.notify(data, 3);
 			},
 			scope: this
 		};
 		
 		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=' + currentProjectName + '&param3=' + encodeURIComponent(data));
 	} else {
-		alert('Please open or create a new project before attempting to save.');
+		notificationManager.notify('Please open or create a new project before attempting to save.', 3);
 	};
 };
 
@@ -762,10 +766,10 @@ function removeNodeFileFromServer(nodeId){
 	var callback = {
 		success: function(o){
 			if(o.responseText!='success'){
-				alert('failed request to remove file: ' + filename + '  from the server');
+				notificationManager.notify('failed request to remove file: ' + filename + '  from the server', 3);
 			};
 		},
-		failure: function(o){alert('failed request to remove file: ' + filename + '  from the server');},
+		failure: function(o){notificationManager.notify('failed request to remove file: ' + filename + '  from the server', 3);},
 		scope: this
 	};
 	
@@ -867,7 +871,7 @@ function populateSequences(){
 		insideUL.appendChild(placeholder);
 			
 		if(!project.validateNoLoops(seqId, stack)){
-			alert('An infinite loop has been detected in sequence: ' + sequenceName + ', and has been flagged. Please remove this sequence from the project or resolve the infinite loop');
+			notificationManager.notify('An infinite loop has been detected in sequence: ' + sequenceName + ', and has been flagged. Please remove this sequence from the project or resolve the infinite loop', 3);
 			var loopText = document.createTextNode('INFINITE LOOP: ');
 			sequenceTitleDiv.insertBefore(loopText, sequenceTitleDiv.firstChild);
 		};
@@ -968,14 +972,14 @@ function author(nodeId) {
 		} else if(nodeToAuthor.type == 'GlueNode'){
 			htmlPageName = 'author_glue';
 		} else {
-			alert('sorry, no authoring tool exists for this step yet');
+			notificationManager.notify('sorry, no authoring tool exists for this step yet', 3);
 			return;
 		}
 		popupAuthoringWindow('author/author_framed.html', nodeId);
 	} else {
-		alert('sorry, no authoring tool exists for this step yet');
-	}
-}
+		notificationManager.notify('Node with id: ' + nodeToAuthor.id + ' does not have a filename specified. Can not author.', 3);
+	};
+};
 
 /*
  * Pops up window for authoring individual nodes. Param: url, url to open
@@ -1046,16 +1050,16 @@ function stepLevelChanged(){
 	<h2>WISE 4 Authoring Tool</h2>
 	<table>
 	  <tr>
-	  	<td><input type="button" value="Open Project" onclick="openProject()"/></td>
-	  	<td><input type="button" value="Create New Project" onclick="createNewProject()"/></td>
-	  	<td><input type="button" value="Create New Activity" onclick="createNewSequence()"/></td>
-		<td><input type="button" value="Create New Node" onclick="createNewNode()" /></td>
+	  	<td><input type="button" value="Open Project" onclick="openProject()" id="openProjectButton"/></td>
+	  	<td><input type="button" value="Create New Project" onclick="createNewProject()" id="createProjectButton"/></td>
+	  	<td><input type="button" value="Create New Activity" onclick="createNewSequence()" id="createActivityButton"/></td>
+		<td><input type="button" value="Create New Node" onclick="createNewNode()" id="createNodeButton"/></td>
 	  	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td><input type="button" value="Save Project" onclick="saveProject()" /></td>
-	  	<td><input type="button" value="Export Project" onclick="exportProject()" /></td>
-	  	<td><input type="button" value="Import Project" onclick="importProject()"/></td>
-	  	<td><input type="button" value="Preview Project" onclick="preview()" /></td>
-	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()"/></td>
+		<td><input type="button" value="Save Project" onclick="saveProject()" id="saveProjectButton"/></td>
+	  	<td><input type="button" value="Export Project" onclick="exportProject()" id="exportProjectButton"/></td>
+	  	<td><input type="button" value="Import Project" onclick="importProject()" id="importProjectButton"/></td>
+	  	<td><input type="button" value="Preview Project" onclick="preview()" id="previewProjectButton"/></td>
+	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()" id="editProjectFileButton"/></td>
 	   </tr>
 	 </table>
 </div>
@@ -1128,7 +1132,7 @@ function stepLevelChanged(){
 	<div class='hd'>Select a project from <br/>the list below to open it.</div>
 	<div class='bd'>
 		<br/>
-		<form method='POST' action='filemanager.html'>
+		<form method='POST' action='filemanager.html' id='openProjectForm'>
 			<select id='selectProject' onchange='optionSelected()'>
 				<option name='placeholderOption' value=''/>
 			</select>

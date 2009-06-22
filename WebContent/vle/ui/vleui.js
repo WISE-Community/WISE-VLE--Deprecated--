@@ -17,8 +17,8 @@ VLE.prototype.lockscreen = function() {
                                                 } 
                                             );
 
-        YAHOO.example.container.wait.setHeader("Locked Screen");
-        YAHOO.example.container.wait.setBody("<table><tr align='center'>Your teacher has locked your screen.</tr><tr align='center'></tr><table>");
+        YAHOO.example.container.wait.setHeader("Message");
+        YAHOO.example.container.wait.setBody("<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table>");
         YAHOO.example.container.wait.render(document.body);
 
     }
@@ -47,8 +47,8 @@ VLE.prototype.unlockscreen = function() {
                                                 } 
                                             );
 
-        YAHOO.example.container.wait.setHeader("Loading, please wait...");
-        YAHOO.example.container.wait.setBody("<table><tr align='center'>Teacher has locked your screen. Please talk to your teacher.</tr><tr align='center'></tr><table>");
+        YAHOO.example.container.wait.setHeader("Message");
+        YAHOO.example.container.wait.setBody("<table><tr align='center'>Teacher has paused your screen. Please talk to your teacher.</tr><tr align='center'></tr><table>");
         YAHOO.example.container.wait.render(document.body);
 
     }

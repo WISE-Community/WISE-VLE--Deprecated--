@@ -1,116 +1,126 @@
 <html>
-<title>Web-Based VLE Master Template</title>
-<head>
-<script type="text/javascript" src="util/scriptloader.js"></script>
-
-<link rel="shortcut icon" href="images/robots/favicon_robot.ico">
-<script type="text/javascript">
-var currentProjectPath;
-var currentProjectName;
-var hostedProject;
-var pathSeparator;
-var basePath;
-var vle = null;
-var vleConfigURL = null;
-var portalContext = false;
-var workgroupId = null;
-
-/**
- * Determines whether this is being called from authoring tool or
- * portal. If from authoring tool, checks whether this project is 
- * hosted, sets appropriate variables, then loads project with
- * necessary variables.
- */
-function afterScriptsLoad(){	
-	if(window.opener){
-		currentProjectPath = window.opener.currentProjectPath;
-		currentProjectName = window.opener.currentProjectName;
-		hostedProject = window.opener.hostedProject;
-		pathSeparator = window.opener.pathSeparator;
-	} else {
-		hostedProject = null;
-	};
-			
-	Nifty("div#none","bottom");
-	Nifty("div#navigationBox","big");
-	Nifty("ul.toolsButtons a","transparent");
-	
-	if(hostedProject){
-		render(window.opener.hostedContentURL, null, null, window.opener.hostedContentBaseURL, null);
-	} else if(currentProjectPath){
-		loadProject();
-	};
-};
-/**
- * Loads scripts for this page (found in scriptloader.js) passing in
- * document and a function to be run after scripts are loaded
- */
-window.onload=function(){
-		if(window.opener){			
-			var args = [];
-			args.push(afterScriptsLoad);
-			scriptloader.initialize(document, window.opener.scriptsLoaded, 'main', args);
-		} else if (window.parent) {
-			var args = [];
-			args.push(window.name);
-			scriptloader.initialize(document, window.parent.scriptsLoaded, 'main', args);
-		} else {		 
-			scriptloader.initialize(document, afterScriptsLoad, 'main');
-		}
-};
-
-/**
- * Retrieves a summary of the project from the portal
- */
-function projectSummary(){
-	window.open("/webapp/student/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
-};
-
-/**
- * Determines domain, sets contentUrl and contentBaseUrl and calls
- * loadProject in vle with content variables
- */
-function loadProject(){
-	var splitz = window.location.toString().split("//")[1].split("/");
-	var domain = 'http://' + splitz[0] + '/' + splitz[1];
-	var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
-	var contentBaseUrl =  domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
-	
-	vle = new VLE();
-	vle.loadProject(contentUrl, contentBaseUrl);
-};
-</script>
-
-<!--  Javascript Pop up window -->
-
-<script type="text/javascript">
-var runId = null;
-var newWin = null;
-function popUp(strURL, strType, strHeight, strWidth) {
- if (newWin != null && !newWin.closed)
-   newWin.close();
- var strOptions="";
- if (strType=="console")
-   strOptions="resizable,height="+
-     strHeight+",width="+strWidth;
- if (strType=="fixed")
-   strOptions="status,height="+
-     strHeight+",width="+strWidth;
- if (strType=="elastic")
-   strOptions="toolbar,menubar,scrollbars,"+
-     "resizable,location,height="+
-     strHeight+",width="+strWidth;
- newWin = window.open(strURL, 'newWin', strOptions);
- newWin.focus();
-}
-
-/**
- * calls render with the given variables
- */
-function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
-	render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
-}
-
+    <title>Web-Based VLE Master Template</title>
+    <head>
+        <script type="text/javascript" src="util/scriptloader.js">
+        </script>
+        <link rel="shortcut icon" href="images/robots/favicon_robot.ico">
+        <script type="text/javascript">
+            var currentProjectPath;
+            var currentProjectName;
+            var hostedProject;
+            var pathSeparator;
+            var basePath;
+            var vle = null;
+            var vleConfigURL = null;
+            var portalContext = false;
+            var workgroupId = null;
+            
+            /**
+             * Determines whether this is being called from authoring tool or
+             * portal. If from authoring tool, checks whether this project is
+             * hosted, sets appropriate variables, then loads project with
+             * necessary variables.
+             */
+            function afterScriptsLoad(){
+                if (window.opener) {
+                    currentProjectPath = window.opener.currentProjectPath;
+                    currentProjectName = window.opener.currentProjectName;
+                    hostedProject = window.opener.hostedProject;
+                    pathSeparator = window.opener.pathSeparator;
+                }
+                else {
+                    hostedProject = null;
+                };
+                
+                Nifty("div#none", "bottom");
+                Nifty("div#navigationBox", "big");
+                Nifty("ul.toolsButtons a", "transparent");
+                
+                if (hostedProject) {
+                    render(window.opener.hostedContentURL, null, null, window.opener.hostedContentBaseURL, null);
+                }
+                else 
+                    if (currentProjectPath) {
+                        loadProject();
+                    };
+                };
+            /**
+             * Loads scripts for this page (found in scriptloader.js) passing in
+             * document and a function to be run after scripts are loaded
+             */
+            window.onload = function(){
+                if (window.opener) {
+                    var args = [];
+                    args.push(afterScriptsLoad);
+                    scriptloader.initialize(document, window.opener.scriptsLoaded, 'main', args);
+                }
+                else 
+                    if (window.parent) {
+                        var args = [];
+                        args.push(window.name);
+                        scriptloader.initialize(document, window.parent.scriptsLoaded, 'main', args);
+                    }
+                    else {
+                        scriptloader.initialize(document, afterScriptsLoad, 'main');
+                    }
+            };
+            
+            /**
+             * Retrieves a summary of the project from the portal
+             */
+            function projectSummary(){
+                window.open("/webapp/student/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
+            };
+            
+            /**
+             * Determines domain, sets contentUrl and contentBaseUrl and calls
+             * loadProject in vle with content variables
+             */
+            function loadProject(){
+                var splitz = window.location.toString().split("//")[1].split("/");
+                var domain = 'http://' + splitz[0] + '/' + splitz[1];
+                var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
+                var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
+                
+                vle = new VLE();
+                vle.loadProject(contentUrl, contentBaseUrl);
+            };
+        </script>
+        <!--  Javascript Pop up window -->
+        <script type="text/javascript">
+            var runId = null;
+            var newWin = null;
+            function popUp(strURL, strType, strHeight, strWidth){
+                if (newWin != null && !newWin.closed) 
+                    newWin.close();
+                var strOptions = "";
+                if (strType == "console") 
+                    strOptions = "resizable,height=" +
+                    strHeight +
+                    ",width=" +
+                    strWidth;
+                if (strType == "fixed") 
+                    strOptions = "status,height=" +
+                    strHeight +
+                    ",width=" +
+                    strWidth;
+                if (strType == "elastic") 
+                    strOptions = "toolbar,menubar,scrollbars," +
+                    "resizable,location,height=" +
+                    strHeight +
+                    ",width=" +
+                    strWidth;
+                newWin = window.open(strURL, 'newWin', strOptions);
+                newWin.focus();
+            }
+            
+            /**
+             * calls render with the given variables
+             */
+            function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl){
+                render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
+            }
+            
 /**
  * Setup and display the project
  *
@@ -118,12 +128,24 @@ function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
  *		request to obtain the project file
  * @param userURL a url to the user info, we will use a get request
  *		to obtain the user info 
+ * @param renderProgressMonitor whether this vle.html is for rendering
+ *		the progress monitor, pass in null or nothing if not rendering
+ * 		the progress monitor
  */
-function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
+function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl, workgroupId, renderProgressMonitor) {
 	vle = new VLE();
 	vle.getDataUrl = getDataUrl;
     vle.postDataUrl = postDataUrl;
 	vle.loadProject(contentURL, contentBaseUrl);
+
+	/*
+	 * if this vle.html is being loaded for the progress monitor, we will
+	 * subscribe to the learner data loading complete event so that after
+	 * that we can display the progress monitor data
+	 */
+	if(renderProgressMonitor != null) {
+		vle.eventManager.subscribe('learnerDataLoadingComplete', parent.contentPanelFinishedLoading);
+	}
 	vle.loadLearnerData(userURL);
 };
 
@@ -136,8 +158,7 @@ function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl) {
  *		to obtain the user info 
  */
 function renderProgressMonitor(contentURL, userURL, getDataUrl, contentBaseUrl, workgroupId) {
-	render(contentURL, userURL, getDataUrl, contentBaseUrl, null);	
-	setTimeout("parent.contentPanelFinishedLoading(" + workgroupId + ")", 3000);
+	render(contentURL, userURL, getDataUrl, contentBaseUrl, null, workgroupId, true);	
 };
 
 /**
@@ -147,176 +168,198 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
 	vle = new VLE();
 	vle.initialize(vleConfigUrl);
 }
+            
+            window.onbeforeunload = function(){
+                vle.closeVLE();
+            }
+            
+            // callback when the iframe has been loaded, so the vle has been loaded
+            contentPanelOnLoad = function(){
+                //alert('here' + vle);
+                if (vle && vle != null) {
+                    var currentNode = vle.getCurrentNode();
+                    if (currentNode != null) {
+                        currentNode.load();
+                    	if(document.getElementById('topStepTitle') != null) {
+                    		document.getElementById('topStepTitle').innerHTML = currentNode.title;
+                    	}
+                    }
 
-window.onbeforeunload = function(){
-	vle.closeVLE();
-}
-
-// callback when the iframe has been loaded, so the vle has been loaded
-contentPanelOnLoad = function(){
-	//alert('here' + vle);
-	if (vle && vle != null) {
-	var currentNode = vle.getCurrentNode();
-		if (currentNode != null) {
-			currentNode.load();
-		}
-
-		//display the user name in the upper left box
-		if(document.getElementById("logInBox") != null) {
-			document.getElementById("logInBox").innerHTML = "Hello " + vle.getUserName();
-		}
-
-		//display the title of the project in the upper left box
-		if(document.getElementById("title") != null && vle.getProjectTitle() != null) {
-			document.getElementById("title").innerHTML = vle.getProjectTitle();
-			document.getElementsByTagName("title")[0].innerHTML = vle.getProjectTitle();
-			if (window.parent) {
-				window.parent.document.title = vle.getProjectTitle();
-			}
-		}
-		
-		//display the "Show Me Flagged Items" link if flagging is enabled
-		if(vle.runManager != null && vle.runManager.isFlaggingEnabled) {
-			document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
-		}
-	}
-
-	//alert('loadd:' + currentNode.id);
-	//alert("dataXML: " + vle.getDataXML());
-}
-
-
-</script>
-
-</head>
-
-<body class=" yui-skin-sam">
-<div id="centeredDiv">	
-
-<div id='loading'>
-	<div class='hd'></div>
-	<div class='bd'></div>
-	<div class='ft'></div>
-</div>
-
-<div id="notePanel">
-	<div class="noteHead"></div>
-	<div class="noteBody"></div>
-	<div class="noteFooter"></div>
-</div>
-
-<div id="journalPanel">
-	<div class="journalHead"></div>
-	<div class="journalBody"></div>
-	<div class="journalFooter"></div>
-</div>
-	
-<div id="projectLeftBox">
-		
-	<div id="toolsArea">
-		
-		  <dl class="dropdown">
-		  <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
-		  		<div id="menuTitle">course menu</div>
-				<img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
-		</dt>
-		
-		  <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
-		    <ul>
-		      <!-- requested changes have been remarked out -->
-		      <li><a class="underline" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Project Assets</a></li>
-		      <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show Journal</a></li>
-		      <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
-		      <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  -->
-		      <li><a class="underline" onclick="alert('not yet implemented');">Export Work</a></li>
-			  <li><a class="underline2" onclick="alert('not yet implemented');">Print</a></li>
-			  <li><a class="underline" onclick="alert('not yet implemented');">Goto Home Page</a></li>
-			  <!-- <li><a class="underline">Report an Issue</a></li> --> 
-		    </ul>
-		  </dd>
-		</dl>
-	</div>
-	
-		<div id="projectLogoBox">
-		<a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
-			<div id="projectCurriculum">
-				<div id="courseName" class="courseName">UCCP AP Computer Science</div>
-				<div id="title" class="title">Unit 3 Lesson 1</div>
-			</div>
-	<div id="logInBox">
-		<span>Hello, MyName</span><span>&nbsp&nbsp|&nbsp&nbsp</span><span>Mon 5/12 10:32am</span>
-	</div>
-			
-	</div>
-
-		<div id="audioControls" align="center">
-			<table align="center">
-				<tr>
-					<td class="rightPadding">Audio Controls:</td>
-					<td><a class="rewind" onclick="vle.rewindStepAudio();"></a></td>
-					<td><a id="playPause" class="play" onclick="vle.playPauseStepAudio();"></a></td>
-					<td><a class="forward" onclick=""></a></td>
-				</tr>
-			</table>
-		</div>
-
-	<div id="navigationArea">
- 
-			<div id="navMenuControls">
-				        <input type="button" value="Expand All" onclick="myMenu.expandAll()" />
-				        <input type="button" value="Collapse All" onclick="myMenu.collapseAll()" />
-					</div>
-			<div id="navigationMenuBox" >
-				    <div id="my_menu" class="sdmenu">
-				   	</div>
-		    </div>   <!-- end of #navigationMenuBox -->
-	</div>   <!-- end of #navigationArea -->
-		
-	<div id="hostBrandingBox">
-		<a href=""><img src="images/UCCP-Logo-215.png" alt="UCCP College Prep Online Logo" border="0" /></a>
-	</div>
-	
-</div>    <!-- end of #projectLeftBox-->
-
-<div id="projectRightUpperBox">
-	<div id="stepNavButtons">
-    	<table>
-    		<tr>
-    			<td><a onclick="vle.renderPrevNode();" title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a></td>
-				<td><a onclick="vle.renderNextNode();" title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" />Next</a></td>
-				<td><a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a></td>
-    		</tr>
-    	</table>		 
-	</div>
-		
-	<div id="stepInfoBar">
-    	<div class="instantQuizIcon"></div>
-		<div class="stepInformation">
-			<span id='stepIcon'></span>
-			<span id="topStepTitle"></span>
-		    <span class="stepTypeLabel">(<a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank">Display step</a>)</span>
-			<span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span> 
-			<span id="flagDiv"></span>
-		</div>
-		
-	</div>
-</div>
-
-<div id="projectRightLowerBox">
-	<div id="contentDiv" align="center"><div id="loadingMessageDiv"><br><br><br><br><br><br>Loading...</div>
-	<iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0" width="100%">
- [Content for browsers that don't support iframes goes here.]
-	</iframe>
-</div>
-</div>
-</div>  <!-- centeredDiv -->
-<div id="showAllWorkDiv"></div>
-<div id="progressDiv"></div>
-<form name="saveLocal" id='saveLocal' action="echo.html" method="POST">
-    <input type="hidden" name="name" id="form_filename" value="myData"/>
-    <input type="hidden" name="data" id="localData" value=""/>
-</form>
-
-<div id="soundmanager-debug"></div>
-</body>
+                    
+                    //display the user name in the upper left box
+                    if (document.getElementById("logInBox") != null) {
+                        document.getElementById("logInBox").innerHTML = "Hello " + vle.getUserName();
+                    }
+                    
+                    //display the title of the project in the upper left box
+                    if (document.getElementById("title") != null && vle.getProjectTitle() != null) {
+                        document.getElementById("title").innerHTML = vle.getProjectTitle();
+                        document.getElementsByTagName("title")[0].innerHTML = vle.getProjectTitle();
+                        if (window.parent) {
+                            window.parent.document.title = vle.getProjectTitle();
+                        }
+                    }
+                    
+                    //display the "Show Me Flagged Items" link if flagging is enabled
+                    if (vle.runManager != null && vle.runManager.isFlaggingEnabled) {
+                        document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
+                    }
+                }
+                
+                //alert('loadd:' + currentNode.id);
+                //alert("dataXML: " + vle.getDataXML());
+            }
+            
+            
+        </script>
+    </head>
+    <body class="yui-skin-sam">
+        <div id="centeredDiv">
+            <div id='loading'>
+                <div class='hd'>
+                </div>
+                <div class='bd'>
+                </div>
+                <div class='ft'>
+                </div>
+            </div>
+            <div id="notePanel">
+                <div class="noteHead">
+                </div>
+                <div class="noteBody">
+                </div>
+                <div class="noteFooter">
+                </div>
+            </div>
+            <div id="journalPanel">
+                <div class="journalHead">
+                </div>
+                <div class="journalBody">
+                </div>
+                <div class="journalFooter">
+                </div>
+            </div>
+            <div id="projectLeftBox">
+                <div id="toolsArea">
+                    <dl class="dropdown">
+                        <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
+                            <div id="menuTitle">
+                                course menu
+                            </div>
+                            <img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
+                        </dt>
+                        <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
+                            <ul>
+                                <!-- requested changes have been remarked out --><li><a class="underline" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Project Assets</a></li>
+                                <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show Journal</a></li>
+                                <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
+                                <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  --><li><a class="underline" onclick="alert('not yet implemented');">Export Work</a></li>
+                                <li><a class="underline2" onclick="alert('not yet implemented');">Print</a></li>
+                                <li><a class="underline" onclick="alert('not yet implemented');">Goto Home Page</a></li>
+                                <!-- <li><a class="underline">Report an Issue</a></li> -->
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+                <div id="projectLogoBox">
+                    <a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
+                    <div id="projectCurriculum">
+                        <div id="courseName" class="courseName">
+                            UCCP AP Computer Science
+                        </div>
+                        <div id="title" class="title">
+                            Unit 3 Lesson 1
+                        </div>
+                    </div>
+                    <div id="logInBox">
+                        <span>Hello, MyName</span>
+                        <span>&nbsp&nbsp|&nbsp&nbsp</span>
+                        <span>Mon 5/12 10:32am</span>
+                    </div>
+                </div>
+                <div id="audioControls" align="center">
+                    <table align="center">
+                        <tr>
+                            <td class="rightPadding">
+                                Audio Controls:
+                            </td>
+                            <td>
+                                <a class="rewind" onclick="vle.rewindStepAudio();"></a>
+                            </td>
+                            <td>
+                                <a id="playPause" class="play" onclick="vle.playPauseStepAudio();"></a>
+                            </td>
+                            <td>
+                                <a class="forward" onclick=""></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="navigationArea">
+                    <div id="navMenuControls">
+                        <input type="button" value="Expand All" onclick="myMenu.expandAll()"/><input type="button" value="Collapse All" onclick="myMenu.collapseAll()"/>
+                    </div>
+                    <div id="navigationMenuBox">
+                        <div id="my_menu" class="sdmenu">
+                        </div>
+                    </div>
+                    <!-- end of #navigationMenuBox -->
+                </div>
+                <!-- end of #navigationArea -->
+                <div id="hostBrandingBox">
+                    <a href="../page/help/about.html" target="_blank"><img src="images/UCCP-Logo-215-Left.png" alt="UCCP College Prep Online Logo" border="0" /></a>
+					<p><a href="../page/help/about.html"target="_blank">Powered by WISE 4.0</a></p>
+                </div>
+            </div><!-- end of #projectLeftBox-->
+            <div id="projectRightUpperBox">
+                <div id="stepNavButtons">
+                    <table>
+                        <tr>
+                            <td>
+                                <a onclick="vle.renderPrevNode();" title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
+                            </td>
+                            <td>
+                                <a onclick="vle.renderNextNode();" title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" />Next</a>
+                            </td>
+                            <td>
+                                <a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="stepInfoBar">
+                    <span id='stepIcon'></span>
+                    <span id="topStepTitle"></span>
+                    <span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span>
+                    <span id="flagDiv"></span>
+                </div>
+            </div>
+            <div id="projectRightLowerBox">
+                <div id="contentDiv" align="center">
+                    <div id="loadingMessageDiv">
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        Loading...
+                    </div>
+                    <iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0" width="100%">
+                        [Content for browsers that don't support iframes goes here.]
+                    </iframe>
+                </div>
+            </div>
+        </div>
+        <!-- centeredDiv -->
+        <div id="showAllWorkDiv">
+        </div>
+        <div id="progressDiv">
+        </div>
+        <form name="saveLocal" id='saveLocal' action="echo.html" method="POST">
+            <input type="hidden" name="name" id="form_filename" value="myData"/><input type="hidden" name="data" id="localData" value=""/>
+        </form>
+        <div id="soundmanager-debug">
+        </div>
+    </body>
 </html>
