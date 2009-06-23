@@ -232,14 +232,22 @@ VLE.prototype.postToConnectionManager = function(currentNode) {
 				};
 				this.lastPostStates = currentPostStates;
 				if(vle.myUserInfo != null) {
-					this.connectionManager.request('POST', 3, url, {runId: this.runId, userId: vle.myUserInfo.workgroupId, data: diff}, this.processPostResponse);
+					this.connectionManager.request('POST', 3, url, {runId: this.runId, userId: vle.myUserInfo.workgroupId, data: prepareDataForPost(diff)}, this.processPostResponse);
 				} else {
-					this.connectionManager.request('POST', 3, url, {runId: this.runId, userId: '-2', data: diff}, this.processPostResponse);
+					this.connectionManager.request('POST', 3, url, {runId: this.runId, userId: '-2', data: prepareDataForPost(diff)}, this.processPostResponse);
 				};
 			};
 		};
 	};
 };
+
+/**
+ * Given a data, returns it in a post-ready format.
+ * For now, this only works on node_visit. It simply wraps the <node_visit>...</node_visit> with <node_visits> tags.
+ */
+function prepareDataForPost(postData) {
+	return "<node_visits>" + postData + "</node_visits>";	
+}
 
 VLE.prototype.processPostResponse = function(responseText, responseXML){
 
@@ -279,6 +287,10 @@ VLE.prototype.renderPrevNode = function() {
 	if(currentNode.type=='GlueNode'){
 		currentNode.renderPrev();
 	} else {
+		//if current node is note, we are leaving and should 'close' note panel
+		if(currentNode.type=='NoteNode'){
+			notePanel.cfg.setProperty("visible", false);
+		};
 		var prevNode = this.navigationLogic.getPrevNode(currentNode);
 		while (prevNode != null && (prevNode.type == "Activity" || prevNode.children.length > 0)) {
 			prevNode = this.navigationLogic.getPrevNode(prevNode);
@@ -309,6 +321,10 @@ VLE.prototype.renderNextNode = function() {
 	if(currentNode.type=='GlueNode'){
 		currentNode.renderNext();
 	} else {
+		//if current node is note, we are leaving and should 'close' note panel
+		if(currentNode.type=='NoteNode'){
+			notePanel.cfg.setProperty("visible", false);
+		};
 		var nextNode = this.navigationLogic.getNextNode(currentNode);
 		while (nextNode != null && (nextNode.type == "Activity" || nextNode.children.length > 0)) {
 			nextNode = this.navigationLogic.getNextNode(nextNode);
