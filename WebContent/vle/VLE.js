@@ -273,7 +273,8 @@ VLE.prototype.expandActivity = function(nodeId) {
 		if (node.parent) {
 			submenu = document.getElementById(node.parent.id + "_menu");
 			if(submenu){
-				submenu.className = "";
+				//remove the collapsed class from the menu so it becomes expanded
+				submenu.className = submenu.className.replace("collapsed", "");
 			};
 		};
 	};

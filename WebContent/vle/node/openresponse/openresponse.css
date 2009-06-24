@@ -31,12 +31,13 @@
 }
 
 .instructionsReminder {
-	float:right;
-	text-align:right;
-	margin: 12px 15px 0 0 ;
-	font-size:.8em;
-	color:#333333;
+	float: right;
+	text-align: right;
+	margin: 2px 15px 0px 0;
+	color: #333;
+	vertical-align: middle;
 }
+
 
 #currentQuestionBox {
 	margin: 0 auto;
@@ -44,23 +45,11 @@
 	text-align:left;
 	}
 	
-#currentQuestionBox #leftColumn { 
-	float:left;
-	width:82%;
-	padding:10px 0;
-	background-color:#FFD9ac;
+#currentQuestionBox { 
+	width:100%;
 	}
 	
-#currentQuestionBox #rightColumn {
-	padding:10px 0;
-	text-align:center;
-	margin-left:83%;
-	background-color:#6883BA;
-	color:#FFF;
-	}
-
 #fullColumn { 
-	float:left;
 	padding:10px;
 	background-color:#FFD9ac;
 	}

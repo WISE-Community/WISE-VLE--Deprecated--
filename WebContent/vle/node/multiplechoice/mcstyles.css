@@ -16,7 +16,7 @@
 	float: left;
 	width: 80%;
 	padding: 10px 0;
-	min-height: 425px;
+	min-height: 375px;
 }
 
 #currentQuestionBox #rightColumn {
@@ -24,11 +24,11 @@
 	padding: 10px 0;
 	text-align: center;
 	color: #FFF;
-	min-height: 425px;
+	min-height: 375px;
 }
 
 #currentQuestionBox #rightColumn img {
-	margin: 80px 0 0 0;
+	margin: 50px 0 0 0;
 }
 
 .itemLabel {
@@ -75,12 +75,12 @@
 
 #radiobuttondiv table td {
 	font-size: .9em;
-	vertical-align: ;
+	vertical-align: top;
 	padding: 3px 3px 8px 3px;
 }
 
 #radiobuttondiv input {
-	margin-top: -2px;
+	margin-top:2px;
 }
 
 #radiobuttondiv table p {
@@ -94,14 +94,15 @@
 
 #radiobuttondiv .correct {
 	color: green;
-	font-size: 100%;
+	font-size: 110%;
 	font-weight: bold;
 }
 
 #radiobuttondiv .incorrect {
 	color: red;
-	font-size: 100%;
+	font-size: 110%;
 	font-weight: bold;
+	
 }
 
 input * {
@@ -131,10 +132,16 @@ input * {
 	padding: 0;
 }
 
+#buttonTable {
+	margin-top:10px;
+}
+
 #feedbackDiv {
 	width: 85%;
 	font-size: .85em;
-	margin: 0 0 0 40px; padding : 2px;
+	font-weight:bold;
+	margin: 0 0 0 40px; 
+	padding : 2px;
 	text-align: left;
 	padding: 2px; 
 	text-align: left;
@@ -145,3 +152,4 @@ input * {
 	font-size:130%;
 	font-weight:bold:
 }
+

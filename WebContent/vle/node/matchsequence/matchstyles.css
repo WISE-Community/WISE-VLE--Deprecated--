@@ -3,16 +3,16 @@
 }
 
 #promptdiv {
-	font-size: .9em;
+	font-size:.9em;
 	color: #000033;
 	margin: 15px 200px 10px 10px;
 	text-align: left;
 }
 
 #promptdiv p {
-	font-size: inherit;
-}
-
+	font-size:.9em;
+	}
+	
 #roboArt {
 	float: right;
 	margin: -3px 5px 5px 0;

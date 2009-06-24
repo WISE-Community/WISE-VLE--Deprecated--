@@ -114,7 +114,7 @@ NavigationPanel.prototype.getEnclosingNavParent = function(node) {
 				 * the previous element does not have an element in the nav
 				 * so we will keep searching backwards
 				 */
-				return this.getEnclosingNavParent(prevElement);
+				return this.getEnclosingNavParent(prevNode);
 			}
 		}
 	}
@@ -278,7 +278,7 @@ NavigationPanel.prototype.createSequenceHtml = function(pxIndent, classString, d
 	 * 5 - step (or activity) level
 	 * etc.
 	 */
-	return "<div id=\"" + nodeId + "_menu\"><span class=\""+ classString + " depth" + (deep + 2) + "\" onclick=\"myMenu.toggleMenu(document.getElementById('"+ nodeId +"_menu'))\">" + title + "</span>";
+	return "<div class=\""+ classString + " depth" + (deep + 2) + "\" id=\"" + nodeId + "_menu\"><span onclick=\"myMenu.toggleMenu(document.getElementById('"+ nodeId +"_menu'))\">" + title + "</span>";
 }
 
 /**

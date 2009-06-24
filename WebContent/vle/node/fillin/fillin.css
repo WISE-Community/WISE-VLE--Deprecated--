@@ -7,12 +7,21 @@
 	font-weight:bold;
 }
 
+#promptdiv p {
+	font-size:inherit;
+}
+
+#promptdiv p {
+	font-size:120%;
+	font-weight:bold;
+}
+
 .instructionsReminder {
-	float:right;
-	text-align:right;
-	margin: 12px 15px 0 0 ;
-	font-size:.8em;
-	color:#333333;
+	float: right;
+	text-align: right;
+	margin: 2px 15px 0px 0;
+	color: #333;
+	vertical-align: middle;
 }
 
 #currentFillBlankParagraph {
@@ -23,15 +32,15 @@
 	
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
-	width:78%;
-	min-height:375px;
+	width:80%;
+	min-height:250px;
 	}
 	 
 #currentFillBlankParagraph #rightColumn {
 	text-align:center;
-	margin-left:79%;
+	margin-left:81%;
 	color:#FFF;
-	min-height:375px;
+	min-height:250px;
 	}
 	
 .itemLabel {
@@ -42,10 +51,21 @@
 	font-weight:bold;
 }
 
-#nonInteractiveDiv p {
-	margin: 5px 15px 20px 15px;
+#nonInteractiveDiv {
+	margin:5px 0;
 	font-size:.9em;
 	line-height:190%;
+}
+
+#nonInteractiveDiv p {
+	margin: 5px 15px 20px 15px;
+	font-size:inherit;
+	line-height:inherit;
+}
+
+#nonInteractiveDiv tt {
+	font-size:120%;
+	font-weight:bold;
 }
 
 #nonInteractiveDiv blockquote {
@@ -152,3 +172,6 @@
 	font-weight:bold;
 }
 
+#buttonDiv {
+	margin-top:10px;
+}

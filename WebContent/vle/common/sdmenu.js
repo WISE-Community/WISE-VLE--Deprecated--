@@ -18,7 +18,8 @@ SDMenu.prototype.init = function() {
 		var links = this.menu.getElementsByTagName("a");
 		for (var i = 0; i < links.length; i++)
 			if (links[i].href == document.location.href) {
-				links[i].className = "current";
+				//links[i].className = "current";
+				this.addClass(links[i], "current");
 				break;
 			}
 	}
@@ -26,17 +27,21 @@ SDMenu.prototype.init = function() {
 	//open first menu, collapse all others
 	for(var k=0;k<this.submenus.length;k++){
 		if(k==0){
-			this.submenus[k].className = "";
+			//this.submenus[k].className = "";
+			this.removeClass(this.submenus[k], "collapsed");
 		} else {
-			this.submenus[k].className = "collapsed";
+			//this.submenus[k].className = "collapsed";
+			this.addClass(this.submenus[k], "collapsed");
 		};
 	};
 };
 SDMenu.prototype.toggleMenu = function(submenu) {
-	if (submenu.className == "collapsed")
+	//if (submenu.className == "collapsed")
+	if (this.containsClass(submenu,"collapsed")) {
 		this.expandMenu(submenu);
-	else
+	} else {
 		this.collapseMenu(submenu);
+	}
 };
 SDMenu.prototype.expandMenu = function(submenu) {
 	var fullHeight = submenu.getElementsByTagName("span")[0].offsetHeight;
@@ -54,7 +59,8 @@ SDMenu.prototype.expandMenu = function(submenu) {
 		else {
 			clearInterval(intId);
 			submenu.style.height = "";
-			submenu.className = "";
+			//submenu.className = "";
+			SDMenu.prototype.removeClass(submenu, "collapsed");
 			mainInstance.memorize();
 		}
 	}, 30);
@@ -72,7 +78,8 @@ SDMenu.prototype.collapseMenu = function(submenu) {
 		else {
 			clearInterval(intId);
 			submenu.style.height = "";
-			submenu.className = "collapsed";
+			//submenu.className = "collapsed";
+			SDMenu.prototype.addClass(submenu, "collapsed");
 			mainInstance.memorize();
 		}
 	}, 30);
@@ -80,7 +87,8 @@ SDMenu.prototype.collapseMenu = function(submenu) {
 SDMenu.prototype.collapseOthers = function(submenu) {
 	if (this.oneSmOnly) {
 		for (var i = 0; i < this.submenus.length; i++){
-			if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed"){
+			//if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed"){
+			if (this.submenus[i] != submenu && !this.containsClass(this.submenus[i], "collapsed")) {
 				this.collapseMenu(this.submenus[i]);
 			};
 		};
@@ -88,7 +96,8 @@ SDMenu.prototype.collapseOthers = function(submenu) {
 };
 SDMenu.prototype.forceCollapseOthers = function(submenu){
 	for (var i = 0; i < this.submenus.length; i++){
-		if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed"){
+		//if (this.submenus[i] != submenu && this.submenus[i].className != "collapsed"){
+		if (this.submenus[i] != submenu && !this.containsClass(this.submenus[i], "collapsed")) {
 			this.collapseMenu(this.submenus[i]);
 		};
 	};
@@ -134,26 +143,70 @@ SDMenu.prototype.expandAll = function() {
 	var oldOneSmOnly = this.oneSmOnly;
 	this.oneSmOnly = false;
 	for (var i = 0; i < this.submenus.length; i++)
-		if (this.submenus[i].className == "collapsed")
+		//if (this.submenus[i].className == "collapsed")
+		if(this.containsClass(this.submenus[i], "collapsed"))
 			this.expandMenu(this.submenus[i]);
 	this.oneSmOnly = oldOneSmOnly;
 };
 SDMenu.prototype.collapseAll = function() {
 	for (var i = 0; i < this.submenus.length; i++)
-		if (this.submenus[i].className != "collapsed")
+		//if (this.submenus[i].className != "collapsed")
+		if (this.containsClass(this.submenus[i], "collapsed"))
 			this.collapseMenu(this.submenus[i]);
 };
 SDMenu.prototype.memorize = function() {
 	if (this.remember) {
 		var states = new Array();
-		for (var i = 0; i < this.submenus.length; i++)
-			states.push(this.submenus[i].className == "collapsed" ? 0 : 1);
+		for (var i = 0; i < this.submenus.length; i++) {
+			//states.push(this.submenus[i].className == "collapsed" ? 0 : 1);
+			if(this.containsClass(this.submenus[i], "collapsed")) {
+				states.push(0);
+			} else {
+				states.push(1);
+			}
+		}
 		var d = new Date();
 		d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
 		document.cookie = "sdmenu_" + encodeURIComponent(this.menu.id) + "=" + states.join("") + "; expires=" + d.toGMTString() + "; path=/";
 	}
 };
 
+/**
+ * Adds a class to the element so it can be styled
+ * @param element the DOM element
+ * @param className the class to add
+ */
+SDMenu.prototype.addClass = function(element, className) {
+	//check if the className is already set in the element
+	if(element.className.indexOf(className) == -1) {
+		//add the className since it isn't there
+		element.className = element.className + " " + className;
+	}
+}
+
+/**
+ * Remove a class from the element
+ * @param element the DOM element
+ * @param className the class to remove
+ */
+SDMenu.prototype.removeClass = function(element, className) {
+	//remove the className
+	element.className = element.className.replace(className, "");
+}
+
+/**
+ * See if the element currently has the className 
+ * @param element the DOM element
+ * @param className the class
+ */
+SDMenu.prototype.containsClass = function(element, className) {
+	//check if the className string is in the element's class
+	if(element.className.indexOf(className) != -1) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/common/sdmenu.js");

@@ -1,41 +1,45 @@
 #my_menu {
 	margin: 0 auto;
 }
-   
+
 div.sdmenu {
 	width: 215px;
-	font-family:Arial,Verdana,"Lucida Grande","Lucida Sans Unicode",Arial,sans-serif;
+	font-family: Arial, Verdana, "Lucida Grande", "Lucida Sans Unicode",
+		Arial, sans-serif;
 	font-size: .6em;
 	padding-bottom: 10px;
-	background: url(../images/bottomBlue190.png) no-repeat  right bottom;
+	background: url(../images/bottomBlue190.png) no-repeat right bottom;
 	background: url(../images/titleBlue19.png) repeat-x;
 	color: #fff;
 	font-size-adjust: 0.6;
 }
+
 div.sdmenu div {
 	background: url(../images/titleBlue19.png) repeat-x;
 	overflow: hidden;
 }
+
 div.sdmenu div:first-child {
-	background: url(../images/toptitleBlue190.png) no-repeat;
 	background: url(../images/titleBlu19.png) repeat-x;
 }
+
 div.sdmenu div.collapsed {
 	height: 21px;
-	margin-bottom:1px
+	margin-bottom: 1px
 }
+
 div.sdmenu div span {
 	display: block;
 	padding: 3px 8px 3px 27px;
-	font-weight:400;
+	font-weight: 400;
 	color: white;
 	background: url(../images/expanded.gif) no-repeat 8px center;
-	cursor:pointer;
+	cursor: pointer;
 	border-bottom: 1px solid #ddd;
 }
 
 div.sdmenu div span:hover {
-	color:#FFFF00;
+	color: #FFFF00;
 }
 
 div.sdmenu div.collapsed span {
@@ -43,8 +47,8 @@ div.sdmenu div.collapsed span {
 }
 
 div.sdmenu div img {
-	float:left;
-	margin:0px 6px 0px 4px;
+	float: left;
+	margin: 0px 6px 0px 4px;
 }
 
 div.sdmenu div a {
@@ -53,26 +57,40 @@ div.sdmenu div a {
 	display: block;
 	border-bottom: 1px solid #ddd;
 	color: #000;
-	text-decoration:none;
+	text-decoration: none;
 }
+
 div.sdmenu div a.currentNode {
 	background-color: #FF9D1E;
-	color:#000;
+	color: #000;
 }
 
 div.sdmenu div a:hover {
 	color: #996600;
-	cursor:pointer;
+	cursor: pointer;
 }
 
 div.sdmenu div .depth3 {
-	margin-left:5px;
+	margin-left: 5px;
 }
 
 div.sdmenu div .depth4 {
-	margin-left:10px;
+	margin-left: 10px;
 }
 
 div.sdmenu div .depth5 {
-	margin-left:15px;
+	margin-left: 15px;
+}
+
+div.sdmenu div a.depth3 {
+	border-left: 1px solid blue;
+}
+
+div.sdmenu div a.depth4 {
+	border-left: 1px solid blue;
+}
+
+div.sdmenu div a.depth5 {
+	border-left: 1px solid blue;
+}
 }

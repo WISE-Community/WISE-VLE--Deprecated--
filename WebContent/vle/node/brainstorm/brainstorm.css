@@ -39,10 +39,18 @@ body {
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
-	font-size: .9em;
 	margin-top: 20px;
+	font-size: .9em;
 }
 
+#questionprompt p,#questionDiv p {
+	font-size:inherit;
+}
+
+#questionprompt tt,#questionDiv tt {
+	font-size: 120%;
+	font-weight:bold;
+}
 #questionprompt table,#questionDiv table {
 	border-collapse: collapse;
 	margin: 0 auto;
@@ -69,16 +77,11 @@ body {
 
 #studentResponseDiv textarea {
 	text-align: left;
-	padding: 10px;
-	margin:5px 0 15px 0;
+	padding:10px;
+	margin: 5px 0 15px 0;
 }
 
-#responses textarea {
-	color: #19253D;
-	font-weight: bold;
-}
-
-.header1{
+.header1 {
 	font-size: .8em;
 	text-transform: uppercase;
 }
@@ -86,7 +89,7 @@ body {
 .header2 {
 	font-size: .8em;
 	text-transform: uppercase;
-	}
+}
 
 #main input {
 	background-color: #919EBA;
@@ -109,10 +112,10 @@ body {
 	text-align: left;
 	font-weight: bold;
 	color: red;
-	margin-left: 25px;
 }
 
 #responses textarea {
+	padding:10px;
 	font-weight: normal;
 	color: #000;
 }

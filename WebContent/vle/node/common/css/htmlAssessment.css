@@ -50,15 +50,13 @@ h6 {
 
 p {
 	font-size: .8em;
-	line-height: 150%;
+	line-height: 130%;
 	padding: 0px;
-	margin: 0px;
+	margin: 0px 0 12px 0;
 }
 
 /*    This is the middle toned 88.236 palette  */
-.color1 {
-	color: #164CBA;
-}  /* vibrant blue */
+.color1 {	color: #164CBA;    }  /* vibrant blue */
 .color2 {
 	color: #6883BA;
 }  /* mid blue */
@@ -196,7 +194,7 @@ p {
 	padding: 2px 5px;
 }
 
-#helpTextLink :hover {
+#helpTextLink:hover {
 	background-color: #FFFF00;
 }
 
