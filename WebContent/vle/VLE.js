@@ -221,7 +221,8 @@ VLE.prototype.postToConnectionManager = function(currentNode) {
 	this.postNodes = this.getLeafNodeIds();
 	for(var q=0;q<this.postNodes.length;q++){
 		if(currentNode.id==this.postNodes[q]){
-			var currentPostStates = this.state.getCompletelyVisitedNodesDataXML();
+			//var currentPostStates = this.state.getCompletelyVisitedNodesDataXML();
+         var currentPostStates = this.state.getVisitedNodesDataXML();
 			var diff = currentPostStates.replace(this.lastPostStates, "");
 			if(diff != null && diff != ""){
 				var url;
