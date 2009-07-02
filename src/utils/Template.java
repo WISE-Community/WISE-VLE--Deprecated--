@@ -31,7 +31,7 @@ public final class Template {
 	public final static String NL = System.getProperty("line.separator");
 
 	public static String getProjectTemplate(){
-		return "<project autoStep=\"true\" stepLevelNum=\"false\">" + NL + 
+		return "<project autoStep=\"true\" stepLevelNum=\"false\" stepTerm=\"Step\">" + NL + 
 			"<nodes>" + NL +
 			"</nodes>" + NL +
 			"<sequences>" + NL +
@@ -145,7 +145,7 @@ public final class Template {
 		return "<jaxbXML>" + NL + 
 			"<assessmentItem xmlns=\"http://www.imsglobal.org/xsd/imsqti_v2p0\" xmlns:ns3=\"http://www.w3.org/1998/Math/MathML\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" timeDependent=\"false\" adaptive=\"false\">" + NL +
 			"<responseDeclaration identifier=\"SINGLE_CHOICE\">" + NL +
-			"<correctResponse interpretation=\"\"/>" + NL +
+			"<correctResponse/>" + NL +
 			"</responseDeclaration>" + NL +
 			"<itemBody>" + NL +
 			"<choiceInteraction hasInlineFeedback=\"false\" responseIdentifier=\"SINGLE_CHOICE\" maxChoices=\"1\" shuffle=\"false\">" + NL +

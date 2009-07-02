@@ -83,14 +83,14 @@ div.sdmenu div .depth5 {
 }
 
 div.sdmenu div a.depth3 {
-	border-left: 1px solid blue;
+	border-left: 1px solid #6699CC;
 }
 
 div.sdmenu div a.depth4 {
-	border-left: 1px solid blue;
+	border-left: 1px solid #6699CC;
 }
 
 div.sdmenu div a.depth5 {
-	border-left: 1px solid blue;
+	border-left: 1px solid #6699CC;
 }
 }

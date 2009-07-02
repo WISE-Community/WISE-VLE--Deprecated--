@@ -3,6 +3,7 @@
     <head>
         <script type="text/javascript" src="util/scriptloader.js">
         </script>
+        <script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
         <link rel="shortcut icon" href="images/robots/favicon_robot.ico">
         <script type="text/javascript">
             var currentProjectPath;
@@ -62,7 +63,7 @@
                     }
                     else {
                         scriptloader.initialize(document, afterScriptsLoad, 'main');
-                    }
+                    }                
             };
             
             /**
@@ -204,6 +205,11 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                     if (vle.runManager != null && vle.runManager.isFlaggingEnabled) {
                         document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
                     }
+
+                    //display the audio controls if vle.audioManager != null
+                    if (vle.audioManager == null) {
+                        document.getElementById("audioControls").style.display="none";
+                    }
                 }
                 
                 //alert('loadd:' + currentNode.id);
@@ -242,11 +248,7 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
             <div id="projectLeftBox">
                 <div id="toolsArea">
                     <dl class="dropdown">
-                        <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
-                            <div id="menuTitle">
-                                course menu
-                            </div>
-                            <img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
+                        <dt id="one-ddheader">
                         </dt>
                         <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
                             <ul>

@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +58,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
    
    private final static String HOSTED_PROJECT_PATHS = "hostedProjectPaths";
    
-   private final static String ZIP_DIRECTORY = "zipped_projects";
+   private final static String ZIP_DIRECTORY = "archives";
    
 	/* (non-Java-doc)
 	 * @see javax.servlet.http.HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -94,6 +95,12 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				this.exportProject(request, response);
 			} else if(command.equals("removeFile")){
 				response.getWriter().write(this.removeFile(request));
+			} else if(command.equals("updateAudioFiles")) {
+				response.getWriter().write(this.updateAudioFiles(request, response));
+			} else if(command.equals("special")){
+				this.processSpecial(request, response);
+			} else if(command.equals("specialToo")){
+				this.specialToo(request, response);
 			} else {
 				throw new ServletException("This servlet does not understand this command: " + command);
 			}
@@ -109,6 +116,41 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		} else {
 			throw new ServletException("No command has been provided, unable to do anything.");
 		}
+	}
+
+	private void processSpecial(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		System.out.println(request.getContentType());
+		Enumeration keys = request.getParameterNames();
+		
+		while(keys.hasMoreElements()){
+			System.out.println("Custom param: " + keys.nextElement());
+		}
+		
+		ServletInputStream s = request.getInputStream();
+		int length = request.getContentLength();
+		if(length>1){
+			byte[] buffer = new byte[length];
+			int len = s.read(buffer, 0, buffer.length);
+			String data = new String(buffer, 0, len);
+			System.out.println("Custom data: " + data);
+		}
+		
+		response.setContentType("text/xml");
+		response.getWriter().write("<content><node>5 + 5 =  10</node></content>");
+	}
+	
+	private void specialToo(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		System.out.println(request.getContentType());
+		Enumeration keys = request.getParameterNames();
+		
+		while(keys.hasMoreElements()){
+			System.out.println("YUI param: " + keys.nextElement());
+		}
+		
+		String data = request.getParameter(PARAM1);
+		System.out.println(data);
+		
+		response.getWriter().write("<content><node>7 + 5 =  12</node></content>");
 	}
 
 	/**
@@ -274,10 +316,12 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				}
 			} else if(f.isDirectory()){
 				visited.add(f.getCanonicalPath());
-				String children[] = f.list();
-				for(int y=0;y<children.length;y++){
-					File child = new File(f, children[y]);
-					getProjectFiles(child, projects, visited);
+				if(!f.getCanonicalPath().contains(".svn")){
+					String children[] = f.list();
+					for(int y=0;y<children.length;y++){
+						File child = new File(f, children[y]);
+						getProjectFiles(child, projects, visited);
+					}
 				}
 			} else {
 				throw new IOException("Not a file and not a directory. I don't know what it is.");
@@ -356,6 +400,50 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				return "success";
 			} else {
 				throw new FileNotFoundException("Unable to locate file");
+			}
+		} else {
+			throw new IOException("Unable to find the project");
+		}
+	}
+	
+	/**
+	 * Updates audio file.  If the specified AudioFile already exists,
+	 * do not create it. If it doesn't exist, convert the specified
+	 * content to audio and save it at the specified audiofilename.
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 */
+	private synchronized String updateAudioFiles(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		String projectPath = request.getParameter(PARAM1);
+		String audiofilename = request.getParameter(PARAM2);
+		String content = request.getParameter(PARAM3);
+
+		File dir = new File(projectPath);
+		if(dir.exists()){
+			File file = new File(dir, audiofilename);
+			if(file.exists()){
+				return "audio already exists";
+			} else {
+				String separator;
+				
+				if(projectPath.contains("/")){
+					separator = "/";
+				} else {
+					separator = "\\";
+				}
+
+				String audioFile = projectPath + separator + audiofilename;
+				audioFile = audioFile.replaceAll(".mp3", ".wav");
+				TTS tts = new TTS(audioFile);
+				boolean success = tts.saveToFile(content);
+				if (success) {
+					return "success";
+				} else {
+					return "failure";
+				}
 			}
 		} else {
 			throw new IOException("Unable to find the project");
@@ -641,12 +729,25 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		}
 	}
 	
+	/**
+	 * Retrieves the parameters for: @param1 = path/to/dir/to/archive, @param2 = name
+	 * of project to archive, and @param3 = default path/to/archive/dir, Creates a zip
+	 * archive of the project in the archives dir, also sends the archive in the response
+	 * 
+	 * @param <code>HttpServletRequest</code> request
+	 * @param <code>HttpServletResponse</code> response
+	 * @throws IOException
+	 */
 	private void exportProject(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy_kk.mm.ss");
-		ensureZipDir();
-		File zipParent = new File(ZIP_DIRECTORY);
+		String projectName = request.getParameter(PARAM2);
+		
+		File archiveDir = new File(request.getParameter(PARAM3));
+		ensureZipDir(archiveDir);
+		
+		File zipParent = new File(archiveDir, ZIP_DIRECTORY);
 		File dir = new File(request.getParameter(PARAM1));
-		File zipFile = new File(zipParent, dir.getName() + "_" + sdf.format(new Date()) + ".zip");
+		File zipFile = new File(zipParent, dir.getName() + "__" + projectName + "__" + sdf.format(new Date()) + ".zip");
 		
 		if(dir.exists()){
 			if(dir.isDirectory()){
@@ -676,6 +777,15 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		}
 	}
 	
+	/**
+	 * Given a <code>File</code> directory and a <code>ZipOutputStream</code>,
+	 * creates zipEntries for each file in the directory and adds it to the
+	 * stream.
+	 * 
+	 * @param <code>File</code> dir
+	 * @param <code>ZipOutputStream</code> zos
+	 * @throws <code>IOException</code>
+	 */
 	private void zipIt(File dir, ZipOutputStream zos) throws IOException{
 		String list[] = dir.list();
 		byte buffer[] = new byte[4096];
@@ -694,8 +804,17 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		}
 	}
 	
-	private boolean ensureZipDir(){
-		File file = new File(ZIP_DIRECTORY);
+	/**
+	 * Given a default archive location, checks to ensure that the
+	 * archive directory exists in that location, if not, attempts
+	 * to create the directory. Returns true if the directory exists
+	 * or directory creation is successful, false otherwise.
+	 * 
+	 * @param <code>File</code> archiveDir
+	 * @return <code>boolean</code>
+	 */
+	private boolean ensureZipDir(File archiveDir){
+		File file = new File(archiveDir, ZIP_DIRECTORY);
 		if(file.isDirectory()){
 			return true;
 		} else {

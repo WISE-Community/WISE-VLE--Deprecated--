@@ -27,7 +27,7 @@ public class VLEView extends HttpServlet {
 			HttpServletResponse response) {
 		
 		//retrieve the projectId parameter
-		String projectIdString = request.getParameter("projectId");
+		String projectIdString = request.getParameter("location");
 		
 		String contentBaseUrl = "";
 		String contentUrl = "";
@@ -69,8 +69,10 @@ public class VLEView extends HttpServlet {
 		}
 		
 		//set the content urls in the request so the jsp can retrieve them
-		request.setAttribute("contentBaseUrl", contentBaseUrl);
-		request.setAttribute("contentUrl", contentUrl);
+		//request.setAttribute("contentBaseUrl", contentBaseUrl);
+		//request.setAttribute("contentUrl", contentUrl);
+		String vleConfigUrl = getServletUrl(request) + "/VLEConfig";
+		request.setAttribute("vleconfig_url", vleConfigUrl);
 		
 		RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher("/view.jsp");
 		try {

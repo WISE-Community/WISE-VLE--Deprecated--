@@ -21,6 +21,11 @@ function VLE() {
     this.runManager = null;
     this.runId = null;
     this.currentNode = null;   // points to current node
+    
+    shortcutManager.addShortcut(39, 'renderNextNode', ['shift'], this);
+    shortcutManager.addShortcut(37, 'renderPrevNode', ['shift'], this);
+    shortcutManager.addShortcut(77, 'toggleNavigationPanelVisibility', ['shift'], this);
+    shortcutManager.start();
 }
 
 VLE.prototype.startEventsAndListeners = function(){
@@ -124,7 +129,7 @@ VLE.prototype.startEventsAndListeners = function(){
 VLE.prototype.setProject = function(project) {
 	this.project = project;
 	this.contentPanel = new ContentPanel(project, project.rootNode);
-	this.navigationPanel = new NavigationPanel(project.rootNode, project.autoStep, project.stepLevelNumbering);
+	this.navigationPanel = new NavigationPanel(project.rootNode, project.autoStep, project.stepLevelNumbering, project.stepTerm);
 }
 
 /**
@@ -139,14 +144,18 @@ VLE.prototype.setVLEState = function(vleState) {
  * stops and rewinds audio
  */
 VLE.prototype.rewindStepAudio = function() {
-	this.audioManager.rewindStepAudio();
+	if (this.audioManager) {
+		this.audioManager.rewindStepAudio();
+	}
 }
 
 /**
  * toggles play/pause audio
  */
 VLE.prototype.playPauseStepAudio = function() {
-	this.audioManager.playPauseStepAudio();	
+	if (this.audioManager) {
+		this.audioManager.playPauseStepAudio();	
+	}
 }
 
 /**
@@ -181,7 +190,6 @@ VLE.prototype.renderNode = function(nodeId){
         vle.state.setCurrentNodeVisit(currentNode);
         this.navigationPanel.render('render');
         this.contentPanel.render(currentNode.id);
-		currentNode.setCurrentNode();   // tells currentNode that it is the current node, so it can perform tasks like loading node audio
 		if(this.connectionManager != null) {
 			if (this.config != null && this.config.mode == "run") {
 				this.postToConnectionManager(currentNode);
@@ -280,7 +288,7 @@ VLE.prototype.expandActivity = function(nodeId) {
 	};
 }
 VLE.prototype.renderPrevNode = function() {
-	var currentNode = this.getCurrentNode();
+	var currentNode = this.currentNode;
 	if (this.navigationLogic == null) {
 		notificationManager.notify("prev is not defined.", 3);
 	}
@@ -302,19 +310,13 @@ VLE.prototype.renderPrevNode = function() {
 		} else {
 			this.renderNode(prevNode.id);
 			
-			//obtain all the parents, grandparents, etc of this node
-			var enclosingNavParents = this.getEnclosingNavParents(prevNode);
-			
-			if(enclosingNavParents != null && enclosingNavParents.length != 0) {
-				//collapse all nodes except parents, grandparents, etc
-				myMenu.forceCollapseOthersNDeep(enclosingNavParents);	
-			}
+			this.collapseAllNonImmediate(prevNode);			
 		}
 	};
 }
 
 VLE.prototype.renderNextNode = function() {
-	var currentNode = this.getCurrentNode();
+	var currentNode = this.currentNode;
 	if (this.navigationLogic == null) {
 		notificationManager.notify("next is not defined.", 3);
 	}
@@ -334,18 +336,24 @@ VLE.prototype.renderNextNode = function() {
 			notificationManager.notify("nextNode does not exist", 3);
 		} else {
 			this.renderNode(nextNode.id);
-			
-			//obtain all the parents, grandparents, etc of this node
-			var enclosingNavParents = this.getEnclosingNavParents(nextNode);
-			
-			if(enclosingNavParents != null && enclosingNavParents.length != 0) {
-				//collapse all nodes except parents, grandparents, etc
-				myMenu.forceCollapseOthersNDeep(enclosingNavParents);	
-			}
+		
+			this.collapseAllNonImmediate(nextNode);
 		}
 	};
 }
 
+/* 
+* finds and collapses all nodes except parents, grandparents, etc
+*/
+VLE.prototype.collapseAllNonImmediate = function(node) {
+		//obtain all the parents, grandparents, etc of this node
+		var enclosingNavParents = this.getEnclosingNavParents(node);
+		
+		if(enclosingNavParents != null && enclosingNavParents.length != 0) {
+			//collapse all nodes except parents, grandparents, etc
+			myMenu.forceCollapseOthersNDeep(enclosingNavParents);	
+		}
+}
 
 /**
  * Obtain an array of the parent, grandparent, etc. basically the parent,
@@ -406,7 +414,7 @@ VLE.prototype.displayFlaggedItems = function() {
 	if (this.config == null || this.config.getFlagsUrl == null) {
 		return;
 	}
-	var currentNodeId = this.getCurrentNode().id;
+	var currentNodeId = this.currentNode.id;
 	var runId = this.runManager.runId;
 	
 	var getFlagsUrl = this.config.getFlagsUrl + "&nodeId=" + currentNodeId;;
@@ -887,8 +895,13 @@ VLE.prototype.initializeFromConfig = function(vleConfig) {
     vle.postDataUrl = vleConfig.postDataUrl;
     vle.runId = vleConfig.runId;
 	vle.loadProject(vleConfig.contentUrl, vleConfig.contentBaseUrl);
+	if (vleConfig.useAudio != null) {
+		notificationManager.notify('vleConfig.useAudio: ' + vleConfig.useAudio, 4);
+		vle.audioManager = new AudioManager(vleConfig.useAudio);
+        notificationManager.notify('vle.html: vle.audioManager=' + vle.audioManager, 4);
+	}
 	if (vleConfig.mode == "run") {
-		//alert('vleConfig.mode is run, userInfourl:' + vleConfig.userInfoUrl);
+		notificationManager.notify('vleConfig.mode is run, userInfourl:' + vleConfig.userInfoUrl, 4);
 		vle.loadLearnerData(vleConfig.userInfoUrl);
 		if (vleConfig.runInfoUrl != null && vleConfig.runInfoRequestInterval != null) {
 			vle.runManager = new RunManager(vleConfig.runInfoUrl, parseInt(vleConfig.runInfoRequestInterval), this.connectionManager, this.eventManager, vleConfig.runId);
@@ -916,8 +929,7 @@ VLE.prototype.processLoadProjectResponse = function(responseText, responseXML, c
 		vle.setProject(project);
 		var dfs = new DFS(project.rootNode);
 		vle.navigationLogic = new NavigationLogic(dfs);
-		//vle.audioManager = new AudioManager(true);
-		vle.audioManager = null;
+		//vle.audioManager = null;
 	};
 	
 	var startId = vle.project.getStartNodeId();
@@ -970,7 +982,7 @@ VLE.prototype.loadProjectFromServer = function(){
  */
 VLE.prototype.processLoadProjectFromServerResponse = function(responseText, responseXML){
 		if(responseXML){
-			project = new Project(responseXML, null, vle.connectionManager);
+			project = new Project(responseXML, null, vle.connectionManager, true);
 			project.xmlDoc = responseXML;
 			
 			vle.setProject(project);
@@ -992,7 +1004,7 @@ VLE.prototype.closeVLE = function() {
 	this.state.endCurrentNodeVisit();
 	
 	//post the latest student data to the server
-	this.postToConnectionManager(this.getCurrentNode());
+	this.postToConnectionManager(this.currentNode);
 }
 
 VLE.prototype.setConnection = function(connectionManager) {

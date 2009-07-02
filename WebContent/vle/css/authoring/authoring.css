@@ -1,24 +1,30 @@
 /* AUTHOR TOOL HOME PAGE*/
-
 .yui-dd-proxy {
 	text-align: left;
 }
 
 #centeredDiv {
 	background-image: url(../assets/images/robots/surrounding_bg3.png);
-	font-family:"Gill Sans",Arial,Verdana,sans-serif;	
+	font-family: "Gill Sans", Arial, Verdana, sans-serif;
 	width: 1000px;
 	text-align: left;
 	margin: 0 auto;
 }
+
+#fixedHeader {
+	position:fixed;
+	top:0px;
+	padding:5px 0px;
+	width:1000px;
+	background-color:#7a7a7a;	
+	z-index:1;
+	}
 
 #authorHeader {
 	text-align: left;
 	padding: 5px 10px;
 	background-color: #0000ff;
 	border: 1px solid #000;
-	border-bottom: 3px ridge #000;
-	margin: 12px auto;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
@@ -29,64 +35,79 @@
 	letter-spacing: .7px;
 }
 
-#pandaLogo {
-	float:right;
-}
-
 #authorHeader table {
-	margin: 5px 0;
-	border-collapse:collapse;
+	float:right;
+	border-collapse: collapse;
+	margin-top:0px;
+	}
+
+#authorHeader table td {
+	padding: 2px 4px;
+	text-align:center;
+	width:55px;
+	vertical-align:top;	
+	line-height:85%;
 }
 
-#authorHeader td {
-	padding:4px;
+#authorHeader table td.separator {
+	width:9px;
 }
 
-#authorHeader td input {
-	width:100%;
-	font-size:.7em;
-	}
-	
-#authorHeader td input:hover {
-	color:#0000ff;
-	background-color:#FFFF00;
-	-moz-border-radius: 12px;
-	-webkit-border-radius: 12px;
-	border-radius: 12px;
-	}
+#authorHeader table td img {
+	margin-bottom:2px;
+}
+
+#authorHeader table td.separator img {
+	margin-top:4px;
+}
+
+#authorHeader table td a {
+	display:block;
+	width: 100%;
+	font-size: .75em;
+	color:#FFF;
+	margin-top:2px;
+	padding:0 3px;
+}
+
+#authorHeader table td a.inactive {
+	color:#999;
+}
+
+#authorHeader table td a.inactive:hover {
+	color:#999;
+	outline:none;
+}
+
+#authorHeader table td a:hover {
+	color: #FFFF00;
+	outline:1px solid #FFFF00;
+}
 
 .clearFloats {
 	clear: both;
 }
 
 #authoringTable {
-	width:100%;
+	width: 100%;
 }
 
-#authorHeader td input:hover {
-	color:#0000ff;
-	background-color:#FFFF00;
-	-moz-border-radius: 12px;
-	-webkit-border-radius: 12px;
-	border-radius: 12px;
-	}
-
 #currentProject {
-	color:#000;
-	background-color:#CCC;
+	color: #000;
+	background-color: #CCC;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
-	padding:2px 5px;
-	font-size:1.1em;
-	font-weight:bold;
-	margin-bottom:10px;
-		}
-	
+	padding: 2px 5px;
+	font-size: 1.1em;
+	font-weight: bold;
+	margin: 82px 0 10px 0;
+}
+
 #assignedcontainer {
 	background-color: #ccc;
 	margin: 0px;
-	width:380px; 
+	width: 380px;
 	position: relative;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -94,19 +115,18 @@
 }
 
 #previewcontainer {
-	text-align:center;
-	background-color:#CCC;
-	padding:10px;
+	text-align: center;
+	background-color: #CCC;
+	padding: 10px;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
 }
 
 #ddTable {
-	padding:0px;
-	margin:0px;
-}	
-
+	padding: 0px;
+	margin: 0px;
+}
 
 #ddTable :after {
 	clear: both;
@@ -117,27 +137,40 @@
 }
 
 #ddTable td {
-	vertical-align:top;
-	}
-	
+	vertical-align: top;
+}
+
 #ddTable tr ul li {
 	font-size: .9em;
 	border: 1px solid transparent;
 	background-color: #676767;
-	color:#99FFCC;
+	color: #99FFCC;
 	background-image: none;
 	cursor: move;
 	list-style-type: none;
-	margin: 6px 5px;
-	padding: 2px 5px;
+	margin: 2px 5px;
+	padding: 1px 5px;
 	position: relative;
-}
+	vertical-align:center;
+		}
 
+#ddTable tr ul li input {
+	margin-right:10px;
+	width:250px;
+	}
+	
+#ddTable tr ul li select {
+	margin-left:3px;
+	font-size:67%;
+	width:130px;
+	height:20px;
+	}
+	
+	
 #ddGlueTable {
-	padding:0px;
-	margin:0px;
-}	
-
+	padding: 0px;
+	margin: 0px;
+}
 
 #ddGlueTable :after {
 	clear: both;
@@ -147,32 +180,23 @@
 	visibility: hidden;
 }
 
-#ddGlueTable tr {}
-#ddGlueTable tr ul{}
-
-#ddTable tr ul li {
-	font-size: .9em;
-	border: 1px solid transparent;
-	background-color: #676767;
-	color:#99FFCC;
-	background-image: none;
-	cursor: move;
-	list-style-type: none;
-	margin: 4px 5px;
-	padding: 2px 5px;
-	position: relative;
+#trash, #trash2 {
+	background-image: url(../../images/trash.png);
+	background-repeat: no-repeat;
+	background-position: center 5px;
+	border: 1px solid #666;
+	background-color: #FFCCCC;
+	color: #666;
+	text-align: center;
+	font-size: .8em;
+	padding-top: 35px;
+	margin: 4px auto;
+	width: 70px;
+	height: 100px;
 }
 
-.trash {
-	border: 2px solid #333333; 
-    background-color: #FFCCCC; 
-    color: #666; 
-    text-align: center; 
-    position: relative; 
-    float: left; 
-    margin: 4px; 
-    width: 120px; 
-    height: 120px;
+#trash2 {
+	margin-top:700px;
 }
 
 .bucket ul {
@@ -206,31 +230,29 @@
 	margin: 20px auto;
 	color: #FFF;
 	padding: 4px;
-	background-color:#333;
+	background-color: #333;
 	border: 1px solid #6666ff;
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
-	border-radius:4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
 }
 
 #navigationInstructions p {
-	text-align:left;
-	padding:0px 0px 0 50px;
+	text-align: left;
+	padding: 0px 0px 0 50px;
 }
 
 #navigationInstructions ol {
-	text-align:left;
+	text-align: left;
 	font-size: .8em;
-	padding:10px 50px 0 80px;
+	padding: 10px 50px 0 80px;
 }
 
 #navigationInstructions li {
 	padding-bottom: 4px;
 }
 
-
 /* STYLES FOR EDITOR WINDOW  */
-
 #editorHeader {
 	background-color: #cc66CC;
 	border: 1px solid #333;
@@ -275,128 +297,121 @@
 }
 
 /* AUTHOR TOOL POP UP WINDOWS  */
-
 #openProjectDialog select {
-	width:90%;
+	width: 90%;
 }
 
 /* STYLES FOR ALL AUTHORING EDITORS  */
-
 #dynamicParent {
-	vertical-align:top;
-	padding:6px;  
+	vertical-align: top;
+	padding: 6px;
 }
 
 #header {
-	background-color:#919EBA;
-	border:1px solid #334B7B;
-	padding:2px;
-	margin-bottom:2px;
+	background-color: #919EBA;
+	border: 1px solid #334B7B;
+	padding: 2px;
+	margin-bottom: 2px;
 }
 
 #header #authorNavButtons {
-	width:400px;
-	text-align:center;
+	width: 400px;
+	text-align: center;
 }
 
-#header #authorNavButtons input{
-	font-weight:bold;
-	padding:2px 10px;
-	margin:0 5px;
+#header #authorNavButtons input {
+	font-weight: bold;
+	padding: 2px 10px;
+	margin: 0 5px;
 }
 
-#header #authorNavButtons input:hover{
-	background-color:#FFFF00;
+#header #authorNavButtons input:hover {
+	background-color: #FFFF00;
 }
-
 
 /* STYLES FOR BRAINSTORM EDITOR WINDOW  */
-
 #promptDiv textarea {
-	background-color:#FFE6C6;
+	background-color: #FFE6C6;
 }
 
-#cannedResponsesDiv input{
-	margin-left:25px;
-	width:300px;
+#cannedResponsesDiv input {
+	margin-left: 25px;
+	width: 300px;
 }
 
-#cannedResponsesDiv textarea{
-	width:500px;
-	height:46px;
-	margin-top:5px;
-	overflow-y:auto;
+#cannedResponsesDiv textarea {
+	width: 500px;
+	height: 46px;
+	margin-top: 5px;
+	overflow-y: auto;
 }
 
-#cannedResponsesDiv input.button{
-	margin:10px 10px 10px 15px;
-	color:#000099;
-	font-style:bold;
-	font-size:1.0em;
+#cannedResponsesDiv input.button {
+	margin: 10px 10px 10px 15px;
+	color: #000099;
+	font-style: bold;
+	font-size: 1.0em;
 }
 
 #optionsTable {
-	border-collapse:collapse;
-	background-color:#ccc;
+	border-collapse: collapse;
+	background-color: #ccc;
 }
 
 #optionsTable td {
-	border:1px solid #333;
-	padding:3px;
-	vertical-align:top;
-	font-size:.9em;
+	border: 1px solid #333;
+	padding: 3px;
+	vertical-align: top;
+	font-size: .9em;
 }
 
 /* STYLES FOR MATCH AND SEQUENCE EDITOR WINDOW  */
-
 #editorTitle {
-	color:#19253D;
-	font-size:1.1em;
-	letter-spacing:1.5px;
-	font-variant:small-caps;
-	margin:0 0 4px 0;
+	color: #19253D;
+	font-size: 1.1em;
+	letter-spacing: 1.5px;
+	font-variant: small-caps;
+	margin: 0 0 4px 0;
 }
 
-#containerRow input  {
-	width:550px;
-	text-align:left;
-	}
+#containerRow input {
+	width: 550px;
+	text-align: left;
+}
 
 #orderingOptions {
-	padding:5px 10px;
-	margin:20px 0 -10px 0px;
-	background-color:#CCC;
+	padding: 5px 10px;
+	margin: 20px 0 -10px 0px;
+	background-color: #CCC;
 }
 
 #orderingOptions input {
-	margin:0 10px;
-	vertical-align:middle;
+	margin: 0 10px;
+	vertical-align: middle;
 }
-	
+
 #doneButton {
-	font-size:.9em; 
-	font-weight:bold;
-	background-color:#CCC;
-	border:1px solid #000;
-	padding:4px 20px;
-	margin:20px auto;
+	font-size: .9em;
+	font-weight: bold;
+	background-color: #CCC;
+	border: 1px solid #000;
+	padding: 4px 20px;
+	margin: 20px auto;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
 
-#doneButton:hover {
-	background-color:#FFFF00;
+#doneButton :hover {
+	background-color: #FFFF00;
 }
 
 #feedbackInput {
-	padding:5px;
-	margin:10px 0 10px 10px;
+	padding: 5px;
+	margin: 10px 0 10px 10px;
 }
 
 /* STYLES FOR OPEN RESPONSE EDITOR  */
-
 #dynamicParent td {
-
-
+	
 }
