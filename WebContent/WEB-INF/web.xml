@@ -98,5 +98,41 @@
   <servlet-mapping>
     <servlet-name>vleview</servlet-name>
     <url-pattern>/view.html</url-pattern>
-  </servlet-mapping>	
+  </servlet-mapping>
+ 
+  <servlet>
+  	<servlet-name>TTS</servlet-name>
+  	<servlet-class>utils.TTS</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+  	<servlet-name>TTS</servlet-name>
+  	<url-pattern>/vle/tts.html</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+  	<display-name>VLEConfig</display-name>
+  	<servlet-name>VLEConfig</servlet-name>
+  	<servlet-class>vle.VLEConfig</servlet-class>
+  </servlet>
+  <servlet>
+  	<description>
+  	</description>
+  	<display-name>
+  	VLEGetUser</display-name>
+  	<servlet-name>VLEGetUser</servlet-name>
+  	<servlet-class>
+  	vle.VLEGetUser</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+  	<servlet-name>VLEConfig</servlet-name>
+  	<url-pattern>/VLEConfig</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>VLEGetUser</servlet-name>
+  	<url-pattern>/vle/VLEGetUser</url-pattern>
+  </servlet-mapping>
+  	
+
 </web-app>

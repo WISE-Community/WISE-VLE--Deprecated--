@@ -75,9 +75,6 @@ Node.prototype.getLeafNodeIds = function(arr) {
  * loading audio for the node.
  */
 Node.prototype.setCurrentNode = function() {
-	if (vle.audioManager != null) {
-		vle.audioManager.setCurrentNode(this);
-	}
 }
 
 Node.prototype.getNodeAudios = function() {
@@ -117,6 +114,9 @@ Node.prototype.render = function(contentpanel) {
 
 
 Node.prototype.load = function() {
+	if (vle.audioManager != null) {
+		vle.audioManager.setCurrentNode(this);
+	}
 }
 
 
@@ -203,7 +203,12 @@ Node.prototype.parseDataXML = function(nodeXML) {
  */
 Node.prototype.nodeDefinitionXML = function(){
 	if(this.type=='sequence'){
-		var xml = "<sequence identifier=\"" + makeSafe(this.id) + "\"  title=\"" + makeSafe(this.title) + "\">\n";
+		var xml;
+		if (this.getView() == 'normal') {
+		    xml = "<sequence identifier=\"" + makeSafe(this.id) + "\"  title=\"" + makeSafe(this.title) + "\">\n";
+		} else {
+		    xml = "<sequence identifier=\"" + makeSafe(this.id) + "\"  title=\"" + makeSafe(this.title) + "\" view=\""+ makeSafe(this.getView()) + "\">\n";			
+		}
 		for(var l=0;l<this.children.length;l++){
 			xml += this.children[l].nodeReferenceXML();
 		};
@@ -211,6 +216,14 @@ Node.prototype.nodeDefinitionXML = function(){
 	} else {
 		var xml = "<" + this.type + " identifier=\"" + makeSafe(this.id) + "\" title=\"" + makeSafe(this.title) + "\" class=\"" + this.class + "\">\n";
 		xml += "\t<ref filename=\"" + this.filename + "\"/>\n";
+		if(this.audios.length>0){
+			xml += "\t<nodeaudios>\n";
+			for(var i=0;i<this.audios.length;i++){
+				xml += "\t\t<nodeaudio elementId=\"" +
+					this.audios[i].elementId + "\" url=\"" + this.audios[i].url + "\"/>\n";
+			};
+			xml += "\t</nodeaudios>\n";
+		};
 		xml += "</" + this.type + ">\n";
 	};
 	return xml;
@@ -220,6 +233,7 @@ function makeSafe(text){
 	if(text){
 		return text.replace(/\&/g, '&amp;');
 	} else {
+		notificationManager.notify('Did not receive text when generating xml for: node-' + this.type + ' id-' + this.id + ' title-' + this.title, 1);
 		return '';
 	};
 };
@@ -417,7 +431,35 @@ Node.prototype.isSequence = function() {
 	return this.children.length > 0;
 }
 
+/**
+ * Injects base ref in the head of the html if base-ref is not found, and returns the result
+ * @param content
+ * @return
+ */
+Node.prototype.injectBaseRef = function(content) {
+	if (content.search(/<base/i) > -1) {
+		// no injection needed because base is already in the html
+		return content
+	} else {		
+		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
+		
+		if(this.contentBase){
+			var baseRefTag = "<base href='" + this.contentBase + "'/>";
+		} else {
+			return content
+		};
+		
+		var headPosition = content.indexOf("<head>");
+		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
+		newContent += baseRefTag;
+		newContent += content.substring(headPosition+6);
+
+		return newContent;
+	}
+}
+
 function NodeAudio(id, url, elementId) {
+	notificationManager.notify('id: ' + id + ",url: " + url + ",elementId: " + elementId, 4);
 	this.id = id;
 	this.url = url;
 	this.elementId = elementId;
@@ -427,6 +469,54 @@ function NodeAudio(id, url, elementId) {
 NodeAudio.prototype.play = function() {
 	this.audio.play();
 }
+
+Node.prototype.updateAudioFiles = function() {
+	notificationManager.notify('calling updateAudioFiles1', 4);
+	if(currentProjectPath){
+		notificationManager.notify('currentProjectPath:' + currentProjectPath, 4);
+		var createdCount = 0;
+			notificationManager.notify('nodeaudio.length:' + this.audios.length, 4);
+			for (var a=0; a<this.audios.length;a++) {
+				notificationManager.notify('audio url:' + this.audios[a].url, 4);
+				var elementId = this.audios[a].elementId;
+	
+				// only invoke updateAudioFiles if elementId exists and is ID'ed to 
+				// actual element in the content.
+				if (elementId && elementId != null) {
+					notificationManager.notify('elementId:' + elementId, 4);
+
+					var foundElement = window.frames["ifrm"].document.getElementById(elementId);
+					notificationManager.notify('foundElement:' + foundElement, 4);
+						if (foundElement != null) {
+							var textContent = foundElement.textContent;
+							notificationManager.notify('creating audio file at url: ' + this.audios[a].url
+														+ '\nelementId: ' + elementId + '\ncontent: ' + textContent, 4);
+							
+							var callback = {
+								success: function(o){
+									if (o.responseText == 'success') {
+										createdCount++;
+									} else {
+										notificationManager.notify('could not create audio. Is your filesystem write-able? Does it have the right directories, ie audio, where the audio will go?', 3);
+									};
+								},
+								failure: function(o){
+									notificationManager.notify('could not create audio', 3);
+								},
+								scope: this
+							};
+							YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateAudioFiles&param1=' + currentProjectPath + '&param2=' + this.audios[a].url + '&param3=' + textContent);				
+						}
+				}
+						
+			}
+			notificationManager.notify('number of audio files created: ' + createdCount, 4);	
+	} else {
+		notificationManager.notify('update audiofiles only available in author mode.', 4);
+	};
+}
+
+
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/Node.js");

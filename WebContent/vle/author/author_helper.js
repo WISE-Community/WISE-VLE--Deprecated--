@@ -1,6 +1,6 @@
 var iconUrl = 'images/stepIcons/UCCP/';
 var nodeTypes = ['HtmlNode', 'BrainstormNode', 'FillinNode', 'MatchSequenceNode', 'MultipleChoiceNode', 
-		'NoteNode', 'JournalEntryNode', 'OutsideUrlNode', 'GlueNode', 'OpenResponseNode'];
+		'NoteNode', 'JournalEntryNode', 'OutsideUrlNode', 'GlueNode', 'OpenResponseNode', 'BlueJNode'];
 var nodeClasses = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simulation', 'movie', 'homework', 'summary'],
 			['brainstorm', 'qadiscuss'],
 			['fillblank'],
@@ -10,7 +10,8 @@ var nodeClasses = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simu
 			['journal'],
 			['www'],
 			['instantquiz', 'teacherquiz'],
-			['openresponse']];
+			['openresponse'],
+			['codeit']];
 var nodeClassText = [['Introductory Page', 'Curriculum Page', 'Display Page', 'Cartoon Page', 'Coding Page', 'Simulation Page', 'Movie Page', 'Homework Page', 'Summary Page'],
 			['Brainstorm session', 'Q&A Discussion'],
 			['Fill the Blank'],
@@ -20,7 +21,8 @@ var nodeClassText = [['Introductory Page', 'Curriculum Page', 'Display Page', 'C
 			['Journal Question'],
 			['WWW Page'],
 			['Instant Quiz', 'Teacher Quiz'],
-			['Open Response']];
+			['Open Response'],
+			['Code it']];
 			
 function getSaved(){
 	return saved;

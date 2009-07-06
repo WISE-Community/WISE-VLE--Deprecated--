@@ -1,18 +1,38 @@
 #promptdiv {
-	font-size:.9em;
 	color:#000;
 	margin:3px 10px 15px 15px;
 	line-height:150%;
 }
 
 #promptdiv p {
-	font-size:1em;
-	font-weight:bold;
-}
+	font-size:.9em;
+	}
 
+#promptdiv tt, #promptdiv code {
+	font-weight:bold;
+	font-size:120%;
+}
 #promptdiv a:link, #promptdiv a:visited {
 	color:#000;
 }
+
+#promptdiv pre {
+	font:600 .85em "Courier New", Courier, monospace;
+	color:#330000;
+	white-space:pre;
+	padding:10px;
+	margin:15px;
+	border-top:2px solid #999;
+	border-right:2px solid #999;
+	border-bottom:2px solid #999;
+	border-left:12px solid #999;
+	line-height:120%;
+}
+
+#promptdiv pre.width20 {width:20%;margin-left:75px;}
+#promptdiv pre.width30 {width:30%; margin-left:75px;}
+#promptdiv pre.width40 {width:40%; margin-left:75px;}
+#promptdiv pre.width50 {width:50%; margin-left:75px;}
 
 #promptdiv a:hover {
 	background-color:#FFFF00;
@@ -24,8 +44,7 @@
 }
 
 #promptdiv ol {
-	font-size:1em;
-	text-transform:uppercase;
+	font-size:.9em;
 	margin-left:15px;
 	font-weight:normal;
 }
@@ -52,6 +71,8 @@
 #fullColumn { 
 	padding:10px;
 	background-color:#FFD9ac;
+	-moz-border-radius-topleft:4px;
+	-moz-border-radius-topright:4px;
 	}
 	
 #questionTypeVerticalLabel {

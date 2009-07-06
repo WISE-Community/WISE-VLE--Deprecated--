@@ -53,22 +53,28 @@ var notificationManager = {
 		1: 'info',
 		2: 'warn',
 		3: 'alert',
-		4: 'debug'
+		4: 'log'
 	},
 	notify: function(message, level){
 		if(level){
+			var notifyLevel = this.levels[level];
 			if(this.debugMode){
 				if(window.console){
-					window.console.log('Notify debug: ' + message);
+					if(!notifyLevel){
+						notifyLevel = 'log';
+					};
+					if(notifyLevel=='alert'){
+						notifyLevel = 'error';
+					};
+					window.console[notifyLevel]('Notify debug: ' + message);
 				} else {
 					alert('Notify debug: ' + message);
 				};
 			} else {
-				var notifyLevel = this.levels[level];
 				if(notifyLevel){
 					if(notifyLevel=='alert'){
 						alert('Notify message: ' + message);
-					} else if(notifyLevel!='debug'){
+					} else if(notifyLevel!='log'){
 						if(window.console && window.console[notifyLevel]){
 							window.console[notifyLevel](message);
 						} else {

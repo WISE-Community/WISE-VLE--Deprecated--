@@ -148,12 +148,11 @@ SDMenu.prototype.expandAll = function() {
 			this.expandMenu(this.submenus[i]);
 	this.oneSmOnly = oldOneSmOnly;
 };
+
 SDMenu.prototype.collapseAll = function() {
-	for (var i = 0; i < this.submenus.length; i++)
-		//if (this.submenus[i].className != "collapsed")
-		if (this.containsClass(this.submenus[i], "collapsed"))
-			this.collapseMenu(this.submenus[i]);
+	vle.collapseAllNonImmediate(vle.getCurrentNode());
 };
+
 SDMenu.prototype.memorize = function() {
 	if (this.remember) {
 		var states = new Array();

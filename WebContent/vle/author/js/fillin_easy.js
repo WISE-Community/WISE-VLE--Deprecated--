@@ -673,7 +673,7 @@ function sourceUpdated() {
 function updatePreview(){
 	saved = false;
 	
-	window.frames["previewFrame"].loadFromXMLString(xmlDoc);
+	window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlPage]);
 };
 
 /**
@@ -693,8 +693,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		xmlPage = xmlDocToParse;
 		generatePage();
 		
-		window.frames["previewFrame"].loadFromXMLString(xmlPage);
-
+		window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlPage]);
 	  },
 		  failure: function(o) { alert('failure');},
 		  scope: this
@@ -702,5 +701,26 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 	
 	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
 }
+
+function loaded(){
+	//set frame source to blank and create page dynamically
+	var callback = function(){
+		var frm = window.frames['previewFrame'];
+		var loadFill = function(){
+			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			window.parent.childSave = save;
+			window.parent.getSaved = getSaved;
+		};
+		
+		frm.scriptloader.initialize(frm.document, loadFill, 'fillin');
+	};
+	
+	window.allready = function(){
+		pageBuilder.build(window.frames['previewFrame'].document, 'fillin', callback);
+	};
+	
+	window.frames['previewFrame'].location = '../blank.html';
+};
+
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/js/fillin_easy.js");

@@ -22,6 +22,14 @@ HtmlNode.prototype.setContent = function(content) {
 	//this.element.getElementsByTagName("content")[0].firstChild.nodeValue = content;
 }
 
+HtmlNode.prototype.load = function() {
+	if (vle.audioManager != null) {
+		vle.audioManager.setCurrentNode(this);
+	}
+	this.updateAudioFiles();
+}
+
+
 HtmlNode.prototype.render = function(contentPanel) {
 	if (this.elementText != null) {
 		window.frames["ifrm"].document.open();
@@ -38,7 +46,7 @@ HtmlNode.prototype.render = function(contentPanel) {
 		
 		window.frames["ifrm"].document.open();
 		window.frames["ifrm"].document.write(this.injectBaseRef(this.content));
-		window.frames["ifrm"].document.close();
+		window.frames["ifrm"].document.close();		
 		return;
 	} else if(this.content == null) {
 		/*
@@ -100,31 +108,6 @@ HtmlNode.prototype.loadLite = function(frame){
 	window.frames['ifrm'].frames[frame].checkAnswerLite = function(){return 'visited html: ' + this.id};
 };
 
-/**
- * Injects base ref in the head of the html if base-ref is not found, and returns the result
- * @param content
- * @return
- */
-HtmlNode.prototype.injectBaseRef = function(content) {
-	if (content.search(/<base/i) > -1) {
-		// no injection needed because base is already in the html
-		return content
-	} else {		
-		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
-		
-		if(this.contentBase){
-			var baseRefTag = "<base href='" + this.contentBase + "'/>";
-		} else {
-			return content
-		};
-		
-		var headPosition = content.indexOf("<head>");
-		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
-		newContent += baseRefTag;
-		newContent += content.substring(headPosition+6);
-		return newContent;
-	}
-}
 
 HtmlNode.prototype.getDataXML = function(nodeStates) {
 	return "";

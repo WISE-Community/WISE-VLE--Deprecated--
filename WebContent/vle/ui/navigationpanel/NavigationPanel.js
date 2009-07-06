@@ -1,7 +1,8 @@
-function NavigationPanel(rootNode, autostep, stepLevelNum) {
+function NavigationPanel(rootNode, autostep, stepLevelNum, stepTerm) {
 	this.rootNode = rootNode;
 	this.autoStep = autostep; //boolean value whether to automatically number the steps
 	this.stepLevelNumbering = stepLevelNum; //boolean value whether to use tree level numbering e.g. 1, 1.1, 1.1.2
+	this.stepTerm = stepTerm; //The term to precede a step (i.e. Step or Page) when autoStep=true
 	this.currentStepNum;
 }
 
@@ -40,6 +41,25 @@ NavigationPanel.prototype.render = function(eventType) {
 			previousNavElementClass = previousNavElement.getAttribute("class");
 			previousNavElementClass = previousNavElementClass.replace("currentNode", "");
 			previousNavElement.setAttribute("class", previousNavElementClass);
+			
+			/*
+			 * Check for glue sequences and if it was previous set icon
+			 * back to glue icon and remove position within the glue from
+			 * title
+			 */ 
+			var prevNode = vle.getNodeById(previousNodeId.substring(0, previousNodeId.indexOf('_menu')));
+			var currentNode = vle.getNodeById(currentNodeId);
+			if(prevNode && prevNode.parent.getView()=='glue' && (currentNode.parent != prevNode.parent)){ //then we are a glue sequence different from previous
+				var currentTitle = previousNavElement.firstChild.nextSibling.nodeValue;
+				var newTitle;
+				var parentTitle = prevNode.parent.title;
+				previousNavElement.firstChild.src = iconUrl + 'instantquiz16.png';
+				
+				if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
+					newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1);
+					previousNavElement.firstChild.nextSibling.nodeValue = newTitle;
+				};
+			};
 		}
 		
 		/*
@@ -50,6 +70,12 @@ NavigationPanel.prototype.render = function(eventType) {
 			var currentNavElementClass = currentNavElement.getAttribute("class");
 			currentNavElementClass = currentNavElementClass + " currentNode";
 			currentNavElement.setAttribute("class", currentNavElementClass);
+			
+			
+			var child = vle.state.getCurrentNodeVisit().node;
+			if(child.parent.getView()=='glue'){//must be first step in glue
+				this.processGlue(currentNavElement, child);
+			};
 		} else {
 			/*
 			 * if the currentNavElement is null it's because the current
@@ -60,6 +86,15 @@ NavigationPanel.prototype.render = function(eventType) {
 			//obtain the parent
 			var enclosingNavParentElement = this.getEnclosingNavParent(vle.state.getCurrentNodeVisit().node);
 			if(enclosingNavParentElement != null) {
+				
+				/*
+				 * if view is set for the glue, then change title to show which step
+				 * they are currently on
+				 */
+				var child = vle.state.getCurrentNodeVisit().node;
+				if(child.parent.getView()=='glue'){
+					this.processGlue(enclosingNavParentElement, child);
+				};
 				/*
 				 * add the currentNode class to the parent so that it becomes
 				 * highlighted
@@ -85,6 +120,25 @@ NavigationPanel.prototype.render = function(eventType) {
 		document.getElementById("my_menu").innerHTML = navHtml;
 	}
 }
+
+/**
+ * Handles special processing of glue sequences: setting icon
+ * to icon of current step and updating title to reflect the
+ * step number, within the glue, that they are currently on
+ */
+NavigationPanel.prototype.processGlue = function(el, child){
+	var currentTitle = el.firstChild.nextSibling.nodeValue;
+	var newTitle;
+	var parentTitle = child.parent.title;
+	var positionText = ' (part ' + (child.parent.children.indexOf(child) + 1) + ' of ' + child.parent.children.length + ')';
+					
+	el.firstChild.src = iconUrl + child.class + '16.png';
+	
+	if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
+		newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1) + positionText;
+		el.firstChild.nextSibling.nodeValue = newTitle;
+	};
+};
 
 /**
  * We will search backwards through the navigationLogic
@@ -192,7 +246,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth, p
     		 * step, they will step through the sequence and the 
     		 * sequence's children.
     		 */
-    		var sequenceIcon = '';
+    		var sequenceIcon = '<img src=\'images/stepIcons/UCCP/instantquiz16.png\'/>';
     		htmlSoFar ;
     		for(var t=0;t<depth;t++){
     			htmlSoFar += space;
@@ -309,8 +363,12 @@ NavigationPanel.prototype.createStepHtml = function(pxIndent, classString, deep,
 	var html = "<a class=\"" + classString + " depth" + (deep + 2) + "\" onclick=\"vle.renderNode('" + nodeId + "');\" id=\"" + nodeId + "_menu\">" + icon;
 	
 	if(currentStepNum != null) {
-		html += "Step " + currentStepNum + ": "; 
-	}
+		html += this.stepTerm + " " + currentStepNum + ": "; 
+	} else {
+		if(this.stepTerm && this.stepTerm != ''){
+			html += this.stepTerm + ': ';
+		};
+	};
 	
 	html += position + " " + title + "</a>";
 	return html;

@@ -1,6 +1,7 @@
 <html>
 <head>
 <script type="text/javascript" src="util/scriptloader.js"></script>
+<script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
 
 <link rel="shortcut icon" href="images/favicon_panda.ico">
 <script type='text/javascript'>
@@ -118,6 +119,11 @@ function afterScriptsLoad(){
 	initializeCreateNodeDialog();
 	initializeEditProjectFileDialog();
 	initializeImportProjectDialog();
+	
+	shortcutManager.addShortcut(79, 'openProject', ['shift', 'alt']); //shift + alt + 'o'
+	shortcutManager.addShortcut(83, 'saveProject', ['shift', 'alt']); //shift + alt + 's'
+	shortcutManager.addShortcut(80, 'preview', ['shift', 'alt']);	  //shift + alt + 'p'
+	shortcutManager.start();
 };
 
 function loaded(){
@@ -697,11 +703,15 @@ function exportProject(){
 	if(currentProjectName){
 		if(!projectSaved){
 			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
-				document.getElementById('exportProjectName').value = currentProjectPath;
+				document.getElementById('exportProjectPath').value = currentProjectPath;
+				document.getElementById('exportProjectName').value = currentProjectName;
+				document.getElementById('archivePath').value = primaryPath;
 				document.getElementById('exportProject').submit();
 			};
 		} else {
-			document.getElementById('exportProjectName').value = currentProjectPath;
+			document.getElementById('exportProjectPath').value = currentProjectPath;
+			document.getElementById('exportProjectName').value = currentProjectName;
+			document.getElementById('archivePath').value = primaryPath;
 			document.getElementById('exportProject').submit();
 		};
 	} else {
@@ -751,6 +761,75 @@ function saveProject(){
 		};
 		
 		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=' + currentProjectName + '&param3=' + encodeURIComponent(data));
+	} else {
+		notificationManager.notify('Please open or create a new project before attempting to save.', 3);
+	};
+};
+
+function getElementById(element, id) {
+	if (element.hasAttribute && element.hasAttribute("id") && element.getAttribute("id") == id) {
+		return element;
+	} else if (element.childNodes.length == 0) {
+		return null;
+	} else {
+		var endResult = null;
+		for (var i=0; i < element.childNodes.length; i++) {
+			result = getElementById(element.childNodes[i], id);
+			if (result != null) {
+				return result;
+			}
+	     } 
+	     return null;
+	}
+}
+
+/**
+ * Updates AudioFiles for the current project.
+ */
+function updateAudioFiles(){
+
+	if(currentProjectPath){
+		var createdCount = 0;
+		for(var b=0;b<project.allLeafNodes.length;b++){
+			var node = project.allLeafNodes[b];
+			for (var a=0; a<node.audios.length;a++) {
+				notificationManager.notify('audio url:' + node.audios[a].url, 4);
+				var elementId = node.audios[a].elementId;
+
+				// only invoke updateAudioFiles if elementId exists and is ID'ed to 
+				// actual element in the content.
+				if (elementId && elementId != null) {
+
+					var xmlDoc = loadXMLString(node.elementText);
+					if (xmlDoc.firstChild.nodeName == "parsererror") {
+						notificationManager.notify('could not create audio.\nAudioFile: ' +node.audios[a].url+'\nReason: parse error parsing file: ' + node.filename, 2);
+					} else {
+						var foundElement = getElementById(xmlDoc, elementId);
+						if (foundElement != null) {
+							var textContent = foundElement.textContent;
+							notificationManager.notify('creating audio file at url: ' + node.audios[a].url
+														+ '\nelementId: ' + elementId + '\ncontent: ' + textContent, 4);
+							
+							var callback = {
+								success: function(o){
+									if (o.responseText == 'success') {
+										createdCount++;
+									} else {
+										notificationManager.notify('could not create audio. Is your filesystem write-able? Does it have the right directories, ie audio, where the audio will go?', 3);
+									};
+								},
+								failure: function(o){
+									notificationManager.notify('could not create audio', 3);
+								},
+								scope: this
+							};
+							YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateAudioFiles&param1=' + currentProjectPath + '&param2=' + node.audios[a].url + '&param3=' + textContent);				
+						}  // if (foundElement != null) {
+					}  // } else {
+				}
+			}
+		}
+			notificationManager.notify('number of audio files created: ' + createdCount, 4);	
 	} else {
 		notificationManager.notify('Please open or create a new project before attempting to save.', 3);
 	};
@@ -808,6 +887,31 @@ function sequenceTitleChanged(id){
 };
 
 /**
+ * Updates the class of the node with the given
+ * id to that selected by the user
+ */
+function nodeIconUpdated(id){
+	projectSaved = false;
+	var node = project.getNodeById(id);
+	var select = document.getElementById('nodeIcon_' + id);
+	
+	node.class = select.options[select.selectedIndex].value;
+	populateSequences();
+	generateDD();
+};
+
+/**
+ * Updates the project with the value specified in the
+ * 'stepTerm' element when a change is detected.
+ */
+function stepTermChanged(){
+	projectSaved = false;
+	project.stepTerm = document.getElementById('stepTerm').value;
+	populateSequences();
+	generateDD();
+};
+
+/**
  * Retrieves all leaf nodes from a project, removes previous
  * list, if any, creates a new list element and populates
  * the nodes in the list by creating elements for the nodes
@@ -827,11 +931,40 @@ function populateNodes(){
 	for(var v=0;v<nodes.length;v++){
 		var li = createElement(document, 'li', {'id': nodes[v].id, 'name': 'nodes', 'class': 'draggable', 'ondblclick': 'author("' + nodes[v].id + '")'});
 		ul.appendChild(li);
-		if(nodes[v].class && nodes[v].class!='null' && nodes[v].class!=''){
-			li.innerHTML = '<img src=\'' + iconUrl + nodes[v].class + '16.png\'/> '
-		};
-		var title = createElement(document, 'input', {'id': nodes[v].id + '_title', 'value': nodes[v].title, 'size': '45', 'onchange': 'nodeTitleChanged("' + nodes[v].id + '")'});
+		
+		var titleText = document.createTextNode('Title: ');
+		var title = createElement(document, 'input', {'id': nodes[v].id + '_title', 'value': nodes[v].title, 'onchange': 'nodeTitleChanged("' + nodes[v].id + '")'});
+		li.appendChild(titleText);
 		li.appendChild(title);
+		
+		var selectNodeText = document.createTextNode('Icon: ');
+		var select = createElement(document, 'select', {id: 'nodeIcon_' + nodes[v].id, onchange: 'nodeIconUpdated("' + nodes[v].id + '")'});
+		li.appendChild(selectNodeText);
+		li.appendChild(select);
+		
+		//check to see if current node is in nodeTypes, if 
+		//not ignore so that authoring tool will continue
+		//processing remaining nodes
+		var ndx = nodeTypes.indexOf(nodes[v].type);
+		if(ndx!=-1){
+			var classes = nodeClasses[nodeTypes.indexOf(nodes[v].type)];
+			var text = nodeClassText[nodeTypes.indexOf(nodes[v].type)];
+	
+			var opt = createElement(document, 'option');
+			opt.innerHTML = '';
+			opt.value = '';
+			select.appendChild(opt);
+			
+			for(var h=0;h<classes.length;h++){
+				var opt = createElement(document, 'option');
+				opt.value = classes[h];
+				opt.innerHTML = '<img src=\'' + iconUrl + classes[h] + '16.png\'/> ' + text[h];
+				select.appendChild(opt);
+				if(nodes[v].class == classes[h]){
+					select.selectedIndex = h + 1;
+				};
+			};
+		};
 	};
 };
 
@@ -901,10 +1034,14 @@ function populateReferences(sequenceId, insideUL){
 			};
 			
 			if(project.autoStep){
-				var title = document.createTextNode('Step ' + currentStepNum + ': ' + sequence.children[s].title);
+				var title = document.createTextNode(project.stepTerm + ' ' + currentStepNum + ': ' + sequence.children[s].title);
 				currentStepNum ++;
 			} else {
-				var title = document.createTextNode('Node: ' + sequence.children[s].title);
+				if(project.stepTerm && project.stepTerm!=''){
+					var title = document.createTextNode(project.stepTerm + ': ' + sequence.children[s].title);
+				} else {
+					var title = document.createTextNode(sequence.children[s].title);
+				};
 			};
 		};
 		
@@ -930,6 +1067,14 @@ function loadProjectFromServer(){
 			document.getElementById('stepLevel').checked = true;
 		} else {
 			document.getElementById('stepLevel').checked = false;
+		};
+		
+		if(project && project.stepTerm){
+			document.getElementById('stepTerm').value = project.stepTerm;
+		} else {
+			document.getElementById('stepTerm').value = '';
+			project.stepTerm = '';
+			notificationManager.notify('stepTerm not set in project, setting default value: \"\"', 2);
 		};
 		
 		if(hostedProject){
@@ -1045,165 +1190,196 @@ function stepLevelChanged(){
 
 <div id="centeredDiv">
 
+<div id="fixedHeader">
+
 <div id="authorHeader">
-    <div id="pandaLogo"><img src="images/favicon_panda.ico" alt="WISE Panada" width="32" border="0" /></div>
-	<h2>WISE 4 Authoring Tool</h2>
-	<table>
-	  <tr>
-	  	<td><input type="button" value="Open Project" onclick="openProject()" id="openProjectButton"/></td>
-	  	<td><input type="button" value="Create New Project" onclick="createNewProject()" id="createProjectButton"/></td>
-	  	<td><input type="button" value="Create New Activity" onclick="createNewSequence()" id="createActivityButton"/></td>
-		<td><input type="button" value="Create New Node" onclick="createNewNode()" id="createNodeButton"/></td>
-	  	<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-		<td><input type="button" value="Save Project" onclick="saveProject()" id="saveProjectButton"/></td>
-	  	<td><input type="button" value="Export Project" onclick="exportProject()" id="exportProjectButton"/></td>
-	  	<td><input type="button" value="Import Project" onclick="importProject()" id="importProjectButton"/></td>
-	  	<td><input type="button" value="Preview Project" onclick="preview()" id="previewProjectButton"/></td>
-	  	<td><input type="button" value="Edit Project File" onclick="editProjectFile()" id="editProjectFileButton"/></td>
-	   </tr>
-	 </table>
+<table>
+		<tr>
+				<td><a onclick="openProject()" id="openProjectButton"><img src="images/openProject.png" alt="open project icon" /><br />
+				Open Project</a></td>
+				<td><a onclick="saveProject()" id="saveProjectButton"><img src="images/saveProject.png" alt="save project icon" /><br />
+				Save<br />
+				Project</a></td>
+				<td><a onclick="createNewProject()" id="createProjectButton"><img src="images/createProject.png"
+						alt="create project icon" /><br />
+				Create Project</a></td>
+				<td><a onclick="editProjectFile()" id="editProjectFileButton"><img src="images/editProjectFile.png"
+						alt="edit project file icon" /><br />
+				Edit<br />
+				Proj File</a></td>
+				<td class="noOutline"><a class="inactive" onclick="" id="exportProjectButton"><img
+						src="images/exportProject.png" alt="export project icon" /><br />
+				Export Project</a></td>
+				<td class="noOutline"><a class="inactive" onclick="" id="importProjectButton"><img
+						src="images/importProject.png" alt="import project icon" /><br />
+				Import Project</a></td>
+				<td class="separator"><img src="images/separatorIcon2.png" alt="tool separator icon" /></td>
+				<td><a onclick="createNewSequence()" id="createActivityButton"><img src="images/addSequence.png"
+						alt="add sequence icon" /><br />
+				Add Sequence</a></td>
+				<td><a onclick="createNewNode()" id="createNodeButton"><img src="images/addNode.png" alt="add node icon" /><br />
+				Add<br />
+				Node</a></td>
+				<td class="noOutline"><a class="inactive"onclick="" id="importNodeButton"><img src="images/importNode.png" alt="import node icon" /><br />
+				Import<br />
+				Node</a></td>
+						
+				<td class="separator"><img src="images/separatorIcon2.png" alt="tool separator icon" /></td>
+		
+				<td class="noOutline"><a class="inactive" onclick="" id="deleteNodeButton">
+				    <img src="images/trash.png" alt="delete selected icon" /><br/>Delete<br/>Selected</a></td>
+				<td class="noOutline"><a class="inactive" onclick="" id="deleteNodeButton">
+				    <img src="images/duplicateNode.png" alt="duplicate selected icon" /><br/>Duplicate<br/>Selected</a></td>
+				    
+				<td class="separator"><img src="images/separatorIcon2.png" alt="tool separator icon" /></td>
+
+				<td><a onclick="preview()" id="previewProjectButton"><img src="images/previewproject.png"
+						alt="preview project icon" /><br />
+				Preview Project</a></td>
+				<!-- batch audio creation disabled for now <td><input type="button" value="Update Audio Files" onclick="updateAudioFiles()" id="updateAudioFilesButton"/></td>  -->
+		</tr>
+</table>
+
+<h2>WISE 4&nbsp;<img src="images/favicon_panda.ico" alt="WISE Panada" border="0" /><br />
+Authoring Tool&nbsp;&nbsp;</h2>
+</div>
+
 </div>
 
 <div id="currentProject">Current Title = ?</div>
 
 <table id="authoringTable">
-	<tr>
-		<td id="assignedcontainer">
-			<table id="ddTable" width='100%'>
-				<tr>
-					<td id='sequencesTitle' width="50%">All Sequences &nbsp;&nbsp;
-						<input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()'/> Auto-number steps
-						<input type='checkbox' name='stepLevelNumbering' id='stepLevel' onclick='stepLevelChanged()'/> Step Level numbering
-					</td>
-					<td id='nodesTitle' width="50%">All Nodes</td>
-				</tr>
-				<tr>
-					<td id='sequencesTD'>
-						<ul id='sequencesUL'></ul>
-					</td>
-					<td id='nodesTD'>
-						<ul id='nodesUL'></ul>
-					</td>
-					<td id='garbageDump'>
-						<div id='trash' class='trash'>Trash Bin</div>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
+		<tr>
+				<td id="assignedcontainer">
+				<table id="ddTable" width='100%'>
+						<tr>
+								<td id='sequencesTitle' width="38%"><b>SEQUENCES</b><br />
+								<input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()' /> Auto-number steps <input
+										type='checkbox' name='stepLevelNumbering' id='stepLevel' onclick='stepLevelChanged()' /> Step Level numbering</td>
+								<td id='nodesTitle' width="62%"><b>NODES</b><br />
+								Term for Step Numbering:&nbsp;<input type='text' name='stepTerm' id='stepTerm' onchange='stepTermChanged()' /></td>
+						</tr>
+						<tr>
+								<td id='sequencesTD'>
+								<ul id='sequencesUL'></ul>
+								</td>
+								<td id='nodesTD'>
+								<ul id='nodesUL'></ul>
+								</td>
+								<td id='garbageDump'>
+								<div id='trash' class='trash'><b>Delete</b><br />
+								drag sequences or nodes here</div>
+								<div id='trash2' class='trash'><b>Delete</b><br />
+								drag items here</div>
+								<td>
+						</tr>
+				</table>
+				</td>
+		</tr>
 </table>
-			
+
 <div id="clearFloats" class="clearFloats" />
 
-<div id="navigationInstructions" style="display:none;">
-	<p>Instructions:</p>
-	<ol>
-	<li>SELECT a node by clicking on its text.</li>
-	<li>RENAME a node by clicking once on its text and typing changes.  Press Return key to save changes.</li>
-	<li>REORDER a node by click-dragging on its blue border.</li>
-	<li>EDIT a node for an item by double clicking.  A separate editor will launch.</li>
-	</ol>	
-</div> 
+<div id="navigationInstructions" style="display: none;">
+<p>Instructions:</p>
+<ol>
+		<li>SELECT a node by clicking on its text.</li>
+		<li>RENAME a node by clicking once on its text and typing changes. Press Return key to save changes.</li>
+		<li>REORDER a node by click-dragging on its blue border.</li>
+		<li>EDIT a node for an item by double clicking. A separate editor will launch.</li>
+</ol>
+</div>
 
 <div id='loading'>
-	<div class='hd'></div>
-	<div class='bd'></div>
-	<div class='ft'></div>
+<div class='hd'></div>
+<div class='bd'></div>
+<div class='ft'></div>
 </div>
 
 <div id="notePanel">
-	<div class="noteHead"></div>
-	<div class="noteBody"></div>
-	<div class="noteFooter"></div>
+<div class="noteHead"></div>
+<div class="noteBody"></div>
+<div class="noteFooter"></div>
 </div>
 
 <div id='createProjectDialog'>
-	<div class='hd'>Please enter a project name</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<input type='hidden' id='commandInput' name='command' value='createProject'/>
-			<input type='hidden' id='createNewProjectPath' name='param2'/>
-			<input type='text' id='projectInput' name='param1'/>
-		</form>
-	</div>
+<div class='hd'>Please enter a project name</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html'><input type='hidden' id='commandInput' name='command'
+		value='createProject' /> <input type='hidden' id='createNewProjectPath' name='param2' /> <input type='text'
+		id='projectInput' name='param1' /></form>
+</div>
 </div>
 
 <div id='openProjectDialog'>
-	<div class='hd'>Select a project from <br/>the list below to open it.</div>
-	<div class='bd'>
-		<br/>
-		<form method='POST' action='filemanager.html' id='openProjectForm'>
-			<select id='selectProject' onchange='optionSelected()'>
-				<option name='placeholderOption' value=''/>
-			</select>
-			<br/><br/>
-		</form>
-	</div>
+<div class='hd'>Select a project from <br />
+the list below to open it.</div>
+<div class='bd'><br />
+<form method='POST' action='filemanager.html' id='openProjectForm'><select id='selectProject'
+		onchange='optionSelected()'>
+		<option name='placeholderOption' value='' />
+</select> <br />
+<br />
+</form>
+</div>
 </div>
 
 <div id='createSequenceDialog'>
-	<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<input type='hidden' id='sequenceCreateCommand' name='command' value='createSequence'/>
-			<input type='hidden' id='sequenceProjectPath' name='param1'/>
-			<input type='hidden' id='newSequenceId' name='param3'/>
-			<input type='text' size='40' id='createSequenceInput' name='param2'/>
-		</form>
-	</div>
+<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html'><input type='hidden' id='sequenceCreateCommand' name='command'
+		value='createSequence' /> <input type='hidden' id='sequenceProjectPath' name='param1' /> <input type='hidden'
+		id='newSequenceId' name='param3' /> <input type='text' size='40' id='createSequenceInput' name='param2' /></form>
+</div>
 </div>
 
 <div id='createNodeDialog'>
-	<div class='hd'>Create New Node</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html' id='createNodeForm'>
-			<input type='hidden' id='nodeCreateCommand' name='command' value='createNode'/>
-			<input type='hidden' id='nodeProjectPath' name='param1'/>
-			<label for='createNodeTitle'>Step Title:</label>
-			<input type='text' size='40' id='createNodeTitle' name='param3'/>
-			<label for='createNodeType'>Please select a node type.</label>
-			<select id='createNodeType' name='param4' onchange='nodeTypeSelected();'>
-				<option value=""></option>
-				<option value="BrainstormNode">brainstorm</option>
-				<option value="FillinNode">fillin</option>
-				<option value="HtmlNode">html</option>
-				<option value="MatchSequenceNode">matchsequence</option>
-				<option value="MultipleChoiceNode">multiplechoice</option>
-				<option value="NoteNode">note</option>
-				<option value="JournalEntryNode">journal entry</option>
-				<option value="OutsideUrlNode">outsideurl</option>
-				<option value="GlueNode">glue</option>
-				<option value="OpenResponseNode">open response</option>
-			</select>
-		</form>
-	</div>
+<div class='hd'>Create New Node</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html' id='createNodeForm'><input type='hidden' id='nodeCreateCommand'
+		name='command' value='createNode' /> <input type='hidden' id='nodeProjectPath' name='param1' /> <label
+		for='createNodeTitle'>Step Title:</label> <input type='text' size='40' id='createNodeTitle' name='param3' /> <label
+		for='createNodeType'>Please select a node type.</label> <select id='createNodeType' name='param4'
+		onchange='nodeTypeSelected();'>
+		<option value=""></option>
+		<option value="BrainstormNode">brainstorm</option>
+		<option value="FillinNode">fillin</option>
+		<option value="HtmlNode">html</option>
+		<option value="MatchSequenceNode">matchsequence</option>
+		<option value="MultipleChoiceNode">multiplechoice</option>
+		<option value="NoteNode">note</option>
+		<option value="JournalEntryNode">journal entry</option>
+		<option value="OutsideUrlNode">outsideurl</option>
+		<option value="GlueNode">glue</option>
+		<option value="OpenResponseNode">open response</option>
+</select></form>
+</div>
 </div>
 
 <div id="editProjectFileDialog">
-	<div class='hd'>Edit Project File</div>
-	<div class='bd'>
-		<form method='POST' action='filemanager.html'>
-			<input type='hidden' name='command' value='updateFile'/>
-			<input type='hidden' id='editProjectFileProjectName' name='param1'/>
-			<input type='hidden' id='editProjectFileFileName' name='param2'/>
-			<textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3'/></textarea>
-		</form>
-	</div>
+<div class='hd'>Edit Project File</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html'><input type='hidden' name='command' value='updateFile' /> <input
+		type='hidden' id='editProjectFileProjectName' name='param1' /> <input type='hidden' id='editProjectFileFileName'
+		name='param2' /> <textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3' /></textarea></form>
+</div>
 </div>
 
 <form id='exportProject' method='POST' action='filemanager.html'>
 	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
-	<input type='hidden' id='exportProjectName' name='param1'/>
+	<input type='hidden' id='exportProjectPath' name='param1'/>
+	<input type='hidden' id='exportProjectName' name='param2'/>
+	<input type='hidden' id='archivePath' name='param3'/>
 </form>
 
-<form id='importProjectDialog' method='POST' action='filemanager.html' enctype="multipart/form-data">
-	<input type='hidden' id='importProjectPath' name='param1'/>
-	<label for='importFile'>Enter or browse to ZIP file of a project you wish to upload</label>
-	<input type='file' id='importFile' name='param2' size='45' accept='application/zip'/>
-</form>
+<form id='importProjectDialog' method='POST' action='filemanager.html' enctype="multipart/form-data"><input
+		type='hidden' id='importProjectPath' name='param1' /> <label for='importFile'>Enter or browse to ZIP file of a
+project you wish to upload</label> <input type='file' id='importFile' name='param2' size='45' accept='application/zip' /></form>
 
-</div>  <!-- centerDiv -->
 
+<iframe id="hiddenifrm" name="hiddenifrm" scrolling="auto" frameborder="0" width="0%" height="0%"> [Content for
+browsers that don't support iframes goes here.] </iframe></div>
+<!-- centerDiv -->
 </body>
 
 </html>

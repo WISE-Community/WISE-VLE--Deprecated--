@@ -51,16 +51,17 @@ NodeFactory.createNode = function (element, connectionManager) {
 	}
 }
 
-function Project(xmlDoc, contentBaseUrl, connectionManager) {
+function Project(xmlDoc, contentBaseUrl, connectionManager, lazyLoading) {
 	this.xmlDoc = xmlDoc;
 	this.contentBaseUrl = contentBaseUrl;
 	this.allLeafNodes = [];
 	this.allSequenceNodes = [];
-	this.lazyLoading = false;
+	this.lazyLoading = lazyLoading;
 	this.connectionManager = connectionManager;
 	this.autoStep;
 	this.title;
 	this.stepLevelNumbering;
+	this.stepTerm;
 	
 	var val = xmlDoc.getElementsByTagName('project')[0].getAttribute('autoStep');
 	if(val){
@@ -84,6 +85,14 @@ function Project(xmlDoc, contentBaseUrl, connectionManager) {
 	} else {
 		notificationManager.notify('stepLevelNum attribute of project file was not specified, using default value: false', 2);
 		this.stepLevelNumbering = false;
+	};
+	
+	val = xmlDoc.getElementsByTagName('project')[0].getAttribute('stepTerm');
+	if(val){
+		this.stepTerm = val;
+	} else {
+		notificationManager.notify('stepTerm attribute of project file was not specified, setting default value: \"\"', 2);
+		this.stepTerm = '';
 	};
 	
 	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
@@ -201,7 +210,6 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			// create node audios for this node
 			var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');
 			for (var k=0; k < nodeAudioElements.length; k++) {
-				var nodeAudioId = nodeAudioElements[k].getAttribute("id");
 				var nodeAudioUrl = "";
 			        if (this.contentBaseUrl != null) {
 					nodeAudioUrl += this.contentBaseUrl + "/";
@@ -210,8 +218,14 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 				if (nodeAudioElements[k].getAttribute("url").search('http:') > -1) {
 					nodeAudioUrl = "";
 				}
+				
+				// ignore contentBaseUrl if in author mode
+				if (currentProjectPath) {
+					nodeAudioUrl = "";
+				}
 				nodeAudioUrl += nodeAudioElements[k].getAttribute("url");  
 				var elementId = nodeAudioElements[k].getAttribute("elementId");
+				var nodeAudioId = thisNode.id + "_" + nodeAudioElements[k].getAttribute("elementId");
 				var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementId);
 				thisNode.audios.push(nodeAudio);
 			}
@@ -226,7 +240,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 				thisNode.retrieveFile();
 			};
 			
-			if(thisNode.type=='HtmlNode'){
+			if(thisNode.type=='HtmlNode' || thisNode.type=='BlueJNode'){
 				thisNode.contentBase = this.contentBaseUrl;
 			};
 			//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
@@ -594,7 +608,8 @@ Project.prototype.addNodeToSequence = function(nodeId, seqId, location){
 };
 
 Project.prototype.projectXML = function(){
-	var xml = "<project autoStep=\"" + this.autoStep + "\" stepLevelNum=\"" + this.stepLevelNumbering + "\">\n<nodes>\n";
+	var xml = "<project autoStep=\"" + this.autoStep + "\" stepLevelNum=\"" + this.stepLevelNumbering + 
+		"\" stepTerm=\"" + this.stepTerm + "\">\n<nodes>\n";
 	
 	for(var k=0;k<this.allLeafNodes.length;k++){
 		xml += this.allLeafNodes[k].nodeDefinitionXML();

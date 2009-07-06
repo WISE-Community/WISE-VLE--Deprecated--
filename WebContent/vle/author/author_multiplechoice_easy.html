@@ -16,7 +16,7 @@ function loadScripts(){
  * Loads easy multiplechoice authoring specific js
  */
 function loadMultiplechoice(){
-	scriptloader.initialize(document, loaded, 'author_multiplechoice_easy');
+	scriptloader.initialize(document, function(){loaded();}, 'author_multiplechoice_easy');
 };
 </script>
 </head>
@@ -24,7 +24,7 @@ function loadMultiplechoice(){
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
    		<td width='50%' id="dynamicParent"><div id="dynamicPage"></div></td>
-   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='multiplechoice_plain.html'></iframe></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame'></iframe></td>
 	</tr>
 </table>
 <!--  for posting the text for echo servlet -->

@@ -45,6 +45,13 @@ VLEConfig.prototype.parse = function(responseXML) {
 		this.mainNav = responseXML.getElementsByTagName('mainNav')[0].firstChild.nodeValue;
 	}
 	
+	
+	// use audio 
+	if (responseXML.getElementsByTagName('enableAudio') &&
+			responseXML.getElementsByTagName('enableAudio')[0] != null) {
+		this.useAudio = responseXML.getElementsByTagName('enableAudio')[0].firstChild.nodeValue;
+	}
+
 	//check to make sure theme was defined in xml, if so, check to see if value is valid and set it,
 	//otherwise default to WISE as a theme.
 	if(this.theme != null && this.theme.firstChild && this.isValidTheme(this.theme.firstChild.nodeValue)){

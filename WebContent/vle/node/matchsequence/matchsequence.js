@@ -29,6 +29,7 @@
  */
 function MS(xmlDoc, customCheck) {
     this.xmlDoc = xmlDoc;
+    this.attempts = [];
     this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
     this.responseDeclaration = null;
     this.feedbacks = [];
@@ -145,7 +146,7 @@ MS.prototype.render = function() {
     document.getElementById('play').innerHTML = bucketsHtml;
     renderYUI();   // calls YUI functions to make choices into draggables and buckets into dragtargets.
 	//addClassToElement("resetWrongChoicesButton", "disabledLink");
-    displayNumberAttempts("This is your", "attempt", states);
+    displayNumberAttempts("This is your", "attempt", this.attempts);
 }
 
 /**
@@ -277,7 +278,8 @@ MS.prototype.getBucketCopy = function(identifier) {
  */
 MS.prototype.checkAnswer = function() {
 	var isCheckAnswerDisabled = hasClass("checkAnswerButton", "disabledLink");
-
+	this.attempts.push(null);
+	
 	if (isCheckAnswerDisabled) {
 		return;
 	}
@@ -291,6 +293,7 @@ MS.prototype.checkAnswer = function() {
 			document.getElementById('checkAnswerButton').className = 'disabledLink';
 		} else {
 			message = "<font color='8B0000'>" + feedback.getMessage() + "</font>";
+			displayNumberAttempts("This is your", "attempt", this.attempts);
 		};
 		document.getElementById("feedbackDiv").innerHTML = message;
 		
@@ -365,10 +368,12 @@ MS.prototype.checkAnswer = function() {
 				}
 				this.setChoicesDraggable(false);
 			} else {
+				displayNumberAttempts("This is your", "attempt", this.attempts);
 				var totalNumChoices = numCorrectChoices + numWrongChoices;
 				feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
-				
 			}
+			
+			var tries = document.getElementById('numberAttemptsDiv');
 		}
 	}
 }

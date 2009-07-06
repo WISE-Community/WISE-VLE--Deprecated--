@@ -8,6 +8,7 @@ FillinNode.prototype.parent = Node.prototype;
 function FillinNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
+	this.renderComplete = false;
 }
 
 FillinNode.prototype.render = function(contentpanel) {
@@ -15,14 +16,33 @@ FillinNode.prototype.render = function(contentpanel) {
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].location = "node/fillin/fillin.html";
+	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
+	
+	var frm = window.frames["ifrm"];
+	window.allready = function(){
+		var callback = function(){
+			frm.scriptloader.initialize(frm.document, null, 'fillin');
+		};
+		
+		pageBuilder.build(frm.document, 'fillin', callback, vle.currentNode);
+	};
+	
+	frm.location = 'blank.html';
 };
 
 FillinNode.prototype.load = function() {
-	window.frames["ifrm"].loadXMLString(this.element, vle);
+	var load = function(fiNode){
+		fiNode.renderComplete = true;
+		window.frames["ifrm"].loadXMLStringAfterScriptsLoad([fiNode.element, vle]);
+		document.getElementById('topStepTitle').innerHTML = fiNode.title;
+	};
 	
-	document.getElementById('topStepTitle').innerHTML = this.title;
-}
+	if(this.renderComplete){
+		load(this);
+	} else {
+		vle.eventManager.subscribe('nodeRenderComplete_' + this.id, load, this);
+	};
+};
 
 FillinNode.prototype.getDataXML = function(nodeStates) {
 	return FillinNode.prototype.parent.getDataXML(nodeStates);

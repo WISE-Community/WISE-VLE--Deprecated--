@@ -9,18 +9,19 @@ function BlueJNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = "BlueJNode";
 	this.projectPath = "";
+   this.contentBase;
 }
 
 BlueJNode.prototype.render = function(contentPanel) {
 	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	
+
 	if(contentPanel == null) {
 		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(content);
+		window.frames["ifrm"].document.write(this.injectBaseRef(content));
 		window.frames["ifrm"].document.close();
 	} else {
 		contentPanel.document.open();
-		contentPanel.document.write(content);
+		contentPanel.document.write(this.injectBaseRef(content));
 		contentPanel.document.close();
 	}
 	
@@ -61,6 +62,9 @@ BlueJNode.prototype.parseDataXML = function(nodeStatesXML) {
 	var statesArrayObject = new Array();
 	if(nodeStatesXML.firstChild != null) {
 		statesArrayObject.push(nodeStatesXML.firstChild.nodeValue);
+		
+		//set the project path which is inside the nodeStates tag
+		this.projectPath = nodeStatesXML.firstChild.nodeValue;
 	}
 	return statesArrayObject;
 }

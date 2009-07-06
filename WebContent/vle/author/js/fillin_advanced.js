@@ -15,13 +15,13 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		 * edit and author it. 
 		 */
 		document.getElementById('sourceTextArea').value = o.responseText;
-
-		window.frames["previewFrame"].loadFromXMLString(xmlDocToParse);
+		
+		window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlDocToParse]);
 		},
 		failure: function(o) { alert('failure');},
 		scope: this
 	}
-
+	
 	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
 }
 
@@ -35,7 +35,27 @@ function sourceUpdated() {
 	var xmlString = document.getElementById('sourceTextArea').value;
 	
 	var xmlDoc = loadXMLDocFromString(xmlString);
-	window.frames["previewFrame"].loadFromXMLString(xmlDoc);
+	window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlDoc]);
+};
+
+function loaded(){
+	//set frame source to blank and create page dynamically
+	var callback = function(){
+		var frm = window.frames['previewFrame'];
+		var loadFill = function(){
+			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			window.parent.childSave = save;
+			window.parent.getSaved = getSaved;
+		};
+		
+		frm.scriptloader.initialize(frm.document, loadFill, 'fillin');
+	};
+	
+	window.allready = function(){
+		pageBuilder.build(window.frames['previewFrame'].document, 'fillin', callback);
+	};
+	
+	window.frames['previewFrame'].location = '../blank.html';
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -14,13 +14,13 @@
 
 #currentQuestionBox #leftColumn {
 	float: left;
-	width: 80%;
+	width: 85%;
 	padding: 10px 0;
 	min-height: 375px;
 }
 
 #currentQuestionBox #rightColumn {
-	margin-left: 81%;
+	margin-left: 86%;
 	padding: 10px 0;
 	text-align: center;
 	color: #FFF;
@@ -74,7 +74,7 @@
 }
 
 #radiobuttondiv table td {
-	font-size: .9em;
+	font-size: .85em;
 	vertical-align: top;
 	padding: 3px 3px 8px 3px;
 }
@@ -94,14 +94,28 @@
 
 #radiobuttondiv .correct {
 	color: green;
-	font-size: 110%;
 	font-weight: bold;
 }
 
 #radiobuttondiv .incorrect {
 	color: red;
-	font-size: 110%;
 	font-weight: bold;
+}
+
+#radiobuttondiv table td:first-child {
+	width:25px;
+}
+
+#radiobuttondiv table td + td + td {
+
+}
+
+#radiobuttondiv table td + td + td div[name="feedbacks"]{
+	font-style:italic;
+	font-size:.9em;
+	border-left:4px solid #999;
+	padding-left:6px;
+	margin-left:30px;
 	
 }
 
@@ -135,21 +149,3 @@ input * {
 #buttonTable {
 	margin-top:10px;
 }
-
-#feedbackDiv {
-	width: 85%;
-	font-size: .85em;
-	font-weight:bold;
-	margin: 0 0 0 40px; 
-	padding : 2px;
-	text-align: left;
-	padding: 2px; 
-	text-align: left;
-	color: #000;
-}
-
-#feedbackDiv tt {
-	font-size:130%;
-	font-weight:bold:
-}
-

@@ -160,6 +160,8 @@ p {
 #questionCountBox {
 	margin: 0;
 	padding: 0;
+	-moz-border-radius-bottomleft:4px;
+	-moz-border-radius-bottomright:4px;
 }
 
 #questionTable #questionType {
@@ -200,7 +202,7 @@ p {
 
 #feedbackDiv {
 	width: 85%;
-	margin: 0px auto;
+	margin: 10px auto 0 auto;
 	text-align: center;
 	color: #19253D;
 }

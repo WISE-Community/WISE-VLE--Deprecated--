@@ -227,12 +227,14 @@ BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
 	var responsesParent = frameDoc.getElementById('responses');
 	
 	for(var p=0;p<this.cannedResponses.length;p++){
-		var response = createElement(frameDoc, 'textarea', {rows: '7', cols:  '80', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
+		var response = createElement(frameDoc, 'div', {rows: '7', cols:  '80', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
 		var responseTitle = createElement(frameDoc, 'div', {id: 'responseTitle_' + this.cannedResponses[p].getAttribute('name')});
 		responseTitle.innerHTML = 'Posted By: &nbsp;' + this.cannedResponses[p].getAttribute('name');
 		responseTitle.appendChild(createElement(frameDoc, 'br'));
 		responseTitle.appendChild(response);
-		response.value = this.cannedResponses[p].firstChild.nodeValue;
+		responseTitle.setAttribute('class', 'responseTitle');
+		response.innerHTML = this.cannedResponses[p].firstChild.nodeValue;
+		response.setAttribute('class', 'responseTextArea');
 		
 		responsesParent.appendChild(responseTitle);
 		responsesParent.appendChild(createElement(frameDoc, 'br'));
@@ -333,16 +335,18 @@ BRAINSTORM.prototype.addStudentResponse = function(frameDoc, responseText, userI
 	var responsesParent = frameDoc.getElementById('responses');
 	
 	//create the response and response title elements
-	var responseTextArea = createElement(frameDoc, 'textarea', {rows: '7', cols:  '80', disabled: true, id: localResponseId});
+	var responseTextArea = createElement(frameDoc, 'div', {rows: '7', cols:  '80', disabled: true, id: localResponseId});
 	var responseTitle = createElement(frameDoc, 'div', {id: 'responseTitle_' + localResponseId});
 	
 	//set the html for the response title
 	responseTitle.innerHTML = 'Posted By: &nbsp;' + vle.getUserNameByUserId(userId);
 	responseTitle.appendChild(createElement(frameDoc, 'br'));
 	responseTitle.appendChild(responseTextArea);
+	responseTitle.setAttribute('class', 'responseTitle');
 	
 	//set the student text in the response textarea
-	responseTextArea.value = responseText;
+	responseTextArea.innerHTML = responseText;
+	responseTextArea.setAttribute('class', 'responseTextArea');
 
 	//add the whole response element into the parent container
 	responsesParent.appendChild(responseTitle);

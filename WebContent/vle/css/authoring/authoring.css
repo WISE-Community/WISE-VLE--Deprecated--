@@ -42,9 +42,9 @@
 	}
 
 #authorHeader table td {
-	padding: 2px 4px;
+	padding: 2px 3px;
 	text-align:center;
-	width:55px;
+	width:48px;
 	vertical-align:top;	
 	line-height:85%;
 }
@@ -81,7 +81,7 @@
 
 #authorHeader table td a:hover {
 	color: #FFFF00;
-	outline:1px solid #FFFF00;
+	outline:1px solid #CCCC66;
 }
 
 .clearFloats {
@@ -188,10 +188,10 @@
 	background-color: #FFCCCC;
 	color: #666;
 	text-align: center;
-	font-size: .8em;
-	padding-top: 35px;
+	font-size: .75em;
+	padding: 35px 2px 2px 2px;
 	margin: 4px auto;
-	width: 70px;
+	width: 65px;
 	height: 100px;
 }
 

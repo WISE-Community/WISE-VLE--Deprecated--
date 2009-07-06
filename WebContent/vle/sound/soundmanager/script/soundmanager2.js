@@ -1614,5 +1614,10 @@ function SoundManager(smURL,smID) {
 
 soundManager = new SoundManager();
 
+soundManager.url = 'sound/soundmanager/swf/'; // directory where SM2 .SWFs live
+soundManager.waitForWindowLoad = true;
+soundManager.debugMode = false;
+
+
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/sound/soundmanager/script/soundmanager2.js");
+//scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/sound/soundmanager/script/soundmanager2.js");

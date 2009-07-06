@@ -7,15 +7,13 @@ body {
 }
 
 #questionCountBox {
-	-moz-border-radius-bottomleft: 8px;
-	-moz-border-radius-topright: 8px;
+	-moz-border-radius-bottomleft: 4px;
+	-moz-border-radius-bottomright: 4px;
 }
 
 #brain_title {
 	background-color: #FF9D1E;
 	padding: 8px;
-	-moz-border-radius: 6px;
-	-webkit-border-radius: 6px;
 	border-radius: 6px;
 	font-size: 1.1em;
 	font-weight: bold;

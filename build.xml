@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Build Jar" default="make jar" basedir=".">
+    <target name="make jar">
+        <jar destfile="WebContent/WEB-INF/lib/vlewrapper-classes.jar" basedir="WebContent/WEB-INF/classes">
+            <manifest>
+            </manifest>
+        </jar>
+    </target>
+</project>

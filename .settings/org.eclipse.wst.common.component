@@ -25,6 +25,33 @@
 <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper-trunk/WebContent/WEB-INF/lib/mysql-connector-java-5.1.7-bin.jar">
 <dependency-type>uses</dependency-type>
 </dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmu_time_awb.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmu_us_kal.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmudict04.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmulex.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmutimelex.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/en_us.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/freetts-jsapi10.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/freetts.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
+<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/mbrola.jar">
+<dependency-type>uses</dependency-type>
+</dependent-module>
 <property name="java-output-path"/>
 <property name="context-root" value="vlewrapper"/>
 </wb-module>

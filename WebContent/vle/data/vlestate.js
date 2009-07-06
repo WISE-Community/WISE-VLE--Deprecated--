@@ -233,6 +233,27 @@ VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 		currentNodeVisit.visitEndTime = new Date().toUTCString();
 	}
 	var newNodeVisit = new NODE_VISIT(node);
+	
+	/*
+	 * check if the node is a BlueJNode so we can create and insert 
+	 * a completely visited node visit into the visited nodes array. 
+	 * this causes the node visit to be sent back to the database even 
+	 * though the user hasn't exited the BlueJNode yet.
+	 */ 
+	if(node.type == "BlueJNode") {
+		//create a node visit
+		var blueJVisit = new NODE_VISIT(node);
+		
+		//set the end time so that this visit will be sent back to the db
+		blueJVisit.visitEndTime = new Date().toUTCString();
+		
+		//set the project path for the bluej node visit
+		blueJVisit.nodeStates = node.projectPath;
+		
+		//add it to the array of node visits
+		this.visitedNodes.push(blueJVisit);
+	}
+	
 	this.visitedNodes.push(newNodeVisit);
 }
 

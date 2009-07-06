@@ -144,6 +144,8 @@ function generatePage(){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(generateFeedbackOptions());
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(generateNumChoiceOption());
+	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(generatePrompt());
@@ -160,6 +162,10 @@ function generatePage(){
 	generateDD();
 };
 
+/**
+ * Generates shuffle element options for this page and
+ * sets option based on xml data
+ */
 function generateShuffle(){
 	var shuffleVal = xmlPage.getElementsByTagName('choiceInteraction')[0].getAttribute('shuffle');
 	var shuffleDiv = createElement(document, 'div', {id: "shuffleDiv"});
@@ -206,6 +212,29 @@ function generateFeedbackOptions(){
 		feedbackOptionFalse.checked = true;
 	};
 	return feedbackOptionDiv;
+};
+
+/**
+ * Dynamically generates the elements used to
+ * specify the number of correct choices for this
+ * multiple choice
+ */
+function generateNumChoiceOption(){
+	var numChoiceDiv = createElement(document, 'div', {id: 'numChoiceDiv'});
+	var numChoiceText = document.createTextNode('Enter the number of answers the student is allowed to choose as correct. Enter \'0\' to allow the student to choose as many as they want.');
+	var numChoiceInput = createElement(document, 'input', {type: "text", id: 'numChoiceInput', onchange: 'numChoiceChanged()'});
+	var numChoiceVal = xmlPage.getElementsByTagName('choiceInteraction')[0].getAttribute('maxChoices');
+	
+	if(!numChoiceVal){
+		numChoiceVal = 1;
+	};
+	
+	numChoiceInput.value = numChoiceVal;
+	
+	numChoiceDiv.appendChild(numChoiceText);
+	numChoiceDiv.appendChild(createBreak());
+	numChoiceDiv.appendChild(numChoiceInput);
+	return numChoiceDiv;
 };
 
 /**
@@ -288,11 +317,17 @@ function generateFeedback(simpleChoice, index){
 function generateOptions(index, length){
 	var options = createElement(document, 'div');
 	var outStr;
+	var identifier = xmlPage.getElementsByTagName('simpleChoice')[index].getAttribute('identifier');
+	var correctResponses = xmlPage.getElementsByTagName('correctResponse')[0].getElementsByTagName('value');
 	
-	if(xmlPage.getElementsByTagName('correctResponse')[0].getAttribute('interpretation') == xmlPage.getElementsByTagName('simpleChoice')[index].getAttribute('identifier')){
-		outStr = '<input CHECKED type="radio" name="correctRadio" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is the correct Choice ';
-	} else {
-		outStr = '<input type="radio" name="correctRadio" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is the correct Choice ';
+	for(var j=0;j<correctResponses.length;j++){
+		if(correctResponses[j].firstChild.nodeValue==identifier){
+			outStr = '<input CHECKED type="checkbox" name="correctRadio" id="radio_' + index + '" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is a correct Choice ';
+		};
+	};
+	
+	if(!outStr){
+		outStr = '<input type="checkbox" name="correctRadio" id="radio_' + index + '" value="' + index + '" onclick="correctChoiceChange(' + index + ')">This is a correct Choice ';
 	};
 	
 	outStr = outStr + '<a href="#" onclick="removeChoice(' + index + ')">Remove Choice</a>';
@@ -308,8 +343,17 @@ function createPrompt(){
 	return prompt;
 };
 
+/**
+ * Generates answers in xmlPage based on the choice elements
+ * on this page and the corresponding correctResponse values
+ */
 function createAnswer(parent){
 	var answers = document.getElementsByName('answerLI');
+	var correctChoice = xmlPage.getElementsByTagName('correctResponse')[0];
+	while(correctChoice.firstChild){
+		correctChoice.removeChild(correctChoice.firstChild);
+	};
+	
 	for(var d=0;d<answers.length;d++){
 		var answer = answers[d].childNodes[1];
 		var feedback = answers[d].childNodes[4];
@@ -322,12 +366,23 @@ function createAnswer(parent){
 			simpleChoice.appendChild(createFeedback(feedback, simpleChoice.getAttribute('identifier')));
 		};
 		
-		if(answers[d].childNodes[6].childNodes[0].checked){
-			xmlPage.getElementsByTagName('correctResponse')[0].setAttribute('interpretation', simpleChoice.getAttribute('identifier'));	
-		};
-		
 		simpleChoice.appendChild(simpleText);
 		parent.appendChild(simpleChoice);
+		
+		if(hasInlineFeedback()){
+			var ndx = 2;
+		} else {
+			var ndx = 1;
+		};
+		
+		var checked = answers[d].getElementsByTagName('input')[ndx].checked
+		if(checked){
+			var val = xmlPage.createElement('value');
+			var id = xmlPage.createTextNode('choice ' + (d + 1));
+			
+			val.appendChild(id);
+			xmlPage.getElementsByTagName('correctResponse')[0].appendChild(val);
+		};
 	};
 };
 
@@ -343,9 +398,13 @@ function createFeedback(feedback, identifier){
 function removeChoice(index){
 	var parent = xmlPage.getElementsByTagName('choiceInteraction')[0];
 	
-	if(parent.getElementsByTagName('simpleChoice')[index].getAttribute('identifier')==xmlPage.getElementsByTagName('correctResponse')[0].getAttribute('interpretation')){
-		clearCorrectChoice();
+	var correctChoices = xmlPage.getElementsByTagName('correctResponse')[0].getElementsByTagName('value');
+	for(var j=0;j<correctChoices.length;j++){
+		if(correctChoices[j].firstChild.nodeValue==parent.getElementsByTagName('simpleChoice')[index].getAttribute('identifier')){
+			xmlPage.getElementsByTagName('correctResponse')[0].removeChild(correctChoices[j]);
+		};
 	};
+	
 	parent.removeChild(parent.getElementsByTagName('simpleChoice')[index]);
 	regenerateAnswers();
 	sourceUpdated();
@@ -385,13 +444,55 @@ function regenerateAnswers(){
 	generateDD();
 };
 
+/**
+ * Updates xmlPage with the specified shuffle value and refreshes page
+ */
 function shuffleChange(val){
 	xmlPage.getElementsByTagName('choiceInteraction')[0].setAttribute('shuffle', val);
 	sourceUpdated();
 };
 
+/**
+ * Updates xmlPage with the specified correct choice and refreshes page
+ */
 function correctChoiceChange(index){
-	xmlPage.getElementsByTagName('correctResponse')[0].setAttribute('interpretation', xmlPage.getElementsByTagName('simpleChoice')[index].getAttribute('identifier'));
+	var correctResponses = xmlPage.getElementsByTagName('correctResponse')[0].getElementsByTagName('value');
+	var identifier = xmlPage.getElementsByTagName('simpleChoice')[index].getAttribute('identifier');
+	var checked = document.getElementById('radio_' + index).checked;
+	
+	if(checked){
+		var found = false;
+		for(var h=0;h<correctResponses.length;h++){
+			if(correctResponses[h].firstChild.nodeValue==identifier){
+				found = true;
+			};
+		};
+		
+		if(!found){
+			var val = xmlPage.createElement('value');
+			var id = xmlPage.createTextNode(identifier);
+			
+			val.appendChild(id);
+			xmlPage.getElementsByTagName('correctResponse')[0].appendChild(val);
+		};
+	} else {
+		for(var h=0;h<correctResponses.length;h++){
+			if(correctResponses[h].firstChild.nodeValue==identifier){
+				xmlPage.getElementsByTagName('correctResponse')[0].removeChild(correctResponses[h]);
+			};
+		};
+	};
+	
+	sourceUpdated();
+};
+
+/**
+ * Updates xmlPage with the specified number of correct choices 
+ * and refreshes page
+ */
+function numChoiceChanged(){
+	var val = document.getElementById('numChoiceInput').value;
+	xmlPage.getElementsByTagName('choiceInteraction')[0].setAttribute('maxChoices', val);
 	sourceUpdated();
 };
 
@@ -404,7 +505,12 @@ function clearCorrectChoice(){
 	for(var p=0;p<radios.length;p++){
 		radios[p].checked = false;
 	};
-	xmlPage.getElementsByTagName('correctResponse')[0].setAttribute('interpretation', '');
+	
+	var parent = xmlPage.getElementsByTagName('correctResponse')[0];
+	while(parent.firstChild){
+		parent.removeChild(parent.firstChild);
+	};
+	
 	sourceUpdated();
 };
 
@@ -466,8 +572,54 @@ function sourceUpdated() {
 		xmlString = (new XMLSerializer()).serializeToString(xmlPage);
 	}
 
-	window.frames["previewFrame"].loadFromXMLString(xmlString);
+	window.frames["previewFrame"].renderAfterScriptsLoad([xmlString]);
 }
+
+/**
+ * Load the authoring view from the specified filename
+ * filename points to a plain old file.
+ */
+function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator) {
+	var callback =
+	{
+	  success: function(o) { 
+	  var xmlDocToParse = o.responseXML;
+	  
+		/**
+		 * sets local xml and then generates the left panel
+		 * of this page dynamically
+		 */
+		xmlPage = xmlDocToParse;
+		generatePage();
+		
+		window.frames["previewFrame"].renderAfterScriptsLoad([o.responseText]);
+	  },
+		  failure: function(o) { alert('failure');},
+		  scope: this
+	}
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
+}
+
+function loaded(){
+	//set frame source to blank and create page dynamically
+	var callback = function(){
+		var frm = window.frames['previewFrame'];
+		var loadMultiple = function(){
+			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			window.parent.childSave = save;
+			window.parent.getSaved = getSaved;
+		};
+		
+		frm.scriptloader.initialize(frm.document, loadMultiple, 'multiplechoice');
+	};
+	
+	window.allready = function(){
+		pageBuilder.build(window.frames['previewFrame'].document, 'multiplechoice', callback);
+	};
+	
+	window.frames['previewFrame'].location = '../blank.html';
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/js/multiplechoice_easy.js");

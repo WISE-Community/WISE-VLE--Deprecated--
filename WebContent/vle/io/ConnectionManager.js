@@ -89,6 +89,9 @@ Connection.prototype.startRequest = function(eventName){
 	var callback = {
 		success: function(o){
 			this.em.fire(en);
+			if (o.responseText && !o.responseXML) {
+				o.responseXML = loadXMLString(o.responseText);
+			}
 			this.handler(o.responseText, o.responseXML, this.hArgs);
 		},
 		failure: function(o){},

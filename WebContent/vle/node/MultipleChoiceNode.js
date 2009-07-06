@@ -8,6 +8,7 @@ MultipleChoiceNode.prototype.parent = Node.prototype;
 function MultipleChoiceNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
+	this.renderComplete = false;
 	
 	//mainly used for the ticker
 	this.mc = null;
@@ -18,19 +19,38 @@ MultipleChoiceNode.prototype.render = function(contentPanel) {
 		this.retrieveFile();
 	};
 	
-	if(contentPanel == null) {
-		window.frames["ifrm"].location = "node/multiplechoice/multiplechoice.html";
+	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
+	
+	if(contentPanel){
+		var frm = contentPanel;
 	} else {
-		contentPanel.location = "node/multiplechoice/multiplechoice.html";
+		var frm = window.frames["ifrm"];
 	};
+	
+	window.allready = function(){
+		var callback = function(){
+			frm.scriptloader.initialize(frm.document, null, 'multiplechoice');
+		};
+		
+		pageBuilder.build(frm.document, 'multiplechoice', callback, vle.currentNode);
+	};
+	
+	frm.location = 'blank.html';
 };
 
 
 
-MultipleChoiceNode.prototype.load = function() {	
-	window.frames["ifrm"].renderMCFromString(this.getXMLString(), this, vle);
-			
-	document.getElementById('topStepTitle').innerHTML = this.title;
+MultipleChoiceNode.prototype.load = function() {
+	var load = function(mcNode){
+		window.frames['ifrm'].renderAfterScriptsLoad([mcNode.getXMLString(), mcNode, vle]);
+		document.getElementById('topStepTitle').innerHTML = mcNode.title;
+	};
+	
+	if(this.renderComplete){
+		load(this);
+	} else {
+		vle.eventManager.subscribe('nodeRenderComplete_' + this.id, load, this);
+	};
 };
 
 /**
