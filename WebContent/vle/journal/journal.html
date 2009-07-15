@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<script>
+			var entryCount = 0;
+			function createNewPage() {
+				var journalEntry = document.createElement('div');
+				journalEntry.id = 'journalEntry' + entryCount;
+				journalEntry.innerHTML = "<table border='1'><tr><td width='80%'><textarea id='journalEntryText" + entryCount + "' cols='50' rows='10'></textarea></td><td width='20%'><button type='button' onclick='savePage(\"journalEntry" + entryCount + "\")'>Save</button><button type='button' onclick='deletePage(\"journalEntry" + entryCount + "\")'>Delete</button></td></tr></table>";
+				entryCount++;
+				document.getElementById('journalEntries').appendChild(journalEntry);
+			}
+
+			function deletePage(journalEntryId) {
+				var journalEntry = document.getElementById(journalEntryId);
+				document.getElementById('journalEntries').removeChild(journalEntry);
+			}
+
+			function savePage(journalEntryId) {
+				var journalEntry = document.getElementByid(journalEntryId);
+				
+			}
+		</script>
+	</head>
+
+	<body>
+		<div id='journalPanel'>
+			<div id='journalToolbar'><button type='button' onclick='createNewPage()'>Create New Page</button></div>
+			<div id='journalEntries'></div>
+		</div>
+	</body>
+</html>

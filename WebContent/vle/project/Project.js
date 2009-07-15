@@ -62,6 +62,7 @@ function Project(xmlDoc, contentBaseUrl, connectionManager, lazyLoading) {
 	this.title;
 	this.stepLevelNumbering;
 	this.stepTerm;
+	this.audioLocation = "/audio";   // default location where VLE looks for audio files
 	
 	var val = xmlDoc.getElementsByTagName('project')[0].getAttribute('autoStep');
 	if(val){
@@ -134,6 +135,13 @@ Project.prototype.generateUniqueId = function(){
 	}
 };
 
+/**
+ * Returns the node with the given specified id that is associated with
+ * this project if the node exists, returns null otherwise.
+ * 
+ * @param nodeId
+ * @return Node
+ */
 Project.prototype.getNodeById = function(nodeId){
 	for(var t=0;t<this.allLeafNodes.length;t++){
 		if(this.allLeafNodes[t].id==nodeId){
@@ -143,6 +151,27 @@ Project.prototype.getNodeById = function(nodeId){
 	for(var p=0;p<this.allSequenceNodes.length;p++){
 		if(this.allSequenceNodes[p].id==nodeId){
 			return this.allSequenceNodes[p];
+		};
+	};
+	return null;
+};
+
+/**
+ * Returns the node with the given specified title that is associated with
+ * this project if the node exists, returns null otherwise.
+ * 
+ * @param nodeTitle
+ * @return Node
+ */
+Project.prototype.getNodeByTitle = function(title){
+	for(var y=0;y<this.allLeafNodes.length;y++){
+		if(this.allLeafNodes[y].title==title){
+				return this.allLeafNodes[y];
+		};
+	};
+	for(var u=0;u<this.allSequenceNodes.length;u++){
+		if(this.allSequenceNodes[u].title==title){
+			return this.allSequenceNodes[u];
 		};
 	};
 	return null;
@@ -198,7 +227,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 			if(!currElement.getAttribute('class')){
 				notificationManager.notify('No class attribute for node with id: ' + thisNode.id, 2);
 			} else {
-				thisNode.class = currElement.getAttribute('class');
+				thisNode.className = currElement.getAttribute('class');
 			};
 			//validate filename reference attribute
 			if(!currElement.getElementsByTagName('ref')[0].getAttribute('filename')){
@@ -207,28 +236,6 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 				thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
 			};
 			thisNode.element = currElement;
-			// create node audios for this node
-			var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');
-			for (var k=0; k < nodeAudioElements.length; k++) {
-				var nodeAudioUrl = "";
-			        if (this.contentBaseUrl != null) {
-					nodeAudioUrl += this.contentBaseUrl + "/";
-				}
-				// ignore contentBaseUrl if nodeaudiourl is absolute, ie, starts with http://...
-				if (nodeAudioElements[k].getAttribute("url").search('http:') > -1) {
-					nodeAudioUrl = "";
-				}
-				
-				// ignore contentBaseUrl if in author mode
-				if (currentProjectPath) {
-					nodeAudioUrl = "";
-				}
-				nodeAudioUrl += nodeAudioElements[k].getAttribute("url");  
-				var elementId = nodeAudioElements[k].getAttribute("elementId");
-				var nodeAudioId = thisNode.id + "_" + nodeAudioElements[k].getAttribute("elementId");
-				var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementId);
-				thisNode.audios.push(nodeAudio);
-			}
 			
 			this.allLeafNodes.push(thisNode);
 			//alert('1 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
@@ -286,6 +293,14 @@ Project.prototype.generateSequences = function(xmlDoc){
 		startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
 	} else {
 		notificationManager.notify('No starting sequence specified for this project', 3);
+	};
+	
+	//get location of audio files
+	if(xmlDoc.getElementsByTagName('audiofiles').length >0 && xmlDoc.getElementsByTagName('audiofiles')[0].childNodes.length>0 && xmlDoc.getElementsByTagName('audiofiles')[0].getElementsByTagName('location')[0] && xmlDoc.getElementsByTagName('audiofiles')[0].getElementsByTagName('location')[0].firstChild.nodeValue){
+		this.audioLocation = xmlDoc.getElementsByTagName('audiofiles')[0].getElementsByTagName('location')[0].firstChild.nodeValue;
+	} else {
+		notificationManager.notify('No audio location specified for this project, using default', 4);
+		this.audioLocation = "/audio";
 	};
 		
 	//validate that there are no loops
@@ -635,7 +650,30 @@ Project.prototype.projectXML = function(){
 Project.prototype.exportProject = function() {
 	var exportXML = this.rootNode.exportNode();
 	return exportXML;
-}
+};
+
+/**
+ * Given a node id and a new location, updates the location of the node
+ * in the leaf nodes.
+ * 
+ * @param id
+ * @param loc
+ */
+Project.prototype.updateNodeLocation = function(id, loc){
+	var node = this.getNodeById(id);
+	
+	if(node){
+		var index = this.allLeafNodes.indexOf(node);
+		if(index==-1){
+			notificationManager.notify('Was expecting a leaf node, cound not update location!', 2);
+		} else {
+			this.allLeafNodes.splice(index, 1); //remove it from allLeafNodes first
+			this.allLeafNodes.splice(loc, 0, node); //then add it back at the new location
+		};
+	} else {
+		notificationManager.notify('Could not update node location, could not find node!', 2);
+	};
+};
 
 /**
  * Returns true iff this node is a Html page

@@ -132,7 +132,7 @@ NavigationPanel.prototype.processGlue = function(el, child){
 	var parentTitle = child.parent.title;
 	var positionText = ' (part ' + (child.parent.children.indexOf(child) + 1) + ' of ' + child.parent.children.length + ')';
 					
-	el.firstChild.src = iconUrl + child.class + '16.png';
+	el.firstChild.src = iconUrl + child.className + '16.png';
 	
 	if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
 		newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1) + positionText;
@@ -252,8 +252,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth, p
     			htmlSoFar += space;
     		};
     		
-    		if(node.class && node.class!='null' && node.class!=''){
-    			sequenceIcon = '<img src=\'' + iconUrl + node.class + '16.png\'/> ';
+    		if(node.className && node.className!='null' && node.className!=''){
+    			sequenceIcon = '<img src=\'' + iconUrl + node.className + '16.png\'/> ';
     		};
     		
     		if(!this.stepLevelNumbering){
@@ -292,8 +292,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, eventType, depth, p
 			htmlSoFar += space;
 		};
 		
-		if(node.class && node.class!='null' && node.class!=''){
-			icon = '<img src=\'' + iconUrl + node.class + '16.png\'/> ';
+		if(node.className && node.className!='null' && node.className!=''){
+			icon = '<img src=\'' + iconUrl + node.className + '16.png\'/> ';
 		};
 		
 		if(!this.stepLevelNumbering){

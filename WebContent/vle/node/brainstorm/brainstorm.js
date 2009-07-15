@@ -41,21 +41,53 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
 	var serverless = this.xmlDoc.getAttribute('serverless');
 	if(serverless != null && serverless == 'false') {
 		this.serverless = false;
-	}
-};
-
-BRAINSTORM.prototype.render = function(){
-	var parent = document.getElementById('contentDiv');
-	var frame = document.getElementById('brainstormFrame');
-	
-	//set new src for frame
-	if(this.serverless){
-		frame.src = 'brainlite.html';
-	} else {
-		frame.src = 'brainfull.html';
 	};
 };
 
+/**
+ * Renders either the brainlite page, if this.serverless=true or the
+ * brainfull page if this.serverless = false.
+ */
+BRAINSTORM.prototype.render = function(){
+	var frame = window.frames['brainstormFrame'];
+	if(window.name=='previewFrame'){
+		var url = '../blank.html'; //called from author_framed.html - need to come out one level
+	} else {
+		var url = 'blank.html'; //probably called from 'ifrm' - same level as author.html and vle.html
+	};
+	
+	//set new src for frame
+	if(this.serverless){ // then render brainlite page
+		window.allready = function(){
+			var callback = function(){
+				frame.scriptloader.initialize(frame.document, function(){frame.afterScriptsLoaded();}, 'brainlite');
+			};
+			
+			frame.pageBuilder = window.parent.pageBuilder;
+			frame.pageBuilder.build(frame.document, 'brainlite', callback);
+		};
+		
+		frame.location = url;
+	} else { // render brainfull page
+		window.allready = function(){
+			var callback = function(){
+				frame.scriptloader.initialize(frame.document, function(){frame.afterScriptsLoaded();}, 'brainfull');
+			};
+			
+			frame.pageBuilder = window.parent.pageBuilder;
+			frame.pageBuilder.build(frame.document, 'brainfull', callback);
+		};
+		
+		frame.location = url;
+	};
+};
+
+/**
+ * Loads the serverless version that this brainstorm represents
+ * 
+ * @param frameDoc
+ * @return
+ */
 BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 	var parent = frameDoc.getElementById('main');
 	var nextNode = frameDoc.getElementById('studentResponseDiv');
@@ -227,7 +259,7 @@ BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
 	var responsesParent = frameDoc.getElementById('responses');
 	
 	for(var p=0;p<this.cannedResponses.length;p++){
-		var response = createElement(frameDoc, 'div', {rows: '7', cols:  '80', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
+		var response = createElement(frameDoc, 'div', {rows: '7', cols:  '100', disabled: true, id: this.cannedResponses[p].getAttribute('name')});
 		var responseTitle = createElement(frameDoc, 'div', {id: 'responseTitle_' + this.cannedResponses[p].getAttribute('name')});
 		responseTitle.innerHTML = 'Posted By: &nbsp;' + this.cannedResponses[p].getAttribute('name');
 		responseTitle.appendChild(createElement(frameDoc, 'br'));
@@ -378,7 +410,6 @@ BRAINSTORM.prototype.getText = function(){
 	text += '  questionType: ' + this.questionType;
 	return text;
 };
-
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/brainstorm/brainstorm.js");

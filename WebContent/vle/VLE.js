@@ -26,6 +26,11 @@ function VLE() {
     shortcutManager.addShortcut(37, 'renderPrevNode', ['shift'], this);
     shortcutManager.addShortcut(77, 'toggleNavigationPanelVisibility', ['shift'], this);
     shortcutManager.start();
+    
+	//set the global_yui variable
+	YUI().use('node', function(Y) {
+		global_yui = Y;
+	});
 }
 
 VLE.prototype.startEventsAndListeners = function(){
@@ -138,17 +143,60 @@ VLE.prototype.setProject = function(project) {
  */
 VLE.prototype.setVLEState = function(vleState) {
 	this.state = vleState;
-}
+};
 
 /**
- * stops and rewinds audio
+ * Updates the audio files. Only available in authoring tool mode.
+ */
+VLE.prototype.updateAudio = function() {
+	this.eventManager.subscribe('projectLoadingComplete', projectLoadingCompleteListenerUpdateAudio);
+};
+
+/**
+ * call back for when the project finished loading for updating audio files
+ */
+var projectLoadingCompleteListenerUpdateAudio = function() {
+	notificationManager.notify('project loading complete, now on to updating audio files', 4);
+	var message = "Generating Audio Files...";
+	vle.lockscreen(message);
+
+	setInterval("updateAudioStepThruEveryNode()", 2500);
+};
+
+var updateAudioStepThruEveryNode = function() {
+	if (vle.renderNextNode() != null) {		
+	} else {
+		vle.lockscreen("Generating Audio Files...Complete! Please Close this window.");
+	}
+};
+
+
+/**
+ * rewinds currently-playing audio
  */
 VLE.prototype.rewindStepAudio = function() {
 	if (this.audioManager) {
 		this.audioManager.rewindStepAudio();
 	}
+};
+
+/**
+ * rewinds currently-playing audio
+ */
+VLE.prototype.previousStepAudio = function() {
+	if (this.audioManager) {
+		this.audioManager.previousStepAudio();
+	}
 }
 
+/**
+ * forwards to the next audio
+ */
+VLE.prototype.forwardStepAudio = function() {
+	if (this.audioManager) {
+		this.audioManager.nextStepAudio();
+	}
+}
 /**
  * toggles play/pause audio
  */
@@ -156,7 +204,7 @@ VLE.prototype.playPauseStepAudio = function() {
 	if (this.audioManager) {
 		this.audioManager.playPauseStepAudio();	
 	}
-}
+};
 
 /**
  * Renders the VLE.
@@ -207,8 +255,8 @@ VLE.prototype.renderNode = function(nodeId){
     }
 	
 	//Set icon in nav bar
-	if(currentNode.class && currentNode.class!='null' && currentNode.class!=''){
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconUrl + currentNode.class + '28.png\'/>';
+	if(currentNode.className && currentNode.className!='null' && currentNode.className!=''){
+		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconUrl + currentNode.className + '28.png\'/>';
 	};
 	
 	// adjust height of iframe
@@ -287,10 +335,15 @@ VLE.prototype.expandActivity = function(nodeId) {
 		};
 	};
 }
+
+/**
+ * Renders the previous node in the sequence. If prev node does not exist, return null.
+ * @return previous node. if previous node does not exist, return null.
+ */
 VLE.prototype.renderPrevNode = function() {
 	var currentNode = this.currentNode;
 	if (this.navigationLogic == null) {
-		notificationManager.notify("prev is not defined.", 3);
+		notificationManager.notify("prev is not defined.", 1);
 	}
 	
 	if(currentNode.type=='GlueNode'){
@@ -306,19 +359,24 @@ VLE.prototype.renderPrevNode = function() {
 		}
 		
 		if (prevNode == null) {
-			notificationManager.notify("prevNode does not exist", 3);
+			notificationManager.notify("prevNode does not exist", 1);
 		} else {
 			this.renderNode(prevNode.id);
 			
-			this.collapseAllNonImmediate(prevNode);			
+			this.collapseAllNonImmediate(prevNode);	
+			return prevNode;
 		}
 	};
 }
 
+/**
+ * Renders the next node in the sequence.  If next node does not exist, return null.
+ * @return next node. if next node does not exist, return null.
+ */
 VLE.prototype.renderNextNode = function() {
 	var currentNode = this.currentNode;
 	if (this.navigationLogic == null) {
-		notificationManager.notify("next is not defined.", 3);
+		notificationManager.notify("next is not defined.", 1);
 	}
 	
 	if(currentNode.type=='GlueNode'){
@@ -333,11 +391,12 @@ VLE.prototype.renderNextNode = function() {
 			nextNode = this.navigationLogic.getNextNode(nextNode);
 		}
 		if (nextNode == null) {
-			notificationManager.notify("nextNode does not exist", 3);
+			notificationManager.notify("nextNode does not exist", 1);
 		} else {
 			this.renderNode(nextNode.id);
 		
 			this.collapseAllNonImmediate(nextNode);
+			return nextNode;
 		}
 	};
 }
@@ -972,15 +1031,15 @@ VLE.prototype.processLoadLearnerDataResponse = function(responseText, responseXM
 /**
  * Given a projectName, loads the specified project from the server
  */
-VLE.prototype.loadProjectFromServer = function(){	
+VLE.prototype.loadProjectFromServer = function(o){
 	vle.eventManager.fire('projectLoading');
-	this.connectionManager.request('POST', 1, 'filemanager.html', {command:'retrieveFile', param1: currentProjectPath + pathSeparator + currentProjectName}, this.processLoadProjectFromServerResponse);
+	this.connectionManager.request('POST', 1, 'filemanager.html', {command:'retrieveFile', param1: currentProjectPath + pathSeparator + currentProjectName}, this.processLoadProjectFromServerResponse, o);
 };
 
 /**
  * Handles the server response from the connectionManagers call to loadProjectFromSErver
  */
-VLE.prototype.processLoadProjectFromServerResponse = function(responseText, responseXML){
+VLE.prototype.processLoadProjectFromServerResponse = function(responseText, responseXML, o){
 		if(responseXML){
 			project = new Project(responseXML, null, vle.connectionManager, true);
 			project.xmlDoc = responseXML;
@@ -991,6 +1050,10 @@ VLE.prototype.processLoadProjectFromServerResponse = function(responseText, resp
 			//vle.audioManager = new AudioManager(true);
 			vle.audioManager = null;
 			vle.eventManager.fire('projectLoadingComplete');
+			if(o){
+				var t = vle.project.getNodeByTitle(o.title);
+				o.authorFun(t.id);
+			};
 		};
 		vle.eventManager.fire('projectLoadingComplete');
 };

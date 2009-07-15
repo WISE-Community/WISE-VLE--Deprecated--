@@ -23,10 +23,10 @@ HtmlNode.prototype.setContent = function(content) {
 }
 
 HtmlNode.prototype.load = function() {
+	this.prepareAudio();
 	if (vle.audioManager != null) {
 		vle.audioManager.setCurrentNode(this);
 	}
-	this.updateAudioFiles();
 }
 
 

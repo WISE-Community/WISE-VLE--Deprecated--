@@ -29,13 +29,36 @@
 <link rel="stylesheet" type="text/css" href="./brainstorm.css">
 <script type="text/javascript">
 var brainstorm = parent.brainstorm;
-
+var richTextEditor;
 function save(){
+	if(richTextEditor != null) {
+		/*
+		 * if we are using the rich text editor, save the text written
+		 * in the rich text editor to the textarea
+		 */ 
+		richTextEditor.saveHTML();
+	}	
 	brainstorm.save(document);
 };
 
 function afterScriptsLoaded(){
 	brainstorm.brainfullLoaded(document);
+
+	//check if we want to use the rich text editor
+	if(brainstorm.isRichTextEditorAllowed == "true") {
+		/*
+		 * create the editor by passing in the id of the textarea
+		 * that we will be replacing with the rich text editor
+		 */
+		richTextEditor = new YAHOO.widget.Editor('studentResponse', {
+			height: '220px',
+			width: '750px',
+			dompath: true,
+			animate: true
+		});
+		//render and display the rich text editor
+		richTextEditor.render();
+	}
 };
 
 function loaded(){
@@ -43,7 +66,7 @@ function loaded(){
 };
 </script>
 </head>
-<body onload="loaded()">
+<body class="yui-skin-sam" onload="loaded()">
 	<div id='main'>
 		<div id="brain_title">Student Brainstorm: Server Based</div>
 		<p id="brain_instructions">Read the brainstorm topic below, then write your response in the blank box.<br/>
@@ -51,7 +74,7 @@ function loaded(){
 		<div id="questionPrompt"></div>
 		<div id="studentResponseDiv">
 			<br/>My Response:<br/>
-			<textarea id='studentResponse' rows='5' cols = '80'></textarea><br/>
+			<textarea id='studentResponse' rows='5' cols = '100'></textarea><br/>
 			<input id='butt' type='button' value='save' onclick='save()'/><div id='saveMsg'></div>
 		</div>
 		<br>

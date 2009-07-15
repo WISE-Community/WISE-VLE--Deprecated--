@@ -8,7 +8,6 @@ MultipleChoiceNode.prototype.parent = Node.prototype;
 function MultipleChoiceNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
-	this.renderComplete = false;
 	
 	//mainly used for the ticker
 	this.mc = null;
@@ -19,6 +18,7 @@ MultipleChoiceNode.prototype.render = function(contentPanel) {
 		this.retrieveFile();
 	};
 	
+	this.renderComplete = false;
 	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
 	
 	if(contentPanel){
@@ -28,11 +28,17 @@ MultipleChoiceNode.prototype.render = function(contentPanel) {
 	};
 	
 	window.allready = function(){
-		var callback = function(){
-			frm.scriptloader.initialize(frm.document, null, 'multiplechoice');
+		var callbackCallback = function(args){
+			args[0].renderComplete = true;
+			args[1].eventManager.fire('nodeRenderComplete_' + args[0].id);
 		};
 		
-		pageBuilder.build(frm.document, 'multiplechoice', callback, vle.currentNode);
+		var callback = function(){
+			frm.scriptloader.initialize(frm.document, callbackCallback, 'multiplechoice', [vle.currentNode, vle]);
+		};
+		
+		frm.pageBuilder = pageBuilder;
+		frm.pageBuilder.build(frm.document, 'multiplechoice', callback, vle.currentNode);
 	};
 	
 	frm.location = 'blank.html';
@@ -41,8 +47,12 @@ MultipleChoiceNode.prototype.render = function(contentPanel) {
 
 
 MultipleChoiceNode.prototype.load = function() {
-	var load = function(mcNode){
-		window.frames['ifrm'].renderAfterScriptsLoad([mcNode.getXMLString(), mcNode, vle]);
+	var load = function(type, args, mcNode){
+		if(!mcNode){ //Firefox only passes the obj
+			mcNode = type;
+		};
+		
+		window.frames['ifrm'].loadContent([mcNode.getXMLString(), mcNode, vle]);
 		document.getElementById('topStepTitle').innerHTML = mcNode.title;
 	};
 	

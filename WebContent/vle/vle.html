@@ -12,6 +12,7 @@
             var pathSeparator;
             var basePath;
             var vle = null;
+            var global_yui = null;   // global YUI instance
             var vleConfigURL = null;
             var portalContext = false;
             var workgroupId = null;
@@ -43,6 +44,11 @@
                 else 
                     if (currentProjectPath) {
                         loadProject();
+                        if (window.location.search.indexOf("updateAudio") != -1) {
+                            notificationManager.notify("update audio",4);
+                            vle.updateAudio();
+                        } else {
+                        }
                     };
                 };
             /**
@@ -264,7 +270,7 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                     </dl>
                 </div>
                 <div id="projectLogoBox">
-                    <a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
+                    <a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="./images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
                     <div id="projectCurriculum">
                         <div id="courseName" class="courseName">
                             UCCP AP Computer Science
@@ -286,13 +292,13 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                                 Audio Controls:
                             </td>
                             <td>
-                                <a class="rewind" onclick="vle.rewindStepAudio();"></a>
+                                <a id="rewindButton" class="rewind" onclick="vle.rewindStepAudio();" ondblclick="vle.previousStepAudio();"></a>
                             </td>
                             <td>
                                 <a id="playPause" class="play" onclick="vle.playPauseStepAudio();"></a>
                             </td>
                             <td>
-                                <a class="forward" onclick=""></a>
+                                <a id="forwardButton" class="forward" onclick="vle.forwardStepAudio();"></a>
                             </td>
                         </tr>
                     </table>

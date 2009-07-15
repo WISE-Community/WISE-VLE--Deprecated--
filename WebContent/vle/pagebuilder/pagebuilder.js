@@ -26,35 +26,36 @@ var pageBuilder = {
 	pages: {
 		fillin: function(doc){
 			var centered = createElement(doc, 'div', {id: "centeredDiv"});
-			var questionCount = createElement(doc, 'div', {id: "questionCountBox", class: "BG7"});
-			var reminder = createElement(doc, 'div', {class: "instructionsReminder"});
+			var questionCount = createElement(doc, 'div', {id: "questionCountBox", 'class': "BG7"});
+			var reminder = createElement(doc, 'div', {'class': "instructionsReminder"});
 			reminder.innerHTML = "For instructions click <a href=\"node/fillin/FillBlankInfoBox.html\" onclick=\"popUp(this.href,'console',450,720);return false;\" target=\"_blank\">&nbsp;&nbsp;&nbsp;&nbsp;</a>";
+			var questionCount = createElement(doc, 'div', {id: "questionCountBox", 'class': "BG7"});
+			var reminder = createElement(doc, 'table', {'class': "instructionsReminder"});
+			var trInstruct = createElement(doc, 'tr');
+			var td1Instruct = createElement(doc, 'td');
+			var td2Instruct = createElement(doc, 'td');
+			var td1Div = createElement(doc, 'div', {id: "helpIcon"});
+			
 			var table = createElement(doc, 'table', {id: "questionTable"});
 			var tr = createElement(doc, 'tr');
-			var td1 = createElement(doc, 'td', {id: "questionNumber"});
 			var td2 = createElement(doc, 'td', {id: "questionType"});
-			var td3 = createElement(doc, 'td', {id: "questionHelp"});
 		
-			td1.innerHTML = 'Question X of Y:';
 			td2.innerHTML = 'Fill In The Blank';
-			td3.innerHTML = "<a href=\"node/fillin/FillBlankInfoBox.html\" onclick=\"popUp(this.href,'console',700,720);return false;\" target=\"_blank\">&nbsp;&nbsp;&nbsp;</a>";
 		
-			tr.appendChild(td1);
 			tr.appendChild(td2);
-			tr.appendChild(td3);
 			table.appendChild(tr);
 		
 			var d = createElement(doc, 'div');
-			var promptDiv = createElement(doc, 'div', {class: "Color1"});
+			var promptDiv = createElement(doc, 'div', {'class': "color1 introPhrase"});
 			promptDiv.innerHTML = 'Fill each blank with the correct word or short phrase.';
 		
 			d.appendChild(promptDiv);
 		
 			var currentFillP = createElement(doc, 'div', {id: "currentFillBlankParagraph"});
-			var leftCol = createElement(doc, 'div', {id: "leftColumn", class: "BG8"});
+			var leftCol = createElement(doc, 'div', {id: "leftColumn", 'class': "BG8"});
 			var noninteractive = createElement(doc, 'div', {id: "nonInteractiveDiv"});
 			var interactive = createElement(doc, 'div', {id: "interactiveDiv"});
-			var rightCol = createElement(doc, 'div', {id: "rightColumn", class: "BG2"});
+			var rightCol = createElement(doc, 'div', {id: "rightColumn", 'class': "BG2"});
 			rightCol.innerHTML = "<img src=\"images/fill_blanks.png\" alt=\"Robot Art Fill the Blanks\" width=\"100\" height=\"250\" border=\"0\" />";
 
 			leftCol.appendChild(noninteractive);
@@ -85,6 +86,12 @@ var pageBuilder = {
 		
 			questionCount.appendChild(reminder);
 			questionCount.appendChild(table);
+			reminder.appendChild(trInstruct);
+			trInstruct.appendChild(td1Instruct);
+			trInstruct.appendChild(td2Instruct);
+            td1Instruct.appendChild(td1Div);
+            td1Div.innerHTML = "<a href=\"./node/fillin/FillBlankInfoBox.html\" onclick=\"popUp(this.href,'console',800,800);return false;\" target=\"_blank\">&nbsp&nbsp&nbsp</a>";
+            td2Instruct.innerHTML = "<a id=\"helpTextLink\" href=\"./node/fillin/FillBlankInfoBox.html\" onclick=\"popUp(this.href,'console',800,800);return false;\" target=\"_blank\">instructions</a>";
 			centered.appendChild(questionCount);
 			centered.appendChild(d);
 			centered.appendChild(currentFillP);
@@ -95,8 +102,8 @@ var pageBuilder = {
 		},
 		multiplechoice: function(doc){
 			var centered = createElement(doc, 'div', {id: "centeredDiv"});
-			var questionCount = createElement(doc, 'div', {id: 'questionCountBox', class: 'bg7'});
-			var table = createElement(doc, 'table', {class: 'instructionsReminder'});
+			var questionCount = createElement(doc, 'div', {id: 'questionCountBox', 'class': 'bg7'});
+			var table = createElement(doc, 'table', {'class': 'instructionsReminder'});
 			var tr = createElement(doc, 'tr');
 			var td1 = createElement(doc, 'td');
 			var td2 = createElement(doc, 'td');
@@ -122,8 +129,8 @@ var pageBuilder = {
 			qTypeDiv.innerHTML = 'Multiple Choice';
 			
 			var currentQDiv = createElement(doc, 'div', {id: 'currentQuestionBox'});
-			var leftCDiv = createElement(doc, 'div', {id: 'leftColumn', class: 'bg8'});
-			var rightCDiv = createElement(doc, 'div', {id: 'rightColumn', class: 'bg2'});
+			var leftCDiv = createElement(doc, 'div', {id: 'leftColumn', 'class': 'bg8'});
+			var rightCDiv = createElement(doc, 'div', {id: 'rightColumn', 'class': 'bg2'});
 			var clear = createElement(doc, 'div', {id: 'clearBoth'});
 			var statusDiv = createElement(doc, 'div', {id: 'statusMessages'});
 			var buttonDiv = createElement(doc, 'div', {id: 'buttonDiv'});
@@ -135,9 +142,9 @@ var pageBuilder = {
 			currentQDiv.appendChild(statusDiv);
 			currentQDiv.appendChild(buttonDiv);
 			
-			var labelDiv = createElement(doc, 'div', {class: 'itemLabel color1'});
+			var labelDiv = createElement(doc, 'div', {'class': 'itemLabel color1'});
 			var promptDiv = createElement(doc, 'div', {id: 'promptDiv'});
-			var answersDiv = createElement(doc, 'div', {class: 'itemLabel color1'});
+			var answersDiv = createElement(doc, 'div', {'class': 'itemLabel color1'});
 			var radioDiv = createElement(doc, 'div', {id: 'radiobuttondiv'});
 			var feedbackDiv = createElement(doc, 'div', {id: 'feedbackdiv'});
 			
@@ -164,7 +171,7 @@ var pageBuilder = {
 			var td3 = createElement(doc, 'td');
 			var td4 = createElement(doc, 'td');
 			var a1 = createElement(doc, 'a', {href: "#", id: "checkAnswerButton", onclick: "javascript:checkAnswer();"});
-			var a2 = createElement(doc, 'a', {href: "#", id: "tryAgainButton", onclick: "javascript:tryAgain();", class: "disabledLink"});
+			var a2 = createElement(doc, 'a', {href: "#", id: "tryAgainButton", onclick: "javascript:tryAgain();", 'class': "disabledLink"});
 			var a1Text = doc.createTextNode('Check Answer');
 			var a2Text = doc.createTextNode('Try Again');
 			
@@ -176,22 +183,121 @@ var pageBuilder = {
 			td4.appendChild(a2);
 			a1.appendChild(a1Text);
 			a2.appendChild(a2Text);
+		},
+		brainstorm: function(doc){
+			var frameDiv = createElement(doc, 'div', {id: 'frameDiv'});
+			var frame = createElement(doc, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0'});
+			var parent = doc.getElementsByTagName('body')[0];
+			
+			parent.appendChild(frameDiv);
+			frameDiv.appendChild(frame);
+		},
+		brainlite: function(doc){
+			var parent = doc.getElementsByTagName('body')[0];
+			parent.setAttribute('class', "yui-skin-sam");
+			
+			var mainDiv = createElement(doc, 'div', {id: 'main'});
+			var qCountDiv = createElement(doc, 'div', {id: 'questionCountBox', 'class': 'bg3'});
+			var iTable = createElement(doc, 'table', {'class': 'instructionsReminder'});
+			var tr = createElement(doc, 'tr');
+			var td1 = createElement(doc, 'td');
+			var td2 = createElement(doc, 'td');
+			var td1Div = createElement(doc, 'div', {id: 'helpIcon'});
+			var qTableDiv = createElement(doc, 'div', {id: 'questionTable'});
+			var qTypeDiv = createElement(doc, 'div', {id: 'questionType'});
+			
+			parent.appendChild(mainDiv);
+			mainDiv.appendChild(qCountDiv);
+			qCountDiv.appendChild(iTable);
+			qCountDiv.appendChild(qTableDiv);
+			iTable.appendChild(tr);
+			tr.appendChild(td1);
+			tr.appendChild(td2);
+			td1.appendChild(td1Div);
+			td1Div.innerHTML = '<a href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,\'console\',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>';
+			td2.innerHTML = '<a id="helpTextLink" href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,\'console\',800,800);return false;" target="_blank">instructions</a>';
+			qTableDiv.appendChild(qTypeDiv);
+			qTypeDiv.innerHTML = 'Student Brainstorm: Self-Guided';
+			
+			var qPromptDiv = createElement(doc, 'div', {id: "questionPrompt"});
+			var qResponseDiv = createElement(doc, 'div', {id: 'studentResponseDiv', 'class': 'header'});
+			var otherRDiv = createElement(doc, 'div', {'class': 'header2'});
+			var responses = createElement(doc, 'div', {id: 'responses'});
+			var responseDiv = createElement(doc, 'div', {'class': "header1"});
+			var text = createElement(doc, 'textarea', {id: 'studentResponse', rows: '5', cols: '80'});
+			var butt = createElement(doc, 'input', {type: 'button', id: 'button', value: 'save', onclick: 'save()'});
+			var msgDiv = createElement(doc, 'div', {id: 'saveMsg'});
+			
+			mainDiv.appendChild(qPromptDiv);
+			mainDiv.appendChild(qResponseDiv);
+			mainDiv.appendChild(createBreak());
+			mainDiv.appendChild(otherRDiv);
+			mainDiv.appendChild(responses);
+			qResponseDiv.appendChild(createBreak());
+			qResponseDiv.appendChild(responseDiv);
+			qResponseDiv.appendChild(text);
+			qResponseDiv.appendChild(butt);
+			qResponseDiv.appendChild(msgDiv);
+		},
+		brainfull: function(doc){
+			var parent = doc.getElementsByTagName('body')[0];
+			parent.setAttribute('class', "yui-skin-sam");
+			
+			var mainDiv = createElement(doc, 'div', {id: 'main'});
+			var titleDiv = createElement(doc, 'div', {id: 'brain_title'});
+			var par = createElement(doc, 'p');
+			var qDiv = createElement(doc, 'div', {id: 'questionPrompt'});
+			var rDiv = createElement(doc, 'div', {id: 'studentResponseDiv'});
+			var rText = doc.createTextNode('Other Student Responses:');
+			var responsesDiv = createElement(doc, 'div', {id: 'responses'});
+			
+			parent.appendChild(mainDiv);
+			mainDiv.appendChild(titleDiv);
+			mainDiv.appendChild(par);
+			mainDiv.appendChild(qDiv);
+			mainDiv.appendChild(rDiv);
+			mainDiv.appendChild(createBreak());
+			mainDiv.appendChild(rText);
+			mainDiv.appendChild(createBreak());
+			mainDiv.appendChild(responsesDiv);
+			
+			titleDiv.innerHTML = 'Student Brainstorm: Server Based';
+			par.innerHTML = 'Read the brainstorm topic below, then write your response in the blank box.<br/>Click <em>Save</em> to save your work and review responses from other students.';
+			
+			var text = doc.createTextNode('My Response:');
+			var tArea = createElement(doc, 'textarea', {id: 'studentResponse', cols: '80', rows: '5'});
+			var inP = createElement(doc, 'input', {id: 'butt', type: 'button', value: 'save', onclick: 'save()'});
+			var saveDiv = createElement(doc, 'div', {id: 'saveMsg'});
+			
+			rDiv.appendChild(createBreak());
+			rDiv.appendChild(text);
+			rDiv.appendChild(createBreak());
+			rDiv.appendChild(tArea);
+			rDiv.appendChild(inP);
+			rDiv.appendChild(saveDiv);
 		}
 	},
-	build: function(doc, type, fun, obj){
+	count: 0,
+	fun: null,
+	build: function(doc, type, fun){
+		this.count = 0;
+		this.fun = fun;
 		if(this.pages[type]){
 			if(doc){
 				this.cleanHtml(doc);
 				this.pages[type](doc);
-				doc.addEventListener("DOMContentLoaded", fun, false);
-				if(obj){ //called from vle, otherwise, probably called from authoring tool
-					doc.addEventListener("DOMContentLoaded",function(){obj.renderComplete=true;vle.eventManager.fire('nodeRenderComplete_' + obj.id);}, false);
-				};
+				doc.addEventListener("DOMContentLoaded", function(){pageBuilder.listener();}, false);
 			} else {
 				notificationManager.notify('Given document is undefined.', 3);
 			};
 		} else {
 			notificationManager.notify('Cannot build page of type: ' + type + ', this type is unknown.', 3);
+		};
+	},
+	listener: function(){
+		this.count ++;
+		if(this.count==2 && this.fun){
+			this.fun();
 		};
 	},
 	strip: function(doc){
@@ -243,4 +349,6 @@ var pageBuilder = {
 };
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/pagebuilder/pagebuilder.js");
+if(scriptloader){
+	scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/pagebuilder/pagebuilder.js");
+};

@@ -384,7 +384,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 	private String updateFile(HttpServletRequest request) throws IOException{
 		String projectPath = request.getParameter(PARAM1);
 		String filename = request.getParameter(PARAM2);
-		String data = this.decode(request.getParameter(PARAM3));
+		String data = request.getParameter(PARAM3);
 		
 		File dir = new File(projectPath);
 		if(dir.exists()){
@@ -424,8 +424,10 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 		File dir = new File(projectPath);
 		if(dir.exists()){
 			File file = new File(dir, audiofilename);
-			if(file.exists()){
-				return "audio already exists";
+			File wavfile = new File(dir, audiofilename.replaceAll(".mp3", ".wav"));
+
+			if(file.exists() || wavfile.exists()){   // see if mp3 file or wav file exists
+				return "audioAlreadyExists";
 			} else {
 				String separator;
 				

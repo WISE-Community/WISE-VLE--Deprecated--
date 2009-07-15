@@ -8,7 +8,6 @@ FillinNode.prototype.parent = Node.prototype;
 function FillinNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
-	this.renderComplete = false;
 }
 
 FillinNode.prototype.render = function(contentpanel) {
@@ -16,24 +15,35 @@ FillinNode.prototype.render = function(contentpanel) {
 		this.retrieveFile();
 	};
 	
+	this.renderComplete = false;
 	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
 	
 	var frm = window.frames["ifrm"];
 	window.allready = function(){
-		var callback = function(){
-			frm.scriptloader.initialize(frm.document, null, 'fillin');
+		var callbackCallback = function(args){
+			args[0].renderComplete = true;
+			args[1].eventManager.fire('nodeRenderComplete_' + args[0].id);
 		};
 		
-		pageBuilder.build(frm.document, 'fillin', callback, vle.currentNode);
+		var callback = function(){
+			frm.scriptloader.initialize(frm.document, callbackCallback, 'fillin', [vle.currentNode, vle]);
+		};
+		
+		frm.pageBuilder = pageBuilder;
+		frm.pageBuilder.build(frm.document, 'fillin', callback);
 	};
 	
 	frm.location = 'blank.html';
 };
 
 FillinNode.prototype.load = function() {
-	var load = function(fiNode){
+	var load = function(event, args, fiNode){
+		if(!fiNode){//Firefox only passes the obj
+			fiNode = event;
+		};
+		
 		fiNode.renderComplete = true;
-		window.frames["ifrm"].loadXMLStringAfterScriptsLoad([fiNode.element, vle]);
+		window.frames["ifrm"].loadContent([fiNode.element, vle]);
 		document.getElementById('topStepTitle').innerHTML = fiNode.title;
 	};
 	

@@ -572,7 +572,7 @@ function sourceUpdated() {
 		xmlString = (new XMLSerializer()).serializeToString(xmlPage);
 	}
 
-	window.frames["previewFrame"].renderAfterScriptsLoad([xmlString]);
+	window.frames["previewFrame"].loadContent([xmlString]);
 }
 
 /**
@@ -592,7 +592,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		xmlPage = xmlDocToParse;
 		generatePage();
 		
-		window.frames["previewFrame"].renderAfterScriptsLoad([o.responseText]);
+		window.frames["previewFrame"].loadContent([o.responseText]);
 	  },
 		  failure: function(o) { alert('failure');},
 		  scope: this

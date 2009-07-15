@@ -9,7 +9,7 @@ function sourceUpdated() {
 	//retrieve the authored text
 	var xmlString = document.getElementById('sourceTextArea').value;
 
-	window.frames["previewFrame"].renderAfterScriptsLoad([xmlString]);
+	window.frames["previewFrame"].loadContent([xmlString]);
 };
 
 /**
@@ -28,7 +28,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		 */
 		document.getElementById('sourceTextArea').value = o.responseText;
 		
-		window.frames["previewFrame"].renderAfterScriptsLoad([o.responseText]);
+		window.frames["previewFrame"].loadContent([o.responseText]);
 	  },
 		  failure: function(o) { alert('failure');},
 		  scope: this

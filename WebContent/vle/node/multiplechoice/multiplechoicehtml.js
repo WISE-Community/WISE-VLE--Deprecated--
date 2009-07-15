@@ -1,6 +1,6 @@
 var mc; // global variable so it can be accessed by other functions
-            
-function renderAfterScriptsLoad(params){
+      
+function loadContent(params){
 	xmlDoc = loadXMLString(params[0]);
 	mc = new MC(xmlDoc);
 	mc.render();

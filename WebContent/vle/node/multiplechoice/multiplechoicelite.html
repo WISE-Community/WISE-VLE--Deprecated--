@@ -8,10 +8,10 @@ var mc;
 
 function renderMCFromString(txt) {
 	var params = [txt];
-	scriptloader.initialize(document, renderAfterScriptsLoad, 'multiplechoice', params);
+	scriptloader.initialize(document, loadContent, 'multiplechoice', params);
 };
 
-function renderAfterScriptsLoad(params){
+function loadContent(params){
 	xmlDoc=loadXMLString(params[0]);
 	mc = new MC(xmlDoc);
 	mc.renderLite();

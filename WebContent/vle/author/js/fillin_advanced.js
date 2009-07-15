@@ -16,7 +16,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		 */
 		document.getElementById('sourceTextArea').value = o.responseText;
 		
-		window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlDocToParse]);
+		window.frames["previewFrame"].loadContent([xmlDocToParse]);
 		},
 		failure: function(o) { alert('failure');},
 		scope: this
@@ -35,7 +35,7 @@ function sourceUpdated() {
 	var xmlString = document.getElementById('sourceTextArea').value;
 	
 	var xmlDoc = loadXMLDocFromString(xmlString);
-	window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlDoc]);
+	window.frames["previewFrame"].loadContent([xmlDoc]);
 };
 
 function loaded(){

@@ -488,5 +488,79 @@ function createNewResponse(){
 	updatePreview();
 };
 
+/**
+ * Loads updated content into previewFrame
+ */
+function updatePreview(){
+	saved = false;
+	
+	window.frames["previewFrame"].loadContent(xmlPage);
+};
+
+/**
+ * Load the authoring view from the specified filename
+ * filename points to a plain old file.
+ */
+function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator) {
+	var callback =
+	{
+	  success: function(o) { 
+	  var xmlDocToParse = o.responseXML;
+
+		  /***						***|
+		   * Extra work needed for IE *|
+		   ***						***/
+		  if(window.ActiveXObject){
+		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+		  	ieXML.async = "false";
+		  	ieXML.loadXML(o.responseText);
+		  	xmlDocToParse = ieXML;
+		  };
+		  /***						***|
+		   * End extra work for IE	  *|
+		   ***						***/
+	  
+		/**
+		 * sets local xml and then generates the left panel
+		 * of this page dynamically
+		 */
+		xmlPage = xmlDocToParse;
+		generatePage();
+		
+		window.frames["previewFrame"].loadContent(xmlPage);
+
+	  },
+		  failure: function(o) { alert('failure');},
+		  scope: this
+	}
+	
+	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
+}
+
+/**
+ * Calls functions to dynamically create html, load scripts and
+ * call functions that needs to run once all of the scripts and
+ * page elements are available
+ */
+function loaded(){
+	//set frame source to blank and create page dynamically
+	var callback = function(){
+		var frm = window.frames['previewFrame'];
+		var loadBrain = function(){
+			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			window.parent.childSave = save;
+			window.parent.getSaved = getSaved;
+		};
+		
+		frm.scriptloader.initialize(frm.document, loadBrain, 'brainstorm');
+	};
+	
+	window.allready = function(){
+		pageBuilder.build(window.frames['previewFrame'].document, 'brainstorm', callback);
+	};
+	
+	window.frames['previewFrame'].location = '../blank.html';
+}
+
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/js/brainstorm_easy.js");

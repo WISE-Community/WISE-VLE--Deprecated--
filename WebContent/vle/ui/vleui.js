@@ -1,4 +1,4 @@
-VLE.prototype.lockscreen = function() {
+VLE.prototype.lockscreen = function(message) {
 	YAHOO.namespace("example.container");
 
     if (!YAHOO.example.container.wait) {
@@ -17,18 +17,24 @@ VLE.prototype.lockscreen = function() {
                                                 } 
                                             );
 
-        YAHOO.example.container.wait.setHeader("Message");
-        YAHOO.example.container.wait.setBody("<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table>");
-        YAHOO.example.container.wait.render(document.body);
-
+    } else {
+    	
     }
+    if (message == null) {
+    	message = "<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table>"
+    }
+
+    YAHOO.example.container.wait.setHeader("Message");
+    YAHOO.example.container.wait.setBody(message);
+    YAHOO.example.container.wait.render(document.body);
+
 	// Show the Panel
     YAHOO.example.container.wait.show();
     YAHOO.example.container.wait.cfg.setProperty("visible", true);
     
 }
 
-VLE.prototype.unlockscreen = function() {
+VLE.prototype.unlockscreen = function(message) {
 	YAHOO.namespace("example.container");
 
     if (!YAHOO.example.container.wait) {
@@ -47,8 +53,12 @@ VLE.prototype.unlockscreen = function() {
                                                 } 
                                             );
 
+        if (message == null) {
+        	message = "<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table>"
+        }
+
         YAHOO.example.container.wait.setHeader("Message");
-        YAHOO.example.container.wait.setBody("<table><tr align='center'>Teacher has paused your screen. Please talk to your teacher.</tr><tr align='center'></tr><table>");
+        YAHOO.example.container.wait.setBody(message);
         YAHOO.example.container.wait.render(document.body);
 
     }

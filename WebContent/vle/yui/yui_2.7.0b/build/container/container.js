@@ -9062,3 +9062,5 @@ version: 2.7.0
 })();
 
 YAHOO.register("container", YAHOO.widget.Module, {version: "2.7.0", build: "1799"});
+//used to notify scriptloader that this script has finished loading
+scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/yui/yui_2.7.0b/build/container/container.js");

@@ -160,7 +160,8 @@ function removeReferencedNode(el, location){
  * a reference, removes reference from the sequence. If the sequence or node was 
  * dropped on a sequence, adds a reference to the sequence. If it was a reference,
  * removes reference from old sequence and/or location from old sequence
- * and adds it to new seqeuence. If node was dropped in the nodes list, does nothing.
+ * and adds it to new seqeuence. If node was dropped in the nodes list updates
+ * ordering of the nodes in the project match nodes in list.
  */
 function onNodeDropped(dragged, dropped){
 	
@@ -194,6 +195,23 @@ function onNodeDropped(dragged, dropped){
 		} else {
 			removeReferencedNode(dragged);
 			project.addNodeToSequence(dragged.get('id').split('|')[1], dropEl.id.substring(0, dropEl.id.lastIndexOf('_')), location);
+		};
+	} else if(dropped.get('id')=='nodesUL'){
+		var dropEl = document.getElementById(dropped.get('id'));
+		var dragEl = document.getElementById(dragged.get('id'));
+		
+		if(dragEl.getAttribute('name')=='nodes'){
+			projectSaved = false;
+			
+			var location = 0;
+			for(var c=0;c<dropEl.childNodes.length;c++){
+				if(dropEl.childNodes[c].getAttribute('name') != 'placeholder'){
+					if(dropEl.childNodes[c].id == dragEl.id){
+						project.updateNodeLocation(dragEl.id, location);
+					};
+					location ++;
+				};
+			};
 		};
 	}; 
 	

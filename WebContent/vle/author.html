@@ -214,6 +214,14 @@ function preview() {
 	};
 };
 
+function updateAudio() {
+	if(currentProjectName){
+		popupPreviewWindow('vle.html?updateAudio=true', 'PreviewWindow');
+	} else {
+		notificationManager.notify('Please open or create a new project to update audio. Exiting...', 3);
+	};
+};
+
 function initializeOpenProjectDialog(bool){
 	var addOption = function(name){
 		var parent = document.getElementById('selectProject');
@@ -413,7 +421,7 @@ function initializeCreateSequenceDialog(){
 /**
  * When a node type is selected, dynamically creates a select element
  * and option elements with icons and names for that specific nodeType.
- * The class is set as the value for param2 of the createNodeDialog.
+ * The node's className is set as the value for param2 of the createNodeDialog.
  */
 function nodeTypeSelected(){
 	var parent = document.getElementById('createNodeForm');
@@ -453,11 +461,18 @@ function nodeTypeSelected(){
  */
 function initializeCreateNodeDialog(){
 	var doSuccess = function(){
+		var title = document.getElementById('createNodeTitle').value;
+
+		var afterLoad = {
+				title: title,
+				authorFun: author
+		};
+
 		document.getElementById('createNodeType').selectedIndex = 0;
 		document.getElementById('createNodeTitle').value = "";
 		document.getElementById('selectNodeIconDiv').parentNode.removeChild(document.getElementById('selectNodeIconDiv'));
-		loadProjectFromServer();
-		createNodeDialog.hide();
+		loadProjectFromServer(afterLoad);
+		createNodeDialog.hide();		
 	};
 	
 	var validate = function(){		
@@ -895,7 +910,7 @@ function nodeIconUpdated(id){
 	var node = project.getNodeById(id);
 	var select = document.getElementById('nodeIcon_' + id);
 	
-	node.class = select.options[select.selectedIndex].value;
+	node.className = select.options[select.selectedIndex].value;
 	populateSequences();
 	generateDD();
 };
@@ -960,7 +975,7 @@ function populateNodes(){
 				opt.value = classes[h];
 				opt.innerHTML = '<img src=\'' + iconUrl + classes[h] + '16.png\'/> ' + text[h];
 				select.appendChild(opt);
-				if(nodes[v].class == classes[h]){
+				if(nodes[v].className == classes[h]){
 					select.selectedIndex = h + 1;
 				};
 			};
@@ -1029,8 +1044,8 @@ function populateReferences(sequenceId, insideUL){
 		if(sequence.children[s].type=='sequence'){
 			var title = document.createTextNode('Sequence: ' + sequence.children[s].title);
 		} else {
-			if(sequence.children[s].class && sequence.children[s].class!='null' && sequence.children[s].class!=''){
-				child.innerHTML = '<img src=\'' + iconUrl + sequence.children[s].class + '16.png\'/> ';
+			if(sequence.children[s].className && sequence.children[s].className!='null' && sequence.children[s].className!=''){
+				child.innerHTML = '<img src=\'' + iconUrl + sequence.children[s].className + '16.png\'/> ';
 			};
 			
 			if(project.autoStep){
@@ -1054,7 +1069,7 @@ function populateReferences(sequenceId, insideUL){
  * event which runs the processOnLoad function after the necessary
  * project variables have been set.
  */
-function loadProjectFromServer(){
+function loadProjectFromServer(o){
 	var processOnLoad = function(){
 		project = vle.project
 		if(project && project.autoStep==true){
@@ -1088,7 +1103,7 @@ function loadProjectFromServer(){
 	
 	vle = new VLE();
 	vle.eventManager.subscribe('projectLoadingComplete', processOnLoad);
-	vle.loadProjectFromServer();
+	vle.loadProjectFromServer(o);
 	document.getElementById('currentProject').innerHTML = 'Current Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
 };
 
@@ -1149,7 +1164,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to populate necessary variables
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator, '<img src=\'../' + iconUrl + nodeToAuthor.class + '28.png\'/> ');
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator, '<img src=\'../' + iconUrl + nodeToAuthor.className + '28.png\'/> ');
 	} 
 }
 
@@ -1236,6 +1251,9 @@ function stepLevelChanged(){
 				<td><a onclick="preview()" id="previewProjectButton"><img src="images/previewproject.png"
 						alt="preview project icon" /><br />
 				Preview Project</a></td>
+				<td><a onclick="updateAudio()" id="updateAudioButton"><img src="images/previewproject.png"
+						alt="update audio icon" /><br />
+				Update Audio</a></td>
 				<!-- batch audio creation disabled for now <td><input type="button" value="Update Audio Files" onclick="updateAudioFiles()" id="updateAudioFilesButton"/></td>  -->
 		</tr>
 </table>

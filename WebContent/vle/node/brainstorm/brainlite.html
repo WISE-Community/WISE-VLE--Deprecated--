@@ -24,22 +24,22 @@
 -->
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="./brainstorm.css">
         <script type="text/javascript" src="../../util/scriptloader.js">
         </script>
-        <link rel="stylesheet" type="text/css" href="./brainstorm.css">
         <script type="text/javascript">
             var brainstorm = parent.brainstorm;
             var richTextEditor;
             
             function save(){
-            	if(richTextEditor != null) {
-					/*
-					 * if we are using the rich text editor, save the text written
-					 * in the rich text editor to the textarea
-					 */ 
-					richTextEditor.saveHTML();
-				}	
-	
+                if (richTextEditor != null) {
+                    /*
+                     * if we are using the rich text editor, save the text written
+                     * in the rich text editor to the textarea
+                     */
+                    richTextEditor.saveHTML();
+                }
+                
                 brainstorm.save(document);
             };
             
@@ -47,20 +47,20 @@
                 brainstorm.brainliteLoaded(document);
                 
                 //check if we want to use the rich text editor
-				if(brainstorm.isRichTextEditorAllowed == "true") {
-					/*
-					 * create the editor by passing in the id of the textarea
-					 * that we will be replacing with the rich text editor
-					 */
-					richTextEditor = new YAHOO.widget.Editor('studentResponse', {
-						height: '200px',
-						width: '600px',
-						dompath: true,
-						animate: true
-					});
-					//render and display the rich text editor
-					richTextEditor.render();
-				}
+                if (brainstorm.isRichTextEditorAllowed == "true") {
+                    /*
+                     * create the editor by passing in the id of the textarea
+                     * that we will be replacing with the rich text editor
+                     */
+                    richTextEditor = new YAHOO.widget.Editor('studentResponse', {
+                        height: '45%',
+                        width: '100%',
+                        dompath: true,
+                        animate: true
+                    });
+                    //render and display the rich text editor
+                    richTextEditor.render();
+                }
             };
             
             function afterScriptsLoad(){
@@ -97,23 +97,28 @@
             <div id="questionPrompt">
             </div>
             <div id="studentResponseDiv" class="header">
-                <br/>
                 <div class="header1">
                     Response:
                 </div>
-                <textarea id='studentResponse' rows='5' cols ='80'>
+                <textarea id='studentResponse' rows='5' cols ='100'>
                 </textarea>
-                <input id='button' type='button' value='save' onclick='save()'/>
-                <div id='saveMsg'>
-                </div>
+                <table>
+                    <tr>
+                        <td>
+                            <input id='button' type='button' value='save' onclick='save()'/>
+                        </td>
+                        <td>
+                        <div id='saveMsg'>
+                        </td>
+                    </tr>
+                </table>
             </div>
-            <br>
-            <div class="header2">
-                Other Student Responses:
-            </div>
-            <br>
-            <div id="responses">
-            </div>
+        </div>
+        <div class="header2">
+            Other Student Responses:
+        </div>
+        <div id="responses">
+        </div>
         </div>
     </body>
 </html>

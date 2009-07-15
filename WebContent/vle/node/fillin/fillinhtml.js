@@ -8,18 +8,9 @@ function edit() {
 }
 
 /**
- * xmlString contains QTI-coded xml content
- */
-//function loadXMLString(xmlDoc, vle) {
-//	 var params = [xmlDoc, vle];
-//	 scriptloader.initialize(document, loadXMLStringAfterScriptsLoad, 'fillin', params);
-//}
-
-/**
  * Runs after the scripts for this page have been dynamically loaded
  */
-function loadXMLStringAfterScriptsLoad(params){
-	 //var xmlDoc=loadXMLDocFromString(params[0]);
+function loadContent(params){
 	  fi = new FILLIN(params[0]);
 	  fi.render(currentTextEntryInteractionIndex);
 	  fi.setVLE(params[1]);
@@ -65,9 +56,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 }
 
 function afterScriptsLoad(){
-	Nifty("div#questionCountBox","bl tr big");
-	Nifty("div#leftColumn","tr big");
-	Nifty("div#rightColumn","tr big");
+
 }
 
 //used to notify scriptloader that this script has finished loading

@@ -20,16 +20,23 @@ ContentPanel.prototype.render = function(nodeId) {
  * Highlights the element with the specified identifier within the contentpanel
  */
 ContentPanel.prototype.highlightElement = function(elementIdentifier, highlightColor) {
-	//alert('contentpanel.highlightelement' + elementIdentifier + "," + highlightColor);
-	//alert(top.ifrm);
-	//alert(top.ifrm);
-	//alert(top.ifrm.outsideurliframe);
-	//alert(top.ifrm.outsideurliframe.document);
-	//window.frames["ifrm"].highlight(elementIdentifier, highlightColor);
 	if(elementIdentifier != null) {
 		var elementToHighlight = window.frames["ifrm"].document.getElementById(elementIdentifier);
 		if (elementToHighlight) {
 			elementToHighlight.style.outline = highlightColor;
+		}
+	}
+}
+
+
+/**
+ * Highlights the element with the specified attribute within the contentpanel
+ */
+ContentPanel.prototype.highlightElementByAttributeAndValue = function(attributeName, attributeValue, highlightColor) {
+	if(attributeName != null && attributeValue != null) {
+		var elementToHighlight = getElementsByAttribute(attributeName, attributeValue);
+		if (elementToHighlight && elementToHighlight != null) {
+			elementToHighlight.setStyle("outline", highlightColor);
 		}
 	}
 }

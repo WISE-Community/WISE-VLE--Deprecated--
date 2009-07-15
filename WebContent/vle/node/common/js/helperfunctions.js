@@ -140,5 +140,42 @@ function displayLastAttempt(states) {
 	}
 }
 
+/**
+ * Returns the element(s) with the given attributeName. If the attributeValue
+ * is specified, it will filter further.
+ * @param attributeName
+ * @param attributeValue
+ * @return
+ */
+function getElementsByAttribute(attributeName, attributeValue) {
+	notificationManager.notify('attributeName:' + attributeName + ", attributeValue:" + attributeValue, 4);
+	var bodyNode = global_yui.get(window.frames["ifrm"].document.body);
+	if (attributeValue != null) {
+		var node = bodyNode.query('['+attributeName+'='+attributeValue+']');
+		notificationManager.notify('audioNode:' + node, 4);
+		return node;
+	} else {
+		var nodes = bodyNode.queryAll('['+attributeName+']');
+		notificationManager.notify('audioNodes.length:' + nodes.size(), 4);
+		for (var i=0; i< nodes.size(); i++) {
+			notificationManager.notify('audioNode textContent:' + nodes.item(i).get('textContent'), 4);
+		}
+		return nodes;
+	}
+}
+
+/**
+ * returns true iff the URL returns a 200 OK message
+ * @param url url to test
+ * @return
+ */
+function checkAccessibility(url) {
+	var callback = {
+			success: function(o) {return true},
+			failure: function(o) {return false},
+	}
+	var transaction = YAHOO.util.Connect.asyncRequest('HEAD', url, callback, null);
+}
+
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/common/js/helperfunctions.js");

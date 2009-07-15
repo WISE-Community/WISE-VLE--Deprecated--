@@ -1,3 +1,6 @@
+#questionType {
+	padding:1px 15px;
+}
 
 #promptdiv {
 	font-size:.92em;
@@ -9,9 +12,6 @@
 
 #promptdiv p {
 	font-size:inherit;
-}
-
-#promptdiv p {
 	font-size:120%;
 	font-weight:bold;
 }
@@ -24,6 +24,11 @@
 	vertical-align: middle;
 }
 
+.introPhrase {
+	font-size:80%;
+	margin:5px 0 0 5px;
+}
+
 #currentFillBlankParagraph {
 	margin: 0 auto;
 	padding:10px 0 0 0;
@@ -32,15 +37,14 @@
 	
 #currentFillBlankParagraph #leftColumn { 
 	float:left;
-	width:80%;
-	min-height:250px;
+	width:83%;
+	min-height:450px;
 	}
 	 
 #currentFillBlankParagraph #rightColumn {
 	text-align:center;
-	margin-left:81%;
+	margin-left:84%;
 	color:#FFF;
-	min-height:250px;
 	}
 	
 .itemLabel {
@@ -53,8 +57,8 @@
 
 #nonInteractiveDiv {
 	margin:5px 0;
-	font-size:.9em;
-	line-height:190%;
+	font-size:1em;
+	line-height:140%;
 }
 
 #nonInteractiveDiv p {
@@ -75,13 +79,16 @@
 }
 
 #nonInteractiveDiv #codeBlock {
+	width:90%;
+	border:1px solid #334B7B;
 	border-left:10px solid #334B7B;
-	color:#334B7B;
+	color:#000033;
 	margin:5px 5px 40px 20px;
-	padding-left:15px;
+	padding:5px 5px 5px 15px;
 	white-space:pre;
 	font-family: monospace;
-	}
+	line-height:120%;
+		}
 
 #nonInteractiveDiv input{
 	position:relative;

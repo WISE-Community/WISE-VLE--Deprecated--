@@ -130,7 +130,7 @@ RunManager.prototype.updateVisibleNodes = function(visibleNodes) {
 		if (runManager.visibleNodes.length > 0) {
 			vle.visibilityLogic = new VisibilityLogic(new OnlyShowSelectedNodes(window.frames["topifrm"].vle.project.rootNode, runManager.visibleNodes)); 
 			vle.navigationPanel.render();
-			if (vle.getCurrentNode().id != this..visibleNodes[0]) {
+			if (vle.getCurrentNode().id != this.visibleNodes[0]) {
 				vle.renderNode(this.visibleNodes[0]);
 			}
 		}

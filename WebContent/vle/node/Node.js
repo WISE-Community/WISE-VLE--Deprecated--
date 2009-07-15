@@ -14,8 +14,10 @@ function Node(nodeType, connectionManager) {
 	this.title = null;
 	this.nodeSessionEndedEvent = new YAHOO.util.CustomEvent("nodeSessionEndedEvent");
 	this.filename = null;
-	this.class = null;
+	this.className = null;
+	this.renderComplete = false;
 	
+	this.audioReady = false;
 	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
 	this.audios = [];
 	
@@ -26,19 +28,19 @@ function Node(nodeType, connectionManager) {
 
 Node.prototype.setType = function(type) {
 	this.type = type;
-}
+};
 
 Node.prototype.getTitle = function() {
 	if (this.title != null) {
 		return this.title;
 	}
 	return this.id;
-}
+};
 
 Node.prototype.addChildNode = function(childNode) {
 	this.children.push(childNode);
 	childNode.parent = this;
-}
+};
 
 Node.prototype.getNodeById = function(nodeId) {
 	if (this.id == nodeId) {
@@ -52,7 +54,7 @@ Node.prototype.getNodeById = function(nodeId) {
 		}
 		return soFar;
 	}
-}
+};
 
 /**
  * Retrieves all the leaf nodes below this node, such as its children
@@ -75,11 +77,11 @@ Node.prototype.getLeafNodeIds = function(arr) {
  * loading audio for the node.
  */
 Node.prototype.setCurrentNode = function() {
-}
+};
 
 Node.prototype.getNodeAudios = function() {
 	return this.audios;
-}
+};
 
 // alerts vital information about this node
 Node.prototype.alertNodeInfo = function(where) {
@@ -87,7 +89,7 @@ Node.prototype.alertNodeInfo = function(where) {
 			+ '\nthis.title:' + this.title 
 			+ '\nthis.filename:' + this.filename
 			+ '\nthis.element:' + this.element, 3);
-}
+};
 
 /**
  * Play the audio that is right after the specified elementId
@@ -102,22 +104,25 @@ Node.prototype.playAudioNextAudio = function(elementId) {
 		}
 	}
 	notificationManager.notify('error: no audio left to play', 2);
-}
+};
 
 /**
  * Renders itself to the specified content panel
  */
 Node.prototype.render = function(contentpanel) {
 	//alert("Node.render called");
-}
+};
 
 
-
+/*
+ * Callback when the node finishes loading in the page. Here, do things like
+ * playing the audio that is associated with the step.
+ */
 Node.prototype.load = function() {
 	if (vle.audioManager != null) {
 		vle.audioManager.setCurrentNode(this);
 	}
-}
+};
 
 
 Node.prototype.getShowAllWorkHtml = function(vle){
@@ -156,7 +161,7 @@ Node.prototype.getShowAllWorkHtml = function(vle){
         showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
     }
     return showAllWorkHtmlSoFar;
-}
+};
 
 /*
  * Returns a string representation of this node that can be saved back into
@@ -164,11 +169,11 @@ Node.prototype.getShowAllWorkHtml = function(vle){
  */
 Node.prototype.generateProjectFileString = function() {
 	var fileStringSoFar = "<" + this.type + " identifier=\"" + this.id + "\"";
-	fileStringSoFar += " title=\""+this.title+"\" class=\"" + this.class + "\">\n";
+	fileStringSoFar += " title=\""+this.title+"\" class=\"" + this.className + "\">\n";
 	fileStringSoFar += "    <ref filename=\""+this.filename+"\" />\n";
 	fileStringSoFar += "</" + this.type + ">\n";
 	return fileStringSoFar;
-}
+};
 
 Node.prototype.getDataXML = function(nodeStates) {
 	var dataXML = "";
@@ -177,7 +182,7 @@ Node.prototype.getDataXML = function(nodeStates) {
 		dataXML += "<state>" + state.getDataXML() + "</state>";
 	}
 	return dataXML;
-}
+};
 
 /**
  * Converts an xml object of a node and makes a real Node object
@@ -196,7 +201,7 @@ Node.prototype.parseDataXML = function(nodeXML) {
 	nodeObject.id = id;
 	//alert('nodeObject.id:' + nodeObject.id);
 	return nodeObject;
-}
+};
 
 /**
  * Returns the appropriate string node definition for this node
@@ -214,7 +219,7 @@ Node.prototype.nodeDefinitionXML = function(){
 		};
 		xml += "</sequence>\n";
 	} else {
-		var xml = "<" + this.type + " identifier=\"" + makeSafe(this.id) + "\" title=\"" + makeSafe(this.title) + "\" class=\"" + this.class + "\">\n";
+		var xml = "<" + this.type + " identifier=\"" + makeSafe(this.id) + "\" title=\"" + makeSafe(this.title) + "\" class=\"" + this.className + "\">\n";
 		xml += "\t<ref filename=\"" + this.filename + "\"/>\n";
 		if(this.audios.length>0){
 			xml += "\t<nodeaudios>\n";
@@ -271,7 +276,7 @@ Node.prototype.exportNode = function(node) {
 	exportXML += this.exportNodeFooter();
 	
 	return exportXML;
-}
+};
 
 /**
  * Returns the opening node tag
@@ -289,7 +294,7 @@ Node.prototype.exportNodeHeader = function(node) {
 	exportXML += ">";
 	
 	return exportXML;
-}
+};
 
 /**
  * Returns the closing node tag
@@ -304,7 +309,7 @@ Node.prototype.exportNodeFooter = function(node) {
 	exportXML += "</" + this.type + ">";
 	
 	return exportXML;
-}
+};
 
 /**
  * This function is for displaying student work in the ticker.
@@ -315,7 +320,7 @@ Node.prototype.exportNodeFooter = function(node) {
  */
 Node.prototype.getLatestWork = function(vle, dataId) {
 	return null;
-}
+};
 
 /**
  * for nodes that are loaded from project files, retrieves the file
@@ -356,6 +361,7 @@ Node.prototype.processRetrieveFileResponse = function(responseText, responseXML,
 	node.xmlDoc = responseXML;
 	node.element = responseXML;
 	node.elementText = responseText;
+
 	vle.eventManager.fire('nodeLoadingContentComplete_' + node.id);
 };
 
@@ -380,7 +386,7 @@ Node.prototype.getXMLString = function(){
  */
 Node.prototype.getPrompt = function() {
 	return "";
-}
+};
 
 /**
  * Translates students work into human readable form. Some nodes,
@@ -393,7 +399,7 @@ Node.prototype.getPrompt = function() {
  */
 Node.prototype.translateStudentWork = function(studentWork) {
 	return studentWork;
-}
+};
 
 /**
  * Get the view style if the node is a sequence. If this node
@@ -418,7 +424,7 @@ Node.prototype.getView = function() {
 		//this node is not a sequence so we will return null
 		return null;
 	}
-}
+};
 
 /**
  * Returns whether this node is a sequence node. There is the case
@@ -429,7 +435,7 @@ Node.prototype.getView = function() {
  */
 Node.prototype.isSequence = function() {
 	return this.children.length > 0;
-}
+};
 
 /**
  * Injects base ref in the head of the html if base-ref is not found, and returns the result
@@ -439,14 +445,14 @@ Node.prototype.isSequence = function() {
 Node.prototype.injectBaseRef = function(content) {
 	if (content.search(/<base/i) > -1) {
 		// no injection needed because base is already in the html
-		return content
+		return content;
 	} else {		
 		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
 		
 		if(this.contentBase){
 			var baseRefTag = "<base href='" + this.contentBase + "'/>";
 		} else {
-			return content
+			return content;
 		};
 		
 		var headPosition = content.indexOf("<head>");
@@ -456,66 +462,121 @@ Node.prototype.injectBaseRef = function(content) {
 
 		return newContent;
 	}
-}
+};
 
-function NodeAudio(id, url, elementId) {
+function NodeAudio(id, url, elementId, textContent, md5url) {
 	notificationManager.notify('id: ' + id + ",url: " + url + ",elementId: " + elementId, 4);
 	this.id = id;
 	this.url = url;
-	this.elementId = elementId;
+	this.elementId = elementId;    // VALUE in <p audio=VALUE .../> or <div audio=VALUE ../>
+	this.elementTextContent = textContent;
+	this.md5url = md5url;
 	this.audio = null;
+	this.backupAudio = null;  // backup audio, ie NoAvailableAudio.mp3 or MD5
 }
 
 NodeAudio.prototype.play = function() {
 	this.audio.play();
-}
+};
 
-Node.prototype.updateAudioFiles = function() {
-	notificationManager.notify('calling updateAudioFiles1', 4);
-	if(currentProjectPath){
-		notificationManager.notify('currentProjectPath:' + currentProjectPath, 4);
-		var createdCount = 0;
-			notificationManager.notify('nodeaudio.length:' + this.audios.length, 4);
-			for (var a=0; a<this.audios.length;a++) {
-				notificationManager.notify('audio url:' + this.audios[a].url, 4);
-				var elementId = this.audios[a].elementId;
+Node.prototype.prepareAudio = function() {
+	if (this.audioReady) {
+		notificationManager.notify('no need to create audios', 4);
+		return;
+	}
 	
-				// only invoke updateAudioFiles if elementId exists and is ID'ed to 
-				// actual element in the content.
-				if (elementId && elementId != null) {
-					notificationManager.notify('elementId:' + elementId, 4);
+	// create node audios for this node
+	//var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');	
 
-					var foundElement = window.frames["ifrm"].document.getElementById(elementId);
-					notificationManager.notify('foundElement:' + foundElement, 4);
-						if (foundElement != null) {
-							var textContent = foundElement.textContent;
-							notificationManager.notify('creating audio file at url: ' + this.audios[a].url
-														+ '\nelementId: ' + elementId + '\ncontent: ' + textContent, 4);
-							
-							var callback = {
-								success: function(o){
-									if (o.responseText == 'success') {
-										createdCount++;
-									} else {
-										notificationManager.notify('could not create audio. Is your filesystem write-able? Does it have the right directories, ie audio, where the audio will go?', 3);
-									};
-								},
-								failure: function(o){
-									notificationManager.notify('could not create audio', 3);
-								},
-								scope: this
-							};
-							YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateAudioFiles&param1=' + currentProjectPath + '&param2=' + this.audios[a].url + '&param3=' + textContent);				
-						}
-				}
-						
-			}
-			notificationManager.notify('number of audio files created: ' + createdCount, 4);	
-	} else {
-		notificationManager.notify('update audiofiles only available in author mode.', 4);
-	};
+	// first parse the document and get the elements that have audio attribute
+	var nodeAudioElements = getElementsByAttribute("audio", null);
+	notificationManager.notify('nodeAudioElements.length:' + nodeAudioElements.size(), 4);
+
+	// go through each audio element and create NodeAudio objects
+	for (var k=0; k < nodeAudioElements.size(); k++) {
+		var audioElement = nodeAudioElements.item(k);
+		var audioElementValue = audioElement.getAttribute('audio');
+		var audioElementAudioId = this.id + "." + audioElementValue;
+		notificationManager.notify('attribute:' + audioElementAudioId, 4);
+
+		var audioBaseUrl = "";
+	       if (this.contentBase != null) {
+			audioBaseUrl += this.contentBase + "/";
+		}
+		notificationManager.notify('contentBaseUrl:' + this.contentBaseUrl,4);
+		notificationManager.notify('audioBaseUrl0:' + audioBaseUrl,4);
+
+	    // ignore contentBaseUrl if audioBaseUrl is absolute, ie, starts with http://...
+	    //if (nodeAudioElements[k].getAttribute("url").search('http:') > -1) {
+			//audioBaseUrl = "";
+		//}  commented out...do we want to let users specify absolute audio urls in the future?
+		
+		// ignore contentBaseUrl if in author mode.
+		if (currentProjectPath) {
+			audioBaseUrl = "";
+		}
+		notificationManager.notify('audioBaseUrl1:' + audioBaseUrl,4);
+		var nodeAudioUrl = audioBaseUrl + vle.project.audioLocation + "/" + audioElementAudioId + ".mp3";
+		notificationManager.notify('nodeAudioUrl2:' + nodeAudioUrl,4);
+
+		var elementAudioValue = audioElementValue;
+		var nodeAudioId = audioElementAudioId;
+		var textContent = audioElement.get('textContent');
+		var elementTextContentMD5 = hex_md5(textContent);  // MD5(this.elementTextContent);
+		var md5url = audioBaseUrl + vle.project.audioLocation + "/audio_" + elementTextContentMD5 + ".mp3";
+		var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementAudioValue, textContent, md5url);
+
+		// add the NodeAudio object to this node
+		this.audios.push(nodeAudio);
+		
+		// create audio files only if in authoring mode
+		if (currentProjectPath) {
+			this.createAudioFiles();
+		}
+	}
+	this.audioReady = true;
+	notificationManager.notify('prepareAudio function end', 4);
+};
+
+/**
+ * Creates audio files for this node. Only called in Author-mode
+ * Assumed that this.audios has already been populated by Node.prepareAudio function.
+ */
+Node.prototype.createAudioFiles = function() {
+	notificationManager.notify('currentProjectPath:' + currentProjectPath, 4);
+	var createdCount = 0;
+	notificationManager.notify('nodeaudio.length:' + this.audios.length, 4);
+	for (var a=0; a<this.audios.length;a++) {
+		notificationManager.notify('audio url:' + this.audios[a].url, 4);
+		var elementId = this.audios[a].elementId;
+
+		// only invoke updateAudioFiles if elementId exists and is ID'ed to 
+		// actual element in the content.
+		if (elementId && elementId != null) {
+			var textContent = this.audios[a].elementTextContent;
+			notificationManager.notify('creating audio file at url: ' + this.audios[a].url
+					+ '\nelementId: ' + elementId + '\ncontent: ' + textContent, 4);
+
+			var callback = {
+					success: function(o){
+				if (o.responseText == 'success') {
+					createdCount++;
+				} else if (o.responseText == 'audioAlreadyExists') {
+				} else {
+					notificationManager.notify('could not create audio. Is your filesystem write-able? Does it have the right directories, ie audio, where the audio will go?', 3);
+				};
+			},
+			failure: function(o){
+				notificationManager.notify('could not create audio', 3);
+			},
+			scope: this
+			};
+			YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateAudioFiles&param1=' + currentProjectPath + '&param2=' + this.audios[a].md5url + '&param3=' + textContent);				
+		}
+
+	}
+	notificationManager.notify('number of audio files created: ' + createdCount, 4);	
 }
-
 
 
 //used to notify scriptloader that this script has finished loading

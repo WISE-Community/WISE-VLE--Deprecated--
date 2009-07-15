@@ -12,14 +12,25 @@ function ConnectionManager(em) {
 /**
  * Creates a connection object based on type, queues and starts a request depending
  * on how many are in queue.
+ * 
+ * @param type - POST or GET
+ * @param priority - the lower the number the sooner the request gets started
+ * @param url - the url
+ * @param cArgs - the connection arguments, generally, the parameters and values in a url request
+ * @param handler - success handler function which takes 3 params: Text, xmlDoc and args (the hArgs gets passed in)
+ * 		run when connectionManager receives a successful response from server.
+ * @param hArgs - args that are needed by the success and/or failure handler
+ * @param fHandler - failure handler function with takes 2 params: o (the yui response object), and args (the
+ * 		hArgs that gets passed in
+ * @return
  */
-ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs){
+ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs, fHandler){
 
 	var connection;
 	if(type=='GET'){
-		connection = new GetConnection(priority, url, cArgs, handler, hArgs, this.em);
+		connection = new GetConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler);
 	} else if(type=='POST'){
-		connection = new PostConnection(priority, url, cArgs, handler, hArgs, this.em);
+		connection = new PostConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler);
 	} else {
 		alert('unknown connection type: ' + type + '\nExiting...');
 		return;
@@ -74,7 +85,7 @@ ConnectionManager.prototype.generateEventName = function(){
 
 /**
  * A Connection object encapsulates all of the necessary variables
- * to make a async request to a url
+ * to make an async request to an url
  */
 function Connection(priority, url, cArgs, handler, hArgs, em){
 	this.em = em;
@@ -94,7 +105,19 @@ Connection.prototype.startRequest = function(eventName){
 			}
 			this.handler(o.responseText, o.responseXML, this.hArgs);
 		},
-		failure: function(o){},
+		failure: function(o){
+			this.em.fire(en);
+			if(this.fHandler){
+				this.fHandler(o, this.hArgs);
+			} else {
+				var msg = 'Connection request failed: transactionId=' + o.tId + '  TEXT=' + o.statusText;
+				if(notificationManager){
+					notificationManager.notify(msg, 2);
+				} else {
+					alert(msg);
+				};
+			};
+		},
 		scope:this
 	};
 	
@@ -108,7 +131,7 @@ Connection.prototype.startRequest = function(eventName){
 GetConnection.prototype = new Connection();
 GetConnection.prototype.constructor = GetConnection;
 GetConnection.prototype.parent = Connection.prototype;
-function GetConnection(priority, url, cArgs, handler, hArgs, em){
+function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler){
 	this.type = 'GET';
 	this.priority = priority;
 	this.em = em;
@@ -116,6 +139,7 @@ function GetConnection(priority, url, cArgs, handler, hArgs, em){
 	this.cArgs = cArgs,
 	this.handler = handler;
 	this.hArgs = hArgs;
+	this.fHandler = fHandler;
 	this.params = null;
 	this.parseConnectionArgs();
 };
@@ -148,7 +172,7 @@ GetConnection.prototype.parseConnectionArgs = function(){
 PostConnection.prototype = new Connection();
 PostConnection.prototype.constructor = PostConnection;
 PostConnection.prototype.parent = Connection.prototype;
-function PostConnection(priority, url, cArgs, handler, hArgs, em){
+function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler){
 	this.type = 'POST';
 	this.priority = priority;
 	this.em = em;
@@ -156,6 +180,7 @@ function PostConnection(priority, url, cArgs, handler, hArgs, em){
 	this.cArgs = cArgs,
 	this.handler = handler;
 	this.hArgs = hArgs;
+	this.fHandler = fHandler;
 	this.params = null;
 	this.parseConnectionArgs();
 };

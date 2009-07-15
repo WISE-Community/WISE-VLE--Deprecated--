@@ -4,10 +4,10 @@
 * {padding:0; margin:0}
 
 body {
-	/* font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
+	/*  dfsdf font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
-	text-align: center;
+	text-align: center; 
 	margin: 3px 0px;
 	background-color:#666;
 	background-image:url(../images/robots/surrounding_bg3.png);
@@ -103,12 +103,16 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	-moz-border-radius-topright:8px;  
 }
 
-#contentDiv {padding:0;margin:0;}
+#contentDiv {
+	padding:0;
+	margin:0;
+	background-color:#FFF;}
 
 #ifrm {
 	padding:0;
 	margin:0;
 	width:100%;
+	background-color:#FFF;
 	}
 
 /* STYLES FOR PROJECT LEFT BOX */
@@ -216,7 +220,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	 background-position:center -3px;
      }
 	 
-#audioControls a.pause:forward { 
+#audioControls a.forward:hover { 
      background-image: url(../images/audio_forward_roll.png);  
      cursor:pointer;
      } 

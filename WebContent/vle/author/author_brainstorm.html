@@ -39,7 +39,7 @@ function loadScripts(){
  * Loads advanced brainstorm authoring specific js
  */
 function loadBrain(){
-	scriptloader.initialize(document, loaded, 'author_brainstorm_advanced');
+	scriptloader.initialize(document, function(){loaded();}, 'author_brainstorm_advanced');
 };
 </script>
 </head>
@@ -47,7 +47,7 @@ function loadBrain(){
 <table border='1' bgcolor='white' style='width:100%;height:100%'>
 	<tr>
    		<td width='50%'><textarea id='sourceTextArea' style='width:100%;height:100%' onkeyup='sourceUpdated();'></textarea></td>
-   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame' src='../node/brainstorm/brainstorm.html'></iframe></td>
+   		<td width='50%'><iframe id='previewFrame' width='100%' height='100%' name='previewFrame'></iframe></td>
 	</tr>
 </table>
 <!--  for posting the text for echo servlet -->

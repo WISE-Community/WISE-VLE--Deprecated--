@@ -673,7 +673,7 @@ function sourceUpdated() {
 function updatePreview(){
 	saved = false;
 	
-	window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlPage]);
+	window.frames["previewFrame"].loadContent([xmlPage]);
 };
 
 /**
@@ -693,7 +693,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		xmlPage = xmlDocToParse;
 		generatePage();
 		
-		window.frames["previewFrame"].loadXMLStringAfterScriptsLoad([xmlPage]);
+		window.frames["previewFrame"].loadContent([xmlPage]);
 	  },
 		  failure: function(o) { alert('failure');},
 		  scope: this

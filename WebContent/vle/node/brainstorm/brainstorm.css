@@ -9,6 +9,7 @@ body {
 #questionCountBox {
 	-moz-border-radius-bottomleft: 4px;
 	-moz-border-radius-bottomright: 4px;
+	margin-top: -3px;
 }
 
 #brain_title {
@@ -31,24 +32,25 @@ body {
 }
 
 #questionprompt,#questionDiv {
-	padding: 15px 20px;
+	padding: 12px 20px 2px 20px;
 	background-color: #FFE6C6;
 	color: #000;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
-	margin-top: 20px;
+	margin-top: 8px;
 	font-size: .9em;
 }
 
 #questionprompt p,#questionDiv p {
-	font-size:inherit;
+	font-size: inherit;
 }
 
 #questionprompt tt,#questionDiv tt {
 	font-size: 120%;
-	font-weight:bold;
+	font-weight: bold;
 }
+
 #questionprompt table,#questionDiv table {
 	border-collapse: collapse;
 	margin: 0 auto;
@@ -71,22 +73,46 @@ body {
 
 #studentResponseDiv {
 	margin-left: 5px;
+	margin-top: 10px;
+}
+
+
+#studentResponseDiv h2 {
+	font-size: 70%;
+	text-transform: uppercase;
+	font-weight:normal;
 }
 
 #studentResponseDiv textarea {
 	text-align: left;
-	padding:10px;
+	padding: 10px;
 	margin: 5px 0 15px 0;
+}
+
+.yui-skin-sam .yui-toolbar-container .yui-toolbar-group h3 {
+	font-size:80%;
+	margin:50% 0 0 0;
+}
+
+
+/* This style hides the BODY element inside the Rich Text Editor */
+#studentResponse_dompath {
+	display: none;
 }
 
 .header1 {
 	font-size: .8em;
 	text-transform: uppercase;
+	margin-bottom:5px;
+	font-weight:bold;
 }
 
 .header2 {
 	font-size: .8em;
 	text-transform: uppercase;
+	margin-bottom:5px;
+	margin-top:10px;
+	font-weight:bold;
 }
 
 #main input {
@@ -106,14 +132,16 @@ body {
 	background-color: #FFFF00;
 }
 
-#responses {
+.responseTitle {
 	text-align: left;
 	font-weight: bold;
 	color: red;
 }
 
-#responses textarea {
-	padding:10px;
+.responseTextArea {
+	padding: 6px;
 	font-weight: normal;
+	font-size:85%;
 	color: #000;
+	border:1px solid #999; 
 }
