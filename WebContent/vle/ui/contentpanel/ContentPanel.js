@@ -32,12 +32,9 @@ ContentPanel.prototype.highlightElement = function(elementIdentifier, highlightC
 /**
  * Highlights the element with the specified attribute within the contentpanel
  */
-ContentPanel.prototype.highlightElementByAttributeAndValue = function(attributeName, attributeValue, highlightColor) {
-	if(attributeName != null && attributeValue != null) {
-		var elementToHighlight = getElementsByAttribute(attributeName, attributeValue);
-		if (elementToHighlight && elementToHighlight != null) {
-			elementToHighlight.setStyle("outline", highlightColor);
-		}
+ContentPanel.prototype.highlightElement = function(elementToHighlight, highlightColor) {
+	if (elementToHighlight && elementToHighlight != null) {
+		elementToHighlight.setStyle("outline", highlightColor);
 	}
 }
 

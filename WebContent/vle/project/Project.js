@@ -247,9 +247,7 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 				thisNode.retrieveFile();
 			};
 			
-			if(thisNode.type=='HtmlNode' || thisNode.type=='BlueJNode'){
-				thisNode.contentBase = this.contentBaseUrl;
-			};
+			thisNode.contentBase = this.contentBaseUrl;
 			//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
 		}
 	}
@@ -512,11 +510,11 @@ Project.prototype.getShowAllWorkHtml = function(node, doGrading) {
 	    if (doGrading) {
 		    htmlSoFar += "<table border='1'>";
 		    htmlSoFar += "<tr><th>Work</th><th>Grading</th></tr>";
-			htmlSoFar += "<tr><td>" + node.getShowAllWorkHtml() + "</td>";
+			htmlSoFar += "<tr><td>" + node.getShowAllWorkHtml(vle) + "</td>";
 			htmlSoFar += "<td><textarea rows='10' cols='10'></textarea></td></tr>";
 			htmlSoFar += "</table>";
 	    } else {
-			htmlSoFar += node.getShowAllWorkHtml();
+			htmlSoFar += node.getShowAllWorkHtml(vle);
 	    }
 		htmlSoFar += "<br/><br/>";
 	}

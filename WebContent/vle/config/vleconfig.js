@@ -13,6 +13,8 @@ function VLEConfig() {
 	this.runId;
 	this.postDataUrl;
 	this.getDataUrl;
+	this.postJournalDataUrl;
+	this.getJournalDataUrl;
 	this.contentUrl;
 	this.contentBaseUrl;
 	this.userInfoUrl;
@@ -64,6 +66,8 @@ VLEConfig.prototype.parse = function(responseXML) {
 		this.getFlagsUrl = responseXML.getElementsByTagName("getFlagsUrl")[0].firstChild.nodeValue;
 		this.getDataUrl = responseXML.getElementsByTagName("getDataUrl")[0].firstChild.nodeValue;
 		this.postDataUrl = responseXML.getElementsByTagName("postDataUrl")[0].firstChild.nodeValue;
+		this.getJournalDataUrl = responseXML.getElementsByTagName("getJournalDataUrl")[0].firstChild.nodeValue;
+		this.postJournalDataUrl = responseXML.getElementsByTagName("postJournalDataUrl")[0].firstChild.nodeValue;
 		this.runInfoUrl = responseXML.getElementsByTagName("runInfoUrl")[0].firstChild.nodeValue;
 		this.runInfoRequestInterval = responseXML.getElementsByTagName("runInfoRequestInterval")[0].firstChild.nodeValue;
 	}

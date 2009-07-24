@@ -1,9 +1,11 @@
 <html>
 <head>
 <script type="text/javascript" src="util/scriptloader.js"></script>
+<script type='text/javascript' src='yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
 <script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
 
-<link rel="shortcut icon" href="images/favicon_panda.ico">
+<link rel="shortcut icon" href="images/favicon.ico">
+
 <script type='text/javascript'>
 var project;
 var currentStepNum;
@@ -35,6 +37,9 @@ var nodeIdToAuthor = null;
 
 var portalUrl;
 var portalProjectId;
+
+var eventManager;
+var connectionManager;
 
 function setPortalMode(url, command, id){
 	portalUrl = url;
@@ -124,6 +129,8 @@ function afterScriptsLoad(){
 	shortcutManager.addShortcut(83, 'saveProject', ['shift', 'alt']); //shift + alt + 's'
 	shortcutManager.addShortcut(80, 'preview', ['shift', 'alt']);	  //shift + alt + 'p'
 	shortcutManager.start();
+	eventManager = new EventManager();
+	connectionManager = new ConnectionManager(eventManager);
 };
 
 function loaded(){
@@ -235,6 +242,10 @@ function initializeOpenProjectDialog(bool){
 	var handleCancel = function(){
 		this.cancel();
 	};
+
+	var handleSubmit = function(){
+		optionSelected();
+	};
 	
 	var callback = {
 		success:function(o){
@@ -242,22 +253,20 @@ function initializeOpenProjectDialog(bool){
 			while(parent.firstChild){
 				parent.removeChild(parent.firstChild);
 			};
-			var placeholder = createElement(document, 'option', {name: 'placeholderOption'});
-			parent.appendChild(placeholder);
-			placeholder.value = '';
 			
 			var projects = o.responseText.split('|');
 			for(var a=0;a<projects.length;a++){
 				addOption(projects[a]);
 			};
-			
-			if(bool){
-				openProjectDialog.show();
-			} else {
-				openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Cancel", handler:handleCancel}]});
+
+			if (!openProjectDialog) {
+				openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Open", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 				openProjectDialog.render();
-			};
-			
+			} 
+			if (bool) {
+				openProjectDialog.show();
+			}
+						
 			if(hostedProjectPaths!=null && hostedProjectPaths!=""){
 				getHostedProjects(addOption);
 			} else {
@@ -343,7 +352,7 @@ function initializeCreateProjectDialog(){
 		this.cancel();
 	};
 	
-	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"600px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createProjectDialog.callback = {
 		success:function(o){
 			doSuccess(o.responseText);
@@ -399,7 +408,7 @@ function initializeCreateSequenceDialog(){
 		this.cancel();
 	};
 	
-	createSequenceDialog = new YAHOO.widget.Dialog('createSequenceDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createSequenceDialog = new YAHOO.widget.Dialog('createSequenceDialog', {width :"650px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createSequenceDialog.callback = {
 		success: function(o){
 			var response = o.responseText;
@@ -500,7 +509,7 @@ function initializeCreateNodeDialog(){
 		this.cancel();
 	};
 	
-	createNodeDialog = new YAHOO.widget.Dialog('createNodeDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createNodeDialog = new YAHOO.widget.Dialog('createNodeDialog', {width :"650px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	createNodeDialog.callback = {
 		success: function(o){
 			var response = o.responseText;
@@ -538,7 +547,7 @@ function initializeEditProjectFileDialog(){
 		editProjectFileDialog.hide();
 	};
 	
-	editProjectFileDialog = new YAHOO.widget.Dialog('editProjectFileDialog', {width :"700px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	editProjectFileDialog = new YAHOO.widget.Dialog('editProjectFileDialog', {width :"900px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
 	editProjectFileDialog.callback = {
 		success: function(o){
 			if(o.responseText!='success'){
@@ -1104,7 +1113,7 @@ function loadProjectFromServer(o){
 	vle = new VLE();
 	vle.eventManager.subscribe('projectLoadingComplete', processOnLoad);
 	vle.loadProjectFromServer(o);
-	document.getElementById('currentProject').innerHTML = 'Current Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
+	document.getElementById('currentProject').innerHTML = 'Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
 };
 
 /*
@@ -1164,7 +1173,7 @@ function authoringWindowLoaded(fun) {
 	
 		// fun is the function passed in from opened window to populate necessary variables
 		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
-		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator, '<img src=\'../' + iconUrl + nodeToAuthor.className + '28.png\'/> ');
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator, '<img src=\'../' + iconUrl + nodeToAuthor.className + '28.png\'/> ', connectionManager);
 	} 
 }
 
@@ -1222,10 +1231,10 @@ function stepLevelChanged(){
 						alt="edit project file icon" /><br />
 				Edit<br />
 				Proj File</a></td>
-				<td class="noOutline"><a class="inactive" onclick="" id="exportProjectButton"><img
+				<td class="noOutline"><a onclick="exportProject()" id="exportProjectButton"><img
 						src="images/exportProject.png" alt="export project icon" /><br />
 				Export Project</a></td>
-				<td class="noOutline"><a class="inactive" onclick="" id="importProjectButton"><img
+				<td class="noOutline"><a onclick="importProject()" id="importProjectButton"><img
 						src="images/importProject.png" alt="import project icon" /><br />
 				Import Project</a></td>
 				<td class="separator"><img src="images/separatorIcon2.png" alt="tool separator icon" /></td>
@@ -1238,44 +1247,53 @@ function stepLevelChanged(){
 				<td class="noOutline"><a class="inactive"onclick="" id="importNodeButton"><img src="images/importNode.png" alt="import node icon" /><br />
 				Import<br />
 				Node</a></td>
-						
-				<td class="separator"><img src="images/separatorIcon2.png" alt="tool separator icon" /></td>
-		
-				<td class="noOutline"><a class="inactive" onclick="" id="deleteNodeButton">
-				    <img src="images/trash.png" alt="delete selected icon" /><br/>Delete<br/>Selected</a></td>
-				<td class="noOutline"><a class="inactive" onclick="" id="deleteNodeButton">
-				    <img src="images/duplicateNode.png" alt="duplicate selected icon" /><br/>Duplicate<br/>Selected</a></td>
-				    
+				<td class="noOutline"><a class="inactive" onclick="" id="deleteNodeButton"> <img src="images/trash.png"
+						alt="delete selected icon" /><br />
+				Delete<br />
+				Selected</a></td>
+				<td class="noOutline"><a class="inactive" onclick="" id="deleteNodeButton"> <img src="images/duplicateNode.png"
+						alt="duplicate selected icon" /><br />
+				Duplicate<br />
+				Selected</a></td>
+				<td><a onclick="updateAudio()" id="updateAudioButton"><img src="images/textToSpeech.png"
+						alt="generate Text to Speech" /><br />
+				Text to<br />
+				Speech</a></td>
 				<td class="separator"><img src="images/separatorIcon2.png" alt="tool separator icon" /></td>
 
 				<td><a onclick="preview()" id="previewProjectButton"><img src="images/previewproject.png"
 						alt="preview project icon" /><br />
 				Preview Project</a></td>
-				<td><a onclick="updateAudio()" id="updateAudioButton"><img src="images/previewproject.png"
-						alt="update audio icon" /><br />
-				Update Audio</a></td>
+
 				<!-- batch audio creation disabled for now <td><input type="button" value="Update Audio Files" onclick="updateAudioFiles()" id="updateAudioFilesButton"/></td>  -->
 		</tr>
 </table>
 
-<h2>WISE 4&nbsp;<img src="images/favicon_panda.ico" alt="WISE Panada" border="0" /><br />
-Authoring Tool&nbsp;&nbsp;</h2>
+		<h2>WISE 4&nbsp;<img src="images/favicon_panda.ico" alt="WISE Panada" border="0" /><br />
+		Authoring Tool&nbsp;&nbsp;</h2>
+		
+		<div id="authorToolLinks"><a href="./author/authorToolInstructions.html" alt="Author Tool Instructions" target="_blank">Instructions</a>
+		<a href="./author/authorToolKeyboardShortcuts.html" alt="Author Tool Keyboard Shortcuts" target="_blank">Keyboard
+		Shortcuts</a></div>
+	</div>
 </div>
 
-</div>
-
-<div id="currentProject">Current Title = ?</div>
+<div id="currentProject">Title = <span class="authorInstruct1">click <i>Open Project</i> to select a project</i></span></div>
 
 <table id="authoringTable">
 		<tr>
 				<td id="assignedcontainer">
 				<table id="ddTable" width='100%'>
 						<tr>
-								<td id='sequencesTitle' width="38%"><b>SEQUENCES</b><br />
-								<input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()' /> Auto-number steps <input
-										type='checkbox' name='stepLevelNumbering' id='stepLevel' onclick='stepLevelChanged()' /> Step Level numbering</td>
-								<td id='nodesTitle' width="62%"><b>NODES</b><br />
-								Term for Step Numbering:&nbsp;<input type='text' name='stepTerm' id='stepTerm' onchange='stepTermChanged()' /></td>
+								<td id='sequencesTitle' width="38%"><b>ACTIVITIES/SEQUENCES</b>
+								<div><input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()' /><span
+										class="authorOption">Auto-number steps</span> <input type='checkbox' name='stepLevelNumbering' id='stepLevel'
+										onclick='stepLevelChanged()' /><span class="authorOption">Step Level numbering</span>
+								</td>
+								<td id='nodesTitle' width="62%"><b>STEPS/NODES</b><span class="nodeInstruct2">(double-click any node
+								below to edit its content)</span><br />
+								<span class="authorOption">Term for Step Numbering:&nbsp;</span><input type='text' name='stepTerm' id='stepTerm'
+										onchange='stepTermChanged()' /></td>
 						</tr>
 						<tr>
 								<td id='sequencesTD'>
@@ -1330,8 +1348,7 @@ Authoring Tool&nbsp;&nbsp;</h2>
 </div>
 
 <div id='openProjectDialog'>
-<div class='hd'>Select a project from <br />
-the list below to open it.</div>
+<div class='hd'>Select a project from the list below.</div>
 <div class='bd'><br />
 <form method='POST' action='filemanager.html' id='openProjectForm'><select id='selectProject'
 		onchange='optionSelected()'>
@@ -1379,16 +1396,13 @@ the list below to open it.</div>
 <div class='bd'>
 <form method='POST' action='filemanager.html'><input type='hidden' name='command' value='updateFile' /> <input
 		type='hidden' id='editProjectFileProjectName' name='param1' /> <input type='hidden' id='editProjectFileFileName'
-		name='param2' /> <textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3' /></textarea></form>
+		name='param2' /> <textarea id='projectText' cols='110' rows='40' wrap='hard' name='param3' /></textarea></form>
 </div>
 </div>
 
-<form id='exportProject' method='POST' action='filemanager.html'>
-	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
-	<input type='hidden' id='exportProjectPath' name='param1'/>
-	<input type='hidden' id='exportProjectName' name='param2'/>
-	<input type='hidden' id='archivePath' name='param3'/>
-</form>
+<form id='exportProject' method='POST' action='filemanager.html'><input type='hidden' id='exportCommandName'
+		name='command' value='exportProject' /> <input type='hidden' id='exportProjectPath' name='param1' /> <input type='hidden'
+		id='exportProjectName' name='param2' /> <input type='hidden' id='archivePath' name='param3' /></form>
 
 <form id='importProjectDialog' method='POST' action='filemanager.html' enctype="multipart/form-data"><input
 		type='hidden' id='importProjectPath' name='param1' /> <label for='importFile'>Enter or browse to ZIP file of a

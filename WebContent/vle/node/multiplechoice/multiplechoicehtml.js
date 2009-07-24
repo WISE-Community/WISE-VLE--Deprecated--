@@ -4,7 +4,12 @@ function loadContent(params){
 	xmlDoc = loadXMLString(params[0]);
 	mc = new MC(xmlDoc);
 	mc.render();
-	mc.loadFromVLE(params[1], params[2]);
+	if(params[1] && params[2]){
+		mc.loadFromVLE(params[1], params[2]);
+		if(mc.vle){
+			mc.vle.eventManager.fire('nodeLoadComplete_' + mc.node.id);
+		};
+	};
 };
             
 function checkAnswer(){

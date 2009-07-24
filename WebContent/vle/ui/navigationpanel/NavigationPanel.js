@@ -22,10 +22,10 @@ NavigationPanel.prototype.render = function(eventType) {
 		//the nav html is not empty string so we will just update some of the elements
 		
 		//obtain the node id that was previously just highlighted in the nav
-		var previousNodeId = document.getElementsByClassName("currentNode")[0].id;
+		var previousNodeId = global_yui.get(".currentNode").get('id');		
 		
 		//obtain the new current node id we are moving to
-		var currentNodeId = vle.state.getCurrentNodeVisit().node.id;
+		var currentNodeId = vle.getCurrentNode().id;
 		
 		//obtain the nav elements for the node ids we just obtained
 		var previousNavElement = document.getElementById(previousNodeId);
@@ -39,8 +39,16 @@ NavigationPanel.prototype.render = function(eventType) {
 		 */
 		if(previousNavElement != null) {
 			previousNavElementClass = previousNavElement.getAttribute("class");
-			previousNavElementClass = previousNavElementClass.replace("currentNode", "");
-			previousNavElement.setAttribute("class", previousNavElementClass);
+			if(!previousNavElementClass){//could be ie, try className
+				previousNavElementClass = previousNavElement.getAttribute('className');
+				if(previousNavElementClass){
+					previousNavElementClass = previousNavElementClass.replace('currentNode', '');
+					previousNavElement.setAttribute('className', previousNavElementClass);
+				};
+			} else {
+				previousNavElementClass = previousNavElementClass.replace("currentNode", "");
+				previousNavElement.setAttribute("class", previousNavElementClass);
+			};
 			
 			/*
 			 * Check for glue sequences and if it was previous set icon
@@ -68,9 +76,16 @@ NavigationPanel.prototype.render = function(eventType) {
 		 */
 		if(currentNavElement != null) {
 			var currentNavElementClass = currentNavElement.getAttribute("class");
-			currentNavElementClass = currentNavElementClass + " currentNode";
-			currentNavElement.setAttribute("class", currentNavElementClass);
-			
+			if(!currentNavElementClass){//maybe its ie, trying className
+				currentNavElementClass = currentNavElement.getAttribute('className');
+				if(currentNavElementClass){
+					currentNavElementClass = currentNavElementClass + " currentNode";
+					currentNavElement.setAttribute('className', currentNavElementClass);
+				};
+			} else {
+				currentNavElementClass = currentNavElementClass + " currentNode";
+				currentNavElement.setAttribute("class", currentNavElementClass);
+			};
 			
 			var child = vle.state.getCurrentNodeVisit().node;
 			if(child.parent.getView()=='glue'){//must be first step in glue
@@ -100,6 +115,9 @@ NavigationPanel.prototype.render = function(eventType) {
 				 * highlighted
 				 */
 				var enclosingNavParentElementClass = enclosingNavParentElement.getAttribute("class");
+				if(!enclosingNavParentElementClass){//maybe its ie, trying className
+					enclosingNavParentElementClass = enclosingNavParentElement.getAttribute('className');
+				};
 				enclosingNavParentElementClass = enclosingNavParentElementClass + " currentNode";
 				enclosingNavParentElement.setAttribute("class", enclosingNavParentElementClass);
 			}
@@ -179,7 +197,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 	var currentStyle = document.getElementById("projectLeftBox").style.display;
 	if (currentStyle == null || currentStyle == 'none') {
 		document.getElementById("projectLeftBox").style.display = "block";
-		document.getElementById("projectRightUpperBox").style.marginLeft = "231";
+		document.getElementById("projectRightUpperBox").style.marginLeft = "0";
 		document.getElementById("projectRightLowerBox").style.marginLeft = "231";
 	} else {
 		document.getElementById("projectLeftBox").style.display = "none";		

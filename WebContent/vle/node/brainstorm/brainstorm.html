@@ -24,37 +24,34 @@
  -->
 <html>
 <head>
-<script type="text/javascript" src="../../util/scriptloader.js"></script>
+<script type="text/javascript" src="util/scriptloader.js"></script>
 
 <script type="text/javascript">
 var brainstorm;
 
-function loadXMLAndStateAndVLE(xmlDoc, states, vle, nodeId){
-	var params = [xmlDoc, states, vle, nodeId];
-	scriptloader.initialize(document, afterScriptsLoad, 'brainstorm', params);
-};
-
-function loadFromXMLString(xmlString, nodeId){
-	var params = [xmlString, nodeId];
-	scriptloader.initialize(document, loadFromXMLStringAfterScriptsLoad, 'brainstorm', params);
-};
-
-function loadFromXMLStringAfterScriptsLoad(params){
-	var xmlDoc=loadXMLDocFromString(params[0]);
-	brainstorm = new BRAINSTORM(xmlDoc, params[1]);
+function loadContentAfterScriptsLoad(args){
+	brainstorm = new BRAINSTORM(args[0], args[1]);
+	
+	if(args[2]){
+		brainstorm.loadState(args[2]);
+	};
+	
+	if(args[3]){
+		brainstorm.loadVLE(args[3]);
+	};
+	
 	brainstorm.render();
 };
 
-function afterScriptsLoad(params){
-	brainstorm = new BRAINSTORM(params[0], params[3]);
-	brainstorm.loadState(params[1]);
-	brainstorm.loadVLE(params[2]);
-	brainstorm.render();
+function loadContent(args){
+	scriptloader.initialize(document, loadContentAfterScriptsLoad, 'brainstorm', args);
 };
 
 window.onload = function(){
 	if(!window.parent){
 		scriptloader.initialize(document, null, 'brainstorm');
+	} else if(window.loadAuthoring){
+		scriptloader.initialize(document, loadAuthoring, 'brainstorm');
 	};
 };
 </script>

@@ -9,12 +9,26 @@ function BlueJNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = "BlueJNode";
 	this.projectPath = "";
-   this.contentBase;
+    this.contentBase;
+	this.audioSupported = true;	
 }
 
 BlueJNode.prototype.render = function(contentPanel) {
 	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
 
+	/*
+	 * check if the user had clicked on an outside link in the previous
+	 * step
+	 */
+	if(this.handlePreviousOutsideLink(this)) {
+		/*
+		 * the user was at an outside link so the function
+		 * handlePreviousOutsideLink() has taken care of the
+		 * rendering of this node
+		 */
+		return;
+	}
+	
 	if(contentPanel == null) {
 		window.frames["ifrm"].document.open();
 		window.frames["ifrm"].document.write(this.injectBaseRef(content));

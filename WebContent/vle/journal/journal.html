@@ -1,31 +1,572 @@
 <html>
 	<head>
+		<script type="text/javascript" src="../util/scriptloader.js"></script>
 		<script>
-			var entryCount = 0;
-			function createNewPage() {
-				var journalEntry = document.createElement('div');
-				journalEntry.id = 'journalEntry' + entryCount;
-				journalEntry.innerHTML = "<table border='1'><tr><td width='80%'><textarea id='journalEntryText" + entryCount + "' cols='50' rows='10'></textarea></td><td width='20%'><button type='button' onclick='savePage(\"journalEntry" + entryCount + "\")'>Save</button><button type='button' onclick='deletePage(\"journalEntry" + entryCount + "\")'>Delete</button></td></tr></table>";
-				entryCount++;
-				document.getElementById('journalEntries').appendChild(journalEntry);
+			//the journal object that will contain the contents of the journal
+			var journal = null;
+			var runId = null;
+
+			/**
+			 * called when the journal page is first loaded. this is only
+			 * called once for each vle session. when the student closes
+			 * the journal, the journal window just becomes hidden and is not
+			 * actually disposed.
+			 */			
+			window.onload = function() {
+				//loads the js library files that are used by our journal
+				scriptloader.initialize(document, retrievePages, 'journal');
 			}
 
-			function deletePage(journalEntryId) {
-				var journalEntry = document.getElementById(journalEntryId);
-				document.getElementById('journalEntries').removeChild(journalEntry);
+			/**
+			 * makes a request back to the server to retrieve all the journal
+			 * pages for the workgroupId
+			 */
+			function retrievePages() {
+				//retrieve the location/runId
+				runId = parent.vle.config.runId;
+				
+				/*
+				 * workgroupId hardcoded for now for testing, will need to be
+				 * dynamically retrieved later
+				 */
+				workgroupId = parent.vle.getWorkgroupId();
+
+				/*
+				 * make the request to retrieve the journal data, then calls
+				 * the displayPages() function to display the journal pages
+				 * in the journal UI
+				 */
+				parent.vle.connectionManager.request('POST', 3, parent.vle.config.getJournalDataUrl, {workgroupId: workgroupId, location: runId}, displayPages);
 			}
 
-			function savePage(journalEntryId) {
-				var journalEntry = document.getElementByid(journalEntryId);
+			/**
+			 * Parses the journal XML and then displays the journal pages
+			 * in the journal UI.
+			 *
+			 * @param responseText not used
+			 * @param responseXML xml that represents the journal data
+			 * e.g.
+			 *
+			 * <journal workgroupid='1'>
+			 *	  <journalPages>
+			 *	     <journalPage journalPageId='1' pageCreatedTime='Wed, Jul 15, 2009 03:32:05 PM' pageLastEditedTime='Wed, Jul 15, 2009 03:32:05 PM' location='' nodeId='a1s1'>
+			 *          blah blah blah
+			 *	     </journalPage >
+			 *	     < journalPage journalPageId='2' pageCreatedTime='Wed, Jul 15, 2009 03:33:05 PM' pageLastEditedTime='Wed, Jul 15, 2009 03:34:05 PM' location='' nodeId='a1s2'>
+			 *          more blah blah blah
+			 *	     </journalPage >
+			 *	  </journalPages>
+			 * </journal>
+			 */
+			function displayPages(responseText, responseXML) { 
+				//create the journal from the journal XML
+				journal = new Journal(responseXML);
+
+				//loop through all the journal pages
+				for(var x=0; x<journal.journalPages.length; x++) {
+					//get a journal page
+					var journalPage = journal.journalPages[x];
+
+					//add the latest revision of the journal page to the journal UI
+					addPageToDisplay(journalPage.id, journalPage.getLatestRevision());
+				}
+			}
+
+			/**
+			 * Ask the server for the next journal page id. The server will
+			 * return the next highest id that hasn't been used. Then when
+			 * the response is received the callback will call the 
+			 * createNewPage() function to display the new page for the user
+			 * to start writing.
+			 *
+			 * e.g. for example if we currently have 2 journal pages with
+			 * ids 1 and 2, the server would return 
+			 * <journalId>3</journalId>
+			 */
+			function getNewPageId() {
+				parent.vle.connectionManager.request('POST', 3, parent.vle.config.getJournalDataUrl, {workgroupId: workgroupId, getNextJournalPageId: true, location: runId}, createNewPage);
+			}
+
+			/**
+			 * Hides all the current journal pages and then creates a new page 
+			 * in the journal UI for the user to start writing in.
+			 * 
+			 * @param responseText not used
+			 * @param responseXML the xml that contains the id of the new page
+			 * e.g.
+			 * <journalId>3</journalId>
+			 */
+			function createNewPage(responseText, responseXML) {
+				//hide all the current journal pages
+				hideAllJournalPages();
+
+				//get the journal page id from the xml
+				var journalPageId = responseXML.getElementsByTagName("journalId")[0].childNodes[0].nodeValue;
+
+				//try to retrieve the div for the journal page id
+				var newPageDiv = document.getElementById(getJournalPageDivId(journalPageId));
+
+				if(newPageDiv == null) {
+					//the journal page div does not exist so we will need to make it
+					addPageToDisplay(journalPageId, new JournalPageRevision(), true);
+				} else {
+					/*
+					 * the journal page div already exists so we will just make it viewable.
+					 * this scenario can occur if the student clicks "Create New Page"
+					 * multiple times without having saved or deleted the new page.
+					 * this prevents the user from creating tons of new pages if they
+					 * click "Create New Page" multiple times by just reusing the
+					 * page we previously made.
+					 */
+					newPageDiv.style.display = "block";
+				}
 				
 			}
+
+			/**
+			 * Removes the journal page from the journal UI and also makes
+			 * a request to the server to remove it from the db.
+			 * @param id the id of the journal page 
+			 * 
+			 */
+			function deletePage(id) {
+				//obtain the journal page id for the div
+				var journalPageDivId = getJournalPageDivId(id);
+
+				//obtain the div of the journal page we're about to delete
+				var journalPageDiv = document.getElementById(journalPageDivId);
+
+				//remove the journal page div from the parent journal pages div
+				document.getElementById('journalPages').removeChild(journalPageDiv);
+
+				//remove the journal page from our journal object
+				journal.removeJournalPage(id);
+
+				/*
+				 * request the server to set the deleted flag to true for this
+				 * journal page.
+				 */
+				parent.vle.connectionManager.request('POST', 3, parent.vle.config.postJournalDataUrl, {workgroupId: workgroupId, journalPageId: id, delete: true, location: runId}, doNothing);
+			}
+
+			/**
+			 * Saves the journal page data back to the server.
+			 * @param id the id of the journal page
+			 */
+			function savePage(id) {
+				//obtain the id for the textarea
+				var journalPageTextId = getJournalPageTextId(id);
+
+				//obtain the textarea that contains the student's writing
+				var journalPageTextArea = document.getElementById(journalPageTextId);
+
+				//obtain what the student wrote
+				var data = journalPageTextArea.value;
+				
+				var nodeId = "";
+
+				/*
+				 * check if the "Associate journal page with current step" checkbox
+				 * is checked
+				 */
+				if(document.getElementById(getJournalCheckBoxId(id)).checked) {
+					//it is checked so we will get the current node id
+					nodeId = parent.vle.getCurrentNode().id;
+				} else {
+					/*
+					 * it isn't checked so we'll need to look at previous 
+					 * revisions of this journal page.
+					 *
+					 * check if the page exists so we can look at the revisions.
+					 * if the user is creating a new page, a journal page won't
+					 * be found.
+					 */
+					if(journal.getJournalPage(id) != null) {
+						//get the nodeId from the previous revision
+						nodeId = journal.getJournalPage(id).getLatestRevision().nodeId;
+					}
+				}
+
+				/* 
+				 * make the request to save the journal data back to the server.
+				 * after the response is returned, we will update the journal
+				 * page UI with updated data by calling afterSave()
+				 */
+				parent.vle.connectionManager.request('POST', 3, parent.vle.config.postJournalDataUrl, {workgroupId: workgroupId, journalPageId: id, data: data, nodeId: nodeId, location: runId}, afterSave);
+			}
+
+			/**
+			 * Updates the journal page UI.
+			 * @param responseText not used
+			 * @param responseXML the xml for the journal page that was just saved
+			 */
+			function afterSave(responseText, responseXML) {
+				//create the journal page revision object from the xml
+				var tempJournalPageRevision = JournalPageRevision.prototype.parseJournalXML(responseXML.getElementsByTagName('journalPage')[0]);
+
+				//obtain the id
+				var id = tempJournalPageRevision.journalPageId;
+
+				//create the class name that we will use for the journal page div
+				//all journal pages have the class journalPage
+				var className = "journalPage";
+				if(tempJournalPageRevision.nodeId != null && tempJournalPageRevision.nodeId != "") {
+					//append the journalPage_[nodeId] if the journal page has an associated node
+					className += " journalPage_" + tempJournalPageRevision.nodeId;
+				}
+
+				//set the class
+				document.getElementById(getJournalPageDivId(id)).className = className;
+
+				//set the created time
+				document.getElementById(getJournalCreatedTimestampId(id)).innerHTML = "Created: " + tempJournalPageRevision.pageCreatedTime;
+
+				//set the modified time
+				document.getElementById(getJournalModifiedTimestampId(id)).innerHTML = "Modified: " + tempJournalPageRevision.pageLastEditedTime;
+
+				//obtain the nodeId
+				var nodeId = tempJournalPageRevision.nodeId;
+				if(nodeId != null && nodeId != "") {
+					/*
+					 * there is a nodeId so we will display the node title as
+					 * a link to go to that step
+					 */
+					document.getElementById(getJournalNodeId(id)).innerHTML = "Associated Step: <a onClick='parent.vle.renderNode(\"" + tempJournalPageRevision.nodeId + "\"); return false;' href=''>" + parent.vle.getNodeById(tempJournalPageRevision.nodeId).title + "</a>";
+				} else {
+					//there is no nodeId so we there will be no link
+					document.getElementById(getJournalNodeId(id)).innerHTML = "Associated Step:";
+				}
+
+				/* 
+				 * disable the save button for the journal page. it will be
+				 * re-enabled when the student modifies the journal page.
+				 */
+				 disableSaveButton(id);
+
+				//uncheck the check box
+				document.getElementById(getJournalCheckBoxId(id)).checked = false;
+
+				//add the journal page revision to the journal page
+				journal.addJournalPageRevisionToJournalPage(tempJournalPageRevision);
+
+				/*
+				 * clear the message that we use to notify the user the journal
+				 * page has been modified
+				 */
+				var journalMessageId = getJournalMessageId(id);
+				var messageTd = document.getElementById(journalMessageId);
+				messageTd.innerHTML = "";
+
+				/*
+				 * clear the message that displays that this journal page is a
+				 * new page
+				 */
+				if(document.getElementById(getJournalNewPageId(id)) != null) {
+					document.getElementById(getJournalNewPageId(id)).innerHTML = "";
+				}
+			}
+
+			/**
+			 * Creates the UI for the journal page.
+			 */
+			function addPageToDisplay(id, journalPageRevision, newPage) {
+				//create the div
+				var journalPageDiv = document.createElement('div');
+
+				//set the id for the div
+				journalPageDiv.id = getJournalPageDivId(id);
+
+				//get the data the student wrote
+				var data = journalPageRevision.data;
+
+				//get the timestamps
+				var createdTimestamp = journalPageRevision.pageCreatedTime;
+				var modifiedTimestamp = journalPageRevision.pageLastEditedTime;
+
+				//get the assocated nodeId
+				var nodeId = journalPageRevision.nodeId;
+
+				//set the class for the div
+				journalPageDiv.className = "journalPage";
+				if(nodeId != null && nodeId != "") {
+					/*
+					 * append the journalPage_[nodeId] class if there is an
+					 * assocated nodeId
+					 */
+					journalPageDiv.className += " journalPage_" + nodeId;
+				}
+
+				//create the html for the journal page
+				var journalPageHTML = "";
+				journalPageHTML = "<table border='1'>";
+				journalPageHTML += "<tr>";
+
+				//add the textarea where the student will type
+				journalPageHTML += "<td width='80%'><textarea id='journalPageText" + id + "' cols='50' rows='10' onKeyPress='journalModified(\"" + id + "\")'>" + data + "</textarea></td>";
+
+				journalPageHTML += "<td width='20%'>";
+				
+				//add the save button
+				journalPageHTML += "<button id='journalSaveButton" + id + "' type='button' onclick='savePage(\"" + id + "\")' disabled>Save</button>";
+
+				//add the delete button
+				journalPageHTML += "<button type='button' onclick='deletePage(\"" + id + "\")'>Delete</button>";
+
+				//add the associate page to step checkbox
+				journalPageHTML += "<input type='checkbox' id='journalCheckbox" + id + "' onChange='journalModified(\"" + id + "\")'>Associate journal page with current step</input>";
+				journalPageHTML += "</td>";
+				journalPageHTML += "</tr>";
+
+				journalPageHTML += "<tr>";
+
+				//add the time created timestamp
+				journalPageHTML += "<td id='journalCreatedTimestamp" + id + "'>Created: " + createdTimestamp + "</td>";
+
+				/*
+				 * add the section where we will display messages to the user such as "Changed..."
+				 */
+				journalPageHTML += "<td id='journalMessage" + id + "'></td>";
+				journalPageHTML += "</tr>";
+				journalPageHTML += "<tr>";
+
+				//add the time modified timestamp
+				journalPageHTML += "<td id='journalModifiedTimestamp" + id + "'>Modified: " + modifiedTimestamp + "</td>";
+
+				//check if this is a new page
+				if(newPage) {
+					/*
+					 * display the message to the user that this is a new page
+					 */
+					journalPageHTML += "<td id='journalNewPage" + id + "'>New Journal Page</td>";
+				}
+
+				journalPageHTML += "</tr>";
+				journalPageHTML += "<tr>";
+
+				var title = "";
+				if(nodeId != null && nodeId != "") {
+					//get the title of the node if there is a nodeId
+					title = parent.vle.getNodeById(nodeId).title;
+				}
+
+				/*
+				 * display the associated step, there may not be one in which 
+				 * case there will be no link
+				 */
+				journalPageHTML += "<td id='journalNodeId" + id + "'>Associated Step: <a onClick='parent.vle.renderNode(\"" + nodeId + "\"); return false;' href=''>" + title + "</a></td>";
+				
+				journalPageHTML += "</tr>";
+				journalPageHTML += "</table>";
+
+				//set the html into the journal page div
+				journalPageDiv.innerHTML = journalPageHTML;
+
+				//add the journal page to the journalPages div
+				document.getElementById('journalPages').appendChild(journalPageDiv);
+			}
+
+			/**
+			 * Handles when a journal page has been modified. This enables
+			 * the save button and also displays the "Changed..." message for
+			 * a specific journal page.
+			 * @param id the id integer for the journal page
+			 */
+			function journalModified(id) {
+				//the save button is disabled until the user makes a change to the journal
+				enableSaveButton(id);
+
+				//turn on the message to notify the user they have changed the journal page
+				var journalMessageId = getJournalMessageId(id);
+				var messageTd = document.getElementById(journalMessageId);
+				messageTd.innerHTML = "Changed...";
+			}
+
+			/**
+			 * Hides all the journal pages from the display. This is used
+			 * when the user creates a new page because we want to hide
+			 * all the pages except for the new page to make it easier
+			 * for them to see the new page and start writing in it.
+			 */
+			function hideAllJournalPages() {
+				/*
+				 * get all the journal pages by looking up all elements
+				 * with the class "journalPage"
+				 */
+				var journalPageDivs = document.getElementsByClassName("journalPage");
+
+				//loop through all the journal page divs and hide them
+				for(var x=0; x<journalPageDivs.length; x++) {
+					journalPageDivs[x].style.display = "none";
+				}
+			}
+
+			/**
+			 * Makes all the journal pages viewable in the display.
+			 */
+			function showAllJournalPages() {
+				/*
+				 * get all the journal pages by looking up all elements
+				 * with the class "journalPage"
+				 */
+				var journalPageDivs = document.getElementsByClassName("journalPage");
+
+				//loop through all the journal page divs and display them
+				for(var x=0; x<journalPageDivs.length; x++) {
+					journalPageDivs[x].style.display = "block";
+				}
+			}
+
+			/**
+			 * Display only the journal pages associated with
+			 * the current node the student is on in the vle.
+			 */
+			function showPagesForCurrentNode() {
+				showAllJournalPagesWithNodeId(parent.vle.getCurrentNode().id);
+			}
+
+			/**
+			 * Display only the journal pages associated with the
+			 * argument nodeId.
+			 * @param nodeId the id of the node to display journal
+			 * 		pages for
+			 */
+			function showAllJournalPagesWithNodeId(nodeId) {
+				//hide all journal pages first
+				hideAllJournalPages();
+
+				if(nodeId != null) {
+					//get all the journal pages with the class journalPage_[nodeId]
+					var pagesWithNodeId = document.getElementsByClassName("journalPage_" + nodeId);
+
+					//display the associated journal pages
+					for(var x=0; x<pagesWithNodeId.length; x++) {
+						pagesWithNodeId[x].style.display = "block";
+					}
+				}
+			}
+
+			/**
+			 * Enable the save button for a specific journal page
+			 * @param id the integer id of the journal page
+			 */
+			function enableSaveButton(id) {
+				document.getElementById(getJournalSaveButtonId(id)).disabled = false;
+			}
+
+			/**
+			 * Disable the save button for a specific journal page
+			 * @param id the integer id of the journal page
+			 */
+			function disableSaveButton(id) {
+				document.getElementById(getJournalSaveButtonId(id)).disabled = true;
+			}
+
+			/**
+			 * Gets the dom id of the journal page div
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalPageDivId(id) {
+				return "journalPage" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page text area
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalPageTextId(id) {
+				return "journalPageText" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page check box
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalCheckBoxId(id) {
+				return "journalCheckbox" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page save button
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalSaveButtonId(id) {
+				return "journalSaveButton" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page modified timestamp td
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalModifiedTimestampId(id) {
+				return "journalModifiedTimestamp" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page created timestamp td
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalCreatedTimestampId(id) {
+				return "journalCreatedTimestamp" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page nodeId section td
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalNodeId(id) {
+				return "journalNodeId" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page message td
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalMessageId(id) {
+				return "journalMessage" + id;
+			}
+
+			/**
+			 * Gets the dom id of the journal page new page message td
+			 * @param id the integer id of the journal page
+			 */
+			function getJournalNewPageId(id) {
+				return "journalNewPage" + id;
+			}
+
+			/**
+			 * Does nothing. Used for callback of connection manager
+			 * requests when we don't require anything to be done
+			 * after we receive the response.
+			 */
+			function doNothing() {
+
+			}
+
+			/**
+			 * Resize the journal
+			 * @param size is a string either "minimize", "medium", "maximize"
+			 */
+			function resizeJournal(size) {
+				//tells the vle to resize the journal
+				parent.vle.resizeJournal(size);
+			}
+			
 		</script>
 	</head>
 
 	<body>
 		<div id='journalPanel'>
-			<div id='journalToolbar'><button type='button' onclick='createNewPage()'>Create New Page</button></div>
-			<div id='journalEntries'></div>
+			<div id='journalToolbar'>
+				<button type='button' onclick="resizeJournal('minimize')">Minimize</button>
+				<button type='button' onclick="resizeJournal('medium')">Half Screen Size</button>
+				<button type='button' onclick="resizeJournal('maximize')">Maximize</button>
+				<br></br>
+				<button type='button' id='journalCreateNewPageButton' onclick='getNewPageId()'>Create New Page</button>
+				<button type='button' onclick='showAllJournalPages()'>Show All Pages</button>
+				<button type='button' onclick='hideAllJournalPages()'>Hide All Pages</button>
+				<button type='button' onclick='showPagesForCurrentNode()'>Display Pages For Current Node</button>
+			</div>
+			<div id='journalPages'></div>
 		</div>
 	</body>
 </html>

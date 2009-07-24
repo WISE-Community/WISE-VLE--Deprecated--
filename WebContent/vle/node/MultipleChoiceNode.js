@@ -11,56 +11,38 @@ function MultipleChoiceNode(nodeType, connectionManager) {
 	
 	//mainly used for the ticker
 	this.mc = null;
+	this.contentBase;
+	this.audioSupported = true;	
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
-	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
-		this.retrieveFile();
-	};
-	
-	this.renderComplete = false;
-	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
-	
-	if(contentPanel){
-		var frm = contentPanel;
-	} else {
-		var frm = window.frames["ifrm"];
-	};
-	
-	window.allready = function(){
-		var callbackCallback = function(args){
-			args[0].renderComplete = true;
-			args[1].eventManager.fire('nodeRenderComplete_' + args[0].id);
+	var renderAfterGet = function(text, xml, args){
+		var mcNode = args[0];
+		var contentPanel = args[1];
+		
+		if(mcNode.filename!=null && vle.project.lazyLoading){ //load element from file
+			mcNode.retrieveFile();
 		};
 		
-		var callback = function(){
-			frm.scriptloader.initialize(frm.document, callbackCallback, 'multiplechoice', [vle.currentNode, vle]);
+		if(contentPanel){
+			var frm = contentPanel;
+		} else {
+			var frm = window.frames["ifrm"];
 		};
 		
-		frm.pageBuilder = pageBuilder;
-		frm.pageBuilder.build(frm.document, 'multiplechoice', callback, vle.currentNode);
+		frm.document.open();
+		frm.document.write(mcNode.injectBaseRef(injectVleUrl(text)));
+		frm.document.close();
 	};
 	
-	frm.location = 'blank.html';
+	vle.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet, [this, contentPanel]);
 };
 
 
 
-MultipleChoiceNode.prototype.load = function() {
-	var load = function(type, args, mcNode){
-		if(!mcNode){ //Firefox only passes the obj
-			mcNode = type;
-		};
-		
-		window.frames['ifrm'].loadContent([mcNode.getXMLString(), mcNode, vle]);
-		document.getElementById('topStepTitle').innerHTML = mcNode.title;
-	};
-	
-	if(this.renderComplete){
-		load(this);
-	} else {
-		vle.eventManager.subscribe('nodeRenderComplete_' + this.id, load, this);
-	};
+MultipleChoiceNode.prototype.load = function() {	
+	window.frames['ifrm'].loadContent([this.elementText, this, vle]);
+	document.getElementById('topStepTitle').innerHTML = this.title;
 };
 
 /**

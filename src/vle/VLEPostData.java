@@ -1,6 +1,7 @@
 package vle;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -27,20 +28,6 @@ public class VLEPostData extends VLEServlet {
         postData(request, response);
         shutdown();
 	}
-
-    private static void createTable()
-    {
-        try
-        {
-            stmt = conn.createStatement();
-            stmt.execute("CREATE TABLE vle_visits (id bigint(20) NOT NULL auto_increment, userId bigint(20) default NULL, courseId bigint(20) default NULL, location bigint(20) default NULL, nodeId varchar(20) default NULL, nodeType varchar(20) default NULL, postTime timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, startTime timestamp NOT NULL default '0000-00-00 00:00:00', endTime timestamp NOT NULL default '0000-00-00 00:00:00', data longtext, PRIMARY KEY (id)) ENGINE=MyISAM AUTO_INCREMENT=1571 DEFAULT CHARSET=utf8;");
-            stmt.close();
-        }
-        catch (SQLException sqlExcept)
-        {
-            sqlExcept.printStackTrace();
-        }
-    }
     
     private static void postData(HttpServletRequest request,
 			HttpServletResponse response) {
@@ -92,6 +79,7 @@ public class VLEPostData extends VLEServlet {
     	    	}
     	    	
     	    	stmt = conn.createStatement();
+    	    	stmt.setEscapeProcessing(true);  // escape the sql before executing them
     	    	ResultSet results = null;
 
     	    	Iterator<String> nodeVisitsIter = nodeVisits.iterator();
@@ -123,8 +111,10 @@ public class VLEPostData extends VLEServlet {
     	    		if(results.first() == false) {
     	    			//if the row does not exist, we will insert it
     	    			String insertStmt = "insert into vle_visits(courseId, userId, nodeId, nodeType, startTime, endTime, data) values(" + runId + ", " + userId + ", '" + nodeId + "', '" + nodeType + "', str_to_date('" + visitStartTime + "', '" + timeStampFormat + "'), str_to_date('" + visitEndTime + "', '" + timeStampFormat + "'), '" + nodeStates + "')";
+        	    		PreparedStatement pstmt = conn.prepareStatement("insert into vle_visits(courseId, userId, nodeId, nodeType, startTime, endTime, data) values(" + runId + ", " + userId + ", '" + nodeId + "', '" + nodeType + "', str_to_date('" + visitStartTime + "', '" + timeStampFormat + "'), str_to_date('" + visitEndTime + "', '" + timeStampFormat + "'), ?)");
+        	    		pstmt.setString(1, data);
     	    			System.out.println(insertStmt);
-    	    			stmt.execute(insertStmt);
+    	    			pstmt.execute();
     	    		}
     	    	}
 	    			

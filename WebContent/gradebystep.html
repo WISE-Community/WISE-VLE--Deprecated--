@@ -2,6 +2,7 @@
 <head>
 <title>Grade By Step</title>
 <script type="text/javascript" src="vle/util/scriptloader.js"></script>
+<script type='text/javascript' src='vle/yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
 <!--  no navigation styling for now
 <link rel="stylesheet" type="text/css" href="vle/css/sdmenu.css" />
  -->
@@ -124,27 +125,34 @@ function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value, runId) 
  * @param nodeId the id of the node
  * @param toWorkgroup id of the student
  * @param fromWorkgroup id of the teacher
- * @param checked boolean value whether the check box was checked or not
  * @param studentWork the student's work
  * @param runId the id of the run
+ * @param deleteFlag boolean whether to delete the flag or not
+ * @param itemNumber the index of the item in the flaggedItemTable
  */
-function saveFlag(nodeId, toWorkgroup, fromWorkgroup, checked, studentWork, runId) {
+function saveFlag(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, deleteFlag, itemNumber) {
 	//alert("nodeId: " + nodeId + "\ntoWorkgroup: " + toWorkgroup + "\nfromWorkgroup: " + fromWorkgroup + "\ntype: " + type + "\nvalue: " + value);
 	
 	//build the post flag url with get arguments
 	var postFlagUrl = postFlagsUrl + "?runId=" + runId + "&nodeId=" + nodeId + "&toWorkgroup=" + toWorkgroup + "&fromWorkgroup=" + fromWorkgroup + "&studentWork=" + studentWork;
 
 	//check if we are flagging or unflagging the flag
-	if(checked == false) {
+	if(deleteFlag == true) {
 		//add the action of unflag if we are unflagging
 		postFlagUrl += "&action=unflag";
+
+		//remove the row from the flagged items table
+		removeFlaggedItemFromDisplay(itemNumber);
+	} else {
+		//add the row to the flagged items table
+		addFlaggedItemToDisplay(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, itemNumber);
 	}
 
 	var postFlagCallback =
 	{
 		success: function(o) {
 			
-			if(checked == false) {
+			if(deleteFlag == true) {
 				//if we are unflagging, remove the flag from our local array
 				flags.removeFlag(runId + '', nodeId, toWorkgroup + '', fromWorkgroup + '', studentWork);
 			} else {
@@ -360,20 +368,55 @@ function getFlags() {
 function displaySteps() {
 	var displayStepsHtml = "";
 
-	//retrieve all the nodeIds
-	var nodeIds = vle.getLeafNodeIds();
+	//start the table that will contains links for the steps
+	displayStepsHtml += "<table class='chooseStepToGradeTable'><tbody>";
 
+	//add the refresh button at the top of the page
+	displayStepsHtml += "<tr><td><input type='button' value='Refresh' onClick='refresh()'></input></td></tr>";
+	
 	/*
-	 * loop through all the nodeIds and create a link for each, each link will
-	 * bring the user to the grading page for that step/node
+	 * get the html that displays all the steps for the project as links
+	 * to pages where the teacher can grade the step
 	 */
-	for(var x=0; x<nodeIds.length; x++) {
-		displayStepsHtml += "<a href='#' onClick='getGradeByStepHtml(\"" + nodeIds[x] + "\")'>" + nodeIds[x] + "</a>";
-		displayStepsHtml += "<br><br>";
+	displayStepsHtml += displayStepsHelper(vle.project.rootNode);
+
+	//close the table
+	displayStepsHtml += "</tbody></table>";
+
+	//set the html into the div
+	document.getElementById('gradeByStepDiv').innerHTML = displayStepsHtml;
+}
+
+/**
+ * Recrusive function that accumulates the html that displays all the activites
+ * and steps in a project
+ */
+function displayStepsHelper(node) {
+	var displayStepsHtml = "";
+	
+	if(node.isLeafNode()) {
+		//this node is a leaf/step
+		if(node.type != "HtmlNode") {
+			/*
+			 * this leaf/step is not an html page which should mean it's
+			 * a step the student needs to submit work for. we will
+			 * display a link for this step. in the future there should
+			 * be a function node.containsStudentWork() or something.
+			 */
+			displayStepsHtml += "<tr><td><a href='#' onClick='getGradeByStepHtml(\"" + node.id + "\")'>" + node.title + " [" + node.type + "]</a></td></tr>";			
+		}
+	} else {
+		//this node is a sequence so we will display the title
+		displayStepsHtml += "<tr><td><h4>" + node.title + "</h4></td></tr>";
+
+		//loop through all its children
+		for(var x=0; x<node.children.length; x++) {
+			//get the html for the children
+			displayStepsHtml += displayStepsHelper(node.children[x]);
+		}
 	}
 
-	//set the html in the div so the user can see it
-	document.getElementById('gradeByStepDiv').innerHTML = displayStepsHtml;
+	return displayStepsHtml;
 }
 
 /**
@@ -389,9 +432,48 @@ function getGradeByStepHtml(nodeId) {
 	 * the step
 	 */
 	gradeByStepHtml += "<input type='button' value='Go Back to Steps' onClick='displaySteps()'>";
+	gradeByStepHtml += "<div id='flaggedItems'></div><br>";
 
+	var getFlagCallback = {
+			success: function(o) {
+				var flags = Flags.prototype.parseDataXML(o.responseXML);
+				
+				//create the html that will display the flagged items
+				var flagTableHtml = "";
+				flagTableHtml += "<table border='1' id='flaggedItemsTable' class='flaggedItemsTable'>";
+				flagTableHtml += "<tr><th>Flagged Responses</th></tr>";
+				
+				if(flags.flagsArray.length == 0) {
+					//nofity the user if there were no flagged items
+					flagTableHtml += "<tr id='noFlaggedResponses'><td>No flagged responses</td></tr>";
+				} else {
+					//loop through all the flagged items
+					for(var x=0; x<flags.flagsArray.length; x++) {
+						//display the student work that has been flagged
+						flagTableHtml += "<tr id='flaggedItem" + x + "'><td>" + flags.flagsArray[x].studentWork + "</td>";
+
+						//add the button to unflag the particular student work						
+						flagTableHtml += "<td><input type='button' value='Unflag Work' onClick='saveFlag(\"" + flags.flagsArray[x].nodeId + "\", " + flags.flagsArray[x].toWorkgroup + ", " + flags.flagsArray[x].fromWorkgroup + ", \"" + flags.flagsArray[x].studentWork + "\", " + runId + ", true," + x + ")'></td>";
+						flagTableHtml += "</tr>";
+					}
+				}
+				
+				flagTableHtml += "</table>";
+
+				//set the html into the div
+				document.getElementById('flaggedItems').innerHTML = flagTableHtml;
+			},
+			failure: function(o) {
+
+			},
+			argument: ["a", "b", "c"],
+			scope:this
+	};
+
+	var getFlagsTransaction = YAHOO.util.Connect.asyncRequest('GET', getFlagsUrl + "&nodeId=" + nodeId, getFlagCallback, null);
+	
 	//create the table that displays all the student data, student work, and grading text box
-	gradeByStepHtml += "<table border='1'";
+	gradeByStepHtml += "<table border='1' class='studentWorkTable'>";
 
 	//add the header for the table
 	gradeByStepHtml += "<tr><th>Workgroup Id</th><th>Work</th><th>Grading</th><th>Save Annotation</th><th>Flag</th></tr>";
@@ -401,19 +483,10 @@ function getGradeByStepHtml(nodeId) {
 		//get a vleState
 		var vleState = vleStates[x];
 
-		var studentWork = "";
+		//get the latest work for the current workgroup 
+		var studentWork = vleState.getLatestWorkByNodeId(nodeId);
 
-		//get the latest node visit for the given nodeId
-		var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
-
-		//check if there was a node visit and if that had node states
-		if(latestNodeVisit != null && latestNodeVisit.nodeStates != null) {
-			if(latestNodeVisit.nodeStates.length != 0) {
-				//if there were node states, we will retrieve the last state to display the student work from it
-				studentWork = latestNodeVisit.nodeStates[latestNodeVisit.nodeStates.length - 1].getStudentWork();
-			}                            			
-		}
-
+		//obtain the annotation for this workgroup and step if any
 		var annotation = annotations.getLatestAnnotation(runId, nodeId, vleState.dataId, teacherId, "comment");
 
 		gradeByStepHtml += "<tr>";
@@ -451,8 +524,9 @@ function getGradeByStepHtml(nodeId) {
 		}
 
 		//display the checkbox for the flagging
-		gradeByStepHtml += "<td><input type='checkbox' name='flagCheckBox" + vleState.dataId + "' id='flagCheckBox" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", document.getElementById(\"flagCheckBox" + vleState.dataId + "\").checked, \"" + studentWork + "\", " + runId + ")' + " + checked + "></td>";
-
+		//gradeByStepHtml += "<td><input type='checkbox' name='flagCheckBox" + vleState.dataId + "' id='flagCheckBox" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", document.getElementById(\"flagCheckBox" + vleState.dataId + "\").checked, \"" + studentWork + "\", " + runId + ")' + " + checked + "></td>";
+		gradeByStepHtml += "<td><input type='button' value='Flag Work' name='flagButton" + vleState.dataId + "' id='flagButton" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", false)'></td>";
+		
 		gradeByStepHtml += "</tr>";
 	}
 
@@ -462,6 +536,174 @@ function getGradeByStepHtml(nodeId) {
 	document.getElementById('gradeByStepDiv').innerHTML = gradeByStepHtml;
 }
 
+/**
+ * Adds the flagged item to the flaggedItemsTable at the top of the page.
+ * @param nodeId the id of the node
+ * @param dataId the id of the student
+ * @param teacherId the id of the teacher
+ * @param studentWork what the student wrote
+ * @param runId the id of the run
+ * @param itemNumber the number of the item in the flaggedItemsTable
+ */
+function addFlaggedItemToDisplay(nodeId, dataId, teacherId, studentWork, runId, itemNumber) {
+	//obtain the flaggedItemsTable
+	var flaggedItemTable = document.getElementById('flaggedItemsTable');
+
+	/*
+	 * try to obtain the row that displays the message that there are no 
+	 * flagged responses. this will not exist if there are flagged responses
+	 * for this step.
+	 */
+	var noFlaggedResponsesRow = document.getElementById('noFlaggedResponses');
+
+	if(noFlaggedResponsesRow != null) {
+		/* 
+		 * remove the row. flaggedItemTable.childNodes[0] is the tbody which
+		 * contains the tr elements.
+		 */
+		flaggedItemTable.childNodes[0].removeChild(noFlaggedResponsesRow);
+	}
+
+	//obtain the number of the element we will add which we will use in the id
+	if(itemNumber == null) {
+		itemNumber = flaggedItemTable.childNodes[0].childNodes.length;
+	}
+
+	//create the row to display the flagged item
+	var flagRow = document.createElement("tr");
+
+	//set the id for the row
+	flagRow.id = "flaggedItem" + itemNumber;
+
+	//create the data that displays the student's work
+	var flagDataWork = document.createElement("td");
+	flagDataWork.innerHTML = studentWork;
+
+	//create the data that displays the button to unflag the work
+	var flagDataButton = document.createElement("td");
+	flagDataButton.innerHTML = "<input type='button' value='Unflag Work' onClick='saveFlag(\"" + nodeId + "\", " + dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", true," + itemNumber + ")'></input>"; 
+
+	//add the data to the row
+	flagRow.appendChild(flagDataWork);
+	flagRow.appendChild(flagDataButton);
+
+	/* 
+	 * add the row to the table. flaggedItemTable.childNodes[0] is the tbody which
+	 * contains the tr elements.
+	 */
+	flaggedItemTable.childNodes[0].appendChild(flagRow);
+}
+
+/**
+ * Remove the flagged item from the flaggedItemsTable
+ */
+function removeFlaggedItemFromDisplay(itemNumber) {
+	//get the flaggedItemsTable
+	var flaggedItemTable = document.getElementById('flaggedItemsTable');
+
+	//get the flagged item
+	var flaggedItemToRemove = document.getElementById('flaggedItem' + itemNumber);
+
+	/*
+	 * remove the flagged item from the table. flaggedItemTable.childNodes[0] 
+	 * is the tbody which contains the tr elements.
+	 */
+	flaggedItemTable.childNodes[0].removeChild(flaggedItemToRemove);
+
+	//check if there are no more flagged items for this step
+	if(flaggedItemsTableEmpty()) {
+		//display the message that says there are no flagged responses
+		addNoFlaggedResponsesMsg();
+	}
+}
+
+/**
+ * Display the "No flagged responses" message to the flaggedItemsTable
+ */
+function addNoFlaggedResponsesMsg() {
+	//get the flaggedItemsTable
+	var flaggedItemTable = document.getElementById('flaggedItemsTable');
+
+	//create the row to display the message
+	var noFlaggedResponsesRow = document.createElement("tr");
+
+	//set the id
+	noFlaggedResponsesRow.id = 'noFlaggedResponses';
+
+	//set the text in the row
+	noFlaggedResponsesRow.innerHTML = "<td>No flagged responses</td>";
+
+	//add the row to the table if the table is empty
+	if(flaggedItemsTableEmpty()) {
+		/*
+		 * add the message to the table. flaggedItemTable.childNodes[0] 
+		 * is the tbody which contains the tr elements.
+		 */
+		flaggedItemTable.childNodes[0].appendChild(noFlaggedResponsesRow);
+	}
+}
+
+/**
+ * Remove the "No flagged responses" message from the flaggedItemsTable
+ */
+function removeNoFlaggedResponsesMsg() {
+	//get the flaggedItemsTable
+	var flaggedItemTable = document.getElementById('flaggedItemsTable');
+
+	//get the row that displays the message
+	var noFlaggedResponsesRow = document.getElementById('noFlaggedResponses');
+
+	//check if the row exists
+	if(noFlaggedResponsesRow != null) {
+		/*
+		 * remove the message from the table. flaggedItemTable.childNodes[0] 
+		 * is the tbody which contains the tr elements.
+		 */
+		flaggedItemTable.childNodes[0].removeChild(noFlaggedResponsesRow);
+	}
+}
+
+/**
+ * Check if the flaggedItemsTable contains any flagged items
+ */
+function flaggedItemsTableEmpty() {
+	var flaggedItemTable = document.getElementById('flaggedItemsTable');
+	
+	//check how many items are in the table
+	if(flaggedItemTable.childNodes[0].childNodes.length == 1) {
+		
+		var noFlaggedResponsesRow = document.getElementById('noFlaggedResponses');
+		
+		/*
+		 * check if the one item in the table is the "no flagged responses"
+		 * row
+		 */
+		if(noFlaggedResponsesRow != null) {
+			/*
+			 * the one item is the "no flagged responses" row so the table has
+			 * no flagged items and is empty
+			 */
+			return true;
+		} else {
+			/*
+			 * the one item is not the "no flagged responses" row and is a
+			 * flagged item, so the table is not empty
+			 */
+			return false;
+		}
+	} else {
+		//there is more than one item so the table is not empty
+		return false;
+	}
+}
+
+/**
+ * Obtain the latest student work by calling render again to retrieve the
+ * latest data.
+ */
+function refresh() {
+	render(this.contentURL, this.userURL, this.getDataUrl, this.contentBaseUrl, this.getAnnotationsUrl, this.postAnnotationsUrl, this.runId, this.getFlagsUrl, this.postFlagsUrl);
+}
 var myMenu;
 
 

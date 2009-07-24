@@ -36,7 +36,7 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
 		this.prompt = "";
 	};
 	this.cannedResponses = xmlDoc.getElementsByTagName('response');
-
+	
 	this.questionType = this.assessmentItem.getAttribute('identifier');
 	var serverless = this.xmlDoc.getAttribute('serverless');
 	if(serverless != null && serverless == 'false') {
@@ -48,38 +48,55 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
  * Renders either the brainlite page, if this.serverless=true or the
  * brainfull page if this.serverless = false.
  */
-BRAINSTORM.prototype.render = function(){
-	var frame = window.frames['brainstormFrame'];
-	if(window.name=='previewFrame'){
-		var url = '../blank.html'; //called from author_framed.html - need to come out one level
-	} else {
-		var url = 'blank.html'; //probably called from 'ifrm' - same level as author.html and vle.html
+BRAINSTORM.prototype.render = function(contentPanel){
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml, args){
+			bs = args[0];
+			contentPanel = args[1];
+			
+			if(contentPanel){
+				var frame = contentPanel;
+			} else {
+				var frame = window.frames['brainstormFrame'];
+			};
+			
+			frame.document.open();
+			if(window.parent && window.parent.vle){//from vle
+				frame.document.write(bs.injectBaseRef(injectVleUrl(text)));
+			} else {//from at
+				frame.document.write(injectVleUrl(text));
+			};
+			frame.document.close();
+		};
+		
+		if(bs.serverless){
+			var bsLoc = 'node/brainstorm/brainlite.html';
+		} else {
+			var bsLoc = 'node/brainstorm/brainfull.html';
+		};
+		
+		if(window.parent && window.parent.vle){//called from VLE
+			window.parent.vle.connectionManager.request('GET', 1, bsLoc, null,  renderAfterGet, [window.bs, window.contentPanel]);
+		} else if(window.parent && window.parent.parent){//called from AT
+			window.parent.parent.connectionManager.request('GET', 1, bsLoc, null,  renderAfterGet, [window.bs, window.contentPanel]);
+		};
 	};
 	
-	//set new src for frame
-	if(this.serverless){ // then render brainlite page
-		window.allready = function(){
-			var callback = function(){
-				frame.scriptloader.initialize(frame.document, function(){frame.afterScriptsLoaded();}, 'brainlite');
-			};
-			
-			frame.pageBuilder = window.parent.pageBuilder;
-			frame.pageBuilder.build(frame.document, 'brainlite', callback);
-		};
-		
-		frame.location = url;
-	} else { // render brainfull page
-		window.allready = function(){
-			var callback = function(){
-				frame.scriptloader.initialize(frame.document, function(){frame.afterScriptsLoaded();}, 'brainfull');
-			};
-			
-			frame.pageBuilder = window.parent.pageBuilder;
-			frame.pageBuilder.build(frame.document, 'brainfull', callback);
-		};
-		
-		frame.location = url;
+	if(contentPanel){
+		var frame = contentPanel;
+	}else{
+		var frame = window.frames['brainstormFrame'];
 	};
+	
+	if(window.parent && window.parent.vle){//called from VLE
+		var loc = window.location.toString();
+		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
+		frame.location = vleLoc + 'blank.html';
+	} else {//called from AT
+		frame.location = '../blank.html';
+	};
+	window.bs = this;
+	window.contentPanel
 };
 
 /**
@@ -409,6 +426,34 @@ BRAINSTORM.prototype.getText = function(){
 	text += '  isPollActive: ' + this.isInstantPollActive;
 	text += '  questionType: ' + this.questionType;
 	return text;
+};
+
+/**
+ * Attempts to retrieve the contentbase url from project and inject
+ * it into the content.
+ */
+BRAINSTORM.prototype.injectBaseRef = function(content){
+	if (content.search(/<base/i) > -1) {
+		// no injection needed because base is already in the html
+		return content;
+	} else {		
+		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
+		
+		if(window.parent.vle){
+			var baseRefTag = "<base href='" + window.parent.vle.project.contentBaseUrl + "'/>";
+		} else if(typeof vle!='undefined'){
+			var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "'/>";
+		} else {
+			return content;
+		};
+		
+		var headPosition = content.indexOf("<head>");
+		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
+		newContent += baseRefTag;
+		newContent += content.substring(headPosition+6);
+
+		return newContent;
+	};	
 };
 
 //used to notify scriptloader that this script has finished loading

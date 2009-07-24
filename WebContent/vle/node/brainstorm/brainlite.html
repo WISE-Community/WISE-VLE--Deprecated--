@@ -24,8 +24,8 @@
 -->
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="./brainstorm.css">
-        <script type="text/javascript" src="../../util/scriptloader.js">
+        <link rel="stylesheet" type="text/css" href="node/brainstorm/brainstorm.css">
+        <script type="text/javascript" src="util/scriptloader.js">
         </script>
         <script type="text/javascript">
             var brainstorm = parent.brainstorm;
@@ -68,7 +68,7 @@
             };
             
             function loaded(){
-                scriptloader.initialize(document, afterScriptsLoaded, 'brain');
+                scriptloader.initialize(document, afterScriptsLoaded, 'brainlite');
             };
         </script>
     </head>
@@ -79,11 +79,11 @@
                     <tr>
                         <td>
                             <div id="helpIcon">
-                                <a href="BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                                <a href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
                             </div>
                         </td>
                         <td>
-                            <a id="helpTextLink" href="BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                            <a id="helpTextLink" href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
                         </td>
                     </tr>
                 </table>

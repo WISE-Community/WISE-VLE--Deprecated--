@@ -17,41 +17,44 @@ function sourceUpdated() {
  * filename points to a plain old file.
  */
 function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator) {
-	var callback =
-	{
-	  success: function(o) { 
-	  var xmlDocToParse = o.responseXML;
-	  
-		/*
-		 * display the xmlString to the user in the left area so they can
-		 * edit and author it. 
-		 */
-		document.getElementById('sourceTextArea').value = o.responseText;
-		
-		window.frames["previewFrame"].loadContent([o.responseText]);
-	  },
-		  failure: function(o) { alert('failure');},
-		  scope: this
-	}
-	
-	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
-}
+			var callback =
+			{
+			  success: function(o) { 
+			  var xmlDocToParse = o.responseXML;
+			
+				/*
+				 * display the xmlString to the user in the left area so they can
+				 * edit and author it. 
+				 */
+				document.getElementById('sourceTextArea').value = o.responseText;
+				
+				window.frames["previewFrame"].loadContent([o.responseText]);
+				},
+				failure: function(o) { alert('failure');},
+				scope: this
+			}
+			
+			YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
+};
 
 function loaded(){
 	//set frame source to blank and create page dynamically
-	var callback = function(){
-		var frm = window.frames['previewFrame'];
-		var loadMultiple = function(){
-			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
-			window.parent.childSave = save;
-			window.parent.getSaved = getSaved;
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml){
+			var frm = window.frames["previewFrame"];
+			
+			frm.document.open();
+			frm.document.write(window.parent.opener.injectVleUrl(text));
+			frm.document.close();
+			
+			frm.loadAuthoring = function(){
+				window.parent.childSave = save;
+				window.parent.getSaved = getSaved;
+				loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			};
 		};
 		
-		frm.scriptloader.initialize(frm.document, loadMultiple, 'multiplechoice');
-	};
-	
-	window.allready = function(){
-		pageBuilder.build(window.frames['previewFrame'].document, 'multiplechoice', callback);
+		window.parent.opener.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet);
 	};
 	
 	window.frames['previewFrame'].location = '../blank.html';

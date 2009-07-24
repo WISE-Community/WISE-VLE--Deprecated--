@@ -92,5 +92,25 @@ NODE_VISIT.prototype.getLatestState = function() {
 	return this.nodeStates[this.nodeStates.length - 1];
 }
 
+/**
+ * Get the latest work for this visit that isn't null or
+ * empty string
+ * @return the latest work that is not null or blank
+ */
+NODE_VISIT.prototype.getLatestWork = function() {
+	//loop through all the states from latest to earliest
+	for(var x=this.nodeStates.length - 1; x >= 0; x--) {
+		//check if the state's work is not blank
+		if(this.nodeStates[x] != null && 
+				this.nodeStates[x].getStudentWork() != null &&
+				this.nodeStates[x].getStudentWork() != "") {
+			//return the student work
+			return this.nodeStates[x].getStudentWork();
+		}
+	}
+	
+	return "";
+}
+
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/data/nodevisit.js");

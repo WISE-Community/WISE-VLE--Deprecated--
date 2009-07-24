@@ -10,30 +10,40 @@ function FillinNode(nodeType, connectionManager) {
 	this.type = nodeType;
 }
 
-FillinNode.prototype.render = function(contentpanel) {
-	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
-		this.retrieveFile();
-	};
-	
-	this.renderComplete = false;
-	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
-	
-	var frm = window.frames["ifrm"];
-	window.allready = function(){
-		var callbackCallback = function(args){
-			args[0].renderComplete = true;
-			args[1].eventManager.fire('nodeRenderComplete_' + args[0].id);
+FillinNode.prototype.render = function(contentPanel) {
+	var renderAfterGet = function(text, xml, args){
+		var fillinNode = args[0];
+		var contentPanel = args[1];
+		
+		if(fillinNode.filename!=null && vle.project.lazyLoading){ //load element from file
+			fillinNode.retrieveFile();
 		};
 		
-		var callback = function(){
-			frm.scriptloader.initialize(frm.document, callbackCallback, 'fillin', [vle.currentNode, vle]);
+		if(contentPanel){
+			var frm = contentPanel;
+		} else {
+			var frm = window.frames["ifrm"];
 		};
 		
-		frm.pageBuilder = pageBuilder;
-		frm.pageBuilder.build(frm.document, 'fillin', callback);
+		frm.document.open();
+		frm.document.write(fillinNode.injectBaseRef(injectVleUrl(text)));
+		frm.document.close();
 	};
 	
-	frm.location = 'blank.html';
+	/*
+	 * check if the user had clicked on an outside link in the previous
+	 * step
+	 */
+	if(this.handlePreviousOutsideLink(this)) {
+		/*
+		 * the user was at an outside link so the function
+		 * handlePreviousOutsideLink() has taken care of the
+		 * rendering of this node
+		 */
+		return;
+	};
+	
+	vle.connectionManager.request('GET', 1, 'node/fillin/fillin.html', null,  renderAfterGet, [this, contentPanel]);
 };
 
 FillinNode.prototype.load = function() {

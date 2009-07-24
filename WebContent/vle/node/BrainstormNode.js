@@ -10,58 +10,44 @@ BrainstormNode.prototype.parent = Node.prototype;
 function BrainstormNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
+	this.audioSupported = true;	
 };
 
-BrainstormNode.prototype.render = function(contentpanel){
-	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
-		this.retrieveFile();
-	};
-	
-	this.renderComplete = false;
-	vle.eventManager.addEvent(this, 'nodeRenderComplete_' + this.id);
-	
-	var frm = window.frames["ifrm"];
-	window.allready = function(){
-		var callbackCallback = function(args){
-			args[0].renderComplete = true;
-			args[1].eventManager.fire('nodeRenderComplete_' + args[0].id);
+BrainstormNode.prototype.render = function(contentPanel){
+	var renderAfterGet = function(text, xml, args){
+		var bsNode = args[0];
+		var contentPanel = args[1];
+		
+		if(bsNode.filename!=null && vle.project.lazyLoading){ //load element from file
+			bsNode.retrieveFile();
 		};
 		
-		var callback = function(){
-			frm.scriptloader.initialize(frm.document, callbackCallback, 'brainstorm', [vle.currentNode, vle]);
+		if(contentPanel){
+			var frm = contentPanel;
+		} else {
+			var frm = window.frames["ifrm"];
 		};
 		
-		frm.pageBuilder = pageBuilder;
-		frm.pageBuilder.build(frm.document, 'brainstorm', callback);
+		frm.document.open();
+		frm.document.write(bsNode.injectBaseRef(injectVleUrl(text)));
+		frm.document.close();
 	};
 	
-	frm.location = 'blank.html';
+	vle.connectionManager.request('GET', 1, 'node/brainstorm/brainstorm.html', null,  renderAfterGet, [this, contentPanel]);
 };
 
 BrainstormNode.prototype.load = function(){
-	var load = function(event, args, bNode){console.log('ev: ' + event + '  args: ' + args + '  bNode: ' + bNode);
-		if(!bNode){//Firefox only passes the obj
-			bNode = event;
-		};
-		
-		var states = [];
-		for (var i=0; i < vle.state.visitedNodes.length; i++) {
-			var nodeVisit = vle.state.visitedNodes[i];
-			if (nodeVisit.node.id == bNode.id) {
-				for (var j=0; j<nodeVisit.nodeStates.length; j++) {
-					states.push(nodeVisit.nodeStates[j]);
-				};
+	var states = [];
+	for (var i=0; i < vle.state.visitedNodes.length; i++) {
+		var nodeVisit = vle.state.visitedNodes[i];
+		if (nodeVisit.node.id == this.id) {
+			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
+				states.push(nodeVisit.nodeStates[j]);
 			};
 		};
-		
-		window.frames["ifrm"].loadContent(bNode.element, bNode.id, states, vle);
 	};
 	
-	if(this.renderComplete){
-		load(this);
-	} else {
-		vle.eventManager.subscribe('nodeRenderComplete_' + this.id, load, this);
-	};
+	window.frames["ifrm"].loadContent([this.element, this.id, states, vle]);
 };
 
 BrainstormNode.prototype.getDataXML = function(nodeStates) {

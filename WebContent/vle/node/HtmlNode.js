@@ -12,6 +12,7 @@ function HtmlNode(nodeType, connectionManager) {
 	this.filename = null;
 	this.audios = [];
 	this.contentBase;
+	this.audioSupported = true;	
 }
 
 HtmlNode.prototype.setContent = function(content) {
@@ -31,7 +32,18 @@ HtmlNode.prototype.load = function() {
 
 
 HtmlNode.prototype.render = function(contentPanel) {
-	if (this.elementText != null) {
+	/*
+	 * check if the user had clicked on an outside link in the previous
+	 * step
+	 */
+	if(this.handlePreviousOutsideLink(this)) {
+		/*
+		 * the user was at an outside link so the function
+		 * handlePreviousOutsideLink() has taken care of the
+		 * rendering of this node
+		 */
+		return;
+	} else if (this.elementText != null) {
 		window.frames["ifrm"].document.open();
 		window.frames["ifrm"].document.write(this.injectBaseRef(this.elementText));
 		window.frames["ifrm"].document.close();
@@ -132,6 +144,13 @@ HtmlNode.prototype.exportNode = function() {
 	exportXML += this.exportNodeFooter();
 	
 	return exportXML;
+}
+
+HtmlNode.prototype.doNothing = function() {
+	alert("doNothing");
+	window.frames["ifrm"].document.open();
+	window.frames["ifrm"].document.write(this.injectBaseRef(this.elementText));
+	window.frames["ifrm"].document.close();
 }
 
 //used to notify scriptloader that this script has finished loading

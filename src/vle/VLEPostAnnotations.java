@@ -32,6 +32,20 @@ public class VLEPostAnnotations extends HttpServlet {
         shutdown();
 	}
 	
+    private static void createTable()
+    {
+        try
+        {
+            stmt = conn.createStatement();
+            stmt.execute("create table annotations (id bigint(20) not null auto_increment, runId bigint(20) default null, nodeId varchar(20) default null, toWorkgroup bigint(20) default null, fromWorkgroup bigint(20) default null, type varchar(20) default null, value longtext, postTime timestamp not null default current_timestamp on update current_timestamp, primary key(id));");
+            stmt.close();
+        }
+        catch (SQLException sqlExcept)
+        {
+            sqlExcept.printStackTrace();
+        }
+    }
+    
     private static void createConnection()
     {
         try

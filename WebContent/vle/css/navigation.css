@@ -73,24 +73,23 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background-repeat:repeat-x; 
 	background-color:#6699FF;
 	width:225px; 
-	min-height:624px;
-	height:99%;
+	min-height:590px;
+	height:93%;
 	border:1px solid #333;
 	    }
 
 #projectRightUpperBox {
 	position:relative;
 	height:36px;
-	margin: 0 0 3px 231px;
+	margin: 0 0 3px 0;
 	padding:0;
 	background-image:url(../images/gradient_stepInfoBar40v2.png);
 	background-repeat:repeat-x; 
 	background-position:0 0px;
 	border:1px solid #333;
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;
-	-moz-border-radius-bottomleft:8px;
-	-moz-border-radius-bottomright:8px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
 }
 	
 #projectRightLowerBox {
@@ -98,9 +97,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	background-color:#FFF;
 	border:1px solid #333;
 	padding:0px;
-	margin: 0 0 0 231px;
-	-moz-border-radius-topleft:8px;
-	-moz-border-radius-topright:8px;  
+	margin: 0 0 0 231px; 
 }
 
 #contentDiv {
@@ -157,21 +154,25 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
  }
  
 #audioControls  {
-	background-color:#CCC;
-	border-top:1px solid #666;
-	border-bottom:1px solid #666;
-	padding:2px 0;
+	position:absolute;
+	top:10px;
+	left:140px;
+	background-color:transparent;
+	padding:0;
 	}	
 	
 #audioControls table {
 	border-collapse:collapse;
-	font-size:.6em;	
-	margin:0 auto;
+	font-size:.5em;	
+		}
+		
+#audioControls table td {
+	text-align:center
 		}
 	
 #audioControls a.rewind {  
      display: block;  
-     width: 40px;  
+     width: 28px;  
      height: 16px; 
      background-image: url(../images/audio_rewind.png);  
      background-position:center -3px;	
@@ -185,7 +186,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	 
 #audioControls a.play {  
      display: block;  
-     width: 34px;  
+     width: 28px;  
      height: 16px; 
      background-image: url(../images/audio_play.png);  
      background-repeat: no-repeat;
@@ -199,7 +200,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
     
 #audioControls a.pause {  
      display: block;  
-     width: 40px;  
+     width: 28px;  
      height: 16px; 
      background-image: url(../images/audio_pause.png);  
      background-repeat: no-repeat;
@@ -213,7 +214,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #audioControls a.forward {  
      display: block;  
-     width: 40px;  
+     width: 28px;  
      height: 16px; 
      background-image: url(../images/audio_forward.png);  
      background-repeat: no-repeat;
@@ -224,8 +225,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      background-image: url(../images/audio_forward_roll.png);  
      cursor:pointer;
      } 
-     
-#audioControls .rightPadding {padding:0 5px 0 10px;}
 
 #navigationArea {
 	margin: 0px 0 35px 0 ;
@@ -253,40 +252,14 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	margin-left:2px;
 }
 
-#hostBrandingBox{
-	position:absolute;
-	bottom:0px;
-	text-align:center;     }
-	
-#hostBrandingBox a img:hover{
-	outline:2px dotted #FFFF00;
-	 }
-	
-#hostBrandingBox p{
-	position:absolute;
-	bottom:10px;
-	left:104px;
-	text-align:left;
-	font-size:.6em;
-	letter-spacing:1px;
-	line-height:120%;
-	}
-	
-#hostBrandingBox p a:link, #hostBrandingBox a:visited {
-	color:#999;
-	text-decoration:none;
-	outline:none;
-	}
-	
-#hostBrandingBox p a:hover {
-	color:#FFFF00;
-		}
+
 
 /* STEP CONTROL BAR */
 
 #stepInfoBar {
-	position:relative;
-	width:100%;
+	position:absolute;
+	left:235px;
+	width:500px;
 	}
 	
 #stepIcon {
@@ -462,13 +435,19 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 /* TOOLS MENU DROP DOWN STYLING */
 
-.dropdown {width:225px;}
+.dropdown {
+	width:125px;
+	position:absolute;
+	top:8px;
+	left:6px;
+	}
 
 .dropdown dt { 
-	border-bottom:2px solid #999; 
+	border:1px solid #666; 
 	margin:0;
-	font-weight:bold; 
-	letter-spacing:1.5px;
+	font-weight:normal; 
+	font-size:80%;
+	letter-spacing:1.2px;
 	font-variant:small-caps;
 	background:url(../images/robots/toolbar_bg2.png)
 	}
@@ -478,14 +457,14 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .dropdown dt img{
 	position:absolute; 
 	right:7px;
-	top:6px;	}
+	top:4px;	}
 	
 .dropdown dt:hover {
 	background:url(../images/robots/toolbar_bg3.png);
 	cursor:pointer;
 	}
-.dropdown dd {position:absolute; overflow:hidden; width:225px; display:none; background:#fff; z-index:200; opacity:0}
-.dropdown ul {width:225px; border:2px solid #9ac1c9; list-style:none; border-top:none}
+.dropdown dd {position:absolute; overflow:hidden; width:216px; display:none; background:#fff; z-index:200; opacity:0}
+.dropdown ul {width:216px; border:2px solid #9ac1c9; list-style:none; border-top:none}
 .dropdown li {display:inline}
 .dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#CCC; text-decoration:none; background:#333; width:225px}
 .dropdown a:hover {

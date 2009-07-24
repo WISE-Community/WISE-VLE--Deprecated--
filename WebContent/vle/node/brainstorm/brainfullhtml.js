@@ -29,6 +29,7 @@ function afterScriptsLoaded(){
 		//render and display the rich text editor
 		richTextEditor.render();
 	}
+	vle.eventManager.fire('nodeLoadComplete_' + brainstorm.nodeId);
 };
 
 //used to notify scriptloader that this script has finished loading

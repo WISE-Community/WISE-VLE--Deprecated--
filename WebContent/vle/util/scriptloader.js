@@ -32,6 +32,16 @@ function createIEElement(doc, type, attrArgs){
 	return doc.createElement(elString);
 };
 
+if(!Array.indexOf){
+    Array.prototype.indexOf = function(obj){
+        for(var i=0; i<this.length; i++){
+            if(this[i]==obj){
+                return i;
+            };
+        };
+        return -1;
+    };
+};
 /**
  * Scriptloader is an object that dynamically loads scripts. The
  * javascripts and css .main variables have been pre-populated to load
@@ -48,18 +58,16 @@ function createIEElement(doc, type, attrArgs){
  */ 
 var scriptloader = {
 	javascripts: {
-		main: ["vle/sound/AudioManager.js",
-				   "vle/yui/yui_3.0.0pr2/build/yui/yui-min.js", 
+		main: ["vle/sound/AudioManager.js", 
                    "vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js", 
                    "vle/yui/yui_2.7.0b/build/event/event-min.js", 
                    "vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
                    "vle/yui/yui_2.7.0b/build/animation/animation-min.js", 
                    "vle/yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js", 
                    "vle/yui/yui_2.7.0b/build/utilities/utilities.js",
-                   "vle/yui/yui_2.7.0b/build/container/container.js", 
+                   "vle/yui/yui_2.7.0b/build/container/container.js",
                    "vle/yui/yui_2.7.0b/build/resize/resize.js",
                    "vle/yui/yui_2.7.0b/build/connection/connection-min.js",
-                   "vle/pagebuilder/pagebuilder.js",
                    "vle/util/shortcutmanager.js",
                    "vle/author/authoring.js",
                    "vle/VLE.js", 
@@ -130,9 +138,10 @@ var scriptloader = {
     				"vle/node/multiplechoice/mc.js",
     				"vle/node/openresponse/openresponsestate.js",
     				"vle/node/openresponse/openresponse.js",
-    				"vle/node/openresponse/customjournalentrystate.js"],
+    				"vle/node/openresponse/customjournalentrystate.js",
+    				"vle/journal/Journal.js"],
         	brainlite: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/helperfunctions.js",
         				"vle/node/brainstorm/brainlitehtml.js",
         				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
@@ -142,7 +151,7 @@ var scriptloader = {
                         "vle/yui/yui_2.7.0b/build/button/button-min.js",
                         "vle/yui/yui_2.7.0b/build/editor/editor-min.js"],
            brainfull: ["vle/node/common/js/loadxmldoc.js",
-                    	"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+                    	"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
                     	"vle/node/common/js/helperfunctions.js",
                     	"vle/node/brainstorm/brainfullhtml.js",
                     	"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
@@ -156,7 +165,7 @@ var scriptloader = {
         				"vle/yui/yui_2.7.0b/build/event/event-min.js",
         				"vle/yui/yui_2.7.0b/build/connection/connection-min.js",
         				"vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/helperfunctions.js",
         				"vle/node/brainstorm/brainstorm.js",
         				"vle/node/brainstorm/brainstormstate.js",
@@ -167,7 +176,7 @@ var scriptloader = {
                         "vle/yui/yui_2.7.0b/build/button/button-min.js",
                         "vle/yui/yui_2.7.0b/build/editor/editor-min.js"],
         	fillin: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/helperfunctions.js",
         				"vle/node/fillin/textentryinteraction.js",
         				"vle/node/fillin/fillinstate.js",
@@ -176,14 +185,14 @@ var scriptloader = {
         				"vle/node/fillin/fillinhtml.js"],
         	info_box: ["vle/node/common/js/niftycube.js"],
         	glue: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/helperfunctions.js",
         				"vle/node/glue/glue.js",
         				"vle/node/glue/gluestate.js",
         				"vle/node/common/js/niftycube.js"],
         	matchsequence: ["vle/node/common/js/loadxmldoc.js",
         				"vle/node/common/js/helperfunctions.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/niftycube.js",
         				"vle/node/matchsequence/matchsequenceyui.js",
         				"vle/node/matchsequence/matchsequencefeedback.js",
@@ -193,14 +202,14 @@ var scriptloader = {
         				"vle/node/matchsequence/matchsequence.js"],
         	multiplechoice: ["vle/node/common/js/loadxmldoc.js",
         				"vle/node/common/js/helperfunctions.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/niftycube.js",
         				"vle/node/multiplechoice/multiplechoicestate.js",
         				"vle/node/multiplechoice/mc.js",
         				"vle/node/multiplechoice/multiplechoicehtml.js"],
         	openresponse: ["vle/node/common/js/loadxmldoc.js",
         				"vle/node/common/js/helperfunctions.js",
-        				"vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/niftycube.js",
         				"vle/node/openresponse/openresponsestate.js",
         				"vle/node/openresponse/openresponse.js",
@@ -241,14 +250,14 @@ var scriptloader = {
         				"vle/node/HtmlNode.js",
         				"vle/author/author_advanced_helper.js",
         				"vle/author/js/html_advanced.js"],
-        	author_glue_easy: ["vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        	author_glue_easy: ["vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/author/author_glue.js",
         				"vle/author/author_easy_helper.js",
         				"vle/author/js/glue_easy.js"],
         	author_glue_advanced: ["vle/author/author_glue.js",
         				"vle/author/author_advanced_helper.js",
         				"vle/author/js/glue_advanced.js"],
-        	author_multiplechoice_easy: ["vle/yui/yui_3.0.0pr2/build/yui/yui-min.js",
+        	author_multiplechoice_easy: ["vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/author/author_easy_helper.js",
         				"vle/author/js/multiplechoice_easy.js"],
         	author_multiplechoice_advanced: ["vle/author/author_advanced_helper.js",
@@ -261,7 +270,10 @@ var scriptloader = {
         				"vle/author/js/outsideurl_easy.js"],
         	author_outsideurl_advanced: ["vle/author/author_advanced_helper.js",
         				"vle/author/js/outsideurl_advanced.js"],
-        	feedback: ["vle/common/helperfunctions.js"]
+        	feedback: ["vle/common/helperfunctions.js"],
+        	journal: ["vle/journal/Journal.js",
+        	          "vle/journal/JournalPage.js",
+        	          "vle/journal/JournalPageRevision.js"]
     },
     css: {
     	main: ["vle/yui/yui_2.7.0b/build/container/assets/skins/sam/container.css", 
@@ -270,6 +282,8 @@ var scriptloader = {
 	           "vle/css/niftycube.css", 
 	           "vle/css/navigation.css",
 	           "vle/css/sdmenu.css"],
+	    wise: ["vle/css/wise/WISE_styles.css"],
+	    uccp: ["vle/css/uccp/UCCP_styles.css"],
 	    brainlite: ["vle/node/common/css/htmlAssessment.css",
 				 "vle/node/brainstorm/brainstorm.css",
 				 "vle/node/common/css/niftyCorners.css",
@@ -300,6 +314,7 @@ var scriptloader = {
     },
     dependencies: {
     	"vle/node/Node.js": ["vle/yui/yui_2.7.0b/build/event/event-min.js"],
+    	"vle/project/Project.js": ["vle/node/Node.js"],
     	"vle/node/OpenResponseNode.js": ["vle/node/Node.js"],
     	"vle/node/HtmlNode.js": ["vle/node/Node.js"], 
         "vle/node/CustomNode.js": ["vle/node/Node.js"],

@@ -14,6 +14,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -235,6 +237,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				File f = new File(paths[p]);
 				getProjectFiles(f, projects, visited);
 			}
+			Collections.sort(projects, new CompareByLastModified());
 			for(int q=0;q<projects.size();q++){
 				projectList += projects.get(q);
 				if(q!=projects.size()-1){
@@ -332,6 +335,26 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 	}
 	
 	/**
+	 * A Comparator that compares two <code>String</code> paths by
+	 * the date it was last modified.
+	 */
+	private class CompareByLastModified implements Comparator<String>{
+
+		public int compare(String arg0, String arg1) {
+			File file1 = new File(arg0);
+			File file2 = new File(arg1);
+			
+			if(file1.lastModified() == file2.lastModified()){
+				return 0;
+			} else if(file1.lastModified() > file2.lastModified()){
+				return -1;
+			} else {
+				return 1;
+			}
+		}
+	}
+	
+	/**
 	 * Given a list of visited paths and a path, returns true
 	 * if the path has been visited, false otherwise
 	 * 
@@ -367,7 +390,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				out += current + Template.NL;
 			}
 			br.close();
-			return out;
+			return out.replace("&", "&amp;");
 		} else {
 			throw new FileNotFoundException("Unable to locate file: " + file.getAbsolutePath());
 		}

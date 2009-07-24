@@ -104,6 +104,7 @@ var pageBuilder = {
 			var centered = createElement(doc, 'div', {id: "centeredDiv"});
 			var questionCount = createElement(doc, 'div', {id: 'questionCountBox', 'class': 'bg7'});
 			var table = createElement(doc, 'table', {'class': 'instructionsReminder'});
+			var tbody = createElement(doc, 'tbody');
 			var tr = createElement(doc, 'tr');
 			var td1 = createElement(doc, 'td');
 			var td2 = createElement(doc, 'td');
@@ -114,9 +115,11 @@ var pageBuilder = {
 			var qTypeDiv = createElement(doc, 'div', {id: 'questionType'});
 			
 			doc.getElementsByTagName('body')[0].appendChild(centered);
+
 			centered.appendChild(questionCount);
 			questionCount.appendChild(table);
-			table.appendChild(tr);
+			table.appendChild(tbody);
+			tbody.appendChild(tr);
 			tr.appendChild(td1);
 			tr.appendChild(td2);
 			td1.appendChild(helpDiv);
@@ -167,6 +170,7 @@ var pageBuilder = {
 			statusDiv.appendChild(lastAttemptDiv);
 			
 			var table2 = createElement(doc, 'table', {id: 'buttonTable'});
+			var tbody2 = createElement(doc, 'tbody');
 			var tr2 = createElement(doc, 'tr');
 			var td3 = createElement(doc, 'td');
 			var td4 = createElement(doc, 'td');
@@ -176,7 +180,8 @@ var pageBuilder = {
 			var a2Text = doc.createTextNode('Try Again');
 			
 			buttonDiv.appendChild(table2);
-			table2.appendChild(tr2);
+			table2.appendChild(tbody2);
+			tbody2.appendChild(tr2);
 			tr2.appendChild(td3);
 			tr2.appendChild(td4);
 			td3.appendChild(a1);
@@ -185,11 +190,11 @@ var pageBuilder = {
 			a2.appendChild(a2Text);
 		},
 		brainstorm: function(doc){
-			var frameDiv = createElement(doc, 'div', {id: 'frameDiv'});
-			var frame = createElement(doc, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0'});
 			var parent = doc.getElementsByTagName('body')[0];
-			
+			var frameDiv = createElement(doc, 'div', {id: 'frameDiv'});
 			parent.appendChild(frameDiv);
+	
+			var frame = createElement(doc, 'iframe', {id: 'brainstormFrame', name: 'brainstormFrame', width: '100%', height: '100%', frameborder: '0'});		
 			frameDiv.appendChild(frame);
 		},
 		brainlite: function(doc){
@@ -282,11 +287,25 @@ var pageBuilder = {
 	build: function(doc, type, fun){
 		this.count = 0;
 		this.fun = fun;
+		if (arguments.length > 4) {
+			this.contentbaseurl = arguments[4];
+		}
 		if(this.pages[type]){
 			if(doc){
-				this.cleanHtml(doc);
+				this._createHTML(doc);
+				this._copyright(doc);
+				var scriptloader = createElement(doc, 'script', {type: 'text/javascript', src: "util/scriptloader.js"});
+				doc.getElementsByTagName('head')[0].appendChild(scriptloader);
 				this.pages[type](doc);
-				doc.addEventListener("DOMContentLoaded", function(){pageBuilder.listener();}, false);
+				//console.log(doc.implementation);
+				//var nDom = doc.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
+				//nDom.documentElement.setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:lang', 'en');
+				
+				if(doc.addEventListener){
+					doc.addEventListener("DOMContentLoaded", function(){pageBuilder.listener();}, false);
+				} else {//pray that this works, it's ie
+					this.listener();
+				};
 			} else {
 				notificationManager.notify('Given document is undefined.', 3);
 			};
@@ -295,33 +314,25 @@ var pageBuilder = {
 		};
 	},
 	listener: function(){
-		this.count ++;
+		this.count ++; 
 		if(this.count==2 && this.fun){
 			this.fun();
 		};
 	},
-	strip: function(doc){
+	_createHTML: function(doc){
 		while(doc.firstChild){
 			doc.removeChild(doc.firstChild);
 		};
-	},
-	emptyStructure: function(doc){
-		var html = createElement(doc, 'html');
-		var head = createElement(doc, 'head');
-		var body = createElement(doc, 'body');
 		
-		doc.appendChild(html);
-		html.appendChild(head);
-		html.appendChild(body);
+		var h = createElement(doc, 'html');
+		var he = createElement(doc, 'head');
+		var b = createElement(doc, 'body');
+		
+		doc.appendChild(h);
+		h.appendChild(he);
+		h.appendChild(b);
 	},
-	cleanHtml: function(doc){
-		this.strip(doc);
-		this.emptyStructure(doc);
-		this.copyright(doc);
-		var scriptloader = createElement(doc, 'script', {type: 'text/javascript', src: "util/scriptloader.js"});
-		doc.getElementsByTagName('head')[0].appendChild(scriptloader);
-	},
-	copyright: function(doc){
+	_copyright: function(doc){
 		var copyright = doc.createComment("\n" +
  			" Copyright (c) 2009 Regents of the University of California (Regents). Created\n" +
  			" by TELS, Graduate School of Education, University of California at Berkeley.\n" +

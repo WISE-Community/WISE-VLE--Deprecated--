@@ -156,9 +156,11 @@ MC.prototype.render = function() {
 	
 	for(var i=0;i<this.choices.length;i++) {
 		var tableElement = createElement(document, 'table', {});
+		var tbody = createElement(document, 'tbody');
 		var trElement = createElement(document, 'tr', {});
 		var td1Element = createElement(document, 'td', {});
-		tableElement.appendChild(trElement);
+		tableElement.appendChild(tbody);
+		tbody.appendChild(trElement);
 		trElement.appendChild(td1Element);
 		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type': type, 'name':'radiobutton', 'value':this.choices[i].identifier, 'class': type, 'onclick':"enableCheckAnswerButton('true');"});
 		td1Element.appendChild(radiobuttonElement);

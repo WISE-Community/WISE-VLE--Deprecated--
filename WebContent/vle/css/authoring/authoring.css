@@ -12,13 +12,13 @@
 }
 
 #fixedHeader {
-	position:fixed;
-	top:0px;
-	padding:5px 0px;
-	width:1000px;
-	background-color:#7a7a7a;	
-	z-index:1;
-	}
+	position: fixed;
+	top: 0px;
+	padding: 5px 0px;
+	width: 1000px;
+	background-color: #7a7a7a;
+	z-index: 1;
+}
 
 #authorHeader {
 	text-align: left;
@@ -32,56 +32,70 @@
 
 #authorHeader h2 {
 	color: #FFF;
-	letter-spacing: .7px;
+	letter-spacing: 0px;
+	font-weight: normal;
+	font-size: 1.2em;
 }
 
 #authorHeader table {
-	float:right;
+	float: right;
 	border-collapse: collapse;
-	margin-top:0px;
-	}
+	margin-top: 0px;
+}
+
+#authorToolLinks a {
+	padding:2px;
+	margin-right:2px;
+	font-size: .7em;
+	color:#FFF;
+}
+
+#authorToolLinks a:hover {
+	background-color:#FFFF00;
+	color:blue;	
+}
 
 #authorHeader table td {
 	padding: 2px 3px;
-	text-align:center;
-	width:48px;
-	vertical-align:top;	
-	line-height:85%;
+	text-align: center;
+	width: 48px;
+	vertical-align: top;
+	line-height: 85%;
 }
 
 #authorHeader table td.separator {
-	width:9px;
+	width: 9px;
 }
 
 #authorHeader table td img {
-	margin-bottom:2px;
+	margin-bottom: 2px;
 }
 
 #authorHeader table td.separator img {
-	margin-top:4px;
+	margin-top: 4px;
 }
 
 #authorHeader table td a {
-	display:block;
+	display: block;
 	width: 100%;
 	font-size: .75em;
-	color:#FFF;
-	margin-top:2px;
-	padding:0 3px;
+	color: #FFF;
+	margin-top: 2px;
+	padding: 0 3px;
 }
 
 #authorHeader table td a.inactive {
-	color:#999;
+	color: #999;
 }
 
 #authorHeader table td a.inactive:hover {
-	color:#999;
-	outline:none;
+	color: #999;
+	outline: none;
 }
 
 #authorHeader table td a:hover {
 	color: #FFFF00;
-	outline:1px solid #CCCC66;
+	outline: 1px solid #CCCC66;
 }
 
 .clearFloats {
@@ -101,11 +115,12 @@
 	padding: 2px 5px;
 	font-size: 1.1em;
 	font-weight: bold;
-	margin: 82px 0 10px 0;
+	margin: 88px 0 10px 0;
 }
 
 #assignedcontainer {
 	background-color: #ccc;
+	padding: 2px 5px;
 	margin: 0px;
 	width: 380px;
 	position: relative;
@@ -114,13 +129,37 @@
 	border-radius: 4px;
 }
 
-#previewcontainer {
-	text-align: center;
-	background-color: #CCC;
-	padding: 10px;
-	-moz-border-radius: 6px;
-	-webkit-border-radius: 6px;
-	border-radius: 6px;
+#sequencesTitle {
+	padding: 2px 0 0 2px;
+}
+
+#sequencesTD {
+	padding: 10px 0 0 2px;
+	vertical-align: center;
+}
+
+#nodesTitle {
+	padding: 2px 0 0 2px;
+}
+
+#nodesTD {
+	padding: 10px 0 0 2px;
+	vertical-align: center;
+}
+
+.authorInstruct1 {
+	font-size: 90%;
+	color: #666;
+}
+
+.nodeInstruct2 {
+	font-size: 90%;
+	padding-left: 10px;
+}
+
+.authorOption {
+	font-size: 90%;
+	padding-left: 3px;
 }
 
 #ddTable {
@@ -151,22 +190,21 @@
 	margin: 2px 5px;
 	padding: 1px 5px;
 	position: relative;
-	vertical-align:center;
-		}
+	vertical-align: center;
+}
 
 #ddTable tr ul li input {
-	margin-right:10px;
-	width:250px;
-	}
-	
+	margin-right: 10px;
+	width: 250px;
+}
+
 #ddTable tr ul li select {
-	margin-left:3px;
-	font-size:67%;
-	width:130px;
-	height:20px;
-	}
-	
-	
+	margin-left: 3px;
+	font-size: 67%;
+	width: 130px;
+	height: 20px;
+}
+
 #ddGlueTable {
 	padding: 0px;
 	margin: 0px;
@@ -180,7 +218,7 @@
 	visibility: hidden;
 }
 
-#trash, #trash2 {
+#trash,#trash2 {
 	background-image: url(../../images/trash.png);
 	background-repeat: no-repeat;
 	background-position: center 5px;
@@ -196,7 +234,7 @@
 }
 
 #trash2 {
-	margin-top:700px;
+	margin-top: 700px;
 }
 
 .bucket ul {
@@ -299,6 +337,10 @@
 /* AUTHOR TOOL POP UP WINDOWS  */
 #openProjectDialog select {
 	width: 90%;
+}
+
+#createProjectDialog input {
+	width: 400px;
 }
 
 /* STYLES FOR ALL AUTHORING EDITORS  */

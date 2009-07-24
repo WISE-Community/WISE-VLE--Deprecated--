@@ -1,7 +1,9 @@
-<script type="text/javascript">
-	if(window.parent.allready){
-		window.parent.allready();
-	} else if(window.parent.parent.allready){
-		window.parent.parent.allready();
-	};
+<script type='text/javascript'>
+if(window.allReady){
+	window.allReady();
+} else if(window.parent && window.parent.allReady){
+	window.parent.allReady();
+} else if(window.parent.parent && window.parent.parent.allReady){
+	window.parent.parent.allReady();
+};
 </script>

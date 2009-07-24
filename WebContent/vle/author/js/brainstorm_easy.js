@@ -527,7 +527,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		xmlPage = xmlDocToParse;
 		generatePage();
 		
-		window.frames["previewFrame"].loadContent(xmlPage);
+		window.frames["previewFrame"].loadContent(xmlDocToParse);
 
 	  },
 		  failure: function(o) { alert('failure');},
@@ -544,23 +544,26 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
  */
 function loaded(){
 	//set frame source to blank and create page dynamically
-	var callback = function(){
-		var frm = window.frames['previewFrame'];
-		var loadBrain = function(){
-			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
-			window.parent.childSave = save;
-			window.parent.getSaved = getSaved;
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml){
+			var frm = window.frames["previewFrame"];
+			
+			frm.document.open();
+			frm.document.write(window.parent.opener.injectVleUrl(text));
+			frm.document.close();
+			
+			frm.loadAuthoring = function(){
+				window.parent.childSave = save;
+				window.parent.getSaved = getSaved;
+				loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			};
 		};
 		
-		frm.scriptloader.initialize(frm.document, loadBrain, 'brainstorm');
-	};
-	
-	window.allready = function(){
-		pageBuilder.build(window.frames['previewFrame'].document, 'brainstorm', callback);
+		window.parent.opener.connectionManager.request('GET', 1, 'node/brainstorm/brainstorm.html', null,  renderAfterGet);
 	};
 	
 	window.frames['previewFrame'].location = '../blank.html';
-}
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/js/brainstorm_easy.js");

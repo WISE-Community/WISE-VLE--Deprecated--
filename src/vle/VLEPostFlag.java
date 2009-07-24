@@ -33,6 +33,20 @@ public class VLEPostFlag extends HttpServlet {
         shutdown();
 	}
 	
+    private static void createTable()
+    {
+        try
+        {
+            stmt = conn.createStatement();
+            stmt.execute("create table flags(id bigint auto_increment, runId bigint default null, nodeId varchar(20) default null, toWorkgroup bigint default null, fromWorkgroup bigint default null, value longtext, postTime timestamp not null default current_timestamp on update current_timestamp, primary key(id));");
+            stmt.close();
+        }
+        catch (SQLException sqlExcept)
+        {
+            sqlExcept.printStackTrace();
+        }
+    }
+	
     private static void createConnection()
     {
         try

@@ -603,19 +603,22 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 
 function loaded(){
 	//set frame source to blank and create page dynamically
-	var callback = function(){
-		var frm = window.frames['previewFrame'];
-		var loadMultiple = function(){
-			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
-			window.parent.childSave = save;
-			window.parent.getSaved = getSaved;
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml){
+			var frm = window.frames["previewFrame"];
+			
+			frm.document.open();
+			frm.document.write(window.parent.opener.injectVleUrl(text));
+			frm.document.close();
+			
+			frm.loadAuthoring = function(){
+				window.parent.childSave = save;
+				window.parent.getSaved = getSaved;
+				loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			};
 		};
 		
-		frm.scriptloader.initialize(frm.document, loadMultiple, 'multiplechoice');
-	};
-	
-	window.allready = function(){
-		pageBuilder.build(window.frames['previewFrame'].document, 'multiplechoice', callback);
+		window.parent.opener.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet);
 	};
 	
 	window.frames['previewFrame'].location = '../blank.html';

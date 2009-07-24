@@ -24,86 +24,65 @@
 -->
 <html>
     <head>
-        <script type="text/javascript" src="../../util/scriptloader.js">
+        <script type="text/javascript" src="util/scriptloader.js">
         </script>
         <script type="text/javascript">
-            var or; // global variable so it can be accessed by other functions
-            var states = []; // array of FILLINSTATE objects
-            var currentTextEntryInteractionIndex = 0;
-            
-            function save(){
-                fi.save();
-            }
-            
-            function edit(){
-                fi.edit();
-            }
-            
-            /**
-             * xmlString contains QTI-coded xml content
-             */
-            function loadXMLString(xmlDoc, vle){
-                var params = [xmlDoc, vle];
-                scriptloader.initialize(document, loadXMLStringAfterScriptsLoad, 'fillin', params);
-            }
-            
-            /**
-             * Runs after the scripts for this page have been dynamically loaded
-             */
-            function loadXMLStringAfterScriptsLoad(params){
-                //var xmlDoc=loadXMLDocFromString(params[0]);
-                fi = new FILLIN(params[0]);
-                fi.render(currentTextEntryInteractionIndex);
-                fi.setVLE(params[1]);
-                afterScriptsLoad();
-            };
-            
-            function checkAnswer(){
-                fi.checkAnswer();
-            }
-            
-            function tryAgain(){
-                fi.tryAgain();
-            }
-            
-            function next(){
-                var isNextDisabled = hasClass("nextButton", "disabledLink");
-                
-                if (isNextDisabled) {
-                    return;
-                }
-                
-                currentTextEntryInteractionIndex++;
-                fi.render(currentTextEntryInteractionIndex);
-            }
-        </script>
-        <!--  Javascript Pop up window -->
-        <script type="text/javascript">
-            
-            var newWin = null;
-            function popUp(strURL, strType, strHeight, strWidth){
-                if (newWin != null && !newWin.closed) 
-                    newWin.close();
-                var strOptions = "";
-                if (strType == "console") 
-                    strOptions = "resizable,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                if (strType == "fixed") 
-                    strOptions = "status,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                if (strType == "elastic") 
-                    strOptions = "toolbar,menubar,scrollbars," +
-                    "resizable,location,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                newWin = window.open(strURL, 'newWin', strOptions);
-                newWin.focus();
-            }
+        var fi;   // global variable so it can be accessed by other functions
+        var states = [];  // array of FILLINSTATE objects
+
+        var currentTextEntryInteractionIndex = 0;
+
+        function edit() {
+        	fi.edit();
+        }
+
+        /**
+         * Runs after the scripts for this page have been dynamically loaded
+         */
+        function loadContent(params){
+        	  fi = new FILLIN(params[0]);
+        	  fi.render(currentTextEntryInteractionIndex);
+        	  fi.setVLE(params[1]);
+        	  afterScriptsLoad();
+        };
+
+        function checkAnswer() {
+        	fi.checkAnswer();
+        }
+
+        function tryAgain() {
+        	fi.tryAgain();
+        }
+
+        function next() {
+        	var isNextDisabled = hasClass("nextButton", "disabledLink");
+
+        	if (isNextDisabled) {
+        		return;
+        	}
+
+        	currentTextEntryInteractionIndex++;
+        	fi.render(currentTextEntryInteractionIndex);
+        };
+
+        var newWin = null;
+        function popUp(strURL, strType, strHeight, strWidth) {
+         if (newWin != null && !newWin.closed)
+           newWin.close();
+         var strOptions="";
+         if (strType=="console")
+           strOptions="resizable,height="+
+             strHeight+",width="+strWidth;
+         if (strType=="fixed")
+           strOptions="status,height="+
+             strHeight+",width="+strWidth;
+         if (strType=="elastic")
+           strOptions="toolbar,menubar,scrollbars,"+
+             "resizable,location,height="+
+             strHeight+",width="+strWidth;
+         newWin = window.open(strURL, 'newWin', strOptions);
+         newWin.focus();
+        }
         </script>
         <script type="text/javascript">
             function afterScriptsLoad(){
@@ -113,8 +92,12 @@
             window.onload = function(){
                 if (!window.parent) {
                     scriptloader.initialize(document, afterScriptsLoad, 'fillin');
+                } else {
+					if(window.loadAuthoring){
+						scriptloader.initialize(document, loadAuthoring, 'fillin');
+					};
                 };
-                };
+             };
         </script>
     </head>
     <body>
@@ -124,11 +107,11 @@
                     <tr>
                         <td>
                             <div id="helpIcon">
-                                <a href="FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                                <a href="node/fillin/FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
                             </div>
                         </td>
                         <td>
-                            <a id="helpTextLink" href="FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                            <a id="helpTextLink" href="node/fillin/FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
                         </td>
                     </tr>
                 </table>
@@ -154,7 +137,7 @@
                     </div>
                 </div>
                 <div id="rightColumn" class="BG2">
-                    <img src="../../images/fill_blanks.png" alt="Robot Art Fill the Blanks" width="100" height="250" border="0" />
+                    <img src="images/fill_blanks.png" alt="Robot Art Fill the Blanks" width="100" height="250" border="0" />
                 </div>
             </div>
             <div id="clearBoth">
@@ -164,13 +147,13 @@
                 <table id="buttonTable">
                     <tr>
                         <td>
-                            <a href="#" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                            <a id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
                         </td>
                         <td>
-                            <a href="#" id="tryAgainButton" onClick="javascript:tryAgain();">Try Again</a>
+                            <a id="tryAgainButton" onClick="javascript:tryAgain();">Try Again</a>
                         </td>
                         <td>
-                            <a href="#" id="nextButton" onClick="javascript:next();">Next Blank</a>
+                            <a id="nextButton" onClick="javascript:next();">Next Blank</a>
                         </td>
                     </tr>
                 </table>

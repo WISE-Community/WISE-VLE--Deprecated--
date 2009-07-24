@@ -26,8 +26,10 @@ VLE_STATE.prototype.getCurrentNodeVisit = function() {
 
 VLE_STATE.prototype.endCurrentNodeVisit = function() {
 	var currentNodeVisit = this.getCurrentNodeVisit();
-	currentNodeVisit.visitEndTime = new Date().toUTCString();
-}
+	if(currentNodeVisit){
+		currentNodeVisit.visitEndTime = new Date().toUTCString();
+	};
+};
 
 /**
  * Returns an array of NODE_VISITS for the specified nodeId
@@ -66,6 +68,33 @@ VLE_STATE.prototype.getLatestNodeVisitByNodeId = function(nodeId) {
 		}		
 	}
 	return latestNodeVisitForThisNodeId;
+}
+
+/**
+ * Get the latest non blank work for the given nodeId step
+ * @param nodeId the step to retrieve work for
+ * @return the latest non blank work or "" if none exists
+ */
+VLE_STATE.prototype.getLatestWorkByNodeId = function(nodeId) {
+	//loop through the node visits from latest to earliest
+	for(var x=this.visitedNodes.length - 1; x >= 0; x--) {
+		//get a node visit
+		var nodeVisit = this.visitedNodes[x];
+		
+		//check if the nodeId matches
+		if(nodeVisit.node.id == nodeId) {
+			//obtain the latest non blank work for the node visit
+			var latestWorkForNodeVisit = nodeVisit.getLatestWork();
+			
+			//check if there was any non blank work
+			if(latestWorkForNodeVisit != "") {
+				//return the non blank work
+				return latestWorkForNodeVisit;
+			}
+		}
+	}
+	
+	return "";
 }
 
 /**

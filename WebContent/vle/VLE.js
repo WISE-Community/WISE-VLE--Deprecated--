@@ -10,6 +10,7 @@ function VLE() {
 	this.audioManager = null;
 	this.connectionManager = new ConnectionManager(this.eventManager);
 	this.journal = null;
+	this.journalResize = null;
 	this.postNodes = [];
 	this.myUserInfo = null;
 	this.myClassInfo = null;
@@ -259,11 +260,12 @@ VLE.prototype.renderNode = function(nodeId){
 		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconUrl + currentNode.className + '28.png\'/>';
 	};
 	
-	// adjust height of iframe
-	//alert('doc size:' + document.getElementById("projectLeftBox").offsetHeight + "," + document.getElementById("projectLeftBox").currentStyle.height);
-	//alert('padding bottom: ' + document.getElementById("projectRightUpperBox").style.marginBottom);
-	document.getElementById("ifrm").style.height = 
-		document.getElementById("projectLeftBox").offsetHeight - document.getElementById("projectRightUpperBox").offsetHeight - 5;
+	// adjust height of iframe. If nav bar is visible, set iframe height=navbarheight.
+	// else, leave it untouched
+	if (document.getElementById("projectLeftBox").offsetHeight > 0) {
+		document.getElementById("ifrm").style.height = 
+			document.getElementById("projectLeftBox").offsetHeight;
+	}
     // fire currenct changed event
 	this.currentNode = currentNode;
 }
@@ -476,41 +478,41 @@ VLE.prototype.displayFlaggedItems = function() {
 	var currentNodeId = this.currentNode.id;
 	var runId = this.runManager.runId;
 	
-	var getFlagsUrl = this.config.getFlagsUrl + "&nodeId=" + currentNodeId;;
-	var flagCallback = {
-			success: function(o) {
-				//parse the xml flags object that contains all the flags for this run/node
-				flags = Flags.prototype.parseDataXML(o.responseXML);
-				
-				//create the html that will display the flagged items
-				var flagHtml = "";
-				flagHtml += "<table border='1'>";
-				flagHtml += "<tr><th>Flagged Responses</th></tr>";
-				
-				if(flags.flagsArray.length == 0) {
-					//nofity the user if there were no flagged items
-					flagHtml += "<tr><td>No flagged responses</td></tr>";;
-				} else {
-					//loop through all the flagged items
-					for(var x=0; x<flags.flagsArray.length; x++) {
-						flagHtml += "<tr><td>" + flags.flagsArray[x].studentWork + "</td></tr>";
-					}
-				}
-				
-				flagHtml += "</table>";
-				
-				//set the html into the iframe so the student can see it
-				window.frames["ifrm"].document.open();
-				window.frames["ifrm"].document.write(flagHtml);
-				window.frames["ifrm"].document.close();
-		  	},
-			failure: function(o) {
-				notificationManager.notify('Error: Unable to load user info', 3);
-			},
-			argument: ["a", "b", "c"],
-			scope:this
-	};
-	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', getFlagsUrl, flagCallback, null);
+	//retrieve the flagged items for the current node
+	this.connectionManager.request('GET', 2, this.config.getFlagsUrl, {nodeId: currentNodeId}, this.getFlagCallback);
+}
+
+/**
+ * Displays the flagged items that have been sent back in the response
+ * @param responseText
+ * @param responseXML the xml that contains the flagged items
+ * @return
+ */
+VLE.prototype.getFlagCallback = function(responseText, responseXML) {
+	//parse the xml flags object that contains all the flags for this run/node
+	flags = Flags.prototype.parseDataXML(responseXML);
+	
+	//create the html that will display the flagged items
+	var flagHtml = "";
+	flagHtml += "<table border='1'>";
+	flagHtml += "<tr><th>Flagged Responses</th></tr>";
+	
+	if(flags.flagsArray.length == 0) {
+		//notify the user if there were no flagged items
+		flagHtml += "<tr><td>No flagged responses</td></tr>";
+	} else {
+		//loop through all the flagged items
+		for(var x=0; x<flags.flagsArray.length; x++) {
+			flagHtml += "<tr><td>" + flags.flagsArray[x].studentWork + "</td></tr>";
+		}
+	}
+	
+	flagHtml += "</table>";
+	
+	//set the html into the iframe so the student can see it
+	window.frames["ifrm"].document.open();
+	window.frames["ifrm"].document.write(flagHtml);
+	window.frames["ifrm"].document.close();
 }
 
 VLE.prototype.toggleNavigationPanelVisibility = function() {
@@ -729,11 +731,7 @@ VLE.prototype.getJournal = function(){
 };
 
 VLE.prototype.getNodeById = function(nodeId){
-	if(nodeId.charAt(0)=='J'){
-		return this.journal.rootNode.getNodeById(nodeId);
-	} else {
-		return this.project.rootNode.getNodeById(nodeId);
-	}
+	return this.project.rootNode.getNodeById(nodeId);
 };
 
 VLE.prototype.getLeafNodeIds = function() {
@@ -965,7 +963,22 @@ VLE.prototype.initializeFromConfig = function(vleConfig) {
 		if (vleConfig.runInfoUrl != null && vleConfig.runInfoRequestInterval != null) {
 			vle.runManager = new RunManager(vleConfig.runInfoUrl, parseInt(vleConfig.runInfoRequestInterval), this.connectionManager, this.eventManager, vleConfig.runId);
 		}
-	}	
+	}
+	this.loadTheme(vleConfig.theme);
+}
+
+/**
+ * Loads the theme and re-renders the VLE.
+ * Default is the wise theme.
+ */
+VLE.prototype.loadTheme = function(theme) {
+	var cssArrayName = "wise";   // maps to array name in scriptloader's css array.
+	if (theme && theme != null) {
+		cssArrayName = theme.toLowerCase();
+	}
+	// start in WISE theme          
+	scriptloader.generateScripts(null, scriptloader.css[cssArrayName]);
+	scriptloader.loadCsss(scriptloader.css[cssArrayName]);
 }
 
 /**
@@ -1102,6 +1115,87 @@ VLE.prototype.getLastStateTimestamp = function(){
 	};
 	return lastDate;
 };
+
+/**
+ * Displays the journal
+ */
+VLE.prototype.showJournal = function() {
+	if(this.journal == null || 
+			this.journal.cfg == null) {
+        
+		this.journal = new YAHOO.widget.Panel("journalPanel", {
+			width: "600px",
+			height: "600px",
+			fixedcenter: false,
+			constraintoviewport: false,
+			underlay: "shadow",
+			close: true,
+			visible: true,
+			draggable: true,
+			context: ["showbtn", "tl", "bl"]
+		});
+		
+		this.journal.setHeader("My Journal");
+		this.journal.setBody("<iframe name='journalFrame' id='journalFrame' width='100%' height='100%' src='journal/journal.html'></iframe>");
+
+		//this.journal.cfg.setProperty("underlay", "matte");
+		this.journal.render();
+
+	    // Create Resize instance, binding it to the 'resizablepanel' DIV 
+	    this.journalResize = new YAHOO.util.Resize("journalPanel", {
+	        handles: ["br"],
+	        autoRatio: false,
+	        minWidth: 100,
+	        minHeight: 100,
+	        status: false 
+	    });
+	    
+	    this.journalResize.on("startResize", function(args) {
+
+		    if (this.cfg.getProperty("constraintoviewport")) {
+                var D = YAHOO.util.Dom;
+
+                var clientRegion = D.getClientRegion();
+                var elRegion = D.getRegion(this.element);
+
+                this.journalResize.set("maxWidth", clientRegion.right - elRegion.left - YAHOO.widget.Overlay.VIEWPORT_OFFSET);
+                this.journalResize.set("maxHeight", clientRegion.bottom - elRegion.top - YAHOO.widget.Overlay.VIEWPORT_OFFSET);
+            } else {
+            	this.journalResize.set("maxWidth", null);
+            	this.journalResize.set("maxHeight", null);
+        	}
+
+        }, this.journal, true);
+        
+	    this.journalResize.on("resize", function(args) {
+            var panelHeight = args.height;
+            this.cfg.setProperty("height", panelHeight + "px");
+        }, this.journal, true);
+
+        YAHOO.util.Event.on("showbtn", "click", this.journal.show, this.journal, true);
+	} else {
+		this.journal.cfg.setProperty("visible", true);
+	}
+	
+
+}
+
+/**
+ * Resizes the journal
+ * @param size a string argument of "minimize", "medium", or "maximize"
+ */
+VLE.prototype.resizeJournal = function(size) {
+	if(size == "minimize") {
+		this.journal.cfg.setProperty("height", "100px");
+		this.journal.cfg.setProperty("width", "350px");
+	} else if(size == "medium") {
+		this.journal.cfg.setProperty("height", "400px");
+		this.journal.cfg.setProperty("width", "600px");
+	} else if(size == "maximize") {
+		this.journal.cfg.setProperty("height", "600px");
+		this.journal.cfg.setProperty("width", "1000px");
+	}
+}
 
 /*
  * TODO: GEOFF: make this into VLE function, and change where it gets called.

@@ -16,6 +16,7 @@ var pathSeparator;
 var getSaved;
 var project;
 var iconPath;
+var connectionManager;
 
 /**
  * Removes previous, creates a new frame, determines the 
@@ -64,7 +65,7 @@ function modeChanged(val){
  * function given to parent window so that we can set certain
  * critical variables here
  */
-function setVars(fn, m, pn, prn, pp, pr, ps, ip){
+function setVars(fn, m, pn, prn, pp, pr, ps, ip, cm){
 	filename = fn;
 	easyMode = m;
 	rootPageName = pn;
@@ -73,6 +74,7 @@ function setVars(fn, m, pn, prn, pp, pr, ps, ip){
 	project = pr;
 	pathSeparator = ps;
 	iconPath = ip;
+	connectionManager = cm;
 	
 	if(easyMode){
 		document.getElementById('easyTrue').checked = true;

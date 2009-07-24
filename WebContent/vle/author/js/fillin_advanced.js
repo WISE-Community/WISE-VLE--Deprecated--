@@ -40,19 +40,22 @@ function sourceUpdated() {
 
 function loaded(){
 	//set frame source to blank and create page dynamically
-	var callback = function(){
-		var frm = window.frames['previewFrame'];
-		var loadFill = function(){
-			loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
-			window.parent.childSave = save;
-			window.parent.getSaved = getSaved;
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml){
+			var frm = window.frames["previewFrame"];
+			
+			frm.document.open();
+			frm.document.write(window.parent.opener.injectVleUrl(text));
+			frm.document.close();
+			
+			frm.loadAuthoring = function(){
+				window.parent.childSave = save;
+				window.parent.getSaved = getSaved;
+				loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			};
 		};
 		
-		frm.scriptloader.initialize(frm.document, loadFill, 'fillin');
-	};
-	
-	window.allready = function(){
-		pageBuilder.build(window.frames['previewFrame'].document, 'fillin', callback);
+		window.parent.opener.connectionManager.request('GET', 1, 'node/fillin/fillin.html', null,  renderAfterGet);
 	};
 	
 	window.frames['previewFrame'].location = '../blank.html';

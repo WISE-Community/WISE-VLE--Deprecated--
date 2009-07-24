@@ -37,7 +37,7 @@ public class VLEConfig extends HttpServlet {
 
 		String base_www = getServletUrl(request);
 		String contentUrl = content_location(request.getParameter("location"));
-		String contentBaseUrl = contentUrl.substring(0, contentUrl.lastIndexOf('/') + 1);  //.substring(0, contentUrl.lastIndexOf('/') + 1);
+		String contentBaseUrl = contentUrl.substring(0, contentUrl.lastIndexOf('/') + 1) + "/";  //.substring(0, contentUrl.lastIndexOf('/') + 1);
 		String postDataUrl = base_www + "/script/postVisits.php";
 		String getDataUrl = base_www + "/getdata.html";
 		String userInfoUrl = "VLEGetUser";
@@ -50,6 +50,8 @@ public class VLEConfig extends HttpServlet {
 		vleConfigString += "<getDataUrl>"+ getDataUrl +"</getDataUrl>";
 		vleConfigString += "<postDataUrl>"+ postDataUrl +"</postDataUrl>";
 		vleConfigString += "<runInfoUrl>dummy</runInfoUrl>";
+		vleConfigString += "<theme>WISE</theme>";
+		vleConfigString += "<enableAudio>false</enableAudio>";
 		vleConfigString += "<runInfoRequestInterval>-1</runInfoRequestInterval>";
 		
 		vleConfigString += "</VLEConfig>";

@@ -31,6 +31,26 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>vlepostjournaldata</servlet-name>
+    <servlet-class>vle.VLEPostJournalData</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlepostjournaldata</servlet-name>
+    <url-pattern>/postjournaldata.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>vlegetjournaldata</servlet-name>
+    <servlet-class>vle.VLEGetJournalData</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlegetjournaldata</servlet-name>
+    <url-pattern>/getjournaldata.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>vlegetannotations</servlet-name>
     <servlet-class>vle.VLEGetAnnotations</servlet-class>
   </servlet>

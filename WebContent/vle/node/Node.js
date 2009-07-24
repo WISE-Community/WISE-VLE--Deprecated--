@@ -16,6 +16,7 @@ function Node(nodeType, connectionManager) {
 	this.filename = null;
 	this.className = null;
 	this.renderComplete = false;
+	this.audioSupported = false;   // does this node support playing of audio?
 	
 	this.audioReady = false;
 	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
@@ -107,6 +108,14 @@ Node.prototype.playAudioNextAudio = function(elementId) {
 };
 
 /**
+ * Returns true iff this node supports playing of audio
+ */
+Node.prototype.isAudioSupported = function() {
+	return this.audioSupported;
+}
+
+
+/**
  * Renders itself to the specified content panel
  */
 Node.prototype.render = function(contentpanel) {
@@ -123,6 +132,18 @@ Node.prototype.load = function() {
 		vle.audioManager.setCurrentNode(this);
 	}
 };
+
+/**
+ * Call back for dynamically-generated nodes when they're fully done
+ * loading the page. including content, state
+ */
+Node.prototype.onNodefullyloaded = function() {
+	this.prepareAudio();
+	if (vle.audioManager != null) {
+		vle.audioManager.setCurrentNode(this);
+	}
+}
+
 
 
 Node.prototype.getShowAllWorkHtml = function(vle){
@@ -358,10 +379,11 @@ Node.prototype.processRetrieveFileResponse = function(responseText, responseXML,
 	if(!responseXML){
 		responseXML = loadXMLString(responseText);
 	};
+	
 	node.xmlDoc = responseXML;
 	node.element = responseXML;
 	node.elementText = responseText;
-
+	
 	vle.eventManager.fire('nodeLoadingContentComplete_' + node.id);
 };
 
@@ -466,6 +488,7 @@ Node.prototype.injectBaseRef = function(content) {
 
 function NodeAudio(id, url, elementId, textContent, md5url) {
 	notificationManager.notify('id: ' + id + ",url: " + url + ",elementId: " + elementId, 4);
+	notificationManager.notify('md5 url: ' + md5url, 4);
 	this.id = id;
 	this.url = url;
 	this.elementId = elementId;    // VALUE in <p audio=VALUE .../> or <div audio=VALUE ../>
@@ -489,9 +512,14 @@ Node.prototype.prepareAudio = function() {
 	//var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');	
 
 	// first parse the document and get the elements that have audio attribute
-	var nodeAudioElements = getElementsByAttribute("audio", null);
+	var nodeAudioElements = null;
+	if (this.type == "BrainstormNode") {  // Brainstorm is special.. it makes another iframe within the ifrm...
+		nodeAudioElements = getElementsByAttribute("audio", null, "brainstormFrame");
+	} else {
+		nodeAudioElements = getElementsByAttribute("audio", null);
+	}
 	notificationManager.notify('nodeAudioElements.length:' + nodeAudioElements.size(), 4);
-
+	
 	// go through each audio element and create NodeAudio objects
 	for (var k=0; k < nodeAudioElements.size(); k++) {
 		var audioElement = nodeAudioElements.item(k);
@@ -500,10 +528,10 @@ Node.prototype.prepareAudio = function() {
 		notificationManager.notify('attribute:' + audioElementAudioId, 4);
 
 		var audioBaseUrl = "";
-	       if (this.contentBase != null) {
-			audioBaseUrl += this.contentBase + "/";
+	       if (vle.project.contentBaseUrl != null) {
+			audioBaseUrl += vle.project.contentBaseUrl + "/";
 		}
-		notificationManager.notify('contentBaseUrl:' + this.contentBaseUrl,4);
+		notificationManager.notify('contentBaseUrl:' + vle.project.contentBaseUrl,4);
 		notificationManager.notify('audioBaseUrl0:' + audioBaseUrl,4);
 
 	    // ignore contentBaseUrl if audioBaseUrl is absolute, ie, starts with http://...
@@ -521,7 +549,9 @@ Node.prototype.prepareAudio = function() {
 
 		var elementAudioValue = audioElementValue;
 		var nodeAudioId = audioElementAudioId;
-		var textContent = audioElement.get('textContent');
+		
+		var textContent = normalizeHTML(audioElement.get('innerHTML'));
+		notificationManager.notify('innerHTML for nodeAudio after normalizing: ' + textContent + '  length: ' + textContent.length, 4);
 		var elementTextContentMD5 = hex_md5(textContent);  // MD5(this.elementTextContent);
 		var md5url = audioBaseUrl + vle.project.audioLocation + "/audio_" + elementTextContentMD5 + ".mp3";
 		var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementAudioValue, textContent, md5url);
@@ -578,6 +608,63 @@ Node.prototype.createAudioFiles = function() {
 	notificationManager.notify('number of audio files created: ' + createdCount, 4);	
 }
 
+/**
+ * Returns whether this node is a leaf node
+ * @return whether this is a leaf node
+ */
+Node.prototype.isLeafNode = function() {
+	if(this.children.length == 0) {
+		//there are no children so this is a leaf node
+		return true;
+	} else {
+		//there are children so this is not a leaf node
+		return false;
+	}
+}
+
+/**
+ * This handles the case when the previous step has an outside link and 
+ * the student clicks on it to load a page from a different host within
+ * the vle. Then the student clicks on the next step in the vle. This
+ * caused a problem before because the iframe would contain a page
+ * from a different host and we would no longer be able to call functions
+ * from it.
+ * @param thisObj the node object we are navigating to
+ * @param thisContentPanel the content panel to load the content into
+ * 		this may be null
+ * @return true if the student was at an outside link, false otherwise
+ */
+Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
+	try {
+		/*
+		 * try to access the host attribute of the ifrm, if the content
+		 * loaded in the ifrm is in our domain it will not complain,
+		 * but if the content is from another domain it will throw an
+		 * error 
+		 */
+		window.frames["ifrm"].host;
+	} catch(err) {
+		//content was from another domain
+		
+		/*
+		 * call back() to navigate back to the htmlnode page that contained
+		 * the link the student clicked on to access an outside page
+		 */
+		history.back();
+		
+		//call render to render the node we want to navigate to
+		setTimeout(function() {thisObj.render(thisContentPanel)}, 500);
+		
+		/*
+		 * tell the caller the student was at an outside link so
+		 * they don't need to call render()
+		 */
+		return true;
+	}
+	
+	//tell the caller the student was not at an outside link
+	return false;
+}
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/Node.js");

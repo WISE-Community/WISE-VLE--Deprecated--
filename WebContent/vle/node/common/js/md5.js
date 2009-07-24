@@ -205,10 +205,15 @@ function bit_rol(num, cnt)
 function str2binl(str)
 {
   var bin = Array();
-  var mask = (1 << chrsz) - 1;
-  for(var i = 0; i < str.length * chrsz; i += chrsz)
-    bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (i%32);
-  return bin;
+  
+  if(str){//null check needed for ie
+	  var mask = (1 << chrsz) - 1;
+	  for(var i = 0; i < str.length * chrsz; i += chrsz)
+	    bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (i%32);
+	  return bin;
+  } else {
+	  return Array();
+  };
 }
 
 /*

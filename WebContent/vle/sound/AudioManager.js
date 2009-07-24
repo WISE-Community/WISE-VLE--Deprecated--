@@ -69,7 +69,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 									vle.audioManager.playMD5Audio(this,node);
 								}
 							}
-						},
+						}
 					});
 				
 				// MD5 audio
@@ -90,7 +90,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								vle.audioManager.playBackupAudio(this,node);
 							}
 						}
-					},
+					}
 				});
 				
 				// backup audio, in case all else fails
@@ -103,7 +103,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 					onfinish : function() {onFinishCallBack(this,node);},
 					onstop: function() {onStopCallBack(this,node);},
 					onload: function(success) {
-					},
+					}
 				});
 			} else {
 			}
@@ -136,7 +136,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 	if (this.isPlaying) {
 		this.currentSound.play();
 	}
-}
+};
 
 AudioManager.prototype.playMD5Audio = function(sound, node) {
 	notificationManager.notify('playmd5audio, id:' + sound.id, 4);
@@ -181,17 +181,17 @@ AudioManager.prototype.playBackupAudio = function(sound, node) {
 AudioManager.prototype.doEnableButtons = function(doEnable) {
 	if (doEnable) {
 		notificationManager.notify("enabling buttons", 4);
-	 	document.getElementById("rewindButton").onclick = function() {vle.rewindStepAudio()};
-		document.getElementById("rewindButton").ondblclick = function() {vle.previousStepAudio()};
-		document.getElementById("forwardButton").onclick = function() {vle.forwardStepAudio()};
+	 	document.getElementById("rewindButton").onclick = function() {vle.rewindStepAudio();};
+		document.getElementById("rewindButton").ondblclick = function() {vle.previousStepAudio();};
+		document.getElementById("forwardButton").onclick = function() {vle.forwardStepAudio();};
 
 	} else {
 		notificationManager.notify("disabling buttons", 4);
 	 	document.getElementById("rewindButton").onclick = "";
 		document.getElementById("rewindButton").ondblclick = "";
 		document.getElementById("forwardButton").onclick = "";
-	}
-}
+	};
+};
 
 /**
  * a call-back function triggered when the node's 'onplay' callback is called
@@ -212,7 +212,7 @@ var onPlayCallBack = function(sound, currentNode) {
 var onStopCallBack = function(sound, currentNode) {
 	highlightTextElement(sound.elementId, currentNode, false);
 	showPlayPauseButton(false);
-}
+};
 
 //a call-back function triggered when the node's 'onfinish' callback is called
 //@param sound currently-playing audio.
@@ -221,7 +221,7 @@ var onFinishCallBack = function(sound, currentNode) {
 	highlightTextElement(sound.elementId, currentNode, false);
 	showPlayPauseButton(false);
 	vle.audioManager.nextStepAudio();
-}
+};
 
 // a call-back function triggered when the node's 'whileplaying' callback is called
 //@param sound currently-playing audio.
@@ -230,13 +230,13 @@ var whilePlayingCallBack = function(sound, currentNode) {
 	showPlayPauseButton(true);
 	highlightTextElement(sound.elementId, currentNode, true);
 	vle.audioManager.currentSound = sound;   // keep updating the currentsound
-}
+};
 
 //a call-back function triggered when the node's 'onpause' callback is called
 var onPauseCallBack = function(sound, currentNode) {
 	showPlayPauseButton(false);
 	//highlightTextElement(sound.elementId, currentNode, false);
-}
+};
 
 // changes the play/pause button based on specified isPlaying parameter
 // @param isPlaying if true, show the play button. else, show the pause button
@@ -248,24 +248,32 @@ function showPlayPauseButton(isPlaying) {
 	} else {
 		removeClassFromElement("playPause", "pause");
 		addClassToElement("playPause", "play");
-	}
-}
+	};
+};
 
 // highlights the text that is associated with the currently-playing audio.
 // @param elementId, id of element within the html page to highlight.
 // @param current node that is rendered
 // @param doHighlight true iff the specified element should be highlighted.
 var highlightTextElement = function(elementId, currentNode, doHighlight) {
-	if (currentNode != null	&& (currentNode.type == "HtmlNode" || currentNode.type == "OTBlueJ")) {
+	if (currentNode != null	&& currentNode.isAudioSupported()) {
+		// get element to highlight
+		var elementToHighlight = null;
+		if (currentNode.type == "BrainstormNode") {  // Brainstorm is special.. it makes another iframe within the ifrm...
+			elementToHighlight = getElementsByAttribute("audio", elementId, "brainstormFrame");
+		} else {
+			elementToHighlight = getElementsByAttribute("audio", elementId);
+		}
+
 		if (doHighlight) {
 			notificationManager.notify("highlighting elementId:" + elementId, 4);
-			vle.contentPanel.highlightElementByAttributeAndValue("audio", elementId,"3px dotted #CC6633");
+			vle.contentPanel.highlightElement(elementToHighlight,"3px dotted #CC6633");
 		} else {
 			notificationManager.notify("unhighlighting elementId:" + elementId, 4);
-			vle.contentPanel.highlightElementByAttributeAndValue("audio", elementId, "0px");		
-		}
-	}
-}
+			vle.contentPanel.highlightElement(elementToHighlight, "0px");		
+		};
+	};
+};
 
 // toggles play/pause for the entire AudioManager realm.
 AudioManager.prototype.playPauseStepAudio = function() {
@@ -276,9 +284,9 @@ AudioManager.prototype.playPauseStepAudio = function() {
 		if (this.currentSound != null) {
 			this.currentSound.play();
 			this.isPlaying = true;
-		}
-	}
-}
+		};
+	};
+};
 
 /**
  * Gets the previous sound in the sequence, relative to the currently-playing sound.
@@ -300,10 +308,10 @@ AudioManager.prototype.getPreviousSound = function() {
 				return null;
 			} else {
 				return this.currentNode.audios[i-1].audio;
-			}
-		}
-	}
-}
+			};
+		};
+	};
+};
 
 /**
  * Rewinds the currently-playing audio to the beginning of the audio.
@@ -316,8 +324,8 @@ AudioManager.prototype.rewindStepAudio = function() {
 		this.previousStepAudio();
 	} else {
 		vle.audioManager.currentSound.setPosition(0);
-	}
-}
+	};
+};
 
 /**
  * Sets the currentSound to the currentSound's previous sound in sequence.
@@ -333,16 +341,16 @@ AudioManager.prototype.previousStepAudio = function() {
 		highlightTextElement(this.currentSound.elementId, this.currentNode, true);
 		if (this.isPlaying) {
 			this.playCurrentSound();
-		}
+		};
 	} else {
 		this.currentSound = previousSound;
 		if (this.isPlaying) {
 			this.playCurrentSound();
 		} else {
 			highlightTextElement(this.currentSound.elementId, this.currentNode, true);
-		}
-	}
-}
+		};
+	};
+};
 
 /**
  * Gets the next sound in the sequence, relative to the currently-playing sound.
@@ -365,10 +373,10 @@ AudioManager.prototype.getNextSound = function() {
 				return null;
 			} else {
 				return this.currentNode.audios[i+1].audio;
-			}
-		}
-	}
-}
+			};
+		};
+	};
+};
 
 /**
  * Sets the currentSound to the currentSound's next sound in sequence.
@@ -388,9 +396,9 @@ AudioManager.prototype.nextStepAudio = function() {
 			this.playCurrentSound();
 		} else {
 			highlightTextElement(this.currentSound.elementId, this.currentNode, true);
-		}
-	}
-}
+		};
+	};
+};
 
 /**
  * Plays the currentSound iff the currentSound exits.
@@ -398,8 +406,8 @@ AudioManager.prototype.nextStepAudio = function() {
 AudioManager.prototype.playCurrentSound = function() {
 	if (this.currentSound != null) {
 		this.currentSound.play();
-	}
-}
+	};
+};
 
 /**
  * Removes all the highlights from the page.
@@ -408,8 +416,8 @@ AudioManager.prototype.removeAllHighlights = function() {
 	for (var i=0; i<this.currentNode.audios.length;i++) {
 		var nodeAudio = this.currentNode.audios[i];
 		highlightTextElement(nodeAudio.elementId, this.currentNode, false);
-	}
-}
+	};
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/sound/AudioManager.js");

@@ -3,8 +3,10 @@
     <head>
         <script type="text/javascript" src="util/scriptloader.js">
         </script>
+        <script type='text/javascript' src='yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
         <script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
         <link rel="shortcut icon" href="images/robots/favicon_robot.ico">
+        
         <script type="text/javascript">
             var currentProjectPath;
             var currentProjectName;
@@ -33,11 +35,7 @@
                 else {
                     hostedProject = null;
                 };
-                
-                Nifty("div#none", "bottom");
-                Nifty("div#navigationBox", "big");
-                Nifty("ul.toolsButtons a", "transparent");
-                
+                                        
                 if (hostedProject) {
                     render(window.opener.hostedContentURL, null, null, window.opener.hostedContentBaseURL, null);
                 }
@@ -60,16 +58,13 @@
                     var args = [];
                     args.push(afterScriptsLoad);
                     scriptloader.initialize(document, window.opener.scriptsLoaded, 'main', args);
-                }
-                else 
-                    if (window.parent) {
+                } else if (window.parent) {
                         var args = [];
                         args.push(window.name);
                         scriptloader.initialize(document, window.parent.scriptsLoaded, 'main', args);
-                    }
-                    else {
-                        scriptloader.initialize(document, afterScriptsLoad, 'main');
-                    }                
+                } else {
+                       scriptloader.initialize(document, afterScriptsLoad, 'main');
+                };      
             };
             
             /**
@@ -201,7 +196,6 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                     //display the title of the project in the upper left box
                     if (document.getElementById("title") != null && vle.getProjectTitle() != null) {
                         document.getElementById("title").innerHTML = vle.getProjectTitle();
-                        document.getElementsByTagName("title")[0].innerHTML = vle.getProjectTitle();
                         if (window.parent) {
                             window.parent.document.title = vle.getProjectTitle();
                         }
@@ -251,74 +245,7 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                 <div class="journalFooter">
                 </div>
             </div>
-            <div id="projectLeftBox">
-                <div id="toolsArea">
-                    <dl class="dropdown">
-                        <dt id="one-ddheader">
-                        </dt>
-                        <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
-                            <ul>
-                                <!-- requested changes have been remarked out --><li><a class="underline" href="http://uccpdev.berkeley.edu:10080/uccp-assets/page/index.php">Project Assets</a></li>
-                                <li><a onclick="vle.renderNode('0:0:8');" class="underline">Show Journal</a></li>
-                                <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
-                                <!-- <li><a onclick="projectSummary();" class="underline">Project Summary</a></li>  --><li><a class="underline" onclick="alert('not yet implemented');">Export Work</a></li>
-                                <li><a class="underline2" onclick="alert('not yet implemented');">Print</a></li>
-                                <li><a class="underline" onclick="alert('not yet implemented');">Goto Home Page</a></li>
-                                <!-- <li><a class="underline">Report an Issue</a></li> -->
-                            </ul>
-                        </dd>
-                    </dl>
-                </div>
-                <div id="projectLogoBox">
-                    <a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank"><img src="./images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
-                    <div id="projectCurriculum">
-                        <div id="courseName" class="courseName">
-                            UCCP AP Computer Science
-                        </div>
-                        <div id="title" class="title">
-                            Unit 3 Lesson 1
-                        </div>
-                    </div>
-                    <div id="logInBox">
-                        <span>Hello, MyName</span>
-                        <span>&nbsp&nbsp|&nbsp&nbsp</span>
-                        <span>Mon 5/12 10:32am</span>
-                    </div>
-                </div>
-                <div id="audioControls" align="center">
-                    <table align="center">
-                        <tr>
-                            <td class="rightPadding">
-                                Audio Controls:
-                            </td>
-                            <td>
-                                <a id="rewindButton" class="rewind" onclick="vle.rewindStepAudio();" ondblclick="vle.previousStepAudio();"></a>
-                            </td>
-                            <td>
-                                <a id="playPause" class="play" onclick="vle.playPauseStepAudio();"></a>
-                            </td>
-                            <td>
-                                <a id="forwardButton" class="forward" onclick="vle.forwardStepAudio();"></a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="navigationArea">
-                    <div id="navMenuControls">
-                        <input type="button" value="Expand All" onclick="myMenu.expandAll()"/><input type="button" value="Collapse All" onclick="myMenu.collapseAll()"/>
-                    </div>
-                    <div id="navigationMenuBox">
-                        <div id="my_menu" class="sdmenu">
-                        </div>
-                    </div>
-                    <!-- end of #navigationMenuBox -->
-                </div>
-                <!-- end of #navigationArea -->
-                <div id="hostBrandingBox">
-                    <a href="../page/help/about.html" target="_blank"><img src="images/UCCP-Logo-215-Left.png" alt="UCCP College Prep Online Logo" border="0" /></a>
-					<p><a href="../page/help/about.html"target="_blank">Powered by WISE 4.0</a></p>
-                </div>
-            </div><!-- end of #projectLeftBox-->
+                        
             <div id="projectRightUpperBox">
                 <div id="stepNavButtons">
                     <table>
@@ -335,6 +262,42 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                         </tr>
                     </table>
                 </div>
+                <div id="toolsArea">
+                    <dl class="dropdown">
+                        <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
+                            <div id="menuTitle">
+                                project menu
+                            </div>
+                            <img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
+                        </dt>
+                        <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);">
+                            <ul>
+                                <!-- requested changes have been remarked out -->
+                                <li><a onclick="vle.showJournal();" class="underline">Show Journal</a></li>
+                                <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
+                                <li><a class="underline" onclick="alert('not yet implemented');">Export Work to PDF</a></li>
+                                <li><a class="underline" onclick="alert('not yet implemented');">Goto Student Home Page</a></li>
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+                
+                <div id="audioControls">
+                    <table>
+                        <tr>
+                            <td>
+                                <a id="rewindButton" class="rewind" onclick="vle.rewindStepAudio();" ondblclick="vle.previousStepAudio();"></a>
+                            </td>
+                            <td>
+                                <a id="playPause" class="play" onclick="vle.playPauseStepAudio();"></a>
+                            </td>
+                            <td>
+                                <a id="forwardButton" class="forward" onclick="vle.forwardStepAudio();"></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
                 <div id="stepInfoBar">
                     <span id='stepIcon'></span>
                     <span id="topStepTitle"></span>
@@ -342,6 +305,50 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                     <span id="flagDiv"></span>
                 </div>
             </div>
+                        
+            <div id="projectLeftBox">
+                
+                <div id="hostBrandingBoxWISE">
+                    <img src="images/WISE-Logo-VLE-1.png" alt="WISE VLE Logo" border="0" />
+                </div>
+                <div id="projectLogoBox">
+                    <div class="logoImageDiv">
+                    <a href="CourseProjectInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank">
+                    <img src="./images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
+                    </div>
+                    <div id="projectCurriculum">
+                        <div id="courseName" class="courseName">
+                            UCCP AP Computer Science
+                        </div>
+                        <div id="title" class="title">
+                            course name goes here
+                        </div>
+                    </div>
+                    <div id="logInBox">
+                        <span>Hello, MyName</span>
+                        <span>&nbsp&nbsp|&nbsp&nbsp</span>
+                        <span>Mon 5/12 10:32am</span>
+                    </div>
+                </div>
+
+                <div id="navigationArea">
+                    <div id="navMenuControls">
+                        <input type="button" value="Expand All" onclick="myMenu.expandAll()"/><input type="button" value="Collapse All" onclick="myMenu.collapseAll()"/>
+                    </div>
+                    <div id="navigationMenuBox">
+                        <div id="my_menu" class="sdmenu">
+                        </div>
+                    </div>
+                    <!-- end of #navigationMenuBox -->
+                </div>
+                <!-- end of #navigationArea -->
+                <div id="hostBrandingBoxUCCP">
+                    <a href="../page/help/about.html" target="_blank"><img src="images/UCCP-Logo-215-Left.png" alt="UCCP College Prep Online Logo" border="0" /></a>
+					<p><a href="../page/help/about.html"target="_blank">Powered by WISE 4.0</a></p>
+                </div>
+
+            </div><!-- end of #projectLeftBox-->
+            
             <div id="projectRightLowerBox">
                 <div id="contentDiv" align="center">
                     <div id="loadingMessageDiv">

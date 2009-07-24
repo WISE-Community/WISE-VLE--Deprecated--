@@ -19,7 +19,7 @@ public class VLEServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String CREATE_VLE_VISTS_TABLE_SQL = "CREATE TABLE vle_visits (id bigint(20) NOT NULL auto_increment, userId bigint(20) default NULL, courseId bigint(20) default NULL, location bigint(20) default NULL, nodeId varchar(20) default NULL, nodeType varchar(20) default NULL, postTime timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, startTime timestamp NOT NULL default '0000-00-00 00:00:00', endTime timestamp NOT NULL default '0000-00-00 00:00:00', nodeStates longtext, PRIMARY KEY (id)) ENGINE=MyISAM AUTO_INCREMENT=1571 DEFAULT CHARSET=utf8;";
+	protected static final String CREATE_VLE_VISTS_TABLE_SQL = "CREATE TABLE vle_visits (id bigint(20) NOT NULL auto_increment, userId bigint(20) default NULL, courseId bigint(20) default NULL, location bigint(20) default NULL, nodeId varchar(20) default NULL, nodeType varchar(20) default NULL, postTime timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP, startTime timestamp NOT NULL default '0000-00-00 00:00:00', endTime timestamp NOT NULL default '0000-00-00 00:00:00', data longtext, PRIMARY KEY (id)) ENGINE=MyISAM AUTO_INCREMENT=1571 DEFAULT CHARSET=utf8;";
 
 	private static final String USERNAME = "sailuser";
 	

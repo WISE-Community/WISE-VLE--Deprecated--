@@ -9,9 +9,15 @@ function NoteNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
 	
-	//The second argument passed to the
-    //constructor is a configuration object:
-	if (notePanel == null) {
+	/*
+	 * check if the notePanel has already been created, if not we will
+	 * create it. we also need to check if the element 'noteiframe' is
+	 * null because safari 4.0 has some bug which causes the notePanel
+	 * to be not null but the 'noteiframe' to be null.
+	 */
+	if (notePanel == null || document.getElementById('noteiframe') == null) {
+		//The second argument passed to the
+	    //constructor is a configuration object:
 		notePanel = new YAHOO.widget.Panel("notePanel", {
 			width: "600px",
 			height: "600px",

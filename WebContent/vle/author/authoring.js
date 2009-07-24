@@ -103,8 +103,9 @@ function generateDD(){
 	    	createTarget(Y, targets[f]);
 	    };
 	    
-	    //Create trash target
+	    //Create trash targets
 	    createTarget(Y, document.getElementById('trash'));
+	    createTarget(Y, document.getElementById('trash2'));
 	    
 	    //Create nodes UL as target (so we can catch drop events for
 	    //draggables that do not belong
@@ -165,7 +166,7 @@ function removeReferencedNode(el, location){
  */
 function onNodeDropped(dragged, dropped){
 	
-	if(dropped.get('id')=='trash'){
+	if(dropped.get('id')=='trash' || dropped.get('id')=='trash2'){
 		projectSaved = false;
 		if(document.getElementById(dragged.get('id')).getAttribute('name')=='ref-node'){
 			removeReferencedNode(dragged);
