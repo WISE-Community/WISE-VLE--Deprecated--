@@ -143,6 +143,8 @@ var scriptloader = {
         	brainlite: ["vle/node/common/js/loadxmldoc.js",
         				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/helperfunctions.js",
+        				"vle/node/brainstorm/brainstorm.js",
+        				"vle/node/brainstorm/brainstormstate.js",
         				"vle/node/brainstorm/brainlitehtml.js",
         				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
                         "vle/yui/yui_2.7.0b/build/element/element-min.js",
@@ -153,6 +155,8 @@ var scriptloader = {
            brainfull: ["vle/node/common/js/loadxmldoc.js",
                     	"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
                     	"vle/node/common/js/helperfunctions.js",
+        				"vle/node/brainstorm/brainstorm.js",
+        				"vle/node/brainstorm/brainstormstate.js",
                     	"vle/node/brainstorm/brainfullhtml.js",
                     	"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
                         "vle/yui/yui_2.7.0b/build/element/element-min.js",
@@ -386,15 +390,18 @@ var scriptloader = {
 	//completed loading.
 	//@param script is url path to script
 	scriptAvailable: function(script){
-		this.scripts[script].setLoaded(true);
-		if(this.scripts[script].hasDependents()){
-			var dep = this.scripts[script].getDependent();
-			for(var w=0;w<dep.length;w++){
-				this._loadIfDependenciesLoaded(dep[w]);
+		var inScript = this.scripts[script];
+		if(inScript){
+			inScript.setLoaded(true);
+			if(inScript.hasDependents()){
+				var dep = inScript.getDependent();
+				for(var w=0;w<dep.length;w++){
+					this._loadIfDependenciesLoaded(dep[w]);
+				};
 			};
-		};
-		if(this.listener){
-			this.listener();
+			if(this.listener){
+				this.listener();
+			};
 		};
 	},
 	//checks all the dependencies of the provided script and if all are loaded,

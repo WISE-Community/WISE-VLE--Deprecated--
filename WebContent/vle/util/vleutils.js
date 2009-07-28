@@ -336,11 +336,46 @@ VLE.prototype.saveLocally = function(){
 
 /**
  * brings up the progress of the currently-logged in user
+ * @param doPopup true iff the progress should appear in a popup. 
+ * Otherwise, display the progress in the page
+ * @param reportsToShow array of report names to show. Possible values
+ * are: {onlyLatestAsCSV,allAnswerRevisionsCSV,allAnswerRevisionsHtml, timeline}
  * @return
  */
-VLE.prototype.displayProgress = function() {
-	document.getElementById('centeredDiv').style.display = "none";
-	document.getElementById('progressDiv').innerHTML = vle.getProgress();
+VLE.prototype.displayProgress = function(doPopup, reportsToShow) {
+	if (doPopup) {
+	   YAHOO.namespace("example.container");
+
+	   if (!YAHOO.example.container.displayprogress) {
+		    
+	        // Initialize the temporary Panel to display while showallworking for external content to load
+	        
+	        YAHOO.example.container.displayprogress = new YAHOO.widget.Panel("displayProgress", {
+	            width: "800px",
+				height: "300px",
+				fixedcenter: true,
+	            close: true,
+	            draggable: false,
+	            zindex: 4,
+	            modal: true,
+	            visible: false
+	        });
+	        
+	        YAHOO.example.container.displayprogress.setHeader("Your Progress");
+	        YAHOO.example.container.displayprogress.setBody(vle.getProgress(reportsToShow));
+	        YAHOO.example.container.displayprogress.render(document.body);
+	        
+	    }
+	    else {
+	        YAHOO.example.container.displayprogress.setBody(vle.getProgress(reportsToShow));
+	    }
+	    
+	    // Show the Panel
+	    YAHOO.example.container.displayprogress.show();
+	} else {
+		document.getElementById('centeredDiv').style.display = "none";
+		document.getElementById('progressDiv').innerHTML = vle.getProgress(reportsToShow);
+	}
 }
 
 //used to notify scriptloader that this script has finished loading

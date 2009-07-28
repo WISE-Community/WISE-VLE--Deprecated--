@@ -575,11 +575,13 @@ VLE.prototype.showAllWork = function(doGrading){
  * 
  * @param vle the vle object that has it's vle_state populated with 
  * 		student data
+ * @param reportsToShow array of report names to show. Possible values
+ * are: {onlyLatestAsCSV,allAnswerRevisionsCSV,allAnswerRevisionsHtml, timeline} 
  * @return an html string that displays the student user name,
  * 		percentage completion of project, current step they're on,
  * 		and steps they skipped
  */
-VLE.prototype.getProgress = function() {
+VLE.prototype.getProgress = function(reportsToShow) {
 	var progressHtml = "";
 	
 	/*
@@ -686,34 +688,52 @@ VLE.prototype.getProgress = function() {
 	 * data as a csv file. this only saves the student's latest
 	 * answers
 	 */ 
-	progressHtml += "<td width='25%'><input type='button' value='Save Only Latest Answers as CSV File' onclick='saveStudentWorkToFile(\"simpleCSV\")' /><br><br>";
+	progressHtml += "<td width='25%'>";
+	
+	
+	var onlyLatestAsCSV = "<input type='button' value='Save Only Latest Answers as CSV File' onclick='saveStudentWorkToFile(\"simpleCSV\")' /><br><br>";
 	
 	/*
 	 * the save button that allows the user to save the student's
 	 * data as a csv file. this saves all the revisions of the
 	 * student's answers.
 	 */
-	progressHtml += "<input type='button' value='Save All Answer Revisions as CSV File' onclick='saveStudentWorkToFile(\"detailedCSV\")' /><br><br>";
-	
+	var allAnswerRevisionsCSV = "<input type='button' value='Save All Answer Revisions as CSV File' onclick='saveStudentWorkToFile(\"detailedCSV\")' /><br><br>";
+
+	/*
+	 * the save button that allows the user to save the student's
+	 * data as an html file. this saves all the revisions of the
+	 * student's answers.
+	 */
+	var allAnswerRevisionsHtml = "<input type='button' value='Save All Answer Revisions as HTML File' onclick='saveStudentWorkToFile(\"HTML\")' /><br><br>";
+
 	/*
 	 * the save button that allows the user to save the student's
 	 * data as a csv file. this saves all the revisions of the
 	 * student's answers in the order they answered them including
 	 * timestamps.
 	 */
-	progressHtml += "<input type='button' value='Save Student Timeline as CSV File' onclick='saveStudentWorkToFile(\"timelineCSV\")' /><br><br>";
-	
-	
-	/*
-	 * the save button that allows the user to save the student's
-	 * data as an html file. this saves all the revisions of the
-	 * student's answers.
-	 */
-	progressHtml += "<input type='button' value='Save All Answer Revisions as HTML File' onclick='saveStudentWorkToFile(\"HTML\")' /></td>";
-	
-	progressHtml += "</tr>";
-	progressHtml += "</table>";
-	
+	var timeline = "<input type='button' value='Save Timeline as CSV File' onclick='saveStudentWorkToFile(\"timelineCSV\")' />";
+
+	// show specified reports. If none specified, show all.
+	if(reportsToShow != null && reportsToShow.length > 0) {
+		if (reportsToShow.contains("onlyLatestAsCSV")) {
+			progressHtml += onlyLatestAsCSV;
+		}
+		if (reportsToShow.contains("allAnswerRevisionsCSV")) {
+			progressHtml += allAnswerRevisionsCSV;
+		}
+		if (reportsToShow.contains("allAnswerRevisionsHtml")) {
+			progressHtml += allAnswerRevisionsHtml;
+		}
+		if (reportsToShow.contains("timeline")) {
+			progressHtml += timeline;
+		}
+	} else {
+		progressHtml += onlyLatestAsCSV + allAnswerRevisionsCSV + allAnswerRevisionsHtml + timeline;
+	}
+
+	progressHtml += "</td></tr></table>";
 	//alert(progressHtml);
 	
 	return progressHtml;

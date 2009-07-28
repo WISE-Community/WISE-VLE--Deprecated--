@@ -1,0 +1,40 @@
+/* STYLES FOR GRADE BY STEP */
+
+.yui-skin-sam {
+	background-image: none;
+	background-color: #FFF;
+}
+
+iframe {
+	width: 80%;
+}
+
+#gradeByStepDiv {
+	text-align: left;
+	background-image: none;
+	background-color: #FFE6C6;
+	padding-bottom: 20px;
+	border: 1px solid #999;
+}
+
+#gradeByStepDiv input {
+	margin: 8px 0 -3px 16px;
+}
+
+#gradeByStepDiv h4 {
+	padding: 8px 0 0px 20px;
+	font-size: 1.1em;
+}
+
+#gradeByStepDiv a:visited,#gradeByStepDiv a:link {
+	display: block;
+	margin-left: 40px;
+	padding: 2px 2px;
+	font-size: .8em;
+	color: blue;
+}
+
+#gradeByStepDiv a:hover {
+	background-color: #FFFF00;
+	color: #000033;
+}

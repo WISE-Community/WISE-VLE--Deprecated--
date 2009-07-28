@@ -4,7 +4,7 @@
 * {padding:0; margin:0}
 
 body {
-	/*  dfsdf font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
+	/*  font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
 	text-align: center; 
@@ -156,7 +156,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #audioControls  {
 	position:absolute;
 	top:10px;
-	left:140px;
+	left:138px;
 	background-color:transparent;
 	padding:0;
 	}	
@@ -172,7 +172,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	
 #audioControls a.rewind {  
      display: block;  
-     width: 28px;  
+     width: 26px;  
      height: 16px; 
      background-image: url(../images/audio_rewind.png);  
      background-position:center -3px;	
@@ -186,7 +186,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	 
 #audioControls a.play {  
      display: block;  
-     width: 28px;  
+     width: 26px;  
      height: 16px; 
      background-image: url(../images/audio_play.png);  
      background-repeat: no-repeat;
@@ -200,7 +200,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
     
 #audioControls a.pause {  
      display: block;  
-     width: 28px;  
+     width: 26px;  
      height: 16px; 
      background-image: url(../images/audio_pause.png);  
      background-repeat: no-repeat;
@@ -214,7 +214,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #audioControls a.forward {  
      display: block;  
-     width: 28px;  
+     width: 26px;  
      height: 16px; 
      background-image: url(../images/audio_forward.png);  
      background-repeat: no-repeat;
@@ -226,6 +226,12 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
      cursor:pointer;
      } 
 
+#separator {
+	position:absolute;
+	top:4px;
+	left:227px;
+	}	
+	
 #navigationArea {
 	margin: 0px 0 35px 0 ;
 	}
@@ -258,7 +264,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #stepInfoBar {
 	position:absolute;
-	left:235px;
+	left:240px;
 	width:500px;
 	}
 	
@@ -446,7 +452,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	border:1px solid #666; 
 	margin:0;
 	font-weight:normal; 
-	font-size:80%;
+	font-size:11px;
 	letter-spacing:1.2px;
 	font-variant:small-caps;
 	background:url(../images/robots/toolbar_bg2.png)

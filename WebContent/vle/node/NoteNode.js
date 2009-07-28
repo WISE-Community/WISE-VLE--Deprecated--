@@ -19,8 +19,8 @@ function NoteNode(nodeType, connectionManager) {
 		//The second argument passed to the
 	    //constructor is a configuration object:
 		notePanel = new YAHOO.widget.Panel("notePanel", {
-			width: "600px",
-			height: "600px",
+			width: "650px",
+			height: "500px",
 			fixedcenter: false,
 			constraintoviewport: true,
 			underlay: "shadow",
@@ -29,7 +29,7 @@ function NoteNode(nodeType, connectionManager) {
 			draggable: true
 		});
 		
-		notePanel.setHeader("My Notes");
+		notePanel.setHeader("Reflection Note");
 		notePanel.setBody("<iframe name=\"noteiframe\" id=\"noteiframe\" width=\"100%\" height=\"100%\" src=\"node/openresponse/note.html\"><iframe>");
 
 		notePanel.cfg.setProperty("underlay", "matte");

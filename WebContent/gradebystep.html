@@ -3,9 +3,8 @@
 <title>Grade By Step</title>
 <script type="text/javascript" src="vle/util/scriptloader.js"></script>
 <script type='text/javascript' src='vle/yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
-<!--  no navigation styling for now
-<link rel="stylesheet" type="text/css" href="vle/css/sdmenu.css" />
- -->
+
+<link rel="stylesheet" type="text/css" href="vle/css/portal/teachergrading.css" />
 
 <script type="text/javascript">
 var studentWorkQueryObject;
@@ -380,6 +379,8 @@ function displaySteps() {
 	 */
 	displayStepsHtml += displayStepsHelper(vle.project.rootNode);
 
+	//add the refresh button at the top of the page
+	document.getElementById('gradeByStepDiv').innerHTML = "<input type='button' value='Refresh All Steps' onClick='refresh()'><br>";
 	//close the table
 	displayStepsHtml += "</tbody></table>";
 
@@ -403,6 +404,7 @@ function displayStepsHelper(node) {
 			 * display a link for this step. in the future there should
 			 * be a function node.containsStudentWork() or something.
 			 */
+			displayStepsHtml += "<a href='#' onClick='getGradeByStepHtml(\"" + node.id + "\")'>" + node.title + " [" + node.type + "]</a>";			
 			displayStepsHtml += "<tr><td><a href='#' onClick='getGradeByStepHtml(\"" + node.id + "\")'>" + node.title + " [" + node.type + "]</a></td></tr>";			
 		}
 	} else {
@@ -432,7 +434,7 @@ function getGradeByStepHtml(nodeId) {
 	 * the step
 	 */
 	gradeByStepHtml += "<input type='button' value='Go Back to Steps' onClick='displaySteps()'>";
-	gradeByStepHtml += "<div id='flaggedItems'></div><br>";
+	gradeByStepHtml += "<div id='flaggedItems'></div>";
 
 	var getFlagCallback = {
 			success: function(o) {

@@ -17,7 +17,7 @@ function Node(nodeType, connectionManager) {
 	this.className = null;
 	this.renderComplete = false;
 	this.audioSupported = false;   // does this node support playing of audio?
-	
+
 	this.audioReady = false;
 	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
 	this.audios = [];
@@ -37,6 +37,30 @@ Node.prototype.getTitle = function() {
 	}
 	return this.id;
 };
+
+/**
+ * returns this node's type. if humanReadable=true, return in human-readable format
+ * e.g. HtmlNode=>{Display, Evidence}, NoteNode=>Note, etc.
+ * If type is not defined, return an empty string.
+ * @param humanReadable
+ * @return
+ */
+Node.prototype.getType = function(humanReadable) {
+	if (this.type) {
+		if (!humanReadable) {
+			return this.type;
+		} else {
+			// first get rid of the "Node" in the end of the type
+			if (this.type.lastIndexOf("Node") > -1) {
+				return this.type.substring(0, this.type.lastIndexOf("Node"));
+			} else {
+				return this.type;
+			}
+		}
+	} else {
+		return "";
+	}
+}
 
 Node.prototype.addChildNode = function(childNode) {
 	this.children.push(childNode);
@@ -470,9 +494,9 @@ Node.prototype.injectBaseRef = function(content) {
 		return content;
 	} else {		
 		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
-		
-		if(this.contentBase){
-			var baseRefTag = "<base href='" + this.contentBase + "'/>";
+		//alert('Node.js, this.contentbase:' + this.contentBase + ", contentbaseUrl:" + vle.project.contentBaseUrl);
+		if(vle.project.contentBaseUrl){
+			var baseRefTag = "<base href='" +vle.project.contentBaseUrl + "'/>";
 		} else {
 			return content;
 		};

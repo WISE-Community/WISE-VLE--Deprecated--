@@ -105,11 +105,20 @@ textarea:disabled {
 	background-color:#999999;
 }
 
+.starterSentence {
+	float:right;
+	margin-right:50px;
+	font-size:.8em;
+}
 
+.starterSentence a:visited, .starterSentence a:link  {
+	color:blue;
+	padding:0 4px;
+}
 
-
-
-
+.starterSentence a:hover {
+	background-color:#FFFF00;
+}
 
 
 

@@ -1,0 +1,1672 @@
+<html>
+<head>
+<script type="text/javascript" src="util/scriptloader.js"></script>
+<script type='text/javascript' src='yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
+<script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<script type='text/javascript'>
+var summary_yui;  // YUI global object for this page
+var project;
+var currentStepNum;
+var easyMode = true; //the mode that gets passed to the individual authoring pages
+var htmlPageName; //the root name of the html that gets passed to the individual authoring pages
+var currentProjectName;
+var currentProjectPath;
+var pathSeparator;
+var projectSaved = true;
+var projectsLoaded;
+var pathsLoaded;
+
+var openProjectDialog;
+var createProjectDialog;
+var createSequenceDialog;
+var createNodeDialog;
+var editProjectFileDialog;
+var importProjectDialog;
+
+var projectPaths; //a | delimited string of the project paths specified in settings.xml
+var hostedProjectPaths;
+var hostedPaths = [];
+var hostedURLs = [];
+var hostedProject = false;
+var hostedContentBaseURL;
+var hostedContentURL;
+var primaryPath = ""; //the default path to create new projects
+var nodeIdToAuthor = null;
+
+var portalUrl;
+var portalProjectId;
+
+function setPortalMode(url, command, id){
+	portalUrl = url;
+	
+	if(command && command!=''){
+		if(command=='createProject'){
+			var show = function(){
+				createNewProject();
+			};
+			pathsLoaded.subscribe(show);
+		} else if(command=='editProject'){
+			setProjectPathAndName(decodeURIComponent(id));
+			loadProjectFromServer();
+		};
+	};
+	
+	projectsLoaded.subscribe(updatePortalProjects);
+};
+
+function updatePortalProjects(){
+	var handler = function(responseText, responseXML){
+		var addOption = function(name){
+			var parent = document.getElementById('selectProject');
+			var option = createElement(document, 'option', {name: 'projectOption'});
+			
+			parent.appendChild(option);
+			option.text = name;
+			option.value = name;
+		};
+		
+		var parent = document.getElementById('selectProject');
+		while(parent.firstChild){
+			parent.removeChild(parent.firstChild);
+		};
+		var placeholder = createElement(document, 'option', {name: 'placeholderOption'});
+		parent.appendChild(placeholder);
+		placeholder.value = '';
+		
+		var paths = responseXML.getElementsByTagName('path');
+		for(var y=0;y<paths.length;y++){
+			if(paths[y].firstChild){
+				addOption(paths[y].firstChild.nodeValue);
+			};
+		};
+	};
+
+	var callback = {
+		success: function(o){handler(o.responseText, o.responseXML);},
+		failure: function(o){notificationManager.notify('unable to retrieve portal projects', 3);},
+		scope: this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', portalUrl, callback, 'command=projectList');
+};
+
+function createPortalProject(path, name){
+	if(vle){
+		var handler = function(responseText, responseXML){
+			if(responseText){
+				portalProjectId = responseText;
+				updatePortalProjects();
+			} else {
+				notificationManager.notify('failed to create project in portal', 3);
+			};
+		};
+		vle.connectionManager.request('POST', 3, portalUrl, {command: 'createProject', param1: path, param2: name}, handler);
+	} else {
+		notificationManager.notify('vle not available to author new project in portal', 3);
+	};
+};
+
+/*
+function scriptsLoaded(params){
+	params[0]();
+};
+*/
+function afterScriptsLoad(){
+	projectsLoaded = new YAHOO.util.CustomEvent("projectListLoaded");
+	pathsLoaded = new YAHOO.util.CustomEvent("pathsLoaded");
+	getProjectPaths();
+	initializeCreateProjectDialog();
+	initializeCreateSequenceDialog();
+	initializeCreateNodeDialog();
+	initializeEditProjectFileDialog();
+	initializeImportProjectDialog();
+	
+	shortcutManager.addShortcut(79, 'openProject', ['shift', 'alt']); //shift + alt + 'o'
+	shortcutManager.addShortcut(83, 'saveProject', ['shift', 'alt']); //shift + alt + 's'
+	shortcutManager.addShortcut(80, 'preview', ['shift', 'alt']);	  //shift + alt + 'p'
+	shortcutManager.start();
+};
+
+function loaded(){
+	scriptloader.initialize(document, afterScriptsLoad, 'main');
+};
+
+function getProjectPaths(){
+	var settings;
+	var callback = {
+		success: function(o){
+			if(o.responseXML){
+			  settings = o.responseXML;
+			  
+			  /***						***|
+			   * Extra work needed for IE *|
+			   ***						***/
+			  if(window.ActiveXObject){
+			  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+			  	ieXML.async = "false";
+			  	ieXML.loadXML(o.responseText);
+			  	settings = ieXML;
+			  };
+			  /***						***|
+			   * End extra work for IE	  *|
+			   ***						***/
+			} else {
+				settings = loadXMLDocFromString(o.responseText);
+			};
+			
+			if(settings){
+				var path = settings.getElementsByTagName('projectPaths');
+				projectPaths = "";
+				hostedProjectPaths = "";
+				
+				if(path && path[0] && path[0].firstChild){
+					var hosted = path[0].getElementsByTagName('hosted');
+					for(var i=0;i<hosted.length;i++){
+						if(hosted[i] && hosted[i].firstChild){
+							hostedProjectPaths += hosted[i].firstChild.nodeValue;
+							if(i!=hosted.length-1){
+								hostedProjectPaths += '~';
+							};
+						};
+					};
+				
+					var paths = path[0].getElementsByTagName('path');
+					for(var u=0;u<paths.length;u++){
+						if(paths[u] && paths[u].firstChild){
+							projectPaths += paths[u].firstChild.nodeValue;
+							if(u!=paths.length-1){
+								projectPaths += '~';
+							};
+						};
+					};
+					
+					var primary = settings.getElementsByTagName('primaryPath');
+					if(primary && primary[0] && primary[0].firstChild){
+						primaryPath = primary[0].getElementsByTagName('path');
+						if(primaryPath && primaryPath[0] && primaryPath[0].firstChild){
+							primaryPath = primaryPath[0].firstChild.nodeValue;
+							projectPaths += '~' + primaryPath;
+						} else {
+							primaryPath = "";
+						};
+					} else {
+						primaryPath = "";
+					};
+				};
+				
+				pathsLoaded.fire();
+				initializeOpenProjectDialog();
+				getProjects();
+			} else {
+				notificationManager.notify("Error retrieving settings", 3);
+			};
+		},
+		failure: function(o){},
+		scope: this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('GET', 'settings.xml', callback, null);
+};
+
+function preview() {
+	if(currentProjectName){
+		popupPreviewWindow('vle.html', 'PreviewWindow');
+	} else {
+		notificationManager.notify('Please open or create a new project to preview. Exiting...', 3);
+	};
+};
+
+function updateAudio() {
+	if(currentProjectName){
+		popupPreviewWindow('vle.html?updateAudio=true', 'PreviewWindow');
+	} else {
+		notificationManager.notify('Please open or create a new project to update audio. Exiting...', 3);
+	};
+};
+
+function initializeOpenProjectDialog(bool){
+	var addOption = function(name){
+		var parent = document.getElementById('selectProject');
+		var option = createElement(document, 'option', {name: 'projectOption'});
+		
+		parent.appendChild(option);
+		option.text = name;
+		option.value = name;
+	};
+
+	var handleCancel = function(){
+		this.cancel();
+	};
+
+	var handleSubmit = function(){
+		optionSelected();
+	};
+	
+	var callback = {
+		success:function(o){
+			var parent = document.getElementById('selectProject');
+			while(parent.firstChild){
+				parent.removeChild(parent.firstChild);
+			};
+			
+			var projects = o.responseText.split('|');
+			for(var a=0;a<projects.length;a++){
+				addOption(projects[a]);
+			};
+
+			if (!openProjectDialog) {
+				openProjectDialog = new YAHOO.widget.Dialog('openProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Open", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+				openProjectDialog.render();
+			} 
+			if (bool) {
+				openProjectDialog.show();
+			}
+
+			if(hostedProjectPaths!=null && hostedProjectPaths!=""){
+				getHostedProjects(addOption);
+			} else {
+				projectsLoaded.fire();
+			};
+		},
+		failure:function(o){notificationManager.notify('unable to retrieve projects from server', 3);},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectPaths=" + projectPaths);
+};
+
+function projectSelected(projectId) {
+	var checkbox = document.getElementById("checkbox_"+projectId);
+	var projectIframe = document.getElementById("ifrm_"+projectId);
+	if(checkbox.checked) {
+		projectIframe.style.display = 'block';
+	} else {
+		projectIframe.style.display = 'none';
+	}
+}
+	/**
+	 * args[0] should contain the iframe name, like ifrm_2
+	 */
+function scriptsLoaded(args) {
+	//var vleConfigUrl = "${vleConfigUrl}";
+	
+	var contentUrl = "${contentUrl}";
+	var contentBaseUrl = "${contentBaseUrl}";
+	var userInfoUrl = "${userInfoUrl}";
+	var getDataUrl = "${getDataUrl}";
+	
+	notificationManager.notify('scriptsloaded, args[0]:'+args[0],4);
+
+	var windowName = args[0];
+	var path = windowName.substring(5);
+	if(path.indexOf('\\')!=-1){
+		ifrm_currentProjectPath = path.substring(0, path.lastIndexOf('\\'));
+		ifrm_currentProjectName = path.substring(path.lastIndexOf('\\') + 1, path.length);
+		pathSeparator = '\\';
+	} else {
+		ifrm_currentProjectPath = path.substring(0, path.lastIndexOf('/'));
+		ifrm_currentProjectName = path.substring(path.lastIndexOf('/') + 1, path.length);
+		pathSeparator = '/';
+	};
+	
+	window.frames[windowName].currentProjectPath = ifrm_currentProjectPath;
+	window.frames[windowName].currentProjectName = ifrm_currentProjectName;
+	window.frames[windowName].pathSeparator = pathSeparator;
+	window.frames[windowName].loadProject();
+
+	//window.frames["ifrm_" + workgroupId].initializeVLEFromVLEConfig(vleConfigUrl);
+}
+
+
+function applyDD(){
+	YUI({combine: true, timeout: 10000}).use('dd-constrain', 'dd-proxy', 'dd-drop', function(Y) {
+		summary_yui = Y;
+	    //Listen for all drop:over events
+	    Y.DD.DDM.on('drop:over', function(e) {
+	        //Get a reference to out drag and drop nodes
+	        var drag = e.drag.get('node'),
+	            drop = e.drop.get('node');
+	        
+	        //Are we dropping on a li node?
+	        if (drop.get('tagName').toLowerCase() === 'li') {
+	            //Are we not going up?
+	            if (!goingUp) {
+	                drop = drop.get('nextSibling');
+	            }
+	            //Add the node to this list
+	            e.drop.get('node').get('parentNode').insertBefore(drag, drop);
+	            //Resize this nodes shim, so we can drop on it later.
+	            e.drop.sizeShim();
+	        }
+	    });
+	    //Listen for all drag:drag events
+	    Y.DD.DDM.on('drag:drag', function(e) {
+	        //Get the last y point
+	        var y = e.target.lastXY[1];
+	        //is it greater than the lastY var?
+	        if (y < lastY) {
+	            //We are going up
+	            goingUp = true;
+	        } else {
+	            //We are going down..
+	            goingUp = false;
+	        }
+	        //Cache for next check
+	        lastY = y;
+	    });
+	    //Listen for all drag:start events
+	    Y.DD.DDM.on('drag:start', function(e) {
+	        //Get our drag object
+	        var drag = e.target;
+	        //Set some styles here
+	        drag.get('node').setStyle('opacity', '.25');
+	        drag.get('dragNode').set('innerHTML', drag.get('node').get('innerHTML'));
+	        drag.get('dragNode').setStyles({
+	            opacity: '.5',
+	            borderColor: drag.get('node').getStyle('borderColor'),
+	            backgroundColor: drag.get('node').getStyle('backgroundColor')
+	        });
+	    });
+	    //Listen for a drag:end events
+	    Y.DD.DDM.on('drag:end', function(e) {
+	        var drag = e.target;
+	        //Put out styles back
+	        drag.get('node').setStyles({
+	            visibility: '',
+	            opacity: '1'
+	        });
+	    });
+	    //Listen for all drag:drophit events
+	    Y.DD.DDM.on('drag:drophit', function(e) {
+	        var drop = e.drop.get('node'),
+	            drag = e.drag.get('node');
+
+	        //if we are not on an li, we must have been dropped on a ul
+	        if (drop.get('tagName').toLowerCase() !== 'li') {
+	            if (!drop.contains(drag)) {
+	                drop.appendChild(drag);
+	                onChanged(drop, drag);
+	            } else {
+	                onSort(drop, drag);
+	            }
+	        }
+	    });
+
+	    var onChanged = function(drop, drag) {
+	        alert("onchange: drop:" + drop + ", drag:" + drag);
+	    };
+
+	    var onSort = function(drop, drag){
+	        alert("onsort: drop:" + drop + ", drag:" + drag);
+	    };
+	    
+	    //Static Vars
+	    var goingUp = false, lastY = 0;
+
+	    //Get the list of li's in the lists and make them draggable
+	    var lis = Y.Node.all('#play ul li');
+	    lis.each(function(v, k) {
+	        var dd = new Y.DD.Drag({
+	            node: v,
+	            target: {
+	                padding: '0 0 0 20'
+	            }
+	        }).plug(Y.Plugin.DDProxy, {
+	            moveOnEnd: false
+	        }).plug(Y.Plugin.DDConstrained, {
+	            constrain2node: '#play'
+	        });
+	    });
+
+	    //Create simple targets for the 2 lists..
+	    var uls = Y.Node.all('#play ul');
+	    uls.each(function(v, k) {
+	        var tar = new Y.DD.Drop({
+	            node: v
+	        });
+	    });
+	    
+	});
+};
+
+
+	
+
+function getProjects() {
+
+	// adds the project to the list of select-able projects in the projectlist checkbox group.
+	var addOption = function(name){
+		var parent = document.getElementById('projectlist');
+		var option = createElement(document, 'input', {checked:true, type: 'checkbox', name: 'projectOption', id:"checkbox_"+name, value:name, onclick:"projectSelected('"+name+"')"});
+		option.innerHTML = name;
+		parent.appendChild(option);
+		var projectText = document.createTextNode(name);
+		parent.appendChild(projectText);
+		parent.appendChild(createElement(document, 'br', {}));
+	};
+
+	var createframe = function(name) {
+		var parent = document.getElementById("projectframesDiv");
+		var frame = createElement(document, 'iframe', {id:"ifrm_"+name, name:"ifrm_"+name, src:"/vlewrapper/vle/vle.html", width:"100%", height:"100%"});
+		parent.appendChild(frame);
+		parent.appendChild(createElement(document, 'br', {}));
+	};
+
+	var addToVisibleList = function(name) {
+		var parent = document.getElementById("list1");
+		var li = createElement(document, 'li', {"class":"list1"});
+		var label = createElement(document, 'div', {id:"ifrm_"+name, "class":"label"});
+		var labelText = document.createTextNode(name);
+		label.appendChild(labelText);
+		var frame = createElement(document, 'iframe', {id:"ifrm_"+name, name:"ifrm_"+name, src:"/vlewrapper/vle/vle.html", width:"100%", height:"100%"});
+		li.appendChild(label);
+		li.appendChild(frame);
+		parent.appendChild(li);
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+
+	var handleSubmit = function(){
+		optionSelected();
+	};
+	
+	var callback = {
+		success:function(o){
+			// clear existing list and frames
+			var parent = document.getElementById('projectlist');
+			while(parent.firstChild){
+				parent.removeChild(parent.firstChild);
+			};
+			var parentDiv = document.getElementById('projectframesDiv');
+			while(parentDiv.firstChild){
+				parentDiv.removeChild(parentDiv.firstChild);
+			};
+						
+			var projects = o.responseText.split('|');
+			for(var a=0;a<projects.length;a++){
+				//addOption(projects[a]);
+				//createframe(projects[a]);
+				addToVisibleList(projects[a]);
+			};
+
+			if(hostedProjectPaths!=null && hostedProjectPaths!=""){
+				getHostedProjects(addOption);
+			} else {
+				projectsLoaded.fire();
+			};
+			applyDD();  // now apply DD functionality to the newly created elements
+		},
+		failure:function(o){notificationManager.notify('unable to retrieve projects from server', 3);},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectPaths=" + projectPaths);	
+};
+
+function getHostedProjects(addOption){
+	hostedPaths = [];
+	hostedURLs = [];
+	var callback = {
+		success: function(o){
+			var hosted = o.responseText.split('|');
+			for(var b=0;b<hosted.length;b++){
+				var pathUrl = hosted[b].split('~');
+				hostedPaths.push(pathUrl[0]);
+				hostedURLs.push(pathUrl[1]);	
+				addOption(pathUrl[1]);
+			};
+			projectsLoaded.fire();
+		},
+		failure: function(o){notificationManager.notify('unable to retrieve hosted projects from server', 3);},
+		scope:this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=hostedProjectList&hostedProjectPaths=" + hostedProjectPaths);
+};
+
+function optionSelected(){
+	var path = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+	
+	var index = hostedURLs.indexOf(path);
+	if(index!=-1){
+		hostedProject = true;
+		hostedContentURL = path;
+		hostedContentBaseURL = hostedContentURL.substring(0, hostedContentURL.lastIndexOf('/'));
+		path = hostedPaths[index];
+	} else {
+		hostedProject = false;
+	};
+		
+	setProjectPathAndName(path);
+	
+	if(path!=null && path!=""){
+		loadProjectFromServer();
+		openProjectDialog.hide();
+	};
+};
+
+function setProjectPathAndName(path){
+	if(path.indexOf('\\')!=-1){
+		currentProjectPath = path.substring(0, path.lastIndexOf('\\'));
+		currentProjectName = path.substring(path.lastIndexOf('\\') + 1, path.length);
+		pathSeparator = '\\';
+	} else {
+		currentProjectPath = path.substring(0, path.lastIndexOf('/'));
+		currentProjectName = path.substring(path.lastIndexOf('/') + 1, path.length);
+		pathSeparator = '/';
+	};
+};
+
+function initializeCreateProjectDialog(){
+	var doSuccess = function(path){
+		setProjectPathAndName(path);
+		loadProjectFromServer();
+		if(portalUrl){
+			createPortalProject(path, document.getElementById('projectInput').value);
+		};
+		document.getElementById('projectInput').value = "";
+	};
+
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	createProjectDialog = new YAHOO.widget.Dialog('createProjectDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createProjectDialog.callback = {
+		success:function(o){
+			doSuccess(o.responseText);
+		},
+		failure:function(o){notificationManager.notify('unable to create new project on server', 3);},
+		scope:this
+	};
+	
+	createProjectDialog.validate = function(){
+		var data = this.getData();
+		if(data.param1==null || data.param1==""){
+			notificationManager.notify('A project name must be supplied before creating a project', 3);
+			return false;
+		} else {
+			return true;
+		};
+	};
+	
+	createProjectDialog.render();
+};
+
+function initializeCreateSequenceDialog(){
+	var doSuccess = function(){
+		document.getElementById('createSequenceInput').value = "";
+		loadProjectFromServer();
+		createSequenceDialog.hide();
+	};
+	
+	var validate = function(){
+		var name = document.getElementById('createSequenceInput').value;
+		var nodes = project.allSequenceNodes;
+	
+		if(name==null || name==""){
+			notificationManager.notify('Please enter a name before creating a sequence', 3);
+			return false;
+		};
+	
+		for(var s=0;s<nodes.length;s++){
+			if(nodes[s].id==name){
+				notificationManager.notify('A sequence with that name already exists. Please change the name and try again.', 3);
+				return false;
+			};
+		};
+	
+		return true;
+	};
+	
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	createSequenceDialog = new YAHOO.widget.Dialog('createSequenceDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createSequenceDialog.callback = {
+		success: function(o){
+			var response = o.responseText;
+			if(response=='success'){
+				doSuccess();
+			} else {
+				notificationManager.notify('Unable to create new sequence on server.', 3);
+			};
+		},
+		failure: function(o){notificationManager.notify('failed creating sequence on server', 3);},
+		scope: this
+	};
+	
+	createSequenceDialog.validate = validate;
+	
+	createSequenceDialog.render();
+};
+
+/**
+ * When a node type is selected, dynamically creates a select element
+ * and option elements with icons and names for that specific nodeType.
+ * The node's className is set as the value for param2 of the createNodeDialog.
+ */
+function nodeTypeSelected(){
+	var parent = document.getElementById('createNodeForm');
+	var old = document.getElementById('selectNodeIconDiv');
+	var val = document.getElementById('createNodeType').options[document.getElementById('createNodeType').selectedIndex].value;
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	if(val && val!=""){
+		var index = nodeTypes.indexOf(val);
+		var classes = nodeClasses[index];
+		var text = nodeClassText[index];
+		
+		var selectDiv = createElement(document, 'div', {id: 'selectNodeIconDiv'});
+		var selectText = document.createTextNode('Select a Class Type For This Node');
+		var select = createElement(document, 'select', {id: 'selectNodeIcon', name: 'param2'});
+		for(var h=0;h<classes.length;h++){
+			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
+			opt.value = classes[h];
+			opt.innerHTML = '<img src=\'' + iconUrl + classes[h] + '16.png\'/> ' + text[h];
+			
+			select.appendChild(opt);
+		};
+		
+		selectDiv.appendChild(selectText);
+		selectDiv.appendChild(createBreak());
+		selectDiv.appendChild(select);
+		parent.appendChild(selectDiv);
+	};
+};
+
+/**
+ * Creates the dialog box for creating a new node for a project. Sets
+ * the callback for the backing form as well as validation.
+ */
+function initializeCreateNodeDialog(){
+	var doSuccess = function(){
+		var title = document.getElementById('createNodeTitle').value;
+
+		var afterLoad = {
+				title: title,
+				authorFun: author
+		};
+
+		document.getElementById('createNodeType').selectedIndex = 0;
+		document.getElementById('createNodeTitle').value = "";
+		document.getElementById('selectNodeIconDiv').parentNode.removeChild(document.getElementById('selectNodeIconDiv'));
+		loadProjectFromServer(afterLoad);
+		createNodeDialog.hide();		
+	};
+	
+	var validate = function(){		
+		val = document.getElementById('createNodeTitle').value;
+		if(val==null || val==""){
+			notificationManager.notify('Please enter a title for the node. Exiting...', 3);
+			return false;
+		};
+	
+		var select = document.getElementById('createNodeType');
+		val = select.options[select.selectedIndex].value;
+		if(val==null || val==""){
+			notificationManager.notify('Please select a node type. Exiting...', 3);
+			return false;
+		};
+	
+		return true;
+	};
+	
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	createNodeDialog = new YAHOO.widget.Dialog('createNodeDialog', {width :"300px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	createNodeDialog.callback = {
+		success: function(o){
+			var response = o.responseText;
+			if(response=='exists'){
+				notificationManager.notify('A node with the same filename already exists. Please change the filename and try again.', 3);
+			} else if(response=='nodeNotProject'){
+				notificationManager.notify('Unable to attach node to project, please see administrator.', 3);
+			} else if(response=='success'){
+				doSuccess();
+			} else {
+				notificationManager.notify('Error creating node on server', 3);
+			};
+		},
+		failure: function(o){notificationManager.notify('unable to create node on server', 3);},
+		scope: this
+	};
+	
+	createNodeDialog.validate = validate;
+	
+	createNodeDialog.render();
+};
+
+function initializeEditProjectFileDialog(){
+	//initialize dialog
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	var doSuccess = function(){
+		loadProjectFromServer();
+		editProjectFileDialog.hide();
+	};
+	
+	editProjectFileDialog = new YAHOO.widget.Dialog('editProjectFileDialog', {width :"700px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Submit", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	editProjectFileDialog.callback = {
+		success: function(o){
+			if(o.responseText!='success'){
+				notificationManager.notify('Failed save to server', 3);
+			} else {
+				doSuccess();
+			};
+		},
+		failure: function(o){notificationManager.notify('Unable to save file to server', 3);},
+		scope:this
+	};
+	
+	editProjectFileDialog.render();
+};
+
+function initializeImportProjectDialog(){
+	var handleSubmit = function(){
+		this.submit();
+	};
+	
+	var handleCancel = function(){
+		this.cancel();
+	};
+	
+	var doSuccess = function(val){
+		if(val=='success'){
+			notificationManager.notify('zipped project uploaded successfully', 3);
+		};
+	};
+	
+	importProjectDialog = new YAHOO.widget.Dialog('importProjectDialog', {width :"450px", fixedcenter:true, visible:false, constraintoviewport:true, buttons:[{text:"Import", handler:handleSubmit, isDefault:true}, {text:"Cancel", handler:handleCancel}]});
+	importProjectDialog.callback = {
+		success: function(o){
+			doSuccess(o.responseText);
+		},
+		failure: function(o){},
+		scope: this
+	};
+	
+	importProjectDialog.render();
+};
+
+function openProject(){
+	if(!projectSaved){
+		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+			if(!portalUrl){
+				updateAvailableProjects();
+			} else {
+				updatePortalProjects();
+				openProjectDialog.show();
+			};
+		};
+	} else {
+		if(!portalUrl){
+			updateAvailableProjects();
+		} else {
+			updatePortalProjects();
+			openProjectDialog.show();
+		};
+	};
+};
+
+function updateAvailableProjects(){
+	initializeOpenProjectDialog(true);
+};
+
+function createNewProject(){
+	document.getElementById('createNewProjectPath').value = primaryPath;
+	if(!projectSaved){
+		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+			createProjectDialog.show();
+		};
+	} else {
+		createProjectDialog.show();
+	};
+};
+
+function createNewSequence(){
+	if(currentProjectPath){
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				document.getElementById('sequenceProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
+				document.getElementById('newSequenceId').value = generateUniqueSequenceId();
+				createSequenceDialog.show();
+			};
+		} else {
+			document.getElementById('sequenceProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
+			document.getElementById('newSequenceId').value = generateUniqueSequenceId();
+			createSequenceDialog.show();
+		};
+	} else {
+		notificationManager.notify('Please open or create a new project before creating a sequence. Exiting...', 3);
+	};
+};
+
+/**
+ * Generates and returns a unique sequence id
+ * for the loaded project
+ */
+function generateUniqueSequenceId(){
+	var seqs = project.allSequenceNodes;
+	var name = 'seq_';
+	var count = 0;
+	
+	if(seqs.length<1){
+		return name + count;
+	};
+	
+	while(true){
+		var newName = name + count;
+		var found = false;
+		for(var q=0;q<seqs.length;q++){
+			if(seqs[q].id==newName){
+				found = true;
+			};
+		};
+		
+		if(!found){
+			return newName;
+		};
+		
+		count ++;	
+	};
+};
+
+function createNewNode(){
+	if(currentProjectPath){
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				document.getElementById('nodeProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
+				createNodeDialog.show();
+			};
+		} else {
+			document.getElementById('nodeProjectPath').value = currentProjectPath + pathSeparator + currentProjectName;
+			createNodeDialog.show();
+		};
+	} else {
+		notificationManager.notify('Please open or create a new project before creating a node. Exiting...', 3);
+	};
+};
+
+function editProjectFile(){
+	if(currentProjectName){
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				retrieveProjectFile();
+				document.getElementById('editProjectFileProjectName').value = currentProjectPath;
+				document.getElementById('editProjectFileFileName').value = currentProjectName;
+				editProjectFileDialog.show();
+			};
+		} else {
+			retrieveProjectFile();
+			document.getElementById('editProjectFileProjectName').value = currentProjectPath;
+			document.getElementById('editProjectFileFileName').value = currentProjectName;
+			editProjectFileDialog.show();
+		};
+	} else {
+		notificationManager.notify('Please open or create a new project before editing the project file. Exiting...', 3);
+	};
+};
+
+function retrieveProjectFile(){	
+	var retrieveProjectCallback =
+	{
+		success: function(o) {
+			document.getElementById('projectText').value = o.responseText;
+	  },			
+	  failure: function(o) { notificationManager.notify('unable to retrieve project file from server', 3);},
+	  scope:this
+	}
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', retrieveProjectCallback, 'command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName);
+	
+};
+
+function exportProject(){
+	if(currentProjectName){
+		if(!projectSaved){
+			if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+				document.getElementById('exportProjectPath').value = currentProjectPath;
+				document.getElementById('exportProjectName').value = currentProjectName;
+				document.getElementById('archivePath').value = primaryPath;
+				document.getElementById('exportProject').submit();
+			};
+		} else {
+			document.getElementById('exportProjectPath').value = currentProjectPath;
+			document.getElementById('exportProjectName').value = currentProjectName;
+			document.getElementById('archivePath').value = primaryPath;
+			document.getElementById('exportProject').submit();
+		};
+	} else {
+		notificationManager.notify('Please open the project you wish to export first. Exiting...', 3);
+	};
+};
+
+function importProject(){
+	if(currentProjectName && !projectSaved){
+		if(confirm('The current project has not been saved. If you proceed any changes you have made since your last save will be lost. Do you wish to continue?')){
+			document.getElementById('importProjectPath').value = primaryPath;
+			importProjectDialog.show();
+		};
+	} else {
+		document.getElementById('importProjectPath').value = primaryPath;
+		importProjectDialog.show();
+	};
+};
+
+/**
+ * Saves any changes in the project by having the project
+ * regenerate the project file, incorporating any changes
+ */
+function saveProject(){
+	var setProjectSaved = function(){
+		projectSaved = true;
+	};
+	
+	if(currentProjectPath){
+		var data = project.projectXML();
+		
+		var callback = {
+			success: function(o){
+				if(o.responseText!='success'){
+					notificationManager.notify('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.', 3);
+					notificationManager.notify(data, 3);
+				} else {
+					setProjectSaved();
+					notificationManager.notify('project saved', 3);
+				};
+			},
+			failure: function(o){
+				notificationManager.notify('Failed save of project on server. The server may be unavailable. An alert will pop up with the project file data, copy this and paste it into a document for backup.', 3);
+				notificationManager.notify(data, 3);
+			},
+			scope: this
+		};
+		
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + currentProjectPath + '&param2=' + currentProjectName + '&param3=' + encodeURIComponent(data));
+	} else {
+		notificationManager.notify('Please open or create a new project before attempting to save.', 3);
+	};
+};
+
+function getElementById(element, id) {
+	if (element.hasAttribute && element.hasAttribute("id") && element.getAttribute("id") == id) {
+		return element;
+	} else if (element.childNodes.length == 0) {
+		return null;
+	} else {
+		var endResult = null;
+		for (var i=0; i < element.childNodes.length; i++) {
+			result = getElementById(element.childNodes[i], id);
+			if (result != null) {
+				return result;
+			}
+	     } 
+	     return null;
+	}
+}
+
+/**
+ * Updates AudioFiles for the current project.
+ */
+function updateAudioFiles(){
+
+	if(currentProjectPath){
+		var createdCount = 0;
+		for(var b=0;b<project.allLeafNodes.length;b++){
+			var node = project.allLeafNodes[b];
+			for (var a=0; a<node.audios.length;a++) {
+				notificationManager.notify('audio url:' + node.audios[a].url, 4);
+				var elementId = node.audios[a].elementId;
+
+				// only invoke updateAudioFiles if elementId exists and is ID'ed to 
+				// actual element in the content.
+				if (elementId && elementId != null) {
+
+					var xmlDoc = loadXMLString(node.elementText);
+					if (xmlDoc.firstChild.nodeName == "parsererror") {
+						notificationManager.notify('could not create audio.\nAudioFile: ' +node.audios[a].url+'\nReason: parse error parsing file: ' + node.filename, 2);
+					} else {
+						var foundElement = getElementById(xmlDoc, elementId);
+						if (foundElement != null) {
+							var textContent = foundElement.textContent;
+							notificationManager.notify('creating audio file at url: ' + node.audios[a].url
+														+ '\nelementId: ' + elementId + '\ncontent: ' + textContent, 4);
+							
+							var callback = {
+								success: function(o){
+									if (o.responseText == 'success') {
+										createdCount++;
+									} else {
+										notificationManager.notify('could not create audio. Is your filesystem write-able? Does it have the right directories, ie audio, where the audio will go?', 3);
+									};
+								},
+								failure: function(o){
+									notificationManager.notify('could not create audio', 3);
+								},
+								scope: this
+							};
+							YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateAudioFiles&param1=' + currentProjectPath + '&param2=' + node.audios[a].url + '&param3=' + textContent);				
+						}  // if (foundElement != null) {
+					}  // } else {
+				}
+			}
+		}
+			notificationManager.notify('number of audio files created: ' + createdCount, 4);	
+	} else {
+		notificationManager.notify('Please open or create a new project before attempting to save.', 3);
+	};
+};
+
+/**
+ * Given a nodeId, posts request to filemanager
+ * to remove the nodes file from server
+ */
+function removeNodeFileFromServer(nodeId){
+	var filename = project.getNodeById(nodeId).filename;
+	
+	var callback = {
+		success: function(o){
+			if(o.responseText!='success'){
+				notificationManager.notify('failed request to remove file: ' + filename + '  from the server', 3);
+			};
+		},
+		failure: function(o){notificationManager.notify('failed request to remove file: ' + filename + '  from the server', 3);},
+		scope: this
+	};
+	
+	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=removeFile&param1=' + currentProjectPath + '&param2=' + filename);
+};
+
+/**
+ * Changes the node title in the project, updates
+ * the element represented by the node, refreshes
+ * the nodes and saves the project
+ */
+function nodeTitleChanged(id){
+	var node = project.getNodeById(id);
+	node.title = document.getElementById(id + '_title').value;
+	
+	populateSequences();
+	generateDD();
+	
+	saveProject();
+};
+
+/**
+ * Updates the title of the sequence of the given id, saves and
+ * refreshes the project so that new title is displayed
+ */
+function sequenceTitleChanged(id){
+	var node = project.getNodeById(id);
+	var el = document.getElementById(id + '_input');
+	
+	node.title = el.value;
+		
+	populateSequences();
+	generateDD();
+	
+	saveProject();
+};
+
+/**
+ * Updates the class of the node with the given
+ * id to that selected by the user
+ */
+function nodeIconUpdated(id){
+	projectSaved = false;
+	var node = project.getNodeById(id);
+	var select = document.getElementById('nodeIcon_' + id);
+	
+	node.className = select.options[select.selectedIndex].value;
+	populateSequences();
+	generateDD();
+};
+
+/**
+ * Updates the project with the value specified in the
+ * 'stepTerm' element when a change is detected.
+ */
+function stepTermChanged(){
+	projectSaved = false;
+	project.stepTerm = document.getElementById('stepTerm').value;
+	populateSequences();
+	generateDD();
+};
+
+/**
+ * Retrieves all leaf nodes from a project, removes previous
+ * list, if any, creates a new list element and populates
+ * the nodes in the list by creating elements for the nodes
+ */
+function populateNodes(){
+	var nodes = project.allLeafNodes;
+	var parent = document.getElementById('nodesTD');
+	var old = document.getElementById('nodesUL');
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	var ul = createElement(document, 'ul', {id: 'nodesUL'});
+	parent.appendChild(ul);
+	
+	for(var v=0;v<nodes.length;v++){
+		var li = createElement(document, 'li', {'id': nodes[v].id, 'name': 'nodes', 'class': 'draggable', 'ondblclick': 'author("' + nodes[v].id + '")'});
+		ul.appendChild(li);
+		
+		var titleText = document.createTextNode('Title: ');
+		var title = createElement(document, 'input', {'id': nodes[v].id + '_title', 'value': nodes[v].title, 'onchange': 'nodeTitleChanged("' + nodes[v].id + '")'});
+		li.appendChild(titleText);
+		li.appendChild(title);
+		
+		var selectNodeText = document.createTextNode('Icon: ');
+		var select = createElement(document, 'select', {id: 'nodeIcon_' + nodes[v].id, onchange: 'nodeIconUpdated("' + nodes[v].id + '")'});
+		li.appendChild(selectNodeText);
+		li.appendChild(select);
+		
+		//check to see if current node is in nodeTypes, if 
+		//not ignore so that authoring tool will continue
+		//processing remaining nodes
+		var ndx = nodeTypes.indexOf(nodes[v].type);
+		if(ndx!=-1){
+			var classes = nodeClasses[nodeTypes.indexOf(nodes[v].type)];
+			var text = nodeClassText[nodeTypes.indexOf(nodes[v].type)];
+	
+			var opt = createElement(document, 'option');
+			opt.innerHTML = '';
+			opt.value = '';
+			select.appendChild(opt);
+			
+			for(var h=0;h<classes.length;h++){
+				var opt = createElement(document, 'option');
+				opt.value = classes[h];
+				opt.innerHTML = '<img src=\'' + iconUrl + classes[h] + '16.png\'/> ' + text[h];
+				select.appendChild(opt);
+				if(nodes[v].className == classes[h]){
+					select.selectedIndex = h + 1;
+				};
+			};
+		};
+	};
+};
+
+/**
+ * Retrieves sequences from the project, creates a list element,
+ * creates elements for the sequences and adds them to the list
+ * and generates reference elements within a list under the sequence
+ * for any children nodes of the sequence
+ */
+function populateSequences(){
+	currentStepNum = 1;
+	var nodes = project.allSequenceNodes;
+	var parent = document.getElementById('sequencesTD');
+	var old = document.getElementById('sequencesUL');
+	
+	if(old){
+		parent.removeChild(old);
+	};
+	
+	var ul = createElement(document, 'ul', {id: 'sequencesUL'});
+	parent.appendChild(ul);
+	
+	for(var v=0;v<nodes.length;v++){
+		var stack = [];
+		var sequenceName = nodes[v].title;
+		var seqId = nodes[v].id;
+		
+		var sequenceTitleDiv = createElement(document, 'div', {id: seqId, name: 'sequenceTitleDiv', 'class': 'draggable'});
+		var sequenceTitle = createElement(document, 'input', {type: 'text', id: seqId + '_input', name: 'sequenceTitle', value: sequenceName, onchange: 'sequenceTitleChanged("' + seqId + '")'});
+		var li = createElement(document, 'li', {id: seqId + '_LI', name: 'sequences'});
+		var insideUL = createElement(document, 'ul', {id: seqId + '_container', name: 'sequenceContainer', 'class': 'container'});
+		var placeholder = createElement(document, 'li', {id: seqId + '_LI', name: 'placeholder'});
+		ul.appendChild(li);
+		li.appendChild(insideUL);
+		insideUL.appendChild(sequenceTitleDiv);
+		sequenceTitleDiv.appendChild(sequenceTitle);
+		insideUL.appendChild(placeholder);
+			
+		if(!project.validateNoLoops(seqId, stack)){
+			notificationManager.notify('An infinite loop has been detected in sequence: ' + sequenceName + ', and has been flagged. Please remove this sequence from the project or resolve the infinite loop', 3);
+			var loopText = document.createTextNode('INFINITE LOOP: ');
+			sequenceTitleDiv.insertBefore(loopText, sequenceTitleDiv.firstChild);
+		};
+		
+		populateReferences(seqId, insideUL);
+	};
+};
+
+/**
+ * Given a sequence Id and the associated element list,
+ * creates list elements for all children of that sequence
+ * and appends them to the list.
+ */
+function populateReferences(sequenceId, insideUL){
+	var sequence = project.getNodeById(sequenceId);
+	
+	for(var s=0;s<sequence.children.length;s++){
+		var child = createElement(document, 'li', {id: sequenceId + '|' + sequence.children[s].id + '|' + s, name: 'ref-node', 'class': 'draggable'});
+		
+		insideUL.appendChild(child);
+
+		if(sequence.children[s].type=='sequence'){
+			var title = document.createTextNode('Sequence: ' + sequence.children[s].title);
+		} else {
+			if(sequence.children[s].className && sequence.children[s].className!='null' && sequence.children[s].className!=''){
+				child.innerHTML = '<img src=\'' + iconUrl + sequence.children[s].className + '16.png\'/> ';
+			};
+			
+			if(project.autoStep){
+				var title = document.createTextNode(project.stepTerm + ' ' + currentStepNum + ': ' + sequence.children[s].title);
+				currentStepNum ++;
+			} else {
+				if(project.stepTerm && project.stepTerm!=''){
+					var title = document.createTextNode(project.stepTerm + ': ' + sequence.children[s].title);
+				} else {
+					var title = document.createTextNode(sequence.children[s].title);
+				};
+			};
+		};
+		
+		child.appendChild(title);
+	};
+};
+
+/**
+ * Loads project from server, subscribes to projectLoadingComplete
+ * event which runs the processOnLoad function after the necessary
+ * project variables have been set.
+ */
+function loadProjectFromServer(o){
+	var processOnLoad = function(){
+		project = vle.project
+		if(project && project.autoStep==true){
+			document.getElementById('autoStepCheck1').checked = true;
+		} else {
+			document.getElementById('autoStepCheck1').checked = false;
+		};
+		
+		if(project && project.stepLevelNumbering==true){
+			document.getElementById('stepLevel').checked = true;
+		} else {
+			document.getElementById('stepLevel').checked = false;
+		};
+		
+		if(project && project.stepTerm){
+			document.getElementById('stepTerm').value = project.stepTerm;
+		} else {
+			document.getElementById('stepTerm').value = '';
+			project.stepTerm = '';
+			notificationManager.notify('stepTerm not set in project, setting default value: \"\"', 2);
+		};
+		
+		if(hostedProject){
+			project.contentBaseUrl = hostedContentBaseURL;
+		};
+		
+		populateSequences();
+		populateNodes();
+		generateDD();
+	};
+	
+	vle = new VLE();
+	vle.eventManager.subscribe('projectLoadingComplete', processOnLoad);
+	vle.loadProjectFromServer(o);
+	document.getElementById('currentProject').innerHTML = 'Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
+};
+
+/*
+ * This function is called when the user wants to 
+ * author the specified node.
+ */
+function author(nodeId) {
+	var nodeToAuthor = project.getNodeById(nodeId);
+	if (nodeToAuthor.filename != null) {
+		nodeIdToAuthor = nodeId;
+		if (nodeToAuthor.type == "HtmlNode") {
+			htmlPageName = 'author_htmlpage';
+		} else if(nodeToAuthor.type == "FillinNode") {
+			htmlPageName = 'author_fillin';
+		} else if(nodeToAuthor.type == 'NoteNode' || nodeToAuthor.type == 'JournalEntryNode' || nodeToAuthor.type == 'OpenResponseNode'){
+			htmlPageName = 'author_openresponse';
+		} else if(nodeToAuthor.type == 'MatchSequenceNode'){
+			htmlPageName = 'author_matchsequence';
+		} else if(nodeToAuthor.type == 'OutsideUrlNode'){
+			htmlPageName = 'author_outsideurl';
+		} else if(nodeToAuthor.type == 'MultipleChoiceNode'){
+			htmlPageName = 'author_multiplechoice';
+		} else if(nodeToAuthor.type == 'BrainstormNode'){
+			htmlPageName = 'author_brainstorm';
+		} else if(nodeToAuthor.type == 'GlueNode'){
+			htmlPageName = 'author_glue';
+		} else {
+			notificationManager.notify('sorry, no authoring tool exists for this step yet', 3);
+			return;
+		}
+		popupAuthoringWindow('author/author_framed.html', nodeId);
+	} else {
+		notificationManager.notify('Node with id: ' + nodeToAuthor.id + ' does not have a filename specified. Can not author.', 3);
+	};
+};
+
+/*
+ * Pops up window for authoring individual nodes. Param: url, url to open
+ */
+function popupAuthoringWindow(url, nodeId) {
+	var child = window.open(url, nodeId, "toolbar=no,width=1240,height=800,menubar=no");
+};
+
+/*
+ * Pops up window for authoring individual nodes. Param: url, url to open
+ */
+function popupPreviewWindow(url, name) {
+	window.open(url, name, "toolbar=no,width=1024,height=768,menubar=no");
+}
+
+/*
+ * called when the authoring window loads.
+ */
+function authoringWindowLoaded(fun) {
+	// we only care if the user has specified a node to author. if not, just ignore this event
+	if (nodeIdToAuthor != null) {
+	
+		// fun is the function passed in from opened window to populate necessary variables
+		var nodeToAuthor = project.getNodeById(nodeIdToAuthor);
+		fun(nodeToAuthor.filename, easyMode, htmlPageName, currentProjectName, currentProjectPath, project, pathSeparator, '<img src=\'../' + iconUrl + nodeToAuthor.className + '28.png\'/> ');
+	} 
+}
+
+/**
+ * updates auto step labeling and project when autoStep option is changed
+ * (Step 1, Step 2, etc)
+ */
+function autoStepChanged(){
+	projectSaved = false;
+
+	if(project){
+		project.autoStep = document.getElementById('autoStepCheck1').checked;
+		populateSequences();
+		populateNodes();
+		generateDD();
+	};
+};
+
+/**
+ * updates step labeling boolean for step level numbering (1.1.2, 1.3.1 etc.)
+ * when option is changed
+ */
+function stepLevelChanged(){
+	projectSaved = false;
+	
+	if(project){
+		project.stepLevelNumbering = document.getElementById('stepLevel').checked;
+		populateSequences();
+		populateNodes();
+		generateDD();
+	};
+};
+
+/**
+ * doMin = true iff minimize is requested. otherwise, maximize.
+ */
+function doMinimize(doMin) {
+	if (doMin) {
+		//alert('minimize' + summary_yui);
+		var list = summary_yui.Node.all("#play ul li iframe");
+		list.each(function(v,k) {
+			v.setStyle('display','none');
+		});
+	} else {
+		//alert('maximize');
+		var list = summary_yui.Node.all("#play ul li iframe");
+		list.each(function(v,k) {
+			v.setStyle('display','block');
+		});
+	}
+}
+
+</script>
+
+
+
+
+</head>
+
+<body class="yui-skin-sam" onload='loaded()'>
+
+<style type="text/css" media="screen">
+    .yui-dd-proxy {
+        text-align: left;
+    }
+    #play {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 10px;
+        zoom: 1;
+    }
+    #play:after { display: block; clear: both; visibility: hidden; content: '.'; height: 0;}
+    #play ul {
+        border: 1px solid black;
+        margin: 10px;
+        float: left;
+        padding: 0;
+        zoom: 1;
+        position: relative;
+    }
+    #play ul li {
+        background-image: none;
+        list-style-type: none;
+        padding-left: 20px;
+        padding: 5px;
+        margin: 2px;
+        cursor: move;
+        zoom: 1;
+        position: relative;
+    }
+    #play ul li.list1 {
+        background-color: #8DD5E7;
+        border:1px solid #004C6D;
+    }
+    #play ul li.list2 {
+        background-color: #8DD5E7;
+        border:1px solid #004C6D;
+    }
+
+</style>
+
+<div id="centeredDiv">
+
+<div id="selectprojectlist">
+<form method='POST' action='filemanager.html' id='projectlist'>
+</form>
+</div>
+
+<div id="projectframesDiv">
+</div>
+<input type="button" value="Minimize All" onclick="doMinimize(true);"/>
+<input type="button" value="Maximize All" onclick="doMinimize(false);"/>
+
+<div id="play">
+
+    <ul id="list2">
+        <li class="list2">Item #1</li>
+        <li class="list2">Item #2</li>
+        <li class="list2">Item #3</li>
+        <li class="list2">Item #4</li>
+
+        <li class="list2">Item #5</li>
+    </ul>
+
+    <ul id="list1">
+        <li class="list1">Item #1</li>
+        <li class="list1">Item #2</li>
+        <li class="list1">Item #3</li>
+        <li class="list1">Item #4</li>
+
+        <li class="list1">Item #5</li>
+    </ul>
+</div>
+
+<table id="authoringTable">
+		<tr>
+				<td id="assignedcontainer">
+				<table id="ddTable" width='100%'>
+						<tr>
+								<td id='sequencesTitle' width="38%"><b>ACTIVITIES/SEQUENCES</b><div>>
+								<input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()' /><span class="authorOption">Auto-number steps</span> <input type='checkbox' name='stepLevelNumbering' id='stepLevel' onclick='stepLevelChanged()' /><span class="authorOption">Step Level numbering</span></td>
+								<td id='nodesTitle' width="62%"><b>STEPS/NODES</b><span class="nodeInstruct2">(double-click any node below to edit its content)</span><br />
+								<span class="authorOption">Term for Step Numbering:&nbsp;</span><input type='text' name='stepTerm' id='stepTerm' onchange='stepTermChanged()' /></td>
+						</tr>
+						<tr>
+								<td id='sequencesTD'>
+								<ul id='sequencesUL'></ul>
+								</td>
+								<td id='nodesTD'>
+								<ul id='nodesUL'></ul>
+								</td>
+								<td id='garbageDump'>
+								<div id='trash' class='trash'><b>Delete</b><br />
+								drag sequences or nodes here</div>
+								<div id='trash2' class='trash'><b>Delete</b><br />
+								drag items here</div>
+								<td>
+						</tr>
+				</table>
+				</td>
+		</tr>
+</table>
+
+<div id="clearFloats" class="clearFloats" />
+
+<div id="navigationInstructions" style="display: none;">
+<p>Instructions:</p>
+<ol>
+		<li>SELECT a node by clicking on its text.</li>
+		<li>RENAME a node by clicking once on its text and typing changes. Press Return key to save changes.</li>
+		<li>REORDER a node by click-dragging on its blue border.</li>
+		<li>EDIT a node for an item by double clicking. A separate editor will launch.</li>
+</ol>
+</div>
+
+<div id='loading'>
+<div class='hd'></div>
+<div class='bd'></div>
+<div class='ft'></div>
+</div>
+
+<div id="notePanel">
+<div class="noteHead"></div>
+<div class="noteBody"></div>
+<div class="noteFooter"></div>
+</div>
+
+<div id='createProjectDialog'>
+<div class='hd'>Please enter a project name</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html'><input type='hidden' id='commandInput' name='command'
+		value='createProject' /> <input type='hidden' id='createNewProjectPath' name='param2' /> <input type='text'
+		id='projectInput' name='param1' /></form>
+</div>
+</div>
+
+<div id='openProjectDialog'>
+<div class='hd'>Select a project from <br />
+the list below to open it.</div>
+<div class='bd'><br />
+<form method='POST' action='filemanager.html' id='openProjectForm'><select id='selectProject'
+		onchange='optionSelected()'>
+		<option name='placeholderOption' value='' />
+</select> <br />
+<br />
+</form>
+</div>
+</div>
+
+<div id='createSequenceDialog'>
+<div class='hd'>Please enter a UNIQUE name for the new sequence.</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html'><input type='hidden' id='sequenceCreateCommand' name='command'
+		value='createSequence' /> <input type='hidden' id='sequenceProjectPath' name='param1' /> <input type='hidden'
+		id='newSequenceId' name='param3' /> <input type='text' size='40' id='createSequenceInput' name='param2' /></form>
+</div>
+</div>
+
+<div id='createNodeDialog'>
+<div class='hd'>Create New Node</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html' id='createNodeForm'><input type='hidden' id='nodeCreateCommand'
+		name='command' value='createNode' /> <input type='hidden' id='nodeProjectPath' name='param1' /> <label
+		for='createNodeTitle'>Step Title:</label> <input type='text' size='40' id='createNodeTitle' name='param3' /> <label
+		for='createNodeType'>Please select a node type.</label> <select id='createNodeType' name='param4'
+		onchange='nodeTypeSelected();'>
+		<option value=""></option>
+		<option value="BrainstormNode">brainstorm</option>
+		<option value="FillinNode">fillin</option>
+		<option value="HtmlNode">html</option>
+		<option value="MatchSequenceNode">matchsequence</option>
+		<option value="MultipleChoiceNode">multiplechoice</option>
+		<option value="NoteNode">note</option>
+		<option value="JournalEntryNode">journal entry</option>
+		<option value="OutsideUrlNode">outsideurl</option>
+		<option value="GlueNode">glue</option>
+		<option value="OpenResponseNode">open response</option>
+</select></form>
+</div>
+</div>
+
+<div id="editProjectFileDialog">
+<div class='hd'>Edit Project File</div>
+<div class='bd'>
+<form method='POST' action='filemanager.html'><input type='hidden' name='command' value='updateFile' /> <input
+		type='hidden' id='editProjectFileProjectName' name='param1' /> <input type='hidden' id='editProjectFileFileName'
+		name='param2' /> <textarea id='projectText' cols='75' rows='30' wrap='hard' name='param3' /></textarea></form>
+</div>
+</div>
+
+<form id='exportProject' method='POST' action='filemanager.html'>
+	<input type='hidden' id='exportCommandName' name='command' value='exportProject'/>
+	<input type='hidden' id='exportProjectPath' name='param1'/>
+	<input type='hidden' id='exportProjectName' name='param2'/>
+	<input type='hidden' id='archivePath' name='param3'/>
+</form>
+
+<form id='importProjectDialog' method='POST' action='filemanager.html' enctype="multipart/form-data"><input
+		type='hidden' id='importProjectPath' name='param1' /> <label for='importFile'>Enter or browse to ZIP file of a
+project you wish to upload</label> <input type='file' id='importFile' name='param2' size='45' accept='application/zip' /></form>
+
+
+<iframe id="hiddenifrm" name="hiddenifrm" scrolling="auto" frameborder="0" width="0%" height="0%"> [Content for
+browsers that don't support iframes goes here.] </iframe></div>
+<!-- centerDiv -->
+</body>
+
+</html>

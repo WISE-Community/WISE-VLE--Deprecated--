@@ -66,8 +66,17 @@ VLEConfig.prototype.parse = function(responseXML) {
 		this.getFlagsUrl = responseXML.getElementsByTagName("getFlagsUrl")[0].firstChild.nodeValue;
 		this.getDataUrl = responseXML.getElementsByTagName("getDataUrl")[0].firstChild.nodeValue;
 		this.postDataUrl = responseXML.getElementsByTagName("postDataUrl")[0].firstChild.nodeValue;
-		this.getJournalDataUrl = responseXML.getElementsByTagName("getJournalDataUrl")[0].firstChild.nodeValue;
-		this.postJournalDataUrl = responseXML.getElementsByTagName("postJournalDataUrl")[0].firstChild.nodeValue;
+		
+		//check if the getJournalDataUrl tag exists in the xml
+		if(responseXML.getElementsByTagName("getJournalDataUrl").length != 0) {
+			this.getJournalDataUrl = responseXML.getElementsByTagName("getJournalDataUrl")[0].firstChild.nodeValue;	
+		}
+		
+		//check if the postJournalDataUrl tag exists in the xml
+		if(responseXML.getElementsByTagName("postJournalDataUrl").length != 0) {
+			this.postJournalDataUrl = responseXML.getElementsByTagName("postJournalDataUrl")[0].firstChild.nodeValue;	
+		}
+		
 		this.runInfoUrl = responseXML.getElementsByTagName("runInfoUrl")[0].firstChild.nodeValue;
 		this.runInfoRequestInterval = responseXML.getElementsByTagName("runInfoRequestInterval")[0].firstChild.nodeValue;
 	}

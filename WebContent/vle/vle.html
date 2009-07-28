@@ -8,6 +8,7 @@
         <link rel="shortcut icon" href="images/robots/favicon_robot.ico">
         
         <script type="text/javascript">
+        	var studentProgressArray = new Array("onlyLatestAsCSV");
             var currentProjectPath;
             var currentProjectName;
             var hostedProject;
@@ -82,7 +83,7 @@
                 var splitz = window.location.toString().split("//")[1].split("/");
                 var domain = 'http://' + splitz[0] + '/' + splitz[1];
                 var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
-                var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
+                var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator;
                 
                 vle = new VLE();
                 vle.loadProject(contentUrl, contentBaseUrl);
@@ -275,8 +276,9 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                                 <!-- requested changes have been remarked out -->
                                 <li><a onclick="vle.showJournal();" class="underline">Show Journal</a></li>
                                 <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
+                                <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show My Progress</a></li>
                                 <li><a class="underline" onclick="alert('not yet implemented');">Export Work to PDF</a></li>
-                                <li><a class="underline" onclick="alert('not yet implemented');">Goto Student Home Page</a></li>
+                                <li><a class="underline" href="/webapp/student/index.html">Goto Student Home Page</a></li>
                             </ul>
                         </dd>
                     </dl>
@@ -296,6 +298,10 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                             </td>
                         </tr>
                     </table>
+                </div>
+                
+                <div id="separator">
+                    <img src="./images/separatorIcon_VLE.png" alt="separator" />
                 </div>
                 
                 <div id="stepInfoBar">

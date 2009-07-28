@@ -71,9 +71,7 @@ function popUp(strURL, strType, strHeight, strWidth) {
 
 <script type="text/javascript">
 function afterScriptsLoad(){
-	Nifty("div#locationBar2","bottom,small");
-	Nifty("div#questionCountBox","big, top");
-}
+};
 
 window.onload = function(){
 	if(!window.parent){
@@ -85,16 +83,26 @@ window.onload = function(){
 
 <body class="yui-skin-sam">
 
-<div id="questionCountBox" class="BG3">
-	<div class="instructionsReminder">For instructions click &nbsp;<a href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank">&nbsp;&nbsp;&nbsp;&nbsp;</a></div>
-	<table id="questionTable">
-		<tr>
-	    <td id="questionType">Note</td>
-		<td id="questionHelp"><a href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',700,720);return false;" target="_blank">&nbsp&nbsp&nbsp</a></td>
-		</tr>
-		</tr>
-	</table>
-</div>   <!-- end of questionNumberBox -->
+        <div id="questionCountBox" class="bg2">
+            <table class="instructionsReminder" style="color:#FFF;">
+                <tr>
+                    <td>
+                        <div id="helpIcon">
+                            <a href="NoteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                        </div>
+                    </td>
+                    <td>
+                        <a id="helpTextLink" href="NoteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                    </td>
+                </tr>
+            </table>
+            <div id="questionTable">
+                <div id="questionType">
+                    Reflection Note
+                </div>
+            </div>
+        </div>
+        <!-- end of questionCountBox -->
 
 <div id="currentQuestionBox">
 	
@@ -103,6 +111,7 @@ window.onload = function(){
 		<div id="promptType">
 			<div id="promptDiv">Prompt goes here. This text will automatically be replaced by actual prompt.</div>
 		</div>
+		<div class="starterSentence"><a href="#" onclick="">Show Starter Sentence</a></div>
 		<div class="itemLabel Color1">response</div>
 		<div id="responseBoxDiv">
 			<textarea id="responseBox"></textarea>
@@ -122,10 +131,10 @@ window.onload = function(){
 		   <tr>
 		   	<td><a href="#" id="saveButton" onClick="javascript:save();" >Save</a></td>
 		   	<td><a href="#" id="editButton" onClick="javascript:edit();" class="disabledLink" >Edit</a></td>
+		   	<td><a href="#" id="saveCloseButton" onClick="" >Save & Close</a></td>
 	   	   </tr>
 	   	 </table>
 	</div>
-
 
 
 

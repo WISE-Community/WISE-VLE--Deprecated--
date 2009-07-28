@@ -106,7 +106,7 @@ RunManager.prototype.updateVLE = function() {
 		}
 	}
 	
-	if (this.visibleNodes != null) {
+	if (this.visibleNodes != null && this.visibleNodes.length > 0) {
 		this.updateVisibleNodes(this.visibleNodes);
 	}
 

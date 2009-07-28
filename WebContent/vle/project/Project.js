@@ -506,7 +506,7 @@ Project.prototype.getShowAllWorkHtml = function(node, doGrading) {
 		}
 	} else {
 		// this is a leaf node
-	    htmlSoFar += "<h4>" + node.title + "</h4>";
+	    htmlSoFar += "<h4><a href=\"#\" onclick=\"vle.renderNode('"+node.id+"'); YAHOO.example.container.showallwork.hide();\">" + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></h4>";
 	    if (doGrading) {
 		    htmlSoFar += "<table border='1'>";
 		    htmlSoFar += "<tr><th>Work</th><th>Grading</th></tr>";
