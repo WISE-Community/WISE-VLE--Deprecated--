@@ -36,16 +36,21 @@
         	fi.edit();
         }
 
+        
+        function loadContent(args){
+        	scriptloader.initialize(document, loadContentAfterScriptsLoad, 'fillin', args);
+        };
+
         /**
          * Runs after the scripts for this page have been dynamically loaded
          */
-        function loadContent(params){
-        	  fi = new FILLIN(params[0]);
-        	  fi.render(currentTextEntryInteractionIndex);
-        	  fi.setVLE(params[1]);
-        	  afterScriptsLoad();
+        function loadContentAfterScriptsLoad(args){
+        	fi = new FILLIN(args[0]);
+      		fi.render(currentTextEntryInteractionIndex);
+      		fi.setVLE(args[1]);
+      		afterScriptsLoad();
         };
-
+        
         function checkAnswer() {
         	fi.checkAnswer();
         }
@@ -92,11 +97,11 @@
             window.onload = function(){
                 if (!window.parent) {
                     scriptloader.initialize(document, afterScriptsLoad, 'fillin');
-                } else {
-					if(window.loadAuthoring){
+                } else if(window.loadAuthoring){
 						scriptloader.initialize(document, loadAuthoring, 'fillin');
-					};
-                };
+                } else if(window.renderComplete){
+					renderComplete();
+            	};
              };
         </script>
     </head>

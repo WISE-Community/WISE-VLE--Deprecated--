@@ -56,11 +56,11 @@
             window.onload = function(){
                 if (!window.parent) {
                     scriptloader.initialize(document, afterScriptsLoad, 'multiplechoice');
-                } else {
-					if(window.loadAuthoring){
-						scriptloader.initialize(document, loadAuthoring, 'multiplechoice');
-					};
-                };
+                } else if(window.loadAuthoring){
+					scriptloader.initialize(document, loadAuthoring, 'multiplechoice');
+                } else if(window.renderComplete){
+					renderComplete();
+            	};
             };
         </script>
     </head>

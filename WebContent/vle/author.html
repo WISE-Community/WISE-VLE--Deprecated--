@@ -1207,6 +1207,17 @@ function stepLevelChanged(){
 	};
 };
 
+/*
+ * Pops up window for project summary. Param: url, url to open
+ */
+function popupProjectSummary(url, name) {
+	window.open(url, name, "toolbar=no,width=1024,height=768,menubar=no");
+};
+
+
+function projectSummary(){
+	popupProjectSummary('projectsummary.html', 'Project Summary');	
+};
 </script>
 </head>
 

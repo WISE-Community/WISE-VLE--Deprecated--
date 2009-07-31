@@ -16,7 +16,15 @@ OpenResponseNode.prototype.render = function(contentPanel) {
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].location = "node/openresponse/openresponse.html";
+	if(contentPanel){
+		this.contentPanel = window.frames[contentPanel.name];
+		this.contentPanel.location = "node/openresponse/openresponse.html";
+		this.contentPanel.loadArgs = [this];
+		this.contentPanel.allReady = function(win){win.loadArgs[0].load();};
+	} else {
+		this.contentPanel = window.frames["ifrm"];
+		this.contentPanel.location = "node/openresponse/openresponse.html";
+	};
 };
 
 OpenResponseNode.prototype.load = function() {
@@ -30,7 +38,7 @@ OpenResponseNode.prototype.load = function() {
 		}
 	}
 	
-	window.frames['ifrm'].loadContentXMLString(this.element, vle, states);
+	this.contentPanel.loadContentXMLString(this.element, vle, states);
 };
 
 /**

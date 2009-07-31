@@ -3,6 +3,7 @@
  */
 
 function Node(nodeType, connectionManager) {
+	this.contentPanel = null;
 	this.contentLoaded = false;
 	this.connectionManager = connectionManager;
 	this.id = null;
@@ -15,7 +16,6 @@ function Node(nodeType, connectionManager) {
 	this.nodeSessionEndedEvent = new YAHOO.util.CustomEvent("nodeSessionEndedEvent");
 	this.filename = null;
 	this.className = null;
-	this.renderComplete = false;
 	this.audioSupported = false;   // does this node support playing of audio?
 
 	this.audioReady = false;

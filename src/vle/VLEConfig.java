@@ -61,7 +61,7 @@ public class VLEConfig extends HttpServlet {
 
 	private String content_location(String parameter) {
 		//return "http://localhost:8080/contentrepository/curriculum/unit0/lesson0_Welcome/lesson0.project.xml";
-		return "http://localhost:8080/contentrepository/curriculum/unit9999/lesson9999/lesson9999.project.xml";
+		return "http://localhost/~hirokiterashima/apcsa/curriculum/unit3_GUI_loops/lesson7_grfx/lesson7_grfx.project.xml";
 	}
 
 	/**

@@ -7,7 +7,6 @@
  * @author: patrick lawler
  */
 function BRAINSTORM(xmlDoc, nodeId){
-	this.serverless = true;
 	this.states = [];
 	this.vle = null;
 	this.loadXMLDoc(xmlDoc);
@@ -38,65 +37,6 @@ BRAINSTORM.prototype.loadXMLDoc = function(xmlDoc){
 	this.cannedResponses = xmlDoc.getElementsByTagName('response');
 	
 	this.questionType = this.assessmentItem.getAttribute('identifier');
-	var serverless = this.xmlDoc.getAttribute('serverless');
-	if(serverless != null && serverless == 'false') {
-		this.serverless = false;
-	};
-};
-
-/**
- * Renders either the brainlite page, if this.serverless=true or the
- * brainfull page if this.serverless = false.
- */
-BRAINSTORM.prototype.render = function(contentPanel){
-	window.allReady = function(){
-		var renderAfterGet = function(text, xml, args){
-			bs = args[0];
-			contentPanel = args[1];
-			
-			if(contentPanel){
-				var frame = contentPanel;
-			} else {
-				var frame = window.frames['brainstormFrame'];
-			};
-			
-			frame.document.open();
-			if(window.parent && window.parent.vle){//from vle
-				frame.document.write(bs.injectBaseRef(injectVleUrl(text)));
-			} else {//from at
-				frame.document.write(injectVleUrl(text));
-			};
-			frame.document.close();
-		};
-		
-		if(bs.serverless){
-			var bsLoc = 'node/brainstorm/brainlite.html';
-		} else {
-			var bsLoc = 'node/brainstorm/brainfull.html';
-		};
-		
-		if(window.parent && window.parent.vle){//called from VLE
-			window.parent.vle.connectionManager.request('GET', 1, bsLoc, null,  renderAfterGet, [window.bs, window.contentPanel]);
-		} else if(window.parent && window.parent.parent){//called from AT
-			window.parent.parent.connectionManager.request('GET', 1, bsLoc, null,  renderAfterGet, [window.bs, window.contentPanel]);
-		};
-	};
-	
-	if(contentPanel){
-		var frame = contentPanel;
-	}else{
-		var frame = window.frames['brainstormFrame'];
-	};
-	
-	if(window.parent && window.parent.vle){//called from VLE
-		var loc = window.location.toString();
-		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
-		frame.location = vleLoc + 'blank.html';
-	} else {//called from AT
-		frame.location = '../blank.html';
-	};
-	window.bs = this;
-	window.contentPanel
 };
 
 /**

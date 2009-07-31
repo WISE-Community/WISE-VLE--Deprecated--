@@ -8,7 +8,7 @@ function sourceUpdated() {
 	//retrieve the authored text
 	var xmlContent = loadXMLString(document.getElementById('sourceTextArea').value);
 	
-	window.frames["previewFrame"].loadContent(xmlContent);
+	window.frames["previewFrame"].loadContent([xmlContent]);
 };
 
 /**
@@ -25,7 +25,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		document.getElementById('sourceTextArea').value = o.responseText;
 		
 		//load xmlContent in preview frame
-		window.frames['previewFrame'].loadContent(xmlDocToParse);
+		window.frames['previewFrame'].loadContent([xmlDocToParse]);
 		},
 		failure: function(o) { alert('failure');},
 		scope: this
@@ -56,7 +56,7 @@ function loaded(){
 			};
 		};
 		
-		window.parent.opener.connectionManager.request('GET', 1, 'node/brainstorm/brainstorm.html', null,  renderAfterGet);
+		window.parent.opener.connectionManager.request('GET', 1, 'node/brainstorm/brainlite.html', null,  renderAfterGet);
 	};
 	
 	window.frames['previewFrame'].location = '../blank.html';

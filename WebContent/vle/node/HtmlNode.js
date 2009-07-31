@@ -32,62 +32,56 @@ HtmlNode.prototype.load = function() {
 
 
 HtmlNode.prototype.render = function(contentPanel) {
-	/*
-	 * check if the user had clicked on an outside link in the previous
-	 * step
-	 */
-	if(this.handlePreviousOutsideLink(this)) {
+	if(this.contentLoaded){//content is available, proceed with render
 		/*
-		 * the user was at an outside link so the function
-		 * handlePreviousOutsideLink() has taken care of the
-		 * rendering of this node
+		 * check if the user had clicked on an outside link in the previous
+		 * step
 		 */
-		return;
-	} else if (this.elementText != null) {
-		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.injectBaseRef(this.elementText));
-		window.frames["ifrm"].document.close();
-		return;
-	} else if (this.filename != null) {
-	
-		if(window.ActiveXObject) {
-			this.content = this.element.xml;
-		} else {
-			this.content = (new XMLSerializer()).serializeToString(this.element);
+		if(this.handlePreviousOutsideLink(this)) {
+			/*
+			 * the user was at an outside link so the function
+			 * handlePreviousOutsideLink() has taken care of the
+			 * rendering of this node
+			 */
+			return;
+		} else if (this.elementText != null) {
+			//set the content
+			this.content = this.elementText;
+		} else if (this.filename != null) {
+			//retrieve the content
+			if(window.ActiveXObject) {
+				this.content = this.element.xml;
+			} else {
+				this.content = (new XMLSerializer()).serializeToString(this.element);
+			};
+		} else if(this.content == null) {
+			/*
+			 * the first time render is called this needs to be set because
+			 * it doesn't work in the constructor for some reason. we should
+			 * look into that in the future.
+			 */
+			this.content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
 		};
 		
-		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.injectBaseRef(this.content));
-		window.frames["ifrm"].document.close();		
-		return;
-	} else if(this.content == null) {
-		/*
-		 * the first time render is called this needs to be set because
-		 * it doesn't work in the constructor for some reason. we should
-		 * look into that in the future.
-		 */
-		this.content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	}
-	
-	if(contentPanel == null) {
-		/*
-		 * this will be the default iframe to render in if no contentPanel
-		 * is passed
-		 */
-		contentPanel = window.frames["ifrm"];
-	}
-	
-	if (contentPanel.document) {
+		if(contentPanel == null) {
+			/*
+			 * this will be the default iframe to render in if no contentPanel
+			 * is passed
+			 */
+			this.contentPanel = window.frames["ifrm"];
+		} else {
+			//retrieve the frame by name (instead of using the iframe element that was passed in)
+			this.contentPanel = window.frames[contentPanel.name];
+		};
+		
 		//write the content into the contentPanel, this will render the html in that panel
-		contentPanel.document.open();
-		contentPanel.document.write(this.injectBaseRef(this.content));
-		contentPanel.document.close();
+		this.contentPanel.document.open();
+		this.contentPanel.document.write(this.injectBaseRef(this.content));
+		this.contentPanel.document.close();
 	} else {
-		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.injectBaseRef(this.content));
-		window.frames["ifrm"].document.close();
-	}
-}
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, function(type, args, co){co[0].render(co[1]);}, [this, contentPanel]);
+	};
+};
 
 /**
  * Lite rendering of html node for glue-type nodes

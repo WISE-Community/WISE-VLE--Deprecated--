@@ -10,30 +10,40 @@ BrainstormNode.prototype.parent = Node.prototype;
 function BrainstormNode(nodeType, connectionManager) {
 	this.connectionManager = connectionManager;
 	this.type = nodeType;
-	this.audioSupported = true;	
+	this.audioSupported = true;
+	this.serverless = true;
 };
 
 BrainstormNode.prototype.render = function(contentPanel){
-	var renderAfterGet = function(text, xml, args){
-		var bsNode = args[0];
-		var contentPanel = args[1];
-		
+	var renderAfterGet = function(text, xml, bsNode){
 		if(bsNode.filename!=null && vle.project.lazyLoading){ //load element from file
 			bsNode.retrieveFile();
 		};
 		
-		if(contentPanel){
-			var frm = contentPanel;
-		} else {
-			var frm = window.frames["ifrm"];
+		bsNode.contentPanel.document.open();
+		bsNode.contentPanel.document.write(bsNode.injectBaseRef(injectVleUrl(text)));
+		bsNode.contentPanel.document.close();
+		bsNode.contentPanel.document.contentPanel = bsNode.contentPanel;
+		if(bsNode.contentPanel.name!='ifrm'){
+			bsNode.contentPanel.renderComplete = function(){
+				bsNode.load();
+			};
 		};
-		
-		frm.document.open();
-		frm.document.write(bsNode.injectBaseRef(injectVleUrl(text)));
-		frm.document.close();
 	};
 	
-	vle.connectionManager.request('GET', 1, 'node/brainstorm/brainstorm.html', null,  renderAfterGet, [this, contentPanel]);
+	if(this.serverless){
+		var url = 'node/brainstorm/brainlite.html';
+	} else {
+		var url = 'node/brainstorm/brainfull.html';
+	};
+	
+	if(contentPanel){
+		this.contentPanel = window.frames[contentPanel.name];
+	} else {
+		this.contentPanel = window.frames['ifrm'];
+	};
+	
+	vle.connectionManager.request('GET', 1, url, null,  renderAfterGet, this);
 };
 
 BrainstormNode.prototype.load = function(){
@@ -47,7 +57,7 @@ BrainstormNode.prototype.load = function(){
 		};
 	};
 	
-	window.frames["ifrm"].loadContent([this.element, this.id, states, vle]);
+	this.contentPanel.loadContent([this.element, this.id, states, vle]);
 };
 
 BrainstormNode.prototype.getDataXML = function(nodeStates) {

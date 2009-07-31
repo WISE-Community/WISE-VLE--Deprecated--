@@ -390,7 +390,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				out += current + Template.NL;
 			}
 			br.close();
-			return out.replace("&", "&amp;");
+			return out.replaceAll(" & ", " &amp; ");
 		} else {
 			throw new FileNotFoundException("Unable to locate file: " + file.getAbsolutePath());
 		}

@@ -102,6 +102,7 @@ RunManager.prototype.updateVLE = function() {
 	
 	if (this.showNodeId != null) {
 		if (vle.getCurrentNode().id != this.showNodeId) {
+			vle.closePopups();
 			vle.renderNode(this.showNodeId);
 		}
 	}

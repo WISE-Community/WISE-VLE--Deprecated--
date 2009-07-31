@@ -11,7 +11,12 @@ function CustomNode(nodeType, connectionManager) {
 }
 
 CustomNode.prototype.render = function(contentpanel) {
-	window.frames["ifrm"].location = "node/openresponse/openresponse.html";
+	
+	if(contentPanel==null){
+		window.frames["ifrm"].location = "node/openresponse/openresponse.html";
+	} else {
+		contentPanel.location = "node/openresponse/openresponse.html";
+	};
 } 
 
 CustomNode.prototype.load = function() {

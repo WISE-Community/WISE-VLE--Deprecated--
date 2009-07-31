@@ -11,23 +11,20 @@ function FillinNode(nodeType, connectionManager) {
 }
 
 FillinNode.prototype.render = function(contentPanel) {
-	var renderAfterGet = function(text, xml, args){
-		var fillinNode = args[0];
-		var contentPanel = args[1];
-		
-		if(fillinNode.filename!=null && vle.project.lazyLoading){ //load element from file
-			fillinNode.retrieveFile();
+	var renderAfterGet = function(text, xml, fiNode){
+		if(fiNode.filename!=null && vle.project.lazyLoading){ //load element from file
+			fiNode.retrieveFile();
 		};
 		
-		if(contentPanel){
-			var frm = contentPanel;
-		} else {
-			var frm = window.frames["ifrm"];
-		};
+		fiNode.contentPanel.document.open();
+		fiNode.contentPanel.document.write(fiNode.injectBaseRef(injectVleUrl(text)));
+		fiNode.contentPanel.document.close();
 		
-		frm.document.open();
-		frm.document.write(fillinNode.injectBaseRef(injectVleUrl(text)));
-		frm.document.close();
+		if(fiNode.contentPanel.name!='ifrm'){
+			fiNode.contentPanel.renderComplete = function(){
+				fiNode.load();
+			};
+		};
 	};
 	
 	/*
@@ -43,7 +40,13 @@ FillinNode.prototype.render = function(contentPanel) {
 		return;
 	};
 	
-	vle.connectionManager.request('GET', 1, 'node/fillin/fillin.html', null,  renderAfterGet, [this, contentPanel]);
+	if(contentPanel){
+		this.contentPanel = window.frames[contentPanel.name];
+	} else {
+		this.contentPanel = window.frames['ifrm'];
+	};
+	
+	vle.connectionManager.request('GET', 1, 'node/fillin/fillin.html', null,  renderAfterGet, this);
 };
 
 FillinNode.prototype.load = function() {
@@ -52,15 +55,13 @@ FillinNode.prototype.load = function() {
 			fiNode = event;
 		};
 		
-		fiNode.renderComplete = true;
-		window.frames["ifrm"].loadContent([fiNode.element, vle]);
-		document.getElementById('topStepTitle').innerHTML = fiNode.title;
+		fiNode.contentPanel.loadContent([fiNode.element, vle]);
 	};
 	
-	if(this.renderComplete){
+	if(this.contentLoaded){
 		load(this);
 	} else {
-		vle.eventManager.subscribe('nodeRenderComplete_' + this.id, load, this);
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, load, this);
 	};
 };
 

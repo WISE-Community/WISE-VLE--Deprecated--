@@ -12,12 +12,16 @@ function GlueNode(nodeType, connectionManager) {
 	this.type = nodeType;
 };
 
-GlueNode.prototype.render = function(){
+GlueNode.prototype.render = function(contentPanel){
 	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].location = "node/glue/glue.html";
+	if(contentPanel==null){
+		contentPanel = window.frames['ifrm'];
+	};
+	
+	contentPanel.location = "node/glue/glue.html";
 };
 
 GlueNode.prototype.load = function(){

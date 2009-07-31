@@ -12,7 +12,7 @@ function JournalEntryNode(nodeType, connectionManager) {
 }	
 
 
-JournalEntryNode.prototype.render = function(contentpanel){
+JournalEntryNode.prototype.render = function(contentPanel){
 	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
 		this.retrieveFile();
 	};
@@ -26,7 +26,12 @@ JournalEntryNode.prototype.render = function(contentpanel){
 			}
 		}
 	}
-	window.parent.frames["journaliframe"].frames["journalentryiframe"].loadContentXMLString(this.element, vle, states);
+	
+	if(contentPanel==null){
+		contentPanel = window.parent.frames['journaliframe'];
+	};
+	
+	contentPanel.frames["journalentryiframe"].loadContentXMLString(this.element, vle, states);
 }
 
 //used to notify scriptloader that this script has finished loading

@@ -11,11 +11,13 @@ function TickerNode(nodeType, connectionManager) {
 	this.type = nodeType;
 }
 
-TickerNode.prototype.render = function(contentpanel) {
-	//window.frames["ifrm"].document.open();
-	window.frames["ifrm"].location = "node/ticker/ticker.html";
-	//window.frames["ifrm"].document.close();
-}
+TickerNode.prototype.render = function(contentPanel) {
+	if(contentPanel==null){
+		contentPanel = windows.frames['ifrm'];
+	};
+	
+	contentPanel.location = "node/ticker/ticker.html";
+};
 
 
 

@@ -29,31 +29,27 @@ FlashNode.prototype.render = function(contentPanel) {
 	
 	if (this.elementText != null) {
 		this.content = this.elementText;
-		this.writeHTML(window.frames["ifrm"].document);
-		return;
 	} else if (this.filename != null) {
-	
 		if(window.ActiveXObject) {
 			this.content = this.element.xml;
 		} else {
 			this.content = (new XMLSerializer()).serializeToString(this.element);
 		};
-		
-		this.writeHTML(window.frames["ifrm"].document);
-		return;
 	} else if(this.content == null) {
 		this.content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	}
+	};
 	
 	if(contentPanel == null) {
-		contentPanel = window.frames["ifrm"];
-	}
+		this.contentPanel = window.frames["ifrm"];
+	} else {
+		this.contentPanel = window.frames[contentPanel.name];
+	};
 	
-	if (contentPanel.document) {
-		this.writeHTML(contentPanel.document);
+	if (this.contentPanel.document) {
+		this.writeHTML(this.contentPanel.document);
 	} else {
 		this.writeHTML(window.frames["ifrm"].document);
-	}
+	};
 };
 
 FlashNode.prototype.writeHTML = function(doc){

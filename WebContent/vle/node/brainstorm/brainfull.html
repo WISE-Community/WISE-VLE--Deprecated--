@@ -28,8 +28,43 @@
 
 <link rel="stylesheet" type="text/css" href="node/brainstorm/brainstorm.css">
 <script type="text/javascript">
-var brainstorm = parent.brainstorm;
+var brainstorm;
 var richTextEditor;
+
+function loadContentAfterScriptsLoad(args){
+	brainstorm = new BRAINSTORM(args[0], args[1]);
+	
+	if(args[2]){
+		brainstorm.loadState(args[2]);
+	};
+	
+	if(args[3]){
+		brainstorm.loadVLE(args[3]);
+	};
+     
+    //check if we want to use the rich text editor
+    if (brainstorm.isRichTextEditorAllowed == "true") {
+        /*
+         * create the editor by passing in the id of the textarea
+         * that we will be replacing with the rich text editor
+         */
+        richTextEditor = new YAHOO.widget.Editor('studentResponse', {
+            height: '45%',
+            width: '100%',
+            dompath: true,
+            animate: true
+        });
+        //render and display the rich text editor
+        richTextEditor.render();
+    };
+	
+	brainstorm.brainfullLoaded(document);
+};
+
+function loadContent(args){
+	scriptloader.initialize(document, loadContentAfterScriptsLoad, 'brainfull', args);
+};
+
 function save(){
 	if(richTextEditor != null) {
 		/*
@@ -41,32 +76,16 @@ function save(){
 	brainstorm.save(document);
 };
 
-function afterScriptsLoaded(){
-	brainstorm.brainfullLoaded(document);
-
-	//check if we want to use the rich text editor
-	if(brainstorm.isRichTextEditorAllowed == "true") {
-		/*
-		 * create the editor by passing in the id of the textarea
-		 * that we will be replacing with the rich text editor
-		 */
-		richTextEditor = new YAHOO.widget.Editor('studentResponse', {
-			height: '220px',
-			width: '750px',
-			dompath: true,
-			animate: true
-		});
-		//render and display the rich text editor
-		richTextEditor.render();
-	}
-};
-
-function loaded(){
-	scriptloader.initialize(document, afterScriptsLoaded, 'brainfull');
+window.onload = function(){
+	if(!window.parent){
+		scriptloader.initialize(document, null, 'brainstorm');
+	} else if(window.renderComplete){
+		renderComplete();
+	};;
 };
 </script>
 </head>
-<body class="yui-skin-sam" onload="loaded()">
+<body class="yui-skin-sam">
 	<div id='main'>
 		<div id="brain_title">Student Brainstorm: Server Based</div>
 		<p id="brain_instructions">Read the brainstorm topic below, then write your response in the blank box.<br/>

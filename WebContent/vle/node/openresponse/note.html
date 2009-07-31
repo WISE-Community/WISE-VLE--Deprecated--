@@ -10,6 +10,11 @@ function save() {
   or.save();
 }
 
+function saveAndClose() {
+	save();
+	or.vle.closePopup('note');
+}
+
 function edit() {
 	  or.edit();
 }
@@ -17,10 +22,10 @@ function edit() {
 /**
  * called after or has been initialized and scripts loaded
  */
-function loadAfterScriptsLoad(params){
-	or = new OPENRESPONSE(params[0]);
-	or.loadState(params[2]);
-    or.setVLE(params[1]);
+function loadAfterScriptsLoad(args){
+	or = new OPENRESPONSE(args[0]);
+	or.loadState(args[2]);
+    or.setVLE(args[1]);
     or.render();
     afterScriptsLoad();
 };
@@ -28,9 +33,8 @@ function loadAfterScriptsLoad(params){
 /**
  * xmlString contains QTI-coded xml content
  */
-function loadContentXMLString(xmlString, vle, states) {
-	var params = [xmlString, vle, states];
-	scriptloader.initialize(document, loadAfterScriptsLoad, 'openresponse', params);
+function loadContent(args) {
+	scriptloader.initialize(document, loadAfterScriptsLoad, 'openresponse', args);
 }
 
 /**
@@ -76,12 +80,14 @@ function afterScriptsLoad(){
 window.onload = function(){
 	if(!window.parent){
 		scriptloader.initialize(document, afterScriptsLoad, 'openresponse');
+	} else if(typeof allReady!='undefined'){
+		allReady(this);
 	};
 };
 </script>
 </head>
 
-<body class="yui-skin-sam">
+<body class="yui-skin-sam" style="padding:5px 5px 10px 5px; border:1px solid #999;">
 
         <div id="questionCountBox" class="bg2">
             <table class="instructionsReminder" style="color:#FFF;">
@@ -131,7 +137,7 @@ window.onload = function(){
 		   <tr>
 		   	<td><a href="#" id="saveButton" onClick="javascript:save();" >Save</a></td>
 		   	<td><a href="#" id="editButton" onClick="javascript:edit();" class="disabledLink" >Edit</a></td>
-		   	<td><a href="#" id="saveCloseButton" onClick="" >Save & Close</a></td>
+		   	<td><a href="#" id="saveCloseButton" onClick="javascript:saveAndClose();" >Save & Close</a></td>
 	   	   </tr>
 	   	 </table>
 	</div>

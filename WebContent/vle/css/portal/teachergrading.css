@@ -1,4 +1,4 @@
-/* STYLES FOR GRADE BY STEP */
+/* STYLES FOR GRADE BY STEP AS THE EMBEDDED IFRAME -  gradebystep.html  */
 
 .yui-skin-sam {
 	background-image: none;
@@ -6,19 +6,21 @@
 }
 
 iframe {
-	width: 80%;
+	width:100%;
 }
 
 #gradeByStepDiv {
 	text-align: left;
 	background-image: none;
 	background-color: #FFE6C6;
-	padding-bottom: 20px;
+	padding:5px;
 	border: 1px solid #999;
 }
 
-#gradeByStepDiv input {
-	margin: 8px 0 -3px 16px;
+#gradeByStepDiv .refreshButton {
+	position:absolute;
+	top:25px;
+	right:25px;
 }
 
 #gradeByStepDiv h4 {
@@ -26,7 +28,11 @@ iframe {
 	font-size: 1.1em;
 }
 
-#gradeByStepDiv a:visited,#gradeByStepDiv a:link {
+.chooseStepToGradeTable  {
+	padding-bottom:30px;
+}
+
+.chooseStepToGradeTable a:visited,.chooseStepToGradeTable a:link {
 	display: block;
 	margin-left: 40px;
 	padding: 2px 2px;
@@ -34,7 +40,7 @@ iframe {
 	color: blue;
 }
 
-#gradeByStepDiv a:hover {
+.chooseStepToGradeTable a:hover {
 	background-color: #FFFF00;
 	color: #000033;
 }

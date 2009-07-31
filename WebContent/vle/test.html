@@ -1,0 +1,46 @@
+<html>
+<head>
+<script type='text/javascript' src='util/scriptloader.js'></script>
+<script type='text/javascript' src='yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
+<script type='text/javascript'>
+function afterLoaded(){
+	generateDD();	
+};
+
+function loaded(){
+	scriptloader.initialize(document, afterLoaded, 'test');
+};
+</script>
+</head>
+<body onload='loaded()'>
+<table id="authoringTable">
+		<tr>
+				<td id="assignedcontainer">
+				<table id="ddTable" width='100%'>
+						<tr>
+								<td id='sequencesTitle' width="38%"><b>SEQUENCES</b><br />
+								<input type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='autoStepChanged()' /> Auto-number steps <input
+										type='checkbox' name='stepLevelNumbering' id='stepLevel' onclick='stepLevelChanged()' /> Step Level numbering</td>
+								<td id='nodesTitle' width="62%"><b>NODES</b><br />
+								Term for Step Numbering:&nbsp;<input type='text' name='stepTerm' id='stepTerm' onchange='stepTermChanged()' /></td>
+						</tr>
+						<tr>
+								<td id='sequencesTD'>
+								<ul id='sequencesUL'><li id='master'></li></ul>
+								</td>
+								<td id='nodesTD'>
+								<ul id='nodesUL'><li id='1'></li><li id='2'></li></ul>
+								</td>
+								<td id='garbageDump'>
+								<div id='trash' class='trash'><b>Delete</b><br />
+								drag sequences or nodes here</div>
+								<div id='trash2' class='trash'><b>Delete</b><br />
+								drag items here</div>
+								<td>
+						</tr>
+				</table>
+				</td>
+		</tr>
+</table>
+</body>
+</html>

@@ -376,6 +376,39 @@ VLE.prototype.displayProgress = function(doPopup, reportsToShow) {
 		document.getElementById('centeredDiv').style.display = "none";
 		document.getElementById('progressDiv').innerHTML = vle.getProgress(reportsToShow);
 	}
+};
+
+/**
+ * Closes currently-opened popups. Only applies to Yahoo popups.
+ * if a name is specified, it closes the specified popup
+ * @name optional, name of the poup. if none specified, 
+ * tries to close all popups. Choices: {note, journal}
+ * @return
+ */
+VLE.prototype.closePopups = function(name) {
+	var popupNames = new Array("note", "journal");
+	if (name != null && poupNames.contains(name)) {
+		this.closePopup(name);
+	} else {
+		for (var i=0; i<popupNames.length; i++) {
+			this.closePopup(popupNames[i]);
+		}
+	}
+};
+
+/**
+ * closes specified popup.
+ */
+VLE.prototype.closePopup = function(name) {
+	if (name == "note") {
+		if (notePanel != null) {
+			notePanel.cfg.setProperty("visible", false);
+		}
+	} else if (name == "journal") {
+		if (vle.journal != null) {
+			vle.journal.cfg.setProperty("visible", false);
+		}
+	}
 }
 
 //used to notify scriptloader that this script has finished loading

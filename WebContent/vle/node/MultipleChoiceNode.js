@@ -16,33 +16,32 @@ function MultipleChoiceNode(nodeType, connectionManager) {
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
-	var renderAfterGet = function(text, xml, args){
-		var mcNode = args[0];
-		var contentPanel = args[1];
-		
+	var renderAfterGet = function(text, xml, mcNode){
 		if(mcNode.filename!=null && vle.project.lazyLoading){ //load element from file
 			mcNode.retrieveFile();
 		};
 		
-		if(contentPanel){
-			var frm = contentPanel;
-		} else {
-			var frm = window.frames["ifrm"];
+		mcNode.contentPanel.document.open();
+		mcNode.contentPanel.document.write(mcNode.injectBaseRef(injectVleUrl(text)));
+		mcNode.contentPanel.document.close();
+		if(mcNode.contentPanel.name!='ifrm'){
+			mcNode.contentPanel.renderComplete = function(){
+				mcNode.load();
+			};
 		};
-		
-		frm.document.open();
-		frm.document.write(mcNode.injectBaseRef(injectVleUrl(text)));
-		frm.document.close();
 	};
 	
-	vle.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet, [this, contentPanel]);
+	if(contentPanel){
+		this.contentPanel = window.frames[contentPanel.name];
+	} else {
+		this.contentPanel = window.frames['ifrm'];
+	};
+	
+	vle.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet, this);
 };
 
-
-
-MultipleChoiceNode.prototype.load = function() {	
-	window.frames['ifrm'].loadContent([this.elementText, this, vle]);
-	document.getElementById('topStepTitle').innerHTML = this.title;
+MultipleChoiceNode.prototype.load = function() {
+	this.contentPanel.loadContent([this.elementText, this, vle]);
 };
 
 /**

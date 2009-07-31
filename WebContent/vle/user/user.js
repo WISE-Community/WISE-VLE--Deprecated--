@@ -32,7 +32,22 @@ function CLASS_INFO() {
  */
 CLASS_INFO.prototype.addClassmate = function(classmate) {
 	this.classmates.push(classmate);
-}
+};
+
+/**
+ * Returns the classmate specified by his/her workgroupId
+ * If none is found, return null.
+ * @param workgroupId
+ * @return
+ */
+CLASS_INFO.prototype.getClassmate = function(workgroupId) {
+	for (var i=0; i< this.classmates.length; i++) {
+		if (this.classmates[i].workgroupId == workgroupId) {
+			return this.classmates[i];
+		}
+	}
+	return null;
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/user/user.js");

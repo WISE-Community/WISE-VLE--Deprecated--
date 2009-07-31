@@ -494,7 +494,7 @@ function createNewResponse(){
 function updatePreview(){
 	saved = false;
 	
-	window.frames["previewFrame"].loadContent(xmlPage);
+	window.frames["previewFrame"].loadContent([xmlPage]);
 };
 
 /**
@@ -527,7 +527,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		xmlPage = xmlDocToParse;
 		generatePage();
 		
-		window.frames["previewFrame"].loadContent(xmlDocToParse);
+		window.frames["previewFrame"].loadContent([xmlDocToParse]);
 
 	  },
 		  failure: function(o) { alert('failure');},
@@ -559,7 +559,7 @@ function loaded(){
 			};
 		};
 		
-		window.parent.opener.connectionManager.request('GET', 1, 'node/brainstorm/brainstorm.html', null,  renderAfterGet);
+		window.parent.opener.connectionManager.request('GET', 1, 'node/brainstorm/brainlite.html', null,  renderAfterGet);
 	};
 	
 	window.frames['previewFrame'].location = '../blank.html';

@@ -71,8 +71,10 @@
             window.onload = function(){
                 if (!window.parent) {
                     scriptloader.initialize(document, afterScriptsLoad, 'openresponse');
+                } else if(typeof allReady!='undefined'){
+                    allReady(this);
                 };
-                };
+            };
         </script>
     </head>
     <body>

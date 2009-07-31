@@ -1,29 +1,29 @@
 
 /* CORE LAYOUT STYLES */
 
-* {padding:0; margin:0}
-
 body {
-	/*  font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
+	/* font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
-	text-align: center; 
-	margin: 3px 0px;
+	text-align: center;
+	margin: 5px;
 	background-color:#666;
-	background-image:url(../images/robots/surrounding_bg3.png);
-	background-repeat:repeat;
+	background-image:url(../assets/images/robots/surrounding_bg3.png);
+	background-repeat:repeat;; 
+	
 	}
 	
 img {border: 0px;}
+* {padding:0; margin:0}
 
 /* This override presents Firefox browser from drawing an ugly dotted line around the focus Input button */
+
 button::-moz-focus-inner,
 input[type="reset"]::-moz-focus-inner,
 input[type="button"]::-moz-focus-inner,
 input[type="submit"]::-moz-focus-inner,
 input[type="file"] > input[type="button"]::-moz-focus-inner {border: none;}
 
-h1 {font-size:2.0em;} 
 h2 {font-size:1.5em; }
 h3 {font-size:1.4em;}
 h4 {font-size:1.2em;}
@@ -31,96 +31,71 @@ h5 {font-size:.9em; }
 h6 {font-size:.8em; }
 p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
-/*    This is the middle toned 88.236 palette  */
+.BG1 {background-color:#164CBA;color:#FFF;}
+.BG2 {background-color:#6883BA;color:#000;}
+.BG3 {background-color:#FF9D1E;color:#000;}
+.BG4 {background-color:#FFE6C6;color:#000;}
+.BG5 {background-color:#FFCE8E;color:#000;}
 
-.color1 {color:#164CBA;}   /* vibrant blue */
-.color2 {color:#6883BA;}   /* mid blue */
-.color3 {color:#919EBA;}   /* light blue */
-.color4 {color:#334B7B;}   /* dark blue */
-.color5 {color:#19253D;}   /* very dark blue */
-.color6 {color:#4E628B;}
-.color7 {color:#FF9D1E;}  /* bold orange */
-.color8 {color:#FFCE8E;}  /* mid tan */
-.color9 {color:#FFE6C6;}  /* light tan */
-.color10 {color:#a97e46;}  /* brown */
-.color11 {color:#543f23;}  /* dark red */
-.color12 {color:#bf9a6b;}
-
-.bg1 {background-color:#164CBA;color:#FFF;}
-.bg2 {background-color:#6883BA;color:#000;}
-.bg3 {background-color:#919EBA;color:#000;}
-.bg4 {background-color:#334B7B;color:#FFF;}
-.bg5 {background-color:#19253D;color:#FFF;}
-.bg6 {background-color:#4E628B;color:#FFF;}
-.bg7 {background-color:#FF9D1E;color:#000;}
-.bg8 {background-color:#FFCE8E;color:#000;}
-.bg9 {background-color:#FFE6C6;color:#000;}
-.bg10 {background-color:#a97e46;color:#000;}
-.bg11 {background-color:#543f23;color:#FFF;}
-.bg12 {background-color:#bf9a6b;color:#000;}
+.Color1 {color:#164CBA;}
+.Color2 {color:#6883BA;}
+.Color3 {color:#FF9D1E;}
+.Color4 {color:#FFE6C6;}
+.Color5 {color:#FFCE8E;}
 
 #centeredDiv {
-	background-image:url(../images/robots/surrounding_bg3.png);
+	background-image:url(../assets/images/robots/surrounding_bg3.png);
 	width: 1000px;
 	text-align:left;
-	margin: 0 auto; 
-	 	}
+	margin: 0 auto;   	}
 
 #projectLeftBox {
 	position:relative;
 	float:left;
-	background-image:url(../images/gradient_leftBox.png);
+	background-image:url(../assets/images/gradient_leftBox.png);
 	background-repeat:repeat-x; 
-	background-color:#6699FF;
-	width:225px; 
-	min-height:590px;
-	height:93%;
+	background-color:#6699ff;
+	width:210px; 
+	min-height:650px;
 	border:1px solid #333;
 	    }
 
+#projectRightContainer {
+	margin-left:216px;
+	height:94%;
+}
+
 #projectRightUpperBox {
-	position:relative;
-	height:36px;
-	margin: 0 0 3px 0;
+	margin-bottom:3px;
 	padding:0;
-	background-image:url(../images/gradient_stepInfoBar40v2.png);
+	background-image:url(../assets/images/gradient_stepInfoBar40v2.png);
 	background-repeat:repeat-x; 
 	background-position:0 0px;
 	border:1px solid #333;
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
-	border-radius:4px;
-}
+	-moz-border-radius-topleft:8px;
+	-moz-border-radius-topright:8px;
+	-moz-border-radius-bottomleft:8px;
+	-moz-border-radius-bottomright:8px;
+	}
 	
 #projectRightLowerBox {
-	position:relative;
 	background-color:#FFF;
 	border:1px solid #333;
-	padding:0px;
-	margin: 0 0 0 231px; 
-}
-
-#contentDiv {
-	padding:0;
-	margin:0;
-	background-color:#FFF;}
-
-#ifrm {
-	padding:0;
-	margin:0;
-	width:100%;
-	background-color:#FFF;
-	}
+	margin: 0;
+	min-height:609px;
+	overflow:auto;
+	  }
 
 /* STYLES FOR PROJECT LEFT BOX */
 
 #projectLogoBox{
 	text-align:center;
-	padding:4px 0;
-	/* border-bottom:2px solid #666; */   
+	padding:5px 0;
+	margin:4px 0;
+	border-bottom:2px solid #666;    
 	}
 
-#projectLogoBox a  {text-decoration:none }
+#projectLogoBox a{text-decoration:none }
 	
 #projectLogoBox:hover{
 	outline: 1px dotted #FFFF00;
@@ -136,7 +111,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #projectCurriculum .title{
 	font-size:1.0em;
-	font-weight:bold;
 	padding:0;
 	margin:0;
 	     }
@@ -148,97 +122,79 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-weight:bold;
 	     }
 		 	
-#loginBox {
-	font-size:.6em;
+#loginBox{
+	font-size:.75em;
 	text-align:center; 
  }
- 
+	
 #audioControls  {
-	position:absolute;
-	top:10px;
-	left:138px;
-	background-color:transparent;
-	padding:0;
+	width:80%;
+	margin:0 auto;
+	background-color:#CCC;
+	border:1px solid #999;
+	-moz-border-radius-topleft:8px;
+	-moz-border-radius-topright:8px;
+	-moz-border-radius-bottomleft:8px;
+	-moz-border-radius-bottomright:8px;
 	}	
 	
 #audioControls table {
 	border-collapse:collapse;
-	font-size:.5em;	
-		}
-		
-#audioControls table td {
-	text-align:center
+	margin:0px auto;
+	font-size:.6em;	
 		}
 	
 #audioControls a.rewind {  
      display: block;  
-     width: 26px;  
+     width: 40px;  
      height: 16px; 
-     background-image: url(../images/audio_rewind.png);  
+     background-image: url(../assets/images/audio_rewind.png);  
      background-position:center -3px;	
 	 background-repeat: no-repeat;
      }
 	 
 #audioControls a.rewind:hover { 
-     background-image: url(../images/audio_rewind_roll.png);  
+     background-image: url(../assets/images/audio_rewind_roll.png);  
 	 cursor:pointer;
      } 
 	 
 #audioControls a.play {  
      display: block;  
-     width: 26px;  
+     width: 34px;  
      height: 16px; 
-     background-image: url(../images/audio_play.png);  
+     background-image: url(../assets/images/audio_play.png);  
      background-repeat: no-repeat;
 	 background-position:center -3px;
      }
 	 
 #audioControls a.play:hover { 
-     background-image: url(../images/audio_play_roll.png);  
+     background-image: url(../assets/images/audio_play_roll.png);  
 	 cursor:pointer;
      } 
-    
+
 #audioControls a.pause {  
      display: block;  
-     width: 26px;  
+     width: 40px;  
      height: 16px; 
-     background-image: url(../images/audio_pause.png);  
+     background-image: url(../assets/images/audio_pause.png);  
      background-repeat: no-repeat;
 	 background-position:center -3px;
      }
 	 
 #audioControls a.pause:hover { 
-     background-image: url(../images/audio_pause_roll.png);  
+     background-image: url(../assets/images/audio_pause_roll.png);  
      cursor:pointer;
      } 
-
-#audioControls a.forward {  
-     display: block;  
-     width: 26px;  
-     height: 16px; 
-     background-image: url(../images/audio_forward.png);  
-     background-repeat: no-repeat;
-	 background-position:center -3px;
-     }
 	 
-#audioControls a.forward:hover { 
-     background-image: url(../images/audio_forward_roll.png);  
-     cursor:pointer;
-     } 
+#audioControls .rightPadding {padding:0 5px 0 10px;}
 
-#separator {
-	position:absolute;
-	top:4px;
-	left:227px;
-	}	
-	
 #navigationArea {
-	margin: 0px 0 35px 0 ;
+	margin: 0px 0 0 0 ;
 	}
 
 #navMenuControls {
 	padding:0;
-	margin:4px 0 4px 0 ;
+	margin:0 0 5px 0 ;
 	text-align:center;
 	vertical-align:middle;  }
 
@@ -252,58 +208,95 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}	
 	
 #navigationMenuBox {
+	min-height:425px;
 	overflow-y:auto;
 	overflow-x:hidden;
-	margin-left:2px;
 }
 
+#hostBrandingBox{
+	position:absolute;
+	bottom:0px;
+	text-align:center;     }
+	
+#hostBrandingBox a:hover{
+	outline: 1px dotted #FFFF00;
+	cursor:pointer;
+	}
 
 /* STEP CONTROL BAR */
 
 #stepInfoBar {
-	position:absolute;
-	left:240px;
-	width:500px;
+	position:relative;
+	width:100%;
 	}
-	
-#stepIcon {
-	position:absolute;
-	top:4px;
-	left:6px;
+
+.currentLessonSection {
+	position:relative;
+	color:#333;
+	padding:0;
+	height:36px;
+	text-indent:-8000px;
+	font-size:.7em;
+	text-transform:uppercase;
+	letter-spacing:2.4px;
+	font-weight:bold;
 }
 
-#topStepTitle  {
+.instantQuizIcon {
 	position:absolute;
-	top:10px;
-	left:42px;
+	top:3px;
+	left:14px;
+	width:28px;
+	height:28px;
+	background-image:url(../assets/images/Icon-Instant-Quiz28.png);
+	background-repeat:no-repeat; 
+	background-position:center right;	
+	}
+	
+.stepTypeLabel {
+	position:absolute;
+	top:9px;
+	height:36px;
+	left:52px;
+	font-size:.8em;
+	}
+
+.stepTypeLabel a:visited, .stepTypeLabel a:link {
 	color:#333;
-	font-size:.75em;
 	font-weight:bold;
-	font-style:italic;
+	letter-spacing:.5px;
+	padding:0px 2px;
 			}	
 
+.stepTypeLabel a:hover {
+	color:#FFFF00;
+		}
+
+.gradingStatus  {
+	color:#333;
+	font-size:.8em;
+		}
+		
+.subStepCounter  {
+	color:#333;
+	font-weight:bold;
+	margin-left:10px;
+		}
+		
 #stepNavButtons {
 	position:absolute;
-	right:4px;
+	top:2px;
+	right:10px;
 		}
 
 #stepNavButtons a {
-	font-size:.70em;
-	margin: 0 5px  0 0;
-	color:#666;
-	cursor:pointer;
+	margin: 0 2px;
 		}
 		
 #stepNavButtons a:hover {
-	color:#FFFF00;
+	outline: 1px dotted #FFFF00;
 	cursor:pointer;
 		}
-		
-#stepNavButtons img  {
-	vertical-align:middle;
-}
-
-
 
 <!-- Anchor-Based Button Layout using TABLE-->
 
@@ -336,7 +329,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
   background:#FFF;
   color:#000;
   border:0px;
-  background-image:url(../images/ButtonActive.png);
+  background-image:url(../assets/images/ButtonActive.png);
   background-repeat:no-repeat;
   background-color:#FFF;
   text-decoration:none;
@@ -354,14 +347,14 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
   color:#164CBA; 
   background:#FFF;
   border:0;
-  background-image:url(../images/ButtonRollover.png);
+  background-image:url(../assets/images/ButtonRollover.png);
   background-repeat:no-repeat;
         }
     
  #buttonTable a:hover.disabledLink {
     background-color:#FFF;
 	border:0;
-	background-image:url(../images/ButtonInactive.png);
+	background-image:url(../assets/images/ButtonInactive.png);
 	color:#999999;
 	outline-style: none;
     }
@@ -369,7 +362,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #buttonTable .disabledLink {
 	background-color:#FFF;
 	border:0;
-	background-image:url(../images/ButtonInactive.png);
+	background-image:url(../assets/images/ButtonInactive.png);
 	color:#999999;
 	outline:0;
 }
@@ -437,40 +430,31 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .green {background-color:#009900;color:#FFF;padding:0px 3px 1px 3px;margin:0;}
 
 
-/* TOOLS MENU DROP DOWN STYLING */
+/* TOOLS MENU DROP DOWN STLING */
 
-.dropdown {
-	width:125px;
-	position:absolute;
-	top:8px;
-	left:8px;
-	}
-
-.dropdown dt { 
-	border:1px solid #666; 
-	margin:0;
-	font-weight:normal; 
-	font-size:11px;
-	letter-spacing:1.2px;
+.dropdown {padding-right:5px}
+.dropdown dt {
+	width:194px; 
+	border-bottom:2px solid #999; 
+	padding:2px 6px 2px 10px; 
+	font-weight:bold; 
+	letter-spacing:2px;
 	font-variant:small-caps;
-	background:url(../images/robots/toolbar_bg2.png)
+	background:url(../assets/images/robots/toolbar_bg2.png)
 	}
-	
-.dropdown #menuTitle {padding:2px 0px 2px 10px; }	
-	
 .dropdown dt img{
 	position:absolute; 
 	right:7px;
-	top:4px;	}
+	top:7px;	}
 	
 .dropdown dt:hover {
-	background:url(../images/robots/toolbar_bg3.png);
+	background:url(../assets/images/robots/toolbar_bg3.png);
 	cursor:pointer;
 	}
-.dropdown dd {position:absolute; overflow:hidden; width:216px; display:none; background:#fff; z-index:200; opacity:0}
-.dropdown ul {width:216px; border:2px solid #9ac1c9; list-style:none; border-top:none}
+.dropdown dd {position:absolute; overflow:hidden; width:208px; display:none; background:#fff; z-index:200; opacity:0}
+.dropdown ul {width:204px; border:2px solid #9ac1c9; list-style:none; border-top:none}
 .dropdown li {display:inline}
-.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#CCC; text-decoration:none; background:#333; width:225px}
+.dropdown a, .dropdown a:active, .dropdown a:visited {display:block; padding:5px; color:#333; text-decoration:none; background:#eaf0f2; width:198px}
 .dropdown a:hover {
 	background:#d9e1e4;
 	background-color:#FFFF00;
@@ -482,7 +466,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 /* SHOW ALL WORK STYLES */
 
 #showallwork .bd h3 {
-	background-image:url(../images/gradient_ShowAllWork1.png);
+	background-image:url(../assets/images/gradient_ShowAllWork1.png);
 	background-repeat:repeat-x; 
 	color:#FFF;
 	padding:4px 10px;
@@ -506,6 +490,9 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 }
 
 
+
+	
+
 /* TESTING AREAS */
 
 #experimental {
@@ -514,4 +501,3 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	right:0px;
 	font-size:.8em;
 	}
-	

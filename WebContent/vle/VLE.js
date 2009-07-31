@@ -999,7 +999,41 @@ VLE.prototype.loadTheme = function(theme) {
 	// start in WISE theme          
 	scriptloader.generateScripts(null, scriptloader.css[cssArrayName]);
 	scriptloader.loadCsss(scriptloader.css[cssArrayName]);
-}
+};
+
+/**
+ * Renders all of the nodes that are used in the project
+ * for this VLE all at once in their own frames
+ */
+VLE.prototype.renderAll = function(contentURL, contentBaseUrl){
+	var afterProjectLoaded = function(){
+		var parent = document.getElementsByTagName('html')[0];
+		parent.removeChild(document.getElementsByTagName('body')[0]);
+		var b = createElement(document, 'body');
+		parent.appendChild(b);
+		
+		var currentNode = vle.getNodeById(vle.project.getStartNodeId());
+		var count = 0;
+		while(currentNode){
+			var frm = createElement(document, 'iframe', {name: 'frame_' + count, id: 'frame_' + count, src: 'empty.html'});
+
+			b.appendChild(frm);
+			currentNode.render(frm);
+			
+			var nextNode = this.navigationLogic.getNextNode(currentNode);
+			while (nextNode != null && (nextNode.type == "Activity" || nextNode.children.length > 0)) {
+				nextNode = this.navigationLogic.getNextNode(nextNode);
+			}
+			
+			window.frames[frm.name].frameNode = currentNode;
+			currentNode = nextNode;
+			count ++;
+		};
+	};
+
+	this.eventManager.subscribe('projectLoadingComplete', afterProjectLoaded);
+	this.loadProject(contentURL, contentBaseUrl);
+};
 
 /**
  * Given the content URL, loads a project in the VLE
@@ -1156,7 +1190,7 @@ VLE.prototype.showJournal = function() {
 		});
 		
 		this.journal.setHeader("My Journal");
-		this.journal.setBody("<iframe name='journalFrame' id='journalFrame' width='100%' height='100%' src='journal/journal.html'></iframe>");
+		this.journal.setBody("<iframe name='journalFrame' id='journalFrame' frameborder='0' width='100%' height='100%' src='journal/journal.html'></iframe>");
 
 		//this.journal.cfg.setProperty("underlay", "matte");
 		this.journal.render();

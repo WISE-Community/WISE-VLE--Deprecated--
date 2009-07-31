@@ -8,6 +8,12 @@
 
 <script type="text/javascript">
 var studentWorkQueryObject;
+var global_yui;
+
+YUI().use('node', function(Y) {
+	global_yui = Y;
+});
+
 
 /**
  * Called after all the js files are loaded
@@ -130,6 +136,9 @@ function saveAnnotation(nodeId, toWorkgroup, fromWorkgroup, type, value, runId) 
  * @param itemNumber the index of the item in the flaggedItemTable
  */
 function saveFlag(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, deleteFlag, itemNumber) {
+	// override deleteFlag with whether Flag Work checkbox is checked or not
+	deleteFlag = !document.getElementById("flagButton"+toWorkgroup).checked;
+		 
 	//alert("nodeId: " + nodeId + "\ntoWorkgroup: " + toWorkgroup + "\nfromWorkgroup: " + fromWorkgroup + "\ntype: " + type + "\nvalue: " + value);
 	
 	//build the post flag url with get arguments
@@ -141,10 +150,10 @@ function saveFlag(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, delete
 		postFlagUrl += "&action=unflag";
 
 		//remove the row from the flagged items table
-		removeFlaggedItemFromDisplay(itemNumber);
+		//removeFlaggedItemFromDisplay(itemNumber);
 	} else {
 		//add the row to the flagged items table
-		addFlaggedItemToDisplay(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, itemNumber);
+		//addFlaggedItemToDisplay(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, itemNumber);
 	}
 
 	var postFlagCallback =
@@ -173,6 +182,15 @@ function saveFlag(nodeId, toWorkgroup, fromWorkgroup, studentWork, runId, delete
 
 	//make the call to post the annotation
 	var getUserTransaction = YAHOO.util.Connect.asyncRequest('GET', postFlagUrl, postFlagCallback, null);
+
+	// update isflagged attribute on the studentWorkRow. Also update what gets shown, based on if "only show flagged items" is checked.
+	if (deleteFlag) {
+		global_yui.get("#studentWorkRow_"+toWorkgroup).setAttribute("isflagged", "false");
+		onlyShowFilteredItemsOnClick();
+	} else {
+		global_yui.get("#studentWorkRow_"+toWorkgroup).setAttribute("isflagged", "true");
+		onlyShowFilteredItemsOnClick();
+	}
 }
 
 </script>
@@ -360,6 +378,54 @@ function getFlags() {
 }
 
 /**
+ * Only Show specified columns
+ * @param a list of array of column names  arguments[]
+ * if columnNames is null or empty, show all.
+ */
+function showColumns() {
+	if (arguments.length > 0) {
+		// first hide all of the columns and then re-show the specified columns
+		global_yui.all(".gradeColumn").setStyle("display","none");
+		for (var i=0; i<arguments.length; i++) {
+			global_yui.all("." + arguments[i]).setStyle("display","");
+		}
+	} else {
+		// show all
+		global_yui.all(".gradeColumn").setStyle("display","");
+	}
+}
+
+/**
+ * Callback for the onlyShowFilteredItems check box
+ */
+function onlyShowFilteredItemsOnClick() {
+	 // check if the checkbox is checked
+	var isChecked = document.getElementById("onlyShowFilteredItemsCheckBox").checked;
+	if (isChecked) {
+		// only show filtered items
+		global_yui.get("#studentWorkTable").queryAll("[isflagged=false]").setStyle("display", "none");
+	} else {
+		// show all items
+		global_yui.get("#studentWorkTable").queryAll("tr").setStyle("display", "");
+	}
+}
+
+/**
+ * Callback for the onlyShowFilteredItems check box
+ */
+function onlyShowWorkOnClick() {
+	 // check if the checkbox is checked
+	var isChecked = document.getElementById("onlyShowWorkCheckBox").checked;
+	if (isChecked) {
+		// only show filtered items
+		showColumns('workColumn');
+	} else {
+		// show all items
+		showColumns();
+	}
+}
+
+/**
  * Displays all the steps in the project as links. When a step is clicked on,
  * the user will be brought to a page that displays all the work for that
  * step from all students in the run.
@@ -371,7 +437,7 @@ function displaySteps() {
 	displayStepsHtml += "<table class='chooseStepToGradeTable'><tbody>";
 
 	//add the refresh button at the top of the page
-	displayStepsHtml += "<tr><td><input type='button' value='Refresh' onClick='refresh()'></input></td></tr>";
+	displayStepsHtml += "<tr><td><input class='refreshButton' type='button' value='Refresh' onClick='refresh()'></input></td></tr>";
 	
 	/*
 	 * get the html that displays all the steps for the project as links
@@ -404,7 +470,6 @@ function displayStepsHelper(node) {
 			 * display a link for this step. in the future there should
 			 * be a function node.containsStudentWork() or something.
 			 */
-			displayStepsHtml += "<a href='#' onClick='getGradeByStepHtml(\"" + node.id + "\")'>" + node.title + " [" + node.type + "]</a>";			
 			displayStepsHtml += "<tr><td><a href='#' onClick='getGradeByStepHtml(\"" + node.id + "\")'>" + node.title + " [" + node.type + "]</a></td></tr>";			
 		}
 	} else {
@@ -433,37 +498,38 @@ function getGradeByStepHtml(nodeId) {
 	 * add the button that allows the user to get back to the screen to choose
 	 * the step
 	 */
-	gradeByStepHtml += "<input type='button' value='Go Back to Steps' onClick='displaySteps()'>";
+	gradeByStepHtml += "<span id='selectedStep'>Selected Step Title Goes Here</span>";
+	gradeByStepHtml += "<a href='#' onClick='displaySteps()'>Select Another Step</a><br/>";
+
+	/*
+	gradeByStepHtml += "<input id='showOnlyWorkButton' type='button' value='Show Only Work' onClick=\"showColumns('workColumn');\">";
+	gradeByStepHtml += "<input id='showAllButton' type='button' value='Show All' onClick=\"showColumns();\">";
+	*/
+	gradeByStepHtml += "<input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"onlyShowWorkOnClick();\"/>Only Show Work";
+	gradeByStepHtml += " | <input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='only show filtered items' onClick=\"onlyShowFilteredItemsOnClick();\"/>Only Show Flagged Items";
+	
 	gradeByStepHtml += "<div id='flaggedItems'></div>";
 
 	var getFlagCallback = {
 			success: function(o) {
 				var flags = Flags.prototype.parseDataXML(o.responseXML);
 				
-				//create the html that will display the flagged items
-				var flagTableHtml = "";
-				flagTableHtml += "<table border='1' id='flaggedItemsTable' class='flaggedItemsTable'>";
-				flagTableHtml += "<tr><th>Flagged Responses</th></tr>";
-				
 				if(flags.flagsArray.length == 0) {
-					//nofity the user if there were no flagged items
-					flagTableHtml += "<tr id='noFlaggedResponses'><td>No flagged responses</td></tr>";
 				} else {
-					//loop through all the flagged items
+					//loop through all the flagged items and check the flagged items
 					for(var x=0; x<flags.flagsArray.length; x++) {
-						//display the student work that has been flagged
+						document.getElementById("flagButton"+flags.flagsArray[x].toWorkgroup).checked = true;
+						global_yui.get("#studentWorkRow_"+flags.flagsArray[x].toWorkgroup).setAttribute("isflagged", "true");
+						onlyShowFilteredItemsOnClick();
+						/*
 						flagTableHtml += "<tr id='flaggedItem" + x + "'><td>" + flags.flagsArray[x].studentWork + "</td>";
 
 						//add the button to unflag the particular student work						
 						flagTableHtml += "<td><input type='button' value='Unflag Work' onClick='saveFlag(\"" + flags.flagsArray[x].nodeId + "\", " + flags.flagsArray[x].toWorkgroup + ", " + flags.flagsArray[x].fromWorkgroup + ", \"" + flags.flagsArray[x].studentWork + "\", " + runId + ", true," + x + ")'></td>";
 						flagTableHtml += "</tr>";
+						*/
 					}
 				}
-				
-				flagTableHtml += "</table>";
-
-				//set the html into the div
-				document.getElementById('flaggedItems').innerHTML = flagTableHtml;
 			},
 			failure: function(o) {
 
@@ -475,10 +541,10 @@ function getGradeByStepHtml(nodeId) {
 	var getFlagsTransaction = YAHOO.util.Connect.asyncRequest('GET', getFlagsUrl + "&nodeId=" + nodeId, getFlagCallback, null);
 	
 	//create the table that displays all the student data, student work, and grading text box
-	gradeByStepHtml += "<table border='1' class='studentWorkTable'>";
+	gradeByStepHtml += "<table border='1' id='studentWorkTable' class='studentWorkTable'>";
 
 	//add the header for the table
-	gradeByStepHtml += "<tr><th>Workgroup Id</th><th>Work</th><th>Grading</th><th>Save Annotation</th><th>Flag</th></tr>";
+	gradeByStepHtml += "<tr><th class='gradeColumn workgroupIdColumn'>Student Name(s)</th><th class='gradeColumn workColumn'>Work</th><th class='gradeColumn gradingColumn'>Grading</th><th class='gradeColumn annotationColumn'>Save Annotation</th><th class='gradeColumn flagColumn'>Flag</th></tr>";
 
 	//loop through all the vleStates, each vleState is for a workgroup
 	for(var x=0; x<vleStates.length; x++) {
@@ -491,29 +557,29 @@ function getGradeByStepHtml(nodeId) {
 		//obtain the annotation for this workgroup and step if any
 		var annotation = annotations.getLatestAnnotation(runId, nodeId, vleState.dataId, teacherId, "comment");
 
-		gradeByStepHtml += "<tr>";
+		gradeByStepHtml += "<tr class='studentWorkRow' id='studentWorkRow_"+vleState.dataId+"' isflagged='false'>";
 
 		//display the student workgroup id
-		gradeByStepHtml += "<td>" + vleState.dataId + "</td>";
+		gradeByStepHtml += "<td class='gradeColumn workgroupIdColumn'>" + vle.myClassInfo.getClassmate(vleState.dataId).userName + "</td>";
 
 		//display the student work for this step/node
-		gradeByStepHtml += "<td>" + studentWork + "</td>";
+		gradeByStepHtml += "<td class='gradeColumn workColumn'>" + studentWork + "</td>";
 
 		/*
 		 * display the grading text box and save annotation button
 		 */
 		if(annotation != null) {
 			//the annotation exists so we will populate the values from the annotation
-			gradeByStepHtml += "<td><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'>" + annotation.value + "</textarea></td>";
+			gradeByStepHtml += "<td class='gradeColumn gradingColumn'><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'>" + annotation.value + "</textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			gradeByStepHtml += "<td><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + annotation.runId + ")'></td>";
+			gradeByStepHtml += "<td class='gradeColumn annotationColumn'><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + annotation.runId + ")'></td>";
 		} else {
 			//the annotation does not exist so we will leave the text area blank
-			gradeByStepHtml += "<td><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'></textarea></td>";
+			gradeByStepHtml += "<td class='gradeColumn workgroupIdColumn'><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'></textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			gradeByStepHtml += "<td><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></td>";
+			gradeByStepHtml += "<td class='gradeColumn annotationColumn'><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></td>";
 		}
 
 		//get the flag (if any) that corresponds to the row we are displaying
@@ -527,7 +593,7 @@ function getGradeByStepHtml(nodeId) {
 
 		//display the checkbox for the flagging
 		//gradeByStepHtml += "<td><input type='checkbox' name='flagCheckBox" + vleState.dataId + "' id='flagCheckBox" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", document.getElementById(\"flagCheckBox" + vleState.dataId + "\").checked, \"" + studentWork + "\", " + runId + ")' + " + checked + "></td>";
-		gradeByStepHtml += "<td><input type='button' value='Flag Work' name='flagButton" + vleState.dataId + "' id='flagButton" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", false)'></td>";
+		gradeByStepHtml += "<td class='gradeColumn flagColumn'><input type='checkbox' value='Flag Work' name='flagButton" + vleState.dataId + "' id='flagButton" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", false)'>Flag Work</td>";
 		
 		gradeByStepHtml += "</tr>";
 	}
@@ -583,7 +649,7 @@ function addFlaggedItemToDisplay(nodeId, dataId, teacherId, studentWork, runId, 
 
 	//create the data that displays the button to unflag the work
 	var flagDataButton = document.createElement("td");
-	flagDataButton.innerHTML = "<input type='button' value='Unflag Work' onClick='saveFlag(\"" + nodeId + "\", " + dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", true," + itemNumber + ")'></input>"; 
+	flagDataButton.innerHTML = "<input type='checkbox' value='Unflag Work' onClick='saveFlag(\"" + nodeId + "\", " + dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", true," + itemNumber + ")'>Flag Work</input>"; 
 
 	//add the data to the row
 	flagRow.appendChild(flagDataWork);

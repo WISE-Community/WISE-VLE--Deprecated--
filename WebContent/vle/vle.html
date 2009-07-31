@@ -88,6 +88,19 @@
                 vle = new VLE();
                 vle.loadProject(contentUrl, contentBaseUrl);
             };
+
+            /**
+             *
+             */
+            function renderAll(){
+            	var splitz = window.location.toString().split("//")[1].split("/");
+                var domain = 'http://' + splitz[0] + '/' + splitz[1];
+                var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
+                var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
+                
+				vle = new VLE();
+				vle.renderAll(contentUrl, contentBaseUrl);
+            };
         </script>
         <!--  Javascript Pop up window -->
         <script type="text/javascript">
@@ -222,7 +235,7 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
     </head>
     <body class="yui-skin-sam">
         <div id="centeredDiv">
-            <div id='loading'>
+            <div id="loading">
                 <div class='hd'>
                 </div>
                 <div class='bd'>
@@ -277,8 +290,9 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                                 <li><a onclick="vle.showJournal();" class="underline">Show Journal</a></li>
                                 <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
                                 <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show My Progress</a></li>
-                                <li><a class="underline" onclick="alert('not yet implemented');">Export Work to PDF</a></li>
-                                <li><a class="underline" href="/webapp/student/index.html">Goto Student Home Page</a></li>
+                                <!--  <li><a class="underline" onclick="alert('not yet implemented');">Export Work to PDF</a></li>  -->
+                                <li><a class="underline" href="/webapp/student/index.html" target="_parent">Goto Student Home Page</a></li>
+                                <li><a class="underline" href="/webapp/j_spring_security_logout" target="_parent">Quit & Log Out</a></li>
                             </ul>
                         </dd>
                     </dl>
@@ -298,11 +312,11 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                             </td>
                         </tr>
                     </table>
-                </div>
+                </div>   
                 
-                <div id="separator">
-                    <img src="./images/separatorIcon_VLE.png" alt="separator" />
-                </div>
+				<div id="separator">
+				   <img src="./images/separatorIcon_VLE.png" alt="separator" />
+				</div>
                 
                 <div id="stepInfoBar">
                     <span id='stepIcon'></span>
@@ -345,7 +359,7 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                         <div id="my_menu" class="sdmenu">
                         </div>
                     </div>
-                    <!-- end of #navigationMenuBox -->
+				<!--  end of #navigationMenuBox -->
                 </div>
                 <!-- end of #navigationArea -->
                 <div id="hostBrandingBoxUCCP">

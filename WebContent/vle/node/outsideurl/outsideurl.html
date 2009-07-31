@@ -4,6 +4,12 @@
 		function loadUrl(url) {
 			window.frames["outsideurliframe"].location = url;
 		}
+
+		window.onload = function(){
+			if(typeof allReady!='undefined'){
+                allReady(this);
+            };
+		};
 	</script>
 </head>
 <body>

@@ -28,7 +28,7 @@ function JournalNode(nodeType, connectionManager) {
 	journalPanel.render();
 }
 
-JournalNode.prototype.render = function(contentpanel, childNodeId){
+JournalNode.prototype.render = function(contentPanel, childNodeId){
 	var childIds = [];
 	var activeId;
 	var childTitles = [];
@@ -50,7 +50,12 @@ JournalNode.prototype.render = function(contentpanel, childNodeId){
 		activeId = this.activeChild;
 	};
 	
-	jIFrame = window.frames['journaliframe'];
+	if(contentPanel==null){
+		jIFrame = window.frames['journaliframe'];
+	} else {
+		jIFrame = contentPanel;
+	};
+	
 	jIFrame.setIds(childIds);
 	jIFrame.setTitles(childTitles);
 	jIFrame.setActiveChild(activeId);

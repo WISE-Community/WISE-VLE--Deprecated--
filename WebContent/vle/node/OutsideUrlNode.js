@@ -10,15 +10,21 @@ function OutsideUrlNode(nodeType, connectionManager) {
 	this.type = nodeType;
 }
 
-OutsideUrlNode.prototype.render = function(contentpanel) {
+OutsideUrlNode.prototype.render = function(contentPanel) {
 	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
 		this.retrieveFile();
 	};
 	
-	window.frames["ifrm"].document.open();
-	window.frames["ifrm"].location = "node/outsideurl/outsideurl.html";
-	window.frames["ifrm"].document.close();
-}
+	if(contentPanel){
+		this.contentPanel = window.frames[contentPanel.name];
+		this.contentPanel.location = "node/outsideurl/outsideurl.html";
+		this.contentPanel.loadArgs = [this];
+		this.contentPanel.allReady = function(win){win.loadArgs[0].load();};
+	} else {
+		this.contentPanel = window.frames['ifrm'];
+		this.contentPanel.location = "node/outsideurl/outsideurl.html";
+	};
+};
 
 OutsideUrlNode.prototype.load = function(contentPanel) {
 	if(this.element.getElementsByTagName("url")[0].firstChild){
@@ -27,12 +33,8 @@ OutsideUrlNode.prototype.load = function(contentPanel) {
 		var url = "";
 	};
 	
-	if(contentPanel == null) {
-		window.frames["ifrm"].loadUrl(url);
-	} else {
-		contentPanel.loadUrl(url);
-	}
-}
+	this.contentPanel.loadUrl(url);
+};
 
 
 OutsideUrlNode.prototype.getDataXML = function(nodeStates) {

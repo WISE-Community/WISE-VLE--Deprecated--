@@ -14,37 +14,40 @@ function BlueJNode(nodeType, connectionManager) {
 }
 
 BlueJNode.prototype.render = function(contentPanel) {
-	var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-
-	/*
-	 * check if the user had clicked on an outside link in the previous
-	 * step
-	 */
-	if(this.handlePreviousOutsideLink(this)) {
+	if(this.contentLoaded){ //content is available,  proceed with render	
+		var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
+	
 		/*
-		 * the user was at an outside link so the function
-		 * handlePreviousOutsideLink() has taken care of the
-		 * rendering of this node
+		 * check if the user had clicked on an outside link in the previous
+		 * step
 		 */
-		return;
-	}
-	
-	if(contentPanel == null) {
-		window.frames["ifrm"].document.open();
-		window.frames["ifrm"].document.write(this.injectBaseRef(content));
-		window.frames["ifrm"].document.close();
+		if(this.handlePreviousOutsideLink(this)) {
+			/*
+			 * the user was at an outside link so the function
+			 * handlePreviousOutsideLink() has taken care of the
+			 * rendering of this node
+			 */
+			return;
+		}
+		
+		if(contentPanel == null) {
+			this.contentPanel = window.frames['ifrm'];
+		} else {
+			this.contentPanel = window.frames[contentPanel.name];
+		};
+		
+		
+		//write the content into the contentPanel, this will render the html in that panel
+		this.contentPanel.document.open();
+		this.contentPanel.document.write(this.injectBaseRef(this.content));
+		this.contentPanel.document.close();
+		
+		this.projectPath = this.element.getElementsByTagName("projectPath")[0].firstChild.nodeValue;
 	} else {
-		contentPanel.document.open();
-		contentPanel.document.write(this.injectBaseRef(content));
-		contentPanel.document.close();
-	}
-	
-	
-	//window.frames["ifrm"].document.open();
-	//window.frames["ifrm"].location = "js/node/outsideurl/outsideurl.html";
-	//window.frames["ifrm"].document.close();
-	
-	this.projectPath = this.element.getElementsByTagName("projectPath")[0].firstChild.nodeValue;
+		//content is not available, wait for content loading event
+		//to complete, then call render again
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, function(type, args, co){co[0].render(co[1]);}, [this, contentPanel]);
+	};
 }
 
 /*
