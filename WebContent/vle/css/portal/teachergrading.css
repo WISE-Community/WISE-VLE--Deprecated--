@@ -11,21 +11,14 @@ iframe {
 
 #gradeByStepDiv {
 	text-align: left;
-	background-image: none;
-	background-color: #FFE6C6;
-	padding:5px;
-	border: 1px solid #999;
+	padding-bottom:5px;
+	border-bottom:3px solid #919EBA;
 }
 
 #gradeByStepDiv .refreshButton {
 	position:absolute;
 	top:25px;
 	right:25px;
-}
-
-#gradeByStepDiv h4 {
-	padding: 8px 0 0px 20px;
-	font-size: 1.1em;
 }
 
 .chooseStepToGradeTable  {
@@ -44,3 +37,87 @@ iframe {
 	background-color: #FFFF00;
 	color: #000033;
 }
+
+#selectedStep {
+	color:#CC0000;
+	font-size:1.5em;
+	font-weight:bold;
+	letter-spacing:-.5px;
+	}	
+	
+#selectAnotherStep:link, #selectAnotherStep:visited {
+	font-size: .7em;
+	background-color:#FFFFFF;
+	padding:2px;
+	margin-left:50px;
+	color:blue;
+	vertical-align:bottom;
+}
+
+#selectAnotherStep:hover  {
+	background-color:#FFFF33;
+	color:#000033;
+	} 
+	
+#filterOptions {
+	font-size:.8em;
+	margin:5px 0;
+	}
+	
+#filterOptions input {
+	margin-right:4px;
+	margin-left:20px;
+	}
+	
+#studentworkTable {
+	border-collapse:collapse;
+	border:2px ridge #19253D;
+	}
+	
+#studentworkTable th, #studentworkTable td  {
+	vertical-align:top;
+	border:1px solid #666;
+	height:100%;
+	}
+	
+#studentworkTable th {
+	background-image:url(../../images/GradingTableHeader.png);
+	background-repeat:repeat-x; 
+	background-position:bottom center;
+	padding:2px;
+	vertical-align:middle;
+	font-size:.8em;
+	font-weight:normal;
+	letter-spacing:1px;
+	font-variant:small-caps;
+	border-bottom:2px groove #19253D;
+}
+
+.workgroupIdColumn {
+	width:12%;
+	padding:2px;
+	text-align:center;
+	font-size:.8em;
+	font-weight:bold;
+	letter-spacing:-.5px;
+}
+
+.workColumn {
+	width:45%;
+	font-size:.9em;
+	padding:2px 8px;
+}
+
+.teacherCommentsColumn {
+	width:180px;
+	padding:2px 6px;
+}
+
+.teacherCommentsColumn textarea{
+	height:100%;
+	width:100%;
+	color:#000033;
+	border:0px;
+}
+
+	

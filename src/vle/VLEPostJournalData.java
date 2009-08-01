@@ -58,7 +58,7 @@ public class VLEPostJournalData extends VLEJournalServlet {
     	String workgroupId = request.getParameter("workgroupId");
     	String journalPageId = request.getParameter("journalPageId");
     	String data = request.getParameter("data");
-    	String delete = request.getParameter("delete");
+    	String deletePage = request.getParameter("deletePage");
     	String nodeId = request.getParameter("nodeId");
     	
     	try {
@@ -67,7 +67,7 @@ public class VLEPostJournalData extends VLEJournalServlet {
 			e.printStackTrace();
 		}
     	
-		if(workgroupId != null && journalPageId != null && delete != null) {
+		if(workgroupId != null && journalPageId != null && deletePage != null) {
 			//delete was passed as an argument so we will set the delete flag to true for this journal page
 			String updateStmt = "update journaldata set deleted=true where workgroupid=" + workgroupId + " and journalpageid=" + journalPageId;
 			debugPrint(updateStmt);

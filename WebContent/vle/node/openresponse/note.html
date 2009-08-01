@@ -84,12 +84,24 @@ window.onload = function(){
 		allReady(this);
 	};
 };
+
+function resizeNote(size) {
+	parent.vle.resizeNote(size);
+}
+
 </script>
 </head>
 
 <body class="yui-skin-sam" style="padding:5px 5px 10px 5px; border:1px solid #999;">
 
         <div id="questionCountBox" class="bg2">
+        	<div id="buttonBox">
+				<button type='button' onclick="resizeNote('minimize')">Minimize</button>
+				<button type='button' onclick="resizeNote('original')">Original Size</button>
+				<button type='button' onclick="resizeNote('narrow')">Narrow</button>
+				<button type='button' onclick="resizeNote('wide')">Wide</button>
+				<button type='button' onclick="resizeNote('maximize')">Maximize</button>
+        	</div>
             <table class="instructionsReminder" style="color:#FFF;">
                 <tr>
                     <td>

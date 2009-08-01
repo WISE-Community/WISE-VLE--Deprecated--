@@ -411,5 +411,36 @@ VLE.prototype.closePopup = function(name) {
 	}
 }
 
+/**
+ * Resize the note
+ * @param size a string that we translate into height/width
+ */
+VLE.prototype.resizeNote = function(size) {
+	var windowHeight = window.innerHeight;
+	var windowWidth = window.innerWidth;
+	
+	if(size == "minimize") {
+		//resize the note to only display the resize buttons
+		notePanel.cfg.setProperty("height", "100px");
+		notePanel.cfg.setProperty("width", "430px");
+	} else if(size == "original") {
+		//resize the note to display all the note elements easily
+		notePanel.cfg.setProperty("height", "650px");
+		notePanel.cfg.setProperty("width", "650px");
+	} else if(size == "narrow") {
+		//resize the note to fit over the left nav area
+		notePanel.cfg.setProperty("height", (windowHeight - 10) + "px");
+		notePanel.cfg.setProperty("width", "225px");
+	} else if(size == "wide") {
+		//resize the note to be short and wide
+		notePanel.cfg.setProperty("height", "200px");
+		notePanel.cfg.setProperty("width", "1000px");
+	} else if(size == "maximize") {
+		//resize the note to fit over the whole vle
+		notePanel.cfg.setProperty("height", (windowHeight - 10) + "px");
+		notePanel.cfg.setProperty("width", "1000px");
+	}
+}
+
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/util/vleutils.js");

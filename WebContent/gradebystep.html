@@ -446,7 +446,7 @@ function displaySteps() {
 	displayStepsHtml += displayStepsHelper(vle.project.rootNode);
 
 	//add the refresh button at the top of the page
-	document.getElementById('gradeByStepDiv').innerHTML = "<input type='button' value='Refresh All Steps' onClick='refresh()'><br>";
+	document.getElementById('gradeByStepDiv').innerHTML = "<input type='button' value='Refresh All Steps' onClick='refresh()'>";
 	//close the table
 	displayStepsHtml += "</tbody></table>";
 
@@ -499,14 +499,14 @@ function getGradeByStepHtml(nodeId) {
 	 * the step
 	 */
 	gradeByStepHtml += "<span id='selectedStep'>Selected Step Title Goes Here</span>";
-	gradeByStepHtml += "<a href='#' onClick='displaySteps()'>Select Another Step</a><br/>";
+	gradeByStepHtml += "<a href='#' id='selectAnotherStep' onClick='displaySteps()'>Select Another Step</a>";
 
 	/*
 	gradeByStepHtml += "<input id='showOnlyWorkButton' type='button' value='Show Only Work' onClick=\"showColumns('workColumn');\">";
 	gradeByStepHtml += "<input id='showAllButton' type='button' value='Show All' onClick=\"showColumns();\">";
 	*/
-	gradeByStepHtml += "<input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"onlyShowWorkOnClick();\"/>Only Show Work";
-	gradeByStepHtml += " | <input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='only show filtered items' onClick=\"onlyShowFilteredItemsOnClick();\"/>Only Show Flagged Items";
+	gradeByStepHtml += "<div id='filterOptions'><input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"onlyShowWorkOnClick();\"/>Hide Personal Info";
+	gradeByStepHtml += "<input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='show filtered items' onClick=\"onlyShowFilteredItemsOnClick();\"/>Show Flagged Items Only</div>";
 	
 	gradeByStepHtml += "<div id='flaggedItems'></div>";
 
@@ -544,7 +544,7 @@ function getGradeByStepHtml(nodeId) {
 	gradeByStepHtml += "<table border='1' id='studentWorkTable' class='studentWorkTable'>";
 
 	//add the header for the table
-	gradeByStepHtml += "<tr><th class='gradeColumn workgroupIdColumn'>Student Name(s)</th><th class='gradeColumn workColumn'>Work</th><th class='gradeColumn gradingColumn'>Grading</th><th class='gradeColumn annotationColumn'>Save Annotation</th><th class='gradeColumn flagColumn'>Flag</th></tr>";
+	gradeByStepHtml += "<tr><th class='gradeColumn workgroupIdColumn'>who</th><th class='gradeColumn workColumn'>student work</th><th class='gradeColumn gradingColumn'>teacher comments</th><th class='gradeColumn scoreColumn'>score</th><th class='gradeColumn annotationColumn'>tools</th></tr>";
 
 	//loop through all the vleStates, each vleState is for a workgroup
 	for(var x=0; x<vleStates.length; x++) {
@@ -576,10 +576,10 @@ function getGradeByStepHtml(nodeId) {
 			gradeByStepHtml += "<td class='gradeColumn annotationColumn'><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", \"" + annotation.toWorkgroup + "\", \"" + annotation.fromWorkgroup + "\", \"" + annotation.type + "\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + annotation.runId + ")'></td>";
 		} else {
 			//the annotation does not exist so we will leave the text area blank
-			gradeByStepHtml += "<td class='gradeColumn workgroupIdColumn'><textarea rows='10' cols='10' id='annotationTextArea" + vleState.dataId + "'></textarea></td>";
+			gradeByStepHtml += "<td class='gradeColumn teacherCommentsColumn'><textarea wrap='hard' id='annotationTextArea" + vleState.dataId + "'></textarea></td>";
 
 			//add the save annotation button that will save the annotation to the db when clicked
-			gradeByStepHtml += "<td class='gradeColumn annotationColumn'><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Annotation' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></td>";
+			gradeByStepHtml += "<td class='gradeColumn scoreColumn'>xx out of yy</td>";
 		}
 
 		//get the flag (if any) that corresponds to the row we are displaying
@@ -593,7 +593,7 @@ function getGradeByStepHtml(nodeId) {
 
 		//display the checkbox for the flagging
 		//gradeByStepHtml += "<td><input type='checkbox' name='flagCheckBox" + vleState.dataId + "' id='flagCheckBox" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", document.getElementById(\"flagCheckBox" + vleState.dataId + "\").checked, \"" + studentWork + "\", " + runId + ")' + " + checked + "></td>";
-		gradeByStepHtml += "<td class='gradeColumn flagColumn'><input type='checkbox' value='Flag Work' name='flagButton" + vleState.dataId + "' id='flagButton" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", false)'>Flag Work</td>";
+		gradeByStepHtml += "<td class='gradeColumn annotationColumn'><div><input type='button' name='submitAnnotation" + vleState.dataId + "' value='Save Teacher Comment' onClick='saveAnnotation(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"comment\", document.getElementById(\"annotationTextArea" + vleState.dataId + "\").value, " + runId + ")'></div><div class='gradeColumn flagColumn'><input type='checkbox' value='Flag Work' name='flagButton" + vleState.dataId + "' id='flagButton" + vleState.dataId + "' onClick='saveFlag(\"" + nodeId + "\", " + vleState.dataId + ", " + teacherId + ", \"" + studentWork + "\", " + runId + ", false)'>Flag Work</td></div>";
 		
 		gradeByStepHtml += "</tr>";
 	}

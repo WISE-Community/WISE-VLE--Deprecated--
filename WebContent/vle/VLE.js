@@ -1194,44 +1194,9 @@ VLE.prototype.showJournal = function() {
 
 		//this.journal.cfg.setProperty("underlay", "matte");
 		this.journal.render();
-
-	    // Create Resize instance, binding it to the 'resizablepanel' DIV 
-	    this.journalResize = new YAHOO.util.Resize("journalPanel", {
-	        handles: ["br"],
-	        autoRatio: false,
-	        minWidth: 100,
-	        minHeight: 100,
-	        status: false 
-	    });
-	    
-	    this.journalResize.on("startResize", function(args) {
-
-		    if (this.cfg.getProperty("constraintoviewport")) {
-                var D = YAHOO.util.Dom;
-
-                var clientRegion = D.getClientRegion();
-                var elRegion = D.getRegion(this.element);
-
-                this.journalResize.set("maxWidth", clientRegion.right - elRegion.left - YAHOO.widget.Overlay.VIEWPORT_OFFSET);
-                this.journalResize.set("maxHeight", clientRegion.bottom - elRegion.top - YAHOO.widget.Overlay.VIEWPORT_OFFSET);
-            } else {
-            	this.journalResize.set("maxWidth", null);
-            	this.journalResize.set("maxHeight", null);
-        	}
-
-        }, this.journal, true);
-        
-	    this.journalResize.on("resize", function(args) {
-            var panelHeight = args.height;
-            this.cfg.setProperty("height", panelHeight + "px");
-        }, this.journal, true);
-
-        YAHOO.util.Event.on("showbtn", "click", this.journal.show, this.journal, true);
 	} else {
 		this.journal.cfg.setProperty("visible", true);
 	}
-	
-
 }
 
 /**
@@ -1239,14 +1204,28 @@ VLE.prototype.showJournal = function() {
  * @param size a string argument of "minimize", "medium", or "maximize"
  */
 VLE.prototype.resizeJournal = function(size) {
+	var windowHeight = window.innerHeight;
+	var windowWidth = window.innerWidth;
+	
 	if(size == "minimize") {
+		//resize the journal to only display the resize buttons
 		this.journal.cfg.setProperty("height", "100px");
-		this.journal.cfg.setProperty("width", "350px");
-	} else if(size == "medium") {
-		this.journal.cfg.setProperty("height", "400px");
-		this.journal.cfg.setProperty("width", "600px");
-	} else if(size == "maximize") {
+		this.journal.cfg.setProperty("width", "430px");
+	} else if(size == "original") {
+		//resize the journal to display all the journal elements easily
 		this.journal.cfg.setProperty("height", "600px");
+		this.journal.cfg.setProperty("width", "600px");
+	} else if(size == "narrow") {
+		//resize the journal to fit over the left nav area
+		this.journal.cfg.setProperty("height", (windowHeight - 10) + "px");
+		this.journal.cfg.setProperty("width", "225px");
+	} else if(size == "wide") {
+		//resize the journal to be short and wide
+		this.journal.cfg.setProperty("height", "200px");
+		this.journal.cfg.setProperty("width", "1000px");
+	} else if(size == "maximize") {
+		//resize the journal to fit over the whole vle
+		this.journal.cfg.setProperty("height", (windowHeight - 10) + "px");
 		this.journal.cfg.setProperty("width", "1000px");
 	}
 }

@@ -39,7 +39,7 @@ BlueJNode.prototype.render = function(contentPanel) {
 		
 		//write the content into the contentPanel, this will render the html in that panel
 		this.contentPanel.document.open();
-		this.contentPanel.document.write(this.injectBaseRef(this.content));
+		this.contentPanel.document.write(this.injectBaseRef(content));
 		this.contentPanel.document.close();
 		
 		this.projectPath = this.element.getElementsByTagName("projectPath")[0].firstChild.nodeValue;

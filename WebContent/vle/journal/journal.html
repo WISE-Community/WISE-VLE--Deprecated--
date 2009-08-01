@@ -5,6 +5,7 @@
 			//the journal object that will contain the contents of the journal
 			var journal = null;
 			var runId = null;
+			var workgroupId = null;
 
 			/**
 			 * called when the journal page is first loaded. this is only
@@ -97,9 +98,6 @@
 			 * <journalId>3</journalId>
 			 */
 			function createNewPage(responseText, responseXML) {
-				//hide all the current journal pages
-				hideAllJournalPages();
-
 				//get the journal page id from the xml
 				var journalPageId = responseXML.getElementsByTagName("journalId")[0].childNodes[0].nodeValue;
 
@@ -146,7 +144,7 @@
 				 * request the server to set the deleted flag to true for this
 				 * journal page.
 				 */
-				parent.vle.connectionManager.request('POST', 3, parent.vle.config.postJournalDataUrl, {workgroupId: workgroupId, journalPageId: id, delete: true, location: runId}, doNothing);
+				parent.vle.connectionManager.request('POST', 3, parent.vle.config.postJournalDataUrl, {workgroupId: workgroupId, journalPageId: id, deletePage: true, location: runId}, doNothing);
 			}
 
 			/**
@@ -345,8 +343,11 @@
 
 				var title = "";
 				if(nodeId != null && nodeId != "") {
-					//get the title of the node if there is a nodeId
-					title = parent.vle.getNodeById(nodeId).title;
+					//check if the node exists
+					if(parent.vle.getNodeById(nodeId) != null) {
+						//get the title of the node if there is a nodeId
+						title = parent.vle.getNodeById(nodeId).title;
+					}
 				}
 
 				/*
@@ -361,8 +362,17 @@
 				//set the html into the journal page div
 				journalPageDiv.innerHTML = journalPageHTML;
 
-				//add the journal page to the journalPages div
-				document.getElementById('journalPages').appendChild(journalPageDiv);
+				//add the journal page to the beginning of the journalPages div
+				if(document.getElementById('journalPages').firstChild == null) {
+					//there are no other journal pages so we will just append the new page
+					document.getElementById('journalPages').appendChild(journalPageDiv);
+				} else {
+					/*
+					 * there are other journal pages so we need to add it before the
+					 * first page
+					 */
+					document.getElementById('journalPages').insertBefore(journalPageDiv, document.getElementById('journalPages').firstChild);
+				}
 			}
 
 			/**
@@ -558,7 +568,9 @@
 		<div id='journalPanel'>
 			<div id='journalToolbar'>
 				<button type='button' onclick="resizeJournal('minimize')">Minimize</button>
-				<button type='button' onclick="resizeJournal('medium')">Half Screen Size</button>
+				<button type='button' onclick="resizeJournal('original')">Original Size</button>
+				<button type='button' onclick="resizeJournal('narrow')">Narrow</button>
+				<button type='button' onclick="resizeJournal('wide')">Wide</button>
 				<button type='button' onclick="resizeJournal('maximize')">Maximize</button>
 				<br></br>
 				<button type='button' id='journalCreateNewPageButton' onclick='getNewPageId()'>Create New Page</button>
