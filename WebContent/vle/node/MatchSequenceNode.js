@@ -11,18 +11,31 @@ function MatchSequenceNode(nodeType, connectionManager) {
 }
 
 MatchSequenceNode.prototype.render = function(contentPanel) {
-	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
+	if(this.filename!=null && vle.project.lazyLoading && (!this.contentLoaded)){ //load element from file
 		this.retrieveFile();
 	};
 	
-	if(contentPanel){
-		this.contentPanel = window.frames[contentPanel.name];
-		this.contentPanel.location = "node/matchsequence/matchsequence.html";
-		this.contentPanel.loadArgs = [this];
-		this.contentPanel.allReady = function(win){win.loadArgs[0].load();};
+	if(this.contentLoaded){
+		var renderAfterGet = function(text, xml, msNode){			
+			msNode.contentPanel.document.open();
+			msNode.contentPanel.document.write(msNode.injectBaseRef(injectVleUrl(text)));
+			msNode.contentPanel.document.close();
+			if(msNode.contentPanel.name!='ifrm'){
+				msNode.contentPanel.renderComplete = function(){
+					msNode.load();
+				};
+			};
+		};
+		
+		if(contentPanel){
+			this.contentPanel = window.frames[contentPanel.name];
+		} else {
+			this.contentPanel = window.frames['ifrm'];
+		};
+		
+		vle.connectionManager.request('GET', 1, 'node/matchsequence/matchsequence.html', null,  renderAfterGet, this);
 	} else {
-		this.contentPanel = window.frames["ifrm"];
-		this.contentPanel.location = "node/matchsequence/matchsequence.html";
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, function(type, args, co){co[0].render(co[1]);}, [this, contentPanel]);
 	};
 };
 
@@ -35,7 +48,7 @@ MatchSequenceNode.prototype.load = function() {
 		xmlCustomCheck = null;
 	};
 	
-	this.contentPanel.loadFromXMLString(this.getXMLString(), xmlCustomCheck);
+	this.contentPanel.loadContent(this.getXMLString(), xmlCustomCheck);
 };
 
 MatchSequenceNode.prototype.getDataXML = function(nodeStates) {

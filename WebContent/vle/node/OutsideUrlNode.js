@@ -11,18 +11,31 @@ function OutsideUrlNode(nodeType, connectionManager) {
 }
 
 OutsideUrlNode.prototype.render = function(contentPanel) {
-	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
+	if(this.filename!=null && vle.project.lazyLoading && (!this.contentLoaded)){ //load element from file
 		this.retrieveFile();
 	};
 	
-	if(contentPanel){
-		this.contentPanel = window.frames[contentPanel.name];
-		this.contentPanel.location = "node/outsideurl/outsideurl.html";
-		this.contentPanel.loadArgs = [this];
-		this.contentPanel.allReady = function(win){win.loadArgs[0].load();};
+	if(this.contentLoaded){
+		var renderAfterGet = function(text, xml, ouNode){			
+			ouNode.contentPanel.document.open();
+			ouNode.contentPanel.document.write(injectVleUrl(text));
+			ouNode.contentPanel.document.close();
+			if(ouNode.contentPanel.name!='ifrm'){
+				ouNode.contentPanel.renderComplete = function(){
+					ouNode.load();
+				};
+			};
+		};
+		
+		if(contentPanel){
+			this.contentPanel = window.frames[contentPanel.name];
+		} else {
+			this.contentPanel = window.frames['ifrm'];
+		};
+		
+		vle.connectionManager.request('GET', 1, 'node/outsideurl/outsideurl.html', null,  renderAfterGet, this);
 	} else {
-		this.contentPanel = window.frames['ifrm'];
-		this.contentPanel.location = "node/outsideurl/outsideurl.html";
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, function(type, args, co){co[0].render(co[1]);}, [this, contentPanel]);
 	};
 };
 

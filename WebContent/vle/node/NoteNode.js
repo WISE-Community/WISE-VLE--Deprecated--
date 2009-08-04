@@ -39,7 +39,23 @@ function NoteNode(nodeType, connectionManager) {
 }
 
 NoteNode.prototype.render = function(contentPanel) {
+	if(this.filename!=null && vle.project.lazyLoading && (!this.contentLoaded)){ //load element from file
+		this.retrieveFile();
+	};
+	
 	if(this.contentLoaded){//content is available, proceed with render
+		var renderAfterGet = function(text, xml, orNode){			
+			orNode.contentPanel.document.open();
+			text = text.replace(/(\.\.\/\.\.\/)/gi, ''); //remove '../../' in any references because this should not be the note panel
+			orNode.contentPanel.document.write(orNode.injectBaseRef(text));
+			orNode.contentPanel.document.close();
+			if(orNode.contentPanel.name!='noteiframe'){
+				orNode.contentPanel.renderComplete = function(){
+					orNode.load();
+				};
+			};
+		};
+		
 		var nodeVisits = vle.state.getNodeVisitsByNodeId(this.id);
 		var states = [];
 		for (var i=0; i < vle.state.visitedNodes.length; i++) {
@@ -51,20 +67,16 @@ NoteNode.prototype.render = function(contentPanel) {
 			}
 		};
 		
-		if(contentPanel==null){ //no contentPanel provided, use 'noteiframe' as default
+		if(contentPanel){
+			this.contentPanel = window.frames[contentPanel.name];
+		} else {//using YUI panel, load content into panel and return
 			this.contentPanel = window.frames['noteiframe'];
-			window.frames["noteiframe"].loadContent([this.element, vle, states]);
-			notePanel.cfg.setProperty("visible", true);
-		} else {
-			var currFrm = window.frames[contentPanel.name]; //need the frame to set variables
-			
-			this.contentPanel = currFrm;
-			currFrm.location = 'node/openresponse/note.html';
-			currFrm.loadArgs = [this.element, vle, states];
-			currFrm.allReady = function(win){
-				win.loadContent(win.loadArgs);
-			};
+			this.contentPanel.loadContent([this.element, vle, states]);
+			notePanel.cfg.setProperty('visible', true);
+			return;
 		};
+		
+		vle.connectionManager.request('GET', 1, 'node/openresponse/note.html', null,  renderAfterGet, this);
 	} else {
 		//content is not available, wait for content loading event
 		//to complete, then call render again

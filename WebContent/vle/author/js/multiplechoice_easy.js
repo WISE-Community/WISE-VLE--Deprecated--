@@ -599,7 +599,7 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 	}
 	
 	YAHOO.util.Connect.asyncRequest('POST', '../filemanager.html', callback, 'command=retrieveFile&param1=' + projectPath + pathSeparator + filename);
-}
+};
 
 function loaded(){
 	//set frame source to blank and create page dynamically

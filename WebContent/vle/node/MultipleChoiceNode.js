@@ -16,28 +16,32 @@ function MultipleChoiceNode(nodeType, connectionManager) {
 }
 
 MultipleChoiceNode.prototype.render = function(contentPanel) {
-	var renderAfterGet = function(text, xml, mcNode){
-		if(mcNode.filename!=null && vle.project.lazyLoading){ //load element from file
-			mcNode.retrieveFile();
-		};
-		
-		mcNode.contentPanel.document.open();
-		mcNode.contentPanel.document.write(mcNode.injectBaseRef(injectVleUrl(text)));
-		mcNode.contentPanel.document.close();
-		if(mcNode.contentPanel.name!='ifrm'){
-			mcNode.contentPanel.renderComplete = function(){
-				mcNode.load();
+	if(this.filename!=null && vle.project.lazyLoading && (!this.contentLoaded)){ //load element from file
+		this.retrieveFile();
+	};
+	
+	if(this.contentLoaded){
+		var renderAfterGet = function(text, xml, mcNode){			
+			mcNode.contentPanel.document.open();
+			mcNode.contentPanel.document.write(mcNode.injectBaseRef(injectVleUrl(text)));
+			mcNode.contentPanel.document.close();
+			if(mcNode.contentPanel.name!='ifrm'){
+				mcNode.contentPanel.renderComplete = function(){
+					mcNode.load();
+				};
 			};
 		};
-	};
-	
-	if(contentPanel){
-		this.contentPanel = window.frames[contentPanel.name];
+		
+		if(contentPanel){
+			this.contentPanel = window.frames[contentPanel.name];
+		} else {
+			this.contentPanel = window.frames['ifrm'];
+		};
+		
+		vle.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet, this);
 	} else {
-		this.contentPanel = window.frames['ifrm'];
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, function(type, args, co){co[0].render(co[1]);}, [this, contentPanel]);
 	};
-	
-	vle.connectionManager.request('GET', 1, 'node/multiplechoice/multiplechoice.html', null,  renderAfterGet, this);
 };
 
 MultipleChoiceNode.prototype.load = function() {

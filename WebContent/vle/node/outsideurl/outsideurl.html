@@ -6,9 +6,11 @@
 		}
 
 		window.onload = function(){
-			if(typeof allReady!='undefined'){
-                allReady(this);
-            };
+			if(window.loadAuthoring){
+				loadAuthoring();
+            } else if(window.renderComplete){
+				renderComplete();
+        	};
 		};
 	</script>
 </head>

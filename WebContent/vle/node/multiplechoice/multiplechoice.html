@@ -49,13 +49,9 @@
         }
         </script>
         <script type="text/javascript">
-            function afterScriptsLoad(){
-                 
-            }
-            
             window.onload = function(){
                 if (!window.parent) {
-                    scriptloader.initialize(document, afterScriptsLoad, 'multiplechoice');
+                    scriptloader.initialize(document, null, 'multiplechoice');
                 } else if(window.loadAuthoring){
 					scriptloader.initialize(document, loadAuthoring, 'multiplechoice');
                 } else if(window.renderComplete){

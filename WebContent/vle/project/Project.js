@@ -206,51 +206,53 @@ Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
 				 * we are unable to create the specified node type probably
 				 * because it does not exist in wise4
 				 */
-				break;
-			}
-			//validate identifier attribute
-			if(!currElement.getAttribute('identifier')){
-				notificationManager.notify('No identifier attribute for node in project file.', 3);
+				//break;
+				notificationManager.notify('null was returned from project factory for unknown node type: ' + currElement.nodeName + ' \nSkipping node.', 2);
 			} else {
-				thisNode.id = currElement.getAttribute('identifier');
-				if(this.idExists(thisNode.id)){
-					notificationManager.notify('Duplicate node id: ' + thisNode.id + ' found in project', 3);
+				//validate identifier attribute
+				if(!currElement.getAttribute('identifier')){
+					notificationManager.notify('No identifier attribute for node in project file.', 3);
+				} else {
+					thisNode.id = currElement.getAttribute('identifier');
+					if(this.idExists(thisNode.id)){
+						notificationManager.notify('Duplicate node id: ' + thisNode.id + ' found in project', 3);
+					};
 				};
-			};
-			//validate title attribute
-			if(!currElement.getAttribute('title')){
-				notificationManager.notify('No title attribute for node with id: ' + thisNode.id, 2);
-			} else {
-				thisNode.title = currElement.getAttribute('title');
-			};
-			//validate class attribute
-			if(!currElement.getAttribute('class')){
-				notificationManager.notify('No class attribute for node with id: ' + thisNode.id, 2);
-			} else {
-				thisNode.className = currElement.getAttribute('class');
-			};
-			//validate filename reference attribute
-			if(!currElement.getElementsByTagName('ref')[0].getAttribute('filename')){
-				notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
-			} else {
-				thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
-			};
-			thisNode.element = currElement;
-			
-			this.allLeafNodes.push(thisNode);
-			//alert('1 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
-			if(this.lazyLoading){ //load as needed
-				if(thisNode.type=='NoteNode'){//this one always needs it now
+				//validate title attribute
+				if(!currElement.getAttribute('title')){
+					notificationManager.notify('No title attribute for node with id: ' + thisNode.id, 2);
+				} else {
+					thisNode.title = currElement.getAttribute('title');
+				};
+				//validate class attribute
+				if(!currElement.getAttribute('class')){
+					notificationManager.notify('No class attribute for node with id: ' + thisNode.id, 2);
+				} else {
+					thisNode.className = currElement.getAttribute('class');
+				};
+				//validate filename reference attribute
+				if(!currElement.getElementsByTagName('ref')[0].getAttribute('filename')){
+					notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
+				} else {
+					thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
+				};
+				thisNode.element = currElement;
+				
+				this.allLeafNodes.push(thisNode);
+				//alert('1 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
+				if(this.lazyLoading){ //load as needed
+					if(thisNode.type=='NoteNode'){//this one always needs it now
+						thisNode.retrieveFile();
+					};
+				} else { //load it now
 					thisNode.retrieveFile();
 				};
-			} else { //load it now
-				thisNode.retrieveFile();
+				
+				thisNode.contentBase = this.contentBaseUrl;
+				//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
 			};
-			
-			thisNode.contentBase = this.contentBaseUrl;
-			//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
-		}
-	}
+		};
+	};
 	
 	//return this.generateSequence(xmlDoc.getElementsByTagName("sequence")[0]);
 	return this.generateSequences(xmlDoc);

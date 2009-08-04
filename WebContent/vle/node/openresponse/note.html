@@ -22,19 +22,18 @@ function edit() {
 /**
  * called after or has been initialized and scripts loaded
  */
-function loadAfterScriptsLoad(args){
+function loadContentAfterScriptsLoad(args){
 	or = new OPENRESPONSE(args[0]);
 	or.loadState(args[2]);
     or.setVLE(args[1]);
     or.render();
-    afterScriptsLoad();
 };
 
 /**
  * xmlString contains QTI-coded xml content
  */
 function loadContent(args) {
-	scriptloader.initialize(document, loadAfterScriptsLoad, 'openresponse', args);
+	scriptloader.initialize(document, loadContentAfterScriptsLoad, 'openresponse', args);
 }
 
 /**
@@ -78,10 +77,12 @@ function afterScriptsLoad(){
 };
 
 window.onload = function(){
-	if(!window.parent){
-		scriptloader.initialize(document, afterScriptsLoad, 'openresponse');
-	} else if(typeof allReady!='undefined'){
-		allReady(this);
+	if (!window.parent) {
+        scriptloader.initialize(document, null, 'openresponse');
+    } else if(window.loadAuthoring){
+    	scriptloader.initialize(document, loadAuthoring, 'openresponse');
+    } else if(window.renderComplete){
+		renderComplete();
 	};
 };
 

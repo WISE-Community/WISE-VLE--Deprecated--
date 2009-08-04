@@ -12,18 +12,31 @@ function OpenResponseNode(nodeType, connectionManager) {
 };
 
 OpenResponseNode.prototype.render = function(contentPanel) {
-	if(this.filename!=null && vle.project.lazyLoading){ //load element from file
+	if(this.filename!=null && vle.project.lazyLoading && (!this.contentLoaded)){ //load element from file
 		this.retrieveFile();
 	};
 	
-	if(contentPanel){
-		this.contentPanel = window.frames[contentPanel.name];
-		this.contentPanel.location = "node/openresponse/openresponse.html";
-		this.contentPanel.loadArgs = [this];
-		this.contentPanel.allReady = function(win){win.loadArgs[0].load();};
+	if(this.contentLoaded){
+		var renderAfterGet = function(text, xml, orNode){			
+			orNode.contentPanel.document.open();
+			orNode.contentPanel.document.write(orNode.injectBaseRef(injectVleUrl(text)));
+			orNode.contentPanel.document.close();
+			if(orNode.contentPanel.name!='ifrm'){
+				orNode.contentPanel.renderComplete = function(){
+					orNode.load();
+				};
+			};
+		};
+		
+		if(contentPanel){
+			this.contentPanel = window.frames[contentPanel.name];
+		} else {
+			this.contentPanel = window.frames['ifrm'];
+		};
+		
+		vle.connectionManager.request('GET', 1, 'node/openresponse/openresponse.html', null,  renderAfterGet, this);	
 	} else {
-		this.contentPanel = window.frames["ifrm"];
-		this.contentPanel.location = "node/openresponse/openresponse.html";
+		vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, function(type, args, co){co[0].render(co[1]);}, [this, contentPanel]);
 	};
 };
 
@@ -38,7 +51,7 @@ OpenResponseNode.prototype.load = function() {
 		}
 	}
 	
-	this.contentPanel.loadContentXMLString(this.element, vle, states);
+	this.contentPanel.loadContent([this.element, vle, states]);
 };
 
 /**

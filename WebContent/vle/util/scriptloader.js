@@ -119,7 +119,7 @@ var scriptloader = {
                    "vle/grading/Annotations.js",
                    "vle/grading/Flag.js",
                    "vle/grading/Flags.js",
-      				"vle/node/common/js/helperfunctions.js",
+      				"vle/common/helperfunctions.js",
       				"vle/node/common/js/md5.js",
        				"vle/node/brainstorm/brainstorm.js",
        				"vle/node/brainstorm/brainstormstate.js",
@@ -145,7 +145,6 @@ var scriptloader = {
         				"vle/node/common/js/helperfunctions.js",
         				"vle/node/brainstorm/brainstorm.js",
         				"vle/node/brainstorm/brainstormstate.js",
-        				"vle/node/brainstorm/brainlitehtml.js",
         				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
                         "vle/yui/yui_2.7.0b/build/element/element-min.js",
                         "vle/yui/yui_2.7.0b/build/container/container_core-min.js",
@@ -157,7 +156,6 @@ var scriptloader = {
                     	"vle/node/common/js/helperfunctions.js",
         				"vle/node/brainstorm/brainstorm.js",
         				"vle/node/brainstorm/brainstormstate.js",
-                    	"vle/node/brainstorm/brainfullhtml.js",
                     	"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
                         "vle/yui/yui_2.7.0b/build/element/element-min.js",
                         "vle/yui/yui_2.7.0b/build/container/container_core-min.js",
@@ -170,8 +168,7 @@ var scriptloader = {
         				"vle/node/fillin/textentryinteraction.js",
         				"vle/node/fillin/fillinstate.js",
         				"vle/node/fillin/fillin.js",
-        				"vle/node/common/js/niftycube.js",
-        				"vle/node/fillin/fillinhtml.js"],
+        				"vle/node/common/js/niftycube.js"],
         	info_box: ["vle/node/common/js/niftycube.js"],
         	glue: ["vle/node/common/js/loadxmldoc.js",
         				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
@@ -193,8 +190,7 @@ var scriptloader = {
         				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
         				"vle/node/common/js/niftycube.js",
         				"vle/node/multiplechoice/multiplechoicestate.js",
-        				"vle/node/multiplechoice/mc.js",
-        				"vle/node/multiplechoice/multiplechoicehtml.js"],
+        				"vle/node/multiplechoice/mc.js"],
         	openresponse: ["vle/node/common/js/loadxmldoc.js",
         				"vle/node/common/js/helperfunctions.js",
         				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
@@ -202,7 +198,7 @@ var scriptloader = {
         				"vle/node/openresponse/openresponsestate.js",
         				"vle/node/openresponse/openresponse.js",
         				"vle/node/openresponse/customjournalentrystate.js"],
-        	author_framed: ["vle/common/helperfunctions.js"],
+        	author_framed: ["vle/node/common/js/helperfunctions.js"],
         	author: ["vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js",
         				"vle/yui/yui_2.7.0b/build/event/event-min.js",
         				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
@@ -210,7 +206,6 @@ var scriptloader = {
         				"vle/yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js",
         				"vle/yui/yui_2.7.0b/build/container/container-min.js",
         				"vle/yui/yui_2.7.0b/build/connection/connection-min.js",
-        				"vle/pagebuilder/pagebuilder.js",
         				"vle/common/loadxmldoc.js",
         				"vle/common/helperfunctions.js",
         				"vle/node/common/js/md5.js",
@@ -258,7 +253,7 @@ var scriptloader = {
         				"vle/author/js/outsideurl_easy.js"],
         	author_outsideurl_advanced: ["vle/author/author_advanced_helper.js",
         				"vle/author/js/outsideurl_advanced.js"],
-        	feedback: ["vle/common/helperfunctions.js"],
+        	feedback: ["vle/node/common/js/helperfunctions.js"],
         	journal: ["vle/journal/Journal.js",
         	          "vle/journal/JournalPage.js",
         	          "vle/journal/JournalPageRevision.js"]
@@ -343,6 +338,10 @@ var scriptloader = {
 	name: '',
 	//params to be run with custom function after scripts load
 	params: null,
+	//timer variable used for timing out if all scripts have not called back
+	_timer: null,
+	//the number of milliseconds to wait for scripts to completely load before warning
+	_wait: 30000,
 	//initializes scriptloader with provided document, function and params
 	//to run once script loading complete. Generates the script
 	//objects based on the javascripts and css' specfied by given name
@@ -355,6 +354,7 @@ var scriptloader = {
 		this.count = 0;
 		this.name = name;
 		this.generateScripts(this.javascripts[name], this.css[name]);
+		this._timer = setTimeout(function(){alert('It has been too long and not all scripts have called back to the listener for the scriptloader.')}, this._wait);
 		this.loadScripts(this.javascripts[name]);
 		this.loadCsss(this.css[name]);
 	},
@@ -365,6 +365,7 @@ var scriptloader = {
 	listener: function(){
 		this.count ++;
 		if(this.count==this.javascripts[this.name].length){
+			clearTimeout(this._timer);
 			if(this.afterLoad){
 				this.afterLoad(this.params);
 			};
@@ -491,11 +492,4 @@ var scriptloader = {
 			};
 		};
 	}
-};
-
-
-if(typeof pageBuilder!='undefined'){
-	pageBuilder.listener();
-} else if(window.parent && (typeof window.parent.pageBuilder!='undefined')){
-	window.parent.pageBuilder.listener();
 };

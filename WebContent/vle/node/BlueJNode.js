@@ -14,6 +14,10 @@ function BlueJNode(nodeType, connectionManager) {
 }
 
 BlueJNode.prototype.render = function(contentPanel) {
+	if(this.filename!=null && vle.project.lazyLoading && (!this.contentLoaded)){ //load element from file
+		this.retrieveFile();
+	};
+	
 	if(this.contentLoaded){ //content is available,  proceed with render	
 		var content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
 	

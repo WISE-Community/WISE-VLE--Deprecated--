@@ -18,6 +18,7 @@ function HtmlNode(nodeType, connectionManager) {
 HtmlNode.prototype.setContent = function(content) {
 	//update the content attribute that contains the html
 	this.content = content;
+	this.contentLoaded = true;
 	
 	//update the element node so it contains the new html the user just authored...why is this needed?
 	//this.element.getElementsByTagName("content")[0].firstChild.nodeValue = content;

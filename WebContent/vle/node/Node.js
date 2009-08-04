@@ -495,7 +495,7 @@ Node.prototype.injectBaseRef = function(content) {
 	} else {		
 		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
 		//alert('Node.js, this.contentbase:' + this.contentBase + ", contentbaseUrl:" + vle.project.contentBaseUrl);
-		if(vle.project.contentBaseUrl){
+		if(typeof vle !='undefined' && vle.project.contentBaseUrl){
 			var baseRefTag = "<base href='" +vle.project.contentBaseUrl + "'/>";
 		} else {
 			return content;
@@ -659,36 +659,42 @@ Node.prototype.isLeafNode = function() {
  * @return true if the student was at an outside link, false otherwise
  */
 Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
-	try {
-		/*
-		 * try to access the host attribute of the ifrm, if the content
-		 * loaded in the ifrm is in our domain it will not complain,
-		 * but if the content is from another domain it will throw an
-		 * error 
-		 */
-		window.frames["ifrm"].host;
-	} catch(err) {
-		//content was from another domain
+	//check for ifrm to see if this is running from vle.html or someplace
+	//other (such as authoring tool which does not have ifrm).
+	if(!window.frames['ifrm']){
+		return false;
+	} else {
+		try {
+			/*
+			 * try to access the host attribute of the ifrm, if the content
+			 * loaded in the ifrm is in our domain it will not complain,
+			 * but if the content is from another domain it will throw an
+			 * error 
+			 */
+			window.frames["ifrm"].host;
+		} catch(err) {
+			//content was from another domain
+			
+			/*
+			 * call back() to navigate back to the htmlnode page that contained
+			 * the link the student clicked on to access an outside page
+			 */
+			history.back();
+			
+			//call render to render the node we want to navigate to
+			setTimeout(function() {thisObj.render(thisContentPanel)}, 500);
+			
+			/*
+			 * tell the caller the student was at an outside link so
+			 * they don't need to call render()
+			 */
+			return true;
+		}
 		
-		/*
-		 * call back() to navigate back to the htmlnode page that contained
-		 * the link the student clicked on to access an outside page
-		 */
-		history.back();
-		
-		//call render to render the node we want to navigate to
-		setTimeout(function() {thisObj.render(thisContentPanel)}, 500);
-		
-		/*
-		 * tell the caller the student was at an outside link so
-		 * they don't need to call render()
-		 */
-		return true;
-	}
-	
-	//tell the caller the student was not at an outside link
-	return false;
-}
+		//tell the caller the student was not at an outside link
+		return false;
+	};
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/Node.js");

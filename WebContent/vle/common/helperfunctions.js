@@ -1,6 +1,7 @@
-function encodeString(text){
-	return encodeURIComponent(text);
-};
+/**
+ * Global helper functions
+ */
+
 
 function createAttribute(doc, node, type, val){
 	var attribute = doc.createAttribute(type);
@@ -33,129 +34,95 @@ function createIEElement(doc, type, attrArgs){
 	return doc.createElement(elString);
 };
 
-function removeClassFromElement(identifier, classString) {
-	YUI().use('node', function(Y) {
-		var node = Y.get('#'+identifier);
-		node.removeClass(classString);
-	});
-}
-
-function addClassToElement(identifier, classString) {
-	YUI().use('node', function(Y) {
-		var node = Y.get('#'+identifier);
-		node.addClass(classString);
-	});
-}
+/**
+ * Given a string, returns a URI encoded string.
+ * 
+ * @param String
+ * @return String
+ */
+function encodeString(text){
+	return encodeURIComponent(text);
+};
 
 /**
- * returns true iff element with specified identifier has 
- * a class classString
- * @param identifier
- * @param classString
+ * Returns the element(s) with the given attributeName. If the attributeValue
+ * is specified, it will filter further.
+ * @param attributeName
+ * @param attributeValue
  * @return
  */
-function hasClass(identifier, classString) {
-	var classesStr = document.getElementById(identifier).getAttribute('class');
-	return classesStr != null && (classesStr.indexOf(classString) != -1);
+function getElementsByAttribute(attributeName, attributeValue, frameName) {
+	notificationManager.notify('attributeName:' + attributeName + ", attributeValue:" + attributeValue, 4);
+	var bodyNode = null;
+	if (frameName != null) {
+		notificationManager.notify('frameName:' + frameName, 4);
+		bodyNode = global_yui.get(window.frames['ifrm'].frames[frameName].document.body);
+	} else {
+		bodyNode = global_yui.get(window.frames["ifrm"].document.body);
+	}
+	if (attributeValue != null) {
+		var node = bodyNode.query('['+attributeName+'='+attributeValue+']');
+		notificationManager.notify('audioNode:' + node, 4);
+		return node;
+	} else {
+		var nodes = bodyNode.queryAll('['+attributeName+']');
+		if (nodes != null) {
+			notificationManager.notify('audioNodes.length:' + nodes.size(), 4);
+			for (var i=0; i< nodes.size(); i++) {
+				notificationManager.notify('audioNode textContent:' + nodes.item(i).get('textContent'), 4);
+			}
+		}
+		return nodes;
+	}
 }
 
 /**
- * Clears innerHTML of a div with id=feedbackDiv
- */
-function clearFeedbackDiv() {
-	document.getElementById("feedbackDiv").innerHTML = "";
-}
-
-/**
- * Clears value of an element with id=responseBox
- */
-function clearResponseBox() {
-	document.getElementById("responseBox").value = "";
-}
-
-/**
- * show tryagain button iff doShow == true
- * @param doShow
+ * returns true iff the URL returns a 200 OK message
+ * @param url url to test
  * @return
  */
-function setButtonVisible(buttonId, doShow) {
-    var tryAgainButton = document.getElementById(buttonId);
-
-	if (doShow) {
-	    tryAgainButton.style.visibility = 'visible';
-	} else {
-	    tryAgainButton.style.visibility = 'hidden';		
+function checkAccessibility(url) {
+	var callback = {
+			success: function(o) {return true},
+			failure: function(o) {return false}
 	}
+	var transaction = YAHOO.util.Connect.asyncRequest('HEAD', url, callback, null);
 }
 
 /**
- * enable checkAnswerButton
- * OR
- * disable checkAnswerButton
+ * Given an html string, removes all whitespace and returns that string
+ * 
+ * @param html String
+ * @return html String without whitespace
  */
-function setCheckAnswerButtonEnabled(doEnable) {
-  var checkAnswerButton = document.getElementById('checkAnswerButton');
-
-  if (doEnable) {
-    checkAnswerButton.removeAttribute('disabled');
-  } else {
-    checkAnswerButton.setAttribute('disabled', 'true');
-  }
-}
-
-function setResponseBoxEnabled(doEnable) {
-	var responseBox = document.getElementById('responseBox');
-	if (doEnable) {
-		responseBox.removeAttribute('disabled');
-	} else {
-		responseBox.setAttribute('disabled','disabled');
-	}
-}
+function normalizeHTML(html){
+	return html.replace(/\s+/g,'');
+};
 
 /**
- * Updates text in div with id numberAttemptsDiv with info on number of
- * attempts. The text will generally follow the format:
- * This is your ___ attempt.  Or This is your ___ revision.
- * part1 example: This is your
- * part2 example: attempt
- * part2 example2: revision
+ * Finds and injects the vle url for any relative references
+ * found in content.
  */
-function displayNumberAttempts(part1, part2, states) {
-	var nextAttemptNum = states.length + 1;
-	var nextAttemptString = "";
-	if (nextAttemptNum == 1) {
-		nextAttemptString = "1st";		
-	} else if (nextAttemptNum == 2) {
-		nextAttemptString = "2nd";		
-	} else if (nextAttemptNum == 3) {
-		nextAttemptString = "3rd";		
-	} else {
-		nextAttemptString = nextAttemptNum + "th";		
-	}
-	var numAttemptsDiv = document.getElementById("numberAttemptsDiv");
-	var numAttemptsDivHtml = part1 + " " + nextAttemptString + " " + part2 +".";
-	numAttemptsDiv.innerHTML = numAttemptsDivHtml;
-}
+function injectVleUrl(content){
+	var loc = window.location.toString();
+	var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
+	
+	content = content.replace(/(src='|src="|href='|href=")(?!http|\/)/gi, '$1' + vleLoc);
+	return content;
+};
 
-/**
- * Updates text in div with id lastAttemptDiv with info on
- * student's last attempt
- * javascript Date method reference:
- * http://www.w3schools.com/jsref/jsref_obj_date.asp
- */
-function displayLastAttempt(states) {
-	if (states.length > 0) {
-	    var t = states[states.length - 1].timestamp;
-	    var month = t.getMonth() + 1;
-	    var hours = t.getHours();
-	    var minutes = t.getMinutes();
-	    var seconds = t.getSeconds();
-	    var timeToDisplay = month + "/" + t.getDate() + "/" + t.getFullYear() +
-	        " at " + hours + ":" + minutes + ":" + seconds;
-		var lastAttemptDiv = document.getElementById("lastAttemptDiv");
-		lastAttemptDiv.innerHTML = " Your last attempt was on " + timeToDisplay;
-	}
-}
+// define array.contains method, which returns true iff the array
+//contains the element specified
+if(!Array.contains){
+	Array.prototype.contains = function(obj) {
+        for(var i=0; i<this.length; i++){
+            if(this[i]==obj){
+                return true;
+            }
+        }
+        return false;
+	};
+};
 
 //IE 7 doesn't have indexOf method, so we need to define it........
 if(!Array.indexOf){
@@ -163,11 +130,11 @@ if(!Array.indexOf){
         for(var i=0; i<this.length; i++){
             if(this[i]==obj){
                 return i;
-            }
-        }
+            };
+        };
         return -1;
-    }
-}
+    };
+};
 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/common/helperfunctions.js");

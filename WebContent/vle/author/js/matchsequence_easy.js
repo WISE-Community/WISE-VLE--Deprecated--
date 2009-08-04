@@ -830,8 +830,8 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		generatePage();
 	
 		//retrieve the xmlString from the mcObj
-		var xmlString = "";
-		var customCheck = "";
+		var xmlString;
+		var customCheck;
 		if(window.ActiveXObject) {
 			xmlString = xmlDoc.getElementsByTagName('assessmentItem')[0].xml;
 			if(xmlDoc.getElementsByTagName('customCheck')[0]!=null){
@@ -843,12 +843,11 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 				customCheck = xmlDoc.getElementsByTagName('customCheck')[0].firstChild.nodeValue;
 			};
 		}
-		
-		if(customCheck != null && customCheck != ""){
-			window.frames["previewFrame"].loadFromXMLString(xmlString, customCheck);
-		} else {
-			window.frames["previewFrame"].loadFromXMLString(xmlString);
+		if(customCheck==undefined || customCheck==''){
+			customCheck=null;
 		};
+		
+		window.frames["previewFrame"].loadContent(xmlString, customCheck);
 
 		  },
 		  failure: function(o) { alert('failure');},
@@ -892,12 +891,35 @@ function shuffleChanged(){
 		customCheck = xmlPage.getElementsByTagName('customCheck')[0].firstChild.nodeValue;
 	};
 	
-	if(customCheck != null && customCheck != ""){
-		window.frames["previewFrame"].loadFromXMLString(xmlString, customCheck);
-	} else {
-		window.frames["previewFrame"].loadFromXMLString(xmlString);
+	if(customCheck==undefined || customCheck==''){
+		customCheck=null;
 	};
+	
+	window.frames["previewFrame"].loadContent(xmlString, customCheck);
  };
 
+function loaded(){
+	//set frame source to blank and create page dynamically
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml){
+			var frm = window.frames["previewFrame"];
+			
+			frm.document.open();
+			frm.document.write(window.parent.opener.injectVleUrl(text));
+			frm.document.close();
+			
+			frm.loadAuthoring = function(){
+				window.parent.childSave = save;
+				window.parent.getSaved = getSaved;
+				loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			};
+		};
+		
+		window.parent.opener.connectionManager.request('GET', 1, 'node/matchsequence/matchsequence.html', null,  renderAfterGet);
+	};
+	
+	window.frames['previewFrame'].location = '../blank.html';
+};
+ 
 //used to notify scriptloader that this script has finished loading
 scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/author/js/matchsequence_easy.js");

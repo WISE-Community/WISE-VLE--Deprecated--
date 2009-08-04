@@ -35,19 +35,6 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 	{
 	  success: function(o) { 
 	  var xmlDocToParse = o.responseXML;
-	  
-	  /***						***|
-		   * Extra work needed for IE *|
-		   ***						***/
-		  if(window.ActiveXObject){
-		  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
-		  	ieXML.async = "false";
-		  	ieXML.loadXML(o.responseText);
-		  	xmlDocToParse = ieXML;
-		  };
-		  /***						***|
-		   * End extra work for IE	  *|
-		   ***						***/
 
 		/**
 		 * sets local xml and then generates the left panel
@@ -56,7 +43,6 @@ function loadAuthoringFromFile(filename, projectName, projectPath, pathSeparator
 		xmlPage = xmlDocToParse;
 		generatePage();
 		
-		//retrieve the xmlString from the mcObj
 		var xmlString = "";
 		if(window.ActiveXObject) {
 			xmlString = xmlDocToParse.xml;
@@ -91,6 +77,29 @@ function sourceUpdated() {
 	};
 
 	window.frames["previewFrame"].loadUrl(xmlPage.getElementsByTagName('url')[0].firstChild.nodeValue);
+};
+
+function loaded(){
+	//set frame source to blank and create page dynamically
+	window.allReady = function(){
+		var renderAfterGet = function(text, xml){
+			var frm = window.frames["previewFrame"];
+			
+			frm.document.open();
+			frm.document.write(window.parent.opener.injectVleUrl(text));
+			frm.document.close();
+			
+			frm.loadAuthoring = function(){
+				window.parent.childSave = save;
+				window.parent.getSaved = getSaved;
+				loadAuthoringFromFile(window.parent.filename, window.parent.projectName, window.parent.projectPath, window.parent.pathSeparator);
+			};
+		};
+		
+		window.parent.opener.connectionManager.request('GET', 1, 'node/outsideurl/outsideurl.html', null,  renderAfterGet);
+	};
+	
+	window.frames['previewFrame'].location = '../blank.html';
 };
 
 //used to notify scriptloader that this script has finished loading

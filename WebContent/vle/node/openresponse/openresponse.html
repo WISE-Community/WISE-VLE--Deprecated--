@@ -1,6 +1,6 @@
 <html>
     <head>
-        <script type="text/javascript" src="../../util/scriptloader.js">
+        <script type="text/javascript" src="util/scriptloader.js">
         </script>
         <script type="text/javascript">
             var or; // global variable so it can be accessed by other functions
@@ -15,20 +15,18 @@
             /**
              * called after or has been initialized and scripts loaded
              */
-            function loadAfterScriptsLoad(params){
-                or = new OPENRESPONSE(params[0]);
-                or.loadState(params[2]);
-                or.setVLE(params[1]);
+            function loadContentAfterScriptsLoad(args){
+                or = new OPENRESPONSE(args[0]);
+                or.loadState(args[2]);
+                or.setVLE(args[1]);
                 or.render();
-                afterScriptsLoad();
             };
             
             /**
              * xmlString contains QTI-coded xml content
              */
-            function loadContentXMLString(xmlString, vle, states){
-                var params = [xmlString, vle, states];
-                scriptloader.initialize(document, loadAfterScriptsLoad, 'openresponse', params);
+            function loadContent(args){
+                scriptloader.initialize(document, loadContentAfterScriptsLoad, 'openresponse', args);
             }
             
             function checkAnswer(){
@@ -64,16 +62,15 @@
             }
             
         </script>
-        <script type="text/javascript">
-            function afterScriptsLoad(){
-                          }
-            
+        <script type="text/javascript">            
             window.onload = function(){
                 if (!window.parent) {
-                    scriptloader.initialize(document, afterScriptsLoad, 'openresponse');
-                } else if(typeof allReady!='undefined'){
-                    allReady(this);
-                };
+                    scriptloader.initialize(document, null, 'openresponse');
+                } else if(window.loadAuthoring){
+                	scriptloader.initialize(document, loadAuthoring, 'openresponse');
+                } else if(window.renderComplete){
+					renderComplete();
+            	};
             };
         </script>
     </head>
@@ -128,10 +125,10 @@
             <table id="buttonTable">
                 <tr>
                     <td>
-                        <a href="#" id="saveButton" onClick="javascript:save();">Save</a>
+                        <a id="saveButton" onClick="javascript:save();">Save</a>
                     </td>
                     <td>
-                        <a href="#" id="editButton" onClick="javascript:edit();" class="disabledLink">Edit</a>
+                        <a id="editButton" onClick="javascript:edit();" class="disabledLink">Edit</a>
                     </td>
                 </tr>
             </table>

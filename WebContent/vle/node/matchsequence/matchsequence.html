@@ -24,8 +24,8 @@
 -->
 <html>
     <head>
-        <script type="text/javascript" src="../../util/scriptloader.js"></script>
-        <script type="text/javascript" src="../../yui/yui_3.0.0b1/build/yui/yui-min.js"></script>
+        <script type="text/javascript" src="util/scriptloader.js"></script>
+        <script type="text/javascript" src="yui/yui_3.0.0b1/build/yui/yui-min.js"></script>
         
         <script type="text/javascript">
             var ms; // global variable so it can be accessed by other functions
@@ -35,16 +35,15 @@
             /**
              * xmlString contains QTI-coded xml content
              */
-            function loadFromXMLString(xmlString, customCheck){
+            function loadContent(xmlString, customCheck){
                 var params = [xmlString, customCheck];
-                scriptloader.initialize(document, loadFromXMLStringAfterScriptsLoad, 'matchsequence', params);
+                scriptloader.initialize(document, loadContentAfterScriptsLoad, 'matchsequence', params);
             };
             
-            function loadFromXMLStringAfterScriptsLoad(params){
+            function loadContentAfterScriptsLoad(params){
                 var xmlDoc = loadXMLDocFromString(params[0]);
                 ms = new MS(xmlDoc, params[1]);
                 ms.render();
-                afterScriptsLoad();
             }
         </script>
         <!--  Javascript Pop up window -->
@@ -75,17 +74,15 @@
                 newWin.focus();
             }
         </script>
-        <script type="text/javascript">
-            function afterScriptsLoad(){
-                Nifty("div#playContainer", "med, all");
-            };
-            
+        <script type="text/javascript">            
             window.onload = function(){
                 if (!window.parent) {
-                    scriptloader.initialize(document, afterScriptsLoad, 'matchsequence');
-                } else if(typeof allReady!='undefined'){
-                    allReady(this);
-                };
+                    scriptloader.initialize(document, null, 'matchsequence');
+                } else if(window.loadAuthoring){
+					scriptloader.initialize(document, loadAuthoring, 'matchsequence');
+                } else if(window.renderComplete){
+					renderComplete();
+            	};
             };
         </script>
     </head>
@@ -95,11 +92,11 @@
                 <tr>
                     <td>
                         <div id="helpIcon">
-                            <a href="MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                            <a href="node/matchsequence/MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
                         </div>
                     </td>
                     <td>
-                        <a id="helpTextLink" href="MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                        <a id="helpTextLink" href="node/matchsequence/MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
                     </td>
                 </tr>
             </table>
@@ -111,7 +108,7 @@
         </div>        <!-- end of questinCountBox -->
         <div>
             <div id="roboArt">
-                <img src="../../images/match_sequence.png" alt="Robot Art Open Response" width="180" border="0" />
+                <img src="images/match_sequence.png" alt="Robot Art Open Response" width="180" border="0" />
             </div>
             <div id="promptDiv" class="Color1">
                 Prompt goes here. This text will automatically be replaced by actual prompt.
@@ -133,7 +130,7 @@
             <table id="buttonTable">
                 <tr>
                     <td>
-                        <a href="#" id="checkAnswerButton" onClick="javascript:ms.checkAnswer();">Check Answers</a>
+                        <a id="checkAnswerButton" onClick="javascript:ms.checkAnswer();">Check Answers</a>
                     </td>
                 </tr>
             </table>
