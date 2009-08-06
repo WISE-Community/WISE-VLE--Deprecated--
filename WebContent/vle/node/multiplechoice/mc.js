@@ -162,8 +162,9 @@ MC.prototype.render = function() {
 		tableElement.appendChild(tbody);
 		tbody.appendChild(trElement);
 		trElement.appendChild(td1Element);
-		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type': type, 'name':'radiobutton', 'value':this.choices[i].identifier, 'class': type, 'onclick':"enableCheckAnswerButton('true');"});
+		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type': type, 'name':'radiobutton', 'value':this.choices[i].identifier, 'class': type});
 		td1Element.appendChild(radiobuttonElement);
+		radiobuttonElement.onclick = function(){enableCheckAnswerButton('true');};
 		var td2Element = createElement(document, 'td', {});
 		trElement.appendChild(td2Element);
 		var radiobuttonTextDiv = document.createElement("div");
@@ -476,7 +477,6 @@ MC.prototype.checkAnswerLite = function(){
  * disable checkAnswerButton
  */
 function enableCheckAnswerButton(doEnable) {
-
 	if (doEnable == 'true') {
 		removeClassFromElement("checkAnswerButton", "disabledLink"); // disable checkAnswerButton
 	} else {

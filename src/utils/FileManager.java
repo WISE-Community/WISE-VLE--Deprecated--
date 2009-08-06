@@ -390,6 +390,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 				out += current + Template.NL;
 			}
 			br.close();
+			out = out.replaceAll("\"", "\"");
 			return out.replaceAll(" & ", " &amp; ");
 		} else {
 			throw new FileNotFoundException("Unable to locate file: " + file.getAbsolutePath());
@@ -513,7 +514,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 			if(success){
 				filename = file.getName();
 				FileOutputStream fop = new FileOutputStream(file);
-				fop.write(Template.getNodeTemplate(type).getBytes());
+				fop.write(Template.getNodeTemplate(type, title).getBytes());
 				fop.flush();
 				fop.close();
 				File parent = new File(projectPath);

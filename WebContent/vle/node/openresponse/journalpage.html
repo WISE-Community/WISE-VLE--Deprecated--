@@ -54,22 +54,6 @@ function hasChildren(){
 	return(childIds.length>0);
 };
 
-function createAttribute(doc, node, type, val){
-	var attribute = doc.createAttribute(type);
-	attribute.nodeValue = val;
-	node.setAttributeNode(attribute);
-};
-
-function createElement(doc, type, attrArgs){
-	var newElement = doc.createElement(type);
-	if(attrArgs!=null){
-		for(var option in attrArgs){
-			createAttribute(doc, newElement, option, attrArgs[option]);
-		};
-	};
-	return newElement;
-};
-
 function createMenu(){
 	if(hasChildren()){
 		var html = '';

@@ -55,13 +55,13 @@ public final class Template {
 		return "<sequence identifier=\"" + id + "\" title=\"" + title + "\">" + NL + "</sequence>";
 	}
 	
-	public static String getNodeTemplate(String type){
+	public static String getNodeTemplate(String type, String title){
 		if(type.equals("BrainstormNode")){
 			return getBrainstormTemplate();
 		} else if(type.equals("FillinNode")){
 			return getFillinTemplate();
 		} else if(type.equals("HtmlNode")){
-			return getHtmlTemplate();
+			return getHtmlTemplate(title);
 		} else if(type.equals("MatchSequenceNode")){
 			return getMatchSequenceTemplate();
 		} else if(type.equals("MultipleChoiceNode")){
@@ -174,8 +174,8 @@ public final class Template {
 			"</MatchSequence>";
 	}
 
-	private static String getHtmlTemplate() {
-		return "<html>" + NL + "<head>" + NL + "</head>" + NL + "<body>" + NL + "</body>" + NL + "</html>";
+	private static String getHtmlTemplate(String title) {
+		return "<html>" + NL + "<head>" + NL + "<title>" + title + "</title>" + NL + "</head>" + NL + "<body>" + NL + "</body>" + NL + "</html>";
 	}
 
 	private static String getFillinTemplate() {

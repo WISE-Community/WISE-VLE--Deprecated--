@@ -5,7 +5,6 @@
 function removeClassFromElement(identifier, classString) {
 	YUI().use('node', function(Y) {
 		var node = Y.get('#'+identifier);
-		//alert('removeClassFromElement node:' + node + "id:" + identifier);
 		node.removeClass(classString);
 	});
 }
@@ -13,7 +12,6 @@ function removeClassFromElement(identifier, classString) {
 function addClassToElement(identifier, classString) {
 	YUI().use('node', function(Y) {
 		var node = Y.get('#'+identifier);
-		//alert('addClassToElement node:' + node + "id:" + identifier);
 		node.addClass(classString);
 	});
 }

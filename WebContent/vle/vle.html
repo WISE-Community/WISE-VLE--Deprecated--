@@ -19,7 +19,7 @@
             var vleConfigURL = null;
             var portalContext = false;
             var workgroupId = null;
-            
+        	
             /**
              * Determines whether this is being called from authoring tool or
              * portal. If from authoring tool, checks whether this project is
@@ -291,8 +291,8 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                                 <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
                                 <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show My Progress</a></li>
                                 <!--  <li><a class="underline" onclick="alert('not yet implemented');">Export Work to PDF</a></li>  -->
-                                <li><a class="underline" href="/webapp/student/index.html" target="_parent">Goto Student Home Page</a></li>
-                                <li><a class="underline" href="/webapp/j_spring_security_logout" target="_parent">Quit & Log Out</a></li>
+                                <li><a class="underline" id="gotoStudentHomePageLink" href="/webapp/student/index.html" target="_parent">Goto Student Home Page</a></li>
+                                <li><a class="underline" id="quitAndLogoutLink" href="/webapp/j_spring_security_logout" target="_parent">Quit & Log Out</a></li>
                             </ul>
                         </dd>
                     </dl>

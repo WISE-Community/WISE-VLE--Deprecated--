@@ -1,7 +1,7 @@
 <html>
 <head>
 <script type="text/javascript" src="util/scriptloader.js"></script>
-<script type='text/javascript' src='yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
+<script type='text/javascript' src='yui/yui_3.0.0pr2/build/yui/yui-min.js'></script>
 <script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
 
 <link rel="shortcut icon" href="images/favicon.ico">
@@ -886,12 +886,19 @@ function removeNodeFileFromServer(nodeId){
  */
 function nodeTitleChanged(id){
 	var node = project.getNodeById(id);
-	node.title = document.getElementById(id + '_title').value;
-	
-	populateSequences();
-	generateDD();
-	
-	saveProject();
+	var val = document.getElementById(id + '_title').value;
+
+	if(val.length>60){
+		notificationManager.notify('Node titles cannot exceed 60 characters.', 3);
+		document.getElementById(id + '_title').value = val.substring(0, 60);
+	} else {
+		node.title = document.getElementById(id + '_title').value;
+		
+		populateSequences();
+		generateDD();
+		
+		saveProject();
+	};
 };
 
 /**
@@ -901,13 +908,18 @@ function nodeTitleChanged(id){
 function sequenceTitleChanged(id){
 	var node = project.getNodeById(id);
 	var el = document.getElementById(id + '_input');
-	
-	node.title = el.value;
+
+	if(el.value.length>28){
+		notificationManager.notify('Sequence titles cannot exceed 28 characters.', 3);
+		el.value = el.value.substring(0, 28);
+	} else {
+		node.title = el.value;
+			
+		populateSequences();
+		generateDD();
 		
-	populateSequences();
-	generateDD();
-	
-	saveProject();
+		saveProject();
+	};
 };
 
 /**
@@ -1104,6 +1116,14 @@ function loadProjectFromServer(o){
 		if(hostedProject){
 			project.contentBaseUrl = hostedContentBaseURL;
 		};
+
+		if(project.title){
+			var title = project.title;
+		} else {
+			var title = currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
+		};
+
+		document.getElementById('currentProject').innerHTML = 'Title = ' + title;
 		
 		populateSequences();
 		populateNodes();
@@ -1113,7 +1133,6 @@ function loadProjectFromServer(o){
 	vle = new VLE();
 	vle.eventManager.subscribe('projectLoadingComplete', processOnLoad);
 	vle.loadProjectFromServer(o);
-	document.getElementById('currentProject').innerHTML = 'Title = ' + currentProjectName.substring(0, currentProjectName.lastIndexOf('.project.xml'));
 };
 
 /*

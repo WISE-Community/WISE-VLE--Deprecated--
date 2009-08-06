@@ -32,7 +32,7 @@ function VLE() {
 	YUI().use('node', function(Y) {
 		global_yui = Y;
 	});
-}
+};
 
 VLE.prototype.startEventsAndListeners = function(){
 	this.eventManager.addEvent(this, 'vleConfigLoading');
@@ -995,6 +995,12 @@ VLE.prototype.loadTheme = function(theme) {
 	var cssArrayName = "wise";   // maps to array name in scriptloader's css array.
 	if (theme && theme != null) {
 		cssArrayName = theme.toLowerCase();
+		
+		if (theme == "UCCP") {
+			// update the project menu links
+			document.getElementById("gotoStudentHomePageLink").href="../../moodle/index.php";
+			document.getElementById("quitAndLogoutLink").href="../index.php";
+		}
 	}
 	// start in WISE theme          
 	scriptloader.generateScripts(null, scriptloader.css[cssArrayName]);
