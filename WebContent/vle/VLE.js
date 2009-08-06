@@ -1011,27 +1011,94 @@ VLE.prototype.loadTheme = function(theme) {
  * Renders all of the nodes that are used in the project
  * for this VLE all at once in their own frames
  */
-VLE.prototype.renderAll = function(contentURL, contentBaseUrl){
+VLE.prototype.renderAll = function(contentURL, contentBaseUrl, cfgXml){
 	var afterProjectLoaded = function(){
-		var parent = document.getElementsByTagName('html')[0];
-		parent.removeChild(document.getElementsByTagName('body')[0]);
-		var b = createElement(document, 'body');
-		parent.appendChild(b);
+		var b = document.body;
+		//remove centered div
+		var cDiv = document.getElementById('centeredDiv');
+		cDiv.parentNode.removeChild(cDiv);
 		
+		//remove frames
+		var frms = window.frames;
+		for(var s=0;s<frms.length;s++){
+			if(frms[s].name && document.getElementById(frms[s].name)){
+				var frmEl = document.getElementById(frms[s].name);
+				frmEl.parent.removeChild(frmEl);
+			} else if(frms[s].id && document.getElementById(frms[s].id)){
+				var frmEl = document.getElementById(frms[s].id);
+				frmEl.parent.removeChild(frmEl);
+			};
+		};
+		
+		//set project name if it exists
+		if(vle.project.title){
+			pDiv = window.parent.document.getElementById(window.name).previousSibling;
+			pDiv.innerHTML = 'Project Title: ' + vle.project.title + '</br>' + pDiv.innerHTML;
+		};
+		
+		//create frames and display elements for each node in project and
+		//set initial values
 		var currentNode = vle.getNodeById(vle.project.getStartNodeId());
 		var count = 0;
 		while(currentNode){
-			var frm = createElement(document, 'iframe', {name: 'frame_' + count, id: 'frame_' + count, src: 'empty.html'});
-
-			b.appendChild(frm);
-			currentNode.render(frm);
+			var frmDiv = createElement(document, 'div', {id: 'frame_' + count + '_frameDiv', style:"border: 2px black solid;"});
+			var titleDiv = createElement(document, 'div', {id: 'frame_' + count + '_displayTitleDiv'});
+			var typeDiv = createElement(document, 'div', {id: 'frame_' + count + '_displayTypeDiv'});
+			var filenameDiv = createElement(document, 'div', {id: 'frame_' + count + '_displayFilenameDiv'});
 			
+			var frm = createElement(document, 'iframe', {name: 'frame_' + count, id: 'frame_' + count, src: 'empty.html', width: '100%', height: '527'});
+
+			b.appendChild(frmDiv);
+			frmDiv.appendChild(titleDiv);
+			titleDiv.innerHTML = 'Node Title: ' + currentNode.title;
+			frmDiv.appendChild(typeDiv);
+			typeDiv.innerHTML = 'Node Type: ' + currentNode.type;
+			frmDiv.appendChild(filenameDiv);
+			filenameDiv.innerHTML = 'Node ID: ' + currentNode.id;
+			frmDiv.appendChild(frm);
+			
+			//get display settings from cfgXml and set initial state for display settings
+			if(cfgXml.getElementsByTagName('displayFilenameDiv')[0].getAttribute('checked')=='true'){
+				filenameDiv.style.display = 'block';
+			} else {
+				filenameDiv.style.display = 'none';
+			};
+			
+			if(cfgXml.getElementsByTagName('displayTypeDiv')[0].getAttribute('checked')=='true'){
+				typeDiv.style.display = 'block';
+			} else {
+				typeDiv.style.display = 'none';
+			};
+			
+			if(cfgXml.getElementsByTagName('displayTitleDiv')[0].getAttribute('checked')=='true'){
+				titleDiv.style.display = 'block';
+			} else {
+				titleDiv.style.display = 'none';
+			};
+			
+			//Render if necessary
+			if(cfgXml.getElementsByTagName('rendered')[0].getAttribute('checked')=='true'){
+				currentNode.render(frm);
+			} else {
+				frm.style.display = 'none';
+			};
+			
+			//display surrounding div if nodetype is checked, hide otherwise
+			if(cfgXml.getElementsByTagName(currentNode.type)[0].getAttribute('checked')=='true'){
+				frmDiv.style.display = 'block';
+			} else {
+				frmDiv.style.display = 'none';
+			};
+			
+			//get the next visitable node for this project
 			var nextNode = this.navigationLogic.getNextNode(currentNode);
 			while (nextNode != null && (nextNode.type == "Activity" || nextNode.children.length > 0)) {
 				nextNode = this.navigationLogic.getNextNode(nextNode);
 			}
 			
+			//attach the node to its frame
 			window.frames[frm.name].frameNode = currentNode;
+			
 			currentNode = nextNode;
 			count ++;
 		};

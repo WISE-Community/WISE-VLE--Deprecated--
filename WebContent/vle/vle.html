@@ -92,14 +92,14 @@
             /**
              *
              */
-            function renderAll(){
+            function renderAll(cfg){
             	var splitz = window.location.toString().split("//")[1].split("/");
                 var domain = 'http://' + splitz[0] + '/' + splitz[1];
                 var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
                 var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
                 
 				vle = new VLE();
-				vle.renderAll(contentUrl, contentBaseUrl);
+				vle.renderAll(contentUrl, contentBaseUrl, cfg);
             };
         </script>
         <!--  Javascript Pop up window -->

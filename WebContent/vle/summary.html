@@ -7,111 +7,143 @@
 <link rel="shortcut icon" href="images/favicon.ico">
 
 <script type='text/javascript'>
-var summary_yui;  // YUI global object for this page
-var project;
-var easyMode = true; //the mode that gets passed to the individual authoring pages
-var currentProjectName;
-var currentProjectPath;
-var pathSeparator;
-var projectSaved = true;
-var projectsLoaded;
-var pathsLoaded;
+var projectsLoaded; //event variable
+var pathsLoaded; //event variable
+var summary_yui; //Used for YUI
 
-var projectPaths; //a | delimited string of the project paths specified in settings.xml
-var hostedProjectPaths;
-var hostedPaths = [];
-var hostedURLs = [];
-var hostedProject = false;
-var hostedContentBaseURL;
-var hostedContentURL;
-var primaryPath = ""; //the default path to create new projects
+var displayDivNames = ['displayFilenameDiv', 'displayTypeDiv', 'displayTitleDiv'];
+var cfgXml;
+var renderedSteps = false;
 
+//initialize YUI
+YUI().use('node', function(Y){summary_yui = Y});
+
+/**
+ * Creates events and launchs the parsing of projects and state when
+ * the scripts for this page have finished loading.
+ */
 function afterScriptsLoad(){
 	projectsLoaded = new YAHOO.util.CustomEvent("projectListLoaded");
 	pathsLoaded = new YAHOO.util.CustomEvent("pathsLoaded");
-	getProjectPaths();
+	parseProjectsAndState();
 };
 
+/**
+ * Loads scripts and provides callback for scriptloader
+ */
 function loaded(){
 	scriptloader.initialize(document, afterScriptsLoad, 'main');
 };
 
-function getProjectPaths(){
-	var settings;
+/**
+ * Retrieves the configuration file and assigns the xml to cfgXml.
+ * When completed, launches functions to either build or restore
+ * the state and load projects.
+ */
+function parseProjectsAndState(){
 	var callback = {
-		success: function(o){
-			if(o.responseXML){
-			  settings = o.responseXML;
-			  
-			  /***						***|
-			   * Extra work needed for IE *|
-			   ***						***/
-			  if(window.ActiveXObject){
-			  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
-			  	ieXML.async = "false";
-			  	ieXML.loadXML(o.responseText);
-			  	settings = ieXML;
-			  };
-			  /***						***|
-			   * End extra work for IE	  *|
-			   ***						***/
-			} else {
-				settings = loadXMLDocFromString(o.responseText);
-			};
-			
-			if(settings){
-				var path = settings.getElementsByTagName('projectPaths');
-				projectPaths = "";
-				hostedProjectPaths = "";
-				
-				if(path && path[0] && path[0].firstChild){
-					var hosted = path[0].getElementsByTagName('hosted');
-					for(var i=0;i<hosted.length;i++){
-						if(hosted[i] && hosted[i].firstChild){
-							hostedProjectPaths += hosted[i].firstChild.nodeValue;
-							if(i!=hosted.length-1){
-								hostedProjectPaths += '~';
-							};
-						};
-					};
-				
-					var paths = path[0].getElementsByTagName('path');
-					for(var u=0;u<paths.length;u++){
-						if(paths[u] && paths[u].firstChild){
-							projectPaths += paths[u].firstChild.nodeValue;
-							if(u!=paths.length-1){
-								projectPaths += '~';
-							};
-						};
-					};
-					
-					var primary = settings.getElementsByTagName('primaryPath');
-					if(primary && primary[0] && primary[0].firstChild){
-						primaryPath = primary[0].getElementsByTagName('path');
-						if(primaryPath && primaryPath[0] && primaryPath[0].firstChild){
-							primaryPath = primaryPath[0].firstChild.nodeValue;
-							projectPaths += '~' + primaryPath;
-						} else {
-							primaryPath = "";
-						};
-					} else {
-						primaryPath = "";
-					};
+			success: function(o){
+				if(o.responseXML){
+				  cfgXml = o.responseXML;
+				  
+				  //check for IE 
+				  if(window.ActiveXObject){
+				  	var ieXML = new ActiveXObject("Microsoft.XMLDOM");
+				  	ieXML.async = "false";
+				  	ieXML.loadXML(o.responseText);
+				  	cfgXml = ieXML;
+				  };
+				} else {
+					cfgXml = loadXMLDocFromString(o.responseText);
 				};
-				
-				pathsLoaded.fire();
-				getProjects();
-			} else {
-				notificationManager.notify("Error retrieving settings", 3);
-			};
-		},
-		failure: function(o){},
-		scope: this
+
+				if(cfgXml){
+					restoreStateFromXml();
+				} else {
+					alert('summary.cfg.xml retrieved but unable to parse file, using default configuration.');
+					setDefaultState();
+				};
+			},
+			failure: function(o){
+				console.warn('could not find summary.cfg.xml file, using default configuration.');
+				setDefaultState();
+			},
+			scope: this
 	};
 	
-	YAHOO.util.Connect.asyncRequest('GET', 'settings.xml', callback, null);
+	YAHOO.util.Connect.asyncRequest('GET', 'summary.cfg.xml', callback, null);
 };
 
+/**
+ * Restores the state of summary.html from cfgXml
+ */
+function restoreStateFromXml(){
+	//Restores state of nodeType checkboxes
+	setChecked(cfgXml.getElementsByTagName('nodeTypes')[0].childNodes);
+
+	//Restores state of display checkboxes
+	setChecked(cfgXml.getElementsByTagName('display')[0].childNodes);
+
+	//now retrieve Projects
+	getProjects();
+};
+
+/**
+ * Retrieves projects from cfgXml and runs function to load them.
+ */
+function getProjects(){
+	var addToVisibleList = function(name) {
+		var parent = document.getElementById("list1");
+		var li = createElement(document, 'li', {"class":"list1"});
+		var label = createElement(document, 'div', {id:"div_"+name, "class":"label"});
+		var labelText = document.createTextNode('Project: ' + name);
+		label.appendChild(labelText);
+		var frame = createElement(document, 'iframe', {id:"ifrm_"+name, name:"ifrm_"+name, src:"/vlewrapper/vle/vle.html", width:"100%", height:"100%"});
+		li.appendChild(label);
+		li.appendChild(frame);
+		parent.appendChild(li);
+	};
+
+	if(cfgXml){
+		if(cfgXml.getElementsByTagName('rendered')[0].getAttribute('checked')=='true'){
+			renderedSteps = true;
+		};
+		
+		var pp = cfgXml.getElementsByTagName('path');
+		for(var g=0;g<pp.length;g++){
+			addToVisibleList(pp[g].firstChild.nodeValue);
+		};
+	} else {
+		console.warn('could not find the configuration xml, unable to load projects');
+	};
+};
+
+/**
+ * Given a list of xml nodes, finds corresponding html
+ * element and sets whether it is checked according to
+ * the node attribute 'checked'.
+ */
+function setChecked(nodes){
+	for(var p=0;p<nodes.length;p++){
+		var box = document.getElementById(nodes[p].nodeName);
+		if(box){
+			if(nodes[p].getAttribute('checked')=='true'){
+				box.checked = true;
+			} else {
+				box.checked = false;
+			};
+		};
+	};
+};
+
+/**
+ * Builds cfgXml from the defaults built into summary.html
+ * and then loads the projects.
+ */
+function setDefaultState(){
+	createCfgXmlFromState();
+	getProjects();
+};
 
 	/**
 	 * args[0] should contain the iframe name, like ifrm_2
@@ -140,235 +172,24 @@ function scriptsLoaded(args) {
 	window.frames[windowName].currentProjectName = ifrm_currentProjectName;
 	window.frames[windowName].pathSeparator = pathSeparator;
 	
-	window.frames[windowName].renderAll();
+	window.frames[windowName].renderAll(cfgXml);
 };
 
-
-function applyDD(){
-	YUI({combine: true, timeout: 10000}).use('dd-constrain', 'dd-proxy', 'dd-drop', function(Y) {
-		summary_yui = Y;
-	    //Listen for all drop:over events
-	    Y.DD.DDM.on('drop:over', function(e) {
-	        //Get a reference to out drag and drop nodes
-	        var drag = e.drag.get('node'),
-	            drop = e.drop.get('node');
-	        
-	        //Are we dropping on a li node?
-	        if (drop.get('tagName').toLowerCase() === 'li') {
-	            //Are we not going up?
-	            if (!goingUp) {
-	                drop = drop.get('nextSibling');
-	            }
-	            //Add the node to this list
-	            e.drop.get('node').get('parentNode').insertBefore(drag, drop);
-	            //Resize this nodes shim, so we can drop on it later.
-	            e.drop.sizeShim();
-	        }
-	    });
-	    //Listen for all drag:drag events
-	    Y.DD.DDM.on('drag:drag', function(e) {
-	        //Get the last y point
-	        var y = e.target.lastXY[1];
-	        //is it greater than the lastY var?
-	        if (y < lastY) {
-	            //We are going up
-	            goingUp = true;
-	        } else {
-	            //We are going down..
-	            goingUp = false;
-	        }
-	        //Cache for next check
-	        lastY = y;
-	    });
-	    //Listen for all drag:start events
-	    Y.DD.DDM.on('drag:start', function(e) {
-	        //Get our drag object
-	        var drag = e.target;
-	        //Set some styles here
-	        drag.get('node').setStyle('opacity', '.25');
-	        drag.get('dragNode').set('innerHTML', drag.get('node').get('innerHTML'));
-	        drag.get('dragNode').setStyles({
-	            opacity: '.5',
-	            borderColor: drag.get('node').getStyle('borderColor'),
-	            backgroundColor: drag.get('node').getStyle('backgroundColor')
-	        });
-	    });
-	    //Listen for a drag:end events
-	    Y.DD.DDM.on('drag:end', function(e) {
-	        var drag = e.target;
-	        //Put out styles back
-	        drag.get('node').setStyles({
-	            visibility: '',
-	            opacity: '1'
-	        });
-	    });
-	    //Listen for all drag:drophit events
-	    Y.DD.DDM.on('drag:drophit', function(e) {
-	        var drop = e.drop.get('node'),
-	            drag = e.drag.get('node');
-
-	        //if we are not on an li, we must have been dropped on a ul
-	        if (drop.get('tagName').toLowerCase() !== 'li') {
-	            if (!drop.contains(drag)) {
-	                drop.appendChild(drag);
-	                onChanged(drop, drag);
-	            } else {
-	                onSort(drop, drag);
-	            }
-	        }
-	    });
-
-	    var onChanged = function(drop, drag) {
-	        alert("onchange: drop:" + drop + ", drag:" + drag);
-	    };
-
-	    var onSort = function(drop, drag){
-	        alert("onsort: drop:" + drop + ", drag:" + drag);
-	    };
-	    
-	    //Static Vars
-	    var goingUp = false, lastY = 0;
-
-	    //Get the list of li's in the lists and make them draggable
-	    var lis = Y.Node.all('#play ul li');
-	    lis.each(function(v, k) {
-	        var dd = new Y.DD.Drag({
-	            node: v,
-	            target: {
-	                padding: '0 0 0 20'
-	            }
-	        }).plug(Y.Plugin.DDProxy, {
-	            moveOnEnd: false
-	        }).plug(Y.Plugin.DDConstrained, {
-	            constrain2node: '#play'
-	        });
-	    });
-
-	    //Create simple targets for the 2 lists..
-	    var uls = Y.Node.all('#play ul');
-	    uls.each(function(v, k) {
-	        var tar = new Y.DD.Drop({
-	            node: v
-	        });
-	    });
-	    
-	});
-};
-
-
-	
-
-function getProjects() {
-
-	// adds the project to the list of select-able projects in the projectlist checkbox group.
-	var addOption = function(name){
-		var parent = document.getElementById('projectlist');
-		var option = createElement(document, 'input', {checked:true, type: 'checkbox', name: 'projectOption', id:"checkbox_"+name, value:name, onclick:"projectSelected('"+name+"')"});
-		option.innerHTML = name;
-		parent.appendChild(option);
-		var projectText = document.createTextNode(name);
-		parent.appendChild(projectText);
-		parent.appendChild(createElement(document, 'br', {}));
-	};
-
-	var createframe = function(name) {
-		var parent = document.getElementById("projectframesDiv");
-		var frame = createElement(document, 'iframe', {id:"ifrm_"+name, name:"ifrm_"+name, src:"/vlewrapper/vle/vle.html", width:"100%", height:"100%"});
-		parent.appendChild(frame);
-		parent.appendChild(createElement(document, 'br', {}));
-	};
-
-	var addToVisibleList = function(name) {
-		var parent = document.getElementById("list1");
-		var li = createElement(document, 'li', {"class":"list1"});
-		var label = createElement(document, 'div', {id:"ifrm_"+name, "class":"label"});
-		var labelText = document.createTextNode(name);
-		label.appendChild(labelText);
-		var frame = createElement(document, 'iframe', {id:"ifrm_"+name, name:"ifrm_"+name, src:"/vlewrapper/vle/vle.html", width:"100%", height:"100%"});
-		li.appendChild(label);
-		li.appendChild(frame);
-		parent.appendChild(li);
-	};
-	
-	var handleCancel = function(){
-		this.cancel();
-	};
-
-	var handleSubmit = function(){
-		optionSelected();
-	};
-	
-	var callback = {
-		success:function(o){
-			// clear existing list and frames
-			var parent = document.getElementById('projectlist');
-			while(parent.firstChild){
-				parent.removeChild(parent.firstChild);
-			};
-			var parentDiv = document.getElementById('projectframesDiv');
-			while(parentDiv.firstChild){
-				parentDiv.removeChild(parentDiv.firstChild);
-			};
-						
-			var projects = o.responseText.split('|');
-			for(var a=0;a<projects.length;a++){
-				//addOption(projects[a]);
-				//createframe(projects[a]);
-				addToVisibleList(projects[a]);
-			};
-
-			if(hostedProjectPaths!=null && hostedProjectPaths!=""){
-				getHostedProjects(addOption);
-			} else {
-				projectsLoaded.fire();
-			};
-			applyDD();  // now apply DD functionality to the newly created elements
-		},
-		failure:function(o){notificationManager.notify('unable to retrieve projects from server', 3);},
-		scope:this
-	};
-	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=projectList&projectPaths=" + projectPaths);	
-};
-
-function getHostedProjects(addOption){
-	hostedPaths = [];
-	hostedURLs = [];
-	var callback = {
-		success: function(o){
-			var hosted = o.responseText.split('|');
-			for(var b=0;b<hosted.length;b++){
-				var pathUrl = hosted[b].split('~');
-				hostedPaths.push(pathUrl[0]);
-				hostedURLs.push(pathUrl[1]);	
-				addOption(pathUrl[1]);
-			};
-			projectsLoaded.fire();
-		},
-		failure: function(o){notificationManager.notify('unable to retrieve hosted projects from server', 3);},
-		scope:this
-	};
-	
-	YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, "command=hostedProjectList&hostedProjectPaths=" + hostedProjectPaths);
-};
 
 /**
  * doMin = true iff minimize is requested. otherwise, maximize.
  */
 function doMinimize(doMin) {
+	var list = summary_yui.Node.all("#projectSummary ul li iframe");
 	if (doMin) {
-		//alert('minimize' + summary_yui);
-		var list = summary_yui.Node.all("#play ul li iframe");
 		list.each(function(v,k) {
 			v.setStyle('display','none');
 		});
 	} else {
-		//alert('maximize');
-		var list = summary_yui.Node.all("#play ul li iframe");
 		list.each(function(v,k) {
 			v.setStyle('display','block');
 		});
-	}
+	};
 };
 
 /**
@@ -410,13 +231,19 @@ function filter(){
 	for(var q=1;q<frms.length;q++){//start at 1 to avoid 'hiddeniframe'
 		var insideFrms = window.frames[frms[q].name].frames;
 		for(var w=0;w<insideFrms.length;w++){
-			if(!showNodes.contains(insideFrms[w].frameNode.type)){
-				frms[q].document.getElementById(insideFrms[w].name).style.display = 'none';
-			} else {
-				frms[q].document.getElementById(insideFrms[w].name).style.display = 'block';
+			if(insideFrms[w].name.indexOf('frame_')!=-1){
+				var html = frms[q].document.getElementById(insideFrms[w].name).previousSibling.previousSibling.innerHTML;
+				var type = html.substring(11, html.length);
+				if(!showNodes.contains(type)){
+					frms[q].document.getElementById(insideFrms[w].name + '_frameDiv').style.display = 'none';
+				} else {
+					frms[q].document.getElementById(insideFrms[w].name + '_frameDiv').style.display = 'block';
+				};
 			};
 		};
 	};
+
+	adjustFrame();
 };
 
 /**
@@ -431,51 +258,166 @@ function getFiltered(show){
 		};
 	};
 };
+
+/**
+ * Updates the way the project Nodes are displayed based on
+ * the state of the display filter options.
+ */
+function displayFilterChanged(){
+	var showFilters = [];
+	var frms = window.frames;
+
+	getDisplayFiltered(showFilters);
+
+	/**
+	 * Cycles through the individual project frames then through each individual
+	 * project's steps and sets style to 'block' (visible) if corresponding checkbox
+	 * is checked or 'none' (not visible) otherwise.
+	 */
+	for(var q=1;q<frms.length;q++){//start at 1 to avoid 'hiddeniframe'
+		var insideFrms = window.frames[frms[q].name].frames;
+		for(var w=0;w<insideFrms.length;w++){
+			if(insideFrms[w].name.indexOf('frame_')!=-1){
+				if(showFilters.contains(displayDivNames[0])){//filename is checked
+					frms[q].document.getElementById(insideFrms[w].name + '_' + displayDivNames[0]).style.display = 'block';
+				} else {
+					frms[q].document.getElementById(insideFrms[w].name + '_' + displayDivNames[0]).style.display = 'none';
+				};
+	
+				if(showFilters.contains(displayDivNames[1])){//type is checked
+					frms[q].document.getElementById(insideFrms[w].name + '_' + displayDivNames[1]).style.display = 'block';
+				} else {
+					frms[q].document.getElementById(insideFrms[w].name + '_' + displayDivNames[1]).style.display = 'none';
+				};
+	
+				if(showFilters.contains(displayDivNames[2])){//title is checked
+					frms[q].document.getElementById(insideFrms[w].name + '_' + displayDivNames[2]).style.display = 'block';
+				} else {
+					frms[q].document.getElementById(insideFrms[w].name + '_' + displayDivNames[2]).style.display = 'none';
+				};
+	
+				if(showFilters.contains('rendered')){//render is checked
+					if(!renderedSteps){
+						var node = insideFrms[w].frameNode;
+						node.render(frms[q].document.getElementById(insideFrms[w].name));
+					};
+					frms[q].document.getElementById(insideFrms[w].name).style.display =  'block';
+				} else {
+					frms[q].document.getElementById(insideFrms[w].name).style.display = 'none';
+				};
+			};
+		};
+	};
+
+	if(document.getElementById('rendered').checked){
+		renderedSteps = true;
+	};
+
+	adjustFrame();
+};
+
+/**
+ * Takes an empty array and populates it with the display options that
+ * the user has selected to 'show'.
+ */
+function getDisplayFiltered(show){
+	var filters = document.getElementsByName('displayFilter');
+	for(var y=0;y<filters.length;y++){
+		if(filters[y].checked){
+			show.push(filters[y].value);
+		};
+	};
+};
+
+/**
+ * Saves the current state of user preferences.
+ */
+function saveConfig(){
+	createCfgXmlFromState();
+	var path = cfgXml.getElementsByTagName('configPath')[0].firstChild.nodeValue;
+	var data;
+
+	if(window.ActiveXObject) {
+		data = cfgXml.xml;
+	} else {
+		data = (new XMLSerializer()).serializeToString(cfgXml);
+	};
+	
+	if(path){
+		var callback = {
+				success: function(o){
+					alert('configuration saved');
+				},
+				failure: function(o){
+					console.warn('failed save of configuration');
+				},
+				scope: this
+		}
+		
+		YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateFile&param1=' + path + '&param2=summary.cfg.xml&param3=' + data);
+	} else {
+		alert('No configuration path set in xml, cannot save changes.');
+	};
+};
+
+/**
+ * If cfgXml does not exist, creates it and updates the attributes of
+ * the nodes with the values of the associated elements within this page.
+ */
+function createCfgXmlFromState(){
+	if(!cfgXml){
+		var cfgStr = '<summary>\n<state><nodeTypes><BlueJNode checked="true"/><BrainstormNode checked="true"/>\n<FillinNode checked="false"/>\n<FlashNode checked="true"/>\n<HtmlNode checked="true"/>\n<MatchSequenceNode checked="false"/>\n<MultipleChoiceNode checked="true"/>\n<NoteNode checked="true"/>\n<OpenResponseNode checked="false"/>\n<OutsideUrlNode checked="true"/>\n</nodeTypes>\n<display>\n<displayFilenameDiv checked="false"/>\n<displayTypeDiv checked="true"/>\n<displayTitleDiv checked="false"/>\n<rendered checked="true"/>\n</display>\n<minimized checked="false"/>\n</state>\n<orderedProjects/>\n</summary>';
+		cfgXml = loadXMLString(cfgStr);
+	};
+
+	var filters = document.getElementsByName('filterType');
+	for(var d=0;d<filters.length;d++){
+		updateXmlValue(cfgXml, filters[d]);
+	};
+	
+	var displays = document.getElementsByName('displayFilter');
+	for(var f=0;f<displays.length;f++){
+		updateXmlValue(cfgXml, displays[f]);
+	};
+};
+
+/**
+ * Given an xml document and a html element, updates the associated
+ * node in the xml document with the value of 'checked' in the html
+ * element.
+ */
+function updateXmlValue(cfgXml, el){
+	var xml = cfgXml.getElementsByTagName(el.id);
+	if(xml[0]){
+		xml[0].setAttribute('checked', el.checked);
+	} else {
+		console.warn('could not find element: ' + el.id + ' in cfg file.');
+	};
+};
+
+
+
+// adjust height of iframe. If nav bar is visible, set iframe height=navbarheight.
+// else, leave it untouched
+function adjustFrame(){
+	var frms = window.frames;
+	for(var h=1;h<frms.length;h++){
+		var totalHeight = 0;
+		var children = window.frames[frms[h].name].document.body.childNodes;
+		for(var j=0;j<children.length;j++){
+			if(children[j].offsetHeight && children[j].offsetHeight>0){
+				totalHeight += children[j].offsetHeight;
+			};
+		};
+		document.getElementById(frms[h].name).style.height = totalHeight;
+	};
+	
+};
 </script>
 
 </head>
 
 <body class="yui-skin-sam" onload='loaded()'>
-
-<style type="text/css" media="screen">
-    .yui-dd-proxy {
-        text-align: left;
-    }
-    #play {
-        border: 1px solid black;
-        padding: 10px;
-        margin: 10px;
-        zoom: 1;
-    }
-    #play:after { display: block; clear: both; visibility: hidden; content: '.'; height: 0;}
-    #play ul {
-        border: 1px solid black;
-        margin: 10px;
-        float: left;
-        padding: 0;
-        zoom: 1;
-        position: relative;
-    }
-    #play ul li {
-        background-image: none;
-        list-style-type: none;
-        padding-left: 20px;
-        padding: 5px;
-        margin: 2px;
-        cursor: move;
-        zoom: 1;
-        position: relative;
-    }
-    #play ul li.list1 {
-        background-color: #8DD5E7;
-        border:1px solid #004C6D;
-    }
-    #play ul li.list2 {
-        background-color: #8DD5E7;
-        border:1px solid #004C6D;
-    }
-
-</style>
 
 <div id="centeredDiv">
 
@@ -490,46 +432,47 @@ function getFiltered(show){
 <input type="button" value="Maximize All" onclick="doMinimize(false);"/>
 <div id='filterDiv'>
 	Select Nodes to Show:</br>
-	<input type='checkbox' value='BlueJNode' name='filterType' onclick='filter()' CHECKED>BlueJ</input>
-	<input type='checkbox' value='BrainstormNode' name='filterType' onclick='filter()' CHECKED>Brainstorm</input>
-	<input type='checkbox' value='FillinNode' name='filterType' onclick='filter()' CHECKED>Fillin</input>
-	<input type='checkbox' value='FlashNode' name='filterType' onclick='filter()' CHECKED>Flash</input>
-	<input type='checkbox' value='HtmlNode' name='filterType' onclick='filter()' CHECKED>Html</input>
-	<input type='checkbox' value='MatchSequenceNode' name='filterType' onclick='filter()' CHECKED>MatchSequence</input>
-	<input type='checkbox' value='MultipleChoiceNode' name='filterType' onclick='filter()' CHECKED>MultipleChoice</input>
-	<input type='checkbox' value='NoteNode' name='filterType' onclick='filter()' CHECKED>Note</input>
-	<input type='checkbox' value='OpenResponseNode' name='filterType' onclick='filter()' CHECKED>OpenResponse</input>
-	<input type='checkbox' value='OutsideUrlNode' name='filterType' onclick='filter()' CHECKED>OutsideUrl</input>
+	<input type='checkbox' id='BlueJNode' value='BlueJNode' name='filterType' onclick='filter()' CHECKED>BlueJ</input>
+	<input type='checkbox' id='BrainstormNode' value='BrainstormNode' name='filterType' onclick='filter()' CHECKED>Brainstorm</input>
+	<input type='checkbox' id='FillinNode' value='FillinNode' name='filterType' onclick='filter()' CHECKED>Fillin</input>
+	<input type='checkbox' id='FlashNode' value='FlashNode' name='filterType' onclick='filter()' CHECKED>Flash</input>
+	<input type='checkbox' id='HtmlNode' value='HtmlNode' name='filterType' onclick='filter()' CHECKED>Html</input>
+	<input type='checkbox' id='MatchSequenceNode' value='MatchSequenceNode' name='filterType' onclick='filter()' CHECKED>MatchSequence</input>
+	<input type='checkbox' id='MultipleChoiceNode' value='MultipleChoiceNode' name='filterType' onclick='filter()' CHECKED>MultipleChoice</input>
+	<input type='checkbox' id='NoteNode' value='NoteNode' name='filterType' onclick='filter()' CHECKED>Note</input>
+	<input type='checkbox' id='OpenResponseNode' value='OpenResponseNode' name='filterType' onclick='filter()' CHECKED>OpenResponse</input>
+	<input type='checkbox' id='OutsideUrlNode' value='OutsideUrlNode' name='filterType' onclick='filter()' CHECKED>OutsideUrl</input>
 	<input type='button' value='Select All' onclick='selectAllFilter(true)'/>
 	<input type='button' value='Deselect All' onclick='selectAllFilter(false)'/>
 </div>
-<div id="play">
+</br>
 
-    <ul id="list2">
-        <li class="list2">Item #1</li>
-        <li class="list2">Item #2</li>
-        <li class="list2">Item #3</li>
-        <li class="list2">Item #4</li>
+<div id='displayFilterDiv'>
+	Select Options for displaying each Node:</br>
+	<input type='checkbox' name='displayFilter' id='displayTitleDiv' value='displayTitleDiv' onclick='displayFilterChanged()'>Node Title</input>
+	<input type='checkbox' name='displayFilter' id='displayFilenameDiv' value='displayFilenameDiv' onclick='displayFilterChanged()'>Node ID</input>
+	<input type='checkbox' name='displayFilter' id='displayTypeDiv' value='displayTypeDiv' onclick='displayFilterChanged()'>Node Type</input>
+	<input type='checkbox' name='displayFilter' id='rendered' value='rendered' onclick='displayFilterChanged()' CHECKED>Rendered</input>
+</div>
+</br>
 
-        <li class="list2">Item #5</li>
-    </ul>
+<div id='saveConfig'>
+	<input type='button' value='Save Configuration' onclick='saveConfig()'/>
+</div>
+<div id='adjustFrame'>
+	<input type='button' value='Adjust Frames' onclick='adjustFrame()'/>
+</div>
+</br>
 
-    <ul id="list1">
-        <li class="list1">Item #1</li>
-        <li class="list1">Item #2</li>
-        <li class="list1">Item #3</li>
-        <li class="list1">Item #4</li>
-
-        <li class="list1">Item #5</li>
-    </ul>
+<div id='projectSummary'>
+	<ul id='list1'></ul>
 </div>
 
 <div id='loading'>
-<div class='hd'></div>
-<div class='bd'></div>
-<div class='ft'></div>
+	<div class='hd'></div>
+	<div class='bd'></div>
+	<div class='ft'></div>
 </div>
-
 
 <iframe id="hiddenifrm" name="hiddenifrm" scrolling="auto" frameborder="0" width="0%" height="0%"> [Content for
 browsers that don't support iframes goes here.] </iframe></div>
