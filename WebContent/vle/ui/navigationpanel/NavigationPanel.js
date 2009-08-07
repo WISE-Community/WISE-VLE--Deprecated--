@@ -75,16 +75,25 @@ NavigationPanel.prototype.render = function(eventType) {
 		 * it becomes highlighted
 		 */
 		if(currentNavElement != null) {
-			var currentNavElementClass = currentNavElement.getAttribute("class");
-			if(!currentNavElementClass){//maybe its ie, trying className
-				currentNavElementClass = currentNavElement.getAttribute('className');
+			//the attribute to look up, try className first in case browser is IE
+			var classAttributeName = "className";
+			var currentNavElementClass = currentNavElement.getAttribute(classAttributeName);
+			
+			if(currentNavElementClass){
+				//if IE, since IE uses className as the attribute
+				currentNavElementClass = currentNavElementClass + " currentNode";
+				currentNavElement.setAttribute(classAttributeName, currentNavElementClass);
+			} else {
+				/*
+				 * "className" was not found so we will try just "class", which is used 
+				 * by Firefox and other browsers
+				 */
+				classAttributeName = "class";
+				currentNavElementClass = currentNavElement.getAttribute(classAttributeName);
 				if(currentNavElementClass){
 					currentNavElementClass = currentNavElementClass + " currentNode";
-					currentNavElement.setAttribute('className', currentNavElementClass);
+					currentNavElement.setAttribute(classAttributeName, currentNavElementClass);
 				};
-			} else {
-				currentNavElementClass = currentNavElementClass + " currentNode";
-				currentNavElement.setAttribute("class", currentNavElementClass);
 			};
 			
 			var child = vle.state.getCurrentNodeVisit().node;

@@ -17,12 +17,13 @@ OPENRESPONSE.prototype.save = function() {
 	var isSaveDisabled = hasClass("saveButton", "disabledLink");
 
 	if (!isSaveDisabled) {
-		states.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
 		if (this.vle != null) {
-			//alert('here');
-			this.vle.state.getCurrentNodeVisit().nodeStates.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
-			//alert('OR.prototype.save:' + this.vle.state.getCurrentNodeVisit().nodeStates.length);
-		}
+			var orState = this.vle.createState('openresponse', [document.getElementById('responseBox').value]);
+			this.vle.state.getCurrentNodeVisit().nodeStates.push(orState);
+			this.states.push(orState);
+		} else {
+			this.states.push(new OPENRESPONSESTATE([document.getElementById('responseBox').value]));
+		};s
 		removeClassFromElement("editButton", "disabledLink");
 		addClassToElement("saveButton", "disabledLink");
 		setResponseBoxEnabled(false);

@@ -48,10 +48,13 @@ OPENRESPONSE.prototype.save = function() {
 			};
 			document.getElementById('promptInput').setAttribute('disabled', 'disabled');
 		} else {
-			this.states.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
 			if (this.vle != null) {
-				this.vle.state.getCurrentNodeVisit().nodeStates.push(new OPENRESPONSESTATE(document.getElementById('responseBox').value));
-			}
+				var orState = this.vle.createState('openresponse', [document.getElementById('responseBox').value]);
+				this.vle.state.getCurrentNodeVisit().nodeStates.push(orState);
+				this.states.push(orState);
+			} else {
+				this.states.push(new OPENRESPONSESTATE([document.getElementById('responseBox').value]));
+			};
 		};
 		removeClassFromElement("editButton", "disabledLink");
 		addClassToElement("saveButton", "disabledLink");
@@ -141,11 +144,14 @@ OPENRESPONSE.prototype.loadLite = function(node, vle){
 };
 
 OPENRESPONSE.prototype.checkAnswerLite = function(){
-	var orState = new OPENRESPONSESTATE(document.getElementById('responseBox').value);
-	this.states.push(orState);
 	if (this.vle != null) {
+		var orState = this.vle.createState('openresponse', [document.getElementById('responseBox').value]);
 		this.vle.state.getCurrentNodeVisit().nodeStates.push(orState);
+	} else {
+		var orState = new OPENRESPONSESTATE(document.getElementById('responseBox').value);
 	};
+	
+	this.states.push(orState);
 	
 	return orState;
 };

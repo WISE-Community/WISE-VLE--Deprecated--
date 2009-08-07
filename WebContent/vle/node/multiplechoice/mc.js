@@ -319,7 +319,11 @@ MC.prototype.checkAnswer = function() {
 
 	var radiobuttondiv = document.getElementById('radiobuttondiv');
 	var inputbuttons = radiobuttondiv.getElementsByTagName('input');
-	var mcState = new MCSTATE();
+	if(this.vle){
+		var mcState = this.vle.createState('multiplechoice');
+	} else {
+		var mcState = new MCSTATE();
+	};
 	var isCorrect = true;
 	
 	if(!this.enforceMaxChoices(inputbuttons)){
@@ -420,7 +424,11 @@ MC.prototype.isCorrect = function(inputs){
 MC.prototype.checkAnswerLite = function(){
 	var radiobuttondiv = document.getElementById('radiobuttondiv');
 	var inputbuttons = radiobuttondiv.getElementsByTagName('input');
-	var mcState = new MCSTATE();
+	if(this.vle){
+		var mcState = this.vle.createState('multiplechoice');
+	} else {
+		var mcState = new MCSTATE();
+	};
 	var isCorrect = true;
 	
 	if(!this.enforceMaxChoices(inputbuttons)){

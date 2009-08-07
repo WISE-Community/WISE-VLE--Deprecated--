@@ -1,23 +1,28 @@
 /**
  * Object for storing state information of MultipleChoice item.
  */
-function MCSTATE(timestamp, choicesArray) {
+function MCSTATE(args) {
 	this.isCorrect = null;
 
 	//use the current time or the argument timestamp passed in
-	if(arguments.length == 0) {
-		this.timestamp = new Date().toUTCString();
-	} else {
-		this.timestamp = timestamp;
-	}
+	if(args){
+		if(args[0]){
+			this.timestamp = args[0];
+		};
+		
+		if(args[1]){
+			this.choices = args[1];
+		};
+	};
 	
-	//if a choices array was passed in, set it, otherwise create an empty array
-	if(arguments.length == 2){
-		this.choices = choicesArray;
-	} else {
+	if(!this.timestamp){
+		this.timestamp = new Date().toUTCString();
+	};
+	
+	if(!this.choices){
 		this.choices = new Array();
-	}
-}
+	};
+};
 
 /*
  * Add a choice that the student chose

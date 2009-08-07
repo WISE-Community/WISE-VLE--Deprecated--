@@ -281,11 +281,15 @@ BRAINSTORM.prototype.save = function(frameDoc){
 	};
 	
 	if(response && response!=""){
-		var currentState = new BRAINSTORMSTATE(response);
-		this.states.push(currentState);
 		if(this.vle){
+			var currentState = this.vle.createState('brainstorm', [response]);
+			this.states.push(currentState);
 			this.vle.state.getCurrentNodeVisit().nodeStates.push(currentState);
+		} else {
+			var currentState = new BRAINSTORMSTATE([response]);
+			this.states.push(currentState);
 		};
+		
 		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>";
 		
 		this.recentResponses.push(response);

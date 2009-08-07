@@ -1219,7 +1219,7 @@ VLE.prototype.setConnection = function(connectionManager) {
 /**
  * @return returns the state of the vle in xml
  */
-VLE.prototype.getDataXML = function() {
+VLE.prototype.getDataXML = function() {console.warn('getDataXML VLE: ' + this.state);
 	//retrieve the xml for the current state of the vle
 	var dataXML = this.state.getDataXML();
 	return dataXML;
@@ -1241,6 +1241,24 @@ VLE.prototype.getLastStateTimestamp = function(){
 		};
 	};
 	return lastDate;
+};
+
+/**
+ * Given the type and optional arguments, creates a new 
+ * state of the type, passing in the arguments.
+ */
+VLE.prototype.createState = function(type, args){
+	if(type==='multiplechoice'){
+		return new MCSTATE(args);
+	} else if(type==='brainstorm'){
+		return new BRAINSTORMSTATE(args);
+	} else if(type==='fillin'){
+		return new FILLINSTATE(args);
+	} else if(type==='openresponse'){
+		return new OPENRESPONSESTATE(args);
+	} else {
+		return null;
+	};
 };
 
 /**
