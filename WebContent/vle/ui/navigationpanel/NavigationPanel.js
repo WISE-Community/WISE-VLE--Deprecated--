@@ -42,10 +42,12 @@ NavigationPanel.prototype.render = function(eventType) {
 			if(!previousNavElementClass){//could be ie, try className
 				previousNavElementClass = previousNavElement.getAttribute('className');
 				if(previousNavElementClass){
+					//remove the 'currentNode' class from the 'className' attribute
 					previousNavElementClass = previousNavElementClass.replace('currentNode', '');
 					previousNavElement.setAttribute('className', previousNavElementClass);
 				};
 			} else {
+				//remove the 'currentNode' class from the 'class' attribute
 				previousNavElementClass = previousNavElementClass.replace("currentNode", "");
 				previousNavElement.setAttribute("class", previousNavElementClass);
 			};
@@ -123,12 +125,16 @@ NavigationPanel.prototype.render = function(eventType) {
 				 * add the currentNode class to the parent so that it becomes
 				 * highlighted
 				 */
-				var enclosingNavParentElementClass = enclosingNavParentElement.getAttribute("class");
+				
+				//try to look up the 'class' attribute
+				var classAttributeName = "class";
+				var enclosingNavParentElementClass = enclosingNavParentElement.getAttribute(classAttributeName);
 				if(!enclosingNavParentElementClass){//maybe its ie, trying className
-					enclosingNavParentElementClass = enclosingNavParentElement.getAttribute('className');
+					classAttributeName = "className";
+					enclosingNavParentElementClass = enclosingNavParentElement.getAttribute(classAttributeName);
 				};
 				enclosingNavParentElementClass = enclosingNavParentElementClass + " currentNode";
-				enclosingNavParentElement.setAttribute("class", enclosingNavParentElementClass);
+				enclosingNavParentElement.setAttribute(classAttributeName, enclosingNavParentElementClass);
 			}
 		}
 		
