@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "OpenResponse",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "DENSITY is how packed together the matter is in a substance. What do you think happens to the DENSITY of something when just its TEMPERATURE INCREASES?&lt;br /&gt;&lt;br /&gt; a) density increases &lt;br /&gt; b) density decreases&lt;br /&gt; c) density stays the same&lt;br /&gt; &lt;br /&gt;&lt;br /&gt; Use an example to explain your answer.",
+         "responseIdentifier": "OR"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "OR"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "I chose answer _ because..."
+   },
+   "type": "OpenResponse"
+}

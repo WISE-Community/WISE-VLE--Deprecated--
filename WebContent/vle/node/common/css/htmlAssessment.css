@@ -1,6 +1,3 @@
-.yui-dd-proxy {
-	text-align: left;
-}
 
 /* STYLING FOR ALL ASSESSMENT ITEM TYPES  (StudentCheck, Student Quiz, Teacher Check, TeacherQuiz, Brainstorm) */
 body {
@@ -56,99 +53,33 @@ p {
 }
 
 /*    This is the middle toned 88.236 palette  */
-.color1 {	color: #164CBA;    }  /* vibrant blue */
-.color2 {
-	color: #6883BA;
-}  /* mid blue */
-.color3 {
-	color: #919EBA;
-}  /* light blue */
-.color4 {
-	color: #334B7B;
-}  /* dark blue */
-.color5 {
-	color: #19253D;
-}  /* very dark blue */
-.color6 {
-	color: #4E628B;
-}  /* REVERSE dark purple blue */
-.color7 {
-	color: #FF9D1E;
-}  /* bold orange */
-.color8 {
-	color: #FFCE8E;
-}  /* mid tan */
-.color9 {
-	color: #FFE6C6;
-}  /* light tan */
-.color10 {
-	color: #a97e46;
-}  /* brown */
-.color11 {
-	color: #543f23;
-}  /* dark red */
-.color12 {
-	color: #bf9a6b;
-}  /* lighter brown */
-.bg1 {
-	background-color: #164CBA;
-	color: #FFF;
-}
+.color1 {color:#164CBA;}   /* vibrant blue */
+.color2 {color:#6883BA;}   /* mid blue */
+.color3 {color:#919EBA;}   /* light blue */
+.color4 {color:#334B7B;}   /* dark blue */
+.color5 {color:#19253D;}   /* very dark blue */
+.color6 {color:#4E628B;}   /* mid gray slate */
+.color7 {color:#FF9D1E;}  /* bold orange */
+.color8 {color:#FFCE8E;}  /* mid tan */
+.color9 {color:#FFE6C6;}  /* light tan */
+.color10 {color:#a97e46;}  /* brown */
+.color11 {color:#543f23;}  /* dark red */
+.color12 {color:#bf9a6b;}   /* light brown */
 
-.bg2 {
-	background-color: #6883BA;
-	color: #000;
-}
+.bg1 {background-color:#164CBA;color:#FFF;}
+.bg2 {background-color:#6883BA;color:#000;}
+.bg3 {background-color:#919EBA;color:#000;}
+.bg4 {background-color:#334B7B;color:#FFF;}
+.bg5 {background-color:#19253D;color:#FFF;}
+.bg6 {background-color:#4E628B;color:#FFF;}
+.bg7 {background-color:#FF9D1E;color:#000;}
+.bg8 {background-color:#FFCE8E;color:#000;}
+.bg9 {background-color:#FFE6C6;color:#000;}
+.bg10 {background-color:#a97e46;color:#000;}
+.bg11 {background-color:#543f23;color:#FFF;}
+.bg12 {background-color:#bf9a6b;color:#000;}
 
-.bg3 {
-	background-color: #919EBA;
-	color: #000;
-}
 
-.bg4 {
-	background-color: #334B7B;
-	color: #FFF;
-}
-
-.bg5 {
-	background-color: #19253D;
-	color: #FFF;
-}
-
-.bg6 {
-	background-color: #4E628B;
-	color: #FFF;
-}
-
-.bg7 {
-	background-color: #FF9D1E;
-	color: #000;
-}
-
-.bg8 {
-	background-color: #FFCE8E;
-	color: #000;
-}
-
-.bg9 {
-	background-color: #FFE6C6;
-	color: #000;
-}
-
-.bg10 {
-	background-color: #a97e46;
-	color: #000;
-}
-
-.bg11 {
-	background-color: #543f23;
-	color: #FFF;
-}
-
-.bg12 {
-	background-color: #bf9a6b;
-	color: #000;
-}
 
 #centeredDiv {
 	background-color: #FFFFFF;
@@ -169,7 +100,7 @@ p {
 	font-size: .8em;
 	text-transform: uppercase;
 	padding: 5px 15px;
-	color: #333333;
+	color: #000;
 }
 
 #helpIcon {
@@ -198,7 +129,7 @@ p {
 
 #helpTextLink:hover {
 	background-color: #FFFF00;
-}
+	}
 
 #feedbackDiv {
 	width: 85%;
@@ -230,7 +161,7 @@ p {
 
 #statusDiv {
 	width: 80%;
-	margin: 0px auto 0 auto;
+	margin: 0px auto 10px auto;
 	padding: 2px;
 	text-align: center;
 	font-size: .75em;
@@ -240,28 +171,27 @@ p {
 
 #buttonTable {
 	border-collapse: collapse;
-	margin: 5px auto;
+	margin: 8px auto 5px auto;
 }
 
 #buttonTable a {
-	display: block;
-	padding: 8px 0px 0 0;
-	margin: 0px 4px;
-	text-transform: uppercase;
-	font-family: Verdana, Arial, sans-serif;
-	font-size: .65em;
-	font-weight: bold;
-	color: #000;
-	border: 0px;
-	background-image: url(../images/ButtonActive.png);
-	background-repeat: no-repeat;
-	background-color: #FFF;
+	vertical-align:center;
+	margin:0 10	px;
+	padding: 5px 15px;
+	font: bold Verdana, Arial, sans-serif;
+	font-size:.85em;
+	background-color:#1e69ff;
+	color: #FFF;
+	border:1px solid #333;
 	text-decoration: none;
 	text-align: center;
-	height: 25px;
-	width: 157px;
-	outline: 0;
-	color: #000;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+#buttonTable a.firstButton {
+	margin-left:15px;
 }
 
 #buttonTable a.tightened {
@@ -269,35 +199,31 @@ p {
 }
 
 #buttonTable a:hover {
-	color: #164CBA;
-	background: #FFF;
-	border: 0;
-	background-image: url(../images/ButtonRollover.png);
-	background-repeat: no-repeat;
+	background-color: #FFFF00;
+	color:#000;
+	cursor:pointer;
 }
 
-#buttonTable a:hover .disabledLink {
-	background-color: #FFF;
-	border: 0;
-	background-image: url(../images/ButtonInactive.png);
+#buttonTable a.disabledLink:hover {
+	background-color: #666;
 	color: #999999;
-	outline-style: none;
+	cursor:default;
 }
 
 #buttonTable .disabledLink {
-	background-color: #FFF;
-	border: 0;
-	background-image: url(../images/ButtonInactive.png);
+	background-color: #666;
 	color: #999999;
 	outline: 0;
 }
 
+
 /* STYLING FOR ALL POP-UP STEP INFORMATION WINDOWS */
-#stepBody,#assessmentBody {
+
+#stepBody, #assessmentBody {
 	background-color: #666699;
 }
 
-#infoBoxCenteredDiv,#assessmentTypeCenteredDiv {
+#infoBoxCenteredDiv, #assessmentTypeCenteredDiv {
 	background-image:url(../../../images/BackgroundBlue600.png);
 	background-position:0 -400px;
 	background-repeat:repeat-x;
@@ -305,7 +231,7 @@ p {
 	width: 640px;
 	text-align: left;
 	padding: 5px 15px;
-	margin: 30px auto;
+	margin: 10px auto;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
@@ -328,10 +254,10 @@ p {
 	text-transform: uppercase;
 	color: #fff;
 	font-weight: bold;
-	font-size: .8em;
-	margin: 15px 0 0 15px;
+	font-size: .7em;
+	margin: 15px 0 0 10px;
 	background-color:#999;
-	width:90%;
+	width:95%;
 	padding:2px 6px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -344,16 +270,16 @@ p {
 	letter-spacing:1px;
 }
 
-#stepDescription ul,#assessmentDescription ul {
+#stepDescription ul, #assessmentDescription ul, #assessmentDescription ol {
 	font-size: .8em;
 	line-height: 135%;
 	padding: 0px;
-	margin: 15px 0 20px 30px;
+	margin: 15px 0 20px 40px;
 }
 
-#stepDescription li,#assessmentDescription li {
+#stepDescription li,#assessmentDescription li, #assessmentDescription ol li {
 	color: #19253D;
-	margin-bottom: 15px;
+	margin-bottom: 10px;
 }
 
 #InfoBoxClose {
@@ -411,3 +337,26 @@ p {
 	margin: 0;
 }
 
+/* special styles for Author Tool Pop-Up window */
+
+#assessmentDescription .authorInstructTable  {
+	margin:15px 25px 15px 35px;	
+	border-collapse:collapse;
+	}
+	
+.authorInstructTable th {
+	font-weight:bold;
+	width:100px;
+	}
+	
+.authorInstructTable th, .authorInstructTable td {
+	font-size:.7em;
+	padding:3px 7px;
+	vertical-align:top;
+	border:1px solid #666;	
+	}
+
+.authorInstructTable li {
+	color:#19253D;
+	margin-bottom:5px; 	
+	}

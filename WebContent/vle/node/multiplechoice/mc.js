@@ -1,99 +1,61 @@
-function MC(xmlDoc) {
-	this.loadXMLDoc(xmlDoc);
-}
-
-MC.prototype.loadXMLDoc = function(xmlDoc) {
-	this.xmlDoc = xmlDoc;
-	this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
-	this.responseIdentifier = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('responseIdentifier');
-	if(xmlDoc.getElementsByTagName('prompt')[0].firstChild){
-		this.promptText = this.xmlDoc.getElementsByTagName('prompt')[0].firstChild.nodeValue;
-	} else {
-		this.promptText = "";
-	};
+function MC(node) {
+	this.node = node;
+	this.content = node.getContent().getContentJSON();
 	this.choices = [];
-	this.correctChoices = [];
-	this.states = [];
-	this.answered = false;
-	this.shuffle = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('shuffle');
-	this.maxChoices = this.xmlDoc.getElementsByTagName('choiceInteraction')[0].getAttribute('maxChoices');
-
-	this.choiceToValueArray = new Array();
-
-	var choicesDOM = this.xmlDoc.getElementsByTagName('simpleChoice');
-
-	// find out which choices are correct choices
-	var vals = this.xmlDoc.getElementsByTagName('correctResponse')[0].getElementsByTagName('value');
-	for(var t=0;t<vals.length;t++){
-		this.correctChoices.push(vals[t].firstChild.nodeValue);
-	};
-
-	// instantiate choices
-	for (var i=0;i<choicesDOM.length;i++) {
-		var choice = new CHOICE(choicesDOM[i], this.correctChoices);
-		this.choices.push(choice);
-		this.choiceToValueArray[choice.identifier] = choice.text; 
-	};
+	this.attempts = [];
+	this.stages = [];
+	
+	if(node.studentWork != null) {
+		this.states = node.studentWork;
+		
+		this.attempts = this.states.slice();
+	} else {
+		this.states = [];  
+	}
+	
+	/* add each choice object from the content to the choices array */
+	for(var a=0;a<this.content.assessmentItem.interaction.choices.length;a++){
+		this.choices.push(this.content.assessmentItem.interaction.choices[a]);
+	}
+	
+	//boolean to prevent shuffling after each answer submit
+	this.previouslyRendered = false;
 };
 
 /**
- * Load states from specified VLE.
- * @param {Object} vle
- */
-MC.prototype.loadFromVLE = function(node, vle) {
-	this.vle = vle;
-	this.node = node;
-	if(this.vle && this.node){
-		this.loadState();
-		this.render();
-	};
-}
-
-/**
- * Load states and VLE and then calls renderLite
- */
-MC.prototype.loadLite = function(node, vle){
-	this.vle = vle;
-	this.node = node;
-	this.loadState();
-	this.renderLite();
-};
-
-/**
- * Load the state for this MC given the node and vle but do
+ * Load the state for this MC given the node and view but do
  * not call render
  * @param node
- * @param vle
+ * @param view
  */
-MC.prototype.loadForTicker = function(node, vle) {
-	this.vle = vle;
+MC.prototype.loadForTicker = function(node, view) {
+	this.view = view;
 	this.node = node;
 	this.loadState();
-}
+};
 
 /**
- * Loads state from VLE_STATE.
- * @param {Object} vleState
+ * Loads state from the view
  */
 MC.prototype.loadState = function() {
-	for (var i=0; i < this.vle.state.visitedNodes.length; i++) {
-		var nodeVisit = this.vle.state.visitedNodes[i];
-		if (nodeVisit.node.id == this.node.id) {
+	for (var i=0; i < this.view.getVLEState().visitedNodes.length; i++) {
+		var nodeVisit = this.view.getVLEState().visitedNodes[i];
+		if (nodeVisit.getNodeId() == this.node.id) {
 			for (var j=0; j<nodeVisit.nodeStates.length; j++) {
 				this.states.push(nodeVisit.nodeStates[j]);
-			}
-		}
-	}
-}
+			};
+		};
+	};
+};
 
 /**
- * Get that student's latest submission for this node that has work. 
+ * Get the student's latest submission for this node that has work. 
  * The node is specific to a student.
  * @param nodeId the id of the node we want the student's work from
  * @return the newest NODE_STATE for this node
  */
 MC.prototype.getLatestState = function(nodeId) {
-	var nodeVisits = this.vle.state.getNodeVisitsByNodeId(nodeId);
+	var nodeVisits = this.view.getVLEState().getNodeVisitsByNodeId(nodeId);
 	
 	/*
 	 * loop through all the nodeVisits and find the latest nodeVisit
@@ -111,133 +73,106 @@ MC.prototype.getLatestState = function(nodeId) {
 				//get the latest nodeState
 				var nodeState = nodeStates[nodeStates.length - 1];
 				return nodeState;
-			}
-		}
-	}
+			};
+		};
+	};
 	return null;
-}
+};
 
-//gets and returns a CHOICE object given the CHOICE's identifier
-MC.prototype.getCHOICEByIdentifier = function(identifier) {
+//gets and returns a choice object given the choice's identifier
+MC.prototype.getChoiceByIdentifier = function(identifier) {
 	for (var i=0;i<this.choices.length;i++) {
-		if (this.choices[i].identifier == identifier) {
+		if (this.removeSpace(this.choices[i].identifier) == identifier) {
 			return this.choices[i];
-		}
-	}
+		};
+	};
 	return null;
-}
+};
 
 /**
  * Render the MC
  */
 MC.prototype.render = function() {
-	// render the prompt
-	var promptdiv = document.getElementById('promptDiv');
-	promptdiv.innerHTML=this.promptText;
+	/* set the question type title */
+	$('#questionType').html((this.node.getType()=='ChallengeNode') ? 'Challenge Question' : 'Multiple Choice');
+	
+	/* render the prompt */
+	$('#promptDiv').html(this.content.assessmentItem.interaction.prompt);
 
-	// render choices
+	/* remove buttons */
 	var radiobuttondiv = document.getElementById('radiobuttondiv');
 	while(radiobuttondiv.hasChildNodes()) {
 		radiobuttondiv.removeChild(radiobuttondiv.firstChild);
 	}
 	
-	//if shuffle is enabled, shuffle the choices
-	if(this.shuffle=='true'){
+	/* 
+	 * if shuffle is enabled, shuffle the choices when they enter the step
+	 * but not each time after they submit an answer
+	 */
+	if(this.content.assessmentItem.interaction.shuffle && !this.previouslyRendered){
 		this.choices.shuffle();
-	};
+	}
 	
-	//set variable whether this multiplechoice should be
-	//rendered with radio buttons or checkboxes
-	if(this.maxChoices==1){
-		var  type = 'radio';
+	/* set variable whether this multiplechoice should be rendered with radio buttons or checkboxes */
+	if(this.content.assessmentItem.interaction.maxChoices==1){
+		var type = 'radio';
 	} else {
 		var type = 'checkbox';
-	};
-	
-	for(var i=0;i<this.choices.length;i++) {
-		var tableElement = createElement(document, 'table', {});
-		var tbody = createElement(document, 'tbody');
-		var trElement = createElement(document, 'tr', {});
-		var td1Element = createElement(document, 'td', {});
-		tableElement.appendChild(tbody);
-		tbody.appendChild(trElement);
-		trElement.appendChild(td1Element);
-		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type': type, 'name':'radiobutton', 'value':this.choices[i].identifier, 'class': type});
-		td1Element.appendChild(radiobuttonElement);
-		radiobuttonElement.onclick = function(){enableCheckAnswerButton('true');};
-		var td2Element = createElement(document, 'td', {});
-		trElement.appendChild(td2Element);
-		var radiobuttonTextDiv = document.createElement("div");
-		radiobuttonTextDiv.setAttribute("id", "choicetext:" + this.choices[i].identifier);
-		radiobuttonTextDiv.innerHTML = this.choices[i].text;
-		td2Element.appendChild(radiobuttonTextDiv);
-		var feedbackTD = createElement(document,'td');
-		var feedbackDiv = createElement(document, 'div', {'id': 'feedback_' + this.choices[i].identifier, 'name': 'feedbacks'});
-		trElement.appendChild(feedbackTD);
-		feedbackTD.appendChild(feedbackDiv);
-		radiobuttondiv.appendChild(tableElement);
 	}
+	
+	/* render the choices */
+	for(var i=0;i<this.choices.length;i++) {
+		var choiceHTML = '<table><tbody><tr><td><input type="' + type + '" name="radiobutton" id="' + this.removeSpace(this.choices[i].identifier) + 
+			'" value="' + this.removeSpace(this.choices[i].identifier) + '" class="' + type + '"/></td><td><div id="choicetext:' + this.removeSpace(this.choices[i].identifier) + 
+			'">' + this.choices[i].text + '</div></td><td><div id="feedback_' + this.removeSpace(this.choices[i].identifier) + '" name="feedbacks"></div></td></tr></tbody></table>';
+		
+		$('#radiobuttondiv').append(choiceHTML);
+		$('#' + this.removeSpace(this.choices[i].identifier)).click(function(){enableCheckAnswerButton('true');});
+		
+		if(this.selectedInSavedState(this.choices[i].identifier)){
+			$('#' + this.removeSpace(this.choices[i].identifier)).attr('checked', true);
+		}
+	}
+		
 	addClassToElement("checkAnswerButton", "disabledLink");
 	addClassToElement("tryAgainButton", "disabledLink");
 	clearFeedbackDiv();
 	
-	if (this.correctChoices.length < 1) {
+	if (this.content.assessmentItem.responseDeclaration.correctResponse.length<1){
 		// if there is no correct answer to this question (ie, when they're filling out a form),
 		// change button to say "save answer" and "edit answer" instead of "check answer" and "try again"
 		// and don't show the number of attempts.
 		document.getElementById("checkAnswerButton").innerHTML = "Save Answer";
 		document.getElementById("tryAgainButton").innerHTML = "Edit Answer";
 	} else {
-		displayNumberAttempts("This is your", "attempt", this.states);
-	}
-}
-
-MC.prototype.renderLite = function(){
-	// render the prompt
-	var promptdiv = document.getElementById('promptDiv');
-	promptdiv.innerHTML=this.promptText;
-
-	// render choices
-	var radiobuttondiv = document.getElementById('radiobuttondiv');
-	while(radiobuttondiv.hasChildNodes()) {
-		radiobuttondiv.removeChild(radiobuttondiv.firstChild);
-	}
-	
-	//if shuffle is enabled, shuffle the choices
-	if(this.shuffle=='true'){
-		this.choices.shuffle();
+		displayNumberAttempts("This is your", "attempt", this.attempts);
 	};
 	
-	//set variable whether this multiplechoice should be
-	//rendered with radio buttons or checkboxes
-	if(this.maxChoices==1){
-		var  type = 'radio';
-	} else {
-		var type = 'checkbox';
-	};
+	//turn this flag on so that the step does not shuffle again during this visit
+	this.previouslyRendered = true;
 	
-	for(var i=0;i<this.choices.length;i++) {
-		var tableElement = createElement(document, 'table', {});
-		var trElement = createElement(document, 'tr', {});
-		var td1Element = createElement(document, 'td', {});
-		tableElement.appendChild(trElement);
-		trElement.appendChild(td1Element);
-		var radiobuttonElement = createElement(document, 'input', {'id':this.choices[i].identifier, 'type':type, 'name':'radiobutton', 'value':this.choices[i].identifier, 'class':type, onclick:'answered()'});
-		td1Element.appendChild(radiobuttonElement);
-		var td2Element = createElement(document, 'td', {});
-		trElement.appendChild(td2Element);
-		var radiobuttonTextDiv = document.createElement("div");
-		radiobuttonTextDiv.innerHTML = this.choices[i].text;
-		td2Element.appendChild(radiobuttonTextDiv);
-		var feedbackTD = createElement(document,'td');
-		var feedbackDiv = createElement(document, 'div', {'id': 'feedback_' + this.choices[i].identifier, 'name': 'feedbacks'});
-		trElement.appendChild(feedbackTD);
-		feedbackTD.appendChild(feedbackDiv);
-		radiobuttondiv.appendChild(tableElement);
-		radiobuttondiv.appendChild(createElement(document, 'br', {}));
-	};
+	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
 
+/**
+ * Given a choiceId, checks the latest state and if the choiceId
+ * is part of the state, returns true, returns false otherwise.
+ * 
+ * @param choiceId
+ * @return boolean
+ */
+MC.prototype.selectedInSavedState = function(choiceId){
+	if(this.states && this.states.length>0){
+		var latestState = this.states[this.states.length -1];
+		for(var b=0;b<latestState.choices.length;b++){
+			if(latestState.choices[b]==choiceId){
+				return true;
+			};
+		};
+	};
+
+	return false;
+};
 
 /**
  * If prototype 'shuffle' for array is not found, create it
@@ -249,86 +184,42 @@ if(!Array.shuffle){
 };
 
 /**
- * SAMPLE choiceDOM:
- *
- * <simpleChoice fixed="true" identifier="choice 1">
- *  <feedbackInline identifier="choice 1" showHide="show">Computers are much, much faster than this!  Almost everything a computer does involves adding numbers together. Even drawing a simple shape on the screen can force the computer to add hundreds, if not thousands, of numbers together</feedbackInline>
- *   It can add them together about once a second.
- * </simpleChoice>
+ * Returns true if the choice with the given id is correct, false otherwise.
  */
-function CHOICE(choiceDOM, correctChoices) {
-	this.dom = choiceDOM;
-	this.identifier = this.dom.getAttribute('identifier');
-	this.isCorrect = false;
-	if(this.dom.lastChild){
-		this.text = this.dom.lastChild.nodeValue;    // text choices that students will see.. can be html
-	} else {
-		this.text = "";
-	};
-	if(this.dom.getElementsByTagName('feedbackInline')[0]){
-		this.feedbackText = this.dom.getElementsByTagName('feedbackInline')[0].firstChild.nodeValue;
-		if(!this.feedbackText){
-			this.feedbackText = "";
-		};
-	} else {
-		this.feedbackText = "";
+MC.prototype.isCorrect = function(id){
+	/* if no correct answers specified by author, then always return true */
+	if(this.content.assessmentItem.responseDeclaration.correctResponse.length==0){
+		return true;
 	};
 	
-	if(correctChoices && correctChoices.length>0){
-		for(var y=0;y<correctChoices.length;y++){
-			if(correctChoices[y]==this.identifier){
-				this.isCorrect = true;
-			};
+	/* otherwise, return true if the given id is specified as a correct response */
+	for(var h=0;h<this.content.assessmentItem.responseDeclaration.correctResponse.length;h++){
+		if(this.content.assessmentItem.responseDeclaration.correctResponse[h]==id){
+			return true;
 		};
 	};
+	return false;
 };
-
-/**
- * returns the final feedbacktext, which includes
- * if it's correct, correct response
- * AND
- * feedback associated with this choice
- * PAS-1075 stuff would go in this function
- */
-CHOICE.prototype.getFeedbackText = function(mcObj) {
-		if(mcObj.correctChoices.length < 1) {
-			/*
-			 * if there is no correct answer, just return the feedback,
-			 * this situation may occur when the student is just filling
-			 * out a form
-			 */
-			return this.feedbackText;
-		} else if (this.isCorrect) {
-			return "CORRECT " + this.feedbackText;
-		} else {
-			return "INCORRECT " + this.feedbackText;
-		}
-}
-
 
 /**
  * Checks Answer and updates display with correctness and feedback
  * Disables "Check Answer" button and enables "Try Again" button
  */
 MC.prototype.checkAnswer = function() {
-	var isCheckAnswerDisabled = hasClass("checkAnswerButton", "disabledLink");
-
-	if (isCheckAnswerDisabled) {
+	if (hasClass("checkAnswerButton", "disabledLink")) {
 		return;
 	}
 
+	this.attempts.push(null);
+	
 	var radiobuttondiv = document.getElementById('radiobuttondiv');
 	var inputbuttons = radiobuttondiv.getElementsByTagName('input');
-	if(this.vle){
-		var mcState = this.vle.createState('multiplechoice');
-	} else {
-		var mcState = new MCSTATE();
-	};
+	var mcState = (this.node.getType()=='MultipleChoiceNode') ? new MCSTATE() : (this.node.getType()=='BranchNode' ? new BRANCHSTATE() : new CHALLENGESTATE());
 	var isCorrect = true;
 	
 	if(!this.enforceMaxChoices(inputbuttons)){
 		return;
-	};
+	}
 	
 	enableRadioButtons(false);        // disable radiobuttons
 	addClassToElement("checkAnswerButton", "disabledLink"); // disable checkAnswerButton
@@ -338,48 +229,92 @@ MC.prototype.checkAnswer = function() {
 		var checked = inputbuttons[i].checked;		
 		var choiceIdentifier = inputbuttons[i].getAttribute('id');  // identifier of the choice that was selected
 		// use the identifier to get the correctness and feedback
-		var choice = this.getCHOICEByIdentifier(choiceIdentifier);
+		var choice = this.getChoiceByIdentifier(choiceIdentifier);
 
 		if (checked) {
 			if (choice) {
-				document.getElementById('feedback_' + choiceIdentifier).innerHTML = choice.getFeedbackText(this);
+				document.getElementById('feedback_' + choiceIdentifier).innerHTML = choice.feedback;
 
 				var choiceTextDiv = document.getElementById("choicetext:" + choiceIdentifier);
-				if (choice.isCorrect) {
+				if (this.isCorrect(choice.identifier)) {
 					choiceTextDiv.setAttribute("class", "correct");
 				} else {
 					choiceTextDiv.setAttribute("class", "incorrect");
 					isCorrect = false;
-				};
+				}
 				
-				mcState.addChoice(choiceIdentifier);
+				mcState.addChoice(choice.identifier);
+				
+				//add the human readable value of the choice chosen
+				mcState.addResponse(choice.text);
 			} else {
-				alert('error retrieving choice by choiceIdentifier');
+				this.node.view.notificationManager('error retrieving choice by choiceIdentifier', 3);
 			}
 		} else {
-			if(choice.isCorrect){
+			if(this.isCorrect(choice.identifier)){
 				isCorrect = false;
-			};
-		};
-	};
+			}
+		}
+	}
 	
 	mcState.isCorrect = isCorrect;
 	
-	if(isCorrect){
+	/* If this is a challenge node, we need to get the score and message associated
+	 * with the number of attempts and whether this attempt is correct or not. We
+	 * also need to disable the try again button. */
+	if(this.node.getType()=='ChallengeNode'){
+		var score = this.getScore(this.attempts.length);
+		
+		/* add the score to the state */
+		mcState.score = score;
+		
+		/* clear previous feedback and setup feedback to display score and message */
+		$('#feedbackdiv').html('');
+		$('#feedbackdiv').append('<span id="challengeFeedback"><div id="scoreDiv"></div><div id="challengeMsgDiv"></div></span>');
+		
+		/* set current score */
+		$('#scoreDiv').html('Current Score: ' + score);
+		
+		/* set feedback message */
+		$('#challengeMsgDiv').html(this.getChallengeMessage(isCorrect));
+		
+		/* disable the try again buttion */
+		$('#tryAgainButton').addClass('disabledLink');
+	} else if(this.node.getType()=='BranchNode'){
+		/* this is a branch node, we will update the constraints so that students can
+		 * navigate to the appropriate branch given their answer, we also cannot allow
+		 * students to return and change their answer, so we need to create a constraint
+		 * so that students won't be able to change anything on this step */
+		this.node.view.eventManager.fire('addConstraint', {type:'NotVisitableXConstraint', x:{id:this.node.id, mode:'node'}, status:1, menuStatus:0, msg:'You can only answer this question once.'});
+		
+		/* remove the notvisitablex constraints for the appropriate branch based
+		 * on the student response
+		 *
+		 * the value will have the spaces removed, so we want to get the value
+		 * of the identifier as specified in the content. */
+		var checkedId = this.resolveIdentifier($('#radiobuttondiv input:radio:checked').val());
+		for(var v=0;v<this.content.branches.length;v++){
+			/* if the determined choiceId is in the choiceIds of this branch, then
+			 * we need to remove the specified constraints for this branch */
+			if(this.content.branches[v].choiceIds.indexOf(checkedId) != -1){
+				for(var w=0;w<this.content.branches[v].constraintIds.length;w++){
+					this.node.view.eventManager.fire('removeConstraint', this.content.branches[v].constraintIds[w]);
+				}
+			}
+		}
+		
+		/* disable the try again button */
+		$('#tryAgainButton').addClass('disabledLink');
+	} else if(isCorrect){
 		document.getElementById('feedbackdiv').innerHTML = "You have successfully completed this question!";
-	};
+	}
 	
-	//set states
+	//fire the event to push this state to the global view.states object
+	eventManager.fire('pushStudentWork', mcState);
+	
+	//push the state object into this mc object's own copy of states
 	this.states.push(mcState);
-	if (this.vle != null) {
-		this.vle.state.getCurrentNodeVisit().nodeStates.push(mcState);
-	};
-	
-	if (this.node != null) {
-		// we're loading from the VLE, and have access to the node, so fire the ended session event
-		this.node.nodeSessionEndedEvent.fire(null);
-	};
-}
+};
 
 /**
  * Returns true iff this.maxChoices is less than two or
@@ -387,7 +322,8 @@ MC.prototype.checkAnswer = function() {
  * false otherwise.
  */
 MC.prototype.enforceMaxChoices = function(inputs){
-	if(this.maxChoices>1){
+	var maxChoices = parseInt(this.content.assessmentItem.interaction.maxChoices);
+	if(maxChoices>1){
 		var countChecked = 0;
 		for(var x=0;x<inputs.length;x++){
 			if(inputs[x].checked){
@@ -395,11 +331,11 @@ MC.prototype.enforceMaxChoices = function(inputs){
 			};
 		};
 		
-		if(countChecked>this.maxChoices){
-			alert('You have selected too many. Please select only ' + this.maxChoices + ' choices.');
+		if(countChecked>maxChoices){
+			this.node.view.notificationManager.notify('You have selected too many. Please select only ' + maxChoices + ' choices.',3);
 			return false;
-		} else if(countChecked<this.maxChoices){
-			alert('You have not selected enough. Please select ' + this.maxChoices + ' choices.');
+		} else if(countChecked<maxChoices){
+			this.node.view.notificationManager.notify('You have not selected enough. Please select ' + maxChoices + ' choices.',3);
 			return false;
 		};
 	};
@@ -407,76 +343,88 @@ MC.prototype.enforceMaxChoices = function(inputs){
 };
 
 /**
- * Checks all correctResponses and returns true iff
- * the checked choices match those responses, false
- * otherwise
+ * Look up and return the score in the content that corresponds with the 
+ * given number of attempts. If one does not exist in the object, work 
+ * backwards until we find the latest. If no scores exist, return null.
+ * 
+ * @param int - numOfAttempts
+ * @return int - score
  */
-MC.prototype.isCorrect = function(inputs){
-	if(this.correctChoices.length==0){
-		return true;
-	} 
-	return false;
+MC.prototype.getScore = function(numOfAttempts){
+	/* find and return the attempt that is associated with the numOfAttempts */
+	while(numOfAttempts > 0){
+		if(this.content.assessmentItem.interaction.attempts.scores[numOfAttempts]){
+			return this.content.assessmentItem.interaction.attempts.scores[numOfAttempts];
+		}
+		
+		numOfAttempts --;
+	}
+	
+	/* no attempts found in content */
+	return null;
 };
 
 /**
- * Checks answer, updates feedbackDiv and returns the state object
+ * Given whether this attempt is correct, adds any needed linkTo and
+ * constraints and returns a message string.
+ * 
+ * @param boolean - isCorrect
+ * @return string - html response
  */
-MC.prototype.checkAnswerLite = function(){
-	var radiobuttondiv = document.getElementById('radiobuttondiv');
-	var inputbuttons = radiobuttondiv.getElementsByTagName('input');
-	if(this.vle){
-		var mcState = this.vle.createState('multiplechoice');
-	} else {
-		var mcState = new MCSTATE();
-	};
-	var isCorrect = true;
+MC.prototype.getChallengeMessage = function(isCorrect){
+	/* we need to retrieve the attempt object corresponding to the current number of attempts */
+	var attempt = this.content.assessmentItem.interaction.attempts;
 	
-	if(!this.enforceMaxChoices(inputbuttons)){
-		return;
-	};
-	
-	for (var i=0;i<inputbuttons.length;i++) {
-		var checked = inputbuttons[i].checked;
-		var choiceIdentifier = inputbuttons[i].getAttribute('id');  // identifier of the choice that was selected
-
-		// use the identifier to get the correctness and feedback
-		var choice = this.getCHOICEByIdentifier(choiceIdentifier);
-		if (checked) {	
-			if (choice) {
-				document.getElementById('feedback_' + choiceIdentifier).innerHTML = choice.getFeedbackText(this);
-
-				var choiceTextDiv = document.getElementById("choicetext:" + choiceIdentifier);
-				if (choice.isCorrect) {
-					choiceTextDiv.setAttribute("class", "correct");
-				} else {
-					choiceTextDiv.setAttribute("class", "incorrect");
-					isCorrect = false;
-				};
-				
-				mcState.addChoice(choiceIdentifier);
-			} else {
-				alert('error retrieving choice by choiceIdentifier');
-			}
-		} else {
-			if(choice.isCorrect){
-				isCorrect = false;
-			};
-		};
-	};
-	
-	mcState.isCorrect = isCorrect;
-	
+	/* if this attempt is correct, then we only need to return a msg */
 	if(isCorrect){
-		document.getElementById('feedbackdiv').innerHTML = "You have successfully completed this question!";
-	};
-	
-	//set states
-	this.states.push(mcState);
-	if (this.vle != null) {
-		this.vle.state.getCurrentNodeVisit().nodeStates.push(mcState);
-	};
-	
-	return mcState;
+		return "You have successfully completed this question!";
+	} else {
+		/* this is not correct, so we need to set up a linkTo and constraint
+		 * and return a message with the linkTo if a step has been specified
+		 * to navigate to otherwise, we need to return an empty string */
+		if(attempt.navigateTo && attempt.navigateTo != ''){
+			var msg = 'Please review the step ';
+			var position = this.node.view.getProject().getPositionById(attempt.navigateTo);
+			var linkNode = this.node.view.getProject().getNodeById(attempt.navigateTo);
+			
+			/* create the linkTo and add it to the message */
+			var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
+			this.node.addLink(linkTo);
+			msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;font-style:italic;\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">' + linkNode.getTitle() + '</a> before trying again.';
+			
+			/* create the constraint to disable this step until students have gone to
+			 * the step specified by this attempt */
+			this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20)});
+			
+			return msg;
+		} else {
+			return '';
+		}
+	}
+};
+
+/**
+ * Returns a string of the given string with all spaces removed.
+ */
+MC.prototype.removeSpace = function(text){
+	return text.replace(/ /g,'');
+};
+
+/**
+ * Given an id from a choice in the html, returns the identifier as specified
+ * in the content. We need to do this because when setting ids in the html, we
+ * needed to remove spaces and authors that created their content NOT using the
+ * authoring tool may have included spaces.
+ * 
+ * @param string - id
+ * @return string - id
+ */
+MC.prototype.resolveIdentifier = function(id){
+	for(var a=0;a<this.choices.length;a++){
+		if(this.removeSpace(this.choices[a].identifier)==id){
+			return this.choices[a].identifier;
+		}
+	}
 };
 
 /**
@@ -490,7 +438,7 @@ function enableCheckAnswerButton(doEnable) {
 	} else {
 		addClassToElement("checkAnswerButton", "disabledLink"); // disable checkAnswerButton
 	}
-}
+};
 
 
 /**
@@ -503,9 +451,9 @@ function enableRadioButtons(doEnable) {
 			radiobuttons[i].removeAttribute('disabled');
 		} else {
 			radiobuttons[i].setAttribute('disabled', 'true');
-		}
-	}
-}
+		};
+	};
+};
 
 /**
  * Clears HTML inside feedbackdiv
@@ -520,5 +468,8 @@ function clearFeedbackDiv() {
 	};
 };
 
+
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/multiplechoice/mc.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/multiplechoice/mc.js');
+};

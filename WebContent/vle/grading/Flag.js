@@ -68,19 +68,54 @@ Flag.prototype.parseDataXML = function(flagXML) {
 }
 
 /**
+ * Converts a flag JSON string to a Flag object
+ * @param flagJSONString a flag JSON string
+ * @return a populated Flag object
+ */
+Flag.prototype.parseDataJSONString = function(flagJSONString) {
+	//convert the JSON string to a JSON object
+	var flagJSONObj = $.parseJSON(flagJSONString);
+	
+	//convert the flag JSON object to a Flag object
+	return Flag.prototype.parseDataJSONObject(flagJSONObj);
+}
+
+/**
+ * Converts a flag JSON object into a Flag object
+ * @param flagJSONObj a flag JSON object
+ * @return a populated Flag object
+ */
+Flag.prototype.parseDataJSONObject = function(flagJSONObj) {
+	//create a new Flag object
+	var flag = new Flag();
+	
+	//populate the fields from the JSON object
+	flag.runId = flagJSONObj.runId;
+	flag.nodeId = flagJSONObj.nodeId;
+	flag.toWorkgroup = flagJSONObj.toWorkgroup;
+	flag.fromWorkgroup = flagJSONObj.fromWorkgroup;
+	flag.studentWork = flagJSONObj.studentWork;
+	flag.postTime = flagJSONObj.postTime;
+	
+	//return the Flag
+	return flag;
+}
+
+/**
  * Creates the xml string version of the Flag object
  * @return an xml string representing the Flag object
  */
 Flag.prototype.getDataXML = function() {
 	var dataXML = "";
 	
-	dataXML += "<flagEntry>";
+	dataXML += "<annotationEntry>";
 	dataXML += "<runId>" + this.runId + "</runId>";
 	dataXML += "<nodeId>" + this.nodeId + "</nodeId>";
 	dataXML += "<toWorkgroup>" + this.toWorkgroup + "</toWorkgroup>";
 	dataXML += "<fromWorkgroup>" + this.fromWorkgroup + "</fromWorkgroup>";
 	dataXML += "<value>" + this.studentWork + "</value>";
-	dataXML += "</flagEntry>";
+	dataXML += "<type>flag</type>";
+	dataXML += "</annotationEntry>";
 	
 	return dataXML;
 }

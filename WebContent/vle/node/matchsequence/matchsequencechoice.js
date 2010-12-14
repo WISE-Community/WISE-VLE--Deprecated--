@@ -32,16 +32,18 @@
  * SAMPLE choiceDOM:
  *   <gapText identifier="ps3" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;Playstation 3&lt;/body&gt;&lt;/html&gt;</gapText>
  */
-function MSCHOICE(choiceDOM, bucket) {
-    if (choiceDOM) {
-      this.dom = choiceDOM;
-      this.identifier = this.dom.getAttribute('identifier');
-      this.text = this.dom.lastChild.nodeValue;    // choice text that students will see, can be html
+function MSCHOICE(choiceObj, bucket) {
+    if (choiceObj) {
+      this.obj = choiceObj;
+      this.identifier = choiceObj.identifier;
+      this.text = choiceObj.value;    // choice text that students will see, can be html
       this.bucket = bucket;
     } else {
       this.bucket = bucket;
-    }
-}
+    };
+};
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/matchsequence/matchsequencechoice.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/matchsequence/matchsequencechoice.js');
+}

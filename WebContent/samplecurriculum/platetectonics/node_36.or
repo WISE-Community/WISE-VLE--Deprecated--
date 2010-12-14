@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "In your own words, describe divergent boundaries. What are geological events/features that occur at divergent boundaries? &lt;br /&gt;&lt;br /&gt; *Hint: If you need to review plate boundary types, you can go to 3.4. If you need to review geologic events/features, you can go to 3.5.",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "Divergent boundaries are... Geologic events/features that occur at divergent boundaries are..."
+   },
+   "type": "Note"
+}

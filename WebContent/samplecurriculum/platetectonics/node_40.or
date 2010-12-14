@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "OpenResponse",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "In the image of the Earth below, where do you think is the Earth hottest?&lt;br /&gt;&lt;img src=\"http://dl.getdropbox.com/u/1077325/PTPre01.png\"/&gt;&lt;br /&gt; Please explain your answer.",
+         "responseIdentifier": "OR"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "OR"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "I think _ is where the Earth is hottest because..."
+   },
+   "type": "OpenResponse"
+}

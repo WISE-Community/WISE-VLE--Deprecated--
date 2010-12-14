@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Servlet implementation class VLEConfig
  */
@@ -29,41 +32,56 @@ public class VLEConfig extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		String vleConfigString = "<VLEConfig>";
-		
-		// for now, use the preview mode to disable polling
-		vleConfigString += "<mode>run</mode>";
-
 		String base_www = getServletUrl(request);
-		String contentUrl = content_location(request.getParameter("location"));
+		String projectId = request.getParameter("projectId");
+		String contentUrl = content_location(projectId);
 		String contentBaseUrl = contentUrl.substring(0, contentUrl.lastIndexOf('/') + 1) + "/";  //.substring(0, contentUrl.lastIndexOf('/') + 1);
 		String postDataUrl = base_www + "/script/postVisits.php";
 		String getDataUrl = base_www + "/getdata.html";
-		String userInfoUrl = "VLEGetUser";
-		
-		vleConfigString += "<runId>3</runId>";
-		vleConfigString += "<getFlagsUrl>dummyflagsurl</getFlagsUrl>";
-		vleConfigString += "<userInfoUrl>"+ userInfoUrl + "</userInfoUrl>";
-		vleConfigString += "<contentUrl>"+ contentUrl +"</contentUrl>";
-		vleConfigString += "<contentBaseUrl>"+ contentBaseUrl +"</contentBaseUrl>";
-		vleConfigString += "<getDataUrl>"+ getDataUrl +"</getDataUrl>";
-		vleConfigString += "<postDataUrl>"+ postDataUrl +"</postDataUrl>";
-		vleConfigString += "<runInfoUrl>dummy</runInfoUrl>";
-		vleConfigString += "<theme>WISE</theme>";
-		vleConfigString += "<enableAudio>false</enableAudio>";
-		vleConfigString += "<runInfoRequestInterval>-1</runInfoRequestInterval>";
-		
-		vleConfigString += "</VLEConfig>";
-		
-		response.getWriter().print(vleConfigString);
+		String userInfoUrl = base_www + "/vle/VLEGetUser";
+		try {
+			JSONObject config = new JSONObject();
+			config.put("runId", 3);
+			config.put("mode", "developerpreview");
+			config.put("getFlagsUrl", "dummyflagsurl");
+			config.put("getUserInfoUrl", userInfoUrl);
+			config.put("getContentUrl", contentUrl);
+			config.put("getContentBaseUrl", contentBaseUrl);
+			config.put("getDataUrl", getDataUrl);
+			config.put("postDataUrl", postDataUrl);
+			config.put("getRunInfoUrl", "dummy");
+			config.put("theme", "WISE");
+			config.put("enableAudio", false);
+			config.put("runInfoRequestInterval", -1);
+			config.put("getProjectMetadataUrl", userInfoUrl + "x");
+			response.setHeader("Cache-Control", "no-cache");
+			response.setHeader("Pragma", "no-cache");
+			response.setDateHeader ("Expires", 0);
+			
+			response.setContentType("text/json");
+			//response.getWriter().print(vleConfigString.toString());
+			response.getWriter().print(config.toString());
+		} catch (JSONException e) {
+			
+		}
 	}
 
-	private String content_location(String parameter) {
-		//return "http://localhost:8080/contentrepository/curriculum/unit0/lesson0_Welcome/lesson0.project.xml";
-		return "http://localhost/~hirokiterashima/apcsa/curriculum/unit3_GUI_loops/lesson7_grfx/lesson7_grfx.project.xml";
-	}
 
+	private String content_location(String projectId) {
+		try {
+			for (int i=0; i <  VLEView.projectsJSONArray.length(); i++) {
+				if (VLEView.projectsJSONArray.getJSONObject(i).get("id").equals(projectId)) {
+					JSONObject projectJSONObj =  (JSONObject) VLEView.projectsJSONArray.getJSONObject(i);
+					String contentPath = (String) projectJSONObj.get("contentpath");
+					return contentPath;
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
+	}
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */

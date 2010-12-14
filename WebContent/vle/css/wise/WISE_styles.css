@@ -38,7 +38,12 @@ div.logoImageDiv {
 }
 
 #loginBox {
-	font-size: .7em;
+	font-size: .6em;
+	text-align:center;
+}
+
+#loginBox .dateTime {
+	font-style:italic;
 }
 
 #hostBrandingBoxUCCP {
@@ -50,5 +55,5 @@ div.logoImageDiv {
 }
 
 #navigationMenuBox {
-	height: 84%;
-}
+	 height: 82%; 
+	}	

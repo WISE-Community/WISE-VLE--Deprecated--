@@ -1,0 +1,198 @@
+<html>
+	<head>
+		<script type="text/javascript">
+			var sensor;
+
+			/*
+			 * Called after all the js scripts are loaded into this html file
+			 */
+			function loadContentAfterScriptsLoad(node){
+				//create a sensor object to handle all the rendering and logic of the step
+	        	sensor = new SENSOR(node);
+
+	        	//render the applet and graph and data into the html
+	        	sensor.render();
+	        };
+
+	        /*
+	         * Loads all the js scripts into this html file
+	         */
+	        function loadContent(node){
+	        	scriptloader.loadScripts('sensor', document, node.id, eventManager);
+	        };
+
+	        /*
+	         * the object that the applet talks to, the applet will call the
+	         * javascript jsListener.dataRecieved() function when it receives
+	         * any data from the sensor
+	         */
+	    	var jsListener = {
+	    	    /*
+	    	     * called by the applet when the applet receives any data
+	    	     * from the sensor
+	    	     */
+	    		dataReceived: function(type,count,data) {
+	    			/*
+	    			 * tell our sensor object that we received data so that it
+	    			 * can save the data point and also update the graph so
+	    			 * the student can see the data
+	    			 */
+	    			sensor.dataReceived(type, count, data);
+	    		},
+
+	    		/*
+	    		 * called by the applet when the applet receives events
+	    		 * from the sensor such as start or stop events
+	    		 */
+	    		dataStreamEvent: function(type,count,data) {
+	    		},
+
+	    		sensorsReady: function() {
+	    		}
+	    	};
+
+	    	function sensorsReady() {
+	        }
+
+	        /*
+	         * called when the Start button is clicked below
+	         */
+	    	function startSensor() {
+		    	//tell our sensor object that we are going to start collecting data
+		    	sensor.startCollecting();
+
+		    	/*
+		    	 * get the sensor applet from the html, you won't find it below in the html
+		    	 * because we dynamically insert it into the sensorAppletDiv since it
+		    	 * requires dynamic params such as whether we are using a motion or
+		    	 * temperature sensor
+		    	 */
+		    	var sensorApplet = document.getElementById('sensorApplet')
+		    	
+		    	//tell the sensor applet to start collecting data
+    			sensorApplet.startCollecting();
+    	    }
+
+	    	/*
+	         * called when the Stop button is clicked below
+	         */
+    	    function stopSensor() {
+        	    /*
+        	     * get the sensor applet from the html, you won't find it below in the html
+		    	 * because we dynamically insert it into the sensorAppletDiv since it
+		    	 * requires dynamic params such as whether we are using a motion or
+		    	 * temperature sensor
+		    	 */
+    	    	var sensorApplet = document.getElementById('sensorApplet')
+    	    	
+    	    	//tell the sensor applet to stop collecting data
+    	    	sensorApplet.stopCollecting();
+
+    	    	//tell our sensor object that we are going to stop collecting data
+    	    	sensor.stopCollecting();
+    	    }
+
+    	    /*
+	         * called when the Clear button is clicked below
+	         */
+    	    function clearData() {
+    	    	/*
+        	     * get the sensor applet from the html, you won't find it below in the html
+		    	 * because we dynamically insert it into the sensorAppletDiv since it
+		    	 * requires dynamic params such as whether we are using a motion or
+		    	 * temperature sensor
+		    	 */
+    	    	var sensorApplet = document.getElementById('sensorApplet')
+    	    	
+    	    	//tell the sensor applet to stop collecting data
+    	    	sensorApplet.stopCollecting();
+
+    	    	//tell our sensor object to clear the data
+    		    sensor.clearData();
+    	    }
+
+    	    /*
+    	     * called when the student clicks the Save button
+    	     */
+    	    function save() {
+        	    //tell our sensor object to save the data
+    	    	sensor.save();
+    	    }
+
+    	    /*
+    	     * Delete the annotation because the student has clicked
+    	     * the delete button next to one of the annotations
+    	     *
+			 * @param seriesName the name of the graph line
+			 * e.g.
+			 * 'distance'
+			 * 'velocity'
+			 * 'acceleration'
+			 * 'temperature'
+			 *
+			 * @param dataIndex the index of the point on the graph line
+    	     */
+    	    function deleteAnnotation(seriesName, dataIndex) {
+        	    //delete the annotation from the UI and from the sensor state
+				sensor.deleteAnnotation(seriesName, dataIndex);
+    	    }
+
+    	    /*
+			 * The student has changed the text they have written for
+			 * the annotation
+			 *
+			 * @param seriesName the name of the graph line
+			 * e.g.
+			 * 'distance'
+			 * 'velocity'
+			 * 'acceleration'
+			 * 'temperature'
+			 *
+			 * @param dataIndex the index of the point on the graph line
+			 */
+    	    function editAnnotation(seriesName, dataIndex) {
+		    	//get the text the student has typed
+        	    var annotationText = $("#" + seriesName + dataIndex + "AnnotationInputText").attr("value");
+
+        	    //save the text to the sensor state
+    	    	sensor.editAnnotation(seriesName, dataIndex, annotationText);
+    	    }
+
+		</script>
+	</head>
+	<body>
+		<!-- where the prompt/instructions will be displayed to the student -->
+		<div id='promptDiv'></div>
+		
+		<!-- the applet will be inserted into the innerHTML of this sensorAppletDiv -->
+		<div id='sensorAppletDiv'></div>
+		
+		<!-- where the start, stop, clear buttons are -->
+		<div id='buttonsDiv'>
+	      <input type="button" value="Start" onclick="startSensor()" />
+	      <input type="button" value="Stop" onclick="stopSensor()" />
+	      <input type="button" value="Clear" onclick="clearData()" />
+	    </div>
+	    
+	    <!-- the graph will be displayed in this graphDiv -->
+	    <table>
+		    <tr>
+		    	<td><div id="graphDiv" style="width:600px;height:300px;"></div></td>
+		    	<td>
+		    	<div id="graphOptionsDiv">
+		    		<div id="graphCheckBoxesDiv"></div>
+		    	</div>
+		    	</td>
+		    </tr>
+		    <tr>
+		    	<td><div id="graphAnnotationsDiv"></div></td>
+		    </tr>
+	    </table>
+	    
+	    <!-- where the student will write their analysis or explanation to the graph -->
+	    <textarea id='responseTextArea'></textarea>
+	    <br/>
+	    <!-- the save button -->
+	    <input type="button" value="Save" onclick="save()" />
+	</body>
+</html>

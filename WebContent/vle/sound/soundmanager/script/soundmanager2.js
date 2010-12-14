@@ -13,7 +13,6 @@
 var soundManager = null;
 
 function SoundManager(smURL,smID) {
- 
   this.flashVersion = 8;           // version of flash to require, either 8 or 9. Some API features require Flash 9.
   this.debugMode = false;           // enable debugging output (div#soundmanager-debug, OR console if available + configured)
   this.useConsole = true;          // use firebug/safari console.log()-type debug console if available
@@ -98,7 +97,7 @@ function SoundManager(smURL,smID) {
   this._defaultFlashVersion = 8;
   this._oRemoved = null;
   this._oRemovedHTML = null;
-
+  
   var _$ = function(sID) {
     return document.getElementById(sID);
   };
@@ -135,7 +134,6 @@ function SoundManager(smURL,smID) {
 
   this._setVersionInfo = function() {
     if (_s.flashVersion != 8 && _s.flashVersion != 9) {
-      alert('soundManager.flashVersion must be 8 or 9. "'+_s.flashVersion+'" is invalid. Reverting to '+_s._defaultFlashVersion+'.');
       _s.flashVersion = _s._defaultFlashVersion;
     }
     _s.version = _s.versionNumber+(_s.flashVersion==9?' (AS3/Flash 9)':' (AS2/Flash 8)');
@@ -488,7 +486,7 @@ function SoundManager(smURL,smID) {
   this.onerror = function() {
     // stub for user handler, called when SM2 fails to load/init
   };
-
+  
   // --- "private" methods ---
 
   this._idCheck = this.getSoundById;
@@ -1413,7 +1411,7 @@ function SoundManager(smURL,smID) {
   };
 
   // --- "private" methods called by Flash ---
-
+  
   this._whileloading = function(nBytesLoaded,nBytesTotal,nDuration) {
     if (!_t._iO.isMovieStar) {
       _t.bytesLoaded = nBytesLoaded;
@@ -1615,9 +1613,8 @@ function SoundManager(smURL,smID) {
 soundManager = new SoundManager();
 
 soundManager.url = 'sound/soundmanager/swf/'; // directory where SM2 .SWFs live
-soundManager.waitForWindowLoad = true;
-soundManager.debugMode = false;
-
 
 //used to notify scriptloader that this script has finished loading
-//scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/sound/soundmanager/script/soundmanager2.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/sound/soundmanager/script/soundmanager2.js');
+};

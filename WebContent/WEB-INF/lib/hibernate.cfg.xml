@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/vle_database</property>
+        <property name="connection.username">wise4user</property>
+        <property name="connection.password">wise4pass</property>
+        <property name="connection.release_mode">auto</property>
+        <property name="c3p0.acquire_increment">1</property>
+        <property name="c3p0.idle_test_period">100</property>          <!-- seconds -->        
+        <property name="c3p0.min_size">10</property>
+        <property name="c3p0.max_size">100</property>
+        <property name="c3p0.timeout">1800</property><!-- seconds -->
+        <property name="c3p0.max_statements">50</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQLMyISAMDialect</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hbm2ddl.auto">update</property>
+
+<!--  not using hibernate-annotations
+        <mapping resource="org/hibernate/tutorial/domain/Event.hbm.xml"/>
+ -->
+  		<mapping class="vle.domain.user.UserInfo" />
+  		<mapping class="vle.domain.node.Node" />
+ 		<mapping class="vle.domain.work.StepWork" />
+ 		<mapping class="vle.domain.work.StepWorkMC" />
+ 		<mapping class="vle.domain.work.StepWorkChallenge"/>
+ 		<mapping class="vle.domain.work.StepWorkBranch"/>
+ 		<mapping class="vle.domain.work.StepWorkOR" />
+ 		<mapping class="vle.domain.work.StepWorkNote" />
+ 		<mapping class="vle.domain.work.StepWorkHtml" />
+ 		<mapping class="vle.domain.work.StepWorkFillin" />
+ 		<mapping class="vle.domain.work.StepWorkMatchSequence" />
+ 		<mapping class="vle.domain.work.StepWorkBS" />
+ 		<mapping class="vle.domain.work.StepWorkSVGDraw" />
+ 		<mapping class="vle.domain.work.StepWorkCache" />
+ 		<mapping class="vle.domain.work.StepWorkAssessmentList" />
+ 		<mapping class="vle.domain.work.StepWorkSensor" />
+ 		<!-- 
+ 			 if you are creating a new step type, copy the line below and
+ 		     replace Template with the name of your new step type
+ 		     
+ 		     <mapping class="vle.domain.work.StepWork<new step type>" />
+ 		     e.g.
+			 <mapping class="vle.domain.work.StepWorkQuiz" />
+ 		-->
+ 		<mapping class="vle.domain.work.StepWorkTemplate" /> 		
+ 		<mapping class="vle.domain.journal.Journal" />
+  		<mapping class="vle.domain.annotation.Annotation" />
+  		<mapping class="vle.domain.annotation.AnnotationFlag" />
+  		<mapping class="vle.domain.annotation.AnnotationScore" />
+  		<mapping class="vle.domain.annotation.AnnotationComment" />
+  		<mapping class="vle.domain.peerreview.PeerReviewWork" />
+  		<mapping class="vle.domain.peerreview.PeerReviewGate" />
+ 		
+    </session-factory>
+
+</hibernate-configuration>

@@ -3,12 +3,12 @@
  * @author Hiroki Terashima
  */
 function OUTSIDEURLSTATE(response) {
-	this.timestamp = new Date().toUTCString();
+	this.type = "ou";
+	this.timestamp = Date.parse(new Date());
 	this.response = response;   // which choice the student chose.
 }
 
 OUTSIDEURLSTATE.prototype.print = function() {
-	//alert(this.timestamp + "\n" + this.choiceIdentifier);
 }
 
 OUTSIDEURLSTATE.prototype.getHtml = function() {

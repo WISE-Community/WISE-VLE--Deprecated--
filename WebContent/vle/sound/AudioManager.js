@@ -14,14 +14,17 @@
  * 			Single Click: plays the next audio in the sequence. If this is the last audio in the sequence, stops playing.
  * 			When there is no pre-associated audio for this step, this button is disabled.
  */
-function AudioManager(isPlaying) {
+function AudioManager(isPlaying, view) {
+	this.view = view;
 	this.currentSound = null;
 	this.isPlaying = false;
 	this.isSoundManagerLoaded = false;
 	this.currentNode = null;
+	this.postReportUrl = null;
+	//this.postReportUrl = "http://veritas.eecs.berkeley.edu/voices/dottsAPCSA.php?save_dirname=2";
 
 	if (isPlaying != null) {
-		if (isPlaying == "false") {
+		if (isPlaying != "true") {
 			this.isPlaying = false;
 		} else {
 			this.isPlaying = true;
@@ -30,51 +33,50 @@ function AudioManager(isPlaying) {
 }
 
 /**
- * Prepares this to play audio associated with this node.
- * If this.isPlaying is true, starts playing
+ * Creates sound for the given nodeAudioElement, and prepared the 
+ * created sound for to be played by setting it in the node.audios
  */
-AudioManager.prototype.setCurrentNode = function(node) {
-	notificationManager.notify('audiomanager.setCurrentNode, node.id:' + node.id
-			+ '\n' + vle.audioManager.isSoundManagerLoaded + '\n'
-			+ 'audios.length:' + node.audios.length, 4);
-	if (this.currentSound != null) { 
-		// stop currently-playing audio
-		this.currentSound.stop(); 
-		this.currentSound = null; 
-	}  
-	this.currentNode = node;
-	var soundId = this.id;
-	var nodeAudioElements = node.audios;
-	if (nodeAudioElements.length > 0) {
-		for ( var i = 0; i < nodeAudioElements.length; i++) {
-			var nodeAudioElement = nodeAudioElements[i];
-			var sound = null;
-			var md5sound = null;
-			var backupSound = null;
-			if (soundManager.canPlayURL(nodeAudioElement.url)) {
-				sound = soundManager.createSound( {
+AudioManager.prototype.createSoundFromAudioElement = function(nodeAudioElement, node) {
+
+	if (soundManager.canPlayURL(nodeAudioElement.url)) {
+		var success = function() {
+			// found audio using the audio="filename".  make this the audio
+			//notificationManager.notify('success getting audio using audio=filename. o.responseText: ' + o.responseText, 4);
+			nodeAudioElement.audio = 
+				 soundManager.createSound( {
 						id : nodeAudioElement.id,
 						url : nodeAudioElement.url,
 						onplay : function() {onPlayCallBack(this,node);},
 						whileplaying : function() {whilePlayingCallBack(this, node);},
 						onpause : function() {onPauseCallBack(this, node);},
 						onfinish : function() {onFinishCallBack(this,node);},
-						onstop: function() {onStopCallBack(this,node);},
-						onload: function(success) {
-							if (!success) {  // couldn't find mp3 file. try to load md5 hash
+						onload: function(loadSuccess) {
+							if (!loadSuccess) {  // couldn't find mp3 file. try to load md5 hash
 								if (this.readyState == 3) {
 									// sometimes flash mistakingly thinks load failed because it's loading mp3 from cache
 									// see SoundObject's onload() on this page: http://www.schillmania.com/projects/soundmanager2/doc/#smsoundmethods
 								} else {
-									vle.audioManager.playMD5Audio(this,node);
+									notificationManager.notify('error loading audio #1');
 								}
 							}
-						}
+						},
+						onstop: function() {onStopCallBack(this,node);}
 					});
-				
-				// MD5 audio
-				md5sound = soundManager.createSound( {
-					id : 'md5_' + nodeAudioElement.id,
+			nodeAudioElement.audio.elementId = nodeAudioElement.elementId;
+			nodeAudioElement.audio.index = nodeAudioElement.index;
+			this.doEnableButtons(true);
+			this.currentNode.audios[nodeAudioElement.index] = nodeAudioElement.audio;
+			if (this.isPlaying && nodeAudioElement.index == 0) {
+				this.currentSound = nodeAudioElement.audio;
+				this.currentSound.play();
+			}
+		};
+		
+		var success_md5 = function() {
+			notificationManager.notify('success getting md5 audio', 4);
+			nodeAudioElement.audio = 
+				soundManager.createSound( {
+					id : nodeAudioElement.id,
 					url : nodeAudioElement.md5url,
 					onplay : function() {onPlayCallBack(this,node);},
 					whileplaying : function() {whilePlayingCallBack(this, node);},
@@ -87,39 +89,148 @@ AudioManager.prototype.setCurrentNode = function(node) {
 								// sometimes flash mistakingly thinks load failed because it's loading mp3 from cache
 								// see SoundObject's onload() on this page: http://www.schillmania.com/projects/soundmanager2/doc/#smsoundmethods
 							} else {
-								vle.audioManager.playBackupAudio(this,node);
+								notificationManager.notify('error loading audio #2');
 							}
 						}
 					}
 				});
-				
-				// backup audio, in case all else fails
-				backupSound = soundManager.createSound( {
-					id : 'backup_md5_' + nodeAudioElement.id,
-					url : 'sound/NoAudioAvailable.mp3',
-					onplay : function() {onPlayCallBack(this,node);},
-					whileplaying : function() {whilePlayingCallBack(this, node);},
-					onpause : function() {onPauseCallBack(this, node);},
-					onfinish : function() {onFinishCallBack(this,node);},
-					onstop: function() {onStopCallBack(this,node);},
-					onload: function(success) {
-					}
-				});
-			} else {
+			nodeAudioElement.audio.elementId = nodeAudioElement.elementId;
+			nodeAudioElement.audio.index = nodeAudioElement.index;
+			//this.doEnableButtons(true);
+			this.currentNode.audios[nodeAudioElement.index] = nodeAudioElement.audio;
+			if (this.isPlaying && nodeAudioElement.index == 0) {
+				this.currentSound = nodeAudioElement.audio;
+				this.currentSound.play();
 			}
-			sound.id = nodeAudioElement.id;
-			sound.elementId = nodeAudioElement.elementId;
-			md5sound.id = 'md5_' + nodeAudioElement.id;
-			md5sound.elementId = nodeAudioElement.elementId;
-			backupSound.id = 'backup_md5_' + nodeAudioElement.id;
-			backupSound.elementId = nodeAudioElement.elementId;
-			nodeAudioElement.audio = sound;
-			nodeAudioElement.backupAudio = backupSound;
-			if (i == 0) {
-				// if this is the first sound in the sequence, set it to be the one to play first.
-				this.currentSound = sound;
-			} 
+		};
+		
+		var failure = function() {
+			// could not find the audio using the audio="filename"
+			// so now go find the MD5 file
+			//notificationManager.notify('failure getting audio using audio=filename. o.responseText:' + o.responseText, 4);
+			
+			var success_md5 = function() {
+				notificationManager.notify('success getting md5 audio', 4);
+				nodeAudioElement.audio = 
+					soundManager.createSound( {
+						id : nodeAudioElement.id,
+						url : nodeAudioElement.md5url,
+						onplay : function() {onPlayCallBack(this,node);},
+						whileplaying : function() {whilePlayingCallBack(this, node);},
+						onpause : function() {onPauseCallBack(this, node);},
+						onfinish : function() {onFinishCallBack(this,node);},
+						onstop: function() {onStopCallBack(this,node);},
+						onload: function(success) {
+							if (!success) {  // couldn't find mp3 file. try to load md5 hash
+								if (this.readyState == 3) {
+									// sometimes flash mistakingly thinks load failed because it's loading mp3 from cache
+									// see SoundObject's onload() on this page: http://www.schillmania.com/projects/soundmanager2/doc/#smsoundmethods
+								} else {
+									notificationManager.notify('error loading audio #2');
+								}
+							}
+						}
+					});
+				nodeAudioElement.audio.elementId = nodeAudioElement.elementId;
+				nodeAudioElement.audio.index = nodeAudioElement.index;
+				this.doEnableButtons(true);
+				this.currentNode.audios[nodeAudioElement.index] = nodeAudioElement.audio;
+				if (this.isPlaying && nodeAudioElement.index == 0) {
+					this.currentSound = nodeAudioElement.audio;
+					this.currentSound.play();
+				}
+			};
+			
+			var failure_md5 = function() {
+				// could not find the audio using the md5 hash
+				// so use the default audio file
+				notificationManager.notify('failure getting md5 audio, resorting to default', 4);
+				nodeAudioElement.audio = 
+					soundManager.createSound( {
+						id : nodeAudioElement.id,
+						url : 'sound/NoAudioAvailable.mp3',
+						onplay : function() {onPlayCallBack(this,node);},
+						whileplaying : function() {whilePlayingCallBack(this, node);},
+						onpause : function() {onPauseCallBack(this, node);},
+						onfinish : function() {onFinishCallBack(this,node);},
+						onstop: function() {onStopCallBack(this,node);},
+						onload: function(success) {
+						}
+					});
+				nodeAudioElement.audio.elementId = nodeAudioElement.elementId;
+				nodeAudioElement.audio.index = nodeAudioElement.index;
+				this.doEnableButtons(true);
+				this.currentNode.audios[nodeAudioElement.index] = nodeAudioElement.audio;
+				if (this.isPlaying && nodeAudioElement.index == 0) {
+					this.currentSound = nodeAudioElement.audio;
+					this.currentSound.play();
+				}
+				// send message to server about this
+				if (this.postReportUrl != null) {
+					var jsonStr = $.stringify(nodeAudioElement, ["id", "url", "elementId", "elementTextContent", "md5url", "index"]);				
+					var callback_post_audio = function() {};
+					var postRequestParam = "save_mp3=1&make_audio=true&speech=[" + jsonStr +"]";    
+					alert('error!');
+					$.ajax({type:'POST', url:this.postReportUrl, error:callback_post_audio, success:callback_post_audio});									       
+				}
+			};	
+			
+			$.ajax({type:'HEAD', url:nodeAudioElement.md5url, error:failure_md5, success:success_md5, context:this});	
+		};
+		
+		$.ajax({type:'HEAD',url:nodeAudioElement.md5url, error:failure, success:success_md5, context:this});			
+	} 
+};
+
+/**
+ * Prepares this to play audio associated with this node.
+ * If this.isPlaying is true, starts playing
+ */
+AudioManager.prototype.setCurrentNode = function(node) {
+	if (this.currentSound != null) { 
+		// stop currently-playing audio
+		this.currentSound.stop(); 
+		this.currentSound = null; 
+	}
+	
+	this.currentNode = node;
+	if (!this.currentNode.audios || this.currentNode.audios == null) {
+		this.currentNode.audios = [];
+	}
+	var audioElements = $(this.currentNode.contentPanel.document).find("[audio]");
+	if (audioElements == null || audioElements.length == 0) {
+		// try again, but after a brief pause
+		//this.currentNode.view.pausecomp(3000);  // pause a bit before calling this
+		audioElements = $(this.currentNode.contentPanel.document).find("[audio]");
+	}
+	var nodeAudioElements = [];
+	for (var k=0;k<audioElements.length;k++) {
+		var audioElement = audioElements[k];
+		var sText = $(audioElement).text();
+		var audioText = normalizeHTML($(audioElement).text());
+//		var audioText = $(audioElement).text();
+		var audioElementId = $(audioElement).attr("audio");
+		var audioTextMD5 = MD5(audioText);
+		var contentBaseUrl = node.view.getConfig().getConfigParam('getContentBaseUrl');
+		var audioBaseUrl = contentBaseUrl + "/audio"; 
+		var audioUrl = audioBaseUrl + "/audio_"+audioTextMD5+".mp3";
+		var nodeAudioId = this.currentNode.id + "." + audioElementId;
+		var nodeAudioElement = new NodeAudio(
+				nodeAudioId,
+				audioUrl,
+				audioElementId,
+				audioText,
+				audioUrl,
+				k
+				);
+		nodeAudioElements.push(nodeAudioElement);
+	}
+	//var nodeAudioElements = this.view.nodeAudioMap[this.currentNode.id];
+	if (nodeAudioElements && nodeAudioElements.length > 0) {
+		for ( var i = 0; i < nodeAudioElements.length; i++) {
+			this.createSoundFromAudioElement(nodeAudioElements[i], node);
 		}
+		this.currentSound = this.currentNode.audios[0];
 		this.doEnableButtons(true);
 	} else {  
 		// no pre-associated audio exists for this node.
@@ -133,14 +244,11 @@ AudioManager.prototype.setCurrentNode = function(node) {
 		// disable forward/rewind buttons for this node.
 		this.doEnableButtons(false);
 	}	
-	if (this.isPlaying) {
-		this.currentSound.play();
-	}
 };
 
 AudioManager.prototype.playMD5Audio = function(sound, node) {
 	notificationManager.notify('playmd5audio, id:' + sound.id, 4);
-	soundManager.stop(sound.id);
+	//soundManager.stopAll();
 	//soundManager.stop(sound.id);
 	var backupSound = soundManager.getSoundById('md5_'+sound.id);
 	soundManager.play('md5_'+sound.id);
@@ -154,7 +262,7 @@ AudioManager.prototype.playMD5Audio = function(sound, node) {
 			node.audios[i].audio = backupSound;
 		}
 	}
-}
+};
 
 AudioManager.prototype.playBackupAudio = function(sound, node) {
 	notificationManager.notify('playbackupaudio, id:' + sound.id, 4);
@@ -172,7 +280,7 @@ AudioManager.prototype.playBackupAudio = function(sound, node) {
 			node.audios[i].audio = backupSound;
 		}
 	}
-}
+};
 
 /**
  * Enables or disables the rewind/forward buttons.
@@ -181,15 +289,16 @@ AudioManager.prototype.playBackupAudio = function(sound, node) {
 AudioManager.prototype.doEnableButtons = function(doEnable) {
 	if (doEnable) {
 		notificationManager.notify("enabling buttons", 4);
-	 	document.getElementById("rewindButton").onclick = function() {vle.rewindStepAudio();};
-		document.getElementById("rewindButton").ondblclick = function() {vle.previousStepAudio();};
-		document.getElementById("forwardButton").onclick = function() {vle.forwardStepAudio();};
-
+	 	document.getElementById("rewindButton").onclick = function() {eventManager.fire('rewindStepAudio');};
+		document.getElementById("rewindButton").ondblclick = function() {eventManager.fire('previousStepAudio');};
+		document.getElementById("forwardButton").onclick = function() {eventManager.fire('forwardStepAudio');};
+		document.getElementById("playPause").onclick = function() {eventManager.fire('playPauseStepAudio');};
 	} else {
 		notificationManager.notify("disabling buttons", 4);
 	 	document.getElementById("rewindButton").onclick = "";
 		document.getElementById("rewindButton").ondblclick = "";
 		document.getElementById("forwardButton").onclick = "";
+		document.getElementById("playPause").onclick = "";
 	};
 };
 
@@ -202,9 +311,18 @@ var onPlayCallBack = function(sound, currentNode) {
 	if (sound.readyState == 3) {
 	} else {
 		notificationManager.notify('file not ready, play backup', 4);
-		//vle.audioManager.playBackupAudio(this,currentNode);
+		//currentNode.view.audioManager.playBackupAudio(this,currentNode);
 	}
-}
+	
+	// update node.audios
+	for (var i=0; i<currentNode.audios.length;i++) {
+		if (currentNode.audios[i].id == sound.id) {
+			currentNode.audios[i].id = sound.id;
+			currentNode.audios[i].audio = sound;
+		}
+	}
+
+};
 
 //a call-back function triggered when the node's 'onstop' callback is called
 //@param sound currently-playing audio.
@@ -220,7 +338,7 @@ var onStopCallBack = function(sound, currentNode) {
 var onFinishCallBack = function(sound, currentNode) {
 	highlightTextElement(sound.elementId, currentNode, false);
 	showPlayPauseButton(false);
-	vle.audioManager.nextStepAudio();
+	currentNode.view.audioManager.nextStepAudio();
 };
 
 // a call-back function triggered when the node's 'whileplaying' callback is called
@@ -229,7 +347,8 @@ var onFinishCallBack = function(sound, currentNode) {
 var whilePlayingCallBack = function(sound, currentNode) {
 	showPlayPauseButton(true);
 	highlightTextElement(sound.elementId, currentNode, true);
-	vle.audioManager.currentSound = sound;   // keep updating the currentsound
+	currentNode.view.audioManager.currentSound = sound;   // keep updating the currentsound
+	currentNode.view.audioManager.currentSoundIndex = sound.index;
 };
 
 //a call-back function triggered when the node's 'onpause' callback is called
@@ -241,14 +360,11 @@ var onPauseCallBack = function(sound, currentNode) {
 // changes the play/pause button based on specified isPlaying parameter
 // @param isPlaying if true, show the play button. else, show the pause button
 function showPlayPauseButton(isPlaying) {
-	var playPauseAudioElement = document.getElementById("playPause");
 	if (isPlaying) {
-		removeClassFromElement("playPause", "play");
-		addClassToElement("playPause", "pause");
+		$('#playPause').removeClass('play').addClass('pause');
 	} else {
-		removeClassFromElement("playPause", "pause");
-		addClassToElement("playPause", "play");
-	};
+		$('#playPause').removeClass('pause').addClass('play');
+	}
 };
 
 // highlights the text that is associated with the currently-playing audio.
@@ -257,27 +373,22 @@ function showPlayPauseButton(isPlaying) {
 // @param doHighlight true iff the specified element should be highlighted.
 var highlightTextElement = function(elementId, currentNode, doHighlight) {
 	if (currentNode != null	&& currentNode.isAudioSupported()) {
-		// get element to highlight
-		var elementToHighlight = null;
-		if (currentNode.type == "BrainstormNode") {  // Brainstorm is special.. it makes another iframe within the ifrm...
-			elementToHighlight = getElementsByAttribute("audio", elementId, "brainstormFrame");
-		} else {
-			elementToHighlight = getElementsByAttribute("audio", elementId);
-		}
-
 		if (doHighlight) {
 			notificationManager.notify("highlighting elementId:" + elementId, 4);
-			vle.contentPanel.highlightElement(elementToHighlight,"3px dotted #CC6633");
+			$("[audio="+elementId+"]",window.frames['ifrm'].document).css("border","3px dotted #CC6633");
 		} else {
 			notificationManager.notify("unhighlighting elementId:" + elementId, 4);
-			vle.contentPanel.highlightElement(elementToHighlight, "0px");		
+			$("[audio="+elementId+"]",window.frames['ifrm'].document).css("border","none");
 		};
 	};
 };
 
 // toggles play/pause for the entire AudioManager realm.
 AudioManager.prototype.playPauseStepAudio = function() {
-	if (this.isPlaying) {
+	if (this.currentSound == null && this.currentNode) {
+		this.currentSound = this.currentNode.audios[0];
+	};
+	if (this.isPlaying && this.currentSound) {
 		this.currentSound.pause();
 		this.isPlaying = false;
 	} else {
@@ -288,13 +399,30 @@ AudioManager.prototype.playPauseStepAudio = function() {
 	};
 };
 
+
+
 /**
  * Gets the previous sound in the sequence, relative to the currently-playing sound.
  * If the currently-playing sound is the first sound in the sequence, return null
  */
 AudioManager.prototype.getPreviousSound = function() {
+	if (this.currentSound == null && this.currentNode != null && this.currentNode.audios.length > 0) {
+		this.currentSoundIndex = 0;
+		return this.currentNode.audios[0];
+	} else if (this.currentSound == null && this.currentNode == null) {
+		return null;
+	}
 	var currentSoundId = this.currentSound.sID;
 	
+	var prevSoundIndex = this.currentSoundIndex - 1;
+	if (prevSoundIndex >= 0) {
+		this.currentSoundIndex = prevSoundIndex;
+		return this.currentNode.audios[this.currentSoundIndex];
+	} else {
+		this.currentSoundIndex = 0;
+		return null;
+	}
+
 	// if we're playing a backup, remove the backup_ from front to get original id
 	/*
 	if (currentSoundId.indexOf('backup_') > -1) {
@@ -302,6 +430,7 @@ AudioManager.prototype.getPreviousSound = function() {
 		currentSoundId = currentSoundId.substring(7);
 	}
 	*/
+	/*
 	for (var i=0; i<this.currentNode.audios.length;i++) {
 		if (this.currentNode.audios[i].id == currentSoundId) {
 			if (i == 0) {   // the current sound is the first sound in the sequence
@@ -311,6 +440,7 @@ AudioManager.prototype.getPreviousSound = function() {
 			};
 		};
 	};
+	*/
 };
 
 /**
@@ -319,11 +449,11 @@ AudioManager.prototype.getPreviousSound = function() {
  * to previous audio.
  */
 AudioManager.prototype.rewindStepAudio = function() {
-	notificationManager.notify("Rewind. CurrentSound:" + vle.audioManager.currentSound.sID + "," + vle.audioManager.currentSound.position, 4);
-	if (vle.audioManager.currentSound.position == 0 && vle.audioManager.getPreviousSound() != null) {
+	//notificationManager.notify("Rewind. CurrentSound:" + currentNode.view.audioManager.currentSound.sID + "," + currentNode.view.audioManager.currentSound.position, 4);
+	if (this.currentSound.position == 0 && this.getPreviousSound() != null) {
 		this.previousStepAudio();
 	} else {
-		vle.audioManager.currentSound.setPosition(0);
+		this.currentSound.setPosition(0);
 	};
 };
 
@@ -332,7 +462,7 @@ AudioManager.prototype.rewindStepAudio = function() {
  * If currentSound is the first sound in the sequence, simply rewind to the beginning of the audio
  */
 AudioManager.prototype.previousStepAudio = function() {
-	notificationManager.notify("Previous step audio. CurrentSound:" + vle.audioManager.currentSound.sID + "," + vle.audioManager.currentSound.position, 4);
+	//notificationManager.notify("Previous step audio. CurrentSound:" + currentNode.view.audioManager.currentSound.sID + "," + currentNode.view.audioManager.currentSound.position, 4);
 	soundManager.stopAll(); // first, stop currently-playing audio and remove all highlights
 	this.removeAllHighlights();
 	var previousSound = this.getPreviousSound();
@@ -355,8 +485,14 @@ AudioManager.prototype.previousStepAudio = function() {
 /**
  * Gets the next sound in the sequence, relative to the currently-playing sound.
  * If the currently-playing sound is the last sound in the sequence, return null
+ * If the currently playing sound is null, return the first sound for this node
  */
 AudioManager.prototype.getNextSound = function() {
+	if (this.currentSound == null && this.currentNode != null && this.currentNode.audios.length > 0) {
+		return this.currentNode.audios[0];
+	} else if (this.currentSound == null && this.currentNode == null) {
+		return null;
+	}
 	var currentSoundId = this.currentSound.sID;
 	
 	// if we're playing a backup, remove the backup_ from front to get original id
@@ -367,15 +503,27 @@ AudioManager.prototype.getNextSound = function() {
 	}
 	*/
 	notificationManager.notify("getNextSound currentSoundId:" + currentSoundId, 4);
+	var nextSoundIndex = this.currentSoundIndex + 1;
+	if (nextSoundIndex < this.currentNode.audios.length) {
+		this.currentSoundIndex = nextSoundIndex;
+		return this.currentNode.audios[this.currentSoundIndex];
+	} else {
+		this.currentSoundIndex = 0;
+		return null;
+	}
+	/*
 	for (var i=0; i<this.currentNode.audios.length;i++) {
-		if (this.currentNode.audios[i].id == currentSoundId) {
-			if (i == this.currentNode.audios.length - 1) {   // the current sound is the first sound in the sequence
+		var audioI = this.currentNode.audios[i];
+		if (audioI.sID == currentSoundId) {
+			if (i == this.currentNode.audios.length - 1) {   // the current sound is the last sound in the sequence
 				return null;
 			} else {
-				return this.currentNode.audios[i+1].audio;
+				var nextIndex = i+1;
+				return this.currentNode.audios[nextIndex].audio;
 			};
 		};
 	};
+	*/
 };
 
 /**
@@ -385,10 +533,11 @@ AudioManager.prototype.getNextSound = function() {
 AudioManager.prototype.nextStepAudio = function() {
 	soundManager.stopAll(); // first, stop currently-playing audio
 	this.removeAllHighlights();
-	notificationManager.notify("Next step audio. CurrentSound:" + this.currentSound.sID + "," + this.currentSound.position, 4);
 	var nextSound = this.getNextSound();
+	
 	notificationManager.notify("nextSound:" + nextSound, 4);
 	if (nextSound == null && this.currentNode.audios.length > 0) {
+		// no more next sound, go back to beginning and don't play
 		this.currentSound = this.currentNode.audios[0].audio;		
 	} else {
 		this.currentSound = nextSound;
@@ -413,11 +562,15 @@ AudioManager.prototype.playCurrentSound = function() {
  * Removes all the highlights from the page.
  */
 AudioManager.prototype.removeAllHighlights = function() {
-	for (var i=0; i<this.currentNode.audios.length;i++) {
-		var nodeAudio = this.currentNode.audios[i];
-		highlightTextElement(nodeAudio.elementId, this.currentNode, false);
+	if (this.currentNode != null) {
+		for (var i=0; i<this.currentNode.audios.length;i++) {
+			var nodeAudio = this.currentNode.audios[i];
+			highlightTextElement(nodeAudio.elementId, this.currentNode, false);
+		};
 	};
 };
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/sound/AudioManager.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/sound/AudioManager.js');
+};

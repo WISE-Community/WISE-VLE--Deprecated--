@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "OpenResponse",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "&lt;table border=\"0\" style=\"float:left; margin-right:10px;\"&gt; &lt;tr&gt;&lt;td&gt;&lt;img src=\"http://dl.getdropbox.com/u/1077325/balloon.jpg\" style=\"float:left; margin-right:0px;\"&gt; &lt;center&gt;&lt;font size=\"-6\"&gt;Image by &lt;a href=\"http://www.flickr.com/photos/ronnie44052/\"&gt;ronnie44052&lt;/a&gt; / &lt;a rel=\"license\" href=\"http://creativecommons.org/licenses/by-sa/2.0/\"&gt;CC BY-SA 2.0&lt;/a&gt;&lt;/font&gt;&lt;/center&gt; &lt;/td&gt;&lt;/tr&gt; &lt;/table&gt; Ben is going on a hot air balloon tour of Napa Valley. Ben is anxious about the trip because he's not sure the hot air balloon will stay afloat or be able to come back down without crashing. &lt;br /&gt;&lt;br /&gt;Hot air balloons have heaters that can control the temperature of the air inside the balloon. Thinking back to what you learned about how &lt;b&gt;convection&lt;/b&gt; works, can you reassure Ben? &lt;b&gt;Explain to Ben how hot air balloons work by telling a story about how they rise up in the air and go back down.&lt;/b&gt; &lt;br /&gt;&lt;br /&gt; Hints: &lt;br /&gt; What happens when air inside the balloon is heated?&lt;br /&gt; What happens when air inside the balloon cools down?&lt;br /&gt;",
+         "responseIdentifier": "OR"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "OR"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "0",
+      "sentence": ""
+   },
+   "type": "OpenResponse"
+}

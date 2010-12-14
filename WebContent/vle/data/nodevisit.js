@@ -1,12 +1,18 @@
 /*
  * TODO: COMMENT ME
  */
-function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
-	this.node = node;
-	if (arguments.length == 1) {
+function NODE_VISIT(nodeId, nodeType, nodeStates, visitStartTime, visitEndTime) {
+	this.id;   // id of this nodevisit. Unique across all nodevisits. For ex, auto_increment number assigned by database when it was saved.
+	//this.node = node;
+	this.nodeId = nodeId;
+	this.nodeType = nodeType;
+	this.visitPostTime = null;
+	this.duplicateId;
+	
+	if (arguments.length == 2) {
 		//set default values if they aren't provided
 		this.nodeStates = [];
-		this.visitStartTime = new Date().toUTCString();
+		this.visitStartTime = Date.parse(new Date());
 		this.visitEndTime = null;
 	} else {
 		this.nodeStates = nodeStates;
@@ -16,73 +22,75 @@ function NODE_VISIT(node, nodeStates, visitStartTime, visitEndTime) {
 }
 
 /**
- * @return xml representation of the node_visit object which
- * 		includes node type, visitStart, visitEnd time, etc.
- * 		e.g.
- * 
- * <node_visit>
- * 		<node>
- * 			<type></type>
- * 			<id></id>
- * 		</node>
- * 		<nodeStates></nodeStates>
- * 		<visitStartTime></visitStartTime>
- * 		<visitEndTime></visitEndTime>
- * </node_visit>
+ * Returns this node visit's nodeId.
+ * @return
  */
-NODE_VISIT.prototype.getDataXML = function() {
-	var dataXML = "";
-	
-	dataXML += "<node_visit>";
-	
-	dataXML += "<node><type>";
-	dataXML += this.node.type;
-	dataXML += "</type><id>";
-	dataXML += this.node.id;
-	dataXML += "</id></node>";
-	
-	dataXML += "<nodeStates>";
-	dataXML += this.node.getDataXML(this.nodeStates);
-	dataXML += "</nodeStates>";
-	
-	dataXML += "<visitStartTime>";
-	dataXML += this.visitStartTime;	
-	dataXML += "</visitStartTime>";
-	
-	dataXML += "<visitEndTime>";
-	dataXML += this.visitEndTime;	
-	dataXML += "</visitEndTime>";
-	
-	dataXML += "</node_visit>";
-	
-	return dataXML;
-}
+NODE_VISIT.prototype.getNodeId = function() {
+	return this.nodeId;
+};
+
 
 /**
- * Turns a node visit xml object into a real NODE_VISIT object
- * @param nodeVisitXML and xml object
- * @return a real NODE_VISIT object
+ * Takes in a JSON object representing a NODE_VISIT and creates and
+ * populates a NODE_VISIT object.
+ * @param nodeVisitJSONObj a JSON object representing a NODE_VISIT
+ * @param view this is an optional argument, if this function is
+ * being used in the view, it will not be needed, but if this function
+ * is being used in a node (such as open response) the view should be
+ * passed in because env is not accessible in the context of the node
+ * @return a NODE_VISIT object
  */
-NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
-	//ask the NODE static function to create the node
-	//var nodeObject = Node.prototype.parseDataXML(nodeVisitXML);
-	var nodeObject = vle.getNodeById(nodeVisitXML.getElementsByTagName("id")[0].textContent);
-	if (!nodeObject || nodeObject == null) {
+NODE_VISIT.prototype.parseDataJSONObj = function(nodeVisitJSONObj, view) {
+	//create a new NODE_VISIT object
+	var nodeVisit = new NODE_VISIT();
+	
+	//populate the attributes of the NODE_VISIT object
+	nodeVisit.id = nodeVisitJSONObj.stepWorkId;
+	nodeVisit.nodeId = nodeVisitJSONObj.nodeId;
+	nodeVisit.nodeType = nodeVisitJSONObj.nodeType;
+	nodeVisit.visitStartTime = nodeVisitJSONObj.visitStartTime;
+	nodeVisit.visitEndTime = nodeVisitJSONObj.visitEndTime;
+	nodeVisit.visitPostTime = nodeVisitJSONObj.visitPostTime;
+	nodeVisit.duplicateId = nodeVisitJSONObj.duplicateId;
+	
+	var nodeObj = null;
+	
+	if(typeof env == 'undefined') {
+		//use the view if env is not available
+		nodeObj = view.getProject().getNodeById(nodeVisit.nodeId);
+	} else {
+		//obtain the node object that this visit refers to
+		nodeObj = env.getProject().getNodeById(nodeVisit.nodeId);
+	}
+	
+	//return null if the node object was not found
+	if (!nodeObj || nodeObj == null) {
 		return null;
 	}
-	//alert('vle.js, nodeObject:' + nodeObject);
-	//get the start and end times
-	var visitStartTime = nodeVisitXML.getElementsByTagName("visitStartTime")[0].textContent;
-	var visitEndTime = nodeVisitXML.getElementsByTagName("visitEndTime")[0].textContent;
-
-	//retrieve an array of node state objects
-	var nodeStatesArrayObject = nodeObject.parseDataXML(nodeVisitXML.getElementsByTagName("nodeStates")[0]);
-
-	//create a node_visit object with the new node object
-	var nodeVisitObject = new NODE_VISIT(nodeObject, nodeStatesArrayObject, visitStartTime, visitEndTime);
 	
-	return nodeVisitObject;
-}
+	//create an array of nodeStates from the nodeStates in the JSON object
+	var nodeStatesArrayObj = new Array();
+	
+	if(nodeVisitJSONObj.nodeStates != null) {
+		//loop through all the elements in the nodeVisitJSONObj.nodeStates array
+		for(var x=0; x<nodeVisitJSONObj.nodeStates.length; x++) {
+			//obtain a node state JSON object
+			var stateJSONObj = nodeVisitJSONObj.nodeStates[x];
+			
+			//tell the nodeObj to create a state object
+			var stateObj = nodeObj.parseDataJSONObj(stateJSONObj);
+			
+			//add the state object to the array
+			nodeStatesArrayObj.push(stateObj);
+		}
+	}
+	
+	//set the nodeStates into the NODE_VISIT object
+	nodeVisit.nodeStates = nodeStatesArrayObj;
+	
+	//return the NODE_VISIT object
+	return nodeVisit;
+};
 
 /*
  * Get the last node state that was placed in the nodeStates array
@@ -90,7 +98,7 @@ NODE_VISIT.prototype.parseDataXML = function(nodeVisitXML) {
 NODE_VISIT.prototype.getLatestState = function() {
 	//retrieve the last nodeState in the array of nodeStates
 	return this.nodeStates[this.nodeStates.length - 1];
-}
+};
 
 /**
  * Get the latest work for this visit that isn't null or
@@ -110,7 +118,9 @@ NODE_VISIT.prototype.getLatestWork = function() {
 	}
 	
 	return "";
-}
+};
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/data/nodevisit.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/data/nodevisit.js');
+};

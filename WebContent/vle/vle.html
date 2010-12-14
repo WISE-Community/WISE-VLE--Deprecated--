@@ -1,282 +1,113 @@
+<!doctype html>
+
 <html>
-    <title>Web-Based VLE Master Template</title>
-    <head>
-        <script type="text/javascript" src="util/scriptloader.js">
-        </script>
-        <script type='text/javascript' src='yui/yui_3.0.0b1/build/yui/yui-min.js'></script>
-        <script type="text/javascript" src="sound/soundmanager/script/soundmanager2.js"></script>
-        <link rel="shortcut icon" href="images/robots/favicon_robot.ico">
-        
-        <script type="text/javascript">
-        	var studentProgressArray = new Array("onlyLatestAsCSV");
-            var currentProjectPath;
-            var currentProjectName;
-            var hostedProject;
-            var pathSeparator;
-            var basePath;
-            var vle = null;
-            var global_yui = null;   // global YUI instance
-            var vleConfigURL = null;
-            var portalContext = false;
-            var workgroupId = null;
-        	
-            /**
-             * Determines whether this is being called from authoring tool or
-             * portal. If from authoring tool, checks whether this project is
-             * hosted, sets appropriate variables, then loads project with
-             * necessary variables.
-             */
-            function afterScriptsLoad(){
-                if (window.opener) {
-                    currentProjectPath = window.opener.currentProjectPath;
-                    currentProjectName = window.opener.currentProjectName;
-                    hostedProject = window.opener.hostedProject;
-                    pathSeparator = window.opener.pathSeparator;
-                }
-                else {
-                    hostedProject = null;
-                };
-                                        
-                if (hostedProject) {
-                    render(window.opener.hostedContentURL, null, null, window.opener.hostedContentBaseURL, null);
-                }
-                else 
-                    if (currentProjectPath) {
-                        loadProject();
-                        if (window.location.search.indexOf("updateAudio") != -1) {
-                            notificationManager.notify("update audio",4);
-                            vle.updateAudio();
-                        } else {
-                        }
-                    };
-                };
-            /**
-             * Loads scripts for this page (found in scriptloader.js) passing in
-             * document and a function to be run after scripts are loaded
-             */
-            window.onload = function(){
-                if (window.opener) {
-                    var args = [];
-                    args.push(afterScriptsLoad);
-                    scriptloader.initialize(document, window.opener.scriptsLoaded, 'main', args);
-                } else if (window.parent) {
-                        var args = [];
-                        args.push(window.name);
-                        scriptloader.initialize(document, window.parent.scriptsLoaded, 'main', args);
-                } else {
-                       scriptloader.initialize(document, afterScriptsLoad, 'main');
-                };      
-            };
-            
-            /**
-             * Retrieves a summary of the project from the portal
-             */
-            function projectSummary(){
-                window.open("/webapp/student/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");
-            };
-            
-            /**
-             * Determines domain, sets contentUrl and contentBaseUrl and calls
-             * loadProject in vle with content variables
-             */
-            function loadProject(){
-                var splitz = window.location.toString().split("//")[1].split("/");
-                var domain = 'http://' + splitz[0] + '/' + splitz[1];
-                var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
-                var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator;
-                
-                vle = new VLE();
-                vle.loadProject(contentUrl, contentBaseUrl);
-            };
+<title>Web-Based VLE Master Template</title>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<script type='text/javascript' src='events/eventmanager.js'></script>
+<script type='text/javascript' src='util/scriptloader.js'></script>
+<script type='text/javascript' src='sound/soundmanager/script/soundmanager2.js'></script>
 
-            /**
-             *
-             */
-            function renderAll(cfg){
-            	var splitz = window.location.toString().split("//")[1].split("/");
-                var domain = 'http://' + splitz[0] + '/' + splitz[1];
-                var contentUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath + pathSeparator + currentProjectName;
-                var contentBaseUrl = domain + '/vle/filemanager.html?command=retrieveFile&param1=' + currentProjectPath;
-                
-				vle = new VLE();
-				vle.renderAll(contentUrl, contentBaseUrl, cfg);
-            };
-        </script>
-        <!--  Javascript Pop up window -->
-        <script type="text/javascript">
-            var runId = null;
-            var newWin = null;
-            function popUp(strURL, strType, strHeight, strWidth){
-                if (newWin != null && !newWin.closed) 
-                    newWin.close();
-                var strOptions = "";
-                if (strType == "console") 
-                    strOptions = "resizable,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                if (strType == "fixed") 
-                    strOptions = "status,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                if (strType == "elastic") 
-                    strOptions = "toolbar,menubar,scrollbars," +
-                    "resizable,location,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                newWin = window.open(strURL, 'newWin', strOptions);
-                newWin.focus();
-            }
-            
-            /**
-             * calls render with the given variables
-             */
-            function load(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl){
-                render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl);
-            }
-            
-/**
- * Setup and display the project
- *
- * @param contentURL a url to the project file, we will use a get
- *		request to obtain the project file
- * @param userURL a url to the user info, we will use a get request
- *		to obtain the user info 
- * @param renderProgressMonitor whether this vle.html is for rendering
- *		the progress monitor, pass in null or nothing if not rendering
- * 		the progress monitor
- */
-function render(contentURL, userURL, getDataUrl, contentBaseUrl, postDataUrl, workgroupId, renderProgressMonitor) {
-	vle = new VLE();
-	vle.getDataUrl = getDataUrl;
-    vle.postDataUrl = postDataUrl;
-	vle.loadProject(contentURL, contentBaseUrl);
-
-	/*
-	 * if this vle.html is being loaded for the progress monitor, we will
-	 * subscribe to the learner data loading complete event so that after
-	 * that we can display the progress monitor data
-	 */
-	if(renderProgressMonitor != null) {
-		vle.eventManager.subscribe('learnerDataLoadingComplete', parent.contentPanelFinishedLoading);
-	}
-	vle.loadLearnerData(userURL);
-};
-
-/**
- * Setup and display the project
- *
- * @param contentURL a url to the project file, we will use a get
- *		request to obtain the project file
- * @param userURL a url to the user info, we will use a get request
- *		to obtain the user info 
- */
-function renderProgressMonitor(contentURL, userURL, getDataUrl, contentBaseUrl, workgroupId) {
-	render(contentURL, userURL, getDataUrl, contentBaseUrl, null, workgroupId, true);	
-};
-
-/**
- * initializes the vle by reading in the vle config
- */
-function initializeVLEFromVLEConfig(vleConfigUrl) {
-	vle = new VLE();
-	vle.initialize(vleConfigUrl);
+<link rel="shortcut icon" href="images/robots/favicon_robot.ico">
+<!--  TODO: hide message DIV programatically -->
+<style type="text/css">
+#mainMessageDiv {
+	display:none;
 }
-            
-            window.onbeforeunload = function(){
-                vle.closeVLE();
-            }
-            
-            // callback when the iframe has been loaded, so the vle has been loaded
-            contentPanelOnLoad = function(){
-                //alert('here' + vle);
-                if (vle && vle != null) {
-                    var currentNode = vle.getCurrentNode();
-                    if (currentNode != null) {
-                        currentNode.load();
-                    	if(document.getElementById('topStepTitle') != null) {
-                    		document.getElementById('topStepTitle').innerHTML = currentNode.title;
-                    	}
-                    }
+</style>
 
-                    
-                    //display the user name in the upper left box
-                    if (document.getElementById("logInBox") != null) {
-                        document.getElementById("logInBox").innerHTML = "Hello " + vle.getUserName();
-                    }
-                    
-                    //display the title of the project in the upper left box
-                    if (document.getElementById("title") != null && vle.getProjectTitle() != null) {
-                        document.getElementById("title").innerHTML = vle.getProjectTitle();
-                        if (window.parent) {
-                            window.parent.document.title = vle.getProjectTitle();
-                        }
-                    }
-                    
-                    //display the "Show Me Flagged Items" link if flagging is enabled
-                    if (vle.runManager != null && vle.runManager.isFlaggingEnabled) {
-                        document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
-                    }
+<!--[if IE 7]>
+<script type="text/javascript">
+    window.onresize = resize_iframe;        
 
-                    //display the audio controls if vle.audioManager != null
-                    if (vle.audioManager == null) {
-                        document.getElementById("audioControls").style.display="none";
-                    }
-                }
-                
-                //alert('loadd:' + currentNode.id);
-                //alert("dataXML: " + vle.getDataXML());
-            }
-            
-            
-        </script>
-    </head>
-    <body class="yui-skin-sam">
-        <div id="centeredDiv">
+    function resize_iframe(){               
+            $('#contentDiv').height($(window).height()-50); // 104 to avoid scrollbars due to paddings and borders
+    }
+</script>
+<![endif]-->
+
+<script type="text/javascript">
+
+/*
+ * Loads scripts when window is loaded 
+ */
+window.onload = function(){
+	scriptloader.bootstrap(this, bootstrapListener);
+};
+
+/* saves data on window unload */
+window.onunload = function(logout){
+	env.onWindowUnload(logout);
+};
+
+/*
+ * Listener that is run when the bootstrap loading is complete.
+ * Loads and starts the authoring view.
+ */
+function bootstrapListener(type,args,obj){
+	if(args[0]=='bootstrap'){
+		/* listens for when the components for this view have finished loading */
+		var loadListener = function(type,args,obj){
+			if(window.parent && window.parent.startWithConfig){
+				window.parent.startWithConfig();
+			} else if(window.opener && window.opener.startWithParams){
+				window.opener.startWithParams(eventManager);
+			} else {
+				console.warn('No window.parent or window.opener, cannot start VLE');
+			};
+		};
+
+		eventManager.subscribe('loadingViewComplete', loadListener);
+		createEnvironment('env', eventManager);
+		env.startView('vle');
+	};
+};
+
+</script>
+</head>
+   <body id="w4_vle">
+   
+
+           <div id="centeredDiv" style="display:none">
+           
             <div id="loading">
-                <div class='hd'>
-                </div>
-                <div class='bd'>
-                </div>
-                <div class='ft'>
-                </div>
+                <div class='hd'></div>
+                <div class='bd'></div>
             </div>
-            <div id="notePanel">
-                <div class="noteHead">
-                </div>
-                <div class="noteBody">
-                </div>
-                <div class="noteFooter">
-                </div>
-            </div>
-            <div id="journalPanel">
-                <div class="journalHead">
-                </div>
-                <div class="journalBody">
-                </div>
-                <div class="journalFooter">
-                </div>
+            
+            <div id="loginPanel">
             </div>
                         
             <div id="projectRightUpperBox">
-                <div id="stepNavButtons">
-                    <table>
-                        <tr>
-                            <td>
-                                <a onclick="vle.renderPrevNode();" title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
-                            </td>
-                            <td>
-                                <a onclick="vle.renderNextNode();" title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" />Next</a>
-                            </td>
-                            <td>
-                                <a class="menuSwitcher" onclick="vle.toggleNavigationPanelVisibility();" title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Menu On/Off " border="0" />Menu</a>
-                            </td>
-                        </tr>
-                    </table>
+                <div id="stepNavButtons1">
+                    <ul>
+                        <li>
+                            <a onclick='eventManager.fire("renderPrevNode")' title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
+                        </li>
+                        <li>
+                            <a onclick='eventManager.fire("renderNextNode")' title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" />Next</a>
+                        </li>
+                        <li id='myWorkTD'>
+                            <a class="" onclick='eventManager.fire("showAllWork")' title="Review My Work"><img src="images/reviewAllWork.png" alt="Review My Work" border="0" />&nbsp;My Work</a>
+                        </li>
+                        <li id='flaggedWorkTD'>
+                            <a class="" onclick='eventManager.fire("showFlaggedWork")' title="Show Flagged Work"><img src="images/reviewAllWork.png" alt="Show Flagged Work" border="0" />&nbsp;Show Flagged Work</a>
+                        </li>
+                        <li id='journalTD'>
+                            <a class="" onclick='eventManager.fire("showJournal")' title="Show Student Journal"><img src="images/Journal28x28.png" alt="Show My Journal" border="0" />&nbsp;&nbsp;Journal</a>
+                        </li>
+                        <li id='menuTD'>
+                            <a class="menuSwitcher" onclick='eventManager.fire("toggleNavigationPanelVisibility")' title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Full Screen On/Off " border="0" />Full Screen</a>
+                        </li>
+                         <li>
+                            <a id="quitAndLogoutLink" class="tightText" onclick="eventManager.fire('logout')" target="_parent" title="Save & Sign Out"><img src="images/exit.png" alt="Sign Out" border="0" />Sign Out</a> | 
+                            <a id="goHomeLink" class="tightText" href="/webapp/student/index.html" target="_parent" title="Go to your home page">Go Home</a>
+                        </li>
+                    </ul>
                 </div>
-                <div id="toolsArea">
+                
+             
+                <div style="display:none;" id="toolsArea">
                     <dl class="dropdown">
                         <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
                             <div id="menuTitle">
@@ -288,11 +119,11 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                             <ul>
                                 <!-- requested changes have been remarked out -->
                                 <li><a onclick="vle.showJournal();" class="underline">Show Journal</a></li>
-                                <li><a onclick="vle.showAllWork();" class="underline2">Show All Work</a></li>
-                                <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show My Progress</a></li>
-                                <!--  <li><a class="underline" onclick="alert('not yet implemented');">Export Work to PDF</a></li>  -->
-                                <li><a class="underline" id="gotoStudentHomePageLink" href="/webapp/student/index.html" target="_parent">Goto Student Home Page</a></li>
-                                <li><a class="underline" id="quitAndLogoutLink" href="/webapp/j_spring_security_logout" target="_parent">Quit & Log Out</a></li>
+                                <li><a onclick="vle.showAllWork();" class="underline2">Show MyWork with<br/>Comments/Scores</a></li>
+                                <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show Scores</a></li>
+                                <!--  <li><a class="underline" onclick="alert('not yet implemented');">Export MyWork to PDF</a></li>  -->
+                                <li><a class="underline" id="gotoStudentHomePageLink" href="/webapp/student/index.html" target="_parent">Go to<br/>Student Home Page</a></li>
+                                <li><a class="underline" id="quitAndLogoutLink" onClick="logout()" target="_parent">Sign Out to<br/>WISE Home Page</a></li>
                             </ul>
                         </dd>
                     </dl>
@@ -302,33 +133,33 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                     <table>
                         <tr>
                             <td>
-                                <a id="rewindButton" class="rewind" onclick="vle.rewindStepAudio();" ondblclick="vle.previousStepAudio();"></a>
+                                <a id="rewindButton" class="rewind"></a>
                             </td>
                             <td>
-                                <a id="playPause" class="play" onclick="vle.playPauseStepAudio();"></a>
+                                <a id="playPause" class="play"></a>
                             </td>
                             <td>
-                                <a id="forwardButton" class="forward" onclick="vle.forwardStepAudio();"></a>
+                                <a id="forwardButton" class="forward"></a>
                             </td>
                         </tr>
                     </table>
                 </div>   
                 
-				<div id="separator">
-				   <img src="./images/separatorIcon_VLE.png" alt="separator" />
-				</div>
-                
+              
                 <div id="stepInfoBar">
                     <span id='stepIcon'></span>
                     <span id="topStepTitle"></span>
                     <span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span>
                     <span id="flagDiv"></span>
                 </div>
+                <div id="projectMenuButton"></div>
+                
             </div>
                         
             <div id="projectLeftBox">
                 
                 <div id="hostBrandingBoxWISE">
+                    <div id="betatagvle">BETA</div>
                     <img src="images/WISE-Logo-VLE-1.png" alt="WISE VLE Logo" border="0" />
                 </div>
                 <div id="projectLogoBox">
@@ -337,23 +168,22 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
                     <img src="./images/robots/small_logo.png" alt="Robot Art Header" width="210" height="55" border="0"></a>
                     </div>
                     <div id="projectCurriculum">
-                        <div id="courseName" class="courseName">
-                            UCCP AP Computer Science
+                        <div id="courseName" class="courseName" style="letter-spacing:-.5px;color:#000033;margin:1px 0px;">
+                            loading...
                         </div>
                         <div id="title" class="title">
-                            course name goes here
+                            loading...
                         </div>
                     </div>
-                    <div id="logInBox">
-                        <span>Hello, MyName</span>
-                        <span>&nbsp&nbsp|&nbsp&nbsp</span>
-                        <span>Mon 5/12 10:32am</span>
+                    <div id="loginBox">
+                        <div id='userNames' class="userNames">Welcome!</div>
+                        <div id='dateTime' class="dateTime"></div>
                     </div>
                 </div>
 
                 <div id="navigationArea">
                     <div id="navMenuControls">
-                        <input type="button" value="Expand All" onclick="myMenu.expandAll()"/><input type="button" value="Collapse All" onclick="myMenu.collapseAll()"/>
+                        <input type="button" value="Expand All" onclick='eventManager.fire("menuExpandAll")'/><input type="button" value="Collapse All" onclick='eventManager.fire("menuCollapseAll")'/>
                     </div>
                     <div id="navigationMenuBox">
                         <div id="my_menu" class="sdmenu">
@@ -362,7 +192,7 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
 				<!--  end of #navigationMenuBox -->
                 </div>
                 <!-- end of #navigationArea -->
-                <div id="hostBrandingBoxUCCP">
+                <div id="hostBrandingBoxUCCP" style="display:none">
                     <a href="../page/help/about.html" target="_blank"><img src="images/UCCP-Logo-215-Left.png" alt="UCCP College Prep Online Logo" border="0" /></a>
 					<p><a href="../page/help/about.html"target="_blank">Powered by WISE 4.0</a></p>
                 </div>
@@ -370,31 +200,22 @@ function initializeVLEFromVLEConfig(vleConfigUrl) {
             </div><!-- end of #projectLeftBox-->
             
             <div id="projectRightLowerBox">
-                <div id="contentDiv" align="center">
-                    <div id="loadingMessageDiv">
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        Loading...
-                    </div>
-                    <iframe id="ifrm" name="ifrm" scrolling="auto" onload="contentPanelOnLoad();" frameborder="0" width="100%">
-                        [Content for browsers that don't support iframes goes here.]
+                <div id="contentDiv"  align="center">
+                    <iframe id="ifrm" name="ifrm" scrolling="auto" frameborder="0" width="100%" onload='(typeof eventManager != "undefined" ? eventManager.fire("ifrmLoaded") : false)'>
+                        [Sorry, your browser does not support iFrames.]
                     </iframe>
                 </div>
             </div>
         </div>
-        <!-- centeredDiv -->
-        <div id="showAllWorkDiv">
-        </div>
-        <div id="progressDiv">
-        </div>
+        
         <form name="saveLocal" id='saveLocal' action="echo.html" method="POST">
             <input type="hidden" name="name" id="form_filename" value="myData"/><input type="hidden" name="data" id="localData" value=""/>
         </form>
+
         <div id="soundmanager-debug">
+        </div>
+        
+        <div id="sessionMessageDiv">
         </div>
     </body>
 </html>

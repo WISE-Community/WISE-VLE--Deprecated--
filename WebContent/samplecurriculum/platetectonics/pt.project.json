@@ -1,0 +1,724 @@
+{
+   "autoStep": false,
+   "stepLevelNum": true,
+   "stepTerm": "",
+   "title": "Plate Tectonics",
+   "nodes": [
+      {
+         "type": "HtmlNode",
+         "identifier": "svginstruct",
+         "title": "Instructions",
+         "ref": "svginstruct.ht",
+         "previousWorkNodeIds": [],
+         "class": "intro"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage1",
+         "title": "Introduction",
+         "ref": "displaypage1.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "intro"
+      },
+      {
+         "type": "SVGDrawNode",
+         "identifier": "svgdraw",
+         "title": "Build a Model",
+         "ref": "svgeditstep.html",
+         "previousWorkNodeIds": [],
+         "class": "quickdraw"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_18.or",
+         "title": "Evidence Notes",
+         "ref": "node_18.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage2",
+         "title": "Wegener's Evidence",
+         "ref": "displaypage2.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage3",
+         "title": "Looking at Our Continent",
+         "ref": "displaypage3.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage4",
+         "title": "Introduction",
+         "ref": "displaypage4.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "intro"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage5",
+         "title": "Looking at Our Country",
+         "ref": "displaypage5.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence1",
+         "title": "Earthquakes in the United States",
+         "ref": "evidence1.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_14.or",
+         "title": "Reflection Notes",
+         "ref": "node_14.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence2",
+         "title": "Active Volcanoes in the United States",
+         "ref": "evidence2.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_16.or",
+         "title": "Reflection Notes",
+         "ref": "node_16.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence3",
+         "title": "Mountains in the United States",
+         "ref": "evidence3.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_17.or",
+         "title": "Reflection Note",
+         "ref": "node_17.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage6",
+         "title": "Pose a Question",
+         "ref": "displaypage6.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "notes1",
+         "title": "Your Questions",
+         "ref": "notes1.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence4",
+         "title": "Earth's Crust and Plate Boundaries",
+         "ref": "evidence4.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "intro"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence5",
+         "title": "Plate Boundaries and Geologic Features",
+         "ref": "evidence5.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "notes2",
+         "title": "Reflection Note",
+         "ref": "notes2.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence6",
+         "title": "Types of Plate Boundaries",
+         "ref": "evidence6.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "intro"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "evidence7",
+         "title": "Where on Earth?",
+         "ref": "evidence7.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage7",
+         "title": "Layers of the Earth",
+         "ref": "displaypage7.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "intro"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage8",
+         "title": "Currents in the Mantle",
+         "ref": "displaypage8.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_19.html",
+         "title": "Convection in Action",
+         "ref": "node_19.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "movie"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_1.html",
+         "title": "Exploring Convection I",
+         "ref": "node_1.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "simulation"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_0.or",
+         "title": "Reflection Note 1",
+         "ref": "node_0.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_2.html",
+         "title": "Exploring Convection II",
+         "ref": "node_2.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "simulation"
+      },
+      {
+         "type": "MultipleChoiceNode",
+         "identifier": "node_5.mc",
+         "title": "Checkpoint ",
+         "ref": "node_5.mc",
+         "previousWorkNodeIds": [],
+         "class": "multiplechoice"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_6.html",
+         "title": "Convection Currents in the Earth",
+         "ref": "node_6.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_29.or",
+         "title": "Review a MySystem",
+         "ref": "node_29.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "MySystemNode",
+         "identifier": "node_21_mysystem.html",
+         "title": "Build Your MySystem",
+         "ref": "mysystem1.my",
+         "previousWorkNodeIds": [],
+         "class": "mysystem"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_30.or",
+         "title": "Explanation",
+         "ref": "node_30.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_9.or",
+         "title": "Energy Story",
+         "ref": "node_9.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_8.html",
+         "title": "Convection Currents and Plate Movement",
+         "ref": "node_8.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_11.html",
+         "title": "Mantle Circulation",
+         "ref": "node_11.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_12.or",
+         "title": "Reflection Note",
+         "ref": "node_12.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_7.html",
+         "title": "Review a MySystem (will be removed)",
+         "ref": "node_7.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "curriculum"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "notes5",
+         "title": "What I Learned! 1&amp;amp;amp;2",
+         "ref": "notes5.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage10",
+         "title": "View the Models (feature unavailable)",
+         "ref": "displaypage10.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_13.html",
+         "title": "The Big Picture",
+         "ref": "node_13.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "summary"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_15.or",
+         "title": "Reflection Note",
+         "ref": "node_15.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_22.html",
+         "title": "Build a Model",
+         "ref": "node_22.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "quickdraw"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "notes4",
+         "title": "Explain Your Model",
+         "ref": "notes4.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "displaypage11",
+         "title": "Remember Your Questions?",
+         "ref": "displaypage11.ht",
+         "previousWorkNodeIds": [
+         ],
+         "class": "display"
+      },
+      {
+         "type": "MySystemNode",
+         "identifier": "node_10_mysystem.html",
+         "title": "Revisit Your MySystem",
+         "ref": "mysystem2.my",
+         "previousWorkNodeIds": [
+         ],
+         "class": "mysystem"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "notes6",
+         "title": "How Can That Be?",
+         "ref": "notes6.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_31.or",
+         "title": "Challenge Question",
+         "ref": "node_31.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_28.or",
+         "title": "Questionnaire 2",
+         "ref": "node_28.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "MatchSequenceNode",
+         "identifier": "node_32.ms",
+         "title": "Checkpoint",
+         "ref": "node_32.ms",
+         "previousWorkNodeIds": [],
+         "class": "matchsequence"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_34.html",
+         "title": "Complete the Circle",
+         "ref": "node_34.ht",
+         "previousWorkNodeIds": [],
+         "class": "summary"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_33.or",
+         "title": "Revisit Your Energy Story",
+         "ref": "node_33.or",
+         "previousWorkNodeIds": [
+            "node_9.or"
+         ],
+         "class": "openresponse"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_21.html",
+         "title": "Your MySystem Goals",
+         "ref": "node_21.ht",
+         "previousWorkNodeIds": [],
+         "class": "curriculum"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_35.or",
+         "title": "Reflection - Convergent Boundaries",
+         "ref": "node_35.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_36.or",
+         "title": "Reflection - Divergent Boundaries",
+         "ref": "node_36.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_37.or",
+         "title": "Reflection - Transform Boundaries",
+         "ref": "node_37.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "MatchSequenceNode",
+         "identifier": "node_39.ms",
+         "title": "Checkpoint",
+         "ref": "node_39.ms",
+         "previousWorkNodeIds": [],
+         "class": "matchsequence"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_40.or",
+         "title": "Questionnaire 1",
+         "ref": "node_40.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_26.html",
+         "title": "Welcome!",
+         "ref": "node_26.ht",
+         "previousWorkNodeIds": [],
+         "class": "intro"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_27.or",
+         "title": "Reflection - Synthesis",
+         "ref": "node_27.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_10.html",
+         "title": "How to Create MySystem Diagrams",
+         "ref": "node_10.ht",
+         "previousWorkNodeIds": [],
+         "class": "movie"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_42.html",
+         "title": "Exploring Plate Boundaries",
+         "ref": "node_42.ht",
+         "previousWorkNodeIds": [],
+         "class": "simulation"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_43.or",
+         "title": "Questionnaire 4",
+         "ref": "node_43.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_44.html",
+         "title": "What Will You See?",
+         "ref": "node_44.ht",
+         "previousWorkNodeIds": [],
+         "class": "movie"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_45.or",
+         "title": "Prediction",
+         "ref": "node_45.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_46.or",
+         "title": "Explanation",
+         "ref": "node_46.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_47.or",
+         "title": "Reflection Note 2",
+         "ref": "node_47.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "OpenResponseNode",
+         "identifier": "node_41.or",
+         "title": "Questionnaire 3",
+         "ref": "node_41.or",
+         "previousWorkNodeIds": [],
+         "class": "openresponse"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_48.or",
+         "title": "What I Learned! 1",
+         "ref": "node_48.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "NoteNode",
+         "identifier": "node_49.or",
+         "title": "What I Learned! 2",
+         "ref": "node_49.or",
+         "previousWorkNodeIds": [],
+         "class": "note"
+      },
+      {
+         "type": "HtmlNode",
+         "identifier": "node_50.html",
+         "title": "Introduction",
+         "ref": "node_50.ht",
+         "previousWorkNodeIds": [],
+         "class": "intro"
+      },
+      {
+         "type": "SVGDrawNode",
+         "identifier": "node_3.sd",
+         "title": "Build a Model",
+         "ref": "node_3.sd",
+         "previousWorkNodeIds": [],
+         "class": "quickdraw"
+      }
+   ],
+   "sequences": [
+      {
+         "type": "sequence",
+         "identifier": "startsequence",
+         "title": "",
+         "view": "",
+         "refs": [
+            "activity2",
+            "activity3",
+            "activity4",
+            "activity5",
+            "activity6",
+            "activity7"
+         ]
+      },
+      {
+         "type": "sequence",
+         "identifier": "activity2",
+         "title": "What's Our Country Like?",
+         "view": "",
+         "refs": [
+            "displaypage4",
+            "displaypage5",
+            "evidence1",
+            "node_14.or",
+            "evidence2",
+            "node_16.or",
+            "evidence3",
+            "node_17.or"
+         ]
+      },
+      {
+         "type": "sequence",
+         "identifier": "activity3",
+         "title": "What Are Your Questions?",
+         "view": "",
+         "refs": [
+            "displaypage6",
+            "notes1"
+         ]
+      },
+      {
+         "type": "sequence",
+         "identifier": "activity4",
+         "title": "What's Happening Outside?",
+         "view": "",
+         "refs": [
+            "evidence4",
+            "evidence5",
+            "notes2",
+            "evidence6",
+            "node_42.html",
+            "node_35.or",
+            "node_36.or",
+            "node_37.or",
+            "node_39.ms",
+            "node_27.or",
+            "evidence7"
+         ]
+      },
+      {
+         "type": "sequence",
+         "identifier": "activity5",
+         "title": "What's Going On Inside?",
+         "view": "",
+         "refs": [
+            "displaypage7",
+            "displaypage8",
+            "node_44.html",
+            "node_45.or",
+            "node_19.html",
+            "node_1.html",
+            "node_0.or",
+            "node_47.or",
+            "node_2.html",
+            "node_32.ms",
+            "node_6.html",
+            "node_46.or",
+            "node_29.or",
+            "node_21.html",
+            "node_10.html",
+            "node_21_mysystem.html",
+            "node_30.or",
+            "node_9.or",
+            "node_8.html",
+            "node_13.html",
+            "node_15.or"
+         ]
+      },
+      {
+         "type": "sequence",
+         "identifier": "activity6",
+         "title": "Express Your Knowledge",
+         "view": "",
+         "refs": [
+            "node_50.html",
+            "svginstruct",
+            "node_3.sd",
+            "notes4"
+         ]
+      },
+      {
+         "type": "sequence",
+         "identifier": "activity7",
+         "title": "Reflection",
+         "view": "",
+         "refs": [
+            "displaypage11",
+            "node_48.or",
+            "node_49.or",
+            "node_34.html",
+            "node_10_mysystem.html",
+            "node_33.or",
+            "notes6",
+            "node_31.or"
+         ]
+      }
+   ],
+   "startPoint": "startsequence"
+}

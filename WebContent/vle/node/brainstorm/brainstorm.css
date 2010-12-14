@@ -32,7 +32,7 @@ body {
 }
 
 #questionprompt,#questionDiv {
-	padding: 12px 20px 2px 20px;
+	padding: 10px 20px;
 	background-color: #FFE6C6;
 	color: #000;
 	-moz-border-radius: 6px;
@@ -84,14 +84,10 @@ body {
 }
 
 #studentResponseDiv textarea {
+	width:95%;
 	text-align: left;
 	padding: 10px;
-	margin: 5px 0 15px 0;
-}
-
-.yui-skin-sam .yui-toolbar-container .yui-toolbar-group h3 {
-	font-size:80%;
-	margin:50% 0 0 0;
+	margin: 5px 0 0px 0;
 }
 
 
@@ -133,15 +129,25 @@ body {
 }
 
 .responseTitle {
+	padding: 4px 6px 7px 6px;
+	background-color:#6883BA;
+	color:#FFF;
 	text-align: left;
 	font-weight: bold;
-	color: red;
-}
+	font-size:80%;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	}
 
 .responseTextArea {
-	padding: 6px;
+	padding: 4px 6px;
 	font-weight: normal;
 	font-size:85%;
+	background-color:#FFF;
 	color: #000;
 	border:1px solid #999; 
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
 }

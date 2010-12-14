@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "&lt;p&gt;&lt;font size=\"+2\"&gt;&lt;b&gt;Y&lt;/b&gt;&lt;/font&gt;ou are now convection current experts! Tim and Melissa have created a MySystem diagram to describe heat energy in the convection current demonstration video you saw earlier, but they want help improving their diagram.&lt;br /&gt;&lt;br /&gt; &lt;b&gt;Help them by reviewing their MySystem diagram and giving them suggestions below.&lt;/b&gt; &lt;br /&gt;&lt;br /&gt; &lt;table border=\"0\" style=\"float:left; margin-right:10px;\"&gt; &lt;tr&gt;&lt;td&gt; &lt;img src=\"http://dl.getdropbox.com/u/1077325/5.09b.jpg\" style=\"margin-right:15px;\"&gt;&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt; Feedback Pointers: &lt;ul&gt;&lt;li&gt;Does the diagram show &lt;b&gt;each step&lt;/b&gt; of energy flow between objects? Is the diagram missing any steps? &lt;li&gt;Does the diagram show the &lt;b&gt;correct direction&lt;/b&gt; of energy flow? &lt;li&gt;Do the arrow labels have &lt;b&gt;correct information&lt;/b&gt;? &lt;li&gt;Do the arrow labels have &lt;b&gt;enough information&lt;/b&gt;? &lt;/ul&gt; &lt;br /&gt;Based on your review of the students' diagram using the &lt;b&gt;feedback pointers&lt;/b&gt;, give your feedback below. &lt;br /&gt;&lt;br /&gt; &lt;b&gt;Make sure you explain your suggestions!&lt;/b&gt; &lt;br /&gt;&lt;br /&gt; Example: \"We think your diagram can be improved by... &lt;b&gt;because&lt;/b&gt;...\"",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "0",
+      "sentence": ""
+   },
+   "type": "Note"
+}

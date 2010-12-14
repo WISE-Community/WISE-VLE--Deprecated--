@@ -38,7 +38,7 @@ public class VLEPostJournalData extends VLEJournalServlet {
         try
         {
             stmt = conn.createStatement();
-            stmt.execute("create table journaldata (id bigint(11) not null auto_increment, workgroupId bigint(11) default '0', journalPageId bigint(11) default '0', deleted boolean default false, pageCreatedTime timestamp NOT NULL default '0000-00-00 00:00:00', pageLastEditedTime timestamp NOT NULL default CURRENT_TIMESTAMP, location int, nodeId varchar(20), data longtext not null, primary key(id));");
+            stmt.execute("create table journaldata (id bigint(11) not null auto_increment, workgroupId bigint(11) default '0', journalPageId bigint(11) default '0', deleted boolean default false, pageCreatedTime datetime default null, pageLastEditedTime datetime default null, location int, nodeId varchar(20), data longtext not null, primary key(id));");
             stmt.close();
         }
         catch (SQLException sqlExcept)
@@ -60,6 +60,7 @@ public class VLEPostJournalData extends VLEJournalServlet {
     	String data = request.getParameter("data");
     	String deletePage = request.getParameter("deletePage");
     	String nodeId = request.getParameter("nodeId");
+    	String pageLastEditedTime = request.getParameter("pageLastEditedTime");
     	
     	try {
 			stmt = conn.createStatement();
@@ -94,10 +95,22 @@ public class VLEPostJournalData extends VLEJournalServlet {
     		if(nodeId == null) {
     			nodeId = "";
     		}
+
+    		Double pageLastEditedTimeEpoch = Double.parseDouble(pageLastEditedTime);
+    		
+    		//check if the last edited time was in milliseconds
+    		if(pageLastEditedTimeEpoch / 1000000000000d > 1) {
+    			/*
+    			 * the last edited time was in milliseconds so we will convert it
+    			 * to seconds by dividing the value by 1000
+    			 */
+    			pageLastEditedTime = "" + (pageLastEditedTimeEpoch / 1000);
+    		}
     		
     		/*
     		 * get the time the first revision was created, all revisions of a
-    		 * journal page will have the same creation time
+    		 * journal page will have the same creation time. the time returned
+    		 * is in epoch seconds value.
     		 */
     		String pageCreatedTime = getPageCreatedTime(workgroupId, journalPageId);
     		
@@ -105,16 +118,13 @@ public class VLEPostJournalData extends VLEJournalServlet {
     		if(pageCreatedTime == null) {
     			/*
     			 * there were no previous page revisions so this is a new page 
-    			 * and will get a new timestamp of now()
+    			 * and will get a new datetime of now()
     			 */
-    			pageCreatedTime = "now()";
-    		} else {
-    			//use the timestamp from the first revision
-    			pageCreatedTime = "'" + pageCreatedTime + "'";
+    			pageCreatedTime = pageLastEditedTime;
     		}
     		
     		//the insert statement to put the revision into the db
-    		String insertStmt = "insert into journaldata(workgroupId, journalPageId, data, nodeId, pageCreatedTime) values(" + workgroupId + ", " + journalPageId + ", '" + data + "', '" + nodeId + "', " + pageCreatedTime + ")";
+    		String insertStmt = "insert into journaldata(workgroupId, journalPageId, data, nodeId, pageCreatedTime, pageLastEditedTime) values(" + workgroupId + ", " + journalPageId + ", '" + data + "', '" + nodeId + "', FROM_UNIXTIME(" + pageCreatedTime + "), FROM_UNIXTIME(" + pageLastEditedTime + "))";
     		debugPrint(insertStmt);
     		
     		try {
@@ -123,7 +133,7 @@ public class VLEPostJournalData extends VLEJournalServlet {
 				
 				//retrieve the row that we just inserted
 				String dateFormat = "%a, %b %e, %Y %r";
-				String selectQuery = "select id, workgroupId, journalPageId, deleted, date_format(pageCreatedTime, '" + dateFormat + "'), date_format(pageLastEditedTime, '" + dateFormat + "'), location, nodeId, data from journaldata where workgroupid=" + workgroupId + " and journalpageid=" + journalPageId + " and deleted=false order by id desc limit 1";
+				String selectQuery = "select id, workgroupId, journalPageId, deleted, UNIX_TIMESTAMP(pageCreatedTime), UNIX_TIMESTAMP(pageLastEditedTime), location, nodeId, data from journaldata where workgroupid=" + workgroupId + " and journalpageid=" + journalPageId + " and deleted=false order by id desc limit 1";
 				debugPrint(selectQuery);
 				
 				//run the select query
@@ -151,31 +161,31 @@ public class VLEPostJournalData extends VLEJournalServlet {
     }
     
     /**
-     * Get the timestamp for the first revision of the page
+     * Get the datetime for the first revision of the page
      * @param workgroupId the id of the workgroup
      * @param journalPageId the id of the journal page
-     * @return the timestamp of the first revision of the page or empty string
-     * 		if there are no previous revisions
+     * @return the datetime epoch value in seconds of the first revision 
+     * 		of the page or empty string if there are no previous revisions
      */
     private static String getPageCreatedTime(String workgroupId, String journalPageId) {
     	String createdTime = "";
     	
-    	//select the earliest timestamp of all the revisions of this page
-    	String selectStmt = "select min(pageCreatedTime) from journaldata where workgroupId=" + workgroupId + " and journalPageId=" + journalPageId;
+    	//select the earliest datetime of all the revisions of this page in epoch value
+    	String selectStmt = "select UNIX_TIMESTAMP(min(pageCreatedTime)) from journaldata where workgroupId=" + workgroupId + " and journalPageId=" + journalPageId;
     	debugPrint(selectStmt);
 		
 		try {
 			//run the select query
 			ResultSet results = stmt.executeQuery(selectStmt);
 			if(results.first()) {
-				//get the timestamp value
+				//get the datetime value
 				createdTime = results.getString(1);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		//return the timestamp value
+		//return the datetime value
 		return createdTime;
     }
     

@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "Describe what happened to the water molecules after they were heated from underneath.&lt;br&gt;&lt;br&gt; Explain how &lt;b&gt;HEAT ENERGY&lt;/b&gt; caused this to happen.&lt;br&gt;&lt;br&gt;",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": false,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "When the water molecules were heated from underneath, they... The heat energy caused this to happen because..."
+   },
+   "type": "Note"
+}

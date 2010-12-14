@@ -24,25 +24,18 @@
 -->
 <html>
     <head>
-        <script type="text/javascript" src="util/scriptloader.js"></script>
-        <script type="text/javascript" src="yui/yui_3.0.0b1/build/yui/yui-min.js"></script>
-        
         <script type="text/javascript">
             var ms; // global variable so it can be accessed by other functions
             var currentStateXML; // global variable containing current state as xml string
             var ddList = []; // list of all draggable nodes
             var states = []; // current state;
-            /**
-             * xmlString contains QTI-coded xml content
-             */
-            function loadContent(xmlString, customCheck){
-                var params = [xmlString, customCheck];
-                scriptloader.initialize(document, loadContentAfterScriptsLoad, 'matchsequence', params);
+            
+            function loadContent(node){
+            	scriptloader.loadScripts('matchsequence', node.contentPanel.window.document, node.id, eventManager);
             };
             
-            function loadContentAfterScriptsLoad(params){
-                var xmlDoc = loadXMLDocFromString(params[0]);
-                ms = new MS(xmlDoc, params[1]);
+            function loadContentAfterScriptsLoad(node){
+                ms = new MS(node);
                 ms.render();
             }
         </script>
@@ -74,17 +67,6 @@
                 newWin.focus();
             }
         </script>
-        <script type="text/javascript">            
-            window.onload = function(){
-                if (!window.parent) {
-                    scriptloader.initialize(document, null, 'matchsequence');
-                } else if(window.loadAuthoring){
-					scriptloader.initialize(document, loadAuthoring, 'matchsequence');
-                } else if(window.renderComplete){
-					renderComplete();
-            	};
-            };
-        </script>
     </head>
     <body>
         <div id="questionCountBox" class="bg7">
@@ -92,14 +74,15 @@
                 <tr>
                     <td>
                         <div id="helpIcon">
-                            <a href="node/matchsequence/MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                            <a href="node/matchsequence/MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp;&nbsp;&nbsp;</a>
                         </div>
                     </td>
                     <td>
-                        <a id="helpTextLink" href="node/matchsequence/MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                        <a id="helpTextLink" href="node/matchsequence/MatchSequenceInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">help</a>
                     </td>
                 </tr>
             </table>
+            <div id="previousWorkDiv"></div>
             <div id="questionTable">
                 <div id="questionType">
                     Match & Sequence
@@ -130,7 +113,7 @@
             <table id="buttonTable">
                 <tr>
                     <td>
-                        <a id="checkAnswerButton" onClick="javascript:ms.checkAnswer();">Check Answers</a>
+                        <a class="firstButton disabledLink" id="checkAnswerButton" onClick="javascript:ms.checkAnswer();">Submit Answer</a>
                     </td>
                 </tr>
             </table>

@@ -1,4 +1,5 @@
-var DDSPEED =2;
+
+var DDSPEED = 3;
 var DDTIMER = 15;
 
 // main function to handle the mouse events //
@@ -17,7 +18,8 @@ function ddMenu(id,d){
     }
     c.timer = setInterval(function(){ddSlide(c,1)},DDTIMER);
   }else{
-    h.timer = setTimeout(function(){ddCollapse(c)},50);
+    //h.timer = setTimeout(function(){ddCollapse(c)},50);
+	  ddCollapse(c);
   }
 }
 
@@ -59,4 +61,6 @@ function ddSlide(c,d){
 
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/common/dropdown.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/common/dropdown.js');
+};

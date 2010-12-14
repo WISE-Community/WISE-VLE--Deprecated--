@@ -1,0 +1,370 @@
+/**
+ * 
+ */
+package vle.web;
+
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import utils.SecurityUtils;
+import vle.VLEServlet;
+import vle.domain.node.Node;
+import vle.domain.user.UserInfo;
+import vle.domain.work.StepWork;
+import vle.domain.work.StepWorkCache;
+import vle.domain.work.StepWorkSVGDraw;
+
+/**
+ * Servlet for handling GETting of vle data
+ * @author hirokiterashima
+ * @author geoffreykwan
+ * @author patricklawler
+ */
+public class VLEGetData extends VLEServlet {
+
+	private static final long serialVersionUID = 1L;
+	
+	private static boolean DEBUG = false;
+	
+	private boolean standAlone = true;
+	
+	private boolean modeRetrieved = false;
+
+	public void doGet(HttpServletRequest request,
+			HttpServletResponse response)
+	throws ServletException, IOException {
+		/* check to see if we are in portal mode */
+		if(!this.modeRetrieved){
+			this.standAlone = !SecurityUtils.isPortalMode(request);
+			this.modeRetrieved = true;
+		}
+		
+		/* make sure that this request is authenticated through the portal before proceeding */
+		if(this.standAlone || SecurityUtils.isAuthenticated(request)){
+			/* set headers so that browsers don't cache the data (due to ie problem */
+			response.setHeader("Pragma", "no-cache");
+			response.setHeader("Cache-Control", "no-cache");
+			response.setDateHeader("Expires", 0);
+			
+			/*
+			 * obtain the get parameters. there are two use cases at the moment.
+			 * 1. only userId is provided (multiple userIds can be delimited by :)
+			 * 		e.g. 139:143:155
+			 * 2. only runId and nodeId are provided
+			 */
+			String userIdStr = request.getParameter("userId");  // these are actually workgroupId's in the portal, 
+																// NOT the userId in the vle_database.
+																// to convert to userId, see the mapping in userInfo table.
+			String nodeId = request.getParameter("nodeId");
+			String runId = request.getParameter("runId");
+			String type = request.getParameter("type");
+			String nodeTypes = request.getParameter("nodeTypes");
+			String nodeIds = request.getParameter("nodeIds");
+			String getAllWorkStr = request.getParameter("getAllWork");
+	
+			//whether to get the work that has empty states
+			boolean getAllWork = false;
+			
+			if(DEBUG) {
+				System.out.println("userIdStr: " + userIdStr);
+				System.out.println("nodeId: " + nodeId);
+				System.out.println("runId: " + runId);
+				System.out.println("type: " + type);
+				System.out.println("nodeTypes: " + nodeTypes);
+				System.out.println("nodeIds: " + nodeIds);
+			}
+			
+			if(getAllWorkStr != null) {
+				getAllWork = Boolean.parseBoolean(getAllWorkStr);
+			}
+			
+			if (userIdStr == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "get data: userId missing.");
+				return;
+			}
+			
+			//the list that contains the types of nodes we want to return
+			List<String> nodeTypesList = null;
+			
+			if(nodeTypes != null) {
+				//break the nodeTypes parameter into an array
+				String[] nodeTypesArray = nodeTypes.split(":");
+				
+				//create a list that will contain all the node types we want
+				nodeTypesList = Arrays.asList(nodeTypesArray);
+			}
+			
+			//the list that will contain the Node objects we want
+			List<Node> nodeList = new ArrayList<Node>();
+			if(nodeIds != null) {
+				//split up the nodeIds which are delimited by :
+				String[] nodeIdsArray = nodeIds.split(":");
+				
+				//loop through the node ids
+				for(int x=0; x<nodeIdsArray.length; x++) {
+					//obtain a handle on the Node with the node id
+					Node tempNode = Node.getByNodeIdAndRunId(nodeIdsArray[x], runId);
+					
+					if(tempNode != null) {
+						//add the Node to our list
+						nodeList.add(tempNode);					
+					}
+				}
+			}
+	
+			try {
+				//this case is when userId is passed in as a GET argument
+				// this is currently only being used for brainstorm steps
+	
+				//the get request can be for multiple ids that are delimited by ':'
+				String[] userIdArray = userIdStr.split(":");
+	
+				if(nodeId != null && !nodeId.equals("")) {
+					/*
+					 * return an array of node visits for a specific node id.
+					 * this case uses userIdStr and nodeId.
+					 */
+					
+					Node node = Node.getByNodeIdAndRunId(nodeId, runId);
+					
+					List<UserInfo> userInfos = new ArrayList<UserInfo>();
+						
+					for(int x=0; x<userIdArray.length; x++) {
+						UserInfo userInfo = UserInfo.getByWorkgroupId(new Long(userIdArray[x]));
+						
+						if(userInfo != null) {
+							userInfos.add(userInfo);
+						}
+					}
+					
+					List<StepWork> stepWorkList = StepWork.getByUserInfosAndNode(userInfos, node);
+					
+					JSONArray stepWorks = new JSONArray();
+					
+					for(StepWork stepWork : stepWorkList) {
+						Long userId = stepWork.getUserInfo().getWorkgroupId();
+						String dataString = stepWork.getData();
+						JSONObject data = new JSONObject(dataString);
+						data.put("visitPostTime", stepWork.getPostTime());
+						String stepWorkId = stepWork.getId().toString();
+						
+						/* add the duplicateId if one is found for this stepWork */
+						if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
+							data.put("duplicateId", stepWork.getDuplicateId());
+						}
+						
+						JSONObject userIdAndData = new JSONObject();
+						userIdAndData.put("userId", userId);
+						userIdAndData.put("data", data);
+						userIdAndData.put("stepWorkId", stepWorkId);
+						
+						stepWorks.put(userIdAndData);
+					}
+					
+					response.getWriter().write(stepWorks.toString());
+				} else {
+					/*
+					 * return an array of vle states
+					 * this case uses userIdStr, runId, nodeTypes
+					 */
+					
+					//multiple user ids were passed in
+					if(userIdArray != null && userIdArray.length > 0){
+						//the parent json object that will contain all the vle states
+						JSONObject workgroupNodeVisitsJSON = new JSONObject();
+						
+						//retrieve data for each of the ids
+						for(int x = 0; x < userIdArray.length; x++) {
+							String userId = userIdArray[x];
+							
+							// obtain all the data for this student
+							UserInfo userInfo = UserInfo.getByWorkgroupId(new Long(userId));
+							JSONObject nodeVisitsJSON = new JSONObject();  // to store nodeVisits for this student.
+	
+							// here we check if we have retrieved and cached this workgroup's data before.
+							
+							//Get student's last stepwork.
+							StepWork latestWork = StepWork.getLatestByUserInfo(userInfo);
+							if (latestWork != null && latestWork.getPostTime() != null) {
+								// Get student's cachedWork, if exists.
+								StepWorkCache cachedWork = StepWorkCache.getByUserInfo(userInfo);
+								
+								if (cachedWork != null 
+										&& cachedWork.getCacheTime() != null
+										&& latestWork.getPostTime().before(cachedWork.getCacheTime())) {
+										// lastPostTime happened before lastCachedTime, so cache is still valid.
+										nodeVisitsJSON = new JSONObject(cachedWork.getData()); 
+									} else {
+										// lastPostTime happened before lastCachedTime or we never cached, so we need to retrieve student data
+										if (nodeList.size() == 0) {
+											nodeList = Node.getByRunId(runId);
+										}
+										nodeVisitsJSON = getNodeVisitsForStudent(nodeList,nodeTypesList,userInfo, getAllWork);
+										
+										//save this data to cache for quicker access next time
+										if (cachedWork == null) {
+											cachedWork = new StepWorkCache();
+											cachedWork.setUserInfo(userInfo);
+										}
+										Calendar now = Calendar.getInstance();
+										Timestamp cacheTime = new Timestamp(now.getTimeInMillis());
+										cachedWork.setCacheTime(cacheTime);
+										cachedWork.setData(nodeVisitsJSON.toString());
+										cachedWork.saveOrUpdate();
+									}
+							} else {
+								/*
+								 * the user does not have any work so we will just set the userName and
+								 * userId and an empty visitedNodes array in the JSON for the user
+								 */
+								nodeVisitsJSON.put("userName", new Long(userId));
+								nodeVisitsJSON.put("userId", new Long(userId));
+								nodeVisitsJSON.put("visitedNodes", new JSONArray());
+							}
+							workgroupNodeVisitsJSON.append("vle_states", nodeVisitsJSON);
+						}
+						response.getWriter().write(workgroupNodeVisitsJSON.toString());
+					}
+				}
+	
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (OutOfMemoryError e) {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+		}
+	}
+
+	/**
+	 * Returns nodeVisits for the specified student user as a JSON object.
+	 * @param nodeList
+	 * @param nodeTypesList
+	 * @param userInfo
+	 * @param getAllWork whether to get all the work for the steps even if the step
+	 * has empty states
+	 * 
+	 * if there is a nodeTypesList and getAllWork is true, we will get all the work
+	 * (including work with empty states) only for the node types in the nodeTypesList
+	 * 
+	 * @return
+	 * @throws JSONException
+	 */
+	private JSONObject getNodeVisitsForStudent(List<Node> nodeList,
+			List<String> nodeTypesList, UserInfo userInfo, boolean getAllWork) throws JSONException {
+		JSONObject nodeVisitsJSON = new JSONObject();
+		nodeVisitsJSON.put("userName", userInfo.getWorkgroupId());
+		nodeVisitsJSON.put("userId", userInfo.getWorkgroupId());
+		
+		//the list to hold the StepWork objects for this workgroup
+		List<StepWork> stepWorkList = null;
+		
+		//check if a list of nodes were passed in
+		if(nodeList != null && nodeList.size() > 0) {
+			//get all the work for the user and that are for the nodes in the node list
+			stepWorkList = StepWork.getByUserInfoAndNodeList(userInfo, nodeList);
+		} else {
+			//get all the work for the user
+			stepWorkList = StepWork.getByUserInfo(userInfo);	
+		}
+
+		// find student's last work for each draw node in the project
+		List<StepWorkSVGDraw> drawStepWorks = new ArrayList<StepWorkSVGDraw>();
+		for (int i=0; i<nodeList.size(); i++) {
+			Node node = (Node) nodeList.get(i);
+			
+			if(node.getNodeType() != null) {
+				if (((Node) nodeList.get(i)).getNodeType().equals("SVGDrawNode")) {
+					Node drawNode = nodeList.get(i);
+					try {
+						StepWorkSVGDraw drawNodeStepWork = (StepWorkSVGDraw) StepWork.getLatestByUserInfoAndNode(userInfo,drawNode);
+						if (drawNodeStepWork != null) {
+							drawStepWorks.add(drawNodeStepWork);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		//loop through all the rows that were returned, each row is a node_visit
+		for(int x=0; x<stepWorkList.size(); x++) {
+			StepWork stepWork = stepWorkList.get(x);
+			
+			String data = stepWork.getData();
+			String stepWorkId = stepWork.getId().toString();
+			
+			//obtain the node type for the step work
+			String nodeType = stepWork.getNode().getNodeType();
+			
+			boolean keepGoing = true;
+
+			// if stepwork is a draw stepwork, we only want the latest (otherwise the response would be too large).
+			// so check to see if this stepWork is the last work for this drawnode. If not, ignore.
+			if (nodeType != null && nodeType.equals("SVGDrawNode")) {
+				for (int k=0;k<drawStepWorks.size();k++) {
+					if (drawStepWorks.get(k).getId().equals(stepWork.getId())) {
+						break;
+					}
+					if (k == drawStepWorks.size()-1) {
+						keepGoing = false;
+					}
+				}
+			}
+			
+			if (!keepGoing){
+				continue;
+			}
+
+			/*
+			 * check that the node type is one that we want if a list of
+			 * desired node types was provided. if there is no list of
+			 * node types, we will accept all node types
+			 */
+			if(nodeTypesList == null || (nodeTypesList != null && nodeTypesList.contains(nodeType))) {
+				//the node type is accepted
+				try {
+					JSONObject nodeVisitJSON = new JSONObject(data);
+					JSONArray nodeStates = (JSONArray) nodeVisitJSON.get("nodeStates");
+					
+					/*
+					 * if there are no states for the visit, we will ignore it or if it
+					 * is the last/latest visit we will add it so that the vle can
+					 * load the last step the student was on.
+					 */
+					if (getAllWork || (nodeStates != null && nodeStates.length() > 0 || x == (stepWorkList.size() - 1))) {
+						/* add the duplicateId if one is found for this stepWork */
+						if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
+							nodeVisitJSON.put("duplicateId", stepWork.getDuplicateId());
+						}
+
+						//add stepWorkId and visitPostTime attributes to the json obj
+						nodeVisitJSON.put("stepWorkId", stepWorkId);
+						nodeVisitJSON.put("visitPostTime", stepWork.getPostTime().getTime());
+						nodeVisitsJSON.append("visitedNodes", nodeVisitJSON);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}								
+			}
+		}
+		return nodeVisitsJSON;
+	}
+}

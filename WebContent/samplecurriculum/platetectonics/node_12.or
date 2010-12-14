@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "Describe how plates move in relation to magma currents in the earth's mantle when the currents (arrows) are moving &lt;u&gt;towards&lt;/u&gt; each other. What type of boundary occurs? &lt;br&gt;&lt;br&gt; Describe how plates move in relation to magma currents in the earth's mantle when the currents (arrows) are moving &lt;u&gt;away from&lt;/u&gt; each other. What type of boundary occurs?",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": false,
+   "starterSentence": {
+      "display": "2",
+      "sentence": ""
+   },
+   "type": "Note"
+}

@@ -6,6 +6,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Servlet implementation class VLEGetUser
  */
@@ -24,9 +27,16 @@ public class VLEGetUser extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String userInfoString = 
-			"<userInfo><myUserInfo><workgroupId>146</workgroupId><userName>preview user</userName></myUserInfo><myClassInfo><classmateUserInfo><workgroupId>147</workgroupId><userName> bb11</userName></classmateUserInfo><teacherUserInfo><workgroupId>137</workgroupId><userName>aa</userName></teacherUserInfo></myClassInfo></userInfo>";
-		response.getWriter().print(userInfoString);
+		try {
+			JSONObject userInfo = new JSONObject();
+			JSONObject myUserInfo = new JSONObject();
+			myUserInfo.put("workgroupId", "146");
+			myUserInfo.put("userName", "preview user");
+			userInfo.put("myUserInfo", myUserInfo);
+			response.getWriter().print(userInfo.toString());
+		} catch (JSONException e) {
+
+		}
 	}
 
 	/**

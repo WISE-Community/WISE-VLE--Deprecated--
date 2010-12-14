@@ -1,0 +1,50 @@
+var coreScripts = [
+	'vle/node/sensor/SensorNode.js',
+	'vle/node/sensor/sensorEvents.js'
+];
+
+var studentVLEScripts = [
+	'vle/node/sensor/sensor.js',
+	'vle/node/sensor/sensorstate.js',
+	'vle/jquery/js/flot/excanvas.js',
+	'vle/jquery/js/flot/jquery.js',
+	'vle/jquery/js/flot/jquery.flot.js'
+];
+
+var authorScripts = [
+	'vle/node/sensor/authorview_sensor.js'
+];
+
+var gradingScripts = [
+	'vle/node/sensor/sensorstate.js',
+	'vle/node/sensor/sensor.js',
+	'vle/jquery/js/flot/jquery.flot.js'
+];
+
+var dependencies = [
+	{child:"vle/node/sensor/SensorNode.js", parent:["vle/node/Node.js"]}
+];
+
+var css = [
+       	
+];
+
+scriptloader.addScriptToComponent('core', coreScripts);
+scriptloader.addScriptToComponent('sensor', studentVLEScripts);
+scriptloader.addScriptToComponent('author', authorScripts);
+scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addDependencies(dependencies);
+scriptloader.addCssToComponent('sensor', css);
+
+var topMenuScripts = [
+	'vle/node/sensor/sensor.js',
+	'vle/node/sensor/sensorstate.js',
+	'vle/jquery/js/flot/jquery.flot.js'
+];
+
+scriptloader.addScriptToComponent('topMenu', topMenuScripts);
+
+//used to notify scriptloader that this script has finished loading
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/sensor/setup.js');
+};

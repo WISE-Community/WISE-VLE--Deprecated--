@@ -1,16 +1,17 @@
 <html>
 <head>
 	<script type="text/javascript">
-		function loadUrl(url) {
-			window.frames["outsideurliframe"].location = url;
-		}
-
-		window.onload = function(){
-			if(window.loadAuthoring){
-				loadAuthoring();
-            } else if(window.renderComplete){
-				renderComplete();
-        	};
+		/**
+	     * called after or has been initialized and scripts loaded
+	     */
+	    function loadContentAfterScriptsLoad(node){
+		    window.frames['outsideurliframe'].location = node.getUrl();
+	    	
+			node.view.eventManager.fire('contentRenderComplete', node.id, node);
+	    };
+	    
+		function loadContent(node){
+			scriptloader.loadScripts('outsideurl', document, node.id, eventManager);
 		};
 	</script>
 </head>

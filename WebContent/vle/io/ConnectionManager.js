@@ -20,17 +20,17 @@ function ConnectionManager(em) {
  * @param handler - success handler function which takes 3 params: Text, xmlDoc and args (the hArgs gets passed in)
  * 		run when connectionManager receives a successful response from server.
  * @param hArgs - args that are needed by the success and/or failure handler
- * @param fHandler - failure handler function with takes 2 params: o (the yui response object), and args (the
+ * @param fHandler - failure handler function with takes 2 params: o (the response object), and args (the
  * 		hArgs that gets passed in
  * @return
  */
-ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs, fHandler){
-
+ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs, fHandler, sync){
+	
 	var connection;
 	if(type=='GET'){
-		connection = new GetConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler);
+		connection = new GetConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler, sync);
 	} else if(type=='POST'){
-		connection = new PostConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler);
+		connection = new PostConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler, sync);
 	} else {
 		alert('unknown connection type: ' + type + '\nExiting...');
 		return;
@@ -52,7 +52,7 @@ ConnectionManager.prototype.launchNext = function(){
 			
 			var endName = this.generateEventName();
 			var launchNextRequest = function(type, args, obj){obj.running --; obj.launchNext();};
-			this.em.addEvent(this, endName);
+			this.em.addEvent(endName);
 			this.em.subscribe(endName, launchNextRequest, this);
 			
 			this.running ++;
@@ -87,7 +87,7 @@ ConnectionManager.prototype.generateEventName = function(){
  * A Connection object encapsulates all of the necessary variables
  * to make an async request to an url
  */
-function Connection(priority, url, cArgs, handler, hArgs, em){
+function Connection(priority, url, cArgs, handler, hArgs, em, sync){
 	this.em = em;
 };
 
@@ -95,33 +95,96 @@ function Connection(priority, url, cArgs, handler, hArgs, em){
  * Launches the request that this connection represents
  */
 Connection.prototype.startRequest = function(eventName){
-	var en = eventName;
-	
-	var callback = {
-		success: function(o){
-			this.em.fire(en);
-			if ((o.responseText && !o.responseXML)  || (typeof ActiveXObject!='undefined')){
-				o.responseXML = loadXMLString(o.responseText);
-			}
-			this.handler(o.responseText, o.responseXML, this.hArgs);
-		},
-		failure: function(o){
-			this.em.fire(en);
-			if(this.fHandler){
-				this.fHandler(o, this.hArgs);
+	this.en = eventName;
+
+	$.ajax({type:this.type, url:this.url, error:this.failure, success:this.success, data:this.params, context:this, async:(this.sync ? false : true)});
+};
+
+/**
+ * parses and sets the necessary parameters for a POST request
+ */
+Connection.prototype.parseConnectionArgs = function(){
+	var first = true;
+	if(this.cArgs){
+		this.params = '';
+		for(var p in this.cArgs){
+			if(first){
+				first = false;
 			} else {
-				var msg = 'Connection request failed: transactionId=' + o.tId + '  TEXT=' + o.statusText;
-				if(notificationManager){
-					notificationManager.notify(msg, 2);
-				} else {
-					alert(msg);
-				};
-			};
-		},
-		scope:this
-	};
+				this.params += '&';
+			}
+			this.params += p + '=' + this.cArgs[p];
+		}
+	}
+};
+
+Connection.prototype.success = function(data, status, request) {
+	/*
+	 * check if the request status is 0 which means there was an error.
+	 * this may occur because there is a bug in jquery where a request
+	 * returns success even when there is no access to the internet, but
+	 * the request status will be set to 0 which specifies an error
+	 * as opposed to 200 for OK
+	 */
+	if(request.status == 0) {
+		//call the failure function
+		this.failure(request, status);
+		return;
+	}
 	
-	YAHOO.util.Connect.asyncRequest(this.type, this.url, callback, this.params);
+	this.em.fire(this.en);
+	if (data !='undefined' && data.match("login for portal") != null) {
+		// this means that student has been idling too long and has been logged out of the session
+		// so we should take them back to the homepage.
+		var mode = "";
+		
+		try {
+			//try to obtain the mode
+			if(this.hArgs != null) {
+				if(this.hArgs.length > 0) {
+					if(this.hArgs[0].getConfig() != null) {
+						mode = this.hArgs[0].getConfig().getConfigParam("mode");	
+					}
+				}
+			}
+		} catch(error) {
+			//do nothing
+		}
+		
+		if(mode == "grading") {
+			//we are in grading mode
+			alert("You have been inactive for too long and have been logged out. Please log back in to continue.");
+			
+			//redirect the teacher to the login page
+			parent.window.location = "/webapp/j_spring_security_logout";
+		} else {
+			if(notificationManager){
+				notificationManager.notify("You have been inactive for too long and have been logged out. Please log back in to continue.",3);
+			} else {
+				alert("You have been inactive for too long and have been logged out. Please log back in to continue.");
+			}
+			
+			//redirect the user to the login page
+			window.location = "/webapp/j_spring_security_logout";			
+		}
+	} else if (this.handler) {
+		this.handler(data, data, this.hArgs);
+	}
+	this.em.fire("maintainConnection");   // also maintain connection
+};
+
+Connection.prototype.failure = function(request, status, exception) {
+	this.em.fire(this.en);
+	if(this.fHandler){
+		this.fHandler(status, this.hArgs);
+	} else {
+		var msg = 'Connection request failed: TEXT=' + status;
+		if(notificationManager){
+			notificationManager.notify(msg, 2);
+		} else {
+			alert(msg);
+		}
+	}
 };
 
 /**
@@ -131,7 +194,7 @@ Connection.prototype.startRequest = function(eventName){
 GetConnection.prototype = new Connection();
 GetConnection.prototype.constructor = GetConnection;
 GetConnection.prototype.parent = Connection.prototype;
-function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler){
+function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync){
 	this.type = 'GET';
 	this.priority = priority;
 	this.em = em;
@@ -141,28 +204,8 @@ function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler){
 	this.hArgs = hArgs;
 	this.fHandler = fHandler;
 	this.params = null;
+	this.sync = sync;
 	this.parseConnectionArgs();
-};
-
-/**
- * parses the connection arguments and appends them to the URL
- */
-GetConnection.prototype.parseConnectionArgs = function(){
-	var first = true;
-	if (this.url.indexOf("?") > -1) {
-		first = false;
-	}
-	if(this.cArgs){
-		for(var p in this.cArgs){
-			if(first){
-				first = false;
-				this.url += '?'
-			} else {
-				this.url += '&'
-			};
-			this.url += p + '=' + this.cArgs[p];
-		};
-	};
 };
 
 /**
@@ -172,7 +215,7 @@ GetConnection.prototype.parseConnectionArgs = function(){
 PostConnection.prototype = new Connection();
 PostConnection.prototype.constructor = PostConnection;
 PostConnection.prototype.parent = Connection.prototype;
-function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler){
+function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync){
 	this.type = 'POST';
 	this.priority = priority;
 	this.em = em;
@@ -182,26 +225,11 @@ function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler){
 	this.hArgs = hArgs;
 	this.fHandler = fHandler;
 	this.params = null;
+	this.sync = sync;
 	this.parseConnectionArgs();
 };
 
-/**
- * parses and sets the necessary parameters for a POST request
- */
-PostConnection.prototype.parseConnectionArgs = function(){
-	var first = true;
-	if(this.cArgs){
-		this.params = '';
-		for(var p in this.cArgs){
-			if(first){
-				first = false;
-			} else {
-				this.params += '&';
-			};
-			this.params += p + '=' + this.cArgs[p];
-		};
-	};
-};
-
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/io/ConnectionManager.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/io/ConnectionManager.js');
+};

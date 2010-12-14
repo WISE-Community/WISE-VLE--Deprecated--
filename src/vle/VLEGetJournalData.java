@@ -84,7 +84,8 @@ public class VLEGetJournalData extends VLEJournalServlet {
 				String dateFormat = "%a, %b %e, %Y %r";
 				
 				//the select query
-				String selectQuery = "select id, workgroupId, journalPageId, deleted, date_format(pageCreatedTime, '" + dateFormat + "'), date_format(pageLastEditedTime, '" + dateFormat + "'), location, nodeId, data from journaldata where workgroupid=" + workgroupId + " and deleted=false";
+				//String selectQuery = "select id, workgroupId, journalPageId, deleted, date_format(pageCreatedTime, '" + dateFormat + "'), date_format(pageLastEditedTime, '" + dateFormat + "'), location, nodeId, data from journaldata where workgroupid=" + workgroupId + " and deleted=false";
+				String selectQuery = "select id, workgroupId, journalPageId, deleted, UNIX_TIMESTAMP(pageCreatedTime), UNIX_TIMESTAMP(pageLastEditedTime), location, nodeId, data from journaldata where workgroupid=" + workgroupId + " and deleted=false";
 				debugPrint(selectQuery);
 				
 				//run the query

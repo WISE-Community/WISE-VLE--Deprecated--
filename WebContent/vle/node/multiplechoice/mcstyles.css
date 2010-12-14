@@ -16,7 +16,7 @@
 	float: left;
 	width: 85%;
 	padding: 10px 0;
-	min-height: 375px;
+	min-height:400px;
 }
 
 #currentQuestionBox #rightColumn {
@@ -24,11 +24,12 @@
 	padding: 10px 0;
 	text-align: center;
 	color: #FFF;
-	min-height: 375px;
+	min-height:400px;
 }
 
 #currentQuestionBox #rightColumn img {
-	margin: 50px 0 0 0;
+	margin: 40px 0 0 0;
+
 }
 
 .itemLabel {

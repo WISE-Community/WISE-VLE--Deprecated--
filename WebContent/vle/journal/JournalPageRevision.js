@@ -3,63 +3,47 @@
  * JournalPageRevisions are used in JournalPage objects. 
  */
 
-function JournalPageRevision() {
+function JournalPageRevision(id, revisionLastEditedTime, nodeId, title, data) {
 	//the integer id of the parent JournalPage
-	this.journalPageId = "";
-	
-	//the time the parent JournalPage was created
-	this.pageCreatedTime = "";
-	
+	this.journalPageId = id;
+
 	//the time this revision was made
-	this.pageLastEditedTime = "";
-	
-	//the integer course location
-	this.location = "";
+	this.revisionLastEditedTime = revisionLastEditedTime;
 	
 	//the string of the associated nodeId
-	this.nodeId = "";
+	this.nodeId = nodeId;
 	
 	//what the student wrote
-	this.data = "";
+	this.data = data;
+	
+	//the title the student wrote for the journal page
+	this.title = title;
 }
+
+JournalPageRevision.prototype.parseDataJSONObj = function(journalPageRevisionJSONObj) {
+	
+};
 
 /**
- * Parses the journal xml and creates a JournalPageRevision
- * @param xmlDoc the <journalPage> xml object
- * @return a new JournalPageRevision object
+ * Converts the epoch integer value to milliseconds. The argument epochTime
+ * may be in seconds or milliseconds. If it is already in milliseconds,
+ * nothing needs to be done and the value is returned without any modification.
+ * @param epochTime integer value of seconds or milliseconds
+ * @return the epochTime in milliseconds
  */
-JournalPageRevision.prototype.parseJournalXML = function(xmlDoc) {
-	var journalPageRevision = new JournalPageRevision();
-	
-	//get what the student wrote
-	journalPageRevision.data = xmlDoc.childNodes[0].nodeValue;
-	
-	//set the integer id
-	journalPageRevision.journalPageId = xmlDoc.getAttribute('journalPageId');
-	
-	//set the creation time
-	if(xmlDoc.getAttribute('pageCreatedTime') != null) {
-		journalPageRevision.pageCreatedTime = xmlDoc.getAttribute('pageCreatedTime');	
+JournalPageRevision.prototype.obtainEpochMilliseconds = function(epochTime) {
+	//check if the time is in seconds
+	if(epochTime / 1000000000000 < 1) {
+		//the time was in seconds so we will convert it to milliseconds
+		epochTime *= 1000;
 	}
 	
-	//set the last edited time
-	if(xmlDoc.getAttribute('pageLastEditedTime') != null) {
-		journalPageRevision.pageLastEditedTime = xmlDoc.getAttribute('pageLastEditedTime');	
-	}
-	
-	//set the location
-	if(xmlDoc.getAttribute('location') != null) {
-		journalPageRevision.location = xmlDoc.getAttribute('location');	
-	}
-	
-	//set the nodeId
-	if(xmlDoc.getAttribute('nodeId') != null) {
-		journalPageRevision.nodeId = xmlDoc.getAttribute('nodeId');	
-	}
-	
-	//return the new JournalPageRevision
-	return journalPageRevision;
+	//return the epoch time which is in milliseconds
+	return epochTime;
 }
 
+
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/journal/JournalPageRevision.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/journal/JournalPageRevision.js');
+};

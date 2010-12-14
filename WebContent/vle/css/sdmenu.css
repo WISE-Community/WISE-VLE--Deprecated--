@@ -1,13 +1,13 @@
+
 #my_menu {
 	margin: 0 auto;
 }
 
 div.sdmenu {
-	width: 215px;
+	width: 210px;
 	font-family: Arial, Verdana, "Lucida Grande", "Lucida Sans Unicode",
 		Arial, sans-serif;
 	font-size: .6em;
-	padding-bottom: 10px;
 	background: url(../images/bottomBlue190.png) no-repeat right bottom;
 	background: url(../images/titleBlue19.png) repeat-x;
 	color: #fff;
@@ -15,40 +15,44 @@ div.sdmenu {
 	}
 
 div.sdmenu div {
-	background: url(../images/titleBlue19.png) repeat-x;
+	background: url(../images/titleBlue34.png) repeat-x;
 	overflow: hidden;
 }
 
 div.sdmenu div:first-child {
-	background: url(../images/titleBlu19.png) repeat-x;
+	background: url(../images/titleBlue34.png) repeat-x;
 }
 
 div.sdmenu div.collapsed {
 	height: 21px;
-	margin-bottom: 1px
+	margin-bottom: 1px;
 }
 
-div.sdmenu div span {
+div.sdmenu div span.menuspan {
 	display: block;
 	padding: 3px 8px 3px 27px;
 	font-weight: 400;
 	color: white;
 	background: url(../images/expanded.gif) no-repeat 8px center;
 	cursor: pointer;
-	border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid #666;
 }
 
-div.sdmenu div span:hover {
-	color: #FFFF00;
-}
-
-div.sdmenu div.collapsed span {
+div.sdmenu div.collapsed span.menuspan {
 	background-image: url(../images/collapsed.gif);
 }
 
 div.sdmenu div img {
 	float: left;
 	margin: -1px 6px 0px 4px;
+}
+
+div.sdmenu div.constraintDisable {
+	background: url(../images/titleDisable.png) repeat-x;
+}
+
+div.sdmenu div.constraintHidden {
+	display:none;
 }
 
 div.sdmenu div a {
@@ -63,6 +67,20 @@ div.sdmenu div a {
 div.sdmenu div a.currentNode {
 	background-color: #FF9D1E;
 	color: #000;
+	border:1px solid #FF9D1E;
+	border-left:1px solid #6699CC;
+}
+
+div.sdmenu div a.constraintDisable {
+	background-color: 888888;
+}
+
+div.sdmenu div a.constraintHidden {
+	display:none;	
+}
+
+div.sdmenu div a span.menusteptitle {
+	display: table;
 }
 
 div.sdmenu div a:hover {
@@ -71,26 +89,17 @@ div.sdmenu div a:hover {
 }
 
 div.sdmenu div .depth3 {
-	margin-left: 5px;
+	margin-left: -1px;
 }
 
 div.sdmenu div .depth4 {
-	margin-left: 10px;
+	margin-left: 8px;
 }
 
 div.sdmenu div .depth5 {
-	margin-left: 15px;
+	margin-left: 12px;
 }
 
-div.sdmenu div a.depth3 {
+div.sdmenu div a {
 	border-left: 1px solid #6699CC;
-}
-
-div.sdmenu div a.depth4 {
-	border-left: 1px solid #6699CC;
-}
-
-div.sdmenu div a.depth5 {
-	border-left: 1px solid #6699CC;
-}
 }

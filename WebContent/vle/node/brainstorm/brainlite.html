@@ -25,85 +25,62 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="node/brainstorm/brainstorm.css">
-        <script type="text/javascript" src="util/scriptloader.js">
-        </script>
+        <script type='text/javascript' src='tinymce/jscripts/tiny_mce/tiny_mce_src.js'></script>
         <script type="text/javascript">
             var brainstorm;
-            var richTextEditor;
 
-            function loadContentAfterScriptsLoad(args){
-            	brainstorm = new BRAINSTORM(args[0], args[1]);
-            	
-            	if(args[2]){
-            		brainstorm.loadState(args[2]);
-            	};
-            	
-            	if(args[3]){
-            		brainstorm.loadVLE(args[3]);
-            	};
-                 
-                //check if we want to use the rich text editor
-                if (brainstorm.isRichTextEditorAllowed == "true") {
-                    /*
-                     * create the editor by passing in the id of the textarea
-                     * that we will be replacing with the rich text editor
-                     */
-                    richTextEditor = new YAHOO.widget.Editor('studentResponse', {
-                        height: '45%',
-                        width: '100%',
-                        dompath: true,
-                        animate: true
-                    });
-                    //render and display the rich text editor
-                    richTextEditor.render();
-                };
-            	
+            function loadContentAfterScriptsLoad(node){
+                /* for authoring, if richTextEditor exists, we want to remove
+                 * it (clean up previous) before rendering new brainstorm object */
+                if(brainstorm && brainstorm.richTextEditor){
+					/* try removing */
+					if(brainstorm.richTextEditor.remove){
+						brainstorm.richTextEditor.remove();
+					}
+
+                    /*  try destroying */
+                    if(brainstorm.richTextEditor.destroy){
+                        brainstorm.richTextEditor.destroy(true);
+                    }
+                }
+                
+            	brainstorm = new BRAINSTORM(node);
             	brainstorm.brainliteLoaded(document);
             };
 
-            function loadContent(args){
-            	scriptloader.initialize(document, loadContentAfterScriptsLoad, 'brainlite', args);
+            function loadContent(node){
+            	scriptloader.loadScripts('brainstorm', node.contentPanel.window.document, node.id, eventManager);
             };
 
             function save(){
-                if (richTextEditor != null) {
-                    /*
-                     * if we are using the rich text editor, save the text written
-                     * in the rich text editor to the textarea
-                     */
-                    richTextEditor.saveHTML();
-                }
-                
                 brainstorm.save(document);
             };
-            
-            window.onload = function(){
-            	if(!window.parent){
-            		scriptloader.initialize(document, null, 'brainstorm');
-            	} else if(window.loadAuthoring){
-                	loadAuthoring();
-            	} else if(window.renderComplete){
-					renderComplete();
-            	};
+
+            function showStarter(){
+            	brainstorm.showStarter();
             };
-            
+
+            function refreshResponses() {
+				brainstorm.refreshResponses(document);
+            };
         </script>
     </head>
-    <body class="yui-skin-sam">
+    <body>
         <div id="main">
             <div id="questionCountBox" class="bg3">
                 <table class="instructionsReminder">
                     <tr>
                         <td>
                             <div id="helpIcon">
-                                <a href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                                <a href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp;&nbsp;&nbsp;</a>
                             </div>
                         </td>
                         <td>
-                            <a id="helpTextLink" href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                            <a id="helpTextLink" href="node/brainstorm/BrainstormLiteInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">help</a>
                         </td>
                     </tr>
                 </table>
+            <div id="previousWorkDiv"></div>
                 <div id="questionTable">
                     <div id="questionType">
                         Student Brainstorm: Self-Guided
@@ -115,7 +92,7 @@
             </div>
             <div id="studentResponseDiv" class="header">
                 <div class="header1">
-                    Response:
+                    Response: <div id='starterParent'><div id='starterSentenceDiv' class="starterSentence"><a onclick="showStarter()">Show Starter Sentence</a></div></div>
                 </div>
                 <textarea id='studentResponse' rows='5' cols ='100'>
                 </textarea>
@@ -132,8 +109,8 @@
             </div>
         </div>
         <div class="header2">
-            Other Student Responses:
-        </div>
+            Other Student Responses <input id="refreshResponsesButton" style="margin:0px 0 10px 10px;font-size:80%;" type="button" value="check for new responses" onClick="refreshResponses()" disabled="true">
+                </div>
         <div id="responses">
         </div>
         </div>

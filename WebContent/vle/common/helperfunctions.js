@@ -20,6 +20,20 @@ function createElement(doc, type, attrArgs){
 };
 
 /**
+ * returns a <br> element
+ */
+function createBreak(){
+	return createElement(document, 'br', null);
+};
+
+/**
+ * returns a space
+ */
+function createSpace(){
+	return document.createTextNode(' ');
+};
+
+/**
  * Given a string, returns a URI encoded string.
  * 
  * @param String
@@ -37,29 +51,15 @@ function encodeString(text){
  * @return
  */
 function getElementsByAttribute(attributeName, attributeValue, frameName) {
-	notificationManager.notify('attributeName:' + attributeName + ", attributeValue:" + attributeValue, 4);
-	var bodyNode = null;
-	if (frameName != null) {
-		notificationManager.notify('frameName:' + frameName, 4);
-		bodyNode = global_yui.get(window.frames['ifrm'].frames[frameName].document.body);
-	} else {
-		bodyNode = global_yui.get(window.frames["ifrm"].document.body);
-	}
+	var doc = (frameName) ? window.frames['ifrm'].document.frames[frameName].document : window.frames['ifrm'].document;
+	
 	if (attributeValue != null) {
-		var node = bodyNode.query('['+attributeName+'='+attributeValue+']');
-		notificationManager.notify('audioNode:' + node, 4);
-		return node;
-	} else {
+		return $(doc).filter('[' + attributeName + '=' + attributeValue + ']');
+	} else if(doc){
+		return $(doc).filter('[' + attributeName + ']');
 		var nodes = bodyNode.queryAll('['+attributeName+']');
-		if (nodes != null) {
-			notificationManager.notify('audioNodes.length:' + nodes.size(), 4);
-			for (var i=0; i< nodes.size(); i++) {
-				notificationManager.notify('audioNode textContent:' + nodes.item(i).get('textContent'), 4);
-			}
-		}
-		return nodes;
 	}
-}
+};
 
 /**
  * returns true iff the URL returns a 200 OK message
@@ -67,12 +67,8 @@ function getElementsByAttribute(attributeName, attributeValue, frameName) {
  * @return
  */
 function checkAccessibility(url) {
-	var callback = {
-			success: function(o) {return true},
-			failure: function(o) {return false}
-	}
-	var transaction = YAHOO.util.Connect.asyncRequest('HEAD', url, callback, null);
-}
+	$.ajax({type:'HEAD', url:url, success:function(){return true;},error:function(){return false;}});
+};
 
 /**
  * Given an html string, removes all whitespace and returns that string
@@ -82,18 +78,6 @@ function checkAccessibility(url) {
  */
 function normalizeHTML(html){
 	return html.replace(/\s+/g,'');
-};
-
-/**
- * Finds and injects the vle url for any relative references
- * found in content.
- */
-function injectVleUrl(content){
-	var loc = window.location.toString();
-	var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
-	
-	content = content.replace(/(src='|src="|href='|href=")(?!http|\/)/gi, '$1' + vleLoc);
-	return content;
 };
 
 // define array.contains method, which returns true iff the array
@@ -115,11 +99,117 @@ if(!Array.indexOf){
         for(var i=0; i<this.length; i++){
             if(this[i]==obj){
                 return i;
-            };
-        };
+            }
+        }
         return -1;
     };
+}
+
+/**
+ * Array prototype that takes in a function which is passed
+ * each element in the array and returns an array of the return
+ * values of the function.
+ */
+if(!Array.map){
+	 Array.prototype.map = function(fun){
+		 var out = [];
+		 for(var k=0;k<this.length;k++){
+			 out.push(fun(this[k]));
+		 }
+		 return out;
+	 };
 };
 
+/**
+ * Adds a compare function to Array.prototype if one
+ * does not exist
+ */
+if(!Array.compare){
+	Array.prototype.compare = function(testArr) {
+	    if (this.length != testArr.length) return false;
+	    for (var i = 0; i < testArr.length; i++) {
+	        if (this[i].compare) { 
+	            if (!this[i].compare(testArr[i])) return false;
+	        };
+	        if (this[i] !== testArr[i]) return false;
+	    };
+	    return true;
+	};
+};
+
+/**
+ * Hides the element with the given id
+ */
+function hideElement(id){
+	document.getElementById(id).style.display = 'none';
+};
+
+/**
+ * Shows the element with the given id
+ */
+function showElement(id){
+	document.getElementById(id).style.display = 'block';
+};
+
+/**
+ * Given an html element obj, returns its absolute location
+ * (left & top) in the page.
+ * 
+ * @param HTML Element
+ * @return obj {left, top}
+ */
+function findPos(obj) {
+	var curleft = curtop = 0;
+	if (obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return {left: curleft, top: curtop};
+};
+
+/**
+ * Returns the number of fields that the given object has.
+ */
+function objSize(obj){
+	var count = 0;
+	for(var field in obj){
+		if(obj.hasOwnProperty(field)){
+			count++;
+		};
+	};
+	return count;
+};
+
+
+/**
+ * Creates an xml doc object from the xml string
+ * @param txt xml text
+ * @return
+ */
+function loadXMLDocFromString(txt) {
+	try //Internet Explorer
+	{
+		xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+		xmlDoc.async="false";
+		xmlDoc.loadXML(txt);
+		return(xmlDoc); 
+	}
+	catch(e)
+	{
+		try //Firefox, Mozilla, Opera, etc.
+		{
+			parser=new DOMParser();
+			xmlDoc=parser.parseFromString(txt,"text/xml");
+			return(xmlDoc);
+		}
+		catch(e) {alert(e.message)}
+	}
+	return(null);
+}
+
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/common/helperfunctions.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/common/helperfunctions.js');
+};

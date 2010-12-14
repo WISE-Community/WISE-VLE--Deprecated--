@@ -2,9 +2,10 @@
  * Object for storing the student's response to the brainstorm
  */
 function BRAINSTORMSTATE(response, timestamp){
+	this.type = "bs";
 	this.response = response;
 	if(arguments.length == 1) {
-		this.timestamp = new Date().toUTCString();
+		this.timestamp = Date.parse(new Date());
 	} else {
 		this.timestamp = timestamp;
 	};
@@ -29,9 +30,28 @@ BRAINSTORMSTATE.prototype.parseDataXML = function(stateXML) {
 	}
 };
 
+/**
+ * Takes in a state JSON object and returns an BRAINSTORMSTATE object
+ * @param stateJSONObj a state JSON object
+ * @return a BRAINSTORMSTATE object
+ */
+BRAINSTORMSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
+	//create a new BRAINSTORMSTATE object
+	var brainState = new BRAINSTORMSTATE();
+	
+	//set the attributes of the BRAINSTORMSTATE object
+	brainState.response = stateJSONObj.response;
+	brainState.timestamp = stateJSONObj.timestamp;
+	
+	//return the BRAINSTORMSTATE object
+	return brainState;
+}
+
 BRAINSTORMSTATE.prototype.getStudentWork = function() {
 	return this.response;
 }
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/brainstorm/brainstormstate.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/brainstorm/brainstormstate.js');
+};

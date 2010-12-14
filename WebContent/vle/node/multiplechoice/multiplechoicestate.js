@@ -2,7 +2,11 @@
  * Object for storing state information of MultipleChoice item.
  */
 function MCSTATE(args) {
+	this.type = "mc";
 	this.isCorrect = null;
+	
+	//stores the human readable value of the choice chosen
+	this.response = new Array();
 
 	//use the current time or the argument timestamp passed in
 	if(args){
@@ -13,10 +17,14 @@ function MCSTATE(args) {
 		if(args[1]){
 			this.choices = args[1];
 		};
+		
+		if(args[2]){
+			this.score = args[2];
+		}
 	};
 	
 	if(!this.timestamp){
-		this.timestamp = new Date().toUTCString();
+		this.timestamp = new Date().getTime();
 	};
 	
 	if(!this.choices){
@@ -29,64 +37,42 @@ function MCSTATE(args) {
  */
 MCSTATE.prototype.addChoice = function(choice) {
 	this.choices.push(choice);
-}
+};
+
+/*
+ * Add the human readable value of the choice chosen
+ */
+MCSTATE.prototype.addResponse = function(response) {
+	this.response.push(response);
+};
 
 MCSTATE.prototype.print = function() {
-}
+};
 
 /**
- * Returns xml representation of this student state for student data logging
- * and storage in the db.
- * @return an xml string that contains the student's work which includes
- * 		the choices they chose and a timestamp
+ * Takes in a state JSON object and returns an MCSTATE object
+ * @param stateJSONObj a state JSON object
+ * @return an MCSTATE object
  */
-MCSTATE.prototype.getDataXML = function() {
-	var dataXML = "<choices>";
-	for(var x=0; x<this.choices.length; x++) {
-		dataXML += "<choice>" + this.choices[x] + "</choice>";
-	}
-	dataXML += "</choices>";
-	dataXML += "<isCorrect>" + this.isCorrect + "</isCorrect>";
-	dataXML += "<timestamp>" + this.timestamp + "</timestamp>";
+MCSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
+	//create a new MCSTATE object
+	var mcState = new MCSTATE();
 	
-	return dataXML;
-}
+	//set the attributes of the MCSTATE object
+	mcState.isCorrect = stateJSONObj.isCorrect;
+	mcState.timestamp = stateJSONObj.timestamp;
+	mcState.choices = stateJSONObj.choices;
+	mcState.score = stateJSONObj.score;
+	
+	/*
+	 * an array containing the human readable value of the choice(s)
+	 * chosen by the student
+	 */
+	mcState.response = stateJSONObj.response;
 
-/**
- * Creates a state object from an xml object. Used to convert xml
- * into a real object such as when loading a project in the authoring
- * tool.
- * 
- * @param an xml object
- * @return a state object
- */
-MCSTATE.prototype.parseDataXML = function(stateXML) {
-	var choicesXML = stateXML.getElementsByTagName("choices")[0];
-	var choicesXMLArray = choicesXML.getElementsByTagName("choice");
-	var choiceArray = new Array();
-	
-	//loop through all the choices
-	for(var x=0; x<choicesXMLArray.length; x++) {
-		var choice = choicesXMLArray[x];
-		var choiceValue = choice.textContent;
-		choiceArray.push(choiceValue);
-	}
-	
-	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
-	var isCorrect = Boolean(stateXML.getElementsByTagName("isCorrect")[0].firstChild.nodeValue);
-	
-	if(timestamp == undefined || choiceArray.length == 0) {
-		return null;
-	} else {
-		/*
-		 * create and return the state if we've obtained sufficient data
-		 * from the xml
-		 */ 
-		var state = new MCSTATE(timestamp.textContent, choiceArray)
-		state.isCorrect = isCorrect;
-		return state;		
-	}
-}
+	//return the MCSTATE object
+	return mcState;
+};
 
 /**
  * Returns human readable form of the choices the student chose
@@ -94,16 +80,41 @@ MCSTATE.prototype.parseDataXML = function(stateXML) {
 MCSTATE.prototype.getHumanReadableForm = function() {
 	var humanReadableText = "isCorrect: " + this.isCorrect;
 	humanReadableText += "choices: " + this.choices;
+	humanReadableText += "score: " + this.score;
 	return humanReadableText;
-}
+};
 
 /**
- * Returns the choice the student chose
- * @return the choice identifier the student chose
+ * Returns the human readable choices the student chose
+ * @return a string containing the human readable choices
+ * 		the student chose. if the step is check box type
+ * 		the choices chosen will be separated by a comma
  */
 MCSTATE.prototype.getStudentWork = function() {
-	return this.choices;
-}
+	var studentWork = "";
+	
+	//check if there were any choices chosen
+	if(this.response) {
+		//loop through the array of choices
+		for(var x=0; x<this.response.length; x++) {
+			if(studentWork != "") {
+				//separate each choice with a comma
+				studentWork += ", ";
+			}
+			
+			//add the choice to the student work
+			studentWork += this.response[x];
+		}
+		
+		if(this.score){
+			studentWork += " score: " + this.score;
+		}
+	}
+	
+	return studentWork;
+};
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/multiplechoice/multiplechoicestate.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/multiplechoice/multiplechoicestate.js');
+}

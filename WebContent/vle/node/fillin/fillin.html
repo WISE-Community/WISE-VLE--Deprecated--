@@ -24,8 +24,6 @@
 -->
 <html>
     <head>
-        <script type="text/javascript" src="util/scriptloader.js">
-        </script>
         <script type="text/javascript">
         var fi;   // global variable so it can be accessed by other functions
         var states = [];  // array of FILLINSTATE objects
@@ -37,18 +35,16 @@
         }
 
         
-        function loadContent(args){
-        	scriptloader.initialize(document, loadContentAfterScriptsLoad, 'fillin', args);
+        function loadContent(node){
+        	scriptloader.loadScripts('fillin', node.contentPanel.window.document, node.id, eventManager);
         };
 
         /**
          * Runs after the scripts for this page have been dynamically loaded
          */
-        function loadContentAfterScriptsLoad(args){
-        	fi = new FILLIN(args[0]);
+        function loadContentAfterScriptsLoad(node){
+        	fi = new FILLIN(node);
       		fi.render(currentTextEntryInteractionIndex);
-      		fi.setVLE(args[1]);
-      		afterScriptsLoad();
         };
         
         function checkAnswer() {
@@ -89,21 +85,6 @@
          newWin.focus();
         }
         </script>
-        <script type="text/javascript">
-            function afterScriptsLoad(){
-              
-            }
-            
-            window.onload = function(){
-                if (!window.parent) {
-                    scriptloader.initialize(document, afterScriptsLoad, 'fillin');
-                } else if(window.loadAuthoring){
-						scriptloader.initialize(document, loadAuthoring, 'fillin');
-                } else if(window.renderComplete){
-					renderComplete();
-            	};
-             };
-        </script>
     </head>
     <body>
         <div id="centeredDiv">
@@ -112,14 +93,15 @@
                     <tr>
                         <td>
                             <div id="helpIcon">
-                                <a href="node/fillin/FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp&nbsp&nbsp</a>
+                                <a href="node/fillin/FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp;&nbsp;&nbsp;</a>
                             </div>
                         </td>
                         <td>
-                            <a id="helpTextLink" href="node/fillin/FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">instructions</a>
+                            <a id="helpTextLink" href="node/fillin/FillBlankInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">help</a>
                         </td>
                     </tr>
                 </table>
+            	<div id="previousWorkDiv"></div>
                 <div id="questionTable">
                     <div id="questionType">
                         Fill in the Blank
@@ -127,7 +109,7 @@
                 </div>
             </div>
             <!-- end of questinCountBox -->
-            <div>
+            <div style="display:none;">
                 <div id="promptDiv" class="color1">
                     Fill each blank with the correct word(s).
                 </div>
@@ -152,7 +134,7 @@
                 <table id="buttonTable">
                     <tr>
                         <td>
-                            <a id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                            <a class="firstButton" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
                         </td>
                         <td>
                             <a id="tryAgainButton" onClick="javascript:tryAgain();">Try Again</a>

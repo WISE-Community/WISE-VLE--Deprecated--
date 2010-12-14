@@ -8,7 +8,7 @@
 /**
  * Constructor
  */
-function Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, postTime) {
+function Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, postTime, stepWorkId) {
 	this.runId = runId;
 	this.nodeId = nodeId; //the node/step related to this annotation
 	this.toWorkgroup = toWorkgroup; //the id for the entity that wrote the work
@@ -16,46 +16,59 @@ function Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, post
 	this.type = type; //specifies the type of annotation
 	this.value = value; //the feedback/grading
 	this.postTime = postTime;
+	this.stepWorkId = stepWorkId;
 }
 
+
 /**
- * Parses an annotation xml object into an Annotation object
- * @param annotationXML an xml object containing an annotation XML
- * @return an annotation object
+ * Converts an annotation JSON String into an Annotation object
+ * @param annotationJSONString an annotation JSON string
+ * @return a populated Annotation object
  */
-Annotation.prototype.parseDataXML = function(annotationXML) {
+Annotation.prototype.parseDataJSONString = function(annotationJSONString) {
+	//convert the JSON string into a JSON object
+	var annotationJSONObj = $.parseJSON(annotationJSONString);
+	
+	//convert the annotation JSON object into an Annotation object
+	return Annotation.prototype.parseDataJSONObj(annotationJSONObj);
+}
+
+
+/**
+ * Creates an Annotation object from an annotation JSON object
+ * @param annotationJSONObj an annotation JSON object
+ * @return an Annotation object
+ */
+Annotation.prototype.parseDataJSONObj = function(annotationJSONObj) {
+	//create a new Annotation
 	var annotation = new Annotation();
 	
-	//populate the fields from the xml object
-	annotation.runId = annotationXML.getElementsByTagName("runId")[0].firstChild.nodeValue;
-	annotation.nodeId = annotationXML.getElementsByTagName("nodeId")[0].firstChild.nodeValue;
-	annotation.toWorkgroup = annotationXML.getElementsByTagName("toWorkgroup")[0].firstChild.nodeValue;
-	annotation.fromWorkgroup = annotationXML.getElementsByTagName("fromWorkgroup")[0].firstChild.nodeValue;
-	annotation.type = annotationXML.getElementsByTagName("type")[0].firstChild.nodeValue;
-	annotation.value = annotationXML.getElementsByTagName("value")[0].firstChild.nodeValue;
-	//annotation.postTime = annotationXML.getElementsByTagName("postTime")[0].firstChild.nodeValue;
+	//populate the fields of the Annotation object from the JSON object
+	annotation.runId = annotationJSONObj.runId;
+	annotation.nodeId = annotationJSONObj.nodeId;
+	annotation.toWorkgroup = annotationJSONObj.toWorkgroup;
+	annotation.fromWorkgroup = annotationJSONObj.fromWorkgroup;
+	annotation.type = annotationJSONObj.type;
+	annotation.value = annotationJSONObj.value;
+	annotation.postTime = annotationJSONObj.postTime;
+	annotation.stepWorkId = annotationJSONObj.stepWorkId;
 	
+	//only used when student retrieves flagged work
+	if(annotationJSONObj.data) {
+		annotation.data = NODE_VISIT.prototype.parseDataJSONObj(annotationJSONObj.data);	
+	}
+	
+	//only used when student retrieves flagged work
+	if(annotationJSONObj.annotationComment) {
+		annotation.annotationComment = Annotation.prototype.parseDataJSONObj(annotationJSONObj.annotationComment);
+	}
+	
+	//return the Annotation
 	return annotation;
 }
 
-/**
- * Returns the xml string value for this Annotation object
- * @return xml string
- */
-Annotation.prototype.getDataXML = function() {
-	var dataXML = "";
-	
-	dataXML += "<annotationEntry>";
-	dataXML += "<runId>" + this.runId + "</runId>";
-	dataXML += "<nodeId>" + this.nodeId + "</nodeId>";
-	dataXML += "<toWorkgroup>" + this.toWorkgroup + "</toWorkgroup>";
-	dataXML += "<fromWorkgroup>" + this.fromWorkgroup + "</fromWorkgroup>";
-	dataXML += "<type>" + this.type + "</type>";
-	dataXML += "<value>" + this.value + "</value>";
-	dataXML += "</annotationEntry>";
-	
-	return dataXML;
-}
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/grading/Annotation.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/grading/Annotation.js');
+};

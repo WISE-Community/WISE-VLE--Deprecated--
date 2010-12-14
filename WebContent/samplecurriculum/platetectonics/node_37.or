@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "In your own words, describe transform boundaries. What are some geologic events/features that happen at transform boundaries? &lt;br /&gt;&lt;br /&gt; *Hint: If you need to review plate boundary types, you can go to 3.4. If you need to review geologic events/features, you can go to 3.5.",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "Transform boundaries are... Geologic events/features that occur at transform boundaries are..."
+   },
+   "type": "Note"
+}

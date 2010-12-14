@@ -40,13 +40,6 @@ function getAndUpdate() {
 			//alert('failure: ' + o.statusText + ' ' + o.argument);
 		}
 		};
-		/*
-		 * the data to send back to the db which includes id, and the xml
-		 * representation of the students navigation and work 
-		 */ 
-		//the async call to send the data back to the db
-		//YAHOO.util.Connect.asyncRequest('GET', postURL, callback);
-	
 }
 
 function createStudentWorkQueryObject(vle) {
@@ -114,7 +107,6 @@ function createStudentWorkQueryObject(vle) {
 			},
 			argument: ["a", "b", "c"]
 	};
-	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
 }
 
 
@@ -193,7 +185,6 @@ function createStudentWorkQueryObjectForStudentsWork(vle) {
 			},
 			argument: ["a", "b", "c"]
 	};
-	YAHOO.util.Connect.asyncRequest('GET', getURL, callback);
 }
 
 function printNodeId(nodeId) {

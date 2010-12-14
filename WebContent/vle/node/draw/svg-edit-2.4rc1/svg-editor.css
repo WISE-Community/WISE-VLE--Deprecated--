@@ -1,0 +1,1559 @@
+body {
+	background: #E8E8E8;
+}
+
+#svg_editor {
+	font-size: 8pt;
+	font-family: Verdana, Helvetica, Arial;
+	color: #000000;
+}
+
+#svg_editor a {
+	color: #0000FF;
+}
+
+#svg_editor hr {
+	border: none;
+	border-bottom: 1px solid #808080;
+}
+
+#svg_editor select {
+	margin-top: 4px;
+}
+
+/* wise4 */
+#svg_editor #svgroot {
+	-moz-user-select: none;
+	/*position: absolute;
+	top: 0;
+	left: 0;*/
+}
+/*#svg_editor #svgroot {
+	-moz-user-select: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+}*/
+
+#svg_editor #svgcanvas {
+	background-color: #FFFFFF;
+	text-align: center;
+	vertical-align: middle;
+	width: 600px;
+	height: 450px;
+	/*width: 640px;
+	height: 480px;*/
+	top:0px !important;
+	-apple-dashboard-region:dashboard-region(control rectangle 0px 0px 0px 0px); /* for widget regions that shouldn't react to dragging */
+	position: relative;
+}
+
+/* wise4 */
+#svg_editor div#palette_preview {
+	
+	height:50px;
+	margin:5px 10px 10px 8px;
+	border:1px solid #777;
+}
+
+/* wise4 */
+#svg_editor div#palette_holder {
+	display:none;
+	position:absolute;
+	text-align:center;
+	border:1px solid #777777;
+	padding:5px 2px 3px 5px;
+	background-color:#E8E8E8;
+}
+
+/*#svg_editor div#palette_holder {
+	overflow-x: scroll;
+	overflow-y: hidden;
+	height: 31px;
+	border: 1px solid #808080;
+	border-top: none;
+	margin-top: 2px;
+}*/
+
+/* wise4 */
+#svg_editor #stroke_bg, 
+#svg_editor #fill_bg {
+	height: 26px;
+	width: 26px;
+	margin: 2px;
+}
+
+/* wise4 */
+#svg_editor #fill_color, #svg_editor #stroke_color {
+	height: 26px;
+	width: 26px;
+	border: 1px solid #808080;
+	cursor: pointer;
+	margin-top: -29px;
+	margin-left: 2px;
+}
+
+/*#svg_editor #stroke_bg, 
+#svg_editor #fill_bg {
+	height: 16px;
+	width: 16px;
+	margin: 2px;
+}
+
+#svg_editor #fill_color, #svg_editor #stroke_color {
+	height: 16px;
+	width: 16px;
+	border: 1px solid #808080;
+	cursor: pointer;
+	margin-top: -19px;
+	margin-left: 1px;
+}*/
+
+/* wise4 */
+#svg_editor div#palette {
+	float:left;
+	padding:0;
+	margin:0;
+	width:110px;
+}
+
+/*#svg_editor div#palette {
+	float: left;
+	width: 6848px;
+	height: 16px;
+}*/
+
+/* wise4 */
+#svg_editor div#work_wrapper {
+	/*display:inline-block;*/
+	clear:both;
+	width:100%;
+}
+
+/* wise4 */
+#svg_editor div#workarea {
+	margin-right:2px;
+	padding:10px 10px;
+	background-color: #A0A0A0;
+	border: 1px solid #808080;
+	overflow: auto;
+	height:460px;
+}
+/*#svg_editor div#workarea {
+	display: inline-block;
+	position:absolute;
+	top: 75px;
+	left: 40px;
+	bottom: 60px;
+	right: 14px;
+	background-color: #A0A0A0;
+	border: 1px solid #808080;
+	overflow: auto;
+}*/
+
+/* wise4 */
+#svg_editor div#workarea #draw_description {
+}
+
+#svg_editor div#workarea #draw_description_content {
+	height:15px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	width:490px;
+	margin-left:5px;
+}
+
+#svg_editor div#workarea #snap_description {
+}
+
+#svg_editor #snap_description #snap_description_wrapper, #svg_editor #draw_description #draw_description_wrapper {
+	/*background-color:#FFD9AC;*/
+	background-color:#E8E8E8;
+	padding:5px;
+	border-radius:5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	height:102px;
+	width:90%;
+	margin:10px auto 0;
+	text-align:left;
+}
+
+#svg_editor #draw_description #draw_description_wrapper {
+	height:15px;
+	width:600px;
+}
+
+#svg_editor #draw_description #edit_description {
+	float:right !important;
+	cursor:pointer;
+}
+
+#svg_editor #draw_description #draw_description_wrapper div {
+	float:left;
+}
+
+#svg_editor #draw_description #draw_description_header {
+	font-weight:bold;
+}
+
+#svg_editor #snap_description .snap_description_header {
+	font-weight:bold;
+	margin:0 0 5px;
+	padding:0;
+	font-size:12px;
+}
+
+#svg_editor div#workarea .description_header_text {
+	float:left;
+}
+
+#svg_editor div#workarea .description_header_text span {
+	font-weight:normal;
+	font-size:10px;
+}
+
+/* wise4 */
+#svg_editor div#workarea #snap_description_content {
+	width:97%;
+	height:65px;
+	padding:5px;
+	font-size:1.2em;
+	line-height:1.3em;
+	margin-top:5px;
+	background-color:#FFFFFF;
+}
+
+#svg_editor div#workarea #description_buttons {
+	padding:0;
+	margin-left:10px;
+	float:right;
+}
+
+#svg_editor div#workarea #description_buttons button {
+	margin:0;
+	overflow:visible;
+	padding:0.1em 0.2em 0.1em;
+}
+
+/* wise4 */
+#svg_editor #sidepanels {
+	/*display: inline-block;
+	position:absolute;*/
+	/*top: 75px;
+	bottom: 60px;*/
+	height:470px;
+	float:right;
+	width: 205px;
+	z-index:999;
+	display:none;
+	/*border-color: #808080;
+	border-style: solid;
+	border-width: 1px;
+	border-left: none;*/
+}
+/*#svg_editor #sidepanels {
+	display: inline-block;
+	position:absolute;
+	top: 75px;
+	bottom: 60px;
+	right: 0px;
+	width: 2px;
+	padding: 10px;
+	border-color: #808080;
+	border-style: solid;
+	border-width: 1px;
+	border-left: none;
+}*/
+
+/* Snapshots Panel (wise4)
+ ------------------------------------- */
+#svg_editor #snapshotpanel {
+	background-color:#A0A0A0;
+	margin:0 5px;
+	padding:3px;
+	height:474px;
+	width:190px;
+	border:1px solid #777777;
+}
+
+#svg_editor #snapshot_header {
+	border:1px solid #777777;
+	color:#000000;
+	height:17px;
+	padding:2px 5px;
+	background-color:#E8E8E8;
+}
+
+#svg_editor #snapshot_header a {
+	font-size:.9em;
+}
+
+#svg_editor #snapshot_tools div {
+	display:inline;
+}
+
+#svg_editor #snapshots {
+	background-color:#FFFFFF;
+	margin:3px 0;
+	padding:5px;
+	height:410px;
+	border:1px solid #777777;
+}
+
+#svg_editor #snapshots #snap_images {
+	overflow:auto;
+	height:380px;
+}
+
+#svg_editor #snapshots div.snap_delete {
+	-moz-border-radius-bottomleft:4px;
+	background:#333333 none repeat scroll 0 0;
+	width:7px;
+	float:right;
+	margin-right:-2px;
+	margin-top:-115px;
+	opacity:0.5;
+	padding:2px 5px 2px 6px;
+	color:#FFFFFF;
+}
+
+#svg_editor #snapshots div.snap_delete span:hover {
+	opacity:1;
+}
+
+#svg_editor #snapshots div.snap_num {
+	-moz-border-radius-topright:4px;
+	background:#333333;
+	color:#FFFFFF;
+	float:left;
+	font-size:1.2em;
+	margin-left:-2px;
+	margin-top:-18px;
+	opacity:0.5;
+	padding:2px 6px 2px 4px;
+}
+
+#svg_editor #snapshots div.snap_wrapper {
+	float:left;
+}
+
+#svg_editor #snapshots div.snap {
+	background-color:#FFFFFF;
+	width:150px;
+	height:112.5px;
+	padding:2px;
+	margin:auto auto 5px;
+	border:2px solid #999999;
+	cursor:pointer;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+}
+
+#svg_editor #snapshots div.hover {
+	border:2px solid #555555;
+	background-color:#DDDDDD;
+}
+
+#svg_editor #snapshots div.snap.active {
+	background-color:#CCCCCC !important;
+	border-color:#333333 !important;	
+}
+
+#svg_editor #play_controls {
+	border:1px solid #777777;
+	color:#000000;
+	height:17px;
+	padding:2px 5px;
+	background-color:#E8E8E8;
+}
+
+#svg_editor .snap_controls {
+	float:left;
+	margin:4px 4px 0 0;
+	cursor:pointer;
+}
+
+#svg_editor #play_controls #play_speed {
+	width:58px;
+	float:right;
+	margin:5px 3px 0 5px;
+	cursor:pointer;
+}
+
+#svg_editor #play_controls #current_speed {
+	float:right;
+	margin:2px 0 0 5px;
+	text-align:right;
+	width:72px;
+}
+
+#svg_editor #play_controls #previous {
+	margin: 4px 0 0;
+}
+
+#svg_editor #snapshotpanel .label {
+	margin:0 2px;
+}
+
+#svg_editor #snapshotpanel h3 {
+	font-weight:bold;
+	margin:0;
+	float:left;
+}
+
+.placeholder {
+	width:150px;
+	height:112.5px;
+	border:1px dashed #555555;
+	background-color:#DDDDDD;
+	padding:2px;
+	margin:auto auto 5px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+}
+
+/* wise4 */
+#svg_editor #layerpanel {
+	/*display: inline-block;*/
+	background-color: #E8E8E8;
+	/*position:absolute;*/
+	padding-top: 1px;
+	/*bottom: 0px;
+	right: 0px;*/
+	width: 0px;
+	overflow: hidden;
+	margin: 0px;
+}
+/*#svg_editor #layerpanel {
+	display: inline-block;
+	background-color: #E8E8E8;
+	position:absolute;
+	top: 1px;
+	bottom: 0px;
+	right: 0px;
+	width: 0px;
+	overflow: hidden;
+	margin: 0px;
+}*/
+
+/*
+	border-style: solid;
+	border-color: #666;
+	border-width: 0px 0px 0px 1px;	
+*/
+
+/* wise4 */
+#svg_editor #sidepanel_handle {
+	/*display: inline-block;
+	position: absolute;*/
+	background-color: #E8E8E8;
+	/*top: 38%;*/
+	height:100%;
+	position:relative;
+	width: 1em;
+	padding: 5px 1px 5px 5px;
+	margin-left: -10px;
+	cursor: pointer;
+	z-index:1000;
+	border:1px solid #777777;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-user-select: none;
+}
+/*#svg_editor #sidepanel_handle {
+	display: inline-block;
+	position: absolute;
+	background-color: #E8E8E8;
+	left: 0px;
+	top: 40%;
+	width: 1em;
+	padding: 5px 1px 5px 5px;
+	margin-left: 3px;
+	cursor: pointer;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-user-select: none;
+}*/
+
+#svg_editor #sidepanel_handle:hover {
+	font-weight: bold;
+}
+
+#svg_editor #sidepanel_handle * {
+	cursor: pointer;
+	-moz-user-select: none;
+}
+#svg_editor #layerbuttons {
+	margin: 0px;
+	padding: 0px;
+	padding-left: 2px;
+	padding-right: 2px;
+	width: 106px;
+	height: 20px;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+	border-left: 1px solid #808080;
+	border-top: 1px solid #808080;
+	overflow: auto;
+}
+
+#svg_editor .layer_button {
+	width: 14px;
+	height: 14px;
+	padding: 1px;
+	border-left: 1px solid #FFFFFF;
+	border-top: 1px solid #FFFFFF;
+	border-right: 1px solid #808080;
+	border-bottom: 1px solid #808080;
+	cursor: pointer;
+	float: left;
+	margin-right: 3px;
+}
+
+#svg_editor .layer_buttonpressed {
+	width: 14px;
+	height: 14px;
+	padding: 1px;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+	border-left: 1px solid #808080;
+	border-top: 1px solid #808080;
+	cursor: pointer;
+}
+
+#svg_editor #layerlist {
+	margin: 1px;
+	padding: 0px;
+	width: 110px;
+	border-collapse: collapse;	
+	border: 1px solid #808080;
+	background-color: #FFFFFF;
+}
+
+#svg_editor #layerlist tr.layer {
+	background-color: #FFFFFF;
+	margin: 0px;
+	padding: 0px;
+}
+#svg_editor #layerlist tr.layersel {
+	border: 1px solid #808080;
+	background-color: #CCCCCC;
+}
+
+#svg_editor #layerlist td.layervis {
+	width: 22px;
+	cursor:pointer;
+}
+#svg_editor #layerlist td.layerinvis {
+	background-image: none;
+	cursor:pointer;
+}
+
+#svg_editor #layerlist td.layervis * {
+	display: block;
+}
+
+#svg_editor #layerlist td.layerinvis * {
+	display: none;
+}
+
+#svg_editor #layerlist td.layername {
+	cursor: pointer;
+}
+
+#svg_editor #layerlist tr.layersel td.layername {
+	font-weight: bold;
+}
+
+#svg_editor #selLayerLabel {
+	white-space: nowrap;
+}
+
+#svg_editor #selLayerNames {
+	display: block;
+}
+
+/* wise4 */
+#svg_editor div.palette_item {
+	border:1px inset #AAAAAA;
+	cursor:pointer;
+	float:left;
+	height:14px;
+	margin:1px;
+	width:14px;
+}
+/*#svg_editor div.palette_item {
+	height: 16px;
+	width: 16px;
+	float: left;
+}*/
+
+#svg_editor #logo {
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	padding: 0px;
+}
+
+#svg_editor #logo a img {
+	border: 0;
+	width: 32px;
+	height: 32px;
+}
+
+/* wise4 */
+#svg_editor #tools_top {
+	/*position: absolute;*/
+	margin-left: 34px;
+	margin-right:10px;
+	margin-top:-5px;
+	border-bottom: none;
+	float:left;
+	width:99%;
+	min-height:70px;
+	/* Ideally this should be auto (makes scrollbar if needed), but currently hides 
+	the .dropdown lists.
+/*	overflow: auto;*/
+}
+
+/*#svg_editor #tools_top {
+	position: absolute;
+	left: 38px;
+	right: 2px;
+	top: 2px;
+	height: 72px;
+	border-bottom: none;*/
+	/* Ideally this should be auto (makes scrollbar if needed), but currently hides 
+	the .dropdown lists.
+/*	overflow: auto;*/
+/*}*/
+
+/* wise4 */
+#svg_editor #tools_left {
+	/*position: absolute;*/
+	float:left;
+	border-right: none;
+	width: 36px;
+	/*top: 75px;*/
+	margin-left: -4px;
+	margin-top:-2px;
+}
+
+/*#svg_editor #tools_left {
+	position: absolute;
+	border-right: none;
+	width: 36px;
+	top: 75px;
+	left: 2px;
+}*/
+
+/* wise4 */
+#svg_editor #tools_left hr {
+	margin-right:4px;
+	width:85%;
+}
+
+#svg_editor #fill_tool_left, #svg_editor #stroke_tool_left {
+	text-align:center;
+	margin-right:4px;
+}
+
+#svg_editor #stroke_tool_left {
+	margin-top:2px;
+	font-size:11px;
+}
+
+#svg_editor #stroke_width {
+	padding:2px 6px 2px 1px;
+	margin-top:4px;	
+}
+
+#workarea.wireframe #svgcontent * {
+	fill: none;
+	stroke: #000;
+	stroke-width: 1px;
+	stroke-opacity: 1.0;
+	stroke-dasharray: 0;
+	opacity: 1;
+	pointer-events: stroke;
+	vector-effect: non-scaling-stroke;
+}
+
+#workarea.wireframe #svgcontent text {
+	fill: #000;
+	stroke: none;
+}
+
+
+#svg_editor #selected_panel,
+#svg_editor #multiselected_panel,
+#svg_editor #g_panel,
+#svg_editor #rect_panel,
+#svg_editor #circle_panel,
+#svg_editor #ellipse_panel,
+#svg_editor #line_panel,
+#svg_editor #image_panel,
+#svg_editor #text_panel,
+#svg_editor #path_node_panel {
+	display: none;
+}
+
+#svg_editor #multiselected_panel .selected_tool {
+	vertical-align: 12px;
+}
+
+/*wise4*/
+#svg_editor #opac_slider {
+	width:92%;
+	margin:auto;
+}
+
+#svg_editor #tools_top > div, #tools_top {
+	line-height: 26px;
+}
+
+#svg_editor div.toolset,
+#svg_editor div.toolset > *{
+	float: left;
+}
+
+#svg_editor div.toolset {
+	height: 34px;
+}
+
+
+#tools_top > div > * {
+	float: left;
+	margin-right: 2px;
+}
+
+#tools_top label {
+	margin-top: 3px;
+	margin-left: 5px;
+}
+
+#tools_top input {
+	margin-top: 5px;
+	height: 15px;
+}
+
+/*wise4 */
+#tools_top input#text {
+	border:1px solid #808080;
+	background-color:#FEFF6F;
+	height:18px;
+	margin-top:5px;
+	padding:3px 2px 0;
+}
+
+#tools_top input#text:focus {
+	border-color:#3CB371;
+}
+
+#svg_editor .flyout_arrow_horiz {
+	float: right;
+	position: relative;
+	top: -13px;
+	left: -5px;
+	margin-top: -3px;
+	/*margin-bottom: -13px;*/
+	margin-bottom: -13px; /*wise4*/
+}
+
+.magic_field > * {
+	float: left;
+}
+
+span.zoom_tool {
+	line-height: 26px;
+	padding: 3px;
+}
+
+.magic_field input {
+	margin-top: 5px;
+}
+
+.dropdown {
+	position: relative;
+	z-index:100;
+}
+
+#svg_editor .dropdown button {
+	width: 15px;
+	height: 21px;
+	margin: 6px 0 0 1px;
+	padding: 0;
+	border-left: 1px solid #FFFFFF;
+	border-top: 1px solid #FFFFFF;
+	border-right: 1px solid #808080;
+	border-bottom: 1px solid #808080;
+	background-color: #E8E8E8;
+}
+
+.dropdown button.down {
+	border-left: 1px solid #808080;
+	border-top: 1px solid #808080;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+	background-color: #B0B0B0;
+}
+
+.dropdown ul {
+	list-style: none;
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	/*left: -93px;*/
+	left: -100px; /*wise4*/
+	top: 26px;
+	display: none;
+}
+
+.dropup ul {
+	top: auto;
+	bottom: 26px;
+}
+
+.dropdown li {
+	display: block;
+	width: 120px;
+	padding: 4px;
+	background: #E8E8E8;
+	border: 1px solid #B0B0B0;
+	margin: 0 0 -1px 0;
+	line-height: 16px;
+}
+
+.dropdown li:hover {
+	background-color: #B0B0B0;
+}
+
+.dropdown li.special {
+	padding: 10px 4px; 
+}
+
+.dropdown li.special:hover {
+	background: #E8E8E8;
+}
+
+#font_family_dropdown li {
+	font-size: 1.4em;
+}
+
+#font_family {
+	margin-left: 5px;
+	margin-right: 0;
+}
+
+#opacity_dropdown li {
+	width: 140px;
+}
+
+#svg_editor .tool_button, 
+#svg_editor .push_button,
+#svg_editor .tool_button_current, 
+#svg_editor .tool_button_disabled {
+	height: 24px;
+	width: 24px;
+	margin: 2px;
+	padding: 2px;
+	/*border-left: 1px solid #FFFFFF;
+	border-top: 1px solid #FFFFFF;
+	border-right: 1px solid #808080;
+	border-bottom: 1px solid #808080;
+	* updated to svg-edit 2.5 styling
+	*/
+	-moz-border-radius:5px 5px 5px 5px;
+	-webkit-border-radius:5px 5px 5px 5px;
+	border-radius:5px 5px 5px 5px;
+	background-color:#E8E8E8;
+	border-color:#FFFFFF #808080 #808080 #FFFFFF;
+	border-left:1px solid #FFFFFF;
+	border-style:solid;
+	border-width:1px;
+	cursor: pointer;
+}
+
+#svg_editor .tool_button_current,
+#svg_editor .push_button_pressed {
+	/*border-left: 1px solid #808080;
+	border-top: 1px solid #808080;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+	background-color: #B0B0B0;
+	* updated to svg-edit 2.5 styling
+	*/
+	background-color:#F4E284 !important;
+	/*border-left:1px solid #663300 !important;
+	border-top:1px solid #663300 !important;*/
+	border-color:#663300 #E0A874 #E0A874 #663300 !important;
+}
+
+#svg_editor .tool_button_disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+#svg_editor .tool_sep {
+	width: 1px;
+	background: #888;
+	border-left: 1px outset #EEE;
+	margin: 2px 3px;
+	padding: 0;
+	height: 24px;
+
+}
+
+#tool_bold, #tool_italic { 
+	font: bold 2.1em/1.1em serif;
+	text-align: center;
+	padding-left: 2px;
+	position: relative;
+}
+
+#tool_bold span, #tool_italic span { 
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0; left: 0;
+	background: #000;
+	opacity: 0;
+}
+
+#tool_italic {
+	font-weight: normal;
+	font-style: italic;
+}
+
+#url_notice {
+	padding-top: 4px;
+	display: none;
+}
+
+#svg_editor #color_picker {
+	position: absolute;
+	display: none;
+	background: #E8E8E8;
+	height: 350px;
+}
+
+#svg_editor .tools_flyout {
+	position: absolute;
+	display: none;
+	cursor: pointer;
+}
+
+#svg_editor .tools_flyout_v {
+	position: absolute;
+	display: none;
+	cursor: pointer;
+	width: 30px;
+}
+
+/*
+ *  stamp selector (wise4) 
+ */
+#svg_editor #tools_stamps {
+	background:#E8E8E8 !important;
+	display:none;
+	border:1px solid #777777;
+	cursor:default;
+}
+
+#svg_editor #tools_stamps .tools_title {
+	margin:5px;
+	font-weight:bold;
+}
+
+#svg_editor #tools_stamps #stamp_images {
+	margin:0 auto 5px;
+	padding:5px 0;
+	max-height:200px;
+	width:100px;
+	overflow:auto;
+	background-color:#FFFFFF;
+	text-align:center;
+}
+
+#svg_editor #tools_stamps .tool_image {
+	border:2px solid #999999;
+	max-height: 50px;
+	max-width: 50px;
+	cursor: pointer !important;
+	margin:4px;
+	padding:4px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+
+#svg_editor #tools_stamps .tool_image:hover {
+	background-color:#DDDDDD;
+	border-color:#555555;
+}
+
+#svg_editor #tools_stamps .tool_image_current {
+	background-color:#CCCCCC;
+	border:2px solid #333333 !important;
+}
+
+#svg_editor #svgcanvas img#stamp_preview {
+	opacity:.75;
+	display:none;
+	position:fixed;
+	cursor:crosshair;
+}
+
+/* TODO: figure out what more-specific selector causes me to write this atrocity and not
+         simply .tool_flyout_button */
+#svg_editor #tools_rect .tool_flyout_button, #svg_editor #tools_ellipse .tool_flyout_button {
+	float: left;
+	background-color: #E8E8E8;
+	border-left: 1px solid #FFFFFF;
+	border-top: 1px solid #FFFFFF;
+	border-right: 1px solid #808080;
+	border-bottom: 1px solid #808080;
+	height: 28px;
+	width: 28px;
+}
+
+#svg_editor .tool_button:hover, 
+#svg_editor .push_button:hover {
+	/*background-color: #FFF;
+	 * updated to svg-edit 2.5 styling
+	 */
+	background-color:#FFFFCC;
+	border-color:#FCD9BA #E0A874 #E0A874 #FCD9BA;
+	border-left:1px solid #FCD9BA;
+	border-style:solid !important;
+	border-width:1px !important;
+}
+
+/* updated to svg-edit 2.5 styling */
+#svg_editor .tool_flyout_button:hover {
+	background-color:#FFFFCC !important;
+	border-color:#FCD9BA #E0A874 #E0A874 #FCD9BA !important;
+	border-style:solid !important;
+	border-width:1px !important;
+}
+
+/*#svg_editor #tools_rect .tool_flyout_button_current, #svg_editor #tools_ellipse .tool_flyout_button_current {
+	border-left: 1px solid #808080;
+	border-top: 1px solid #808080;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+	background-color: #B0B0B0;
+}*/
+
+/* wise4 */
+#svg_editor #tools_bottom {
+	/*position: absolute;
+	left: 40px;
+	right: 2px;
+	bottom: 2px;*/
+	margin-left:32px;
+	/*height: 60px;*/
+	padding:2px;
+}
+
+/*#svg_editor #tools_bottom {
+	position: absolute;
+	left: 40px;
+	right: 2px;
+	bottom: 2px;
+	height: 60px;
+}*/
+
+#svg_editor #tools_bottom_1 {
+	width: 115px;
+	float: left;
+}
+
+#svg_editor #tools_bottom_2 {
+	width: 350px;
+	float: left;
+}
+
+/*wise4*/
+#svg_editor #tools_top_2 {
+	/*float:right;*/
+	position:absolute;
+	right:10px;
+	top:40px;
+	text-align: right;
+}
+
+/*wise4*/
+#svg_editor #tools_top_2 div {
+	padding:2px;
+	display:inline;
+	display:none;
+}
+
+/*wise4*/
+#svg_editor a {
+	text-decoration:underline;
+}
+
+/*wise4*/
+#svg_editor #tools_top_2 img, #svg_editor #snapshot_tools img {
+	vertical-align:middle;
+	height:24px;
+}
+
+/*wise4*/
+#svg_editor #snapshot_tools img {
+	height:18px;
+}
+
+/*wise4*/
+#svg_editor #tool_description, #svg_editor #tool_snapshot,
+#svg_editor .snapshot_new {
+	cursor:pointer;
+}
+
+/*wise4*/
+#svg_editor #tool_prompt {
+	display:none;
+	/*position:absolute;
+	right:12px;
+	top:48px;*/
+	cursor:pointer;
+}
+
+/*wise4*/
+#svg_editor #copyright {
+	text-align: right;
+	margin-top:2px;
+	margin-right:2px;
+}
+
+/*#svg_editor #copyright {
+	text-align: right;
+}*/
+
+#svg_source_editor {
+	display: none;
+}
+
+#svg_source_editor #svg_source_overlay {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	left: 0px;
+	bottom: 0px;
+	background-color: black;
+	opacity: 0.6;
+}
+
+#svg_source_editor #svg_source_container {
+	position: absolute;
+	top: 30px;
+	left: 30px;
+	right: 30px;
+	bottom: 30px;
+	background-color: #B0B0B0;
+	opacity: 1.0;
+	text-align: center;
+	border: 1px outset #777;
+}
+
+/*
+	top: 100px;
+	left: 80px;
+	right: 80px;
+	bottom: 100px;
+*/
+
+
+
+#svg_docprops #svg_docprops_container {
+	position: absolute;
+	top: 50px;
+	padding: 10px;
+	background-color: #B0B0B0;
+	border: 1px outset #777;
+	opacity: 1.0;
+/*	width: 450px;*/
+	font-family: Verdana, Helvetica, sans-serif;
+	font-size: .8em;
+}
+
+#svg_docprops #resolution {
+	max-width: 14em;
+}
+
+#tool_docprops_back {
+	margin-left: 1em;
+}
+
+#svg_docprops_container #svg_docprops_docprops, 
+#svg_docprops_container #svg_docprops_prefs {
+	float: left;
+	width: 221px;
+	margin: 5px .7em; 
+	overflow: hidden;
+}
+
+#svg_docprops_container #svg_docprops_prefs {
+	float: right;
+}
+
+#svg_docprops legend {
+	max-width: 195px;
+}
+
+#svg_docprops_docprops > legend, #svg_docprops_prefs > legend {
+	font-weight: bold;
+	font-size: 1.1em;
+}
+
+
+#svg_docprops_container fieldset {
+	padding: 5px;
+	margin: 5px;
+	border: 1px solid #DDD;
+}
+
+#svg_docprops_container label {
+	display: block;
+	margin: .5em;
+}
+
+#svginfo_bg_note {
+	font-size: .9em;
+	font-style: italic;
+	color: #444;
+}
+
+#canvas_title {
+	display: block;
+}
+
+#svg_source_editor #svg_source_textarea {
+	position: relative;
+	width: 95%;
+	top: 5px;
+	height: 250px;
+	padding: 5px;
+	font-size: 12px;
+}
+
+#svg_source_editor #tool_source_back {
+	text-align: left;
+	padding-left: 20px;
+}
+
+#svg_docprops_container div.color_block {
+	float: left;
+	margin: 2px;
+	padding: 20px;
+}
+
+#change_background div.cur_background {
+	border: 2px solid blue;
+	padding: 18px;
+}
+
+#background_img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	text-align: left;
+}
+
+#svg_source_editor button, #svg_docprops button {
+	padding: 5px 5px 7px 28px;
+	margin: 5px 20px 0 0;	
+}
+
+#svg_docprops button {
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+
+#svg_docprops {
+	display: none;
+}
+
+#image_save_opts label {
+	font-size: .9em;
+}
+
+#image_save_opts input {
+	margin-left: 0;
+}
+
+#svg_docprops #svg_docprops_overlay {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	left: 0px;
+	bottom: 0px;
+	background-color: black;
+	opacity: 0.6;
+}
+
+button#tool_source_save,
+button#tool_source_cancel,
+button#tool_docprops_save,
+button#tool_docprops_cancel {
+    border:1px solid #dedede;
+    line-height:130%;
+	background: #E8E8E8 none;
+    padding:5px 10px 5px 7px; /* Firefox */
+    line-height:17px; /* Safari */
+}
+
+.toolbar_button button .svg_icon {
+    margin:0 3px -3px 0 !important;
+    padding:0;
+    border:none;
+    width:16px;
+    height:16px;
+}
+
+#dialog_box {
+	display: none;
+}
+
+#dialog_box_overlay {
+	background: black;
+	opacity: .5;
+	height:100%;
+	left:0;
+	position:absolute;
+	top:0;
+	width:100%;
+}
+
+#dialog_content {
+	height: 95px;
+	margin: 10px 10px 5px 10px;
+	background: #DDD;
+	overflow: auto;
+	text-align: left;
+	border: 1px solid #B0B0B0;
+}
+
+#dialog_content.prompt {
+	height: 75px;
+}
+
+#dialog_content p {
+	margin: 10px;
+	line-height: 1.3em;
+}
+
+#dialog_container {
+	position: absolute;
+	font-family: Verdana;
+	text-align: center;
+	left: 50%;
+	top: 50%;
+	width: 300px;
+	margin-left: -150px;
+	height: 145px;
+	margin-top: -80px;
+	position:fixed;
+	z-index:50001;
+	background: #CCC;
+	border: 1px outset #777;
+	font-family:Verdana,Helvetica,sans-serif;
+	font-size:0.8em;
+}
+
+#dialog_buttons input[type=text] {
+	width: 90%;
+	display: block;
+	margin: 0 0 5px 11px;
+}
+
+#dialog_buttons input[type=button] {
+	margin: 0 1em;
+}
+
+
+/* Slider
+----------------------------------*/
+.ui-slider { position: relative; text-align: left; }
+.ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: .85em; height: .85em; cursor: default; }
+.ui-slider .ui-slider-range { position: absolute; z-index: 1; font-size: .7em; display: block; border: 0; }
+
+.ui-slider-horizontal { height: .5em; }
+.ui-slider-horizontal .ui-slider-handle { top: -.25em; margin-left: -.5em; cursor:pointer; }
+.ui-slider-horizontal .ui-slider-range { top: 0; height: 100%; }
+.ui-slider-horizontal .ui-slider-range-min { left: 0; }
+.ui-slider-horizontal .ui-slider-range-max { right: 0; }
+
+.ui-slider-vertical { width: .8em; height: 100px; }
+.ui-slider-vertical .ui-slider-handle { left: -.3em; margin-left: 0; margin-bottom: -.6em; }
+.ui-slider-vertical .ui-slider-range { left: 0; width: 100%; }
+.ui-slider-vertical .ui-slider-range-min { bottom: 0; }
+.ui-slider-vertical .ui-slider-range-max { top: 0; }
+
+.ui-slider {
+	border: 1px solid #B0B0B0;
+}
+
+.ui-slider-handle {
+	background: #B0B0B0;
+	border: 1px solid #000;
+}
+
+/* Possibly not necessary */
+#svg_editor #tools_rect .tool_flyout_button,
+#svg_editor #tools_ellipse .tool_flyout_button {
+	padding: 2px;
+	width: 24px;
+	height: 24px;
+}
+
+/* Note/Description panel (wise4) 
+-----------------------------------------*/
+#svg_editor #descriptionpanel {
+	padding:0;
+	background-color:#333;
+	position:absolute;
+	top:32%;
+	left:8%;
+	width:84%;
+	border:1px solid #777;
+	-moz-box-shadow: 0px 0px 10px #222;
+	-webkit-box-shadow: 0px 0px 10px #222;
+	box-shadow: 0px 0px 10px #222;
+	z-index:1001;
+}
+
+#svg_editor #descriptionpanel h3 {
+	float:left;
+	margin-top:0;
+	color:#000000;
+	font-weight:bold;
+}
+
+#svg_editor .close_button {
+	text-align:right;
+	font-size:1.3em;	
+}
+
+#svg_editor .close_button a {
+	padding:.2em;
+	color:#777777;
+	cursor:pointer;
+	text-decoration:none;
+}
+
+#svg_editor .description_wrapper {
+	text-align:left;
+	background-color:#FFFFFF;
+	margin:5px;
+	padding:5px;
+}
+
+#svg_editor .description_text {
+	background-color:#FFD9AC;
+	padding:10px;
+	border-radius:5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	font-size:10pt;
+}
+
+#svg_editor .description_header {
+	cursor:move;
+	background:#E8E8E8 url(jquery-ui/images/ui-bg_highlight-hard_100_e8e8e8_1x100.png) repeat-x scroll 50% 50%;
+	border:1px solid #B8B8B8;
+	color:#000000;
+	font-weight:bold;
+	padding:5px;
+}
+
+#svg_editor #description_content {
+	margin-top:10px;
+	padding:10px;
+	height:100px;
+	font-size:1em;
+	line-height:1.4em;
+	width:96%;
+}
+
+#svg_editor .description_input {
+	background-color:#eee;
+	border:1px solid #aaa;
+}
+
+#svg_editor .description_input:focus {
+	background-color:#FFFFFF;
+	border-color:#3CB371;
+}
+
+#svg_editor #description_buttons {
+	text-align:center;
+	padding:5px 5px 0;
+}
+
+#svg_editor #description_buttons button {
+	margin: .5em .6em;
+	cursor: pointer;
+	padding: .2em .6em .3em;
+	line-height: 1.4em;
+	width:auto;
+	overflow:visible;
+	background:#1E69FF url(jquery-ui/images/ui-bg_highlight-hard_30_1E69FF_1x100.png) repeat-x scroll 50% 50%;
+	border:1px solid #1747C0;
+	color:#FFFFFF;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+#svg_editor #description_buttons button:hover {
+	color:#FFFA3D;
+}
+
+#svg_editor #description_buttons button[disabled] {
+	background:#CCCCCC;
+	color:#888888;
+	border-color:#AAAAAA;
+}
+
+/*wise4*/
+#overlay {
+	background:#000000 url(jquery-ui/images/ui-bg_flat_30_000000_40x100.png)
+	repeat-x scroll 50% 50%;
+	opacity:0.3;
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:1000;
+}
+
+/* wise4 */
+#svg_editor label {
+	margin-right:4px;
+}
+
+/* wise4 hidden toolbar items */
+#file_panel, #xy_panel, #image_panel, #circle_panel,
+#ellipse_panel, #line_panel, #tool_node_link,
+#layerpanel, #tool_fhrect, #tool_fhellipse,
+#stroke_style, #zoom_panel, #pause {
+	display:none !important;
+}
+
+/* wise4 default hidden regions*/
+#sidepanels, #notepanel, #descriptionpanel, #overlay,
+#new_snap_dialog, #prompt_dialog, #snapwarning_dialog,
+#deletesnap_dialog, #drawlimit_dialog, #snapnumber_dialog, 
+#playback, #snap_description, #draw_description,
+#show_description, #hide_description {
+	display:none;
+}

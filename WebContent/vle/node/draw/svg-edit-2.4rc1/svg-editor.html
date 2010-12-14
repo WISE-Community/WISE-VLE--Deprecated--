@@ -1,0 +1,627 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- removed for now, causes problems in Firefox: manifest="svg-editor.manifest" -->
+<head>
+<meta http-equiv="Content-type" content="application/xhtml+xml;charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+
+<!-- Development version of script tags: 
+<script type="text/javascript" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/jquery.js"></script> -->
+
+<!-- feeds -->
+<link rel="alternate" type="application/atom+xml" title="SVG-edit General Discussion" href="http://groups.google.com/group/svg-edit/feed/atom_v1_0_msgs.xml" />
+<link rel="alternate" type="application/atom+xml" title="SVG-edit Updates (Issues/Fixes/Commits)" href="http://code.google.com/feeds/p/svg-edit/updates/basic" />
+
+<!-- Add script with custom handlers here -->
+<title></title>
+</head>
+<body>
+<script type="text/javascript">
+	/*
+	var svgeditor;
+	var myDataService;
+	$(document).ready(function() {
+	  svgeditor = new SVGEditor("assets/svgeditstep.json");
+ 	});
+
+
+	*/
+
+    var svgdraw; // global variable so it can be accessed by other functions
+    
+    function loadContentAfterScriptsLoad(node){
+		if(svgdraw == null){
+			svgdraw = new SVGDRAW(node);
+		}
+    	
+    	//svgdraw.render();
+    };
+
+	function loadContent(node){
+		scriptloader.loadScripts('svgdraw', node.contentPanel.window.document, node.id, eventManager);
+	};
+
+	onExit = function () {
+		var svgString = svgdraw.saveToVLE();
+	};
+</script>
+<div id="svg_editor">
+
+<!--<div id="logo">
+	<a href="http://svg-edit.googlecode.com/" target="_blank" title="SVG-edit Home Page">
+	</a>
+</div>-->
+
+<div id="tools_top" class="tools_panel">
+	<div id="tools_top_2">
+		<div id="tool_prompt">
+			<a class="label tool_prompt" title="Review Step Instructions">Review Instructions</a>
+			<img src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/document-properties.png" title="Review Step Instructions" alt="icon" />
+		</div>
+		<div id="tool_description">
+			<a class="label tool_description" title="Add Description to Drawing">Add Description</a>
+			<img class="tool_description"src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/paste.png" title="Add Description to Drawing" alt="icon" />
+		</div>
+		<div id="tool_snapshot">
+			<a class="label tool_snapshot" title="Open Snapshots">Snapshots</a>
+			<img class="tool_snapshot" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/snapshot.png" title="Open Snapshots" alt="icon" />
+		</div>
+	</div>
+	
+	<!-- File-like buttons: New, Save, Source -->
+	<div id="file_panel">
+		<div class="push_button" id="tool_clear" title="New Image [N]"></div>
+		<div class="push_button" id="tool_open" title="Open Image [O]" style="display:none"></div>
+		<div class="push_button" id="tool_save" title="Save Image [S]"></div>
+		<div class="push_button" id="tool_docprops" title="Document Properties [I]"></div>
+		<div class="push_button" id="tool_source" title="Edit Source [U]"></div>
+		<div class="tool_button" id="tool_wireframe" title="Wireframe Mode [F]"></div>
+	</div>
+
+    <!-- History buttons -->
+	<div id="history_panel">
+		<!--<div class="tool_sep"></div>-->
+		<div class="push_button tool_button_disabled" id="tool_undo" title="Undo"></div>
+		<div class="push_button tool_button_disabled" id="tool_redo" title="Redo"></div>
+	</div>
+	
+	<!-- Buttons when a single element is selected -->
+	<div id="selected_panel">
+		<div class="toolset">
+			<div class="tool_sep"></div>
+			<div class="push_button" id="tool_clone" title="Copy Object"></div>
+			<div class="push_button" id="tool_delete" title="Delete Object"></div>
+			<div class="tool_sep"></div>
+			<div class="push_button" id="tool_move_top" title="Move to Top [Shift+Up]"></div>
+			<div class="push_button" id="tool_move_bottom" title="Move to Bottom [Shift+Down]"></div>
+			<div class="push_button" id="tool_topath" title="Convert to Path"></div>
+			<div class="push_button" id="tool_reorient" title="Reorient path"></div>
+			<div class="tool_sep"></div>
+		</div>
+		<div class="toolset">
+			<label id="group_opacityLabel" class="selected_tool" for="group_opacity">Opacity: </label>
+			<input id="group_opacity" class="selected_tool" title="Change selected item opacity" size="3" value="100" type="text"/>
+			<div id="opacity_dropdown" class="dropdown">
+				<button></button>
+				<ul>
+					<li class="special"><div id="opac_slider"></div></li>
+					<li>100% (no transparency)</li>
+					<li>0%</li>
+					<li>25%</li>
+					<li>50%</li>
+					<li>75%</li>
+					<li>100%</li>
+				</ul>
+			</div>
+		</div>
+		<div class="toolset">
+			<label id="angleLabel" class="selected_tool">Rotate:</label>
+			<input id="angle" class="selected_tool" title="Change rotation angle" size="2" value="0" type="text"/>
+		</div>
+		<div id="xy_panel" class="toolset" style="display:none;">
+			<label class="selected_tool">x:</label>
+			<input id="selected_x" class="selected_tool attr_changer" title="Change X coordinate" size="3" data-attr="x"/>
+			<label class="selected_tool">y:</label>
+			<input id="selected_y" class="selected_tool attr_changer" title="Change Y coordinate" size="3" data-attr="y"/>
+		</div>
+	</div>
+
+	<!-- Buttons when multiple elements are selected -->
+	<div id="multiselected_panel">
+		<div class="tool_sep"></div>
+		<div class="push_button" id="tool_clone_multi" title="Copy Selected Objects"></div>
+		<div class="push_button" id="tool_delete_multi" title="Delete Selected Objects"></div>
+		<div class="tool_sep"></div>
+		<div class="push_button" id="tool_group" title="Group Elements"></div>
+		<div class="tool_sep"></div>
+		<label id="alignLabel" class="selected_tool">Align Objects:</label>
+		<div class="push_button" id="tool_alignleft" title="Align Left"></div>
+		<div class="push_button" id="tool_aligncenter" title="Align Center"></div>
+		<div class="push_button" id="tool_alignright" title="Align Right"></div>
+		<div class="push_button" id="tool_aligntop" title="Align Top"></div>
+		<div class="push_button" id="tool_alignmiddle" title="Align Middle"></div>
+		<div class="push_button" id="tool_alignbottom" title="Align Bottom"></div>
+		<label id="relativeToLabel" class="selected_tool">Relative to:</label>
+		<select id="align_relative_to" class="selected_tool" title="Align relative to ...">
+		<option id="selected_objects" value="selected">Selection</option>
+		<!--<option id="largest_object" value="largest">Largest Object</option>
+		<option id="smallest_object" value="smallest">Smallest Object</option>-->
+		<option id="page" value="page">Page</option>
+		</select>
+
+	</div>
+
+	<div id="g_panel">
+		<div class="tool_sep"></div>
+		<div class="push_button" id="tool_ungroup" title="Ungroup Elements"></div>
+	</div>
+
+	<div id="rect_panel">
+		<div class="toolset" style="display:none;">
+			<label id="rwidthLabel" class="rect_tool">width:</label>
+			<input id="rect_width" class="rect_tool attr_changer" title="Change rectangle width" size="3" data-attr="width"/>
+			<label id="rheightLabel" class="rect_tool">height:</label>
+			<input id="rect_height" class="rect_tool attr_changer" title="Change rectangle height" size="3" data-attr="height"/>
+		</div>
+		<div class="toolset">
+			<label id="cornerRadiusLabel" class="rect_tool">Round Corners:</label>
+			<input id="rect_rx" size="3" value="0" class="rect_tool" type="text" title="Change Rectangle Corner Radius" data-attr="Corner Radius"/>
+		</div>	
+	</div>
+
+	<div id="image_panel">
+	<div class="toolset">
+		<label id="iwidthLabel" class="image_tool">width:</label>
+		<input id="image_width" class="image_tool attr_changer" title="Change image width" size="3" data-attr="width"/>
+		<label id="iheightLabel" class="image_tool">height:</label>
+		<input id="image_height" class="image_tool attr_changer" title="Change image height" size="3" data-attr="height"/>
+	</div>
+	<div class="toolset">
+		<label class="image_tool">url:</label>
+		<input id="image_url" class="image_tool" type="text" title="Change URL" size="35"/>
+		<button id="change_image_url" style="display:none;">Change Image</button>
+		<div id="url_notice" title="NOTE: This image cannot be embedded. It will depend on this path to be displayed"></div>
+	</div>
+  </div>
+
+	<div id="circle_panel">
+		<div class="toolset">
+			<label class="circle_tool">cx:</label>
+			<input id="circle_cx" class="circle_tool attr_changer" title="Change circle's cx coordinate" size="3" data-attr="cx"/>
+			<label class="circle_tool">cy:</label>
+			<input id="circle_cy" class="circle_tool attr_changer" title="Change circle's cy coordinate" size="3" data-attr="cy"/>
+		</div>
+		<div class="toolset">
+			<label class="circle_tool">r:</label>
+			<input id="circle_r" class="circle_tool attr_changer" title="Change circle's radius" size="3" data-attr="r"/>
+		</div>
+	</div>
+
+	<div id="ellipse_panel">
+		<div class="toolset">
+			<label class="ellipse_tool">cx:</label>
+			<input id="ellipse_cx" class="ellipse_tool attr_changer" title="Change ellipse's cx coordinate" size="3" data-attr="cx"/>
+			<label class="ellipse_tool">cy:</label>
+			<input id="ellipse_cy" class="ellipse_tool attr_changer" title="Change ellipse's cy coordinate" size="3" data-attr="cy"/>
+			</div>
+		<div class="toolset">
+			<label class="ellipse_tool">rx:</label>
+			<input id="ellipse_rx" class="ellipse_tool attr_changer" title="Change ellipse's x radius" size="3" data-attr="rx"/>
+			<label class="ellipse_tool">ry:</label>
+			<input id="ellipse_ry" class="ellipse_tool attr_changer" title="Change ellipse's y radius" size="3" data-attr="ry"/>
+		</div>
+	</div>
+
+	<div id="line_panel">
+		<div class="toolset">
+			<label class="line_tool">x1:</label>
+			<input id="line_x1" class="line_tool attr_changer" title="Change line's starting x coordinate" size="3" data-attr="x1"/>
+			<label class="line_tool">y1:</label>
+			<input id="line_y1" class="line_tool attr_changer" title="Change line's starting y coordinate" size="3" data-attr="y1"/>
+		</div>
+		<div class="toolset">
+			<label class="line_tool">x2:</label>
+			<input id="line_x2" class="line_tool attr_changer" title="Change line's ending x coordinate" size="3" data-attr="x2"/>
+			<label class="line_tool">y2:</label>
+			<input id="line_y2" class="line_tool attr_changer" title="Change line's ending y coordinate" size="3" data-attr="y2"/>
+		</div>
+	</div>
+
+	<div id="text_panel">
+		<div class="tool_button" id="tool_bold" title="Bold Text"><span></span>B</div>
+		<div class="tool_button" id="tool_italic" title="Italic Text"><span></span>i</div>
+		
+		<div class="toolset" style="display:none;">
+			<input id="font_family" class="text_tool" type="text" title="Change Font Family" size="12"/>
+			<div id="font_family_dropdown" class="dropdown">
+				<button></button>
+				<ul>
+					<li style="font-family:serif">Serif</li>
+					<li style="font-family:sans-serif">Sans-serif</li>
+					<li style="font-family:cursive">Cursive</li>
+					<li style="font-family:fantasy">Fantasy</li>
+					<li style="font-family:monospace">Monospace</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="toolset">
+			<label id="font_sizeLabel" class="text_tool" for="font_size">Size: </label>
+			<input id="font_size" class="text_tool" title="Change Font Size" size="3" value="0" type="text"/>
+		</div><br />
+		<div class="toolset">
+			<label id="textLabel" class="text_tool" for="text">Enter Text Here: </label>
+			<input id="text" class="text_tool" type="text" title="Change text contents" size="35"/>
+		</div>
+	</div>
+	
+	<div id="path_node_panel">
+		<div class="tool_sep"></div>
+		<div class="tool_button" id="tool_node_clone" title="Copy Object"></div>
+		<div class="tool_button" id="tool_node_delete" title="Delete Object"></div>
+		<div class="tool_button" id="tool_node_link" title="Link Control Points"></div>
+		<div class="tool_sep"></div>
+		<label class="path_node_tool" style="display:none;">x:</label>
+		<input id="path_node_x" class="path_node_tool attr_changer" style="display:none;" title="Change node's x coordinate" size="3" data-attr="x"/>
+		<label class="path_node_tool" style="display:none;">y:</label>
+		<input id="path_node_y" class="path_node_tool attr_changer" style="display:none;" title="Change node's y coordinate" size="3" data-attr="y"/>
+		<label class="path_node_tool">Line Segment Type:</label>
+		<select id="seg_type" class="path_node_tool" title="Change Segment type">
+			<option id="straight_segments" selected="selected" value="4">Straight</option>
+			<option id="curve_segments" value="6">Curve</option>
+		</select>
+	</div>
+	
+</div> <!-- tools_top -->
+
+<div id="work_wrapper">
+	<div id="tools_left" class="tools_panel column">
+		<div class="tool_button_current" id="tool_select" title="Select Tool"></div>
+		<div class="tool_button" id="tool_fhpath" title="Pencil Tool"></div>
+		<div class="tool_button" id="tool_line" title="Line Tool"></div>
+		<div class="tool_button" id="tools_rect_show" title="Rectangle/Square Tool"></div>
+		<div class="flyout_arrow_horiz"></div>
+		<div class="tool_button" id="tools_ellipse_show" title="Circle/Oval Tool"></div>
+		<div class="flyout_arrow_horiz"></div>
+		<div class="tool_button" id="tool_path" title="Polygon Tool"></div>
+		<div class="tool_button" id="tool_text" title="Text Tool"></div>
+		<div class="tool_button" id="tool_image" title="Stamp Tool"></div>
+		<hr />
+		<div id="fill_tool_left" class="label">Fill</div>
+		<div id="fill_bg"></div>
+		<div id="fill_color" name="fill" class="color_block"  title="Change fill color"></div>
+		<div id="stroke_tool_left" class="label">Line</div>
+		<div id="stroke_bg"></div>
+		<div id="stroke_color" name="stroke" class="color_block" title="Change line color"></div>
+		<!--<label id="stroke_widthLabel">Thick:</label>-->
+		<input id="stroke_width" title="Change line thickness" size="1" value="5" type="text" data-attr="Stroke Width"/>
+		<!--<div class="tool_button" id="tool_zoom" title="Zoom Tool [Ctrl+Up/Down]"></div>-->
+	</div> <!-- tools_left -->
+	
+	<div id="sidepanels" class="column">
+		<!--<div id="sidepanel_handle" onselectstart="return false;" title="View Snapshots">S n a p s h o t s</div>-->
+		<div id="snapshotpanel">
+			<div id="snapshot_header">
+				<h3>Snapshots</h3>
+				<div class="close_button">
+					<a id="close_snapshots" title="Close">X</a>
+				</div>
+			</div>
+			<div id="snapshots">
+				<div id="snapshot_tools">
+					<img class="snapshot_new" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/camera.png" alt="camera" title="Take a new snapshot" />
+					<a class="label snapshot_new" title="Take a new snapshot">New Snapshot</a>
+					<hr />
+				</div>
+				<div id="snap_images">
+					
+				</div>
+			</div>
+			<div id="play_controls">
+				<div id="playback">
+					<img id="loop" class="snap_controls" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/loop.png" alt="loop" title="Play (Loop)" />
+					<img id="play" class="snap_controls" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/play.png" alt="play" title="Play (Once)" />
+					<img id="pause" class="snap_controls" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/pause.png" alt="pause" title="Pause" />
+					<div id="current_speed"></div>
+					<div id="play_speed" title="Playback Speed"></div>
+					<!-- <div id="snap_browse">
+						<img id="next" class="snap_controls" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/previous.png" alt="back" title="Back" />
+						<img id="previous" class="snap_controls" src="/vlewrapper/vle/node/draw/svg-edit-2.4rc1/images/next.png" alt="forward" title="Forward" />
+					</div> hide forward/back buttons for now, TODO: see whether users want them -->
+				</div>
+			</div>
+		</div>
+		<!--<div id="layerpanel">
+			<h3 id="layersLabel">Layers</h3>
+			<fieldset id="layerbuttons">
+				<div id="layer_new" class="layer_button"  title="New Layer"></div>
+				<div id="layer_delete" class="layer_button"  title="Delete Layer"></div>
+				<div id="layer_rename" class="layer_button"  title="Rename Layer"></div>
+				<div id="layer_up" class="layer_button"  title="Move Layer Up"></div>
+				<div id="layer_down" class="layer_button"  title="Move Layer Down"></div>
+			</fieldset>
+			
+			<table id="layerlist">
+				<tr class="layer">
+					<td class="layervis"></td>
+					<td class="layername">Layer 1</td>
+				</tr>
+			</table>
+			<span id="selLayerLabel">Move elements to:</span>
+			<select id="selLayerNames" title="Move selected elements to a different layer" disabled="disabled">
+				<option selected="selected" value="layer1">Layer 1</option>
+			</select>
+		</div>-->
+	</div>
+	
+	<div id="workarea" class="column">
+		<style id="styleoverrides" type="text/css" media="screen" scoped="scoped"></style>
+		<div id="svgcanvas">
+			<img id="stamp_preview" />
+		</div>
+		<div id="snap_description">
+			<div id="snap_description_wrapper">
+				<div class="snap_description_header">
+					<div class="description_header_text">Snapshot Description
+						<span>(Enter your text in the box below)</span>
+					</div>
+					<div id="description_buttons">
+						<button id="snap_description_commit" title="Save Description">Save</button>
+					</div>
+				</div>
+				<!--<span>Enter text in the box below to attach a description to this snapshot.</span>-->
+				<textarea id="snap_description_content" class="description_input" rows="4"></textarea>
+			</div>
+		</div>
+		<div id="draw_description">
+			<div id="draw_description_wrapper">
+				<div id="draw_description_header">Description: </div>
+				<div id="draw_description_content"></div>
+				<div id="edit_description"><a title="Edit Description">Edit</a></div>
+			</div>
+		</div>
+	</div>
+
+</div> <!-- work_wrapper -->
+
+<div id="tools_bottom" class="tools_panel">
+
+    <!-- Zoom buttons 
+	<div id="zoom_panel" class="magic_field">
+		<span id="zoomLabel" class="zoom_tool label">zoom:</span>
+		<input id="zoom" class="zoom_tool" title="Change zoom level" size="3" value="100" type="text" />
+		<div id="zoom_dropdown" class="dropdown">
+			<button></button>
+			<ul>
+				<li>1000%</li>
+				<li>400%</li>
+				<li>200%</li>
+				<li>100%</li>
+				<li>50%</li>
+				<li>25%</li>
+				<li id="fit_to_canvas" data-val="canvas">Fit to canvas</li>
+				<li id="fit_to_sel" data-val="selection">Fit to selection</li>
+				<li id="fit_to_layer_content" data-val="layer">Fit to layer content</li>
+				<li id="fit_to_all" data-val="content">Fit to all content</li>
+				<li>100%</li>
+			</ul>
+		</div>
+		<div class="tool_sep"></div>
+	</div>
+	
+	<div id="tools_bottom_2">
+		<table>
+		<tr>
+			<td id="fill_tool_bottom" class="label">Fill Color:</td>
+			<td><div id="fill_bg"></div><div id="fill_color" name="fill" class="color_block"  title="Change fill color"></div></td>
+			<td colspan="3"><div id="fill_opacity" class="label"></div></td>
+		</tr>
+		<tr>
+			<td id="stroke_tool_bottom" class="label">Line Color:</td>
+			<td><div id="stroke_bg"></div><div id="stroke_color" name="stroke" class="color_block" title="Change stroke color"></div></td>
+			<td><div id="stroke_opacity" class="label"></div></td>
+			<td>
+				<label id="stroke_widthLabel">Thickness:</label>
+				<input id="stroke_width" title="Change stroke width" size="2" value="5" type="text" data-attr="Stroke Width"/>
+			</td>
+		</tr>
+		</table>
+	</div>-->
+	
+	<div id="copyright">Powered by <a href="http://svg-edit.googlecode.com/" target="_blank">SVG-edit v2.4</a></div>
+</div> <!-- tools_bottom -->
+
+<!-- hidden divs -->
+<div id="color_picker"></div>
+
+<div id="tools_rect" class="tools_flyout">
+	<div id="tool_rect" class="tool_flyout_button" title="Rectangle"></div>
+	<div id="tool_square" class="tool_flyout_button" title="Square"></div>
+	<div id="tool_fhrect" class="tool_flyout_button" title="Free-Hand Rectangle"></div>
+</div>
+
+<div id="tools_ellipse" class="tools_flyout">
+	<div id="tool_ellipse" class="tool_flyout_button" title="Ellipse"></div>
+	<div id="tool_circle" class="tool_flyout_button" title="Circle"></div>
+	<div id="tool_fhellipse" class="tool_flyout_button" title="Free-Hand Ellipse"></div>
+</div>
+
+<div id="tools_stamps" class="tools_flyout">
+	<div class="tools_title">Choose a Stamp:</div>
+	<div id="stamp_images"></div>
+</div>
+
+<div id="palette_holder">
+	<div id="palette_preview">&nbsp;</div>
+	<input type="button" id="palette_commit" title="Change Color" value="OK"/>
+	<input type="button" id="palette_cancel" title="Cancel" value="Cancel"/>
+	<hr/>
+	<div id="palette" title="Click to change color"></div>
+</div>
+
+<div id="descriptionpanel">
+	<div class="description_header">
+		<h3>Add Description</h3>
+		<div class="close_button"><a id="close_description" title="Close">X</a></div>
+	</div>
+	<div class="description_wrapper">
+		<div class="description_text">
+			<span>Enter text in the box below to attach a description to this drawing.</span>
+			<textarea id="description_content" class="description_input" rows="5"></textarea>
+		</div>
+		<div id="description_buttons">
+			<button id="description_commit" title="Save">Save Changes</button>
+			<button id="description_close" title="Save & Close">Save & Close</button>
+		</div>
+	</div>
+</div>
+
+</div> <!-- svg_editor -->
+
+<div id="svg_source_editor">
+	<div id="svg_source_overlay"></div>
+	<div id="svg_source_container">
+		<div id="tool_source_back" class="toolbar_button">
+			<button id="tool_source_save">Apply Changes</button>
+			<button id="tool_source_cancel">Cancel</button>
+		</div>
+		<form>
+			<textarea id="svg_source_textarea" spellcheck="false"></textarea>
+		</form>
+	</div>
+</div>
+
+<div id="svg_docprops">
+	<div id="svg_docprops_overlay"></div>
+	<div id="svg_docprops_container">
+		<div id="tool_docprops_back" class="toolbar_button">
+			<button id="tool_docprops_save">OK</button>
+			<button id="tool_docprops_cancel">Cancel</button>
+		</div>
+
+
+		<fieldset id="svg_docprops_docprops">
+			<legend id="svginfo_image_props">Image Properties</legend>
+			<label>
+				<span id="svginfo_title">Title:</span>
+				<input type="text" id="canvas_title" size="24">
+			</label>			
+	
+			<fieldset id="change_resolution">
+				<legend id="svginfo_dim">Canvas Dimensions</legend>
+
+				<label><span id="svginfo_width">Width:</span> <input type="text" id="canvas_width" size="6"></label>
+					
+				<label><span id="svginfo_height">Height:</span> <input type="text" id="canvas_height" size="6"></label>
+				
+				<label>
+					<select id="resolution">
+						<option id="selectedPredefined" selected="selected">Select predefined:</option>
+						<option>640x480</option>
+						<option>800x600</option>
+						<option>1024x768</option>
+						<option>1280x960</option>
+						<option>1600x1200</option>
+						<option id="fitToContent" value="content">Fit to Content</option>
+					</select>
+				</label>
+			</fieldset>
+
+			<fieldset id="image_save_opts">
+				<legend id="includedImages">Included Images</legend>
+				<label><input type="radio" name="image_opt" value="embed" checked="checked"/> <span id="image_opt_embed">Embed data (local files)</span> </label>
+				<label><input type="radio" name="image_opt" value="ref"/> <span id="image_opt_ref">Use file reference</span> </label>
+			</fieldset>			
+
+
+		</fieldset>
+
+		<fieldset id="svg_docprops_prefs">
+			<legend id="svginfo_editor_prefs">Editor Preferences</legend>
+
+			<label><span id="svginfo_lang">Language:</span>
+				<!-- Source: http://en.wikipedia.org/wiki/Language_names -->
+				<select id="lang_select">
+					<option id="lang_cs" value="cs">Čeština</option>
+ 					<option id="lang_de" value="de">Deutsch</option>
+					<option id="lang_en" value="en" selected="selected">English</option>
+					<option id="lang_es" value="es">Español</option>
+					<option id="lang_fr" value="fr">Français</option>
+					<option id="lang_nl" value="nl">Nederlands</option>
+					<option id="lang_ro" value="ro">Româneşte</option>
+					<option id="lang_sk" value="sk">Slovenčina</option>
+				</select>
+			</label>
+
+			<label><span id="svginfo_icons">Icon size:</span>
+				<select id="iconsize">
+					<option id="icon_small" value="s">Small</option>
+					<option id="icon_medium" value="m" selected="selected">Medium</option>
+					<option id="icon_large" value="l">Large</option>
+					<option id="icon_xlarge" value="xl">Extra Large</option>
+				</select>
+			</label>
+
+			<fieldset id="change_background">
+				<legend id="svginfo_change_background">Editor Background</legend>
+				<div id="bg_blocks"></div>
+				<label><span id="svginfo_bg_url">URL:</span> <input type="text" id="canvas_bg_url" size="21"></label>
+				<p id="svginfo_bg_note">Note: Background will not be saved with image.</p>
+			</fieldset>
+			
+		</fieldset>
+
+	</div>
+</div>
+
+<div id="new_snap_dialog" title="New Snapshot">
+	<div class="ui-dialog-content-content">Create new snapshot from current drawing?</div>
+</div>
+
+<div id="prompt_dialog" title="Instructions">
+	<div id="prompt_text" class="ui-dialog-content-content"></div>
+</div>
+
+<div id="snapwarning_dialog" title="Open Snapshot">
+	<div class="ui-state-error">
+		<span class="ui-icon ui-icon-alert" style="float:left"></span>
+		Warning! Opening this snapshot will delete your current drawing.
+	</div>
+	<div class="ui-dialog-content-content">If you would like to save this drawing, click 'Cancel' and create a new snapshot.
+		<br /><br />Otherwise, click 'Continue'.
+	</div>
+</div>
+
+<div id="snapnumber_dialog" title="Too Many Snapshots">
+	<div class="ui-state-error">
+		<span id="snapnum_warning" class="ui-icon ui-icon-alert" style="float:left"></span>
+		Sorry! You are only allowed 10 snapshots at this step.
+	</div>
+	<div class="ui-dialog-content-content">If you want to create another one, please delete one of your current snapshots by clicking on the 'X' in the upper right corner of the snapshot you want to delete. Thank you!
+	</div>
+</div>
+
+<div id="drawlimit_dialog" title="Drawing is Too Big">
+	<div class="ui-state-error">
+		<span class="ui-icon ui-icon-alert" style="float:left"></span>
+		Warning! Your current drawing is too large.
+	</div>
+	<div class="ui-dialog-content-content">If you would like to save this drawing, please delete some of the items in the picture.  Thank you!
+	</div>
+</div>
+
+<div id="deletesnap_dialog" title="Delete Snapshot">
+	<div class="ui-state-error">
+		<span class="ui-icon ui-icon-alert" style="float:left"></span>
+		Warning! This operation is permanent.
+	</div>
+	<div class="ui-dialog-content-content">Are you sure you want to delete this snapshot for good?
+	</div>
+</div>
+
+<div id="overlay"></div>
+<div id="show_description"></div>
+<div id="hide_description"></div>
+
+</body>
+</html>

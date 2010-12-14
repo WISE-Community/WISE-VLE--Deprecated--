@@ -12,44 +12,23 @@ function DFS(rootNode) {
 	this.rootNode = rootNode;
 	this.visitingOrder = [];  // sequence-ordering of nodes.
 	
-	this.findVisitingOrder(rootNode);
-}
+	for(var a=0;a<this.rootNode.children.length;a++){
+		this.findVisitingOrder(this.rootNode.children[a], a);
+	};
+};
 
 /**
  * populates this.visitingOrder array
  * @param {Object} node
  */
-DFS.prototype.findVisitingOrder = function(node) {
+DFS.prototype.findVisitingOrder = function(node, loc) {
 	if(node){
-		this.visitingOrder.push(node);
+		this.visitingOrder.push(String(loc));
 		for (var i=0; i < node.children.length; i++) {
-			this.findVisitingOrder(node.children[i]);
-		}
+			this.findVisitingOrder(node.children[i], loc + '.' + i);
+		};
 	};
-}
-
-/**
- * Returns true iff nodeToVisit has already been visited,
- * or is the next node in the DFS-sequence to visit.
- * @param {Object} visitedNodes
- * @param {Object} nodeToVisit
- */
-DFS.prototype.canVisitNode = function(visitedNodes, nodeToVisit) {
-	return true;   // for now, canVisitNode= true...DFS should only define the SEQUENCE, not Constraints
-	// find the deepest node that user has already visited
-	if (visitedNodes.length == 0) {
-		return true;
-	}
-	var deepestSoFar = this.findDeepestSoFar(0,0,visitedNodes);
-	var nextNodeInSequence = this.getNextNode(deepestSoFar.node);
-	
-	if (this.isBefore(nodeToVisit, deepestSoFar.node) || 
-	        (nextNodeInSequence != null && nextNodeInSequence == nodeToVisit) ) {
-		return true;
-	}
-	alert('you cannot visit this node yet. Please visit ALL prior pages.');
-	return false;
-}
+};
 
 /**
  * Returns the deepest/furthest node that the user has visited
@@ -61,14 +40,14 @@ DFS.prototype.canVisitNode = function(visitedNodes, nodeToVisit) {
 DFS.prototype.findDeepestSoFar = function(currentIndex, deepestSoFarIndex, visitedNodes) {
 	if (currentIndex == visitedNodes.length) {
 		return visitedNodes[deepestSoFarIndex];
-	} 
+	};
 	if (this.isBefore(visitedNodes[deepestSoFarIndex].node,
 	                  visitedNodes[currentIndex].node)) {
 		return this.findDeepestSoFar(currentIndex+1,currentIndex, visitedNodes);
 	} else {
 		return this.findDeepestSoFar(currentIndex+1,deepestSoFarIndex, visitedNodes);
-	}
-}
+	};
+};
 /**
  * Returns true iff node1 should be visited before node2
  * in the DFS sequence. If node1 == node2, returns false.
@@ -84,38 +63,39 @@ DFS.prototype.isBefore = function(node1, node2) {
 		alert("1:" + indexOfNode1);
 		alert("2:" + indexOfNode2);
 		return;
-	}
+	};
 	return indexOfNode1 <= indexOfNode2;
-}
+};
 
 /**
- * Returns the next node to visit in the DFS sequence
- * after specified node. If the node is the last node,
- * return null
- * @param {Object} node
+ * Returns the next node location to visit in the DFS sequence after specified node. 
+ * If the node is the last node, return null.
+ * 
+ * @param loc - path to node (i.e. 1.0.12.1)
  */
-DFS.prototype.getNextNode = function(node) {
-	var indexOfNode = this.visitingOrder.indexOf(node);
+DFS.prototype.getNextNode = function(loc) {
+	var indexOfNode = this.visitingOrder.indexOf(loc);
 	if (indexOfNode == this.visitingOrder.length) {
 		return null;
-	}
+	};
 	return this.visitingOrder[indexOfNode+1];
-}
+};
 
 /**
- * Returns the next node to visit in the DFS sequence
- * after specified node. If the node is the last node,
- * return null
- * @param {Object} node
+ * Returns the previous node location to visit in the DFS sequence before specified node. 
+ * If the node is the last node, return null. 
+ *
+ * @param loc - path to node (i.e. 1.0.12.1)
  */
-DFS.prototype.getPrevNode = function(node) {
-	//alert('prevnode!');
-	var indexOfNode = this.visitingOrder.indexOf(node);
+DFS.prototype.getPrevNode = function(loc) {
+	var indexOfNode = this.visitingOrder.indexOf(loc);
 	if (indexOfNode == 0) {
 		return null;
 	}
 	return this.visitingOrder[indexOfNode-1];
-}
+};
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/navigation/DFS.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/navigation/DFS.js');
+};

@@ -1,6 +1,20 @@
 package vle;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -8,80 +22,127 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class VLEView extends HttpServlet {
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-		getData(request, response);
+	private static final long serialVersionUID = 1L;
+
+	private static final String PROJECT_PATHS = "";
+	
+	static JSONArray projectsJSONArray;
+	
+	{
+		try {
+			// Read properties file.
+			InputStream resourceAsStream = this.getClass().getResourceAsStream("projects.json");
+			BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream));
+			StringBuffer fileData = new StringBuffer(1000);
+			char[] buf = new char[1024];
+			int numRead=0;
+			while((numRead=br.read(buf)) != -1){
+				fileData.append(buf, 0, numRead);
+			}
+			br.close();
+			String projectsJSONString = fileData.toString();
+			projectsJSONArray = new JSONArray(projectsJSONString);
+		} catch (Exception e) {
+			System.err.println("vleview.java could not read projects.json file");
+			e.printStackTrace();
+		}
+         /*
+		try {
+			projectsJSONString = readFileAsString(projectsJSONURL.getPath());
+			projectsJSONArray = new JSONArray(projectsJSONString);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		*/
 	}
+	
+	static String readFileAsString(String filePath)
+    throws java.io.IOException{
+        StringBuffer fileData = new StringBuffer(1000);
+        BufferedReader reader = new BufferedReader(
+                new FileReader(filePath));
+        char[] buf = new char[1024];
+        int numRead=0;
+        while((numRead=reader.read(buf)) != -1){
+            fileData.append(buf, 0, numRead);
+        }
+        reader.close();
+        return fileData.toString();
+    }
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) {		
+		String projectId = request.getParameter("projectId");
+		if (projectId != null) {
+			String vleConfigUrl = getServletUrl(request) + "/VLEConfig";
+			vleConfigUrl += "?projectId=" + projectId;
+
+			request.setAttribute("vleconfig_url", vleConfigUrl);
+			
+			RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher("/view.jsp");
+			try {
+				//pass the request to the jsp page so it can retrieve the urls in the attributes
+				dispatcher.include(request, response);
+			} catch (ServletException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		} else {
+			request.setAttribute("projectsJSONString", projectsJSONArray.toString());
+			RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher("/view.jsp");
+			
+			try {
+				dispatcher.forward(request, response);
+			} catch (ServletException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	/**
+	 * Returns a '|' delimited String of all projects, returns an empty
+	 * String if no projects exist
+	 * 
+	 * @return String
+	 */
+	/*
+	private String getProjectList(HttpServletRequest request)throws IOException{
+		String rawPaths = request.getParameter(PROJECT_PATHS);
+		String[] paths = rawPaths.split("~");
+		List<String> visited = new ArrayList<String>();
+		List<String> projects = new ArrayList<String>();
+		String projectList = "";
+		
+		if(paths!=null && paths.length>0){
+			for(int p=0;p<paths.length;p++){
+				File f = new File(paths[p]);
+				getProjectFiles(f, projects, visited);
+			}
+			Collections.sort(projects, new CompareByLastModified());
+			for(int q=0;q<projects.size();q++){
+				projectList += projects.get(q);
+				if(q!=projects.size()-1){
+					projectList += "|";
+				}
+			}
+			return projectList;
+		} else {
+			return "";
+		}
+	}
+	*/
 	
 	private String getServletUrl(HttpServletRequest request) {
 		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
-	}
-	/**
-	 * Retrieves the projectId parameter and returns the contentBaseUrl and
-	 * contentUrl to the jsp. 
-	 * @param request
-	 * @param response
-	 */
-	private void getData(HttpServletRequest request,
-			HttpServletResponse response) {
-		
-		//retrieve the projectId parameter
-		String projectIdString = request.getParameter("location");
-		
-		String contentBaseUrl = "";
-		String contentUrl = "";
-
-		/*
-		 * the mapping from projectId to content urls is hardcoded now until
-		 * we get the database tables set up
-		 */
-		if(projectIdString.equals("1")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/unit9999/lesson9999";
-			contentUrl = contentBaseUrl +  "/lesson9999.project.xml";
-		} else if(projectIdString.equals("2")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35510";
-			contentUrl = contentBaseUrl +  "/wise4-35510.xml";
-		} else if(projectIdString.equals("3")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35511";
-			contentUrl = contentBaseUrl +  "/wise4-35511.xml";
-		} else if(projectIdString.equals("4")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35512";
-			contentUrl = contentBaseUrl +  "/wise4-35512.xml";
-		} else if(projectIdString.equals("5")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-35513";
-			contentUrl = contentBaseUrl +  "/wise4-35513.xml";
-		} else if(projectIdString.equals("6")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-dep1";
-			contentUrl = contentBaseUrl +  "/wise4-dep1.xml";
-		} else if(projectIdString.equals("7")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-dep2";
-			contentUrl = contentBaseUrl +  "/wise4-dep2.xml";
-		} else if(projectIdString.equals("8")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/wise4-nos";
-			contentUrl = contentBaseUrl + "/wise4-nos.xml";
-		} else if(projectIdString.equals("-1")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/unit3/lesson1";
-			contentUrl = contentBaseUrl +  "/lesson1.xml";
-		} else if(projectIdString.equals("asu_demo1")) {
-			contentBaseUrl = getServletUrl(request) + "/curriculum/asu/demo1";
-			contentUrl = contentBaseUrl +  "/asu_demo1.project.xml";
-		}
-		
-		//set the content urls in the request so the jsp can retrieve them
-		//request.setAttribute("contentBaseUrl", contentBaseUrl);
-		//request.setAttribute("contentUrl", contentUrl);
-		String vleConfigUrl = getServletUrl(request) + "/VLEConfig";
-		request.setAttribute("vleconfig_url", vleConfigUrl);
-		
-		RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher("/view.jsp");
-		try {
-			//pass the request to the jsp page so it can retrieve the urls in the attributes
-			dispatcher.include(request, response);
-		} catch (ServletException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

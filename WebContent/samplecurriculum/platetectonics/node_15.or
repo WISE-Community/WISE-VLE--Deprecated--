@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "Based on your exploration of the simulation, pick &lt;b&gt;ONE&lt;/b&gt; of the geologic feature or event (mountains, volcanoes, earthquakes or seafloor spreading) and write an explanation of how it results from Earth's many processes. &lt;br /&gt;&lt;br /&gt;Be sure to include: &lt;ol&gt;&lt;li&gt; what type of boundary is involved &lt;li&gt; which layers of the Earth are involved, and how they are involved &lt;li&gt;the role of convection currents in the mantle",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": false,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "We chose to write about ____."
+   },
+   "type": "Note"
+}

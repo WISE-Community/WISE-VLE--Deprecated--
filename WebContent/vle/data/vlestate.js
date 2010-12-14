@@ -10,11 +10,11 @@ function VLE_STATE() {
 
 VLE_STATE.prototype.setUserName = function(userName) {
 	this.userName = userName;
-}
+};
 
 VLE_STATE.prototype.setDataId = function(dataId) {
 	this.dataId = dataId;
-}
+};
 
 VLE_STATE.prototype.getCurrentNodeVisit = function() {
 	if (this.visitedNodes.length == 0) {
@@ -22,13 +22,24 @@ VLE_STATE.prototype.getCurrentNodeVisit = function() {
 	} else {
 		return this.visitedNodes[this.visitedNodes.length - 1];
 	}
-}
+};
 
 VLE_STATE.prototype.endCurrentNodeVisit = function() {
+	// set endtime
 	var currentNodeVisit = this.getCurrentNodeVisit();
 	if(currentNodeVisit){
-		currentNodeVisit.visitEndTime = new Date().toUTCString();
+		currentNodeVisit.visitEndTime = Date.parse(new Date());
 	};
+};
+
+/**
+ * Save the provided state at the end of the provided nodeVisit
+ * @param node
+ * @param state
+ * @return
+ */
+VLE_STATE.prototype.saveState = function(nodeVisit, state) {
+	
 };
 
 /**
@@ -38,13 +49,30 @@ VLE_STATE.prototype.endCurrentNodeVisit = function() {
 VLE_STATE.prototype.getNodeVisitsByNodeId = function(nodeId) {
 	var nodeVisitsForThisNodeId = [];
 	for (var i=0; i<this.visitedNodes.length;i++) {
-		if (this.visitedNodes[i].node.id==nodeId) {
+		if (this.visitedNodes[i].nodeId==nodeId) {
 			nodeVisitsForThisNodeId.push(this.visitedNodes[i]);
 		}		
 	}
 	//alert("nodeId: " + nodeId + "<br>nodeVisitsForThisNodeId: " + nodeVisitsForThisNodeId.length);
 	return nodeVisitsForThisNodeId;
-}
+};
+
+/**
+ * Returns an array of NODE_VISITS that contain non-empty work
+ * for the specified nodeId
+ * @param {Object} nodeId
+ */
+VLE_STATE.prototype.getNodeVisitsWithWorkByNodeId = function(nodeId) {
+	var nodeVisitsForThisNodeId = [];
+	for (var i=0; i<this.visitedNodes.length;i++) {
+		if (this.visitedNodes[i].nodeId==nodeId) {
+			if (this.visitedNodes[i].getLatestWork() != "") {
+				nodeVisitsForThisNodeId.push(this.visitedNodes[i]);
+			}
+		}		
+	}
+	return nodeVisitsForThisNodeId;
+};
 
 /**
  * Get the latest node visit object for the nodeId
@@ -52,23 +80,19 @@ VLE_STATE.prototype.getNodeVisitsByNodeId = function(nodeId) {
  * @return the latest node visit for the nodeId
  */
 VLE_STATE.prototype.getLatestNodeVisitByNodeId = function(nodeId) {
-	var latestNodeVisitForThisNodeId = null;
-	
-	//loop through all the node visits
-	for (var i=0; i<this.visitedNodes.length;i++) {
+	//loop through all the node visits starting from the most recent
+	for (var i=this.visitedNodes.length - 1; i>=0; i--) {
 		
 		//check if the current node visit has the nodeId we are looking for
-		if (this.visitedNodes[i].node.id==nodeId) {
-			/*
-			 * remember this node visit as the latest for now, if we find
-			 * a node visit in the future with the right nodeId, this will be 
-			 * overriden
-			 */
-			latestNodeVisitForThisNodeId = this.visitedNodes[i];
+		if (this.visitedNodes[i].nodeId==nodeId) {
+			//return the most recent node visit that contains work
+			if (this.visitedNodes[i].getLatestWork() != "") {
+				return this.visitedNodes[i];
+			}
 		}		
 	}
-	return latestNodeVisitForThisNodeId;
-}
+	return null;
+};
 
 /**
  * Get the latest non blank work for the given nodeId step
@@ -82,7 +106,7 @@ VLE_STATE.prototype.getLatestWorkByNodeId = function(nodeId) {
 		var nodeVisit = this.visitedNodes[x];
 		
 		//check if the nodeId matches
-		if(nodeVisit.node.id == nodeId) {
+		if(nodeVisit.nodeId == nodeId) {
 			//obtain the latest non blank work for the node visit
 			var latestWorkForNodeVisit = nodeVisit.getLatestWork();
 			
@@ -95,154 +119,65 @@ VLE_STATE.prototype.getLatestWorkByNodeId = function(nodeId) {
 	}
 	
 	return "";
-}
+};
 
 /**
- * @return xml representation of the state of the vle which
- * 		includes student data as well as navigation info
+ * Given a JSON string of the user's vle state, parses it and returns
+ * a populated VLE_STATE object.
+ * @param jsonString a JSON string representing a vle state
+ * @param alwaysReturnArray always return an array of vle_state, even if there is only one vle_state. Used by grdingtool
+ * @return a VLE_STATE object
  */
-VLE_STATE.prototype.getDataXML = function() {
-	var dataXML = "";
-	dataXML += "<vle_state>";
-	
-	dataXML += this.getVisitedNodesDataXML();
-	
-	dataXML += "</vle_state>";
-	return dataXML;
-}
+VLE_STATE.prototype.parseDataJSONString = function(vleStateJSONString, alwaysReturnArray) {
+	//parse the JSON string to create a JSON object
+	var vleStatesJSONObj = $.parseJSON(vleStateJSONString);
 
-VLE_STATE.prototype.getVisitedNodesDataXML = function() {
-	var dataXML = "";
-	
-	//loop through all the visited nodes and retrieve the xml for each node
-	for (var i=0; i<this.visitedNodes.length;i++) {
-		dataXML += this.visitedNodes[i].getDataXML();
+	var vleStatesArray = new Array();
+	for (var i=0; i < vleStatesJSONObj.vle_states.length; i++) {
+		var vleStateJSONObj = vleStatesJSONObj.vle_states[i];
+		vleStatesArray.push(VLE_STATE.prototype.parseDataJSONObj(vleStateJSONObj));
 	}
-	
-	return dataXML;
-}
+
+	if (vleStatesArray.length == 1 && !alwaysReturnArray) {
+		return vleStatesArray[0];
+	} else {
+		return vleStatesArray;
+	}
+};
 
 /**
- * Gets all the node visits that have non null visitEndTime fields.
- * This should be all the nodes except the most recent node the
- * student is on because they have not exited the step yet.
+ * Takes in a JSON object representing a vle state and converts it
+ * into a populated VLE_STATE object
+ * @param vleStateJSONObj a JSON object representing a vle state
+ * @return a VLE_STATE object
  */
-VLE_STATE.prototype.getCompletelyVisitedNodesDataXML = function() {
-	var dataXML = "";
+VLE_STATE.prototype.parseDataJSONObj = function(vleStateJSONObj) {
+	//create a new VLE_STATE
+	var vleState = new VLE_STATE();
 	
-	//loop through all the visited nodes and retrieve the xml for each node
-	for (var i=0; i<this.visitedNodes.length;i++) {
-		if(this.visitedNodes[i].visitEndTime != null) {
-			dataXML += this.visitedNodes[i].getDataXML();
+	//populate the attributes
+	vleState.userName = vleStateJSONObj.userName;
+	vleState.dataId = vleStateJSONObj.userId;
+	
+	//loop through the node visits and populate them in the VLE_STATE
+	if (vleStateJSONObj.visitedNodes != null) {
+		for(var x=0; x<vleStateJSONObj.visitedNodes.length; x++) {
+			//obtain a node visit JSON object
+			var nodeVisitJSONObj = vleStateJSONObj.visitedNodes[x];
+
+			//create a NODE_VISIT object
+			var nodeVisitObj = NODE_VISIT.prototype.parseDataJSONObj(nodeVisitJSONObj);
+
+			//add the NODE_VISIT object to the visitedNodes array
+			if (nodeVisitObj != null) {  // null-check. if null, it probably means that student has done work for a node that no longer exists for this project, like the author changed the project during the run.
+				vleState.visitedNodes.push(nodeVisitObj);
+			}
 		}
 	}
-	
-	return dataXML;
-}
 
-/**
- * Takes in an vle state XML object and creates a real VLE_STATE object.
- * @param vleStateXML an XML object
- */
-VLE_STATE.prototype.parseDataXML = function(vleStateXML) {
-	var vleStateObject = new VLE_STATE();
-	
-	var nodeVisitNodesXML = vleStateXML.getElementsByTagName("node_visit");
-	
-	//loop through all the node_visit nodes
-    for (var i=0; i< nodeVisitNodesXML.length; i++) {
-    	var nodeVisit = nodeVisitNodesXML[i];
-    	
-    	//ask the NODE_VISIT static function to create a real NODE_VISIT object
-    	var nodeForNodeVisit = vle.getNodeById(nodeVisit.getElementsByTagName("id")[0].textContent);
-    	
-    	// first check that the node exists in the project
-    	if (nodeForNodeVisit && nodeForNodeVisit != null) {
-    		var nodeVisitObject = NODE_VISIT.prototype.parseDataXML(nodeVisit);
-    	
-    		//add the real NODE_VISIT object into this VLE_STATE
-    		vleStateObject.visitedNodes.push(nodeVisitObject);
-    	}
-    }
-	
-    //alert("vleStateObject.getDataXML(): " + vleStateObject.getDataXML());
-    return vleStateObject;
-}
-
-/**
- * Receives an xml string and creates an xml object out of it. Then
- * using the xml object, it creates an array of real VLE_STATE object.
- * @param xmlString xml string that contains multiple workgroup/vle_state
- * 		nodes. e.g.
- * 
- * <vle_states>
- * 		<workgroup dataId='1'><vle_state>...</vle_state></workgroup>
- * 		<workgroup dataId='2'><vle_state>...</vle_state></workgroup>
- * 		<workgroup dataId='3'><vle_state>...</vle_state></workgroup>
- * </vle_states>
- * 
- * @return an array of VLE_STATE objects. dataId will be used for 
- * 		the index/key
- */
-VLE_STATE.prototype.parseVLEStatesDataXMLString = function(xmlString) {
-	var xmlDoc = null;
-	
-	//create an xml object out of the xml string
-	try {
-		//Internet Explorer
-		xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-		xmlDoc.loadXML(xmlString);
-	} catch(e) {
-		try {
-		//Firefox, Mozilla, Opera, etc.
-			var parser=new DOMParser();
-			xmlDoc=parser.parseFromString(xmlString,"text/xml");
-		} catch(e) {
-			notificationManager.notify(e.message, 3);
-		}
-	}
-	
-	var vleStatesArray = new Array();
-	
-	//retrieve all the workgroups
-	var workgroupsXML = xmlDoc.getElementsByTagName("workgroup");
-	
-	/*
-	 * loop through the workgroups and populate the array. The dataId
-	 * will serve as the index/key.
-	 */
-	for(var x=0; x<workgroupsXML.length; x++) {
-		var dataId = workgroupsXML[x].attributes.getNamedItem("dataId").firstChild.nodeValue;
-		var vleState = workgroupsXML[x].getElementsByTagName("vle_state")[0];
-		
-		//create a real VLE_STATE object from the xml object and put it in the array
-		vleStatesArray[dataId] = VLE_STATE.prototype.parseDataXML(vleState);
-	}
-	
-	return vleStatesArray;
-}
-
-VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
-	var vleStatesArray = new Array();
-	//retrieve all the workgroups
-	var workgroupsXML = xmlObject.getElementsByTagName("workgroup");
-	/*
-	 * loop through the workgroups and populate the array. The dataId
-	 * will serve as the index/key.
-	 */
-	for(var x=0; x<workgroupsXML.length; x++) {
-		var dataId = workgroupsXML[x].attributes.getNamedItem("userId").nodeValue;
-		var userName = workgroupsXML[x].attributes.getNamedItem("userName").nodeValue;
-		var vleStateXMLObj = workgroupsXML[x].getElementsByTagName("vle_state")[0];
-		
-		//create a real VLE_STATE object from the xml object and put it in the array
-		var vleStateObj = VLE_STATE.prototype.parseDataXML(vleStateXMLObj);
-		vleStateObj.userName = userName;
-		vleStateObj.dataId = dataId;
-		vleStatesArray.push(vleStateObj);
-	}
-	return vleStatesArray;
-}
+	//return the VLE_STATE object
+	return vleState;
+};
 
 /**
  * Sets a new NODE_VISIT, containing info on where the student 
@@ -250,41 +185,152 @@ VLE_STATE.prototype.parseVLEStatesDataXMLObject = function(xmlObject) {
  */
 VLE_STATE.prototype.setCurrentNodeVisit = function(node) {
 	var currentNodeVisit = this.getCurrentNodeVisit();   // currentNode becomes lastnode
+	
+	/* if this is a duplicate node, we need to swap the duplicate with the node that it represents */
+	if(node.type=='DuplicateNode'){
+		var realNode = node.getNode();
+		var newNodeVisit = new NODE_VISIT(realNode.id, realNode.type);
+		newNodeVisit.duplicateId = node.id;
+	} else {
+		var newNodeVisit = new NODE_VISIT(node.id, node.type);
+		newNodeVisit.duplicateId = undefined;
+	}
 
-	// don't set new currentnode if it's the same node as previous node
-	if (currentNodeVisit != null &&
-	        currentNodeVisit.node == node) {
-		return;
+	this.visitedNodes.push(newNodeVisit);
+};
+
+/**
+ * Returns an map to array of nodeVisits for all nodeVisits of the givent type.
+ * Returns an empty object if there are no nodeVisits for the given type.
+ * 
+ * @param String - type
+ * @return Array - nodeVisits
+ */
+VLE_STATE.prototype.getNodeVisitsByNodeType = function(type){
+	var visitsOfType = {};
+	
+	for(var a=0;a<this.visitedNodes.length;a++){
+		if(this.visitedNodes[a].nodeType==type){
+			if(!visitsOfType[this.visitedNodes[a].nodeId]){
+				visitsOfType[this.visitedNodes[a].nodeId] = [];
+			}
+			
+			visitsOfType[this.visitedNodes[a].nodeId].push(this.visitedNodes[a]);
+		}
 	}
 	
-	// set endtime on previous 
-	if (currentNodeVisit != null) {
-		currentNodeVisit.visitEndTime = new Date().toUTCString();
+	return visitsOfType;
+};
+
+/**
+ * Get the latest visit (the last visit in the visitedNodes array)
+ * @return the latest NODE_VISIT
+ */
+VLE_STATE.prototype.getLatestVisit = function() {
+	var latestVisit = null;
+	
+	//make sure there is at least one node visit
+	if(this.visitedNodes.length > 0) {
+		//get the last node visit
+		latestVisit = this.visitedNodes[this.visitedNodes.length - 1];	
 	}
-	var newNodeVisit = new NODE_VISIT(node);
+	
+	return latestVisit;
+};
+
+/**
+ * Get the latest node visit that has non-null visitStartTime and
+ * non-null visitEndTime
+ * @return the latest NODE_VISIT that has a visitStartTime and visitEndTime
+ */
+VLE_STATE.prototype.getLatestCompletedVisit = function() {
+	var latestCompletedVisit = null;
+	
+	//loop through the node visits backwards
+	for(var x=this.visitedNodes.length - 1; x>=0; x--) {
+		//get a node visit
+		var visit = this.visitedNodes[x];
+		
+		//check that visitStartTime and visitEndTime are not null
+		if(visit.visitStartTime != null && visit.visitEndTime != null) {
+			//we found a node visit with visitStartTime and visitEndTime
+			latestCompletedVisit = visit;
+			
+			//break out of the for loop since we found what a node visit
+			break;
+		}
+	}
+	
+	return latestCompletedVisit;
+};
+
+/**
+ * Get the last time the student has visited. We will use the second
+ * to last node visit because the last node visit is created
+ * when the student logs back into the vle. Here's an example
+ * 
+ * e.g.
+ * Student logs in the first time and completes work for a step
+ * this becomes node visit 1.
+ * Student then logs out.
+ * The 2nd day the student logs in for the second time and at
+ * that moment we have node visit 1 which he completed last time
+ * and node visit 2 which is created when he has just logged
+ * in on the 2nd day.
+ * 
+ * Therefore we need to look at the 2nd to last node visit and not
+ * the last.
+ * 
+ * @return the last time the student has visited
+ */
+VLE_STATE.prototype.getLastTimeVisited = function() {
+	var lastTimeVisited = 0;
 	
 	/*
-	 * check if the node is a BlueJNode so we can create and insert 
-	 * a completely visited node visit into the visited nodes array. 
-	 * this causes the node visit to be sent back to the database even 
-	 * though the user hasn't exited the BlueJNode yet.
-	 */ 
-	if(node.type == "BlueJNode") {
-		//create a node visit
-		var blueJVisit = new NODE_VISIT(node);
+	 * make sure there is more than one node visit. if there is only one node
+	 * visit it means the student has logged in for the very first time and
+	 * the one node visit was just created.
+	 */
+	if(this.visitedNodes.length > 1) {
+		//get the 2nd to last node visit
+		var previousVisit = this.visitedNodes[this.visitedNodes.length - 2];
 		
-		//set the end time so that this visit will be sent back to the db
-		blueJVisit.visitEndTime = new Date().toUTCString();
-		
-		//set the project path for the bluej node visit
-		blueJVisit.nodeStates = node.projectPath;
-		
-		//add it to the array of node visits
-		this.visitedNodes.push(blueJVisit);
+		/*
+		 * get the start time. we need to get the start time because the end time
+		 * is overwritten with the current time when the student logs in since
+		 * it "ends" the previous node visit again when it "starts" the new node
+		 * visit that becomes the last node visit at the moment.
+		 */
+		lastTimeVisited = previousVisit.visitStartTime;
 	}
 	
-	this.visitedNodes.push(newNodeVisit);
-}
+	return lastTimeVisited;
+};
+
+/**
+ * Get a node visit given by the id
+ * @param id the student work id which is the same as the node visit id
+ * @return a node visit object or null if we did not find a node visit
+ * with the given id
+ */
+VLE_STATE.prototype.getNodeVisitById = function(id) {
+	//loop through all the node visits in this vle state
+	for(var x=0; x<this.visitedNodes.length; x++) {
+		//get a node visit
+		var nodeVisit = this.visitedNodes[x];
+		
+		//compare the id
+		if(nodeVisit.id == id) {
+			//we found the node visit that we want so we will return it
+			return nodeVisit;
+		}
+	}
+	
+	//we did not find a node visit with the given id
+	return null;
+};
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/data/vlestate.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/data/vlestate.js');
+};

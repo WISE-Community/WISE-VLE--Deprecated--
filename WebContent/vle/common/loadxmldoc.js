@@ -24,12 +24,6 @@ catch(e) {alert(e.message)}
 return(null);
 }
 
-function LoadXMLDocObj(){
-	this.xmlDoc = null;
-	this.loadedEvent = new YAHOO.util.CustomEvent("loadedEvent", this);
-}
-
-
 function loadXMLString(txt) 
 {
 try //Internet Explorer

@@ -52,7 +52,7 @@ Flags.prototype.parseDataXML = function(flagsXML) {
 	flags.flagsArray = new Array();
 	
 	//the flagEntry xml objects
-	var flagEntries = flagsXML.getElementsByTagName("flagEntry");
+	var flagEntries = flagsXML.getElementsByTagName("annotationEntry");
 	
 	//loop through the flagEntry xml objects
 	for(var x=0; x<flagEntries.length; x++) {
@@ -69,6 +69,45 @@ Flags.prototype.parseDataXML = function(flagsXML) {
 	}
 	
 	return flags;
+}
+
+/**
+ * Converts a JSON string object into a Flags object
+ * @param flagsJSONString a JSON string object representing a Flags object
+ * @return a Flags object
+ */
+Flags.prototype.parseDataJSONString = function(flagsJSONString) {
+	//convert the JSON string to a JSON object
+	var flagsJSONObj = $.parseJSON(flagsJSONString);
+	
+	//convert the flags JSON object to a Flags object
+	return Flags.prototype.parseDataJSONObject(flagsJSONObj);
+}
+
+/**
+ * Converts a JSON object into a Flags object
+ * @param flagsJSONObj a JSON flags object
+ * @return a populated Flags object
+ */
+Flags.prototype.parseDataJSONObject = function(flagsJSONObj) {
+	//create a Flags object
+	var flagsObj = new Flags();
+	flagsObj.flagsArray = new Array();
+	
+	//loop through all the JSON flag objects and create Flag objects
+	for(var x=0; x<flagsJSONObj.flagsArray.length; x++) {
+		//get a flag JSON object
+		var flagJSONObj = flagsJSONObj.flagsArray[x];
+		
+		//create a Flag object
+		var flagObj = Flag.prototype.parseDataJSONObject(flagJSONObj);
+		
+		//add the Flag object to the array
+		flagsObj.flagsArray.push(flagObj);
+	}
+	
+	//return the Flags object
+	return flagsObj;
 }
 
 /**

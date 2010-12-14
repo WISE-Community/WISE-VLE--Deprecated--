@@ -1,9 +1,24 @@
 
+/* CSS Reset */
+html,body,div,ul,ol,li,dl,dt,dd,h1,h2,h3,h4,h5,h6,pre,form,p,blockquote,fieldset,input,hr,a {margin:0; padding:0;}
+h1,h2,h3,h4,h5,h6,pre,code,address,caption,cite,code,em,strong,th {font-size:1em; font-weight:normal; font-style:normal;}
+ul,ol {list-style:none;}
+fieldset,img,hr {border:none;}
+caption,th {text-align:left;}
+table {border-collapse:collapse; border-spacing:0;}
+td {vertical-align:top;}
+
 /* CORE LAYOUT STYLES */
 
 * {padding:0; margin:0}
 
-body {
+html,body{
+	height:100%;
+	overflow-y:hidden;
+	overflow-x:auto;
+}
+
+body#w4_vle {
 	/*  font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
@@ -16,7 +31,8 @@ body {
 	
 img {border: 0px;}
 
-/* This override presents Firefox browser from drawing an ugly dotted line around the focus Input button */
+
+/* This override prevents Firefox browser from drawing an ugly dotted line around the focus Input button */
 button::-moz-focus-inner,
 input[type="reset"]::-moz-focus-inner,
 input[type="button"]::-moz-focus-inner,
@@ -32,19 +48,18 @@ h6 {font-size:.8em; }
 p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 /*    This is the middle toned 88.236 palette  */
-
 .color1 {color:#164CBA;}   /* vibrant blue */
 .color2 {color:#6883BA;}   /* mid blue */
 .color3 {color:#919EBA;}   /* light blue */
 .color4 {color:#334B7B;}   /* dark blue */
 .color5 {color:#19253D;}   /* very dark blue */
-.color6 {color:#4E628B;}
+.color6 {color:#4E628B;}   /* mid gray slate */
 .color7 {color:#FF9D1E;}  /* bold orange */
 .color8 {color:#FFCE8E;}  /* mid tan */
 .color9 {color:#FFE6C6;}  /* light tan */
 .color10 {color:#a97e46;}  /* brown */
 .color11 {color:#543f23;}  /* dark red */
-.color12 {color:#bf9a6b;}
+.color12 {color:#bf9a6b;}   /* light brown */
 
 .bg1 {background-color:#164CBA;color:#FFF;}
 .bg2 {background-color:#6883BA;color:#000;}
@@ -60,63 +75,108 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .bg12 {background-color:#bf9a6b;color:#000;}
 
 #centeredDiv {
-	background-image:url(../images/robots/surrounding_bg3.png);
-	width: 1000px;
-	text-align:left;
-	margin: 0 auto; 
-	 	}
+	height:100%;
+	margin:0 auto;
+	max-width:1280px;
+	min-width:970px;
+	position:relative;
+	text-align:left; 
+}
 
 #projectLeftBox {
-	position:relative;
-	float:left;
-	background-image:url(../images/gradient_leftBox.png);
-	background-repeat:repeat-x; 
 	background-color:#6699FF;
-	width:225px; 
-	min-height:590px;
-	height:93%;
-	border:1px solid #333;
-	    }
+	background-image:url("../images/gradient_leftBox.png");
+	background-repeat:repeat-x;
+	border:1px solid #333333;
+	bottom:4px;
+	left:4px;
+	min-height:100px;
+	position:absolute;
+	top:40px;
+	width:220px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+}
+
+.hostBrandingBox {
+	
+}
 
 #projectRightUpperBox {
-	position:relative;
+	background-image:url("../images/gradient_stepInfoBar40v2.png");
+	background-position:0 0;
+	background-repeat:repeat-x;
+	border:1px solid #333333;
 	height:36px;
-	margin: 0 0 3px 0;
+	left:4px;
+	line-height:36px;
+	min-width:964px;
 	padding:0;
-	background-image:url(../images/gradient_stepInfoBar40v2.png);
-	background-repeat:repeat-x; 
-	background-position:0 0px;
-	border:1px solid #333;
+	position:absolute;
+	right:4px;
+	top:0;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
 	border-radius:4px;
 }
 	
 #projectRightLowerBox {
-	position:relative;
-	background-color:#FFF;
-	border:1px solid #333;
-	padding:0px;
-	margin: 0 0 0 231px; 
+	background-color:#FFFFFF;
+	border:1px solid #333333;
+	bottom:4px;
+	left:228px;
+	min-height:100px;
+	min-width:740px;
+	padding:0;
+	position:absolute;
+	right:4px;
+	top:40px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
 }
 
 #contentDiv {
 	padding:0;
 	margin:0;
-	background-color:#FFF;}
+	height: 100%;
+	background-color:#FFF;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+}
 
 #ifrm {
-	padding:0;
+	padding:0;	
 	margin:0;
 	width:100%;
+	height:100%;
 	background-color:#FFF;
-	}
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	overflow-x:hidden;
+}
+
+.no-title .ui-dialog-titlebar {
+	display: none;	
+}
 
 /* STYLES FOR PROJECT LEFT BOX */
 
+#betatagvle {
+	position:absolute;
+	top:2px;
+	left:135px;	
+	font-weight:bold;
+	font-size:.9em;
+	color:#ccccff;
+	}
+
 #projectLogoBox{
 	text-align:center;
-	padding:4px 0;
+	padding:2px 4px;
 	/* border-bottom:2px solid #666; */   
 	}
 
@@ -148,15 +208,10 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-weight:bold;
 	     }
 		 	
-#loginBox {
-	font-size:.6em;
-	text-align:center; 
- }
- 
 #audioControls  {
 	position:absolute;
 	top:10px;
-	left:138px;
+	right:310px;
 	background-color:transparent;
 	padding:0;
 	}	
@@ -229,12 +284,13 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #separator {
 	position:absolute;
 	top:4px;
-	left:227px;
+	left:223px;
 	}	
 	
 #navigationArea {
-	margin: 0px 0 35px 0 ;
-	}
+	/* margin: 0px 0 35px 0 ;  */
+	margin: 0p;
+		}
 
 #navMenuControls {
 	padding:0;
@@ -254,7 +310,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #navigationMenuBox {
 	overflow-y:auto;
 	overflow-x:hidden;
-	margin-left:2px;
+	margin-left:1px;
 }
 
 
@@ -262,8 +318,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 #stepInfoBar {
 	position:absolute;
-	left:240px;
-	width:500px;
+	left:5px;
+	width:340px;
 	}
 	
 #stepIcon {
@@ -272,38 +328,110 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	left:6px;
 }
 
+#projectMenuButton {
+	position:absolute;
+	left:5px;
+	top:13px;
+}
+
+
+#projectMenuButton a:hover {
+	color:#FFFF00;
+	cursor:pointer;
+}
+
+
+#dropDownTreeNavigationDiv div {
+	display:block;
+}	
+
+#dropDownTreeNavigationDiv .currentNode {
+	border: 1px dotted;
+	background: orange;
+}	
+
+#dropDownTreeNavigationDiv .depth2 {
+	margin-left:15px;
+}	
+
+#dropDownTreeNavigationDiv .depth3 {
+	margin-left:30px;
+}	
+
+#dropDownTreeNavigationDiv .depth4 {
+	margin-left:45px;
+}	
+
+#dropDownTreeNavigationDiv a {
+	display:block;
+}	
+
+#dropDownTreeNavigationDiv a:hover {
+	display:block;
+	cursor:pointer;
+}	
+
 #topStepTitle  {
 	position:absolute;
-	top:10px;
 	left:42px;
 	color:#333;
 	font-size:.75em;
 	font-weight:bold;
-	font-style:italic;
-			}	
+}	
 
-#stepNavButtons {
+#stepNavButtons1 {
 	position:absolute;
-	right:4px;
-		}
+	right:8px;
+}
+		
+#stepNavButtons1 ul {
+	line-height: 32px;
+}
 
-#stepNavButtons a {
-	font-size:.70em;
-	margin: 0 5px  0 0;
-	color:#666;
-	cursor:pointer;
-		}
-		
-#stepNavButtons a:hover {
-	color:#FFFF00;
-	cursor:pointer;
-		}
-		
-#stepNavButtons img  {
-	vertical-align:middle;
+#stepNavButtons1 ul li {
+	float: left;
+	display:block;
 }
 
 
+#stepNavButtons1 ul, #stepNavButtons1 li {
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+
+#stepNavButtons2 {
+	position:absolute;
+	left:5px;
+}
+
+#stepNavButtons1 a, #stepNavButtons2 a {
+	font-size:.70em;
+	margin: 0 4px 0 0;
+	padding:8px 0;
+	color:#666;
+	cursor:pointer;
+}
+		
+#stepNavButtons1 a:hover, #stepNavButtons2 a:hover {
+	color:#FFFF00;
+	cursor:pointer;
+}
+		
+#stepNavButtons1 img, #stepNavButtons2 img    {
+	vertical-align:middle;
+}
+
+.reviewWork {letter-spacing:-.5px;}
+.reviewWork img {margin-left:3px}
+
+.menuSwitcher {	letter-spacing:-.5px;}
+
+.menuSwitcher img {margin-right:-3px;}
+
+.tightText {
+	text-decoration:none;
+	}
 
 <!-- Anchor-Based Button Layout using TABLE-->
 
@@ -385,7 +513,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	width: 620px;
 	text-align:left;
 	padding: 25px 10px;
-	margin: 20px auto;
+	margin: 10px auto;
 	}
 	
 #stepTitle, #assessmentTitle {
@@ -411,7 +539,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #stepDescription li, #assessmentDescription li {
 	color:#19253D;
 	margin-bottom:15px; 	}
-		
+
+
 #InfoBoxClose {
 	text-align:center;
 	margin:30px auto;	}
@@ -435,7 +564,6 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .red {background-color:#CC0000;color:#FFF;padding:0px 3px 1px 3px;margin:0;}
 .yellow {background-color:#FFFF33;color:#999;padding:0px 3px 1px 3px;margin:0;}
 .green {background-color:#009900;color:#FFF;padding:0px 3px 1px 3px;margin:0;}
-
 
 /* TOOLS MENU DROP DOWN STYLING */
 
@@ -481,30 +609,118 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 
 /* SHOW ALL WORK STYLES */
 
-#showallwork .bd h3 {
-	background-image:url(../images/gradient_ShowAllWork1.png);
-	background-repeat:repeat-x; 
-	color:#FFF;
-	padding:4px 10px;
-	margin:0 5px;
-	-moz-border-radius-topleft:4px;
-	-moz-border-radius-topright:4px;
-	-moz-border-radius-bottomleft:4px;
-	-moz-border-radius-bottomright:4px;
+#showallwork .bd {
+	padding:5px;
 }
 
-#showallwork .bd h4 {
-	background-image:#CCC;
+#showWorkContainer {
+	background-color:#FFF;
+	margin:0 auto;
+	text-align:left; 
+	overflow: auto;
+	padding:5px 10px;
+	margin:0px;
+}
+
+
+#showallwork .bd #showallStep {
+	background:#ffCe8e;
 	color:#000;
 	padding:4px 10px;
-	margin:10px 5px 0 25px;
+	margin:10px 0x;
 	border:1px solid #333;
-	-moz-border-radius-topleft:4px;
-	-moz-border-radius-topright:4px;
-	-moz-border-radius-bottomleft:4px;
-	-moz-border-radius-bottomright:4px;
+	font-size:1em;	
+	font-weight:bold;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	}
+
+#showallwork .bd #showallStep .type {
+	display:inline;
+	margin-left:30px;
+	color:#666;
+	font-weight:bold;
+	font-size:.9em;
+	}
+
+#showallwork .bd .showallstatus {
+	margin: 4px 0 0 20px;
+	color:#333;
+	font-size:.8em;
+	}
+
+#showallwork .showallLatestWork {
+	margin: 4px 0 10px 0px;
+	color:#000;
+	font-size:1.2em;
+	font-weight:bold;
+	}
+	
+#showallwork .bd #teacherTable {
+	border-collapse:collapse;
+	margin: 4px 0 20px 20px;
+		}
+
+#teacherTable .teachermsg1, #teacherTable .teachermsg2 {
+	color:blue;
+	font-size:1.1em;
+	font-weight:bold;
+	
+	}
+	
+#teacherTable .teachermsg2 {
+	font-style:italic;
+	
+	}
+	
+#showallwork .bd #teacherTable .teachermsg3 {
+	color:#333;
+	font-size:.8em;
+	font-weight:bold;
+	
+	}
+	
+#showAllWorkScoresTable {
+	width:550px;
+	border-collapse:collapse;
+	border:1px solid black;
+	margin:10px 0 20px 10px;
 }
 
+
+#showAllWorkScoresTable td {
+	padding:5px;
+	border:1px solid #333;
+	text-align:center;
+	font-size:.7em;
+}
+
+#showAllWorkScoresTable .scoreHeader {
+	font-size:1.1em;
+	letter-spacing:.2em;
+	background-color:#4E628B;
+	color:#fff;
+	text-align:center:
+}
+
+#showAllWorkScoresTable .scoreValue {
+	color:#19253d;
+	font-weight:bold;
+	font-size:.9em;
+}
+
+/* STUDENT JOURNAL STYLES */
+
+#journalFrame {
+	background-color:#FFF;
+	margin:0 auto;
+	width:98%; 
+	height:98%; 
+	text-align:left; 
+	overflow: auto;
+	padding:.25em;
+}
 
 /* TESTING AREAS */
 

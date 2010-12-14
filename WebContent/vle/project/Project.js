@@ -1,737 +1,1663 @@
-var	htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
-var qtiAssessmentPageTypes = new Array("openresponse");
-
-var acceptedTagNames = new Array("node", "HtmlNode", "MultipleChoiceNode", "sequence", "FillinNode", "MatchSequenceNode", "NoteNode", "JournalEntryNode", "OutsideUrlNode", "BrainstormNode", "GlueNode", "OpenResponseNode", "FlashNode", "BlueJNode");
-
-function NodeFactory() {
-	this.htmlPageTypes = new Array("introduction", "reading", "video", "example", "display");
-	this.qtiAssessmentPageTypes = new Array("openresponse");
-}
-
-NodeFactory.createNode = function (element, connectionManager) {
-	var nodeName;
-	if(element.nodeName){
-		nodeName = element.nodeName;	//create from element
-	} else {
-		nodeName = element;				//create from string
-	};
-	if (acceptedTagNames.indexOf(nodeName) > -1) {
-		if (nodeName == "HtmlNode") {
-			return new HtmlNode("HtmlNode", connectionManager);
-		} else if (nodeName == "MultipleChoiceNode"){
-			return new MultipleChoiceNode("MultipleChoiceNode", connectionManager);
-		} else if(nodeName == 'FillinNode'){
-			return new FillinNode('FillinNode', connectionManager);
-		} else if (nodeName == 'NoteNode'){
-			return new NoteNode('NoteNode', connectionManager);
-		} else if (nodeName == 'JournalEntryNode'){
-			return new JournalEntryNode('JournalEntryNode', connectionManager);
-		} else if (nodeName == 'MatchSequenceNode'){
-			return new MatchSequenceNode('MatchSequenceNode', connectionManager);
-		} else if (nodeName == 'OutsideUrlNode'){
-			return new OutsideUrlNode('OutsideUrlNode', connectionManager);
-		} else if (nodeName == 'BrainstormNode'){
-			return new BrainstormNode('BrainstormNode', connectionManager);
-		} else if (nodeName == 'FlashNode') {
-			return new FlashNode('FlashNode', connectionManager);
-		} else if (nodeName == 'GlueNode'){
-			return new GlueNode('GlueNode', connectionManager);
-		} else if (nodeName == 'OpenResponseNode'){
-			return new OpenResponseNode('OpenResponseNode', connectionManager);
-		} else if (nodeName == 'BlueJNode'){
-			return new BlueJNode('BlueJNode', connectionManager);
-		} else if (nodeName == "sequence") {
-			var sequenceNode = new Node("sequence", connectionManager);
-			sequenceNode.id = element.getAttribute("identifier");
-			sequenceNode.title = element.getAttribute('title');
-			return sequenceNode;
-		} else {
-			return new Node();
-		}
-	}
-}
-
-function Project(xmlDoc, contentBaseUrl, connectionManager, lazyLoading) {
-	this.xmlDoc = xmlDoc;
-	this.contentBaseUrl = contentBaseUrl;
-	this.allLeafNodes = [];
-	this.allSequenceNodes = [];
-	this.lazyLoading = lazyLoading;
-	this.connectionManager = connectionManager;
-	this.autoStep;
-	this.title;
-	this.stepLevelNumbering;
-	this.stepTerm;
-	this.audioLocation = "/audio";   // default location where VLE looks for audio files
-	
-	var val = xmlDoc.getElementsByTagName('project')[0].getAttribute('autoStep');
-	if(val){
-		if(val=='true'){
-			this.autoStep = true;
-		} else {
-			this.autoStep = false;
-		};
-	} else {
-		notificationManager.notify('autoStep attribute of project file was not specified, using default value: true', 2);
-		this.autoStep = true;
-	}; 
-	
-	val = xmlDoc.getElementsByTagName('project')[0].getAttribute('stepLevelNum');
-	if(val){
-		if(val=='true'){
-			this.stepLevelNumbering = true;
-		} else {
-			this.stepLevelNumbering = false;
-		};
-	} else {
-		notificationManager.notify('stepLevelNum attribute of project file was not specified, using default value: false', 2);
-		this.stepLevelNumbering = false;
-	};
-	
-	val = xmlDoc.getElementsByTagName('project')[0].getAttribute('stepTerm');
-	if(val){
-		this.stepTerm = val;
-	} else {
-		notificationManager.notify('stepTerm attribute of project file was not specified, setting default value: \"\"', 2);
-		this.stepTerm = '';
-	};
-	
-	//alert('project constructor' + this.xmlDoc.getElementsByTagName("sequence").length);
-	//alert('1:' + this.xmlDoc.firstChild.nodeName);
-	if (this.xmlDoc.getElementsByTagName("sequences").length > 0) {
-		// this is a Learning Design-inspired project <repos>...</repos><sequence>...</sequence>
-		//alert('LD');
-		this.rootNode = this.generateNodeFromProjectFile(this.xmlDoc);
-	} else {
-		// this is a node project <node><node></node></node>
-		//alert('non-LD');
-		this.rootNode = this.generateNode(this.xmlDoc.firstChild);
-	}
-
-	//obtain the project title
-	this.title = this.xmlDoc.getElementsByTagName('project')[0].getAttribute('title');
-	this.printSummaryReportsToConsole();
-}
-
-Project.prototype.createNewNode = function(nodeType, filename){
-	var node = NodeFactory.createNode(nodeType);
-	node.filename = this.makeFileName(filename);
-	node.id = this.generateUniqueId();
-	node.title = 'default title';
-	node.element = null;
-	this.allLeafNodes.push(node);
-	return node;
-};
-
-Project.prototype.generateUniqueId = function(){
-	var id = 0;
-	while(true){
-		var node = this.getNodeById(id);
-		if(node){
-			id++;
-		} else {
-			return id;
-		};
-	}
-};
-
-/**
- * Returns the node with the given specified id that is associated with
- * this project if the node exists, returns null otherwise.
- * 
- * @param nodeId
- * @return Node
- */
-Project.prototype.getNodeById = function(nodeId){
-	for(var t=0;t<this.allLeafNodes.length;t++){
-		if(this.allLeafNodes[t].id==nodeId){
-			return this.allLeafNodes[t];
-		};
-	};
-	for(var p=0;p<this.allSequenceNodes.length;p++){
-		if(this.allSequenceNodes[p].id==nodeId){
-			return this.allSequenceNodes[p];
-		};
-	};
-	return null;
-};
-
-/**
- * Returns the node with the given specified title that is associated with
- * this project if the node exists, returns null otherwise.
- * 
- * @param nodeTitle
- * @return Node
- */
-Project.prototype.getNodeByTitle = function(title){
-	for(var y=0;y<this.allLeafNodes.length;y++){
-		if(this.allLeafNodes[y].title==title){
-				return this.allLeafNodes[y];
-		};
-	};
-	for(var u=0;u<this.allSequenceNodes.length;u++){
-		if(this.allSequenceNodes[u].title==title){
-			return this.allSequenceNodes[u];
-		};
-	};
-	return null;
-};
-
-Project.prototype.generateNode = function(element) {
-	var thisNode = NodeFactory.createNode(element);
-	if (thisNode) {
-		thisNode.element = element;
-		thisNode.id = element.getAttribute('id');
-		var children = element.childNodes;
-		for (var i = 0; i < children.length; i++) {
-			if (acceptedTagNames.indexOf(children[i].nodeName) > -1) {
-				thisNode.addChildNode(this.generateNode(children[i]));
-			}
-		}
-		return thisNode;
-	}
-}
-
-Project.prototype.generateNodeFromProjectFile = function(xmlDoc) {
-	// go through the nodes in <repos>...</repos> tag and create Nodes for each.
-	// put them in allNodes array as we go.
-	this.allLeafNodes = [];
-	var nodeElements = xmlDoc.getElementsByTagName("nodes")[0].childNodes;
-	for (var i=0; i < nodeElements.length; i++) {
-		var currElement = nodeElements[i];
-		if (currElement.nodeName != "#text" && currElement.nodeName != '#comment')  {
-			var thisNode = NodeFactory.createNode(currElement);
-			if(thisNode == null) {
-				/*
-				 * we are unable to create the specified node type probably
-				 * because it does not exist in wise4
-				 */
-				//break;
-				notificationManager.notify('null was returned from project factory for unknown node type: ' + currElement.nodeName + ' \nSkipping node.', 2);
-			} else {
-				//validate identifier attribute
-				if(!currElement.getAttribute('identifier')){
-					notificationManager.notify('No identifier attribute for node in project file.', 3);
-				} else {
-					thisNode.id = currElement.getAttribute('identifier');
-					if(this.idExists(thisNode.id)){
-						notificationManager.notify('Duplicate node id: ' + thisNode.id + ' found in project', 3);
-					};
-				};
-				//validate title attribute
-				if(!currElement.getAttribute('title')){
-					notificationManager.notify('No title attribute for node with id: ' + thisNode.id, 2);
-				} else {
-					thisNode.title = currElement.getAttribute('title');
-				};
-				//validate class attribute
-				if(!currElement.getAttribute('class')){
-					notificationManager.notify('No class attribute for node with id: ' + thisNode.id, 2);
-				} else {
-					thisNode.className = currElement.getAttribute('class');
-				};
-				//validate filename reference attribute
-				if(!currElement.getElementsByTagName('ref')[0].getAttribute('filename')){
-					notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
-				} else {
-					thisNode.filename = this.makeFileName(currElement.getElementsByTagName('ref')[0].getAttribute("filename"));
-				};
-				thisNode.element = currElement;
-				
-				this.allLeafNodes.push(thisNode);
-				//alert('1 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
-				if(this.lazyLoading){ //load as needed
-					if(thisNode.type=='NoteNode'){//this one always needs it now
-						thisNode.retrieveFile();
-					};
-				} else { //load it now
-					thisNode.retrieveFile();
-				};
-				
-				thisNode.contentBase = this.contentBaseUrl;
-				//alert('2 project.js, element.id:' + thisNode.id + ', nodeaudio count:' + thisNode.audios.length);
-			};
-		};
-	};
-	
-	//return this.generateSequence(xmlDoc.getElementsByTagName("sequence")[0]);
-	return this.generateSequences(xmlDoc);
-}
-
-Project.prototype.makeFileName = function(filename) {
-	if (this.contentBaseUrl != null) {
-		if(this.contentBaseUrl.lastIndexOf('\\')!=-1){
-			return this.contentBaseUrl + '\\' + filename;
-		} else {
-			return this.contentBaseUrl + "/" + filename;
-		};
-	}
-	return filename;
-}
-/**
- * Given the xml, generates all sequence nodes and returns the
- * sequence node specified as the start point
- */
-Project.prototype.generateSequences = function(xmlDoc){
-	this.allSequenceNodes = [];
-	var startingSequence = null;
-	
-	//generate the sequence nodes
-	var sequences = xmlDoc.getElementsByTagName('sequence');
-	for(var e=0;e<sequences.length;e++){
-		var sequenceNode = NodeFactory.createNode(sequences[e]);
-		//validate id
-		if(this.idExists(sequenceNode.id)){
-			notificationManager.notify('Duplicate sequence id: ' + sequenceNode.id + ' found in project.', 3);
-		};
-		sequenceNode.element = sequences[e];
-		this.allSequenceNodes.push(sequenceNode);
-	};
-	
-	//get startingSequence
-	if(xmlDoc.getElementsByTagName('startpoint')[0].childNodes.length>0 && xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0] && xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref')){
-		startingSequence = this.getNodeById(xmlDoc.getElementsByTagName('startpoint')[0].getElementsByTagName('sequence-ref')[0].getAttribute('ref'));
-	} else {
-		notificationManager.notify('No starting sequence specified for this project', 3);
-	};
-	
-	//get location of audio files
-	if(xmlDoc.getElementsByTagName('audiofiles').length >0 && xmlDoc.getElementsByTagName('audiofiles')[0].childNodes.length>0 && xmlDoc.getElementsByTagName('audiofiles')[0].getElementsByTagName('location')[0] && xmlDoc.getElementsByTagName('audiofiles')[0].getElementsByTagName('location')[0].firstChild.nodeValue){
-		this.audioLocation = xmlDoc.getElementsByTagName('audiofiles')[0].getElementsByTagName('location')[0].firstChild.nodeValue;
-	} else {
-		notificationManager.notify('No audio location specified for this project, using default', 4);
-		this.audioLocation = "/audio";
-	};
+/* Modular Project Object */
+function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectContent){
+	return function(content, cbu, ll, view, totalProjectContent){
+		var content = content;
+		var contentBaseUrl = cbu;
+		var lazyLoading = ll;
+		var allLeafNodes = [];
+		var allSequenceNodes = [];
+		var autoStep;
+		var stepLevelNumbering;
+		var title;
+		var stepTerm;
+		var rootNode;
+		var view = view;
+		var copyIds = [];
+		var loggingLevel = 5; //default to log everything
+		var postLevel = 5; //default to post all steps
+		var totalProjectContent = totalProjectContent;
+		var constraints = [];
 		
-	//validate that there are no loops
-	if(startingSequence){
-		for(var s=0;s<this.allSequenceNodes.length;s++){
-			var stack = [];
-			if(this.validateNoLoops(this.allSequenceNodes[s].id, stack, 'file')){
-				//All OK, add children to sequence
-				this.populateSequences(this.allSequenceNodes[s].id);
-			} else {
-				notificationManager.notify('Infinite loop discovered in sequences, check sequence references', 3);
-				return null;
-			};
-		};
-		return startingSequence;
-	} else {
-		//no starting sequence specified, just return
-		return;
-	};
-};
-
-/**
- * Given the sequence id and stack, returns true if there are
- * no infinite loops within the given start sequence, otherwise returns false
- */
-Project.prototype.validateNoLoops = function(id, stack, from){
-	if(stack.indexOf(id)==-1){ //id not found in stack - continue checking
-		var childrenIds = this.getChildrenSequenceIds(id, from);
-		if(childrenIds.length>0){ //sequence has 1 or more sequences as children - continue checking
-			stack.push(id);
-			for(var b=0;b<childrenIds.length;b++){ // check children
-				if(!this.validateNoLoops(childrenIds[b], stack)){
-					return false; //found loop or duplicate id
+		/* When parsing a minified project, looks up and returns each node's content
+		 * based on the given id.*/
+		var getMinifiedNodeContent = function(id){
+			var nodes = totalProjectContent.getContentJSON().nodes;
+			for(var i=0;i<nodes.length;i++){
+				if(nodes[i].identifier==id){
+					return nodes[i].content;
 				};
 			};
-			stack.pop(id); //children OK
-			return true;
-		} else { // no children ids to check - this is last sequence node so no loops or duplicates
-			return true;
 		};
-	} else { //id found in stack, infinite loop or duplicate id
-		return false;
-	};
-};
+		
+		/* returns an array of all the duplicate nodes in this project */
+		var getDuplicateNodes = function(){
+			var duplicates = [];
+			for(var a=0;a<allLeafNodes.length;a++){
+				if(allLeafNodes[a].type=='DuplicateNode'){
+					duplicates.push(allLeafNodes[a]);
+				}
+			}
+			
+			return duplicates;
+		};
+		
+		/* after the leaf nodes have been generated, retrieves the real nodes
+		 * and sets them in the duplicate nodes in this project */
+		var setRealNodesInDuplicates = function(){
+			var duplicates = getDuplicateNodes();
+			for(var b=0;b<duplicates.length;b++){
+				duplicates[b].realNode = getNodeById(duplicates[b].realNodeId);
+			}
+		};
+		
+		/* Creates the nodes defined in this project's content */
+		var generateProjectNodes = function(){
+			var jsonNodes = content.getContentJSON().nodes;
+			if(!jsonNodes){
+				jsonNodes = [];
+			}
+			
+			for (var i=0; i < jsonNodes.length; i++) {
+				var currNode = jsonNodes[i];
+				var thisNode = NodeFactory.createNode(currNode, view);
+				if(thisNode == null) {
+					/* unable to create the specified node type probably because it does not exist in wise4 */
+					view.notificationManager.notify('null was returned from project factory for node: ' + currNode.identifier + ' \nSkipping node.', 2);
+				} else {
+					/* validate and set identifier attribute */
+					if(!currNode.identifier || currNode.identifier ==''){
+						view.notificationManager.notify('No identifier for node in project file.', 3);
+					} else {
+						thisNode.id = currNode.identifier;
+						if(idExists(thisNode.id)){
+							view.notificationManager.notify('Duplicate node id: ' + thisNode.id + ' found in project', 3);
+						}
+					}
 
-/**
- * Given the a sequence Id, populates All Children nodes
- */
-Project.prototype.populateSequences = function(id){
-	var sequence = this.getNodeById(id);
-	var children = sequence.element.childNodes;
-	for(var j=0;j<children.length;j++){
-		if(children[j].nodeName!='#text' && children[j].nodeName!='#comment'){
-			//validate reference attribute
-			if(!children[j].getAttribute('ref')){
-				notificationManager.notify('Unable to find reference for a node specified for sequence with id: ' + id + ', check this entry in the project file', 2);
+					if(currNode.type != 'DuplicateNode'){
+						/* validate and set title attribute */
+						if(!currNode.title || currNode.title==''){
+							view.notificationManager.notify('No title attribute for node with id: ' + thisNode.id, 2);
+						} else {
+							thisNode.title = currNode.title;
+						}
+
+						/* validate and set class attribute */
+						if(!currNode['class'] || currNode['class']==''){
+							view.notificationManager.notify('No class attribute for node with id: ' + thisNode.id, 2);
+						} else {
+							thisNode.className = currNode['class'];
+						}
+
+						/* validate filename reference attribute */
+						if(!currNode.ref || currNode.ref==''){
+							view.notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
+						} else {
+							thisNode.content = createContent(makeUrl(currNode.ref));
+						}
+						
+						//set the peerReview attribute if available
+						if(!currNode.peerReview || currNode.peerReview=='') {
+
+						} else {
+							thisNode.peerReview = currNode.peerReview;
+						}
+
+						//set the teacherReview attribute if available
+						if(!currNode.teacherReview || currNode.teacherReview=='') {
+
+						} else {
+							thisNode.teacherReview = currNode.teacherReview;
+						}
+
+						//set the reviewGroup attribute if available
+						if(!currNode.reviewGroup || currNode.reviewGroup=='') {
+
+						} else {
+							thisNode.reviewGroup = currNode.reviewGroup;
+						}
+
+						//set the associatedStartNode attribute if available
+						if(!currNode.associatedStartNode || currNode.associatedStartNode=='') {
+
+						} else {
+							thisNode.associatedStartNode = currNode.associatedStartNode;
+						}
+
+						//set the associatedAnnotateNode attribute if available
+						if(!currNode.associatedAnnotateNode || currNode.associatedAnnotateNode=='') {
+
+						} else {
+							thisNode.associatedAnnotateNode = currNode.associatedAnnotateNode;
+						}
+
+						/* if project is loading minified, create each node's content from the parsed totalProjectContent */
+						if(totalProjectContent){
+							thisNode.content.setContent(getMinifiedNodeContent(thisNode.id));
+						}
+
+						/* load content now if not lazy loading */
+						if(!lazyLoading){
+							thisNode.content.retrieveContent();
+						}
+					}
+
+					/* add to leaf nodes */
+					allLeafNodes.push(thisNode);
+					
+					/* get any previous work reference node ids and add it to node */
+					thisNode.prevWorkNodeIds = currNode.previousWorkNodeIds;
+
+					/* get links to other nodes and add it to node */
+					if(currNode.links){
+						thisNode.links = currNode.links;
+					}
+
+					/* add events for node rendering */
+					eventManager.subscribe('pageRenderComplete', thisNode.pageRenderComplete, thisNode);
+					eventManager.subscribe('contentRenderComplete', thisNode.contentRenderComplete, thisNode);
+					eventManager.subscribe('scriptsLoaded', thisNode.loadContentAfterScriptsLoad, thisNode);
+				}
+			}
+		};
+
+		/* Creates and validates the sequences defined in this project's content */
+		var generateSequences = function(){
+			var project = content.getContentJSON();
+			
+			/* create the sequence nodes */
+			var sequences = project.sequences;
+			if(!sequences){
+				sequences = [];
+			};
+			
+			for(var e=0;e<sequences.length;e++){
+				var sequenceNode = NodeFactory.createNode(sequences[e], view);
+				
+				if(sequenceNode){
+					sequenceNode.json = sequences[e];
+					/* validate id */
+					if(idExists(sequenceNode.id)){
+						view.notificationManager.notify('Duplicate sequence id: ' + sequenceNode.id + ' found in project.', 3);
+					};
+				};
+				
+				allSequenceNodes.push(sequenceNode);
+			};
+			
+			/* get starting sequence */
+			if(project.startPoint){
+				var startingSequence = getNodeById(project.startPoint);
 			} else {
-				var childNode = this.getNodeById(children[j].getAttribute('ref'));
-				//validate node was defined
+				view.notificationManager.notify('No starting sequence specified for this project', 3);
+			};
+			
+			/* validate that there are no loops before setting root node */
+			if(startingSequence){
+				for(var s=0;s<allSequenceNodes.length;s++){
+					var stack = [];
+					if(validateNoLoops(allSequenceNodes[s].id, stack, 'file')){
+						//All OK, add children to sequence
+						populateSequences(allSequenceNodes[s].id);
+					} else {
+						view.notificationManager.notify('Infinite loop discovered in sequences, check sequence references', 3);
+						return null;
+					};
+				};
+				rootNode = startingSequence;
+			};
+		};
+		
+		/* Returns true if a node of the given id already exists in this project, false otherwise */
+		var idExists = function(id){
+			return getNodeById(id);
+		};
+		
+		/* Returns the node with the given id if the node exists, returns null otherwise. */
+		var getNodeById = function(nodeId){
+			for(var t=0;t<allLeafNodes.length;t++){
+				if(allLeafNodes[t].id==nodeId){
+					return allLeafNodes[t];
+				};
+			};
+			for(var p=0;p<allSequenceNodes.length;p++){
+				if(allSequenceNodes[p] && allSequenceNodes[p].id==nodeId){
+					return allSequenceNodes[p];
+				};
+			};
+			return null;
+		};
+		
+		/* Returns the node at the given position in the project if it exists, returns null otherwise */
+		var getNodeByPosition = function(position){
+			if(position){
+				var locs = position.split('.');
+				var parent = rootNode;
+				var current;
+	
+				/* cycle through locs, getting the children each cycle */
+				for(var u=0;u<locs.length;u++){
+					current = parent.children[locs[u]];
+					
+					/* if not current, then the position is off, return null */
+					if(!current){
+						return null;
+					} else if(u==locs.length-1){
+						/* if this is last location return current*/
+						return current;
+					} else {
+						/* otherwise set parent = current for next cycle */
+						parent = current;
+					}
+				}
+			} else {
+				return null;
+			}
+		};
+		
+		/* Given the filename, returns the url to retrieve the file */
+		var makeUrl = function(filename){
+			if (contentBaseUrl != null) {
+				if(contentBaseUrl.lastIndexOf('\\')!=-1){
+					return contentBaseUrl + '\\' + filename;
+				} else {
+					return contentBaseUrl + '/' + filename;
+				};
+			};
+			return filename;
+		};
+		
+		/*
+		 * Given the sequence id, a stack and where search is run from, returns true if
+		 * there are no infinite loops starting from given id, otherwise returns false.
+		 */
+		var validateNoLoops = function(id, stack, from){
+			if(stack.indexOf(id)==-1){ //id not found in stack - continue checking
+				var childrenIds = getChildrenSequenceIds(id, from);
+				if(childrenIds.length>0){ //sequence has 1 or more sequences as children - continue checking
+					stack.push(id);
+					for(var b=0;b<childrenIds.length;b++){ // check children
+						if(!validateNoLoops(childrenIds[b], stack)){
+							return false; //found loop or duplicate id
+						};
+					};
+					stack.pop(id); //children OK
+					return true;
+				} else { // no children ids to check - this is last sequence node so no loops or duplicates
+					return true;
+				};
+			} else { //id found in stack, infinite loop or duplicate id
+				return false;
+			};
+		};
+		
+		/* Given the a sequence Id, populates all of it's children nodes */
+		var populateSequences = function(id){
+			var sequence = getNodeById(id);
+			var children = sequence.json.refs;
+			for(var j=0;j<children.length;j++){
+				/* validate node was defined and add it to sequence if it is */
+				var childNode = getNodeById(children[j]);
 				if(!childNode){
-					notificationManager.notify('Node reference ' + children[j].getAttribute('ref') + ' exists in sequence node ' + id + ' but the node has not been defined and does not exist.', 2);
+					view.notificationManager.notify('Node reference ' + children[j] + ' exists in sequence node ' + id + ' but the node has not been defined and does not exist.', 2);
 				} else {
 					sequence.addChildNode(childNode);
 				};
-			};			
-		};
-	};
-};
-
-/**
- * Given a sequence ID and location from (file or project), returns an 
- * array of ids for any children sequences
- */
-Project.prototype.getChildrenSequenceIds = function(id, from){
-	var sequence = this.getNodeById(id);
-	//validate sequence reference
-	if(!sequence){
-		notificationManager.notify('Sequence with id: ' + id + ' is referenced but this sequence does not exist.', 2);
-		return [];
-	};
-	
-	var childrenIds = [];
-	
-	if(from=='file'){
-		var refs = sequence.element.getElementsByTagName('sequence-ref');
-		
-		for(var e=0;e<refs.length;e++){
-			childrenIds.push(refs[e].getAttribute('ref'));
-		};
-	} else {
-		var children = sequence.children;
-		
-		for(var e=0;e<children.length;e++){
-			if(children[e].type=='sequence'){
-				childrenIds.push(children[e].id);
 			};
 		};
-	};
-	
-	return childrenIds;
-};
-
-Project.prototype.idExists = function(id){
-	return this.getNodeById(id);
-};
-
-/*
- * updates the sequence and updates the node.
- * param sequenceArray is an array of references to leaf nodes
- */
-Project.prototype.updateSequence = function(sequenceArray) {
-	var sequenceNode = new Node("sequence");
-	sequenceNode.id = this.rootNode.id;
-	for (var i=0; i < sequenceArray.length; i++) {
-		var referencedNode = findNodeById(this.allLeafNodes, sequenceArray[i]);
-		sequenceNode.addChildNode(referencedNode);
-	}
-	this.rootNode = sequenceNode;
-	this.allSequenceNodes[0] = sequenceNode;
-}
-
-/*
- * Returns a string that can be saved back into a .project file
- */
-Project.prototype.generateProjectFileString = function() {
-	var fileStringSoFar = "<project>\n";
-	// print out all of the nodes
-	fileStringSoFar += "<nodes>\n";
-	for (var i=0; i < this.allLeafNodes.length; i++) {
-		var currentNode = this.allLeafNodes[i];
-		fileStringSoFar += currentNode.generateProjectFileString();
-	}
-	fileStringSoFar += "</nodes>\n";
-	
-	// print out the sequence
-	if(this.allSequenceNodes.length>0){
-		fileStringSoFar += this.generateSequenceFileString(this.rootNode, 0);
-	};
-	
-	fileStringSoFar += "</project>";
-	return fileStringSoFar;
-}
-
-Project.prototype.generateSequenceFileString = function(node, depth) {
-	var space = "";
-	for(var o=0;o<depth;o++){
-		space += "     ";
-	};
-	if(node.type=='sequence'){
-		if(node.children.length>0){
-			retStr = space + "<sequence identifier=\"" + node.id + "\" title=\"" + node.title + "\">\n";
-				for(var z=0;z<node.children.length;z++){
-					retStr += this.generateSequenceFileString(node.children[z], depth + 1);
+		
+		/* Given a sequence ID and location from (file or project), returns an array of ids for any children sequences */
+		var getChildrenSequenceIds = function(id, from){
+			var sequence = getNodeById(id);
+			/* validate sequence reference */
+			if(!sequence){
+				view.notificationManager.notify('Sequence with id: ' + id + ' is referenced but this sequence does not exist.', 2);
+				return [];
+			};
+			
+			/* populate childrenIds */
+			var childrenIds = [];
+			if(from=='file'){
+				/* get child references from content */
+				var refs = sequence.json.refs;
+				for(var e=0;e<refs.length;e++){
+					childrenIds.push(refs[e]);
 				};
-			retStr += space + "</sequence>\n";
-			return retStr;
-		} else {
-			return;
-		};
-	} else {
-		return space + "<node-ref ref=\"" + node.id + "\"/>\n";
-	};
-};
-
-/*
- * finds the node with the specified id in the specified array
- */
-function findNodeById(nodesArray, id) {
-	for (var k=0; k<nodesArray.length; k++) {
-		if (nodesArray[k].id == id) {
-			return nodesArray[k];
-		}
-	}
-	return null;
-}
-
-Project.prototype.getSummaryProjectHTML = function(){
-	var projectHTML = "<h3>Project Summary</h3>";
-	
-	function getNodeInfo(node, depth){
-		var html = "<br>";
-		var tab = '&nbsp;';
-		
-		for(var y=0;y<(depth*2);y++){
-			html = html + tab;
-		};
-		
-		html = html + node.type + '   ' + node.getTitle();
-		for(var z=0;z<node.children.length;z++){
-			html = html + getNodeInfo(node.children[z], depth + 1);
-		};
-		return html;
-	};
-	
-	projectHTML = projectHTML + getNodeInfo(this.rootNode, 0);
-	return projectHTML;
-};
-
-Project.prototype.getShowAllWorkHtml = function(node, doGrading) {
-	var htmlSoFar = "";
-	if (node.children.length > 0) {
-		// this is a sequence node
-		for (var i = 0; i < node.children.length; i++) {
-			htmlSoFar += this.getShowAllWorkHtml(node.children[i], doGrading);
-		}
-	} else {
-		// this is a leaf node
-	    htmlSoFar += "<h4><a href=\"#\" onclick=\"vle.renderNode('"+node.id+"'); YAHOO.example.container.showallwork.hide();\">" + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></h4>";
-	    if (doGrading) {
-		    htmlSoFar += "<table border='1'>";
-		    htmlSoFar += "<tr><th>Work</th><th>Grading</th></tr>";
-			htmlSoFar += "<tr><td>" + node.getShowAllWorkHtml(vle) + "</td>";
-			htmlSoFar += "<td><textarea rows='10' cols='10'></textarea></td></tr>";
-			htmlSoFar += "</table>";
-	    } else {
-			htmlSoFar += node.getShowAllWorkHtml(vle);
-	    }
-		htmlSoFar += "<br/><br/>";
-	}
-	return htmlSoFar;
-}
-
-/**
- * Returns the first renderable node Id given the structure of 
- * the project (starting with the rootNode
- */
-Project.prototype.getStartNodeId = function(){
-	return id = this.getFirstNonSequenceNodeId(this.rootNode);
-};
-
-/**
- * Helper function for getStartNodeId()
- */
-Project.prototype.getFirstNonSequenceNodeId = function(node){
-	if(node){
-		if(node.type=='sequence'){
-			for(var y=0;y<node.children.length;y++){
-				var id = this.getFirstNonSequenceNodeId(node.children[y]);
-				if(id!=null){
-					return id;
+			} else {
+				/* get child references from sequence */
+				var children = sequence.children;
+				for(var e=0;e<children.length;e++){
+					if(children[e].type=='sequence'){
+						childrenIds.push(children[e].id);
+					};
 				};
 			};
-		} else {
-			return node.id;
+			
+			return childrenIds;
 		};
-	} else {
-		notificationManager.notify('Cannot get start node! Possibly no start sequence is specified or invalid node exists in project.', 2);
-	};
-};
+		
+		/* Returns the node with the given title if the node exists, returns null otherwise. */
+		var getNodeByTitle = function(title){
+			for(var y=0;y<allLeafNodes.length;y++){
+				if(allLeafNodes[y].title==title){
+						return allLeafNodes[y];
+				};
+			};
+			for(var u=0;u<allSequenceNodes.length;u++){
+				if(allSequenceNodes[u].title==title){
+					return allSequenceNodes[u];
+				};
+			};
+			return null;
+		};
+		
 
-/**
- * Removes the node from the project
- */
-Project.prototype.removeNodeById = function(id){
-	for(var o=0;o<this.allSequenceNodes.length;o++){
-		if(this.allSequenceNodes[o].id==id){
-			this.allSequenceNodes.splice(o,1);
-			this.removeAllNodeReferences(id);
-			return;
-		};
-	};
-	for(var q=0;q<this.allLeafNodes.length;q++){
-		if(this.allLeafNodes[q].id==id){
-			this.allLeafNodes.splice(q,1);
-			this.removeAllNodeReferences(id);
-			return;
-		};
-	};
-};
-
-/**
- * Removes all references of the node with the given id
- * from sequences in this project
- */
-Project.prototype.removeAllNodeReferences = function(id){
-	for(var w=0;w<this.allSequenceNodes.length;w++){
-		for(var e=0;e<this.allSequenceNodes[w].children.length;e++){
-			if(this.allSequenceNodes[w].children[e].id==id){
-				this.allSequenceNodes[w].children.splice(e, 1);
+		/* Helper function for getStartNodeId() */
+		var getFirstNonSequenceNodeId = function(node){
+			if(node){
+				if(node.type=='sequence'){
+					for(var y=0;y<node.children.length;y++){
+						var id = getFirstNonSequenceNodeId(node.children[y]);
+						if(id!=null){
+							return id;
+						};
+					};
+				} else {
+					return node.id;
+				};
+			} else {
+				view.notificationManager.notify('Cannot get start node! Possibly no start sequence is specified or invalid node exists in project.', 2);
 			};
 		};
-	};
-};
-
-/**
- * Removes the node associated with the given refId from the sequence
- * associated with the given seqId at the given location
- */
-Project.prototype.removeReferenceFromSequence = function(seqId, refId, location){
-	var sequence = this.getNodeById(seqId);
-	//for(var t=0;t<sequence.children.length;t++){
-	//	if(sequence.children[t].id==refId){
-	//		sequence.children.splice(t, 1);
-	//		return;
-	//	};
-	//};
-	sequence.children.splice(location, 1);
-};
-
-/**
- * Adds the sequence given the associates addSeqId to the sequence
- * with the associated toSeqId at the given location
- */
-Project.prototype.addSequenceToSequence = function(addSeqId, toSeqId, location){
-	var addSeq = this.getNodeById(addSeqId);
-	var toSeq = this.getNodeById(toSeqId);
-	
-	toSeq.children.splice(location, 0, addSeq); //inserts
-};
-
-/**
- * Adds the node associated with the given nodeId to the sequence
- * associated with the given seqId at the given location
- */
-Project.prototype.addNodeToSequence = function(nodeId, seqId, location){
-	var addNode = this.getNodeById(nodeId);
-	var sequence = this.getNodeById(seqId);
-	
-	sequence.children.splice(location, 0, addNode); //inserts
-};
-
-Project.prototype.projectXML = function(){
-	var xml = "<project autoStep=\"" + this.autoStep + "\" stepLevelNum=\"" + this.stepLevelNumbering + 
-		"\" stepTerm=\"" + this.stepTerm + "\">\n<nodes>\n";
-	
-	for(var k=0;k<this.allLeafNodes.length;k++){
-		xml += this.allLeafNodes[k].nodeDefinitionXML();
-	};
-	
-	xml += "</nodes>\n<sequences>\n";
-	
-	for(var j=0;j<this.allSequenceNodes.length;j++){
-		xml += this.allSequenceNodes[j].nodeDefinitionXML();
-	};
-	
-	xml += "</sequences>\n<method>\n<startpoint>" + this.rootNode.nodeReferenceXML() + "</startpoint>\n</method>\n</project>";
-	
-	return xml;
-};
-
-/**
- * Returns an xml string that represents this project. This is used
- * by the authoring tool to return the project in xml so it can be
- * saved.
- * @return an xml string that represents the project
- */
-Project.prototype.exportProject = function() {
-	var exportXML = this.rootNode.exportNode();
-	return exportXML;
-};
-
-/**
- * Given a node id and a new location, updates the location of the node
- * in the leaf nodes.
- * 
- * @param id
- * @param loc
- */
-Project.prototype.updateNodeLocation = function(id, loc){
-	var node = this.getNodeById(id);
-	
-	if(node){
-		var index = this.allLeafNodes.indexOf(node);
-		if(index==-1){
-			notificationManager.notify('Was expecting a leaf node, cound not update location!', 2);
-		} else {
-			this.allLeafNodes.splice(index, 1); //remove it from allLeafNodes first
-			this.allLeafNodes.splice(loc, 0, node); //then add it back at the new location
+		
+		/* Removes all references of the node with the given id from sequences in this project */
+		var removeAllNodeReferences = function(id){
+			for(var w=0;w<allSequenceNodes.length;w++){
+				for(var e=0;e<allSequenceNodes[w].children.length;e++){
+					if(allSequenceNodes[w].children[e].id==id){
+						allSequenceNodes[w].children.splice(e, 1);
+					};
+				};
+			};
 		};
-	} else {
-		notificationManager.notify('Could not update node location, could not find node!', 2);
-	};
+		
+		/* Recursively searches for first non sequence node and returns that path */
+		var getPathToFirstNonSequenceNode = function(node, path){
+			if(node.type=='sequence'){
+				for(var y=0;y<node.children.length;y++){
+					var pos = getPathToFirstNonSequenceNode(node.children[y], path + '.'  + y);
+					if(pos!=undefined && pos!=null){
+						return pos;
+					};
+				};
+			} else {
+				return path;
+			};
+		};
+		
+		/* Recursively searches for the given id from the point of the node down and returns the path. */
+		var getPathToNode = function(node, path, id){
+			if(node.id==id){
+				return path;
+			} else if(node.type=='sequence'){
+				for(var e=0;e<node.children.length;e++){
+					var pos = getPathToNode(node.children[e], path + '.' + e, id);
+					if(pos){
+						return pos;
+					};
+				};
+			};
+		};
+
+		/**
+		 * Prints summary report to firebug console of: All Sequences and
+		 * Nodes defined for this project, Sequences defined but not used,
+		 * Nodes defined but not used, Sequences used twice and Nodes used
+		 * twice in this project.
+		 */
+		var printSummaryReportsToConsole = function(){
+			printSequencesDefinedReport();
+			printNodesDefinedReport();
+			printUnusedSequencesReport();
+			printUnusedNodesReport();
+			printDuplicateSequencesReport();
+			printDuplicateNodesReport();
+		};
+		
+		/**
+		 * Prints a report of all sequences defined for this project
+		 * to the firebug console
+		 */
+		var printSequencesDefinedReport = function(){
+			var outStr = 'Sequences defined by Id: ';
+			for(var z=0;z<allSequenceNodes.length;z++){
+				if(allSequenceNodes[z]){
+					if(z==allSequenceNodes.length - 1){
+						outStr += ' ' + allSequenceNodes[z].id;
+					} else {
+						outStr += ' ' + allSequenceNodes[z].id + ',';
+					};
+				};
+			};
+			view.notificationManager.notify(outStr, 1);
+		};
+
+		/**
+		 * Prints a report of all nodes defined for this project
+		 * to the firebug console
+		 */
+		var printNodesDefinedReport = function(){
+			var outStr = 'Nodes defined by Id: ';
+			for(var x=0;x<allLeafNodes.length;x++){
+				if(x==allLeafNodes.length -1){
+					outStr += ' ' + allLeafNodes[x].id;
+				} else {
+					outStr += ' ' + allLeafNodes[x].id + ',';
+				};
+			};
+			
+			view.notificationManager.notify(outStr, 1);
+		};
+
+		/**
+		 * Prints a report of all unused sequences for this project
+		 * to the firebug console
+		 */
+		var printUnusedSequencesReport = function(){
+			var outStr = 'Sequence(s) with id(s): ';
+			var found = false;
+			
+			for(var v=0;v<allSequenceNodes.length;v++){
+				var rootNodeId;
+				if(rootNode){
+					rootNodeId = rootNode.id;
+				} else {
+					rootNodeId = 'rootNode';
+				};
+				
+				if(allSequenceNodes[v] && !referenced(allSequenceNodes[v].id) && allSequenceNodes[v].id!=rootNodeId){
+					found = true;
+					outStr += ' ' + allSequenceNodes[v].id;
+				};
+			};
+			
+			if(found){
+				view.notificationManager.notify(outStr + " is/are never used in this project", 1);
+			};
+		};
+
+		/**
+		 * Prints a report of all unused nodes for this project
+		 * to the firebug console
+		 */
+		var printUnusedNodesReport = function(){
+			var outStr = 'Node(s) with id(s): ';
+			var found = false;
+			
+			for(var b=0;b<allLeafNodes.length;b++){
+				if(!referenced(allLeafNodes[b].id)){
+					found = true;
+					outStr += ' ' + allLeafNodes[b].id;
+				};
+			};
+
+			if(found){
+				view.notificationManager.notify(outStr + " is/are never used in this project", 1);
+			};
+		};
+
+		/**
+		 * Prints a report of all duplicate sequence ids to the
+		 * firebug console
+		 */
+		var printDuplicateSequencesReport = function(){
+			var outStr = 'Duplicate sequence Id(s) are: ';
+			var found = false;
+			
+			for(var n=0;n<allSequenceNodes.length;n++){
+				if(allSequenceNodes[n]){
+					var count = 0;
+					for(var m=0;m<allSequenceNodes.length;m++){
+						if(allSequenceNodes[m] && allSequenceNodes[n].id==allSequenceNodes[m].id){
+							count ++;
+						};
+					};
+					
+					if(count>1){
+						found = true;
+						outStr += allSequenceNodes[n].id + ' ';
+					};
+				};
+			};
+			
+			if(found){
+				view.notificationManager.notify(outStr, 1);
+			};
+		};
+
+		/**
+		 * Prints a report of all duplicate node ids to the
+		 * firebug console
+		 */
+		var printDuplicateNodesReport = function(){
+			var outStr =  'Duplicate node Id(s) are: ';
+			var found = false;
+			
+			for(var n=0;n<allLeafNodes.length;n++){
+				var count = 0;
+				for(var m=0;m<allLeafNodes.length;m++){
+					if(allLeafNodes[n].id==allLeafNodes[m].id){
+						count ++;
+					};
+				};
+				
+				if(count>1){
+					found = true;
+					outStr += allLeafNodes[n].id + ' ';
+				};
+			};
+			
+			if(found){
+				view.notificationManager.notify(outStr, 1);
+			};
+		};
+
+		/**
+		 * Returns true if the given id is referenced by any
+		 * sequence in the project, otherwise, returns false
+		 */
+		var referenced = function(id){
+			for(var c=0;c<allSequenceNodes.length;c++){
+				if(allSequenceNodes[c]){
+					for(var v=0;v<allSequenceNodes[c].children.length;v++){
+						if(allSequenceNodes[c].children[v].id==id){
+							return true;
+						};
+					};
+				};
+			};
+			return false;
+		};
+
+		/**
+		 * Returns a list of the given type (node or seq) that are not a child of any
+		 * sequence (defined but not attached in the project).
+		 */
+		var getUnattached = function(type){
+			var list = [];
+			
+			if(type=='node'){//find unattached nodes
+				var children = allLeafNodes;
+			} else {//find unattached sequences
+				var children = allSequenceNodes;
+			};
+			
+			//if not referenced, add to list
+			for(var x=0;x<children.length;x++){
+				if(children[x] && !referenced(children[x].id) && !(rootNode==children[x])){
+					list.push(children[x]);
+				};
+			};
+			
+			//return list
+			return list;
+		};
+		
+		/**
+		 * Get all the nodeIds that are actually used in the project
+		 * @param nodeTypesToExclude a : delimited string of node types to exclude
+		 * in the resulting array
+		 * @return an array containing all the leaf nodeIds that are used
+		 * in the project (this does not include the unused nodes that
+		 * are in the project.json nodes array)
+		 */
+		var getNodeIds = function(nodeTypesToExclude) {
+			//get the project content
+			var project = content.getContentJSON();
+			
+			//get the starting point of the project
+			var startPoint = project.startPoint;
+			
+			//create the array that we will store the nodeIds in
+			var nodeIds = [];
+			
+			//get the start node
+			var startNode = getNodeById(startPoint);
+			
+			//get the leaf nodeIds
+			nodeIds = getNodeIdsHelper(nodeIds, startNode, nodeTypesToExclude);
+			
+			//return the populated array containing nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Recursively obtain all the leaf nodeIds.
+		 * @param nodeIds an array containing all the nodeIds we have found so far
+		 * @param currentNode the current node
+		 * @param nodeTypesToExclude a : delimited string of node types to exclude
+		 * @return an array containing all the leaf nodes 
+		 */
+		var getNodeIdsHelper = function(nodeIds, currentNode, nodeTypesToExclude) {
+			
+			if(currentNode.type == 'sequence') {
+				//current node is a sequence
+				
+				//get the child nodes
+				var childNodes = currentNode.children;
+				
+				//loop through all the child nodes
+				for(var x=0; x<childNodes.length; x++) {
+					//get a child node
+					var childNode = childNodes[x];
+					
+					//recursively call this function with the child node
+					nodeIds = getNodeIdsHelper(nodeIds, childNode, nodeTypesToExclude);
+				}
+			} else {
+				//current node is a leaf node
+				
+				//get the node type
+				var nodeType = currentNode.type;
+				
+				/*
+				 * if there are no node types to exclude or if the current node type
+				 * is not in the : delimited string of node types to exclude, we will
+				 * add the node id to the array
+				 */
+				if(!nodeTypesToExclude || nodeTypesToExclude.indexOf(nodeType) == -1) {
+					nodeIds.push(currentNode.id);					
+				}
+			}
+			
+			//return the updated array of nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Get the show all work html by looping through all the nodes
+		 * @param node the root project node
+		 * @param showGrades whether to show grades
+		 */
+		var getShowAllWorkHtml = function(node, showGrades) {
+			var lastTimeVisited = view.state.getLastTimeVisited();
+			
+			//initialize the counters for activities and steps
+			this.showAllWorkStepCounter = 1;
+			this.showAllWorkActivityCounter = 0;
+			
+			/*
+			 * initialize this to false each time we generate show all work.
+			 * as we generate the show all work we will check if we have
+			 * found any new feedback
+			 */
+			this.foundNewFeedback = false;
+			
+			//get the show all work html
+			var showAllWorkHtml =  getShowAllWorkHtmlHelper(node, showGrades, lastTimeVisited);
+			
+			return showAllWorkHtml;
+		};
+		
+		/**
+		 * Returns html showing all students work so far. This function recursively calls
+		 * itself.
+		 * @param node this can be a project node, activity node, or step node
+		 * @param showGrades whether to show grades
+		 * @param lastTimeVisited the time in milliseconds when the student last visited
+		 */
+		var getShowAllWorkHtmlHelper = function(node,showGrades, lastTimeVisited){
+			var htmlSoFar = "";
+			if (node.children.length > 0) {
+				// this is a sequence node
+				
+				/*
+				 * check if we are on the root node which will be counter value 0.
+				 * if we are on the root node we do not want to display anything.
+				 */
+				if(this.showAllWorkActivityCounter != 0) {
+					//we are not on the root node, we are on a sequence/activity
+					htmlSoFar += "<div class='showAllWorkActivity'><h3>" + this.showAllWorkActivityCounter + ". " + node.title + "</h3></div><br><hr><br>";
+				}
+				
+				this.showAllWorkActivityCounter++;
+				
+				for (var i = 0; i < node.children.length; i++) {
+					htmlSoFar += getShowAllWorkHtmlHelper(node.children[i], showGrades, lastTimeVisited);
+				}
+			} else {
+				// this is a leaf node
+				if(node.type != "HtmlNode" && node.type != "OutsideUrlNode") {
+					var nodeId = node.id;
+					
+					var vlePosition = getVLEPositionById(nodeId);
+					
+					//only display non-HtmlNode steps
+				    htmlSoFar += "<div id=\"showallStep\"><a href=\"#\" onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
+				    if (showGrades) {
+				    	htmlSoFar += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view) + "</div>";
+						
+						htmlSoFar += "<div><table id='teacherTable'>";
+						
+						var runId = view.getConfig().getConfigParam('runId');
+						
+						//get this student's workgroup id
+						var toWorkgroup = view.getUserAndClassInfo().getWorkgroupId();
+						
+						//get the teachers and shared teachers
+						var fromWorkgroups = view.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+
+						var annotationHtml = "";
+						
+						var maxScoreForStep = "";
+						
+						//check if there are max scores
+						if(node.view.maxScores) {
+							//get the max score for the current step
+							maxScoreForStep = node.view.maxScores.getMaxScoreValueByNodeId(nodeId);
+						}
+						
+						//check if there was a max score for the current step
+						if(maxScoreForStep !== "") {
+							//add a '/' before the max score
+							maxScoreForStep = " / " + maxScoreForStep;
+						}
+						
+						//get the latest score annotation
+						var annotationScore = view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'score');
+						
+						if(annotationScore && annotationScore.value != '') {
+							//the p that displays the score
+							var scoreP = "<p style='display: inline'>Teacher Score: " + annotationScore.value + maxScoreForStep + "</p>";
+							var newP = "";
+
+							//get the post time of the annotation
+							var annotationScorePostTime = annotationScore.postTime;
+							
+							//check if the annotation is new for the student
+							if(annotationScorePostTime > lastTimeVisited) {
+								//the annotation is new so we will add a [New] label to it that is red
+								newP = "<p style='display: inline; color: red;'> [New]</p>";
+								
+								//we have found a new feedback so we will set this to true
+								this.foundNewFeedback = true;
+							}
+							
+							//create the row that contains the teacher score
+							var annotationScoreHtml = "<tr><td class='teachermsg2'>" + scoreP + newP + "</td></tr>";
+							
+							//add the score annotation text
+							annotationHtml += annotationScoreHtml; 	
+						}
+						
+						//get the latest comment annotation
+						var annotationComment = view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'comment');
+						
+						if(annotationComment && annotationComment.value != '') {
+							//create the p that displays the comment
+							var commentP = "<p style='display: inline'>Teacher Feedback: " + annotationComment.value + "</p>";
+							var newP = "";
+							
+							//get the post time of the annotation
+							var annotationCommentPostTime = annotationComment.postTime;
+							
+							//check if the annotation is new for the student
+							if(annotationCommentPostTime > lastTimeVisited) {
+								//the annotation is new so we will add a [New] label to it that is red
+								newP = "<p style='display: inline; color: red;'> [New]</p>";
+								
+								//we have found a new feedback so we will set this to true
+								this.foundNewFeedback = true;
+							}
+							
+							//create the row that contains the teacher comment
+							var annotationCommentHtml = "<tr><td class='teachermsg1'>" + commentP + newP + "</td></tr>";
+							
+							//add the comment annotation text
+							annotationHtml += annotationCommentHtml;							
+						}
+						
+						if(annotationHtml == "") {
+							//there were no annotations
+							annotationHtml += "<tr><td class='teachermsg3'>" + "Grading: Your Teacher hasn't graded this step yet." + "<td></tr>";
+						}
+						
+						htmlSoFar += annotationHtml;
+						
+						htmlSoFar += "</table></div><br><hr><br>";
+				    } else {
+						htmlSoFar += node.getShowAllWorkHtmlHelper(view);
+				    }
+				}
+				this.showAllWorkStepCounter++;
+			}
+			return htmlSoFar;
+		};
+		
+		/* Removes the node of the given id from the project */
+		var removeNodeById = function(id){
+			for(var o=0;o<allSequenceNodes.length;o++){
+				if(allSequenceNodes[o].id==id){
+					allSequenceNodes.splice(o,1);
+					removeAllNodeReferences(id);
+					return;
+				};
+			};
+			for(var q=0;q<allLeafNodes.length;q++){
+				if(allLeafNodes[q].id==id){
+					allLeafNodes.splice(q,1);
+					removeAllNodeReferences(id);
+					return;
+				};
+			};
+		};
+		
+		/* Removes the node at the given location from the sequence with the given id */
+		var removeReferenceFromSequence = function(seqId, location){
+			var seq = getNodeById(seqId);
+			seq.children.splice(location,1);
+		};
+		
+		/* Adds the node with the given id to the sequence with the given id at the given location */
+		var addNodeToSequence = function(nodeId,seqId,location){
+			var addNode = getNodeById(nodeId);
+			var sequence = getNodeById(seqId);
+			
+			sequence.children.splice(location, 0, addNode); //inserts
+			
+			/* check to see if this changes causes infinite loop, if it does, take it out and notify user */
+			var stack = [];
+			if(!validateNoLoops(seqId, stack)){
+				view.notificationManager.notify('This would cause an infinite loop! Undoing changes...', 3);
+				sequence.children.splice(location, 1);
+			};
+		};
+		
+		/* Returns an object representation of this project */
+		var projectJSON = function(){
+			/* create project object with variables from this project */
+			var project = {
+					autoStep: autoStep,
+					stepLevelNum: stepLevelNumbering,
+					stepTerm: stepTerm,
+					title: title,
+					constraints: constraints,
+					nodes: [],
+					sequences: [],
+					startPoint: ""
+			};
+			
+			/* set start point */
+			if(rootNode){
+				project.startPoint = rootNode.id;
+			};
+			
+			/* set node objects for each node in this project */
+			for(var k=0;k<allLeafNodes.length;k++){
+				project.nodes.push(allLeafNodes[k].nodeJSON(contentBaseUrl));
+			};
+			
+			/* set sequence objects for each sequence in this project */
+			for(var j=0;j<allSequenceNodes.length;j++){
+				if(allSequenceNodes[j]){
+					project.sequences.push(allSequenceNodes[j].nodeJSON());
+				};
+			};
+			
+			/* return the project object */
+			return project;
+		};
+		
+		/* Returns the absolute position to the first renderable node in the project if one exists, returns undefined otherwise. */
+		var getStartNodePosition = function(){
+			for(var d=0;d<rootNode.children.length;d++){
+				var path = getPathToFirstNonSequenceNode(rootNode.children[d], d);
+				if(path!=undefined && path!=null){
+					return path;
+				};
+			};
+		};
+		
+		/* Returns the first position that the node with the given id exists in. Returns null if no node with id exists. */
+		var getPositionById = function(id){
+			for(var d=0;d<rootNode.children.length;d++){
+				var path = getPathToNode(rootNode.children[d], d, id);
+				if(path!=undefined && path!=null){
+					return path;
+				};
+			};
+		};
+		
+		/* Returns the filename for this project */
+		var getProjectFilename = function(){
+			var url = content.getContentUrl();
+			return url.substring(url.indexOf(contentBaseUrl) + contentBaseUrl.length, url.length);
+		};
+		
+		/* Returns the filename for the content of the node with the given id */
+		var getNodeFilename = function(nodeId){
+			var node = getNodeById(nodeId);
+			if(node){
+				return node.content.getFilename(contentBaseUrl);
+			} else {
+				return null;
+			};
+		};
+		
+		/* Given a base title, returns a unique title in this project*/
+		var generateUniqueTitle = function(base){
+			var count = 1;
+			while(true){
+				var newTitle = base + ' ' + count;
+				if(!getNodeByTitle(newTitle)){
+					return newTitle;
+				};
+				count ++;
+			};
+		};
+		
+		/* Given a base title, returns a unique id in this project*/
+		var generateUniqueId = function(base){
+			var count = 1;
+			while(true){
+				var newId = base + '_' + count;
+				if((!getNodeById(newId)) && (copyIds.indexOf(newId)==-1)){
+					return newId;
+				};
+				count ++;
+			};
+		};
+
+		/* Copies the nodes of the given array of node ids and fires the event of the given eventName when complete.
+		 * Replaces any DuplicateNode ids with the original node ids */
+		var copyNodes = function(nodeIds, eventName){
+			/* Replace any DuplicateNode ids with the original node id */
+			for(var s=0;s<nodeIds.length;s++){
+				nodeIds[s] = getNodeById(nodeIds[s]).getNode().id;
+			}
+			
+			/* listener that listens for the copying of all the nodes and launches the next copy when previous is completed. 
+			 * When all have completed fires the event of the given eventName */
+			var listener = function(type,args,obj){
+				var nodeCopiedId = args[0];
+				var copiedToId = args[1];
+				var copyInfo = obj;
+				
+				/* remove first nodeInfo in queue */
+				var currentInfo = copyInfo.queue.shift();
+				
+				/* ensure that nodeId from queue matches nodeCopiedId */
+				if(currentInfo.id!=nodeCopiedId){
+					copyInfo.view.notificationManager('Copied node id and node id from queue do match, error when copying.', 3);
+				};
+				
+				/* add to msg and add copied node id to copyIds and add to list of copied ids*/
+				if(!copiedToId){
+					copyInfo.msg += ' Failed copy of ' + nodeCopiedId;
+				} else {
+					copyInfo.msg += ' Copied ' + nodeCopiedId + ' to ' + copiedToId;
+					copyInfo.view.getProject().addCopyId(copiedToId);
+					copyInfo.copiedIds.push(copiedToId);
+				};
+				
+				/* check queue, if more nodes, launch next, if not fire event with message and copiedIds as arguments */
+				if(copyInfo.queue.length>0){
+					/* launch next from queue */
+					var nextInfo = copyInfo.queue[0];
+					nextInfo.node.copy(nextInfo.eventName);
+				} else {
+					/* fire completed event */
+					copyInfo.view.eventManager.fire(copyInfo.eventName, [copyInfo.copiedIds, copyInfo.msg]);
+				};
+			};
+			
+			/* custom object that holds information for the listener when individual copy events complete */
+			var copyInfo = {
+				view:view,
+				queue:[],
+				eventName:eventName,
+				msg:'',
+				copiedIds:[]
+			};
+			
+			/* setup events for all of the node ids */
+			for(var q=0;q<nodeIds.length;q++){
+				var name = generateUniqueCopyEventName();
+				copyInfo.queue.push({id:nodeIds[q],node:getNodeById(nodeIds[q]),eventName:name});
+				view.eventManager.addEvent(name);
+				view.eventManager.subscribe(name, listener, copyInfo);
+			};
+			
+			/* launch the first node to copy if any exist in queue, otherwise, fire the event immediately */
+			if(copyInfo.queue.length>0){
+				var firstInfo = copyInfo.queue[0];
+				firstInfo.node.copy(firstInfo.eventName);
+			} else {
+				view.eventManager.fire(eventName, [null, null]);
+			};
+		};
+		
+		/* Generates and returns a unique event for copying nodes and sequences */
+		var generateUniqueCopyEventName = function(){
+			return view.eventManager.generateUniqueEventName('copy_');
+		};
+		
+		/* Adds the given id to the array of ids for nodes that are copied */
+		var addCopyId = function(id){
+			copyIds.push(id);
+		};
+		
+		/*
+		 * Retrieves the question/prompt the student reads for the step
+		 * 
+		 * @param nodeId the id of the node
+		 * @return a string containing the prompt (the string may be an
+		 * html string)
+		 */
+		var getNodePromptByNodeId = function(nodeId) {
+			//get the node
+			var node = getNodeById(nodeId);
+			
+			// delegate prompt lookup to the node.
+			return node.getPrompt();			
+		};
+		
+		/*
+		 * Get the position of the node in the project as seen in the
+		 * vle by the student.
+		 * e.g. if a node is the first node in the first activity
+		 * the position is 0.0 but to the student they see 1.1
+		 * @param the node id we want the vle position for
+		 * @return the position of the node as seen by the student in the vle
+		 */
+		var getVLEPositionById = function(id) {
+			var vlePosition = "";
+			
+			//get the position
+			var position = getPositionById(id);
+			
+			//split the position at the periods
+			var positionValues = position.split(".");
+			
+			//loop through each value
+			for(var x=0; x<positionValues.length; x++) {
+				//get a value
+				var value = positionValues[x];
+				
+				if(vlePosition != "") {
+					//separate the values by a period
+					vlePosition += ".";
+				}
+				
+				//increment the value by 1
+				vlePosition += (parseInt(value) + 1);
+			}
+			
+			return vlePosition;
+		};
+		
+		/* Returns an array of any duplicate nodes of the node with the given id. If the node with
+		 * the given id is a duplicate itself, returns an array of all duplicates of the node it 
+		 * represents. If the optional includeOriginal parameter evaluates to true, includes the 
+		 * orignial node in the array. */
+		var getDuplicatesOf = function(id, includeOriginal){
+			var dups = [];
+			var node = getNodeById(id);
+			
+			if(node != null){
+				/* if this is a duplicate node, get the node that this node represents */
+				if(node.type=='DuplicateNode'){
+					node = node.getNode();
+				}
+				
+				/* include the original node if parameter provided and evaluates to true */
+				if(includeOriginal){
+					dups.push(node);
+				}
+				
+				/* iterate through the leaf nodes in the project and add any duplicates
+				 * of the node to the duplicate array */
+				for(var t=0;t<allLeafNodes.length;t++){
+					if(allLeafNodes[t].type=='DuplicateNode' && allLeafNodes[t].getNode().id==node.id){
+						dups.push(allLeafNodes[t]);
+					}
+				}
+			}
+			
+			/* return the array */
+			return dups;
+		};
+		
+		/*
+		 * Get the next available review group number
+		 */
+		var getNextReviewGroupNumber = function() {
+			var nextReviewGroupNumber = null;
+			
+			//get the nodes from the project
+			var nodes = content.getContentJSON().nodes;
+			
+			//the array to store the review group numbers we already use
+			var currentReviewGroupNumbers = [];
+			
+			//loop through the nodes
+			for(var x=0; x<nodes.length; x++) {
+				//get a node
+				var node = nodes[x];
+				
+				//get the nodeId
+				var nodeId = node.identifier;
+				
+				//get the actual node object
+				var nodeObject = getNodeById(nodeId);
+				
+				//get the reviewGroup attribute
+				var reviewGroup = nodeObject.reviewGroup;
+				
+				//see if the reviewGroup attribute was set
+				if(reviewGroup) {
+					//check if we have already seen this number
+					if(currentReviewGroupNumbers.indexOf(reviewGroup) == -1) {
+						//we have not seen this number so we will add it
+						currentReviewGroupNumbers.push(reviewGroup);
+					}
+				}
+			}
+			
+			/*
+			 * loop from 1 to 1000 in search of an available review group number.
+			 * this is assuming there won't be more than 1000 review sequences
+			 * in a project.
+			 */
+			for(var y=1; y<1000; y++) {
+				//check if the current number is in our array of numbers we already use
+				if(currentReviewGroupNumbers.indexOf(y) == -1) {
+					/*
+					 * it is not in the array so we don't use it right now and we
+					 * can use it for the next review group number
+					 */
+					nextReviewGroupNumber = y;
+					
+					//exit the loop since we have found an available group number
+					break;
+				}
+			}
+			
+			//return the next review group number
+			return nextReviewGroupNumber;
+		};
+		
+		/*
+		 * Remove the review sequence attributes from all the nodes that are
+		 * associated with the given review group number
+		 */
+		var cancelReviewSequenceGroup = function(reviewGroupNumber) {
+			//get all the nodes
+			var nodes = content.getContentJSON().nodes;
+			
+			//loop through all the nodes
+			for(var x=0; x<nodes.length; x++) {
+				//get a node
+				var node = nodes[x];
+				
+				//get the nodeId
+				var nodeId = node.identifier;
+				
+				//get the actual node object
+				var nodeObject = getNodeById(nodeId);
+				//get the review group of the node
+				if(nodeObject){
+					var tempReviewGroupNumber = nodeObject.reviewGroup;
+				
+					//check if the node has a review group
+					if(tempReviewGroupNumber) {
+						//check if the review group matches
+						if(tempReviewGroupNumber == reviewGroupNumber) {
+							//set the review sequence attributes to null
+							nodeObject.peerReview = null;
+							nodeObject.teacherReview = null;
+							nodeObject.reviewGroup = null;
+							nodeObject.associatedStartNode = null;
+							nodeObject.associatedAnnotateNode = null;
+						}
+					}
+				}
+			}
+			eventManager.fire('saveProject');
+		};
+		
+		/**
+		 * Get the other nodes that are in the specified review group
+		 * @param reviewGroupNumber the number of the review group we want
+		 * @return an array containing the nodeIds of the nodes in the
+		 * review group
+		 */
+		var getNodesInReviewSequenceGroup = function(reviewGroupNumber) {
+			//the array of nodeIds that are in the review group
+			var nodesInReviewSequenceGroup = [];
+			
+			if(reviewGroupNumber) {
+				//get all the nodes
+				var nodes = content.getContentJSON().nodes;
+				
+				//loop through all the nodes
+				for(var x=0; x<nodes.length; x++) {
+					//get a node
+					var node = nodes[x];
+					
+					//get the nodeId
+					var nodeId = node.identifier;
+					
+					//get the actual node object
+					var nodeObject = getNodeById(nodeId);
+					
+					if(nodeObject) {
+						//get the review group of the node
+						var tempReviewGroupNumber = nodeObject.reviewGroup;
+						
+						//the review group number matches
+						if(tempReviewGroupNumber == reviewGroupNumber) {
+							//add the node object to the array
+							nodesInReviewSequenceGroup.push(node);
+						}						
+					}
+				}				
+			}
+			
+			//return the array containing the nodes in the review group
+			return nodesInReviewSequenceGroup;
+		};
+		
+		/**
+		 * Get the review sequence phase of a node given
+		 * the nodeId
+		 * @param nodeId the id of the node we want the review
+		 * phase for
+		 */
+		var getReviewSequencePhaseByNodeId = function(nodeId) {
+			var reviewSequencePhase = "";
+			
+			//get the node
+			var node = getNodeById(nodeId);
+			
+			if(node) {
+				//get the review phase
+				if(node.peerReview) {
+					reviewSequencePhase = node.peerReview;
+				} else if(node.teacherReview) {
+					reviewSequencePhase = node.teacherReview;
+				}				
+			}
+			
+			//return the phase
+			return reviewSequencePhase;
+		};
+		
+		/**
+		 * Determine if a position comes before or is the same position as another position
+		 * @param nodePosition1 a project position (e.g. '0.1.4')
+		 * @param nodePosition2 a project position (e.g. '0.1.4')
+		 * @return true if nodePosition1 comes before or is the same as nodePosition2,
+		 * false if nodePosition1 comes after nodePosition2
+		 */
+		var positionBeforeOrEqual = function(nodePosition1, nodePosition2) {
+			//split nodePosition1 by the '.'
+			var nodePosition1Array = nodePosition1.split(".");
+			
+			//split nodePosition2 by the '.'
+			var nodePosition2Array = nodePosition2.split(".");
+			
+			//loop through all of the sub positions of nodePosition2
+			for(var x=0; x<nodePosition2Array.length; x++) {
+				if(x > nodePosition1Array.length - 1) {
+					/*
+					 * np2 has more sub positions than np1 and
+					 * all the sub positions so far have been
+					 * equivalent
+					 * e.g.
+					 * np1 = 1.1.1
+					 * np2 = 1.1.1.1
+					 * in this example np2 has 4 sub positions
+					 * and np1 only has 3 which means np1 does
+					 * come before np2
+					 */
+					return true;
+				} else {
+					//get the current sub position for both positions
+					var subNodePosition1 = parseInt(nodePosition1Array[x]);
+					var subNodePosition2 = parseInt(nodePosition2Array[x]);
+					
+					if(subNodePosition1 > subNodePosition2) {
+						/*
+						 * the sub position for 1 comes after the sub position for 2
+						 * so nodePosition1 comes after nodePosition2
+						 */
+						return false;
+					} else if(subNodePosition1 < subNodePosition2) {
+						/*
+						 * the sub position for 1 comes before the sub position for 2
+						 * so nodePosition1 comes before nodePosition2
+						 */
+						return true;
+					}
+				}
+			}
+			
+			//the positions were equal
+			return true;
+		};
+		
+		/**
+		 * Determine if a position comes after another position
+		 * @param nodePosition1 a project position (e.g. '0.1.9')
+		 * @param nodePosition2 a project position (e.g. '0.1.10')
+		 * 
+		 * @return whether nodePosition1 comes after nodePosition2
+		 */
+		var positionAfter = function(nodePosition1, nodePosition2) {
+			//split nodePosition1 by the '.'
+			var nodePosition1Array = nodePosition1.split(".");
+			
+			//split nodePosition2 by the '.'
+			var nodePosition2Array = nodePosition2.split(".");
+			
+			for(var x=0; x<nodePosition1Array.length; x++) {
+				if(x > nodePosition2Array.length - 1) {
+					/*
+					 * np1 has more sub positions than np2 and
+					 * all the sub positions so far have been
+					 * equivalent
+					 * e.g.
+					 * np1 = 1.1.1.1
+					 * np2 = 1.1.1
+					 * in this example np1 has 4 sub positions
+					 * and np2 only has 3 which means np1 does
+					 * come after np2
+					 */
+				} else {
+					//get the current sub position for both positions
+					var subNodePosition1 = parseInt(nodePosition1Array[x]);
+					var subNodePosition2 = parseInt(nodePosition2Array[x]);
+					
+					if(subNodePosition1 > subNodePosition2) {
+						/*
+						 * the sub position for 1 comes after the sub position for 2
+						 * so nodePosition1 comes after nodePosition2
+						 */
+						return true;
+					} else if(subNodePosition1 < subNodePosition2) {
+						/*
+						 * the sub position for 1 comes before the sub position for 2
+						 * so nodePosition1 comes before nodePosition2
+						 */
+						return false;
+					}
+				}
+			}
+			
+			//the positions were equal
+			return false;
+		};
+		
+		/*
+		 * Get the previous and next nodeIds of the given nodeId
+		 * @param nodeId the nodeId we want the previous and next of
+		 */
+		var getPreviousAndNextNodeIds = function(nodeId) {
+			//get all the nodeIds in the project ordered
+			var nodeIdsArray = getNodeIds("HtmlNode:OutsideUrlNode");
+			
+			//create the object that we will store the previous and next into
+			var previousAndNextNodeIds = new Object();
+			
+			//loop through all the nodeIds in the project
+			for(var x=0; x<nodeIdsArray.length; x++) {
+				//get a nodeId
+				var currentNodeId = nodeIdsArray[x];
+				
+				//compare the current nodeId with the one we want
+				if(currentNodeId == nodeId) {
+					//we have found the nodeId we want
+					
+					//get the previous nodeId
+					previousAndNextNodeIds.previousNodeId = nodeIdsArray[x - 1];
+					
+					if(previousAndNextNodeIds.previousNodeId) {
+						previousAndNextNodeIds.previousNodePosition = getVLEPositionById(previousAndNextNodeIds.previousNodeId);
+					}
+					
+					//get the next nodeId
+					previousAndNextNodeIds.nextNodeId = nodeIdsArray[x + 1];
+					
+					if(previousAndNextNodeIds.nextNodeId) {
+						previousAndNextNodeIds.nextNodePosition = getVLEPositionById(previousAndNextNodeIds.nextNodeId);
+					}
+					
+					break;
+				}
+			}
+			
+			return previousAndNextNodeIds;
+		};
+		
+		/* Returns an array of nodeIds for nodes that are descendents of the given nodeId, if all is
+		 * provided, also includes sequence ids that are descendents of the given nodeId */
+		var getDescendentNodeIds = function(nodeId, all){
+			var ids = [];
+			
+			/* get the node of the given id */
+			var node = getNodeById(nodeId);
+			
+			/* if the node is a sequence, then we want to add all of its children to
+			 * the ids array */
+			if(node.isSequence()){
+				for(var n=0;n<node.children.length;n++){
+					/* if the child is a sequence, we want to splice in all of its descendent ids */
+					if(node.children[n].isSequence()){
+						/* if all is provided, add this sequence id to the ids array */
+						if(all){
+							ids.push(node.children[n].id);
+						}
+						
+						/* add the descendents of this sequence */
+						ids = ids.concat(getDescendentNodeIds(node.children[n].id, all));
+					} else {
+						ids.push(node.children[n].id);
+					}
+				}
+			}
+			
+			return ids;
+		};
+		
+		/* returns true if the project has any nodes that can dynamically create constraints, returns false otherwise */
+		var containsConstraintNodes = function(){
+			/* iterate through the leaf nodes and return true if an AssessmentListNode
+			 * or a ChallengeNode is found */
+			for(var y=0;y<allLeafNodes.length;y++){
+				if(allLeafNodes[y].getType()=='AssessmentListNode' || allLeafNodes[y].getType()=='ChallengeNode' ||
+						allLeafNodes[y].getType=='BranchNode'){
+					return true;
+				}
+			}
+			
+			/* none found, return false */
+			return false;
+		};
+		
+		/* remove the constraint with the given id */
+		var removeConstraint = function(id){
+			for(var l=0;l<constraints.length;l++){
+				if(constraints[l].id==id){
+					constraints.splice(l,1);
+					break;
+				}
+			}
+		};
+		
+		/**
+		 * Returns whether we found new feedback after generating the show all work
+		 */
+		var hasNewFeedback = function() {
+			return this.foundNewFeedback;
+		};
+		
+		/* check to see if this project was passed a minifiedStr, in which we will
+		 * set the totalProjectContent and this project's content */
+		 if(totalProjectContent){
+			 content.setContent(totalProjectContent.getContentJSON().project);
+		 };
+		 
+		/* parse the project content and set available attributes to variables */
+		var project = content.getContentJSON();
+		if(project){
+			/* set auto step */
+			autoStep = project.autoStep;
+			
+			/* set step level numbering */
+			stepLevelNumbering = project.stepLevelNum;
+			
+			/* set step term */
+			stepTerm = project.stepTerm;
+			
+			/* set title */
+			title = project.title;
+			
+			/* set constraints */
+			constraints = (project.constraints) ? project.constraints : [];
+			
+			/* create nodes for project and set rootNode*/
+			generateProjectNodes();
+			generateSequences();
+			
+			/* set up duplicate nodes */
+			setRealNodesInDuplicates();
+			
+			/* generate reports for console */
+			printSummaryReportsToConsole();
+		} else {
+			view.notificationManager.notify('Unable to parse project content, check project.json file. Unable to continue.', 5);
+		};
+		
+		
+		return {
+			/* returns true when autoStep should be used, false otherwise */
+			useAutoStep:function(){return autoStep;},
+			/* sets autoStep to the given boolean value */
+			setAutoStep:function(bool){autoStep = bool;},
+			/* returns true when stepLevelNumbering should be used, false otherwise */
+			useStepLevelNumbering:function(){return stepLevelNumbering;},
+			/* sets stepLevelNumbering to the given boolean value */
+			setStepLevelNumbering:function(bool){stepLevelNumbering = bool;},
+			/* returns the step term to be used when displaying nodes in the navigation for this project */
+			getStepTerm:function(){return stepTerm;},
+			/* sets the step term to be used when displaying nodes in this project */
+			setStepTerm:function(term){stepTerm = term;},
+			/* returns the title of this project */
+			getTitle:function(){return title;},
+			/* sets the title of this project */
+			setTitle:function(t){title = t;},
+			/* returns the node with the given id if it exists, null otherwise */
+			getNodeById:function(nodeId){return getNodeById(nodeId);},
+			/* given a sequence id, empty stack, and location, returns true if any infinite loops
+			 * are discovered, returns false otherwise */
+			validateNoLoops:function(id, stack, from){return validateNoLoops(id,stack,from);},
+			/* Returns the node with the given title if the node exists, returns null otherwise. */
+			getNodeByTitle:function(title){return getNodeByTitle(title);},
+			/* Returns the node at the given position in the project if it exists, returns null otherwise */
+			getNodeByPosition:function(pos){return getNodeByPosition(pos);},
+			/* Returns an array containing all node ids of types that are not included in the provided nodeTypesToExclude */
+			getNodeIds:function(nodeTypesToExclude){return getNodeIds(nodeTypesToExclude);},
+			/* Returns html showing all students work so far */
+			getShowAllWorkHtml:function(node,showGrades){return getShowAllWorkHtml(node,showGrades);},
+			/* Returns the first renderable node Id for this project */
+			getStartNodeId:function(){return getFirstNonSequenceNodeId(rootNode);},
+			/* Removes the node of the given id from the project */
+			removeNodeById:function(id){removeNodeById(id);},
+			/* Removes the node at the given location from the sequence with the given id */
+			removeReferenceFromSequence:function(seqId, location){removeReferenceFromSequence(seqId, location);},
+			/* Adds the node with the given id to the sequence with the given id at the given location */
+			addNodeToSequence:function(nodeId, seqId, location){addNodeToSequence(nodeId,seqId,location);},
+			/* Copies the nodes of the given array of node ids and fires the event of the given eventName when complete */
+			copyNodes:function(nodeIds, eventName){copyNodes(nodeIds, eventName);},
+			/* Returns the absolute position to the first renderable node in the project if one exists, returns undefined otherwise. */
+			getStartNodePosition:function(){return getStartNodePosition();},
+			/* Returns the first position that the node with the given id exists in. Returns null if no node with id exists. */
+			getPositionById:function(id){return getPositionById(id);},
+			/* Returns the content base url for this project */
+			getContentBase:function(){return contentBaseUrl;},
+			/* Returns the filename for this project */
+			getProjectFilename:function(){return getProjectFilename();},
+			/* Returns the full url for this project's content */
+			getUrl:function(){return content.getContentUrl();},
+			/* Returns the leaf nodes array of this project */
+			getLeafNodes:function(){return allLeafNodes;},
+			/* Returns the sequence nodes array of this project */
+			getSequenceNodes:function(){return allSequenceNodes;},
+			/* Returns the root node for this project */
+			getRootNode:function(){return rootNode;},
+			/* Returns an array of nodes of the given type that are not a child node to any other node */
+			getUnattached:function(type){return getUnattached(type);},
+			/* Returns the filename for the content of the node with the given id */
+			getNodeFilename:function(nodeId){return getNodeFilename(nodeId);},
+			/* Given a base title, returns a unique title in this project*/
+			generateUniqueTitle:function(base){return generateUniqueTitle(base);},
+			/* Given a base title, returns a unique id in this project*/
+			generateUniqueId:function(base){return generateUniqueId(base);},
+			/* Generates and returns a unique event for copying nodes and sequences */
+			generateUniqueCopyEventName:function(){return generateUniqueCopyEventName();},
+			/* Adds the given id to the array of ids for nodes that are copied */
+			addCopyId:function(id){addCopyId(id);},
+			/* Returns an object representation of this project */
+			projectJSON:function(){return projectJSON();},
+			/* Given the filename, returns the url to retrieve the file */
+			makeUrl:function(filename){return makeUrl(filename);},
+			/* Given the nodeId, returns the prompt for that step */
+			getNodePromptByNodeId:function(nodeId){return getNodePromptByNodeId(nodeId);},
+			/* Sets the post level for this project */
+			setPostLevel:function(level){postLevel = level;},
+			/* Returns the post level for this project */
+			getPostLevel:function(){return postLevel;},
+			/* Returns the first position as seen in the vle that the node with the given id exists in. Returns "" if no node with id exists. */
+			getVLEPositionById:function(id){return getVLEPositionById(id);},
+			/* Returns an array of any duplicate nodes of the node with the given id. If the node with
+			 * the given id is a duplicate itself, returns an array of all duplicates of the node it 
+			 * represents  and optionally includes the original when specified */
+			getDuplicatesOf:function(id, includeOriginal){return getDuplicatesOf(id, includeOriginal);},
+			/* Return the next available review group number */
+			getNextReviewGroupNumber:function(){return getNextReviewGroupNumber();},
+			/* Removes the review sequence attributes from the steps that are part of the group */
+			cancelReviewSequenceGroup:function(reviewGroupNumber){return cancelReviewSequenceGroup(reviewGroupNumber);},
+			/* Retrieves the previous and next nodeIds of the given nodeId */
+			getPreviousAndNextNodeIds:function(nodeId){return getPreviousAndNextNodeIds(nodeId);},
+			/* Returns whether position1 comes before or is equal to position2 */
+			positionBeforeOrEqual:function(nodePosition1, nodePosition2){return positionBeforeOrEqual(nodePosition1, nodePosition2);},
+			/* Returns whether position1 comes after position2 */
+			positionAfter:function(nodePosition1, nodePosition2){return positionAfter(nodePosition1, nodePosition2);},
+			/* Retrieve an array containing the node objects of the nodes that are in the review group */
+			getNodesInReviewSequenceGroup:function(reviewGroupNumber){return getNodesInReviewSequenceGroup(reviewGroupNumber);},
+			/* Return the review sequence phase of the given node id */
+			getReviewSequencePhaseByNodeId:function(nodeId){return getReviewSequencePhaseByNodeId(nodeId);},
+			/* Returns an array of nodeIds for nodes that are descendents of the given nodeId, if all is
+			 * provided, also includes sequence ids that are descendents of the given nodeId */
+			getDescendentNodeIds:function(nodeId, all){return getDescendentNodeIds(nodeId,all);},
+			/* gets the constraints array */
+			getConstraints:function(){return constraints;},
+			/* adds a constraint to the constraints array */
+			addConstraint:function(constraint){constraints.push(constraint);},
+			/* removes the constraint with the given id */
+			removeConstraint:function(id){removeConstraint(id);},
+			/* returns true if the project has any nodes that can dynamically create constraints, returns false otherwise */
+			containsConstraintNodes:function(){return containsConstraintNodes();},
+			/* returns true if the project author specified any constraints, returns false otherwise */
+			containsProjectConstraints:function(){return constraints.length > 0;},
+			/* returns whether we found new feedback after generating the show all work */
+			hasNewFeedback:function() {return hasNewFeedback();}
+		};
+	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };
-
-/**
- * Returns true iff this node is a Html page
- */
-Node.prototype.isHtmlPage = function() {
-	if (this.element != null) {
-		var typeToCheck = this.element.getAttribute("type");
-		for (var i = 0; i < htmlPageTypes.length; i++) {
-			if (htmlPageTypes[i] == typeToCheck) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
- * Returns true iff this node is a Html page
- */
-Node.prototype.isQtiAssessmentPage = function() {
-	if (this.element != null) {
-		var typeToCheck = this.element.getAttribute("type");
-		for (var i = 0; i < qtiAssessmentPageTypes.length; i++) {
-			if (qtiAssessmentPageTypes[i] == typeToCheck) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-Node.prototype.isLocked = function() {
-	var stepIndexInActivity = this.id.substr(this.id.lastIndexOf(":", this.id.length) + 1);
-	if (stepIndexInActivity % 2 == 0) {
-		return true;
-	}
-	return false;
-}
-
-/**
- * Renders itself to the specified content panel
- */
-Node.prototype.render = function(contentpanel) {
-	var content = "";
-	if (this.isHtmlPage()) {
-		node.render();
-		return;
-		//content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	} else if (this.isQtiAssessmentPage()) {
-		node.render();
-		return;
-		//content = this.element.getElementsByTagName("content")[0].firstChild.nodeValue;
-	} else {
-		content = this.type + "<br/>id: " + this.id;
-		window.frames["ifrm"].document.write(content);   
-		window.frames["ifrm"].document.close(); 	
-	}
-}
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/project/Project.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/project/Project.js');
+}

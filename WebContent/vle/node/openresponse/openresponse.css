@@ -1,16 +1,63 @@
-#promptdiv {
+.color1 {color:#164CBA;}   /* vibrant blue */
+.color2 {color:#6883BA;}   /* mid blue */
+.color3 {color:#919EBA;}   /* light blue */
+.color4 {color:#334B7B;}   /* dark blue */
+.color5 {color:#19253D;}   /* very dark blue */
+.color6 {color:#4E628B;}   /* mid gray slate */
+.color7 {color:#FF9D1E;}  /* bold orange */
+.color8 {color:#FFCE8E;}  /* mid tan */
+.color9 {color:#FFE6C6;}  /* light tan */
+.color10 {color:#a97e46;}  /* brown */
+.color11 {color:#543f23;}  /* dark red */
+.color12 {color:#bf9a6b;}   /* light brown */
+
+.bg1 {background-color:#164CBA;color:#FFF;}
+.bg2 {background-color:#6883BA;color:#000;}
+.bg3 {background-color:#919EBA;color:#000;}
+.bg4 {background-color:#334B7B;color:#FFF;}
+.bg5 {background-color:#19253D;color:#FFF;}
+.bg6 {background-color:#4E628B;color:#FFF;}
+.bg7 {background-color:#FF9D1E;color:#000;}
+.bg8 {background-color:#FFCE8E;color:#000;}
+.bg9 {background-color:#FFE6C6;color:#000;}
+.bg10 {background-color:#a97e46;color:#000;}
+.bg11 {background-color:#543f23;color:#FFF;}
+.bg12 {background-color:#bf9a6b;color:#000;}
+
+
+#promptdiv, #originalPromptTextDiv, #associatedWorkTextDiv, #annotationTextDiv {  
+	margin:0;
+	padding:0;
+}
+
+#associatedWorkTextDiv {
+	color:#003300;
+	font-style:italic;
+}
+
+#promptContainer {
 	color:#000;
-	margin:3px 10px 15px 15px;
-	line-height:150%;
+	font-size:.9em;
+	margin:3px 10px 25px 15px;
+	padding: 8px;
+	border:1px solid #a97e46;
+	line-height:130%;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}
+
+#annotationTextDiv {
+	font-style:italic;
 }
 
 #promptdiv p {
 	font-size:.9em;
 	}
 
-#promptdiv tt, #promptdiv code {
+#orPromptDiv, #promptdiv tt, #promptdiv code {
 	font-weight:bold;
-	font-size:120%;
+	margin: 0 0 .25em .5em;
 }
 #promptdiv a:link, #promptdiv a:visited {
 	color:#000;
@@ -49,15 +96,6 @@
 	font-weight:normal;
 }
 
-.instructionsReminder {
-	float: right;
-	text-align: right;
-	margin: 2px 15px 0px 0;
-	color: #333;
-	vertical-align: middle;
-}
-
-
 #currentQuestionBox {
 	margin: 0 auto;
 	padding:10px 0;
@@ -69,12 +107,20 @@
 	}
 	
 #fullColumn { 
-	padding:10px;
+	padding:10px 5px;
 	background-color:#FFD9ac;
 	-moz-border-radius-topleft:4px;
 	-moz-border-radius-topright:4px;
 	}
 	
+#questionTypeNote {
+	text-align: center;
+	font-size: .8em;
+	text-transform: uppercase;
+	padding: 5px 0 0 0;
+	color: #000;
+}
+
 #questionTypeVerticalLabel {
 	font-size:.9em;
 	line-height:130%;
@@ -86,41 +132,186 @@
 .itemLabel {
 	font-size:.7em;
 	text-transform:uppercase;
-	margin:5px 0 0 15px;
+	margin:0.25em 0.5em;
 }
 	
 #responsebox {
-	width:90%; 
-	height:190px;
-	border:1px solid green;
-	padding:10px;
-	font-size:1.1em;
-	margin:4px 10px 10px 15px;
-	line-height:1.3em;
-	border-right:2px ridge green;
-	border-bottom:2px ridge green;	
+	height: 180px;
+    line-height: 1.2em;
+    margin: 0;
+    padding: 10px;
+    width: 100%;
 }
 
 textarea:disabled {
 	background-color:#999999;
 }
 
-.starterSentence {
-	float:right;
-	margin-right:50px;
+textarea:focus {
+	background-color:#FFFFFF;
+	border:1px solid #3cb371;
+}
+
+#questionCountBoxNote {
+	margin: 0;
+	-moz-border-radius-bottomleft:4px; 
+	-moz-border-radius-bottomright:4px; 
+	padding:4px 0 6px 0;
+}
+
+#buttonBoxNote {
+	margin-right:5px;
+	text-align:right;
+} 
+
+#buttonBoxNote a {
+	background-color:#CCC;
+	text-decoration: none;
+	color:#000;
+	font-size:.6em;
+	padding:0 3px;
+	border:1px solid #666; 
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}
+
+#buttonBoxNote a:hover {
+	background-color:#FFFF00;
+	color:blue;
+	}
+
+.instructionsReminder {
+	float:right	;	
+	color: #000;
+	border-collapse:collapse;
+	margin:4px 10px 0 0;
+	}
+	
+.instructionsReminder a{
+	text-decoration:none;
+	}
+	
+.instructionsReminderNote {
+	float:right	;	
+	color: #000;
+	border-collapse:collapse;
+	margin:3px 10px 0 3px;
+	}
+	
+.instructionsReminderNote a{
+	text-decoration:none;
+	}
+	
+#helpTextLink {
+	color: #FFF;
 	font-size:.8em;
 }
 
-.starterSentence a:visited, .starterSentence a:link  {
+#helpTextLink:hover {
 	color:blue;
-	padding:0 4px;
 }
-
-.starterSentence a:hover {
-	background-color:#FFFF00;
-}
-
-#noteiframe {background-color:blue;}
-
-
 	
+#starterSentenceDiv {
+	float:right;
+	margin-right:42px;
+	margin-bottom:2px;
+	font-size:.6em;
+}
+
+#starterSentenceDiv a {
+	background-image:url(../../images/gradient-gray-button.png);
+	background-position:top center;
+	background-repeat:repeat-x;
+	text-decoration: none;
+	padding:0px 5px;
+	margin-right:5px;
+	border:1px solid #666; 
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}
+
+#starterSentenceDiv a:hover {
+	background-image:none;
+	background-color:#FFFF00;
+	}
+
+/* STYLING FOR BOTTOM BUTTONS ON THE REFLECTION NOTE  */
+
+#submitButtonsNote {
+	margin: 10px auto;
+}
+
+#submitButtonsNote .buttonDiv {
+	text-align:center;
+	/* vertical-align:middle; */
+	line-height: 25px; /* same as height of link */ 
+	display:inline-block;
+}
+
+#submitButtonsNote a {
+	display:inline-block;
+	vertical-align:center;
+	margin:0.25em auto;
+	padding:0.25em 0.75em;
+	font: bold Verdana, Arial, sans-serif;
+	font-size:.9em;
+	text-transform: uppercase;
+	background-color:#164cba;
+	background-color:#1e69ff;
+	color: #FFF;
+	text-transform: capitalization;
+	border:1px solid #333;
+	text-decoration: none;
+	text-align: center;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+#submitButtonsNote a:hover {
+	color: #FFFF00;
+	cursor:pointer;
+	}
+
+#submitButtonsNote a.disabledLink:hover {
+	background-color: #666;
+	color: #999999;
+	cursor:default;
+	}
+
+#submitButtonsNote .disabledLink {
+	background-color: #666;
+	color: #999999;
+	outline: 0;
+}
+
+.promptText {
+	color:#000;
+	margin:3px 10px 15px 15px;
+	line-height:150%;
+}
+
+.promptText2 {
+	color:#666;
+	font-size:80%;
+}
+
+#toggleSwitch {
+	font-size:85%;
+	padding:0px 5px;
+	margin-bottom:3px;
+	border:1px solid #999;
+	background-color:#6666ff;
+	color:#FFF;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
+}
+
+#toggleSwitch:hover {
+    background-color:#FFFF00;
+    color:#000;
+    cursor:pointer;
+}

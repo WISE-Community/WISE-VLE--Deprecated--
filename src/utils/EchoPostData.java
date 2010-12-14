@@ -25,11 +25,15 @@ public class EchoPostData extends HttpServlet{
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
-		String name = request.getParameter(NAME);
-		
-		response.setContentType("text/plain");
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
-		response.getWriter().print(request.getParameter(DATA));
+		try {
+			String name = request.getParameter(NAME);
+			
+			response.setContentType("text/plain");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
+			response.getWriter().print(request.getParameter(DATA));
+		} catch(IllegalStateException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void doGet(HttpServletRequest request,

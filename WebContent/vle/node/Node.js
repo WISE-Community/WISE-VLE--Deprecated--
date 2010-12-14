@@ -1,41 +1,91 @@
-/*
- * Node
- */
-
-function Node(nodeType, connectionManager) {
-	this.contentPanel = null;
-	this.contentLoaded = false;
-	this.connectionManager = connectionManager;
-	this.id = null;
-	this.parent = null;
-	this.children = [];   // children Nodes. If children is empty, it means that this is a leaf node
-	this.element = null;   // element in XML
-	this.elementText = null;   // element in Text
-	this.type = null;
-	this.title = null;
-	this.nodeSessionEndedEvent = new YAHOO.util.CustomEvent("nodeSessionEndedEvent");
-	this.filename = null;
-	this.className = null;
-	this.audioSupported = false;   // does this node support playing of audio?
-
-	this.audioReady = false;
-	this.audio = null;  // audio associated with this node. currently only supports mps, played via soundmanager: http://www.schillmania.com/projects/soundmanager2/demo/template/
-	this.audios = [];
+/* Node */
+function Node(nodeType, view){
+	this.id;
+	this.parent;
+	this.children = [];
+	this.type = nodeType;
+	this.title;
+	this.className;
+	this.content;
+	this.contentPanel;
+	this.baseHtmlContent;
 	
-	if (nodeType != null) {
-		this.type = nodeType;
-	}
-}
+	this.prevWorkNodeIds = [];
+	this.links = [];
+	this.extraData;
+	this.view = view;
+	
+	//booleans used when we need to determine if a constraint is satisfied
+	this.isStepOpen = true;
+	this.isStepCompleted = false;
+	this.isStepPartOfReviewSequence = false;
+	
+	this.selfRendering = false;
+};
 
-Node.prototype.setType = function(type) {
-	this.type = type;
+Node.prototype.getNodeId = function() {
+	return this.id;
 };
 
 Node.prototype.getTitle = function() {
 	if (this.title != null) {
 		return this.title;
-	}
+	};
+	
 	return this.id;
+};
+
+Node.prototype.setTitle = function(title){
+	this.title = title;
+};
+
+/**
+ * Retrieves the question/prompt the student reads for this step.
+ * @return a string containing the prompt. (the string may be an
+ * html string)
+ */
+Node.prototype.getPrompt = function() {
+	var prompt = "";
+	
+	if(this.content != null) {
+		//get the content for the node
+		var contentJSON = this.content.getContentJSON();
+
+		if(contentJSON != null) {
+			//see if the node content has an assessmentItem
+			if(contentJSON.assessmentItem != null) {
+				//obtain the prompt
+				var assessmentItem = contentJSON.assessmentItem;
+				var interaction = assessmentItem.interaction;
+				prompt = interaction.prompt;	
+			}
+			// check if node is an SVGDrawNode
+			if(this.type=='SVGDrawNode'){
+			//obtain the prompt
+				if(contentJSON.prompt != null){
+					prompt = contentJSON.prompt;
+				}
+			}
+		}
+	}
+	
+	//return the prompt
+	return prompt;
+};
+
+/**
+ * @return this node's content object
+ */
+Node.prototype.getContent = function(){
+	return this.content;
+};
+
+/**
+ * Sets this node's content object
+ * @param content
+ */
+Node.prototype.setContent = function(content){
+	this.content = content;
 };
 
 /**
@@ -55,12 +105,12 @@ Node.prototype.getType = function(humanReadable) {
 				return this.type.substring(0, this.type.lastIndexOf("Node"));
 			} else {
 				return this.type;
-			}
-		}
+			};
+		};
 	} else {
 		return "";
-	}
-}
+	};
+};
 
 Node.prototype.addChildNode = function(childNode) {
 	this.children.push(childNode);
@@ -76,284 +126,324 @@ Node.prototype.getNodeById = function(nodeId) {
 		var soFar = false;
 		for (var i=0; i < this.children.length; i++) {
 			soFar = soFar || this.children[i].getNodeById(nodeId);
-		}
-		return soFar;
-	}
-};
-
-/**
- * Retrieves all the leaf nodes below this node, such as its children
- * or grandchildren, or great grandchildren, etc.
- * @return all the leaf nodes below this node, or itself if this is
- * 		a leaf node
- */
-Node.prototype.getLeafNodeIds = function(arr) {	
-	if(this.children.length==0 && arr.indexOf(this.id)=='-1'){ //it is a leaf node and does not already exist in array
-		arr.push(this.id);
-	} else { //must be a sequence node
-		for(var i=0;i<this.children.length;i++){
-			this.children[i].getLeafNodeIds(arr);
 		};
+		return soFar;
 	};
 };
 
-/**
- * Sets this node as the currentNode. Perform functions like
- * loading audio for the node.
- */
-Node.prototype.setCurrentNode = function() {
-};
-
-Node.prototype.getNodeAudios = function() {
-	return this.audios;
-};
-
-// alerts vital information about this node
+//alerts vital information about this node
 Node.prototype.alertNodeInfo = function(where) {
 	notificationManager.notify('node.js, ' + where + '\nthis.id:' + this.id 
-			+ '\nthis.title:' + this.title 
-			+ '\nthis.filename:' + this.filename
-			+ '\nthis.element:' + this.element, 3);
+			+ '\nthis.title:' + this.title, 3);
 };
 
-/**
- * Play the audio that is right after the specified elementId
- * @return
- */
-Node.prototype.playAudioNextAudio = function(elementId) {
-	for (var i=0; i < this.audios.length; i++) {
-		var audio = this.audios[i];
-		if (audio.elementId == elementId) {
-			this.audios[i+1].play();
-			return;
-		}
-	}
-	notificationManager.notify('error: no audio left to play', 2);
+
+Node.prototype.preloadContent = function(){
+	/* create and retrieve the baseHtmlContent if not already done */
+	if(!this.baseHtmlContent){
+		if(!this.selfRendering){
+			this.baseHtmlContent = this.view.getHTMLContentTemplate(this);
+			
+			/* call one of the getContent methods so it retrieves the content */
+			this.baseHtmlContent.getContentString();
+		} else {
+			/* create the content object */
+			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src));
+				
+			/* change filename url for the modules if this is a MySystemNode */
+			if(this.type == 'MySystemNode'){
+				this.baseHtmlContent.setContent(this.updateJSONContentPath(this.view.getConfig().getConfigParam('getContentBaseUrl'), this.baseHtmlContent.getContentString()));
+			};
+			
+			/* call one of the getContent methods so it retrieves the content */
+			this.baseHtmlContent.getContentString();
+		};
+	};
+
+	/* call one of the nodes getContent methods so it retrieves the content */
+	this.content.getContentJSON();
 };
-
-/**
- * Returns true iff this node supports playing of audio
- */
-Node.prototype.isAudioSupported = function() {
-	return this.audioSupported;
-}
-
 
 /**
  * Renders itself to the specified content panel
  */
-Node.prototype.render = function(contentpanel) {
-	//alert("Node.render called");
-};
-
-
-/*
- * Callback when the node finishes loading in the page. Here, do things like
- * playing the audio that is associated with the step.
- */
-Node.prototype.load = function() {
-	if (vle.audioManager != null) {
-		vle.audioManager.setCurrentNode(this);
+Node.prototype.render = function(contentPanel, studentWork, disable) {
+	this.studentWork = studentWork;
+	
+	/* clean up any disabled panel that might exist from previous render */
+	$('#disabledPanel').remove();
+	
+	/* if no content panel specified use default */
+	if(contentPanel){
+		/* make sure we use frame window and not frame element */
+		this.contentPanel = window.frames[contentPanel.name];
+	} else if(contentPanel == null) {
+		/* use default ifrm */
+		this.contentPanel = window.frames['ifrm'];
 	}
-};
 
-/**
- * Call back for dynamically-generated nodes when they're fully done
- * loading the page. including content, state
- */
-Node.prototype.onNodefullyloaded = function() {
-	this.prepareAudio();
-	if (vle.audioManager != null) {
-		vle.audioManager.setCurrentNode(this);
-	}
-}
-
-
-
-Node.prototype.getShowAllWorkHtml = function(vle){
-	var showAllWorkHtmlSoFar = "";
-    var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
-    if (nodeVisitArray.length > 0) {
-        var states = [];
-        var latestNodeVisit = nodeVisitArray[nodeVisitArray.length -1];
-        for (var i = 0; i < nodeVisitArray.length; i++) {
-            var nodeVisit = nodeVisitArray[i];
-            for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
-                states.push(nodeVisit.nodeStates[j]);
-            }
-        }
-        var latestState = states[states.length - 1];
-        showAllWorkHtmlSoFar += "You have last visited this page";
-        
-        if(latestNodeVisit!=null){
-        	showAllWorkHtmlSoFar += " beginning on " + latestNodeVisit.visitStartTime;
-        	if(latestNodeVisit.visitEndTime==null){
-        		showAllWorkHtmlSoFar += " with no end time recorded.";
-        	} else {
-        		showAllWorkHtmlSoFar += " ending on " + latestNodeVisit.visitEndTime;
-        	};
-        };
-        
-        if(latestState!=null){
-        	showAllWorkHtmlSoFar += '<br><br>Your work during this visit: ' + this.translateStudentWork(latestState.getStudentWork());
-        };
-    }
-    else {
-        showAllWorkHtmlSoFar += "You have NOT visited this page yet.";
-    }
-    
-    for (var i = 0; i < this.children.length; i++) {
-        showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
-    }
-    return showAllWorkHtmlSoFar;
-};
-
-/*
- * Returns a string representation of this node that can be saved back into
- * a .profile file
- */
-Node.prototype.generateProjectFileString = function() {
-	var fileStringSoFar = "<" + this.type + " identifier=\"" + this.id + "\"";
-	fileStringSoFar += " title=\""+this.title+"\" class=\"" + this.className + "\">\n";
-	fileStringSoFar += "    <ref filename=\""+this.filename+"\" />\n";
-	fileStringSoFar += "</" + this.type + ">\n";
-	return fileStringSoFar;
-};
-
-Node.prototype.getDataXML = function(nodeStates) {
-	var dataXML = "";
-	for (var i=0; i < nodeStates.length; i++) {
-		var state = nodeStates[i];
-		dataXML += "<state>" + state.getDataXML() + "</state>";
-	}
-	return dataXML;
-};
-
-/**
- * Converts an xml object of a node and makes a real Node object
- * @param nodeXML an xml object of a node
- * @return a real Node object depending on the type specified in
- * 		the xml object
- */
-Node.prototype.parseDataXML = function(nodeXML) {
-	var nodeType = nodeXML.getElementsByTagName("type")[0].textContent;
-	var id = nodeXML.getElementsByTagName("id")[0].textContent;
-	//alert('nodetype, id:' + nodeType + "," + id);
-
-	//create the correct type of node
-	var nodeObject = NodeFactory.createNode(nodeType);
-	//alert('nodeObject: ' + nodeObject + ", type:" + nodeObject.type);
-	nodeObject.id = id;
-	//alert('nodeObject.id:' + nodeObject.id);
-	return nodeObject;
-};
-
-/**
- * Returns the appropriate string node definition for this node
- */
-Node.prototype.nodeDefinitionXML = function(){
-	if(this.type=='sequence'){
-		var xml;
-		if (this.getView() == 'normal') {
-		    xml = "<sequence identifier=\"" + makeSafe(this.id) + "\"  title=\"" + makeSafe(this.title) + "\">\n";
+	/* 
+	 * if node is not self rendering which means it is a node that
+	 * requires an html file and a content file
+	 */
+	if(!this.selfRendering){
+		/* check to see if this contentpanel has already been rendered */
+		if(this.contentPanel.nodeId!=this.id){
+			if(!this.baseHtmlContent){
+				this.baseHtmlContent = this.view.getHTMLContentTemplate(this);
+			}
+			
+			/* make nodeId available to the content panel, and hence, the html */
+			this.contentPanel.nodeId = this.id;
+			
+			/* inject urls and write html to content panel */
+			this.contentPanel.document.open();
+			this.contentPanel.document.write(this.injectBaseRef(this.injectKeystrokeManagerScript(this.view.injectVleUrl(this.baseHtmlContent.getContentString()))));
+			this.contentPanel.document.close();
 		} else {
-		    xml = "<sequence identifier=\"" + makeSafe(this.id) + "\"  title=\"" + makeSafe(this.title) + "\" view=\""+ makeSafe(this.getView()) + "\">\n";			
-		}
-		for(var l=0;l<this.children.length;l++){
-			xml += this.children[l].nodeReferenceXML();
-		};
-		xml += "</sequence>\n";
-	} else {
-		var xml = "<" + this.type + " identifier=\"" + makeSafe(this.id) + "\" title=\"" + makeSafe(this.title) + "\" class=\"" + this.className + "\">\n";
-		xml += "\t<ref filename=\"" + this.filename + "\"/>\n";
-		if(this.audios.length>0){
-			xml += "\t<nodeaudios>\n";
-			for(var i=0;i<this.audios.length;i++){
-				xml += "\t\t<nodeaudio elementId=\"" +
-					this.audios[i].elementId + "\" url=\"" + this.audios[i].url + "\"/>\n";
-			};
-			xml += "\t</nodeaudios>\n";
-		};
-		xml += "</" + this.type + ">\n";
-	};
-	return xml;
-};
-
-function makeSafe(text){
-	if(text){
-		return text.replace(/\&/g, '&amp;');
-	} else {
-		notificationManager.notify('Did not receive text when generating xml for: node-' + this.type + ' id-' + this.id + ' title-' + this.title, 1);
-		return '';
-	};
-};
-
-/**
- * Returns the appropriate string node reference for this node
- */
-Node.prototype.nodeReferenceXML = function(){
-	if(this.type=='sequence'){
-		return "<sequence-ref ref=\"" + makeSafe(this.id) + "\"/>\n";
-	} else {
-		return "<node-ref ref=\"" + makeSafe(this.id) + "\"/>\n";
-	};
-};
-
-/**
- * Creates an xml string representation of this node so that it
- * can be saved in the authoring tool.
- * @param node a real Node object
- * @return xml string representation of the node
- */
-Node.prototype.exportNode = function(node) {
-	var exportXML = "";
-
-	exportXML += this.exportNodeHeader(node);
-	
-	if(this.children.length != 0) {
-		for(var x=0; x<this.children.length; x++) {
-			exportXML += this.children[x].exportNode();
+			/* already rendered, just load content */
+			this.contentPanel.loadContentAfterScriptsLoad(this);
 		}
 	} else {
-		//this node is a leaf node
+		/* if baseHtmlContent has not already been created, create it now */
+		if(!this.baseHtmlContent){
+			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src));
+			
+			/* change filename url for the modules if this is a MySystemNode */
+			if(this.type == 'MySystemNode'){
+				this.baseHtmlContent.setContent(this.updateJSONContentPath(this.view.getConfig().getConfigParam('getContentBaseUrl'), this.baseHtmlContent.getContentString()));
+			}
+		}
+		
+		/*check if the user had clicked on an outside link in the previous step
+		 */
+		if(this.handlePreviousOutsideLink(this)) {
+			/*
+			 * the user was at an outside link so the function
+			 * handlePreviousOutsideLink() has taken care of the
+			 * rendering of this node
+			 */
+			return;
+		}
+		
+		//write the content into the contentPanel, this will render the html in that panel
+		this.contentPanel.document.open();
+		this.contentPanel.document.write(this.injectBaseRef(this.injectKeystrokeManagerScript(this.baseHtmlContent.getContentString())));
+		this.contentPanel.document.close();
 	}
 	
-	exportXML += this.exportNodeFooter();
+	if(this.contentPanel != null) {
+		//set the event manager into the content panel so the html has access to it
+		this.contentPanel.eventManager = eventManager;
+		this.contentPanel.nodeId = this.id;
+		this.contentPanel.node = this;
+		this.contentPanel.scriptloader = this.view.scriptloader;
+		
+		if(this.type == 'MySystemNode' || this.type == 'SVGDrawNode' || 
+				this.type == 'OpenResponseNode' || this.type == 'HtmlNode' ||
+				this.type == 'MWNode') {
+			this.contentPanel.vle = this.view;
+		}
+	}
 	
-	return exportXML;
+	/* if there is a disable constraint, we want to set a semi-transparent panel over the content div */
+	if(disable==1){
+		/* get the position, height and width of the content panel */
+		var panelPosition = $('#projectRightLowerBox').offset();
+		var panelHeight = $('#projectRightLowerBox').height() + 2;
+		var panelWidth = $('#projectRightLowerBox').width() + 2;
+		
+		/* create the disabledPanel and append it to the given document */
+		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
+		$('body').append(dynamicPanel);
+	}
+	
+	if(this.view.config.getConfigParam('theme') == 'UCCP') {
+		/*
+		 * if this is a UCCP project then we will post the current step
+		 * for BlueJ interaction purposes. we need to post the current step
+		 * even when it is not a BlueJ step because we need to know when
+		 * they are not on a BlueJ step.
+		 */
+		this.extraData = "";
+		var blueJProjectPath = this.content.getContentJSON().blueJProjectPath;
+		
+		if(blueJProjectPath != null) {
+			this.extraData = blueJProjectPath;
+		}
+		this.view.postCurrentStep(this);
+	}
 };
 
 /**
- * Returns the opening node tag
- * @param node the node we are creating xml string for
- * @return xml string e.g.
- * 
- * <HtmlNode id='0:0:0' title='Introduction'>
+ * Listens for page rendered event: the html has been fully loaded
+ * and the event is fired from the page's window.onload function.
  */
-Node.prototype.exportNodeHeader = function(node) {
-	var exportXML = "";
-
-	exportXML += "<" + this.type;
-	exportXML += " id=\"" + this.id + "\"";
-	exportXML += " title=\"" + this.title + "\"";
-	exportXML += ">";
-	
-	return exportXML;
+Node.prototype.pageRenderComplete = function(type, args, obj){
+	/* args[0] is the id of node's page that has been rendered */
+	if(obj.id==args[0] && obj.contentPanel && obj.contentPanel.loadContent){
+		obj.contentPanel.loadContent(obj);
+		obj.insertPreviousWorkIntoPage(obj.contentPanel.document);
+	}
 };
 
 /**
- * Returns the closing node tag
- * @param node the node we are creating xml string for
- * @return xml string e.g.
- * 
- * </HtmlNode>
+ * Creates constraints for this node if necessary
+ * @return
  */
-Node.prototype.exportNodeFooter = function(node) {
-	var exportXML = "";
-	
-	exportXML += "</" + this.type + ">";
-	
-	return exportXML;
+Node.prototype.renderConstraints = function() {
+	//check if there is content
+	if(this.content != null) {
+		//check if there is a getContentJSON function
+		if(this.content.getContentJSON) {
+			
+			//get the content JSON
+			var contentJSON = this.content.getContentJSON();
+			
+			/*
+			 * check if this step contains the constraint that it must
+			 * be completed before moving on to future steps. they
+			 * will still be able to visit previous steps if they
+			 * haven't completed the step.
+			 */ 
+			if(contentJSON.workOnXBeforeAdvancing) {
+				var buttonName = null;
+				
+				if(this.isPartOfReviewSequence()) {
+					/*
+					 * if this step is a review sequence start or annotate node
+					 * we will tell the student they need to click the 'submit'
+					 * button. for all other steps it will default to tell them
+					 * to click the 'save' button.
+					 */
+					if(this.peerReview == 'start' || this.peerReview == 'annotate' ||
+							this.teacherReview == 'start' || this.teacherReview == 'annotate') {
+						buttonName = 'submit';
+					}
+				}
+				
+				//add the constraint
+				this.view.eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20), updateAfterAdd: true, buttonName: buttonName});				
+			}
+		}
+	}
+};
+
+Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
+	if(obj.id==args[0]) {
+		obj.contentPanel.loadContentAfterScriptsLoad(obj);		
+	}
+};
+
+/**
+ * Listens for page content rendered complete event: the html has
+ * been fully loaded as has the content and the event is fired from
+ * the html's load content function.
+ */
+Node.prototype.contentRenderComplete = function(type, args, obj){
+	/* args[0] is the id of node's page that has been rendered */
+};
+
+/**
+ * This is called when a node is exited
+ */
+Node.prototype.onExit = function() {
+	//this function should be overriden by child classes
+};
+
+/**
+ * Get the view style if the node is a sequence. If this node
+ * is a sequence and no view style is defined, the default will
+ * be the 'normal' view style.
+ * @return the view style of the sequence or null if this
+ * 		node is not a sequence
+ */
+Node.prototype.getView = function() {
+	/*
+	 * check that this node is a sequence.
+	 */
+	if(this.isSequence()) {
+		if(this.json.view == null) {
+			//return the default view style if none was specified
+			return 'normal';
+		} else {
+			//return the view style for the sequence
+			return this.json.view;
+		}
+	} else {
+		//this node is not a sequence so we will return null
+		return null;
+	}
+};
+
+/**
+ * Returns whether this node is a sequence node.
+ */
+Node.prototype.isSequence = function() {
+	return this.type == 'sequence';
+};
+
+/**
+ * Returns the appropriate object representation of this node
+ */
+Node.prototype.nodeJSON = function(contentBase){
+	if(this.type=='sequence'){
+		/* create and return sequence object */
+		var sequence = {
+			type:'sequence',
+			identifier:makeHtmlSafe(this.id),
+			title:makeHtmlSafe(this.title),
+			view:this.getView(),
+			refs:[]
+		};
+		
+		/* add children ids to refs */
+		for(var l=0;l<this.children.length;l++){
+			sequence.refs.push(this.children[l].id);
+		};
+		
+		return sequence;
+	} else {
+		/* create and return node object */
+		var node = {
+			type:this.type,
+			identifier:makeHtmlSafe(this.id),
+			title:makeHtmlSafe(this.title),
+			ref:this.content.getFilename(contentBase),
+			previousWorkNodeIds:this.prevWorkNodeIds,
+			links:this.links
+		};
+
+		//set the peerReview attribute if needed
+		if(this.peerReview != null) {
+			node.peerReview = this.peerReview;
+		}
+		
+		//set the teacherReview attribute if needed
+		if(this.teacherReview != null) {
+			node.teacherReview = this.teacherReview;
+		}
+		
+		//set the reviewGroup attribute if needed
+		if(this.reviewGroup != null) {
+			node.reviewGroup = this.reviewGroup;
+		}
+		
+		//set the associatedStartNode attribute if needed
+		if(this.associatedStartNode != null) {
+			node.associatedStartNode = this.associatedStartNode;
+		}
+		
+		//set the associatedAnnotateNode attribute if needed
+		if(this.associatedAnnotateNode != null) {
+			node.associatedAnnotateNode = this.associatedAnnotateNode;
+		}
+		
+		/* set class */
+		node['class'] = this.className;
+		
+		return node;
+	}
 };
 
 /**
@@ -365,73 +455,6 @@ Node.prototype.exportNodeFooter = function(node) {
  */
 Node.prototype.getLatestWork = function(vle, dataId) {
 	return null;
-};
-
-/**
- * for nodes that are loaded from project files, retrieves the file
- * and sets this.element = xml
- */
-Node.prototype.retrieveFile = function(){
-	if(this.filename!=null){
-		if(this.connectionManager==null && vle){
-			//set event to fire and set this node's variable when content is loaded
-			var setLoaded = function(type, args, obj){
-				if(obj && obj.id==this.id){
-					obj.contentLoaded = true;
-				};
-			};
-			vle.eventManager.addEvent(this, 'nodeLoadingContentComplete_' + this.id);
-			vle.eventManager.subscribe('nodeLoadingContentComplete_' + this.id, setLoaded, this);
-			
-			//retrieve content
-			this.connectionManager = vle.connectionManager;
-			if (this.filename.search(/http:/) > -1 || this.filename.substring(0,1)=='/') {
-				this.connectionManager.request('GET', 1, this.filename, null, this.processRetrieveFileResponse, this);
-		    } else {
-		    	this.connectionManager.request('POST', 1, 'filemanager.html', {command: 'retrieveFile', param1: currentProjectPath + pathSeparator + this.filename}, this.processRetrieveFileResponse, this);
-		    };
-		};
-	} else {
-		notificationManager.notify('No filename is specified for node with id: ' + this.id + ' in the node, unable to retrieve content for this node.', 3);
-	};
-};
-
-/**
- * Handles the response from the call to connectionManager
- */
-Node.prototype.processRetrieveFileResponse = function(responseText, responseXML, node){
-	if(!responseXML){
-		responseXML = loadXMLString(responseText);
-	};
-	
-	node.xmlDoc = responseXML;
-	node.element = responseXML;
-	node.elementText = responseText;
-	
-	vle.eventManager.fire('nodeLoadingContentComplete_' + node.id);
-};
-
-/**
- * Returns a string of this.element
- */
-Node.prototype.getXMLString = function(){
-	var xmlString;
-	if(window.ActiveXObject) {
-		xmlString = this.element.xml;
-	} else {
-		xmlString = (new XMLSerializer()).serializeToString(this.element);
-	};
-	return xmlString;
-};
-
-/**
- * This is the default implementation of getPrompt which just returns
- * an empty string. Nodes that actually utilize a prompt will implement
- * this themselves
- * @return an empty string since this is the parent implementation
- */
-Node.prototype.getPrompt = function() {
-	return "";
 };
 
 /**
@@ -448,42 +471,6 @@ Node.prototype.translateStudentWork = function(studentWork) {
 };
 
 /**
- * Get the view style if the node is a sequence. If this node
- * is a sequence and no view style is defined, the default will
- * be the 'normal' view style.
- * @return the view style of the sequence or null if this
- * 		node is not a sequence
- */
-Node.prototype.getView = function() {
-	/*
-	 * check that this node is a sequence.
-	 */
-	if(this.isSequence()) {
-		if(this.element.getAttribute('view') == null) {
-			//return the default view style if none was specified
-			return 'normal';
-		} else {
-			//return the view style for the sequence
-			return this.element.getAttribute('view');
-		}
-	} else {
-		//this node is not a sequence so we will return null
-		return null;
-	}
-};
-
-/**
- * Returns whether this node is a sequence node. There is the case
- * where a sequence node does not have any steps in it in which case
- * this function would return the wrong value but a sequence with
- * no steps in it doesn't really make sense anyway.
- * @return whether this node is a sequence node
- */
-Node.prototype.isSequence = function() {
-	return this.children.length > 0;
-};
-
-/**
  * Injects base ref in the head of the html if base-ref is not found, and returns the result
  * @param content
  * @return
@@ -492,159 +479,378 @@ Node.prototype.injectBaseRef = function(content) {
 	if (content.search(/<base/i) > -1) {
 		// no injection needed because base is already in the html
 		return content;
-	} else {		
-		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
-		//alert('Node.js, this.contentbase:' + this.contentBase + ", contentbaseUrl:" + vle.project.contentBaseUrl);
-		if(typeof vle !='undefined' && vle.project.contentBaseUrl){
-			var baseRefTag = "<base href='" +vle.project.contentBaseUrl + "'/>";
-		} else {
-			return content;
-		};
+	} else {
+		var contentBaseUrl = "";
 		
-		var headPosition = content.indexOf("<head>");
-		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
-		newContent += baseRefTag;
-		newContent += content.substring(headPosition+6);
+		if(this.view.authoringMode) {
+			/*
+			 * the user is previewing a step in the authoring tool. this
+			 * is not the same as previewing a project in the authoring tool.
+			 * when previewing a project in the authoring tool we use the
+			 * else case below.
+			 */
+			contentBaseUrl = this.getAuthoringModeContentBaseUrl();
+		} else {
+			//get the content base url
+			contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');			
+		}
 
+		//add any missing html, head or body tags
+		content = this.addMissingTags(content);
+		
+		//create the base tag
+		var baseRefTag = "<base href='" + contentBaseUrl + "'/>";
+
+		//get the content in all lowercase
+		var contentToLowerCase = content.toLowerCase();
+		
+		//get the index of the open head tag
+		var indexOfHeadOpenTag = contentToLowerCase.indexOf("<head>");
+		
+		var newContent = "";
+		
+		//check if there is an open head tag
+		if(indexOfHeadOpenTag != -1) {
+			//insert the base tag after the head open tag
+			newContent = this.insertString(content, indexOfHeadOpenTag + "<head>".length, baseRefTag);
+		} else {
+			newContent = content;
+		}
+		
+		//return the updated content
 		return newContent;
 	}
 };
 
-function NodeAudio(id, url, elementId, textContent, md5url) {
-	notificationManager.notify('id: ' + id + ",url: " + url + ",elementId: " + elementId, 4);
-	notificationManager.notify('md5 url: ' + md5url, 4);
-	this.id = id;
-	this.url = url;
-	this.elementId = elementId;    // VALUE in <p audio=VALUE .../> or <div audio=VALUE ../>
-	this.elementTextContent = textContent;
-	this.md5url = md5url;
-	this.audio = null;
-	this.backupAudio = null;  // backup audio, ie NoAvailableAudio.mp3 or MD5
-}
-
-NodeAudio.prototype.play = function() {
-	this.audio.play();
-};
-
-Node.prototype.prepareAudio = function() {
-	if (this.audioReady) {
-		notificationManager.notify('no need to create audios', 4);
-		return;
+/**
+ * Add any missing html, head or body tags
+ * @param content the html content
+ * @return the html content with html, head, and body tags inserted
+ * if necessary
+ */
+Node.prototype.addMissingTags = function(content) {
+	/*
+	 * add tags in this order for simplicity
+	 * <body>
+	 * </body>
+	 * <head>
+	 * </head>
+	 * <html>
+	 * </html>
+	 */
+	
+	//check if the content contains the body open tag
+	if(!this.containsBodyOpenTag(content)) {
+		/*
+		 * get the content all in lower case so we can search for the positions of tags
+		 * by comparing them to lower case tags
+		 */
+		var contentToLowerCase = content.toLowerCase();
+		
+		//get the index of the html open tag
+		var indexOfHtmlOpenTag = contentToLowerCase.indexOf("<html>");
+		
+		//get the index of the head close tag
+		var indexOfHeadCloseTag = contentToLowerCase.indexOf("</head>");
+		
+		if(indexOfHeadCloseTag != -1) {
+			//head close tag was found so we will insert '<body>' right after it
+			content = this.insertString(content, indexOfHeadCloseTag + "</head>".length, "<body>");
+		} else if(indexOfHtmlOpenTag != -1) {
+			/*
+			 * head close tag was not found and html open tag was found so we will 
+			 * insert '<body>' right after the html open tag
+			 */
+			content = this.insertString(content, indexOfHtmlOpenTag + "<html>".length, "<body>");
+		} else {
+			/*
+			 * html open and head close tags were not found so we will just add '<body>'
+			 * to the beginning of the content
+			 */
+			content = "<body>" + content;
+		}
 	}
 	
-	// create node audios for this node
-	//var nodeAudioElements = currElement.getElementsByTagName('nodeaudio');	
-
-	// first parse the document and get the elements that have audio attribute
-	var nodeAudioElements = null;
-	if (this.type == "BrainstormNode") {  // Brainstorm is special.. it makes another iframe within the ifrm...
-		nodeAudioElements = getElementsByAttribute("audio", null, "brainstormFrame");
-	} else {
-		nodeAudioElements = getElementsByAttribute("audio", null);
+	//check if the content contains the body close tag
+	if(!this.containsBodyCloseTag(content)) {
+		/*
+		 * get the content all in lower case so we can search for the positions of tags
+		 * by comparing them to lower case tags
+		 */
+		var contentToLowerCase = content.toLowerCase();
+		
+		//get the index of the html close tag
+		var indexOfHtmlCloseTag = contentToLowerCase.indexOf("</html>");
+		
+		if(indexOfHtmlCloseTag != -1) {
+			//html close tag was found so we will insert '</body>' right before it
+			content = this.insertString(content, indexOfHtmlCloseTag, "</body>");
+		} else {
+			//html close tag was not found so we will just add '</body>' to the end of the content
+			content = content + "</body>";
+		}
 	}
-	notificationManager.notify('nodeAudioElements.length:' + nodeAudioElements.size(), 4);
+
+	//check if the content contains the head open tag
+	if(!this.containsHeadOpenTag(content)) {
+		/*
+		 * get the content all in lower case so we can search for the positions of tags
+		 * by comparing them to lower case tags
+		 */
+		var contentToLowerCase = content.toLowerCase();
+		
+		//get the index of the html open tag
+		var indexOfHtmlOpenTag = contentToLowerCase.indexOf("<html>");
+		
+		if(indexOfHtmlOpenTag != -1) {
+			//html open tag was found so we will insert '<head>' right after it
+			content = this.insertString(content, indexOfHtmlOpenTag + "<html>".length, "<head>");
+		} else {
+			/*
+			 * html open tag was not found so we will just add '<head>' to the
+			 * beginning of the content
+			 */
+			content = "<head>" + content;			
+		}
+	}
 	
-	// go through each audio element and create NodeAudio objects
-	for (var k=0; k < nodeAudioElements.size(); k++) {
-		var audioElement = nodeAudioElements.item(k);
-		var audioElementValue = audioElement.getAttribute('audio');
-		var audioElementAudioId = this.id + "." + audioElementValue;
-		notificationManager.notify('attribute:' + audioElementAudioId, 4);
-
-		var audioBaseUrl = "";
-	       if (vle.project.contentBaseUrl != null) {
-			audioBaseUrl += vle.project.contentBaseUrl + "/";
-		}
-		notificationManager.notify('contentBaseUrl:' + vle.project.contentBaseUrl,4);
-		notificationManager.notify('audioBaseUrl0:' + audioBaseUrl,4);
-
-	    // ignore contentBaseUrl if audioBaseUrl is absolute, ie, starts with http://...
-	    //if (nodeAudioElements[k].getAttribute("url").search('http:') > -1) {
-			//audioBaseUrl = "";
-		//}  commented out...do we want to let users specify absolute audio urls in the future?
+	//check if the content contains the head close tag
+	if(!this.containsHeadCloseTag(content)) {
+		/*
+		 * get the content all in lower case so we can search for the positions of tags
+		 * by comparing them to lower case tags
+		 */
+		var contentToLowerCase = content.toLowerCase();
 		
-		// ignore contentBaseUrl if in author mode.
-		if (currentProjectPath) {
-			audioBaseUrl = "";
-		}
-		notificationManager.notify('audioBaseUrl1:' + audioBaseUrl,4);
-		var nodeAudioUrl = audioBaseUrl + vle.project.audioLocation + "/" + audioElementAudioId + ".mp3";
-		notificationManager.notify('nodeAudioUrl2:' + nodeAudioUrl,4);
-
-		var elementAudioValue = audioElementValue;
-		var nodeAudioId = audioElementAudioId;
+		//get the index of the body close tag (body open tag should always exist)
+		var indexOfBodyOpenTag = contentToLowerCase.indexOf("<body>");
 		
-		var textContent = normalizeHTML(audioElement.get('innerHTML'));
-		notificationManager.notify('innerHTML for nodeAudio after normalizing: ' + textContent + '  length: ' + textContent.length, 4);
-		var elementTextContentMD5 = hex_md5(textContent);  // MD5(this.elementTextContent);
-		var md5url = audioBaseUrl + vle.project.audioLocation + "/audio_" + elementTextContentMD5 + ".mp3";
-		var nodeAudio = new NodeAudio(nodeAudioId, nodeAudioUrl, elementAudioValue, textContent, md5url);
-
-		// add the NodeAudio object to this node
-		this.audios.push(nodeAudio);
-		
-		// create audio files only if in authoring mode
-		if (currentProjectPath) {
-			this.createAudioFiles();
+		if(indexOfBodyOpenTag != -1) {
+			//we need to insert '</head>' right before the open body tag
+			content = this.insertString(content, indexOfBodyOpenTag, "</head>");
 		}
 	}
-	this.audioReady = true;
-	notificationManager.notify('prepareAudio function end', 4);
+
+	//check if the content contains the html open tag
+	if(!this.containsHtmlOpenTag(content)) {
+		//add the html open tag to the beginning of the content
+		content = "<html>" + content;
+	}
+	
+	//check if the content contains the html close tag
+	if(!this.containsHtmlCloseTag(content)) {
+		//add the html close tag to the end of the content
+		content = content + "</html>";
+	}
+	
+	return content;
 };
 
 /**
- * Creates audio files for this node. Only called in Author-mode
- * Assumed that this.audios has already been populated by Node.prepareAudio function.
+ * Insert a string into the content at the given position
+ * @param content the html content
+ * @param position the position to insert the string intot he content
+ * @param stringToInsert the string to insert into the content
+ * @return the content with the string inserted into it
  */
-Node.prototype.createAudioFiles = function() {
-	notificationManager.notify('currentProjectPath:' + currentProjectPath, 4);
-	var createdCount = 0;
-	notificationManager.notify('nodeaudio.length:' + this.audios.length, 4);
-	for (var a=0; a<this.audios.length;a++) {
-		notificationManager.notify('audio url:' + this.audios[a].url, 4);
-		var elementId = this.audios[a].elementId;
+Node.prototype.insertString = function(content, position, stringToInsert) {
+	//get everything before the position
+	var beginning = content.substring(0, position);
+	
+	//get everything after the position
+	var end = content.substring(position);
+	
+	//combine everything with the stringToInsert inbetween
+	var newContent = beginning + stringToInsert + end;
+	
+	return newContent;
+};
 
-		// only invoke updateAudioFiles if elementId exists and is ID'ed to 
-		// actual element in the content.
-		if (elementId && elementId != null) {
-			var textContent = this.audios[a].elementTextContent;
-			notificationManager.notify('creating audio file at url: ' + this.audios[a].url
-					+ '\nelementId: ' + elementId + '\ncontent: ' + textContent, 4);
-
-			var callback = {
-					success: function(o){
-				if (o.responseText == 'success') {
-					createdCount++;
-				} else if (o.responseText == 'audioAlreadyExists') {
-				} else {
-					notificationManager.notify('could not create audio. Is your filesystem write-able? Does it have the right directories, ie audio, where the audio will go?', 3);
-				};
-			},
-			failure: function(o){
-				notificationManager.notify('could not create audio', 3);
-			},
-			scope: this
-			};
-			YAHOO.util.Connect.asyncRequest('POST', 'filemanager.html', callback, 'command=updateAudioFiles&param1=' + currentProjectPath + '&param2=' + this.audios[a].md5url + '&param3=' + textContent);				
+/**
+ * Check if the tags in the array are all found in the content.
+ * If one of the tags are not found, we will return false.
+ * @param content the html content
+ * @param tags an array of html tags to search for
+ * @return true if we found all the tags, false if we are missing
+ * any tag
+ */
+Node.prototype.containsTags = function(content, tags) {
+	if(content != null) {
+		//make the content lowercase so we can compare the lowercase tags
+		var contentToLowerCase = content.toLowerCase();
+		
+		//loop through all the tags
+		for(var x=0; x<tags.length; x++) {
+			//get a tag
+			var tag = tags[x];
+			
+			if(tag != null) {
+				//make the tag lower case
+				tag = tag.toLowerCase();
+				
+				//check if we found the tag 
+				if(contentToLowerCase.indexOf(tag) == -1) {
+					//we did not find the tag
+					return false;
+				}
+			}
 		}
-
 	}
-	notificationManager.notify('number of audio files created: ' + createdCount, 4);	
-}
+	
+	//we found all the tags
+	return true;
+};
+
+/**
+ * Check if the content contains the open html tag
+ * @param content the html content
+ * @return whether the content contains the open html tag
+ */
+Node.prototype.containsHtmlOpenTag = function(content) {
+	var htmlTags = ['<html>'];
+	return this.containsTags(content, htmlTags);
+};
+
+/**
+ * Check if the content contains the close html tag
+ * @param content the html content
+ * @return whether the content contains the close html tag
+ */
+Node.prototype.containsHtmlCloseTag = function(content) {
+	var htmlTags = ['</html>'];
+	return this.containsTags(content, htmlTags);
+};
+
+/**
+ * Check if the content contains the open head tag
+ * @param content the html content
+ * @return whether the content contains the open head tag
+ */
+Node.prototype.containsHeadOpenTag = function(content) {
+	var htmlTags = ['<head>'];
+	return this.containsTags(content, htmlTags);
+};
+
+/**
+ * Check if the content contains the close head tag
+ * @param content the html content
+ * @return whether the content contains the close head tag
+ */
+Node.prototype.containsHeadCloseTag = function(content) {
+	var htmlTags = ['</head>'];
+	return this.containsTags(content, htmlTags);
+};
+
+/**
+ * Check if the content contains the open body tag
+ * @param content the html content
+ * @return whether the content contains the open body tag
+ */
+Node.prototype.containsBodyOpenTag = function(content) {
+	var htmlTags = ['<body>'];
+	return this.containsTags(content, htmlTags);
+};
+
+/**
+ * Check if the content contains the close body tag
+ * @param content the html content
+ * @return whether the content contains the close body tag
+ */
+Node.prototype.containsBodyCloseTag = function(content) {
+	var htmlTags = ['</body>'];
+	return this.containsTags(content, htmlTags);
+};
+
+/**
+ * Gets the contentBaseUrl for when the user is previewing a step using the authoring tool.
+ * This is not used when the user is previewing the project in the authoring tool.
+ * @return the contentBaseUrl from the vlewrapper
+ */
+Node.prototype.getAuthoringModeContentBaseUrl = function() {
+	/*
+	 * get the contentBaseUrl from the config param. it will look like this below
+	 * e.g.
+	 * http://localhost:8080/webapp/author/authorproject.html?forward=filemanager&projectId=96&command=retrieveFile&param1=/Users/geoffreykwan/dev/workspaces/portalworkspace/vlewrapper-3.0/WebContent/curriculum/88
+	 */
+	var contentBaseUrlString = this.view.getConfig().getConfigParam('getContentBaseUrl');
+	
+	var lastSlashIndex = -1;
+	
+	if(contentBaseUrlString) {
+		if(contentBaseUrlString.charAt(contentBaseUrlString.length - 1) == '/') {
+			/*
+			 * the url ends with '/' so we want the index of the '/' before that
+			 * e.g.
+			 * .../curriculum/88/
+			 *               ^
+			 */
+			lastSlashIndex = contentBaseUrlString.lastIndexOf('/', contentBaseUrlString.length - 2);
+		} else {
+			/*
+			 * the url does not end with '/' so we want the index of the last '/' 
+			 * e.g.
+			 * .../curriculum/88
+			 *               ^
+			 */
+			lastSlashIndex = contentBaseUrlString.lastIndexOf('/');
+		}
+	}
+	
+	var projectFolder = "";
+	
+	/*
+	 * get the vlewrapper base url
+	 * e.g.
+	 * http://localhost:8080/vlewrapper/curriculum
+	 */
+	var vlewrapperBaseUrl = "";
+	
+	if(this.view.vlewrapperBaseUrl) {
+		vlewrapperBaseUrl = this.view.vlewrapperBaseUrl;
+		
+		if(vlewrapperBaseUrl.charAt(vlewrapperBaseUrl.length - 1) == '/') {
+			/*
+			 * the vlewrapper base url ends with '/' so we do not need the '/'
+			 * from the contentBaseUrlString
+			 * e.g.
+			 * 88
+			 */
+			projectFolder = contentBaseUrlString.substring(lastSlashIndex + 1);
+		} else {
+			/*
+			 * the vlewrapper base url does not end with '/' so we need the '/'
+			 * from the contentBaseUrlString
+			 * e.g.
+			 * /88
+			 */
+			projectFolder = contentBaseUrlString.substring(lastSlashIndex);
+		}
+	}
+	
+	//add a '/' at the end of the project folder if it doesn't end with '/'
+	if(projectFolder.charAt(projectFolder.length - 1) != '/') {
+		projectFolder += '/';
+	}
+	
+	/*
+	 * combine the vlewrapper base url and the project folder
+	 * e.g.
+	 * vlewrapperBaseUrl=http://localhost:8080/vlewrapper/curriculum
+	 * projectFolder=/88/
+	 * contentBaseUrl=http://localhost:8080/vlewrapper/curriculum/88/
+	 */
+	var contentBaseUrl = vlewrapperBaseUrl + projectFolder;
+	
+	return contentBaseUrl;
+};
 
 /**
  * Returns whether this node is a leaf node
- * @return whether this is a leaf node
  */
 Node.prototype.isLeafNode = function() {
-	if(this.children.length == 0) {
-		//there are no children so this is a leaf node
-		return true;
-	} else {
-		//there are children so this is not a leaf node
-		return false;
-	}
-}
+	return this.type != 'sequence';
+};
+
 
 /**
  * This handles the case when the previous step has an outside link and 
@@ -682,7 +888,7 @@ Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
 			history.back();
 			
 			//call render to render the node we want to navigate to
-			setTimeout(function() {thisObj.render(thisContentPanel)}, 500);
+			setTimeout(function() {thisObj.render(thisContentPanel);}, 500);
 			
 			/*
 			 * tell the caller the student was at an outside link so
@@ -696,5 +902,364 @@ Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
 	};
 };
 
+/**
+ * If this node has previous work nodes, grabs the latest student
+ * data from that node and inserts it into this nodes page
+ * for each referenced node id. Assumes that the html is already loaded
+ * and has a div element with id of 'previousWorkDiv'.
+ * 
+ * @param doc
+ */
+Node.prototype.insertPreviousWorkIntoPage = function(doc){
+	//only do anything if there is anything to do
+	if(this.prevWorkNodeIds.length>0){
+		var html = '';
+		
+		//loop through and add any previous work to html
+		for(var n=0;n<this.prevWorkNodeIds.length;n++){
+			var work = this.view.state.getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
+			if(work){
+				var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
+				html += 'Remember, your response to step ' + node.title + ' was: ' + work + '</br></br>';
+			};
+		};
+		
+		//add reminders to this node's html if div exists
+		var prevWorkDiv = doc.getElementById('previousWorkDiv');
+		if(prevWorkDiv){
+			prevWorkDiv.innerHTML = html;
+		};
+	};
+};
+
+/**
+ * Given the full @param path to the project (including project filename), duplicates 
+ * this node and updates project file on server. Upon successful completion, runs the 
+ * given function @param done and notifies the user if the given @param silent is not true.
+ * 
+ * NOTE: It is up to the caller of this function to refresh the project after copying.
+ * 
+ * @param done - a callback function
+ * @param silent - boolean, does not notify when complete if true
+ * @param path - full project path including project filename
+ */
+Node.prototype.copy = function(eventName, project){
+	/* success callback */
+	var successCreateCallback = function(text,xml,o){
+		/* fire event with arguments: event name, [initial node id, copied node id] */
+		o[0].view.eventManager.fire(o[1],[o[0].id,text]);
+	};
+	
+	/* failure callback */
+	var failureCreateCallback = function(obj, o){
+		/* fire event with initial node id as argument so that listener knows that copy failed */
+		o[0].view.eventManager.fire(o[1],o[0].id);
+	};
+	
+	if(this.type!='sequence'){
+		/* copy node section */
+		var project = this.view.getProject();
+		var data = this.content.getContentString();
+		if(this.type=='HtmlNode' || this.type=='DrawNode' || this.type=='MySystemNode'){
+			var contentFile = this.content.getContentJSON().src;
+		} else {
+			var contentFile = '';
+		};
+		
+		if(this.type=='MySystemNode'){
+			this.view.notificationManager.notify('My System Nodes cannot be copied, ignoring', 3);
+			this.view.eventManager.fire(eventName,[this.id, null]);
+			return;
+		};
+		
+		this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'copyNode', param1: this.view.utils.getContentPath(this.view.authoringBaseUrl,project.getUrl()), param2: this.content.getContentString(), param3: this.type, param4: project.generateUniqueTitle(this.title), param5: this.className, param6: contentFile}, successCreateCallback, [this,eventName], failureCreateCallback);
+	} else {
+		/* copy sequence section */
+		
+		/* listener that listens for the event when all of its children have finished copying 
+		 * then copies itself and finally fires the event to let other listeners know that it
+		 * has finished copying */
+		var listener = function(type,args,obj){
+			if(args[0]){
+				var idList = args[0];
+			} else {
+				var idList = [];
+			};
+			
+			if(args[1]){
+				var  msg = args[1];
+			} else {
+				var msg = '';
+			};
+			
+			var node = obj[0];
+			var eventName = obj[1];
+			var project = node.view.getProject();
+			
+			var seqJSON = {
+				type:'sequence',
+				identifier: project.generateUniqueId(node.id),
+				title: project.generateUniqueTitle(node.title),
+				view: node.getView(),
+				refs:idList
+			};
+			
+			node.view.connectionManager.request('POST', 1, node.view.requestUrl, {forward:'filemanager',projectId:node.view.portalProjectId, command: 'createSequenceFromJSON', param1: node.view.utils.getContentPath(node.view.authoringBaseUrl,node.view.getProject().getUrl()), param2: $.stringify(seqJSON)}, successCreateCallback, [node,eventName], failureCreateCallback);
+		};
+		
+		/* set up event to listen for when this sequences children finish copying */
+		var seqEventName = this.view.project.generateUniqueCopyEventName();
+		this.view.eventManager.addEvent(seqEventName);
+		this.view.eventManager.subscribe(seqEventName, listener, [this, eventName]);
+		
+		/* collect children ids in an array */
+		var childIds = [];
+		for(var w=0;w<this.children.length;w++){
+			childIds.push(this.children[w].id);
+		};
+		
+		/* process by passing childIds and created event name to copy in project */
+		this.view.getProject().copyNodes(childIds, seqEventName);
+	};
+};
+
+Node.prototype.getShowAllWorkHtml = function(vle){
+	var showAllWorkHtmlSoFar = "";
+    var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
+    if (nodeVisitArray.length > 0) {
+        var states = [];
+        //get the latest node visit that has student work
+        var latestNodeVisit = vle.state.getLatestNodeVisitByNodeId(this.id);
+        for (var i = 0; i < nodeVisitArray.length; i++) {
+            var nodeVisit = nodeVisitArray[i];
+            for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
+                states.push(nodeVisit.nodeStates[j]);
+            }
+        }
+        var latestState = states[states.length - 1];
+        showAllWorkHtmlSoFar += "Last visited on ";
+        
+        if(latestNodeVisit!=null){
+        	showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString();
+        	
+        };
+        
+        if(latestState!=null){
+        	var divClass = "showallLatestWork";
+        	var divStyle = "";
+        	if (this.type == "MySystemNode") {
+        		divClass = "mysystem";
+        		divStyle = "height:350px";
+        	}
+        	if (this.type == "SVGDrawNode") {
+        		divClass = "svgdraw";
+        		divStyle = "height:270px; width:360px; border:1px solid #aaa";
+        	} 
+        	//create the div id for where we will display the student work
+        	var divId = "latestWork_"+latestNodeVisit.id;
+        	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
+        	
+        	if(this.type == "SensorNode") {
+        		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+        		'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\"></div>';
+        	} else {
+        		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+        			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
+        	}
+        	
+        	if (this.view.getCurrentNode().importWork && 
+        			this.canExportWork &&
+        			this.canExportWork(this.view.getCurrentNode())) {
+        		// if the currently-opened node can import work from this node, show link to import.
+        		showAllWorkHtmlSoFar += "<div id=\"insertwork_"+divId+"\">" +        		
+        		"<a href=\"#\" onclick=\"eventManager.fire('importWork', ['" + this.id + "','"+this.view.getCurrentNode().id+"']); $('#showallwork').dialog('close');\">Insert this work into current step</a>" +
+        		"</div>";
+        	};
+        };
+    }
+    else {
+        showAllWorkHtmlSoFar += "Step not visited yet.";
+    }
+    
+    for (var i = 0; i < this.children.length; i++) {
+        showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
+    }
+    return showAllWorkHtmlSoFar;
+};
+
+/**
+ * Inserts the keystroke manager script location into the given html content and returns it.
+ */
+Node.prototype.injectKeystrokeManagerScript = function(contentStr){
+	var loc = window.location.toString();
+	var keystrokeLoc = '<script type="text/javascript" src="' + loc.substring(0, loc.indexOf('/vle/')) + '/vle/util/keystrokemanager.js"></script></head>';
+	
+	return contentStr.replace('</head>', keystrokeLoc);
+};
+
+/**
+ * Creates the keystroke manager for the individual node's content panel
+ */
+Node.prototype.createKeystrokeManager = function(){
+	if(this.contentPanel && !this.contentPanel.keystrokeManager && this.contentPanel.createKeystrokeManager){
+		this.contentPanel.keystrokeManager = this.contentPanel.createKeystrokeManager(this.contentPanel.eventManager,[['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']],['toggleNavigationPanelVisibility', 77, ['shift']]]);
+	};
+};
+
+/**
+ * Handles the link request to link to another node. Checks to ensure that the
+ * linked node still exists in the project and then calls vle render if it does.
+ * 
+ * @param linkId
+ * @return
+ */
+Node.prototype.linkTo = function(key){
+	var link = this.getLink(key);
+	if(link == null){
+		this.view.notificationManager.notify('Could not find link to step, aborting operation.',3);
+		return;
+	};
+	
+	var position = link.nodePosition;
+	if(position == null){
+		this.view.notificationManager.notify('Could not find step specified in link, aborting operation.',3);
+	} else {
+		var node = this.view.getProject().getNodeByPosition(link.nodePosition);
+		if(!node){
+			this.view.notificationManager.notify('Could not retrieve the step specified in the link.',3);
+		} else if(this.view.name!='vle'){
+			this.view.notificationManager.notify('The link works. The step ' + node.title + ' will be displayed when the project is run.',3);
+		} else {
+			this.view.renderNode(position);
+		}
+	}
+};
+
+/**
+ * Returns the link object associated with the given key if an
+ * object with that key exists, returns null otherwise.
+ * 
+ * @param key
+ * @return object || null
+ */
+Node.prototype.getLink = function(key){
+	/* cycle through the links to find the associated key */
+	for(var b=0;b<this.links.length;b++){
+		if(this.links[b].key==key){
+			return this.links[b];
+		}
+	}
+	
+	return null;
+};
+
+/**
+ * Adds the given link the this node's link array.
+ * 
+ * @param link
+ */
+Node.prototype.addLink = function(link){
+	this.links.push(link);
+};
+
+/**
+ * Returns the class for this node.
+ */
+Node.prototype.getNodeClass = function(){
+	return this.className;
+};
+
+/**
+ * Sets the className for this node.
+ * 
+ * @param className
+ */
+Node.prototype.setNodeClass = function(className){
+	this.className = className;
+};
+
+/**
+ * Returns this node.
+ */
+Node.prototype.getNode = function(){
+	return this;
+};
+
+/**
+ * Does this node support audio playback?
+ */
+Node.prototype.isAudioSupported = function(){
+	return true;
+};
+
+/**
+ * Set the step boolean value open to true
+ */
+Node.prototype.setStepOpen = function() {
+	this.isStepOpen = true;
+};
+
+/**
+ * Set the step boolean value open to false
+ */
+Node.prototype.setStepClosed = function() {
+	this.isStepOpen = false;
+};
+
+/**
+ * Get whether the step is open or not
+ * @return a boolean value whether the step is open or not
+ */
+Node.prototype.isOpen = function() {
+	return this.isStepOpen;
+};
+
+/**
+ * Set the step boolean value completed to true
+ */
+Node.prototype.setCompleted = function() {
+	this.isStepCompleted = true;
+};
+
+/**
+ * Set the step boolean value completed to false
+ */
+Node.prototype.setNotCompleted = function() {
+	this.isStepCompleted = false;
+};
+
+/**
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+Node.prototype.isCompleted = function() {
+	return this.isStepCompleted;
+};
+
+/**
+ * Set the step boolean value part of review sequence to true
+ */
+Node.prototype.setIsPartOfReviewSequence = function() {
+	this.isStepPartOfReviewSequence = true;
+};
+
+/**
+ * Set the step boolean value part of review sequence to false
+ */
+Node.prototype.setIsNotPartOfReviewSequence = function() {
+	this.isStepPartOfReviewSequence = false;
+};
+
+/**
+ * Get whether the step is part of a review sequence or not
+ * @return a boolean value whether the step is part of a 
+ * review sequence or not
+ */
+Node.prototype.isPartOfReviewSequence = function() {
+	return this.isStepPartOfReviewSequence;
+};
+//
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/Node.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/Node.js');
+}

@@ -12,8 +12,8 @@ function createElement(doc, type, attrArgs){
 	if(attrArgs!=null){
 		for(var option in attrArgs){
 			createAttribute(doc, newElement, option, attrArgs[option]);
-		};
-	};
+		}
+	}
 	return newElement;
 };
 
@@ -22,459 +22,471 @@ if(!Array.indexOf){
         for(var i=0; i<this.length; i++){
             if(this[i]==obj){
                 return i;
-            };
-        };
+            }
+        }
         return -1;
     };
 };
+
 /**
- * Scriptloader is an object that dynamically loads scripts. The
- * javascripts and css .main variables have been pre-populated to load
- * the scripts for vle.html and the authoring tool. 
- *
- * The urls specified in the arrays for
- * javascripts and css should be relative to the root location of the 
- * server or servlet that scriptloader is to be called from. The full 
- * url is determined by scriptloader.
- *
- * NOTE: Every javascript that is loaded through scriptloader
- * must call scriptloader.scriptAvailable(url) at the very end of
- * its file (see any of the prepopulated scripts below for an example).
- */ 
-var scriptloader = {
-	javascripts: {
-		main: ["vle/sound/AudioManager.js", 
-                   "vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js", 
-                   "vle/yui/yui_2.7.0b/build/event/event-min.js", 
-                   "vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
-                   "vle/yui/yui_2.7.0b/build/animation/animation-min.js", 
-                   "vle/yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js", 
-                   "vle/yui/yui_2.7.0b/build/utilities/utilities.js",
-                   "vle/yui/yui_2.7.0b/build/container/container.js",
-                   "vle/yui/yui_2.7.0b/build/resize/resize.js",
-                   "vle/yui/yui_2.7.0b/build/connection/connection-min.js",
-                   "vle/util/shortcutmanager.js",
-                   "vle/author/authoring.js",
-                   "vle/VLE.js", 
-                   "vle/data/vlestate.js", 
-                   "vle/data/nodevisit.js",
-                   "vle/config/vleconfig.js",
-                   "vle/user/user.js",
-                   "vle/ui/vleui.js",
-                   "vle/util/vleutils.js",
-                   "vle/ui/contentpanel/ContentPanel.js", 
-                   "vle/navigation/NavigationLogic.js", 
-                   "vle/navigation/DFS.js", 
-                   "vle/ui/navigationpanel/NavigationPanel.js", 
-                   "vle/common/loadxmldoc.js",
-                   "vle/visibility/VisibilityLogic.js",
-                   "vle/visibility/CorrectnessBranchingVisibility.js",
-                   "vle/visibility/OnlyShowLeafNode.js",
-                   "vle/visibility/OnlyShowSelectedNodes.js",
-                   "vle/visibility/BranchingVisibility.js",
-                   "vle/node/Node.js", 
-                   "vle/node/OpenResponseNode.js",
-                   "vle/node/openresponse/openresponsestate.js",
-                   "vle/node/HtmlNode.js", 
-                   "vle/node/CustomNode.js",
-                   "vle/node/MatchSequenceNode.js",
-                   "vle/node/FillinNode.js",
-                   "vle/node/FlashNode.js",
-                   "vle/node/NoteNode.js",
-                   "vle/node/JournalNode.js",
-                   "vle/node/JournalEntryNode.js",
-                   "vle/node/OutsideUrlNode.js", 
-                   "vle/node/BlueJNode.js", 
-                   "vle/node/MultipleChoiceNode.js",
-                   "vle/node/BrainstormNode.js",
-                   "vle/node/GlueNode.js", 
-                   "vle/project/Project.js", 
-                   "vle/io/ConnectionManager.js",
-                   "vle/events/events.js",
-                   "vle/notification/NotificationManager.js",
-                   "vle/run/RunManager.js", 
-                   "vle/grading/Flag.js", 
-                   "vle/grading/Flags.js", 
-                   "vle/common/niftycube.js",
-                   "vle/common/sdmenu.js", 
-                   "vle/common/dropdown.js",
-                   "vle/author/author_helper.js",
-                   "vle/util/projectutils.js",
-                   "vle/grading/Annotation.js",
-                   "vle/grading/Annotations.js",
-                   "vle/grading/Flag.js",
-                   "vle/grading/Flags.js",
-      				"vle/common/helperfunctions.js",
-      				"vle/node/common/js/md5.js",
-       				"vle/node/brainstorm/brainstorm.js",
-       				"vle/node/brainstorm/brainstormstate.js",
-    				"vle/node/fillin/textentryinteraction.js",
-    				"vle/node/fillin/fillinstate.js",
-    				"vle/node/fillin/fillin.js",
-    				"vle/node/glue/glue.js",
-    				"vle/node/glue/gluestate.js",
-    				"vle/node/matchsequence/matchsequenceyui.js",
-    				"vle/node/matchsequence/matchsequencefeedback.js",
-    				"vle/node/matchsequence/matchsequencebucket.js",
-    				"vle/node/matchsequence/matchsequencechoice.js",
-    				"vle/node/matchsequence/matchsequencestate.js",
-    				"vle/node/matchsequence/matchsequence.js",
-    				"vle/node/multiplechoice/multiplechoicestate.js",
-    				"vle/node/multiplechoice/mc.js",
-    				"vle/node/openresponse/openresponsestate.js",
-    				"vle/node/openresponse/openresponse.js",
-    				"vle/node/openresponse/customjournalentrystate.js",
-    				"vle/journal/Journal.js"],
-        	brainlite: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/node/common/js/helperfunctions.js",
-        				"vle/node/brainstorm/brainstorm.js",
-        				"vle/node/brainstorm/brainstormstate.js",
-        				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
-                        "vle/yui/yui_2.7.0b/build/element/element-min.js",
-                        "vle/yui/yui_2.7.0b/build/container/container_core-min.js",
-                        "vle/yui/yui_2.7.0b/build/menu/menu-min.js",
-                        "vle/yui/yui_2.7.0b/build/button/button-min.js",
-                        "vle/yui/yui_2.7.0b/build/editor/editor-min.js"],
-           brainfull: ["vle/node/common/js/loadxmldoc.js",
-                    	"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-                    	"vle/node/common/js/helperfunctions.js",
-        				"vle/node/brainstorm/brainstorm.js",
-        				"vle/node/brainstorm/brainstormstate.js",
-                    	"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
-                        "vle/yui/yui_2.7.0b/build/element/element-min.js",
-                        "vle/yui/yui_2.7.0b/build/container/container_core-min.js",
-                        "vle/yui/yui_2.7.0b/build/menu/menu-min.js",
-                        "vle/yui/yui_2.7.0b/build/button/button-min.js",
-                        "vle/yui/yui_2.7.0b/build/editor/editor-min.js"],
-        	fillin: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/node/common/js/helperfunctions.js",
-        				"vle/node/fillin/textentryinteraction.js",
-        				"vle/node/fillin/fillinstate.js",
-        				"vle/node/fillin/fillin.js",
-        				"vle/node/common/js/niftycube.js"],
-        	info_box: ["vle/node/common/js/niftycube.js"],
-        	glue: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/node/common/js/helperfunctions.js",
-        				"vle/node/glue/glue.js",
-        				"vle/node/glue/gluestate.js",
-        				"vle/node/common/js/niftycube.js"],
-        	matchsequence: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/node/common/js/helperfunctions.js",
-        				"vle/node/common/js/niftycube.js",
-        				"vle/node/matchsequence/matchsequenceyui.js",
-        				"vle/node/matchsequence/matchsequencefeedback.js",
-        				"vle/node/matchsequence/matchsequencebucket.js",
-        				"vle/node/matchsequence/matchsequencechoice.js",
-        				"vle/node/matchsequence/matchsequencestate.js",
-        				"vle/node/matchsequence/matchsequence.js"],
-        	multiplechoice: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/node/common/js/helperfunctions.js",
-        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/node/common/js/niftycube.js",
-        				"vle/node/multiplechoice/multiplechoicestate.js",
-        				"vle/node/multiplechoice/mc.js"],
-        	openresponse: ["vle/node/common/js/loadxmldoc.js",
-        				"vle/node/common/js/helperfunctions.js",
-        				"vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/node/common/js/niftycube.js",
-        				"vle/node/openresponse/openresponsestate.js",
-        				"vle/node/openresponse/openresponse.js",
-        				"vle/node/openresponse/customjournalentrystate.js"],
-        	author_framed: ["vle/node/common/js/helperfunctions.js"],
-        	author: ["vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js",
-        				"vle/yui/yui_2.7.0b/build/event/event-min.js",
-        				"vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js",
-        				"vle/yui/yui_2.7.0b/build/animation/animation-min.js",
-        				"vle/yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js",
-        				"vle/yui/yui_2.7.0b/build/container/container-min.js",
-        				"vle/yui/yui_2.7.0b/build/connection/connection-min.js",
-        				"vle/common/loadxmldoc.js",
-        				"vle/common/helperfunctions.js",
-        				"vle/node/common/js/md5.js",
-        				"vle/author/author_helper.js",
-        				"vle/node/common/js/loadxmldoc.js"],
-        	author_matchsequence_easy: ["vle/author/author_easy_helper.js",
-        				"vle/author/js/matchsequence_easy.js"],
-        	author_matchsequence_advanced: ["vle/author/author_advanced_helper.js",
-        				"vle/author/js/matchsequence_advanced.js"],
-        	author_brainstorm_easy: ["vle/author/author_easy_helper.js",
-        				"vle/author/js/brainstorm_easy.js"],
-        	author_brainstorm_advanced: ["vle/author/author_advanced_helper.js",
-        				"vle/author/js/brainstorm_advanced.js"],
-        	author_fillin_easy: ["vle/author/author_easy_helper.js",
-        				"vle/node/common/js/niftycube.js",
-        				"vle/author/js/fillin_easy.js"],
-        	author_fillin_advanced: ["vle/author/author_advanced_helper.js",
-        				"vle/node/common/js/niftycube.js",
-        				"vle/author/js/fillin_advanced.js"],
-        	author_html_easy: ["vle/node/Node.js",
-        				"vle/node/HtmlNode.js",
-        				"vle/author/author_easy_helper.js",
-        				"vle/author/js/html_easy.js"],
-        	author_html_advanced: ["vle/node/Node.js",
-        				"vle/node/HtmlNode.js",
-        				"vle/author/author_advanced_helper.js",
-        				"vle/author/js/html_advanced.js"],
-        	author_glue_easy: ["vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/author/author_glue.js",
-        				"vle/author/author_easy_helper.js",
-        				"vle/author/js/glue_easy.js"],
-        	author_glue_advanced: ["vle/author/author_glue.js",
-        				"vle/author/author_advanced_helper.js",
-        				"vle/author/js/glue_advanced.js"],
-        	author_multiplechoice_easy: ["vle/yui/yui_3.0.0b1/build/yui/yui-min.js",
-        				"vle/author/author_easy_helper.js",
-        				"vle/author/js/multiplechoice_easy.js"],
-        	author_multiplechoice_advanced: ["vle/author/author_advanced_helper.js",
-        				"vle/author/js/multiplechoice_advanced.js"],
-        	author_openresponse_easy: ["vle/author/author_easy_helper.js",
-        				"vle/author/js/openresponse_easy.js"],
-        	author_openresponse_advanced: ["vle/author/author_advanced_helper.js",
-        				"vle/author/js/openresponse_advanced.js"],
-        	author_outsideurl_easy: ["vle/author/author_easy_helper.js",
-        				"vle/author/js/outsideurl_easy.js"],
-        	author_outsideurl_advanced: ["vle/author/author_advanced_helper.js",
-        				"vle/author/js/outsideurl_advanced.js"],
-        	feedback: ["vle/node/common/js/helperfunctions.js"],
-        	journal: ["vle/journal/Journal.js",
-        	          "vle/journal/JournalPage.js",
-        	          "vle/journal/JournalPageRevision.js"]
-    },
-    css: {
-    	main: ["vle/yui/yui_2.7.0b/build/container/assets/skins/sam/container.css", 
-    	       "vle/yui/yui_2.7.0b/build/resize/assets/skins/sam/resize.css",
-	           "vle/css/authoring/authoring.css",
-	           "vle/css/niftycube.css", 
-	           "vle/css/navigation.css",
-	           "vle/css/sdmenu.css"],
-	    wise: ["vle/css/wise/WISE_styles.css"],
-	    uccp: ["vle/css/uccp/UCCP_styles.css"],
-	    brainlite: ["vle/node/common/css/htmlAssessment.css",
-				 "vle/node/brainstorm/brainstorm.css",
-				 "vle/node/common/css/niftyCorners.css",
-				 "vle/yui/yui_2.7.0b/build/assets/skins/sam/skin.css"],
-		brainfull: ["vle/node/common/css/htmlAssessment.css",
-				 "vle/node/brainstorm/brainstorm.css",
-				 "vle/node/common/css/niftyCorners.css",
-				 "vle/yui/yui_2.7.0b/build/assets/skins/sam/skin.css"],
-	    fillin: ["vle/node/common/css/htmlAssessment.css",
-	    		"vle/node/fillin/fillin.css",
-	    		"vle/node/common/css/niftyCorners.css"],
-	    info_box: ["vle/node/common/css/htmlAssessment.css",
-	    		"vle/node/common/css/niftyCorners.css"],
-	    matchsequence: ["vle/node/common/css/htmlAssessment.css",
-	    		"vle/node/matchsequence/matchstyles.css",
-	    		"vle/node/common/css/niftyCorners.css"],
-	    multiplechoice: ["vle/node/common/css/htmlAssessment.css",
-	    		"vle/node/multiplechoice/mcstyles.css",
-	    		"vle/node/common/css/niftyCorners.css"],
-	    openresponse: ["vle/node/common/css/htmlAssessment.css",
-	    		"vle/node/openresponse/openresponse.css",
-	    		"vle/node/common/css/niftyCorners.css"],
-	    author_framed: ["vle/css/authoring/authoring.css"],
-	    author: ["vle/yui/yui_2.7.0b/build/container/assets/skins/sam/container.css",
-        				"vle/css/authoring/authoring.css"],
-        author_multiplechoice_easy: ["vle/css/authoring/author_multiplechoice.css"],
-       	feedback: ["vle/css/authoring/authoring.css"]
-    },
-    dependencies: {
-    	"vle/node/Node.js": ["vle/yui/yui_2.7.0b/build/event/event-min.js"],
+ * Scriptloader is an object that dynamically loads scripts and
+ * css into the given document. All scripts loaded through the
+ * scriptloader need to fire a 'scriptLoaded' event in the
+ * eventManager, so that scriptLoader knows they are completely
+ * loaded.
+ */
+var scriptloader = function(){
+	var eventManager;
+	var queue = [];
+	var waitingOnDependencyQueue = [];
+	var baseUrl;
+	var timer;
+	var location;
+	var currentDoc;
+	var currentName;
+	var baseUrl;
+	var wait = 30000;
+	var callerId;
+	var loaded = [];
+	
+	/**
+	 * scriptLoader listener listens for all scriptLoaded events and
+	 * fires scriptsLoaded when all scripts for a given load request
+	 * has completed.
+	 */
+	var listener = function(type, args, obj){
+		if(type=='scriptLoaded'){
+			var name = args[0];
+			var ndx = queue.indexOf(name);
+			if(ndx!=-1){
+				//add to loaded
+				loaded.push(name);
+				
+				//remove from queue
+				queue.splice(ndx, 1);
+
+				//check for any waiting dependencies that have been fulfilled and load them
+				//if they have since been loaded
+				for(var e=0;e<waitingOnDependencyQueue.length;e++){
+					if(dependenciesLoaded(waitingOnDependencyQueue[e]) && queue.indexOf(waitingOnDependencyQueue[e])!=-1){
+						var url = waitingOnDependencyQueue[e];
+						waitingOnDependencyQueue.splice(e,1);
+						loadScript(url);
+					}
+				}
+				
+				//check to see if this batch of scripts is done, do
+				//cleanup and fire scriptsLoaded event if it is
+				if(queue.length<1){
+					resetTimer();
+					eventManager.fire('scriptsLoaded', [callerId, currentName]);
+				}
+			}
+		}
+	};
+	
+	/**
+	 * resets the timer
+	 */
+	var resetTimer = function(){
+		clearTimeout(timer);
+		timer = null;
+	};
+	
+	/**
+	 * Verifies and loads the css and javascripts into the
+	 * currentDoc.
+	 */
+	var loadScripts = function(){
+		var s = scripts[currentName];
+		var c = css[currentName];
+		
+		//load each css specified
+		if(c){
+			for(var d=0;d<c.length;d++){
+				loadCss(c[d]);
+			}
+		}
+		
+		//load each script specified, if none specified fire scriptsLoaded event
+		if(s && s.length>0){
+			/* because of ie, we need to stick all of the scripts into the queue before
+			 * attempting to launch any of them (otherwise it may empty the queue for each
+			 * script and continue to fire the scriptsLoaded event) */
+			for(var a=0;a<s.length;a++){
+				queue.push(s[a]);
+			}
+			
+			/* now load any scripts without dependencies or those whose dependencies
+			 * have already been loaded or stick them in the waiting queue */
+			for(var a=0;a<s.length;a++){
+				if(hasDependency(s[a]) && !dependenciesLoaded(s[a])){
+					waitingOnDependencyQueue.push(s[a]);
+				} else {
+					loadScript(s[a]);
+				}
+			}
+		} else {
+			resetTimer();
+			eventManager.fire('scriptsLoaded', [callerId, currentName]);
+		}
+	};
+	
+	/**
+	 * Only loads the css of the currentName into the current document. Used
+	 * when using compressed scripts.
+	 */
+	var loadCssOnly = function(){
+		var c = css[currentName];
+		
+		//load each css specified
+		if(c){
+			for(var d=0;d<c.length;d++){
+				loadCss(c[d]);
+			}
+		}
+	};
+	
+	/**
+	 * Returns true if the given url has been loaded into
+	 * the currentDoc, false otherwise.
+	 */
+	var isLoaded = function(url){
+		return loaded.indexOf(url) != -1;
+	};
+	
+	/**
+	 * Loads the script at the given url into the doc
+	 */
+	var loadScript = function(url){
+		currentDoc.getElementsByTagName('head')[0].appendChild(createElement(currentDoc, 'script', {type: 'text/javascript', src: baseUrl + url}));
+	};
+	
+	/**
+	 * Loads the css at the given url into the doc
+	 */
+	var loadCss = function(url){
+		currentDoc.getElementsByTagName('head')[0].appendChild(createElement(currentDoc, 'link', {rel: 'stylesheet', type: 'text/css', href: baseUrl + url}));
+	};
+	
+	/**
+	 * Returns true if the given script url has any dependencies,
+	 * false otherwise.
+	 */
+	var hasDependency = function(url){
+		return dependencies[url];
+	};
+	
+	/**
+	 * Returns true if the given script url has no dependencies or
+	 * if all listed dependencies have been loaded, false otherwise.
+	 */
+	var dependenciesLoaded = function(url){
+		var deps = dependencies[url];
+		if(deps){
+			for(var f=0;f<deps.length;f++){
+				if(!isLoaded(deps[f]) && scripts[currentName].indexOf(deps[f])!=-1){
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return true;
+		}
+	};
+	
+	/**
+	 * Script urls specified for all components and javascripts
+	 */
+	var scripts = {
+        bootstrap: ['vle/util/componentloader.js',
+                  'vle/view/view.js',
+                  'vle/environment/environment.js',
+                  'vle/jquery/js/jquery-1.4.2.min.js',
+  		          'vle/jquery/js/jquery-ui-1.8.custom.min.js',
+  		          'vle/jquery/js/jsonplugin.js',
+  		          'vle/jquery/js/jqueryhelper.js',
+  		          'vle/node/setupNodes.js'],
+  		setup: [],
+        core: ['vle/common/helperfunctions.js',
+               'vle/view/coreview.js',
+               'vle/view/view_utils.js',
+               "vle/io/ConnectionManager.js",
+               "vle/session/SessionManager.js",
+               "vle/util/NotificationManager.js",
+               'vle/content/content.js',
+               'vle/node/common/nodehelpers.js',
+               'vle/project/Project.js',
+               'vle/node/nodefactory.js',
+		       'vle/node/Node.js', 
+		       'vle/node/NodeUtils.js',
+               'vle/grading/Annotation.js',
+	           'vle/grading/Annotations.js',
+               'vle/data/nodevisit.js'],
+        author: ['vle/util/icon.js',
+                 'vle/view/authoring/authorview_dispatchers.js',
+                 'vle/view/authoring/authorview_startup.js',
+                 'vle/view/authoring/authorview_main.js',
+                 'vle/view/authoring/authorview_dialog.js',
+                 'vle/view/authoring/authorview_audio.js',
+                 'vle/view/authoring/authorview_meta.js',
+                 'vle/view/authoring/authorview_selection.js',
+                 'vle/view/authoring/authorview_utils.js',
+                 'vle/view/authoring/authorview_previouswork.js',
+                 'vle/view/authoring/authorview_projecttags.js',
+                 'vle/view/authoring/authorview_authorstep.js',
+                 'vle/view/authoring/cleaning/authorview_clean_main.js',
+                 'vle/view/authoring/cleaning/authorview_clean_parts.js',
+                 'vle/view/authoring/cleaning/authorview_clean_problem.js',
+                 'vle/view/authoring/cleaning/authorview_clean_solution.js',
+                 'vle/view/authoring/cleaning/authorview_clean_analyzer.js',
+                 'vle/view/authoring/constraints/authorview_constraint.js',
+		         'vle/navigation/constraints/constraint.js',
+		         'vle/navigation/constraints/constraintfactory.js',
+		         'vle/navigation/constraints/nonvisitablexconstraint.js',
+		         'vle/navigation/constraints/visitxafteryconstraint.js',
+		         'vle/navigation/constraints/visitxbeforeyconstraint.js',
+		         'vle/navigation/constraints/visitxoryconstraint.js',
+		         'vle/navigation/constraints/workonxbeforeyconstraint.js',
+		         'vle/navigation/constraints/workonxconstraint.js',
+		         'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
+	             'vle/grading/MaxScores.js',
+		         'vle/grading/MaxScore.js'],
+		grading: ['vle/view/grading/gradingview_annotations.js',
+		          'vle/view/grading/gradingview_dispatcher.js',
+		          'vle/view/grading/gradingview_display.js',
+	              'vle/view/grading/gradingview_export.js',
+	              'vle/view/grading/gradingview_startup.js',
+	              'vle/view/grading/gradingview_studentwork.js',
+	              'vle/jquery/js/jquery.tablesorter.min.js',
+	              'vle/view/grading/gradingview_premadecomments.js',
+	              'vle/jquery/js/jquery.editinplace.js'
+	              ],
+	    user: ['vle/user/userandclassinfo.js'],
+	    config: ['vle/config/config.js'],
+		keystroke: ['vle/util/keystrokemanager.js'],
+		customcontextmenu: ['vle/util/customcontextmenu.js'],
+        outsideurl: [],
+		shortcuts: ['vle/util/shortcutmanager.js'],
+		ddMenu: ['vle/common/dropdown.js'],
+		topMenu: ['vle/view/vle/vleview_topmenu.js'],
+		vle: ['vle/util/icon.js',
+		      'vle/view/vle/vleview_core.js',
+		      'vle/view/vle/vleview_utils.js',
+		      'vle/view/vle/vleview_studentwork.js'],
+		studentwork: ['vle/data/vlestate.js',
+		              'vle/data/nodevisit.js'
+		              ],
+		annotations: ['vle/grading/Annotations.js',
+		              'vle/grading/Annotation.js'],
+		maxscores: ['vle/grading/MaxScores.js',
+		            'vle/grading/MaxScore.js'],
+		navigation:['vle/navigation/NavigationLogic.js',
+		            'vle/navigation/DFS.js',
+		            'vle/view/vle/vleview_navigation.js',
+		            'vle/navigation/constraints/constraint.js',
+		            'vle/navigation/constraints/constraintfactory.js',
+		            'vle/navigation/constraints/nonvisitablexconstraint.js',
+		            'vle/navigation/constraints/visitxafteryconstraint.js',
+		            'vle/navigation/constraints/visitxbeforeyconstraint.js',
+		            'vle/navigation/constraints/visitxoryconstraint.js',
+		            'vle/navigation/constraints/workonxbeforeyconstraint.js',
+		            'vle/navigation/constraints/workonxconstraint.js',
+		            'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
+		            'vle/navigation/constraints/constraintmanager.js'],
+		menu:['vle/ui/menu/sdmenu.js',
+		      'vle/ui/menu/NavigationPanel.js',
+		      'vle/view/vle/vleview_menu.js'],
+		uicontrol:['vle/ui/control/RunManager.js',
+		           'vle/view/vle/vleview_uicontrol.js'],
+		audio:['vle/sound/AudioManager.js',
+		       'vle/sound/md5.js',
+		       'vle/sound/nodeaudio.js',
+		       'vle/view/vle/vleview_audio.js'],
+		vle_all:['vle/all/vle_all-min.js'],
+		grading_all:['vle/all/grading_all-min.js'],
+		authoring_all:['vle/all/authoring_all-min.js'],
+		summary_all:['vle/all/summary_all-min.js'],         
+		journal:['vle/view/vle/vleview_journal.js',
+		         'vle/journal/Journal.js',
+		         'vle/journal/JournalPage.js',
+		         'vle/journal/JournalPageRevision.js'],
+		peerreviewhelper: [],
+		authoringcomponents:['vle/view/authoring/components/authorview_prompt.js',
+                'vle/view/authoring/components/authorview_linkto.js',
+                'vle/view/authoring/components/authorview_studentresponseboxsize.js',
+                'vle/view/authoring/components/authorview_richtexteditortoggle.js',
+                'vle/view/authoring/components/authorview_startersentenceauthoring.js'],
+        premadecomments:['vle/jquery/js/jquery-1.4.2.min.js',
+                         'vle/jquery/js/jquery.editinplace.js',
+                         'vle/jquery/js/jquery-ui-1.8.custom.min.js']
+	};
+	
+	/**
+	 * Css urls specified for all component css
+	 */
+	var css = {
+		bootstrap:['vle/jquery/css/custom-theme/jquery-ui-1.8.1.custom.css'],
+		core: ['vle/css/message.css'],
+		author: ['vle/css/authoring/authoring.css',
+		         'vle/css/ui-tools.css',
+		         ],
+		wise: ["vle/css/wise/WISE_styles.css"],
+		uccp: ["vle/css/uccp/UCCP_styles.css"],
+		vle: ["vle/css/niftycube.css"],
+    	navigation:["vle/css/navigation.css"],
+    	menu:["vle/css/sdmenu.css"],
+ 		grading: ['vle/css/portal/teachergrading.css',
+ 		         'vle/jquery/css/blue/style.css']
+    	         
+	};
+	
+	/**
+	 * Known dependencies for a script
+	 */
+	var dependencies = {
     	"vle/project/Project.js": ["vle/node/Node.js"],
-    	"vle/node/OpenResponseNode.js": ["vle/node/Node.js"],
-    	"vle/node/HtmlNode.js": ["vle/node/Node.js"], 
+    	'vle/node/NodeUtils.js': ['vle/node/Node.js'],
+    	"vle/node/DrawNode.js": ["vle/node/HtmlNode.js"],
         "vle/node/CustomNode.js": ["vle/node/Node.js"],
-        "vle/node/MatchSequenceNode.js": ["vle/node/Node.js"],
-        "vle/node/FillinNode.js": ["vle/node/Node.js"],
-        "vle/node/FlashNode.js": ["vle/node/Node.js"],
-        "vle/node/NoteNode.js": ["vle/node/Node.js", "vle/node/OpenResponseNode.js"],
         "vle/node/JournalNode.js": ["vle/node/Node.js"],
         "vle/node/JournalEntryNode.js": ["vle/node/Node.js", "vle/node/OpenResponseNode.js"],
-        "vle/node/OutsideUrlNode.js": ["vle/node/Node.js"], 
-        "vle/node/BlueJNode.js": ["vle/node/Node.js"], 
-        "vle/node/MultipleChoiceNode.js": ["vle/node/Node.js"],
-        "vle/node/BrainstormNode.js": ["vle/node/Node.js"],
-        "vle/node/GlueNode.js": ["vle/node/Node.js"],
-        "vle/util/vleutils.js": ["vle/VLE.js"],
+        "vle/node/BlueJNode.js": ["vle/node/Node.js"],
+        'vle/node/DuplicateNode.js': ['vle/node/Node.js'],
+        'vle/node/BranchNode.js':['vle/node/Node.js','vle/node/MultipleChoiceNode.js'],
         "vle/ui/vleui.js": ["vle/VLE.js"],
         "vle/util/projectutils.js": ["vle/project/Project.js"],
-        "vle/yui/yui_2.7.0b/build/container/container-min.js": ["vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/event/event-min.js": ["vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js"],
-        "vle/yui/yui_2.7.0b/build/animation/animation-min.js": ["vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js": ["vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/connection/connection-min.js": ["vle/yui/yui_2.7.0b/build/event/event-min.js", "vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js"],
-        "vle/yui/yui_2.7.0b/build/editor/editor-min.js": ["vle/yui/yui_2.7.0b/build/button/button-min.js", "vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js", "vle/yui/yui_2.7.0b/build/element/element-min.js"],
-        "vle/yui/yui_2.7.0b/build/element/element-min.js": ["vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/yahoo/yahoo-min.js": ["vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/button/button-min.js": ["vle/yui/yui_2.7.0b/build/menu/menu-min.js", "vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/container/container_core-min.js": ["vle/yui/yui_2.7.0b/build/element/element-min.js"],
-        "vle/yui/yui_2.7.0b/build/menu/menu-min.js": ["vle/yui/yui_2.7.0b/build/container/container_core-min.js"],
-        "vle/yui/yui_2.7.0b/build/resize/resize.js": ["vle/yui/yui_2.7.0b/build/element/element-min.js", "vle/yui/yui_2.7.0b/build/dragdrop/dragdrop-min.js", "vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"],
-        "vle/yui/yui_2.7.0b/build/container/container.js": ["vle/yui/yui_2.7.0b/build/yahoo-dom-event/yahoo-dom-event.js"]
-    },
-    //scripts holds all of the script objects that are created
-    //dynamically from the javascripts and css' specified
-	scripts: {},
-	//keeps track of how many scripts have completed loading
-	count: 0,
-	//name of current scripts and css to load
-	name: '',
-	//params to be run with custom function after scripts load
-	params: null,
-	//timer variable used for timing out if all scripts have not called back
-	_timer: null,
-	//the number of milliseconds to wait for scripts to completely load before warning
-	_wait: 30000,
-	//initializes scriptloader with provided document, function and params
-	//to run once script loading complete. Generates the script
-	//objects based on the javascripts and css' specfied by given name
-	initialize: function(doc, fun, name, params){
-		this.doc = doc;
-		this.afterLoad = fun;
-		this.params = params;
-		var loc = this.doc.location.toString();
-		this.baseUrl = loc.substring(0, loc.lastIndexOf('/vle/') + 1);
-		this.count = 0;
-		this.name = name;
-		this.generateScripts(this.javascripts[name], this.css[name]);
-		this._timer = setTimeout(function(){alert('It has been too long and not all scripts have called back to the listener for the scriptloader.')}, this._wait);
-		this.loadScripts(this.javascripts[name]);
-		this.loadCsss(this.css[name]);
-	},
-	//should be called when a javascript or css that is specified
-	//in the javascript or css array has completed loading. Keeps
-	//track of total finished scripts and runs provided function
-	//when all are done loading.
-	listener: function(){
-		this.count ++;
-		if(this.count==this.javascripts[this.name].length){
-			clearTimeout(this._timer);
-			if(this.afterLoad){
-				this.afterLoad(this.params);
-			};
-		};
-	},
-	//called from individual script or css files when they have
-	//completed loading.
-	//@param script is url path to script
-	scriptAvailable: function(script){
-		var inScript = this.scripts[script];
-		if(inScript){
-			inScript.setLoaded(true);
-			if(inScript.hasDependents()){
-				var dep = inScript.getDependent();
-				for(var w=0;w<dep.length;w++){
-					this._loadIfDependenciesLoaded(dep[w]);
-				};
-			};
-			if(this.listener){
-				this.listener();
-			};
-		};
-	},
-	//checks all the dependencies of the provided script and if all are loaded,
-	//loads this script, if not, adds this script as dependent to any of the
-	//dependency scripts if not already added
-	_loadIfDependenciesLoaded: function(script){
-		var s = this.scripts[this.baseUrl + script];
-		var deps = s.getDependencies();
-		
-		var allLoaded = true;
-		for(var q=0;q<deps.length;q++){
-			var j = this.scripts[this.baseUrl + deps[q]];
-			if(j && j.getLoaded()==false){
-				allLoaded = false;
-				if(j.getDependent().indexOf(script)==-1){ //add script as a dependent script if not already there
-					j.addDependent(script);
-				};
-			};
-		};
-		
-		if(allLoaded){
-			this.doc.getElementsByTagName('head')[0].appendChild(createElement(this.doc, 'script', {type: 'text/javascript', src: s.url}));
-		};
-	},
-	//loads the javascript specified by the given javascript url (@param script)
-	//into this.doc
-	loadScript: function(script){
-		var s = this.scripts[this.baseUrl + script];
-		if(s && s.getLoaded()==false){
-			if(s.hasDependencies()){
-				this._loadIfDependenciesLoaded(script);
+        'vle/jquery/js/jquery-ui-1.8.custom.min.js':['vle/jquery/js/jquery-1.4.2.min.js'],
+        'vle/jquery/js/jsonplugin.js':['vle/jquery/js/jquery-1.4.2.min.js'],
+        'vle/jquery/js/jqueryhelper.js':['vle/jquery/js/jquery-1.4.2.min.js'],
+        'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/navigation/constraints/visitxoryconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/navigation/constraints/workonxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/navigation/constraints/workonxconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/navigation/constraints/workonxbeforeadvancingconstraint.js':['vle/navigation/constraints/constraint.js']
+    };
+	
+	return {
+		loadScripts:function(name, doc, cid, em){
+			loaded = [];
+			currentDoc = doc;
+			currentName = name;
+			callerId = cid;
+			eventManager = em;
+			baseUrl = currentDoc.location.toString().substring(0, currentDoc.location.toString().lastIndexOf('/vle/') + 1);
+			timer = setTimeout(function(){alert(scriptloader.getTimeoutMessage());}, wait);
+			loadScripts();
+		},
+		bootstrap:function(win, fun){
+			win.eventManager = new EventManager(false);
+			win.eventManager.addEvent('scriptLoaded');
+			win.eventManager.addEvent('scriptsLoaded');
+			win.eventManager.subscribe('scriptLoaded', listener);
+			win.eventManager.subscribe('scriptsLoaded', fun);
+			
+			scriptloader.loadScripts('bootstrap', win.document, 'bootstrap', win.eventManager);
+		},
+		loadCssOnly:function(name, doc){
+			currentName = name;
+			currentDoc = doc;
+			baseUrl = currentDoc.location.toString().substring(0, currentDoc.location.toString().lastIndexOf('/vle/') + 1);
+			loadCssOnly();
+		},
+		getScriptsArray:function(name){
+			if(scripts[name]){
+				return scripts[name];
 			} else {
-				this.doc.getElementsByTagName('head')[0].appendChild(createElement(this.doc, 'script', {type: 'text/javascript', src: s.url}));
-			};
-		} else if(s && s.getLoaded()==true){
-			this.listener();
-		};
-	},
-	//loads all of the javascripts specified in the given
-	//scripts array into this.doc
-	loadScripts: function(scripts){
-		if(scripts){
-			for(var w=0;w<scripts.length;w++){
-				this.loadScript(scripts[w]);
-			};
-		};
-	},
-	//loads the css specfied by the given css url
-	//into this.doc
-	loadCss: function(css){
-		var s = this.scripts[this.baseUrl + css];
-		if(s && s.getLoaded()==false){
-			this.doc.getElementsByTagName('head')[0].appendChild(createElement(this.doc, 'link', {rel: 'stylesheet', type: 'text/css', href: s.url}));
-		};
-	},
-	//loads all of the css' specified in the given
-	//csss array into this.doc
-	loadCsss: function(csss){
-		if(csss){
-			for(var e=0;e<csss.length;e++){
-				this.loadCss(csss[e]);
-			};
-		};
-	},
-	//Generates the script objects specified in the scripts
-	//and css variables
-	generateScripts: function(scripts, css){
-		if(scripts){
-			for(var p=0;p<scripts.length;p++){
-				this.createScript(scripts[p], this.dependencies[scripts[p]]);
-			};
-		};
-		
-		if(css){
-			for(var q=0;q<css.length;q++){
-				this.createScript(css[q]);
-			};
-		};
-	},
-	//Creates the script object specified by the given urlStr
-	//if it does not already exist
-	createScript: function(urlStr, deps){
-		if(!this.scripts[this.baseUrl + urlStr]){
-			this.scripts[this.baseUrl + urlStr] = {
-				url: this.baseUrl + urlStr, //location of this script
-				_loaded: false,	//boolean true iff this script has been loaded into given html
-				_dependent: [], //any scripts that need this script to be completely loaded before loading
-				_dependencies: deps, //any scripts that need to load before this script loads
-				getLoaded: function(){return this._loaded;},
-				setLoaded: function(bool){this._loaded=bool;},
-				getDependent: function(){return this._dependent;},
-				addDependent: function(s){this._dependent.push(s)},
-				getDependencies: function(){return this._dependencies;},
-				setDependencies: function(arr){this._dependencies = arr;},
-				hasDependencies: function(){
-					if(this._dependencies){
-						return this._dependencies.length > 0;
-					} else {
-						return false;
-					};
-				},
-				hasDependents: function(){return this._dependent.length > 0;}
-			};
-		};
-	}
-};
+				return [];
+			}
+		},
+		getTimeoutMessage:function(){
+			return 'It has been too long and the following scripts have not called in to the listener: ' + queue;
+		},
+		/*
+		 * Adds a script to a given component
+		 * @param componentName a string specifying the component the script is for
+		 * @param scriptPath a string containing the path or an array
+		 * that contains one or more string paths
+		 */
+		addScriptToComponent:function(componentName, scriptPath) {
+			if(scriptPath != null) {
+				//check if that component already exists
+				if(scripts[componentName] == null) {
+					//it does not exist so we will create an array for it
+					scripts[componentName] = [];
+				}
+				
+				//check if the scriptPath is an array or a string
+				if(scriptPath.constructor.toString().indexOf("Array") != -1) {
+					//scriptPath is an Array
+					
+					//loop through all the elements in the array
+					for(var x=0; x<scriptPath.length; x++) {
+						//add an element to the component array
+						scripts[componentName].push(scriptPath[x]);
+					}
+				} else if(scriptPath.constructor.toString().indexOf("String") != -1) {
+					//scriptPath is a String, add it to the component array
+					scripts[componentName].push(scriptPath);
+				}
+			}
+		},
+		/*
+		 * Adds a css path to a given component
+		 * @param componentName a string specifying the component the css is for
+		 * @param scriptPath a string containing the css path or an array
+		 * that contains one or more string css paths
+		 */
+		addCssToComponent:function(componentName, cssPath) {
+			if(cssPath != null) {
+				//check if that component already exists
+				if(css[componentName] == null) {
+					//it does not exist so we will create an array for it
+					css[componentName] = [];
+				}
+				
+				//check if the cssPath is an array or a string
+				if(cssPath.constructor.toString().indexOf("Array") != -1) {
+					//cssPath is an Array
+					
+					//loop through all the elements in the array
+					for(var x=0; x<cssPath.length; x++) {
+						//add an element to the component array
+						css[componentName].push(cssPath[x]);
+					}
+				} else if(cssPath.constructor.toString().indexOf("String") != -1) {
+					//cssPath is a String, add it to the component array
+					css[componentName].push(cssPath);
+				}
+			}
+		},
+		/**
+		 * Adds a dependency
+		 * @param an array containing JSONObjects. each JSONObject specifies
+		 * a dependency. a JSONObject contains a child attribute and a parent
+		 * attribute. the child attribute is a string specifying a script
+		 * path that depends on other scripts. the parent attribute is an
+		 * array that contains one or more script paths that needed to
+		 * be loaded before the child script path can be loaded.
+		 */
+		addDependencies:function(dependenciesToAdd) {
+			
+			//loop through all the dependency objects
+			for(var x=0; x<dependenciesToAdd.length; x++) {
+				//get a dependency object
+				var dependency = dependenciesToAdd[x];
+				
+				//the path of the script that depends on other scripts
+				var child = dependency.child;
+				
+				//an array of scripts that the child depends on
+				var parent = dependency.parent;
+				
+				//add the dependency to our dependencies object
+				dependencies[child] = parent;
+			}
+		}
+	};
+}();

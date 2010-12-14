@@ -27,64 +27,217 @@
  * Given xmldocument, will create a new instance of the MatchSequence object and 
  * populate its attributes. Does not render anything on the screen (see MS.render() for rendering).
  */
-function MS(xmlDoc, customCheck) {
-    this.xmlDoc = xmlDoc;
+function MS(node) {
+	this.node = node;
+	this.content = node.getContent().getContentJSON();
     this.attempts = [];
-    this.responseDeclarations = this.xmlDoc.getElementsByTagName('responseDeclaration');
-    this.responseDeclaration = null;
-    this.feedbacks = [];
-    this.itemBody = this.xmlDoc.getElementsByTagName('itemBody')[0];
-    this.isOrdered = this.itemBody.getElementsByTagName('gapMatchInteraction')[0].getAttribute('ordered') == 'true'; // true iff this is MatchSequence (ordering of choices in bucket matters)
-    this.responseIdentifier = this.itemBody.getElementsByTagName('gapMatchInteraction')[0].getAttribute('responseIdentifier');
-    this.shuffle;
-    if(this.itemBody.getElementsByTagName('gapMatchInteraction')[0].getAttribute('shuffle')=='true'){
-    	this.shuffle = true;
-    } else {
-    	this.shuffle = false;
-    };
-    if(this.itemBody.getElementsByTagName('prompt')[0].firstChild){
-    	this.promptText = this.itemBody.getElementsByTagName('prompt')[0].firstChild.nodeValue;
-    } else {
-    	this.promptText = "";
-    };
-    this.followupFeedbackText = null;
+    this.feedbacks = this.content.assessmentItem.responseDeclaration.correctResponses;
     this.choices = [];
-    this.sourceBucket = null;
+    this.sourceBucket = undefined;
     this.buckets = [];  // includes only targetbuckets
-    this.correctState = this.getCorrectState();
-    this.customCheck = null;
-    
-    if(customCheck!=null){
-    	this.customCheck = new Function("state", customCheck);
-    };
-	
-    if (this.itemBody.getElementsByTagName('followupFeedback').length > 0) {
-    	this.followupFeedbackText = this.itemBody.getElementsByTagName('followupFeedback')[0].firstChild.nodeValue;
-    }
-    // instantiate sourcebucket
-    var sourceBucket = new MSBUCKET();
+    this.customCheck = undefined;
+    this.displayLayout = this.content.displayLayout;
+    this.logLevel = this.content.logLevel;
+    this.showFeedback = true;
 
-    //instantiate choices
-    var choicesDOM = this.itemBody.getElementsByTagName('gapText');
-    for (var i=0; i < choicesDOM.length; i++) {
-      var choice = new MSCHOICE(choicesDOM[i], sourceBucket);
-      this.choices.push(choice);      
-      sourceBucket.choices.push(choice);   // to start out, put all choices in sourcebucket
+    //set whether to display feedback to the student when they submit their answer
+    if(this.content.showFeedback != null) {
+    	this.showFeedback = this.content.showFeedback; 
     }
-    this.sourceBucket = sourceBucket;
     
-    //shuffle choices if required
-    if(this.shuffle){
+    this.states = [];
+    if(node.studentWork != null) {
+    	this.states = node.studentWork;
+    }
+    
+    /* set custom check function if it has been defined */
+	if(this.content.customCheck){
+		this.customCheck = new Function('states', this.content.customCheck);
+	};
+	
+    /* instantiate sourcebucket */
+	this.sourceBucket = new MSBUCKET();
+    
+    /* instantiate choices */
+    for (var i=0; i < this.content.assessmentItem.interaction.choices.length; i++) {
+      var choice = new MSCHOICE(this.content.assessmentItem.interaction.choices[i], this.sourceBucket);
+      this.choices.push(choice);      
+      this.sourceBucket.choices.push(choice);   // to start out, put all choices in sourcebucket
+    };
+    
+    /* shuffle choices if required */
+    if(this.content.assessmentItem.interaction.shuffle){
     	this.sourceBucket.shuffle();
     };
     
-    // instantiate target buckets
-    var bucketsDOM = this.itemBody.getElementsByTagName('gapMultiple');
-    for (var i=0; i < bucketsDOM.length; i++) {
-      var bucket = new MSBUCKET(bucketsDOM[i]);
-      this.buckets.push(bucket);
-    }
-}
+    /* instantiate target buckets */
+    for (var i=0; i < this.content.assessmentItem.interaction.fields.length; i++) {
+      this.buckets.push(new MSBUCKET(this.content.assessmentItem.interaction.fields[i]));
+    };
+    
+    //load the student's previous work
+    this.loadStudentWork();
+};
+
+/**
+ * Retrieves an array of choice identifiers that are supposed
+ * to be in the target bucket in order to be correct
+ * @param bucketId the id of the target bucket we want the list
+ * of correct choices for
+ */
+MS.prototype.getCorrectChoicesForBucket = function(bucketId) {
+	var correctChoices = [];
+	
+	//loop through all the feedbacks
+	for(var x=0; x<this.feedbacks.length; x++) {
+		//get a feedback
+		var feedback = this.feedbacks[x];
+		
+		/*
+		 * check that the target field identifier matches the bucketId
+		 * and check that this feedback is for the correct instance
+		 */
+		if(feedback.fieldIdentifier == bucketId && feedback.isCorrect) {
+			//put the choice id into our array
+			correctChoices.push(feedback.choiceIdentifier);
+		}
+	}
+	
+	return correctChoices;
+};
+
+/**
+ * Loads the student's previous work from the last time they
+ * visited the step. Parses through the student state and
+ * places choices in the target buckets and removes the
+ * choices from the source bucket.
+ */
+MS.prototype.loadStudentWork = function() {
+	//all states should contain non-empty values for ms
+	var latestState = this.states[this.states.length - 1];
+
+	//check that there is a latest state, if not, we don't need to do anything
+	if(latestState != null) {
+		//get the target buckets from the student state
+		var targetBuckets = latestState.buckets;
+		
+		//loop through the target buckets
+		for(var x=0; x<targetBuckets.length; x++) {
+			//get a target bucket
+			var targetBucket = targetBuckets[x];
+			
+			//get the id of the target bucket
+			var targetBucketId = targetBucket.identifier;
+			
+			//get the choices that are in the target bucket
+			var choices = targetBucket.choices;
+			
+			//loop through the choices that are in the target bucket
+			for(var y=0; y<choices.length; y++) {
+				//get a choice
+				var choice = choices[y];
+
+				//get the id of the choice
+				var choiceId = choice.identifier;
+				
+				/*
+				 * put the choice into the MS's target bucket that
+				 * has the given targetBucketId
+				 */
+				this.putChoiceInBucket(choiceId, targetBucketId);
+				
+				/*
+				 * remove the choice from the MS's source bucket
+				 * because in the contructor all of the choices
+				 * are initially placed in the source bucket
+				 */
+				this.removeFromSourceBucket(choiceId);
+			}
+		}		
+	}
+};
+
+/**
+ * Remove the choice from the source bucket
+ * @param choiceId the id of the choice to remove
+ */
+MS.prototype.removeFromSourceBucket = function(choiceId) {
+	//loop through the choices in the source bucket
+	for(var x=0; x<this.sourceBucket.choices.length; x++) {
+		//get a choice
+		var choice = this.sourceBucket.choices[x];
+		
+		//see if the choice identifier matches
+		if(choice.identifier == choiceId) {
+			//remove the choice from the source bucket
+			this.sourceBucket.choices.splice(x, 1);
+		}
+	}
+};
+
+/**
+ * Puts a choice into a bucket
+ * @param choiceId the id of the choice
+ * @param bucketId the id of the bucket
+ */
+MS.prototype.putChoiceInBucket = function(choiceId, bucketId) {
+	//get the bucket object
+	var bucket = this.getTargetBucketById(bucketId);
+	
+	//get the choice object
+	var choice = this.getChoiceById(choiceId);
+
+	//make sure both are not null
+	if(bucket != null && choice != null) {
+		//put the choice into the bucket
+		bucket.choices.push(choice);		
+	}
+};
+
+/**
+ * Retrieves a choice object given the choiceId
+ * @param choiceId the id of the choice
+ * @return a choice object or null if the choiceId was not found
+ */
+MS.prototype.getChoiceById = function(choiceId) {
+	//loop through the choices
+	for(var x=0; x<this.choices.length; x++) {
+		//get a choice
+		var choice = this.choices[x];
+		
+		//compare the ids
+		if(choice.identifier == choiceId) {
+			//the ids matched so we will return the choice object
+			return choice;
+		}
+	}
+	
+	//if the choiceId was not found, return null
+	return null;
+};
+
+/**
+ * Retrieves a target bucket object given the bucketId
+ * @param bucketId the id of a target bucket
+ * @return a target bucket object or null if the bucketId
+ * was not found
+ */
+MS.prototype.getTargetBucketById = function(bucketId) {
+	//loop through the target buckets
+	for(var x=0; x<this.buckets.length; x++) {
+		//get a bucket
+		var bucket = this.buckets[x];
+		
+		//compare the ids
+		if(bucket.identifier == bucketId) {
+			//the ids matched so we will return the bucket object
+			return bucket;
+		}
+	}
+	
+	//if the bucketId was not found, return null
+	return null;
+};
 
 /**
  * Adds orderings to choices within the targetbuckets
@@ -93,36 +246,34 @@ function MS(xmlDoc, customCheck) {
  * removes ordering from the choices.
  */
 MS.prototype.addOrderingToChoices = function() {
-	if (!this.isOrdered) {
+	if (!this.content.assessmentItem.interaction.ordered) {
 		return;
 	}
 	
-	var state = ms.getState();
-	// go through the sourcebucket and remove any ordering
+	var state = this.getState();
+	
+	/* go through the sourcebucket and remove any ordering */
 	for (var i=0; i < state.sourceBucket.choices.length; i++) {
 		addOrderToChoice(state.sourceBucket.choices[i].identifier, "");
 	}
 	
-	// now go through the targetbuckets
+	/* now go through the targetbuckets */
 	for (var i=0; i < state.buckets.length; i++) {
 		var bucket = state.buckets[i];
 		for (var j=0; j < bucket.choices.length; j++) {
-			var choice = bucket.choices[j];
-			addOrderToChoice(choice.identifier, j+1);
+			addOrderToChoice(bucket.choices[j].identifier, j+1);
 		}
 	}
-}
+};
 
 /**
  * It is implicitly assumed that
  * this function will only be called if this is. MatchSequence
  */
 function addOrderToChoice(identifier, orderNumber) {
-	YUI().use('node', function(Y) {
-		var node = Y.get('#'+identifier+" .orderNumber");
-		node.set('innerHTML', orderNumber);
-	});
-}
+	$('#' + identifier + ' .orderNumber').html(orderNumber);
+};
+
 /**
  * Renders choices and buckets with DD abilities
  * MS must have been instantiated already (ie this.choices should be populated)
@@ -130,92 +281,260 @@ function addOrderToChoice(identifier, orderNumber) {
 MS.prototype.render = function() {
 	// render the prompt
 	var promptdiv = document.getElementById('promptDiv');
-	promptdiv.innerHTML=this.promptText;
+	promptdiv.innerHTML=this.content.assessmentItem.interaction.prompt;
 	  
-    var bucketsHtml = "";
+	var bucketsHtml = "";
+	var choicesBucketHtml = "";
     document.getElementById('play').innerHTML = "";
-    var choicesBucketHtml = this.getBucketHtml(this.sourceBucket);
-    bucketsHtml += "<table><tr><td><div id=\"choicesColumn\">"+ choicesBucketHtml +"</div></td>";
-    bucketsHtml += "<td><div id=\"bucketsAndFeedbackColumn\">";
-    for (var i=0; i < this.buckets.length; i++) {
-        var currentBucket = this.buckets[i];
-        var currentBucketHtml = this.getBucketHtml(currentBucket);
-        bucketsHtml += currentBucketHtml;
+    
+    //layout is vertical or horizontal
+    var displayLayout = this.displayLayout;
+    
+    if(displayLayout == "horizontal") {
+    	bucketsHtml += "<table>";
+    	bucketsHtml += "<tr>";
+    	//add the html for the target bucket(s)
+    	
+    	//loop through the target buckets
+    	for(var x=0; x<this.buckets.length; x++) {
+    		//get a target bucket
+    		var currentBucket = this.buckets[x];
+    		
+    		//add the html for the target bucket
+    		bucketsHtml += this.getBucketHtml(currentBucket, displayLayout, true, this.buckets.length);	
+    	}
+    	bucketsHtml += "</tr>";
+    	bucketsHtml += "</table>";
+    	
+    	bucketsHtml += "<table>";
+    	bucketsHtml += "<tr>";
+    	//add the html for the source bucket(s)
+    	bucketsHtml += this.getBucketHtml(this.sourceBucket, displayLayout, false);
+    	bucketsHtml += "</tr>";
+    	bucketsHtml += "</table>";
+    } else {
+    	choicesBucketHtml = this.getBucketHtml(this.sourceBucket);
+        bucketsHtml += "<table><tr><td><div id=\"choicesColumn\">"+ choicesBucketHtml +"</div></td>";
+        bucketsHtml += "<td><div id=\"bucketsAndFeedbackColumn\">";
+        for (var i=0; i < this.buckets.length; i++) {
+            var currentBucket = this.buckets[i];
+            var currentBucketHtml = this.getBucketHtml(currentBucket);
+            bucketsHtml += currentBucketHtml;
+        };
+        bucketsHtml += "</div></td></tr></table>";
     }
-    bucketsHtml += "</div></td></tr></table>";
+    
     document.getElementById('play').innerHTML = bucketsHtml;
-    renderYUI();   // calls YUI functions to make choices into draggables and buckets into dragtargets.
-	//addClassToElement("resetWrongChoicesButton", "disabledLink");
-    displayNumberAttempts("This is your", "attempt", this.attempts);
-}
+    
+    /* enables jquery drag and drop */
+    renderDragAndDrop();
+    
+    //check if we want to display the submit button
+    if(this.showFeedback) {
+		//display the number of attempts above the submit button
+    	displayNumberAttempts("This is your", "attempt", this.attempts);   
+    } else {
+    	//hide the feedback and number of attempts display
+    	$('#feedbackDiv').hide();
+    	$('#numberAttemptsDiv').hide();
+	}
+    
+    
+    this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+};
+
+/**
+ * Check if the author only wants to allow one choice per target bucket
+ * @return true if we are only allowing one choice per target bucket
+ * false if we are allowing multiple choices per target bucket
+ */
+MS.prototype.allowOnlyOneChoicePerTargetBucket = function() {
+	//check if this parameter was set in the json content
+	if(this.content.allowOnlyOneChoicePerTargetBucket != null && 
+			this.content.allowOnlyOneChoicePerTargetBucket == true) {
+		//only allow one choice
+		return true;
+	} else {
+		//allow multiple choices
+		return false;
+	}
+};
 
 /**
  * Given a MSBUCKET object, returns a HTML-representation of the bucket as a string.
  * All the choices in the buckets are list items <li>.
  */
-MS.prototype.getBucketHtml = function(bucket) {
-	var bucketHtml = "";	
-	var choicesInBucketHtml = "";
-	for (var j=0; j < bucket.choices.length; j++) {
-		if (this.isOrdered) {
-		    choicesInBucketHtml += "<li id="+ bucket.choices[j].identifier +" class=\"choice draggable\"><div class=\"orderNumber\"></div>" + bucket.choices[j].text +"</li>";			
-		} else {
-		    choicesInBucketHtml += "<li id="+ bucket.choices[j].identifier +" class=\"choice draggable\">" + bucket.choices[j].text +"</li>";
+MS.prototype.getBucketHtml = function(bucket, displayLayout, targetBucket, totalNumTargetBuckets) {
+	var bucketHtml = "";
+	
+	var bucketName = "bucket_ul";
+	var bucketClass = "bucket_ul";
+	
+	if(!targetBucket) {
+		//this is a source bucket
+		bucketClass += " sourceBucket";
+	}
+	
+	if(displayLayout == "horizontal") {
+		var choicesInBucketHtml = "";
+		var tempChoicesInRowHtml = "";
+		
+		//the max number of choices in a row for the source bucket
+		var maxChoicesPerRow = 4;
+		var numChoicesInRow = 0;
+		
+		/*
+		 * the default width and height for the target buckets.
+		 * there may be multiple buckets. these dimensions will
+		 * accomodate up to 4 target buckets without the buckets
+		 * going off the screen
+		 */
+		
+		//var targetWidth = 150;
+		var targetWidth = 700 / totalNumTargetBuckets - 25;
+		var targetHeight = 125;
+		
+		//loop through all the choices
+		for(var x=0; x<bucket.choices.length; x++) {
+			var choice = bucket.choices[x];
+			var choiceText = choice.text;
+			var choiceId = bucket.choices[x].identifier;
+			
+			var choiceLi = "";
+			//create the td for the choice
+			if (this.content.assessmentItem.interaction.ordered) {
+				choiceLi = "<li id="+ choiceId +" class=\"choice draggable horizontalLi\"><div class=\"orderNumber\"></div>" + choiceText +"</li>";
+			} else {
+				choiceLi = "<li id="+ choiceId +" class=\"choice draggable horizontalLi\">" + choiceText +"</li>";
+			};
+			
+			//wrap the choice in td if it is in the source bucket
+			if(!targetBucket) {
+				//choice is in source bucket
+				tempChoicesInRowHtml += choiceLi;
+			} else {
+				//choice is in target bucket
+				tempChoicesInRowHtml += choiceLi;
+			}
+			
+			//increment the number of choices in the current tr
+			numChoicesInRow++;
+			
+			//check if we've hit the max choices per row, only do this for source buckets
+			if(!targetBucket && numChoicesInRow >= maxChoicesPerRow) {
+				/*
+				 * we have hit the max choices per row so we will end this tr
+				 * so subsequent td's will start on a new row
+				 */
+				choicesInBucketHtml += tempChoicesInRowHtml;
+				
+				//reset the html and counter
+				tempChoicesInRowHtml = "";
+				numChoicesInRow = 0;
+			}
 		}
+		
+		/*
+		 * check if there were any remaining choices that we haven't
+		 * added to the choices bucket html
+		 */
+		if(tempChoicesInRowHtml != "") {
+			if(!targetBucket) {
+				//wrap in tr if choice is in source bucket
+				choicesInBucketHtml += tempChoicesInRowHtml;	
+			} else {
+				//choice is in target bucket, don't wrap in tr
+				choicesInBucketHtml += tempChoicesInRowHtml;
+			}
+			
+		}
+		
+		//check if there were any choices
+		if(!targetBucket && choicesInBucketHtml != "") {
+			//this is a source bucket and there were choices so we will put them in a table
+			choicesInBucketHtml = choicesInBucketHtml;
+		}
+		
+		//start the td, this will be the outermost element
+		bucketHtml += "<td>";
+		
+		//start the bucketblock
+		bucketHtml += "<div class=\"bucketblock\">";
+		
+		//add the label for the bucket
+		bucketHtml += "<div class=\"bucketlabel\" >"+ bucket.text + "</div>";
+		
+		var bucketUlStyle = "";
+		
+		//check if this is a target bucket
+		if(targetBucket) {
+			//this is a target bucket, we will give it the necessary dimensions
+			bucketUlStyle = "style='overflow:auto; width:" + targetWidth + "px; height: " + targetHeight + "px;'";
+		}
+		
+		//create the bucket and add any necessary choices
+		bucketHtml += "<div class=\"bucket\"><ul name=\"" + bucketName + "\" class=\"" + bucketClass + "\" id=" + bucket.identifier +" " + bucketUlStyle + ">" + choicesInBucketHtml + "</ul></div>";
+		
+		//add the feedback div
+		bucketHtml += "<div id=\"feedbackdiv_"+ bucket.identifier +"\"></div>";
+		
+		//close the bucketblock
+		bucketHtml += "</div>";
+		
+		//end the td, this is the outermost element
+		bucketHtml += "</td>";
+	} else {
+		var choicesInBucketHtml = "";
+		for (var j=0; j < bucket.choices.length; j++) {
+			var choice = bucket.choices[j];
+			var choiceText = choice.text;
+			var choiceId = bucket.choices[j].identifier;
+			
+			if (this.content.assessmentItem.interaction.ordered) {
+			    choicesInBucketHtml += "<li id="+ choiceId +" class=\"choice draggable\"><div class=\"orderNumber\"></div>" + choiceText +"</li>";			
+			} else {
+			    choicesInBucketHtml += "<li id="+ choiceId +" class=\"choice draggable\">" + choiceText +"</li>";
+			};
+		};
+
+		bucketHtml += "<div class=\"bucketblock\">";
+		bucketHtml += "<div class=\"bucketlabel\" >"+ bucket.text + "</div>";
+		bucketHtml += "<table id='bucketTable'><tr><td>";
+		bucketHtml += "<div class=\"bucket\"><ul name=\"" + bucketName + "\" class=\"" + bucketClass + "\" id=" + bucket.identifier +">"+choicesInBucketHtml+"</ul></div></td>";
+		bucketHtml += "<td><div id=\"feedbackdiv_"+ bucket.identifier +"\"></div></td></tr>"
+		bucketHtml += "</table></div>";
 	}
 
-	bucketHtml = "<div class=\"bucketblock\"><div class=\"bucketlabel\" >"+ bucket.text + "</div><table><tr><td>" +
-	"<div class=\"bucket\"><ul name=\"bucket_ul\" class=\"bucket_ul\" id=" + bucket.identifier +">"+choicesInBucketHtml+"</ul></div></td><td><div id=\"feedbackdiv_"+ bucket.identifier +"\"></div></td></tr></table></div>";
-
 	return bucketHtml;
-}
-
-/**
- * Parses xmlDOM and returns a "correct" state
- */
-MS.prototype.getCorrectState = function() {
-    var correctState = new MSSTATE();
-    var correctRD = null;  // correct ResponseDeclaration
-    for (var i=0; i < this.responseDeclarations.length; i++) {
-        if (this.responseDeclarations[i].getAttribute('identifier') == this.responseIdentifier) {
-            this.responseDeclaration = this.responseDeclarations[i];
-            var feedbackElements = this.responseDeclaration.getElementsByTagName('value');
-            for (var j=0; j < feedbackElements.length; j++) {
-                this.feedbacks.push(new MSFEEDBACK(feedbackElements[j]));
-	    }
-            correctRD = this.responseDeclarations[i];
-        }
-    }
-    if (correctRD) {
-    } else {
-        return null;
-    }
-
-    return correctState;
-}
+};
 
 /**
  * Returns current state of the MS
  */
 MS.prototype.getState = function() {
 	var state = new MSSTATE();
-	var bucketElements = document.getElementsByName('bucket_ul');
+	var bucketElements = document.getElementsByTagName('ul'); 
 	for (var i=0; i < bucketElements.length; i++) {
 		var currentBucketIdentifier = bucketElements[i].getAttribute('id');
-		var currentBucketCopy = this.getBucketCopy(currentBucketIdentifier);
-		var choicesInCurrentBucket = bucketElements[i].getElementsByTagName('li');
-		for (var j=0; j < choicesInCurrentBucket.length; j++) {
-			currentBucketCopy.choices.push(this.getChoiceCopy(choicesInCurrentBucket[j].getAttribute('id')));
-		}
-
-		if (currentBucketIdentifier == 'sourceBucket') {
-			state.sourceBucket = currentBucketCopy;
-		} else {
-			state.buckets.push(currentBucketCopy);
+		if(currentBucketIdentifier){//if it doesn't have one, then it is probably a feedback div so no further processing is desired
+			var currentBucketCopy = this.getBucketCopy(currentBucketIdentifier);
+			var choicesInCurrentBucket = bucketElements[i].getElementsByTagName('li');
+			for (var j=0; j < choicesInCurrentBucket.length; j++) {
+				/* filter out elements with null ids */
+				if(choicesInCurrentBucket[j].getAttribute('id')){
+					currentBucketCopy.choices.push(this.getChoiceCopy(choicesInCurrentBucket[j].getAttribute('id')));
+				}
+			}
+	
+			if (currentBucketIdentifier == 'sourceBucket') {
+				state.sourceBucket = currentBucketCopy;
+			} else {
+				state.buckets.push(currentBucketCopy);
+			}
 		}
 	}
 	return state;
-}
+};
 
 /**
  * Gets the bucket with the specified identifier
@@ -223,14 +542,14 @@ MS.prototype.getState = function() {
 MS.prototype.getBucket = function(identifier) {
 	if (this.sourceBucket.identifier == identifier) {
 		return this.sourceBucket;
-	}
+	};
     for (var i=0; i < this.buckets.length; i++) {
         if (this.buckets[i].identifier == identifier) {
             return this.buckets[i];
-        }
-    }
+        };
+    };
     return null;
-}
+};
 
 /**
  * Gets the choice with the specified identifier
@@ -239,10 +558,10 @@ MS.prototype.getChoice = function(identifier) {
     for (var i=0; i < this.choices.length; i++) {
         if (this.choices[i].identifier == identifier) {
             return this.choices[i];
-        }
-    }
+        };
+    };
     return null;
-}
+};
 
 /**
  * Given an identifier string, returns a new MSCHOICE instance
@@ -253,9 +572,9 @@ MS.prototype.getChoiceCopy = function(identifier) {
    var copy = new MSCHOICE(null, original.bucket);
    copy.identifier = original.identifier;
    copy.text = original.text;
-   copy.dom = original.dom
+   copy.dom = original.dom;
    return copy;
-}
+};
 
 /**
  * Given an identifier string, returns a new MSBUCKET instance
@@ -269,7 +588,7 @@ MS.prototype.getBucketCopy = function(identifier) {
     copy.choices = [];
     copy.text = original.text;
     return copy;
-}
+};
 
 /**
  * Gets the current state of the MatchSequence and provides appropriate feedback.
@@ -277,14 +596,24 @@ MS.prototype.getBucketCopy = function(identifier) {
  * does not check if the state is correct.
  */
 MS.prototype.checkAnswer = function() {
-	var isCheckAnswerDisabled = hasClass("checkAnswerButton", "disabledLink");
-	this.attempts.push(null);
-	
-	if (isCheckAnswerDisabled) {
+	if (hasClass("checkAnswerButton", "disabledLink")) {
 		return;
 	}
 	
-	if(this.customCheck!=null){
+	this.attempts.push(null);
+	
+	if(!this.showFeedback) {
+		//we are not showing feedback
+		
+		//disable the submit button
+		addClassToElement("checkAnswerButton", "disabledLink");
+		
+		//get the student data
+		var state = this.getState();
+		
+		//save the student data
+		eventManager.fire('pushStudentWork', state.getJsonifiableState());
+	} else if(this.customCheck!=null){
 		var feedback = this.customCheck(ms.getState());
 		var message;
 		if(feedback.getSuccess()){
@@ -294,11 +623,10 @@ MS.prototype.checkAnswer = function() {
 		} else {
 			message = "<font color='8B0000'>" + feedback.getMessage() + "</font>";
 			displayNumberAttempts("This is your", "attempt", this.attempts);
-		};
+		}
 		document.getElementById("feedbackDiv").innerHTML = message;
-		
 	} else {
-		var state = ms.getState();   // state is a MSSTATE instance
+		var state = this.getState();   // state is a MSSTATE instance
 		// clean out old feedback
 		for (var i=0; i < state.buckets.length; i++) {
 			var bucket = state.buckets[i];
@@ -306,77 +634,90 @@ MS.prototype.checkAnswer = function() {
 			feedbackDivElement.innerHTML = "";  // clean out old feedback
 		}
 		
-		if (state.sourceBucket.choices.length > 0) {
-			// there are choices still in the sourceBucket, so the student is not done
-			alert('Please move each Choice into a Target box before checking your results.');
-		} else {
-			//addClassToElement("checkAnswerButton", "disabledLink");
-			//this.setChoicesDraggable(false);
-			var numCorrectChoices = 0;
-			var numWrongChoices = 0;
-			for (var i=0; i < state.buckets.length; i++) {
-				var bucket = state.buckets[i];
-				var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
-				var feedbackHTMLString = "";
-				for (var j=0; j < bucket.choices.length; j++) {
-					// get feedback object for this choice in this bucket
-					var feedback = this.getFeedback(bucket.identifier,bucket.choices[j].identifier,j);
-	
-					if (feedback) {
-						if (feedback.isCorrect) {
-							removeClassFromElement(bucket.choices[j].identifier, "incorrect");						
-							removeClassFromElement(bucket.choices[j].identifier, "wrongorder");						
-							addClassToElement(bucket.choices[j].identifier, "correct");
-							feedbackHTMLString += "<li class=\"feedback_li correct\">"+ bucket.choices[j].text + ": " + feedback.feedbackText +"</li>";
-							numCorrectChoices++;
-						} else {
-							removeClassFromElement(bucket.choices[j].identifier, "correct");
-							removeClassFromElement(bucket.choices[j].identifier, "wrongorder");																			
-							addClassToElement(bucket.choices[j].identifier, "incorrect");					
-							//removeClassFromElement("resetWrongChoicesButton", "disabledLink");
-							feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + feedback.feedbackText +"</li>";
-							numWrongChoices++;
-						}
-					} else {   // there was no feedback, which could mean that the choice was in right bucket but wrong order
-						if (this.isOrdered && this.isInRightBucketButWrongOrder(bucket.identifier,bucket.choices[j].identifier,j)) {   // correct bucket, wrong order
-							removeClassFromElement(bucket.choices[j].identifier, "correct");												
-							removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
-							addClassToElement(bucket.choices[j].identifier, "wrongorder");						
-							feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
-							numWrongChoices++;
-						} else {
-							removeClassFromElement(bucket.choices[j].identifier, "correct");												
-							removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
-							addClassToElement(bucket.choices[j].identifier, "incorrect");						
-							feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
-							numWrongChoices++;
-						}
+		var numCorrectChoices = 0;
+		var numWrongChoices = 0;
+		var numUnusedChoices = state.sourceBucket.choices.length;
+		
+		//loop through all the choices in the source bucket
+		for(var x=0; x<state.sourceBucket.choices.length; x++) {
+			//get a source choice
+			var sourceBucketChoice = state.sourceBucket.choices[x];
+			
+			//make the source choice incorrect
+			removeClassFromElement(sourceBucketChoice.identifier, "correct");
+			removeClassFromElement(sourceBucketChoice.identifier, "wrongorder");																			
+			addClassToElement(sourceBucketChoice.identifier, "incorrect");	
+		}
+		
+		//loop through all the target buckets
+		for (var i=0; i < state.buckets.length; i++) {
+			var bucket = state.buckets[i];
+			var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
+			var feedbackHTMLString = "";
+			
+			//loop through all the choices in the target bucket
+			for (var j=0; j < bucket.choices.length; j++) {
+				// get feedback object for this choice in this bucket
+				var feedback = this.getFeedback(bucket.identifier,bucket.choices[j].identifier,j);
+				
+				if (feedback) {
+					if (feedback.isCorrect) {
+						removeClassFromElement(bucket.choices[j].identifier, "incorrect");						
+						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");						
+						addClassToElement(bucket.choices[j].identifier, "correct");
+						feedbackHTMLString += "<li class=\"feedback_li correct\">"+ bucket.choices[j].text + ": " + feedback.feedback +"</li>";
+						numCorrectChoices++;
+					} else {
+						removeClassFromElement(bucket.choices[j].identifier, "correct");
+						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");																			
+						addClassToElement(bucket.choices[j].identifier, "incorrect");					
+						//removeClassFromElement("resetWrongChoicesButton", "disabledLink");
+						feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + feedback.feedback +"</li>";
+						numWrongChoices++;
+					}
+				} else {/* it could be that there is no feedback because it is in the wrong order */
+					if (this.content.assessmentItem.interaction.ordered && this.isInRightBucketButWrongOrder(bucket.identifier,bucket.choices[j].identifier,j)) {   // correct bucket, wrong order
+						removeClassFromElement(bucket.choices[j].identifier, "correct");												
+						removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
+						addClassToElement(bucket.choices[j].identifier, "wrongorder");						
+						feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
+						numWrongChoices++;
+					} else {/* this should never be the case, but it could be that no default feedback was created */
+						removeClassFromElement(bucket.choices[j].identifier, "correct");												
+						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
+						addClassToElement(bucket.choices[j].identifier, "incorrect");						
+						feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
+						numWrongChoices++;
 					}
 				}
-				if (feedbackHTMLString != "") {
-					feedbackDivElement.innerHTML = "<ul class=\"feedback_ul\">"+ feedbackHTMLString + "</ul>";
-				}
-			}
-	
-			// update feedback div
-			var feedbackDiv = document.getElementById("feedbackDiv");
-			if (numWrongChoices == 0) {
-				feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
-				if (this.followupFeedbackText != null) {
-					feedbackDiv.innerHTML += "<br/>";
-					feedbackDiv.innerHTML += this.followupFeedbackText;
-				}
-				this.setChoicesDraggable(false);
-			} else {
-				displayNumberAttempts("This is your", "attempt", this.attempts);
-				var totalNumChoices = numCorrectChoices + numWrongChoices;
-				feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
 			}
 			
-			var tries = document.getElementById('numberAttemptsDiv');
+			if (feedbackHTMLString != "") {
+				feedbackDivElement.innerHTML = "<ul class=\"feedback_ul\">"+ feedbackHTMLString + "</ul>";
+			}
 		}
-	}
-}
+		
+		//add the number of unused choices to the number of wrong choices
+		numWrongChoices += numUnusedChoices;
+		
+		// update feedback div
+		var feedbackDiv = document.getElementById("feedbackDiv");
+		if (numWrongChoices == 0) {
+			feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
+			this.setChoicesDraggable(false);
+			addClassToElement("checkAnswerButton", "disabledLink");
+		} else {
+			displayNumberAttempts("This is your", "attempt", this.attempts);
+			var totalNumChoices = numCorrectChoices + numWrongChoices;
+			feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
+		}
+		
+		var tries = document.getElementById('numberAttemptsDiv');
+			
+		//fire the event to push this state to the global view.states object
+		eventManager.fire('pushStudentWork', state.getJsonifiableState());
+	};
+};
 
 /**
  * Returns true if the choice is in the right bucket but is in wrong order
@@ -386,22 +727,22 @@ MS.prototype.isInRightBucketButWrongOrder = function(bucketIdentifier, choiceIde
 	var isInRightBucketAndRightOrder = false;
 	var isInRightBucket = false;
 	for (var i=0; i < this.feedbacks.length; i++) {
-		if (this.isOrdered) {
-			if (this.feedbacks[i].bucketIdentifier == bucketIdentifier &&
+		if (this.content.assessmentItem.interaction.ordered) {
+			if (this.feedbacks[i].fieldIdentifier == bucketIdentifier &&
 					this.feedbacks[i].choiceIdentifier == choiceIdentifier &&
 					this.feedbacks[i].order == choiceOrderInBucket && 
 					this.feedbacks[i].isCorrect) {
 				isInRightBucketAndRightOrder = true;
-			} else if (this.feedbacks[i].bucketIdentifier == bucketIdentifier &&
+			} else if (this.feedbacks[i].fieldIdentifier == bucketIdentifier &&
 					this.feedbacks[i].choiceIdentifier == choiceIdentifier &&
 					this.feedbacks[i].isCorrect &&
 					this.feedbacks[i].order != choiceOrderInBucket) {
 				isInRightBucket = true;
-			}
-		}
-	}
+			};
+		};
+	};
 	return isInRightBucket && !isInRightBucketAndRightOrder;
-}
+};
 
 /**
  * Returns FEEDBACK object based for the specified choice in the
@@ -411,18 +752,18 @@ MS.prototype.isInRightBucketButWrongOrder = function(bucketIdentifier, choiceIde
  */
 MS.prototype.getFeedback = function(bucketIdentifier, choiceIdentifier,choiceOrderInBucket) {
 	for (var i=0; i < this.feedbacks.length; i++) {
-		if (this.isOrdered) {
-			if (this.feedbacks[i].bucketIdentifier == bucketIdentifier &&
+		if (this.content.assessmentItem.interaction.ordered) {
+			if (this.feedbacks[i].fieldIdentifier == bucketIdentifier &&
 					this.feedbacks[i].choiceIdentifier == choiceIdentifier &&
 					this.feedbacks[i].order == choiceOrderInBucket) {
 				return this.feedbacks[i];
-			} else if (this.feedbacks[i].bucketIdentifier == bucketIdentifier &&
+			} else if (this.feedbacks[i].fieldIdentifier == bucketIdentifier &&
 					this.feedbacks[i].choiceIdentifier == choiceIdentifier &&
 					!this.feedbacks[i].isCorrect) {
 				return this.feedbacks[i];
 			}
 		} else {
-			if (this.feedbacks[i].bucketIdentifier == bucketIdentifier &&
+			if (this.feedbacks[i].fieldIdentifier == bucketIdentifier &&
 					this.feedbacks[i].choiceIdentifier == choiceIdentifier) {
 				return this.feedbacks[i];
 			}
@@ -451,7 +792,6 @@ MS.prototype.setChoicesDraggable = function(setDraggable) {
  */
 MS.prototype.reset = function() {
 	removeClassFromElement("checkAnswerButton", "disabledLink");
-	//addClassToElement("resetWrongChoicesButton", "disabledLink");
 	this.render();
 }
 
@@ -466,9 +806,33 @@ MS.prototype.resetWrongChoices = function() {
 	}
 	
 	removeClassFromElement("checkAnswerButton", "disabledLink");
-	alert('not implemented yet, will reset all answers for now');
+	this.node.view.notificationManager.notify('not implemented yet, will reset all answers for now',3);
+	
 	this.render();
 }
 
+/**
+ * Create a MSSTATE and save it to the node visit
+ * @return
+ */
+MS.prototype.saveState = function() {
+	if(this.logLevel == "high") {
+		//get the current state
+		var state = this.getState();
+		
+		//fire the event to push this state to the global view.states object
+		eventManager.fire('pushStudentWork', state.getJsonifiableState());		
+	}
+};
+
+/**
+ * Enables the check answer button 
+ */
+MS.prototype.enableCheckAnswerButton = function() {
+	$('#checkAnswerButton').removeClass('disabledLink');
+};
+
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/matchsequence/matchsequence.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/matchsequence/matchsequence.js');
+};

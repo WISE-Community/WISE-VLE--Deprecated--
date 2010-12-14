@@ -28,12 +28,12 @@
  * SAMPLE bucketDOM:
  *   <gapMultiple identifier="yes" ordinal="false" numberOfEntries="0">&lt;html&gt;&lt;body class="slot"&gt;Items that contain one or more computers:)&lt;/body&gt;&lt;/html&gt;</gapMultiple>
  */
-function MSBUCKET(bucketDOM) {
-  if (bucketDOM) {
+function MSBUCKET(bucketObj) {
+  if (bucketObj) {
     this.isTargetBucket = true;
-    this.dom = bucketDOM;
-    this.identifier = this.dom.getAttribute('identifier');
-    this.text = this.dom.lastChild.nodeValue;   // bucket header that students will see, can be html
+    this.obj = bucketObj;
+    this.identifier = this.obj.identifier;
+    this.text = this.obj.name;   // bucket header that students will see, can be html
     this.choices = [];
   } else {
     this.isTargetBucket = false;
@@ -60,4 +60,6 @@ if(!Array.shuffle){
 };
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/matchsequence/matchsequencebucket.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/matchsequence/matchsequencebucket.js');
+}

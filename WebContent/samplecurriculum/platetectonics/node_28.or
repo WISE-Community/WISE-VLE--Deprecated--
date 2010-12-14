@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "OpenResponse",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "&lt;table border=\"0\" style=\"float:left; margin-right:10px;\"&gt; &lt;tr&gt;&lt;td&gt; &lt;img src=\"http://www.lbl.gov/Publications/Currents/Archive/images/Aug-13-1999/volcano.jpeg\" style=\"margin-right:0px;\"&gt; &lt;center&gt;&lt;font size=\"-2\"&gt;Volcano / Lawrence Berkeley Lab&lt;/font&gt;&lt;/center&gt; &lt;/td&gt;&lt;/tr&gt; &lt;/table&gt; When volcanoes erupt, lots of very hot lava are spewed out. Where do you think the heat in the lava come from? &lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;",
+         "responseIdentifier": "OR"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "OR"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "I think the heat in the lava comes from..."
+   },
+   "type": "OpenResponse"
+}

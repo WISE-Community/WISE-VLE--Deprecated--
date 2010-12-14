@@ -1,0 +1,46 @@
+{
+   "modules": [
+      {
+         "etype": "source",
+         "fields": {"efficiency": 1},
+         "icon": "./images/plate-tectonics/Crust80.gif",
+         "image": "./images/plate-tectonics/Crust80.gif",
+         "name": "Crust",
+         "xtype": "MySystemContainer"
+      },
+      {
+         "etype": "source",
+         "fields": {"efficiency": 1},
+         "icon": "./images/plate-tectonics/CORE80.gif",
+         "image": "./images/plate-tectonics/CORE80.gif",
+         "name": "Core",
+         "xtype": "MySystemContainer"
+      },
+      {
+         "etype": "source",
+         "fields": {"efficiency": 1},
+         "icon": "./images/plate-tectonics/Mantle80.gif",
+         "image": "./images/plate-tectonics/Mantle80.gif",
+         "name": "Mantle",
+         "xtype": "MySystemContainer"
+      },
+      {
+         "etype": "source",
+         "fields": {"efficiency": 1},
+         "icon": "./images/plate-tectonics/Air80.gif",
+         "image": "./images/plate-tectonics/Air80.gif",
+         "name": "Air",
+         "xtype": "MySystemContainer"
+      },
+      {
+         "etype": "source",
+         "fields": {"efficiency": 1},
+         "icon": "./images/plate-tectonics/Water80.gif",
+         "image": "./images/plate-tectonics/Water80.gif",
+         "name": "Water",
+         "xtype": "MySystemContainer"
+      }
+   ],
+   "prompt": "",
+   "type": "MySystem"
+}

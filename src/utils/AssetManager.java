@@ -1,0 +1,342 @@
+package utils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+/**
+ * Servlet implementation class AssetManager
+ */
+public class AssetManager extends HttpServlet implements Servlet{
+	private static final long serialVersionUID = 1L;
+       
+	private final static String COMMAND = "command";
+	
+	private final static String PATH = "path";
+	
+	private final static String ASSET = "asset";
+	
+	private final static String FAILED = "failed";
+	
+	private final static Long MAX_SIZE = 10485760l; //10MB
+	 
+	private boolean standAlone = true;
+	
+	private boolean modeRetrieved = false;
+	
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AssetManager() {
+        super();
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		this.doPost(request, response);
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if(!this.modeRetrieved){
+			this.standAlone = !SecurityUtils.isPortalMode(request);
+			this.modeRetrieved = true;
+		}
+		
+		if(this.standAlone || SecurityUtils.isAuthenticated(request)){
+			this.doRequest(request, response);
+		} else {
+			/* not authenticated send not authorized status */
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		}
+	}
+	
+	protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		String command = request.getParameter(COMMAND);
+		
+		if(command!=null){
+			if(command.equals("remove")){
+				this.removeAsset(request, response);
+			} else if(command.equals("getSize")){
+				response.getWriter().write(this.getSize(request.getParameter(PATH)));
+			} else if(command.equals("assetList")){
+				response.getWriter().write(this.assetList(request));
+			} else {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		} else if(ServletFileUpload.isMultipartContent(request)){
+			response.getWriter().write(this.uploadAsset(request));
+		} else {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	}
+	
+	/**
+	 * If the given <code>HttpServletRequest</code> contains a valid project path,
+	 * asset name and file, uploads the specified file to the given path.
+	 * 
+	 * @param <code>HttpServletRequest</code> request
+	 * @return <code>String</code> the message of the status of the upload
+	 */
+	private String uploadAsset(HttpServletRequest request) {
+		ServletFileUpload uploader = new ServletFileUpload(new DiskFileItemFactory());
+		
+		try{
+			List fileList = uploader.parseRequest(request);
+			/* if request was forwarded from the portal, the fileList will be empty because
+			 * Spring already retrieved the list (it can only be done once). But Spring wrapped
+			 * the request so we can get the file another way now */
+			if(fileList.size()>0){
+				Iterator fileIterator = fileList.iterator();
+				String path = null;
+				while(fileIterator.hasNext()){
+					FileItem item = (FileItem)fileIterator.next();
+					if(item.isFormField()){ //get path and set var
+						if(item.getFieldName().equals(PATH)){
+							path = item.getString();
+						} else if(item.getFieldName().equals("forward") || item.getFieldName().equals("projectId")){
+							// do nothing
+						} else {
+							throw new ServletException("I do not know what to do with multipart form field of name: " + item.getFieldName() + ". Cannot upload asset.");
+						}
+					} else { //do upload
+						if(path!=null){
+							if(!this.ensureAssetPath(path)){
+								throw new ServletException("Unable to find or setup path to upload file. Operation aborted.");
+							} else {
+								File projectDir = new File(path);
+								File assetsDir = new File(projectDir, "assets");
+								if(Long.parseLong(this.getSize(path)) + item.getSize() > MAX_SIZE){
+									return "Uploading " + item.getName() + " of size " + this.appropriateSize(item.getSize()) + " would exceed maximum storage capacity of " + this.appropriateSize(this.MAX_SIZE) + ". Operation aborted.";
+								}
+								File asset = new File(assetsDir, item.getName());
+								item.write(asset);
+								return asset.getName() + " was successfully uploaded!";
+							}
+						} else {
+							throw new ServletException("Path or file name for upload not specified.  Unable to upload file.");
+						}
+					}
+				}
+			} else {
+				/* file upload is coming from the portal so we need to read the bytes
+				 * that the portal set in the attribute
+				 */
+				String path = request.getParameter(PATH);
+				
+				File projectDir = new File(path);
+				File assetsDir = new File(projectDir, "assets");
+				if(!assetsDir.exists()){
+					assetsDir.mkdir();
+				}
+				
+				if(SecurityUtils.isAllowedAccess(request, assetsDir)){
+					ArrayList<String> filenames = (ArrayList<String>) request.getAttribute("filenames");
+					Map<String,byte[]> fileMap = (Map<String,byte[]>) request.getAttribute("fileMap");
+					String successMessage = "";
+					
+					if(filenames != null && filenames.size()>0 && fileMap != null && fileMap.size()>0 && filenames.size()==fileMap.size()){
+						Iterator<String> iter = filenames.listIterator();
+						while(iter.hasNext()){
+							String filename = iter.next();
+							File asset = new File(assetsDir, filename);
+							byte[] content = fileMap.get(filename);
+							
+							if(Long.parseLong(this.getSize(path)) + content.length > MAX_SIZE){
+								successMessage += "Uploading " + filename + " of size " + this.appropriateSize(content.length) + " would exceed your maximum storage capacity of "  + this.appropriateSize(this.MAX_SIZE) + ". Operation aborted.";
+							} else {
+								if(!asset.exists()){
+									asset.createNewFile();
+								}
+								
+								FileOutputStream fos = new FileOutputStream(asset);
+								fos.write(content);
+								
+								successMessage += asset.getName() + " was successfully uploaded! ";
+							}
+						}
+					}
+	
+					return successMessage;
+				} else {
+					return "Access to path is denied.";
+				}
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+			return e.getMessage();
+		}
+		
+		return FAILED;
+	}
+	
+	/**
+	 * Checks to make sure the provided project path exists. If not returns false,
+	 * if it does, then checks to see if the assets directory exists. If it does, returns
+	 * true, if not, attempts to create it. If the creation is successful, returns true,
+	 * if not returns false.
+	 * 
+	 * @param <code>String</code> path
+	 * @return boolean
+	 */
+	private boolean ensureAssetPath(String path) {
+		File projectDir = new File(path);
+		if(projectDir.exists()){
+			File assetsDir = new File(projectDir, "assets");
+			if(assetsDir.exists() && assetsDir.isDirectory()){
+				return true;
+			} else {
+				return assetsDir.mkdir();
+			}
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Given an <code>HttpServletRequst</code> request that contains
+	 * a path, returns the size in bytes of all of the files in the assets
+	 * folder in that path.
+	 * 
+	 * @param <code>HttpServletRequest</code> request
+	 * @return <code>String</code> size of all files in assets folder in bytes
+	 */
+	private String getSize(String path){
+		if(path==null){
+			return "No project path specified";
+		} else {
+			File projectDir = new File(path);
+			if(projectDir.exists()){
+				File assetsDir = new File(projectDir, "assets");
+				if(assetsDir.exists() && assetsDir.isDirectory()){
+					long total = 0;
+					//get all file sizes and add to total
+					File[] files = assetsDir.listFiles();
+					for(int q=0;q<files.length;q++){
+						total += files[q].length();
+					}
+					return String.valueOf(total);
+				} else {
+					return "0";
+				}
+			} else {
+				return "Given project path does not exist.";
+			}
+		}
+	}
+	
+	/**
+	 * Given a <code>HttpServletRequest</code> with path and asset parameters
+	 * finds the given asset associated with the project in the given path and
+	 * removes it from the assets directory. Returns a <code>String</code> success
+	 * message upon successful removal, throws <code>ServletExceptions</code> otherwise.
+	 * 
+	 * @param <code>HttpServletRequest</code> request
+	 * @return <code>String</code> message
+	 * @throws <code>ServletException</code>
+	 */
+	private void removeAsset(HttpServletRequest request, HttpServletResponse response) throws IOException{
+		String path = request.getParameter(PATH);
+		String asset = request.getParameter(ASSET);
+		
+		File projectDir = new File(path);
+		if(path==null || !(projectDir.exists()) || !(projectDir.isDirectory())){
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			File assetDir = new File(projectDir, "assets");
+			if(!assetDir.exists() || !assetDir.isDirectory()){
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			} else {
+				if(asset==null){
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				} else {
+					File assetFile = new File(assetDir, asset);
+					if(assetFile.exists() && assetFile.isFile()){
+						if(this.standAlone || SecurityUtils.isAllowedAccess(request, assetFile)){
+							if(assetFile.delete()){
+								response.getWriter().write("Asset " + asset + " successfully deleted from server.");
+							} else {
+								response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+							}
+						} else {
+							response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+						}
+					} else {
+						response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Given a <code>HttpServletRequest</code> request, returns
+	 * a <code>String</code> ':' denoted list of all filenames
+	 * within the project path directory.
+	 * 
+	 * @param <code>HttpServletRequest</code> request
+	 * @return <code>String</code>
+	 */
+	private String assetList(HttpServletRequest request){
+		String path = request.getParameter(PATH);
+		File projectDir = new File(path);
+		if(projectDir.exists()){
+			File assetsDir = new File(projectDir, "assets");
+			if(assetsDir.exists() && assetsDir.isDirectory()){
+				File[] files = assetsDir.listFiles();
+				String filenames = "";
+				if(files==null){//no files in this dir
+					return "";
+				} else {
+					for(int v=0;v<files.length;v++){
+						filenames += files[v].getName();
+						if(v != files.length-1){
+							filenames += "~";
+						}
+					}
+					return filenames;
+				}
+			} else {
+				return "";
+			}
+		} else {
+			return "Given project path does not exist";
+		}
+	}
+	
+	/**
+	 * Given a <code>long</code> size of bytes, returns a <code>String</code>
+	 * with the size either in: bytes, kilobytes or megabytes rounded
+	 * to the nearest 10th.
+	 * 
+	 * @param <code>long</code> size
+	 * @return <code>String</code>
+	 */
+	private String appropriateSize(long size){
+		if(size>1048576){
+			return String.valueOf(Math.round(((size/1024)/1024)*10)/10) + " mb";
+		} else if (size>1024){
+			return String.valueOf(Math.round((size/1024)*10)/10) + " kb";
+		} else {
+			return String.valueOf(size) + " b";
+		}
+	}
+}

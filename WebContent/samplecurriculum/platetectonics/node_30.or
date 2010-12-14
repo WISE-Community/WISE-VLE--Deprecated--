@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "Please explain to Tim and Melissa how your MySystem diagram shows the &lt;b&gt;energy&lt;/b&gt; in the convection currents within Earth.",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "1",
+      "sentence": "We think our MySystem diagram describes the energy in the convection currents within Earth because it..."
+   },
+   "type": "Note"
+}

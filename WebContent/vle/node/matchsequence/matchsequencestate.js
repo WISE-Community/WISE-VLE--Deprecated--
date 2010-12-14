@@ -27,35 +27,103 @@
  *   buckets
  */
 function MSSTATE() {
+	this.type = "ms";
 	this.sourceBucket = null;
     this.buckets = [];
 }
 
 /**
- * Returns the current state in xml string format
+ * Get the student work in human readable form. This is used in
+ * the grading tool to display the student work to the teacher.
+ * @return the student work in human readable form.
  */
-MSSTATE.prototype.getXMLString = function() {
-	var xmlString = "<state>";
-	xmlString += "</state>";
-	return xmlString;
-}
+MSSTATE.prototype.getStudentWork = function(){
+	var text = "";
+	
+	//loop through all the target buckets
+	for(var h=0;h<this.buckets.length;h++){
+		var bucket = this.buckets[h];
+		//get the text for the bucket
+		var bucketText = bucket.text;
 
-MSSTATE.prototype.getDataXML = function() {
-	//implement me
-//	return "<response>" + this.response + "</response><timestamp>" + this.timestamp + "</timestamp>";
-}
+		/*
+		 * each bucket will be represented as following
+		 * 
+		 * ([bucketText]: choice1Text, choice2Text)
+		 */
+		text += "([" + bucketText + "]: ";
+		
+		var choicesText = "";
+		
+		//loop through the choices
+		for(var g=0;g<bucket.choices.length;g++){
+			//if this is not the first choice, add a comma to separate them
+			if(choicesText != "") {
+				choicesText += ", ";
+			}
+			
+			//add the bucket text
+			choicesText += bucket.choices[g].text;
+		};
+		
+		text += choicesText;
+		
+		//close the bucket and add a new line for easy reading
+		text += ")<br>";
+	};
+	return text;
+};
 
-MSSTATE.prototype.parseDataXML = function(stateXML) {
-	//implement me
-//	var reponse = stateXML.getElementsByTagName("reponse")[0];
-//	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
-//	
-//	if(reponse == undefined || timestamp == undefined) {
-//		return null;
-//	} else {
-//		return new OPENRESPONSESTATE(choiceIdentifier.textContent, timestamp.textContent);		
-//	}
-}
+/**
+ * Create a MSSTATE that we can jsonify. This means removing
+ * cycling references such as the the choices pointing to
+ * the bucket that they are in, and the bucket pointing
+ * to the choices that are in it
+ * @return
+ */
+MSSTATE.prototype.getJsonifiableState = function() {
+	//make a new MSSTATE
+	var msState = new MSSTATE();
+	
+	//set the buckets into our new MSSTATE
+	msState.buckets = this.buckets;
+	
+	//loop through all the buckets
+	for(var x=0; x<msState.buckets.length; x++) {
+		//get a bucket
+		var bucket = msState.buckets[x];
+		
+		//loop through all the choices that are in the bucket
+		for(var y=0; y<bucket.choices.length; y++) {
+			//get a choice
+			var choice = bucket.choices[y];
+			
+			//remove the reference to the bucket
+			choice.bucket = null;
+		}
+	}
+	
+	//return the MSSTATE
+	return msState;
+};
+
+/**
+ * Creates a MSSTATE from the stateJSONObj
+ * @param stateJSONObj a JSON object representing a MSSTATE
+ * @return a populated MSSTATE
+ */
+MSSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
+	//create a new MSSTATE object
+	var msState = new MSSTATE();
+
+	//get the buckets from the json
+	msState.buckets = stateJSONObj.buckets;
+	
+	//return the MCSTATE object
+	return msState;
+};
 
 //used to notify scriptloader that this script has finished loading
-scriptloader.scriptAvailable(scriptloader.baseUrl + "vle/node/matchsequence/matchsequencestate.js");
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/node/matchsequence/matchsequencestate.js');
+}

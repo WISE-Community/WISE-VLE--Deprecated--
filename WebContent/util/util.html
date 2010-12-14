@@ -1,0 +1,241 @@
+<html>
+<head>
+<title>VLE Utility Page</title>
+<script type='text/javascript' src='../vle/util/scriptloader.js'></script>
+<script type='text/javascript' src='../vle/events/eventmanager.js'></script>
+<script type='text/javascript' src='../vle/jquery/js/jquery-1.4.2.min.js'></script>
+<script type='text/javascript' src='../vle/jquery/js/jquery-ui-1.8.custom.min.js'></script>
+<script type='text/javascript' src='../vle/jquery/js/jsonplugin.js'></script>
+
+<script type='text/javascript'>
+var eventManager = new EventManager();
+</script>
+
+<script type='text/javascript' src='../vle/io/ConnectionManager.js'></script>
+<script type='text/javascript' src='../vle/util/componentloader.js'></script>
+<link href="../vle/css/message.css" media="screen" rel="stylesheet"  type="text/css" />
+<script type='text/javascript'>
+var filemanagerUrl = '../vle/filemanager.html';
+var convertUrl = 'convert.html';
+var minifierUrl = 'minifier.html';
+
+function getPortalModeStatus(){
+	var success = function(t,x,o){
+		if(t=='true'){
+			/* then we are in portal mode and need to change our request urls to route through the portal */
+			var loc = window.location.toString();
+			var url = loc.substring(0,loc.indexOf('vlewrapper/util/util.html')) + 'webapp/router.html';
+
+			filemanagerUrl = url;
+			convertUrl = url;
+			minifierUrl = url;
+		}
+	}
+
+	var failure = function(t,o){
+		notificationManager.notify('Unable to contact the mode servlet to determine if we are in portal mode. If your actions do not work, try refreshing this page.',3);
+	}
+
+	connectionManager.request('GET',1,'../modemaster.html',{portalMode:'getMode'}, success, null, failure);
+};
+
+window.onload = function (){
+	var notificationScript = document.createElement('script');
+	notificationScript.setAttribute('type', 'text/javascript');
+	notificationScript.setAttribute('src', '../vle/util/NotificationManager.js');
+
+	document.getElementsByTagName('head')[0].appendChild(notificationScript);
+	getPortalModeStatus();
+};
+
+var connectionManager = new ConnectionManager(eventManager);
+
+function compressViewScripts(){
+	var view = document.getElementById('viewInput').value;
+	var path = document.getElementById('pathInput').value;
+	
+	if(!view || view==''){
+		notificationManager.notify('No view specified, cannot create files.', 3);
+		return;
+	};
+
+	if(!path || path==''){
+		notificationManager.notify('Path not specified, cannot create files.', 3);
+		return;
+	};
+	
+	var callback = function(t,x,o){
+		notificationManager.notify('files created, remember to refresh the project', 3);
+	};
+
+	var failure = function(t,o){
+		if(t.status==401){
+			notificationManager.notify('You are not authorized to carry out this operation or the path you specified is not the valid vle/all path.',3);
+		} else {
+			notificationManager.notify('error creating files, look at servlet errors.', 3);
+		}
+	};
+
+	connectionManager.request('POST', 1, minifierUrl, {forward:'minifier', command: 'minify', 'view': view, 'path': path, 'scripts': componentloader.getScriptsForView(view).join('~')}, callback, null, failure);
+};
+
+
+function convert(){
+	var path = document.getElementById('convertPath').value;
+
+	if(!path || path==''){
+		notificationManager.notify('No path specified for project conversion, cannot convert project', 3);
+		return;
+	};
+
+	var success = function(t,x,o){
+		notificationManager.notify(t,3);
+	};
+
+	var failure = function(t,o){
+		if(t.status==401){
+			notificationManager.notify('Authorization failed for this operation. Make sure that you are authorized to carry out this operation and that the project(s) you wish to convert are in the curriculum directory known to the portal.');
+		} else {
+			notificationManager.notify('Failed to convert xml project to json project.', 3);
+		}
+	};
+
+	connectionManager.request('POST',1,convertUrl,{forward:'convert', command:'convertXMLProject', path:path}, success, null, failure);
+};
+
+
+function convertBatch(){
+	var mainPath = document.getElementById('convertBatchPath').value;
+	if(!mainPath || mainPath==''){
+		notificationManager.notify('No path specified in which to look for projects, cannot proceed.', 3);
+	};
+
+	var listSuccess = function(t,x,o){
+		if(t && t!=''){
+			var paths = t.split('|');
+			new BatchConversion(paths, convertUrl);
+		} else {
+			notificationManager.notify('Could not find any projects for the path specified.', 3);
+		};
+	};
+
+	var listFailure = function(m,o){
+		if(m.status==401){
+			notificationManager.notify('You are not authorized to carry out this operation. Please see an administrator.',3);
+		} else {
+			notificationManager.notify('Could not retrieve project paths from server', 3);
+		}
+	};
+
+	connectionManager.request('POST',1,filemanagerUrl, {forward:'filemanager', command:'oldProjectList', projectPaths:mainPath}, listSuccess, null, listFailure);
+};
+
+function BatchConversion(paths, convertUrl){
+	this.paths = paths;
+	this.all = [];
+	this.queue = [];
+	this.convertUrl = convertUrl;
+
+	eventManager.addEvent('converted');
+	eventManager.subscribe('converted', this.convertedListener, this);
+	
+	for(var a=0;a<paths.length;a++){
+		var proj = new ProjectConvert(paths[a], this.convertUrl);
+		this.all.push(proj);
+		this.queue.push(proj);
+	};
+
+	this.launchNext();
+};
+
+BatchConversion.prototype.convertedListener = function(type,args,obj){
+	if(obj.queue.length>0){
+		obj.launchNext();
+	} else {
+		obj.done();
+	};
+};
+
+BatchConversion.prototype.launchNext = function(){
+	if(this.queue.length>0){
+		var proj = this.queue.shift();
+		proj.convert();
+	};
+};
+
+BatchConversion.prototype.done = function(){
+	var success = 0;
+	var failedPaths = ' ';
+
+	for(var b=0;b<this.all.length;b++){
+		var proj = this.all[b];
+		if(proj.success){
+			success ++;
+		} else {
+			failedPaths += proj.path;
+		};
+	};
+
+	var msg = 'Successfully converted ' + success + ' out of ' + this.all.length + ' projects.\n';
+	
+	if(failedPaths.length>2){
+		msg += ' The projects with the following paths did not convert successfully: ' + failedPaths;
+	};
+	msg += '\n\nAll successfully converted projects will be found in a directory of the same name with \'_JSON_Converted\' appended to them.';
+
+	notificationManager.notify(msg, 3);
+};
+
+function ProjectConvert(path, convertUrl){
+	this.path = path;
+	this.success = false;
+	this.msg;
+	this.convertUrl = convertUrl;
+};
+
+ProjectConvert.prototype.convert = function(){
+	var success = function(t,x,o){
+		o.success = true;
+		eventManager.fire('converted', this.path);
+	};
+
+	var failure = function(m,o){
+		o.success = false;
+		eventManager.fire('converted', this.path);
+
+		if(m.status==401){
+			o.msg = 'You are not authorized to access the path ' + o.path + '. Make sure that this path is in the curriculum directory known to the portal.';
+		} else {
+			o.msg = 'Failed to convert the project at ' + o.path;
+		}
+	};
+
+	connectionManager.request('POST',1,this.convertUrl,{forward:'convert', command:'convertXMLProject', path: this.path}, success, this, failure);
+};
+</script>
+</head>
+<body>
+<div id='mainDiv'>
+	<div id='compressDiv'>
+		<b>Collapse and compress the javascript files for the specified view</b><br/>
+		Enter the view for which you wish to compress the javascript files.<br/>
+		<input type='text' size='10' id='viewInput'></input><br/>
+		Enter the path to the vle/all folder in which to create the files. Older files will be<br/>
+		overwritten.<br/>
+		(i.e. /Users/shadowtorn/workspace/vlewrapper-2.0/WebContent/vle/all)</br>
+		<input type='text' size='50' id='pathInput'></input><br/>
+		<input type='button' onclick='compressViewScripts()' value='create'/>
+	</div><br/>
+	<div id='convertDiv'>
+		<b>Convert XML to JSON for individual projects</b><br/>
+		<input type='text' size='50' id='convertPath'></input>
+		<input type='button' onclick='convert()' value='convert'/>
+	</div><br/>
+	<div id='convertBatchDiv'>
+		<b>Specify a root folder to convert ALL projects in any subfolders. Note: This may take some time</b><br/>
+		<input type='text' size='50' id='convertBatchPath'></input><br/>
+		<input type='button' onclick='convertBatch()' value='convert batch'/>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+#svg_editor #tools_stamps {
+	background:#E8E8E8 !important;
+	display:none;
+	border:1px solid #999999;
+	cursor:default;
+	position:absolute;
+	z-index:98;
+	padding:0 5px;
+}
+
+#svg_editor #tools_stamps .tools_title {
+	margin:5px;
+	font-weight:bold;
+}
+
+#svg_editor #tools_stamps #stamp_images {
+	margin:0 auto 5px;
+	padding:5px 0;
+	max-height:300px;
+	width:120px;
+	overflow:auto;
+	background-color:#FFFFFF;
+	text-align:center;
+}
+
+#svg_editor #tools_stamps .tool_stamp {
+	border:2px solid #999999;
+	max-height: 75px;
+	max-width: 75px;
+	cursor: pointer !important;
+	margin:4px;
+	padding:4px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+
+#svg_editor #tools_stamps .tool_stamp:hover {
+	background-color:#DDDDDD;
+	border-color:#555555;
+}
+
+#svg_editor #tools_stamps .tool_stamp_current {
+	background-color:#CCCCCC;
+	border:2px solid #333333 !important;
+}
+
+#svg_editor img#stamp_preview {
+	opacity:.75;
+	display:none;
+	position:absolute;
+}

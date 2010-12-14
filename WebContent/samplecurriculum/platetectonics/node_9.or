@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "OpenResponse",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "Based on the convection current exploration activities and your MySystem diagram, write a story about &lt;b&gt;changes&lt;/b&gt; in the mantle as it moves from the Earth's core towards the crust and back down to the core. Make sure you include the following information: &lt;ul&gt; &lt;li&gt;Where does the energy come from? &lt;li&gt;Where does the energy go? &lt;li&gt;How does the energy move? &lt;li&gt;How does the energy change? &lt;li&gt;&lt;b&gt;What role does the energy play in changes in the mantle?&lt;/b&gt; &lt;/li&gt;&lt;/ul&gt; *Hint: Use your MySystem diagram to think about answers to the questions above.",
+         "responseIdentifier": "OR"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "OR"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": false,
+   "starterSentence": {
+      "display": "0",
+      "sentence": ""
+   },
+   "type": "OpenResponse"
+}

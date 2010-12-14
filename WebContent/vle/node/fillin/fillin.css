@@ -57,8 +57,9 @@
 
 #nonInteractiveDiv {
 	margin:5px 0;
-	font-size:1em;
-	line-height:140%;
+	font-size:.9em;
+	line-height:120%;
+	padding:5px 10px;
 }
 
 #nonInteractiveDiv p {
@@ -68,7 +69,7 @@
 }
 
 #nonInteractiveDiv tt {
-	font-size:120%;
+	font-size:110%;
 	font-weight:bold;
 }
 
@@ -107,10 +108,10 @@
 
 #nonInteractiveDiv .activeBlank {
 	font-family:"Courier New",Courier,monospace;
-	color:#164CBA;
-	background-color:#FFCE8E;
+	color:#FFF;
+	background-color:#164CBA;
 	border:none;
-	border-bottom:1px solid #164CBA;
+	border:1px solid #000;
 	text-align:center;
 	font-size:1.0em;
 	font-weight:bold;
@@ -120,9 +121,9 @@
 
 #nonInteractiveDiv .completedBlank {
 	font-family:"Courier New",Courier,monospace;
-	color:green;
+	color:#000;
 	border:none;
-	font-size:1.0em;
+	border-bottom:1px solid #333;
 }
 
 #interactiveDiv {

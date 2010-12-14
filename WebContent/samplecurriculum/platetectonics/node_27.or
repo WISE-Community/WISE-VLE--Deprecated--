@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "OpenResponse",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "You have now explored different boundary types. Sometimes, one of the plates &lt;dfn title='goes under the other plate'&gt;&lt;font color=\"blue\"&gt;subducts&lt;/font&gt;&lt;/dfn&gt; at a boundary. Sometimes, neither plate subducts. Why do you think that is? &lt;br /&gt;&lt;br /&gt; In your own words, explain what decides whether a plate subducts or not at a plate boundary.",
+         "responseIdentifier": "OR"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "OR"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": true,
+   "starterSentence": {
+      "display": "0",
+      "sentence": ""
+   },
+   "type": "OpenResponse"
+}

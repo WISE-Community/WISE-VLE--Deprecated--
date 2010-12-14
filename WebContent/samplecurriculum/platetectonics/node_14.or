@@ -1,0 +1,25 @@
+{
+   "assessmentItem": {
+      "adaptive": false,
+      "identifier": "Note",
+      "interaction": {
+         "expectedLines": "0",
+         "hasInlineFeedback": false,
+         "placeholderText": "",
+         "prompt": "Record what you learned about the number of earthquakes that occur on both the East and West Coasts. &lt;br&gt;&lt;br&gt; What do YOU think is the cause for the difference in the number of earthquakes on the East and West Coasts? &lt;br&gt;&lt;br&gt;",
+         "responseIdentifier": "Note"
+      },
+      "responseDeclaration": {
+         "baseType": "string",
+         "cardinality": "single",
+         "identifier": "Note"
+      },
+      "timeDependent": false
+   },
+   "isRichTextEditorAllowed": false,
+   "starterSentence": {
+      "display": "2",
+      "sentence": "We learned that... We think the difference in the number of earthquakes is caused by..."
+   },
+   "type": "Note"
+}

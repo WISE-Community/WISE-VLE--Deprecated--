@@ -1,0 +1,106 @@
+#svg_editor .description_buttons {
+	text-align:center;
+	padding:.5em 0 0;
+}
+
+#svg_editor .description_buttons button {
+	cursor: pointer;
+	line-height: 1.4em;
+	width:auto;
+	background:url("../jquery-ui/images/ui-bg_highlight-hard_30_1E69FF_1x100.png") repeat-x scroll 50% 50% #1E69FF; /*corrected path for wise4*/
+	border:1px solid #1747C0;
+	color:#FFFFFF;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	margin:0;
+	overflow:visible;
+	padding:0.1em 0.2em 0.1em;
+}
+
+#svg_editor .description_buttons button:hover {
+	color:#FFFA3D;
+}
+
+#svg_editor .description_buttons button[disabled] {
+	background:#CCCCCC;
+	color:#888888;
+	border-color:#AAAAAA;
+}
+
+#svg_editor #description {
+	position:absolute;
+	bottom:36px;
+	right:5px;
+	left:40px;
+	height:74px;
+	background-color:#A0A0A0;
+	border:1px solid #808080;
+	border-top:none;
+}
+
+#svg_editor #description a {
+	color:#333333;
+	cursor:pointer;
+	font-size:1.4em;
+	text-decoration:none;
+}
+
+#svg_editor #description #description_wrapper {
+	box-shadow:0 0 3px #000000;
+	-moz-box-shadow:0 0 3px #000000;
+	-webkit-box-shadow:0 0 3px #000000;
+	background-color:#E8E8E8;
+	padding:5px;
+	border-radius:5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	width:90%;
+	margin:0 auto;
+	text-align:left;
+}
+
+#svg_editor #description .description_header {
+	font-weight:bold;
+	margin:0 2px 5px;
+	padding:0;
+	font-size:1em;
+	height:15px;
+	line-height:15px;
+}
+
+#svg_editor .description_header_text {
+	float:left;
+}
+
+#svg_editor .description_header_text span {
+	font-weight:normal;
+	font-size:1em;
+}
+
+/* wise4 */
+#svg_editor #description_content {
+	background-color:#FFFFFF;
+	font-size:1.2em;
+	height:15px;
+	line-height:1.3em;
+	margin-top:4px;
+	padding:5px;
+	width:98%;
+}
+
+#svg_editor .description_buttons, #svg_editor #description_collapse {
+	padding:0;
+	margin-left:1em;
+	float:right;
+}
+
+#svg_editor .description_input {
+	background-color:#eee;
+	border:1px solid #aaa;
+}
+
+#svg_editor .description_input:focus {
+	background-color:#FFFFFF;
+	border-color:#3CB371;
+}
