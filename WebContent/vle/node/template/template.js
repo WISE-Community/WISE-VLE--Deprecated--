@@ -147,6 +147,13 @@ TEMPLATE.prototype.save = function() {
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
-	//TODO: rename template/template.js
+	/*
+	 * TODO: rename template to your new folder name
+	 * TODO: rename template.js
+	 * 
+	 * e.g. if you were creating a quiz step it would look like
+	 * 
+	 * eventManager.fire('scriptLoaded', 'vle/node/quiz/quiz.js');
+	 */
 	eventManager.fire('scriptLoaded', 'vle/node/template/template.js');
 }

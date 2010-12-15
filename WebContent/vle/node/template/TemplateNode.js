@@ -9,8 +9,9 @@
  * and then in this file change all occurrences of the word 'TemplateNode' to 
  * 
  * <new step type>Node
+ * 
  * e.g. for example if you are creating a quiz step type you would
- * change it to look like QuizNode
+ * change it to be QuizNode
  */
 
 TemplateNode.prototype = new Node(); //TODO: rename TemplateNode
@@ -157,11 +158,16 @@ TemplateNode.prototype.onExit = function() {
 TemplateNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix) {
 	/*
 	 * Get the latest student state object for this step
-	 * TODO: rename templateState
+	 * TODO: rename templateState to reflect your new step type
+	 * 
+	 * e.g. if you are creating a quiz step you would change it to quizState
 	 */
 	var templateState = nodeVisit.getLatestWork();
 	
-	//TODO: rename templateState
+	/*
+	 * TODO: rename templateState to match the variable name you
+	 * changed in the previous line above
+	 */
 	var studentWork = templateState.getStudentWork();
 	
 	//put the student work into the div

@@ -1,15 +1,43 @@
 
 /*
+ * This handles events and calls the appropriate function to handle
+ * the event.
+ * 
  * TODO: rename templateDispatcher
  * For example if you are creating a quiz node you would change it to
  * quizDispatcher
  */
 View.prototype.templateDispatcher = function(type,args,obj){
-	
+	/*
+	 * check to see if the event name matches 
+	 * 
+	 * TODO: rename templateUpdatePrompt
+	 * wait until you implement the authoring before you rename this
+	 */ 
+	if(type == 'templateUpdatePrompt') {
+		/*
+		 * the event name matches so we will call the function that
+		 * handles that event
+		 * 
+		 * TODO: rename TemplateNode
+		 * wait until you implement the authoring before you rename this 
+		 */
+		obj.TemplateNode.updatePrompt();
+	}
 };
 
-//this list of events
-var events = [];
+/*
+ * this is a list of events that can be fired. when the event is fired,
+ * the dispatcher function above will be called and then call the
+ * appropriate function to handle the event.
+ */
+var events = [
+	/*
+	 * TODO: rename templateUpdatePrompt
+	 * wait until you implement the authoring before you rename this
+	 */
+	'templateUpdatePrompt'
+];
 
 /*
  * add all the events to the vle so the vle will listen for these events
