@@ -44,6 +44,7 @@ SDMenu.prototype.toggleMenu = function(submenu) {
 	}
 };
 SDMenu.prototype.expandMenu = function(submenu) {
+	debugger;
 	var fullHeight = submenu.getElementsByTagName("span")[0].offsetHeight;
 	var links = submenu.getElementsByTagName("a");
 	for (var i = 0; i < links.length; i++)

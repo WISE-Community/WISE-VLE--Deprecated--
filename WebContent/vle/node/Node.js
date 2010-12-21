@@ -9,6 +9,7 @@ function Node(nodeType, view){
 	this.content;
 	this.contentPanel;
 	this.baseHtmlContent;
+	this.hints = [];
 	
 	this.prevWorkNodeIds = [];
 	this.links = [];
@@ -37,6 +38,19 @@ Node.prototype.getTitle = function() {
 
 Node.prototype.setTitle = function(title){
 	this.title = title;
+};
+
+/**
+ * Retrieves the hints for this node, if exists.
+ * @return array of hints if exists. if not exist, return null
+ */
+Node.prototype.getHints = function() {
+	if (this.content &&
+			this.content.getContentJSON() &&			
+			this.content.getContentJSON().hints) {
+		return this.content.getContentJSON().hints;
+	};
+	return null;
 };
 
 /**
@@ -86,6 +100,9 @@ Node.prototype.getContent = function(){
  */
 Node.prototype.setContent = function(content){
 	this.content = content;
+	
+	debugger;
+	//if this.content.
 };
 
 /**
@@ -409,6 +426,7 @@ Node.prototype.nodeJSON = function(contentBase){
 			type:this.type,
 			identifier:makeHtmlSafe(this.id),
 			title:makeHtmlSafe(this.title),
+			hints:makeHtmlSafe(this.hints),
 			ref:this.content.getFilename(contentBase),
 			previousWorkNodeIds:this.prevWorkNodeIds,
 			links:this.links

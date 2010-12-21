@@ -18,6 +18,8 @@ View.prototype.utils.closeDialogs = function(name){
 	} else {
 		this.closeDialog('journalPanel');
 		this.closeDialog('notePanel');
+		this.closeDialog('hintsPanel');
+		console.log('closeDialogs');
 	}
 };
 

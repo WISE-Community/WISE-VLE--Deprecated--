@@ -10,6 +10,14 @@ View.prototype.pushStudentWork = function(nodeState){
 };
 
 /**
+ * Given the type and optional arguments, creates a new 
+ * state of the type, passing in the arguments.
+ */
+View.prototype.pushHintState = function(hintState){
+	this.state.getCurrentNodeVisit().hintStates.push(hintState);
+};
+
+/**
  * Posts the data for the current node that the user is on back to the
  * server.
  * Does not send the actual data for the step.

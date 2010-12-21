@@ -109,6 +109,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						} else {
 							thisNode.teacherReview = currNode.teacherReview;
 						}
+												
 
 						//set the reviewGroup attribute if available
 						if(!currNode.reviewGroup || currNode.reviewGroup=='') {

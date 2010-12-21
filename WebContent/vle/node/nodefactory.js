@@ -54,7 +54,7 @@ NodeFactory.createNode = function(jsonNode, view){
 				return new nodeConstructor(nodeType, view);
 			} else {
 				return new Node(null, view);
-			}
+			};
 		};
 	};
 };

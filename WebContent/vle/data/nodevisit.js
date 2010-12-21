@@ -8,6 +8,7 @@ function NODE_VISIT(nodeId, nodeType, nodeStates, visitStartTime, visitEndTime) 
 	this.nodeType = nodeType;
 	this.visitPostTime = null;
 	this.duplicateId;
+	this.hintStates = [];  // hint actions {hintsopened,hintpartselected,hintsclosed}
 	
 	if (arguments.length == 2) {
 		//set default values if they aren't provided
@@ -18,8 +19,8 @@ function NODE_VISIT(nodeId, nodeType, nodeStates, visitStartTime, visitEndTime) 
 		this.nodeStates = nodeStates;
 		this.visitStartTime = visitStartTime;
 		this.visitEndTime = visitEndTime;
-	}
-}
+	};
+};
 
 /**
  * Returns this node visit's nodeId.

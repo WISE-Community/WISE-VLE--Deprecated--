@@ -57,6 +57,11 @@ View.prototype.HtmlNode.save = function(close){
 		};
 	};
 	
+	// save .ht file and .html file
+	/* get json content as string */
+	var contentString = encodeURIComponent($.stringify(this.view.activeContent.getContentJSON(),null,3));
+
+	this.view.connectionManager.request('POST', 3, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'updateFile', param1:this.view.utils.getContentPath(this.view.authoringBaseUrl,this.view.getProject().getContentBase()), param2:this.view.activeNode.content.getFilename(this.view.getProject().getContentBase()), param3:contentString}, success, this.view, failure);
 	this.view.connectionManager.request('POST', 3, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'updateFile', param1:this.view.utils.getContentPath(this.view.authoringBaseUrl,this.view.getProject().getContentBase()), param2:this.view.activeNode.baseHtmlContent.getFilename(this.view.getProject().getContentBase()), param3:encodeURIComponent(document.getElementById('promptInput').value)}, success, this.view, failure);
 };
 

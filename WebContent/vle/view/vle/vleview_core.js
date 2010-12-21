@@ -457,7 +457,16 @@ View.prototype.onRenderNodeComplete = function(position){
     if(document.getElementById('topStepTitle') != null) {
     	document.getElementById('topStepTitle').innerHTML = currentNode.getTitle();
     }
-	
+
+	/* set hints link in nav bar if hint exists for this step */
+    if(document.getElementById('stepHints') != null) {
+    	if (currentNode.getHints() != null && currentNode.getHints().length > 0) {
+    		$("#stepHints").css("display","block");
+    	} else {
+    		$("#stepHints").css("display","none");
+    	}
+    }
+
 	/* adjust height of iframe. If nav bar is visible, set iframe height=navbarheight. else, leave it untouched */
 	//if (parseInt($('#projectLeftBox').attr('offsetHeight')) > 0) {
 		//$('#projectRightLowerBox').height($('#projectLeftBox').height());

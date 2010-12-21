@@ -377,7 +377,24 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	color:#333;
 	font-size:.75em;
 	font-weight:bold;
-}	
+}
+
+#stepHints {
+	/* make me pretty! */
+	position:absolute;
+	left:150px;
+}
+
+hr.stepHints {
+	/* make me pretty! */
+	border:thin solid;
+	margin:30px 0 10px 0;
+}
+
+#hintsTabs {
+	/* make me pretty! */
+	height:350px;
+}
 
 #stepNavButtons1 {
 	position:absolute;

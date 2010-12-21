@@ -166,6 +166,16 @@ View.prototype.authorStepDispatcher = function(type,args,obj){
 		obj.updateRefreshOption();
 	} else if(type=='refreshNow'){
 		obj.refreshNow();
+	} else if(type=='editHints'){
+		obj.editHints(args[0]);
+	} else if(type=='addHint'){
+		obj.addHint();
+	} else if(type=='deleteHint'){
+		obj.deleteHint();
+	} else if(type=='saveHint'){
+		obj.saveHint();
+	} else if(type=='saveHints'){
+		obj.saveHints();
 	} else if(type=='sourceUpdated'){
 		obj.sourceUpdated();
 	} else if(type=='closeOnStepSaved'){

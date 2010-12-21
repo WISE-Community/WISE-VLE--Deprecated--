@@ -289,6 +289,11 @@ var componentloader = function(em, sl){
 				'authorStepModeChanged':[null,null], 
 				'updateRefreshOption':[null,null], 
 				'refreshNow':[null,null],
+				'editHints':[null,null],
+				'addHint':[null,null],
+				'deleteHint':[null,null],
+				'saveHint':[null,null],
+				'saveHints':[null,null],
 				'sourceUpdated':[null,null], 
 				'closeOnStepSaved':[null,null], 
 				'closeStep':[null,null], 
@@ -408,6 +413,11 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('authorStepModeChanged', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('updateRefreshOption', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('refreshNow', view.authorStepDispatcher, view);
+					view.eventManager.subscribe('editHints', view.authorStepDispatcher, view);
+					view.eventManager.subscribe('addHint', view.authorStepDispatcher, view);
+					view.eventManager.subscribe('deleteHint', view.authorStepDispatcher, view);
+					view.eventManager.subscribe('saveHint', view.authorStepDispatcher, view);
+					view.eventManager.subscribe('saveHints', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('sourceUpdated', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('closeOnStepSaved', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('closeStep', view.authorStepDispatcher, view);
@@ -688,6 +698,7 @@ var componentloader = function(em, sl){
 			events:{'showAllWork':[null,null],
 					'displayProgress':[null,null],
 					'showFlaggedWork':[null,null],
+					'showStepHints':[null,null],
 					'showNavigationTree':[null,null]},
 			methods:{},
 			initialize:{
@@ -696,6 +707,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('showAllWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('displayProgress', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('showStepHints', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showNavigationTree', view.dropDownMenuDispatcher, view);
 				}
 			}

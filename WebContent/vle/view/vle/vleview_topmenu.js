@@ -7,7 +7,15 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.showFlaggedWork();
 	} else if (type == 'showNavigationTree') {
 		obj.showNavigationTree();
-	}
+	} else if (type == 'showStepHints') {
+		// if hint is already open, do not open up another hint
+		if ($("#hintsPanel") && 
+				$("#hintsPanel").data("dialog") && 
+				$("#hintsPanel").data("dialog").isOpen()) {
+			return;
+		}
+		obj.showStepHints();
+	};
 };
 
 /**
@@ -26,6 +34,70 @@ View.prototype.showNavigationTree = function() {
 	this.navigationPanel.showNavigationTree();
 };
 
+/**
+ * Display hints for the current step.
+ * Hints will popup in a dialog and each hint will
+ * be in its own tab
+ */
+View.prototype.showStepHints = function() {
+	//get the node the student is currently on
+	var currentNode = this.getCurrentNode();
+
+	if (currentNode.getHints() != null && currentNode.getHints().length > 0) {
+		//check if the showflaggedwork div exists
+	    if($('#hintsPanel').size()==0){
+	    	//the show hintsDiv does not exist so we will create it
+	    	$('<div id="hintsPanel" style="text-align:left"></div>').dialog(
+	    			{	autoOpen:false,
+	    				closeText:'',
+	    				width:500,
+	    				height:400,
+	    				modal:false,
+	    				title:'Hints',
+	    				zindex:9999, 
+	    				left:0, 
+	    				position:["center","top"]
+	    			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+	    			    // before the dialog closes, save hintstate
+	    		    	if ($(this).data("dialog").isOpen()) {	    		    		
+	    		    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
+	    		    		event.data.view.pushHintState(hintState);
+	    		    		console.log('close hint');
+	    		    	};
+	    		    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+    		    		var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
+    		    		event.data.view.pushHintState(hintState);
+	    		    	console.log('tab selected'+ui.index);
+	    		    });
+	    };
+	    
+	    // append hints into one html string
+	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
+	    var hintsStringPart2 = "";   // second part will be the content within each tab
+	    var hintsArr = currentNode.getHints();
+	    for (var i=0; i< hintsArr.length; i++) {
+	    	var currentHint = hintsArr[i];
+	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
+	    	hintsStringPart2 += "<div id='tabs-"+i+"'><p>"+currentHint+"</p></div>";
+	    }
+	    hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
+
+	    hintsString = "<div id='hintsTabs'>" + hintsStringPart1 + hintsStringPart2 + "</div>";
+	    //set the html into the div
+	    $('#hintsPanel').html(hintsString);
+	    
+	    //make the div visible
+	    $('#hintsPanel').dialog('open');
+
+	    // instantiate tabs 
+		$("#hintsTabs").tabs();
+		
+		// log when hint was opened
+    	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
+    	currentNode.view.pushHintState(hintState);
+		console.log('open hint');
+	};
+};
 /**
  * Display the flagged work for the project.
  */

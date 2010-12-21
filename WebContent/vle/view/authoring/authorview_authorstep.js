@@ -200,6 +200,125 @@ View.prototype.refreshNow = function(){
 };
 
 /**
+ * saves hints to local var
+ */
+View.prototype.saveHint = function(){	
+    var currentNode = this.activeNode;    
+    var hintTextBoxes = $('#hintsTabs').find("textarea");
+    
+    var newHintsArr = [];
+    for(var i=0; i<hintTextBoxes.length; i++) {
+    	newHintsArr.push(hintTextBoxes[i].value);
+    }    
+    this.activeContent.getContentJSON().hints = newHintsArr;
+};
+
+/**
+ * saves all hints for current node to server
+ */
+View.prototype.saveHints = function(){	
+	this.saveHint();    
+    eventManager.fire("saveStep");
+};
+
+/**
+ * Add new hint to the current node
+ */
+View.prototype.addHint = function(){
+    var currentNode = this.activeNode;
+    var hintsArr = currentNode.getHints();
+    hintsArr.push("new hint");
+    
+    eventManager.fire("editHints", [hintsArr.length-1]);
+};
+
+/**
+ * Deletes the currently opened hint for the current node
+ * after deletion, show the next hint if exists. if not exists, show the previous hint
+ */
+View.prototype.deleteHint = function(){
+	// get index of currently-opened tab
+	var selectedIndex = $('#hintsTabs').tabs('option', 'selected');
+	
+    var currentNode = this.activeNode;
+    var hintsArr = currentNode.getHints();
+    hintsArr.splice(selectedIndex, 1);
+    
+    var newTabIndex = 0;  // which tab to open
+    if (selectedIndex >= hintsArr.length) {
+    	newTabIndex = hintsArr.length - 1;
+    } else {
+    	newTabIndex = selectedIndex;
+    };
+    eventManager.fire("editHints", [newTabIndex]);
+};
+
+/**
+ * opens editHint window
+ * @tabIndex which tab index to open
+ */
+View.prototype.editHints = function(tabIndex){
+     var currentNode = this.activeNode;
+	 if($('#editHintsPanel').size()==0){
+	    	//the show hintsDiv does not exist so we will create it
+	    	$('<div id="editHintsPanel" style="text-align:left"></div>').dialog(
+	    			{	autoOpen:false,
+	    				closeText:'',
+	    				width:500,
+	    				height:400,
+	    				modal:false,
+	    				title:'Hints',
+	    				zIndex:3000, 
+	    				left:0, 
+	    				position:["center","top"]
+	    			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+	    			    // before the dialog closes, save hintstate
+	    		    	if ($(this).data("dialog").isOpen()) {	    		    		
+	    		    		//var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
+	    		    		//event.data.view.pushHintState(hintState);
+	    		    		console.log('close hint');
+	    		    	};
+	    		    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+	    		    	//var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
+	    		    	//event.data.view.pushHintState(hintState);
+	    		    	console.log('tab selected'+ui.index);
+	    		    });
+	    };
+	    
+	    // append hints into one html string
+	    var editHintsMenu = "<input type='button' value='add new hint' onclick='eventManager.fire(\"addHint\")'></input>"+
+	    	"<input type='button' value='delete current hint' onclick='eventManager.fire(\"deleteHint\")'></input>" +
+	    	"<input type='button' value='save hints' onclick='eventManager.fire(\"saveHints\")'></input>";      // menu for editing hints
+	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
+	    var hintsStringPart2 = "";   // second part will be the content within each tab
+	    // if there are no hints, make them
+	    if (currentNode.getHints() == null) {
+	    	if (currentNode.content &&
+	    			currentNode.content.getContentJSON()) {
+	    		currentNode.content.getContentJSON().hints = [];
+	    	}
+	    };
+	    var hintsArr = currentNode.getHints();
+	    for (var i=0; i< hintsArr.length; i++) {
+	    	var currentHint = hintsArr[i];
+	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
+	    	hintsStringPart2 += "<div id='tabs-"+i+"'><textarea class='hintTextBox' onblur='eventManager.fire(\"saveHint\")'>"+currentHint+"</textarea></div>";
+	    }
+	    hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
+
+	    hintsString = "<div id='hintsTabs'>" + editHintsMenu + hintsStringPart1 + hintsStringPart2 + "</div>";
+	    //set the html into the div
+	    $('#editHintsPanel').html(hintsString);
+	    
+		console.log('open hint editor');
+	    //make the div visible
+	    $('#editHintsPanel').dialog('open');
+
+	    // instantiate tabs 
+		$("#hintsTabs").tabs({selected:tabIndex});		
+};
+
+/**
  * saves the currently open step's content and calls individual step type's
  * save function so that any other tasks can be done at that time.
  * @param close

@@ -1739,3 +1739,8 @@ div#toolsAreaAuthor {
 .reviewUpdateNodeChanged {
 	color:red
 }
+
+.hintTextBox {
+	height:200px;
+	width:400px;	
+}
