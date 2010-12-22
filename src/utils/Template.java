@@ -154,7 +154,7 @@ public final class Template {
 		starterSentence.put("sentence", "");
 		
 		node.put("type","OpenResponse");
-		node.put("isRichTextEditorAllowed", true);
+		node.put("isRichTextEditorAllowed", false);
 		node.put("assessmentItem", assessmentItem);
 		node.put("starterSentence", starterSentence);
 		return node;

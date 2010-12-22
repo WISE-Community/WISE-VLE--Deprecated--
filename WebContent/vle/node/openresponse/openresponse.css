@@ -35,11 +35,11 @@
 	font-style:italic;
 }
 
-#promptContainer {
+#promptContainer, .promptContainer {
 	color:#000;
 	font-size:.9em;
-	margin:3px 10px 25px 15px;
-	padding: 8px;
+	margin:3px 10px 15px 15px;
+	padding: 5px;
 	border:1px solid #a97e46;
 	line-height:130%;
 	-moz-border-radius:3px;
@@ -57,7 +57,7 @@
 
 #orPromptDiv, #promptdiv tt, #promptdiv code {
 	font-weight:bold;
-	margin: 0 0 .25em .5em;
+	margin: .25em .5em;
 }
 #promptdiv a:link, #promptdiv a:visited {
 	color:#000;
@@ -100,9 +100,6 @@
 	margin: 0 auto;
 	padding:10px 0;
 	text-align:left;
-	}
-	
-#currentQuestionBox { 
 	width:100%;
 	}
 	
@@ -135,12 +132,22 @@
 	margin:0.25em 0.5em;
 }
 	
-#responsebox {
-	height: 180px;
+.responseBox, .noteResponseBox {
     line-height: 1.2em;
     margin: 0;
     padding: 10px;
     width: 100%;
+    max-width:100%;
+    min-width:100%;
+}
+
+.responseBox {
+	height: 180px;
+	max-height:300px;
+}
+
+.noteResponseBox {
+    max-height:200px;
 }
 
 textarea:disabled {
@@ -212,14 +219,14 @@ textarea:focus {
 	color:blue;
 }
 	
-#starterSentenceDiv {
+.starterSentence {
 	float:right;
-	margin-right:42px;
+	margin-right:6px;
 	margin-bottom:2px;
-	font-size:.6em;
+	font-size:.7em;
 }
 
-#starterSentenceDiv a {
+.starterSentence a {
 	background-image:url(../../images/gradient-gray-button.png);
 	background-position:top center;
 	background-repeat:repeat-x;

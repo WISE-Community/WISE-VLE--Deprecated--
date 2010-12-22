@@ -47,6 +47,10 @@ NoteNode.prototype.render = function(contentPanel, studentWork){
 	
 	/* show the note panel */
 	$('#notePanel').dialog('open');
+	
+	//apply iframe draggable fix
+	$(".ui-draggable").draggable( "option", "iframeFix", true );
+	$( ".ui-draggable" ).resizable( "option", "ghost", true );
 };
 
 /**

@@ -35,31 +35,31 @@ View.prototype.utils.closeDialog = function(name){
  * @param panel - the panel that we want to resize
  */
 View.prototype.utils.resizePanel = function(panelname, size){
-	var maxHeight = $(window).height()*.97;
-	var maxWidth = $(window).width()*.97;
-	var centeredTop = $(window).height()/2-maxHeight/2-4;
+	var maxHeight = $(window).height()*.97-10;
+	var maxWidth = $(window).width()*.98-4;
+	var centeredTop = $(window).height()/2-maxHeight/2-6;
 	var centeredLeft = $(window).width()/2-maxWidth/2-4;
 	var titlebarHeight = $("#" + panelname).prev().height();
 	
 	if(size == "minimize") {
 		//resize the note to only display the resize buttons
-		$('#' + panelname).parent().css({height:'100px',width:'430px'});
+		$('#' + panelname).parent().css({width:'430px'});
 		$("#" + panelname).css({height:100-titlebarHeight + 'px'});
 	} else if(size == "original") {
 		//resize the note to display all the note elements easily
-		$('#' + panelname).parent().css({height:'450px',width:'650px'});
-		$("#" + panelname).css({height:450-titlebarHeight + 'px'});
+		$('#' + panelname).parent().css({width:'650px'});
+		$("#" + panelname).css({height:'auto'});
 	} else if(size == "narrow") {
 		//resize the note to fit over the left nav area
-		$('#' + panelname).parent().css({height:maxHeight + 'px',width:'215px', top:centeredTop + 'px'});
+		$('#' + panelname).parent().css({width:'215px', height:'auto', top:centeredTop-4 + 'px'});
 		$("#" + panelname).css({height:maxHeight-titlebarHeight + 'px'});
 	} else if(size == "wide") {
 		//resize the note to be short and wide
-		$('#' + panelname).parent().css({height:'200px',width:maxWidth + 'px', left:centeredLeft + 'px'});
-		$("#" + panelname).css({height:200-titlebarHeight + 'px'});
+		$('#' + panelname).parent().css({width:maxWidth + 'px', height:'auto', left:centeredLeft + 'px'});
+		$("#" + panelname).css({height:'200px'});
 	} else if(size == "maximize") {
 		//resize the note to fit over the whole vle
-		$('#' + panelname).parent().css({height:maxHeight + 'px', width:maxWidth + 'px', top:centeredTop + 'px', left:centeredLeft + 'px'});
+		$('#' + panelname).parent().css({width:maxWidth + 'px', top:centeredTop-4 + 'px', height:'auto', left:centeredLeft + 'px'});
 		$("#" + panelname).css({height:maxHeight-titlebarHeight + 'px'});
 	}
 };
