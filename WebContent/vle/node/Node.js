@@ -165,7 +165,7 @@ Node.prototype.preloadContent = function(){
 			this.baseHtmlContent.getContentString();
 		} else {
 			/* create the content object */
-			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src));
+			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src, this));
 				
 			/* change filename url for the modules if this is a MySystemNode */
 			if(this.type == 'MySystemNode'){
@@ -224,7 +224,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 	} else {
 		/* if baseHtmlContent has not already been created, create it now */
 		if(!this.baseHtmlContent){
-			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src));
+			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src, this));
 			
 			/* change filename url for the modules if this is a MySystemNode */
 			if(this.type == 'MySystemNode'){
@@ -498,7 +498,9 @@ Node.prototype.injectBaseRef = function(content) {
 		// no injection needed because base is already in the html
 		return content;
 	} else {
-		var contentBaseUrl = "";
+		// NATE did this...  to check for node specific base urls
+		// var contentBaseUrl = "";
+		var cbu = "";   
 		
 		if(this.view.authoringMode) {
 			/*
@@ -507,17 +509,20 @@ Node.prototype.injectBaseRef = function(content) {
 			 * when previewing a project in the authoring tool we use the
 			 * else case below.
 			 */
-			contentBaseUrl = this.getAuthoringModeContentBaseUrl();
+			cbu = this.getAuthoringModeContentBaseUrl();
+		} else if (this.ContentBaseUrl) {
+			// NATE screwed with this also
+			cbu = this.ContentBaseUrl;
 		} else {
 			//get the content base url
-			contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');			
+			cbu = this.view.getConfig().getConfigParam('getContentBaseUrl');			
 		}
 
 		//add any missing html, head or body tags
 		content = this.addMissingTags(content);
 		
 		//create the base tag
-		var baseRefTag = "<base href='" + contentBaseUrl + "'/>";
+		var baseRefTag = "<base href='" + cbu + "'/>";
 
 		//get the content in all lowercase
 		var contentToLowerCase = content.toLowerCase();

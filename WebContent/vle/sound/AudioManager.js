@@ -211,7 +211,13 @@ AudioManager.prototype.setCurrentNode = function(node) {
 //		var audioText = $(audioElement).text();
 		var audioElementId = $(audioElement).attr("audio");
 		var audioTextMD5 = MD5(audioText);
-		var contentBaseUrl = node.view.getConfig().getConfigParam('getContentBaseUrl');
+		// NATE!!  / ugg, this should be centralized...
+		var contentBaseUrl; 
+		if (node.ContentBaseUrl) {
+		    contentBaseUrl = node.ContentBaseUrl;
+		} else {
+		    contentBaseUrl = node.view.getConfig().getConfigParam('getContentBaseUrl');
+		}
 		var audioBaseUrl = contentBaseUrl + "/audio"; 
 		var audioUrl = audioBaseUrl + "/audio_"+audioTextMD5+".mp3";
 		var nodeAudioId = this.currentNode.id + "." + audioElementId;

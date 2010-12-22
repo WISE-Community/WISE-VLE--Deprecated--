@@ -594,13 +594,18 @@ BRAINSTORM.prototype.injectBaseRef = function(content){
 	if (content.search(/<base/i) > -1) {
 		// no injection needed because base is already in the html
 		return content;
-	} else {		
+	} else {
+	    // NATE!!
+	    var cbu = contentBaseUrl;
+	    if (this.node.ContentBaseUrl) {
+	        cbu = this.node.ContentBaseUrl;
+	    }
 		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
 		
 		if(window.parent.vle){
-			var baseRefTag = "<base href='" + window.parent.vle.project.contentBaseUrl + "'/>";
+			var baseRefTag = "<base href='" + window.parent.vle.project.cbu + "'/>";
 		} else if(typeof vle!='undefined'){
-			var baseRefTag = "<base href='" + vle.project.contentBaseUrl + "'/>";
+			var baseRefTag = "<base href='" + vle.project.cbu + "'/>";
 		} else {
 			return content;
 		};

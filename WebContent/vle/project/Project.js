@@ -88,12 +88,17 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						} else {
 							thisNode.className = currNode['class'];
 						}
+						
+						// NATE!
+						if(currNode['ContentBaseUrl']) {
+						    thisNode.ContentBaseUrl = currNode['ContentBaseUrl'];
+						}
 
 						/* validate filename reference attribute */
 						if(!currNode.ref || currNode.ref==''){
 							view.notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
 						} else {
-							thisNode.content = createContent(makeUrl(currNode.ref));
+							thisNode.content = createContent(makeUrl(currNode.ref, thisNode));
 						}
 						
 						//set the peerReview attribute if available
@@ -257,15 +262,23 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		};
 		
 		/* Given the filename, returns the url to retrieve the file */
-		var makeUrl = function(filename){
-			if (contentBaseUrl != null) {
-				if(contentBaseUrl.lastIndexOf('\\')!=-1){
-					return contentBaseUrl + '\\' + filename;
-				} else {
-					return contentBaseUrl + '/' + filename;
-				};
-			};
-			return filename;
+		// NATE! added node optional parameter, to override global content base url
+		var makeUrl = function(filename, nodeOrString){
+		    var cbu = contentBaseUrl;
+		    if (nodeOrString !== undefined) {
+		        if (typeof(nodeOrString) == "string") {
+		            cbu = nodeOrString;
+		        } else if (nodeOrString.ContentBaseUrl) {
+		            cbu = nodeOrString.ContentBaseUrl;
+		        }
+		    }
+            if (cbu.lastIndexOf('\\') != -1) {
+                return cbu + '\\' + filename;
+            } else if (cbu) {
+                return cbu + '/' + filename;
+            } else {
+                return filename;
+            }
 		};
 		
 		/*
@@ -1611,8 +1624,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			addCopyId:function(id){addCopyId(id);},
 			/* Returns an object representation of this project */
 			projectJSON:function(){return projectJSON();},
-			/* Given the filename, returns the url to retrieve the file */
-			makeUrl:function(filename){return makeUrl(filename);},
+            /* Given the filename, returns the url to retrieve the file NATE did something here */
+            makeUrl:function(filename, node){return makeUrl(filename, node);},
 			/* Given the nodeId, returns the prompt for that step */
 			getNodePromptByNodeId:function(nodeId){return getNodePromptByNodeId(nodeId);},
 			/* Sets the post level for this project */
