@@ -48,7 +48,7 @@ View.prototype.pausecomp = function(millis) {
  * update the audio (request from authoring tool)
  */
 View.prototype.createAudioManagerOnProjectLoad = function() {
-    if (this.config.getConfigParam('useAudio') == "true") {
+    if (this.config.getConfigParam('enableAudio')) {
         if (!(this.audioManager)) {
             // used to enter here if this.config.getConfigParam('updateAudio')
             // as well... no longer
