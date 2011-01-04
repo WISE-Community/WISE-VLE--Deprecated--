@@ -239,15 +239,25 @@
 		<servlet-name>converter</servlet-name>
 		<url-pattern>/util/convert.html</url-pattern>
 	</servlet-mapping>
-	
-	  <servlet>
-	  	<servlet-name>modemaster</servlet-name>
-	  	<servlet-class>utils.ModeMaster</servlet-class>
-	  	<load-on-startup>1</load-on-startup>
-	  </servlet>
-	  
-	  <servlet-mapping>
-	  	<servlet-name>modemaster</servlet-name>
-	  	<url-pattern>/modemaster.html</url-pattern>
-	  </servlet-mapping>
+
+	<servlet>
+		<servlet-name>modemaster</servlet-name>
+		<servlet-class>utils.ModeMaster</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>modemaster</servlet-name>
+		<url-pattern>/modemaster.html</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ideabasket</servlet-name>
+		<servlet-class>vle.web.VLEIdeaBasketController</servlet-class>
+	</servlet>
+  
+	<servlet-mapping>
+		<servlet-name>ideabasket</servlet-name>
+		<url-pattern>/ideaBasket.html</url-pattern>
+	</servlet-mapping>
 </web-app>
