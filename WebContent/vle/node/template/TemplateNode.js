@@ -152,8 +152,10 @@ TemplateNode.prototype.onExit = function() {
  * uses the same ids as the show flagged work div
  * 
  * TODO: rename TemplateNode
- * Note: you may need to modify the code in this function if the student
- * data for your step is complex or requires additional processing
+ * Note: you may need to add code to this function if the student
+ * data for your step is complex or requires additional processing.
+ * look at SensorNode.renderGradingView() as an example of a step that
+ * requires additional processing
  */
 TemplateNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix) {
 	/*
