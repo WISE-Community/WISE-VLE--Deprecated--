@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core','keystroke','config','user','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper'],
+		vle: ['topMenu','setup', 'core','keystroke','config','user','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket'],
 		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'grading', 'annotations', 'maxscores'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
@@ -699,7 +699,13 @@ var componentloader = function(em, sl){
 					'displayProgress':[null,null],
 					'showFlaggedWork':[null,null],
 					'showStepHints':[null,null],
-					'showNavigationTree':[null,null]},
+					'showNavigationTree':[null,null],
+					'openAddAnIdeaDialog':[null,null],
+					'openIdeaBasket':[null,null],
+					'addIdeaToBasket':[null,null],
+					'moveIdeaToTrash':[null,null],
+					'moveIdeaOutOfTrash':[null,null]
+			},
 			methods:{},
 			initialize:{
 				init:function(view){
@@ -709,6 +715,11 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showStepHints', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showNavigationTree', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('openAddAnIdeaDialog', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('openIdeaBasket', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('addIdeaToBasket', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);
 				}
 			}
 		},
@@ -718,6 +729,7 @@ var componentloader = function(em, sl){
 		messagemanager:{},
 		wise:{},
 		peerreviewhelper:{},
+		ideabasket:{},
 		authoringcomponents:{
 			variables:{
 				updatePromptAfterPreview:false

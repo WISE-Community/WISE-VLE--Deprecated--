@@ -81,6 +81,12 @@ function bootstrapListener(type,args,obj){
             <div id="projectRightUpperBox">
                 <div id="stepNavButtons1">
                     <ul>
+                    	<li>
+                    		<a onclick='eventManager.fire("openIdeaBasket")' title="Idea Basket">Idea Basket</a>
+                    	</li>
+                    	<li>
+                    		<a onclick='eventManager.fire("openAddAnIdeaDialog")' title="Add an Idea">Add an Idea</a>
+                    	</li>
                         <li>
                             <a onclick='eventManager.fire("renderPrevNode")' title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
                         </li>

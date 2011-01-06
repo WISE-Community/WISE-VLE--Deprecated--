@@ -20,18 +20,9 @@ public class VLEIdeaBasketController extends HttpServlet {
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {
-		String runId = request.getParameter("runId");
-		String workgroupId = request.getParameter("workgroupId");
-		IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
-		
-	}
-
-	public void doGet(HttpServletRequest request,
-			HttpServletResponse response)
-	throws ServletException, IOException {
 		//get all the params
 		String runId = request.getParameter("runId");
-		String workgroupId = request.getParameter("workgroupId");
+		String workgroupId = (String) request.getAttribute("workgroupId");
 		String action = request.getParameter("action");
 		String ideaId = request.getParameter("ideaId");
 		String text = request.getParameter("text");
@@ -42,7 +33,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 		String flag = request.getParameter("flag");
 		String basketOrder = request.getParameter("basketOrder");
 		String trashOrder = request.getParameter("trashOrder");
-		String projectId = request.getParameter("projectId");
+		String projectId = (String) request.getAttribute("projectId");
 		
 		//get the IdeaBasket
 		IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
@@ -55,13 +46,9 @@ public class VLEIdeaBasketController extends HttpServlet {
 		
 		if(action == null) {
 			
-		} else if(action.equals("getIdeaBasket")) {
-			//get the IdeaBasket JSONString
-			String ideaBasketJSONString = ideaBasket.toJSONString();
-			response.getWriter().print(ideaBasketJSONString);
 		} else if(action.equals("addIdea")) {
 			//add an idea to the basket
-			Idea idea = new Idea(text);
+			Idea idea = new Idea(text, nodeId, nodeName, tag, flag);
 			idea.saveOrUpdate();
 			
 			ideaBasket.addIdea(idea);
@@ -124,6 +111,31 @@ public class VLEIdeaBasketController extends HttpServlet {
 			//take the idea out of the trash and back into the ideas array
 			Idea idea = Idea.getIdeaById(new Long(ideaId));
 			ideaBasket.unTrashIdea(idea);
+		}
+	}
+
+	public void doGet(HttpServletRequest request,
+			HttpServletResponse response)
+	throws ServletException, IOException {
+		//get all the params
+		String runId = request.getParameter("runId");
+		String workgroupId = (String) request.getAttribute("workgroupId");
+		String action = request.getParameter("action");
+		String projectId = (String) request.getAttribute("projectId");
+		
+		//get the IdeaBasket
+		IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
+		
+		if(ideaBasket == null) {
+			//make the IdeaBasket if it does not exist
+			ideaBasket = new IdeaBasket(new Long(runId), new Long(projectId), new Long(workgroupId));
+			ideaBasket.saveOrUpdate();
+		}
+		
+		if(action.equals("getIdeaBasket")) {
+			//get the IdeaBasket JSONString
+			String ideaBasketJSONString = ideaBasket.toJSONString();
+			response.getWriter().print(ideaBasketJSONString);
 		}
 	}
 }

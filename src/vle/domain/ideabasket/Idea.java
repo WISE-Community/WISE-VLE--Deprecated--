@@ -110,9 +110,17 @@ public class Idea extends PersistableDomain implements Serializable {
 	/**
 	 * constructor that sets the text
 	 * @param text the text for the idea that the student wrote
+	 * @param nodeId the id of the node in the project
+	 * @param nodeName the name of the node in the project (e.g. the step name)
+	 * @param tag a basic tag to specify what this idea is related to (e.g. tires or plastic)
+	 * @param flag question mark, exclamation, check, or star
 	 */
-	public Idea(String text) {
+	public Idea(String text, String nodeId, String nodeName, String tag, String flag) {
 		this.text = text;
+		this.nodeId = nodeId;
+		this.nodeName = nodeName;
+		this.tag = tag;
+		this.flag = flag;
 	}
 	
 	public Long getId() {

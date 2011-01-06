@@ -320,7 +320,8 @@ var scriptloader = function(){
                 'vle/view/authoring/components/authorview_startersentenceauthoring.js'],
         premadecomments:['vle/jquery/js/jquery-1.4.2.min.js',
                          'vle/jquery/js/jquery.editinplace.js',
-                         'vle/jquery/js/jquery-ui-1.8.custom.min.js']
+                         'vle/jquery/js/jquery-ui-1.8.custom.min.js'],
+        ideabasket:['vle/jquery/js/jquery.editinplace.js']
 	};
 	
 	/**

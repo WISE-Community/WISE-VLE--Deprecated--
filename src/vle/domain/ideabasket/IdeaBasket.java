@@ -101,6 +101,8 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		Long basketPosition = idea.getBasketPosition();
 		
 		if(basketPosition != null) {
+			//remove the idea from the ideas
+			
 			//get the position of the idea within the ideas array
 			int ideaPosition = (int) (basketPosition - 1);
 			
@@ -114,14 +116,19 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 			idea.setIdeaBasket(null);
 		}
 		
-		//add the idea to the trash array
-		trash.add(idea);
-		
-		//set the basket
-		idea.setIdeaBasketTrash(this);
-		
-		//set the trash flag to true
-		idea.setTrash(true);
+		//check if the idea is already in the trash
+		if(!trashContainsIdea(idea)) {
+			//idea is not in the trash so we will now put it in the trash
+			
+			//add the idea to the trash array
+			trash.add(idea);
+			
+			//set the basket
+			idea.setIdeaBasketTrash(this);
+			
+			//set the trash flag to true
+			idea.setTrash(true);
+		}
 
 		//save changes back to the db
 		saveOrUpdate();
@@ -136,6 +143,8 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		Long trashPosition = idea.getTrashPosition();
 		
 		if(trashPosition != null) {
+			//remove the idea from the trash
+			
 			//get the position of the idea in the trash array
 			int ideaPosition = (int) (trashPosition - 1);
 			
@@ -149,17 +158,70 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 			idea.setIdeaBasketTrash(null);
 		}
 		
-		//add the idea to the ideas array
-		ideas.add(idea);
-		
-		//set the basket
-		idea.setIdeaBasket(this);
-		
-		//set the trash flag to false
-		idea.setTrash(false);
+		//check if the idea is already in the ideas list
+		if(!ideasContainsIdea(idea)) {
+			//the idea is not in the ideas list so we will not add it
+			
+			//add the idea to the ideas array
+			ideas.add(idea);
+			
+			//set the basket
+			idea.setIdeaBasket(this);
+			
+			//set the trash flag to false
+			idea.setTrash(false);			
+		}
 
 		//save changes back to the db
 		saveOrUpdate();
+	}
+	
+	/**
+	 * Check if the idea is in the ideas list
+	 * @param idea the Idea we want to check
+	 * @return whether the idea is in the ideas list or not
+	 */
+	private boolean ideasContainsIdea(Idea idea) {
+		return listContainsIdea(ideas, idea);
+	}
+	
+	/**
+	 * Check if the idea is in the trash list
+	 * @param idea the Idea we want to check
+	 * @return whether the idea is in the trash list or not
+	 */
+	private boolean trashContainsIdea(Idea idea) {
+		return listContainsIdea(trash, idea);
+	}
+	
+	/**
+	 * Check if the idea is in the list
+	 * @param list the list to check
+	 * @param idea the idea to check
+	 * @return whether the idea is in the list or not
+	 */
+	private boolean listContainsIdea(List<Idea> list, Idea idea) {
+		
+		//loop through all the elements in the list
+		for(int x=0; x<list.size(); x++) {
+			//get an Idea from the list
+			Idea tempIdea = list.get(x);
+			
+			//get the id of the idea from the list
+			Long tempIdeaId = tempIdea.getId();
+			
+			//get the id of the idea
+			Long ideaId = idea.getId();
+			
+			//check if the ids are the same
+			if(ideaId.equals(tempIdeaId)) {
+				//we found the id in the list so we will return true
+				return true;
+			}
+		}
+		
+		//we did not find the idea in the list so we will return false
+		return false;
 	}
 	
 	/**
