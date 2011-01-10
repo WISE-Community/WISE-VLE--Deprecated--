@@ -603,19 +603,53 @@ View.prototype.openIdeaBasket = function() {
 	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.displayIdeaBasket, {thisView:this});
 };
 
-/**
- * The callback function for when we receive the idea basket from the server
- * @param responseText the idea basket as a JSON string
- * @param responseXML
- * @param args contains the view so we can have access to it if necessary
- */
 View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	var thisView = args.thisView;
 	
 	//check if the ideaBasketDiv exists
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it
-    	$('<div id="ideaBasketDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:600,height:400,modal:false,title:'Idea Basket',position:[300,40]});
+		$('#w4_vle').append('<div id="ideaBasketDiv""></div>');
+		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasket" width="95%" height="95%"></iframe>');
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:thisView.ideaBasketDivClose});
+		//$('#ideaBasketDiv').bind('dialogclose', {thisView:thisView}, this);
+    }
+	
+	$('#ideaBasketDiv').dialog('open');
+	
+	if(window.frames['ideaBasket'].thisView == null) {
+		window.frames['ideaBasket'].thisView = thisView;
+	}
+	
+	if(window.frames['ideaBasket'].eventManager == null) {
+		window.frames['ideaBasket'].eventManager = eventManager;		
+	}
+	
+	if($('#ideaBasketIfrm').attr('src') == null) {
+		$('#ideaBasketIfrm').attr('src', "ideaManager.html");		
+	} else {
+		window.frames['ideaBasket'].retrieveIdeaBasket();
+	}
+};
+
+View.prototype.ideaBasketDivClose = function() {
+	window.frames['ideaBasket'].basket.saveOrder();
+};
+
+/**
+ * The callback function for when we receive the idea basket from the server
+ * @param responseText the idea basket as a JSON string
+ * @param responseXML
+ * @param args contains the view so we can have access to it if necessary
+ */
+View.prototype.displayIdeaBasket2 = function(responseText, responseXML, args) {
+	var thisView = args.thisView;
+	
+	//check if the ideaBasketDiv exists
+	if($('#ideaBasketDiv').size()==0){
+		//it does not exist so we will create it
+    	//$('<div id="ideaBasketDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:600,height:400,modal:false,title:'Idea Basket',position:[300,40]});
+		$('<div id="ideaBasketDiv" style="text-align:left"><ifrm id="ideaBasketIfrm" width="100%"></ifrm></div>').dialog({autoOpen:false,closeText:'',width:600,height:400,modal:false,title:'Idea Basket',position:[300,40]});
     }
 	
 	//parse the idea basket

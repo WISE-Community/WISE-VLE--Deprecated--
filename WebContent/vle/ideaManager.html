@@ -1,0 +1,246 @@
+<!doctype html>  
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ --> 
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame 
+       Remove this if you use the .htaccess -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <!-- encoding must be specified within the first 512 bytes www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#charset -->
+
+  <!-- meta element for compatibility mode needs to be before all elements except title & meta msdn.microsoft.com/en-us/library/cc288325(VS.85).aspx --> 
+  <!-- Chrome Frame is only invoked if meta element for compatibility mode is within the first 1K bytes code.google.com/p/chromium/issues/detail?id=23003 -->    
+
+
+  <title>WISE4 Idea Manager (Basket)</title>
+  <meta name="description" content="Prototype of WISE4 Idea Manager Tool (Idea Basket view)">
+  <meta name="author" content="Jonathan Breitbart">
+
+  <!--  Mobile viewport optimized: j.mp/bplateviewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Place favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+  <!-- CSS : implied media="all" -->
+  <link rel="stylesheet" href="css/ideaManager/blue/style.css">
+  <link rel="stylesheet" href="css/ideaManager/style.css?v=2">
+  <link rel="stylesheet" href="css/ideaManager/custom-theme/jquery-ui-1.8.7.custom.css">
+  <link rel="stylesheet" href="css/ideaManager/jquery-validate/cmxformTemplate.css">
+
+  <!-- Uncomment if you are specifically targeting less enabled mobile browsers
+  <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">  -->
+ 
+  <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects 
+  <script src="js/libs/modernizr-1.6.min.js"></script> -->
+
+</head>
+
+<body>
+	
+	<div id="container">
+		<header>
+			<h3>Idea Basket</h3>
+		</header>
+		  
+		<div id="main" role="main">
+			<button id="addNew" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+				<span class="ui-button-text">Add New Idea +</span>
+			</button>
+			<div id='ideas'>
+				<table id='basketIdeas' class='tablesorter' cellspacing='1'>
+					<thead>
+						<tr>
+							<th class='ideas' title='Click to sort'>Your Ideas</th>
+							<th class='source' title='Click to sort'>Source</th>
+							<th class='tags' title='Click to sort'>Tags</th>
+							<th class='flag' title='Click to sort'>Flag</th>
+							<th class='delete'>Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+				<div id='ideasEmpty' class='empty'>Your Idea Basket is empty.  Click 'Add New Idea' above to start adding ideas.</div>
+			</div>
+			
+			<div id='toggleDeleted'>
+				<img src='images/ideaManager/trash.png' alt='trash' /><span id='numDeleted' title='Show/Hide deleted ideas'>0 Deleted idea(s) </span><span id='showDeleted' title='Show/Hide deleted ideas'>(Click to show)</span><!--<img class='arrow' src='images/arrow.png' alt='arrow' />-->
+			</div>
+			
+			<div id='trash'>
+				<table id='basketDeleted' class='tablesorter' cellspacing='1'>
+					<thead>
+						<tr>
+							<th class='ideas' title='Click to sort'>Deleted Ideas</th>
+							<th class='source' title='Click to sort'>Source</th>
+							<th class='tags' title='Click to sort'>Tags</th>
+							<th class='flag' title='Click to sort'>Flag</th>
+							<th class='delete'>Restore</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+				
+				<div id='deletedEmpty' class='empty'>The trash is empty.</div>
+			</div>
+		</div>
+	
+		<footer>
+			<div id='admin'>
+				<span id='showAdmin'>Admin Tools</span>
+				<span id='adminLinks'>
+					<span id='clear'>Empty Basket</span><span id='export'>Export</span><span id='import'>Import</span>
+				</span>
+			</div>
+		</footer>
+	</div> <!--! end of #container -->
+	
+	<div id='ideaDialog'>
+		<form class="cmxform" id="ideaForm" method="get" action="">
+			<fieldset>
+					<p><label for="text">Type your idea here*:</label></p>
+					<p><textarea id="text" name="text" cols='2' class="required" minlength="2" maxlength="75"></textarea></p>
+					<p style:'height:24px; line-height:24px;'>
+						<label for="source">Source (choose one)*: </label>
+						<select id="source" name="source" class="required" style='height:24px;'>
+							<option value="Evidence Step">Evidence Step</option>
+						  <option value="Visualization or Model">Visualization or Model</option>
+						  <option value="Movie/Video">Movie/Video</option>
+						  <option value="Everyday Observation">Everyday Observation</option>
+						  <option value="School or Teacher">School or Teacher</option>
+						  <option value="Other">Other</option>
+						</select>
+					</p>
+					<p id='otherSource'><label for="other">Please specify*: </label><input id='other' name='other' size='25' minlength='2' maxlength='25'></textarea></p>
+					
+					<p><label for="tags">Tags (keywords): </label><input id='tags' name='tags' size='20' maxlength='20'></textarea></p>
+					<p>
+						<label for="flag">Flag (choose one)*: </label>
+						<input type="radio" name="flag" value="blank" class="required" checked style="margin-left:0;"><span style="vertical-align:top; line-height:24px;"> None</span>
+						<input type="radio" name="flag" value="important"><img src='images/ideaManager/important.png' alt='important' />
+						<input type="radio" name="flag" value="question"><img src='images/ideaManager/question.png' alt='question' />
+						<input type="radio" name="flag" value="check"><img src='images/ideaManager/check.png' alt='check' />
+					</p>
+			</fieldset>
+		</form>
+	</div>
+	
+	<div id='editDialog' style='display:none;'>
+		<form class="cmxform" id="editForm" method="get" action="">
+			<fieldset>
+					<p><label for="editText">Type your idea here*:</label></p>
+					<p><textarea id="editText" name="text" cols='2' class="required" minlength="2" maxlength="75"></textarea></p>
+					<p style:'height:24px; line-height:24px;'>
+						<label for="editSource">Source (choose one)*: </label>
+						<select id="editSource" name="editSource" class="required" style='height:24px;'>
+							<option value="Evidence Step">Evidence Step</option>
+						  <option value="Visualization or Model">Visualization or Model</option>
+						  <option value="Movie/Video">Movie/Video</option>
+						  <option value="Everyday Observation">Everyday Observation</option>
+						  <option value="School or Teacher">School or Teacher</option>
+						  <option value="Other">Other</option>
+						</select>
+					</p>
+					<p id='editOtherSource'><label for="editOther">Please specify*: </label><input id='editOther' name='editOther' size='25' minlength='2' maxlength='25'></textarea></p>
+					
+					<p><label for="editTags">Tags (keywords): </label><input id='editTags' name='editTags' size='20' maxlength='20'></textarea></p>
+					<p>
+						<label for="editFlag">Flag (choose one)*: </label>
+						<input type="radio" name="editFlag" value="blank" class="required" checked style="margin-left:0;"><span style="vertical-align:top; line-height:24px;"> None</span>
+						<input type="radio" name="editFlag" value="important"><img src='images/ideaManager/important.png' alt='important' />
+						<input type="radio" name="editFlag" value="question"><img src='images/ideaManager/question.png' alt='question' />
+						<input type="radio" name="editFlag" value="check"><img src='images/ideaManager/check.png' alt='check' />
+					</p>
+			</fieldset>
+		</form>
+	</div>
+	
+	<div id='deleteDialog' style='display:none; text-align:center;'>
+		<div class='ui-state-highlight' style="padding:.5em;"><span class="ui-icon ui-icon-info" style="margin-right: .3em; float:left;"></span><span>Are you sure you want to delete this idea?</span></div>
+		<div style="padding:.5em;">You can always retrieve it from the trash later on if you change your mind.</div>
+	</div>
+	
+	<div id='clearDialog' style='display:none; text-align:center;'>
+		<div class='ui-state-error' style="padding:.5em;"><span class="ui-icon ui-icon-alert" style="margin-right: .3em; float:left;"></span><span>Warning: This operation is permanent.</span></div>
+		<div style="padding:.5em;">Are you sure you want to delete <b>all</b> ideas from this Idea Basket?<br /><br />
+			This operation cannot be undone.  You can first backup this Idea Basket for future use by clicking on the "Export" link in the Admin Tools section.
+		</div>
+	</div>
+	
+	<div id='importDialog' style='display:none; text-align:center;'>
+		<div class='ui-state-error' style="padding:.5em;"><span class="ui-icon ui-icon-alert" style="margin-right: .3em; float:left;"></span><span>Warning: Importing will overwrite the current Idea Basket. This operation is permanent.</span></div>
+		<div style="padding:.5em;">If you would like, you can first backup the current Idea Basket for future use by clicking on the "Export" link in the Admin Tools section.
+		</div>
+		<div style='text-align:left; margin:.5em;'>
+			<form id="importForm" enctype="multipart/form-data" action="import.php" method="POST">
+				<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+				Choose a file: <input name="importFile" type="file" />
+			</form>
+		</div>
+	</div>
+	
+	<form action="export.php" method="post" id="exportForm" name="exportForm">
+		<input type="hidden" value="ideas" name="exportIdeas" id="exportIdeas" />
+		<input type="hidden" value="deleted" name="exportDeleted" id="exportDeleted" />
+		<input type="hidden" value="index" name="exportIndex" id="exportIndex" />
+	</form>
+
+
+  <!-- Javascript at the bottom for fast page loading -->
+
+  <!-- Grab Google CDN's jQuery & jQuery UI. fall back to local if necessary -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.4.4.min.js"%3E%3C/script%3E'))</script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-ui-1.8.7.custom.min.js"%3E%3C/script%3E'))</script>
+  <script src="jquery/js/jquery-validate/jquery.validate.pack.js"></script>
+  <script src="jquery/js/jquery.form.js"></script>
+  
+  
+  <!-- scripts concatenated and minified via ant build script-->
+  <script src="js/plugins.js"></script>
+  <!-- end concatenated and minified scripts-->
+  
+  <script src="jquery/js/jsonplugin.js"></script>
+  <script type="text/javascript" src="jquery/js/jquery.tablesorter.min.js"></script> 
+  <script src="ideaBasket/basket.js"></script>
+  <script src="ideaBasket/script.js"></script>
+  
+  <!--[if lt IE 7 ]>
+    <script src="js/libs/dd_belatedpng.js"></script>
+    <script>DD_belatedPNG.fix('img, .png_bg'); // Fix any <img> or .png_bg bg-images. Also, please read goo.gl/mZiyb </script>
+  <![endif]-->
+
+  <!-- yui profiler and profileviewer - remove for production -->
+  <!--<script src="js/profiling/yahoo-profiling.min.js"></script>
+  <script src="js/profiling/config.js"></script>-->
+  <!-- end profiling code -->
+
+
+  <!-- asynchronous google analytics: mathiasbynens.be/notes/async-analytics-snippet 
+       change the UA-XXXXX-X to be your site's ID -->
+  <!--<script>
+   var _gaq = [['_setAccount', 'UA-XXXXX-X'], ['_trackPageview']];
+   (function(d, t) {
+    var g = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+    g.async = true;
+    g.src = ('https:' == location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g, s);
+   })(document, 'script');
+  </script>-->
+  
+</body>
+</html>

@@ -80,6 +80,10 @@ public class Idea extends PersistableDomain implements Serializable {
 	@Column(name="text")
 	private String text;
 	
+	//the generic source of the idea chosen by the student
+	@Column(name="source")
+	private String source;
+
 	//the id of the node in the project
 	@Column(name="nodeId")
 	private String nodeId;
@@ -115,8 +119,9 @@ public class Idea extends PersistableDomain implements Serializable {
 	 * @param tag a basic tag to specify what this idea is related to (e.g. tires or plastic)
 	 * @param flag question mark, exclamation, check, or star
 	 */
-	public Idea(String text, String nodeId, String nodeName, String tag, String flag) {
+	public Idea(String text, String source, String nodeId, String nodeName, String tag, String flag) {
 		this.text = text;
+		this.source = source;
 		this.nodeId = nodeId;
 		this.nodeName = nodeName;
 		this.tag = tag;
@@ -157,6 +162,14 @@ public class Idea extends PersistableDomain implements Serializable {
 	
 	public String getType() {
 		return type;
+	}
+	
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 
 	public void setType(String type) {
@@ -236,6 +249,15 @@ public class Idea extends PersistableDomain implements Serializable {
 		return ideaBasketId;
 	}
 	
+	public void editIdea(String text, String source, String nodeId, String nodeName, String tag, String flag) {
+		this.text = text;
+		this.source = source;
+		this.nodeId = nodeId;
+		this.nodeName = nodeName;
+		this.tag = tag;
+		this.flag = flag;
+	}
+	
 	@Override
 	protected Class<?> getObjectClass() {
 		return Idea.class;
@@ -253,6 +275,7 @@ public class Idea extends PersistableDomain implements Serializable {
 			jsonObject.put("ideaBasketId", getIdeaBasketId());
 			jsonObject.put("type", getType());
 			jsonObject.put("text", getText());
+			jsonObject.put("source", getSource());
 			jsonObject.put("nodeId", getNodeId());
 			jsonObject.put("nodeName", getNodeName());
 			jsonObject.put("tag", getTag());

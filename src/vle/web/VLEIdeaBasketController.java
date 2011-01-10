@@ -26,6 +26,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 		String action = request.getParameter("action");
 		String ideaId = request.getParameter("ideaId");
 		String text = request.getParameter("text");
+		String source = request.getParameter("source");
 		String type = request.getParameter("type");
 		String nodeId = request.getParameter("nodeId");
 		String nodeName = request.getParameter("nodeName");
@@ -48,11 +49,17 @@ public class VLEIdeaBasketController extends HttpServlet {
 			
 		} else if(action.equals("addIdea")) {
 			//add an idea to the basket
-			Idea idea = new Idea(text, nodeId, nodeName, tag, flag);
+			Idea idea = new Idea(text, source, nodeId, nodeName, tag, flag);
 			idea.saveOrUpdate();
 			
 			ideaBasket.addIdea(idea);
 			ideaBasket.saveOrUpdate();
+			
+			response.getWriter().print(idea.getId());
+		} else if(action.equals("editIdea")) {
+			Idea idea = Idea.getIdeaById(new Long(ideaId));
+			idea.editIdea(text, source, nodeId, nodeName, tag, flag);
+			idea.saveOrUpdate();
 		} else if(action.equals("reOrderBasket")) {
 			//re-order the basket
 			if(basketOrder != null) {
