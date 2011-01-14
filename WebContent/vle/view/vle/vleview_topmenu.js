@@ -603,6 +603,12 @@ View.prototype.openIdeaBasket = function() {
 	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.displayIdeaBasket, {thisView:this});
 };
 
+/**
+ * Display the idea basket dialog popup
+ * @param responseText the JSON string representing the idea basket data
+ * @param responseXML
+ * @param args
+ */
 View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	var thisView = args.thisView;
 	
@@ -612,346 +618,43 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 		$('#w4_vle').append('<div id="ideaBasketDiv""></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasket" width="95%" height="95%"></iframe>');
 		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:thisView.ideaBasketDivClose});
-		//$('#ideaBasketDiv').bind('dialogclose', {thisView:thisView}, this);
     }
 	
+	//open the dialog
 	$('#ideaBasketDiv').dialog('open');
 	
 	if(window.frames['ideaBasket'].thisView == null) {
+		//set thisView so it is accessible within the iframe
 		window.frames['ideaBasket'].thisView = thisView;
 	}
 	
 	if(window.frames['ideaBasket'].eventManager == null) {
+		//set eventManager so it is accessible within the iframe
 		window.frames['ideaBasket'].eventManager = eventManager;		
 	}
 	
-	if($('#ideaBasketIfrm').attr('src') == null) {
-		$('#ideaBasketIfrm').attr('src', "ideaManager.html");		
-	} else {
-		window.frames['ideaBasket'].retrieveIdeaBasket();
-	}
-};
-
-View.prototype.ideaBasketDivClose = function() {
-	window.frames['ideaBasket'].basket.saveOrder();
-};
-
-/**
- * The callback function for when we receive the idea basket from the server
- * @param responseText the idea basket as a JSON string
- * @param responseXML
- * @param args contains the view so we can have access to it if necessary
- */
-View.prototype.displayIdeaBasket2 = function(responseText, responseXML, args) {
-	var thisView = args.thisView;
-	
-	//check if the ideaBasketDiv exists
-	if($('#ideaBasketDiv').size()==0){
-		//it does not exist so we will create it
-    	//$('<div id="ideaBasketDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:600,height:400,modal:false,title:'Idea Basket',position:[300,40]});
-		$('<div id="ideaBasketDiv" style="text-align:left"><ifrm id="ideaBasketIfrm" width="100%"></ifrm></div>').dialog({autoOpen:false,closeText:'',width:600,height:400,modal:false,title:'Idea Basket',position:[300,40]});
-    }
-	
-	//parse the idea basket
+	//set the idea basket into the iframe
 	var ideaBasket = $.parseJSON(responseText);
-	var ideas = [];
-	var trash = [];
+	window.frames['ideaBasket'].ideaBasket = ideaBasket;
 	
-	if(ideaBasket != null) {
-		//retrieve the ideas and trash arrays
-		ideas = ideaBasket.ideas;
-		trash = ideaBasket.trash;
+	if($('#ideaBasketIfrm').attr('src') == null) {
+		//set the src so it will load the ideaManager.html page
+		$('#ideaBasketIfrm').attr('src', "ideaManager.html");
 	}
-	
-	var ideaBasketHtml = "";
-	
-	//create the table that will display the header columns
-	ideaBasketHtml += "<table border='1'>";
-	ideaBasketHtml += "<tr>";
-	ideaBasketHtml += "<td width='200'>Your Ideas</td>";
-	ideaBasketHtml += "<td width='100'>Sources</td>";
-	ideaBasketHtml += "<td width='100'>Tag</td>";
-	ideaBasketHtml += "<td width='100'>Flag</td>";
-	ideaBasketHtml += "<td width='100'>Send to Trash</td>";
-	ideaBasketHtml += "</tr>";
-	ideaBasketHtml += "</table>";
-	
-	//create the sortable ul for the ideas
-	ideaBasketHtml += "<ul id='ideaBasketList'>";
-	
-	/*
-	 * loop through all the ideas backwards because we want the newer
-	 * ideas at the top and the older ideas at the bottom
-	 */
-	for(var x=ideas.length - 1; x>=0; x--) {
-		//get an idea
-		var idea = ideas[x];
+};
+
+/**
+ * Called when the idea basket dialog popup is closed
+ */
+View.prototype.ideaBasketDivClose = function() {
+	//check if the idea basket has changed
+	if(window.frames['ideaBasket'].basket.isBasketChanged()) {
+		//idea basket has changed so we will save it back to the server
+		window.frames['ideaBasket'].basket.saveIdeaBasket();
 		
-		//get the values for the idea
-		var ideaId = idea.id;
-		var text = idea.text;
-		var nodeName = idea.nodeName;
-		var tag = idea.tag;
-		var flag = idea.flag;
-		
-		//create the li for the idea
-		ideaBasketHtml += "<li id='ideaLI_" + ideaId + "'>";
-		ideaBasketHtml += "<table border='1'>";
-		ideaBasketHtml += "<tr>";
-		ideaBasketHtml += "<td width='200'><p id='ideaText_" + ideaId + "' class='ideaText'> " + text + "</p></td>";
-		ideaBasketHtml += "<td width='100'>" + nodeName + "</td>";
-		ideaBasketHtml += "<td width='100'><p id='ideaTag_" + ideaId + "' class='ideaTag'>" + tag + "</p></td>";
-		ideaBasketHtml += "<td width='100'><p id='ideaFlag_" + ideaId + "' class='ideaFlag'>" + flag + "</p></td>";
-		ideaBasketHtml += "<td width='100' id='ideaTrashTd_" + ideaId +"'><input id='ideaTrash_" + ideaId + "' type='button' value='Trash' onclick='eventManager.fire(\"moveIdeaToTrash\", [" + ideaId + "])' /></td>";
-		ideaBasketHtml += "</tr>";
-		ideaBasketHtml += "</table>";
-		ideaBasketHtml += "</li>";
+		//set this value back to false because we are going to save it back to the server
+		window.frames['ideaBasket'].basket.setBasketChanged(false);
 	}
-	
-	//close the ul for the ideas
-	ideaBasketHtml += "</ul>";
-	
-	//a label for the trash list
-	ideaBasketHtml += "<p>Trash</p>";
-	
-	//create the sortable ul for the trash
-	ideaBasketHtml += "<ul id='ideaBasketTrash'>";
-	
-	/*
-	 * loop through all the ideas in the trash backwards so that the
-	 * newer ones show up at the top
-	 */
-	for(var y=trash.length - 1; y>=0; y--) {
-		//get an idea
-		var idea = trash[y];
-		
-		//get the values for the idea
-		var ideaId = idea.id;
-		var text = idea.text;
-		var nodeName = idea.nodeName;
-		var tag = idea.tag;
-		var flag = idea.flag;
-		
-		//create the li for the idea
-		ideaBasketHtml += "<li id='ideaLI_" + ideaId + "'>";
-		ideaBasketHtml += "<table border='1'>";
-		ideaBasketHtml += "<tr>";
-		ideaBasketHtml += "<td width='200'><p id='ideaText_" + ideaId + "' class='ideaText'> " + text + "</p></td>";
-		ideaBasketHtml += "<td width='100'>" + nodeName + "</td>";
-		ideaBasketHtml += "<td width='100'><p id='ideaTag_" + ideaId + "' class='ideaTag'>" + tag + "</p></td>";
-		ideaBasketHtml += "<td width='100'><p id='ideaFlag_" + ideaId + "' class='ideaFlag'>" + flag + "</p></td>";
-		ideaBasketHtml += "<td width='100' id='ideaTrashTd_" + ideaId +"'><input id='ideaTrash_" + ideaId + "' type='button' value='Untrash' onclick='eventManager.fire(\"moveIdeaOutOfTrash\", [" + ideaId + "])' /></td>";
-		ideaBasketHtml += "</tr>";
-		ideaBasketHtml += "</table>";
-		ideaBasketHtml += "</li>";
-	}
-	
-	//close the ul for the trash
-	ideaBasketHtml += "</ul>";
-
-	//set the html into the basket div
-	$('#ideaBasketDiv').html(ideaBasketHtml);
-	
-	//make the ideas sortable
-	$('#ideaBasketList').sortable();
-	
-	//bind a function call to be called whenever the student changes the order
-	$('#ideaBasketList').bind('sortupdate', {thisView:thisView}, thisView.ideaBasketListChanged);
-	
-	//make the fields editable
-	$('.ideaText').editInPlace({callback:thisView.editIdea, params:[thisView, 'updateText']});
-	$('.ideaTag').editInPlace({callback:thisView.editIdea, params:[thisView, 'updateTag']});
-	$('.ideaFlag').editInPlace({callback:thisView.editIdea, params:[thisView, 'updateFlag'], field_type:'select', select_options:'Question, Exclamation, Check, Star'});
-	
-	//display the basket
-	$('#ideaBasketDiv').dialog('open');
-};
-
-/**
- * The function that's called when the order of ideas is changed
- * @param event
- * @param ui
- */
-View.prototype.ideaBasketListChanged = function(event, ui) {
-	//get the view
-	var thisView = event.data.thisView;
-	
-	/*
-	 * get list of idea LI elements as an array containing the DOM ids in the order
-	 * they are displayed in the UI
-	 */
-	var ideaList = $('#ideaBasketList').sortable('toArray');
-	
-	//an array that we will use to store the order of the ideaIds
-	var basketOrder = [];
-	
-	//loop through all the ids
-	for(var x=0; x<ideaList.length; x++) {
-		//get the idea LI id (e.g. ideaLI_5)
-		var ideaLI = ideaList[x];
-		
-		//get the ideaId from the DOM id
-		var ideaId = ideaLI.replace('ideaLI_', '');
-		
-		//add the ideaId to the array
-		basketOrder.push(parseInt(ideaId));
-	}
-	
-	/*
-	 * reverse the array because we want the ideas at the top of
-	 * the UI to be at the end of the array
-	 */
-	basketOrder.reverse();
-	
-	//turn the basket order into a JSON string
-	basketOrder = $.stringify(basketOrder);
-	
-	var action = "reOrderBasket";
-	
-	var ideaBasketParams = {
-			action:action,
-			basketOrder:basketOrder 
-	};
-	
-	//post the basket order to the server
-	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, thisView.reOrderBasketDone, {thisView:thisView});
-};
-
-View.prototype.reOrderBasketDone = function() {
-	//TODO: make sure data was saved, if data not saved we need to revert value in student display
-};
-
-/**
- * The student has edited an idea so we will save the changes back to the server
- * @param idOfEditor the id of the element that was changed
- * @param enteredText the new text the student has entered
- * @param originalText
- * @param args contains the view and the action
- */
-View.prototype.editIdea = function(idOfEditor, enteredText, originalText, args) {
-	var thisView = args[0];
-	var action = args[1];
-	var ideaId = "";
-	var text = "";
-	var nodeName = "";
-	var nodeId = "";
-	var tag = "";
-	var flag = "";
-	
-	if(action == 'updateText') {
-		//student has edited the text
-		ideaId = idOfEditor.replace('ideaText_', '');
-		text = enteredText;
-	} else if(action == 'updateNodeName') {
-		
-	} else if(action == 'updateNodeId') {
-		
-	} else if(action == 'updateNodeName') {
-		
-	} else if(action == 'updateTag') {
-		//student has edited the tag
-		ideaId = idOfEditor.replace('ideaTag_', '');
-		tag = enteredText;
-	} else if(action == 'updateFlag') {
-		//student has edited the flag
-		ideaId = idOfEditor.replace('ideaFlag_', '');
-		flag = enteredText;
-	}
-	
-	//set the params to post back to the server to save the changes to the idea
-	var ideaBasketParams = {
-			ideaId:ideaId,
-			action:action,
-			text:text,
-			nodeName: nodeName,
-			nodeId: nodeId,
-			tag: tag,
-			flag: flag
-	};
-	
-	//post the change back to the server
-	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, thisView.editIdeaDone, {thisView:thisView});
-	
-	//return the new text the student entered
-	return enteredText;
-};
-
-View.prototype.editIdeaDone = function(responseText, responseXML, args) {
-	//TODO: make sure data was saved, if data not saved we need to revert value in student display
-};
-
-/**
- * The student has moved an idea to the trash so we will
- * save the change back to the server
- * @param ideaId the id of the idea that was moved to the trash
- */
-View.prototype.moveIdeaToTrash = function(ideaId) {
-	var action = "trashIdea";
-	
-	var ideaBasketParams = {
-			action:action,
-			ideaId:ideaId
-	};
-	
-	//tell the server to put the idea in the trash
-	this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.moveIdeaToTrashDone, {thisView:this, ideaId:ideaId});
-};
-
-/**
- * Callback for after the server has put an idea into the trash
- * @param responseText
- * @param responseXML
- * @param args
- */
-View.prototype.moveIdeaToTrashDone = function(responseText, responseXML, args) {
-	var ideaId = args.ideaId;
-
-	//get the LI for the idea
-	var ideaLI = $('#ideaLI_' + ideaId);
-	
-	//remove it from the ideas list and put it into the trash list in the UI
-	$('#ideaBasketList').remove($('#ideaLI_' + ideaId));
-	$('#ideaBasketTrash').prepend($('#ideaLI_' + ideaId));
-	
-	//change the button so that when it is clicked, it will move the idea out of the trash and back into the ideas
-	$('#ideaTrashTd_' + ideaId).html("<input id='ideaTrash_" + ideaId + "' type='button' value='Untrash' onclick='eventManager.fire(\"moveIdeaOutOfTrash\", [" + ideaId + "])' />");
-};
-
-/**
- * The student has moved an idea out of the trash and into the ideas
- * @param ideaId the id of the idea
- */
-View.prototype.moveIdeaOutOfTrash = function(ideaId) {
-	var action = "unTrashIdea";
-	
-	var ideaBasketParams = {
-			action:action,
-			ideaId:ideaId
-	};
-
-	//tell the server to take the idea out of the trash and back into the ideas
-	this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.moveIdeaOutOfTrashDone, {thisView:this, ideaId:ideaId});
-};
-
-/**
- * Callback for after the server has moved the idea out of the trash
- * and into the ideas
- * @param responseText
- * @param responseXML
- * @param args
- */
-View.prototype.moveIdeaOutOfTrashDone = function(responseText, responseXML, args) {
-	var ideaId = args.ideaId;
-	
-	//get the LI for the idea
-	var ideaLI = $('#ideaLI_' + ideaId);
-	
-	//remove it from the trash and put it into the ideas list in the UI
-	$('#ideaBasketTrash').remove($('#ideaLI_' + ideaId));
-	$('#ideaBasketList').prepend($('#ideaLI_' + ideaId));
-
-	//change the button so that when it is clicked, it will move the idea to the trash
-	$('#ideaTrashTd_' + ideaId).html("<input id='ideaTrash_" + ideaId + "' type='button' value='Trash' onclick='eventManager.fire(\"moveIdeaToTrash\", [" + ideaId + "])' />");
 };
 
 /* used to notify scriptloader that this script has finished loading */

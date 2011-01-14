@@ -1,7 +1,9 @@
 package vle.domain.ideabasket;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -16,6 +18,8 @@ import javax.persistence.Table;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.IndexColumn;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +38,7 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id = null;
-	
+
 	//the id of the run
 	@Column(name="runId")
 	private Long runId = null;
@@ -47,21 +51,13 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	@Column(name="projectId")
 	private Long projectId = null;
 	
-	/*
-	 * contains the ideas in the basket when they are not in the trash
-	 */
-	@OneToMany(fetch = FetchType.EAGER)
-	@JoinColumn(name="ideaBasket_id")
-	@IndexColumn(name="basketPosition", base=1, nullable=true)
-	private List<Idea> ideas = new ArrayList<Idea>();
+	//the JSON string for the idea basket
+	@Column(name="data", length=1024)
+	private String data = null;
 	
-	/*
-	 * contains the ideas in the basket that have been placed in the trash
-	 */
-	@OneToMany(fetch = FetchType.EAGER)
-	@JoinColumn(name="ideaBasketTrash_id")
-	@IndexColumn(name="trashPosition", base=1, nullable=true)
-	private List<Idea> trash = new ArrayList<Idea>();
+	//the time the idea basket was posted
+	@Column(name="postTime")
+	private Timestamp postTime;
 
 	/**
 	 * the no args constructor
@@ -71,219 +67,33 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	}
 	
 	/**
-	 * constructor that populates the values
-	 * @param runId the id of the run
-	 * @param projectId the id of the project
-	 * @param workgroupId the id of the workgroup
+	 * Constructor that does not populate the data field
+	 * @param runId
+	 * @param projectId
+	 * @param workgroupId
 	 */
 	public IdeaBasket(long runId, long projectId, long workgroupId) {
 		this.runId = runId;
 		this.projectId = projectId;
 		this.workgroupId = workgroupId;
+		Calendar now = Calendar.getInstance();
+		this.postTime = new Timestamp(now.getTimeInMillis());
 	}
 	
 	/**
-	 * add an Idea to the basket
-	 * @param idea the Idea object to add
+	 * Constructor that populates the values
+	 * @param runId the id of the run
+	 * @param projectId the id of the project
+	 * @param workgroupId the id of the workgroup
+	 * @param data the idea basket JSON
 	 */
-	public void addIdea(Idea idea) {
-		idea.setIdeaBasket(this);
-		ideas.add(idea);
-		idea.saveOrUpdate();
-	}
-	
-	/**
-	 * move an idea to the trash of this basket
-	 * @param idea the Idea to move to the trash
-	 */
-	public void trashIdea(Idea idea) {
-		//get the position the idea is in
-		Long basketPosition = idea.getBasketPosition();
-		
-		if(basketPosition != null) {
-			//remove the idea from the ideas
-			
-			//get the position of the idea within the ideas array
-			int ideaPosition = (int) (basketPosition - 1);
-			
-			//remove the idea
-			ideas.remove(ideaPosition);
-			
-			/*
-			 * set the basket to null, we will set it back when we call
-			 * setIdeaBasketTrash() below
-			 */
-			idea.setIdeaBasket(null);
-		}
-		
-		//check if the idea is already in the trash
-		if(!trashContainsIdea(idea)) {
-			//idea is not in the trash so we will now put it in the trash
-			
-			//add the idea to the trash array
-			trash.add(idea);
-			
-			//set the basket
-			idea.setIdeaBasketTrash(this);
-			
-			//set the trash flag to true
-			idea.setTrash(true);
-		}
-
-		//save changes back to the db
-		saveOrUpdate();
-	}
-	
-	/**
-	 * move the idea from the trash and back to the ideas array
-	 * @param idea the idea to remove from the trash
-	 */
-	public void unTrashIdea(Idea idea) {
-		//get the position in the trash
-		Long trashPosition = idea.getTrashPosition();
-		
-		if(trashPosition != null) {
-			//remove the idea from the trash
-			
-			//get the position of the idea in the trash array
-			int ideaPosition = (int) (trashPosition - 1);
-			
-			//remove the idea
-			trash.remove(ideaPosition);
-			
-			/*
-			 * set the basket to null, we will set it back when we call
-			 * setIdeaBasket() below
-			 */
-			idea.setIdeaBasketTrash(null);
-		}
-		
-		//check if the idea is already in the ideas list
-		if(!ideasContainsIdea(idea)) {
-			//the idea is not in the ideas list so we will not add it
-			
-			//add the idea to the ideas array
-			ideas.add(idea);
-			
-			//set the basket
-			idea.setIdeaBasket(this);
-			
-			//set the trash flag to false
-			idea.setTrash(false);			
-		}
-
-		//save changes back to the db
-		saveOrUpdate();
-	}
-	
-	/**
-	 * Check if the idea is in the ideas list
-	 * @param idea the Idea we want to check
-	 * @return whether the idea is in the ideas list or not
-	 */
-	private boolean ideasContainsIdea(Idea idea) {
-		return listContainsIdea(ideas, idea);
-	}
-	
-	/**
-	 * Check if the idea is in the trash list
-	 * @param idea the Idea we want to check
-	 * @return whether the idea is in the trash list or not
-	 */
-	private boolean trashContainsIdea(Idea idea) {
-		return listContainsIdea(trash, idea);
-	}
-	
-	/**
-	 * Check if the idea is in the list
-	 * @param list the list to check
-	 * @param idea the idea to check
-	 * @return whether the idea is in the list or not
-	 */
-	private boolean listContainsIdea(List<Idea> list, Idea idea) {
-		
-		//loop through all the elements in the list
-		for(int x=0; x<list.size(); x++) {
-			//get an Idea from the list
-			Idea tempIdea = list.get(x);
-			
-			//get the id of the idea from the list
-			Long tempIdeaId = tempIdea.getId();
-			
-			//get the id of the idea
-			Long ideaId = idea.getId();
-			
-			//check if the ids are the same
-			if(ideaId.equals(tempIdeaId)) {
-				//we found the id in the list so we will return true
-				return true;
-			}
-		}
-		
-		//we did not find the idea in the list so we will return false
-		return false;
-	}
-	
-	/**
-	 * re orders the ideas according to the JSONArray
-	 * @param basketOrder a JSONArray containing the ids of the
-	 * Ideas in the order that we want them
-	 */
-	public void reOrderBasket(JSONArray basketOrder) {
-		reOrder(basketOrder, "ideas");
-	}
-	
-	/**
-	 * re orders the trash according to the JSONArray
-	 * @param trashOrder a JSONArray containing the ids of the
-	 * Ideas in the order that we want them
-	 */
-	public void reOrderTrash(JSONArray trashOrder) {
-		reOrder(trashOrder, "trash");
-	}
-	
-	/**
-	 * re order the array
-	 * @param order the JSONArray containing the new order that we want
-	 * @param listType the list we are re ordering ("ideas" or "trash")
-	 */
-	private void reOrder(JSONArray order, String listType) {
-		//a new List to contain the new order
-		List<Idea> ideas = new ArrayList<Idea>();
-		
-		//loop through the array that contains the new order
-		for(int x=0; x<order.length(); x++) {
-			try {
-				//get the idea id
-				long ideaId = order.getLong(x);
-
-				//get the Idea
-				Idea idea = Idea.getIdeaById(ideaId);
-
-				boolean isTrash = idea.isTrash();
-				
-				//make sure the idea is really in ideas or trash to maintain data consistency
-				if((!isTrash && listType.equals("ideas")) || (isTrash && listType.equals("trash"))) {
-					//add the Idea to our new List
-					ideas.add(idea);	
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		if(listType == null) {
-			//error
-		} else if(listType.equals("ideas")) {
-			//we are re ordering the ideas
-			setIdeas(ideas);
-		} else if(listType.equals("trash")) {
-			//we are re ordering the trash
-			setTrash(ideas);
-		}
-		
-		//save the changes back to the db
-		saveOrUpdate();
+	public IdeaBasket(long runId, long projectId, long workgroupId, String data) {
+		this.runId = runId;
+		this.projectId = projectId;
+		this.workgroupId = workgroupId;
+		Calendar now = Calendar.getInstance();
+		this.postTime = new Timestamp(now.getTimeInMillis());
+		this.data = data;
 	}
 	
 	public Long getId() {
@@ -292,14 +102,6 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-	
-	public List<Idea> getIdeas() {
-		return ideas;
-	}
-
-	public void setIdeas(List<Idea> ideas) {
-		this.ideas = ideas;
 	}
 	
 	public Long getRunId() {
@@ -326,12 +128,20 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		this.projectId = projectId;
 	}
 
-	public List<Idea> getTrash() {
-		return trash;
+	public String getData() {
+		return data;
 	}
 
-	public void setTrash(List<Idea> trash) {
-		this.trash = trash;
+	public void setData(String data) {
+		this.data = data;
+	}
+	
+	public Timestamp getPostTime() {
+		return postTime;
+	}
+
+	public void setPostTime(Timestamp postTime) {
+		this.postTime = postTime;
 	}
 	
 	@Override
@@ -340,63 +150,22 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	}
 
 	/**
-	 * get the JSON object representation of the IdeaBasket
-	 * @return a JSONObject representing the IdeaBasket
-	 */
-	public JSONObject toJSONObject() {
-		JSONObject jsonObject = new JSONObject();
-		
-		try {
-			//set the fields
-			jsonObject.put("id", getId());
-			jsonObject.put("runId", getRunId());
-			jsonObject.put("workgroupId", getWorkgroupId());
-			jsonObject.put("projectId", getProjectId());
-			
-			//create the JSONArray that will contain the ideas
-			JSONArray ideasJSONArray = new JSONArray();
-			List<Idea> ideas = getIdeas();
-			
-			//loop through all the ideas
-			for(int x=0; x<ideas.size(); x++) {
-				Idea idea = ideas.get(x);
-				JSONObject ideaJSONObject = idea.toJSONObject();
-				ideasJSONArray.put(ideaJSONObject);
-			}
-			
-			jsonObject.put("ideas", ideasJSONArray);
-			
-			//create the JSONArray that will contain the trash
-			JSONArray trashJSONArray = new JSONArray();
-			List<Idea> trash = getTrash();
-			
-			//loop through all the trash
-			for(int x=0; x<trash.size(); x++) {
-				Idea idea = trash.get(x);
-				JSONObject ideaJSONObject = idea.toJSONObject();
-				trashJSONArray.put(ideaJSONObject);
-			}
-			
-			jsonObject.put("trash", trashJSONArray);
-			
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
-		return jsonObject;
-	}
-
-	/**
 	 * Get the JSON string representation of the IdeaBasket
 	 * @return
 	 */
 	public String toJSONString() {
 		String jsonString = "";
-		JSONObject jsonObject = this.toJSONObject();
 		
-		if(jsonObject != null) {
+		jsonString = getData();
+		
+		if(jsonString == null) {
 			try {
-				//get the JSONString representation with indentation using 3 spaces
+				JSONObject jsonObject = new JSONObject();
+				jsonObject = new JSONObject();
+				jsonObject.put("id", getId());
+				jsonObject.put("runId", getRunId());
+				jsonObject.put("workgroupId", getWorkgroupId());
+				jsonObject.put("projectId", getProjectId());
 				jsonString = jsonObject.toString(3);
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -407,7 +176,7 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	}
 	
 	/**
-	 * Get the IdeaBasket with the given run id and workgroup id
+	 * Get the latest IdeaBasket with the given run id and workgroup id
 	 * @param runId the id of the run
 	 * @param workgroupId the id of the workgroup
 	 * @return the IdeaBasket with the matching runId and workgroupId
@@ -419,12 +188,15 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
         //find all the IdeaBasket objects that match
         List<IdeaBasket> result =  session.createCriteria(IdeaBasket.class).add(
         		Restrictions.eq("runId", runId)).add(
-        				Restrictions.eq("workgroupId", workgroupId)).list();
+        				Restrictions.eq("workgroupId", workgroupId)).addOrder(Order.desc("postTime")).list();
         session.getTransaction().commit();
         
         IdeaBasket ideaBasket = null;
         if(result.size() > 0) {
-        	//get the IdeaBasket fromt he result list
+        	/*
+        	 * get the first IdeaBasket from the result list since 
+        	 * that will be the latest revision of that idea basket
+        	 */
         	ideaBasket = result.get(0);
         }
         return ideaBasket;

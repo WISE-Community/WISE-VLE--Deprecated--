@@ -96,15 +96,6 @@
 				<div id='deletedEmpty' class='empty'>The trash is empty.</div>
 			</div>
 		</div>
-	
-		<footer>
-			<div id='admin'>
-				<span id='showAdmin'>Admin Tools</span>
-				<span id='adminLinks'>
-					<span id='clear'>Empty Basket</span><span id='export'>Export</span><span id='import'>Import</span>
-				</span>
-			</div>
-		</footer>
 	</div> <!--! end of #container -->
 	
 	<div id='ideaDialog'>
@@ -172,39 +163,11 @@
 		<div style="padding:.5em;">You can always retrieve it from the trash later on if you change your mind.</div>
 	</div>
 	
-	<div id='clearDialog' style='display:none; text-align:center;'>
-		<div class='ui-state-error' style="padding:.5em;"><span class="ui-icon ui-icon-alert" style="margin-right: .3em; float:left;"></span><span>Warning: This operation is permanent.</span></div>
-		<div style="padding:.5em;">Are you sure you want to delete <b>all</b> ideas from this Idea Basket?<br /><br />
-			This operation cannot be undone.  You can first backup this Idea Basket for future use by clicking on the "Export" link in the Admin Tools section.
-		</div>
-	</div>
-	
-	<div id='importDialog' style='display:none; text-align:center;'>
-		<div class='ui-state-error' style="padding:.5em;"><span class="ui-icon ui-icon-alert" style="margin-right: .3em; float:left;"></span><span>Warning: Importing will overwrite the current Idea Basket. This operation is permanent.</span></div>
-		<div style="padding:.5em;">If you would like, you can first backup the current Idea Basket for future use by clicking on the "Export" link in the Admin Tools section.
-		</div>
-		<div style='text-align:left; margin:.5em;'>
-			<form id="importForm" enctype="multipart/form-data" action="import.php" method="POST">
-				<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
-				Choose a file: <input name="importFile" type="file" />
-			</form>
-		</div>
-	</div>
-	
-	<form action="export.php" method="post" id="exportForm" name="exportForm">
-		<input type="hidden" value="ideas" name="exportIdeas" id="exportIdeas" />
-		<input type="hidden" value="deleted" name="exportDeleted" id="exportDeleted" />
-		<input type="hidden" value="index" name="exportIndex" id="exportIndex" />
-	</form>
-
-
   <!-- Javascript at the bottom for fast page loading -->
 
   <!-- Grab Google CDN's jQuery & jQuery UI. fall back to local if necessary -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.4.4.min.js"%3E%3C/script%3E'))</script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-ui-1.8.7.custom.min.js"%3E%3C/script%3E'))</script>
+  <script src="jquery/js/jquery-1.4.4.min.js"></script>
+  <script src="jquery/js/jquery-ui-1.8.7.custom.min.js"></script>
   <script src="jquery/js/jquery-validate/jquery.validate.pack.js"></script>
   <script src="jquery/js/jquery.form.js"></script>
   

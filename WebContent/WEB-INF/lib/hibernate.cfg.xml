@@ -68,7 +68,6 @@
   		<mapping class="vle.domain.peerreview.PeerReviewWork" />
   		<mapping class="vle.domain.peerreview.PeerReviewGate" />
   		<mapping class="vle.domain.ideabasket.IdeaBasket" />
-  		<mapping class="vle.domain.ideabasket.Idea" />
  		
     </session-factory>
 
