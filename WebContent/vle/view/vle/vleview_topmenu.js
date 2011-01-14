@@ -520,6 +520,8 @@ View.prototype.checkForNewTeacherAnnotations = function() {
  * Opens the Add an Idea dialog popup so the student can create a new Idea
  */
 View.prototype.openAddAnIdeaDialog = function() {
+	
+	/*
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
@@ -560,6 +562,7 @@ View.prototype.openAddAnIdeaDialog = function() {
 	
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');
+	*/
 };
 
 /**
@@ -636,6 +639,9 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	//set the idea basket into the iframe
 	var ideaBasket = $.parseJSON(responseText);
 	window.frames['ideaBasket'].ideaBasket = ideaBasket;
+	
+	//save a reference in the vle
+	thisView.ideaBasket = ideaBasket;
 	
 	if($('#ideaBasketIfrm').attr('src') == null) {
 		//set the src so it will load the ideaManager.html page
