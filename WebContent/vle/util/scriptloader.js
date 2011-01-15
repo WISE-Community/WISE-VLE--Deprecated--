@@ -202,8 +202,8 @@ var scriptloader = function(){
         bootstrap: ['vle/util/componentloader.js',
                   'vle/view/view.js',
                   'vle/environment/environment.js',
-                  'vle/jquery/js/jquery-1.4.2.min.js',
-  		          'vle/jquery/js/jquery-ui-1.8.custom.min.js',
+                  'vle/jquery/js/jquery-1.4.4.min.js',
+  		          'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
   		          'vle/node/setupNodes.js'],
@@ -318,9 +318,9 @@ var scriptloader = function(){
                 'vle/view/authoring/components/authorview_studentresponseboxsize.js',
                 'vle/view/authoring/components/authorview_richtexteditortoggle.js',
                 'vle/view/authoring/components/authorview_startersentenceauthoring.js'],
-        premadecomments:['vle/jquery/js/jquery-1.4.2.min.js',
+        premadecomments:['vle/jquery/js/jquery-1.4.4.min.js',
                          'vle/jquery/js/jquery.editinplace.js',
-                         'vle/jquery/js/jquery-ui-1.8.custom.min.js'],
+                         'vle/jquery/js/jquery-ui-1.8.7.custom.min.js'],
         ideabasket:[]
 	};
 	
@@ -328,7 +328,7 @@ var scriptloader = function(){
 	 * Css urls specified for all component css
 	 */
 	var css = {
-		bootstrap:['vle/jquery/css/custom-theme/jquery-ui-1.8.1.custom.css'],
+		bootstrap:['vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'],
 		core: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
 		         'vle/css/ui-tools.css',
@@ -358,9 +358,9 @@ var scriptloader = function(){
         'vle/node/BranchNode.js':['vle/node/Node.js','vle/node/MultipleChoiceNode.js'],
         "vle/ui/vleui.js": ["vle/VLE.js"],
         "vle/util/projectutils.js": ["vle/project/Project.js"],
-        'vle/jquery/js/jquery-ui-1.8.custom.min.js':['vle/jquery/js/jquery-1.4.2.min.js'],
-        'vle/jquery/js/jsonplugin.js':['vle/jquery/js/jquery-1.4.2.min.js'],
-        'vle/jquery/js/jqueryhelper.js':['vle/jquery/js/jquery-1.4.2.min.js'],
+        'vle/jquery/js/jquery-ui-1.8.7.custom.min.js':['vle/jquery/js/jquery-1.4.4.min.js'],
+        'vle/jquery/js/jsonplugin.js':['vle/jquery/js/jquery-1.4.4.min.js'],
+        'vle/jquery/js/jqueryhelper.js':['vle/jquery/js/jquery-1.4.4.min.js'],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
