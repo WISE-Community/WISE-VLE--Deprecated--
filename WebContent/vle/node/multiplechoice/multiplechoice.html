@@ -18,7 +18,8 @@
         };
 
         function tryAgain(){
-        	var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
+        	//var isTryAgainDisabled = hasClass("tryAgainButton", "disabledLink");
+        	var isTryAgainDisabled = $('#tryAgainButton').parent().hasClass('ui-state-disabled');
                        
         	if (isTryAgainDisabled) {
         		return;
@@ -102,10 +103,14 @@
                 <table id="buttonTable">
                     <tr>
                         <td>
-                            <a class="firstButton" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                            <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                            	<a class="firstButton" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                            </div>
                         </td>
                         <td>
-                            <a id="tryAgainButton" onClick="javascript:tryAgain();" class="disabledLink">Try Again</a>
+                            <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                            	<a id="tryAgainButton" onClick="javascript:tryAgain();" class="disabledLink">Try Again</a>
+                            </div>
                         </td>
                     </tr>
                 </table>

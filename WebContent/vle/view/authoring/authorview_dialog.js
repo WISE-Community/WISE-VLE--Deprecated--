@@ -147,7 +147,7 @@ View.prototype.initializeCreateNodeDialog = function (){
 		/* handles the success for the request to create a new node */
 		var success = function(t,x,o){
 			if(t=='nodeNotProject'){
-				o.notificationManager.notify('Unable to attach Step to project, please see administrator.', 3);
+				o.notificationManager.notify('Unable to attach Step to project, please contact administrator.', 3);
 			} else {
 				o.placeNode = true;
 				o.placeNodeId = t;
@@ -366,6 +366,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 	var show = function(){
 		$('#assetUploaderBodyDiv').after($('#notificationDiv')); // temporarily move notifications div to assets dialog
 		clearNotifcations(); // clear out any existing notifications
+		eventManager.fire('browserResize');
 	};
 	
 	var clearNotifcations = function(){

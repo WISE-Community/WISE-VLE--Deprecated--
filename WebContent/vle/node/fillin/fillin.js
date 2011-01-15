@@ -35,9 +35,12 @@ function FILLIN(node) {
 FILLIN.prototype.render = function(textInteractionEntryIndex) {
 	this.html = "";
 	clearFeedbackDiv();
-	removeClassFromElement("checkAnswerButton", "disabledLink");
-	addClassToElement("tryAgainButton", "disabledLink");
-	addClassToElement("nextButton", "disabledLink");
+	//removeClassFromElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
+	//addClassToElement("tryAgainButton", "disabledLink");
+	$('#tryAgainButton').parent().addClass('ui-state-disabled');
+	//addClassToElement("nextButton", "disabledLink");
+	$('#nextButton').parent().addClass('ui-state-disabled');
 	
 	this.generateNonInteractiveDivHtml();
 	var nonInteractiveDiv = document.getElementById('nonInteractiveDiv');
@@ -103,24 +106,30 @@ FILLIN.prototype.generateNonInteractiveDivHtml = function() {
  * Clears FeedbackDiv and inputbox
  */
 FILLIN.prototype.tryAgain = function() {
-	if (hasClass("tryAgainButton", "disabledLink")) {
+	//if (hasClass("tryAgainButton", "disabledLink")) {
+	if ($('#tryAgainButton').parent().hasClass('ui-state-disabled')) {
 		return;
 	};
 	
-	removeClassFromElement("checkAnswerButton", "disabledLink");
-	addClassToElement("tryAgainButton", "disabledLink");
+	//removeClassFromElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
+	//addClassToElement("tryAgainButton", "disabledLink");
+	$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	setResponseBoxEnabled(true);
 	clearFeedbackDiv();
 	clearResponseBox();
 };
 
 FILLIN.prototype.checkAnswer = function() {
-	if (hasClass("checkAnswerButton", "disabledLink")) {
+	//if (hasClass("checkAnswerButton", "disabledLink")) {
+	if ($('#checkAnswerButton').parent().hasClass('ui-state-disabled')) {
 		return;
 	};
 
-	removeClassFromElement("tryAgainButton", "disabledLink");
-	addClassToElement("checkAnswerButton", "disabledLink");
+	//removeClassFromElement("tryAgainButton", "disabledLink");
+	$('#tryAgainButton').parent().removeClass('ui-state-disabled');
+	//addClassToElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 	setResponseBoxEnabled(false);
 
 	var studentAnswerText = document.getElementById('responseBox').value;
@@ -138,12 +147,15 @@ FILLIN.prototype.checkAnswer = function() {
 		//custom processing
 		var customResponse = this.customCheck(this.states);
 		if(customResponse.correct){	
-			addClassToElement("tryAgainButton", "disabledLink");
-			removeClassFromElement("nextButton", "disabledLink");
+			$('#tryAgainButton').parent().addClass('ui-state-disabled');
+			//addClassToElement("tryAgainButton", "disabledLink");
+			$('#nextButton').parent().removeClass('ui-state-disabled');
+			//removeClassFromElement("nextButton", "disabledLink");
 			document.getElementsByName("activeBlank")[0].value = studentAnswerText;
 			
 			if(customResponse.complete){
-				addClassToElement("nextButton", "disabledLink");
+				$('#nextButton').parent().addClass('ui-state-disabled');
+				//addClassToElement("nextButton", "disabledLink");
 			};
 		};
 		
@@ -151,22 +163,29 @@ FILLIN.prototype.checkAnswer = function() {
 	} else{
 		// default processing
 		if (textEntryInteraction.isCorrect(studentAnswerText)) {
-			removeClassFromElement("feedbackDiv", "incorrect");
-			addClassToElement("feedbackDiv", "correct");	
-			addClassToElement("tryAgainButton", "disabledLink");
-			removeClassFromElement("nextButton", "disabledLink");
+			$('#feedbackDiv').removeClass('incorrect');
+			//removeClassFromElement("feedbackDiv", "incorrect");
+			$('#feedbackDiv').addClass('correct');
+			//addClassToElement("feedbackDiv", "correct");	
+			$('#tryAgainButton').parent().addClass('ui-state-disabled');
+			//addClassToElement("tryAgainButton", "disabledLink");
+			$('#nextButton').parent().removeClass('ui-state-disabled');
+			//removeClassFromElement("nextButton", "disabledLink");
 			
 			feedbackDiv.innerHTML = "Correct.";
 			document.getElementsByName("activeBlank")[0].value = studentAnswerText;   // display activeBlank with correctAnswer
 			if (currentTextEntryInteractionIndex+1 < this.textEntryInteractions.length) {
 			} else {
-				addClassToElement("nextButton", "disabledLink");
+				$('#nextButton').parent().addClass('ui-state-disabled');
+				//addClassToElement("nextButton", "disabledLink");
 				feedbackDiv.innerHTML += " You successfully filled all of the blanks.  Impressive work!";			
 				feedbackDiv.innerHTML += this.getCorrectText(this.textEntryInteractions.length, this.states.length);			
 			};
 		} else {
-			removeClassFromElement("feedbackDiv", "correct");
-			addClassToElement("feedbackDiv", "incorrect");		
+			$('#feedbackDiv').addClass('correct');
+			//removeClassFromElement("feedbackDiv", "correct");
+			$('#feedbackDiv').removeClass('incorrect');
+			//addClassToElement("feedbackDiv", "incorrect");		
 			feedbackDiv.innerHTML = "Not correct or misspelled";
 		};
 	};

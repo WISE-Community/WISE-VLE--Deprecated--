@@ -219,6 +219,7 @@ View.prototype.saveHint = function(){
 View.prototype.saveHints = function(){	
 	this.saveHint();    
     eventManager.fire("saveStep");
+    $('#editHintsPanel').dialog('close');
 };
 
 /**
@@ -265,12 +266,11 @@ View.prototype.editHints = function(tabIndex){
 	    			{	autoOpen:false,
 	    				closeText:'',
 	    				width:500,
-	    				height:400,
 	    				modal:false,
-	    				title:'Hints',
+	    				resizable:false,
+	    				title:'Add/Edit Hints for this Step',
 	    				zIndex:3000, 
-	    				left:0, 
-	    				position:["center","top"]
+	    				left:0
 	    			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
 	    			    // before the dialog closes, save hintstate
 	    		    	if ($(this).data("dialog").isOpen()) {	    		    		

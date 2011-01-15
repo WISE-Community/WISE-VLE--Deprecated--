@@ -7,8 +7,8 @@ var coreScripts = [
 var studentVLEScripts = [
 	'vle/node/common/nodehelpers.js',
 	'vle/common/helperfunctions.js',
-	'vle/jquery/js/jquery-1.4.2.min.js',
-	'vle/jquery/js/jquery-ui-1.8.custom.min.js',
+	'vle/jquery/js/jquery-1.4.4.min.js',
+	'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/multiplechoice/multiplechoicestate.js',
 	'vle/node/multiplechoice/challengestate.js',
@@ -33,7 +33,8 @@ var dependencies = [
 
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/multiplechoice/mcstyles.css"
+	"vle/node/multiplechoice/mcstyles.css",,
+	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);

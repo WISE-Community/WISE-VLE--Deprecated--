@@ -1,6 +1,6 @@
 <html>
     <head>
-    	<script type='text/javascript' src='tinymce/jscripts/tiny_mce/tiny_mce_src.js'></script>
+    	<script type='text/javascript' src='tinymce/jscripts/tiny_mce/tiny_mce_src.js'></script><!-- TODO: replace with minified version of script -->
         <script type="text/javascript">
             var or; // global variable so it can be accessed by other functions
             
@@ -122,24 +122,6 @@
 	};
 </script>
 
-<style>
-	div.grippie {
-		background:#EEEEEE url(/vlewrapper/vle/images/grippie.png) no-repeat scroll center 2px;				
-		border-color:#DDDDDD;
-		border-style:solid;
-		border-width:0pt 1px 1px;
-		cursor:s-resize;
-		height:9px;
-		overflow:hidden;
-		}
-	
-	.resizable-textarea textarea {
-		display:block;
-		margin-bottom:0pt;
-		min-height:180px;
-	}
-</style>
-
     </head>
     <body>
         <div id="questionCountBox" class="bg3">
@@ -232,10 +214,10 @@
             <table id="buttonTable">
                 <tr>
                     <td>
-                        <div><a id="saveButton" onClick="javascript:save();">SAVE DRAFT</a></div>
+                        <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveButton" onClick="javascript:save();">SAVE DRAFT</a></div>
                     </td>
                     <td>
-                        <div id="saveAndLockButtonDiv" style="display:none" disabled="true">
+                        <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="saveAndLockButtonDiv" style="display:none" disabled="true">
                         <a id="saveAndLockButton" onClick="javascript:saveAndLock();">SUBMIT (and lock)</a></div>
                 	</td>
                 </tr>

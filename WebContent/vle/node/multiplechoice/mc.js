@@ -134,8 +134,10 @@ MC.prototype.render = function() {
 		}
 	}
 		
-	addClassToElement("checkAnswerButton", "disabledLink");
-	addClassToElement("tryAgainButton", "disabledLink");
+	//addClassToElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().addClass('ui-state-disabled');
+	//addClassToElement("tryAgainButton", "disabledLink");
+	$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	clearFeedbackDiv();
 	
 	if (this.content.assessmentItem.responseDeclaration.correctResponse.length<1){
@@ -206,7 +208,8 @@ MC.prototype.isCorrect = function(id){
  * Disables "Check Answer" button and enables "Try Again" button
  */
 MC.prototype.checkAnswer = function() {
-	if (hasClass("checkAnswerButton", "disabledLink")) {
+	//if (hasClass("checkAnswerButton", "disabledLink")) {
+	if ($('#checkAnswerButton').parent().hasClass('ui-state-disabled')) {
 		return;
 	}
 
@@ -222,8 +225,10 @@ MC.prototype.checkAnswer = function() {
 	}
 	
 	enableRadioButtons(false);        // disable radiobuttons
-	addClassToElement("checkAnswerButton", "disabledLink"); // disable checkAnswerButton
-	removeClassFromElement("tryAgainButton", "disabledLink");  // show try again button
+	//addClassToElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().addClass('ui-state-disabled'); // disable checkAnswerButton
+	//removeClassFromElement("tryAgainButton", "disabledLink");
+	$('#tryAgainButton').parent().removeClass('ui-state-disabled'); // show try again button
 	
 	for (var i=0;i<inputbuttons.length;i++) {
 		var checked = inputbuttons[i].checked;		
@@ -278,8 +283,9 @@ MC.prototype.checkAnswer = function() {
 		/* set feedback message */
 		$('#challengeMsgDiv').html(this.getChallengeMessage(isCorrect));
 		
-		/* disable the try again buttion */
-		$('#tryAgainButton').addClass('disabledLink');
+		/* disable the try again button */
+		//$('#tryAgainButton').addClass('disabledLink');
+		$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	} else if(this.node.getType()=='BranchNode'){
 		/* this is a branch node, we will update the constraints so that students can
 		 * navigate to the appropriate branch given their answer, we also cannot allow
@@ -304,7 +310,8 @@ MC.prototype.checkAnswer = function() {
 		}
 		
 		/* disable the try again button */
-		$('#tryAgainButton').addClass('disabledLink');
+		//$('#tryAgainButton').addClass('disabledLink');
+		$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	} else if(isCorrect){
 		document.getElementById('feedbackdiv').innerHTML = "You have successfully completed this question!";
 	}
@@ -434,9 +441,11 @@ MC.prototype.resolveIdentifier = function(id){
  */
 function enableCheckAnswerButton(doEnable) {
 	if (doEnable == 'true') {
-		removeClassFromElement("checkAnswerButton", "disabledLink"); // disable checkAnswerButton
+		//removeClassFromElement("checkAnswerButton", "disabledLink");
+		$('#checkAnswerButton').parent().removeClass('ui-state-disabled'); // disable checkAnswerButton
 	} else {
-		addClassToElement("checkAnswerButton", "disabledLink"); // disable checkAnswerButton
+		//addClassToElement("checkAnswerButton", "disabledLink");
+		$('#tryAgainButton').parent().addClass('ui-state-disabled'); // disable checkAnswerButton
 	}
 };
 

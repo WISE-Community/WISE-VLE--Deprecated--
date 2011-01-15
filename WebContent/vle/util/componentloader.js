@@ -70,7 +70,7 @@ var componentloader = function(em, sl){
 					//define the x position of the note dialog so that it shows up in the center of the document
 					var noteXPos = (document.width / 2) - (noteWidth / 2);
 					
-					$('#notePanel').dialog({autoOpen:false, width:noteWidth, resizable:false, position: [noteXPos, 45]});
+					$('#notePanel').dialog({autoOpen:false, width:noteWidth, title:'Reflection Note', resizable:false, position: [noteXPos, 45]});
 				}
 			}
 		},

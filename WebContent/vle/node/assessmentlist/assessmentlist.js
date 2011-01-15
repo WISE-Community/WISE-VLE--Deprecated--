@@ -292,7 +292,8 @@ ASSESSMENTLIST.prototype.lockScreen = function() {
  */
 ASSESSMENTLIST.prototype.setSaveAvailable = function() {
 	//removeClassFromElement("saveButton", "disabledLink");
-	$("#submitButton").removeClass("disabledLink");
+	//$("#submitButton").removeClass("disabledLink");
+	$("#submitButton").parent().removeClass("ui-state-disabled");
 	$("#submitButton").attr("disabled", false);
 };
 
@@ -303,7 +304,8 @@ ASSESSMENTLIST.prototype.setSaveAvailable = function() {
  */
 ASSESSMENTLIST.prototype.setSaveUnavailable = function() {
 	//addClassToElement("saveButton", "disabledLink");
-	$("#submitButton").addClass("disabledLink");	
+	//$("#submitButton").addClass("disabledLink");
+	$("#submitButton").parent().addClass("ui-state-disabled");
 	$("#submitButton").attr("disabled", true);
 };
 
@@ -313,7 +315,8 @@ ASSESSMENTLIST.prototype.setSaveUnavailable = function() {
  * and is not available
  */
 ASSESSMENTLIST.prototype.isSaveAvailable = function() {
-	return !$("#submitButton").hasClass("disabledLink");
+	//return !$("#submitButton").hasClass("disabledLink");
+	return !$("#submitButton").parent().hasClass("ui-state-disabled");
 };
 
 ASSESSMENTLIST.prototype.assessmentListChanged = function() {

@@ -596,7 +596,8 @@ MS.prototype.getBucketCopy = function(identifier) {
  * does not check if the state is correct.
  */
 MS.prototype.checkAnswer = function() {
-	if (hasClass("checkAnswerButton", "disabledLink")) {
+	if (//hasClass("checkAnswerButton", "disabledLink")
+		$('#checkAnswerButton').parent().hasClass('ui-state-disabled')) {
 		return;
 	}
 	
@@ -606,7 +607,8 @@ MS.prototype.checkAnswer = function() {
 		//we are not showing feedback
 		
 		//disable the submit button
-		addClassToElement("checkAnswerButton", "disabledLink");
+		//addClassToElement("checkAnswerButton", "disabledLink");
+		$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 		
 		//get the student data
 		var state = this.getState();
@@ -619,7 +621,8 @@ MS.prototype.checkAnswer = function() {
 		if(feedback.getSuccess()){
 			message = "<font color='008B00'>" + feedback.getMessage() + "</font>";
 			this.setChoicesDraggable(false);
-			document.getElementById('checkAnswerButton').className = 'disabledLink';
+			//document.getElementById('checkAnswerButton').className = 'disabledLink';
+			$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 		} else {
 			message = "<font color='8B0000'>" + feedback.getMessage() + "</font>";
 			displayNumberAttempts("This is your", "attempt", this.attempts);
@@ -705,7 +708,8 @@ MS.prototype.checkAnswer = function() {
 		if (numWrongChoices == 0) {
 			feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
 			this.setChoicesDraggable(false);
-			addClassToElement("checkAnswerButton", "disabledLink");
+			//addClassToElement("checkAnswerButton", "disabledLink");
+			$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 		} else {
 			displayNumberAttempts("This is your", "attempt", this.attempts);
 			var totalNumChoices = numCorrectChoices + numWrongChoices;
@@ -791,7 +795,8 @@ MS.prototype.setChoicesDraggable = function(setDraggable) {
  * Resets to original state
  */
 MS.prototype.reset = function() {
-	removeClassFromElement("checkAnswerButton", "disabledLink");
+	//removeClassFromElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
 	this.render();
 }
 
@@ -799,13 +804,14 @@ MS.prototype.reset = function() {
  * Resets to original state
  */
 MS.prototype.resetWrongChoices = function() {
-	var isResetWrongChoicesDisabled = hasClass("resetWrongChoicesButton", "disabledLink");
+	var isResetWrongChoicesDisabled = $('#resetWrongChoicesButton').parent().hasClass('ui-state-disabled'); //hasClass("resetWrongChoicesButton", "disabledLink");
 
 	if (isResetWrongChoicesDisabled) {
 		return;
 	}
 	
-	removeClassFromElement("checkAnswerButton", "disabledLink");
+	//removeClassFromElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
 	this.node.view.notificationManager.notify('not implemented yet, will reset all answers for now',3);
 	
 	this.render();
@@ -829,7 +835,8 @@ MS.prototype.saveState = function() {
  * Enables the check answer button 
  */
 MS.prototype.enableCheckAnswerButton = function() {
-	$('#checkAnswerButton').removeClass('disabledLink');
+	//removeClassFromElement("checkAnswerButton", "disabledLink");
+	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
 };
 
 //used to notify scriptloader that this script has finished loading

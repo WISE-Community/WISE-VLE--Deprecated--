@@ -270,7 +270,8 @@ OPENRESPONSE.prototype.responseEdited = function() {
  * Turn the save button on so the student can click it
  */
 OPENRESPONSE.prototype.setSaveAvailable = function() {
-	removeClassFromElement("saveButton", "disabledLink");
+	//removeClassFromElement("saveButton", "ui-state-disabled");
+	$('#saveButton').parent().removeClass('ui-state-disabled');
 };
 
 /**
@@ -279,7 +280,8 @@ OPENRESPONSE.prototype.setSaveAvailable = function() {
  * to save.
  */
 OPENRESPONSE.prototype.setSaveUnavailable = function() {
-	addClassToElement("saveButton", "disabledLink");
+	//addClassToElement("saveButton", "ui-state-disabled");
+	$('#saveButton').parent().addClass('ui-state-disabled');
 };
 
 /**
@@ -288,14 +290,16 @@ OPENRESPONSE.prototype.setSaveUnavailable = function() {
  * and is not available
  */
 OPENRESPONSE.prototype.isSaveAvailable = function() {
-	return !hasClass("saveButton", "disabledLink");
+	//return !hasClass("saveButton", "ui-state-disabled");
+	return !$('#saveButton').parent().hasClass('ui-state-disabled');
 };
 
 /**
  * Turn the save button on so the student can click it
  */
 OPENRESPONSE.prototype.setSaveAndLockAvailable = function() {
-	removeClassFromElement("saveAndLockButton", "disabledLink");
+	//removeClassFromElement("saveAndLockButton", "ui-state-disabled");
+	$('#saveAndLockButton').parent().removeClass('ui-state-disabled');
 };
 
 /**
@@ -304,7 +308,8 @@ OPENRESPONSE.prototype.setSaveAndLockAvailable = function() {
  * to save.
  */
 OPENRESPONSE.prototype.setSaveAndLockUnavailable = function() {
-	addClassToElement("saveAndLockButton", "disabledLink");
+	//addClassToElement("saveAndLockButton", "ui-state-disabled");
+	$('#saveAndLockButton').parent().addClass('ui-state-disabled');
 };
 
 /**
@@ -313,7 +318,8 @@ OPENRESPONSE.prototype.setSaveAndLockUnavailable = function() {
  * and is not available
  */
 OPENRESPONSE.prototype.isSaveAndLockAvailable = function() {
-	return !hasClass("saveAndLockButton", "disabledLink");
+	//return !hasClass("saveAndLockButton", "ui-state-disabled");
+	return !$('#saveAndLockButton').parent().hasClass('ui-state-disabled');
 };
 
 /**
@@ -1227,18 +1233,10 @@ OPENRESPONSE.prototype.replaceSlashNWithBR = function(response) {
  * any necessary data to the student.
  */
 OPENRESPONSE.prototype.doneRendering = function() {
-	// add textarea resizing handle
-	$('#responseBox:not(.processed)').TextAreaResizer();
 
 	//create any constraints if necessary
 	eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
-
-/* TextAreaResizer
- * From: http://plugins.jquery.com/project/TextAreaResizer
- */
-(function($){var textarea,staticOffset;var iLastMousePos=0;var iMin=32;var grip;$.fn.TextAreaResizer=function(){return this.each(function(){textarea=$(this).addClass('processed'),staticOffset=null;$(this).wrap('<div class="resizable-textarea"><span></span></div>').parent().append($('<div class="grippie"></div>').bind("mousedown",{el:this},startDrag));var grippie=$('div.grippie',$(this).parent())[0];grippie.style.marginRight=(grippie.offsetWidth-$(this)[0].offsetWidth)+'px'})};function startDrag(e){textarea=$(e.data.el);textarea.blur();iLastMousePos=mousePosition(e).y;staticOffset=textarea.height()-iLastMousePos;textarea.css('opacity',0.25);$(document).mousemove(performDrag).mouseup(endDrag);return false}function performDrag(e){var iThisMousePos=mousePosition(e).y;var iMousePos=staticOffset+iThisMousePos;if(iLastMousePos>=(iThisMousePos)){iMousePos-=5}iLastMousePos=iThisMousePos;iMousePos=Math.max(iMin,iMousePos);textarea.height(iMousePos+'px');if(iMousePos<iMin){endDrag(e)}return false}function endDrag(e){$(document).unbind('mousemove',performDrag).unbind('mouseup',endDrag);textarea.css('opacity',1);textarea.focus();textarea=null;staticOffset=null;iLastMousePos=0}function mousePosition(e){return{x:e.clientX+document.documentElement.scrollLeft,y:e.clientY+document.documentElement.scrollTop}}})(jQuery);
-
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

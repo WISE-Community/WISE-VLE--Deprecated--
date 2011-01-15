@@ -23,7 +23,8 @@ var dependencies = [
 
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/assessmentlist/assessmentlist.css"
+	"vle/node/assessmentlist/assessmentlist.css",,
+	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);

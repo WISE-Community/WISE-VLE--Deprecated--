@@ -4,8 +4,8 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
-	'vle/jquery/js/jquery-1.4.2.min.js',
-	'vle/jquery/js/jquery-ui-1.8.custom.min.js',
+	'vle/jquery/js/jquery-1.4.4.min.js',
+	'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/common/nodehelpers.js',
 	'vle/node/fillin/textentryinteraction.js',
@@ -27,7 +27,8 @@ var dependencies = [
 
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/fillin/fillin.css"
+	"vle/node/fillin/fillin.css",,
+	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);

@@ -56,7 +56,8 @@
         }
 
         function next() {
-        	var isNextDisabled = hasClass("nextButton", "disabledLink");
+        	//var isNextDisabled = hasClass("nextButton", "disabledLink");
+        	var isNextDisabled = $('#nextButton').parent().hasClass('ui-state-disabled');
 
         	if (isNextDisabled) {
         		return;
@@ -134,13 +135,19 @@
                 <table id="buttonTable">
                     <tr>
                         <td>
-                            <a class="firstButton" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                            <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                            	<a class="firstButton" id="checkAnswerButton" onClick="javascript:checkAnswer();">Check Answer</a>
+                            </div>
                         </td>
                         <td>
-                            <a id="tryAgainButton" onClick="javascript:tryAgain();">Try Again</a>
+                            <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                            	<a id="tryAgainButton" onClick="javascript:tryAgain();">Try Again</a>
+                            </div>
                         </td>
                         <td>
-                            <a id="nextButton" onClick="javascript:next();">Next Blank</a>
+                            <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                            	<a id="nextButton" onClick="javascript:next();">Next Blank</a>
+                            </div>
                         </td>
                     </tr>
                 </table>
