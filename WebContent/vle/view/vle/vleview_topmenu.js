@@ -546,7 +546,7 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:500,height:225,modal:false,title:'Add an Idea',position:[300,40],buttons:{"OK":function() {eventManager.fire("addIdeaToBasket");},"Cancel":function() {$(this).dialog("close");}}});
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,modal:false,title:'Add an Idea',position:[300,40],buttons:{"OK":function() {eventManager.fire("addIdeaToBasket");},"Cancel":function() {$(this).dialog("close");}}});
     }
 	
 	//the html we will insert into the popup
@@ -555,8 +555,11 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 	addAnIdeaHtml += "<form class='cmxform' id='ideaForm' method='get' action=''>";
 	addAnIdeaHtml += "<fieldset>";
 	addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='75'></input></p>";
+	addAnIdeaHtml += "			<table>";
+	addAnIdeaHtml += "				<tr>";
+	addAnIdeaHtml += "					<td>";
 	addAnIdeaHtml += "			<p style:'height:24px; line-height:24px;'>";
-	addAnIdeaHtml += "				<label for='source'>Source (choose one)*: </label>";
+	addAnIdeaHtml += "				<label for='source'>Source*: </label>";
 	addAnIdeaHtml += "				<select id='addAnIdeaSource' name='source' class='required' style='height:24px;'>";
 	addAnIdeaHtml += "					<option value='Evidence Step'>Evidence Step</option>";
 	addAnIdeaHtml += "				  <option value='Visualization or Model'>Visualization or Model</option>";
@@ -566,8 +569,13 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 	addAnIdeaHtml += "				  <option value='Other'>Other</option>";
 	addAnIdeaHtml += "				</select>";
 	addAnIdeaHtml += "			</p>";
-	addAnIdeaHtml += "			<p id='addAnIdeaOtherSource' style='display:none'><label for='other'>Please specify*: </label><input id='other' name='other' size='25' minlength='2' maxlength='25'></textarea></p>";
-	addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTag' name='tags' size='20' maxlength='20'></textarea></p>";
+	addAnIdeaHtml += "					</td>";
+	addAnIdeaHtml += "					<td>";
+	addAnIdeaHtml += "			<p id='addAnIdeaOtherSource' style='display:none'><label for='other'>Specify*: </label><input id='addAnIdeaOther' name='other' size='15' minlength='2' maxlength='25'></input></p>";
+	addAnIdeaHtml += "					</td>";
+	addAnIdeaHtml += "				</tr>";
+	addAnIdeaHtml += "			</table>";
+	addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTag' name='tags' size='20' maxlength='20'></input></p>";
 	addAnIdeaHtml += "				<p>";
 	addAnIdeaHtml += "				<label for='flag'>Flag (choose one)*: </label>";
 	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='blank' class='required' checked style='margin-left:0;'><span style='vertical-align:top; line-height:24px;'> None</span>";
@@ -584,6 +592,16 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');
 	
+	//display or hide the specify other source field when Other is chosen or not chosen
+	$('#addAnIdeaSource').change(function(){
+		if($('#addAnIdeaSource').val()=='Other'){
+			$('#addAnIdeaOtherSource').show();
+			$('#addAnIdeaOther').addClass('required');
+		} else {
+			$('#addAnIdeaOtherSource').hide();
+			$('#addAnIdeaOther').removeClass('required');
+		}
+	});
 };
 
 /**
@@ -592,40 +610,46 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 View.prototype.addIdeaToBasket = function() {
 	//get the values the student entered
 	var text = $('#addAnIdeaText').val();
-	var source = $('#addAnIdeaSource').val();
-	var tag = $('#addAnIdeaTag').val();
-	var flag = $("input[@name=addAnIdeaFlag]:checked").val();
 	
-	//get the node id, node name and vle position for the step
-	var nodeId = this.getCurrentNode().id;
-	var nodeName = this.getCurrentNode().getTitle();
-	var vlePosition = this.getProject().getVLEPositionById(nodeId);
-	
-	//prepend the vlePosition so nodeName will now look something like "2.3: How Airbags Work"
-	nodeName = vlePosition + ": " + nodeName;
+	if(text == "") {
+		alert("Please enter text in the idea field");
+	} else {
+		
+		var source = $('#addAnIdeaSource').val();
+		var tag = $('#addAnIdeaTag').val();
+		var flag = $("input[@name=addAnIdeaFlag]:checked").val();
+		
+		//get the node id, node name and vle position for the step
+		var nodeId = this.getCurrentNode().id;
+		var nodeName = this.getCurrentNode().getTitle();
+		var vlePosition = this.getProject().getVLEPositionById(nodeId);
+		
+		//prepend the vlePosition so nodeName will now look something like "2.3: How Airbags Work"
+		nodeName = vlePosition + ": " + nodeName;
 
-	//get the idea basket
-	var ideaBasket = this.ideaBasket;
-	
-	//create and add the new idea to the basket
-	ideaBasket.addIdeaToBasketArray(text,source,tag,flag,nodeId,nodeName);
-	
-	//set the action for the server to perform
-	var action = "saveIdeaBasket";
-	
-	//obtain the JSON string serialization of the basket
-	var data = $.stringify(ideaBasket);
-	
-	var ideaBasketParams = {
-			action:action,
-			data:data 
-	};
-	
-	//save the idea basket back to the server
-	this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:this});
+		//get the idea basket
+		var ideaBasket = this.ideaBasket;
+		
+		//create and add the new idea to the basket
+		ideaBasket.addIdeaToBasketArray(text,source,tag,flag,nodeId,nodeName);
+		
+		//set the action for the server to perform
+		var action = "saveIdeaBasket";
+		
+		//obtain the JSON string serialization of the basket
+		var data = $.stringify(ideaBasket);
+		
+		var ideaBasketParams = {
+				action:action,
+				data:data 
+		};
+		
+		//save the idea basket back to the server
+		this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:this});
 
-	//close the create an idea popup
-	$('#addAnIdeaDiv').dialog('close');
+		//close the create an idea popup
+		$('#addAnIdeaDiv').dialog('close');		
+	}
 };
 
 /**
