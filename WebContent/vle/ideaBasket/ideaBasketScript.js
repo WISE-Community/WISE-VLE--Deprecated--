@@ -12,6 +12,12 @@ $(document).ready(function() {
 	if(basket == null){
 		basket = new IdeaBasket();
 	}
+	
+	/*
+	 * set the idea basket back into the frame in case we 
+	 * need access to it from outside this context
+	 */
+	parent.frames['ideaBasketIfrm'].ideaBasket = basket;
 
 	$('#showAdmin').click(function(){
 		$('#adminLinks').toggle();
@@ -163,7 +169,7 @@ $(document).ready(function() {
  */
 var loadIdeaBasket = function() {
 	//load the ideaBasket JSON object that should have been set into the iframe
-	basket.load(ideaBasket);
+	basket.load(parent.frames['ideaBasketIfrm'].ideaBasketJSONObj, true);
 };
 
 

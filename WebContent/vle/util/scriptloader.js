@@ -321,7 +321,7 @@ var scriptloader = function(){
         premadecomments:['vle/jquery/js/jquery-1.4.4.min.js',
                          'vle/jquery/js/jquery.editinplace.js',
                          'vle/jquery/js/jquery-ui-1.8.7.custom.min.js'],
-        ideabasket:[]
+        ideabasket:['vle/ideaBasket/basket.js']
 	};
 	
 	/**
@@ -339,7 +339,8 @@ var scriptloader = function(){
     	navigation:["vle/css/navigation.css"],
     	menu:["vle/css/sdmenu.css"],
  		grading: ['vle/css/portal/teachergrading.css',
- 		         'vle/jquery/css/blue/style.css']
+ 		         'vle/jquery/css/blue/style.css'],
+ 		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
     	         
 	};
 	

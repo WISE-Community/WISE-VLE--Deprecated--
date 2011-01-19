@@ -10,7 +10,13 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tag, flag, nodeId, 
 	this.flag = flag; //idea's flag
 };
 
-function IdeaBasket() {
+/**
+ * Creates an IdeaBasket instance
+ * @param ideaBasketJSONObj optional argument, if it is provided it will load
+ * the data from the JSON into this object
+ * @return an IdeaBasket instance
+ */
+function IdeaBasket(ideaBasketJSONObj) {
 	this.id;
 	this.runId;
 	this.workgroupId;
@@ -19,7 +25,18 @@ function IdeaBasket() {
 	this.deleted = [];
 	this.nextIdeaId = 1;
 
-	this.init(this);
+	if(ideaBasketJSONObj == null) {
+		//JSON is not provided so we will just initialize the UI
+		this.init(this);	
+	} else {
+		/*
+		 * JSON is provided so we will populate the data and not initialize the UI.
+		 * this is supposed to be used when you want the idea basket object but
+		 * do not need to display it such as when the vle retrieves the basket
+		 * to "Add an Idea"
+		 */
+		this.load(ideaBasketJSONObj, false);
+	}
 };
 
 /**
@@ -71,13 +88,10 @@ IdeaBasket.prototype.init = function(context) {
 
 /**
  * Load the ideas into the tables in the interface
- * @param ideas 
- * @param deleted
- * @param index
- * @param isImport
- * @return
+ * @param ideaBasketJSONObj the JSON object to populate the data from
+ * @param generateUI boolean value whether to generate the UI
  */
-IdeaBasket.prototype.load = function(ideaBasketJSONObj) {
+IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
 	//set the values from the JSON object we received from the server
 	
 	this.id = ideaBasketJSONObj.id;
@@ -97,24 +111,28 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj) {
 		this.deleted = ideaBasketJSONObj.deleted;		
 	}
 
-	// clear out existing rows
-	$('#basketIdeas tbody tr').each(function(){
-		$(this).remove();
-	});
+	if(generateUI) {
+		//we will generate the UI
+		
+		// clear out existing rows
+		$('#basketIdeas tbody tr').each(function(){
+			$(this).remove();
+		});
 
-	$('#basketDeleted tbody tr').each(function(){
-		$(this).remove();
-	});
+		$('#basketDeleted tbody tr').each(function(){
+			$(this).remove();
+		});
 
-	//populate tables
-	for(var i=0; i<this.ideas.length; i++){
-		this.addRow(0,this.ideas[i],true);
+		//populate tables
+		for(var i=0; i<this.ideas.length; i++){
+			this.addRow(0,this.ideas[i],true);
+		}
+		for(var i=0; i<this.deleted.length; i++){
+			this.addRow(1,this.deleted[i],true);
+		}
+
+		$("#basketIdeas").trigger("applyWidgets");
 	}
-	for(var i=0; i<this.deleted.length; i++){
-		this.addRow(1,this.deleted[i],true);
-	}
-
-	$("#basketIdeas").trigger("applyWidgets");
 };
 
 /**
@@ -149,17 +167,35 @@ IdeaBasket.prototype.getIdeaById = function(ideaId) {
  */
 IdeaBasket.prototype.add = function(text,source,tag,flag) {
 	this.setBasketChanged(true);
+
+	//get the values for the current step
+	var nodeId = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().id;
+	var nodeName = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().getTitle();
+	var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
+	nodeName = vlePosition + ": " + nodeName;
+
+	//create an add an idea to the basket
+	var newIdea = this.addIdeaToBasketArray(text, source, tag, flag, nodeId, nodeName);
 	
+	//add the idea to the UI
+	basket.addRow(0,newIdea);
+};
+
+/**
+ * Create and add an idea to the basket
+ * @param text
+ * @param source
+ * @param tag
+ * @param flag
+ * @param nodeId
+ * @param nodeName
+ * @return the new idea that was just added to the basket
+ */
+IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tag,flag,nodeId,nodeName) {
 	//get the current time
 	var newDate = new Date();
 	var time = newDate.getTime();
-
-	//get the values for the current step
-	var nodeId = thisView.getCurrentNode().id;
-	var nodeName = thisView.getCurrentNode().getTitle();
-	var vlePosition = thisView.getProject().getVLEPositionById(nodeId);
-	nodeName = vlePosition + ": " + nodeName;
-
+	
 	//create the new idea
 	var newIdea = new Idea(this.nextIdeaId,time,time,text,source,tag,flag,nodeId,nodeName);
 	
@@ -169,8 +205,7 @@ IdeaBasket.prototype.add = function(text,source,tag,flag) {
 	//add the idea to the array of ideas
 	this.ideas.push(newIdea);
 	
-	//add the idea to the UI
-	basket.addRow(0,newIdea);
+	return newIdea;
 };
 
 /**
@@ -544,7 +579,7 @@ IdeaBasket.prototype.saveIdeaBasket = function() {
 	};
 	
 	//post the idea basket back to the server to be saved
-	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:thisView});
+	parent.frames['ideaBasketIfrm'].thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:thisView});
 };
 
 /**
@@ -570,3 +605,8 @@ var fixHelper = function(e, ui) {
 	});
 	return ui;
 };
+
+/* used to notify scriptloader that this script has finished loading */
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/ideaBasket/basket.js');
+}
