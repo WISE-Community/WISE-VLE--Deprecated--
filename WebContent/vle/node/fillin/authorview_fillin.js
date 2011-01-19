@@ -4,6 +4,7 @@
  * @author patrick lawler
  */
 View.prototype.FillinNode = {};
+View.prototype.FillinNode.commonComponents = [];
 
 /**
  * Sets initial variables then calls re-generate to build html dynamically
@@ -18,6 +19,15 @@ View.prototype.FillinNode.generatePage = function(view){
 	
 	this.regeneratePage();
 };
+
+/**
+ * Get the array of common components which is an array with
+ * string elements being the name of the common component
+ */
+View.prototype.FillinNode.getCommonComponents = function() {
+	return this.commonComponents;
+};
+
 
 /**
  * Dynamically generates the html elements used in this page.
