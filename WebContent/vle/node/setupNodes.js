@@ -18,7 +18,8 @@ var setupFiles = [
 	 "vle/node/openresponse/setup.js",
 	 "vle/node/outsideurl/setup.js",
 	 "vle/node/sensor/setup.js",
-	 "vle/node/template/setup.js"
+	 "vle/node/template/setup.js",
+	 "vle/node/explanationbuilder/setup.js"
 ];
 
 /*

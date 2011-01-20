@@ -1,0 +1,218 @@
+ /* Primary Styles
+    Author: Jonathan Breitbart
+ */
+body {
+  
+}
+
+header {
+  margin:.5em 0;
+  text-align:center;
+  font-size:1.25em;
+}
+
+#container {
+  width:750px;
+  margin:auto;
+  display:block;
+  height:500px;
+}
+
+#main {
+  height:auto !important;
+  border:2px solid #444; 
+}
+
+#addNew {
+  margin:0 .5em;
+  border-radius:4px;
+  -moz-border-radius:4px;
+  -webkit-border-radius:4px;
+}
+
+#question {
+  padding:1em;
+  font-weight:bold;
+  height:15px;
+  line-height:15px;
+  font-size:1.2em;
+  color:#4A4A4A;
+  background-color:#FFF3DF;
+}
+
+#ideas, #explanation {
+  border-top:2px solid #444;
+  position:relative;
+  display:block;
+  height:460px;
+}
+
+#ideas {
+  width: 260px;
+  display: block;
+  float: left;
+}
+
+#ideasWrapper {
+  height:420px;
+  max-height:420px;
+  border-bottom:1px solid #777;
+  overflow:auto;
+}
+
+#ideasWrapper.hover, #ideasWrapper.hover td {
+  background-color:#FFDFE0;
+}
+
+#target.hover {
+  background-color:#DFFFE0;
+}
+
+#ideasEmpty {
+  margin: .5em;
+}
+
+table.tablesorter {
+  width:100%;
+}
+
+table#activeIdeas {
+  margin-top:0;
+  margin-bottom:0;
+}
+
+th.tags {
+  width:75px;
+}
+
+table.tablesorter tbody tr {
+  line-height: 1.5em;
+}
+
+table.tablesorter tbody tr.drag td, table.tablesorter tbody tr.inuse td {
+  background-color:#eee;
+  color: #777;
+}
+
+tr.ui-draggable-disabled:hover td {
+  background-color:#fff !important;
+}
+
+#addNew {
+  margin-top:.65em;
+}
+
+#explanation {
+  margin-left:260px;
+  padding:0;
+  background-color:#eee;
+  border-left: 2px solid #444444;
+}
+
+#explanationSpace {
+  /*border-left:none;*/
+  position:relative;
+}
+
+#explanationIdeas{
+  height:315px;
+  border-bottom:1px solid #777;
+  background-color:#fff;
+}
+
+.drag-idea table {
+  margin:0;
+}
+
+#target {
+  height:315px !important;
+  position:relative;
+}
+
+#spacePrompt {
+  padding:2em;
+  border:none;
+}
+
+.exIdea {
+  width: 150px;
+  padding: .5em;
+  border: 2px solid #444;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  background-color:rgb(38, 84, 207);
+  /*background-color:#2654CF;*/
+  color:#fff;
+  text-align:center;
+  cursor:pointer;
+  box-shadow: 0px 0px 4px #fff;
+  -moz-box-shadow: 0px 0px 4px #fff;
+  -webkit-box-shadow: 0px 0px 6px #fff;
+}
+
+.exIdea:hover {
+  color:yellow;
+  /*border-color:yellow;*/
+}
+
+.deleted {
+  color:#000000;
+  opacity:.7;
+}
+
+.deleted:hover {
+  color:#000000;
+}
+
+.selected {
+  border-width:2px;
+  border-color:yellow;
+  border-style:dashed;
+  color:yellow;
+}
+
+#colorPicker {
+  position:absolute;
+  width:26px;
+  top:-2px;
+  right:-30px;
+  border:2px solid #222;
+  display:none;
+  z-index:1000;
+  background-color:#222;
+}
+
+.color {
+  width:20px;
+  height:20px;
+  margin:2px;
+  border:1px solid #222;
+  cursor:pointer;
+}
+
+.current {
+  border-color:#eee;
+  border-width:2px;
+  width:18px;
+  height:18px;
+}
+
+#answer {
+}
+
+#instruction {
+  padding:.75em;
+  color:#000;
+}
+
+.textWrapper {
+  padding:0 .75em;
+}
+
+textarea#explanationText {
+  max-height:80px;
+  max-width:100%;
+  width:100%;
+  height:80px;
+}
