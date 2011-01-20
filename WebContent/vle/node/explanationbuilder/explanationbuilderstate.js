@@ -35,13 +35,28 @@
  * is just used as an example. you can add any variables that will help you 
  * represent the student's work for your step type.
  */
-function EXPLANATIONBUILDERSTATE(response) {
-	//the text response the student wrote
-	this.response = "";
+function ExplanationBuilderState(explanationIdeas, answer) {
+	this.explanationIdeas = [];
+	this.answer = '';
+	var selected = [];
+	
+	if(explanationIdeas != null) {
+		this.explanationIdeas = explanationIdeas;
+	}
+	
+	if(answer != null) {
+		this.answer = answer;
+	}
+};
 
-	if(response != null) {
-		//set the response
-		this.response = response;
+function ExplanationIdea(id,xpos,ypos,color){
+	this.id = id;
+	this.xpos = xpos;
+	this.ypos = ypos;
+	if(color){
+		this.color = color; 
+	} else {
+		this.color = 'rgb(38, 84, 207)';
 	}
 };
 
@@ -59,18 +74,21 @@ function EXPLANATIONBUILDERSTATE(response) {
  * @param stateJSONObj a JSONObject representing the student work
  * @return a TEMPLATESTATE object
  */
-EXPLANATIONBUILDERSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
+ExplanationBuilderState.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//obtain the student work from the JSONObject
-	var response = stateJSONObj.response;
+	//var response = stateJSONObj.response;
+
+	var explanationIdeas = stateJSONObj.explanationIdeas;
+	var answer = stateJSONObj.answer;
 	
 	/*
 	 * create a state object with the student work
 	 * xTODO: rename TEMPLATESTATE
 	 */
-	var sensorState = new EXPLANATIONBUILDERSTATE(response);
+	var explanationBuilderState = new ExplanationBuilderState(explanationIdeas, answer);
 	
 	//return the state object
-	return sensorState;
+	return explanationBuilderState;
 };
 
 /**
@@ -80,7 +98,7 @@ EXPLANATIONBUILDERSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * 
  * @return the student work
  */
-EXPLANATIONBUILDERSTATE.prototype.getStudentWork = function() {
+ExplanationBuilderState.prototype.getStudentWork = function() {
 	return this.response;
 };
 

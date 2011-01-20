@@ -15,7 +15,7 @@
  */
 
 TemplateNode.prototype = new Node(); //TODO: rename TemplateNode
-TemplateNode.prototype.constructor = TemplateNode; //TODO: rename TemplateNode
+TemplateNode.prototype.constructor = TemplateNode; //TODO: rename both occurrences of TemplateNode
 TemplateNode.prototype.parentNode = Node.prototype; //TODO: rename TemplateNode
 
 /*

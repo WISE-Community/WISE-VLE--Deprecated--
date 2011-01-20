@@ -15,7 +15,7 @@
  */
 
 ExplanationBuilderNode.prototype = new Node(); //xTODO: rename TemplateNode
-ExplanationBuilderNode.prototype.constructor = TemplateNode; //xTODO: rename TemplateNode
+ExplanationBuilderNode.prototype.constructor = ExplanationBuilderNode; //xTODO: rename TemplateNode
 ExplanationBuilderNode.prototype.parentNode = Node.prototype; //xTODO: rename TemplateNode
 
 /*
@@ -72,7 +72,7 @@ ExplanationBuilderNode.prototype.parseDataJSONObj = function(stateJSONObj) {
 	 * and in that file you would define QUIZSTATE and therefore
 	 * would change the TEMPLATESTATE to QUIZSTATE below
 	 */ 
-	return EXPLANATIONBUILDERSTATE.prototype.parseDataJSONObj(stateJSONObj);
+	return ExplanationBuilderState.prototype.parseDataJSONObj(stateJSONObj);
 };
 
 /**
@@ -121,10 +121,10 @@ ExplanationBuilderNode.prototype.onExit = function() {
 			 * to access attributes of pages outside the context of our
 			 * server.
 			 */
-			if(this.contentPanel.onExit) {
+			if(this.contentPanel.save) {
 				try {
 					//run the on exit cleanup
-					this.contentPanel.onExit();					
+					this.contentPanel.save();					
 				} catch(err) {
 					//error when onExit() was called, e.g. mysystem editor undefined
 				}

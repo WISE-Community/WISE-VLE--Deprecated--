@@ -64,6 +64,8 @@ public class StepWorkFactory {
 			 * }
 			 */
 			stepWork = new StepWorkTemplate();
+		} else {
+			stepWork = new StepWork();
 		}
 		return stepWork;
 	}

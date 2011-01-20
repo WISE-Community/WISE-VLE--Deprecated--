@@ -60,6 +60,9 @@ public class StepWork extends PersistableDomain {
 	
 	@Column(name="duplicateId")
 	private String duplicateId;
+	
+	@Column(name="data", length=1024)
+	private String data;
 
     public Long getId() {
         return id;
@@ -134,6 +137,22 @@ public class StepWork extends PersistableDomain {
 	public void setEndTime(Timestamp endTime) {
 		this.endTime = endTime;
 	}
+	
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
+	public void populateData(String nodeVisit) {
+		this.data = nodeVisit;
+	}
+	
+	public void populateData(JSONObject nodeVisitJSON) {
+		this.data = nodeVisitJSON.toString();
+	}
 
 	/**
 	 * @see vle.domain.PersistableDomain#getObjectClass()
@@ -142,15 +161,6 @@ public class StepWork extends PersistableDomain {
 	protected Class<?> getObjectClass() {
 		return StepWork.class;
 	}
-
-	public void populateData(String nodeVisit) {
-		// to be overriden by my children
-	}
-	
-	public void populateData(JSONObject nodeVisitJSON) {
-		// to be overriden by my children
-	}
-
 	
 	/**
 	 * Returns a list of StepWork done by the specified workgroup with the specified id or null
@@ -335,14 +345,6 @@ public class StepWork extends PersistableDomain {
         StepWork result =  (StepWork) session.createCriteria(StepWork.class).add(Restrictions.eq("id", id)).uniqueResult();
         session.getTransaction().commit();
         return result;
-	}
-	
-	/**
-	 * Returns the data associated with this stepWork
-	 * @return
-	 */
-	public String getData() {
-		return "";
 	}
 	
 	/**
