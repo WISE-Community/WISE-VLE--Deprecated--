@@ -55,19 +55,19 @@ View.prototype.getWorkgroupId = function() {
 	} else {
 		return "";
 	}
-}
+};
 
 View.prototype.setUserName = function(userName) {
 	if(this.myUserInfo != null) {
-		this.myUserInfo.userName;
+		this.myUserInfo.userName = userName;
 	}
-}
+};
 
 View.prototype.setWorkgroupId = function(workgroupId) {
 	if(this.myUserInfo != null) {
 		this.myUserInfo.workgroupId = workgroupId;
 	}
-}
+};
 
 View.prototype.getUserName = function() {
 	if(this.myUserInfo != null) {

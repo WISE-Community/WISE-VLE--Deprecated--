@@ -22,7 +22,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 		};
 		
 		var getUserName = function() {
-			return myUserInfo.userName;
+			if (myUserInfo != null) {
+				return myUserInfo.userName;
+			}
 		};
 		
 		/**
