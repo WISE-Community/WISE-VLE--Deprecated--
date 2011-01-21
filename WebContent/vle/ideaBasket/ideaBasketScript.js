@@ -160,16 +160,16 @@ $(document).ready(function() {
 			}
 	);
 
-	loadIdeaBasket();
+	loadIdeaBasket(parent.frames['ideaBasketIfrm'].ideaBasketJSONObj, true);
 });
 
 /**
  * Loads the idea basket from the global ideaBasket JSON object
  * that should have been set into the iframe
  */
-var loadIdeaBasket = function() {
+var loadIdeaBasket = function(ideaBasketJSONObj, generateUI) {
 	//load the ideaBasket JSON object that should have been set into the iframe
-	basket.load(parent.frames['ideaBasketIfrm'].ideaBasketJSONObj, true);
+	basket.load(ideaBasketJSONObj, generateUI);
 };
 
 

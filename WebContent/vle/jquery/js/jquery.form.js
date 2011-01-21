@@ -789,3 +789,8 @@ function log() {
 };
 
 })(jQuery);
+
+//used to notify scriptloader that this script has finished loading
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/jquery/js/jquery.form.js');
+}

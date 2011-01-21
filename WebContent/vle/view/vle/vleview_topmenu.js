@@ -575,7 +575,7 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 	addAnIdeaHtml += "					</td>";
 	addAnIdeaHtml += "				</tr>";
 	addAnIdeaHtml += "			</table>";
-	addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTag' name='tags' size='20' maxlength='20'></input></p>";
+	addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTags' name='tags' size='20' maxlength='20'></input></p>";
 	addAnIdeaHtml += "				<p>";
 	addAnIdeaHtml += "				<label for='flag'>Flag (choose one)*: </label>";
 	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='blank' class='required' checked style='margin-left:0;'><span style='vertical-align:top; line-height:24px;'> None</span>";
@@ -616,7 +616,7 @@ View.prototype.addIdeaToBasket = function() {
 	} else {
 		
 		var source = $('#addAnIdeaSource').val();
-		var tag = $('#addAnIdeaTag').val();
+		var tags = $('#addAnIdeaTags').val();
 		var flag = $("input[@name=addAnIdeaFlag]:checked").val();
 		
 		//get the node id, node name and vle position for the step
@@ -631,8 +631,11 @@ View.prototype.addIdeaToBasket = function() {
 		var ideaBasket = this.ideaBasket;
 		
 		//create and add the new idea to the basket
-		ideaBasket.addIdeaToBasketArray(text,source,tag,flag,nodeId,nodeName);
+		ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
 		
+		ideaBasket.saveIdeaBasket(this);
+		
+		/*
 		//set the action for the server to perform
 		var action = "saveIdeaBasket";
 		
@@ -646,7 +649,8 @@ View.prototype.addIdeaToBasket = function() {
 		
 		//save the idea basket back to the server
 		this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:this});
-
+		*/
+		
 		//close the create an idea popup
 		$('#addAnIdeaDiv').dialog('close');		
 	}
@@ -702,6 +706,12 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	if($('#ideaBasketIfrm').attr('src') == null) {
 		//set the src so it will load the ideaManager.html page
 		$('#ideaBasketIfrm').attr('src', "ideaManager.html");
+	} else {
+		/*
+		 * the ideaManager.html has already previously been loaded
+		 * so we just need to reload the idea basket contents
+		 */
+		window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true);
 	}
 };
 

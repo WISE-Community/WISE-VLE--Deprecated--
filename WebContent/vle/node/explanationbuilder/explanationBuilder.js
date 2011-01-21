@@ -46,6 +46,7 @@ function ExplanationBuilder(node, view) {
 
 	//var studentExplanation;
 	var ideaBasket;
+	var basketChanged = false;
 	
 	this.question = '';
 	this.bg = '';
@@ -116,7 +117,7 @@ ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, 
 			if(source=='Other'){
 				source = 'Other: ' + $('#other').val();
 			}
-			explanationBuilder.add($('#text').val(),source,$('#tag').val(),$("input[name='flag']:checked").val());
+			explanationBuilder.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
 			$(this).dialog("close");
 			resetForm('ideaForm');
 		}
@@ -227,6 +228,14 @@ ExplanationBuilder.prototype.save = function() {
 
 	//push the state object into this or object's own copy of states
 	this.states.push(explanationBuilderState);
+	
+	if(this.basketChanged == true) {
+		//save the basket since it has been changed
+		this.ideaBasket.saveIdeaBasket(this.view);
+		
+		//set this back to false now that we have saved it
+		this.basketChanged = false;
+	}
 };
 
 
@@ -360,7 +369,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 	$('.exIdea').remove();
 
 	//populate table and explanation ideas
-	for(var i=this.ideaBasket.ideas.length-1; i>-1; i--){
+	for(var i=0; i<this.ideaBasket.ideas.length; i++){
 		this.addRow(this.ideaBasket.ideas[i],true);
 		if(explanationIdeas){
 			for (var a=0; a<explanationIdeas.length; a++){
@@ -376,7 +385,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 		}
 	}
 
-	for(var i=this.ideaBasket.deleted.length-1; i>-1; i--){
+	for(var i=0; i<this.ideaBasket.deleted.length; i++){
 		if(explanationIdeas){
 			for (var a=0; a<explanationIdeas.length; a++){
 				if(this.ideaBasket.deleted[i].id == explanationIdeas[a].id){
@@ -404,12 +413,17 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 	this.init(this);
 };
 
-ExplanationBuilder.prototype.add = function(text,src,tag,flag) {
-	var newDate = new Date();
-	var time = newDate.getTime();
-	var newIdea = new Idea(this.ideaBasket.index,time,text,src,tag,flag);
+ExplanationBuilder.prototype.add = function(text,source,tags,flag) {
+	//get the values for the current step
+	var nodeId = this.view.getCurrentNode().id;
+	var nodeName = this.view.getCurrentNode().getTitle();
+	var vlePosition = this.view.getProject().getVLEPositionById(nodeId);
+	nodeName = vlePosition + ": " + nodeName;
+	
+	var newIdea = this.ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
 	this.ideaBasket.index++;
 	this.ideaBasket.ideas.push(newIdea);
+	this.basketChanged = true;
 	this.addRow(newIdea);
 	this.updateOrder();
 	//localStorage.ideas = JSON.stringify(basket.ideas);
@@ -420,7 +434,7 @@ ExplanationBuilder.prototype.addRow = function(idea,load){
 	var title = 'Click and drag to add to idea space, Double click to edit';
 	var text = idea.text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
 
-	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td>' + idea.tag + '</td>';
+	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td>' + idea.tags + '</td>';
 
 	$('#activeIdeas tbody').prepend(html);
 
@@ -440,7 +454,7 @@ ExplanationBuilder.prototype.addRow = function(idea,load){
 	}
 };
 
-ExplanationBuilder.prototype.edit = function(index,text,src,tag,flag,$tr) {
+ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,$tr) {
 	var title = 'Click and drag to add to idea space, Double click to edit';
 	var id;
 	var idea;
@@ -448,13 +462,13 @@ ExplanationBuilder.prototype.edit = function(index,text,src,tag,flag,$tr) {
 		if(this.ideaBasket.ideas[i].id == index){
 			id = this.ideaBasket.ideas[i].id; 
 			this.ideaBasket.ideas[i].text = text;
-			this.ideaBasket.ideas[i].src = src;
-			this.ideaBasket.ideas[i].tag = tag;
+			this.ideaBasket.ideas[i].source = source;
+			this.ideaBasket.ideas[i].tags = tags;
 			this.ideaBasket.ideas[i].flag = flag;
 			idea = this.ideaBasket.ideas[i];
 			var text = this.ideaBasket.ideas[i].text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
 			if($tr){
-				$tr.html('<td>' + text + '</td><td>' + this.ideaBasket.ideas[i].tag + '</td>');
+				$tr.html('<td>' + text + '</td><td>' + this.ideaBasket.ideas[i].tags + '</td>');
 				$tr.effect("pulsate", { times:2 }, 500);
 				if($tr.hasClass('ui-draggable-disabled')){
 					setTimeout(function(){
@@ -473,6 +487,8 @@ ExplanationBuilder.prototype.edit = function(index,text,src,tag,flag,$tr) {
 			break;
 		}
 	}
+	
+	this.basketChanged = true;
 };
 
 ExplanationBuilder.prototype.updateOrder = function(){
@@ -519,22 +535,22 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 		id = parseInt(id);
 
 		//populate edit fields
-		for(var i=0;i<this.ideaBasket.ideas.length;i++){
-			if(this.ideaBasket.ideas[i].id==id){
-				$('#editText').val(this.ideaBasket.ideas[i].text);
-				if(this.ideaBasket.ideas[i].src.match(/^Other: /)){
+		for(var i=0;i<context.ideaBasket.ideas.length;i++){
+			if(context.ideaBasket.ideas[i].id==id){
+				$('#editText').val(context.ideaBasket.ideas[i].text);
+				if(context.ideaBasket.ideas[i].source.match(/^Other: /)){
 					$('#editSource').val("Other");
-					$('#editOther').val(this.ideaBasket.ideas[i].src.replace(/^Other: /,''));
+					$('#editOther').val(context.ideaBasket.ideas[i].source.replace(/^Other: /,''));
 					$('#editOtherSource').show();
 					$('#editOther').addClass('required');
 				} else {
-					$('#editSource').val(this.ideaBasket.ideas[i].src);
+					$('#editSource').val(context.ideaBasket.ideas[i].source);
 					$('#editOtherSource').hide();
 					$('#editOther').removeClass('required');
 				}
-				$('#editTags').val(this.ideaBasket.ideas[i].tag);
+				$('#editTags').val(context.ideaBasket.ideas[i].tags);
 				$("input[name='editFlag']").each(function(){
-					if($(this).attr('value')==this.ideaBasket.ideas[i].flag){
+					if($(this).attr('value')==context.ideaBasket.ideas[i].flag){
 						$(this).attr('checked', true);
 					} else {
 						$(this).attr('checked', false);

@@ -1,4 +1,4 @@
-function Idea(id, timeCreated, timeLastEdited, text, source, tag, flag, nodeId, nodeName) {
+function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId, nodeName) {
 	this.id = id; //unique id (order of creation)
 	this.timeCreated = timeCreated; //creation timestamp
 	this.timeLastEdited = timeLastEdited; //time last edited
@@ -6,7 +6,7 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tag, flag, nodeId, 
 	this.source = source; //idea's source
 	this.nodeId = nodeId; //the id of the step
 	this.nodeName = nodeName; //the name of the step
-	this.tag = tag; //idea's tag
+	this.tags = tags; //idea's tags
 	this.flag = flag; //idea's flag
 };
 
@@ -162,10 +162,10 @@ IdeaBasket.prototype.getIdeaById = function(ideaId) {
  * Create the idea and add it to the ideas array as well as the UI
  * @param text
  * @param source
- * @param tag
+ * @param tags
  * @param flag
  */
-IdeaBasket.prototype.add = function(text,source,tag,flag) {
+IdeaBasket.prototype.add = function(text,source,tags,flag) {
 	this.setBasketChanged(true);
 
 	//get the values for the current step
@@ -175,7 +175,7 @@ IdeaBasket.prototype.add = function(text,source,tag,flag) {
 	nodeName = vlePosition + ": " + nodeName;
 
 	//create an add an idea to the basket
-	var newIdea = this.addIdeaToBasketArray(text, source, tag, flag, nodeId, nodeName);
+	var newIdea = this.addIdeaToBasketArray(text, source, tags, flag, nodeId, nodeName);
 	
 	//add the idea to the UI
 	basket.addRow(0,newIdea);
@@ -185,19 +185,19 @@ IdeaBasket.prototype.add = function(text,source,tag,flag) {
  * Create and add an idea to the basket
  * @param text
  * @param source
- * @param tag
+ * @param tags
  * @param flag
  * @param nodeId
  * @param nodeName
  * @return the new idea that was just added to the basket
  */
-IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tag,flag,nodeId,nodeName) {
+IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tags,flag,nodeId,nodeName) {
 	//get the current time
 	var newDate = new Date();
 	var time = newDate.getTime();
 	
 	//create the new idea
-	var newIdea = new Idea(this.nextIdeaId,time,time,text,source,tag,flag,nodeId,nodeName);
+	var newIdea = new Idea(this.nextIdeaId,time,time,text,source,tags,flag,nodeId,nodeName);
 	
 	//increment this counter so that the next idea will have a new id
 	this.nextIdeaId++;
@@ -229,7 +229,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 		title = 'Click on the + icon to take this idea out of the trash';
 	}
 	var html = '<tr id="' + currTable + idea.id + '" title="' + title + '"><td>' + idea.text + '</td><td>' + idea.source + '</td>' +
-	'<td>' + idea.tag + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
+	'<td>' + idea.tags + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
 	'<td style="text-align:center;"><span class="' + link + '" title="' + link + ' idea"></span></td></tr>';
 
 	table.prepend(html);
@@ -260,7 +260,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 						$('#editOtherSource').hide();
 						$('#editOther').removeClass('required');
 					}
-					$('#editTags').val(basket.ideas[i].tag);
+					$('#editTags').val(basket.ideas[i].tags);
 					$("input[name='editFlag']").each(function(){
 						if($(this).attr('value')==basket.ideas[i].flag){
 							$(this).attr('checked', true);
@@ -396,15 +396,15 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
  * @param idea the previous state of the idea
  * @param text the new text
  * @param source the new source
- * @param tag the new tag
+ * @param tags the new tags
  * @param flag the new flag
  * @return whether the student has made any changes to the idea
  */
-IdeaBasket.prototype.isIdeaChanged = function(idea, text, source, tag, flag) {
+IdeaBasket.prototype.isIdeaChanged = function(idea, text, source, tags, flag) {
 	var ideaChanged = true;
 	
 	//compare all the fields
-	if(idea.text == text && idea.source == source && idea.tag == tag && idea.flag == flag) {
+	if(idea.text == text && idea.source == source && idea.tags == tags && idea.flag == flag) {
 		ideaChanged = false;
 	}
 	
@@ -416,11 +416,11 @@ IdeaBasket.prototype.isIdeaChanged = function(idea, text, source, tag, flag) {
  * @param index
  * @param text
  * @param source
- * @param tag
+ * @param tags
  * @param flag
  * @param $tr
  */
-IdeaBasket.prototype.edit = function(index,text,source,tag,flag,$tr) {
+IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 	for(var i=0; i<this.ideas.length; i++){
 		if(this.ideas[i].id == index){
 			var idea = this.ideas[i];
@@ -429,13 +429,13 @@ IdeaBasket.prototype.edit = function(index,text,source,tag,flag,$tr) {
 			 * check if any of the fields in the idea have changed,
 			 * if it has not changed we do not need to do anything
 			 */
-			if(this.isIdeaChanged(idea, text, source, tag, flag)) {
+			if(this.isIdeaChanged(idea, text, source, tags, flag)) {
 				//the idea has changed
 				this.setBasketChanged(true);
 				
 				idea.text = text;
 				idea.source = source;
-				idea.tag = tag;
+				idea.tags = tags;
 				idea.flag = flag;
 				
 				//get the current time
@@ -446,7 +446,7 @@ IdeaBasket.prototype.edit = function(index,text,source,tag,flag,$tr) {
 				
 				if($tr){
 					$tr.html('<td>' + idea.text + '</td><td>' + idea.source + '</td>' +
-							'<td>' + idea.tag + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
+							'<td>' + idea.tags + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
 					'<td style="text-align:center;"><span class="delete" title="delete idea"></span></td>');
 
 					$tr.effect("pulsate", { times:2 }, 500);
@@ -566,7 +566,12 @@ IdeaBasket.prototype.isSameOrder = function(order1, order2) {
 /**
  * Saves the idea basket back to the server
  */
-IdeaBasket.prototype.saveIdeaBasket = function() {
+IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
+	if(thisView == null) {
+		//if thisView is not passed in to the function, try to retrieve it from the iframe
+		thisView = parent.window.frames['ideaBasketIfrm'].thisView;
+	}
+	
 	//set the action for the server to perform
 	var action = "saveIdeaBasket";
 	
@@ -579,7 +584,7 @@ IdeaBasket.prototype.saveIdeaBasket = function() {
 	};
 	
 	//post the idea basket back to the server to be saved
-	parent.frames['ideaBasketIfrm'].thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:thisView});
+	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:thisView});
 };
 
 /**
