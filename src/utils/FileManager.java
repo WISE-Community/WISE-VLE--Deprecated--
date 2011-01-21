@@ -480,8 +480,11 @@ import org.json.JSONObject;
 			return ".br";
 		} else if(type.equals("SensorNode")) {
 			return ".se";
+		} else if(type.equals("ExplanationBuilderNode")) {
+			return ".eb";
 		} else {
-			throw new ServletException("I don't know how to handle nodes of type: " + type);
+			//throw new ServletException("I don't know how to handle nodes of type: " + type);
+			return ".txt";
 		}
 	}
 	

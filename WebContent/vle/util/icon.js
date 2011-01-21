@@ -6,7 +6,7 @@ var iconUrl = 'images/stepIcons/UCCP/';
 var nodeTypes = ['HtmlNode', 'BrainstormNode', 'FillinNode', 'MatchSequenceNode', 'MultipleChoiceNode', 
 		'NoteNode', 'JournalEntryNode', 'OutsideUrlNode', 'OpenResponseNode', 'BlueJNode', 'DrawNode',
 		'DataGraphNode', 'MySystemNode', 'SVGDrawNode', 'MWNode', 'AssessmentListNode', 'ChallengeNode',
-		'BranchNode', 'SensorNode'];
+		'BranchNode', 'SensorNode', 'ExplanationBuilderNode'];
 var nodeClasses = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simulation', 'movie', 'homework', 'summary'],
 			['brainstorm', 'qadiscuss'],
 			['fillblank'],
@@ -25,7 +25,8 @@ var nodeClasses = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simu
 			['instantquiz', 'teacherquiz'],
 			['instantquiz'],
 			['multiplechoice'],
-			['simulation']];
+			['simulation'],
+			['codeit']];
 var nodeClassText = [['Introductory Page', 'Curriculum Page', 'Display Page', 'Cartoon Page', 'Coding Page', 'Simulation Page', 'Movie Page', 'Homework Page', 'Summary Page'],
 			['Brainstorm session', 'Q&A Discussion'],
 			['Fill the Blank'],
@@ -44,7 +45,8 @@ var nodeClassText = [['Introductory Page', 'Curriculum Page', 'Display Page', 'C
 			['Survey 1', 'Survey 2'],
 			['Challenge Question'],
 			['Multiple Choice Branch'],
-			['Sensor']];
+			['Sensor'],
+			['Explanation Builder']];
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

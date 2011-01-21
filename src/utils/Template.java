@@ -107,6 +107,8 @@ public final class Template {
 			return getAssessmentListTemplate();
 		} else if(type.equals("SensorNode")) {
 			return getSensorTemplate();
+		} else if(type.equals("ExplanationBuilderNode")) {
+			return getExplanationBuilderTemplate();
 		} else {
 			return null;
 		}
@@ -454,6 +456,24 @@ public final class Template {
 		node.put("starterSentence", starterSentence);
 		node.put("expectedLines", 5);
 		node.put("type", "Sensor");
+		
+		return node;
+	}
+	
+	/**
+	 * Create the template for the Explanation Builder step content. The JSON string
+	 * will be saved to the step file.
+	 * @return a JSONObject that represents the content for the step
+	 * @throws JSONException
+	 */
+	protected static JSONObject getExplanationBuilderTemplate() throws JSONException {
+		//the object that represents the step
+		JSONObject node = new JSONObject();
+		
+		//set the attributes in the step
+		node.put("prompt", "");
+		node.put("background", "");
+		node.put("type", "ExplanationBuilder");
 		
 		return node;
 	}

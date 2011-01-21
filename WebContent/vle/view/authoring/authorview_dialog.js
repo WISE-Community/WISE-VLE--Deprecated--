@@ -177,7 +177,8 @@ View.prototype.initializeCreateNodeDialog = function (){
 	//populate the drop down box with the step types
 	this.populateCreateNodeChoices();
 	
-	$('#createNodeDialog').dialog({autoOpen:false, draggable:false, resizeable:false, resizable:false, width:650, title:'Add a New Step', buttons: {'Submit':submit}, close: cancel});
+	//this should have height set to auto resize but it doesn't work so I just set it to 260
+	$('#createNodeDialog').dialog({autoOpen:false, draggable:false, resizable:false, width:650, height:260, title:'Add a New Step', buttons: {'Submit':submit}, close: cancel});
 };
 
 /**
@@ -190,7 +191,10 @@ View.prototype.populateCreateNodeChoices = function() {
 	//get all the node constructors
 	var nodeConstructors = NodeFactory.nodeConstructors;
 	
-	//loop through all the noe names
+	var authoringToolNames = [];
+	var authoringToolNamesToNodeNames = {};
+	
+	//loop through all the node names
 	for(var x=0; x<acceptedTagNames.length; x++) {
 		//get a node name
 		var nodeName = acceptedTagNames[x];
@@ -207,17 +211,28 @@ View.prototype.populateCreateNodeChoices = function() {
 			//get the name of the node that will be seen in the "select step type:" options
 			var authoringToolName = constructor.authoringToolName;
 			
-			if(authoringToolName == null) {
-				//use this as a default if authoringToolName is not provided
-				authoringToolName = "(Insert Step Type Name Here)";
+			if(authoringToolName != null) {
+				authoringToolNames.push(authoringToolName);
+				authoringToolNamesToNodeNames[authoringToolName] = nodeName;				
 			}
-			
-			//create the option html
-			var optionHtml = "<option value='" + nodeName + "'>" + authoringToolName + "</option>";
-			
-			//add the option to the select drop down box
-			$('#createNodeType').append(optionHtml);
 		}
+	}
+	
+	//sort the authoring tool names alphabetically
+	authoringToolNames.sort();
+	
+	//loop through all the authoring tool names
+	for(var x=0; x<authoringToolNames.length; x++) {
+		var authoringToolName = authoringToolNames[x];
+		
+		//get the node name associated with the authoring tool name
+		var nodeName = authoringToolNamesToNodeNames[authoringToolName];
+		
+		//create the option html
+		var optionHtml = "<option value='" + nodeName + "'>" + authoringToolName + "</option>";
+		
+		//add the option to the select drop down box
+		$('#createNodeType').append(optionHtml);
 	}
 };
 
