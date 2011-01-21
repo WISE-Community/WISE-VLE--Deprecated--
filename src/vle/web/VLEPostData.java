@@ -110,7 +110,7 @@ public class VLEPostData extends VLEServlet {
 			}
 
 			Node node = Node.getByNodeIdAndRunId(nodeId, runId);
-			if (node == null) {
+			if (node == null && nodeId != null && runId != null && nodeType != null) {
 				node = new Node();
 				node.setNodeId(nodeId);
 				node.setRunId(runId);
@@ -118,7 +118,7 @@ public class VLEPostData extends VLEServlet {
 				node.saveOrUpdate();
 			}
 			
-			if (stepWork != null) {
+			if (stepWork != null && userInfo != null && node != null) {
 				// set the fields of StepWork
 				stepWork.setUserInfo(userInfo);
 				stepWork.populateData(nodeVisitJSON);
@@ -183,7 +183,7 @@ public class VLEPostData extends VLEServlet {
 				//send back the json string with step work id and post time
 				response.getWriter().print(jsonResponse.toString());
 			} else {
-				response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Saving not yet implemented for: " + nodeVisitJSON.toString());
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error saving: " + nodeVisitJSON.toString());
 			}
 		} catch (JSONException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "malformed data");
