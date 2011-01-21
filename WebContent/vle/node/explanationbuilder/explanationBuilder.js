@@ -146,16 +146,23 @@ ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, 
 
 	//loadFromLocal(1);
 
+	//get the question or prompt the student will read
 	var question = thisExplanationBuilder.content.prompt;
-	var bg = "http://www.dan-dare.org/FreeFun/Images/CartoonsMoviesTV/SpongeBobSquarepantsWallpaper800.jpg";
 	
-	var latestState = thisExplanationBuilder.getLatestState();
+	//get the background image that will be displayed in the drop area
+	var bg = thisExplanationBuilder.content.background;
+
 	var explanationIdeas = [];
 	var answer = "";
-	
+
+	//get the latest state
+	var latestState = thisExplanationBuilder.getLatestState();
 	
 	if(latestState != null) {
+		//get the ideas the student used last time
 		explanationIdeas = latestState.explanationIdeas;
+		
+		//get the answer the student typed last time
 		answer = latestState.answer;		
 	}
 
@@ -349,7 +356,9 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 	}
 	if(bg){
 		this.bg = bg;
-		$('#explanationIdeas').css('bakground','url(' + bg + ') no-repeat center center');
+		$('#explanationIdeas').css('background-image','url(' + bg + ')');
+		$('#explanationIdeas').css('background-repeat','no-repeat');
+		$('#explanationIdeas').css('background-position','center center');
 		//localStorage.bg = bg;
 	}
 
@@ -487,6 +496,9 @@ ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,$tr) {
 			break;
 		}
 	}
+	
+	//update the text displayed in the explanation idea
+	$('#explanationIdea' + id).html(text);
 	
 	this.basketChanged = true;
 };
