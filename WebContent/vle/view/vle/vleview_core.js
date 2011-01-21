@@ -169,7 +169,7 @@ View.prototype.loadTheme = function(theme){
 			/* update the project menu links */
 			$("#gotoStudentHomePageLink").attr("href","../../moodle/index.php");
 			$("#quitAndLogoutLink").attr("href","../index.php");
-			$("#goHomeLink").attr("href","../page/syllabus.php");
+			$("#goHomeLink").attr("href","../page/index.php");
 			$("#myWorkTD").hide();
 			$("#journalTD").hide();
 			$("#flaggedWorkTD").hide();

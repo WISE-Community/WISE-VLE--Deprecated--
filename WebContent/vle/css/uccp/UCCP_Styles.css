@@ -19,21 +19,23 @@
 /* THESE STYLES ARE USED GLOBALLY WITHIN ALL UCCP PROJECTS  */
 
 
+/* THIS TURKEY SHOULDN'T BE USED ANYMORE */
+
 #toolsArea {
 
 }
 
-#hostBrandingBoxUCCP {
+#hostBrandingBoxLower {
 	position: absolute;
 	bottom: 0px;
 	text-align: center;
 }
 
-#hostBrandingBoxUCCP a img:hover {
+#hostBrandingBoxLower a img:hover {
 	outline: 2px dotted #FFFF00;
 }
 
-#hostBrandingBoxUCCP p {
+#hostBrandingBoxLower p {
 	position: absolute;
 	bottom: 10px;
 	left: 104px;
@@ -43,17 +45,17 @@
 	line-height: 120%;
 }
 
-#hostBrandingBoxUCCP p a:link,#hostBrandingBoxUCCP a:visited {
+#hostBrandingBoxLower p a:link,#hostBrandingBoxUCCP a:visited {
 	color: #999;
 	text-decoration: none;
 	outline: none;
 }
 
-#hostBrandingBoxUCCP p a:hover {
+#hostBrandingBoxLower p a:hover {
 	color: #FFFF00;
 }
 
-#hostBrandingBoxWISE {
+#hostBrandingBoxUpper {
 	display:none;
 	}
 	

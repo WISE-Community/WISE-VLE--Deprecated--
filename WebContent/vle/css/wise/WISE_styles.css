@@ -48,11 +48,11 @@ div.logoImageDiv {
 	font-style:italic;
 }
 
-#hostBrandingBoxUCCP {
+#hostBrandingBoxLower {
 	display: none;
 }
 
-#hostBrandingBoxWISE {
+#hostBrandingBoxUpper {
 	text-align: center;
 }
 
