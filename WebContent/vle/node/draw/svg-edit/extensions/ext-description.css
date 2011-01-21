@@ -30,10 +30,10 @@
 
 #svg_editor #description {
 	position:absolute;
-	bottom:36px;
+	bottom:32px;
 	right:5px;
 	left:40px;
-	height:74px;
+	height:68px;
 	background-color:#A0A0A0;
 	border:1px solid #808080;
 	border-top:none;
@@ -55,7 +55,7 @@
 	border-radius:5px;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
-	width:90%;
+	width:96%;
 	margin:0 auto;
 	text-align:left;
 }
@@ -89,7 +89,7 @@
 	width:98%;
 }
 
-#svg_editor .description_buttons, #svg_editor #description_collapse {
+#svg_editor .description_buttons {
 	padding:0;
 	margin-left:1em;
 	float:right;

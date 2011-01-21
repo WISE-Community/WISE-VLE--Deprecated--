@@ -178,11 +178,11 @@ SVGDRAW.prototype.saveToVLE = function() {
 		this.studentData.selected = -1;
 	}
 	var data = this.studentData;
-	if(svgEditor.changed){
+	//if(svgEditor.changed){
 		this.dataService.save(data);
-	} else {
+	//} else {
 		//alert('no change, data not saved');
-	}
+	//}
 };
 
 SVGDRAW.prototype.load = function() {
@@ -235,7 +235,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		}
 		
 		//initiate snapshots
-		if(context.snapshotsActive == true){
+		if(context.snapshotsActive){
 			svgEditor.setMaxSnaps(context.snapshots_max);
 			if(data.snapshots && data.snapshots.length > 0){
 				svgEditor.initSnap = true;
@@ -262,8 +262,8 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		//$('#fit_to_canvas').mouseup();
 	
 		// initiate description/annotation
-		if(context.descriptionActive == true){
-			if (context.snapshotsActive == true) { // check whether snapshots are active
+		if(context.descriptionActive){
+			if (context.snapshotsActive) { // check whether snapshots are active
 				if (data.selected > -1) { // check whether a snapshot is selected
 					for (var i=0; i<data.snapshots.length; i++) {
 						if (data.snapshots[i].id == data.selected) {
@@ -298,9 +298,11 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 							$('#description_content').val(svgEditor.snapshots[i].description);
 						}
 					}
-					if($('#sidepanels').width()<3){
-						svgEditor.toggleSidePanel();
-					}
+					$('#description_collapse').show();
+					//if($('#sidepanels').width()<3){
+						//svgEditor.toggleSidePanel(false);
+					//}
+					svgEditor.toggleDescription(false);
 				});
 				
 				/*$('#loop, #play').mouseup(function(){
@@ -315,12 +317,17 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					$('#fit_to_canvas').mouseup();
 				});*/
 				
-				$('.description_header_text').html('Snapshot Description<span>&nbsp;(Enter your text in the box below)</span>');
+				$('.description_header_text span').html('<b>Snapshot Description</b> (Enter your text in the box below)');
 				
-				$('#description_collapse').remove();
+				$('#description_collapse').hide();
 				
 				// update snapCheck function to include description modifications
 				svgEditor.snapCheck = function(){
+					if(svgEditor.snapshots.length<1){
+						$('#description').hide();
+						$('#workarea').css('bottom','36px');
+					} else {
+						$('#workarea').css('bottom','88px');
 					//if(svgEditor.playback == "pause"){
 						//if(svgEditor.warningStackSize == svgCanvas.getUndoStackSize()){
 							for (var i=0; i<svgEditor.snapshots.length; i++){
@@ -346,8 +353,10 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 							//svgEditor.updateClass(-1);
 							//$('#fit_to_canvas').mouseup();
 						//}
-						svgEditor.toggleDescription();
+						//svgEditor.toggleDescription();
 					//}
+					}
+					$('#fit_to_canvas').mouseup();
 				};
 				
 				// update toggleSidePanel function to accommodate for description input
@@ -361,27 +370,27 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					workarea.css('right', parseInt(workarea.css('right'))+deltax);
 					sidepanels.css('width', parseInt(sidepanels.css('width'))+deltax);
 					layerpanel.css('width', parseInt(layerpanel.css('width'))+deltax);
-					if(svgEditor.playback == 'pause'){
-						svgEditor.toggleDescription();
-					} else {
-						$('#workarea').css('bottom','36px');	
+					if(svgEditor.playback != 'pause' && parseInt(sidepanels.css('width')) < 200){
+						$('#workarea').css('bottom','36px');
 					}
+					$('#fit_to_canvas').mouseup();
 				};
 				
-				svgEditor.toggleDescription = function(){
-					if($('#sidepanels').width()<3){
+				svgEditor.toggleDescription = function(close){
+					if(close){
 						if(svgEditor.selected==true){
-							$('#workarea').css('bottom','98px');
-							$('#description').css('height','74px');
+							//$('#workarea').css('bottom','98px');
+							$('#description').css('height','68px');
 							$('#description_content').css('height','15px');
 							$('description').show();
 							$('#description_edit').show();
+							$('#description_collapse').hide();
 						} else {
 							$('#workarea').css('bottom','36px');
 							$('description').hide();
 						}
 						// resize window to fit canvas
-						var height, width;
+						/*var height, width;
 						if(window.outerHeight){
 							height = window.outerHeight;
 							width = window.outerWidth;
@@ -390,20 +399,21 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 							height = document.body.clientWidth; 
 							width = document.body.clientHeight;
 							self.resizeTo(width+1,height+1);
-						}
+						}*/
 					} else {
 						if(svgEditor.selected==true){
-							$('#workarea').css('bottom','158px');
-							$('#description').css('height','134px');
-							$('#description_content').css('height','75px');
+							//$('#workarea').css('bottom','150px');
+							$('#description').css('height','130px');
+							$('#description_content').css('height','77px');
 							$('description').show();
 							$('#description_edit').hide();
+							$('#description_collapse').show();
 						} else {
 							$('#workarea').css('bottom','36px');
 							$('description').hide();
 						}
 						// resize window to fit canvas
-						var height, width;
+						/*var height, width;
 						if(window.outerHeight){
 							height = window.outerHeight;
 							width = window.outerWidth;
@@ -412,10 +422,9 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 							height = document.body.clientWidth; 
 							width = document.body.clientHeight;
 							self.resizeTo(width-1,height-1);
-						}
+						}*/
 					}
-					
-					$('#fit_to_canvas').mouseup();
+					//$('#fit_to_canvas').mouseup();
 				};
 				
 			} else {
@@ -434,7 +443,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 				}
 			}
 			//$('#tool_prompt').insertAfter('#tool_description');
-		} else if(context.descriptionActive == false){
+		} else {
 			//$('#tool_description').remove();
 			$('#description').remove();
 			$('#workarea').css('bottom','36px');
@@ -442,7 +451,9 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		}
 		
 		setTimeout(function(){
-			$('#fit_to_canvas').mouseup();
+			if(context.snapshotsActive){
+				svgEditor.toggleSidePanel();
+			}
 			// resize window to fit canvas
 			var height, width;
 			if(window.outerHeight){
@@ -454,6 +465,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 				width = document.body.clientHeight;
 				self.resizeTo(width+1,height+1);
 			}
+			$('#fit_to_canvas').mouseup();
 			$('#closepath_panel').insertAfter('#path_node_panel');
 			
 			// reset undo stack to prevent users from deleting stored starting image

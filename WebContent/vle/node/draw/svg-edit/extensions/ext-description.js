@@ -18,11 +18,11 @@ svgEditor.addExtension("Description", function(S) {
 	function setupDisplay(){
 		
 		var displaytext = '<div id="description"><div id="description_wrapper">'+
-			'<div class="description_header"><div class="description_header_text">Description'+
-			'<span>&nbsp(Enter your text in the box below)</span></div><div class="description_buttons">'+
+			'<div class="description_header"><div class="description_header_text"><span><b>Description</b>'+
+			' (Enter your text in the box below)</span></div><div class="description_buttons">'+
 			'<button id="description_edit" title="Edit Description">Edit</button>'+
-			'<div id="description_collapse" style="display:none"><a title="Close">X</a></div></div></div>'+
-			'<textarea id="description_content" class="description_input" rows="4"></textarea></div></div>';
+			'<button id="description_collapse" style="display:none" title="Save">Save</button></div></div>'+
+			'<textarea id="description_content" class="description_input"></textarea></div></div>';
 		
 		$('#svg_editor').append(displaytext);
 		
@@ -43,6 +43,8 @@ svgEditor.addExtension("Description", function(S) {
 			svgEditor.toggleDescription(false);
 		});
 		
+		$('#workarea').css('bottom','88px');
+		
 		svgEditor.toggleDescription(true);
 		
 		descriptionLoaded = true;
@@ -50,13 +52,13 @@ svgEditor.addExtension("Description", function(S) {
 	
 	svgEditor.toggleDescription = function(close){
 		if(close){
-			$('#workarea').css('bottom','98px');
-			$('#description').css('height','74px');
+			//$('#workarea').css('bottom','98px');
+			$('#description').css('height','68px');
 			$('#description_content').css('height','15px');
 			$('#description_edit').show();
 			$('#description_collapse').hide();
 			// resize window to fit canvas
-			var height, width;
+			/*var height, width;
 			if(window.outerHeight){
 				height = window.outerHeight;
 				width = window.outerWidth;
@@ -65,16 +67,16 @@ svgEditor.addExtension("Description", function(S) {
 				height = document.body.clientWidth; 
 				width = document.body.clientHeight;
 				self.resizeTo(width+1,height+1);
-			}
+			}*/
 		}
 		else {
-			$('#workarea').css('bottom','158px');
-			$('#description').css('height','134px');
-			$('#description_content').css('height','75px');
+			//$('#workarea').css('bottom','158px');
+			$('#description').css('height','130px');
+			$('#description_content').css('height','77px');
 			$('#description_edit').hide();
 			$('#description_collapse').show();
 			// resize window to fit canvas
-			var height, width;
+			/*var height, width;
 			if(window.outerHeight){
 				height = window.outerHeight;
 				width = window.outerWidth;
@@ -83,8 +85,9 @@ svgEditor.addExtension("Description", function(S) {
 				height = document.body.clientWidth; 
 				width = document.body.clientHeight;
 				self.resizeTo(width-1,height-1);
-			}
+			}*/
 		}
+		//$('#fit_to_canvas').mouseup();
 	};
 	
 	return {
