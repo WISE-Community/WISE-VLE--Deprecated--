@@ -65,6 +65,23 @@ function ExplanationBuilder(node, view) {
  * the .html file for this step (look at template.html).
  */
 ExplanationBuilder.prototype.render = function() {
+	//get the question or prompt the student will read
+	var question = this.content.prompt;
+	
+	//get the background image that will be displayed in the drop area
+	var bg = this.content.background;
+	
+	if(question){
+		this.question = question;
+		$('#questionText').text(question);
+	}
+	if(bg){
+		this.bg = bg;
+		$('#explanationIdeas').css('background-image','url(' + bg + ')');
+		$('#explanationIdeas').css('background-repeat','no-repeat');
+		$('#explanationIdeas').css('background-position','center center');
+	}
+	
 	//set the params we will use in the request to the server
 	var ideaBasketParams = {
 			action:"getIdeaBasket"	

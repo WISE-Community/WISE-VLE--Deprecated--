@@ -80,14 +80,28 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	 * new events in the <new step type name>Events.js file and then
 	 * create new functions to handle the event
 	 */
-	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'20', cols:'85', onkeyup:"eventManager.fire('templateUpdatePrompt')"});
+	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
+	
+	//get the existing background url
+	var background = this.content.background;
+	
+	//the label for the background url input
+	var backgroundImageUrlLabel = document.createTextNode("Background Image Url (max viewable size 485x315):");
+	
+	//the text input for the background url
+	var backgroundImageUrl = createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: background, size:60, onchange: 'eventManager.fire("explanationBuilderUpdateBackgroundImageUrl")'});
 	
 	//add the authoring components to the page
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptTextArea);
 	pageDiv.appendChild(createBreak());
-
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(backgroundImageUrlLabel);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(backgroundImageUrl);
+	
 	//add the page to the parent
 	parent.appendChild(pageDiv);
 	
@@ -134,6 +148,21 @@ View.prototype.ExplanationBuilderNode.populatePrompt = function() {
 View.prototype.ExplanationBuilderNode.updatePrompt = function(){
 	/* update content */
 	this.content.prompt = document.getElementById('promptTextArea').value;
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content's prompt to match that of what the user input
+ * 
+ * xTODO: rename TemplateNode
+ */
+View.prototype.ExplanationBuilderNode.updateBackgroundImageUrl = function(){
+	/* update content */
+	this.content.background = document.getElementById('backgroundImageUrl').value;
 	
 	/*
 	 * fire source updated event, this will update the preview

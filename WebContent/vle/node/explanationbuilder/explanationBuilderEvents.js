@@ -23,6 +23,8 @@ View.prototype.explanationBuilderDispatcher = function(type,args,obj){
 		 * wait until you implement the authoring before you rename this 
 		 */
 		obj.ExplanationBuilderNode.updatePrompt();
+	} else if(type == 'explanationBuilderUpdateBackgroundImageUrl') {
+		obj.ExplanationBuilderNode.updateBackgroundImageUrl();
 	}
 };
 
@@ -36,7 +38,8 @@ var events = [
 	 * xTODO: rename templateUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */
-	'explanationBuilderUpdatePrompt'
+	'explanationBuilderUpdatePrompt',
+	'explanationBuilderUpdateBackgroundImageUrl'
 ];
 
 /*
