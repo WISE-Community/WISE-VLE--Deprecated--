@@ -17,6 +17,7 @@ View.prototype.startPortalMode = function(url, curriculumBaseDir, command, id){
 	this.assetRequestUrl = this.portalUrl;
 	this.minifierUrl = this.portalUrl;
 	this.mode = "portal";
+	this.authoringMode = true;
 
 	//create the config url
 	var configUrl = this.portalUrl + "?command=getConfig";
