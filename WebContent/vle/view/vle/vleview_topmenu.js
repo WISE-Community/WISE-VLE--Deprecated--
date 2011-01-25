@@ -546,7 +546,7 @@ View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,modal:false,title:'Add an Idea',position:[300,40],buttons:{"OK":function() {eventManager.fire("addIdeaToBasket");},"Cancel":function() {$(this).dialog("close");}}});
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:'Add an Idea',position:[300,40],buttons:{"OK":function() {eventManager.fire("addIdeaToBasket");},"Cancel":function() {$(this).dialog("close");}}});
     }
 	
 	//the html we will insert into the popup
@@ -681,9 +681,9 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	//check if the ideaBasketDiv exists
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it
-		$('#w4_vle').append('<div id="ideaBasketDiv""></div>');
-		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" width="95%" height="95%"></iframe>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:thisView.ideaBasketDivClose});
+		$('#w4_vle').append('<div id="ideaBasketDiv" style="margin-bottom:.3em;"></div>');
+		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="97%"></iframe>');
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:thisView.ideaBasketDivClose});
     }
 	
 	//open the dialog

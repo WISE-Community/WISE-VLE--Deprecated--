@@ -68,7 +68,7 @@ $(document).ready(function() {
 		$('#ideaDialog').dialog('open');
 	});
 
-	$('#clearDialog').dialog({title:'Empty Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
+	/*$('#clearDialog').dialog({title:'Empty Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
 		"OK": function(){				
 		localStorage.clear();
 		window.location.reload();
@@ -141,7 +141,7 @@ $(document).ready(function() {
 
 	$('#import').click(function(){
 		$('#importDialog').dialog('open');
-	});
+	});*/
 
 	$('#toggleDeleted').toggle(
 			function() {
