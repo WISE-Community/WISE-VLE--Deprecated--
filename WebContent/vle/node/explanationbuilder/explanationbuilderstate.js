@@ -35,9 +35,10 @@
  * is just used as an example. you can add any variables that will help you 
  * represent the student's work for your step type.
  */
-function ExplanationBuilderState(explanationIdeas, answer) {
+function ExplanationBuilderState(explanationIdeas, answer, timestamp) {
 	this.explanationIdeas = [];
 	this.answer = '';
+	this.timestamp;
 	var selected = [];
 	
 	if(explanationIdeas != null) {
@@ -46,6 +47,10 @@ function ExplanationBuilderState(explanationIdeas, answer) {
 	
 	if(answer != null) {
 		this.answer = answer;
+	}
+	
+	if(timestamp != null) {
+		this.timestamp = timestamp;
 	}
 };
 
@@ -80,12 +85,13 @@ ExplanationBuilderState.prototype.parseDataJSONObj = function(stateJSONObj) {
 
 	var explanationIdeas = stateJSONObj.explanationIdeas;
 	var answer = stateJSONObj.answer;
+	var timestamp = stateJSONObj.timestamp;
 	
 	/*
 	 * create a state object with the student work
 	 * xTODO: rename TEMPLATESTATE
 	 */
-	var explanationBuilderState = new ExplanationBuilderState(explanationIdeas, answer);
+	var explanationBuilderState = new ExplanationBuilderState(explanationIdeas, answer, timestamp);
 	
 	//return the state object
 	return explanationBuilderState;

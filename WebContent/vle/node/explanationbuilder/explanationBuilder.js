@@ -45,11 +45,12 @@ function ExplanationBuilder(node, view) {
 	};
 
 	//var studentExplanation;
-	var ideaBasket;
-	var basketChanged = false;
+	this.ideaBasket;
+	this.basketChanged = false;
 	
 	this.question = '';
 	this.bg = '';
+	this.latestState;
 };
 
 /**
@@ -103,30 +104,6 @@ ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, 
 	var ideaBasket = new IdeaBasket(ideaBasketJSONObj);
 	thisExplanationBuilder.ideaBasket = ideaBasket;
 
-	//display any prompts to the student
-	//document.getElementById('questionText').innerHTML = thisExplanationBuilder.content.prompt;
-
-	//load any previous responses the student submitted for this step
-	var latestState = thisExplanationBuilder.getLatestState();
-
-	if(latestState != null) {
-		/*
-		 * get the response from the latest state. the response variable is
-		 * just provided as an example. you may use whatever variables you
-		 * would like from the state object (look at templatestate.js)
-		 */
-		//var latestResponse = latestState.response;
-
-		//set the previous student work into the text area
-		//document.getElementById('studentResponseTextArea').value = latestResponse; 
-	}
-
-	/*
-	if(studentExplanation == null){
-		studentExplanation = new Explanation();
-	}
-	 */
-
 	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
 		"OK": function(){       
 		if($("#ideaForm").validate().form()){
@@ -174,6 +151,7 @@ ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, 
 
 	//get the latest state
 	var latestState = thisExplanationBuilder.getLatestState();
+	thisExplanationBuilder.latestState = latestState;
 	
 	if(latestState != null) {
 		//get the ideas the student used last time
@@ -241,7 +219,7 @@ ExplanationBuilder.prototype.save = function() {
 	 * and in that file you would define QUIZSTATE and therefore
 	 * would change the TEMPLATESTATE to QUIZSTATE below
 	 */
-	var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#explanationText').val());
+	var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#explanationText').val(), Date.parse(new Date()));
 
 	/*
 	 * fire the event to push this state to the global view.states object.
@@ -295,7 +273,6 @@ ExplanationBuilder.prototype.init = function(context){
 	$('#target').droppable({
 		scope: 'drag-idea',
 		activeClass: 'active',
-		hoverClass: 'hover',
 		//tolerance: 'pointer',
 		drop: function(event, ui) {
 		var id = ui.helper.find('tr').attr('id');
@@ -448,10 +425,10 @@ ExplanationBuilder.prototype.add = function(text,source,tags,flag) {
 	
 	var newIdea = this.ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
 	this.ideaBasket.index++;
-	this.ideaBasket.ideas.push(newIdea);
+	//this.ideaBasket.ideas.splice(0, 0, newIdea);
 	this.basketChanged = true;
 	this.addRow(newIdea);
-	this.updateOrder();
+	//this.updateOrder();
 	//localStorage.ideas = JSON.stringify(basket.ideas);
 	//localStorage.index = JSON.stringify(basket.index);
 };
@@ -592,13 +569,56 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 		$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'400', buttons:{
 			"OK": function(){       
 			if($("#editForm").validate().form()){
-				var source = $('#editSource').val();
-				if(source=='Other'){
-					source = 'Other: ' + $('#editOther').val();
+				var idea = context.ideaBasket.getIdeaById(id);
+				var stepsUsedIn = idea.stepsUsedIn;
+				
+				var answer = true;
+				
+				//check if this student used this idea in any steps 
+				if(stepsUsedIn != null && stepsUsedIn.length > 0) {
+					//the student has used this idea in a step
+					
+					var message = "This idea is currently used in the following steps\n\n";
+					
+					//loop through all the steps the student has used this idea in
+					for(var x=0; x<stepsUsedIn.length; x++) {
+						//get the node id
+						var nodeId = stepsUsedIn[x];
+						
+						//get the node
+						var node = context.view.getProject().getNodeById(nodeId);
+						
+						if(node != null) {
+							//get the node position
+							var vlePosition = context.view.getProject().getVLEPositionById(nodeId);
+							
+							//get the node title
+							var title = node.title;
+							
+							//add the step to the message
+							message += vlePosition + ": " + title + "\n";
+						}
+					}
+					
+					message += "\nIf you change this idea, you will also change your answer in those steps.";
+					
+					/*
+					 * display the message to the student that notifies them 
+					 * that they will also be changing the idea text in the
+					 * steps that they have used the idea in
+					 */
+					answer = confirm(message);
 				}
-				context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
-				$(this).dialog("close");
-				resetForm('editForm');
+				
+				if(answer) {
+					var source = $('#editSource').val();
+					if(source=='Other'){
+						source = 'Other: ' + $('#editOther').val();
+					}
+					context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
+					$(this).dialog("close");
+					resetForm('editForm');
+				}
 			}
 		}, Cancel: function(){
 			$(this).dialog("close");
@@ -611,6 +631,7 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,left,top,color){
 	$('#spacePrompt').hide();
 	var text='';
+	var timeLastEdited = null;
 	var newIdea;
 	var currColor = '#2654CF';
 	if(color){
@@ -621,6 +642,19 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			if(this.ideaBasket.ideas[i].id == id){
 				newIdea = new ExplanationIdea(id,left,top,color);
 				text = this.ideaBasket.ideas[i].text;
+				timeLastEdited = this.ideaBasket.ideas[i].timeLastEdited;
+				
+				if(this.latestState != null && timeLastEdited != null && this.latestState.timestamp < timeLastEdited) {
+					//the idea has been changed since the idea was used in this step
+					text += "!";
+				}
+				
+				//get the current node id
+				var nodeId = context.node.id;
+				
+				//add the node id to this idea's array of stepsUsedIn
+				this.addStepUsedIn(id, nodeId);
+				
 				isActive = true;
 				break;
 			}
@@ -632,6 +666,19 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			if(this.ideaBasket.deleted[i].id == id){
 				newIdea = new ExplanationIdea(id,left,top,color);
 				text = this.ideaBasket.deleted[i].text;
+				timeLastEdited = this.ideaBasket.ideas[i].timeLastEdited;
+				
+				if(this.latestState != null && timeLastEdited != null && this.latestState.timestamp < timeLastEdited) {
+					//the idea has been changed since the idea was used in this step
+					text += "!";
+				}
+				
+				//get the current node id
+				var nodeId = context.node.id;
+				
+				//add the node id to this idea's array of stepsUsedIn
+				this.addStepUsedIn(id, nodeId);
+				
 				isDeleted = true;
 				break;
 			}
@@ -761,6 +808,13 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
 			this.explanationIdeas.splice(i,1);
+			
+			//get the current node id
+			var nodeId = context.node.id;
+			
+			//remove the node id to this idea's array of stepsUsedIn
+			this.removeStepUsedIn(id, nodeId);
+			
 			//localStorage.explanationIdeas = JSON.stringify(this.explanationIdeas);
 			break;
 		}
@@ -776,6 +830,86 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 	}
 };
 
+/**
+ * Add a nodeId to the array of steps that the idea is used in
+ * @param ideaId the id of the idea
+ * @param nodeId the id of the node
+ */
+ExplanationBuilder.prototype.addStepUsedIn = function(ideaId, nodeId) {
+	//get the idea
+	var idea = this.ideaBasket.getIdeaById(ideaId);
+	
+	if(idea != null) {
+		//get the array of steps that the idea is used in
+		var stepsUsedIn = idea.stepsUsedIn;
+		
+		if(stepsUsedIn == null) {
+			idea.stepsUsedIn = [];
+			stepsUsedIn = idea.stepsUsedIn;
+		}
+		
+		var stepAlreadyAdded = false;
+		
+		//make sure it is not already in the array of stepsUsedIn
+		for(var x=0; x<stepsUsedIn.length; x++) {
+			//get a nodeId
+			var stepUsedIn = stepsUsedIn[x];
+			
+			if(stepUsedIn == nodeId) {
+				//the nodeId is already in the array
+				stepAlreadyAdded = true;
+			}
+		}
+		
+		if(!stepAlreadyAdded) {
+			//add the nodeId to the array
+			stepsUsedIn.push(nodeId);
+			this.basketChanged = true;
+		}
+	}
+};
+
+/**
+ * Remove a nodeId from the array of steps that the idea is used in
+ * @param ideaId the id of the idea
+ * @param nodeId the id of the node
+ */
+ExplanationBuilder.prototype.removeStepUsedIn = function(ideaId, nodeId) {
+	//get the idea
+	var idea = this.ideaBasket.getIdeaById(ideaId);
+	
+	if(idea != null) {
+		//get the array of steps that the idea is used in
+		var stepsUsedIn = idea.stepsUsedIn;
+		
+		if(stepsUsedIn == null) {
+			idea.stepsUsedIn = [];
+			stepsUsedIn = idea.stepsUsedIn;
+		}
+		
+		//make sure it is not already in the array of stepsUsedIn
+		for(var x=0; x<stepsUsedIn.length; x++) {
+			//get a nodeId
+			var stepUsedIn = stepsUsedIn[x];
+			
+			if(stepUsedIn == nodeId) {
+				//remove the nodeId from the array
+				stepsUsedIn.splice(x, 1);
+				
+				/*
+				 * move the counter back one because we just removed an element
+				 * and we want to continue to search the array in case the
+				 * nodeId shows up multiple times just to be safe even though
+				 * nodeIds should never show up more than once in the stepsUsedIn
+				 * array 
+				 */
+				x--;
+				
+				this.basketChanged = true;
+			}
+		}
+	}
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

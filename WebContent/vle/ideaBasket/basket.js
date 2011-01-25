@@ -8,6 +8,7 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId,
 	this.nodeName = nodeName; //the name of the step
 	this.tags = tags; //idea's tags
 	this.flag = flag; //idea's flag
+	this.stepsUsedIn = [];
 };
 
 /**
@@ -143,14 +144,14 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
 IdeaBasket.prototype.getIdeaById = function(ideaId) {
 	//loop through the ideas array
 	for(var i=0;i<this.ideas.length;i++){
-		if(this.ideas[i].id==id){
+		if(this.ideas[i].id==ideaId){
 			return this.ideas[i];
 		}
 	}
 
 	//loop through the deleted array
 	for(var i=0;i<this.deleted.length;i++){
-		if(this.deleted[i].id==id){
+		if(this.deleted[i].id==ideaId){
 			return this.deleted[i];
 		}
 	}
@@ -203,7 +204,7 @@ IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tags,flag,nodeI
 	this.nextIdeaId++;
 
 	//add the idea to the array of ideas
-	this.ideas.push(newIdea);
+	this.ideas.splice(0, 0, newIdea);
 	
 	return newIdea;
 };
@@ -275,13 +276,57 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 			$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'400', buttons:{
 				"OK": function(){				
 				if($("#editForm").validate().form()){
-					var source = $('#editSource').val();
-					if(source=='Other'){
-						source = 'Other: ' + $('#editOther').val();
+					
+					var idea = basket.getIdeaById(id);
+					var stepsUsedIn = idea.stepsUsedIn;
+					
+					var answer = true;
+					
+					//check if this student used this idea in any steps 
+					if(stepsUsedIn != null && stepsUsedIn.length > 0) {
+						//the student has used this idea in a step
+						
+						var message = "This idea is currently used in the following steps\n\n";
+						
+						//loop through all the steps the student has used this idea in
+						for(var x=0; x<stepsUsedIn.length; x++) {
+							//get the node id
+							var nodeId = stepsUsedIn[x];
+							
+							//get the node
+							var node = parent.frames['ideaBasketIfrm'].thisView.getProject().getNodeById(nodeId);
+							
+							if(node != null) {
+								//get the node position
+								var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
+								
+								//get the node title
+								var title = node.title;
+								
+								//add the step to the message
+								message += vlePosition + ": " + title + "\n";
+							}
+						}
+						
+						message += "\nIf you change this idea, you will also change your answer in those steps.";
+						
+						/*
+						 * display the message to the student that notifies them 
+						 * that they will also be changing the idea text in the
+						 * steps that they have used the idea in
+						 */
+						answer = confirm(message);
 					}
-					basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
-					$(this).dialog("close");
-					resetForm('editForm');
+					
+					if(answer) {
+						var source = $('#editSource').val();
+						if(source=='Other'){
+							source = 'Other: ' + $('#editOther').val();
+						}
+						basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
+						$(this).dialog("close");
+						resetForm('editForm');						
+					}
 				}
 			}, Cancel: function(){
 				$(this).dialog("close");

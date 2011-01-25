@@ -86,7 +86,10 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	var background = this.content.background;
 	
 	//the label for the background url input
-	var backgroundImageUrlLabel = document.createTextNode("Background Image Url (max viewable size 485x315):");
+	var backgroundImageUrlLabel = document.createTextNode("Background Image Url");
+	var localImageLabel = document.createTextNode(" - image you have uploaded to the project, e.g. assets/image.jpg");
+	var absoluteImageLabel = document.createTextNode(" - image from the internet, e.g. http://www.website.com/image.jpg");
+	var maxImageSizeLabel = document.createTextNode(" - max image size that you will be able to view is 485x315");
 	
 	//the text input for the background url
 	var backgroundImageUrl = createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: background, size:60, onchange: 'eventManager.fire("explanationBuilderUpdateBackgroundImageUrl")'});
@@ -99,6 +102,12 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(backgroundImageUrlLabel);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(localImageLabel);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(absoluteImageLabel);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(maxImageSizeLabel);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(backgroundImageUrl);
 	
