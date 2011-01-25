@@ -80,7 +80,7 @@ ExplanationBuilder.prototype.render = function() {
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');
 		$('#explanationIdeas').css('background-repeat','no-repeat');
-		$('#explanationIdeas').css('background-position','center center');
+		$('#explanationIdeas').css('background-position','center top');
 	}
 	
 	//set the params we will use in the request to the server
@@ -352,7 +352,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');
 		$('#explanationIdeas').css('background-repeat','no-repeat');
-		$('#explanationIdeas').css('background-position','center center');
+		$('#explanationIdeas').css('background-position','center top');
 		//localStorage.bg = bg;
 	}
 
@@ -372,7 +372,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 	$('.exIdea').remove();
 
 	//populate table and explanation ideas
-	for(var i=0; i<this.ideaBasket.ideas.length; i++){
+	for(var i=this.ideaBasket.ideas.length-1; i>-1; i--){
 		this.addRow(this.ideaBasket.ideas[i],true);
 		if(explanationIdeas){
 			for (var a=0; a<explanationIdeas.length; a++){
@@ -436,8 +436,13 @@ ExplanationBuilder.prototype.add = function(text,source,tags,flag) {
 ExplanationBuilder.prototype.addRow = function(idea,load){
 	var title = 'Click and drag to add to idea space, Double click to edit';
 	var text = idea.text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
+	if(idea.tags && idea.tags != 'undefined'){
+		var tags = idea.tags;
+	} else {
+		var tags = '';
+	}
 
-	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td>' + idea.tags + '</td>';
+	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td>' + tags + '</td>';
 
 	$('#activeIdeas tbody').prepend(html);
 
@@ -600,7 +605,7 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 						}
 					}
 					
-					message += "\nIf you change this idea, you will also change your answer in those steps.";
+					message += "\nIf you change this idea, you might want to review your answer in those steps.";
 					
 					/*
 					 * display the message to the student that notifies them 
@@ -633,7 +638,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	var text='';
 	var timeLastEdited = null;
 	var newIdea;
-	var currColor = '#2654CF';
+	var currColor = 'rgb(38, 84, 207)';
 	if(color){
 		currColor = color;
 	}

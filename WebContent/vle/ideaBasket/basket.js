@@ -70,7 +70,7 @@ IdeaBasket.prototype.init = function(context) {
 		},
 		update: function(event,ui){
 			context.updateOrder(0);
-			$('table.tablesorter th').removeClass('headerSortUp').removeClass('headerSortDown');
+			$('#basketIdeas thead tr .header').removeClass('headerSortUp').removeClass('headerSortDown');
 		}
 	}).disableSelection();
 
@@ -125,7 +125,7 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
 		});
 
 		//populate tables
-		for(var i=0; i<this.ideas.length; i++){
+		for(var i=this.ideas.length-1; i>-1; i--){
 			this.addRow(0,this.ideas[i],true);
 		}
 		for(var i=0; i<this.deleted.length; i++){
@@ -229,8 +229,13 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 		link = 'restore';
 		title = 'Click on the + icon to take this idea out of the trash';
 	}
+	if(idea.tags && idea.tags != 'undefined'){
+		var tags = idea.tags;
+	} else {
+		var tags = '';
+	}
 	var html = '<tr id="' + currTable + idea.id + '" title="' + title + '"><td>' + idea.text + '</td><td>' + idea.source + '</td>' +
-	'<td>' + idea.tags + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
+	'<td>' + tags + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
 	'<td style="text-align:center;"><span class="' + link + '" title="' + link + ' idea"></span></td></tr>';
 
 	table.prepend(html);
@@ -333,7 +338,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 				resetForm('editForm');
 			}
 			} });
-		})
+		});
 
 		$newLink.click(function(){
 			var $clicked = $(this);
@@ -384,6 +389,8 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 	} else {
 		$('#ideasEmpty').show();
 	}
+	
+	$('tr .header').removeClass('headerSortDown').removeClass('headerSortUp');
 };
 
 /**
