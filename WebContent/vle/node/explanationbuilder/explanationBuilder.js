@@ -47,6 +47,7 @@ function ExplanationBuilder(node, view) {
 	//var studentExplanation;
 	this.ideaBasket;
 	this.basketChanged = false;
+	this.stateChanged = false;
 	
 	this.question = '';
 	this.bg = '';
@@ -196,40 +197,51 @@ ExplanationBuilder.prototype.getLatestState = function() {
  */
 ExplanationBuilder.prototype.save = function() {
 	//get the answer the student wrote
-	//var response = document.getElementById('studentResponseTextArea').value;
+	var answer = $('#explanationText').val();
+	
+	//get the last state that was submitted (the previous time the student worked on this step)
+	if(this.latestState != null) {
+		if(this.latestState.answer != answer) {
+			//the answer has changed since last time
+			this.stateChanged = true;
+		}
+	}
+	
+	//check if the student has changed anything in this step
+	if(this.stateChanged == true) {
+		/*
+		 * create the student state that will store the new work the student
+		 * just submitted
+		 * 
+		 * xTODO: rename TEMPLATESTATE
+		 * 
+		 * make sure you rename TEMPLATESTATE to the state object type
+		 * that you will use for representing student data for this
+		 * type of step. copy and modify the file below
+		 * 
+		 * vlewrapper/WebContent/vle/node/template/templatestate.js
+		 * 
+		 * and use the object defined in your new state.js file instead
+		 * of TEMPLATESTATE. for example if you are creating a new
+		 * quiz step type you would copy the file above to
+		 * 
+		 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
+		 * 
+		 * and in that file you would define QUIZSTATE and therefore
+		 * would change the TEMPLATESTATE to QUIZSTATE below
+		 */
+		var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#explanationText').val(), Date.parse(new Date()));
 
-	/*
-	 * create the student state that will store the new work the student
-	 * just submitted
-	 * 
-	 * xTODO: rename TEMPLATESTATE
-	 * 
-	 * make sure you rename TEMPLATESTATE to the state object type
-	 * that you will use for representing student data for this
-	 * type of step. copy and modify the file below
-	 * 
-	 * vlewrapper/WebContent/vle/node/template/templatestate.js
-	 * 
-	 * and use the object defined in your new state.js file instead
-	 * of TEMPLATESTATE. for example if you are creating a new
-	 * quiz step type you would copy the file above to
-	 * 
-	 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
-	 * 
-	 * and in that file you would define QUIZSTATE and therefore
-	 * would change the TEMPLATESTATE to QUIZSTATE below
-	 */
-	var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#explanationText').val(), Date.parse(new Date()));
+		/*
+		 * fire the event to push this state to the global view.states object.
+		 * the student work is saved to the server once they move on to the
+		 * next step.
+		 */
+		eventManager.fire('pushStudentWork', explanationBuilderState);
 
-	/*
-	 * fire the event to push this state to the global view.states object.
-	 * the student work is saved to the server once they move on to the
-	 * next step.
-	 */
-	eventManager.fire('pushStudentWork', explanationBuilderState);
-
-	//push the state object into this or object's own copy of states
-	this.states.push(explanationBuilderState);
+		//push the state object into this or object's own copy of states
+		this.states.push(explanationBuilderState);
+	}
 	
 	if(this.basketChanged == true) {
 		//save the basket since it has been changed
@@ -289,7 +301,7 @@ ExplanationBuilder.prototype.init = function(context){
 		} else if (left > 320) {
 			left = 320;
 		}
-
+		context.stateChanged = true;
 		context.addExpIdea(context,false,true,id,left,top);
 	}
 	});
@@ -312,6 +324,7 @@ ExplanationBuilder.prototype.init = function(context){
 				$('#colorPicker').fadeOut();
 			}
 		}
+		
 		context.removeExpIdea(context,id);
 	}
 	});
@@ -372,7 +385,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 	$('.exIdea').remove();
 
 	//populate table and explanation ideas
-	for(var i=this.ideaBasket.ideas.length-1; i>-1; i--){
+	for(var i=0; i<this.ideaBasket.ideas.length; i++){
 		this.addRow(this.ideaBasket.ideas[i],true);
 		if(explanationIdeas){
 			for (var a=0; a<explanationIdeas.length; a++){
@@ -637,6 +650,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	$('#spacePrompt').hide();
 	var text='';
 	var timeLastEdited = null;
+	var timeCreated = null;
 	var newIdea;
 	var currColor = 'rgb(38, 84, 207)';
 	if(color){
@@ -648,10 +662,18 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 				newIdea = new ExplanationIdea(id,left,top,color);
 				text = this.ideaBasket.ideas[i].text;
 				timeLastEdited = this.ideaBasket.ideas[i].timeLastEdited;
+				timeCreated = this.ideaBasket.ideas[i].timeCreated;
 				
-				if(this.latestState != null && timeLastEdited != null && this.latestState.timestamp < timeLastEdited) {
-					//the idea has been changed since the idea was used in this step
-					text += "!";
+				if(this.latestState != null && timeLastEdited != null && timeCreated != null) {
+					if(timeLastEdited == timeCreated) {
+						/*
+						 * this idea was just created so it's not possible for
+						 * the idea to have been previously changed
+						 */
+					} else if(this.latestState.timestamp < timeLastEdited) {
+						//the idea has been changed since the idea was used in this step
+						text += "!";
+					}
 				}
 				
 				//get the current node id
@@ -672,10 +694,18 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 				newIdea = new ExplanationIdea(id,left,top,color);
 				text = this.ideaBasket.deleted[i].text;
 				timeLastEdited = this.ideaBasket.ideas[i].timeLastEdited;
+				timeCreated = this.ideaBasket.ideas[i].timeCreated;
 				
-				if(this.latestState != null && timeLastEdited != null && this.latestState.timestamp < timeLastEdited) {
-					//the idea has been changed since the idea was used in this step
-					text += "!";
+				if(this.latestState != null && timeLastEdited != null && timeCreated != null) {
+					if(timeLastEdited == timeCreated) {
+						/*
+						 * this idea was just created so it's not possible for
+						 * the idea to have been previously changed
+						 */
+					} else if(this.latestState.timestamp < timeLastEdited) {
+						//the idea has been changed since the idea was used in this step
+						text += "!";
+					}
 				}
 				
 				//get the current node id
@@ -792,6 +822,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 };
 
 ExplanationBuilder.prototype.updateExpIdea = function(id,idea,left,top,color){
+	this.stateChanged = true;
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
 			if(left){
@@ -810,6 +841,7 @@ ExplanationBuilder.prototype.updateExpIdea = function(id,idea,left,top,color){
 };
 
 ExplanationBuilder.prototype.removeExpIdea = function(context,id){
+	this.stateChanged = true;
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
 			this.explanationIdeas.splice(i,1);

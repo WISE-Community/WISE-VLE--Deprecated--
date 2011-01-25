@@ -125,7 +125,7 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
 		});
 
 		//populate tables
-		for(var i=this.ideas.length-1; i>-1; i--){
+		for(var i=0; i<this.ideas.length; i++){
 			this.addRow(0,this.ideas[i],true);
 		}
 		for(var i=0; i<this.deleted.length; i++){
@@ -204,7 +204,7 @@ IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tags,flag,nodeI
 	this.nextIdeaId++;
 
 	//add the idea to the array of ideas
-	this.ideas.splice(0, 0, newIdea);
+	this.ideas.push(newIdea);
 	
 	return newIdea;
 };
