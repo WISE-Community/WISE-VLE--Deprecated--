@@ -940,6 +940,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					return path;
 				};
 			};
+			
+			return null;
 		};
 		
 		/* Returns the filename for this project */
@@ -1090,21 +1092,23 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			//get the position
 			var position = getPositionById(id);
 			
-			//split the position at the periods
-			var positionValues = position.split(".");
-			
-			//loop through each value
-			for(var x=0; x<positionValues.length; x++) {
-				//get a value
-				var value = positionValues[x];
+			if(position != null) {
+				//split the position at the periods
+				var positionValues = position.split(".");
 				
-				if(vlePosition != "") {
-					//separate the values by a period
-					vlePosition += ".";
-				}
-				
-				//increment the value by 1
-				vlePosition += (parseInt(value) + 1);
+				//loop through each value
+				for(var x=0; x<positionValues.length; x++) {
+					//get a value
+					var value = positionValues[x];
+					
+					if(vlePosition != "") {
+						//separate the values by a period
+						vlePosition += ".";
+					}
+					
+					//increment the value by 1
+					vlePosition += (parseInt(value) + 1);
+				}				
 			}
 			
 			return vlePosition;

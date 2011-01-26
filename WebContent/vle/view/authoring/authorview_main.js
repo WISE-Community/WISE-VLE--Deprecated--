@@ -284,7 +284,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 			var titleText = document.createTextNode(this.getProject().getStepTerm() + ': ');
 		} else {
 			var titleText = document.createTextNode(this.getProject().getStepTerm() + ' ' + this.getProject().getVLEPositionById(node.id) + ': ');
-			this.currentStepNum ++;
+			this.currentStepNum++;
 		}
 		
 		if(titleText && el.id!='unused'){
