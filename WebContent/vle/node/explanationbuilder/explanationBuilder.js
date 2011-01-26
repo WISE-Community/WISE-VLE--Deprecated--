@@ -693,8 +693,8 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			if(this.ideaBasket.deleted[i].id == id){
 				newIdea = new ExplanationIdea(id,left,top,color);
 				text = this.ideaBasket.deleted[i].text;
-				timeLastEdited = this.ideaBasket.ideas[i].timeLastEdited;
-				timeCreated = this.ideaBasket.ideas[i].timeCreated;
+				timeLastEdited = this.ideaBasket.deleted[i].timeLastEdited;
+				timeCreated = this.ideaBasket.deleted[i].timeCreated;
 				
 				if(this.latestState != null && timeLastEdited != null && timeCreated != null) {
 					if(timeLastEdited == timeCreated) {

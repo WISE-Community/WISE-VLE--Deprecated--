@@ -282,46 +282,14 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 				"OK": function(){				
 				if($("#editForm").validate().form()){
 					
-					var idea = basket.getIdeaById(id);
-					var stepsUsedIn = idea.stepsUsedIn;
-					
-					var answer = true;
-					
-					//check if this student used this idea in any steps 
-					if(stepsUsedIn != null && stepsUsedIn.length > 0) {
-						//the student has used this idea in a step
-						
-						var message = "This idea is currently used in the following steps\n\n";
-						
-						//loop through all the steps the student has used this idea in
-						for(var x=0; x<stepsUsedIn.length; x++) {
-							//get the node id
-							var nodeId = stepsUsedIn[x];
-							
-							//get the node
-							var node = parent.frames['ideaBasketIfrm'].thisView.getProject().getNodeById(nodeId);
-							
-							if(node != null) {
-								//get the node position
-								var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
-								
-								//get the node title
-								var title = node.title;
-								
-								//add the step to the message
-								message += vlePosition + ": " + title + "\n";
-							}
-						}
-						
-						message += "\nIf you change this idea, you will also change your answer in those steps.";
-						
-						/*
-						 * display the message to the student that notifies them 
-						 * that they will also be changing the idea text in the
-						 * steps that they have used the idea in
-						 */
-						answer = confirm(message);
-					}
+					/*
+					 * check if the idea is being used in an explanation builder step,
+					 * if it is, we will display a confirmation popup that asks the
+					 * student if they're sure they want to edit the idea. if the
+					 * idea is not being used in an eb step it will return true
+					 * by default.
+					 */
+					var answer = basket.checkIfIdeaUsed(id);
 					
 					if(answer) {
 						var source = $('#editSource').val();
@@ -346,9 +314,21 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 				'OK': function(){
 				var index = $clicked.parent().parent().attr('id');
 				index = index.replace('idea','');
-				var $tr = $clicked.parent().parent();
-				basket.remove(index,$tr);
-				$(this).dialog("close");
+				
+				/*
+				 * check if the idea is being used in an explanation builder step,
+				 * if it is, we will display a confirmation popup that asks the
+				 * student if they're sure they want to edit the idea. if the
+				 * idea is not being used in an eb step it will return true
+				 * by default.
+				 */
+				var answer = basket.checkIfIdeaUsed(index);
+				
+				if(answer) {
+					var $tr = $clicked.parent().parent();
+					basket.remove(index,$tr);
+					$(this).dialog("close");					
+				}
 			},
 			Cancel: function(){$(this).dialog("close");}
 			} });
@@ -394,6 +374,63 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 };
 
 /**
+ * Check if the idea is being used in an explanation builder step,
+ * if it is, we will display a confirmation popup that asks the
+ * student if they're sure they want to edit the idea. if the
+ * idea is not being used in an eb step it will return true
+ * by default.
+ * @param id the id of the idea
+ * @return whether the student confirmed that they still want
+ * to edit the idea. if the idea is not being used in an
+ * explanation builder step, we will not display the popup
+ * and will just return true
+ */
+IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
+	var idea = basket.getIdeaById(id);
+	var stepsUsedIn = idea.stepsUsedIn;
+	
+	var answer = true;
+	
+	//check if this student used this idea in any steps 
+	if(stepsUsedIn != null && stepsUsedIn.length > 0) {
+		//the student has used this idea in a step
+		
+		var message = "This idea is currently used in the following steps\n\n";
+		
+		//loop through all the steps the student has used this idea in
+		for(var x=0; x<stepsUsedIn.length; x++) {
+			//get the node id
+			var nodeId = stepsUsedIn[x];
+			
+			//get the node
+			var node = parent.frames['ideaBasketIfrm'].thisView.getProject().getNodeById(nodeId);
+			
+			if(node != null) {
+				//get the node position
+				var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
+				
+				//get the node title
+				var title = node.title;
+				
+				//add the step to the message
+				message += vlePosition + ": " + title + "\n";
+			}
+		}
+		
+		message += "\nIf you change this idea, you will also change your answer in those steps.";
+		
+		/*
+		 * display the message to the student that notifies them 
+		 * that they will also be changing the idea text in the
+		 * steps that they have used the idea in
+		 */
+		answer = confirm(message);
+	}
+	
+	return answer;
+};
+
+/**
  * Delete an idea by putting it in the trash
  * @param index
  * @param $tr
@@ -409,6 +446,14 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 			//this.deleted.push(this.ideas[i]);
 			this.deleted.splice(0,0,this.ideas[i]);
 			var idea = this.ideas[i];
+			
+			//get the current time
+			var newDate = new Date();
+			var time = newDate.getTime();
+			
+			//update the timeLastEdited
+			idea.timeLastEdited = time;
+			
 			var ideaId = idea.id;
 			this.ideas.splice(i,1);
 			this.addRow(1,idea);
@@ -434,6 +479,14 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 			//this.ideas.push(this.deleted[i]);
 			this.ideas.splice(0,0,this.deleted[i]);
 			var idea = this.deleted[i];
+			
+			//get the current time
+			var newDate = new Date();
+			var time = newDate.getTime();
+			
+			//update the timeLastEdited
+			idea.timeLastEdited = time;
+			
 			var ideaId = idea.id;
 			this.deleted.splice(i,1);
 			this.addRow(0,idea);
