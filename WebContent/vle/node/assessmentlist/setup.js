@@ -27,12 +27,19 @@ var css = [
 	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
+var nodeClasses = [
+	{nodeClass:'instantquiz', nodeClassText:'Survey 1'},
+	{nodeClass:'teacherquiz', nodeClassText:'Survey 2'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('assessmentlist', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('assessmentlist', css);
+
+componentloader.addNodeClasses('AssessmentListNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

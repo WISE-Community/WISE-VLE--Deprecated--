@@ -32,12 +32,19 @@ var css = [
 	"vle/node/common/css/niftyCorners.css"
 ];
 
+var nodeClasses = [
+	{nodeClass:'brainstorm', nodeClassText:'Brainstorm session'},
+	{nodeClass:'qadiscuss', nodeClassText:'Q&A Discussion'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('brainstorm', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('brainstorm', css);
+
+componentloader.addNodeClasses('BrainstormNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

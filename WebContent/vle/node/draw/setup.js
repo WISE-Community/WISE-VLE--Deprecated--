@@ -30,12 +30,18 @@ var css = [
 	'vle/node/draw/svg-edit/spinbtn/JQuerySpinBtn.css'
 ];
 
+var nodeClasses = [
+	{nodeClass:'quickdraw', nodeClassText:'Drawing'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('svgdraw', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('svgdraw', css);
+
+componentloader.addNodeClasses('SVGDrawNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

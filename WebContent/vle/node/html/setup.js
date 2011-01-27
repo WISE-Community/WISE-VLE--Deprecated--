@@ -19,11 +19,25 @@ var dependencies = [
 	{child:"vle/node/html/HtmlNode.js", parent:["vle/node/Node.js"]}
 ];
 
+var nodeClasses = [
+	{nodeClass:'intro', nodeClassText:'Open Response'},
+	{nodeClass:'curriculum', nodeClassText:'Curriculum Page'},
+	{nodeClass:'display', nodeClassText:'Display Page'},
+	{nodeClass:'cartoon', nodeClassText:'Cartoon Page'},
+	{nodeClass:'codeit', nodeClassText:'Coding Page'},
+	{nodeClass:'simulation', nodeClassText:'Simulation Page'},
+	{nodeClass:'movie', nodeClassText:'Movie Page'},
+	{nodeClass:'homework', nodeClassText:'Homework Page'},
+	{nodeClass:'summary', nodeClassText:'Summary Page'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('html', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
+
+componentloader.addNodeClasses('HtmlNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

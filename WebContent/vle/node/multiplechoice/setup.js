@@ -37,6 +37,14 @@ var css = [
 	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
+var multipleChoiceNodeClasses = [
+	{nodeClass:'multiplechoice', nodeClassText:'Multiple Choice'}
+];
+
+var challengeNodeClasses = [
+	{nodeClass:'instantquiz', nodeClassText:'Challenge Question'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('multiplechoice', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
@@ -45,6 +53,9 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('multiplechoice', css);
 
 scriptloader.addCssToComponent('author', 'vle/css/authoring/author_multiplechoice.css');
+
+componentloader.addNodeClasses('MultipleChoiceNode', multipleChoiceNodeClasses);
+componentloader.addNodeClasses('ChallengeNode', challengeNodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

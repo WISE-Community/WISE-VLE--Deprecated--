@@ -31,12 +31,18 @@ var css = [
 	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
+var nodeClasses = [
+	{nodeClass:'fillblank', nodeClassText:'Fill the Blank'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('fillin', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('fillin', css);
+
+componentloader.addNodeClasses('FillinNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

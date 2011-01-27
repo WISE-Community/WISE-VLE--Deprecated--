@@ -33,12 +33,18 @@ var css = [
 	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
+var nodeClasses = [
+	{nodeClass:'matchsequence', nodeClassText:'Match & Sequence'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('matchsequence', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('matchsequence', css);
+
+componentloader.addNodeClasses('MatchSequenceNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

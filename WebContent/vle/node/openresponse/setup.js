@@ -44,6 +44,14 @@ var css = [
 	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
 ];
 
+var openResponseNodeClasses = [
+	{nodeClass:'openresponse', nodeClassText:'Open Response'}
+];
+
+var noteNodeClasses = [
+	{nodeClass:'note', nodeClassText:'Reflection Note (popup)'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('openresponse', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
@@ -53,6 +61,9 @@ scriptloader.addCssToComponent('openresponse', css);
 
 scriptloader.addScriptToComponent('peerreviewhelper', 'vle/node/openresponse/openresponse.js');
 scriptloader.addCssToComponent('core', 'vle/node/openresponse/openresponse.css');
+
+componentloader.addNodeClasses('OpenResponseNode', openResponseNodeClasses);
+componentloader.addNodeClasses('NoteNode', noteNodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

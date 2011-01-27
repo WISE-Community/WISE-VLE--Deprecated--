@@ -81,7 +81,11 @@ var css = [
        	"vle/node/explanationbuilder/explanation.css",
        	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css"
-       ];
+];
+
+var nodeClasses = [
+	{nodeClass:'codeit', nodeClassText:'Explanation Builder'}
+];
 
 scriptloader.addScriptToComponent('core', coreScripts);
 
@@ -97,6 +101,8 @@ scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('explanationbuilder', css);
+
+componentloader.addNodeClasses('ExplanationBuilderNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

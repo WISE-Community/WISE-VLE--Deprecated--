@@ -27,7 +27,10 @@ var componentloader = function(em, sl){
 				projectMetadata:undefined, 
 				HTML_CONTENT_TEMPLATES:{}, 
 				isLoadedProjectMinified:false, 
-				minifierUrl:'../util/minifier.html'},
+				minifierUrl:'../util/minifier.html',
+				iconUrl:'images/stepIcons/UCCP/',
+				nodeClasses:{}
+			},
 			events: {
 				'loadingProjectStart': [null, null], 
 				'loadingProjectComplete':[null, null],
@@ -914,6 +917,15 @@ var componentloader = function(em, sl){
 			
 			//tell the vle to call this dispatcher function when this event is fired
 			eventManager.subscribe(eventName, view[dispatcherName], view);
+		},
+		/*
+		 * Add an entry to the nodeClasses
+		 * @param nodeType the name of the node type
+		 * @param nodeClassesArray an array containing objects, each object contains
+		 * two fields, nodeClass and nodeClassText
+		 */
+		addNodeClasses:function(nodeType, nodeClassesArray) {
+			components.core.variables.nodeClasses[nodeType] = nodeClassesArray;
 		}
 	};
 }(eventManager, scriptloader);

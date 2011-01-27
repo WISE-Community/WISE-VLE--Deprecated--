@@ -30,12 +30,18 @@ var css = [
 	"vle/node/datagraph/datagraph.css"
 ];
 
+var nodeClasses = [
+	{nodeClass:'datatable', nodeClassText:'Data Graph'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('datagraph', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('datagraph', css);
+
+componentloader.addNodeClasses('DataGraphNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

@@ -24,12 +24,18 @@ var css = [
 	"vle/node/mw/mw.css"
 ];
 
+var nodeClasses = [
+	{nodeClass:'simulation', nodeClassText:'Molecular Workbench'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('mw', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('mw', css);
+
+componentloader.addNodeClasses('MWNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

@@ -69,6 +69,16 @@ var dependencies = [
 	{child:"vle/node/template/TemplateNode.js", parent:["vle/node/Node.js"]}
 ];
 
+/*
+ * TODO: rename Template
+ * 
+ * For example if you are creating a quiz node you would change it to
+ * 'Quiz'
+ */
+var nodeClasses = [
+	{nodeClass:'display', nodeClassText:'Template'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 
 /*
@@ -82,6 +92,14 @@ scriptloader.addScriptToComponent('template', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
+
+/*
+ * TODO: rename TemplateNode
+ * 
+ * For example if you are creating a quiz node you would change it to
+ * 'QuizNode'
+ */
+componentloader.addNodeClasses('TemplateNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

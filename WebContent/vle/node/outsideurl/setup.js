@@ -19,12 +19,17 @@ var dependencies = [
 	{child:"vle/node/outsideurl/OutsideUrlNode.js", parent:["vle/node/Node.js"]}
 ];
 
+var nodeClasses = [
+	{nodeClass:'www', nodeClassText:'WWW Page'}
+];
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('outsideurl', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
+
+componentloader.addNodeClasses('OutsideUrlNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

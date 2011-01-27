@@ -28,6 +28,10 @@ var dependencies = [
 	{child:"vle/node/mysystem/MySystemNode.js", parent:["vle/node/Node.js"]}
 ];
 
+var nodeClasses = [
+	{nodeClass:'mysystem', nodeClassText:'My System'}
+];
+
 var css = [
 	'vle/node/mysystem/css/YUI/reset-font-grids.css',
 	'vle/node/mysystem/css/YUI/base-min.css',
@@ -43,6 +47,8 @@ scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('mysystem', css);
+
+componentloader.addNodeClasses('MySystemNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

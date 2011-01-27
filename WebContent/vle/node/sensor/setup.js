@@ -29,6 +29,10 @@ var css = [
        	
 ];
 
+var nodeClasses = [
+	{nodeClass:'simulation', nodeClassText:'Sensor'}
+];
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('sensor', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
@@ -43,6 +47,8 @@ var topMenuScripts = [
 ];
 
 scriptloader.addScriptToComponent('topMenu', topMenuScripts);
+
+componentloader.addNodeClasses('SensorNode', nodeClasses);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

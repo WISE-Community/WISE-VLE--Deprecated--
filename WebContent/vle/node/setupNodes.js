@@ -9,7 +9,6 @@ var setupFiles = [
 	 "vle/node/datagraph/setup.js",
 	 "vle/node/draw/setup.js",
 	 "vle/node/fillin/setup.js",
-	 "vle/node/flash/setup.js",
 	 "vle/node/html/setup.js",
 	 "vle/node/matchsequence/setup.js",
 	 "vle/node/multiplechoice/setup.js",

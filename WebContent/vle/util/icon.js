@@ -1,13 +1,15 @@
 /**
  * The following four variables are used for setting and using the
  * appropriate icons for the nodes.
+ * 
+ * Note: the variables in this file are no longer used
  */
-var iconUrl = 'images/stepIcons/UCCP/';
-var nodeTypes = ['HtmlNode', 'BrainstormNode', 'FillinNode', 'MatchSequenceNode', 'MultipleChoiceNode', 
+var iconUrlOld = 'images/stepIcons/UCCP/';
+var nodeTypesOld = ['HtmlNode', 'BrainstormNode', 'FillinNode', 'MatchSequenceNode', 'MultipleChoiceNode', 
 		'NoteNode', 'JournalEntryNode', 'OutsideUrlNode', 'OpenResponseNode', 'BlueJNode', 'DrawNode',
 		'DataGraphNode', 'MySystemNode', 'SVGDrawNode', 'MWNode', 'AssessmentListNode', 'ChallengeNode',
 		'BranchNode', 'SensorNode', 'ExplanationBuilderNode'];
-var nodeClasses = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simulation', 'movie', 'homework', 'summary'],
+var nodeClassesOld = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simulation', 'movie', 'homework', 'summary'],
 			['brainstorm', 'qadiscuss'],
 			['fillblank'],
 			['matchsequence'],
@@ -27,7 +29,7 @@ var nodeClasses = [['intro', 'curriculum', 'display', 'cartoon', 'codeit', 'simu
 			['multiplechoice'],
 			['simulation'],
 			['codeit']];
-var nodeClassText = [['Introductory Page', 'Curriculum Page', 'Display Page', 'Cartoon Page', 'Coding Page', 'Simulation Page', 'Movie Page', 'Homework Page', 'Summary Page'],
+var nodeClassTextOld = [['Introductory Page', 'Curriculum Page', 'Display Page', 'Cartoon Page', 'Coding Page', 'Simulation Page', 'Movie Page', 'Homework Page', 'Summary Page'],
 			['Brainstorm session', 'Q&A Discussion'],
 			['Fill the Blank'],
 			['Match & Sequence'],

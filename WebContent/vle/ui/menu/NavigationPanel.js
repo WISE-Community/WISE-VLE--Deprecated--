@@ -67,7 +67,7 @@ NavigationPanel.prototype.render = function() {
 					var currentTitle = previousNavElement.firstChild.nextSibling.nodeValue;
 					var newTitle;
 					var parentTitle = prevNode.parent.title;
-					previousNavElement.firstChild.src = iconUrl + 'instantquiz16.png';
+					previousNavElement.firstChild.src = this.view.iconUrl + 'instantquiz16.png';
 
 					if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
 						newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1);
@@ -218,7 +218,7 @@ NavigationPanel.prototype.processGlue = function(el, child){
 	var parentTitle = child.parent.title;
 	var positionText = ' (part ' + (child.parent.children.indexOf(child) + 1) + ' of ' + child.parent.children.length + ')';
 					
-	el.firstChild.src = iconUrl + child.className + '16.png';
+	el.firstChild.src = this.view.iconUrl + child.className + '16.png';
 	
 	if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
 		newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1) + positionText;
@@ -360,7 +360,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     		};
     		
     		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-    			sequenceIcon = '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
+    			sequenceIcon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
     		};
     		
     		//display a step with the title of the sequence for this glue sequence
@@ -396,7 +396,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		};
 		
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-			icon = '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
+			icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
 		};
 		
 		//display the step

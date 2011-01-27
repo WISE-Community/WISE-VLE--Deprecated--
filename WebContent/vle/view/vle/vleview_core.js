@@ -450,7 +450,7 @@ View.prototype.onRenderNodeComplete = function(position){
 	
 	/* Set icon in nav bar */
 	if(currentNode.getNodeClass() && currentNode.getNodeClass()!='null' && currentNode.getNodeClass()!=''){
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + iconUrl + currentNode.getNodeClass() + '28.png\'/>';
+		document.getElementById('stepIcon').innerHTML = '<img src=\'' + this.iconUrl + currentNode.getNodeClass() + '28.png\'/>';
 	}
 	
 	/* set title in nav bar */

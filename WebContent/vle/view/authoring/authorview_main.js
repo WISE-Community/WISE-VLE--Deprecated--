@@ -269,7 +269,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		}
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
 			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
-			mainDiv.innerHTML = '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
+			mainDiv.innerHTML = '<img src=\'' + this.iconUrl + node.getNodeClass() + '16.png\'/> ';
 		} //else {
 			//mainDiv.innerHTML = reviewHtml + tabs;
 			//mainDiv.innerHTML = reviewHtml;
@@ -299,32 +299,32 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		mainDiv.appendChild(selectNodeText);
 		mainDiv.appendChild(selectDrop);
 		
+		var nodeClassesForNode = [];
+
 		/* check to see if current node is in nodeTypes, if not ignore so that authoring 
 		 * tool will continue processing remaining nodes. Resolve duplicate nodes to the
 		 * type of the node that they represent */
 		if(node.type=='DuplicateNode'){
-			var ndx = nodeTypes.indexOf(node.getNode().type);
+			nodeClassesForNode = this.nodeClasses[node.getNode().type];
 		} else {
-			var ndx = nodeTypes.indexOf(node.type);
+			nodeClassesForNode = this.nodeClasses[node.type];
 		}
 		
 		//populate select with icons for its step type
-		if(ndx!=-1){
-			var classes = nodeClasses[ndx];
-			var text = nodeClassText[ndx];
-	
+		if(nodeClassesForNode.length > 0){
 			var opt = createElement(document, 'option');
 			opt.innerHTML = '';
 			opt.value = '';
 			selectDrop.appendChild(opt);
 			
-			for(var h=0;h<classes.length;h++){
+			for(var x=0; x<nodeClassesForNode.length; x++) {
+				var nodeClassObj = nodeClassesForNode[x];
 				var opt = createElement(document, 'option');
-				opt.value = classes[h];
-				opt.innerHTML = '<img src=\'' + iconUrl + classes[h] + '16.png\'/> ' + text[h];
+				opt.value = nodeClassObj.nodeClass;
+				opt.innerHTML = '<img src=\'' + this.iconUrl + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
 				selectDrop.appendChild(opt);
-				if(node.getNodeClass() == classes[h]){
-					selectDrop.selectedIndex = h + 1;
+				if(node.getNodeClass() == nodeClassObj.nodeClass){
+					selectDrop.selectedIndex = x + 1;
 				}
 			}
 		}
@@ -1164,17 +1164,17 @@ View.prototype.nodeTypeSelected = function(){
 	};
 	
 	if(val && val!=""){
-		var index = nodeTypes.indexOf(val);
-		var classes = nodeClasses[index];
-		var text = nodeClassText[index];
+		var nodeClassesForNode = this.nodeClasses[val];
 		
 		var selectDiv = createElement(document, 'div', {id: 'selectNodeIconDiv'});
 		var selectText = document.createTextNode('Select an Icon:');
 		var select = createElement(document, 'select', {id: 'selectNodeIcon', name: 'param2'});
-		for(var h=0;h<classes.length;h++){
+		
+		for(var x=0;x<nodeClassesForNode.length;x++){
+			var nodeClassObj = nodeClassesForNode[x];
 			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
-			opt.value = classes[h];
-			opt.innerHTML = '<img src=\'' + iconUrl + classes[h] + '16.png\'/> ' + text[h];
+			opt.value = nodeClassObj.nodeClass;
+			opt.innerHTML = '<img src=\'' + this.iconUrl + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
 			
 			select.appendChild(opt);
 		};
