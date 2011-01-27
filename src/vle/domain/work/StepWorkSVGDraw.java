@@ -6,8 +6,16 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import vle.domain.node.Node;
+import vle.domain.user.UserInfo;
+import vle.hibernate.HibernateUtil;
 
 /**
  * Domain Object for storing SVGDraw step data
@@ -68,5 +76,54 @@ public class StepWorkSVGDraw extends StepWork {
 			}
 		}
 
+	}
+	
+	/**
+	 * Returns the latest StepWork done by the specified workgroup with the specified id and specified node
+	 * or null if no such StepWork exists.
+	 * @param id
+	 * @param clazz 
+	 * @return 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static StepWork getLatestStepWorkSVGDrawByUserInfoAndNodeWithState(UserInfo userInfo,Node node) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        List<StepWork> list = session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo))
+        	.add(Restrictions.eq("node",node)).addOrder(Order.desc("postTime")).list();
+        StepWork result = null;
+        
+        //loop through all the StepWorkSVGDraw objects
+        for(int x=0; x<list.size(); x++) {
+        	//get an StepWorkSVGDraw object
+        	StepWork stepWork = list.get(x);
+        	
+        	//get the JSON data string
+        	String data = stepWork.getData();
+        	
+        	try {
+        		//create a JSONObject from the data string
+				JSONObject dataJSONObj = new JSONObject(data);
+				
+				//get the nodeStates JSON array
+				JSONArray nodeStates = dataJSONObj.getJSONArray("nodeStates");
+				
+				//check if the array is empty
+				if(nodeStates.length() > 0) {
+					/*
+					 * array is not empty so we have found the latest 
+					 * StepWorkSVGDraw that has work and will return it
+					 */
+					result = stepWork;
+					break;
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+        }
+        
+        session.getTransaction().commit();
+        return result;
 	}
 }

@@ -293,7 +293,7 @@ public class VLEGetData extends VLEServlet {
 				if (((Node) nodeList.get(i)).getNodeType().equals("SVGDrawNode")) {
 					Node drawNode = nodeList.get(i);
 					try {
-						StepWorkSVGDraw drawNodeStepWork = (StepWorkSVGDraw) StepWork.getLatestByUserInfoAndNode(userInfo,drawNode);
+						StepWorkSVGDraw drawNodeStepWork = (StepWorkSVGDraw) StepWorkSVGDraw.getLatestStepWorkSVGDrawByUserInfoAndNodeWithState(userInfo,drawNode);
 						if (drawNodeStepWork != null) {
 							drawStepWorks.add(drawNodeStepWork);
 						}
