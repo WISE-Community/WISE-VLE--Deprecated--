@@ -12,8 +12,7 @@
 svgEditor.addExtension("WISE4", function(S) {
 	//var svgcontent = S.svgcontent;
 	var lz77 = new LZ77(); // lz77 compression object
-	
-	svgEditor.changed = false; // boolean to specify whether user has changed drawing/snaps
+	svgEditor.changed = false; // boolean to specify whether data has changed, if no changes, do not post nodestate on exit
 	svgEditor.initLoad = false; // boolean to specify whether svgeditor is populating canvas on node entry or on snapshot click
 	var changeNum = 0;
 	
@@ -127,15 +126,13 @@ svgEditor.addExtension("WISE4", function(S) {
 			updateDisplay();
 		},
 		elementChanged: function(){
-			if(svgEditor.initLoad || svgEditor.initSnap) {
-				svgEditor.initLoad = false;
-			} else {
+			if(!svgEditor.initLoad && !svgEditor.initSnap) {
+				changeNum++;
 				checkDrawSize(); // if not opening a snapshot or loading initial drawing, check draw size
 			}
+			//alert(svgEditor.initLoad + ' ' + svgEditor.initSnap + ' ' + svgEditor.changed);
 			if (changeNum>0){ // check to see if this change is this initial drawing import
 				svgEditor.changed = true;
-			} else {
-				changeNum++;
 			}
 		}
 	};

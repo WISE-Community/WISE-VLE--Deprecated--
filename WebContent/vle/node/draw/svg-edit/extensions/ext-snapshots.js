@@ -31,9 +31,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 	svgEditor.initSnap = false;  // boolean to identify when we are in snapshot loading/click mode
 	
 	var getUndoStackSize = svgCanvas.getUndoStackSize,
-		resetUndoStack = svgCanvas.getPrivateMethods().resetUndoStack;
+		resetUndoStack = svgCanvas.getPrivateMethods().resetUndoStack; //getPrivateMethods is being deprecated, change when we next update
 	
-	var extPath = '/vlewrapper/vle/node/draw/svg-edit/extensions/'; // extensions directory path (default is empty) (wise4)
+	var extPath = '/vlewrapper/vle/node/draw/svg-edit/extensions/'; // extensions directory path (wise4)
 	
 	function Snapshot(svg, id, description){
 		this.svg = svg;
@@ -533,10 +533,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 		for (var i=0; i<snapshots.length; i++) {
 			svgEditor.snapshots.push(snapshots[i]);
 			var current = svgEditor.snapshots[i].svg;
-			var id = svgEditor.snapshots[i].id
+			var id = svgEditor.snapshots[i].id;
 			svgEditor.addSnapshot(current,i,id); // add snap to snapshot panel
 		};
-		svgEditor.initSnap = false;
 		snapsLoaded = true;
 		// run optional callback function
 		if(callback){

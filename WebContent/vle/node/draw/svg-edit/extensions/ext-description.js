@@ -29,6 +29,7 @@ svgEditor.addExtension("Description", function(S) {
 		$('#description_content').keyup(function(){
 			var value = $('#description_content').val();
 			svgEditor.description = value;
+			svgEditor.changed = true;
 		});
 		
 		$('#description_edit').click(function(){

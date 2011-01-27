@@ -164,24 +164,23 @@ SVGDRAW.prototype.loadCallback = function(studentWorkJSON, context) {
 };
 
 SVGDRAW.prototype.saveToVLE = function() {
-	// strip out annotations
-	if (this.teacherAnnotation != "") {
-		svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
-	}
-	this.studentData.svgString = svgCanvas.getSvgString();
-	this.studentData.description = svgEditor.description;
-	this.studentData.snapshots = svgEditor.snapshots;
-	this.studentData.snapTotal = svgEditor.snapTotal;
-	if(svgEditor.selected == true){
-		this.studentData.selected = svgEditor.active;
-	} else {
-		this.studentData.selected = -1;
-	}
-	var data = this.studentData;
+	//alert(svgEditor.changed);
 	//if(svgEditor.changed){
+		// strip out annotations
+		if (this.teacherAnnotation != "") {
+			svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
+		}
+		this.studentData.svgString = svgCanvas.getSvgString();
+		this.studentData.description = svgEditor.description;
+		this.studentData.snapshots = svgEditor.snapshots;
+		this.studentData.snapTotal = svgEditor.snapTotal;
+		if(svgEditor.selected == true){
+			this.studentData.selected = svgEditor.active;
+		} else {
+			this.studentData.selected = -1;
+		}
+		var data = this.studentData;
 		this.dataService.save(data);
-	//} else {
-		//alert('no change, data not saved');
 	//}
 };
 
@@ -226,7 +225,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		if(context.instructions && context.instructions != ""){
 			$('#prompt_text').html(context.instructions);
 			
-			if(!vle.getLatestStateForCurrentNode()){
+			if(!data){
 				$('#prompt_dialog').dialog('open');
 			}
 		} else {
@@ -241,6 +240,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 				svgEditor.initSnap = true;
 				svgEditor.snapTotal = data.snapTotal;
 				svgEditor.loadSnapshots(data.snapshots,context.setSelected(data));
+				svgEditor.initSnap = false;
 			}
 			
 		} else {
@@ -288,6 +288,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 							svgEditor.snapshots[i].description = value;
 						}
 					}
+					svgEditor.changed = true;
 				});
 				
 				// update description input focus function to accommodate snapshots
@@ -474,7 +475,12 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			svgEditor.warningStackSize = 0;
 			$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 			svgEditor.setIconSize('m');
+			
+			$('#loading_overlay').hide();
+			$('#overlay_content').dialog('close');
 		},500);
+		
+		svgEditor.initLoad = false;
 	}
 	else {
 		setTimeout(function(){
@@ -507,12 +513,11 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 
 	  VleDS.prototype = {
 	    save: function(_data) {
-		  	/* compress nodeState data */
-			//alert($.stringify(_data).length * 2);
-			_data = "--lz77--" + this.lz77.compress($.stringify(_data));
-			//alert(_data.length * 2);
-			this.vle.saveState(_data,this.vleNode);
-	        this.data = _data;
+    		var data = _data;
+    		/* compress nodeState data */
+			data = "--lz77--" + this.lz77.compress($.stringify(_data));
+			this.vle.saveState(data,this.vleNode);
+	        this.data = data;
 	    },
 
 	    load: function(context,callback) {

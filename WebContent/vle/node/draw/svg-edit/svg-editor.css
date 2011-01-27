@@ -3,6 +3,21 @@ body {
 	overflow-x:hidden;
 }
 
+/* WISE4 loading overlay */
+
+#overlay_content {
+	text-align: center;
+	margin-bottom:.4em;
+}
+
+#overlay_content div {
+	padding:.5em;
+}
+
+#overlay_content .info {
+	font-size:.8em;
+}
+	
 #svg_editor {
 	font-size: 8pt;
 	font-family: Verdana, Helvetica, Arial;
