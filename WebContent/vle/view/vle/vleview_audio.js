@@ -1,6 +1,9 @@
 /**
  * Dispatches events specific to the audio
  */
+
+// NATE: removed all audio updating stuff -- createAudioFiles, updateAudio, etc
+//  also, picked just one (the last) of the 'render finished' events...
 View.prototype.audioDispatcher = function(type, args, obj) {
     // debugger;
     if (type == 'loadingProjectComplete') {
@@ -13,35 +16,38 @@ View.prototype.audioDispatcher = function(type, args, obj) {
         obj.forwardStepAudio();
     } else if (type == 'playPauseStepAudio') {
         obj.playPauseStepAudio();
-    } else if (type == 'updateAudio') {
-        obj.updateAudio();
+//    } else if (type == 'updateAudio') {
+//        obj.updateAudio();
     } else if (type == 'renderNodeComplete') {
-        obj.startAudioAfterRender(args[0]);
+        // hopefully, 'pageRenderComplete' takes care of this
+        //obj.startAudioAfterRender(args[0]);
     } else if (type == 'stepThruProject') {
-        obj.stepThruProject();
+        //obj.stepThruProject();
     } else if (type == 'contentRenderComplete') {
-        obj.startAudioAfterRender(args[0]);
+        // hopefully, 'pageRenderComplete' takes care of this
+        //obj.startAudioAfterRender(args[0]);
         // obj.prepareAudio(args[0]);
     } else if (type == 'pageRenderComplete') {
         obj.startAudioAfterRender(args[0]);
         // obj.prepareAudio(args[0]);
     } else if (type == 'createAudioFiles') {
-        obj.createAudioFiles(args[0]);
+        //obj.createAudioFiles(args[0]);
     }
     ;
 };
 
 /**
  * pauses for specified milliseconds
+ * Nate: EVIL: never use this!
  */
-View.prototype.pausecomp = function(millis) {
-    var date = new Date();
-    var curDate = null;
-
-    do {
-        curDate = new Date();
-    } while (curDate - date < millis);
-};
+//View.prototype.pausecomp = function(millis) {
+//    var date = new Date();
+//    var curDate = null;
+//
+//    do {
+//        curDate = new Date();
+//    } while (curDate - date < millis);
+//};
 
 /**
  * Creates the audio manager when the vle starts and checks to see if we need to
@@ -115,8 +121,8 @@ View.prototype.playPauseStepAudio = function() {
 View.prototype.startAudioAfterRender = function(nodeId) {
     if (!this.updateAudioOnRender && this.audioManager) {
         try {
-            // this.pausecomp(3000); // pause a bit before calling this
-            var cNode = this.getProject().getNodeByPosition(nodeId);
+            // ? pause a bit before calling this
+            var cNode = this.getProject().getNodeById(nodeId);
             if (cNode != null) {
                 this.audioManager.setCurrentNode(cNode);
                 if (this.config.getConfigParam("playAudioOnStart")) {
@@ -124,9 +130,7 @@ View.prototype.startAudioAfterRender = function(nodeId) {
                 }
             }
         } catch (err) {
-            // do nothing
-            // this.notificationManager.notify('error thrown
-            // startAudioAfterRender', 3);
+            this.notificationManager.notify("Error thrown making audio for node " + nodeId , 3);
         }
         // this.audioManager.setCurrentNode(this.getProject().getNodeByPosition(position));
         // var currentNode = this.getProject().getNodeByPosition(position);

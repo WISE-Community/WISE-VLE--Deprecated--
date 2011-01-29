@@ -185,6 +185,7 @@ AudioManager.prototype.createSoundFromAudioElement = function(nodeAudioElement, 
 /**
  * Prepares this to play audio associated with this node.
  * If this.isPlaying is true, starts playing
+ * hm, often this happens before main.js runs, which generates the audio header. sigh.
  */
 AudioManager.prototype.setCurrentNode = function(node) {
 	if (this.currentSound != null) { 
@@ -197,12 +198,19 @@ AudioManager.prototype.setCurrentNode = function(node) {
 	if (!this.currentNode.audios || this.currentNode.audios == null) {
 		this.currentNode.audios = [];
 	}
-	var audioElements = $(this.currentNode.contentPanel.document).find("[audio]");
+
+	var audioElements = $("[audio]", this.currentNode.contentPanel.document);
+	// nate -- wtf?  Need to do a 
 	if (audioElements == null || audioElements.length == 0) {
-		// try again, but after a brief pause
-		//this.currentNode.view.pausecomp(3000);  // pause a bit before calling this
-		audioElements = $(this.currentNode.contentPanel.document).find("[audio]");
+		audioElements = $("[audio]", this.currentNode.contentPanel.document);
 	}
+	
+	// NATE: we want to sort this based on the audio parameter value(if present), really.
+	// $(audioElements).get().sort(function(a,b) { 
+	//         var aval = a.getAttribute("audio");
+	//         bval = b.getAttribute("audio");
+	//         return (aval > bval ? 1 : -1);
+	//         });
 	var nodeAudioElements = [];
 	for (var k=0;k<audioElements.length;k++) {
 		var audioElement = audioElements[k];
@@ -239,7 +247,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 		this.currentSound = this.currentNode.audios[0];
 		this.doEnableButtons(true);
 	} else {  
-		// no pre-associated audio exists for this node.
+		// no audio tags exist for this node.
 		notificationManager.notify("no pre-associated audio exists for this node", 4);
 		var sound = soundManager.createSound( {
 			id : 'NoAudioAvailable',
@@ -252,6 +260,7 @@ AudioManager.prototype.setCurrentNode = function(node) {
 	}	
 };
 
+// Nate: unused?
 AudioManager.prototype.playMD5Audio = function(sound, node) {
 	notificationManager.notify('playmd5audio, id:' + sound.id, 4);
 	//soundManager.stopAll();
@@ -270,6 +279,7 @@ AudioManager.prototype.playMD5Audio = function(sound, node) {
 	}
 };
 
+// Nate: unused?
 AudioManager.prototype.playBackupAudio = function(sound, node) {
 	notificationManager.notify('playbackupaudio, id:' + sound.id, 4);
 	soundManager.stop(sound.id);
@@ -299,12 +309,15 @@ AudioManager.prototype.doEnableButtons = function(doEnable) {
 		document.getElementById("rewindButton").ondblclick = function() {eventManager.fire('previousStepAudio');};
 		document.getElementById("forwardButton").onclick = function() {eventManager.fire('forwardStepAudio');};
 		document.getElementById("playPause").onclick = function() {eventManager.fire('playPauseStepAudio');};
+	    $('#audioControls').fadeTo(0,1 );  // full opacity.
 	} else {
 		notificationManager.notify("disabling buttons", 4);
-	 	document.getElementById("rewindButton").onclick = "";
-		document.getElementById("rewindButton").ondblclick = "";
-		document.getElementById("forwardButton").onclick = "";
-		document.getElementById("playPause").onclick = "";
+		$('#audioControls a').removeAttr('onclick');
+	 	//document.getElementById("rewindButton").onclick = "";
+		//document.getElementById("rewindButton").ondblclick = "";
+		//document.getElementById("forwardButton").onclick = "";
+		//document.getElementById("playPause").onclick = "";
+		$('#audioControls').fadeTo(500,.33 );  // grey out the contols a bit (1/3 opacity)
 	};
 };
 
