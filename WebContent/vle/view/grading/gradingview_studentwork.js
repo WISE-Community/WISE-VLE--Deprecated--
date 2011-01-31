@@ -298,6 +298,50 @@ View.prototype.getPeerReviewWorkByWorkerNodeId = function(workerWorkgroupId, nod
 	return null;
 };
 
+/**
+ * Get all the idea baskets for this run
+ */
+View.prototype.getIdeaBaskets = function() {
+	/*
+	 * the function that gets called when we receive the idea baskets from
+	 * our request.
+	 * @param text the response from the request
+	 * @param xml not used
+	 * @param args additional args we passed into the request so we can have access
+	 * to them in the context of this callback function
+	 */
+	var getIdeaBasketsCallback = function(text, xml, args) {
+		//get the view
+		var thisView = args[0];
+		
+		//parse the idea baskets array
+		var ideaBasketsJSON = $.parseJSON(text);
+		var ideaBaskets = [];
+		
+		//loop through all the idea basket JSON objects
+		for(var x=0; x<ideaBasketsJSON.length; x++) {
+			//create an IdeaBasket for each idea basket JSON object
+			var ideaBasketJSON = ideaBasketsJSON[x];
+			var ideaBasket = new IdeaBasket(ideaBasketJSON);
+			
+			//add it to our array if IdeaBasket objects
+			ideaBaskets.push(ideaBasket);
+		}
+		
+		//set the array of IdeaBasket objects into the view
+		thisView.ideaBaskets = ideaBaskets;
+		
+		eventManager.fire("getIdeaBasketsComplete");
+	};
+	
+	var getIdeaBasketParams = {
+		action:"getAllIdeaBaskets"	
+	};
+
+	//make the request for the idea baskets
+	this.connectionManager.request('GET', 1, this.getConfig().getConfigParam('getIdeaBasketUrl'), getIdeaBasketParams, getIdeaBasketsCallback, [this]);
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/grading/gradingview_studentwork.js');

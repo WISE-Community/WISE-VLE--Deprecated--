@@ -61,7 +61,8 @@ var gradingScripts = [
 	 * For example if you are creating a quiz node you would change it to
 	 * 'vle/node/quiz/quizstate.js'
 	 */
-	'vle/node/explanationbuilder/explanationbuilderstate.js'
+	'vle/node/explanationbuilder/explanationbuilderstate.js',
+	'vle/node/explanationbuilder/explanationBuilder.js'
 ];
 
 var dependencies = [

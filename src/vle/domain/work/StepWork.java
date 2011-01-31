@@ -300,7 +300,7 @@ public class StepWork extends PersistableDomain {
 	 * @param index the current index in the list to utilize
 	 * @return a Criterion of UserInfo "or"ed together
 	 */
-	private static Criterion createUserInfoOrCriterion(List<UserInfo> userInfos, int index) {
+	public static Criterion createUserInfoOrCriterion(List<UserInfo> userInfos, int index) {
 		if(index == (userInfos.size() - 1)) {
 			/*
 			 * base case if the list has only one element just return a
@@ -313,6 +313,28 @@ public class StepWork extends PersistableDomain {
 			 * on the rest of the list
 			 */
 			return Restrictions.or(Restrictions.eq("userInfo", userInfos.get(index)), createUserInfoOrCriterion(userInfos, index + 1));			
+		}
+	}
+	
+	/**
+	 * A recursive function that chains "or" restrictions of ids together
+	 * @param ids a list of ids, the list must not be empty
+	 * @param index the current index in the list to utilize
+	 * @return a Criterion of id "or"ed together
+	 */
+	public static Criterion createIdOrCriterion(List<Long> ids, int index) {
+		if(index == (ids.size() - 1)) {
+			/*
+			 * base case if the list has only one element just return a
+			 * restriction with the id
+			 */
+			return Restrictions.eq("id", ids.get(index));
+		} else {
+			/*
+			 * "or" together this first element with the recursive call
+			 * on the rest of the list
+			 */
+			return Restrictions.or(Restrictions.eq("id", ids.get(index)), createIdOrCriterion(ids, index + 1));			
 		}
 	}
 	

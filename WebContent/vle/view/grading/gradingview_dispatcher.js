@@ -39,6 +39,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='refreshGradingScreen') {
 		obj.refreshGradingScreen();
 	} else if(type=='getAnnotationsComplete') {
+		obj.getIdeaBaskets();
+	} else if(type=='getIdeaBasketsComplete') {
 		obj.initiateGradingDisplay();
 	} else if(type=='getStudentWorkComplete') {
 		obj.calculateGradingStatistics();

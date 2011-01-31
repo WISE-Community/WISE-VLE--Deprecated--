@@ -478,6 +478,32 @@ View.prototype.forceLogout = function() {
 	parent.window.location = "/webapp/j_spring_security_logout";
 };
 
+/**
+ * Get the idea basket for the given workgroup id
+ * @param workgroupId the id of the workgroup we want the idea basket from
+ * @return the idea basket from the given workgroup or null if not found
+ */
+View.prototype.getIdeaBasketByWorkroupId = function(workgroupId) {
+	var ideaBasket = null;
+	
+	//check if we have retrieved the idea baskets
+	if(this.ideaBaskets != null) {
+	
+		//loop through all the idea baskets
+		for(var x=0; x<this.ideaBaskets.length; x++) {
+			ideaBasket = this.ideaBaskets[x];
+			
+			//compare the workgroup id of the idea basket
+			if(ideaBasket.workgroupId == workgroupId) {
+				//we have found a match so we will break out of the for loop
+				break;
+			}
+		}
+	}
+	
+	return ideaBasket;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');

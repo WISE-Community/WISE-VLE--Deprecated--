@@ -63,8 +63,9 @@ SensorNode.prototype.onExit = function() {
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
  */
-SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix) {
+SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create a SENSOR object that we will use to perform all the graphing logic for us
 	var sensor = new SENSOR(this, this.view);
 	

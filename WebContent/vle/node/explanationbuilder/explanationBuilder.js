@@ -81,7 +81,7 @@ ExplanationBuilder.prototype.render = function() {
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');
 		$('#explanationIdeas').css('background-repeat','no-repeat');
-		$('#explanationIdeas').css('background-position','center top');
+		$('#explanationIdeas').css('background-position','left top');
 	}
 	
 	//set the params we will use in the request to the server
@@ -365,7 +365,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');
 		$('#explanationIdeas').css('background-repeat','no-repeat');
-		$('#explanationIdeas').css('background-position','center top');
+		$('#explanationIdeas').css('background-position','left top');
 		//localStorage.bg = bg;
 	}
 

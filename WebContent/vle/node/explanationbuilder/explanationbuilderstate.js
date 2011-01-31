@@ -105,7 +105,7 @@ ExplanationBuilderState.prototype.parseDataJSONObj = function(stateJSONObj) {
  * @return the student work
  */
 ExplanationBuilderState.prototype.getStudentWork = function() {
-	return this.response;
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

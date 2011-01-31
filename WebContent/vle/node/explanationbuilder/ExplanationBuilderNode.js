@@ -157,7 +157,39 @@ ExplanationBuilderNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix) {
+ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+	//get the step work id
+	var stepWorkId = nodeVisit.id;
+	
+	//create an ExplanationBuilder object so that we can retrieve the prompt an background
+	var explanationBuilder = new ExplanationBuilder(this, this.view);
+	explanationBuilder.prompt = explanationBuilder.content.prompt;
+	explanationBuilder.background = explanationBuilder.content.background;
+	
+	var backgroundPath = null;
+	
+	if(explanationBuilder.background != null && explanationBuilder.background != "") {
+		//create the full path to the background image
+		backgroundPath = this.view.getConfig().getConfigParam('getContentBaseUrl') + explanationBuilder.background;		
+	}
+	
+	//create the div that will contain the ideas
+	var explanationBuilderIdeasDivId = 'explanationBuilderIdeasDiv_' + stepWorkId;
+	var explanationBuilderIdeasDiv = createElement(document, 'div', {id: explanationBuilderIdeasDivId, style:'width:485px;height:315px;border: 1px solid;position:relative'});
+	
+	//add the explanationBuilderIdeasDiv to the grading div
+	$('#' + divId).append(explanationBuilderIdeasDiv);
+	
+	if(backgroundPath != null) {
+		//set the background attributes
+		$('#' + explanationBuilderIdeasDivId).css('background-image','url(' + backgroundPath + ')');
+		$('#' + explanationBuilderIdeasDivId).css('background-repeat','no-repeat');
+		$('#' + explanationBuilderIdeasDivId).css('background-position','left top');		
+	}
+	
+	//get the idea basket for this student
+	var ideaBasket = this.view.getIdeaBasketByWorkroupId(workgroupId);
+	
 	/*
 	 * Get the latest student state object for this step
 	 * xTODO: rename templateState to reflect your new step type
@@ -166,14 +198,53 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	 */
 	var explanationBuilderState = nodeVisit.getLatestWork();
 	
-	/*
-	 * xTODO: rename templateState to match the variable name you
-	 * changed in the previous line above
-	 */
-	var studentWork = explanationBuilderState.getStudentWork();
+	//get the explanation ideas the student used
+	var explanationIdeas = explanationBuilderState.explanationIdeas;
 	
-	//put the student work into the div
-	$('#' + divId).html(studentWork);
+	//get the student text answer
+	var answer = explanationBuilderState.answer;
+	
+	//loop through all the explanation ideas
+	for(var x=0; x<explanationIdeas.length; x++) {
+		//get an explanation idea
+		var explanationIdea = explanationIdeas[x];
+		
+		//get the attributes of the explanation idea
+		var id = explanationIdea.id;
+		var left = explanationIdea.xpos;
+		var top  = explanationIdea.ypos;
+		var currColor = explanationIdea.color;
+		
+		//get the idea from the basket
+		var idea = ideaBasket.getIdeaById(id);
+		
+		//get the text for the idea
+		var text = idea.text;
+		
+		//create a div for the idea that will be displayed as a rectangle
+		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="Click and drag to move; Click to change color" id="explanationIdea' 
+			+ id + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>';
+		
+		//add the idea div to the explanationBuilderIdeasDiv
+		$('#' + explanationBuilderIdeasDivId).append(explanationIdeaHtml);
+	}
+	
+	//create a div to display the student answer
+	var explanationBuilderAnswerDiv = 'explanationBuilderAnswerDiv_' + stepWorkId;
+	var answerDiv = createElement(document, 'div', {id: explanationBuilderAnswerDiv});
+	$('#' + divId).append(answerDiv);
+
+	//replacen \n with <br>
+	answer = this.view.replaceSlashNWithBR(answer);
+	
+	/*
+	 * add a <br> before the answer so there will be a new 
+	 * line between the ideas and this text answer
+	 */
+	answer = "<br>" + answer;
+	
+	//set the answer in the div
+	$('#' + explanationBuilderAnswerDiv).html(answer);
 };
 
 /**
@@ -194,6 +265,27 @@ ExplanationBuilderNode.prototype.getHTMLContentTemplate = function() {
 	 * node/quiz/quiz.html
 	 */
 	return createContent('node/explanationbuilder/explanationBuilder.html');
+};
+
+/**
+ * Get the prompt for this step
+ * @return the prompt for this step as a string
+ */
+ExplanationBuilderNode.prototype.getPrompt = function() {
+	var prompt = "";
+	
+	if(this.content != null) {
+		//get the content for the node
+		var contentJSON = this.content.getContentJSON();
+
+		//see if the node content has a prompt
+		if(contentJSON != null && contentJSON.prompt != null) {
+			prompt = contentJSON.prompt;	
+		}
+	}
+	
+	//return the prompt
+	return prompt;
 };
 
 /*

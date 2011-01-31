@@ -1546,7 +1546,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 			}
 		}
 		
-	} else if(studentWork != "" && node.type == "SensorNode") {
+	} else if(studentWork != "" && this.isSelfRenderingGradingViewNodeType(node.type)) {
 		//create the student work div that we will insert the student work into later
 		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '"></div>';
 	} else {
@@ -2818,14 +2818,14 @@ View.prototype.renderAllStudentWorkForNode = function(node) {
 		
 		/*
 		 * this new way of displaying student work in grading is only implemented
-		 * for SensorNode at the moment. we will convert all the other steps to
+		 * for new node types at the moment. we will convert all the other steps to
 		 * this way later.
 		 */
-		if(node.type == "SensorNode") {
+		if(this.isSelfRenderingGradingViewNodeType(node.type)) {
 			//check if the student submitted any work
 			if(latestNodeVisit != null) {
 				//render the student work for the node visit
-				this.renderStudentWorkFromNodeVisit(latestNodeVisit);
+				this.renderStudentWorkFromNodeVisit(latestNodeVisit, workgroupId);
 			}
 		}
 	}
@@ -2853,17 +2853,17 @@ View.prototype.renderAllStudentWorkForWorkgroupId = function(workgroupId) {
 
 		/*
 		 * this new way of displaying student work in grading is only implemented
-		 * for SensorNode at the moment. we will convert all the other steps to
+		 * for new node types at the moment. we will convert all the other steps to
 		 * this way later.
 		 */
-		if(node.type == "SensorNode") {
+		if(this.isSelfRenderingGradingViewNodeType(node.type)) {
 			//get the latest node visit for this workgroup for this node
 			var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
 			
 			//check if the student submitted any work
 			if(latestNodeVisit != null) {
 				//render the student work for the node visit
-				this.renderStudentWorkFromNodeVisit(latestNodeVisit);
+				this.renderStudentWorkFromNodeVisit(latestNodeVisit, workgroupId);
 			}
 		}
 	}
@@ -2873,7 +2873,7 @@ View.prototype.renderAllStudentWorkForWorkgroupId = function(workgroupId) {
  * Render the student work for the node visit
  * @param nodeVisit the node visit we want to display
  */
-View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit) {
+View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId) {
 	if(nodeVisit != null) {
 		//get the step work id
 		var stepWorkId = nodeVisit.id;
@@ -2896,7 +2896,7 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit) {
 			//the div is empty so we need to render the student work
 			
 			//tell the node to insert/render the student work into the div
-			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit);
+			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
 			$("#studentWorkDiv_" + stepWorkId).append("<br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(nodeVisitPostTime) + "</p>");	
@@ -2921,7 +2921,7 @@ View.prototype.renderStudentWork = function(stepWorkId, workgroupId) {
 
 	if(nodeVisit != null) {
 		//render the student work for the node visit
-		this.renderStudentWorkFromNodeVisit(nodeVisit);
+		this.renderStudentWorkFromNodeVisit(nodeVisit, workgroupId);
 	}
 };
 
@@ -2963,6 +2963,39 @@ View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroup
 	
 	//we did not find any matching student work id/nodevisit id
 	return null;
+};
+
+/**
+ * Determines whether a nodeType knows how to render its grading view
+ * @param nodeType the type of the node
+ * @return whether this node type implements renderGradingView()
+ */
+View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
+	var isSelfRenderingGradingView = false;
+	
+	if(nodeType != 'HtmlNode' && 
+			nodeType != 'BrainstormNode' && 
+			nodeType != 'FillinNode' && 
+			nodeType != 'MatchSequenceNode' && 
+			nodeType != 'MultipleChoiceNode' && 
+			nodeType != 'NoteNode' && 
+			nodeType != 'JournalEntryNode' && 
+			nodeType != 'OutsideUrlNode' && 
+			nodeType != 'OpenResponseNode' && 
+			nodeType != 'BlueJNode' && 
+			nodeType != 'DrawNode' && 
+			nodeType != 'DataGraphNode' && 
+			nodeType != 'MySystemNode' && 
+			nodeType != 'SVGDrawNode' && 
+			nodeType != 'MWNode' && 
+			nodeType != 'AssessmentListNode' && 
+			nodeType != 'ChallengeNode' && 
+			nodeType != 'BranchNode' &&
+			nodeType != 'TemplateNode') {
+		isSelfRenderingGradingView = true;
+	}
+	
+	return isSelfRenderingGradingView;
 };
 
 /**

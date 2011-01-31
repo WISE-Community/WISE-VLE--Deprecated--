@@ -1,11 +1,16 @@
 package vle.web;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import vle.domain.ideabasket.IdeaBasket;
 
@@ -59,19 +64,42 @@ public class VLEIdeaBasketController extends HttpServlet {
 		String action = request.getParameter("action");
 		String projectId = (String) request.getAttribute("projectId");
 		
-		//get the IdeaBasket
-		IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
-		
-		if(ideaBasket == null) {
-			//make the IdeaBasket if it does not exist
-			ideaBasket = new IdeaBasket(new Long(runId), new Long(projectId), new Long(workgroupId));
-			ideaBasket.saveOrUpdate();
-		}
-		
 		if(action.equals("getIdeaBasket")) {
+			//get the IdeaBasket
+			IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
+			
+			if(ideaBasket == null) {
+				//make the IdeaBasket if it does not exist
+				ideaBasket = new IdeaBasket(new Long(runId), new Long(projectId), new Long(workgroupId));
+				ideaBasket.saveOrUpdate();
+			}
+			
 			//get the IdeaBasket JSONString
 			String ideaBasketJSONString = ideaBasket.toJSONString();
 			response.getWriter().print(ideaBasketJSONString);
+		} else if(action.equals("getAllIdeaBaskets")) {
+			//get all the idea baskets for a run
+			List<IdeaBasket> latestIdeaBasketsForRunId = IdeaBasket.getLatestIdeaBasketsForRunId(new Long(runId));
+			
+			JSONArray ideaBaskets = new JSONArray();
+			
+			//loop through all the idea baskets
+			for(int x=0; x<latestIdeaBasketsForRunId.size(); x++) {
+				//get an idea basket
+				IdeaBasket ideaBasket = latestIdeaBasketsForRunId.get(x);
+				
+				try {
+					//add the idea basket to our JSONArray
+					JSONObject ideaBasketJSONObj = new JSONObject(ideaBasket.toJSONString());
+					ideaBaskets.put(ideaBasketJSONObj);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			//return the JSONArray of idea baskets as a string
+			String ideaBasketsJSONString = ideaBaskets.toString();
+			response.getWriter().print(ideaBasketsJSONString);
 		}
 	}
 }

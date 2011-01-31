@@ -13,7 +13,7 @@ var componentloader = function(em, sl){
 	//place components in the order you want them to load
 	var views = {
 		vle: ['topMenu','setup', 'core','keystroke','config','user','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket'],
-		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'grading', 'annotations', 'maxscores'],
+		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
 	};
@@ -146,7 +146,8 @@ var componentloader = function(em, sl){
 					 'submitPremadeComment':[null, null],
 					 'premadeCommentWindowLoaded':[null, null],
 					 'addPremadeComment':[null, null],
-					 'deletePremadeComment':[null, null]},
+					 'deletePremadeComment':[null, null],
+					 'getIdeaBasketsComplete':[null, null]},
 			methods: {},
 			initialize: {
 				initializeEvents:function(view) {
@@ -186,6 +187,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("premadeCommentWindowLoaded", view.gradingDispatcher, view);
 					eventManager.subscribe("addPremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
+					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
 					eventManager.initializeLoading([['gradingConfigUrlReceived','initiateGradingDisplayStart','Project Data'], 
 					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data']], false);
 				}

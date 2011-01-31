@@ -8,24 +8,21 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.Session;
-import org.hibernate.annotations.IndexColumn;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import vle.domain.PersistableDomain;
+import vle.domain.work.StepWork;
 import vle.hibernate.HibernateUtil;
 
 @Entity
@@ -200,5 +197,56 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
         	ideaBasket = result.get(0);
         }
         return ideaBasket;
+	}
+	
+	/**
+	 * Get all the latest IdeaBaskets with the given run id
+	 * 
+	 * we will basically be performing this query
+	 * select * from vle_database.ideaBasket i where id in(SELECT max(id) FROM vle_database.ideaBasket i where runid=<insert runId> group by workgroupid)
+	 * 
+	 * @param runId the id of the run
+	 * @return all the latest IdeaBaskets for a run id
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<IdeaBasket> getLatestIdeaBasketsForRunId(long runId) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        
+        /*
+         * create a projection that will give us the latest idea basket id
+         * for each workgroup id in the run. the projection will return 
+         * an array of array objects that will look like [id, workgroupId].
+         * each workgroup id will only appear once.
+         */
+        ProjectionList projectionList = Projections.projectionList();
+        projectionList.add(Projections.max("id"));
+        projectionList.add(Projections.groupProperty("workgroupId"));
+        
+        //this first query will filter on the runId and the projection
+        List latestIdeaBasketIdsProjection =  session.createCriteria(IdeaBasket.class).add(
+        		Restrictions.eq("runId", runId)).setProjection(projectionList).list();
+        
+        //the list that will contain all the idea basket ids we want
+        List<Long> ideaBasketIds = new ArrayList<Long>();
+        
+        //loop through all the results from our first query
+        for(int x=0; x<latestIdeaBasketIdsProjection.size(); x++) {
+        	//get the idea basket id
+        	Object[] projection = (Object[]) latestIdeaBasketIdsProjection.get(x);
+        	Long ideaBasketId = (Long) projection[0];
+        	ideaBasketIds.add(ideaBasketId);
+        }
+        
+        List<IdeaBasket> result = new ArrayList<IdeaBasket>();
+        
+        if(ideaBasketIds.size() > 0) {
+        	//this second query will retrieve all the idea basket ids we retrieved from the first query
+        	result = session.createCriteria(IdeaBasket.class).add(StepWork.createIdOrCriterion(ideaBasketIds, 0)).list();        	
+        }
+        
+        session.getTransaction().commit();
+        
+        return result;
 	}
 }
