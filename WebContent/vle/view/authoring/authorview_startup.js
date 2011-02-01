@@ -47,6 +47,9 @@ View.prototype.startPortalMode = function(url, curriculumBaseDir, command, id){
 		}
 	}
 	
+	//load the template files for all the step types
+	this.loadNodeTemplateFiles();
+	
 	this.onAuthoringToolReady();
 	
 	/* launch create project dialog if create mode has been set */
@@ -56,6 +59,31 @@ View.prototype.startPortalMode = function(url, curriculumBaseDir, command, id){
 	
 	/* enable the edit project tags  (only available in portal mode) */
 	//$('#editProjectTagsMenu').show();
+};
+
+/**
+ * Load the template files for all the step types
+ */
+View.prototype.loadNodeTemplateFiles = function() {
+	//get all the node types
+	var nodeTypes = NodeFactory.getNodeTypes();
+	
+	//loop through all the node types
+	for(var x=0; x<nodeTypes.length; x++) {
+		//get a node type
+		var nodeType = nodeTypes[x];
+		
+		//get the path to the template file for this node type
+		var nodeTemplateFilePath = this.nodeTemplateFilePaths[nodeType];
+		
+		//get the file extension for this node type
+		var nodeExtension = this.nodeExtensions[nodeType];
+		
+		if(nodeTemplateFilePath != null) {
+			//create a content object for the template file
+			var templateContent = createContent(nodeTemplateFilePath);
+		}
+	}
 };
 
 /**

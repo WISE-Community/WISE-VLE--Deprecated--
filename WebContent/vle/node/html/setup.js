@@ -38,6 +38,8 @@ scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
 componentloader.addNodeClasses('HtmlNode', nodeClasses);
+componentloader.addNodeTemplate('HtmlNode', 'node/html/htmlTemplate.ht');
+componentloader.addNodeExtension('HtmlNode', 'ht');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

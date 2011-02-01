@@ -55,7 +55,12 @@ scriptloader.addCssToComponent('multiplechoice', css);
 scriptloader.addCssToComponent('author', 'vle/css/authoring/author_multiplechoice.css');
 
 componentloader.addNodeClasses('MultipleChoiceNode', multipleChoiceNodeClasses);
+componentloader.addNodeTemplate('MultipleChoiceNode', 'node/multiplechoice/multipleChoiceTemplate.mc');
+componentloader.addNodeExtension('MultipleChoiceNode', 'mc');
+
 componentloader.addNodeClasses('ChallengeNode', challengeNodeClasses);
+componentloader.addNodeTemplate('ChallengeNode', 'node/multiplechoice/challengeQuestionTemplate.ch');
+componentloader.addNodeExtension('ChallengeNode', 'ch');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

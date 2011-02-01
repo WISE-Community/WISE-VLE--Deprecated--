@@ -246,7 +246,9 @@ var componentloader = function(em, sl){
 				requestUrl:'filemanager.html', 
 				assetRequestUrl:'assetmanager.html',
 				tagNameMap:{},
-				tagIdForRequest:undefined
+				tagIdForRequest:undefined,
+				nodeTemplateFilePaths:{},
+				nodeExtensions:{}
 			},
 			events: {
 				'openProject':[null,null], 
@@ -928,6 +930,27 @@ var componentloader = function(em, sl){
 		 */
 		addNodeClasses:function(nodeType, nodeClassesArray) {
 			components.core.variables.nodeClasses[nodeType] = nodeClassesArray;
+		},
+		/*
+		 * Add an entry to the nodeTemplateFilePaths object. These template files
+		 * will be loaded and the content will be retrieved from them and used
+		 * as the template for the node type when an author adds a new step
+		 * to their project.
+		 * @param nodeType the type of the node
+		 * @param templateFilePath the path to the template file
+		 */
+		addNodeTemplate:function(nodeType, templateFilePath) {
+			components.author.variables.nodeTemplateFilePaths[nodeType] = templateFilePath;
+		},
+		/*
+		 * Add an entry to the nodeExtensions object. These extensions will
+		 * be used when creating the content files for a step when an author
+		 * adds a new step to their project.
+		 * @param nodeType the type of the node
+		 * @param extension the file extension for the node type
+		 */
+		addNodeExtension:function(nodeType, extension) {
+			components.author.variables.nodeExtensions[nodeType] = extension;
 		}
 	};
 }(eventManager, scriptloader);

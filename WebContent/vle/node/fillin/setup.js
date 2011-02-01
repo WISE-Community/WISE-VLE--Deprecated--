@@ -43,6 +43,8 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('fillin', css);
 
 componentloader.addNodeClasses('FillinNode', nodeClasses);
+componentloader.addNodeTemplate('FillinNode', 'node/fillin/fillinTemplate.fi');
+componentloader.addNodeExtension('FillinNode', 'fi');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

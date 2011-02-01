@@ -40,6 +40,8 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('assessmentlist', css);
 
 componentloader.addNodeClasses('AssessmentListNode', nodeClasses);
+componentloader.addNodeTemplate('AssessmentListNode', 'node/assessmentlist/assessmentListTemplate.al');
+componentloader.addNodeExtension('AssessmentListNode', 'al');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

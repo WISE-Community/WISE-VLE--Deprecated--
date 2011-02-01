@@ -99,6 +99,26 @@ NodeFactory.addNode = function(nodeType, nodeConstructor) {
 	NodeFactory.addConstructor(nodeType, nodeConstructor);
 };
 
+/**
+ * Get an array of the available node types
+ * @return an array containing the node types as strings
+ */
+NodeFactory.getNodeTypes = function() {
+	var nodeTypes = [];
+	
+	//loop through the array of acceptedTagNames
+	for(var x=0; x<this.acceptedTagNames.length; x++) {
+		var tagName = this.acceptedTagNames[x];
+		
+		//check that the tagName is not 'node' or 'sequence'
+		if(tagName != 'node' && tagName != 'sequence') {
+			nodeTypes.push(tagName);
+		}
+	}
+	
+	return nodeTypes;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/nodefactory.js');

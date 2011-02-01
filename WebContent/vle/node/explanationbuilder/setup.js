@@ -104,6 +104,8 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('explanationbuilder', css);
 
 componentloader.addNodeClasses('ExplanationBuilderNode', nodeClasses);
+componentloader.addNodeTemplate('ExplanationBuilderNode', 'node/explanationbuilder/explanationBuilderTemplate.eb');
+componentloader.addNodeExtension('ExplanationBuilderNode', 'eb');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

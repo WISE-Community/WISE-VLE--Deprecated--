@@ -30,6 +30,8 @@ scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
 componentloader.addNodeClasses('OutsideUrlNode', nodeClasses);
+componentloader.addNodeTemplate('OutsideUrlNode', 'node/outsideurl/outsideUrlTemplate.ou');
+componentloader.addNodeExtension('OutsideUrlNode', 'ou');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

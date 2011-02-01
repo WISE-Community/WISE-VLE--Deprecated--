@@ -1,0 +1,11 @@
+{
+   "expectedLines": 5,
+   "graphParams": {},
+   "prompt": "",
+   "sensorType": "motion",
+   "starterSentence": {
+      "display": "0",
+      "sentence": ""
+   },
+   "type": "Sensor"
+}

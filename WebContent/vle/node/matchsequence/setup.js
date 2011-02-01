@@ -45,6 +45,8 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('matchsequence', css);
 
 componentloader.addNodeClasses('MatchSequenceNode', nodeClasses);
+componentloader.addNodeTemplate('MatchSequenceNode', 'node/matchsequence/matchSequenceTemplate.ms');
+componentloader.addNodeExtension('MatchSequenceNode', 'ms');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

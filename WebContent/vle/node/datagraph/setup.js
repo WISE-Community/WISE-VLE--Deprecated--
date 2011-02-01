@@ -42,6 +42,8 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('datagraph', css);
 
 componentloader.addNodeClasses('DataGraphNode', nodeClasses);
+componentloader.addNodeTemplate('DataGraphNode', 'node/datagraph/dataGraphTemplate.dg');
+componentloader.addNodeExtension('DataGraphNode', 'dg');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

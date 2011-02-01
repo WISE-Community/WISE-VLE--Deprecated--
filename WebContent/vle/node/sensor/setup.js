@@ -49,6 +49,8 @@ var topMenuScripts = [
 scriptloader.addScriptToComponent('topMenu', topMenuScripts);
 
 componentloader.addNodeClasses('SensorNode', nodeClasses);
+componentloader.addNodeTemplate('SensorNode', 'node/sensor/sensorTemplate.se');
+componentloader.addNodeExtension('SensorNode', 'se');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

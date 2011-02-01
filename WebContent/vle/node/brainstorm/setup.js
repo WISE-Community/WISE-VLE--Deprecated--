@@ -45,6 +45,8 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('brainstorm', css);
 
 componentloader.addNodeClasses('BrainstormNode', nodeClasses);
+componentloader.addNodeTemplate('BrainstormNode', 'node/brainstorm/brainstormTemplate.bs');
+componentloader.addNodeExtension('BrainstormNode', 'bs');
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
