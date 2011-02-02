@@ -194,7 +194,7 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	}
 	
 	//get the idea basket for this student
-	var ideaBasket = this.view.getIdeaBasketByWorkroupId(workgroupId);
+	var ideaBasket = this.view.getIdeaBasketByWorkgroupId(workgroupId);
 	
 	/*
 	 * Get the latest student state object for this step

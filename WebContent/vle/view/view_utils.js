@@ -483,7 +483,7 @@ View.prototype.forceLogout = function() {
  * @param workgroupId the id of the workgroup we want the idea basket from
  * @return the idea basket from the given workgroup or null if not found
  */
-View.prototype.getIdeaBasketByWorkroupId = function(workgroupId) {
+View.prototype.getIdeaBasketByWorkgroupId = function(workgroupId) {
 	var ideaBasket = null;
 	
 	//check if we have retrieved the idea baskets
