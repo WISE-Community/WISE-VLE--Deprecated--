@@ -14,10 +14,19 @@ $(document).ready(function() {
 	}
 	
 	/*
-	 * set the idea basket back into the frame in case we 
-	 * need access to it from outside this context
+	 * get the idea basket from the iframe, this was set in
+	 * vleview_topmenu.js in the displayIdeaBasket() function
 	 */
-	parent.frames['ideaBasketIfrm'].ideaBasket = basket;
+	var viewIdeaBasket = parent.frames['ideaBasketIfrm'].thisView.ideaBasket;
+	
+	//generate the JSON string for the idea basket
+	var ideaBasketJSON = $.stringify(viewIdeaBasket);
+	
+	/*
+	 * generate the JSON object for the idea basket because we will need
+	 * it later to load the basket
+	 */
+	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 
 	$('#showAdmin').click(function(){
 		$('#adminLinks').toggle();
@@ -160,7 +169,19 @@ $(document).ready(function() {
 			}
 	);
 
-	loadIdeaBasket(parent.frames['ideaBasketIfrm'].ideaBasketJSONObj, true);
+	//get the view
+	var thisView = parent.frames['ideaBasketIfrm'].thisView;
+	
+	/*
+	 * subscribe to the ideaBasketChanged event so that when that
+	 * event is fired, we know we need to update our ideaBasket. this
+	 * will occur when the student has a the global idea basket open and is
+	 * changing the idea basket within an explanation builder step.
+	 */
+	thisView.eventManager.subscribe('ideaBasketChanged', ideaBasketChanged, thisView);
+	
+	//load the idea basket
+	loadIdeaBasket(ideaBasketJSONObj, true);
 });
 
 /**
@@ -172,6 +193,27 @@ var loadIdeaBasket = function(ideaBasketJSONObj, generateUI) {
 	basket.load(ideaBasketJSONObj, generateUI);
 };
 
+/**
+ * This is called when the 'ideaBasketChanged' event is fired.
+ * @param type
+ * @param args
+ * @param obj the view
+ */
+var ideaBasketChanged = function(type,args,obj) {
+	var thisView = obj;
+	
+	//get the idea basket
+	var viewIdeaBasket = thisView.ideaBasket;
+	
+	//generate the JSON string for the idea basket
+	var ideaBasketJSON = $.stringify(viewIdeaBasket);
+	
+	//generate the JSON object for the idea basket
+	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+	
+	//load the basket so that the newest changes are reflected
+	loadIdeaBasket(ideaBasketJSONObj, true);
+};
 
 function resetForm(target){
 	//clear validator messages

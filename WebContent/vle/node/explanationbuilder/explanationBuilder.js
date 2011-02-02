@@ -83,27 +83,18 @@ ExplanationBuilder.prototype.render = function() {
 		$('#explanationIdeas').css('background-repeat','no-repeat');
 		$('#explanationIdeas').css('background-position','left top');
 	}
-	
-	//set the params we will use in the request to the server
-	var ideaBasketParams = {
-			action:"getIdeaBasket"	
-	};
 
-	//request the idea basket from the server
-	this.view.connectionManager.request('GET', 3, this.view.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.initializeUI, {explanationBuilder:this});
-
+	//initialize the UI and load the idea basket
+	this.initializeUI();
 };
 
-ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, args) {
-	var thisExplanationBuilder = args.explanationBuilder;
-
-	//parse the idea basket JSON and set it into the view
-	var ideaBasketJSONObj = $.parseJSON(responseText);
-	thisExplanationBuilder.ideaBasketJSONObj = ideaBasketJSONObj;
-
-	//create an IdeaBasket object from the JSON and set it into the view
-	var ideaBasket = new IdeaBasket(ideaBasketJSONObj);
-	thisExplanationBuilder.ideaBasket = ideaBasket;
+/**
+ * Initialize the UI and load the idea basket and explanation ideas
+ * the student has used
+ */
+ExplanationBuilder.prototype.initializeUI = function() {
+	//get the ideaBasket from the view
+	this.ideaBasket = this.view.ideaBasket;
 
 	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
 		"OK": function(){       
@@ -142,17 +133,17 @@ ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, 
 	//loadFromLocal(1);
 
 	//get the question or prompt the student will read
-	var question = thisExplanationBuilder.content.prompt;
+	var question = this.content.prompt;
 	
 	//get the background image that will be displayed in the drop area
-	var bg = thisExplanationBuilder.content.background;
+	var bg = this.content.background;
 
 	var explanationIdeas = [];
 	var answer = "";
 
 	//get the latest state
-	var latestState = thisExplanationBuilder.getLatestState();
-	thisExplanationBuilder.latestState = latestState;
+	var latestState = this.getLatestState();
+	this.latestState = latestState;
 	
 	if(latestState != null) {
 		//get the ideas the student used last time
@@ -162,7 +153,8 @@ ExplanationBuilder.prototype.initializeUI = function(responseText, responseXML, 
 		answer = latestState.answer;		
 	}
 
-	thisExplanationBuilder.load(question,bg,explanationIdeas,answer);
+	//load idea basket, the explanation ideas, and other elements of the UI
+	this.load(question,bg,explanationIdeas,answer);
 };
 
 /**
@@ -946,6 +938,18 @@ ExplanationBuilder.prototype.removeStepUsedIn = function(ideaId, nodeId) {
 			}
 		}
 	}
+};
+
+/**
+ * Reload the step with the new idea basket 
+ * @param updatedIdeaBasket the updated idea basket
+ */
+ExplanationBuilder.prototype.ideaBasketChanged = function(updatedIdeaBasket) {
+	//set the new ideaBasket
+	this.ideaBasket = updatedIdeaBasket;
+	
+	//reload everything in the step
+	this.load(this.question, this.bg, this.explanationIdeas, this.answer);
 };
 
 //used to notify scriptloader that this script has finished loading

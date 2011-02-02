@@ -707,8 +707,10 @@ var componentloader = function(em, sl){
 					'showFlaggedWork':[null,null],
 					'showStepHints':[null,null],
 					'showNavigationTree':[null,null],
-					'openAddAnIdeaDialog':[null,null],
-					'openIdeaBasket':[null,null],
+					'getIdeaBasket':[null,null],
+					'ideaBasketChanged':[null,null],
+					'displayAddAnIdeaDialog':[null,null],
+					'displayIdeaBasket':[null,null],
 					'addIdeaToBasket':[null,null],
 					'moveIdeaToTrash':[null,null],
 					'moveIdeaOutOfTrash':[null,null]
@@ -722,8 +724,10 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showStepHints', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showNavigationTree', view.dropDownMenuDispatcher, view);
-					view.eventManager.subscribe('openAddAnIdeaDialog', view.dropDownMenuDispatcher, view);
-					view.eventManager.subscribe('openIdeaBasket', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('getIdeaBasket', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('ideaBasketChanged', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('displayAddAnIdeaDialog', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('displayIdeaBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('addIdeaToBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);

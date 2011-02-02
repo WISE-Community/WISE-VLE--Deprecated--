@@ -690,6 +690,15 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	
 	//post the idea basket back to the server to be saved
 	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:thisView});
+
+	//set the updated ideaBasket back into the view
+	thisView.ideaBasket = this;
+	
+	/*
+	 * call the function that will fire the 'ideaBasketChanged' event that will
+	 * notify listeners to refresh their ideaBasket to get the latest changes
+	 */
+	thisView.ideaBasketChanged();
 };
 
 /**

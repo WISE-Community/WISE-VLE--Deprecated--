@@ -41,6 +41,12 @@ function ExplanationBuilderNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	/*
+	 * subscribe this node to the 'ideaBasketChanged' so it will know when
+	 * anyone outside this step has changed the idea basket
+	 */
+	view.eventManager.subscribe('ideaBasketChanged', this.ideaBasketChanged, this);
 }
 
 /**
@@ -286,6 +292,29 @@ ExplanationBuilderNode.prototype.getPrompt = function() {
 	
 	//return the prompt
 	return prompt;
+};
+
+/**
+ * Called when the 'ideaBasketChanged' is fired
+ * @param type
+ * @param args
+ * @param obj this node (since this context is not actually in this node
+ * because this function is called from an event fire)
+ */
+ExplanationBuilderNode.prototype.ideaBasketChanged = function(type,args,obj) {
+	//get this node
+	var thisNode = obj;
+	
+	/*
+	 * make sure this node is the current node the student is on because
+	 * all ExplanationBuilderNode steps will be listening for the event
+	 * and we only need to update the basket if the student is on 
+	 * an ExplanationBuilderNode step.
+	 */
+	if(thisNode.view.getCurrentNode().id == thisNode.id) {
+		//update the idea basket within the step
+		thisNode.contentPanel.explanationBuilder.ideaBasketChanged(thisNode.view.ideaBasket);
+	}
 };
 
 /*

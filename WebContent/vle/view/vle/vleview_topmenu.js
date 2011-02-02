@@ -15,10 +15,18 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 			return;
 		}
 		obj.showStepHints();
-	} else if(type=='openAddAnIdeaDialog') {
-		obj.openAddAnIdeaDialog();
-	} else if(type=='openIdeaBasket') {
-		obj.openIdeaBasket();
+	} else if(type=='getIdeaBasket') {
+		obj.getIdeaBasket();
+	} else if(type=='ideaBasketChanged') {
+		/*
+		 * nothing needs to be done here since the idea basket and all the
+		 * ExplanationBuilderNode steps listens for the 'ideaBasketChanged'
+		 * themselves
+		 */
+	} else if(type=='displayAddAnIdeaDialog') {
+		obj.displayAddAnIdeaDialog();
+	} else if(type=='displayIdeaBasket') {
+		obj.displayIdeaBasket();
 	} else if(type=='addIdeaToBasket') {
 		obj.addIdeaToBasket();
 	} else if(type=='moveIdeaToTrash') {
@@ -514,35 +522,14 @@ View.prototype.checkForNewTeacherAnnotations = function() {
 			}		
 		}		
 	}
-};
-
-/**
- * Retrieve the idea basket and then display the Add an Idea dialog popup
- */
-View.prototype.openAddAnIdeaDialog = function() {
-	//set the params we will use in the request to the server
-	var ideaBasketParams = {
-		action:"getIdeaBasket"	
-	};
 	
-	//request the idea basket from the server
-	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.displayAddAnIdeaDialog, {thisView:this});
+	eventManager.fire('getIdeaBasket');
 };
 
 /**
  * Displays the Add an Idea dialog popup so the student can create a new Idea
  */
-View.prototype.displayAddAnIdeaDialog = function(responseText, responseXML, args) {
-	var thisView = args.thisView;
-	
-	//parse the idea basket JSON and set it into the view
-	var ideaBasketJSONObj = $.parseJSON(responseText);
-	thisView.ideaBasketJSONObj = ideaBasketJSONObj;
-	
-	//create an IdeaBasket object from the JSON and set it into the view
-	var ideaBasket = new IdeaBasket(ideaBasketJSONObj);
-	thisView.ideaBasket = ideaBasket;
-	
+View.prototype.displayAddAnIdeaDialog = function() {
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
@@ -635,22 +622,6 @@ View.prototype.addIdeaToBasket = function() {
 		
 		ideaBasket.saveIdeaBasket(this);
 		
-		/*
-		//set the action for the server to perform
-		var action = "saveIdeaBasket";
-		
-		//obtain the JSON string serialization of the basket
-		var data = $.stringify(ideaBasket);
-		
-		var ideaBasketParams = {
-				action:action,
-				data:data 
-		};
-		
-		//save the idea basket back to the server
-		this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:this});
-		*/
-		
 		//close the create an idea popup
 		$('#addAnIdeaDiv').dialog('close');		
 	}
@@ -659,14 +630,30 @@ View.prototype.addIdeaToBasket = function() {
 /**
  * Retrieve the idea basket from the server
  */
-View.prototype.openIdeaBasket = function() {
+View.prototype.getIdeaBasket = function() {
 	//set the params we will use in the request to the server
 	var ideaBasketParams = {
 		action:"getIdeaBasket"	
 	};
 	
 	//request the idea basket from the server
-	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.displayIdeaBasket, {thisView:this});
+	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.getIdeaBasketCallback, {thisView:this});
+};
+
+/**
+ * Callback for when we receive teh idea basket from the server
+ * @param responseText
+ * @param responseXML
+ * @param args
+ */
+View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args) {
+	var thisView = args.thisView;
+	
+	//parse the JSON string
+	var ideaBasketJSONObj = $.parseJSON(responseText);
+	
+	//create a new IdeaBasket and set it into the view
+	thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
 };
 
 /**
@@ -676,14 +663,12 @@ View.prototype.openIdeaBasket = function() {
  * @param args
  */
 View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
-	var thisView = args.thisView;
-	
 	//check if the ideaBasketDiv exists
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv" style="margin-bottom:.3em;"></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="97%"></iframe>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:thisView.ideaBasketDivClose});
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:this.ideaBasketDivClose});
     }
 	
 	//open the dialog
@@ -691,7 +676,7 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	
 	if(window.frames['ideaBasketIfrm'].thisView == null) {
 		//set thisView so it is accessible within the iframe
-		window.frames['ideaBasketIfrm'].thisView = thisView;
+		window.frames['ideaBasketIfrm'].thisView = this;
 	}
 	
 	if(window.frames['ideaBasketIfrm'].eventManager == null) {
@@ -699,14 +684,16 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 		window.frames['ideaBasketIfrm'].eventManager = eventManager;
 	}
 	
-	//set the idea basket JSON into the iframe
-	var ideaBasketJSONObj = $.parseJSON(responseText);
-	window.frames['ideaBasketIfrm'].ideaBasketJSONObj = ideaBasketJSONObj;
-	
 	if($('#ideaBasketIfrm').attr('src') == null) {
 		//set the src so it will load the ideaManager.html page
 		$('#ideaBasketIfrm').attr('src', "ideaManager.html");
 	} else {
+		//generate the JSON string for the idea basket
+		var ideaBasketJSON = $.stringify(this.ideaBasket);
+		
+		//generate the JSON object for the idea basket
+		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+		
 		/*
 		 * the ideaManager.html has already previously been loaded
 		 * so we just need to reload the idea basket contents
@@ -727,6 +714,15 @@ View.prototype.ideaBasketDivClose = function() {
 		//set this value back to false because we are going to save it back to the server
 		window.frames['ideaBasketIfrm'].basket.setBasketChanged(false);
 	}
+};
+
+/**
+ * Called when the ideaBasket has changed. This will be when the student
+ * has changed the ideaBasket in the global idea basket or in an explanation
+ * builder step and they close or exit them respectively. 
+ */
+View.prototype.ideaBasketChanged = function() {
+	eventManager.fire('ideaBasketChanged');
 };
 
 /* used to notify scriptloader that this script has finished loading */
