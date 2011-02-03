@@ -288,9 +288,9 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	}	
 	
 #navigationArea {
-	/* margin: 0px 0 35px 0 ;  */
 	margin: 0p;
-		}
+	height:85%;
+}
 
 #navMenuControls {
 	padding:0;
