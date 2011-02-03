@@ -174,7 +174,7 @@ View.prototype.displayFlaggedWork = function() {
 				flaggedWork = node.translateStudentWork(flaggedWork);
 				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
 				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
-        	} else if(node.type == "SensorNode") {
+        	} else if(this.isSelfRenderingGradingViewNodeType(node.type)) {
         		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
         	} else {
 				flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
@@ -235,7 +235,7 @@ View.prototype.displayFlaggedWork = function() {
 		var flagForNodeId = flagsForNodeId[y];
 		
 		//only perform this for sensor nodes until we implement it for all other steps
-		if(node.type == 'SensorNode') {
+		if(this.isSelfRenderingGradingViewNodeType(node.type)) {
 
 			//get the nodevisit from the flag
 			var nodeVisit = flagForNodeId.data;
@@ -247,8 +247,10 @@ View.prototype.displayFlaggedWork = function() {
 				 */
 				nodeVisit.id = flagForNodeId.stepWorkId;
 				
+				var workgroupId = parseInt(flagForNodeId.toWorkgroup);
+				
 				//render the work into the div to display it
-				node.renderGradingView("flaggedStudentWorkDiv_" + nodeVisit.id, nodeVisit, "flag_");					
+				node.renderGradingView("flaggedStudentWorkDiv_" + nodeVisit.id, nodeVisit, "flag_", workgroupId);					
 			}
 		}
 	}
@@ -379,7 +381,7 @@ View.prototype.displayShowAllWork = function() {
 			var node = this.project.getNodeById(nodeIds[x]);
 
 			//only perform this for sensor nodes until we implement it for all other steps
-			if(node.type == 'SensorNode') {
+			if(this.isSelfRenderingGradingViewNodeType(node.type)) {
 				//get the node id
 				var nodeId = node.id;
 				
@@ -389,7 +391,7 @@ View.prototype.displayShowAllWork = function() {
 				//check if the student has any work for this step
 				if(nodeVisit != null) {
 					//render the work into the div to display it
-					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit);					
+					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);					
 				}
 			}
 		}
@@ -439,8 +441,17 @@ View.prototype.getFlaggedWork = function() {
 		//parse the flags
 		thisView.flags = Annotations.prototype.parseDataJSONString(responseText);
 		
-		//display the flagged work
-		thisView.displayFlaggedWork();
+		if(thisView.getCurrentNode().type == 'ExplanationBuilderNode') {
+			/*
+			 * the current step is an explanation builder step so we
+			 * need to retrieve the idea baskets of our classmates that
+			 * are associated with the flagged work
+			 */
+			thisView.getFlaggedIdeaBaskets();
+		} else {
+			//display the flagged work
+			thisView.displayFlaggedWork();
+		}
 	};
 
 	var flaggedWorkUrlParams = {
@@ -723,6 +734,80 @@ View.prototype.ideaBasketDivClose = function() {
  */
 View.prototype.ideaBasketChanged = function() {
 	eventManager.fire('ideaBasketChanged');
+};
+
+/**
+ * Get the idea baskets that are associated with the work that was flagged
+ */
+View.prototype.getFlaggedIdeaBaskets = function() {
+	//get the node the student is currently on
+	var currentNode = this.getCurrentNode();
+	var nodeId = currentNode.id;
+
+	//get the node
+	var node = this.getProject().getNodeById(nodeId);
+	
+	//get all the flags for the current node
+	var flagsForNodeId = this.flags.getAnnotationsByNodeId(nodeId);
+	
+	var workgroupIds = [];
+	
+	//check if there were any flags for the current node
+	if(flagsForNodeId.length > 0) {
+		
+		//loop through all the flags for the current node
+		for(var x=0; x<flagsForNodeId.length; x++) {
+			var flagForNodeId = flagsForNodeId[x];
+			
+			var workgroupId = flagForNodeId.toWorkgroup;
+			
+			if(workgroupId != null) {
+				workgroupIds.push(parseInt(workgroupId));
+			}
+		}
+	}
+	
+	var workgroupIdsJSONArrayStr = $.stringify(workgroupIds);
+	
+	//set the params we will use in the request to the server
+	var ideaBasketParams = {
+		action:"getIdeaBasketsByWorkgroupIds",
+		workgroupIds:workgroupIdsJSONArrayStr
+	};
+	
+	//request the idea basket from the server
+	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.getIdeaBasketsByWorkgroupIdCallback, {thisView:this});
+};
+
+/**
+ * The callback for the getIdeaBasketsByWorkgroupIds request
+ * @param text the idea baskets in a JSONArray string
+ * @param responseXML
+ * @param args
+ */
+View.prototype.getIdeaBasketsByWorkgroupIdCallback = function(text, responseXML, args) {
+	//get the view
+	var thisView = args.thisView;
+	
+	//parse the idea baskets array
+	var ideaBasketsJSON = $.parseJSON(text);
+	var ideaBaskets = [];
+	
+	//loop through all the idea basket JSON objects
+	for(var x=0; x<ideaBasketsJSON.length; x++) {
+		//create an IdeaBasket for each idea basket JSON object
+		var ideaBasketJSON = ideaBasketsJSON[x];
+		var ideaBasket = new IdeaBasket(ideaBasketJSON);
+		
+		//add it to our array if IdeaBasket objects
+		ideaBaskets.push(ideaBasket);
+	}
+	
+	//set the array of IdeaBasket objects into the view
+	thisView.ideaBaskets = ideaBaskets;
+	
+	//display the flagged work now that we have the idea baskets
+	thisView.displayFlaggedWork();
 };
 
 /* used to notify scriptloader that this script has finished loading */

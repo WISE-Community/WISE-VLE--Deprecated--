@@ -180,7 +180,7 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	}
 	
 	//create the div that will contain the ideas
-	var explanationBuilderIdeasDivId = 'explanationBuilderIdeasDiv_' + stepWorkId;
+	var explanationBuilderIdeasDivId = childDivIdPrefix + 'explanationBuilderIdeasDiv_' + stepWorkId;
 	var explanationBuilderIdeasDiv = createElement(document, 'div', {id: explanationBuilderIdeasDivId, style:'width:485px;height:315px;border: 1px solid;position:relative'});
 	
 	//add the explanationBuilderIdeasDiv to the grading div
@@ -228,15 +228,15 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 		var text = idea.text;
 		
 		//create a div for the idea that will be displayed as a rectangle
-		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="Click and drag to move; Click to change color" id="explanationIdea' 
-			+ id + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>';
+		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="Click and drag to move; Click to change color" id="' + childDivIdPrefix + 'explanationIdea' 
+			+ id + '_' + stepWorkId + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>';
 		
 		//add the idea div to the explanationBuilderIdeasDiv
 		$('#' + explanationBuilderIdeasDivId).append(explanationIdeaHtml);
 	}
 	
 	//create a div to display the student answer
-	var explanationBuilderAnswerDiv = 'explanationBuilderAnswerDiv_' + stepWorkId;
+	var explanationBuilderAnswerDiv = childDivIdPrefix + 'explanationBuilderAnswerDiv_' + stepWorkId;
 	var answerDiv = createElement(document, 'div', {id: explanationBuilderAnswerDiv});
 	$('#' + divId).append(answerDiv);
 

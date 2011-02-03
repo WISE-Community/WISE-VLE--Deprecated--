@@ -1082,7 +1082,7 @@ Node.prototype.getShowAllWorkHtml = function(vle){
         	var divId = "latestWork_"+latestNodeVisit.id;
         	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
         	
-        	if(this.type == "SensorNode") {
+        	if(this.view.isSelfRenderingGradingViewNodeType(this.type)) {
         		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
         		'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\"></div>';
         	} else {

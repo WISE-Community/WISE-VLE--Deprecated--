@@ -2966,39 +2966,6 @@ View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroup
 };
 
 /**
- * Determines whether a nodeType knows how to render its grading view
- * @param nodeType the type of the node
- * @return whether this node type implements renderGradingView()
- */
-View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
-	var isSelfRenderingGradingView = false;
-	
-	if(nodeType != 'HtmlNode' && 
-			nodeType != 'BrainstormNode' && 
-			nodeType != 'FillinNode' && 
-			nodeType != 'MatchSequenceNode' && 
-			nodeType != 'MultipleChoiceNode' && 
-			nodeType != 'NoteNode' && 
-			nodeType != 'JournalEntryNode' && 
-			nodeType != 'OutsideUrlNode' && 
-			nodeType != 'OpenResponseNode' && 
-			nodeType != 'BlueJNode' && 
-			nodeType != 'DrawNode' && 
-			nodeType != 'DataGraphNode' && 
-			nodeType != 'MySystemNode' && 
-			nodeType != 'SVGDrawNode' && 
-			nodeType != 'MWNode' && 
-			nodeType != 'AssessmentListNode' && 
-			nodeType != 'ChallengeNode' && 
-			nodeType != 'BranchNode' &&
-			nodeType != 'TemplateNode') {
-		isSelfRenderingGradingView = true;
-	}
-	
-	return isSelfRenderingGradingView;
-};
-
-/**
  * displays the mysystem diagram in the specified div
  */
 function showDiagram(divId, contentBaseUrl) {

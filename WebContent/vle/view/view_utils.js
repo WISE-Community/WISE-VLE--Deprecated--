@@ -486,22 +486,60 @@ View.prototype.forceLogout = function() {
 View.prototype.getIdeaBasketByWorkgroupId = function(workgroupId) {
 	var ideaBasket = null;
 	
-	//check if we have retrieved the idea baskets
-	if(this.ideaBaskets != null) {
-	
-		//loop through all the idea baskets
-		for(var x=0; x<this.ideaBaskets.length; x++) {
-			ideaBasket = this.ideaBaskets[x];
-			
-			//compare the workgroup id of the idea basket
-			if(ideaBasket.workgroupId == workgroupId) {
-				//we have found a match so we will break out of the for loop
-				break;
+	if(this.getUserAndClassInfo().getWorkgroupId() == workgroupId) {
+		//the user wants their own basket
+		ideaBasket = this.ideaBasket;
+	} else {
+		//check if we have retrieved the idea baskets
+		if(this.ideaBaskets != null) {
+		
+			//loop through all the idea baskets
+			for(var x=0; x<this.ideaBaskets.length; x++) {
+				ideaBasket = this.ideaBaskets[x];
+				
+				//compare the workgroup id of the idea basket
+				if(ideaBasket.workgroupId == workgroupId) {
+					//we have found a match so we will break out of the for loop
+					break;
+				}
 			}
 		}
 	}
 	
 	return ideaBasket;
+};
+
+/**
+ * Determines whether a nodeType knows how to render its grading view
+ * @param nodeType the type of the node
+ * @return whether this node type implements renderGradingView()
+ */
+View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
+	var isSelfRenderingGradingView = false;
+	
+	if(nodeType != 'HtmlNode' && 
+			nodeType != 'BrainstormNode' && 
+			nodeType != 'FillinNode' && 
+			nodeType != 'MatchSequenceNode' && 
+			nodeType != 'MultipleChoiceNode' && 
+			nodeType != 'NoteNode' && 
+			nodeType != 'JournalEntryNode' && 
+			nodeType != 'OutsideUrlNode' && 
+			nodeType != 'OpenResponseNode' && 
+			nodeType != 'BlueJNode' && 
+			nodeType != 'DrawNode' && 
+			nodeType != 'DataGraphNode' && 
+			nodeType != 'MySystemNode' && 
+			nodeType != 'SVGDrawNode' && 
+			nodeType != 'MWNode' && 
+			nodeType != 'AssessmentListNode' && 
+			nodeType != 'ChallengeNode' && 
+			nodeType != 'BranchNode' &&
+			nodeType != 'TemplateNode') {
+		isSelfRenderingGradingView = true;
+	}
+	
+	return isSelfRenderingGradingView;
 };
 
 /* used to notify scriptloader that this script has finished loading */

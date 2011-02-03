@@ -1,6 +1,7 @@
 package vle.web;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -81,25 +82,69 @@ public class VLEIdeaBasketController extends HttpServlet {
 			//get all the idea baskets for a run
 			List<IdeaBasket> latestIdeaBasketsForRunId = IdeaBasket.getLatestIdeaBasketsForRunId(new Long(runId));
 			
-			JSONArray ideaBaskets = new JSONArray();
-			
-			//loop through all the idea baskets
-			for(int x=0; x<latestIdeaBasketsForRunId.size(); x++) {
-				//get an idea basket
-				IdeaBasket ideaBasket = latestIdeaBasketsForRunId.get(x);
-				
-				try {
-					//add the idea basket to our JSONArray
-					JSONObject ideaBasketJSONObj = new JSONObject(ideaBasket.toJSONString());
-					ideaBaskets.put(ideaBasketJSONObj);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
+			//convert the list to a JSONArray
+			JSONArray ideaBaskets = ideaBasketListToJSONArray(latestIdeaBasketsForRunId);
 			
 			//return the JSONArray of idea baskets as a string
 			String ideaBasketsJSONString = ideaBaskets.toString();
 			response.getWriter().print(ideaBasketsJSONString);
+		} else if(action.equals("getIdeaBasketsByWorkgroupIds")) {
+			//get the JSONArray of workgroup ids
+			String workgroupIdsJSONArrayStr = request.getParameter("workgroupIds");
+			
+			try {
+				JSONArray workgroupIdsJSONArray = new JSONArray(workgroupIdsJSONArrayStr);
+				
+				List<Long> workgroupIds = new ArrayList<Long>();
+				
+				//loop through all the workgroup ids
+				for(int x=0; x<workgroupIdsJSONArray.length(); x++) {
+					//add the workgroup id to the list
+					long workgroupIdToGet = workgroupIdsJSONArray.getLong(x);
+					workgroupIds.add(workgroupIdToGet);
+				}
+				
+				List<IdeaBasket> latestIdeaBasketsForRunIdWorkgroupIds = new ArrayList<IdeaBasket>();
+				
+				if(workgroupIds.size() > 0) {
+					//query for the baskets with the given run and workgroup ids
+					latestIdeaBasketsForRunIdWorkgroupIds = IdeaBasket.getLatestIdeaBasketsForRunIdWorkgroupIds(new Long(runId), workgroupIds);					
+				}
+				
+				//convert the list to a JSONArray
+				JSONArray ideaBaskets = ideaBasketListToJSONArray(latestIdeaBasketsForRunIdWorkgroupIds);
+				
+				//return the JSONArray of idea baskets as a string
+				String ideaBasketsJSONString = ideaBaskets.toString();
+				response.getWriter().print(ideaBasketsJSONString);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	/**
+	 * Turns a list of IdeaBaskets into a JSONArray
+	 * @param ideaBasketsList a list containing IdeaBaskets
+	 * @return a JSONArray containing the idea baskets
+	 */
+	private JSONArray ideaBasketListToJSONArray(List<IdeaBasket> ideaBasketsList) {
+		JSONArray ideaBaskets = new JSONArray();
+		
+		//loop through all the idea baskets
+		for(int x=0; x<ideaBasketsList.size(); x++) {
+			//get an idea basket
+			IdeaBasket ideaBasket = ideaBasketsList.get(x);
+			
+			try {
+				//add the idea basket to our JSONArray
+				JSONObject ideaBasketJSONObj = new JSONObject(ideaBasket.toJSONString());
+				ideaBaskets.put(ideaBasketJSONObj);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return ideaBaskets;
 	}
 }
