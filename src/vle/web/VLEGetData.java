@@ -313,7 +313,7 @@ public class VLEGetData extends VLEServlet {
 			
 			//obtain the node type for the step work
 			String nodeType = stepWork.getNode().getNodeType();
-			
+			/*
 			boolean keepGoing = true;
 
 			// if stepwork is a draw stepwork, we only want the latest (otherwise the response would be too large).
@@ -332,7 +332,7 @@ public class VLEGetData extends VLEServlet {
 			if (!keepGoing){
 				continue;
 			}
-
+			*/
 			/*
 			 * check that the node type is one that we want if a list of
 			 * desired node types was provided. if there is no list of

@@ -354,8 +354,23 @@ View.prototype.getGradeByStepSelectPageLinkedHtmlForNode = function(node, positi
 	//get the grading permission
 	var maxScorePermission = this.isWriteAllowed();
 	
+	var showRevisionsLink = "";
+	
+	if(node.type == 'MySystemNode' || node.type == 'SVGDrawNode') {
+		//we are on a SVGDrawNode step so we will create a link that will show revisions
+		showRevisionsLink = "<a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\", true])'>(Show Revisions)</a>";
+	}
+	
+	//the regular link to grade by step, this will show revisions for all steps except MySystemNode and SVGDrawNode
+	var nodeLink = "<a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\"])'>" + position + "&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span id='nodeTypeClass'>(" + type + ")</span></a>";
+	
+	if(showRevisionsLink != "") {
+		//create a table to contain the regular link and the 'Show Revisions' link
+		nodeLink = "<table><tr><td>" + nodeLink + "</td><td>" + showRevisionsLink + "</td></tr></table>";
+	}
+	
 	//this is a node that students perform work for so we will display a link
-	return "<tr><td class='chooseStepToGradeStepTd'><a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\"])'>" + position + "&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span id='nodeTypeClass'>(" + type + ")</span></a></td><td class='chooseStepToGradeMaxScoreTd statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"saveMaxScore\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
+	return "<tr><td class='chooseStepToGradeStepTd'>" + nodeLink + "</td><td class='chooseStepToGradeMaxScoreTd statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"saveMaxScore\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
 };
 
 /**
@@ -554,9 +569,11 @@ View.prototype.resizeTextArea = function(textArea) {
 /**
  * Displays the grading view for a step which includes all the student ids,
  * student work, and grading text box
+ * @param stepNumber the position in the vle e.g. 1.3
  * @param nodeId the step to display the grading view for
+ * @param showRevisions boolean whether to show revisions or not
  */
-View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
+View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId, showRevisions) {
 	if(nodeId == null || nodeId == 'undefined') {
 		return;
 	}
@@ -674,7 +691,11 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	
 	var nodeId = node.id;
 
-	var showRevisions = (node.type != ("MySystemNode" || "SVGDrawNode") );
+	/*
+	 * do not show revisions if the node type is MySystemNode or SVGDrawNode unless
+	 * showRevisions is true
+	 */
+	var showRevisions = ((node.type != "MySystemNode" && node.type != "SVGDrawNode") || showRevisions);
 
 	//loop through all the vleStates, each vleState is for a workgroup
 	for(var x=0; x<vleStates.length; x++) {
