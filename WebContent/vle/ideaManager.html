@@ -32,7 +32,7 @@
 
   <!-- CSS : implied media="all" -->
   <link rel="stylesheet" href="css/ideaManager/blue/style.css">
-  <link rel="stylesheet" href="css/ideaManager/style.css?v=2">
+  <link rel="stylesheet" href="css/ideaManager/basket.css">
   <link rel="stylesheet" href="css/ideaManager/custom-theme/jquery-ui-1.8.7.custom.css">
   <link rel="stylesheet" href="css/ideaManager/jquery-validate/cmxformTemplate.css">
 
@@ -119,10 +119,10 @@
 					<p><label for="tags">Tags (keywords): </label><input id='tags' name='tags' size='20' maxlength='20'></input></p>
 					<p>
 						<label for="flag">Flag (choose one)*: </label>
-						<input type="radio" name="flag" value="blank" class="required" checked style="margin-left:0;"><span style="vertical-align:top; line-height:24px;"> None</span>
-						<input type="radio" name="flag" value="important"><img src='images/ideaManager/important.png' alt='important' />
-						<input type="radio" name="flag" value="question"><img src='images/ideaManager/question.png' alt='question' />
-						<input type="radio" name="flag" value="check"><img src='images/ideaManager/check.png' alt='check' />
+						<input type="radio" name="flag" value="blank" class="required" checked style="margin-left:0;"></input><span style="vertical-align:top; line-height:20px;"> None</span>
+						<input type="radio" name="flag" value="important"></input><img src='./images/ideaManager/important.png' alt='important' /><span style="vertical-align:top; line-height:20px;">Important</span>
+						<input type="radio" name="flag" value="question"></input><img src='./images/ideaManager/question.png' alt='question' /><span style="vertical-align:top; line-height:20px;">Not Sure</span>
+						<!-- <input type="radio" name="flag" value="check"><img src='images/ideaManager/check.png' alt='check' /> -->
 					</p>
 			</fieldset>
 		</form>
@@ -149,10 +149,10 @@
 					<p><label for="editTags">Tags (keywords): </label><input id='editTags' name='editTags' size='20' maxlength='20'></input></p>
 					<p>
 						<label for="editFlag">Flag (choose one)*: </label>
-						<input type="radio" name="editFlag" value="blank" class="required" checked style="margin-left:0;"><span style="vertical-align:top; line-height:24px;"> None</span>
-						<input type="radio" name="editFlag" value="important"><img src='images/ideaManager/important.png' alt='important' />
-						<input type="radio" name="editFlag" value="question"><img src='images/ideaManager/question.png' alt='question' />
-						<input type="radio" name="editFlag" value="check"><img src='images/ideaManager/check.png' alt='check' />
+						<input type="radio" name="editFlag" value="blank" class="required" checked style="margin-left:0;"></input><span style="vertical-align:top; line-height:20px;"> None</span>
+						<input type="radio" name="editFlag" value="important"></input><img src='./images/ideaManager/important.png' alt='important' /><span style="vertical-align:top; line-height:20px;">Important</span>
+						<input type="radio" name="editFlag" value="question"></input><img src='./images/ideaManager/question.png' alt='question' /><span style="vertical-align:top; line-height:20px;">Not Sure</span>
+						<!-- <input type="radio" name="editFlag" value="check"><img src='images/ideaManager/check.png' alt='check' /> -->
 					</p>
 			</fieldset>
 		</form>
@@ -165,12 +165,10 @@
 	
   <!-- Javascript at the bottom for fast page loading -->
 
-  <!-- Grab Google CDN's jQuery & jQuery UI. fall back to local if necessary -->
   <script src="jquery/js/jquery-1.4.4.min.js"></script>
   <script src="jquery/js/jquery-ui-1.8.7.custom.min.js"></script>
   <script src="jquery/js/jquery-validate/jquery.validate.pack.js"></script>
   <script src="jquery/js/jquery.form.js"></script>
-  
   
   <!-- scripts concatenated and minified via ant build script-->
   <script src="js/plugins.js"></script>

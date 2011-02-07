@@ -12,10 +12,11 @@ header {
   margin:.5em 0;
   text-align:center;
   font-size:1.25em;
+  color:#000000;
 }
 
 #container {
-  width:750px;
+  width:700px;
   margin:auto;
   display:block;
   height:500px;
@@ -39,26 +40,26 @@ header {
   height:15px;
   line-height:15px;
   font-size:1.2em;
-  color:#4A4A4A;
-  background-color:#FFF3DF;
+  color:#222222;
+  background-color:#FFE59F;
 }
 
 #ideas, #explanation {
   border-top:2px solid #444;
   position:relative;
   display:block;
-  height:460px;
+  height:480px;
 }
 
 #ideas {
-  width: 260px;
+  width: 210px;
   display: block;
   float: left;
 }
 
 #ideasWrapper {
-  height:420px;
-  max-height:420px;
+  height:440px;
+  max-height:440px;
   border-bottom:1px solid #777;
   overflow:auto;
 }
@@ -88,6 +89,10 @@ th.tags {
   width:75px;
 }
 
+th.flag {
+  width:25px;
+}
+
 table.tablesorter tbody tr {
   line-height: 1.5em;
 }
@@ -106,7 +111,7 @@ tr.ui-draggable-disabled:hover td {
 }
 
 #explanation {
-  margin-left:260px;
+  margin-left:210px;
   padding:0;
   background-color:#eee;
   border-left: 2px solid #444444;
@@ -139,6 +144,7 @@ tr.ui-draggable-disabled:hover td {
   margin: 2em;
   padding: 0.5em;
   position: absolute;
+  opacity:.9;
 }
 
 .exIdea {
@@ -158,25 +164,25 @@ tr.ui-draggable-disabled:hover td {
   -webkit-box-shadow: 0px 0px 6px #fff;
 }
 
-.exIdea:hover {
-  color:yellow;
+.exIdea span:hover {
+  color:#FFE59F;
   /*border-color:yellow;*/
 }
 
 .deleted {
-  color:#000000;
-  opacity:.7;
+  color:#333333;
 }
 
-.deleted:hover {
-  color:#000000;
+.deleted span:hover {
+  color:#333333;
 }
 
 .selected {
-  border-width:2px;
-  border-color:yellow;
-  border-style:dashed;
-  color:yellow;
+  -moz-box-shadow: 0 0 4px #000000;
+  -webkit-box-shadow: 0 0 4px #000000;
+  box-shadow: 0 0 4px #000000;
+  border: 2px solid #FFE59F;
+  color: #FFE59F;
 }
 
 #colorPicker {
@@ -218,9 +224,65 @@ tr.ui-draggable-disabled:hover td {
 }
 
 textarea#explanationText {
-  max-height:80px;
+  max-height:75px;
   max-width:100%;
   width:100%;
-  height:80px;
+  height:75px;
   padding: 0.5em;
+}
+
+button#save {
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+    float: right;
+    margin: 7px 10px;	
+}
+
+.ui-state-disabled {
+	color:#AAAAAA;
+	background-color:#DDDDDD;
+	cursor:pointer !important;
+	opacity:.5;
+}
+
+img.notification {
+	top: -13px;
+    position: absolute;
+    left: -13px;
+}
+
+/* tooltip styling. by default the element to be styled is .tooltip  */
+.tooltip {
+	display:none;
+	background:transparent url('/vlewrapper/vle/jquery/css/jquerytools/black_arrow_132w.png');
+	font-size:12px;
+	height:60px;
+	width:176px;
+	padding:25px 25px 45px;
+	color:#fff;
+	z-index:1000;
+	text-align:left;
+}
+
+.tooltip.bottom {
+	background:transparent url('/vlewrapper/vle/jquery/css/jquerytools/black_arrow_132w_bottom.png');
+	padding-top:40px;
+	height:45px;
+}
+
+.notificationLinks {
+	text-align:right;
+	margin-top:10px;
+}
+
+a.notificationLink {
+	margin-left:10px;
+	color:#FFFFFF;
+	font-weight:bold;
+}
+
+a.notificationLink:hover {
+	text-decoration:underline;
+	color:#FBCB09;
 }

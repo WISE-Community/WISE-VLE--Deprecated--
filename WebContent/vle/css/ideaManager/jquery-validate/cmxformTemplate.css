@@ -27,9 +27,10 @@ form.cmxform label {
 
 
 form.cmxform input[type=radio] {
-	margin-left:1em;
+	/*margin-left:1em;*/
+	margin-left:.5em;
 	vertical-align:top;
-	height:24px;
+	height:26px;
 }
 
 form.cmxform img {

@@ -56,7 +56,7 @@ $(document).ready(function() {
 		$("#ideaForm").validate();
 	});
 
-	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
+	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'470', buttons:{
 		"OK": function(){				
 		if($("#ideaForm").validate().form()){
 			var source = $('#source').val();

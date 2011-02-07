@@ -347,6 +347,13 @@ th.delete, th.flag {
 	width:50px;
 }
 
+span.editLink {
+	color: #F79F00;
+	font-size:.9em;
+    padding-left: 10px;
+    text-decoration: underline;
+}
+
 span.delete, span.restore  {
 	font-size:20px;
 	color:#EE5757;

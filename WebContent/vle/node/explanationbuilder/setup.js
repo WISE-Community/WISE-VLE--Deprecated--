@@ -23,6 +23,7 @@ var studentVLEScripts = [
 	'vle/jquery/js/jquery-validate/jquery.validate.pack.js',
 	'vle/jquery/js/jquery.form.js',
 	'vle/jquery/js/jsonplugin.js',
+	'vle/jquery/js/jquery.tools.tooltip.min.js',
 	'vle/ideaBasket/basket.js',
  	/*
      * xTODO: rename template
@@ -78,7 +79,7 @@ var dependencies = [
 
 var css = [
        	"vle/css/ideaManager/blue/style.css",
-       	"vle/css/ideaManager/style.css",
+       	"vle/css/ideaManager/basket.css",
        	"vle/node/explanationbuilder/explanation.css",
        	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css"

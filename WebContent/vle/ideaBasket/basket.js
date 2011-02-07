@@ -9,6 +9,7 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId,
 	this.tags = tags; //idea's tags
 	this.flag = flag; //idea's flag
 	this.stepsUsedIn = [];
+	this.changeText = null;
 };
 
 /**
@@ -134,6 +135,7 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
 
 		$("#basketIdeas").trigger("applyWidgets");
 	}
+	this.updateToolbarCount();
 };
 
 /**
@@ -177,9 +179,9 @@ IdeaBasket.prototype.add = function(text,source,tags,flag) {
 
 	//create an add an idea to the basket
 	var newIdea = this.addIdeaToBasketArray(text, source, tags, flag, nodeId, nodeName);
-	
 	//add the idea to the UI
 	basket.addRow(0,newIdea);
+	this.updateToolbarCount(true);
 };
 
 /**
@@ -217,95 +219,53 @@ IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tags,flag,nodeI
  * @return
  */
 IdeaBasket.prototype.addRow = function(target,idea,load){
+	var context = this;
 	var currTable = 'idea';
 	//var table = this.ideaTable;
 	var table = $('#basketIdeas tbody');
 	var link = 'delete';
 	var title = 'Click and drag to re-order, Double click to edit';
+	var linkText = idea.text +	'<span class="editLink" title="Edit idea">Edit</span>';
 	if (target===1){
 		currTable = 'deleted';
 		//table = this.deletedTable;
 		table = $('#basketDeleted tbody');
 		link = 'restore';
 		title = 'Click on the + icon to take this idea out of the trash';
+		linkText = idea.text;
 	}
 	if(idea.tags && idea.tags != 'undefined'){
 		var tags = idea.tags;
 	} else {
 		var tags = '';
 	}
-	var html = '<tr id="' + currTable + idea.id + '" title="' + title + '"><td>' + idea.text + '</td><td>' + idea.source + '</td>' +
-	'<td>' + tags + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
-	'<td style="text-align:center;"><span class="' + link + '" title="' + link + ' idea"></span></td></tr>';
+	var html = '<tr id="' + currTable + idea.id + '" title="' + title + '"><td><div class="ideaText">' + linkText +
+		'</div></td><td>' + idea.source + '</td>' +	'<td><div class="ideaTags">' + tags +
+		'</div></td>' + '<td style="text-align:center;"><span title="' +idea.flag +	'" class="' + idea.flag + '"></span></td>'+
+		'<td style="text-align:center;"><span class="' + link + '" title="' + link + ' idea"></span></td></tr>';
 
 	table.prepend(html);
 	var $newTr = $('#' + currTable + idea.id);
 	var $newLink = $('#' + currTable + idea.id + ' span.' + link);
+	var $editLink = $('#' + currTable + idea.id + ' span.editLink');
 
 	if(!load){
 		$newLink.parent().parent().effect("pulsate", { times:2 }, 500);
 	}
 
 	if(target===0){
+		// bind edit link and double click of row to open edit dialog
+		$editLink.click(function(){
+			var $clicked = $newTr;
+			var id = $newTr.attr('id');
+			id = id.replace('idea','');
+			context.openEditDialog(context,id,$clicked);
+		});
 		$newTr.dblclick(function(){
 			var $clicked = $(this);
 			var id = $(this).attr('id');
 			id = id.replace('idea','');
-
-			//populate edit fields
-			for(var i=0;i<basket.ideas.length;i++){
-				if(basket.ideas[i].id==id){
-					$('#editText').val(basket.ideas[i].text);
-					if(basket.ideas[i].source.match(/^Other: /)){
-						$('#editSource').val("Other");
-						$('#editOther').val(basket.ideas[i].source.replace(/^Other: /,''));
-						$('#editOtherSource').show();
-						$('#editOther').addClass('required');
-					} else {
-						$('#editSource').val(basket.ideas[i].source);
-						$('#editOtherSource').hide();
-						$('#editOther').removeClass('required');
-					}
-					$('#editTags').val(basket.ideas[i].tags);
-					$("input[name='editFlag']").each(function(){
-						if($(this).attr('value')==basket.ideas[i].flag){
-							$(this).attr('checked', true);
-						} else {
-							$(this).attr('checked', false);
-						}
-					});
-					break;
-				}
-			}
-
-			$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'400', buttons:{
-				"OK": function(){				
-				if($("#editForm").validate().form()){
-					
-					/*
-					 * check if the idea is being used in an explanation builder step,
-					 * if it is, we will display a confirmation popup that asks the
-					 * student if they're sure they want to edit the idea. if the
-					 * idea is not being used in an eb step it will return true
-					 * by default.
-					 */
-					var answer = basket.checkIfIdeaUsed(id);
-					
-					if(answer) {
-						var source = $('#editSource').val();
-						if(source=='Other'){
-							source = 'Other: ' + $('#editOther').val();
-						}
-						basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
-						$(this).dialog("close");
-						resetForm('editForm');						
-					}
-				}
-			}, Cancel: function(){
-				$(this).dialog("close");
-				resetForm('editForm');
-			}
-			} });
+			context.openEditDialog(context,id,$clicked);
 		});
 
 		$newLink.click(function(){
@@ -332,12 +292,6 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 			},
 			Cancel: function(){$(this).dialog("close");}
 			} });
-			/*if(confirm("Are you sure you want to delete this idea?\n\n(You can always retrieve it from the trash later on if you change your mind.)")){
-				var index = $(this).parent().parent().attr('id');
-				index = index.replace('idea','');
-				var $tr = $(this).parent().parent();
-				basket.remove(index,$tr);
-			}*/
 		});
 	} else {
 		$newLink.click(function(){
@@ -371,6 +325,70 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 	}
 	
 	$('tr .header').removeClass('headerSortDown').removeClass('headerSortUp');
+};
+
+IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
+	var text = '';
+	
+	//populate edit fields
+	for(var i=0;i<basket.ideas.length;i++){
+		if(basket.ideas[i].id==id){
+			text = basket.ideas[i].text;
+			$('#editText').val(text);
+			if(basket.ideas[i].source.match(/^Other: /)){
+				$('#editSource').val("Other");
+				$('#editOther').val(basket.ideas[i].source.replace(/^Other: /,''));
+				$('#editOtherSource').show();
+				$('#editOther').addClass('required');
+			} else {
+				$('#editSource').val(basket.ideas[i].source);
+				$('#editOtherSource').hide();
+				$('#editOther').removeClass('required');
+			}
+			$('#editTags').val(basket.ideas[i].tags);
+			$("input[name='editFlag']").each(function(){
+				if($(this).attr('value')==basket.ideas[i].flag){
+					$(this).attr('checked', true);
+				} else {
+					$(this).attr('checked', false);
+				}
+			});
+			break;
+		}
+	}
+
+	$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', buttons:{
+		"OK": function(){
+			var answer = false;
+			if($("#editForm").validate().form()){
+				if($('#editText').val() != text){
+					/*
+					 * if the idea text has changed, check if the idea is being used
+					 * in an explanation builder step, if it is, we will display
+					 * a confirmation popup that asks the students if they're sure
+					 * they want to edit the idea. if the idea is not being used
+					 * in an eb step it will return true by default.
+					 */
+					var answer = basket.checkIfIdeaUsed(id);
+				} else {
+					answer = true;
+				}
+				
+				if(answer) {
+					var source = $('#editSource').val();
+					if(source=='Other'){
+						source = 'Other: ' + $('#editOther').val();
+					}
+					basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
+					$(this).dialog("close");
+					resetForm('editForm');						
+				}
+			}
+		}, Cancel: function(){
+			$(this).dialog("close");
+			resetForm('editForm');
+		}
+	} });
 };
 
 /**
@@ -461,6 +479,7 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 			break;
 		}
 	}
+	this.updateToolbarCount(true);
 };
 
 /**
@@ -494,6 +513,7 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 			break;
 		}
 	}
+	this.updateToolbarCount(true);
 };
 
 /**
@@ -526,13 +546,14 @@ IdeaBasket.prototype.isIdeaChanged = function(idea, text, source, tags, flag) {
  * @param $tr
  */
 IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
+	var context = this;
 	for(var i=0; i<this.ideas.length; i++){
 		if(this.ideas[i].id == index){
 			var idea = this.ideas[i];
 			
 			/*
 			 * check if any of the fields in the idea have changed,
-			 * if it has not changed we do not need to do anything
+			 * if they have not changed we do not need to do anything
 			 */
 			if(this.isIdeaChanged(idea, text, source, tags, flag)) {
 				//the idea has changed
@@ -542,6 +563,7 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 				idea.source = source;
 				idea.tags = tags;
 				idea.flag = flag;
+				var linkText = idea.text +	'<span class="editLink" title="Edit idea">Edit</span>';
 				
 				//get the current time
 				var newDate = new Date();
@@ -550,8 +572,8 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 				idea.timeLastEdited = time;
 				
 				if($tr){
-					$tr.html('<td>' + idea.text + '</td><td>' + idea.source + '</td>' +
-							'<td>' + idea.tags + '</td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
+					$tr.html('<td><div class="ideaText">' + linkText + '</div></td><td>' + idea.source + '</td>' +
+							'<td><div class="ideaTags">' + idea.tags + '</div></td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
 					'<td style="text-align:center;"><span class="delete" title="delete idea"></span></td>');
 
 					$tr.effect("pulsate", { times:2 }, 500);
@@ -559,8 +581,19 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 
 				var currTable = 'idea';
 				var link = 'delete';
+				var $newTr = $('#' + currTable + idea.id);
 				var $newLink = $('#' + currTable + idea.id + ' span.' + link);
-
+				var $editLink = $('#' + currTable + idea.id + ' span.editLink');
+				
+				// re-bind edit link click and row double click to open edit dialog
+				$editLink.click(function(){
+					var $clicked = $newTr;
+					var id = $newTr.attr('id');
+					id = id.replace('idea','');
+					context.openEditDialog(context,id,$clicked);
+				});
+				
+				// re-bind delete link click
 				$newLink.click(function(){
 					var $clicked = $(this);
 					$('#deleteDialog').dialog({ title:'Move to Trash', modal:true, resizable:false, width:'400', buttons:{
@@ -608,7 +641,8 @@ IdeaBasket.prototype.updateOrder = function(target){
 		id = parseInt(id);
 		for(var i=0; i<data.length; i++){
 			if (data[i].id == id){
-				newOrder.push(data[i]);
+				//newOrder.push(data[i]);
+				newOrder.splice(0,0,data[i]);
 				break;
 			}
 		}
@@ -631,6 +665,26 @@ IdeaBasket.prototype.updateOrder = function(target){
 		
 		basket.deleted = newOrder;
 		$("#basketDeleted").trigger("applyWidgets");
+	}
+};
+
+/**
+ * Update the Idea Basket Link on the toolbar to display current number of active ideas
+ * @param target an integer (0 or 1) to specify source context (ideamanager.html or vle.html)
+ * @param pulsate a boolean to specify whether toolbar link should blink on update (non-loading case)
+ */
+IdeaBasket.prototype.updateToolbarCount = function(pulsate){
+	var total = this.ideas.length;
+	if($("#ideaBasketLink span").length){
+		$("#ideaBasketLink span").text(' Idea Basket (' + total + ')');
+		if(pulsate){
+			$("#ideaBasketLink span").effect("pulsate", { times:2 }, 500);
+		}
+	} else if($("#ideaBasketLink span", parent.document.body).length){
+		$("#ideaBasketLink span", parent.document.body).text(' Idea Basket (' + total + ')');
+		if (pulsate){
+			$("#ideaBasketLink span", parent.document.body).effect("pulsate", { times:2 }, 500);
+		}
 	}
 };
 

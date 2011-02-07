@@ -577,9 +577,9 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	addAnIdeaHtml += "				<p>";
 	addAnIdeaHtml += "				<label for='flag'>Flag (choose one)*: </label>";
 	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='blank' class='required' checked style='margin-left:0;'><span style='vertical-align:top; line-height:24px;'> None</span>";
-	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='important'><img src='images/ideaManager/important.png' alt='important' />";
-	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='question'><img src='images/ideaManager/question.png' alt='question' />";
-	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='check'><img src='images/ideaManager/check.png' alt='check' />";
+	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='important'><img src='images/ideaManager/important.png' alt='important' /><span style='vertical-align:top; line-height:24px;'>Important</span>";
+	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='question'><img src='images/ideaManager/question.png' alt='question' /><span style='vertical-align:top; line-height:24px;'>Not Sure</span>";
+	//addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='check'><img src='images/ideaManager/check.png' alt='check' />";
 	addAnIdeaHtml += "				</p>";
 	addAnIdeaHtml += "	</fieldset>";
 	addAnIdeaHtml += "</form>";
@@ -603,7 +603,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
 };
 
 /**
- * Add the idea to the basket and save teh basket back to the server
+ * Add the idea to the basket and save the basket back to the server
  */
 View.prototype.addIdeaToBasket = function() {
 	//get the values the student entered
@@ -635,6 +635,9 @@ View.prototype.addIdeaToBasket = function() {
 		
 		//close the create an idea popup
 		$('#addAnIdeaDiv').dialog('close');		
+		
+		// update idea count on toolbar
+		ideaBasket.updateToolbarCount(1,true);
 	}
 };
 
@@ -665,6 +668,7 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	
 	//create a new IdeaBasket and set it into the view
 	thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
+	thisView.ideaBasket.updateToolbarCount(0);
 };
 
 /**
@@ -678,8 +682,8 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv" style="margin-bottom:.3em;"></div>');
-		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="97%"></iframe>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',position:[300,40],close:this.ideaBasketDivClose});
+		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe>');
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',close:this.ideaBasketDivClose});
     }
 	
 	//open the dialog

@@ -18,7 +18,7 @@
 			 * vlewrapper/WebContent/vle/node/quiz/
 			 */
 		
-			var template;
+			var explanationBuilder;
 		
 			function loadContentAfterScriptsLoad(node) {
 				/*
@@ -99,7 +99,8 @@
               <thead>
                 <tr>
                   <th class='ideas'>Your Ideas</th>
-                  <th class='tags'>Tags</th>
+                  <!-- <th class='tags'>Tags</th> -->
+                  <th class='flag'>Flag</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,7 +125,10 @@
   		    </div>
   		    <div id='answer'>
     		    <div id='instruction'><b>Type your answer here.</b> Use all the evidence that you organized above. Add some new ideas to your basket and drag them to the idea space if you need to.</div>
-            <div class='textWrapper'><textarea id='explanationText'></textarea></div>
+            	<div class='textWrapper'><textarea id='explanationText'></textarea></div>
+            	<button id="save" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+	              <span class="ui-button-text">Save</span>
+	            </button>
   		    </div>
   		  </div>
   		 </div>
@@ -153,10 +157,10 @@
 				<p><label for="tags">Tags (keywords): </label><input id='tags' name='tags' size='20' maxlength='20'></input></p>
 				<p>
 					<label for="flag">Flag (choose one)*: </label>
-					<input type="radio" name="flag" value="blank" class="required" checked style="margin-left:0;"><span style="vertical-align:top; line-height:24px;"> None</span>
-					<input type="radio" name="flag" value="important"><img src='./images/ideaManager/important.png' alt='important' />
-					<input type="radio" name="flag" value="question"><img src='./images/ideaManager/question.png' alt='question' />
-					<input type="radio" name="flag" value="check"><img src='./images/ideaManager/check.png' alt='check' />
+					<input type="radio" name="flag" value="blank" class="required" checked style="margin-left:0;"></input><span style="vertical-align:top; line-height:20px;"> None</span>
+					<input type="radio" name="flag" value="important"></input><img src='./images/ideaManager/important.png' alt='important' /><span style="vertical-align:top; line-height:20px;">Important</span>
+					<input type="radio" name="flag" value="question"></input><img src='./images/ideaManager/question.png' alt='question' /><span style="vertical-align:top; line-height:20px;">Not Sure</span>
+					<!-- <input type="radio" name="flag" value="check"></input><img src='./images/ideaManager/check.png' alt='check' /> -->
 				</p>
 			</fieldset>
 		</form>
@@ -183,10 +187,10 @@
 					<p><label for="editTags">Tags (keywords): </label><input id='editTags' name='editTags' size='20' maxlength='20'></input></p>
 					<p>
 						<label for="editFlag">Flag (choose one)*: </label>
-						<input type="radio" name="editFlag" value="blank" class="required" checked style="margin-left:0;"><span style="vertical-align:top; line-height:24px;"> None</span>
-						<input type="radio" name="editFlag" value="important"><img src='./images/ideaManager/important.png' alt='important' />
-						<input type="radio" name="editFlag" value="question"><img src='./images/ideaManager/question.png' alt='question' />
-						<input type="radio" name="editFlag" value="check"><img src='./images/ideaManager/check.png' alt='check' />
+						<input type="radio" name="editFlag" value="blank" class="required" checked style="margin-left:0;"></input><span style="vertical-align:top; line-height:20px;"> None</span>
+						<input type="radio" name="editFlag" value="important"></input><img src='./images/ideaManager/important.png' alt='important' /><span style="vertical-align:top; line-height:20px;">Important</span>
+						<input type="radio" name="editFlag" value="question"></input><img src='./images/ideaManager/question.png' alt='question' /><span style="vertical-align:top; line-height:20px;">Not Sure</span>
+						<!-- <input type="radio" name="editFlag" value="check"></input><img src='./images/ideaManager/check.png' alt='check' /> -->
 					</p>
 			</fieldset>
 		</form>
@@ -195,6 +199,14 @@
 	<div id='deleteDialog' style='display:none; text-align:center;'>
 		<div class='ui-state-highlight' style="padding:.5em;"><span class="ui-icon ui-icon-info" style="margin-right: .3em; float:left;"></span><span>Are you sure you want to delete this idea?</span></div>
 		<div style="padding:.5em;">You can always retrieve it from the trash later on if you change your mind.</div>
+	</div>
+	
+	<div id='deletedPopup' style='display:none;'>
+		
+	</div>
+	
+	<div id='notificationPopup' style='display:none;'>
+		
 	</div>
 	</body>
 </html>

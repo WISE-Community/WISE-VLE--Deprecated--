@@ -96,7 +96,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 	//get the ideaBasket from the view
 	this.ideaBasket = this.view.ideaBasket;
 
-	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
+	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'470', buttons:{
 		"OK": function(){       
 		if($("#ideaForm").validate().form()){
 			var source = $('#source').val();
@@ -117,7 +117,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 		$('#ideaDialog').dialog('open');
 	});
 
-	$('#clearDialog').dialog({title:'Empty Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
+	/*$('#clearDialog').dialog({title:'Empty Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
 		"OK": function(){       
 		//localStorage.clear();
 		window.location.reload();
@@ -128,7 +128,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 
 	$('#clear').click(function(){
 		$('#clearDialog').dialog('open');
-	});
+	});*/
 
 	//loadFromLocal(1);
 
@@ -268,10 +268,16 @@ function resetForm(target){
 
 
 ExplanationBuilder.prototype.init = function(context){
-
+	$('#save').addClass('ui-state-disabled');
+	
 	$('#explanationText').keyup(function(){
 		context.answer = $('#explanationText').val();
+		$('#save').removeClass('ui-state-disabled');
 		//localStorage.answer = context.answer;
+	});
+	
+	$('#save').click(function(){
+		$(this).addClass('ui-state-disabled');
 	});
 
 	$('#target').droppable({
@@ -335,7 +341,7 @@ ExplanationBuilder.prototype.init = function(context){
 		var color = $(this).css('background-color');
 		$(context.selected).each(function(index,value){
 			$('#explanationIdea' + value).css('background-color',color);
-			context.updateExpIdea(value,null,null,null,color);
+			context.updateExpIdea(value,null,null,color);
 		});
 	});
 
@@ -386,7 +392,13 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 					var left = explanationIdeas[a].xpos;
 					var top = explanationIdeas[a].ypos;
 					var color = explanationIdeas[a].color;
-					this.addExpIdea(this,true,true,id,left,top,color);
+					if(explanationIdeas[a].lastAcceptedText){
+						var lastAcceptedText = explanationIdeas[a].lastAcceptedText;
+					} else {
+						explanationIdeas[a].lastAcceptedText = this.ideaBasket.ideas[i].text;
+						var lastAcceptedText = this.ideaBasket.ideas[i].text;
+					}
+					this.addExpIdea(this,true,true,id,left,top,color,lastAcceptedText);
 					break;
 				}
 			}
@@ -441,13 +453,18 @@ ExplanationBuilder.prototype.add = function(text,source,tags,flag) {
 ExplanationBuilder.prototype.addRow = function(idea,load){
 	var title = 'Click and drag to add to idea space, Double click to edit';
 	var text = idea.text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
-	if(idea.tags && idea.tags != 'undefined'){
+	/*if(idea.tags && idea.tags != 'undefined'){
 		var tags = idea.tags;
 	} else {
 		var tags = '';
+	}*/
+	if(idea.flag && idea.flag != 'undefined'){
+		var flag = idea.flag;
+	} else {
+		var flag = '';
 	}
 
-	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td>' + tags + '</td>';
+	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span>';
 
 	$('#activeIdeas tbody').prepend(html);
 
@@ -467,44 +484,42 @@ ExplanationBuilder.prototype.addRow = function(idea,load){
 	}
 };
 
-ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,$tr) {
+ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,textChanged) {
 	var title = 'Click and drag to add to idea space, Double click to edit';
 	var id;
 	var idea;
 	for(var i=0; i<this.ideaBasket.ideas.length; i++){
 		if(this.ideaBasket.ideas[i].id == index){
-			id = this.ideaBasket.ideas[i].id; 
+			id = this.ideaBasket.ideas[i].id;
+			var $tr = $('#idea' + id);
 			this.ideaBasket.ideas[i].text = text;
 			this.ideaBasket.ideas[i].source = source;
 			this.ideaBasket.ideas[i].tags = tags;
 			this.ideaBasket.ideas[i].flag = flag;
 			idea = this.ideaBasket.ideas[i];
 			var text = this.ideaBasket.ideas[i].text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
-			if($tr){
-				$tr.html('<td>' + text + '</td><td>' + this.ideaBasket.ideas[i].tags + '</td>');
-				$tr.effect("pulsate", { times:2 }, 500);
-				if($tr.hasClass('ui-draggable-disabled')){
-					setTimeout(function(){
-						$tr.css('opacity','.35');
-					},1200);
-				}
+			//if($tr){
+			$tr.html('<td>' + text + '</td><td>' + '<span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>');
+			$tr.effect("pulsate", { times:2 }, 500);
+			if($tr.hasClass('ui-draggable-disabled')){
+				setTimeout(function(){
+					$tr.css('opacity','.5');
+				},1200);
 			}
+			//}
+			this.basketChanged = true;
 			//localStorage.ideas = JSON.stringify(basket.ideas);
 			break;
 		}
 	}
-
-	for (var i=0; i<this.explanationIdeas.length; i++){
-		if(this.explanationIdeas[i].id == id){
-			this.updateExpIdea(id);
-			break;
+	if(textChanged){ // set lastAcceptedText of exp idea to idea's current text
+		for (var i=0; i<this.explanationIdeas.length; i++){
+			if(this.explanationIdeas[i].id == index){
+				this.updateExpIdea(id,null,null,null,text);
+				break;
+			}
 		}
 	}
-	
-	//update the text displayed in the explanation idea
-	$('#explanationIdea' + id).html(text);
-	
-	this.basketChanged = true;
 };
 
 ExplanationBuilder.prototype.updateOrder = function(){
@@ -543,104 +558,120 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 	scope: 'drag-idea'
 		//revert: 'invalid'
 	});
-
+	
+	
+	// open edit dialog on double click
 	$target.dblclick(function(){
 		var $clicked = $(this);
 		var id = $(this).attr('id');
 		id = id.replace('idea','');
+		var text = '';
 		id = parseInt(id);
 
-		//populate edit fields
-		for(var i=0;i<context.ideaBasket.ideas.length;i++){
-			if(context.ideaBasket.ideas[i].id==id){
-				$('#editText').val(context.ideaBasket.ideas[i].text);
-				if(context.ideaBasket.ideas[i].source.match(/^Other: /)){
-					$('#editSource').val("Other");
-					$('#editOther').val(context.ideaBasket.ideas[i].source.replace(/^Other: /,''));
-					$('#editOtherSource').show();
-					$('#editOther').addClass('required');
-				} else {
-					$('#editSource').val(context.ideaBasket.ideas[i].source);
-					$('#editOtherSource').hide();
-					$('#editOther').removeClass('required');
-				}
-				$('#editTags').val(context.ideaBasket.ideas[i].tags);
-				$("input[name='editFlag']").each(function(){
-					if($(this).attr('value')==context.ideaBasket.ideas[i].flag){
-						$(this).attr('checked', true);
-					} else {
-						$(this).attr('checked', false);
-					}
-				});
-				break;
-			}
-		}
-
-		$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'400', buttons:{
+		//populate edit form fields
+		var text = context.populateEditForm(context,id,true);
+		
+		// open edit dialog
+		$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', buttons:{
 			"OK": function(){       
-			if($("#editForm").validate().form()){
-				var idea = context.ideaBasket.getIdeaById(id);
-				var stepsUsedIn = idea.stepsUsedIn;
-				
-				var answer = true;
-				
-				//check if this student used this idea in any steps 
-				if(stepsUsedIn != null && stepsUsedIn.length > 0) {
-					//the student has used this idea in a step
+				if($("#editForm").validate().form()){
+					var answer = false;
+					var textChanged = false;
 					
-					var message = "This idea is currently used in the following steps\n\n";
-					
-					//loop through all the steps the student has used this idea in
-					for(var x=0; x<stepsUsedIn.length; x++) {
-						//get the node id
-						var nodeId = stepsUsedIn[x];
-						
-						//get the node
-						var node = context.view.getProject().getNodeById(nodeId);
-						
-						if(node != null) {
-							//get the node position
-							var vlePosition = context.view.getProject().getVLEPositionById(nodeId);
-							
-							//get the node title
-							var title = node.title;
-							
-							//add the step to the message
-							message += vlePosition + ": " + title + "\n";
+					if($('#editText').val() != text){ // check if the idea text has changed
+						textChanged = true; // idea text has changed
+						answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+					} else {
+						answer = true;
+					}
+				
+					if(answer) {
+						var source = $('#editSource').val();
+						if(source=='Other'){
+							source = 'Other: ' + $('#editOther').val();
 						}
+						context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
+						$(this).dialog("close");
+						resetForm('editForm');
 					}
-					
-					message += "\nIf you change this idea, you might want to review your answer in those steps.";
-					
-					/*
-					 * display the message to the student that notifies them 
-					 * that they will also be changing the idea text in the
-					 * steps that they have used the idea in
-					 */
-					answer = confirm(message);
 				}
-				
-				if(answer) {
-					var source = $('#editSource').val();
-					if(source=='Other'){
-						source = 'Other: ' + $('#editOther').val();
-					}
-					context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
-					$(this).dialog("close");
-					resetForm('editForm');
-				}
+			}, Cancel: function(){
+				$(this).dialog("close");
+				resetForm('editForm');
 			}
-		}, Cancel: function(){
-			$(this).dialog("close");
-			resetForm('editForm');
-		}
 		} });
 	});
 };
 
-ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,left,top,color){
+/**
+ * Check if the idea is being used in any explanation builder steps (excluding the current step),
+ * if it is, we will display a confirmation popup that asks the
+ * student if they're sure they want to edit the idea. if the
+ * idea is not being used in an eb step it will return true
+ * by default.
+ * @param id the id of the idea
+ * @return whether the student confirmed that they still want
+ * to edit the idea. if the idea is not being used in an
+ * explanation builder step, we will not display the popup
+ * and will just return true
+ */
+ExplanationBuilder.prototype.checkIfIdeaUsed = function(id) {
+	// TODO: ignore current node in this check
+	var answer = true;
+	var idea = this.ideaBasket.getIdeaById(id);
+	var stepsUsedIn = idea.stepsUsedIn;
+	var isUsed = false;
+	var currNodeId = this.view.getCurrentNode().id;
+	
+	if(stepsUsedIn != null && stepsUsedIn.length > 0) {
+		//the student has used this idea in a step
+		
+		var message = "This idea is currently used in the following steps\n\n";
+		
+		//loop through all the steps the student has used this idea in
+		for(var x=0; x<stepsUsedIn.length; x++) {
+			//get the node id
+			var nodeId = stepsUsedIn[x];
+			
+			if(nodeId != currNodeId) { // don't warn if used in current explanation builder node
+				isUsed = true;
+				
+				//get the node
+				var node = this.view.getProject().getNodeById(nodeId);
+				
+				if(node != null) {
+					//get the node position
+					var vlePosition = this.view.getProject().getVLEPositionById(nodeId);
+					
+					//get the node title
+					var title = node.title;
+					
+					//add the step to the message
+					message += vlePosition + ": " + title + "\n";
+				}
+			}
+		}
+		
+		message += "\nIf you change this idea, you might want to review your answers in those steps.";
+		
+		/*
+	 	* display the message to the student that notifies them 
+	 	* that they will also be changing the idea text in the
+	 	* steps that they have used the idea in
+	 	*/
+		if(isUsed){
+			answer = confirm(message);
+		}
+	}
+	
+	return answer;
+};
+
+ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,left,top,color,lastAcceptedText){
 	$('#spacePrompt').hide();
 	var text='';
+	var ideaText = '';
+	var title = '';
 	var timeLastEdited = null;
 	var timeCreated = null;
 	var newIdea;
@@ -648,11 +679,15 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	if(color){
 		currColor = color;
 	}
+	var changed = false;
+	
 	if(isActive){
 		for(var i=0; i<this.ideaBasket.ideas.length; i++){
 			if(this.ideaBasket.ideas[i].id == id){
 				newIdea = new ExplanationIdea(id,left,top,color);
-				text = this.ideaBasket.ideas[i].text;
+				title = 'Click and drag to move; Click to change color';
+				ideaText = this.ideaBasket.ideas[i].text;
+				text = '<span title="' + title + '">' + ideaText + '</span>';
 				timeLastEdited = this.ideaBasket.ideas[i].timeLastEdited;
 				timeCreated = this.ideaBasket.ideas[i].timeCreated;
 				
@@ -662,9 +697,14 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 						 * this idea was just created so it's not possible for
 						 * the idea to have been previously changed
 						 */
-					} else if(this.latestState.timestamp < timeLastEdited) {
+					//} else if(this.latestState.timestamp < timeLastEdited) {
+					} else if(lastAcceptedText && ideaText != lastAcceptedText) {
+						changed = true;
 						//the idea has been changed since the idea was used in this step
-						text += "!";
+						text += " <img class='notification' src='/vlewrapper/vle/images/ideaManager/info.png' alt='warn' />" +
+							"<div class='tooltip'><div>This idea has <b>changed</b> since you added it to the explanation. What do you want to do?</div>" +
+							"<div class='notificationLinks'><a class='notificationLink revise'>Revise</a>" +
+							"<a class='notificationLink accept'>Keep</a></div></div>";
 					}
 				}
 				
@@ -679,26 +719,20 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			}
 		}
 		$('#idea' + id).draggable('disable');
-		$('#idea' + id).css('opacity','.35');
 	} else {
 		for(var i=0; i<this.ideaBasket.deleted.length; i++){
 			if(this.ideaBasket.deleted[i].id == id){
 				newIdea = new ExplanationIdea(id,left,top,color);
-				text = this.ideaBasket.deleted[i].text;
+				title = 'Click and drag to move';
+				text = '<span title="' + title + '">' + this.ideaBasket.deleted[i].text + '</span>';
 				timeLastEdited = this.ideaBasket.deleted[i].timeLastEdited;
 				timeCreated = this.ideaBasket.deleted[i].timeCreated;
 				
-				if(this.latestState != null && timeLastEdited != null && timeCreated != null) {
-					if(timeLastEdited == timeCreated) {
-						/*
-						 * this idea was just created so it's not possible for
-						 * the idea to have been previously changed
-						 */
-					} else if(this.latestState.timestamp < timeLastEdited) {
-						//the idea has been changed since the idea was used in this step
-						text += "!";
-					}
-				}
+				// the idea has been deleted since it was used in this step
+				text += " <img class='notification' src='/vlewrapper/vle/images/ideaManager/info.png' alt='warn' />" +
+					"<div class='tooltip'><div>You have <b>deleted</b> this idea since adding it to the explanation. What do you want to do?</div>" +
+					"<div class='notificationLinks'><a class='notificationLink restore'>Restore & Revise</a><a class='notificationLink remove'>Remove</a>" +
+					"</div></div>";
 				
 				//get the current node id
 				var nodeId = context.node.id;
@@ -713,10 +747,10 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		currColor = '#CCCCCC';
 	}
 
-	$('.exIdea').removeClass('selected'); // remove any current selection 
+	$('.exIdea').removeClass('selected'); // remove any current selection
 
-	$('#target').append('<div class="exIdea" class="selected" title="Click and drag to move; Click to change color" id="explanationIdea' 
-			+ id + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>');
+	$('#target').append('<div class="exIdea" class="selected" id="explanationIdea' + id + '" style="position:absolute; left:' +
+			left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>');
 
 	$('#colorPicker').show(); // show color picker
 
@@ -727,57 +761,111 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	};
 
 	if(!isLoad){
+		newIdea.lastAcceptedText = ideaText;
 		context.explanationIdeas.push(newIdea);
 		//localStorage.explanationIdeas = JSON.stringify(context.explanationIdeas);
 	}
 
 	if (!isActive){
-		$('#explanationIdea' + id).addClass('deleted');
+		context.bindNotificationLinks(context,false,id,ideaText);
+	} else {
+		// open edit dialog on double click
+		$('#explanationIdea' + id).dblclick(function(){
+			var $clicked = $(this);
+			var id = $(this).attr('id');
+			id = id.replace('explanationIdea','');
+			var text = '';
+			id = parseInt(id);
+
+			//populate edit form fields
+			var text = context.populateEditForm(context,id,true);
+			
+			// open edit dialog
+			$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', buttons:{
+				"OK": function(){       
+					if($("#editForm").validate().form()){
+						var answer = false;
+						var textChanged = false;
+						
+						if($('#editText').val() != text){ // check if the idea text has changed
+							textChanged = true; // idea text has changed
+							answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+						} else {
+							answer = true;
+						}
+					
+						if(answer) {
+							var source = $('#editSource').val();
+							if(source=='Other'){
+								source = 'Other: ' + $('#editOther').val();
+							}
+							context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
+							$(this).dialog("close");
+							resetForm('editForm');
+						}
+					}
+				}, Cancel: function(){
+					$(this).dialog("close");
+					resetForm('editForm');
+				}
+			} });
+		});
+	}
+	
+	if(changed){
+		context.bindNotificationLinks(context,true,id,ideaText);
 	}
 
 	$('#explanationIdea' + id).click(function(e){
-		if(!$(this).hasClass('deleted')){
-			var id = $(this).attr('id');
-			id = id.replace('explanationIdea','');
-			var color = $(this).css('background-color');
-			if (e.shiftKey) {
-				if($(this).hasClass('selected')){
-					$(this).removeClass('selected');
-					$.each(context.selected,function(index,value){
-						if(value==id){
-							context.selected.splice(index,1);
-						}
-					});
-					if(context.selected.length<1){
-						$('.exIdea').removeClass('selected');
-						$('#colorPicker').fadeOut();
-					} else if (context.selected.length==1){
-						$('.color').removeClass('current');
-					}
-				} else {
-					$('#colorPicker').fadeIn();
-					context.selected.push(id);
-					$(this).addClass('selected');
-					$('.color').removeClass('current');
-					if (context.selected.length==1){
-						$('.color').each(function(){
-							if($(this).css('background-color') == color){
-								$(this).addClass('current');
+		if (!$(this).is(":animated")) {
+			if(!$(this).hasClass('deleted')){
+				var id = $(this).attr('id');
+				id = id.replace('explanationIdea','');
+				var color = $(this).css('background-color');
+				if (e.shiftKey) {
+					if($(this).hasClass('selected')){
+						$(this).removeClass('selected');
+						$.each(context.selected,function(index,value){
+							if(value==id){
+								context.selected.splice(index,1);
 							}
 						});
+						if(context.selected.length<1){
+							$('.exIdea').removeClass('selected');
+							$('#colorPicker').fadeOut();
+						} else if (context.selected.length==1){
+							$('.color').removeClass('current');
+						}
+					} else {
+						$('#colorPicker').fadeIn();
+						context.selected.push(id);
+						$(this).addClass('selected');
+						$('.color').removeClass('current');
+						if (context.selected.length==1){
+							$('.color').each(function(){
+								if($(this).css('background-color') == color){
+									$(this).addClass('current');
+								}
+							});
+						}
 					}
+				} else {
+					context.selected = [id];
+					$('.exIdea').removeClass('selected');
+					$(this).addClass('selected');
+					$('#colorPicker').fadeIn();
+					$('.color').removeClass('current');
+					$('.color').each(function(){
+						if($(this).css('background-color') == color){
+							$(this).addClass('current');
+						}
+					});
 				}
 			} else {
-				context.selected = [id];
+				$('#colorPicker').hide();
 				$('.exIdea').removeClass('selected');
-				$(this).addClass('selected');
-				$('#colorPicker').fadeIn();
-				$('.color').removeClass('current');
-				$('.color').each(function(){
-					if($(this).css('background-color') == color){
-						$(this).addClass('current');
-					}
-				});
+	
+				this.selected = [];
 			}
 		}
 	});
@@ -806,14 +894,14 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		$(this).css('left', left + 'px');
 		var id = $(this).attr('id');
 		id = id.replace('explanationIdea','');
-		context.updateExpIdea(id,null,left,top);
+		context.updateExpIdea(id,left,top);
 	}
 	});
 
 	$('#explanationIdea' + id).click();
 };
 
-ExplanationBuilder.prototype.updateExpIdea = function(id,idea,left,top,color){
+ExplanationBuilder.prototype.updateExpIdea = function(id,left,top,color,lastAcceptedText){
 	this.stateChanged = true;
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
@@ -825,6 +913,11 @@ ExplanationBuilder.prototype.updateExpIdea = function(id,idea,left,top,color){
 			}
 			if(color){
 				this.explanationIdeas[i].color = color;
+			}
+			if(lastAcceptedText){
+				this.explanationIdeas[i].lastAcceptedText = lastAcceptedText;
+				//update the text displayed in the explanation idea
+				$('#explanationIdea' + id).html(lastAcceptedText);
 			}
 			//localStorage.explanationIdeas = JSON.stringify(this.explanationIdeas);
 			break;
@@ -857,6 +950,114 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 	if(context.explanationIdeas.length<1){
 		$('#spacePrompt').show();
 	}
+};
+
+/**
+ * Binds click actions to notification popup links
+ * @param isActive boolean specifying whether idea is in basket or in trash
+ * @param id the id of the current idea
+ */
+ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,id,ideaText) {
+	$('#explanationIdea' + id + ' img').tooltip({
+		relative: true,
+		offset: [8,0]
+	}).dynamic({ bottom: { direction: 'down'} });
+	if(isActive){ // idea is not in trash;
+		// set 'revise' click action
+		$('#explanationIdea' + id + ' a.revise').click(function(e){
+			//populate edit form fields
+			var text = context.populateEditForm(context,id,true);
+
+			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470', buttons:{
+				"OK": function(){
+					if($("#editForm").validate().form()){
+						var answer = false;
+						var textChanged = false;
+						
+						if($('#editText').val() != text){ // check if the idea text has changed
+							textChanged = true; // idea text has changed
+							answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+						} else {
+							answer = true;
+						}
+					
+						if(answer) {
+							var source = $('#editSource').val();
+							if(source=='Other'){
+								source = 'Other: ' + $('#editOther').val();
+							}
+							context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+							$(this).dialog("close");
+							resetForm('editForm');
+							//setLastAcceptedText(id);
+						}
+					}
+				}, Cancel: function(){
+					$(this).dialog("close");
+					resetForm('editForm');
+				}
+			} });
+		});
+		
+		// set 'accept' click action
+		$('#explanationIdea' + id + ' a.accept').click(function(e){
+			setLastAcceptedText(id);
+			removeNotification();
+		});
+	} else { // idea is in trash
+		$('#explanationIdea' + id).addClass('deleted');
+		
+		// set 'restore & revise' click action
+		$('#explanationIdea' + id + ' a.restore').click(function(e){
+			//populate edit form fields
+			context.populateEditForm(context,id,false);
+
+			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470', buttons:{
+				"OK": function(){       
+					var source = $('#editSource').val();
+					if(source=='Other'){
+						source = 'Other: ' + $('#editOther').val();
+					}
+					var color = context.putBack(id); // move idea out of trash (returns assigned color)
+					context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+					setTimeout(function(){
+						$('#idea' + id).css('opacity','.5');
+					},1200);
+					$('#explanationIdea' + id).css('background-color',color);
+					$('#explanationIdea' + id).removeClass('deleted');
+					$('#idea' + id).draggable('disable');
+					resetForm('editForm');
+					//setLastAcceptedText(id);
+					$(this).dialog("close");
+				}, Cancel: function(){
+					$(this).dialog("close");
+					resetForm('editForm');
+				}
+			} });
+		});
+		
+		// set 'remove' click action
+		$('#explanationIdea' + id + ' a.remove').click(function(e){
+			context.removeExpIdea(context,id);
+		});
+	}
+	
+	function removeNotification(){
+		$('#explanationIdea' + id + ' .tooltip').fadeOut('medium',function(){
+			$('#explanationIdea' + id + ' .tooltip').remove();
+		});
+		$('#explanationIdea' + id + ' .notification').fadeOut('medium',function(){
+			$('#explanationIdea' + id + ' .notification').remove();
+		});
+	};
+	
+	function setLastAcceptedText(id){
+		for(var i=0; i<context.explanationIdeas.length; i++){
+			if(context.explanationIdeas[i].id == id){
+				context.explanationIdeas[i].lastAcceptedText = ideaText;
+			}
+		}
+	};
 };
 
 /**
@@ -938,6 +1139,84 @@ ExplanationBuilder.prototype.removeStepUsedIn = function(ideaId, nodeId) {
 			}
 		}
 	}
+};
+
+/**
+ * Take an idea out of the trash
+ * @param index
+ * @param $tr
+ * @returns explanation idea's color
+ */
+ExplanationBuilder.prototype.putBack = function(index) {
+	for(var i=0; i<this.ideaBasket.deleted.length; i++){
+		if(this.ideaBasket.deleted[i].id == index){
+			//this.ideas.push(this.deleted[i]);
+			this.ideaBasket.ideas.splice(0,0,this.ideaBasket.deleted[i]);
+			var idea = this.ideaBasket.deleted[i];
+			
+			//get the current time
+			var newDate = new Date();
+			var time = newDate.getTime();
+			
+			//update the timeLastEdited
+			idea.timeLastEdited = time;
+			var ideaId = idea.id;
+			this.ideaBasket.deleted.splice(i,1);
+			this.addRow(idea,true);
+
+			break;
+		}
+	}
+	for(var i=0; i<this.explanationIdeas.length; i++){
+		//debugger;
+		if(this.explanationIdeas[i].id == index){
+			var color = this.explanationIdeas[i].color;
+			break;
+		}
+	}
+	this.basketChanged = true;
+	this.ideaBasket.updateToolbarCount(true);
+	return color;
+};
+
+/**
+ * Populate edit form fields with current idea info
+ * @param context ExplanationBuilder object
+  * @param id current idea's id
+  * @param active Boolean specifying whether current idea is in basket or has been deleted
+ */
+ExplanationBuilder.prototype.populateEditForm = function(context,id,active) {
+	if(active){
+		var ideas = context.ideaBasket.ideas;
+	} else {
+		var ideas = context.ideaBasket.deleted;
+	}
+	for(var i=0;i<ideas.length;i++){
+		if(ideas[i].id==id){
+			text = ideas[i].text;
+			$('#editText').val(text);
+			if(ideas[i].source.match(/^Other: /)){
+				$('#editSource').val("Other");
+				$('#editOther').val(ideas[i].source.replace(/^Other: /,''));
+				$('#editOtherSource').show();
+				$('#editOther').addClass('required');
+			} else {
+				$('#editSource').val(ideas[i].source);
+				$('#editOtherSource').hide();
+				$('#editOther').removeClass('required');
+			}
+			$('#editTags').val(ideas[i].tags);
+			$("input[name='editFlag']").each(function(){
+				if($(this).attr('value')==ideas[i].flag){
+					$(this).attr('checked', true);
+				} else {
+					$(this).attr('checked', false);
+				}
+			});
+			break;
+		}
+	}
+	return text;
 };
 
 /**

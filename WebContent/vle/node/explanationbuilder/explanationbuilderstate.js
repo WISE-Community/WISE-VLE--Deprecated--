@@ -54,7 +54,7 @@ function ExplanationBuilderState(explanationIdeas, answer, timestamp) {
 	}
 };
 
-function ExplanationIdea(id,xpos,ypos,color){
+function ExplanationIdea(id,xpos,ypos,color,lastAcceptedText){
 	this.id = id;
 	this.xpos = xpos;
 	this.ypos = ypos;
@@ -62,6 +62,9 @@ function ExplanationIdea(id,xpos,ypos,color){
 		this.color = color; 
 	} else {
 		this.color = 'rgb(38, 84, 207)';
+	}
+	if(lastAcceptedText){
+		this.lastAcceptedText = lastAcceptedText;
 	}
 };
 

@@ -82,10 +82,10 @@ function bootstrapListener(type,args,obj){
                 <div id="stepNavButtons1">
                     <ul>
                     	<li>
-                    		<a onclick='eventManager.fire("displayIdeaBasket")' title="Idea Basket"><img src="images/ideaManager/basket.png" alt="Basket" border="0" />&nbsp;Idea Basket</a>
+                    		<a id="ideaBasketLink" onclick='eventManager.fire("displayIdeaBasket")' title="Idea Basket"><img src="images/ideaManager/basket2.png" alt="Basket" border="0" /><span>&nbsp;Idea Basket (0)</span></a>
                     	</li>
                     	<li>
-                    		<a onclick='eventManager.fire("displayAddAnIdeaDialog")' title="Add an Idea"><img src="images/ideaManager/lightBulbPlus.png" alt="Light Bulb" border="0" />&nbsp;Add an Idea</a>
+                    		<a onclick='eventManager.fire("displayAddAnIdeaDialog")' title="Add an Idea"><img src="images/ideaManager/lightBulbPlus.png" alt="Light Bulb" border="0" />Add Idea</a>
                     	</li>
                         <li>
                             <a onclick='eventManager.fire("renderPrevNode")' title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
@@ -106,7 +106,7 @@ function bootstrapListener(type,args,obj){
                             <a class="menuSwitcher" onclick='eventManager.fire("toggleNavigationPanelVisibility")' title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Full Screen On/Off " border="0" />Full Screen</a>
                         </li>
                          <li>
-                            <a id="quitAndLogoutLink" class="tightText" onclick="eventManager.fire('logout')" target="_parent" title="Save & Sign Out"><img src="images/exit.png" alt="Sign Out" border="0" />Sign Out</a> | 
+                            <a id="quitAndLogoutLink" class="tightText" onclick="eventManager.fire('logout')" target="_parent" title="Save & Sign Out" style="margin-right:0;"><img src="images/exit.png" alt="Sign Out" border="0" />Sign Out</a> | 
                             <a id="goHomeLink" class="tightText" href="/webapp/student/index.html" target="_parent" title="Go to home page">Home</a>
                         </li>
                     </ul>
