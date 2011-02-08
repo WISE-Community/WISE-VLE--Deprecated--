@@ -135,7 +135,6 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
 
 		$("#basketIdeas").trigger("applyWidgets");
 	}
-	this.updateToolbarCount();
 };
 
 /**
@@ -207,6 +206,8 @@ IdeaBasket.prototype.addIdeaToBasketArray = function(text,source,tags,flag,nodeI
 
 	//add the idea to the array of ideas
 	this.ideas.push(newIdea);
+	
+	this.updateToolbarCount();
 	
 	return newIdea;
 };

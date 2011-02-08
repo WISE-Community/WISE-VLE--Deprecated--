@@ -668,7 +668,7 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	
 	//create a new IdeaBasket and set it into the view
 	thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
-	thisView.ideaBasket.updateToolbarCount(0);
+	thisView.ideaBasket.updateToolbarCount();
 };
 
 /**
@@ -737,6 +737,7 @@ View.prototype.ideaBasketDivClose = function() {
  * builder step and they close or exit them respectively. 
  */
 View.prototype.ideaBasketChanged = function() {
+	this.ideaBasket.updateToolbarCount();
 	eventManager.fire('ideaBasketChanged');
 };
 
