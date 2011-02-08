@@ -458,14 +458,141 @@ View.prototype.onRenderNodeComplete = function(position){
     	document.getElementById('topStepTitle').innerHTML = currentNode.getTitle();
     }
 
-	/* set hints link in nav bar if hint exists for this step */
-    if(document.getElementById('stepHints') != null) {
+	/* set hints link in nav bar if hint exists for this step
+	 * populate hints panel with current nodes hints
+	 * */
+    //if(document.getElementById('stepHints') != null) {
     	if (currentNode.getHints() != null && currentNode.getHints().length > 0) {
-    		$("#stepHints").css("display","block");
+    		var currentNode = this.getCurrentNode(); //get the node the student is currently on
+    		var numHints = currentNode.getHints().length; //get the number of hints for current node
+    		
+    		function highlight(){
+				$('#hintsLink').animate({
+					backgroundColor: '#FFFF00'
+				}, {
+					duration: 1200,
+					complete: function(){
+						$('#hintsLink').animate({
+							backgroundColor: '#FFFFFF'
+						}, {
+							duration: 1200,
+							complete: function(){
+								highlight();
+							}
+						});
+					}
+				});
+			}
+    		
+    		/*if($('#hintsDiv').size()==0){ // check if hints div exists
+    			// hints div doesn't exists, so create it and add to vle
+    			if (currentNode.getHints().length > 1){
+        			var linkText = 'Hints';
+        		} else {
+        			var linkText = 'Hint';
+        		}
+    			
+    			var $hints = '<div id="hintsLink" style="display:none;" title="View ' + linkText + '"><div id="hintsHeader">' + linkText + '</div></div>';
+    			$('#contentDiv').append($hints);
+    			
+    			$('#hintsLink').click(function(){
+    				$(this).stop();
+    				$(this).css('background-color','#FFFA7F');
+    				eventManager.fire("showStepHints");
+    			}).fadeIn('slow', function() {
+    				highlight();
+    			});
+    		}*/
+    		
+    		//if (currentNode.getHints() != null && numHints > 0) {
+    			//check if the hintsDiv div exists
+    		    if($('#hintsPanel').size()==0){
+    		    	//the show hintsDiv does not exist so we will create it
+    		    	$('<div id="hintsPanel"></div>').dialog(
+    				{	autoOpen:false,
+    					closeText:'Close',
+    					width:400,
+    					//height:300,
+    					modal:false,
+    					title:'Step Hints',
+    					zindex:9999, 
+    					position:[220,40],
+    					//position:["center","top"]
+    					resizable:false
+    					//buttons:{
+    				    	//'Close': function(){$(this).dialog("close");
+    				    //} }
+    				}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+    				    // before the dialog closes, save hintstate
+    			    	if ($(this).data("dialog").isOpen()) {	    		    		
+    			    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
+    			    		event.data.view.pushHintState(hintState);
+    			    		//$('#hintsHeader').html('&nbsp').addClass('visited');
+    			    		console.log('close hint');
+    			    	};
+    			    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+    		    		var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
+    		    		event.data.view.pushHintState(hintState);
+    			    	console.log('tab selected'+ui.index);
+    			    });
+    		    };
+    			
+    		    // append hints into one html string
+    		    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
+    		    var hintsStringPart2 = "";   // second part will be the content within each tab
+    		    var hintsArr = currentNode.getHints();
+    		    for (var i=0; i< hintsArr.length; i++) {
+    		    	var currentHint = hintsArr[i];
+    		    	var nextLink = '<span class="tabNext">Next</span>';
+    		    	var prevLink = '<span class="tabPrev">Previous</span>';
+    		    	if(i==0){
+    		    		var prevLink = '';
+    		    		if(numHints<2){
+    		    			nextLink = '';
+    		    		}
+    		    	} else if (i==numHints-1){
+    		    		var nextLink = '';
+    		    	}
+    		    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
+    		    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
+    			    	"<div class='hintHeader'>Hint "+ (i+1) +" of " + numHints + "</div>"+
+    			    	"<div class='hintText'>"+currentHint+"</div>"+
+    			    	"<div class='hintControls'>" + prevLink + nextLink + "</div>"+
+    		    		"</div>";
+    		    }
+    		    hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
+
+    		    hintsString = "<div id='hintsTabs'>" + hintsStringPart1 + hintsStringPart2 + "</div>";
+    		    //set the html into the div
+    		    $('#hintsPanel').html(hintsString);
+
+    		    // instantiate tabs 
+    			var $tabs = $("#hintsTabs").tabs();
+    			
+    			// bind tab navigation link clicks
+    			$('.tabPrev').click(function(){
+    				var selected = $tabs.tabs('option', 'selected');
+    				if(selected != 0){
+    					$tabs.tabs('select', selected-1);
+    				}
+    			});
+    			
+    			// bind tab navigation links
+    			$('.tabNext').click(function(){
+    				var selected = $tabs.tabs('option', 'selected');
+    				if(selected < numHints-1){
+    					$tabs.tabs('select', selected+1);
+    				}
+    			});
+    		//};
+			
+			$("#hintsLink").show();
+			highlight();
     	} else {
-    		$("#stepHints").css("display","none");
+    		$("#hintsLink").hide();
+    		//$('#hintsDiv').remove();
     	}
-    }
+    //}
 
 	/* adjust height of iframe. If nav bar is visible, set iframe height=navbarheight. else, leave it untouched */
 	//if (parseInt($('#projectLeftBox').attr('offsetHeight')) > 0) {

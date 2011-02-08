@@ -72,7 +72,7 @@ function bootstrapListener(type,args,obj){
            
             <div id="loading">
                 <div class='hd'></div>
-                <div class='bd'></div>
+                <div class='bd' style='margin-top:.5em;'></div>
             </div>
             
             <div id="loginPanel">
@@ -82,28 +82,31 @@ function bootstrapListener(type,args,obj){
                 <div id="stepNavButtons1">
                     <ul>
                     	<li>
-                    		<a id="ideaBasketLink" onclick='eventManager.fire("displayIdeaBasket")' title="Idea Basket"><img src="images/ideaManager/basket2.png" alt="Basket" border="0" /><span>&nbsp;Idea Basket (0)</span></a>
+                    		<a id="hintsLink" onclick='eventManager.fire("showStepHints")' title="View Hints"><img src="images/hint/star.png" alt="Hints" border="0" /><span>&nbsp;Hints&nbsp;</span></a>
+                    	</li>
+                    	<li>
+                    		<a id="ideaBasketLink" onclick='eventManager.fire("displayIdeaBasket")' title="Idea Basket"><img src="images/ideaManager/basket2.png" alt="Basket" border="0" /><span>&nbsp;Ideas (0)</span></a>
                     	</li>
                     	<li>
                     		<a onclick='eventManager.fire("displayAddAnIdeaDialog")' title="Add an Idea"><img src="images/ideaManager/lightBulbPlus.png" alt="Light Bulb" border="0" />Add Idea</a>
                     	</li>
-                        <li>
-                            <a onclick='eventManager.fire("renderPrevNode")' title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" />Prev</a>
-                        </li>
-                        <li>
-                            <a onclick='eventManager.fire("renderNextNode")' title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" />Next</a>
-                        </li>
                         <li id='myWorkTD'>
                             <a class="" onclick='eventManager.fire("showAllWork")' title="Review My Work"><img src="images/reviewAllWork.png" alt="Review My Work" border="0" />My Work</a>
                         </li>
                         <li id='flaggedWorkTD'>
-                            <a class="" onclick='eventManager.fire("showFlaggedWork")' title="Show Flagged Work"><img src="images/reviewAllWork.png" alt="Show Flagged Work" border="0" />Flagged Work</a>
+                            <a class="" onclick='eventManager.fire("showFlaggedWork")' title="Show Flagged Work"><img src="images/reviewAllWork.png" alt="Show Flagged Work" border="0" />Flagged</a>
                         </li>
                         <li id='journalTD' style="display:none">
                             <a class="" onclick='eventManager.fire("showJournal")' title="Show Student Journal"><img src="images/Journal28x28.png" alt="Show My Journal" border="0" />&nbsp;Journal</a>
                         </li>
                         <li id='menuTD'>
                             <a class="menuSwitcher" onclick='eventManager.fire("toggleNavigationPanelVisibility")' title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Full Screen On/Off " border="0" />Full Screen</a>
+                        </li>
+                        <li>
+                            <a onclick='eventManager.fire("renderPrevNode")' title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" /></a>
+                        </li>
+                        <li>
+                            <a onclick='eventManager.fire("renderNextNode")' title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" /></a>
                         </li>
                          <li>
                             <a id="quitAndLogoutLink" class="tightText" onclick="eventManager.fire('logout')" target="_parent" title="Save & Sign Out" style="margin-right:0;"><img src="images/exit.png" alt="Sign Out" border="0" />Sign Out</a> | 
@@ -155,7 +158,7 @@ function bootstrapListener(type,args,obj){
                 <div id="stepInfoBar">
                     <span id='stepIcon'></span>
                     <span id="topStepTitle"></span>
-                    <span id="stepHints"><a class="" onclick='eventManager.fire("showStepHints")' title="Show Hints"><img src="images/Journal28x28.png" alt="Show Hints" border="0" />Hints</a></span>
+                    <!-- <span id="stepHints"><a class="" onclick='eventManager.fire("showStepHints")' title="Show Hints"><img src="images/Journal28x28.png" alt="Show Hints" border="0" />Hints</a></span> -->
                     <span class="gradeTypeLabel"><a href="" onclick="popUp(this.href,'console',440,720);return false;" target="_blank"></a></span>
                     <span id="flagDiv"></span>
                 </div>

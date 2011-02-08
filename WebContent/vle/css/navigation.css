@@ -147,6 +147,113 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	border-radius:4px;
 }
 
+#hintsDiv {
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	box-shadow:0 0 4px;
+    -moz-box-shadow:0 0 4px;
+    -webkit-box-shadow:0 0 4px;
+    background-color: #FFFA7F;
+    border: 1px solid #444444;
+    font: 0.9em sans-serif;
+    padding:.5em;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    cursor:pointer;
+}
+
+#hintsHeader {
+	background-image: url("/vlewrapper/vle/images/hint/star.png");
+    background-position: -2px 50%;
+    background-repeat: no-repeat;
+    padding: 2px 0 0 24px;
+}
+
+#hintsHeader.visited {
+	padding-left:16px;
+}
+
+a#hintsLink {
+    background-color: #FFFA7F;
+    border: 1px solid #999999;
+    margin-right: 8px !important;
+    padding: 6px 3px !important;
+}
+
+a#hintsLink:hover {
+	color:#333333 !important;
+	box-shadow:0 0 4px #FFFF00;
+    -moz-box-shadow:0 0 4px #FFFF00;
+    -webkit-box-shadow:0 0 4px #FFFF00;
+}
+
+#hintsTabs {
+	border: 0;
+	text-align:left;
+}
+
+#hintsTabs div.ui-tabs-panel {
+	padding:0;
+	font:1em sans-serif;
+}
+
+#hintsTabs .hintHeader {
+	background-image: url("/vlewrapper/vle/images/panda.png");
+	background-position: left 50%;
+    background-repeat: no-repeat;
+    color: #FF9D1E;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 8px 4px 4px 34px;
+}
+
+#hintsPanel {
+	margin-bottom:.35em;
+}
+
+#hintsTabs .hintText {
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+    background-color: #FFD9AC;
+    margin: 0.5em 0;
+    min-height: 70px;
+    padding: 0.5em;
+}
+
+#hintsTabs .hintControls {
+	color:#444444;
+	font-weight: bold;
+}
+
+#hintsTabs .hintControls span {
+	cursor: pointer;
+    margin: 0.5em;
+    padding-top: 2px;
+}
+
+#hintsTabs .hintControls span:hover {
+	text-decoration:underline;
+}
+
+#hintsTabs .hintControls span.ui-state-disabled {
+	text-decoration:none !important;
+}
+
+.tabPrev {
+	float:left;
+	background: url("/vlewrapper/vle/images/hint/previous.png") no-repeat scroll left 50% transparent;
+	padding-left:15px;
+}
+
+.tabNext {
+	float:right;
+	background: url("/vlewrapper/vle/images/hint/next.png") no-repeat scroll right 50% transparent;
+	padding-right:15px;
+}
+
 #ifrm {
 	padding:0;	
 	margin:0;
@@ -319,7 +426,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 #stepInfoBar {
 	position:absolute;
 	left:5px;
-	width:340px;
+	width:220px;
 	}
 	
 #stepIcon {
@@ -379,21 +486,18 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	font-weight:bold;
 }
 
-#stepHints {
-	/* make me pretty! */
+/*#stepHints {
 	position:absolute;
 	left:150px;
-}
+}*/
 
 hr.stepHints {
-	/* make me pretty! */
 	border:thin solid;
 	margin:30px 0 10px 0;
 }
 
-#hintsTabs {
-	/* make me pretty! */
-	height:350px;
+#hintsTabs ul.ui-tabs-nav {
+	display:none;
 }
 
 #stepNavButtons1 {
