@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,6 @@ import vle.domain.node.Node;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 import vle.domain.work.StepWorkCache;
-import vle.domain.work.StepWorkSVGDraw;
 
 /**
  * Servlet for handling GETting of vle data
@@ -73,9 +73,13 @@ public class VLEGetData extends VLEServlet {
 			String nodeTypes = request.getParameter("nodeTypes");
 			String nodeIds = request.getParameter("nodeIds");
 			String getAllWorkStr = request.getParameter("getAllWork");
+			String getRevisionsStr = request.getParameter("getRevisions");
 	
 			//whether to get the work that has empty states
 			boolean getAllWork = false;
+			
+			//whether to get the latest revision or all revisions with nodestates
+			boolean getRevisions = true;
 			
 			if(DEBUG) {
 				System.out.println("userIdStr: " + userIdStr);
@@ -88,6 +92,10 @@ public class VLEGetData extends VLEServlet {
 			
 			if(getAllWorkStr != null) {
 				getAllWork = Boolean.parseBoolean(getAllWorkStr);
+			}
+			
+			if(getRevisionsStr != null) {
+				getRevisions = Boolean.parseBoolean(getRevisionsStr);
 			}
 			
 			if (userIdStr == null) {
@@ -199,7 +207,7 @@ public class VLEGetData extends VLEServlet {
 							StepWork latestWork = StepWork.getLatestByUserInfo(userInfo);
 							if (latestWork != null && latestWork.getPostTime() != null) {
 								// Get student's cachedWork, if exists.
-								StepWorkCache cachedWork = StepWorkCache.getByUserInfo(userInfo);
+								StepWorkCache cachedWork = StepWorkCache.getByUserInfoGetRevisions(userInfo, getRevisions);
 								
 								if (cachedWork != null 
 										&& cachedWork.getCacheTime() != null
@@ -211,7 +219,7 @@ public class VLEGetData extends VLEServlet {
 										if (nodeList.size() == 0) {
 											nodeList = Node.getByRunId(runId);
 										}
-										nodeVisitsJSON = getNodeVisitsForStudent(nodeList,nodeTypesList,userInfo, getAllWork);
+										nodeVisitsJSON = getNodeVisitsForStudent(nodeList,nodeTypesList,userInfo, getAllWork, getRevisions);
 										
 										//save this data to cache for quicker access next time
 										if (cachedWork == null) {
@@ -222,6 +230,7 @@ public class VLEGetData extends VLEServlet {
 										Timestamp cacheTime = new Timestamp(now.getTimeInMillis());
 										cachedWork.setCacheTime(cacheTime);
 										cachedWork.setData(nodeVisitsJSON.toString());
+										cachedWork.setGetRevisions(getRevisions);
 										cachedWork.saveOrUpdate();
 									}
 							} else {
@@ -267,7 +276,7 @@ public class VLEGetData extends VLEServlet {
 	 * @throws JSONException
 	 */
 	private JSONObject getNodeVisitsForStudent(List<Node> nodeList,
-			List<String> nodeTypesList, UserInfo userInfo, boolean getAllWork) throws JSONException {
+			List<String> nodeTypesList, UserInfo userInfo, boolean getAllWork, boolean getRevisions) throws JSONException {
 		JSONObject nodeVisitsJSON = new JSONObject();
 		nodeVisitsJSON.put("userName", userInfo.getWorkgroupId());
 		nodeVisitsJSON.put("userId", userInfo.getWorkgroupId());
@@ -283,88 +292,106 @@ public class VLEGetData extends VLEServlet {
 			//get all the work for the user
 			stepWorkList = StepWork.getByUserInfo(userInfo);	
 		}
-
-		// find student's last work for each draw node in the project
-		List<StepWorkSVGDraw> drawStepWorks = new ArrayList<StepWorkSVGDraw>();
-		for (int i=0; i<nodeList.size(); i++) {
-			Node node = (Node) nodeList.get(i);
+		
+		if(getRevisions) {
+			//get all revisions
 			
-			if(node.getNodeType() != null) {
-				if (((Node) nodeList.get(i)).getNodeType().equals("SVGDrawNode")) {
-					Node drawNode = nodeList.get(i);
+			//loop through all the rows that were returned, each row is a node_visit
+			for(int x=0; x<stepWorkList.size(); x++) {
+				StepWork stepWork = stepWorkList.get(x);
+				
+				String data = stepWork.getData();
+				String stepWorkId = stepWork.getId().toString();
+				
+				//obtain the node type for the step work
+				String nodeType = stepWork.getNode().getNodeType();
+
+				/*
+				 * check that the node type is one that we want if a list of
+				 * desired node types was provided. if there is no list of
+				 * node types, we will accept all node types
+				 */
+				if(nodeTypesList == null || (nodeTypesList != null && nodeTypesList.contains(nodeType))) {
+					//the node type is accepted
 					try {
-						StepWorkSVGDraw drawNodeStepWork = (StepWorkSVGDraw) StepWorkSVGDraw.getLatestStepWorkSVGDrawByUserInfoAndNodeWithState(userInfo,drawNode);
-						if (drawNodeStepWork != null) {
-							drawStepWorks.add(drawNodeStepWork);
+						JSONObject nodeVisitJSON = new JSONObject(data);
+						JSONArray nodeStates = (JSONArray) nodeVisitJSON.get("nodeStates");
+						
+						/*
+						 * if there are no states for the visit, we will ignore it or if it
+						 * is the last/latest visit we will add it so that the vle can
+						 * load the last step the student was on.
+						 */
+						if (getAllWork || (nodeStates != null && nodeStates.length() > 0 || x == (stepWorkList.size() - 1))) {
+							/* add the duplicateId if one is found for this stepWork */
+							if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
+								nodeVisitJSON.put("duplicateId", stepWork.getDuplicateId());
+							}
+
+							//add stepWorkId and visitPostTime attributes to the json obj
+							nodeVisitJSON.put("stepWorkId", stepWorkId);
+							nodeVisitJSON.put("visitPostTime", stepWork.getPostTime().getTime());
+							nodeVisitsJSON.append("visitedNodes", nodeVisitJSON);
 						}
-					} catch (Exception e) {
+					} catch (JSONException e) {
 						e.printStackTrace();
-					}
+					}								
+				}
+			}
+		} else {
+			//only get the latest revision
+			
+			Vector<String> stepsRetrieved = new Vector<String>(); 
+			
+			/*
+			 * loop through the step work objects from latest to earliest
+			 * because we are only looking for the latest revision for each
+			 * step
+			 */
+			for(int x=stepWorkList.size() - 1; x>=0; x--) {
+				StepWork stepWork = stepWorkList.get(x);
+				
+				String data = stepWork.getData();
+				String stepWorkId = stepWork.getId().toString();
+				
+				//obtain the node type for the step work
+				String nodeType = stepWork.getNode().getNodeType();
+				
+				//the id of the node
+				String nodeId = stepWork.getNode().getNodeId();
+				
+				//check if we have retrieved work for this step already
+				if(!stepsRetrieved.contains(nodeId)) {
+					//we have not retrieved work for this step yet
+					
+					/*
+					 * check that the node type is one that we want if a list of
+					 * desired node types was provided. if there is no list of
+					 * node types, we will accept all node types
+					 */
+					if(nodeTypesList == null || (nodeTypesList != null && nodeTypesList.contains(nodeType))) {
+						//the node type is accepted
+						
+						JSONObject nodeVisitJSON = new JSONObject(data);
+						JSONArray nodeStates = (JSONArray) nodeVisitJSON.get("nodeStates");
+						
+						if(nodeStates != null && nodeStates.length() > 0) {
+							/* add the duplicateId if one is found for this stepWork */
+							if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
+								nodeVisitJSON.put("duplicateId", stepWork.getDuplicateId());
+							}
+							
+							//add stepWorkId and visitPostTime attributes to the json obj
+							nodeVisitJSON.put("stepWorkId", stepWorkId);
+							nodeVisitJSON.put("visitPostTime", stepWork.getPostTime().getTime());
+							nodeVisitsJSON.append("visitedNodes", nodeVisitJSON);
+							stepsRetrieved.add(nodeId);
+						}
+					}					
 				}
 			}
 		}
 		
-		//loop through all the rows that were returned, each row is a node_visit
-		for(int x=0; x<stepWorkList.size(); x++) {
-			StepWork stepWork = stepWorkList.get(x);
-			
-			String data = stepWork.getData();
-			String stepWorkId = stepWork.getId().toString();
-			
-			//obtain the node type for the step work
-			String nodeType = stepWork.getNode().getNodeType();
-			/*
-			boolean keepGoing = true;
-
-			// if stepwork is a draw stepwork, we only want the latest (otherwise the response would be too large).
-			// so check to see if this stepWork is the last work for this drawnode. If not, ignore.
-			if (nodeType != null && nodeType.equals("SVGDrawNode")) {
-				for (int k=0;k<drawStepWorks.size();k++) {
-					if (drawStepWorks.get(k).getId().equals(stepWork.getId())) {
-						break;
-					}
-					if (k == drawStepWorks.size()-1) {
-						keepGoing = false;
-					}
-				}
-			}
-			
-			if (!keepGoing){
-				continue;
-			}
-			*/
-			/*
-			 * check that the node type is one that we want if a list of
-			 * desired node types was provided. if there is no list of
-			 * node types, we will accept all node types
-			 */
-			if(nodeTypesList == null || (nodeTypesList != null && nodeTypesList.contains(nodeType))) {
-				//the node type is accepted
-				try {
-					JSONObject nodeVisitJSON = new JSONObject(data);
-					JSONArray nodeStates = (JSONArray) nodeVisitJSON.get("nodeStates");
-					
-					/*
-					 * if there are no states for the visit, we will ignore it or if it
-					 * is the last/latest visit we will add it so that the vle can
-					 * load the last step the student was on.
-					 */
-					if (getAllWork || (nodeStates != null && nodeStates.length() > 0 || x == (stepWorkList.size() - 1))) {
-						/* add the duplicateId if one is found for this stepWork */
-						if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
-							nodeVisitJSON.put("duplicateId", stepWork.getDuplicateId());
-						}
-
-						//add stepWorkId and visitPostTime attributes to the json obj
-						nodeVisitJSON.put("stepWorkId", stepWorkId);
-						nodeVisitJSON.put("visitPostTime", stepWork.getPostTime().getTime());
-						nodeVisitsJSON.append("visitedNodes", nodeVisitJSON);
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}								
-			}
-		}
 		return nodeVisitsJSON;
 	}
 }

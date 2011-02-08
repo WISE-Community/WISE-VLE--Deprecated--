@@ -45,6 +45,9 @@ public class StepWorkCache extends PersistableDomain {
 	@Column(name="data", length=16777215)  // this makes the db mediumtext
 	private String data;
 	
+	@Column(name="getRevisions")
+	private boolean getRevisions;
+
 	/**
 	 * Returns the specified userInfo's StepWorkCache. If no cache is found,
 	 * returns null
@@ -53,6 +56,21 @@ public class StepWorkCache extends PersistableDomain {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         StepWorkCache result =  (StepWorkCache) session.createCriteria(StepWorkCache.class).add(Restrictions.eq("userInfo", userInfo)).uniqueResult();
+        session.getTransaction().commit();
+        return result;
+	}
+	
+	/**
+	 * Returns the specified userInfo's StepWorkCache with revisions or not. If no cache is found,
+	 * returns null.
+	 * @param userInfo
+	 * @param getRevisions a boolean value whether to get the cache that contains all the revisions (true)
+	 * or only the latest revision (false)
+	 */
+	public static StepWorkCache getByUserInfoGetRevisions(UserInfo userInfo, boolean getRevisions) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        StepWorkCache result =  (StepWorkCache) session.createCriteria(StepWorkCache.class).add(Restrictions.eq("userInfo", userInfo)).add(Restrictions.eq("getRevisions", getRevisions)).uniqueResult();
         session.getTransaction().commit();
         return result;
 	}
@@ -92,7 +110,14 @@ public class StepWorkCache extends PersistableDomain {
 	public void setData(String data) {
 		this.data = data;
 	}
+	
+	public boolean isGetRevisions() {
+		return getRevisions;
+	}
 
+	public void setGetRevisions(boolean getRevisions) {
+		this.getRevisions = getRevisions;
+	}
 
 	/**
 	 * @see vle.domain.PersistableDomain#getObjectClass()

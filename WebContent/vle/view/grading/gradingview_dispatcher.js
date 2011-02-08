@@ -1,6 +1,6 @@
 View.prototype.gradingDispatcher = function(type, args, obj) {
 	if(type=='displayGradeByStepGradingPage') {
-		obj.displayGradeByStepGradingPage(args[0], args[1], args[2]);
+		obj.displayGradeByStepGradingPage(args[0], args[1]);
 	} else if(type=='displayGradeByTeamGradingPage') {
 		obj.displayGradeByTeamGradingPage(args[0]);
 	} else if(type=='saveScore') {

@@ -197,6 +197,12 @@ View.prototype.getStudentWork = function() {
 	};
 
 	var getStudentDataUrl = null;
+
+	var getRevisions = false;
+	
+	if(this.getRevisions) {
+		getRevisions = this.getRevisions;
+	}
 	
 	//an array to store all the getStudentDataUrls
 	this.getStudentDataUrlArray = [];
@@ -210,7 +216,7 @@ View.prototype.getStudentWork = function() {
 		var workgroupSet = workgroupsArray[x];
 
 		//create the url to get the student data for this set of workgroups
-		getStudentDataUrl = this.getConfig().getConfigParam('getStudentDataUrl') + "?userId=" + workgroupSet + "&grading=true" + "&runId=" + this.getConfig().getConfigParam('runId') + "&nodeIds=" + nodeIdsString;
+		getStudentDataUrl = this.getConfig().getConfigParam('getStudentDataUrl') + "?userId=" + workgroupSet + "&grading=true" + "&runId=" + this.getConfig().getConfigParam('runId') + "&nodeIds=" + nodeIdsString + "&getRevisions=" + getRevisions;
 
 		//add the url to our array
 		this.getStudentDataUrlArray.push(getStudentDataUrl);

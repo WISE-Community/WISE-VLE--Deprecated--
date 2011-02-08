@@ -84,12 +84,18 @@ View.prototype.initiateGradingDisplay = function() {
 		this.gradingPermission = "read";
 	}
 	
-	var gradingType = this.getConfig().getConfigParam('gradingType');
+	this.gradingType = this.getConfig().getConfigParam('gradingType');
 	
-	if(gradingType == "step") {
+	if(this.gradingType == "step") {
 		this.displayGradeByStepSelectPage();	
-	} else if(gradingType == "team") {
+	} else if(this.gradingType == "team") {
 		this.displayGradeByTeamSelectPage();
+	}
+	
+	this.getRevisions = false;
+	
+	if(this.getConfig().getConfigParam('getRevisions') == "true") {
+		this.getRevisions = true;
 	}
 	
 	this.getPeerReviewWork();
@@ -354,20 +360,8 @@ View.prototype.getGradeByStepSelectPageLinkedHtmlForNode = function(node, positi
 	//get the grading permission
 	var maxScorePermission = this.isWriteAllowed();
 	
-	var showRevisionsLink = "";
-	
-	if(node.type == 'MySystemNode' || node.type == 'SVGDrawNode') {
-		//we are on a SVGDrawNode step so we will create a link that will show revisions
-		showRevisionsLink = "<a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\", true])'>(Show Revisions)</a>";
-	}
-	
 	//the regular link to grade by step, this will show revisions for all steps except MySystemNode and SVGDrawNode
 	var nodeLink = "<a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\"])'>" + position + "&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span id='nodeTypeClass'>(" + type + ")</span></a>";
-	
-	if(showRevisionsLink != "") {
-		//create a table to contain the regular link and the 'Show Revisions' link
-		nodeLink = "<table><tr><td>" + nodeLink + "</td><td>" + showRevisionsLink + "</td></tr></table>";
-	}
 	
 	//this is a node that students perform work for so we will display a link
 	return "<tr><td class='chooseStepToGradeStepTd'>" + nodeLink + "</td><td class='chooseStepToGradeMaxScoreTd statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"saveMaxScore\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
@@ -573,7 +567,7 @@ View.prototype.resizeTextArea = function(textArea) {
  * @param nodeId the step to display the grading view for
  * @param showRevisions boolean whether to show revisions or not
  */
-View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId, showRevisions) {
+View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	if(nodeId == null || nodeId == 'undefined') {
 		return;
 	}
@@ -691,12 +685,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId, show
 	
 	var nodeId = node.id;
 
-	/*
-	 * do not show revisions if the node type is MySystemNode or SVGDrawNode unless
-	 * showRevisions is true
-	 */
-	var showRevisions = ((node.type != "MySystemNode" && node.type != "SVGDrawNode") || showRevisions);
-
 	//loop through all the vleStates, each vleState is for a workgroup
 	for(var x=0; x<vleStates.length; x++) {
 		//get a vleState
@@ -772,11 +760,19 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId, show
 		gradeByStepGradingPageHtml += "<tr class='" + studentTRClass + "' id='studentWorkRow_"+workgroupId+"_"+nodeId+"_" + stepWorkId + "' isFlagged='" + isFlagged + "'>";
 		
 		var toggleRevisionsLink = "";
-		if(showRevisions && nodeVisitRevisions.length > 1) {
+		if(nodeVisitRevisions.length > 1) {
 			//there is more than one revision so we will display a link that will display the other revisions
 			toggleRevisionsLink = "<br><br><a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">Hide/Show Revisions</a>";
-		} else {
-			//there is only one revision that we already show so we do not need to display a link
+		} else if(nodeVisitRevisions.length == 1) {
+			if(this.getRevisions) {
+				//we retrieved all revisions so that means there are no other revisions
+				toggleRevisionsLink = "<br><br>No Revisions";
+			} else {
+				//we only retrieved the latest revision so there may be other revisions
+				toggleRevisionsLink = "<br><br>Only Latest Revision Displayed";
+			}
+		} else if(nodeVisitRevisions.length == 0) {
+			//there are no revisions
 			toggleRevisionsLink = "<br><br>No Revisions";
 		}
 		
@@ -815,7 +811,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId, show
 		gradeByStepGradingPageHtml += "</tr>";
 		
 		//check if there was more than one revision		
-		if(showRevisions && (nodeVisitRevisions.length > 1)) {
+		if(nodeVisitRevisions.length > 1) {
 			//loop through the revisions from most recent to oldest
 			for(var revisionCount=nodeVisitRevisions.length - 2; revisionCount>=0; revisionCount--) {
 				//get a node visit
@@ -1922,7 +1918,6 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
  */
 View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 	var nodeId = node.id;
-	var showRevisions = (node.type != "MySystemNode");
 
 	var displayGradeByTeamGradingPageHtml = "";
 	
@@ -2016,11 +2011,21 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 			var toggleRevisionsLink = "";
 
-			if(showRevisions && nodeVisitRevisions.length > 1) {
+			if(nodeVisitRevisions.length > 1) {
 				//there is more than one revision so we will display a link that will display the other revisions
 				toggleRevisionsLink = "  <a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">Hide/Show Revisions</a>";
-			} else {
-				//there is only one revision that we already show so we do not need to display a link
+			} else if(nodeVisitRevisions.length == 1) {
+				//there is only one revisions
+				
+				if(this.getRevisions) {
+					//we retrieved all revisions so that means there are no other revisions
+					toggleRevisionsLink = "No Revisions";
+				} else {
+					//we only retrieved the latest revision so there may be other revisions
+					toggleRevisionsLink = "Only Latest Revision Displayed";
+				}
+			} else if(nodeVisitRevisions.length == 0) {
+				//there are no revisions
 				toggleRevisionsLink = "No Revisions";
 			}
 			
@@ -2074,7 +2079,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			displayGradeByTeamGradingPageHtml += "</tr>";
 			
 			//check if there was more than one revision
-			if(showRevisions && nodeVisitRevisions.length > 1) {
+			if(nodeVisitRevisions.length > 1) {
 				//loop through the revisions from most recent to oldest
 				for(var revisionCount=nodeVisitRevisions.length - 2; revisionCount>=0; revisionCount--) {
 					//get a node visit
