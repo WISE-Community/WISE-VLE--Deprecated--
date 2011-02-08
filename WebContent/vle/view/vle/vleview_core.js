@@ -516,7 +516,7 @@ View.prototype.onRenderNodeComplete = function(position){
     					modal:false,
     					title:'Step Hints',
     					zindex:9999, 
-    					position:[220,40],
+    					position:["center",40],
     					//position:["center","top"]
     					resizable:false
     					//buttons:{
