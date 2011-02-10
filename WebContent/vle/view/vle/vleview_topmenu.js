@@ -634,6 +634,7 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
  * @param args
  */
 View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
+
 	//check if the ideaBasketDiv exists
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it
@@ -642,34 +643,40 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',close:this.ideaBasketDivClose});
     }
 	
-	//open the dialog
-	$('#ideaBasketDiv').dialog('open');
-	
-	if(window.frames['ideaBasketIfrm'].thisView == null) {
-		//set thisView so it is accessible within the iframe
-		window.frames['ideaBasketIfrm'].thisView = this;
-	}
-	
-	if(window.frames['ideaBasketIfrm'].eventManager == null) {
-		//set eventManager so it is accessible within the iframe
-		window.frames['ideaBasketIfrm'].eventManager = eventManager;
-	}
-	
-	if($('#ideaBasketIfrm').attr('src') == null) {
-		//set the src so it will load the ideaManager.html page
-		$('#ideaBasketIfrm').attr('src', "ideaManager.html");
-	} else {
-		//generate the JSON string for the idea basket
-		var ideaBasketJSON = $.stringify(this.ideaBasket);
+	/*
+	 * check if the idea basket div is hidden before trying to open it.
+	 * if it's already open, we don't have to do anything
+	 */
+	if($('#ideaBasketDiv').is(':hidden')) {
+		//open the dialog
+		$('#ideaBasketDiv').dialog('open');
 		
-		//generate the JSON object for the idea basket
-		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+		if(window.frames['ideaBasketIfrm'].thisView == null) {
+			//set thisView so it is accessible within the iframe
+			window.frames['ideaBasketIfrm'].thisView = this;
+		}
 		
-		/*
-		 * the ideaManager.html has already previously been loaded
-		 * so we just need to reload the idea basket contents
-		 */
-		window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true);
+		if(window.frames['ideaBasketIfrm'].eventManager == null) {
+			//set eventManager so it is accessible within the iframe
+			window.frames['ideaBasketIfrm'].eventManager = eventManager;
+		}
+		
+		if($('#ideaBasketIfrm').attr('src') == null) {
+			//set the src so it will load the ideaManager.html page
+			$('#ideaBasketIfrm').attr('src', "ideaManager.html");
+		} else {
+			//generate the JSON string for the idea basket
+			var ideaBasketJSON = $.stringify(this.ideaBasket);
+			
+			//generate the JSON object for the idea basket
+			var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+			
+			/*
+			 * the ideaManager.html has already previously been loaded
+			 * so we just need to reload the idea basket contents
+			 */
+			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true);
+		}		
 	}
 };
 

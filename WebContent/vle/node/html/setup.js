@@ -20,7 +20,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'intro', nodeClassText:'Open Response'},
+	{nodeClass:'intro', nodeClassText:'Introductory Page'},
 	{nodeClass:'curriculum', nodeClassText:'Curriculum Page'},
 	{nodeClass:'display', nodeClassText:'Display Page'},
 	{nodeClass:'cartoon', nodeClassText:'Cartoon Page'},
