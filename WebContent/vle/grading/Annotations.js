@@ -501,7 +501,9 @@ Annotations.prototype.getAnnotationByStepWorkIdType = function(stepWorkId, type)
 };
 
 /**
- * Determine if there are any annotations after the given date
+ * Determine if there are any annotations after the given date.
+ * This does not include flag annotations. All other types
+ * of annotations are checked.
  * @param date the date in milliseconds
  * @return true if there are annotations after the date
  * false if there are no annotations after the date
@@ -517,12 +519,15 @@ Annotations.prototype.annotationsAfterDate = function(date) {
 		//get an annotation
 		var annotation = this.annotationsArray[x];
 		
-		if(annotation.postTime > date) {
-			/*
-			 * the annotation post time is after the date so we
-			 * have found an annotation and will return true
-			 */
-			return true;
+		//make sure the annotation is not a flag annotation
+		if(annotation != null && annotation.type != 'flag') {
+			if(annotation.postTime > date) {
+				/*
+				 * the annotation post time is after the date so we
+				 * have found an annotation and will return true
+				 */
+				return true;
+			}			
 		}
 	}
 	
