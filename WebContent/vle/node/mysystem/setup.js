@@ -49,8 +49,15 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('mysystem', css);
 
 componentloader.addNodeClasses('MySystemNode', nodeClasses);
-componentloader.addNodeTemplate('MySystemNode', 'node/mysystem/mySystemTemplate.my');
-componentloader.addNodeExtension('MySystemNode', 'my');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/mysystem/mySystemTemplate.my',
+		nodeExtension:'my'
+	}
+];
+
+componentloader.addNodeTemplateParams('MySystemNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

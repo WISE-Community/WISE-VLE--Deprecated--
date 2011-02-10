@@ -105,8 +105,15 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('explanationbuilder', css);
 
 componentloader.addNodeClasses('ExplanationBuilderNode', nodeClasses);
-componentloader.addNodeTemplate('ExplanationBuilderNode', 'node/explanationbuilder/explanationBuilderTemplate.eb');
-componentloader.addNodeExtension('ExplanationBuilderNode', 'eb');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/explanationbuilder/explanationBuilderTemplate.eb',
+		nodeExtension:'eb'
+	}
+];
+
+componentloader.addNodeTemplateParams('ExplanationBuilderNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

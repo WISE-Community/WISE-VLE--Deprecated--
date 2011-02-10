@@ -101,33 +101,35 @@ scriptloader.addDependencies(dependencies);
  */
 componentloader.addNodeClasses('TemplateNode', nodeClasses);
 
-/*
- * TODO: rename TemplateNode
- * 
- * For example if you are creating a quiz node you would change it to
- * 'QuizNode'
- * 
- * TODO: rename the template file path
- * 
- * For example if you are creating a quiz node you would change it to
- * 'node/quiz/quizTemplate.qz'
- */
-componentloader.addNodeTemplate('TemplateNode', 'node/template/templateTemplate.te');
+var nodeTemplateParams = [
+	{
+		/*
+		 * TODO: rename the file path value
+		 * 
+		 * For example if you are creating a quiz node you would change it to
+		 * 'node/quiz/quizTemplate.qz'
+		 */
+		nodeTemplateFilePath:'node/template/templateTemplate.te',
+		
+		/*
+		 * TODO: rename the extension value for your step type, the value of the
+		 * extension is up to you, we just use it to easily differentiate between
+		 * different step type files
+		 * 
+		 * For example if you are creating a quiz node you would change it to
+		 * 'qz'
+		 */
+		nodeExtension:'te'
+	}
+];
 
 /*
  * TODO: rename TemplateNode
  * 
  * For example if you are creating a quiz node you would change it to
  * 'QuizNode'
- * 
- * TODO: rename the file extension for your step type, the value of the
- * extension is up to you, we just use it to easily differentiate between
- * different step type files
- * 
- * For example if you are creating a quiz node you would change it to
- * 'qz'
  */
-componentloader.addNodeExtension('TemplateNode', 'te');
+componentloader.addNodeTemplateParams('TemplateNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

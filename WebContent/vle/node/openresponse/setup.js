@@ -63,12 +63,26 @@ scriptloader.addScriptToComponent('peerreviewhelper', 'vle/node/openresponse/ope
 scriptloader.addCssToComponent('core', 'vle/node/openresponse/openresponse.css');
 
 componentloader.addNodeClasses('OpenResponseNode', openResponseNodeClasses);
-componentloader.addNodeTemplate('OpenResponseNode', 'node/openresponse/openResponseTemplate.or');
-componentloader.addNodeExtension('OpenResponseNode', 'or');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/openresponse/openResponseTemplate.or',
+		nodeExtension:'or'
+	}
+];
+
+componentloader.addNodeTemplateParams('OpenResponseNode', nodeTemplateParams);
 
 componentloader.addNodeClasses('NoteNode', noteNodeClasses);
-componentloader.addNodeTemplate('NoteNode', 'node/openresponse/noteTemplate.or');
-componentloader.addNodeExtension('NoteNode', 'or');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/openresponse/noteTemplate.or',
+		nodeExtension:'or'
+	}
+];
+
+componentloader.addNodeTemplateParams('NoteNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

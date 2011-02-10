@@ -145,24 +145,52 @@ View.prototype.initializeCreateNodeDialog = function (){
 		}
 		
 		/* handles the success for the request to create a new node */
-		var success = function(t,x,o){
-			if(t=='nodeNotProject'){
-				o.notificationManager.notify('Unable to attach Step to project, please contact administrator.', 3);
+		var success = function(text,x,obj){
+			var thisView = obj.thisView;
+			var nodeType = obj.nodeType;
+			
+			if(text == 'nodeNotProject'){
+				thisView.notificationManager.notify('Unable to attach Step to project, please contact administrator.', 3);
 			} else {
-				o.placeNode = true;
-				o.placeNodeId = t;
-				o.loadProject(o.project.getContentBase() + o.utils.getSeparator(o.project.getContentBase()) + o.project.getProjectFilename(), o.project.getContentBase(), true);
-				$('#createNodeDialog').dialog('close');
+				thisView.placeNode = true;
+				thisView.placeNodeId = text;
+				thisView.loadProject(thisView.project.getContentBase() + thisView.utils.getSeparator(thisView.project.getContentBase()) + thisView.project.getProjectFilename(), thisView.project.getContentBase(), true);
+				
+				$('#createNodeDialog').dialog('close');				
+
+				/*
+				 * if the author is creating an HtmlNode we must set the .html
+				 * file name into the .ht file
+				 */
+				if(nodeType == 'HtmlNode') {
+					thisView.setHtmlSrc(text);					
+				}
 			}
 		};
 		
 		/* handles the failure for a request to create a new node */
-		var failure = function(t,o){
-			o.notificationManager.notify('unable to create Step on the WISE server', 3);
+		var failure = function(text,obj){
+			var thisView = obj.thisView;
+			thisView.notificationManager.notify('unable to create Step on the WISE server', 3);
 		};
 
 		var path = view.utils.getContentPath(view.authoringBaseUrl,view.project.getUrl());
-		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'createNode',param1:path,param2:nodeclass,param3:title,param4:type},success,view,failure);
+		
+		//get the node template params
+		var nodeTemplateParams = view.nodeTemplateParams[type];
+		
+		var createNodeParams = {
+				forward:'filemanager',
+				projectId:view.portalProjectId,
+				command:'createNode',
+				param1:path,
+				param2:nodeclass,
+				param3:title,
+				param4:type,
+				nodeTemplateParams:$.stringify(nodeTemplateParams)
+		};
+		
+		view.connectionManager.request('POST',1,view.requestUrl,createNodeParams,success,{thisView:view,nodeType:type},failure);
 	};
 
 	var cancel = function(){
@@ -179,6 +207,57 @@ View.prototype.initializeCreateNodeDialog = function (){
 	
 	//this should have height set to auto resize but it doesn't work so I just set it to 260
 	$('#createNodeDialog').dialog({autoOpen:false, draggable:false, resizable:false, width:650, height:260, title:'Add a New Step', buttons: {'Submit':submit}, close: cancel});
+};
+
+/**
+ * Obtain the .ht file and set the src field
+ * @param nodeId the id of the node
+ */
+View.prototype.setHtmlSrc = function(nodeId) {
+	
+	var retrieveFileParams = {
+		command:'retrieveFile',
+		forward:'filemanager',
+		param1:this.project.getContentBase() + this.utils.getSeparator(this.project.getContentBase()) + nodeId,
+		projectId:this.portalProjectId
+	};
+
+	//obtain the content of the .ht file
+	this.connectionManager.request('GET', 3, this.project.getContentBase() + this.utils.getSeparator(this.project.getContentBase()) + nodeId, null,this.getHtmlSrcSuccess,{nodeId:nodeId,thisView:this},null);
+};
+
+/**
+ * Receive the content of the .ht file and modify it and save it
+ * back to the server
+ * @param text the content of the .ht file
+ * @param x
+ * @param obj
+ * @return
+ */
+View.prototype.getHtmlSrcSuccess = function(text,x,obj) {
+	var nodeId = obj.nodeId;
+	var thisView = obj.thisView;
+	
+	//make the html file name
+	var htmlFileName = nodeId.replace(".ht", ".html");
+
+	//retrieve the content for the .ht file
+	var htNodeContent = $.parseJSON(text);
+	
+	//set the src field to the html file name
+	htNodeContent.src = htmlFileName;
+
+	var updateFileParams = {
+		forward:'filemanager', 
+		projectId:thisView.portalProjectId,
+		command:'updateFile',
+		param1:thisView.utils.getContentPath(thisView.authoringBaseUrl,thisView.project.getContentBase()),
+		param2:nodeId,
+		param3:$.stringify(htNodeContent, null, 3)
+	};
+
+	//save the .ht file back to the server
+	thisView.connectionManager.request('POST', 3, thisView.requestUrl, updateFileParams,null,thisView,null);
 };
 
 /**

@@ -247,8 +247,7 @@ var componentloader = function(em, sl){
 				assetRequestUrl:'assetmanager.html',
 				tagNameMap:{},
 				tagIdForRequest:undefined,
-				nodeTemplateFilePaths:{},
-				nodeExtensions:{}
+				nodeTemplateParams:{}
 			},
 			events: {
 				'openProject':[null,null], 
@@ -936,25 +935,17 @@ var componentloader = function(em, sl){
 			components.core.variables.nodeClasses[nodeType] = nodeClassesArray;
 		},
 		/*
-		 * Add an entry to the nodeTemplateFilePaths object. These template files
+		 * Add an entry to the nodeTemplateParams object. The template file params
+		 * will be used to load the template files. The template files
 		 * will be loaded and the content will be retrieved from them and used
 		 * as the template for the node type when an author adds a new step
 		 * to their project.
 		 * @param nodeType the type of the node
-		 * @param templateFilePath the path to the template file
+		 * @param nodeTemplateParams an object containing the fields nodeTemplateFilePath
+		 * and nodeExtension
 		 */
-		addNodeTemplate:function(nodeType, templateFilePath) {
-			components.author.variables.nodeTemplateFilePaths[nodeType] = templateFilePath;
-		},
-		/*
-		 * Add an entry to the nodeExtensions object. These extensions will
-		 * be used when creating the content files for a step when an author
-		 * adds a new step to their project.
-		 * @param nodeType the type of the node
-		 * @param extension the file extension for the node type
-		 */
-		addNodeExtension:function(nodeType, extension) {
-			components.author.variables.nodeExtensions[nodeType] = extension;
+		addNodeTemplateParams:function(nodeType, nodeTemplateParams) {
+			components.author.variables.nodeTemplateParams[nodeType] = nodeTemplateParams;
 		}
 	};
 }(eventManager, scriptloader);

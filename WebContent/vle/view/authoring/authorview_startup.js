@@ -73,15 +73,28 @@ View.prototype.loadNodeTemplateFiles = function() {
 		//get a node type
 		var nodeType = nodeTypes[x];
 		
-		//get the path to the template file for this node type
-		var nodeTemplateFilePath = this.nodeTemplateFilePaths[nodeType];
+		//get the node template params
+		var nodeTemplateParams = this.nodeTemplateParams[nodeType];
 		
-		//get the file extension for this node type
-		var nodeExtension = this.nodeExtensions[nodeType];
-		
-		if(nodeTemplateFilePath != null) {
-			//create a content object for the template file
-			var templateContent = createContent(nodeTemplateFilePath);
+		if(nodeTemplateParams != null) {
+			
+			for(var y=0; y<nodeTemplateParams.length; y++) {
+				var nodeTemplateParam = nodeTemplateParams[y];
+				
+				//get the path to the template file for this node type
+				var nodeTemplateFilePath = nodeTemplateParam.nodeTemplateFilePath;
+				
+				//get the file extension for this node type
+				var nodeExtension = nodeTemplateParam.nodeExtension;
+				
+				if(nodeTemplateFilePath != null) {
+					//create a content object for the template file
+					var templateContent = createContent(nodeTemplateFilePath);
+					
+					//set the content into the nodeTemplateParam object
+					nodeTemplateParam.nodeTemplateContent = templateContent.getContentString();
+				}		
+			}
 		}
 	}
 };

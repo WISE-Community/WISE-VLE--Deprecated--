@@ -42,8 +42,15 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('svgdraw', css);
 
 componentloader.addNodeClasses('SVGDrawNode', nodeClasses);
-componentloader.addNodeTemplate('SVGDrawNode', 'node/draw/svgDrawTemplate.sd');
-componentloader.addNodeExtension('SVGDrawNode', 'sd');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/draw/svgDrawTemplate.sd',
+		nodeExtension:'sd'
+	}
+];
+
+componentloader.addNodeTemplateParams('SVGDrawNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

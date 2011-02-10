@@ -55,12 +55,26 @@ scriptloader.addCssToComponent('multiplechoice', css);
 scriptloader.addCssToComponent('author', 'vle/css/authoring/author_multiplechoice.css');
 
 componentloader.addNodeClasses('MultipleChoiceNode', multipleChoiceNodeClasses);
-componentloader.addNodeTemplate('MultipleChoiceNode', 'node/multiplechoice/multipleChoiceTemplate.mc');
-componentloader.addNodeExtension('MultipleChoiceNode', 'mc');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/multiplechoice/multipleChoiceTemplate.mc',
+		nodeExtension:'mc'
+	}
+];
+
+componentloader.addNodeTemplateParams('MultipleChoiceNode', nodeTemplateParams);
 
 componentloader.addNodeClasses('ChallengeNode', challengeNodeClasses);
-componentloader.addNodeTemplate('ChallengeNode', 'node/multiplechoice/challengeQuestionTemplate.ch');
-componentloader.addNodeExtension('ChallengeNode', 'ch');
+
+var nodeTemplateParams = [
+	{
+		nodeTemplateFilePath:'node/multiplechoice/challengeQuestionTemplate.ch',
+		nodeExtension:'ch'
+	}
+];
+
+componentloader.addNodeTemplateParams('ChallengeNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

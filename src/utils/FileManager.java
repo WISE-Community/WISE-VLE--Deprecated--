@@ -409,28 +409,79 @@ import org.json.JSONObject;
 		String title = request.getParameter(PARAM3);
 		String type = request.getParameter(PARAM4);
 		
+		//get the string that contains an array of node template params
+		String nodeTemplateParams = request.getParameter("nodeTemplateParams");
+		
+		/*
+		 * the node name, "nodeNotProject" is the default value to return
+		 * which means there was an error creating the file. this variable
+		 * will be changed below once the file is created.
+		 */
+		String nodeName = "nodeNotProject";
+		
 		File dir = new File(projectPath).getParentFile();
 		if(dir.exists()){
 			if(this.standAlone || SecurityUtils.isAllowedAccess(request, dir)){
-				File file = generateUniqueFile(dir, this.getExtension(type));
-				try{
-					this.writeFile(file, Template.getNodeTemplate(type, title, file.getName()).toString(3), false);
+				
+				try {
+					//create the JSONArray of files to create
+					JSONArray filesToCreate = new JSONArray(nodeTemplateParams);
 					
-					/* create associated content file for html type nodes */
-					if(type.equals("HtmlNode") || type.equals("DrawNode")){
-						String htmlStr = Template.getHtmlStringForType(type, title, file.getName());
-						File contentFile = new File(file.getCanonicalPath().replace(".ht", ".html"));
+					if(filesToCreate != null) {
 						
-						this.writeFile(contentFile, htmlStr, false);
+						/*
+						 * get the root of the file name for the files we are about to make
+						 * e.g. 'node_1'
+						 */
+						String fileNamePrefix = getUniqueFileNamePrefix(dir);
+						
+						//loop through each file to create
+						for(int x=0; x<filesToCreate.length(); x++) {
+							//get the a file to create
+							JSONObject fileToCreate = filesToCreate.getJSONObject(x);
+							
+							//get the extension for the file type
+							String nodeExtension = fileToCreate.getString("nodeExtension");
+							
+							//get the content to put in the file
+							String nodeTemplateContent = fileToCreate.getString("nodeTemplateContent");
+							
+							if(nodeExtension != null && !nodeExtension.equals("") &&
+									nodeTemplateContent != null && !nodeTemplateContent.equals("")) {
+								/*
+								 * whether this is the main file for this step.
+								 */
+								boolean mainNodeFile = false;
+								
+								if(filesToCreate.length() == 1) {
+									//in most cases there is only one file to create so it will be the main file
+									mainNodeFile = true;
+								} else {
+									/*
+									 * in rare cases there may be multiple files to create such
+									 * as with HtmlNode in which case one of the files is the
+									 * mainNodeFile (.ht) and the other is a supporting file (.html).
+									 * for these cases the param for each file must specify
+									 * whether it is the mainNodeFile or not
+									 */
+									mainNodeFile = fileToCreate.getBoolean("mainNodeFile");
+								}
+								
+								//create the file handle e.g. 'node_1.or'
+								File file = new File(dir, fileNamePrefix + "." + nodeExtension);
+								
+								//write the contents to the file
+								this.writeFile(file, nodeTemplateContent, false);
+								
+								//add the node to the project
+								if(mainNodeFile && this.addNodeToProject(new File(projectPath), Template.getProjectNodeTemplate(type, file.getName(), title, nodeClass))){
+									nodeName = file.getName();
+								}								
+							}
+						}
 					}
-					
-					if(this.addNodeToProject(new File(projectPath), Template.getProjectNodeTemplate(type, file.getName(), title, nodeClass))){
-						return file.getName();
-					} else {
-						return "nodeNotProject";
-					}
-				} catch(JSONException e){
-					throw new ServletException(e);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
 			} else {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -439,6 +490,8 @@ import org.json.JSONObject;
 		} else {
 			throw new IOException("Unable to find project");
 		}
+		
+		return nodeName;
 	}
 
 	/**
@@ -519,6 +572,26 @@ import org.json.JSONObject;
 			File file = new File(parent, name + count + ext);
 			if(!file.exists() && !duplicateName(parent, name + count)){
 				return file;
+			}
+			count ++;
+		}
+	}
+	
+	/**
+	 * Get a file name prefix that has not been used yet
+	 * @param parent the directory where we want to search files
+	 * @return a String containing a file name prefix that is not
+	 * being used by any other files. e.g. 'node_2'
+	 */
+	public String getUniqueFileNamePrefix(File parent) {
+		String name = "node_";
+		int count = 0;
+		
+		while(true){
+			//check if the file name prefix has been used yet
+			if(!duplicateName(parent, name + count)){
+				//it has not been used yet so we can return it
+				return name + count;
 			}
 			count ++;
 		}
