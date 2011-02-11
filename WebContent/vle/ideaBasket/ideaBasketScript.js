@@ -151,7 +151,8 @@ $(document).ready(function() {
 	$('#import').click(function(){
 		$('#importDialog').dialog('open');
 	});*/
-
+	
+	// TODO: FIX - this is not firing in Chrome (click insn't either)
 	$('#toggleDeleted').toggle(
 			function() {
 				$('#trash').fadeIn();

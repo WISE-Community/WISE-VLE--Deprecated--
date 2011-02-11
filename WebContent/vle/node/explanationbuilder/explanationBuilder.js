@@ -730,7 +730,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 				
 				// the idea has been deleted since it was used in this step
 				text += " <img class='notification' src='/vlewrapper/vle/images/ideaManager/info.png' alt='warn' />" +
-					"<div class='tooltip'><div>You have <b>deleted</b> this idea since adding it to the explanation. What do you want to do?</div>" +
+					"<div class='tooltip'><div>You have <b>deleted</b> this idea. What do you want to do?</div>" +
 					"<div class='notificationLinks'><a class='notificationLink restore'>Restore & Revise</a><a class='notificationLink remove'>Remove</a>" +
 					"</div></div>";
 				
