@@ -710,7 +710,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			//get the show all work html
 			var showAllWorkHtml =  getShowAllWorkHtmlHelper(node, showGrades, lastTimeVisited);
 			
-			return showAllWorkHtml;
+			var newFeedback = "";
+			
+			if(showAllWorkHtml.newFeedback != "") {
+				newFeedback = "<h2 class='showAllWorkH2'>New Feedback</h2><br><hr class='showAllWorkHR'><br>" + showAllWorkHtml.newFeedback;
+			}
+			
+			var allFeedback = "<h2 class='showAllWorkH2'>All Work</h2><br><hr class='showAllWorkHR'><br>" + showAllWorkHtml.allFeedback;
+			
+			return newFeedback + allFeedback;
 		};
 		
 		/**
@@ -721,7 +729,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @param lastTimeVisited the time in milliseconds when the student last visited
 		 */
 		var getShowAllWorkHtmlHelper = function(node,showGrades, lastTimeVisited){
-			var htmlSoFar = "";
+			var htmlSoFar = {
+				newFeedback:"",
+				allFeedback:""
+			};
+			
 			if (node.children.length > 0) {
 				// this is a sequence node
 				
@@ -731,27 +743,58 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				 */
 				if(this.showAllWorkActivityCounter != 0) {
 					//we are not on the root node, we are on a sequence/activity
-					htmlSoFar += "<div class='showAllWorkActivity'><h3>" + this.showAllWorkActivityCounter + ". " + node.title + "</h3></div><br><hr><br>";
+					htmlSoFar.allFeedback += "<div class='showAllWorkActivity'><h3>" + this.showAllWorkActivityCounter + ". " + node.title + "</h3></div><br><hr class='showAllWorkHR'><br>";
 				}
 				
 				this.showAllWorkActivityCounter++;
 				
 				for (var i = 0; i < node.children.length; i++) {
-					htmlSoFar += getShowAllWorkHtmlHelper(node.children[i], showGrades, lastTimeVisited);
+					var childHtmlSoFar = getShowAllWorkHtmlHelper(node.children[i], showGrades, lastTimeVisited);
+					htmlSoFar.newFeedback += childHtmlSoFar.newFeedback;
+					htmlSoFar.allFeedback += childHtmlSoFar.allFeedback;
 				}
 			} else {
 				// this is a leaf node
 				if(node.type != "HtmlNode" && node.type != "OutsideUrlNode") {
+					//only display non-HtmlNode steps
+					
 					var nodeId = node.id;
 					
 					var vlePosition = getVLEPositionById(nodeId);
 					
-					//only display non-HtmlNode steps
-				    htmlSoFar += "<div id=\"showallStep\"><a href=\"#\" onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
+					//feedback html that is common to the allFeedback and newFeedback
+					var commonFeedback = "";
+					
+					/*
+					 * used to hold the beginning of the allFeedback html, the rest
+					 * of the html is set to the commonFeedback because it is the
+					 * same for allFeedback and newFeedback
+					 */
+					var tempAllFeedback = "";
+					
+					/*
+					 * used to hold the beginning of the newFeedback html, the rest
+					 * of the html is set to the commonFeedback because it is the
+					 * same for allFeedback and newFeedback
+					 */
+					var tempNewFeedback = "";
+					
+					var stepHasNewFeedback = false;
+					
+					tempAllFeedback += "<div id=\"showallStep\"><a href=\"#\" onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
+					tempNewFeedback += "<div id=\"showallStep\"><a href=\"#\" onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
 				    if (showGrades) {
-				    	htmlSoFar += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view) + "</div>";
+				    	
+				    	tempAllFeedback += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view) + "</div>";
+				    	
+				    	/*
+				    	 * we need to pass in a prefix to be prepended to the div that is made
+				    	 * otherwise there will be two divs with the same id and when we
+				    	 * render the work, it will only show up in one of the divs
+				    	 */
+				    	tempNewFeedback += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view, "new_") + "</div>";
 						
-						htmlSoFar += "<div><table id='teacherTable'>";
+						commonFeedback += "<div><table id='teacherTable'>";
 						
 						var runId = view.getConfig().getConfigParam('runId');
 						
@@ -793,6 +836,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 								//the annotation is new so we will add a [New] label to it that is red
 								newP = "<p style='display: inline; color: red;'> [New]</p>";
 								
+								stepHasNewFeedback = true;
+								
 								//we have found a new feedback so we will set this to true
 								this.foundNewFeedback = true;
 							}
@@ -820,6 +865,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 								//the annotation is new so we will add a [New] label to it that is red
 								newP = "<p style='display: inline; color: red;'> [New]</p>";
 								
+								stepHasNewFeedback = true;
+								
 								//we have found a new feedback so we will set this to true
 								this.foundNewFeedback = true;
 							}
@@ -836,11 +883,21 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							annotationHtml += "<tr><td class='teachermsg3'>" + "Grading: Your Teacher hasn't graded this step yet." + "<td></tr>";
 						}
 						
-						htmlSoFar += annotationHtml;
+						commonFeedback += annotationHtml;
 						
-						htmlSoFar += "</table></div><br><hr><br>";
+						commonFeedback += "</table></div><br><hr class='showAllWorkHR'><br>";
 				    } else {
-						htmlSoFar += node.getShowAllWorkHtmlHelper(view);
+				    	//note: I don't think this else branch is used anymore
+						var childHtmlSoFar = node.getShowAllWorkHtmlHelper(view);
+						htmlSoFar.newFeedback += childHtmlSoFar.newFeedback;
+						htmlSoFar.allFeedback += childHtmlSoFar.allFeedback;
+				    }
+				    
+				    htmlSoFar.allFeedback += tempAllFeedback + commonFeedback;
+				    
+				    if(stepHasNewFeedback) {
+				    	//set the new feedback if the teacher created new feedback for this work
+				    	htmlSoFar.newFeedback += tempNewFeedback + commonFeedback;
 				    }
 				}
 				this.showAllWorkStepCounter++;

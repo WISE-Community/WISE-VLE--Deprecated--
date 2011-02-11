@@ -1046,8 +1046,22 @@ Node.prototype.copy = function(eventName, project){
 	};
 };
 
-Node.prototype.getShowAllWorkHtml = function(vle){
+/**
+ * Create the div that will display the student work for this step
+ * @param vle
+ * @param divIdPrefix a string to be prepended to the div that contains
+ * the student work. this is used to avoid div id conflicts. this
+ * argument is optional and will default to ""
+ * @return the html for this node to be displayed in the show all work
+ * some nodes just return a div that is later populated
+ */
+Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 	var showAllWorkHtmlSoFar = "";
+	
+	if(divIdPrefix == null) {
+		divIdPrefix = "";
+	}
+	
     var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
     if (nodeVisitArray.length > 0) {
         var states = [];
@@ -1079,7 +1093,7 @@ Node.prototype.getShowAllWorkHtml = function(vle){
         		divStyle = "height:270px; width:360px; border:1px solid #aaa";
         	} 
         	//create the div id for where we will display the student work
-        	var divId = "latestWork_"+latestNodeVisit.id;
+        	var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
         	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
         	
         	if(this.view.isSelfRenderingGradingViewNodeType(this.type)) {

@@ -542,6 +542,24 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 	return isSelfRenderingGradingView;
 };
 
+/**
+ * Get the max possible score for the project
+ * @return the max possible score for the project
+ */
+View.prototype.getMaxScoreForProject = function() {
+	var maxScoreForProject = 0;
+	
+	//get all the node ids in the project
+	var nodeIdsInProject = this.getProject().getNodeIds();
+	
+	if(this.maxScores != null) {
+		//get the max scores sum for all the node ids 
+		maxScoreForProject = this.maxScores.getMaxScoresSum(nodeIdsInProject);
+	}
+	
+	return maxScoreForProject;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');

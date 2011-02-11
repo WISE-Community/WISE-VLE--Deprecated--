@@ -258,6 +258,9 @@ View.prototype.displayShowAllWork = function() {
 	    //get the max total score for the steps that were graded for this workgroup
 	    var totalPossibleForWorkgroup = totalScoreAndTotalPossible.totalPossible;
 	    
+	    //get the max total score for this project
+	    var totalPossibleForProject = this.getMaxScoreForProject();
+	    
 	    var vleState = this.state;
 	    
 	    //get all the nodeIds in the projecte except HtmlNodes
@@ -289,10 +292,10 @@ View.prototype.displayShowAllWork = function() {
 	    
 	    var scoresDiv2 = "<tr><td>Teacher Graded Score</td><td>Computer Graded Score</td><td>TOTAL SCORE</td><td>% of Project Completed</td></tr>";
 	    	
-	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>" + teamPercentProjectCompleted + "</td></tr></table>";
+	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'>" + teamPercentProjectCompleted + "</td></tr></table>";
 
 	    
-		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
+		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr class='showAllWorkHR'><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
 
 	    if($('#showallwork').size()==0){
 	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',width:'94%',height:550,modal:true,title:'My Work (with Teacher Feedback and Scores)'});
@@ -347,7 +350,17 @@ View.prototype.displayShowAllWork = function() {
 				//check if the student has any work for this step
 				if(nodeVisit != null) {
 					//render the work into the div to display it
-					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);					
+					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);
+					
+					if($("#new_latestWork_" + nodeVisit.id).size != 0) {
+						/*
+						 * render the work into the new feedback div if it exists. the
+						 * new feedback div exists when the teacher has given a new
+						 * score or comment and we need to show the work and feedback
+						 * for that step at the the top of the show all work
+						 */
+						node.renderGradingView("new_latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);
+					}
 				}
 			}
 		}
