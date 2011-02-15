@@ -40,6 +40,11 @@ window.onunload = function(logout){
 	env.onWindowUnload(logout);
 };
 
+/* resizes navbar menu on page resize */
+window.onresize = function(){
+	eventManager.fire('resizeMenu');
+};
+
 /*
  * Listener that is run when the bootstrap loading is complete.
  * Loads and starts the authoring view.

@@ -165,6 +165,8 @@ NavigationPanel.prototype.render = function() {
 			
 			//set the nav html into the div
 			document.getElementById("my_menu").innerHTML = navHtml;
+			
+			eventManager.fire('resizeMenu');
 		};
 
 		//collapse all activities except for the current one

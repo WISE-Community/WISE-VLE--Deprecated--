@@ -19,6 +19,8 @@ View.prototype.menuDispatcher = function(type,args,obj){
 		obj.myMenu.toggleMenu(document.getElementById(args[0]));
 	} else if(type=='updateNavigationConstraints'){
 		obj.updateNavigationConstraints();
+	} else if(type=='resizeMenu'){
+		obj.resizeMenu();
 	}
 };
 
@@ -143,6 +145,17 @@ View.prototype.getEnclosingNavParents = function(position, enclosingNavParents) 
  */
 View.prototype.toggleNavigationPanelVisibility = function() {
 	this.navigationPanel.toggleVisibility();	
+};
+
+/**
+ * Resizes navigation panel menu box to fit window height
+ */
+View.prototype.resizeMenu = function() {
+	if($('#projectLeftBox').length>0){
+		var navHeight = $('#projectLeftBox').height() - $('#hostBrandingBoxUpper').outerHeight() -
+			$('#projectLogoBox').outerHeight() - $('#navMenuControls').outerHeight() - 4;
+		$('#navigationMenuBox').height(navHeight);
+	}
 };
 
 

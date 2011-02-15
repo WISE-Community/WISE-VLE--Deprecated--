@@ -642,6 +642,7 @@ var componentloader = function(em, sl){
 				'menuCollapseAll':[null,null],
 				'menuCollapseAllNonImmediate':[null,null],
 				'toggleMenu':[null,null],
+				'resizeMenu':[null,null],
 				'logout':[null,null]
 			},
 			initialize:{
@@ -653,6 +654,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('menuCollapseAll', view.menuDispatcher, view);
 					view.eventManager.subscribe('menuCollapseAllNonImmediate', view.menuDispatcher, view);
 					view.eventManager.subscribe('toggleMenu', view.menuDispatcher, view);
+					view.eventManager.subscribe('resizeMenu', view.menuDispatcher, view);
 					view.eventManager.subscribe('updateNavigationConstraints', view.menuDispatcher, view);
 				}
 			}

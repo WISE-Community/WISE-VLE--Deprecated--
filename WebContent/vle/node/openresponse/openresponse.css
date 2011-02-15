@@ -156,6 +156,7 @@
 
 .noteResponseBox {
     max-height:200px;
+    height: 100px;
 }
 
 #notePanel {

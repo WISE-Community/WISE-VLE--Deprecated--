@@ -14,16 +14,16 @@ td {vertical-align:top;}
 
 html,body{
 	height:100%;
-	overflow-y:hidden;
-	overflow-x:auto;
+	/*overflow-y:hidden;
+	overflow-x:auto;*/
+	overflow:auto;
 }
 
 body#w4_vle {
 	/*  font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
 	font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,"Gill Sans",sans-serif;	
 	font-size: 100%;
-	text-align: center; 
-	margin: 3px 0px;
+	text-align: center;
 	background-color:#666;
 	background-image:url(../images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
@@ -80,7 +80,8 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	max-width:1280px;
 	min-width:970px;
 	position:relative;
-	text-align:left; 
+	text-align:left;
+	overflow:hidden;
 }
 
 #projectLeftBox {
@@ -90,9 +91,9 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	border:1px solid #333333;
 	bottom:4px;
 	left:4px;
-	min-height:100px;
+	min-height:180px;
 	position:absolute;
-	top:40px;
+	top:44px;
 	width:220px;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
@@ -115,7 +116,7 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	padding:0;
 	position:absolute;
 	right:4px;
-	top:0;
+	top:4px;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
 	border-radius:4px;
@@ -126,12 +127,12 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	border:1px solid #333333;
 	bottom:4px;
 	left:228px;
-	min-height:100px;
+	min-height:180px;
 	min-width:740px;
 	padding:0;
 	position:absolute;
 	right:4px;
-	top:40px;
+	top:44px;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
 	border-radius:4px;
@@ -400,8 +401,7 @@ a#hintsLink:hover {
 }
 
 #navMenuControls {
-	padding:0;
-	margin:4px 0 4px 0 ;
+	padding:4px 0;
 	text-align:center;
 	vertical-align:middle;  }
 
@@ -417,7 +417,7 @@ a#hintsLink:hover {
 #navigationMenuBox {
 	overflow-y:auto;
 	overflow-x:hidden;
-	margin-left:1px;
+	margin: 0 3px;
 }
 
 
