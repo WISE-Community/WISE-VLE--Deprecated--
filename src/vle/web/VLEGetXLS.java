@@ -3,6 +3,7 @@ package vle.web;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import utils.FileManager;
 import vle.VLEServlet;
 import vle.domain.annotation.Annotation;
 import vle.domain.annotation.AnnotationComment;
+import vle.domain.ideabasket.IdeaBasket;
 import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewWork;
 import vle.domain.user.UserInfo;
@@ -285,6 +287,8 @@ public class VLEGetXLS extends VLEServlet {
 			wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		} else if(exportType.equals("allStudentWork")) {
 			wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
+		} else if(exportType.equals("ideaBaskets")) {
+			wb = getIdeaBasketsExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		}
 		
 		/*
@@ -299,6 +303,8 @@ public class VLEGetXLS extends VLEServlet {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-latest-student-work.xls\"");
 	    } else if(exportType.equals("allStudentWork")) {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-all-student-work.xls\"");
+	    } else if(exportType.equals("ideaBaskets")) {
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-idea-baskets.xls\"");
 	    } else {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + ".xls\"");	
 	    }
@@ -2322,5 +2328,438 @@ public class VLEGetXLS extends VLEServlet {
 		userDataRow.createCell(workgroupColumnCounter++).setCellValue(endTime);
 		
 		return workgroupColumnCounter;
+	}
+	
+	/**
+	 * Creates an excel workbook that contains student navigation data
+	 * Each sheet represents one student's work. The rows in each
+	 * sheet are sequential so the earliest navigation data is at
+	 * the top and the latest navigation data is at the bottom
+	 * @param nodeIdToNodeTitlesMap a HashMap that contains nodeId to
+	 * nodeTitle mappings
+	 * @param workgroupIdsArray a String array containing workgroupIds
+	 * @return an excel workbook that contains the student navigation
+	 */
+	private HSSFWorkbook getIdeaBasketsExcelExport(
+			HashMap<String, String> nodeIdToNodeTitlesMap,
+			Vector<String> workgroupIds, 
+			String runId,
+			HashMap<String, JSONObject> nodeIdToNode,
+			HashMap<String, JSONObject> nodeIdToNodeContent,
+			HashMap<Integer, Integer> workgroupIdToPeriodId,
+			List<String> teacherWorkgroupIds) {
+	
+		HSSFWorkbook wb = new HSSFWorkbook();
+		
+		Sheet mainSheet = wb.createSheet();
+		
+		int rowCounter = 0;
+		int columnCounter = 0;
+		
+		Vector<String> headerFields = new Vector<String>();
+		headerFields.add("Workgroup Id");
+		headerFields.add("Basket Revision");
+		headerFields.add("Idea #");
+		headerFields.add("Idea Text");
+		headerFields.add("Flag");
+		headerFields.add("Tags");
+		headerFields.add("Source");
+		headerFields.add("Node Id Created On");
+		headerFields.add("Node Name Created On");
+		headerFields.add("Steps Used In");
+		headerFields.add("Timestamp Basket Saved");
+		headerFields.add("Timestamp Idea Created");
+		headerFields.add("Timestamp Idea Last Edited");
+		headerFields.add("New");
+		headerFields.add("Revised");
+		headerFields.add("Moved");
+		headerFields.add("Steps Used In Changed");
+		headerFields.add("Trash");
+
+		Row headerRow = mainSheet.createRow(rowCounter++);
+		
+		for(int x=0; x<headerFields.size(); x++) {
+	    	
+	    	//the header column to just keep track of each row (which represents a step visit)
+	    	headerRow.createCell(columnCounter++).setCellValue(headerFields.get(x));
+		}
+		
+		List<IdeaBasket> ideaBaskets = IdeaBasket.getIdeaBasketsForRunId(new Long(runId));
+		
+		long previousWorkgroupId = -1L;
+		int basketRevision = 1;
+		JSONObject previousIdeaBasketJSON = null;
+		DateFormat dateTimeInstance = DateFormat.getDateTimeInstance();
+		
+		for(int x=0; x<ideaBaskets.size(); x++) {
+			columnCounter = 0;
+			
+			IdeaBasket ideaBasket = ideaBaskets.get(x);
+			long workgroupId = ideaBasket.getWorkgroupId();
+			System.out.println("workgroupId=" + ideaBasket.getWorkgroupId() + ", postTime=" + ideaBasket.getPostTime());
+			
+			if(workgroupId == previousWorkgroupId) {
+				basketRevision++;
+			} else {
+				previousWorkgroupId = -1L;
+				basketRevision = 1;
+				previousIdeaBasketJSON = null;
+			}
+			
+			String data = ideaBasket.getData();
+			
+			if(data != null) {
+				JSONObject ideaBasketJSON = new JSONObject();
+				try {
+					ideaBasketJSON = new JSONObject(data);
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+				
+				int numberOfIdeas = getNumberOfIdeas(ideaBasketJSON);
+				
+				for(int y=1; y<=numberOfIdeas; y++) {
+					columnCounter = 0;
+					
+					try {
+						JSONObject idea = getIdeaById(ideaBasketJSON, y);
+						int ideaId = idea.getInt("id");
+						
+						if(idea != null) {
+							Row ideaBasketRow = mainSheet.createRow(rowCounter++);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(workgroupId);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(basketRevision);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaId);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("text"));
+							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
+							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
+							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
+							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeId"));
+							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeName"));
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedIn(idea, nodeIdToNodeTitlesMap));
+							
+							Timestamp postTime = ideaBasket.getPostTime();
+							long time = postTime.getTime();
+							Date dateBasketSaved = new Date(time);
+							String timestampBasketSaved = dateTimeInstance.format(dateBasketSaved);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampBasketSaved);
+							
+							long timeCreated = idea.getLong("timeCreated");
+							Date dateCreated = new Date(timeCreated);
+							String timestampIdeaCreated = dateTimeInstance.format(dateCreated);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaCreated);
+							
+							long timeLastEdited = idea.getLong("timeLastEdited");
+							Date dateLastEdited = new Date(timeLastEdited);
+							String timestampIdeaLastEdited = dateTimeInstance.format(dateLastEdited);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaLastEdited);
+							
+							boolean ideaNew = isIdeaNew(idea, previousIdeaBasketJSON);
+							int ideaNewInt = 0;
+							if(ideaNew) {
+								ideaNewInt = 1;
+							}
+							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaNewInt);
+							
+							boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON);
+							int ideaRevisedInt = 0;
+							if(ideaRevised) {
+								ideaRevisedInt = 1;
+							}
+							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaRevisedInt);
+							
+							boolean ideaPositionChanged = isIdeaPositionChanged(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
+							int ideaPositionChangedInt = 0;
+							if(ideaPositionChanged) {
+								ideaPositionChangedInt = 1;
+							}
+							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaPositionChangedInt);
+							
+							boolean stepsUsedInChanged = isStepsUsedInChanged(idea, previousIdeaBasketJSON, nodeIdToNodeTitlesMap);
+							int stepsUsedInChangedInt = 0;
+							if(stepsUsedInChanged) {
+								stepsUsedInChangedInt = 1;
+							}
+							ideaBasketRow.createCell(columnCounter++).setCellValue(stepsUsedInChangedInt);
+							
+							boolean ideaInTrash = isIdeaInTrash(ideaBasketJSON, ideaId);
+							int ideaInTrashInt = 0;
+							if(ideaInTrash) {
+								ideaInTrashInt = 1;
+							}
+							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaInTrashInt);
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				previousWorkgroupId = workgroupId;
+				previousIdeaBasketJSON = ideaBasketJSON;				
+			}
+		}
+		
+		return wb;
+	}
+	
+	private JSONObject getIdeaById(JSONObject ideaBasketJSON, int ideaId) {
+		JSONObject idea = null;
+		boolean ideaFound = false;
+		
+		try {
+			JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
+			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
+			
+			for(int x=0; x<ideas.length(); x++) {
+				JSONObject activeIdea = ideas.getJSONObject(x);
+				
+				if(activeIdea != null && activeIdea.getInt("id") == ideaId) {
+					idea = activeIdea;
+					ideaFound = true;
+					break;
+				}
+			}
+			
+			if(!ideaFound) {
+				for(int y=0; y<deleted.length(); y++) {
+					JSONObject deletedIdea = deleted.getJSONObject(y);
+					
+					if(deletedIdea != null && deletedIdea.getInt("id") == ideaId) {
+						idea = deletedIdea;
+						ideaFound = true;
+						break;
+					}
+				}				
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return idea;
+	}
+	
+	private int getNumberOfIdeas(JSONObject ideaBasketJSON) {
+		int numberOfIdeas = 0;
+		
+		try {
+			JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
+			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
+			
+			if(ideas != null) {
+				numberOfIdeas += ideas.length();	
+			}
+			
+			if(deleted != null) {
+				numberOfIdeas += deleted.length();
+			}
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return numberOfIdeas;
+	}
+	
+	private boolean isIdeaInTrash(JSONObject ideaBasketJSON, int ideaId) {
+		boolean ideaInTrash = false;
+		
+		try {
+			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
+			
+			for(int x=0; x<deleted.length(); x++) {
+				JSONObject deletedIdea = deleted.getJSONObject(x);
+				
+				if(deletedIdea != null) {
+					int deletedIdeaId = deletedIdea.getInt("id");
+					
+					if(deletedIdeaId == ideaId) {
+						ideaInTrash = true;
+						break;
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return ideaInTrash;
+	}
+	
+	private boolean isIdeaNew(JSONObject idea, JSONObject previousIdeaBasket) {
+		boolean ideaNew = false;
+		try {
+			if(previousIdeaBasket == null) {
+				ideaNew = true;
+			} else {
+				int ideaId = idea.getInt("id");
+				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
+				
+				if(previousIdeaRevision == null) {
+					ideaNew = true;
+				}				
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return ideaNew;
+	}
+	
+	private boolean isIdeaRevised(JSONObject idea, JSONObject previousIdeaBasket) {
+		boolean ideaRevised = false;
+		try {
+			if(previousIdeaBasket != null) {
+				int ideaId = idea.getInt("id");
+				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
+				
+				if(previousIdeaRevision != null) {
+					long timeLastEdited = idea.getLong("timeLastEdited");
+					long previousTimeLastEdited = previousIdeaRevision.getLong("timeLastEdited");
+
+					if(timeLastEdited != previousTimeLastEdited) {
+						ideaRevised = true;					
+					}
+					
+					String text = idea.getString("text");
+					String previousText = previousIdeaRevision.getString("text");
+					
+					if(text != null && !text.equals(previousText)) {
+						ideaRevised = true;
+					}
+				}	
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return ideaRevised;
+	}
+	
+	private boolean isIdeaPositionChanged(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean ideaPositionChanged = false;
+		
+		int currentPositionInIdeas = -1;
+		int currentPositionInDeleted = -1;
+		
+		int previousPositionInIdeas = -1;
+		int previousPositionInDeleted = -1;
+		
+		previousPositionInIdeas = getPositionInIdeas(ideaId, previousIdeaBasket);
+		previousPositionInDeleted = getPositionInDeleted(ideaId, previousIdeaBasket);
+		
+		
+		if(previousPositionInIdeas == -1 && previousPositionInDeleted == -1) {
+			/*
+			 * idea was not in previous revision of idea basket which means
+			 * it is new in the current revision. in this case we will return
+			 * position changed as false
+			 */
+		} else {
+			currentPositionInIdeas = getPositionInIdeas(ideaId, currentIdeaBasket);
+			
+			if(currentPositionInIdeas == -1) {
+				currentPositionInDeleted = getPositionInDeleted(ideaId, currentIdeaBasket);				
+			}
+			
+			if(currentPositionInIdeas != -1 && previousPositionInIdeas != -1) {
+				if(currentPositionInIdeas != previousPositionInIdeas) {
+					ideaPositionChanged = true;
+				}
+			} else {
+				if(currentPositionInDeleted != -1 && previousPositionInDeleted != -1) {
+					if(currentPositionInDeleted != previousPositionInDeleted) {
+						ideaPositionChanged = true;
+					}
+				}
+			}			
+		}
+		
+		return ideaPositionChanged;
+	}
+	
+	private int getPositionInIdeas(int ideaId, JSONObject ideaBasket) {
+		return getPosition(ideaId, ideaBasket, "ideas");
+	}
+	
+	private int getPositionInDeleted(int ideaId, JSONObject ideaBasket) {
+		return getPosition(ideaId, ideaBasket, "deleted");
+	}
+	
+	private int getPosition(int ideaId, JSONObject ideaBasket, String arrayName) {
+		int position = -1;
+		
+		try {
+			if(ideaBasket != null) {
+				JSONArray ideaArray = ideaBasket.getJSONArray(arrayName);
+				
+				if(ideaArray != null) {
+					for(int x=0; x<ideaArray.length(); x++) {
+						JSONObject idea = ideaArray.getJSONObject(x);
+						
+						int id = idea.getInt("id");
+						
+						if(ideaId == id) {
+							position = x + 1;
+							break;
+						}
+					}
+				}				
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return position;
+	}
+	
+	private String getStepsUsedIn(JSONObject idea, HashMap<String, String> nodeIdToNodeTitlesMap) {
+		StringBuffer stepsUsedIn = new StringBuffer();
+		
+		try {
+			JSONArray stepsUsedInJSONArray = idea.getJSONArray("stepsUsedIn");
+			
+			if(stepsUsedInJSONArray != null) {
+				for(int x=0; x<stepsUsedInJSONArray.length(); x++) {
+					String nodeId = stepsUsedInJSONArray.getString(x);
+					
+					String nodeName = nodeIdToNodeTitlesMap.get(nodeId);
+					
+					if(stepsUsedIn.length() != 0) {
+						stepsUsedIn.append(",");
+					}
+					
+					stepsUsedIn.append(nodeId + ":" + nodeName);
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return stepsUsedIn.toString();
+	}
+	
+	private boolean isStepsUsedInChanged(JSONObject idea, JSONObject previousIdeaBasket, HashMap<String, String> nodeIdToNodeTitlesMap) {
+		boolean stepsUsedInChanged = false;
+		
+		try {
+			if(previousIdeaBasket != null) {
+				int ideaId = idea.getInt("id");
+				
+				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
+				
+				if(previousIdeaRevision != null) {
+					String currentStepsUsedIn = getStepsUsedIn(idea, nodeIdToNodeTitlesMap);
+					String previousStepsUsedIn = getStepsUsedIn(previousIdeaRevision, nodeIdToNodeTitlesMap);
+					
+					if(currentStepsUsedIn != null && previousStepsUsedIn != null && !currentStepsUsedIn.equals(previousStepsUsedIn)) {
+						stepsUsedInChanged = true;
+					}							
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return stepsUsedInChanged;
 	}
 }
