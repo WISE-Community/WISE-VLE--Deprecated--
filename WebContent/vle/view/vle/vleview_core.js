@@ -151,9 +151,30 @@ View.prototype.startVLE = function(){
 
 	/* load theme based on config object parameters */
 	this.loadTheme(this.config.getConfigParam('theme'));
+
+	/* show/hide studentAssets, ideaManager, addIdea buttons based on config */
+	this.displayGlobalTools(this.config.getConfigParam('runInfo'));
 	
 	/* fire startVLEComplete event */
 	this.eventManager.fire('startVLEComplete');
+};
+
+/**
+ * Loads the Global Tools (top menu items) based on run config
+ */
+View.prototype.displayGlobalTools = function(runInfoStr) {
+	if (runInfoStr != null && runInfoStr != "") {
+		var runInfo = JSON.parse(runInfoStr);
+		if (runInfo.isStudentAssetUploaderEnabled != null &&
+				runInfo.isStudentAssetUploaderEnabled) {
+			$("#studentAssetsTD").show();
+		}
+		if (runInfo.isIdeaManagerEnabled != null &&
+				runInfo.isIdeaManagerEnabled) {
+			$("#ideaBasketTD").show();
+			$("#addIdeaTD").show();
+		}
+	}
 };
 
 /**

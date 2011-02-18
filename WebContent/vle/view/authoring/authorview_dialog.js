@@ -365,6 +365,7 @@ View.prototype.initializeAssetUploaderDialog = function(){
 		var filename = $('#uploadAssetFile').val();
 		
 		if(filename && filename != ''){
+			filename = filename.replace("C:\\fakepath\\", "");  // chrome/IE8 fakepath issue: http://acidmartin.wordpress.com/2009/06/09/the-mystery-of-cfakepath-unveiled/
 			if(!view.utils.fileFilter(view.allowedAssetExtensions,filename)){
 				view.notificationManager.notify('Sorry, the specified file type is not allowed.', 3);
 				return;
@@ -411,72 +412,6 @@ View.prototype.initializeAssetUploaderDialog = function(){
 	};
 	
 	$('#assetUploaderDialog').dialog({autoOpen:false, draggable:false, modal:true, width:600, buttons: {'Submit':submit}, close: cancel});
-};
-
-/**
- * Initializes and renders asset editor dialog with clean up function.
- */
-View.prototype.initializeAssetEditorDialog = function(){
-	var view = this;
-	
-	var remove = function(){
-		var parent = document.getElementById('assetSelect');
-		var ndx = parent.selectedIndex;
-		if(ndx!=-1){
-			var opt = parent.options[parent.selectedIndex];
-			var name = opt.value;
-
-			var success = function(text, xml, o){
-				if(text.status==401){
-					xml.notificationManager.notify('You are not authorized to remove assets from this project. If you believe this is an error, please contact an administrator.',3);
-				} else {
-					parent.removeChild(opt);
-					o.notificationManager.notify(text, 3);
-					
-					/* call upload asset with 'true' to get new total file size for assets */
-					o.uploadAsset(true);
-				}
-			};
-			
-			view.connectionManager.request('POST', 1, view.assetRequestUrl, {forward:'assetmanager', projectId:view.portalProjectId, command: 'remove', path: view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase()), asset: name}, success, view, success);
-		}
-	};
-
-	var done = function(){
-		$('#assetEditorDialog').dialog('close');
-		$('#uploadAssetFile').val('');
-		
-		replaceNotificationsDiv();
-	};
-	
-	var cancel = function(){
-		$('#assetSelect').children().remove();
-		$('#uploadAssetFile').val('');
-		$('#sizeDiv').html('');
-		
-		replaceNotificationsDiv();
-	};
-	
-	var show = function(){
-		$('#assetUploaderBodyDiv').after($('#notificationDiv')); // temporarily move notifications div to assets dialog
-		clearNotifcations(); // clear out any existing notifications
-		eventManager.fire('browserResize');
-	};
-	
-	var clearNotifcations = function(){
-		$('.authoringMessages > span').each(function(){
-			var messageId = $(this).attr('id');
-			notificationEventManager.fire('removeMsg',messageId);
-		});
-	};
-	
-	var replaceNotificationsDiv = function(){
-		$('#authorOptions').after($('#notificationDiv')); // move notifications div back to default authoring location
-		clearNotifcations(); // clear out any existing notifications
-		eventManager.fire('browserResize');
-	};
-	
-	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:600, title: 'Project Files', buttons: {'Done': done, 'Remove Selected File': remove}, close: cancel, open:show});
 };
 
 /**

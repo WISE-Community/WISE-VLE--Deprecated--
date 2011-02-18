@@ -275,6 +275,170 @@ View.prototype.onWindowUnload = function(logout){
 	$('#onUnloadSaveDiv').dialog('close');
 };
 
+/**
+ * Display student assets
+ */
+View.prototype.viewStudentAssets = function() {
+	var view = this;
+	//check if the studentAssetsDiv exists
+	if($('#studentAssetsDiv').size()==0){
+		//it does not exist so we will create it
+		$('#w4_vle').append('<div id="studentAssetsDiv" style="margin-bottom:.3em;"></div>');
+				var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none;'><div class='hd'><div>Save a File</div>" 
+					+ "<div id='notificationDiv'></div>"
+					+ "<div id='assetUploaderBodyDiv' class='bd'><input type='file' id='uploadAssetFile' name='uploadAssetFile' size='50' onchange=\"eventManager.fire('studentAssetSubmitUpload')\"></input>"
+					+ "<div id='assetProcessing' style='display:none;'><img class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>"
+					+ "</div></div><div class='bd'><div>My Existing Files: </div>"
+					+ "<select id='assetSelect' style='width:400px;height:300px' size='15'></select>"
+					+ "<div id='sizeDiv'></div><div id='uploaderInstructions'></div>"
+					+ "</div></div>";
+		$('#studentAssetsDiv').html(assetEditorDialogHtml);
+		
+		var remove = function(){
+			var parent = document.getElementById('assetSelect');
+			var ndx = parent.selectedIndex;
+			if(ndx!=-1){
+				var opt = parent.options[parent.selectedIndex];
+				var name = opt.value;
+
+				var success = function(text, xml, o){
+					if(text.status==401){
+						xml.notificationManager.notify('You are not authorized to remove assets from this project. If you believe this is an error, please contact an administrator.',3);
+					} else {
+						parent.removeChild(opt);
+						o.notificationManager.notify(text, 3);
+						
+						/* call upload asset with 'true' to get new total file size for assets */
+						o.checkStudentAssetSizeLimit();
+					}
+				};
+				view.connectionManager.request('POST', 1, view.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'remove', asset: name}, success, view, success);
+			}
+		};
+		
+		var done = function(){
+			$('#studentAssetsDiv').dialog('close');			
+		};
+
+		var show = function(){
+			eventManager.fire('browserResize');
+		};
+
+		$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,height:500,top:'50px',modal:false,title:'My Files', buttons:{'Done':done, 'Remove Selected File':remove}});
+    }
+	
+	/*
+	 * check if the div is hidden before trying to open it.
+	 * if it's already open, we don't have to do anything
+	 */
+	if($('#studentAssetsDiv').is(':hidden')) {
+		//open the dialog
+		$('#studentAssetsDiv').dialog('open');
+		this.checkStudentAssetSizeLimit();
+	};	
+	
+	var studentAssetsPopulateOptions = function(names, view){
+		if(names && names!=''){
+			var parent = $('#assetSelect');
+			parent.html('');
+			var splitz = names.split('~');
+			splitz.sort(function(a,b) {
+			  var al=a.toLowerCase(),bl=b.toLowerCase();
+			  return al==bl?(a==b?0:a<b?-1:1):al<bl?-1:1;
+			});
+			for(var d=0;d<splitz.length;d++){
+				var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + splitz[d]});
+				opt.text = splitz[d];
+				opt.value = splitz[d];
+				parent.append(opt);
+			}
+		}
+
+		$('#uploadAssetFile').val('');
+		$('#studentAssetEditorDialog').show();
+		view.checkStudentAssetSizeLimit();
+	};
+
+	this.connectionManager.request('POST', 1, this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'assetList'}, function(txt,xml,obj){studentAssetsPopulateOptions(txt,obj);}, this);	
+};
+
+/**
+ * Check to make sure that student has not exceeded upload size limit. 
+ */
+View.prototype.checkStudentAssetSizeLimit = function(){
+	var callback = function(text, xml, o){
+			o.currentAssetSize = text;
+			if(text >= o.MAX_ASSET_SIZE){
+				o.notificationManager.notify('Maximum space allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '. Please delete some files.', 3);
+			} else {
+				$('#sizeDiv').html("You are using " + o.utils.appropriateSizeText(text) + " of your " + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + " storage space.");
+			} 
+		};
+	this.connectionManager.request('POST', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);
+};
+
+/**
+ * Performs student asset upload
+ */
+View.prototype.studentAssetSubmitUpload = function() {
+	if (this.currentAssetSize != null) {
+		if (this.currentAssetSize >= this.MAX_ASSET_SIZE) {
+			notificationManager.notify('You cannot upload this file because you have exceeded your upload limit. Please delete some files first and try again.', 3);
+			return;
+		}
+	};
+	var filename = $('#uploadAssetFile').val();
+	var view = this;
+	if(filename && filename != ''){
+		filename = filename.replace("C:\\fakepath\\", "");  // chrome/IE8 fakepath issue: http://acidmartin.wordpress.com/2009/06/09/the-mystery-of-cfakepath-unveiled/	
+		if(!view.utils.fileFilter(view.allowedStudentAssetExtensions,filename)){
+			view.notificationManager.notify('Sorry, the specified file type is not allowed.', 3);
+			return;
+		} else {
+			var frameId = 'assetUploadTarget_' + Math.floor(Math.random() * 1000001);
+			var frame = createElement(document, 'iframe', {id:frameId, type:'student', name:frameId, src:'about:blank', style:'display:none;'});
+			var postStudentAssetUrl = this.getConfig().getConfigParam("studentAssetManagerUrl");
+			// need to get rid of the ?type=StudentAssets&runId=X from the url because we're doing a POST and it will be syntactically incorrect.
+			if (postStudentAssetUrl.indexOf("?") != -1) {
+				postStudentAssetUrl = postStudentAssetUrl.substr(0,postStudentAssetUrl.indexOf("?"));
+			}
+			var form = createElement(document, 'form', {id:'assetUploaderFrm', method:'POST', enctype:'multipart/form-data', action:postStudentAssetUrl, target:frameId, style:'display:none;'});
+			//var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase());
+
+			/* create and append elements */
+			document.body.appendChild(frame);
+			document.body.appendChild(form);
+			
+			//form.appendChild(createElement(document,'input',{type:'hidden', name:'path', value:assetPath}));
+			form.appendChild(createElement(document,'input',{type:'hidden', name:'type', value:'studentAssetManager'}));			
+			form.appendChild(createElement(document,'input',{type:'hidden', name:'runId', value:this.config.getConfigParam("runId")}));
+			form.appendChild(createElement(document,'input',{type:'hidden', name:'forward', value:'assetmanager'}));
+			form.appendChild(createElement(document,'input',{type:'hidden', name:'cmd', value:'studentAssetUpload'}));
+			//form.appendChild(createElement(document,'input',{type:'hidden', name:'projectId', value:view.portalProjectId}));
+
+			/* set up the event and callback when the response comes back to the frame */
+			frame.addEventListener('load',view.assetUploaded,false);
+			
+			/* change the name attribute to reflect that of the file selected by user */
+			document.getElementById('uploadAssetFile').setAttribute("name", filename);
+			
+			/* remove file input from the dialog and append it to the frame before submitting, we'll put it back later */
+			var fileInput = document.getElementById('uploadAssetFile');
+			form.appendChild(fileInput);
+			
+			/* submit hidden form */
+			form.submit();
+			
+			/* put the file input back and remove form now that the form has been submitted */
+			document.getElementById('assetUploaderBodyDiv').insertBefore(fileInput, document.getElementById('assetUploaderBodyDiv').firstChild);
+			document.body.removeChild(form);
+			
+			$('#assetProcessing').show();
+		}
+	} else {
+		view.notificationManager.notify('Please specify a file to upload.',3);
+	}};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/vle/vleview_studentwork.js');

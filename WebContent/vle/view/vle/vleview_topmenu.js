@@ -33,6 +33,10 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.moveIdeaToTrash(args[0]);
 	} else if(type=='moveIdeaOutOfTrash') {
 		obj.moveIdeaOutOfTrash(args[0]);
+	} else if(type=='viewStudentAssets') {
+		obj.viewStudentAssets();
+	} else if(type=='studentAssetSubmitUpload') {
+		obj.studentAssetSubmitUpload();
 	}
 };
 
@@ -638,6 +642,10 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	//create a new IdeaBasket and set it into the view
 	thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
 	thisView.ideaBasket.updateToolbarCount();
+};
+
+View.prototype.displayStudentAssets = function() {
+	this.initializeAssetEditorDialog();
 };
 
 /**

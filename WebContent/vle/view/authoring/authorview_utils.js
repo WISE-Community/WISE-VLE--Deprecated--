@@ -69,55 +69,6 @@ View.prototype.utils.getProjectMetaFilename = function(projectFilename){
 };
 
 /**
- * Returns true if the given name is an allowed file type
- * to upload as asset, false otherwise.
- */
-View.prototype.utils.fileFilter = function(extensions,name){
-	return extensions.indexOf(this.getExtension(name).toLowerCase()) != -1;
-};
-
-/**
- * Given a filename, returns the extension of that filename
- * if it exists, null otherwise.
- */
-View.prototype.utils.getExtension = function(text){
-	var ndx = text.lastIndexOf('.');
-	if(ndx){
-		return text.substring(ndx + 1, text.length);
-	};
-
-	return null;
-};
-
-/**
- * Given a string of a number of bytes, returns a string of the size
- * in either: bytes, kilobytes or megabytes depending on the size.
- */
-View.prototype.utils.appropriateSizeText = function(bytes){
-	if(bytes>1048576){
-		return this.roundToDecimal(((bytes/1024)/1024), 1) + ' mb';
-	} else if(bytes>1024){
-		return this.roundToDecimal((bytes/1024), 1) + ' kb';
-	} else {
-		return bytes + ' b';
-	};
-};
-
-/**
- * Returns the given number @param num to the nearest
- * given decimal place @param decimal. (e.g if called 
- * roundToDecimal(4.556, 1) it will return 4.6.
- */
-View.prototype.utils.roundToDecimal = function(num, decimal){
-	var rounder = 1;
-	if(decimal){
-		rounder = Math.pow(10, decimal);
-	};
-
-	return Math.round(num*rounder)/rounder;
-};
-
-/**
  * Hides all nodes in the project
  */
 View.prototype.utils.hideNodes = function(){

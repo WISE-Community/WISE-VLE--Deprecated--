@@ -139,6 +139,35 @@ View.prototype.utils.containsApplet = function(content){
 };
 
 /**
+ * Given a string of a number of bytes, returns a string of the size
+ * in either: bytes, kilobytes or megabytes depending on the size.
+ */
+View.prototype.utils.appropriateSizeText = function(bytes){
+	if(bytes>1048576){
+		return this.roundToDecimal(((bytes/1024)/1024), 1) + ' mb';
+	} else if(bytes>1024){
+		return this.roundToDecimal((bytes/1024), 1) + ' kb';
+	} else {
+		return bytes + ' b';
+	};
+};
+
+
+/**
+ * Returns the given number @param num to the nearest
+ * given decimal place @param decimal. (e.g if called 
+ * roundToDecimal(4.556, 1) it will return 4.6.
+ */
+View.prototype.utils.roundToDecimal = function(num, decimal){
+	var rounder = 1;
+	if(decimal){
+		rounder = Math.pow(10, decimal);
+	};
+
+	return Math.round(num*rounder)/rounder;
+};
+
+/**
  * Inserts the applet param into the the given content
  * @param content the content in which to insert the param
  * @param name the name of the param
@@ -558,6 +587,60 @@ View.prototype.getMaxScoreForProject = function() {
 	}
 	
 	return maxScoreForProject;
+};
+
+/**
+ * Given a filename, returns the extension of that filename
+ * if it exists, null otherwise.
+ */
+View.prototype.utils.getExtension = function(text){
+	var ndx = text.lastIndexOf('.');
+	if(ndx){
+		return text.substring(ndx + 1, text.length);
+	};
+
+	return null;
+};
+
+/**
+ * Callback function for when the dynamically created frame for uploading assets has recieved
+ * a response from the request. Notifies the response and removes the frame.
+ */
+View.prototype.assetUploaded = function(e){
+	var htmlFrame = e.target;
+	var frame = window.frames[e.target.id];
+	
+	if(frame.document && frame.document.body && frame.document.body.innerHTML != ''){
+		notificationManager.notify(frame.document.body.innerHTML, 3);
+		
+		/* set source to blank in case of page reload */
+		htmlFrame.src = 'about:blank';
+		
+		/* cancel fired to clean up and hide the dialog */
+		//eventManager.fire('assetUploadCancel');
+		
+		// refresh edit asset dialog
+		if (e.target.getAttribute('type')=="student") {
+			eventManager.fire('viewStudentAssets');			
+		} else {
+			eventManager.fire('viewAssets');
+		}
+		$('#assetProcessing').hide();
+		
+		/* change cursor back to default */
+		document.body.style.cursor = 'default';
+		
+		document.getElementById('uploadAssetFile').setAttribute("name", 'uploadAssetFile');
+	} else {
+		document.body.removeChild(htmlFrame);
+	}
+};
+/**
+ * Returns true if the given name is an allowed file type
+ * to upload as asset, false otherwise.
+ */
+View.prototype.utils.fileFilter = function(extensions,name){
+	return extensions.indexOf(this.getExtension(name).toLowerCase()) != -1;
 };
 
 /* used to notify scriptloader that this script has finished loading */

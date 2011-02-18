@@ -263,7 +263,7 @@ var scriptloader = function(){
 	              'vle/view/grading/gradingview_premadecomments.js',
 	              'vle/jquery/js/jquery.editinplace.js'
 	              ],
-	    user: ['vle/user/userandclassinfo.js'],
+	    user: ['vle/user/userandclassinfo.js'],	    
 	    config: ['vle/config/config.js'],
 		keystroke: ['vle/util/keystrokemanager.js'],
 		customcontextmenu: ['vle/util/customcontextmenu.js'],

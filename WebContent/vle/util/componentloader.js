@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core','keystroke','config','user','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket'],
+		vle: ['topMenu','setup', 'core','keystroke','config','user','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
@@ -55,7 +55,7 @@ var componentloader = function(em, sl){
 			initialize:{
 				notificationManager:function(){return window.notificationManager;},
 				connectionManager:function(){return new ConnectionManager(eventManager);},
-				sessionManager:function(view){return new SessionManager(eventManager);},
+				sessionManager:function(view){return new SessionManager(eventManager, view);},
 				init:function(view){
 					view.eventManager.subscribe('alert', function(type,args,obj){obj.notificationManager.notify(args[0],3);}, view);
 					view.eventManager.subscribe('contentTimedOut', function(type,args,obj){obj.notificationManager.notify('Retrieval of content from url ' + args[0] + ' is taking a long time! The server may be slow or is not responding. If content does not load shortly, check with an administrator.', 3);}, view);
@@ -215,7 +215,7 @@ var componentloader = function(em, sl){
 				portalProjectId:undefined, 
 				portalCurriculumBaseDir:undefined, 
 				excludedPrevWorkNodes:['HtmlNode', 'OutsideUrlNode', 'MySystemNode', 'SVGDrawNode', 'MWNode', 'DrawNode','AssessmentListNode', 'DuplicateNode'], 
-				allowedAssetExtensions:['jpg', 'jpeg', 'gif', 'png', 'swf', 'bmp', 'pdf', 'nlogo', 'jar', 'cml', 'mml'],
+				allowedAssetExtensions:['jpg', 'jpeg', 'gif', 'png', 'swf', 'bmp', 'pdf', 'nlogo', 'jar', 'cml', 'mml', 'otml', 'mov', 'mp4'],
 				MAX_ASSET_SIZE:10485760, 
 				currentStepNum:undefined, 
 				activeNode:undefined, 
@@ -512,11 +512,13 @@ var componentloader = function(em, sl){
 		},
 		vle:{
 			variables:{
+				allowedStudentAssetExtensions:['jpg', 'jpeg', 'gif', 'png', 'bmp', 'pdf', 'txt', 'doc'],
 				userAndClassInfoLoaded:false,
 				viewStateLoaded:false,
 				currentPosition:undefined, 
 				state:undefined, 
-				activeNote:undefined
+				activeNote:undefined,
+				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
 				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'renderNode':[null,null], 'renderNodeStart':[null,null],
@@ -712,6 +714,8 @@ var componentloader = function(em, sl){
 					'ideaBasketChanged':[null,null],
 					'displayAddAnIdeaDialog':[null,null],
 					'displayIdeaBasket':[null,null],
+					'viewStudentAssets':[null,null],
+					'studentAssetSubmitUpload':[null,null],
 					'addIdeaToBasket':[null,null],
 					'moveIdeaToTrash':[null,null],
 					'moveIdeaOutOfTrash':[null,null]
@@ -730,6 +734,8 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('displayAddAnIdeaDialog', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('displayIdeaBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('addIdeaToBasket', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('viewStudentAssets', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('studentAssetSubmitUpload', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);
 				}
@@ -742,6 +748,7 @@ var componentloader = function(em, sl){
 		wise:{},
 		peerreviewhelper:{},
 		ideabasket:{},
+		studentasset:{},
 		authoringcomponents:{
 			variables:{
 				updatePromptAfterPreview:false

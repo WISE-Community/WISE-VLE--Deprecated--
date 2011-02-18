@@ -4,8 +4,9 @@
  * the warning or renew the session.
  * Will close the vle and take user back if session does time out.
  */
-function SessionManager(em) {
+function SessionManager(em, view) {
 	this.em = em;
+	this.view = view;
 	//this.sessionTimeoutInterval = view.config.getConfigParam('sessionTimeoutInterval');
 	this.sessionTimeoutInterval = 1200000;   // session timeout limit, in millieconds (20 min = 20*60*1000 = 1200000 milliseconds)
 	//this.sessionTimeoutInterval = 900000;   // session timeout limit, in millieconds (15 min = 15*60*1000 = 900000 milliseconds)
@@ -30,6 +31,10 @@ SessionManager.prototype.maintainConnection = function(){
  * warns the user and allows them to renew
  */
 SessionManager.prototype.checkSession = function() {
+	if(this.view.config.getConfigParam("mode") == "portalpreview") {
+		// no session for preview
+		return;
+	}
 	if (this.lastSuccessfulRequest != null) {
 		if ((Date.parse(new Date()) - this.lastSuccessfulRequest) > this.sessionTimeoutInterval) {
 			// this means that student has been idling too long and has been logged out of the session

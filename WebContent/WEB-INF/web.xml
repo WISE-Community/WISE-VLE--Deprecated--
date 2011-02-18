@@ -119,6 +119,7 @@
     <servlet-name>filemanager</servlet-name>
     <url-pattern>/vle/filemanager.html</url-pattern>
   </servlet-mapping>
+
   
   <servlet>
   	<servlet-name>assetmanager</servlet-name>
@@ -128,6 +129,16 @@
   <servlet-mapping>
   	<servlet-name>assetmanager</servlet-name>
   	<url-pattern>/vle/assetmanager.html</url-pattern>
+  </servlet-mapping>
+    
+  <servlet>
+  	<servlet-name>studentassetmanager</servlet-name>
+  	<servlet-class>utils.AssetManager</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+  	<servlet-name>studentassetmanager</servlet-name>
+  	<url-pattern>/vle/studentassetmanager.html</url-pattern>
   </servlet-mapping>
   
   <servlet>

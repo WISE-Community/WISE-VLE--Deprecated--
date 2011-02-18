@@ -86,13 +86,16 @@ function bootstrapListener(type,args,obj){
             <div id="projectRightUpperBox">
                 <div id="stepNavButtons1">
                     <ul>
+                    	<li id='studentAssetsTD' style="display:none">
+                    		<a id="studentAssetsLink" onclick='eventManager.fire("viewStudentAssets")' title="View My Files"><img src="images/hint/star.png" alt="Files" border="0" /><span>&nbsp;Files&nbsp;</span></a>
+                    	</li>                    
                     	<li>
                     		<a id="hintsLink" onclick='eventManager.fire("showStepHints")' title="View Hints"><img src="images/hint/star.png" alt="Hints" border="0" /><span>&nbsp;Hints&nbsp;</span></a>
                     	</li>
-                    	<li>
+                    	<li id='ideaBasketTD' style="display:none">
                     		<a id="ideaBasketLink" onclick='eventManager.fire("displayIdeaBasket")' title="Idea Basket"><img src="images/ideaManager/basket2.png" alt="Basket" border="0" /><span>&nbsp;Ideas (0)</span></a>
                     	</li>
-                    	<li>
+                    	<li id='addIdeaTD' style="display:none">
                     		<a onclick='eventManager.fire("displayAddAnIdeaDialog")' title="Add an Idea"><img src="images/ideaManager/lightBulbPlus.png" alt="Light Bulb" border="0" />Add Idea</a>
                     	</li>
                         <li id='myWorkTD'>
@@ -225,6 +228,7 @@ function bootstrapListener(type,args,obj){
         <form name="saveLocal" id='saveLocal' action="echo.html" method="POST">
             <input type="hidden" name="name" id="form_filename" value="myData"/><input type="hidden" name="data" id="localData" value=""/>
         </form>
+
 
         <div id="soundmanager-debug">
         </div>

@@ -33,6 +33,10 @@ public class AssetManager extends HttpServlet implements Servlet{
 	private final static String FAILED = "failed";
 	
 	private final static Long MAX_SIZE = 10485760l; //10MB
+	
+	private final static Long STUDENT_MAX_UPLOAD_SIZE = 2097152l;  // 2 MB
+
+	private static final String DEFAULT_DIRNAME = "assets";
 	 
 	private boolean standAlone = true;
 	
@@ -72,11 +76,21 @@ public class AssetManager extends HttpServlet implements Servlet{
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		String command = request.getParameter(COMMAND);
 		
+		String path = request.getParameter(PATH);
+		String dirName = (String) request.getAttribute("dirName");
+		if (dirName == null) {
+			dirName = DEFAULT_DIRNAME;
+		}
+		if (path == null) {
+		 path = (String) request.getAttribute(PATH);
+		}
+
+		
 		if(command!=null){
 			if(command.equals("remove")){
 				this.removeAsset(request, response);
 			} else if(command.equals("getSize")){
-				response.getWriter().write(this.getSize(request.getParameter(PATH)));
+				response.getWriter().write(this.getSize(path, dirName));
 			} else if(command.equals("assetList")){
 				response.getWriter().write(this.assetList(request));
 			} else {
@@ -98,7 +112,18 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 */
 	private String uploadAsset(HttpServletRequest request) {
 		ServletFileUpload uploader = new ServletFileUpload(new DiskFileItemFactory());
-		
+		Long maxSize = MAX_SIZE;
+		String path = request.getParameter(PATH);
+		String dirName = (String) request.getAttribute("dirName");
+		if (dirName == null) {
+			dirName = DEFAULT_DIRNAME;
+		}
+		if (path == null) {
+			// this is a student asset upload
+			path = (String) request.getAttribute(PATH);
+			maxSize = STUDENT_MAX_UPLOAD_SIZE;
+		}
+
 		try{
 			List fileList = uploader.parseRequest(request);
 			/* if request was forwarded from the portal, the fileList will be empty because
@@ -106,7 +131,6 @@ public class AssetManager extends HttpServlet implements Servlet{
 			 * the request so we can get the file another way now */
 			if(fileList.size()>0){
 				Iterator fileIterator = fileList.iterator();
-				String path = null;
 				while(fileIterator.hasNext()){
 					FileItem item = (FileItem)fileIterator.next();
 					if(item.isFormField()){ //get path and set var
@@ -119,13 +143,13 @@ public class AssetManager extends HttpServlet implements Servlet{
 						}
 					} else { //do upload
 						if(path!=null){
-							if(!this.ensureAssetPath(path)){
+							if(!this.ensureAssetPath(path, dirName)){
 								throw new ServletException("Unable to find or setup path to upload file. Operation aborted.");
 							} else {
 								File projectDir = new File(path);
-								File assetsDir = new File(projectDir, "assets");
-								if(Long.parseLong(this.getSize(path)) + item.getSize() > MAX_SIZE){
-									return "Uploading " + item.getName() + " of size " + this.appropriateSize(item.getSize()) + " would exceed maximum storage capacity of " + this.appropriateSize(this.MAX_SIZE) + ". Operation aborted.";
+								File assetsDir = new File(projectDir, dirName);
+								if(Long.parseLong(this.getSize(path, dirName)) + item.getSize() > maxSize){
+									return "Uploading " + item.getName() + " of size " + this.appropriateSize(item.getSize()) + " would exceed maximum storage capacity of " + this.appropriateSize(maxSize) + ". Operation aborted.";
 								}
 								File asset = new File(assetsDir, item.getName());
 								item.write(asset);
@@ -140,10 +164,8 @@ public class AssetManager extends HttpServlet implements Servlet{
 				/* file upload is coming from the portal so we need to read the bytes
 				 * that the portal set in the attribute
 				 */
-				String path = request.getParameter(PATH);
-				
 				File projectDir = new File(path);
-				File assetsDir = new File(projectDir, "assets");
+				File assetsDir = new File(projectDir, dirName);
 				if(!assetsDir.exists()){
 					assetsDir.mkdir();
 				}
@@ -160,8 +182,8 @@ public class AssetManager extends HttpServlet implements Servlet{
 							File asset = new File(assetsDir, filename);
 							byte[] content = fileMap.get(filename);
 							
-							if(Long.parseLong(this.getSize(path)) + content.length > MAX_SIZE){
-								successMessage += "Uploading " + filename + " of size " + this.appropriateSize(content.length) + " would exceed your maximum storage capacity of "  + this.appropriateSize(this.MAX_SIZE) + ". Operation aborted.";
+							if(Long.parseLong(this.getSize(path, dirName)) + content.length > maxSize){
+								successMessage += "Uploading " + filename + " of size " + this.appropriateSize(content.length) + " would exceed your maximum storage capacity of "  + this.appropriateSize(maxSize) + ". Operation aborted.";
 							} else {
 								if(!asset.exists()){
 									asset.createNewFile();
@@ -190,17 +212,18 @@ public class AssetManager extends HttpServlet implements Servlet{
 	
 	/**
 	 * Checks to make sure the provided project path exists. If not returns false,
-	 * if it does, then checks to see if the assets directory exists. If it does, returns
+	 * if it does, then checks to see if the dirName directory exists. If it does, returns
 	 * true, if not, attempts to create it. If the creation is successful, returns true,
 	 * if not returns false.
 	 * 
 	 * @param <code>String</code> path
+	 * @param <code>String</code> dirName
 	 * @return boolean
 	 */
-	private boolean ensureAssetPath(String path) {
+	private boolean ensureAssetPath(String path, String dirName) {
 		File projectDir = new File(path);
 		if(projectDir.exists()){
-			File assetsDir = new File(projectDir, "assets");
+			File assetsDir = new File(projectDir, dirName);
 			if(assetsDir.exists() && assetsDir.isDirectory()){
 				return true;
 			} else {
@@ -219,13 +242,13 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 * @param <code>HttpServletRequest</code> request
 	 * @return <code>String</code> size of all files in assets folder in bytes
 	 */
-	private String getSize(String path){
+	private String getSize(String path, String dirName){
 		if(path==null){
 			return "No project path specified";
 		} else {
 			File projectDir = new File(path);
 			if(projectDir.exists()){
-				File assetsDir = new File(projectDir, "assets");
+				File assetsDir = new File(projectDir, dirName);
 				if(assetsDir.exists() && assetsDir.isDirectory()){
 					long total = 0;
 					//get all file sizes and add to total
@@ -255,13 +278,22 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 */
 	private void removeAsset(HttpServletRequest request, HttpServletResponse response) throws IOException{
 		String path = request.getParameter(PATH);
+		String dirName = (String) request.getAttribute("dirName");
+		if (dirName == null) {
+			dirName = DEFAULT_DIRNAME;
+		}
+		if (path == null) {
+		 path = (String) request.getAttribute(PATH);
+		}
+
 		String asset = request.getParameter(ASSET);
+		
 		
 		File projectDir = new File(path);
 		if(path==null || !(projectDir.exists()) || !(projectDir.isDirectory())){
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
-			File assetDir = new File(projectDir, "assets");
+			File assetDir = new File(projectDir, dirName);
 			if(!assetDir.exists() || !assetDir.isDirectory()){
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			} else {
@@ -297,9 +329,17 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 */
 	private String assetList(HttpServletRequest request){
 		String path = request.getParameter(PATH);
+		String dirName = (String) request.getAttribute("dirName");
+		if (dirName == null) {
+			dirName = DEFAULT_DIRNAME;
+		}
+		if (path == null) {
+		 path = (String) request.getAttribute(PATH);
+		}
+		
 		File projectDir = new File(path);
 		if(projectDir.exists()){
-			File assetsDir = new File(projectDir, "assets");
+			File assetsDir = new File(projectDir, dirName);
 			if(assetsDir.exists() && assetsDir.isDirectory()){
 				File[] files = assetsDir.listFiles();
 				String filenames = "";
