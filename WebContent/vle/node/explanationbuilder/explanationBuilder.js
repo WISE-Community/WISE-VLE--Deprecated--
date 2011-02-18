@@ -496,6 +496,14 @@ ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,textCha
 			this.ideaBasket.ideas[i].source = source;
 			this.ideaBasket.ideas[i].tags = tags;
 			this.ideaBasket.ideas[i].flag = flag;
+			
+			//get the current time
+			var newDate = new Date();
+			var time = newDate.getTime();
+			
+			//update the timeLastEdited
+			this.ideaBasket.ideas[i].timeLastEdited = time;
+			
 			idea = this.ideaBasket.ideas[i];
 			var text = this.ideaBasket.ideas[i].text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
 			//if($tr){
