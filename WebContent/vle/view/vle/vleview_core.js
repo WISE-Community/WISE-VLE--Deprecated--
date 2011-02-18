@@ -10,6 +10,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
 		obj.renderStartNode();
+		obj.setDialogEvents();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
 	} else if(type=='processLoadViewStateResponseComplete'){
@@ -710,6 +711,58 @@ View.prototype.importWork = function(fromNodeId,toNodeId) {
 	var toNode = this.getProject().getNodeById(toNodeId);
 
 	toNode.importWork(fromNode);
+};
+
+/**
+ * Sets default actions for jQuery UI dialog events:
+ * 1: Solves dialog drag/resize problems caused by iframes in the vle
+ * 2: Ensures that dialogs appear above any embedded applets in node content (not functional yet, so disabling - no effect in Firefox 3.6/Chrome Mac)
+ */
+View.prototype.setDialogEvents = function() {
+	// create iframe shim under dialog when opened
+	// Inspired by Dave Willkomm's Shim jQuery plug-in: http://sourceforge.net/projects/jqueryshim/ (copyright 2010, MIT License: http://www.opensource.org/licenses/mit-license.php)
+	/*$('.ui-dialog').live("dialogopen", function(event, ui) {
+		var element = $(this),
+			offset = element.offset(),
+			zIndex = element.css('z-index') - 2;
+			html = '<iframe class="shim" frameborder="0" style="' +
+				'display: block;'+
+				'position: absolute;' +
+				'top:' + offset.top + 'px;' +
+				'left:' + offset.left + 'px;' +
+				'width:' + element.outerWidth() + 'px;' +
+				'height:' + element.outerHeight() + 'px;' +
+				'z-index:' + zIndex + ';' +
+				'"/>';
+	
+		element.before(html);
+		
+		var applet = $("#ifrm").contents().find("applet");
+		applet.after(html);
+		
+	});
+	
+	// remove iframe shim under dialog when closed
+	$('.ui-dialog').live("dialogclose", function(event, ui) {
+		$(this).prev("iframe.shim").remove();
+	});*/
+	
+	// show transparent overlay div under dialog when drag/resize is initiated
+	$('.ui-dialog').live("dialogresizestart dialogdragstart", function(event, ui) {
+		$('body').append('<div id="vleOverlay></div>');
+		var zIndex = $(this).css('z-index') - 1;
+		$('#vleOverlay').css('z-index',zIndex);
+	});
+	
+	// adjust iframe shim dimensions and position when dragging/resizing dialog
+	/*$('.ui-dialog').live("dialogresize dialogdrag", function(event, ui) {
+		
+	});*/
+	
+	// hide transparent overlay div under dialog when drag/resize is initiated
+	$('.ui-dialog').live("dialogresizestop dialogdragstop", function(event, ui) {
+		$('#vleOverlay').remove();
+	});
 };
 
 //used to notify scriptloader that this script has finished loading

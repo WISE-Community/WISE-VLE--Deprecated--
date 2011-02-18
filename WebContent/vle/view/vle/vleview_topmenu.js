@@ -149,7 +149,7 @@ View.prototype.displayFlaggedWork = function() {
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:990,height:(document.height - 20),modal:true,title:'Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:(document.height * .96),modal:true,title:'Flagged Work',zindex:9999});
     }
     
     //set the html into the div
@@ -298,7 +298,7 @@ View.prototype.displayShowAllWork = function() {
 		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr class='showAllWorkHR'><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
 
 	    if($('#showallwork').size()==0){
-	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',width:'94%',height:550,modal:true,title:'My Work (with Teacher Feedback and Scores)'});
+	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:(document.height * .96),modal:true,title:'My Work (with Teacher Feedback and Scores)'});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
@@ -651,9 +651,25 @@ View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
 	//check if the ideaBasketDiv exists
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it
-		$('#w4_vle').append('<div id="ideaBasketDiv" style="margin-bottom:.3em;"></div>');
-		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:800,height:600,modal:false,title:'Idea Basket',close:this.ideaBasketDivClose});
+		$('#w4_vle').append('<div id="ideaBasketDiv"></div>');
+		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:(document.height - 100),modal:false,title:'Idea Basket',close:this.ideaBasketDivClose,
+			// because idea basket content is delivered in an iframe
+			// need to show transparent div overlay when dragging/resizing dialog
+			// so that iframe does not catch mouse movements and interupt dragging/resizing
+			dragStart: function(event, ui) {
+				$('#ideaBasketOverlay').show();
+			},
+			dragStop: function(event, ui) {
+				$('#ideaBasketOverlay').hide();
+			},
+			resizeStart: function(event, ui) {
+				$('#ideaBasketOverlay').show();
+			},
+			resizeStop: function(event, ui) {
+				$('#ideaBasketOverlay').hide();
+			}
+		});
     }
 	
 	/*

@@ -74,6 +74,14 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 .bg11 {background-color:#543f23;color:#FFF;}
 .bg12 {background-color:#bf9a6b;color:#000;}
 
+#vleOverlay, #ideaBasketOverlay {
+	position:absolute;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+}
+
 #centeredDiv {
 	height:100%;
 	margin:0 auto;
@@ -146,6 +154,12 @@ p  {font-size:.8em; line-height:150%;padding:0px; margin:0px;}
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
 	border-radius:4px;
+}
+
+#ideaBasketDiv {
+	margin-bottom:.3em;
+	padding:0;
+	overflow-y:hidden;
 }
 
 #hintsDiv {
