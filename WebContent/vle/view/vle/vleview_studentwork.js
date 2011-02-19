@@ -277,8 +277,9 @@ View.prototype.onWindowUnload = function(logout){
 
 /**
  * Display student assets
+ * @param launchNode which node the file uploader was launched from. Null if launched from top menu.
  */
-View.prototype.viewStudentAssets = function() {
+View.prototype.viewStudentAssets = function(launchNode) {
 	var view = this;
 	//check if the studentAssetsDiv exists
 	if($('#studentAssetsDiv').size()==0){
@@ -292,41 +293,63 @@ View.prototype.viewStudentAssets = function() {
 					+ "<select id='assetSelect' style='width:400px;height:300px' size='15'></select>"
 					+ "<div id='sizeDiv'></div><div id='uploaderInstructions'></div>"
 					+ "</div></div>";
-		$('#studentAssetsDiv').html(assetEditorDialogHtml);
-		
-		var remove = function(){
+		$('#studentAssetsDiv').html(assetEditorDialogHtml);		
+    }
+	
+	var remove = function(){
+		var parent = document.getElementById('assetSelect');
+		var ndx = parent.selectedIndex;
+		if(ndx!=-1){
+			var opt = parent.options[parent.selectedIndex];
+			var name = opt.value;
+
+			var success = function(text, xml, o){
+				if(text.status==401){
+					xml.notificationManager.notify('You are not authorized to remove assets from this project. If you believe this is an error, please contact an administrator.',3);
+				} else {
+					parent.removeChild(opt);
+					o.notificationManager.notify(text, 3);
+					
+					/* call upload asset with 'true' to get new total file size for assets */
+					o.checkStudentAssetSizeLimit();
+				}
+			};
+			view.connectionManager.request('POST', 1, view.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'remove', asset: name}, success, view, success);
+		}
+	};
+	
+	var import = function() {
+		if(view.getCurrentNode() != null &&
+				view.getCurrentNode().importFile) {			
 			var parent = document.getElementById('assetSelect');
 			var ndx = parent.selectedIndex;
 			if(ndx!=-1){
 				var opt = parent.options[parent.selectedIndex];
 				var name = opt.value;
-
-				var success = function(text, xml, o){
-					if(text.status==401){
-						xml.notificationManager.notify('You are not authorized to remove assets from this project. If you believe this is an error, please contact an administrator.',3);
-					} else {
-						parent.removeChild(opt);
-						o.notificationManager.notify(text, 3);
-						
-						/* call upload asset with 'true' to get new total file size for assets */
-						o.checkStudentAssetSizeLimit();
-					}
-				};
-				view.connectionManager.request('POST', 1, view.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'remove', asset: name}, success, view, success);
+				// make absolute path to file: http://studentuploadsBaseWWW/workgroupId/filename
+				var workgroupId = view.userAndClassInfo.getWorkgroupId();
+				var getStudentUploadsBaseUrl = view.config.getConfigParam("getStudentUploadsBaseUrl");
+				var fileWWW = getStudentUploadsBaseUrl + "/" + workgroupId + "/" + name;
+				if(view.getCurrentNode().importFile(fileWWW)) {
+					view.notificationManager.notify("Successfully imported file: " + name, 3);
+					$('#studentAssetsDiv').dialog('close');	
+				} else {
+					view.notificationManager.notify("Import Failed. The current step does not accept the file that you have chosen. Please choose a different file.",3)
+				}
 			}
-		};
-		
-		var done = function(){
-			$('#studentAssetsDiv').dialog('close');			
-		};
-
-		var show = function(){
-			eventManager.fire('browserResize');
-		};
-
-		$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,height:500,top:'50px',modal:false,title:'My Files', buttons:{'Done':done, 'Remove Selected File':remove}});
-    }
+		}
+	};
 	
+	var done = function(){
+		$('#studentAssetsDiv').dialog('close');			
+	};
+
+	var show = function(){
+		eventManager.fire('browserResize');
+	};
+
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,height:500,top:'50px',modal:false,title:'My Files', buttons:{'Done':done, 'Remove Selected File':remove}});
+
 	/*
 	 * check if the div is hidden before trying to open it.
 	 * if it's already open, we don't have to do anything
@@ -358,6 +381,33 @@ View.prototype.viewStudentAssets = function() {
 		$('#studentAssetEditorDialog').show();
 		view.checkStudentAssetSizeLimit();
 	};
+	
+	// if the currently-opened node supports file import, show file import button
+	if(this.getCurrentNode() != null &&
+			this.getCurrentNode().importFile) {
+		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
+                {'Done':done,'Import File to Step':import,'Remove Selected File':remove}
+             );		
+		
+		/*
+		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
+		                                                       {'Done':done},
+		                                                       {'Import File to Step':import},
+		                                                       {'Remove Selected File':remove}
+		                                                    );		
+		                                                    */
+	} else {
+		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
+                {'Done':done,'Remove Selected File':remove}
+             );		
+
+		/*
+		$( "#studentAssetsDiv" ).dialog( "option", "buttons", [
+		                                                       {'Done':done},
+		                                                       {'Remove Selected File':remove}
+		                                                   ] );		
+		                                                   */
+	}
 
 	this.connectionManager.request('POST', 1, this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'assetList'}, function(txt,xml,obj){studentAssetsPopulateOptions(txt,obj);}, this);	
 };

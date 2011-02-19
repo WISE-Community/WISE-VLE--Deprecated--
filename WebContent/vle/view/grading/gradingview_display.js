@@ -1527,7 +1527,18 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 				svgString = svgString.replace(/^--lz77--/, "");
 				svgString = lz77.decompress(svgString);
 			}
-			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+			
+			//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+			// only replace local hrefs. leave absolute hrefs alone!
+			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
+				  console.log(m);
+				  console.log(key);
+				  console.log(value);
+				  if (value.indexOf("http://") == -1) {
+				    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+				  }
+				  return m;
+				});
 			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
@@ -1544,7 +1555,18 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 					currSnap = currSnap.replace(/^--lz77--/, "");
 					currSnap = lz77.decompress(currSnap);
 				}
-				currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+				//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+				// only replace local hrefs. leave absolute hrefs alone!
+				currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
+					  console.log(m);
+					  console.log(key);
+					  console.log(value);
+					  if (value.indexOf("http://") == -1) {
+					    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+					  }
+					  return m;
+					});
+				
 				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 				currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');

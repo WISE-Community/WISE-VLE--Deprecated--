@@ -14,6 +14,8 @@ function SVGDrawNode(nodeType, view) {
 	this.audioSupported = true;	
 	this.exportableToNodes = new Array(			
 			"SVGDrawNode");	
+	this.importableFileExtensions = new Array(
+			"jpg", "png");
 };
 
 SVGDrawNode.prototype.updateJSONContentPath = function(base){
@@ -79,7 +81,6 @@ SVGDrawNode.prototype.exportWork = function(exportToNode) {
 	                states.push(nodeVisit.nodeStates[j]);
 	            }
 	        }
-	        debugger;
 	        var latestState = states[states.length - 1];
 	        var studentWork = latestState.getStudentWork();
 	        
@@ -97,7 +98,6 @@ SVGDrawNode.prototype.exportWork = function(exportToNode) {
 /**
  * Imports and inserts the work from the specified importFromNode
  * @param importFromNode node that will export the data for this node to import
- * @return
  */
 SVGDrawNode.prototype.importWork = function(importFromNode) {
 	var studentWorkSVG = importFromNode.exportWork(this);
@@ -106,6 +106,34 @@ SVGDrawNode.prototype.importWork = function(importFromNode) {
 		var svgStringAfter = svgStringBefore.replace("<title>student</title>", "<title>student</title>" + studentWorkSVG);
 		this.contentPanel.svgCanvas.setSvgString(svgStringAfter);
 	}
+};
+
+/**
+ * Imports and inserts the specified file into current drawing.
+ * @param file to insert into current canvas
+ * @return true iff import is successful
+ */
+SVGDrawNode.prototype.importFile = function(filename) {
+	if (filename.indexOf(".") != -1) {
+		var fileExt = filename.substr(filename.lastIndexOf(".")+1);	
+		if (this.importableFileExtensions.indexOf(fileExt.toLowerCase()) != -1) {
+
+			var importFileSVG = '<image x="250" y="150" height="150" width="150" xlink:href="'+filename+'" />';
+			//var importFileSVG = '<text x="250" y="150" font-family="Verdana" font-size="35" fill="black" >abc</text>';
+			//var importFileSVG = '<img xlink:href="images/logo.png" id="svg_1" height="48" width="48" y="263" x="161"/>';
+			var svgStringBefore = this.contentPanel.svgCanvas.getSvgString();
+			var svgStringAfter = svgStringBefore.replace("<title>student</title>", "<title>student</title>" + importFileSVG);
+			
+			// xmlns:xlink="http://www.w3.org/1999/xlink" <- make sure this is in xml namespace.
+			if (svgStringAfter.indexOf('xmlns:xlink="http://www.w3.org/1999/xlink"') == -1) {
+				svgStringAfter = svgStringAfter.replace("<svg ", "<svg " + 'xmlns:xlink="http://www.w3.org/1999/xlink" ');
+			}
+
+			this.contentPanel.svgCanvas.setSvgString(svgStringAfter);
+			return true;
+		}
+	}
+	return false;
 };
 
 /**
