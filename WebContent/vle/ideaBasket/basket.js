@@ -736,7 +736,7 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	var action = "saveIdeaBasket";
 	
 	//obtain the JSON string serialization of the basket
-	var data = $.stringify(this);
+	var data = encodeURIComponent($.stringify(this));
 	
 	var ideaBasketParams = {
 			action:action,
