@@ -16,6 +16,8 @@ function OpenResponseNode(nodeType, view) {
 			"NoteNode", 
 			"OpenResponseNode", 
 			"SVGDrawNode");	
+	this.importableFileExtensions = new Array(
+			"jpg", "png");
 };
 
 /**
@@ -119,6 +121,36 @@ OpenResponseNode.prototype.importWork = function(importFromNode) {
 	};
 };
 
+/**
+ * Returns true iff the given file can be imported 
+ * into this step's work.
+ */
+OpenResponseNode.prototype.canImportFile = function(filename) {
+	// can't import if this is not in a rich text editor mode.
+	if (this.contentPanel.or.content.isRichTextEditorAllowed) {
+		if (filename.indexOf(".") != -1) {
+			var fileExt = filename.substr(filename.lastIndexOf(".")+1);	
+			if (this.importableFileExtensions.indexOf(fileExt.toLowerCase()) != -1) {
+			return true;
+			}
+		}
+	}
+	return false;
+};
+
+/**
+ * Imports and inserts the specified file into current response.
+ * @param file to insert into response
+ * @return true iff import is successful
+ */
+OpenResponseNode.prototype.importFile = function(filename) {
+	if (this.canImportFile(filename)) {
+		var importFileHTML = "<img src='"+filename+"'></img>";
+		this.contentPanel.or.appendResponse(importFileHTML);
+		return true;
+	}
+	return false;
+};
 
 /**
  * Called when the step is exited. This is used for auto-saving.
