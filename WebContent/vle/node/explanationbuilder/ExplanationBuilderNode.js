@@ -221,11 +221,17 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 		var top  = explanationIdea.ypos;
 		var currColor = explanationIdea.color;
 		
-		//get the idea from the basket
-		var idea = ideaBasket.getIdeaById(id);
+		var text = "";
 		
-		//get the text for the idea
-		var text = idea.text;
+		if(ideaBasket != null) {
+			//get the idea from the basket
+			var idea = ideaBasket.getIdeaById(id);
+			
+			if(idea != null) {
+				//get the text for the idea
+				text = idea.text;
+			}
+		}
 		
 		//create a div for the idea that will be displayed as a rectangle
 		var explanationIdeaHtml = '<div class="exIdea" class="selected" title="Click and drag to move; Click to change color" id="' + childDivIdPrefix + 'explanationIdea' 

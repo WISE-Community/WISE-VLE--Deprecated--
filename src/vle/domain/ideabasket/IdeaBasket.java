@@ -158,11 +158,34 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		if(jsonString == null) {
 			try {
 				JSONObject jsonObject = new JSONObject();
-				jsonObject = new JSONObject();
 				jsonObject.put("id", getId());
 				jsonObject.put("runId", getRunId());
 				jsonObject.put("workgroupId", getWorkgroupId());
 				jsonObject.put("projectId", getProjectId());
+				jsonString = jsonObject.toString(3);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				JSONObject jsonObject = new JSONObject(jsonString);
+				
+				if(!jsonObject.has("id")) {
+					jsonObject.put("id", getId());
+				}
+				
+				if(!jsonObject.has("runId")) {
+					jsonObject.put("runId", getRunId());
+				}
+				
+				if(!jsonObject.has("workgroupId")) {
+					jsonObject.put("workgroupId", getWorkgroupId());
+				}
+
+				if(!jsonObject.has("projectId")) {
+					jsonObject.put("projectId", getProjectId());
+				}
+				
 				jsonString = jsonObject.toString(3);
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -299,6 +322,17 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
         
         session.getTransaction().commit();
         
+        return result;
+	}
+	
+	public static List<IdeaBasket> getIdeaBasketsForRunId(long runId) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        
+        //find all the IdeaBasket objects that match
+        List<IdeaBasket> result =  session.createCriteria(IdeaBasket.class).add(
+        		Restrictions.eq("runId", runId)).addOrder(Order.asc("workgroupId")).addOrder(Order.asc("postTime")).list();
+        session.getTransaction().commit();
         return result;
 	}
 }

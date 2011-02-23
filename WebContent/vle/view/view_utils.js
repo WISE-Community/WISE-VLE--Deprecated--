@@ -524,11 +524,12 @@ View.prototype.getIdeaBasketByWorkgroupId = function(workgroupId) {
 		
 			//loop through all the idea baskets
 			for(var x=0; x<this.ideaBaskets.length; x++) {
-				ideaBasket = this.ideaBaskets[x];
+				var tempIdeaBasket = this.ideaBaskets[x];
 				
 				//compare the workgroup id of the idea basket
-				if(ideaBasket.workgroupId == workgroupId) {
+				if(tempIdeaBasket.workgroupId == workgroupId) {
 					//we have found a match so we will break out of the for loop
+					ideaBasket = tempIdeaBasket;
 					break;
 				}
 			}
