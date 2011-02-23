@@ -115,6 +115,16 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	getGradingHeaderTableHtml += "<tr class='runButtons'><td colspan='2'>";
 	getGradingHeaderTableHtml += "<input type='button' value='Grade By Step' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='Grade By Team' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\"></input>";
+	
+	var runInfoStr = this.config.getConfigParam('runInfo');
+	if (runInfoStr != null && runInfoStr != "") {
+		var runInfo = JSON.parse(runInfoStr);
+		if (runInfo.isStudentAssetUploaderEnabled != null &&
+				runInfo.isStudentAssetUploaderEnabled) {
+			getGradingHeaderTableHtml += "<input type='button' value='View Student Uploaded Files' onClick=\"eventManager.fire('displayStudentUploadedFiles')\"></input>";
+		}
+	}
+	
 	getGradingHeaderTableHtml += "<input type='button' value='Export Latest Student Work' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='Export All Student Work' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='Check for New Student Work' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
@@ -201,6 +211,57 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
+};
+
+/**
+ * Displays all students' uploaded files for this run in a popup
+ * @return
+ */
+View.prototype.displayStudentUploadedFiles = function() {
+	//check if the studentAssetsDiv exists
+	if($('#studentAssetsDiv').size()==0){
+		//it does not exist so we will create it
+		$('#gradeWorkDiv').append('<div id="studentAssetsDiv" style="margin-bottom:.3em;"></div>');
+				var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none;'><div class='hd'><div>Students' Files</div>" 
+					+ "<div id='notificationDiv'></div>"
+					+ "<div id='allStudentsAssets' class='bd'>"
+					+ "</div></div><div class='bd'>"
+					+ "</div></div>";
+		$('#studentAssetsDiv').html(assetEditorDialogHtml);		
+    }
+	
+	var done = function(){
+		$('#studentAssetsDiv').dialog('close');			
+	};
+
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:600,position:[0, 0],top:'20px',modal:true,title:'Students\' Uploaded Files', buttons:{'Done':done}});
+
+	var displayStudentAssets = function(workgroupAssetListsStr, view) {
+		// clear out the panel
+		$("#allStudentsAssets").html("");
+		$('#studentAssetsDiv').dialog('open');
+		$('#studentAssetEditorDialog').show();
+
+		var getStudentUploadsBaseUrl = view.config.getConfigParam("getStudentUploadsBaseUrl");
+		var workgroupAssetLists = JSON.parse(workgroupAssetListsStr);
+		for (var i=0; i<workgroupAssetLists.length; i++) {
+			var workgroupAssetList = workgroupAssetLists[i];
+			var workgroupAssetsArr = workgroupAssetList.assets.split("~");
+			var currWorkgroupId = workgroupAssetList.workgroupId;
+			var htmlForWorkgroup = "<div><h3>" + view.userAndClassInfo.getUserNameByUserId(currWorkgroupId) + "</h3>"
+					+ "<ul>";
+			for (var k=0; k < workgroupAssetsArr.length; k++) {
+				var assetName = workgroupAssetsArr[k];
+				var fileWWW = getStudentUploadsBaseUrl + "/" + currWorkgroupId + "/" + assetName;
+				htmlForWorkgroup += "<li><a target=_blank href='"+fileWWW+"'>" + assetName + "</a></li>";
+			}
+			htmlForWorkgroup += "</ul></div>";
+			$("#allStudentsAssets").append(htmlForWorkgroup);
+		}
+	};
+	
+	var workgroupsInClass = this.userAndClassInfo.getWorkgroupIdsInClass().join(":");
+	this.connectionManager.request('POST', 1, this.getConfig().getConfigParam("viewStudentAssetsUrl"), {forward:'assetmanager', workgroups:workgroupsInClass, command: 'assetList'}, function(txt,xml,obj){displayStudentAssets(txt,obj);}, this);	
 };
 
 /**

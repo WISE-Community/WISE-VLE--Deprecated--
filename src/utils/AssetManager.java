@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Servlet implementation class AssetManager
@@ -323,6 +326,10 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 * Given a <code>HttpServletRequest</code> request, returns
 	 * a <code>String</code> ':' denoted list of all filenames
 	 * within the project path directory.
+	 * In the request:
+	 * - path
+	 * - dirName
+	 * path + dirName = full content folder path
 	 * 
 	 * @param <code>HttpServletRequest</code> request
 	 * @return <code>String</code>
@@ -337,6 +344,32 @@ public class AssetManager extends HttpServlet implements Servlet{
 		 path = (String) request.getAttribute(PATH);
 		}
 		
+		// if dirname is : separated, get asset list for each dir and return concatenated result
+		String[] dirNames = dirName.split(":");
+		if (dirNames.length > 1) {
+			JSONArray jsonArr = new JSONArray();
+			try {
+			for (int i=0; i<dirNames.length; i++) {
+				String currDirName = dirNames[i];
+				String currAssetList = getAssetList(path,currDirName);
+				if (!currAssetList.isEmpty()) {
+					JSONObject jsonObj = new JSONObject();
+					jsonObj.put("workgroupId", currDirName);
+					jsonObj.put("assets", currAssetList);
+					jsonArr.put(jsonObj);
+				}
+			}
+			return jsonArr.toString();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				return "";
+			}				
+		} else {
+			return getAssetList(path,dirName);
+		}
+	}
+	
+	private String getAssetList(String path, String dirName) {
 		File projectDir = new File(path);
 		if(projectDir.exists()){
 			File assetsDir = new File(projectDir, dirName);

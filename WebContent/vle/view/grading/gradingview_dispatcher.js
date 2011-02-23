@@ -34,6 +34,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.displayGradeByStepSelectPage();
 	} else if(type=='displayGradeByTeamSelectPage') {
 		obj.displayGradeByTeamSelectPage();
+	} else if(type=='displayStudentUploadedFiles') {
+		obj.displayStudentUploadedFiles();
 	} else if(type=='togglePrompt') {
 		obj.togglePrompt(args[0]);
 	} else if(type=='refreshGradingScreen') {

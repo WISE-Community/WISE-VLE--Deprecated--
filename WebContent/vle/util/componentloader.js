@@ -132,6 +132,7 @@ var componentloader = function(em, sl){
 					 'filterPeriod':[null, null],
 					 'displayGradeByStepSelectPage':[null, null],
 					 'displayGradeByTeamSelectPage':[null, null],
+					 'displayStudentUploadedFiles':[null, null],
 					 'togglePrompt':[null, null],
 					 'refreshGradingScreen':[null, null],
 					 'initiateGradingDisplayStart':[null, null],
@@ -170,6 +171,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("filterPeriod", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByStepSelectPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByTeamSelectPage", view.gradingDispatcher, view);
+					eventManager.subscribe("displayStudentUploadedFiles", view.gradingDispatcher, view);
 					eventManager.subscribe("togglePrompt", view.gradingDispatcher, view);
 					eventManager.subscribe("refreshGradingScreen", view.gradingDispatcher, view);
 					eventManager.subscribe("getAnnotationsComplete", view.gradingDispatcher, view);
