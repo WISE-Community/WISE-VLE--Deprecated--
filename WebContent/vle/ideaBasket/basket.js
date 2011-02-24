@@ -737,6 +737,7 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	
 	//obtain the JSON string serialization of the basket
 	var data = encodeURIComponent($.stringify(this));
+	//var data = $.stringify(this);
 	
 	var ideaBasketParams = {
 			action:action,
@@ -744,7 +745,7 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	};
 	
 	//post the idea basket back to the server to be saved
-	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, null, {thisView:thisView});
+	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.saveIdeaBasketCallback, {thisView:thisView});
 
 	//set the updated ideaBasket back into the view
 	thisView.ideaBasket = this;
@@ -754,6 +755,34 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	 * notify listeners to refresh their ideaBasket to get the latest changes
 	 */
 	thisView.ideaBasketChanged();
+};
+
+/**
+ * The callback after we try to save the idea basket back to the server
+ * @param responseText if the basket successfully saved this will be set to
+ * "Successfully saved Idea Basket"
+ * or if the basket failed to save it will be set to the JSON for the
+ * previous basket revision that successfully saved so that we can rollback
+ * to that revision
+ * @param responseXML
+ * @param args
+ */
+IdeaBasket.prototype.saveIdeaBasketCallback = function(responseText, responseXML, args) {
+	var thisView = args.thisView;
+	
+	if(responseText != "Successfully saved Idea Basket") {
+		//we failed to save the basket
+		
+		//display a message to the student
+		thisView.notificationManager.notify("Error: Failed to save Idea Basket", 3);
+		
+		//we received the previous basket revision to rollback to
+		var ideaBasketJSONObj = $.parseJSON(responseText);
+		
+		//revert the IdeaBasket and set it into the view
+		thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
+		thisView.ideaBasket.updateToolbarCount();
+	}
 };
 
 /**
@@ -770,6 +799,44 @@ IdeaBasket.prototype.isBasketChanged = function() {
  */
 IdeaBasket.prototype.setBasketChanged = function(basketChangedBool) {
 	basketChanged = basketChangedBool;
+};
+
+/**
+ * Determine if the idea is in the active ideas array
+ * @param ideaId the id of the idea
+ * @return whether the idea is in the active ideas array
+ */
+IdeaBasket.prototype.isIdeaActive = function(ideaId) {
+	var ideaActive = false;
+
+	//loop through the ideas array
+	for(var i=0;i<this.ideas.length;i++){
+		if(this.ideas[i].id==ideaId){
+			ideaActive = true;
+			break;
+		}
+	}
+
+	return ideaActive;
+};
+
+/**
+ * Determine if the idea is in the deleted array
+ * @param ideaId the id of the idea
+ * @return whether the idea is in the deleted array
+ */
+IdeaBasket.prototype.isIdeaInTrash = function(ideaId) {
+	var ideaInTrash = false;
+
+	//loop through the deleted array
+	for(var i=0;i<this.deleted.length;i++){
+		if(this.deleted[i].id==ideaId){
+			ideaInTrash = true;
+			break;
+		}
+	}
+
+	return ideaInTrash;
 };
 
 //Return a helper with preserved width of cells

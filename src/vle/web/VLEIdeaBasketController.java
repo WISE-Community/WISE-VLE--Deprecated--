@@ -28,6 +28,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 		String action = request.getParameter("action");
 		String data = request.getParameter("data");
 		String projectId = (String) request.getAttribute("projectId");
+		boolean savedBasket = false;
 		
 		//get the latest revision of the IdeaBasket for this runId, workgroupId
 		IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
@@ -44,15 +45,42 @@ public class VLEIdeaBasketController extends HttpServlet {
 				if(previousData != null && previousData.equals(data)) {
 					//data is the same so we do not need to save
 				} else {
-					//data is not the same so we will save a new row
-					ideaBasket = new IdeaBasket(new Long(runId), new Long(projectId), new Long(workgroupId), data);
-					ideaBasket.saveOrUpdate();
+					try {
+						//create a JSON object from the data to make sure it is valid JSON
+						JSONObject dataJSONObj = new JSONObject(data);
+						
+						//data is not the same so we will save a new row
+						ideaBasket = new IdeaBasket(new Long(runId), new Long(projectId), new Long(workgroupId), data);
+						ideaBasket.saveOrUpdate();
+						savedBasket = true;
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 				}
 			} else {
 				//the idea basket was never created before so we will save a new row
 				ideaBasket = new IdeaBasket(new Long(runId), new Long(projectId), new Long(workgroupId), data);
 				ideaBasket.saveOrUpdate();
+				savedBasket = true;
 			}
+		}
+		
+		if(!savedBasket) {
+			/*
+			 * we failed to save the basket so we will retrieve the
+			 * previous revision and send it back to the vle so they
+			 * can reload the previous revision.
+			 */
+			ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(workgroupId));
+			response.getWriter().print(ideaBasket.toJSONString());
+		} else {
+			/*
+			 * we successfully saved the idea basket. we must send this
+			 * message back in order to notify the vle that the idea basket
+			 * was successfully saved otherwise it will assume it failed
+			 * to save
+			 */
+			response.getWriter().print("Successfully saved Idea Basket");
 		}
 	}
 

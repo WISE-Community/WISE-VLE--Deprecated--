@@ -628,7 +628,7 @@ View.prototype.getIdeaBasket = function() {
 };
 
 /**
- * Callback for when we receive teh idea basket from the server
+ * Callback for when we receive the idea basket from the server
  * @param responseText
  * @param responseXML
  * @param args
@@ -639,9 +639,13 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	//parse the JSON string
 	var ideaBasketJSONObj = $.parseJSON(responseText);
 	
-	//create a new IdeaBasket and set it into the view
-	thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
-	thisView.ideaBasket.updateToolbarCount();
+	if(ideaBasketJSONObj == null) {
+		thisView.notificationManager.notify("Error: Failed to retrieve Idea Basket", 3);
+	} else {
+		//create the IdeaBasket from the JSON and set it into the view
+		thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
+		thisView.ideaBasket.updateToolbarCount();
+	}
 };
 
 View.prototype.displayStudentAssets = function() {
@@ -654,8 +658,17 @@ View.prototype.displayStudentAssets = function() {
  * @param responseXML
  * @param args
  */
-View.prototype.displayIdeaBasket = function(responseText, responseXML, args) {
+View.prototype.displayIdeaBasket = function() {
 
+	if(!this.ideaBasket) {
+		/*
+		 * the vle failed to retrieve the idea basket so we will display
+		 * an error message and not display the idea basket popup
+		 */
+		this.notificationManager.notify("Error: Could not open Idea Basket", 3);
+		return;
+	}
+	
 	//check if the ideaBasketDiv exists
 	if($('#ideaBasketDiv').size()==0){
 		//it does not exist so we will create it

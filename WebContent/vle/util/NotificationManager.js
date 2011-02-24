@@ -187,7 +187,9 @@ var notificationManager = {
  * removes the element from the page.
  */
 function AlertObject(elId, msg, mode){
-	this.MSG_TIME = 60000;
+	msg += '\n<p style="font-size:0.8em">(Click this message to remove)</p>';
+	
+	this.MSG_TIME = 5000;
 	this.elId = elId;
 	this.msg = msg;
 	if(mode){

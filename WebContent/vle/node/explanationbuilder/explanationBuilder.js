@@ -188,59 +188,64 @@ ExplanationBuilder.prototype.getLatestState = function() {
  * the .html file for this step (look at template.html).
  */
 ExplanationBuilder.prototype.save = function() {
-	//get the answer the student wrote
-	var answer = $('#explanationText').val();
-	
-	//get the last state that was submitted (the previous time the student worked on this step)
-	if(this.latestState != null) {
-		if(this.latestState.answer != answer) {
-			//the answer has changed since last time
-			this.stateChanged = true;
-		}
-	}
-	
-	//check if the student has changed anything in this step
-	if(this.stateChanged == true) {
-		/*
-		 * create the student state that will store the new work the student
-		 * just submitted
-		 * 
-		 * xTODO: rename TEMPLATESTATE
-		 * 
-		 * make sure you rename TEMPLATESTATE to the state object type
-		 * that you will use for representing student data for this
-		 * type of step. copy and modify the file below
-		 * 
-		 * vlewrapper/WebContent/vle/node/template/templatestate.js
-		 * 
-		 * and use the object defined in your new state.js file instead
-		 * of TEMPLATESTATE. for example if you are creating a new
-		 * quiz step type you would copy the file above to
-		 * 
-		 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
-		 * 
-		 * and in that file you would define QUIZSTATE and therefore
-		 * would change the TEMPLATESTATE to QUIZSTATE below
-		 */
-		var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#explanationText').val(), Date.parse(new Date()));
-
-		/*
-		 * fire the event to push this state to the global view.states object.
-		 * the student work is saved to the server once they move on to the
-		 * next step.
-		 */
-		eventManager.fire('pushStudentWork', explanationBuilderState);
-
-		//push the state object into this or object's own copy of states
-		this.states.push(explanationBuilderState);
-	}
-	
-	if(this.basketChanged == true) {
-		//save the basket since it has been changed
-		this.ideaBasket.saveIdeaBasket(this.view);
+	//if the vle does not have the basket we will not save the student work for this step
+	if(this.view.ideaBasket) {
+		//the vle has the basket so we will save the student work
 		
-		//set this back to false now that we have saved it
-		this.basketChanged = false;
+		//get the answer the student wrote
+		var answer = $('#explanationText').val();
+		
+		//get the last state that was submitted (the previous time the student worked on this step)
+		if(this.latestState != null) {
+			if(this.latestState.answer != answer) {
+				//the answer has changed since last time
+				this.stateChanged = true;
+			}
+		}
+		
+		//check if the student has changed anything in this step
+		if(this.stateChanged == true) {
+			/*
+			 * create the student state that will store the new work the student
+			 * just submitted
+			 * 
+			 * xTODO: rename TEMPLATESTATE
+			 * 
+			 * make sure you rename TEMPLATESTATE to the state object type
+			 * that you will use for representing student data for this
+			 * type of step. copy and modify the file below
+			 * 
+			 * vlewrapper/WebContent/vle/node/template/templatestate.js
+			 * 
+			 * and use the object defined in your new state.js file instead
+			 * of TEMPLATESTATE. for example if you are creating a new
+			 * quiz step type you would copy the file above to
+			 * 
+			 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
+			 * 
+			 * and in that file you would define QUIZSTATE and therefore
+			 * would change the TEMPLATESTATE to QUIZSTATE below
+			 */
+			var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#explanationText').val(), Date.parse(new Date()));
+
+			/*
+			 * fire the event to push this state to the global view.states object.
+			 * the student work is saved to the server once they move on to the
+			 * next step.
+			 */
+			eventManager.fire('pushStudentWork', explanationBuilderState);
+
+			//push the state object into this or object's own copy of states
+			this.states.push(explanationBuilderState);
+		}
+		
+		if(this.basketChanged == true) {
+			//save the basket since it has been changed
+			this.ideaBasket.saveIdeaBasket(this.view);
+			
+			//set this back to false now that we have saved it
+			this.basketChanged = false;
+		}		
 	}
 };
 
@@ -382,47 +387,56 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 
 	$('.exIdea').remove();
 
-	//populate table and explanation ideas
-	for(var i=0; i<this.ideaBasket.ideas.length; i++){
-		this.addRow(this.ideaBasket.ideas[i],true);
-		if(explanationIdeas){
-			for (var a=0; a<explanationIdeas.length; a++){
-				if(this.ideaBasket.ideas[i].id == explanationIdeas[a].id){
-					var id = explanationIdeas[a].id;
-					var left = explanationIdeas[a].xpos;
-					var top = explanationIdeas[a].ypos;
-					var color = explanationIdeas[a].color;
-					if(explanationIdeas[a].lastAcceptedText){
-						var lastAcceptedText = explanationIdeas[a].lastAcceptedText;
-					} else {
-						explanationIdeas[a].lastAcceptedText = this.ideaBasket.ideas[i].text;
-						var lastAcceptedText = this.ideaBasket.ideas[i].text;
-					}
-					this.addExpIdea(this,true,true,id,left,top,color,lastAcceptedText);
-					break;
-				}
-			}
+	if(this.ideaBasket == null) {
+		//we do not have the basket
+		
+		/*
+		 * display a message to the student and disable the buttons 
+		 * and textarea so the student can't work on the step
+		 */
+		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step", 3);
+		$('#addNew').attr('disabled', 'disabled');
+		$('#save').attr('disabled', 'disabled');
+		$('#explanationText').attr('disabled', 'disabled');
+	} else {
+		//we have the basket
+		
+		//loop through all the ideas in the basket
+		for(var i=0; i<this.ideaBasket.ideas.length; i++){
+			//add the idea to the display where we show all the ideas in the basket
+			this.addRow(this.ideaBasket.ideas[i],true);
 		}
-	}
-
-	for(var i=0; i<this.ideaBasket.deleted.length; i++){
+		
 		if(explanationIdeas){
+			//loop through all the ideas that the student has used (dragged to the right)
 			for (var a=0; a<explanationIdeas.length; a++){
-				if(this.ideaBasket.deleted[i].id == explanationIdeas[a].id){
-					var id = explanationIdeas[a].id;
-					var left = explanationIdeas[a].xpos;
-					var top = explanationIdeas[a].ypos;
-					var color = explanationIdeas[a].color;
-					this.addExpIdea(this,true,false,id,left,top,color);
-					break;
+				//get the attributes
+				var id = explanationIdeas[a].id;
+				var left = explanationIdeas[a].xpos;
+				var top = explanationIdeas[a].ypos;
+				var color = explanationIdeas[a].color;
+				var lastAcceptedText = null;
+				
+				if(explanationIdeas[a].lastAcceptedText){
+					//get the last accepted text
+					lastAcceptedText = explanationIdeas[a].lastAcceptedText;
+				} else {
+					//get the text from the basket
+					var idea = this.ideaBasket.getIdeaById(id);
+					var ideaText = idea.text;
+					explanationIdeas[a].lastAcceptedText = ideaText;
+					lastAcceptedText = ideaText;
 				}
+				
+				//determine if the idea is active or in the trash
+				var isActive = this.ideaBasket.isIdeaActive(id);
+				
+				//add the explanation idea to 
+				this.addExpIdea(this,true,isActive,id,left,top,color,lastAcceptedText);
 			}
+			
+			this.explanationIdeas = explanationIdeas;
 		}
-	}
-
-	if(explanationIdeas){
-		this.explanationIdeas = explanationIdeas;
-		//localStorage.explanationIdeas = JSON.stringify(explanationIdeas);
 	}
 
 	$('#colorPicker').hide();
