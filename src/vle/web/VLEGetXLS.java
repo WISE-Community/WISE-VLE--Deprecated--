@@ -2337,7 +2337,12 @@ public class VLEGetXLS extends VLEServlet {
 	 * the top and the latest navigation data is at the bottom
 	 * @param nodeIdToNodeTitlesMap a HashMap that contains nodeId to
 	 * nodeTitle mappings
-	 * @param workgroupIdsArray a String array containing workgroupIds
+	 * @param workgroupIds a String array containing workgroupIds
+	 * @param runId
+	 * @param nodeIdToNode
+	 * @param nodeIdToNodeContent
+	 * @param workgroupIdToPeriodId
+	 * @param teacherWorkgroupIds
 	 * @return an excel workbook that contains the student navigation
 	 */
 	private HSSFWorkbook getIdeaBasketsExcelExport(
@@ -2349,13 +2354,16 @@ public class VLEGetXLS extends VLEServlet {
 			HashMap<Integer, Integer> workgroupIdToPeriodId,
 			List<String> teacherWorkgroupIds) {
 	
+		//the excel workbook
 		HSSFWorkbook wb = new HSSFWorkbook();
 		
+		//this export will only contain one sheet
 		Sheet mainSheet = wb.createSheet();
 		
 		int rowCounter = 0;
 		int columnCounter = 0;
 		
+		//create all the header fields
 		Vector<String> headerFields = new Vector<String>();
 		headerFields.add("Workgroup Id");
 		headerFields.add("Basket Revision");
@@ -2364,136 +2372,201 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Flag");
 		headerFields.add("Tags");
 		headerFields.add("Source");
+		headerFields.add("Node Type");
 		headerFields.add("Node Id Created On");
 		headerFields.add("Node Name Created On");
+		headerFields.add("Steps Used In Count");
 		headerFields.add("Steps Used In");
+		headerFields.add("Trash");
 		headerFields.add("Timestamp Basket Saved");
 		headerFields.add("Timestamp Idea Created");
 		headerFields.add("Timestamp Idea Last Edited");
 		headerFields.add("New");
 		headerFields.add("Revised");
-		headerFields.add("Moved");
+		headerFields.add("Repositioned");
 		headerFields.add("Steps Used In Changed");
-		headerFields.add("Trash");
+		headerFields.add("Deleted In This Revision");
 
 		Row headerRow = mainSheet.createRow(rowCounter++);
-		
+
+		//loop through all the header fields to add them to the excel
 		for(int x=0; x<headerFields.size(); x++) {
-	    	
 	    	//the header column to just keep track of each row (which represents a step visit)
 	    	headerRow.createCell(columnCounter++).setCellValue(headerFields.get(x));
 		}
 		
-		List<IdeaBasket> ideaBaskets = IdeaBasket.getIdeaBasketsForRunId(new Long(runId));
+		/*
+		 * get all the idea basket revisions for this run. all the revisions
+		 * for a workgroup are ordered chronologically and all the basket
+		 * revisions for a workgroup are grouped together
+		 * e.g.
+		 * 
+		 * list[0] = workgroup1, basket revision 1
+		 * list[1] = workgroup1, basket revision 2
+		 * list[2] = workgroup1, basket revision 3
+		 * list[3] = workgroup2, basket revision 1
+		 * list[4] = workgroup2, basket revision 2
+		 * etc.
+		 */
+		List<IdeaBasket> ideaBasketRevisions = IdeaBasket.getIdeaBasketsForRunId(new Long(runId));
 		
+		/*
+		 * used for comparing basket revisions. we need to make sure we are
+		 * comparing a basket revision for the same workgroup since these
+		 * idea basket revisions are all in the list one after the other
+		 */
 		long previousWorkgroupId = -1L;
+		
+		//counter for the basket revision for a workgroup
 		int basketRevision = 1;
+		
+		//variable that will hold the previous basket revision
 		JSONObject previousIdeaBasketJSON = null;
+		
+		//object to format timestamps
 		DateFormat dateTimeInstance = DateFormat.getDateTimeInstance();
 		
-		for(int x=0; x<ideaBaskets.size(); x++) {
-			columnCounter = 0;
+		//loop through all the basket revisions
+		for(int x=0; x<ideaBasketRevisions.size(); x++) {
 			
-			IdeaBasket ideaBasket = ideaBaskets.get(x);
+			//get the IdeaBasket java object
+			IdeaBasket ideaBasket = ideaBasketRevisions.get(x);
+			
+			//get the workgroup id
 			long workgroupId = ideaBasket.getWorkgroupId();
-			System.out.println("workgroupId=" + ideaBasket.getWorkgroupId() + ", postTime=" + ideaBasket.getPostTime());
-			
+
 			if(workgroupId == previousWorkgroupId) {
+				/*
+				 * previous basket revision was for the same workgroup so
+				 * we will increment the basket revision counter
+				 */
 				basketRevision++;
 			} else {
+				/*
+				 * previous basket revision was for a different workgroup
+				 * so we will reset these values
+				 */
 				previousWorkgroupId = -1L;
 				basketRevision = 1;
 				previousIdeaBasketJSON = null;
 			}
 			
+			//get the JSON for the basket revision
 			String data = ideaBasket.getData();
 			
 			if(data != null) {
 				JSONObject ideaBasketJSON = new JSONObject();
 				try {
+					//create a JSON object from the basket revision
 					ideaBasketJSON = new JSONObject(data);
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
 				
+				//get the number of ideas in this revision
 				int numberOfIdeas = getNumberOfIdeas(ideaBasketJSON);
 				
+				//loop through all the ideas in the current revision
 				for(int y=1; y<=numberOfIdeas; y++) {
+					//each idea gets its own row so we will start at column 0
 					columnCounter = 0;
 					
 					try {
+						//get the idea
 						JSONObject idea = getIdeaById(ideaBasketJSON, y);
 						int ideaId = idea.getInt("id");
 						
 						if(idea != null) {
 							Row ideaBasketRow = mainSheet.createRow(rowCounter++);
+							
+							//WorkgrupId
 							ideaBasketRow.createCell(columnCounter++).setCellValue(workgroupId);
+							
+							//Basket Revision
 							ideaBasketRow.createCell(columnCounter++).setCellValue(basketRevision);
+							
+							//Idea #
 							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaId);
+							
+							//Idea Text
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("text"));
+							
+							//Flag
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
+							
+							//Tags
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
+							
+							//Source
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
+							
+							//Node Type
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getNodeTypeFromIdea(idea, nodeIdToNodeContent));
+							
+							//Node Id Created On
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeId"));
+							
+							//Node Name Created On
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeName"));
+							
+							//Steps Used In Count
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedInCount(idea));
+							
+							//Steps Used In
 							ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedIn(idea, nodeIdToNodeTitlesMap));
 							
+							//Trash
+							boolean ideaInTrash = isIdeaInTrash(ideaBasketJSON, ideaId);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaInTrash));
+							
+							//Timestamp Basket Saved
 							Timestamp postTime = ideaBasket.getPostTime();
 							long time = postTime.getTime();
 							Date dateBasketSaved = new Date(time);
 							String timestampBasketSaved = dateTimeInstance.format(dateBasketSaved);
 							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampBasketSaved);
 							
+							//Timestamp Idea Created
 							long timeCreated = idea.getLong("timeCreated");
 							Date dateCreated = new Date(timeCreated);
 							String timestampIdeaCreated = dateTimeInstance.format(dateCreated);
 							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaCreated);
 							
+							//Timestamp Idea Last Edited
 							long timeLastEdited = idea.getLong("timeLastEdited");
 							Date dateLastEdited = new Date(timeLastEdited);
 							String timestampIdeaLastEdited = dateTimeInstance.format(dateLastEdited);
 							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaLastEdited);
 							
+							//New
 							boolean ideaNew = isIdeaNew(idea, previousIdeaBasketJSON);
-							int ideaNewInt = 0;
-							if(ideaNew) {
-								ideaNewInt = 1;
-							}
-							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaNewInt);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaNew));
 							
+							//Revised
 							boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON);
-							int ideaRevisedInt = 0;
-							if(ideaRevised) {
-								ideaRevisedInt = 1;
-							}
-							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaRevisedInt);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRevised));
 							
+							//Repositioned
 							boolean ideaPositionChanged = isIdeaPositionChanged(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
-							int ideaPositionChangedInt = 0;
-							if(ideaPositionChanged) {
-								ideaPositionChangedInt = 1;
-							}
-							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaPositionChangedInt);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaPositionChanged));
 							
+							//Steps Used In Changed
 							boolean stepsUsedInChanged = isStepsUsedInChanged(idea, previousIdeaBasketJSON, nodeIdToNodeTitlesMap);
-							int stepsUsedInChangedInt = 0;
-							if(stepsUsedInChanged) {
-								stepsUsedInChangedInt = 1;
-							}
-							ideaBasketRow.createCell(columnCounter++).setCellValue(stepsUsedInChangedInt);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(stepsUsedInChanged));
 							
-							boolean ideaInTrash = isIdeaInTrash(ideaBasketJSON, ideaId);
-							int ideaInTrashInt = 0;
-							if(ideaInTrash) {
-								ideaInTrashInt = 1;
-							}
-							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaInTrashInt);
+							//Deleted In This Revision
+							boolean ideaDeletedInThisRevision = isIdeaDeletedInThisRevision(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaDeletedInThisRevision));
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 				}
 				
+				/*
+				 * remember the workgroupid and basket so we can 
+				 * compare them to the next revision
+				 */
 				previousWorkgroupId = workgroupId;
 				previousIdeaBasketJSON = ideaBasketJSON;				
 			}
@@ -2502,18 +2575,27 @@ public class VLEGetXLS extends VLEServlet {
 		return wb;
 	}
 	
+	/**
+	 * Get the idea from a basket revision by idea id
+	 * @param ideaBasketJSON the basket revision
+	 * @param ideaId the id of the idea we want
+	 * @return the idea in JSONObject form
+	 */
 	private JSONObject getIdeaById(JSONObject ideaBasketJSON, int ideaId) {
 		JSONObject idea = null;
 		boolean ideaFound = false;
 		
 		try {
+			//get the ideas
 			JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
 			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
 			
+			//loop through the active ideas
 			for(int x=0; x<ideas.length(); x++) {
 				JSONObject activeIdea = ideas.getJSONObject(x);
 				
 				if(activeIdea != null && activeIdea.getInt("id") == ideaId) {
+					//we have found the idea we want so we will stop searching
 					idea = activeIdea;
 					ideaFound = true;
 					break;
@@ -2521,6 +2603,7 @@ public class VLEGetXLS extends VLEServlet {
 			}
 			
 			if(!ideaFound) {
+				//we have not found the idea yet so we will search the trash
 				for(int y=0; y<deleted.length(); y++) {
 					JSONObject deletedIdea = deleted.getJSONObject(y);
 					
@@ -2538,18 +2621,26 @@ public class VLEGetXLS extends VLEServlet {
 		return idea;
 	}
 	
+	/**
+	 * Get the number of ideas in this basket revision
+	 * @param ideaBasketJSON the basket revision
+	 * @return the number of ideas in the basket revision
+	 */
 	private int getNumberOfIdeas(JSONObject ideaBasketJSON) {
 		int numberOfIdeas = 0;
 		
 		try {
+			//get the ideas
 			JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
 			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
 			
 			if(ideas != null) {
+				//add the active ideas count
 				numberOfIdeas += ideas.length();	
 			}
 			
 			if(deleted != null) {
+				//add the trash ideas count
 				numberOfIdeas += deleted.length();
 			}
 			
@@ -2560,23 +2651,35 @@ public class VLEGetXLS extends VLEServlet {
 		return numberOfIdeas;
 	}
 	
+	/**
+	 * Determine if an idea is in the trash
+	 * @param ideaBasketJSON the basket revision
+	 * @param ideaId the id of the idea
+	 * @return whether the idea is in the trash or not
+	 */
 	private boolean isIdeaInTrash(JSONObject ideaBasketJSON, int ideaId) {
 		boolean ideaInTrash = false;
 		
 		try {
-			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
-			
-			for(int x=0; x<deleted.length(); x++) {
-				JSONObject deletedIdea = deleted.getJSONObject(x);
+			if(ideaBasketJSON != null) {
+				//get the deleted ideas from the basket revision
+				JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
 				
-				if(deletedIdea != null) {
-					int deletedIdeaId = deletedIdea.getInt("id");
+				//loop through all the ideas in the trash
+				for(int x=0; x<deleted.length(); x++) {
+					JSONObject deletedIdea = deleted.getJSONObject(x);
 					
-					if(deletedIdeaId == ideaId) {
-						ideaInTrash = true;
-						break;
+					if(deletedIdea != null) {
+						//get the id of the idea in the trash
+						int deletedIdeaId = deletedIdea.getInt("id");
+						
+						if(deletedIdeaId == ideaId) {
+							//the id matches so the idea is in the trash
+							ideaInTrash = true;
+							break;
+						}
 					}
-				}
+				}				
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -2585,16 +2688,30 @@ public class VLEGetXLS extends VLEServlet {
 		return ideaInTrash;
 	}
 	
+	/**
+	 * Determine if the idea is new and added in the current revision
+	 * @param idea the idea
+	 * @param previousIdeaBasket the previous basket revision
+	 * @return
+	 */
 	private boolean isIdeaNew(JSONObject idea, JSONObject previousIdeaBasket) {
 		boolean ideaNew = false;
 		try {
 			if(previousIdeaBasket == null) {
+				//if there was no previous basket revision, the idea is new
 				ideaNew = true;
 			} else {
+				//get the id
 				int ideaId = idea.getInt("id");
+				
+				//try to get the idea from the previous basket revision
 				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
 				
 				if(previousIdeaRevision == null) {
+					/*
+					 * we did not find the idea in the previous basket revision
+					 * so the idea is new
+					 */
 					ideaNew = true;
 				}				
 			}
@@ -2605,25 +2722,65 @@ public class VLEGetXLS extends VLEServlet {
 		return ideaNew;
 	}
 	
+	/**
+	 * Determine if the idea was revised
+	 * @param idea the idea
+	 * @param previousIdeaBasket the previous basket revision
+	 * @return whether the ideas was revised or not
+	 */
 	private boolean isIdeaRevised(JSONObject idea, JSONObject previousIdeaBasket) {
 		boolean ideaRevised = false;
 		try {
 			if(previousIdeaBasket != null) {
+				//get the id of the idea
 				int ideaId = idea.getInt("id");
+				
+				//get the idea from the previous basket revision
 				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
 				
 				if(previousIdeaRevision != null) {
+					//get the time last edited timestamps
 					long timeLastEdited = idea.getLong("timeLastEdited");
 					long previousTimeLastEdited = previousIdeaRevision.getLong("timeLastEdited");
 
+					//compare the time last edited timestamps
 					if(timeLastEdited != previousTimeLastEdited) {
 						ideaRevised = true;					
 					}
 					
+					//get the text
 					String text = idea.getString("text");
 					String previousText = previousIdeaRevision.getString("text");
 					
+					//compare the text
 					if(text != null && !text.equals(previousText)) {
+						ideaRevised = true;
+					}
+					
+					//get the flags
+					String flag = idea.getString("flag");
+					String previousFlag = previousIdeaRevision.getString("flag");
+					
+					//compare the flags
+					if(flag != null && !flag.equals(previousFlag)) {
+						ideaRevised = true;
+					}
+					
+					//get the tags
+					String tags = idea.getString("tags");
+					String previousTags = previousIdeaRevision.getString("tags");
+					
+					//compare the tags
+					if(tags != null && !tags.equals(previousTags)) {
+						ideaRevised = true;
+					}
+					
+					//get the source
+					String source = idea.getString("source");
+					String previousSource = previousIdeaRevision.getString("source");
+					
+					//compare the source
+					if(source != null && !source.equals(previousSource)) {
 						ideaRevised = true;
 					}
 				}	
@@ -2635,6 +2792,13 @@ public class VLEGetXLS extends VLEServlet {
 		return ideaRevised;
 	}
 	
+	/**
+	 * Determine whether the position of an idea has changed
+	 * @param ideaId the id of the idea
+	 * @param currentIdeaBasket the current basket revision
+	 * @param previousIdeaBasket the previous basket revision
+	 * @return whether the position of the idea has changed
+	 */
 	private boolean isIdeaPositionChanged(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
 		boolean ideaPositionChanged = false;
 		
@@ -2644,6 +2808,7 @@ public class VLEGetXLS extends VLEServlet {
 		int previousPositionInIdeas = -1;
 		int previousPositionInDeleted = -1;
 		
+		//try to find the idea in the ideas array or deleted array of the previous basket revision
 		previousPositionInIdeas = getPositionInIdeas(ideaId, previousIdeaBasket);
 		previousPositionInDeleted = getPositionInDeleted(ideaId, previousIdeaBasket);
 		
@@ -2655,36 +2820,98 @@ public class VLEGetXLS extends VLEServlet {
 			 * position changed as false
 			 */
 		} else {
+			//try to find the position of the idea in the ideas array of the current basket revision
 			currentPositionInIdeas = getPositionInIdeas(ideaId, currentIdeaBasket);
 			
 			if(currentPositionInIdeas == -1) {
+				//we did not find it in the ideas array so we will look in the deleted array
 				currentPositionInDeleted = getPositionInDeleted(ideaId, currentIdeaBasket);				
 			}
 			
 			if(currentPositionInIdeas != -1 && previousPositionInIdeas != -1) {
+				//the idea is in the ideas array of current and previous basket revisions
+				
 				if(currentPositionInIdeas != previousPositionInIdeas) {
 					ideaPositionChanged = true;
 				}
-			} else {
-				if(currentPositionInDeleted != -1 && previousPositionInDeleted != -1) {
-					if(currentPositionInDeleted != previousPositionInDeleted) {
-						ideaPositionChanged = true;
-					}
+			} else if(currentPositionInDeleted != -1 && previousPositionInDeleted != -1) {
+				//the idea is in the deleted array of current and previous basket revisions
+				
+				if(currentPositionInDeleted != previousPositionInDeleted) {
+					ideaPositionChanged = true;
 				}
-			}			
+			} else if(currentPositionInIdeas != -1 && previousPositionInDeleted != -1) {
+				/*
+				 * the idea is in the ideas array of the current basket revision 
+				 * and in the deleted array of the previous basket revision
+				 */
+				ideaPositionChanged = true;
+			} else if(currentPositionInDeleted != -1 && previousPositionInIdeas != -1) {
+				/*
+				 * the idea is in the deleted array of the current basket revision
+				 * and in the ideas array of the previous basket revision
+				 */
+				ideaPositionChanged = true;
+			}
 		}
 		
 		return ideaPositionChanged;
 	}
 	
+	/**
+	 * Determine whether the idea was put into the trash in this revision
+	 * @param ideaId the id of the idea
+	 * @param currentIdeaBasket the current basket revision
+	 * @param previousIdeaBasket the previous basket revision
+	 * @return whether the idea was put into the trash in this revision
+	 */
+	private boolean isIdeaDeletedInThisRevision(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean ideaDeleted = false;
+		
+		//determine if the idea is in the trash in the current revision
+		boolean ideaInCurrentTrash = isIdeaInTrash(currentIdeaBasket, ideaId);
+		
+		//determine if the idea is in the trash in the previous revision
+		boolean ideaInPreviousTrash = isIdeaInTrash(previousIdeaBasket, ideaId);
+		
+		if(!ideaInPreviousTrash && ideaInCurrentTrash) {
+			//the idea was not previously in the trash but now is in the trash
+			ideaDeleted = true;
+		}
+		
+		return ideaDeleted;
+	}
+	
+	/**
+	 * Get the position in the ideas array
+	 * @param ideaId the id of the idea
+	 * @param ideaBasket the basket revision
+	 * @return the position of the idea in the ideas array, first position is 1,
+	 * if the idea is not found it will return -1
+	 */
 	private int getPositionInIdeas(int ideaId, JSONObject ideaBasket) {
 		return getPosition(ideaId, ideaBasket, "ideas");
 	}
 	
+	/**
+	 * Get the position in the deleted array
+	 * @param ideaId the id of the idea
+	 * @param ideaBasket the basket revision
+	 * @return the position of the idea in the deleted array, first position is 1,
+	 * if the idea is not found it will return -1
+	 */
 	private int getPositionInDeleted(int ideaId, JSONObject ideaBasket) {
 		return getPosition(ideaId, ideaBasket, "deleted");
 	}
 	
+	/**
+	 * Get the position in the given array
+	 * @param ideaId the id of the idea
+	 * @param ideaBasket the basket revision
+	 * @param arrayName the name of the array to look in ("ideas" or "deleted")
+	 * @return the position of the idea in the given array, first position is 1,
+	 * if the idea is not found it will return -1
+	 */
 	private int getPosition(int ideaId, JSONObject ideaBasket, String arrayName) {
 		int position = -1;
 		
@@ -2693,12 +2920,16 @@ public class VLEGetXLS extends VLEServlet {
 				JSONArray ideaArray = ideaBasket.getJSONArray(arrayName);
 				
 				if(ideaArray != null) {
+					//loop through all the ideas in the array
 					for(int x=0; x<ideaArray.length(); x++) {
+						//get an idea
 						JSONObject idea = ideaArray.getJSONObject(x);
 						
+						//get the id of the idea
 						int id = idea.getInt("id");
 						
 						if(ideaId == id) {
+							//the id matches the one we want so we will return nthe position
 							position = x + 1;
 							break;
 						}
@@ -2712,6 +2943,14 @@ public class VLEGetXLS extends VLEServlet {
 		return position;
 	}
 	
+	/**
+	 * Get the steps that this idea is used in
+	 * @param idea the idea
+	 * @param nodeIdToNodeTitlesMap a map of nodeId to nodeTitle
+	 * @return a String containing the steps that the idea is used in
+	 * e.g.
+	 * node_1.ht:Introduction,node_3.or:Explain your ideas
+	 */
 	private String getStepsUsedIn(JSONObject idea, HashMap<String, String> nodeIdToNodeTitlesMap) {
 		StringBuffer stepsUsedIn = new StringBuffer();
 		
@@ -2719,15 +2958,20 @@ public class VLEGetXLS extends VLEServlet {
 			JSONArray stepsUsedInJSONArray = idea.getJSONArray("stepsUsedIn");
 			
 			if(stepsUsedInJSONArray != null) {
+				//loop through all the steps used in
 				for(int x=0; x<stepsUsedInJSONArray.length(); x++) {
+					//get the node id of the step used in
 					String nodeId = stepsUsedInJSONArray.getString(x);
 					
+					//get the step name from the map
 					String nodeName = nodeIdToNodeTitlesMap.get(nodeId);
 					
 					if(stepsUsedIn.length() != 0) {
+						//separate multiple steps with ,
 						stepsUsedIn.append(",");
 					}
 					
+					//separate the node id and the node title with :
 					stepsUsedIn.append(nodeId + ":" + nodeName);
 				}
 			}
@@ -2738,6 +2982,35 @@ public class VLEGetXLS extends VLEServlet {
 		return stepsUsedIn.toString();
 	}
 	
+	/**
+	 * Get the number of steps the idea is used in
+	 * @param idea the idea JSONObject
+	 * @return a count of the number of steps this idea is used in
+	 */
+	private int getStepsUsedInCount(JSONObject idea) {
+		int count = 0;
+		
+		try {
+			JSONArray stepsUsedInJSONArray = idea.getJSONArray("stepsUsedIn");
+			
+			if(stepsUsedInJSONArray != null) {
+				//get the length of the array
+				count = stepsUsedInJSONArray.length();
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return count;
+	}
+	
+	/**
+	 * Determine whether the steps used in changed
+	 * @param idea the idea JSONObject
+	 * @param previousIdeaBasket the previous basket revision
+	 * @param nodeIdToNodeTitlesMap the map of node id to node title
+	 * @return whether the steps used in changed for the idea
+	 */
 	private boolean isStepsUsedInChanged(JSONObject idea, JSONObject previousIdeaBasket, HashMap<String, String> nodeIdToNodeTitlesMap) {
 		boolean stepsUsedInChanged = false;
 		
@@ -2745,13 +3018,20 @@ public class VLEGetXLS extends VLEServlet {
 			if(previousIdeaBasket != null) {
 				int ideaId = idea.getInt("id");
 				
+				//get the idea from the previous revision
 				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
 				
 				if(previousIdeaRevision != null) {
+					//the idea existed in the previous basket revision
+					
+					//get the steps used in for the idea from the  current basket revision
 					String currentStepsUsedIn = getStepsUsedIn(idea, nodeIdToNodeTitlesMap);
+					
+					//get the steps used in for the idea from the previous basket revision
 					String previousStepsUsedIn = getStepsUsedIn(previousIdeaRevision, nodeIdToNodeTitlesMap);
 					
 					if(currentStepsUsedIn != null && previousStepsUsedIn != null && !currentStepsUsedIn.equals(previousStepsUsedIn)) {
+						//the steps used in has changed
 						stepsUsedInChanged = true;
 					}							
 				}
@@ -2761,5 +3041,44 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return stepsUsedInChanged;
+	}
+	
+	/**
+	 * Convert a boolean into an int value
+	 * @param boolValue true of false
+	 * @return 0 or 1
+	 */
+	private int getIntFromBoolean(boolean boolValue) {
+		int intValue = 0;
+		
+		if(boolValue) {
+			intValue = 1;
+		}
+		
+		return intValue;
+	}
+	
+	/**
+	 * Get the node type of the step that the idea was created on
+	 * @param idea the idea JSONObject
+	 * @param nodeIdToNodeContent map of node id to node content
+	 * @return the node type the idea was created on
+	 */
+	private String getNodeTypeFromIdea(JSONObject idea, HashMap<String, JSONObject> nodeIdToNodeContent) {
+		String nodeType = "";
+		
+		try {
+			String nodeId = idea.getString("nodeId");
+			
+			//get the content for the node
+			JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+			
+			//get the node type
+			nodeType = nodeContent.getString("type");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return nodeType;
 	}
 }
