@@ -55,6 +55,8 @@ public class VLEIdeaBasketController extends HttpServlet {
 						savedBasket = true;
 					} catch (JSONException e) {
 						e.printStackTrace();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
 					}
 				}
 			} else {
