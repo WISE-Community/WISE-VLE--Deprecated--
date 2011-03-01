@@ -127,6 +127,7 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	
 	getGradingHeaderTableHtml += "<input type='button' value='Export Latest Student Work' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='Export All Student Work' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='Export Idea Baskets' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='Check for New Student Work' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='SAVE CHANGES' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
 	getGradingHeaderTableHtml += "</td></tr></table>";

@@ -22,6 +22,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.getAllStudentWorkXLSExport();
 	} else if(type=='getLatestStudentWorkXLSExport') {
 		obj.getLatestStudentWorkXLSExport();
+	} else if(type=='getIdeaBasketsExcelExport') {
+		obj.getIdeaBasketsExcelExport();
 	} else if(type=='getProjectMetaDataComplete') {
 		obj.getAnnotations();
 	} else if(type=='saveMaxScore') {

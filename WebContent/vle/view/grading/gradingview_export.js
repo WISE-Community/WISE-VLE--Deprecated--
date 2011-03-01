@@ -19,6 +19,12 @@ View.prototype.getLatestStudentWorkXLSExport = function() {
 	document.getElementById('getStudentXLSExport').submit();
 };
 
+View.prototype.getIdeaBasketsExcelExport = function() {
+	this.setParamsForXLSExport();
+	document.getElementById('exportType').value = 'ideaBaskets';
+	document.getElementById('getStudentXLSExport').submit();
+};
+
 /**
  * Generate the nodeIdToNodeTitleArray which is used for
  * XLS export to display the node titles in the XLS. This

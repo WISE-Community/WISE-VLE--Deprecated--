@@ -127,6 +127,7 @@ var componentloader = function(em, sl){
 					 'saveFlag':[null, null],
 					 'getAllStudentWorkXLSExport':[null, null],
 					 'getLatestStudentWorkXLSExport':[null, null],
+					 'getIdeaBasketsExcelExport':[null, null],
 					 'saveMaxScore':[null, null],
 					 'showScoreSummary':[null, null],
 					 'filterPeriod':[null, null],
@@ -164,6 +165,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("saveFlag", view.gradingDispatcher, view);
 					eventManager.subscribe("getAllStudentWorkXLSExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getLatestStudentWorkXLSExport", view.gradingDispatcher, view);
+					eventManager.subscribe("getIdeaBasketsExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("saveMaxScore", view.gradingDispatcher, view);
