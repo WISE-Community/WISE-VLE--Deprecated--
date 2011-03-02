@@ -1,14 +1,270 @@
 
-function ASSESSMENTLIST(node) {
+function ASSESSMENTLIST(node, view) {
 	this.node = node;
+	this.view = view;
 	this.content = node.getContent().getContentJSON();
 	if(node.studentWork != null) {
 		this.states = node.studentWork; 
 	} else {
 		this.states = [];  
 	};
+	
+	//check if there is an associated node whose work we might display in this step
+	if(this.node.associatedStartNode != null) {
+		//get the node id for the associated node that the student will be reviewing work for
+		this.associatedStartNodeId = this.node.associatedStartNode;
+		
+		//get the associated node object
+		this.associatedStartNode = this.view.getProject().getNodeById(this.associatedStartNodeId);
+		
+		if(this.associatedStartNode != null) {
+			//get the content for the associated node
+			this.associatedStartNodeContent = this.associatedStartNode.getContent().getContentJSON();			
+		}
+	}
+	
+	//check if this step is being used for a peer review
+	if(this.node.peerReview != null) {
+		//values to be set after we retrieve the other student work that this student will be reviewing
+		this.otherStudentWorkgroupId = null;
+		this.otherStudentStepWorkId = null;
+		this.otherStudentNodeVisit = null;
+		this.showAuthorContent = false;
+
+		//this will store the peer review as an annotation
+		this.annotation = null;	
+		
+		if(this.node.peerReview == 'annotate') {
+			this.openPercentageTrigger = this.content.openPercentageTrigger;
+			this.openNumberTrigger = this.content.openNumberTrigger;
+			this.openLogicTrigger = this.content.openLogicTrigger;
+		}
+	}
+	
+	if(this.node.peerReview != null || this.node.teacherReview != null) {
+		//tell the node that it is part of a review sequence
+		this.node.setIsPartOfReviewSequence();
+	}
+
+	//check if this step is locked
+	if(this.view != null && this.view.isLatestNodeStateLocked && this.view.isLatestNodeStateLocked(this.node.id)) {
+		//set this flag for future look up
+		this.locked = true;
+		
+		//tell the node that the student has completed it
+		this.node.setCompleted();
+	}
 };
 
+
+/**
+ * Hide all the divs in the assessmentlist html 
+ */
+ASSESSMENTLIST.prototype.hideAll = function() {
+	$('#promptDisplayDiv').hide();
+	$('#originalPromptDisplayDiv').hide();
+	$('#associatedWorkDisplayDiv').hide();
+	$('#annotationDisplayDiv').hide();
+	$('#starterParent').hide();
+	$('#responseDisplayDiv').hide();
+	$('#buttonDiv').hide();
+	$("#submitButtonDiv").hide();
+	$("#assessmentsDiv").hide();
+};
+
+
+/**
+ * Hide all the divs in the openresponse.html and just display a message
+ */
+ASSESSMENTLIST.prototype.onlyDisplayMessage = function(message) {
+	//set the node closed because the student can't work on it yet
+	this.node.setStepClosed();
+	
+	//hide all the divs
+	this.hideAll();
+	
+	//display the prompt div
+	$('#promptDisplayDiv').show();
+	
+	//remove the text in this label div
+	$('#promptLabelDiv').html("");
+	
+	//set the prompt div to this message
+	$('#promptDiv').html(message);
+};
+
+/**
+ * Make the request to retrieve the other student work
+ */
+ASSESSMENTLIST.prototype.retrieveOtherStudentWork = function() {
+	//get the url
+	var getPeerReviewUrl = this.view.getConfig().getConfigParam('getPeerReviewUrl');
+	
+	//get the parameters to retrieve the other student work
+	var action = "studentRequest";
+	var runId = this.view.getConfig().getConfigParam('runId');
+	var workgroupId = this.view.getUserAndClassInfo().getWorkgroupId();
+	var periodId = this.view.getUserAndClassInfo().getPeriodId();
+	var nodeId = this.associatedStartNodeId;
+	var openPercentageTrigger = this.openPercentageTrigger;
+	var openNumberTrigger = this.openNumberTrigger;
+	var openLogicTrigger = this.openLogicTrigger;
+	var peerReviewAction = "annotate";
+	var classmateWorkgroupIds = this.view.getUserAndClassInfo().getWorkgroupIdsInClass().toString();
+	
+	//compile the parameters into an object for cleanliness
+	var getPeerReviewUrlArgs = {
+			action:action,
+			runId:runId,
+			workgroupId:workgroupId,
+			periodId:periodId,
+			nodeId:nodeId,
+			openPercentageTrigger:openPercentageTrigger,
+			openNumberTrigger:openNumberTrigger,
+			openLogicTrigger:openLogicTrigger,
+			peerReviewAction:peerReviewAction,
+			classmateWorkgroupIds:classmateWorkgroupIds
+	};
+	
+	//make the request
+	this.view.connectionManager.request('GET', 1, getPeerReviewUrl, getPeerReviewUrlArgs, this.retrieveOtherStudentWorkCallback, [this]);
+};
+
+/**
+ * Parses the other student work response and then renders everything in the vle.
+ * Everything includes, the prompt for the associated node, the other student work,
+ * and the text box for this current to write their peer review.
+ * @param text a JSON string containing a NodeVisit from the other student
+ * @param xml
+ * @param args contains the PEERREVIEWANNOTATE object so we can have access to it
+ */
+ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, args) {
+	//get the or object
+	var thisOr = args[0];
+	
+	//clear this variable to make sure we don't use old data
+	thisOr.otherStudentNodeVisit = null;
+	
+	//check if there was any text response
+	if(text != null && text != "") {
+		//there was text returned so we will parse it, the text should be a NodeVisit in JSON form
+		var peerWorkToReview = $.parseJSON(text);
+		
+		var peerWorkText = "";
+		
+		//handle error cases
+		if(peerWorkToReview.error) {
+			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
+				//the user has not submitted work for the original step
+				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + thisOr.associatedStartNode.title + '</a></b> (link).</p>');
+			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork') {
+				//server was unable to assign student any work to review, most likely because there was no available work to assign
+				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedStartNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
+			} else if(peerWorkToReview.error == 'peerReviewNotOpen') {
+				//the peer review has not opened yet
+				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedStartNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
+			}
+			
+			//check if we should show the authored work
+			if(peerWorkToReview.error == 'peerReviewShowAuthoredWork') {
+				//show the authored work for the student to review
+				peerWorkText = thisOr.content.authoredWork;
+				thisOr.showAuthorContent = true;
+			} else {
+				return;
+			}
+		} else {
+			//set the variables for the other student
+			thisOr.otherStudentWorkgroupId = peerWorkToReview.workgroupId;
+			thisOr.otherStudentStepWorkId = peerWorkToReview.stepWorkId;
+			thisOr.otherStudentNodeVisit = peerWorkToReview.nodeVisit;
+			
+			peerWorkText = thisOr.associatedStartNode.getPeerReviewOtherStudentWork(thisOr.otherStudentNodeVisit);
+		}
+		
+		//reaplce \n with <br>
+		peerWorkText = thisOr.replaceSlashNWithBR(peerWorkText);
+		
+		//show regular divs such as prompt, starter, and response and populate them
+		thisOr.showDefaultDivs();
+		//thisOr.showDefaultValues();
+		
+		//set more informative labels
+		$('#promptLabelDiv').html('instructions');
+		$('#responseLabelDiv').html('your feedback for <i>Team Anonymous</i>:');
+		
+		//display the prompt
+		$('#originalPromptTextDiv').html(thisOr.associatedStartNode.getPeerReviewPrompt());
+		$('#originalPromptDisplayDiv').show();
+		
+		/*
+		 * display the other student's work or a message saying there is no other student work
+		 * available yet
+		 */
+		$('#associatedWorkLabelDiv').html('work submitted by <i>Team Anonymous</i>:');		
+		$('#associatedWorkTextDiv').html(peerWorkText);
+		$('#associatedWorkDisplayDiv').show();
+		
+		//set the response if there were previous revisions 
+		//thisOr.setResponse();
+	}
+	
+	/*
+	 * perform any final tasks after we have finished retrieving
+	 * any other work and have displayed it to the student
+	 */
+	thisOr.doneRendering();
+};
+
+/**
+ * This is for displaying the authored work for the student to
+ * review.
+ */
+ASSESSMENTLIST.prototype.displayTeacherWork = function() {
+	//check that the original node is locked
+	var isOriginalNodeLocked = this.view.isLatestNodeStateLocked(this.associatedStartNode.id);
+	
+	if(!isOriginalNodeLocked) {
+		//original step is not locked
+		
+		//display message telling student to go back and submit that original step
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.associatedStartNode.title + '</a></b> (link).</p>');
+	} else {
+		//original step is locked
+		
+		//get the authored work
+		var teacherWorkText = this.content.authoredWork;
+		
+		//replace \n with <br>
+		teacherWorkText = this.replaceSlashNWithBR(teacherWorkText);
+		
+		//show regular divs such as prompt, starter, and response and populate them
+		this.showDefaultDivs();
+		this.showDefaultValues();
+
+		//set more informative labels
+		document.getElementById('promptLabelDiv').innerHTML = 'instructions';
+		document.getElementById('responseLabelDiv').innerHTML = 'your feedback for <i>Team Anonymous</i>:';
+		
+		//display the original prompt
+		document.getElementById('originalPromptTextDiv').innerHTML = this.associatedStartNode.getPeerReviewPrompt();
+		document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+		
+		//display the authored work for the student to review
+		document.getElementB$('#iv').innerHTML = 'work submitted by <i>Team Anonymous</i>:' ;		
+		document.getElementById('associatedWorkTextDiv').innerHTML = teacherWorkText;
+		document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+		
+		//set the response if there were previous revisions
+		//this.setResponse();
+	}
+	
+	/*
+	 * perform any final tasks after we have finished retrieving
+	 * any other work and have displayed it to the student
+	 */
+	this.doneRendering();
+};
 
 /**
  * Render the AssessmentList
@@ -24,28 +280,54 @@ ASSESSMENTLIST.prototype.render = function() {
 			&& !this.content.displayAnswerAfterSubmit
 			&& this.isSubmitted()) {
 		this.lockScreen();
+		
+		/* if this is part 2 of peer-review sequence and the student has completed it */
+		if((this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') && this.locked) {
+
+			//display this message in the step frame
+			this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
+		}
 		return;
 	};
+	
+	
+	if((this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') && this.content.isLockAfterSubmit) {
+		if(this.associatedStartNode != null) {
+			if(this.node.peerReview != null) {
+				//this is the step where the student writes comments on their classmates work
+				this.retrieveOtherStudentWork();
+			} else if(this.node.teacherReview != null) {
+				//this is the step where the student annotates the authored work
+				this.displayTeacherWork();
+			} 		
+		} 
+	}
 	
 	/* render the overall prompt for the whole step */
 	$("#promptDiv").html(this.content.prompt);
 
 	var assessmentHTML = "";
-	/* for each assessment in the list, render them */
+	/* for each assessment in the list, render them, including the state, if any */
 	for (var i=0; i<this.content.assessments.length; i++) {
 		var assessment = this.content.assessments[i];
 		assessmentHTML += this.getHTML(assessment,i);
 	};
 	$("#assessmentsDiv").html(assessmentHTML);
 	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" value="Submit the Questionnaire"></input>');
-
+	
+	if(this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') {
+		if ($("#saveDraftButton").size() == 0) {
+			$("#submitButtonDiv").append('<div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveDraftButton" onClick="javascript:save();">SAVE DRAFT</a></div>');
+		}
+	}
+	
 	//disable and grey out the submit button
 	this.setSaveUnavailable();
 	
 	/* if student has already done this step, don't show the step, just display
 	 * the fact that they've already completed it.
 	 */
-	if (this.states != null && this.states.length > 0 && this.content.isLockAfterSubmit) {
+	if (this.isSubmitted() && this.content.isLockAfterSubmit) {
 		this.lockScreen();
 		return;
 	};
@@ -64,6 +346,18 @@ ASSESSMENTLIST.prototype.submit = function() {
 				var isSubmit = true;
 				this.save(isSubmit);
 				this.lockScreen();
+				
+				// if this is a peer review 'annotate' part, also post the answer as annotation.
+				if(this.node.peerReview != null) {
+					//this is a peer review of a previous step
+
+					if(this.node.peerReview == 'annotate' && !this.showAuthorContent) {
+						//send the annotation for the peer review
+						var response = this.getResponsesToImportantParts();
+						this.postAnnotation(response);
+					}
+				}
+				
 			} 
 		} else {
 			this.setSaveUnavailable();
@@ -74,6 +368,86 @@ ASSESSMENTLIST.prototype.submit = function() {
 		/* all not completed yet, notify user and have them finish */
 		alert("Please answer all the questions before submitting this questionnaire.");
 	};
+};
+
+/**
+ * Obtains the student's responses to the important parts in the review sequence.
+ */
+ASSESSMENTLIST.prototype.getResponsesToImportantParts = function() {
+	var response = "";
+	/* for each assessment in the list, render them, including the state, if any */
+	for (var i=0; i<this.content.assessments.length; i++) {
+		var assessment = this.content.assessments[i];
+		if (assessment.isImportantReviewSequencePart) {
+			var lastResponse = this.getLastSavedResponse(assessment);
+			if (assessment.type == "radio") {
+				lastResponse = this.getChoiceText(assessment,lastResponse);
+			};
+			response += lastResponse + "<br/><br/>";
+		}
+	};
+	return response;
+};
+
+/**
+ * returns the corresponding choice text
+ */
+ASSESSMENTLIST.prototype.getChoiceText = function(assessmentJSON,choiceId) {
+	for (var i=0;i<assessmentJSON.choices.length;i++) {
+		var choice = assessmentJSON.choices[i];
+		if (choiceId != null && choiceId == choice.id) {
+			return choice.text;
+		}
+	}
+	return "";
+};
+
+/**
+ * Send the response back as an annotation. Used for Peer Review. 
+ * @param response
+ */
+ASSESSMENTLIST.prototype.postAnnotation = function(response) {
+	//obtain the parameters needed to post the annotation
+	var runId = this.view.getConfig().getConfigParam('runId');
+	var nodeId = this.otherStudentNodeVisit.nodeId;
+	var toWorkgroup = this.otherStudentWorkgroupId;
+	var fromWorkgroup = this.view.getUserAndClassInfo().getWorkgroupId();
+	var type = "comment";
+	var value = response;
+	var stepWorkId = this.otherStudentStepWorkId;
+	var action = "peerReviewAnnotate";
+	var periodId = this.view.getUserAndClassInfo().getPeriodId();
+	
+	//get the url
+	var postAnnotationsUrl = this.view.getConfig().getConfigParam('postAnnotationsUrl');
+	
+	//compile the args into an object for cleanliness
+	var postAnnotationsUrlArgs = {runId:runId,
+								  nodeId: nodeId,
+								  toWorkgroup:toWorkgroup,
+								  fromWorkgroup:fromWorkgroup,
+								  annotationType:type,
+								  value:value,
+								  stepWorkId: stepWorkId,
+								  action:action,
+								  periodId:periodId};
+	
+	//create the view's annotations object if it does not exist
+	if(this.view.annotations == null) {
+		this.view.annotations = new Annotations();
+	}
+	
+	//create the annotation locally to keep our local copy up to date
+	var annotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, stepWorkId);
+	
+	//add the annotation to the view's annotations
+	this.view.annotations.updateOrAddAnnotation(annotation);
+	
+	//a callback function that does nothing
+	var postAnnotationsCallback = function(text, xml, args) {};
+	
+	//post the annotation to the server
+	this.view.connectionManager.request('POST', 1, postAnnotationsUrl, postAnnotationsUrlArgs, postAnnotationsCallback);
 };
 
 /**
@@ -246,7 +620,7 @@ ASSESSMENTLIST.prototype.getHTMLText = function(textJSON) {
 ASSESSMENTLIST.prototype.isSubmitted = function() {
 	if (this.states && this.states.length > 0) {
 		for (var i=0; i < this.states.length; i++) {
-			if (this.states[i].submit) {
+			if (this.states[i].isSubmit || this.states[i].submit) {
 				return true;
 			}
 		}
@@ -254,6 +628,9 @@ ASSESSMENTLIST.prototype.isSubmitted = function() {
 	return false;
 };
 
+/**
+ * Returns last saved response for given assessment part.
+ */
 ASSESSMENTLIST.prototype.getLastSavedResponse = function(assessmentJSON) {
 	if (this.states && this.states.length > 0) {
 		var latestState = this.states[this.states.length-1];
@@ -321,6 +698,62 @@ ASSESSMENTLIST.prototype.isSaveAvailable = function() {
 
 ASSESSMENTLIST.prototype.assessmentListChanged = function() {
 	this.setSaveAvailable();
+};
+
+/**
+ * Make the default divs visible, these include prompt, starter,
+ * response, button, divs
+ */
+ASSESSMENTLIST.prototype.showDefaultDivs = function() {
+	$('#promptDisplayDiv').show();
+	$('#starterParent').show();
+	$('#responseDisplayDiv').show();
+	$('#buttonDiv').show();
+};
+
+/**
+ * Set the prompt, starter, and response values
+ */
+ASSESSMENTLIST.prototype.showDefaultValues = function() {
+	
+	/* set html prompt element values */
+	$('#promptDiv').html(this.content.prompt);
+	$('#promptLabelDiv').html('question');
+	
+	/* set text area size: set row based on expectedLines */
+	$('#responseBox').attr('rows', this.content.assessmentItem.interaction.expectedLines);
+};
+
+/*
+ * Perform any final tasks after we are done retrieving and rendering
+ * any necessary data to the student.
+ */
+ASSESSMENTLIST.prototype.doneRendering = function() {
+	//create any constraints if necessary
+	eventManager.fire('contentRenderComplete', this.node.id, this.node);
+};
+
+/**
+ * Replace \n with <br> so that the new lines are displayed to the
+ * students
+ * @param response an array containing the response string or just
+ * the response string
+ * @return the response string with all \n replaced with <br>
+ */
+ASSESSMENTLIST.prototype.replaceSlashNWithBR = function(response) {
+	var responseString = '';
+	
+	//check if the response is an array
+	if(response.constructor.toString().indexOf('Array') != -1) {
+		//the response is an array so we will obtain the string that is in it
+		responseString = response[0];
+	} else {
+		//the response is a string
+		responseString = response;
+	}
+	
+	//replace \n with <br>
+	return responseString.replace(/\n/g, '<br>');
 };
 
 //used to notify scriptloader that this script has finished loading
