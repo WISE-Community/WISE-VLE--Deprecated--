@@ -981,9 +981,24 @@ View.prototype.editProjectMetadata = function(){
 
 			//set the tech details string
 			$('#projectMetadataTechDetails').attr('value', techReqs.techDetails);
+			
+			if (this.projectMeta.tools != null) {
+				var tools = this.projectMeta.tools;
+				
+				//determine if enable idea manager needs to be checked
+				if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
+					$("#enableIdeaManager").attr('checked', true);
+				}
+
+				//determine if enable student asset uploader needs to be checked
+				if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
+					$("#enableStudentAssetUploader").attr('checked', true);
+				}
+			}
 		}
 		
 		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
+		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
 		document.getElementById('projectMetadataKeywords').value = this.utils.resolveNullToEmptyString(this.projectMeta.keywords);
 		$('#editProjectMetadataDialog').dialog('open');
 		eventManager.fire('browserResize');
