@@ -474,7 +474,11 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		view.projectMeta.techReqs.flash = $("#flash").attr("checked");
 		view.projectMeta.techReqs.quickTime = $("#quickTime").attr("checked");
 		view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
+		view.projectMeta.tools = {};
+		view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").attr("checked");
+		view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").attr("checked");
 		view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
+		view.projectMeta.standards = $('#projectMetadataStandards').val();
 		view.projectMeta.keywords = $('#projectMetadataKeywords').val();
 		view.projectMeta.language = $('#projectMetadataLanguage').val();
 		

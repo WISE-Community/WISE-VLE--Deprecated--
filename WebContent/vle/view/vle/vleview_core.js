@@ -9,6 +9,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
+		obj.displayGlobalTools();
 		obj.renderStartNode();
 		obj.setDialogEvents();
 	} else if(type=='getUserAndClassInfoComplete'){
@@ -152,31 +153,46 @@ View.prototype.startVLE = function(){
 	/* load theme based on config object parameters */
 	this.loadTheme(this.config.getConfigParam('theme'));
 
-	/* show/hide studentAssets, ideaManager, addIdea buttons based on config */
-	this.displayGlobalTools(this.config.getConfigParam('runInfo'));
-	
 	/* fire startVLEComplete event */
 	this.eventManager.fire('startVLEComplete');
 };
 
 /**
- * Loads the Global Tools (top menu items) based on run config
+ * Loads the Global Tools (top menu items, [idea manager, student file uploader, etc])
+ * based on project config and overwritten by run config
  */
-View.prototype.displayGlobalTools = function(runInfoStr) {
+View.prototype.displayGlobalTools = function() {
+	
+	/* show/hide studentAssets, ideaManager, addIdea buttons based on project.metadata.tools config */
+	this.showToolsBasedOnConfig(this.projectMetadata.tools);
+
+	/* show/hide studentAssets, ideaManager, addIdea buttons based on run.info config */
+	var runInfoStr = this.config.getConfigParam('runInfo');
 	if (runInfoStr != null && runInfoStr != "") {
 		var runInfo = JSON.parse(runInfoStr);
-		if (runInfo.isStudentAssetUploaderEnabled != null &&
-				runInfo.isStudentAssetUploaderEnabled) {
-			$("#studentAssetsTD").show();
-		}
-		if (runInfo.isIdeaManagerEnabled != null &&
-				runInfo.isIdeaManagerEnabled) {
-			$("#ideaBasketTD").show();
-			$("#addIdeaTD").show();
-		}
+		this.showToolsBasedOnConfig(runInfo);
 	}
 };
 
+View.prototype.showToolsBasedOnConfig = function(runInfo) {
+	if (runInfo.isStudentAssetUploaderEnabled != null &&
+			runInfo.isStudentAssetUploaderEnabled) {
+		$("#studentAssetsTD").show();
+	} else if (runInfo.isStudentAssetUploaderEnabled != null &&
+			!runInfo.isStudentAssetUploaderEnabled) {
+		$("#studentAssetsTD").hide();
+	}
+	if (runInfo.isIdeaManagerEnabled != null &&
+			runInfo.isIdeaManagerEnabled) {
+		$("#ideaBasketTD").show();
+		$("#addIdeaTD").show();
+	} else if (runInfo.isIdeaManagerEnabled != null &&
+			!runInfo.isIdeaManagerEnabled) {
+		$("#ideaBasketTD").hide();
+		$("#addIdeaTD").hide();
+
+	}
+};
 /**
  * Loads the theme given theme in the VLE view. Default is the wise theme.
  */

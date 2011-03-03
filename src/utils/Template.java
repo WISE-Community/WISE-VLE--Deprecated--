@@ -513,7 +513,9 @@ public final class Template {
 		meta.put("comptime", "");
 		meta.put("contact", "");
 		meta.put("techreqs", "");
+		meta.put("tools", "");
 		meta.put("lessonplan", "");
+		meta.put("standards", "");
 		meta.put("keywords", "");
 		
 		Long timestamp = new Date().getTime();

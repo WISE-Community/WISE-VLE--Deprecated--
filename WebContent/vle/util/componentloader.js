@@ -229,7 +229,7 @@ var componentloader = function(em, sl){
 					'If you select an activity, the selected step(s) will be placed at the beginning of the activity.',
 				defaultSequenceSelectMessage:'Select a new location for the selected activity(s).',
 				hasProjectMeta:false, 
-				projectMeta:{title:'', subject:'', summary:'', author:'', gradeRange:'', totalTime:'', compTime:'', contact:'', techReqs:'', lessonPlan:'', keywords:''},
+				projectMeta:{title:'', subject:'', summary:'', author:'', gradeRange:'', totalTime:'', compTime:'', contact:'', techReqs:'', tools:'', lessonPlan:'', standards:'', keywords:''},
 				timeoutVars:{}, 
 				placeNode:false, 
 				placeNodeId:undefined, 

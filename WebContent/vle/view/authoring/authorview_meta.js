@@ -44,7 +44,7 @@ View.prototype.projectMetaSuccess = function(text,xml,o){
  */
 View.prototype.projectMetaFailure = function(c,o){
 	o.hasProjectMeta = false;
-	o.projectMeta = {title: '', subject: '', summary: '', author: '', gradeRange: '', totalTime: '', compTime: '', contact: '', techReqs: '', lessonPlan: '', keywords:'', language:''};
+	o.projectMeta = {title: '', subject: '', summary: '', author: '', gradeRange: '', totalTime: '', compTime: '', contact: '', techReqs: '', tools: '', lessonPlan: '', standards: '', keywords:'', language:''};
 };
 
 /**

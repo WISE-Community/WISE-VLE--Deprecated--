@@ -383,6 +383,7 @@ var view;
 					<option id='subjectBiology' value='Biology'>Biology</option>
 					<option id='subjectChemistry' value='Chemistry'>Chemistry</option>
 					<option id='subjectPhysics'  value='Physics'>Physics</option>
+					<option id='subjectTelsResearch'  value='TelsResearch'>TELS Research</option>
 					<option selected id='subjectAll' disabled="disabled" value=""'>select an option</option>
 				</select> 
 			</td></tr>
@@ -446,8 +447,17 @@ var view;
 				<input type="checkbox" name="quickTime" value="quickTime" id="quickTime"/>&nbsp;<label for="quickTime">QuickTime</label>&nbsp;&nbsp;
 			</td></tr>		
 		<tr><td>Tech Details:</td><td><textarea class="size2" id='projectMetadataTechDetails'></textarea></td></tr>
+		<tr><td>Project settings:</td>
+			<td>
+				<span style="font-size:85%">(select all that apply)</span>&nbsp;&nbsp;
+				<input id='enableIdeaManager' name="enableIdeaManager" type="checkbox"></input><label for="enableIdeaManager">Enable Idea Manager</label>&nbsp;&nbsp;
+				<input id='enableStudentAssetUploader' name="enableStudentAssetUploader" type="checkbox"></input><label for="enableStudentAssetUploader">Enable Student File Uploads</label>&nbsp;&nbsp;
+
+			</td></tr>		
 		<tr><td colspan="2">Lesson Plan:</td></tr>
 		<tr><td colspan="2"><textarea class="size4" id='projectMetadataLessonPlan'></textarea></td></tr>
+		<tr><td colspan="2">Lesson Goals and Standards:</td></tr>
+		<tr><td colspan="2"><textarea class="size4" id='projectMetadataStandards'></textarea></td></tr>
 		</table>
 	</div>
 </div>
