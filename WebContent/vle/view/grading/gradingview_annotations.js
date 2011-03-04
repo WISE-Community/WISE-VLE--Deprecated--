@@ -160,6 +160,9 @@ View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, typ
 		thisView.revertAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, fromWorkgroupIds, type, value, runId, stepWorkId);
 	};
 
+	//escape the annotation value
+	value = encodeURIComponent(value);
+	
 	//make the call to post the annotation
 	this.connectionManager.request('POST', 1, postAnnotationsURL, {runId:runId, nodeId:nodeId, toWorkgroup:toWorkgroup, fromWorkgroup:fromWorkgroup, annotationType:type, value:value, stepWorkId:stepWorkId}, postAnnotationCallback, [this, nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId], postAnnotationCallbackFail);
 };

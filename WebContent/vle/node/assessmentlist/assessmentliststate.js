@@ -34,6 +34,7 @@ ASSESSMENTLISTSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	alState.timestamp = stateJSONObj.timestamp;
 	alState.submit = stateJSONObj.submit;
 	alState.isSubmit = stateJSONObj.isSubmit;
+	alState.locked = stateJSONObj.locked;
 	
 	//return the MCSTATE object
 	return alState;

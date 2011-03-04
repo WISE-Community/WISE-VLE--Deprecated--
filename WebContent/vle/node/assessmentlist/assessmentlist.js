@@ -54,6 +54,8 @@ function ASSESSMENTLIST(node, view) {
 		//tell the node that the student has completed it
 		this.node.setCompleted();
 	}
+	
+	this.stateChanged = false;
 };
 
 
@@ -69,7 +71,8 @@ ASSESSMENTLIST.prototype.hideAll = function() {
 	$('#responseDisplayDiv').hide();
 	$('#buttonDiv').hide();
 	$("#submitButtonDiv").hide();
-	$("#assessmentsDiv").hide();
+	$('#assessmentsDiv').hide();
+	$('#saveDraftButton').hide();
 };
 
 
@@ -270,6 +273,26 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
  * Render the AssessmentList
  */
 ASSESSMENTLIST.prototype.render = function() {
+	//create the submit button
+	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" value="Submit the Questionnaire"></input>');
+	
+	if(this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') {
+		/*
+		 * this is a peer or teacher review annotate node (part 2 of a review sequence)
+		 * so we will create a save draft button
+		 */
+		if ($("#saveDraftButton").size() == 0) {
+			$("#submitButtonDiv").before('<div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveDraftButton" onClick="javascript:save();">SAVE DRAFT</a></div>&nbsp;');
+			
+			/*
+			 * disable the save draft button initially. the save
+			 * draft button will be enabled once the student 
+			 * modifies any of the assessment parts
+			 */
+			this.setSaveDraftUnavailable();
+		}
+	}
+	
 	/* if student has already done this step
 	 * && isLockAfterSubmit is true
 	 * && is displayAnswerSubmit is false,
@@ -279,28 +302,55 @@ ASSESSMENTLIST.prototype.render = function() {
 	if (this.content.isLockAfterSubmit
 			&& !this.content.displayAnswerAfterSubmit
 			&& this.isSubmitted()) {
-		this.lockScreen();
 		
 		/* if this is part 2 of peer-review sequence and the student has completed it */
-		if((this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') && this.locked) {
-
+		if((this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') && this.isSubmitted()) {
 			//display this message in the step frame
 			this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
+		} else {
+			//this is a regular assessment list so we will just lock the screen
+			this.lockScreen();
 		}
 		return;
 	};
 	
-	
 	if((this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') && this.content.isLockAfterSubmit) {
+		//this is a peer or teacher review annotate step (part 2 of a review sequence)
 		if(this.associatedStartNode != null) {
 			if(this.node.peerReview != null) {
-				//this is the step where the student writes comments on their classmates work
-				this.retrieveOtherStudentWork();
+				//this is a peer review
+				
+				if(this.view.authoringMode) {
+					/*
+					 * we are in authoring mode so we will just display default values
+					 * so the author can get an idea of how it will look to the students
+					 */
+					
+					//set more informative labels
+					$('#promptLabelDiv').html('instructions');
+					
+					//display the prompt
+					$('#originalPromptTextDiv').html('[Prompt from the first peer review step will display here]');
+					$('#originalPromptDisplayDiv').show();
+					
+					/*
+					 * display the other student's work or a message saying there is no other student work
+					 * available yet
+					 */
+					$('#associatedWorkLabelDiv').html('work submitted by <i>Team Anonymous</i>:');		
+					$('#associatedWorkTextDiv').html('[Work from a random classmate will display here]');
+					$('#associatedWorkDisplayDiv').show();
+				} else {
+					//this is the step where the student writes comments on their classmates work
+					this.retrieveOtherStudentWork();					
+				}
 			} else if(this.node.teacherReview != null) {
+				//this is a teacher review
+				
 				//this is the step where the student annotates the authored work
 				this.displayTeacherWork();
-			} 		
-		} 
+			}
+		}
 	}
 	
 	/* render the overall prompt for the whole step */
@@ -313,16 +363,6 @@ ASSESSMENTLIST.prototype.render = function() {
 		assessmentHTML += this.getHTML(assessment,i);
 	};
 	$("#assessmentsDiv").html(assessmentHTML);
-	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" value="Submit the Questionnaire"></input>');
-	
-	if(this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') {
-		if ($("#saveDraftButton").size() == 0) {
-			$("#submitButtonDiv").append('<div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveDraftButton" onClick="javascript:save();">SAVE DRAFT</a></div>');
-		}
-	}
-	
-	//disable and grey out the submit button
-	this.setSaveUnavailable();
 	
 	/* if student has already done this step, don't show the step, just display
 	 * the fact that they've already completed it.
@@ -331,6 +371,15 @@ ASSESSMENTLIST.prototype.render = function() {
 		this.lockScreen();
 		return;
 	};
+	
+	/*
+	 * if this step does not lock, we will set submit button to be unavailable.
+	 * when the student changes any of their answers in any field, the submit
+	 * button will become available.
+	 */
+	if(!this.content.isLockAfterSubmit) {
+		this.setSaveUnavailable();
+	}
 	
 	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
@@ -342,7 +391,9 @@ ASSESSMENTLIST.prototype.submit = function() {
 		if (this.content.isLockAfterSubmit) {
 			doLockStep=confirm("Click 'OK' to save and lock this step.  Your data will be saved and you will not be able to make any more changes.\nIf you want to keep working on this step, click 'Cancel'.");
 			if (doLockStep==true) { 
+				//disable the submit and save draft buttons
 				this.setSaveUnavailable();
+				this.setSaveDraftUnavailable();
 				var isSubmit = true;
 				this.save(isSubmit);
 				this.lockScreen();
@@ -360,7 +411,9 @@ ASSESSMENTLIST.prototype.submit = function() {
 				
 			} 
 		} else {
+			//disable the submit and save draft buttons
 			this.setSaveUnavailable();
+			this.setSaveDraftUnavailable();
 			var isSubmit = false;
 			this.save(isSubmit);
 		};
@@ -427,7 +480,7 @@ ASSESSMENTLIST.prototype.postAnnotation = function(response) {
 								  toWorkgroup:toWorkgroup,
 								  fromWorkgroup:fromWorkgroup,
 								  annotationType:type,
-								  value:value,
+								  value:encodeURIComponent(value),
 								  stepWorkId: stepWorkId,
 								  action:action,
 								  periodId:periodId};
@@ -479,21 +532,37 @@ ASSESSMENTLIST.prototype.isAllPartsCompleted = function() {
  * Saves the current page.
  */
 ASSESSMENTLIST.prototype.save = function(isSubmit) {
-	var alState = new ASSESSMENTLISTSTATE();
-	alState.isSubmit = isSubmit;
-	for (var i=0; i<this.content.assessments.length; i++) {
-		var assessment = this.content.assessments[i];
-		var assessmentState = {};
-		assessmentState.id = assessment.id;
-		assessmentState.type = assessment.type;
-		assessmentState.response = this.getResponse(assessment);
-		alState.assessments.push(assessmentState);
-	};
-	
-	//fire the event to push this state to the global view.states object
-	eventManager.fire('pushStudentWork', alState);
-	
-	this.states.push(alState);
+	/*
+	 * we need to save a new state if the state has changed
+	 * or if the student is submitting their final answer
+	 */
+	if(this.stateChanged || isSubmit) {
+		var alState = new ASSESSMENTLISTSTATE();
+		alState.isSubmit = isSubmit;
+		
+		if(isSubmit) {
+			alState.locked = true;
+		}
+		
+		for (var i=0; i<this.content.assessments.length; i++) {
+			var assessment = this.content.assessments[i];
+			var assessmentState = {};
+			assessmentState.id = assessment.id;
+			assessmentState.type = assessment.type;
+			assessmentState.response = this.getResponse(assessment);
+			alState.assessments.push(assessmentState);
+		};
+		
+		//fire the event to push this state to the global view.states object
+		eventManager.fire('pushStudentWork', alState);
+		
+		this.states.push(alState);
+		
+		//disable the save draft button
+		this.setSaveDraftUnavailable();	
+		
+		this.stateChanged = false;
+	}
 };
 
 /**
@@ -658,8 +727,8 @@ ASSESSMENTLIST.prototype.getLastSavedResponse = function(assessmentJSON) {
  * disables user from making any more changes
  */
 ASSESSMENTLIST.prototype.lockScreen = function() {
-	$("#submitButton").attr("disabled","disabled");
-	$(".interactable").attr("disabled","disabled");
+	this.setSaveUnavailable();
+	$(".interactable").attr("disabled",true);
 	$(".stepAlreadyCompleteDiv").html("You have completed this step.");
 };
 
@@ -668,8 +737,6 @@ ASSESSMENTLIST.prototype.lockScreen = function() {
  * Turn the save button on so the student can click it
  */
 ASSESSMENTLIST.prototype.setSaveAvailable = function() {
-	//removeClassFromElement("saveButton", "disabledLink");
-	//$("#submitButton").removeClass("disabledLink");
 	$("#submitButton").parent().removeClass("ui-state-disabled");
 	$("#submitButton").attr("disabled", false);
 };
@@ -680,10 +747,24 @@ ASSESSMENTLIST.prototype.setSaveAvailable = function() {
  * to save.
  */
 ASSESSMENTLIST.prototype.setSaveUnavailable = function() {
-	//addClassToElement("saveButton", "disabledLink");
-	//$("#submitButton").addClass("disabledLink");
 	$("#submitButton").parent().addClass("ui-state-disabled");
 	$("#submitButton").attr("disabled", true);
+};
+
+/**
+ * Enable the save draft button
+ */
+ASSESSMENTLIST.prototype.setSaveDraftAvailable = function() {
+	$("#saveDraftButton").parent().removeClass("ui-state-disabled");
+	$("#saveDraftButton").attr("disabled", false);	
+};
+
+/**
+ * Disable the save draft button
+ */
+ASSESSMENTLIST.prototype.setSaveDraftUnavailable = function() {
+	$("#saveDraftButton").parent().addClass("ui-state-disabled");
+	$("#saveDraftButton").attr("disabled", true);	
 };
 
 /**
@@ -696,8 +777,16 @@ ASSESSMENTLIST.prototype.isSaveAvailable = function() {
 	return !$("#submitButton").parent().hasClass("ui-state-disabled");
 };
 
+/**
+ * Called when the student modifies a field in any assessment part
+ */
 ASSESSMENTLIST.prototype.assessmentListChanged = function() {
+	//set this flag to true so we know that we will need to save a new state
+	this.stateChanged = true;
+	
+	//enable the submit and save draft buttons
 	this.setSaveAvailable();
+	this.setSaveDraftAvailable();
 };
 
 /**

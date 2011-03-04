@@ -924,8 +924,11 @@ View.prototype.processSelected = function(id){
 				//the node selected is already in a review sequence so we will display an error message
 				document.getElementById('selectModeMessage').innerHTML = 'Please select a step that is not already in a Review Sequence';
 				return;
-			} else if(nodeType == 'OpenResponseNode') {
-				//the node type was OpenResponseNode
+			} else if(nodeType == 'OpenResponseNode' || (this.selectArgs[0] == 'createReviewSequence2' && this.selectArgs[1] == 'Peer' && nodeType == 'AssessmentListNode')) {
+				/*
+				 * the node type was OpenResponseNode or this is the 2nd part of
+				 * the peer review sequence and the node type is AssessmentListNode
+				 */
 				
 				//get the node position
 				var nodePosition = this.project.getPositionById(nodeId);
@@ -1273,6 +1276,25 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		if(reviewSequenceType == 'Peer') {
 			node2ContentJSON.openPercentageTrigger = 0;
 			node2ContentJSON.openNumberTrigger = 0;
+		}
+		
+		//check if the second node in the sequence is an AssessmentListNode
+		if(node2.type == 'AssessmentListNode') {
+			/*
+			 * set these specific assessment list options which are required if the
+			 * step is going to be part of the review sequence
+			 */
+			node2ContentJSON.displayAnswerAfterSubmit = false;
+			node2ContentJSON.isLockAfterSubmit = true;
+			node2ContentJSON.isMustCompleteAllPartsBeforeExit = false;
+			
+			//set all the assessment parts to important
+			for(var x=0; x<node2ContentJSON.assessments.length; x++) {
+				var assessment = node2ContentJSON.assessments[x];
+				
+				//set the assessment part to important
+				assessment.isImportantReviewSequencePart = true;
+			}
 		}
 		
 		//set the content into the activeContent

@@ -226,7 +226,7 @@ OPENRESPONSE.prototype.postAnnotation = function(response) {
 								  toWorkgroup:toWorkgroup,
 								  fromWorkgroup:fromWorkgroup,
 								  annotationType:type,
-								  value:value,
+								  value:encodeURIComponent(value),
 								  stepWorkId: stepWorkId,
 								  action:action,
 								  periodId:periodId};
@@ -955,7 +955,7 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + thisOr.associatedAnnotateNode.title + '</a></b> (link).</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAssignedToClassmate') {
 				//the user's work has not been assigned to a classmate yet
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedAnnotateNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
+				thisOr.onlyDisplayMessage('<p>Your response in step <b>"' + thisOr.associatedStartNode.title + '"</b> has not been reviewed by a peer yet.</p><p>Please return to this step in a few minutes.</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAnnotatedByClassmate') {
 				//the user's classmate has not reviewed the user's work yet
 				thisOr.onlyDisplayMessage('<p>Your response in step <b>"' + thisOr.associatedStartNode.title + '"</b> has not been reviewed by a peer yet.</p><p>Please return to this step in a few minutes.</p>');

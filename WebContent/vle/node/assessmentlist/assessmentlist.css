@@ -1,3 +1,4 @@
+.color1 {color:#164CBA;}   /* vibrant blue */
 
 #promptdiv {
 	font-size:.9em;
@@ -20,7 +21,7 @@
 }
 
 .assessment {
-	border:1px solid #ccc;
+	border:1px solid #A97E46;
 	margin:7px 15px;
 	padding:10px;
 	font-size:.9em;
@@ -97,3 +98,50 @@
 	color: #999999;
 	outline: 0;
 }*/
+	
+.itemLabel {
+	font-size:.7em;
+	text-transform:uppercase;
+	margin:0.25em 0.5em;
+}
+
+.promptText {
+	color:#000;
+	margin:3px 10px 15px 15px;
+	line-height:150%;
+}
+
+.promptText2 {
+	color:#666;
+	font-size:80%;
+}
+
+#toggleSwitch {
+	font-size:85%;
+	padding:0px 5px;
+	margin-bottom:3px;
+	border:1px solid #999;
+	background-color:#6666ff;
+	color:#FFF;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
+}
+
+#toggleSwitch:hover {
+    background-color:#FFFF00;
+    color:#000;
+    cursor:pointer;
+}
+
+#promptContainer, .promptContainer {
+	color:#000;
+	font-size:.9em;
+	margin:3px 10px 15px 15px;
+	padding: 5px;
+	border:1px solid #a97e46;
+	line-height:130%;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}

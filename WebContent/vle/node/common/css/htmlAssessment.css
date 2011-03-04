@@ -82,7 +82,8 @@ p {
 
 
 #centeredDiv {
-	background-color: #FFFFFF;
+	padding:10px 5px;
+	background-color:#FFD9ac;
 	text-align: left;
 	padding: 0;
 	margin: 0 auto;

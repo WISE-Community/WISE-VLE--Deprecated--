@@ -62,6 +62,18 @@ View.prototype.AssessmentListNode.generateOptions = function(){
 	$('input[name=displayRadio]').filter('[value=' + this.content.displayAnswerAfterSubmit + ']').attr('checked', true);
 	$('input[name=lockRadio]').filter('[value=' + this.content.isLockAfterSubmit + ']').attr('checked', true);
 	$('input[name=completeRadio]').filter('[value=' + this.content.isMustCompleteAllPartsBeforeExit + ']').attr('checked', true);
+	
+	if(this.view.activeNode.peerReview) {
+		/*
+		 * this step is in a peer review sequence and requires
+		 * specific assessment list options to be set. we will disable
+		 * these options so that the author can't modify what they
+		 * have been set to.
+		 */
+		$('input[name=displayRadio]').attr('disabled', true);
+		$('input[name=lockRadio]').attr('disabled', true);
+		$('input[name=completeRadio]').attr('disabled', true);
+	}
 };
 
 /**
@@ -96,7 +108,44 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 	while(parent.firstChild){
 		parent.removeChild(parent.firstChild);
 	};
-	
+
+	if(this.view.activeNode.peerReview == 'annotate') {
+		//this step is part 2 of a peer review sequence
+		
+		//create the label and text area for the percentage trigger
+		var peerReviewPercentageTriggerText = document.createTextNode('Enter the percentage of the class needed to open this step: ');
+		var peerReviewPercentageTrigger = createElement(document, 'input', {type: 'text', id: 'peerReviewOpenPercentageTriggerInput', value: this.content.openPercentageTrigger, onkeyup: 'eventManager.fire("assessmentListPeerReviewPercentageTriggerUpdated")'});
+		var peerReviewPercentageText = document.createTextNode('%');
+		
+		//add the label and text area to the div
+		parent.appendChild(peerReviewPercentageTriggerText);
+		parent.appendChild(peerReviewPercentageTrigger);
+		parent.appendChild(peerReviewPercentageText);
+		parent.appendChild(createBreak());
+		
+		//create the label and text area for the number trigger
+		var peerReviewNumberTriggerText = document.createTextNode('Enter the number of students in the class needed to open this step: ');
+		var peerReviewNumberTrigger = createElement(document, 'input', {type: 'text', id: 'peerReviewOpenNumberTriggerInput', value: this.content.openNumberTrigger, onkeyup: 'eventManager.fire("assessmentListPeerReviewNumberTriggerUpdated")'});
+
+		//add the label and text area to the div
+		parent.appendChild(peerReviewNumberTriggerText);
+		parent.appendChild(peerReviewNumberTrigger);
+		parent.appendChild(createBreak());
+		
+		//create label and text area for the authored work
+		var peerReviewAuthoredWorkText = document.createTextNode('Enter the canned work: ');
+		var peerReviewAuthoredWorkInput = createElement(document, 'textarea', {id: 'peerReviewAuthoredWorkInput', cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("assessmentListPeerReviewAuthoredWorkUpdated")'});
+		
+		//add the label and text area to the div
+		parent.appendChild(peerReviewAuthoredWorkText);
+		parent.appendChild(peerReviewAuthoredWorkInput);
+		
+		//set any previously set values for the authoredWork
+		peerReviewAuthoredWorkInput.value = this.content.authoredWork;
+		
+		parent.appendChild(createBreak());
+	}
+
 	parent.appendChild(createBreak());
 	
 	if(this.content.assessments.length>0){
@@ -162,6 +211,31 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 			assDiv.appendChild(this.generateStarter(a));
 			assDiv.appendChild(createBreak());
 		}
+		
+		if(this.view.activeNode.peerReview == 'annotate') {
+			//this step is part of a peer review sequence so we need to add the check boxes for important part
+			
+			//create the checkbox
+			var richTextChoice = createElement(document, 'input', {id: 'importantPart_' + a, type: 'checkbox', onclick: 'eventManager.fire("assessmentListUpdateImportantReviewSequencePart", "' + a + '")'});
+			
+			//create the text associated with the checkbox
+			var importantPartText = document.createTextNode("Important Review Sequence Part");
+
+			//check if this assessment part is set to important
+			var isImportantReviewSequencePart = this.content.assessments[a].isImportantReviewSequencePart;
+			
+			if(isImportantReviewSequencePart) {
+				//check the check box since it is important
+				richTextChoice.checked = true;
+			}
+			
+			//add the elements to the div
+			assDiv.appendChild(richTextChoice);
+			assDiv.appendChild(importantPartText);
+			assDiv.appendChild(createBreak());
+			assDiv.appendChild(createBreak());
+		}
+		
 		var removeButt = createElement(document, 'input', {type: 'button', id: 'removeButt', value: 'remove item', onclick: "eventManager.fire('assessmentlistRemoveItem','" + a + "')"});
 		
 		assDiv.appendChild(removeButt);
@@ -387,6 +461,50 @@ View.prototype.AssessmentListNode.fieldUpdated = function(name,ndx){
  */
 View.prototype.AssessmentListNode.radioItemFieldUpdated = function(name,ndx,idx){
 	this.content.assessments[ndx].choices[idx][name] = document.getElementById(name + 'Input_' + ndx + '_' + idx).value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the isImportantReviewSequencePart field of an assessment part
+ * @param ndx the assessment part index
+ */
+View.prototype.AssessmentListNode.updateImportantReviewSequencePart = function(ndx){
+	var index = parseInt(ndx);
+	
+	//see if the checkbox was checked in the UI and set the content accordingly
+	this.content.assessments[index].isImportantReviewSequencePart = $('#importantPart_' + index).attr('checked');
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content with the value from the textarea
+ */
+View.prototype.AssessmentListNode.peerReviewAuthoredWorkUpdated = function(){
+	this.content.authoredWork = $('#peerReviewAuthoredWorkInput').val();
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content with the value from the text input
+ */
+View.prototype.AssessmentListNode.peerReviewPercentageTriggerUpdated = function(){
+	this.content.openPercentageTrigger = $('#peerReviewOpenPercentageTriggerInput').val();
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content with the value from the text input
+ */
+View.prototype.AssessmentListNode.peerReviewNumberTriggerUpdated = function(){
+	this.content.openNumberTrigger = $('#peerReviewOpenNumberTriggerInput').val();
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
