@@ -352,7 +352,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 			for (int i=0; i<dirNames.length; i++) {
 				String currDirName = dirNames[i];
 				String currAssetList = getAssetList(path,currDirName);
-				if (!currAssetList.isEmpty()) {
+				if (!"".equals(currAssetList)) {
 					JSONObject jsonObj = new JSONObject();
 					jsonObj.put("workgroupId", currDirName);
 					jsonObj.put("assets", currAssetList);
