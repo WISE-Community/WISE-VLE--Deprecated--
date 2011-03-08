@@ -1,31 +1,85 @@
+function SetupNodes() {
+};
+
 /*
  * This array specifies what step types will be available in the vle.
  * If you want a step type to be available in the vle, you must add
- * the path to the step's setup.js file to this array. 
+ * an object to the array below that contains the nodeName and 
+ * nodeSetupPath
  */
-var setupFiles = [
-	 "vle/node/assessmentlist/setup.js",
-	 "vle/node/brainstorm/setup.js",
-	 "vle/node/datagraph/setup.js",
-	 "vle/node/draw/setup.js",
-	 "vle/node/fillin/setup.js",
-	 "vle/node/html/setup.js",
-	 "vle/node/matchsequence/setup.js",
-	 "vle/node/multiplechoice/setup.js",
-	 "vle/node/mw/setup.js",
-	 "vle/node/mysystem/setup.js",
-	 "vle/node/openresponse/setup.js",
-	 "vle/node/outsideurl/setup.js",
-	 "vle/node/sensor/setup.js",
-	 "vle/node/template/setup.js",
-	 "vle/node/explanationbuilder/setup.js"
+SetupNodes.setupFiles = [
+ 		 {
+			 nodeName:"AssessmentListNode",
+			 nodeSetupPath:"vle/node/assessmentlist/setup.js"
+		 },
+		 {
+			 nodeName:"BrainstormNode",
+			 nodeSetupPath:"vle/node/brainstorm/setup.js"
+		 },
+		 {
+			 nodeName:"DataGraphNode",
+			 nodeSetupPath:"vle/node/datagraph/setup.js"
+		 },
+		 {
+			 nodeName:"SVGDrawNode",
+			 nodeSetupPath:"vle/node/draw/setup.js"
+		 },
+		 {
+			 nodeName:"FillinNode",
+			 nodeSetupPath:"vle/node/fillin/setup.js"
+		 },
+		 {
+			 nodeName:"HtmlNode",
+			 nodeSetupPath:"vle/node/html/setup.js"
+		 },
+		 {
+			 nodeName:"MatchSequenceNode",
+			 nodeSetupPath:"vle/node/matchsequence/setup.js"
+		 },
+		 {
+			 nodeName:"MultipleChoiceNode",
+			 nodeSetupPath:"vle/node/multiplechoice/setup.js"
+		 },
+		 {
+			 nodeName:"ChallengeNode",
+			 nodeSetupPath:"vle/node/multiplechoice/setup.js"
+		 },
+		 {
+			 nodeName:"MWNode",
+			 nodeSetupPath:"vle/node/mw/setup.js"
+		 },
+		 {
+			 nodeName:"MySystemNode",
+			 nodeSetupPath:"vle/node/mysystem/setup.js"
+		 },
+		 {
+			 nodeName:"OpenResponseNode",
+			 nodeSetupPath:"vle/node/openresponse/setup.js"
+		 },
+		 {
+			 nodeName:"NoteNode",
+			 nodeSetupPath:"vle/node/openresponse/setup.js"
+		 },
+		 {
+			 nodeName:"OutsideUrlNode",
+			 nodeSetupPath:"vle/node/outsideurl/setup.js"
+		 },
+		 {
+			 nodeName:"SensorNode",
+			 nodeSetupPath:"vle/node/sensor/setup.js"
+		 },
+		 {
+			 nodeName:"TemplateNode",
+			 nodeSetupPath:"vle/node/template/setup.js"
+		 },
+		 {
+			 nodeName:"ExplanationBuilderNode",
+			 nodeSetupPath:"vle/node/explanationbuilder/setup.js"
+		 }
 ];
 
-/*
- * add the paths the the setup files into the scriptloader so that
- * they will all be loaded into the vle
- */
-scriptloader.addScriptToComponent('setup', setupFiles);
+//insert the setup paths into the scriptloader so they will be loaded
+scriptloader.insertSetupPaths(SetupNodes.setupFiles);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
