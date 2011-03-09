@@ -58,6 +58,9 @@ function OPENRESPONSE(node, view) {
 	if(this.node.peerReview != null || this.node.teacherReview != null) {
 		//tell the node that it is part of a review sequence
 		this.node.setIsPartOfReviewSequence();
+		
+		//get the custom message to display to the student when the step is not open to work on
+		this.stepNotOpenCustomMessage = this.content.stepNotOpenCustomMessage;
 	}
 
 	//check if this step is locked
@@ -586,7 +589,7 @@ OPENRESPONSE.prototype.displayTeacherWork = function() {
 		//original step is not locked
 		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.associatedStartNode.title + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
 	} else {
 		//original step is locked
 		
@@ -646,12 +649,24 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 	var isOriginalNodeLocked = this.view.isLatestNodeStateLocked(this.associatedStartNode.id);
 	var isAnnotateNodeLocked = this.view.isLatestNodeStateLocked(this.associatedAnnotateNode.id);
 	
+	var startNodeTitle = "";
+	if(thisOr.associatedStartNode != null) {
+		//get the step number and node title for the start node
+		startNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedStartNode.id);
+	}
+	
+	var annotateNodeTitle = "";
+	if(thisOr.associatedAnnotateNode != null) {
+		//get the step number and node title for the annotate node
+		annotateNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedAnnotateNode.id);
+	}
+	
 	if(!isOriginalNodeLocked) {
 		//student still needs to submit work for the original step before they can work on this step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.associatedStartNode.title + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (link).</p>');
 	} else if(!isAnnotateNodeLocked){
 		//student still needs to submit work for the annotate step before they can work on this step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedAnnotateNode.id) + '\']) \">' + this.associatedAnnotateNode.title + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a></b> (link).</p>');
 	} else {
 		/*
 		 * student has submitted work for original and annotate step
@@ -676,7 +691,7 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 				 * teacher has not given an annotation to the student's work so
 				 * they can't work on this step yet
 				 */
-				this.onlyDisplayMessage('<p>Your teacher has not yet reviewed the response you submitted in step <b>"' + this.associatedStartNode.title + '"</b> yet.</p><p>Please return to this step again later.</p>');
+				this.onlyDisplayMessage('<p>Your teacher has not yet reviewed the response you submitted in step <b>"' + startNodeTitle + '"</b> yet.</p><p>Please return to this step again later.</p>');
 				
 				/*
 				 * perform any final tasks after we have finished retrieving
@@ -831,17 +846,31 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 		
 		var peerWorkText = "";
 		
+		var startNodeTitle = "";
+		if(thisOr.associatedStartNode != null) {
+			//get the step number and node title for the start node
+			startNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedStartNode.id);
+		}
+		
 		//handle error cases
 		if(peerWorkToReview.error) {
 			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
 				//the user has not submitted work for the original step
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + thisOr.associatedStartNode.title + '</a></b> (link).</p>');
-			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork') {
-				//server was unable to assign student any work to review, most likely because there was no available work to assign
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedStartNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
-			} else if(peerWorkToReview.error == 'peerReviewNotOpen') {
-				//the peer review has not opened yet
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedStartNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
+				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (link).</p>');
+			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork' || peerWorkToReview.error == 'peerReviewNotOpen') {
+				/*
+				 * server was unable to assign student any work to review, most likely because there was no available work to assign
+				 * or
+				 * the peer review has not opened yet
+				 */
+				
+				if(thisOr.stepNotOpenCustomMessage != null && thisOr.stepNotOpenCustomMessage != "") {
+					//use the custom authored message
+					thisOr.onlyDisplayMessage(thisOr.stepNotOpenCustomMessage.replace(/associatedStartNode.title/g, startNodeTitle));
+				} else {
+					//use the default message
+					thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + startNodeTitle + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');	
+				}
 			}
 			
 			//check if we should show the authored work
@@ -942,23 +971,43 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		
 		var annotationText = "";
 		
+		var startNodeTitle = "";
+		if(thisOr.associatedStartNode != null) {
+			//get the step number and node title for the start node
+			startNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedStartNode.id);
+		}
+		
+		var annotateNodeTitle = "";
+		if(thisOr.associatedAnnotateNode != null) {
+			//get the step number and node title for the annotate node
+			annotateNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedAnnotateNode.id);
+		}
+		
 		//handle error cases
 		if(annotationAndWork.error) {
 			if(annotationAndWork.error == 'peerReviewUserHasNotSubmittedOwnWork') {
 				//the user has not submitted work for the original step
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + thisOr.associatedStartNode.title + '</a></b> (link).</p>');
+				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + startNodeTitle + '</a></b> (link).</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserHasNotBeenAssignedToClassmateWork') {
 				//user has not been assigned to any classmate work yet, most likely because there is no available work to assign
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedAnnotateNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
+				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + startNodeTitle + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to step "' + annotateNodeTitle + '" in a few minutes.</p>');
 			} else if(annotationAndWork.error == 'peerReviewUserHasNotAnnotatedClassmateWork') {
 				//the user has not reviewed the assigned classmate work yet
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + thisOr.associatedAnnotateNode.title + '</a></b> (link).</p>');
-			} else if(annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAssignedToClassmate') {
-				//the user's work has not been assigned to a classmate yet
-				thisOr.onlyDisplayMessage('<p>Your response in step <b>"' + thisOr.associatedStartNode.title + '"</b> has not been reviewed by a peer yet.</p><p>Please return to this step in a few minutes.</p>');
-			} else if(annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAnnotatedByClassmate') {
-				//the user's classmate has not reviewed the user's work yet
-				thisOr.onlyDisplayMessage('<p>Your response in step <b>"' + thisOr.associatedStartNode.title + '"</b> has not been reviewed by a peer yet.</p><p>Please return to this step in a few minutes.</p>');
+				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a></b> (link).</p>');
+			} else if(annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAssignedToClassmate' || annotationAndWork.error == 'peerReviewUserWorkHasNotBeenAnnotatedByClassmate') {
+				/*
+				 * the user's work has not been assigned to a classmate yet
+				 * or
+				 * the user's classmate has not reviewed the user's work yet
+				 */
+				
+				if(thisOr.stepNotOpenCustomMessage != null && thisOr.stepNotOpenCustomMessage != "") {
+					//use the custom authored message
+					thisOr.onlyDisplayMessage(thisOr.stepNotOpenCustomMessage.replace(/associatedStartNode.title/g, startNodeTitle).replace(/associatedAnnotateNode.title/g, annotateNodeTitle));
+				} else {
+					//use the default message
+					thisOr.onlyDisplayMessage('<p>This step is not available yet.</p><p>Your response in step <b>"' + startNodeTitle + '"</b> has not been reviewed by a peer yet.</p><p>More of your peers need to submit a response for step <b>"' + annotateNodeTitle + '"</b>.</p><p>Please return to this step in a few minutes.</p>');
+				}
 			}
 			
 			//check if we should show the authored review
@@ -978,7 +1027,7 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 					annotationText = thisOr.content.authoredReview;
 				} else {
 					//the user has not reviewed the authored work yet
-					thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + thisOr.associatedAnnotateNode.title + '</a>.</p>');
+					thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedAnnotateNode.id) + '\']) \">' + annotateNodeTitle + '</a>.</p>');
 					return;
 				}
 			} else {

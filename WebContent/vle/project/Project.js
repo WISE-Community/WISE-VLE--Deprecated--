@@ -1577,6 +1577,28 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return this.foundNewFeedback;
 		};
 		
+		/**
+		 * Get the step number and title for a given node id
+		 * @return the step number and title as a recognized by the student in the vle
+		 * e.g. 1.2: Analyze the molecules
+		 */
+		var getStepNumberAndTitle = function(id) {
+			var stepNumberAndTitle = "";
+			
+			//get the vle position of the step as recognized by the student in the vle
+			var stepNumber = getVLEPositionById(id);
+			stepNumberAndTitle += stepNumber + ": ";
+			
+			
+			var node = getNodeById(id);
+			if(node != null) {
+				//get the title of the step
+				stepNumberAndTitle += node.title;
+			}
+			
+			return stepNumberAndTitle;
+		};
+		
 		/* check to see if this project was passed a minifiedStr, in which we will
 		 * set the totalProjectContent and this project's content */
 		 if(totalProjectContent){
@@ -1727,7 +1749,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* returns true if the project author specified any constraints, returns false otherwise */
 			containsProjectConstraints:function(){return constraints.length > 0;},
 			/* returns whether we found new feedback after generating the show all work */
-			hasNewFeedback:function() {return hasNewFeedback();}
+			hasNewFeedback:function() {return hasNewFeedback();},
+			//get the step number and title for a step
+			getStepNumberAndTitle:function(id) {return getStepNumberAndTitle(id);}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

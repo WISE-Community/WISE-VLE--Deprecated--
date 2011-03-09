@@ -44,6 +44,9 @@ function ASSESSMENTLIST(node, view) {
 	if(this.node.peerReview != null || this.node.teacherReview != null) {
 		//tell the node that it is part of a review sequence
 		this.node.setIsPartOfReviewSequence();
+		
+		//get the custom message to display to the student when the step is not open to work on
+		this.stepNotOpenCustomMessage = this.content.stepNotOpenCustomMessage;
 	}
 
 	//check if this step is locked
@@ -143,10 +146,10 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWork = function() {
  */
 ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, args) {
 	//get the or object
-	var thisOr = args[0];
+	var thisAl = args[0];
 	
 	//clear this variable to make sure we don't use old data
-	thisOr.otherStudentNodeVisit = null;
+	thisAl.otherStudentNodeVisit = null;
 	
 	//check if there was any text response
 	if(text != null && text != "") {
@@ -159,45 +162,59 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		if(peerWorkToReview.error) {
 			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
 				//the user has not submitted work for the original step
-				thisOr.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisOr.view.getProject().getPositionById(thisOr.associatedStartNode.id) + '\']) \">' + thisOr.associatedStartNode.title + '</a></b> (link).</p>');
-			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork') {
-				//server was unable to assign student any work to review, most likely because there was no available work to assign
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedStartNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
-			} else if(peerWorkToReview.error == 'peerReviewNotOpen') {
-				//the peer review has not opened yet
-				thisOr.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + thisOr.associatedStartNode.title + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');
+				thisAl.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (link).</p>');
+			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork' || peerWorkToReview.error == 'peerReviewNotOpen') {
+				/*
+				 * server was unable to assign student any work to review, most likely because there was no available work to assign
+				 * or
+				 * the peer review has not opened yet
+				 */
+				
+				var startNodeTitle = "";
+				if(thisAl.associatedStartNode != null) {
+					//get the step number and node title for the start node
+					startNodeTitle = thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id);
+				}
+				
+				if(thisAl.stepNotOpenCustomMessage != null && thisAl.stepNotOpenCustomMessage != "") {
+					//use the custom authored message
+					thisAl.onlyDisplayMessage(thisAl.stepNotOpenCustomMessage.replace(/associatedStartNode.title/g, startNodeTitle));
+				} else {
+					//use the default message
+					thisAl.onlyDisplayMessage('<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"' + startNodeTitle + '"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>');					
+				}
 			}
 			
 			//check if we should show the authored work
 			if(peerWorkToReview.error == 'peerReviewShowAuthoredWork') {
 				//show the authored work for the student to review
-				peerWorkText = thisOr.content.authoredWork;
-				thisOr.showAuthorContent = true;
+				peerWorkText = thisAl.content.authoredWork;
+				thisAl.showAuthorContent = true;
 			} else {
 				return;
 			}
 		} else {
 			//set the variables for the other student
-			thisOr.otherStudentWorkgroupId = peerWorkToReview.workgroupId;
-			thisOr.otherStudentStepWorkId = peerWorkToReview.stepWorkId;
-			thisOr.otherStudentNodeVisit = peerWorkToReview.nodeVisit;
+			thisAl.otherStudentWorkgroupId = peerWorkToReview.workgroupId;
+			thisAl.otherStudentStepWorkId = peerWorkToReview.stepWorkId;
+			thisAl.otherStudentNodeVisit = peerWorkToReview.nodeVisit;
 			
-			peerWorkText = thisOr.associatedStartNode.getPeerReviewOtherStudentWork(thisOr.otherStudentNodeVisit);
+			peerWorkText = thisAl.associatedStartNode.getPeerReviewOtherStudentWork(thisAl.otherStudentNodeVisit);
 		}
 		
 		//reaplce \n with <br>
-		peerWorkText = thisOr.replaceSlashNWithBR(peerWorkText);
+		peerWorkText = thisAl.replaceSlashNWithBR(peerWorkText);
 		
 		//show regular divs such as prompt, starter, and response and populate them
-		thisOr.showDefaultDivs();
-		//thisOr.showDefaultValues();
+		thisAl.showDefaultDivs();
+		//thisAl.showDefaultValues();
 		
 		//set more informative labels
 		$('#promptLabelDiv').html('instructions');
 		$('#responseLabelDiv').html('your feedback for <i>Team Anonymous</i>:');
 		
 		//display the prompt
-		$('#originalPromptTextDiv').html(thisOr.associatedStartNode.getPeerReviewPrompt());
+		$('#originalPromptTextDiv').html(thisAl.associatedStartNode.getPeerReviewPrompt());
 		$('#originalPromptDisplayDiv').show();
 		
 		/*
@@ -209,14 +226,14 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		$('#associatedWorkDisplayDiv').show();
 		
 		//set the response if there were previous revisions 
-		//thisOr.setResponse();
+		//thisAl.setResponse();
 	}
 	
 	/*
 	 * perform any final tasks after we have finished retrieving
 	 * any other work and have displayed it to the student
 	 */
-	thisOr.doneRendering();
+	thisAl.doneRendering();
 };
 
 /**
@@ -231,7 +248,7 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
 		//original step is not locked
 		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.associatedStartNode.title + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
 	} else {
 		//original step is locked
 		

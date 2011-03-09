@@ -23,6 +23,8 @@ View.prototype.openResponseDispatcher = function(type,args,obj){
 		obj.OpenResponseNode.peerReviewNumberTriggerUpdated();
 	} else if(type=='openResponsePeerReviewAuthoredReviewUpdated'){
 		obj.OpenResponseNode.peerReviewAuthoredReviewUpdated();
+	} else if(type=='openResponsePeerReviewStepNotOpenCustomMessageUpdated'){
+		obj.OpenResponseNode.peerReviewStepNotOpenCustomMessageUpdated();
 	};
 };
 
@@ -36,7 +38,8 @@ var events = [
 	'openResponsePeerReviewAuthoredWorkUpdated',
 	'openResponsePeerReviewPercentageTriggerUpdated',
 	'openResponsePeerReviewNumberTriggerUpdated',
-	'openResponsePeerReviewAuthoredReviewUpdated'
+	'openResponsePeerReviewAuthoredReviewUpdated',
+	'openResponsePeerReviewStepNotOpenCustomMessageUpdated'
 ];
 
 /*

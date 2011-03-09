@@ -144,6 +144,23 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 		peerReviewAuthoredWorkInput.value = this.content.authoredWork;
 		
 		parent.appendChild(createBreak());
+		parent.appendChild(createBreak());
+		
+		//create label and text area for the step not open custom message
+		var peerReviewStepNotOpenCustomMessageText = document.createTextNode('Enter the step not open custom message: ');
+		var peerReviewStepNotOpenCustomMessageInput = createElement(document, 'textarea', {id: 'peerReviewStepNotOpenCustomMessageInput', cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("assessmentListPeerReviewStepNotOpenCustomMessageUpdated")'});
+		var peerReviewStepNotOpenCustomMessageNoteText = document.createTextNode('(note: if you delete everything in the textarea, it will re-populate with the default message. also, associatedStartNode.title will be replaced with the title of the first node in the review sequence when this is displayed to the student.)');
+		
+		//add the label and text area to the div
+		parent.appendChild(peerReviewStepNotOpenCustomMessageText);
+		parent.appendChild(peerReviewStepNotOpenCustomMessageInput);
+		parent.appendChild(createBreak());
+		parent.appendChild(peerReviewStepNotOpenCustomMessageNoteText);
+		
+		//set any previously set values for the step not open custom message
+		peerReviewStepNotOpenCustomMessageInput.value = this.content.stepNotOpenCustomMessage;
+		
+		parent.appendChild(createBreak());
 	}
 
 	parent.appendChild(createBreak());
@@ -505,6 +522,24 @@ View.prototype.AssessmentListNode.peerReviewPercentageTriggerUpdated = function(
  */
 View.prototype.AssessmentListNode.peerReviewNumberTriggerUpdated = function(){
 	this.content.openNumberTrigger = $('#peerReviewOpenNumberTriggerInput').val();
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content with the value from the text input
+ */
+View.prototype.AssessmentListNode.peerReviewStepNotOpenCustomMessageUpdated = function(){
+	var customMessage = $('#peerReviewStepNotOpenCustomMessageInput').val();
+	
+	if(customMessage == "") {
+		//custom message field is empty so we will re-populate it with the default message
+		customMessage = '<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"associatedStartNode.title"</b>. <br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>';
+		$('#peerReviewStepNotOpenCustomMessageInput').val(customMessage);
+	}
+	
+	this.content.stepNotOpenCustomMessage = customMessage;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

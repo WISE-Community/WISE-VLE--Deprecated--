@@ -154,6 +154,25 @@ View.prototype.OpenResponseNode.generatePeerReview = function(peerReviewType) {
 		
 		//set any previously set values for the authoredWork
 		peerReviewAuthoredWorkInput.value = this.content.authoredWork;
+		
+		peerReviewDiv.appendChild(createBreak());
+		peerReviewDiv.appendChild(createBreak());
+		
+		//create label and text area for the step not open custom message
+		var peerReviewStepNotOpenCustomMessageText = document.createTextNode('Enter the step not open custom message: ');
+		var peerReviewStepNotOpenCustomMessageInput = createElement(document, 'textarea', {id: 'peerReviewStepNotOpenCustomMessageInput', cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("openResponsePeerReviewStepNotOpenCustomMessageUpdated")'});
+		var peerReviewStepNotOpenCustomMessageNoteText = document.createTextNode('(note: if you delete everything in the textarea, it will re-populate with the default message. also, associatedStartNode.title will be replaced with the title of the first node in the review sequence when this is displayed to the student.)');
+		
+		//add the label and text area to the div
+		peerReviewDiv.appendChild(peerReviewStepNotOpenCustomMessageText);
+		peerReviewDiv.appendChild(peerReviewStepNotOpenCustomMessageInput);
+		peerReviewDiv.appendChild(createBreak());
+		peerReviewDiv.appendChild(peerReviewStepNotOpenCustomMessageNoteText);
+		
+		//set any previously set values for the step not open custom message
+		peerReviewStepNotOpenCustomMessageInput.value = this.content.stepNotOpenCustomMessage;
+		
+		peerReviewDiv.appendChild(createBreak());
 	} else if(peerReviewType == 'revise') {
 		//create label and text area
 		var peerReviewAuthoredReviewText = document.createTextNode('Enter the canned review: ');
@@ -165,6 +184,25 @@ View.prototype.OpenResponseNode.generatePeerReview = function(peerReviewType) {
 		
 		//set any previously set values for the authoredWork
 		peerReviewAuthoredReviewInput.value = this.content.authoredReview;
+		
+		peerReviewDiv.appendChild(createBreak());
+		peerReviewDiv.appendChild(createBreak());
+		
+		//create label and text area for the step not open custom message
+		var peerReviewStepNotOpenCustomMessageText = document.createTextNode('Enter the step not open custom message: ');
+		var peerReviewStepNotOpenCustomMessageInput = createElement(document, 'textarea', {id: 'peerReviewStepNotOpenCustomMessageInput', cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("openResponsePeerReviewStepNotOpenCustomMessageUpdated")'});
+		var peerReviewStepNotOpenCustomMessageNoteText = document.createTextNode('(note: if you delete everything in the textarea, it will re-populate with the default message. also, associatedStartNode.title will be replaced with the title of the first node in the review sequence and associatedAnnotateNode.title will be replaced with the title of the second node in the review sequence when this is displayed to the student.)');
+		
+		//add the label and text area to the div
+		peerReviewDiv.appendChild(peerReviewStepNotOpenCustomMessageText);
+		peerReviewDiv.appendChild(peerReviewStepNotOpenCustomMessageInput);
+		peerReviewDiv.appendChild(createBreak());
+		peerReviewDiv.appendChild(peerReviewStepNotOpenCustomMessageNoteText);
+		
+		//set any previously set values for the step not open custom message
+		peerReviewStepNotOpenCustomMessageInput.value = this.content.stepNotOpenCustomMessage;
+		
+		peerReviewDiv.appendChild(createBreak());
 	}
 	
 	return peerReviewDiv;
@@ -368,6 +406,24 @@ View.prototype.OpenResponseNode.updateStarterSentenceAuthoring = function(){
 	this.content.starterSentence.display = $('input[name=starterRadio]:checked').val();
 	
 	this.content.starterSentence.sentence = $('#starterSentenceAuthoringInput').val();
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content with the value from the text input
+ */
+View.prototype.OpenResponseNode.peerReviewStepNotOpenCustomMessageUpdated = function(){
+	var customMessage = $('#peerReviewStepNotOpenCustomMessageInput').val();
+	
+	if(customMessage == "") {
+		//custom message field is empty so we will re-populate it with the default message
+		customMessage = '<p>This step is not available yet.</p><p>Your response in step <b>"associatedStartNode.title"</b> has not been reviewed by a peer yet.</p><p>More of your peers need to submit a response for step <b>"associatedAnnotateNode.title"</b>.</p><p>Please return to this step in a few minutes.</p>';
+		$('#peerReviewStepNotOpenCustomMessageInput').val(customMessage);
+	}
+	
+	this.content.stepNotOpenCustomMessage = customMessage;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

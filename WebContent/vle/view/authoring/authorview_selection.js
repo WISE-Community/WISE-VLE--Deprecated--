@@ -1269,6 +1269,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		//set the 'authoredWork' attribute
 		var node2ContentJSON = this.activeContent.getContentJSON();
 		node2ContentJSON.authoredWork = "Enter canned work here";
+		node2ContentJSON.stepNotOpenCustomMessage = '<p>This step is not available yet.</p></p><p>More of your peers need to submit a response for step <b>"associatedStartNode.title"</b>.<br/>You will then be assigned a response to review.</p><p>Please return to this step again in a few minutes.</p>';
 		
 		//disable the rich text editor
 		node2ContentJSON.isRichTextEditorAllowed = false;
@@ -1326,6 +1327,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		//set the 'authoredReview' attribute
 		var node3ContentJSON = this.activeContent.getContentJSON();
 		node3ContentJSON.authoredReview = "Enter canned review here";
+		node3ContentJSON.stepNotOpenCustomMessage = '<p>This step is not available yet.</p><p>Your response in step <b>"associatedStartNode.title"</b> has not been reviewed by a peer yet.</p><p>More of your peers need to submit a response for step <b>"associatedAnnotateNode.title"</b>.</p><p>Please return to this step in a few minutes.</p>';
 		
 		//disable the rich text editor
 		node3ContentJSON.isRichTextEditorAllowed = false;

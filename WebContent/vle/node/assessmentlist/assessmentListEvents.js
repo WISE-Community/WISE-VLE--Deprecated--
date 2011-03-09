@@ -35,6 +35,8 @@ View.prototype.assessmentlistDispatcher = function(type,args,obj){
 		obj.AssessmentListNode.peerReviewNumberTriggerUpdated();
 	} else if(type=='assessmentListPeerReviewAuthoredWorkUpdated'){
 		obj.AssessmentListNode.peerReviewAuthoredWorkUpdated();
+	} else if(type=='assessmentListPeerReviewStepNotOpenCustomMessageUpdated'){
+		obj.AssessmentListNode.peerReviewStepNotOpenCustomMessageUpdated();
 	}
 };
 
@@ -54,7 +56,8 @@ var events = [
 	'assessmentListUpdateImportantReviewSequencePart',
 	'assessmentListPeerReviewPercentageTriggerUpdated',
 	'assessmentListPeerReviewNumberTriggerUpdated',
-	'assessmentListPeerReviewAuthoredWorkUpdated'
+	'assessmentListPeerReviewAuthoredWorkUpdated',
+	'assessmentListPeerReviewStepNotOpenCustomMessageUpdated'
 ];
 
 /*
