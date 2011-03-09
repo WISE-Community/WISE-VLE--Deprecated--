@@ -219,12 +219,22 @@ public class VLEPeerReviewController extends HttpServlet {
 
 		Integer openPercentageTriggerInt = null;
 		if(openPercentageTrigger != null) {
-			openPercentageTriggerInt = Integer.parseInt(openPercentageTrigger);
+			try {
+				openPercentageTriggerInt = Integer.parseInt(openPercentageTrigger);
+			} catch(NumberFormatException e) {
+				e.printStackTrace();
+				openPercentageTriggerInt = 0;
+			}
 		}
 
 		Integer openNumberTriggerInt = null;
 		if(openNumberTrigger != null) {
-			openNumberTriggerInt = Integer.parseInt(openNumberTrigger);
+			try {
+				openNumberTriggerInt = Integer.parseInt(openNumberTrigger);
+			} catch(NumberFormatException e) {
+				e.printStackTrace();
+				openNumberTriggerInt = 0;
+			}
 		}
 
 		//get the node that is being used for peer review
