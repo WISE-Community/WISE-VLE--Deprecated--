@@ -100,6 +100,9 @@ SENSOR.prototype.render = function() {
 	//plot the sensor data from the student's previous visit, if any
 	this.plotData();
 	
+	//add the graph labels
+	this.setupGraphLabels();
+	
 	//display the annotations, if any
 	this.setupAnnotations();
 	
@@ -368,7 +371,7 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 
 		if(contentGraphParams.xlabel != null) {
 			//set the xaxis label
-			graphParams.xaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.xlabel;};
+			//graphParams.xaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.xlabel;};
 		}
 
 		if(contentGraphParams.ymin != null) {
@@ -383,7 +386,7 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 
 		if(contentGraphParams.ylabel != null) {
 			//set the yaxis label
-			graphParams.yaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.ylabel;};
+			//graphParams.yaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.ylabel;};
 		}
 	}
 	
@@ -1188,6 +1191,31 @@ SENSOR.prototype.insertApplet = function() {
 	
 	//insert the applet into the sensor.html
 	document.getElementById('sensorAppletDiv').innerHTML = appletHtml;
+};
+
+/**
+ * Set the labels for the graph
+ */
+SENSOR.prototype.setupGraphLabels = function() {
+	if(this.content.graphParams != null) {
+		//get the x and y labels
+		var xLabel = "";
+		if(this.content.graphParams.xlabel) {
+			xLabel = this.content.graphParams.xlabel;	
+		}
+		
+		var yLabel = "";
+		if(this.content.graphParams.ylabel) {
+			yLabel = this.content.graphParams.ylabel;
+		}
+		
+		//set the y label
+		$('#upperLeftGraphDiv').html(yLabel);
+		
+		//set the x label
+		$('#bottomRightGraphDiv').attr('align', 'center');
+		$('#bottomRightGraphDiv').html(xLabel);
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

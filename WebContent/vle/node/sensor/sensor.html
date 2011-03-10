@@ -177,7 +177,12 @@
 	    <!-- the graph will be displayed in this graphDiv -->
 	    <table>
 		    <tr>
-		    	<td><div id="graphDiv" style="width:600px;height:300px;"></div></td>
+		    	<td>
+		    		<table>
+		    			<tr><td><div id="upperLeftGraphDiv"></div></td><td><div id="graphDiv" style="width:600px;height:300px;"></div></td></tr>
+		    			<tr><td><div id="bottomLeftGraphDiv"></div></td><td><div id="bottomRightGraphDiv"></div></td></tr>
+		    		</table>
+		    	</td>
 		    	<td>
 		    	<div id="graphOptionsDiv">
 		    		<div id="graphCheckBoxesDiv"></div>
