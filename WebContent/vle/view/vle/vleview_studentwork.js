@@ -294,7 +294,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 					+ "<div id='sizeDiv'></div><div id='uploaderInstructions'></div>"
 					+ "</div></div>";
 		$('#studentAssetsDiv').html(assetEditorDialogHtml);		
-    }
+	}
 	
 	var remove = function(){
 		var parent = document.getElementById('assetSelect');
@@ -318,7 +318,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		}
 	};
 	
-	var import = function() {
+	var saImport = function() {
 		if(view.getCurrentNode() != null &&
 				view.getCurrentNode().importFile) {			
 			var parent = document.getElementById('assetSelect');
@@ -386,7 +386,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	if(this.getCurrentNode() != null &&
 			this.getCurrentNode().importFile) {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
-                {'Done':done,'Import File to Step':import,'Remove Selected File':remove}
+                {'Done':done,'Import File to Step':saImport,'Remove Selected File':remove}
              );		
 		
 		/*
@@ -487,7 +487,8 @@ View.prototype.studentAssetSubmitUpload = function() {
 		}
 	} else {
 		view.notificationManager.notify('Please specify a file to upload.',3);
-	}};
+	}
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
