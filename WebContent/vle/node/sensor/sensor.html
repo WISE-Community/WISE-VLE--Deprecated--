@@ -158,6 +158,13 @@
     	    	sensor.editAnnotation(seriesName, dataIndex, annotationText);
     	    }
 
+    	    /*
+    	     * Append the starter sentence to the text in the response textarea
+    	     */
+    	    function showStarterSentence() {
+        	    //tell our sensor object to show the starter sentence
+    	    	sensor.showStarterSentence();
+    	    }
 		</script>
 	</head>
 	<body>
@@ -195,6 +202,7 @@
 	    </table>
 	    
 	    <!-- where the student will write their analysis or explanation to the graph -->
+	    <div id="showStarterSentenceButtonDiv"><input type="button" value="Show Starter Sentence" onclick="showStarterSentence()" /></div>
 	    <textarea id='responseTextArea'></textarea>
 	    <br/>
 	    <!-- the save button -->

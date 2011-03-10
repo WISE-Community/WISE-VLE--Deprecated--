@@ -123,6 +123,9 @@ SENSOR.prototype.render = function() {
 	 * we expect by looking at the content for this step
 	 */
 	this.insertApplet();
+	
+	//display the starter sentence button if necessary
+	this.displayStarterSentenceButton();
 };
 
 /**
@@ -1215,6 +1218,61 @@ SENSOR.prototype.setupGraphLabels = function() {
 		//set the x label
 		$('#bottomRightGraphDiv').attr('align', 'center');
 		$('#bottomRightGraphDiv').html(xLabel);
+	}
+};
+
+/**
+ * Display the starter sentence button if the author has specified to
+ * do so
+ */
+SENSOR.prototype.displayStarterSentenceButton = function() {
+	if(this.content.starterSentence) {
+		if(this.content.starterSentence.display == "0") {
+			//do not show the starter sentence button
+			$('#showStarterSentenceButtonDiv').hide();
+		} else if(this.content.starterSentence.display == "1" || this.content.starterSentence.display == "2") {
+			//show the starter sentence button
+			$('#showStarterSentenceButtonDiv').show();
+
+			if(this.content.starterSentence.display == "2") {
+				//automatically populate the response box with the starter sentence
+				
+				//check if the student has submitted a response before
+				if(this.states == null || this.states.length == 0) {
+					/*
+					 * the student has not submitted a response before so this
+					 * is the first time they are visiting the step. we will
+					 * populate the response textarea with the starter sentence
+					 */
+					var starterSentence = this.content.starterSentence.sentence;
+					
+					/*
+					 * there should be nothing in the textarea but we will just
+					 * append the starter sentence just in case so that we don't
+					 * risk overwriting the text that is already in there
+					 */
+					var response = $("#responseTextArea").val();
+					response += starterSentence;
+					$("#responseTextArea").val(response);
+				}
+			}
+			
+		}
+	}
+};
+
+/**
+ * Append the starter sentence to the response textarea
+ */
+SENSOR.prototype.showStarterSentence = function() {
+	if(this.content.starterSentence) {
+		//get the starter sentence
+		var starterSentence = this.content.starterSentence.sentence;
+		
+		//append the starter sentence to the text in the textarea
+		var response = $("#responseTextArea").val();
+		response += starterSentence;
+		$("#responseTextArea").val(response);
 	}
 };
 
