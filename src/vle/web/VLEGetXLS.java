@@ -680,6 +680,10 @@ public class VLEGetXLS extends VLEServlet {
 		    	
 		    	//get the node content
 		    	JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+		    	//check to see if node exists. if not, node has been deleted, so ignore it
+		    	if (nodeContent == null) {
+		    		continue;
+		    	}
 		    	
 		    	//get the node object
 		    	JSONObject nodeJSONObject = nodeIdToNode.get(nodeId);

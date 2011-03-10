@@ -352,6 +352,10 @@ public class VLEGetData extends VLEServlet {
 				StepWork stepWork = stepWorkList.get(x);
 				
 				String data = stepWork.getData();
+				if (data == null || "".equals(data)) {
+					// if for some reason data is empty (e.g. bug post), ignore this stepwork
+					continue;
+				}
 				String stepWorkId = stepWork.getId().toString();
 				
 				//obtain the node type for the step work
