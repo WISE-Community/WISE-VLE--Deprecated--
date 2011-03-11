@@ -394,7 +394,7 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 		 * display a message to the student and disable the buttons 
 		 * and textarea so the student can't work on the step
 		 */
-		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step", 3);
+		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
 		$('#addNew').attr('disabled', 'disabled');
 		$('#save').attr('disabled', 'disabled');
 		$('#explanationText').attr('disabled', 'disabled');

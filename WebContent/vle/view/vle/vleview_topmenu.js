@@ -37,6 +37,8 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.viewStudentAssets();
 	} else if(type=='studentAssetSubmitUpload') {
 		obj.studentAssetSubmitUpload();
+	} else if(type=='ideaBasketDocumentLoaded') {
+		obj.loadIdeaBasket();
 	}
 };
 
@@ -514,6 +516,16 @@ View.prototype.checkForNewTeacherAnnotations = function() {
  * Displays the Add an Idea dialog popup so the student can create a new Idea
  */
 View.prototype.displayAddAnIdeaDialog = function() {
+	
+	if(!this.ideaBasket) {
+		/*
+		 * the vle failed to retrieve the idea basket so we will display
+		 * an error message and not display the idea basket popup
+		 */
+		this.notificationManager.notify("Error: Could not open Idea Basket, refresh the VLE to try to load it again", 3);
+		return;
+	}
+	
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
@@ -640,7 +652,7 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	var ideaBasketJSONObj = $.parseJSON(responseText);
 	
 	if(ideaBasketJSONObj == null) {
-		thisView.notificationManager.notify("Error: Failed to retrieve Idea Basket", 3);
+		thisView.notificationManager.notify("Error: Failed to retrieve Idea Basket, refresh the VLE to try to load it again", 3);
 	} else {
 		//create the IdeaBasket from the JSON and set it into the view
 		thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
@@ -665,7 +677,7 @@ View.prototype.displayIdeaBasket = function() {
 		 * the vle failed to retrieve the idea basket so we will display
 		 * an error message and not display the idea basket popup
 		 */
-		this.notificationManager.notify("Error: Could not open Idea Basket", 3);
+		this.notificationManager.notify("Error: Could not open Idea Basket, refresh the VLE to try to load it again", 3);
 		return;
 	}
 	
@@ -701,16 +713,6 @@ View.prototype.displayIdeaBasket = function() {
 		//open the dialog
 		$('#ideaBasketDiv').dialog('open');
 		
-		if(window.frames['ideaBasketIfrm'].thisView == null) {
-			//set thisView so it is accessible within the iframe
-			window.frames['ideaBasketIfrm'].thisView = this;
-		}
-		
-		if(window.frames['ideaBasketIfrm'].eventManager == null) {
-			//set eventManager so it is accessible within the iframe
-			window.frames['ideaBasketIfrm'].eventManager = eventManager;
-		}
-		
 		if($('#ideaBasketIfrm').attr('src') == null) {
 			//set the src so it will load the ideaManager.html page
 			$('#ideaBasketIfrm').attr('src', "ideaManager.html");
@@ -736,8 +738,12 @@ View.prototype.displayIdeaBasket = function() {
 View.prototype.ideaBasketDivClose = function() {
 	//check if the idea basket has changed
 	if(window.frames['ideaBasketIfrm'].basket.isBasketChanged()) {
-		//idea basket has changed so we will save it back to the server
-		window.frames['ideaBasketIfrm'].basket.saveIdeaBasket();
+		/*
+		 * idea basket has changed so we will save it back to the server
+		 * thisView is accessed from window.frames['ideaBasketIfrm'] because
+		 * this function is called from the context of the dialog popup
+		 */
+		window.frames['ideaBasketIfrm'].basket.saveIdeaBasket(window.frames['ideaBasketIfrm'].thisView);
 		
 		//set this value back to false because we are going to save it back to the server
 		window.frames['ideaBasketIfrm'].basket.setBasketChanged(false);
@@ -826,6 +832,20 @@ View.prototype.getIdeaBasketsByWorkgroupIdCallback = function(text, responseXML,
 	
 	//display the flagged work now that we have the idea baskets
 	thisView.displayFlaggedWork();
+};
+
+/**
+ * Load the idea basket into the iframe
+ */
+View.prototype.loadIdeaBasket = function() {
+	//generate the JSON string for the idea basket
+	var ideaBasketJSON = $.stringify(this.ideaBasket);
+	
+	//generate the JSON object for the idea basket
+	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+	
+	//load the idea basket into the iframe
+	window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this);
 };
 
 /* used to notify scriptloader that this script has finished loading */

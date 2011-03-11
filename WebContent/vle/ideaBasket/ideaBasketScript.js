@@ -8,25 +8,12 @@ var basket;
 //global variable that specifies whether the idea basket has been changed so we know whether to save to the server
 var basketChanged = false;
 
+var subscribedToIdeaBasketChanged = false;
+
 $(document).ready(function() {
 	if(basket == null){
 		basket = new IdeaBasket();
 	}
-	
-	/*
-	 * get the idea basket from the iframe, this was set in
-	 * vleview_topmenu.js in the displayIdeaBasket() function
-	 */
-	var viewIdeaBasket = parent.frames['ideaBasketIfrm'].thisView.ideaBasket;
-	
-	//generate the JSON string for the idea basket
-	var ideaBasketJSON = $.stringify(viewIdeaBasket);
-	
-	/*
-	 * generate the JSON object for the idea basket because we will need
-	 * it later to load the basket
-	 */
-	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 
 	$('#showAdmin').click(function(){
 		$('#adminLinks').toggle();
@@ -76,83 +63,7 @@ $(document).ready(function() {
 	$('#addNew').click(function(){
 		$('#ideaDialog').dialog('open');
 	});
-
-	/*$('#clearDialog').dialog({title:'Empty Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
-		"OK": function(){				
-		localStorage.clear();
-		window.location.reload();
-	}, Cancel: function(){
-		$(this).dialog("close");
-	} }
-	});
-
-	$('#clear').click(function(){
-		$('#clearDialog').dialog('open');
-	});
-
-	$('#export').click(function(){
-		document.exportForm['exportIdeas'].value = localStorage.ideas;
-		document.exportForm['exportDeleted'].value = localStorage.deleted;
-		document.exportForm['exportIndex'].value = localStorage.index;
-		$('#exportForm').submit();
-	});
-
-	$('#importForm').ajaxForm({
-		//target : 'import.php',
-		dataType : 'text',
-		success : function (response) {
-		var storage = response.replace(/^<head><\/head><body>/,'');
-		storage = storage.replace(/<\/body>$/,'');
-		storage = storage.replace(/\\"/g,'"');
-		var data = storage.split(/\r?\n/);
-		var ideas, deleted, index;
-		if(data[0] && data[1] && data[2]){
-			if (data[0] == "undefined" || data[0] == null || data[0].length>-1){
-				if(data[0].length>0){
-					ideas = JSON.parse(data[0]);
-				} else {
-					ideas = [];
-				}
-			} else {
-				alert('invalid data format');
-				return;
-			}
-			if (data[1] == "undefined" || data[1] == null || data[1].length>-1){
-				if(data[1].length>0){
-					deleted = JSON.parse(data[1]);
-				} else {
-					deleted = [];
-				}
-			} else {
-				alert('invalid data format');
-				return;
-			}
-			if (typeof data[2] === 'string'){
-				index = data[2];
-			} else {
-				alert('invalid data format');
-				return;
-			}
-			localStorage.clear();
-			basket.load(ideas,deleted,index,true);
-		}
-	}
-	});
-
-	$('#importDialog').dialog({title:'Import an Existing Idea Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
-		"Submit": function(){				
-		$('#importForm').submit();
-		$(this).dialog("close");
-	}, Cancel: function(){
-		$(this).dialog("close");
-	} }
-	});
-
-	$('#import').click(function(){
-		$('#importDialog').dialog('open');
-	});*/
 	
-	// TODO: FIX - this is not firing in Chrome (click insn't either)
 	$('#toggleDeleted').toggle(
 			function() {
 				$('#trash').fadeIn();
@@ -170,26 +81,28 @@ $(document).ready(function() {
 			}
 	);
 
-	//get the view
-	var thisView = parent.frames['ideaBasketIfrm'].thisView;
-	
-	/*
-	 * subscribe to the ideaBasketChanged event so that when that
-	 * event is fired, we know we need to update our ideaBasket. this
-	 * will occur when the student has a the global idea basket open and is
-	 * changing the idea basket within an explanation builder step.
-	 */
-	thisView.eventManager.subscribe('ideaBasketChanged', ideaBasketChanged, thisView);
-	
-	//load the idea basket
-	loadIdeaBasket(ideaBasketJSONObj, true);
+	parent.eventManager.fire('ideaBasketDocumentLoaded');
 });
 
 /**
  * Loads the idea basket from the global ideaBasket JSON object
  * that should have been set into the iframe
+ * @param ideaBasketJSONObj the idea basket JSON object
+ * @param generateUI whether to generate the UI and load the basket
+ * or just load the basket
+ * @param thisView the view
  */
-var loadIdeaBasket = function(ideaBasketJSONObj, generateUI) {
+var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView) {
+	//only subscribe to the 'ideaBasketChanged' event once
+	if(!subscribedToIdeaBasketChanged) {
+		//remember thisView in the iframe so we can access it later
+		parent.frames['ideaBasketIfrm'].thisView = thisView;
+		
+		//subscribe to the event
+		thisView.eventManager.subscribe('ideaBasketChanged', ideaBasketChanged, thisView);
+		subscribedToIdeaBasketChanged = true;
+	}
+	
 	//load the ideaBasket JSON object that should have been set into the iframe
 	basket.load(ideaBasketJSONObj, generateUI);
 };
@@ -213,7 +126,7 @@ var ideaBasketChanged = function(type,args,obj) {
 	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 	
 	//load the basket so that the newest changes are reflected
-	loadIdeaBasket(ideaBasketJSONObj, true);
+	loadIdeaBasket(ideaBasketJSONObj, true, thisView);
 };
 
 function resetForm(target){

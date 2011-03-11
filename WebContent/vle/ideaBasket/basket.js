@@ -496,8 +496,8 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 	}
 	for(var i=0; i<this.deleted.length; i++){
 		if(this.deleted[i].id == index){
-			//this.ideas.push(this.deleted[i]);
-			this.ideas.splice(0,0,this.deleted[i]);
+			this.ideas.push(this.deleted[i]);
+			//this.ideas.splice(0,0,this.deleted[i]);
 			var idea = this.deleted[i];
 			
 			//get the current time

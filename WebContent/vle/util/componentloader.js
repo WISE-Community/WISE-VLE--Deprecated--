@@ -722,7 +722,8 @@ var componentloader = function(em, sl){
 					'studentAssetSubmitUpload':[null,null],
 					'addIdeaToBasket':[null,null],
 					'moveIdeaToTrash':[null,null],
-					'moveIdeaOutOfTrash':[null,null]
+					'moveIdeaOutOfTrash':[null,null],
+					'ideaBasketDocumentLoaded':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -742,6 +743,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('studentAssetSubmitUpload', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('ideaBasketDocumentLoaded', view.dropDownMenuDispatcher, view);
 				}
 			}
 		},
