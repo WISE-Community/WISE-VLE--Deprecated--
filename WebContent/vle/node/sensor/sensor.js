@@ -103,6 +103,9 @@ SENSOR.prototype.render = function() {
 	//add the graph labels
 	this.setupGraphLabels();
 	
+	//show the graph options if necessary
+	this.showGraphOptions();
+	
 	//display the annotations, if any
 	this.setupAnnotations();
 	
@@ -1273,6 +1276,16 @@ SENSOR.prototype.showStarterSentence = function() {
 		var response = $("#responseTextArea").val();
 		response += starterSentence;
 		$("#responseTextArea").val(response);
+	}
+};
+
+/**
+ * Show the graph check box options if the author has specified to
+ */
+SENSOR.prototype.showGraphOptions = function() {
+	if(this.content.showGraphOptions) {
+		//show the graph options
+		$('#graphCheckBoxesDiv').show();
 	}
 };
 

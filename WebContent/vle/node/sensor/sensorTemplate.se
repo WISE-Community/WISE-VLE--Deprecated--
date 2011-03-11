@@ -3,6 +3,7 @@
    "graphParams": {},
    "prompt": "",
    "sensorType": "motion",
+   "showGraphOptions": false,
    "starterSentence": {
       "display": "0",
       "sentence": ""
