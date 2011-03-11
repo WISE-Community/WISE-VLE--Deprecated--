@@ -17,6 +17,8 @@ View.prototype.sensorDispatcher = function(type,args,obj){
 		obj.SensorNode.updateYMin();
 	} else if(type=='sensorUpdateYMax'){
 		obj.SensorNode.updateYMax();
+	} else if(type=='sensorUpdateShowGraphOptions'){
+		obj.SensorNode.updateShowGraphOptions();
 	}
 };
 
@@ -28,7 +30,8 @@ var events = [
 	'sensorUpdateXMax',
 	'sensorUpdateYUnits',
 	'sensorUpdateYMin',
-	'sensorUpdateYMax'
+	'sensorUpdateYMax',
+	'sensorUpdateShowGraphOptions'
 ];
 
 /*

@@ -1286,6 +1286,9 @@ SENSOR.prototype.showGraphOptions = function() {
 	if(this.content.showGraphOptions) {
 		//show the graph options
 		$('#graphCheckBoxesDiv').show();
+	} else {
+		//do not show the graph options
+		$('#graphCheckBoxesDiv').hide();
 	}
 };
 

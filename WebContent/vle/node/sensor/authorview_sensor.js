@@ -79,6 +79,10 @@ View.prototype.SensorNode.generatePage = function(view){
 	var yMaxText = document.createTextNode('Max Y:');
 	var yMaxInput = createElement(document, 'input', {type: 'input', id: 'yMaxInput', name: 'yMaxInput', value: yMax, onchange: 'eventManager.fire("sensorUpdateYMax")'});
 	
+	//create the show graph options elements
+	var showGraphOptionsText = document.createTextNode(' Show Graph Options');
+	var showGraphOptionsCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'showGraphOptions', onclick: 'eventManager.fire("sensorUpdateShowGraphOptions")'});
+	
 	//create new
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 	var promptText = document.createTextNode("Prompt for Student:");
@@ -125,7 +129,11 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
-
+	//insert the show graph options
+	pageDiv.appendChild(showGraphOptionsText);
+	pageDiv.appendChild(showGraphOptionsCheckBox);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
 	
 	pageDiv.appendChild(createElement(document, 'div', {id: 'studentResponseBoxSizeContainer'}));
 	pageDiv.appendChild(createBreak());
@@ -147,7 +155,11 @@ View.prototype.SensorNode.generatePage = function(view){
 		pageDiv.appendChild(createBreak());
 		pageDiv.appendChild(createBreak());
 	}
-	
+
+	//populate the checkbox if necessary
+	if(this.content.showGraphOptions) {
+		showGraphOptionsCheckBox.checked = true;
+	}
 	
 	parent.appendChild(pageDiv);
 };
@@ -582,6 +594,17 @@ View.prototype.SensorNode.updateYMax = function() {
 	
 	//get the y units and set it into the graph params
 	this.content.graphParams.ymax = yMax;
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save whether to show the graph options
+ */
+View.prototype.SensorNode.updateShowGraphOptions = function() {
+	//get the value of the checkbox
+	this.content.showGraphOptions = $('#showGraphOptions').attr('checked');
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
