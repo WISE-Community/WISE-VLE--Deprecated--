@@ -165,6 +165,20 @@
         	    //tell our sensor object to show the starter sentence
     	    	sensor.showStarterSentence();
     	    }
+
+    	    /*
+    	     * Update the axis range
+    	     */
+    	    function updateAxisRange() {
+    	    	sensor.updateAxisRange();
+    	    }
+
+    	    /*
+    	     * Reset the axis range back to the default values
+    	     */
+    	    function resetDefaultAxisRange() {
+				sensor.resetDefaultAxisRange();
+    	    }
 		</script>
 	</head>
 	<body>
@@ -179,6 +193,7 @@
 	      <input type="button" value="Start" onclick="startSensor()" />
 	      <input type="button" value="Stop" onclick="stopSensor()" />
 	      <input type="button" value="Clear" onclick="clearData()" />
+	      <input type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange()" />
 	    </div>
 	    
 	    <!-- the graph will be displayed in this graphDiv -->
@@ -186,8 +201,28 @@
 		    <tr>
 		    	<td>
 		    		<table>
-		    			<tr><td><div id="upperLeftGraphDiv"></div></td><td><div id="graphDiv" style="width:600px;height:300px;"></div></td></tr>
-		    			<tr><td><div id="bottomLeftGraphDiv"></div></td><td><div id="bottomRightGraphDiv"></div></td></tr>
+		    			<tr>
+		    				<td height="100%">
+		    					<table height="100%">
+		    						<tr valign="top"><td><div><input id="yMaxInput" type="text" size=3 onkeyup="updateAxisRange()"></input></div></td></tr>
+		    						<tr><td><div id="yLabelDiv"></div></td></tr>
+		    						<tr valign="bottom"><td><div><input id="yMinInput" type="text" size=3 onkeyup="updateAxisRange()"></input></div></td></tr>
+		    					</table>
+		    				</td>
+		    				<td><div id="graphDiv" style="width:600px;height:300px;"></div></td>
+		    			</tr>
+		    			<tr>
+		    				<td><div id="bottomLeftGraphDiv"></div></td>
+		    				<td>
+		    					<table width="100%">
+		    						<tr>
+		    							<td align="left"><div><input id="xMinInput" type="text" size=3 onkeyup="updateAxisRange()"></div></td>
+		    							<td align="center"><div id="xLabelDiv"></div></td>
+		    							<td align="right"><div><input id="xMaxInput" type="text" size=3 onkeyup="updateAxisRange()"></div></td>
+		    						</tr>
+		    					</table>
+		    				</td>
+		    			</tr>
 		    		</table>
 		    	</td>
 		    	<td>

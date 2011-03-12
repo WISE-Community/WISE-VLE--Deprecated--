@@ -9,8 +9,12 @@
  * @param annotationArray an array containing objects that represent annotations
  * for points on the graph 
  * @param timestamp the time the sensor state was created
+ * @param xMin the min x value
+ * @param xMax the max x value
+ * @param yMin the min y value
+ * @param yMax the max y value
  */
-function SENSORSTATE(response, sensorDataArray, annotationArray, timestamp) {
+function SENSORSTATE(response, sensorDataArray, annotationArray, timestamp, xMin, xMax, yMin, yMax) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -41,6 +45,12 @@ function SENSORSTATE(response, sensorDataArray, annotationArray, timestamp) {
 	} else {
 		this.timestamp = timestamp;
 	}
+	
+	//set the axis range values
+	this.xMin = xMin;
+	this.xMax = xMax;
+	this.yMin = yMin;
+	this.yMax = yMax;
 };
 
 /**
@@ -60,9 +70,15 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	
 	//get the timestamp
 	var timestamp = stateJSONObj.timestamp;
+	
+	//get the axis range values
+	var xMin = stateJSONObj.xMin;
+	var xMax = stateJSONObj.xMax;
+	var yMin = stateJSONObj.yMin;
+	var yMax = stateJSONObj.yMax;
 
 	//create a SENSORSTATE object
-	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, timestamp);
+	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, timestamp, xMin, xMax, yMin, yMax);
 	
 	return sensorState;
 };

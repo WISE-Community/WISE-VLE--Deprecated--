@@ -19,6 +19,30 @@ function SENSOR(node, view) {
 	//the content for the step
 	this.content = node.getContent().getContentJSON();
 	
+	this.defaultXMin = "";
+	this.defaultXMax = "";
+	this.defaultYMin = "";
+	this.defaultYMax = "";
+	
+	//get the default axis range values, if any
+	if(this.content.graphParams) {
+		if(this.content.graphParams.xmin) {
+			this.defaultXMin = this.content.graphParams.xmin;			
+		}
+		
+		if(this.content.graphParams.xmax) {
+			this.defaultXMax = this.content.graphParams.xmax;	
+		}
+		
+		if(this.content.graphParams.ymin) {
+			this.defaultYMin = this.content.graphParams.ymin;			
+		}
+		
+		if(this.content.graphParams.ymax) {
+			this.defaultYMax = this.content.graphParams.ymax;
+		}
+	}
+	
 	/*
 	 * a timestamp used for calculating the amount of time the sensor has
 	 * been collecting data. this is only updated in startCollecting() and
@@ -42,6 +66,28 @@ function SENSOR(node, view) {
 	
 	//the sensor state that will contain the student work
 	this.sensorState = this.getLatestState();
+	
+	//get the student specified axis range values, if any
+	if(this.sensorState != null) {
+		if(this.sensorState.xMin != null) {
+			this.content.graphParams.xmin = this.sensorState.xMin;
+		}
+
+		if(this.sensorState.xMax != null) {
+			this.content.graphParams.xmax = this.sensorState.xMax;
+		}
+
+		if(this.sensorState.yMin != null) {
+			this.content.graphParams.ymin = this.sensorState.yMin;
+		}
+
+		if(this.sensorState.yMax != null) {
+			this.content.graphParams.ymax = this.sensorState.yMax;
+		}
+	}
+	
+	//flag to keep track of whether the student has change any axis range value this visit
+	this.axisRangeChanged = false;
 	
 	if(this.content != null) {
 		//get the graph parameters for displaying the data to the student
@@ -365,12 +411,12 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 	graphParams.yaxis = {};
 	
 	if(contentGraphParams != null) {
-		if(contentGraphParams.xmin != null) {
+		if(contentGraphParams.xmin != null && contentGraphParams.xmin != "") {
 			//set the xmin value
 			graphParams.xaxis.min = contentGraphParams.xmin;
 		}
 
-		if(contentGraphParams.xmax != null) {
+		if(contentGraphParams.xmax != null && contentGraphParams.xmax != "") {
 			//set the xmax value
 			graphParams.xaxis.max = contentGraphParams.xmax;
 		}
@@ -380,12 +426,12 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 			//graphParams.xaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.xlabel;};
 		}
 
-		if(contentGraphParams.ymin != null) {
+		if(contentGraphParams.ymin != null && contentGraphParams.ymin != "") {
 			//set the ymin value
 			graphParams.yaxis.min = contentGraphParams.ymin;
 		}
 
-		if(contentGraphParams.ymax != null) {
+		if(contentGraphParams.ymax != null && contentGraphParams.ymax != "") {
 			//set the ymax value
 			graphParams.yaxis.max = contentGraphParams.ymax;
 		}
@@ -436,7 +482,7 @@ SENSOR.prototype.save = function() {
 	/*
 	 * check that the student has changed the response or the graph or any annotations
 	 */
-	if(response != previousResponse || this.graphChanged || this.annotationsChanged) {
+	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged) {
 		//set the student response into the state
 		this.sensorState.response = response;
 		
@@ -458,6 +504,7 @@ SENSOR.prototype.save = function() {
 	 */
 	this.graphChanged = false;
 	this.annotationsChanged = false;
+	this.axisRangeChanged = false;
 };
 
 /**
@@ -1216,11 +1263,16 @@ SENSOR.prototype.setupGraphLabels = function() {
 		}
 		
 		//set the y label
-		$('#upperLeftGraphDiv').html(yLabel);
+		$('#yLabelDiv').html(yLabel);
 		
 		//set the x label
-		$('#bottomRightGraphDiv').attr('align', 'center');
-		$('#bottomRightGraphDiv').html(xLabel);
+		$('#xLabelDiv').html(xLabel);
+		
+		//set the axis range values into the input text boxes
+		$('#xMinInput').val(this.content.graphParams.xmin);
+		$('#xMaxInput').val(this.content.graphParams.xmax);
+		$('#yMinInput').val(this.content.graphParams.ymin);
+		$('#yMaxInput').val(this.content.graphParams.ymax);
 	}
 };
 
@@ -1290,6 +1342,72 @@ SENSOR.prototype.showGraphOptions = function() {
 		//do not show the graph options
 		$('#graphCheckBoxesDiv').hide();
 	}
+};
+
+/**
+ * The student has changed the axis range so we will obtain those
+ * values and plot the graph again
+ */
+SENSOR.prototype.updateAxisRange = function() {
+	//set this flag so we know the sensor state has changed
+	this.axisRangeChanged = true;
+	
+	//get all the values from the text box inputs
+	var xMin = $('#xMinInput').val();
+	var xMax = $('#xMaxInput').val();
+	var yMin = $('#yMinInput').val();
+	var yMax = $('#yMaxInput').val();
+	
+	//set the value into the graph params
+	this.content.graphParams.xmin = xMin;
+	this.content.graphParams.xmax = xMax;
+	this.content.graphParams.ymin = yMin;
+	this.content.graphParams.ymax = yMax;
+	
+	//set the value into the sensor state
+	this.sensorState.xMin = xMin;
+	this.sensorState.xMax = xMax;
+	this.sensorState.yMin = yMin;
+	this.sensorState.yMax = yMax;
+	
+	//parse the graph params again to obtain the new values in the graph params
+	this.graphParams = this.parseGraphParams(this.content.graphParams);
+	
+	//plot the graph again
+	this.plotData();
+};
+
+/**
+ * The student wants to reset the axis range values back to the
+ * default values
+ */
+SENSOR.prototype.resetDefaultAxisRange = function() {
+	//set this flag so we know the sensor state has changed
+	this.axisRangeChanged = true;
+	
+	//reset the values in the text box inputs
+	$('#xMinInput').val(this.defaultXMin);
+	$('#xMaxInput').val(this.defaultXMax);
+	$('#yMinInput').val(this.defaultYMin);
+	$('#yMaxInput').val(this.defaultYMax);
+	
+	//reset the values in the graph params
+	this.content.graphParams.xmin = this.defaultXMin;
+	this.content.graphParams.xmax = this.defaultXMax;
+	this.content.graphParams.ymin = this.defaultYMin;
+	this.content.graphParams.ymax = this.defaultYMax;
+	
+	//reset the values in the sensor state
+	this.sensorState.xMin = this.defaultXMin;
+	this.sensorState.xMax = this.defaultXMax;
+	this.sensorState.yMin = this.defaultYMin;
+	this.sensorState.yMax = this.defaultYMax;
+	
+	//parse the graph params again to obtain the new values in the graph params
+	this.graphParams = this.parseGraphParams(this.content.graphParams);
+	
+	//plot the graph again
+	this.plotData();
 };
 
 //used to notify scriptloader that this script has finished loading
