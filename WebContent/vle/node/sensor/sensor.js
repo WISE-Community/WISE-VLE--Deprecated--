@@ -228,9 +228,9 @@ SENSOR.prototype.stopCollecting = function() {
 	
 	//get the current time in milliseconds
 	var stopTime = currentDate.getTime();
-	
-	//update the elapsed time
-	this.elapsedTime += this.timeCheck - stopTime;
+
+	//update the timeCheck
+	this.timeCheck = stopTime;
 };
 
 /**
@@ -270,8 +270,13 @@ SENSOR.prototype.dataReceived = function(type, count, data) {
 	//get the current time in milliseconds
 	var currentTime = currentDate.getTime();
 	
-	//update the amount of time that the sensor has been collecting data
-	this.elapsedTime += currentTime - this.timeCheck;
+	if(this.sensorState.sensorDataArray.length == 0) {
+		//this is the first data point so we will set the elapsedTime value to 0
+		this.elapsedTime = 0;
+	} else {
+		//update the amount of time that the sensor has been collecting data
+		this.elapsedTime += currentTime - this.timeCheck;		
+	}
 	
 	//update the time check
 	this.timeCheck = currentTime;
@@ -292,16 +297,16 @@ SENSOR.prototype.dataReceived = function(type, count, data) {
 		}
 	}
 	
-	//round the x vale to the nearest hundredth
+	/*
+	 * round the x vale to the nearest hundredth. elapsedTime is in milliseconds
+	 * so we need to divide by 1000 to get seconds
+	 */
 	var x = (this.elapsedTime / 1000).toFixed(2);
 	
 	//round the y value to the nearest hundredth
 	var y = data.toFixed(2);
 	
-	/*
-	 * save the data point into the sensor state. elapsedTime is in milliseconds
-	 * so we need to divide by 1000 to get seconds
-	 */
+	//save the data point into the sensor state.
 	this.sensorState.dataReceived(x, y);
 	
 	//update the graph
