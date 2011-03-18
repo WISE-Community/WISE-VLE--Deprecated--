@@ -111,80 +111,95 @@ function SENSOR(node) {
  * Render the sensor step
  */
 SENSOR.prototype.render = function() {
-	//set the prompt into the step
-	document.getElementById('promptDiv').innerHTML = this.content.prompt;
-
-	//plot the sensor data from the student's previous visit, if any
-	this.plotData();
-	
-	//add the graph labels
-	this.setupGraphLabels();
-	
-	//set the axis values
-	this.setupAxisValues();
-	
-	//show the graph options if necessary
-	this.showGraphOptions();
-	
-	//display the annotations, if any
-	this.setupAnnotations();
-	
-	/*
-	 * get the student's previous response, if any, and re-populate
-	 * the response textarea with it
-	 */
-	var response = this.getResponseFromSensorState();
-	$("#responseTextArea").val(response);
-	
-	//set the size of the text area
-	$("#responseTextArea").attr('rows', this.content.expectedLines);
-	$("#responseTextArea").attr('cols', 80);
-	
-	if(this.content.enableSensor != null && this.content.enableSensor == false) {
-		//disable the sensor buttons
-		this.disableSensorButtons();
-	} else {
+	if(this.content.requirePredictionBeforeEnter && this.node.prevWorkNodeIds.length != 0 && this.sensorState.predictionArray.length == 0) {
 		/*
-		 * insert the applet into the html. we need to insert it dynamically
-		 * because the we need to dynamically determine what type of sensor
-		 * we expect by looking at the content for this step
+		 * this step requires a prediction before opening, there is an associated prevWorkNodeId
+		 * and there is no prediction so we will lock the student out of this step until they
+		 * create the prediction in the previously associated step
 		 */
-		this.insertApplet();		
-	}
-	
-	if(!this.content.createPrediction) {
-		//disable the prediction buttons
-		this.disablePredictionButtons();
-	}
-	
-	//display the starter sentence button if necessary
-	this.displayStarterSentenceButton();
-	
-	/*
-	 * used to determine if the student is click dragging on the graph
-	 * for use when they are creating a prediction
-	 */
-	this.mouseDown = false;
-	$("#graphDiv").bind('mousedown', {thisSensor:this},(function(event) {
-		event.data.thisSensor.mouseDown = true;
-	}));
-	$("#graphDiv").bind('mouseup', {thisSensor:this},(function(event) {
-		event.data.thisSensor.mouseDown = false;
-	}));
+		
+		var prevWorkNodeId = this.node.prevWorkNodeIds[0];
+		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
+		
+		//display the message to tell the student to create a prediction in the previously associated step
+		document.getElementById('promptDiv').innerHTML = "You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'renderNode\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.";
+		this.hideAllInputFields();
+	} else {
+		//set the prompt into the step
+		document.getElementById('promptDiv').innerHTML = this.content.prompt;
 
-	/*
-	 * used to hide or show the annotation tool tips. if the student has
-	 * their mouse in the graph div we will hide the annotation tool tips
-	 * so that they don't block them from clicking on the plot points.
-	 * when the mouse cursor is outside of the graph div we will show the
-	 * annotation tool tips for them to view.
-	 */
-	$("#graphDiv").bind('mouseover', (function(event) {
-		$(".activeAnnotationToolTip").hide();
-	}));
-	$("#graphDiv").bind('mouseleave', (function(event) {
-		$(".activeAnnotationToolTip").show();
-	}));
+		//plot the sensor data from the student's previous visit, if any
+		this.plotData();
+		
+		//add the graph labels
+		this.setupGraphLabels();
+		
+		//set the axis values
+		this.setupAxisValues();
+		
+		//show the graph options if necessary
+		this.showGraphOptions();
+		
+		//display the annotations, if any
+		this.setupAnnotations();
+		
+		/*
+		 * get the student's previous response, if any, and re-populate
+		 * the response textarea with it
+		 */
+		var response = this.getResponseFromSensorState();
+		$("#responseTextArea").val(response);
+		
+		//set the size of the text area
+		$("#responseTextArea").attr('rows', this.content.expectedLines);
+		$("#responseTextArea").attr('cols', 80);
+		
+		if(this.content.enableSensor != null && this.content.enableSensor == false) {
+			//disable the sensor buttons
+			this.disableSensorButtons();
+		} else {
+			/*
+			 * insert the applet into the html. we need to insert it dynamically
+			 * because the we need to dynamically determine what type of sensor
+			 * we expect by looking at the content for this step
+			 */
+			this.insertApplet();		
+		}
+		
+		if(!this.content.createPrediction) {
+			//disable the prediction buttons
+			this.disablePredictionButtons();
+		}
+		
+		//display the starter sentence button if necessary
+		this.displayStarterSentenceButton();
+		
+		/*
+		 * used to determine if the student is click dragging on the graph
+		 * for use when they are creating a prediction
+		 */
+		this.mouseDown = false;
+		$("#graphDiv").bind('mousedown', {thisSensor:this},(function(event) {
+			event.data.thisSensor.mouseDown = true;
+		}));
+		$("#graphDiv").bind('mouseup', {thisSensor:this},(function(event) {
+			event.data.thisSensor.mouseDown = false;
+		}));
+
+		/*
+		 * used to hide or show the annotation tool tips. if the student has
+		 * their mouse in the graph div we will hide the annotation tool tips
+		 * so that they don't block them from clicking on the plot points.
+		 * when the mouse cursor is outside of the graph div we will show the
+		 * annotation tool tips for them to view.
+		 */
+		$("#graphDiv").bind('mouseover', (function(event) {
+			$(".activeAnnotationToolTip").hide();
+		}));
+		$("#graphDiv").bind('mouseleave', (function(event) {
+			$(".activeAnnotationToolTip").show();
+		}));
+	}
 };
 
 /**
@@ -1789,7 +1804,13 @@ SENSOR.prototype.getPreviousPrediction = function() {
 			//get the state from the previous step that this step is linked to
 			var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
 			
-			if(this.sensorState.predictionArray.length == 0) {
+			/*
+			 * make sure this step doesn't already have a prediction set 
+			 * and that there was a prediction state from the previous
+			 * associated step before we try to retrieve that prediction and
+			 * set it into our prediction array
+			 */
+			if(this.sensorState.predictionArray.length == 0 && predictionState != null && predictionState != "") {
 				/*
 				 * make a copy of the prediction array and set it into our sensor state
 				 * so we don't accidentally modify the data from the other state
@@ -1812,7 +1833,6 @@ SENSOR.prototype.getPreviousPrediction = function() {
 				 * the data in the other state 
 				 */ 
 				predictionAnnotations = JSON.parse(JSON.stringify(predictionAnnotations));
-				
 				
 				//add the prediction annotations to our annotation array
 				for(var y=0; y<predictionAnnotations.length; y++) {
@@ -1984,6 +2004,26 @@ SENSOR.prototype.getDOMSeriesName = function(seriesName) {
 	}
 	
 	return domSeriesName;
+};
+
+/**
+ * Hide all the input fields for when we want to prevent the student from
+ * working on this step because they have not yet created a prediction in
+ * the previous associated step
+ */
+SENSOR.prototype.hideAllInputFields = function() {
+	$('#startButton').hide();
+	$('#stopButton').hide();
+	$('#clearButton').hide();
+	$('#clearPredictionButton').hide();
+	$('#resetDefaultAxisLimitsButton').hide();
+	$('#yMaxInput').hide();
+	$('#yMinInput').hide();
+	$('#xMinInput').hide();
+	$('#xMaxInput').hide();
+	$('#showStarterSentenceButton').hide();
+	$('#responseTextArea').hide();
+	$('#saveButton').hide();
 };
 
 //used to notify scriptloader that this script has finished loading

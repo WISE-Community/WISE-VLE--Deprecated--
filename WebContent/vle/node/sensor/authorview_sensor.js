@@ -93,12 +93,19 @@ View.prototype.SensorNode.generatePage = function(view){
 	var enableSensorCheckBox = createElement(document, 'input', {id: 'enableSensorCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateEnableSensor")'});
 	var enableSensorText = document.createTextNode("Enable Sensor");
 	
+	//create the check box to require prediction before enter
+	var requirePredictionBeforeEnterCheckBox = createElement(document, 'input', {id: 'requirePredictionBeforeEnterCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateRequirePredictionBeforeEnter")'});
+	var requirePredictionBeforeEnterText = document.createTextNode('Require Prediction Before Enter (You must specify a "Show Previous Work" step for this to work)');
+	
 	//insert the create prediction and enable sensor checkboxes
 	pageDiv.appendChild(enableCreatePredictionCheckBox);
 	pageDiv.appendChild(enableCreatePredictionText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(enableSensorCheckBox);
 	pageDiv.appendChild(enableSensorText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(requirePredictionBeforeEnterCheckBox);
+	pageDiv.appendChild(requirePredictionBeforeEnterText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -110,6 +117,11 @@ View.prototype.SensorNode.generatePage = function(view){
 	//populate the enable sensor checkbox
 	if(this.content.enableSensor) {
 		enableSensorCheckBox.checked = true;
+	}
+	
+	//populate the require prediction before enter checkbox
+	if(this.content.requirePredictionBeforeEnter) {
+		requirePredictionBeforeEnterCheckBox.checked = true;
 	}
 	
 	//create the x axis authoring elements
@@ -724,6 +736,17 @@ View.prototype.SensorNode.updateShowVelocity = function() {
 View.prototype.SensorNode.updateShowAcceleration = function() {
 	//get the value of the checkbox
 	this.content.showAcceleration = $('#showAccelerationCheckBox').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save the require prediction before enter field
+ */
+View.prototype.SensorNode.updateRequirePredictionBeforeEnter = function() {
+	//get the value of the checkbox
+	this.content.requirePredictionBeforeEnter = $('#requirePredictionBeforeEnterCheckBox').attr('checked');
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');

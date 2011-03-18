@@ -4,6 +4,7 @@
    "expectedLines": 5,
    "graphParams": {},
    "prompt": "",
+   "requirePredictionBeforeEnter":false,
    "sensorType": "motion",
    "showGraphOptions": false,
    "showVelocity": false,
