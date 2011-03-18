@@ -175,6 +175,10 @@ View.prototype.displayGlobalTools = function() {
 };
 
 View.prototype.showToolsBasedOnConfig = function(runInfo) {
+  	if (runInfo == null) {
+        return;
+      }
+
 	if (runInfo.isStudentAssetUploaderEnabled != null &&
 			runInfo.isStudentAssetUploaderEnabled) {
 		$("#studentAssetsTD").show();
