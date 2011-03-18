@@ -179,10 +179,10 @@ SENSOR.prototype.render = function() {
 	 * when the mouse cursor is outside of the graph div we will show the
 	 * annotation tool tips for them to view.
 	 */
-	$("#graphDiv").bind('mouseenter', {thisSensor:this},(function(event) {
+	$("#graphDiv").bind('mouseover', (function(event) {
 		$(".activeAnnotationToolTip").hide();
 	}));
-	$("#graphDiv").bind('mouseout', {thisSensor:this},(function(event) {
+	$("#graphDiv").bind('mouseleave', (function(event) {
 		$(".activeAnnotationToolTip").show();
 	}));
 };
@@ -1892,6 +1892,11 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 				y:dataPointArray[1]
 		};
 		
+		//get the offset of the plot relative to the whole document page
+		var plotOffset = plot.offset();
+		var xPlotOffset = plotOffset.left;
+		var yPlotOffset = plotOffset.top;
+		
 		//find the pixel position of the point
 		var offsetObject = plot.pointOffset(dataPointObject);
 		var x = offsetObject.left;
@@ -1915,8 +1920,8 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 		    $('<div id="annotationToolTip' + domSeriesName + dataIndex + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
 		        position: 'absolute',
 		        //display: 'none',
-		        top: y + 10,
-		        left: x + 70,
+		        top: y + yPlotOffset - 5,
+		        left: x + xPlotOffset - 15,
 		        border: '1px solid #fdd',
 		        padding: '2px',
 		        'background-color': '#fee',

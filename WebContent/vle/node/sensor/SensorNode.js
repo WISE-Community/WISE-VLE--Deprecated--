@@ -116,6 +116,20 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	//plot the graph in the sensor graph div
 	sensor.plotData(sensorGraphDiv.id, sensorGraphCheckBoxesDiv.id);
 	
+	/*
+	 * used to hide or show the annotation tool tips. if the teacher has
+	 * their mouse in the graph div we will hide the annotation tool tips
+	 * so that they don't block them from viewing the plot points.
+	 * when the mouse cursor is outside of the graph div we will show the
+	 * annotation tool tips for them to view.
+	 */
+	$("#" + divId).bind('mouseover', (function(event) {
+		$(".activeAnnotationToolTip").hide();
+	}));
+	$("#" + divId).bind('mouseleave', (function(event) {
+		$(".activeAnnotationToolTip").show();
+	}));
+	
 	//get the annotations as a string
 	var annotationsHtml = sensorState.getAnnotationsHtml();
 	
