@@ -156,11 +156,41 @@ View.prototype.SensorNode.generatePage = function(view){
 	var showGraphOptionsText = document.createTextNode(' Show Graph Options');
 	var showGraphOptionsCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'showGraphOptions', onclick: 'eventManager.fire("sensorUpdateShowGraphOptions")'});
 	
+	//create the show velocity check box
+	var showVelocityCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'showVelocityCheckBox', onclick: 'eventManager.fire("sensorUpdateShowVelocity")'});
+	var showVelocityText = document.createTextNode('Show Velocity ("Show Graph Options" must be checked)');
+	
+	//create the show acceleration check box
+	var showAccelerationCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'showAccelerationCheckBox', onclick: 'eventManager.fire("sensorUpdateShowAcceleration")'});
+	var showAccelerationText = document.createTextNode('Show Acceleration ("Show Graph Options" must be checked)');
+	
 	//insert the show graph options
 	pageDiv.appendChild(showGraphOptionsText);
 	pageDiv.appendChild(showGraphOptionsCheckBox);
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(showVelocityCheckBox);
+	pageDiv.appendChild(showVelocityText);
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(showAccelerationCheckBox);
+	pageDiv.appendChild(showAccelerationText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//only enable the checkboxes for motion probe steps
+	if(this.content.sensorType != "motion") {
+		showVelocityCheckBox.disabled = true;
+		showAccelerationCheckBox.disabled = true;
+	}
+	
+	//populate the show velocity checkbox from the content
+	if(this.content.showVelocity) {
+		showVelocityCheckBox.checked = true;
+	}
+
+	//populate the show accerlation checkbox from the content	
+	if(this.content.showAcceleration) {
+		showAccelerationCheckBox.checked = true;
+	}
 	
 	pageDiv.appendChild(createElement(document, 'div', {id: 'studentResponseBoxSizeContainer'}));
 	pageDiv.appendChild(createBreak());
@@ -524,6 +554,24 @@ View.prototype.SensorNode.getSensorType = function() {
 View.prototype.SensorNode.updateSensorType = function() {
 	this.content.sensorType = $('input[name=chooseSensorType]:checked').val();
 	
+	if(this.content.sensorType == "motion") {
+		//enable these check boxes since it is a motion sensor step
+		$('#showVelocityCheckBox').attr('disabled', false);
+		$('#showAccelerationCheckBox').attr('disabled', false);
+	} else {
+		//disable these check boxes since it is not a motion sensor step
+		$('#showVelocityCheckBox').attr('disabled', true);
+		$('#showAccelerationCheckBox').attr('disabled', true);
+		
+		//uncheck the checkboxes
+		$('#showVelocityCheckBox').attr('checked', false);
+		$('#showAccelerationCheckBox').attr('checked', false);
+		
+		//set the fields to false in the content
+		this.content.showVelocity = false;
+		this.content.showAcceleration = false;
+	}
+	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
 };
@@ -654,6 +702,28 @@ View.prototype.SensorNode.updateEnableCreatePrediction = function() {
 View.prototype.SensorNode.updateEnableSensor = function() {
 	//get the value of the checkbox
 	this.content.enableSensor = $('#enableSensorCheckBox').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save the show velocity field
+ */
+View.prototype.SensorNode.updateShowVelocity = function() {
+	//get the value of the checkbox
+	this.content.showVelocity = $('#showVelocityCheckBox').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save the show acceleration field 
+ */
+View.prototype.SensorNode.updateShowAcceleration = function() {
+	//get the value of the checkbox
+	this.content.showAcceleration = $('#showAccelerationCheckBox').attr('checked');
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');

@@ -23,6 +23,10 @@ View.prototype.sensorDispatcher = function(type,args,obj){
 		obj.SensorNode.updateEnableCreatePrediction();
 	} else if(type=='sensorUpdateEnableSensor'){
 		obj.SensorNode.updateEnableSensor();
+	} else if(type=='sensorUpdateShowVelocity'){
+		obj.SensorNode.updateShowVelocity();
+	} else if(type=='sensorUpdateShowAcceleration'){
+		obj.SensorNode.updateShowAcceleration();
 	}
 };
 
@@ -37,7 +41,9 @@ var events = [
 	'sensorUpdateYMax',
 	'sensorUpdateShowGraphOptions',
 	'sensorUpdateEnableCreatePrediction',
-	'sensorUpdateEnableSensor'
+	'sensorUpdateEnableSensor',
+	'sensorUpdateShowVelocity',
+	'sensorUpdateShowAcceleration'
 ];
 
 /*

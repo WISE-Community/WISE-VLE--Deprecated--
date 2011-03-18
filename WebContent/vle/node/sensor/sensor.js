@@ -613,17 +613,25 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 		} else {
 			//sensor is enabled
 			
-			//calculate the velocity data array from the distance array
-			var velocityArray = this.calculateVelocityArray(dataArray);
+			//put the data array into the data sets
+			dataSets.push({data:dataArray, label:this.getGraphLabel("distance"), color:0, name:"distance", checked:true});
 			
-			//calculate the acceleration data array from the velocity array
-			var accelerationArray = this.calculateAccelerationArray(velocityArray);
-
-			//put all the data arrays into a single array
-		    dataSets.push({data:dataArray, label:this.getGraphLabel("distance"), color:0, name:"distance", checked:true});
-		    dataSets.push({data:velocityArray, label:this.getGraphLabel("velocity"), color:1, name:"velocity", checked:false});
-		    dataSets.push({data:accelerationArray, label:this.getGraphLabel("acceleration"), color:2, name:"acceleration", checked:false});
-		    dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});
+			if(this.content.showVelocity) {
+				//calculate the velocity data array from the distance array
+				var velocityArray = this.calculateVelocityArray(dataArray);
+				dataSets.push({data:velocityArray, label:this.getGraphLabel("velocity"), color:1, name:"velocity", checked:false});
+			}
+			
+			if(this.content.showAcceleration) {
+				//calculate the acceleration data array from the velocity array
+				var accelerationArray = this.calculateAccelerationArray(velocityArray);
+			    dataSets.push({data:accelerationArray, label:this.getGraphLabel("acceleration"), color:2, name:"acceleration", checked:false});				
+			}
+			
+		    if(this.content.createPrediction || this.sensorState.predictionArray.length != 0) {
+		    	//display the prediction if create prediction is enabled or if there is data in the prediction array
+		    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});		    	
+		    }
 		}
 	    
 	    //set the data set to a global variable so we can access it in other places
@@ -634,19 +642,43 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 	} else if(this.sensorType == 'temperature') {
 		//this is a temperature sensor step
 		
-		//create the data sets array
-		var dataSets = [{data:dataArray, label:this.getGraphLabel("temperature"), name:"temperature"}];
+		var dataSets = [];
+		                
+		if(this.content.enableSensor != null && this.content.enableSensor == false) {
+			//sensor is disabled so we only need to show the prediction
+			dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});
+		} else {
+			//sensor is enabled
+			
+			//put the data array into the data sets
+			dataSets.push({data:dataArray, label:this.getGraphLabel("temperature"), name:"temperature", checked:true});
+			
+		    if(this.content.createPrediction || this.sensorState.predictionArray.length != 0) {
+		    	//display the prediction if create prediction is enabled or if there is data in the prediction array
+		    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});		    	
+		    }
+		}
 		
 		//set the data set to a global variable so we can access it in other places
 		this.globalDataSets = dataSets;
 		
 		//plot the data onto the graph
-		this.globalPlot = $.plot($("#" + plotDivId), dataSets, graphParams);	
+		//this.globalPlot = $.plot($("#" + plotDivId), dataSets, graphParams);
+		
+		//plot the data onto the graph and create the filter check box options
+	    this.setupPlotFilter(plotDivId, graphCheckBoxesDivId);
 	} else {
 		//this is a generic sensor step without any specific type
 		
 		//create the data sets array
-		var dataSets = [dataArray];
+		var dataSets = [];
+		
+		dataSets.push({data:dataArray});
+		
+	    if(this.content.createPrediction || this.sensorState.predictionArray.length != 0) {
+	    	//display the prediction if create prediction is enabled or if there is data in the prediction array
+	    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});		    	
+	    }
 		
 		//set the data set to a global variable so we can access it in other places
 		this.globalDataSets = dataSets;
@@ -1920,7 +1952,7 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 		    $('<div id="annotationToolTip' + domSeriesName + dataIndex + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
 		        position: 'absolute',
 		        //display: 'none',
-		        top: y + yPlotOffset - 5,
+		        top: y + yPlotOffset - 35,
 		        left: x + xPlotOffset - 15,
 		        border: '1px solid #fdd',
 		        padding: '2px',

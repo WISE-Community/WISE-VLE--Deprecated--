@@ -6,6 +6,8 @@
    "prompt": "",
    "sensorType": "motion",
    "showGraphOptions": false,
+   "showVelocity": false,
+   "showAcceleration":false,
    "starterSentence": {
       "display": "0",
       "sentence": ""
