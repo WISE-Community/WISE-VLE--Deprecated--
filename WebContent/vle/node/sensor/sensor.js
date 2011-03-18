@@ -9,39 +9,15 @@
  * @param node the step we are on
  * @param view the vle view
  */
-function SENSOR(node, view) {
+function SENSOR(node) {
 	//the step we are on
 	this.node = node;
 	
-	//the vle view
-	this.view = view;
+	//get the view from the node
+	this.view = this.node.view;
 	
 	//the content for the step
 	this.content = node.getContent().getContentJSON();
-	
-	this.defaultXMin = "";
-	this.defaultXMax = "";
-	this.defaultYMin = "";
-	this.defaultYMax = "";
-	
-	//get the default axis range values, if any
-	if(this.content.graphParams) {
-		if(this.content.graphParams.xmin) {
-			this.defaultXMin = this.content.graphParams.xmin;			
-		}
-		
-		if(this.content.graphParams.xmax) {
-			this.defaultXMax = this.content.graphParams.xmax;	
-		}
-		
-		if(this.content.graphParams.ymin) {
-			this.defaultYMin = this.content.graphParams.ymin;			
-		}
-		
-		if(this.content.graphParams.ymax) {
-			this.defaultYMax = this.content.graphParams.ymax;
-		}
-	}
 	
 	/*
 	 * a timestamp used for calculating the amount of time the sensor has
@@ -66,25 +42,6 @@ function SENSOR(node, view) {
 	
 	//the sensor state that will contain the student work
 	this.sensorState = this.getLatestState();
-	
-	//get the student specified axis range values, if any
-	if(this.sensorState != null) {
-		if(this.sensorState.xMin != null) {
-			this.content.graphParams.xmin = this.sensorState.xMin;
-		}
-
-		if(this.sensorState.xMax != null) {
-			this.content.graphParams.xmax = this.sensorState.xMax;
-		}
-
-		if(this.sensorState.yMin != null) {
-			this.content.graphParams.ymin = this.sensorState.yMin;
-		}
-
-		if(this.sensorState.yMax != null) {
-			this.content.graphParams.ymax = this.sensorState.yMax;
-		}
-	}
 	
 	//flag to keep track of whether the student has change any axis range value this visit
 	this.axisRangeChanged = false;
@@ -119,6 +76,17 @@ function SENSOR(node, view) {
 			temperature:"C",
 			time:"s"
 	};
+
+	//insert the prediction name and unit values into the graphNames and graphUnits arrays
+	if(this.sensorType == "motion") {
+		var graphName = "distance prediction";
+		this.graphNames.prediction = graphName;
+		this.graphUnits[graphName] = "m";
+	} else if(this.sensorType == "temperature") {
+		var graphName = "temperature prediction";
+		this.graphNames.prediction = graphName;
+		this.graphUnits[graphName] = "C";
+	}
 	
 	/*
 	 * used to store the plot variable returne from $.plot() so that we can access
@@ -134,6 +102,9 @@ function SENSOR(node, view) {
 	 * data to append to the existing graph data.
 	 */
 	this.clearDataOnStart = true;
+	
+	//get the prediction from the previous step if there is a prevWorkNodeIds
+	this.getPreviousPrediction();
 };
 
 /**
@@ -148,6 +119,9 @@ SENSOR.prototype.render = function() {
 	
 	//add the graph labels
 	this.setupGraphLabels();
+	
+	//set the axis values
+	this.setupAxisValues();
 	
 	//show the graph options if necessary
 	this.showGraphOptions();
@@ -166,15 +140,51 @@ SENSOR.prototype.render = function() {
 	$("#responseTextArea").attr('rows', this.content.expectedLines);
 	$("#responseTextArea").attr('cols', 80);
 	
-	/*
-	 * insert the applet into the html. we need to insert it dynamically
-	 * because the we need to dynamically determine what type of sensor
-	 * we expect by looking at the content for this step
-	 */
-	this.insertApplet();
+	if(this.content.enableSensor != null && this.content.enableSensor == false) {
+		//disable the sensor buttons
+		this.disableSensorButtons();
+	} else {
+		/*
+		 * insert the applet into the html. we need to insert it dynamically
+		 * because the we need to dynamically determine what type of sensor
+		 * we expect by looking at the content for this step
+		 */
+		this.insertApplet();		
+	}
+	
+	if(!this.content.createPrediction) {
+		//disable the prediction buttons
+		this.disablePredictionButtons();
+	}
 	
 	//display the starter sentence button if necessary
 	this.displayStarterSentenceButton();
+	
+	/*
+	 * used to determine if the student is click dragging on the graph
+	 * for use when they are creating a prediction
+	 */
+	this.mouseDown = false;
+	$("#graphDiv").bind('mousedown', {thisSensor:this},(function(event) {
+		event.data.thisSensor.mouseDown = true;
+	}));
+	$("#graphDiv").bind('mouseup', {thisSensor:this},(function(event) {
+		event.data.thisSensor.mouseDown = false;
+	}));
+
+	/*
+	 * used to hide or show the annotation tool tips. if the student has
+	 * their mouse in the graph div we will hide the annotation tool tips
+	 * so that they don't block them from clicking on the plot points.
+	 * when the mouse cursor is outside of the graph div we will show the
+	 * annotation tool tips for them to view.
+	 */
+	$("#graphDiv").bind('mouseenter', {thisSensor:this},(function(event) {
+		$(".activeAnnotationToolTip").hide();
+	}));
+	$("#graphDiv").bind('mouseout', {thisSensor:this},(function(event) {
+		$(".activeAnnotationToolTip").show();
+	}));
 };
 
 /**
@@ -239,10 +249,15 @@ SENSOR.prototype.stopCollecting = function() {
 SENSOR.prototype.clearData = function() {
 	//clear the data from the graph and annotations
 	this.sensorState.clearSensorData();
-	this.sensorState.clearAnnotations();
 	
-	//remove the annotations from the UI
-	this.deleteAllAnnotationsFromUI();
+	//delete the annotations for the sensor data
+	this.sensorState.removeSensorAnnotations();
+	
+	//remove the sensor annotations text boxes and delete buttons from the UI
+	this.deleteSensorAnnotationsFromUI();
+	
+	//remove the annotation tool tips for the sensor data line from the UI
+	this.removeAnnotationToolTipData();
 	
 	/*
 	 * plot the graph again, there will be no sensor data so the 
@@ -301,10 +316,10 @@ SENSOR.prototype.dataReceived = function(type, count, data) {
 	 * round the x vale to the nearest hundredth. elapsedTime is in milliseconds
 	 * so we need to divide by 1000 to get seconds
 	 */
-	var x = (this.elapsedTime / 1000).toFixed(2);
+	var x = parseFloat((this.elapsedTime / 1000).toFixed(2));
 	
 	//round the y value to the nearest hundredth
-	var y = data.toFixed(2);
+	var y = parseFloat(data.toFixed(2));
 	
 	//save the data point into the sensor state.
 	this.sensorState.dataReceived(x, y);
@@ -426,11 +441,6 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 			graphParams.xaxis.max = contentGraphParams.xmax;
 		}
 
-		if(contentGraphParams.xlabel != null) {
-			//set the xaxis label
-			//graphParams.xaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.xlabel;};
-		}
-
 		if(contentGraphParams.ymin != null && contentGraphParams.ymin != "") {
 			//set the ymin value
 			graphParams.yaxis.min = contentGraphParams.ymin;
@@ -440,10 +450,31 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 			//set the ymax value
 			graphParams.yaxis.max = contentGraphParams.ymax;
 		}
-
-		if(contentGraphParams.ylabel != null) {
-			//set the yaxis label
-			//graphParams.yaxis.tickFormatter = function(v, axis) {return v.toFixed(axis.tickDecimals) + ' ' + contentGraphParams.ylabel;};
+	}
+	
+	/*
+	 * if the sensor state contains axis values it will override
+	 * the axis values from the content
+	 */
+	if(this.sensorState != null) {
+		if(this.sensorState.xMin != null) {
+			//set the xmin value from the sensor state
+			graphParams.xaxis.min = this.sensorState.xMin;
+		}
+		
+		if(this.sensorState.xMax != null) {
+			//set the xmax value from the sensor state
+			graphParams.xaxis.max = this.sensorState.xMax;
+		}
+		
+		if(this.sensorState.yMin != null) {
+			//set the ymin value from the sensor state
+			graphParams.yaxis.min = this.sensorState.yMin;
+		}
+		
+		if(this.sensorState.yMax != null) {
+			//set the ymax value from the sensor state
+			graphParams.yaxis.max = this.sensorState.yMax;
 		}
 	}
 	
@@ -462,6 +493,9 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
  * @return
  */
 SENSOR.prototype.getGraphParams = function() {
+	//parse the graph params
+	this.graphParams = this.parseGraphParams(this.content.graphParams);
+	
 	return this.graphParams;
 };
 
@@ -564,21 +598,33 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 	//get the graph params
 	var graphParams = this.getGraphParams();
 	
+	//get the prediction array
+	var predictionArray = this.getPredictionArray();
+	
 	if(this.sensorType == 'motion') {
 		//this is a motion sensor step
 		
-		//calculate the velocity data array from the distance array
-		var velocityArray = this.calculateVelocityArray(dataArray);
-		
-		//calculate the acceleration data array from the velocity array
-		var accelerationArray = this.calculateAccelerationArray(velocityArray);
+		var dataSets = [];
+		                
+		if(this.content.enableSensor != null && this.content.enableSensor == false) {
+			//sensor is disabled so we only need to show the prediction line
+			
+			dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});
+		} else {
+			//sensor is enabled
+			
+			//calculate the velocity data array from the distance array
+			var velocityArray = this.calculateVelocityArray(dataArray);
+			
+			//calculate the acceleration data array from the velocity array
+			var accelerationArray = this.calculateAccelerationArray(velocityArray);
 
-		//put all the data arrays into a single array
-	    var dataSets = [
-	                    {data:dataArray, label:this.getGraphLabel("distance"), color:0, name:"distance", checked:true}, 
-	                    {data:velocityArray, label:this.getGraphLabel("velocity"), color:1, name:"velocity", checked:false}, 
-	                    {data:accelerationArray, label:this.getGraphLabel("acceleration"), color:2, name:"acceleration", checked:false}
-	                    ];
+			//put all the data arrays into a single array
+		    dataSets.push({data:dataArray, label:this.getGraphLabel("distance"), color:0, name:"distance", checked:true});
+		    dataSets.push({data:velocityArray, label:this.getGraphLabel("velocity"), color:1, name:"velocity", checked:false});
+		    dataSets.push({data:accelerationArray, label:this.getGraphLabel("acceleration"), color:2, name:"acceleration", checked:false});
+		    dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});
+		}
 	    
 	    //set the data set to a global variable so we can access it in other places
 	    this.globalDataSets = dataSets;
@@ -615,8 +661,11 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 	//setup the graph so that when the student clicks on a point, it creates an annotation
 	this.setupPlotClick();
 	
+	//delete all the annotation tool tips from the UI
+	this.removeAllAnnotationToolTips();
+	
 	//highlight the points on the graph that the student has create annotations for
-	this.highlightAnnotationPoints();
+	this.highlightAnnotationPoints(null, null, dataSets);
 };
 
 /**
@@ -688,7 +737,7 @@ SENSOR.prototype.calculateDerivativeArray = function(dataArray) {
 			derivativePoint[0] = point2x;
 			
 			//round the derivative value to the nearest hundredth and set it as the y value for the derivative point
-			derivativePoint[1] = derivativeValue.toFixed(2);
+			derivativePoint[1] = parseFloat(derivativeValue.toFixed(2));
 			
 			//add the derivative point to our array
 			derivativeArray.push(derivativePoint);
@@ -703,6 +752,8 @@ SENSOR.prototype.calculateDerivativeArray = function(dataArray) {
  * the x,y values for that point.
  */
 SENSOR.prototype.setupPlotHover = function(plotDivId) {
+	$("#" + plotDivId).unbind("plothover");
+	
 	if(plotDivId == null) {
 		//this will be the default plotDivId if none is provided
 		plotDivId = "graphDiv";
@@ -723,8 +774,8 @@ SENSOR.prototype.setupPlotHover = function(plotDivId) {
                 $("#tooltip").remove();
                 
                 //get the x and y values from the point the mouse is over
-                var x = item.datapoint[0].toFixed(2);
-                var y = item.datapoint[1].toFixed(2);
+                var x = parseFloat(item.datapoint[0].toFixed(2));
+                var y = parseFloat(item.datapoint[1].toFixed(2));
                 
                 //get the units for the x and y values
                 var xUnits = event.data.thisSensor.getGraphUnits("time");
@@ -736,11 +787,21 @@ SENSOR.prototype.setupPlotHover = function(plotDivId) {
                 //display the tool tip
                 event.data.thisSensor.showTooltip(item.pageX, item.pageY, toolTipText);
             }
-        }
-        else {
+        } else {
         	//remove the tool tip
             $("#tooltip").remove();
             previousPoint = null;            
+        }
+        
+        //check if the student is click dragging to create prediction points
+        if(event.data.thisSensor.mouseDown) {
+        	if(event.data.thisSensor.content.createPrediction) {
+        		//add prediction point
+            	event.data.thisSensor.predictionReceived(pos.x, pos.y);
+            	
+            	//plot the graph again so the new point is displayed
+            	event.data.thisSensor.plotData();        		
+        	}
         }
     });
 };
@@ -755,8 +816,8 @@ SENSOR.prototype.showTooltip = function(x, y, toolTipText) {
     $('<div id="tooltip">' + toolTipText + '</div>').css( {
         position: 'absolute',
         //display: 'none',
-        top: y + 5,
-        left: x + 5,
+        top: y + 20,
+        left: x + 20,
         border: '1px solid #fdd',
         padding: '2px',
         'background-color': '#fee',
@@ -769,26 +830,50 @@ SENSOR.prototype.showTooltip = function(x, y, toolTipText) {
  * an annotation.
  */
 SENSOR.prototype.setupPlotClick = function() {
+	$("#graphDiv").unbind("plotclick");
+	
 	/*
 	 * bind the plotclick event to this function. the thisSensor object
 	 * will be passed into the function and accessed through event.data.thisSensor
 	 */
     $("#graphDiv").bind("plotclick", {thisSensor:this}, function (event, pos, item) {
         if (item) {
-        	//highlight the data point that was clicked
-            event.data.thisSensor.globalPlot.highlight(item.series, item.datapoint);
-            
+        	//student has clicked on a point
+        	
             //get the name of the graph line
             var seriesName = item.series.name;
             
-            //get the index of the point for the graph line
-            var dataIndex = item.dataIndex;
-            
-            //get the data point x,y values
-            var dataPoint = item.datapoint;
-            
-            //create an annotation
-            event.data.thisSensor.createAnnotation(seriesName, dataIndex, dataPoint);
+        	if(seriesName.indexOf("prediction") == -1 || event.data.thisSensor.content.createPrediction) {
+        		/*
+        		 * the plot line that was clicked was not a prediction line
+        		 * or create prediction is enabled. this is just to prevent
+        		 * modification of the prediction if create prediction is 
+        		 * disabled
+        		 */
+        		
+            	//highlight the data point that was clicked
+                event.data.thisSensor.globalPlot.highlight(item.series, item.datapoint);
+                
+                //get the index of the point for the graph line
+                var dataIndex = item.dataIndex;
+                
+                //get the data point x,y values
+                var dataPoint = item.datapoint;
+                
+                //create an annotation
+                event.data.thisSensor.createAnnotation(seriesName, dataIndex, dataPoint);        		
+        	}
+        } else {
+        	//student has clicked on an empty spot on the graph
+        	
+        	//check if this step allows the student to create a prediction
+        	if(event.data.thisSensor.content.createPrediction) {
+        		//create the prediction point
+        		event.data.thisSensor.predictionReceived(pos.x, pos.y);
+        		
+        		//plot the graph again so the point is displayed
+            	event.data.thisSensor.plotData();
+        	}
         }
     });
 };
@@ -843,8 +928,11 @@ SENSOR.prototype.setupPlotFilter = function(plotDivId, graphCheckBoxesDivId) {
     	//display the graph lines that we want to display
     	thisSensor.globalPlot = $.plot($("#" + plotDivId), dataToDisplay, graphParams);
     	
+    	//delete all the annotation tool tips form the UI
+    	thisSensor.removeAllAnnotationToolTips();
+    	
     	//highlight the points that have annotations
-    	thisSensor.highlightAnnotationPoints();
+    	thisSensor.highlightAnnotationPoints(null, null, dataToDisplay);
     }
     
     //check if we have created the check boxes
@@ -913,8 +1001,11 @@ SENSOR.prototype.setupAnnotations = function() {
 
 /**
  * Highlight the points that have annotations
+ * @param sensorState
+ * @param plot
+ * @param dataSets the data sets currently displayed on the graph
  */
-SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot) {
+SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot, dataSets) {
 	if(sensorState == null) {
 		//use this.sensorState as the default sensor state if sensorState was note provided
 		sensorState = this.sensorState;
@@ -929,12 +1020,23 @@ SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot) {
 	var annotationArray = sensorState.annotationArray;
 	
 	//loop through all the annotations
-	for(var x=0; x<annotationArray.length; x++) {
+	for(var i=0; i<annotationArray.length; i++) {
 		//get an annotation
-		var annotation = annotationArray[x];
+		var annotation = annotationArray[i];
 		
 		//get the name of the graph line
 		var seriesName = annotation.seriesName;
+		
+		if(dataSets != null) {
+			//check if the annotation is on one of the data sets that are currently displayed
+			if(!this.dataSetContainsName(dataSets, seriesName)) {
+				/*
+				 * it is not from one of the currently displayed data sets
+				 * so we do not need to display this annotation
+				 */
+				continue;
+			}
+		}
 		
 		//get the index of the point on the graph line
 		var dataIndex = annotation.dataIndex;
@@ -943,8 +1045,8 @@ SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot) {
 		var series = this.getSeriesByName(plot, seriesName);
 		
 		if(series != null) {
-			//highlight the point
-			plot.highlight(series, dataIndex);			
+			//add the annotation tool to tip the UI
+			this.addAnnotationToolTipToUI(seriesName, dataIndex, annotation.annotationText);
 		}
 	}
 };
@@ -1015,9 +1117,22 @@ SENSOR.prototype.getGraphLabel = function(graphType) {
 	var graphName = this.graphNames[graphType];
 	
 	//get the units
-	var graphUnits = this.graphUnits[graphType];
+	var graphUnits = this.graphUnits[graphName];
 	
 	return graphName + " (" + graphUnits + ")";
+};
+
+/**
+ * Get the graph name given the graph type
+ * @param graphType the type of the graph
+ * e.g.
+ * "prediction"
+ * @return the graph name
+ */
+SENSOR.prototype.getGraphName = function(graphType) {
+	var graphName = this.graphNames[graphType];
+	
+	return graphName;
 };
 
 /**
@@ -1031,16 +1146,40 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, dataText, a
 	//create the html that will represent the annotation
 	var annotationHtml = "";
 	
-	annotationHtml += "<div id='" + seriesName + dataIndex + "AnnotationDiv'>";
+	//the class we will give to the annotation div
+	var annotationClass = "";
+	
+	//whether we will allow the student to edit the annotation
+	var enableEditing = "";
+	
+	if(seriesName.indexOf("prediction") != -1 && !this.content.createPrediction) {
+		/*
+		 * the annotation is for the prediction line and create prediction
+		 * is disabled so we will not allow them to edit this annotation
+		 */
+		enableEditing = "disabled";
+	}
+	
+	//get the series name we will use in the DOM
+	var domSeriesName = this.getDOMSeriesName(seriesName);
+	
+	//set the class determined by whether this annotation is for sensor data or prediction
+	if(seriesName.indexOf("prediction") != -1) {
+		annotationClass = "predictionAnnotation";
+	} else {
+		annotationClass = "sensorAnnotation";
+	}
+	
+	annotationHtml += "<div id='" + domSeriesName + dataIndex + "AnnotationDiv' class='" + annotationClass + "'>";
 	
 	//add the annotation text label that displays the x,y values for the point
 	annotationHtml += seriesName + " [" + dataText + "]: ";
 	
 	//add the text input where the student can type
-	annotationHtml += "<input id='" + seriesName + dataIndex + "AnnotationInputText' type='text'  value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + dataIndex + ")' size='50' />";
+	annotationHtml += "<input id='" + domSeriesName + dataIndex + "AnnotationInputText' type='text'  value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + dataIndex + ")' size='50' " + enableEditing + "/>";
 	
 	//add the delete button to delete the annotation
-	annotationHtml += "<input type='button' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ")' />";
+	annotationHtml += "<input id='" + domSeriesName + dataIndex + "AnnotationDeleteButton' type='button' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ")' " + enableEditing + "/>";
 	annotationHtml += "</div>";
 	
 	//add the annotation html to the div where we put all the annotations
@@ -1053,7 +1192,11 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, dataText, a
  * @param dataIndex the index on the graph line for the data point
  */
 SENSOR.prototype.deleteAnnotationFromUI = function(seriesName, dataIndex) {
-	$("#" + seriesName + dataIndex + "AnnotationDiv").remove();
+	//get the series name with spaces replaced with underscores
+	var domSeriesName = this.getDOMSeriesName(seriesName);
+	
+	//remove the annotation from the UI
+	$("#" + domSeriesName + dataIndex + "AnnotationDiv").remove();
 };
 
 /**
@@ -1061,6 +1204,20 @@ SENSOR.prototype.deleteAnnotationFromUI = function(seriesName, dataIndex) {
  */
 SENSOR.prototype.deleteAllAnnotationsFromUI = function() {
 	$("#graphAnnotationsDiv").html("");
+};
+
+/**
+ * Delete the sensor annotations from the UI
+ */
+SENSOR.prototype.deleteSensorAnnotationsFromUI = function() {
+	$(".sensorAnnotation").remove();
+};
+
+/**
+ * Delete the prediction annotations from the UI
+ */
+SENSOR.prototype.deletePredictionAnnotationsFromUI = function() {
+	$(".predictionAnnotation").remove();
 };
 
 /**
@@ -1097,6 +1254,9 @@ SENSOR.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
 		//annotation already exists for this point
 		//TODO: highlight the annotation row in the #graphAnnotationsDiv
 	}
+	
+	//add the annotation tool tip tot he UI
+	this.addAnnotationToolTipToUI(seriesName, dataIndex, "");
 };
 
 /**
@@ -1119,6 +1279,10 @@ SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex) {
 		this.globalPlot.unhighlight(series, dataIndex);		
 	}
 	
+	//delete the annotation tool tip from the UI
+	var domSeriesName = this.getDOMSeriesName(seriesName);
+	$("#annotationToolTip" + domSeriesName + dataIndex).remove();
+	
 	//set this flag so we know that we will need to save student data since it has changed
 	this.annotationsChanged = true;
 };
@@ -1133,6 +1297,21 @@ SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex) {
 SENSOR.prototype.editAnnotation = function(seriesName, dataIndex, annotationText) {
 	//update the annotation in the sensor state
 	this.sensorState.editAnnotation(seriesName, dataIndex, annotationText);
+	
+	var domSeriesName = this.getDOMSeriesName(seriesName);
+	
+	//update the annotation tool tip on the graph
+	$("#annotationToolTip" + domSeriesName + dataIndex).html(annotationText);
+	
+	if(annotationText != null && annotationText != "") {
+		//show the annotation tool tip on the graph
+		$('#annotationToolTip' + domSeriesName + dataIndex).show();
+		$('#annotationToolTip' + domSeriesName + dataIndex).addClass("activeAnnotationToolTip").removeClass("hiddenAnnotationToolTip");
+	} else {
+		//hide the annotation tool tip on the graph if the annotation text is ""
+		$('#annotationToolTip' + domSeriesName + dataIndex).hide();
+		$('#annotationToolTip' + domSeriesName + dataIndex).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
+	}
 	
 	//set this flag so we know that we will need to save student data since it has changed
 	this.annotationsChanged = true;
@@ -1272,12 +1451,6 @@ SENSOR.prototype.setupGraphLabels = function() {
 		
 		//set the x label
 		$('#xLabelDiv').html(xLabel);
-		
-		//set the axis range values into the input text boxes
-		$('#xMinInput').val(this.content.graphParams.xmin);
-		$('#xMaxInput').val(this.content.graphParams.xmax);
-		$('#yMinInput').val(this.content.graphParams.ymin);
-		$('#yMaxInput').val(this.content.graphParams.ymax);
 	}
 };
 
@@ -1362,13 +1535,7 @@ SENSOR.prototype.updateAxisRange = function() {
 	var xMax = $('#xMaxInput').val();
 	var yMin = $('#yMinInput').val();
 	var yMax = $('#yMaxInput').val();
-	
-	//set the value into the graph params
-	this.content.graphParams.xmin = xMin;
-	this.content.graphParams.xmax = xMax;
-	this.content.graphParams.ymin = yMin;
-	this.content.graphParams.ymax = yMax;
-	
+
 	//set the value into the sensor state
 	this.sensorState.xMin = xMin;
 	this.sensorState.xMax = xMax;
@@ -1390,29 +1557,396 @@ SENSOR.prototype.resetDefaultAxisRange = function() {
 	//set this flag so we know the sensor state has changed
 	this.axisRangeChanged = true;
 	
-	//reset the values in the text box inputs
-	$('#xMinInput').val(this.defaultXMin);
-	$('#xMaxInput').val(this.defaultXMax);
-	$('#yMinInput').val(this.defaultYMin);
-	$('#yMaxInput').val(this.defaultYMax);
+	var xMin = "";
+	var xMax = "";
+	var yMin = "";
+	var yMax = "";
 	
-	//reset the values in the graph params
-	this.content.graphParams.xmin = this.defaultXMin;
-	this.content.graphParams.xmax = this.defaultXMax;
-	this.content.graphParams.ymin = this.defaultYMin;
-	this.content.graphParams.ymax = this.defaultYMax;
+	if(this.content.graphParams != null) {
+		if(this.content.graphParams.xmin != null && this.content.graphParams.xmin != "") {
+			//set the xmin value
+			xMin = this.content.graphParams.xmin;
+		}
+
+		if(this.content.graphParams.xmax != null && this.content.graphParams.xmax != "") {
+			//set the xmax value
+			xMax = this.content.graphParams.xmax;
+		}
+
+		if(this.content.graphParams.ymin != null && this.content.graphParams.ymin != "") {
+			//set the ymin value
+			yMin = this.content.graphParams.ymin;
+		}
+
+		if(this.content.graphParams.ymax != null && this.content.graphParams.ymax != "") {
+			//set the ymax value
+			yMax = this.content.graphParams.ymax;
+		}
+	}
+	
+	//reset the values in the text box inputs
+	$('#xMinInput').val(xMin);
+	$('#xMaxInput').val(xMax);
+	$('#yMinInput').val(yMin);
+	$('#yMaxInput').val(yMax);
 	
 	//reset the values in the sensor state
-	this.sensorState.xMin = this.defaultXMin;
-	this.sensorState.xMax = this.defaultXMax;
-	this.sensorState.yMin = this.defaultYMin;
-	this.sensorState.yMax = this.defaultYMax;
+	this.sensorState.xMin = this.content.graphParams.xmin;
+	this.sensorState.xMax = this.content.graphParams.xmax;
+	this.sensorState.yMin = this.content.graphParams.ymin;
+	this.sensorState.yMax = this.content.graphParams.ymax;
 	
 	//parse the graph params again to obtain the new values in the graph params
 	this.graphParams = this.parseGraphParams(this.content.graphParams);
 	
 	//plot the graph again
 	this.plotData();
+};
+
+/**
+ * Get the prediction array in a format that we can give to flot to plot
+ * @return an array containing arrays with two values [x, y] that represent
+ * the prediction points
+ */
+SENSOR.prototype.getPredictionArray = function() {
+	//get the graph data array from the current state 
+	var predictionArray = this.generatePredictionArray(this.sensorState);
+	
+	return predictionArray;
+};
+
+/**
+ * Generate the prediction array in a format that we can give to flot to plot
+ * @param state the sensor state
+ * @return an array containing arrays with two values [x, y] that represent
+ * the prediction points
+ */
+SENSOR.prototype.generatePredictionArray = function(state) {
+	var predictionArray = [];
+	
+	if(state != null) {
+		//get the data array from the state
+		var statePredictionArray = state.predictionArray;
+		
+		if(statePredictionArray != null) {
+			//loop through all the elements in the data array
+			for(var i=0; i<statePredictionArray.length; i++) {
+				//get the data array element
+				var sensorData = statePredictionArray[i];
+
+				//get the time
+				var x = sensorData.x;
+				
+				//get the y value. this may be distance or temp or etc.
+				var y = sensorData.y;
+				
+				/*
+				 * add the x, y data point into the array. flot expects
+				 * the each element in the array to be an array.
+				 */
+				predictionArray.push([x, y]);
+			}
+		}		
+	}
+	return predictionArray;
+};
+
+/**
+ * The student has created a prediction point
+ * @param x the x value for the point
+ * @param y the y value for the point
+ */
+SENSOR.prototype.predictionReceived = function(x, y) {
+	
+	if(x != null && y != null) {
+		//round x down to the nearest 0.2
+		x = Math.round(x * 5) / 5;
+		
+		y = parseFloat(y.toFixed(2));
+		
+		//insert the point into the sensor state
+		this.sensorState.predictionReceived(x, y);
+		
+		this.graphChanged = true;
+	}
+};
+
+/**
+ * Hide the sensor buttons
+ */
+SENSOR.prototype.disableSensorButtons = function() {
+	$('#startButton').hide();
+	$('#stopButton').hide();
+	$('#clearButton').hide();
+};
+
+/**
+ * Hide the prediction buttons
+ */
+SENSOR.prototype.disablePredictionButtons = function() {
+	$('#clearPredictionButton').hide();
+};
+
+/**
+ * Setup the axis limit values on the graph
+ */
+SENSOR.prototype.setupAxisValues = function() {
+	var xMin = "";
+	var xMax = "";
+	var yMin = "";
+	var yMax = "";
+	
+	if(this.content.graphParams != null) {
+		if(this.content.graphParams.xmin != null && this.content.graphParams.xmin != "") {
+			//set the xmin value
+			xMin = this.content.graphParams.xmin;
+		}
+
+		if(this.content.graphParams.xmax != null && this.content.graphParams.xmax != "") {
+			//set the xmax value
+			xMax = this.content.graphParams.xmax;
+		}
+
+		if(this.content.graphParams.ymin != null && this.content.graphParams.ymin != "") {
+			//set the ymin value
+			yMin = this.content.graphParams.ymin;
+		}
+
+		if(this.content.graphParams.ymax != null && this.content.graphParams.ymax != "") {
+			//set the ymax value
+			yMax = this.content.graphParams.ymax;
+		}
+	}
+	
+	/*
+	 * if the sensor state contains axis values it will override
+	 * the axis values from the content
+	 */
+	if(this.sensorState != null) {
+		if(this.sensorState.xMin != null) {
+			xMin = this.sensorState.xMin;
+		}
+		
+		if(this.sensorState.xMax != null) {
+			xMax = this.sensorState.xMax;
+		}
+		
+		if(this.sensorState.yMin != null) {
+			yMin = this.sensorState.yMin;
+		}
+		
+		if(this.sensorState.yMax != null) {
+			yMax = this.sensorState.yMax;
+		}
+	}
+	
+	//set the axis range values into the input text boxes
+	$('#xMinInput').val(xMin);
+	$('#xMaxInput').val(xMax);
+	$('#yMinInput').val(yMin);
+	$('#yMaxInput').val(yMax);
+};
+
+/**
+ * Get the prediction from the prevWorkNodeIds
+ * @return
+ */
+SENSOR.prototype.getPreviousPrediction = function() {
+	if(this.node.prevWorkNodeIds.length > 0) {
+		if(this.view.state != null) {
+			//get the state from the previous step that this step is linked to
+			var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+			
+			if(this.sensorState.predictionArray.length == 0) {
+				/*
+				 * make a copy of the prediction array and set it into our sensor state
+				 * so we don't accidentally modify the data from the other state
+				 */
+				this.sensorState.predictionArray = JSON.parse(JSON.stringify(predictionState.predictionArray));
+				
+				var predictionAnnotations = [];
+				
+				//get all the prediction annotations
+				for(var x=0; x<predictionState.annotationArray.length; x++) {
+					var annotation = predictionState.annotationArray[x];
+					
+					if(annotation.seriesName.indexOf("prediction") != -1) {
+						predictionAnnotations.push(annotation);
+					}
+				}
+				
+				/*
+				 * make a copy of the prediction annotations so we don't accidentally modify
+				 * the data in the other state 
+				 */ 
+				predictionAnnotations = JSON.parse(JSON.stringify(predictionAnnotations));
+				
+				
+				//add the prediction annotations to our annotation array
+				for(var y=0; y<predictionAnnotations.length; y++) {
+					this.sensorState.annotationArray.push(predictionAnnotations[y]);
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Delete the prediction points and annotations
+ */
+SENSOR.prototype.clearPrediction = function() {
+	//clear the prediction array
+	this.sensorState.predictionArray = [];
+	
+	//delete the prediction annotations
+	this.sensorState.removePredictionAnnotations();
+	
+	//delete the prediction annotations from the UI
+	this.deletePredictionAnnotationsFromUI();
+	
+	//delete the prediction annotation tool tips on the graph
+	this.removeAnnotationToolTipPrediction();
+	
+	//plot the graph again
+	this.plotData();
+	
+	this.graphChanged = true;
+};
+
+/**
+ * Delete the prediction annotation tool tips
+ */
+SENSOR.prototype.removeAnnotationToolTipPrediction = function() {
+	this.removeAnnotationToolTip("annotationToolTipPrediction");
+};
+
+/**
+ * Delete the data annotation tool tips
+ */
+SENSOR.prototype.removeAnnotationToolTipData = function() {
+	this.removeAnnotationToolTip("annotationToolTipData");
+};
+
+/**
+ * Delete the annotation tool tips for the given class
+ * @param annotationToolTipClass the class for the annotation tool tips we want to delete
+ */
+SENSOR.prototype.removeAnnotationToolTip = function(annotationToolTipClass) {
+	$("." + annotationToolTipClass).remove();
+};
+
+/**
+ * Determine if one data sets has the given name
+ * @param dataSets an array of data sets
+ * @param name the name of a data set (aka series name)
+ * @return whether a data set has the given name
+ */
+SENSOR.prototype.dataSetContainsName = function(dataSets, name) {
+	if(dataSets != null) {
+		//loop through all the data sets
+		for(var x=0; x<dataSets.length; x++) {
+			var dataSet = dataSets[x];
+			
+			if(dataSet != null && dataSet.name == name) {
+				//the name matches
+				return true;
+			}
+		}
+	}
+	
+	//we did not find a match
+	return false;
+};
+
+/**
+ * Delete all the annotation tool tips from the graph
+ */
+SENSOR.prototype.removeAllAnnotationToolTips = function() {
+	$(".activeAnnotationToolTip").remove();
+	$(".hiddenAnnotationToolTip").remove();
+};
+
+/**
+ * Add an annotation tool tip to the graph
+ * @param seriesName the name of the series
+ * @param dataIndex the index within the series
+ * @param annotationText the text the student wrote for the annotation
+ */
+SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, annotationText) {
+	//use this.globalPlot as the default if plot was not provided
+	var plot = this.globalPlot;
+	
+	//get the graph line
+	var series = this.getSeriesByName(plot, seriesName);
+	
+	if(series != null) {
+		//highlight the point
+		plot.highlight(series, dataIndex);
+		
+		//get the point in the series
+		var dataPointArray = series.data[dataIndex];
+		
+		//get the x and y values
+		var dataPointObject = {
+				x:dataPointArray[0],
+				y:dataPointArray[1]
+		};
+		
+		//find the pixel position of the point
+		var offsetObject = plot.pointOffset(dataPointObject);
+		var x = offsetObject.left;
+		var y = offsetObject.top;
+		
+		
+		//get the class that we will give to the div
+		var annotationToolTipClass = "activeAnnotationToolTip";
+		
+		if(seriesName.indexOf("prediction") != -1) {
+			annotationToolTipClass += " annotationToolTipPrediction";
+		} else {
+			annotationToolTipClass += " annotationToolTipData";
+		}
+		
+		var domSeriesName = this.getDOMSeriesName(seriesName);
+		
+		//check if the tool tip div for this annotation already exists
+		if($('#annotationToolTip' + domSeriesName + dataIndex).length == 0) {
+			//it does not exist so we will make it
+		    $('<div id="annotationToolTip' + domSeriesName + dataIndex + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
+		        position: 'absolute',
+		        //display: 'none',
+		        top: y + 10,
+		        left: x + 70,
+		        border: '1px solid #fdd',
+		        padding: '2px',
+		        'background-color': '#fee',
+		        opacity: 0.8
+		    }).appendTo("body").fadeIn(200);
+		}
+		
+	    if(annotationText == null || annotationText == "") {
+	    	//hide the annotation tool tip if the annotation text is ""
+	    	$('#annotationToolTip' + domSeriesName + dataIndex).hide();
+	    	$('#annotationToolTip' + domSeriesName + dataIndex).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
+	    }
+	}
+};
+
+/**
+ * Get the series name that we will use in the DOM. This just means
+ * replacing any spaces " " with underscores "_"
+ * @param seriesName the name of the series
+ * @return the seriesName with spaces replaced with underscores
+ */
+SENSOR.prototype.getDOMSeriesName = function(seriesName) {
+	var domSeriesName = "";
+	
+	if(seriesName != null) {
+		//replace the spaces with underscores
+		domSeriesName = seriesName.replace(/ /g, "_");
+	}
+	
+	return domSeriesName;
 };
 
 //used to notify scriptloader that this script has finished loading

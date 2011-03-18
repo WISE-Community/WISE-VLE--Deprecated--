@@ -63,26 +63,6 @@ View.prototype.SensorNode.generatePage = function(view){
 		chooseTemperatureRadioButton.checked = true;
 	}
 	
-	//create the x axis authoring elements
-	var xUnitsText = document.createTextNode('X Axis Units:');
-	var xUnitsInput = createElement(document, 'input', {type: 'input', id: 'xUnitsInput', name: 'xLabelInput', value: xLabel, onchange: 'eventManager.fire("sensorUpdateXUnits")'});
-	var xMinText = document.createTextNode('Min X:');
-	var xMinInput = createElement(document, 'input', {type: 'input', id: 'xMinInput', name: 'xMinInput', value: xMin, onchange: 'eventManager.fire("sensorUpdateXMin")'});
-	var xMaxText = document.createTextNode('Max X:');
-	var xMaxInput = createElement(document, 'input', {type: 'input', id: 'xMaxInput', name: 'xMaxInput', value: xMax, onchange: 'eventManager.fire("sensorUpdateXMax")'});
-	
-	//create the y axis authoring elements
-	var yUnitsText = document.createTextNode('Y Axis Units:');
-	var yUnitsInput = createElement(document, 'input', {type: 'input', id: 'yUnitsInput', name: 'yLabelInput', value: yLabel, onchange: 'eventManager.fire("sensorUpdateYUnits")'});
-	var yMinText = document.createTextNode('Min Y:');
-	var yMinInput = createElement(document, 'input', {type: 'input', id: 'yMinInput', name: 'yMinInput', value: yMin, onchange: 'eventManager.fire("sensorUpdateYMin")'});
-	var yMaxText = document.createTextNode('Max Y:');
-	var yMaxInput = createElement(document, 'input', {type: 'input', id: 'yMaxInput', name: 'yMaxInput', value: yMax, onchange: 'eventManager.fire("sensorUpdateYMax")'});
-	
-	//create the show graph options elements
-	var showGraphOptionsText = document.createTextNode(' Show Graph Options');
-	var showGraphOptionsCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'showGraphOptions', onclick: 'eventManager.fire("sensorUpdateShowGraphOptions")'});
-	
 	//create new
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 	var promptText = document.createTextNode("Prompt for Student:");
@@ -105,6 +85,41 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
+	//create the check box to enable create prediction
+	var enableCreatePredictionCheckBox = createElement(document, 'input', {id: 'enableCreatePredictionCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateEnableCreatePrediction")'});
+	var enableCreatePredictionText = document.createTextNode("Enable Create Prediction");
+	
+	//create the check box to enable sensor
+	var enableSensorCheckBox = createElement(document, 'input', {id: 'enableSensorCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateEnableSensor")'});
+	var enableSensorText = document.createTextNode("Enable Sensor");
+	
+	//insert the create prediction and enable sensor checkboxes
+	pageDiv.appendChild(enableCreatePredictionCheckBox);
+	pageDiv.appendChild(enableCreatePredictionText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(enableSensorCheckBox);
+	pageDiv.appendChild(enableSensorText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//populate the create prediction check box
+	if(this.content.createPrediction) {
+		enableCreatePredictionCheckBox.checked = true;
+	}
+	
+	//populate the enable sensor checkbox
+	if(this.content.enableSensor) {
+		enableSensorCheckBox.checked = true;
+	}
+	
+	//create the x axis authoring elements
+	var xUnitsText = document.createTextNode('X Axis Units:');
+	var xUnitsInput = createElement(document, 'input', {type: 'input', id: 'xUnitsInput', name: 'xLabelInput', value: xLabel, onchange: 'eventManager.fire("sensorUpdateXUnits")'});
+	var xMinText = document.createTextNode('Min X:');
+	var xMinInput = createElement(document, 'input', {type: 'input', id: 'xMinInput', name: 'xMinInput', value: xMin, onchange: 'eventManager.fire("sensorUpdateXMin")'});
+	var xMaxText = document.createTextNode('Max X:');
+	var xMaxInput = createElement(document, 'input', {type: 'input', id: 'xMaxInput', name: 'xMaxInput', value: xMax, onchange: 'eventManager.fire("sensorUpdateXMax")'});
+	
 	//insert the x axis graph parameters
 	pageDiv.appendChild(xUnitsText);
 	pageDiv.appendChild(xUnitsInput);
@@ -117,6 +132,14 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
+	//create the y axis authoring elements
+	var yUnitsText = document.createTextNode('Y Axis Units:');
+	var yUnitsInput = createElement(document, 'input', {type: 'input', id: 'yUnitsInput', name: 'yLabelInput', value: yLabel, onchange: 'eventManager.fire("sensorUpdateYUnits")'});
+	var yMinText = document.createTextNode('Min Y:');
+	var yMinInput = createElement(document, 'input', {type: 'input', id: 'yMinInput', name: 'yMinInput', value: yMin, onchange: 'eventManager.fire("sensorUpdateYMin")'});
+	var yMaxText = document.createTextNode('Max Y:');
+	var yMaxInput = createElement(document, 'input', {type: 'input', id: 'yMaxInput', name: 'yMaxInput', value: yMax, onchange: 'eventManager.fire("sensorUpdateYMax")'});
+	
 	//insert the y axis graph parameters
 	pageDiv.appendChild(yUnitsText);
 	pageDiv.appendChild(yUnitsInput);
@@ -128,6 +151,10 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(yMaxInput);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
+	
+	//create the show graph options elements
+	var showGraphOptionsText = document.createTextNode(' Show Graph Options');
+	var showGraphOptionsCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'showGraphOptions', onclick: 'eventManager.fire("sensorUpdateShowGraphOptions")'});
 	
 	//insert the show graph options
 	pageDiv.appendChild(showGraphOptionsText);
@@ -605,6 +632,28 @@ View.prototype.SensorNode.updateYMax = function() {
 View.prototype.SensorNode.updateShowGraphOptions = function() {
 	//get the value of the checkbox
 	this.content.showGraphOptions = $('#showGraphOptions').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save the createPrediction field to the content
+ */
+View.prototype.SensorNode.updateEnableCreatePrediction = function() {
+	//get the value of the checkbox
+	this.content.createPrediction = $('#enableCreatePredictionCheckBox').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save the enableSensor field to the conten
+ */
+View.prototype.SensorNode.updateEnableSensor = function() {
+	//get the value of the checkbox
+	this.content.enableSensor = $('#enableSensorCheckBox').attr('checked');
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');

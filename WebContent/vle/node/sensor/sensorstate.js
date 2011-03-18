@@ -14,7 +14,7 @@
  * @param yMin the min y value
  * @param yMax the max y value
  */
-function SENSORSTATE(response, sensorDataArray, annotationArray, timestamp, xMin, xMax, yMin, yMax) {
+function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -23,6 +23,9 @@ function SENSORSTATE(response, sensorDataArray, annotationArray, timestamp, xMin
 	
 	//an array of annotations the student has created
 	this.annotationArray = [];
+	
+	//an array of the data points the student made as a prediction
+	this.predictionArray = [];
 	
 	if(response != null) {
 		//set the response if it was provided to the constructor
@@ -37,6 +40,11 @@ function SENSORSTATE(response, sensorDataArray, annotationArray, timestamp, xMin
 	if(annotationArray != null) {
 		//set the data array if it was provided to the constructor
 		this.annotationArray = annotationArray;
+	}
+	
+	if(predictionArray != null) {
+		//set the data array if it was provided to the constructor
+		this.predictionArray = predictionArray;
 	}
 	
 	if(timestamp == null) {
@@ -68,6 +76,9 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//get the annotation array
 	var annotationArray = stateJSONObj.annotationArray;
 	
+	//get the prediction array
+	var predictionArray = stateJSONObj.predictionArray;
+	
 	//get the timestamp
 	var timestamp = stateJSONObj.timestamp;
 	
@@ -78,7 +89,7 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	var yMax = stateJSONObj.yMax;
 
 	//create a SENSORSTATE object
-	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, timestamp, xMin, xMax, yMin, yMax);
+	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax);
 	
 	return sensorState;
 };
@@ -116,6 +127,14 @@ SENSORSTATE.prototype.clearSensorData = function() {
 SENSORSTATE.prototype.clearAnnotations = function() {
 	//clear the sensor data array by setting it to a new empty array
 	this.annotationArray = [];
+};
+
+/**
+ * Clears all the predictions in the prediction array.
+ */
+SENSORSTATE.prototype.clearPredictions = function() {
+	//clear the sensor data array by setting it to a new empty array
+	this.predictionArray = [];
 };
 
 /**
@@ -262,6 +281,96 @@ SENSORSTATE.prototype.getAnnotationsHtml = function() {
 	}
 	
 	return annotationsHtml;
+};
+
+/**
+ * Adds an element into the prediction array
+ * @param x the x value of the point
+ * @param y the y value of the point
+ */
+SENSORSTATE.prototype.predictionReceived = function(x, y) {
+	//remove any existing point with the same x value
+	for(var i=0; i<this.predictionArray.length; i++) {
+		var predictionPoint = this.predictionArray[i];
+		
+		if(predictionPoint.x == x) {
+			this.predictionArray.splice(i, 1);
+			break;
+		}
+	}
+	
+	//create an object that contains the x, y points
+	var predictionData = {
+			x: x,
+			y: y
+	};
+
+	//add the element to the array
+	this.predictionArray.push(predictionData);
+	
+	//sort the array by the x value
+	this.predictionArray.sort(this.sortPredictionArray);
+};
+
+/**
+ * Remove the element with the given index from the prediction array
+ * @param index the index to remove
+ */
+SENSORSTATE.prototype.predictionRemoved = function(index) {
+	this.predictionArray.splice(index, 1);
+};
+
+/**
+ * A function used to sort arrays in ascending x values. The elements 
+ * in the array contain x and y fields.
+ * e.g.
+ * {
+ * 		x:1.4,
+ * 		y:8.45
+ * }
+ * @param point1 an element in the array
+ * @param point2 an element in the array
+ * @return negative value if point1.x is smaller than point2.x
+ * or
+ * positive value if point1.x is larger than point2.x
+ * or
+ * 0 if the values are the same
+ */
+SENSORSTATE.prototype.sortPredictionArray = function(point1, point2) {
+	return point1.x - point2.x;
+};
+
+/**
+ * Remove the sensor annotations from the annotation array
+ */
+SENSORSTATE.prototype.removeSensorAnnotations = function() {
+	//loop through all the annotations
+	for(var x=0; x<this.annotationArray.length; x++) {
+		var annotation = this.annotationArray[x];
+		
+		if(annotation.seriesName.indexOf("prediction") == -1) {
+			//the annotation is not a prediction annotation so we will remove it
+			this.annotationArray.splice(x, 1);
+			x--;
+		}
+	}
+};
+
+/**
+ * Remove the prediction annotations from the annotation array
+ * @return
+ */
+SENSORSTATE.prototype.removePredictionAnnotations = function() {
+	//loop through all the annotations
+	for(var x=0; x<this.annotationArray.length; x++) {
+		var annotation = this.annotationArray[x];
+		
+		if(annotation.seriesName.indexOf("prediction") != -1) {
+			//the annotation is a prediction annotation so we will remove it
+			this.annotationArray.splice(x, 1);
+			x--;
+		}
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

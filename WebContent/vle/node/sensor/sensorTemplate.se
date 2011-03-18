@@ -1,4 +1,6 @@
 {
+   "createPrediction": false,
+   "enableSensor": true,
    "expectedLines": 5,
    "graphParams": {},
    "prompt": "",
