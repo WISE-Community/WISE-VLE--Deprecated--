@@ -15,6 +15,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.getGradingConfig(args[0]);
 	} else if(type=='getGradingConfigComplete') {
 		obj.loadProject(args[0], args[1], args[2]);
+		obj.initializeSession();
 	} else if(type=='loadingProjectComplete') {
 		obj.getStudentUserInfo();
 		obj.checkAndMinify();

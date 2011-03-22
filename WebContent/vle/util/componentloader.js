@@ -12,9 +12,9 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core','keystroke','config','user','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
-		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'grading', 'annotations', 'maxscores', 'ideabasket'],
-		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'messagemanager','author','authoringcomponents', 'maxscores'],
+		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'user', 'session','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
+		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
 	};
 	
@@ -43,10 +43,6 @@ var componentloader = function(em, sl){
 				'getRunExtrasComplete':[null,null], 
 				'nullEvent':[null,null],
 				'getAnnotationsComplete':[null,null],
-				'maintainConnection':[null,null],
-				'renewSession':[null,null],
-				'checkSession':[null,null],
-				'forceLogout':[null,null]
 			},
 			methods: {
 				getProject:function(view){return function(){return view.getProject();};},
@@ -55,7 +51,6 @@ var componentloader = function(em, sl){
 			initialize:{
 				notificationManager:function(){return window.notificationManager;},
 				connectionManager:function(){return new ConnectionManager(eventManager);},
-				sessionManager:function(view){return new SessionManager(eventManager, view);},
 				init:function(view){
 					view.eventManager.subscribe('alert', function(type,args,obj){obj.notificationManager.notify(args[0],3);}, view);
 					view.eventManager.subscribe('contentTimedOut', function(type,args,obj){obj.notificationManager.notify('Retrieval of content from url ' + args[0] + ' is taking a long time! The server may be slow or is not responding. If content does not load shortly, check with an administrator.', 3);}, view);
@@ -85,7 +80,9 @@ var componentloader = function(em, sl){
 		},
 		config: {
 			variables: {config:undefined},
-			events: {},
+			events: {				
+				'loadConfigComplete':[null,null]
+			},
 			methods: {},
 			initialize: {}
 		},
@@ -96,6 +93,25 @@ var componentloader = function(em, sl){
 					 'processUserAndClassInfoComplete':[null,null]},
 			methods: {},
 			initialize: {}
+		},
+		session: {
+			variables: {},
+			events: {				
+				'maintainConnection':[null,null],
+				'renewSession':[null,null],
+				'checkSession':[null,null],
+				'forceLogout':[null,null]
+			},
+			methods: {},
+			initialize: {
+				init:function(view){
+					view.eventManager.subscribe('loadConfigComplete', view.utilDispatcher, view);
+					view.eventManager.subscribe('maintainConnection', view.utilDispatcher, view);
+					view.eventManager.subscribe('renewSession', view.utilDispatcher, view);
+					view.eventManager.subscribe('checkSession', view.utilDispatcher, view);
+					view.eventManager.subscribe('forceLogout', view.utilDispatcher, view);
+				}
+			}
 		},
 		grading: {
 			variables: {gradingConfigUrl:undefined,

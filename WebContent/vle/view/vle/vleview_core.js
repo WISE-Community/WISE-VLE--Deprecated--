@@ -116,8 +116,17 @@ View.prototype.startVLEFromConfig = function(configUrl){
 	/* create config by creating content object from given url */
 	this.config = this.createConfig(createContent(configUrl));
 	
+	this.eventManager.fire('loadConfigComplete');
+
 	/* start the VLE */
 	this.startVLE();
+};
+
+/**
+ * Initializes Session for currently logged in user.
+ */
+View.prototype.initializeSession = function(){
+	this.sessionManager = new SessionManager(eventManager, this);
 };
 
 /**
@@ -133,6 +142,8 @@ View.prototype.startVLEFromParams = function(obj){
 	/* create the config obj using the content obj */
 	this.config = this.createConfig(contentObj);
 	
+	this.eventManager.fire('loadConfigComplete');
+
 	/* start the vle */
 	this.startVLE();
 };

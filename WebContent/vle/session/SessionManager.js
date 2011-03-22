@@ -7,12 +7,18 @@
 function SessionManager(em, view) {
 	this.em = em;
 	this.view = view;
-	//this.sessionTimeoutInterval = view.config.getConfigParam('sessionTimeoutInterval');
-	this.sessionTimeoutInterval = 1200000;   // session timeout limit, in millieconds (20 min = 20*60*1000 = 1200000 milliseconds)
-	//this.sessionTimeoutInterval = 900000;   // session timeout limit, in millieconds (15 min = 15*60*1000 = 900000 milliseconds)
-	//this.sessionTimeoutInterval = 60000;   // session timeout limit, in millieconds (10 min = 10*60*1000 = 600000 milliseconds)
-	//this.sessionTimeoutCheckInterval = view.config.getConfigParam('sessionTimeoutCheckInterval');  // how often session should be checked, in milliseconds
+
+	this.sessionTimeoutInterval = 1200000;   // session timeout limit, in millieconds (20 min = 20*60*1000 = 1200000 milliseconds)  (15 min = 15*60*1000 = 900000 milliseconds) (10 min = 10*60*1000 = 600000 milliseconds)
+	// override with config params, if specified
+	if (view.config && view.config.getConfigParam("sessionTimeoutInterval")) {
+		this.sessionTimeoutInterval = view.config.getConfigParam("sessionTimeoutInterval");
+	}
 	this.sessionTimeoutCheckInterval = 10000; // how often session should be checked, in milliseconds
+	// override with config params, if specified
+	if (view.config && view.config.getConfigParam("sessionTimeoutCheckInterval")) {
+		this.sessionTimeoutCheckInterval = view.config.getConfigParam("sessionTimeoutCheckInterval");
+	}
+
 	this.sessionTimeoutWarning = this.sessionTimeoutInterval*.75;  // when session timeout warning should be made. 
 	this.lastSuccessfulRequest = Date.parse(new Date());  // timestamp of last successful request
 

@@ -6,7 +6,9 @@
 View.prototype.utils = {};
 
 View.prototype.utilDispatcher = function(type, args, obj) {
-	if (type == 'maintainConnection') {
+	if (type == 'loadConfigComplete') {
+		obj.initializeSession();
+	} else if (type == 'maintainConnection') {
 		obj.sessionManager.maintainConnection();
 	} else if (type == 'renewSession') {
 		// make a request to renew the session
