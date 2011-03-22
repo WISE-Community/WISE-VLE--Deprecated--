@@ -48,6 +48,16 @@ View.prototype.SensorNode.generatePage = function(view){
 	//wipe out old
 	parent.removeChild(document.getElementById('dynamicPage'));
 	
+	//create new
+	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
+	var promptText = document.createTextNode("Prompt for Student:");
+	var linesText = document.createTextNode("Size of Student Response Box (# rows):");
+	var richTextEditorText = document.createTextNode("Use Rich Text Editor");
+	
+	pageDiv.appendChild(promptText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
+	pageDiv.appendChild(createBreak());
 	
 	//create the choose sensor authoring elements
 	var chooseSensorTypeText = document.createTextNode('Choose the sensor type:');
@@ -63,17 +73,6 @@ View.prototype.SensorNode.generatePage = function(view){
 		chooseTemperatureRadioButton.checked = true;
 	}
 	
-	//create new
-	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
-	var promptText = document.createTextNode("Prompt for Student:");
-	var linesText = document.createTextNode("Size of Student Response Box (# rows):");
-	var richTextEditorText = document.createTextNode("Use Rich Text Editor");
-	
-	pageDiv.appendChild(promptText);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
-	pageDiv.appendChild(createBreak());
-	
 	//insert the sensor type radio buttons
 	pageDiv.appendChild(chooseSensorTypeText);
 	pageDiv.appendChild(createBreak());
@@ -82,6 +81,22 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(chooseTemperatureRadioButton);
 	pageDiv.appendChild(chooseTemperatureRadioButtonText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//get the graph title value
+	var graphTitleValue = "";
+	if(this.content.graphTitle != null) {
+		graphTitleValue = this.content.graphTitle;
+	}
+	
+	//create the graph title input
+	var graphTitleText = document.createTextNode("Graph Title:");
+	var graphTitleInput = createElement(document, 'input', {type: 'input', id: 'graphTitleInput', name: 'graphTitleInput', value: graphTitleValue, size: 60, onchange: 'eventManager.fire("sensorUpdateGraphTitle")'});
+	
+	//insert the graph title input
+	pageDiv.appendChild(graphTitleText);
+	pageDiv.appendChild(graphTitleInput);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -747,6 +762,17 @@ View.prototype.SensorNode.updateShowAcceleration = function() {
 View.prototype.SensorNode.updateRequirePredictionBeforeEnter = function() {
 	//get the value of the checkbox
 	this.content.requirePredictionBeforeEnter = $('#requirePredictionBeforeEnterCheckBox').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Save the graph title
+ */
+View.prototype.SensorNode.updateGraphTitle = function() {
+	//get the value of the graph title
+	this.content.graphTitle = $('#graphTitleInput').val();
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');

@@ -147,12 +147,15 @@ SENSOR.prototype.render = function() {
 		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
 		
 		//display the message to tell the student to create a prediction in the previously associated step
-		document.getElementById('promptDiv').innerHTML = "You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'renderNode\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.";
+		$('#promptDiv').html("You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'renderNode\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.");
 		this.hideAllInputFields();
 	} else {
 		//set the prompt into the step
-		document.getElementById('promptDiv').innerHTML = this.content.prompt;
+		$('#promptDiv').html(this.content.prompt);
 
+		//set the graph title
+		$('#graphTitle').html(this.content.graphTitle);
+		
 		//plot the sensor data from the student's previous visit, if any
 		this.plotData();
 		
@@ -2050,6 +2053,7 @@ SENSOR.prototype.hideAllInputFields = function() {
 	$('#clearButton').hide();
 	$('#clearPredictionButton').hide();
 	$('#resetDefaultAxisLimitsButton').hide();
+	$('#graphTitle').hide();
 	$('#yMaxInput').hide();
 	$('#yMinInput').hide();
 	$('#xMinInput').hide();

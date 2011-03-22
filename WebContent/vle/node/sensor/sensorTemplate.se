@@ -3,6 +3,7 @@
    "enableSensor": true,
    "expectedLines": 5,
    "graphParams": {},
+   "graphTitle": "",
    "prompt": "",
    "requirePredictionBeforeEnter":false,
    "sensorType": "motion",
