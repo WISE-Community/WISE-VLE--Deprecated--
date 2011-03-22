@@ -76,6 +76,27 @@ function SENSOR(node) {
 			temperature:"C",
 			time:"s"
 	};
+	
+	/*
+	 * the color for the graph lines
+	 * 0 yellow
+	 * 1 light blue
+	 * 2 red
+	 * 3 green
+	 * 4 purple
+	 * 5 dark yellow
+	 * 6 teal blue
+	 * 7 brown
+	 * 8 dark green
+	 * 9 dark purple
+	 */
+	this.graphColors = {
+			distance:2,
+			velocity:6,
+			acceleration:4,
+			temperature:2,
+			prediction:3
+	};
 
 	//insert the prediction name and unit values into the graphNames and graphUnits arrays
 	if(this.sensorType == "motion") {
@@ -105,6 +126,10 @@ function SENSOR(node) {
 	
 	//get the prediction from the previous step if there is a prevWorkNodeIds
 	this.getPreviousPrediction();
+	
+	//default ids for our graph and graph checkboxes divs
+	this.graphDivId = "graphDiv";
+	this.graphCheckBoxesDivId = "graphCheckBoxesDiv";
 };
 
 /**
@@ -179,10 +204,10 @@ SENSOR.prototype.render = function() {
 		 * for use when they are creating a prediction
 		 */
 		this.mouseDown = false;
-		$("#graphDiv").bind('mousedown', {thisSensor:this},(function(event) {
+		$("#" + this.graphDivId).bind('mousedown', {thisSensor:this},(function(event) {
 			event.data.thisSensor.mouseDown = true;
 		}));
-		$("#graphDiv").bind('mouseup', {thisSensor:this},(function(event) {
+		$("#" + this.graphDivId).bind('mouseup', {thisSensor:this},(function(event) {
 			event.data.thisSensor.mouseDown = false;
 		}));
 
@@ -193,10 +218,10 @@ SENSOR.prototype.render = function() {
 		 * when the mouse cursor is outside of the graph div we will show the
 		 * annotation tool tips for them to view.
 		 */
-		$("#graphDiv").bind('mouseover', (function(event) {
+		$("#" + this.graphDivId).bind('mouseover', (function(event) {
 			$(".activeAnnotationToolTip").hide();
 		}));
-		$("#graphDiv").bind('mouseleave', (function(event) {
+		$("#" + this.graphDivId).bind('mouseleave', (function(event) {
 			$(".activeAnnotationToolTip").show();
 		}));
 	}
@@ -593,19 +618,25 @@ SENSOR.prototype.getResponseFromSensorState = function() {
 
 /**
  * Plot the data onto the graph so the student can see it.
- * @param plotDivId the id of the div we will use to plot the graph
+ * @param graphDivId the id of the div we will use to plot the graph
  * @param graphCheckBoxesDivId the id of the div we will put the filter check boxes in
  */
-SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
-	if(plotDivId == null) {
-		//this will be the default plotDivId if none is provided as an argument
-		plotDivId = "graphDiv";
+SENSOR.prototype.plotData = function(graphDivId, graphCheckBoxesDivId) {
+	if(graphDivId == null) {
+		//this will be the default graphDivId if none is provided as an argument
+		graphDivId = this.graphDivId;
 	}
+	
+	//set the graph div id so it can be accessed later by other functions
+	this.graphDivId = graphDivId;
 	
 	if(graphCheckBoxesDivId == null) {
 		//this will be the default graphCheckBoxesDivId if none is provided as an argument
 		graphCheckBoxesDivId = "graphCheckBoxesDiv";
 	}
+	
+	//set the graph check boxes div id so it can be accessed later by other functions
+	this.graphCheckBoxesDivId = graphCheckBoxesDivId;
 	
 	//get the data array that contains the points that we will plot on the graph
 	var dataArray = this.getDataArray();
@@ -624,28 +655,28 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 		if(this.content.enableSensor != null && this.content.enableSensor == false) {
 			//sensor is disabled so we only need to show the prediction line
 			
-			dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});
+			dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:this.getGraphColor("prediction"), name:this.getGraphName("prediction"), checked:true});
 		} else {
 			//sensor is enabled
 			
 			//put the data array into the data sets
-			dataSets.push({data:dataArray, label:this.getGraphLabel("distance"), color:0, name:"distance", checked:true});
+			dataSets.push({data:dataArray, label:this.getGraphLabel("distance"), color:this.getGraphColor("distance"), name:"distance", checked:true});
 			
 			if(this.content.showVelocity) {
 				//calculate the velocity data array from the distance array
 				var velocityArray = this.calculateVelocityArray(dataArray);
-				dataSets.push({data:velocityArray, label:this.getGraphLabel("velocity"), color:1, name:"velocity", checked:false});
+				dataSets.push({data:velocityArray, label:this.getGraphLabel("velocity"), color:this.getGraphColor("velocity"), name:"velocity", checked:false});
 			}
 			
 			if(this.content.showAcceleration) {
 				//calculate the acceleration data array from the velocity array
 				var accelerationArray = this.calculateAccelerationArray(velocityArray);
-			    dataSets.push({data:accelerationArray, label:this.getGraphLabel("acceleration"), color:2, name:"acceleration", checked:false});				
+			    dataSets.push({data:accelerationArray, label:this.getGraphLabel("acceleration"), color:this.getGraphColor("acceleration"), name:"acceleration", checked:false});				
 			}
 			
 		    if(this.content.createPrediction || this.sensorState.predictionArray.length != 0) {
 		    	//display the prediction if create prediction is enabled or if there is data in the prediction array
-		    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});		    	
+		    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:this.getGraphColor("prediction"), name:this.getGraphName("prediction"), checked:true});		    	
 		    }
 		}
 	    
@@ -653,7 +684,7 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 	    this.globalDataSets = dataSets;
 	    
 		//plot the data onto the graph and create the filter check box options
-	    this.setupPlotFilter(plotDivId, graphCheckBoxesDivId);
+	    this.setupPlotFilter();
 	} else if(this.sensorType == 'temperature') {
 		//this is a temperature sensor step
 		
@@ -661,27 +692,24 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 		                
 		if(this.content.enableSensor != null && this.content.enableSensor == false) {
 			//sensor is disabled so we only need to show the prediction
-			dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});
+			dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:this.getGraphColor("prediction"), name:this.getGraphName("prediction"), checked:true});
 		} else {
 			//sensor is enabled
 			
 			//put the data array into the data sets
-			dataSets.push({data:dataArray, label:this.getGraphLabel("temperature"), name:"temperature", checked:true});
+			dataSets.push({data:dataArray, label:this.getGraphLabel("temperature"), color:this.getGraphColor("temperature"), name:"temperature", checked:true});
 			
 		    if(this.content.createPrediction || this.sensorState.predictionArray.length != 0) {
 		    	//display the prediction if create prediction is enabled or if there is data in the prediction array
-		    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});		    	
+		    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:this.getGraphColor("prediction"), name:this.getGraphName("prediction"), checked:true});		    	
 		    }
 		}
 		
 		//set the data set to a global variable so we can access it in other places
 		this.globalDataSets = dataSets;
 		
-		//plot the data onto the graph
-		//this.globalPlot = $.plot($("#" + plotDivId), dataSets, graphParams);
-		
 		//plot the data onto the graph and create the filter check box options
-	    this.setupPlotFilter(plotDivId, graphCheckBoxesDivId);
+	    this.setupPlotFilter();
 	} else {
 		//this is a generic sensor step without any specific type
 		
@@ -692,27 +720,27 @@ SENSOR.prototype.plotData = function(plotDivId, graphCheckBoxesDivId) {
 		
 	    if(this.content.createPrediction || this.sensorState.predictionArray.length != 0) {
 	    	//display the prediction if create prediction is enabled or if there is data in the prediction array
-	    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:3, name:this.getGraphName("prediction"), checked:true});		    	
+	    	dataSets.push({data:predictionArray, label:this.getGraphLabel("prediction"), color:this.getGraphColor("prediction"), name:this.getGraphName("prediction"), checked:true});		    	
 	    }
 		
 		//set the data set to a global variable so we can access it in other places
 		this.globalDataSets = dataSets;
 		
 		//plot the data onto the graph
-		this.globalPlot = $.plot($("#" + plotDivId), dataSets, graphParams);	
+		this.globalPlot = $.plot($("#" + graphDivId), dataSets, graphParams);
+		
+		//delete all the annotation tool tips from the UI
+		this.removeAllAnnotationToolTips();
+		
+		//highlight the points on the graph that the student has create annotations for
+		this.highlightAnnotationPoints(null, null, dataSets);
 	}
 	
 	//setup the graph so that when the student hovers over a point it displays the values in a tooltip
-	this.setupPlotHover(plotDivId);
+	this.setupPlotHover();
 	
 	//setup the graph so that when the student clicks on a point, it creates an annotation
 	this.setupPlotClick();
-	
-	//delete all the annotation tool tips from the UI
-	this.removeAllAnnotationToolTips();
-	
-	//highlight the points on the graph that the student has create annotations for
-	this.highlightAnnotationPoints(null, null, dataSets);
 };
 
 /**
@@ -798,20 +826,16 @@ SENSOR.prototype.calculateDerivativeArray = function(dataArray) {
  * Setup the graph so that when the student mouseovers a point it displays
  * the x,y values for that point.
  */
-SENSOR.prototype.setupPlotHover = function(plotDivId) {
-	$("#" + plotDivId).unbind("plothover");
+SENSOR.prototype.setupPlotHover = function() {
+	$("#" + this.graphDivId).unbind("plothover");
 	
-	if(plotDivId == null) {
-		//this will be the default plotDivId if none is provided
-		plotDivId = "graphDiv";
-	}
     var previousPoint = null;
     
     /*
      * bind this function to the plothover event. the thisSensor object
      * will be passed into the function and accessed through event.data.thisSensor
      */
-    $("#" + plotDivId).bind("plothover", {thisSensor:this}, function (event, pos, item) {
+    $("#" + this.graphDivId).bind("plothover", {thisSensor:this}, function (event, pos, item) {
 
         if (item) {
             if (previousPoint != item.datapoint) {
@@ -824,6 +848,17 @@ SENSOR.prototype.setupPlotHover = function(plotDivId) {
                 var x = parseFloat(item.datapoint[0].toFixed(2));
                 var y = parseFloat(item.datapoint[1].toFixed(2));
                 
+        		//get the x and y values
+        		var dataPointObject = {
+        				x:item.datapoint[0],
+        				y:item.datapoint[1]
+        		};
+        		
+        		//get the offset of the points relative to the plot div
+                var offsetObject = event.data.thisSensor.globalPlot.pointOffset(dataPointObject);
+        		var plotOffsetX = offsetObject.left;
+        		var plotOffsetY = offsetObject.top;
+                
                 //get the units for the x and y values
                 var xUnits = event.data.thisSensor.getGraphUnits("time");
                 var yUnits = event.data.thisSensor.getGraphUnits(item.series.name);
@@ -832,7 +867,7 @@ SENSOR.prototype.setupPlotHover = function(plotDivId) {
                 var toolTipText = item.series.label + ": " + x + " " + xUnits + ", " + y + " " + yUnits;
                 
                 //display the tool tip
-                event.data.thisSensor.showTooltip(item.pageX, item.pageY, toolTipText);
+                event.data.thisSensor.showTooltip(plotOffsetX, plotOffsetY, toolTipText);
             }
         } else {
         	//remove the tool tip
@@ -869,7 +904,7 @@ SENSOR.prototype.showTooltip = function(x, y, toolTipText) {
         padding: '2px',
         'background-color': '#fee',
         opacity: 0.8
-    }).appendTo("body").fadeIn(200);
+    }).appendTo("#" + this.graphDivId).fadeIn(200);
 };
 
 /**
@@ -877,13 +912,13 @@ SENSOR.prototype.showTooltip = function(x, y, toolTipText) {
  * an annotation.
  */
 SENSOR.prototype.setupPlotClick = function() {
-	$("#graphDiv").unbind("plotclick");
+	$("#" + this.graphDivId).unbind("plotclick");
 	
 	/*
 	 * bind the plotclick event to this function. the thisSensor object
 	 * will be passed into the function and accessed through event.data.thisSensor
 	 */
-    $("#graphDiv").bind("plotclick", {thisSensor:this}, function (event, pos, item) {
+    $("#" + this.graphDivId).bind("plotclick", {thisSensor:this}, function (event, pos, item) {
         if (item) {
         	//student has clicked on a point
         	
@@ -929,9 +964,9 @@ SENSOR.prototype.setupPlotClick = function() {
  * Setup the plot filter so students can turn on/off the different
  * lines in the graph when there is more than one line displayed
  */
-SENSOR.prototype.setupPlotFilter = function(plotDivId, graphCheckBoxesDivId) {
+SENSOR.prototype.setupPlotFilter = function() {
     //get the div where we display the checkboxes
-    var graphCheckBoxesDiv = $("#" + graphCheckBoxesDivId);
+    var graphCheckBoxesDiv = $("#" + this.graphCheckBoxesDivId);
     
     //get the graph params
     var graphParams = this.getGraphParams();
@@ -973,7 +1008,7 @@ SENSOR.prototype.setupPlotFilter = function(plotDivId, graphCheckBoxesDivId) {
     	}
 
     	//display the graph lines that we want to display
-    	thisSensor.globalPlot = $.plot($("#" + plotDivId), dataToDisplay, graphParams);
+    	thisSensor.globalPlot = $.plot($("#" + thisSensor.graphDivId), dataToDisplay, graphParams);
     	
     	//delete all the annotation tool tips form the UI
     	thisSensor.removeAllAnnotationToolTips();
@@ -1328,7 +1363,7 @@ SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex) {
 	
 	//delete the annotation tool tip from the UI
 	var domSeriesName = this.getDOMSeriesName(seriesName);
-	$("#annotationToolTip" + domSeriesName + dataIndex).remove();
+	$("#" + this.graphDivId + "_annotationToolTip_" + domSeriesName + dataIndex).remove();
 	
 	//set this flag so we know that we will need to save student data since it has changed
 	this.annotationsChanged = true;
@@ -1347,17 +1382,19 @@ SENSOR.prototype.editAnnotation = function(seriesName, dataIndex, annotationText
 	
 	var domSeriesName = this.getDOMSeriesName(seriesName);
 	
+	var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + dataIndex;
+	
 	//update the annotation tool tip on the graph
-	$("#annotationToolTip" + domSeriesName + dataIndex).html(annotationText);
+	$("#" + annotationToolTipDivId).html(annotationText);
 	
 	if(annotationText != null && annotationText != "") {
 		//show the annotation tool tip on the graph
-		$('#annotationToolTip' + domSeriesName + dataIndex).show();
-		$('#annotationToolTip' + domSeriesName + dataIndex).addClass("activeAnnotationToolTip").removeClass("hiddenAnnotationToolTip");
+		$('#' + annotationToolTipDivId).show();
+		$('#' + annotationToolTipDivId).addClass("activeAnnotationToolTip").removeClass("hiddenAnnotationToolTip");
 	} else {
 		//hide the annotation tool tip on the graph if the annotation text is ""
-		$('#annotationToolTip' + domSeriesName + dataIndex).hide();
-		$('#annotationToolTip' + domSeriesName + dataIndex).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
+		$('#' + annotationToolTipDivId).hide();
+		$('#' + annotationToolTipDivId).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
 	}
 	
 	//set this flag so we know that we will need to save student data since it has changed
@@ -1914,8 +1951,7 @@ SENSOR.prototype.dataSetContainsName = function(dataSets, name) {
  * Delete all the annotation tool tips from the graph
  */
 SENSOR.prototype.removeAllAnnotationToolTips = function() {
-	$(".activeAnnotationToolTip").remove();
-	$(".hiddenAnnotationToolTip").remove();
+	$("." + this.graphDivId + "AnnotationToolTip").remove();
 };
 
 /**
@@ -1944,19 +1980,13 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 				y:dataPointArray[1]
 		};
 		
-		//get the offset of the plot relative to the whole document page
-		var plotOffset = plot.offset();
-		var xPlotOffset = plotOffset.left;
-		var yPlotOffset = plotOffset.top;
-		
 		//find the pixel position of the point
 		var offsetObject = plot.pointOffset(dataPointObject);
 		var x = offsetObject.left;
 		var y = offsetObject.top;
 		
-		
 		//get the class that we will give to the div
-		var annotationToolTipClass = "activeAnnotationToolTip";
+		var annotationToolTipClass = "activeAnnotationToolTip " + this.graphDivId + "AnnotationToolTip";
 		
 		if(seriesName.indexOf("prediction") != -1) {
 			annotationToolTipClass += " annotationToolTipPrediction";
@@ -1966,25 +1996,28 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 		
 		var domSeriesName = this.getDOMSeriesName(seriesName);
 		
+		//get the div id for the annotation tool tip
+		var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + dataIndex;
+
 		//check if the tool tip div for this annotation already exists
-		if($('#annotationToolTip' + domSeriesName + dataIndex).length == 0) {
+		if($('#' + annotationToolTipDivId).length == 0) {
 			//it does not exist so we will make it
-		    $('<div id="annotationToolTip' + domSeriesName + dataIndex + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
+		    $('<div id="' + annotationToolTipDivId + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
 		        position: 'absolute',
 		        //display: 'none',
-		        top: y + yPlotOffset - 35,
-		        left: x + xPlotOffset - 15,
+		        top: y - 35,
+		        left: x + 10,
 		        border: '1px solid #fdd',
 		        padding: '2px',
 		        'background-color': '#fee',
 		        opacity: 0.8
-		    }).appendTo("body").fadeIn(200);
+		    }).appendTo("#" + this.graphDivId).fadeIn(200);
 		}
 		
 	    if(annotationText == null || annotationText == "") {
 	    	//hide the annotation tool tip if the annotation text is ""
-	    	$('#annotationToolTip' + domSeriesName + dataIndex).hide();
-	    	$('#annotationToolTip' + domSeriesName + dataIndex).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
+	    	$('#' + annotationToolTipDivId).hide();
+	    	$('#' + annotationToolTipDivId).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
 	    }
 	}
 };
@@ -2024,6 +2057,27 @@ SENSOR.prototype.hideAllInputFields = function() {
 	$('#showStarterSentenceButton').hide();
 	$('#responseTextArea').hide();
 	$('#saveButton').hide();
+};
+
+/**
+ * Set the div id that we will plot the graph in
+ * @param plotDivId the id of the plot div
+ */
+SENSOR.prototype.setGraphDivId = function(graphDivId) {
+	this.graphDivId = graphDivId;
+};
+
+/**
+ * Get the color for the graph line
+ * @param graphType the type of graph line
+ * e.g.
+ * "distance"
+ * "temperature"
+ * "prediction"
+ * @return the color for the graph line
+ */
+SENSOR.prototype.getGraphColor = function(graphType) {
+	return this.graphColors[graphType];
 };
 
 //used to notify scriptloader that this script has finished loading

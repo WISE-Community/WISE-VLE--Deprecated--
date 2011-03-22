@@ -123,10 +123,10 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	 * when the mouse cursor is outside of the graph div we will show the
 	 * annotation tool tips for them to view.
 	 */
-	$("#" + divId).bind('mouseover', (function(event) {
+	$("#" + sensorGraphDiv.id).bind('mouseover', (function(event) {
 		$(".activeAnnotationToolTip").hide();
 	}));
-	$("#" + divId).bind('mouseleave', (function(event) {
+	$("#" + sensorGraphDiv.id).bind('mouseleave', (function(event) {
 		$(".activeAnnotationToolTip").show();
 	}));
 	
