@@ -10,10 +10,10 @@
  * opens that snapshot in the main drawing window.
  * Snapshots can be re-ordered via drag-and-drop.
  * The snapshots sidepanel also includes playback controls that can be used to
- * flip through the snapshots in a flip-book like manner.
+ * play through the snapshots in a flip-book like manner, at varying speeds.
  * JQuery Timers (http://plugins.jquery.com/project/timers) plugin must be included in the svg-editor.html header
  * JQuery UI with dialogs and sliders plus accompanying css also required
- * TODO: Perhaps max snaps setter
+ * TODO: Add max snap number setter
  */
 var snapsLoaded = false; // wise4 var to indicate when extension has finished loading
  
@@ -63,8 +63,6 @@ svgEditor.addExtension("Snapshots", function(S) {
 		
 		$('#sidepanels').append(paneltxt);
 		
-		$('#sidepanels').css('border','none');
-		
 		addLink();
 	};
 	
@@ -77,7 +75,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		workarea.css('right', parseInt(workarea.css('right'))+deltax);
 		sidepanels.css('width', parseInt(sidepanels.css('width'))+deltax);
 		layerpanel.css('width', parseInt(layerpanel.css('width'))+deltax);
-		$('#fit_to_canvas').mouseup();
+		svgEditor.resizeCanvas();
 	};
 	
 	function addLink(){
@@ -97,8 +95,8 @@ svgEditor.addExtension("Snapshots", function(S) {
 	};
 	
 	function addDialogs(){
-		var dialogtxt = '<div id="new_snap_dialog" title="New Snapshot" style="display:none;">' +
-			'<div class="ui-dialog-content-content">Create new snapshot from current drawing?</div></div>' +
+		var dialogtxt = //'<div id="new_snap_dialog" title="New Snapshot" style="display:none;">' +
+			//'<div class="ui-dialog-content-content">Create new snapshot from current drawing?</div></div>' +
 			'<div id="snapwarning_dialog" title="Open Snapshot" style="display:none;">' +
 			'<div class="ui-state-error"><span class="ui-icon ui-icon-alert" style="float:left"></span>' +
 			'Warning! Opening this snapshot will delete your current drawing.</div>' +
@@ -117,7 +115,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		
 		$('#svg_editor').append(dialogtxt);
 		
-		$('#new_snap_dialog').dialog({
+		/*$('#new_snap_dialog').dialog({
 			bgiframe: true,
 			resizable: false,
 			modal: true,
@@ -131,7 +129,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 					$(this).dialog('close');
 				}
 			}
-		});
+		});*/
 		
 		$('#snapwarning_dialog').dialog({
 			bgiframe: true,
@@ -172,7 +170,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 			buttons: {
 				'Yes': function() {
 					if ($(".snap:eq(" + svgEditor.index + ")").hasClass("hover")) {
-						svgEditor.warning = true;
+						svgEditor.snapWarning = true;
 						svgEditor.selected = false;
 					}
 					svgEditor.snapshots.splice(svgEditor.index,1);
@@ -243,7 +241,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		svgEditor.active = id;
 		svgEditor.index = num;
 		svgEditor.selected = true;
-		svgEditor.warning = false;
+		svgEditor.snapWarning = false;
 		svgEditor.addSnapshot(current,num,id);
 		setTimeout(function(){
 			svgEditor.snapCheck();
@@ -317,20 +315,20 @@ svgEditor.addExtension("Snapshots", function(S) {
 		var snap = svgEditor.snapshots[index].svg;
 		svgCanvas.setSvgString(snap);
 		
-		$('#fit_to_canvas').mouseup(); // fit drawing canvas to workarea
+		svgEditor.resizeCanvas(); // fit drawing canvas to workarea
 
 		resetUndoStack(); // reset the undo/redo stack
 		svgEditor.warningStackSize = 0;
 		$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 		if (pulse==true){
-			$('#svgcanvas').effect("pulsate", {times: '1'}, 700); // pulsate new canvas
+			$('#svgcanvas').effect("pulsate", {times: '0'}, 700); // pulsate new canvas
 		}
 		svgEditor.selected = true;
 		svgEditor.index = index;
 		svgEditor.active = svgEditor.snapshots[index].id;
 		svgEditor.updateClass(index);
 		svgEditor.snapCheck();
-		svgEditor.warning = false;
+		svgEditor.snapWarning = false;
 		svgEditor.initSnap = false;
 	};
 	
@@ -367,7 +365,8 @@ svgEditor.addExtension("Snapshots", function(S) {
 			$('#snapnumber_dialog').dialog('open');
 			return;
 		}
-		$('#new_snap_dialog').dialog('open');
+		//$('#new_snap_dialog').dialog('open');
+		newSnapshot();
 	};
 	
 	function changeSpeed(value){
@@ -508,11 +507,11 @@ svgEditor.addExtension("Snapshots", function(S) {
 	function snapClick(item){
 		svgEditor.initSnap = true;
 		svgEditor.index = $("div.snap").index(item);
-		//if(svgEditor.warningStackSize == getUndoStackSize() && svgEditor.warning == false){
+		if((svgEditor.warningStackSize == getUndoStackSize() && svgEditor.warning == false) || svgEditor.selected == true){
 			svgEditor.openSnapshot(svgEditor.index,true);
-		//} else {
-			//$('#snapwarning_dialog').dialog("open");
-		//}
+		} else {
+			$('#snapwarning_dialog').dialog("open");
+		}
 	};
 	
 	svgEditor.updateClass = function(num){
@@ -544,7 +543,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 	};
 	
 	/**
-	 * Updates the maximum number of allowed snapshots
+	 * Sets the maximum number of allowed snapshots
 	 * @param num - the max number of snapshots
 	 */
 	svgEditor.setMaxSnaps = function(num){

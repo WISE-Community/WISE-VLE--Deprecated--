@@ -32,10 +32,10 @@
 			// changed in the UI and are stored in the browser, config can not
 			
 			// default configs edited for wise4 (unfortunately, svgEditor.setConfig cannot run before DOM/page is loaded in wise4),
-			// thus the need to hard-code the defaults
+			// thus the need to hard-code the defaults - EDIT: reverted back to defaults when not using scriptloader
 			curConfig = {
-				canvas_expansion: 0,
-				dimensions: [600,450],
+				canvas_expansion: 3,
+				dimensions: [640,480],
 				initFill: {
 					color: 'FF0000',  // solid red
 					opacity: 1
@@ -46,12 +46,13 @@
 					opacity: 1
 				},
 				initOpacity: 1,
+				iconsize:'m',
 				extPath: 'extensions/',
 			    imgPath: 'images/',
 			    langPath: 'locale/',
-			    no_save_warning: true,
+			    no_save_warning: false,
 			    show_outside_canvas:false,
-			    extensions: [/*'ext-markers.js',*/'ext-wise4.js','ext-prompt.js','ext-description.js','ext-stamps.js','ext-snapshots.js','ext-simple_color.js','ext-closepath.js','ext-arrows.js','ext-connector.js'],
+			    extensions: ['ext-markers.js','ext-closepath.js','ext-connector.js'],
 				initTool: 'select',
 				wireframe: false
 			},

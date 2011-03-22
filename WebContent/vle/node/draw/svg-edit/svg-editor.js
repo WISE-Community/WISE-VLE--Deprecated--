@@ -12,9 +12,10 @@
  * 
  */
 
-(function() { 
+(function() {
 	
-	if(!window.svgEditor) window.svgEditor = function($) {
+	//if(!window.svgEditor) window.svgEditor = function($) {
+	if(!window.svgEditor || !$.pref) window.svgEditor = function($) {
 		var svgCanvas;
 		var Editor = {};
 		var is_ready = false;
@@ -2815,7 +2816,8 @@
 			
 			// Test for embedImage support (use timeout to not interfere with page load)
 			setTimeout(function() {
-				svgCanvas.embedImage('images/logo.png', function(datauri) {
+				//svgCanvas.embedImage('images/logo.png', function(datauri) {
+				svgCanvas.embedImage(curConfig.imgPath + 'logo.png', function(datauri) { // wise4 corrected image path
 					if(!datauri) {
 						// Disable option
 						$('#image_save_opts [value=embed]').attr('disabled','disabled');
@@ -3542,8 +3544,7 @@
 		//	var revnums = "svg-editor.js ($Rev: 1592 $) ";
 		//	revnums += svgCanvas.getVersion();
 		//	$('#copyright')[0].setAttribute("title", revnums);
-		
-			// moved to svgdraw.js for wise4, was receiving Editor.putLocale is not a function error		
+				
 			var good_langs = [];
 
 			$('#lang_select option').each(function() {
@@ -3598,7 +3599,7 @@
 		
 		
 			// For Compatibility with older extensions
-			$(function() { //wise4
+			$(function() {
 				window.svgCanvas = svgCanvas;
 				svgCanvas.ready = svgEditor.ready;
 			});

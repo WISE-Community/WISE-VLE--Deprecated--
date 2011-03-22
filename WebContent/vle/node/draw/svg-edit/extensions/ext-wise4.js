@@ -32,7 +32,7 @@ svgEditor.addExtension("WISE4", function(S) {
 		$('#ellipse_panel').remove();
 		$('#rect_panel > .toolset').remove();
 		$('#xy_panel').remove();
-		$('#zoom_panel').hide();
+		//$('#zoom_panel').hide();
 		$('#tool_font_family').remove();
 		$('#tool_node_x').remove();
 		$('#tool_node_y').remove();
@@ -65,26 +65,30 @@ svgEditor.addExtension("WISE4", function(S) {
 		$('#tool_angle').css('margin-left','0');
 		$('#cornerRadiusLabel').css('margin-left','0');
 		$('.tool_sep').css({'height':'28px','margin':'3px 3px'});
-		$('#workarea').css({'top':'60px','bottom':'36px'});
+		$('#workarea').css({'top':'60px','bottom':'36px','min-height':'400px','overflow':'visible','right':'5px'});
 		$('#sidepanels').css({'top':'60px','bottom':'36px','padding':'0'});
 		$('#tools_top').css({'left':'2px','height':'57px'});
 		$('#tools_left').css('top','60px');
 		$('#tools_bottom').css('height','32px');
-		$('#workarea').css('right','5px');
+		$('#stroke_width').css('width','21px');
+		$('#sidepanels').css('border','none');
+		//$('#zoom_panel').css({'width':'100px','margin-top':'0','height':'32px'});
+		//$('#zoom_dropdown').css('margin-left','5px');
+		//$('#zoom_panel .tool_sep').remove();
+		$('#zoom_panel').hide();
+		$('#sidepanels').css('min-height','402px');
 		//$('ellipse#svg_1').attr('fill','url(http://localhost:8080/vlewrapper/vle/vle.html#xxsvg_47010)'); // needed for some reason in wise4
 		
 		svgCanvas.setFontFamily('sans-serif'); // set default font family
 		
 		$(window).resize(function() {
-			if($('#workarea').height()>30){
-				$('#fit_to_canvas').mouseup(); // fit svg drawing canvas to window whenever content resizes
-			}
+			svgEditor.resizeCanvas();
 		});
 		
-		setupWarning();
+		setupWarnings();
 	};
 	
-	function setupWarning(){
+	function setupWarnings(){
 		var drawWarning = '<div id="drawlimit_dialog" title="Drawing is Too Big" style="display:none;"><div class="ui-state-error">' +
 			'<span class="ui-icon ui-icon-alert" style="float:left"></span>Warning! Your current drawing is too large.' +
 			'</div><div class="ui-dialog-content-content">If you would like to save this drawing, please delete some of the items in the picture.  Thank you!' +
@@ -104,6 +108,43 @@ svgEditor.addExtension("WISE4", function(S) {
 				}
 			}
 		});
+		
+		var revertWarning = '<div id="revert_dialog" title="Erase Drawing" style="display:none;"><div class="ui-state-error">' +
+			'<span class="ui-icon ui-icon-alert" style="float:left"></span>Warning! This will permanently erase your current drawing and replace it with the default state.' +
+			'</div><div class="ui-dialog-content-content">If you would like to continue, press "OK".' +
+			'</div></div>';
+	
+		$('#svg_editor').append(revertWarning);
+		
+		$('#revert_dialog').dialog({
+			bgiframe: true,
+			resizable: false,
+			modal: true,
+			autoOpen:false,
+			width:420,
+			buttons: {
+				'OK': function() {
+					$(this).dialog('close');
+					if (svgdraw.defaultImage){ // if no previous work and no default snaps, load default background drawing
+						//TODO: Perhaps modify this to allow foreground (editable) starting drawings as well
+						var svgString = svgdraw.defaultImage.replace("</svg>", "<g><title>student</title></g></svg>"); // add blank student layer
+						svgEditor.loadFromString(svgString);
+					} else { // create blank student layer
+						var defaultSvgString = '<svg width="600" height="450" xmlns="http://www.w3.org/2000/svg">' +
+							'<!-- Created with SVG-edit - http://svg-edit.googlecode.com/ --><g><title>student</title></g></svg>';
+						svgEditor.loadFromString(defaultSvgString);
+					}
+					resetUndoStack = svgCanvas.getPrivateMethods().resetUndoStack; // reset the undo/redo stack
+					resetUndoStack();
+					svgEditor.warningStackSize = 0;
+					svgEditor.resizeCanvas();
+					$('#tool_undo').addClass('tool_button_disabled disabled');
+				},
+				'Cancel' : function() {
+					$(this).dialog('close');
+				}
+			}
+		});
 	};
 	
 	// whenever user has modified drawing canvas, check whether current drawing is too large (>20k)
@@ -118,10 +159,49 @@ svgEditor.addExtension("WISE4", function(S) {
 			$('#drawlimit_dialog').dialog('open');
 		}
 	};
+	
+	// fit drawing canvas and toolbars to window
+	svgEditor.resizeCanvas = function() {
+		// resize window slightly
+		var height, width;
+		if(parent.window.outerHeight){
+			height = parent.window.outerHeight;
+			width = parent.window.outerWidth;
+			parent.window.resizeTo(width+1,height+1);
+		} else { // for IE
+			height = document.body.clientWidth; 
+			width = document.body.clientHeight;
+			self.resizeTo(width+1,height+1);
+		}
+		
+		$('#fit_to_canvas').mouseup();
+		
+		var toppx = $('#sidepanels').height() + $('#tools_top').height() + 5 + 'px';
+		$('#tools_bottom').css({'bottom':'','top':toppx});
+		
+		if($(window).height()>500){
+			$('html').css('overflow','hidden');
+		} else {
+			$('html').css('overflow','auto');
+		}
+		
+		$('#fit_to_canvas').mouseup();
+	};
 		
 	return {
 		name: "WISE4",
-		context_tools: [],
+		buttons: [{
+            id: "tool_erase",
+            type: "context",
+            panel: "editor_panel",
+            title: "Erase Current Drawing",
+            icon: '/vlewrapper/vle/node/draw/svg-edit/images/erase.png',
+            events: {
+                'click': function() {
+                    $('#revert_dialog').dialog('open');
+                }
+            }
+		}],
 		callback: function() {
 			updateDisplay();
 		},

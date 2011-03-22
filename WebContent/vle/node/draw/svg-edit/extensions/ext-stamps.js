@@ -50,7 +50,7 @@ svgEditor.addExtension("Stamps", function(S) {
 		for (var i=0; i<stamps.length; i++){
 			var num = i*1 + 1;
 			// add stamp preview image to stamp selector
-			var stamptxt = "<div><img id='stamp" + i + "' class='tool_stamp' src='" + encodeURI(stamps[i].uri) + "' title='" + stamps[i].title + "' alt='Stamp " + num + "' /></div>";
+			var stamptxt = "<img id='stamp" + i + "' class='tool_stamp' src='" + encodeURI(stamps[i].uri) + "' title='" + stamps[i].title + "' alt='Stamp " + num + "' />";
 			$('#stamp_images').append(stamptxt);
 			$('#stamp' + i).height(stamps[i].height).width(stamps[i].width);
 		}
@@ -117,8 +117,9 @@ svgEditor.addExtension("Stamps", function(S) {
 			events: {
 				'click': function() {
 					svgCanvas.setMode("stamp");
-					var pos = $('#tool_stamp').position();
-					$('#tools_stamps').css({'left': pos.left+38, 'top': pos.top-$('#tools_stamps').height()/3});
+					var pos = $('#tool_stamp').offset();
+					var w = $('#tool_stamp').outerWidth();
+					$('#tools_stamps').css({'left': pos.left+w+6, 'top': pos.top - $('#tools_stamps').height()/2});
 					if ($('#tools_stamps')) {
 						$('#tools_stamps').toggle(); // show/hide stamp selector
 					}

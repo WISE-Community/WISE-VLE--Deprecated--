@@ -1,11 +1,12 @@
 #svg_editor #tools_stamps {
-	background:#E8E8E8 !important;
-	display:none;
-	border:1px solid #999999;
-	cursor:default;
-	position:absolute;
-	z-index:98;
-	padding:0 5px;
+	background: #D8D8D8;
+	display: none;
+	cursor: default;
+	position: absolute;
+	z-index: 98;
+	padding: 0 5px;
+	text-align: left;
+	border: 1px solid #777;
 }
 
 #svg_editor #tools_stamps .tools_title {
@@ -14,13 +15,17 @@
 }
 
 #svg_editor #tools_stamps #stamp_images {
-	margin:0 auto 5px;
-	padding:5px 0;
-	max-height:300px;
-	width:120px;
-	overflow:auto;
-	background-color:#FFFFFF;
-	text-align:center;
+	margin: 0 auto 5px;
+	padding: 5px;
+	max-width: 400px;
+	overflow: auto;
+	background-color: white;
+	border: 1px solid #CCC;
+	max-height: 200px;
+}
+
+#svg_editor #tools_stamps #stamp_images div {
+	display:inline;
 }
 
 #svg_editor #tools_stamps .tool_stamp {

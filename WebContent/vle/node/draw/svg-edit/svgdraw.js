@@ -29,6 +29,7 @@ function SVGDRAW(node) {
 }
 
 SVGDRAW.prototype.init = function(jsonURL) {
+	console.log('svgdraw.init');
 	// moved from svg-editor.js for wise4 compatibility (throws error when run in svg-editor.js)
 	/*var good_langs = [];
 
@@ -258,8 +259,6 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		
 		$('#tool_prompt').insertAfter('#tool_snapshot');
 		$('#tool_prompt').insertAfter('#tool_description');
-		
-		//$('#fit_to_canvas').mouseup();
 	
 		// initiate description/annotation
 		if(context.descriptionActive){
@@ -275,7 +274,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 				} else {//if (context.defaultDescription!="")
 					//context.description = context.defaultDescription;
 					$('#description').hide();
-					$('#workarea').css('bottom','36px');
+					//$('#workarea').css('bottom','36px');
 				}
 				
 				/// Save description text
@@ -283,6 +282,8 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 				$('#description_content').unbind('keyup');
 				$('#description_content').keyup(function(){
 					var value = $('#description_content').val();
+					$('#description span.minimized').text(value);
+					$('#description span.minimized').attr('title',value);
 					for (var i=0; i<svgEditor.snapshots.length; i++) {
 						if (svgEditor.snapshots[i].id == svgEditor.active) {
 							svgEditor.snapshots[i].description = value;
@@ -297,28 +298,23 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					for (var i=0; i<svgEditor.snapshots.length; i++) { // TODO: this is just a double check (should be removed eventually)
 						if (svgEditor.snapshots[i].id == svgEditor.active) {
 							$('#description_content').val(svgEditor.snapshots[i].description);
+							$('#description span.minimized').text(svgEditor.snapshots[i].description);
+							$('#description span.minimized').attr('title',svgEditor.snapshots[i].description);
 						}
 					}
 					$('#description_collapse').show();
-					//if($('#sidepanels').width()<3){
-						//svgEditor.toggleSidePanel(false);
-					//}
 					svgEditor.toggleDescription(false);
 				});
 				
-				/*$('#loop, #play').mouseup(function(){
-					$('#workarea').css('bottom','36px');
+				$('#loop, #play').mouseup(function(){
 					$('#description').hide();
-					$('#fit_to_canvas').mouseup();
 				});
 				
 				$('#pause').mouseup(function(){
-					$('#workarea').css('bottom','158px');
 					$('#description').show();
-					$('#fit_to_canvas').mouseup();
-				});*/
+				});
 				
-				$('.description_header_text span').html('<b>Snapshot Description</b> (Enter your text in the box below)');
+				$('.description_header_text span.panel_title').text('Snapshot Description:');
 				
 				$('#description_collapse').hide();
 				
@@ -326,17 +322,20 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 				svgEditor.snapCheck = function(){
 					if(svgEditor.snapshots.length<1){
 						$('#description').hide();
-						$('#workarea').css('bottom','36px');
+						//$('#workarea').css('bottom','36px');
 					} else {
-						$('#workarea').css('bottom','88px');
+						//$('#workarea').css('bottom','88px');
 					//if(svgEditor.playback == "pause"){
 						//if(svgEditor.warningStackSize == svgCanvas.getUndoStackSize()){
 							for (var i=0; i<svgEditor.snapshots.length; i++){
 								if(svgEditor.snapshots[i].id == svgEditor.active){
 									svgEditor.index = i;
 									$('#description_content').val(svgEditor.snapshots[i].description);
-									//$('#draw_description_content').html(svgEditor.snapshots[i].description);
-									$('#description').show();
+									$('#description span.minimized').text(svgEditor.snapshots[i].description);
+									$('#description span.minimized').attr('title',svgEditor.snapshots[i].description);
+									if(svgEditor.playback == "pause"){
+										$('#description').show();
+									}
 									svgEditor.selected = true;
 									break;
 								}
@@ -357,7 +356,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 						//svgEditor.toggleDescription();
 					//}
 					}
-					$('#fit_to_canvas').mouseup();
+					svgEditor.resizeCanvas();
 				};
 				
 				// update toggleSidePanel function to accommodate for description input
@@ -367,106 +366,72 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					var deltax = (w > 2 || close ? 2 : SIDEPANEL_OPENWIDTH) - w;
 					var sidepanels = $('#sidepanels');
 					var layerpanel = $('#layerpanel');
-					$('#description').css('right', parseInt(workarea.css('right'))+deltax);
+					//$('#description').css('right', parseInt(workarea.css('right'))+deltax);
 					workarea.css('right', parseInt(workarea.css('right'))+deltax);
 					sidepanels.css('width', parseInt(sidepanels.css('width'))+deltax);
 					layerpanel.css('width', parseInt(layerpanel.css('width'))+deltax);
-					if(svgEditor.playback != 'pause' && parseInt(sidepanels.css('width')) < 200){
-						$('#workarea').css('bottom','36px');
-					}
-					$('#fit_to_canvas').mouseup();
+					var descheader = $('#description span.minimized');
+					descheader.css('width', parseInt(descheader.css('width'))-deltax-20);
+					//if(svgEditor.playback != 'pause' && parseInt(sidepanels.css('width')) < 200){
+						//$('#workarea').css('bottom','36px');
+					//}
+					svgEditor.resizeCanvas();
 				};
 				
 				svgEditor.toggleDescription = function(close){
 					if(close){
 						if(svgEditor.selected==true){
-							//$('#workarea').css('bottom','98px');
-							$('#description').css('height','68px');
-							$('#description_content').css('height','15px');
+							$('#description').css('height','28px');
+							$('#description_content').hide();
 							$('description').show();
 							$('#description_edit').show();
 							$('#description_collapse').hide();
+							$('#description span.maximized').hide();
+							$('#description span.minimized').show();
 						} else {
-							$('#workarea').css('bottom','36px');
 							$('description').hide();
 						}
-						// resize window to fit canvas
-						/*var height, width;
-						if(window.outerHeight){
-							height = window.outerHeight;
-							width = window.outerWidth;
-							window.resizeTo(width+1,height+1);
-						} else { // for IE
-							height = document.body.clientWidth; 
-							width = document.body.clientHeight;
-							self.resizeTo(width+1,height+1);
-						}*/
 					} else {
 						if(svgEditor.selected==true){
-							//$('#workarea').css('bottom','150px');
-							$('#description').css('height','130px');
-							$('#description_content').css('height','77px');
+							$('#description').css('height','127px');
+							$('#description_content').css('height','75px');
+							$('#description_content').show();
 							$('description').show();
 							$('#description_edit').hide();
 							$('#description_collapse').show();
+							$('#description span.minimized').hide();
+							$('#description span.maximized').show();
 						} else {
-							$('#workarea').css('bottom','36px');
 							$('description').hide();
 						}
-						// resize window to fit canvas
-						/*var height, width;
-						if(window.outerHeight){
-							height = window.outerHeight;
-							width = window.outerWidth;
-							window.resizeTo(width-1,height-1);
-						} else { // for IE
-							height = document.body.clientWidth; 
-							width = document.body.clientHeight;
-							self.resizeTo(width-1,height-1);
-						}*/
 					}
-					//$('#fit_to_canvas').mouseup();
+					svgEditor.resizeCanvas();
 				};
 				
 			} else {
 				if(data.description && data.description!=""){
 					svgEditor.description = data.description;
-					//$('#draw_description').show();
 					$('#description_content').html(data.description);
-					//setTimeout(function(){
-						//$('#description_content').css({'left':$('#description_header').width()+12,'right':$('#edit_description').width()+12});
-					//},500);
-					// TODO: Once Firefox supports text-overflow css property, remove this (and jquery.text-overflow.js plugin)
-					//$('#draw_description_content').ellipsis();
+					$('#description span.minimized').text(data.description);
+					$('#description span.minimized').attr('title',data.description);
+					
 				} else if (context.defaultDescription!="") {
 					svgEditor.description = context.defaultDescription;
 					$('#description_content').html(context.defaultDescription);
+					$('#description span.minimized').text(context.defaultDescription);
+					$('#description span.minimized').attr('title',context.defaultDescription);
 				}
 			}
 			//$('#tool_prompt').insertAfter('#tool_description');
 		} else {
-			//$('#tool_description').remove();
 			$('#description').remove();
-			$('#workarea').css('bottom','36px');
-			//$('#fit_to_canvas').mouseup();
 		}
 		
 		setTimeout(function(){
 			if(context.snapshotsActive){
 				svgEditor.toggleSidePanel();
 			}
-			// resize window to fit canvas
-			var height, width;
-			if(window.outerHeight){
-				height = window.outerHeight;
-				width = window.outerWidth;
-				window.resizeTo(width+1,height+1);
-			} else { // for IE
-				height = document.body.clientWidth; 
-				width = document.body.clientHeight;
-				self.resizeTo(width+1,height+1);
-			}
-			$('#fit_to_canvas').mouseup();
+			
 			$('#closepath_panel').insertAfter('#path_node_panel');
 			
 			// reset undo stack to prevent users from deleting stored starting image
@@ -478,6 +443,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			
 			$('#loading_overlay').hide();
 			$('#overlay_content').dialog('close');
+			svgEditor.resizeCanvas();
 		},500);
 		
 		svgEditor.initLoad = false;

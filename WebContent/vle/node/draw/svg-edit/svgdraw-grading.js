@@ -81,13 +81,14 @@ SVGDRAW.prototype.init = function(context){
 SVGDRAW.prototype.initSnapshots = function(context){
 	if(svgEditor.snapshots.length>0){
 		svgEditor.openSnapshot(0);
-		$('#description_content').html(svgEditor.snapshots[0].description);
+		$('#description span.minimized').text(svgEditor.snapshots[0].description);
+		$('#description_content').text(svgEditor.snapshots[0].description);
 		$("#snap_images").attr({ scrollTop: 0 });
-	} else {
-		setTimeout(function(){
-			context.initSnapshots(context);
-		},100);
-	}
+	} //else {
+		//setTimeout(function(){
+		//	context.initSnapshots(context);
+		//},100);
+	//}
 };
 
 SVGDRAW.prototype.initDisplay = function(context){
@@ -111,7 +112,7 @@ SVGDRAW.prototype.initDisplay = function(context){
 	if(context.descriptionActive == true){
 		$('#description').css('left','8px');
 		if (context.snapshotsActive == true) { // check whether snapshots are active
-			$('#workarea').css('bottom','36px');
+			//$('#workarea').css('bottom','36px');
 			$('#description_content').unbind('keyup');
 			
 			
@@ -121,28 +122,25 @@ SVGDRAW.prototype.initDisplay = function(context){
 				for (var i=0; i<svgEditor.snapshots.length; i++) { // TODO: this is just a double check (should be removed eventually)
 					if (svgEditor.snapshots[i].id == svgEditor.active) {
 						$('#description_content').val(svgEditor.snapshots[i].description);
+						$('#description span.minimized').text(svgEditor.snapshots[i].description);
+						$('#description span.minimized').attr('title',svgEditor.snapshots[i].description);
 					}
 				}
-				if($('#sidepanels').width()<3){
-					svgEditor.toggleSidePanel();
-				}
+				$('#description_collapse').show();
+				svgEditor.toggleDescription(false);
 			});
 			
 			$('#loop, #play').mouseup(function(){
-				$('#workarea').css('bottom','36px');
 				$('#description').hide();
-				$('#fit_to_canvas').mouseup();
 			});
 			
 			$('#pause').mouseup(function(){
-				$('#workarea').css('bottom','158px');
 				$('#description').show();
-				$('#fit_to_canvas').mouseup();
 			});
 			
-			$('.description_header_text').html('Snapshot Description<span>&nbsp;(Enter your text in the box below)</span>');
+			$('.description_header_text span.panel_title').text('Snapshot Description:');
 			
-			$('#description_collapse').remove();
+			$('#description_collapse').hide();
 			
 			// update snapCheck function to include description modifications
 			svgEditor.snapCheck = function(){
@@ -152,8 +150,11 @@ SVGDRAW.prototype.initDisplay = function(context){
 							if(svgEditor.snapshots[i].id == svgEditor.active){
 								svgEditor.index = i;
 								$('#description_content').val(svgEditor.snapshots[i].description);
-								//$('#draw_description_content').html(svgEditor.snapshots[i].description);
-								$('#description').show();
+								$('#description span.minimized').text(svgEditor.snapshots[i].description);
+								$('#description span.minimized').attr('title',svgEditor.snapshots[i].description);
+								if(svgEditor.playback == "pause"){
+									$('#description').show();
+								}
 								svgEditor.selected = true;
 								break;
 							}
@@ -164,14 +165,15 @@ SVGDRAW.prototype.initDisplay = function(context){
 							}
 						}
 						svgEditor.updateClass(svgEditor.index);
-					} else {
-						svgEditor.selected = false;
-						$('#description').hide();
-						$('#workarea').css('bottom','36px');
-						svgEditor.updateClass(-1);
+					//} else {
+						//svgEditor.selected = false;
+						//$('#description').hide();
+						//$('#workarea').css('bottom','36px');
+						//svgEditor.updateClass(-1);
 						//$('#fit_to_canvas').mouseup();
 					}
-					svgEditor.toggleDescription(false);
+					//svgEditor.toggleDescription(false);
+					svgEditor.resizeCanvas();
 				}
 			};
 			
@@ -182,108 +184,67 @@ SVGDRAW.prototype.initDisplay = function(context){
 				var deltax = (w > 2 || close ? 2 : SIDEPANEL_OPENWIDTH) - w;
 				var sidepanels = $('#sidepanels');
 				var layerpanel = $('#layerpanel');
-				$('#description').css('right', parseInt(workarea.css('right'))+deltax);
 				workarea.css('right', parseInt(workarea.css('right'))+deltax);
 				sidepanels.css('width', parseInt(sidepanels.css('width'))+deltax);
 				layerpanel.css('width', parseInt(layerpanel.css('width'))+deltax);
-				if(svgEditor.playback == 'pause'){
-					svgEditor.toggleDescription();
-				} else {
-					$('#workarea').css('bottom','36px');	
-				}
+				var descheader = $('#description span.minimized');
+				descheader.css('width', parseInt(descheader.css('width'))-deltax-20);
+				svgEditor.resizeCanvas();
 			};
 			
-			svgEditor.toggleDescription = function(resize){
-				if(resize==false){
-					doResize = false;
-				} else {
-					doResize = true;
-				}
-				if($('#sidepanels').width()<3){
+			svgEditor.toggleDescription = function(close){
+				if(close){
 					if(svgEditor.selected==true){
-						$('#workarea').css('bottom','98px');
-						$('#description').css('height','74px');
-						$('#description_content').css('height','15px');
+						$('#description').css('height','28px');
+						$('#description_content').hide();
 						$('description').show();
 						$('#description_edit').show();
+						$('#description_collapse').hide();
+						$('#description span.maximized').hide();
+						$('#description span.minimized').show();
 					} else {
-						$('#workarea').css('bottom','36px');
 						$('description').hide();
-					}
-					if(doResize==true){
-						// resize window to fit canvas
-						var height, width;
-						if(window.outerHeight){
-							height = window.outerHeight;
-							width = window.outerWidth;
-							window.resizeTo(width+1,height+1);
-						} else { // for IE
-							height = document.body.clientWidth; 
-							width = document.body.clientHeight;
-							self.resizeTo(width+1,height+1);
-						}
-					} else {
-						$('#fit_to_canvas').mouseup();
 					}
 				} else {
 					if(svgEditor.selected==true){
-						$('#workarea').css('bottom','158px');
-						$('#description').css('height','134px');
+						$('#description').css('height','127px');
 						$('#description_content').css('height','75px');
+						$('#description_content').show();
 						$('description').show();
 						$('#description_edit').hide();
+						$('#description_collapse').show();
+						$('#description span.minimized').hide();
+						$('#description span.maximized').show();
 					} else {
-						$('#workarea').css('bottom','36px');
 						$('description').hide();
 					}
-					if(doResize==true){
-						// resize window to fit canvas
-						var height, width;
-						if(window.outerHeight){
-							height = window.outerHeight;
-							width = window.outerWidth;
-							window.resizeTo(width-1,height-1);
-						} else { // for IE
-							height = document.body.clientWidth; 
-							width = document.body.clientHeight;
-							self.resizeTo(width-1,height-1);
-						}
-					} else {
-						$('#fit_to_canvas').mouseup();
-					}
 				}
+				svgEditor.resizeCanvas();
 			};
-			$('.description_header_text').text('Description of Snapshot:');
 			
 		} else {
 			if(context.description && context.description!=""){
 				svgEditor.description = context.description;
-				//$('#draw_description').show();
 				$('#description_content').html(context.description);
-				//setTimeout(function(){
-					//$('#description_content').css({'left':$('#description_header').width()+12,'right':$('#edit_description').width()+12});
-				//},500);
-				// TODO: Once Firefox supports text-overflow css property, remove this (and jquery.text-overflow.js plugin)
-				//$('#draw_description_content').ellipsis();
-			} /*else if (context.defaultDescription!="") {
+				$('#description span.minimized').text(context.description);
+				$('#description span.minimized').attr('title',context.description);
+			} else if (context.defaultDescription!="") {
 				svgEditor.description = context.defaultDescription;
 				$('#description_content').html(context.defaultDescription);
-			}*/
-			$('.description_header_text').text('Description of Drawing:');
+				$('#description span.minimized').text(context.defaultDescription);
+				$('#description span.minimized').attr('title',context.defaultDescription);
+			}
 		}
 		$('#description_edit').text('Expand');
 		$('#description_content').attr('disabled','disabled').css('color','#000000');
 		
 	} else if(context.descriptionActive == false){
-		//$('#tool_description').remove();
 		$('#description').remove();
-		$('#workarea').css('bottom','36px');
-		//$('#fit_to_canvas').mouseup();
 	}
 	
 	// update teacher view display (editing tools disabled for now)
-	$('#zoom_panel').show().css({'margin':'0','height':'32px'});
-	$('#zoom_panel > .tool_sep').remove();
+	//$('#zoom_panel').show().css({'margin':'0','height':'32px'});
+	//$('#zoom_panel > .tool_sep').remove();
 	$('#history_panel').hide();
 	$('#tools_top').css({'margin-top':'4px','height':'34px'});
 	$('#tools_left').hide();
@@ -301,25 +262,16 @@ SVGDRAW.prototype.initDisplay = function(context){
 	var titleDiv = '<div id="node_title" style="font-size:1.1em; font-weight:bold; left:8px; position:absolute;">Student Work for Step '+context.nodeTitle+'</div>';
 	$('#tools_top').prepend(titleDiv);
 	$('#snap_images').sortable('destroy');
+	$('#description_collapse').text('Hide');
+	$('#description span.maximized').text('');
 	
 	setTimeout(function(){
-		//$('#fit_to_canvas').mouseup();
-		// resize window to fit canvas
-		var height, width;
-		if(window.outerHeight){
-			height = window.outerHeight;
-			width = window.outerWidth;
-			window.resizeTo(width+1,height+1);
-		} else { // for IE
-			height = document.body.clientWidth; 
-			width = document.body.clientHeight;
-			self.resizeTo(width+1,height+1);
-		}
 		$('#closepath_panel').insertAfter('#path_node_panel');
 		$('#tool_prompt').insertAfter('#tool_snapshot');
 		if(context.snapshotsActive==true){
 			svgEditor.toggleSidePanel(false);
 		}
+		svgEditor.resizeCanvas();
 	},500);
 };
 

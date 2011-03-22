@@ -1,6 +1,7 @@
 #svg_editor .description_buttons {
-	text-align:center;
-	padding:.5em 0 0;
+	padding:0;
+	margin-left:1em;
+	float:right;
 }
 
 #svg_editor .description_buttons button {
@@ -30,43 +31,67 @@
 
 #svg_editor #description {
 	position:absolute;
-	bottom:36px;
-	right:5px;
-	left:40px;
+	bottom:0px;
+	right:0;
+	left:0;
 	height:68px;
-	background-color:#A0A0A0;
-	border:1px solid #808080;
-	border-top:none;
+	padding:0 5px;
+	line-height:100%;
 }
 
 #svg_editor #description a {
-	color:#333333;
+	color:#FFFFFF;
 	cursor:pointer;
-	font-size:1.4em;
-	text-decoration:none;
+	text-decoration:underline;
+}
+
+#svg_editor #description span {
+	display:inline-block;
+}
+
+#svg_editor #description span.panel_title {
+	font-weight:bold;
+	margin-right:.5em;
+}
+
+#svg_editor #description span.maximized {
+
+}
+
+#svg_editor #description span.minimized {
+	width: 500px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	-icab-text-overflow: ellipsis;
+	-khtml-text-overflow: ellipsis;
+	-moz-text-overflow: ellipsis;
+	-webkit-text-overflow: ellipsis;
 }
 
 #svg_editor #description #description_wrapper {
 	box-shadow:0 0 3px #000000;
 	-moz-box-shadow:0 0 3px #000000;
 	-webkit-box-shadow:0 0 3px #000000;
-	background-color:#E8E8E8;
-	padding:5px;
+	background: rgb(20, 20, 20);
+	background: rgba(20, 20, 20, 0.85);
+	padding:2px 5px;
 	border-radius:5px;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
-	width:96%;
 	margin:0 auto;
-	text-align:left;
+	text-align:center;
 }
 
 #svg_editor #description .description_header {
 	font-weight:bold;
-	margin:0 2px 5px;
+	margin:0 2px;
 	padding:0;
 	font-size:1em;
-	height:15px;
-	line-height:15px;
+	height:22px;
+	line-height:22px;
+	color:#FFFFFF;
+	text-align:left;
 }
 
 #svg_editor .description_header_text {
@@ -76,23 +101,18 @@
 #svg_editor .description_header_text span {
 	font-weight:normal;
 	font-size:1em;
+	vertical-align: top;
 }
 
 /* wise4 */
 #svg_editor #description_content {
 	background-color:#FFFFFF;
 	font-size:1.2em;
-	height:15px;
+	height:75px;
 	line-height:1.3em;
-	margin-top:4px;
+	margin: 5px 0;
 	padding:5px;
 	width:98%;
-}
-
-#svg_editor .description_buttons {
-	padding:0;
-	margin-left:1em;
-	float:right;
 }
 
 #svg_editor .description_input {

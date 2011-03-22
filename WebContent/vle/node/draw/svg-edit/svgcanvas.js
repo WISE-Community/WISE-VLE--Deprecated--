@@ -5571,7 +5571,7 @@ function BatchCommand(text) {
 							newpath.setAttribute("d", d_attr);
 	
 							// set stretchy line to latest point
-							// fix stretchy lines when canvas is zoomed (wise4), TODO: rep
+							// fix stretchy lines when canvas is zoomed (wise4), TODO: report
 							assignAttributes(stretchy, {
 								//'x1': x,
 								//'y1': y,

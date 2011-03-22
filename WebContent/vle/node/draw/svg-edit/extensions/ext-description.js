@@ -18,21 +18,24 @@ svgEditor.addExtension("Description", function(S) {
 	function setupDisplay(){
 		
 		var displaytext = '<div id="description"><div id="description_wrapper">'+
-			'<div class="description_header"><div class="description_header_text"><span><b>Description</b>'+
-			' (Enter your text in the box below)</span></div><div class="description_buttons">'+
-			'<button id="description_edit" title="Edit Description">Edit</button>'+
+			'<div class="description_header"><div class="description_header_text"><span class="panel_title">Description:</span>'+
+			' <span class="maximized">(Enter your text in the box below)</span><span class="minimized"></span>'+
+			'</div><div class="description_buttons">'+
+			'<a id="description_edit" title="Edit Description">Edit</a>'+
 			'<button id="description_collapse" style="display:none" title="Save">Save</button></div></div>'+
 			'<textarea id="description_content" class="description_input"></textarea></div></div>';
 		
-		$('#svg_editor').append(displaytext);
+		$('#workarea').append(displaytext);
 		
 		$('#description_content').keyup(function(){
 			var value = $('#description_content').val();
+			$('#description span.minimized').text(value);
+			$('#description span.minimized').attr('title');
 			svgEditor.description = value;
 			svgEditor.changed = true;
 		});
 		
-		$('#description_edit').click(function(){
+		$('#description_edit, .description_header span').click(function(){
 			$('#description_content').focus();
 		});
 		
@@ -44,7 +47,7 @@ svgEditor.addExtension("Description", function(S) {
 			svgEditor.toggleDescription(false);
 		});
 		
-		$('#workarea').css('bottom','88px');
+		//$('#workarea').css('bottom','100px');
 		
 		svgEditor.toggleDescription(true);
 		
@@ -53,42 +56,22 @@ svgEditor.addExtension("Description", function(S) {
 	
 	svgEditor.toggleDescription = function(close){
 		if(close){
-			//$('#workarea').css('bottom','98px');
-			$('#description').css('height','68px');
-			$('#description_content').css('height','15px');
+			$('#description').css('height','28px');
+			$('#description_content').hide();
 			$('#description_edit').show();
 			$('#description_collapse').hide();
-			// resize window to fit canvas
-			/*var height, width;
-			if(window.outerHeight){
-				height = window.outerHeight;
-				width = window.outerWidth;
-				window.resizeTo(width+1,height+1);
-			} else { // for IE
-				height = document.body.clientWidth; 
-				width = document.body.clientHeight;
-				self.resizeTo(width+1,height+1);
-			}*/
+			$('#description span.maximized').hide();
+			$('#description span.minimized').show();
 		}
 		else {
-			//$('#workarea').css('bottom','158px');
-			$('#description').css('height','130px');
-			$('#description_content').css('height','77px');
+			$('#description').css('height','127px');
+			$('#description_content').css('height','75px');
+			$('#description_content').show();
 			$('#description_edit').hide();
 			$('#description_collapse').show();
-			// resize window to fit canvas
-			/*var height, width;
-			if(window.outerHeight){
-				height = window.outerHeight;
-				width = window.outerWidth;
-				window.resizeTo(width-1,height-1);
-			} else { // for IE
-				height = document.body.clientWidth; 
-				width = document.body.clientHeight;
-				self.resizeTo(width-1,height-1);
-			}*/
+			$('#description span.minimized').hide();
+			$('#description span.maximized').show();
 		}
-		//$('#fit_to_canvas').mouseup();
 	};
 	
 	return {
