@@ -1063,15 +1063,33 @@ SENSOR.prototype.setupAnnotations = function() {
 	var annotationArray = this.sensorState.annotationArray;
 	
 	//loop through all the annotations
-	for(var x=0; x<annotationArray.length; x++) {
+	for(var i=0; i<annotationArray.length; i++) {
 		//get an annotation
-		var annotation = annotationArray[x];
+		var annotation = annotationArray[i];
+		
+		//get the x and y values of the annotation
+		var x = annotation.x;
+		var y = annotation.y;
 		
 		//get the name of the graph line
 		var seriesName = annotation.seriesName;
 		
+		//get the series
+		var series = this.getSeriesByName(this.globalPlot, seriesName);
+		
+		//get the data index with the given x value
+		var dataIndexAtX = this.getDataIndexAtX(series, x);
+		
 		//get the index of the point on the graph line
 		var dataIndex = annotation.dataIndex;
+		
+		if(dataIndexAtX != null) {
+			/*
+			 * use the data index at x if it is not null, this will be null for old data
+			 * since old data does not store x values in the annotation
+			 */
+			dataIndex = dataIndexAtX;
+		}
 		
 		//get the data text which contains the x,y values
 		var dataText = annotation.dataText;
@@ -1080,7 +1098,7 @@ SENSOR.prototype.setupAnnotations = function() {
 		var annotationText = annotation.annotationText;
 		
 		//add the annotation to the UI
-		this.addAnnotationToUI(seriesName, dataIndex, dataText, annotationText);
+		this.addAnnotationToUI(seriesName, dataIndex, x, y, dataText, annotationText);
 	}
 };
 
@@ -1126,12 +1144,16 @@ SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot, dataSet
 		//get the index of the point on the graph line
 		var dataIndex = annotation.dataIndex;
 		
+		//get the x and y values
+		var x = annotation.x;
+		var y = annotation.y;
+		
 		//get the graph line
 		var series = this.getSeriesByName(plot, seriesName);
 		
 		if(series != null) {
 			//add the annotation tool to tip the UI
-			this.addAnnotationToolTipToUI(seriesName, dataIndex, annotation.annotationText);
+			this.addAnnotationToolTipToUI(seriesName, dataIndex, x, y, annotation.annotationText);
 		}
 	}
 };
@@ -1227,7 +1249,7 @@ SENSOR.prototype.getGraphName = function(graphType) {
  * @param dataText the text containing the x,y values of the data point
  * @param annotationText the text the student wrote for the annotation
  */
-SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, dataText, annotationText) {
+SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dataText, annotationText) {
 	//create the html that will represent the annotation
 	var annotationHtml = "";
 	
@@ -1255,16 +1277,19 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, dataText, a
 		annotationClass = "sensorAnnotation";
 	}
 	
-	annotationHtml += "<div id='" + domSeriesName + dataIndex + "AnnotationDiv' class='" + annotationClass + "'>";
+	//get the x value we will use in the DOM id
+	var domXValue = this.getDOMXValue(x);
+	
+	annotationHtml += "<div id='" + domSeriesName + domXValue + "AnnotationDiv' class='" + annotationClass + "'>";
 	
 	//add the annotation text label that displays the x,y values for the point
-	annotationHtml += seriesName + " [" + dataText + "]: ";
+	annotationHtml += "<p id='" + domSeriesName + domXValue + "AnnotationDataText' style='display:inline'>" + seriesName + " [" + dataText + "]: </p>";
 	
 	//add the text input where the student can type
-	annotationHtml += "<input id='" + domSeriesName + dataIndex + "AnnotationInputText' type='text'  value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + dataIndex + ")' size='50' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationInputText' type='text'  value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + x + ")' size='50' " + enableEditing + "/>";
 	
 	//add the delete button to delete the annotation
-	annotationHtml += "<input id='" + domSeriesName + dataIndex + "AnnotationDeleteButton' type='button' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ")' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ", " + x + ")' " + enableEditing + "/>";
 	annotationHtml += "</div>";
 	
 	//add the annotation html to the div where we put all the annotations
@@ -1274,14 +1299,17 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, dataText, a
 /**
  * Delete the annotation html for the given annotation
  * @param seriesName the name of the graph line
- * @param dataIndex the index on the graph line for the data point
+ * @param x the x value for the data point
  */
-SENSOR.prototype.deleteAnnotationFromUI = function(seriesName, dataIndex) {
+SENSOR.prototype.deleteAnnotationFromUI = function(seriesName, x) {
 	//get the series name with spaces replaced with underscores
 	var domSeriesName = this.getDOMSeriesName(seriesName);
 	
+	//get the x value we will use in the DOM id
+	var domXValue = this.getDOMXValue(x);
+	
 	//remove the annotation from the UI
-	$("#" + domSeriesName + dataIndex + "AnnotationDiv").remove();
+	$("#" + domSeriesName + domXValue + "AnnotationDiv").remove();
 };
 
 /**
@@ -1318,43 +1346,56 @@ SENSOR.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
 	//get the x units
 	var graphXUnits = this.getGraphUnits("time");
 	
+	//get the x and y values
+	var x = dataPoint[0];
+	var y = dataPoint[1];
+	
 	//get the text representation of the data point
-	var dataText = dataPoint[0] + " " + graphXUnits + ", " + dataPoint[1] + " " + graphYUnits;
+	var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
 	
 	//check if there is already an annotation for the given point
-	var annotation = this.sensorState.getAnnotation(seriesName, dataIndex);
+	var annotation = this.sensorState.getAnnotationBySeriesXValue(seriesName, x);
+	
+	if(annotation == null) {
+		/*
+		 * if this sensor state contains old data it will not have 
+		 * an x value so we will have to search using the data index
+		 */
+		annotation = this.sensorState.getAnnotationBySeriesDataIndex(seriesName, dataIndex);
+	}
 	
 	if(annotation == null) {
 		//annotation does not exist for this point so we will make it
 		
 		//add the annotation to the UI
-		this.addAnnotationToUI(seriesName, dataIndex, dataText, "");
+		this.addAnnotationToUI(seriesName, dataIndex, x, y, dataText, "");
 		
 		//add the annotation to the sensor state
-		this.sensorState.addAnnotation(seriesName, dataIndex, dataText);
+		this.sensorState.addAnnotation(seriesName, dataIndex, x, y, dataText);
 		
 		//set this flag so we know that we will need to save student data since it has changed
 		this.annotationsChanged = true;
+		
+		//add the annotation tool tip to the UI
+		this.addAnnotationToolTipToUI(seriesName, dataIndex, x, y, "");
 	} else {
 		//annotation already exists for this point
 		//TODO: highlight the annotation row in the #graphAnnotationsDiv
 	}
-	
-	//add the annotation tool tip tot he UI
-	this.addAnnotationToolTipToUI(seriesName, dataIndex, "");
 };
 
 /**
  * Delete the annotation from the UI and the sensor state
  * @param seriesName the name of the graph line
- * @param dataIndex the index on the graph line for the data point
+ * @param dataIndex the index of the point in the line
+ * @param x the index on the graph line for the data point
  */
-SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex) {
+SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex, x) {
 	//delete the annotation from the UI
-	this.deleteAnnotationFromUI(seriesName, dataIndex);
+	this.deleteAnnotationFromUI(seriesName, x);
 	
 	//delete the annotation from the sensor state
-	this.sensorState.deleteAnnotation(seriesName, dataIndex);
+	this.sensorState.deleteAnnotation(seriesName, x);
 	
 	//get the graph line
 	var series = this.getSeriesByName(this.globalPlot, seriesName);
@@ -1364,9 +1405,12 @@ SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex) {
 		this.globalPlot.unhighlight(series, dataIndex);		
 	}
 	
+	//get the x value we will use in the DOM id
+	var domXValue = this.getDOMXValue(x);
+	
 	//delete the annotation tool tip from the UI
 	var domSeriesName = this.getDOMSeriesName(seriesName);
-	$("#" + this.graphDivId + "_annotationToolTip_" + domSeriesName + dataIndex).remove();
+	$("#" + this.graphDivId + "_annotationToolTip_" + domSeriesName + domXValue).remove();
 	
 	//set this flag so we know that we will need to save student data since it has changed
 	this.annotationsChanged = true;
@@ -1376,16 +1420,18 @@ SENSOR.prototype.deleteAnnotation = function(seriesName, dataIndex) {
  * The student has edited the annotation text for the annotation so
  * we will update it in the sensor state annotation
  * @param seriesName the name of the graph line
- * @param dataIndex the index on the graph line for the data point
+ * @param x the x value for the data point
  * @param annotationText the text the student has written
  */
-SENSOR.prototype.editAnnotation = function(seriesName, dataIndex, annotationText) {
+SENSOR.prototype.editAnnotation = function(seriesName, x, annotationText) {
 	//update the annotation in the sensor state
-	this.sensorState.editAnnotation(seriesName, dataIndex, annotationText);
+	this.sensorState.editAnnotation(seriesName, x, annotationText);
 	
 	var domSeriesName = this.getDOMSeriesName(seriesName);
 	
-	var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + dataIndex;
+	var domXValue = this.getDOMXValue(x);
+	
+	var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + domXValue;
 	
 	//update the annotation tool tip on the graph
 	$("#" + annotationToolTipDivId).html(annotationText);
@@ -1755,6 +1801,44 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 		this.sensorState.predictionReceived(x, y);
 		
 		this.graphChanged = true;
+		
+		var seriesName = this.getGraphName("prediction");
+		
+		var annotation = this.sensorState.getAnnotationBySeriesXValue(seriesName, x);
+		
+		if(annotation != null) {
+			//annotation exists for this x value so we will update that annotation
+			
+			//get the y units
+			var graphYUnits = this.getGraphUnits(seriesName);
+			
+			//get the x units
+			var graphXUnits = this.getGraphUnits("time");
+			
+			//get the text representation of the data point
+			var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
+
+			//get the series name used in the dom
+			var domSeriesName = this.getDOMSeriesName(seriesName);
+
+			//get the series
+			var series = this.getSeriesByName(this.globalPlot, seriesName);
+			
+			//get the data index of the point with the given x value
+			var dataIndex = this.getDataIndexAtX(series, x);
+			
+			//set the new values into the annotation
+			annotation.x = x;
+			annotation.y = y;
+			annotation.dataText = dataText;
+			annotation.dataIndex = dataIndex;
+			
+			//get the x value we will use in the DOM id
+			var domXValue = this.getDOMXValue(x);
+			
+			//update the data text in the annotation in the UI
+			$("#" + domSeriesName + domXValue + "AnnotationDataText").html(seriesName + " [" + dataText + "]: ");
+		}
 	}
 };
 
@@ -1961,9 +2045,11 @@ SENSOR.prototype.removeAllAnnotationToolTips = function() {
  * Add an annotation tool tip to the graph
  * @param seriesName the name of the series
  * @param dataIndex the index within the series
+ * @param x the x value of the point
+ * @param y the y value of the point
  * @param annotationText the text the student wrote for the annotation
  */
-SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, annotationText) {
+SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, x, y, annotationText) {
 	//use this.globalPlot as the default if plot was not provided
 	var plot = this.globalPlot;
 	
@@ -1971,6 +2057,16 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 	var series = this.getSeriesByName(plot, seriesName);
 	
 	if(series != null) {
+		var dataIndexAtX = this.getDataIndexAtX(series, x);
+		
+		if(dataIndexAtX != null) {
+			/*
+			 * use the data index with the given x value, this will be null for old annotations
+			 * because old annotations did not store x values
+			 */
+			dataIndex = dataIndexAtX;
+		}
+		
 		//highlight the point
 		plot.highlight(series, dataIndex);
 		
@@ -1985,8 +2081,8 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 		
 		//find the pixel position of the point
 		var offsetObject = plot.pointOffset(dataPointObject);
-		var x = offsetObject.left;
-		var y = offsetObject.top;
+		var xOffset = offsetObject.left;
+		var yOffset = offsetObject.top;
 		
 		//get the class that we will give to the div
 		var annotationToolTipClass = "activeAnnotationToolTip " + this.graphDivId + "AnnotationToolTip";
@@ -1999,8 +2095,11 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 		
 		var domSeriesName = this.getDOMSeriesName(seriesName);
 		
+		//get the x value that we will use in the DOM id
+		var domXValue = this.getDOMXValue(x);
+		
 		//get the div id for the annotation tool tip
-		var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + dataIndex;
+		var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + domXValue;
 
 		//check if the tool tip div for this annotation already exists
 		if($('#' + annotationToolTipDivId).length == 0) {
@@ -2008,8 +2107,8 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, anno
 		    $('<div id="' + annotationToolTipDivId + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
 		        position: 'absolute',
 		        //display: 'none',
-		        top: y - 35,
-		        left: x + 10,
+		        top: yOffset - 35,
+		        left: xOffset + 10,
 		        border: '1px solid #fdd',
 		        padding: '2px',
 		        'background-color': '#fee',
@@ -2040,6 +2139,26 @@ SENSOR.prototype.getDOMSeriesName = function(seriesName) {
 	}
 	
 	return domSeriesName;
+};
+
+/**
+ * Get the x value that we will use in the DOM id. This just means
+ * replacing any "." with underscores "_"
+ * @param x the x value
+ * @return the x value with "." replaced with "_"
+ */
+SENSOR.prototype.getDOMXValue = function(x) {
+	var domXValue = "";
+	
+	if(x != null) {
+		//turn x into a string so we can call replace()
+		x += "";
+		
+		//replace the spaces with underscores
+		domXValue = x.replace(/\./g, "-");
+	}
+	
+	return domXValue;
 };
 
 /**
@@ -2082,6 +2201,33 @@ SENSOR.prototype.setGraphDivId = function(graphDivId) {
  */
 SENSOR.prototype.getGraphColor = function(graphType) {
 	return this.graphColors[graphType];
+};
+
+/**
+ * Get the data index of the point with the given x value
+ * @param series the series object for a line plot
+ * @param x the x value we want
+ * @return the data index of the point with the given x value
+ * or null if there is none
+ */
+SENSOR.prototype.getDataIndexAtX = function(series, x) {
+	var data = series.data;
+	
+	//loop through all the data points
+	for(var i=0; i<data.length; i++) {
+		var dataPoint = data[i];
+		
+		//get the x value
+		var dataPointX = dataPoint[0];
+		
+		if(x == dataPointX) {
+			//the x values match so we have found the data index we want
+			return i;
+		}
+	}
+	
+	//we did not find a matching x value
+	return null;
 };
 
 //used to notify scriptloader that this script has finished loading

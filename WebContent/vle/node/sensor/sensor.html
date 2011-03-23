@@ -134,10 +134,11 @@
 			 * 'temperature'
 			 *
 			 * @param dataIndex the index of the point on the graph line
+			 * @param x the x value of the point on the graph line
     	     */
-    	    function deleteAnnotation(seriesName, dataIndex) {
+    	    function deleteAnnotation(seriesName, dataIndex, x) {
         	    //delete the annotation from the UI and from the sensor state
-				sensor.deleteAnnotation(seriesName, dataIndex);
+				sensor.deleteAnnotation(seriesName, dataIndex, x);
     	    }
 
     	    /*
@@ -151,14 +152,16 @@
 			 * 'acceleration'
 			 * 'temperature'
 			 *
-			 * @param dataIndex the index of the point on the graph line
+			 * @param x the x value of the point on the graph line
 			 */
-    	    function editAnnotation(seriesName, dataIndex) {
+    	    function editAnnotation(seriesName, x) {
+				x += "";
+		    	
 		    	//get the text the student has typed
-        	    var annotationText = $("#" + seriesName.replace(/ /g, "_") + dataIndex + "AnnotationInputText").attr("value");
+        	    var annotationText = $("#" + seriesName.replace(/ /g, "_") + x.replace(/\./g, "-") + "AnnotationInputText").attr("value");
 
         	    //save the text to the sensor state
-    	    	sensor.editAnnotation(seriesName, dataIndex, annotationText);
+    	    	sensor.editAnnotation(seriesName, x, annotationText);
     	    }
 
     	    /*

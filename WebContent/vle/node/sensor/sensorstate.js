@@ -159,7 +159,7 @@ SENSORSTATE.prototype.getStudentWork = function() {
  * @param dataIndex the index on the graph line
  * @return an annotation object or null if none was found to match
  */
-SENSORSTATE.prototype.getAnnotation = function(seriesName, dataIndex) {
+SENSORSTATE.prototype.getAnnotationBySeriesDataIndex = function(seriesName, dataIndex) {
 	var annotation = null;
 	
 	//loop through all the annotations
@@ -169,6 +169,34 @@ SENSORSTATE.prototype.getAnnotation = function(seriesName, dataIndex) {
 		
 		//check if the series name and data index match
 		if(tempAnnotation.seriesName == seriesName && tempAnnotation.dataIndex == dataIndex) {
+			//values match so we have found the annotation we want
+			annotation = tempAnnotation;
+			
+			//jump out of the for loop
+			break;
+		}
+	}
+	
+	return annotation;
+};
+
+/**
+ * Get the annotation by series name and x value
+ * @param seriesName the name of the series
+ * @param x the x value of the point
+ * @return the annotation on the series with the given x value
+ * or null if it does not exist
+ */
+SENSORSTATE.prototype.getAnnotationBySeriesXValue = function(seriesName, x) {
+	var annotation = null;
+	
+	//loop through all the annotations
+	for(var i=0; i<this.annotationArray.length; i++) {
+		//get an annotation
+		var tempAnnotation = this.annotationArray[i];
+		
+		//check if the series name and data index match
+		if(tempAnnotation.seriesName == seriesName && tempAnnotation.x == x) {
 			//values match so we have found the annotation we want
 			annotation = tempAnnotation;
 			
@@ -193,12 +221,14 @@ SENSORSTATE.prototype.getAnnotation = function(seriesName, dataIndex) {
  * e.g.
  * 'distance [8.445 s, 0.1 m]'
  */
-SENSORSTATE.prototype.addAnnotation = function(seriesName, dataIndex, dataText) {
+SENSORSTATE.prototype.addAnnotation = function(seriesName, dataIndex, x, y, dataText) {
 	var annotation = {
 		seriesName:seriesName,
 		dataIndex:dataIndex,
 		dataText:dataText,
-		annotationText:""
+		annotationText:"",
+		x:x,
+		y:y
 	};
 	
 	this.annotationArray.push(annotation);
@@ -212,18 +242,18 @@ SENSORSTATE.prototype.addAnnotation = function(seriesName, dataIndex, dataText) 
  * 'velocity'
  * 'acceleration'
  * 'temperature'
- * @param dataIndex the index on the graph line
+ * @param x the x value for the point
  */
-SENSORSTATE.prototype.deleteAnnotation = function(seriesName, dataIndex) {
+SENSORSTATE.prototype.deleteAnnotation = function(seriesName, x) {
 	//loop through all the annotations
-	for(var x=0; x<this.annotationArray.length; x++) {
+	for(var i=0; i<this.annotationArray.length; i++) {
 		//get an annotation
-		var annotation = this.annotationArray[x];
+		var annotation = this.annotationArray[i];
 
 		//check if the series name and data index match
-		if(annotation.seriesName == seriesName && annotation.dataIndex == dataIndex) {
+		if(annotation.seriesName == seriesName && annotation.x == x) {
 			//remove the annotation from the array
-			this.annotationArray.splice(x, 1);
+			this.annotationArray.splice(i, 1);
 		}
 	}
 };
@@ -239,14 +269,14 @@ SENSORSTATE.prototype.deleteAnnotation = function(seriesName, dataIndex) {
  * @param dataIndex the index on the graph line
  * @param annotationText the text the student has written for the annotation
  */
-SENSORSTATE.prototype.editAnnotation = function(seriesName, dataIndex, annotationText) {
+SENSORSTATE.prototype.editAnnotation = function(seriesName, x, annotationText) {
 	//loop through all the annotations
-	for(var x=0; x<this.annotationArray.length; x++) {
+	for(var i=0; i<this.annotationArray.length; i++) {
 		//get an annotation
-		var annotation = this.annotationArray[x];
+		var annotation = this.annotationArray[i];
 		
 		//check if the series name and data index match
-		if(annotation.seriesName == seriesName && annotation.dataIndex == dataIndex) {
+		if(annotation.seriesName == seriesName && annotation.x == x) {
 			//set the text the student wrote
 			annotation.annotationText = annotationText;
 		}
