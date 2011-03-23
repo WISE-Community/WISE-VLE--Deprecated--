@@ -638,6 +638,14 @@ View.prototype.assetUploaded = function(e){
 		document.body.removeChild(htmlFrame);
 	}
 };
+
+/**
+ * Initializes Session for currently logged in user.
+ */
+View.prototype.initializeSession = function(){
+	this.sessionManager = new SessionManager(eventManager, this);
+};
+
 /**
  * Returns true if the given name is an allowed file type
  * to upload as asset, false otherwise.

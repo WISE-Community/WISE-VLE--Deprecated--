@@ -13,7 +13,7 @@ function SessionManager(em, view) {
 	if (view.config && view.config.getConfigParam("sessionTimeoutInterval")) {
 		this.sessionTimeoutInterval = view.config.getConfigParam("sessionTimeoutInterval");
 	}
-	this.sessionTimeoutCheckInterval = 10000; // how often session should be checked, in milliseconds
+	this.sessionTimeoutCheckInterval = 60000; // how often session should be checked, in milliseconds
 	// override with config params, if specified
 	if (view.config && view.config.getConfigParam("sessionTimeoutCheckInterval")) {
 		this.sessionTimeoutCheckInterval = view.config.getConfigParam("sessionTimeoutCheckInterval");

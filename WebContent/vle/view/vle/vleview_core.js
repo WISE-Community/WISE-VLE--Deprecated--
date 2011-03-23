@@ -123,13 +123,6 @@ View.prototype.startVLEFromConfig = function(configUrl){
 };
 
 /**
- * Initializes Session for currently logged in user.
- */
-View.prototype.initializeSession = function(){
-	this.sessionManager = new SessionManager(eventManager, this);
-};
-
-/**
  * Creates a config object based on the given object and starts the vle.
  * The given object should consist of name:value pairs that correspond to
  * those of the config obj @see config.js

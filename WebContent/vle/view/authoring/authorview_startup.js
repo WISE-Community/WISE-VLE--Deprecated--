@@ -24,7 +24,8 @@ View.prototype.startPortalMode = function(url, curriculumBaseDir, command, id){
 	
 	//create the config
 	this.config = this.createConfig(createContent(configUrl));
-	
+	this.eventManager.fire('loadConfigComplete');
+
 	if(this.config != null) {
 		//set some variables from values in the config
 		this.portalUsername = this.config.getConfigParam("username");
