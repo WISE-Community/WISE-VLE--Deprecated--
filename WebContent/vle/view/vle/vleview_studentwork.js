@@ -285,14 +285,15 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	if($('#studentAssetsDiv').size()==0){
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="studentAssetsDiv" style="margin-bottom:.3em;"></div>');
-				var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none;'><div class='hd'><div>Save a File</div>" 
-					+ "<div id='notificationDiv'></div>"
-					+ "<div id='assetUploaderBodyDiv' class='bd'><input type='file' id='uploadAssetFile' name='uploadAssetFile' size='50' onchange=\"eventManager.fire('studentAssetSubmitUpload')\"></input>"
-					+ "<div id='assetProcessing' style='display:none;'><img class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>"
-					+ "</div></div><div class='bd'><div>My Existing Files: </div>"
-					+ "<select id='assetSelect' style='width:400px;height:300px' size='15'></select>"
-					+ "<div id='sizeDiv'></div><div id='uploaderInstructions'></div>"
-					+ "</div></div>";
+		var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none; text-align:left;'><div style='margin-bottom:.5em;'>" 
+			+ "<div id='assetUploaderBodyDiv'><span style='float:left;'>Upload New File:</span>"
+			+ "<input style='margin:0 .5em;' type='file' size='30' id='uploadAssetFile' name='uploadAssetFile' onchange=\"eventManager.fire('studentAssetSubmitUpload')\"></input>"
+			+ "<img id='assetProcessing' style='display:none;' class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>"
+			+ "<div id='notificationDiv'>"
+			+ "</div></div><div><div style='margin-bottom: 0.5em;'>My Files: </div>"
+			+ "<select id='assetSelect' style='width:100%; height:200px; padding:.5em;' size='15'></select>"
+			+ "<div id='sizeDiv' style='margin-top: 0.5em; font-size: 0.9em;'></div><div id='uploaderInstructions'></div>"
+			+ "</div></div>";
 		$('#studentAssetsDiv').html(assetEditorDialogHtml);		
 	}
 	
@@ -305,7 +306,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 
 			var success = function(text, xml, o){
 				if(text.status==401){
-					xml.notificationManager.notify('You are not authorized to remove assets from this project. If you believe this is an error, please contact an administrator.',3);
+					xml.notificationManager.notify('You are not authorized to remove files from this project. If you believe this is an error, please ask your teacher.',3);
 				} else {
 					parent.removeChild(opt);
 					o.notificationManager.notify(text, 3);
@@ -334,7 +335,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 					view.notificationManager.notify("Successfully imported file: " + name, 3);
 					$('#studentAssetsDiv').dialog('close');	
 				} else {
-					view.notificationManager.notify("Import Failed. The current step does not accept the file that you have chosen. Please choose a different file.",3)
+					view.notificationManager.notify("Import Failed. The current step does not accept the file you have chosen. Please choose a different file.",3)
 				}
 			}
 		}
@@ -348,7 +349,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		eventManager.fire('browserResize');
 	};
 
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,height:500,top:'50px',modal:false,title:'My Files', buttons:{'Done':done, 'Remove Selected File':remove}});
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,position:['center',50],modal:false,title:'My Project Files', buttons:{'Deleted Selected File':remove, 'Done':done}});
 
 	/*
 	 * check if the div is hidden before trying to open it.
@@ -386,7 +387,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	if(this.getCurrentNode() != null &&
 			this.getCurrentNode().importFile) {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
-                {'Done':done,'Import File to Step':saImport,'Remove Selected File':remove}
+                {'Add Selected File to Step':saImport,'Delete Selected File':remove,'Done':done}
              );		
 		
 		/*
@@ -398,7 +399,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		                                                    */
 	} else {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
-                {'Done':done,'Remove Selected File':remove}
+                {'Done':done,'Delete Selected File':remove}
              );		
 
 		/*
@@ -419,7 +420,7 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 	var callback = function(text, xml, o){
 			o.currentAssetSize = text;
 			if(text >= o.MAX_ASSET_SIZE){
-				o.notificationManager.notify('Maximum space allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '. Please delete some files.', 3);
+				o.notificationManager.notify('Maximum space exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '. Please delete some files.', 3);
 			} else {
 				$('#sizeDiv').html("You are using " + o.utils.appropriateSizeText(text) + " of your " + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + " storage space.");
 			} 
