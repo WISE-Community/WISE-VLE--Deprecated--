@@ -109,14 +109,7 @@ public class VLEPostData extends VLEServlet {
 				stepWork = StepWorkFactory.createStepWork(nodeType);				
 			}
 
-			Node node = Node.getByNodeIdAndRunId(nodeId, runId);
-			if (node == null && nodeId != null && runId != null && nodeType != null) {
-				node = new Node();
-				node.setNodeId(nodeId);
-				node.setRunId(runId);
-				node.setNodeType(nodeType);
-				node.saveOrUpdate();
-			}
+			Node node = getOrCreateNode(runId, nodeId, nodeType);
 			
 			if (stepWork != null && userInfo != null && node != null) {
 				// set the fields of StepWork
@@ -190,5 +183,24 @@ public class VLEPostData extends VLEServlet {
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	/**
+	 * Synchronized node creation/retrieval
+	 * @param runId
+	 * @param nodeId
+	 * @param nodeType
+	 * @return created/retrieved Node, or null
+	 */
+	private synchronized Node getOrCreateNode(String runId, String nodeId, String nodeType) {
+		Node node = Node.getByNodeIdAndRunId(nodeId, runId);
+		if (node == null && nodeId != null && runId != null && nodeType != null) {
+			node = new Node();
+			node.setNodeId(nodeId);
+			node.setRunId(runId);
+			node.setNodeType(nodeType);
+			node.saveOrUpdate();
+		}
+		return node;
 	}
 }

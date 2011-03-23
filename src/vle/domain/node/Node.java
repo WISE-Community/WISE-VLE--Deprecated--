@@ -103,7 +103,7 @@ public class Node extends PersistableDomain {
 	/**
 	 * @param nodeId
 	 * @param runId
-	 * @return
+	 * @return node
 	 */
 	public static Node getByNodeIdAndRunId(String nodeId, String runId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
