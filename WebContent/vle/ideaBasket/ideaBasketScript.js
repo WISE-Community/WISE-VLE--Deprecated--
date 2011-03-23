@@ -80,6 +80,13 @@ $(document).ready(function() {
 				return false;
 			}
 	);
+	
+	$('textarea#text, textarea#editText, input#addAnIdeaText').keyup(function() {
+        var len = this.value.length;
+        if (len >= 150) {
+            this.value = this.value.substring(0, 150);
+        }
+    });
 
 	parent.eventManager.fire('ideaBasketDocumentLoaded');
 });

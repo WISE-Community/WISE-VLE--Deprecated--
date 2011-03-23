@@ -116,21 +116,13 @@ ExplanationBuilder.prototype.initializeUI = function() {
 	$('#addNew').click(function(){
 		$('#ideaDialog').dialog('open');
 	});
-
-	/*$('#clearDialog').dialog({title:'Empty Basket', autoOpen:false, modal:true, resizable:false, width:'400', buttons:{
-		"OK": function(){       
-		//localStorage.clear();
-		window.location.reload();
-	}, Cancel: function(){
-		$(this).dialog("close");
-	} }
-	});
-
-	$('#clear').click(function(){
-		$('#clearDialog').dialog('open');
-	});*/
-
-	//loadFromLocal(1);
+	
+	$('textarea#text, textarea#editText').keyup(function() {
+        var len = this.value.length;
+        if (len >= 150) {
+            this.value = this.value.substring(0, 150);
+        }
+    });
 
 	//get the question or prompt the student will read
 	var question = this.content.prompt;
