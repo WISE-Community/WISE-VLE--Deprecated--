@@ -1077,18 +1077,20 @@ SENSOR.prototype.setupAnnotations = function() {
 		//get the series
 		var series = this.getSeriesByName(this.globalPlot, seriesName);
 		
-		//get the data index with the given x value
-		var dataIndexAtX = this.getDataIndexAtX(series, x);
-		
 		//get the index of the point on the graph line
 		var dataIndex = annotation.dataIndex;
 		
-		if(dataIndexAtX != null) {
-			/*
-			 * use the data index at x if it is not null, this will be null for old data
-			 * since old data does not store x values in the annotation
-			 */
-			dataIndex = dataIndexAtX;
+		if(series != null) {
+			//get the data index with the given x value
+			var dataIndexAtX = this.getDataIndexAtX(series, x);
+			
+			if(dataIndexAtX != null) {
+				/*
+				 * use the data index at x if it is not null, this will be null for old data
+				 * since old data does not store x values in the annotation
+				 */
+				dataIndex = dataIndexAtX;
+			}
 		}
 		
 		//get the data text which contains the x,y values
