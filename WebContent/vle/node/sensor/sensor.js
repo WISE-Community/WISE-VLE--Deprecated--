@@ -1034,10 +1034,10 @@ SENSOR.prototype.setupPlotFilter = function() {
     		}
     		
     		//add the check box
-	    	graphCheckBoxesDiv.append("<br><input type='checkbox' name='" + index + "' " + checked + " id='graphOption" + index + "'>");
+	    	graphCheckBoxesDiv.append("<br><input type='checkbox' name='" + index + "' " + checked + " id='graphOption" + index + "' />");
 	    	
 	    	//add the name of the data set next to the check box
-	    	graphCheckBoxesDiv.append("<label for='graphOption" + index + ">" + val.label + "</label>");
+	    	graphCheckBoxesDiv.append("<label for='graphOption" + index + "'>" + val.label + "</label>");
 	    });
     	
     	//have the filterDataSets be called when any of the check boxes are clicked
