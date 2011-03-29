@@ -31,6 +31,10 @@ View.prototype.sensorDispatcher = function(type,args,obj){
 		obj.SensorNode.updateRequirePredictionBeforeEnter();
 	} else if(type=='sensorUpdateGraphTitle'){
 		obj.SensorNode.updateGraphTitle();
+	} else if(type=='sensorUpdateLockPredictionOnCollectionStart'){
+		obj.SensorNode.updateLockPredictionOnCollectionStart();
+	} else if(type=='sensorUpdateDataCollectionTimeLimit'){
+		obj.SensorNode.updateDataCollectionTimeLimit();
 	}
 };
 
@@ -49,7 +53,9 @@ var events = [
 	'sensorUpdateShowVelocity',
 	'sensorUpdateShowAcceleration',
 	'sensorUpdateRequirePredictionBeforeEnter',
-	'sensorUpdateGraphTitle'
+	'sensorUpdateGraphTitle',
+	'sensorUpdateLockPredictionOnCollectionStart',
+	'sensorUpdateDataCollectionTimeLimit'
 ];
 
 /*

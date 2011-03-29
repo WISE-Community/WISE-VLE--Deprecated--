@@ -1,9 +1,11 @@
 {
    "createPrediction": false,
+   "dataCollectionTimeLimit": 30,
    "enableSensor": true,
    "expectedLines": 5,
    "graphParams": {},
    "graphTitle": "",
+   "lockPredictionOnCollectionStart": false,
    "prompt": "",
    "requirePredictionBeforeEnter":false,
    "sensorType": "motion",

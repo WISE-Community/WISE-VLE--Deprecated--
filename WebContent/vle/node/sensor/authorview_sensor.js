@@ -13,6 +13,14 @@ View.prototype.SensorNode.generatePage = function(view){
 	this.view = view;
 	this.content = this.view.activeContent.getContentJSON();
 	
+	//the default data collection time limit
+	var dataCollectionTimeLimit = 30;
+	
+	if(this.content.dataCollectionTimeLimit != null) {
+		//get the data collection time limit
+		dataCollectionTimeLimit = this.content.dataCollectionTimeLimit;
+	}
+	
 	var xLabel = '';
 	if(this.content.graphParams.xlabel != null) {
 		xLabel = this.content.graphParams.xlabel;
@@ -112,6 +120,10 @@ View.prototype.SensorNode.generatePage = function(view){
 	var requirePredictionBeforeEnterCheckBox = createElement(document, 'input', {id: 'requirePredictionBeforeEnterCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateRequirePredictionBeforeEnter")'});
 	var requirePredictionBeforeEnterText = document.createTextNode('Require Prediction Before Enter (You must specify a "Show Previous Work" step for this to work)');
 	
+	//create the check box to lock the prediction on collection start
+	var lockPredictionOnCollectionStartCheckBox = createElement(document, 'input', {id: 'lockPredictionOnCollectionStartCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateLockPredictionOnCollectionStart")'});
+	var lockPredictionOnCollectionStartText = document.createTextNode('Lock Prediction On Collection Start ("Enable Create Prediction" must be checked)');
+	
 	//insert the create prediction and enable sensor checkboxes
 	pageDiv.appendChild(enableCreatePredictionCheckBox);
 	pageDiv.appendChild(enableCreatePredictionText);
@@ -121,6 +133,9 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(requirePredictionBeforeEnterCheckBox);
 	pageDiv.appendChild(requirePredictionBeforeEnterText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(lockPredictionOnCollectionStartCheckBox);
+	pageDiv.appendChild(lockPredictionOnCollectionStartText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -139,12 +154,29 @@ View.prototype.SensorNode.generatePage = function(view){
 		requirePredictionBeforeEnterCheckBox.checked = true;
 	}
 	
+	//populate the lock prediction on collection start checkbox
+	if(this.content.lockPredictionOnCollectionStart) {
+		lockPredictionOnCollectionStartCheckBox.checked = true;
+	}
+	
+	//create the input for data collection time out
+	var dataCollectionTimeOutText = document.createTextNode('Data Collection Time Limit: ');
+	var dataCollectionTimeOutInput = createElement(document, 'input', {type: 'input', id: 'dataCollectionTimeLimitInput', name: 'dataCollectionTimeLimitInput', value: dataCollectionTimeLimit, size: 10, onchange: 'eventManager.fire("sensorUpdateDataCollectionTimeLimit")'});
+	var dataCollectionTimeOutSecondsText = document.createTextNode(' seconds');
+	
+	//insert the data collection time out input
+	pageDiv.appendChild(dataCollectionTimeOutText);
+	pageDiv.appendChild(dataCollectionTimeOutInput);
+	pageDiv.appendChild(dataCollectionTimeOutSecondsText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
 	//create the x axis authoring elements
-	var xUnitsText = document.createTextNode('X Axis Units:');
+	var xUnitsText = document.createTextNode('X Axis Units: ');
 	var xUnitsInput = createElement(document, 'input', {type: 'input', id: 'xUnitsInput', name: 'xLabelInput', value: xLabel, onchange: 'eventManager.fire("sensorUpdateXUnits")'});
-	var xMinText = document.createTextNode('Min X:');
+	var xMinText = document.createTextNode('Min X: ');
 	var xMinInput = createElement(document, 'input', {type: 'input', id: 'xMinInput', name: 'xMinInput', value: xMin, onchange: 'eventManager.fire("sensorUpdateXMin")'});
-	var xMaxText = document.createTextNode('Max X:');
+	var xMaxText = document.createTextNode('Max X: ');
 	var xMaxInput = createElement(document, 'input', {type: 'input', id: 'xMaxInput', name: 'xMaxInput', value: xMax, onchange: 'eventManager.fire("sensorUpdateXMax")'});
 	
 	//insert the x axis graph parameters
@@ -160,11 +192,11 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	
 	//create the y axis authoring elements
-	var yUnitsText = document.createTextNode('Y Axis Units:');
+	var yUnitsText = document.createTextNode('Y Axis Units: ');
 	var yUnitsInput = createElement(document, 'input', {type: 'input', id: 'yUnitsInput', name: 'yLabelInput', value: yLabel, onchange: 'eventManager.fire("sensorUpdateYUnits")'});
-	var yMinText = document.createTextNode('Min Y:');
+	var yMinText = document.createTextNode('Min Y: ');
 	var yMinInput = createElement(document, 'input', {type: 'input', id: 'yMinInput', name: 'yMinInput', value: yMin, onchange: 'eventManager.fire("sensorUpdateYMin")'});
-	var yMaxText = document.createTextNode('Max Y:');
+	var yMaxText = document.createTextNode('Max Y: ');
 	var yMaxInput = createElement(document, 'input', {type: 'input', id: 'yMaxInput', name: 'yMaxInput', value: yMax, onchange: 'eventManager.fire("sensorUpdateYMax")'});
 	
 	//insert the y axis graph parameters
@@ -773,6 +805,39 @@ View.prototype.SensorNode.updateRequirePredictionBeforeEnter = function() {
 View.prototype.SensorNode.updateGraphTitle = function() {
 	//get the value of the graph title
 	this.content.graphTitle = $('#graphTitleInput').val();
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the lock prediction check box value
+ */
+View.prototype.SensorNode.updateLockPredictionOnCollectionStart = function() {
+	//get the value of the lock prediction on collection start
+	this.content.lockPredictionOnCollectionStart = $('#lockPredictionOnCollectionStartCheckBox').attr('checked');
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the data collection time limit value
+ */
+View.prototype.SensorNode.updateDataCollectionTimeLimit = function() {
+	var timeLimit = $('#dataCollectionTimeLimitInput').val();
+	
+	//check that the author entered a valid number
+	if(isNaN(parseInt(timeLimit))) {
+		alert('Error: Invalid Data Collection Time Limit');
+		
+		//reset the time limit to ''
+		$('#dataCollectionTimeLimitInput').val('');
+		timeLimit = '';
+	}
+	
+	//get the value of the data collection time limit
+	this.content.dataCollectionTimeLimit = timeLimit;
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');

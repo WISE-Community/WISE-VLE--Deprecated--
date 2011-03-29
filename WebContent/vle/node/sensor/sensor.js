@@ -32,6 +32,12 @@ function SENSOR(node) {
 	 */
 	this.elapsedTime = 0;
 	
+	//the default time limit for the student to collect data in seconds
+	this.dataCollectionTimeLimit = 30;
+	
+	//the default 
+	this.lockPredictionOnCollectionStart = false;
+	
 	if(node.studentWork != null) {
 		//the student has work from previous visits to this step
 		this.states = node.studentWork; 
@@ -41,7 +47,7 @@ function SENSOR(node) {
 	};
 	
 	//the sensor state that will contain the student work
-	this.sensorState = this.getLatestState();
+	this.sensorState = this.getLatestStateCopy();
 	
 	//flag to keep track of whether the student has change any axis range value this visit
 	this.axisRangeChanged = false;
@@ -52,6 +58,21 @@ function SENSOR(node) {
 		
 		//get the sensor type e.g. 'motion' or 'temperature'
 		this.sensorType = this.content.sensorType;
+		
+		if(this.content.dataCollectionTimeLimit != null) {
+			//get the data collection time limit
+			var timeLimit = this.content.dataCollectionTimeLimit;
+			
+			if(!isNaN(parseInt(timeLimit))) {
+				//the time limit number is a valid number
+				this.dataCollectionTimeLimit = timeLimit;				
+			}
+		}
+		
+		if(this.content.lockPredictionOnCollectionStart != null) {
+			//get whether to lock the prediction when the student starts collecting data
+			this.lockPredictionOnCollectionStart = this.content.lockPredictionOnCollectionStart;			
+		}
 	}
 	
 	/*
@@ -130,6 +151,13 @@ function SENSOR(node) {
 	//default ids for our graph and graph checkboxes divs
 	this.graphDivId = "graphDiv";
 	this.graphCheckBoxesDivId = "graphCheckBoxesDiv";
+	
+	this.predictionLocked = false;
+	
+	if(!this.content.createPrediction || this.sensorState.predictionLocked) {
+		//the prediction should be locked
+		this.predictionLocked = true;
+	}
 };
 
 /**
@@ -183,8 +211,8 @@ SENSOR.prototype.render = function() {
 		$("#responseTextArea").attr('cols', 80);
 		
 		if(this.content.enableSensor != null && this.content.enableSensor == false) {
-			//disable the sensor buttons
-			this.disableSensorButtons();
+			//hide the sensor buttons
+			this.hideSensorButtons();
 		} else {
 			/*
 			 * insert the applet into the html. we need to insert it dynamically
@@ -195,6 +223,11 @@ SENSOR.prototype.render = function() {
 		}
 		
 		if(!this.content.createPrediction) {
+			//hide the prediction buttons
+			this.hidePredictionButtons();
+		}
+		
+		if(this.predictionLocked) {
 			//disable the prediction buttons
 			this.disablePredictionButtons();
 		}
@@ -247,9 +280,48 @@ SENSOR.prototype.getLatestState = function() {
 };
 
 /**
+ * Get a copy of the latest student work for this step
+ * @return a copy of the latest student work state object
+ */
+SENSOR.prototype.getLatestStateCopy = function() {
+	//a new sensor state will be returned if there are no states
+	var latestStateCopy = new SENSORSTATE();
+	
+	if(this.states != null && this.states.length > 0) {
+		//get the last state in the states array
+		latestState = this.states[this.states.length - 1];
+		
+		//get a copy of the latest state
+		latestStateCopy = latestState.getCopy();
+	}
+	
+	return latestStateCopy;
+};
+
+/**
  * This is called when the student has started to collect data
  */
 SENSOR.prototype.startCollecting = function() {
+	
+	if(this.lockPredictionOnCollectionStart && !this.predictionLocked) {
+		/*
+		 * this step is set to lock the prediction when the student starts collecting
+		 * data and it has not been locked yet. we will ask the student if they are
+		 * sure they want to start collecting data.
+		 */
+		var startCollection = confirm('Are you sure you want to start collecting data? You will not be able to change your prediction once you start.');
+		
+		if(startCollection) {
+			//they want to start collecting data
+			this.sensorState.predictionLocked = true;
+			this.predictionLocked = true;
+		} else {
+			//they do not want to start collecting data yet
+			return;
+		}
+	}
+	
+	
 	if(this.clearDataOnStart) {
 		/*
 		 * clear the graph data and annotations because the student
@@ -270,12 +342,40 @@ SENSOR.prototype.startCollecting = function() {
 	
 	//get the current time in milliseconds
 	this.timeCheck = currentDate.getTime();
+	
+	if(this.lockPredictionOnCollectionStart) {
+		//disable the prediction buttons and annotation fields
+		this.disablePredictionButtons();
+		this.disablePredictionTextInputAndDeleteButton();
+	}
+	
+	/*
+	 * get the sensor applet from the html, you won't find it in the html
+	 * because we dynamically insert it into the sensorAppletDiv since it
+	 * requires dynamic params such as whether we are using a motion or
+	 * temperature sensor
+	 */
+	var sensorApplet = document.getElementById('sensorApplet');
+	
+	//tell the sensor applet to start collecting data
+	sensorApplet.startCollecting();
 };
 
 /**
  * This is called when the student has stopped collecting data
  */
 SENSOR.prototype.stopCollecting = function() {
+	/*
+     * get the sensor applet from the html, you won't find it in the html
+	 * because we dynamically insert it into the sensorAppletDiv since it
+	 * requires dynamic params such as whether we are using a motion or
+	 * temperature sensor
+	 */
+	var sensorApplet = document.getElementById('sensorApplet');
+	
+	//tell the sensor applet to stop collecting data
+	sensorApplet.stopCollecting();
+	
 	//get the current date
 	var currentDate = new Date();
 	
@@ -334,6 +434,13 @@ SENSOR.prototype.dataReceived = function(type, count, data) {
 	} else {
 		//update the amount of time that the sensor has been collecting data
 		this.elapsedTime += currentTime - this.timeCheck;		
+	}
+
+	if(this.elapsedTime > this.dataCollectionTimeLimit * 1000) {
+		//we have passed the data collection time limit so we will stop the collection
+		this.stopCollecting();
+
+		return;
 	}
 	
 	//update the time check
@@ -880,7 +987,7 @@ SENSOR.prototype.setupPlotHover = function() {
         
         //check if the student is click dragging to create prediction points
         if(event.data.thisSensor.mouseDown) {
-        	if(event.data.thisSensor.content.createPrediction) {
+        	if(!event.data.thisSensor.predictionLocked) {
         		//add prediction point
             	event.data.thisSensor.predictionReceived(pos.x, pos.y);
             	
@@ -928,7 +1035,7 @@ SENSOR.prototype.setupPlotClick = function() {
             //get the name of the graph line
             var seriesName = item.series.name;
             
-        	if(seriesName.indexOf("prediction") == -1 || event.data.thisSensor.content.createPrediction) {
+        	if(seriesName.indexOf("prediction") == -1 || !event.data.thisSensor.predictionLocked) {
         		/*
         		 * the plot line that was clicked was not a prediction line
         		 * or create prediction is enabled. this is just to prevent
@@ -952,7 +1059,7 @@ SENSOR.prototype.setupPlotClick = function() {
         	//student has clicked on an empty spot on the graph
         	
         	//check if this step allows the student to create a prediction
-        	if(event.data.thisSensor.content.createPrediction) {
+        	if(!event.data.thisSensor.predictionLocked) {
         		//create the prediction point
         		event.data.thisSensor.predictionReceived(pos.x, pos.y);
         		
@@ -1261,7 +1368,7 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dataT
 	//whether we will allow the student to edit the annotation
 	var enableEditing = "";
 	
-	if(seriesName.indexOf("prediction") != -1 && !this.content.createPrediction) {
+	if(seriesName.indexOf("prediction") != -1 && this.predictionLocked) {
 		/*
 		 * the annotation is for the prediction line and create prediction
 		 * is disabled so we will not allow them to edit this annotation
@@ -1288,10 +1395,10 @@ SENSOR.prototype.addAnnotationToUI = function(seriesName, dataIndex, x, y, dataT
 	annotationHtml += "<p id='" + domSeriesName + domXValue + "AnnotationDataText' style='display:inline'>" + seriesName + " [" + dataText + "]: </p>";
 	
 	//add the text input where the student can type
-	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationInputText' type='text'  value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + x + ")' size='50' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationInputText' type='text' class='predictionTextInput' value='" + annotationText + "' onchange='editAnnotation(\"" + seriesName + "\", " + x + ")' size='50' " + enableEditing + "/>";
 	
 	//add the delete button to delete the annotation
-	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ", " + x + ")' " + enableEditing + "/>";
+	annotationHtml += "<input id='" + domSeriesName + domXValue + "AnnotationDeleteButton' type='button' class='predictionDeleteButton' value='Delete' onclick='deleteAnnotation(\"" + seriesName + "\", " + dataIndex + ", " + x + ")' " + enableEditing + "/>";
 	annotationHtml += "</div>";
 	
 	//add the annotation html to the div where we put all the annotations
@@ -1847,7 +1954,7 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 /**
  * Hide the sensor buttons
  */
-SENSOR.prototype.disableSensorButtons = function() {
+SENSOR.prototype.hideSensorButtons = function() {
 	$('#startButton').hide();
 	$('#stopButton').hide();
 	$('#clearButton').hide();
@@ -1856,8 +1963,15 @@ SENSOR.prototype.disableSensorButtons = function() {
 /**
  * Hide the prediction buttons
  */
-SENSOR.prototype.disablePredictionButtons = function() {
+SENSOR.prototype.hidePredictionButtons = function() {
 	$('#clearPredictionButton').hide();
+};
+
+/**
+ * Disable the clear prediction button
+ */
+SENSOR.prototype.disablePredictionButtons = function() {
+	$('#clearPredictionButton').attr('disabled', true);
 };
 
 /**
@@ -2230,6 +2344,15 @@ SENSOR.prototype.getDataIndexAtX = function(series, x) {
 	
 	//we did not find a matching x value
 	return null;
+};
+
+/**
+ * Disable the prediction annotation inputs so the student can't edit the
+ * prediction annotations anymore
+ */
+SENSOR.prototype.disablePredictionTextInputAndDeleteButton = function() {
+	$('.predictionTextInput').attr('disabled', true);
+	$('.predictionDeleteButton').attr('disabled', true);
 };
 
 //used to notify scriptloader that this script has finished loading

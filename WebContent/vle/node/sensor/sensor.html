@@ -60,34 +60,12 @@
 	    	function startSensor() {
 		    	//tell our sensor object that we are going to start collecting data
 		    	sensor.startCollecting();
-
-		    	/*
-		    	 * get the sensor applet from the html, you won't find it below in the html
-		    	 * because we dynamically insert it into the sensorAppletDiv since it
-		    	 * requires dynamic params such as whether we are using a motion or
-		    	 * temperature sensor
-		    	 */
-		    	var sensorApplet = document.getElementById('sensorApplet')
-		    	
-		    	//tell the sensor applet to start collecting data
-    			sensorApplet.startCollecting();
     	    }
 
 	    	/*
 	         * called when the Stop button is clicked below
 	         */
     	    function stopSensor() {
-        	    /*
-        	     * get the sensor applet from the html, you won't find it below in the html
-		    	 * because we dynamically insert it into the sensorAppletDiv since it
-		    	 * requires dynamic params such as whether we are using a motion or
-		    	 * temperature sensor
-		    	 */
-    	    	var sensorApplet = document.getElementById('sensorApplet')
-    	    	
-    	    	//tell the sensor applet to stop collecting data
-    	    	sensorApplet.stopCollecting();
-
     	    	//tell our sensor object that we are going to stop collecting data
     	    	sensor.stopCollecting();
     	    }

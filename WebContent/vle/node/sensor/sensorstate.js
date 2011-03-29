@@ -14,7 +14,7 @@
  * @param yMin the min y value
  * @param yMax the max y value
  */
-function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax) {
+function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -59,6 +59,9 @@ function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray
 	this.xMax = xMax;
 	this.yMin = yMin;
 	this.yMax = yMax;
+	
+	//set whether the prediction is locked
+	this.predictionLocked = predictionLocked;
 };
 
 /**
@@ -87,9 +90,12 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	var xMax = stateJSONObj.xMax;
 	var yMin = stateJSONObj.yMin;
 	var yMax = stateJSONObj.yMax;
+	
+	//get whether the prediction has been locked
+	var predictionLocked = stateJSONObj.predictionLocked;
 
 	//create a SENSORSTATE object
-	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax);
+	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
 	
 	return sensorState;
 };
@@ -401,6 +407,20 @@ SENSORSTATE.prototype.removePredictionAnnotations = function() {
 			x--;
 		}
 	}
+};
+
+/**
+ * Get a copy of this sensor state
+ * @return a new sensor state object that is a copy of this sensor state object
+ */
+SENSORSTATE.prototype.getCopy = function() {
+	//make a json object copy
+	var sensorStateCopyJSONObj = JSON.parse(JSON.stringify(this));
+	
+	//parse the json object into a sensor state object
+	var sensorStateCopy = this.parseDataJSONObj(sensorStateCopyJSONObj);
+	
+	return sensorStateCopy;
 };
 
 //used to notify scriptloader that this script has finished loading
