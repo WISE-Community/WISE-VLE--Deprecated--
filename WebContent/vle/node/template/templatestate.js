@@ -67,10 +67,10 @@ TEMPLATESTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	 * create a state object with the student work
 	 * TODO: rename TEMPLATESTATE
 	 */
-	var sensorState = new TEMPLATESTATE(response);
+	var templateState = new TEMPLATESTATE(response);
 	
 	//return the state object
-	return sensorState;
+	return templateState;
 };
 
 /**
