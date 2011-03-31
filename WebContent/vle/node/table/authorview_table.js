@@ -412,11 +412,23 @@ View.prototype.TableNode.updateNumColumns = function(){
 	var numColumns = $('#numColumnsInput').val();
 	
 	if(numColumns < this.content.numColumns) {
-		/*
-		 * the number of columns is less than the previous number
-		 * of columns so we need to remove some columns
-		 */
-		this.truncateColumns(numColumns);
+		
+		var performUpdate = confirm('Are you sure you want to decrease the number of columns? You will lose the data in the columns that will be truncated.');
+		
+		if(performUpdate) {
+			/*
+			 * the number of columns is less than the previous number
+			 * of columns so we need to remove some columns
+			 */
+			this.truncateColumns(numColumns);
+		} else {
+			//do not update
+			
+			//revert the number of rows value in the text input
+			$('#numColumnsInput').val(this.content.numColumns);
+			
+			return;
+		}
 	}
 	
 	//update the number of columns in the content
@@ -440,11 +452,23 @@ View.prototype.TableNode.updateNumRows = function(){
 	var numRows = $('#numRowsInput').val();
 	
 	if(numRows < this.content.numRows) {
-		/*
-		 * the number of rows is less than the previous number
-		 * of rows so we need to remove some rows
-		 */
-		this.truncateRows(numRows);
+		
+		var performUpdate = confirm('Are you sure you want to decrease the number of rows? You will lose the data in the rows that will be truncated.');
+		
+		if(performUpdate) {
+			/*
+			 * the number of rows is less than the previous number
+			 * of rows so we need to remove some rows
+			 */
+			this.truncateRows(numRows);			
+		} else {
+			//do not update
+			
+			//revert the number of rows value in the text input
+			$('#numRowsInput').val(this.content.numRows);
+			
+			return;
+		}
 	}
 	
 	//update the number of rows in the content
@@ -542,23 +566,28 @@ View.prototype.TableNode.tableInsertColumn = function(args) {
  * @param args an object containing the x position to delete
  */
 View.prototype.TableNode.tableDeleteColumn = function(args) {
-	//get the x position to delete the column from
-	var x = args.x;
+	//ask the author if they are sure
+	var performDelete = confirm('Are you sure you want to delete this column?');
 	
-	//remove the column
-	this.content.tableData.splice(x, 1);
-	
-	//update the number of columns
-	this.content.numColumns--;
-	
-	//update the number of columns in the authoring columns text input
-	$('#numColumnsInput').val(this.content.numColumns);
-	
-	//re-generate the authoring table
-	this.updateAuthoringTable();
-	
-	//fire source updated event, this will update the preview
-	this.view.eventManager.fire('sourceUpdated');
+	if(performDelete) {
+		//get the x position to delete the column from
+		var x = args.x;
+		
+		//remove the column
+		this.content.tableData.splice(x, 1);
+		
+		//update the number of columns
+		this.content.numColumns--;
+		
+		//update the number of columns in the authoring columns text input
+		$('#numColumnsInput').val(this.content.numColumns);
+		
+		//re-generate the authoring table
+		this.updateAuthoringTable();
+		
+		//fire source updated event, this will update the preview
+		this.view.eventManager.fire('sourceUpdated');
+	}
 };
 
 /**
@@ -599,29 +628,34 @@ View.prototype.TableNode.tableInsertRow = function(args) {
  * @param args an object containing the y position to delete
  */
 View.prototype.TableNode.tableDeleteRow = function(args) {
-	//get the y position to delete the row from
-	var y = args.y;
+	//ask the author if they are sure
+	var performDelete = confirm('Are you sure you want to delete this row?');
 	
-	//get the table data
-	var tableData = this.content.tableData;
-	
-	//loop through all the columns
-	for(var x=0; x<this.content.numColumns; x++) {
-		//remove the cell at x, y
-		tableData[x].splice(y, 1);
+	if(performDelete) {
+		//get the y position to delete the row from
+		var y = args.y;
+		
+		//get the table data
+		var tableData = this.content.tableData;
+		
+		//loop through all the columns
+		for(var x=0; x<this.content.numColumns; x++) {
+			//remove the cell at x, y
+			tableData[x].splice(y, 1);
+		}
+		
+		//update the number of rows
+		this.content.numRows--;
+		
+		//update the number of rows in the authoring rows text input
+		$('#numRowsInput').val(this.content.numRows);
+		
+		//re-generate the authoring table
+		this.updateAuthoringTable();
+		
+		//fire source updated event, this will update the preview
+		this.view.eventManager.fire('sourceUpdated');		
 	}
-	
-	//update the number of rows
-	this.content.numRows--;
-	
-	//update the number of rows in the authoring rows text input
-	$('#numRowsInput').val(this.content.numRows);
-	
-	//re-generate the authoring table
-	this.updateAuthoringTable();
-	
-	//fire source updated event, this will update the preview
-	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
