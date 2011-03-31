@@ -187,13 +187,13 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	var tableData = tableState.tableData;
 	
 	//div to display the table
-	var tableTableDataDiv = createElement(document, 'div', {id: childDivIdPrefix + 'tableTableDataDiv_' + stepWorkId});
+	var tableTableDataDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTableDataDiv_' + stepWorkId});
 	
 	//div to display a new line
-	var newLineDiv = createElement(document, 'div', {id: childDivIdPrefix + 'newLineDiv_' + stepWorkId});
+	var newLineDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLineDiv_' + stepWorkId});
 	
 	//div to display the student response
-	var tableResponseDiv = createElement(document, 'div', {id: childDivIdPrefix + 'tableResponseDiv_' + stepWorkId});
+	var tableResponseDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableResponseDiv_' + stepWorkId});
 	
 	$('#' + divId).append(tableTableDataDiv);
 	$('#' + divId).append(newLineDiv);
@@ -212,7 +212,7 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 		for(var x=0; x<table.content.numColumns; x++) {	
 			
 			var td = document.createElement('td');
-			td.setAttribute('style', 'border-width:1px; border-style:inset');
+			td.setAttribute('style', 'border-width:1px; border-style:inset; width:20px; height:20px');
 			
 			//create a <p> with the text the student wrote in the cell
 			var cellText = tableData[x][y].text;
