@@ -488,14 +488,18 @@ OPENRESPONSE.prototype.render = function() {
 			//this is a peer review of a previous step
 			
 			if(this.node.peerReview == 'annotate') {
-				//this is the step where the student writes comments on their classmates work
-				this.retrieveOtherStudentWork();
+				//this is the step where the student writes comments on their classmates work. retrieve other student work if not in preview
+				if (this.view.getConfig().getConfigParam("mode") == "run") {					
+					this.retrieveOtherStudentWork();
+				}
 			} else if(this.node.peerReview == 'revise') {
 				/*
 				 * this is the step where the student reads the comments from their classmate
 				 * and revises their original work
 				 */
-				this.retrieveAnnotationAndWork();
+				if (this.view.getConfig().getConfigParam("mode") == "run") {
+					this.retrieveAnnotationAndWork();
+				}
 			}
 		} else if(this.node.teacherReview != null) {
 			if(this.node.teacherReview == 'annotate') {
@@ -506,7 +510,9 @@ OPENRESPONSE.prototype.render = function() {
 				 * this is the step where the student reads comments from their teacher
 				 * and revises their work
 				 */
-				this.retrieveTeacherReview();
+				if (this.view.getConfig().getConfigParam("mode") == "run") {
+					this.retrieveTeacherReview();
+				}
 			}
 		} else {
 			//this is a self review of a previous step
