@@ -75,6 +75,10 @@ SetupNodes.setupFiles = [
 		 {
 			 nodeName:"ExplanationBuilderNode",
 			 nodeSetupPath:"vle/node/explanationbuilder/setup.js"
+		 },
+		 {
+			 nodeName:"TableNode",
+			 nodeSetupPath:"vle/node/table/setup.js"
 		 }
 ];
 
