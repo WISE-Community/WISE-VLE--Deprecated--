@@ -507,10 +507,9 @@ View.prototype.onRenderNodeComplete = function(position){
 	/* set hints link in nav bar if hint exists for this step
 	 * populate hints panel with current nodes hints
 	 * */
-    //if(document.getElementById('stepHints') != null) {
-    	if (currentNode.getHints() != null && currentNode.getHints().length > 0) {
+    if (currentNode.getHints() != null && currentNode.getHints().hintsArray.length > 0) {
     		var currentNode = this.getCurrentNode(); //get the node the student is currently on
-    		var numHints = currentNode.getHints().length; //get the number of hints for current node
+    		var numHints = currentNode.getHints().hintsArray.length; //get the number of hints for current node
     		
     		function highlight(){
 				$('#hintsLink').animate({
@@ -529,28 +528,7 @@ View.prototype.onRenderNodeComplete = function(position){
 					}
 				});
 			}
-    		
-    		/*if($('#hintsDiv').size()==0){ // check if hints div exists
-    			// hints div doesn't exists, so create it and add to vle
-    			if (currentNode.getHints().length > 1){
-        			var linkText = 'Hints';
-        		} else {
-        			var linkText = 'Hint';
-        		}
-    			
-    			var $hints = '<div id="hintsLink" style="display:none;" title="View ' + linkText + '"><div id="hintsHeader">' + linkText + '</div></div>';
-    			$('#contentDiv').append($hints);
-    			
-    			$('#hintsLink').click(function(){
-    				$(this).stop();
-    				$(this).css('background-color','#FFFA7F');
-    				eventManager.fire("showStepHints");
-    			}).fadeIn('slow', function() {
-    				highlight();
-    			});
-    		}*/
-    		
-    		//if (currentNode.getHints() != null && numHints > 0) {
+
     			//check if the hintsDiv div exists
     		    if($('#hintsPanel').size()==0){
     		    	//the show hintsDiv does not exist so we will create it
@@ -558,35 +536,28 @@ View.prototype.onRenderNodeComplete = function(position){
     				{	autoOpen:false,
     					closeText:'Close',
     					width:400,
-    					//height:300,
     					modal:false,
     					title:'Step Hints',
     					zindex:9999, 
     					position:["center",40],
-    					//position:["center","top"]
-    					resizable:false
-    					//buttons:{
-    				    	//'Close': function(){$(this).dialog("close");
-    				    //} }
+    					resizable:false    					
     				}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
     				    // before the dialog closes, save hintstate
     			    	if ($(this).data("dialog").isOpen()) {	    		    		
     			    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
     			    		event.data.view.pushHintState(hintState);
     			    		//$('#hintsHeader').html('&nbsp').addClass('visited');
-    			    		console.log('close hint');
     			    	};
     			    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
     		    		var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
     		    		event.data.view.pushHintState(hintState);
-    			    	console.log('tab selected'+ui.index);
     			    });
     		    };
     			
     		    // append hints into one html string
     		    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
     		    var hintsStringPart2 = "";   // second part will be the content within each tab
-    		    var hintsArr = currentNode.getHints();
+    		    var hintsArr = currentNode.getHints().hintsArray;
     		    for (var i=0; i< hintsArr.length; i++) {
     		    	var currentHint = hintsArr[i];
     		    	var nextLink = '<span class="tabNext">Next</span>';
@@ -630,15 +601,23 @@ View.prototype.onRenderNodeComplete = function(position){
     					$tabs.tabs('select', selected+1);
     				}
     			});
-    		//};
 			
-			$("#hintsLink").show();
-			highlight();
-    	} else {
-    		$("#hintsLink").hide();
-    		//$('#hintsDiv').remove();
-    	}
-    //}
+		$("#hintsLink").show();
+		highlight();
+		
+		// check if forceShow is set
+		var forceShow = currentNode.getHints().forceShow;
+		if (forceShow == "always") {  // always force show hints
+			this.eventManager.fire("showStepHints");
+		} else if (forceShow == "firsttime") {  // only show hints if this is the first time
+		    var nodeVisitArray = this.state.getNodeVisitsByNodeId(currentNode.id);
+		    if (nodeVisitArray.length == 1) {  // if this is the first time, the first nodevisit will already be created.
+				this.eventManager.fire("showStepHints");
+		    }
+		}
+    } else {
+    	$("#hintsLink").hide();
+    }
 
 	/* adjust height of iframe. If nav bar is visible, set iframe height=navbarheight. else, leave it untouched */
 	//if (parseInt($('#projectLeftBox').attr('offsetHeight')) > 0) {

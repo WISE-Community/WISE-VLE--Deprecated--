@@ -210,7 +210,8 @@ View.prototype.saveHint = function(){
     for(var i=0; i<hintTextBoxes.length; i++) {
     	newHintsArr.push(hintTextBoxes[i].value);
     }    
-    this.activeContent.getContentJSON().hints = newHintsArr;
+    var forceShow = $("#forceShowOptions option:selected").val();
+    this.activeContent.getContentJSON().hints = {"hintsArray":newHintsArr,"forceShow":forceShow};
 };
 
 /**
@@ -227,7 +228,7 @@ View.prototype.saveHints = function(){
  */
 View.prototype.addHint = function(){
     var currentNode = this.activeNode;
-    var hintsArr = currentNode.getHints();
+    var hintsArr = currentNode.getHints().hintsArray;
     hintsArr.push("new hint");
     
     eventManager.fire("editHints", [hintsArr.length-1]);
@@ -242,7 +243,7 @@ View.prototype.deleteHint = function(){
 	var selectedIndex = $('#hintsTabs').tabs('option', 'selected');
 	
     var currentNode = this.activeNode;
-    var hintsArr = currentNode.getHints();
+    var hintsArr = currentNode.getHints().hintsArray;
     hintsArr.splice(selectedIndex, 1);
     
     var newTabIndex = 0;  // which tab to open
@@ -265,7 +266,7 @@ View.prototype.editHints = function(tabIndex){
 	    	$('<div id="editHintsPanel" style="text-align:left"></div>').dialog(
 	    			{	autoOpen:false,
 	    				closeText:'',
-	    				width:500,
+	    				width:650,
 	    				modal:false,
 	    				resizable:false,
 	    				title:'Add/Edit Hints for this Step',
@@ -276,29 +277,28 @@ View.prototype.editHints = function(tabIndex){
 	    		    	if ($(this).data("dialog").isOpen()) {	    		    		
 	    		    		//var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
 	    		    		//event.data.view.pushHintState(hintState);
-	    		    		console.log('close hint');
 	    		    	};
 	    		    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
 	    		    	//var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
 	    		    	//event.data.view.pushHintState(hintState);
-	    		    	console.log('tab selected'+ui.index);
 	    		    });
 	    };
 	    
 	    // append hints into one html string
 	    var editHintsMenu = "<input type='button' value='add new hint' onclick='eventManager.fire(\"addHint\")'></input>"+
 	    	"<input type='button' value='delete current hint' onclick='eventManager.fire(\"deleteHint\")'></input>" +
-	    	"<input type='button' value='save hints' onclick='eventManager.fire(\"saveHints\")'></input>";      // menu for editing hints
+	    	"<input type='button' value='save hints' onclick='eventManager.fire(\"saveHints\")'></input>" + 
+	    	"Force Show: <select id='forceShowOptions'><option value='never'>Never</option><option value='firsttime'>First time only</option><option value='always'>Always</option></select>";     
 	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
 	    var hintsStringPart2 = "";   // second part will be the content within each tab
 	    // if there are no hints, make them
 	    if (currentNode.getHints() == null) {
 	    	if (currentNode.content &&
 	    			currentNode.content.getContentJSON()) {
-	    		currentNode.content.getContentJSON().hints = [];
+	    		currentNode.content.getContentJSON().hints = {"hintsArray":[],"forceShow":"never"};
 	    	}
 	    };
-	    var hintsArr = currentNode.getHints();
+	    var hintsArr = currentNode.getHints().hintsArray;
 	    for (var i=0; i< hintsArr.length; i++) {
 	    	var currentHint = hintsArr[i];
 	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
@@ -310,12 +310,15 @@ View.prototype.editHints = function(tabIndex){
 	    //set the html into the div
 	    $('#editHintsPanel').html(hintsString);
 	    
-		console.log('open hint editor');
 	    //make the div visible
 	    $('#editHintsPanel').dialog('open');
 
 	    // instantiate tabs 
 		$("#hintsTabs").tabs({selected:tabIndex});		
+		
+		// select forceshow option
+	    var hintsForceShow = currentNode.getHints().forceShow;
+		$("#forceShowOptions [value='"+hintsForceShow+"']").attr("selected", "selected");
 };
 
 /**

@@ -76,7 +76,6 @@ View.prototype.showStepHints = function() {
 	// log when hint was opened
 	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
 	currentNode.view.pushHintState(hintState);
-	console.log('open hint');
 };
 /**
  * Display the flagged work for the project.
