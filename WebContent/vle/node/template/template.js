@@ -59,7 +59,7 @@ function TEMPLATE(node, view) {
  */
 TEMPLATE.prototype.render = function() {
 	//display any prompts to the student
-	document.getElementById('promptDiv').innerHTML = this.content.prompt;
+	$('#promptDiv').html(this.content.prompt);
 	
 	//load any previous responses the student submitted for this step
 	var latestState = this.getLatestState();
@@ -73,7 +73,7 @@ TEMPLATE.prototype.render = function() {
 		var latestResponse = latestState.response;
 		
 		//set the previous student work into the text area
-		document.getElementById('studentResponseTextArea').value = latestResponse; 
+		$('#studentResponseTextArea').val(latestResponse); 
 	}
 };
 
@@ -109,7 +109,7 @@ TEMPLATE.prototype.getLatestState = function() {
  */
 TEMPLATE.prototype.save = function() {
 	//get the answer the student wrote
-	var response = document.getElementById('studentResponseTextArea').value;
+	var response = $('#studentResponseTextArea').val();
 	
 	/*
 	 * create the student state that will store the new work the student

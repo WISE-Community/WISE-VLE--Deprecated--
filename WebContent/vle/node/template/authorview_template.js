@@ -133,7 +133,7 @@ View.prototype.TemplateNode.populatePrompt = function() {
  */
 View.prototype.TemplateNode.updatePrompt = function(){
 	/* update content */
-	this.content.prompt = document.getElementById('promptTextArea').value;
+	this.content.prompt = $('#promptTextArea').val();
 	
 	/*
 	 * fire source updated event, this will update the preview

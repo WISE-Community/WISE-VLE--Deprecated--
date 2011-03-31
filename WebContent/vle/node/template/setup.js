@@ -33,7 +33,9 @@ var studentVLEScripts = [
      * For example if you are creating a quiz node you would change it to
      * 'vle/node/quiz/quizstate.js'
 	 */
-	'vle/node/template/templatestate.js'
+	'vle/node/template/templatestate.js',
+	'vle/jquery/js/jquery-1.4.4.min.js',
+	'vle/jquery/js/jquery-ui-1.8.7.custom.min.js'
 ];
 
 var authorScripts = [

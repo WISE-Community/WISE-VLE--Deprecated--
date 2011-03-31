@@ -112,6 +112,12 @@ TemplateNode.prototype.translateStudentWork = function(studentWork) {
 TemplateNode.prototype.onExit = function() {
 	//check if the content panel has been set
 	if(this.contentPanel) {
+		
+		if(this.contentPanel.save) {
+			//tell the content panel to save
+			this.contentPanel.save();
+		}
+		
 		try {
 			/*
 			 * check if the onExit function has been implemented or if we
@@ -166,6 +172,14 @@ TemplateNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	 * e.g. if you are creating a quiz step you would change it to quizState
 	 */
 	var templateState = nodeVisit.getLatestWork();
+	
+	/*
+	 * get the step work id from the node visit in case we need to use it in
+	 * a DOM id. we don't use it in this case but I have retrieved it in case
+	 * someone does need it. look at SensorNode.js to view an example of
+	 * how one might use it.
+	 */
+	var stepWorkId = nodeVisit.id;
 	
 	/*
 	 * TODO: rename templateState to match the variable name you
