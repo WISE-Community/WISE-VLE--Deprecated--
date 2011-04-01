@@ -183,9 +183,6 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	var response = tableState.response;
 	response = this.view.replaceSlashNWithBR(response);
 	
-	//get the table data
-	var tableData = tableState.tableData;
-	
 	//div to display the table
 	var tableTableDataDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTableDataDiv_' + stepWorkId});
 	
@@ -198,38 +195,9 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	$('#' + divId).append(tableTableDataDiv);
 	$('#' + divId).append(newLineDiv);
 	$('#' + divId).append(tableResponseDiv);
-	
-	//create the table
-	var tableElement = document.createElement('table');
-	tableElement.setAttribute('style', 'border-width:1px; border-style:outset');
-	
-	//loop through the rows
-	for(var y=0; y<table.content.numRows; y++) {
-		
-		var tr = document.createElement('tr');
-		
-		//loop through the columns
-		for(var x=0; x<table.content.numColumns; x++) {	
-			
-			var td = document.createElement('td');
-			td.setAttribute('style', 'border-width:1px; border-style:inset; width:20px; height:20px');
-			
-			//create a <p> with the text the student wrote in the cell
-			var cellText = tableData[x][y].text;
-			var text = document.createTextNode(cellText);
-			var p = document.createElement('p');
-			
-			//add everything to the td
-			p.appendChild(text);
-			td.appendChild(p);
-			tr.appendChild(td);
-		}
-		
-		tableElement.appendChild(tr);
-	}
 
 	//add the table
-	$('#' + tableTableDataDiv.id).append(tableElement);
+	$('#' + tableTableDataDiv.id).html(tableState.getTableHtml());
 	
 	//newline to separate the graph from the response
 	$('#' + newLineDiv.id).append('<br>');

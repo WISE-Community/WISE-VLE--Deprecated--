@@ -97,6 +97,69 @@ TableState.prototype.getStudentWork = function() {
 	return studentWork;
 };
 
+/**
+ * Get the html for the table. This table is only for display purposes
+ * and will be completely static. The grading tool utilizes this function.
+ * @return the html for the table
+ */
+TableState.prototype.getTableHtml = function() {
+	var numRows = 0;
+	var numColumns = 0;
+	
+	/*
+	 * get the first column of the table data so we can find out
+	 * how many rows are in the table
+	 */
+	var firstColumn = this.tableData[0];
+	
+	if(firstColumn != null) {
+		//get the number of rows
+		numRows = firstColumn.length;		
+	}
+	
+	//get the number of columns
+	numColumns = this.tableData.length;
+	
+	var tableHtml = "";
+	
+	//make the table
+	tableHtml += "<table style='border-width:1px; border-style:outset'>"
+	
+	//loop through all the rows
+	for(var y=0; y<numRows; y++) {
+	
+		tableHtml += "<tr>";
+		
+		//loop through all the columns
+		for(var x=0; x<numColumns; x++) {
+			tableHtml += "<td style='border-width:1px; border-style:inset; width:20px; height:20px'>";
+			
+			if(this.tableData != null && this.tableData[x] != null &&
+					this.tableData[x][y] != null && this.tableData[x][y].text != null) {
+				
+				//get the text that we will display in the cell
+				var cellText = this.tableData[x][y].text;
+				
+				if(cellText == null || cellText == '') {
+					//set the text to &nbsp if it is null or empty string
+					cellText = '&nbsp';
+				}
+				
+				//add the cell text
+				tableHtml += cellText;
+			}
+			
+			tableHtml += "</td>";
+		}
+		
+		tableHtml += "</tr>";
+	}
+	
+	tableHtml += "</table>";
+	
+	return tableHtml;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	//TODO: rename template/templatestate.js
