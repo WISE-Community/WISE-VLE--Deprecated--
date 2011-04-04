@@ -95,9 +95,9 @@ View.prototype.TableNode.generatePage = function(view){
 	
 	//create the input boxes for columns and rows
 	var numColumnsText = document.createTextNode('Columns: ');
-	var numColumnsInput = createElement(document, 'input', {type: 'input', id: 'numColumnsInput', name: 'numColumnsInput', value: numColumns, size: 10, onchange: 'eventManager.fire("tableUpdateNumColumns")'});
+	var numColumnsInput = createElement(document, 'input', {type: 'input', id: 'numColumnsInput', name: 'numColumnsInput', value: numColumns, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumColumns")'});
 	var numRowsText = document.createTextNode(' Rows: ');
-	var numRowsInput = createElement(document, 'input', {type: 'input', id: 'numRowsInput', name: 'numRowsInput', value: numRows, size: 10, onchange: 'eventManager.fire("tableUpdateNumRows")'});
+	var numRowsInput = createElement(document, 'input', {type: 'input', id: 'numRowsInput', name: 'numRowsInput', value: numRows, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumRows")'});
 	
 	//add the input boxes for columns and rows
 	pageDiv.appendChild(numColumnsText);
@@ -210,7 +210,7 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			}
 			
 			//create the input box for the cell
-			var cellTextInput = createElement(document, 'input', {type: 'input', id: 'cellTextInput_' + x + '-' + y, name: 'cellTextInput_' + x + '-' + y, value: cellText, size: 10, onchange: 'eventManager.fire("tableUpdateCellText", {x:' + x + ', y:' + y + '})'});
+			var cellTextInput = createElement(document, 'input', {type: 'input', id: 'cellTextInput_' + x + '-' + y, name: 'cellTextInput_' + x + '-' + y, value: cellText, size: 10, onkeyup: 'eventManager.fire("tableUpdateCellText", {x:' + x + ', y:' + y + '})'});
 			
 			//create the checkbox for the cell that determines whether the student can edit the cell or not
 			var cellCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'cellUneditableCheckBox_' + x + '-' + y, name: 'cellUneditableCheckBox_' + x + '-' + y, onchange: 'eventManager.fire("tableUpdateCellUneditable", {x:' + x + ', y:' + y + '})'});
@@ -411,37 +411,54 @@ View.prototype.TableNode.updateNumColumns = function(){
 	//get the new number of columns
 	var numColumns = $('#numColumnsInput').val();
 	
-	if(numColumns < this.content.numColumns) {
-		
-		var performUpdate = confirm('Are you sure you want to decrease the number of columns? You will lose the data in the columns that will be truncated.');
-		
-		if(performUpdate) {
-			/*
-			 * the number of columns is less than the previous number
-			 * of columns so we need to remove some columns
-			 */
-			this.truncateColumns(numColumns);
-		} else {
-			//do not update
+	if(numColumns == '') {
+		/*
+		 * do nothing, this is assuming the author is deleting the value to type in a new value after.
+		 * this function will be called again when the author types in a value
+		 */
+	} else {
+		if(isNaN(numColumns)) {
+			//message the author that the value is not valid
+			alert('Error: Invalid Columns value');
 			
 			//revert the number of rows value in the text input
 			$('#numColumnsInput').val(this.content.numColumns);
+		} else {
+			numColumns = parseInt(numColumns);
 			
-			return;
+			if(numColumns < this.content.numColumns) {
+				
+				var performUpdate = confirm('Are you sure you want to decrease the number of columns? You will lose the data in the columns that will be truncated.');
+				
+				if(performUpdate) {
+					/*
+					 * the number of columns is less than the previous number
+					 * of columns so we need to remove some columns
+					 */
+					this.truncateColumns(numColumns);
+				} else {
+					//do not update
+					
+					//revert the number of rows value in the text input
+					$('#numColumnsInput').val(this.content.numColumns);
+					
+					return;
+				}
+			}
+			
+			//update the number of columns in the content
+			this.content.numColumns = numColumns;
+			
+			//fill in any new cells in the new columns
+			this.populateNullCells();
+			
+			//re-generate the authoring table to reflect the new number of columns
+			this.updateAuthoringTable();
+			
+			//fire source updated event, this will update the preview
+			this.view.eventManager.fire('sourceUpdated');			
 		}
 	}
-	
-	//update the number of columns in the content
-	this.content.numColumns = numColumns;
-	
-	//fill in any new cells in the new columns
-	this.populateNullCells();
-	
-	//re-generate the authoring table to reflect the new number of columns
-	this.updateAuthoringTable();
-	
-	//fire source updated event, this will update the preview
-	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
@@ -451,37 +468,54 @@ View.prototype.TableNode.updateNumRows = function(){
 	//get the new number of rows
 	var numRows = $('#numRowsInput').val();
 	
-	if(numRows < this.content.numRows) {
-		
-		var performUpdate = confirm('Are you sure you want to decrease the number of rows? You will lose the data in the rows that will be truncated.');
-		
-		if(performUpdate) {
-			/*
-			 * the number of rows is less than the previous number
-			 * of rows so we need to remove some rows
-			 */
-			this.truncateRows(numRows);			
-		} else {
-			//do not update
+	if(numRows == '') {
+		/*
+		 * do nothing, this is assuming the author is deleting the value to type in a new value after.
+		 * this function will be called again when the author types in a value
+		 */
+	} else {
+		if(isNaN(numRows)) {
+			//message the author that the value is not valid
+			alert('Error: Invalid Rows value');
 			
 			//revert the number of rows value in the text input
 			$('#numRowsInput').val(this.content.numRows);
+		} else {
+			numRows = parseInt(numRows);
 			
-			return;
+			if(numRows < this.content.numRows) {
+				
+				var performUpdate = confirm('Are you sure you want to decrease the number of rows? You will lose the data in the rows that will be truncated.');
+				
+				if(performUpdate) {
+					/*
+					 * the number of rows is less than the previous number
+					 * of rows so we need to remove some rows
+					 */
+					this.truncateRows(numRows);			
+				} else {
+					//do not update
+					
+					//revert the number of rows value in the text input
+					$('#numRowsInput').val(this.content.numRows);
+					
+					return;
+				}
+			}
+			
+			//update the number of rows in the content
+			this.content.numRows = numRows;
+			
+			//fill in any new cells in the new rows
+			this.populateNullCells();
+			
+			//re-generate the authoring table to reflect the new number of rows
+			this.updateAuthoringTable();
+			
+			//fire source updated event, this will update the preview
+			this.view.eventManager.fire('sourceUpdated');			
 		}
 	}
-	
-	//update the number of rows in the content
-	this.content.numRows = numRows;
-	
-	//fill in any new cells in the new rows
-	this.populateNullCells();
-	
-	//re-generate the authoring table to reflect the new number of rows
-	this.updateAuthoringTable();
-	
-	//fire source updated event, this will update the preview
-	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
