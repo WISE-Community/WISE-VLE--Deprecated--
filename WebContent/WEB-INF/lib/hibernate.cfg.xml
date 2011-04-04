@@ -51,14 +51,6 @@
  		<mapping class="vle.domain.work.StepWorkCache" />
  		<mapping class="vle.domain.work.StepWorkAssessmentList" />
  		<mapping class="vle.domain.work.StepWorkSensor" />
- 		<!-- 
- 			 if you are creating a new step type, copy the line below and
- 		     replace Template with the name of your new step type
- 		     
- 		     <mapping class="vle.domain.work.StepWork<new step type>" />
- 		     e.g.
-			 <mapping class="vle.domain.work.StepWorkQuiz" />
- 		-->
  		<mapping class="vle.domain.work.StepWorkTemplate" /> 		
  		<mapping class="vle.domain.journal.Journal" />
   		<mapping class="vle.domain.annotation.Annotation" />
