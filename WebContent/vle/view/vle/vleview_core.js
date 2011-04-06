@@ -507,7 +507,7 @@ View.prototype.onRenderNodeComplete = function(position){
 	/* set hints link in nav bar if hint exists for this step
 	 * populate hints panel with current nodes hints
 	 * */
-    if (currentNode.getHints() != null && currentNode.getHints().hintsArray.length > 0) {
+    if (currentNode.getHints() != null && currentNode.getHints().hintsArray != null && currentNode.getHints().hintsArray.length > 0) {
     		var currentNode = this.getCurrentNode(); //get the node the student is currently on
     		var numHints = currentNode.getHints().hintsArray.length; //get the number of hints for current node
     		
