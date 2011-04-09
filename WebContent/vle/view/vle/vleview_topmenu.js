@@ -536,7 +536,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	
 	addAnIdeaHtml += "<form class='cmxform' id='ideaForm' method='get' action=''>";
 	addAnIdeaHtml += "<fieldset>";
-	addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='75'></input></p>";
+	addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></p>";
 	addAnIdeaHtml += "			<table>";
 	addAnIdeaHtml += "				<tr>";
 	addAnIdeaHtml += "					<td>";
