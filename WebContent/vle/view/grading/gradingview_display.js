@@ -1563,6 +1563,9 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 				      "<span id='studentwork_"+divId+"' style='display:none'>"+studentWorkFixedLink+"</span>" +
 					  "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystemCell'  style=\"height:350px;\">"+studentWork+"</div>";
 		//studentWork = "(Grading for MySystem not available)";
+		
+		//add the post time stamp to the bottom of the student work
+		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(latestNodeVisitPostTime) + "</p>";
 	} else if (studentWork != "" && node.type == "SVGDrawNode") {
 		// if the work is for a SVGDrawNode, embed the svg
 		var divId = "svgDraw_"+stepWorkId+"_"+latestNodeVisitPostTime;
@@ -1593,9 +1596,6 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 			//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
 			// only replace local hrefs. leave absolute hrefs alone!
 			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-				  console.log(m);
-				  console.log(key);
-				  console.log(value);
 				  if (value.indexOf("http://") == -1) {
 				    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
 				  }
@@ -1620,9 +1620,6 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 				//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
 				// only replace local hrefs. leave absolute hrefs alone!
 				currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-					  console.log(m);
-					  console.log(key);
-					  console.log(value);
 					  if (value.indexOf("http://") == -1) {
 					    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
 					  }
@@ -1647,6 +1644,8 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 			}
 		}
 		
+		//add the post time stamp to the bottom of the student work
+		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(latestNodeVisitPostTime) + "</p>";
 	} else if(studentWork != "" && this.isSelfRenderingGradingViewNodeType(node.type)) {
 		//create the student work div that we will insert the student work into later
 		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '"></div>';
@@ -3133,7 +3132,6 @@ function enlargeDraw(divId){
 
 function enlargeMS(divId){
 	
-	debugger;	
 	/*
 	var data = $('#'+divId).html();
 	var contentString = $('#content_'+divId).html();
