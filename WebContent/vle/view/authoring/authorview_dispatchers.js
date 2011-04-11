@@ -89,6 +89,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.reviewUpdateProject();
 	} else if(type=='updateProject') {
 		obj.updateProject();
+	} else if(type=='openStepTypeDescriptions') {
+		obj.openStepTypeDescriptions();
 	};
 };
 

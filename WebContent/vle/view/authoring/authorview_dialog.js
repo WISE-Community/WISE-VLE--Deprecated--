@@ -290,6 +290,12 @@ View.prototype.populateCreateNodeChoices = function() {
 			//get the name of the node that will be seen in the "select step type:" options
 			var authoringToolName = constructor.authoringToolName;
 			
+			//check if their is a step that already uses this name
+			if(authoringToolNames.contains(authoringToolName)) {
+				//there is a step that already uses this name so we will append the nodeType in parentheses to make it unique
+				authoringToolName += " (" + nodeName + ")";
+			}
+			
 			if(authoringToolName != null) {
 				authoringToolNames.push(authoringToolName);
 				authoringToolNamesToNodeNames[authoringToolName] = nodeName;				
@@ -618,6 +624,82 @@ View.prototype.initializeReviewUpdateProjectDialog = function(){
 	};
 	
 	$('#reviewUpdateProjectDiv').dialog({autoOpen:false, draggable:false, resizeable:false, mode:true, width:800, height:600, title:'Review Update Project', buttons: {'Cancel':cancel, 'Update':submit}});
+};
+
+/**
+ * Initialize the div that will display the step type descriptions
+ */
+View.prototype.initializeStepTypeDescriptionsDialog = function() {
+	//add the table that will organize the descriptions in
+	$('#stepTypeDescriptions').append("<table id='stepTypeDescriptionsTable' border='1' style='border-style:solid'></table>");
+	
+	//get all the node types
+	var nodeTypes = NodeFactory.getNodeTypes();
+	
+	//used to store the step type names
+	var authoringToolNames = [];
+	
+	//used to store the mapping from step type name to node type
+	var authoringToolNamesToNodeTypes = {};
+	
+	//loop through all the node types
+	for(var x=0; x<nodeTypes.length; x++) {
+		//get a node type
+		var nodeType = nodeTypes[x];
+		
+		var authoringToolName = "";
+		
+		//check if there is an entry in the nodefactory
+		if(NodeFactory.nodeConstructors[nodeType] != null) {
+			//get the step type name
+			authoringToolName = NodeFactory.nodeConstructors[nodeType].authoringToolName;
+			
+			if(authoringToolName == null || authoringToolName == "") {
+				//if there is no authoringToolName we will just use the node type as the name
+				authoringToolName = nodeType;
+			}
+			
+			//check if their is a step that already uses this name
+			if(authoringToolNames.contains(authoringToolName)) {
+				//there is a step that already uses this name so we will append the nodeType in parentheses to make it unique
+				authoringToolName += " (" + nodeType + ")";
+			}
+			
+			//add our step type name to the array
+			authoringToolNames.push(authoringToolName);
+			
+			//add the mapping from step type name to node type
+			authoringToolNamesToNodeTypes[authoringToolName] = nodeType;		
+		}
+	}
+	
+	//sort the step types names alphabetically
+	authoringToolNames.sort();
+	
+	//loop through all the authoring tool names
+	for(var x=0; x<authoringToolNames.length; x++) {
+		//get the step type name
+		var authoringToolName = authoringToolNames[x];
+		
+		//get the node type
+		var nodeType = authoringToolNamesToNodeTypes[authoringToolName];
+		
+		if(NodeFactory.nodeConstructors[nodeType] != null) {
+			//the default description
+			var nodeTypeDescription = "Description not provided";
+			
+			if(NodeFactory.nodeConstructors[nodeType].authoringToolDescription) {
+				//get the step type description
+				nodeTypeDescription = NodeFactory.nodeConstructors[nodeType].authoringToolDescription;
+			}
+
+			//add the row that contains the step type name and the step type description
+			$('#stepTypeDescriptionsTable').append("<tr><td style='border-style:solid'>" + authoringToolName + "</td><td style='border-style:solid'>" + nodeTypeDescription + "</td></tr>");			
+		}
+	}
+	
+	//make the div into a jquery dialog that we will display when the author clicks on the 'Step Type Descriptions' link
+	$('#stepTypeDescriptions').dialog({autoOpen:false, title:'Step Type Descriptions', width:600, height:400});
 };
 
 //used to notify scriptloader that this script has finished loading

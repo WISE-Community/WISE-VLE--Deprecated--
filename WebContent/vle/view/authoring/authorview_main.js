@@ -1624,6 +1624,14 @@ View.prototype.updateProject = function() {
 	}
 };
 
+/**
+ * Show the step type descriptions popup to the author 
+ */
+View.prototype.openStepTypeDescriptions = function(){
+	showElement('stepTypeDescriptions');
+	$('#stepTypeDescriptions').dialog('open');
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_main.js');

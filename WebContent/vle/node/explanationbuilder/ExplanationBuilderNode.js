@@ -27,7 +27,7 @@ ExplanationBuilderNode.prototype.parentNode = Node.prototype; //xTODO: rename Te
  */
 ExplanationBuilderNode.authoringToolName = "Explanation Builder"; 
 
-ExplanationBuilderNode.authoringToolDescription = ""; //xTODO: rename TemplateNode
+ExplanationBuilderNode.authoringToolDescription = "Students use ideas from their Idea Basket to generate a response"; //xTODO: rename TemplateNode
 
 /**
  * This is the constructor for the Node

@@ -27,7 +27,7 @@ TableNode.prototype.parentNode = Node.prototype; //TODO: rename TemplateNode
  */
 TableNode.authoringToolName = "Table"; 
 
-TableNode.authoringToolDescription = ""; //TODO: rename TemplateNode
+TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename TemplateNode
 
 /**
  * This is the constructor for the Node

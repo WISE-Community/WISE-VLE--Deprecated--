@@ -368,7 +368,8 @@ var componentloader = function(em, sl){
 				'projectTagCreateTag':[null,null],
 				'browserResize':[null,null],
 				'reviewUpdateProject':[null,null],
-				'updateProject':[null,null]
+				'updateProject':[null,null],
+				'openStepTypeDescriptions':[null,null]
 			},
 			methods: {
 				onWindowUnload:function(view){return function(){view.onWindowUnload();};}
@@ -416,6 +417,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('previewFrameLoaded', view.authorDispatcher, view);
 					view.eventManager.subscribe('reviewUpdateProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('updateProject', view.authorDispatcher, view);
+					view.eventManager.subscribe('openStepTypeDescriptions', view.authorDispatcher, view);
 					view.eventManager.subscribe('checkAndSelect', view.selectDispatcher, view);
 					view.eventManager.subscribe('checkAndDeselect', view.selectDispatcher, view);
 					view.eventManager.subscribe('selectClick', view.selectDispatcher, view);
@@ -525,6 +527,7 @@ var componentloader = function(em, sl){
 					view.initializeConstraintAuthoringDialog();
 					view.initializeEditProjectTagsDialog();
 					view.initializeReviewUpdateProjectDialog();
+					view.initializeStepTypeDescriptionsDialog();
 										
 					window.onunload = env.onWindowUnload();
 				}

@@ -310,7 +310,9 @@ var view;
 		<label for='createNodeType'>Select Step Type:</label> 
 		<select id='createNodeType' onchange='eventManager.fire("nodeTypeSelected");'>
 			<option value=""></option>
-		</select><br/>
+		</select>
+		<a onclick='eventManager.fire("openStepTypeDescriptions")' style='color:blue;text-decoration:underline'>Step Type Descriptions</a>
+		<br/>
 	</div>
 </div>
 </div>
@@ -626,6 +628,8 @@ var view;
 
 <div id="reviewUpdateProjectDiv" style='display:none;'>
 </div>
+
+<div id='stepTypeDescriptions' style="display: none;"></div>
 
 <iframe id="hiddenifrm" name="hiddenifrm" scrolling="auto" frameborder="0" width="0%" height="0%"> [Content for
 browsers that don't support iframes goes here.] </iframe>

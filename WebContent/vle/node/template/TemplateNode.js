@@ -24,10 +24,17 @@ TemplateNode.prototype.parentNode = Node.prototype; //TODO: rename TemplateNode
  * TODO: rename TemplateNode
  * TODO: rename Template to whatever you would like this step to be displayed as in
  * the authoring tool when the author creates a new step
+ * e.g. if you are making a QuizNode you would set authoringToolName to to "Quiz"
  */
 TemplateNode.authoringToolName = "Template"; 
 
-TemplateNode.authoringToolDescription = ""; //TODO: rename TemplateNode
+/*
+ * TODO: rename TemplateNode
+ * TODO: set the authoringToolDescription to describe the step type, this description
+ * will be seen by the author when they add a new step to their project to help
+ * them understand what kind of step this is
+ */
+TemplateNode.authoringToolDescription = "This is a generic step only used by developers";
 
 /**
  * This is the constructor for the Node
