@@ -22,7 +22,8 @@ var gradingScripts = [
 ];
 
 var dependencies = [
-	{child:"vle/node/sensor/SensorNode.js", parent:["vle/node/Node.js"]}
+	{child:"vle/node/sensor/SensorNode.js", parent:["vle/node/Node.js"]},
+	{child:"vle/jquery/js/flot/jquery.flot.js", parent:["vle/jquery/js/flot/jquery.js"]}
 ];
 
 var css = [
