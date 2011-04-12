@@ -721,8 +721,10 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		showRevisionsChecked = 'checked';
 	}
 	
-	//check box for showing all revisions
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>Show All Revisions</p>";
+	if(this.getRevisions) {
+		//check box for showing all revisions
+		gradeByStepGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>Show All Revisions</p>";		
+	}
 
 	gradeByStepGradingPageHtml += "</div>";
 	
@@ -1962,8 +1964,10 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		showRevisionsChecked = 'checked';
 	}
 	
-	//check box for showing all revisions
-	gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>Show All Revisions</p></div>";
+	if(this.getRevisions) {
+		//check box for showing all revisions
+		gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>Show All Revisions</p></div>";		
+	}
 	
 	//get the work for the workgroup id
 	var vleState = this.getVleStateByWorkgroupId(workgroupId);
