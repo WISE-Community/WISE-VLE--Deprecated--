@@ -204,8 +204,24 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 	 * requires an html file and a content file
 	 */
 	if(!this.selfRendering){
-		/* check to see if this contentpanel has already been rendered */
-		if(this.contentPanel.nodeId!=this.id){
+		/*check if the user had clicked on an outside link in the previous step
+		 */
+		if(this.handlePreviousOutsideLink(this)) {
+			/*
+			 * the user was at an outside link so the function
+			 * handlePreviousOutsideLink() has taken care of the
+			 * rendering of this node
+			 */
+			return;
+		}
+		
+		/*
+		 * check to see if this contentpanel has already been rendered
+		 * also check if loadContentAfterScriptsLoad is null, this happens
+		 * if the step contained a link to the internet and the student
+		 * clicked on the link to load the page from the internet
+		 */
+		if(this.contentPanel.nodeId!=this.id || this.contentPanel.loadContentAfterScriptsLoad == null){
 			if(!this.baseHtmlContent){
 				this.baseHtmlContent = this.view.getHTMLContentTemplate(this);
 			}

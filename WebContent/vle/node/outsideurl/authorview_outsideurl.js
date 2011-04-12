@@ -5,6 +5,8 @@
  */
 View.prototype.OutsideUrlNode = {};
 
+View.prototype.OutsideUrlNode.commonComponents = [];
+
 View.prototype.OutsideUrlNode.generatePage = function(view){
 	this.view = view;
 	
@@ -31,6 +33,14 @@ View.prototype.OutsideUrlNode.generatePage = function(view){
 View.prototype.OutsideUrlNode.updateContent = function(){
 	/* update content object */
 	this.view.activeContent.getContentJSON().url = document.getElementById('tInput').value;
+};
+
+/**
+ * Get the array of common components which is an array with
+ * string elements being the name of the common component
+ */
+View.prototype.OutsideUrlNode.getCommonComponents = function() {
+	return this.commonComponents;
 };
 
 //used to notify scriptloader that this script has finished loading
