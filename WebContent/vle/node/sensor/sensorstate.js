@@ -8,13 +8,34 @@
  * @param sensorDataArray an array containing data from the sensor
  * @param annotationArray an array containing objects that represent annotations
  * for points on the graph 
+ * @param predictionArray an array containing the prediction points made by the student
  * @param timestamp the time the sensor state was created
  * @param xMin the min x value
  * @param xMax the max x value
  * @param yMin the min y value
  * @param yMax the max y value
+ * @param predictionLocked whether to lock the prediction so the student can't modify it anymore
  */
 function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked) {
+	this.constructorHelper(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
+};
+
+/**
+ * The constructor for the sensor state
+ * @param response the text response the student typed
+ * @param sensorDataArray an array containing data from the sensor
+ * @param annotationArray an array containing objects that represent annotations
+ * for points on the graph 
+ * @param predictionArray an array containing the prediction points made by the student
+ * @param timestamp the time the sensor state was created
+ * @param xMin the min x value
+ * @param xMax the max x value
+ * @param yMin the min y value
+ * @param yMax the max y value
+ * @param predictionLocked whether to lock the prediction so the student can't modify it anymore
+ * @return this SENSORSTATE object
+ */
+SENSORSTATE.prototype.constructorHelper = function(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -62,14 +83,19 @@ function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray
 	
 	//set whether the prediction is locked
 	this.predictionLocked = predictionLocked;
+	
+	return this;
 };
 
 /**
  * Creates a SENSORSTATE object from the data in the JSON object
  * @param stateJSONObj a JSON object containing data for a SENSORSTATE
+ * @param emptyState an optional SENSORSTATE object, if it this is not null
+ * we will populate the fields in this object instead of creating a new
+ * SENSORSTATE object
  * @return a SENSORSTATE object with the attributes populated
  */
-SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
+SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj, emptyState) {
 	//get the student response
 	var response = stateJSONObj.response;
 	
@@ -94,8 +120,15 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//get whether the prediction has been locked
 	var predictionLocked = stateJSONObj.predictionLocked;
 
-	//create a SENSORSTATE object
-	var sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
+	var sensorState = null;
+
+	if(emptyState == null) {
+		//create a SENSORSTATE object
+		sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);		
+	} else {
+		//populate the empty SENSORSTATE object
+		sensorState = emptyState.constructorHelper(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
+	}
 	
 	return sensorState;
 };
@@ -421,6 +454,19 @@ SENSORSTATE.prototype.getCopy = function() {
 	var sensorStateCopy = this.parseDataJSONObj(sensorStateCopyJSONObj);
 	
 	return sensorStateCopy;
+};
+
+/**
+ * Copy the values in the populatedState into the emptyState
+ * @param populatedState a SENSORSTATE object with populated fields
+ * @param emptyState a SENSORSTATE object with empty fields
+ */
+SENSORSTATE.prototype.copyState = function(populatedState, emptyState) {
+	//make a json object copy
+	var sensorStateCopyJSONObj = JSON.parse(JSON.stringify(populatedState));
+	
+	//copy the fields into the empty sensor state object
+	this.parseDataJSONObj(sensorStateCopyJSONObj, emptyState);
 };
 
 //used to notify scriptloader that this script has finished loading

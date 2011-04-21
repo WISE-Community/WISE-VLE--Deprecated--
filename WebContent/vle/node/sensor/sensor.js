@@ -291,8 +291,8 @@ SENSOR.prototype.getLatestStateCopy = function() {
 		//get the last state in the states array
 		latestState = this.states[this.states.length - 1];
 		
-		//get a copy of the latest state
-		latestStateCopy = latestState.getCopy();
+		//copy the values in the latest state into the latest state copy
+		SENSORSTATE.prototype.copyState(latestState, latestStateCopy);
 	}
 	
 	return latestStateCopy;
