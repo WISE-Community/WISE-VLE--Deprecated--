@@ -103,6 +103,24 @@ scriptloader.addDependencies(dependencies);
  */
 componentloader.addNodeClasses('TemplateNode', nodeClasses);
 
+/*
+ * TODO: rename the file path value
+ * 
+ * For example if you are creating a quiz node you would change it to
+ * 'vle/node/quiz/quiz.css'
+ */
+var css = [
+       	"vle/node/template/template.css"
+];
+
+/*
+ * TODO: rename template
+ * 
+ * For example if you are creating a quiz node you would change it to
+ * 'quiz'
+ */
+scriptloader.addCssToComponent('template', css);
+
 var nodeTemplateParams = [
 	{
 		/*

@@ -195,7 +195,7 @@ TemplateNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	var studentWork = templateState.getStudentWork();
 	
 	//put the student work into the div
-	$('#' + divId).html(studentWork);
+	$('#' + divId).html(studentWork.response);
 };
 
 /**

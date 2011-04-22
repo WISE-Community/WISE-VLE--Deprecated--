@@ -81,7 +81,9 @@ TEMPLATESTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * @return the student work
  */
 TEMPLATESTATE.prototype.getStudentWork = function() {
-	return this.response;
+	var studentWork = this;
+	
+	return studentWork;
 };
 
 //used to notify scriptloader that this script has finished loading
