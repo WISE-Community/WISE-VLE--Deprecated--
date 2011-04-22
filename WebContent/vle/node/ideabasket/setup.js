@@ -77,7 +77,7 @@ var dependencies = [
  * 'Quiz'
  */
 var nodeClasses = [
-	{nodeClass:'display', nodeClassText:'Idea Basket'}
+	{nodeClass:'ideabasket', nodeClassText:'Idea Basket'}
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
