@@ -566,8 +566,7 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 			nodeType != 'MWNode' && 
 			nodeType != 'AssessmentListNode' && 
 			nodeType != 'ChallengeNode' && 
-			nodeType != 'BranchNode' &&
-			nodeType != 'TemplateNode') {
+			nodeType != 'BranchNode') {
 		isSelfRenderingGradingView = true;
 	}
 	
