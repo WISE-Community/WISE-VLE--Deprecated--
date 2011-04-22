@@ -66,7 +66,8 @@ var dependencies = [
 	 * For example if you are creating a quiz node you would change it to
 	 * 'vle/node/quiz/QuizNode.js'
 	 */
-	{child:"vle/node/ideabasket/IdeaBasketNode.js", parent:["vle/node/Node.js"]}
+	{child:"vle/node/ideabasket/IdeaBasketNode.js", parent:["vle/node/Node.js"]},
+	{child:"vle/jquery/js/jquery.tablesorter.min.js", parent:["vle/jquery/js/jquery-1.4.4.min.js"]}
 ];
 
 /*
@@ -111,7 +112,8 @@ var css = [
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
        	"vle/css/ideaManager/custom-theme/jquery-ui-1.8.7.custom.css",
-       	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css"
+       	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css",
+       	"vle/node/ideabasket/ideaBasket.css"
 ];
 
 /*

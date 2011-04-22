@@ -113,7 +113,7 @@ var documentReadyFunction = function(object, createForStep, stepBasket) {
 	}
 };
 
-$(document).ready(documentReadyFunction);
+//$(document).ready(documentReadyFunction);
 
 /**
  * Loads the idea basket from the global ideaBasket JSON object

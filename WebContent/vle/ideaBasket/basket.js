@@ -1022,7 +1022,7 @@ IdeaBasket.prototype.loadIdeaBasket = function() {
 		$('#main').hide();
 		
 		//set the error message
-		$('#errorMessageDialog').html("Error: Failed to retrieve Idea Basket, refresh the VLE to try to load it again");
+		$('#errorMessageDialog').html("Error: Failed to retrieve Idea Basket, refresh the VLE or visit a different step and then come back to this step to try to load it again.");
 		
 		//display the error message div
 		$('#errorMessageDialog').show();
