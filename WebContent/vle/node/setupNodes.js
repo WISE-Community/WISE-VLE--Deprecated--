@@ -79,6 +79,10 @@ SetupNodes.setupFiles = [
 		 {
 			 nodeName:"TableNode",
 			 nodeSetupPath:"vle/node/table/setup.js"
+		 },
+		 {
+			 nodeName:"IdeaBasketNode",
+			 nodeSetupPath:"vle/node/ideabasket/setup.js"
 		 }
 ];
 

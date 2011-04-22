@@ -10,9 +10,25 @@ var basketChanged = false;
 
 var subscribedToIdeaBasketChanged = false;
 
-$(document).ready(function() {
-	if(basket == null){
-		basket = new IdeaBasket();
+/**
+ * Function that is called when the document is ready
+ * @param object the jquery $
+ * @param createForStep (optional) whether we are loading the basket for an
+ * idea basket step or for the idea basket popup
+ * @param stepBasket (optional) this IdeaBasket object should be provided if 
+ * we are loading the basket for an idea basket step
+ * @return
+ */
+var documentReadyFunction = function(object, createForStep, stepBasket) {
+	
+	if(stepBasket != null) {
+		//set the idea basket since we are loading the idea basket for an idea basket step
+		basket = stepBasket;
+	} else {
+		if(basket == null){
+			//create a new idea basket
+			basket = new IdeaBasket();
+		}
 	}
 
 	$('#showAdmin').click(function(){
@@ -88,8 +104,16 @@ $(document).ready(function() {
         }
     });
 
-	parent.eventManager.fire('ideaBasketDocumentLoaded');
-});
+	if(createForStep) {
+		//we are loading the basket for an idea basket step
+		basket.loadIdeaBasket();
+	} else {
+		//we are loading the basket for the idea basket popup
+		parent.eventManager.fire('ideaBasketDocumentLoaded');	
+	}
+};
+
+$(document).ready(documentReadyFunction);
 
 /**
  * Loads the idea basket from the global ideaBasket JSON object
@@ -102,8 +126,15 @@ $(document).ready(function() {
 var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView) {
 	//only subscribe to the 'ideaBasketChanged' event once
 	if(!subscribedToIdeaBasketChanged) {
-		//remember thisView in the iframe so we can access it later
-		parent.frames['ideaBasketIfrm'].thisView = thisView;
+		
+		if(parent.frames['ideaBasketIfrm'] != null) {
+			/*
+			 * remember thisView in the iframe so we can access it later.
+			 * this is only required if we are loading the basket for
+			 * the idea basket popup
+			 */
+			parent.frames['ideaBasketIfrm'].thisView = thisView;
+		}
 		
 		//subscribe to the event
 		thisView.eventManager.subscribe('ideaBasketChanged', ideaBasketChanged, thisView);
@@ -116,24 +147,55 @@ var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView) {
 
 /**
  * This is called when the 'ideaBasketChanged' event is fired.
- * @param type
- * @param args
+ * @param type the name of the event 'ideaBasketChanged'
+ * @param args an array containing the args provided when the event is fired
  * @param obj the view
  */
 var ideaBasketChanged = function(type,args,obj) {
-	var thisView = obj;
-	
-	//get the idea basket
-	var viewIdeaBasket = thisView.ideaBasket;
-	
-	//generate the JSON string for the idea basket
-	var ideaBasketJSON = $.stringify(viewIdeaBasket);
-	
-	//generate the JSON object for the idea basket
-	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
-	
-	//load the basket so that the newest changes are reflected
-	loadIdeaBasket(ideaBasketJSONObj, true, thisView);
+	if(typeof $ != 'undefined') {
+		/*
+		 * this branch is taken when the idea basket is loaded from the popup or
+		 * an explanation builder step
+		 */
+		
+		var thisView = obj;
+		
+		//get the idea basket
+		var viewIdeaBasket = thisView.ideaBasket;
+		
+		//generate the JSON string for the idea basket
+		var ideaBasketJSON = $.stringify(viewIdeaBasket);
+		
+		//generate the JSON object for the idea basket
+		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+		
+		//load the basket so that the newest changes are reflected
+		loadIdeaBasket(ideaBasketJSONObj, true, thisView);		
+	} else if(args != null && args.length > 0) {
+		//this branch is taken when the idea basket is loaded from an idea basket step
+		
+		//get the first element of the array which contains the object we want
+		var args0 = args[0];
+		
+		if(args0 != null && args0.ideaBasketStep != null) {
+			//get the ideaBasketStep object
+			var ideaBasketStep = args0.ideaBasketStep;
+			
+			var thisView = obj;
+			
+			//get the idea basket
+			var viewIdeaBasket = thisView.ideaBasket;
+			
+			//generate the JSON string for the idea basket
+			var ideaBasketJSON = JSON.stringify(viewIdeaBasket);
+			
+			//generate the JSON object for the idea basket
+			var ideaBasketJSONObj = JSON.parse(ideaBasketJSON);
+			
+			//load the basket so that the newest changes are reflected
+			ideaBasketStep.load(ideaBasketJSONObj, true);			
+		}
+	}
 };
 
 function resetForm(target){
@@ -161,3 +223,8 @@ function resetForm(target){
 	 .removeAttr('checked')
 	 .removeAttr('selected');*/
 };
+
+/* used to notify scriptloader that this script has finished loading */
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/ideaBasket/ideaBasketScript.js');
+}

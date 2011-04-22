@@ -16,9 +16,26 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId,
  * Creates an IdeaBasket instance
  * @param ideaBasketJSONObj optional argument, if it is provided it will load
  * the data from the JSON into this object
+ * @param createForStep boolean value whether we are creating the idea basket 
+ * for an idea basket step
  * @return an IdeaBasket instance
  */
-function IdeaBasket(ideaBasketJSONObj) {
+function IdeaBasket(ideaBasketJSONObj, createForStep) {
+	if(createForStep) {
+		//we are creating an idea basket for an idea basket step
+		
+		//set the values for the idea basket step
+		this.node = node;
+		this.view = node.view;
+		this.content = node.getContent().getContentJSON();
+		
+		if(node.studentWork != null) {
+			this.states = node.studentWork; 
+		} else {
+			this.states = [];  
+		};
+	}
+	
 	this.id;
 	this.runId;
 	this.workgroupId;
@@ -94,46 +111,52 @@ IdeaBasket.prototype.init = function(context) {
  * @param generateUI boolean value whether to generate the UI
  */
 IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI) {
-	//set the values from the JSON object we received from the server
-	
-	this.id = ideaBasketJSONObj.id;
-	this.runId = ideaBasketJSONObj.runId;
-	this.workgroupId = ideaBasketJSONObj.workgroupId;
-	this.projectId = ideaBasketJSONObj.projectId;
-	
-	if(ideaBasketJSONObj.nextIdeaId != null) {
-		this.nextIdeaId = ideaBasketJSONObj.nextIdeaId;
-	}
-	
-	if(ideaBasketJSONObj.ideas != null) {
-		this.ideas = ideaBasketJSONObj.ideas;
-	}
-	
-	if(ideaBasketJSONObj.deleted != null) {
-		this.deleted = ideaBasketJSONObj.deleted;		
-	}
-
-	if(generateUI) {
-		//we will generate the UI
+	/*
+	 * ideaBasketJSONObj will be null in authoring preview step in which case
+	 * we do not want to load anything
+	 */
+	if(ideaBasketJSONObj != null) {
+		//set the values from the JSON object we received from the server
 		
-		// clear out existing rows
-		$('#basketIdeas tbody tr').each(function(){
-			$(this).remove();
-		});
-
-		$('#basketDeleted tbody tr').each(function(){
-			$(this).remove();
-		});
-
-		//populate tables
-		for(var i=0; i<this.ideas.length; i++){
-			this.addRow(0,this.ideas[i],true);
+		this.id = ideaBasketJSONObj.id;
+		this.runId = ideaBasketJSONObj.runId;
+		this.workgroupId = ideaBasketJSONObj.workgroupId;
+		this.projectId = ideaBasketJSONObj.projectId;
+		
+		if(ideaBasketJSONObj.nextIdeaId != null) {
+			this.nextIdeaId = ideaBasketJSONObj.nextIdeaId;
 		}
-		for(var i=0; i<this.deleted.length; i++){
-			this.addRow(1,this.deleted[i],true);
+		
+		if(ideaBasketJSONObj.ideas != null) {
+			this.ideas = ideaBasketJSONObj.ideas;
+		}
+		
+		if(ideaBasketJSONObj.deleted != null) {
+			this.deleted = ideaBasketJSONObj.deleted;		
 		}
 
-		$("#basketIdeas").trigger("applyWidgets");
+		if(generateUI) {
+			//we will generate the UI
+			
+			// clear out existing rows
+			$('#basketIdeas tbody tr').each(function(){
+				$(this).remove();
+			});
+
+			$('#basketDeleted tbody tr').each(function(){
+				$(this).remove();
+			});
+
+			//populate tables
+			for(var i=0; i<this.ideas.length; i++){
+				this.addRow(0,this.ideas[i],true);
+			}
+			for(var i=0; i<this.deleted.length; i++){
+				this.addRow(1,this.deleted[i],true);
+			}
+
+			$("#basketIdeas").trigger("applyWidgets");
+		}	
 	}
 };
 
@@ -170,12 +193,26 @@ IdeaBasket.prototype.getIdeaById = function(ideaId) {
 IdeaBasket.prototype.add = function(text,source,tags,flag) {
 	this.setBasketChanged(true);
 
-	//get the values for the current step
-	var nodeId = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().id;
-	var nodeName = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().getTitle();
-	var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
-	nodeName = vlePosition + ": " + nodeName;
-
+	var nodeName = ";"
+	
+	if(parent.frames['ideaBasketIfrm'] != null) {
+		//we are adding an idea from the idea basket popup
+		
+		//get the values for the current step
+		var nodeId = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().id;
+		var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
+		nodeName = parent.frames['ideaBasketIfrm'].thisView.getCurrentNode().getTitle();
+		nodeName = vlePosition + ": " + nodeName;
+	} else {
+		//we are adding an idea from an idea basket step so we have access to this
+		
+		//get the values for the current step
+		var nodeId = this.view.getCurrentNode().id;
+		var vlePosition = this.view.getProject().getVLEPositionById(nodeId);
+		nodeName = this.view.getCurrentNode().getTitle();
+		nodeName = vlePosition + ": " + nodeName;
+	}
+	
 	//create an add an idea to the basket
 	var newIdea = this.addIdeaToBasketArray(text, source, tags, flag, nodeId, nodeName);
 	//add the idea to the UI
@@ -727,7 +764,11 @@ IdeaBasket.prototype.isSameOrder = function(order1, order2) {
  * Saves the idea basket back to the server
  */
 IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
-	if(thisView == null) {
+	/*
+	 * the ideaBasketIfrm is only used in the idea basket popup. if we are
+	 * on an idea basket step, setting thisView is not required
+	 */
+	if(thisView == null && parent.window.frames['ideaBasketIfrm'] != null) {
 		//if thisView is not passed in to the function, try to retrieve it from the iframe
 		thisView = parent.window.frames['ideaBasketIfrm'].thisView;
 	}
@@ -735,9 +776,22 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	//set the action for the server to perform
 	var action = "saveIdeaBasket";
 	
+	/*
+	 * create a new copy of the idea basket without the fields from the idea basket step
+	 * (such as this.node, this.view, this.content, this.states) because we don't want
+	 * to save those values in the idea basket, plus it causes an infinite loop
+	 * when $.stringify is called below.
+	 * 
+	 * we need to ask thisView to create the idea basket so that the idea basket is
+	 * created in the context of the view and not in the context of this IdeaBasket
+	 * object. this is to prevent an error that was occurring when adding a new idea
+	 * complained that Idea was not defined. this was because of a weird context error
+	 * and is resolved by creating the idea basket from the context of thisView.
+	 */
+	var newIdeaBasket = thisView.createIdeaBasket(this);
+	
 	//obtain the JSON string serialization of the basket
-	var data = encodeURIComponent($.stringify(this));
-	//var data = $.stringify(this);
+	var data = encodeURIComponent($.stringify(newIdeaBasket));
 	
 	var ideaBasketParams = {
 			action:action,
@@ -748,13 +802,19 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.saveIdeaBasketCallback, {thisView:thisView});
 
 	//set the updated ideaBasket back into the view
-	thisView.ideaBasket = this;
+	thisView.ideaBasket = newIdeaBasket;
 	
 	/*
 	 * call the function that will fire the 'ideaBasketChanged' event that will
 	 * notify listeners to refresh their ideaBasket to get the latest changes
 	 */
-	thisView.ideaBasketChanged();
+	if(this.view != null) {
+		//we are on an idea basket step
+		thisView.ideaBasketChanged(this);		
+	} else {
+		//we are on the idea basket popup or explanation builder step
+		thisView.ideaBasketChanged();
+	}
 };
 
 /**
@@ -845,6 +905,128 @@ var fixHelper = function(e, ui) {
 		$(this).width($(this).width());
 	});
 	return ui;
+};
+
+/**
+ * This function renders everything the student sees when they visit the step.
+ * This includes setting up the html ui elements as well as reloading any
+ * previous work the student has submitted when they previously worked on this
+ * step, if any.
+ * 
+ * TODO: rename TEMPLATE
+ * 
+ * note: you do not have to use 'promptDiv' or 'studentResponseTextArea', they
+ * are just provided as examples. you may create your own html ui elements in
+ * the .html file for this step (look at template.html).
+ */
+IdeaBasket.prototype.render = function() {
+	documentReadyFunction(null, true, this);
+	
+	//display any prompts to the student
+	$('#promptDiv').html(this.content.prompt);
+	
+	//load any previous responses the student submitted for this step
+	var latestState = this.getLatestState();
+};
+
+/**
+ * This function retrieves the latest student work
+ * 
+ * TODO: rename TEMPLATE
+ * 
+ * @return the latest state object or null if the student has never submitted
+ * work for this step
+ */
+IdeaBasket.prototype.getLatestState = function() {
+	var latestState = null;
+	
+	//check if the states array has any elements
+	if(this.states != null && this.states.length > 0) {
+		//get the last state
+		latestState = this.states[this.states.length - 1];
+	}
+	
+	return latestState;
+};
+
+/**
+ * This function retrieves the student work from the html ui, creates a state
+ * object to represent the student work, and then saves the student work.
+ * 
+ * TODO: rename TEMPLATE
+ * 
+ * note: you do not have to use 'studentResponseTextArea', they are just 
+ * provided as examples. you may create your own html ui elements in
+ * the .html file for this step (look at template.html).
+ */
+IdeaBasket.prototype.save = function() {
+	if(this.isBasketChanged()) {
+		this.saveIdeaBasket(this.view);		
+	}
+
+	/*
+	 * create the student state that will store the new work the student
+	 * just submitted
+	 * 
+	 * TODO: rename TEMPLATESTATE
+	 * 
+	 * make sure you rename TEMPLATESTATE to the state object type
+	 * that you will use for representing student data for this
+	 * type of step. copy and modify the file below
+	 * 
+	 * vlewrapper/WebContent/vle/node/template/templatestate.js
+	 * 
+	 * and use the object defined in your new state.js file instead
+	 * of TEMPLATESTATE. for example if you are creating a new
+	 * quiz step type you would copy the file above to
+	 * 
+	 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
+	 * 
+	 * and in that file you would define QUIZSTATE and therefore
+	 * would change the TEMPLATESTATE to QUIZSTATE below
+	 */
+	var ideaBasketState = new IdeaBasketState();
+	
+	/*
+	 * fire the event to push this state to the global view.states object.
+	 * the student work is saved to the server once they move on to the
+	 * next step.
+	 */
+	eventManager.fire('pushStudentWork', ideaBasketState);
+
+	//push the state object into this or object's own copy of states
+	this.states.push(ideaBasketState);
+};
+
+/**
+ * Load the idea basket for an idea basket step
+ */
+IdeaBasket.prototype.loadIdeaBasket = function() {
+	if(this.view.ideaBasket != null) {
+		//generate the JSON string for the idea basket
+		var ideaBasketJSON = $.stringify(this.view.ideaBasket);
+		
+		//generate the JSON object for the idea basket
+		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+		
+		//load the idea basket into the step
+		loadIdeaBasket(ideaBasketJSONObj, true, this.view);		
+	} else {
+		/*
+		 * the vle failed to retrieve the idea basket so we will disable
+		 * this idea basket step to prevent the student from overriding
+		 * and losing their idea basket.
+		 */
+		
+		//hide the basket UI
+		$('#main').hide();
+		
+		//set the error message
+		$('#errorMessageDialog').html("Error: Failed to retrieve Idea Basket, refresh the VLE to try to load it again");
+		
+		//display the error message div
+		$('#errorMessageDialog').show();
+	}
 };
 
 /* used to notify scriptloader that this script has finished loading */

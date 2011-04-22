@@ -753,10 +753,25 @@ View.prototype.ideaBasketDivClose = function() {
  * Called when the ideaBasket has changed. This will be when the student
  * has changed the ideaBasket in the global idea basket or in an explanation
  * builder step and they close or exit them respectively. 
+ * 
+ * @param ideaBasketStep this is called from IdeaBasket.saveIdeaBasket(). 
+ * If the idea basket is being saved from an idea basket step, 
+ * the ideaBasketStep parameter will be set to the idea basket step object.
+ * This is required because when the idea basket is being saved from
+ * an idea basket step, the ideaBasketChanged() function in ideaBasketScript.js
+ * does not have access to the global loadIdeaBasket() function and therefore
+ * needs the ideaBasketStep object to call ideaBasketStep.loadIdeaBasket(). 
  */
-View.prototype.ideaBasketChanged = function() {
+View.prototype.ideaBasketChanged = function(ideaBasketStep) {
+	var args = {};
+	
+	if(ideaBasketStep != null) {
+		//set the idea basket step into the args
+		args.ideaBasketStep = ideaBasketStep;
+	}
+	
 	this.ideaBasket.updateToolbarCount();
-	eventManager.fire('ideaBasketChanged');
+	eventManager.fire('ideaBasketChanged', args);
 };
 
 /**
@@ -845,6 +860,19 @@ View.prototype.loadIdeaBasket = function() {
 	
 	//load the idea basket into the iframe
 	window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this);
+};
+
+/**
+ * Create a new IdeaBasket in the context of the view. This is required because
+ * there was an issue with creating the IdeaBasket in the context of basket.js
+ * and it causing problems when the student tried to Add New Idea and receiving
+ * an Idea not defined error.
+ *  
+ * @param ideaBasketJSONObj contains all the fields of an idea basket
+ * @return a new IdeaBasket with fields populated
+ */
+View.prototype.createIdeaBasket = function(ideaBasketJSONObj) {
+	return new IdeaBasket(ideaBasketJSONObj);
 };
 
 /* used to notify scriptloader that this script has finished loading */
