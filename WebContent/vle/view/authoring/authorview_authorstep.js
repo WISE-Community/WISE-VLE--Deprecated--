@@ -347,27 +347,34 @@ View.prototype.saveStep = function(close, bypassUpdateSource){
 		/* get json content as string */
 		var contentString = encodeURIComponent($.stringify(this.activeContent.getContentJSON(),null,3));
 		
-		/* success callback for updating content file on server */
-		var success = function(txt,xml,obj){
-			obj.stepSaved = true;
-			obj.notificationManager.notify('Content saved to server.', 3);
-			obj.eventManager.fire('setLastEdited');
-			obj.preservedContent.setContent(obj.activeContent.getContentJSON());
-			if(close){
-				obj.eventManager.fire('closeOnStepSaved', [true]);
-			}
-		};
-		
-		/* failure callback for updating content file on server */
-		var failure = function(o,obj){
-			obj.notificationManager.notify('Warning: Unable to save content to server!', 3);
-			if(close){
-				obj.eventManager.fire('closeOnStepSaved', [false]);
-			}
-		};
-		
-		/* update content to server */
-		this.connectionManager.request('POST', 3, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command:'updateFile', param1:this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase()), param2: this.activeContent.getFilename(this.project.getContentBase()), param3:contentString},success,this,failure);
+		if(contentString == 'undefined') {
+			//the JSON is invalid so we will not save
+			alert('Error: JSON is invalid, unable to save step.');
+		} else {
+			//the JSON is valid so we will save
+			
+			/* success callback for updating content file on server */
+			var success = function(txt,xml,obj){
+				obj.stepSaved = true;
+				obj.notificationManager.notify('Content saved to server.', 3);
+				obj.eventManager.fire('setLastEdited');
+				obj.preservedContent.setContent(obj.activeContent.getContentJSON());
+				if(close){
+					obj.eventManager.fire('closeOnStepSaved', [true]);
+				}
+			};
+			
+			/* failure callback for updating content file on server */
+			var failure = function(o,obj){
+				obj.notificationManager.notify('Warning: Unable to save content to server!', 3);
+				if(close){
+					obj.eventManager.fire('closeOnStepSaved', [false]);
+				}
+			};
+			
+			/* update content to server */
+			this.connectionManager.request('POST', 3, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command:'updateFile', param1:this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase()), param2: this.activeContent.getFilename(this.project.getContentBase()), param3:contentString},success,this,failure);			
+		}
 	}
 };
 
