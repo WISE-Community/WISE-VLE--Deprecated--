@@ -102,6 +102,7 @@ View.prototype.loadNodeTemplateFiles = function() {
 
 /**
  * Creates a project of the given name with the given path in the portal
+ * @path absolute path to wise4.project.json of the newly created project
  */
 View.prototype.createPortalProject = function(path, name, parentProjectId){
 	var handler = function(responseText, responseXML, o){
@@ -116,8 +117,10 @@ View.prototype.createPortalProject = function(path, name, parentProjectId){
 		};
 	};
 	
-	//remove base dir
-	path = path.substring(this.portalCurriculumBaseDir.length, path.length);
+	//remove base dir so we're left with /x/wise4.project.json
+	var lastIndexOfSlash = path.lastIndexOf("/");
+	var secondToLastIndexOfSlash = path.substring(0,lastIndexOfSlash).lastIndexOf("/");
+	path = path.substring(secondToLastIndexOfSlash);
 	this.connectionManager.request('POST', 3, this.portalUrl, {command: 'createProject', param1: path, param2: name, parentProjectId: parentProjectId}, handler, this);
 };
 
