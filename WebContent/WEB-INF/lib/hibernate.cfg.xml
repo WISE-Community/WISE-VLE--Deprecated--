@@ -21,7 +21,7 @@
         <property name="c3p0.max_statements">50</property>
 
         <!-- SQL dialect -->
-        <property name="dialect">org.hibernate.dialect.MySQLMyISAMDialect</property>
+        <property name="dialect">vle.hibernate.MySQL5MyISAMDialect</property>
 
         <!-- Enable Hibernate's automatic session context management -->
         <property name="current_session_context_class">thread</property>
@@ -31,7 +31,7 @@
 
         <!-- Drop and re-create the database schema on startup -->
         <property name="hbm2ddl.auto">update</property>
-
+                
 <!--  not using hibernate-annotations
         <mapping resource="org/hibernate/tutorial/domain/Event.hbm.xml"/>
  -->
