@@ -985,17 +985,17 @@ IdeaBasket.prototype.save = function() {
 	 * and in that file you would define QUIZSTATE and therefore
 	 * would change the TEMPLATESTATE to QUIZSTATE below
 	 */
-	var ideaBasketState = new IdeaBasketState();
+	//var ideaBasketState = new IdeaBasketState();
 	
 	/*
 	 * fire the event to push this state to the global view.states object.
 	 * the student work is saved to the server once they move on to the
 	 * next step.
 	 */
-	eventManager.fire('pushStudentWork', ideaBasketState);
+	//eventManager.fire('pushStudentWork', ideaBasketState);
 
 	//push the state object into this or object's own copy of states
-	this.states.push(ideaBasketState);
+	//this.states.push(ideaBasketState);
 };
 
 /**
