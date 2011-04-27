@@ -175,8 +175,13 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	var backgroundPath = null;
 	
 	if(explanationBuilder.background != null && explanationBuilder.background != "") {
-		//create the full path to the background image
-		backgroundPath = this.view.getConfig().getConfigParam('getContentBaseUrl') + explanationBuilder.background;		
+		if(explanationBuilder.background.indexOf('http') != -1) {
+			//background image path is absolute
+			backgroundPath = explanationBuilder.background;
+		} else {
+			//background image is relative so we need to create the full path to the background image
+			backgroundPath = this.view.getConfig().getConfigParam('getContentBaseUrl') + explanationBuilder.background;			
+		}
 	}
 	
 	//create the div that will contain the ideas

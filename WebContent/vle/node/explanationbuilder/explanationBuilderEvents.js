@@ -25,6 +25,8 @@ View.prototype.explanationBuilderDispatcher = function(type,args,obj){
 		obj.ExplanationBuilderNode.updatePrompt();
 	} else if(type == 'explanationBuilderUpdateBackgroundImageUrl') {
 		obj.ExplanationBuilderNode.updateBackgroundImageUrl();
+	} else if(type == 'explanationBuilderUpdateInstructions') {
+		obj.ExplanationBuilderNode.updateInstructions();
 	}
 };
 
@@ -39,7 +41,8 @@ var events = [
 	 * wait until you implement the authoring before you rename this
 	 */
 	'explanationBuilderUpdatePrompt',
-	'explanationBuilderUpdateBackgroundImageUrl'
+	'explanationBuilderUpdateBackgroundImageUrl',
+	'explanationBuilderUpdateInstructions'
 ];
 
 /*

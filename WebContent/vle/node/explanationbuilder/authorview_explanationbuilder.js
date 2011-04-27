@@ -82,6 +82,23 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	 */
 	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
 	
+	//create the label for the textarea that the author will write the instructions in
+	var instructionsText = document.createTextNode("Instructions for Student:");
+	
+	//get the instructions
+	var instructionsValue = this.content.instructions;
+	
+	if(instructionsValue == null) {
+		//set instructions to empty string if instructions is not in the content
+		instructionsValue = "";
+	}
+	
+	//create the textarea that the author will write the instructions in
+	var instructionsTextArea = createElement(document, 'textarea', {id: 'instructionsTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdateInstructions')"});
+
+	//populate the instructions text area
+	instructionsTextArea.value = instructionsValue;
+	
 	//get the existing background url
 	var background = this.content.background;
 	
@@ -98,6 +115,9 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptTextArea);
+	pageDiv.appendChild(instructionsText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(instructionsTextArea);	
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
@@ -172,6 +192,19 @@ View.prototype.ExplanationBuilderNode.updatePrompt = function(){
 View.prototype.ExplanationBuilderNode.updateBackgroundImageUrl = function(){
 	/* update content */
 	this.content.background = document.getElementById('backgroundImageUrl').value;
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the instructions in the content
+ */
+View.prototype.ExplanationBuilderNode.updateInstructions = function(){
+	/* update content */
+	this.content.instructions = $('#instructionsTextArea').val();
 	
 	/*
 	 * fire source updated event, this will update the preview

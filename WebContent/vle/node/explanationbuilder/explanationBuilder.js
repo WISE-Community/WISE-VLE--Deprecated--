@@ -50,6 +50,7 @@ function ExplanationBuilder(node, view) {
 	this.stateChanged = false;
 	
 	this.question = '';
+	this.instructions = '';
 	this.bg = '';
 	this.latestState;
 };
@@ -70,13 +71,22 @@ ExplanationBuilder.prototype.render = function() {
 	//get the question or prompt the student will read
 	var question = this.content.prompt;
 	
+	//get the instructions the stuent will read
+	var instructions = this.content.instructions;
+	
 	//get the background image that will be displayed in the drop area
 	var bg = this.content.background;
 	
-	if(question){
+	if(question != null){
 		this.question = question;
 		$('#questionText').text(question);
 	}
+	
+	if(instructions != null) {
+		this.instructions = instructions;
+		$('#instructions').html(instructions);
+	}
+	
 	if(bg){
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');
@@ -127,6 +137,9 @@ ExplanationBuilder.prototype.initializeUI = function() {
 	//get the question or prompt the student will read
 	var question = this.content.prompt;
 	
+	//get the instructions the student will read
+	var instructions = this.content.instructions;
+	
 	//get the background image that will be displayed in the drop area
 	var bg = this.content.background;
 
@@ -146,7 +159,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 	}
 
 	//load idea basket, the explanation ideas, and other elements of the UI
-	this.load(question,bg,explanationIdeas,answer);
+	this.load(question, instructions, bg, explanationIdeas, answer);
 };
 
 /**
@@ -350,12 +363,18 @@ ExplanationBuilder.prototype.init = function(context){
 	});
 };
 
-ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer){
-	if(question){
+ExplanationBuilder.prototype.load = function(question, instructions, bg, explanationIdeas, answer){
+	if(question != null){
 		this.question = question;
 		$('#questionText').text(question);
 		//localStorage.question = question;
 	}
+	
+	if(instructions != null) {
+		this.instructions = instructions;
+		$('#instructions').html(instructions);
+	}
+	
 	if(bg){
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');
@@ -382,14 +401,18 @@ ExplanationBuilder.prototype.load = function(question,bg,explanationIdeas,answer
 	if(this.ideaBasket == null) {
 		//we do not have the basket
 		
-		/*
-		 * display a message to the student and disable the buttons 
-		 * and textarea so the student can't work on the step
-		 */
-		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
-		$('#addNew').attr('disabled', 'disabled');
-		$('#save').attr('disabled', 'disabled');
-		$('#explanationText').attr('disabled', 'disabled');
+		if(this.view.authoringMode) {
+			//we are in authoring mode so we do not need to do anything
+		} else {
+			/*
+			 * display a message to the student and disable the buttons 
+			 * and textarea so the student can't work on the step
+			 */
+			alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
+			$('#addNew').attr('disabled', 'disabled');
+			$('#save').attr('disabled', 'disabled');
+			$('#explanationText').attr('disabled', 'disabled');			
+		}
 	} else {
 		//we have the basket
 		
@@ -1242,7 +1265,7 @@ ExplanationBuilder.prototype.ideaBasketChanged = function(updatedIdeaBasket) {
 	this.ideaBasket = updatedIdeaBasket;
 	
 	//reload everything in the step
-	this.load(this.question, this.bg, this.explanationIdeas, this.answer);
+	this.load(this.question, this.instructions, this.bg, this.explanationIdeas, this.answer);
 };
 
 //used to notify scriptloader that this script has finished loading
