@@ -39,7 +39,7 @@ svgEditor.addExtension("Prompt", function(S) {
 			resizable: false,
 			modal: true,
 			autoOpen:false,
-			width:400,
+			width:650,
 			buttons: {
 				'OK': function() {
 					$(this).dialog('close');
