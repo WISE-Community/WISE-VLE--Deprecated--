@@ -18,12 +18,12 @@
  * vlewrapper/WebContent/vle/node/quiz/
  * 
  * 
- * TODO: in this file, change all occurrences of the word 'TEMPLATE' to the
+ * TODO: in this file, change all occurrences of the word 'Template' to the
  * name of your new step type
  * 
  * <new step type>
  * e.g. for example if you are creating a quiz step it would look
- * something like QUIZ
+ * something like Quiz
  */
 
 /**
@@ -31,11 +31,11 @@
  * the step when the students work on it. An instance of this object will
  * be created in the .html for this step (look at template.html)
  * 
- * TODO: rename TEMPLATE
+ * TODO: rename Template
  */
-function TEMPLATE(node, view) {
+function Template(node) {
 	this.node = node;
-	this.view = view;
+	this.view = node.view;
 	this.content = node.getContent().getContentJSON();
 	
 	if(node.studentWork != null) {
@@ -51,13 +51,13 @@ function TEMPLATE(node, view) {
  * previous work the student has submitted when they previously worked on this
  * step, if any.
  * 
- * TODO: rename TEMPLATE
+ * TODO: rename Template
  * 
  * note: you do not have to use 'promptDiv' or 'studentResponseTextArea', they
  * are just provided as examples. you may create your own html ui elements in
  * the .html file for this step (look at template.html).
  */
-TEMPLATE.prototype.render = function() {
+Template.prototype.render = function() {
 	//display any prompts to the student
 	$('#promptDiv').html(this.content.prompt);
 	
@@ -68,7 +68,7 @@ TEMPLATE.prototype.render = function() {
 		/*
 		 * get the response from the latest state. the response variable is
 		 * just provided as an example. you may use whatever variables you
-		 * would like from the state object (look at templatestate.js)
+		 * would like from the state object (look at templateState.js)
 		 */
 		var latestResponse = latestState.response;
 		
@@ -80,12 +80,12 @@ TEMPLATE.prototype.render = function() {
 /**
  * This function retrieves the latest student work
  * 
- * TODO: rename TEMPLATE
+ * TODO: rename Template
  * 
  * @return the latest state object or null if the student has never submitted
  * work for this step
  */
-TEMPLATE.prototype.getLatestState = function() {
+Template.prototype.getLatestState = function() {
 	var latestState = null;
 	
 	//check if the states array has any elements
@@ -101,13 +101,13 @@ TEMPLATE.prototype.getLatestState = function() {
  * This function retrieves the student work from the html ui, creates a state
  * object to represent the student work, and then saves the student work.
  * 
- * TODO: rename TEMPLATE
+ * TODO: rename Template
  * 
  * note: you do not have to use 'studentResponseTextArea', they are just 
  * provided as examples. you may create your own html ui elements in
  * the .html file for this step (look at template.html).
  */
-TEMPLATE.prototype.save = function() {
+Template.prototype.save = function() {
 	//get the answer the student wrote
 	var response = $('#studentResponseTextArea').val();
 	
@@ -115,24 +115,24 @@ TEMPLATE.prototype.save = function() {
 	 * create the student state that will store the new work the student
 	 * just submitted
 	 * 
-	 * TODO: rename TEMPLATESTATE
+	 * TODO: rename TemplateState
 	 * 
-	 * make sure you rename TEMPLATESTATE to the state object type
+	 * make sure you rename TemplateState to the state object type
 	 * that you will use for representing student data for this
 	 * type of step. copy and modify the file below
 	 * 
-	 * vlewrapper/WebContent/vle/node/template/templatestate.js
+	 * vlewrapper/WebContent/vle/node/template/templateState.js
 	 * 
 	 * and use the object defined in your new state.js file instead
-	 * of TEMPLATESTATE. for example if you are creating a new
+	 * of TemplateState. for example if you are creating a new
 	 * quiz step type you would copy the file above to
 	 * 
-	 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
+	 * vlewrapper/WebContent/vle/node/quiz/quizState.js
 	 * 
-	 * and in that file you would define QUIZSTATE and therefore
-	 * would change the TEMPLATESTATE to QUIZSTATE below
+	 * and in that file you would define QuizState and therefore
+	 * would change the TemplateState to QuizState below
 	 */
-	var templateState = new TEMPLATESTATE(response);
+	var templateState = new TemplateState(response);
 	
 	/*
 	 * fire the event to push this state to the global view.states object.

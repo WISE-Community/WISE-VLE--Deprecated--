@@ -62,24 +62,24 @@ function TemplateNode(nodeType, view) {
  */
 TemplateNode.prototype.parseDataJSONObj = function(stateJSONObj) {
 	/*
-	 * TODO: rename TEMPLATESTATE
+	 * TODO: rename TemplateState
 	 * 
-	 * make sure you rename TEMPLATESTATE to the state object type
+	 * make sure you rename TemplateState to the state object type
 	 * that you will use for representing student data for this
 	 * type of step. copy and modify the file below
 	 * 
-	 * vlewrapper/WebContent/vle/node/template/templatestate.js
+	 * vlewrapper/WebContent/vle/node/template/templateState.js
 	 * 
 	 * and use the object defined in your new state.js file instead
-	 * of TEMPLATESTATE. for example if you are creating a
+	 * of TemplateState. for example if you are creating a
 	 * quiz step type you would copy the file above to
 	 * 
-	 * vlewrapper/WebContent/vle/node/quiz/quizstate.js
+	 * vlewrapper/WebContent/vle/node/quiz/quizState.js
 	 * 
-	 * and in that file you would define QUIZSTATE and therefore
-	 * would change the TEMPLATESTATE to QUIZSTATE below
+	 * and in that file you would define QuizState and therefore
+	 * would change the TemplateState to QuizState below
 	 */ 
-	return TEMPLATESTATE.prototype.parseDataJSONObj(stateJSONObj);
+	return TemplateState.prototype.parseDataJSONObj(stateJSONObj);
 };
 
 /**
@@ -119,36 +119,9 @@ TemplateNode.prototype.translateStudentWork = function(studentWork) {
 TemplateNode.prototype.onExit = function() {
 	//check if the content panel has been set
 	if(this.contentPanel) {
-		
 		if(this.contentPanel.save) {
 			//tell the content panel to save
 			this.contentPanel.save();
-		}
-		
-		try {
-			/*
-			 * check if the onExit function has been implemented or if we
-			 * can access attributes of this.contentPanel. if the user
-			 * is currently at an outside link, this.contentPanel.onExit
-			 * will throw an exception because we aren't permitted
-			 * to access attributes of pages outside the context of our
-			 * server.
-			 */
-			if(this.contentPanel.onExit) {
-				try {
-					//run the on exit cleanup
-					this.contentPanel.onExit();					
-				} catch(err) {
-					//error when onExit() was called, e.g. mysystem editor undefined
-				}
-			}	
-		} catch(err) {
-			/*
-			 * an exception was thrown because this.contentPanel is an
-			 * outside link. we will need to go back in the history
-			 * and then trying to render the original node.
-			 */
-			history.back();
 		}
 	}
 };
