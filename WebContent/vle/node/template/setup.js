@@ -28,7 +28,7 @@ var studentVLEScripts = [
 	'vle/node/template/template.js',
 	/*
      * TODO: rename template
-     * TODO: rename templatestate.js
+     * TODO: rename templateState.js
      * 
      * For example if you are creating a quiz node you would change it to
      * 'vle/node/quiz/quizState.js'
@@ -52,7 +52,7 @@ var authorScripts = [
 var gradingScripts = [
   	/*
 	 * TODO: rename template
-	 * TODO: rename templatestate.js
+	 * TODO: rename templateState.js
 	 * 
 	 * For example if you are creating a quiz node you would change it to
 	 * 'vle/node/quiz/quizState.js'
