@@ -109,29 +109,28 @@ View.prototype.initiateGradingDisplay = function() {
  */
 View.prototype.getGradingHeaderTableHtml = function() {
 	var getGradingHeaderTableHtml = "";
-
 	//generate the buttons for other grading views and the export and refresh buttons
 	getGradingHeaderTableHtml += "<table id='gradingHeaderTable' class='gradingHeaderTable' name='gradingHeaderTable'>";
 	getGradingHeaderTableHtml += "<tr class='runButtons'><td colspan='2'>";
-	getGradingHeaderTableHtml += "<input type='button' value='Grade By Step' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='Grade By Team' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_grade_by_step",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_grade_by_team",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\"></input>";
 	
 	var runInfoStr = this.config.getConfigParam('runInfo');
 	if (runInfoStr != null && runInfoStr != "") {
 		var runInfo = JSON.parse(runInfoStr);
 		if (runInfo.isStudentAssetUploaderEnabled != null &&
 				runInfo.isStudentAssetUploaderEnabled) {
-			getGradingHeaderTableHtml += "<input type='button' value='View Student Uploaded Files' onClick=\"eventManager.fire('displayStudentUploadedFiles')\"></input>";
+			getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_view_student_uploaded_files",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('displayStudentUploadedFiles')\"></input>";
 		}
 	}
 	
-	getGradingHeaderTableHtml += "<input type='button' value='Export Latest Student Work' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='Export All Student Work' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='Export Idea Baskets' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='Check for New Student Work' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='SAVE CHANGES' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_export_latest_student_work",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_export_all_student_work",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_export_idea_baskets",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_check_for_new_student_work",this.config.getConfigParam("locale"))+"' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.i18n.getString("grading_button_save_changes",this.config.getConfigParam("locale"))+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
 	getGradingHeaderTableHtml += "</td></tr></table>";
-	
+
 	return getGradingHeaderTableHtml;
 };
 
@@ -149,7 +148,9 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 	displayGradeByTeamSelectPageHtml += this.getGradingHeaderTableHtml();
 	
 	//display Grade by Team header
-	displayGradeByTeamSelectPageHtml += "<div id='gradeStepHeader'>GRADE BY TEAM (select a team below):</div>";
+	//"+this.i18n.getString("grading_grade_by_step",this.config.getConfigParam("locale"))+"
+	
+	displayGradeByTeamSelectPageHtml += "<div id='gradeStepHeader'>"+this.i18n.getString("grading_grade_by_team_header",this.config.getConfigParam("locale"))+"</div>";
 	
 	//get the html that will be used to filter workgroups by period
 	displayGradeByTeamSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
@@ -158,7 +159,10 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 	displayGradeByTeamSelectPageHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
 	
 	//the header row
-	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>Period</th><th class='gradeColumn col2'>Team</th><th class='gradeColumn col3'>Teacher-Graded Score<br/><span style='font-size:85%''>(scored-items only)</span></th><th>Items to Review</th><th>% Project Completed</th></tr></thead>";
+	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.i18n.getString("period",this.config.getConfigParam("locale"))+"</th>"+
+			"<th class='gradeColumn col2'>"+this.i18n.getString("team",this.config.getConfigParam("locale"))+"</th>"+
+			"<th class='gradeColumn col3'>"+this.i18n.getString("grading_grade_by_team_teacher_graded_score",this.config.getConfigParam("locale"))+"<br/><span style='font-size:85%''>("+this.i18n.getString("grading_grade_by_step_scored_items_only",this.config.getConfigParam("locale"))+")</span></th>"+
+			"<th>"+this.i18n.getString("grading_grade_by_step_items_to_review",this.config.getConfigParam("locale"))+"</th><th>"+this.i18n.getString("grading_grade_by_team_percentage_project_completed",this.config.getConfigParam("locale"))+"</th></tr></thead>";
 	
 	//retrieve an array of classmate objects in alphabetical order
 	var classmatesInAlphabeticalOrder = this.getUserAndClassInfo().getClassmatesInAlphabeticalOrder();
@@ -281,12 +285,15 @@ View.prototype.displayGradeByStepSelectPage = function() {
 	displayGradeByStepSelectPageHtml += this.getGradingHeaderTableHtml();
 	
 	//display Grade by Step header
-	displayGradeByStepSelectPageHtml += "<div id='gradeStepHeader'>GRADE BY STEP (select a step below):</div>";
+	displayGradeByStepSelectPageHtml += "<div id='gradeStepHeader'>"+this.i18n.getString("grading_grade_by_step_header",this.config.getConfigParam("locale"))+"</div>";
 	
 	//get the html that will be used to filter grading statistics by period
 	displayGradeByStepSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByStepSelectPage");
 	
-	displayGradeByStepSelectPageHtml += "<table id='statisticsTable'><tr><td class='col1'></td><td class='header col2'>Point Value<br/><span style='font-size:80%'>EDITABLE</span></td><td class='header col3'>Items to Review</td><td class='header col4'>Avg Class Score<br><span style='font-size:80%'>(scored items only)</span></td><td class='header col5'>% of Students Who Have Completed This Step</td></tr></table";
+	displayGradeByStepSelectPageHtml += "<table id='statisticsTable'><tr><td class='col1'></td>" +
+				"<td class='header col2'>"+this.i18n.getString("grading_grade_by_step_point_value",this.config.getConfigParam("locale"))+"<br/><span style='font-size:80%'>"+this.i18n.getString("grading_grade_by_step_editable",this.config.getConfigParam("locale"))+"</span></td>"+
+				"<td class='header col3'>"+this.i18n.getString("grading_grade_by_step_items_to_review",this.config.getConfigParam("locale"))+"</td><td class='header col4'>"+this.i18n.getString("grading_grade_by_step_average_class_score",this.config.getConfigParam("locale"))+"<br><span style='font-size:80%'>("+this.i18n.getString("grading_grade_by_step_scored_items_only",this.config.getConfigParam("locale"))+")</span></td>"+
+				"<td class='header col5'>"+this.i18n.getString("grading_grade_by_step_percent_completed_step",this.config.getConfigParam("locale"))+"</td></tr></table>";
 	
 	//start the table that will contains links for the steps
 	displayGradeByStepSelectPageHtml += "<table id='chooseStepToGradeTable' class='chooseStepToGradeTable'><tbody>";
@@ -301,7 +308,7 @@ View.prototype.displayGradeByStepSelectPage = function() {
 	displayGradeByStepSelectPageHtml += this.displayGradeByStepSelectPageHelper(this.getProject().getRootNode());
 
 	//close the table
-	displayGradeByStepSelectPageHtml += "</tbody></table><div id='lowerSaveButton'><input type='button' value='SAVE CHANGES' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
+	displayGradeByStepSelectPageHtml += "</tbody></table><div id='lowerSaveButton'><input type='button' value='"+this.i18n.getString("grading_button_save_changes",this.config.getConfigParam("locale"))+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
 
 	//set the html into the div
 	unlock();
@@ -653,13 +660,13 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		previousButtonEvent = "eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + previousAndNextNodeIds.previousNodePosition + "\", \"" + previousAndNextNodeIds.previousNodeId + "\"])";
 	} else {
 		//if there is no previous step (because this is the first step), we will display a popup message
-		previousButtonEvent = "alert(\"Previous Step does not exist: this is the first gradable step\")";
+		previousButtonEvent = "alert(\""+this.i18n.getString("grading_previous_step_not_exist",this.config.getConfigParam("locale"))+"\")";
 	}
 	
-	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + previousButtonEvent + "'>Previous Step</a></td>";
+	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + previousButtonEvent + "'>"+this.i18n.getString("grading_previous_step",this.config.getConfigParam("locale"))+"</a></td>";
 	
 	//show the button to go back to select another step
-	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>Change Step</a></td>";
+	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>"+this.i18n.getString("grading_change_step",this.config.getConfigParam("locale"))+"</a></td>";
 	
 	//show the button to go to the next step in the project
 	var nextButtonEvent;
@@ -667,15 +674,17 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		nextButtonEvent = "eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + previousAndNextNodeIds.nextNodePosition + "\", \"" + previousAndNextNodeIds.nextNodeId + "\"])";
 	} else {
 		//if there is no next step (because this is the last step), we will display a popup message
-		nextButtonEvent = "alert(\"Next Step does not exist: this is the last gradable step\")";
+		nextButtonEvent = "alert(\""+this.i18n.getString("grading_next_step_not_exist",this.config.getConfigParam("locale"))+"\")";
 	}
 	
-	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + nextButtonEvent + "'>Next Step</a></td>";
+	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + nextButtonEvent + "'>"+this.i18n.getString("grading_next_step",this.config.getConfigParam("locale"))+"</a></td>";
 	
 	gradeByStepGradingPageHtml += "</tr></table>";
 
 	//show the button that toggles the question for the step
-	gradeByStepGradingPageHtml += "<div class='questionContentContainer'><div class='questionContentHeader'><b>Question:</b><a href='#' onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">Hide/Show the Question</a>";
+	gradeByStepGradingPageHtml += "<div class='questionContentContainer'><div class='questionContentHeader'><b>"+this.i18n.getString("grading_question",this.config.getConfigParam("locale"))+":</b>"+
+		"<a href='#' onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.i18n.getString("grading_hide_show_question",this.config.getConfigParam("locale"))+"</a>";
+	
 	
 	gradeByStepGradingPageHtml += "</div>";
 	
@@ -695,7 +704,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box to hide personal info
-	gradeByStepGradingPageHtml += "<div id='filterOptions'><input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"eventManager.fire('onlyShowWorkOnClick')\" " + hidePersonalInfoChecked + "/><p>Hide Personal Info</p>";
+	gradeByStepGradingPageHtml += "<div id='filterOptions'><input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"eventManager.fire('onlyShowWorkOnClick')\" " + hidePersonalInfoChecked + "/>"+
+		"<p>"+this.i18n.getString("grading_hide_personal_info",this.config.getConfigParam("locale"))+"</p>";
 	
 	//check if show flagged items check box was previously checked
 	var showFlaggedChecked = '';
@@ -703,9 +713,20 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		showFlaggedChecked = 'checked';
 	}
 	
-	//check box to filter only flagged items
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + showFlaggedChecked + "/><p>Show Flagged Items Only</p>";
+	//check if show smart-filtered items check box was previously checked
+	var showSmartFilteredChecked = '';
+	if(this.gradingShowSmartFiltered) {
+		showSmartFilteredChecked = 'checked';
+	}
 	
+	//check box to filter only flagged items
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + showFlaggedChecked + "/>"+
+		"<p>"+this.i18n.getString("grading_show_flagged_items_only",this.config.getConfigParam("locale"))+"</p>";
+
+	//check box to filter only items that passed the smartfilter
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowSmartFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + showSmartFilteredChecked + "/>"+
+		"<p>"+this.i18n.getString("grading_show_smart_filtered_items_only",this.config.getConfigParam("locale"))+"</p>";
+
 	//check if enlarge student work check box was previously checked
 	var enlargeStudentWorkTextChecked = '';
 	if(this.gradingEnlargeStudentWorkText) {
@@ -713,7 +734,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box for enlarging the student work text
-	gradeByStepGradingPageHtml += "<input type='checkbox' id='enlargeStudentWorkTextCheckBox' value='show filtered items' onClick=\"eventManager.fire('enlargeStudentWorkText')\" " + enlargeStudentWorkTextChecked + "/><p>Enlarge Student Work Text</p>";
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='enlargeStudentWorkTextCheckBox' value='show filtered items' onClick=\"eventManager.fire('enlargeStudentWorkText')\" " + enlargeStudentWorkTextChecked + "/>"
+		+"<p>"+this.i18n.getString("grading_enlarge_student_work_text",this.config.getConfigParam("locale"))+"</p>";
 	
 	//check if show revisions check box was previously checked
 	var showRevisionsChecked = '';
@@ -723,7 +745,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	
 	if(this.getRevisions) {
 		//check box for showing all revisions
-		gradeByStepGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>Show All Revisions</p>";		
+		gradeByStepGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/>"+
+			"<p style='display:inline'>"+this.i18n.getString("grading_show_all_revisions",this.config.getConfigParam("locale"))+"</p>";
 	}
 
 	gradeByStepGradingPageHtml += "</div>";
@@ -734,7 +757,10 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	gradeByStepGradingPageHtml += "<table border='1' id='studentWorkTable' class='studentWorkTable'>";
 
 	//add the header for the table
-	gradeByStepGradingPageHtml += "<tr><th class='gradeColumn workgroupIdColumn'>Team</th><th class='gradeColumn workColumn'>Student Work</th><th class='gradeColumn gradingColumn'>Teacher Comment / Score</th><th class='gradeColumn annotationColumn'>Tools</th></tr>";
+	gradeByStepGradingPageHtml += "<tr><th class='gradeColumn workgroupIdColumn'>"+this.i18n.getString("team_caps",this.config.getConfigParam("locale"))+"</th>"+
+		"<th class='gradeColumn workColumn'>"+this.i18n.getString("student_work",this.config.getConfigParam("locale"))+"</th>"+
+		"<th class='gradeColumn gradingColumn'>"+this.i18n.getString("teacher_comment_and_score",this.config.getConfigParam("locale"))+"</th>"+
+		"<th class='gradeColumn annotationColumn'>"+this.i18n.getString("tools",this.config.getConfigParam("locale"))+"</th></tr>";
 	
 	var vleStates = this.getVleStatesSortedByUserName();
 	
@@ -826,22 +852,23 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var toggleRevisionsLink = "";
 		if(nodeVisitRevisions.length > 1) {
 			//there is more than one revision so we will display a link that will display the other revisions
-			toggleRevisionsLink = "<br><br><a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">Hide/Show Revisions</a>";
+			toggleRevisionsLink = "<br><br><a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+this.i18n.getString("grading_hide_show_revisions",this.config.getConfigParam("locale"))+"</a>";
 		} else if(nodeVisitRevisions.length == 1) {
 			if(this.getRevisions) {
 				//we retrieved all revisions so that means there are no other revisions
-				toggleRevisionsLink = "<br><br>No Revisions";
+				toggleRevisionsLink = "<br><br>"+this.i18n.getString("grading_no_revisions",this.config.getConfigParam("locale"));
 			} else {
 				//we only retrieved the latest revision so there may be other revisions
-				toggleRevisionsLink = "<br><br>Only Latest Revision Displayed";
+				toggleRevisionsLink = "<br><br>"+this.i18n.getString("grading_only_latest_revision_displayed",this.config.getConfigParam("locale"));
 			}
 		} else if(nodeVisitRevisions.length == 0) {
 			//there are no revisions
-			toggleRevisionsLink = "<br><br>No Revisions";
+			toggleRevisionsLink = "<br><br>"+this.i18n.getString("grading_no_revisions",this.config.getConfigParam("locale"));
 		}
 		
 		//display the student workgroup id
-		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><a href='#' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a><br><br>[Period " + periodName + "]" + toggleRevisionsLink + "</td>";
+		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><a href='#' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a>"+
+			"<br><br>["+this.i18n.getString("period",this.config.getConfigParam("locale"))+" " + periodName + "]" + toggleRevisionsLink + "</td>";
 		
 		//make the css class for the td that will contain the student's work
 		var studentWorkTdClass = "gradeColumn workColumn";
@@ -912,7 +939,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 
 	//close the table that contains all the student rows
-	gradeByStepGradingPageHtml += "</table><div id='lowerSaveButton'><input type='button' value='SAVE CHANGES' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
+	gradeByStepGradingPageHtml += "</table><div id='lowerSaveButton'><input type='button' value='"+this.i18n.getString("grading_button_save_changes",this.config.getConfigParam("locale"))+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
 
 	//set the html in the div so the user can see it
 	document.getElementById('gradeWorkDiv').innerHTML = gradeByStepGradingPageHtml;
@@ -1537,7 +1564,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 	//if student work is null set to empty string
 	if(studentWork == null) {
 		//since there was no student work we will display a default message in its place
-		studentWork = "<br><p style='text-align:center'>(Student has not submitted work for this step, you will not be able to score, comment, or flag this item)</p>";
+		studentWork = "<br><p style='text-align:center'>("+this.i18n.getString("grading_no_work_warning",this.config.getConfigParam("locale"))+")</p>";
 	} else if (studentWork != "" && node.type == "MySystemNode") {
 		//var divId = "mysystemDiagram_"+workgroupId;
 		var divId = "mysystemDiagram_"+stepWorkId+"_"+latestNodeVisitPostTime;
@@ -1567,7 +1594,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 		//studentWork = "(Grading for MySystem not available)";
 		
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(latestNodeVisitPostTime) + "</p>";
+		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>"+this.i18n.getString("timestamp",this.config.getConfigParam("locale"))+": " + new Date(latestNodeVisitPostTime) + "</p>";
 	} else if (studentWork != "" && node.type == "SVGDrawNode") {
 		// if the work is for a SVGDrawNode, embed the svg
 		var divId = "svgDraw_"+stepWorkId+"_"+latestNodeVisitPostTime;
@@ -1647,7 +1674,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 		}
 		
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(latestNodeVisitPostTime) + "</p>";
+		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>"+this.i18n.getString("timestamp",this.config.getConfigParam("locale"))+": " + new Date(latestNodeVisitPostTime) + "</p>";
 	} else if(studentWork != "" && this.isSelfRenderingGradingViewNodeType(node.type)) {
 		//create the student work div that we will insert the student work into later
 		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '"></div>';
@@ -1895,9 +1922,9 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	
 	//display the last annotation post time
 	if(lastAnnotationPostTime != null && lastAnnotationPostTime.getTime() != new Date(0).getTime()) {
-		lastAnnotationMessage = "Last Annotation: " + lastAnnotationPostTime;
+		lastAnnotationMessage = ""+this.i18n.getString("last_annotation",this.config.getConfigParam("locale"))+": " + lastAnnotationPostTime;
 	} else {
-		lastAnnotationMessage = "Last Annotation: not available";
+		lastAnnotationMessage = ""+this.i18n.getString("last_annotation",this.config.getConfigParam("locale"))+": "+this.i18n.getString("not_available",this.config.getConfigParam("locale"))+"";
 	}
 	
 	//display the td for the score and comment box
@@ -1907,17 +1934,17 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	scoringAndCommentingTdHtml += "<table id='teacherAnnotationTable'>";
 	
 	//display the score box
-	scoringAndCommentingTdHtml += "<tr><td>Score: <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('saveScore', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
+	scoringAndCommentingTdHtml += "<tr><td>"+this.i18n.getString("score",this.config.getConfigParam("locale"))+": <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('saveScore', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
 	
 	var openPremadeCommentsLink = "";
 	
 	if(isGradingDisabled != "disabled") {
 		//if grading is enabled, display the link to open the premade comments
-		openPremadeCommentsLink = "<a href='#' onclick='eventManager.fire(\"openPremadeComments\", [\"annotationCommentTextArea_" + workgroupId + "_" + nodeId + "\", \"studentWorkColumn_" + stepWorkId + "\"])'>Open Premade Comments</a>";
+		openPremadeCommentsLink = "<a href='#' onclick='eventManager.fire(\"openPremadeComments\", [\"annotationCommentTextArea_" + workgroupId + "_" + nodeId + "\", \"studentWorkColumn_" + stepWorkId + "\"])'>"+this.i18n.getString("grading_open_premade_comments",this.config.getConfigParam("locale"))+"</a>";
 	}
 	
 	//display the comment box
-	scoringAndCommentingTdHtml += "<tr><td>Comment: " + openPremadeCommentsLink + "<br><textarea wrap='soft' cols='" + textAreaCols + "' rows='" + commentTextAreaRows + "' id='annotationCommentTextArea_" + workgroupId + "_" + nodeId + "' onblur=\"eventManager.fire('saveComment', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"', this])\"" + isGradingDisabled + ">" + annotationCommentValue + "</textarea></td></tr>";
+	scoringAndCommentingTdHtml += "<tr><td>"+this.i18n.getString("comment",this.config.getConfigParam("locale"))+": " + openPremadeCommentsLink + "<br><textarea wrap='soft' cols='" + textAreaCols + "' rows='" + commentTextAreaRows + "' id='annotationCommentTextArea_" + workgroupId + "_" + nodeId + "' onblur=\"eventManager.fire('saveComment', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"', this])\"" + isGradingDisabled + ">" + annotationCommentValue + "</textarea></td></tr>";
 	
 	//display the last annotation post time
 	scoringAndCommentingTdHtml += "<tr><td><p id='lastAnnotationPostTime_" + workgroupId + "_" + nodeId + "' class='lastAnnotationPostTime'>" + lastAnnotationMessage + "</p></td></tr>";
@@ -1933,7 +1960,7 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 
 View.prototype.getFlaggingTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass) {
 	
-	return "<td class='" + flaggingTdClass + "'><div></div><div class='gradeColumn flagColumn'><input type='checkbox' value='Flag' name='flagButton" + workgroupId + "' id='flagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + isGradingDisabled + " " + flagChecked + ">Flag</div></td>";
+	return "<td class='" + flaggingTdClass + "'><div></div><div class='gradeColumn flagColumn'><input type='checkbox' value='Flag' name='flagButton" + workgroupId + "' id='flagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + isGradingDisabled + " " + flagChecked + ">"+this.i18n.getString("flag",this.config.getConfigParam("locale"))+"</div></td>";
 };
 
 /**
@@ -1956,7 +1983,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	gradeByTeamGradingPageHtml += "<table class='objectToGradeHeaderTable'><tr><td class='objectToGradeTd'>" + userNames + "</td>";
 
 	//show the button to go back to select another workgroup
-	gradeByTeamGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>Change Team</a></td></tr></table>";
+	gradeByTeamGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>"+this.i18n.getString("grading_change_team",this.config.getConfigParam("locale"))+"</a></td></tr></table>";
 
 	//check if show revisions check box was previously checked
 	var showRevisionsChecked = '';
@@ -1964,9 +1991,9 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		showRevisionsChecked = 'checked';
 	}
 	
-	if(this.getRevisions) {
+	if (this.getRevisions) {
 		//check box for showing all revisions
-		gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>Show All Revisions</p></div>";		
+		gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.i18n.getString("grading_show_all_revisions",this.config.getConfigParam("locale"))+"</p></div>";
 	}
 	
 	//get the work for the workgroup id
@@ -1979,7 +2006,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	gradeByTeamGradingPageHtml += this.displayGradeByTeamGradingPageHelper(this.getProject().getRootNode(), vleState);
 	
 	//add a SAVE CHANGES button at bottom of all the Grade by Team Tables   ADDED BY MATTFISH
-	gradeByTeamGradingPageHtml += "<div id='lowerSaveButton'><input type='button' value='SAVE CHANGES' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
+	gradeByTeamGradingPageHtml += "<div id='lowerSaveButton'><input type='button' value='"+this.i18n.getString("grading_button_save_changes",this.config.getConfigParam("locale"))+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
 		
 	//set the html in the div so the user can see it
 	document.getElementById('gradeWorkDiv').innerHTML = gradeByTeamGradingPageHtml;
@@ -2100,27 +2127,29 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 			if(nodeVisitRevisions.length > 1) {
 				//there is more than one revision so we will display a link that will display the other revisions
-				toggleRevisionsLink = "  <a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">Hide/Show Revisions</a>";
+				toggleRevisionsLink = "  <a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+this.i18n.getString("grading_hide_show_revisions",this.config.getConfigParam("locale"))+"</a>";
 			} else if(nodeVisitRevisions.length == 1) {
 				//there is only one revisions
 				
 				if(this.getRevisions) {
 					//we retrieved all revisions so that means there are no other revisions
-					toggleRevisionsLink = "No Revisions";
+					toggleRevisionsLink = this.i18n.getString("grading_no_revisions",this.config.getConfigParam("locale"));
 				} else {
 					//we only retrieved the latest revision so there may be other revisions
-					toggleRevisionsLink = "Only Latest Revision Displayed";
+					toggleRevisionsLink = this.i18n.getString("grading_only_latest_revision_displayed",this.config.getConfigParam("locale"));
 				}
 			} else if(nodeVisitRevisions.length == 0) {
 				//there are no revisions
-				toggleRevisionsLink = "No Revisions";
+				toggleRevisionsLink = this.i18n.getString("grading_no_revisions",this.config.getConfigParam("locale"));
 			}
 			
 			//display the step title and link and also the button to display the question/prompt
 			displayGradeByTeamGradingPageHtml += "<table id='studentWorkRow_"+workgroupId+"_"+nodeId+"_"+stepWorkId+"' class='" + gradeByTeamGradingPageWorkStepTableClass + "'>";
-			displayGradeByTeamGradingPageHtml += "<thead class='gradeTeamTableHeader'><tr><td>Student Work</td><td>Teacher Feedback / Score</td><td>Tools</td></tr></thead>";
+			displayGradeByTeamGradingPageHtml += "<thead class='gradeTeamTableHeader'><tr><td>"+this.i18n.getString("student_work",this.config.getConfigParam("locale"))+"</td>"+
+				"<td>"+this.i18n.getString("teacher_comment_and_score",this.config.getConfigParam("locale"))+"</td>"+
+				"<td>"+this.i18n.getString("tools",this.config.getConfigParam("locale"))+"</td></tr></thead>";
 			displayGradeByTeamGradingPageHtml += "<tr><td class='chooseStepToGradeStepTd'><a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + nodeId + "\"])'>" + position + " " + node.getTitle() + "</a>&nbsp;&nbsp;<span class='byTeamStepType'>(" + node.type + ")</span></td>";
-			displayGradeByTeamGradingPageHtml += "<td class='chooseStepToGradeStepTd2 colspan='2'><a href='#' onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">Hide/Show the Question</a>" + toggleRevisionsLink + "</td>";
+			displayGradeByTeamGradingPageHtml += "<td class='chooseStepToGradeStepTd2 colspan='2'><a href='#' onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.i18n.getString("grading_hide_show_question",this.config.getConfigParam("locale"))+"</a>" + toggleRevisionsLink + "</td>";
 			displayGradeByTeamGradingPageHtml += "</tr>";
 
 			//get the prompt/question for the step
@@ -2325,7 +2354,7 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 	var periodRadioButtonTableHtml = "";
 	
 	//the div to display the period radio buttons that filter the periods
-	periodRadioButtonTableHtml += "<table id='choosePeriodTable' class='choosePeriodTable'>";
+	periodRadioButtonTableHtml += "<div id='choosePeriodTable' class='choosePeriodTable'>";
 
 	//split the period numbers into an array
 	var periods = this.getUserAndClassInfo().getPeriodName().split(":");
@@ -2343,7 +2372,7 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 	}
 	
 	//create a radio button to display all periods
-	periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='all' onClick=\"eventManager.fire('filterStudentRows')\" " + allPeriodsChecked + "> All Periods</div>";
+	periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='all' onClick=\"eventManager.fire('filterStudentRows')\" " + allPeriodsChecked + "> "+this.i18n.getString("grading_grade_by_step_all_periods",this.config.getConfigParam("locale"))+"</div>";
 
 	//loop through the periods
 	for(var p=0; p<periods.length; p++) {
@@ -2361,7 +2390,7 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 		periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='period" + periods[p] + "' onClick=\"eventManager.fire('filterStudentRows')\" " + periodChecked + "> P" + periods[p] + "</div>";
 	}
 
-	periodRadioButtonTableHtml += "</table>";
+	periodRadioButtonTableHtml += "</div>";
 	
 	return periodRadioButtonTableHtml;
 };
@@ -2585,6 +2614,26 @@ View.prototype.isFlaggedItemsChecked = function() {
 };
 
 /**
+ * Checks if the show smart-filtered items checkbox is checked
+ * @return whether to only show the smart-filtered items
+ */
+View.prototype.isSmartFilterChecked = function() {
+	//the default value
+	var showSmartFiltered = null;
+	
+	//try to obtain the check box
+	var showSmartFilteredItemsCheckBox = document.getElementById("onlyShowSmartFilteredItemsCheckBox");
+	
+	//check if the check box exists, some pages do not have it
+	if(showSmartFilteredItemsCheckBox) {
+		//see if the checkbox was checked
+		showSmartFiltered = showSmartFilteredItemsCheckBox.checked;
+	}
+	
+	return showSmartFiltered;
+};
+
+/**
  * Determine if we are showing revisions or not by looking
  * at the radio button
  * @return whether we are showing revisions or not
@@ -2659,6 +2708,13 @@ View.prototype.filterStudentRows = function() {
 	
 	if(showFlagged != null) {
 		this.gradingShowFlagged = showFlagged;		
+	}
+	
+	//get whether we are to only show items that passed smart filter
+	var showSmartFiltered = this.isSmartFilterChecked();
+	
+	if(showSmartFiltered != null) {
+		this.gradingShowSmartFiltered = showSmartFiltered;		
 	}
 	
 	//get whether we are to show revisions
@@ -2743,13 +2799,18 @@ View.prototype.filterStudentRows = function() {
 		if(!showRevisions) {
 			/*
 			 * show revisions is not checked so we need to hide revisions unless
-			 * flagging is on and the revision is flagged
+			 * flagging is on and the revision is flagged or the revision is smartfiltered
 			 */
 			
 			if(showFlagged && studentWorkRow.getAttribute('isFlagged') == 'true') {
 				/*
 				 * allow the row to be displayed because show flagged is on and
 				 * this revision is flagged
+				 */
+			} else if (showSmartFiltered && $(studentWorkRow).children(".workColumn").find(".smartFilter").length > 0) {
+				/*
+				 * allow the row to be displayed because show smart-filtered is on and
+				 * this revision is smartfiltered
 				 */
 			} else if(studentRowClass.indexOf('studentWorkRevisionRow') != -1) {
 				//the row is a revision so we will not show it
@@ -2774,6 +2835,18 @@ View.prototype.filterStudentRows = function() {
 			}
 		} else {
 			studentWorkRow.style.display = "none";
+		}
+		
+		/*
+		 * filter by flagged (check if only show flagged items is checked
+		 * and if so, check if the row is flagged)
+		 */
+		if(showSmartFiltered) {
+			//only show smart-filtered items is selected
+			if($(studentWorkRow).children(".workColumn").find(".smartFilter").length == 0) {
+				//the row is not smart-filtered (didn't pass filter) so we will not show it
+				studentWorkRow.style.display= "none";
+			}
 		}
 	}
 	
@@ -3012,7 +3085,7 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
-			$("#studentWorkDiv_" + stepWorkId).append("<br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(nodeVisitPostTime) + "</p>");	
+			$("#studentWorkDiv_" + stepWorkId).append("<br><p class='lastAnnotationPostTime'>"+this.i18n.getString("timestamp",this.config.getConfigParam("locale"))+": " + new Date(nodeVisitPostTime) + "</p>");	
 		}
 	}
 };

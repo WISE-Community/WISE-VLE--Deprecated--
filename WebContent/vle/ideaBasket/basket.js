@@ -714,12 +714,12 @@ IdeaBasket.prototype.updateOrder = function(target){
 IdeaBasket.prototype.updateToolbarCount = function(pulsate){
 	var total = this.ideas.length;
 	if($("#ideaBasketLink span").length){
-		$("#ideaBasketLink span").text(' Ideas (' + total + ')');
+		$("#ideaBasketLink span#ideaCount").text(' (' + total + ')');
 		if(pulsate){
 			$("#ideaBasketLink span").effect("pulsate", { times:2 }, 500);
 		}
 	} else if($("#ideaBasketLink span", parent.document.body).length){
-		$("#ideaBasketLink span", parent.document.body).text(' Ideas (' + total + ')');
+		$("#ideaBasketLink span#ideaCount", parent.document.body).text(' (' + total + ')');
 		if (pulsate){
 			$("#ideaBasketLink span", parent.document.body).effect("pulsate", { times:2 }, 500);
 		}

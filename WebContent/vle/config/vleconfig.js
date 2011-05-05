@@ -34,6 +34,7 @@ function VLEConfig(contentObject) {
 		var postLevel;
 		var userType = "none";
 		var contentObject = contentObj;
+		var locale = "en";
 		
 		/**
 		 * Initialize the vle config by parsing the xml
@@ -190,6 +191,9 @@ function VLEConfig(contentObject) {
 			},
 			getUserType:function() {
 				return userType;
+			},
+			getUserLocale:function() {
+				return locale;
 			},
 			isValidTheme:function(theme) {
 				var allowableThemes = ['UCCP', 'WISE'];

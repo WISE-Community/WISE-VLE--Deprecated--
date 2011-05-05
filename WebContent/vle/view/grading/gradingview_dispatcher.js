@@ -43,6 +43,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.togglePrompt(args[0]);
 	} else if(type=='refreshGradingScreen') {
 		obj.refreshGradingScreen();
+	} else if(type=='smartFilter') {
+		obj.smartFilter();
 	} else if(type=='getAnnotationsComplete') {
 		obj.getIdeaBaskets();
 	} else if(type=='getIdeaBasketsComplete') {

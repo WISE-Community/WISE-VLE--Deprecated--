@@ -85,41 +85,7 @@ function bootstrapListener(type,args,obj){
                         
             <div id="projectRightUpperBox">
                 <div id="stepNavButtons1">
-                    <ul>
-                    	<li id='studentAssetsTD' style="display:none">
-                    		<a id="studentAssetsLink" onclick='eventManager.fire("viewStudentAssets")' title="View My Files"><img src="images/hint/star.png" alt="Files" border="0" /><span>&nbsp;Files&nbsp;</span></a>
-                    	</li>                    
-                    	<li>
-                    		<a id="hintsLink" onclick='eventManager.fire("showStepHints")' title="View Hints"><img src="images/hint/star.png" alt="Hints" border="0" /><span>&nbsp;Hints&nbsp;</span></a>
-                    	</li>
-                    	<li id='ideaBasketTD' style="display:none">
-                    		<a id="ideaBasketLink" onclick='eventManager.fire("displayIdeaBasket")' title="Idea Basket"><img src="images/ideaManager/basket2.png" alt="Basket" border="0" /><span>&nbsp;Ideas (0)</span></a>
-                    	</li>
-                    	<li id='addIdeaTD' style="display:none">
-                    		<a onclick='eventManager.fire("displayAddAnIdeaDialog")' title="Add an Idea"><img src="images/ideaManager/lightBulbPlus.png" alt="Light Bulb" border="0" />Add Idea</a>
-                    	</li>
-                        <li id='myWorkTD'>
-                            <a class="" onclick='eventManager.fire("showAllWork")' title="Review My Work"><img src="images/reviewAllWork.png" alt="Review My Work" border="0" />My Work</a>
-                        </li>
-                        <li id='flaggedWorkTD'>
-                            <a class="" onclick='eventManager.fire("showFlaggedWork")' title="Show Flagged Work"><img src="images/reviewAllWork.png" alt="Show Flagged Work" border="0" />Flagged</a>
-                        </li>
-                        <li id='journalTD' style="display:none">
-                            <a class="" onclick='eventManager.fire("showJournal")' title="Show Student Journal"><img src="images/Journal28x28.png" alt="Show My Journal" border="0" />&nbsp;Journal</a>
-                        </li>
-                        <li id='menuTD'>
-                            <a class="menuSwitcher" onclick='eventManager.fire("toggleNavigationPanelVisibility")' title="Nav Menu Switcher"><img src="images/NavBar-Switch32.png" alt="Full Screen On/Off " border="0" />Full Screen</a>
-                        </li>
-                        <li>
-                            <a onclick='eventManager.fire("renderPrevNode")' title="Previous step"><img src="images/go-previous.png" alt="Previous Arrow" border="0" /></a>
-                        </li>
-                        <li>
-                            <a onclick='eventManager.fire("renderNextNode")' title="Next step"><img src="images/go-next.png" alt="Next Arrow" border="0" /></a>
-                        </li>
-                         <li>
-                            <a id="quitAndLogoutLink" class="tightText" onclick="eventManager.fire('logout')" target="_parent" title="Save & Sign Out" style="margin-right:0;"><img src="images/exit.png" alt="Sign Out" border="0" />Sign Out</a> | 
-                            <a id="goHomeLink" class="tightText" href="/webapp/student/index.html" target="_parent" title="Go to home page">Home</a>
-                        </li>
+                    <ul id="projectRightUpperBoxUL">
                     </ul>
                 </div>
                 
@@ -199,14 +165,6 @@ function bootstrapListener(type,args,obj){
                 </div>
 
                 <div id="navigationArea">
-                    <div id="navMenuControls">
-                        <input type="button" value="Expand All" onclick='eventManager.fire("menuExpandAll")'/><input type="button" value="Collapse All" onclick='eventManager.fire("menuCollapseAll")'/>
-                    </div>
-                    <div id="navigationMenuBox">
-                        <div id="my_menu" class="sdmenu">
-                        </div>
-                    </div>
-				<!--  end of #navigationMenuBox -->
                 </div>
                 <!-- end of #navigationArea -->
                 <div id="hostBrandingBoxLower" style="display:none">

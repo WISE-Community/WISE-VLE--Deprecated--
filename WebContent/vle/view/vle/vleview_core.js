@@ -148,7 +148,7 @@ View.prototype.startVLEFromParams = function(obj){
 View.prototype.startVLE = function(){
 	/* fire startVLEBegin event */
 	this.eventManager.fire('startVLEBegin');
-	
+
 	/* load the project based on new config object parameters, lazy load */
 	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), true);
 
@@ -156,7 +156,7 @@ View.prototype.startVLE = function(){
 
 	/* load theme based on config object parameters */
 	this.loadTheme(this.config.getConfigParam('theme'));
-
+	
 	/* fire startVLEComplete event */
 	this.eventManager.fire('startVLEComplete');
 };
@@ -165,7 +165,19 @@ View.prototype.startVLE = function(){
  * Loads the Global Tools (top menu items, [idea manager, student file uploader, etc])
  * based on project config and overwritten by run config
  */
-View.prototype.displayGlobalTools = function() {
+View.prototype.displayGlobalTools = function() {	
+	var studentAssetsToolbarHtml=	"<li id='studentAssetsTD' style=\"display:none\"><a id=\"studentAssetsLink\" onclick='eventManager.fire(\"viewStudentAssets\")' title=\"View My Files\"><img src=\"images/hint/star.png\" alt=\"Files\" border=\"0\" /><span>&nbsp;"+this.i18n.getString("top_toolbar_file_button_text",this.config.getConfigParam("locale"))+"&nbsp;</span></a></li>";                    
+	var ideaBasketToolbarHtml = "<li id='ideaBasketTD' style=\"display:none\"><a id=\"ideaBasketLink\" onclick='eventManager.fire(\"displayIdeaBasket\")' title=\"Idea Basket\"><img src=\"images/ideaManager/basket2.png\" alt=\"Basket\" border=\"0\" /><span>&nbsp;"+this.i18n.getString("top_toolbar_ideas_button_text",this.config.getConfigParam("locale"))+"</span><span id='ideaCount'>(0)</span></a></li>";
+	var addIdeaToolbarHtml = "<li id='addIdeaTD' style=\"display:none\"><a onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title=\"Add an Idea\"><img src=\"images/ideaManager/lightBulbPlus.png\" alt=\"Light Bulb\" border=\"0\" />"+this.i18n.getString("top_toolbar_addidea_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var myWorkToolbarHtml = "<li id='myWorkTD'><a class=\"\" onclick='eventManager.fire(\"showAllWork\")' title=\"Review My Work\"><img src=\"images/reviewAllWork.png\" alt=\"Review My Work\" border=\"0\" />"+this.i18n.getString("top_toolbar_mywork_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var flagToolbarHtml = "<li id='flaggedWorkTD'><a class=\"\" onclick='eventManager.fire(\"showFlaggedWork\")' title=\"Show Flagged Work\"><img src=\"images/reviewAllWork.png\" alt=\"Show Flagged Work\" border=\"0\" />"+this.i18n.getString("top_toolbar_flagged_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var journalToolbarHtml = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='eventManager.fire(\"showJournal\")' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.i18n.getString("top_toolbar_journal_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var fullScreenToolbarHtml = "<li id='menuTD'><a class=\"menuSwitcher\" onclick='eventManager.fire(\"toggleNavigationPanelVisibility\")' title=\"Nav Menu Switcher\"><img src=\"images/NavBar-Switch32.png\" alt=\"Full Screen On/Off \" border=\"0\" />"+this.i18n.getString("top_toolbar_fullscreen_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var prevNodeToolbarHtml = "<li><a onclick='eventManager.fire(\"renderPrevNode\")' title=\"Previous step\"><img src=\"images/go-previous.png\" alt=\"Previous Arrow\" border=\"0\" /></a></li>";
+	var nextNodeToolbarHtml = "<li><a onclick='eventManager.fire(\"renderNextNode\")' title=\"Next step\"><img src=\"images/go-next.png\" alt=\"Next Arrow\" border=\"0\" /></a></li>";
+	var signOutGoHomeToolbarHtml = "<li><a id=\"quitAndLogoutLink\" class=\"tightText\" onclick=\"eventManager.fire('logout')\" target=\"_parent\" title=\"Save & Sign Out\" style=\"margin-right:0;\"><img src=\"images/exit.png\" alt=\"Sign Out\" border=\"0\" />"+this.i18n.getString("top_toolbar_signout_button_text",this.config.getConfigParam("locale"))+"</a> | <a id=\"goHomeLink\" class=\"tightText\" href=\"/webapp/student/index.html\" target=\"_parent\" title=\"Go to home page\">"+this.i18n.getString("top_toolbar_gohome_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+
+	$("#projectRightUpperBoxUL").html(studentAssetsToolbarHtml+ideaBasketToolbarHtml+addIdeaToolbarHtml+myWorkToolbarHtml+flagToolbarHtml+journalToolbarHtml+fullScreenToolbarHtml+prevNodeToolbarHtml+nextNodeToolbarHtml+signOutGoHomeToolbarHtml);
 	
 	/* show/hide studentAssets, ideaManager, addIdea buttons based on project.metadata.tools config */
 	this.showToolsBasedOnConfig(this.projectMetadata.tools);
@@ -366,7 +378,14 @@ View.prototype.onProjectLoad = function(){
 		if(document.getElementById("logInBox") != null && this.userAndClassInfo) {
 			document.getElementById("logInBox").innerHTML = "Hello " + this.userAndClassInfo.getUserName();
 		}
+
+		// display ExpandAll/CollapseAll buttons
+		var expandAllText = this.i18n.getString("navigation_expand_all",this.config.getConfigParam("locale"));
+		var collapseAllText =  this.i18n.getString("navigation_collapse_all",this.config.getConfigParam("locale"));
+		var navigationHtml = "<div id=\"navMenuControls\"><input type=\"button\" value=\""+expandAllText+"\" onclick='eventManager.fire(\"menuExpandAll\")'/><input type=\"button\" value=\""+collapseAllText+"\" onclick='eventManager.fire(\"menuCollapseAll\")'/></div><div id=\"navigationMenuBox\"><div id=\"my_menu\" class=\"sdmenu\"></div></div>";
 		
+        $("#navigationArea").prepend(navigationHtml);
+        
 		//display the "Show Me Flagged Items" link if flagging is enabled
 		if(this.runManager != null && this.runManager.isFlaggingEnabled) {
 			document.getElementById("flagDiv").innerHTML = "<a href='#' id='flagButton' onClick='javascript:vle.displayFlaggedItems();' >Show Me Flagged Items</a>";
@@ -508,99 +527,105 @@ View.prototype.onRenderNodeComplete = function(position){
 	 * populate hints panel with current nodes hints
 	 * */
     if (currentNode.getHints() != null && currentNode.getHints().hintsArray != null && currentNode.getHints().hintsArray.length > 0) {
-    		var currentNode = this.getCurrentNode(); //get the node the student is currently on
-    		var numHints = currentNode.getHints().hintsArray.length; //get the number of hints for current node
-    		
-    		function highlight(){
-				$('#hintsLink').animate({
-					backgroundColor: '#FFFF00'
-				}, {
-					duration: 1200,
-					complete: function(){
-						$('#hintsLink').animate({
-							backgroundColor: '#FFFFFF'
-						}, {
-							duration: 1200,
-							complete: function(){
-								highlight();
-							}
-						});
-					}
-				});
+    	// check if hintsLink exists. if not, add it
+    	if ($("#hintsLink").size() == 0) {
+    		var hintButtonText = this.i18n.getString("top_toolbar_hint_button_text",this.config.getConfigParam("locale"));
+    		$("#projectRightUpperBoxUL").prepend("<li><a id=\"hintsLink\" onclick='eventManager.fire(\"showStepHints\")' title=\"View Hints\"><img src=\"images/hint/star.png\" alt=\"Hints\" border=\"0\" /><span>&nbsp;"+hintButtonText+"&nbsp;</span></a></li>");
+    	}
+	
+		var currentNode = this.getCurrentNode(); //get the node the student is currently on
+		var numHints = currentNode.getHints().hintsArray.length; //get the number of hints for current node
+		
+		function highlight(){
+			$('#hintsLink').animate({
+				backgroundColor: '#FFFF00'
+			}, {
+				duration: 1200,
+				complete: function(){
+					$('#hintsLink').animate({
+						backgroundColor: '#FFFFFF'
+					}, {
+						duration: 1200,
+						complete: function(){
+							highlight();
+						}
+					});
+				}
+			});
+		}
+
+		//check if the hintsDiv div exists
+	    if($('#hintsPanel').size()==0){
+	    	//the show hintsDiv does not exist so we will create it
+	    	$('<div id="hintsPanel"></div>').dialog(
+			{	autoOpen:false,
+				closeText:'Close',
+				width:400,
+				modal:false,
+				title:this.i18n.getString("hint_title",this.config.getConfigParam("locale")),
+				zindex:9999, 
+				position:["center",40],
+				resizable:false    					
+			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+			    // before the dialog closes, save hintstate
+		    	if ($(this).data("dialog").isOpen()) {	    		    		
+		    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
+		    		event.data.view.pushHintState(hintState);
+		    		//$('#hintsHeader').html('&nbsp').addClass('visited');
+		    	};
+		    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+	    		var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
+	    		event.data.view.pushHintState(hintState);
+		    });
+	    };
+		
+	    // append hints into one html string
+	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
+	    var hintsStringPart2 = "";   // second part will be the content within each tab
+	    var hintsArr = currentNode.getHints().hintsArray;
+	    for (var i=0; i< hintsArr.length; i++) {
+	    	var currentHint = hintsArr[i];
+	    	var nextLink = '<span class="tabNext">'+this.i18n.getString("hint_next",this.config.getConfigParam("locale"))+'</span>';
+	    	var prevLink = '<span class="tabPrev">'+this.i18n.getString("hint_prev",this.config.getConfigParam("locale"))+'</span>';
+	    	if(i==0){
+	    		var prevLink = '';
+	    		if(numHints<2){
+	    			nextLink = '';
+	    		}
+	    	} else if (i==numHints-1){
+	    		var nextLink = '';
+	    	}
+	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+this.i18n.getString("hint_hint",this.config.getConfigParam("locale"))+" "+(i+1)+"</a></li>";
+	    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
+		    	"<div class='hintHeader'>"+this.i18n.getString("hint_hint",this.config.getConfigParam("locale"))+" "+ (i+1) +" of " + numHints + "</div>"+
+		    	"<div class='hintText'>"+currentHint+"</div>"+
+		    	"<div class='hintControls'>" + prevLink + nextLink + "</div>"+
+	    		"</div>";
+	    }
+	    hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
+
+	    hintsString = "<div id='hintsTabs'>" + hintsStringPart1 + hintsStringPart2 + "</div>";
+	    //set the html into the div
+	    $('#hintsPanel').html(hintsString);
+
+	    // instantiate tabs 
+		var $tabs = $("#hintsTabs").tabs();
+		
+		// bind tab navigation link clicks
+		$('.tabPrev').click(function(){
+			var selected = $tabs.tabs('option', 'selected');
+			if(selected != 0){
+				$tabs.tabs('select', selected-1);
 			}
-
-    			//check if the hintsDiv div exists
-    		    if($('#hintsPanel').size()==0){
-    		    	//the show hintsDiv does not exist so we will create it
-    		    	$('<div id="hintsPanel"></div>').dialog(
-    				{	autoOpen:false,
-    					closeText:'Close',
-    					width:400,
-    					modal:false,
-    					title:'Step Hints',
-    					zindex:9999, 
-    					position:["center",40],
-    					resizable:false    					
-    				}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
-    				    // before the dialog closes, save hintstate
-    			    	if ($(this).data("dialog").isOpen()) {	    		    		
-    			    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
-    			    		event.data.view.pushHintState(hintState);
-    			    		//$('#hintsHeader').html('&nbsp').addClass('visited');
-    			    	};
-    			    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
-    		    		var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
-    		    		event.data.view.pushHintState(hintState);
-    			    });
-    		    };
-    			
-    		    // append hints into one html string
-    		    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
-    		    var hintsStringPart2 = "";   // second part will be the content within each tab
-    		    var hintsArr = currentNode.getHints().hintsArray;
-    		    for (var i=0; i< hintsArr.length; i++) {
-    		    	var currentHint = hintsArr[i];
-    		    	var nextLink = '<span class="tabNext">Next</span>';
-    		    	var prevLink = '<span class="tabPrev">Previous</span>';
-    		    	if(i==0){
-    		    		var prevLink = '';
-    		    		if(numHints<2){
-    		    			nextLink = '';
-    		    		}
-    		    	} else if (i==numHints-1){
-    		    		var nextLink = '';
-    		    	}
-    		    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
-    		    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
-    			    	"<div class='hintHeader'>Hint "+ (i+1) +" of " + numHints + "</div>"+
-    			    	"<div class='hintText'>"+currentHint+"</div>"+
-    			    	"<div class='hintControls'>" + prevLink + nextLink + "</div>"+
-    		    		"</div>";
-    		    }
-    		    hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
-
-    		    hintsString = "<div id='hintsTabs'>" + hintsStringPart1 + hintsStringPart2 + "</div>";
-    		    //set the html into the div
-    		    $('#hintsPanel').html(hintsString);
-
-    		    // instantiate tabs 
-    			var $tabs = $("#hintsTabs").tabs();
-    			
-    			// bind tab navigation link clicks
-    			$('.tabPrev').click(function(){
-    				var selected = $tabs.tabs('option', 'selected');
-    				if(selected != 0){
-    					$tabs.tabs('select', selected-1);
-    				}
-    			});
-    			
-    			// bind tab navigation links
-    			$('.tabNext').click(function(){
-    				var selected = $tabs.tabs('option', 'selected');
-    				if(selected < numHints-1){
-    					$tabs.tabs('select', selected+1);
-    				}
-    			});
+		});
+		
+		// bind tab navigation links
+		$('.tabNext').click(function(){
+			var selected = $tabs.tabs('option', 'selected');
+			if(selected < numHints-1){
+				$tabs.tabs('select', selected+1);
+			}
+		});
 			
 		$("#hintsLink").show();
 		highlight();

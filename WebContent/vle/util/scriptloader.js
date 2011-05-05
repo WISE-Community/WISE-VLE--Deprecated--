@@ -211,6 +211,7 @@ var scriptloader = function(){
         core: ['vle/common/helperfunctions.js',
                'vle/view/coreview.js',
                'vle/view/view_utils.js',
+               'vle/view/i18n/view_i18n.js',
                "vle/io/ConnectionManager.js",
                "vle/session/SessionManager.js",
                "vle/util/NotificationManager.js",

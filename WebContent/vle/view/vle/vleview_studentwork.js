@@ -286,11 +286,11 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="studentAssetsDiv" style="margin-bottom:.3em;"></div>');
 		var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none; text-align:left;'><div style='margin-bottom:.5em;'>" 
-			+ "<div id='assetUploaderBodyDiv'><span style='float:left;'>Upload New File:</span>"
+			+ "<div id='assetUploaderBodyDiv'><span style='float:left;'>"+this.i18n.getString("student_assets_upload_new_file",this.config.getConfigParam("locale"))+":</span>"
 			+ "<input style='margin:0 .5em;' type='file' size='30' id='uploadAssetFile' name='uploadAssetFile' onchange=\"eventManager.fire('studentAssetSubmitUpload')\"></input>"
 			+ "<img id='assetProcessing' style='display:none;' class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>"
 			+ "<div id='notificationDiv'>"
-			+ "</div></div><div><div style='margin-bottom: 0.5em;'>My Files: </div>"
+			+ "</div></div><div><div style='margin-bottom: 0.5em;'>"+this.i18n.getString("student_assets_my_files",this.config.getConfigParam("locale"))+": </div>"
 			+ "<select id='assetSelect' style='width:100%; height:200px; padding:.5em;' size='15'></select>"
 			+ "<div id='sizeDiv' style='margin-top: 0.5em; font-size: 0.9em;'></div><div id='uploaderInstructions'></div>"
 			+ "</div></div>";
@@ -306,7 +306,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 
 			var success = function(text, xml, o){
 				if(text.status==401){
-					xml.notificationManager.notify('You are not authorized to remove files from this project. If you believe this is an error, please ask your teacher.',3);
+					xml.notificationManager.notify(this.i18n.getString("student_assets_remove_file_warning",this.config.getConfigParam("locale")),3);
 				} else {
 					parent.removeChild(opt);
 					o.notificationManager.notify(text, 3);
@@ -332,10 +332,10 @@ View.prototype.viewStudentAssets = function(launchNode) {
 				var getStudentUploadsBaseUrl = view.config.getConfigParam("getStudentUploadsBaseUrl");
 				var fileWWW = getStudentUploadsBaseUrl + "/" + workgroupId + "/" + name;
 				if(view.getCurrentNode().importFile(fileWWW)) {
-					view.notificationManager.notify("Successfully imported file: " + name, 3);
+					view.notificationManager.notify(this.i18n.getString("student_assets_import_success_message",this.config.getConfigParam("locale"))+": " + name, 3);
 					$('#studentAssetsDiv').dialog('close');	
 				} else {
-					view.notificationManager.notify("Import Failed. The current step does not accept the file you have chosen. Please choose a different file.",3)
+					view.notificationManager.notify(this.i18n.getString("student_assets_import_failure_message",this.config.getConfigParam("locale")),3)
 				}
 			}
 		}
@@ -348,8 +348,11 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	var show = function(){
 		eventManager.fire('browserResize');
 	};
-
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,position:['center',50],modal:false,title:'My Project Files', buttons:{'Deleted Selected File':remove, 'Done':done}});
+	var addSelectedFileText = this.i18n.getString("student_assets_add_selected_file",this.config.getConfigParam("locale"));
+	var deleteSelectedFileText = this.i18n.getString("student_assets_delete_selected_file",this.config.getConfigParam("locale"));
+	var doneText = this.i18n.getString("done",this.config.getConfigParam("locale"));
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,position:['center',50],modal:false,title:this.i18n.getString("student_assets_my_files",this.config.getConfigParam("locale")), 
+			buttons:[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]});
 
 	/*
 	 * check if the div is hidden before trying to open it.
@@ -386,28 +389,13 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	// if the currently-opened node supports file import, show file import button
 	if(this.getCurrentNode() != null &&
 			this.getCurrentNode().importFile) {
-		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
-                {'Add Selected File to Step':saImport,'Delete Selected File':remove,'Done':done}
+		$( "#studentAssetsDiv" ).dialog( "option", "buttons",
+				[{text:addSelectedFileText,click:saImport},{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]
              );		
-		
-		/*
-		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
-		                                                       {'Done':done},
-		                                                       {'Import File to Step':import},
-		                                                       {'Remove Selected File':remove}
-		                                                    );		
-		                                                    */
 	} else {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
-                {'Done':done,'Delete Selected File':remove}
+				[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]				
              );		
-
-		/*
-		$( "#studentAssetsDiv" ).dialog( "option", "buttons", [
-		                                                       {'Done':done},
-		                                                       {'Remove Selected File':remove}
-		                                                   ] );		
-		                                                   */
 	}
 
 	this.connectionManager.request('POST', 1, this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'assetList'}, function(txt,xml,obj){studentAssetsPopulateOptions(txt,obj);}, this);	
@@ -420,9 +408,14 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 	var callback = function(text, xml, o){
 			o.currentAssetSize = text;
 			if(text >= o.MAX_ASSET_SIZE){
-				o.notificationManager.notify('Maximum space exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '. Please delete some files.', 3);
-			} else {
-				$('#sizeDiv').html("You are using " + o.utils.appropriateSizeText(text) + " of your " + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + " storage space.");
+				var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
+				var studentUsageSize = o.utils.appropriateSizeText(text);
+				var maxExceededMessage = o.i18n.getStringWithParams("student_assets_student_usage_exceeded_message",o.config.getConfigParam("locale"),[maxUploadSize,studentUsageSize]);
+				o.notificationManager.notify(maxExceededMessage, 3);
+			} else {				
+				var studentUsage = o.utils.appropriateSizeText(text);
+				var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
+				$('#sizeDiv').html(o.i18n.getStringWithParams("student_assets_student_usage_message",o.config.getConfigParam("locale"),[studentUsage,maxUsageLimit]));
 			} 
 		};
 	this.connectionManager.request('POST', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);
