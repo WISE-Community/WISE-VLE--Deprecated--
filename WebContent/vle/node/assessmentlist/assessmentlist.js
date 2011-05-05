@@ -58,6 +58,11 @@ function ASSESSMENTLIST(node, view) {
 		this.node.setCompleted();
 	}
 	
+	if (this.isSubmitted()) {
+		//tell the node that the student has completed it
+		this.node.setCompleted();
+	}
+
 	this.stateChanged = false;
 };
 
@@ -431,7 +436,7 @@ ASSESSMENTLIST.prototype.submit = function() {
 			//disable the submit and save draft buttons
 			this.setSaveUnavailable();
 			this.setSaveDraftUnavailable();
-			var isSubmit = false;
+			var isSubmit = true;
 			this.save(isSubmit);
 		};
 	} else {
@@ -558,7 +563,9 @@ ASSESSMENTLIST.prototype.save = function(isSubmit) {
 		alState.isSubmit = isSubmit;
 		
 		if(isSubmit) {
-			alState.locked = true;
+			alState.locked = true;			
+			// denote that this step is completed.		
+			this.node.setCompleted();
 		}
 		
 		for (var i=0; i<this.content.assessments.length; i++) {

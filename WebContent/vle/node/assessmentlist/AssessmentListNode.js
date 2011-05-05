@@ -32,6 +32,29 @@ AssessmentListNode.prototype.render = function(contentPanel,studentWork, disable
 };
 
 /**
+ * Override of Node.isCompleted
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+AssessmentListNode.prototype.isCompleted = function() {
+	var nodeVisitsForThisNode = this.view.state.getNodeVisitsByNodeId(this.id);
+	if (nodeVisitsForThisNode != null) {
+		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
+			var nodeVisitForThisNode = nodeVisitsForThisNode[i];
+			if (nodeVisitForThisNode.nodeStates != null) {
+				for (var k=0;k<nodeVisitForThisNode.nodeStates.length;k++) {
+					var nodeState = nodeVisitForThisNode.nodeStates[k];
+					if (nodeState.isSubmit || nodeState.submit) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+};
+
+/**
  * Returns the prompt for this node by loading the content and then
  * obtaining it from the object
  * @return the prompt for this node

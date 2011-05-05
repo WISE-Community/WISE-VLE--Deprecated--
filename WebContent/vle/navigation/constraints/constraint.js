@@ -329,6 +329,14 @@ Constraint.prototype.matchAny = function(nodeIds, nodeVisits, toVisitId, workCom
 							//node is not open for student to work on so we will not constrain
 							return nodeVisits.slice(b + 1);
 						}
+					} else if (node.type == "AssessmentListNode") {
+						// if the questionnaire is not completed (not submitted), student
+						// has not completed the step so we will constrain.
+						if (node.isCompleted()) {
+							return nodeVisits.slice(b + 1);
+						} else {
+							return null;
+						}
 					} else {
 						/* check the latest work to see if there is any */
 						if(copiedNodeVisits[b].getLatestWork() != ""){
