@@ -154,3 +154,8 @@ The plugin also adds four public methods:
         version: '1.0'
     });
 })(jQuery);
+
+//used to notify scriptloader that this script has finished loading
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/jquery/js/flot/jquery.flot.crosshair.js');
+}
