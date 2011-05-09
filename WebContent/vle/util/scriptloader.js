@@ -511,89 +511,117 @@ var scriptloader = function(){
 			if(document.location.pathname.indexOf('vle.html') != -1 || document.location.pathname.indexOf('gradework.html') != -1) {
 				/*
 				 * we are loading the vle or grading tool so we only need to
-				 * load certain step types
+				 * load certain step types. we will try to obtain the project.json
+				 * file and only load the step types that are in that file.
 				 */
-				
-				var xmlhttp;
-				if (window.XMLHttpRequest) {
-					// code for IE7+, Firefox, Chrome, Opera, Safari
-					xmlhttp=new XMLHttpRequest();
-				} else {
-					// code for IE6, IE5
-					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-				}
-
-				/*
-				 * open the path to the project json file, the path to the
-				 * project json file will be placed in the contentUrl variable
-				 * by the .jsp file
-				 */
-				xmlhttp.open("GET", parent.window.contentUrl, false);
-				
-				//perform the request
-				xmlhttp.send();
-
-				if(xmlhttp.responseText != null) {
-					//parse the project json string into a json object
-					var projectJSONObj = JSON.parse(xmlhttp.responseText);
-					var nodeTypes = [];
-					
-					//get all the nodes in the project
-					var jsonNodes = projectJSONObj.nodes;
-					if(!jsonNodes){
-						jsonNodes = [];
+				try {
+					var xmlhttp;
+					if (window.XMLHttpRequest) {
+						// code for IE7+, Firefox, Chrome, Opera, Safari
+						xmlhttp=new XMLHttpRequest();
+					} else {
+						// code for IE6, IE5
+						xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 					}
+
+					/*
+					 * open the path to the project json file, the path to the
+					 * project json file will be placed in the contentUrl variable
+					 * by the .jsp file
+					 */
+					xmlhttp.open("GET", parent.window.contentUrl, false);
 					
-					//loop through all the nodes in the project
-					for (var i=0; i < jsonNodes.length; i++) {
-						//get a node
-						var currNode = jsonNodes[i];
+					//perform the request
+					xmlhttp.send(null);
+
+					if(xmlhttp.responseText != null) {
+						var projectJSONObj = null;
+						var nodeTypes = [];
 						
-						//get the node type
-						var nodeType = currNode.type;
-						
-						if(nodeTypes.indexOf(nodeType) == -1) {
-							//add it to our array of node types if it is not already in the array
-							nodeTypes.push(nodeType);
+						//parse the project json string into a json object						
+						if(typeof JSON != 'undefined') {
+							projectJSONObj = JSON.parse(xmlhttp.responseText);
+						} else if(typeof $.parseJSON != 'undefined') {
+							projectJSONObj = $.parseJSON(xmlhttp.responseText);
 						}
-					}
-					
-					//loop through all the setup files
-					for(var x=0; x<setupFiles.length; x++) {
-						var setupFile = setupFiles[x];
 						
-						//get the name of the node type
-						var nodeName = setupFile.nodeName;
+						//get all the nodes in the project
+						var jsonNodes = projectJSONObj.nodes;
+						if(!jsonNodes){
+							jsonNodes = [];
+						}
 						
-						//check if the node type is in the array of node types we want
-						if(nodeTypes.indexOf(nodeName) != -1) {
-							//this node is in the array of node types we want
+						//loop through all the nodes in the project
+						for (var i=0; i < jsonNodes.length; i++) {
+							//get a node
+							var currNode = jsonNodes[i];
 							
-							//get the path to the setup file for this node type
-							var nodeSetupPath = setupFile.nodeSetupPath;
-
-							//add the path into the setup component
-							scriptloader.addScriptToComponent('setup', nodeSetupPath);
+							//get the node type
+							var nodeType = currNode.type;
+							
+							if(nodeTypes.indexOf(nodeType) == -1) {
+								//add it to our array of node types if it is not already in the array
+								nodeTypes.push(nodeType);
+							}
 						}
+						
+						//loop through all the setup files
+						for(var x=0; x<setupFiles.length; x++) {
+							var setupFile = setupFiles[x];
+							
+							//get the name of the node type
+							var nodeName = setupFile.nodeName;
+							
+							//check if the node type is in the array of node types we want
+							if(nodeTypes.indexOf(nodeName) != -1) {
+								//this node is in the array of node types we want
+								
+								//get the path to the setup file for this node type
+								var nodeSetupPath = setupFile.nodeSetupPath;
+
+								//add the path into the setup component
+								scriptloader.addScriptToComponent('setup', nodeSetupPath);
+							}
+						}
+					} else {
+						//there was no responseText so we will just insert all the step types
+						this.insertAllSetupPaths(setupFiles);
 					}
+				} catch(e) {
+					/*
+					 * there was an exception while trying to retrieve the project.json
+					 * file so we will just insert all the step types
+					 */
+					this.insertAllSetupPaths(setupFiles);
 				}
 			} else {
-				/*
-				 * we are loading the authoring tool or anything else not specified
-				 * so we will load all step types
-				 */
+				//insert all the step types since we are loading the authoring tool
+				this.insertAllSetupPaths(setupFiles);
+			}
+		},
+		/**
+		 * Tells the scriptloader to retrieve the files for all the step types
+		 * 
+		 * @param setupFiles an array of objects, each object contains
+		 * two fields, nodeName and nodeSetupPath. the array that is
+		 * passed into this function can be found in setupNodes.js
+		 */
+		insertAllSetupPaths:function(setupFiles) {
+			/*
+			 * we are loading the authoring tool or anything else not specified
+			 * so we will load all step types
+			 */
+			
+			//loop through all the setup objects
+			for(var x=0; x<setupFiles.length; x++) {
+				//get a setup object
+				var setupFile = setupFiles[x];
 				
-				//loop through all the setup objects
-				for(var x=0; x<setupFiles.length; x++) {
-					//get a setup object
-					var setupFile = setupFiles[x];
-					
-					//get the path
-					var nodeSetupPath = setupFile.nodeSetupPath;
-					
-					//add the path into the setup component
-					scriptloader.addScriptToComponent('setup', nodeSetupPath);
-				}
+				//get the path
+				var nodeSetupPath = setupFile.nodeSetupPath;
+				
+				//add the path into the setup component
+				scriptloader.addScriptToComponent('setup', nodeSetupPath);
 			}
 		}
 	};
