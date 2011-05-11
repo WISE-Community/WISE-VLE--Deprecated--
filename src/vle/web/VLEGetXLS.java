@@ -2057,148 +2057,152 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//loop through all the node states
 					for(int z=0; z<jsonNodeStatesArray.length(); z++) {
-
-						//obtain a node state
-						JSONObject nodeState = (JSONObject) jsonNodeStatesArray.get(z);
-						
-						if(stepWork instanceof StepWorkMC || stepWork instanceof StepWorkFillin) {
-							if(nodeState.has("response")) {
-								//this case handles mc and fillin
-								
-								//obtain the response
-								Object jsonResponse = nodeState.get("response");
-								
-								String currentResponse = "";
-								
-								if(jsonResponse instanceof JSONArray) {
-									//if the object is an array obtain the first element
-									JSONArray lastResponseArray = (JSONArray) jsonResponse;
-									
-									//check if there are any elements in the array
-									if(lastResponseArray.length() > 0) {
-										currentResponse = (String) lastResponseArray.get(0);										
-									}
-								} else if(jsonResponse instanceof String) {
-									//if the object is a string just use the string
-									currentResponse = (String) jsonResponse;
-								}
-								
-								//separate answers with a comma
-								if(responses.length() != 0) {
-									responses.append(", ");
-								}
-								
-								if(stepWork instanceof StepWorkFillin) {
-									//for fillin we will obtain the text entry index
-									Object blankNumber = nodeState.get("textEntryInteractionIndex");
-									
-									if(blankNumber instanceof Integer) {
-										//display the response as Blank{blank number} [submit attempt]: {student response}
-										responses.append("{Blank" + (((Integer) blankNumber) + 1) + "[" + (z+1) + "]: " + currentResponse + "}");
-									}
-								} else if(stepWork instanceof StepWorkMC) {
-									//display the response as Answer[{attempt number}]: {student response}
-									responses.append("{Answer[" + (z+1) + "]: " + currentResponse + "}");	
-								}
-							}
-						} else if(stepWork instanceof StepWorkMatchSequence) {
-							//get the array of buckets
-							JSONArray buckets = (JSONArray) nodeState.get("buckets");
-
-							//each state will be wrapped in {}
-							responses.append("{");
+						Object nodeStateObject = jsonNodeStatesArray.get(z);
+						if(nodeStateObject == null || nodeStateObject.toString().equals("null")) {
+							//node state is null so we will skip it
+						} else {
+							//obtain a node state
+							JSONObject nodeState = (JSONObject) nodeStateObject;
 							
-							//loop through all the buckets
-							for(int bucketCounter=0; bucketCounter<buckets.length(); bucketCounter++) {
-								//get a bucket
-								JSONObject bucket = (JSONObject) buckets.get(bucketCounter);
-								
-								//get the text for the bucket
-								String bucketText = bucket.getString("text");
-								
-								//represents the beginning of a bucket
-								responses.append("(");
-								
-								//add the bucket text to the response
-								responses.append("[" + bucketText + "]: ");
-								
-								//get the choices in the current bucket
-								JSONArray choices = (JSONArray) bucket.get("choices");
-								
-								StringBuffer choiceResponses = new StringBuffer();
-								
-								//loop through the choices
-								for(int choiceCounter=0; choiceCounter<choices.length(); choiceCounter++) {
-									//get a choice
-									JSONObject choice = (JSONObject) choices.get(choiceCounter);
+							if(stepWork instanceof StepWorkMC || stepWork instanceof StepWorkFillin) {
+								if(nodeState.has("response")) {
+									//this case handles mc and fillin
 									
-									//get the text for the choice
-									String choiceText = choice.getString("text");
+									//obtain the response
+									Object jsonResponse = nodeState.get("response");
 									
-									/*
-									 * if this is not the first choice we will need to separate
-									 * the choice with a comma ,
-									 */
-									if(choiceResponses.length() != 0) {
-										choiceResponses.append(", ");
-									}
+									String currentResponse = "";
 									
-									//add the choice to the temporary choice text
-									choiceResponses.append(choiceText);
-								}
-								
-								//add the choice text
-								responses.append(choiceResponses);
-								
-								//close the bucket
-								responses.append(")");
-							}
-							
-							/*
-							 * close the state and add some new lines in case researcher
-							 * wants to view the response in their browser
-							 */
-							responses.append("}<br><br>");
-						} else if(stepWork instanceof StepWorkAssessmentList) {
-							//wrap each node state with braces {}
-							responses.append("{");
-							
-							if(nodeState.has("assessments")) {
-								//get the array of assessment answers
-								JSONArray assessments = nodeState.getJSONArray("assessments");
-								
-								//a string buffer to hold the accumulated responses for the node state
-								StringBuffer tempResponses = new StringBuffer();
-								
-								//loop through all the assessment responses
-								for(int assessmentCounter=0; assessmentCounter<assessments.length(); assessmentCounter++) {
-									//get an assessment
-									JSONObject assessment = assessments.getJSONObject(assessmentCounter);
-									
-									//check if the response is null
-									if(!assessment.isNull("response")) {
-										//get the assessment response
-										JSONObject assessmentResponse = assessment.getJSONObject("response");
+									if(jsonResponse instanceof JSONArray) {
+										//if the object is an array obtain the first element
+										JSONArray lastResponseArray = (JSONArray) jsonResponse;
 										
-										//get the assessment response text
-										String responseText = assessmentResponse.getString("text");
+										//check if there are any elements in the array
+										if(lastResponseArray.length() > 0) {
+											currentResponse = (String) lastResponseArray.get(0);										
+										}
+									} else if(jsonResponse instanceof String) {
+										//if the object is a string just use the string
+										currentResponse = (String) jsonResponse;
+									}
+									
+									//separate answers with a comma
+									if(responses.length() != 0) {
+										responses.append(", ");
+									}
+									
+									if(stepWork instanceof StepWorkFillin) {
+										//for fillin we will obtain the text entry index
+										Object blankNumber = nodeState.get("textEntryInteractionIndex");
 										
-										//separate the assessment response texts with ,
-										if(tempResponses.length() != 0) {
-											tempResponses.append(", ");
+										if(blankNumber instanceof Integer) {
+											//display the response as Blank{blank number} [submit attempt]: {student response}
+											responses.append("{Blank" + (((Integer) blankNumber) + 1) + "[" + (z+1) + "]: " + currentResponse + "}");
+										}
+									} else if(stepWork instanceof StepWorkMC) {
+										//display the response as Answer[{attempt number}]: {student response}
+										responses.append("{Answer[" + (z+1) + "]: " + currentResponse + "}");	
+									}
+								}
+							} else if(stepWork instanceof StepWorkMatchSequence) {
+								//get the array of buckets
+								JSONArray buckets = (JSONArray) nodeState.get("buckets");
+
+								//each state will be wrapped in {}
+								responses.append("{");
+								
+								//loop through all the buckets
+								for(int bucketCounter=0; bucketCounter<buckets.length(); bucketCounter++) {
+									//get a bucket
+									JSONObject bucket = (JSONObject) buckets.get(bucketCounter);
+									
+									//get the text for the bucket
+									String bucketText = bucket.getString("text");
+									
+									//represents the beginning of a bucket
+									responses.append("(");
+									
+									//add the bucket text to the response
+									responses.append("[" + bucketText + "]: ");
+									
+									//get the choices in the current bucket
+									JSONArray choices = (JSONArray) bucket.get("choices");
+									
+									StringBuffer choiceResponses = new StringBuffer();
+									
+									//loop through the choices
+									for(int choiceCounter=0; choiceCounter<choices.length(); choiceCounter++) {
+										//get a choice
+										JSONObject choice = (JSONObject) choices.get(choiceCounter);
+										
+										//get the text for the choice
+										String choiceText = choice.getString("text");
+										
+										/*
+										 * if this is not the first choice we will need to separate
+										 * the choice with a comma ,
+										 */
+										if(choiceResponses.length() != 0) {
+											choiceResponses.append(", ");
 										}
 										
-										//add the text to the temp container
-										tempResponses.append(responseText);
+										//add the choice to the temporary choice text
+										choiceResponses.append(choiceText);
 									}
+									
+									//add the choice text
+									responses.append(choiceResponses);
+									
+									//close the bucket
+									responses.append(")");
 								}
 								
-								//put the responses for the assessments into the all encompassing string buffer
-								responses.append(tempResponses);
+								/*
+								 * close the state and add some new lines in case researcher
+								 * wants to view the response in their browser
+								 */
+								responses.append("}<br><br>");
+							} else if(stepWork instanceof StepWorkAssessmentList) {
+								//wrap each node state with braces {}
+								responses.append("{");
+								
+								if(nodeState.has("assessments")) {
+									//get the array of assessment answers
+									JSONArray assessments = nodeState.getJSONArray("assessments");
+									
+									//a string buffer to hold the accumulated responses for the node state
+									StringBuffer tempResponses = new StringBuffer();
+									
+									//loop through all the assessment responses
+									for(int assessmentCounter=0; assessmentCounter<assessments.length(); assessmentCounter++) {
+										//get an assessment
+										JSONObject assessment = assessments.getJSONObject(assessmentCounter);
+										
+										//check if the response is null
+										if(!assessment.isNull("response")) {
+											//get the assessment response
+											JSONObject assessmentResponse = assessment.getJSONObject("response");
+											
+											//get the assessment response text
+											String responseText = assessmentResponse.getString("text");
+											
+											//separate the assessment response texts with ,
+											if(tempResponses.length() != 0) {
+												tempResponses.append(", ");
+											}
+											
+											//add the text to the temp container
+											tempResponses.append(responseText);
+										}
+									}
+									
+									//put the responses for the assessments into the all encompassing string buffer
+									responses.append(tempResponses);
+								}
+								
+								//close the brace
+								responses.append("}");
 							}
-							
-							//close the brace
-							responses.append("}");
 						}
 					}
 
@@ -2206,26 +2210,31 @@ public class VLEGetXLS extends VLEServlet {
 				} else {
 					//check if there are any elements in the node states array
 					if(jsonNodeStatesArray != null && jsonNodeStatesArray.length() > 0) {
-						
 						//obtain the last element in the node states
-						JSONObject lastState = (JSONObject) jsonNodeStatesArray.get(jsonNodeStatesArray.length() - 1);
+						Object nodeStateObject = jsonNodeStatesArray.get(jsonNodeStatesArray.length() - 1);
 						
-						if(lastState.has("response")) {
-							//obtain the response
-							Object object = lastState.get("response");
+						if(nodeStateObject == null || nodeStateObject.toString().equals("null")) {
+							//node state is null so we will skip it
+						} else {
+							JSONObject lastState = (JSONObject) nodeStateObject;
 							
-							String lastResponse = "";
-							
-							if(object instanceof JSONArray) {
-								//if the object is an array obtain the first element
-								JSONArray lastResponseArray = (JSONArray) lastState.get("response");
-								lastResponse = (String) lastResponseArray.get(0);
-							} else if(object instanceof String) {
-								//if the object is a string just use the string
-								lastResponse = (String) lastState.get("response");
+							if(lastState.has("response")) {
+								//obtain the response
+								Object object = lastState.get("response");
+								
+								String lastResponse = "";
+								
+								if(object instanceof JSONArray) {
+									//if the object is an array obtain the first element
+									JSONArray lastResponseArray = (JSONArray) lastState.get("response");
+									lastResponse = (String) lastResponseArray.get(0);
+								} else if(object instanceof String) {
+									//if the object is a string just use the string
+									lastResponse = (String) lastState.get("response");
+								}
+								
+						    	stepWorkResponse = lastResponse.toString();
 							}
-							
-					    	stepWorkResponse = lastResponse.toString();
 						}
 					}
 				}
