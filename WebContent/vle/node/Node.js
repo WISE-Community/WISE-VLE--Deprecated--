@@ -190,6 +190,17 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 	/* clean up any disabled panel that might exist from previous render */
 	$('#disabledPanel').remove();
 	
+	/*check if the user had clicked on an outside link in the previous step
+	 */
+	if(this.handlePreviousOutsideLink(this, contentPanel)) {
+		/*
+		 * the user was at an outside link so the function
+		 * handlePreviousOutsideLink() has taken care of the
+		 * rendering of this node
+		 */
+		return;
+	}
+	
 	/* if no content panel specified use default */
 	if(contentPanel){
 		/* make sure we use frame window and not frame element */
@@ -204,17 +215,6 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 	 * requires an html file and a content file
 	 */
 	if(!this.selfRendering){
-		/*check if the user had clicked on an outside link in the previous step
-		 */
-		if(this.handlePreviousOutsideLink(this)) {
-			/*
-			 * the user was at an outside link so the function
-			 * handlePreviousOutsideLink() has taken care of the
-			 * rendering of this node
-			 */
-			return;
-		}
-		
 		/*
 		 * check to see if this contentpanel has already been rendered
 		 * also check if loadContentAfterScriptsLoad is null, this happens
@@ -246,17 +246,6 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 			if(this.type == 'MySystemNode'){
 				this.baseHtmlContent.setContent(this.updateJSONContentPath(this.view.getConfig().getConfigParam('getContentBaseUrl'), this.baseHtmlContent.getContentString()));
 			}
-		}
-		
-		/*check if the user had clicked on an outside link in the previous step
-		 */
-		if(this.handlePreviousOutsideLink(this)) {
-			/*
-			 * the user was at an outside link so the function
-			 * handlePreviousOutsideLink() has taken care of the
-			 * rendering of this node
-			 */
-			return;
 		}
 		
 		//write the content into the contentPanel, this will render the html in that panel
@@ -927,7 +916,7 @@ Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
 			history.back();
 			
 			//call render to render the node we want to navigate to
-			setTimeout(function() {thisObj.render(thisContentPanel);}, 500);
+			setTimeout(function() {thisObj.render(thisContentPanel, thisObj.studentWork);}, 500);
 			
 			/*
 			 * tell the caller the student was at an outside link so
