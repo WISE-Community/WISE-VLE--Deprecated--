@@ -99,7 +99,7 @@ public class ModeMaster extends HttpServlet implements Servlet{
 			}
 			
 		} catch(IOException e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 }
