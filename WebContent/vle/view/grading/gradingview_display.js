@@ -1677,13 +1677,16 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>"+this.i18n.getString("timestamp",this.config.getConfigParam("locale"))+": " + new Date(latestNodeVisitPostTime) + "</p>";
 	} else if(studentWork != "" && this.isSelfRenderingGradingViewNodeType(node.type)) {
 		//create the student work div that we will insert the student work into later
-		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '"></div>';
+		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
 	} else {
 		//add the post time stamp to the bottom of the student work
 		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(latestNodeVisitPostTime) + "</p>";
 		
 		//replace \n with <br> so that the line breaks are displayed for the teacher
 		studentWork = this.replaceSlashNWithBR(studentWork);
+		
+		//insert the student work into a div so we can display scrollbars if the student work overflows
+		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px">' + studentWork + '</div>';
 	}
 	
 	//display the student work for this step/node
