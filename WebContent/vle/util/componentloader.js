@@ -742,7 +742,8 @@ var componentloader = function(em, sl){
 					'addIdeaToBasket':[null,null],
 					'moveIdeaToTrash':[null,null],
 					'moveIdeaOutOfTrash':[null,null],
-					'ideaBasketDocumentLoaded':[null,null]
+					'ideaBasketDocumentLoaded':[null,null],
+					'displayFlaggedWorkForNodeId':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -763,6 +764,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('ideaBasketDocumentLoaded', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('displayFlaggedWorkForNodeId', view.dropDownMenuDispatcher, view);
 				}
 			}
 		},

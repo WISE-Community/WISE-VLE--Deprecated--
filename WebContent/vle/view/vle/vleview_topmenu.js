@@ -39,6 +39,8 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.studentAssetSubmitUpload();
 	} else if(type=='ideaBasketDocumentLoaded') {
 		obj.loadIdeaBasket();
+	} else if(type=='displayFlaggedWorkForNodeId') {
+		obj.displayFlaggedWorkForNodeId();
 	}
 };
 
@@ -93,62 +95,60 @@ View.prototype.displayFlaggedWork = function() {
 	//get all the flags for the current node
 	var flagsForNodeId = this.flags.getAnnotationsByNodeId(nodeId);
 	
-	//check if there were any flags for the current node
-	if(flagsForNodeId.length > 0) {
-		//get the position
-		var position = this.getProject().getVLEPositionById(nodeId);
+	//get the node ids that have flags associated with them
+	var flagNodeIds = this.flags.getNodeIds();
+	
+	/*
+	 * the first node id in the project that contains a flag.
+	 * we will use this to know which node to display when
+	 * the show flagged work popup opens
+	 */
+	var firstFlaggedNodeId = null;
+	
+	if(flagNodeIds.length > 0) {
+		//get all the node ids in the project
+		var nodeIds = this.getProject().getNodeIds();
 		
-		//display the step position, title, and type
-		flaggedWorkHtml += "<div><br><b><u>" + position + " " + node.title + " (" + node.type + ")" + "</u></b><br><br>";
+		flaggedWorkHtml += "<div>";
+		flaggedWorkHtml += "<p><b>Choose a step</b></p>";
 		
-		//display the prompt for the step
-		flaggedWorkHtml += "Prompt:<br/>";
-		flaggedWorkHtml += node.getPrompt() + "<br/><br/></div><hr size=4 noshade><br/>";
+		//select box for the student to choose which step's flagged work to look at
+		flaggedWorkHtml += "<select id='flagNodeIdSelect' onchange='eventManager.fire(\"displayFlaggedWorkForNodeId\")'>";
 		
-		var flaggedWorkAnswers = "";
-		
-		//loop through all the flags for the current node
-		for(var y=0; y<flagsForNodeId.length; y++) {
-			//get a flag
-			var flagForNodeId = flagsForNodeId[y];
+		//loop through all the node ids in the project
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
 			
-			//get the work that was flagged
-			var flaggedWork = flagForNodeId.data.getLatestWork();
-			var flaggedWorkPostTime = flagForNodeId.postTime;
-			
-			if(flaggedWorkAnswers != "") {
-				//add line breaks to separate the multiple answers that were flagged
-				flaggedWorkAnswers += "<br/><br/>";
+			//check if the node id is in the array of flagged node ids
+			if(flagNodeIds.contains(nodeId)) {
+				
+				if(firstFlaggedNodeId == null) {
+					//remember the first flagged node id
+					firstFlaggedNodeId = nodeId;					
+				}
+				
+				//get the info for the node
+				var node = this.getProject().getNodeById(nodeId);
+				var position = this.getProject().getVLEPositionById(nodeId);
+				var stepTerm = this.getProject().getStepTerm();
+				
+				//add an option into the select box
+				flaggedWorkHtml += "<option value=" + nodeId + ">";
+				flaggedWorkHtml += stepTerm + " " + position + ": " + node.title + " (" + node.type + ")";
+				flaggedWorkHtml += "</option>";
 			}
-			
-			flaggedWorkAnswers += "<div style='border-width:thin; border-style:solid'>";
-			
-			//display the flagged work/answer
-			flaggedWorkAnswers += "<div>Answer (Team Anonymous " + (y + 1) + "):</div><br/>";
-			if (node.type == "MySystemNode") {
-				var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
-				var divId = "mysystemDiagram_"+flaggedWorkPostTime;
-				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystem' style=\"height:350px;\">" + flaggedWork + "</div>";
-			} else if (node.type == "SVGDrawNode") {
-        		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
-				var divId = "svgDraw_"+flaggedWorkPostTime;
-				flaggedWork = node.translateStudentWork(flaggedWork);
-				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
-				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
-        	} else if(this.isSelfRenderingGradingViewNodeType(node.type)) {
-        		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
-        	} else {
-				flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
-			}
-			
-			flaggedWorkAnswers += "</div>";
 		}
 		
-		//add the answers to the html
-		flaggedWorkHtml += flaggedWorkAnswers;
+		flaggedWorkHtml += "</select>";
+		flaggedWorkHtml += "</div>";
+		flaggedWorkHtml += "<br>";
+		
+		//div that we will use to display the flagged work
+		flaggedWorkHtml += "<div id='flaggedWorkForNodeIdDiv'></div>";
 	} else {
 		//there are no flagged items
-		flaggedWorkHtml += "There are no flagged items for this step.";
+		flaggedWorkHtml += "There are no flagged items.";
 	}
 	
 	//check if the showflaggedwork div exists
@@ -160,6 +160,85 @@ View.prototype.displayFlaggedWork = function() {
     //set the html into the div
     $('#showflaggedwork').html(flaggedWorkHtml);
     
+    //make the div visible
+    $('#showflaggedwork').dialog('open');
+
+	//display the flagged work for the node id that is selected in the select box
+	this.displayFlaggedWorkForNodeId();
+};
+
+/**
+ * Display the flagged work for the node id that is selected in the select box
+ * @param nodeId which node to display flagged work for (optional)
+ */
+View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
+	if(nodeId == null) {
+		//get the node that is selected in the select box
+		nodeId = $('#flagNodeIdSelect').val();
+	}
+	
+	//get the node
+	var node = this.getProject().getNodeById(nodeId);
+	
+	//get all the flags for the current node
+	var flagsForNodeId = this.flags.getAnnotationsByNodeId(nodeId);
+	
+	//get the position
+	var position = this.getProject().getVLEPositionById(nodeId);
+	
+	var flaggedWorkHtml = "";
+	
+	//display the step position, title, and type
+	flaggedWorkHtml += "<div><br><b><u>" + position + " " + node.title + " (" + node.type + ")" + "</u></b><br><br>";
+	
+	//display the prompt for the step
+	flaggedWorkHtml += "Prompt:<br/>";
+	flaggedWorkHtml += node.getPrompt() + "<br/><br/></div><hr size=4 noshade><br/>";
+	
+	var flaggedWorkAnswers = "";
+	
+	//loop through all the flags for the current node
+	for(var y=0; y<flagsForNodeId.length; y++) {
+		//get a flag
+		var flagForNodeId = flagsForNodeId[y];
+		
+		//get the work that was flagged
+		var flaggedWork = flagForNodeId.data.getLatestWork();
+		var flaggedWorkPostTime = flagForNodeId.postTime;
+		
+		if(flaggedWorkAnswers != "") {
+			//add line breaks to separate the multiple answers that were flagged
+			flaggedWorkAnswers += "<br/><br/>";
+		}
+		
+		flaggedWorkAnswers += "<div style='border-width:thin; border-style:solid'>";
+		
+		//display the flagged work/answer
+		flaggedWorkAnswers += "<div>Answer (Team Anonymous " + (y + 1) + "):</div><br/>";
+		if (node.type == "MySystemNode") {
+			var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
+			var divId = "mysystemDiagram_"+flaggedWorkPostTime;
+			flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystem' style=\"height:350px;\">" + flaggedWork + "</div>";
+		} else if (node.type == "SVGDrawNode") {
+    		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
+			var divId = "svgDraw_"+flaggedWorkPostTime;
+			flaggedWork = node.translateStudentWork(flaggedWork);
+			var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
+			flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
+    	} else if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+    		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
+    	} else {
+			flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
+		}
+		
+		flaggedWorkAnswers += "</div>";
+	}
+	
+	flaggedWorkHtml += flaggedWorkAnswers;
+
+	//add the html to the flagged work div
+	$('#flaggedWorkForNodeIdDiv').html(flaggedWorkHtml);
+	
     // inject svgdrawings
     $('.svgdraw2').each(function(){
 		var svgString = String($(this).html());
@@ -173,9 +252,6 @@ View.prototype.displayFlaggedWork = function() {
 		$(this).html('');
 		$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
 	});
-    
-    //make the div visible
-    $('#showflaggedwork').dialog('open');
     
     // print mysystem...should happen after opening showflaggedwork dialog
 	$(".mysystem").each(function() {
@@ -415,10 +491,30 @@ View.prototype.getFlaggedWork = function() {
 		//parse the flags
 		thisView.flags = Annotations.prototype.parseDataJSONString(responseText);
 		
-		if(thisView.getCurrentNode().type == 'ExplanationBuilderNode') {
+		var containsExplanationBuilderNode = false;
+		
+		//get all the node ids that have flags
+		var nodeIds = thisView.flags.getNodeIds();
+		
+		//loop through all the node ids that have flags
+		for(var x=0; x<nodeIds.length; x++) {
+			var nodeId = nodeIds[x];
+			var node = thisView.getProject().getNodeById(nodeId);
+			
+			if(node.type == 'ExplanationBuilderNode') {
+				/*
+				 * the node is an explanation builder step so we know
+				 * we will need to retrieve idea baskets from some of
+				 * our classmates
+				 */
+				containsExplanationBuilderNode = true;
+			}
+		}
+		
+		if(containsExplanationBuilderNode) {
 			/*
-			 * the current step is an explanation builder step so we
-			 * need to retrieve the idea baskets of our classmates that
+			 * at least one of the flags is for an explanation builder step
+			 * so we need to retrieve the idea baskets of our classmates that
 			 * are associated with the flagged work
 			 */
 			thisView.getFlaggedIdeaBaskets();
@@ -431,7 +527,6 @@ View.prototype.getFlaggedWork = function() {
 	var flaggedWorkUrlParams = {
 				userId:this.getUserAndClassInfo().getWorkgroupId(),
 				periodId:this.getUserAndClassInfo().getPeriodId(),
-				nodeId:this.getCurrentNode().id,
 				isStudent:true
 	};
 	
@@ -778,29 +873,28 @@ View.prototype.ideaBasketChanged = function(ideaBasketStep) {
  * Get the idea baskets that are associated with the work that was flagged
  */
 View.prototype.getFlaggedIdeaBaskets = function() {
-	//get the node the student is currently on
-	var currentNode = this.getCurrentNode();
-	var nodeId = currentNode.id;
-
-	//get the node
-	var node = this.getProject().getNodeById(nodeId);
-	
-	//get all the flags for the current node
-	var flagsForNodeId = this.flags.getAnnotationsByNodeId(nodeId);
 	
 	var workgroupIds = [];
 	
-	//check if there were any flags for the current node
-	if(flagsForNodeId.length > 0) {
+	//loop through all the flags
+	for(var x=0; x<this.flags.annotationsArray.length; x++) {
+		//get a flag
+		var flag = this.flags.annotationsArray[x];
 		
-		//loop through all the flags for the current node
-		for(var x=0; x<flagsForNodeId.length; x++) {
-			var flagForNodeId = flagsForNodeId[x];
+		var nodeId = flag.nodeId;
+		var node = this.getProject().getNodeById(nodeId);
+		
+		if(node.type == 'ExplanationBuilderNode') {
+			/*
+			 * the flag was for an explanation builder step so we
+			 * will need to retrieve the idea basket from the
+			 * classmate that this flag is for
+			 */
+			var toWorkgroup = flag.toWorkgroup;
 			
-			var workgroupId = flagForNodeId.toWorkgroup;
-			
-			if(workgroupId != null) {
-				workgroupIds.push(parseInt(workgroupId));
+			if(toWorkgroup != null) {
+				//add the classmate workgroup id to our array
+				workgroupIds.push(parseInt(toWorkgroup));
 			}
 		}
 	}

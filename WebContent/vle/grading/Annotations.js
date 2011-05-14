@@ -535,6 +535,32 @@ Annotations.prototype.annotationsAfterDate = function(date) {
 	return false;
 };
 
+/**
+ * Get all the node ids that have an annotation associated with them
+ * @return an array of node ids that have an annotation associated with them
+ */
+Annotations.prototype.getNodeIds = function() {
+	var nodeIds = [];
+	
+	//loop through all the annotations
+	for(var x=0; x<this.annotationsArray.length; x++) {
+		//get an annotation
+		var annotation = this.annotationsArray[x];
+		
+		if(annotation != null) {
+			//get the node id for the annotation
+			var nodeId = annotation.nodeId;
+			
+			//add it to the array if it is not already in the array
+			if(nodeIds.indexOf(nodeId) == -1) {
+				nodeIds.push(nodeId);
+			}
+		}
+	}
+	
+	return nodeIds;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/grading/Annotations.js');

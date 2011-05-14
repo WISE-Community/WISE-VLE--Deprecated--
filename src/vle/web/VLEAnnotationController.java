@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -89,7 +90,7 @@ public class VLEAnnotationController extends HttpServlet {
 		String isStudentStr = request.getParameter("isStudent");
 		
 		//this is only used when students retrieve flags
-		HashMap<Long, JSONObject> flaggedWorkgroupIdToFlagAnnotation = new HashMap<Long, JSONObject>();
+		Vector<JSONObject> flaggedAnnotationsList = new Vector<JSONObject>();
 		
 		//used to hold classmate workgroup ids to period ids
 		HashMap<Long, Long> classmateWorkgroupIdToPeriodIdMap = new HashMap<Long, Long>();
@@ -234,25 +235,39 @@ public class VLEAnnotationController extends HttpServlet {
 						
 						//check that the period of the flagged work is the same period that the signed in user is in
 						if(periodId != null && flaggedPeriodId != null && periodId.equals(flaggedPeriodId)) {
+
+							//get the data
+							JSONObject flagStepWorkData = new JSONObject(flagStepWork.getData());
 							
 							//check if the flag value is set to "flagged" as opposed to "unflagged"
 							if(dataJSONObj.has("value") && dataJSONObj.getString("value").equals("flagged")) {
-								//get the data
-								JSONObject flagStepWorkData = new JSONObject(flagStepWork.getData());
 								
 								//add the data to the flag JSON object
 								dataJSONObj.put("data", flagStepWorkData);
 								
-								/*
-								 * put the flag object into our map with the step work id as the key.
-								 * we need this because flag annotations also contain flags that have
-								 * the value 'unflagged'. we don't want to return work that is 'unflagged'
-								 * so we use a map to keep track of all the step work that was flagged.
-								 */
-								flaggedWorkgroupIdToFlagAnnotation.put(flaggedWorkgroupId, dataJSONObj);
+								//put the flag object into our list
+								flaggedAnnotationsList.add(dataJSONObj);
 							} else {
-								//remove the flag from the map because it was unflagged
-								flaggedWorkgroupIdToFlagAnnotation.remove(flaggedWorkgroupId);
+								//remove the flag from the list because it was unflagged
+
+								/*
+								 * loop through all the flagged annotations we have already obtained
+								 * to remove the annotation that was unflagged
+								 */
+								Iterator<JSONObject> flaggedAnnotationsIterator = flaggedAnnotationsList.iterator();
+								while(flaggedAnnotationsIterator.hasNext()) {
+									//get an annotation
+									JSONObject nextFlaggedAnnotation = flaggedAnnotationsIterator.next();
+									
+									//check if the annotation fields match
+									if(nextFlaggedAnnotation.has("toWorkgroup") && dataJSONObj.has("toWorkgroup") && nextFlaggedAnnotation.getString("toWorkgroup").equals(dataJSONObj.getString("toWorkgroup")) &&
+											nextFlaggedAnnotation.has("fromWorkgroup") && dataJSONObj.has("fromWorkgroup") && nextFlaggedAnnotation.getString("fromWorkgroup").equals(dataJSONObj.getString("fromWorkgroup")) &&
+											nextFlaggedAnnotation.has("nodeId") && dataJSONObj.has("nodeId") && nextFlaggedAnnotation.getString("nodeId").equals(dataJSONObj.getString("nodeId")) &&
+											nextFlaggedAnnotation.has("stepWorkId") && dataJSONObj.has("stepWorkId") && nextFlaggedAnnotation.getString("stepWorkId").equals(dataJSONObj.getString("stepWorkId")) &&
+											nextFlaggedAnnotation.has("runId") && dataJSONObj.has("runId") && nextFlaggedAnnotation.getString("runId").equals(dataJSONObj.getString("runId"))) {
+										flaggedAnnotationsIterator.remove();
+									}
+								}
 							}
 						}
 					} else {
@@ -272,14 +287,10 @@ public class VLEAnnotationController extends HttpServlet {
 			 */
 			if(requestedType.equals("flag") && isStudent) {
 				//get all the stepwork ids that were flagged
-				Set<Long> flaggedStepWorkIds = flaggedWorkgroupIdToFlagAnnotation.keySet();
-				
-				//loop through all the step work ids that were flagged
-				for(Long flaggedStepWorkId : flaggedStepWorkIds) {
+
+				//loop through all the flag annotations
+				for(JSONObject flagAnnotationDataJSONObj : flaggedAnnotationsList) {
 					try {
-						//get the flag object for the step work id
-						JSONObject flagAnnotationDataJSONObj = flaggedWorkgroupIdToFlagAnnotation.get(flaggedStepWorkId);
-						
 						//get the run id, node id, and student id
 						String flaggedRunId = flagAnnotationDataJSONObj.getString("runId");
 						String flaggedNodeId = flagAnnotationDataJSONObj.getString("nodeId");
