@@ -725,7 +725,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 
 	//check box to filter only items that passed the smartfilter
 	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowSmartFilteredItemsCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + showSmartFilteredChecked + "/>"+
-		"<p>"+this.i18n.getString("grading_show_smart_filtered_items_only",this.config.getConfigParam("locale"))+"</p>";
+		"<p id='onlyShowSmartFilteredItemsText'>"+this.i18n.getString("grading_show_smart_filtered_items_only",this.config.getConfigParam("locale"))+"</p>";
 
 	//check if enlarge student work check box was previously checked
 	var enlargeStudentWorkTextChecked = '';
@@ -2802,18 +2802,13 @@ View.prototype.filterStudentRows = function() {
 		if(!showRevisions) {
 			/*
 			 * show revisions is not checked so we need to hide revisions unless
-			 * flagging is on and the revision is flagged or the revision is smartfiltered
+			 * flagging is on and the revision is flagged
 			 */
 			
 			if(showFlagged && studentWorkRow.getAttribute('isFlagged') == 'true') {
 				/*
 				 * allow the row to be displayed because show flagged is on and
 				 * this revision is flagged
-				 */
-			} else if (showSmartFiltered && $(studentWorkRow).children(".workColumn").find(".smartFilter").length > 0) {
-				/*
-				 * allow the row to be displayed because show smart-filtered is on and
-				 * this revision is smartfiltered
 				 */
 			} else if(studentRowClass.indexOf('studentWorkRevisionRow') != -1) {
 				//the row is a revision so we will not show it
@@ -2839,19 +2834,16 @@ View.prototype.filterStudentRows = function() {
 		} else {
 			studentWorkRow.style.display = "none";
 		}
-		
-		/*
-		 * filter by flagged (check if only show flagged items is checked
-		 * and if so, check if the row is flagged)
-		 */
-		if(showSmartFiltered) {
-			//only show smart-filtered items is selected
-			if($(studentWorkRow).children(".workColumn").find(".smartFilter").length == 0) {
-				//the row is not smart-filtered (didn't pass filter) so we will not show it
-				studentWorkRow.style.display= "none";
-			}
-		}
 	}
+	
+
+	// tell node to show/hide smart filter
+	if (this.currentGradingDisplayParam && this.currentGradingDisplay == 'displayGradeByStepGradingPage') {
+		//get the node object
+		var nodeId = this.currentGradingDisplayParam[1];
+		var node = this.getProject().getNodeById(nodeId);
+		node.showSmartFilter(showSmartFiltered);
+	}	
 	
 	/*
 	 * apply the hide personal info filter if necessary, do not perform the filter

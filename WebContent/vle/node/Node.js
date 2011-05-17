@@ -1067,6 +1067,15 @@ Node.prototype.copy = function(eventName, project){
 };
 
 /**
+ * Handles Smart Filtering in the grading tool for this Node.
+ * Child nodes should override this function.
+ * @return true iff this node handles smart filtering
+ */
+Node.prototype.showSmartFilter = function(doShow) {
+	return false;
+};
+
+/**
  * Create the div that will display the student work for this step
  * @param vle
  * @param divIdPrefix a string to be prepended to the div that contains
