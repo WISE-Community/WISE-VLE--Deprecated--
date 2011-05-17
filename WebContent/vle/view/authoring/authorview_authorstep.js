@@ -401,8 +401,36 @@ View.prototype.sourceUpdated = function(now){
  * Previews the activeNode's content in the preview window
  */
 View.prototype.previewStep = function(){
-	/* set active node's content with active content */
-	this.activeNode.content.setContent(this.activeContent.getContentJSON());
+	/*
+	 * replace any relative references to the assets folder with the full 
+	 * path to the assets folder and set the active node's content with the 
+	 * active content
+	 */
+
+	var contentBaseUrl = "";
+	
+	//get the content base url which should be the url to the project folder
+	var contentBaseUrl = this.activeNode.getAuthoringModeContentBaseUrl();
+
+	//make sure the url ends with '/'
+	if(contentBaseUrl.charAt(contentBaseUrl.length - 1) != '/') {
+		contentBaseUrl += '/';
+	}
+	
+	//get the active content
+	var contentString = this.activeContent.getContentString();
+	
+	//replace any relative references to assets with the absolute path to the assets
+	contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, contentBaseUrl + 'assets');
+	
+	//create a new content object
+	var contentObj = createContent(this.activeNode.getContent().getContentUrl());
+	
+	//set the content string of the new content object
+	contentObj.setContent(contentString);
+	
+	//set the new content with the absolute asset paths into the active node 
+	this.activeNode.content.setContent(contentObj.getContentJSON());
 	
 	/* we don't want broken preview steps to prevent the user from saving
 	 * content so let's try to catch errors here */

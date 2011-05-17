@@ -1,6 +1,21 @@
-function createContent(url){
-	return function(url){
+/*
+ * Creates an content object
+ * @param url the path to the content file
+ * @param contentBaseUrlParam (optional) the path to the content base, this
+ * is used to change the relative assets paths to absolute paths. if this
+ * param is provided, it will change the assets paths, if it is not, it will
+ * not change the assets paths.
+ */
+function createContent(url, contentBaseUrlParam){
+	return function(url, contentBaseUrlParam){
 		var url = url;
+		var contentBaseUrl = contentBaseUrlParam;
+		
+		//make sure the contentBaseUrl ends with '/'
+		if(contentBaseUrl != null && contentBaseUrl.charAt(contentBaseUrl.length - 1) != '/') {
+			contentBaseUrl += '/';
+		}
+		
 		var contentString;
 		var contentXML;
 		var contentJSON;
@@ -86,6 +101,11 @@ function createContent(url){
 						contentString = (new XMLSerializer()).serializeToString(req.responseXML);
 					};
 				};
+				
+				if(contentBaseUrl != null) {
+					//change the relative assets path to an absolute path
+					contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, contentBaseUrl + 'assets');
+				}
 				
 				//json
 				try{
@@ -216,7 +236,7 @@ function createContent(url){
 			/* Returns the filename for this content given the contentBaseUrl */
 			getFilename:function(contentBase){return getFilename(contentBase);}
 		};
-	}(url);
+	}(url, contentBaseUrlParam);
 };
 
 //used to notify scriptloader that this script has finished loading

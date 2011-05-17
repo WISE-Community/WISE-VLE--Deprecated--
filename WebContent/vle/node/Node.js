@@ -231,7 +231,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 			
 			/* inject urls and write html to content panel */
 			this.contentPanel.document.open();
-			this.contentPanel.document.write(this.injectBaseRef(this.injectKeystrokeManagerScript(this.view.injectVleUrl(this.baseHtmlContent.getContentString()))));
+			this.contentPanel.document.write(this.injectBaseRef(this.injectKeystrokeManagerScript(this.baseHtmlContent.getContentString())));
 			this.contentPanel.document.close();
 		} else {
 			/* already rendered, just load content */
@@ -507,20 +507,35 @@ Node.prototype.injectBaseRef = function(content) {
 		// var contentBaseUrl = "";
 		var cbu = "";   
 		
-		if(this.view.authoringMode) {
-			/*
-			 * the user is previewing a step in the authoring tool. this
-			 * is not the same as previewing a project in the authoring tool.
-			 * when previewing a project in the authoring tool we use the
-			 * else case below.
-			 */
-			cbu = this.getAuthoringModeContentBaseUrl();
-		} else if (this.ContentBaseUrl) {
+		if (this.ContentBaseUrl) {
 			// NATE screwed with this also
 			cbu = this.ContentBaseUrl;
+		} else if(this.type == "HtmlNode") {
+			//get the content base url e.g. "http://localhost:8080/curriculum/667/"
+			if(this.view.authoringMode) {
+				//we are in the step authoring mode 
+				cbu = this.getAuthoringModeContentBaseUrl();
+			} else {
+				//we are in the student vle
+				cbu = this.view.getConfig().getConfigParam('getContentBaseUrl');					
+			}
 		} else {
-			//get the content base url
-			cbu = this.view.getConfig().getConfigParam('getContentBaseUrl');			
+			//set the content base url to the step type folder path 
+			
+			//get the content url e.g. "node/openresponse/openresponse.html"
+			var contentUrl = this.baseHtmlContent.getContentUrl();
+			
+			//get the content url path e.g. "node/openresponse"
+			contentUrlPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
+			
+			//get the window location e.g. "http://localhost:8080/vlewrapper/vle/vle.html"
+			var loc = window.location.toString();
+			
+			//get the vle location e.g. "http://localhost:8080/vlewrapper/vle/"
+			var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
+			
+			//create the base href path e.g. "http://localhost:8080/vlewrapper/vle/node/openresponse/"
+			cbu = vleLoc + contentUrlPath + '/';
 		}
 
 		//add any missing html, head or body tags

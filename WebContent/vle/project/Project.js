@@ -98,7 +98,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						if(!currNode.ref || currNode.ref==''){
 							view.notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
 						} else {
-							thisNode.content = createContent(makeUrl(currNode.ref, thisNode));
+							thisNode.content = createContent(makeUrl(currNode.ref, thisNode), contentBaseUrl);
 						}
 						
 						//set the peerReview attribute if available
