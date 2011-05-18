@@ -539,7 +539,14 @@ View.prototype.stepLevelChanged = function(){
 View.prototype.launchPrevWork = function(nodeId){
 	showElement('previousWorkDialog');
 	this.activeNode = this.project.getNodeById(nodeId).getNode(); //calling getNode gets the original node even if this is a duplicate
-	document.getElementById('nodeTitle').innerHTML = this.activeNode.getTitle();
+	
+	//generate the node label e.g. "1.3: Analyze the data"
+	var nodeId = this.activeNode.getNodeId();
+	var nodeTitle = this.activeNode.getTitle();
+	var vlePosition = this.project.getVLEPositionById(nodeId);
+	var nodeLabel = vlePosition + ": " + nodeTitle;
+	
+	document.getElementById('nodeTitle').innerHTML = nodeLabel;
 	
 	this.clearCols();
 	this.populateToCol();

@@ -29,8 +29,14 @@ View.prototype.populateToCol = function(){
 	var tos = this.activeNode.prevWorkNodeIds;
 	if(tos){
 		for(var q=0;q<tos.length;q++){
+			//generate the node label e.g. "1.3: Analyze the data"
 			var toNode = this.project.getNodeById(tos[q]);
-			parent.appendChild(this.createOptionElement(toNode.id, toNode.title));
+			var nodeId = toNode.id;
+			var title = toNode.title;
+			var vlePosition = this.project.getVLEPositionById(nodeId);
+			var nodeLabel = vlePosition + ": " + title;
+			
+			parent.appendChild(this.createOptionElement(nodeId, nodeLabel));
 		};
 	};
 };
@@ -43,9 +49,41 @@ View.prototype.populateToCol = function(){
 View.prototype.populateFromCol = function(){
 	var parent = document.getElementById('selectFrom');
 	var fromNodes = this.removeUnwanted(this.project.getLeafNodes());
-	if(fromNodes){
-		for(var w=0;w<fromNodes.length;w++){
-			parent.appendChild(this.createOptionElement(fromNodes[w].id, fromNodes[w].title));
+	
+	//the array that will store the nodes in the order they appear in the project
+	var fromNodesOrdered = [];
+	
+	//get all the node ids in the project in the order they appear in the project
+	var projectNodeIds = this.project.getNodeIds();
+	
+	/*
+	 * we will loop through all the node ids in the project
+	 * and if that node id is in our fromNodes array we will
+	 * add it to our fromNodesOrdered array. this way we
+	 * will end up with all the fromNodes in the order that
+	 * they appear in the project.
+	 */
+	for(var x=0; x<projectNodeIds.length; x++) {
+		var nodeId = projectNodeIds[x];
+		
+		//loop through all the fromNodes
+		for(var y=0; y<fromNodes.length; y++) {
+			var node = fromNodes[y];
+			if(node.id == nodeId) {
+				fromNodesOrdered.push(node);
+			}
+		}
+	}
+	
+	if(fromNodesOrdered){
+		for(var w=0;w<fromNodesOrdered.length;w++){
+			//generate the node label e.g. "1.3: Analyze the data"
+			var nodeId = fromNodesOrdered[w].id;
+			var title = fromNodesOrdered[w].title;
+			var vlePosition = this.project.getVLEPositionById(nodeId);
+			var nodeLabel = vlePosition + ": " + title;
+			
+			parent.appendChild(this.createOptionElement(nodeId, nodeLabel));
 		};
 	};
 };
