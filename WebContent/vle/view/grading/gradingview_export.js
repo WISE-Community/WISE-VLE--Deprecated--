@@ -76,6 +76,15 @@ View.prototype.setParamsForXLSExport = function() {
 	 */
 	document.getElementById('runId').value = this.getConfig().getConfigParam('runId');
 
+	//set the project id
+	document.getElementById('projectId').value = this.getConfig().getConfigParam('projectId');
+	
+	//set the parent project id
+	document.getElementById('parentProjectId').value = this.getConfig().getConfigParam('parentProjectId');
+	
+	//set the run name
+	document.getElementById('runName').value = this.getConfig().getConfigParam('runName');
+	
 	/*
 	 * set the project title to an element that will be passed back to the server
 	 */

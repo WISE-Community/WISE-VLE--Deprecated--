@@ -77,6 +77,13 @@ public class VLEGetXLS extends VLEServlet {
 	//holds the teacher's username and workgroupid
 	private JSONObject teacherUserInfoJSONObject;
 	
+	//run and project attributes
+	private String runId = "";
+	private String runName = "";
+	private String projectId = "";
+	private String parentProjectId = "";
+	private String projectName = "";
+	
 	private static long debugStartTime = 0;
 	
 	/**
@@ -137,11 +144,12 @@ public class VLEGetXLS extends VLEServlet {
 		//the List that will hold all the workgroup ids
 		Vector<String> workgroupIds = new Vector<String>();
 		
-		//the name of the project
-		String projectName = request.getParameter("projectName");
-		
-		//the id of the run
-		String runId = request.getParameter("runId");
+		//get the run and project attributes
+		runId = request.getParameter("runId");
+		runName = request.getParameter("runName");
+		projectId = request.getParameter("projectId");
+		projectName = request.getParameter("projectName");
+		parentProjectId = request.getParameter("parentProjectId");
 		
 		//the export type "latestStudentWork" or "allStudentWork"
 		String exportType = request.getParameter("exportType");
@@ -600,14 +608,14 @@ public class VLEGetXLS extends VLEServlet {
 			 * student login, teacher login, period name, etc.
 			 */
 			Row userDataHeaderRow = userIdSheet.createRow(rowCounter++);
-			createUserDataHeaderRow(userDataHeaderRow);
+			createUserDataHeaderRow(userDataHeaderRow, true, true);
 			
 			/*
 			 * create the row that will display the user data such as the actual values
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
 			Row userDataRow = userIdSheet.createRow(rowCounter++);
-			createUserDataRow(userDataRow, userId);
+			createUserDataRow(userDataRow, userId, true, true);
 			
 			//create a blank row for spacing
 			rowCounter++;
@@ -869,9 +877,9 @@ public class VLEGetXLS extends VLEServlet {
 		
 		HSSFSheet mainSheet = workbook.getSheetAt(0);
 		
-		//get the number of rows that have been used so far
-		int rowCounter = mainSheet.getPhysicalNumberOfRows();
-		
+		//get the next empty row
+		int rowCounter = mainSheet.getLastRowNum() + 1;
+
 		//loop through the workgroup ids
 		for(int x=0; x<workgroupIds.size(); x++) {
 			//create a row for this workgroup
@@ -888,7 +896,7 @@ public class VLEGetXLS extends VLEServlet {
 			 * create the row that will display the user data such as the actual values
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
-			workgroupColumnCounter = createUserDataRow(rowForWorkgroupId, userId);
+			workgroupColumnCounter = createUserDataRow(rowForWorkgroupId, userId, true, false);
 			
 			/*
 			 * increment the column counter to create an empty column under the header column
@@ -1208,8 +1216,19 @@ public class VLEGetXLS extends VLEServlet {
 		
 		int rowCounter = 0;
 		
-		//start on column 8 because the first 8 columns are for the user data columns
-		int columnCounter = 8;
+		//create the row that will display the metadata column headers
+		Row metaDataHeaderRow = mainSheet.createRow(rowCounter++);
+		createUserDataHeaderRow(metaDataHeaderRow, false, true);
+		
+		//create the row that will display the metadata column values
+		Row metaDataRow = mainSheet.createRow(rowCounter++);
+		createUserDataRow(metaDataRow, "", false, true);
+		
+		//create a blank row
+		rowCounter++;
+		
+		//start on column 5 because the first 5 columns are for the user data columns
+		int columnCounter = 5;
 		
 		//create the step title row
 		Row stepTitleRow = mainSheet.createRow(rowCounter++);
@@ -1236,7 +1255,7 @@ public class VLEGetXLS extends VLEServlet {
 		 * WorkgroupId, Student Login 1, Student Login 2, etc.
 		 */
 		Row userDataHeaderRow = mainSheet.createRow(rowCounter++);
-		createUserDataHeaderRow(userDataHeaderRow);
+		createUserDataHeaderRow(userDataHeaderRow, true, false);
 		
 		/*
 		 * increment the column counter so the student work begins on the next column
@@ -2254,19 +2273,34 @@ public class VLEGetXLS extends VLEServlet {
 	 * Create the row that contains the user data headers, we will assume there
 	 * will be at most 3 students in a single workgroup
 	 * @param userDataHeaderRow the excel Row object to populate
+	 * @param includeUserDataCells whether to output the user data cells such
+	 * as workgroup id, wise id 1, wise id 2, wise id 3, class period
+	 * @param includeMetaDataCells whether to output the metadata cells such
+	 * as teacher login, project id, project name, etc.
 	 */
-	private int createUserDataHeaderRow(Row userDataHeaderRow) {
+	private int createUserDataHeaderRow(Row userDataHeaderRow, boolean includeUserDataCells, boolean includeMetaDataCells) {
 		int userDataHeaderRowColumnCounter = 0;
 
-		//create the columns in the row
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Workgroup Id");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 1");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 2");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 3");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Teacher Login");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Class Period");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Start Date");
-		userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("End Date");
+		if(includeUserDataCells) {
+			//output the user data header cells
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Workgroup Id");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 1");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 2");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Wise Id 3");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Class Period");
+		}
+		
+		if(includeMetaDataCells) {
+			//output the meta data header cells
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Teacher Login");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Project Id");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Parent Project Id");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Project Name");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Run Id");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Run Name");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("Start Date");
+			userDataHeaderRow.createCell(userDataHeaderRowColumnCounter++).setCellValue("End Date");			
+		}
 		
 		return userDataHeaderRowColumnCounter;
 	}
@@ -2277,68 +2311,88 @@ public class VLEGetXLS extends VLEServlet {
 	 * we will assume there will be at most 3 students in a single workgroup
 	 * @param userDataRow the excel Row object to populate
 	 * @param workgroupId the workgroupId to obtain user data for
+	 * @param includeUserDataCells whether to output the user data cells such
+	 * as workgroup id, wise id 1, wise id 2, wise id 3, class period
+	 * @param includeMetaDataCells whether to output the metadata cells such
+	 * as teacher login, project id, project name, etc.
 	 */
-	private int createUserDataRow(Row userDataRow, String workgroupId) {
+	private int createUserDataRow(Row userDataRow, String workgroupId, boolean includeUserDataCells, boolean includeMetaDataCells) {
 		//the column counter
 		int workgroupColumnCounter = 0;
 		
-		//set the first column to be the workgroup id
-		userDataRow.createCell(workgroupColumnCounter++).setCellValue(workgroupId);
-		
-		//get the student logins for the given workgroup id
-		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId));
-		
-		if(studentLogins != null) {
-			//we found student logins
+		if(includeUserDataCells) {
+			//output the user data cells
 			
-			//the student logins string is delimited by ':'
-			String[] studentLoginsArray = studentLogins.split(":");
+			//set the first column to be the workgroup id
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(workgroupId);
 			
-			//loop through all the student logins in this workgroup
-			for(int z=0; z<studentLoginsArray.length; z++) {
-				//get a student login
-				String studentLogin = studentLoginsArray[z];
+			//get the student logins for the given workgroup id
+			String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId));
+			
+			if(studentLogins != null) {
+				//we found student logins
 				
-				//put the student login into the cell
-				userDataRow.createCell(workgroupColumnCounter++).setCellValue(studentLogin);
+				//the student logins string is delimited by ':'
+				String[] studentLoginsArray = studentLogins.split(":");
+				
+				//loop through all the student logins in this workgroup
+				for(int z=0; z<studentLoginsArray.length; z++) {
+					//get a student login
+					String studentLogin = studentLoginsArray[z];
+					
+					//put the student login into the cell
+					userDataRow.createCell(workgroupColumnCounter++).setCellValue(studentLogin);
+				}
+				
+				/*
+				 * we will assume there will be at most 3 students in a workgroup so we need
+				 * to increment the column counter if necessary
+				 */
+				int numColumnsToAdd = 3 - studentLoginsArray.length;
+				workgroupColumnCounter += numColumnsToAdd;
+				
+				//get the period name such as 1, 2, 3, 4, etc.
+				String periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
+				
+				//populate the cell with the period name
+				userDataRow.createCell(workgroupColumnCounter++).setCellValue(periodName);
+			} else {
+				/*
+				 * we did not find any student logins so we will just increment the column
+				 * counter by 3 since we provide 3 columns for the student logins and 1
+				 * for the period
+				 */
+				workgroupColumnCounter += 4;
+			}
+		}
+		
+		if(includeMetaDataCells) {
+			//output the meta data cells
+			
+			String teacherLogin = "";
+			try {
+				//get the teacher login
+				teacherLogin = teacherUserInfoJSONObject.getString("userName");
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
 			
-			/*
-			 * we will assume there will be at most 3 students in a workgroup so we need
-			 * to increment the column counter if necessary
-			 */
-			int numColumnsToAdd = 3 - studentLoginsArray.length;
-			workgroupColumnCounter += numColumnsToAdd;
-		} else {
-			/*
-			 * we did not find any student logins so we will just increment the column
-			 * counter by 3 since we provide 3 columns for the student logins
-			 */
-			workgroupColumnCounter += 3;
+			//populate the cell with the teacher login
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(teacherLogin);
+			
+			//set the run and project attributes
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(projectId);
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(parentProjectId);
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(projectName);
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(runId);
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(runName);
+			
+			//populate the cell with the date the run was created
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(startTime);
+			
+			//populate the cell with the date the run was archived
+			userDataRow.createCell(workgroupColumnCounter++).setCellValue(endTime);			
 		}
-		
-		String teacherLogin = "";
-		try {
-			//get the teacher login
-			teacherLogin = teacherUserInfoJSONObject.getString("userName");
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
-		//populate the cell with the teacher login
-		userDataRow.createCell(workgroupColumnCounter++).setCellValue(teacherLogin);
-		
-		//get the period name such as 1, 2, 3, 4, etc.
-		String periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
-		
-		//populate the cell with the period name
-		userDataRow.createCell(workgroupColumnCounter++).setCellValue(periodName);
-		
-		//populate the cell with the date the run was created
-		userDataRow.createCell(workgroupColumnCounter++).setCellValue(startTime);
-		
-		//populate the cell with the date the run was archived
-		userDataRow.createCell(workgroupColumnCounter++).setCellValue(endTime);
 		
 		return workgroupColumnCounter;
 	}
@@ -2378,7 +2432,6 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//create all the header fields
 		Vector<String> headerFields = new Vector<String>();
-		headerFields.add("Workgroup Id");
 		headerFields.add("Basket Revision");
 		headerFields.add("Idea #");
 		headerFields.add("Idea Text");
@@ -2400,7 +2453,20 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Steps Used In Changed");
 		headerFields.add("Deleted In This Revision");
 
+		//output the meta data header cells
+		Row metaDataHeaderRow = mainSheet.createRow(rowCounter++);
+		createUserDataHeaderRow(metaDataHeaderRow, false, true);
+		
+		//output the meta data cells
+		Row metaDataRow = mainSheet.createRow(rowCounter++);
+		createUserDataRow(metaDataRow, "", false, true);
+		
+		//create a blank row
+		rowCounter++;
+		
+		//output the user header rows such as workgroup id, wise id 1, etc.
 		Row headerRow = mainSheet.createRow(rowCounter++);
+		columnCounter = createUserDataHeaderRow(headerRow, true, false);
 
 		//loop through all the header fields to add them to the excel
 		for(int x=0; x<headerFields.size(); x++) {
@@ -2492,8 +2558,8 @@ public class VLEGetXLS extends VLEServlet {
 						if(idea != null) {
 							Row ideaBasketRow = mainSheet.createRow(rowCounter++);
 							
-							//WorkgrupId
-							ideaBasketRow.createCell(columnCounter++).setCellValue(workgroupId);
+							//WorkgrupId, Wise Id 1, Wise Id 2, Wise Id 3, Class Period
+							columnCounter = createUserDataRow(ideaBasketRow, workgroupId + "", true, false);
 							
 							//Basket Revision
 							ideaBasketRow.createCell(columnCounter++).setCellValue(basketRevision);
