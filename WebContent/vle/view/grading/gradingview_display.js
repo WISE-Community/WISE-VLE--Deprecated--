@@ -841,6 +841,11 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		//make the css class for the row
 		var studentTRClass = "studentWorkRow period" + periodName;
 		
+		// if student has no work, add a noWork class to the row
+		if (latestNodeVisit == null) {
+			studentTRClass += " noWork";
+		}
+		
 		//see if there is any new work so we can add the css class to highlight the row
 		if(latestAnnotationPostTime < latestNodeVisitPostTime) {
 			studentTRClass += " newWork";
