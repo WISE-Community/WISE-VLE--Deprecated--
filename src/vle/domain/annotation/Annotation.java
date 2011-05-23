@@ -4,6 +4,7 @@
 package vle.domain.annotation;
 
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -19,9 +20,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import utils.VLEDataUtils;
 import vle.domain.PersistableDomain;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
@@ -291,5 +294,90 @@ public class Annotation extends PersistableDomain {
         		.list();
         session.getTransaction().commit();
         return results;
+	}
+	
+	/**
+	 * Get the latest annotation that is associated with any of the StepWork objects
+	 * and has a fromWorkgroup that is in the workgroupIds list 
+	 * @param stepWorks the list of StepWork objects whose annotations we want to search
+	 * @param workgroupIds the list of workgroup ids that we will accept fromWorkgroup
+	 * to be in the annotation
+	 * @return the latest annotation associated with any of the StepWork objects and has
+	 * a fromWorkgroup that is in the workgroupIds list
+	 */
+	public static Annotation getLatestAnnotationByStepWork(List<StepWork> stepWorks, List<String> workgroupIds, Class annotationClass) {
+		//if either lists are empty we will return null
+		if(stepWorks.size() == 0 || workgroupIds.size() == 0) {
+			return null;
+		}
+		
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        /*
+         * perform the query to obtain the annotations associated with the workgroup ids,
+         * order the results from newest to oldest
+         */
+        List<Annotation> results = 
+        	(List<Annotation>) session.createCriteria(annotationClass)
+        		.add(Restrictions.in("stepWork", stepWorks)).addOrder(Order.desc("postTime"))
+        		.list();
+        session.getTransaction().commit();
+
+        Annotation annotation = null;
+
+        //loop through all the annotations we found
+        Iterator<Annotation> resultsIter = results.iterator();
+        while(resultsIter.hasNext()) {
+        	//get an annotation
+        	Annotation tempAnnotation = resultsIter.next();
+        	
+        	//get the JSON data from the annotaiton
+        	String annotationData = tempAnnotation.getData();
+        	try {
+        		//get the fromWorkgroup from the annotation JSON data
+				JSONObject annotationJSONObj = new JSONObject(annotationData);
+				String fromWorkgroup = annotationJSONObj.getString("fromWorkgroup");
+				
+				if(fromWorkgroup != null && workgroupIds.contains(fromWorkgroup)) {
+					/*
+					 * the fromWorkgroup matches one of the workgroups in the workgroupIds list
+					 * so we are done searching
+					 */
+					annotation = tempAnnotation;
+	        		break;
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+        }
+        
+        return annotation;
+	}
+	
+	/**
+	 * Get the latest score annotation that is associated with any of the StepWork objects
+	 * and has a fromWorkgroup that is in the workgroupIds list 
+	 * @param stepWorks the list of StepWork objects whose annotations we want to search
+	 * @param workgroupIds the list of workgroup ids that we will accept fromWorkgroup
+	 * to be in the annotation
+	 * @return the latest score annotation associated with any of the StepWork objects and has
+	 * a fromWorkgroup that is in the workgroupIds list
+	 */
+	public static AnnotationScore getLatestAnnotationScoreByStepWork(List<StepWork> stepWorks, List<String> workgroupIds) {
+		return (AnnotationScore) getLatestAnnotationByStepWork(stepWorks, workgroupIds, AnnotationScore.class);
+	}
+	
+	/**
+	 * Get the latest comment annotation that is associated with any of the StepWork objects
+	 * and has a fromWorkgroup that is in the workgroupIds list 
+	 * @param stepWorks the list of StepWork objects whose annotations we want to search
+	 * @param workgroupIds the list of workgroup ids that we will accept fromWorkgroup
+	 * to be in the annotation
+	 * @return the latest comment annotation associated with any of the StepWork objects and has
+	 * a fromWorkgroup that is in the workgroupIds list
+	 */
+	public static AnnotationComment getLatestAnnotationCommentByStepWork(List<StepWork> stepWorks, List<String> workgroupIds) {
+		return (AnnotationComment) getLatestAnnotationByStepWork(stepWorks, workgroupIds, AnnotationComment.class);
 	}
 }
