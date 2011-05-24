@@ -178,13 +178,31 @@ public class VLEGetXLS extends VLEServlet {
 			JSONObject runInfoJSONObject = new JSONObject(runInfo);
 			
 			if(runInfoJSONObject.has("startTime")) {
-				//get the date the run was created
-				startTime = runInfoJSONObject.getString("startTime");				
+				//get the start time as a string
+				String startTimeString = runInfoJSONObject.getString("startTime");
+				
+				if(startTimeString != null && !startTimeString.equals("null") && !startTimeString.equals("")) {
+					long startTimeLong = Long.parseLong(startTimeString);
+					
+					Timestamp startTimeTimestamp = new Timestamp(startTimeLong);
+					
+					//get the date the run was created
+					startTime = timestampToFormattedString(startTimeTimestamp);					
+				}
 			}
 			
 			if(runInfoJSONObject.has("endTime")) {
-				//get the date the run was archived
-				endTime = runInfoJSONObject.getString("endTime");
+				//get the end time as a string
+				String endTimeString = runInfoJSONObject.getString("endTime");
+				
+				if(endTimeString != null && !endTimeString.equals("null") && !endTimeString.equals("")) {
+					long endTimeLong = Long.parseLong(endTimeString);
+					
+					Timestamp endTimeTimestamp = new Timestamp(endTimeLong);
+					
+					//get the date the run was archived
+					endTime = timestampToFormattedString(endTimeTimestamp);
+				}
 			}
 		} catch (JSONException e1) {
 			e1.printStackTrace();
@@ -708,7 +726,15 @@ public class VLEGetXLS extends VLEServlet {
 	    	headerColumn++;
 	    	
 	    	//header time the student spent on the step in seconds column
+	    	headerRow.createCell(headerColumn).setCellValue("Teacher Score Timestamp");
+	    	headerColumn++;
+	    	
+	    	//header time the student spent on the step in seconds column
 	    	headerRow.createCell(headerColumn).setCellValue("Teacher Score");
+	    	headerColumn++;
+	    	
+	    	//header time the student spent on the step in seconds column
+	    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment Timestamp");
 	    	headerColumn++;
 	    	
 	    	//header time the student spent on the step in seconds column
@@ -784,7 +810,7 @@ public class VLEGetXLS extends VLEServlet {
 		    	
 		    	//set the start time
 		    	tempColumn++;
-		    	tempRow.createCell(tempColumn).setCellValue(startTime.toString());
+		    	tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(startTime));
 
 		    	tempColumn++;
 		    	
@@ -795,7 +821,7 @@ public class VLEGetXLS extends VLEServlet {
 		    	 */
 		    	if(endTime != null) {
 		    		//set the end time
-		    		tempRow.createCell(tempColumn).setCellValue(endTime.toString());	
+		    		tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(endTime));	
 		    	} else {
 		    		//there was no end time so we will leave it blank
 		    		tempRow.createCell(tempColumn).setCellValue("");
@@ -830,16 +856,13 @@ public class VLEGetXLS extends VLEServlet {
 		    	List<StepWork> stepWorkList = new ArrayList<StepWork>();
 		    	stepWorkList.add(stepWork);
 		    	
-		    	//get the latest annotation score from any of the teachers
-		    	String score = getLatestAnnotationScoreByStepWork(stepWorkList, teacherWorkgroupIds);
-		    	tempColumn = setCellValue(tempRow, tempColumn, score);
+		    	//set the latest annotation score and timestamp
+		    	tempColumn = setLatestAnnotationScoreAndTimestamp(stepWorkList, tempRow, tempColumn);
 		    	
-		    	//get the latest annotaiton comment from any of the teachers
-		    	String comment = getLatestAnnotationCommentByStepWork(stepWorkList, teacherWorkgroupIds);
-		    	tempRow.createCell(tempColumn).setCellValue(comment);
+		    	//set the latest annotation comment and timestamp
+		    	tempColumn = setLatestAnnotationCommentAndTimestamp(stepWorkList, tempRow, tempColumn);
 		    	
 				int periodId = workgroupIdToPeriodId.get(Integer.parseInt(userId));
-				tempColumn++;
 				
 				/*
 				 * set the review cells, if the current step does not utilize any review
@@ -1009,14 +1032,12 @@ public class VLEGetXLS extends VLEServlet {
 				
 				//set the step work data into the row in the given column
 				workgroupColumnCounter = setStepWorkResponse(rowForWorkgroupId, workgroupColumnCounter, latestStepWorkWithResponse, nodeId);
+
+				//set the latest annotation score and timestamp from any of the teachers
+				workgroupColumnCounter = setLatestAnnotationScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
 				
-				//get the latest annotation score from any of the teachers
-				String score = getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
-				workgroupColumnCounter = setCellValue(rowForWorkgroupId, workgroupColumnCounter, score);
-				
-				//get the latest annotation comment from any of the teachers
-				String comment = getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
-				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(comment);
+				//set the latest annotation comment and timestamp from any of the teachers
+				workgroupColumnCounter = setLatestAnnotationCommentAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
 			}
 		}
 	}
@@ -1424,7 +1445,23 @@ public class VLEGetXLS extends VLEServlet {
 		String nodePrompt = getPromptFromNodeContent(nodeContent);
 		
 		//set the step extra so the researcher knows this column is for the teacher score
-		String stepExtra = "teacher score";
+		String stepExtra = "teacher score timestamp";
+		
+		//set the step extra cell
+		columnCounter = setGetLatestStepWorkHeaderCells(
+				columnCounter, 
+				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
+		
+		stepExtra = "teacher score";
+		
+		//set the step extra cell
+		columnCounter = setGetLatestStepWorkHeaderCells(
+				columnCounter, 
+				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
+		
+		stepExtra = "teacher comment timestamp";
 		
 		//set the step extra cell
 		columnCounter = setGetLatestStepWorkHeaderCells(
@@ -3351,6 +3388,98 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Get the latest annotation score and timestamp and set it into the row
+	 * @param stepWorksForNodeId the StepWork objects we want to look at
+	 * for the associated annotation
+	 * @param rowForWorkgroupId the row
+	 * @param workgroupColumnCounter the column index
+	 * @return the updated column counter pointing to the next empty column
+	 */
+	private int setLatestAnnotationScoreAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, int workgroupColumnCounter) {
+		/*
+		 * get the latest annotation associated with any of the StepWork objects
+		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
+		 */
+		AnnotationScore latestAnnotationScoreByStepWork = Annotation.getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
+		
+		if(latestAnnotationScoreByStepWork != null) {
+			try {
+				//get the annotation data
+				String data = latestAnnotationScoreByStepWork.getData();
+				JSONObject annotation = new JSONObject(data);
+				
+				//get the score value
+				String score = annotation.getString("value");
+
+				//get the timestamp for the annotation
+				Timestamp postTime = latestAnnotationScoreByStepWork.getPostTime();
+				
+				//get the timestamp as a string
+				String timestampAnnotationPostTime = timestampToFormattedString(postTime);
+				
+				//set the timestamp
+				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
+				
+				//set the score
+				workgroupColumnCounter = setCellValue(rowForWorkgroupId, workgroupColumnCounter, score);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			//there is no annotation so we will just increment the column counter
+			workgroupColumnCounter += 2;
+		}
+		
+		return workgroupColumnCounter;
+	}
+	
+	/**
+	 * Get the latest annotation comment and timestamp and set it into the row
+	 * @param stepWorksForNodeId the StepWork objects we want to look at
+	 * for the associated annotation
+	 * @param rowForWorkgroupId the row
+	 * @param workgroupColumnCounter the column index
+	 * @return the updated column counter pointing to the next empty column
+	 */
+	private int setLatestAnnotationCommentAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, int workgroupColumnCounter) {
+		/*
+		 * get the latest annotation associated with any of the StepWork objects
+		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
+		 */
+		AnnotationComment latestAnnotationCommentByStepWork = Annotation.getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
+		
+		if(latestAnnotationCommentByStepWork != null) {
+			try {
+				//get the annotation data
+				String data = latestAnnotationCommentByStepWork.getData();
+				JSONObject annotation = new JSONObject(data);
+				
+				//get the score value
+				String comment = annotation.getString("value");
+				
+				//get the timestamp for the annotation
+				Timestamp postTime = latestAnnotationCommentByStepWork.getPostTime();
+				
+				//get the timestamp as a string
+				String timestampAnnotationPostTime = timestampToFormattedString(postTime);
+				
+				//set the timestamp
+				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
+				
+				//set the comment
+				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(comment);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			//there is no annotation so we will just increment the column counter
+			workgroupColumnCounter += 2;
+		}
+		
+		return workgroupColumnCounter;
+	}
+	
+	/**
 	 * Set the value in the row at the given column. if the string can be
 	 * converted to a number we will do so. this makes a difference in the
 	 * excel because strings are left aligned and numbers are right aligned.
@@ -3378,5 +3507,28 @@ public class VLEGetXLS extends VLEServlet {
 		columnCounter++;
 		
 		return columnCounter;
+	}
+	
+	/**
+	 * Get the timestamp as a string
+	 * @param timestamp the timestamp object
+	 * @return the timstamp as a string
+	 * e.g.
+	 * Mar 9, 2011 8:50:47 PM
+	 */
+	private String timestampToFormattedString(Timestamp timestamp) {
+		String timestampString = "";
+		
+		if(timestamp != null) {
+			//get the object to format timestamps
+			DateFormat dateTimeInstance = DateFormat.getDateTimeInstance();
+			
+			//get the timestamp for the annotation
+			long time = timestamp.getTime();
+			Date timestampDate = new Date(time);
+			timestampString = dateTimeInstance.format(timestampDate);			
+		}
+		
+		return timestampString;
 	}
 }
