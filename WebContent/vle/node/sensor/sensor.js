@@ -1765,30 +1765,53 @@ SENSOR.prototype.showGraphOptions = function() {
 };
 
 /**
+ * returns true iff the input is a number
+ */
+function IsValidInput(input) {
+	return (input - 0) == input && input.length > 0;	
+};
+
+/**
  * The student has changed the axis range so we will obtain those
  * values and plot the graph again
  */
 SENSOR.prototype.updateAxisRange = function() {
-	//set this flag so we know the sensor state has changed
-	this.axisRangeChanged = true;
-	
-	//get all the values from the text box inputs
-	var xMin = $('#xMinInput').val();
-	var xMax = $('#xMaxInput').val();
-	var yMin = $('#yMinInput').val();
-	var yMax = $('#yMaxInput').val();
+	if (this.content.graphParams.allowUpdateAxisRange) {
+		//set this flag so we know the sensor state has changed
+		this.axisRangeChanged = true;
 
-	//set the value into the sensor state
-	this.sensorState.xMin = xMin;
-	this.sensorState.xMax = xMax;
-	this.sensorState.yMin = yMin;
-	this.sensorState.yMax = yMax;
-	
-	//parse the graph params again to obtain the new values in the graph params
-	this.graphParams = this.parseGraphParams(this.content.graphParams);
-	
-	//plot the graph again
-	this.plotData();
+		//get all the values from the text box inputs
+		var xMin = $('#xMinInput').val();
+		var xMax = $('#xMaxInput').val();
+		var yMin = $('#yMinInput').val();
+		var yMax = $('#yMaxInput').val();
+
+		// validate the values
+		var isValid = IsValidInput(xMin) && IsValidInput(xMax) && IsValidInput(yMin) && IsValidInput(yMax)
+				&& (xMin < xMax) && (yMin < yMax);
+
+		// if not valid, alert the user and don't save the values.
+		if (!isValid) {
+			alert("Please enter a number.");
+			$('#xMinInput').val(this.sensorState.xMin);
+			$('#xMaxInput').val(this.sensorState.xMax);
+			$('#yMinInput').val(this.sensorState.yMin);
+			$('#yMaxInput').val(this.sensorState.yMax);
+			return;
+		}
+		
+		//set the value into the sensor state
+		this.sensorState.xMin = xMin;
+		this.sensorState.xMax = xMax;
+		this.sensorState.yMin = yMin;
+		this.sensorState.yMax = yMax;
+
+		//parse the graph params again to obtain the new values in the graph params
+		this.graphParams = this.parseGraphParams(this.content.graphParams);
+
+		//plot the graph again
+		this.plotData();
+	}
 };
 
 /**
@@ -2032,6 +2055,14 @@ SENSOR.prototype.setupAxisValues = function() {
 	$('#xMaxInput').val(xMax);
 	$('#yMinInput').val(yMin);
 	$('#yMaxInput').val(yMax);
+	
+	// disable input boxes if updating axis rang is not permitted.
+	if (!this.content.graphParams.allowUpdateAxisRange) {
+		$('#xMinInput').attr("disabled","disabled");		
+		$('#xMaxInput').attr("disabled","disabled");		
+		$('#yMinInput').attr("disabled","disabled");		
+		$('#yMaxInput').attr("disabled","disabled");		
+	}	
 };
 
 /**

@@ -3,7 +3,9 @@
    "dataCollectionTimeLimit": 30,
    "enableSensor": true,
    "expectedLines": 5,
-   "graphParams": {},
+   "graphParams": {
+       "allowUpdateAxisRange":true
+   },
    "graphTitle": "",
    "lockPredictionOnCollectionStart": false,
    "prompt": "",
