@@ -1989,16 +1989,20 @@
         }
         
         function indexOfHighlight(s, p) {
+        	try {
             for (var i = 0; i < highlights.length; ++i) {
                 var h = highlights[i];
                 if (h.series == s && h.point[0] == p[0]
                     && h.point[1] == p[1])
                     return i;
             }
+        	} catch (err) {
+        	}
             return -1;
         }
         
         function drawPointHighlight(series, point) {
+        	if (point == undefined) {return;};
             var x = point[0], y = point[1],
                 axisx = series.xaxis, axisy = series.yaxis;
             
