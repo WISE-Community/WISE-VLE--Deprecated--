@@ -343,7 +343,7 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 			var maxValue = 22;
 			var defaultValue = 11;
 			doFilter(defaultValue);
-			$("#onlyShowSmartFilteredItemsText").append("<div style='width:80%' id='smartFilter'><div style='color:green'><span><- SLIDE LEFT: More errors</span><span style='margin-left:150px'>Showing work with highest margin of error more than <span id='currentSliderValue'>"+defaultValue+"</span></span><span style='float:right'>SLIDE RIGHT: Less errors -></span></div><div id='onlyShowSmartFilteredItemsSlider'></div></div>");
+			$("#onlyShowSmartFilteredItemsText").append("<div style='width:80%' id='smartFilter'><div style='color:green'><span><- SLIDE LEFT: More errors</span><span style='margin-left:150px'>Showing <span id='currentDisplayedWorkCount'></span> work with highest margin of error more than <span id='currentSliderValue'>"+defaultValue+"</span></span><span style='float:right'>SLIDE RIGHT: Less errors -></span></div><div id='onlyShowSmartFilteredItemsSlider'></div></div>");
 			$("#onlyShowSmartFilteredItemsSlider").slider({
 				value:defaultValue,
 				min:0,
@@ -354,6 +354,10 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 				doFilter(sliderValue);
 				
 				$("#currentSliderValue").html(sliderValue);
+				if(typeof eventManager != 'undefined'){
+					// call filterstudentrows again to filter for selected periods
+					eventManager.fire('filterStudentRows');
+				}
 			}
 			});
 		};
