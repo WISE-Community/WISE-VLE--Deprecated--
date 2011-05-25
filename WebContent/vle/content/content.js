@@ -104,7 +104,7 @@ function createContent(url, contentBaseUrlParam){
 				
 				if(contentBaseUrl != null) {
 					//change the relative assets path to an absolute path
-					contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, contentBaseUrl + 'assets');
+					contentString = contentString.replace(/^\.\/assets|^\/assets|^assets/gi, contentBaseUrl + 'assets');
 				}
 				
 				//json

@@ -421,7 +421,7 @@ View.prototype.previewStep = function(){
 	var contentString = this.activeContent.getContentString();
 	
 	//replace any relative references to assets with the absolute path to the assets
-	contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, contentBaseUrl + 'assets');
+	contentString = contentString.replace(/^\.\/assets|^\/assets|^assets/gi, contentBaseUrl + 'assets');
 	
 	//create a new content object
 	var contentObj = createContent(this.activeNode.getContent().getContentUrl());
