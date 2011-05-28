@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,6 +68,8 @@ public class VLEGetXLS extends VLEServlet {
 	
 	private HashMap<Integer, String> workgroupIdToStudentLogins = new HashMap<Integer, String>();
 	
+	private HashMap<Long, JSONArray> workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
+	
 	private List<String> nodeIdList = new Vector<String>();
 	
 	//the start time of the run (when the run was created)
@@ -105,6 +108,7 @@ public class VLEGetXLS extends VLEServlet {
 		nodeIdToNodeTitlesWithPosition = new HashMap<String, String>();
 		workgroupIdToPeriodName = new HashMap<Integer, String>();
 		workgroupIdToStudentLogins = new HashMap<Integer, String>();
+		workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 		
 		//the list of node ids in the project
 		nodeIdList = new Vector<String>();
@@ -207,6 +211,20 @@ public class VLEGetXLS extends VLEServlet {
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
+		
+		//get the student attendance data which is a JSONArray string
+		String studentAttendanceString = (String) request.getAttribute("studentAttendance");
+		
+		JSONArray studentAttendanceArray = new JSONArray();
+		try {
+			//create the JSONArray from the student attendance data
+			studentAttendanceArray = new JSONArray(studentAttendanceString);
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		
+		//parse the student attendance data so we can query it later
+		parseStudentAttendance(studentAttendanceArray);
 		
 		//the List that will hold all the workgroup ids
 		Vector<String> workgroupIds = new Vector<String>();
@@ -661,245 +679,374 @@ public class VLEGetXLS extends VLEServlet {
 			
 			//get the UserInfo object for the workgroup id
 			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(userId));
+			
+			if(userInfo != null) {
+				//get the workgroup id
+				Long workgroupId = userInfo.getWorkgroupId();
 
-			//get all the work for that workgroup id
-			List<StepWork> stepWorks = StepWork.getByUserInfo(userInfo);
-			
-			//create a sheet in the excel for this workgroup id
-			Sheet userIdSheet = wb.createSheet(userId);
-			
-			int rowCounter = 0;
-			
-			/*
-			 * create the row that will display the user data headers such as workgroup id,
-			 * student login, teacher login, period name, etc.
-			 */
-			Row userDataHeaderRow = userIdSheet.createRow(rowCounter++);
-			createUserDataHeaderRow(userDataHeaderRow, true, true);
-			
-			/*
-			 * create the row that will display the user data such as the actual values
-			 * for workgroup id, student login, teacher login, period name, etc.
-			 */
-			Row userDataRow = userIdSheet.createRow(rowCounter++);
-			createUserDataRow(userDataRow, userId, true, true);
-			
-			//create a blank row for spacing
-			rowCounter++;
-			
-			//counter for the header column cells
-			int headerColumn = 0;
-			
-			//create the first row which will contain the headers
-	    	Row headerRow = userIdSheet.createRow(rowCounter++);
-	    	
-	    	//the header column to just keep track of each row (which represents a step visit)
-	    	headerRow.createCell(headerColumn).setCellValue("#");
-	    	headerColumn++;
-
-	    	//header step title column which already includes numbering
-	    	headerRow.createCell(headerColumn).setCellValue("Step Title");
-	    	headerColumn++;
-	    	
-	    	//header step type column
-	    	headerRow.createCell(headerColumn).setCellValue("Step Type");
-	    	headerColumn++;
-	    	
-	    	//header step prompt column
-	    	headerRow.createCell(headerColumn).setCellValue("Step Prompt");
-	    	headerColumn++;
-	    	
-	    	//header node id column
-	    	headerRow.createCell(headerColumn).setCellValue("Node Id");
-	    	headerColumn++;
-	    	
-	    	//header start time column
-	    	headerRow.createCell(headerColumn).setCellValue("Start Time");
-	    	headerColumn++;
-	    	
-	    	//header end time column
-	    	headerRow.createCell(headerColumn).setCellValue("End Time");
-	    	headerColumn++;
-	    	
-	    	//header time the student spent on the step in seconds column
-	    	headerRow.createCell(headerColumn).setCellValue("Time Spent (Seconds)");
-	    	headerColumn++;
-	    	
-	    	//header time the student spent on the step in seconds column
-	    	headerRow.createCell(headerColumn).setCellValue("Teacher Score Timestamp");
-	    	headerColumn++;
-	    	
-	    	//header time the student spent on the step in seconds column
-	    	headerRow.createCell(headerColumn).setCellValue("Teacher Score");
-	    	headerColumn++;
-	    	
-	    	//header time the student spent on the step in seconds column
-	    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment Timestamp");
-	    	headerColumn++;
-	    	
-	    	//header time the student spent on the step in seconds column
-	    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment");
-	    	headerColumn++;
-	    	
-	    	//header classmate id for review type steps
-	    	headerRow.createCell(headerColumn).setCellValue("Classmate Id");
-	    	headerColumn++;
-	    	
-	    	//header receiving text for review type steps
-	    	headerRow.createCell(headerColumn).setCellValue("Receiving Text");
-	    	headerColumn++;
-	    	
-	    	//header student work column
-	    	headerRow.createCell(headerColumn).setCellValue("Student Work");
-
-			//get all the work for a workgroup id
-			List<StepWork> stepWorksForWorkgroupId = StepWork.getByUserInfo(userInfo);
-			
-	    	/*
-	    	 * loop through all the work for the current student, this will
-	    	 * already be ordered chronologically
-	    	 */
-	    	for(int y=0; y<stepWorks.size(); y++) {
-				/*
-				 * get a student work row which represents the work they
-				 * performed for a single step visit
-				 */
-		    	StepWork stepWork = stepWorks.get(y);
-		    	
-		    	//get the node id
-		    	String nodeId = stepWork.getNode().getNodeId();
-		    	
-		    	//get the node content
-		    	JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
-		    	//check to see if node exists. if not, node has been deleted, so ignore it
-		    	if (nodeContent == null) {
-		    		continue;
-		    	}
-		    	
-		    	//get the node object
-		    	JSONObject nodeJSONObject = nodeIdToNode.get(nodeId);
-		    	
-		    	//counter for the cell columns
-		    	int tempColumn = 0;
-		    	
-		    	//create a new row for this step work
-		    	Row tempRow = userIdSheet.createRow(rowCounter++);
-		    	
-		    	//set the step work/visit number
-		    	tempRow.createCell(tempColumn).setCellValue(y + 1);
-		    	
-		    	//set the title
-		    	tempColumn++;
-		    	tempRow.createCell(tempColumn).setCellValue(nodeIdToNodeTitlesMap.get(nodeId));
-		    	
-		    	//set the node type
-		    	tempColumn++;
-		    	tempRow.createCell(tempColumn).setCellValue(getNodeTypeFromStepWork(stepWork));
-		    	
-		    	//set the prompt
-		    	tempColumn++;
-		    	tempRow.createCell(tempColumn).setCellValue(getPromptFromNodeContent(nodeContent));
-		    	
-		    	//set the node id
-		    	tempColumn++;
-		    	tempRow.createCell(tempColumn).setCellValue(stepWork.getNode().getNodeId());
-		    	
-		    	//get the start and end time
-		    	Timestamp startTime = stepWork.getStartTime();
-		    	Timestamp endTime = stepWork.getEndTime();
-		    	
-		    	//set the start time
-		    	tempColumn++;
-		    	tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(startTime));
-
-		    	tempColumn++;
-		    	
-		    	/*
-		    	 * check if the end time is null which may occur if the student is
-		    	 * currently working on that step, or if there was some kind of
-		    	 * bug/error
-		    	 */
-		    	if(endTime != null) {
-		    		//set the end time
-		    		tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(endTime));	
-		    	} else {
-		    		//there was no end time so we will leave it blank
-		    		tempRow.createCell(tempColumn).setCellValue("");
-		    	}
-		    	
-		    	long timeSpentOnStep = 0;
-		    	
-		    	//calculate the time the student spent on the step
-		    	if(endTime == null || startTime == null) {
-		    		//set to -1 if either start or end was null so we can set the cell to N/A later
-		    		timeSpentOnStep = -1;
-		    	} else {
-		    		/*
-		    		 * find the difference between start and end and divide by
-		    		 * 1000 to obtain the value in seconds
-		    		 */
-		    		timeSpentOnStep = (stepWork.getEndTime().getTime() - stepWork.getStartTime().getTime()) / 1000;	
-		    	}
-		    	
-		    	tempColumn++;
-		    	
-		    	//set the time spent on the step
-		    	if(timeSpentOnStep == -1) {
-		    		tempRow.createCell(tempColumn).setCellValue("N/A");
-		    	} else {
-		    		tempRow.createCell(tempColumn).setCellValue(timeSpentOnStep);	
-		    	}
-		    	
-		    	tempColumn++;
-		    	
-		    	//create a list to add the StepWork to
-		    	List<StepWork> stepWorkList = new ArrayList<StepWork>();
-		    	stepWorkList.add(stepWork);
-		    	
-		    	//set the latest annotation score and timestamp
-		    	tempColumn = setLatestAnnotationScoreAndTimestamp(stepWorkList, tempRow, tempColumn);
-		    	
-		    	//set the latest annotation comment and timestamp
-		    	tempColumn = setLatestAnnotationCommentAndTimestamp(stepWorkList, tempRow, tempColumn);
-		    	
-				int periodId = workgroupIdToPeriodId.get(Integer.parseInt(userId));
+				//get all the work for that workgroup id
+				List<StepWork> stepWorks = StepWork.getByUserInfo(userInfo);
+				
+				//create a sheet in the excel for this workgroup id
+				Sheet userIdSheet = wb.createSheet(userId);
+				
+				int rowCounter = 0;
 				
 				/*
-				 * set the review cells, if the current step does not utilize any review
-				 * functionality, it will simply fill the cells with "N/A"
+				 * create the row that will display the user data headers such as workgroup id,
+				 * student login, teacher login, period name, etc.
 				 */
-		    	tempColumn = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, tempRow, tempColumn, "allStudentWork");
+				Row userDataHeaderRow = userIdSheet.createRow(rowCounter++);
+				createUserDataHeaderRow(userDataHeaderRow, true, true);
+				
+				/*
+				 * create the row that will display the user data such as the actual values
+				 * for workgroup id, student login, teacher login, period name, etc.
+				 */
+				Row userDataRow = userIdSheet.createRow(rowCounter++);
+				createUserDataRow(userDataRow, userId, true, true);
+				
+				//create a blank row for spacing
+				rowCounter++;
+				
+				//counter for the header column cells
+				int headerColumn = 0;
+				
+				//create the first row which will contain the headers
+		    	Row headerRow = userIdSheet.createRow(rowCounter++);
 		    	
-		    	//set the work into the cells
-		    	tempColumn = setStepWorkResponse(tempRow, tempColumn, stepWork, nodeId);
-		    }
-	    	
-	    	/*
-	    	 * check if we need to add more Student Work header cells. this value
-	    	 * is set when a step requires multiple cells to display the data
-	    	 * such as assessment list steps which can have multiple parts
-	    	 * and require multiple cells.
-	    	 */
-	    	if(maxNumberOfStepWorkParts > 1) {
-	    		//we need to add more Student Work header cells
-	    		
-	    		/*
-	    		 * set the necessary number of header cells, the first one will
-	    		 * overwrite the previous header cell set above, changing it from
-	    		 * "Student Work" to "Student Work Part 1"
-	    		 */
-	    		for(int stepWorkCounter=0; stepWorkCounter<maxNumberOfStepWorkParts; stepWorkCounter++) {
-	    			String stepWorkHeader = "Student Work Part " + (stepWorkCounter + 1);
-	    			
-	    			if(stepWorkCounter > 1) {
-	    				stepWorkHeader += " (if applicable)";
-	    			}
-	    			
-	    			//set the value in the cell "Student Work Part #"
-	    			headerRow.createCell(headerColumn).setCellValue(stepWorkHeader);
-	    			headerColumn++;
-	    		}
-	    	}
+		    	//the header column to just keep track of each row (which represents a step visit)
+		    	headerRow.createCell(headerColumn).setCellValue("#");
+		    	headerColumn++;
+		    	
+		    	//the header column for the first logged in student
+		    	headerRow.createCell(headerColumn).setCellValue("Wise id 1");
+		    	headerColumn++;
+		    	
+		    	//the header column for the second logged in student
+		    	headerRow.createCell(headerColumn).setCellValue("Wise id 2");
+		    	headerColumn++;
+		    	
+		    	//the header column for the third logged in student
+		    	headerRow.createCell(headerColumn).setCellValue("Wise id 3");
+		    	headerColumn++;
+
+		    	//header step title column which already includes numbering
+		    	headerRow.createCell(headerColumn).setCellValue("Step Title");
+		    	headerColumn++;
+		    	
+		    	//header step type column
+		    	headerRow.createCell(headerColumn).setCellValue("Step Type");
+		    	headerColumn++;
+		    	
+		    	//header step prompt column
+		    	headerRow.createCell(headerColumn).setCellValue("Step Prompt");
+		    	headerColumn++;
+		    	
+		    	//header node id column
+		    	headerRow.createCell(headerColumn).setCellValue("Node Id");
+		    	headerColumn++;
+		    	
+		    	//header start time column
+		    	headerRow.createCell(headerColumn).setCellValue("Start Time");
+		    	headerColumn++;
+		    	
+		    	//header end time column
+		    	headerRow.createCell(headerColumn).setCellValue("End Time");
+		    	headerColumn++;
+		    	
+		    	//header time the student spent on the step in seconds column
+		    	headerRow.createCell(headerColumn).setCellValue("Time Spent (Seconds)");
+		    	headerColumn++;
+		    	
+		    	//header time the student spent on the step in seconds column
+		    	headerRow.createCell(headerColumn).setCellValue("Teacher Score Timestamp");
+		    	headerColumn++;
+		    	
+		    	//header time the student spent on the step in seconds column
+		    	headerRow.createCell(headerColumn).setCellValue("Teacher Score");
+		    	headerColumn++;
+		    	
+		    	//header time the student spent on the step in seconds column
+		    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment Timestamp");
+		    	headerColumn++;
+		    	
+		    	//header time the student spent on the step in seconds column
+		    	headerRow.createCell(headerColumn).setCellValue("Teacher Comment");
+		    	headerColumn++;
+		    	
+		    	//header classmate id for review type steps
+		    	headerRow.createCell(headerColumn).setCellValue("Classmate Id");
+		    	headerColumn++;
+		    	
+		    	//header receiving text for review type steps
+		    	headerRow.createCell(headerColumn).setCellValue("Receiving Text");
+		    	headerColumn++;
+		    	
+		    	//header student work column
+		    	headerRow.createCell(headerColumn).setCellValue("Student Work");
+
+				//get all the work for a workgroup id
+				List<StepWork> stepWorksForWorkgroupId = StepWork.getByUserInfo(userInfo);
+				
+		    	/*
+		    	 * loop through all the work for the current student, this will
+		    	 * already be ordered chronologically
+		    	 */
+		    	for(int y=0; y<stepWorks.size(); y++) {
+					/*
+					 * get a student work row which represents the work they
+					 * performed for a single step visit
+					 */
+			    	StepWork stepWork = stepWorks.get(y);
+			    	
+			    	//get the start and end time
+			    	Timestamp startTime = stepWork.getStartTime();
+			    	Timestamp endTime = stepWork.getEndTime();
+			    	
+			    	//get the node id
+			    	String nodeId = stepWork.getNode().getNodeId();
+			    	
+			    	//get the node content
+			    	JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+			    	//check to see if node exists. if not, node has been deleted, so ignore it
+			    	if (nodeContent == null) {
+			    		continue;
+			    	}
+			    	
+			    	//get the node object
+			    	JSONObject nodeJSONObject = nodeIdToNode.get(nodeId);
+			    	
+			    	//counter for the cell columns
+			    	int tempColumn = 0;
+			    	
+			    	//create a new row for this step work
+			    	Row tempRow = userIdSheet.createRow(rowCounter++);
+			    	
+			    	//set the step work/visit number
+			    	tempRow.createCell(tempColumn).setCellValue(y + 1);
+			    	
+			    	String wiseId1 = "";
+					String wiseId2 = "";
+					String wiseId3 = "";
+					
+					//get the start time in milliseconds
+			    	long timestamp = startTime.getTime();
+			    	
+			    	/*
+			    	 * get the student attendance that is relevant to the step work. we will
+			    	 * look for the first student attendance entry for this workgroup id
+			    	 * that has a login timestamp before the start time of this step work
+			    	 */
+			    	JSONObject studentAttendanceForWorkgroupIdTimestamp = getStudentAttendanceForWorkgroupIdTimestamp(workgroupId, timestamp);
+			    	
+			    	if(studentAttendanceForWorkgroupIdTimestamp == null) {
+			    		/*
+			    		 * we could not find a student attendance entry so this probably
+			    		 * means this step work was created before we started logging 
+			    		 * student absences. we will just display all the student ids for
+			    		 * the workgroup in this case.
+			    		 */
+			    		
+			    		//get all the user ids for this workgroup
+			    		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId + ""));
+			    		
+						//the user ids string is delimited by ':'
+						String[] studentLoginsArray = studentLogins.split(":");
+						
+						//sort the user ids numerically and put them into a list
+						ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+						
+						//loop through all the user ids in this workgroup
+						for(int z=0; z<studentLoginsList.size(); z++) {
+							//get a user id
+							Long studentLoginId = studentLoginsList.get(z);
+							
+							//set the appropriate wise id
+							if(z == 0) {
+								wiseId1 = studentLoginId + "";
+							} else if(z == 1) {
+								wiseId2 = studentLoginId + "";
+							} else if(z == 2) {
+								wiseId3 = studentLoginId + "";
+							}
+						}
+			    	} else {
+				    	try {
+				    		//get the present and absent user ids
+							JSONArray presentUserIds = studentAttendanceForWorkgroupIdTimestamp.getJSONArray("presentUserIds");
+							JSONArray absentUserIds = studentAttendanceForWorkgroupIdTimestamp.getJSONArray("absentUserIds");
+							
+							HashMap<Long, String> studentAttendanceMap = new HashMap<Long, String>();
+							ArrayList<Long> userIds = new ArrayList<Long>();
+							
+							//loop through all the present user ids
+							for(int a=0; a<presentUserIds.length(); a++) {
+								long presentUserId = presentUserIds.getLong(a);
+								studentAttendanceMap.put(presentUserId, "Present");
+								userIds.add(presentUserId);
+							}
+							
+							//loop through all the absent user ids
+							for(int b=0; b<absentUserIds.length(); b++) {
+								long absentUserId = absentUserIds.getLong(b);
+								studentAttendanceMap.put(absentUserId, "Absent");
+								userIds.add(absentUserId);
+							}
+							
+							//sort the user ids numerically
+							Collections.sort(userIds);
+							
+							//loop through all the user ids
+							for(int c=0; c<userIds.size(); c++) {
+								//get a user id
+								Long tempUserId = userIds.get(c);
+								
+								//get whether the stuent was "Present" or "Absent"
+								String studentAttendanceStatus = studentAttendanceMap.get(tempUserId);
+								
+								String studentAttendanceStatusSuffix = "";
+								
+								if(studentAttendanceStatus != null && studentAttendanceStatus.equals("Absent")) {
+									//the student was absent
+									studentAttendanceStatusSuffix = " Absent";
+								}
+								
+								//set the appropriate wise id
+								if(c == 0) {
+									wiseId1 = tempUserId + studentAttendanceStatusSuffix;
+								} else if(c == 1) {
+									wiseId2 = tempUserId + studentAttendanceStatusSuffix;
+								} else if(c == 2) {
+									wiseId3 = tempUserId + studentAttendanceStatusSuffix;
+								}
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}		    		
+			    	}
+			    	
+					//set the wise id 1
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(wiseId1);
+			    	
+			    	//set the wise id 2
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(wiseId2);
+			    	
+			    	//set the wise id 3
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(wiseId3);
+			    	
+			    	//set the title
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(nodeIdToNodeTitlesMap.get(nodeId));
+			    	
+			    	//set the node type
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(getNodeTypeFromStepWork(stepWork));
+			    	
+			    	//set the prompt
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(getPromptFromNodeContent(nodeContent));
+			    	
+			    	//set the node id
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(stepWork.getNode().getNodeId());
+			    	
+			    	//set the start time
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(startTime));
+
+			    	tempColumn++;
+			    	
+			    	/*
+			    	 * check if the end time is null which may occur if the student is
+			    	 * currently working on that step, or if there was some kind of
+			    	 * bug/error
+			    	 */
+			    	if(endTime != null) {
+			    		//set the end time
+			    		tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(endTime));	
+			    	} else {
+			    		//there was no end time so we will leave it blank
+			    		tempRow.createCell(tempColumn).setCellValue("");
+			    	}
+			    	
+			    	long timeSpentOnStep = 0;
+			    	
+			    	//calculate the time the student spent on the step
+			    	if(endTime == null || startTime == null) {
+			    		//set to -1 if either start or end was null so we can set the cell to N/A later
+			    		timeSpentOnStep = -1;
+			    	} else {
+			    		/*
+			    		 * find the difference between start and end and divide by
+			    		 * 1000 to obtain the value in seconds
+			    		 */
+			    		timeSpentOnStep = (stepWork.getEndTime().getTime() - stepWork.getStartTime().getTime()) / 1000;	
+			    	}
+			    	
+			    	tempColumn++;
+			    	
+			    	//set the time spent on the step
+			    	if(timeSpentOnStep == -1) {
+			    		tempRow.createCell(tempColumn).setCellValue("N/A");
+			    	} else {
+			    		tempRow.createCell(tempColumn).setCellValue(timeSpentOnStep);	
+			    	}
+			    	
+			    	tempColumn++;
+			    	
+			    	//create a list to add the StepWork to
+			    	List<StepWork> stepWorkList = new ArrayList<StepWork>();
+			    	stepWorkList.add(stepWork);
+			    	
+			    	//set the latest annotation score and timestamp
+			    	tempColumn = setLatestAnnotationScoreAndTimestamp(stepWorkList, tempRow, tempColumn);
+			    	
+			    	//set the latest annotation comment and timestamp
+			    	tempColumn = setLatestAnnotationCommentAndTimestamp(stepWorkList, tempRow, tempColumn);
+			    	
+					int periodId = workgroupIdToPeriodId.get(Integer.parseInt(userId));
+					
+					/*
+					 * set the review cells, if the current step does not utilize any review
+					 * functionality, it will simply fill the cells with "N/A"
+					 */
+			    	tempColumn = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, tempRow, tempColumn, "allStudentWork");
+			    	
+			    	//set the work into the cells
+			    	tempColumn = setStepWorkResponse(tempRow, tempColumn, stepWork, nodeId);
+			    }
+		    	
+		    	/*
+		    	 * check if we need to add more Student Work header cells. this value
+		    	 * is set when a step requires multiple cells to display the data
+		    	 * such as assessment list steps which can have multiple parts
+		    	 * and require multiple cells.
+		    	 */
+		    	if(maxNumberOfStepWorkParts > 1) {
+		    		//we need to add more Student Work header cells
+		    		
+		    		/*
+		    		 * set the necessary number of header cells, the first one will
+		    		 * overwrite the previous header cell set above, changing it from
+		    		 * "Student Work" to "Student Work Part 1"
+		    		 */
+		    		for(int stepWorkCounter=0; stepWorkCounter<maxNumberOfStepWorkParts; stepWorkCounter++) {
+		    			String stepWorkHeader = "Student Work Part " + (stepWorkCounter + 1);
+		    			
+		    			if(stepWorkCounter > 1) {
+		    				stepWorkHeader += " (if applicable)";
+		    			}
+		    			
+		    			//set the value in the cell "Student Work Part #"
+		    			headerRow.createCell(headerColumn).setCellValue(stepWorkHeader);
+		    			headerColumn++;
+		    		}
+		    	}
+			}
 		}
 
 		return wb;
@@ -2500,16 +2647,19 @@ public class VLEGetXLS extends VLEServlet {
 			if(studentLogins != null) {
 				//we found student logins
 				
-				//the student logins string is delimited by ':'
+				//the user ids string is delimited by ':'
 				String[] studentLoginsArray = studentLogins.split(":");
 				
-				//loop through all the student logins in this workgroup
-				for(int z=0; z<studentLoginsArray.length; z++) {
-					//get a student login
-					String studentLogin = studentLoginsArray[z];
+				//sort the user ids numerically
+				ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+				
+				//loop through all the user ids in this workgroup
+				for(int z=0; z<studentLoginsList.size(); z++) {
+					//get a user id
+					Long studentLoginLong = studentLoginsList.get(z);
 					
-					//put the student login into the cell
-					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, studentLogin);
+					//put the user id into the cell
+					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, studentLoginLong + "");
 				}
 				
 				/*
@@ -3530,5 +3680,114 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return timestampString;
+	}
+	
+	/**
+	 * Parse the student attendance data and put it into the workgroupIdToStudentAttendance HashMap
+	 * @param studentAttendanceArray a JSONArray containing all the student attendance rows
+	 */
+	private void parseStudentAttendance(JSONArray studentAttendanceArray) {
+		//loop through all the stuent attendance rows
+		for(int x=0; x<studentAttendanceArray.length(); x++) {
+			try {
+				//get a student attendence row
+				JSONObject studentAttendanceEntry = studentAttendanceArray.getJSONObject(x);
+				
+				//get the workgroup id
+				long workgroupId = studentAttendanceEntry.getLong("workgroupId");
+				
+				//get the JSONArray that holds all the student attendence entries for this workgroup id
+				JSONArray workgroupIdStudentAttendance = workgroupIdToStudentAttendance.get(workgroupId);
+				
+				if(workgroupIdStudentAttendance == null) {
+					//the JSONArray does not exist so we will create it
+					workgroupIdStudentAttendance = new JSONArray();
+					workgroupIdToStudentAttendance.put(workgroupId, workgroupIdStudentAttendance);
+				}
+				
+				//add the student attendence entry to the JSONArray
+				workgroupIdStudentAttendance.put(studentAttendanceEntry);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Get the first student attendence object before the given timestamp for a given workgroup id.
+	 * We basically want the student attendance at the time of the given timestamp.
+	 * @param workgroupId the id of the workgroup we are looking for
+	 * @param timestamp the time we want the student attendence to be before
+	 * @return the student attendance JSONObject
+	 */
+	private JSONObject getStudentAttendanceForWorkgroupIdTimestamp(long workgroupId, long timestamp) {
+		JSONObject studentAttendanceEntry = null;
+		
+		//get the JSONArray that stores all the student attendence objects for this workgroup id
+		JSONArray workgroupIdStudentAttendance = workgroupIdToStudentAttendance.get(workgroupId);
+		
+		if(workgroupIdStudentAttendance != null) {
+			
+			/*
+			 * loop through all the student attendance objects in the array.
+			 * the array is ordered from newer to older. so the first 
+			 * student attendance object with a loginTimestamp before
+			 * the function argument timestamp is the student attendance
+			 * object we want.
+			 */
+			for(int x=0; x<workgroupIdStudentAttendance.length(); x++) {
+				try {
+					//get a student attendance object
+					JSONObject tempStudentAttendanceEntry = workgroupIdStudentAttendance.getJSONObject(x);
+					
+					if(tempStudentAttendanceEntry != null) {
+						//get the login timestamp
+						long loginTimestamp = tempStudentAttendanceEntry.getLong("loginTimestamp");
+						
+						if(loginTimestamp < timestamp) {
+							/*
+							 * the login timestamp is before the timestamp we are looking for
+							 * so we have found the student attendance object we want
+							 */
+							studentAttendanceEntry = tempStudentAttendanceEntry;
+							break;
+						}
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return studentAttendanceEntry;
+	}
+	
+	/**
+	 * Sort the student user ids array
+	 * @param studentLoginsArray a String array containing student user ids that are
+	 * numbers
+	 * @return an ArrayList of Long objects sorted numerically
+	 */
+	private ArrayList<Long> sortStudentLoginsArray(String[] studentLoginsArray) {
+		
+		ArrayList<Long> studentLoginsList = new ArrayList<Long>();
+		
+		//loop through all the student user ids
+		for(int x=0; x<studentLoginsArray.length; x++) {
+			//get a student user id
+			String studentLogin = studentLoginsArray[x];
+			
+			try {
+				//add the long to the list
+				studentLoginsList.add(Long.parseLong(studentLogin));								
+			} catch(NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//sort the list
+		Collections.sort(studentLoginsList);
+		
+		return studentLoginsList;
 	}
 }
