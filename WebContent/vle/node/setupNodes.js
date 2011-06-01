@@ -83,6 +83,10 @@ SetupNodes.setupFiles = [
 	{
 		nodeName:"IdeaBasketNode",
 		nodeSetupPath:"vle/node/ideabasket/setup.js"
+	},
+	{
+		nodeName:"CarGraphNode",
+		nodeSetupPath:"vle/node/cargraph/setup.js"
 	}
 ];
 

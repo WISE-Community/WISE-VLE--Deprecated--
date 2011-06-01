@@ -24,7 +24,7 @@ CarGraphNode.prototype.parentNode = Node.prototype; //TODO: rename CarGraphNode
  * the authoring tool when the author creates a new step
  * e.g. if you are making a QuizNode you would set authoringToolName to to "Quiz"
  */
-CarGraphNode.authoringToolName = "CarGraph"; 
+CarGraphNode.authoringToolName = "Car Graph"; 
 
 /*
  * will be seen by the author when they add a new step to their project to help
@@ -332,8 +332,12 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 			var maxErrorForOneDrawing = parseFloat($(this).html());
 			if (maxErrorForOneDrawing < sliderValue) {
 				$(this).parents(".studentWorkRow").hide();
+				$(this).parents(".studentWorkRow").removeClass("smartFilterShow");
+				$(this).parents(".studentWorkRow").addClass("smartFilterHide");
 			} else {
 				$(this).parents(".studentWorkRow").show();
+				$(this).parents(".studentWorkRow").removeClass("smartFilterHide");
+				$(this).parents(".studentWorkRow").addClass("smartFilterShow");
 			}
 		});
 	};	

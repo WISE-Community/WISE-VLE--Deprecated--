@@ -2746,6 +2746,14 @@ View.prototype.filterStudentRows = function() {
 		this.gradingEnlargeStudentWorkText = enlargeStudentWorkText;
 	}
 	
+	// tell node to show/hide smart filter
+	if (this.currentGradingDisplayParam && this.currentGradingDisplay == 'displayGradeByStepGradingPage') {
+		//get the node object
+		var nodeId = this.currentGradingDisplayParam[1];
+		var node = this.getProject().getNodeById(nodeId);
+		node.showSmartFilter(showSmartFiltered);
+	}
+	
 	//get all the student work rows
 	var studentWorkRows = this.getElementsByClassName(null, 'studentWorkRow', null);
 	
@@ -2821,6 +2829,14 @@ View.prototype.filterStudentRows = function() {
 			}
 		}
 		
+		if(showSmartFiltered) {
+			//filter smart filtered items
+			if(studentRowClass.indexOf('smartFilterHide') != -1) {
+				//the smart filter has set this row to be hidden
+				displayStudentRow = false;
+			}
+		}
+		
 		//set the style to show or display the row
 		if(displayStudentRow) {
 			studentWorkRow.style.display = "";
@@ -2840,15 +2856,6 @@ View.prototype.filterStudentRows = function() {
 			studentWorkRow.style.display = "none";
 		}
 	}
-	
-
-	// tell node to show/hide smart filter
-	if (this.currentGradingDisplayParam && this.currentGradingDisplay == 'displayGradeByStepGradingPage') {
-		//get the node object
-		var nodeId = this.currentGradingDisplayParam[1];
-		var node = this.getProject().getNodeById(nodeId);
-		node.showSmartFilter(showSmartFiltered);
-	}	
 	
 	/*
 	 * apply the hide personal info filter if necessary, do not perform the filter
