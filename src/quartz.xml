@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job-scheduling-data
+	xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_1_8.xsd"
+	version="1.8">
+
+	<!--
+		See: http://www.quartz-scheduler.org/docs/cookbook/JobInitPlugin.html
+	-->
+
+	<pre-processing-commands>
+		<delete-jobs-in-group>*</delete-jobs-in-group>  <!-- clear all jobs in scheduler -->
+		<delete-triggers-in-group>*</delete-triggers-in-group> <!-- clear all triggers in scheduler -->
+	</pre-processing-commands>
+
+	<processing-directives>
+		<!--
+			if there are any jobs/trigger in scheduler of same name (as in this
+			file), overwrite them
+		-->
+		<overwrite-existing-data>true</overwrite-existing-data>
+		<!--
+			if there are any jobs/trigger in scheduler of same name (as in this
+			file), and over-write is false, ignore them rather then generating an
+			error
+		-->
+		<ignore-duplicates>false</ignore-duplicates>
+	</processing-directives>
+
+	<!-- Ok this is where all the jobs are created: -->
+
+	<schedule>
+		<job>
+			<name>HourlyJob</name>
+			<job-class>background.jobs.HourlyJob</job-class>
+		</job>
+		<trigger>
+			<cron>
+				<name>TriggerEveryHour</name>
+				<job-name>HourlyJob</job-name>
+				<cron-expression>0 30 * * * ?</cron-expression>
+			</cron>
+		</trigger>
+	</schedule>
+</job-scheduling-data>
