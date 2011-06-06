@@ -15,6 +15,8 @@ import org.json.JSONObject;
 import org.quartz.*;
 import org.slf4j.*;
 
+import vle.domain.statistics.VLEStatistics;
+
 public class HourlyJob implements Job {
 	private static final String USERNAME = "sailuser";
 	private static final String PASSWORD = "sailpass";
@@ -43,19 +45,15 @@ public class HourlyJob implements Job {
 			//gather the Hint statistics
 			gatherHintStatistics(statement, vleStatistics);
 			
-			//prepare the statement to store the statistics into the db 
-	    	PreparedStatement pstmt = conn.prepareStatement("insert into vle_statistics(timestamp, data) values(?,?)");
-	    	
 	    	//get the current timestamp
 	    	Date date = new Date();
 	    	Timestamp timestamp = new Timestamp(date.getTime());
 	    	
-	    	//set the values in the insert query
-	    	pstmt.setTimestamp(1, timestamp);
-	    	pstmt.setString(2, vleStatistics.toString());
-	    	
-	    	//execute the insert query
-	    	pstmt.execute();
+	    	//save the vle statistics row
+	    	VLEStatistics vleStatisticsObject = new VLEStatistics();
+	    	vleStatisticsObject.setTimestamp(timestamp);
+	    	vleStatisticsObject.setData(vleStatistics.toString());
+	    	vleStatisticsObject.saveOrUpdate();
 		} catch (Exception ex) {
 			LoggerFactory.getLogger(getClass()).error(ex.getMessage());
 		}
