@@ -42,7 +42,7 @@ var componentloader = function(em, sl){
 				'getProjectMetaDataComplete':[null,null], 
 				'getRunExtrasComplete':[null,null], 
 				'nullEvent':[null,null],
-				'getAnnotationsComplete':[null,null],
+				'getAnnotationsComplete':[null,null]
 			},
 			methods: {
 				getProject:function(view){return function(){return view.getProject();};},
