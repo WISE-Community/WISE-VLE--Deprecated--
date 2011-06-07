@@ -160,6 +160,16 @@
   	<servlet-name>TTS</servlet-name>
   	<url-pattern>/vle/tts.html</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>vlegetstatistics</servlet-name>
+    <servlet-class>vle.web.VLEGetStatistics</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vlegetstatistics</servlet-name>
+    <url-pattern>/getVLEStatistics.html</url-pattern>
+  </servlet-mapping>
 
   <servlet>
   	<display-name>VLEConfig</display-name>

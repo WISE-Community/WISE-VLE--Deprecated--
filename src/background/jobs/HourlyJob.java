@@ -2,7 +2,6 @@ package background.jobs;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,8 +11,10 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.quartz.*;
-import org.slf4j.*;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.LoggerFactory;
 
 import vle.domain.statistics.VLEStatistics;
 
@@ -40,7 +41,7 @@ public class HourlyJob implements Job {
 			gatherNodeStatistics(statement, vleStatistics);
 			
 			//gather the Annotation statistics
-			gatherAnnotationStastics(statement, vleStatistics);
+			gatherAnnotationStatistics(statement, vleStatistics);
 			
 			//gather the Hint statistics
 			gatherHintStatistics(statement, vleStatistics);
@@ -48,6 +49,9 @@ public class HourlyJob implements Job {
 	    	//get the current timestamp
 	    	Date date = new Date();
 	    	Timestamp timestamp = new Timestamp(date.getTime());
+	    	
+	    	//set the timestamp in milliseconds into the JSONObject
+	    	vleStatistics.put("timestamp", timestamp.getTime());
 	    	
 	    	//save the vle statistics row
 	    	VLEStatistics vleStatisticsObject = new VLEStatistics();
@@ -129,7 +133,7 @@ public class HourlyJob implements Job {
 	 * @param statement the object to execute queries
 	 * @param vleStatistics the JSONObject to store the statistics in
 	 */
-	private void gatherAnnotationStastics(Statement statement, JSONObject vleStatistics) {
+	private void gatherAnnotationStatistics(Statement statement, JSONObject vleStatistics) {
 		try {
 			//get the total number of annotations
 			ResultSet annotationCountQuery = statement.executeQuery("select count(*) from annotation");
