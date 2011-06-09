@@ -2362,12 +2362,24 @@ public class VLEGetXLS extends VLEServlet {
 	 */
 	private String getStepWorkResponse(StepWork stepWork) {
 		String stepWorkResponse = "";
+		String nodeType = "";
+		
+		//get the node type
+		if(stepWork != null) {
+			Node node = stepWork.getNode();
+			
+			if(node != null) {
+				if(node.getNodeType() != null) {
+					nodeType = node.getNodeType();					
+				}
+			}
+		}
 		
     	//obtain the student work from the json data
     	if(stepWork instanceof StepWorkOR || stepWork instanceof StepWorkNote || 
     			stepWork instanceof StepWorkBS || stepWork instanceof StepWorkFillin ||
     				stepWork instanceof StepWorkMC || stepWork instanceof StepWorkMatchSequence ||
-    				stepWork instanceof StepWorkAssessmentList) {
+    				stepWork instanceof StepWorkAssessmentList || nodeType.equals("SensorNode")) {
     		try {
     			//obtain the json string
     			String data = stepWork.getData();
