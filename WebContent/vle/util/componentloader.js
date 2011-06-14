@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'user', 'session','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		vle: ['topMenu','setup', 'core', 'studentXMPP', 'keystroke', 'config', 'user', 'session','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
@@ -73,6 +73,18 @@ var componentloader = function(em, sl){
 			}
 		},
 		setup: {
+			variables: {},
+			events: {},
+			methods: {},
+			initialize: {}
+		},
+		studentXMPP: {
+			variables: {},
+			events: {},
+			methods: {},
+			initialize: {}
+		},
+		teacherXMPP: {
 			variables: {},
 			events: {},
 			methods: {},
@@ -732,6 +744,7 @@ var componentloader = function(em, sl){
 					'displayProgress':[null,null],
 					'showFlaggedWork':[null,null],
 					'showStepHints':[null,null],
+					'adjustHintSize':[null,null],
 					'showNavigationTree':[null,null],
 					'getIdeaBasket':[null,null],
 					'ideaBasketChanged':[null,null],
@@ -753,6 +766,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('displayProgress', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showStepHints', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('adjustHintSize', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showNavigationTree', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('getIdeaBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('ideaBasketChanged', view.dropDownMenuDispatcher, view);

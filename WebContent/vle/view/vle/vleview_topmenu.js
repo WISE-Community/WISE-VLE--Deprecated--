@@ -15,6 +15,8 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 			return;
 		}
 		obj.showStepHints();
+	} else if (type == 'adjustHintSize') {
+		obj.adjustHintSize();
 	} else if(type=='getIdeaBasket') {
 		obj.getIdeaBasket();
 	} else if(type=='ideaBasketChanged') {
@@ -61,6 +63,37 @@ View.prototype.showNavigationTree = function() {
 };
 
 /**
+ * Sets size of hint panel to match size of the displayed content.
+ * @return
+ */
+View.prototype.adjustHintSize = function() {
+	var defaultWidth = 400;
+	var defaultHeight = 250;
+	var widthSoFar = 0;
+	var heightSoFar = 0;	
+	var widthBuffer = 50;    
+	var heightBuffer = 150;
+	$("#hintsPanel").find(".hintText").filter(":visible").children().each(function() { 
+		console.log("width:" +$(this).width());
+		console.log("height:" +$(this).height());
+		if ($(this).width() > widthSoFar) {
+			widthSoFar = $(this).width();
+		}
+		heightSoFar += $(this).height();		
+	});	
+	if (widthSoFar + widthBuffer > defaultWidth) {
+		 $('#hintsPanel').dialog("option", "width",widthSoFar+widthBuffer);		
+	} else {
+		 $('#hintsPanel').dialog("option", "width",defaultWidth);		
+	}
+	if (heightSoFar + heightBuffer > defaultHeight) {
+		$('#hintsPanel').dialog("option", "height",heightSoFar+heightBuffer);
+	} else {
+		$('#hintsPanel').dialog("option", "height",defaultHeight);
+	}
+};
+
+/**
  * Display hints for the current step.
  * Hints will popup in a dialog and each hint will
  * be in its own tab
@@ -78,6 +111,7 @@ View.prototype.showStepHints = function() {
 	// log when hint was opened
 	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
 	currentNode.view.pushHintState(hintState);
+	eventManager.fire('adjustHintSize');	
 };
 /**
  * Display the flagged work for the project.
@@ -616,14 +650,14 @@ View.prototype.displayAddAnIdeaDialog = function() {
 		 * the vle failed to retrieve the idea basket so we will display
 		 * an error message and not display the idea basket popup
 		 */
-		this.notificationManager.notify(this.i18n.getString("idea_basket_retrieval_error",this.config.getConfigParam("locale")), 3);
+		this.notificationManager.notify(this.getI18NString("idea_basket_retrieval_error"), 3);
 		return;
 	}
 	
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:this.i18n.getString("idea_basket_add_an_idea",this.config.getConfigParam("locale")),position:[300,40],buttons:[{text:this.i18n.getString("ok",this.config.getConfigParam("locale")),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.i18n.getString("cancel",this.config.getConfigParam("locale")),click:function() {$(this).dialog("close");}}]});
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:[300,40],buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
     }
 	
 	//the html we will insert into the popup
@@ -746,7 +780,7 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	var ideaBasketJSONObj = $.parseJSON(responseText);
 	
 	if(ideaBasketJSONObj == null) {
-		thisView.notificationManager.notify(this.i18n.getString("idea_basket_retrieval_error",this.config.getConfigParam("locale")), 3);
+		thisView.notificationManager.notify(this.getI18NString("idea_basket_retrieval_error"), 3);
 	} else {
 		//create the IdeaBasket from the JSON and set it into the view
 		thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
@@ -771,7 +805,7 @@ View.prototype.displayIdeaBasket = function() {
 		 * the vle failed to retrieve the idea basket so we will display
 		 * an error message and not display the idea basket popup
 		 */
-		this.notificationManager.notify(this.i18n.getString("idea_basket_retrieval_error",this.config.getConfigParam("locale")), 3);
+		this.notificationManager.notify(this.getI18NString("idea_basket_retrieval_error"), 3);
 		return;
 	}
 	
@@ -780,7 +814,7 @@ View.prototype.displayIdeaBasket = function() {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv"></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:(document.height - 100),modal:false,title:this.i18n.getString("idea_basket",this.config.getConfigParam("locale")),close:this.ideaBasketDivClose,
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:(document.height - 100),modal:false,title:this.getI18NString("idea_basket"),close:this.ideaBasketDivClose,
 			// because idea basket content is delivered in an iframe
 			// need to show transparent div overlay when dragging/resizing dialog
 			// so that iframe does not catch mouse movements and interupt dragging/resizing

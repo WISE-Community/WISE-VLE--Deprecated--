@@ -166,16 +166,16 @@ View.prototype.startVLE = function(){
  * based on project config and overwritten by run config
  */
 View.prototype.displayGlobalTools = function() {	
-	var studentAssetsToolbarHtml=	"<li id='studentAssetsTD' style=\"display:none\"><a id=\"studentAssetsLink\" onclick='eventManager.fire(\"viewStudentAssets\")' title=\"View My Files\"><img src=\"images/hint/star.png\" alt=\"Files\" border=\"0\" /><span>&nbsp;"+this.i18n.getString("top_toolbar_file_button_text",this.config.getConfigParam("locale"))+"&nbsp;</span></a></li>";                    
-	var ideaBasketToolbarHtml = "<li id='ideaBasketTD' style=\"display:none\"><a id=\"ideaBasketLink\" onclick='eventManager.fire(\"displayIdeaBasket\")' title=\"Idea Basket\"><img src=\"images/ideaManager/basket2.png\" alt=\"Basket\" border=\"0\" /><span>&nbsp;"+this.i18n.getString("top_toolbar_ideas_button_text",this.config.getConfigParam("locale"))+"</span><span id='ideaCount'>(0)</span></a></li>";
-	var addIdeaToolbarHtml = "<li id='addIdeaTD' style=\"display:none\"><a onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title=\"Add an Idea\"><img src=\"images/ideaManager/lightBulbPlus.png\" alt=\"Light Bulb\" border=\"0\" />"+this.i18n.getString("top_toolbar_addidea_button_text",this.config.getConfigParam("locale"))+"</a></li>";
-	var myWorkToolbarHtml = "<li id='myWorkTD'><a class=\"\" onclick='eventManager.fire(\"showAllWork\")' title=\"Review My Work\"><img src=\"images/reviewAllWork.png\" alt=\"Review My Work\" border=\"0\" />"+this.i18n.getString("top_toolbar_mywork_button_text",this.config.getConfigParam("locale"))+"</a></li>";
-	var flagToolbarHtml = "<li id='flaggedWorkTD'><a class=\"\" onclick='eventManager.fire(\"showFlaggedWork\")' title=\"Show Flagged Work\"><img src=\"images/reviewAllWork.png\" alt=\"Show Flagged Work\" border=\"0\" />"+this.i18n.getString("top_toolbar_flagged_button_text",this.config.getConfigParam("locale"))+"</a></li>";
-	var journalToolbarHtml = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='eventManager.fire(\"showJournal\")' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.i18n.getString("top_toolbar_journal_button_text",this.config.getConfigParam("locale"))+"</a></li>";
-	var fullScreenToolbarHtml = "<li id='menuTD'><a class=\"menuSwitcher\" onclick='eventManager.fire(\"toggleNavigationPanelVisibility\")' title=\"Nav Menu Switcher\"><img src=\"images/NavBar-Switch32.png\" alt=\"Full Screen On/Off \" border=\"0\" />"+this.i18n.getString("top_toolbar_fullscreen_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var studentAssetsToolbarHtml=	"<li id='studentAssetsTD' style=\"display:none\"><a id=\"studentAssetsLink\" onclick='eventManager.fire(\"viewStudentAssets\")' title=\"View My Files\"><img src=\"images/hint/star.png\" alt=\"Files\" border=\"0\" /><span>&nbsp;"+this.getI18NString("top_toolbar_file_button_text")+"&nbsp;</span></a></li>";                    
+	var ideaBasketToolbarHtml = "<li id='ideaBasketTD' style=\"display:none\"><a id=\"ideaBasketLink\" onclick='eventManager.fire(\"displayIdeaBasket\")' title=\"Idea Basket\"><img src=\"images/ideaManager/basket2.png\" alt=\"Basket\" border=\"0\" /><span>&nbsp;"+this.getI18NString("top_toolbar_ideas_button_text")+"</span><span id='ideaCount'>(0)</span></a></li>";
+	var addIdeaToolbarHtml = "<li id='addIdeaTD' style=\"display:none\"><a onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title=\"Add an Idea\"><img src=\"images/ideaManager/lightBulbPlus.png\" alt=\"Light Bulb\" border=\"0\" />"+this.getI18NString("top_toolbar_addidea_button_text")+"</a></li>";
+	var myWorkToolbarHtml = "<li id='myWorkTD'><a class=\"\" onclick='eventManager.fire(\"showAllWork\")' title=\"Review My Work\"><img src=\"images/reviewAllWork.png\" alt=\"Review My Work\" border=\"0\" />"+this.getI18NString("top_toolbar_mywork_button_text")+"</a></li>";
+	var flagToolbarHtml = "<li id='flaggedWorkTD'><a class=\"\" onclick='eventManager.fire(\"showFlaggedWork\")' title=\"Show Flagged Work\"><img src=\"images/reviewAllWork.png\" alt=\"Show Flagged Work\" border=\"0\" />"+this.getI18NString("top_toolbar_flagged_button_text")+"</a></li>";
+	var journalToolbarHtml = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='eventManager.fire(\"showJournal\")' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.getI18NString("top_toolbar_journal_button_text")+"</a></li>";
+	var fullScreenToolbarHtml = "<li id='menuTD'><a class=\"menuSwitcher\" onclick='eventManager.fire(\"toggleNavigationPanelVisibility\")' title=\"Nav Menu Switcher\"><img src=\"images/NavBar-Switch32.png\" alt=\"Full Screen On/Off \" border=\"0\" />"+this.getI18NString("top_toolbar_fullscreen_button_text")+"</a></li>";
 	var prevNodeToolbarHtml = "<li><a onclick='eventManager.fire(\"renderPrevNode\")' title=\"Previous step\"><img src=\"images/go-previous.png\" alt=\"Previous Arrow\" border=\"0\" /></a></li>";
 	var nextNodeToolbarHtml = "<li><a onclick='eventManager.fire(\"renderNextNode\")' title=\"Next step\"><img src=\"images/go-next.png\" alt=\"Next Arrow\" border=\"0\" /></a></li>";
-	var signOutGoHomeToolbarHtml = "<li><a id=\"quitAndLogoutLink\" class=\"tightText\" onclick=\"eventManager.fire('logout')\" target=\"_parent\" title=\"Save & Sign Out\" style=\"margin-right:0;\"><img src=\"images/exit.png\" alt=\"Sign Out\" border=\"0\" />"+this.i18n.getString("top_toolbar_signout_button_text",this.config.getConfigParam("locale"))+"</a> | <a id=\"goHomeLink\" class=\"tightText\" href=\"/webapp/student/index.html\" target=\"_parent\" title=\"Go to home page\">"+this.i18n.getString("top_toolbar_gohome_button_text",this.config.getConfigParam("locale"))+"</a></li>";
+	var signOutGoHomeToolbarHtml = "<li><a id=\"quitAndLogoutLink\" class=\"tightText\" onclick=\"eventManager.fire('logout')\" target=\"_parent\" title=\"Save & Sign Out\" style=\"margin-right:0;\"><img src=\"images/exit.png\" alt=\"Sign Out\" border=\"0\" />"+this.getI18NString("top_toolbar_signout_button_text")+"</a> | <a id=\"goHomeLink\" class=\"tightText\" href=\"/webapp/student/index.html\" target=\"_parent\" title=\"Go to home page\">"+this.getI18NString("top_toolbar_gohome_button_text")+"</a></li>";
 
 	$("#projectRightUpperBoxUL").html(studentAssetsToolbarHtml+ideaBasketToolbarHtml+addIdeaToolbarHtml+myWorkToolbarHtml+flagToolbarHtml+journalToolbarHtml+fullScreenToolbarHtml+prevNodeToolbarHtml+nextNodeToolbarHtml+signOutGoHomeToolbarHtml);
 	
@@ -380,8 +380,8 @@ View.prototype.onProjectLoad = function(){
 		}
 
 		// display ExpandAll/CollapseAll buttons
-		var expandAllText = this.i18n.getString("navigation_expand_all",this.config.getConfigParam("locale"));
-		var collapseAllText =  this.i18n.getString("navigation_collapse_all",this.config.getConfigParam("locale"));
+		var expandAllText = this.getI18NString("navigation_expand_all");
+		var collapseAllText =  this.getI18NString("navigation_collapse_all");
 		var navigationHtml = "<div id=\"navMenuControls\"><input type=\"button\" value=\""+expandAllText+"\" onclick='eventManager.fire(\"menuExpandAll\")'/><input type=\"button\" value=\""+collapseAllText+"\" onclick='eventManager.fire(\"menuCollapseAll\")'/></div><div id=\"navigationMenuBox\"><div id=\"my_menu\" class=\"sdmenu\"></div></div>";
 		
         $("#navigationArea").prepend(navigationHtml);
@@ -529,7 +529,7 @@ View.prototype.onRenderNodeComplete = function(position){
     if (currentNode.getHints() != null && currentNode.getHints().hintsArray != null && currentNode.getHints().hintsArray.length > 0) {
     	// check if hintsLink exists. if not, add it
     	if ($("#hintsLink").size() == 0) {
-    		var hintButtonText = this.i18n.getString("top_toolbar_hint_button_text",this.config.getConfigParam("locale"));
+    		var hintButtonText = this.getI18NString("top_toolbar_hint_button_text");
     		$("#projectRightUpperBoxUL").prepend("<li><a id=\"hintsLink\" onclick='eventManager.fire(\"showStepHints\")' title=\"View Hints\"><img src=\"images/hint/star.png\" alt=\"Hints\" border=\"0\" /><span>&nbsp;"+hintButtonText+"&nbsp;</span></a></li>");
     	}
 	
@@ -560,12 +560,11 @@ View.prototype.onRenderNodeComplete = function(position){
 	    	$('<div id="hintsPanel"></div>').dialog(
 			{	autoOpen:false,
 				closeText:'Close',
-				width:400,
 				modal:false,
-				title:this.i18n.getString("hint_title",this.config.getConfigParam("locale")),
+				title:this.getI18NString("hint_title"),
 				zindex:9999, 
 				position:["center",40],
-				resizable:false    					
+				resizable:true    					
 			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
 			    // before the dialog closes, save hintstate
 		    	if ($(this).data("dialog").isOpen()) {	    		    		
@@ -585,8 +584,8 @@ View.prototype.onRenderNodeComplete = function(position){
 	    var hintsArr = currentNode.getHints().hintsArray;
 	    for (var i=0; i< hintsArr.length; i++) {
 	    	var currentHint = hintsArr[i];
-	    	var nextLink = '<span class="tabNext">'+this.i18n.getString("hint_next",this.config.getConfigParam("locale"))+'</span>';
-	    	var prevLink = '<span class="tabPrev">'+this.i18n.getString("hint_prev",this.config.getConfigParam("locale"))+'</span>';
+	    	var nextLink = '<span class="tabNext">'+this.getI18NString("hint_next")+'</span>';
+	    	var prevLink = '<span class="tabPrev">'+this.getI18NString("hint_prev")+'</span>';
 	    	if(i==0){
 	    		var prevLink = '';
 	    		if(numHints<2){
@@ -595,9 +594,9 @@ View.prototype.onRenderNodeComplete = function(position){
 	    	} else if (i==numHints-1){
 	    		var nextLink = '';
 	    	}
-	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+this.i18n.getString("hint_hint",this.config.getConfigParam("locale"))+" "+(i+1)+"</a></li>";
+	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+this.getI18NString("hint_hint")+" "+(i+1)+"</a></li>";
 	    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
-		    	"<div class='hintHeader'>"+this.i18n.getString("hint_hint",this.config.getConfigParam("locale"))+" "+ (i+1) +" of " + numHints + "</div>"+
+		    	"<div class='hintHeader'>"+this.getI18NString("hint_hint")+" "+ (i+1) +" of " + numHints + "</div>"+
 		    	"<div class='hintText'>"+currentHint+"</div>"+
 		    	"<div class='hintControls'>" + prevLink + nextLink + "</div>"+
 	    		"</div>";
@@ -617,6 +616,7 @@ View.prototype.onRenderNodeComplete = function(position){
 			if(selected != 0){
 				$tabs.tabs('select', selected-1);
 			}
+			eventManager.fire("adjustHintSize");
 		});
 		
 		// bind tab navigation links
@@ -625,6 +625,7 @@ View.prototype.onRenderNodeComplete = function(position){
 			if(selected < numHints-1){
 				$tabs.tabs('select', selected+1);
 			}
+			eventManager.fire("adjustHintSize");
 		});
 			
 		$("#hintsLink").show();

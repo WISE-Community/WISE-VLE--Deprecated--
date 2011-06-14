@@ -1,4 +1,3 @@
-View.prototype.i18n.ja =
 {
 	"top_toolbar_file_button_text":{
 		"value":"\u30d5\u30a1\u30a4\u30eb",
@@ -300,4 +299,4 @@ View.prototype.i18n.ja =
 		"value":"Change Team (ja)",
 		"description":"text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
 	}	
-};
+}

@@ -286,11 +286,11 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="studentAssetsDiv" style="margin-bottom:.3em;"></div>');
 		var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none; text-align:left;'><div style='margin-bottom:.5em;'>" 
-			+ "<div id='assetUploaderBodyDiv'><span style='float:left;'>"+this.i18n.getString("student_assets_upload_new_file",this.config.getConfigParam("locale"))+":</span>"
+			+ "<div id='assetUploaderBodyDiv'><span style='float:left;'>"+this.getI18NString("student_assets_upload_new_file")+":</span>"
 			+ "<input style='margin:0 .5em;' type='file' size='30' id='uploadAssetFile' name='uploadAssetFile' onchange=\"eventManager.fire('studentAssetSubmitUpload')\"></input>"
 			+ "<img id='assetProcessing' style='display:none;' class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>"
 			+ "<div id='notificationDiv'>"
-			+ "</div></div><div><div style='margin-bottom: 0.5em;'>"+this.i18n.getString("student_assets_my_files",this.config.getConfigParam("locale"))+": </div>"
+			+ "</div></div><div><div style='margin-bottom: 0.5em;'>"+this.getI18NString("student_assets_my_files")+": </div>"
 			+ "<select id='assetSelect' style='width:100%; height:200px; padding:.5em;' size='15'></select>"
 			+ "<div id='sizeDiv' style='margin-top: 0.5em; font-size: 0.9em;'></div><div id='uploaderInstructions'></div>"
 			+ "</div></div>";
@@ -306,7 +306,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 
 			var success = function(text, xml, o){
 				if(text.status==401){
-					xml.notificationManager.notify(this.i18n.getString("student_assets_remove_file_warning",this.config.getConfigParam("locale")),3);
+					xml.notificationManager.notify(this.getI18NString("student_assets_remove_file_warning"),3);
 				} else {
 					parent.removeChild(opt);
 					o.notificationManager.notify(text, 3);
@@ -332,10 +332,10 @@ View.prototype.viewStudentAssets = function(launchNode) {
 				var getStudentUploadsBaseUrl = view.config.getConfigParam("getStudentUploadsBaseUrl");
 				var fileWWW = getStudentUploadsBaseUrl + "/" + workgroupId + "/" + name;
 				if(view.getCurrentNode().importFile(fileWWW)) {
-					view.notificationManager.notify(this.i18n.getString("student_assets_import_success_message",this.config.getConfigParam("locale"))+": " + name, 3);
+					view.notificationManager.notify(this.getI18NString("student_assets_import_success_message")+": " + name, 3);
 					$('#studentAssetsDiv').dialog('close');	
 				} else {
-					view.notificationManager.notify(this.i18n.getString("student_assets_import_failure_message",this.config.getConfigParam("locale")),3)
+					view.notificationManager.notify(this.getI18NString("student_assets_import_failure_message"),3)
 				}
 			}
 		}
@@ -348,10 +348,10 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	var show = function(){
 		eventManager.fire('browserResize');
 	};
-	var addSelectedFileText = this.i18n.getString("student_assets_add_selected_file",this.config.getConfigParam("locale"));
-	var deleteSelectedFileText = this.i18n.getString("student_assets_delete_selected_file",this.config.getConfigParam("locale"));
-	var doneText = this.i18n.getString("done",this.config.getConfigParam("locale"));
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,position:['center',50],modal:false,title:this.i18n.getString("student_assets_my_files",this.config.getConfigParam("locale")), 
+	var addSelectedFileText = this.getI18NString("student_assets_add_selected_file");
+	var deleteSelectedFileText = this.getI18NString("student_assets_delete_selected_file");
+	var doneText = this.getI18NString("done");
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,position:['center',50],modal:false,title:this.getI18NString("student_assets_my_files"), 
 			buttons:[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]});
 
 	/*
@@ -410,12 +410,12 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 			if(text >= o.MAX_ASSET_SIZE){
 				var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
 				var studentUsageSize = o.utils.appropriateSizeText(text);
-				var maxExceededMessage = o.i18n.getStringWithParams("student_assets_student_usage_exceeded_message",o.config.getConfigParam("locale"),[maxUploadSize,studentUsageSize]);
+				var maxExceededMessage = o.getI18NStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
 				o.notificationManager.notify(maxExceededMessage, 3);
 			} else {				
 				var studentUsage = o.utils.appropriateSizeText(text);
 				var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
-				$('#sizeDiv').html(o.i18n.getStringWithParams("student_assets_student_usage_message",o.config.getConfigParam("locale"),[studentUsage,maxUsageLimit]));
+				$('#sizeDiv').html(o.getI18NStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
 			} 
 		};
 	this.connectionManager.request('POST', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);

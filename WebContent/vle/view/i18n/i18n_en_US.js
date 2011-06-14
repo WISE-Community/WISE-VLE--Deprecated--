@@ -1,4 +1,3 @@
-View.prototype.i18n.en_US = 
 {
 	"top_toolbar_file_button_text":{
 		"value":"Files",
@@ -322,10 +321,4 @@ View.prototype.i18n.en_US =
 		"value":"Change Team",
 		"description":"text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
 	}	
-};
-
-
-/* used to notify scriptloader that this script has finished loading */
-if(typeof eventManager != 'undefined'){
-	eventManager.fire('scriptLoaded', 'vle/view/i18n/i18n_en_US.js');
-};
+}
