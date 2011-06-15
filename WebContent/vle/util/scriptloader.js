@@ -225,18 +225,18 @@ var scriptloader = function(){
 	           'vle/grading/Annotations.js',
                'vle/data/nodevisit.js',
                'vle/hint/hintstate.js'],
-        studentXMPP: ['vle/xmpp/js/sail.js/deps/base64.js',
-                      'vle/xmpp/js/sail.js/deps/jquery.cookie.js',
-                      'vle/xmpp/js/sail.js/deps/jquery.url.js',
-                      'vle/xmpp/js/sail.js/deps/load.js',
-                      'vle/xmpp/js/sail.js/deps/md5.js',
-                      'vle/xmpp/js/sail.js/deps/strophe.js',
-	                  'vle/xmpp/js/sail.js/sail.js',
-	                  //'vle/xmpp/js/sail.js/sail.node.server.js',
+               studentXMPP: [
+       	                  'vle/xmpp/js/sail.js/deps/base64.js',
+                          'vle/xmpp/js/sail.js/deps/jquery.cookie.js',
+                          'vle/xmpp/js/sail.js/deps/jquery.url.js',
+                          'vle/xmpp/js/sail.js/deps/load.js',
+                          'vle/xmpp/js/sail.js/deps/md5.js',
+                          'vle/xmpp/js/sail.js/deps/strophe.js',                  
+                      'vle/xmpp/js/sail.js/sail.js',
 	                  'vle/xmpp/js/sail.js/sail.rollcall.js',
 	                  'vle/xmpp/js/sail.js/sail.strophe.js',
-	                  'vle/xmpp/js/sail.js/sail.ui.js',
-	                  'vle/xmpp/js/student.js'
+                      'vle/xmpp/js/student.js',
+	                  'vle/xmpp/js/sail.js/sail.ui.js'
                   ],
         teacherXMPP: ['vle/xmpp/js/teacher.js',
                   'vle/xmpp/js/sail.js/sail.js'],
@@ -384,7 +384,9 @@ var scriptloader = function(){
         'vle/navigation/constraints/visitxoryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/workonxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/workonxconstraint.js':['vle/navigation/constraints/constraint.js'],
-        'vle/navigation/constraints/workonxbeforeadvancingconstraint.js':['vle/navigation/constraints/constraint.js']
+        'vle/navigation/constraints/workonxbeforeadvancingconstraint.js':['vle/navigation/constraints/constraint.js'],
+        'vle/xmpp/js/sail.js/sail.strophe.js':['vle/xmpp/js/sail.js/deps/strophe.js'],
+        'vle/xmpp/js/student.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js']        
     };
 	
 	return {
