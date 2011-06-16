@@ -103,8 +103,8 @@ public class HourlyJob implements Job {
 					if(nodeType != null && !nodeType.toLowerCase().equals("null")) {
 						//create the object that will store the nodeType and count
 						JSONObject stepWorkNodeTypeObject = new JSONObject();
-						stepWorkNodeTypeObject.put("nodeType", nodeTypeCount);
-						stepWorkNodeTypeObject.put("count", nodeType);
+						stepWorkNodeTypeObject.put("nodeType", nodeType);
+						stepWorkNodeTypeObject.put("count", nodeTypeCount);
 						
 						//put the object into our array
 						stepWorkNodeTypeCounts.put(stepWorkNodeTypeObject);
