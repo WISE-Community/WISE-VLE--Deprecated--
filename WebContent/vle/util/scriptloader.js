@@ -238,8 +238,17 @@ var scriptloader = function(){
                       'vle/xmpp/js/student.js',
 	                  'vle/xmpp/js/sail.js/sail.ui.js'
                   ],
-        teacherXMPP: ['vle/xmpp/js/teacher.js',
-                  'vle/xmpp/js/sail.js/sail.js'],
+        teacherXMPP: ['vle/xmpp/js/sail.js/deps/base64.js',
+                      'vle/xmpp/js/sail.js/deps/jquery.cookie.js',
+                      'vle/xmpp/js/sail.js/deps/jquery.url.js',
+                      'vle/xmpp/js/sail.js/deps/load.js',
+                      'vle/xmpp/js/sail.js/deps/md5.js',
+                      'vle/xmpp/js/sail.js/deps/strophe.js',                  
+                  'vle/xmpp/js/sail.js/sail.js',
+                  'vle/xmpp/js/sail.js/sail.rollcall.js',
+                  'vle/xmpp/js/sail.js/sail.strophe.js',
+                  'vle/xmpp/js/teacher.js',
+                  'vle/xmpp/js/sail.js/sail.ui.js'],
         author: ['vle/util/icon.js',
                  'vle/view/authoring/authorview_dispatchers.js',
                  'vle/view/authoring/authorview_startup.js',
@@ -386,7 +395,8 @@ var scriptloader = function(){
         'vle/navigation/constraints/workonxconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/workonxbeforeadvancingconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/xmpp/js/sail.js/sail.strophe.js':['vle/xmpp/js/sail.js/deps/strophe.js'],
-        'vle/xmpp/js/student.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js']        
+        'vle/xmpp/js/student.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
+        'vle/xmpp/js/teacher.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js']
     };
 	
 	return {

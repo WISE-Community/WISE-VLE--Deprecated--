@@ -12,8 +12,8 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core', 'studentXMPP', 'keystroke', 'config', 'user', 'session','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
-		grading: ['setup', 'core', 'config', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
+		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','vle','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
 	};
@@ -597,6 +597,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('renderConstraints', view.vleDispatcher, view);
 						view.eventManager.subscribe('saveAndCloseNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('importWork', view.vleDispatcher, view);
+						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);

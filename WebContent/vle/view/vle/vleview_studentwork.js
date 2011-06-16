@@ -484,6 +484,52 @@ View.prototype.studentAssetSubmitUpload = function() {
 	}
 };
 
+
+/**
+ * Calculate and set the gradebyteam statistics
+ * @return number percentage of the project this team has completed
+ */
+View.prototype.getTeamProjectCompletionPercentage = function() {
+	/*
+	 * get all the leaf nodes in the project except for HtmlNodes
+	 * this is a : delimited string of nodeIds
+	 */
+	var nodeIds = this.getProject().getNodeIds();
+	
+	//get the run id
+	var runId = this.getConfig().getConfigParam('runId');
+	
+
+	//get a vleState
+	var vleState = this.state;
+
+	//get the workgroup id
+	var workgroupId = vleState.dataId;
+
+	//the number of steps the current workgroupId has completed
+	var numStepsCompleted = 0;
+
+	//loop through all the nodeIds
+	for(var y=0; y<nodeIds.length; y++) {
+		var nodeId = nodeIds[y];
+
+		//get the latest work for the current workgroup (empty or not)
+		var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
+
+		//check if there was any work
+		if (latestNodeVisit != null) {
+			//student has completed this step so we will increment the counter
+			numStepsCompleted++;
+		}
+	}
+
+	//for the current team, calculate the percentage of the project they have completed
+	var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100);
+
+	return teamPercentProjectCompleted;	
+};
+
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/vle/vleview_studentwork.js');

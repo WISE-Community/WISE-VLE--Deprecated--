@@ -14,6 +14,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.setDialogEvents();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
+		// start the xmpp 
+		obj.startXMPP();
 	} else if(type=='processLoadViewStateResponseComplete'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
 		obj.renderStartNode();
@@ -106,7 +108,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		var toNodeId = args[1];
 		
 		obj.importWork(fromNodeId,toNodeId);
-	};
+	} else if (type == 'startVLEComplete') {
+	}
 };
 
 /**
@@ -504,6 +507,7 @@ View.prototype.onRenderNodeStart = function(position){
 		}
 	};
 	
+	// save all unsaved nodes
 	this.eventManager.fire('postAllUnsavedNodeVisits');
 };
 
@@ -522,6 +526,17 @@ View.prototype.onRenderNodeComplete = function(position){
     if(document.getElementById('topStepTitle') != null) {
     	document.getElementById('topStepTitle').innerHTML = currentNode.getTitle();
     }
+    
+	/* get project completion and send to teacher, if xmpp is enabled */
+	this.xmppEnabled = true;
+	if (this.xmppEnabled) {
+		var workgroupId = this.userAndClassInfo.getWorkgroupId();
+		var projectCompletionPercentage = this.getTeamProjectCompletionPercentage();
+		var nodeId = currentNode.id;
+		var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
+		var type = "studentProgress";
+		this.xmpp.sendStudentToTeacherMessage({workgroupId:workgroupId, projectCompletionPercentage:projectCompletionPercentage, stepNumberAndTitle:stepNumberAndTitle, type:type});
+	}
 
 	/* set hints link in nav bar if hint exists for this step
 	 * populate hints panel with current nodes hints

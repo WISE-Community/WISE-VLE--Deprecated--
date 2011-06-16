@@ -5,6 +5,9 @@ WISE = {
     xmppDomain: 'localhost',
     groupchatRoom: 's3@conference.localhost',
     
+    // WISE variables
+    view:null,
+    
     
     // private global vars
     
@@ -16,9 +19,9 @@ WISE = {
     
     // initialization (called in $(document).ready() at the bottom of this file)
     
-    init: function() {
+    init: function(viewIn) {
+		view=viewIn;
         console.log("Initializing WISE...")
-        
         // create custom event handlers for all WISE 'on' methods
         Sail.autobindEvents(WISE, {
             pre: function() {console.debug(arguments[0].type+'!',arguments)}
@@ -34,12 +37,22 @@ WISE = {
         $('#connecting').show()
         
         WISE.authenticate()
+        
+        return this;
     },
    
     isEventFromTeacher: function(sev) {
-	var sender = sev.from.split('/')[1].split('@')[0];
-        return sender == "teacher";
+    	var sender = sev.from.split('/')[1].split('@')[0];
+    	var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
+        return sender == teacherWorkgroupId;
     },    
+    
+    sendStudentToTeacherMessage: function(msg) {
+        sev = new Sail.Event('studentToTeacherMsg', msg);        
+        if (WISE.groupchat) {
+        	WISE.groupchat.sendEvent(sev);    	
+        }
+    },
 
     askForNewWord: function() {
         $(WISE).trigger('enteringNewWord')
@@ -87,8 +100,9 @@ WISE = {
         WISE.groupchat.sendEvent(sev)
         $(WISE).trigger('submittedNewWord')
     },   
-
+    
     authenticate: function() {
+    	/*
         WISE.rollcall = new Sail.Rollcall.Client(WISE.rollcallURL)
         WISE.token = WISE.rollcall.getCurrentToken()
 
@@ -102,29 +116,49 @@ WISE = {
             WISE.session = data.session
             $(WISE).trigger('authenticated')
         })
+        */
+        $(WISE).trigger('authenticated');
     },
     
     
     events: {
         // mapping of Sail events to local Javascript events
-	/*
-        sail: {
-            'guess': 'gotGuess',
-            'set_definition': 'gotNewDefinition',
-            'wrong': 'gotWrongGuess',
-            'bad_word': 'gotBadWord',
-            'win': 'gotWinner'
-        },
-        */
 	
         sail: {
-	    'pause':'pause',
+	    	'pause':'pause',
             'unPause':'unPause'
         },
 
         // local Javascript event handlers
         onAuthenticated: function() {
-            session = WISE.session
+        	
+            //session = WISE.session;
+            //console.log("Authenticated as: ", session.account.login, session.account.encrypted_password)
+        
+            //$('#username').text(session.account.login)
+        
+            Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
+         	//Sail.Strophe.jid = view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
+          	//Sail.Strophe.password = "wise";  //view.userAndClassInfo.getWorkgroupId();
+      	
+         	Sail.Strophe.jid =  view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
+          	Sail.Strophe.password =  view.userAndClassInfo.getWorkgroupId();  //view.userAndClassInfo.getWorkgroupId();
+
+            Sail.Strophe.onConnectSuccess = function() {
+          	    sailHandler = Sail.generateSailEventHandler(WISE);
+          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat');
+      	    
+          	    WISE.groupchat = Sail.Strophe.joinGroupchat(WISE.groupchatRoom);
+          	    WISE.groupchat.addHandler(sailHandler);
+      	    
+          	    $('#connecting').hide();
+          	    $(WISE).trigger('joined');
+          	};
+      	    
+      	    Sail.Strophe.connect()
+
+        	/*
+            session = WISE.session;
             console.log("Authenticated as: ", session.account.login, session.account.encrypted_password)
         
             $('#username').text(session.account.login)
@@ -145,10 +179,11 @@ WISE = {
           	}
       	    
       	    Sail.Strophe.connect()
+      	    */
         },
         onPause: function(ev,sev) {            
             if(WISE.isEventFromTeacher(sev)) {            
-            	eventManager.fire('lockScreenEvent');
+            	eventManager.fire('lockScreenEvent', sev.payload.message);
             }
         },
         onUnPause:function(ev,sev) {
@@ -156,6 +191,7 @@ WISE = {
         		eventManager.fire('unlockScreenEvent');
         	}
         },
+        
         onJoined: function() {
             $(WISE).trigger('choosingWhetherToWatchOrPlay')
             WISE.ui.showDialog('#join-dialog')
@@ -236,7 +272,7 @@ WISE = {
     
 }
 
-$(document).ready(WISE.init)
+//$(document).ready(WISE.init)
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

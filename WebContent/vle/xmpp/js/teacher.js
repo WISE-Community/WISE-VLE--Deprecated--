@@ -1,10 +1,12 @@
-Jabberdy = {
+WISE = {
     // config
     
     rollcallURL: 'http://localhost:3000',
     xmppDomain: 'localhost',
     groupchatRoom: 's3@conference.localhost',
     
+    // WISE variables
+    view:null,
     
     // private global vars
     
@@ -16,33 +18,47 @@ Jabberdy = {
     
     // initialization (called in $(document).ready() at the bottom of this file)
     
-    init: function() {
-        console.log("Initializing Jabberdy...")
+    init: function(viewIn) {
+		view=viewIn;
+        console.log("Initializing WISE...")
         
-        // create custom event handlers for all Jabberdy 'on' methods
-        Sail.autobindEvents(Jabberdy, {
+        // create custom event handlers for all WISE 'on' methods
+        Sail.autobindEvents(WISE, {
             pre: function() {console.debug(arguments[0].type+'!',arguments)}
         })
         
-        $('#play').click(function() {$(Jabberdy).trigger('choseToPlay')})
-        $('#watch').click(function() {$(Jabberdy).trigger('choseToWatch')})
+        $('#play').click(function() {$(WISE).trigger('choseToPlay')})
+        $('#watch').click(function() {$(WISE).trigger('choseToWatch')})
         
-        $('#guess-form').submit(function() {Jabberdy.submitGuess(); return false})
+        $('#guess-form').submit(function() {WISE.submitGuess(); return false})
         
-        $('#set-word-form').submit(function () {Jabberdy.setNewWord(); return false})
+        $('#set-word-form').submit(function () {WISE.setNewWord(); return false})
 
-        $('#pause-button').click(function() {Jabberdy.doPause();  return false})
+        $('#pause-button').click(function() {WISE.doPause();  return false})
 
-        $('#unPause-button').click(function() {Jabberdy.doUnPause();  return false})
+        $('#unPause-button').click(function() {WISE.doUnPause();  return false})
         
         $('#connecting').show()
         
-        Jabberdy.authenticate()
+        WISE.authenticate()
+        
+        return this;
+    },
+    
+    isEventFromTeacher: function(sev) {
+    	var sender = sev.from.split('/')[1].split('@')[0];
+    	var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
+        return sender == teacherWorkgroupId;
+    },
+    
+    isEventFromStudent: function(sev) {
+    	// todo implement me
+    	return true;
     },
     
     askForNewWord: function() {
-        $(Jabberdy).trigger('enteringNewWord')
-        Jabberdy.ui.showDialog('#set-word-panel')
+        $(WISE).trigger('enteringNewWord')
+        WISE.ui.showDialog('#set-word-panel')
         
         $('#set-word').attr('disabled', false)
         $('#guess-panel').hide()
@@ -55,14 +71,14 @@ Jabberdy = {
     
     switchToGuessingMode: function() {
         $('.guess-baloon').remove()
-        Jabberdy.ui.dismissDialog('#set-word-panel')
+        WISE.ui.dismissDialog('#set-word-panel')
         $('#winner').hide()
         $('#definition').show()
         $('#guess').removeClass('in-progress')
         
         $('#guess').attr('disabled', false) // just in case...
         
-        if (!Jabberdy.justWatching && !$('#guess-panel').is(':visible')) {
+        if (!WISE.justWatching && !$('#guess-panel').is(':visible')) {
             $('#guess-panel').show('slide', 
                 { easing: 'easeOutBounce',  direction: 'down'}, 
                 'slow',
@@ -75,104 +91,118 @@ Jabberdy = {
         $('#guess').addClass('in-progress')
         word = $('#guess').val()
         sev = new Sail.Event('guess', {word: word})
-        Jabberdy.groupchat.sendEvent(sev)
-        $(Jabberdy).trigger('submittedGuess')
+        WISE.groupchat.sendEvent(sev)
+        $(WISE).trigger('submittedGuess')
     },
     
     setNewWord: function() {
         $('#set-word').addClass('in-progress')
         word = $('#set-word').val()
         sev = new Sail.Event('set_word', {word: word})
-        Jabberdy.groupchat.sendEvent(sev)
-        $(Jabberdy).trigger('submittedNewWord')
+        WISE.groupchat.sendEvent(sev)
+        $(WISE).trigger('submittedNewWord')
     },
     
     doPause: function() {
-        sev = new Sail.Event('pause')
-        Jabberdy.groupchat.sendEvent(sev)
+    	message = $('#pause-message').val();
+        sev = new Sail.Event('pause', {message:message});
+        WISE.groupchat.sendEvent(sev);
     },
 
     doUnPause: function() {
         sev = new Sail.Event('unPause')
-        Jabberdy.groupchat.sendEvent(sev)
+        WISE.groupchat.sendEvent(sev)
     },
 
     authenticate: function() {
-        Jabberdy.rollcall = new Sail.Rollcall.Client(Jabberdy.rollcallURL)
-        Jabberdy.token = Jabberdy.rollcall.getCurrentToken()
+    	/*
+        WISE.rollcall = new Sail.Rollcall.Client(WISE.rollcallURL)
+        WISE.token = WISE.rollcall.getCurrentToken()
 
-        if (!Jabberdy.token) {
-            $(Jabberdy).trigger('authenticating')
-            Jabberdy.rollcall.redirectToLogin()
+        if (!WISE.token) {
+            $(WISE).trigger('authenticating')
+            WISE.rollcall.redirectToLogin()
             return
         }
         
-        Jabberdy.rollcall.fetchSessionForToken(Jabberdy.token, function(data) {
-            Jabberdy.session = data.session
-            $(Jabberdy).trigger('authenticated')
+        WISE.rollcall.fetchSessionForToken(WISE.token, function(data) {
+            WISE.session = data.session
+            $(WISE).trigger('authenticated')
         })
+        */
+    	 $(WISE).trigger('authenticated')
     },
     
     
     events: {
         // mapping of Sail events to local Javascript events
-	/*
-        sail: {
-            'guess': 'gotGuess',
-            'set_definition': 'gotNewDefinition',
-            'wrong': 'gotWrongGuess',
-            'bad_word': 'gotBadWord',
-            'win': 'gotWinner'
-        },
-        */
 	
         sail: {
-	    'pause':'pause',
-            'unPause':'unPause'
+	    	'pause':'pause',
+            'unPause':'unPause',
+            'studentToTeacherMsg':'studentToTeacherMsg'
         },
 
         // local Javascript event handlers
         onAuthenticated: function() {
-            session = Jabberdy.session
-            console.log("Authenticated as: ", session.account.login, session.account.encrypted_password)
-        
-            $('#username').text(session.account.login)
-        
-            Sail.Strophe.bosh_url = '/http-bind/'
-         	Sail.Strophe.jid = session.account.login + '@' + Jabberdy.xmppDomain
-          	Sail.Strophe.password = session.account.encrypted_password
+            Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
+         	//Sail.Strophe.jid = view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
+          	//Sail.Strophe.password = "wise";  //view.userAndClassInfo.getWorkgroupId();
       	
-          	Sail.Strophe.onConnectSuccess = function() {
-          	    sailHandler = Sail.generateSailEventHandler(Jabberdy)
-          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat')
+         	Sail.Strophe.jid =  view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
+          	Sail.Strophe.password =  view.userAndClassInfo.getWorkgroupId();  //view.userAndClassInfo.getWorkgroupId();
+
+            Sail.Strophe.onConnectSuccess = function() {
+          	    sailHandler = Sail.generateSailEventHandler(WISE);
+          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat');
       	    
-          	    Jabberdy.groupchat = Sail.Strophe.joinGroupchat(Jabberdy.groupchatRoom)
-          	    Jabberdy.groupchat.addHandler(sailHandler)
+          	    WISE.groupchat = Sail.Strophe.joinGroupchat(WISE.groupchatRoom);
+          	    WISE.groupchat.addHandler(sailHandler);
       	    
-          	    $('#connecting').hide()
-          	    $(Jabberdy).trigger('joined')
-          	}
+          	    $('#connecting').hide();
+          	    $(WISE).trigger('joined');
+          	};
       	    
       	    Sail.Strophe.connect()
         },
-        onPause: function() {
-	    $("#status").html("paused");
+        onPause: function(ev,sev) {            
+            if(WISE.isEventFromTeacher(sev)) {            
+            	$("#status").html("paused");
+            }
         },
-        onUnPause:function() {
-	    $("#status").html("unpaused");
+        onUnPause:function(ev,sev) {
+        	if(WISE.isEventFromTeacher(sev)) {
+        		$("#status").html("unpaused");
+        	}
+        },
+        onStudentToTeacherMsg:function(ev,sev) {
+        	if(WISE.isEventFromStudent(sev)) {
+        		var message = sev.payload;
+        		
+        		var workgroupId = message.workgroupId;
+        		var messageType = message.type;
+        		
+        		if(messageType == "studentProgress") {
+        			var stepNumberAndTitle = message.stepNumberAndTitle;
+        			var projectCompletionPercentage = message.projectCompletionPercentage;
+        			$('#teamCurrentStep_' + workgroupId).html(stepNumberAndTitle);
+        			$('#teamPercentProjectCompleted_' + workgroupId).html(projectCompletionPercentage + "%" + "<hr size=3 color='black' width='" + projectCompletionPercentage + "%' align='left' noshade>");
+        			view.applyTableSorterToClassroomMonitorTable();
+        		}
+        	}
         },
         onJoined: function() {
-            $(Jabberdy).trigger('choosingWhetherToWatchOrPlay')
-            Jabberdy.ui.showDialog('#join-dialog')
+            $(WISE).trigger('choosingWhetherToWatchOrPlay')
+            WISE.ui.showDialog('#join-dialog')
         },
     
         onChoseToPlay: function() {
-            Jabberdy.justWatching = false
-            Jabberdy.askForNewWord()
+            WISE.justWatching = false
+            WISE.askForNewWord()
         },
     
         onChoseToWatch: function() {
-           Jabberdy.justWatching = true 
+           WISE.justWatching = true 
         },
     
         onSubmittedGuess: function() {
@@ -188,7 +218,7 @@ Jabberdy = {
             definition = sev.payload.definition
             $('#set-word').removeClass('in-progress')
             $('#definition').text(definition)
-            Jabberdy.switchToGuessingMode()
+            WISE.switchToGuessingMode()
         },
     
         onGotWrongGuess: function(ev, sev) {
@@ -231,9 +261,9 @@ Jabberdy = {
             $('#winning-word').text(word)
             $('#winner-username').text(winner)
             $('#winner').show('pulsate', 'normal')//'drop', {easing: 'easyOutBounce'}, 'fast')
-            if (sev.payload.winner == Jabberdy.groupchat.jid()) {
+            if (sev.payload.winner == WISE.groupchat.jid()) {
                 // you are the winner!
-                Jabberdy.askForNewWord()
+                WISE.askForNewWord()
             }
         },
     },
@@ -241,7 +271,8 @@ Jabberdy = {
     
 }
 
-$(document).ready(Jabberdy.init)
+//$(document).ready(WISE.init)
+
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

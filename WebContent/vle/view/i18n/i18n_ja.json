@@ -100,7 +100,7 @@
 		"description":"Text on a button in Student Asset Manager to delete a selected file--isn't this description wrong?"
 	},
 	"cancel":{
-		"value":"取り消し,
+		"value":"取り消し",
 		"description":"Text 'cancel'"
 	},
 	"ok":{

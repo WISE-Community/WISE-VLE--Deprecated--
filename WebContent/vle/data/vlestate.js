@@ -75,18 +75,28 @@ VLE_STATE.prototype.getNodeVisitsWithWorkByNodeId = function(nodeId) {
 };
 
 /**
- * Get the latest node visit object for the nodeId
+ * Get the latest node visit object for the nodeId with work
  * @param nodeId the nodeId we want the latest node visit for
  * @return the latest node visit for the nodeId
  */
-VLE_STATE.prototype.getLatestNodeVisitByNodeId = function(nodeId) {
+VLE_STATE.prototype.getLatestNodeVisitByNodeId = function(nodeId, canBeEmpty) {
 	//loop through all the node visits starting from the most recent
 	for (var i=this.visitedNodes.length - 1; i>=0; i--) {
 		
 		//check if the current node visit has the nodeId we are looking for
 		if (this.visitedNodes[i].nodeId==nodeId) {
-			//return the most recent node visit that contains work
-			if (this.visitedNodes[i].getLatestWork() != "") {
+			if (!canBeEmpty) {
+				//return the most recent node visit that contains work
+				// if html or outside url, student has done work if they just visited it.
+				// otherwise, check to see if there is any saved work.
+				if (this.visitedNodes[i].nodeType == "HtmlNode" || this.visitedNodes[i].nodeType == "OutsideUrlNode") {
+					return this.visitedNodes[i];					
+				} else {
+					if (this.visitedNodes[i].getLatestWork() != "") {
+						return this.visitedNodes[i];
+					}
+				}
+			} else {
 				return this.visitedNodes[i];
 			}
 		}		

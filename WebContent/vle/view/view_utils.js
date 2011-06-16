@@ -653,6 +653,14 @@ View.prototype.utils.fileFilter = function(extensions,name){
 	return extensions.indexOf(this.getExtension(name).toLowerCase()) != -1;
 };
 
+/**
+ * Initialize XMPP service
+ * @return
+ */
+View.prototype.startXMPP = function() {
+	this.xmpp = WISE.init(this);
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');

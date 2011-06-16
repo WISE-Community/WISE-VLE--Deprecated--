@@ -4,7 +4,7 @@
 *  http://www.webtoolkit.info/
 *
 **/
-var MD5 = function (string) {
+var MD5_sound = function (string) {
  
 	function RotateLeft(lValue, iShiftBits) {
 		return (lValue<<iShiftBits) | (lValue>>>(32-iShiftBits));

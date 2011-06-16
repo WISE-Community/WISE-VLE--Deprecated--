@@ -90,16 +90,20 @@ View.prototype.initiateGradingDisplay = function() {
 		this.displayGradeByStepSelectPage();	
 	} else if(this.gradingType == "team") {
 		this.displayGradeByTeamSelectPage();
+	} else if(this.gradingType == "monitor") {
+		this.displayClassroomMonitorPage();
 	}
-	
-	this.getRevisions = false;
-	
-	if(this.getConfig().getConfigParam('getRevisions') == "true") {
-		this.getRevisions = true;
+
+	if(this.gradingType != "monitor") {
+		this.getRevisions = false;
+		
+		if(this.getConfig().getConfigParam('getRevisions') == "true") {
+			this.getRevisions = true;
+		}
+		
+		this.getPeerReviewWork();
+		this.getStudentWork();		
 	}
-	
-	this.getPeerReviewWork();
-	this.getStudentWork();
 };
 
 /**
@@ -132,6 +136,155 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	getGradingHeaderTableHtml += "</td></tr></table>";
 
 	return getGradingHeaderTableHtml;
+};
+
+View.prototype.displayClassroomMonitorPage = function() {
+	var classroomMonitorDiv = "<div id='classroomMonitorDiv>";
+	var pauseScreenDiv = "<div id='pauseScreenDiv'>";
+	pauseScreenDiv += "<div id='status'>unpaused</div>";
+	pauseScreenDiv += "<input type='text' id='pause-message' size='50' value=''></input>";
+	pauseScreenDiv += "<input type='button' id='pause-button' value='pause'></input>";
+	pauseScreenDiv += "<input type='button' id='unPause-button' value='un-pause'></input>";
+	pauseScreenDiv += "</div>";
+
+    classroomMonitorDiv += pauseScreenDiv;
+
+    var studentProgressDiv = "<div id='studentProgressDiv'>";
+    studentProgressDiv += "<div id='message'>message from student</div>";
+    
+    //studentProgressDiv += "	";
+    //display the percentage and an hr with a width of the percentage
+	//teamPercentProjectCompleted = teamPercentProjectCompleted + "<hr size=3 color='black' width='" + teamPercentProjectCompleted + "' align='left' noshade>";
+    studentProgressDiv += "</div>";
+    
+    classroomMonitorDiv += studentProgressDiv;
+    
+    classroomMonitorDiv += this.createClassroomMonitorTable();
+    
+    classroomMonitorDiv += "</div>";
+    $('#gradeWorkDiv').html(classroomMonitorDiv);
+    
+    this.applyTableSorterToClassroomMonitorTable();
+    
+    this.startXMPP();
+    eventManager.fire("getStudentWorkComplete");
+};
+
+View.prototype.createClassroomMonitorTable = function() {
+	var displayGradeByTeamSelectPageHtml = "";
+	
+	//show the grading header buttons such as export and the other grading pages
+	//displayGradeByTeamSelectPageHtml += this.getGradingHeaderTableHtml();
+	
+	//get the html that will be used to filter workgroups by period
+	displayGradeByTeamSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
+
+	//start the table that will contain the teams to choose
+	displayGradeByTeamSelectPageHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
+	
+	//the header row
+	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
+			"<th class='gradeColumn col2'>"+this.getI18NString("team")+"</th>"+
+			"<th class='gradeColumn col3'>Current Step</th>"+
+			"<th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th></tr></thead>";
+	
+	//retrieve an array of classmate objects in alphabetical order
+	var classmatesInAlphabeticalOrder = this.getUserAndClassInfo().getClassmatesInAlphabeticalOrder();
+	
+	//get the node ids in the project
+	var nodeIds = this.getProject().getNodeIds();
+	
+	//get the max score for the project
+	var maxScoresSum = this.getMaxScoresSum(nodeIds);
+	
+	//get all the teacher workgroup ids including owner and shared
+	var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+	
+	displayGradeByTeamSelectPageHtml += "<tbody>";
+	
+	//loop through all the student work objects
+	for(var x=0; x<classmatesInAlphabeticalOrder.length; x++) {
+		//get a vleState
+		var student = classmatesInAlphabeticalOrder[x];
+		
+		//get the workgroup id
+		var workgroupId = student.workgroupId;
+
+		//get the user names for the workgroup
+		var userNames = student.userName.replace(/:/g, "<br>");
+		
+		//get the period the workgroup is in
+		var periodName = student.periodName;
+
+		//add classes for styling
+		var studentTRClass = "showScoreRow studentWorkRow period" + periodName;
+		
+		//add the html row for this workgroup
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">";
+		displayGradeByTeamSelectPageHtml += "<td class='showScorePeriodColumn'>" + periodName + "</td>";
+		displayGradeByTeamSelectPageHtml += "<td class='showScoreWorkgroupIdColumn'>" + userNames + "</td>";
+		displayGradeByTeamSelectPageHtml += "<td id='teamCurrentStep_" + workgroupId + "'>N/A</td>";
+		displayGradeByTeamSelectPageHtml += "<td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'>0%</td></tr>";
+		
+		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
+	}
+	
+	displayGradeByTeamSelectPageHtml += "</tbody>";
+	
+	displayGradeByTeamSelectPageHtml += "</table>";
+	
+	//set the html into the div so it is displayed
+	return displayGradeByTeamSelectPageHtml;
+};
+
+View.prototype.applyTableSorterToClassroomMonitorTable = function() {
+     
+    // add parser through the tablesorter addParser method 
+    $.tablesorter.addParser({ 
+        // set a unique id 
+        id: 'completion', 
+        is: function(s) { 
+            // return false so this parser is not auto detected 
+            return false; 
+        }, 
+        format: function(s) { 
+            // format your data for normalization 
+        	
+        	/*
+        	 * the values in the column are like "52%<hr>" so we need 
+        	 * to sort by the value before '%'
+        	 */
+        	
+        	//get the index of the '%'
+        	var percentIndex = s.indexOf('%');
+        	
+        	// only get the number value before the '%'
+        	var completion = s.substring(0, percentIndex);
+
+        	//return the value before the '%'
+            return completion; 
+        }, 
+        // set type, either numeric or text 
+        type: 'numeric' 
+    }); 
+    
+    /*
+     * make the table sortable by any of its columns
+     * 
+     * the 3rd column requires
+     * special sorting because the values in that column are like
+     * "9 / 10" so we need to sort by the number value before the '/'
+     * 
+     * the 5th column requires special sorting to only look at the
+     * percentage value and to ignore the <hr>
+     */
+    $("#chooseTeamToGradeTable").tablesorter({ 
+        headers: { 
+    		3: { 
+        		sorter:'completion' 
+    		}
+        } 
+    }); 	
 };
 
 /**
@@ -1004,7 +1157,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 	 * get all the leaf nodes in the project except for HtmlNodes
 	 * this is a : delimited string of nodeIds
 	 */
-	var nodeIds = this.getProject().getNodeIds("HtmlNode:OutsideUrlNode");
+	var nodeIds = this.getProject().getNodeIds();
 	
 	//get the run id
 	var runId = this.getConfig().getConfigParam('runId');
