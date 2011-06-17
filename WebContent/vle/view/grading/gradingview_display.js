@@ -140,17 +140,19 @@ View.prototype.getGradingHeaderTableHtml = function() {
 
 View.prototype.displayClassroomMonitorPage = function() {
 	var classroomMonitorDiv = "<div id='classroomMonitorDiv>";
-	var pauseScreenDiv = "<div id='pauseScreenDiv'>";
-	pauseScreenDiv += "<div id='status'>unpaused</div>";
-	pauseScreenDiv += "<input type='text' id='pause-message' size='50' value=''></input>";
+	var pauseScreenDiv = "<div id='pauseScreenDiv'>"
+	pauseScreenDiv += "<h2>Pause All Screens</h2>";
+	pauseScreenDiv += "Currently all students' screens are: <span id='status'>unpaused</span>";
+	pauseScreenDiv += "<div id='pauseScreenControls'>";
+	pauseScreenDiv += "<textarea type='text' id='pause-message' rows='5' cols='50' value=''></textarea>";
 	pauseScreenDiv += "<input type='button' id='pause-button' value='pause'></input>";
 	pauseScreenDiv += "<input type='button' id='unPause-button' value='un-pause'></input>";
-	pauseScreenDiv += "</div>";
+	pauseScreenDiv += "</div></div><br/>";
 
     classroomMonitorDiv += pauseScreenDiv;
 
-    var studentProgressDiv = "<div id='studentProgressDiv'>";
-    studentProgressDiv += "<div id='message'>message from student</div>";
+    var studentProgressDiv = "<div id='studentProgressDiv'>";    
+    studentProgressDiv += "<h2>Student Progress</h2>";
     
     //studentProgressDiv += "	";
     //display the percentage and an hr with a width of the percentage
@@ -163,6 +165,8 @@ View.prototype.displayClassroomMonitorPage = function() {
     
     classroomMonitorDiv += "</div>";
     $('#gradeWorkDiv').html(classroomMonitorDiv);
+    
+    $('#teamStatusDialog').dialog({autoOpen:false, width:400, height:300});
     
     this.applyTableSorterToClassroomMonitorTable();
     
@@ -186,7 +190,9 @@ View.prototype.createClassroomMonitorTable = function() {
 	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
 			"<th class='gradeColumn col2'>"+this.getI18NString("team")+"</th>"+
 			"<th class='gradeColumn col3'>Current Step</th>"+
-			"<th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th></tr></thead>";
+			"<th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th>"+
+			"<th>Status</th>"+
+			"</tr></thead>";
 	
 	//retrieve an array of classmate objects in alphabetical order
 	var classmatesInAlphabeticalOrder = this.getUserAndClassInfo().getClassmatesInAlphabeticalOrder();
@@ -224,7 +230,8 @@ View.prototype.createClassroomMonitorTable = function() {
 		displayGradeByTeamSelectPageHtml += "<td class='showScorePeriodColumn'>" + periodName + "</td>";
 		displayGradeByTeamSelectPageHtml += "<td class='showScoreWorkgroupIdColumn'>" + userNames + "</td>";
 		displayGradeByTeamSelectPageHtml += "<td id='teamCurrentStep_" + workgroupId + "'>N/A</td>";
-		displayGradeByTeamSelectPageHtml += "<td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'>0%</td></tr>";
+		displayGradeByTeamSelectPageHtml += "<td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'>0%</td>";
+		displayGradeByTeamSelectPageHtml += "<td id='teamStatus_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
@@ -232,6 +239,8 @@ View.prototype.createClassroomMonitorTable = function() {
 	displayGradeByTeamSelectPageHtml += "</tbody>";
 	
 	displayGradeByTeamSelectPageHtml += "</table>";
+	
+	displayGradeByTeamSelectPageHtml += "<div id='teamStatusDialog'></div>";
 	
 	//set the html into the div so it is displayed
 	return displayGradeByTeamSelectPageHtml;

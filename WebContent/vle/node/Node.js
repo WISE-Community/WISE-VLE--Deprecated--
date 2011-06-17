@@ -1324,7 +1324,7 @@ Node.prototype.setIsNotPartOfReviewSequence = function() {
 Node.prototype.isPartOfReviewSequence = function() {
 	return this.isStepPartOfReviewSequence;
 };
-//
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/Node.js');

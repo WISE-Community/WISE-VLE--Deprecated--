@@ -224,7 +224,8 @@ var scriptloader = function(){
                'vle/grading/Annotation.js',
 	           'vle/grading/Annotations.js',
                'vle/data/nodevisit.js',
-               'vle/hint/hintstate.js'],
+               'vle/hint/hintstate.js',
+               'vle/data/StudentStatus.js'],
                studentXMPP: [
        	                  'vle/xmpp/js/sail.js/deps/base64.js',
                           'vle/xmpp/js/sail.js/deps/jquery.cookie.js',

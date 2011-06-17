@@ -535,7 +535,16 @@ View.prototype.onRenderNodeComplete = function(position){
 		var nodeId = currentNode.id;
 		var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
 		var type = "studentProgress";
-		this.xmpp.sendStudentToTeacherMessage({workgroupId:workgroupId, projectCompletionPercentage:projectCompletionPercentage, stepNumberAndTitle:stepNumberAndTitle, type:type});
+		
+		if (this.studentStatus == null) {
+			this.studentStatus = new StudentStatus();
+		}
+		
+		this.xmpp.sendStudentToTeacherMessage({workgroupId:workgroupId, 
+			projectCompletionPercentage:projectCompletionPercentage, 
+			stepNumberAndTitle:stepNumberAndTitle, 
+			type:type,
+			status:this.studentStatus});
 	}
 
 	/* set hints link in nav bar if hint exists for this step

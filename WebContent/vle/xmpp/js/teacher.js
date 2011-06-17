@@ -187,7 +187,35 @@ WISE = {
         			var projectCompletionPercentage = message.projectCompletionPercentage;
         			$('#teamCurrentStep_' + workgroupId).html(stepNumberAndTitle);
         			$('#teamPercentProjectCompleted_' + workgroupId).html(projectCompletionPercentage + "%" + "<hr size=3 color='black' width='" + projectCompletionPercentage + "%' align='left' noshade>");
-        			view.applyTableSorterToClassroomMonitorTable();
+        			$("#chooseTeamToGradeTable").trigger('update');  // tell tablesorter to re-read the data
+        			var status = message.status;
+        			if (status != null) {
+        				//$('#teamStatus_' + workgroupId).html(status.type);
+        				
+        				
+        				if(status.maxAlertLevel >= 0 && status.maxAlertLevel < 2) {
+        					$('#teamStatus_' + workgroupId).html("<img src='/vlewrapper/vle/images/check16.gif' />");
+        				} else if(status.maxAlertLevel >= 2 && status.maxAlertLevel < 4) { 
+        					$('#teamStatus_' + workgroupId).html("warning");
+        				} else if(status.maxAlertLevel >= 4) {
+        					$('#teamStatus_' + workgroupId).html("<img src='/vlewrapper/vle/images/warn16.gif' />");
+        				}
+        				
+    					$('#teamStatus_' + workgroupId).unbind('click');
+    					$('#teamStatus_' + workgroupId).click(function() {
+        					var readableMsg = "";
+        					for (var i=0; i<status.alertables.length; i++) {
+        						var alertable = status.alertables[i];
+        						if (alertable != null && alertable.readableText != null) {
+        							readableMsg += alertable.stepNumberAndTitle + " (" + alertable.nodeType + ")<br>";
+        							readableMsg += alertable.readableText + "<br><br>";
+        						}
+        					}
+    						//alert(readableMsg);
+        					$('#teamStatusDialog').html(readableMsg);
+        					$('#teamStatusDialog').dialog('open');
+    					});
+        			}
         		}
         	}
         },

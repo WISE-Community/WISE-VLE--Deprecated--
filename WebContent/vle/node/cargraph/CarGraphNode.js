@@ -178,6 +178,42 @@ CarGraphNode.prototype.getResultObjByResultId = function(resultsId) {
  * Note: In most cases you will not have to change anything here.
  */
 CarGraphNode.prototype.onExit = function() {
+	// run a smart filter and if student has done a bad job, save it in the status
+	// run smart filter and flag if the smart filter returns true	
+	var carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
+	var smartFilterResult = this.smartFilter(carGraphState); // obj
+
+	if (this.view.studentStatus == null) {
+		this.view.studentStatus = new StudentStatus();
+	}
+	
+	if (smartFilterResult.maxError > 10) {
+		//this.view.studentStatus.maxAlertLevel = "alert";
+		
+		if(this.view.studentStatus.alertables == null) {
+			this.view.studentStatus.alertables = [];			
+		}
+		
+		var alertLevel = 5;
+		var nodeId = this.id;
+		var type = "autoScoreResult";
+		var value = smartFilterResult.maxError;
+		
+		var stepNumberAndTitle = this.view.project.getStepNumberAndTitle(this.id);
+		var nodeType = this.type;
+		var readableText = 'Autoscore returned '+smartFilterResult.maxError+'. This might mean that the student needs help.';
+		
+		var date = new Date();
+		var timestamp = date.getMilliseconds();
+		
+		var alertable = new StudentAlertable(alertLevel, nodeId, type, value, stepNumberAndTitle, nodeType, readableText, timestamp);
+		
+		this.view.studentStatus.addAlertable(alertable);
+	} else {
+		//this.view.studentStatus.type = "ok";
+		this.view.studentStatus.removeAlertable(this.id);
+	}
+	
 	//check if the content panel has been set
 	if(this.contentPanel) {
 		
