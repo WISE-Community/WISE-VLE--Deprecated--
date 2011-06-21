@@ -12,7 +12,7 @@ StudentStatus.prototype.addAlertable = function(statusObject) {
 };
 
 StudentStatus.prototype.updateMaxAlertLevel = function() {
-	var maxSoFar = this.maxAlertLevel;
+	var maxSoFar = 0;
 	
 	for(var x=0; x<this.alertables.length; x++) {
 		var alertable = this.alertables[x];
