@@ -1,0 +1,71 @@
+<html>
+<head>
+   <script type="text/javascript">
+     View = function(){};
+   </script>
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+   <!-- <script type="text/javascript" src="/vlewrapper/vle/jquery/js/jquery-1.4.4.min.js"></script>  -->
+   <script type="text/javascript" src="view/i18n/view_i18n.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function() {   
+         var thisView = new View();
+         // print default and supported locales
+         $("#defaultLocale").append(View.prototype.i18n.defaultLocale);
+         $("#supportedLocales").append(View.prototype.i18n.supportedLocales.join(", "));         
+
+         // go through default locale list out all the keys
+         //console.log(View.prototype.i18n["ja"]);
+         //console.log(View.prototype.i18n["en_US"]);
+         var defaultLocaleMappings = View.prototype.i18n[View.prototype.i18n.defaultLocale];
+         //console.log(defaultLocaleMappings);
+         var translationTable = "<table border='1'>";
+         // build the header row
+         translationTable += "<tr><th>key</th><th>description</th><th>"+View.prototype.i18n.defaultLocale+"</th>";
+         for (var i=0; i < View.prototype.i18n.supportedLocales.length; i++) {
+             var supportedLocale = View.prototype.i18n.supportedLocales[i];
+             if (supportedLocale == View.prototype.i18n.defaultLocale) {
+                 continue;
+             }
+        	 translationTable += "<th>"+supportedLocale+"</th>";
+         }
+         translationTable += "</tr>\n\n";
+
+         // build the rest of the table
+         for (key in defaultLocaleMappings) {
+           var obj = defaultLocaleMappings[key];
+		   translationTable += "<tr id='"+key+"'>\n<td>"+key+"</td>\n<td>"+obj.description+"</td>\n<td>"+obj.value+"</td>\n";
+		    for (var i=0; i < View.prototype.i18n.supportedLocales.length; i++) {
+	             var supportedLocale = View.prototype.i18n.supportedLocales[i];
+	             if (supportedLocale == View.prototype.i18n.defaultLocale) {
+	                 continue;
+	             }
+	             if (View.prototype.i18n[supportedLocale][key]) {
+	        	 	translationTable += "<td>"+View.prototype.i18n[supportedLocale][key].value+"</td>\n";
+	             } else {
+	        	 	translationTable += "<td>UNDEFINED</td>\n";
+	             }
+		  	}
+	        translationTable += "</tr>\n\n";             
+         }
+         translationTable += "</table>";
+
+     	$("#translationTableDiv").html(translationTable);
+         
+      }); 
+   </script>
+   <style>
+   td {
+      width:250px;
+      word-wrap:break-word;
+   }
+   </style>
+</head>
+<body>
+
+<div id="defaultLocale">Default Locale: </div>
+<div id="supportedLocales">Supported Locales: </div>
+
+<div id="translationTableDiv">
+</div>
+</body>
+</html>
