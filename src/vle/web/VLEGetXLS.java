@@ -2678,7 +2678,7 @@ public class VLEGetXLS extends VLEServlet {
 				 * we will assume there will be at most 3 students in a workgroup so we need
 				 * to increment the column counter if necessary
 				 */
-				int numColumnsToAdd = 3 - studentLoginsArray.length;
+				int numColumnsToAdd = 3 - studentLoginsList.size();
 				workgroupColumnCounter += numColumnsToAdd;
 				
 				//get the period name such as 1, 2, 3, 4, etc.
@@ -3791,7 +3791,7 @@ public class VLEGetXLS extends VLEServlet {
 			
 			try {
 				//add the long to the list
-				studentLoginsList.add(Long.parseLong(studentLogin));								
+				studentLoginsList.add(Long.parseLong(studentLogin));
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
 			}
