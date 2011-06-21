@@ -140,7 +140,8 @@ WISE = {
         sail: {
 	    	'pause':'pause',
             'unPause':'unPause',
-            'studentToTeacherMsg':'studentToTeacherMsg'
+            'studentToTeacherMsg':'studentToTeacherMsg',
+            'joinedGroupChat':'joinedGroupChat'
         },
 
         // local Javascript event handlers
@@ -156,7 +157,10 @@ WISE = {
           	    sailHandler = Sail.generateSailEventHandler(WISE);
           	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat');
       	    
-          	    WISE.groupchat = Sail.Strophe.joinGroupchat(WISE.groupchatRoom);
+          	    var joinedGroupChatSuccess = function() {
+          	    	$(WISE).trigger('joinedGroupChat');
+          	    }
+          	    WISE.groupchat = Sail.Strophe.joinGroupchat(WISE.groupchatRoom,joinedGroupChatSuccess);
           	    WISE.groupchat.addHandler(sailHandler);
       	    
           	    $('#connecting').hide();
@@ -218,6 +222,9 @@ WISE = {
         			}
         		}
         	}
+        },
+        onJoinedGroupChat:function() {
+        	console.log('onJoinedGroupChat');
         },
         onJoined: function() {
             $(WISE).trigger('choosingWhetherToWatchOrPlay')

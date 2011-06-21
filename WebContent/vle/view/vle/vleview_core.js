@@ -540,6 +540,7 @@ View.prototype.onRenderNodeComplete = function(position){
 			this.studentStatus = new StudentStatus();
 		}
 		
+		this.studentStatus.updateMaxAlertLevel();
 		this.xmpp.sendStudentToTeacherMessage({workgroupId:workgroupId, 
 			projectCompletionPercentage:projectCompletionPercentage, 
 			stepNumberAndTitle:stepNumberAndTitle, 
