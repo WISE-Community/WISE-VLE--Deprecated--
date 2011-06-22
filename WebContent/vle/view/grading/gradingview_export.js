@@ -19,9 +19,21 @@ View.prototype.getLatestStudentWorkXLSExport = function() {
 	document.getElementById('getStudentXLSExport').submit();
 };
 
+/**
+ * Request the idea basket excel export
+ */
 View.prototype.getIdeaBasketsExcelExport = function() {
 	this.setParamsForXLSExport();
 	document.getElementById('exportType').value = 'ideaBaskets';
+	document.getElementById('getStudentXLSExport').submit();
+};
+
+/**
+ * Request the explanation builder work excel export
+ */
+View.prototype.getExplanationBuilderWorkExcelExport = function() {
+	this.setParamsForXLSExport();
+	document.getElementById('exportType').value = 'explanationBuilderWork';
 	document.getElementById('getStudentXLSExport').submit();
 };
 

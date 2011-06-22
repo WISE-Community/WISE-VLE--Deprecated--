@@ -382,6 +382,8 @@ public class VLEGetXLS extends VLEServlet {
 			wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		} else if(exportType.equals("ideaBaskets")) {
 			wb = getIdeaBasketsExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
+		} else if(exportType.equals("explanationBuilderWork")) {
+			wb = getExplanationBuilderWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		}
 		
 		/*
@@ -398,6 +400,8 @@ public class VLEGetXLS extends VLEServlet {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-all-student-work.xls\"");
 	    } else if(exportType.equals("ideaBaskets")) {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-idea-baskets.xls\"");
+	    } else if(exportType.equals("explanationBuilderWork")) {
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-explanation-builder-work.xls\"");
 	    } else {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + ".xls\"");	
 	    }
@@ -2379,7 +2383,8 @@ public class VLEGetXLS extends VLEServlet {
     	if(stepWork instanceof StepWorkOR || stepWork instanceof StepWorkNote || 
     			stepWork instanceof StepWorkBS || stepWork instanceof StepWorkFillin ||
     				stepWork instanceof StepWorkMC || stepWork instanceof StepWorkMatchSequence ||
-    				stepWork instanceof StepWorkAssessmentList || nodeType.equals("SensorNode")) {
+    				stepWork instanceof StepWorkAssessmentList || nodeType.equals("SensorNode")
+    				|| nodeType.equals("ExplanationBuilderNode")) {
     		try {
     			//obtain the json string
     			String data = stepWork.getData();
@@ -2564,7 +2569,12 @@ public class VLEGetXLS extends VLEServlet {
 						} else {
 							JSONObject lastState = (JSONObject) nodeStateObject;
 							
-							if(lastState.has("response")) {
+							if(nodeType.equals("ExplanationBuilderNode")) {
+								if(lastState != null) {
+									//just return the JSON as a string
+									stepWorkResponse = lastState.toString();									
+								}
+							} else if(lastState.has("response")) {
 								//obtain the response
 								Object object = lastState.get("response");
 								
@@ -2725,6 +2735,218 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return workgroupColumnCounter;
+	}
+	
+	/**
+	 * Get the explanation builder work excel export. We will generate a row 
+	 * for each idea used in an explanation builder step. The order of
+	 * the explanation builder steps will be chronological from oldest to newest.
+	 * @param nodeIdToNodeTitlesMap
+	 * @param workgroupIds
+	 * @param runId
+	 * @param nodeIdToNode
+	 * @param nodeIdToNodeContent
+	 * @param workgroupIdToPeriodId
+	 * @param teacherWorkgroupIds
+	 * @return
+	 */
+	private XSSFWorkbook getExplanationBuilderWorkExcelExport(HashMap<String, String> nodeIdToNodeTitlesMap,
+			Vector<String> workgroupIds, 
+			String runId,
+			HashMap<String, JSONObject> nodeIdToNode,
+			HashMap<String, JSONObject> nodeIdToNodeContent,
+			HashMap<Integer, Integer> workgroupIdToPeriodId,
+			List<String> teacherWorkgroupIds) {
+		
+		//the excel workbook
+		XSSFWorkbook wb = new XSSFWorkbook();
+		
+		//loop through all the workgroups
+		for(int x=0; x<workgroupIds.size(); x++) {
+			String workgroupId = workgroupIds.get(x);
+			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(workgroupId));
+
+			//create a sheet for the workgroup
+			Sheet userIdSheet = wb.createSheet(workgroupId);
+			
+			int rowCounter = 0;
+			
+			/*
+			 * create the row that will display the user data headers such as workgroup id,
+			 * student login, teacher login, period name, etc.
+			 */
+			Row userDataHeaderRow = userIdSheet.createRow(rowCounter++);
+			createUserDataHeaderRow(userDataHeaderRow, true, true);
+			
+			/*
+			 * create the row that will display the user data such as the actual values
+			 * for workgroup id, student login, teacher login, period name, etc.
+			 */
+			Row userDataRow = userIdSheet.createRow(rowCounter++);
+			createUserDataRow(userDataRow, workgroupId, true, true);
+			
+			//create a blank row for spacing
+			rowCounter++;
+			
+			//counter for the header column cells
+			int headerColumn = 0;
+			
+			//create the first row which will contain the headers
+	    	Row headerRow = userIdSheet.createRow(rowCounter++);
+	    	
+	    	//vector that contains all the header column names
+	    	Vector<String> headerColumnNames = new Vector<String>();
+	    	headerColumnNames.add("Step Work Id");
+	    	headerColumnNames.add("Step Title");
+	    	headerColumnNames.add("Node Id");
+	    	headerColumnNames.add("Start Time");
+	    	headerColumnNames.add("End Time");
+	    	headerColumnNames.add("Time Spent (in seconds)");
+	    	headerColumnNames.add("Answer");
+	    	headerColumnNames.add("Idea Id");
+	    	headerColumnNames.add("Idea Text");
+	    	headerColumnNames.add("Idea X Position");
+	    	headerColumnNames.add("Idea Y Position");
+	    	headerColumnNames.add("Idea Color");
+	    	
+	    	//add all the header column names to the row
+	    	for(int y=0; y<headerColumnNames.size(); y++) {
+		    	headerRow.createCell(headerColumn).setCellValue(headerColumnNames.get(y));
+		    	headerColumn++;	    		
+	    	}
+	    	
+	    	//get all the work from the workgroup
+	    	List<StepWork> stepWorks = StepWork.getByUserInfo(userInfo);
+	    	
+	    	//loop through all the work
+	    	for(int z=0; z<stepWorks.size(); z++) {
+	    		StepWork stepWork = stepWorks.get(z);
+	    		
+	    		//get the node and node type
+	    		Node node = stepWork.getNode();
+	    		String nodeType = node.getNodeType();
+	    		
+	    		if(nodeType != null && nodeType.equals("ExplanationBuilderNode")) {
+	    			//the work is for an explanation builder step
+	    			
+	    			//get the student work
+	    			String data = stepWork.getData();
+	    			
+	    			try {
+	    				//get the JSONObject representation of the student work
+						JSONObject dataJSONObject = new JSONObject(data);
+						
+						//get the node states from the student work
+						JSONArray nodeStates = dataJSONObject.getJSONArray("nodeStates");
+						
+						if(nodeStates != null && nodeStates.length() > 0) {
+							//get the last node state
+							JSONObject nodeState = nodeStates.getJSONObject(nodeStates.length() - 1);
+							
+							//get the answer the student typed in the text area
+							String answer = nodeState.getString("answer");
+							
+							//get all the ideas used in this step
+							JSONArray explanationIdeas = nodeState.getJSONArray("explanationIdeas");
+							
+							if(explanationIdeas != null && explanationIdeas.length() > 0) {
+								//loop through all the ideas used in this step
+								for(int i=0; i<explanationIdeas.length(); i++) {
+									//get one of the ideas that was used
+									JSONObject explanationIdea = explanationIdeas.getJSONObject(i);
+									
+									//create a row for this idea
+					    			Row ideaRow = userIdSheet.createRow(rowCounter++);
+					    			
+					    			int columnCounter = 0;
+					    			
+					    			//get the step work id and node id
+					    			Long stepWorkId = stepWork.getId();
+					    			String nodeId = node.getNodeId();
+					    			
+					    			//get the title of the step
+					    			String title = nodeIdToNodeTitlesMap.get(nodeId);
+									
+					    			//get the start and end time for the student visit
+									Timestamp startTime = stepWork.getStartTime();
+									Timestamp endTime = stepWork.getEndTime();
+									
+							    	long timeSpentOnStep = 0;
+							    	
+							    	//calculate the time the student spent on the step
+							    	if(endTime == null || startTime == null) {
+							    		//set to -1 if either start or end was null so we can set the cell to N/A later
+							    		timeSpentOnStep = -1;
+							    	} else {
+							    		/*
+							    		 * find the difference between start and end and divide by
+							    		 * 1000 to obtain the value in seconds
+							    		 */
+							    		timeSpentOnStep = (endTime.getTime() - startTime.getTime()) / 1000;	
+							    	}
+							    	
+									ideaRow.createCell(columnCounter++).setCellValue(stepWorkId);
+									ideaRow.createCell(columnCounter++).setCellValue(title);
+									ideaRow.createCell(columnCounter++).setCellValue(nodeId);
+									ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(startTime));
+									
+									if(endTime != null) {
+										ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(endTime));
+									} else {
+										ideaRow.createCell(columnCounter++).setCellValue("");						
+									}
+									
+									//set the time spent on the step
+							    	if(timeSpentOnStep == -1) {
+							    		ideaRow.createCell(columnCounter++).setCellValue("N/A");
+							    	} else {
+							    		ideaRow.createCell(columnCounter++).setCellValue(timeSpentOnStep);	
+							    	}
+							    	
+							    	ideaRow.createCell(columnCounter++).setCellValue(answer);
+							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getLong("id"));
+							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getString("lastAcceptedText"));
+							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getLong("xpos"));
+							    	ideaRow.createCell(columnCounter++).setCellValue(explanationIdea.getLong("ypos"));
+							    	ideaRow.createCell(columnCounter++).setCellValue(getColorNameFromRBGString(explanationIdea.getString("color")));
+								}
+							}
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+	    		}
+	    	}
+		}
+		
+		return wb;
+	}
+	
+	/**
+	 * Get the color name given the rgb string
+	 * @param rbgString e.g. "rgb(38, 84, 207)"
+	 * @return a string with the color name
+	 */
+	private String getColorNameFromRBGString(String rbgString) {
+		String color = "";
+		
+		if(rbgString == null) {
+			//do nothing
+		} else if(rbgString.equals("rgb(38, 84, 207)")) {
+			color = "blue";
+		} else if(rbgString.equals("rgb(0, 153, 51)")) {
+			color = "green";
+		} else if(rbgString.equals("rgb(204, 51, 51)")) {
+			color = "red";
+		} else if(rbgString.equals("rgb(204, 102, 0)")) {
+			color = "orange";
+		} else if(rbgString.equals("rgb(153, 102, 255)")) {
+			color = "purple";
+		} else if(rbgString.equals("rgb(153, 51, 51)")) {
+			color = "brown";
+		}
+		
+		return color;
 	}
 	
 	/**

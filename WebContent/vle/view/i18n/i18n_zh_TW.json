@@ -147,6 +147,10 @@
 		"value":"匯出想法欄",
 		"description":"GradingTool: Text in the Export Idea Baskets button"
 	},
+	"grading_button_export_explanation_builder_work":{
+		"value":"Export Explanation Builder Work",
+		"description":"GradingTool: Text in the Export Explanation Builder Work button"
+	},
 	"grading_button_check_for_new_student_work":{
 		"value":"檢查新的學生作業",
 		"description":"GradingTool: Text in the Check for New Student Work button"

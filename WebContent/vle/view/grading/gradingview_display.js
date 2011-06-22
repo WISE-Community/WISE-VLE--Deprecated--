@@ -131,6 +131,7 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_check_for_new_student_work")+"' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
 	getGradingHeaderTableHtml += "</td></tr></table>";
