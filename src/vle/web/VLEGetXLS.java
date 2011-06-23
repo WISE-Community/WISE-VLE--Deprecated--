@@ -2798,6 +2798,7 @@ public class VLEGetXLS extends VLEServlet {
 	    	Vector<String> headerColumnNames = new Vector<String>();
 	    	headerColumnNames.add("Step Work Id");
 	    	headerColumnNames.add("Step Title");
+	    	headerColumnNames.add("Step Prompt");
 	    	headerColumnNames.add("Node Id");
 	    	headerColumnNames.add("Start Time");
 	    	headerColumnNames.add("End Time");
@@ -2866,7 +2867,17 @@ public class VLEGetXLS extends VLEServlet {
 					    			
 					    			//get the title of the step
 					    			String title = nodeIdToNodeTitlesMap.get(nodeId);
-									
+					    			
+					    			//get the content for the step
+					    			JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+					    			String prompt = ""; 
+					    				
+					    			if(nodeContent != null) {
+					    				if(nodeContent.has("prompt")) {
+					    					//get the prompt
+					    					prompt = nodeContent.getString("prompt");					    					
+					    				}
+					    			}
 					    			//get the start and end time for the student visit
 									Timestamp startTime = stepWork.getStartTime();
 									Timestamp endTime = stepWork.getEndTime();
@@ -2887,6 +2898,7 @@ public class VLEGetXLS extends VLEServlet {
 							    	
 									ideaRow.createCell(columnCounter++).setCellValue(stepWorkId);
 									ideaRow.createCell(columnCounter++).setCellValue(title);
+									ideaRow.createCell(columnCounter++).setCellValue(prompt);
 									ideaRow.createCell(columnCounter++).setCellValue(nodeId);
 									ideaRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(startTime));
 									
