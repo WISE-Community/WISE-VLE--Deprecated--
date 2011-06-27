@@ -92,9 +92,11 @@ View.prototype.initiateGradingDisplay = function() {
 		this.displayGradeByTeamSelectPage();
 	} else if(this.gradingType == "monitor") {
 		this.displayClassroomMonitorPage();
+	} else if(this.gradingType == "export") {
+		this.displayExportPage();
 	}
 
-	if(this.gradingType != "monitor") {
+	if(this.gradingType != "monitor" && this.gradingType != "export") {
 		this.getRevisions = false;
 		
 		if(this.getConfig().getConfigParam('getRevisions') == "true") {
@@ -104,6 +106,28 @@ View.prototype.initiateGradingDisplay = function() {
 		this.getPeerReviewWork();
 		this.getStudentWork();		
 	}
+};
+
+/**
+ * Displays the excel export buttons
+ */
+View.prototype.displayExportPage = function() {
+	
+	//make the excel export buttons
+	var getGradingHeaderTableHtml = "<div id='exportCenterButtons'>";
+	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<br>";
+	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<br>";
+	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
+	getGradingHeaderTableHtml += "<br>";
+	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input>";
+	getGradingHeaderTableHtml += "</div>";
+	
+	$('#gradeWorkDiv').html(getGradingHeaderTableHtml);
+	
+	//fire this event to remove the loading screen
+	eventManager.fire("getStudentWorkComplete");
 };
 
 /**

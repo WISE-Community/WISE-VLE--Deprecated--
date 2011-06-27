@@ -37,7 +37,7 @@ iframe {
 	vertical-align:top;
 }
 
-.runButtons input, #lowerSaveButton input  {
+.runButtons input, #lowerSaveButton input, #exportCenterButtons input {
 	margin:5px 15px 15px 0;
 	padding: 1px 8px;
 	font: bold Verdana, Arial, sans-serif;
