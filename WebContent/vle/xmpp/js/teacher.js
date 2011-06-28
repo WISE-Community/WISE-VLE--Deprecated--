@@ -3,7 +3,8 @@ WISE = {
     
     rollcallURL: 'http://localhost:3000',
     xmppDomain: 'localhost',
-    groupchatRoom: 's3@conference.localhost',
+    groupchatRoom: '',
+    groupchatRoomBase: '@conference.localhost',
     
     // WISE variables
     view:null,
@@ -21,6 +22,11 @@ WISE = {
     init: function(viewIn) {
 		view=viewIn;
         console.log("Initializing WISE...")
+        
+        // get runId to use for chatroom
+        WISE.groupchatRoom = view.config.getConfigParam("runId") + WISE.groupchatRoomBase;
+        console.log("chatroom:" + WISE.groupchatRoom);
+
         
         // create custom event handlers for all WISE 'on' methods
         Sail.autobindEvents(WISE, {
@@ -43,6 +49,10 @@ WISE = {
         WISE.authenticate()
         
         return this;
+    },
+    
+    getJabberId: function(userString) {
+    	return userString.split('/')[1].split('@')[0];
     },
     
     isEventFromTeacher: function(sev) {
@@ -155,16 +165,26 @@ WISE = {
 
             Sail.Strophe.onConnectSuccess = function() {
           	    sailHandler = Sail.generateSailEventHandler(WISE);
-          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat');
+          	    Sail.Strophe.addHandler(sailHandler, null, null, 'groupchat');
       	    
           	    var joinedGroupChatSuccess = function() {
           	    	$(WISE).trigger('joinedGroupChat');
           	    }
-          	    WISE.groupchat = Sail.Strophe.joinGroupchat(WISE.groupchatRoom,joinedGroupChatSuccess);
-          	    WISE.groupchat.addHandler(sailHandler);
-      	    
-          	    $('#connecting').hide();
-          	    $(WISE).trigger('joined');
+          	    WISE.groupchat = new Sail.Strophe.Groupchat(WISE.groupchatRoom);
+          	    WISE.groupchat.onParticipantJoin = function(who,pres) {
+          	    	var newParticipantWorkgroupId = WISE.getJabberId(who);
+          	    	$("#classroomMonitorWorkgroupRow_"+newParticipantWorkgroupId).css("background-color","white");
+          	    };
+          	    WISE.groupchat.onParticipantLeave = function(who,pres) {
+          	    	var oldParticipantWorkgroupId = WISE.getJabberId(who);
+          	    	$("#classroomMonitorWorkgroupRow_"+oldParticipantWorkgroupId).css("background-color","lightgrey");
+          	    };
+          	    WISE.groupchat.onSelfJoin = function(pres) {
+                	console.log('onSelfJoinedGroupChat');
+                	eventManager.fire('classroomMonitorDisplayComplete');
+              	    $('#connecting').hide();
+          	    };
+          	    WISE.groupchat.join();       	    
           	};
       	    
       	    Sail.Strophe.connect()

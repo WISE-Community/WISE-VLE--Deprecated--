@@ -165,7 +165,10 @@ var componentloader = function(em, sl){
 					 'displayStudentUploadedFiles':[null, null],
 					 'togglePrompt':[null, null],
 					 'refreshGradingScreen':[null, null],
-					 'initiateGradingDisplayStart':[null, null],
+					 'initiateGradingDisplayStart':[null, null],					 
+					 'projectDataReceived':[null,null],
+					 'initiateClassroomMonitorDisplayStart':[null,null],					 
+					 'classroomMonitorDisplayComplete':[null,null],
 					 'toggleGradingDisplayRevisions':[null, null],
 					 'toggleAllGradingDisplayRevisions':[null, null],
 					 'onlyShowFilteredItemsOnClick':[null, null],
@@ -208,6 +211,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("refreshGradingScreen", view.gradingDispatcher, view);
 					eventManager.subscribe("getAnnotationsComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("initiateGradingDisplayStart", view.gradingDispatcher, view);
+					eventManager.subscribe("projectDataReceived", view.gradingDispatcher, view);
 					eventManager.subscribe("getStudentWorkComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("toggleGradingDisplayRevisions", view.gradingDispatcher, view);
 					eventManager.subscribe("toggleAllGradingDisplayRevisions", view.gradingDispatcher, view);
@@ -222,8 +226,9 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("addPremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
-					eventManager.initializeLoading([['gradingConfigUrlReceived','initiateGradingDisplayStart','Project Data'], 
-					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data']], false);
+					eventManager.initializeLoading([['gradingConfigUrlReceived','projectDataReceived','Project Data'], 
+					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data'],
+					                                ['initiateClassroomMonitorDisplayStart','classroomMonitorDisplayComplete','Classroom Monitor']], false);
 				}
 			}
 		},

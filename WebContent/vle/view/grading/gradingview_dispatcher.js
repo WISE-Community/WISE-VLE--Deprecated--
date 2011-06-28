@@ -50,6 +50,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='getAnnotationsComplete') {
 		obj.getIdeaBaskets();
 	} else if(type=='getIdeaBasketsComplete') {
+		eventManager.fire("projectDataReceived");
 		obj.initiateGradingDisplay();
 	} else if(type=='getStudentWorkComplete') {
 		obj.calculateGradingStatistics();

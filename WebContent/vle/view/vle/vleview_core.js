@@ -547,7 +547,7 @@ View.prototype.onRenderNodeComplete = function(position){
 			type:type,
 			status:this.studentStatus});
 	}
-
+	
 	/* set hints link in nav bar if hint exists for this step
 	 * populate hints panel with current nodes hints
 	 * */

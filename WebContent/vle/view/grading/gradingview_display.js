@@ -71,8 +71,6 @@ View.prototype.onlyShowWorkOnClick = function() {
  * Displays the steps in the project and then gets the student work
  */
 View.prototype.initiateGradingDisplay = function() {
-	eventManager.fire("initiateGradingDisplayStart");
-	
 	//obtain the grading permission from the iframe window url
 	var permissionSearch = window.location.search.match(/permission=(\w*)/);
 	
@@ -88,10 +86,13 @@ View.prototype.initiateGradingDisplay = function() {
 	
 	if(this.gradingType == "step") {
 		this.displayGradeByStepSelectPage();	
+		eventManager.fire("initiateGradingDisplayStart");
 	} else if(this.gradingType == "team") {
 		this.displayGradeByTeamSelectPage();
+		eventManager.fire("initiateGradingDisplayStart");
 	} else if(this.gradingType == "monitor") {
 		this.displayClassroomMonitorPage();
+		eventManager.fire("initiateClassroomMonitorDisplayStart");
 	} else if(this.gradingType == "export") {
 		this.displayExportPage();
 	}
@@ -196,7 +197,7 @@ View.prototype.displayClassroomMonitorPage = function() {
     this.applyTableSorterToClassroomMonitorTable();
     
     this.startXMPP();
-    eventManager.fire("getStudentWorkComplete");
+	eventManager.fire("classroomMonitorDisplayComplete");
 };
 
 View.prototype.createClassroomMonitorTable = function() {
@@ -248,10 +249,10 @@ View.prototype.createClassroomMonitorTable = function() {
 		var periodName = student.periodName;
 
 		//add classes for styling
-		var studentTRClass = "showScoreRow studentWorkRow period" + periodName;
+		var studentTRClass = "showScoreRow classroomMonitorStudentWorkRow studentWorkRow period" + periodName;
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">";
+		displayGradeByTeamSelectPageHtml += "<tr id='classroomMonitorWorkgroupRow_"+workgroupId+"' class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">";
 		displayGradeByTeamSelectPageHtml += "<td class='showScorePeriodColumn'>" + periodName + "</td>";
 		displayGradeByTeamSelectPageHtml += "<td class='showScoreWorkgroupIdColumn'>" + userNames + "</td>";
 		displayGradeByTeamSelectPageHtml += "<td id='teamCurrentStep_" + workgroupId + "'>N/A</td>";

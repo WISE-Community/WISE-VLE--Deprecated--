@@ -247,6 +247,11 @@ View.prototype.onWindowUnload = function(logout){
 	/* display splash screen letting user know that saving is occuring */
 	$('#onUnloadSaveDiv').dialog('open');
 	
+	/* tell xmpp server that student is disconnecting */
+	if (this.xmppEnabled) {
+		this.xmpp.disconnect();
+	}
+	
 	/* tell current step to clean up */ 
 	if(this.getCurrentNode()) {
 		this.getCurrentNode().onExit();		
