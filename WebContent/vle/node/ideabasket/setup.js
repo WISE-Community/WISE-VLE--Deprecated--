@@ -67,7 +67,7 @@ var dependencies = [
 	 * 'vle/node/quiz/QuizNode.js'
 	 */
 	{child:"vle/node/ideabasket/IdeaBasketNode.js", parent:["vle/node/Node.js"]},
-	{child:"vle/jquery/js/jquery.tablesorter.min.js", parent:["vle/jquery/js/jquery-1.4.4.min.js"]}
+	{child:"vle/jquery/js/jquery.tablesorter.min.js", parent:["vle/jquery/js/jquery-1.6.1.min.js"]}
 ];
 
 /*
