@@ -4,7 +4,7 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
-	'vle/jquery/js/jquery-1.4.2.min.js',
+   	'vle/jquery/js/jquery-1.6.1.min.js',
 	'vle/node/assessmentlist/assessmentlist.js',
 	'vle/node/assessmentlist/assessmentliststate.js',
 	'vle/grading/Annotation.js',

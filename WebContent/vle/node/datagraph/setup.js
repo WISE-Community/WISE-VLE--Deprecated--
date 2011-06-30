@@ -5,7 +5,7 @@ var coreScripts = [
 
 var studentVLEScripts = [
 	'vle/common/helperfunctions.js',
-	'vle/jquery/js/jquery-1.4.4.min.js',
+    'vle/jquery/js/jquery-1.6.1.min.js',
 	'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
 	'vle/jquery/js/jsonplugin.js',
 	'vle/jquery/flot/jquery.flot.min.js',

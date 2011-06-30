@@ -19,7 +19,7 @@ var gradingScripts = [
 
 var dependencies = [
 	{child:"vle/node/draw/SVGDrawNode.js", parent:["vle/node/Node.js"]},
-	{child:'vle/node/draw/svg-edit/svgdraw.js', parent:['vle/jquery/js/jquery-1.4.2.min.js']}
+	{child:'vle/node/draw/svg-edit/svgdraw.js', parent:['vle/jquery/js/jquery-1.6.1.min.js']}
 ];
 
 var css = [
