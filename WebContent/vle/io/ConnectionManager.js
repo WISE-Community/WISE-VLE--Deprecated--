@@ -97,7 +97,7 @@ function Connection(priority, url, cArgs, handler, hArgs, em, sync){
 Connection.prototype.startRequest = function(eventName){
 	this.en = eventName;
 
-	$.ajax({type:this.type, url:this.url, error:this.failure, success:this.success, data:this.params, context:this, async:(this.sync ? false : true)});
+	$.ajax({type:this.type, url:this.url, error:this.failure, success:this.success, dataType:'text', data:this.params, context:this, async:(this.sync ? false : true)});
 };
 
 /**
@@ -133,7 +133,7 @@ Connection.prototype.success = function(data, status, request) {
 	}
 	
 	this.em.fire(this.en);
-	if (data !='undefined' && data.match("login for portal") != null) {
+	if (request.responseText !='undefined' && request.responseText.match("login for portal") != null) {
 		// this means that student has been idling too long and has been logged out of the session
 		// so we should take them back to the homepage.
 		var mode = "";

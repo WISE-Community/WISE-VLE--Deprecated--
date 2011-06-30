@@ -16,7 +16,7 @@ View.prototype.surgeDispatcher = function(type,args,obj){
 	} else if(type == 'surgeUpdatedSwfUrlInput') {
 		obj.SurgeNode.updateSwfUrl();
 	} else if(type == 'surgeUpdateLevelString') {
-		obj.SurgeNode.updateLevelString();
+		obj.SurgeNode.updateLevelString(args);
 	}
 };
 

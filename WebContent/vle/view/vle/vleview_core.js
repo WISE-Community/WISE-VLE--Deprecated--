@@ -14,8 +14,10 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.setDialogEvents();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
-		// start the xmpp 
-		obj.startXMPP();
+		// start the xmpp if xmpp is enabled
+		if (this.xmppEnabled) {
+			obj.startXMPP();
+		}
 	} else if(type=='processLoadViewStateResponseComplete'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
 		obj.renderStartNode();
@@ -159,6 +161,12 @@ View.prototype.startVLE = function(){
 
 	/* load theme based on config object parameters */
 	this.loadTheme(this.config.getConfigParam('theme'));
+	
+	/* check if xmpp is enabled */
+	this.xmppEnabled = false;
+	if (this.config.getConfigParam("isXMPPEnabled") != null) {
+		this.xmppEnabled = this.config.getConfigParam("isXMPPEnabled");
+	}
 	
 	/* fire startVLEComplete event */
 	this.eventManager.fire('startVLEComplete');
@@ -528,7 +536,6 @@ View.prototype.onRenderNodeComplete = function(position){
     }
     
 	/* get project completion and send to teacher, if xmpp is enabled */
-	this.xmppEnabled = true;
 	if (this.xmppEnabled) {
 		var workgroupId = this.userAndClassInfo.getWorkgroupId();
 		var projectCompletionPercentage = this.getTeamProjectCompletionPercentage();

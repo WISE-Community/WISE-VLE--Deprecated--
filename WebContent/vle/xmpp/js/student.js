@@ -1,7 +1,6 @@
 WISE = {
     // config
-    
-    rollcallURL: 'http://localhost:3000',
+		wiseXMPPAuthenticateUrl: '',
     xmppDomain: 'localhost',
     groupchatRoom: '',
     groupchatRoomBase: '@conference.localhost',
@@ -26,23 +25,15 @@ WISE = {
         
         // get runId to use for chatroom
         WISE.groupchatRoom = view.config.getConfigParam("runId") + WISE.groupchatRoomBase;
-        console.log("chatroom:" + WISE.groupchatRoom);
+        
+        WISE.wiseXMPPAuthenticateUrl = view.config.getConfigParam("wiseXMPPAuthenticateUrl") + "&workgroupId=" + view.userAndClassInfo.getWorkgroupId();
         
         // create custom event handlers for all WISE 'on' methods
         Sail.autobindEvents(WISE, {
             pre: function() {console.debug(arguments[0].type+'!',arguments)}
         })
-        
-        $('#play').click(function() {$(WISE).trigger('choseToPlay')})
-        $('#watch').click(function() {$(WISE).trigger('choseToWatch')})
-        
-        $('#guess-form').submit(function() {WISE.submitGuess(); return false})
-        
-        $('#set-word-form').submit(function () {WISE.setNewWord(); return false})
 
-        $('#connecting').show()
-        
-        WISE.authenticate()
+        WISE.authenticate();
         
         return this;
     },
@@ -65,22 +56,35 @@ WISE = {
     },
    
     authenticate: function() {
-    	/*
-        WISE.rollcall = new Sail.Rollcall.Client(WISE.rollcallURL)
-        WISE.token = WISE.rollcall.getCurrentToken()
+    	// authenticate with WISE, 
+    	// will create an account if necessary
+    	// will get back a token for authenticating with XMPP.
+    	
+        WISE.wiseXMPPAuthenticate = new Sail.WiseXMPPAuthenticate.Client(WISE.wiseXMPPAuthenticateUrl);
+        WISE.wiseXMPPAuthenticate.fetchXMPPAuthentication(function(data) {
+        	WISE.xmppUsername = data.xmppUsername;
+        	WISE.xmppPassword = data.xmppPassword;
+            $(WISE).trigger('authenticated');
+        });
+        
+        /*
+        WISE.token = WISE.wiseXMPPAuthenticate.getCurrentToken();
 
         if (!WISE.token) {
+        	// user is not logged into WISE. do nothing.
+        	
             $(WISE).trigger('authenticating')
-            WISE.rollcall.redirectToLogin()
-            return
+            WISE.wiseXMPPAuthenticate.redirectToLogin();
+            return;
+            
         }
         
-        WISE.rollcall.fetchSessionForToken(WISE.token, function(data) {
-            WISE.session = data.session
-            $(WISE).trigger('authenticated')
+        WISE.wiseXMPPAuthenticate.fetchSessionForToken(WISE.token, function(data) {
+            WISE.session = data.session;
+            $(WISE).trigger('authenticated');
         })
+        //$(WISE).trigger('authenticated');
         */
-        $(WISE).trigger('authenticated');
     },
     
     
@@ -94,6 +98,7 @@ WISE = {
 
         // local Javascript event handlers
         onAuthenticated: function() {
+        	// callback for when user is authenticated with the portal. user's xmpp username/password should be set in WISE.xmppUsername and WISE.xmppPassword.
         	
             //session = WISE.session;
             //console.log("Authenticated as: ", session.account.login, session.account.encrypted_password)
@@ -101,11 +106,14 @@ WISE = {
             //$('#username').text(session.account.login)
         
             Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
-         	//Sail.Strophe.jid = view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
+            Sail.Strophe.jid =  WISE.xmppUsername + '@' + WISE.xmppDomain;
+          	Sail.Strophe.password = WISE.xmppPassword;  
+          	
+            //Sail.Strophe.jid = view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
           	//Sail.Strophe.password = "wise";  //view.userAndClassInfo.getWorkgroupId();
       	
-         	Sail.Strophe.jid =  view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
-          	Sail.Strophe.password =  view.userAndClassInfo.getWorkgroupId();  //view.userAndClassInfo.getWorkgroupId();
+         	//Sail.Strophe.jid =  view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
+          	//Sail.Strophe.password =  view.userAndClassInfo.getWorkgroupId();  //view.userAndClassInfo.getWorkgroupId();
 
             Sail.Strophe.onConnectSuccess = function() {
           	    sailHandler = Sail.generateSailEventHandler(WISE);
@@ -116,7 +124,8 @@ WISE = {
           	    WISE.groupchat.join();
           	};
       	    
-      	    Sail.Strophe.connect()
+          	// connect to XMPP server
+      	    Sail.Strophe.connect();
 
         	/*
             session = WISE.session;

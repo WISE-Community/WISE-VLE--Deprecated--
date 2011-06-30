@@ -15,6 +15,24 @@ function Surge(node) {
 	};
 };
 
+//identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
+Surge.prototype.thisMovie = function(movieName) {
+    if(navigator.appName.indexOf("Microsoft") != -1) {
+        return window[movieName];
+    } else {
+        return document[movieName];
+    }
+};
+
+
+// Call as3 function in identified Flash applet
+Surge.prototype.sendDataToGame = function(value) {
+    // Put the string at the bottom of the page, so I can see easily what data has been sent
+    //document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
+    // Use callback setup at top of this file.
+   this.thisMovie("surge").sendToGame(value);
+};
+
 /**
  * This function renders everything the student sees when they visit the step.
  * This includes setting up the html ui elements as well as reloading any
@@ -36,6 +54,9 @@ Surge.prototype.render = function() {
 	}
 	
 	$('#swfDiv').html(swfHtml);
+	
+	// load in authored content
+	this.sendDataToGame(this.content.levelString);
 	
 	//load any previous responses the student submitted for this step
 	var latestState = this.getLatestState();

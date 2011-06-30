@@ -39,6 +39,8 @@ View.prototype.SurgeNode.commonComponents = [];
  * the pre-existing prompt if the step has been authored before.
  */
 View.prototype.SurgeNode.generatePage = function(view){
+
+	
 	this.view = view;
 	
 	//get the content of the step
@@ -100,6 +102,40 @@ View.prototype.SurgeNode.generatePage = function(view){
 	//add the page to the parent
 	parent.appendChild(pageDiv);
 	
+	$("#dynamicPage").append("<p>Hola</a>");
+	
+	// append script used to communicate with flash
+	var jsFunctions = '<script type="text/javascipt">\nfunction receiveLevelData(value) {\n'+
+		'alert("receiveleveldata");\n'+
+	    '//sendDataToGame(value);\n' +
+	'};\n</script>\n';
+	
+	//$("#dynamicPage").append(jsFunctions);
+
+	
+
+	 
+	/*
+	// identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
+	function thisMovie(movieName) {
+		if (navigator.appName.indexOf("Microsoft") != -1) {
+			return window[movieName];
+		} else {
+			return document[movieName];
+		}
+	}
+
+
+	// Call as3 function in identified Flash applet
+	function sendDataToGame(value) {
+		// Put the string at the bottom of the page, so I can see easily what data has been sent
+		document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
+
+		// Use callback setup at top of this file.
+		thisMovie("surge").sendToGame(value);
+	}
+	*/
+	
 	//populate the prompt if this step has been authored before
 	this.populatePrompt();
 	
@@ -114,10 +150,34 @@ View.prototype.SurgeNode.generatePage = function(view){
 	var authoringSwfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="leveleditor" align="middle">'
 	+ '<param name="allowScriptAccess" value="sameDomain" />'
 	+ '<param name="allowFullScreen" value="false" />'
-	+ '<param name="movie" value="http://funkypear.com/SURGE194510/leveleditor.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />	<embed src="http://funkypear.com/SURGE194510/leveleditor.swf" quality="high" bgcolor="#ffffff" width="770" height="480" name="leveleditor" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
+	+ '<param name="movie" value="/vlewrapper/vle/node/surge/leveleditor.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />	<embed src="/vlewrapper/vle/node/surge/leveleditor.swf" quality="high" bgcolor="#ffffff" width="770" height="480" name="leveleditor" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
 	+ '</object>';
 	
 	$('#authoringSwfDiv').html(authoringSwfHtml);
+};
+
+function receiveLevelData(value) {
+	alert('receiveLevelData value:' + value);
+	
+	eventManager.fire("surgeUpdateLevelString", value);
+};
+
+//identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
+function thisMovie(movieName) {
+    if(navigator.appName.indexOf("Microsoft") != -1) {
+        return window[movieName];
+    } else {
+        return document[movieName];
+    }
+};
+
+
+// Call as3 function in identified Flash applet
+function sendDataToGame(value) {
+    // Put the string at the bottom of the page, so I can see easily what data has been sent
+    //document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
+    // Use callback setup at top of this file.
+   thisMovie("surge").sendToGame(value);
 };
 
 /**
@@ -174,8 +234,12 @@ View.prototype.SurgeNode.updateSwfUrl = function(){
 /**
  * Updates the content's level string to match that of what the user input
  */
-View.prototype.SurgeNode.updateLevelString = function(){
+View.prototype.SurgeNode.updateLevelString = function(levelStringIn){
 	/* update content */
+	if (levelStringIn != null) {
+		$('#levelStringTextArea').val(levelStringIn);
+	} 
+	
 	this.content.levelString = $('#levelStringTextArea').val();
 	
 	/*
