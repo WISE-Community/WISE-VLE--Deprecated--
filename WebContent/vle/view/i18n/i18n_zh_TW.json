@@ -151,6 +151,14 @@
 		"value":"Export Explanation Builder Work",
 		"description":"GradingTool: Text in the Export Explanation Builder Work button"
 	},
+	"grading_button_export_custom_work":{
+		"value":"Export Custom Student Work",
+		"description":"GradingTool: Text in the Export Custom Student Work button"
+	},
+	"grading_button_export_student_names":{
+		"value":"Export Student Names",
+		"description":"GradingTool: Text in the Export Student Names button"
+	},
 	"grading_button_check_for_new_student_work":{
 		"value":"檢查新的學生作業",
 		"description":"GradingTool: Text in the Check for New Student Work button"

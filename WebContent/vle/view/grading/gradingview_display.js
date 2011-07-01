@@ -94,7 +94,7 @@ View.prototype.initiateGradingDisplay = function() {
 		this.displayClassroomMonitorPage();
 		eventManager.fire("initiateClassroomMonitorDisplayStart");
 	} else if(this.gradingType == "export") {
-		this.displayExportPage();
+		this.displayResearcherToolsPage();
 	}
 
 	if(this.gradingType != "monitor" && this.gradingType != "export") {
@@ -112,23 +112,136 @@ View.prototype.initiateGradingDisplay = function() {
 /**
  * Displays the excel export buttons
  */
-View.prototype.displayExportPage = function() {
+View.prototype.displayResearcherToolsPage = function() {
 	
 	//make the excel export buttons
 	var getGradingHeaderTableHtml = "<div id='exportCenterButtons'>";
-	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
+	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
 	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
+	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
 	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='runButtons' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input>";
-	getGradingHeaderTableHtml += "</div>";
+	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input>";
+	getGradingHeaderTableHtml += "<br>";
+	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input>";
+	getGradingHeaderTableHtml += "<br>";
+	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input>";
+	getGradingHeaderTableHtml += "</div>";	
 	
 	$('#gradeWorkDiv').html(getGradingHeaderTableHtml);
 	
 	//fire this event to remove the loading screen
 	eventManager.fire("getStudentWorkComplete");
+};
+
+/**
+ * Display the page for the teacher to choose which steps in the project they want to export
+ */
+View.prototype.displayCustomExportPage = function() {
+	
+	var customExportPageHtml = "<h3>Custom Export Page</h3>";
+	
+	//the button to go back to the previous page
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	//the buttons to generate the excel export
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('getCustomLatestStudentWorkExport')\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('getCustomAllStudentWorkExport')\"></input>";
+	customExportPageHtml += "<br>";
+	
+	//the checkbox to select all or unselect all
+	customExportPageHtml += "<input id='selectAllStepsCheckBox' type='checkbox' onClick=\"eventManager.fire('customSelectAllStepsCheckBoxClicked')\" /><p style='display:inline'>Select All Steps</p>";
+	
+	customExportPageHtml += "<table>";
+
+	//set the counter for the activities
+	this.activityNumber = 0;
+	
+	//display all the activities and steps with checkboxes next to all of them
+	customExportPageHtml += this.displayCustomExportPageHelper(this.getProject().getRootNode());
+	
+	customExportPageHtml += "</table>";
+	
+	$('#gradeWorkDiv').html(customExportPageHtml);
+};
+
+/**
+ * A recursive function that traverses the project and displays a checkbox for
+ * each activity and step with the name of the activity or step next to it
+ * @param node the current node we are on
+ * @return html with all the checkboxes and labels for the project
+ */
+View.prototype.displayCustomExportPageHelper = function(node) {
+	var displayCustomExportPageHelperHtml = "";
+	
+	//get the current node id
+	var nodeId = node.id;
+	
+	if(node.isLeafNode()) {
+		//this node is a leaf/step
+
+		//get the position as seen by the student
+		var position = this.getProject().getVLEPositionById(nodeId);
+		
+		//display a checkbox and label for the current step
+		displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepCheckBox_" + nodeId + "' class='activityStep_" + (this.activityNumber - 1) + " activityCheckBox' type='checkbox' name='customExportStepCheckbox' value='" + nodeId + "' style='margin-left:20px' /><p style='display:inline'>" + position + " " + node.getTitle() + " [" + node.type + "]</p></td></tr>";
+	} else {
+		/*
+		 * we need to skip the first sequence because that is always the
+		 * master sequence. we will encounter the master sequence when 
+		 * this.activityNumber is 0, so all the subsequent activities will
+		 * start at 1.
+		 */
+		if(this.activityNumber != 0) {
+			//this node is a sequence so we will display a checkbox and label for the current activity
+			displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><input id='activityCheckBox_" + this.activityNumber + "' class='stepCheckBox' type='checkbox' name='customExportActivityCheckbox' value='" + nodeId + "' onClick='eventManager.fire(\"customActivityCheckBoxClicked\", [\"activityCheckBox_" + this.activityNumber + "\"])' /><h4 style='display:inline'>A" + this.activityNumber + ". " + node.getTitle() + "</h4></td></tr>";
+		}
+
+		//increment the activity number
+		this.activityNumber++;
+		
+		//loop through all its children
+		for(var x=0; x<node.children.length; x++) {
+			//get the html for the children
+			displayCustomExportPageHelperHtml += this.displayCustomExportPageHelper(node.children[x]);
+		}
+	}
+
+	return displayCustomExportPageHelperHtml;
+};
+
+/**
+ * Called when a checkbox for an activity is clicked. Depending on whether
+ * the checkbox is checked or unchecked, it will select all or unselect all
+ * steps for that activity
+ * @param activityCheckBoxId the id of the checkbox that was clicked
+ */
+View.prototype.customActivityCheckBoxClicked = function(activityCheckBoxId) {
+	//get the activity number
+	var activityNumber = activityCheckBoxId.replace("activityCheckBox_", "");
+	
+	//get whether the activity check box is checked or unchecked
+	var isActivityChecked = $('#' + activityCheckBoxId).attr('checked');
+	
+	//check or uncheck all the steps in this activity
+	$(".activityStep_" + activityNumber).each(function(index, element) {$(element).attr('checked', isActivityChecked);});
+};
+
+/**
+ * Called when the "Select All Steps" check box is clicked. Depending on
+ * whether the checkbox is checked or unchecked, it will select all or
+ * unselect all steps in the project
+ */
+View.prototype.customSelectAllStepsCheckBoxClicked = function() {
+	//get whether the checkbox was checked or unchecked
+	var isSelectAllStepsChecked = $('#selectAllStepsCheckBox').attr('checked');
+	
+	//check or uncheck all the steps
+	$(".stepCheckBox").each(function(index, element) {$(element).attr('checked', isSelectAllStepsChecked);});
+	
+	//check or uncheck all the activities
+	$(".activityCheckBox").each(function(index, element) {$(element).attr('checked', isSelectAllStepsChecked);});
 };
 
 /**

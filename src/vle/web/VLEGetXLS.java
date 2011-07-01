@@ -91,6 +91,9 @@ public class VLEGetXLS extends VLEServlet {
 	//holds all the teacher workgroup ids
 	private List<String> teacherWorkgroupIds = null;
 	
+	//the custom steps to export
+	List<String> customSteps = null;
+	
 	private static long debugStartTime = 0;
 	
 	/**
@@ -131,6 +134,9 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//holds all the teacher workgroup ids
 		teacherWorkgroupIds = null;
+		
+		//holds the custom steps to export data for
+		customSteps = new Vector<String>();
 	}
 	
 	/**
@@ -241,6 +247,26 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//get the path of the project file on the server
 		String projectPath = request.getParameter("projectPath");
+		
+		JSONArray customStepsArray = new JSONArray();
+		
+		//gather the custom steps if the teacher is requesting a custom export
+		if(exportType.equals("customLatestStudentWork") || exportType.equals("customAllStudentWork")) {
+			String customStepsArrayJSONString = request.getParameter("customStepsArray");
+			
+			try {
+				customStepsArray = new JSONArray(customStepsArrayJSONString);
+				
+				//loop through all the node ids
+				for(int x=0; x<customStepsArray.length(); x++) {
+					//add the node id to our list of custom steps
+					String nodeId = customStepsArray.getString(x);
+					customSteps.add(nodeId);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		//create a file handle to the project file
 		File projectFile = new File(projectPath);
@@ -384,6 +410,10 @@ public class VLEGetXLS extends VLEServlet {
 			wb = getIdeaBasketsExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		} else if(exportType.equals("explanationBuilderWork")) {
 			wb = getExplanationBuilderWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
+		} else if(exportType.equals("customLatestStudentWork")) {
+			wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
+		} else if(exportType.equals("customAllStudentWork")) {
+			wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		}
 		
 		/*
@@ -402,6 +432,10 @@ public class VLEGetXLS extends VLEServlet {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-idea-baskets.xls\"");
 	    } else if(exportType.equals("explanationBuilderWork")) {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-explanation-builder-work.xls\"");
+	    } else if(exportType.equals("customLatestStudentWork")) {
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-latest-student-work.xls\"");
+	    } else if(exportType.equals("customAllStudentWork")) {
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-all-student-work.xls\"");
 	    } else {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + ".xls\"");	
 	    }
@@ -492,17 +526,33 @@ public class VLEGetXLS extends VLEServlet {
 			if(projectSequence == null) {
 				//the identifier actually points to a node, this is our base case
 				
-				//add the identifier to our list of nodes
-				nodeIdList.add(identifier);
+				//whether to include the data for this step in the export
+				boolean exportStep = true;
 				
-				//obtain the title of the node
-				String nodeTitle = nodeIdToNodeTitles.get(identifier);
+				if(customSteps.size() != 0) {
+					//the teacher has provided a list of custom steps
+					
+					if(!customSteps.contains(identifier)) {
+						//the current node id is not listed in the custom steps so we will not export the data for it
+						exportStep = false;
+					}
+				}
 				
-				//add the pre-pend the position to the title
-				String nodeTitleWithPosition = positionSoFar + nodePosition + " " + nodeTitle;
-				
-				//add the title with position to the map
-				nodeIdToNodeTitlesWithPosition.put(identifier, nodeTitleWithPosition);
+				if(exportStep) {
+					//we will export the data for this step
+					
+					//add the identifier to our list of nodes
+					nodeIdList.add(identifier);
+					
+					//obtain the title of the node
+					String nodeTitle = nodeIdToNodeTitles.get(identifier);
+					
+					//add the pre-pend the position to the title
+					String nodeTitleWithPosition = positionSoFar + nodePosition + " " + nodeTitle;
+					
+					//add the title with position to the map
+					nodeIdToNodeTitlesWithPosition.put(identifier, nodeTitleWithPosition);					
+				}
 			} else {
 				//the identifier points to a sequence so we need to loop through its refs
 				JSONArray refs = projectSequence.getJSONArray("refs");
@@ -676,6 +726,15 @@ public class VLEGetXLS extends VLEServlet {
 		//create an object to help create values to that we'll put in cells
 		CreationHelper createHelper = wb.getCreationHelper();
 		
+		List<Node> customNodes = null;
+		
+		if(customSteps.size() != 0) {
+			//the teacher has provided a list of custom steps to export
+			
+			//get all the Node objects for the custom steps
+			customNodes = Node.getByNodeIdsAndRunId(customSteps, runId);			
+		}
+		
 		//loop through all the workgroup ids
 		for(int x=0; x<workgroupIds.size(); x++) {
 			//get a workgroup id
@@ -688,8 +747,18 @@ public class VLEGetXLS extends VLEServlet {
 				//get the workgroup id
 				Long workgroupId = userInfo.getWorkgroupId();
 
-				//get all the work for that workgroup id
-				List<StepWork> stepWorks = StepWork.getByUserInfo(userInfo);
+				List<StepWork> stepWorks = new ArrayList<StepWork>();
+				
+				if(customNodes == null) {
+					//the teacher has not provided a list of custom steps so we will gather work for all the steps
+					//get all the work for that workgroup id
+					stepWorks = StepWork.getByUserInfo(userInfo);
+				} else {
+					if(customNodes.size() > 0) {
+						//the teacher has provided a list of custom steps so we will gather the work for those specific steps
+						stepWorks = StepWork.getByUserInfoAndNodeList(userInfo, customNodes);						
+					}
+				}
 				
 				//create a sheet in the excel for this workgroup id
 				Sheet userIdSheet = wb.createSheet(userId);
@@ -4024,8 +4093,10 @@ public class VLEGetXLS extends VLEServlet {
 			String studentLogin = studentLoginsArray[x];
 			
 			try {
-				//add the long to the list
-				studentLoginsList.add(Long.parseLong(studentLogin));
+				if(studentLogin != null && !studentLogin.equals("")) {
+					//add the long to the list
+					studentLoginsList.add(Long.parseLong(studentLogin));					
+				}
 			} catch(NumberFormatException e) {
 				e.printStackTrace();
 			}

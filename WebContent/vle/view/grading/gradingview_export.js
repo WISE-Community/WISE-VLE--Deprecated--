@@ -38,6 +38,89 @@ View.prototype.getExplanationBuilderWorkExcelExport = function() {
 };
 
 /**
+ * Request a custom latest student work export
+ */
+View.prototype.getCustomLatestStudentWorkExport = function() {
+	this.setParamsForXLSExport();
+	$('#exportType').val('customLatestStudentWork');
+	
+	//get all the node ids that were chosen for the custom export
+	var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
+	$('#customStepsArray').val(customStepsArrayJSONString);
+	
+	$('#getStudentXLSExport').submit();
+};
+
+/**
+ * Request a custom all student work export
+ */
+View.prototype.getCustomAllStudentWorkExport = function() {
+	this.setParamsForXLSExport();
+	$('#exportType').val('customAllStudentWork');
+	
+	//get all the node ids that were chosen for the custom export
+	var customStepsArrayJSONString = this.getCustomStepsArrayJSONString();
+	$('#customStepsArray').val(customStepsArrayJSONString);
+	
+	$('#getStudentXLSExport').submit();
+};
+
+/**
+ * Request the student names export
+ */
+View.prototype.getStudentNamesExport = function() {
+	var getStudentListUrl = this.getConfig().getConfigParam("getStudentListUrl");
+	
+	document.getElementById('runId').value = this.getConfig().getConfigParam('runId');
+	document.getElementById('getStudentXLSExport').action = getStudentListUrl;
+	
+	$('#getStudentXLSExport').submit();
+};
+
+/**
+ * Get the custom steps array JSON string
+ * @return a JSON string that contains all the custom node ids
+ */
+View.prototype.getCustomStepsArrayJSONString = function() {
+	var customStepsJSONString = "";
+	var customStepsArray = this.getCustomStepsArray();
+	
+	if(customStepsArray != null) {
+		customStepsJSONString = JSON.stringify(customStepsArray);
+	}
+	
+	return customStepsJSONString;
+};
+
+/**
+ * Get the custom steps array
+ * @return and array of node id strings
+ */
+View.prototype.getCustomStepsArray = function() {
+	var customStepsArray = [];
+	
+	//get all the steps that were checked
+	var customSteps = $("input:checkbox[name='customExportStepCheckbox']:checked");
+	
+	//loop through all the steps
+	for(var x=0; x<customSteps.length; x++) {
+		var customStep = customSteps[x];
+		
+		if(customStep != null) {
+			//get the node id of the step
+			var nodeId = customStep.value;
+			
+			if(nodeId != null) {
+				//add the node id to our array
+				customStepsArray.push(nodeId);			
+			}			
+		}
+	}
+	
+	return customStepsArray;
+};
+
+/**
  * Generate the nodeIdToNodeTitleArray which is used for
  * XLS export to display the node titles in the XLS. This
  * is a recursive function that modifies the global array

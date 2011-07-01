@@ -3,6 +3,10 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.displayGradeByStepGradingPage(args[0], args[1]);
 	} else if(type=='displayGradeByTeamGradingPage') {
 		obj.displayGradeByTeamGradingPage(args[0]);
+	} else if(type=='displayResearcherToolsPage') {
+		obj.displayResearcherToolsPage();
+	} else if(type=='displayCustomExportPage') {
+		obj.displayCustomExportPage();
 	} else if(type=='saveScore') {
 		obj.checkAndSaveScore(args[0], args[1], args[2], args[3], args[4]);
 	} else if(type=='saveComment') {
@@ -27,6 +31,16 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.getIdeaBasketsExcelExport();
 	} else if(type=='getExplanationBuilderWorkExcelExport') {
 		obj.getExplanationBuilderWorkExcelExport();
+	} else if(type=='getCustomLatestStudentWorkExport') {
+		obj.getCustomLatestStudentWorkExport();
+	} else if(type=='getCustomAllStudentWorkExport') {
+		obj.getCustomAllStudentWorkExport();
+	} else if(type=='customActivityCheckBoxClicked') {
+		obj.customActivityCheckBoxClicked(args[0]);
+	} else if(type=='customSelectAllStepsCheckBoxClicked') {
+		obj.customSelectAllStepsCheckBoxClicked();
+	} else if(type=='getStudentNamesExport') {
+		obj.getStudentNamesExport();
 	} else if(type=='getProjectMetaDataComplete') {
 		obj.getAnnotations();
 	} else if(type=='saveMaxScore') {

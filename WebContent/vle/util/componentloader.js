@@ -150,6 +150,11 @@ var componentloader = function(em, sl){
 					 'getFlagsComplete':[null, null],
 					 'displayGradeByStepGradingPage':[null, null],
 					 'displayGradeByTeamGradingPage':[null, null],
+					 'displayResearcherToolsPage':[null, null],
+					 'displayCustomExportPage':[null, null],
+					 'customActivityCheckBoxClicked':[null, null],
+					 'customSelectAllStepsCheckBoxClicked':[null, null],
+					 'getStudentNamesExport':[null, null],
 					 'saveScore':[null, null],
 					 'saveComment':[null, null],
 					 'saveFlag':[null, null],
@@ -157,6 +162,8 @@ var componentloader = function(em, sl){
 					 'getLatestStudentWorkXLSExport':[null, null],
 					 'getIdeaBasketsExcelExport':[null, null],
 					 'getExplanationBuilderWorkExcelExport':[null, null],
+					 'getCustomLatestStudentWorkExport':[null, null],
+					 'getCustomAllStudentWorkExport':[null, null],
 					 'saveMaxScore':[null, null],
 					 'showScoreSummary':[null, null],
 					 'filterPeriod':[null, null],
@@ -192,6 +199,11 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("processUserAndClassInfoComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByStepGradingPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayGradeByTeamGradingPage", view.gradingDispatcher, view);
+					eventManager.subscribe("displayResearcherToolsPage", view.gradingDispatcher, view);
+					eventManager.subscribe("displayCustomExportPage", view.gradingDispatcher, view);
+					eventManager.subscribe("customActivityCheckBoxClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("customSelectAllStepsCheckBoxClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("getStudentNamesExport", view.gradingDispatcher, view);
 					eventManager.subscribe("saveScore", view.gradingDispatcher, view);
 					eventManager.subscribe("saveComment", view.gradingDispatcher, view);
 					eventManager.subscribe("saveFlag", view.gradingDispatcher, view);
@@ -199,6 +211,8 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getLatestStudentWorkXLSExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getExplanationBuilderWorkExcelExport", view.gradingDispatcher, view);
+					eventManager.subscribe("getCustomLatestStudentWorkExport", view.gradingDispatcher, view);
+					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("saveMaxScore", view.gradingDispatcher, view);
