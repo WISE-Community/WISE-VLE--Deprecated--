@@ -1,6 +1,6 @@
 WISE = {
     // config
-    
+	wiseXMPPAuthenticateUrl: '',
     rollcallURL: 'http://localhost:3000',
     xmppDomain: 'localhost',
     groupchatRoom: '',
@@ -10,7 +10,6 @@ WISE = {
     view:null,
     
     // private global vars
-    
     ui: Sail.UI,
     groupchat: null,
     session: null,
@@ -18,7 +17,6 @@ WISE = {
     
     
     // initialization (called in $(document).ready() at the bottom of this file)
-    
     init: function(viewIn) {
 		view=viewIn;
         console.log("Initializing WISE...")
@@ -27,6 +25,7 @@ WISE = {
         WISE.groupchatRoom = view.config.getConfigParam("runId") + WISE.groupchatRoomBase;
         console.log("chatroom:" + WISE.groupchatRoom);
 
+        WISE.wiseXMPPAuthenticateUrl = view.config.getConfigParam("wiseXMPPAuthenticateUrl") + "&workgroupId=" + view.userAndClassInfo.getWorkgroupId();
         
         // create custom event handlers for all WISE 'on' methods
         Sail.autobindEvents(WISE, {
@@ -126,21 +125,14 @@ WISE = {
 
     authenticate: function() {
     	/*
-        WISE.rollcall = new Sail.Rollcall.Client(WISE.rollcallURL)
-        WISE.token = WISE.rollcall.getCurrentToken()
-
-        if (!WISE.token) {
-            $(WISE).trigger('authenticating')
-            WISE.rollcall.redirectToLogin()
-            return
-        }
-        
-        WISE.rollcall.fetchSessionForToken(WISE.token, function(data) {
-            WISE.session = data.session
-            $(WISE).trigger('authenticated')
-        })
-        */
-    	 $(WISE).trigger('authenticated')
+    	 * retrieve the xmpp username and password to the ejabberd server
+    	 */
+    	WISE.wiseXMPPAuthenticate = new Sail.WiseXMPPAuthenticate.Client(WISE.wiseXMPPAuthenticateUrl);
+        WISE.wiseXMPPAuthenticate.fetchXMPPAuthentication(function(data) {
+        	WISE.xmppUsername = data.xmppUsername;
+        	WISE.xmppPassword = data.xmppPassword;
+            $(WISE).trigger('authenticated');
+        });
     },
     
     
@@ -157,12 +149,9 @@ WISE = {
         // local Javascript event handlers
         onAuthenticated: function() {
             Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
-         	//Sail.Strophe.jid = view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
-          	//Sail.Strophe.password = "wise";  //view.userAndClassInfo.getWorkgroupId();
-      	
-         	Sail.Strophe.jid =  view.userAndClassInfo.getWorkgroupId() + '@' + WISE.xmppDomain;
-          	Sail.Strophe.password =  view.userAndClassInfo.getWorkgroupId();  //view.userAndClassInfo.getWorkgroupId();
-
+         	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain;
+            Sail.Strophe.password = WISE.xmppPassword;
+            
             Sail.Strophe.onConnectSuccess = function() {
           	    sailHandler = Sail.generateSailEventHandler(WISE);
           	    Sail.Strophe.addHandler(sailHandler, null, null, 'groupchat');

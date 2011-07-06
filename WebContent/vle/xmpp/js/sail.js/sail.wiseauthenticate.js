@@ -93,6 +93,18 @@ Sail.WiseXMPPAuthenticate.Client.prototype = {
                 }
             }
         })
+    },
+    
+    fetchXMPPAuthentication: function(callback) {
+    	var wiseXMPPAuthenticate = this;
+    	return $.ajax({
+    		url: wiseXMPPAuthenticate.url,
+    		dataType: 'json',
+    		success: callback,
+    		failure: function(data) {
+    			console.log("Failed to Authenticate with XMPP");
+    		}
+    	});
     }
 }
 

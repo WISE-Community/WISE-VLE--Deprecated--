@@ -248,7 +248,7 @@ View.prototype.onWindowUnload = function(logout){
 	$('#onUnloadSaveDiv').dialog('open');
 	
 	/* tell xmpp server that student is disconnecting */
-	if (this.xmppEnabled) {
+	if (this.xmpp && this.isXMPPEnabled) {
 		this.xmpp.disconnect();
 	}
 	

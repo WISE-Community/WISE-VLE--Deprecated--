@@ -15,7 +15,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
 		// start the xmpp if xmpp is enabled
-		if (this.xmppEnabled) {
+		if (obj.isXMPPEnabled) {
 			obj.startXMPP();
 		}
 	} else if(type=='processLoadViewStateResponseComplete'){
@@ -163,9 +163,9 @@ View.prototype.startVLE = function(){
 	this.loadTheme(this.config.getConfigParam('theme'));
 	
 	/* check if xmpp is enabled */
-	this.xmppEnabled = false;
+	this.isXMPPEnabled = false;
 	if (this.config.getConfigParam("isXMPPEnabled") != null) {
-		this.xmppEnabled = this.config.getConfigParam("isXMPPEnabled");
+		this.isXMPPEnabled = this.config.getConfigParam("isXMPPEnabled");
 	}
 	
 	/* fire startVLEComplete event */
@@ -536,10 +536,10 @@ View.prototype.onRenderNodeComplete = function(position){
     }
     
 	/* get project completion and send to teacher, if xmpp is enabled */
-	if (this.xmppEnabled) {
+	if (this.xmpp && this.isXMPPEnabled) {
 		var workgroupId = this.userAndClassInfo.getWorkgroupId();
 		var projectCompletionPercentage = this.getTeamProjectCompletionPercentage();
-		var nodeId = currentNode.id;
+		var nodeId = this.currentNode.id;
 		var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
 		var type = "studentProgress";
 		
@@ -552,7 +552,7 @@ View.prototype.onRenderNodeComplete = function(position){
 			projectCompletionPercentage:projectCompletionPercentage, 
 			stepNumberAndTitle:stepNumberAndTitle, 
 			type:type,
-			status:this.studentStatus});
+			status:this.studentStatus});	
 	}
 	
 	this.displayHint();
