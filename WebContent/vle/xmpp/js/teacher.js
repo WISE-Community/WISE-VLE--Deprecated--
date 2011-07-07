@@ -231,89 +231,9 @@ WISE = {
         			}
         		}
         	}
-        },
-        onJoinedGroupChat:function() {
-        	console.log('onJoinedGroupChat');
-        },
-        onJoined: function() {
-            $(WISE).trigger('choosingWhetherToWatchOrPlay')
-            WISE.ui.showDialog('#join-dialog')
-        },
-    
-        onChoseToPlay: function() {
-            WISE.justWatching = false
-            WISE.askForNewWord()
-        },
-    
-        onChoseToWatch: function() {
-           WISE.justWatching = true 
-        },
-    
-        onSubmittedGuess: function() {
-            $('#guess').attr('disabled', true)
-        },
-    
-        onSubmittedNewWord: function() {
-            $('#set-word').attr('disabled', true)
-            $('#winner').hide()
-        },
-    
-        onGotNewDefinition: function(ev, sev) {
-            definition = sev.payload.definition
-            $('#set-word').removeClass('in-progress')
-            $('#definition').text(definition)
-            WISE.switchToGuessingMode()
-        },
-    
-        onGotWrongGuess: function(ev, sev) {
-            definition = sev.payload.definition
-            $('#guess').removeClass('in-progress')
-            $('#guess-container').effect('shake', {duration: 50, distance: 5}, function() {
-                $('#guess').val('').attr('disabled', false).focus()
-            })
-        },
-    
-        onGotBadWord: function(ev, sev) {
-            message = sev.payload.message
-            $('#set-word').removeClass('in-progress')
-            alert(message)
-            $('#set-word').val('').attr('disabled', false).focus()
-        },
-    
-        onGotGuess: function(ev, sev) {
-            word = sev.payload.word
-            player = sev.from.split('/')[1].split('@')[0]
-            baloon = $("<div class='guess-baloon'><div class='word'>"+word+"</div><div class='player'>"+player+"</div></div>")
-            baloon.hide()
-            field_height = $("#field").height()
-            field_width = $("#field").width()
-            baloon.css('left', (Math.random() * (field_width - 100) + 'px'))
-            baloon.css('top', (Math.random() * (field_height - 100) + 'px'))
-            $("#field").append(baloon)
-            baloon.show('puff', 'fast')
-            baloon.draggable()
-        },
-    
-        onGotWinner: function(ev, sev) {
-            winner = sev.payload.winner.split('/')[1].split('@')[0]
-            word = sev.payload.word
-            $('.guess-baloon').remove()
-            $('#guess-panel').hide('slide',
-                        {easing: 'swing', direction: 'down'},
-                        'fast')
-            $('#definition').hide('puff', 'fast')
-            $('#winning-word').text(word)
-            $('#winner-username').text(winner)
-            $('#winner').show('pulsate', 'normal')//'drop', {easing: 'easyOutBounce'}, 'fast')
-            if (sev.payload.winner == WISE.groupchat.jid()) {
-                // you are the winner!
-                WISE.askForNewWord()
-            }
-        },
-    },
-    
-    
-}
+        }        
+    }
+};
 
 //$(document).ready(WISE.init)
 
@@ -321,4 +241,4 @@ WISE = {
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/xmpp/js/teacher.js');
-}
+};
