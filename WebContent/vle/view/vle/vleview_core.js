@@ -161,12 +161,9 @@ View.prototype.startVLE = function(){
 
 	/* load theme based on config object parameters */
 	this.loadTheme(this.config.getConfigParam('theme'));
-	
+
 	/* check if xmpp is enabled */
-	this.isXMPPEnabled = false;
-	if (this.config.getConfigParam("isXMPPEnabled") != null) {
-		this.isXMPPEnabled = this.config.getConfigParam("isXMPPEnabled");
-	}
+	this.checkXMPPEnabled();
 	
 	/* fire startVLEComplete event */
 	this.eventManager.fire('startVLEComplete');

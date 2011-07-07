@@ -91,8 +91,12 @@ View.prototype.initiateGradingDisplay = function() {
 		this.displayGradeByTeamSelectPage();
 		eventManager.fire("initiateGradingDisplayStart");
 	} else if(this.gradingType == "monitor") {
-		this.displayClassroomMonitorPage();
-		eventManager.fire("initiateClassroomMonitorDisplayStart");
+		this.checkXMPPEnabled();
+		
+		if(this.isXMPPEnabled) {
+			this.displayClassroomMonitorPage();
+			eventManager.fire("initiateClassroomMonitorDisplayStart");			
+		}
 	} else if(this.gradingType == "export") {
 		this.displayResearcherToolsPage();
 	}
