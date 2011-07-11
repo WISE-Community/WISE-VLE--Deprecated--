@@ -96,7 +96,6 @@ function retrieveLocale(locale) {
 for (var i=0; i < View.prototype.i18n.supportedLocales.length; i++) {
 	var locale = View.prototype.i18n.supportedLocales[i];
 	View.prototype.i18n[locale] = {};
-	console.log(View.prototype.i18n);
 	retrieveLocale(locale);
 };
 
