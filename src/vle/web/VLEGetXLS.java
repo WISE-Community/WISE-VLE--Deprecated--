@@ -94,6 +94,9 @@ public class VLEGetXLS extends VLEServlet {
 	//the custom steps to export
 	List<String> customSteps = null;
 	
+	//the number of columns to width auto size
+	int numColumnsToAutoSize = 0;
+	
 	private static long debugStartTime = 0;
 	
 	/**
@@ -137,6 +140,9 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//holds the custom steps to export data for
 		customSteps = new Vector<String>();
+		
+		//reset the number of columns to width auto size
+		numColumnsToAutoSize = 0;
 	}
 	
 	/**
@@ -447,6 +453,8 @@ public class VLEGetXLS extends VLEServlet {
 			//write the excel xls to the output stream
 			wb.write(outputStream);
 		}
+		
+		clearVariables();
 	}
 
 	/**
@@ -761,7 +769,7 @@ public class VLEGetXLS extends VLEServlet {
 				}
 				
 				//create a sheet in the excel for this workgroup id
-				Sheet userIdSheet = wb.createSheet(userId);
+				XSSFSheet userIdSheet = wb.createSheet(userId);
 				
 				int rowCounter = 0;
 				
@@ -1150,7 +1158,7 @@ public class VLEGetXLS extends VLEServlet {
 		XSSFWorkbook wb = new XSSFWorkbook();
 		
 		//create the sheet that will contain all the data
-		Sheet mainSheet = wb.createSheet("Latest Work For All Students");
+		XSSFSheet mainSheet = wb.createSheet("Latest Work For All Students");
 
 		/*
 		 * set the header rows in the sheet
@@ -2836,7 +2844,7 @@ public class VLEGetXLS extends VLEServlet {
 			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(workgroupId));
 
 			//create a sheet for the workgroup
-			Sheet userIdSheet = wb.createSheet(workgroupId);
+			XSSFSheet userIdSheet = wb.createSheet(workgroupId);
 			
 			int rowCounter = 0;
 			
@@ -3058,7 +3066,7 @@ public class VLEGetXLS extends VLEServlet {
 		XSSFWorkbook wb = new XSSFWorkbook();
 		
 		//this export will only contain one sheet
-		Sheet mainSheet = wb.createSheet();
+		XSSFSheet mainSheet = wb.createSheet();
 		
 		int rowCounter = 0;
 		int columnCounter = 0;
@@ -4106,5 +4114,26 @@ public class VLEGetXLS extends VLEServlet {
 		Collections.sort(studentLoginsList);
 		
 		return studentLoginsList;
+	}
+	
+	/**
+	 * Auto sizes the columns specified so that the text in those columns
+	 * are completely shown and do not need to be resized to be able to
+	 * be read. This will only auto size the first n number of columns.
+	 * @param sheet the sheet to auto size columns in
+	 * @param numColumns the number of columns to auto size
+	 */
+	private void autoSizeColumns(XSSFSheet sheet, int numColumns) {
+		//this property needs to be set to true in order for auto sizing to work
+		System.setProperty("java.awt.headless", "true");
+		
+		//loop through the specified number of columns
+		for(int x=0; x<numColumns; x++) {
+			//auto size the column
+			sheet.autoSizeColumn(x);
+		}
+		
+		//set this property back to false
+		System.setProperty("java.awt.headless", "false");
 	}
 }

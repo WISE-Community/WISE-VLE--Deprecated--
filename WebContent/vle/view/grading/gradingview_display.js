@@ -135,6 +135,9 @@ View.prototype.displayResearcherToolsPage = function() {
 	
 	$('#gradeWorkDiv').html(getGradingHeaderTableHtml);
 	
+	//fix the page height
+	this.fixGradingDisplayHeight();
+	
 	//fire this event to remove the loading screen
 	eventManager.fire("getStudentWorkComplete");
 };
@@ -166,8 +169,20 @@ View.prototype.displayCustomExportPage = function() {
 	customExportPageHtml += this.displayCustomExportPageHelper(this.getProject().getRootNode());
 	
 	customExportPageHtml += "</table>";
+
+	customExportPageHtml += "<br>";
 	
+	//the button to go back to the previous page
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	//the buttons to generate the excel export
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('getCustomLatestStudentWorkExport')\"></input>";
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('getCustomAllStudentWorkExport')\"></input>";
+	
+	//fix the page height
 	$('#gradeWorkDiv').html(customExportPageHtml);
+	
+	this.fixGradingDisplayHeight();
 };
 
 /**
