@@ -189,7 +189,9 @@ var componentloader = function(em, sl){
 					 'addPremadeComment':[null, null],
 					 'deletePremadeComment':[null, null],
 					 'getIdeaBasketsComplete':[null, null]},
-			methods: {},
+   		    methods:{
+			  onWindowUnload:function(view){return function(){view.onWindowUnload();};}
+		    },					 
 			initialize: {
 				initializeEvents:function(view) {
 					eventManager.subscribe("gradingConfigUrlReceived", view.gradingDispatcher, view);

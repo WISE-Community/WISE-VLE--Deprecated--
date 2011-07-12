@@ -122,7 +122,19 @@ window.onload=function(){
        scriptloader.useDeflatedScripts = false;
     }
 	scriptloader.initialize(document, afterScriptsLoad, 'gradebystep');
-}
+};
+
+/**
+ * Handles the saving of any unsaved work when user exits/refreshes/etc
+ * @param whether to logout the user
+ */
+View.prototype.onWindowUnload = function(){
+	
+	/* tell xmpp server that student is disconnecting */
+	if (this.xmpp && this.isXMPPEnabled) {
+		this.xmpp.disconnect();
+	}
+};
 
 function projectSummary(){
 	window.open("/webapp/student/vle/vle.html?runId=" + runId + "&summary=true", "Project Summary", "height=600, width=800");

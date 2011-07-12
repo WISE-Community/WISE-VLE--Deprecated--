@@ -292,13 +292,14 @@ View.prototype.getGradingHeaderTableHtml = function() {
 View.prototype.displayClassroomMonitorPage = function() {
 	var classroomMonitorDiv = "<div id='classroomMonitorDiv>";
 	var pauseScreenDiv = "<div id='pauseScreenDiv'>"
-	pauseScreenDiv += "<h2>Pause All Screens</h2>";
-	pauseScreenDiv += "Currently all students' screens are: <span id='status'>unpaused</span>";
+	pauseScreenDiv += "<h2 style='margin-bottom:0px'>Pause All Screens <span style='font-size:.8em'>(Currently all students' screens are: <span id='studentScreenStatus' style='font-weight:bold'>unpaused</span></span>)</h2>";
 	pauseScreenDiv += "<div id='pauseScreenControls'>";
-	pauseScreenDiv += "<textarea type='text' id='pause-message' rows='5' cols='50' value=''></textarea>";
-	pauseScreenDiv += "<input type='button' id='pause-button' value='pause'></input>";
-	pauseScreenDiv += "<input type='button' id='unPause-button' value='un-pause'></input>";
-	pauseScreenDiv += "</div></div><br/>";
+	pauseScreenDiv += "<table><tr>";
+	pauseScreenDiv += "<td><div>This is what your students will see when you pause their screens:</div><textarea type='text' id='pause-message' rows='2' cols='90' value=''>Your teacher has paused your screen.</textarea></td>";
+	pauseScreenDiv += "<td><input type='button' id='pause-button' value='pause' class='blueButton' style='background-color:red; margin: 20 0 20 20; font-size:1.5em'></input>";
+	pauseScreenDiv += "<input type='button' id='unPause-button' value='un-pause' class='blueButton' style='background-color:green; margin: 20 0 20 20; font-size:1.5em'></input></td>";
+	pauseScreenDiv += "</tr></table>";
+	pauseScreenDiv += "</div></div>";
 
     classroomMonitorDiv += pauseScreenDiv;
 
@@ -323,6 +324,9 @@ View.prototype.displayClassroomMonitorPage = function() {
     
     this.startXMPP();
 	eventManager.fire("classroomMonitorDisplayComplete");
+	
+	//perform scroll to top and page height resizing to remove scrollbars
+	this.displayFinished();
 };
 
 View.prototype.createClassroomMonitorTable = function() {
@@ -1896,7 +1900,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
         content = content.replace(/assets\//gmi, contentBaseUrl+'\/assets\/');
 
         var studentWorkFixedLink = studentWork.replace(/\.\/images\//gmi, 'images\/');
-        studentWorkFixedLink = studentWork.replace(/images\//gmi, contentBaseUrl+'\/images\/');
+        studentWorkFixedLink = studentWorkFixedLink.replace(/images\//gmi, contentBaseUrl+'\/images\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/\.\/assets\//gmi, 'assets\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/assets\//gmi, contentBaseUrl+'\/assets\/');
                         	

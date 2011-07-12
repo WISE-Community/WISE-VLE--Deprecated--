@@ -32,13 +32,6 @@ WISE = {
             pre: function() {console.debug(arguments[0].type+'!',arguments)}
         })
         
-        $('#play').click(function() {$(WISE).trigger('choseToPlay')})
-        $('#watch').click(function() {$(WISE).trigger('choseToWatch')})
-        
-        $('#guess-form').submit(function() {WISE.submitGuess(); return false})
-        
-        $('#set-word-form').submit(function () {WISE.setNewWord(); return false})
-
         $('#pause-button').click(function() {WISE.doPause();  return false})
 
         $('#unPause-button').click(function() {WISE.doUnPause();  return false})
@@ -64,63 +57,20 @@ WISE = {
     	// todo implement me
     	return true;
     },
-    
-    askForNewWord: function() {
-        $(WISE).trigger('enteringNewWord')
-        WISE.ui.showDialog('#set-word-panel')
-        
-        $('#set-word').attr('disabled', false)
-        $('#guess-panel').hide()
-        $('#set-word-panel').show('puff',
-            { easing: 'swing' },
-            'slow',
-            function() { $('#set-word').val('').focus() }
-        )
-    },
-    
-    switchToGuessingMode: function() {
-        $('.guess-baloon').remove()
-        WISE.ui.dismissDialog('#set-word-panel')
-        $('#winner').hide()
-        $('#definition').show()
-        $('#guess').removeClass('in-progress')
-        
-        $('#guess').attr('disabled', false) // just in case...
-        
-        if (!WISE.justWatching && !$('#guess-panel').is(':visible')) {
-            $('#guess-panel').show('slide', 
-                { easing: 'easeOutBounce',  direction: 'down'}, 
-                'slow',
-                function() {$('#guess').val('').focus()}
-            )
-        }
-    },
-    
-    submitGuess: function() {
-        $('#guess').addClass('in-progress')
-        word = $('#guess').val()
-        sev = new Sail.Event('guess', {word: word})
-        WISE.groupchat.sendEvent(sev)
-        $(WISE).trigger('submittedGuess')
-    },
-    
-    setNewWord: function() {
-        $('#set-word').addClass('in-progress')
-        word = $('#set-word').val()
-        sev = new Sail.Event('set_word', {word: word})
-        WISE.groupchat.sendEvent(sev)
-        $(WISE).trigger('submittedNewWord')
-    },
-    
+       
     doPause: function() {
     	message = $('#pause-message').val();
+    	if (message == "") {
+    		// if message is empty, populate with default message.
+    		$('#pause-message').val("Your teacher has paused your screen.");
+    	}
         sev = new Sail.Event('pause', {message:message});
         WISE.groupchat.sendEvent(sev);
     },
 
     doUnPause: function() {
-        sev = new Sail.Event('unPause')
-        WISE.groupchat.sendEvent(sev)
+        sev = new Sail.Event('unPause');
+        WISE.groupchat.sendEvent(sev);
     },
 
     authenticate: function() {
@@ -134,7 +84,12 @@ WISE = {
             $(WISE).trigger('authenticated');
         });
     },
-    
+        
+    disconnect: function() {
+    	// make sure that students' screens are unpaused when teacher logs out.
+    	this.doUnPause();
+    	Sail.Strophe.disconnect();
+    },
     
     events: {
         // mapping of Sail events to local Javascript events
@@ -149,7 +104,8 @@ WISE = {
         // local Javascript event handlers
         onAuthenticated: function() {
             Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
-         	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain;
+            var currentTimeInMillis = new Date().getTime();
+         	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain + "/" + currentTimeInMillis;
             Sail.Strophe.password = WISE.xmppPassword;
             
             Sail.Strophe.onConnectSuccess = function() {
@@ -176,16 +132,18 @@ WISE = {
           	    WISE.groupchat.join();       	    
           	};
       	    
-      	    Sail.Strophe.connect()
+      	    Sail.Strophe.connect();
         },
         onPause: function(ev,sev) {            
             if(WISE.isEventFromTeacher(sev)) {            
-            	$("#status").html("paused");
+            	$("#studentScreenStatus").html("paused");
+            	$("#studentScreenStatus").css("color","red");
             }
         },
         onUnPause:function(ev,sev) {
         	if(WISE.isEventFromTeacher(sev)) {
-        		$("#status").html("unpaused");
+        		$("#studentScreenStatus").html("unpaused");
+            	$("#studentScreenStatus").css("color","green");
         	}
         },
         onStudentToTeacherMsg:function(ev,sev) {
@@ -234,9 +192,6 @@ WISE = {
         }        
     }
 };
-
-//$(document).ready(WISE.init)
-
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

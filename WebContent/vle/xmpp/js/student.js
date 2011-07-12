@@ -15,8 +15,6 @@ WISE = {
     session: null,
     justWatching: false,
     
-    
-    // initialization (called in $(document).ready() at the bottom of this file)
     init: function(viewIn) {
 		view=viewIn;
         console.log("Initializing WISE...")

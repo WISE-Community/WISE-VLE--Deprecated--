@@ -11,6 +11,13 @@ function load(gradingConfigUrl) {
 	eventManager.fire('gradingConfigUrlReceived', [gradingConfigUrl]);
 }
 
+/**
+ * Called when the user closes page
+ */
+window.onunload=function(){
+	env.onWindowUnload();
+};
+
 /*
  * Loads scripts when body is loaded 
  */
