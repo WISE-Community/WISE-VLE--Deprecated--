@@ -159,6 +159,30 @@
 		"value":"Export Student Names",
 		"description":"GradingTool: Text in the Export Student Names button"
 	},
+	"grading_button_export_latest_student_work_description":{
+		"value":"(Only export the latest student revision)",
+		"description":"GradingTool: Description next the Export Student Names button"
+	},
+	"grading_button_export_all_student_work_description":{
+		"value":"(Export all the student work revisions as well as their navigation data)",
+		"description":"GradingTool: Description next the Export All Student Work button"
+	},
+	"grading_button_export_idea_baskets_description":{
+		"value":"(Export all the idea basket revisions)",
+		"description":"GradingTool: Description next the Export Idea Baskets button"
+	},
+	"grading_button_export_explanation_builder_work_description":{
+		"value":"(Export all the explanation builder work revisions)",
+		"description":"GradingTool: Description next the Export Explanation Builder Work button"
+	},
+	"grading_button_export_custom_work_description":{
+		"value":"(Export all work or latest work for specific steps that you choose)",
+		"description":"GradingTool: Description next the Export Custom Student Work button"
+	},
+	"grading_button_export_student_names_description":{
+		"value":"(Export the student names along with their period, workgroup id, wise id, and login)",
+		"description":"GradingTool: Description next the Export Student Names button"
+	},
 	"grading_button_check_for_new_student_work":{
 		"value":"檢查新的學生作業",
 		"description":"GradingTool: Text in the Check for New Student Work button"

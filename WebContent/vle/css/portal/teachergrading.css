@@ -38,7 +38,7 @@ iframe {
 }
 
 .runButtons input, #lowerSaveButton input, .blueButton {
-	margin:5px 15px 15px 0;
+	margin:10px 10px 10px 10px;
 	padding: 1px 8px;
 	font: bold Verdana, Arial, sans-serif;
 	font-size:.7em;

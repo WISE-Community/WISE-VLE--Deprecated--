@@ -120,17 +120,14 @@ View.prototype.displayResearcherToolsPage = function() {
 	
 	//make the excel export buttons
 	var getGradingHeaderTableHtml = "<div id='exportCenterButtons'>";
-	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
-	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
-	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
-	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input>";
-	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input>";
-	getGradingHeaderTableHtml += "<br>";
-	getGradingHeaderTableHtml += "<input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input>";
+	getGradingHeaderTableHtml += "<table>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+"<td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+"<td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+"<td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+"<td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+"<td></tr>";
+	getGradingHeaderTableHtml += "</table>";
 	getGradingHeaderTableHtml += "</div>";	
 	
 	$('#gradeWorkDiv').html(getGradingHeaderTableHtml);
@@ -285,10 +282,6 @@ View.prototype.getGradingHeaderTableHtml = function() {
 		}
 	}
 	
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_check_for_new_student_work")+"' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
 	getGradingHeaderTableHtml += "</td></tr></table>";
