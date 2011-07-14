@@ -1,7 +1,6 @@
 WISE = {
     // config
 	wiseXMPPAuthenticateUrl: '',
-    rollcallURL: 'http://localhost:3000',
     xmppDomain: 'localhost',
     groupchatRoom: '',
     groupchatRoomBase: '@conference.localhost',
@@ -19,17 +18,21 @@ WISE = {
     // initialization (called in $(document).ready() at the bottom of this file)
     init: function(viewIn) {
 		view=viewIn;
-        console.log("Initializing WISE...")
+        //console.log("Initializing WISE...")
+
+        WISE.wiseXMPPAuthenticateUrl = view.config.getConfigParam("wiseXMPPAuthenticateUrl") + "&workgroupId=" + view.userAndClassInfo.getWorkgroupId();
+        WISE.xmppDomain = view.config.getConfigParam("hostName");
+        WISE.groupchatRoomBase = "@conference." + WISE.xmppDomain;
         
         // get runId to use for chatroom
         WISE.groupchatRoom = view.config.getConfigParam("runId") + WISE.groupchatRoomBase;
-        console.log("chatroom:" + WISE.groupchatRoom);
+        //console.log("chatroom:" + WISE.groupchatRoom);
 
-        WISE.wiseXMPPAuthenticateUrl = view.config.getConfigParam("wiseXMPPAuthenticateUrl") + "&workgroupId=" + view.userAndClassInfo.getWorkgroupId();
-        
         // create custom event handlers for all WISE 'on' methods
         Sail.autobindEvents(WISE, {
-            pre: function() {console.debug(arguments[0].type+'!',arguments)}
+            pre: function() {
+        		//console.debug(arguments[0].type+'!',arguments);
+        	}
         })
         
         $('#pause-button').click(function() {WISE.doPause();  return false})
@@ -103,7 +106,7 @@ WISE = {
 
         // local Javascript event handlers
         onAuthenticated: function() {
-            Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
+            Sail.Strophe.bosh_url = 'http://' + WISE.xmppDomain + '/http-bind/';
             var currentTimeInMillis = new Date().getTime();
          	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain + "/" + currentTimeInMillis;
             Sail.Strophe.password = WISE.xmppPassword;
@@ -125,7 +128,7 @@ WISE = {
           	    	$("#classroomMonitorWorkgroupRow_"+oldParticipantWorkgroupId).css("background-color","lightgrey");
           	    };
           	    WISE.groupchat.onSelfJoin = function(pres) {
-                	console.log('onSelfJoinedGroupChat');
+                	//console.log('onSelfJoinedGroupChat');
                 	eventManager.fire('classroomMonitorDisplayComplete');
               	    $('#connecting').hide();
           	    };

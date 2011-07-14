@@ -57,7 +57,7 @@ Sail.autobindEvents = function(obj, options) {
         if (obj.events.hasOwnProperty(meth) && typeof obj.events[meth] == 'function' && meth.match(/^on/)) {
             event = meth.replace(/^on/,'')
             event = event.charAt(0).toLowerCase() + event.slice(1)
-            console.debug("Sail: auto-binding event '"+event+"' to "+meth)
+            //console.debug("Sail: auto-binding event '"+event+"' to "+meth)
             try {
                 if (options.pre)
                   $(obj).bind(event, options.pre)
@@ -81,7 +81,7 @@ Sail.generateSailEventHandler = function(obj) {
         try {
             sev = JSON.parse(body)
         } catch(err) {
-            console.log("couldn't parse message, ignoring: "+err)
+            //console.log("couldn't parse message, ignoring: "+err)
             return
         }
 
@@ -89,10 +89,11 @@ Sail.generateSailEventHandler = function(obj) {
         sev.to = msg.attr('to')
         sev.stanza = stanza
     
-        if (obj.events.sail[sev.eventType])
+        if (obj.events.sail[sev.eventType]) {
             $(obj).trigger(obj.events.sail[sev.eventType], sev)
-        else
-            console.log("UNHANDLED EVENT "+sev.eventType, sev)
+        } else {
+            //console.log("UNHANDLED EVENT "+sev.eventType, sev)
+        }
 
         return true
     }

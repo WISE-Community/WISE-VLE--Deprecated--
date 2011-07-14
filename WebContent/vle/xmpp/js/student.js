@@ -17,16 +17,20 @@ WISE = {
     
     init: function(viewIn) {
 		view=viewIn;
-        console.log("Initializing WISE...")
+        //console.log("Initializing WISE...")
+
+        WISE.wiseXMPPAuthenticateUrl = view.config.getConfigParam("wiseXMPPAuthenticateUrl") + "&workgroupId=" + view.userAndClassInfo.getWorkgroupId();
+        WISE.xmppDomain = view.config.getConfigParam("hostName");
+        WISE.groupchatRoomBase = "@conference." + WISE.xmppDomain;
         
         // get runId to use for chatroom
         WISE.groupchatRoom = view.config.getConfigParam("runId") + WISE.groupchatRoomBase;
         
-        WISE.wiseXMPPAuthenticateUrl = view.config.getConfigParam("wiseXMPPAuthenticateUrl") + "&workgroupId=" + view.userAndClassInfo.getWorkgroupId();
-        
         // create custom event handlers for all WISE 'on' methods
         Sail.autobindEvents(WISE, {
-            pre: function() {console.debug(arguments[0].type+'!',arguments)}
+            pre: function() {
+        		//console.debug(arguments[0].type+'!',arguments);
+        	}
         })
 
         WISE.authenticate();
@@ -75,7 +79,7 @@ WISE = {
         // local Javascript event handlers
         onAuthenticated: function() {
         	// callback for when user is authenticated with the portal. user's xmpp username/password should be set in WISE.xmppUsername and WISE.xmppPassword.
-            Sail.Strophe.bosh_url = 'http://localhost/http-bind/';
+            Sail.Strophe.bosh_url = 'http://' + WISE.xmppDomain + '/http-bind/';
             Sail.Strophe.jid =  WISE.xmppUsername + '@' + WISE.xmppDomain;
           	Sail.Strophe.password = WISE.xmppPassword;  
 

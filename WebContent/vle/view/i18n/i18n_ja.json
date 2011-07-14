@@ -183,6 +183,10 @@
 		"value":"(Export the student names along with their period, workgroup id, wise id, and login)",
 		"description":"GradingTool: Description next the Export Student Names button"
 	},
+	"grading_button_explanation":{
+		"value":"Explanation",
+		"description":"GradingTool: Text in the Explanation button"
+	},
 	"grading_button_check_for_new_student_work":{
 		"value":"最新回答リストを更新",
 		"description":"GradingTool: Text in the Check for New Student Work button"

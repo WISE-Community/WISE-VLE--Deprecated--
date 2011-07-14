@@ -93,6 +93,18 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.addPremadeComment(args[0]);
 	} else if(type=='deletePremadeComment') {
 		obj.deletePremadeComment(args[0], args[1]);
+	} else if(type=='displayAllStudentWorkExportExplanation') {
+
+	} else if(type=='displayLatestStudentWorkExportExplanation') {
+
+	} else if(type=='displayIdeaBasketExportExplanation') {
+
+	} else if(type=='displayExplanationBuilderExportExplanation') {
+
+	} else if(type=='displayCustomExportExplanation') {
+
+	} else if(type=='displayStudentNamesExportExplanation') {
+
 	}
 };
 

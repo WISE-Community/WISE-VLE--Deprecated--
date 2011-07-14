@@ -164,6 +164,12 @@ var componentloader = function(em, sl){
 					 'getExplanationBuilderWorkExcelExport':[null, null],
 					 'getCustomLatestStudentWorkExport':[null, null],
 					 'getCustomAllStudentWorkExport':[null, null],
+					 'displayAllStudentWorkExportExplanation':[null, null],
+					 'displayLatestStudentWorkExportExplanation':[null, null],
+					 'displayIdeaBasketExportExplanation':[null, null],
+					 'displayExplanationBuilderExportExplanation':[null, null],
+					 'displayCustomExportExplanation':[null, null],
+					 'displayStudentNamesExportExplanation':[null, null],
 					 'saveMaxScore':[null, null],
 					 'showScoreSummary':[null, null],
 					 'filterPeriod':[null, null],
@@ -215,6 +221,12 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getExplanationBuilderWorkExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomLatestStudentWorkExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);
+					eventManager.subscribe("displayAllStudentWorkExportExplanation", view.gradingDispatcher, view);
+					eventManager.subscribe("displayLatestStudentWorkExportExplanation", view.gradingDispatcher, view);
+					eventManager.subscribe("displayIdeaBasketExportExplanation", view.gradingDispatcher, view);
+					eventManager.subscribe("displayExplanationBuilderExportExplanation", view.gradingDispatcher, view);
+					eventManager.subscribe("displayCustomExportExplanation", view.gradingDispatcher, view);
+					eventManager.subscribe("displayStudentNamesExportExplanation", view.gradingDispatcher, view);
 					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("saveMaxScore", view.gradingDispatcher, view);

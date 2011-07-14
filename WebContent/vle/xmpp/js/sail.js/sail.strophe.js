@@ -17,17 +17,17 @@ Sail.Strophe = {
         this.conn = new Strophe.Connection(this.bosh_url)
         
         this.conn.xmlInput = function(data) {
-            console.log("IN:", $(data).children()[0])
+            //console.log("IN:", $(data).children()[0])
         }
         this.conn.xmlOutput = function(data) {
-            console.log("OUT:", $(data).children()[0])
+            //console.log("OUT:", $(data).children()[0])
         }
         
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
     
     disconnect: function() {
-        console.log("sending disconnect request...")
+        //console.log("sending disconnect request...")
         Sail.Strophe.conn.sync = true
         Sail.Strophe.conn.flush()
         Sail.Strophe.conn.disconnect()
@@ -42,9 +42,13 @@ Sail.Strophe = {
     pinger: function(interval) {
       if (!interval) interval = 14 * 1000 // default is 14 seconds
       setInterval(function() {
-        console.log("Sending ping")
+        //console.log("Sending ping")
         pres = $pres()
-        Sail.Strophe.conn.send(pres.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
+        Sail.Strophe.conn.send(pres.tree(), function(msg){
+        	//console.log("sent PING", msg)
+        	}, function(err){
+        		//console.log("PING failed!", err);
+        	})
         //Sail.Strophe.conn.send(msg.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
         
         Sail.Strophe.conn.flush()
@@ -56,22 +60,22 @@ Sail.Strophe = {
     onConnect: function (status) {
         switch (status) {
             case Strophe.Status.ERROR:
-                console.log('CONNECTION ERROR!')
+                //console.log('CONNECTION ERROR!')
                 break
             case Strophe.Status.CONNECTING:
-                console.log('CONNECTING to '+Sail.Strophe.bosh_url+' WITH '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                //console.log('CONNECTING to '+Sail.Strophe.bosh_url+' WITH '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
                 break
             case Strophe.Status.CONNFAIL:
-                console.error('CONNECTION to '+Sail.Strophe.bosh_url+' FAILED!')
+                //console.error('CONNECTION to '+Sail.Strophe.bosh_url+' FAILED!')
                 break
             case Strophe.Status.AUTHENTICATING:
-                console.log('AUTHENTICATING')
+                //console.log('AUTHENTICATING')
                 break
             case Strophe.Status.AUTHFAIL:
-                console.error("AUTHENTICATION FAILED")
+                //console.error("AUTHENTICATION FAILED")
                 break
             case Strophe.Status.CONNECTED:
-                console.log('CONNECTED to '+Sail.Strophe.bosh_url)
+                //console.log('CONNECTED to '+Sail.Strophe.bosh_url)
 
                 // store connection data to allow for .attach() on reload
                 $(window).unload(Sail.Strophe.disconnect)
@@ -85,38 +89,38 @@ Sail.Strophe = {
                 // used it should be cleared here
                 Sail.Strophe.clearConnInfo()
                 
-                console.log('DISCONNECTED!')
+                //console.log('DISCONNECTED!')
                 break
             case Strophe.Status.DISCONNECTING:
-                console.log('DISCONNECTING...')
+                //console.log('DISCONNECTING...')
                 break
             case Strophe.Status.ATTACHED:
                 // this would happen in response to a conn.attach()
                 // but currently this is not implemented
-                console.log('AUTHENTICATING')
+                //console.log('AUTHENTICATING')
                 break
             default:
-                console.warn('UNKNOWN CONNECTION STATUS: '+status)
+                //console.warn('UNKNOWN CONNECTION STATUS: '+status)
         }
     },
     
     onConnectSuccess: function() {
-        console.log("CONNECTED SUCCESSFULLY (in default onConnectSuccess)")
+        //console.log("CONNECTED SUCCESSFULLY (in default onConnectSuccess)")
         return true  
     },
     
     onGroupchatMessage: function(msg) {
-        console.log($(msg).find('body').text())
+        //console.log($(msg).find('body').text())
         return true
     },
     
     onSuccess: function(msg) {
-        console.log("SUCCESS: "+msg)
+        //console.log("SUCCESS: "+msg)
         return true
     },
     
     onFailure: function(msg) {
-        console.log("FAILURE: "+msg)
+        //console.log("FAILURE: "+msg)
         return true
     },
     
@@ -159,8 +163,9 @@ Sail.Strophe = {
                 break
         }
         
-        if (Sail.Strophe.logLevel <= level)
-            console[logFunc](logMsg)
+        if (Sail.Strophe.logLevel <= level){
+            //console[logFunc](logMsg)
+        }
     },
     
     
@@ -200,7 +205,7 @@ Sail.Strophe = {
         
         this.conn = new Strophe.Connection(this.bosh_url)
         
-        console.log('REATTACHING TO '+this.bosh_url+'WITH: ', info)
+        //console.log('REATTACHING TO '+this.bosh_url+'WITH: ', info)
         this.conn.attach(info.jid, info.sid, info.rid + 1)
     },
 }
@@ -293,21 +298,21 @@ Sail.Strophe.Groupchat.prototype = {
     },
     
     onParticipantJoin: function(who, pres) {
-        console.log(who+" JOINED "+this.room)
+        //console.log(who+" JOINED "+this.room)
     },
     
     onParticipantLeave: function(pres) {
-        console.log(who+" LEFT "+this.room)
+        //console.log(who+" LEFT "+this.room)
     },
     
     onSelfJoin: function(pres) {
-        console.log("JOINED "+this.room)
+        //console.log("JOINED "+this.room)
     },
     onSelfLeave: function(pres) {
-        console.log("LEFT "+this.room)
+        //console.log("LEFT "+this.room)
     },
     onMessage: function(msg) {
-      console.log("GROUPCHAT: ", msg)
+      //console.log("GROUPCHAT: ", msg)
       return true
     }    
 }
