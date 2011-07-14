@@ -188,7 +188,9 @@ View.prototype.displayGlobalTools = function() {
 	$("#projectRightUpperBoxUL").html(studentAssetsToolbarHtml+ideaBasketToolbarHtml+addIdeaToolbarHtml+myWorkToolbarHtml+flagToolbarHtml+journalToolbarHtml+fullScreenToolbarHtml+prevNodeToolbarHtml+nextNodeToolbarHtml+signOutGoHomeToolbarHtml);
 	
 	/* show/hide studentAssets, ideaManager, addIdea buttons based on project.metadata.tools config */
-	this.showToolsBasedOnConfig(this.projectMetadata.tools);
+	if (this.projectMetadata != null && this.projectMetadata.tools != null) {
+		this.showToolsBasedOnConfig(this.projectMetadata.tools);
+	}
 
 	/* show/hide studentAssets, ideaManager, addIdea buttons based on run.info config */
 	var runInfoStr = this.config.getConfigParam('runInfo');
