@@ -1118,7 +1118,7 @@ public class VLEGetXLS extends VLEServlet {
 		    		for(int stepWorkCounter=0; stepWorkCounter<maxNumberOfStepWorkParts; stepWorkCounter++) {
 		    			String stepWorkHeader = "Student Work Part " + (stepWorkCounter + 1);
 		    			
-		    			if(stepWorkCounter > 1) {
+		    			if(stepWorkCounter > 0) {
 		    				stepWorkHeader += " (if applicable)";
 		    			}
 		    			
