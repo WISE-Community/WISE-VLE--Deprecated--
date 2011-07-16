@@ -233,12 +233,16 @@ public class Minifier extends HttpServlet implements Servlet{
 						JSONArray nodes = project.getJSONArray("nodes");
 						
 						for(int x = 0; x < nodes.length(); x++){
-							JSONObject node = nodes.getJSONObject(x);
-							JSONObject nodeContent = this.getJSONObjectFromFile(new File(projectFile.getParentFile(), node.getString("ref")));
-							JSONObject putNode = new JSONObject();
-							putNode.put("identifier", node.get("identifier"));
-							putNode.put("content", nodeContent);
-							projectNodes.put(putNode);
+							try {
+								JSONObject node = nodes.getJSONObject(x);
+								JSONObject nodeContent = this.getJSONObjectFromFile(new File(projectFile.getParentFile(), node.getString("ref")));
+								JSONObject putNode = new JSONObject();
+								putNode.put("identifier", node.get("identifier"));
+								putNode.put("content", nodeContent);
+								projectNodes.put(putNode);
+							} catch (Exception e) {
+								// could not find the node file, ignore and move onto the next one.
+							}
 						}
 						
 						/* write the minified project file to the project directory for caching purposes */
