@@ -214,7 +214,510 @@ View.prototype.showScores = function() {
 		htmlSoFar += classmateScore + "\t" + classmate.userName +"\n";
 	}
 	alert(htmlSoFar);
-}
+};
+
+/**
+ * Generate the tr rows for the export explanations page
+ * @return a string containing the html for the rows that explain the
+ * workgroup fields in the excel exports
+ */
+View.prototype.getWorkgroupExportExplanations = function() {
+	
+	var workgroupExportExplanations = [
+		{
+			label:"Workgroup Id",
+			explanation:"the number id of the workgroup"
+		},
+		{
+			label:"Wise Id 1",
+			explanation:"the number id of the first member of the group. this id is tied directly to the student account."
+		},
+		{
+			label:"Wise Id 2",
+			explanation:"the number id of the second member of the group (if applicable). this id is tied directly to the student account."
+		},
+		{
+			label:"Wise Id 3",
+			explanation:"the number id of the third member of the group (if applicable). this id is tied directly to the student account."
+		},
+		{
+			label:"Class Period",
+			explanation:"the period the workgroup is in"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(workgroupExportExplanations);
+};
+
+/**
+ * Generate the tr rows for the export explanations page
+ * @return a string containing the html for the rows that explain the
+ * run fields in the excel exports
+ */
+View.prototype.getRunExportExplanations = function() {
+	/*
+	 * the array containing objects that contain the label and explanation for
+	 * each tr row in the explanations page
+	 */
+	var runExportExplanations = [
+		{
+			label:"Teacher Login",
+			explanation:"the login of the teacher who created the run"
+		},
+		{
+			label:"Project Id",
+			explanation:"the id of the project"
+		},
+		{
+			label:"Parent Project Id",
+			explanation:"the id of the project that this project was copied from (if applicable)"
+		},
+		{
+			label:"Project Name",
+			explanation:"the name of the project"
+		},
+		{
+			label:"Run Id",
+			explanation:"the id of the run"
+		},
+		{
+			label:"Run Name",
+			explanation:"the name of the run"
+		},
+		{
+			label:"Start Date",
+			explanation:"the date the run was created"
+		},
+		{
+			label:"End Date",
+			explanation:"the date the run was archived (if applicable)"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(runExportExplanations);
+};
+
+/**
+ * Generate the tr rows for the latest student work export explanations page
+ * @return a string containing html for the rows that explain the fields
+ * in the latest student work excel export
+ */
+View.prototype.getLatestStudentWorkExportExplanations = function() {
+	/*
+	 * the array containing objects that contain the label and explanation for
+	 * each tr row in the explanations page
+	 */
+	var latestStudentWorkExportExplanations = [
+		{
+			label:"Step Title",
+			explanation:"the title of the step"
+		},
+		{
+			label:"Step Type",
+			explanation:"the type of the step"
+		},
+		{
+			label:"Step Prompt",
+			explanation:"the prompt that the student reads on the step"
+		},
+		{
+			label:"Node Id",
+			explanation:"the id of the step which is unique within the project"
+		},
+		{
+			label:"Step Extra",
+			explanation:"extra information about that step (*the remaining rows below are some values that you may see in the Step Extra row)"
+		},
+		{
+			label:"*Teacher Score Timestamp",
+			explanation:"the timestamp when the teacher gave the score"
+		},
+		{
+			label:"*Teacher Score",
+			explanation:"the score from the teacher"
+		},
+		{
+			label:"*Teacher Comment Timestamp",
+			explanation:"the timestamp when the teacher gave the comment"
+		},
+		{
+			label:"*Teacher Comment",
+			explanation:"the comment from the teacher"
+		},
+		{
+			label:"*Workgroup I am writing feedback to",
+			explanation:"this step is the second step in a peer/teacher review sequence"
+		},
+		{
+			label:"*Work from other workgroup",
+			explanation:"this step is the second step in a peer/teacher review sequence"
+		},
+		{
+			label:"*Workgroup that is writing feedback to me",
+			explanation:"this step is the third step in a peer/teacher review sequence"
+		},
+		{
+			label:"*Feedback from workgroup",
+			explanation:"this step is the third step in a peer/teacher review sequence"
+		},
+		{
+			label:"*Work that I have revised based on feedback",
+			explanation:"this step is the third step in a peer/teacher review sequence"
+		},
+		{
+			label:"*(other)",
+			explanation:"for AssessmentList steps, this will display the prompt for each of the separate parts in the AssessmentList step"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(latestStudentWorkExportExplanations);
+};
+
+/**
+ * Generate the tr rows for the all student work export explanations page
+ * @return a string containing html for the rows that explain the fields
+ * in the all student work excel export
+ */
+View.prototype.getAllStudentWorkExportExplanations = function() {
+	/*
+	 * the array containing objects that contain the label and explanation for
+	 * each tr row in the explanations page
+	 */
+	var allStudentWorkExportExplanations = [
+		{
+			label:"#",
+			explanation:"the step visit counter"
+		},
+		{
+			label:"Wise Id 1",
+			explanation:"the number id of the first member of the group. if the student was absent it will say 'Absent' after the number."
+		},
+		{
+			label:"Wise Id 2",
+			explanation:"the number id of the second member of the group (if applicable). if the student was absent it will say 'Absent' after the number."
+		},
+		{
+			label:"Wise Id 3",
+			explanation:"the number id of the third member of the group (if applicable). if the student was absent it will say 'Absent' after the number."
+		},
+		{
+			label:"Step Title",
+			explanation:"the title of the step"
+		},
+		{
+			label:"Step Type",
+			explanation:"the type of the step"
+		},
+		{
+			label:"Step Prompt",
+			explanation:"the prompt that the student reads on the step"
+		},
+		{
+			label:"Node Id",
+			explanation:"the id of the step which is unique within the project"
+		},
+		{
+			label:"Start Time",
+			explanation:"the timestamp when the student entered the step"
+		},
+		{
+			label:"End Time",
+			explanation:"the timestamp when the student exited the step"
+		},
+		{
+			label:"Time Spent (Seconds)",
+			explanation:"the amount of time the student spent on the step"
+		},
+		{
+			label:"Teacher Score Timestamp",
+			explanation:"the timestamp when the teacher gave the score"
+		},
+		{
+			label:"Teacher Score",
+			explanation:"the score from the teacher"
+		},
+		{
+			label:"Teacher Comment Timestamp",
+			explanation:"the timestamp when the teacher gave the comment"
+		},
+		{
+			label:"Teacher Comment",
+			explanation:"the comment from the teacher"
+		},
+		{
+			label:"Classmate Id",
+			explanation:"the id of the workgroup that this student is receiving text from (only applies for review sequence steps)"
+		},
+		{
+			label:"Receiving Text",
+			explanation:"the text received from the classmate (only applies for review sequence steps)"
+		},
+		{
+			label:"Student Work or Student Work Part 1",
+			explanation:"the work the student submitted for this step"
+		},
+		{
+			label:"Student Work Part 2 (if applicable)",
+			explanation:"the second part of the work the student submitted for this step (only applies to steps that have multiple parts such as AssessmentList)"
+		},
+		{
+			label:"Student Work Part N (if applicable)",
+			explanation:"the Nth part of the work the student submitted for this step (only applies to steps that have multiple parts such as AssessmentList)"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(allStudentWorkExportExplanations);
+};
+
+/**
+ * Generate the tr rows for the idea baskets export explanations page
+ * @return a string containing html for the rows that explain the fields
+ * in the idea baskets excel export
+ */
+View.prototype.getIdeaBasketsExportExplanations = function() {
+	/*
+	 * the array containing objects that contain the label and explanation for
+	 * each tr row in the explanations page
+	 */
+	var ideaBasketsExportExplanations = [
+		{
+			label:"Basket Revision",
+			explanation:"the revision number of the basket. each time the student makes a change to the basket, the revision number is incremented."
+		},
+		{
+			label:"Idea #",
+			explanation:"the number of the idea within the basket. the idea number for an idea never changes even if the idea text is changed or the idea is repositioned within the basket."
+		},
+		{
+			label:"Idea Text",
+			explanation:"the text student entered for the idea"
+		},
+		{
+			label:"Flag",
+			explanation:"the flag the student chose for the idea"
+		},
+		{
+			label:"Tags",
+			explanation:"the tags the student entered for the idea"
+		},
+		{
+			label:"Source",
+			explanation:"the source the student chose for the idea"
+		},
+		{
+			label:"Node Type",
+			explanation:"the step type the student created the idea on"
+		},
+		{
+			label:"Node Id Created On",
+			explanation:"the id of the step the student created the idea on"
+		},
+		{
+			label:"Node Name Created On",
+			explanation:"the name of the step the student created the idea on"
+		},
+		{
+			label:"Steps Used In Count",
+			explanation:"the number of steps this idea is used in (such as explanation builder steps)"
+		},
+		{
+			label:"Steps Used In",
+			explanation:"the list of steps that this idea is used in (the ideas are comma delimited in this format nodeId:nodeTitle, nodeId:nodeTitle, ...)"
+		},
+		{
+			label:"Trash",
+			explanation:"whether the idea is in the trash (0 if no, 1 if yes)"
+		},
+		{
+			label:"Timestamp Basket Saved",
+			explanation:"the timestamp when this basket revision was saved"
+		},
+		{
+			label:"Timestamp Idea Created",
+			explanation:"the timestamp when this idea was created"
+		},
+		{
+			label:"Timestamp Idea Last Edited",
+			explanation:"the timestamp when this idea was last edited"
+		},
+		{
+			label:"New",
+			explanation:"whether the idea is new in this basket revision (0 if no, 1 if yes)"
+		},
+		{
+			label:"Revised",
+			explanation:"whether the idea was changed in this basket revision (0 if no, 1 if yes)"
+		},
+		{
+			label:"Repositioned",
+			explanation:"whether the position of this idea was changed within the basket in this basket revision (0 if no, 1 if yes)"
+		},
+		{
+			label:"Steps Used In Changed",
+			explanation:"whether the idea was either used or removed from a step in this basket revision (such as an explanation builder step) (0 if no, 1 if yes)"
+		},
+		{
+			label:"Deleted In This Revision",
+			explanation:"whether the idea was placed in the trash in this basket revision (0 if no, 1 if yes)"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(ideaBasketsExportExplanations);
+};
+
+/**
+ * Generate the tr rows for the explanation builder work export explanations page
+ * @return a string containing html for the rows that explain the fields
+ * in the explanation builder work excel export
+ */
+View.prototype.getExplanationBuilderWorkExportExplanations = function() {
+	/*
+	 * the array containing objects that contain the label and explanation for
+	 * each tr row in the explanations page
+	 */
+	var explanationBuilderWorkExportExplanations = [
+		{
+			label:"Step Work Id",
+			explanation:"the id of the student work"
+		},
+		{
+			label:"Step Title",
+			explanation:"the title of the step"
+		},
+		{
+			label:"Step Prompt",
+			explanation:"the prompt of the step"
+		},
+		{
+			label:"Node Id",
+			explanation:"the id of the step"
+		},
+		{
+			label:"Start Time",
+			explanation:"the timestamp the student entered the step"
+		},
+		{
+			label:"End Time",
+			explanation:"the timestamp the student exited the step"
+		},
+		{
+			label:"Time Spent (in seconds)",
+			explanation:"the time the student spent on the step"
+		},
+		{
+			label:"Answer",
+			explanation:"the text the student entered into the bottom textarea in the explanation builder step"
+		},
+		{
+			label:"Idea Id",
+			explanation:"the id of the idea within the idea basket"
+		},
+		{
+			label:"Idea Text",
+			explanation:"the text the student wrote for this idea"
+		},
+		{
+			label:"Idea X Position",
+			explanation:"the x position of the upper left corner of the idea rectangle relative to the upper left corner of the background image"
+		},
+		{
+			label:"Idea Y Position",
+			explanation:"the y position of the upper left corner of the idea rectangle relative to the upper left corner of the background image"
+		},
+		{
+			label:"Idea Color",
+			explanation:"the color the student chose for the idea"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(explanationBuilderWorkExportExplanations);
+};
+
+/**
+ * Generate the tr rows for the student names export explanations page
+ * @return a string containing html for the rows that explain the fields
+ * in the student names excel export
+ */
+View.prototype.getStudentNamesExportExplanations = function() {
+	/*
+	 * the array containing objects that contain the label and explanation for
+	 * each tr row in the explanations page
+	 */
+	var studentNamesExportExplanations = [
+		{
+			label:"Period",
+			explanation:"the period the student is in"
+		},
+		{
+			label:"Workgroup Id",
+			explanation:"the id of the workgroup"
+		},
+		{
+			label:"Wise Id",
+			explanation:"the id of the student"
+		},
+		{
+			label:"Student Username",
+			explanation:"the login username of the student"
+		},
+		{
+			label:"Student Name",
+			explanation:"the name of the name of the student"
+		}
+	];
+	
+	//generate the tr rows using the array
+	return this.getExplanationTRs(studentNamesExportExplanations);
+};
+
+/**
+ * Generate the tr rows for all the elements in the array
+ * @param explanationArray an array containing objects, the objects
+ * contain two fields, label and explanation
+ * @return a string containing tr html
+ */
+View.prototype.getExplanationTRs = function(explanationArray) {
+	var explanationHtml = "";
+	
+	//loop through all the elements in the array
+	for(var x=0; x<explanationArray.length; x++) {
+		//retrieve an object
+		var explanationEntry = explanationArray[x];
+		
+		//get the label and explanation
+		var label = explanationEntry.label;
+		var explanation = explanationEntry.explanation;
+		
+		//create the tr html
+		explanationHtml += "<tr>";
+		explanationHtml += this.getExplanationTD(label) + this.getExplanationTD(explanation);
+		explanationHtml += "</tr>";
+	}
+	
+	return explanationHtml;
+};
+
+/**
+ * Generate the td html
+ * @param tdText the string to wrap in td
+ * @return a string containing td html
+ */
+View.prototype.getExplanationTD = function(tdText) {
+	var explanationTdHtml = "";
+	
+	//wrap the string in td
+	explanationTdHtml += "<td class='exportExplanationTd'>";
+	explanationTdHtml += tdText;
+	explanationTdHtml += "</td>";
+	
+	return explanationTdHtml;
+};
 
 /**
  * Obtain the latest student work by calling render again to retrieve the

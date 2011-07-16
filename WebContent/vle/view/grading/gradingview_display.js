@@ -118,15 +118,18 @@ View.prototype.initiateGradingDisplay = function() {
  */
 View.prototype.displayResearcherToolsPage = function() {
 	
-	//make the excel export buttons
+	/*
+	 * make the excel export buttons. this is where we make the export button,
+	 * the explanation button, and the short description of the export.
+	 */
 	var getGradingHeaderTableHtml = "<div id='exportCenterButtons'>";
 	getGradingHeaderTableHtml += "<table>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayAllStudentWorkExportExplanation')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+"</td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayLatestStudentWorkExportExplanation')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+"</td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayIdeaBasketExportExplanation')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+"</td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExplanationBuilderExportExplanation')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+"</td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayCustomExportExplanation')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+"</td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayStudentNamesExportExplanation')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['latestStudentWork'])\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['allStudentWork'])\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+"</td></tr>";
+	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+"</td></tr>";
 	getGradingHeaderTableHtml += "</table>";
 	getGradingHeaderTableHtml += "</div>";	
 	
@@ -137,6 +140,98 @@ View.prototype.displayResearcherToolsPage = function() {
 	
 	//fire this event to remove the loading screen
 	eventManager.fire("getStudentWorkComplete");
+};
+
+/**
+ * Display the page where it explains the fields in the excel export for
+ * a specific export type
+ * @param exportType the type of the export
+ */
+View.prototype.displayExportExplanation = function(exportType) {
+	
+	var exportExplanationPageHtml = "";
+	
+	//the button to go back to the previous page
+	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	if(exportType == 'latestStudentWork') {
+		//show the explanation for the latest student work export
+		exportExplanationPageHtml += "<h3>Export Latest Student Work</h3>";
+		exportExplanationPageHtml += "<p>Export the latest work that each student has submitted. Each row represents the work for a workgroup. The columns represent which step the work is for.</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getWorkgroupExportExplanations();
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getLatestStudentWorkExportExplanations();
+		exportExplanationPageHtml += "</table>";
+	} else if(exportType == 'allStudentWork') {
+		//show the explanation for the all student work export
+		exportExplanationPageHtml += "<h3>Export All Student Work</h3>";
+		exportExplanationPageHtml += "<p>Export all the work revisions the students have submitted. Each sheet represents a workgroup. The rows represent the student visiting a step along with the work they submitted for that step on that visit. The rows are ordered chronologically from oldest to newest so you can view how the student progressed through the project and if they ever went back to change their answer.</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getWorkgroupExportExplanations();
+		exportExplanationPageHtml += this.getAllStudentWorkExportExplanations();
+		exportExplanationPageHtml += "</table>";
+	} else if(exportType == 'ideaBaskets') {
+		//show the explanation for the idea baskets export
+		exportExplanationPageHtml += "<h3>Export Idea Baskets</h3>";
+		exportExplanationPageHtml += "<p>Export all the idea basket revisions. All of the revisions for all the workgroups are on a single sheet. The idea basket revisions are grouped together by 'Workgroup Id'. For each revision, there may be one or more ideas. Each idea receives its own row. As an example, if an idea basket revision contains 3 ideas, there will be 3 rows for that revision. You will also see that the 'Basket Revision' number is the same for those 3 rows. An idea basket revision is created anytime the idea basket is modified and then closed.</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getWorkgroupExportExplanations();
+		exportExplanationPageHtml += this.getIdeaBasketsExportExplanations();
+		exportExplanationPageHtml += "</table>";
+	} else if(exportType == 'explanationBuilder') {
+		//show the explanation for the explanation builder work export
+		exportExplanationPageHtml += "<h3>Export Explanation Builder Work</h3>";
+		exportExplanationPageHtml += "<p>Export all the work revisions for explanation builder steps. Each sheet represents a workgroup. Each time a student submits work for an explanation builder step, the ideas that are used are grouped together by 'Step Work Id'. As an example, if a student used 3 ideas in an explanation builder step, there will be 3 rows with the same 'Step Work Id'.</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getWorkgroupExportExplanations();
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getExplanationBuilderWorkExportExplanations();
+		exportExplanationPageHtml += "</table>";
+	} else if(exportType == 'custom') {
+		//show the explanation for the custom work export
+		exportExplanationPageHtml += "<h3>Export Custom Student Work</h3>";
+		exportExplanationPageHtml += "<p></p>";
+		
+		exportExplanationPageHtml += "<h4><i>Export Custom Latest Student Work</i></h4>";
+		exportExplanationPageHtml += "<p>Export the latest work that each student has submitted for a custom set of steps that you choose. Each row represents the work for a workgroup. The columns represent which step the work is for.</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getWorkgroupExportExplanations();
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getLatestStudentWorkExportExplanations();
+		exportExplanationPageHtml += "</table>";
+		
+		exportExplanationPageHtml += "<br>";
+		
+		exportExplanationPageHtml += "<h4><i>Export Custom All Student Work</i></h4>";
+		exportExplanationPageHtml += "<p>Export all the work revisions the students have submitted for a custom set of steps that you choose. Each sheet represents a workgroup. The rows represent the student visiting a step along with the work they submitted for that step on that visit. The rows are ordered chronologically from oldest to newest so you can view how the student progressed through the project and if they ever went back to change their answer.</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getWorkgroupExportExplanations();
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getAllStudentWorkExportExplanations();
+		exportExplanationPageHtml += "</table>";
+	} else if(exportType == 'studentNames') {
+		//show the explanation for the student names export
+		exportExplanationPageHtml += "<h3>Export Student Names</h3>";
+		exportExplanationPageHtml += "<p>Export the student names along with their period, workgroup id, wise id, and login</p>";
+		exportExplanationPageHtml += "<table class='exportExplanationTable'>";
+		exportExplanationPageHtml += this.getRunExportExplanations();
+		exportExplanationPageHtml += this.getStudentNamesExportExplanations();
+		exportExplanationPageHtml += "</table>";
+	}
+	
+	exportExplanationPageHtml += "<br>";
+	
+	//the button to go back to the previous page
+	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	//put the html into the div
+	$('#gradeWorkDiv').html(exportExplanationPageHtml);
+	
+	//fix the page height
+	this.fixGradingDisplayHeight();
 };
 
 /**

@@ -515,3 +515,15 @@ iframe {
 .classroomMonitorStudentWorkRow {
 	background-color:lightgrey;
 }
+
+.exportExplanationTable {
+	border-width:1px;
+	border-style:outset;
+	border-collapse:collapse;
+}
+
+.exportExplanationTd {
+	padding:3px;
+	border-style:inset;
+	border-width:1px;
+}

@@ -160,7 +160,7 @@
 		"description":"GradingTool: Text in the Export Student Names button"
 	},
 	"grading_button_export_latest_student_work_description":{
-		"value":"(Only export the latest student revision)",
+		"value":"(Export the latest student revision)",
 		"description":"GradingTool: Description next the Export Student Names button"
 	},
 	"grading_button_export_all_student_work_description":{
