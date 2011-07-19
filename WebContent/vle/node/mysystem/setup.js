@@ -8,6 +8,10 @@ var coreScripts = [
     'vle/node/mysystem/mysystem_print.js'
 ];
 
+var coreMinScripts = [
+  	'vle/node/mysystem/mysystem_core_min.js'
+];
+
 var studentVLEScripts = [
 	'vle/node/mysystem/mysystem_complete.js',
 	'vle/node/mysystem/mysystem_print.js',
@@ -42,9 +46,11 @@ var css = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('mysystem', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('mysystem', css);
 

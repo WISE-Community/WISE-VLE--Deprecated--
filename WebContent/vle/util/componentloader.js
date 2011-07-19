@@ -14,6 +14,7 @@ var componentloader = function(em, sl){
 	var views = {
 		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','vle','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
+		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
 		authoring: ['ddMenu', 'setup', 'core','keystroke','customcontextmenu', 'config', 'session','messagemanager','author','authoringcomponents', 'maxscores'],
 		summary: ['core']
 	};
@@ -581,7 +582,7 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'renderNode':[null,null], 'renderNodeStart':[null,null],
+				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'retrieveLocalesComplete':[null,null],'renderNode':[null,null], 'renderNodeStart':[null,null],
 				'renderNodeComplete':[null,null],'resizeNote':[null,null],'onNotePanelResized':[null,null], 'startVLEBegin':[null,null],
 				'startVLEComplete':[null,null], 'setStyleOnElement':[null,null], 'closeDialogs':[null,null], 'closeDialog':[null,null],
 				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
@@ -595,6 +596,7 @@ var componentloader = function(em, sl){
 						view.setViewState(new VLE_STATE());
 						view.eventManager.subscribe('startVLEFromConfig',view.vleDispatcher, view);
 						view.eventManager.subscribe('startVLEFromParams', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingProjectStart', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingProjectComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getUserAndClassInfoBegin', view.vleDispatcher, view);
@@ -851,6 +853,13 @@ var componentloader = function(em, sl){
 			}
 		}
 	};
+	
+	components.grading_min = components.grading;
+	components.core_min = components.core;
+	components.studentwork_min = components.studentwork;
+	components.annotations_min = components.annotations;
+	components.teacherXMPP_min = components.teacherXMPP;
+	components.maxscores_min = components.maxscores;
 	
 	/**
 	 * Component loader listener listens for events pertaining to the loading

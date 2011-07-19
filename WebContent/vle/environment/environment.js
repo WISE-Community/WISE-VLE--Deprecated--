@@ -33,7 +33,7 @@ function createEnvironment(name, em){
 			if(!type){
 				alert('No view type specified, cannot start view');
 			} else if(viewStarted){
-				alert('View with name ' + view.name + ' already started. Cannot start view.')
+				alert('View with name ' + view.name + ' already started. Cannot start view.');
 			} else {
 				view.name = type;
 				componentloader.loadView(window[name], view, document, compress);

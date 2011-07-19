@@ -90,6 +90,7 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreScripts);
 
 /*
  * xTODO: rename template

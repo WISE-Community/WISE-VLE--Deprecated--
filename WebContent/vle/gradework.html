@@ -38,6 +38,21 @@ function bootstrapListener(type,args,obj){
 
 		eventManager.subscribe('loadingViewComplete', gradingListener);
 		createEnvironment('env', eventManager);
+
+		//obtain the minified setting from the iframe window url
+		var minified = false;
+		var minifiedSearch = window.location.search.match(/minified=(\w*)/);
+		
+		if(minifiedSearch != null && minifiedSearch.length > 1) {
+			//we found the minified parameter, we will now obtain the value
+			var minifiedStr = window.location.search.match(/minified=(\w*)/)[1];	
+			if (minifiedStr == "true") {
+				minified = true;
+				env.startView('grading_min');
+				return;
+			}
+		}
+		
 		env.startView('grading');
 	};
 };

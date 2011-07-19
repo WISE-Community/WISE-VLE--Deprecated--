@@ -207,7 +207,7 @@ Sail.Strophe = {
         
         //console.log('REATTACHING TO '+this.bosh_url+'WITH: ', info)
         this.conn.attach(info.jid, info.sid, info.rid + 1)
-    },
+    }
 }
 
 Sail.Strophe.Groupchat = function(room, conn) {

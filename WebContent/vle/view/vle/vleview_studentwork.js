@@ -252,6 +252,11 @@ View.prototype.onWindowUnload = function(logout){
 		this.xmpp.disconnect();
 	}
 	
+	/* reset scriptloader (bug for FF3.5 and 3.6) */
+	//debugger;
+	//if(this.x)  &&&&
+	//console.log('here we go');
+	
 	/* tell current step to clean up */ 
 	if(this.getCurrentNode()) {
 		this.getCurrentNode().onExit();		

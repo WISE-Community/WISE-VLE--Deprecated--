@@ -46,9 +46,11 @@ var challengeNodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreScripts);
 scriptloader.addScriptToComponent('multiplechoice', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('multiplechoice', css);
 

@@ -35,6 +35,7 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreScripts);
 scriptloader.addScriptToComponent('datagraph', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);

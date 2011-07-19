@@ -6,6 +6,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.startVLEFromConfig(args[0]);
 	} else if(type=='startVLEFromParams'){
 		obj.startVLEFromParams(args[0]);
+	} else if (type=='retrieveLocalesComplete') {
+		obj.startVLE();
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
@@ -123,8 +125,8 @@ View.prototype.startVLEFromConfig = function(configUrl){
 	
 	this.eventManager.fire('loadConfigComplete');
 
-	/* start the VLE */
-	this.startVLE();
+	/* retrieve i18n files, defined in view_i18n.js */
+	this.retrieveLocales();
 };
 
 /**
@@ -183,7 +185,14 @@ View.prototype.displayGlobalTools = function() {
 	var fullScreenToolbarHtml = "<li id='menuTD'><a class=\"menuSwitcher\" onclick='eventManager.fire(\"toggleNavigationPanelVisibility\")' title=\"Nav Menu Switcher\"><img src=\"images/NavBar-Switch32.png\" alt=\"Full Screen On/Off \" border=\"0\" />"+this.getI18NString("top_toolbar_fullscreen_button_text")+"</a></li>";
 	var prevNodeToolbarHtml = "<li><a onclick='eventManager.fire(\"renderPrevNode\")' title=\"Previous step\"><img src=\"images/go-previous.png\" alt=\"Previous Arrow\" border=\"0\" /></a></li>";
 	var nextNodeToolbarHtml = "<li><a onclick='eventManager.fire(\"renderNextNode\")' title=\"Next step\"><img src=\"images/go-next.png\" alt=\"Next Arrow\" border=\"0\" /></a></li>";
-	var signOutGoHomeToolbarHtml = "<li><a id=\"quitAndLogoutLink\" class=\"tightText\" onclick=\"eventManager.fire('logout')\" target=\"_parent\" title=\"Save & Sign Out\" style=\"margin-right:0;\"><img src=\"images/exit.png\" alt=\"Sign Out\" border=\"0\" />"+this.getI18NString("top_toolbar_signout_button_text")+"</a> | <a id=\"goHomeLink\" class=\"tightText\" href=\"/webapp/student/index.html\" target=\"_parent\" title=\"Go to home page\">"+this.getI18NString("top_toolbar_gohome_button_text")+"</a></li>";
+	
+	var goHomeHref = "/webapp/student/index.html";
+	var userType = this.config.getConfigParam('userType');
+	if (userType && userType == "teacher") {
+		goHomeHref = "/webapp/teacher/index.html";
+	}
+	
+	var signOutGoHomeToolbarHtml = "<li><a id=\"quitAndLogoutLink\" class=\"tightText\" onclick=\"eventManager.fire('logout')\" target=\"_parent\" title=\"Save & Sign Out\" style=\"margin-right:0;\"><img src=\"images/exit.png\" alt=\"Sign Out\" border=\"0\" />"+this.getI18NString("top_toolbar_signout_button_text")+"</a> | <a id=\"goHomeLink\" class=\"tightText\" href=\""+goHomeHref+"\" target=\"_parent\" title=\"Go to home page\">"+this.getI18NString("top_toolbar_gohome_button_text")+"</a></li>";
 
 	$("#projectRightUpperBoxUL").html(studentAssetsToolbarHtml+ideaBasketToolbarHtml+addIdeaToolbarHtml+myWorkToolbarHtml+flagToolbarHtml+journalToolbarHtml+fullScreenToolbarHtml+prevNodeToolbarHtml+nextNodeToolbarHtml+signOutGoHomeToolbarHtml);
 	
@@ -245,12 +254,12 @@ View.prototype.loadTheme = function(theme){
 			$("#audioControls").hide();
 			
 			// set the "Go Home" link according to the logged-in user
-			var userType = this.config.getConfigParam('userType');
-			if (userType && userType == "teacher") {
-				$("#goHomeLink").attr("href","/webapp/teacher/index.html");
-			} else if (userType && userType == "none") {
-				$("#goHomeLink").attr("href","/webapp/index.html");
-			}
+			//var userType = this.config.getConfigParam('userType');
+			//if (userType && userType == "teacher") {
+			//	$("#goHomeLink").attr("href","/webapp/teacher/index.html");
+			//} else if (userType && userType == "none") {
+			//	$("#goHomeLink").attr("href","/webapp/index.html");
+			//}
 		}
 	}
 	

@@ -45,7 +45,7 @@ var scriptloader = function(){
 	var currentDoc;
 	var currentName;
 	var baseUrl;
-	var wait = 30000;
+	var scriptLoaderWait = 30000;
 	var callerId;
 	var loaded = [];
 	
@@ -88,7 +88,7 @@ var scriptloader = function(){
 	/**
 	 * resets the timer
 	 */
-	var resetTimer = function(){
+	var resetTimer = function(){		
 		clearTimeout(timer);
 		timer = null;
 	};
@@ -201,32 +201,34 @@ var scriptloader = function(){
 	var scripts = {
         bootstrap: ['vle/util/componentloader.js',
                   'vle/view/view.js',
+                  'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
                   'vle/jquery/js/jquery-1.6.1.min.js',
   		          'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
-  		          'vle/node/setupNodes.js'],
+ 			      'vle/node/Node.js', 
+  		          'vle/node/setupNodes.js'
+  		          ],
   		setup: [],
-        core: ['vle/common/helperfunctions.js',
+        core: ['vle/view/i18n/view_i18n.js',
+               'vle/common/helperfunctions.js',
                'vle/view/coreview.js',
-               'vle/view/view_utils.js',
-               'vle/view/i18n/view_i18n.js',
+               'vle/view/view_utils.js',               
                "vle/io/ConnectionManager.js",
                "vle/session/SessionManager.js",
                "vle/util/NotificationManager.js",
                'vle/content/content.js',
                'vle/node/common/nodehelpers.js',
                'vle/project/Project.js',
-               'vle/node/nodefactory.js',
-		       'vle/node/Node.js', 
 		       'vle/node/NodeUtils.js',
                'vle/grading/Annotation.js',
 	           'vle/grading/Annotations.js',
                'vle/data/nodevisit.js',
                'vle/hint/hintstate.js',
                'vle/data/StudentStatus.js'],
-               studentXMPP: [
+        core_min: ['vle/minified/core_min.js'],
+        studentXMPP: [
        	                  'vle/xmpp/js/sail.js/deps/base64.js',
                           'vle/xmpp/js/sail.js/deps/jquery.cookie.js',
                           'vle/xmpp/js/sail.js/deps/jquery.url.js',
@@ -252,6 +254,7 @@ var scriptloader = function(){
                   'vle/xmpp/js/sail.js/sail.strophe.js',
                   'vle/xmpp/js/teacher.js',
                   'vle/xmpp/js/sail.js/sail.ui.js'],
+        teacherXMPP_min:['vle/minified/teacherXMPP_min.js'],
         author: ['vle/util/icon.js',
                  'vle/view/authoring/authorview_dispatchers.js',
                  'vle/view/authoring/authorview_startup.js',
@@ -289,8 +292,8 @@ var scriptloader = function(){
 	              'vle/view/grading/gradingview_studentwork.js',
 	              'vle/jquery/js/jquery.tablesorter.min.js',
 	              'vle/view/grading/gradingview_premadecomments.js',
-	              'vle/jquery/js/jquery.editinplace.js'
-	              ],
+	              'vle/jquery/js/jquery.editinplace.js'],
+	    grading_min: ['vle/minified/grading_min.js'],
 	    user: ['vle/user/userandclassinfo.js'],	    
 	    config: ['vle/config/config.js'],
 		keystroke: ['vle/util/keystrokemanager.js'],
@@ -306,10 +309,14 @@ var scriptloader = function(){
 		studentwork: ['vle/data/vlestate.js',
 		              'vle/data/nodevisit.js'
 		              ],
+		studentwork_min: ['vle/minified/studentwork_min.js'
+		    		              ],		   
 		annotations: ['vle/grading/Annotations.js',
 		              'vle/grading/Annotation.js'],
+		annotations_min: ['vle/minified/annotations_min.js'],
 		maxscores: ['vle/grading/MaxScores.js',
 		            'vle/grading/MaxScore.js'],
+		maxscores_min:['vle/minified/maxscores_min.js'],
 		hint: ['vle/view/vle/vleview_hint.js'],
 		navigation: ['vle/navigation/NavigationLogic.js',
 		            'vle/navigation/DFS.js',
@@ -359,8 +366,9 @@ var scriptloader = function(){
 	var css = {
 		bootstrap:['vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'],
 		core: ['vle/css/message.css'],
+		core_min: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
-		         'vle/css/ui-tools.css',
+		         'vle/css/ui-tools.css'
 		         ],
 		wise: ["vle/css/wise/WISE_styles.css"],
 		uccp: ["vle/css/uccp/UCCP_styles.css"],
@@ -369,6 +377,8 @@ var scriptloader = function(){
     	menu:["vle/css/sdmenu.css"],
  		grading: ['vle/css/portal/teachergrading.css',
  		         'vle/jquery/css/blue/style.css'],
+ 		grading_min: ['vle/css/portal/teachergrading.css',
+ 		 		         'vle/jquery/css/blue/style.css'],
  		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
     	         
 	};
@@ -376,7 +386,8 @@ var scriptloader = function(){
 	/**
 	 * Known dependencies for a script
 	 */
-	var dependencies = {
+	var dependencies = {	
+		"vle/node/setupNodes.js": ["vle/node/nodefactory.js"],
     	"vle/project/Project.js": ["vle/node/Node.js"],
     	'vle/node/NodeUtils.js': ['vle/node/Node.js'],
     	"vle/node/DrawNode.js": ["vle/node/HtmlNode.js"],
@@ -411,7 +422,7 @@ var scriptloader = function(){
 			callerId = cid;
 			eventManager = em;
 			baseUrl = currentDoc.location.toString().substring(0, currentDoc.location.toString().lastIndexOf('/vle/') + 1);
-			timer = setTimeout(function(){alert(scriptloader.getTimeoutMessage());}, wait);
+			timer = setTimeout(function(){alert(scriptloader.getTimeoutMessage());}, scriptLoaderWait);
 			loadScripts();
 		},
 		bootstrap:function(win, fun){
@@ -438,6 +449,9 @@ var scriptloader = function(){
 		},
 		getTimeoutMessage:function(){
 			return 'It has been too long and the following scripts have not called in to the listener: ' + queue;
+		},
+		resetTimer:function() {
+			resetTimer();
 		},
 		/*
 		 * Adds a script to a given component

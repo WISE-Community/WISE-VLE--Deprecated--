@@ -34,8 +34,9 @@ View.prototype.getStringWithParams = function(key,params) {
 
 View.prototype.i18n.defaultLocale = "en_US";
 
+//"ja","zh_TW",
 View.prototype.i18n.supportedLocales = [
-                                        "ja","zh_TW","en_US"
+                                        "en_US","ja","zh_TW"
                                         ];
 
 /**
@@ -81,7 +82,10 @@ View.prototype.i18n.getStringWithParams = function(key,locale,params) {
 	return translatedString;
 };
 
-function retrieveLocale(locale) {
+/**
+ * Synchronously retrieves specified locale json mapping file
+ */
+View.prototype.retrieveLocale = function(locale) {
 	var localePath = "view/i18n/i18n_" + locale + ".json";
 	$.ajax({"url":localePath,
 		    async:false,
@@ -92,11 +96,26 @@ function retrieveLocale(locale) {
 	});	
 };
 
-// retrieve i18n files for each supported locale 
-for (var i=0; i < View.prototype.i18n.supportedLocales.length; i++) {
-	var locale = View.prototype.i18n.supportedLocales[i];
-	View.prototype.i18n[locale] = {};
-	retrieveLocale(locale);
+/**
+ *  retrieve i18n file based on VLE config. 
+ *  first retrieves default locale and then retrieves user's locale.
+ */
+View.prototype.retrieveLocales = function() {
+	// retrieve default locale
+	this.retrieveLocale(View.prototype.i18n.defaultLocale);
+	
+	// retrieve user locale, if exists
+	var userLocale = this.config.getConfigParam("locale");		
+	if (userLocale != View.prototype.i18n.defaultLocale) {
+		for (var i=0; i < View.prototype.i18n.supportedLocales.length; i++) {
+			var locale = View.prototype.i18n.supportedLocales[i];
+			if (locale == userLocale) {
+				View.prototype.i18n[locale] = {};
+				this.retrieveLocale(locale);
+			}
+		};
+	};
+	eventManager.fire('retrieveLocalesComplete');
 };
 
 /* used to notify scriptloader that this script has finished loading */

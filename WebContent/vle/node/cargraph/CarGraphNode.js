@@ -30,7 +30,7 @@ CarGraphNode.authoringToolName = "Car Graph";
  * will be seen by the author when they add a new step to their project to help
  * them understand what kind of step this is
  */
-CarGraphNode.authoringToolDescription = "Lets students to draw graphs and have cars move according to the graph";
+CarGraphNode.authoringToolDescription = "Lets students draw graphs and have cars move according to the graph";
 
 /**
  * This is the constructor for the Node
