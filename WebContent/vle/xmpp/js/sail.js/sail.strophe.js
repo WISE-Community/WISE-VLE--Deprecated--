@@ -14,8 +14,10 @@ Sail.Strophe = {
         if (!this.jid) throw "No jid set!"
         if (!this.password) throw "No password set!"
         
-        this.conn = new Strophe.Connection(this.bosh_url)
         
+        this.conn = new Strophe.Connection(this.bosh_url)
+        this.conn.reset();
+
         this.conn.xmlInput = function(data) {
             //console.log("IN:", $(data).children()[0])
         }
@@ -28,9 +30,9 @@ Sail.Strophe = {
     
     disconnect: function() {
         //console.log("sending disconnect request...")
-        Sail.Strophe.conn.sync = true
-        Sail.Strophe.conn.flush()
-        Sail.Strophe.conn.disconnect()
+        Sail.Strophe.conn.sync = true;
+        Sail.Strophe.conn.flush();
+        Sail.Strophe.conn.disconnect();
     },
     
     addHandler: function(handler, ns, name, type, id, from) {
@@ -78,7 +80,7 @@ Sail.Strophe = {
                 //console.log('CONNECTED to '+Sail.Strophe.bosh_url)
 
                 // store connection data to allow for .attach() on reload
-                $(window).unload(Sail.Strophe.disconnect)
+                //$(window).unload(Sail.Strophe.disconnect)
 
                 Sail.Strophe.addDefaultHandlers()
                 Sail.Strophe.onConnectSuccess()

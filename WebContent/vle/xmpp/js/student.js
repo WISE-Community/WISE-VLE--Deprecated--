@@ -80,7 +80,8 @@ WISE = {
         onAuthenticated: function() {
         	// callback for when user is authenticated with the portal. user's xmpp username/password should be set in WISE.xmppUsername and WISE.xmppPassword.
             Sail.Strophe.bosh_url = 'http://' + WISE.xmppDomain + '/http-bind/';
-            Sail.Strophe.jid =  WISE.xmppUsername + '@' + WISE.xmppDomain;
+            var currentTimeInMillis = new Date().getTime();
+         	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain + "/" + currentTimeInMillis;
           	Sail.Strophe.password = WISE.xmppPassword;  
 
             Sail.Strophe.onConnectSuccess = function() {
