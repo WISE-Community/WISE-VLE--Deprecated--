@@ -45,9 +45,11 @@ WISE = {
     },    
     
     sendStudentToTeacherMessage: function(msg) {
-        sev = new Sail.Event('studentToTeacherMsg', msg);        
+        sev = new Sail.Event('studentToTeacherMsg', msg);   
+        var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
+        var toJID = teacherWorkgroupId + '@' + WISE.xmppDomain;
         if (WISE.groupchat) {
-        	WISE.groupchat.sendEvent(sev);    	
+        	WISE.groupchat.sendEvent(sev, toJID);    	
         }
     },
     

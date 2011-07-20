@@ -108,12 +108,13 @@ WISE = {
         onAuthenticated: function() {
             Sail.Strophe.bosh_url = 'http://' + WISE.xmppDomain + '/http-bind/';
             var currentTimeInMillis = new Date().getTime();
-         	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain + "/" + currentTimeInMillis;
+         	Sail.Strophe.jid = WISE.xmppUsername + '@' + WISE.xmppDomain;  // + "/" + currentTimeInMillis;
             Sail.Strophe.password = WISE.xmppPassword;
             
             Sail.Strophe.onConnectSuccess = function() {
           	    sailHandler = Sail.generateSailEventHandler(WISE);
           	    Sail.Strophe.addHandler(sailHandler, null, null, 'groupchat');
+          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat');
       	    
           	    var joinedGroupChatSuccess = function() {
           	    	$(WISE).trigger('joinedGroupChat');

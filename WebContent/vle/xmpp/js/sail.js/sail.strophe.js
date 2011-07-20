@@ -235,12 +235,16 @@ Sail.Strophe.Groupchat.prototype = {
         return this.room + "/" + Sail.Strophe.jid
     },
     
-    sendEvent: function(event) {
+    /**
+     * toJID is the JID of the to: user. If null, this is a groupchat. If set, this is a private chat. 
+     */
+    sendEvent: function(event, toJID) {
         /*if (Sail.Strophe.dataMode == 'xml')
             this.sendXML(event.toXML())
-        else*/ if (Sail.Strophe.dataMode == 'json')
-            this.sendJSON(event.toJSON())
-        else // FIXME: this isn't really right...
+        else*/ 
+    	if (Sail.Strophe.dataMode == 'json') {
+   			this.sendJSON(event.toJSON(), toJID);
+        } else // FIXME: this isn't really right...
             this.sendText(event)
     },
     
@@ -254,13 +258,20 @@ Sail.Strophe.Groupchat.prototype = {
         this.conn.send(msg.tree())
     },
     
-    sendJSON: function(json) {
+    /**
+     * toJID is the JID of the to: user. If null, this is a groupchat. If set, this is a private chat. 
+     */
+    sendJSON: function(json, toJID) {
         if (typeof json == "string")
-            json_string = json
+            json_string = json;
         else
-            json_string = JSON.stringify(json)
+            json_string = JSON.stringify(json);
         
-        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(json_string)
+   		if (toJID != null) {
+   			msg = $msg({to: this.room+"/"+toJID, from: Sail.Strophe.jid, type: 'chat'}).c('body').t(json_string)
+   		} else {    			
+   			msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(json_string)
+   		}
         this.conn.send(msg.tree())
     },
     
