@@ -527,3 +527,16 @@ iframe {
 	border-style:inset;
 	border-width:1px;
 }
+
+.gradingCriteriaTable {
+	border-width:1px;
+	border-style:outset;
+	border-collapse:collapse;
+}
+
+.gradingCriteriaTd {
+	text-align:right;
+	padding:3px;
+	border-style:inset;
+	border-width:1px;
+}

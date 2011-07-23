@@ -351,6 +351,10 @@
 		"value":"顯示全部的修訂版本",
 		"description":"text to show next to the 'Show All Revisions' checkbox in the grading tool"
 	},
+	"grading_sort_by_auto_graded_score_checkbox":{
+		"value":"Sort By Auto Graded Score",
+		"description":"text to show next to the 'Sort By Auto Graded Score' checkbox in the grading tool"
+	},
 	"grading_hide_show_revisions":{
 		"value":"顯示/隱藏 修訂版本",
 		"description":"text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
