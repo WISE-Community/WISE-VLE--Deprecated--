@@ -14,6 +14,7 @@ WISE = {
     groupchat: null,
     session: null,
     justWatching: false,
+    teacherResource: null,
     
     init: function(viewIn) {
 		view=viewIn;
@@ -47,7 +48,7 @@ WISE = {
     sendStudentToTeacherMessage: function(msg) {
         sev = new Sail.Event('studentToTeacherMsg', msg);   
         var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
-        var toJID = teacherWorkgroupId + '@' + WISE.xmppDomain;
+        var toJID = teacherWorkgroupId + '@' + WISE.xmppDomain + '/' + WISE.teacherResource;
         if (WISE.groupchat) {
         	WISE.groupchat.sendEvent(sev, toJID);    	
         }
@@ -92,6 +93,31 @@ WISE = {
       	    
           	    WISE.groupchat = new Sail.Strophe.Groupchat(WISE.groupchatRoom);
           	    WISE.groupchat.addHandler(sailHandler);
+          	    
+          	    //override the function that is called when someone joins the chat room
+          	    WISE.groupchat.onParticipantJoin = function(who,pres) {
+          	    	/*
+          	    	 * get the user that joined
+          	    	 * e.g.
+          	    	 * who=639@conference.localhost/27368@localhost/1311631965027
+          	    	 * sender=27368
+          	    	 */
+          	    	var sender = who.split('/')[1].split('@')[0];
+          	    	var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
+          	    	
+          	    	//check if the user that joined is the teacher
+          	    	if(sender == teacherWorkgroupId) {
+          	    		/*
+          	    		 * the user that joined was the teacher so we will remember 
+          	    		 * the teacher's resource so that we can send private messages
+          	    		 * to the teacher
+          	    		 * e.g.
+          	    		 * who=639@conference.localhost/27368@localhost/1311631965027
+          	    		 * teacherResource=1311631965027
+          	    		 */
+          	    		WISE.teacherResource = who.split('/')[2];
+          	    	}
+          	    };
           	    WISE.groupchat.join();
           	};
       	    
