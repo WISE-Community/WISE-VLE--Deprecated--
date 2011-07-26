@@ -590,23 +590,37 @@ var scriptloader = function(){
 							projectJSONObj = $.parseJSON(xmlhttp.responseText);
 						}
 						
+
+						//loop through the sequences in the project and get all node ids that are used
+						var allRefs = [];
+						for (var j=0; j < projectJSONObj.sequences.length; j++) {
+							// get refs and add to refs array
+							allRefs = allRefs.concat(projectJSONObj.sequences[j].refs);
+						}
+
 						//get all the nodes in the project
 						var jsonNodes = projectJSONObj.nodes;
 						if(!jsonNodes){
 							jsonNodes = [];
 						}
-						
+
 						//loop through all the nodes in the project
 						for (var i=0; i < jsonNodes.length; i++) {
 							//get a node
 							var currNode = jsonNodes[i];
 							
-							//get the node type
-							var nodeType = currNode.type;
+							//get node id
+							var nodeId = currNode.identifier;
 							
-							if(nodeTypes.indexOf(nodeType) == -1) {
-								//add it to our array of node types if it is not already in the array
-								nodeTypes.push(nodeType);
+							// check to see if node is referenced in the sequence
+							if (allRefs.indexOf(nodeId) != -1) {
+								//get the node type
+								var nodeType = currNode.type;
+							
+								if(nodeTypes.indexOf(nodeType) == -1) {
+									//add it to our array of node types if it is not already in the array
+									nodeTypes.push(nodeType);
+								}
 							}
 						}
 						
