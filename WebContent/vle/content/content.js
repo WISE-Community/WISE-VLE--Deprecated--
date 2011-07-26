@@ -106,8 +106,10 @@ function createContent(url, contentBaseUrlParam){
 					//change the relative assets path to an absolute path
 					contentString = contentString.replace(new RegExp('\"./assets', 'g'), '\"'+contentBaseUrl + 'assets');
 					contentString = contentString.replace(new RegExp('\"/assets', 'g'), '\"'+contentBaseUrl + 'assets');
+					contentString = contentString.replace(new RegExp('\"assets', 'g'), '\"'+contentBaseUrl + 'assets');
 					contentString = contentString.replace(new RegExp('\'./assets', 'g'), '\''+contentBaseUrl + 'assets');
 					contentString = contentString.replace(new RegExp('\'/assets', 'g'), '\''+contentBaseUrl + 'assets');
+					contentString = contentString.replace(new RegExp('\'assets', 'g'), '\''+contentBaseUrl + 'assets');
 
 					//contentString = contentString.replace(/^\.\/assets|^\/assets|^assets/gi, contentBaseUrl + 'assets');
 				}
