@@ -4,8 +4,9 @@
 <title>Grade By Step</title>
 <script type='text/javascript' src='events/eventmanager.js'></script>
 <script type="text/javascript" src="util/scriptloader.js"></script>
+<!--  
 <script type="text/javascript" src="node/mysystem/mysystem_print.js"></script>
-
+-->
 <script type="text/javascript">
 
 function load(gradingConfigUrl) {
@@ -20,10 +21,28 @@ window.onunload=function(){
 };
 
 /*
+ * return true iff user is requesting to run in minified mode.
+ */
+function isMinifiedEnabled() {
+	//obtain the minified setting from the iframe window url
+	var minified = false;
+	var minifiedSearch = window.location.search.match(/minified=(\w*)/);
+	
+	if(minifiedSearch != null && minifiedSearch.length > 1) {
+		//we found the minified parameter, we will now obtain the value
+		var minifiedStr = window.location.search.match(/minified=(\w*)/)[1];	
+		if (minifiedStr == "true") {
+			minified = true;
+		}
+	}
+	return minified;
+}
+
+/*
  * Loads scripts when body is loaded 
  */
 function loaded(){
-	scriptloader.bootstrap(this, bootstrapListener);
+	scriptloader.bootstrap(this, bootstrapListener, isMinifiedEnabled());
 };
 
 /*
@@ -31,7 +50,7 @@ function loaded(){
  * Loads and starts the authoring view.
  */
 function bootstrapListener(type,args,obj){
-	if(args[0]=='bootstrap'){
+	if(args[0]=='bootstrap' || args[0]=='bootstrap_min'){
 		var gradingListener = function(type,args,obj){
 			//env.startGrading(gradingConfigUrl, runId);
 			window.parent.topiframeOnLoad();
@@ -40,21 +59,11 @@ function bootstrapListener(type,args,obj){
 		eventManager.subscribe('loadingViewComplete', gradingListener);
 		createEnvironment('env', eventManager);
 
-		//obtain the minified setting from the iframe window url
-		var minified = false;
-		var minifiedSearch = window.location.search.match(/minified=(\w*)/);
-		
-		if(minifiedSearch != null && minifiedSearch.length > 1) {
-			//we found the minified parameter, we will now obtain the value
-			var minifiedStr = window.location.search.match(/minified=(\w*)/)[1];	
-			if (minifiedStr == "true") {
-				minified = true;
-				env.startView('grading_min');
-				return;
-			}
+		if (isMinifiedEnabled()) {
+			env.startView('grading_min');
+		} else {
+			env.startView('grading');
 		}
-		
-		env.startView('grading');
 	};
 };
 

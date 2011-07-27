@@ -3,6 +3,10 @@ var coreScripts = [
 	'vle/node/brainstorm/brainstormEvents.js'
 ];
 
+var coreMinScripts = [
+	'vle/node/brainstorm/brainstorm_core_min.js'
+];
+
 var studentVLEScripts = [
     'vle/jquery/js/jquery-1.6.1.min.js',
 	'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
@@ -38,7 +42,7 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('brainstorm', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);

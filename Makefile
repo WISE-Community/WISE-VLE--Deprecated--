@@ -1,10 +1,58 @@
 NAME=WISE4 VLEWrapper
 CLOSURE=build/tools/closure-compiler.jar
-STEPS=STEP_OPENRESPONSE
+STEPS=STEP_ASSESSMENTLIST STEP_BRAINSTORM STEP_CARGRAPH STEP_DATAGRAPH STEP_EXPLANATIONBUILDER STEP_FILLIN STEP_HTML STEP_IDEABASKET STEP_OPENRESPONSE STEP_OUTSIDEURL STEP_MATCHSEQUENCE STEP_MULTIPLECHOICE STEP_MYSYSTEM STEP_SENSOR STEP_SURGE STEP_SVGDRAW STEP_TABLE
 STEP_DIR=WebContent/vle/node/
+
+STEP_ASSESSMENTLIST:
+	cd $(addprefix $(STEP_DIR), assessmentlist); make assessmentlist_core_min
+
+STEP_BRAINSTORM:
+	cd $(addprefix $(STEP_DIR), brainstorm); make brainstorm_core_min
+
+STEP_CARGRAPH:
+	cd $(addprefix $(STEP_DIR), cargraph); make cargraph_core_min
+
+STEP_DATAGRAPH:
+	cd $(addprefix $(STEP_DIR), datagraph); make datagraph_core_min
+
+STEP_EXPLANATIONBUILDER:
+	cd $(addprefix $(STEP_DIR), explanationbuilder); make explanationbuilder_core_min; make explanationbuilder_grading_min
+
+STEP_FILLIN:
+	cd $(addprefix $(STEP_DIR), fillin); make fillin_core_min
+
+STEP_HTML:
+	cd $(addprefix $(STEP_DIR), html); make html_core_min
+
+STEP_IDEABASKET:
+	cd $(addprefix $(STEP_DIR), ideabasket); make ideabasket_core_min
 
 STEP_OPENRESPONSE:
 	cd $(addprefix $(STEP_DIR), openresponse); make openresponse_core_min
+
+STEP_OUTSIDEURL:
+	cd $(addprefix $(STEP_DIR), outsideurl); make outsideurl_core_min
+
+STEP_MATCHSEQUENCE:
+	cd $(addprefix $(STEP_DIR), matchsequence); make matchsequence_core_min
+
+STEP_MULTIPLECHOICE:
+	cd $(addprefix $(STEP_DIR), multiplechoice); make multiplechoice_core_min; make multiplechoice_grading_min
+
+STEP_MYSYSTEM:
+	cd $(addprefix $(STEP_DIR), mysystem); make mysystem_core_min
+
+STEP_SENSOR:
+	cd $(addprefix $(STEP_DIR), sensor); make sensor_core_min
+
+STEP_SURGE:
+	cd $(addprefix $(STEP_DIR), surge); make surge_core_min
+
+STEP_SVGDRAW:
+	cd $(addprefix $(STEP_DIR), draw); make svgdraw_core_min; make svgdraw_grading_min
+
+STEP_TABLE:
+	cd $(addprefix $(STEP_DIR), table); make table_core_min; make table_grading_min
 
 # NOTE: Some files are not ready for the Closure compiler: (jquery)                                                                                                                                                                        
 # NOTE: Our code safely compiles under SIMPLE_OPTIMIZATIONS                                                                                                                                                                                
@@ -14,7 +62,7 @@ STEP_OPENRESPONSE:
 ##### ALL #####
 # usage: make all
 
-all: core_min grading_min studentwork_min annotations_min teacherXMPP_min maxscores_min $(STEPS)
+all: bootstrap_min core_min grading_min studentwork_min annotations_min teacherXMPP_min maxscores_min $(STEPS)
 
 ##### VLE: EVERYTHING BUT THE STEPS #####
 # usage: make vle
@@ -24,6 +72,38 @@ vle: core_min grading_min studentwork_min annotations_min teacherXMPP_min maxsco
 ##### JUST THE STEPS #####
 # usage: make steps
 steps: $(STEPS)
+
+
+##### BOOTSTRAP #####
+# usage: make bootstrap_min
+
+# All bootstrap files that will be compiled by the Closure compiler.                                                                                                                                                                                 
+BOOTSTRAP_JS_FILES=\
+	    util/componentloader.js \
+        view/view.js \
+        node/nodefactory.js \
+        environment/environment.js \
+        jquery/js/jquery-1.6.1.min.js \
+  		jquery/js/jquery-ui-1.8.7.custom.min.js \
+  		jquery/js/jsonplugin.js \
+  		jquery/js/jqueryhelper.js \
+ 		node/Node.js \
+  		node/setupNodes.js
+        
+
+BOOTSTRAP_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(BOOTSTRAP_JS_FILES))
+BOOTSTRAP_CLOSURE_JS_ARGS=$(addprefix --js , $(BOOTSTRAP_JS_INPUT_FILES))
+BOOTSTRAP_COMPILED_JS=WebContent/vle/minified/bootstrap_min.js
+
+
+bootstrap_min:
+	rm -rf $(BOOTSTRAP_COMPILED_JS)
+	java -jar $(CLOSURE) \
+		--compilation_level SIMPLE_OPTIMIZATIONS \
+		$(BOOTSTRAP_CLOSURE_JS_ARGS) \
+		--js_output_file $(BOOTSTRAP_COMPILED_JS)
+	echo "if(typeof eventManager != 'undefined'){eventManager.fire('scriptLoaded', 'vle/minified/bootstrap_min.js');}" >> $(BOOTSTRAP_COMPILED_JS)	                                                                                                                                          
+
 
 ##### CORE #####
 # usage: make core_min

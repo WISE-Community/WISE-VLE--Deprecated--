@@ -3,6 +3,10 @@ var coreScripts = [
 	'vle/node/draw/svgDrawEvents.js'
 ];
 
+var coreMinScripts = [
+   	'vle/node/draw/svgdraw_core_min.js',
+];
+
 var studentVLEScripts = [
 	'vle/node/draw/svg-edit/svgdraw.js'
 ];
@@ -15,6 +19,10 @@ var gradingScripts = [
 	'vle/node/draw/svg-edit/lz77.js',
 	'vle/node/draw/svg-edit/utils.js',
 	'vle/node/draw/svg-edit/svgdrawstate.js'
+];
+
+var gradingMinScripts = [
+    'vle/node/draw/svgdraw_grading_min.js'
 ];
 
 var dependencies = [
@@ -35,10 +43,11 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('svgdraw', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingMinScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('svgdraw', css);
 

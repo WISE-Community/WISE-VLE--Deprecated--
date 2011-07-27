@@ -33,6 +33,7 @@ scriptloader.addScriptToComponent('core_min', coreScripts);
 scriptloader.addScriptToComponent('mw', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('mw', css);
 

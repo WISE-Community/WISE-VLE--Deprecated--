@@ -46,7 +46,7 @@ var css = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('mysystem', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);

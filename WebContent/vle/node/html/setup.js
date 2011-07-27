@@ -3,6 +3,10 @@ var coreScripts = [
 	'vle/node/html/htmlEvents.js'
 ];
 
+var coreMinScripts = [
+   	'vle/node/html/html_core_min.js'
+];
+
 var studentVLEScripts = [
 
 ];
@@ -32,10 +36,11 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('html', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
 componentloader.addNodeClasses('HtmlNode', nodeClasses);

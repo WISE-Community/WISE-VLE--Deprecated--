@@ -3,6 +3,10 @@ var coreScripts = [
 	'vle/node/assessmentlist/assessmentListEvents.js'
 ];
 
+var coreMinScripts = [
+	'vle/node/assessmentlist/assessmentlist_core_min.js'
+];
+
 var studentVLEScripts = [
    	'vle/jquery/js/jquery-1.6.1.min.js',
 	'vle/node/assessmentlist/assessmentlist.js',
@@ -35,7 +39,7 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('assessmentlist', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);

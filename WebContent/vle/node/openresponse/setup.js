@@ -13,8 +13,8 @@ var coreScripts = [
 ];
 
 var coreMinScripts = [
-               	'vle/node/openresponse/openresponse_core_min.js'
-               	];
+	'vle/node/openresponse/openresponse_core_min.js'
+];
 
 var studentVLEScripts = [
 	'vle/node/common/nodehelpers.js',

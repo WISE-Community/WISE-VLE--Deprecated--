@@ -3,6 +3,8 @@ var coreScripts = [
 	'vle/node/sensor/sensorEvents.js'
 ];
 
+var coreMinScripts = ['vle/node/sensor/sensor_core_min.js'];
+
 var studentVLEScripts = [
 	'vle/node/sensor/sensor.js',
 	'vle/node/sensor/sensorstate.js',
@@ -21,6 +23,7 @@ var gradingScripts = [
 	'vle/jquery/js/flot/jquery.flot.js'
 ];
 
+
 var dependencies = [
 	{child:"vle/node/sensor/SensorNode.js", parent:["vle/node/Node.js"]},
 	{child:"vle/jquery/js/flot/jquery.flot.js", parent:["vle/jquery/js/flot/jquery.js"]}
@@ -35,10 +38,11 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('sensor', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('sensor', css);
 

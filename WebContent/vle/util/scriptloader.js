@@ -210,6 +210,7 @@ var scriptloader = function(){
  			      'vle/node/Node.js', 
   		          'vle/node/setupNodes.js'
   		          ],
+  		bootstrap_min: ['vle/minified/bootstrap_min.js'],
   		setup: [],
         core: ['vle/view/i18n/view_i18n.js',
                'vle/common/helperfunctions.js',
@@ -365,6 +366,7 @@ var scriptloader = function(){
 	 */
 	var css = {
 		bootstrap:['vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'],
+		bootstrap_min:['vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'],
 		core: ['vle/css/message.css'],
 		core_min: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
@@ -425,14 +427,18 @@ var scriptloader = function(){
 			timer = setTimeout(function(){alert(scriptloader.getTimeoutMessage());}, scriptLoaderWait);
 			loadScripts();
 		},
-		bootstrap:function(win, fun){
+		bootstrap:function(win, fun, isMinifiedEnabled){
 			win.eventManager = new EventManager(false);
 			win.eventManager.addEvent('scriptLoaded');
 			win.eventManager.addEvent('scriptsLoaded');
 			win.eventManager.subscribe('scriptLoaded', listener);
 			win.eventManager.subscribe('scriptsLoaded', fun);
 			
-			scriptloader.loadScripts('bootstrap', win.document, 'bootstrap', win.eventManager);
+			if (isMinifiedEnabled) {
+				scriptloader.loadScripts('bootstrap_min', win.document, 'bootstrap_min', win.eventManager);
+			} else {
+				scriptloader.loadScripts('bootstrap', win.document, 'bootstrap', win.eventManager);
+			}
 		},
 		loadCssOnly:function(name, doc){
 			currentName = name;

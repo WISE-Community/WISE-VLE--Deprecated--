@@ -17,6 +17,8 @@ var coreScripts = [
 	'vle/node/ideabasket/ideaBasketEvents.js'
 ];
 
+var coreMinScripts = ['vle/node/ideabasket/ideabasket_core_min.js'];
+
 var studentVLEScripts = [
 	/*
      * TODO: rename template
@@ -81,7 +83,7 @@ var nodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 
 /*
  * TODO: rename template
@@ -93,6 +95,7 @@ scriptloader.addScriptToComponent('ideaBasket', studentVLEScripts);
 
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
 /*

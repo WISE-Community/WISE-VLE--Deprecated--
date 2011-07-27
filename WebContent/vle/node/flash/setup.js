@@ -27,6 +27,7 @@ scriptloader.addScriptToComponent('core_min', coreScripts);
 scriptloader.addScriptToComponent('flash', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
 componentloader.addNodeClasses('FlashNode', nodeClasses);

@@ -4,6 +4,10 @@ var coreScripts = [
 	'vle/node/multiplechoice/multipleChoiceEvents.js'
 ];
 
+var coreMinScripts = [
+   	'vle/node/multiplechoice/multiplechoice_core_min.js'
+];
+
 var studentVLEScripts = [
 	'vle/node/common/nodehelpers.js',
 	'vle/common/helperfunctions.js',
@@ -26,6 +30,10 @@ var gradingScripts = [
     'vle/node/multiplechoice/branchstate.js'
 ];
 
+var gradingMinScripts = [
+	'vle/node/multiplechoice/multiplechoice_grading_min.js'
+];
+
 var dependencies = [
 	{child:"vle/node/multiplechoice/MultipleChoiceNode.js", parent:["vle/node/Node.js"]},
 	{child:'vle/node/multiplechoice/ChallengeNode.js', parent:['vle/node/Node.js','vle/node/multiplechoice/MultipleChoiceNode.js']}
@@ -46,11 +54,11 @@ var challengeNodeClasses = [
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
-scriptloader.addScriptToComponent('core_min', coreScripts);
+scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('multiplechoice', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
-scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
+scriptloader.addScriptToComponent('studentwork_min', gradingMinScripts);
 scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('multiplechoice', css);
 

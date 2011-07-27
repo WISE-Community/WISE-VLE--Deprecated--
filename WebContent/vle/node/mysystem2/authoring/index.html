@@ -1,0 +1,106 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]--> <!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]--> <!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]--> <!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title></title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="css/style.css?v=2">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <h1>MySystem</h1>
+  <script type="text/html">
+  <h2>Modules</h2>
+  {{#collection contentBinding="MSA.modulesController" tagName="ul"}}
+    {{view SC.TextField valueBinding="parentView.content.name" placeholder="name"}}
+    {{view SC.TextField valueBinding="parentView.content.image" placeholder="image"}}
+    {{#view SC.Button target="MSA.modulesController" action="removeItem" itemBinding="parentView.content"}}
+    remove
+    {{/view}}
+  {{/collection}}
+  {{#view SC.Button 
+    target="MSA.modulesController"
+    action="createItem"}}
+    Add New Module
+  {{/view}}
+
+  <h2>Energy Types</h2>
+  {{#collection contentBinding="MSA.energyTypesController" tagName="ul"}}
+    {{view SC.TextField valueBinding="parentView.content.label" placeholder="label"}}
+    {{view SC.TextField valueBinding="parentView.content.color" placeholder="color"}}
+    {{#view SC.Button target="MSA.energyTypesController" action="removeItem" itemBinding="parentView.content"}}
+    remove
+    {{/view}}
+  {{/collection}}
+  {{#view SC.Button 
+    target="MSA.energyTypesController"
+    action="createItem"}}
+    Add New Energy Type
+  {{/view}}
+
+  <h2>Diagram Rules</h2>
+  
+  {{#collection contentBinding="MSA.diagramRulesController" tagName="ul"}}
+      The diagram should contain
+      {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.comparisons" valueBinding="parentView.content.comparison"}}
+      {{view SC.TextField valueBinding="parentView.content.number" placeholder="number"}}<br/>
+      {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.nodeTypes" valueBinding="parentView.content.type"}}
+      <!-- button to show/hide the rest of the options if we could use an if statement then we could
+           check for the status of the property, and show one button in one case and another button in another case
+
+           not exactly why we need parentView.parentView here, my guess is that the if wraps this in another view so we
+           need parentView.parentView to get all the way up to the itemView 
+           
+           I tried adding a button to hide the link options again but the value bindings did not correctly update the views after they
+           were shown, hidden and shown again.  Changing the view after the show, hide, show did update the model object though
+      -->
+      {{#if "content.hasLink"}}
+        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.linkDirections" valueBinding="parentView.parentView.content.linkDirection"}}
+        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.nodeTypes" valueBinding="parentView.parentView.content.otherNodeType"}}
+      {{else}}
+        {{#view SC.Button
+          targetBinding="parentView.parentView.content"
+          action="toggleHasLink"}}
+          Enable link conditions
+        {{/view}} 
+      {{/if}}
+      <br/>
+      if not then show the user:
+      {{view SC.TextField valueBinding="parentView.content.suggestion"}}
+      {{#view SC.Button target="MSA.diagramRulesController" action="removeItem" itemBinding="parentView.content"}}
+      Remove Diagram Rule
+      {{/view}}
+  {{/collection}}
+  {{#view SC.Button 
+    target="MSA.diagramRulesController"
+    action="createItem"}}
+    Add New Diagram Rule
+  {{/view}}
+  
+  <h2>State</h2>
+  <pre style="font-size: 80%">
+  {{MSA.dataController.data}}
+  </pre>
+  </script>
+  
+
+
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.6.1.min.js"%3E%3C/script%3E'))</script>
+  <script src="js/libs/sproutcore-2.0.git.5652c640.js"></script>
+  <script src="js/sc_util.js"></script>
+  <script src="js/initial_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -95,7 +95,11 @@ SetupNodes.setupFiles = [
 	 {
 		 nodeName:"SurgeNode",
 		 nodeSetupPath:"vle/node/surge/setup.js"
-	 }		 		 	
+	 },
+	 {
+		 nodeName:"Mysystem2Node",
+		 nodeSetupPath:"vle/node/mysystem2/setup.js"
+	 }		 		 		 
 ];
 
 //insert the setup paths into the scriptloader so they will be loaded
