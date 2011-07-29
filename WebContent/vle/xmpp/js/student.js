@@ -15,6 +15,7 @@ WISE = {
     session: null,
     justWatching: false,
     teacherResource: null,
+    teacherOnline: false,
     
     init: function(viewIn) {
 		view=viewIn;
@@ -46,12 +47,15 @@ WISE = {
     },    
     
     sendStudentToTeacherMessage: function(msg) {
-        sev = new Sail.Event('studentToTeacherMsg', msg);   
-        var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
-        var toJID = teacherWorkgroupId + '@' + WISE.xmppDomain + '/' + WISE.teacherResource;
-        if (WISE.groupchat) {
-        	WISE.groupchat.sendEvent(sev, toJID);    	
-        }
+    	if(WISE.teacherOnline) {
+    		//only send the message if the teacher is online
+            sev = new Sail.Event('studentToTeacherMsg', msg);   
+            var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
+            var toJID = teacherWorkgroupId + '@' + WISE.xmppDomain + '/' + WISE.teacherResource;
+            if (WISE.groupchat) {
+            	WISE.groupchat.sendEvent(sev, toJID);    	
+            }    		
+    	}
     },
     
     disconnect: function() {
@@ -68,6 +72,29 @@ WISE = {
         	WISE.xmppPassword = data.xmppPassword;
             $(WISE).trigger('authenticated');
         });
+    },
+    
+    /**
+     * Check if the user is the teacher
+     */
+    isPresenceFromTeacher: function(who) {
+    	var result = false;
+    	
+		/*
+		 * get the user that joined
+		 * e.g.
+		 * who=639@conference.localhost/27368@localhost/1311631965027
+		 * sender=27368
+		 */
+		var sender = who.split('/')[1].split('@')[0];
+		var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
+		
+		//check if the user that joined is the teacher
+		if(sender == teacherWorkgroupId) {
+			result = true;
+		}
+		
+		return result;
     },
     
     
@@ -96,28 +123,35 @@ WISE = {
           	    
           	    //override the function that is called when someone joins the chat room
           	    WISE.groupchat.onParticipantJoin = function(who,pres) {
-          	    	/*
-          	    	 * get the user that joined
-          	    	 * e.g.
-          	    	 * who=639@conference.localhost/27368@localhost/1311631965027
-          	    	 * sender=27368
-          	    	 */
-          	    	var sender = who.split('/')[1].split('@')[0];
-          	    	var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
-          	    	
-          	    	//check if the user that joined is the teacher
-          	    	if(sender == teacherWorkgroupId) {
-          	    		/*
-          	    		 * the user that joined was the teacher so we will remember 
-          	    		 * the teacher's resource so that we can send private messages
-          	    		 * to the teacher
-          	    		 * e.g.
-          	    		 * who=639@conference.localhost/27368@localhost/1311631965027
-          	    		 * teacherResource=1311631965027
-          	    		 */
+          	    	if(WISE.isPresenceFromTeacher(who)) {
+          				/*
+          				 * the user that joined was the teacher so we will remember 
+          				 * the teacher's resource so that we can send private messages
+          				 * to the teacher
+          				 * e.g.
+          				 * who=639@conference.localhost/27368@localhost/1311631965027
+          				 * teacherResource=1311631965027
+          				 */
           	    		WISE.teacherResource = who.split('/')[2];
+              	    	WISE.teacherOnline = true;
           	    	}
           	    };
+          	    
+          	    //override the function that is called when someone leaves the chat room
+          	    WISE.groupchat. onParticipantLeave = function(who,pres) {
+          	    	if(WISE.isPresenceFromTeacher(who)) {
+          	    		//the teacher has left the chat room
+	          	    	WISE.teacherResource = null;
+          	    		WISE.teacherOnline = false;
+          	    		
+          	    		/*
+          	    		 * unlock the screen just in case the the teacher's browser failed to call unPause
+          	    		 * when they left the classroom monitor
+          	    		 */
+          	    		eventManager.fire('unlockScreenEvent');
+          	    	}
+          	    };
+          	    
           	    WISE.groupchat.join();
           	};
       	    
