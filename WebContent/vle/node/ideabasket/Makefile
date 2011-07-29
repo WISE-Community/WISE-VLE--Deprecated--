@@ -1,5 +1,4 @@
-CLOSURE=../../../../build/tools/closure-compiler.jar
-
+CLOSURE=../../../WEB-INF/lib/closure-compiler.jar
 
 ##### ideabasket_core_min #####
 # usage: make ideabasket_core_min

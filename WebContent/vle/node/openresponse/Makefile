@@ -1,5 +1,4 @@
-CLOSURE=../../../../build/tools/closure-compiler.jar
-
+CLOSURE=../../../WEB-INF/lib/closure-compiler.jar
 
 ##### openresponse_core_min #####
 # usage: make openresponse_core_min

@@ -1,5 +1,4 @@
-CLOSURE=../../../../build/tools/closure-compiler.jar
-
+CLOSURE=../../../WEB-INF/lib/closure-compiler.jar
 
 ##### surge_core_min #####
 # usage: make surge_core_min

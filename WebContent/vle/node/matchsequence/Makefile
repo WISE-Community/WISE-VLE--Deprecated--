@@ -1,5 +1,4 @@
-CLOSURE=../../../../build/tools/closure-compiler.jar
-
+CLOSURE=../../../WEB-INF/lib/closure-compiler.jar
 
 ##### matchsequence_core_min #####
 # usage: make matchsequence_core_min

@@ -1,4 +1,4 @@
-CLOSURE=../../../../build/tools/closure-compiler.jar
+CLOSURE=../../../WEB-INF/lib/closure-compiler.jar
 
 
 ##### assessmentlist_core_min #####

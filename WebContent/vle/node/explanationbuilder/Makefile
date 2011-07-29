@@ -1,4 +1,4 @@
-CLOSURE=../../../../build/tools/closure-compiler.jar
+CLOSURE=../../../WEB-INF/lib/closure-compiler.jar
 
 ##### explanationbuilder_core_min #####
 # usage: make explanationbuilder_core_min

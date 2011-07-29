@@ -1,7 +1,8 @@
 NAME=WISE4 VLEWrapper
-CLOSURE=build/tools/closure-compiler.jar
+CLOSURE=WEB-INF/lib/closure-compiler.jar
 STEPS=STEP_ASSESSMENTLIST STEP_BRAINSTORM STEP_CARGRAPH STEP_DATAGRAPH STEP_EXPLANATIONBUILDER STEP_FILLIN STEP_HTML STEP_IDEABASKET STEP_OPENRESPONSE STEP_OUTSIDEURL STEP_MATCHSEQUENCE STEP_MULTIPLECHOICE STEP_MYSYSTEM STEP_SENSOR STEP_SURGE STEP_SVGDRAW STEP_TABLE
-STEP_DIR=WebContent/vle/node/
+STEP_DIR=vle/node/
+VLE_DIR=vle/
 
 STEP_ASSESSMENTLIST:
 	cd $(addprefix $(STEP_DIR), assessmentlist); make assessmentlist_core_min
@@ -91,9 +92,9 @@ BOOTSTRAP_JS_FILES=\
   		node/setupNodes.js
         
 
-BOOTSTRAP_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(BOOTSTRAP_JS_FILES))
+BOOTSTRAP_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(BOOTSTRAP_JS_FILES))
 BOOTSTRAP_CLOSURE_JS_ARGS=$(addprefix --js , $(BOOTSTRAP_JS_INPUT_FILES))
-BOOTSTRAP_COMPILED_JS=WebContent/vle/minified/bootstrap_min.js
+BOOTSTRAP_COMPILED_JS=$(addprefix $(VLE_DIR), minified/bootstrap_min.js)
 
 
 bootstrap_min:
@@ -128,9 +129,9 @@ CORE_JS_FILES=\
         node/NodeUtils.js
         
 
-CORE_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(CORE_JS_FILES))
+CORE_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(CORE_JS_FILES))
 CORE_CLOSURE_JS_ARGS=$(addprefix --js , $(CORE_JS_INPUT_FILES))
-CORE_COMPILED_JS=WebContent/vle/minified/core_min.js
+CORE_COMPILED_JS=$(addprefix $(VLE_DIR), minified/core_min.js)
 
 
 core_min:
@@ -157,9 +158,9 @@ GRADING_JS_FILES=\
         view/grading/gradingview_studentwork.js 
 
 
-GRADING_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(GRADING_JS_FILES))
+GRADING_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(GRADING_JS_FILES))
 GRADING_CLOSURE_JS_ARGS=$(addprefix --js , $(GRADING_JS_INPUT_FILES))
-GRADING_COMPILED_JS=WebContent/vle/minified/grading_min.js
+GRADING_COMPILED_JS=$(addprefix $(VLE_DIR), minified/grading_min.js)
 
 
 grading_min:
@@ -180,9 +181,9 @@ STUDENTWORK_JS_FILES=\
         data/vlestate.js \
         data/nodevisit.js
 
-STUDENTWORK_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(STUDENTWORK_JS_FILES))
+STUDENTWORK_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(STUDENTWORK_JS_FILES))
 STUDENTWORK_CLOSURE_JS_ARGS=$(addprefix --js , $(STUDENTWORK_JS_INPUT_FILES))
-STUDENTWORK_COMPILED_JS=WebContent/vle/minified/studentwork_min.js
+STUDENTWORK_COMPILED_JS=$(addprefix $(VLE_DIR), minified/studentwork_min.js)
 
 
 studentwork_min:
@@ -204,9 +205,9 @@ ANNOTATIONS_JS_FILES=\
         grading/Annotations.js \
         grading/Annotation.js
 
-ANNOTATIONS_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(ANNOTATIONS_JS_FILES))
+ANNOTATIONS_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(ANNOTATIONS_JS_FILES))
 ANNOTATIONS_CLOSURE_JS_ARGS=$(addprefix --js , $(ANNOTATIONS_JS_INPUT_FILES))
-ANNOTATIONS_COMPILED_JS=WebContent/vle/minified/annotations_min.js
+ANNOTATIONS_COMPILED_JS=$(addprefix $(VLE_DIR), minified/annotations_min.js)
 
 
 annotations_min:
@@ -237,9 +238,9 @@ TEACHERXMPP_JS_FILES=\
         xmpp/js/teacher.js \
         xmpp/js/sail.js/sail.ui.js
 
-TEACHERXMPP_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(TEACHERXMPP_JS_FILES))
+TEACHERXMPP_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(TEACHERXMPP_JS_FILES))
 TEACHERXMPP_CLOSURE_JS_ARGS=$(addprefix --js , $(TEACHERXMPP_JS_INPUT_FILES))
-TEACHERXMPP_COMPILED_JS=WebContent/vle/minified/teacherXMPP_min.js
+TEACHERXMPP_COMPILED_JS=$(addprefix $(VLE_DIR), minified/teacherXMPP_min.js)
 
 
 teacherXMPP_min:
@@ -260,9 +261,9 @@ MAXSCORES_JS_FILES=\
 	grading/MaxScores.js \
 	grading/MaxScore.js
         
-MAXSCORES_JS_INPUT_FILES=$(addprefix WebContent/vle/, $(MAXSCORES_JS_FILES))
+MAXSCORES_JS_INPUT_FILES=$(addprefix $(VLE_DIR), $(MAXSCORES_JS_FILES))
 MAXSCORES_CLOSURE_JS_ARGS=$(addprefix --js , $(MAXSCORES_JS_INPUT_FILES))
-MAXSCORES_COMPILED_JS=WebContent/vle/minified/maxscores_min.js
+MAXSCORES_COMPILED_JS=$(addprefix $(VLE_DIR), minified/maxscores_min.js)
 
 
 maxscores_min:
