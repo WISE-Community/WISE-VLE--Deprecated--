@@ -2,8 +2,8 @@
 SVGDrawNode.prototype = new Node();
 SVGDrawNode.prototype.constructor = SVGDrawNode;
 SVGDrawNode.prototype.parent = Node.prototype;
-SVGDrawNode.authoringToolName = "SVG Draw";
-SVGDrawNode.authoringToolDescription = "Students draw using basic drawing tools";
+SVGDrawNode.authoringToolName = "WISE Draw";
+SVGDrawNode.authoringToolDescription = "Students draw using basic drawing tools, take snapshots and create flipbook animations";
 function SVGDrawNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
@@ -15,7 +15,7 @@ function SVGDrawNode(nodeType, view) {
 	this.exportableToNodes = new Array(			
 			"SVGDrawNode");	
 	this.importableFileExtensions = new Array(
-			"jpg", "png");
+			"jpg", "png", "gif", "svg");
 };
 
 SVGDrawNode.prototype.updateJSONContentPath = function(base){
@@ -125,7 +125,7 @@ SVGDrawNode.prototype.canImportFile = function(filename) {
 /**
  * Imports and inserts the specified file into current drawing.
  * @param file to insert into current canvas
- * @return true iff import is successful
+ * @return true if import is successful
  */
 SVGDrawNode.prototype.importFile = function(filename) {
 	if (this.canImportFile(filename)) {

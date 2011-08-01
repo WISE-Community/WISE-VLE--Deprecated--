@@ -1,34 +1,104 @@
 /* STYLES FOR GRADE BY STEP AS THE EMBEDDED IFRAME -  gradebystep.html  */
 
+/* CSS Reset */
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+  font-size:100%;
+  font-weight:normal;
+  font-style:normal;
+  vertical-align:baseline;
+  background:transparent;
+}
+ul,ol {list-style:none;}
+fieldset,img,hr {border:none;}
+caption,th {text-align:left;}
+table {border-collapse:collapse; border-spacing:0;}
+td {vertical-align:top;}
+
+body {
+	font-family:Arial, Helvetica, Tahoma, sans-serif;
+	font-size: 100%;
+	text-align: left;
+	overflow:auto;
+	color: #444;
+}
+
+img {border: 0px;}
+
+h1 {font-size:2.0em;} 
+h2 {font-size:1.5em; }
+h3 {font-size:1.4em;}
+h4 {font-size:1.2em;}
+h5 {font-size:.9em; }
+h6 {font-size:.8em; }
+p  {line-height:125%;padding:0px; margin:0px;}
+
+abbr, acronym {
+	cursor:help;
+	border-bottom: 1px dotted #666666;	
+}
+
+a, a:visited {
+	color: #007391;
+    margin: 0;
+    text-decoration:none;
+    cursor:pointer;
+    outline:none;
+}
+
+a:hover {
+	text-decoration:underline !important;
+}
+
 iframe {
 	width:100%;
 }
 
 .lastAnnotationPostTime {
-	font-style:italic;
-	font-size:70%;	
+	font-style: italic;
+	font-size: .75em;
+	margin: 1em 0 !important;
+	border-top: 1px solid #CCC;
+	padding-top: .5em;
+	color: #666;
 }
 
 /* This style applies to new or revised items in the teacher grading table (by Step or by Team)  */
 
 .newWork {
-	background-color: #ffcc99;	
+	background-color: #FFEFED;
+	/*border: 2px solid #FF563F;*/
 }
 
 #gradeWorkDiv {
 	text-align: left;
-	padding-bottom:5px;
-	border-bottom:3px solid #919EBA;
+	font-size:.9em;
+	min-width:1000px;
+	/*padding-bottom:5px;
+	border-bottom:3px solid #919EBA;*/
 }
 
 #gradeStepHeader {
-	font-size:1.2em;
+	padding: 0.5em;
+	/*font-size:1.2em;
 	font-weight:bold;
 	color:#333;
 	margin: 0 0 10px 0;
-	letter-spacing:.5px;
-		
-	
+	letter-spacing:.5px;*/
 }
 
 
@@ -37,7 +107,146 @@ iframe {
 	vertical-align:top;
 }
 
-.runButtons input, #lowerSaveButton input, .blueButton {
+.gradingHeader {
+    padding: .75em;
+    line-height:.85em;
+    font-size:.85em;
+    border-bottom: 1px solid #CCCCCC;
+	background: #eeeeee; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 0%, #eeeeee 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#eeeeee)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 0%,#eeeeee 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 0%,#eeeeee 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 0%,#eeeeee 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #ffffff 0%,#eeeeee 100%); /* W3C */
+}
+
+.gradingHeader a {
+	margin:0 .25em;
+}
+
+.gradingHeader .instructions {
+	font-weight:bold;
+	font-size:1.1em;
+}
+
+#gradeTeamHeader {
+	padding: 0.5em 0.75em;
+}
+
+#gradeTeamHeader .instructions {
+	line-height: 20px;
+}
+
+.gradingTools {
+	box-shadow: 0 0 2px #444444;
+	-moz-box-shadow: 0 0 2px #444444;
+	-webkit-box-shadow: 0 0 2px #444444;
+}
+
+#fixedGradingHeader {
+	padding: 1em 0.5em;
+}
+
+#fixedGradingHeader div {
+	display:inline;
+}
+
+a.saveButton {
+	background-color: #FF563F;
+	color:#FFFFFF;
+	box-shadow: 0 0 2px #FF563F;
+	-moz-box-shadow: 0 0 2px #FF563F;
+	-webkit-box-shadow: 0 0 2px #FF563F;
+	border-radius:6px;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+	text-decoration:none;
+	padding: 4px 7px;
+	font-weight:bold;
+	margin-left:1em;
+}
+
+a.saveButton:hover {
+	background-color:#F97F6E;
+}
+
+a.saveButton:active {
+	color:#FF563F;
+	background-color:#FFFFFF;
+}
+
+a.gradingButton {
+	color: #745A33;
+    padding: 3px 6px;
+    margin:0 .25em;
+}
+
+a.gradingButton.checked {
+	background-color: #745A33;
+	color:#FFFFFF;
+	box-shadow: 0 0 1px #444444;
+	-moz-box-shadow: 0 0 1px #444444;
+	-webkit-box-shadow: 0 0 1px #444444;
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	text-decoration:none;
+}
+
+#periodSelect {
+	background:#666666;
+	color:#EEEEEE;
+}
+
+a.periodChoice {
+	color:#DADF8B;
+	margin:0 .25em;
+	padding: 2px 6px;
+}
+
+a.periodChoice.checked {
+	background-color: #DADF8B;
+    color: #333;
+	text-decoration: none;
+	border-radius: 4px;
+}
+
+.gradingContent {
+	padding:.5em 1em;
+	overflow:auto;
+	margin-top: 1px;
+}
+
+.runButtons input {
+	
+}
+
+.gradingContent .progress, .gradingContent .pLabel {
+	height: 18px;
+	line-height:20px;
+}
+
+.gradingContent .progress {
+	margin: 0 40px 0 5px;
+	border-radius: 0 0 0 0;
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0 0 0 0;
+}
+
+.gradingContent .ui-progressbar-value {
+	border-radius: 0 0 0 0;
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0 0 0 0;
+}
+
+.gradingContent .pLabel {
+	width: 40px;
+	float:right;
+}
+
+/*.runButtons input, #lowerSaveButton input, .blueButton {
 	margin:10px 10px 10px 10px;
 	padding: 1px 8px;
 	font: bold Verdana, Arial, sans-serif;
@@ -50,7 +259,7 @@ iframe {
 	-webkit-border-radius: 4px;
 	border-radius: 4px;  
 	border: 1px solid #19253D; 
-}
+}*/
 
 .runButtons input:hover, #lowerSaveButton input:hover {
 	background-color:#FFFF00;
@@ -58,40 +267,46 @@ iframe {
 }
 	
 .chooseStepToGradeTable a, .chooseTeamToGradeTable a, .showScoreTable a {
+	font-weight:bold;
+}
+
+.chooseStepToGradeTable a, .showScoreTable a {
 	display: block;
-	background-image:url(../../images/Pixel_Gray.png);
-	background-repeat:repeat;
-	margin-left: 40px;
+	background-color:#EEEEEE;
+	margin-left: 1em;
 	padding: 5px;
 	font-size: .9em;
-	color: blue;
-	font-weight:bold;
 }
 
 .chooseStepToGradeTable p, .chooseTeamToGradeTable p, .showScoreTable p {
 	display: block;
-	margin-left: 40px;
-	padding: 2px 2px;
-	font-size: .8em;
+	margin-left: .75em;
+	padding-left: .6em;
+	color: #777;
+	font-size: .9em;
 }
 
-.chooseStepToGradeTable a:hover, .chooseTeamToGradeTable a:hover, .showScoreTable a:hover {
-	background-color: #FFFF00;
+.chooseStepToGradeStepTd a:hover, .showScoreTable a:hover,
+.chooseStepToGradeStepTd:hover a {
+	background-color: #DDDDDD;
+	text-decoration: none;
 }
 
 .chooseStepToGradeTable .header {
 	border:1px solid #transparent;
 }
 
-.chooseStepToGradeTable .col2 {width:80px;}
+/*.chooseStepToGradeTable .col2 {width:80px;}
 .chooseStepToGradeTable .col3 {width:70px;}
 .chooseStepToGradeTable .col4 {width:100px;}
-.chooseStepToGradeTable .col5 {width:135px;}
+.chooseStepToGradeTable .col5 {width:135px;}*/
 
 #statisticsTable {
 	border-collapse:collapse;
 	margin:0;
 	padding:0;
+	width:100%;
+	color: #444444;
 }
 
 #statisticsTable td {
@@ -99,24 +314,24 @@ iframe {
 }
 
 #statisticsTable .header {
-	color:#000;
-	font-size:.8em;
-	text-align:center;
-	border:1px solid #999;
-	background-color:#ccc;
+	background-color: #DDDDDD;
+    border: 1px solid #AAAAAA;
+    color: #444444;
+    text-align: center;
 }
 
-#statisticsTable .col1 {width:550px;}
-#statisticsTable .col2 {width:80px;}
-#statisticsTable .col3 {width:70px;}
-#statisticsTable .col4 {width:100px;}
-#statisticsTable .col5 {width:135px;}
+#statisticsTable .col1, #chooseStepToGradeTable .col1 {width:55%;}
+#statisticsTable .col2, #chooseStepToGradeTable .col2 {width:10%;}
+#statisticsTable .col3, #chooseStepToGradeTable .col3 {width:10%;}
+#statisticsTable .col4, #chooseStepToGradeTable .col4 {width:10%;}
+#statisticsTable .col5, #chooseStepToGradeTable .col5 {width:15%; padding:2px 0;}
 
 .chooseStepToGradeTable .statistic {
-	font-size:.8em;
-	text-align:center;
-	vertical-align:middle;
-	border:1px solid #ccc;
+	background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    font-size: 0.9em;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .objectToGradeHeaderTable {
@@ -197,35 +412,94 @@ iframe {
 		margin-right:20px;
 		font-weight:bold;
 }
-		
+
+a.selectStep {
+	margin-left:1em;
+	font-weight:bold;
+}
+
+a.selectStep.disabled {
+	color:#CCCCCC;
+	text-decoration:none !important;
+}
+
+a.selectStep:hover {
+	text-decoration:underline;
+}
+
+#periodSelect, {
+	background: #DDDDDD;
+    color: #444444;
+}
+
 #filterOptions {
-	font-size:.8em;
-	margin:5px 0;
-	}
+	background: none repeat scroll 0 0 transparent;
+    border-top: 1px solid #DDDDDD;
+    margin-bottom: -0.25em;
+    margin-top: 0.7em;
+	padding-top: 0.5em;
+    color: #444444;
+}
 	
 #filterOptions input {
-	margin-right:4px;
-	margin-left:25px;
+	margin-right:.5em;
+	margin-left:0;
 	vertical-align:center;
-	}
+}
 	
 #filterOptions p {
 	display:inline;
-	font-size:1.1em;
-		}
+	font-size:1em;
+	margin-right:1em;
+}
 	
 #showScoreTable, #chooseTeamToGradeTable, #chooseStepToGradeTable {
 	border-collapse:collapse;
-	margin-bottom:25px;
-	}
-
-#chooseTeamToGradeTable {
+	width: 100%;
 }
 
-#chooseTeamToGradeTable td, #chooseTeamToGradeTable th {
-	border:1px solid #999;
-	text-align:left;
+#chooseTeamToGradeTable {
+	margin-top: -0.45em;
+}
+
+input#chooseTeamToGrade_search {
+	background-color: #F9F9F9;
+	border:1px solid #DDDDDD;
+	padding:2px;
+	height: 20px;
+	width: 150px;
+	text-align: left;
+}
+
+input#chooseTeamToGrade_search:focus {
+	background-color:#FFFFFF;
+}
+
+.fixedHeader {
+	margin-top:.4em;
+}
+
+#chooseTeamToGradeTable td, #chooseTeamToGradeTable td {
+	border:1px solid #DDDDDD;
+	text-align:center;
+	vertical-align: middle;
 	padding:5px;
+	font-size: 0.9em;
+}
+
+#chooseTeamToGradeTable th, #studentworkTable th {
+	background-color: #FFFFFF;
+    border-bottom: 2px solid #777777;
+    border-color: #FFFFFF #FFFFFF #777777;
+    color: #444444;
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 10px 5px 5px;
+    text-align:center;
+}
+
+#chooseTeamToGradeTable th:hover {
+	cursor:pointer;
 }
 
 #showScoreTable thead tr, #chooseTeamToGradeTable thead tr {
@@ -233,7 +507,7 @@ iframe {
 }
 
 #showScoreTable tbody tr:hover, #chooseTeamToGradeTable tbody tr:hover {
-	background-color:#FFFF00;
+	background-color:#EEEEEE;
 	cursor:pointer;
 }
 
@@ -243,23 +517,38 @@ iframe {
 }
 
 .chooseStepToGradeActivityTd h4 {
-	margin:10px 10px 3px 10px;
+	border-bottom: 1px solid #DDDDDD;
+    color: #585F0C;
+    font-size: 1.1em;
+    margin: 0.3em 0 0.25em 0.25em;
+    padding: 0.25em;
 }
 
-.chooseStepToGradeStepTd a #nodeTypeClass {
+.chooseStepToGradeStepTd a .nodeTypeClass {
 	font-size:90%;
 	color:#666;
-	}
+}
 
-.chooseStepToGradeMaxScoreTd input {
-		vertical-align:center;
-		background-color:#339933;
-		color:#FFF;
-		font-weight:bold;
-		padding:2px;
-		width:50px;
-		border:1px solid #666;
-		text-align:center;
+.instructions .nodeTypeClass {
+	font-size:.9em;
+	color:#666666;
+}
+
+input[type="text"] {
+	background-color: #F1F2D9;
+    border: 1px solid #C5D052;
+    color: #444444;
+    font-family: Arial, Helvetica, Tahoma, sans-serif;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 3px;
+    text-align: center;
+    width: 50px;
+}
+
+input[type="text"]:focus {
+	background-color: #DDEFE1;
+	border-color: #007391;
 }
 
 .drawEnlarge {
@@ -275,6 +564,7 @@ iframe {
 .svgDrawCell, .snapCell {
 	background:#fff;
 	border:1px solid #aaa;
+	overflow:hidden;
 }
 
 .snaps {
@@ -286,7 +576,8 @@ iframe {
 }
 
 .svgDrawCell {
-	width:370px;
+	width:360px;
+	height:270px;
 }
 
 .drawDescription span {
@@ -304,33 +595,54 @@ iframe {
 #studentworkTable {
 	border-collapse:collapse;
 	margin:10px 0 25px 0;
-	border:1px solid #666;
 	width:100%
-	}
+}
 	
 #studentworkTable th {
-	background-color:#ccc;
+	/*background-color:#ccc;
 	color:#333;
 	font-size:.7em;
 	padding:4px;
 	text-transform:uppercase;
-	border:1px solid #666;
+	border:1px solid #666;*/
+	text-align: center;
+	border-color:#FFFFFF #FFFFFF #777777;
+}
+#studentworkTable td {
+	border: 1px solid #CCCCCC;
+	border-bottom-color: #777;
 }
 
 #studentworkTable td.workgroupIdColumn {
 	width:18%;
-	padding:2px;
 	text-align:center;
 	font-size:.9em;
-	font-weight:bold;
+	padding: .25em;
+}
+
+td.workgroupIdColumn > div {
+	margin:.5em 0;
 }
 
 #studentworkTable td.workColumn {
-	width:42%;
-	font-size:.9em;
-	padding:3px 8px;
+	/*width:42%;*/
+	width:500px;
+	max-width: 500px;
+	font-size: .9em !important;
 }
 
+td.workColumn p, td.workColumn span {
+	font-size: .9em !important;
+	font-family: Arial, Helvetica, Tahoma, sans-serif !important;
+}
+
+.studentWorkDiv {
+	height: 100%;
+}
+
+.studentWorkDiv div {
+	margin:.5em;
+}
 
 #studentworkTable td.gradingColumn {
 	width:35%;
@@ -341,7 +653,8 @@ iframe {
 #studentworkTable td.toolsColumn {
 	width:5%;
 	font-size:.9em;
-	padding:3px 8px;
+	padding:.5em;
+	text-align:center;
 }
 
 .chooseTeamToGradeTable .col1 {
@@ -356,42 +669,47 @@ iframe {
 	width: 200px;
 }
 
-#teacherAnnotationTable {
+.teacherAnnotationTable {
 	width:100%;
 	border-collapse:collapse;
-	margin:2px 2px 2px 4px;
-	border:0;
+	border:0 none;
 }
 
-#teacherAnnotationTable th, #teacherAnnotationTable td  {
+.noWork .teacherAnnotationTable {
+	opacity:.5;
+}
+
+.teacherAnnotationTable td {
+	vertical-align:middle;
+}
+
+.teacherAnnotationTable th, .teacherAnnotationTable td  {
 	width:100%;
 	border-collapse:collapse;
-	border:0px;
+	border:0 none !important;
 }
 
-#teacherAnnotationTable input {
-	background:#999;
-	padding:2px 6px;
-	color:#FFF;
-	font-size:.9em;
-	width:50px; 
-	text-align:center;
-	border:1px solid #333;
-	margin-left:8px;
-}
-
-#teacherAnnotationTable .lastAnnotationPostTime {
+.teacherAnnotationTable .lastAnnotationPostTime {
 	padding:color:#666;
-	margin-left:4px;
 }
 
-#teacherAnnotationTable textarea {
-	padding:4px;
-	color:#003300;
+.teacherAnnotationTable textarea {
+	padding:.25em;
 	font-weight:bold;
+	width:100%;
 }
 
-#teacherAnnotationTable textarea:focus {
+.teacherAnnotationTable textarea {
+	background-color: #ffffff;
+	border-color: #BBB;
+	padding:.25em;
+}
+
+.teacherAnnotationTable textarea:focus {
+	border-color: #777777;
+}
+
+.teacherAnnotationTable textarea:focus {
 	min-height:90px;
 }
 
@@ -429,7 +747,7 @@ iframe {
 	padding:5px 10px;
 	font-weight:bold;
 	font-size:1.2em;
-	}
+}
 	
 .gradeByTeamGradingPageWorkStepTable .gradeTeamTableHeader td {
 	font-size:.7em;
@@ -464,12 +782,12 @@ iframe {
 	color:blue;
 	border:1px solid transparent;
 	font-size:.8em;
-	}
+}
 
 .gradeByTeamGradingPageWorkStepTable td a:hover {
 	background-color:#FFFF00;
 	border:1px solid #999;
-	}
+}
 	
 .gradeByTeamWorkColumn {
 	width:50%;

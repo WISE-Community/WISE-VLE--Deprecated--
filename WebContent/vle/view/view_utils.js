@@ -479,21 +479,28 @@ View.prototype.getProjectId = function() {
 };
 
 /**
- * Replaces the \n with a <br>
+ * Replaces each \n with a <div>
  * @param studentWork the student work, this may be a string or
  * an array with one element that is a string
- * @return a string with \n replaced with <br>
+ * @return a string with \n replaced with <div>
+ * TODO: filter out extraneous tags and stylings
  */
-View.prototype.replaceSlashNWithBR = function(studentWork) {
+View.prototype.replaceSlashNWithDiv = function(studentWork) {
 	
 	if(studentWork == null) {
 		//do nothing
 	} else if (studentWork.constructor.toString().indexOf("Array") == -1) {
 		//studentWork is not an array
-		studentWork = studentWork.replace(/\n/g, "<br>");
+		//studentWork = studentWork.replace(/\n/g, "<br>");
+		studentWork = studentWork.replace(/\n/g, "</div><div>");
+		studentWork = '<div>' + studentWork;
+		studentWork = studentWork.replace(/<div>$/,'');
 	} else {
 		//studentWork is an array
-		studentWork = studentWork[0].replace(/\n/g, "<br>");
+		//studentWork = studentWork[0].replace(/\n/g, "<br>");
+		studentWork = studentWork[0].replace(/\n/g, "</div><div>");
+		studentWork = '<div>' + studentWork;
+		studentWork = studentWork.replace(/<div>$/,'');
 	}
 	
 	return studentWork;

@@ -27,7 +27,8 @@ body#w4_vle {
 	background-color:#666;
 	background-image:url(../images/robots/surrounding_bg3.png);
 	background-repeat:repeat;
-	}
+	overflow-y:hidden;
+}
 	
 img {border: 0px;}
 

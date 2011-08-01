@@ -96,6 +96,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.deletePremadeComment(args[0], args[1]);
 	} else if(type=='displayExportExplanation') {
 		obj.displayExportExplanation(args[0]);
+	} else if(type=='setSelectedPeriod') {
+		obj.setSelectedPeriod(args[0]);
 	}
 };
 

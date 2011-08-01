@@ -71,6 +71,8 @@ View.prototype.onlyShowWorkOnClick = function() {
  * Displays the steps in the project and then gets the student work
  */
 View.prototype.initiateGradingDisplay = function() {
+	removejscssfile("jquery-ui-1.8.7.custom.css", "css") //remove all occurences "jquery-ui-1.8.7.custom.css" on page
+	
 	//obtain the grading permission from the iframe window url
 	var permissionSearch = window.location.search.match(/permission=(\w*)/);
 	
@@ -314,7 +316,7 @@ View.prototype.displayCustomExportPageHelper = function(node) {
 		var position = this.getProject().getVLEPositionById(nodeId);
 		
 		//display a checkbox and label for the current step
-		displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepCheckBox_" + nodeId + "' class='activityStep_" + (this.activityNumber - 1) + " activityCheckBox' type='checkbox' name='customExportStepCheckbox' value='" + nodeId + "' style='margin-left:20px' /><p style='display:inline'>" + position + " " + node.getTitle() + " [" + node.type + "]</p></td></tr>";
+		displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepCheckBox_" + nodeId + "' class='activityStep_" + (this.activityNumber - 1) + " activityCheckBox' type='checkbox' name='customExportStepCheckbox' value='" + nodeId + "' style='margin-left:20px' /><p style='display:inline'>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr>";
 	} else {
 		/*
 		 * we need to skip the first sequence because that is always the
@@ -324,7 +326,7 @@ View.prototype.displayCustomExportPageHelper = function(node) {
 		 */
 		if(this.activityNumber != 0) {
 			//this node is a sequence so we will display a checkbox and label for the current activity
-			displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><input id='activityCheckBox_" + this.activityNumber + "' class='stepCheckBox' type='checkbox' name='customExportActivityCheckbox' value='" + nodeId + "' onClick='eventManager.fire(\"customActivityCheckBoxClicked\", [\"activityCheckBox_" + this.activityNumber + "\"])' /><h4 style='display:inline'>A" + this.activityNumber + ". " + node.getTitle() + "</h4></td></tr>";
+			displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><input id='activityCheckBox_" + this.activityNumber + "' class='stepCheckBox' type='checkbox' name='customExportActivityCheckbox' value='" + nodeId + "' onClick='eventManager.fire(\"customActivityCheckBoxClicked\", [\"activityCheckBox_" + this.activityNumber + "\"])' /><h4 style='display:inline'>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td></tr>";
 		}
 
 		//increment the activity number
@@ -379,27 +381,46 @@ View.prototype.customSelectAllStepsCheckBoxClicked = function() {
  * @return an html table containing buttons
  */
 View.prototype.getGradingHeaderTableHtml = function() {
-	var getGradingHeaderTableHtml = "";
+	var gradingHeaderHtml = "<div id='fixedGradingHeader' class='gradingHeader runButtons'>";
+	//var getGradingHeaderTableHtml = "";
 	//generate the buttons for other grading views and the export and refresh buttons
-	getGradingHeaderTableHtml += "<table id='gradingHeaderTable' class='gradingHeaderTable' name='gradingHeaderTable'>";
+	gradingHeaderHtml += "<div>";
+	var stepClass = '', teamClass = '';
+	if(this.gradingType == "step"){
+		stepClass = 'checked';
+	} else if (this.gradingType == "team"){
+		teamClass = 'checked'
+	}
+	gradingHeaderHtml += "<a class='gradingButton " + stepClass + "' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\">"+this.getI18NString("grading_button_grade_by_step")+"</a>";
+	gradingHeaderHtml += "<a class='gradingButton " + teamClass + "' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\">"+this.getI18NString("grading_button_grade_by_team")+"</a>";
+	// TODO: classroom monitor link button could go here
+	gradingHeaderHtml += "</div>";
+	
+	/*getGradingHeaderTableHtml += "<table id='gradingHeaderTable' class='gradingHeaderTable' name='gradingHeaderTable'>";
 	getGradingHeaderTableHtml += "<tr class='runButtons'><td colspan='2'>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_step")+"' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\"></input>";
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_team")+"' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\"></input>";
+	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_grade_by_team")+"' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\"></input>";*/
 	
+	gradingHeaderHtml += "<div style='float:right;'>";
 	var runInfoStr = this.config.getConfigParam('runInfo');
 	if (runInfoStr != null && runInfoStr != "") {
 		var runInfo = JSON.parse(runInfoStr);
 		if (runInfo.isStudentAssetUploaderEnabled != null &&
 				runInfo.isStudentAssetUploaderEnabled) {
-			getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_view_student_uploaded_files")+"' onClick=\"eventManager.fire('displayStudentUploadedFiles')\"></input>";
+			gradingHeaderHtml += "<a onClick=\"eventManager.fire('displayStudentUploadedFiles')\">"+this.getI18NString("grading_button_view_student_uploaded_files")+"</a>";
+			//getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_view_student_uploaded_files")+"' onClick=\"eventManager.fire('displayStudentUploadedFiles')\"></input>";
 		}
 	}
 	
-	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_check_for_new_student_work")+"' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
+	gradingHeaderHtml += "<a onClick=\"eventManager.fire('refreshGradingScreen')\">"+this.getI18NString('grading_button_check_for_new_student_work')+"</a>";
+	gradingHeaderHtml += "<a class='saveButton' onClick=\"notificationManager.notify('Changes have been successfully saved.')\">"+this.getI18NString("grading_button_save_changes")+"</a>";
+	gradingHeaderHtml += "</div></div>";
+	/*getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_check_for_new_student_work")+"' onClick=\"eventManager.fire('refreshGradingScreen')\"></input>";
 	getGradingHeaderTableHtml += "<input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input>";
-	getGradingHeaderTableHtml += "</td></tr></table>";
+	getGradingHeaderTableHtml += "</td></tr></table>";*/
 
-	return getGradingHeaderTableHtml;
+	return gradingHeaderHtml;
+	//return getGradingHeaderTableHtml;
 };
 
 View.prototype.displayClassroomMonitorPage = function() {
@@ -569,29 +590,39 @@ View.prototype.applyTableSorterToClassroomMonitorTable = function() {
  * to select a team to grade 
  */
 View.prototype.displayGradeByTeamSelectPage = function() {
+	// set gradingType to "team"
+	this.gradingType = "team";
+	
 	//perform any display page startup tasks
 	this.displayStart("displayGradeByTeamSelectPage");
 	
 	var displayGradeByTeamSelectPageHtml = "";
 	
+	displayGradeByTeamSelectPageHtml += "<div class='gradingTools'>";
+	
 	//show the grading header buttons such as export and the other grading pages
 	displayGradeByTeamSelectPageHtml += this.getGradingHeaderTableHtml();
 	
-	//display Grade by Team header
-	//"+this.getI18NString("grading_grade_by_step")+"
+	//get the html that will be used to filter workgroups by period
+	displayGradeByTeamSelectPageHtml += "<div id='periodSelect' class='gradingHeader'>" + this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage") + "</div>";
 	
-	displayGradeByTeamSelectPageHtml += "<div id='gradeStepHeader'>"+this.getI18NString("grading_grade_by_team_header")+"</div>";
+	//displayGradeByTeamSelectPageHtml += "<div id='gradeStepHeader'>"+this.getI18NString("grading_grade_by_team_header")+"</div>";
+	//display Grade by Team header
+	displayGradeByTeamSelectPageHtml += "<div id='gradeTeamHeader' class='gradingHeader'><span class='instructions'>"+this.getI18NString("grading_grade_by_team_header") + "</span>";
+	displayGradeByTeamSelectPageHtml +=	"<div style='float:right;'>Search for student: <input type='text' id='chooseTeamToGrade_search' /></div><div style='clear:both;'></div></div>";
 	
 	//get the html that will be used to filter workgroups by period
-	displayGradeByTeamSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
+	//displayGradeByTeamSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
 
+	displayGradeByTeamSelectPageHtml += "</div><div class='gradingContent'>";
+	
 	//start the table that will contain the teams to choose
 	displayGradeByTeamSelectPageHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
 	
 	//the header row
 	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
 			"<th class='gradeColumn col2'>"+this.getI18NString("team")+"</th>"+
-			"<th class='gradeColumn col3'>"+this.getI18NString("grading_grade_by_team_teacher_graded_score")+"<br/><span style='font-size:85%''>("+this.getI18NString("grading_grade_by_step_scored_items_only")+")</span></th>"+
+			"<th class='gradeColumn col3'>"+this.getI18NString("grading_grade_by_team_teacher_graded_score")+"</th>"+
 			"<th>"+this.getI18NString("grading_grade_by_step_items_to_review")+"</th><th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th></tr></thead>";
 	
 	//retrieve an array of classmate objects in alphabetical order
@@ -629,14 +660,12 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		var totalScoreForWorkgroup = this.annotations.getTotalScoreByToWorkgroupAndFromWorkgroups(workgroupId, teacherIds);
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
 	
-	displayGradeByTeamSelectPageHtml += "</tbody>";
-	
-	displayGradeByTeamSelectPageHtml += "</table>";
+	displayGradeByTeamSelectPageHtml += "</tbody></table></div>";
 	
 	//set the html into the div so it is displayed
 	document.getElementById('gradeWorkDiv').innerHTML = displayGradeByTeamSelectPageHtml;
@@ -705,25 +734,31 @@ View.prototype.displayStudentUploadedFiles = function() {
  * step from all students in the run.
  */
 View.prototype.displayGradeByStepSelectPage = function() {
+	// set gradingType to "step"
+	this.gradingType = "step";
+	
 	//perform any display page startup tasks
 	this.displayStart("displayGradeByStepSelectPage");
 	
 	//the html that will display all the steps in the project
 	var displayGradeByStepSelectPageHtml = "";
-
+	
+	displayGradeByStepSelectPageHtml = "<div class='gradingTools'>";
+	
 	//show the grading header buttons such as export and the other grading pages
 	displayGradeByStepSelectPageHtml += this.getGradingHeaderTableHtml();
 	
-	//display Grade by Step header
-	displayGradeByStepSelectPageHtml += "<div id='gradeStepHeader'>"+this.getI18NString("grading_grade_by_step_header")+"</div>";
-	
 	//get the html that will be used to filter grading statistics by period
-	displayGradeByStepSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByStepSelectPage");
+	displayGradeByStepSelectPageHtml += "<div id='periodSelect' class='gradingHeader'>" + this.getPeriodRadioButtonTableHtml("displayGradeByStepSelectPage") + "</div>";
 	
-	displayGradeByStepSelectPageHtml += "<table id='statisticsTable'><tr><td class='col1'></td>" +
-				"<td class='header col2'>"+this.getI18NString("grading_grade_by_step_point_value")+"<br/><span style='font-size:80%'>"+this.getI18NString("grading_grade_by_step_editable")+"</span></td>"+
-				"<td class='header col3'>"+this.getI18NString("grading_grade_by_step_items_to_review")+"</td><td class='header col4'>"+this.getI18NString("grading_grade_by_step_average_class_score")+"<br><span style='font-size:80%'>("+this.getI18NString("grading_grade_by_step_scored_items_only")+")</span></td>"+
-				"<td class='header col5'>"+this.getI18NString("grading_grade_by_step_percent_completed_step")+"</td></tr></table>";
+	//display Grade by Step header and statistics table
+	displayGradeByStepSelectPageHtml += "<div id='gradeStepHeader' class='gradingHeader'><table id='statisticsTable'><tr><td class='col1'>" +
+				"<span style='font-weight: bold; font-size: 1.1em;'>"+this.getI18NString("grading_grade_by_step_header")+"</span></td>" +
+				"<td class='header col2'>"+this.getI18NString("grading_grade_by_step_point_value")+"</span></td>"+
+				"<td class='header col3'>"+this.getI18NString("grading_grade_by_step_items_to_review")+"</td><td class='header col4'>"+this.getI18NString("grading_grade_by_step_average_class_score")+"</td>"+
+				"<td class='header col5'>"+this.getI18NString("grading_grade_by_step_percent_completed_step")+"</td></tr></table></div>";
+	
+	displayGradeByStepSelectPageHtml += "</div><div class='gradingContent'>";
 	
 	//start the table that will contains links for the steps
 	displayGradeByStepSelectPageHtml += "<table id='chooseStepToGradeTable' class='chooseStepToGradeTable'><tbody>";
@@ -738,8 +773,10 @@ View.prototype.displayGradeByStepSelectPage = function() {
 	displayGradeByStepSelectPageHtml += this.displayGradeByStepSelectPageHelper(this.getProject().getRootNode());
 
 	//close the table
-	displayGradeByStepSelectPageHtml += "</tbody></table><div id='lowerSaveButton'><input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
-
+	displayGradeByStepSelectPageHtml += "</tbody></table>";
+	
+	displayGradeByStepSelectPageHtml += "</div>";
+	
 	//set the html into the div
 	unlock();
 	document.getElementById('gradeWorkDiv').innerHTML = displayGradeByStepSelectPageHtml;
@@ -782,7 +819,7 @@ View.prototype.displayGradeByStepSelectPageHelper = function(node) {
 		 */
 		if(this.activityNumber != 0) {
 			//this node is a sequence so we will display the activity number and title
-			displayGradeByStepSelectPageHtml += "<tr><td class='chooseStepToGradeActivityTd'><h4>A" + this.activityNumber + ". " + node.getTitle() + "</h4></td><td class='header col2'></td><td class=' header col3'></td><td class='header col4'></td><td class='header col5'></td></tr>";
+			displayGradeByStepSelectPageHtml += "<tr><td class='chooseStepToGradeActivityTd'><h4>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td><td class='header col2'></td><td class=' header col3'></td><td class='header col4'></td><td class='header col5'></td></tr>";
 		}
 
 		//increment the activity number
@@ -808,7 +845,7 @@ View.prototype.displayGradeByStepSelectPageHelper = function(node) {
  * @param type
  */
 View.prototype.getGradeByStepSelectPageLinklessHtmlForNode = function(node, position, type){
-	return "<tr><td class='chooseStepToGradeStepTd' colspan='5'><p>" + position + " " + node.getTitle() + " [" + type + "]</p></td></tr>";
+	return "<tr><td class='chooseStepToGradeStepTd' colspan='5'><p>Step: " + position + " " + node.getTitle() + " (" + type + ")</p></td></tr>";
 };
 
 /**
@@ -839,7 +876,7 @@ View.prototype.getGradeByStepSelectPageLinkedHtmlForNode = function(node, positi
 	var maxScore = this.getMaxScoreValueByNodeId(node.id);
 	
 	//create the tds for the period all statistics
-	statisticsForNode = "<td class='statistic studentWorkRow periodAll' id='stepNumItemsNeedGrading_" + node.id + "'></td><td class='statistic studentWorkRow periodAll' id='stepAverageScore_" + node.id + "'></td><td style='padding-left: 0pt;padding-right: 0pt' class='statistic studentWorkRow periodAll' id='stepPercentStudentsCompleted_" + node.id + "'></td>";
+	statisticsForNode = "<td class='statistic studentWorkRow col3 periodAll' id='stepNumItemsNeedGrading_" + node.id + "'></td><td class='statistic col4 studentWorkRow periodAll' id='stepAverageScore_" + node.id + "'></td><td style='padding-left: 0pt;padding-right: 0pt' class='statistic col5 studentWorkRow periodAll' id='stepPercentStudentsCompleted_" + node.id + "'></td>";
 	
 	//get the periods set up for this run by the teacher, this is a : delimited string
 	var periodNamesString = this.getUserAndClassInfo().getPeriodName();
@@ -853,17 +890,17 @@ View.prototype.getGradeByStepSelectPageLinkedHtmlForNode = function(node, positi
 		var periodName = periodNamesArray[x];
 		
 		//create the td statistics for the current period name
-		statisticsForNode += "<td class='statistic studentWorkRow period" + periodName + "' id='stepNumItemsNeedGrading_" + node.id + "_period" + periodName + "' style='display:none'></td><td class='statistic studentWorkRow period" + periodName + "' id='stepAverageScore_" + node.id + "_period" + periodName + "' style='display:none'></td><td class='statistic studentWorkRow period" + periodName + "' id='stepPercentStudentsCompleted_" + node.id + "_period" + periodName + "' style='display:none'></td>";
+		statisticsForNode += "<td class='statistic col3 studentWorkRow period" + periodName + "' id='stepNumItemsNeedGrading_" + node.id + "_period" + periodName + "' style='display:none'></td><td class='statistic col4 studentWorkRow period" + periodName + "' id='stepAverageScore_" + node.id + "_period" + periodName + "' style='display:none'></td><td class='statistic col5 studentWorkRow period" + periodName + "' id='stepPercentStudentsCompleted_" + node.id + "_period" + periodName + "' style='display:none'></td>";
 	}
 	
 	//get the grading permission
 	var maxScorePermission = this.isWriteAllowed();
 	
 	//the regular link to grade by step, this will show revisions for all steps except MySystemNode and SVGDrawNode
-	var nodeLink = "<a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\"])'>" + position + "&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span id='nodeTypeClass'>(" + type + ")</span></a>";
+	var nodeLink = "<a onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + node.id + "\"])'>Step " + position + ":&nbsp;&nbsp;" + node.getTitle() + "&nbsp;&nbsp;&nbsp;<span class='nodeTypeClass'>(" + type + ")</span></a>";
 	
 	//this is a node that students perform work for so we will display a link
-	return "<tr><td class='chooseStepToGradeStepTd'>" + nodeLink + "</td><td class='chooseStepToGradeMaxScoreTd statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"saveMaxScore\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
+	return "<tr><td class='chooseStepToGradeStepTd col1'>" + nodeLink + "</td><td class='chooseStepToGradeMaxScoreTd col2 statistic'><input id='maxScore_" + node.id + "' type='text' value='" + maxScore + "' onblur='eventManager.fire(\"saveMaxScore\", [" + this.getConfig().getConfigParam('runId') + ", \"" + node.id + "\"])'" + maxScorePermission + "/></td>" + statisticsForNode + "</tr>";
 };
 
 /**
@@ -1076,56 +1113,55 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	
 	var gradeByStepGradingPageHtml = "";
 	
+	gradeByStepGradingPageHtml = "<div class='gradingTools'>";
+	
 	//show the header with all the grading buttons
 	gradeByStepGradingPageHtml += this.getGradingHeaderTableHtml();
 
-	//show the step title and prompt
-	gradeByStepGradingPageHtml += "<table class='objectToGradeHeaderTable'><tr><td class='objectToGradeTd'>" + stepNumber + " " + this.getProject().getNodeById(nodeId).getTitle() + "</td>";
+	//get the html that will be used to filter grading display by period
+	gradeByStepGradingPageHtml += "<div id='periodSelect' class='gradingHeader'>" + this.getPeriodRadioButtonTableHtml("displayGradeByStepGradingPage") + "</div>";
 
+	//show the step title and prompt
+	//gradeByStepGradingPageHtml += "<table class='objectToGradeHeaderTable'><tr><td class='objectToGradeTd'>" + stepNumber + " " + this.getProject().getNodeById(nodeId).getTitle() + "</td>";
+	gradeByStepGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Step: " + stepNumber + " " + this.getProject().getNodeById(nodeId).getTitle() + " <span class='nodeTypeClass'>(" + this.getProject().getNodeById(nodeId).getType() + ")</span></span>";
+	gradeByStepGradingPageHtml += "<div style='float:right;'>";
+	
 	var previousAndNextNodeIds = this.getProject().getPreviousAndNextNodeIds(nodeId);
 	
 	//show the button to go to the previous step in the project
-	var previousButtonEvent;
+	var previousButtonEvent, previousButtonClass = '';
 	if(previousAndNextNodeIds.previousNodeId) {
 		previousButtonEvent = "eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + previousAndNextNodeIds.previousNodePosition + "\", \"" + previousAndNextNodeIds.previousNodeId + "\"])";
 	} else {
-		//if there is no previous step (because this is the first step), we will display a popup message
-		previousButtonEvent = "alert(\""+this.getI18NString("grading_previous_step_not_exist")+"\")";
+		//if there is no previous step (because this is the first step), disable button
+		previousButtonEvent = "return false;";
+		previousButtonClass = "disabled";
 	}
 	
-	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + previousButtonEvent + "'>"+this.getI18NString("grading_previous_step")+"</a></td>";
+	//gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + previousButtonEvent + "'>"+this.getI18NString("grading_previous_step")+"</a></td>";
+	gradeByStepGradingPageHtml += "<a class='selectStep previousButtonClass' onClick='" + previousButtonEvent + "'>"+this.getI18NString("grading_previous_step")+"</a>";
 	
 	//show the button to go back to select another step
-	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>"+this.getI18NString("grading_change_step")+"</a></td>";
+	//gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>"+this.getI18NString("grading_change_step")+"</a></td>";
+	gradeByStepGradingPageHtml += "<a class='selectStep' onClick='eventManager.fire(\"displayGradeByStepSelectPage\")'>"+this.getI18NString("grading_change_step")+"</a>";
 	
 	//show the button to go to the next step in the project
-	var nextButtonEvent;
+	var nextButtonEvent, nextButtonClass = '';
 	if(previousAndNextNodeIds.nextNodeId) {
 		nextButtonEvent = "eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + previousAndNextNodeIds.nextNodePosition + "\", \"" + previousAndNextNodeIds.nextNodeId + "\"])";
 	} else {
-		//if there is no next step (because this is the last step), we will display a popup message
-		nextButtonEvent = "alert(\""+this.getI18NString("grading_next_step_not_exist")+"\")";
+		//if there is no next step (because this is the last step), disable button
+		nextButtonEvent = "return false;";
+		nextButtonClass = "disabled";
 	}
 	
-	gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + nextButtonEvent + "'>"+this.getI18NString("grading_next_step")+"</a></td>";
-	
-	gradeByStepGradingPageHtml += "</tr></table>";
-
-	//show the button that toggles the question for the step
-	gradeByStepGradingPageHtml += "<div class='questionContentContainer'><div class='questionContentHeader'><b>"+this.getI18NString("grading_question")+":</b>"+
-		"<a href='#' onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>";
-	
+	//gradeByStepGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='" + nextButtonEvent + "'>"+this.getI18NString("grading_next_step")+"</a></td>";
+	gradeByStepGradingPageHtml += "<a class='selectStep nextButtonClass' onClick='" + nextButtonEvent + "'>"+this.getI18NString("grading_next_step")+"</a>";
 	
 	gradeByStepGradingPageHtml += "</div>";
+	//gradeByStepGradingPageHtml += "</tr></table>";
 	
-	//get the prompt/question for the step
-	var nodePrompt = this.getProject().getNodePromptByNodeId(nodeId);
-	
-	//the area where the question for the step will be displayed
-	gradeByStepGradingPageHtml += "<div id='questionContentText_" + nodeId + "' class='questionContentText commentHidden'> " + nodePrompt + "</div></div>";
-
-	//get the html that will display the radio buttons to filter periods
-	gradeByStepGradingPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByStepGradingPage");
+	gradeByStepGradingPageHtml += "<div id='filterOptions'>";
 	
 	//check if hide personal info check box was previously checked
 	var hidePersonalInfoChecked = '';
@@ -1134,7 +1170,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//check box to hide personal info
-	gradeByStepGradingPageHtml += "<div id='filterOptions'><input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"eventManager.fire('onlyShowWorkOnClick')\" " + hidePersonalInfoChecked + "/>"+
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowWorkCheckBox' onClick=\"eventManager.fire('onlyShowWorkOnClick')\" " + hidePersonalInfoChecked + "/>"+
 		"<p>"+this.getI18NString("grading_hide_personal_info")+"</p>";
 	
 	//check if show flagged items check box was previously checked
@@ -1184,7 +1220,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	
 	//check if the content has grading criteria
 	if(nodeContent.gradingCriteria != null) {
-		//check if show revisions check box was previously checked
+		//check if sort by auto graded score check box was previously checked
 		var sortByAutoGradedScoreChecked = '';
 		
 		if(this.gradingSortByAutoGradedScore) {
@@ -1195,19 +1231,36 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		gradeByStepGradingPageHtml += "<input type='checkbox' id='sortByAutoGradedScoreCheckbox' value='sort by auto graded score checkbox' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByAutoGradedScoreChecked + "/>"+
 		"<p style='display:inline'>"+this.getI18NString("grading_sort_by_auto_graded_score_checkbox")+"</p>";
 	}
-
+	
+	gradeByStepGradingPageHtml += "</div></div></div>"
+	
+	gradeByStepGradingPageHtml += "<div class='gradingContent'>";
+	
+	//show the button that toggles the question for the step
+	gradeByStepGradingPageHtml += "<div class='questionContentContainer'><div class='questionContentHeader'><b>"+this.getI18NString("grading_question")+":</b>"+
+		"<a onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>";
+	
 	gradeByStepGradingPageHtml += "</div>";
+	
+	//get the prompt/question for the step
+	var nodePrompt = this.getProject().getNodePromptByNodeId(nodeId);
+	
+	//the area where the question for the step will be displayed
+	gradeByStepGradingPageHtml += "<div id='questionContentText_" + nodeId + "' class='questionContentText commentHidden'> " + nodePrompt + "</div></div>";
+
+	//get the html that will display the radio buttons to filter periods
+	//gradeByStepGradingPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByStepGradingPage");
 	
 	gradeByStepGradingPageHtml += "<div id='flaggedItems'></div>";
 
 	//create the table that displays all the student data, student work, and grading text box
-	gradeByStepGradingPageHtml += "<table border='1' id='studentWorkTable' class='studentWorkTable'>";
+	gradeByStepGradingPageHtml += "<table id='studentWorkTable' class='studentWorkTable'>";
 
 	//add the header for the table
-	gradeByStepGradingPageHtml += "<tr id='studentWorkTableHeaderRow'><th class='gradeColumn workgroupIdColumn'>"+this.getI18NString("team_caps")+"</th>"+
+	gradeByStepGradingPageHtml += "<thead id='studentWorkTableHeaderRow'><th class='gradeColumn workgroupIdColumn'>"+this.getI18NString("team_caps")+"</th>"+
 		"<th class='gradeColumn workColumn'>"+this.getI18NString("student_work")+"</th>"+
 		"<th class='gradeColumn gradingColumn'>"+this.getI18NString("teacher_comment_and_score")+"</th>"+
-		"<th class='gradeColumn annotationColumn'>"+this.getI18NString("tools")+"</th></tr>";
+		"<th class='gradeColumn annotationColumn'>"+this.getI18NString("tools")+"</th></thead>";
 	
 	var vleStates = this.getVleStatesSortedByUserName();
 	
@@ -1229,8 +1282,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		
 		var workgroupId = vleState.dataId;
 
-		//get the user names in the workgroup, with 2 <br>'s in between each user name
-		var userNamesHtml = this.getUserNamesByWorkgroupId(workgroupId, 2);
+		//get the user names in the workgroup
+		var userNamesHtml = this.getUserNamesByWorkgroupId(workgroupId, 0);
 		
 		var stepWorkId = null;
 		var studentWork = null;
@@ -1310,23 +1363,23 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var toggleRevisionsLink = "";
 		if(nodeVisitRevisions.length > 1) {
 			//there is more than one revision so we will display a link that will display the other revisions
-			toggleRevisionsLink = "<br><br><a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_revisions")+"</a>";
+			toggleRevisionsLink = "<a onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+(nodeVisitRevisions.length-1)+ " " + this.getI18NString("grading_hide_show_revisions")+"</a>";
 		} else if(nodeVisitRevisions.length == 1) {
 			if(this.getRevisions) {
 				//we retrieved all revisions so that means there are no other revisions
-				toggleRevisionsLink = "<br><br>"+this.getI18NString("grading_no_revisions");
+				toggleRevisionsLink = this.getI18NString("grading_no_revisions");
 			} else {
 				//we only retrieved the latest revision so there may be other revisions
-				toggleRevisionsLink = "<br><br>"+this.getI18NString("grading_only_latest_revision_displayed");
+				toggleRevisionsLink = this.getI18NString("grading_only_latest_revision_displayed");
 			}
 		} else if(nodeVisitRevisions.length == 0) {
 			//there are no revisions
-			toggleRevisionsLink = "<br><br>"+this.getI18NString("grading_no_revisions");
+			toggleRevisionsLink = this.getI18NString("grading_no_revisions");
 		}
 		
 		//display the student workgroup id
-		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><a href='#' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a>"+
-			"<br><br>["+this.getI18NString("period")+" " + periodName + "]" + toggleRevisionsLink + "</td>";
+		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>"+
+			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div></td>";
 		
 		//make the css class for the td that will contain the student's work
 		var studentWorkTdClass = "gradeColumn workColumn";
@@ -1393,7 +1446,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				
 				//display the data for the revision
 				gradeByStepGradingPageHtml += "<tr id='" + studentWorkRowRevisionId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none' isFlagged='" + isFlagged + "'>";
-				gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'>" + userNamesHtml + "<br><br>Revision " + (revisionCount + 1) + "</td>";
+				gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div>" + userNamesHtml + "</div><div>Revision " + (revisionCount + 1) + "</div></td>";
 				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
 				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork);
 				gradeByStepGradingPageHtml += this.getFlaggingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
@@ -1414,8 +1467,9 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	}
 	
 	//close the table that contains all the student rows
-	gradeByStepGradingPageHtml += "</table><div id='lowerSaveButton'><input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
-
+	//gradeByStepGradingPageHtml += "</table><div id='lowerSaveButton'><input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
+	gradeByStepGradingPageHtml += "</table></div></div>";
+	
 	//set the html in the div so the user can see it
 	document.getElementById('gradeWorkDiv').innerHTML = gradeByStepGradingPageHtml;
 	
@@ -1432,6 +1486,19 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		$(".svgdrawCell").each(showDrawNode);
 		$(".snapCell").each(showSnaps);
 	}
+	
+	// make table sortable by any of its columns, TODO: re-enable
+	/*var oTable2 = $("#studentWorkTable").dataTable({
+    	"bSort": false,
+    	"iDisplayLength": -1,
+    	"sDom": '<rt>'
+    });
+    
+    // detach any existing FixedHeader clones
+    $('.fixedHeader').detach();
+    
+    //new FixedHeader( oTable, {"right": true} );  // for some reason, this causes an ActiveX error in mysystem_complete.js!
+    new FixedHeader( oTable2 ); */
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
@@ -1532,21 +1599,48 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
 		//for the current team, calculate the percentage of the project they have completed
 		var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
 		
+		//display the percentage and jqueryui progressbar elements
+		var completedVal = parseInt(teamPercentProjectCompleted.replace('%',''));
+		//percentStudentsCompletedStep = percentStudentsCompletedStep + "<hr width='" + percentStudentsCompletedStep + "' size=" + percentBarSize + " color='black' align='left' noshade>";
+		teamPercentProjectCompleted = "<div class='pLabel'>" + teamPercentProjectCompleted + "</div><div id='progress_" + workgroupId + "' class='progress'></div>";
+			
 		//display the percentage and an hr with a width of the percentage
-		teamPercentProjectCompleted = teamPercentProjectCompleted + "<hr size=3 color='black' width='" + teamPercentProjectCompleted + "' align='left' noshade>";
+		//teamPercentProjectCompleted = teamPercentProjectCompleted + "<hr size=3 color='black' width='" + teamPercentProjectCompleted + "' align='left' noshade>";
 		
 		//total score is calculated within displayGradeByTeamSelectPage()
 		
 		//set the number of items that need scoring for this team
 		document.getElementById("teamNumItemsNeedGrading_" + workgroupId).innerHTML = numItemsNeedGrading;
 		
-		//set the percentage of the project the team has completed
+		//set the percentage of the project the team has completed and jqueryui progressbar
 		document.getElementById("teamPercentProjectCompleted_" + workgroupId).innerHTML = teamPercentProjectCompleted;
+		var item = document.getElementById("progress_" + workgroupId);
+		$(item).progressbar({value: completedVal});
 	}
-
 	
+	// make table sortable by any of its columns
+	var oTable = $("#chooseTeamToGradeTable").dataTable({
+    	"aaSorting": [[1,'asc']],
+    	"iDisplayLength": -1,
+    	"sDom": '<rt>'
+    });
+    
+    // detach any existing FixedHeader clones
+    $('.fixedHeader').detach();
+    
+    //new FixedHeader( oTable, {"right": true} );  // for some reason, this causes an ActiveX error in mysystem_complete.js!
+    new FixedHeader( oTable ); 
+    
+    // set up search input
+    $('input#chooseTeamToGrade_search').keypress(function(e) {
+		if(e.keyCode === 13) {
+			var val = $(this).val();
+    		oTable.fnFilter(val);
+    	}
+    });
+        
     // add parser through the tablesorter addParser method 
-    $.tablesorter.addParser({ 
+    /*$.tablesorter.addParser({ 
         // set a unique id 
         id: 'grades', 
         is: function(s) { 
@@ -1554,7 +1648,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
             return false; 
         }, 
         format: function(s) { 
-            // format your data for normalization 
+            // format your data for normalization */
         	
         	/*
         	 * the values in the column are like "9 / 10" so we need 
@@ -1562,24 +1656,24 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
         	 */
         	
         	//get the index of the '/'
-        	var slashIndex = s.indexOf('/');
+        	//var slashIndex = s.indexOf('/');
         	
         	/*
         	 * get only the number value before the '/', we need to
         	 * subtract 1 because the value is like "9 / 10" and we
         	 * want to get rid of the space before the '/'
         	 */
-        	var score = s.substring(0, slashIndex - 1);
+        	/*var score = s.substring(0, slashIndex - 1);
 
         	//return the value before the '/'
             return score; 
         }, 
         // set type, either numeric or text 
         type: 'numeric' 
-    }); 
+    }); */
      
     // add parser through the tablesorter addParser method 
-    $.tablesorter.addParser({ 
+   /* $.tablesorter.addParser({ 
         // set a unique id 
         id: 'completion', 
         is: function(s) { 
@@ -1587,7 +1681,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
             return false; 
         }, 
         format: function(s) { 
-            // format your data for normalization 
+            // format your data for normalization */
         	
         	/*
         	 * the values in the column are like "52%<hr>" so we need 
@@ -1595,7 +1689,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
         	 */
         	
         	//get the index of the '%'
-        	var percentIndex = s.indexOf('%');
+        	/*var percentIndex = s.indexOf('%');
         	
         	// only get the number value before the '%'
         	var completion = s.substring(0, percentIndex);
@@ -1605,7 +1699,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
         }, 
         // set type, either numeric or text 
         type: 'numeric' 
-    }); 
+    }); */
     
     /*
      * make the table sortable by any of its columns
@@ -1617,7 +1711,8 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
      * the 5th column requires special sorting to only look at the
      * percentage value and to ignore the <hr>
      */
-    $("#chooseTeamToGradeTable").tablesorter({ 
+    
+    /*$("#chooseTeamToGradeTable").tablesorter({ 
         headers: { 
             2: { 
                 sorter:'grades' 
@@ -1626,7 +1721,7 @@ View.prototype.calculateGradeByTeamGradingStatistics = function() {
         		sorter:'completion' 
     		}
         } 
-    }); 
+    });*/ 
 	
 	this.displayFinished();
 };
@@ -1665,11 +1760,16 @@ View.prototype.calculateGradeByStepGradingStatistics = function(node) {
 				percentBarSize = 3;
 			}
 			
-			//display the percentage and an hr bar under it
-			percentStudentsCompletedStep = percentStudentsCompletedStep + "<hr width='" + percentStudentsCompletedStep + "' size=" + percentBarSize + " color='black' align='left' noshade>";
+			//display the percentage and jqueryui progressbar
+			var completedVal = parseInt(percentStudentsCompletedStep.replace('%',''));
+			//percentStudentsCompletedStep = percentStudentsCompletedStep + "<hr width='" + percentStudentsCompletedStep + "' size=" + percentBarSize + " color='black' align='left' noshade>";
+			percentStudentsCompletedStep = "<div class='pLabel'>" + percentStudentsCompletedStep + "</div><div id='progress_" + nodeId + "' class='progress'></div>";
 			
 			//set the percentage of the class that has completed this step
 			document.getElementById("stepPercentStudentsCompleted_" + nodeId).innerHTML = percentStudentsCompletedStep;
+			
+			var item = document.getElementById("progress_" + nodeId);
+			$(item).progressbar({value: completedVal});
 			
 			//loop through the periods
 			for(var x=0; x<gradeByStepGradingStatistics.periods.length; x++) {
@@ -1682,12 +1782,17 @@ View.prototype.calculateGradeByStepGradingStatistics = function(node) {
 				//get the statistics values
 				var numItemsNeedScoring = periodGradingStatisticsObject.numItemsNeedGrading;
 				var percentStudentsCompletedStep = periodGradingStatisticsObject.percentStudentsCompletedStep;
+				var completedValue = parseInt(percentStudentsCompletedStep.replace('%',''));
+				percentStudentsCompletedStep = "<div class='pLabel'>" + percentStudentsCompletedStep + "</div><div id='progress_" + nodeId + "_period" + periodName + "' class='progress'></div>";
 				var averageScore = periodGradingStatisticsObject.averageScore;
 				
 				//set the statistics values into the display elements
 				document.getElementById("stepAverageScore_" + nodeId + "_period" + periodName).innerHTML = averageScore;
 				document.getElementById("stepNumItemsNeedGrading_" + nodeId + "_period" + periodName).innerHTML = numItemsNeedScoring;
 				document.getElementById("stepPercentStudentsCompleted_" + nodeId + "_period" + periodName).innerHTML = percentStudentsCompletedStep;
+				// display percentage and jqueryui progressbar
+				var currentItem = document.getElementById("progress_" + nodeId + "_period" + periodName);
+				$(currentItem).progressbar({value: completedValue});
 			}
 		}
 	} else {
@@ -1802,7 +1907,7 @@ View.prototype.getGradeByStepGradingStatistics = function(nodeId) {
 	var averageScore = sumOfScoredValues / numOfScoredValues;
 	
 	if(isNaN(averageScore)) {
-		averageScore = "na";
+		averageScore = "N/A";
 	} else {
 		var averageScoreString = averageScore.toString();
 		
@@ -1919,7 +2024,7 @@ View.prototype.calculatePeriodGradingStatistics = function(gradingStatistics) {
 		var averageScore = sumOfScoredValues / numOfScoredValues;
 		
 		if(isNaN(averageScore)) {
-			averageScore = "na";
+			averageScore = "N/A";
 		} else {
 			var averageScoreString = averageScore.toString();
 			
@@ -2039,7 +2144,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 	//if student work is null set to empty string
 	if(studentWork == null) {
 		//since there was no student work we will display a default message in its place
-		studentWork = "<br><p style='text-align:center'>("+this.getI18NString("grading_no_work_warning")+")</p>";
+		studentWork = "<div style='text-align:center'>"+this.getI18NString("grading_no_work_warning")+"</div>";
 	} else if (studentWork != "" && node.type == "MySystemNode") {
 		//var divId = "mysystemDiagram_"+workgroupId;
 		var divId = "mysystemDiagram_"+stepWorkId+"_"+latestNodeVisitPostTime;
@@ -2107,7 +2212,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 				});
 			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
+			//svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
 			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
 			svgString = Utils.encode64(svgString);
 		}
@@ -2132,7 +2237,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 				
 				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-				currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
+				//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
 				currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.2)">');
 				currSnap = Utils.encode64(currSnap);
 				snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+divId+"\");'>"+currSnap+"</div>";
@@ -2144,24 +2249,24 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 		} else {
 			studentWork += "<div id='"+divId+"' class='svgdrawCell'>"+svgString+"</div>";
 			if(description != null){
-				studentWork += "<div id='"+divId+"_description' class='drawDescription'><span>Description: </span>"+description+"</div>";
+				studentWork += "<span>Description: </span><div id='"+divId+"_description' class='drawDescription'>"+description+"</div>";
 			}
 		}
 		
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</p>";
+		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
 	} else if(studentWork != "" && this.isSelfRenderingGradingViewNodeType(node.type)) {
 		//create the student work div that we will insert the student work into later
 		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
 	} else {
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>Timestamp: " + new Date(latestNodeVisitPostTime) + "</p>";
+		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
 		
 		//replace \n with <br> so that the line breaks are displayed for the teacher
-		studentWork = this.replaceSlashNWithBR(studentWork);
+		studentWork = this.replaceSlashNWithDiv(studentWork);
 		
 		//insert the student work into a div so we can display scrollbars if the student work overflows
-		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px">' + studentWork + '</div>';
+		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" class="studentWorkDiv" style="overflow:auto; width:500px">' + studentWork + '</div>';
 	}
 	
 	//display the student work for this step/node
@@ -2226,7 +2331,7 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
 						var workerUserNames = this.getUserNamesByWorkgroupId(workerWorkgroupId, 1);
 						
 						//create a link with the names of the classmates that will open to the gradebyteam page
-						otherStudentNames = "<a href='#' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workerWorkgroupId + "'])\">" + workerUserNames + "</a>";						
+						otherStudentNames = "<a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workerWorkgroupId + "'])\">" + workerUserNames + "</a>";						
 					}
 				}
 				
@@ -2289,7 +2394,7 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
 								var workerUserNames = this.getUserNamesByWorkgroupId(reviewerWorkgroupId, 1);
 								
 								//create a link with the names of the classmates that will open to the gradebyteam page
-								otherStudentNames = "<a href='#' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + reviewerWorkgroupId + "'])\">" + workerUserNames + "</a>";						
+								otherStudentNames = "<a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + reviewerWorkgroupId + "'])\">" + workerUserNames + "</a>";						
 							}
 						}
 						
@@ -2498,7 +2603,7 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	}
 	
 	//the td will contain a table
-	scoringAndCommentingTdHtml += "<table id='teacherAnnotationTable'>";
+	scoringAndCommentingTdHtml += "<table class='teacherAnnotationTable'>";
 	
 	//display the score box
 	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("score")+": <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('saveScore', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
@@ -2507,7 +2612,7 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	
 	if(isGradingDisabled != "disabled") {
 		//if grading is enabled, display the link to open the premade comments
-		openPremadeCommentsLink = "<a href='#' onclick='eventManager.fire(\"openPremadeComments\", [\"annotationCommentTextArea_" + workgroupId + "_" + nodeId + "\", \"studentWorkColumn_" + stepWorkId + "\"])'>"+this.getI18NString("grading_open_premade_comments")+"</a>";
+		openPremadeCommentsLink = "<a onclick='eventManager.fire(\"openPremadeComments\", [\"annotationCommentTextArea_" + workgroupId + "_" + nodeId + "\", \"studentWorkColumn_" + stepWorkId + "\"])'>"+this.getI18NString("grading_open_premade_comments")+"</a>";
 	}
 	
 	//display the comment box
@@ -2631,22 +2736,36 @@ View.prototype.getFlaggingTdHtml = function(workgroupId, nodeId, teacherId, runI
  * @param workgroupId the id of the workgroup
  */
 View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
+	// detach FixedHeader clones
+	$('.fixedHeader').detach();
+		
 	//perform any display page startup tasks
 	this.displayStart("displayGradeByTeamGradingPage", [workgroupId]);
 	
 	var gradeByTeamGradingPageHtml = "";
 	
+	gradeByTeamGradingPageHtml = "<div class='gradingTools'>";
+	
 	//show the header with all the grading buttons
 	gradeByTeamGradingPageHtml += this.getGradingHeaderTableHtml();
 	
-	var userNames = this.getUserNamesByWorkgroupId(workgroupId, 1);
+	var userNames = this.getUserNamesByWorkgroupId(workgroupId, 0);
+	
+	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames+ "</span>";
+	gradeByTeamGradingPageHtml += "<div style='float:right;'>";
 	
 	//show the step title and prompt
-	gradeByTeamGradingPageHtml += "<table class='objectToGradeHeaderTable'><tr><td class='objectToGradeTd'>" + userNames + "</td>";
+	//gradeByTeamGradingPageHtml += "<table class='objectToGradeHeaderTable'><tr><td class='objectToGradeTd'>" + userNames + "</td>";
 
+	gradeByTeamGradingPageHtml += "<a class='selectStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>"+this.getI18NString("grading_change_team")+"</a>";
+	
 	//show the button to go back to select another workgroup
-	gradeByTeamGradingPageHtml += "<td class='button'><a href='#' id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>"+this.getI18NString("grading_change_team")+"</a></td></tr></table>";
-
+	//gradeByTeamGradingPageHtml += "<td class='button'><a id='selectAnotherStep' onClick='eventManager.fire(\"displayGradeByTeamSelectPage\")'>"+this.getI18NString("grading_change_team")+"</a></td></tr></table>";
+	
+	gradeByTeamGradingPageHtml += "</div>";
+	
+	gradeByTeamGradingPageHtml += "<div id='filterOptions'>";
+	
 	//check if show revisions check box was previously checked
 	var showRevisionsChecked = '';
 	if(this.gradingShowRevisions) {
@@ -2658,6 +2777,10 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p></div>";
 	}
 	
+	gradeByTeamGradingPageHtml += "</div></div></div>"
+	
+	gradeByTeamGradingPageHtml += "<div class='gradingContent'>";
+	
 	//get the work for the workgroup id
 	var vleState = this.getVleStateByWorkgroupId(workgroupId);
 
@@ -2668,8 +2791,10 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	gradeByTeamGradingPageHtml += this.displayGradeByTeamGradingPageHelper(this.getProject().getRootNode(), vleState);
 	
 	//add a SAVE CHANGES button at bottom of all the Grade by Team Tables   ADDED BY MATTFISH
-	gradeByTeamGradingPageHtml += "<div id='lowerSaveButton'><input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
-		
+	//gradeByTeamGradingPageHtml += "<div id='lowerSaveButton'><input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
+	
+	gradeByTeamGradingPageHtml += "</div>";
+	
 	//set the html in the div so the user can see it
 	document.getElementById('gradeWorkDiv').innerHTML = gradeByTeamGradingPageHtml;
 
@@ -2705,7 +2830,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 		
 		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode") {
 			//the node is an html node so we do not need to display a link for it, we will just display the text
-			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageNonWorkStepTable'><tr><td class='chooseStepToGradeStepTd'><p>" + position + " " + node.getTitle() + " [" + node.type + "]</p></td></tr></table>";
+			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageNonWorkStepTable'><tr><td class='chooseStepToGradeStepTd'><p>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr></table>";
 			displayGradeByTeamGradingPageHtml += "<br>";
 		} else if(node.type == 'DuplicateNode'){
 			/* the node is a duplicate node, only the original should be graded so only display text */
@@ -2713,7 +2838,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			var realPosition = this.getProject().getVLEPositionById(realNode.id);
 			var type = 'Duplicate for ' + realNode.type + ' at ' + realPosition;
 			
-			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageNonWorkStepTable'><tr><td class='chooseStepToGradeStepTd'><p>" + position + " " + node.getTitle() + " [" + type + "]</p></td></tr></table>";
+			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageNonWorkStepTable'><tr><td class='chooseStepToGradeStepTd'><p>" + position + " " + node.getTitle() + " (" + type + ")</p></td></tr></table>";
 		} else {
 			var runId = this.getConfig().getConfigParam('runId');
 			
@@ -2789,7 +2914,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 			if(nodeVisitRevisions.length > 1) {
 				//there is more than one revision so we will display a link that will display the other revisions
-				toggleRevisionsLink = "  <a href='#' onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_revisions")+"</a>";
+				toggleRevisionsLink = "  <a onClick=\"eventManager.fire('toggleGradingDisplayRevisions', ['" + workgroupId + "', '" + nodeId + "'])\">"+(nodeVisitRevisions.length-1)+" "+this.getI18NString("grading_hide_show_revisions")+"</a>";
 			} else if(nodeVisitRevisions.length == 1) {
 				//there is only one revisions
 				
@@ -2810,8 +2935,8 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			displayGradeByTeamGradingPageHtml += "<thead class='gradeTeamTableHeader'><tr><td>"+this.getI18NString("student_work")+"</td>"+
 				"<td>"+this.getI18NString("teacher_comment_and_score")+"</td>"+
 				"<td>"+this.getI18NString("tools")+"</td></tr></thead>";
-			displayGradeByTeamGradingPageHtml += "<tr><td class='chooseStepToGradeStepTd'><a href='#' onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + nodeId + "\"])'>" + position + " " + node.getTitle() + "</a>&nbsp;&nbsp;<span class='byTeamStepType'>(" + node.type + ")</span></td>";
-			displayGradeByTeamGradingPageHtml += "<td class='chooseStepToGradeStepTd2 colspan='2'><a href='#' onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>" + toggleRevisionsLink + "</td>";
+			displayGradeByTeamGradingPageHtml += "<tr><td class='chooseStepToGradeStepTd'><a onClick='eventManager.fire(\"displayGradeByStepGradingPage\",[\"" + position + "\", \"" + nodeId + "\"])'>" + position + " " + node.getTitle() + "</a>&nbsp;&nbsp;<span class='byTeamStepType'>(" + node.type + ")</span></td>";
+			displayGradeByTeamGradingPageHtml += "<td class='chooseStepToGradeStepTd2 colspan='2'><a onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>" + toggleRevisionsLink + "</td>";
 			displayGradeByTeamGradingPageHtml += "</tr>";
 
 			//get the prompt/question for the step
@@ -2906,7 +3031,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 		 */
 		if(this.activityNumber != 0) {
 			//this node is a sequence so we will display the activity number and title
-			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageActivityTable'><tr><td colspan='2' class='chooseStepToGradeActivityTd'><h4>A" + this.activityNumber + ". " + node.getTitle() + "</h4></td><td></td></tr></table>";
+			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageActivityTable'><tr><td colspan='2' class='chooseStepToGradeActivityTd'><h4>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td><td></td></tr></table>";
 			displayGradeByTeamGradingPageHtml += "";
 		}
 
@@ -2993,8 +3118,11 @@ View.prototype.getUserNamesByWorkgroupId = function(workgroupId, numberOfLineBre
 			for(var y=0; y<userNamesArray.length; y++) {
 				//add an empty line between each name
 				if(userNamesHtml != "") {
+					if(numberOfLineBreaks == 0){
+						userNamesHtml += ", ";
+					}
 					for(var x=0; x<numberOfLineBreaks; x++) {
-						userNamesHtml += "<br>";
+						userNamesHtml += "<br />";
 					}
 				}
 
@@ -3010,13 +3138,15 @@ View.prototype.getUserNamesByWorkgroupId = function(workgroupId, numberOfLineBre
 /**
  * Gets the html that will display radio buttons that will filter
  * workgroups by period
+ * TODO: change name of this function and variables to reflect switch to select links
  * @return html that will display the radio buttons for filtering periods
  */
 View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 	var periodRadioButtonTableHtml = "";
 	
 	//the div to display the period radio buttons that filter the periods
-	periodRadioButtonTableHtml += "<div id='choosePeriodTable' class='choosePeriodTable'>";
+	//periodRadioButtonTableHtml += "<div id='choosePeriodTable' class='choosePeriodTable'>";
+	periodRadioButtonTableHtml += "<div id='choosePeriod'>";
 
 	//split the period numbers into an array
 	var periods = this.getUserAndClassInfo().getPeriodName().split(":");
@@ -3034,8 +3164,9 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 	}
 	
 	//create a radio button to display all periods
-	periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='all' onClick=\"eventManager.fire('filterStudentRows')\" " + allPeriodsChecked + "> "+this.getI18NString("grading_grade_by_step_all_periods")+"</div>";
-
+	//periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='all' onClick=\"eventManager.fire('filterStudentRows')\" " + allPeriodsChecked + "> "+this.getI18NString("grading_grade_by_step_all_periods")+"</div>";
+	periodRadioButtonTableHtml += "<span style='margin-right:.5em';>View:</span><a id='all' class='periodChoice " + allPeriodsChecked + "' onClick=\"eventManager.fire('setSelectedPeriod',this)\">"+this.getI18NString("grading_grade_by_step_all_periods")+"</a>";
+	
 	//loop through the periods
 	for(var p=0; p<periods.length; p++) {
 		//the args for the onclick radio button for a specific period
@@ -3049,7 +3180,8 @@ View.prototype.getPeriodRadioButtonTableHtml = function(displayType) {
 		}
 		
 		//create a radio button for each period
-		periodRadioButtonTableHtml += "<div class='periodRadioChoice'><input type='radio' name='choosePeriod' value='period" + periods[p] + "' onClick=\"eventManager.fire('filterStudentRows')\" " + periodChecked + "> P" + periods[p] + "</div>";
+		//periodRadioButtonTableHtml += "<div class='periodRadioChoice' ><input type='radio' name='choosePeriod' value='period" + periods[p] + "' onClick=\"eventManager.fire('filterStudentRows')\" " + periodChecked + "> Period " + periods[p] + "</div>";
+		periodRadioButtonTableHtml += "<a id='period" + periods[p] + "' class='periodChoice " + periodChecked + "' onClick=\"eventManager.fire('setSelectedPeriod',this)\">Period " + periods[p] + "</a>";
 	}
 
 	periodRadioButtonTableHtml += "</div>";
@@ -3146,6 +3278,10 @@ View.prototype.reloadRefreshScreen = function() {
 View.prototype.displayStart = function(displayName, displayParam) {
 	this.currentGradingDisplay = displayName;
 	this.currentGradingDisplayParam = displayParam;
+	$(window).resize(function(){
+		// fix the height of the gradeWorkDiv so no scrollbars are displayed for the iframe
+		this.fixGradingDisplayHeight();
+	})
 };
 
 /**
@@ -3153,32 +3289,49 @@ View.prototype.displayStart = function(displayName, displayParam) {
  * has been generated.
  */
 View.prototype.displayFinished = function() {
+	if(this.gradingType != "team"){
+		$('.fixedHeader').detach(); // detach all FixedHeader clones
+	}
+	
 	//scroll to the top of the page
 	parent.scrollTo(0,0);
 	
-	/*
-	 * fix the height of the gradeWorkDiv so no scrollbars are displayed
-	 * for the iframe
-	 */
-	this.fixGradingDisplayHeight();
-	
 	//apply the filters so that filters for period, hide personal info, show flagged, enlarge student, show all revisions are applied
 	this.filterStudentRows();
+	
+	// fix the height of the gradeWorkDiv so no scrollbars are displayed for the iframe
+	this.fixGradingDisplayHeight();
 };
 
 /**
  * Fix the height of the gradeWorkDiv so no scrollbars are displayed
  * for the iframe
+ * TODO: change name to reflect updated functionality (table resizing, etc.)
  */
 View.prototype.fixGradingDisplayHeight = function() {
 	//get the height of the gradeWorkDiv
-	var height = document.getElementById('gradeWorkDiv').scrollHeight;
-
+	//var height = document.getElementById('gradeWorkDiv').scrollHeight;
+	var height = $('#gradingIfrm',window.parent.parent.document).height();
+	
 	/*
 	 * resize the height of the topifrm that contains the gradeWorkDiv
 	 * so that there will be no scroll bars
 	 */
-	parent.document.getElementById('topifrm').height = height + 300;
+	//parent.document.getElementById('topifrm').height = height + 300;
+	$('#topifrm',parent.document).height(height);
+	
+	// set gradeWorkDiv height to fit bottom of screen
+	var gradeWorkHeight = height - $('.gradingTools').outerHeight();
+	$('.gradingContent').height(gradeWorkHeight-14);
+	
+	if(this.gradingType == "step") {
+		//fix the width of the statistics table to match the grading select table
+		$('#statisticsTable').width($('#chooseStepToGradeTable').width()+1);
+	} else if (this.gradingType == "team"){
+		//fix the width of the fixedHeader clone to match the team select table
+		// TODO: remove when fixedHeader init option "right": true no long throws error
+		$('.fixedHeader').width($('#chooseTeamToGradeTable_wrapper').width());
+	}
 };
 
 /**
@@ -3231,18 +3384,26 @@ View.prototype.getPeriodFilterSelected = function() {
 	var selectedPeriod = null;
 	
 	//get the divs that contain the radio buttons
-	var periodRadioButtonDivs = this.getElementsByClassName(null, 'periodRadioChoice', null);
+	//var periodRadioButtonDivs = this.getElementsByClassName(null, 'periodRadioChoice', null);
+	
+	//get the divs that contain the period selector divs
+	var periodSelects = $('.periodChoice');
 	
 	//get all the input elements in divs with class periodRadioChoice
-	var periodRadioButtonInputs = $('.periodRadioChoice input');
+	//var periodRadioButtonInputs = $('.periodRadioChoice input');
 	
 	/*
 	 * loop through all the inputs to see if it's checked in order
 	 * to find the period that is selected
 	 */
-	periodRadioButtonInputs.each(function() {
+	/*periodRadioButtonInputs.each(function() {
 		if($(this).attr('checked')) {
 			selectedPeriod = $(this).attr('value');
+		}
+	});*/
+	periodSelects.each(function(){
+		if($(this).hasClass('checked')){
+			selectedPeriod = $(this).attr('id');
 		}
 	});
 	
@@ -3367,6 +3528,15 @@ View.prototype.isSortByAutoGradedScoreChecked = function() {
 	//check box was not checked
 	return sortByAutoGradedScoreChecked;
 };
+
+/**
+ * Set the current visible period to the selected period choice div
+ */
+View.prototype.setSelectedPeriod = function(item) {
+	$('.periodChoice').removeClass('checked');
+	$(item).addClass('checked');
+	this.filterStudentRows();
+}
 
 /**
  * Filter the student rows that are displayed in the grading view
@@ -3894,7 +4064,7 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
-			$("#studentWorkDiv_" + stepWorkId).append("<br><p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitPostTime) + "</p>");	
+			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitPostTime) + "</p>");	
 		}
 	}
 };
@@ -4017,7 +4187,7 @@ function enlargeDraw(divId){
 }
 
 function enlargeMS(divId){
-	
+
 	/*
 	var data = $('#'+divId).html();
 	var contentString = $('#content_'+divId).html();
@@ -4039,6 +4209,15 @@ function refresh() {
 	render(this.contentURL, this.userURL, this.getDataUrl, this.contentBaseUrl, this.getAnnotationsUrl, this.postAnnotationsUrl, this.runId, this.getFlagsUrl, this.postFlagsUrl);
 }
 
+function removejscssfile(filename, filetype){
+ var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
+ var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
+ var allsuspects=document.getElementsByTagName(targetelement)
+ for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
+  if (allsuspects[i] && allsuspects[i].getAttribute(targetattr)!=null && allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1)
+   allsuspects[i].parentNode.removeChild(allsuspects[i]) //remove element by calling parentNode.removeChild()
+ }
+}
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

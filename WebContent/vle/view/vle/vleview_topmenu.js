@@ -659,46 +659,46 @@ View.prototype.displayAddAnIdeaDialog = function() {
 		//it does not already exist so we will create it
     	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:[300,40],buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
     }
-	
-	//the html we will insert into the popup
-	var addAnIdeaHtml = "";
-	
-	addAnIdeaHtml += "<form class='cmxform' id='ideaForm' method='get' action=''>";
-	addAnIdeaHtml += "<fieldset>";
-	addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></p>";
-	addAnIdeaHtml += "			<table>";
-	addAnIdeaHtml += "				<tr>";
-	addAnIdeaHtml += "					<td>";
-	addAnIdeaHtml += "			<p style:'height:24px; line-height:24px;'>";
-	addAnIdeaHtml += "				<label for='source'>Source*: </label>";
-	addAnIdeaHtml += "				<select id='addAnIdeaSource' name='source' class='required' style='height:24px;'>";
-	addAnIdeaHtml += "					<option value='Evidence Step'>Evidence Step</option>";
-	addAnIdeaHtml += "				  <option value='Visualization or Model'>Visualization or Model</option>";
-	addAnIdeaHtml += "				  <option value='Movie/Video'>Movie/Video</option>";
-	addAnIdeaHtml += "				  <option value='Everyday Observation'>Everyday Observation</option>";
-	addAnIdeaHtml += "				  <option value='School or Teacher'>School or Teacher</option>";
-	addAnIdeaHtml += "				  <option value='Other'>Other</option>";
-	addAnIdeaHtml += "				</select>";
-	addAnIdeaHtml += "			</p>";
-	addAnIdeaHtml += "					</td>";
-	addAnIdeaHtml += "					<td>";
-	addAnIdeaHtml += "			<p id='addAnIdeaOtherSource' style='display:none'><label for='other'>Specify*: </label><input id='addAnIdeaOther' name='other' size='15' minlength='2' maxlength='25'></input></p>";
-	addAnIdeaHtml += "					</td>";
-	addAnIdeaHtml += "				</tr>";
-	addAnIdeaHtml += "			</table>";
-	addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTags' name='tags' size='20' maxlength='20'></input></p>";
-	addAnIdeaHtml += "				<p>";
+    
+    //the html we will insert into the popup
+    var addAnIdeaHtml = "";
+    
+    addAnIdeaHtml += "<form class='cmxform' id='ideaForm' method='get' action=''>";
+    addAnIdeaHtml += "<fieldset>";
+    addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></p>";
+    addAnIdeaHtml += "			<table>";
+    addAnIdeaHtml += "				<tr>";
+    addAnIdeaHtml += "					<td>";
+    addAnIdeaHtml += "			<p style:'height:24px; line-height:24px;'>";
+    addAnIdeaHtml += "				<label for='source'>Source*: </label>";
+    addAnIdeaHtml += "				<select id='addAnIdeaSource' name='source' class='required' style='height:24px;'>";
+    addAnIdeaHtml += "					<option value='Evidence Step'>Evidence Step</option>";
+    addAnIdeaHtml += "				  <option value='Visualization or Model'>Visualization or Model</option>";
+    addAnIdeaHtml += "				  <option value='Movie/Video'>Movie/Video</option>";
+    addAnIdeaHtml += "				  <option value='Everyday Observation'>Everyday Observation</option>";
+    addAnIdeaHtml += "				  <option value='School or Teacher'>School or Teacher</option>";
+    addAnIdeaHtml += "				  <option value='Other'>Other</option>";
+    addAnIdeaHtml += "				</select>";
+    addAnIdeaHtml += "			</p>";
+    addAnIdeaHtml += "					</td>";
+    addAnIdeaHtml += "					<td>";
+    addAnIdeaHtml += "			<p id='addAnIdeaOtherSource' style='display:none'><label for='other'>Specify*: </label><input id='addAnIdeaOther' name='other' size='15' minlength='2' maxlength='25'></input></p>";
+    addAnIdeaHtml += "					</td>";
+    addAnIdeaHtml += "				</tr>";
+    addAnIdeaHtml += "			</table>";
+    addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTags' name='tags' size='20' maxlength='20'></input></p>";
+    addAnIdeaHtml += "				<p>";
 	addAnIdeaHtml += "				<label for='flag'>Flag (choose one)*: </label>";
 	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='blank' class='required' checked style='margin-left:0;'><span style='vertical-align:top; line-height:24px;'> None</span>";
-	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='important'><img src='images/ideaManager/important.png' alt='important' /><span style='vertical-align:top; line-height:24px;'>Important</span>";
-	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='question'><img src='images/ideaManager/question.png' alt='question' /><span style='vertical-align:top; line-height:24px;'>Not Sure</span>";
-	//addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='check'><img src='images/ideaManager/check.png' alt='check' />";
-	addAnIdeaHtml += "				</p>";
-	addAnIdeaHtml += "	</fieldset>";
-	addAnIdeaHtml += "</form>";
-	
-	//insert the html into the popup
-	$('#addAnIdeaDiv').html(addAnIdeaHtml);
+   	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='important'><img src='images/ideaManager/important.png' alt='important' /><span style='vertical-align:top; line-height:24px;'>Important</span>";
+    addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='question'><img src='images/ideaManager/question.png' alt='question' /><span style='vertical-align:top; line-height:24px;'>Not Sure</span>";
+    //addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='check'><img src='images/ideaManager/check.png' alt='check' />";
+    addAnIdeaHtml += "				</p>";
+    addAnIdeaHtml += "	</fieldset>";
+    addAnIdeaHtml += "</form>";
+    	
+    //insert the html into the popup
+    $('#addAnIdeaDiv').html(addAnIdeaHtml);
 	
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');

@@ -92,7 +92,7 @@ function bootstrapListener(type,args,obj){
                 </div>
                 
              
-                <div style="display:none;" id="toolsArea">
+               <!-- <div style="display:none;" id="toolsArea">
                     <dl class="dropdown">
                         <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
                             <div id="menuTitle">
@@ -101,18 +101,18 @@ function bootstrapListener(type,args,obj){
                             <img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
                         </dt>
                         <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);" onmouseup="ddMenu('one',-1);">
-                            <ul>
+                            <ul>-->
                                 <!-- requested changes have been remarked out -->
-                                <li><a onclick="vle.showJournal();" class="underline">Show Journal</a></li>
+                                <!-- <li><a onclick="vle.showJournal();" class="underline">Show Journal</a></li>
                                 <li><a onclick="vle.showAllWork();" class="underline2">Show MyWork with<br/>Comments/Scores</a></li>
-                                <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show Scores</a></li>
+                                <li><a onclick="vle.displayProgress(true,studentProgressArray);" class="underline2">Show Scores</a></li> -->
                                 <!--  <li><a class="underline" onclick="alert('not yet implemented');">Export MyWork to PDF</a></li>  -->
-                                <li><a class="underline" id="gotoStudentHomePageLink" href="/webapp/student/index.html" target="_parent">Go to<br/>Student Home Page</a></li>
-                                <li><a class="underline" id="quitAndLogoutLink" onClick="logout()" target="_parent">Sign Out to<br/>WISE Home Page</a></li>
+                                <!--<li><a class="underline" id="gotoStudentHomePageLink" href="/webapp/student/index.html" target="_parent">Go to<br/>Student Home Page</a></li>
+                                <li><a class="underline quitAndLogoutLink" onClick="logout()" target="_parent">Sign Out to<br/>WISE Home Page</a></li>
                             </ul>
                         </dd>
                     </dl>
-                </div>
+                </div> -->
                 
                 <div id="audioControls">
                     <table>
@@ -171,14 +171,14 @@ function bootstrapListener(type,args,obj){
                 <!-- end of #navigationArea -->
                 <div id="hostBrandingBoxLower" style="display:none">
                     <a href="../page/help/about.html" target="_blank"><img src="images/UCCP-Logo-215-Left.png" alt="UCCP College Prep Online Logo" border="0" /></a>
-					<p><a href="../page/help/about.html"target="_blank">Powered by WISE 4.0</a></p>
+					<p><a href="../page/help/about.html" target="_blank">Powered by WISE 4.0</a></p>
                 </div>
 
             </div><!-- end of #projectLeftBox-->
             
             <div id="projectRightLowerBox">
-                <div id="contentDiv"  align="center">
-                    <iframe id="ifrm" name="ifrm" scrolling="auto" frameborder="0" width="100%" onload='(typeof eventManager != "undefined" ? eventManager.fire("ifrmLoaded") : false)'>
+                <div id="contentDiv"  style="text-align:center">
+                    <iframe id="ifrm" name="ifrm" style="border:none;" width="100%" onload='(typeof eventManager != "undefined" ? eventManager.fire("ifrmLoaded") : false)'>
                         [Sorry, your browser does not support iFrames.]
                     </iframe>
                 </div>

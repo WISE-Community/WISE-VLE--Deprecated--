@@ -188,7 +188,7 @@
 		"description":"GradingTool: Text in the Explanation button"
 	},
 	"grading_button_check_for_new_student_work":{
-		"value":"Check for New Student Work",
+		"value":"Check for New Work",
 		"description":"GradingTool: Text in the Check for New Student Work button"
 	},
 	"grading_button_save_changes":{
@@ -196,7 +196,7 @@
 		"description":"GradingTool: Text in the Save Changes button"
 	},				
 	"grading_grade_by_step_header":{
-		"value":"GRADE BY STEP (select a step below)",
+		"value":"Select a step below to start grading (Point values are editable)",
 		"description":"GradingTool: grade by step page header, tell teacher to select a step below"
 	},				
 	"grading_grade_by_step_point_value":{
@@ -212,7 +212,7 @@
 		"description":"GradingTool: grade by step Items to Review table column"
 	},				
 	"grading_grade_by_step_average_class_score":{
-		"value":"Avg Class Score",
+		"value":"Avg Score",
 		"description":"GradingTool: grade by step Avg Class Score table column"
 	},				
 	"grading_grade_by_step_scored_items_only":{
@@ -220,7 +220,7 @@
 		"description":"GradingTool: grade by step scored items only table column"
 	},				
 	"grading_grade_by_step_percent_completed_step":{
-		"value":"% of Students Who Have Completed This Step",
+		"value":"% Visited Step",
 		"description":"GradingTool: grade by step % of Students Who Have Completed This Step table column"
 	},
 	"grading_grade_by_step_all_periods":{
@@ -228,7 +228,7 @@
 		"description":"GradingTool: grade by step All Periods select option when choosing whose work to filter by"
 	},
 	"grading_grade_by_team_header":{
-		"value":"GRADE BY TEAM (select a team below)",
+		"value":"Select a student team below to start grading",
 		"description":"GradingTool: grade by team page header"
 	},						
 	"grading_grade_by_team_teacher_graded_score":{
@@ -248,7 +248,7 @@
 		"description":"'hide/show question' link that toggles the question's visibility in the gradingtool"
 	},
 	"grading_previous_step":{
-		"value":"Previous Step",
+		"value":"< Previous",
 		"description":"'Previous Step' button in the gradingtool that will show the previous step in the project"
 	},
 	"grading_previous_step_not_exist":{
@@ -260,7 +260,7 @@
 		"description":"'Change Step' button in the gradingtool that will show the select step page"
 	},
 	"grading_next_step":{
-		"value":"Next Step",
+		"value":"Next >",
 		"description":"'Next Step' button in the gradingtool that will show the next step in the project"
 	},	
 	"grading_next_step_not_exist":{
@@ -272,8 +272,8 @@
 		"description":"Period"
 	},	
 	"team":{
-		"value":"Team",
-		"description":"Team"
+		"value":"Student Team",
+		"description":"Student Team"
 	},	
 	"team_caps":{
 		"value":"TEAM",
@@ -308,7 +308,7 @@
 		"description":"timestamp"
 	},	
 	"last_annotation":{
-		"value":"Last Annotation",
+		"value":"Last Comment",
 		"description":"the text 'last annotation'"
 	},		
 	"grading_open_premade_comments":{
@@ -320,15 +320,15 @@
 		"description":"the text 'not available'"
 	},	
 	"grading_no_work_warning":{
-		"value":"Student has not submitted work for this step, you will not be able to score, comment, or flag this item",
+		"value":"Student has not submitted work for this step, so grading and feedback is disabled.",
 		"description":"text to show in grading cells that do not have students' work to display"
 	},
 	"grading_no_revisions":{
-		"value":"No Revisions",
+		"value":"(No Revisions)",
 		"description":"text to show in grading cells that do not have any revisions"
 	},
 	"grading_only_latest_revision_displayed":{
-		"value":"Only Latest Revision Displayed",
+		"value":"(Only Latest Revision Displayed)",
 		"description":"text to show in grading cells where only the latest revision is displayed"
 	},
 	"grading_hide_personal_info":{
@@ -336,15 +336,15 @@
 		"description":"text to show next to the 'Hide Personal Info' checkbox in the grading tool"
 	},
 	"grading_show_flagged_items_only":{
-		"value":"Show Flagged Items Only",
+		"value":"Flagged Items Only",
 		"description":"text to show next to the 'Show Flagged Items Only' checkbox in the grading tool"
 	},
 	"grading_show_smart_filtered_items_only":{
-		"value":"Show Smart-Filtered Items Only",
+		"value":"Smart-Filtered Items Only",
 		"description":"text to show next to the 'Show Smart-Filtered Items Only' checkbox in the grading tool"
 	},
 	"grading_enlarge_student_work_text":{
-		"value":"Enlarge Student Work Text",
+		"value":"Enlarge Student Work",
 		"description":"text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
 	},
 	"grading_show_all_revisions":{
@@ -356,7 +356,7 @@
 		"description":"text to show next to the 'Sort By Auto Graded Score' checkbox in the grading tool"
 	},
 	"grading_hide_show_revisions":{
-		"value":"Hide/Show Revisions",
+		"value":"Revision(s)",
 		"description":"text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
 	},
 	"grading_change_team":{

@@ -115,7 +115,7 @@ function afterScriptsLoad(){
  */
 window.onload=function(){
 	// lock screen
-	lock();	
+	lock();
 	
 	//load all the js files
 	if (window.location.search.indexOf("loadScriptsIndividually") != -1) {

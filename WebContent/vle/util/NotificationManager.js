@@ -187,7 +187,6 @@ var notificationManager = {
  * removes the element from the page.
  */
 function AlertObject(elId, msg, mode){
-	msg += '\n<p style="font-size:0.8em">(Click this message to remove it)</p>';
 	
 	this.MSG_TIME = 5000;
 	this.elId = elId;
@@ -197,8 +196,10 @@ function AlertObject(elId, msg, mode){
 	}
 	notificationEventManager.subscribe('removeMsg', this.removeMsg, this);
 	if(this.mode && this.mode == 'authoring'){
+		this.MSG_TIME = 30000;
 		$('#' + elId).prepend(msg);
 	} else {
+		msg += '\n<p style="font-size:0.8em">(Click this message to remove it)</p>';
 		$('#' + elId).html(msg);
 		$('#' + elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
 	}

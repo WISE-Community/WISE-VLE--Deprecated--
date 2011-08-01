@@ -191,7 +191,8 @@ var componentloader = function(em, sl){
 					 'premadeCommentWindowLoaded':[null, null],
 					 'addPremadeComment':[null, null],
 					 'deletePremadeComment':[null, null],
-					 'getIdeaBasketsComplete':[null, null]},
+					 'getIdeaBasketsComplete':[null, null],
+					 'setSelectedPeriod':[null, null]},
    		    methods:{
 			  onWindowUnload:function(view){return function(){view.onWindowUnload();};}
 		    },					 
@@ -246,6 +247,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("addPremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
+					eventManager.subscribe("setSelectedPeriod", view.gradingDispatcher, view);
 					eventManager.initializeLoading([['gradingConfigUrlReceived','projectDataReceived','Project Data'], 
 					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data'],
 					                                ['initiateClassroomMonitorDisplayStart','classroomMonitorDisplayComplete','Classroom Monitor']], false);
