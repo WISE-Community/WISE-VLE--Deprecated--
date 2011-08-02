@@ -62,11 +62,6 @@ View.prototype.displayHint = function(){
 	    var contentBaseUrl = this.config.getConfigParam("getContentBaseUrl");
 	    for (var i=0; i< hintsArr.length; i++) {
 	    	var currentHint = hintsArr[i];
-			if(contentBaseUrl != null) {
-				//change the relative assets path to an absolute path
-				currentHint = currentHint.replace(/\.\/assets|\/assets|assets/gi, contentBaseUrl + 'assets');
-			}
-
 	    	var nextLink = '<span class="tabNext">'+this.getI18NString("hint_next")+'</span>';
 	    	var prevLink = '<span class="tabPrev">'+this.getI18NString("hint_prev")+'</span>';
 	    	if(i==0){
