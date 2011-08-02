@@ -257,7 +257,7 @@ var scriptloader = function(){
                   'vle/xmpp/js/sail.js/sail.ui.js'],
         teacherXMPP_min:['vle/minified/teacherXMPP_min.js'],
         author: ['vle/util/icon.js',
-        		 'vle/jquery/tiny_mce/jquery.tinymce.js',
+        		 'vle/tinymce/jscripts/tiny_mce/tiny_mce.js',
                  'vle/view/authoring/authorview_dispatchers.js',
                  'vle/view/authoring/authorview_startup.js',
                  'vle/view/authoring/authorview_main.js',
