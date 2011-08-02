@@ -1,78 +1,101 @@
-NAME=WISE4 VLEWrapper
-CLOSURE=WEB-INF/lib/closure-compiler.jar
-STEPS=STEP_ASSESSMENTLIST STEP_BRAINSTORM STEP_CARGRAPH STEP_DATAGRAPH STEP_EXPLANATIONBUILDER STEP_FILLIN STEP_HTML STEP_IDEABASKET STEP_OPENRESPONSE STEP_OUTSIDEURL STEP_MATCHSEQUENCE STEP_MULTIPLECHOICE STEP_MYSYSTEM STEP_SENSOR STEP_SURGE STEP_SVGDRAW STEP_TABLE
-STEP_DIR=vle/node/
-VLE_DIR=vle/
-
-STEP_ASSESSMENTLIST:
-	cd $(addprefix $(STEP_DIR), assessmentlist); make assessmentlist_core_min
-
-STEP_BRAINSTORM:
-	cd $(addprefix $(STEP_DIR), brainstorm); make brainstorm_core_min
-
-STEP_CARGRAPH:
-	cd $(addprefix $(STEP_DIR), cargraph); make cargraph_core_min
-
-STEP_DATAGRAPH:
-	cd $(addprefix $(STEP_DIR), datagraph); make datagraph_core_min
-
-STEP_EXPLANATIONBUILDER:
-	cd $(addprefix $(STEP_DIR), explanationbuilder); make explanationbuilder_core_min; make explanationbuilder_grading_min
-
-STEP_FILLIN:
-	cd $(addprefix $(STEP_DIR), fillin); make fillin_core_min
-
-STEP_HTML:
-	cd $(addprefix $(STEP_DIR), html); make html_core_min
-
-STEP_IDEABASKET:
-	cd $(addprefix $(STEP_DIR), ideabasket); make ideabasket_core_min
-
-STEP_OPENRESPONSE:
-	cd $(addprefix $(STEP_DIR), openresponse); make openresponse_core_min
-
-STEP_OUTSIDEURL:
-	cd $(addprefix $(STEP_DIR), outsideurl); make outsideurl_core_min
-
-STEP_MATCHSEQUENCE:
-	cd $(addprefix $(STEP_DIR), matchsequence); make matchsequence_core_min
-
-STEP_MULTIPLECHOICE:
-	cd $(addprefix $(STEP_DIR), multiplechoice); make multiplechoice_core_min; make multiplechoice_grading_min
-
-STEP_MYSYSTEM:
-	cd $(addprefix $(STEP_DIR), mysystem); make mysystem_core_min
-
-STEP_SENSOR:
-	cd $(addprefix $(STEP_DIR), sensor); make sensor_core_min
-
-STEP_SURGE:
-	cd $(addprefix $(STEP_DIR), surge); make surge_core_min
-
-STEP_SVGDRAW:
-	cd $(addprefix $(STEP_DIR), draw); make svgdraw_core_min; make svgdraw_grading_min
-
-STEP_TABLE:
-	cd $(addprefix $(STEP_DIR), table); make table_core_min; make table_grading_min
-
-# NOTE: Some files are not ready for the Closure compiler: (jquery)                                                                                                                                                                        
+# Makefile for WISE4. Currently it is used to script compiling/compressing javascript files
+# that are used in WISE4 using Google's closure compiler:
+# http://code.google.com/closure
+# 
+# Starting in WISE4 v5.0 (released in Aug. 2011), minified files are used to
+# speed up startup time for the teacher gradingtool. running these scripts create
+# minified versions of the dependencies that are used in WISE and significantly 
+# reduces the number and size of files that are requested to render the tool.
+# 
+# In WISE, if you see &minified=true in the gradingtool url, you are using the minified gradingtool, e.g.
+# http://wise4.berkeley.edu/webapp/teacher/grading/gradework.html?runId=12345&gradingType=step&getRevisions=false&minified=true.
+#
+# If you do not want to use the minified version of the gradingtool
+# (for example, when you want to retrieve all individual files for debugging purposes),
+# either remove the &minified=true query string or set &minified=false.
+# 
 # NOTE: Our code safely compiles under SIMPLE_OPTIMIZATIONS                                                                                                                                                                                
 # NOTE: Our code is *not* ready for ADVANCED_OPTIMIZATIONS                                                                                                                                                                                 
-# NOTE: WHITESPACE_ONLY and --formatting PRETTY_PRINT is helpful for debugging.                  
+# NOTE: WHITESPACE_ONLY and --formatting PRETTY_PRINT is helpful for debugging.    
+#
+# Usage:
+# 1) run 'make all' to compile and compress everything
+# 2) run 'make vle' to compile everything but the nodes
+# 3) run 'make nodes' to compile all the nodes (but no vle files)
+# 4) run 'make NODE_XYZ' to compile all files used for XYZ node.  
+#   (see NODES definitions below for a list of supported node types)
+#   alternatively, you can "cd" to the node folder and run 'make'
+
+### Definitions ###
+CLOSURE=WEB-INF/lib/closure-compiler.jar
+NODES=NODE_ASSESSMENTLIST NODE_BRAINSTORM NODE_CARGRAPH NODE_DATAGRAPH NODE_EXPLANATIONBUILDER NODE_FILLIN NODE_HTML NODE_IDEABASKET NODE_OPENRESPONSE NODE_OUTSIDEURL NODE_MATCHSEQUENCE NODE_MULTIPLECHOICE NODE_MYSYSTEM NODE_SENSOR NODE_SURGE NODE_SVGDRAW NODE_TABLE
+NODE_DIR=vle/node/
+VLE_DIR=vle/
+
+NODE_ASSESSMENTLIST:
+	cd $(addprefix $(NODE_DIR), assessmentlist); make assessmentlist_core_min
+
+NODE_BRAINSTORM:
+	cd $(addprefix $(NODE_DIR), brainstorm); make brainstorm_core_min
+
+NODE_CARGRAPH:
+	cd $(addprefix $(NODE_DIR), cargraph); make cargraph_core_min
+
+NODE_DATAGRAPH:
+	cd $(addprefix $(NODE_DIR), datagraph); make datagraph_core_min
+
+NODE_EXPLANATIONBUILDER:
+	cd $(addprefix $(NODE_DIR), explanationbuilder); make explanationbuilder_core_min; make explanationbuilder_grading_min
+
+NODE_FILLIN:
+	cd $(addprefix $(NODE_DIR), fillin); make fillin_core_min
+
+NODE_HTML:
+	cd $(addprefix $(NODE_DIR), html); make html_core_min
+
+NODE_IDEABASKET:
+	cd $(addprefix $(NODE_DIR), ideabasket); make ideabasket_core_min
+
+NODE_OPENRESPONSE:
+	cd $(addprefix $(NODE_DIR), openresponse); make openresponse_core_min
+
+NODE_OUTSIDEURL:
+	cd $(addprefix $(NODE_DIR), outsideurl); make outsideurl_core_min
+
+NODE_MATCHSEQUENCE:
+	cd $(addprefix $(NODE_DIR), matchsequence); make matchsequence_core_min
+
+NODE_MULTIPLECHOICE:
+	cd $(addprefix $(NODE_DIR), multiplechoice); make multiplechoice_core_min; make multiplechoice_grading_min
+
+NODE_MYSYSTEM:
+	cd $(addprefix $(NODE_DIR), mysystem); make mysystem_core_min
+
+NODE_SENSOR:
+	cd $(addprefix $(NODE_DIR), sensor); make sensor_core_min
+
+NODE_SURGE:
+	cd $(addprefix $(NODE_DIR), surge); make surge_core_min
+
+NODE_SVGDRAW:
+	cd $(addprefix $(NODE_DIR), draw); make svgdraw_core_min; make svgdraw_grading_min
+
+NODE_TABLE:
+	cd $(addprefix $(NODE_DIR), table); make table_core_min; make table_grading_min
 
 ##### ALL #####
 # usage: make all
 
-all: bootstrap_min core_min grading_min studentwork_min annotations_min teacherXMPP_min maxscores_min $(STEPS)
+all: bootstrap_min core_min grading_min studentwork_min annotations_min teacherXMPP_min maxscores_min $(NODES)
 
-##### VLE: EVERYTHING BUT THE STEPS #####
+##### VLE: EVERYTHING BUT THE NODES #####
 # usage: make vle
 vle: core_min grading_min studentwork_min annotations_min teacherXMPP_min maxscores_min
 
 
-##### JUST THE STEPS #####
-# usage: make steps
-steps: $(STEPS)
+##### JUST THE NODES #####
+# usage: make nodes
+nodes: $(NODES)
 
 
 ##### BOOTSTRAP #####

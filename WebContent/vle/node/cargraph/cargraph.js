@@ -186,7 +186,7 @@ CARGRAPH.prototype.render = function() {
 	for (var i=0; i < this.content.staticImages.length; i++) {
 		var staticImage = this.content.staticImages[i];		
 		var left = staticImage.tickIndex*this.yTickSize;
-		$("#animationDiv").append("<img class='staticImage' style='left:"+left+"' src='"+this.view.config.getConfigParam("getContentBaseUrl")+staticImage.img+"'></img>" +
+		$("#animationDiv").append("<img class='staticImage' style='left:"+left+"' src='"+staticImage.img+"'></img>" +
                 "<span class='staticImageLabel' style='left: "+left+"'>"+staticImage.label+"</span>");
 	}		
 	
@@ -200,7 +200,7 @@ CARGRAPH.prototype.render = function() {
 	var topSoFar = 75;  // offset from the top of the screen, to ensure that the images don't overlap
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		var dynamicImage = this.content.dynamicImages[i];		
-		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+topSoFar+"' class='dynamicImage' src='"+this.view.config.getConfigParam("getContentBaseUrl")+dynamicImage.img+"'></img>");
+		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+topSoFar+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
 		
 		// add radio input so students can choose which car they're drawing the graph for
 		var checked = "";
