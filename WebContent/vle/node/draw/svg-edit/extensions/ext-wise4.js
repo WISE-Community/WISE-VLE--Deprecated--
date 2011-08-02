@@ -163,7 +163,7 @@ svgEditor.addExtension("WISE4", function(S) {
 	// fit drawing canvas and toolbars to window
 	svgEditor.resizeCanvas = function() {
 		// resize window slightly
-		var height, width;
+		/*var height, width;
 		if(parent.window.outerHeight){
 			height = parent.window.outerHeight;
 			width = parent.window.outerWidth;
@@ -174,7 +174,7 @@ svgEditor.addExtension("WISE4", function(S) {
 			self.resizeTo(width+1,height+1);
 		}
 		
-		$('#fit_to_canvas').mouseup();
+		$('#fit_to_canvas').mouseup();*/
 		
 		var toppx = $('#sidepanels').height() + $('#tools_top').height() + 5 + 'px';
 		$('#tools_bottom').css({'bottom':'','top':toppx});
