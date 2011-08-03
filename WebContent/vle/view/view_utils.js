@@ -12,7 +12,11 @@ View.prototype.utilDispatcher = function(type, args, obj) {
 		obj.sessionManager.maintainConnection();
 	} else if (type == 'renewSession') {
 		// make a request to renew the session
-		obj.connectionManager.request('GET', 2, obj.config.getConfigParam('indexUrl'), {}, null, obj);
+		var renewSessionUrl = obj.config.getConfigParam('indexUrl');
+		if (renewSessionUrl == null || renewSessionUrl == 'undefined') {
+			renewSessionUrl = "/webapp/index.html";
+		}
+		obj.connectionManager.request('GET', 2, renewSessionUrl, {}, null, obj);
 	} else if (type == 'checkSession') {
 		// check if session has been expired
 		obj.sessionManager.checkSession();
