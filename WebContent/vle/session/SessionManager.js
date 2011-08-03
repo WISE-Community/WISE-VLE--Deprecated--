@@ -51,7 +51,8 @@ SessionManager.prototype.checkSession = function() {
 	}
 	
 	if (this.lastSuccessfulRequest != null) {
-		if ((Date.parse(new Date()) - this.lastSuccessfulRequest) > this.sessionTimeoutInterval) {
+		if ((Date.parse(new Date()) - this.lastSuccessfulRequest) +this.sessionTimeoutCheckInterval*1.5 >= this.sessionTimeoutInterval) {
+			// "+this.sessionTimeoutCheckInterval*1.5" => force logout sooner than actual sessionTimeoutInterval to avoid data loss.
 			// this means that student has been idling too long and has been logged out of the session
 			// so we should take them back to the homepage.
 			if(notificationManager){
@@ -59,8 +60,7 @@ SessionManager.prototype.checkSession = function() {
 			} else {
 				alert("You have been inactive for too long and have been logged out. Please log back in to continue.");
 			}
-			
-			parent.window.location = "/webapp/j_spring_security_logout";
+			this.view.onWindowUnload(true);
 		} else if ((Date.parse(new Date()) - this.lastSuccessfulRequest) > this.sessionTimeoutWarning) {
 			// if 75% of the timeout has been elapsed, warn them
 			var renewSessionSubmit = function(){

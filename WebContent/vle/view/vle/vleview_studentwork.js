@@ -246,12 +246,7 @@ View.prototype.saveState = function(state, node) {
 View.prototype.onWindowUnload = function(logout){
 	/* display splash screen letting user know that saving is occuring */
 	$('#onUnloadSaveDiv').dialog('open');
-	
-	/* tell xmpp server that student is disconnecting */
-	if (this.xmpp && this.isXMPPEnabled) {
-		this.xmpp.disconnect();
-	}
-		
+			
 	/* tell current step to clean up */ 
 	if(this.getCurrentNode()) {
 		this.getCurrentNode().onExit();		
@@ -265,6 +260,15 @@ View.prototype.onWindowUnload = function(logout){
 	
 	/* try to blip final message before going */
 	$('#onUnloadSaveDiv').html('SAVED!!');
+
+	/* tell xmpp server that student is disconnecting */
+	try {
+		if (this.xmpp && this.isXMPPEnabled) {
+			this.xmpp.disconnect();
+		}
+	} catch (e) {
+		// do nothing
+	}
 
 	/*
 	 * check if we need to log out the user, we need to use the === comparison
