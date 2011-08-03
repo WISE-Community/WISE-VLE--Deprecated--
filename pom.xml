@@ -25,8 +25,8 @@
 	<artifactId>vlewrapper</artifactId>
 	<packaging>war</packaging>
 	<name>VLE Wrapper</name>
-	<version>0.1.0-SNAPSHOT</version>
-	<url>http://sail.sourceforge.net/</url>
+	<version>5.0-SNAPSHOT</version>
+	<url>http://sail-web.googlecode.com/</url>
 	<developers>
 		<developer>
 			<id>hiroki</id>
@@ -43,42 +43,73 @@
 		</developer>
 	</developers>
 	<scm>
+	    <connection>scm:svn:http://sail-web.googlecode.com/svn</connection>
+        <developerConnection>scm:svn:http://sail-web.googlecode.com/svn</developerConnection>
+        <url>https://sail-web.googlecode.com/</url>
 	</scm>
 	<issueManagement>
-		<system>Jira</system>
-		<url>http://www.telscenter.org/jira/</url>
+	    <system>Google Code</system>
+		<url>http://code.google.com/p/sail-web/issues/list/</url>
 	</issueManagement>
 	<build>
 		<finalName>vlewrapper</finalName>
 		<plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                  <execution>
+                    <id>make-jar</id>
+                    <phase>compile</phase>
+                    <configuration>
+                      <target>
+                        <property name="compile_classpath" refid="maven.compile.classpath"/>
+                        <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+                        <property name="test_classpath" refid="maven.test.classpath"/>
+                        <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+
+                        <ant antfile="${basedir}/build.xml">
+                          <target name="make-jar"/>
+                        </ant>
+                      </target>
+                    </configuration>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                  </execution>
+                  <execution>
+                    <id>clean</id>
+                    <phase>compile</phase>
+                    <configuration>
+                      <target>
+                          <property name="classfiles.path" value="WebContent/WEB-INF/classes" />
+                          <delete includeemptydirs="true">
+                              <fileset dir="${classfiles.path}" includes="**/*"/>
+                          </delete>
+                      </target>
+                    </configuration>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>		
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
+				<version>2.1.1</version>
 				<configuration>
 					<webResources>
 						<resource>
 							<!-- this is relative to the pom.xml directory -->
-							<directory>
-								WebContent/WEB-INF
-							</directory>
-							<!-- enable filtering -->
-							<filtering>true</filtering>
-							<includes>
-								<include>web.xml</include>
-							</includes>
-							<!-- override the destination directory for this resource -->
-							<targetPath>WEB-INF</targetPath>
+							<directory>WebContent</directory>
 						</resource>
 					</webResources>
 				</configuration>
 			</plugin>
-		
 		</plugins>
 	</build>
 	<repositories>
@@ -114,7 +145,7 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		</repository>		
+		</repository>
 		<repository>
 			<id>jboss-maven2-repository</id>
 			<name>jboss maven repository</name>
