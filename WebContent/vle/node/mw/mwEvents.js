@@ -1,10 +1,14 @@
 
 View.prototype.mwDispatcher = function(type,args,obj){
-	
+	if (type == 'mwUpdateCmlUrlInput') {
+		obj.MWNode.updateCmlUrl();
+	}
 };
 
 //this list of events
-var events = [];
+var events = [
+              'mwUpdateCmlUrlInput'
+              ];
 
 /*
  * add all the events to the vle so the vle will listen for these events

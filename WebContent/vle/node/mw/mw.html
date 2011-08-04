@@ -28,7 +28,10 @@
 		
 		window.onresize = function(event) {
 			//alert($('#mw_wrapper').height());
-		    $('#mw_applet').attr('height',parent.document.getElementById("ifrm").offsetHeight-20);
+			if (parent.document.getElementById("ifrm") != null) {
+		    	$('#mw_applet').attr('height',parent.document.getElementById("ifrm").offsetHeight-20);
+		    	$('#mw_applet').attr('width',parent.document.getElementById("ifrm").offsetWidth-40);
+			}
 		};
 	</script>
 	

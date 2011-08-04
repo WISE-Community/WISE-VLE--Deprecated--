@@ -9,7 +9,7 @@ var studentVLEScripts = [
 ];
 
 var authorScripts = [
-
+   	'vle/node/mw/authorview_mw.js'
 ];
 
 var gradingScripts = [
@@ -38,6 +38,15 @@ scriptloader.addDependencies(dependencies);
 scriptloader.addCssToComponent('mw', css);
 
 componentloader.addNodeClasses('MWNode', nodeClasses);
+
+var nodeTemplateParams = [
+    {
+        nodeTemplateFilePath:'node/mw/mwTemplate.mw',
+        nodeExtension:'mw'
+    }
+];
+
+componentloader.addNodeTemplateParams('MWNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

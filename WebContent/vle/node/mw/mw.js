@@ -10,20 +10,21 @@ MW.prototype.init = function(jsonURL){
 };
 
 MW.prototype.loadApplet = function(jsonfilename, context){
-	$.getJSON(jsonfilename, 
-		function(data){
-			var activityPath = context.node.view.getConfig().getConfigParam('getContentBaseUrl') + data.activity_uri;
-			var applet = '<applet id="mw_applet"' + 
-				'archive="/vlewrapper/vle/node/mw/mwapplet.jar"' + 
-				'code="org.concord.modeler.MwApplet" width="' + data.width + '" height="' + data.height + '">' +
-				'<param name="script" value="page:0:import ' + activityPath + '"/>' +
-				'</applet>';
-			$('#mw_wrapper').html(applet);
-			context.applet = document.getElementById('mw_applet');
-			// set starting parameters
-			context.setParams(context,data,20);
-		}
-	);
+	var applet = '<applet id="mw_applet"' + 
+		'archive="/vlewrapper/vle/node/mw/mwapplet.jar"' + 
+		'code="org.concord.modeler.MwApplet" width="' + this.content.width + '" height="' + this.content.height + '">' +
+		'<param name="script" value="page:0:import ' + this.content.activity_uri + '"/>' +
+		'</applet>';
+	$('#mw_wrapper').html(applet);
+	context.applet = document.getElementById('mw_applet');
+	// set starting parameters
+	context.setParams(context,this.content,20);
+
+	//$.getJSON(jsonfilename, 
+	//	function(data){
+			//var activityPath = context.node.view.getConfig().getConfigParam('getContentBaseUrl') + data.activity_uri;
+	//	}
+	//);
 
 	
 	// var myDataService = new VleDS(vle);
@@ -39,7 +40,10 @@ MW.prototype.setParams = function(context,data,count){
        setTimeout( function() { context.setParams( context,data,--count ); }, 2000 );
     }
     else if (context.applet.isActive()) {
-    	$('#mw_applet').attr('height',parent.document.getElementById("ifrm").offsetHeight-20); // set applet height to fit in iframe
+    	if (parent.document.getElementById("ifrm") != null) {
+    		$('#mw_applet').attr('height',parent.document.getElementById("ifrm").offsetHeight-20); // set applet height to fit in iframe
+	    	$('#mw_applet').attr('width',parent.document.getElementById("ifrm").offsetWidth-40);
+    	}
     	
 		// set starting temp
 		if(data.params.temperature){
