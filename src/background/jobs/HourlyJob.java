@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import org.hibernate.cfg.AnnotationConfiguration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,14 +20,17 @@ import org.slf4j.LoggerFactory;
 import vle.domain.statistics.VLEStatistics;
 
 public class HourlyJob implements Job {
-	private static final String USERNAME = "sailuser";
-	private static final String PASSWORD = "sailpass";
 	
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		try {
+			//get the user name and password for the db
+			AnnotationConfiguration configure = new AnnotationConfiguration().configure();
+            String userName = configure.getProperty("connection.username");
+            String password = configure.getProperty("connection.password");
+			
 			//create a connection to the mysql db
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/vle_database", USERNAME, PASSWORD);
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/vle_database", userName, password);
 	    	
 			//create a statement to run db queries
 			Statement statement = conn.createStatement();
