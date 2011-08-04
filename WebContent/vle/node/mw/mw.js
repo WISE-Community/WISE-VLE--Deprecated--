@@ -6,6 +6,9 @@ function MW(node) {
 }
 
 MW.prototype.init = function(jsonURL){
+	//display any prompts to the student
+	$('#promptDiv').html(this.content.prompt);
+
 	this.loadApplet(jsonURL, this);  // load the MW activity
 };
 

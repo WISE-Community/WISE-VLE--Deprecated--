@@ -63,16 +63,29 @@ View.prototype.MWNode.generatePage = function(view){
 
 	//create a new div that will contain the authroing components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
-		
+
+	//create the label for the textarea that the author will write the prompt in
+	var promptText = document.createTextNode("Prompt for Student:");
+
+	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'20', cols:'85', onkeyup:"eventManager.fire('mwUpdatePrompt')"});
+
 	var cmlUrlLabel = document.createTextNode("CML URL:");
 	var cmlUrlInput = createElement(document, 'input', {id: 'cmlUrlInput', type:'text', size:'50', onchange:"eventManager.fire('mwUpdateCmlUrlInput')"});
 
 	//add the authoring components to the page
+	pageDiv.appendChild(promptText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(promptTextArea);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(cmlUrlLabel);
 	pageDiv.appendChild(cmlUrlInput);
 
 	//add the page to the parent
 	parent.appendChild(pageDiv);
+
+	//populate the prompt if this step has been authored before
+	this.populatePrompt();
 	
 	// populate cml url if it has been authored before
 	if(this.content.activity_uri) {
@@ -99,6 +112,28 @@ View.prototype.MWNode.getCommonComponents = function() {
 View.prototype.MWNode.updateContent = function(){
 	/* update content object */
 	this.view.activeContent.setContent(this.content);
+};
+
+/**
+ * Populate the authoring textarea where the user types the prompt that
+ * the student will read
+ */
+View.prototype.MWNode.populatePrompt = function() {
+	//get the prompt from the content and set it into the authoring textarea
+	$('#promptTextArea').val(this.content.prompt);
+};
+
+/**
+ * Updates the content's prompt to match that of what the user input
+ */
+View.prototype.MWNode.updatePrompt = function(){
+	/* update content */
+	this.content.prompt = $('#promptTextArea').val();
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**

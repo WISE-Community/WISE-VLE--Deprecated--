@@ -2,11 +2,14 @@
 View.prototype.mwDispatcher = function(type,args,obj){
 	if (type == 'mwUpdateCmlUrlInput') {
 		obj.MWNode.updateCmlUrl();
+	} else if (type == 'mwUpdatePrompt') {
+		obj.MWNode.updatePrompt();
 	}
 };
 
 //this list of events
 var events = [
+              'mwUpdatePrompt',
               'mwUpdateCmlUrlInput'
               ];
 
