@@ -392,7 +392,7 @@ button.mid, #centeredDiv button.mid, #centeredDiv input[type='button'].mid {
 
 #notificationDiv, #selectModeDiv {
 	margin-top:0.25em;
-	min-height:1.4em;
+	min-height:1.5em;
 	text-align:center;
 	padding:0.1em;
 }

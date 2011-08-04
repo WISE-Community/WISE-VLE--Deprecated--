@@ -133,7 +133,7 @@ View.prototype.cleaner.saveProject = function(restore){
 		};
 	};
 	
-	this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId: this.view.portalProjectId, param1: this.view.utils.getContentPath(this.view.authoringBaseUrl,this.view.getProject().getContentBase()), param2: this.view.getProject().getProjectFilename(), param3: encodeURIComponent(data)}, success, this.view, failure);
+	this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId: this.view.portalProjectId, fileName: this.view.getProject().getProjectFilename(), data: encodeURIComponent(data)}, success, this.view, failure);
 };
 
 /**
@@ -198,7 +198,7 @@ View.prototype.cleaner.loadProjectFile = function(){
 		o.view.eventManager.fire('cleanLoadingProjectFileComplete', 'false');
 	};
 	
-	this.view.connectionManager.request('GET', 1, this.view.requestUrl, {forward:'filemanager', command:'retrieveFile', projectId:this.view.portalProjectId, param1: this.projectFilePath}, success, this, failure);
+	this.view.connectionManager.request('GET', 1, this.view.requestUrl, {forward:'filemanager', command:'retrieveFile', projectId:this.view.portalProjectId, fileName: this.projectFilePath}, success, this, failure);
 };
 
 /**
@@ -375,7 +375,7 @@ View.prototype.cleaner.saveFixedProject = function(fixedProject){
 		o.cleaner.saveProject(true);
 	};
 	
-	this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId:this.view.portalProjectId, param1: this.view.utils.getContentPath(this.view.authoringBaseUrl,this.view.getProject().getContentBase()), param2: this.view.getProject().getProjectFilename(), param3: encodeURIComponent(data)}, success, this.view, failure);
+	this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId:this.view.portalProjectId, fileName: this.view.getProject().getProjectFilename(), data: encodeURIComponent(data)}, success, this.view, failure);
 };
 
 /**
@@ -433,9 +433,10 @@ View.prototype.cleaner.updateProjectMetaFile = function(){
 
 		//if project meta file exists - update on server
 		if(this.view.projectMetadata || this.view.hasProjectMeta){//update file on server
-			this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId:this.view.portalProjectId, param1: this.view.utils.getContentPath(this.view.authoringBaseUrl,this.view.getProject().getContentBase()), param2: this.view.utils.getProjectMetaFilename(this.view.getProject().getProjectFilename()), param3: $.stringify(this.view.projectMeta)}, success, this.view, failure);
+			this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'updateFile', projectId:this.view.portalProjectId, fileName: this.view.utils.getProjectMetaFilename(this.view.getProject().getProjectFilename()), data: $.stringify(this.view.projectMeta)}, success, this.view, failure);
 		} else {//create file on server
-			this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'createFile', projectId:this.view.portalProjectId, param1: this.view.utils.getContentPath(this.view.authoringBaseUrl,this.view.getProject().getContentBase()) + '/' + this.view.utils.getProjectMetaFilename(this.view.getProject().getProjectFilename()), param2: $.stringify(this.view.projectMeta)}, success, this.view, failure);
+			//I don't think meta data files are used anymore, all metadata is stored in the portal database
+			this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', command: 'createFile', projectId:this.view.portalProjectId, fileName: '/' + this.view.utils.getProjectMetaFilename(this.view.getProject().getProjectFilename()), data: $.stringify(this.view.projectMeta)}, success, this.view, failure);
 		};
 	} else {
 		this.view.notificationManager.notify("Did not understand the timestamp response from servlet, cannot update last cleaned field of project meta.");

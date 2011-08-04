@@ -84,8 +84,8 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
-		if (path == null) {
-		 path = (String) request.getAttribute(PATH);
+		if (path == null || "".equals(path)) {
+			path = (String) request.getAttribute("projectFolderPath");
 		}
 
 		
@@ -121,9 +121,9 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
-		if (path == null) {
+		if (path == null || "".equals(path)) {
 			// this is a student asset upload
-			path = (String) request.getAttribute(PATH);
+			path = (String) request.getAttribute("projectFolderPath");
 			maxSize = STUDENT_MAX_UPLOAD_SIZE;
 		}
 
@@ -335,7 +335,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 * @return <code>String</code>
 	 */
 	private String assetList(HttpServletRequest request){
-		String path = request.getParameter(PATH);
+		String path = (String) request.getAttribute("projectFolderPath");
 		String dirName = (String) request.getAttribute("dirName");
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
@@ -375,17 +375,16 @@ public class AssetManager extends HttpServlet implements Servlet{
 			File assetsDir = new File(projectDir, dirName);
 			if(assetsDir.exists() && assetsDir.isDirectory()){
 				File[] files = assetsDir.listFiles();
-				String filenames = "";
+				
+				JSONArray fileNames = new JSONArray();
+
 				if(files==null){//no files in this dir
 					return "";
 				} else {
 					for(int v=0;v<files.length;v++){
-						filenames += files[v].getName();
-						if(v != files.length-1){
-							filenames += "~";
-						}
+						fileNames.put(files[v].getName());
 					}
-					return filenames;
+					return fileNames.toString();
 				}
 			} else {
 				return "";

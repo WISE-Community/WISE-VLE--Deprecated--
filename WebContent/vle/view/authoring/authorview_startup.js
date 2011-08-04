@@ -7,12 +7,10 @@
  * Sets variables so that the authoring tool is running in portal mode
  * and starts authoring tool in appropriate state.
  */
-View.prototype.startPortalMode = function(url, curriculumBaseDir, command, id){
+View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle){
 	this.portalUrl = url;
-	this.portalCurriculumBaseDir = curriculumBaseDir;
-	this.primaryPath = curriculumBaseDir;
 	this.editingPollInterval = setInterval('eventManager.fire("whoIsEditing")', this.EDITING_POLL_TIME);
-	this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&command=retrieveFile&param1=';
+	this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&command=retrieveFile&fileName=';
 	this.requestUrl = this.portalUrl;
 	this.assetRequestUrl = this.portalUrl;
 	this.minifierUrl = this.portalUrl;
@@ -40,11 +38,19 @@ View.prototype.startPortalMode = function(url, curriculumBaseDir, command, id){
 		if(command=='createProject'){
 			this.createMode = true;
 		} else if(command=='editProject' || command=='cleanProject'){
-			var pathId = id.split('~');
-			this.portalProjectId = pathId[1];
-			this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&projectId=' + this.portalProjectId + '&command=retrieveFile&param1=';
-			var projectUrl = this.authoringBaseUrl + this.portalCurriculumBaseDir + pathId[0];
-			this.loadProject(projectUrl, this.utils.getContentBaseFromFullUrl(projectUrl), true);
+			this.portalProjectId = parseInt(projectId);
+			this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&projectId=' + this.portalProjectId + '&command=retrieveFile&fileName=';
+			
+			//get the project file name
+			var projectFileName = relativeProjectUrl.substring(relativeProjectUrl.lastIndexOf("/"));
+			
+			//get the url for the project file
+			var projectFileUrl = this.authoringBaseUrl + projectFileName;
+			
+			//get the url for the project folder
+			var projectFolderUrl = this.authoringBaseUrl;
+			
+			this.loadProject(projectFileUrl, projectFolderUrl, true);
 		}
 	}
 	
@@ -101,31 +107,39 @@ View.prototype.loadNodeTemplateFiles = function() {
 };
 
 /**
- * Creates a project of the given name with the given path in the portal
- * @path absolute path to wise4.project.json of the newly created project
+ * Creates a project of the given name with the given path in the portal. The
+ * folder and files have already been created, we are just registering the project
+ * with the portal here.
+ * @path path to the newly created project, this path should contain the project folder
+ * e.g.
+ * /523/wise4.project.json
  */
 View.prototype.createPortalProject = function(path, name, parentProjectId){
+	/*
+	 * get the project file name
+	 * e.g.
+	 * /wise4.project.json 
+	 */
+	var projectFileName = path.substring(path.lastIndexOf("/"));
+	
 	var handler = function(responseText, responseXML, o){
 		if(responseText){
 			o.portalProjectId = responseText;
-			o.authoringBaseUrl = o.portalUrl + '?forward=filemanager&projectId=' + o.portalProjectId + '&command=retrieveFile&param1=';
+			o.authoringBaseUrl = o.portalUrl + '?forward=filemanager&projectId=' + o.portalProjectId + '&command=retrieveFile&fileName=';
 				
 			/* load the newly created project */
-			o.loadProject(o.authoringBaseUrl + o.portalCurriculumBaseDir + path, o.utils.getContentBaseFromFullUrl(o.authoringBaseUrl + o.portalCurriculumBaseDir + path), false);
+			o.loadProject(o.authoringBaseUrl + projectFileName, o.authoringBaseUrl, false);
 		} else {
 			o.notificationManager.notify('failed to create project in portal', 3);
 		};
 	};
 	
-	//remove base dir so we're left with /x/wise4.project.json
-	var lastIndexOfSlash = path.lastIndexOf("/");
-	var secondToLastIndexOfSlash = path.substring(0,lastIndexOfSlash).lastIndexOf("/");
-	path = path.substring(secondToLastIndexOfSlash);
-	this.connectionManager.request('POST', 3, this.portalUrl, {command: 'createProject', param1: path, param2: name, parentProjectId: parentProjectId}, handler, this);
+	this.connectionManager.request('POST', 3, this.portalUrl, {command: 'createProject', projectName: name, projectPath:path, parentProjectId: parentProjectId}, handler, this);
 };
 
 /**
  * Retrieves and parses settings.xml file for project paths, primaryPath locations.
+ * NOTE: I don't think this function is used anymore
  */
 View.prototype.getProjectPaths = function(){
 	var callback = function(text, xml, o){

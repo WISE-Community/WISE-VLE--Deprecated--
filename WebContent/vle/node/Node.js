@@ -813,7 +813,7 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 	/*
 	 * get the contentBaseUrl from the config param. it will look like this below
 	 * e.g.
-	 * http://localhost:8080/webapp/author/authorproject.html?forward=filemanager&projectId=96&command=retrieveFile&param1=/Users/geoffreykwan/dev/workspaces/portalworkspace/vlewrapper-3.0/WebContent/curriculum/88
+	 * http://localhost:8080/webapp/author/authorproject.html?forward=filemanager&projectId=96&command=retrieveFile&fileName=
 	 */
 	var contentBaseUrlString = this.view.getConfig().getConfigParam('getContentBaseUrl');
 	
@@ -1015,7 +1015,15 @@ Node.prototype.copy = function(eventName, project){
 			return;
 		};
 		var contentString = escape(this.content.getContentString());
-		this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'copyNode', param1: this.view.utils.getContentPath(this.view.authoringBaseUrl,project.getUrl()), param2: contentString, param3: this.type, param4: project.generateUniqueTitle(this.title), param5: this.className, param6: contentFile}, successCreateCallback, [this,eventName], failureCreateCallback);
+		
+		/*
+		 * get the project file name
+		 * e.g.
+		 * /wise4.project.json
+		 */
+		var projectFileName = this.view.utils.getContentPath(this.view.authoringBaseUrl,project.getUrl());
+		
+		this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'copyNode', projectFileName: projectFileName, data: contentString, type: this.type, title: project.generateUniqueTitle(this.title), nodeClass: this.className, contentFile: contentFile}, successCreateCallback, [this,eventName], failureCreateCallback);
 	} else {
 		/* copy sequence section */
 		
@@ -1047,7 +1055,14 @@ Node.prototype.copy = function(eventName, project){
 				refs:idList
 			};
 			
-			node.view.connectionManager.request('POST', 1, node.view.requestUrl, {forward:'filemanager',projectId:node.view.portalProjectId, command: 'createSequenceFromJSON', param1: node.view.utils.getContentPath(node.view.authoringBaseUrl,node.view.getProject().getUrl()), param2: $.stringify(seqJSON)}, successCreateCallback, [node,eventName], failureCreateCallback);
+			/*
+			 * get the project file name
+			 * e.g.
+			 * /wise4.project.json
+			 */
+			var projectFileName = node.view.utils.getContentPath(node.view.authoringBaseUrl,node.view.getProject().getUrl());
+			
+			node.view.connectionManager.request('POST', 1, node.view.requestUrl, {forward:'filemanager',projectId:node.view.portalProjectId, command: 'createSequenceFromJSON', projectFileName: projectFileName, data: $.stringify(seqJSON)}, successCreateCallback, [node,eventName], failureCreateCallback);
 		};
 		
 		/* set up event to listen for when this sequences children finish copying */

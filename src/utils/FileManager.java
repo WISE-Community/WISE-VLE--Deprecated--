@@ -303,10 +303,10 @@ import org.json.JSONObject;
 	 * @throws IOException
 	 */
 	private String retrieveFile(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		String path = request.getParameter(PARAM1);
+		String filePath = (String) request.getAttribute("filePath");
 		
-		if(this.standAlone || SecurityUtils.isAllowedAccess(request, path)){
-			return this.getFileText(new File(path));
+		if(this.standAlone || SecurityUtils.isAllowedAccess(request, filePath)){
+			return this.getFileText(new File(filePath));
 		} else {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return "unauthorized";
@@ -322,13 +322,22 @@ import org.json.JSONObject;
 	 * @throws IOException
 	 */
 	private String updateFile(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		String projectPath = request.getParameter(PARAM1);
-		String filename = request.getParameter(PARAM2);
-		String data = request.getParameter(PARAM3);
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
 		
-		File dir = new File(projectPath);
+		//get the file name
+		String fileName = request.getParameter("fileName");
+		
+		//get the content to save to the file
+		String data = request.getParameter("data");
+		
+		File dir = new File(projectFolderPath);
 		if(dir.exists()){
-			File file = new File(dir, filename);
+			File file = new File(dir, fileName);
 			if(this.standAlone || SecurityUtils.isAllowedAccess(request, file)){
 				this.writeFile(file, data, true);
 				return "success";
@@ -352,9 +361,17 @@ import org.json.JSONObject;
 	 * @throws ServletException 
 	 */
 	private String createProject(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
-		String name = request.getParameter(PARAM1);
-		String path = request.getParameter(PARAM2);
-		File parent = new File(path);
+		//get the name of the project
+		String projectName = request.getParameter("projectName");
+		
+		/*
+		 * get the curriculum base
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum
+		 */
+		String curriculumBaseDir = (String) request.getAttribute("curriculumBaseDir");
+		
+		File parent = new File(curriculumBaseDir);
 		
 		if(this.standAlone || SecurityUtils.isAllowedAccess(request, parent)){
 			this.ensureDir(parent);
@@ -363,10 +380,16 @@ import org.json.JSONObject;
 			File newFile = new File(this.createNewprojectPath(parent), "wise4.project.json");
 			try{
 				//write the empty project json to the file
-				this.writeFile(newFile, Template.getProjectTemplate(name).toString(3), false);
+				this.writeFile(newFile, Template.getProjectTemplate(projectName).toString(3), false);
+				
+				//get the folder name e.g. 513
+				String folder = newFile.getParentFile().getName();
+				
+				//get the file name e.g. wise4.project.json
+				String fileName = newFile.getName();
 				
 				//return the path to the file
-				return newFile.getCanonicalPath();
+				return "/" + folder + "/" + fileName;
 			} catch(JSONException e){
 				throw new ServletException(e);
 			}
@@ -404,10 +427,15 @@ import org.json.JSONObject;
 	 * @return String
 	 */
 	private String createNode(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
-		String projectPath = request.getParameter(PARAM1);
-		String nodeClass = request.getParameter(PARAM2);
-		String title = request.getParameter(PARAM3);
-		String type = request.getParameter(PARAM4);
+		/*
+		 * get the project file path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667/wise4.project.json
+		 */
+		String projectPath = (String) request.getAttribute("projectFilePath");
+		String nodeClass = request.getParameter("nodeClass");
+		String title = request.getParameter("title");
+		String type = request.getParameter("type");
 		
 		//get the string that contains an array of node template params
 		String nodeTemplateParams = request.getParameter("nodeTemplateParams");
@@ -662,11 +690,30 @@ import org.json.JSONObject;
 	 * @throws IOException
 	 */
 	private String createSequence(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		String projectPath = request.getParameter(PARAM1);
-		String name = request.getParameter(PARAM2);
-		String id = request.getParameter(PARAM3);
-				
-		File file = new File(projectPath);
+		/*
+		 * get the project file name
+		 * e.g.
+		 * /wise4.project.json
+		 */
+		String projectFileName = request.getParameter("projectFileName");
+		String name = request.getParameter("name");
+		String id = request.getParameter("id");
+		
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		/*
+		 * get the full project file path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667/wise4.project.json
+		 */
+		String fullProjectFilePath = projectFolderPath + projectFileName;
+		
+		File file = new File(fullProjectFilePath);
 		if(this.standAlone || SecurityUtils.isAllowedAccess(request, file)){
 			try{
 				this.addSequenceToProject(file, Template.getSequenceTemplate(id, name));
@@ -704,15 +751,36 @@ import org.json.JSONObject;
 	 * Given a <code>HttpServletRequest</code> request with the parameters: 
 	 * param1=fullpath including filename and param2=data to write to file, 
 	 * creates the file if it does not already exists and writes the data to that file.
-	 * 
+	 * NOTE: I don't think this is used anymore since it was used to create
+	 * metadata files in the project but we now store metadata in the db.
+	 * step files are created in createNode and do not use this function.
 	 * @param <code>HttpServletRequest</code> request
 	 */
 	private void createFile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-		String path = request.getParameter(PARAM1);
-		String data = request.getParameter(PARAM2);
+		/*
+		 * get the file name
+		 * e.g.
+		 * /node_1.or
+		 */
+		String fileName = request.getParameter("path");
+		String data = request.getParameter("data");
 		
-		if(this.standAlone || SecurityUtils.isAllowedAccess(request, path)){
-			this.writeFile(path, data, false);
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		/*
+		 * get the full file path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667/node_1.or
+		 */
+		String fullFilePath = projectFolderPath + fileName;
+		
+		if(this.standAlone || SecurityUtils.isAllowedAccess(request, fullFilePath)){
+			this.writeFile(fullFilePath, data, false);
 		} else {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
@@ -727,10 +795,20 @@ import org.json.JSONObject;
 	 * @throws IOException
 	 */
 	private String removeFile(HttpServletRequest request) throws IOException{
-		String projectPath = request.getParameter(PARAM1);
-		String filename = request.getParameter(PARAM2);
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
 		
-		File child = new File(new File(projectPath), filename);
+		/*
+		 * get the file name
+		 * node_1.or
+		 */
+		String fileName = request.getParameter("fileName");
+		
+		File child = new File(new File(projectFolderPath), fileName);
 		if(child.exists() && child.delete()){
 			return "success";
 		} else {
@@ -749,27 +827,38 @@ import org.json.JSONObject;
 	 * @throws IOException
 	 */
 	private String copyProject(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		String path = request.getParameter(PARAM1);
-		String projectPath = request.getParameter(PARAM2);
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
 		
-		File srcDir = new File(path);
+		/*
+		 * get the curriculum base
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum
+		 */
+		String curriculumBaseDir = (String) request.getAttribute("curriculumBaseDir");
+		
+		File srcDir = new File(projectFolderPath);
 		if(srcDir.exists() && srcDir.isDirectory()){
 			if(this.standAlone || SecurityUtils.isAllowedAccess(request, srcDir)){
 				File destDir;
-				if(projectPath != null && projectPath != ""){
-					destDir = this.createNewprojectPath(new File(projectPath));
+				if(curriculumBaseDir != null && curriculumBaseDir != ""){
+					destDir = this.createNewprojectPath(new File(curriculumBaseDir));
 				} else {
 					destDir = this.createNewprojectPath(srcDir.getParentFile());
 				}
 				
 				this.copy(srcDir, destDir);
-				return destDir.getCanonicalPath();
+				return destDir.getName();
 			} else {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return "unauthorized";
 			}
 		} else {
-			throw new IOException("Provided path is not found or is not a directory. Path: " + path);
+			throw new IOException("Provided path is not found or is not a directory. Path: " + projectFolderPath);
 		}
 	}
 
@@ -819,14 +908,34 @@ import org.json.JSONObject;
 	 * @throws <code>ServletException</code>
 	 */
 	private void copyNode(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
-		String path = request.getParameter(PARAM1);
-		String data = request.getParameter(PARAM2);
-		String type = request.getParameter(PARAM3);
-		String title = request.getParameter(PARAM4);
-		String nodeClass = request.getParameter("param5");
-		String contentFile = request.getParameter("param6");
+		//get the attributes for the node
+		String data = request.getParameter("data");
+		String type = request.getParameter("type");
+		String title = request.getParameter("title");
+		String nodeClass = request.getParameter("nodeClass");
+		String contentFile = request.getParameter("contentFile");
 		
-		File dir = new File(path).getParentFile();
+		/*
+		 * get the file name
+		 * e.g.
+		 * /node_1.or
+		 */
+		String projectFileName = request.getParameter("projectFileName");
+		
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		/*
+		 * get the full path to the file
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667/node_1.or
+		 */
+		String fullProjectFilePath = projectFolderPath + projectFileName;
+		
+		File dir = new File(fullProjectFilePath).getParentFile();
 		if(dir.exists()){
 			File file = this.generateUniqueFile(dir, this.getExtension(type));
 			
@@ -848,7 +957,7 @@ import org.json.JSONObject;
 					this.writeFile(file, data, false);
 				}
 				
-				File parent = new File(path);
+				File parent = new File(fullProjectFilePath);
 				try{
 					if(this.addNodeToProject(parent, Template.getProjectNodeTemplate(type, file.getName(), title, nodeClass))){
 						response.getWriter().write(file.getName());
@@ -869,18 +978,34 @@ import org.json.JSONObject;
 	}
 	
 	/**
-	 * Creates the sequence from the specified JSON and adds it to the specified project file
-	 * 
+	 * Creates the sequence from the specified JSON and adds it to the specified project file.
+	 * This is used when duplicating a sequence (aka activity) in the authoring tool.
 	 * @param request
 	 * @param response
 	 * @throws IOException
 	 * @throws ServletException
 	 */
 	private void createSequenceFromJSON(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException{
-		String path = request.getParameter(PARAM1);
-		String data = request.getParameter(PARAM2);
+		/*
+		 * get the project file name
+		 * e.g.
+		 * /wise4.project.json
+		 */
+		String projectFileName = request.getParameter("projectFileName");
 		
-		File projectFile = new File(path);
+		//get the json for the new sequence we are going to add to the project
+		String data = request.getParameter("data");
+		
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		String fullProjectFilePath = projectFolderPath + projectFileName;
+		
+		File projectFile = new File(fullProjectFilePath);
 		if(this.standAlone || SecurityUtils.isAllowedAccess(request, projectFile)){
 			try{
 				JSONObject sequence = new JSONObject(data);
@@ -936,11 +1061,16 @@ import org.json.JSONObject;
 	 */
 	private synchronized String updateAudioFiles(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
-		String projectPath = request.getParameter(PARAM1);
-		String audioFilePath = request.getParameter(PARAM2);
-		String content = request.getParameter(PARAM3);
+		/*
+		 * get the project folder path
+		 * e.g.
+		 * /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/667
+		 */
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		String audioFilePath = request.getParameter("audioFilePath");
+		String content = request.getParameter("content");
 		
-		File dir = new File(projectPath);
+		File dir = new File(projectFolderPath);
 		if(dir.exists()){
 			if(this.standAlone || SecurityUtils.isAllowedAccess(request, dir)){
 				File file = new File(audioFilePath);

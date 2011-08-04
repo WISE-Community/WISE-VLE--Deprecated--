@@ -76,7 +76,7 @@ View.prototype.updateAudioFiles = function(){console.warn('UPDATing AudIO');
 								o.notificationManager.notify('could not create audio', 3);
 							};
 							
-							this.connectionManager.request('POST',1,this.requestUrl, {forward:'filemanager',projectId:this.portalProjectId,command:'updateAudioFiles',param1:this.getProject().getContentBase(),param2:node.audios[a].url,param3:textContent}, success, this, failure);
+							this.connectionManager.request('POST',1,this.requestUrl, {forward:'filemanager',projectId:this.portalProjectId,command:'updateAudioFiles',audioFilePath:node.audios[a].url,content:textContent}, success, this, failure);
 						}  // if (foundElement != null) {
 					}  // } else {
 				}

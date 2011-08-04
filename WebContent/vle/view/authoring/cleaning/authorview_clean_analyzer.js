@@ -647,7 +647,7 @@ FileAndContentAnalyzer.prototype.analyze = function(){
 	this.cleaner.registerAsyncRequest(this.name);
 	this.basePath = this.cleaner.view.utils.getContentPath(this.cleaner.view.authoringBaseUrl,this.cleaner.view.getProject().getContentBase());
 	
-	this.cleaner.view.connectionManager.request('GET', 1, this.cleaner.view.requestUrl, {forward:'filemanager', projectId:this.cleaner.view.portalProjectId, command:'retrieveFile', param1:this.basePath + '/' + this.part.data}, this.analyzeResultsSuccess, this, this.analyzeResultsFailure);
+	this.cleaner.view.connectionManager.request('GET', 1, this.cleaner.view.requestUrl, {forward:'filemanager', projectId:this.cleaner.view.portalProjectId, command:'retrieveFile', fileName:this.part.data}, this.analyzeResultsSuccess, this, this.analyzeResultsFailure);
 };
 
 /**

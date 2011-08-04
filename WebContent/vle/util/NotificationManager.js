@@ -120,8 +120,7 @@ var notificationManager = {
 			});
 			//if in authoring mode
 			if(this.mode && this.mode=='authoring'){
-				$('#notificationDiv').append('<div class="authoringMessages ' + customClass + '"><span id="' + id + '"><a title="Dismiss Message" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')">Dismiss</a></span></div>');
-				$('#notificationDiv').css('margin-top','0.1em');
+				$('#notificationDiv').append('<div class="authoringMessages ' + customClass + '"><span id="' + id + '" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></span></div>');
 			} else {
 				$('body').append('<div id="' + id + '" class="messages ' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
 			}
@@ -199,7 +198,6 @@ function AlertObject(elId, msg, mode){
 		this.MSG_TIME = 30000;
 		$('#' + elId).prepend(msg);
 	} else {
-		msg += '\n<p style="font-size:0.8em">(Click this message to remove it)</p>';
 		$('#' + elId).html(msg);
 		$('#' + elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
 	}

@@ -291,7 +291,7 @@ var componentloader = function(em, sl){
 				placeNode:false, 
 				placeNodeId:undefined, 
 				updateAudioInVLE:false,
-				authoringBaseUrl:'filemanager.html?command=retrieveFile&param1=',
+				authoringBaseUrl:'filemanager.html?command=retrieveFile&fileName=',
 				easyMode:true, 
 				updateNow:true, 
 				stepSaved:true, 

@@ -90,10 +90,11 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 		this.connectionManager.request('POST', 1, this.requestUrl, postMetadataParams, callback, this, failed);
 	} else {
 		//if project meta file exists - update on server
+		//NOTE: I don't think we use metadata files anymore, all metadata is stored in the portal database now
 		if(this.projectMetadata || this.hasProjectMeta){//update file on server
-			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', param1: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase()), param2: this.utils.getProjectMetaFilename(this.project.getProjectFilename()), param3: $.stringify(this.projectMeta)}, callback, this, failed);
+			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.utils.getProjectMetaFilename(this.project.getProjectFilename()), data: $.stringify(this.projectMeta)}, callback, this, failed);
 		} else {//create file on server
-			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'createFile', param1: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase()) + '/' + this.utils.getProjectMetaFilename(this.project.getProjectFilename()), param2: $.stringify(this.projectMeta)}, callback, this, failed);
+			this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'createFile', fileName: '/' + this.utils.getProjectMetaFilename(this.project.getProjectFilename()), data: $.stringify(this.projectMeta)}, callback, this, failed);
 		}		
 	}
 };

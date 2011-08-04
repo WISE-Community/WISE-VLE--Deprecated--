@@ -245,7 +245,7 @@ View.prototype.startAudioAfterRender = function(nodeId) {
 //
 //    /* set content base variable, if filemanager is used, remove it from base */
 //    var contentBase = this.getProject().getContentBase();
-//    var filemanagerString = '/webapp/author/authorproject.html?forward=filemanager&projectId=&command=retrieveFile&param1=';
+//    var filemanagerString = '/webapp/author/authorproject.html?forward=filemanager&projectId=&command=retrieveFile&fileName=';
 //    if (contentBase.indexOf(filemanagerString) != -1) {
 //        contentBase = this.utils.getContentPath(filemanagerString, contentBase);
 //    }

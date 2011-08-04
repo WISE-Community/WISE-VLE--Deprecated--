@@ -373,7 +373,7 @@ View.prototype.saveStep = function(close, bypassUpdateSource){
 			};
 			
 			/* update content to server */
-			this.connectionManager.request('POST', 3, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command:'updateFile', param1:this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase()), param2: this.activeContent.getFilename(this.project.getContentBase()), param3:contentString},success,this,failure);			
+			this.connectionManager.request('POST', 3, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command:'updateFile', fileName:this.activeContent.getFilename(this.project.getContentBase()), data:contentString},success,this,failure);			
 		}
 	}
 };

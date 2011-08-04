@@ -27,6 +27,7 @@ public final class SecurityUtils {
 		   ALLOWED_REFERRERS.add("/webapp/teacher/projects/telsprojectlibrary.html");
 		   ALLOWED_REFERRERS.add("/webapp/teacher/projects/customized/index.html");
 		   ALLOWED_REFERRERS.add("/webapp/teacher/run/createRun.html");
+		   ALLOWED_REFERRERS.add("/webapp/teacher/management/library.html");
 	   }
 
 	private final static String AUTHENTICATION_URL = "/webapp/authorize.html";

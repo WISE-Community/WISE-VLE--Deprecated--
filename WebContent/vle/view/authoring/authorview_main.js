@@ -457,7 +457,7 @@ View.prototype.saveProject = function(){
 			alert(data);
 		};
 		
-		this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', param1: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase()), param2: this.project.getProjectFilename(), param3: encodeURIComponent(data)}, success_callback, this, failure_callback);
+		this.connectionManager.request('POST', 1, this.requestUrl, {forward:'filemanager', projectId:this.portalProjectId, command: 'updateFile', fileName: this.project.getProjectFilename(), data: encodeURIComponent(data)}, success_callback, this, failure_callback);
 	} else {
 		this.notificationManager.notify('Please open or create a Project before attempting to save.', 3);
 	};
@@ -751,17 +751,23 @@ View.prototype.viewAssets = function(){
 		showElement('assetEditorDialog');
 		var populateOptions = function(names, view){
 			if(names && names!=''){
+				//get the JSONArray of file names
+				var fileNames = JSON.parse(names);
+				
+				//sort the file names alphabetically
+				fileNames.sort();
+				
 				var parent = document.getElementById('assetSelect');
 				parent.innerHTML = '';
-				var splitz = names.split('~');
-				splitz.sort(function(a,b) {
-				  var al=a.toLowerCase(),bl=b.toLowerCase()
-				  return al==bl?(a==b?0:a<b?-1:1):al<bl?-1:1
-				});
-				for(var d=0;d<splitz.length;d++){
-					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + splitz[d]});
-					opt.text = splitz[d];
-					opt.value = splitz[d];
+				
+				//loop through all the file names
+				for(var d=0;d<fileNames.length;d++){
+					var fileName = fileNames[d];
+					
+					//create a drop down option for each file name
+					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
+					opt.text = fileName;
+					opt.value = fileName;
 					parent.appendChild(opt);
 				}
 			}
@@ -776,9 +782,9 @@ View.prototype.viewAssets = function(){
 			
 			$('#uploadAssetFile').val('');
 		};
-	
+
 		//get assets from servlet
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'assetList', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, function(txt,xml,obj){populateOptions(txt,obj);}, this);
+		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'assetList'}, function(txt,xml,obj){populateOptions(txt,obj);}, this);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to view assets for.", 3);
 	}
@@ -817,15 +823,17 @@ View.prototype.startPreview = function(em){
  * loads the project into the authoring tool.
  */
 View.prototype.projectOptionSelected = function(){
-	var path = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+	var projectId = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+	projectId = parseInt(projectId);
 
+	var path = "";
+	
 	/* if this is a portal project, we need to set the portal variables based on the project name/id combo */
 	if(this.portalUrl){
-		var nameId = path.split(' ID: ');
-		var ndx = this.portalProjectIds.indexOf(nameId[1]);
+		var ndx = this.portalProjectIds.indexOf(projectId);
 		if(ndx!=-1){
-			this.portalProjectId = nameId[1];
-			this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&projectId=' + this.portalProjectId + '&command=retrieveFile&param1=';
+			this.portalProjectId = projectId;
+			this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&projectId=' + this.portalProjectId + '&command=retrieveFile&fileName=';
 			path = this.portalProjectPaths[ndx];
 		} else {
 			this.portalProjectId = undefined;
@@ -883,41 +891,39 @@ View.prototype.copyProject = function(){
 	
 	var doSuccess = function(list, view){
 		var parent = document.getElementById('copyProjectSelect');
-		var sep;
-		if(view.primaryPath.indexOf('/')!=-1){
-			sep = '/';
-		} else {
-			sep = '\\';
-		};
-		
+
 		while(parent.firstChild){
 			parent.removeChild(parent.firstChild);
 		};
 		
-		/* split the projects up */
-		var projects = list.split('|');
+		//parse the JSON string into a JSONArray
+		var projectsArray = JSON.parse(list);
 		
-		for(var c=0;c<projects.length;c++){
+		//sort the array by id
+		projectsArray.sort(view.sortProjectsById);
+		
+		//loop through all the projects
+		for(var x=0; x<projectsArray.length; x++) {
+			//get a project and obtain the id, path, and title
+			var project = projectsArray[x];
+			var projectId = project.id;
+			var projectPath = project.path;
+			var projectTitle = project.title;
+			
+			//create a drop down option for the project
 			var opt = createElement(document, 'option', {name: 'copyProjectOption'});
 			parent.appendChild(opt);
 			
-			/* If list is from portal, set option text to name + id, otherwise, use the path. 
-			 * Also set option id to the associated project id so that the request to the portal has it. */
-			if(projects[c].indexOf('~')!=-1){
-				var splitz = projects[c].split('~');
-				
-				opt.text = splitz[2] + ' ID: ' + splitz[1];
-				opt.value = splitz[0].substring(0, splitz[0].lastIndexOf(sep));
-				opt.id = splitz[1];
-				opt.filename = splitz[0].substring(splitz[0].lastIndexOf(sep) + 1, splitz[0].length);
-				opt.title = splitz[2];
-			} else {		
-				opt.text = projects[c];
-				opt.value = projects[c].substring(0, projects[c].lastIndexOf(sep));
-				opt.filename = splitz[0].substring(splitz[0].lastIndexOf(sep) + 1, splitz[0].length);
-				opt.title = opt.filename.substring(0, opt.filename.indexOf('.'));
-			}
-		};
+			/*
+			 * create the text for the drop down for this project
+			 * e.g.
+			 * 531: Photosynthesis
+			 */
+			opt.text = projectId + ': ' + projectTitle;
+			opt.value = projectId;
+			opt.fileName = projectPath;
+			opt.title = projectTitle;
+		}
 		
 		$('#copyProjectDialog').dialog('open');
 		eventManager.fire('browserResize');
@@ -1087,6 +1093,8 @@ View.prototype.onProjectLoaded = function(){
 		if(this.placeNode){
 			this.placeNewNode(this.placeNodeId);
 		}
+		
+		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 3);
 	}
 };
 
@@ -1118,11 +1126,11 @@ View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 View.prototype.notifyPortalCloseProject = function(sync){
 	if(this.getProject()){
 		var success = function(t,x,o){
-			o.notificationManager.notify('Portal notified that project session is closed.', 3);
+			//o.notificationManager.notify('Portal notified that project session is closed.', 3);
 		};
 		
 		var failure = function(t,o){
-			o.notificationManager.notify('Unable to notify portal that project session is closed', 3);
+			//o.notificationManager.notify('Unable to notify portal that project session is closed', 3);
 		};
 		
 		this.connectionManager.request('POST', 1, this.portalUrl, {command:'notifyProjectClose', path: this.getProject().getUrl()}, success, this, failure, sync);
@@ -1442,18 +1450,56 @@ View.prototype.populatePortalProjects = function(t){
 	this.portalProjectPaths = [];
 	this.portalProjectIds = [];
 	this.portalProjectTitles = [];
+
+	//parse the JSON string into a JSONArray
+	var projectsArray = JSON.parse(t);
 	
-	var projects = t.split('|');
-	for(var b=0;b<projects.length;b++){
-		var pathIdTitle = projects[b].split('~');
-		this.portalProjectPaths.push(pathIdTitle[0]);
-		this.portalProjectIds.push(pathIdTitle[1]);
-		this.portalProjectTitles.push(pathIdTitle[2]);
+	//sort the array by id
+	projectsArray.sort(this.sortProjectsById);
+	
+	//loop through all the projects
+	for(var x=0; x<projectsArray.length; x++) {
+		//get a project and obtain the id, path, and title
+		var project = projectsArray[x];
+		var projectId = project.id;
+		var projectPath = project.path;
+		var projectTitle = project.title;
 		
-		$('#selectProject').append('<option name="projectOption" value="' + pathIdTitle[2] + ' ID: ' + pathIdTitle[1] + '">' +  pathIdTitle[2] + ' ID: ' + pathIdTitle[1] +'</option>');
+		//add the fields to the appropriate arrays
+		this.portalProjectPaths.push(projectPath);
+		this.portalProjectIds.push(projectId);
+		this.portalProjectTitles.push(projectTitle);
+		
+		//create an entry in the drop down box
+		$('#selectProject').append('<option name="projectOption" value="' + projectId + '">' +  projectId + ': ' + projectTitle +'</option>');
 	}
 	
 	this.onOpenProjectReady();
+};
+
+/**
+ * A function used by Array.sort() to sort the objects
+ * by their id
+ * @param project1
+ * @param project2
+ * @return a value less than 0 if project1 comes before project2
+ * 0 if project1 and project2 are equal
+ * a value greater than 0 if project 1 comes after project2
+ */
+View.prototype.sortProjectsById = function(project1, project2) {
+	var result = 0;
+	
+	if(project1 != null && project2 != null) {
+		result = project1.id - project2.id;
+	} else if(project1 == null) {
+		//project1 is null so we will put it after project2
+		result = 1;
+	} else if(project2 == null) {
+		//project2 is null so we will put it after project1
+		result = -1;
+	}
+	
+	return result;
 };
 
 /**
@@ -1590,14 +1636,10 @@ View.prototype.reviewUpdateProject = function() {
 			//o.notificationManager.notify('Fail', 3);
 		};
 		
-		
-		var contentPath = this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase());
-		
 		var requestParams = {
 			command: 'reviewUpdateProject',
 			forward: 'filemanager',
-			projectId: this.portalProjectId,
-			contentPath: contentPath
+			projectId: this.portalProjectId
 		};
 		
 		this.connectionManager.request('POST', 1, this.portalUrl, requestParams, success, this, failure);

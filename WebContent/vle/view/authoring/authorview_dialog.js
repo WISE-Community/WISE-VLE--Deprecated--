@@ -14,13 +14,6 @@ View.prototype.initializeCreateProjectDialog = function(){
 	var submit = function(){
 		var name = $('#projectInput').val();
 		
-		if(view.portalUrl){
-			var path = view.portalCurriculumBaseDir;
-			view.createMode = false;
-		} else {
-			var path = view.primaryPath;
-		}
-		
 		/* failure callback function for creating a new project */
 		var failure = function(t,o){
 			o.notificationManager.notify('unable to create new project on server', 3);
@@ -29,12 +22,20 @@ View.prototype.initializeCreateProjectDialog = function(){
 		/* success callback function for creating a new project */
 		var success = function(t,x,o){
 			var path = t;
+			
+			/*
+			 * get the project file name
+			 * e.g.
+			 * /wise4.project.json
+			 */
+			var projectFileName = path.substring(path.lastIndexOf("/"));
+			
 			/* publish the project to the portal if we are in portal mode */
 			if(o.portalUrl){
 				o.createPortalProject(path, $('#projectInput').val());
 			} else {
 				/* just load the newly created project */
-				o.loadProject(o.authoringBaseUrl + path, o.utils.getContentBaseFromFullUrl(o.authoringBaseUrl + path), false);
+				o.loadProject(o.authoringBaseUrl + projectFileName, o.utils.getContentBaseFromFullUrl(o.authoringBaseUrl + path), false);
 			}
 			
 			/*
@@ -49,7 +50,8 @@ View.prototype.initializeCreateProjectDialog = function(){
 		
 		/* make request if name input field is not empty */
 		if(name != null && name != ""){
-			view.connectionManager.request('POST',1, view.requestUrl, {forward:'filemanager', projectId:'none', command:'createProject', param1:name, param2:path}, success, view, failure);
+			//create the folder and files for the project on the server
+			view.connectionManager.request('POST',1, view.requestUrl, {forward:'filemanager', projectId:'none', command:'createProject', projectName:name}, success, view, failure);
 		} else {
 			view.notificationManager.notify('A project name must be supplied before you can create a project.',3);
 		}
@@ -103,9 +105,14 @@ View.prototype.initializeCreateSequenceDialog = function(){
 			o.notificationManager.notify('unable to create new Activity on the WISE server', 3);
 		};
 		
-		var path = view.utils.getContentPath(view.authoringBaseUrl, view.project.getUrl());
+		/*
+		 * get the project file name
+		 * e.g.
+		 * /wise4.project.json
+		 */
+		var projectFileName = view.utils.getContentPath(view.authoringBaseUrl, view.project.getUrl());
 		var id = view.getProject().generateUniqueId('seq');
-		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'createSequence',param1:path,param2:name,param3:id},success,view,failure);
+		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'createSequence',projectFileName:projectFileName,name:name,id:id},success,view,failure);
 
 	};
 	
@@ -183,10 +190,9 @@ View.prototype.initializeCreateNodeDialog = function (){
 				forward:'filemanager',
 				projectId:view.portalProjectId,
 				command:'createNode',
-				param1:path,
-				param2:nodeclass,
-				param3:title,
-				param4:type,
+				nodeClass:nodeclass,
+				title:title,
+				type:type,
 				nodeTemplateParams:$.stringify(nodeTemplateParams)
 		};
 		
@@ -218,7 +224,7 @@ View.prototype.setHtmlSrc = function(nodeId) {
 	var retrieveFileParams = {
 		command:'retrieveFile',
 		forward:'filemanager',
-		param1:this.project.getContentBase() + this.utils.getSeparator(this.project.getContentBase()) + nodeId,
+		fileName:this.utils.getSeparator(this.project.getContentBase()) + nodeId,
 		projectId:this.portalProjectId
 	};
 
@@ -251,9 +257,8 @@ View.prototype.getHtmlSrcSuccess = function(text,x,obj) {
 		forward:'filemanager', 
 		projectId:thisView.portalProjectId,
 		command:'updateFile',
-		param1:thisView.utils.getContentPath(thisView.authoringBaseUrl,thisView.project.getContentBase()),
-		param2:nodeId,
-		param3:$.stringify(htNodeContent, null, 3)
+		fileName:nodeId,
+		data:$.stringify(htNodeContent, null, 3)
 	};
 
 	//save the .ht file back to the server
@@ -348,10 +353,9 @@ View.prototype.initializeEditProjectFileDialog = function(){
 			view.notificationManager.notify('No project text found to save, aborting...', 3);
 		}
 		
-		var path = view.utils.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase());
 		var filename = view.getProject().getProjectFilename();
 		
-		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'updateFile',param1:path,param2:filename,param3:text},success,view,failure);
+		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'updateFile',fileName:filename,data:text},success,view,failure);
 	};
 
 	var cancel = function(){
@@ -429,17 +433,28 @@ View.prototype.initializeCopyProjectDialog = function (){
 	var submit = function(){
 		var select = document.getElementById('copyProjectSelect');
 		var option = select.options[select.selectedIndex];
-		var selectedProjectPath = option.value;
-		var portalProjectId = option.id;
+		var portalProjectId = option.value;
 		var title = option.title;
-		var filename = option.filename;
+		var fileName = option.fileName;
 		
-		/* processes the response to the request to copy a project */
+		/*
+		 * processes the response to the request to copy a project
+		 * @param t the new folder name
+		 * e.g.
+		 * 513
+		 */
 		var success = function(t,x,o){
-			o.notificationManager.notify('Project copied to: ' + t, 3);
+			o.notificationManager.notify('Project Copied', 3);
 			/* create new project in the portal if in portal mode */
 			if(o.portalUrl){
-				o.createPortalProject(t + '/' + option.filename, option.title, portalProjectId);
+				/*
+				 * the url (first argument) is the relative project folder path
+				 * e.g.
+				 * /513/wise4.project.json
+				 * the project file name is the same as the project file name
+				 * from the project that was copied
+				 */
+				o.createPortalProject('/' + t + fileName, option.title, portalProjectId);
 			}
 			
 			$('#copyProjectDialog').dialog('close');
@@ -450,7 +465,7 @@ View.prototype.initializeCopyProjectDialog = function (){
 			o.notificationManager.notify('Failed copying project on server.', 3);
 		};
 		
-		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:portalProjectId,command:'copyProject',param2:view.primaryPath,param1:selectedProjectPath},success,view,failure);
+		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:portalProjectId,command:'copyProject', fileName:fileName},success,view,failure);
 	};
 	
 	var cancel = function(){
