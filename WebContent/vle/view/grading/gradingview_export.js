@@ -186,11 +186,6 @@ View.prototype.setParamsForXLSExport = function() {
 	document.getElementById('projectName').value = this.project.getTitle();
 	
 	/*
-	 * set the project path to an element that will be passed back to the server
-	 */
-	document.getElementById('projectPath').value = this.getConfig().getConfigParam('getProjectPath');
-
-	/*
 	 * set the type for the bridge controller to inspect
 	 */
 	document.getElementById('type').value = "xlsexport";

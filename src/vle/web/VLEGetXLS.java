@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -187,6 +186,9 @@ public class VLEGetXLS extends VLEServlet {
 		//holds the workgroup ids of the shared teachers
 		String sharedTeacherUserInfos = (String) request.getAttribute("sharedTeacherUserInfos");
 		
+		//get the path of the project file on the server
+		String projectPath = (String) request.getAttribute("projectPath");
+		
 		//holds the run info
 		String runInfo = (String) request.getAttribute("runInfo");
 		
@@ -250,9 +252,6 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//the export type "latestStudentWork" or "allStudentWork"
 		String exportType = request.getParameter("exportType");
-		
-		//get the path of the project file on the server
-		String projectPath = request.getParameter("projectPath");
 		
 		JSONArray customStepsArray = new JSONArray();
 		
@@ -2461,7 +2460,7 @@ public class VLEGetXLS extends VLEServlet {
     			stepWork instanceof StepWorkBS || stepWork instanceof StepWorkFillin ||
     				stepWork instanceof StepWorkMC || stepWork instanceof StepWorkMatchSequence ||
     				stepWork instanceof StepWorkAssessmentList || nodeType.equals("SensorNode")
-    				|| nodeType.equals("ExplanationBuilderNode")) {
+    				|| nodeType.equals("ExplanationBuilderNode") || nodeType.equals("SVGDrawNode")) {
     		try {
     			//obtain the json string
     			String data = stepWork.getData();
@@ -2650,6 +2649,11 @@ public class VLEGetXLS extends VLEServlet {
 								if(lastState != null) {
 									//just return the JSON as a string
 									stepWorkResponse = lastState.toString();									
+								}
+							} else if(nodeType.equals("SVGDrawNode")) {
+								if(lastState != null) {
+									//just return the JSON as a string
+									stepWorkResponse = (String) lastState.get("data");
 								}
 							} else if(lastState.has("response")) {
 								//obtain the response
