@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import vle.domain.statistics.VLEStatistics;
 
-public class HourlyJob implements Job {
+public class DailyJob implements Job {
 	
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		try {

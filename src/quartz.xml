@@ -32,14 +32,14 @@
 
 	<schedule>
 		<job>
-			<name>HourlyJob</name>
-			<job-class>background.jobs.HourlyJob</job-class>
+			<name>DailyJob</name>
+			<job-class>background.jobs.DailyJob</job-class>
 		</job>
 		<trigger>
 			<cron>
-				<name>TriggerEveryHour</name>
-				<job-name>HourlyJob</job-name>
-				<cron-expression>0 30 * * * ?</cron-expression>
+				<name>TriggerEveryDay</name>
+				<job-name>DailyJob</job-name>
+				<cron-expression>0 0 23 * * ?</cron-expression>
 			</cron>
 		</trigger>
 	</schedule>
