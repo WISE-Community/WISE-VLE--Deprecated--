@@ -3278,9 +3278,10 @@ View.prototype.reloadRefreshScreen = function() {
 View.prototype.displayStart = function(displayName, displayParam) {
 	this.currentGradingDisplay = displayName;
 	this.currentGradingDisplayParam = displayParam;
+	var that = this;
 	$(window).resize(function(){
 		// fix the height of the gradeWorkDiv so no scrollbars are displayed for the iframe
-		this.fixGradingDisplayHeight();
+		that.fixGradingDisplayHeight();
 	})
 };
 
@@ -3301,6 +3302,12 @@ View.prototype.displayFinished = function() {
 	
 	// fix the height of the gradeWorkDiv so no scrollbars are displayed for the iframe
 	this.fixGradingDisplayHeight();
+	
+	var that = this;
+	$(window).resize(function(){
+		// fix the height of the gradeWorkDiv so no scrollbars are displayed for the iframe
+		that.fixGradingDisplayHeight();
+	})
 };
 
 /**

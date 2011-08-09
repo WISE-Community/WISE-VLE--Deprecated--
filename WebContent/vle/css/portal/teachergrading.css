@@ -88,6 +88,7 @@ iframe {
 	text-align: left;
 	font-size:.9em;
 	min-width:1000px;
+	overflow-x: hidden;
 	/*padding-bottom:5px;
 	border-bottom:3px solid #919EBA;*/
 }
