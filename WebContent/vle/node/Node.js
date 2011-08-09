@@ -844,30 +844,32 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 	/*
 	 * get the vlewrapper base url
 	 * e.g.
-	 * http://localhost:8080/vlewrapper/curriculum
+	 * http://localhost:8080/curriculum
 	 */
 	var vlewrapperBaseUrl = "";
 	
 	if(this.view.vlewrapperBaseUrl) {
 		vlewrapperBaseUrl = this.view.vlewrapperBaseUrl;
+	}
+	
+	//try to get the project folder from the relativeProjectUrl
+	if(this.view.relativeProjectUrl) {
+		/*
+		 * relativeProjectUrl should be the relative path of the project file
+		 * from the curriculum folder
+		 * e.g.
+		 * /135/wise4.project.json
+		 */
 		
-		if(vlewrapperBaseUrl.charAt(vlewrapperBaseUrl.length - 1) == '/') {
-			/*
-			 * the vlewrapper base url ends with '/' so we do not need the '/'
-			 * from the contentBaseUrlString
-			 * e.g.
-			 * 88
-			 */
-			projectFolder = contentBaseUrlString.substring(lastSlashIndex + 1);
-		} else {
-			/*
-			 * the vlewrapper base url does not end with '/' so we need the '/'
-			 * from the contentBaseUrlString
-			 * e.g.
-			 * /88
-			 */
-			projectFolder = contentBaseUrlString.substring(lastSlashIndex);
-		}
+		var indexFirstSlash = this.view.relativeProjectUrl.indexOf('/');
+		var indexSecondSlash = this.view.relativeProjectUrl.indexOf('/', indexFirstSlash + 1);
+		
+		/*
+		 * get the project folder
+		 * e.g.
+		 * /135
+		 */
+		projectFolder = this.view.relativeProjectUrl.substring(0, indexSecondSlash);
 	}
 	
 	//add a '/' at the end of the project folder if it doesn't end with '/'
@@ -878,9 +880,9 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 	/*
 	 * combine the vlewrapper base url and the project folder
 	 * e.g.
-	 * vlewrapperBaseUrl=http://localhost:8080/vlewrapper/curriculum
-	 * projectFolder=/88/
-	 * contentBaseUrl=http://localhost:8080/vlewrapper/curriculum/88/
+	 * vlewrapperBaseUrl=http://localhost:8080/curriculum
+	 * projectFolder=/135
+	 * contentBaseUrl=http://localhost:8080/curriculum/135/
 	 */
 	var contentBaseUrl = vlewrapperBaseUrl + projectFolder;
 	

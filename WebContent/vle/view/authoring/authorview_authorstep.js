@@ -401,27 +401,11 @@ View.prototype.sourceUpdated = function(now){
  * Previews the activeNode's content in the preview window
  */
 View.prototype.previewStep = function(){
-	/*
-	 * replace any relative references to the assets folder with the full 
-	 * path to the assets folder and set the active node's content with the 
-	 * active content
-	 */
-
-	var contentBaseUrl = "";
-	
-	//get the content base url which should be the url to the project folder
-	var contentBaseUrl = this.activeNode.getAuthoringModeContentBaseUrl();
-
-	//make sure the url ends with '/'
-	if(contentBaseUrl.charAt(contentBaseUrl.length - 1) != '/') {
-		contentBaseUrl += '/';
-	}
-	
 	//get the active content
 	var contentString = this.activeContent.getContentString();
 	
-	//replace any relative references to assets with the absolute path to the assets
-	contentString = contentString.replace(/^\.\/assets|^\/assets|^assets/gi, contentBaseUrl + 'assets');
+	//inject the asset full asset path
+	contentString = this.injectAssetPath(contentString);
 	
 	//create a new content object
 	var contentObj = createContent(this.activeNode.getContent().getContentUrl());
@@ -435,12 +419,72 @@ View.prototype.previewStep = function(){
 	/* we don't want broken preview steps to prevent the user from saving
 	 * content so let's try to catch errors here */
 	
+	//for HtmlNode steps we need to inject the full asset path into the html content
+	if(this.activeNode.type == 'HtmlNode') {
+		//get the html content
+		var htmlContent = this.activeNode.baseHtmlContent.getContentString();
+		
+		//inject the full asset path
+		htmlContent = this.injectAssetPath(htmlContent);
+		
+		//set the updated html content back
+		this.activeNode.baseHtmlContent.setContent(htmlContent);
+	}
+	
 	try{
 		/* render the node */
 		this.activeNode.render(window.frames['previewFrame']);
 	} catch(e){
 		this.notificationManager.notify('Error generating preview for step authoring. The following error was generated: ' + e,1);
 	}
+};
+
+/**
+ * Replace all occurrences of "assets" with the full assets path
+ * e.g.
+ * "http://wise4.berkeley.edu/curriculum/135/assets"
+ * @param contentString a string containing the content from a step
+ * @return the content with all occurrences of "assets" replaced with
+ * the full assets path
+ */
+View.prototype.injectAssetPath = function(contentString) {
+	var contentBaseUrl = "";
+	
+	/*
+	 * get the content base url which should be the url to the curriculum folder
+	 * e.g.
+	 * http://wise4.berkeley.edu/curriculum
+	 */
+	var contentBaseUrl = this.activeNode.getAuthoringModeContentBaseUrl();
+	
+	//if the contentBaseUrl ends with '/' we will remove it
+	if(contentBaseUrl.charAt(contentBaseUrl.length - 1) == '/') {
+		contentBaseUrl = contentBaseUrl.substring(0, contentBaseUrl.length - 1);
+	}
+
+	var fullProjectFolderPath = null;
+	
+	if(this.projectMetadata.projectFolder != null) {
+		/*
+		 * the project folder is in the project meta data
+		 * e.g.
+		 * /135
+		 * 
+		 * so the full project folder path will look like
+		 * http://wise4.berkeley.edu/curriculum/135
+		 */
+		fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
+	}
+	
+	//make sure the projectFolder ends with '/'
+	if(fullProjectFolderPath.charAt(fullProjectFolderPath.length - 1) != '/') {
+		fullProjectFolderPath += '/';
+	}
+	
+	//replace any relative references to assets with the absolute path to the assets
+	contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, fullProjectFolderPath + 'assets');
+	
+	return contentString;
 };
 
 View.prototype.insertCommonComponents = function() {
