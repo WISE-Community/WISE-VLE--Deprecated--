@@ -142,7 +142,7 @@ View.prototype.displayResearcherToolsPage = function() {
 	 * make the excel export buttons. this is where we make the export button,
 	 * the explanation button, and the short description of the export.
 	 */
-	var getGradingHeaderTableHtml = "<div id='exportCenterButtons'>";
+	var getGradingHeaderTableHtml = "<div class='gradingContent'><div id='exportCenterButtons'>";
 	getGradingHeaderTableHtml += "<table>";
 	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['latestStudentWork'])\"></input></td></tr>";
 	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['allStudentWork'])\"></input></td></tr>";
@@ -151,7 +151,7 @@ View.prototype.displayResearcherToolsPage = function() {
 	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
 	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
 	getGradingHeaderTableHtml += "</table>";
-	getGradingHeaderTableHtml += "</div>";	
+	getGradingHeaderTableHtml += "</div></div>";	
 	
 	$('#gradeWorkDiv').html(getGradingHeaderTableHtml);
 	
@@ -169,7 +169,7 @@ View.prototype.displayResearcherToolsPage = function() {
  */
 View.prototype.displayExportExplanation = function(exportType) {
 	
-	var exportExplanationPageHtml = "";
+	var exportExplanationPageHtml = "<div class='gradingContent'>";
 	
 	//the button to go back to the previous page
 	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
@@ -246,6 +246,8 @@ View.prototype.displayExportExplanation = function(exportType) {
 	
 	//the button to go back to the previous page
 	exportExplanationPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	exportExplanationPageHtml += "</div>";
 	
 	//put the html into the div
 	$('#gradeWorkDiv').html(exportExplanationPageHtml);
