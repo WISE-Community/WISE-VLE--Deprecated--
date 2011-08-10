@@ -19,7 +19,7 @@ import org.json.JSONObject;
 @Table(name="stepwork_note")
 public class StepWorkNote extends StepWork {
 
-	@Column(name="data", length=1024)
+	@Column(name="data", columnDefinition="TEXT")
 	private String data;
 	
 	public String getData() {

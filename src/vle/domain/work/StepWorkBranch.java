@@ -17,7 +17,7 @@ import org.json.JSONObject;
 @Entity
 @Table(name="stepwork_branch")
 public class StepWorkBranch extends StepWork{
-	@Column(name="data", length=1024)
+	@Column(name="data", columnDefinition="TEXT")
 	private String data;
 	
 	@Override

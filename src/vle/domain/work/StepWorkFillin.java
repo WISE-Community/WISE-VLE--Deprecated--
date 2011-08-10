@@ -17,7 +17,7 @@ import org.json.JSONObject;
 @Table(name="stepwork_fillin")
 public class StepWorkFillin extends StepWork {
 
-	@Column(name="data", length=512)
+	@Column(name="data", columnDefinition="TEXT")
 	private String data;
 	
 	@Override

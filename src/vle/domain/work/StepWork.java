@@ -61,7 +61,7 @@ public class StepWork extends PersistableDomain {
 	@Column(name="duplicateId")
 	private String duplicateId;
 	
-	@Column(name="data", length=1024)
+	@Column(name="data", columnDefinition="TEXT")
 	private String data;
 
     public Long getId() {

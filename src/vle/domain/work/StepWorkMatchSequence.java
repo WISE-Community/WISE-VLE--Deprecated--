@@ -17,7 +17,7 @@ import org.json.JSONObject;
 @Table(name="stepwork_matchsequence")
 public class StepWorkMatchSequence extends StepWork {
 
-	@Column(name="data", length=1024)
+	@Column(name="data", columnDefinition="TEXT")
 	private String data;
 	
 	@Override

@@ -49,7 +49,7 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	private Long projectId = null;
 	
 	//the JSON string for the idea basket
-	@Column(name="data", length=1024)
+	@Column(name="data", columnDefinition="TEXT")
 	private String data = null;
 	
 	//the time the idea basket was posted
