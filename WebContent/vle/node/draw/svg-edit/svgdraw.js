@@ -44,44 +44,40 @@ SVGDRAW.prototype.init = function(jsonURL) {
 
 
 SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
+	var data = context.content;
 	
-	$.getJSON(jsonfilename, 
-		function(data){
-			
-			if(data.stamps.length > 0){
-				context.stamps = []; // clear out stamps array
-				for (var item in data.stamps) {
-					context.stamps.push(data.stamps[item]);
-				};
-			}
-			if(data.defaultSnapshots && data.defaultSnapshots.length > 0){
-				context.defaultSnapshots = data.defaultSnapshots;
-			}
-			if(data.snapshots_active){
-				context.snapshotsActive = data.snapshots_active;
-			}
-			if(data.snapshots_max){
-				context.snapshots_max = data.snapshots_max;
-			}
-			if(data.description_active){
-				context.descriptionActive = data.description_active;
-			}
-			if(data.description_default) {
-				context.defaultDescription = data.description_default;
-			}
-			if(data.prompt){
-				context.instructions = data.prompt;
-			}
-			if(data.svg_background){
-				context.defaultImage = data.svg_background;
-			}
-			
-			 var myDataService = new VleDS(vle);
-		 	   // or var myDataService = new DSSService(read,write);
-			 context.setDataService(myDataService);
-			 context.load();   // load preview data, if any, or load default background
-		}
-	);
+	if(data.stamps.length > 0){
+		context.stamps = []; // clear out stamps array
+		for (var x=0; x<data.stamps.length; x++) {
+			context.stamps.push(data.stamps[x]);
+		};
+	}
+	if(data.defaultSnapshots && data.defaultSnapshots.length > 0){
+		context.defaultSnapshots = data.defaultSnapshots;
+	}
+	if(data.snapshots_active){
+		context.snapshotsActive = data.snapshots_active;
+	}
+	if(data.snapshots_max){
+		context.snapshots_max = data.snapshots_max;
+	}
+	if(data.description_active){
+		context.descriptionActive = data.description_active;
+	}
+	if(data.description_default) {
+		context.defaultDescription = data.description_default;
+	}
+	if(data.prompt){
+		context.instructions = data.prompt;
+	}
+	if(data.svg_background){
+		context.defaultImage = data.svg_background;
+	}
+	
+	var myDataService = new VleDS(vle);
+ 	// or var myDataService = new DSSService(read,write);
+	context.setDataService(myDataService);
+	context.load();   // load preview data, if any, or load default background
 };
 
 
