@@ -2265,7 +2265,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
 		
 		//replace \n with <br> so that the line breaks are displayed for the teacher
-		studentWork = this.replaceSlashNWithDiv(studentWork);
+		studentWork = this.replaceSlashNWithBR(studentWork);
 		
 		//insert the student work into a div so we can display scrollbars if the student work overflows
 		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" class="studentWorkDiv" style="overflow:auto; width:500px">' + studentWork + '</div>';
