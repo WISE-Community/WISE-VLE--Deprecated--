@@ -1,42 +1,59 @@
 /**
  * SessionManager manages sessions
- * Will warn the user when they are about to be kicked out. User can choose to ignore
- * the warning or renew the session.
- * Will close the vle and take user back if session does time out.
+ * The SessionManager will warn the user when the session is about to expire. 
+ * The user can choose to ignore the warning or renew the session. 
+ * If the user ignores the warning and session times out, 
+ * the SessionManager will
+ * 1) save the student's current work,
+ * 2) close the VLE and 
+ * 3) take the user back to the homepage.
  */
 function SessionManager(em, view) {
 	this.em = em;
 	this.view = view;
 
-	this.sessionTimeoutInterval = 1200000;   // session timeout limit, in milliseconds (20 min = 20*60*1000 = 1200000 milliseconds)  (15 min = 15*60*1000 = 900000 milliseconds) (10 min = 10*60*1000 = 600000 milliseconds)
+	// session timeout limit, in milliseconds.
+	// (20 min = 20*60*1000 = 1200000 milliseconds)  (15 min = 15*60*1000 = 900000 milliseconds) (10 min = 10*60*1000 = 600000 milliseconds)	
+	this.sessionTimeoutInterval = 1200000;   
 	
-	// override with config params, if specified
+	// override sessionTimeoutInterval, if specified in the config.
 	if (view.config && view.config.getConfigParam("sessionTimeoutInterval")) {
 		this.sessionTimeoutInterval = view.config.getConfigParam("sessionTimeoutInterval");
 	}
 	
-	this.sessionTimeoutCheckInterval = 60000; // how often session should be checked, in milliseconds
+	// how often session should be checked, in milliseconds
+	this.sessionTimeoutCheckInterval = 60000; 
 	
-	// override with config params, if specified
+	// override sessionTimeoutCheckInterval, if specified in the config.
 	if (view.config && view.config.getConfigParam("sessionTimeoutCheckInterval")) {
 		this.sessionTimeoutCheckInterval = view.config.getConfigParam("sessionTimeoutCheckInterval");
 	}
-	this.sessionTimeoutWarning = this.sessionTimeoutInterval*.75;  // when session timeout warning should be made. 
-	this.lastSuccessfulRequest = Date.parse(new Date());  // timestamp of last successful request
+	
+	// how many milliseconds to wait before warning the user about a session timeout.
+	this.sessionTimeoutWarning = this.sessionTimeoutInterval*.75;  
+	
+	// timestamp of last successful request to renew the session.
+	this.lastSuccessfulRequest = Date.parse(new Date());  
 
 	setInterval('eventManager.fire("checkSession")', this.sessionTimeoutCheckInterval);  
 };
 
 /**
- * updates lastSuccessfulRequest timestamp
+ * Updates lastSuccessfulRequest timestamp after the session was successfully renewed.
  */
 SessionManager.prototype.maintainConnection = function(){
 	this.lastSuccessfulRequest = Date.parse(new Date());
 };
 
 /**
- * Checks if the session is still valid. If it's close to the timeout limit,
- * warns the user and allows them to renew
+ * Checks if the session is still valid, invoked periodically via setInterval.
+ * There are three main cases:
+ * 1) User was inactive for too long and ignored the renew session dialog.
+ * Need to save work and close VLE
+ * 2) User was inactive for longer than this.sessionTimeoutWarning milliseconds.
+ * Need to warn them and let them renew the session.
+ * 3) this.sessionTimeoutWarning milliseconds has not elapsed yet since the last
+ * time the session was renewed. Do nothing.
  */
 SessionManager.prototype.checkSession = function() {
 	if(this.view.config.getConfigParam("mode") == "portalpreview") {
