@@ -645,7 +645,7 @@ View.prototype.assetUploaded = function(e){
 	var frame = window.frames[e.target.id];
 	
 	if(frame.document && frame.document.body && frame.document.body.innerHTML != ''){
-		notificationManager.notify(frame.document.body.innerHTML, 3);
+		notificationManager.notify(frame.document.body.innerHTML, 3, 'uploadMessage', 'notificationDiv');
 		
 		/* set source to blank in case of page reload */
 		htmlFrame.src = 'about:blank';
@@ -709,6 +709,28 @@ View.prototype.checkXMPPEnabled = function() {
 				}
 			}
 		}
+	}
+};
+
+/**
+ * Function used by Array.sort() to sort an array of strings
+ * alphabetically
+ * @param a
+ * @param b
+ * @return -1 if a comes before b
+ * 1 if a comes after b
+ * 0 if a and b are equal
+ */
+View.prototype.sortAlphabetically = function(a, b) {
+	var aLowerCase = a.toLowerCase();
+	var bLowerCase = b.toLowerCase();
+	
+	if(aLowerCase < bLowerCase) {
+		return -1;
+	} else if(aLowerCase > bLowerCase) {
+		return 1;
+	} else {
+		return 0;
 	}
 };
 

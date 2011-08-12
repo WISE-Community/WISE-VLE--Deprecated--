@@ -297,7 +297,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		var assetEditorDialogHtml = "<div id='studentAssetEditorDialog' style='display: none; text-align:left;'><div style='margin-bottom:.5em;'>" 
 			+ "<div id='assetUploaderBodyDiv'><span style='float:left;'>"+this.getI18NString("student_assets_upload_new_file")+":</span>"
 			+ "<input style='margin:0 .5em;' type='file' size='30' id='uploadAssetFile' name='uploadAssetFile' onchange=\"eventManager.fire('studentAssetSubmitUpload')\"></input>"
-			+ "<img id='assetProcessing' style='display:none;' class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>"
+			+ "<img id='assetProcessing' style='display:none;' class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div><br>"
 			+ "<div id='notificationDiv'>"
 			+ "</div></div><div><div style='margin-bottom: 0.5em;'>"+this.getI18NString("student_assets_my_files")+": </div>"
 			+ "<select id='assetSelect' style='width:100%; height:200px; padding:.5em;' size='15'></select>"
@@ -315,10 +315,10 @@ View.prototype.viewStudentAssets = function(launchNode) {
 
 			var success = function(text, xml, o){
 				if(text.status==401){
-					xml.notificationManager.notify(this.getI18NString("student_assets_remove_file_warning"),3);
+					xml.notificationManager.notify(this.getI18NString("student_assets_remove_file_warning"),3, 'uploadMessage', 'notificationDiv');
 				} else {
 					parent.removeChild(opt);
-					o.notificationManager.notify(text, 3);
+					o.notificationManager.notify(text, 3, 'uploadMessage', 'notificationDiv');
 					
 					/* call upload asset with 'true' to get new total file size for assets */
 					o.checkStudentAssetSizeLimit();
@@ -341,10 +341,10 @@ View.prototype.viewStudentAssets = function(launchNode) {
 				var getStudentUploadsBaseUrl = view.config.getConfigParam("getStudentUploadsBaseUrl");
 				var fileWWW = getStudentUploadsBaseUrl + "/" + workgroupId + "/" + name;
 				if(view.getCurrentNode().importFile(fileWWW)) {
-					view.notificationManager.notify(this.getI18NString("student_assets_import_success_message")+": " + name, 3);
+					view.notificationManager.notify(this.getI18NString("student_assets_import_success_message")+": " + name, 3, 'uploadMessage', 'notificationDiv');
 					$('#studentAssetsDiv').dialog('close');	
 				} else {
-					view.notificationManager.notify(this.getI18NString("student_assets_import_failure_message"),3)
+					view.notificationManager.notify(this.getI18NString("student_assets_import_failure_message"),3, 'uploadMessage', 'notificationDiv')
 				}
 			}
 		}
@@ -382,7 +382,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 			names = JSON.parse(names);
 			
 			//sort the file names alphabetically
-			names.sort();
+			names.sort(view.sortAlphabetically);
 			
 			//loop through all the file names and add an option for each file
 			for(var x=0; x<names.length; x++) {
@@ -424,7 +424,7 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 				var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
 				var studentUsageSize = o.utils.appropriateSizeText(text);
 				var maxExceededMessage = o.getStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
-				o.notificationManager.notify(maxExceededMessage, 3);
+				o.notificationManager.notify(maxExceededMessage, 3, 'uploadMessage', 'notificationDiv');
 			} else {				
 				var studentUsage = o.utils.appropriateSizeText(text);
 				var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
@@ -440,7 +440,7 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 View.prototype.studentAssetSubmitUpload = function() {
 	if (this.currentAssetSize != null) {
 		if (this.currentAssetSize >= this.MAX_ASSET_SIZE) {
-			notificationManager.notify('You cannot upload this file because you have exceeded your upload limit. Please delete some files first and try again.', 3);
+			notificationManager.notify('You cannot upload this file because you have exceeded your upload limit. Please delete some files first and try again.', 3, 'uploadMessage', 'notificationDiv');
 			return;
 		}
 	};
@@ -449,7 +449,7 @@ View.prototype.studentAssetSubmitUpload = function() {
 	if(filename && filename != ''){
 		filename = filename.replace("C:\\fakepath\\", "");  // chrome/IE8 fakepath issue: http://acidmartin.wordpress.com/2009/06/09/the-mystery-of-cfakepath-unveiled/	
 		if(!view.utils.fileFilter(view.allowedStudentAssetExtensions,filename)){
-			view.notificationManager.notify('Sorry, the specified file type is not allowed.', 3);
+			view.notificationManager.notify('Sorry, the specified file type is not allowed.', 3, 'uploadMessage', 'notificationDiv');
 			return;
 		} else {
 			var frameId = 'assetUploadTarget_' + Math.floor(Math.random() * 1000001);
@@ -493,7 +493,7 @@ View.prototype.studentAssetSubmitUpload = function() {
 			$('#assetProcessing').show();
 		}
 	} else {
-		view.notificationManager.notify('Please specify a file to upload.',3);
+		view.notificationManager.notify('Please specify a file to upload.',3, 'uploadMessage', 'notificationDiv');
 	}
 };
 

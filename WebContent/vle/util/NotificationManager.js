@@ -59,7 +59,13 @@ var notificationManager = {
 		5: 'fatal'
 	},
 	latestMessages: [],
-	notify: function(message, level, messageClass){
+	/*
+	 * @param message the message to display
+	 * @param level the importance level of the message
+	 * @param messageClass the css class to give the div
+	 * @param divId (optional) the div to display the message in
+	 */
+	notify: function(message, level, messageClass, divId){
 		if(level){
 			var notifyLevel = this.levels[level];
 			if(this.debugMode){
@@ -72,13 +78,13 @@ var notificationManager = {
 					}
 					window.console[notifyLevel]('Notify debug: ' + message);
 				} else {
-					this.notifyAlert('Notify debug: ' + message, messageClass);
+					this.notifyAlert('Notify debug: ' + message, messageClass, divId);
 				}
 			} else {
 				if(notifyLevel){
 					if(notifyLevel=='alert'){
 						//this.notifyAlert('Notify message: <br/><br/>' + message);
-						this.notifyAlert(message, messageClass);
+						this.notifyAlert(message, messageClass, divId);
 					} else if(notifyLevel=='fatal'){
 						eventManager.fire('fatalError', message);
 					} else if(notifyLevel!='log'){
@@ -92,13 +98,13 @@ var notificationManager = {
 			}
 		} else {
 			//this.notifyAlert('Notify message: <br/><br/>' + message);
-			this.notifyAlert(message, messageClass);
+			this.notifyAlert(message, messageClass, divId);
 		}
 	},
-	notifyAlert: function(msg, messageClass){
-		new AlertObject(this.generateUniqueMessageDiv(messageClass), msg, this.mode);
+	notifyAlert: function(msg, messageClass, divId){
+		new AlertObject(this.generateUniqueMessageDiv(messageClass, divId), msg, this.mode, divId);
 	},
-	generateUniqueMessageDiv: function(messageClass){
+	generateUniqueMessageDiv: function(messageClass, divId){
 		var customClass = '';
 		if(messageClass){
 			customClass = messageClass;
@@ -121,6 +127,8 @@ var notificationManager = {
 			//if in authoring mode
 			if(this.mode && this.mode=='authoring'){
 				$('#notificationDiv').append('<div class="authoringMessages ' + customClass + '"><span id="' + id + '" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></span></div>');
+			} else if(divId != null) {
+				$('#' + divId).append('<div id="' + id + '" class="' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
 			} else {
 				$('body').append('<div id="' + id + '" class="messages ' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
 			}
@@ -185,7 +193,7 @@ var notificationManager = {
  * message at the top of the page for the time specified in MSG_TIME and then
  * removes the element from the page.
  */
-function AlertObject(elId, msg, mode){
+function AlertObject(elId, msg, mode, divId){
 	
 	this.MSG_TIME = 5000;
 	this.elId = elId;
@@ -196,14 +204,14 @@ function AlertObject(elId, msg, mode){
 	notificationEventManager.subscribe('removeMsg', this.removeMsg, this);
 	if(this.mode && this.mode == 'authoring'){
 		this.MSG_TIME = 30000;
-		$('#' + elId).prepend(msg);
+		$('#' + this.elId).prepend(msg);
 	} else {
-		$('#' + elId).html(msg);
-		$('#' + elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
+		$('#' + this.elId).html(msg);
+		$('#' + this.elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
 	}
 	eventManager.fire('browserResize');
-	if(!$('#' + elId).parent().hasClass('keepMsg')){
-		setTimeout('notificationEventManager.fire("removeMsg","' + elId + '")', this.MSG_TIME);
+	if(!$('#' + this.elId).parent().hasClass('keepMsg')){
+		setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
 	}
 };
 
