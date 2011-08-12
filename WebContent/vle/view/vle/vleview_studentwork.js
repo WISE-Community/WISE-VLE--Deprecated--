@@ -324,7 +324,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 					o.checkStudentAssetSizeLimit();
 				}
 			};
-			view.connectionManager.request('POST', 1, view.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'remove', asset: name}, success, view, success);
+			view.connectionManager.request('POST', 1, view.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'remove', asset: name, cmd: 'studentAssetUpload'}, success, view, success);
 		}
 	};
 	
@@ -377,15 +377,19 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		if(names && names!=''){
 			var parent = $('#assetSelect');
 			parent.html('');
-			var splitz = names.split('~');
-			splitz.sort(function(a,b) {
-			  var al=a.toLowerCase(),bl=b.toLowerCase();
-			  return al==bl?(a==b?0:a<b?-1:1):al<bl?-1:1;
-			});
-			for(var d=0;d<splitz.length;d++){
-				var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + splitz[d]});
-				opt.text = splitz[d];
-				opt.value = splitz[d];
+			
+			//create a JSON array
+			names = JSON.parse(names);
+			
+			//sort the file names alphabetically
+			names.sort();
+			
+			//loop through all the file names and add an option for each file
+			for(var x=0; x<names.length; x++) {
+				var name = names[x];
+				var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + name});
+				opt.text = name;
+				opt.value = name;
 				parent.append(opt);
 			}
 		}
@@ -419,12 +423,12 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 			if(text >= o.MAX_ASSET_SIZE){
 				var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
 				var studentUsageSize = o.utils.appropriateSizeText(text);
-				var maxExceededMessage = o.getI18NStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
+				var maxExceededMessage = o.getStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
 				o.notificationManager.notify(maxExceededMessage, 3);
 			} else {				
 				var studentUsage = o.utils.appropriateSizeText(text);
 				var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
-				$('#sizeDiv').html(o.getI18NStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
+				$('#sizeDiv').html(o.getStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
 			} 
 		};
 	this.connectionManager.request('POST', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);

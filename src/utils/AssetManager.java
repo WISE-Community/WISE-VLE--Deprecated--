@@ -84,10 +84,19 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
+		
+		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
 		if (path == null || "".equals(path)) {
-			path = (String) request.getAttribute("projectFolderPath");
+			if(studentUploadsBaseDir != null) {
+				//the user is a student
+				path = studentUploadsBaseDir;
+			} else if(projectFolderPath != null) {
+				//the user is a teacher
+				path = projectFolderPath;
+			}
 		}
-
 		
 		if(command!=null){
 			if(command.equals("remove")){
@@ -116,15 +125,22 @@ public class AssetManager extends HttpServlet implements Servlet{
 	private String uploadAsset(HttpServletRequest request) {
 		ServletFileUpload uploader = new ServletFileUpload(new DiskFileItemFactory());
 		Long maxSize = MAX_SIZE;
-		String path = request.getParameter(PATH);
+		String path = "";
 		String dirName = (String) request.getAttribute("dirName");
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
-		if (path == null || "".equals(path)) {
+		
+		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		if (studentUploadsBaseDir != null) {
 			// this is a student asset upload
-			path = (String) request.getAttribute("projectFolderPath");
+			path = studentUploadsBaseDir;
 			maxSize = STUDENT_MAX_UPLOAD_SIZE;
+		} else if(projectFolderPath != null) {
+			//the user is a teacher
+			path = projectFolderPath;
 		}
 
 		try{
@@ -289,6 +305,17 @@ public class AssetManager extends HttpServlet implements Servlet{
 		 path = (String) request.getAttribute(PATH);
 		}
 
+		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		if (studentUploadsBaseDir != null) {
+			// this is a student asset upload
+			path = studentUploadsBaseDir;
+		} else if(projectFolderPath != null) {
+			//the user is a teacher
+			path = projectFolderPath;
+		}
+		
 		String asset = request.getParameter(ASSET);
 		
 		
@@ -335,13 +362,24 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 * @return <code>String</code>
 	 */
 	private String assetList(HttpServletRequest request){
-		String path = (String) request.getAttribute("projectFolderPath");
+		String path = "";
 		String dirName = (String) request.getAttribute("dirName");
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
 		if (path == null) {
-		 path = (String) request.getAttribute(PATH);
+			path = (String) request.getAttribute(PATH);
+		}
+		
+		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
+		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+		
+		if (studentUploadsBaseDir != null) {
+			// this is a student asset upload
+			path = studentUploadsBaseDir;
+		} else if(projectFolderPath != null) {
+			//the user is a teacher
+			path = projectFolderPath;
 		}
 		
 		// if dirname is : separated, get asset list for each dir and return concatenated result
