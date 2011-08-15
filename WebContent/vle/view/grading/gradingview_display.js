@@ -712,7 +712,7 @@ View.prototype.displayStudentUploadedFiles = function() {
 		var workgroupAssetLists = JSON.parse(workgroupAssetListsStr);
 		for (var i=0; i<workgroupAssetLists.length; i++) {
 			var workgroupAssetList = workgroupAssetLists[i];
-			var workgroupAssetsArr = workgroupAssetList.assets.split("~");
+			var workgroupAssetsArr = JSON.parse(workgroupAssetList.assets);
 			var currWorkgroupId = workgroupAssetList.workgroupId;
 			var htmlForWorkgroup = "<div><h3>" + view.userAndClassInfo.getUserNameByUserId(currWorkgroupId) + "</h3>"
 					+ "<ul>";
