@@ -261,7 +261,13 @@ View.prototype.displayExportExplanation = function(exportType) {
  */
 View.prototype.displayCustomExportPage = function() {
 	
-	var customExportPageHtml = "<h3>Custom Export Page</h3>";
+	/*
+	 * wrap everything in a div with the class 'gradingContent' so 
+	 * a scroll bar will be created for it
+	 */
+	var customExportPageHtml = "<div class='gradingContent'>";
+	
+	customExportPageHtml += "<h3>Custom Export Page</h3>";
 	
 	//the button to go back to the previous page
 	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
@@ -292,6 +298,8 @@ View.prototype.displayCustomExportPage = function() {
 	//the buttons to generate the excel export
 	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom Latest Student Work"+"' onClick=\"eventManager.fire('getCustomLatestStudentWorkExport')\"></input>";
 	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Export Custom All Student Work"+"' onClick=\"eventManager.fire('getCustomAllStudentWorkExport')\"></input>";
+	
+	customExportPageHtml += "</div>";
 	
 	//fix the page height
 	$('#gradeWorkDiv').html(customExportPageHtml);
@@ -357,6 +365,10 @@ View.prototype.customActivityCheckBoxClicked = function(activityCheckBoxId) {
 	//get whether the activity check box is checked or unchecked
 	var isActivityChecked = $('#' + activityCheckBoxId).attr('checked');
 	
+	if(isActivityChecked == null) {
+		isActivityChecked = false;
+	}
+	
 	//check or uncheck all the steps in this activity
 	$(".activityStep_" + activityNumber).each(function(index, element) {$(element).attr('checked', isActivityChecked);});
 };
@@ -369,6 +381,10 @@ View.prototype.customActivityCheckBoxClicked = function(activityCheckBoxId) {
 View.prototype.customSelectAllStepsCheckBoxClicked = function() {
 	//get whether the checkbox was checked or unchecked
 	var isSelectAllStepsChecked = $('#selectAllStepsCheckBox').attr('checked');
+	
+	if(isSelectAllStepsChecked == null) {
+		isSelectAllStepsChecked = false;
+	}
 	
 	//check or uncheck all the steps
 	$(".stepCheckBox").each(function(index, element) {$(element).attr('checked', isSelectAllStepsChecked);});
