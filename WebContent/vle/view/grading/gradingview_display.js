@@ -2218,7 +2218,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
 			svgString = Utils.encode64(svgString);
 		}
-		if(snaps.length>0){
+		if(snaps != null && snaps.length>0){
 			var snapTxt = "<div id='"+divId+"_snaps' class='snaps'>";
 			for(var i=0;i<snaps.length;i++){
 				var snapId = divId+"_snap_"+i;
