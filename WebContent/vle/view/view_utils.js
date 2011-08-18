@@ -734,6 +734,29 @@ View.prototype.sortAlphabetically = function(a, b) {
 	}
 };
 
+
+/**
+ * Prepends contentBaseUrl string to each occurrence of 
+ * "./assets"
+ * "/assets"
+ * "assets"
+ * './assets'
+ * '/assets'
+ * 'assets'
+ * in the string passed in.
+ * They must occur as the first character of a word., i.e., "./assets" must be preceded by a space.
+ */
+View.prototype.utils.prependContentBaseUrlToAssets = function(contentBaseUrl, stringIn) {
+	stringIn = stringIn.replace(new RegExp('\"./assets', 'g'), '\"'+contentBaseUrl + 'assets');
+	stringIn = stringIn.replace(new RegExp('\"/assets', 'g'), '\"'+contentBaseUrl + 'assets');
+	stringIn = stringIn.replace(new RegExp('\"assets', 'g'), '\"'+contentBaseUrl + 'assets');
+	stringIn = stringIn.replace(new RegExp('\'./assets', 'g'), '\"'+contentBaseUrl + 'assets');
+	stringIn = stringIn.replace(new RegExp('\'/assets', 'g'), '\"'+contentBaseUrl + 'assets');
+	stringIn = stringIn.replace(new RegExp('\'assets', 'g'), '\"'+contentBaseUrl + 'assets');	
+	
+	return stringIn;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');
