@@ -90,7 +90,7 @@ View.prototype.retrieveLocale = function(locale) {
 	$.ajax({"url":localePath,
 		    async:false,
 			success:function(obj){
-				View.prototype.i18n[locale] = JSON.parse(obj);
+				View.prototype.i18n[locale] = obj;
 			},
 			error:function(){}
 	});	
