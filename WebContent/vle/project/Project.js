@@ -153,6 +153,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					/* get any previous work reference node ids and add it to node */
 					thisNode.prevWorkNodeIds = currNode.previousWorkNodeIds;
+					
+					//get the previous node id to populate work from
+					thisNode.populatePreviousWorkNodeId = currNode.populatePreviousWorkNodeId;
 
 					/* get links to other nodes and add it to node */
 					if(currNode.links){

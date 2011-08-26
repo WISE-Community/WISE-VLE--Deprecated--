@@ -12,6 +12,7 @@ function Node(nodeType, view){
 	this.hints = [];
 	
 	this.prevWorkNodeIds = [];
+	this.populatePreviousWorkNodeId = "";
 	this.links = [];
 	this.extraData;
 	this.view = view;
@@ -434,6 +435,7 @@ Node.prototype.nodeJSON = function(contentBase){
 			hints:makeHtmlSafe(this.hints),
 			ref:this.content.getFilename(contentBase),
 			previousWorkNodeIds:this.prevWorkNodeIds,
+			populatePreviousWorkNodeId:this.populatePreviousWorkNodeId,
 			links:this.links
 		};
 
@@ -964,8 +966,17 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 		for(var n=0;n<this.prevWorkNodeIds.length;n++){
 			var work = this.view.state.getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
 			if(work){
+				//get the node object
 				var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
-				html += 'Remember, your response to step ' + node.title + ' was: ' + work + '</br></br>';
+				
+				//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
+				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(node.id);
+				
+				//replace all \n with <br>
+				work = work.replace(/\n/g, '<br>');
+				
+				//append the html
+				html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
 			};
 		};
 		

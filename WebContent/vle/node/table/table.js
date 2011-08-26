@@ -47,6 +47,34 @@ function Table(node, view) {
 	//boolean values used to determine whether the student has made any changes
 	this.tableChanged = false;
 	this.responseChanged = false;
+	
+	if(this.states.length == 0) {
+		//populate the work from a previous step if a populatePreviousWorkNodeId has been set
+		this.populatePreviousWork();
+	}
+};
+
+/**
+ * Populate the work from the previous step if a populatePreviousWorkNodeId has been set
+ */
+Table.prototype.populatePreviousWork = function() {
+	//get the populatePreviousWorkNodeId
+	var populatePreviousWorkNodeId = this.node.populatePreviousWorkNodeId;
+	
+	//check if populatePreviousWorkNodeId has been set
+	if(populatePreviousWorkNodeId != null && populatePreviousWorkNodeId != "") {
+		//populatePreviousWorkNodeId has been set
+		
+		if(this.view.state != null) {
+			//get the state from the previous step that this step is linked to
+			var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
+			
+			if(previousWorkState != null && previousWorkState != "") {
+				//push add the state to the array of states
+				this.states.push(previousWorkState);				
+			}
+		}
+	}
 };
 
 /**
@@ -257,14 +285,34 @@ Table.prototype.getStudentTableData = function() {
  * Reset the table back to the original value in the content
  */
 Table.prototype.reset = function() {
+	//get the original table values from the content
+	var tableData = this.content.tableData;
+	
+	//check if there is a populatePreviousWorkNodeId
+	var populatePreviousWorkNodeId = this.node.populatePreviousWorkNodeId;
+	
+	if(populatePreviousWorkNodeId != null && populatePreviousWorkNodeId != "") {
+		//there is a populatePreviousWorkNodeId
+		
+		//get the latest work from the populatePreviousWorkNodeId
+		var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
+		
+		if(previousWorkState != null && previousWorkState != "") {
+			//use the data from this populatePreviousWorkNodeId to reset the table
+			tableData = previousWorkState.tableData;		
+		}
+	}
+	
 	//loop through all the columns
 	for(var x=0; x<this.content.numColumns; x++) {
 		
 		//loop through all the rows
 		for(var y=0; y<this.content.numRows; y++) {
-			
-			//set the value in the cell back to the original value from the content
-			$('#tableCell_' + x + '-' + y).val(this.content.tableData[x][y].text);
+			/*
+			 * set the value in the cell back to the original value whether from the 
+			 * content or a previous step
+			 */
+			$('#tableCell_' + x + '-' + y).val(tableData[x][y].text);
 		}
 	}
 	
