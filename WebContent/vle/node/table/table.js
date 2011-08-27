@@ -70,8 +70,17 @@ Table.prototype.populatePreviousWork = function() {
 			var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
 			
 			if(previousWorkState != null && previousWorkState != "") {
-				//push add the state to the array of states
-				this.states.push(previousWorkState);				
+				//make a copy of the previous work
+				var previousWorkStateCopy = JSON.parse(JSON.stringify(previousWorkState));
+				
+				/*
+				 * make a new table state and only populate the table data since
+				 * we want the response textarea to be blank
+				 */
+				previousWorkStateCopy = new TableState("", previousWorkStateCopy.tableData);
+				
+				//add the state to the array of states
+				this.states.push(previousWorkStateCopy);
 			}
 		}
 	}
