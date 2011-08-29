@@ -85,7 +85,7 @@
                       <target>
                           <property name="classfiles.path" value="WebContent/WEB-INF/classes" />
                           <delete includeemptydirs="true">
-                              <fileset dir="${classfiles.path}" includes="**/*"/>
+                              <fileset dir="${classfiles.path}" excludes="**/*.xml" includes="**/*" />
                           </delete>
                       </target>
                     </configuration>
