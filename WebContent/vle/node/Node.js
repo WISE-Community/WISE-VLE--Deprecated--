@@ -1196,7 +1196,7 @@ Node.prototype.injectKeystrokeManagerScript = function(contentStr){
  */
 Node.prototype.createKeystrokeManager = function(){
 	if(this.contentPanel && !this.contentPanel.keystrokeManager && this.contentPanel.createKeystrokeManager){
-		this.contentPanel.keystrokeManager = this.contentPanel.createKeystrokeManager(this.contentPanel.eventManager,[['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']],['toggleNavigationPanelVisibility', 77, ['shift']]]);
+		this.contentPanel.keystrokeManager = this.contentPanel.createKeystrokeManager(this.contentPanel.eventManager,[['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']]]);
 	};
 };
 

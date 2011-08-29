@@ -637,7 +637,7 @@ var componentloader = function(em, sl){
 						$('#onUnloadSaveDiv').dialog({autoOpen:false,width:300,height:100,modal:true,draggable:false,resizable:false,closeText:'',dialogClass:'no-title'});
 					},
 				keystrokeManager:function(){
-						var keystrokes = [['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']],['toggleNavigationPanelVisibility', 77, ['shift']]];
+						var keystrokes = [['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']]];
 						return createKeystrokeManager(eventManager,keystrokes);
 					}
 			}
