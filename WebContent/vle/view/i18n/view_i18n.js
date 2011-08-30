@@ -89,6 +89,7 @@ View.prototype.retrieveLocale = function(locale) {
 	var localePath = "view/i18n/i18n_" + locale + ".json";
 	$.ajax({"url":localePath,
 		    async:false,
+		    dataType:"json",
 			success:function(obj){
 				View.prototype.i18n[locale] = obj;
 			},
