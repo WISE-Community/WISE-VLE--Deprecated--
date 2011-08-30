@@ -7,16 +7,10 @@ View.prototype.surgeDispatcher = function(type,args,obj){
 	/*
 	 * check to see if the event name matches 
 	 */ 
-	if(type == 'surgeUpdatePrompt') {
-		/*
-		 * the event name matches so we will call the function that
-		 * handles that event
-		 */
-		obj.SurgeNode.updatePrompt();
-	} else if(type == 'surgeUpdatedSwfUrlInput') {
-		obj.SurgeNode.updateSwfUrl();
-	} else if(type == 'surgeUpdateLevelString') {
+	if(type == 'surgeUpdateLevelString') {
 		obj.SurgeNode.updateLevelString(args);
+	} else if (type == 'surgeImportLevelStringToEditor') {
+		obj.SurgeNode.importLevelStringToEditor(args);
 	}
 };
 
@@ -26,9 +20,8 @@ View.prototype.surgeDispatcher = function(type,args,obj){
  * appropriate function to handle the event.
  */
 var events = [
-	'surgeUpdatePrompt',
-	'surgeUpdatedSwfUrlInput',
-	'surgeUpdateLevelString'
+	'surgeUpdateLevelString',
+	'surgeImportLevelStringToEditor'
 ];
 
 /*

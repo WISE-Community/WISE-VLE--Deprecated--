@@ -43,35 +43,31 @@ Surge.prototype.render = function() {
 	//display any prompts to the student
 	$('#promptDiv').html(this.content.prompt);
 	
-	var swfHtml = "";
-	
-	if(this.content.url != null) {
-		swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="surge" align="middle">'
+	var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="surge" align="middle">'
 		+ '<param name="allowScriptAccess" value="sameDomain" />'
 		+ '<param name="allowFullScreen" value="false" />'
-		+ '<param name="movie" value="' + this.content.url + '" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />	<embed src="' + this.content.url + '" quality="high" bgcolor="#ffffff" width="770" height="480" name="surge" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
+		+ '<param name="movie" value="surge.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />'
+		+ '<embed src="surge.swf" quality="high" bgcolor="#ffffff" width="770" height="480" name="surge" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
 		+ '</object>';
-	}
 	
-	$('#swfDiv').html(swfHtml);
-	
+	$('#swfDiv').html(swfHtml);	
+};
+
+/**
+ * Swf->js call when the swf has finished loading and is accessible by js
+ */
+function gameLoaded() {
 	// load in authored content
-	this.sendDataToGame(this.content.levelString);
-	
-	//load any previous responses the student submitted for this step
-	var latestState = this.getLatestState();
-	
-	if(latestState != null) {
-		/*
-		 * get the response from the latest state. the response variable is
-		 * just provided as an example. you may use whatever variables you
-		 * would like from the state object (look at surgeState.js)
-		 */
-		var latestResponse = latestState.response;
-		
-		//set the previous student work into the text area
-		$('#studentResponseTextArea').val(latestResponse); 
-	}
+	surge.sendDataToGame(surge.content.levelString);
+};
+
+/**
+ * Function called by the game SWF when a new
+ * report string needs reporting. For example,
+ * when entering a new phase
+ */
+function reportString(value) {
+	alert('reportString:' +value);
 };
 
 /**
@@ -100,9 +96,9 @@ Surge.prototype.getLatestState = function() {
  * provided as examples. you may create your own html ui elements in
  * the .html file for this step (look at surge.html).
  */
-Surge.prototype.save = function() {
+Surge.prototype.save = function(st) {
 	//get the answer the student wrote
-	var response = $('#studentResponseTextArea').val();
+	var response = "get response from flash";
 	
 	/*
 	 * create the student state that will store the new work the student

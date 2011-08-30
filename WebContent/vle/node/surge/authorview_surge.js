@@ -58,46 +58,21 @@ View.prototype.SurgeNode.generatePage = function(view){
 
 	//create a new div that will contain the authroing components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
-	
-	//create the label for the textarea that the author will write the prompt in
-	var promptText = document.createTextNode("Prompt for Student:");
-	
-	/*
-	 * create the textarea that the author will write the prompt in
-	 * 
-	 * onkeyup will fire the 'surgeUpdatePrompt' event which will
-	 * be handled in the surgeEvents.js file
-	 * 
-	 * when you add new authoring components, you will need to create
-	 * new events in the surgeEvents.js file and then
-	 * create new functions to handle the event
-	 */
-	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'20', cols:'85', onkeyup:"eventManager.fire('surgeUpdatePrompt')"});
-	
-	var swfUrlLabel = document.createTextNode("SWF URL:");
-	var swfUrlInput = createElement(document, 'input', {id: 'swfUrlInput', type:'text', size:'50', onchange:"eventManager.fire('surgeUpdatedSwfUrlInput')"});
-	
+			
 	var levelStringLabel = document.createTextNode("Level String:");
 	var levelStringTextArea = createElement(document, 'textarea', {id: 'levelStringTextArea', rows:'20', cols:'85', onchange:"eventManager.fire('surgeUpdateLevelString')"});
 	
 	var authoringSwfDiv = createElement(document, 'div', {id: 'authoringSwfDiv'});
 	
 	//add the authoring components to the page
-	pageDiv.appendChild(promptText);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(promptTextArea);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(swfUrlLabel);
-	pageDiv.appendChild(swfUrlInput);
-	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(authoringSwfDiv);
+	pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(levelStringLabel);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(levelStringTextArea);
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(authoringSwfDiv);
+	
 
 	//add the page to the parent
 	parent.appendChild(pageDiv);
@@ -105,11 +80,12 @@ View.prototype.SurgeNode.generatePage = function(view){
 	$("#dynamicPage").append("<p>Hola</a>");
 	
 	// append script used to communicate with flash
+	/*
 	var jsFunctions = '<script type="text/javascipt">\nfunction receiveLevelData(value) {\n'+
 		'alert("receiveleveldata");\n'+
 	    '//sendDataToGame(value);\n' +
 	'};\n</script>\n';
-	
+	*/
 	//$("#dynamicPage").append(jsFunctions);
 
 	
@@ -135,18 +111,7 @@ View.prototype.SurgeNode.generatePage = function(view){
 		thisMovie("surge").sendToGame(value);
 	}
 	*/
-	
-	//populate the prompt if this step has been authored before
-	this.populatePrompt();
-	
-	if(this.content.url) {
-		$('#swfUrlInput').val(this.content.url);
-	}
-	
-	if(this.content.levelString) {
-		$('#levelStringTextArea').val(this.content.levelString);
-	}
-	
+		
 	var authoringSwfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="leveleditor" align="middle">'
 	+ '<param name="allowScriptAccess" value="sameDomain" />'
 	+ '<param name="allowFullScreen" value="false" />'
@@ -156,9 +121,25 @@ View.prototype.SurgeNode.generatePage = function(view){
 	$('#authoringSwfDiv').html(authoringSwfHtml);
 };
 
+/**
+ * Imports content.levelString into the leveleditor. Will be called by an event later
+ * @param levelString
+ * @return
+ */
+View.prototype.SurgeNode.importLevelStringToEditor = function() {	
+	var levelString = this.content.levelString;
+	thisMovie("leveleditor").editorImport(levelString);
+};
+
+/**
+ * Callback (swf->js) for when the leveleditor has been loaded.
+ * @return
+ */
+function editorLoaded() {
+	eventManager.fire('surgeImportLevelStringToEditor');
+};
+
 function receiveLevelData(value) {
-	alert('receiveLevelData value:' + value);
-	
 	eventManager.fire("surgeUpdateLevelString", value);
 };
 
@@ -196,40 +177,6 @@ View.prototype.SurgeNode.updateContent = function(){
 	this.view.activeContent.setContent(this.content);
 };
 
-/**
- * Populate the authoring textarea where the user types the prompt that
- * the student will read
- */
-View.prototype.SurgeNode.populatePrompt = function() {
-	//get the prompt from the content and set it into the authoring textarea
-	$('#promptTextArea').val(this.content.prompt);
-};
-
-/**
- * Updates the content's prompt to match that of what the user input
- */
-View.prototype.SurgeNode.updatePrompt = function(){
-	/* update content */
-	this.content.prompt = $('#promptTextArea').val();
-	
-	/*
-	 * fire source updated event, this will update the preview
-	 */
-	this.view.eventManager.fire('sourceUpdated');
-};
-
-/**
- * Updates the content's swf url to match that of what the user input
- */
-View.prototype.SurgeNode.updateSwfUrl = function(){
-	/* update content */
-	this.content.url = $('#swfUrlInput').val();
-	
-	/*
-	 * fire source updated event, this will update the preview
-	 */
-	this.view.eventManager.fire('sourceUpdated');
-};
 
 /**
  * Updates the content's level string to match that of what the user input
@@ -239,6 +186,8 @@ View.prototype.SurgeNode.updateLevelString = function(levelStringIn){
 	if (levelStringIn != null) {
 		$('#levelStringTextArea').val(levelStringIn);
 	} 
+	
+	// get the level content from the editor
 	
 	this.content.levelString = $('#levelStringTextArea').val();
 	
