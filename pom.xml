@@ -59,6 +59,21 @@
                 <version>1.6</version>
                 <executions>
                   <execution>
+                    <id>clean</id>
+                    <phase>compile</phase>
+                    <configuration>
+                      <target>
+                          <property name="classfiles.path" value="WebContent/WEB-INF/classes" />
+                          <delete includeemptydirs="true">
+                              <fileset dir="${classfiles.path}" excludes="**/*.xml" includes="**/*" />
+                          </delete>
+                      </target>
+                    </configuration>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                  </execution>
+                  <execution>
                     <id>make-jar</id>
                     <phase>compile</phase>
                     <configuration>
@@ -72,21 +87,6 @@
                         <ant antfile="${basedir}/build.xml">
                           <target name="make-jar"/>
                         </ant>
-                      </target>
-                    </configuration>
-                    <goals>
-                      <goal>run</goal>
-                    </goals>
-                  </execution>
-                  <execution>
-                    <id>clean</id>
-                    <phase>compile</phase>
-                    <configuration>
-                      <target>
-                          <property name="classfiles.path" value="WebContent/WEB-INF/classes" />
-                          <delete includeemptydirs="true">
-                              <fileset dir="${classfiles.path}" excludes="**/*.xml" includes="**/*" />
-                          </delete>
                       </target>
                     </configuration>
                     <goals>
