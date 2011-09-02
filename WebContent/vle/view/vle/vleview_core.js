@@ -664,6 +664,12 @@ View.prototype.createKeystrokeManagerForFrame = function(){
 View.prototype.onFrameLoaded = function(){
 	var node = this.getProject().getNodeByPosition(this.getCurrentPosition());
 	
+	//check if this node is a mirror/duplicate node
+	if(node.type == 'DuplicateNode') {
+		//get the real node this duplicate node points to 
+		node = node.realNode;
+	}
+	
 	//set the event manager into the content panel so the html has access to it
 	node.contentPanel.eventManager = this.eventManager;
 	node.contentPanel.nodeId = node.id;

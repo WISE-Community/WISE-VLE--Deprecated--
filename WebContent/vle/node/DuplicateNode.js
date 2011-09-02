@@ -230,6 +230,8 @@ DuplicateNode.prototype.copy = function(eventName, project){
 	this.realNode.copy(eventName, project);
 };
 
+NodeFactory.addNode('DuplicateNode', DuplicateNode);
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/DuplicateNode.js');

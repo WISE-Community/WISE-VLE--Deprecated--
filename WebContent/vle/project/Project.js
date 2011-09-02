@@ -146,6 +146,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						if(!lazyLoading){
 							thisNode.content.retrieveContent();
 						}
+					} else {
+						//node is a duplicate node
+						thisNode.realNodeId = currNode.realNodeId;
 					}
 
 					/* add to leaf nodes */
