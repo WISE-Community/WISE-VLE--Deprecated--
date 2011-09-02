@@ -233,7 +233,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		//initiate snapshots
 		if(context.snapshotsActive){
 			svgEditor.setMaxSnaps(context.snapshots_max);
-			if(data.snapshots && data.snapshots.length > 0){
+			if(data && data.snapshots && data.snapshots.length > 0){
 				svgEditor.initSnap = true;
 				svgEditor.snapTotal = data.snapTotal;
 				svgEditor.loadSnapshots(data.snapshots,context.setSelected(data));
@@ -259,7 +259,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		// initiate description/annotation
 		if(context.descriptionActive){
 			if (context.snapshotsActive) { // check whether snapshots are active
-				if (data.selected > -1) { // check whether a snapshot is selected
+				if (data && data.selected > -1) { // check whether a snapshot is selected
 					for (var i=0; i<data.snapshots.length; i++) {
 						if (data.snapshots[i].id == data.selected) {
 							svgEditor.description = data.snapshots[i].description;
