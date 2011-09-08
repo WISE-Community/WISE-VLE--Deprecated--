@@ -1,58 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-modules id="moduleCoreId" project-version="1.5.0">
-<wb-module deploy-name="vlewrapper">
-<wb-resource deploy-path="/" source-path="/WebContent"/>
-<wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-<wb-resource deploy-path="/WEB-INF/classes" source-path="/WebContent/WEB-INF/lib"/>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/mysql-connector-java-5.1.7-bin.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/commons-fileupload-1.2.1.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/commons-fileupload-1.2.1-javadoc.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/commons-fileupload-1.2.1-sources.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/commons-io-1.4.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/commons-io-1.4-javadoc.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/commons-io-1.4-sources.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmu_time_awb.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmu_us_kal.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmudict04.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmulex.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/cmutimelex.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/en_us.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/freetts-jsapi10.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/freetts.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/vlewrapper/WebContent/WEB-INF/lib/mbrola.jar">
-<dependency-type>uses</dependency-type>
-</dependent-module>
-<property name="java-output-path"/>
-<property name="context-root" value="vlewrapper"/>
-</wb-module>
+  <wb-module deploy-name="vlewrapper">
+    <property name="context-root" value="vlewrapper"/>
+    <wb-resource deploy-path="/" source-path="src/main/webapp"/>
+    <wb-resource deploy-path="/" source-path="WebContent"/>
+    <property name="java-output-path" value="/target/classes"/>
+    <wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/java"/>
+    <wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/webapp/WEB-INF"/>
+  </wb-module>
 </project-modules>

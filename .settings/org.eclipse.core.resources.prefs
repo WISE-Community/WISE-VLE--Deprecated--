@@ -1,4 +1,4 @@
-#Tue Aug 16 14:51:05 PDT 2011
+#Thu Sep 08 14:28:59 PDT 2011
 eclipse.preferences.version=1
-encoding//WebContent/vle/view/i18n/i18n_ja.json=UTF-8
-encoding//WebContent/vle/view/i18n/i18n_zh_TW.json=UTF-8
+encoding//src/main/webapp/vle/view/i18n/i18n_ja.json=UTF-8
+encoding//src/main/webapp/vle/view/i18n/i18n_zh_TW.json=UTF-8
