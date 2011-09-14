@@ -1,6 +1,7 @@
 {
    "numColumns":0,
    "numRows":0,
+   "globalCellSize":10,
    "prompt": "",
    "tableData":[],
    "type": "Table"

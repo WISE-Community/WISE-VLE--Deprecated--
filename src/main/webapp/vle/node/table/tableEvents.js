@@ -39,6 +39,10 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.tableInsertRow(args[0]);
 	} else if(type == 'tableDeleteRow') {
 		obj.TableNode.tableDeleteRow(args[0]);
+	} else if(type == 'tableUpdateGlobalCellSize') {
+		obj.TableNode.updateGlobalCellSize();
+	} else if(type == 'tableUpdateCellSize') {
+		obj.TableNode.updateCellSize(args[0]);
 	}
 };
 
@@ -60,7 +64,9 @@ var events = [
 	'tableInsertColumn',
 	'tableDeleteColumn',
 	'tableInsertRow',
-	'tableDeleteRow'
+	'tableDeleteRow',
+	'tableUpdateGlobalCellSize',
+	'tableUpdateCellSize'
 ];
 
 /*

@@ -52,6 +52,14 @@ function Table(node, view) {
 		//populate the work from a previous step if a populatePreviousWorkNodeId has been set
 		this.populatePreviousWork();
 	}
+	
+	//get the default cell size from the authored content
+	this.globalCellSize = this.content.globalCellSize;
+	
+	if(this.globalCellSize == null || this.globalCellSize == '') {
+		//the author has not specified a default cell size so we will just use 10
+		this.globalCellSize = 10;
+	}
 };
 
 /**
@@ -127,6 +135,12 @@ Table.prototype.render = function() {
 			var cellData = tableData[x][y];
 			var cellText = cellData.text;
 			var cellUneditable = cellData.uneditable;
+			var cellSize = cellData.cellSize;
+			
+			if(cellSize == null || cellSize == '') {
+				//cell size is not defined so we will just use the global cell size
+				cellSize = this.globalCellSize;
+			}
 			
 			if(latestState != null) {
 				if(latestState.tableData != null) {
@@ -151,7 +165,7 @@ Table.prototype.render = function() {
 			cellTextInput.id = 'tableCell_' + x + '-' + y;
 			cellTextInput.name = 'tableCell_' + x + '-' + y;
 			cellTextInput.value = cellText;
-			cellTextInput.size = 10;
+			cellTextInput.size = cellSize;
 			cellTextInput.onchange = studentTableChanged;
 			
 			if(cellUneditable) {
