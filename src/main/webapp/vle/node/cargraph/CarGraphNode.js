@@ -95,10 +95,16 @@ CarGraphNode.prototype.smartFilter = function(stateObj) {
 			errMargin: 0.0,
 			error: false
 		};
+	
+	// no smart filter check if no state.
+	if (stateObj == null || stateObj == "") {
+		return returnObj;
+	}
 		
 	// get the configuration JSON object
 	var objJson = this.content.getContentJSON();
 	
+	// Go through the dynamic images and check each one
 	for (var i=0; i < objJson.dynamicImages.length; i++) {
 		var carId = objJson.dynamicImages[i].id;
 	
