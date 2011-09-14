@@ -123,7 +123,7 @@ View.prototype.TableNode.generatePage = function(view){
 	var iText = document.createTextNode('I = Insert Column/Row');
 	var dText = document.createTextNode('D = Delete Column/Row');
 	var uText = document.createTextNode('U = Uneditable for student');
-	var sText = document.createTextNode('S = Size of Cell');
+	var sText = document.createTextNode('S = Size of Cell (width in number of characters, overrides Global Cell Size)');
 	
 	//add the instructions
 	pageDiv.appendChild(iText);
