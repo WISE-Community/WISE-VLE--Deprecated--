@@ -149,11 +149,36 @@ View.prototype.TableNode.generatePage = function(view){
 	//add the table
 	tableDiv.appendChild(authoringTable);
 
+	//create the label for prompt2
+	var promptText = document.createTextNode("Prompt2 for Student (shows up between the table and the student response textarea):");
+	
+	//create the prompt2 textarea
+	var promptTextArea = createElement(document, 'textarea', {id: 'prompt2TextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('tableUpdatePrompt2')"});
+	
+	//add the prompt2
+	pageDiv.appendChild(promptText);
+	pageDiv.appendChild(promptTextArea);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//create the label for the starter sentence
+	var starterSentenceText = document.createTextNode("Starter Sentence:");
+	
+	//create the starter sentence textarea
+	var starterSentenceTextArea = createElement(document, 'textarea', {id: 'starterSentenceTextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('tableUpdateStarterSentence')"});
+	
+	//add the starter sentence
+	pageDiv.appendChild(starterSentenceText);
+	pageDiv.appendChild(starterSentenceTextArea);
+	
 	//add the page to the parent
 	parent.appendChild(pageDiv);
 	
 	//populate the prompt if this step has been authored before
-	this.populatePrompt();
+	this.populatePrompts();
+	
+	//populate the starter sentence
+	this.populateStarterSentence();
 };
 
 /**
@@ -405,20 +430,29 @@ View.prototype.TableNode.getCommonComponents = function() {
  * 
  * TODO: rename TemplateNode
  */
-View.prototype.TableNode.updateContent = function(){
+View.prototype.TableNode.updateContent = function() {
 	/* update content object */
 	this.view.activeContent.setContent(this.content);
 };
 
 /**
- * Populate the authoring textarea where the user types the prompt that
+ * Populate the authoring textareas where the user types the prompts that
  * the student will read
  * 
  * TODO: rename TemplateNode
  */
-View.prototype.TableNode.populatePrompt = function() {
-	//get the prompt from the content and set it into the authoring textarea
+View.prototype.TableNode.populatePrompts = function() {
+	//get the prompts from the content and set it into the authoring textareas
 	$('#promptTextArea').val(this.content.prompt);
+	$('#prompt2TextArea').val(this.content.prompt2);
+};
+
+/**
+ * Populate the starter sentence textarea
+ */
+View.prototype.TableNode.populateStarterSentence = function() {
+	//get the prompts from the content and set it into the authoring textareas
+	$('#starterSentenceTextArea').val(this.content.starterSentence);
 };
 
 /**
@@ -426,7 +460,7 @@ View.prototype.TableNode.populatePrompt = function() {
  * 
  * TODO: rename TemplateNode
  */
-View.prototype.TableNode.updatePrompt = function(){
+View.prototype.TableNode.updatePrompt = function() {
 	/* update content */
 	this.content.prompt = document.getElementById('promptTextArea').value;
 	
@@ -437,9 +471,31 @@ View.prototype.TableNode.updatePrompt = function(){
 };
 
 /**
+ * Update the prompt2 in the content
+ */
+View.prototype.TableNode.updatePrompt2 = function() {
+	//update content
+	this.content.prompt2 = $('#prompt2TextArea').val();
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the starter sentence in the content
+ */
+View.prototype.TableNode.updateStarterSentence = function() {
+	//update the content
+	this.content.starterSentence = $('#starterSentenceTextArea').val();
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
  * Update the number of columns since the author has changed the value
  */
-View.prototype.TableNode.updateNumColumns = function(){
+View.prototype.TableNode.updateNumColumns = function() {
 	//get the new number of columns
 	var numColumns = $('#numColumnsInput').val();
 	
@@ -496,7 +552,7 @@ View.prototype.TableNode.updateNumColumns = function(){
 /**
  * Update the number of rows since the author has changed the value
  */
-View.prototype.TableNode.updateNumRows = function(){
+View.prototype.TableNode.updateNumRows = function() {
 	//get the new number of rows
 	var numRows = $('#numRowsInput').val();
 	
@@ -590,7 +646,7 @@ View.prototype.TableNode.updateGlobalCellSize = function() {
  * @param args an object containing the x and y values of the cell
  * to update
  */
-View.prototype.TableNode.updateCellText = function(args){
+View.prototype.TableNode.updateCellText = function(args) {
 	//get the x and y values of the cell to update
 	var x = args.x;
 	var y = args.y;
@@ -613,7 +669,7 @@ View.prototype.TableNode.updateCellText = function(args){
  * @param args an object containing the x and y values of the cell
  * to update
  */
-View.prototype.TableNode.updateCellUneditable = function(args){
+View.prototype.TableNode.updateCellUneditable = function(args) {
 	//get the x and y values of the cell to update
 	var x = args.x;
 	var y = args.y;
@@ -634,7 +690,7 @@ View.prototype.TableNode.updateCellUneditable = function(args){
 /**
  * Update the cell size for a specific cell in the content
  */
-View.prototype.TableNode.updateCellSize = function(args){
+View.prototype.TableNode.updateCellSize = function(args) {
 	//get the x and y values of the cell to update
 	var x = args.x;
 	var y = args.y;

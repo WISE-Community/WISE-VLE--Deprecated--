@@ -3,6 +3,8 @@
    "numRows":0,
    "globalCellSize":10,
    "prompt": "",
+   "prompt2": "",
+   "starterSentence": "",
    "tableData":[],
    "type": "Table"
 }

@@ -43,6 +43,10 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.updateGlobalCellSize();
 	} else if(type == 'tableUpdateCellSize') {
 		obj.TableNode.updateCellSize(args[0]);
+	} else if(type == 'tableUpdatePrompt2') {
+		obj.TableNode.updatePrompt2();
+	} else if(type == 'tableUpdateStarterSentence') {
+		obj.TableNode.updateStarterSentence();
 	}
 };
 
@@ -66,7 +70,9 @@ var events = [
 	'tableInsertRow',
 	'tableDeleteRow',
 	'tableUpdateGlobalCellSize',
-	'tableUpdateCellSize'
+	'tableUpdateCellSize',
+	'tableUpdatePrompt2',
+	'tableUpdateStarterSentence'
 ];
 
 /*
