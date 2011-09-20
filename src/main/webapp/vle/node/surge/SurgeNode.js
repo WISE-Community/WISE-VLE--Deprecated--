@@ -95,8 +95,17 @@ SurgeNode.prototype.onExit = function() {
  * requires additional processing
  */
 SurgeNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+	var gradingText = "";
+	// Get all the trials (ie states) for this nodevisit
+	var nodeStates = nodeVisit.nodeStates;
+	gradingText += "This visit has " + nodeStates.length + " trials.<br/><br/>";
+	
+	for (var i=0; i<nodeStates.length; i++) {
+		// loop through the trials 
+		gradingText += JSON.stringify(nodeStates[i].getStudentWork().response) + "<br/><br/>";
+	}
 	//Get the latest student state object for this step
-	var surgeState = nodeVisit.getLatestWork();
+	//var surgeState = nodeVisit.getLatestWork();
 	
 	/*
 	 * get the step work id from the node visit in case we need to use it in
@@ -104,12 +113,12 @@ SurgeNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	 * someone does need it. look at SensorNode.js to view an example of
 	 * how one might use it.
 	 */
-	var stepWorkId = nodeVisit.id;
+	//var stepWorkId = nodeVisit.id;
 	
-	var studentWork = surgeState.getStudentWork();
+	//var studentWork = surgeState.getStudentWork();
 	
 	//put the student work into the div
-	$('#' + divId).html(studentWork.response);
+	$('#' + divId).html(gradingText);
 };
 
 /**
