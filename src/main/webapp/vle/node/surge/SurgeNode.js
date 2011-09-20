@@ -62,19 +62,19 @@ SurgeNode.prototype.translateStudentWork = function(studentWork) {
 };
 
 /**
- * This function is called when the student exits the step. It is mostly
- * used for error checking.
- * 
- * Note: In most cases you will not have to change anything here.
+ * We do not need to do anything onExit for SURGE since 
+ * we are saving state intermediately.
  */
 SurgeNode.prototype.onExit = function() {
 	//check if the content panel has been set
+	/*
 	if(this.contentPanel) {
 		if(this.contentPanel.save) {
 			//tell the content panel to save
 			this.contentPanel.save();
 		}
 	}
+	*/
 };
 
 /**
@@ -98,27 +98,36 @@ SurgeNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	var gradingText = "";
 	// Get all the trials (ie states) for this nodevisit
 	var nodeStates = nodeVisit.nodeStates;
-	gradingText += "This visit has " + nodeStates.length + " trials.<br/><br/>";
 	
-	for (var i=0; i<nodeStates.length; i++) {
-		// loop through the trials 
-		gradingText += JSON.stringify(nodeStates[i].getStudentWork().response) + "<br/><br/>";
+	if (nodeStates.length > 0) {
+		// get the number of trials during this node visit.
+		gradingText += "This visit has " + nodeStates.length + " trials.<br/><br/>";
+		
+		// get the best score
+		gradingText += "The best medal earned for this level is "+nodeStates[nodeStates.length-1].getStudentWork().response.outcomeAbsoluteText+"<br/><br/>";
+		
+		for (var i=0; i<nodeStates.length; i++) {
+			// loop through the trials 
+			gradingText += "<b>Trial #"+(i+1)+"</b><br/>"
+			//gradingText += JSON.stringify(nodeStates[i].getStudentWork().response).replace(/,/gi,",<br/>") + "<br/><br/>";
+			gradingText += JSON.stringify(nodeStates[i].getStudentWork().response) + "<br/><br/>";
+		}
+		//Get the latest student state object for this step
+		//var surgeState = nodeVisit.getLatestWork();
+		
+		/*
+		 * get the step work id from the node visit in case we need to use it in
+		 * a DOM id. we don't use it in this case but I have retrieved it in case
+		 * someone does need it. look at SensorNode.js to view an example of
+		 * how one might use it.
+		 */
+		//var stepWorkId = nodeVisit.id;
+		
+		//var studentWork = surgeState.getStudentWork();
+		
+		//put the student work into the div
+		$('#' + divId).html(gradingText);
 	}
-	//Get the latest student state object for this step
-	//var surgeState = nodeVisit.getLatestWork();
-	
-	/*
-	 * get the step work id from the node visit in case we need to use it in
-	 * a DOM id. we don't use it in this case but I have retrieved it in case
-	 * someone does need it. look at SensorNode.js to view an example of
-	 * how one might use it.
-	 */
-	//var stepWorkId = nodeVisit.id;
-	
-	//var studentWork = surgeState.getStudentWork();
-	
-	//put the student work into the div
-	$('#' + divId).html(gradingText);
 };
 
 /**
