@@ -52,6 +52,14 @@ function Table(node, view) {
 		//populate the work from a previous step if a populatePreviousWorkNodeId has been set
 		this.populatePreviousWork();
 	}
+	
+	//get the default cell size from the authored content
+	this.globalCellSize = this.content.globalCellSize;
+	
+	if(this.globalCellSize == null || this.globalCellSize == '') {
+		//the author has not specified a default cell size so we will just use 10
+		this.globalCellSize = 10;
+	}
 };
 
 /**
@@ -99,8 +107,11 @@ Table.prototype.populatePreviousWork = function() {
  * the .html file for this step (look at template.html).
  */
 Table.prototype.render = function() {
-	//display any prompts to the student
+	//display the prompt to the student
 	$('#promptDiv').html(this.content.prompt);
+	
+	//display the prompt2 which is between the table and the student textarea
+	$('#prompt2Div').html(this.content.prompt2);
 	
 	//make a table
 	var tableDisplay = document.createElement('table');
@@ -127,6 +138,12 @@ Table.prototype.render = function() {
 			var cellData = tableData[x][y];
 			var cellText = cellData.text;
 			var cellUneditable = cellData.uneditable;
+			var cellSize = cellData.cellSize;
+			
+			if(cellSize == null || cellSize == '') {
+				//cell size is not defined so we will just use the global cell size
+				cellSize = this.globalCellSize;
+			}
 			
 			if(latestState != null) {
 				if(latestState.tableData != null) {
@@ -151,7 +168,7 @@ Table.prototype.render = function() {
 			cellTextInput.id = 'tableCell_' + x + '-' + y;
 			cellTextInput.name = 'tableCell_' + x + '-' + y;
 			cellTextInput.value = cellText;
-			cellTextInput.size = 10;
+			cellTextInput.size = cellSize;
 			cellTextInput.onchange = studentTableChanged;
 			
 			if(cellUneditable) {
@@ -173,6 +190,9 @@ Table.prototype.render = function() {
 	//add the newly generated table
 	$('#tableDiv').append(tableDisplay);
 	
+	//get the starter sentence
+	var starterSentence = this.content.starterSentence;
+	
 	//load any previous responses the student submitted for this step
 	var latestState = this.getLatestState();
 	
@@ -186,6 +206,20 @@ Table.prototype.render = function() {
 		
 		//set the previous student work into the text area
 		$('#studentResponseTextArea').val(latestResponse); 
+	} else {
+		/*
+		 * the student has not submitted any work for this step so we will
+		 * set the starter sentence into the student textarea
+		 */
+		$('#studentResponseTextArea').val(starterSentence);
+	}
+	
+	if(starterSentence == null || starterSentence == "") {
+		//hide the starter sentence button if starter sentence is not set
+		$('#showStarterSentenceDiv').hide();
+	} else {
+		//show the starter sentence button since this step has a starter sentence
+		$('#showStarterSentenceDiv').show();
 	}
 };
 
@@ -341,6 +375,22 @@ Table.prototype.studentTableChanged = function() {
  */
 Table.prototype.studentResponseChanged = function() {
 	this.responseChanged = true;
+};
+
+/**
+ * Append the starter sentence into the student response textarea
+ */
+Table.prototype.showStarterSentence = function() {
+	//get the starter sentence
+	var starterSentence = this.content.starterSentence;
+	
+	//get the student response that is currently in the textarea
+	var studentResponse = $('#studentResponseTextArea').val();
+	
+	//append the starter sentence into the student textarea
+	$('#studentResponseTextArea').val(studentResponse + starterSentence);
+	
+	this.studentResponseChanged();
 };
 
 //used to notify scriptloader that this script has finished loading

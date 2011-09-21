@@ -33,6 +33,11 @@ Surge.prototype.sendDataToGame = function(value) {
    this.thisMovie("surge").sendToGame(value);
 };
 
+// Call as3 function in identified Flash applet
+Surge.prototype.sendStateToGame = function(value) {
+	this.thisMovie("surge").stateToGame(value);
+};
+
 /**
  * This function renders everything the student sees when they visit the step.
  * This includes setting up the html ui elements as well as reloading any
@@ -59,6 +64,18 @@ Surge.prototype.render = function() {
 function gameLoaded() {
 	// load in authored content
 	surge.sendDataToGame(surge.content.levelString);
+	
+	// load in student data
+	//var lastState = '{"phase3":{"timeStart":0,"scoreAbsolute":0,"timeEnd":0,"scoreRelative":0,"description":""},"outcomeAbsolute":0,"trialID":0,"outcomeRelative":0,"trialTimeStart":0,"phase1":{"timeStart":0,"scoreAbsolute":0,"timeEnd":0,"scoreRelative":0,"description":""},"trialTimeSend":0,"scoreAbsolute":0,"stepID":0,"phase2":{"timeStart":0,"scoreAbsolute":0,"timeEnd":0,"scoreRelative":0,"description":""},"scoreRelative":0,"sessionID":0}';
+
+	var lastState = '{"outcomeAbsoluteText":"","trialTimeSend":0,"phases":[{"description":"","timeStart":0,"scoreAbsolute":0,"phaseID":0,"timeEnd":0,"scoreRelative":0},{"description":"","timeStart":0,"scoreAbsolute":0,"phaseID":0,"timeEnd":0,"scoreRelative":0},{"description":"","timeStart":0,"scoreAbsolute":0,"phaseID":0,"timeEnd":0,"scoreRelative":0}],"scoreAbsolute":0,"stepID":0,"scoreRelative":0,"sessionID":0,"outcomeAbsolute":0,"trialID":0,"outcomeRelative":0,"trialTimeStart":0}';
+	
+	if (surge.getLatestState() != null) {
+		lastState = JSON.stringify(surge.getLatestState().response);
+	}
+	
+	// override it for now
+	surge.sendStateToGame(lastState);	
 };
 
 /**
@@ -67,7 +84,8 @@ function gameLoaded() {
  * when entering a new phase
  */
 function reportString(value) {
-	alert('reportString:' +value);
+	surge.save(value);
+	$("#studentWorkDiv").append("STATE:"+value +"<br/><br/>");
 };
 
 /**
@@ -97,14 +115,14 @@ Surge.prototype.getLatestState = function() {
  * the .html file for this step (look at surge.html).
  */
 Surge.prototype.save = function(st) {
-	//get the answer the student wrote
-	var response = "get response from flash";
+	
+	var stateJSON = JSON.parse(st);
 	
 	/*
 	 * create the student state that will store the new work the student
 	 * just submitted
 	 */
-	var surgeState = new SurgeState(response);
+	var surgeState = new SurgeState(stateJSON);
 	
 	/*
 	 * fire the event to push this state to the global view.states object.
@@ -115,6 +133,12 @@ Surge.prototype.save = function(st) {
 
 	//push the state object into this or object's own copy of states
 	this.states.push(surgeState);
+	
+	/*
+	 * post the current node visit to the db immediately without waiting
+	 * for the student to exit the step.
+	 */
+	this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -39,6 +39,14 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.tableInsertRow(args[0]);
 	} else if(type == 'tableDeleteRow') {
 		obj.TableNode.tableDeleteRow(args[0]);
+	} else if(type == 'tableUpdateGlobalCellSize') {
+		obj.TableNode.updateGlobalCellSize();
+	} else if(type == 'tableUpdateCellSize') {
+		obj.TableNode.updateCellSize(args[0]);
+	} else if(type == 'tableUpdatePrompt2') {
+		obj.TableNode.updatePrompt2();
+	} else if(type == 'tableUpdateStarterSentence') {
+		obj.TableNode.updateStarterSentence();
 	}
 };
 
@@ -60,7 +68,11 @@ var events = [
 	'tableInsertColumn',
 	'tableDeleteColumn',
 	'tableInsertRow',
-	'tableDeleteRow'
+	'tableDeleteRow',
+	'tableUpdateGlobalCellSize',
+	'tableUpdateCellSize',
+	'tableUpdatePrompt2',
+	'tableUpdateStarterSentence'
 ];
 
 /*

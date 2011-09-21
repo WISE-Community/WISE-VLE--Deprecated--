@@ -92,6 +92,12 @@ View.prototype.TableNode.generatePage = function(view){
 	//get the number of columns and rows
 	var numColumns = this.content.numColumns;
 	var numRows = this.content.numRows;
+	var globalCellSize = this.content.globalCellSize;
+	
+	if(globalCellSize == null) {
+		//the step does not have a global cell size set so we will use empty string
+		globalCellSize = "";
+	}
 	
 	//create the input boxes for columns and rows
 	var numColumnsText = document.createTextNode('Columns: ');
@@ -99,11 +105,17 @@ View.prototype.TableNode.generatePage = function(view){
 	var numRowsText = document.createTextNode(' Rows: ');
 	var numRowsInput = createElement(document, 'input', {type: 'input', id: 'numRowsInput', name: 'numRowsInput', value: numRows, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumRows")'});
 	
+	//create the input box for the global cell size
+	var globalCellSizeText = document.createTextNode(' Global Cell Size: ');
+	var globalCellSizeInput = createElement(document, 'input', {type: 'input', id: 'globalCellSizeInput', name: 'numRowsInput', value: globalCellSize, size: 10, onkeyup: 'eventManager.fire("tableUpdateGlobalCellSize")'});
+	
 	//add the input boxes for columns and rows
 	pageDiv.appendChild(numColumnsText);
 	pageDiv.appendChild(numColumnsInput);
 	pageDiv.appendChild(numRowsText);
 	pageDiv.appendChild(numRowsInput);
+	pageDiv.appendChild(globalCellSizeText);
+	pageDiv.appendChild(globalCellSizeInput);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -111,6 +123,7 @@ View.prototype.TableNode.generatePage = function(view){
 	var iText = document.createTextNode('I = Insert Column/Row');
 	var dText = document.createTextNode('D = Delete Column/Row');
 	var uText = document.createTextNode('U = Uneditable for student');
+	var sText = document.createTextNode('S = Size of Cell (width in number of characters, overrides Global Cell Size)');
 	
 	//add the instructions
 	pageDiv.appendChild(iText);
@@ -119,10 +132,9 @@ View.prototype.TableNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(uText);
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(sText);
 	pageDiv.appendChild(createBreak());
-	
-	//get the table data
-	var tableData = this.content.tableData;
+	pageDiv.appendChild(createBreak());
 	
 	//create the div that will hold the table
 	var tableDiv = createElement(document, 'div', {id: 'authoringTableDiv'});
@@ -137,11 +149,36 @@ View.prototype.TableNode.generatePage = function(view){
 	//add the table
 	tableDiv.appendChild(authoringTable);
 
+	//create the label for prompt2
+	var promptText = document.createTextNode("Prompt2 for Student (shows up between the table and the student response textarea):");
+	
+	//create the prompt2 textarea
+	var promptTextArea = createElement(document, 'textarea', {id: 'prompt2TextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('tableUpdatePrompt2')"});
+	
+	//add the prompt2
+	pageDiv.appendChild(promptText);
+	pageDiv.appendChild(promptTextArea);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//create the label for the starter sentence
+	var starterSentenceText = document.createTextNode("Starter Sentence:");
+	
+	//create the starter sentence textarea
+	var starterSentenceTextArea = createElement(document, 'textarea', {id: 'starterSentenceTextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('tableUpdateStarterSentence')"});
+	
+	//add the starter sentence
+	pageDiv.appendChild(starterSentenceText);
+	pageDiv.appendChild(starterSentenceTextArea);
+	
 	//add the page to the parent
 	parent.appendChild(pageDiv);
 	
 	//populate the prompt if this step has been authored before
-	this.populatePrompt();
+	this.populatePrompts();
+	
+	//populate the starter sentence
+	this.populateStarterSentence();
 };
 
 /**
@@ -195,6 +232,7 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			
 			var cellText = "";
 			var cellUneditable = false;
+			var cellSize = "";
 			
 			//get the data for the cell
 			var cellData = this.getCellData(this.content.tableData, x, y);
@@ -207,10 +245,19 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 				if(cellData.uneditable != null) {
 					cellUneditable = cellData.uneditable;					
 				}
+				
+				if(cellData.cellSize != null) {
+					cellSize = cellData.cellSize;
+				}
 			}
 			
 			//create the input box for the cell
 			var cellTextInput = createElement(document, 'input', {type: 'input', id: 'cellTextInput_' + x + '-' + y, name: 'cellTextInput_' + x + '-' + y, value: cellText, size: 10, onkeyup: 'eventManager.fire("tableUpdateCellText", {x:' + x + ', y:' + y + '})'});
+			
+			var cellNewline = createElement(document, 'br');
+						
+			//label for the 'uneditable' checkbox
+			var cellCheckBoxText = document.createTextNode('U');
 			
 			//create the checkbox for the cell that determines whether the student can edit the cell or not
 			var cellCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'cellUneditableCheckBox_' + x + '-' + y, name: 'cellUneditableCheckBox_' + x + '-' + y, onchange: 'eventManager.fire("tableUpdateCellUneditable", {x:' + x + ', y:' + y + '})'});
@@ -219,13 +266,23 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 				cellCheckBox.checked = true;
 			}
 			
-			//label for the 'uneditable' checkbox
-			var cellCheckBoxText = document.createTextNode('U');
+			//label for the cell size input
+			var cellSizeText = document.createTextNode(' S ');
+			
+			//create the input for the cell size
+			var cellSizeInput = createElement(document, 'input', {type: 'input', id: 'cellSizeInput_' + x + '-' + y, name: 'cellSizeInput_' + x + '-' + y, value: cellSize, size: 1, onkeyup: 'eventManager.fire("tableUpdateCellSize", {x:' + x + ', y:' + y + '})'});
 			
 			//add the elements to the td
 			td.appendChild(cellTextInput);
-			td.appendChild(cellCheckBox);
+			td.appendChild(cellNewline);
+			
+			//add the checkbox for uneditable
 			td.appendChild(cellCheckBoxText);
+			td.appendChild(cellCheckBox);
+			
+			//add the input for the cell size
+			td.appendChild(cellSizeText);
+			td.appendChild(cellSizeInput);
 			
 			tr.appendChild(td);
 		}
@@ -373,20 +430,29 @@ View.prototype.TableNode.getCommonComponents = function() {
  * 
  * TODO: rename TemplateNode
  */
-View.prototype.TableNode.updateContent = function(){
+View.prototype.TableNode.updateContent = function() {
 	/* update content object */
 	this.view.activeContent.setContent(this.content);
 };
 
 /**
- * Populate the authoring textarea where the user types the prompt that
+ * Populate the authoring textareas where the user types the prompts that
  * the student will read
  * 
  * TODO: rename TemplateNode
  */
-View.prototype.TableNode.populatePrompt = function() {
-	//get the prompt from the content and set it into the authoring textarea
+View.prototype.TableNode.populatePrompts = function() {
+	//get the prompts from the content and set it into the authoring textareas
 	$('#promptTextArea').val(this.content.prompt);
+	$('#prompt2TextArea').val(this.content.prompt2);
+};
+
+/**
+ * Populate the starter sentence textarea
+ */
+View.prototype.TableNode.populateStarterSentence = function() {
+	//get the prompts from the content and set it into the authoring textareas
+	$('#starterSentenceTextArea').val(this.content.starterSentence);
 };
 
 /**
@@ -394,7 +460,7 @@ View.prototype.TableNode.populatePrompt = function() {
  * 
  * TODO: rename TemplateNode
  */
-View.prototype.TableNode.updatePrompt = function(){
+View.prototype.TableNode.updatePrompt = function() {
 	/* update content */
 	this.content.prompt = document.getElementById('promptTextArea').value;
 	
@@ -405,9 +471,31 @@ View.prototype.TableNode.updatePrompt = function(){
 };
 
 /**
+ * Update the prompt2 in the content
+ */
+View.prototype.TableNode.updatePrompt2 = function() {
+	//update content
+	this.content.prompt2 = $('#prompt2TextArea').val();
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the starter sentence in the content
+ */
+View.prototype.TableNode.updateStarterSentence = function() {
+	//update the content
+	this.content.starterSentence = $('#starterSentenceTextArea').val();
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
  * Update the number of columns since the author has changed the value
  */
-View.prototype.TableNode.updateNumColumns = function(){
+View.prototype.TableNode.updateNumColumns = function() {
 	//get the new number of columns
 	var numColumns = $('#numColumnsInput').val();
 	
@@ -464,7 +552,7 @@ View.prototype.TableNode.updateNumColumns = function(){
 /**
  * Update the number of rows since the author has changed the value
  */
-View.prototype.TableNode.updateNumRows = function(){
+View.prototype.TableNode.updateNumRows = function() {
 	//get the new number of rows
 	var numRows = $('#numRowsInput').val();
 	
@@ -519,11 +607,46 @@ View.prototype.TableNode.updateNumRows = function(){
 };
 
 /**
+ * Update the global cell size in the content
+ */
+View.prototype.TableNode.updateGlobalCellSize = function() {
+	//get the global cell size the user has input
+	var globalCellSize = $('#globalCellSizeInput').val();
+	
+	if(globalCellSize == '') {
+		//the user has input an empty string
+		
+		//set the global cell size into the content
+		this.content.globalCellSize = globalCellSize;
+		
+		//save the content
+		this.view.eventManager.fire('sourceUpdated');
+	} else if(!isNaN(globalCellSize)) {
+		//the user has input a number
+		
+		//parse the string into a number
+		globalCellSize = parseInt(globalCellSize);
+		
+		//set the global cell size in the content
+		this.content.globalCellSize = globalCellSize;
+		
+		//save the content
+		this.view.eventManager.fire('sourceUpdated');
+	} else {
+		//the user has input a value that is not a number
+		alert('Error: Invalid Global Cell Size value');
+		
+		//revert the global cell size value in the text input
+		$('#globalCellSizeInput').val(this.content.globalCellSize);
+	}
+};
+
+/**
  * Update the text in the cell
  * @param args an object containing the x and y values of the cell
  * to update
  */
-View.prototype.TableNode.updateCellText = function(args){
+View.prototype.TableNode.updateCellText = function(args) {
 	//get the x and y values of the cell to update
 	var x = args.x;
 	var y = args.y;
@@ -546,7 +669,7 @@ View.prototype.TableNode.updateCellText = function(args){
  * @param args an object containing the x and y values of the cell
  * to update
  */
-View.prototype.TableNode.updateCellUneditable = function(args){
+View.prototype.TableNode.updateCellUneditable = function(args) {
 	//get the x and y values of the cell to update
 	var x = args.x;
 	var y = args.y;
@@ -562,6 +685,46 @@ View.prototype.TableNode.updateCellUneditable = function(args){
 	
 	//fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the cell size for a specific cell in the content
+ */
+View.prototype.TableNode.updateCellSize = function(args) {
+	//get the x and y values of the cell to update
+	var x = args.x;
+	var y = args.y;
+	
+	//get the value of the checkbox from the authoring table
+	var cellSizeValue = $('#cellSizeInput_' + x + '-' + y).val();
+	
+	//get the table data
+	var tableData = this.content.tableData;
+	
+	if(cellSizeValue == '' || !isNaN(cellSizeValue)) {
+		//update the cell size value for the cell in the content
+		this.updateCellDataValue(tableData, x, y, 'cellSize', cellSizeValue);
+		
+		//fire source updated event, this will update the preview
+		this.view.eventManager.fire('sourceUpdated');
+	} else {
+		//message the author that the value is not valid
+		alert('Error: Invalid Cell Size value');
+		
+		var cellSize = null;
+		
+		if(tableData != null && tableData[x] != null && tableData[x][y] != null) {
+			//get the previous cell size
+			cellSize = tableData[x][y].cellSize;
+		}
+		
+		if(cellSize == null) {
+			cellSize = "";
+		}
+		
+		//revert the cell size in the authoring text input
+		$('#cellSizeInput_' + x + '-' + y).val(cellSize);
+	}
 };
 
 /**

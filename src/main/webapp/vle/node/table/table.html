@@ -101,6 +101,13 @@
 	        function studentResponseChanged() {
 	        	table.studentResponseChanged();
 	        }
+	        
+	        /*
+	         * Called when the student clicks the show starter sentence button
+	         */
+	        function showStarterSentence() {
+	        	table.showStarterSentence();
+	        }
 		</script>
 	</head>
 
@@ -113,6 +120,8 @@
 		<div id='promptDiv'></div>
 		<div id='buttonDiv'><input type='button' value='Reset Table' onclick='reset()'></input></div>
 		<div id='tableDiv'></div>
+		<div id='prompt2Div'></div>
+		<div id='showStarterSentenceDiv'><input type='button' value='Show Starter Sentence' onclick='showStarterSentence()'></input></div>
 		<div id='responseDiv'><textarea id='studentResponseTextArea' rows='4' cols='80' onchange='studentResponseChanged()'></textarea></div>
 		<div id='saveButtonDiv'><input type='button' value='Save' onclick='save()'></input></div>
 	</body>
