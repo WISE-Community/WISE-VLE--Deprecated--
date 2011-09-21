@@ -149,6 +149,18 @@ View.prototype.TableNode.generatePage = function(view){
 	//add the table
 	tableDiv.appendChild(authoringTable);
 
+	//create the checkbox to hide everything below the table
+	var hideEverythingBelowTableCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'hideEverythingBelowTableCheckBox', name: 'hideEverythingBelowTableCheckBox', onchange: 'eventManager.fire("tableUpdateHideEverythingBelowTable")'});
+	
+	//create the label for hide everything below the table
+	var hideEverythingBelowTableText = document.createTextNode("Hide Everything Below the Table");
+	
+	//add the hide everything below the table elements
+	pageDiv.appendChild(hideEverythingBelowTableCheckBox);
+	pageDiv.appendChild(hideEverythingBelowTableText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
 	//create the label for prompt2
 	var promptText = document.createTextNode("Prompt2 for Student (shows up between the table and the student response textarea):");
 	
@@ -179,6 +191,11 @@ View.prototype.TableNode.generatePage = function(view){
 	
 	//populate the starter sentence
 	this.populateStarterSentence();
+	
+	//set the checkbox
+	if(this.content.hideEverythingBelowTable) {
+		hideEverythingBelowTableCheckBox.checked = true;
+	}
 };
 
 /**
@@ -677,6 +694,13 @@ View.prototype.TableNode.updateCellUneditable = function(args) {
 	//get the value of the checkbox from the authoring table
 	var cellUneditableValue = $('#cellUneditableCheckBox_' + x + '-' + y).attr('checked');
 	
+	//change the value to a boolean
+	if(cellUneditableValue == 'checked') {
+		cellUneditableValue = true;
+	} else {
+		cellUneditableValue = false;
+	}
+	
 	//get the table data
 	var tableData = this.content.tableData;
 	
@@ -894,6 +918,27 @@ View.prototype.TableNode.getCellWithDefaultValues = function() {
 	};
 	
 	return newCell;
+};
+
+/**
+ * Update the hideEverythingBelowTable value
+ */
+View.prototype.TableNode.updateHideEverythingBelowTable = function() {
+	//get whether it is checked or not
+	var hideEverythingBelowTableCheckBoxChecked = $('#hideEverythingBelowTableCheckBox').attr('checked');
+	
+	//change the value into a boolean
+	if(hideEverythingBelowTableCheckBoxChecked == 'checked') {
+		hideEverythingBelowTableCheckBoxChecked = true;		
+	} else {
+		hideEverythingBelowTableCheckBoxChecked = false;
+	}
+	
+	//set this value to true or false
+	this.content.hideEverythingBelowTable = hideEverythingBelowTableCheckBoxChecked;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');	
 };
 
 //used to notify scriptloader that this script has finished loading

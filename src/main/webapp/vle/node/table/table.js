@@ -107,6 +107,13 @@ Table.prototype.populatePreviousWork = function() {
  * the .html file for this step (look at template.html).
  */
 Table.prototype.render = function() {
+	//check if we need to hide everything below the table
+	if(this.content.hideEverythingBelowTable) {
+		this.hideEverythingBelowTable();
+	} else {
+		this.showEverythingBelowTable();
+	}
+	
 	//display the prompt to the student
 	$('#promptDiv').html(this.content.prompt);
 	
@@ -214,7 +221,7 @@ Table.prototype.render = function() {
 		$('#studentResponseTextArea').val(starterSentence);
 	}
 	
-	if(starterSentence == null || starterSentence == "") {
+	if(this.content.hideEverythingBelowTable || starterSentence == null || starterSentence == "") {
 		//hide the starter sentence button if starter sentence is not set
 		$('#showStarterSentenceDiv').hide();
 	} else {
@@ -391,6 +398,24 @@ Table.prototype.showStarterSentence = function() {
 	$('#studentResponseTextArea').val(studentResponse + starterSentence);
 	
 	this.studentResponseChanged();
+};
+
+/**
+ * Hide all the divs below the table except for the save button div
+ */
+Table.prototype.hideEverythingBelowTable = function() {
+	$('#prompt2Div').hide();
+	$('#showStarterSentenceDiv').hide();
+	$('#responseDiv').hide();
+};
+
+/**
+ * Show all the divs below the table
+ */
+Table.prototype.showEverythingBelowTable = function() {
+	$('#prompt2Div').show();
+	$('#showStarterSentenceDiv').show();
+	$('#responseDiv').show();
 };
 
 //used to notify scriptloader that this script has finished loading

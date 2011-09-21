@@ -47,6 +47,8 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.updatePrompt2();
 	} else if(type == 'tableUpdateStarterSentence') {
 		obj.TableNode.updateStarterSentence();
+	} else if(type == 'tableUpdateHideEverythingBelowTable') {
+		obj.TableNode.updateHideEverythingBelowTable();
 	}
 };
 
@@ -72,7 +74,8 @@ var events = [
 	'tableUpdateGlobalCellSize',
 	'tableUpdateCellSize',
 	'tableUpdatePrompt2',
-	'tableUpdateStarterSentence'
+	'tableUpdateStarterSentence',
+	'tableUpdateHideEverythingBelowTable'
 ];
 
 /*

@@ -5,6 +5,7 @@
    "prompt": "",
    "prompt2": "",
    "starterSentence": "",
+   "hideEverythingBelowTable":false,
    "tableData":[],
    "type": "Table"
 }
