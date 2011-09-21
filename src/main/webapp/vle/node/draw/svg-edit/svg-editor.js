@@ -32,8 +32,6 @@
 			// Note: Difference between Prefs and Config is that Prefs can be
 			// changed in the UI and are stored in the browser, config can not
 			
-			// default configs edited for wise4 (unfortunately, svgEditor.setConfig cannot run before DOM/page is loaded in wise4),
-			// thus the need to hard-code the defaults - EDIT: reverted back to defaults when not using scriptloader
 			curConfig = {
 				canvas_expansion: 3,
 				dimensions: [640,480],

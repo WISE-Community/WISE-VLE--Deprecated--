@@ -13,7 +13,7 @@
  * play through the snapshots in a flip-book like manner, at varying speeds.
  * JQuery Timers (http://plugins.jquery.com/project/timers) plugin must be included in the svg-editor.html header
  * JQuery UI with dialogs and sliders plus accompanying css also required
- * TODO: Add max snap number setter
+ * TODO: Add max snap number setter, i18n, include required js/css in the plugin?
  */
 var snapsLoaded = false; // wise4 var to indicate when extension has finished loading
  
@@ -28,7 +28,8 @@ svgEditor.addExtension("Snapshots", function(S) {
 	svgEditor.selected = null;
 	svgEditor.warning = false;
 	svgEditor.playback = 'pause';
-	svgEditor.initSnap = false;  // boolean to identify when we are in snapshot loading/click mode
+	svgEditor.initSnap = false;  // boolean to identify whether we are in snapshot loading/click mode
+	svgEditor.zeroSnapsAllowed = false; // boolean to indicate whether we allow zero snapshots (and a canvas state where no snapshots are selected)
 	
 	var getUndoStackSize = svgCanvas.getUndoStackSize,
 		resetUndoStack = svgCanvas.getPrivateMethods().resetUndoStack; //getPrivateMethods is being deprecated, change when we next update
@@ -46,7 +47,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 	};
 	
 	function setupPanel(){
-		var paneltxt = '<div id="snapshotpanel"><div id="snapshot_header"><h3>Snapshots</h3>' +
+		var paneltxt = '<div id="snapshotpanel"><div id="snapshot_header"><h3>Frames</h3>' +
 			'<a id="close_snapshots" title="Close">X</a></div>' +
 			'<div id="play_controls" style="display:none;"><div id="playback">' +
 			'<img id="loop" class="snap_controls" src="'+extPath+'loop.png" alt="loop" title="Play (Loop)" />' +
@@ -58,8 +59,8 @@ svgEditor.addExtension("Snapshots", function(S) {
 			'<img id="previous" class="snap_controls" src="'+extPath+'next.png" alt="forward" title="Forward" />' +
 			'</div> hide forward/back buttons for now, TODO: see whether users want them --></div></div>' +
 			'<div id="snapshots"><div id="snapshot_tools">' +
-			'<img class="snapshot_new" src="'+extPath+'camera.png" alt="camera" title="Take a new snapshot" />' +
-			'<a class="label snapshot_new" title="Take a new snapshot">Take Snapshot</a><hr /></div><div id="snap_images"></div></div></div>';
+			'<img class="snapshot_new" src="'+extPath+'camera.png" alt="camera" title="Add New Frame" />' +
+			'<a class="label snapshot_new" title="Add a new frame">Add New Frame</a><hr /></div><div id="snap_images"></div></div></div>';
 		
 		$('#sidepanels').append(paneltxt);
 		
@@ -80,9 +81,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 	
 	function addLink(){
 		var linktext = '<div id="tool_snapshot" class="extension_link">' +
-			'<a class="label tool_snapshot" title="Open Snapshots">Snapshots</a>' +
+			'<a class="label tool_snapshot" title="Show/Hide Frames">Frames (Snapshots)</a>' +
 			'<img class="tool_snapshot" src="'+extPath+'snapshot.png" ' + // image path edited for wise4
-			'title="Open Snapshots" alt="icon" />' +
+			'title="Show Frames" alt="icon" />' +
 			'</div>';
 		
 		$('#tools_top').append(linktext);
@@ -97,20 +98,20 @@ svgEditor.addExtension("Snapshots", function(S) {
 	function addDialogs(){
 		var dialogtxt = //'<div id="new_snap_dialog" title="New Snapshot" style="display:none;">' +
 			//'<div class="ui-dialog-content-content">Create new snapshot from current drawing?</div></div>' +
-			'<div id="snapwarning_dialog" title="Open Snapshot" style="display:none;">' +
+			/*'<div id="snapwarning_dialog" title="Open Snapshot" style="display:none;">' +
 			'<div class="ui-state-error"><span class="ui-icon ui-icon-alert" style="float:left"></span>' +
 			'Warning! Opening this snapshot will delete your current drawing.</div>' +
 			'<div class="ui-dialog-content-content">If you would like to save this drawing, click \'Cancel\' and create a new snapshot.' +
-			'<br /><br />Otherwise, click \'Continue\'.</div</div>' +
-			'<div id="deletesnap_dialog" title="Delete Snapshot">' + 
+			'<br /><br />Otherwise, click \'Continue\'.</div</div>' +*/
+			'<div id="deletesnap_dialog" title="Delete Frame">' + 
 			'<div class="ui-state-error"><span class="ui-icon ui-icon-alert" style="float:left"></span>' +
 			'Warning! This operation is permanent.</div>' +
-			'<div class="ui-dialog-content-content">Are you sure you want to delete this snapshot for good?</div></div>' +
+			'<div class="ui-dialog-content-content">Are you sure you want to delete this frame for good?</div></div>' +
 			'<div id="overlay"></div>' + 
-			'<div id="snapnumber_dialog" title="Too Many Snapshots"><div class="ui-state-error">' +
+			'<div id="snapnumber_dialog" title="Too Many Frames"><div class="ui-state-error">' +
 			'<span id="snapnum_warning" class="ui-icon ui-icon-alert" style="float:left"></span>' +
-			'Sorry! You are only allowed <span id="maxSnaps">' + svgEditor.maxSnaps + '</span> snapshots.</div>' +
-			'<div class="ui-dialog-content-content">If you want to create another one, please delete one of your current snapshots by clicking on the \'X\' in the upper right corner of the snapshot you want to delete. Thank you!' +
+			'Sorry! You are only allowed <span id="maxSnaps">' + svgEditor.maxSnaps + '</span> frames.</div>' +
+			'<div class="ui-dialog-content-content">If you want to create another one, please delete one of your current frames by clicking on the \'X\' in the upper right corner of the snapshot you want to delete. Thank you!' +
 			'</div></div>';
 		
 		$('#svg_editor').append(dialogtxt);
@@ -177,10 +178,18 @@ svgEditor.addExtension("Snapshots", function(S) {
 					$(".snap:eq(" + svgEditor.index + ")").fadeOut(1000, function(){$(this).remove()});
 					$(this).dialog('close');
 					svgEditor.changed = true;
+					var index = svgEditor.index;
 					setTimeout(function(){
 						svgEditor.snapCheck();
-			    		updateNumbers();
-						if(svgEditor.snapshots.length < 2){
+						updateNumbers();
+						if (!svgEditor.zeroSnapsAllowed && svgEditor.selected == false){
+							if(svgEditor.snapshots.length > 1){
+								svgEditor.openSnapshot(index,false);
+							} else {
+								svgEditor.openSnapshot(0,false);
+							}
+						}
+						if(svgEditor.snapshots.length < 2){ // hide playback controls if less than 2 snapshots remain
 							$('#snapshots').css('top','26px');
 							$('#play_controls').hide();
 						}
@@ -225,12 +234,24 @@ svgEditor.addExtension("Snapshots", function(S) {
 		if(svgEditor.snapshots.length > 0){
 			svgEditor.initSnap = true;
 			svgEditor.loadSnapshots(svgEditor.snapshots);
-		} else {
-			snapsLoaded = true;
+			svgEditor.initSnap = false;
+		} else {  // TODO: fix this (currently I'm adding the new snapshot in svgdraw.js as a work-around)
+			if (!svgEditor.zeroSnapsAllowed){
+				svgEditor.initSnap = true;
+				newSnapshot(false); // create an initial default snapshot
+				svgEditor.initSnap = false;
+			}
+			setTimeout(function(){
+				snapsLoaded = true;
+			},1000);
 		}
 	};
 	
-	function newSnapshot() {
+	function newSnapshot(pulsate) {
+		var pulse = true;
+		if(pulsate != null){
+			pulse = pulsate;
+		}
 		var current = svgCanvas.getSvgString();
 		var id = svgEditor.snapTotal;
 		var newSnap = new Snapshot(current,svgEditor.snapTotal);
@@ -242,14 +263,18 @@ svgEditor.addExtension("Snapshots", function(S) {
 		svgEditor.index = num;
 		svgEditor.selected = true;
 		svgEditor.snapWarning = false;
-		svgEditor.addSnapshot(current,num,id);
+		svgEditor.addSnapshot(current,num,id,pulse);
 		setTimeout(function(){
 			svgEditor.snapCheck();
 		},100);
 		svgEditor.changed = true;
 	};
 	
-	svgEditor.addSnapshot = function(svgString,num,id) {
+	svgEditor.addSnapshot = function(svgString,num,id,pulsate) {
+		var pulse = true;
+		if(pulsate != null){
+			pulse = pulsate;
+		}
 		svgEditor.warningStackSize = getUndoStackSize();
 		var res = svgCanvas.getResolution();
 		var multiplier = 150/res.w;
@@ -258,7 +283,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		var snapNum = num*1 + 1;
 		var snapHolder = '<div class="snap" title="Click to Open; Click and Drag to Reorder">' +
 			'<div class="snap_wrapper" id="snap' + id + '"></div>' + 
-			'<div class="snap_delete" title="Delete Snapshot"><span>X</span></div>' +
+			'<div class="snap_delete" title="Delete Frame"><span>X</span></div>' +
 			'<div class="snap_num"><span>' + snapNum + '</span></div>' +
 			'</div>';
 		$("#snap_images").append(snapHolder);
@@ -272,7 +297,9 @@ svgEditor.addExtension("Snapshots", function(S) {
 		bindSnapshot($snap); // Bind snap thumbnail to click function that opens corresponding snapshot
 		document.getElementsByClassName("snap_wrapper")[num].appendChild(document.importNode(snapSvgXml.documentElement, true)); // add snapshot thumb to snapshots panel
 		$("#snap_images").attr({ scrollTop: $("#snap_images").attr("scrollHeight") });
-		$(".snap:eq(" + num + ")").effect("pulsate", { times:1 }, 800);
+		if(pulse){
+			$(".snap:eq(" + num + ")").effect("pulsate", { times:1 }, 800);
+		}
 		if(svgEditor.snapshots.length > 1){
 			$('#snapshots').css('top','52px');
 			$('#play_controls').show();
@@ -371,10 +398,11 @@ svgEditor.addExtension("Snapshots", function(S) {
 	
 	function changeSpeed(value){
 		var speed = 1000/value;
+		var label;
 		if (value == 1){
-			var label = value + " snap/sec";
+			label = value + " snap/sec";
 		} else {
-			var label = value + " snaps/sec";
+			label = value + " snaps/sec";
 		}
 		$('#current_speed').text(label); // update speed display
 		if(svgEditor.playback != 'pause'){ // if in playback mode, change current playback speed
@@ -525,15 +553,28 @@ svgEditor.addExtension("Snapshots", function(S) {
 				$(this).children(".snap_delete").css("opacity","1");
 				$(this).children(".snap_num").css("opacity","1");
 			}
+			
+			if(!svgEditor.zeroSnapsAllowed){
+				// remove delete link if there is only 1 snapshot
+				if(svgEditor.snapshots.length > 1){
+					$(this).children(".snap_delete").show();
+				} else {
+					$(this).children(".snap_delete").hide();
+				}
+			}
 		});
 	};
 	
 	svgEditor.loadSnapshots = function(snapshots,callback){
+		// clear out any existing snapshots
+		$('.snap').remove();
+		svgEditor.snapshots = [];
+		
 		for (var i=0; i<snapshots.length; i++) {
 			svgEditor.snapshots.push(snapshots[i]);
 			var current = svgEditor.snapshots[i].svg;
 			var id = svgEditor.snapshots[i].id;
-			svgEditor.addSnapshot(current,i,id); // add snap to snapshot panel
+			svgEditor.addSnapshot(current,i,id,false); // add snap to snapshot panel
 		};
 		snapsLoaded = true;
 		// run optional callback function

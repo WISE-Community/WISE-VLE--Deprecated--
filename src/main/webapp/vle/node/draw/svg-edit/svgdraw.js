@@ -7,6 +7,7 @@ function SVGDRAW(node) {
 	this.svgCanvas = null;
 	this.teacherAnnotation = "";
 	this.defaultImage = ""; // svg string to hold starting (or background) svg image
+	this.toolbarOptions = null; // object to hold tool visibility options
 	this.stamps  =  []; // array to hold stamp paths
 	this.snapshotsActive  =  false; // boolean to specify whether snapshots are active
 	this.descriptionActive =  false; // boolean to specify whether student annotations/descriptions are active
@@ -30,16 +31,8 @@ function SVGDRAW(node) {
 
 SVGDRAW.prototype.init = function(jsonURL) {
 	console.log('svgdraw.init');
-	// moved from svg-editor.js for wise4 compatibility (throws error when run in svg-editor.js)
-	/*var good_langs = [];
-
-	$('#lang_select option').each(function() {
-		good_langs.push(this.value);
-	});
-	//		var lang = ('lang' in curPrefs) ? curPrefs.lang : null;
-	svgEditor.putLocale(null, good_langs);*/
 	
-	this.loadModules(jsonURL, this);  // load the background and stamps
+	this.loadModules(jsonURL, this);  // process backgrounds, stamps, snapshots, descriptions, hidden tool options
 };
 
 
@@ -72,6 +65,9 @@ SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
 	}
 	if(data.svg_background){
 		context.defaultImage = data.svg_background;
+	}
+	if(data.toolbar_options){
+		context.toolbarOptions = data.toolbar_options;
 	}
 	
 	var myDataService = new VleDS(vle);
@@ -233,12 +229,12 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		//initiate snapshots
 		if(context.snapshotsActive){
 			svgEditor.setMaxSnaps(context.snapshots_max);
+			svgEditor.initSnap = true;
 			if(data && data.snapshots && data.snapshots.length > 0){
-				svgEditor.initSnap = true;
 				svgEditor.snapTotal = data.snapTotal;
 				svgEditor.loadSnapshots(data.snapshots,context.setSelected(data));
-				svgEditor.initSnap = false;
 			}
+			svgEditor.initSnap = false;
 			
 		} else {
 			$('#tool_snapshot').remove();
@@ -310,7 +306,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					$('#description').show();
 				});
 				
-				$('.description_header_text span.panel_title').text('Snapshot Description:');
+				$('.description_header_text span.panel_title').text('Frame Description:');
 				
 				$('#description_collapse').hide();
 				
@@ -423,6 +419,20 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			$('#description').remove();
 		}
 		
+		// process tool visibilty options
+		if(context.toolbarOptions){
+			for(var key in context.toolbarOptions){
+				if (context.toolbarOptions.hasOwnProperty(key)) {
+					if(context.toolbarOptions[key] == false){
+						context.hideTools(key);
+					}
+				}
+			}
+			if(!context.toolbarOptions.basic && !context.toolbarOptions.annotate){
+				$('#colors').hide();
+			}
+		}
+		
 		setTimeout(function(){
 			if(context.snapshotsActive){
 				svgEditor.toggleSidePanel();
@@ -448,6 +458,19 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		setTimeout(function(){
 			context.initDisplay(data,context);
 		},100);
+	}
+};
+
+
+// hide specified set of drawing tools
+// TODO: should we remove the options from the DOM instead?
+SVGDRAW.prototype.hideTools = function(option){
+	if(option=='annotate'){
+		$('#tool_text, #mode_connect').hide();
+	} else if (option=='basic'){
+		$('#tool_line, #tools_rect_show, #tools_ellipse_show, #tool_path').hide();
+	} else if (option=='freehand'){
+		$('#tool_fhpath').hide();
 	}
 };
 
