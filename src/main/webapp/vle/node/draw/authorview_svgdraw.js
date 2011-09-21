@@ -23,6 +23,7 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	/* create new */
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 	var optDiv = createElement(document, 'div', {id: 'optionsDiv'});
+	var toolbarOptionsDiv = createElement(document, 'div', {id: 'toolbarOptionsDiv'});
 	var snapshotOptionDiv = createElement(document, 'div', {id: 'snapshotOptionDiv'});
 	var snapMaxDiv = createElement(document, 'div', {id: 'snapMaxDiv'});
 	var descriptionOptionDiv = createElement(document, 'div', {id: 'descriptionOptionDiv'});
@@ -30,12 +31,13 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	var stampsDiv = createElement(document, 'div', {id:'stampsDiv'});
 	
 	parent.appendChild(pageDiv);
+	pageDiv.appendChild(toolbarOptionsDiv);
 	pageDiv.appendChild(snapshotOptionDiv);
 	pageDiv.appendChild(snapMaxDiv);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(descriptionOptionDiv);
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(document.createTextNode('Enter prompt for student if desired: '));
+	pageDiv.appendChild(document.createTextNode('Enter instructions for students (optional): '));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
 	pageDiv.appendChild(createBreak());
@@ -44,6 +46,7 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	pageDiv.appendChild(stampsDiv);
 	pageDiv.appendChild(createBreak());
 	
+	this.generateToolbarOptions();
 	this.generateSnapshotOption();
 	this.generateSnapshotMaxOption();
 	this.generateDescriptionOption();
@@ -60,12 +63,46 @@ View.prototype.SVGDrawNode.getCommonComponents = function() {
 };
 
 /**
+ * Generates the toolbar options for this svg draw
+ */
+View.prototype.SVGDrawNode.generateToolbarOptions = function(){
+	var parent = document.getElementById('toolbarOptionsDiv');
+	
+	var toolbarHtml = 'Select which drawing tools to enable:<br />';
+	toolbarHtml += '<form>';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="basicCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Basic drawing (lines and shapes)<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="annotateCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Annotation (text and connectors)<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="freehandCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Pencil (freehand)<br />';
+	toolbarHtml += '</form>';
+	
+	parent.innerHTML = toolbarHtml;
+	
+	if(this.content.toolbar_options){
+		if (this.content.toolbar_options.basic){
+			document.getElementById('basicCbx').checked = true;
+		} else {
+			document.getElementById('basicCbx').checked = false;
+		}
+		if (this.content.toolbar_options.annotate){
+			document.getElementById('annotateCbx').checked = true;
+		} else {
+			document.getElementById('annotateCbx').checked = false;
+		}
+		if (this.content.toolbar_options.freehand){
+			document.getElementById('freehandCbx').checked = true;
+		} else {
+			document.getElementById('freehandCbx').checked = false;
+		}
+	}
+};
+
+/**
  * Generates the snapshot option for this svg draw
  */
 View.prototype.SVGDrawNode.generateSnapshotOption = function(){
 	var parent = document.getElementById('snapshotOptionDiv');
 	
-	var snapshotHtml = 'Students can take snapshots of their work?<br/>';
+	var snapshotHtml = 'Enable Flipbook Animator (snapshots)?<br/>';
 	if(this.content.snapshots_active){
 		snapshotHtml += '<input type="radio" name="snapshotRadio" id="sRadioTrue" value="true" CHECKED onclick="eventManager.fire(\'svgdrawSnapshotOptionChanged\')"/> Yes<br/>';
 		snapshotHtml += '<input type="radio" name="snapshotRadio" id="sRadioFalse" value="false" onclick="eventManager.fire(\'svgdrawSnapshotOptionChanged\')"/> No<br/>';
@@ -83,7 +120,7 @@ View.prototype.SVGDrawNode.generateSnapshotOption = function(){
 View.prototype.SVGDrawNode.generateSnapshotMaxOption = function(){
 	var parent = document.getElementById('snapMaxDiv');
 	
-	var snapshotMaxHtml = 'What is the maximum number of snapshots students can create?<br/>';
+	var snapshotMaxHtml = 'What is the maximum number of frames (snapshots) students can create?<br/>';
 	snapshotMaxHtml += '<select id="snapMaxInput" disabled="disabled" onchange="eventManager.fire(\'svgdrawSnapshotMaxOptionChanged\')">' + 
 		'<option value="2">2</option>' +
 		'<option value="3">3</option>' +
@@ -120,10 +157,10 @@ View.prototype.SVGDrawNode.generateDescriptionOption = function(){
 	parent.innerHTML = '';
 	
 	/* create new */
-	var	descriptionHtml = 'Students can enter a description of their drawing?<br/>';
+	var	descriptionHtml = 'Allow students to write descriptions of their drawings?<br/>';
 	descriptionHtml += '<input type="radio" name="descriptionRadio" id="dRadioTrue" value="true" onclick="eventManager.fire(\'svgdrawDescriptionOptionChanged\')"/> Yes<br/>';
 	descriptionHtml += '<input type="radio" name="descriptionRadio" id="dRadioFalse" value="false" CHECKED onclick="eventManager.fire(\'svgdrawDescriptionOptionChanged\')"/> No<br/>';
-	descriptionHtml += 'Default description: <input type="text" size="45" id="defaultDescriptionInput" disabled="disabled" onkeyup="eventManager.fire(\'svgdrawDefaultDescriptionChanged\')" onclick="eventManager.fire(\'svgdrawDescriptionClicked\')"/>';
+	descriptionHtml += 'Default description (optional): <input type="text" size="45" id="defaultDescriptionInput" disabled="disabled" onkeyup="eventManager.fire(\'svgdrawDefaultDescriptionChanged\')" onclick="eventManager.fire(\'svgdrawDescriptionClicked\')"/>';
 	
 	parent.innerHTML = descriptionHtml;
 	
@@ -209,6 +246,38 @@ View.prototype.SVGDrawNode.generateStamps = function(){
 		parent.appendChild(removeButt);
 		parent.appendChild(createBreak());
 	};
+};
+
+/**
+ * Updates the toolbar_options value of the content to the user specified value
+ * and refreshes the preview.
+ */
+View.prototype.SVGDrawNode.toolbarOptionsChanged = function(){
+	var options = document.getElementsByName('toolbarCbx');
+	
+	// set initial toolbar_options variable if not yet defined
+	if(this.content.toolbar_options == null || this.content.toolbar_options == 'undefiend'){
+		this.content.toolbar_options = {};
+	}
+	
+	for(var i=0;i<options.length;i++){
+		var current = $(options[i]).attr('id').replace('Cbx','');
+		var isActive = false;
+		if(options[i].checked){
+			isActive = true;
+		}
+		
+		if(current == 'basic'){
+			this.content.toolbar_options.basic = isActive;
+		} else if (current == 'annotate'){
+			this.content.toolbar_options.annotate = isActive;
+		} else if (current == 'freehand'){
+			this.content.toolbar_options.freehand = isActive;
+		}
+	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**

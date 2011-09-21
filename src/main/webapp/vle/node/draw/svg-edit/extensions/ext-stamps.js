@@ -52,7 +52,22 @@ svgEditor.addExtension("Stamps", function(S) {
 			// add stamp preview image to stamp selector
 			var stamptxt = "<img id='stamp" + i + "' class='tool_stamp' src='" + encodeURI(stamps[i].uri) + "' title='" + stamps[i].title + "' alt='Stamp " + num + "' />";
 			$('#stamp_images').append(stamptxt);
-			$('#stamp' + i).height(stamps[i].height).width(stamps[i].width);
+			var height = stamps[i].height, width = stamps[i].width;
+			if(height > width || height == width){
+				if (height > 75){
+					var zoom = 75/height;
+					height = height * zoom;
+					width = width * zoom;
+				}
+			} else if (width > height){
+				if (width > 75){
+					var zoom = 75/height;
+					height = height * zoom;
+					width = width * zoom;
+				}
+			}
+			console.log ("h: " + height + ' width: ' + width);
+			$('#stamp' + i).height(height).width(width);
 		}
 		// set first image as default (selected)
 		svgEditor.setStamp(0);

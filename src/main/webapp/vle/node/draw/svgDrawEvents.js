@@ -21,6 +21,8 @@ View.prototype.svgdrawDispatcher = function(type,args,obj){
 		obj.DrawNode.removeStamp(args[0]);
 	} else if(type=='drawingCreateStampsSpecified'){
 		obj.DrawNode.createStampsSpecified();
+	} else if(type=='svgdrawToolbarOptionsChanged'){
+		obj.SVGDrawNode.toolbarOptionsChanged();
 	} else if(type=='svgdrawSnapshotOptionChanged'){
 		obj.SVGDrawNode.snapshotOptionChanged();
 	} else if(type=='svgdrawSnapshotMaxOptionChanged'){
@@ -66,6 +68,7 @@ var events = [
 	'drawingStampInfoChanged',
 	'drawingRemoveStamp',
 	'drawingCreateStampsSpecified',
+	'svgdrawToolbarOptionsChanged',
 	'svgdrawSnapshotOptionChanged',
 	'svgdrawSnapshotMaxOptionChanged',
 	'svgdrawDescriptionOptionChanged',

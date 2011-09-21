@@ -3023,6 +3023,7 @@ function BatchCommand(text) {
 			
 			start_x = x;
 			start_y = y;
+			console.log('svgcanvas start_y: ' + start_y);
 	
 			// if it is a selector grip, then it must be a single element selected, 
 			// set the mouse_target to that and update the mode to rotate/resize

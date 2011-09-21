@@ -3,9 +3,10 @@
  *
  * Licensed under the Apache License, Version 2
  *
- * Copyright(c) 2010 Jonathan Breitbart
+ * Copyright(c) 2011 Jonathan Breitbart
  *
  * Customizes the svg-edit user interface for use in the WISE4 learning environment
+ * Adds an erase drawing button (which removes all student drawing objects)
  */
 
  
@@ -162,20 +163,6 @@ svgEditor.addExtension("WISE4", function(S) {
 	
 	// fit drawing canvas and toolbars to window
 	svgEditor.resizeCanvas = function() {
-		// resize window slightly
-		/*var height, width;
-		if(parent.window.outerHeight){
-			height = parent.window.outerHeight;
-			width = parent.window.outerWidth;
-			parent.window.resizeTo(width+1,height+1);
-		} else { // for IE
-			height = document.body.clientWidth; 
-			width = document.body.clientHeight;
-			self.resizeTo(width+1,height+1);
-		}
-		
-		$('#fit_to_canvas').mouseup();*/
-		
 		var toppx = $('#sidepanels').height() + $('#tools_top').height() + 5 + 'px';
 		$('#tools_bottom').css({'bottom':'','top':toppx});
 		
@@ -214,6 +201,12 @@ svgEditor.addExtension("WISE4", function(S) {
 			if (changeNum>0){ // check to see if this change is this initial drawing import
 				svgEditor.changed = true;
 			}
+		},
+		mouseDown: function(opts) {
+			var start_y = opts.start_y;
+			var offset = $(document).scrollTop();
+			//opts.start_y -= offset * svgCanvas.getZoom();
+			console.log(offset + ' ' + start_y + ' ' + opts.start_y);
 		}
 	};
 });
