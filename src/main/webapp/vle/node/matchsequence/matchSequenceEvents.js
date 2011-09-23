@@ -43,6 +43,14 @@ View.prototype.matchsequenceDispatcher = function(type,args,obj){
 		obj.MatchSequenceNode.updateLogLevel(args[0]);
 	} else if(type=='msUpdateShowFeedback'){
 		obj.MatchSequenceNode.updateShowFeedback(args[0]);
+	} else if(type=='matchSequenceChallengeNavigateToChanged'){
+		obj.MatchSequenceNode.challengeNavigateToChanged();
+	} else if(type=='matchSequenceChallengeAddNew'){
+		obj.MatchSequenceNode.addNewAttemptScore();
+	} else if(type=='matchSequenceChallengeRemoveLast'){
+		obj.MatchSequenceNode.removeLastAttemptScore();
+	} else if(type=='matchSequenceChallengeScoreChanged'){
+		obj.MatchSequenceNode.scoreChanged(args[0]);
 	};
 };
 
@@ -66,7 +74,11 @@ var events = [
 	'msSaveFeedback',
 	'msUpdateDisplayLayout',
 	'msUpdateLogLevel',
-	'msUpdateShowFeedback'
+	'msUpdateShowFeedback',
+	'matchSequenceChallengeNavigateToChanged',
+	'matchSequenceChallengeAddNew',
+	'matchSequenceChallengeRemoveLast',
+	'matchSequenceChallengeScoreChanged'
 ];
 
 /*

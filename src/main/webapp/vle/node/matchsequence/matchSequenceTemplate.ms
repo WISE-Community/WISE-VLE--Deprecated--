@@ -3,6 +3,10 @@
       "adaptive": false,
       "identifier": "MatchSequence",
       "interaction": {
+         "attempts": {
+            "navigateTo": "",
+            "scores": {}
+         },
          "choices": [],
          "fields": [],
          "hasInlineFeedback": true,

@@ -48,6 +48,9 @@ function MS(node) {
     this.states = [];
     if(node.studentWork != null) {
     	this.states = node.studentWork;
+    	
+    	//create a copy of the states array
+    	this.attempts = this.states.slice();
     }
     
     /* set custom check function if it has been defined */
@@ -77,6 +80,13 @@ function MS(node) {
     
     //load the student's previous work
     this.loadStudentWork();
+    
+    /*
+	 * allow the submit answer button to be enabled. this is set to
+	 * false when challenge question is enabled and the student answers
+	 * incorrectly
+	 */
+    this.allowEnableSubmitButton = true;
 };
 
 /**
@@ -625,7 +635,9 @@ MS.prototype.checkAnswer = function() {
 			$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 		} else {
 			message = "<font color='8B0000'>" + feedback.getMessage() + "</font>";
-			displayNumberAttempts("This is your", "attempt", this.attempts);
+			
+			//display which attempt number was just attempted
+			this.displayPreviousAttemptNumber();
 		}
 		document.getElementById("feedbackDiv").innerHTML = message;
 	} else {
@@ -706,14 +718,58 @@ MS.prototype.checkAnswer = function() {
 		// update feedback div
 		var feedbackDiv = document.getElementById("feedbackDiv");
 		if (numWrongChoices == 0) {
+			//display which attempt number was just attempted
+			this.displayPreviousAttemptNumber();
+			
 			feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
 			this.setChoicesDraggable(false);
 			//addClassToElement("checkAnswerButton", "disabledLink");
 			$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 		} else {
-			displayNumberAttempts("This is your", "attempt", this.attempts);
+			//display which attempt number was just attempted
+			this.displayPreviousAttemptNumber();
+			
 			var totalNumChoices = numCorrectChoices + numWrongChoices;
 			feedbackDiv.innerHTML = "You have correctly placed "+ numCorrectChoices +" out of "+ totalNumChoices +" choices.";
+			
+			if(this.challengeEnabled()) {
+				//display the linkto so the student can visit the associated step
+				if(this.content.assessmentItem.interaction.attempts != null) {
+					var challengeSettings = this.content.assessmentItem.interaction.attempts; 
+					var msg = '<b>Please review the step ';
+					var nodeId = challengeSettings.navigateTo;
+					var linkNode = this.node.view.getProject().getNodeById(challengeSettings.navigateTo);
+					var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(challengeSettings.navigateTo);
+					
+					/* create the linkTo and add it to the message */
+					var linkTo = {key:this.node.utils.generateKey(),nodeIdentifier:nodeId};
+					this.node.addLink(linkTo);
+					msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">' + stepNumberAndTitle + '</a> before trying again.</b>';
+					
+					/* create the constraint to disable this step until students have gone to
+					 * the step specified by this attempts */
+					this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:challengeSettings.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20)});
+					
+					//display the linkto message and link to the student
+					$('#challengeMessageDiv').html(msg);
+					
+					//disable the check answer button
+					$('#checkAnswerButton').parent().addClass('ui-state-disabled');
+					
+					//check if there are any scores enabled for this challenge question
+					if(this.challengeScoringEnabled()) {
+						var scoreMessage = "Current Score: ";
+						
+						//get the current score for the student
+						scoreMessage += this.getCurrentScore(this.attempts.length);
+						
+						$('#scoreDiv').html(scoreMessage);
+					}
+					
+					//do not allow the submit button to be enabled
+					this.allowEnableSubmitButton = false;
+				}
+			}
 		}
 		
 		var tries = document.getElementById('numberAttemptsDiv');
@@ -721,6 +777,75 @@ MS.prototype.checkAnswer = function() {
 		//fire the event to push this state to the global view.states object
 		eventManager.fire('pushStudentWork', state.getJsonifiableState());
 	};
+};
+
+/**
+ * Check if challenge is enabled by checking if there is a linkTo step
+ * @returns whether challenge is enabled
+ */
+MS.prototype.challengeEnabled = function() {
+	var enabled = false;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		var navigateTo = this.content.assessmentItem.interaction.attempts.navigateTo;
+		
+		if(navigateTo != null && navigateTo != "") {
+			//the navigateTo field has been set which means challenge is enabled
+			enabled = true;
+		}
+	}
+	
+	return enabled;
+};
+
+/**
+ * Check if scores have been set
+ * @returns whether scores have been set
+ */
+MS.prototype.challengeScoringEnabled = function() {
+	var enabled = false;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores object
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		if(scores != null) {
+			//get the JSON string for the scores object
+			var scoresJSONString = JSON.stringify(scores);
+			
+			//check if the scores object is empty
+			if(scoresJSONString != "{}") {
+				//scores object is not empty
+				enabled = true;
+			}
+		}
+	}
+	
+	return enabled;
+};
+
+/**
+ * Get the score given the number attempts the students has made
+ * @return the score for the student depending on the number attempts
+ * they have made
+ */
+MS.prototype.getCurrentScore = function(numAttempts) {
+	var score = 0;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores object
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		if(scores != null) {
+			//check if there is a score set for the given number of attempts
+			if(scores[numAttempts] != null) {
+				//get the score
+				score = scores[numAttempts];
+			}
+		}
+	}
+	
+	return score;
 };
 
 /**
@@ -837,6 +962,39 @@ MS.prototype.saveState = function() {
 MS.prototype.enableCheckAnswerButton = function() {
 	//removeClassFromElement("checkAnswerButton", "disabledLink");
 	$('#checkAnswerButton').parent().removeClass('ui-state-disabled');
+	
+	if(this.showFeedback) {
+		displayNumberAttempts("This is your", "attempt", this.attempts);
+	}
+};
+
+/**
+ * Whether the submit button is allowed to be enabled. The submit button
+ * is not allowed to be enabled when this step is a challenge question
+ * and the student has answered incorrectly.
+ * @returns whether the submit button can be enabled
+ */
+MS.prototype.canSubmitButtonBeEnabled = function() {
+	return this.allowEnableSubmitButton;
+};
+
+/*
+ * Displays what attempt number the student has just attempted
+ * e.g.
+ * "This was your 2nd attempt"
+ */
+MS.prototype.displayPreviousAttemptNumber = function() {
+	//create a copy of the attempts array
+	var attemptsCopy = this.attempts.slice();
+	
+	/*
+	 * remove one element from the array, it doesn't matter which element
+	 * since we are only using this array for its length value
+	 */
+	attemptsCopy.pop();
+	
+	//display the message
+	displayNumberAttempts("This was your", "attempt", attemptsCopy);
 };
 
 //used to notify scriptloader that this script has finished loading
