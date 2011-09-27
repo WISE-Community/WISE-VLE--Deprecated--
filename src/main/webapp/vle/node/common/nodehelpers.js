@@ -100,6 +100,60 @@ function displayNumberAttempts(part1, part2, states) {
 };
 
 /**
+ * Displays the number of attempts message e.g.
+ * "This is your 2nd attempt."
+ * @param part1 the beginning of the message e.g. "This is your"
+ * @param part2 the end of the message e.g. "attempt"
+ * @param numAttempts the number of attempts
+ */
+function displayNumberAttemptsMessage(part1, part2, numAttempts) {
+	//get the message
+	var numberAttemptsMessage = getNumberAttemptsMessage(part1, part2, numAttempts);
+	
+	//set the message in the div
+	setNumberAttemptsMessage(numberAttemptsMessage);
+}
+
+/**
+ * Make the number of attempts message e.g.
+ * "This is your 2nd attempt."
+ * @param part1 the beginning of the message e.g. "This is your"
+ * @param part2 the end of the message e.g. "attempt"
+ * @param numAttempts the number of attempts
+ * @returns the number of attempts message string
+ */
+function getNumberAttemptsMessage(part1, part2, numAttempts) {
+	var attemptsMessage = "";
+	
+	if(numAttempts == null) {
+		
+	} else if (numAttempts == 1) {
+		attemptsMessage = "1st";		
+	} else if (numAttempts == 2) {
+		attemptsMessage = "2nd";		
+	} else if (numAttempts == 3) {
+		attemptsMessage = "3rd";		
+	} else {
+		attemptsMessage = numAttempts + "th";		
+	}
+
+	var numAttemptsDivHtml = part1 + " " + attemptsMessage + " " + part2 +".";
+	return numAttemptsDivHtml;
+};
+
+/**
+ * Display the number of attempts message in the div
+ * @param numberAttemptsMessage the message string
+ */
+function setNumberAttemptsMessage(numberAttemptsMessage) {
+	//get the div
+	var numAttemptsDiv = document.getElementById("numberAttemptsDiv");
+	
+	//set the string in the div
+	numAttemptsDiv.innerHTML = numberAttemptsMessage;
+};
+
+/**
  * Updates text in div with id lastAttemptDiv with info on
  * student's last attempt
  * javascript Date method reference:

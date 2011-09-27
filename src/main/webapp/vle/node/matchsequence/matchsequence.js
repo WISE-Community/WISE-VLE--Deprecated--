@@ -339,16 +339,36 @@ MS.prototype.render = function() {
     /* enables jquery drag and drop */
     renderDragAndDrop();
     
-    //check if we want to display the submit button
+    //check if we want to display feedback
     if(this.showFeedback) {
-		//display the number of attempts above the submit button
-    	displayNumberAttempts("This is your", "attempt", this.attempts);   
+        //check to see if the student answered the question correctly last time they visited
+    	var checkBucketAnswerResults = this.checkBucketAnswers(true);
+    	var feedbackHTMLString = checkBucketAnswerResults.feedbackHTMLString;
+    	var numWrongChoices = checkBucketAnswerResults.numWrongChoices;
+    	var numCorrectChoices = checkBucketAnswerResults.numCorrectChoices;
+    	
+    	if(numWrongChoices == 0) {
+    		//the student answered the question correctly last time so we will display the congratulations message
+    		this.displayCompletionMessage();
+    	}
+    	
+        //check if scoring is enabled
+        if(this.challengeScoringEnabled()) {
+        	this.displayCurrentPossibleScoreTable(numWrongChoices);
+        }
+        
+    	if(numWrongChoices != 0) {
+    		//the student has not correctly answered this question so we will display the current attempt number
+    		this.displayCurrentAttemptNumber();
+    	} else {
+    		//the student has previously correctly answered the question so we will display the previous attempt number
+    		this.displayPreviousAttemptNumber();
+    	}
     } else {
     	//hide the feedback and number of attempts display
     	$('#feedbackDiv').hide();
     	$('#numberAttemptsDiv').hide();
 	}
-    
     
     this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
@@ -641,91 +661,30 @@ MS.prototype.checkAnswer = function() {
 		}
 		document.getElementById("feedbackDiv").innerHTML = message;
 	} else {
-		var state = this.getState();   // state is a MSSTATE instance
-		// clean out old feedback
-		for (var i=0; i < state.buckets.length; i++) {
-			var bucket = state.buckets[i];
-			var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
-			feedbackDivElement.innerHTML = "";  // clean out old feedback
-		}
+		//we are showing feedback
 		
-		var numCorrectChoices = 0;
-		var numWrongChoices = 0;
-		var numUnusedChoices = state.sourceBucket.choices.length;
+		//check the buckets to see if the student correctly answered the question
+		var checkBucketAnswerResults = this.checkBucketAnswers();
 		
-		//loop through all the choices in the source bucket
-		for(var x=0; x<state.sourceBucket.choices.length; x++) {
-			//get a source choice
-			var sourceBucketChoice = state.sourceBucket.choices[x];
-			
-			//make the source choice incorrect
-			removeClassFromElement(sourceBucketChoice.identifier, "correct");
-			removeClassFromElement(sourceBucketChoice.identifier, "wrongorder");																			
-			addClassToElement(sourceBucketChoice.identifier, "incorrect");	
-		}
-		
-		//loop through all the target buckets
-		for (var i=0; i < state.buckets.length; i++) {
-			var bucket = state.buckets[i];
-			var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
-			var feedbackHTMLString = "";
-			
-			//loop through all the choices in the target bucket
-			for (var j=0; j < bucket.choices.length; j++) {
-				// get feedback object for this choice in this bucket
-				var feedback = this.getFeedback(bucket.identifier,bucket.choices[j].identifier,j);
-				
-				if (feedback) {
-					if (feedback.isCorrect) {
-						removeClassFromElement(bucket.choices[j].identifier, "incorrect");						
-						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");						
-						addClassToElement(bucket.choices[j].identifier, "correct");
-						feedbackHTMLString += "<li class=\"feedback_li correct\">"+ bucket.choices[j].text + ": " + feedback.feedback +"</li>";
-						numCorrectChoices++;
-					} else {
-						removeClassFromElement(bucket.choices[j].identifier, "correct");
-						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");																			
-						addClassToElement(bucket.choices[j].identifier, "incorrect");					
-						//removeClassFromElement("resetWrongChoicesButton", "disabledLink");
-						feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + feedback.feedback +"</li>";
-						numWrongChoices++;
-					}
-				} else {/* it could be that there is no feedback because it is in the wrong order */
-					if (this.content.assessmentItem.interaction.ordered && this.isInRightBucketButWrongOrder(bucket.identifier,bucket.choices[j].identifier,j)) {   // correct bucket, wrong order
-						removeClassFromElement(bucket.choices[j].identifier, "correct");												
-						removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
-						addClassToElement(bucket.choices[j].identifier, "wrongorder");						
-						feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
-						numWrongChoices++;
-					} else {/* this should never be the case, but it could be that no default feedback was created */
-						removeClassFromElement(bucket.choices[j].identifier, "correct");												
-						removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
-						addClassToElement(bucket.choices[j].identifier, "incorrect");						
-						feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
-						numWrongChoices++;
-					}
-				}
-			}
-			
-			if (feedbackHTMLString != "") {
-				feedbackDivElement.innerHTML = "<ul class=\"feedback_ul\">"+ feedbackHTMLString + "</ul>";
-			}
-		}
-		
-		//add the number of unused choices to the number of wrong choices
-		numWrongChoices += numUnusedChoices;
+		//get the results from checking the buckets
+		var feedbackHTMLString = checkBucketAnswerResults.feedbackHTMLString;
+		var numWrongChoices = checkBucketAnswerResults.numWrongChoices;
+		var numCorrectChoices = checkBucketAnswerResults.numCorrectChoices;
 		
 		// update feedback div
 		var feedbackDiv = document.getElementById("feedbackDiv");
+		
 		if (numWrongChoices == 0) {
+			//the student answereed correctly
+			
 			//display which attempt number was just attempted
 			this.displayPreviousAttemptNumber();
 			
-			feedbackDiv.innerHTML = "Congratulations! You've completed this question.";
-			this.setChoicesDraggable(false);
-			//addClassToElement("checkAnswerButton", "disabledLink");
-			$('#checkAnswerButton').parent().addClass('ui-state-disabled');
+			//the student answered correctly so we will congratulate them
+			this.displayCompletionMessage();
 		} else {
+			//the student answered incorrectly
+			
 			//display which attempt number was just attempted
 			this.displayPreviousAttemptNumber();
 			
@@ -756,27 +715,161 @@ MS.prototype.checkAnswer = function() {
 					//disable the check answer button
 					$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 					
-					//check if there are any scores enabled for this challenge question
-					if(this.challengeScoringEnabled()) {
-						var scoreMessage = "Current Score: ";
-						
-						//get the current score for the student
-						scoreMessage += this.getCurrentScore(this.attempts.length);
-						
-						$('#scoreDiv').html(scoreMessage);
-					}
-					
 					//do not allow the submit button to be enabled
 					this.allowEnableSubmitButton = false;
 				}
 			}
 		}
 		
+		//check if there are any scores enabled for this challenge question
+		if(this.challengeScoringEnabled()) {
+			this.displayCurrentPossibleScoreTable(numWrongChoices);
+		}
+		
 		var tries = document.getElementById('numberAttemptsDiv');
-			
+		
+		var state = this.getState();
+		
 		//fire the event to push this state to the global view.states object
 		eventManager.fire('pushStudentWork', state.getJsonifiableState());
 	};
+};
+
+/**
+ * Display the current possible score table
+ */
+MS.prototype.displayCurrentPossibleScoreTable = function(numWrongChoices) {
+	//get the number of attempts the student has made
+	var numAttempts = this.attempts.length;
+	
+	if(numWrongChoices != null && numWrongChoices != 0) {
+		/*
+		 * the student has not answered the question correctly so their
+		 * possible current possible score is if they answer it on their
+		 * next attempt
+		 */ 
+		numAttempts += 1;
+	}
+	
+	//get the current possible score table
+	var scoreMessage = this.getCurrentPossibleScoreTable(numAttempts);
+	
+	//display the score
+	$('#scoreDiv').html(scoreMessage);
+};
+
+/**
+ * Check if the student put all the correct items in the correct buckets
+ */
+MS.prototype.checkBucketAnswers = function(initialRenderCheck) {
+	var state = this.getState();   // state is a MSSTATE instance
+	// clean out old feedback
+	for (var i=0; i < state.buckets.length; i++) {
+		var bucket = state.buckets[i];
+		var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
+		feedbackDivElement.innerHTML = "";  // clean out old feedback
+	}
+	
+	var numCorrectChoices = 0;
+	var numWrongChoices = 0;
+	var numUnusedChoices = state.sourceBucket.choices.length;
+	
+	//loop through all the choices in the source bucket
+	for(var x=0; x<state.sourceBucket.choices.length; x++) {
+		//get a source choice
+		var sourceBucketChoice = state.sourceBucket.choices[x];
+		
+		if(!initialRenderCheck) {
+			//make the source choice incorrect
+			removeClassFromElement(sourceBucketChoice.identifier, "correct");
+			removeClassFromElement(sourceBucketChoice.identifier, "wrongorder");																			
+			addClassToElement(sourceBucketChoice.identifier, "incorrect");				
+		}
+	}
+	
+	//loop through all the target buckets
+	for (var i=0; i < state.buckets.length; i++) {
+		var bucket = state.buckets[i];
+		var feedbackDivElement = document.getElementById('feedbackdiv_'+bucket.identifier);
+		var feedbackHTMLString = "";
+		
+		//loop through all the choices in the target bucket
+		for (var j=0; j < bucket.choices.length; j++) {
+			// get feedback object for this choice in this bucket
+			var feedback = this.getFeedback(bucket.identifier,bucket.choices[j].identifier,j);
+			
+			if (feedback) {
+				if (feedback.isCorrect) {
+					removeClassFromElement(bucket.choices[j].identifier, "incorrect");						
+					removeClassFromElement(bucket.choices[j].identifier, "wrongorder");						
+					addClassToElement(bucket.choices[j].identifier, "correct");
+					feedbackHTMLString += "<li class=\"feedback_li correct\">"+ bucket.choices[j].text + ": " + feedback.feedback +"</li>";
+					numCorrectChoices++;
+				} else {
+					removeClassFromElement(bucket.choices[j].identifier, "correct");
+					removeClassFromElement(bucket.choices[j].identifier, "wrongorder");																			
+					addClassToElement(bucket.choices[j].identifier, "incorrect");					
+					//removeClassFromElement("resetWrongChoicesButton", "disabledLink");
+					feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + feedback.feedback +"</li>";
+					numWrongChoices++;
+				}
+			} else {/* it could be that there is no feedback because it is in the wrong order */
+				if (this.content.assessmentItem.interaction.ordered && this.isInRightBucketButWrongOrder(bucket.identifier,bucket.choices[j].identifier,j)) {   // correct bucket, wrong order
+					removeClassFromElement(bucket.choices[j].identifier, "correct");												
+					removeClassFromElement(bucket.choices[j].identifier, "incorrect");												
+					addClassToElement(bucket.choices[j].identifier, "wrongorder");						
+					feedbackHTMLString += "<li class=\"feedback_li wrongorder\">"+ bucket.choices[j].text + ": Correct box but wrong order.</li>";
+					numWrongChoices++;
+				} else {/* this should never be the case, but it could be that no default feedback was created */
+					removeClassFromElement(bucket.choices[j].identifier, "correct");												
+					removeClassFromElement(bucket.choices[j].identifier, "wrongorder");												
+					addClassToElement(bucket.choices[j].identifier, "incorrect");						
+					feedbackHTMLString += "<li class=\"feedback_li incorrect\">"+ bucket.choices[j].text + ": " + "NO FEEDBACK" +"</li>";
+					numWrongChoices++;
+				}
+			}
+		}
+		
+		if (feedbackHTMLString != "") {
+			feedbackDivElement.innerHTML = "<ul class=\"feedback_ul\">"+ feedbackHTMLString + "</ul>";
+		}
+	}
+	
+	//add the number of unused choices to the number of wrong choices
+	numWrongChoices += numUnusedChoices;
+	
+	//create an object with all the values we will need to look at
+	var returnObject = {
+		numWrongChoices:numWrongChoices,
+		numCorrectChoices:numCorrectChoices,
+		feedbackHTMLString:feedbackHTMLString
+	};
+	
+	return returnObject;
+};
+
+/**
+ * Display the message when the student answers correctly
+ */
+MS.prototype.displayCompletionMessage = function() {
+	var feedbackDiv = document.getElementById("feedbackDiv");
+	var feedbackMessage = "Congratulations! You've completed this question.";
+	
+	//check if scoring is enabled
+	if(this.challengeScoringEnabled()) {
+		//display the score they received
+		var currentScore = this.getCurrentScore(this.attempts.length);
+		feedbackMessage += " You received " + currentScore + " point(s).";
+	}
+	
+	//set the message into the div
+	feedbackDiv.innerHTML = feedbackMessage;
+	
+	//disable moving of the items
+	this.setChoicesDraggable(false);
+	
+	//disable the check answer button
+	$('#checkAnswerButton').parent().addClass('ui-state-disabled');
 };
 
 /**
@@ -846,6 +939,83 @@ MS.prototype.getCurrentScore = function(numAttempts) {
 	}
 	
 	return score;
+};
+
+/**
+ * Get the table that will display the possible scores and highlight 
+ * the current possible score
+ * @param numAttempts the current attempt number
+ */
+MS.prototype.getCurrentPossibleScoreTable = function(numAttempts) {
+	if(numAttempts == 0) {
+		/*
+		 * if this is the first attempt, the number of attempts will
+		 * be 0 so we will just set this to 1 so that the table highlights
+		 * the first possible score
+		 */
+		numAttempts = 1;
+	}
+	
+	var currentPossibleScoreHtml = "";
+	
+	//create the table that will hold the "Current Possible Score:" text and another table
+	currentPossibleScoreHtml += "<table align='center'>";
+	currentPossibleScoreHtml += "<tr>";
+	
+	//display the current possible score text
+	currentPossibleScoreHtml += "<td>Current Possible Score:</td>";
+	
+	currentPossibleScoreHtml += "<td>";
+	//create the table that will hold the possible scores
+	currentPossibleScoreHtml += "<table border='1' style='border-collapse:collapse;border-color:black'>";
+	currentPossibleScoreHtml += "<tr>";
+	
+	var hasMoreScores = true;
+	var attemptCounter = 1;
+	
+	//loop through all the possible scores
+	while(hasMoreScores) {
+		//get the possible score for the current attempt counter
+		var scoreForAttempt = this.content.assessmentItem.interaction.attempts.scores[attemptCounter];
+		
+		if(scoreForAttempt != null) {
+			
+			currentPossibleScoreHtml += "<td width='25' align='center'";
+			
+			if(attemptCounter == numAttempts) {
+				/*
+				 * if this is the current attempt the student is on
+				 * make the background light green
+				 */
+				currentPossibleScoreHtml += " style='background-color:lightgreen'";
+			} else if(attemptCounter < numAttempts) {
+				/*
+				 * if the student has incorrectly answered on this
+				 * attempt number, make the background grey
+				 */
+				currentPossibleScoreHtml += " style='background-color:grey'";
+			}
+			
+			currentPossibleScoreHtml += ">";
+			
+			//display the current possible score for the current attempt counter
+			currentPossibleScoreHtml += scoreForAttempt;			
+			currentPossibleScoreHtml += "</td>";
+			
+			attemptCounter++;
+		} else {
+			hasMoreScores = false;
+		}
+	}
+	
+	currentPossibleScoreHtml += "</tr>";
+	currentPossibleScoreHtml += "</table>";
+	currentPossibleScoreHtml += "</td>";
+	
+	currentPossibleScoreHtml += "</tr>";
+	currentPossibleScoreHtml += "</table>";
+	
+	return currentPossibleScoreHtml;
 };
 
 /**
@@ -978,23 +1148,24 @@ MS.prototype.canSubmitButtonBeEnabled = function() {
 	return this.allowEnableSubmitButton;
 };
 
-/*
+/**
+ * Displays what attempt number the student is about to submit
+ * e.g.
+ * "This is your 2nd attempt"
+ */
+MS.prototype.displayCurrentAttemptNumber = function() {
+	var numAttempts = this.attempts.length + 1;
+	displayNumberAttemptsMessage("This is your", "attempt", numAttempts);
+};
+
+/**
  * Displays what attempt number the student has just attempted
  * e.g.
  * "This was your 2nd attempt"
  */
 MS.prototype.displayPreviousAttemptNumber = function() {
-	//create a copy of the attempts array
-	var attemptsCopy = this.attempts.slice();
-	
-	/*
-	 * remove one element from the array, it doesn't matter which element
-	 * since we are only using this array for its length value
-	 */
-	attemptsCopy.pop();
-	
-	//display the message
-	displayNumberAttempts("This was your", "attempt", attemptsCopy);
+	var numAttempts = this.attempts.length;
+	displayNumberAttemptsMessage("This was your", "attempt", numAttempts);
 };
 
 //used to notify scriptloader that this script has finished loading
