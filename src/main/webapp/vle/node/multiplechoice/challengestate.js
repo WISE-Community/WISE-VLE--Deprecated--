@@ -106,8 +106,9 @@ CHALLENGESTATE.prototype.getStudentWork = function() {
 			studentWork += this.response[x];
 		}
 		
-		if(this.score){
-			studentWork += " score: " + this.score;
+		if(this.score != null){
+			studentWork += "<br><br>";
+			studentWork += "Auto-Graded Score: " + this.score;
 		}
 	}
 	

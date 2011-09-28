@@ -364,10 +364,6 @@ MC.prototype.checkAnswer = function() {
 	 * with the number of attempts and whether this attempt is correct or not. We
 	 * also need to disable the try again button. */
 	if(this.node.getType()=='ChallengeNode'){
-		var score = this.getScore(this.attempts.length);
-		
-		/* add the score to the state */
-		mcState.score = score;
 		
 		if(this.isChallengeScoringEnabled()) {
 			//get the scores
@@ -394,11 +390,22 @@ MC.prototype.checkAnswer = function() {
 		
 		//get the challenge message
 		var resultMessage = this.getResultMessage(isCorrect);
-		
+
 		//check if scoring is enabled
-		if(isCorrect && this.isChallengeScoringEnabled()) {
-			//display the score they received
-			resultMessage += " You received " + score + " point(s).";
+		if(this.isChallengeScoringEnabled()) {
+			if(isCorrect) {
+				//get the score
+				var score = this.getScore(this.attempts.length);
+				
+				/* add the score to the state */
+				mcState.score = score;
+				
+				//display the score they received
+				resultMessage += " You received " + score + " point(s).";
+			} else {
+				//student answered incorrectly
+				mcState.score = 0;
+			}
 		}
 		
 		/* set feedback message */

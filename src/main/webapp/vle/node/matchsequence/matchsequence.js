@@ -663,6 +663,8 @@ MS.prototype.checkAnswer = function() {
 	} else {
 		//we are showing feedback
 		
+		var state = this.getState();
+		
 		//check the buckets to see if the student correctly answered the question
 		var checkBucketAnswerResults = this.checkBucketAnswers();
 		
@@ -685,8 +687,26 @@ MS.prototype.checkAnswer = function() {
 			
 			//the student answered correctly so we will congratulate them
 			this.displayCompletionMessage();
+			
+			//check if scoring is enabled
+			if(this.isChallengeScoringEnabled()) {
+				//get the score
+				var currentScore = this.getScore(this.attempts.length);
+				
+				if(state != null) {
+					//set the score into the state
+					state.score = currentScore;				
+				}				
+			}
 		} else {
 			//the student answered incorrectly
+			
+			//check if scoring is enabled
+			if(this.isChallengeScoringEnabled()) {
+				if(state != null) {
+					state.score = 0;
+				}
+			}
 			
 			//display which attempt number was just attempted
 			this.displayPreviousAttemptNumber();
@@ -730,8 +750,6 @@ MS.prototype.checkAnswer = function() {
 		}
 		
 		var tries = document.getElementById('numberAttemptsDiv');
-		
-		var state = this.getState();
 		
 		//fire the event to push this state to the global view.states object
 		eventManager.fire('pushStudentWork', state.getJsonifiableState());

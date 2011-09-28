@@ -30,6 +30,7 @@ function MSSTATE() {
 	this.type = "ms";
 	this.sourceBucket = null;
     this.buckets = [];
+    this.score = null;
 }
 
 /**
@@ -71,6 +72,12 @@ MSSTATE.prototype.getStudentWork = function(){
 		//close the bucket and add a new line for easy reading
 		text += ")<br>";
 	};
+	
+	if(this.score != null) {
+		text += "<br>";
+		text += "Auto-Graded Score: " + this.score;
+	}
+	
 	return text;
 };
 
@@ -103,6 +110,11 @@ MSSTATE.prototype.getJsonifiableState = function() {
 		}
 	}
 	
+	if(this.score != null) {
+		//set the score if available
+		msState.score = this.score;
+	}
+	
 	//return the MSSTATE
 	return msState;
 };
@@ -118,6 +130,9 @@ MSSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 
 	//get the buckets from the json
 	msState.buckets = stateJSONObj.buckets;
+	
+	//get the score from the json
+	msState.score = stateJSONObj.score;
 	
 	//return the MCSTATE object
 	return msState;
