@@ -229,12 +229,12 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		//initiate snapshots
 		if(context.snapshotsActive){
 			svgEditor.setMaxSnaps(context.snapshots_max);
-			svgEditor.initSnap = true;
 			if(data && data.snapshots && data.snapshots.length > 0){
+				svgEditor.initSnap = true;
 				svgEditor.snapTotal = data.snapTotal;
 				svgEditor.loadSnapshots(data.snapshots,context.setSelected(data));
+				svgEditor.initSnap = false;
 			}
-			svgEditor.initSnap = false;
 			
 		} else {
 			$('#tool_snapshot').remove();

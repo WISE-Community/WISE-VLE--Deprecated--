@@ -459,7 +459,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
     box-shadow: 0 0 8px #444444;
     -moz-box-shadow: 0 0 8px #444444;
     -webkit-box-shadow: 0 0 8px #444444;
-    border: 8px solid rgba(197, 205, 97);
+    border: 8px solid rgb(197, 205, 97);
     border: 8px solid rgba(197, 205, 97, 0.9);
     padding: 0;
 }

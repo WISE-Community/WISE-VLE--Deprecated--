@@ -365,10 +365,10 @@ View.prototype.saveMaxScore = function(runId, nodeId) {
 		if(maxScoreObj == null) {
 			if(text == 'ERROR:LoginRequired') {
 				//the user is not logged in because their session has timed out
-				alert("Your latest grade has not been saved.\n\nYou have been inactive for too long and have been logged out. Please log back in to continue.");
+				alert("Your latest grade has not been saved.\n\nYou have been inactive for too long and have been logged out. Please sign in to continue.");
 				
 				//redirect the user to the login page
-				parent.window.location = "/webapp/j_spring_security_logout";
+				window.top.location = "/webapp/j_spring_security_logout";
 			} else {
 				//there was a server error
 				

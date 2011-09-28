@@ -142,18 +142,18 @@ View.prototype.displayResearcherToolsPage = function() {
 	 * make the excel export buttons. this is where we make the export button,
 	 * the explanation button, and the short description of the export.
 	 */
-	var getGradingHeaderTableHtml = "<div class='gradingContent'><div id='exportCenterButtons'>";
-	getGradingHeaderTableHtml += "<table>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['latestStudentWork'])\"></input></td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['allStudentWork'])\"></input></td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
-	getGradingHeaderTableHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
-	getGradingHeaderTableHtml += "</table>";
-	getGradingHeaderTableHtml += "</div></div>";	
+	var getResearcherToolsHtml = "<div class='gradingContent'><div id='exportCenterButtons'>";
+	getResearcherToolsHtml += "<table>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['latestStudentWork'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['allStudentWork'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
+	getResearcherToolsHtml += "</table>";
+	getResearcherToolsHtml += "</div></div>";	
 	
-	$('#gradeWorkDiv').html(getGradingHeaderTableHtml);
+	$('#gradeWorkDiv').html(getResearcherToolsHtml);
 	
 	//fix the page height
 	this.fixGradingDisplayHeight();
@@ -407,7 +407,7 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	if(this.gradingType == "step"){
 		stepClass = 'checked';
 	} else if (this.gradingType == "team"){
-		teamClass = 'checked'
+		teamClass = 'checked';
 	}
 	gradingHeaderHtml += "<a class='gradingButton " + stepClass + "' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\">"+this.getI18NString("grading_button_grade_by_step")+"</a>";
 	gradingHeaderHtml += "<a class='gradingButton " + teamClass + "' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\">"+this.getI18NString("grading_button_grade_by_team")+"</a>";
@@ -716,7 +716,7 @@ View.prototype.displayStudentUploadedFiles = function() {
 		$('#studentAssetsDiv').dialog('close');			
 	};
 
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:600,position:[0, 0],top:'20px',modal:true,title:'Students\' Uploaded Files', buttons:{'Done':done}});
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,position:'center',modal:true,title:'Students\' Uploaded Files', buttons:{'Done':done}});
 
 	var displayStudentAssets = function(workgroupAssetListsStr, view) {
 		// clear out the panel
@@ -2795,7 +2795,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p></div>";
 	}
 	
-	gradeByTeamGradingPageHtml += "</div></div></div>"
+	gradeByTeamGradingPageHtml += "</div></div></div>";
 	
 	gradeByTeamGradingPageHtml += "<div class='gradingContent'>";
 	
@@ -2808,9 +2808,6 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	//loop through all the nodes and generate the html that allows the teacher to grade
 	gradeByTeamGradingPageHtml += this.displayGradeByTeamGradingPageHelper(this.getProject().getRootNode(), vleState);
 	
-	//add a SAVE CHANGES button at bottom of all the Grade by Team Tables   ADDED BY MATTFISH
-	//gradeByTeamGradingPageHtml += "<div id='lowerSaveButton'><input type='button' value='"+this.getI18NString("grading_button_save_changes")+"' onClick=\"notificationManager.notify('Changes have been successfully saved.')\"></input></div>";
-	
 	gradeByTeamGradingPageHtml += "</div>";
 	
 	//set the html in the div so the user can see it
@@ -2819,10 +2816,14 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	//render all the student work for this workgroup
 	this.renderAllStudentWorkForWorkgroupId(workgroupId);
 	
-	// call showDiagrams for each div that has mysystem student data
+	// call showDiagrams for each div that has mysystem/drawing student data
 	$(".mysystemCell").each(showDiagramNode);
 	$(".svgdrawCell").each(showDrawNode);
 	$(".snapCell").each(showSnaps);
+	
+	if($('#filterOptions').html()==''){
+		$('#filterOptions').hide();
+	}
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
@@ -3351,7 +3352,7 @@ View.prototype.fixGradingDisplayHeight = function() {
 	
 	if(this.gradingType == "step") {
 		//fix the width of the statistics table to match the grading select table
-		$('#statisticsTable').width($('#chooseStepToGradeTable').width()+1);
+		$('#statisticsTable').width($('#chooseStepToGradeTable').width()+10);
 	} else if (this.gradingType == "team"){
 		//fix the width of the fixedHeader clone to match the team select table
 		// TODO: remove when fixedHeader init option "right": true no long throws error
