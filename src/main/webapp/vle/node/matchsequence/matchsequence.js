@@ -353,7 +353,7 @@ MS.prototype.render = function() {
     	}
     	
         //check if scoring is enabled
-        if(this.challengeScoringEnabled()) {
+        if(this.isChallengeScoringEnabled()) {
         	this.displayCurrentPossibleScoreTable(numWrongChoices);
         }
         
@@ -674,6 +674,9 @@ MS.prototype.checkAnswer = function() {
 		// update feedback div
 		var feedbackDiv = document.getElementById("feedbackDiv");
 		
+		//clear the previous feedback
+		feedbackDiv.innerHTML = "&nbsp";
+		
 		if (numWrongChoices == 0) {
 			//the student answereed correctly
 			
@@ -710,7 +713,7 @@ MS.prototype.checkAnswer = function() {
 					this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:challengeSettings.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20)});
 					
 					//display the linkto message and link to the student
-					$('#challengeMessageDiv').html(msg);
+					$('#resultMessageDiv').html(msg);
 					
 					//disable the check answer button
 					$('#checkAnswerButton').parent().addClass('ui-state-disabled');
@@ -722,7 +725,7 @@ MS.prototype.checkAnswer = function() {
 		}
 		
 		//check if there are any scores enabled for this challenge question
-		if(this.challengeScoringEnabled()) {
+		if(this.isChallengeScoringEnabled()) {
 			this.displayCurrentPossibleScoreTable(numWrongChoices);
 		}
 		
@@ -739,23 +742,30 @@ MS.prototype.checkAnswer = function() {
  * Display the current possible score table
  */
 MS.prototype.displayCurrentPossibleScoreTable = function(numWrongChoices) {
-	//get the number of attempts the student has made
-	var numAttempts = this.attempts.length;
 	
-	if(numWrongChoices != null && numWrongChoices != 0) {
-		/*
-		 * the student has not answered the question correctly so their
-		 * possible current possible score is if they answer it on their
-		 * next attempt
-		 */ 
-		numAttempts += 1;
+	//check if there is an attempts object
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		//get the number of attempts the student has made
+		var numAttempts = this.attempts.length;
+		
+		if(numWrongChoices != null && numWrongChoices != 0) {
+			/*
+			 * the student has not answered the question correctly so their
+			 * possible current possible score is if they answer it on their
+			 * next attempt
+			 */ 
+			numAttempts += 1;
+		}
+		
+		//get the current possible score table
+		var scoreMessage = getCurrentPossibleScoreTable(numAttempts, scores);
+		
+		//display the score
+		$('#scoreDiv').html(scoreMessage);	
 	}
-	
-	//get the current possible score table
-	var scoreMessage = this.getCurrentPossibleScoreTable(numAttempts);
-	
-	//display the score
-	$('#scoreDiv').html(scoreMessage);
 };
 
 /**
@@ -852,18 +862,18 @@ MS.prototype.checkBucketAnswers = function(initialRenderCheck) {
  * Display the message when the student answers correctly
  */
 MS.prototype.displayCompletionMessage = function() {
-	var feedbackDiv = document.getElementById("feedbackDiv");
-	var feedbackMessage = "Congratulations! You've completed this question.";
+	var resultMessageDiv = document.getElementById("resultMessageDiv");
+	var resultMessage = "Congratulations! You've completed this question.";
 	
 	//check if scoring is enabled
-	if(this.challengeScoringEnabled()) {
+	if(this.isChallengeScoringEnabled()) {
 		//display the score they received
-		var currentScore = this.getCurrentScore(this.attempts.length);
-		feedbackMessage += " You received " + currentScore + " point(s).";
+		var currentScore = this.getScore(this.attempts.length);
+		resultMessage += " You received " + currentScore + " point(s).";
 	}
 	
 	//set the message into the div
-	feedbackDiv.innerHTML = feedbackMessage;
+	resultMessageDiv.innerHTML = resultMessage;
 	
 	//disable moving of the items
 	this.setChoicesDraggable(false);
@@ -892,29 +902,18 @@ MS.prototype.challengeEnabled = function() {
 };
 
 /**
- * Check if scores have been set
- * @returns whether scores have been set
+ * Determine if scoring is enabled
  */
-MS.prototype.challengeScoringEnabled = function() {
-	var enabled = false;
+MS.prototype.isChallengeScoringEnabled = function() {
+	var result = false;
 	
 	if(this.content.assessmentItem.interaction.attempts != null) {
-		//get the scores object
 		var scores = this.content.assessmentItem.interaction.attempts.scores;
 		
-		if(scores != null) {
-			//get the JSON string for the scores object
-			var scoresJSONString = JSON.stringify(scores);
-			
-			//check if the scores object is empty
-			if(scoresJSONString != "{}") {
-				//scores object is not empty
-				enabled = true;
-			}
-		}
+		result = challengeScoringEnabled(scores);
 	}
 	
-	return enabled;
+	return result;
 };
 
 /**
@@ -922,100 +921,17 @@ MS.prototype.challengeScoringEnabled = function() {
  * @return the score for the student depending on the number attempts
  * they have made
  */
-MS.prototype.getCurrentScore = function(numAttempts) {
+MS.prototype.getScore = function(numAttempts) {
 	var score = 0;
 	
 	if(this.content.assessmentItem.interaction.attempts != null) {
 		//get the scores object
 		var scores = this.content.assessmentItem.interaction.attempts.scores;
 		
-		if(scores != null) {
-			//check if there is a score set for the given number of attempts
-			if(scores[numAttempts] != null) {
-				//get the score
-				score = scores[numAttempts];
-			}
-		}
+		score = getCurrentScore(numAttempts, scores);
 	}
 	
 	return score;
-};
-
-/**
- * Get the table that will display the possible scores and highlight 
- * the current possible score
- * @param numAttempts the current attempt number
- */
-MS.prototype.getCurrentPossibleScoreTable = function(numAttempts) {
-	if(numAttempts == 0) {
-		/*
-		 * if this is the first attempt, the number of attempts will
-		 * be 0 so we will just set this to 1 so that the table highlights
-		 * the first possible score
-		 */
-		numAttempts = 1;
-	}
-	
-	var currentPossibleScoreHtml = "";
-	
-	//create the table that will hold the "Current Possible Score:" text and another table
-	currentPossibleScoreHtml += "<table align='center'>";
-	currentPossibleScoreHtml += "<tr>";
-	
-	//display the current possible score text
-	currentPossibleScoreHtml += "<td>Current Possible Score:</td>";
-	
-	currentPossibleScoreHtml += "<td>";
-	//create the table that will hold the possible scores
-	currentPossibleScoreHtml += "<table border='1' style='border-collapse:collapse;border-color:black'>";
-	currentPossibleScoreHtml += "<tr>";
-	
-	var hasMoreScores = true;
-	var attemptCounter = 1;
-	
-	//loop through all the possible scores
-	while(hasMoreScores) {
-		//get the possible score for the current attempt counter
-		var scoreForAttempt = this.content.assessmentItem.interaction.attempts.scores[attemptCounter];
-		
-		if(scoreForAttempt != null) {
-			
-			currentPossibleScoreHtml += "<td width='25' align='center'";
-			
-			if(attemptCounter == numAttempts) {
-				/*
-				 * if this is the current attempt the student is on
-				 * make the background light green
-				 */
-				currentPossibleScoreHtml += " style='background-color:lightgreen'";
-			} else if(attemptCounter < numAttempts) {
-				/*
-				 * if the student has incorrectly answered on this
-				 * attempt number, make the background grey
-				 */
-				currentPossibleScoreHtml += " style='background-color:grey'";
-			}
-			
-			currentPossibleScoreHtml += ">";
-			
-			//display the current possible score for the current attempt counter
-			currentPossibleScoreHtml += scoreForAttempt;			
-			currentPossibleScoreHtml += "</td>";
-			
-			attemptCounter++;
-		} else {
-			hasMoreScores = false;
-		}
-	}
-	
-	currentPossibleScoreHtml += "</tr>";
-	currentPossibleScoreHtml += "</table>";
-	currentPossibleScoreHtml += "</td>";
-	
-	currentPossibleScoreHtml += "</tr>";
-	currentPossibleScoreHtml += "</table>";
-	
-	return currentPossibleScoreHtml;
 };
 
 /**

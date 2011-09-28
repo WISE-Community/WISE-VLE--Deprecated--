@@ -190,6 +190,127 @@ function makeHtmlSafe(text){
 	}
 };
 
+/**
+ * Get the table that will display the possible scores and highlight 
+ * the current possible score
+ * @param numAttempts the current attempt number
+ */
+function getCurrentPossibleScoreTable(numAttempts, scores) {
+	if(numAttempts == 0) {
+		/*
+		 * if this is the first attempt, the number of attempts will
+		 * be 0 so we will just set this to 1 so that the table highlights
+		 * the first possible score
+		 */
+		numAttempts = 1;
+	}
+	
+	var currentPossibleScoreHtml = "";
+	
+	//create the table that will hold the "Current Possible Score:" text and another table
+	currentPossibleScoreHtml += "<table align='center'>";
+	currentPossibleScoreHtml += "<tr>";
+	
+	//display the current possible score text
+	currentPossibleScoreHtml += "<td>Current Possible Score:</td>";
+	
+	currentPossibleScoreHtml += "<td>";
+	//create the table that will hold the possible scores
+	currentPossibleScoreHtml += "<table border='1' style='border-collapse:collapse;border-color:black'>";
+	currentPossibleScoreHtml += "<tr>";
+	
+	var hasMoreScores = true;
+	var attemptCounter = 1;
+	
+	//loop through all the possible scores
+	while(hasMoreScores) {
+		//get the possible score for the current attempt counter
+		var scoreForAttempt = scores[attemptCounter];
+		
+		if(scoreForAttempt != null) {
+			
+			currentPossibleScoreHtml += "<td width='25' align='center'";
+			
+			if(attemptCounter == numAttempts) {
+				/*
+				 * if this is the current attempt the student is on
+				 * make the background light green
+				 */
+				currentPossibleScoreHtml += " style='background-color:lightgreen'";
+			} else if(attemptCounter < numAttempts) {
+				/*
+				 * if the student has incorrectly answered on this
+				 * attempt number, make the background grey
+				 */
+				currentPossibleScoreHtml += " style='background-color:grey'";
+			}
+			
+			currentPossibleScoreHtml += ">";
+			
+			//display the current possible score for the current attempt counter
+			currentPossibleScoreHtml += scoreForAttempt;			
+			currentPossibleScoreHtml += "</td>";
+			
+			attemptCounter++;
+		} else {
+			hasMoreScores = false;
+		}
+	}
+	
+	currentPossibleScoreHtml += "</tr>";
+	currentPossibleScoreHtml += "</table>";
+	currentPossibleScoreHtml += "</td>";
+	
+	currentPossibleScoreHtml += "</tr>";
+	currentPossibleScoreHtml += "</table>";
+	
+	return currentPossibleScoreHtml;
+};
+
+/**
+ * Check if scores have been set
+ * @param content the content for the step, we need this
+ * because we need to check 
+ * @returns whether scores have been set
+ */
+function challengeScoringEnabled(scores) {
+	var enabled = false;
+	
+	if(scores != null) {
+		//get the JSON string for the scores object
+		var scoresJSONString = JSON.stringify(scores);
+		
+		//check if the scores object is empty
+		if(scoresJSONString != "{}") {
+			//scores object is not empty
+			enabled = true;
+		}
+	}
+	
+	return enabled;
+};
+
+/**
+ * Get the score given the number attempts the students has made
+ * @param numAttempts
+ * @param content
+ * @return the score for the student depending on the number attempts
+ * they have made
+ */
+function getCurrentScore(numAttempts, scores) {
+	var score = 0;
+	
+	if(scores != null) {
+		//check if there is a score set for the given number of attempts
+		if(scores[numAttempts] != null) {
+			//get the score
+			score = scores[numAttempts];
+		}
+	}
+	
+	return score;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/common/nodehelpers.js');
