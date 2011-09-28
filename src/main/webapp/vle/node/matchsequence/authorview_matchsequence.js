@@ -167,6 +167,13 @@ View.prototype.MatchSequenceNode.buildPage = function(){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(advancedOptionsDiv);
 	pageDiv.appendChild(createBreak());
+	
+	//create the authoring section to enable challenge question
+	var challengeText = document.createTextNode('Challenge Question Setup');
+	pageDiv.appendChild(challengeText);
+	pageDiv.appendChild(this.generateChallengeSetup());
+	
+	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(addNewButton);
 	pageDiv.appendChild(removeContainerButton);
 	pageDiv.appendChild(createSpace());
@@ -1086,6 +1093,233 @@ View.prototype.MatchSequenceNode.updateShowFeedback = function(val){
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * When needed, generates the challenge setup for authors to author ChallengeNodes.
+ */
+View.prototype.MatchSequenceNode.generateChallengeSetup = function(){
+	/* create challenge setup structure */
+	var challengeDiv = createElement(document, 'div', {id:'challengeDiv'});
+	var navigateToDiv = createElement(document, 'div', {id:'navigateToDiv'});
+	var attemptsDiv = createElement(document, 'div', {id:'attemptsDiv'});
+	challengeDiv.appendChild(navigateToDiv);
+	challengeDiv.appendChild(createBreak());
+	challengeDiv.appendChild(attemptsDiv);
+	
+	/* create the navigateTo elements */
+	var navToText = document.createTextNode('Select the step that students should review before being allowed to try again.');
+	var navToSelect = createElement(document,'select', {id:'navigateToSelect', onchange:'eventManager.fire("matchSequenceChallengeNavigateToChanged")'});
+	var nodeIds = this.view.getProject().getNodeIds();
+	var noneOption = createElement(document, 'option', {value:''});
+	noneOption.text = '-- none --';
+	navToSelect.appendChild(noneOption);
+	
+	/* add all of the nodes in the project */
+	for(var a=0;a<nodeIds.length;a++){
+		var nodeId = nodeIds[a];
+		var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+		var currentOption = createElement(document, 'option', {value:nodeId});
+		currentOption.text = stepNumberAndTitle;
+		navToSelect.appendChild(currentOption);
+		
+		if(this.content.assessmentItem.interaction.attempts != null) {
+			/* check to see if this should be the selected node */
+			if(this.content.assessmentItem.interaction.attempts.navigateTo==nodeIds[a]){
+				navToSelect.selectedIndex = a + 1;
+			}			
+		}
+	}
+	
+	challengeDiv.appendChild(navToText);
+	challengeDiv.appendChild(createBreak());
+	challengeDiv.appendChild(navToSelect);
+	challengeDiv.appendChild(createBreak());
+	challengeDiv.appendChild(createBreak());
+	
+	/* create the attempts elements */
+	var attemptsText = document.createTextNode('Specify the score for each attempt by the student.');
+	var attemptsTable = createElement(document, 'table', {id:'scoreAttemptsTable'});
+	var ath = createElement(document, 'thead', {id:'scoreAttemptsTableHead'});
+	var athRow = createElement(document, 'tr', {id:'scoreAttemptsHeaderRow'});
+	var attemptTH = createElement(document, 'th', {id:'attemptTH'});
+	var scoreTH = createElement(document, 'th', {id:'scoreHeadTH'});
+	var atb = createElement(document, 'tbody', {id:'scoreAttemtpsTableBody'});
+	var addNewButton = createElement(document, 'input', {type:'button', value:'Add new attempt/score', onclick:'eventManager.fire("matchSequenceChallengeAddNew")'});
+	var removeLastButton = createElement(document, 'input', {type:'button', value:'Remove last attempt/score', onclick:'eventManager.fire("matchSequenceChallengeRemoveLast")'});
+	
+	challengeDiv.appendChild(attemptsText);
+	challengeDiv.appendChild(createBreak());
+	challengeDiv.appendChild(attemptsTable);
+	challengeDiv.appendChild(addNewButton);
+	challengeDiv.appendChild(removeLastButton);
+	
+	attemptsTable.appendChild(ath);
+	attemptsTable.appendChild(atb);
+	ath.appendChild(athRow);
+	athRow.appendChild(attemptTH);
+	athRow.appendChild(scoreTH);
+	
+	attemptTH.innerHTML = 'Attempt #';
+	scoreTH.innerHTML = 'Score';
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		/* add attempts/scores that are specified in the content */
+		for(var attempt in this.content.assessmentItem.interaction.attempts.scores){
+			var score = this.content.assessmentItem.interaction.attempts.scores[attempt];
+			var currentRow = createElement(document, 'tr', {id:'attemptRow_' + attempt});
+			var attemptTD = createElement(document, 'td', {id:'attemptTD_' + attempt});
+			var scoreTD = createElement(document, 'td', {id:'scoreTD_' + attempt});
+			var scoreInput = createElement(document, 'input', {type:'text', id:'scoreInput_' + attempt, size:3, onkeyup:'eventManager.fire("matchSequenceChallengeScoreChanged","' + attempt + '")', value: score});
+			
+			atb.appendChild(currentRow);
+			currentRow.appendChild(attemptTD);
+			currentRow.appendChild(scoreTD);
+			attemptTD.innerHTML = attempt;
+			scoreTD.appendChild(scoreInput);
+		}		
+	}
+	
+	return challengeDiv;
+};
+
+/**
+ * Updates the content with the author selected value of the nodeId that should
+ * be navigated to when the student incorrectly answers a challenge question.
+ */
+View.prototype.MatchSequenceNode.challengeNavigateToChanged = function(){
+	//make sure this.content.assessmentItem.interaction.attempts is populated
+	this.populateAttemptsObjectIfNecessary();
+	
+	/* update content */
+	this.content.assessmentItem.interaction.attempts.navigateTo = $('#navigateToSelect').val();
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Adds a new attempt/score to the content and the authoring.
+ */
+View.prototype.MatchSequenceNode.addNewAttemptScore = function(){
+	//make sure this.content.assessmentItem.interaction.attempts is populated
+	this.populateAttemptsObjectIfNecessary();
+	
+	/* get the new attempt number */
+	var attemptNum = this.getLastAttemptNumber() + 1;
+	
+	/* update the content */
+	this.content.assessmentItem.interaction.attempts.scores[attemptNum] = 0;
+	
+	/* update the attempts/scores table */
+	var trHtml = '<tr id="attemptRow_' + attemptNum + '"><td id="attemptTD_' + attemptNum + '">' + attemptNum + 
+		'</td><td id="scoreTD_' + attemptNum + '"><input type="text" size="3" onkeyup="eventManager.fire(\'matchSequenceChallengeScoreChanged\',\'' + 
+		attemptNum + '\')" value="0" id="scoreInput_' + attemptNum  + '"></input></td></tr>';
+	$('#scoreAttemtpsTableBody').append(trHtml);
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Removes the last attempt/score from the content and the authoring.
+ */
+View.prototype.MatchSequenceNode.removeLastAttemptScore = function(){
+	//make sure this.content.assessmentItem.interaction.attempts is populated
+	this.populateAttemptsObjectIfNecessary();
+	
+	/* get the last attempt number */
+	var attemptNum = this.getLastAttemptNumber();
+	
+	if(attemptNum > 0){
+		/* update the content */
+		this.content.assessmentItem.interaction.attempts.scores = this.getScoresMinus(attemptNum);
+		
+		/* remove from the attempts/score table */
+		$('#attemptRow_' + attemptNum).remove();
+		
+		/* fire source updated event */
+		this.view.eventManager.fire('sourceUpdated');
+	}
+};
+
+/**
+ * Given the attempt number, updates the associated score in the content.
+ * 
+ * @param int - attempt number
+ */
+View.prototype.MatchSequenceNode.scoreChanged = function(attemptNum){
+	//make sure this.content.assessmentItem.interaction.attempts is populated
+	this.populateAttemptsObjectIfNecessary();
+	
+	/* get the value entered by the author */
+	var val = $('#scoreInput_' + attemptNum).val();
+	
+	/* validate that the user specified value is a number */
+	if(isNaN(val)){
+		/* set the value in the content into the input area and notify user */
+		$('#scoreInput_' + attemptNum).val(this.content.assessmentItem.interaction.attempts.scores[attemptNum]);
+		this.view.notificationManager.notify('The entered score must be a number.');
+	} else {
+		/* set the value of the input area to the content */
+		this.content.assessmentItem.interaction.attempts.scores[attemptNum] = parseInt(val);
+	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Returns a new scores object minus the given attemptNum.
+ * 
+ * @return object - scores
+ */
+View.prototype.MatchSequenceNode.getScoresMinus = function(attemptNum){
+	//make sure this.content.assessmentItem.interaction.attempts is populated
+	this.populateAttemptsObjectIfNecessary();
+	
+	var scores = {};
+	
+	for(var attempt in this.content.assessmentItem.interaction.attempts.scores){
+		if(attempt != attemptNum){
+			scores[attempt] = this.content.assessmentItem.interaction.attempts.scores[attempt];
+		}
+	}
+	
+	return scores;
+};
+
+/**
+ * Returns the last attempt number that is specified in the content.
+ * 
+ * @return int - attempt number
+ */
+View.prototype.MatchSequenceNode.getLastAttemptNumber = function(){
+	//make sure this.content.assessmentItem.interaction.attempts is populated
+	this.populateAttemptsObjectIfNecessary();
+	
+	var last = 0;
+	
+	for(var attempt in this.content.assessmentItem.interaction.attempts.scores){
+		if(!isNaN(attempt)){
+			last = Math.max(last, parseInt(attempt));
+		}
+	}
+	
+	return last;
+};
+
+/**
+ * Populate the attempts object if necessary. This is for previously authored
+ * match & sequence steps that do not have this object in their content.
+ */
+View.prototype.MatchSequenceNode.populateAttemptsObjectIfNecessary = function() {
+	if(this.content.assessmentItem.interaction.attempts == null) {
+		this.content.assessmentItem.interaction.attempts = {
+			"navigateTo": "",
+			"scores": {}
+	    };
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

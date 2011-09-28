@@ -467,9 +467,10 @@ View.prototype.MultipleChoiceNode.generateChallengeSetup = function(){
 	
 	/* add all of the nodes in the project */
 	for(var a=0;a<nodeIds.length;a++){
-		var currentNode = this.view.getProject().getNodeById(nodeIds[a]);
-		var currentOption = createElement(document, 'option', {value:currentNode.id});
-		currentOption.text = currentNode.getTitle();
+		var nodeId = nodeIds[a];
+		var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+		var currentOption = createElement(document, 'option', {value:nodeId});
+		currentOption.text = stepNumberAndTitle;
 		navToSelect.appendChild(currentOption);
 		
 		/* check to see if this should be the selected node */

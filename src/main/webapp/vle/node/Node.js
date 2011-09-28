@@ -1214,17 +1214,23 @@ Node.prototype.linkTo = function(key){
 		return;
 	};
 	
-	var position = link.nodePosition;
-	if(position == null){
+	var nodePosition = link.nodePosition;
+	var nodeIdentifier = link.nodeIdentifier;
+	if(nodePosition == null && nodeIdentifier == null){
 		this.view.notificationManager.notify('Could not find step specified in link, aborting operation.',3);
 	} else {
-		var node = this.view.getProject().getNodeByPosition(link.nodePosition);
+		if (nodePosition != null) {
+			var node = this.view.getProject().getNodeByPosition(nodePosition);
+		} else {
+			var node = this.view.getProject().getNodeById(nodeIdentifier);
+			nodePosition = this.view.getProject().getPositionById(node.id);
+		}
 		if(!node){
 			this.view.notificationManager.notify('Could not retrieve the step specified in the link.',3);
 		} else if(this.view.name!='vle'){
 			this.view.notificationManager.notify('The link works. The step ' + node.title + ' will be displayed when the project is run.',3);
 		} else {
-			this.view.renderNode(position);
+			this.view.renderNode(nodePosition);
 		}
 	}
 };

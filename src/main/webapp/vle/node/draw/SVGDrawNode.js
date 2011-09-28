@@ -2,7 +2,7 @@
 SVGDrawNode.prototype = new Node();
 SVGDrawNode.prototype.constructor = SVGDrawNode;
 SVGDrawNode.prototype.parent = Node.prototype;
-SVGDrawNode.authoringToolName = "WISE Draw";
+SVGDrawNode.authoringToolName = "Draw";
 SVGDrawNode.authoringToolDescription = "Students draw using basic drawing tools, take snapshots and create flipbook animations";
 function SVGDrawNode(nodeType, view) {
 	this.view = view;

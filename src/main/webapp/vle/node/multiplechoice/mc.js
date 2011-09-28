@@ -398,7 +398,7 @@ MC.prototype.getChallengeMessage = function(isCorrect){
 			/* create the linkTo and add it to the message */
 			var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
 			this.node.addLink(linkTo);
-			msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;font-style:italic;\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">' + stepNumberAndTitle + '</a> before trying again.';
+			msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">' + stepNumberAndTitle + '</a> before trying again.';
 			
 			/* create the constraint to disable this step until students have gone to
 			 * the step specified by this attempt */

@@ -7,7 +7,11 @@ function renderDragAndDrop(){
 					/* update the match sequence */
 					ms.addOrderingToChoices();
 					ms.saveState();
-					ms.enableCheckAnswerButton();
+					
+					//check if we can enable the check answer button
+					if(ms.canSubmitButtonBeEnabled()) {
+						ms.enableCheckAnswerButton();						
+					}
 				}
 			});
 	$('#play ul').disableSelection();

@@ -89,13 +89,13 @@ View.prototype.linkManager.nodeSelected = function(view){
 	}
 	
 	/* create link for node and set link tags in textarea */
-	var nodePosition = select.options[ndx].value;
+	var nodeIdentifier = select.options[ndx].id;
 	var color = colorSelect[colorNdx].value;
-	var link = this.createLinkForNode(view.activeNode, nodePosition);
+	var link = this.createLinkForNode(view.activeNode, nodeIdentifier);
 	var text = ta.value.substring(this.currentStart, this.currentEnd);
 	var beginning = ta.value.substring(0,this.currentStart);
 	var end = ta.value.substring(this.currentEnd, ta.value.length);
-	var linkText = '<a style=\"color:' + color + '\" onclick=\"node.linkTo(\'' + link.key + '\')\">' + text + '</a>';
+	var linkText = '<a style=\"color:' + color + '; cursor:pointer\" onclick=\"node.linkTo(\'' + link.key + '\')\">' + text + '</a>';
 	
 	/* set the text area's text */
 	ta.value = beginning + linkText + end;
@@ -128,8 +128,8 @@ View.prototype.linkManager.nodeSelectionCanceled = function(view){
 /**
  * Creates a new link object, adds it to the node and returns it.
  */
-View.prototype.linkManager.createLinkForNode = function(node, nodePosition){
-	var link = {key:node.utils.generateKey(),nodePosition:nodePosition};
+View.prototype.linkManager.createLinkForNode = function(node, nodeIdentifier){
+	var link = {key:node.utils.generateKey(),nodeIdentifier:nodeIdentifier};
 	node.addLink(link);
 	return link;
 };
@@ -155,7 +155,12 @@ View.prototype.linkManager.processExistingLinks = function(view){
 		var linkSelect = createElement(document, 'select', {id:'linkSelect_' + links[d].key, onchange:"eventManager.fire('linkToNodeChanged','" + links[d].key + "')"});
 		var removeButt = createElement(document, 'input', {type:'button', value:'remove link', onclick:"eventManager.fire('removeLinkTo','" + links[d].key + "')"});
 		
-		this.populateSelectOptionsWithNodes(linkSelect, view.getProject().getRootNode(), links[d].nodePosition);
+		if (links[d].nodePosition) {
+			var nodeId = view.getProject().getNodeByPosition(links[d].nodePosition).id;
+			this.populateSelectOptionsWithNodes(linkSelect, view.getProject().getRootNode(), nodeId);
+		} else {
+			this.populateSelectOptionsWithNodes(linkSelect, view.getProject().getRootNode(), links[d].nodeIdentifier);			
+		}
 		
 		parent.appendChild(linkDiv);
 		linkDiv.appendChild(linkSelect);
@@ -241,8 +246,7 @@ View.prototype.linkManager.cleanNodePrompt = function(view, node){
  */
 View.prototype.linkManager.getLinkStrings = function(){
 	var ta = document.getElementById('promptInput');
-	var prompt = ta.value;
-	var exp = /<a .{0,25} onclick="node\.linkTo\('.{10}'\)">.{0,30}<\/a>/g;
+	var exp = /<a .{0,50} onclick="node\.linkTo\('.{10}'\)">.{0,30}<\/a>/g;
 	var result = ta.value.match(exp);
 	
 	return result;
@@ -251,24 +255,25 @@ View.prototype.linkManager.getLinkStrings = function(){
 /**
  * Given a html select element a node and the current position for the link, generates
  * the options for the select element and sets the active option as that of the given
- * position.
+ * nodeId.
  */
-View.prototype.linkManager.populateSelectOptionsWithNodes = function(select, node, position){
+View.prototype.linkManager.populateSelectOptionsWithNodes = function(select, node, nodeId){
 	/* if this node is a sequence node, add all of its children */
 	if(node.type=='sequence'){
 		for(var a=0;a<node.children.length;a++){
-			this.populateSelectOptionsWithNodes(select, node.children[a], position);
+			this.populateSelectOptionsWithNodes(select, node.children[a], nodeId);
 		}
 	} else {
 		var opt = createElement(document, 'option');
 		var currPosition = node.view.getProject().getPositionById(node.id);
 		opt.value = currPosition;
 		opt.text = node.title;
+		opt.id = node.id;
 		
 		select.appendChild(opt);
 		
 		/* set this option as the selected if this is the position */
-		if(currPosition==position){
+		if(node.id==nodeId){
 			select.selectedIndex = select.options.length - 1;
 		}
 	}
@@ -294,7 +299,7 @@ View.prototype.linkManager.linkToNodeChanged = function(view, key){
 		
 		/* get new key and position */
 		link.key = view.activeNode.utils.generateKey();
-		link.nodePosition = opt.value;
+		link.nodeIdentifier = opt.id;
 		
 		/* update prompt */
 		ta.value = ta.value.replace(oldKey, link.key);

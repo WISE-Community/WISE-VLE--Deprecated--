@@ -1343,7 +1343,7 @@ View.prototype.populateNodeSelector = function(event, cancelEvent){
 				addOption(node.children[a], select);
 			}
 		} else {
-			var opt = createElement(document, 'option', {id:'opt_' + node.id});
+			var opt = createElement(document, 'option', {id:node.id});
 			opt.value = node.view.getProject().getPositionById(node.id);
 			opt.text = node.title;
 			
