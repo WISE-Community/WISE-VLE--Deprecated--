@@ -210,8 +210,17 @@ function LoadingManager(em, fixedCenter){
  * message in the middle of the window
  */
 LoadingManager.prototype.initializeOverlay = function(fixedCenter){
-	$('#loading div.bd').html("<img src='images/loading.gif'/>");
-	$('#loading').dialog({autoOpen:false,width:300,height:100,modal:true,draggable:false,resizable:false,closeText:'',dialogClass:'no-title'});
+	$('#loading div.bd').html("<img src='images/loading.gif'/>");;
+	$('#loading').dialog({
+		autoOpen:false,
+		width:300,
+		height:110,
+		modal:true,
+		draggable:false,
+		resizable:false,
+		closeText:'',
+		dialogClass:'no-title'
+	});
 };
 
 /**

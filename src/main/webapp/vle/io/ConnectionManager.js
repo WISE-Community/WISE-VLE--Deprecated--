@@ -153,19 +153,19 @@ Connection.prototype.success = function(data, status, request) {
 		
 		if(mode == "grading") {
 			//we are in grading mode
-			alert("You have been inactive for too long and have been logged out. Please log back in to continue.");
+			alert("You have been inactive for too long and have been logged out. Please sign in to continue.");
 			
 			//redirect the teacher to the login page
-			parent.window.location = "/webapp/j_spring_security_logout";
+			window.top.location = "/webapp/j_spring_security_logout";
 		} else {
 			if(notificationManager){
-				notificationManager.notify("You have been inactive for too long and have been logged out. Please log back in to continue.",3);
+				notificationManager.notify("You have been inactive for too long and have been logged out. Please sign in to continue.",3);
 			} else {
-				alert("You have been inactive for too long and have been logged out. Please log back in to continue.");
+				alert("You have been inactive for too long and have been logged out. Please sign in to continue.");
 			}
 			
 			//redirect the user to the login page
-			window.location = "/webapp/j_spring_security_logout";			
+			window.top.location = "/webapp/j_spring_security_logout";			
 		}
 	} else if (this.handler) {
 		this.handler(data, data, this.hArgs);

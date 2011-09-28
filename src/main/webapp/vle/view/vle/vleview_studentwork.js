@@ -278,7 +278,7 @@ View.prototype.onWindowUnload = function(logout){
 	if(logout === true) {
 		//logout the user
 		this.connectionManager.request('GET',1,"/webapp/j_spring_security_logout", null, function(){},null,null,true);
-		window.parent.location = "/webapp/index.html";		
+		window.top.location = "/webapp/login.html"; // redirect the top level window to the login page
 	}
 	
 	$('#onUnloadSaveDiv').dialog('close');
