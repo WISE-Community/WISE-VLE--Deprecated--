@@ -34,7 +34,7 @@ View.prototype.multiplechoiceDispatcher = function(type,args,obj){
 	} else if(type=='branchRemoveBranch'){
 		obj.MultipleChoiceNode.removeBranch(args[0]);
 	} else if(type=='branchRemoveChoice'){
-		obj.MultipleChoiceNode.removeChoice(args[0],args[1]);
+		obj.MultipleChoiceNode.branchRemoveChoice(args[0],args[1]);
 	} else if(type=='branchAssociateAnswer'){
 		obj.MultipleChoiceNode.associateAnswer(args[0]);
 	} else if(type=='branchRemoveNode'){
