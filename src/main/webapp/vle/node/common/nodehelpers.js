@@ -311,6 +311,55 @@ function getCurrentScore(numAttempts, scores) {
 	return score;
 };
 
+/**
+ * Get the max score
+ * @param scores an object of scores with attempt number
+ * being the key and score being the value
+ * e.g.
+ * {
+ *    1:10,
+ *    2:5,
+ *    3:1
+ * }
+ * @returns the highest score
+ */
+function getMaxScore(scores) {
+	var maxScore = null;
+	
+	if(scores != null) {
+		/*
+		 * loop through all the attributes in the scores object
+		 * each attribute is the attempt number and the value is
+		 * the score. theoretically the max score will always be
+		 * attempNum 1.
+		 * {
+		 *    1:10,
+		 *    2:5,
+		 *    3:1
+		 * }
+		 */
+		for(var attemptNum in scores) {
+			//get a score
+			var score = scores[attemptNum];
+			
+			//make sure the score is a number
+			var scoreValue = parseFloat(score);
+			
+			if(!isNaN(score)) {
+				//score is a number
+				
+				//compare the score with the maxScore so far
+				if(score > maxScore) {
+					//set the new max score
+					maxScore = score;
+				}
+			}
+		}
+	}
+	
+	return maxScore;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/common/nodehelpers.js');

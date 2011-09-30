@@ -1,5 +1,6 @@
-function MC(node) {
+function MC(node, view) {
 	this.node = node;
+	this.view = view;
 	this.content = node.getContent().getContentJSON();
 	this.choices = [];
 	this.attempts = [];
@@ -564,6 +565,26 @@ MC.prototype.resolveIdentifier = function(id){
 			return this.choices[a].identifier;
 		}
 	}
+};
+
+/**
+ * Get the max possible score the student can receive for this step
+ * @returns the max possible score
+ */
+MC.prototype.getMaxPossibleScore = function() {
+	var maxScore = null;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores object
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		if(scores != null) {
+			//get the max score
+			maxScore = getMaxScore(scores);
+		}
+	}
+	
+	return maxScore;
 };
 
 /**

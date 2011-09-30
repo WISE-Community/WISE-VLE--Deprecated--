@@ -27,7 +27,9 @@ var authorScripts = [
 var gradingScripts = [
 	'vle/node/multiplechoice/multiplechoicestate.js',
 	'vle/node/multiplechoice/challengestate.js',
-    'vle/node/multiplechoice/branchstate.js'
+    'vle/node/multiplechoice/branchstate.js',
+    'vle/node/common/nodehelpers.js',
+    'vle/node/multiplechoice/mc.js'
 ];
 
 var gradingMinScripts = [

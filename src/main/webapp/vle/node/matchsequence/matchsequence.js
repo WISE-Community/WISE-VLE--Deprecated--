@@ -27,8 +27,9 @@
  * Given xmldocument, will create a new instance of the MatchSequence object and 
  * populate its attributes. Does not render anything on the screen (see MS.render() for rendering).
  */
-function MS(node) {
+function MS(node, view) {
 	this.node = node;
+	this.view = view;
 	this.content = node.getContent().getContentJSON();
     this.attempts = [];
     this.feedbacks = this.content.assessmentItem.responseDeclaration.correctResponses;
@@ -1100,6 +1101,26 @@ MS.prototype.displayCurrentAttemptNumber = function() {
 MS.prototype.displayPreviousAttemptNumber = function() {
 	var numAttempts = this.attempts.length;
 	displayNumberAttemptsMessage("This was your", "attempt", numAttempts);
+};
+
+/**
+ * Get the max possible score the student can receive for this step
+ * @returns the max possible score
+ */
+MS.prototype.getMaxPossibleScore = function() {
+	var maxScore = null;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores object
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		if(scores != null) {
+			//get the max score
+			maxScore = getMaxScore(scores);
+		}
+	}
+	
+	return maxScore;
 };
 
 //used to notify scriptloader that this script has finished loading

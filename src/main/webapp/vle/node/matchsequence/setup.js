@@ -25,7 +25,12 @@ var authorScripts = [
 ];
 
 var gradingScripts = [
-	'vle/node/matchsequence/matchsequencestate.js'
+	'vle/node/matchsequence/matchsequencestate.js',
+	'vle/node/common/nodehelpers.js',
+	'vle/node/matchsequence/matchsequencedragdrop.js',
+	'vle/node/matchsequence/matchsequencebucket.js',
+	'vle/node/matchsequence/matchsequencechoice.js',
+	'vle/node/matchsequence/matchsequence.js'
 ];
 
 var dependencies = [
