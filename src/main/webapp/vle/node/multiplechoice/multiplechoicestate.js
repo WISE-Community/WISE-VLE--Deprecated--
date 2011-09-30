@@ -85,34 +85,11 @@ MCSTATE.prototype.getHumanReadableForm = function() {
 };
 
 /**
- * Returns the human readable choices the student chose
- * @return a string containing the human readable choices
- * 		the student chose. if the step is check box type
- * 		the choices chosen will be separated by a comma
+ * Get the student work
+ * @returns this object
  */
 MCSTATE.prototype.getStudentWork = function() {
-	var studentWork = "";
-	
-	//check if there were any choices chosen
-	if(this.response) {
-		//loop through the array of choices
-		for(var x=0; x<this.response.length; x++) {
-			if(studentWork != "") {
-				//separate each choice with a comma
-				studentWork += ", ";
-			}
-			
-			//add the choice to the student work
-			studentWork += this.response[x];
-		}
-		
-		if(this.score != null){
-			studentWork += "<br><br>";
-			studentWork += "Auto-Graded Score: " + this.score;
-		}
-	}
-	
-	return studentWork;
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

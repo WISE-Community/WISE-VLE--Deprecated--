@@ -584,8 +584,6 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 	if(nodeType != 'HtmlNode' && 
 			nodeType != 'BrainstormNode' && 
 			nodeType != 'FillinNode' && 
-			nodeType != 'MatchSequenceNode' && 
-			nodeType != 'MultipleChoiceNode' && 
 			nodeType != 'NoteNode' && 
 			nodeType != 'JournalEntryNode' && 
 			nodeType != 'OutsideUrlNode' && 
@@ -597,7 +595,6 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 			nodeType != 'SVGDrawNode' && 
 			nodeType != 'MWNode' && 
 			nodeType != 'AssessmentListNode' && 
-			nodeType != 'ChallengeNode' && 
 			nodeType != 'BranchNode') {
 		isSelfRenderingGradingView = true;
 	}
