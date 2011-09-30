@@ -608,6 +608,15 @@ ASSESSMENTLIST.prototype.getResponse = function(assessmentJSON) {
 			return null;
 		}
 	} else if  (assessmentJSON.type == "radio") {
+		var maxScoreSoFar = 0;
+		if (assessmentJSON.isAutoScoreEnabled) {
+			// compute total possible score for this item by summing its choice scores
+			for (var x=0; x < assessmentJSON.choices.length; x++) {				
+				if (assessmentJSON.choices[x].choiceScore && maxScoreSoFar < assessmentJSON.choices[x].choiceScore) {
+					maxScoreSoFar = assessmentJSON.choices[x].choiceScore;
+				}
+			}
+		}
 		var choiceId = $("input[name='" + assessmentJSON.id + "']:checked").val();
 		if (choiceId != null && choiceId != "") {
 			var response = {};
@@ -616,6 +625,15 @@ ASSESSMENTLIST.prototype.getResponse = function(assessmentJSON) {
 			for (var x=0; x < assessmentJSON.choices.length; x++) {
 				if (assessmentJSON.choices[x].id == choiceId) {
 					response.text = assessmentJSON.choices[x].text;
+					// if this radio item has a correct answer to it, add how the student did to the response
+					if (assessmentJSON.isAutoScoreEnabled) {
+						response.autoScoreResult = {
+								isCorrect:assessmentJSON.choices[x].isCorrect,
+								choiceScore:assessmentJSON.choices[x].choiceScore,
+								maxScore:maxScoreSoFar
+						};
+						// include total possible score
+					}
 				}
 			}
 			return response; 

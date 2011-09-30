@@ -145,3 +145,8 @@
 	-webkit-border-radius:3px;
 	border-radius:3px;
 }
+
+.assessmentlistRadioItemDiv {
+	border: 1px solid black;
+	padding: 5px;
+}

@@ -596,7 +596,6 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 			nodeType != 'MySystemNode' && 
 			nodeType != 'SVGDrawNode' && 
 			nodeType != 'MWNode' && 
-			nodeType != 'AssessmentListNode' && 
 			nodeType != 'ChallengeNode' && 
 			nodeType != 'BranchNode') {
 		isSelfRenderingGradingView = true;
