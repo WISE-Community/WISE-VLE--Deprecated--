@@ -1,4 +1,4 @@
-/* STYLES FOR GRADE BY STEP AS THE EMBEDDED IFRAME -  gradebystep.html  */
+/* STYLES FOR GRADE BY STEP, GRADE BY TEAM, AND STUDENT MANAGEMENT  */
 
 /* CSS Reset */
 html, body, div, span, object, iframe,
@@ -64,6 +64,22 @@ a:hover {
 	text-decoration:underline !important;
 }
 
+/* Loading divs (copied from globalstyles.css, TODO: move to jquery-ui cutsom css) */
+#loading div {
+	text-align:center;
+	/*color:#745a33;*/
+	margin:.5em 0;
+}
+
+.ui-dialog.no-title {
+	border: 8px solid rgb(0, 115, 145);
+    border: 8px solid rgba(0, 115, 145, 0.9);
+}
+
+.no-title .ui-dialog-titlebar {
+	display:none;
+}
+
 iframe {
 	width:100%;
 }
@@ -124,7 +140,11 @@ iframe {
 }
 
 .gradingHeader a {
-	margin:0 .25em;
+	margin:0 .5em;
+}
+
+.gradingHeader a:hover {
+	text-decoration:underline;
 }
 
 .gradingHeader .instructions {
@@ -154,37 +174,49 @@ iframe {
 	display:inline;
 }
 
-a.saveButton {
-	background-color: #FF563F;
-	color:#FFFFFF;
-	box-shadow: 0 0 2px #FF563F;
-	-moz-box-shadow: 0 0 2px #FF563F;
-	-webkit-box-shadow: 0 0 2px #FF563F;
-	border-radius:6px;
-    -moz-border-radius:6px;
-    -webkit-border-radius:6px;
-	text-decoration:none;
+.gradingTools a.saveButton {
+	background-color: #FFEFED;
+	color:#ff563f;
+	box-shadow: 0 0 2px #f47f6e;
+	-moz-box-shadow: 0 0 2px #f47f6e;
+	-webkit-box-shadow: 0 0 2px #f47f6e;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	text-decoration: none !important;
 	padding: 4px 7px;
-	font-weight:bold;
-	margin-left:1em;
+	font-weight: bold;
+	margin-left: 1em;
+	border: 1px solid #f7a391;
 }
 
-a.saveButton:hover {
-	background-color:#F97F6E;
+.gradingTools a.saveButton:hover {
+	border-color:#ff563f;
+	box-shadow: 0 0 2px #fc1d00;
+	-moz-box-shadow: 0 0 2px #fc1d00;
+	-webkit-box-shadow: 0 0 2px #fc1d00;
 }
 
-a.saveButton:active {
-	color:#FF563F;
-	background-color:#FFFFFF;
+.gradingTools a.saveButton:active {
+	background-color:#fff8f7;
 }
 
-a.gradingButton {
+.gradingTools a.saveButton.disabled {
+	color:#999999;
+	background-color: #F4F4F4;
+	border-color:#CCCCCC;
+	box-shadow: 0 0 2px #aaa;
+	-moz-box-shadow: 0 0 2px #aaa;
+	-webkit-box-shadow: 0 0 2px #aaa;
+}
+
+.gradingTools a.gradingButton {
 	color: #745A33;
     padding: 3px 6px;
     margin:0 .25em;
 }
 
-a.gradingButton.checked {
+.gradingTools a.gradingButton.checked {
 	background-color: #745A33;
 	color:#FFFFFF;
 	box-shadow: 0 0 1px #444444;
@@ -205,13 +237,6 @@ a.periodChoice {
 	color:#DADF8B;
 	margin:0 .25em;
 	padding: 2px 6px;
-}
-
-a.periodChoice.checked {
-	background-color: #DADF8B;
-    color: #333;
-	text-decoration: none;
-	border-radius: 4px;
 }
 
 .gradingContent {
