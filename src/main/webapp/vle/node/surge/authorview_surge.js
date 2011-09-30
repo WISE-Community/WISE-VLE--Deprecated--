@@ -66,7 +66,7 @@ View.prototype.SurgeNode.generatePage = function(view){
 	
 	//add the authoring components to the page
 	pageDiv.appendChild(authoringSwfDiv);
-	pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
+	//pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(levelStringLabel);
 	pageDiv.appendChild(createBreak());
@@ -77,7 +77,7 @@ View.prototype.SurgeNode.generatePage = function(view){
 	//add the page to the parent
 	parent.appendChild(pageDiv);
 	
-	$("#dynamicPage").append("<p>Hola</a>");
+	//$("#dynamicPage").append("<p>Hola</a>");
 	
 	// append script used to communicate with flash
 	/*

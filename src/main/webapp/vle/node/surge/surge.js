@@ -85,7 +85,7 @@ function gameLoaded() {
  */
 function reportString(value) {
 	surge.save(value);
-	$("#studentWorkDiv").append("STATE:"+value +"<br/><br/>");
+	//$("#studentWorkDiv").append("STATE:"+value +"<br/><br/>");
 };
 
 /**
