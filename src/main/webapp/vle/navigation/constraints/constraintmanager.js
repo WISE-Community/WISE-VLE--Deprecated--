@@ -171,7 +171,15 @@ ConstraintManager.prototype.nodeRendered = function(position){
 			for(var l=0;l<affectedIds.length;l++){
 				/* look up by position and remove */
 				var pos = this.view.getProject().getPositionById(affectedIds[l]);
-				this.positionConstraintMap[pos].splice(this.positionConstraintMap[pos].indexOf(constraints[k]), 1);
+				
+				/*
+				 * remove the constraint from the map, this returns an array
+				 * with the removed constraint as the first element in the array
+				 */
+				var removedConstraint = this.positionConstraintMap[pos].splice(this.positionConstraintMap[pos].indexOf(constraints[k]), 1);
+				
+				//perform any cleanup required after removing the constraint
+				this.removeConstraintCleanup(removedConstraint[0]);
 			}
 		}
 	}
@@ -411,6 +419,27 @@ ConstraintManager.prototype.visitedNavigateToNode = function(node, startTime){
 	}
 	
 	return false;
+};
+
+/**
+ * Perform cleanup tasks after a constraint is removed
+ * @param constraint the constraint object
+ */
+ConstraintManager.prototype.removeConstraintCleanup = function(constraint) {
+	
+	if(constraint != null) {
+		if(constraint.type == 'VisitXBeforeYConstraint') {
+			//get the Y nodeId that is now no longer constrained
+			var nodeId = constraint.yId;
+			
+			//display a bubble notifying the student that they can try the question again
+			//eventManager.fire('displayMenuBubble', [nodeId, 'You can now visit this step when you are ready']);
+			eventManager.fire('displayMenuBubble', [nodeId, 'You can now visit the yellow highlighted step when you are ready']);
+			
+			//highlight the Y step
+			eventManager.fire('highlightStepInMenu', [nodeId]);		
+		}
+	}
 };
 
 //used to notify scriptloader that this script has finished loading
