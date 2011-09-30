@@ -578,6 +578,18 @@ View.prototype.onRenderNodeComplete = function(position){
  * Renders the node at the given position in the vle view
  */
 View.prototype.renderNode = function(position){
+	//get the node
+	var node = this.getProject().getNodeByPosition(position);
+	
+	if(node != null) {
+		//get the node id
+		var nodeId = node.id;
+		
+		//remove the bubble and remove the highlight for the step the student is now visiting
+		eventManager.fire('removeMenuBubble', [nodeId]);
+		eventManager.fire('unhighlightStepInMenu', [nodeId]);
+	}
+	
 	/* check to see if we can render the given position and if we should render it
 	 * fully or partly disabled. The return object will contain the status number
 	 * and any message related to the status. Status values: 0 = can visit without

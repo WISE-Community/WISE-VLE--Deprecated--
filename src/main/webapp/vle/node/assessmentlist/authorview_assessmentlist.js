@@ -99,6 +99,48 @@ View.prototype.AssessmentListNode.optionChanged = function(type){
 };
 
 /**
+ * Updates specified assessmentIndex.choiceIndex mc item's is correct value
+ * 
+ * @param assessmentItemIndex - integer index of assessment item
+ * @param choiceIndex - integer index of choice item within assessment item
+ */
+View.prototype.AssessmentListNode.correctChoiceChanged = function(assessmentItemIndex,choiceIndex){
+	// check to see if the checkbox was checked or not
+	var checkedValue = $('input#isCorrectInput_'+assessmentItemIndex+'_'+choiceIndex).attr("checked");
+	var isChecked = (checkedValue==="checked") ? true : false;
+	var choiceItem = this.content.assessments[assessmentItemIndex].choices[choiceIndex];
+	choiceItem.isCorrect = isChecked;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates specified assessmentIndex assessment's isAutoScoreEnabled value
+ * Also updates UI by showing/hiding autoScoring options div.
+ * 
+ * @param assessmentItemIndex - integer index of assessment item
+ */
+View.prototype.AssessmentListNode.isAutoScoringEnabledChanged = function(assessmentItemIndex){
+	// check to see if the checkbox was checked or not
+	var checkedValue = $('input#isAutoScoreEnabledInput_'+assessmentItemIndex).attr("checked");
+	var isChecked = (checkedValue==="checked") ? true : false;
+	var assessmentItem = this.content.assessments[assessmentItemIndex];
+	assessmentItem.isAutoScoreEnabled = isChecked;
+	
+	// show hide autoScoringDiv
+	if (isChecked) {
+		$(".choiceAutoScoreDiv_"+assessmentItemIndex).show();
+	} else {
+		$(".choiceAutoScoreDiv_"+assessmentItemIndex).hide();
+	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+
+/**
  * Generates the assessments creation elements
  */
 View.prototype.AssessmentListNode.generateAssessments = function(){
@@ -178,13 +220,12 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 	for(var a=0;a<this.content.assessments.length;a++){
 		var assDiv = createElement(document, 'div', {id: 'assDiv_' + a});
 		var assText = document.createTextNode('Assessment Item');
-		var itemtype = "";
 		if (this.content.assessments[a].type == "radio") {
-			itemtype = "Multiple Choice";
+			var typeText = document.createTextNode("Type: Multiple Choice");
 		} else if (this.content.assessments[a].type == "text") {
-			itemtype = "Open Response";
+			var typeText = document.createTextNode("Type: Open Response");
 		};
-		var typeText = document.createTextNode("Type: "+itemtype);
+		
 		var promptText = document.createTextNode("Prompt: ");
 		
 		var promptInput = createElement(document, 'textarea', {id: 'promptInput_' + a, cols: '60', rows: '4', wrap: 'soft', onchange: "eventManager.fire('assessmentlistFieldUpdated',['prompt','" + a + "'])"});
@@ -192,7 +233,6 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 		//populate the prompt text
 		promptInput.value = this.content.assessments[a].prompt;
 		
-		var choiceText = document.createTextNode("Choices: ");
 
 		parent.appendChild(assDiv);
 		assDiv.appendChild(assText);
@@ -201,18 +241,73 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 		assDiv.appendChild(createBreak());
 		assDiv.appendChild(promptText);
 		assDiv.appendChild(promptInput);
-		assDiv.appendChild(createBreak());
+		assDiv.appendChild(createBreak());		
 
 		if (this.content.assessments[a].type == "radio") {
+			var choiceText = document.createTextNode("Choices: ");
 			assDiv.appendChild(choiceText);
 			assDiv.appendChild(createBreak());
+			// add "enable automated scoring" checkbox
+			if (this.content.assessments[a].isAutoScoreEnabled) {
+				var isAutoScoringEnabledInput = createElement(document, "input", 
+					{id:'isAutoScoreEnabledInput_' + a, type:"checkbox", "class":"isAutoScoringEnabledInput", checked:"checked", 
+				     onclick:"eventManager.fire('assessmentListIsAutoScoringEnabledChanged',["+a+"])"});			
+			} else {
+				var isAutoScoringEnabledInput = createElement(document, "input", 
+						{id:'isAutoScoreEnabledInput_' + a, type:"checkbox", "class":"isAutoScoringEnabledInput", 
+					     onclick:"eventManager.fire('assessmentListIsAutoScoringEnabledChanged',["+a+"])"});			
+			}
+			assDiv.appendChild(isAutoScoringEnabledInput);
+			assDiv.appendChild(document.createTextNode("Enable automated scoring for this item"));
+			
 			var choices = this.content.assessments[a].choices;
 			for (var c=0; c<choices.length; c++) {
 				var choiceText = choices[c].text;
-				var choiceInput = createElement(document, 'input', {id: 'textInput_' + a + '_' + c, type:'text', size:'80' ,name:'choiceInput',value:choiceText,wrap:'hard',onkeyup:"eventManager.fire('assessmentlistRadioItemFieldUpdated',['text','"+ a +"','"+ c +"'])"});
+				var choiceDiv = createElement(document, 'div', {"class":'assessmentlistRadioItemDiv'});
+				
+				// add choice text input
+				var choiceInput = createElement(document, 'input', 
+						{id: 'textInput_' + a + '_' + c, 'class':'assessmentlistRadioItemInput', type:'text', size:'80',
+						 name:'choiceInput',value:choiceText,wrap:'hard',
+						 onkeyup:"eventManager.fire('assessmentlistRadioItemFieldUpdated',['text','"+ a +"','"+ c +"'])"});
+				choiceDiv.appendChild(choiceInput);
+				choiceDiv.appendChild(createBreak());
+
+				// create choiceAutoScoreDiv that will contain isCorrect and score fields.
+				if (this.content.assessments[a].isAutoScoreEnabled) {
+					var choiceAutoScoreDiv = createElement(document, 'div', {id:'choiceAutoScoreDiv_' + a + '_' + c, 'class':'choiceAutoScoreDiv_'+a});
+				} else {
+					var choiceAutoScoreDiv = createElement(document, 'div', {id:'choiceAutoScoreDiv_' + a + '_' + c, 'class':'choiceAutoScoreDiv_'+a, 'style':'display:none'});				
+				}
+				// add "this is correct choice" checkbox
+				if (choices[c].isCorrect) {
+					var isCorrectCheckbox = createElement(document, "input", 
+							{id:'isCorrectInput_' + a + '_' + c, type:"checkbox", "class":"isCorrectInput", checked:"checked", 
+						     onclick:"eventManager.fire('assessmentListCorrectChoiceChanged',["+a+","+c+"])"});
+				} else {
+					var isCorrectCheckbox = createElement(document, "input", 
+							{id:'isCorrectInput_' + a + '_' + c, type:"checkbox", "class":"isCorrectInput", 
+						     onclick:"eventManager.fire('assessmentListCorrectChoiceChanged',["+a+","+c+"])"});
+				}		
+				choiceAutoScoreDiv.appendChild(isCorrectCheckbox);
+				choiceAutoScoreDiv.appendChild(document.createTextNode("This is a correct choice."));
+				choiceAutoScoreDiv.appendChild(createBreak());
+
+				// add Score field
+				choiceAutoScoreDiv.appendChild(document.createTextNode("Score:"));
+				var choiceScore = choices[c].choiceScore ? choices[c].choiceScore : null;
+				var choiceScoreInput = createElement(document, "input",							
+						{id:'choiceScoreInput_' + a + '_' + c, type:"text", "class":"choiceScoreInput",size:'5',
+						 name:'choiceScoreInput',value:choiceScore,wrap:'hard',
+						 onkeyup:"eventManager.fire('assessmentlistRadioItemFieldUpdated',['choiceScore',"+ a +","+ c +"])"});
+				choiceAutoScoreDiv.appendChild(choiceScoreInput);
+				choiceDiv.appendChild(choiceAutoScoreDiv);
+				choiceDiv.appendChild(createBreak());
+
+				// add "Remove this choice" button
 				var removeChoiceButt = createElement(document, 'input', {type:'button',id:'removeChoiceButt',value:'remove choice',onclick: "eventManager.fire('assessmentlistRadioItemRemoveChoice',['"+ a +"','"+ c +"'])"});
-				assDiv.appendChild(choiceInput);
-				assDiv.appendChild(removeChoiceButt);
+				choiceDiv.appendChild(removeChoiceButt);
+				assDiv.appendChild(choiceDiv);
 				assDiv.appendChild(createBreak());
 			};
 			var addChoiceButt = createElement(document, 'input', {type:'button',id:'addChoiceButt',value:'add choice',onclick: "eventManager.fire('assessmentlistAddChoice','"+ a + "')"});
@@ -438,7 +533,7 @@ View.prototype.AssessmentListNode.removeItem = function(ndx){
  * idx = index of choice obj in the choice assessment obj
  */
 View.prototype.AssessmentListNode.radioItemRemoveChoice = function(ndx,idx){
-	
+
 	this.content.assessments[ndx].choices.splice(idx,1);
 	this.generateAssessments();
 	
@@ -477,7 +572,12 @@ View.prototype.AssessmentListNode.fieldUpdated = function(name,ndx){
  * with the given value.
  */
 View.prototype.AssessmentListNode.radioItemFieldUpdated = function(name,ndx,idx){
-	this.content.assessments[ndx].choices[idx][name] = document.getElementById(name + 'Input_' + ndx + '_' + idx).value;
+	var fieldValue = document.getElementById(name + 'Input_' + ndx + '_' + idx).value;
+	if (name == "choiceScore") {
+		// parse it to an integer
+		fieldValue = parseInt(fieldValue);
+	}
+	this.content.assessments[ndx].choices[idx][name] = fieldValue;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

@@ -712,7 +712,12 @@ var componentloader = function(em, sl){
 				'menuCollapseAllNonImmediate':[null,null],
 				'toggleMenu':[null,null],
 				'resizeMenu':[null,null],
-				'logout':[null,null]
+				'logout':[null,null],
+				'displayMenuBubble':[null,null],
+				'removeMenuBubble':[null,null],
+				'removeAllMenuBubbles':[null,null],
+				'highlightStepInMenu':[null,null],
+				'unhighlightStepInMenu':[null,null]
 			},
 			initialize:{
 				init:function(view){
@@ -725,6 +730,11 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('toggleMenu', view.menuDispatcher, view);
 					view.eventManager.subscribe('resizeMenu', view.menuDispatcher, view);
 					view.eventManager.subscribe('updateNavigationConstraints', view.menuDispatcher, view);
+					view.eventManager.subscribe('displayMenuBubble', view.menuDispatcher, view);
+					view.eventManager.subscribe('removeMenuBubble', view.menuDispatcher, view);
+					view.eventManager.subscribe('removeAllMenuBubbles', view.menuDispatcher, view);
+					view.eventManager.subscribe('highlightStepInMenu', view.menuDispatcher, view);
+					view.eventManager.subscribe('unhighlightStepInMenu', view.menuDispatcher, view);
 				}
 			}
 		},

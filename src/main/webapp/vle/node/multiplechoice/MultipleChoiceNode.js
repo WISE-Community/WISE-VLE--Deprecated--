@@ -121,6 +121,52 @@ MultipleChoiceNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/multiplechoice/multiplechoice.html');
 };
 
+/**
+ * Renders the student work into the div. The grading tool will pass in a
+ * div id to this function and this function will insert the student data
+ * into the div.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ */
+MultipleChoiceNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+	//create the multiple choice object so we can reference the content later
+	var multipleChoice = new MC(this, this.view);
+	
+	//get the latest state
+	var state = nodeVisit.getLatestWork();
+	
+	var studentWork = "";
+	
+	//check if there were any choices chosen
+	if(state.response) {
+		//loop through the array of choices
+		for(var x=0; x<state.response.length; x++) {
+			if(studentWork != "") {
+				//separate each choice with a comma
+				studentWork += ", ";
+			}
+			
+			//add the choice to the student work
+			studentWork += state.response[x];
+		}
+		
+		if(state.score != null){
+			//get the max score
+			var maxScore = multipleChoice.getMaxPossibleScore();
+			
+			studentWork += "<br><br>";
+			studentWork += "Auto-Graded Score: " + state.score + "/" + maxScore;
+		}
+	}
+	
+	$('#' + divId).html(studentWork);
+};
+
 NodeFactory.addNode('MultipleChoiceNode', MultipleChoiceNode);
 
 //used to notify scriptloader that this script has finished loading

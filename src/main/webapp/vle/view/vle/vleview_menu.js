@@ -21,6 +21,16 @@ View.prototype.menuDispatcher = function(type,args,obj){
 		obj.updateNavigationConstraints();
 	} else if(type=='resizeMenu'){
 		obj.resizeMenu();
+	} else if(type == 'displayMenuBubble') {
+		obj.displayMenuBubble(args[0], args[1]);
+	} else if(type == 'removeMenuBubble') {
+		obj.removeMenuBubble(args[0]);
+	} else if(type == 'removeAllMenuBubbles') {
+		obj.removeAllMenuBubbles();
+	} else if(type == 'highlightStepInMenu') {
+		obj.highlightStepInMenu(args[0]);
+	} else if(type == 'unhighlightStepInMenu') {
+		obj.unhighlightStepInMenu(args[0]);
 	}
 };
 
@@ -158,7 +168,126 @@ View.prototype.resizeMenu = function() {
 	}
 };
 
+/**
+ * Display a bubble next to the navigation menu that points to a specific step
+ * and also displays a message to the student
+ * @param nodeId the node id for the step we want to point to
+ * @param message the message we want to show to the student
+ */
+View.prototype.displayMenuBubble = function(nodeId, message) {
+	//get the width of the left box of the vle
+	var projectLeftBox = document.getElementById('projectLeftBox');
+	var projectLeftBoxClientWidth = projectLeftBox.clientWidth;
+	
+	//get the position of the step in the menu
+	var nodePosition = this.getProject().getPositionById(nodeId);
+	var node = document.getElementById(nodePosition);
+	
+	if(node != null) {
+		//get the y position of the step in the menu
+		var nodeOffsetTop = node.offsetTop;
+		
+		//get the left and top (basically the same as x and y) positions for the bubble
+		var left = projectLeftBoxClientWidth;
+		var top = nodeOffsetTop;
+		
+		//get the bubble div id
+		var menuBubbleDivId = "menuBubbleDiv_" + nodeId;
+		
+		//create the div that will display the message
+		//var menuBubbleDivHtml = "<div id='" + menuBubbleDivId + "' class='menuBubbleDiv' style='position:absolute;z-index:6;width:500px;top:" + top + "px;left:" + left + "px' onclick='eventManager.fire(\"removeMenuBubble\", \"" + nodeId + "\")'><table style='background-color: yellow'><tr><td><&nbsp</td><td>" + message + "</td><td style='cursor:pointer'>&nbsp[x]</td></tr></table></div>";
+		var menuBubbleDivHtml = "<div id='" + menuBubbleDivId + "' class='menuBubbleDiv' style='position:absolute;z-index:6;width:500px;top:" + top + "px;left:" + left + "px' onclick='eventManager.fire(\"removeMenuBubble\", \"" + nodeId + "\")'><table style='background-color: yellow'><tr><td>&nbsp</td><td>" + message + "</td><td style='cursor:pointer'>&nbsp[x]</td></tr></table></div>";
+		
+		//add the bubble div to the left box
+		$('#projectLeftBox').append(menuBubbleDivHtml);
+		
+		//remove the bubble after 5 seconds
+		setTimeout("eventManager.fire('removeMenuBubble', '" + nodeId + "')", 5000);
+	}
+};
 
+/**
+ * Remove the bubble for the given node
+ * @param nodeId the id of the node
+ */
+View.prototype.removeMenuBubble = function(nodeId) {
+	if(nodeId != null) {
+		/*
+		 * replace all the '.' with '\\.' so that the jquery id selector works
+		 * if we didn't do this, it would treat the '.' as a class selector and
+		 * would not be able to find the element by its id because almost all
+		 * of our ids contain a '.'
+		 * e.g. node_1.ht
+		 */
+		nodeId = nodeId.replace(/\./g, '\\.');
+		
+		//get the div id for the bubble
+		var menuBubbleDivId = 'menuBubbleDiv_' + nodeId;
+		
+		//remove the bubble
+		$('#' + menuBubbleDivId).remove();		
+	}
+};
+
+/**
+ * Remove all the bubbles
+ */
+View.prototype.removeAllMenuBubbles = function() {
+	//remove all elements with the class 'bubbleDiv'
+	$('.menuBubbleDiv').remove();
+};
+
+/**
+ * Highlight the step in the menu
+ * @param nodeId the id of the step
+ */
+View.prototype.highlightStepInMenu = function(nodeId) {
+	if(nodeId != null) {
+		//get the node position
+		var nodePosition = this.getProject().getPositionById(nodeId);
+		
+		if(nodePosition != null) {
+			//get the DOM step element in the menu
+			var node = document.getElementById(nodePosition);
+			
+			if(node != null) {
+				//add the class 'menuStepHighlight' to make the background of the step yellow
+				var nodeClass = node.getAttribute("class");
+				
+				if(nodeClass != null) {
+					nodeClass = nodeClass + " menuStepHighlight";
+					node.setAttribute("class", nodeClass);					
+				}
+			}			
+		}
+	}
+};
+
+/**
+ * Remove the highlight of the step in the menu
+ * @param nodeId the id of the step
+ */
+View.prototype.unhighlightStepInMenu = function(nodeId) {
+	if(nodeId != null) {
+		//get the node position
+		var nodePosition = this.getProject().getPositionById(nodeId);
+		
+		if(nodePosition != null) {
+			//get the DOM step element in the menu
+			var node = document.getElementById(nodePosition);
+			
+			if(node != null) {
+				//remove the 'menuStepHighlight' class so that the background of the step is no longer yellow
+				var nodeClass = node.getAttribute("class");
+				
+				if(nodeClass != null) {
+					nodeClass = nodeClass.replace('menuStepHighlight', '');
+					node.setAttribute("class", nodeClass);					
+				}
+			}			
+		}
+	}
+};
 
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){

@@ -79,6 +79,10 @@ div.sdmenu div a.constraintHidden {
 	display:none;	
 }
 
+div.sdmenu div a.menuStepHighlight {
+	background-color: #FFFF00;
+}
+
 div.sdmenu div a span.menusteptitle {
 	display: table;
 }

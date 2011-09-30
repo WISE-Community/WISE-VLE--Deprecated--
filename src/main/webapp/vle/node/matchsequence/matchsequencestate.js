@@ -30,48 +30,15 @@ function MSSTATE() {
 	this.type = "ms";
 	this.sourceBucket = null;
     this.buckets = [];
+    this.score = null;
 }
 
 /**
- * Get the student work in human readable form. This is used in
- * the grading tool to display the student work to the teacher.
- * @return the student work in human readable form.
+ * Get the student work
+ * @returns this object
  */
-MSSTATE.prototype.getStudentWork = function(){
-	var text = "";
-	
-	//loop through all the target buckets
-	for(var h=0;h<this.buckets.length;h++){
-		var bucket = this.buckets[h];
-		//get the text for the bucket
-		var bucketText = bucket.text;
-
-		/*
-		 * each bucket will be represented as following
-		 * 
-		 * ([bucketText]: choice1Text, choice2Text)
-		 */
-		text += "([" + bucketText + "]: ";
-		
-		var choicesText = "";
-		
-		//loop through the choices
-		for(var g=0;g<bucket.choices.length;g++){
-			//if this is not the first choice, add a comma to separate them
-			if(choicesText != "") {
-				choicesText += ", ";
-			}
-			
-			//add the bucket text
-			choicesText += bucket.choices[g].text;
-		};
-		
-		text += choicesText;
-		
-		//close the bucket and add a new line for easy reading
-		text += ")<br>";
-	};
-	return text;
+MSSTATE.prototype.getStudentWork = function() {
+	return this;
 };
 
 /**
@@ -103,6 +70,11 @@ MSSTATE.prototype.getJsonifiableState = function() {
 		}
 	}
 	
+	if(this.score != null) {
+		//set the score if available
+		msState.score = this.score;
+	}
+	
 	//return the MSSTATE
 	return msState;
 };
@@ -118,6 +90,9 @@ MSSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 
 	//get the buckets from the json
 	msState.buckets = stateJSONObj.buckets;
+	
+	//get the score from the json
+	msState.score = stateJSONObj.score;
 	
 	//return the MCSTATE object
 	return msState;

@@ -51,5 +51,14 @@ InitialMySystemData = {
        "color": "#E97F02"
     }
  ],
- "diagram_rules": []
+ "diagram_rules": [],
+ "minimum_requirements": [],
+ "correctFeedback": "Your diagram has no obvious problems.",
+ "maxFeedbackItems": 0,
+ "minimumRequirementsFeedback": "",
+ "enableNodeDescriptionEditing": false,
+ "enableLinkDescriptionEditing": false,
+ "enableLinkLabelEditing": false,
+ "enableCustomRuleEvaluator": false,
+ "customRuleEvaluator": ""
 };

@@ -31,6 +31,7 @@ View.prototype.Mysystem2Node.generatePage = function(view){
 
   var parent = document.getElementById('dynamicPage');
   parent.appendChild(iframe);
+  parent.appendChild(this.getBuildInfoDiv());
 };
 
 View.prototype.Mysystem2Node.AuthoringIFrameLoaded = function(){
@@ -40,6 +41,34 @@ View.prototype.Mysystem2Node.AuthoringIFrameLoaded = function(){
     /* fire source updated event */
     this.view.eventManager.fire('sourceUpdated');
   });
+};
+
+View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
+  var metaDiv             = createElement(document, 'div', {id: 'metaDiv', style: 'font-family: monospace; font-size: 9pt; white-space:pre; width: 100%; clear: both; margin: 4px; padding: 2px; overflow: hidden;'});
+  var git_sha_div         = createElement(document, 'div', {id: 'git_sha_div'    }) ;
+  var git_time_div        = createElement(document, 'div', {id: 'git_time_div'   }) ;
+  var git_branch_div      = createElement(document, 'div', {id: 'git_branch_div' }) ;
+  var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
+  var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
+
+  var git_sha         = document.createTextNode("commit sha  : 72cb000dc1b4f9b91484b0a023fde690a9eb045e ");
+  var git_time        = document.createTextNode("commit time : Fri Sep 23 18:55:43 2011 -0400 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, usingVisibilityBindingsInInspector, master) ");
+  var sc_build_time   = document.createTextNode("build time  : 2011-09-23 19:00:42 -0400 ");
+  var sc_build_number = document.createTextNode("build no.   : b7496a1eec79ffecb2969797c585818a31348044 ");
+  
+  git_sha_div.appendChild(git_sha);
+  git_time_div.appendChild(git_time);
+  git_branch_div.appendChild(git_branch);
+  sc_build_time_div.appendChild(sc_build_time);
+  sc_build_number_div.appendChild(sc_build_number);
+
+  metaDiv.appendChild(git_sha_div);
+  metaDiv.appendChild(git_time_div);
+  metaDiv.appendChild(git_branch_div);
+  metaDiv.appendChild(sc_build_number_div);
+  metaDiv.appendChild(sc_build_time_div);
+  return metaDiv;
 };
 
 /**
@@ -63,7 +92,7 @@ View.prototype.Mysystem2Node.buildPage = function(){
 
   /* create new elements */
   var pageDiv = createElement(document, 'div', {id: 'dynamicPage', style:'width:100%;height:100%'});
-  var mainDiv = createElement(document, 'div', {id: 'mainDiv'});
+	var mainDiv = createElement(document, 'div', {id: 'mainDiv'});
   var instructionsText = document.createTextNode("When entering image filenames, make sure to use the asset uploader on the main authoring page to upload your images.");
 
   /* append elements */
@@ -75,7 +104,6 @@ View.prototype.Mysystem2Node.buildPage = function(){
   mainDiv.appendChild(createBreak());
   mainDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
   mainDiv.appendChild(createBreak());
-
 };
 
 View.prototype.Mysystem2Node.populatePrompt = function() {

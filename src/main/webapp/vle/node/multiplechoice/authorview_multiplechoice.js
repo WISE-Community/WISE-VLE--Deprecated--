@@ -641,6 +641,10 @@ View.prototype.MultipleChoiceNode.getScoresMinus = function(attemptNum){
  * When needed generates the html for setting up branches and appends them.
  */
 View.prototype.MultipleChoiceNode.generateBranchSetup = function(){
+	if (!this.content.branches) {
+		return;
+	}
+	
 	/* remove any existing */
 	$('#branchAuthoring').remove();
 	
@@ -763,6 +767,9 @@ View.prototype.MultipleChoiceNode.getUnusedChoices = function(){
  * @return object - branch
  */
 View.prototype.MultipleChoiceNode.getBranchById = function(id){
+	if (!this.content.branches) {
+		return null;
+	}
 	for(var e=0;e<this.content.branches.length;e++){
 		if(this.content.branches[e].id==id){
 			return this.content.branches[e];
@@ -805,7 +812,7 @@ View.prototype.MultipleChoiceNode.removeBranch = function(id){
  * @param string - choice id
  * @param string - branch id
  */
-View.prototype.MultipleChoiceNode.removeChoice = function(choiceId,branchId){
+View.prototype.MultipleChoiceNode.branchRemoveChoice = function(choiceId,branchId){
 	/* retrieve the branch and remove the choice if the branch and choice exist */
 	var branch = this.getBranchById(branchId);
 	if(branch){

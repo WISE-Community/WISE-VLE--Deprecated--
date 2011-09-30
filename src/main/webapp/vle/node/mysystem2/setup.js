@@ -29,7 +29,7 @@ var dependencies = [
 ];
 
 var nodeClasses = [
-	{nodeClass:'mysystem', nodeClassText:'Mysystem2'}
+	{nodeClass:'display', nodeClassText:'Mysystem2'}
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);

@@ -44,6 +44,13 @@ VisitXBeforeYConstraint.prototype.setupPatterns = function(){
 	if(this.xMode=='node'){
 		this.constraintSatisfaction.satisfactionPattern.all = false;
 		this.constraintSatisfaction.satisfactionPattern.nodeIds.push(this.xId);
+		
+		//display a bubble next to the X step
+		//eventManager.fire('displayMenuBubble', [this.xId, 'You must visit this step before trying to answer again']);
+		eventManager.fire('displayMenuBubble', [this.xId, 'You must visit the yellow highlighted step before trying to answer again']);
+		
+		//highlight the X step
+		eventManager.fire('highlightStepInMenu', [this.xId]);
 	} else if(this.xMode=='sequenceAny'){
 		this.constraintSatisfaction.satisfactionPattern.all = false;
 		this.constraintSatisfaction.satisfactionPattern.nodeIds = this.view.getProject().getDescendentNodeIds(this.xId);

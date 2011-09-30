@@ -1,5 +1,6 @@
-function MC(node) {
+function MC(node, view) {
 	this.node = node;
+	this.view = view;
 	this.content = node.getContent().getContentJSON();
 	this.choices = [];
 	this.attempts = [];
@@ -49,12 +50,26 @@ MC.prototype.loadState = function() {
 };
 
 /**
+ * Get the latest state
+ * @returns the latest state
+ */
+MC.prototype.getLatestState = function(){
+	var latestState = null;
+	
+	if(this.states && this.states.length>0){
+		latestState = this.states[this.states.length -1];
+	};
+
+	return latestState;
+};
+
+/**
  * Get the student's latest submission for this node that has work. 
  * The node is specific to a student.
  * @param nodeId the id of the node we want the student's work from
  * @return the newest NODE_STATE for this node
  */
-MC.prototype.getLatestState = function(nodeId) {
+MC.prototype.getLatestStateFromNodeId = function(nodeId) {
 	var nodeVisits = this.view.getVLEState().getNodeVisitsByNodeId(nodeId);
 	
 	/*
@@ -150,10 +165,92 @@ MC.prototype.render = function() {
 		displayNumberAttempts("This is your", "attempt", this.attempts);
 	};
 	
+	//get the latest state
+	var latestState = this.getLatestState();
+	
+	if(latestState != null) {
+		if(latestState.isCorrect) {
+			//the student previously answered the question correctly
+			
+			//display the message that they correctly answered the question
+			var resultMessage = this.getResultMessage(latestState.isCorrect);
+			
+			//check if scoring is enabled
+			if(this.isChallengeScoringEnabled()) {
+				//display the score they received
+				var score = this.getScore(this.attempts.length);
+				resultMessage += " You received " + score + " point(s).";
+			}
+			
+			$('#resultMessageDiv').html(resultMessage);
+		}
+	}
+	
+	if(this.node.getType()=='ChallengeNode') {
+		//check if scoring is enabled
+		if(this.isChallengeScoringEnabled()) {
+			//display the current possible score table
+			var scoreMessage = this.getCurrentPossibleScoreTableHtml();
+			
+			//display the score
+			$('#scoreDiv').html(scoreMessage);				
+		}
+	}
+	
 	//turn this flag on so that the step does not shuffle again during this visit
 	this.previouslyRendered = true;
 	
 	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+};
+
+/**
+ * Get the table that displays the current possible scores
+ */
+MC.prototype.getCurrentPossibleScoreTableHtml = function() {
+	var html = "";
+	
+	//check if there is an attempts object
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		
+		//get the latest state
+		var latestState = this.getLatestState();
+		
+		//get the scores
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		//get the number of attempts the student has made
+		var numAttempts = this.attempts.length;
+		
+		if(latestState != null && !latestState.isCorrect) {
+			/*
+			 * the student has not answered the question correctly so their
+			 * possible current possible score is if they answer it on their
+			 * next attempt
+			 */ 
+			numAttempts += 1;
+		}
+		
+		//generate the current possible score table
+		html = getCurrentPossibleScoreTable(numAttempts, scores);		
+	}
+	
+	return html;
+};
+
+/**
+ * Determine if scoring is enabled
+ */
+MC.prototype.isChallengeScoringEnabled = function() {
+	var result = false;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		//check if there are scores
+		result = challengeScoringEnabled(scores);
+	}
+	
+	return result;
 };
 
 /**
@@ -268,20 +365,52 @@ MC.prototype.checkAnswer = function() {
 	 * with the number of attempts and whether this attempt is correct or not. We
 	 * also need to disable the try again button. */
 	if(this.node.getType()=='ChallengeNode'){
-		var score = this.getScore(this.attempts.length);
 		
-		/* add the score to the state */
-		mcState.score = score;
+		if(this.isChallengeScoringEnabled()) {
+			//get the scores
+			var scores = this.content.assessmentItem.interaction.attempts.scores;
+			
+			//get the number of attempts the student has made
+			var numAttempts = this.attempts.length;
+			
+			if(!isCorrect) {
+				/*
+				 * the student has not answered the question correctly so their
+				 * possible current possible score is if they answer it on their
+				 * next attempt
+				 */ 
+				numAttempts += 1;
+			}
+			
+			//get the current possible score table
+			var scoreMessage = getCurrentPossibleScoreTable(numAttempts, scores);
+			
+			//display the score
+			$('#scoreDiv').html(scoreMessage);			
+		}
 		
-		/* clear previous feedback and setup feedback to display score and message */
-		$('#feedbackdiv').html('');
-		$('#feedbackdiv').append('<span id="challengeFeedback"><div id="scoreDiv"></div><div id="challengeMsgDiv"></div></span>');
-		
-		/* set current score */
-		$('#scoreDiv').html('Current Score: ' + score);
+		//get the challenge message
+		var resultMessage = this.getResultMessage(isCorrect);
+
+		//check if scoring is enabled
+		if(this.isChallengeScoringEnabled()) {
+			if(isCorrect) {
+				//get the score
+				var score = this.getScore(this.attempts.length);
+				
+				/* add the score to the state */
+				mcState.score = score;
+				
+				//display the score they received
+				resultMessage += " You received " + score + " point(s).";
+			} else {
+				//student answered incorrectly
+				mcState.score = 0;
+			}
+		}
 		
 		/* set feedback message */
-		$('#challengeMsgDiv').html(this.getChallengeMessage(isCorrect));
+		$('#resultMessageDiv').html(resultMessage);
 		
 		/* disable the try again button */
 		//$('#tryAgainButton').addClass('disabledLink');
@@ -313,7 +442,11 @@ MC.prototype.checkAnswer = function() {
 		//$('#tryAgainButton').addClass('disabledLink');
 		$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	} else if(isCorrect){
-		document.getElementById('feedbackdiv').innerHTML = "You have successfully completed this question!";
+		//the student answered correctly
+		
+		//get the congratulations message and display it
+		var resultMessage = this.getResultMessage(isCorrect);
+		document.getElementById('resultMessageDiv').innerHTML = resultMessage;
 	}
 	
 	//fire the event to push this state to the global view.states object
@@ -357,18 +490,17 @@ MC.prototype.enforceMaxChoices = function(inputs){
  * @param int - numOfAttempts
  * @return int - score
  */
-MC.prototype.getScore = function(numOfAttempts){
-	/* find and return the attempt that is associated with the numOfAttempts */
-	while(numOfAttempts > 0){
-		if(this.content.assessmentItem.interaction.attempts.scores[numOfAttempts]){
-			return this.content.assessmentItem.interaction.attempts.scores[numOfAttempts];
-		}
+MC.prototype.getScore = function(numAttempts){
+	var score = 0;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores object
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
 		
-		numOfAttempts --;
+		score = getCurrentScore(numAttempts, scores);
 	}
 	
-	/* no attempts found in content */
-	return null;
+	return score;
 };
 
 /**
@@ -378,7 +510,7 @@ MC.prototype.getScore = function(numOfAttempts){
  * @param boolean - isCorrect
  * @return string - html response
  */
-MC.prototype.getChallengeMessage = function(isCorrect){
+MC.prototype.getResultMessage = function(isCorrect){
 	/* we need to retrieve the attempt object corresponding to the current number of attempts */
 	var attempt = this.content.assessmentItem.interaction.attempts;
 	
@@ -433,6 +565,26 @@ MC.prototype.resolveIdentifier = function(id){
 			return this.choices[a].identifier;
 		}
 	}
+};
+
+/**
+ * Get the max possible score the student can receive for this step
+ * @returns the max possible score
+ */
+MC.prototype.getMaxPossibleScore = function() {
+	var maxScore = null;
+	
+	if(this.content.assessmentItem.interaction.attempts != null) {
+		//get the scores object
+		var scores = this.content.assessmentItem.interaction.attempts.scores;
+		
+		if(scores != null) {
+			//get the max score
+			maxScore = getMaxScore(scores);
+		}
+	}
+	
+	return maxScore;
 };
 
 /**

@@ -18,74 +18,181 @@
   <![endif]-->
 </head>
 <body>
-  <h1>MySystem</h1>
+  <h1>MySystem Authoring</h1>
   <script type="text/html">
-  <h2>Modules</h2>
-  {{#collection contentBinding="MSA.modulesController" tagName="ul"}}
-    {{view SC.TextField valueBinding="parentView.content.name" placeholder="name"}}
-    {{view SC.TextField valueBinding="parentView.content.image" placeholder="image"}}
-    {{#view SC.Button target="MSA.modulesController" action="removeItem" itemBinding="parentView.content"}}
-    remove
-    {{/view}}
-  {{/collection}}
-  {{#view SC.Button 
-    target="MSA.modulesController"
-    action="createItem"}}
-    Add New Module
-  {{/view}}
-
-  <h2>Energy Types</h2>
-  {{#collection contentBinding="MSA.energyTypesController" tagName="ul"}}
-    {{view SC.TextField valueBinding="parentView.content.label" placeholder="label"}}
-    {{view SC.TextField valueBinding="parentView.content.color" placeholder="color"}}
-    {{#view SC.Button target="MSA.energyTypesController" action="removeItem" itemBinding="parentView.content"}}
-    remove
-    {{/view}}
-  {{/collection}}
-  {{#view SC.Button 
-    target="MSA.energyTypesController"
-    action="createItem"}}
-    Add New Energy Type
-  {{/view}}
-
-  <h2>Diagram Rules</h2>
+  <div class="options_block">
+    <h2>Options</h2>
+    <h3>Links</h3>
+      <div style="padding-left: 20px;">
+      {{view SC.Checkbox title="Enable Label Editing" valueBinding="MSA.activity.enableLinkLabelEditing" id="linkLabelEditing"}}
+      {{view SC.Checkbox title="Enable Description Editing" valueBinding="MSA.activity.enableLinkDescriptionEditing" id="linkDescriptionEditing"}}
+      </div>
+    <h3>Nodes</h3>
+      <div style="padding-left: 20px;">
+        {{view SC.Checkbox title="Enable Label Editing" valueBinding="MSA.activity.enableNodeLabelEditing" id="nodeLabelEditing"}}
+        {{view SC.Checkbox title="Enable Description Editing" valueBinding="MSA.activity.enableNodeDescriptionEditing" id="nodeDescriptionEditing"}}
+      </div>
+  </div>
   
-  {{#collection contentBinding="MSA.diagramRulesController" tagName="ul"}}
-      The diagram should contain
-      {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.comparisons" valueBinding="parentView.content.comparison"}}
-      {{view SC.TextField valueBinding="parentView.content.number" placeholder="number"}}<br/>
-      {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.nodeTypes" valueBinding="parentView.content.type"}}
-      <!-- button to show/hide the rest of the options if we could use an if statement then we could
-           check for the status of the property, and show one button in one case and another button in another case
-
-           not exactly why we need parentView.parentView here, my guess is that the if wraps this in another view so we
-           need parentView.parentView to get all the way up to the itemView 
-           
-           I tried adding a button to hide the link options again but the value bindings did not correctly update the views after they
-           were shown, hidden and shown again.  Changing the view after the show, hide, show did update the model object though
-      -->
-      {{#if "content.hasLink"}}
-        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.linkDirections" valueBinding="parentView.parentView.content.linkDirection"}}
-        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.nodeTypes" valueBinding="parentView.parentView.content.otherNodeType"}}
-      {{else}}
-        {{#view SC.Button
-          targetBinding="parentView.parentView.content"
-          action="toggleHasLink"}}
-          Enable link conditions
-        {{/view}} 
-      {{/if}}
-      <br/>
-      if not then show the user:
-      {{view SC.TextField valueBinding="parentView.content.suggestion"}}
-      {{#view SC.Button target="MSA.diagramRulesController" action="removeItem" itemBinding="parentView.content"}}
-      Remove Diagram Rule
+  <div class="options_block">
+    <h2>Node Types</h2>
+    {{#collection contentBinding="MSA.modulesController" tagName="ul"}}
+      {{view SC.TextField valueBinding="parentView.content.name" placeholder="name"}}
+      {{view SC.TextField valueBinding="parentView.content.image" placeholder="image"}}
+      {{#view SC.Button target="MSA.modulesController" action="removeItem" itemBinding="parentView.content"}}
+      remove
       {{/view}}
-  {{/collection}}
-  {{#view SC.Button 
-    target="MSA.diagramRulesController"
-    action="createItem"}}
-    Add New Diagram Rule
-  {{/view}}
+    {{/collection}}
+    {{#view SC.Button 
+      target="MSA.modulesController"
+      action="createItem" class="add_button"}}
+      Add New Node Type
+    {{/view}}
+  </div>
+  
+  <div class="options_block">
+    <h2>Energy Types</h2>
+    {{#collection contentBinding="MSA.energyTypesController" tagName="ul"}}
+      {{view SC.TextField valueBinding="parentView.content.label" placeholder="label"}}
+      {{view SC.TextField valueBinding="parentView.content.color" placeholder="color"}}
+      {{#view SC.Button target="MSA.energyTypesController" action="removeItem" itemBinding="parentView.content"}}
+      remove
+      {{/view}}
+    {{/collection}}
+    {{#view SC.Button 
+      target="MSA.energyTypesController"
+      action="createItem" class="add_button"}}
+      Add New Energy Type
+    {{/view}}
+  </div>
+  
+  <div class="options_block">
+    <h2>Minimum Requirements</h2>
+    {{#if MSA.minRequirementsController.hasRequirements}}
+      <span style="padding-left: 10px;">
+        Feedback: {{view SC.TextField valueBinding="MSA.activity.minimumRequirementsFeedback" placeholder="Your diagram doesn't include enough detail" id="minimumFeedback"}}
+      </span>
+    {{/if}}
+    {{#collection contentBinding="MSA.minRequirementsController" tagName="ul"}}
+        The diagram
+        {{collection SCUtil.Select contentBinding="MSA.minRequirementsController.shouldOptions" valueBinding="parentView.content.shouldOption"}} contain
+        {{collection SCUtil.Select contentBinding="MSA.minRequirementsController.comparisons" valueBinding="parentView.content.comparison"}}
+        {{view SC.TextField valueBinding="parentView.content.number" placeholder="number"}}<br/>
+        {{collection SCUtil.Select contentBinding="MSA.minRequirementsController.nodeTypes" valueBinding="parentView.content.type"}}
+        <!-- button to show/hide the rest of the options if we could use an if statement then we could
+             check for the status of the property, and show one button in one case and another button in another case
+
+             not exactly why we need parentView.parentView here, my guess is that the if wraps this in another view so we
+             need parentView.parentView to get all the way up to the itemView 
+
+             I tried adding a button to hide the link options again but the value bindings did not correctly update the views after they
+             were shown, hidden and shown again.  Changing the view after the show, hide, show did update the model object though
+        -->
+        {{#if "content.hasLink"}}
+          {{collection SCUtil.Select contentBinding="MSA.minRequirementsController.linkDirections" valueBinding="parentView.parentView.content.linkDirection"}}
+          {{collection SCUtil.Select contentBinding="MSA.minRequirementsController.nodeTypes" valueBinding="parentView.parentView.content.otherNodeType"}}
+          with energy type: {{collection SCUtil.Select contentBinding="MSA.minRequirementsController.energyTypes" valueBinding="parentView.parentView.content.energyType"}}
+        {{else}}
+          {{#view SC.Button
+            targetBinding="parentView.parentView.content"
+            action="toggleHasLink"}}
+            Enable link conditions
+          {{/view}} 
+        {{/if}}
+        <br/>
+        {{#view SC.Button target="MSA.minRequirementsController" action="removeItem" itemBinding="parentView.content"}}
+        Remove Requirement
+        {{/view}}
+        {{#view SC.Button target="MSA.minRequirementsController" action="moveItemUp" itemBinding="parentView.content"}} ↑ {{/view}}
+        {{#view SC.Button target="MSA.minRequirementsController" action="moveItemDown" itemBinding="parentView.content"}} ↓ {{/view}}
+    {{/collection}}
+    {{#view SC.Button 
+      target="MSA.minRequirementsController"
+      action="createItem" class="add_button"}}
+      Add New Minimum Requirement
+    {{/view}}
+  </div>
+  
+  <div class="options_block">
+    <h2>Feedback</h2>
+    <div style="padding-left: 10px;">
+      Feedback if all rules pass:
+        <div style="padding-left: 10px; width: 800px;">
+          {{view SC.TextField valueBinding="MSA.activity.correctFeedback" placeholder="Your diagram has no obvious problems." id="correctFeedback"}}
+        </div>
+      Only report 
+        {{view SC.TextField valueBinding="MSA.activity.maxFeedbackItems" placeholder="#" id="feedbackLimit" style="width: 800px;"}}
+      feedback items
+    </div>
+  </div>
+  
+  <div class="options_block">
+    <h2>Diagram Rules</h2>
+    {{#collection contentBinding="MSA.diagramRulesController" tagName="ol" attributeBindings="start" start="0"}}
+        The diagram 
+        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.shouldOptions" valueBinding="parentView.content.shouldOption"}} contain
+        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.comparisons" valueBinding="parentView.content.comparison"}}
+        {{view SC.TextField valueBinding="parentView.content.number" placeholder="number"}}<br/>
+        {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.nodeTypes" valueBinding="parentView.content.type"}}
+        <!-- button to show/hide the rest of the options if we could use an if statement then we could
+             check for the status of the property, and show one button in one case and another button in another case
+
+             not exactly why we need parentView.parentView here, my guess is that the if wraps this in another view so we
+             need parentView.parentView to get all the way up to the itemView 
+           
+             I tried adding a button to hide the link options again but the value bindings did not correctly update the views after they
+             were shown, hidden and shown again.  Changing the view after the show, hide, show did update the model object though
+        -->
+        {{#if "content.hasLink"}}
+          {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.linkDirections" valueBinding="parentView.parentView.content.linkDirection"}}
+          {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.nodeTypes" valueBinding="parentView.parentView.content.otherNodeType"}}
+          with energy type: {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.energyTypes" valueBinding="parentView.parentView.content.energyType"}}
+        {{else}}
+          {{#view SC.Button
+            targetBinding="parentView.parentView.content"
+            action="toggleHasLink"}}
+            Enable link conditions
+          {{/view}} 
+        {{/if}}
+        <br/>
+        if not then show the user:
+        {{view SC.TextField valueBinding="parentView.content.suggestion"}}
+        {{#view SC.Button target="MSA.diagramRulesController" action="removeItem" itemBinding="parentView.content"}}
+        Remove Diagram Rule
+        {{/view}}
+        {{#view SC.Button target="MSA.diagramRulesController" action="moveItemUp" itemBinding="parentView.content"}} ↑ {{/view}}
+        {{#view SC.Button target="MSA.diagramRulesController" action="moveItemDown" itemBinding="parentView.content"}} ↓ {{/view}}
+    {{/collection}}
+    {{#view SC.Button 
+      target="MSA.diagramRulesController"
+      action="createItem" class="add_button"}}
+      Add New Diagram Rule
+    {{/view}}
+  </div>
+  <div class="options_block">
+    {{view SC.Checkbox 
+        title="Enable Custom Rule Evaluator" 
+        valueBinding="MSA.activity.enableCustomRuleEvaluator" 
+        id="customRuleEvaluator"}}
+    {{#if "MSA.activity.enableCustomRuleEvaluator"}}
+
+Javascipt for custom rules. e.g.
+<br/>
+<code><pre>
+var rule_a = rules.objectAt(0).check(nodes);
+var rule_b = rules.objectAt(1).check(nodes);
+var rule_c = rules.objectAt(2).check(nodes);
+if(! ((rule_a && rule_b) || rule_c)) {
+  suggestions.pushObject(rules.objectAt(2).get('suggestion'));
+}
+</pre></code>
+
+        <br/>
+        <div id="customRuleEvaluator">
+          {{view SC.TextArea valueBinding="MSA.activity.customRuleEvaluator"}}
+        </div>
+      {{/if}}
+    </div>
   
   <h2>State</h2>
   <pre style="font-size: 80%">
