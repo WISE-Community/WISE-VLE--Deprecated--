@@ -27,6 +27,10 @@ View.prototype.assessmentlistDispatcher = function(type,args,obj){
 		obj.AssessmentListNode.updateRichText(args[0]);
 	} else if(type=='assessmentOptionChanged'){
 		obj.AssessmentListNode.optionChanged(args[0]);
+	} else if(type=='assessmentListCorrectChoiceChanged'){
+		obj.AssessmentListNode.correctChoiceChanged(args[0], args[1]);
+	} else if(type=='assessmentListIsAutoScoringEnabledChanged'){
+		obj.AssessmentListNode.isAutoScoringEnabledChanged(args[0]);
 	} else if(type=='assessmentListUpdateImportantReviewSequencePart'){
 		obj.AssessmentListNode.updateImportantReviewSequencePart(args[0]);
 	} else if(type=='assessmentListPeerReviewPercentageTriggerUpdated'){
@@ -53,6 +57,8 @@ var events = [
 	'assessmentlistStarterOptionChanged',
 	'assessmentlistStarterSentenceUpdated',
 	'assessmentOptionChanged',
+	'assessmentListCorrectChoiceChanged',
+	'assessmentListIsAutoScoringEnabledChanged',
 	'assessmentListUpdateImportantReviewSequencePart',
 	'assessmentListPeerReviewPercentageTriggerUpdated',
 	'assessmentListPeerReviewNumberTriggerUpdated',

@@ -593,8 +593,7 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 			nodeType != 'DataGraphNode' && 
 			nodeType != 'MySystemNode' && 
 			nodeType != 'SVGDrawNode' && 
-			nodeType != 'MWNode' && 
-			nodeType != 'AssessmentListNode' && 
+			nodeType != 'MWNode' &&  
 			nodeType != 'BranchNode') {
 		isSelfRenderingGradingView = true;
 	}

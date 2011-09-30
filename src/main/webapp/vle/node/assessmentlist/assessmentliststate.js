@@ -44,8 +44,10 @@ ASSESSMENTLISTSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Returns the human readable student's answer
  * @return a string containing the human readable answer
  */
-ASSESSMENTLISTSTATE.prototype.getStudentWork = function() {
+ASSESSMENTLISTSTATE.prototype.getStudentWork = function(showAutoScoreResult) {
 	var studentWorkSoFar = "";
+	var autoScoreTotalScore = 0;   // total auto scored points the student earned
+	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
 	
 	//check if there were any responses
 	if(this.assessments) {
@@ -63,11 +65,36 @@ ASSESSMENTLISTSTATE.prototype.getStudentWork = function() {
 			if (assessment.type && assessment.response) {
 				if (assessment.type == "radio") {
 					studentWorkSoFar += assessment.response.text;
+					if (assessment.response.autoScoreResult && showAutoScoreResult) {
+						// append results from auto score
+						var autoScoreResult = assessment.response.autoScoreResult;
+						studentWorkSoFar += "<br/>Auto Score Results:<br/>";
+						if (autoScoreResult.isCorrect) {
+							studentWorkSoFar += "Student got this question CORRECT";
+						} else {
+							studentWorkSoFar += "Student got this question INCORRECT";							
+						}
+						studentWorkSoFar += " and received ";
+						studentWorkSoFar += autoScoreResult.choiceScore;
+						studentWorkSoFar += " points out of ";
+						studentWorkSoFar += autoScoreResult.maxScore;
+						
+						// update total scores
+						autoScoreTotalScore += autoScoreResult.choiceScore;
+						autoScoreTotalMaxScore += autoScoreResult.maxScore;
+					}
 				} else if (assessment.type == "text") {
 					studentWorkSoFar += assessment.response.text;
 				}
 			}
 		}
+	}
+	
+	// append autoScore result summary at the end, if request
+	if (showAutoScoreResult && autoScoreTotalMaxScore > 0) {
+		studentWorkSoFar += "<br/><br/>";
+		studentWorkSoFar += "Auto Score Results Summary: ";
+		studentWorkSoFar += "Student got " + autoScoreTotalScore + " points out of " + autoScoreTotalMaxScore;
 	}
 	
 	return studentWorkSoFar;

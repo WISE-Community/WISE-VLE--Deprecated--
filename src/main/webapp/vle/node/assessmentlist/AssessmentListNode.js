@@ -32,6 +32,29 @@ AssessmentListNode.prototype.render = function(contentPanel,studentWork, disable
 };
 
 /**
+ * Renders the student work into the div. The grading tool will pass in a
+ * div id to this function and this function will insert the student data
+ * into the div.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ */
+AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+    // Get the latest student state object for this step
+	var assessmentListState = nodeVisit.getLatestState();
+	
+	// get human readable work string
+	var showAutoScoreResult = true;
+	var readableStudentWork = assessmentListState.getStudentWork(showAutoScoreResult);
+	$('#' + divId).html(readableStudentWork);
+};
+
+
+/**
  * Override of Node.isCompleted
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
