@@ -632,6 +632,9 @@ MS.prototype.checkAnswer = function() {
 		return;
 	}
 	
+	//clear the previous result message
+	$('#resultMessageDiv').html('');
+	
 	this.attempts.push(null);
 	
 	if(!this.showFeedback) {
@@ -732,6 +735,13 @@ MS.prototype.checkAnswer = function() {
 					/* create the constraint to disable this step until students have gone to
 					 * the step specified by this attempts */
 					this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:challengeSettings.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20)});
+					
+					/*
+					 * the student answered incorrectly so we will make the 
+					 * background yellow since we will also be highlighting
+					 * the associated step in the menu yellow
+					 */
+					msg = "<table style='background-color:yellow' align='center'><tr><td>" + msg + "</td></tr></table>";
 					
 					//display the linkto message and link to the student
 					$('#resultMessageDiv').html(msg);

@@ -434,7 +434,7 @@ ConstraintManager.prototype.removeConstraintCleanup = function(constraint) {
 			
 			//display a bubble notifying the student that they can try the question again
 			//eventManager.fire('displayMenuBubble', [nodeId, 'You can now visit this step when you are ready']);
-			eventManager.fire('displayMenuBubble', [nodeId, 'You can now visit the yellow highlighted step when you are ready']);
+			//eventManager.fire('displayMenuBubble', [nodeId, 'You can now visit the yellow highlighted step when you are ready']);
 			
 			//highlight the Y step
 			eventManager.fire('highlightStepInMenu', [nodeId]);		

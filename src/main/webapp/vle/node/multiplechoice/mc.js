@@ -310,6 +310,9 @@ MC.prototype.checkAnswer = function() {
 		return;
 	}
 
+	//clear the previous result message
+	$('#resultMessageDiv').html('');
+	
 	this.attempts.push(null);
 	
 	var radiobuttondiv = document.getElementById('radiobuttondiv');
@@ -407,6 +410,15 @@ MC.prototype.checkAnswer = function() {
 				//student answered incorrectly
 				mcState.score = 0;
 			}
+		}
+		
+		if(!isCorrect) {
+			/*
+			 * the student answered incorrectly so we will make the 
+			 * background yellow since we will also be highlighting
+			 * the associated step in the menu yellow
+			 */
+			resultMessage = "<table style='background-color:yellow' align='center'><tr><td>" + resultMessage + "</td></tr></table>";
 		}
 		
 		/* set feedback message */
