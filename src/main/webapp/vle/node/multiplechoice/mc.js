@@ -534,7 +534,7 @@ MC.prototype.getResultMessage = function(isCorrect){
 		 * and return a message with the linkTo if a step has been specified
 		 * to navigate to otherwise, we need to return an empty string */
 		if(attempt.navigateTo && attempt.navigateTo != ''){
-			var msg = 'Please review the step ';
+			var msg = 'Please review ';
 			var position = this.node.view.getProject().getPositionById(attempt.navigateTo);
 			var linkNode = this.node.view.getProject().getNodeById(attempt.navigateTo);
 			var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
@@ -542,11 +542,14 @@ MC.prototype.getResultMessage = function(isCorrect){
 			/* create the linkTo and add it to the message */
 			var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
 			this.node.addLink(linkTo);
-			msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">' + stepNumberAndTitle + '</a> before trying again.';
+			msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.';
+			
+			//create the message that will display in the alert
+			var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
 			
 			/* create the constraint to disable this step until students have gone to
 			 * the step specified by this attempt */
-			this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20)});
+			this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20), msg:optsMsg});
 			
 			return msg;
 		} else {
