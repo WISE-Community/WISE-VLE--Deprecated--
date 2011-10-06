@@ -266,7 +266,7 @@ Constraint.prototype._isConstraintSatisfied = function(constraintSatisfaction){
  */
 Constraint.prototype.patternMatches = function(pattern, nodeVisits, toVisitId){
 	if(!pattern.all){
-		return this.matchAny(pattern.nodeIds, nodeVisits, toVisitId, pattern.workCompleted);
+		return this.matchAny(pattern.nodeIds, nodeVisits, toVisitId, pattern.workCompleted, pattern.workCorrect);
 	} else if(pattern.sequential){
 		return this.matchAllSequential(pattern.nodeIds, nodeVisits, toVisitId, pattern.workCompleted);
 	} else if(!pattern.sequential){
@@ -289,9 +289,10 @@ Constraint.prototype.patternMatches = function(pattern, nodeVisits, toVisitId){
  * @param array - nodeVisits
  * @param toVisitId
  * @param boolean - workCompleted
+ * @param boolean - workCorrect whether the work needs to be correct in order to satisfy the constraint
  * @return array (nodeVisits) || null
  */
-Constraint.prototype.matchAny = function(nodeIds, nodeVisits, toVisitId, workCompleted){
+Constraint.prototype.matchAny = function(nodeIds, nodeVisits, toVisitId, workCompleted, workCorrect){
 	/* copy the nodeVisits and add the toVisitId as a fake nodeVisit if passed in */
 	var copiedNodeVisits = nodeVisits.slice();
 	if(toVisitId){
@@ -340,6 +341,18 @@ Constraint.prototype.matchAny = function(nodeIds, nodeVisits, toVisitId, workCom
 					} else {
 						/* check the latest work to see if there is any */
 						if(copiedNodeVisits[b].getLatestWork() != ""){
+							return nodeVisits.slice(b + 1);
+						}
+					}
+				} else if(workCorrect && this.NODES_WITHOUT_WORK.indexOf(node.getType()) == -1){
+					//the work needs to be correct in order to satisfy the constraint
+					
+					//get the latest work
+					var latestWork = copiedNodeVisits[b].getLatestWork();
+					
+					if(latestWork != null) {
+						if(latestWork.isCorrect) {
+							//the work is correct
 							return nodeVisits.slice(b + 1);
 						}
 					}

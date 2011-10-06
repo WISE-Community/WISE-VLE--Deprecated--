@@ -365,6 +365,15 @@ MS.prototype.render = function() {
     		//the student has previously correctly answered the question so we will display the previous attempt number
     		this.displayPreviousAttemptNumber();
     	}
+    	
+    	if(numWrongChoices != 0) {
+    		//student has not answered this question correctly
+    		
+    	    if(this.isChallengeEnabled()) {
+    	    	//challenge question is enabled so we will create the constraint
+    	    	eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.node.id, mode:'node'}, id:this.node.utils.generateKey(20), workCorrect:true, buttonName:"Submit Answer"});
+    	    }
+    	}
     } else {
     	//hide the feedback and number of attempts display
     	$('#feedbackDiv').hide();
@@ -684,7 +693,8 @@ MS.prototype.checkAnswer = function() {
 		feedbackDiv.innerHTML = "&nbsp";
 		
 		if (numWrongChoices == 0) {
-			//the student answereed correctly
+			//the student answered correctly
+			state.isCorrect = true;
 			
 			//display which attempt number was just attempted
 			this.displayPreviousAttemptNumber();
@@ -700,10 +710,11 @@ MS.prototype.checkAnswer = function() {
 				if(state != null) {
 					//set the score into the state
 					state.score = currentScore;				
-				}				
+				}
 			}
 		} else {
 			//the student answered incorrectly
+			state.isCorrect = false;
 			
 			//check if scoring is enabled
 			if(this.isChallengeScoringEnabled()) {
@@ -931,6 +942,22 @@ MS.prototype.challengeEnabled = function() {
 	}
 	
 	return enabled;
+};
+
+/**
+ * Determine if challenge question is enabled
+ */
+MS.prototype.isChallengeEnabled = function() {
+	var isChallengeQuestion = false;
+	
+	if(this.content.assessmentItem.interaction.attempts != null &&
+			this.content.assessmentItem.interaction.attempts.navigateTo != null &&
+			this.content.assessmentItem.interaction.attempts.navigateTo != "") {
+		//the navigateTo variable is set so challenge question is enabled
+		isChallengeQuestion = true;
+	}
+	
+	return isChallengeQuestion;
 };
 
 /**

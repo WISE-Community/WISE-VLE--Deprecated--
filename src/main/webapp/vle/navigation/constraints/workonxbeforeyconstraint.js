@@ -17,13 +17,27 @@ function WorkOnXBeforeYConstraint(opts){
 	this.constraintSatisfaction;
 	
 	/* Set the message if provided, set default if not. The default message is dependent on the modes */
-	var xTitle = this.view.getProject().getNodeById(this.xId).getTitle();
-	var xMsg = (this.xMode=='node') ? 'the step ' + xTitle : (this.xMode=='sequenceAny') ? 'ANY step in activity ' + xTitle :
-		'ALL steps in activity ' + xTitle;
+	var xTitle = "";
+	
+	if(this.xMode=='node') {
+		xTitle = this.node.view.getProject().getStepNumberAndTitle(this.xId);
+	} else {
+		xTitle = this.view.getProject().getNodeById(this.xId).getTitle();
+	}
+	
+	var xMsg = (this.xMode=='node') ? ' "Step ' + xTitle + '"' : (this.xMode=='sequenceAny') ? 'ANY step in activity "' + xTitle + '"':
+		'ALL steps in activity "' + xTitle + '"';
 	var yTitle = this.view.getProject().getNodeById(this.yId).getTitle();
-	var yMsg = (this.status==1) ? (this.yMode=='node') ? ' before this step will be enabled.' : ' before any of the steps for activity ' + 
-		yTitle + ' will be enabled.' : (this.yMode=='node') ? ' before visiting the step ' + yTitle + '.' : ' before visiting the activity ' + 
-		yTitle + '.';
+	
+	if(this.yMode=='node') {
+		yTitle = this.node.view.getProject().getStepNumberAndTitle(this.yId);
+	} else {
+		yTitle = this.view.getProject().getNodeById(this.yId).getTitle();
+	}
+	
+	var yMsg = (this.status==1) ? (this.yMode=='node') ? ' before this step will be enabled.' : ' before any of the steps for activity "' + 
+		yTitle + '" will be enabled.' : (this.yMode=='node') ? ' before visiting "Step ' + yTitle + '".' : ' before visiting the activity "' + 
+		yTitle + '".';
 	this.msg = (opts.msg) ? opts.msg : 'You must complete the work for ' + xMsg + yMsg;
 	
 	this.setupPatterns();

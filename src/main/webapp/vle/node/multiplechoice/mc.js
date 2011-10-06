@@ -168,21 +168,27 @@ MC.prototype.render = function() {
 	//get the latest state
 	var latestState = this.getLatestState();
 	
-	if(latestState != null) {
-		if(latestState.isCorrect) {
-			//the student previously answered the question correctly
-			
-			//display the message that they correctly answered the question
-			var resultMessage = this.getResultMessage(latestState.isCorrect);
-			
-			//check if scoring is enabled
-			if(this.isChallengeScoringEnabled()) {
-				//display the score they received
-				var score = this.getScore(this.attempts.length);
-				resultMessage += " You received " + score + " point(s).";
-			}
-			
-			$('#resultMessageDiv').html(resultMessage);
+	if(latestState != null && latestState.isCorrect) {
+		//the student previously answered the question correctly
+		
+		//display the message that they correctly answered the question
+		var resultMessage = this.getResultMessage(latestState.isCorrect);
+		
+		//check if scoring is enabled
+		if(this.isChallengeScoringEnabled()) {
+			//display the score they received
+			var score = this.getScore(this.attempts.length);
+			resultMessage += " You received " + score + " point(s).";
+		}
+		
+		$('#resultMessageDiv').html(resultMessage);
+	} else {
+		//student has not answered this question correctly
+		
+		//check if challenge question is enabled
+		if(this.isChallengeEnabled()) {
+			//challenge question is enabled so we will create the constraint
+			eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.node.id, mode:'node'}, id:this.node.utils.generateKey(20), workCorrect:true, buttonName:"Check Answer"});			
 		}
 	}
 	
@@ -236,6 +242,20 @@ MC.prototype.getCurrentPossibleScoreTableHtml = function() {
 	
 	return html;
 };
+
+/**
+ * Determine if challenge question is enabled
+ */
+MC.prototype.isChallengeEnabled = function() {
+	var isChallengeQuestion = false;
+	
+	if(this.node.getType() == 'ChallengeNode') {
+		isChallengeQuestion = true;
+	}
+	
+	return isChallengeQuestion;
+};
+
 
 /**
  * Determine if scoring is enabled

@@ -31,6 +31,7 @@ function MSSTATE() {
 	this.sourceBucket = null;
     this.buckets = [];
     this.score = null;
+    this.isCorrect = null;
 }
 
 /**
@@ -75,6 +76,11 @@ MSSTATE.prototype.getJsonifiableState = function() {
 		msState.score = this.score;
 	}
 	
+	if(this.isCorrect != null) {
+		//set isCorrect
+		msState.isCorrect = this.isCorrect;
+	}
+	
 	//return the MSSTATE
 	return msState;
 };
@@ -93,6 +99,9 @@ MSSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	
 	//get the score from the json
 	msState.score = stateJSONObj.score;
+	
+	//get whether the state is correct
+	msState.isCorrect = stateJSONObj.isCorrect;
 	
 	//return the MCSTATE object
 	return msState;

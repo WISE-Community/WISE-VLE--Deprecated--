@@ -16,9 +16,18 @@ function WorkOnXBeforeAdvancingConstraint(opts){
 	this.constraintSatisfaction;
 	
 	/* Set the message if provided, set default if not. The default message is dependent on the modes */
-	var xTitle = this.view.getProject().getNodeById(this.xId).getTitle();
-	var xMsg = (this.xMode=='node') ? "the step '" + xTitle + "'" : (this.xMode=='sequenceAny') ? "ANY step in activity '" + xTitle  + "'":
-		"ALL steps in activity '" + xTitle + "'";
+	var xTitle = "";
+	
+	if(this.xMode=='node') {
+		//x is a step so we will get the step number and title e.g. "1.5: Energy Transfer"
+		xTitle = this.view.getProject().getStepNumberAndTitle(this.xId);
+	} else {
+		//x is an activity
+		xTitle = this.view.getProject().getNodeById(this.xId).getTitle();
+	}
+	
+	var xMsg = (this.xMode=='node') ? '"Step ' + xTitle + '"' : (this.xMode=='sequenceAny') ? 'ANY step in activity "' + xTitle  + '"':
+		'ALL steps in activity "' + xTitle + '"';
 	
 	//default button name will be the 'save' button
 	var buttonName = 'save';
@@ -34,7 +43,14 @@ function WorkOnXBeforeAdvancingConstraint(opts){
 	if(opts.msg) {
 		this.msg = opts.msg;
 	} else {
-		this.msg = "You must complete the work for " + xMsg + " before moving ahead. If you are satisfied with your answer, click the '" + buttonName + "' button.";
+		if(opts.workCorrect) {
+			//display the message to tell the student they must answer this question correctly in order to move on
+			this.msg = 'You must correctly answer ' + xMsg + ' before moving ahead.';
+			this.workCorrect = opts.workCorrect;
+		} else {
+			//display the message to tell the student they must complete the work in order to move on
+			this.msg = 'You must complete the work for ' + xMsg + ' before moving ahead. If you are satisfied with your answer, click the "' + buttonName + '" button.';			
+		}
 	}
 	
 	this.setupPatterns();
@@ -47,9 +63,16 @@ WorkOnXBeforeAdvancingConstraint.prototype.setupPatterns = function(){
 	/* setup the constraint satisfaction object with the constraint and satisfaction patterns */
 	this.constraintSatisfaction = {
 		constraintPattern: {sequential:false,all:undefined,nodeIds:[]},
-		satisfactionPattern: {sequential:false,all:undefined,nodeIds:[],workCompleted:true},
 		toVisitId: undefined
 	};
+	
+	if(this.workCorrect) {
+		//require the work to be correct
+		this.constraintSatisfaction.satisfactionPattern = {sequential:false,all:undefined,nodeIds:[],workCorrect:true};
+	} else {
+		//require the work just to be complete, correctness not required
+		this.constraintSatisfaction.satisfactionPattern = {sequential:false,all:undefined,nodeIds:[],workCompleted:true};
+	}
 	
 	/* setup trigger (constraint) pattern and satisfaction patterns */
 	if(this.xMode=='node'){

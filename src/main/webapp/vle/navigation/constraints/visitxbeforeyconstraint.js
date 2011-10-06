@@ -18,11 +18,11 @@ function VisitXBeforeYConstraint(opts){
 	/* Set the message if provided, set default if not. The default message is dependent on the 
 	 * mode and the status */
 	var msgTitle = this.view.getProject().getStepNumberAndTitle(this.xId);
-	this.msg = (opts.msg) ? opts.msg : (this.status==1) ? (this.xMode=='node') ? 'This step will be disabled until you visit ' +
-		msgTitle : (this.xMode=='sequenceAll') ? 'This step will be disabled until you visit ALL steps in ' + msgTitle : 'This ' +
-		'step will be disabled until you visit ANY of the steps in activiity ' + msgTitle : (this.xMode=='node') ? 'You must visit ' + 
-		msgTitle + ' before visiting this step.' : (this.xMode=='sequenceAll') ? 'You must visit ALL steps in activity ' + msgTitle  + 
-		' before visiting this step.' : 'You must visit ANY of the steps in activity ' + msgTitle + ' before visiting this step.';
+	this.msg = (opts.msg) ? opts.msg : (this.status==1) ? (this.xMode=='node') ? 'This step will be disabled until you visit "Step ' +
+		msgTitle + '"': (this.xMode=='sequenceAll') ? 'This step will be disabled until you visit ALL steps in "' + msgTitle + '"' : 'This ' +
+		'step will be disabled until you visit ANY of the steps in activiity "' + msgTitle + '"' : (this.xMode=='node') ? 'You must visit "' + 
+		msgTitle + '" before visiting this step.' : (this.xMode=='sequenceAll') ? 'You must visit ALL steps in activity "' + msgTitle  + 
+		'" before visiting this step.' : 'You must visit ANY of the steps in activity "' + msgTitle + '" before visiting this step.';
 	
 	this.setupPatterns();
 };
