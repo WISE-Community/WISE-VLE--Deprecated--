@@ -100,6 +100,22 @@ iframe {
 	/*border: 2px solid #FF563F;*/
 }
 
+#notifications {
+	text-align:center;
+}
+
+#notifications span {
+	font-weight:bold;
+	font-size:.9em;
+	color:#745a33;
+	border:1px solid #745a33;
+	background-color:#f4efe8;
+	padding:.25em .5em;
+	box-shadow:1px 1px 2px #aaa;
+	-moz-box-shadow:1px 1px 2px #aaa;
+	-webkit-box-shadow:1px 1px 2px #aaa;
+}
+
 #gradeWorkDiv {
 	text-align: left;
 	font-size:.9em;
@@ -237,6 +253,13 @@ a.periodChoice {
 	color:#DADF8B;
 	margin:0 .25em;
 	padding: 2px 6px;
+}
+
+a.periodChoice.checked {
+	background-color: #DADF8B;
+	color: #333;
+	text-decoration: none !important;
+	border-radius: 4px;
 }
 
 .gradingContent {
