@@ -47,7 +47,11 @@
 	    		dataStreamEvent: function(type,count,data) {
 	    		},
 
+	    		/*
+	    		 * called when the applet is done loading
+	    		 */
 	    		sensorsReady: function() {
+	    			sensor.sensorReady();
 	    		}
 	    	};
 
@@ -206,7 +210,10 @@
 		    						<tr valign="bottom"><td><div><input id="yMinInput" type="text" size=3 onChange="updateAxisRange()"></input></div></td></tr>
 		    					</table>
 		    				</td>
-		    				<td><div id="graphDiv" style="width:600px;height:300px;"></div></td>
+		    				<td>
+		    					<div id="graphDiv" style="width:600px;height:300px;"></div>
+		    					<div id="graphMessageDiv" style="position:absolute;top:180px;left:120px;width:500px;display:none"><table id="graphMessageTable" align='center'><tr><td id="graphMessage" style="text-align:center"></td></tr></table></div>
+		    				</td>
 		    			</tr>
 		    			<tr>
 		    				<td><div id="bottomLeftGraphDiv"></div></td>

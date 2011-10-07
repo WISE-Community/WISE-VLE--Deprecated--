@@ -972,11 +972,13 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 				//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
 				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(node.id);
 				
-				//replace all \n with <br>
-				work = work.replace(/\n/g, '<br>');
-				
-				//append the html
-				html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
+				if(typeof work == "string") {
+					//replace all \n with <br>
+					work = work.replace(/\n/g, '<br>');
+					
+					//append the html
+					html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';					
+				}
 			};
 		};
 		

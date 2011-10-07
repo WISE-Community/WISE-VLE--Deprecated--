@@ -158,6 +158,9 @@ function SENSOR(node) {
 		//the prediction should be locked
 		this.predictionLocked = true;
 	}
+	
+	//whether the sensor has been loaded or not
+	this.sensorLoaded = false;
 };
 
 /**
@@ -302,6 +305,8 @@ SENSOR.prototype.getLatestStateCopy = function() {
  * This is called when the student has started to collect data
  */
 SENSOR.prototype.startCollecting = function() {
+	//hide the graph message
+	$('#graphMessageDiv').hide();
 	
 	if(this.lockPredictionOnCollectionStart && !this.predictionLocked) {
 		/*
@@ -1564,6 +1569,11 @@ SENSOR.prototype.editAnnotation = function(seriesName, x, annotationText) {
  * @return
  */
 SENSOR.prototype.insertApplet = function() {
+	//display the loading message on the graph
+	$('#graphMessageDiv').show();
+	$('#graphMessageTable').css('background-color', 'red');
+	$('#graphMessage').html('Loading...<br>(Click "Allow" or "Trust" if you see a popup. If this message does not change in 1 minute, quit your browser, open it back up, and try again.)');
+	
 	//the otml file determines what type of sensor the applet expects
 	var otmlFileName = "";
 	
@@ -2384,6 +2394,19 @@ SENSOR.prototype.getDataIndexAtX = function(series, x) {
 SENSOR.prototype.disablePredictionTextInputAndDeleteButton = function() {
 	$('.predictionTextInput').attr('disabled', true);
 	$('.predictionDeleteButton').attr('disabled', true);
+};
+
+/**
+ * Called when the sensor is ready
+ */
+SENSOR.prototype.sensorReady = function() {
+	//remember that the sensor is ready
+	this.sensorLoaded = true;
+	
+	//display the done loading message on the graph
+	$('#graphMessageDiv').show();
+	$('#graphMessageTable').css('background-color', 'yellow');
+	$('#graphMessage').html('Done Loading<br>(Click the "Start" button to begin)');
 };
 
 //used to notify scriptloader that this script has finished loading
