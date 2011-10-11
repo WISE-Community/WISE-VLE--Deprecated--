@@ -360,6 +360,11 @@ MC.prototype.checkAnswer = function() {
 			if (choice) {
 				document.getElementById('feedback_' + choiceIdentifier).innerHTML = choice.feedback;
 
+				if(this.node.getType()=='ChallengeNode') {
+					//highlight the feedback in yellow if this is a challenge question
+					$('#feedback_' + choiceIdentifier).css('background-color', 'yellow');
+				}
+				
 				var choiceTextDiv = document.getElementById("choicetext:" + choiceIdentifier);
 				if (this.isCorrect(choice.identifier)) {
 					choiceTextDiv.setAttribute("class", "correct");
