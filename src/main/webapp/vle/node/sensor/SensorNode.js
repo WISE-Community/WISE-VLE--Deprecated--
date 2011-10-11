@@ -2,8 +2,8 @@
 SensorNode.prototype = new Node();
 SensorNode.prototype.constructor = SensorNode;
 SensorNode.prototype.parentNode = Node.prototype;
-SensorNode.authoringToolName = "Sensor";
-SensorNode.authoringToolDescription = "Students use a USB probe to collect data";
+SensorNode.authoringToolName = "Graph/Sensor";
+SensorNode.authoringToolDescription = "Students plot points on a graph and can use a USB probe to collect data";
 function SensorNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

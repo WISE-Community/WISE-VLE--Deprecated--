@@ -161,6 +161,9 @@ function SENSOR(node) {
 	
 	//whether the sensor has been loaded or not
 	this.sensorLoaded = false;
+	
+	//the last point the student has clicked on
+	this.lastPointClicked = null;
 };
 
 /**
@@ -243,13 +246,48 @@ SENSOR.prototype.render = function() {
 		 * for use when they are creating a prediction
 		 */
 		this.mouseDown = false;
-		$("#" + this.graphDivId).bind('mousedown', {thisSensor:this},(function(event) {
+		$("#" + this.graphDivId).bind('mousedown', {thisSensor:this}, (function(event) {
 			event.data.thisSensor.mouseDown = true;
 		}));
-		$("#" + this.graphDivId).bind('mouseup', {thisSensor:this},(function(event) {
+		$("#" + this.graphDivId).bind('mouseup', {thisSensor:this}, (function(event) {
 			event.data.thisSensor.mouseDown = false;
 		}));
 
+		//listen for the keydown event
+		$(window).bind("keydown", {thisSensor:this}, function(event) {
+		    event.data.thisSensor.handleKeyDown(event);
+		});
+		
+		//listen for the click event
+		$(window).bind("click", {thisSensor:this}, function(event) {
+			//check if the mouse is inside the graph div
+		    if(!event.data.thisSensor.mouseInsideGraphDiv) {
+		    	/*
+		    	 * the mouse is outside the graph div so we will
+		    	 * set the lastPointClicked to null. we need to do
+		    	 * this because if the student clicked on a point
+		    	 * on the graph and then decided to start typing
+		    	 * their response and typed backspace while typing
+		    	 * their response, it would delete the 
+		    	 * lastPointClicked point. so now whenever the
+		    	 * student clicks outside of the graph div we
+		    	 * just clear the lastPointClicked so they won't
+		    	 * accidentally delete a point on the graph.
+		    	 */
+		    	event.data.thisSensor.lastPointClicked = null;
+		    }
+		});
+		
+		//listen for the mouse enter event on the graphDiv
+		$("#" + this.graphDivId).bind("mouseenter", {thisSensor:this}, function(event) {
+			event.data.thisSensor.mouseInsideGraphDiv = true;
+		});
+		
+		//listen for the mouse leave event on the graphDiv
+		$("#" + this.graphDivId).bind("mouseleave", {thisSensor:this}, function(event) {
+			event.data.thisSensor.mouseInsideGraphDiv = false;
+		});
+		
 		/*
 		 * used to hide or show the annotation tool tips. if the student has
 		 * their mouse in the graph div we will hide the annotation tool tips
@@ -306,7 +344,7 @@ SENSOR.prototype.getLatestStateCopy = function() {
  */
 SENSOR.prototype.startCollecting = function() {
 	//hide the graph message
-	$('#graphMessageDiv').hide();
+	this.hideGraphMessage();
 	
 	if(this.lockPredictionOnCollectionStart && !this.predictionLocked) {
 		/*
@@ -1058,7 +1096,17 @@ SENSOR.prototype.setupPlotClick = function() {
                 var dataPoint = item.datapoint;
                 
                 //create an annotation
-                event.data.thisSensor.createAnnotation(seriesName, dataIndex, dataPoint);        		
+                event.data.thisSensor.createAnnotation(seriesName, dataIndex, dataPoint);
+                
+                //get the x value
+                var x = dataPoint[0];
+                
+            	//remember the data for the point that was clicked
+                event.data.thisSensor.lastPointClicked = {
+            		seriesName:seriesName,
+            		dataIndex:dataIndex,
+            		x:x
+            	};
         	}
         } else {
         	//student has clicked on an empty spot on the graph
@@ -1224,7 +1272,7 @@ SENSOR.prototype.setupAnnotations = function() {
  */
 SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot, dataSets) {
 	if(sensorState == null) {
-		//use this.sensorState as the default sensor state if sensorState was note provided
+		//use this.sensorState as the default sensor state if sensorState was not provided
 		sensorState = this.sensorState;
 	}
 	
@@ -1266,7 +1314,7 @@ SENSOR.prototype.highlightAnnotationPoints = function(sensorState, plot, dataSet
 		var series = this.getSeriesByName(plot, seriesName);
 		
 		if(series != null) {
-			//add the annotation tool to tip the UI
+			//add the annotation tool tip to the UI
 			this.addAnnotationToolTipToUI(seriesName, dataIndex, x, y, annotation.annotationText);
 		}
 	}
@@ -1570,9 +1618,7 @@ SENSOR.prototype.editAnnotation = function(seriesName, x, annotationText) {
  */
 SENSOR.prototype.insertApplet = function() {
 	//display the loading message on the graph
-	$('#graphMessageDiv').show();
-	$('#graphMessageTable').css('background-color', 'red');
-	$('#graphMessage').html('Loading...<br>(Click "Allow" or "Trust" if you see a popup. If this message does not change in 1 minute, quit your browser, open it back up, and try again.)');
+	this.showGraphMessage('Loading...<br>(Click "Allow" or "Trust" if you see a popup. If this message does not change in 1 minute, quit your browser, open it back up, and try again.)', 'red');
 	
 	//the otml file determines what type of sensor the applet expects
 	var otmlFileName = "";
@@ -2403,10 +2449,123 @@ SENSOR.prototype.sensorReady = function() {
 	//remember that the sensor is ready
 	this.sensorLoaded = true;
 	
-	//display the done loading message on the graph
+	if(this.content.createPrediction) {
+		/*
+		 * if the this step requires the student to create a prediction
+		 * and also retrieve sensor probe data, we will just hide the 
+		 * graphMessageDiv so it does not get in their way when 
+		 * they create their prediction. usually we will hide the
+		 * graphMessageDiv when they click the "Start" button but
+		 * in this case we want them to create the prediction first
+		 * before actually retrieving data from the sensor probe by
+		 * clicking "Start"
+		 */
+		this.hideGraphMessage();
+	} else {
+		//display the done loading message on the graph
+		this.showGraphMessage('Done Loading<br>(Click the "Start" button to begin)', 'yellow');
+		
+		//remove the done loading message after 5 seconds
+		setTimeout("$('#graphMessageDiv').hide();", 5000);
+	}
+};
+
+/**
+ * Show the graph message
+ * @param message the message the student will see
+ * @param backgroundColor the background color of the message
+ */
+SENSOR.prototype.showGraphMessage = function(message, backgroundColor) {
+	//find the position of the graph div so we can display the message in the center of it
+	var position = $('#graphDiv').position();
+	
+	//get the position that will show the message in the center of the graph div
+	var top = position.top + 115;
+	var left = position.left + 55;
+	
+	//set the position
+	$('#graphMessageDiv').css('top', top);
+	$('#graphMessageDiv').css('left', left);
+	
+	//show the message
 	$('#graphMessageDiv').show();
-	$('#graphMessageTable').css('background-color', 'yellow');
-	$('#graphMessage').html('Done Loading<br>(Click the "Start" button to begin)');
+	$('#graphMessageTable').css('background-color', backgroundColor);
+	$('#graphMessage').html(message);
+};
+
+/**
+ * Hide the graph message
+ */
+SENSOR.prototype.hideGraphMessage = function() {
+	$('#graphMessageDiv').hide();
+};
+
+/**
+ * Called when the student clicks
+ * @param event the click event
+ */
+SENSOR.prototype.handleKeyDown = function(event) {
+	if(event.keyCode == 8) {
+		//student pressed the backspace key
+		
+		/*
+		 * check if the student clicked on a prediction point
+		 * just before pressing the backspace key
+		 */
+		if(this.lastPointClicked != null) {
+			//get the data of the point
+			var seriesName = this.lastPointClicked.seriesName;
+			var dataIndex = this.lastPointClicked.dataIndex;
+			var x = this.lastPointClicked.x;
+			
+			//remove the prediction point
+			this.removePredictionPoint(seriesName, dataIndex, x);
+			
+			//update the graph
+			this.plotData();
+			
+			//update the flag since the graph has changed
+			this.graphChanged = true;
+			
+			this.lastPointClicked = null;
+		}
+	}
+};
+
+/**
+ * Remove the prediction point from the graph. First remove any
+ * annotations for the point and then remove the point from
+ * the sensorState
+ */
+SENSOR.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
+	//check that this is a prediction line
+	if(this.seriesIsPrediction(seriesName)) {
+		//remove any annotations associated with the point
+		this.deleteAnnotation(seriesName, dataIndex, x);
+		
+		//remove the data point from the sensorState
+		this.sensorState.removePredictionPoint(seriesName, dataIndex);		
+	}
+};
+
+/**
+ * Determine if the series is a prediction line
+ * @param seriesName the name of the series. usually
+ * the name of a prediction line will contain the
+ * word prediction e.g.
+ * "temperature prediction"
+ * "distance prediction"
+ * @returns whether the line is a prediction line
+ */
+SENSOR.prototype.seriesIsPrediction = function(seriesName) {
+	var result = false;
+	
+	//check if the series name contains the word prediction
+	if(seriesName.indexOf("prediction") != -1) {
+		result = true;
+	}
+	
+	return result;
 };
 
 //used to notify scriptloader that this script has finished loading

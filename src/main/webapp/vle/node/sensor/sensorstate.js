@@ -469,6 +469,16 @@ SENSORSTATE.prototype.copyState = function(populatedState, emptyState) {
 	this.parseDataJSONObj(sensorStateCopyJSONObj, emptyState);
 };
 
+/**
+ * Remove the data point from the prediction array
+ * @param seriesName the name of the series/line
+ * @param dataIndex the index within the prediction array to remove
+ */
+SENSORSTATE.prototype.removePredictionPoint = function(seriesName, dataIndex) {
+	//remove the element at the given index
+	this.predictionArray.splice(dataIndex, 1);
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/sensor/sensorstate.js');
