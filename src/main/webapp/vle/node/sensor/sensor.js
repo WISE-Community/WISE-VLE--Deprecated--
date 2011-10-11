@@ -131,7 +131,7 @@ function SENSOR(node) {
 	}
 	
 	/*
-	 * used to store the plot variable returne from $.plot() so that we can access
+	 * used to store the plot variable returned from $.plot() so that we can access
 	 * it from other functions
 	 */
 	this.globalPlot = null;

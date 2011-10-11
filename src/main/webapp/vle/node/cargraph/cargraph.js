@@ -97,6 +97,9 @@ function CARGRAPH(node) {
 		//the prediction should be locked
 		this.predictionLocked = true;
 	}
+	
+	//the last point the student has clicked on
+	this.lastPointClicked = null;
 };
 
 /**
@@ -153,13 +156,48 @@ CARGRAPH.prototype.render = function() {
 	 * for use when they are creating a prediction
 	 */
 	this.mouseDown = false;
-	$("#" + this.graphDivId).bind('mousedown', {thisCarGraph:this},(function(event) {
+	$("#" + this.graphDivId).bind('mousedown', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = true;
 	}));
-	$("#" + this.graphDivId).bind('mouseup', {thisCarGraph:this},(function(event) {
+	$("#" + this.graphDivId).bind('mouseup', {thisCarGraph:this}, (function(event) {
 		event.data.thisCarGraph.mouseDown = false;
 	}));
 
+	//listen for the keydown event
+	$(window).bind("keydown", {thisCarGraph:this}, function(event) {
+	    event.data.thisCarGraph.handleKeyDown(event);
+	});
+	
+	//listen for the click event
+	$(window).bind("click", {thisCarGraph:this}, function(event) {
+		//check if the mouse is inside the graph div
+	    if(!event.data.thisCarGraph.mouseInsideGraphDiv) {
+	    	/*
+	    	 * the mouse is outside the graph div so we will
+	    	 * set the lastPointClicked to null. we need to do
+	    	 * this because if the student clicked on a point
+	    	 * on the graph and then decided to start typing
+	    	 * their response and typed backspace while typing
+	    	 * their response, it would delete the 
+	    	 * lastPointClicked point. so now whenever the
+	    	 * student clicks outside of the graph div we
+	    	 * just clear the lastPointClicked so they won't
+	    	 * accidentally delete a point on the graph.
+	    	 */
+	    	event.data.thisCarGraph.lastPointClicked = null;
+	    }
+	});
+	
+	//listen for the mouse enter event on the graphDiv
+	$("#" + this.graphDivId).bind("mouseenter", {thisCarGraph:this}, function(event) {
+		event.data.thisCarGraph.mouseInsideGraphDiv = true;
+	});
+	
+	//listen for the mouse leave event on the graphDiv
+	$("#" + this.graphDivId).bind("mouseleave", {thisCarGraph:this}, function(event) {
+		event.data.thisCarGraph.mouseInsideGraphDiv = false;
+	});
+	
 	/*
 	 * used to hide or show the annotation tool tips. if the student has
 	 * their mouse in the graph div we will hide the annotation tool tips
@@ -741,7 +779,17 @@ CARGRAPH.prototype.setupPlotClick = function() {
                 var dataPoint = item.datapoint;
                 
                 //create an annotation
-                event.data.thisCarGraph.createAnnotation(seriesName, dataIndex, dataPoint);        		
+                event.data.thisCarGraph.createAnnotation(seriesName, dataIndex, dataPoint);
+                
+                //get the x value
+                var x = dataPoint[0];
+                
+            	//remember the data for the point that was clicked
+                event.data.thisCarGraph.lastPointClicked = {
+            		seriesName:seriesName,
+            		dataIndex:dataIndex,
+            		x:x
+            	};
         	}
         } else {
         	//student has clicked on an empty spot on the graph
@@ -1913,6 +1961,76 @@ CARGRAPH.prototype.smarts = function() {
 	return true;
 };
 
+
+/**
+ * Called when the student clicks
+ * @param event the click event
+ */
+CARGRAPH.prototype.handleKeyDown = function(event) {
+	if(event.keyCode == 8) {
+		//student pressed the backspace key
+		
+		/*
+		 * check if the student clicked on a prediction point
+		 * just before pressing the backspace key
+		 */
+		if(this.lastPointClicked != null) {
+			//get the data of the point
+			var seriesName = this.lastPointClicked.seriesName;
+			var dataIndex = this.lastPointClicked.dataIndex;
+			var x = this.lastPointClicked.x;
+			
+			//remove the prediction point
+			this.removePredictionPoint(seriesName, dataIndex, x);
+			
+			//update the graph
+			this.plotData();
+			
+			//update the flag since the graph has changed
+			this.graphChanged = true;
+			
+			this.lastPointClicked = null;
+		}
+	}
+};
+
+/**
+ * Remove the prediction point from the graph. First remove any
+ * annotations for the point and then remove the point from
+ * the sensorState
+ */
+CARGRAPH.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
+	//check that this is a prediction line
+	if(this.seriesIsPrediction(seriesName)) {
+		//remove any annotations associated with the point
+		this.deleteAnnotation(seriesName, dataIndex, x);
+		
+		//remove the data point from the sensorState
+		this.carGraphState.removePredictionPoint(seriesName, dataIndex);		
+	}
+};
+
+/**
+ * Determine if the series is a prediction line
+ * @param seriesName the name of the series. usually
+ * the name of a prediction line will contain the
+ * word prediction e.g.
+ * "temperature prediction"
+ * "distance prediction"
+ * or in the case of car graph
+ * "greenCar"
+ * @returns whether the line is a prediction line
+ */
+CARGRAPH.prototype.seriesIsPrediction = function(seriesName) {
+	var result = false;
+	
+	//check if the series name contains the word prediction or greenCar
+	if(seriesName.indexOf("prediction") != -1 || seriesName == "greenCar") {
+		result = true;
+	}
+	
+	return result;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

@@ -395,6 +395,27 @@ CARGRAPHSTATE.prototype.removePredictionAnnotations = function() {
 	}
 };
 
+/**
+ * Remove the data point from the prediction array
+ * @param seriesName the name of the series/line
+ * @param dataIndex the index within the prediction array to remove
+ */
+CARGRAPHSTATE.prototype.removePredictionPoint = function(seriesName, dataIndex) {
+	//loop through all the prediction objects
+	for(var x=0; x<this.predictionArray.length; x++) {
+		//get a prediction object
+		var prediction = this.predictionArray[x];
+		
+		if(prediction != null) {
+			//make sure the prediction object is for the series we want
+			if(seriesName == prediction.id) {
+				//remove the element at the given index
+				prediction.predictions.splice(dataIndex, 1);
+			}
+		}
+	}
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/cargraph/cargraphstate.js');
