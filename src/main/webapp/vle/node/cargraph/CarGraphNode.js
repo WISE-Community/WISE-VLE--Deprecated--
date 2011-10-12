@@ -321,9 +321,21 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	var smartFilterResult = this.smartFilter(carGraphState); // obj
 	if (smartFilterResult.error !== true) {
 		var carGraphSmartFilterDiv = createElement(document, 'div', {id: "smartFilter_" + stepWorkId, "class":"smartFilter"});
-		carGraphSmartFilterDiv.innerHTML += "<span class='maxError' style='color:red'>" + smartFilterResult.maxError + "</span>";
+		carGraphSmartFilterDiv.innerHTML += "<span class='maxError' style='color:red; display:none'>" + smartFilterResult.maxError + "</span>";
 		carGraphSmartFilterDiv.innerHTML += "<span class='avgError' style='color:green; display:none'>" + smartFilterResult.avgError + "</span>";
 		carGraphSmartFilterDiv.innerHTML += "<span class='errMargin' style='color:yellow; display:none'>" + smartFilterResult.errMargin + "</span>";
+		
+		//get the max error possible
+		var maxErrorPossible = 22;
+		
+		//get the max auto graded score
+		var maxAutoGradedScore = 5;
+		
+		//calculate the auto graded score for the student
+		var score = Math.ceil(((maxErrorPossible - smartFilterResult.maxError) / maxErrorPossible) * maxAutoGradedScore);
+		
+		//display the auto graded score
+		carGraphSmartFilterDiv.innerHTML += "Auto-Graded Score: " + score + "/" + maxAutoGradedScore;
 	}
 	else {
 		// some error handling???
