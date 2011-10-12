@@ -100,6 +100,9 @@ function CARGRAPH(node) {
 	
 	//the last point the student has clicked on
 	this.lastPointClicked = null;
+	
+	//whether we want to show the correct graph
+	this.showCorrectGraph = false;
 };
 
 /**
@@ -598,6 +601,57 @@ CARGRAPH.prototype.plotData = function(graphDivId, graphCheckBoxesDivId) {
 	//create the data sets array
 	var dataSets = [];
 
+	/*
+	 * check if we want to show the correct graph. this will be used
+	 * in the grading tool
+	 */
+	if(this.showCorrectGraph) {
+		//get the cars that are used in this car graph step
+		var dynamicImages = this.content.dynamicImages;
+		
+		//get the expected results
+		var expectedResults = this.content.expectedResults;
+		
+		//loop through all the cars that are used in this step
+		for(var x=0; x<dynamicImages.length; x++) {
+			//get a car
+			var dynamicImage = dynamicImages[x];
+			
+			//loop through all the expected results
+			for(var y=0; y<expectedResults.length; y++) {
+				//get an expected result
+				var expectedResult = expectedResults[y];
+				
+				if(dynamicImage != null && expectedResult != null) {
+					//check if we have found an expected result for the car that is used in this step
+					if(dynamicImage.id == expectedResult.id) {
+						//get the array of correct points so we can plot them
+						var expectedPoints = this.convertToPlottableArray(expectedResult.expectedPoints);
+						
+						//get the graph line label
+						var graphLabel = "Correct " + dynamicImage.graphLabel;
+						
+						/*
+						 * get the graph line name. we will just convert the graphLabel to
+						 * have no white space and change the first character to lower case
+						 * e.g.
+						 * Correct Green Car
+						 * to
+						 * correctGreenCar
+						 */
+						var graphName = graphLabel.replace(/\s/g, '');
+						graphName = graphName.charAt(0).toLowerCase() + graphName.substring(1, graphName.length);
+
+						if(expectedPoints != null) {
+							//add the line that will show the correct points
+							dataSets.push({data:expectedPoints, label:graphLabel, color:"blue", name:graphName});			
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	// get the prediction arrays for each dynamic image
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		var dynamicImage = this.content.dynamicImages[i];		
@@ -1488,6 +1542,46 @@ CARGRAPH.prototype.generatePredictionArray = function(state,predictionId) {
 		}		
 	}
 	return predictionArray;
+};
+
+/**
+ * Convert the array of object positions to an array of array positions
+ * e.g.
+ * convert
+ * [{x:1,y:2}, {x:2,y:4}]
+ * to
+ * [[1,2], [2,4]]
+ * @param arrayToConvert an array of object positions with x and y fields
+ * @returns an array of arrays
+ */
+CARGRAPH.prototype.convertToPlottableArray = function(arrayToConvert) {
+	var plottableArray = [];
+	
+	//loop through all the elements in the object array
+	for(var i=0; i<arrayToConvert.length; i++) {
+		//get an object
+		var positionObject = arrayToConvert[i];
+		
+		if(positionObject != null) {
+			//get the x and y fields from the object
+			var x = positionObject.x;
+			var y = positionObject.y;
+			
+			/*
+			 * create an array to hold the x and y values.
+			 * the first element will be x, the second element
+			 * will be y.
+			 */
+			var positionArray = [];
+			positionArray.push(x);
+			positionArray.push(y);
+			
+			//put the array into our parent array
+			plottableArray.push(positionArray);
+		}
+	}
+	
+	return plottableArray;
 };
 
 /**

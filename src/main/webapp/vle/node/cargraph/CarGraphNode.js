@@ -343,6 +343,9 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 		
 	$('#' + divId).append(carGraphSmartFilterDiv);
 	
+	//tell the car graph to show the correct graph along with the student graph
+	carGraph.showCorrectGraph = true;
+	
 	//plot the graph in the carGraph graph div
 	carGraph.plotData(carGraphGraphDiv.id, carGraphGraphCheckBoxesDiv.id);
 	
