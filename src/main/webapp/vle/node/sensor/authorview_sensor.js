@@ -738,7 +738,7 @@ View.prototype.SensorNode.updateYMax = function() {
  */
 View.prototype.SensorNode.updateShowGraphOptions = function() {
 	//get the value of the checkbox
-	this.content.showGraphOptions = $('#showGraphOptions').attr('checked');
+	this.content.showGraphOptions = this.isChecked($('#showGraphOptions').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -749,7 +749,7 @@ View.prototype.SensorNode.updateShowGraphOptions = function() {
  */
 View.prototype.SensorNode.updateEnableCreatePrediction = function() {
 	//get the value of the checkbox
-	this.content.createPrediction = $('#enableCreatePredictionCheckBox').attr('checked');
+	this.content.createPrediction = this.isChecked($('#enableCreatePredictionCheckBox').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -759,8 +759,8 @@ View.prototype.SensorNode.updateEnableCreatePrediction = function() {
  * Save the enableSensor field to the conten
  */
 View.prototype.SensorNode.updateEnableSensor = function() {
-	//get the value of the checkbox
-	this.content.enableSensor = $('#enableSensorCheckBox').attr('checked');
+	//update the value in the content
+	this.content.enableSensor = this.isChecked($('#enableSensorCheckBox').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -771,7 +771,7 @@ View.prototype.SensorNode.updateEnableSensor = function() {
  */
 View.prototype.SensorNode.updateShowVelocity = function() {
 	//get the value of the checkbox
-	this.content.showVelocity = $('#showVelocityCheckBox').attr('checked');
+	this.content.showVelocity = this.isChecked($('#showVelocityCheckBox').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -782,7 +782,7 @@ View.prototype.SensorNode.updateShowVelocity = function() {
  */
 View.prototype.SensorNode.updateShowAcceleration = function() {
 	//get the value of the checkbox
-	this.content.showAcceleration = $('#showAccelerationCheckBox').attr('checked');
+	this.content.showAcceleration = this.isChecked($('#showAccelerationCheckBox').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -793,7 +793,7 @@ View.prototype.SensorNode.updateShowAcceleration = function() {
  */
 View.prototype.SensorNode.updateRequirePredictionBeforeEnter = function() {
 	//get the value of the checkbox
-	this.content.requirePredictionBeforeEnter = $('#requirePredictionBeforeEnterCheckBox').attr('checked');
+	this.content.requirePredictionBeforeEnter = this.isChecked($('#requirePredictionBeforeEnterCheckBox').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -815,7 +815,7 @@ View.prototype.SensorNode.updateGraphTitle = function() {
  */
 View.prototype.SensorNode.updateLockPredictionOnCollectionStart = function() {
 	//get the value of the lock prediction on collection start
-	this.content.lockPredictionOnCollectionStart = $('#lockPredictionOnCollectionStartCheckBox').attr('checked');
+	this.content.lockPredictionOnCollectionStart = this.isChecked($('#lockPredictionOnCollectionStartCheckBox').attr('checked'));
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
@@ -841,6 +841,24 @@ View.prototype.SensorNode.updateDataCollectionTimeLimit = function() {
 	
 	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Determine if the value is checked or not
+ * @param the string 'checked' or the value null
+ * @return true if the value is 'checked'
+ */
+View.prototype.SensorNode.isChecked = function(value) {
+	var checked = false;
+	
+	//check if the value is the string 'checked' or boolean value true
+	if(value == 'checked' || value == true) {
+		checked = true;
+	} else {
+		checked = false;
+	}
+	
+	return checked;
 };
 
 //used to notify scriptloader that this script has finished loading

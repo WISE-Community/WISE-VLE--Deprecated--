@@ -191,7 +191,7 @@
 		</script>
 		<style>
 		   #animationDiv {
-		     height:150px;
+		     height:100px;
 		   }
 		   .staticImage, .staticImageLabel {
 		     position:absolute;
@@ -207,17 +207,28 @@
 	<body>
 	  <div id="previousWorkDiv" style=" display:none;"></div>
 	  
-	  <div id="animationDiv">
-	  </div>
+	  <div id='promptDiv'></div>
+	  
+	  <div id="animationDiv"></div>
+	  
 		<!-- where the start, stop, clear buttons are -->
 		<div id='buttonsDiv'>
-	      <input id="startButton" type="button" value="Start" onclick="startPauseAnimation();" />
-	      <input id="stopButton" type="button" value="Stop" onclick="stopAnimation();" />
-	      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction();" />
-	      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange();" />
-	      <input id="startButton" type="button" value="Show table" onclick="showDialog();" />
-	      <input id="smartsButton" type="button" value="smarts" onclick="smarts();" style="visibility:hidden;" />
-	      <div id='dynamicImageRadioDiv'></div>
+	      <table>
+	      	<tr>
+	      		<td>
+			      <input id="startButton" type="button" value="Start" onclick="startPauseAnimation();" />
+			      <input id="stopButton" type="button" value="Stop" onclick="stopAnimation();" />
+			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction();" />
+			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange();" />
+			      <input id="startButton" type="button" value="Show table" onclick="showDialog();" />
+			      <input id="smartsButton" type="button" value="smarts" onclick="smarts();" style="visibility:hidden;" />
+			      <div id='dynamicImageRadioDiv'></div>
+	      		</td>
+	      		<td>
+	      			<div id="plotHoverPosition"></div>
+	      		</td>
+	      	</tr>
+	      </table>
 	    </div>
 	
 		<!-- the graph will be displayed in this graphDiv -->
@@ -264,7 +275,7 @@
 		    	<td><div id="graphAnnotationsDiv"></div></td>
 		    </tr>
 	    </table>
-	    <p id="hoverdata">
+	    <p id="hoverdata" style="display:none">
 			Mouse hovers at (
 			<span id="x">2.00</span>
 			,
@@ -272,10 +283,11 @@
 			).
 			<span id="clickdata"></span>
 		</p>
+		
 		<!-- the promptDiv, responseDiv, saveButtonDiv are not required, they are only provided as an example,
 			 you may delete all of these divs and create the body however you like -->
 	    <div id='bottomDiv'>
-			<div id='promptDiv'></div>
+			
 		<!--
 			<div id='responseTextArea'><textarea id='studentResponseTextArea' rows='8' cols='80'></textarea></div>
 			<div id='saveButtonDiv'><input type='button' value='Save' onclick='save()'></input></div>

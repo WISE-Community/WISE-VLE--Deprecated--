@@ -231,6 +231,92 @@ Table.prototype.render = function() {
 };
 
 /**
+ * Get the html string representation of the student work for this step
+ * @param work the student work node state
+ * @returns an html string that will display the student work for this step
+ */
+Table.prototype.getHtmlView = function(work) {
+	//make a table
+	var html = "<table>";
+
+	//get the table data
+	var tableData = this.content.tableData;
+	
+	//get the latest state
+	var latestState = work;
+	
+	//loop through all the rows
+	for(var y=0; y<this.content.numRows; y++) {
+		
+		//make a row
+		html += "<tr>";
+		
+		//loop through all the columns in the row
+		for(var x=0; x<this.content.numColumns; x++) {	
+			
+			//make a cell
+			html += "<td>";
+			
+			//get the values for the cell from the content
+			var cellData = tableData[x][y];
+			var cellText = cellData.text;
+			var cellUneditable = cellData.uneditable;
+			var cellSize = cellData.cellSize;
+			
+			if(cellSize == null || cellSize == '') {
+				//cell size is not defined so we will just use the global cell size
+				cellSize = this.globalCellSize;
+			}
+			
+			if(latestState != null) {
+				if(latestState.tableData != null) {
+					if(latestState.tableData[x] != null) {
+						if(latestState.tableData[x][y] != null) {
+							/*
+							 * if the student has worked on this step before, the
+							 * student values will be used in the cells instead of
+							 * the values from the content
+							 */
+							cellText = latestState.tableData[x][y].text;							
+						}
+					}
+				}
+			}
+			
+			/*
+			 * create the text input that will represent the cell
+			 */
+			var cellTextInput = document.createElement('input');
+			cellTextInput.id = 'tableCell_' + x + '-' + y;
+			cellTextInput.name = 'tableCell_' + x + '-' + y;
+			cellTextInput.type = 'text';
+			cellTextInput.value = cellText;
+			cellTextInput.size = cellSize;
+			
+			/*
+			 * create the input cell, all cells will not be editable 
+			 * since this function is only for display purposes
+			 */ 
+			html += "<input ";
+			html += "id='htmlViewTableCell_" + x + "_" + y + "' ";
+			html += "name='htmlViewTableCell_" + x + "_" + y + "' ";
+			html += "value='" + cellText + "' ";
+			html += "size='" + cellSize + "' ";
+			html += "disabled='disabled' ";
+			html += "/>";
+			
+			html += "</td>";
+		}
+		
+		html += "</tr>";
+	}
+	
+	html += "</table>";
+	
+	return html;
+};
+
+/**
  * This function retrieves the latest student work
  * 
  * TODO: rename TEMPLATE

@@ -226,6 +226,21 @@ TableNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/table/table.html');
 };
 
+/**
+ * Get the html string representation of the student work
+ * @param work the student node state that we want to display
+ * @return an html string that will display the student work
+ */
+TableNode.prototype.getHtmlView = function(work) {
+	//make an instance of the Table
+	var table = new Table(this, this.view);
+	
+	//get the html representation of the student work
+	var html = table.getHtmlView(work);
+	
+	return html;
+};
+
 /*
  * Add this node to the node factory so the vle knows it exists.
  * TODO: rename both occurrences of TemplateNode

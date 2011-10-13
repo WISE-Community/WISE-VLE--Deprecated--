@@ -989,7 +989,28 @@ SENSOR.prototype.setupPlotHover = function() {
      * will be passed into the function and accessed through event.data.thisSensor
      */
     $("#" + this.graphDivId).bind("plothover", {thisSensor:this}, function (event, pos, item) {
+    	//get the position of the mouse in the graph
+    	var plotHoverPositionX = pos.x.toFixed(2);
+    	var plotHoverPositionY = pos.y.toFixed(2);
 
+    	//get the x units
+    	var graphXUnits = event.data.thisSensor.getGraphUnits("time");
+    	
+    	//get the sensor type
+    	var seriesType = "";
+    	if(event.data.thisSensor.sensorType == "motion") {
+    		seriesType = "distance";
+    	} else if(event.data.thisSensor.sensorType == "temperature") {
+    		seriesType = "temperature";
+    	}
+    	
+    	//get the y units
+    	var graphYUnits = event.data.thisSensor.getGraphUnits(seriesType);
+    	
+    	//display the position e.g. (10.52 s, 4.34 m)
+    	var plotHoverPositionText = "(" + plotHoverPositionX + " " + graphXUnits + ", " + plotHoverPositionY + " " + graphYUnits + ")";
+    	$('#plotHoverPosition').html(plotHoverPositionText);
+		
         if (item) {
             if (previousPoint != item.datapoint) {
                 previousPoint = item.datapoint;
@@ -2128,43 +2149,47 @@ SENSOR.prototype.setupAxisValues = function() {
 SENSOR.prototype.getPreviousPrediction = function() {
 	if(this.node.prevWorkNodeIds.length > 0) {
 		if(this.view.state != null) {
-			//get the state from the previous step that this step is linked to
-			var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
 			
-			/*
-			 * make sure this step doesn't already have a prediction set 
-			 * and that there was a prediction state from the previous
-			 * associated step before we try to retrieve that prediction and
-			 * set it into our prediction array
-			 */
-			if(this.sensorState.predictionArray.length == 0 && predictionState != null && predictionState != "") {
+			//make sure the previous work node is also a graph/sensor step
+			if(this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type == 'SensorNode') {
+				//get the state from the previous step that this step is linked to
+				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+				
 				/*
-				 * make a copy of the prediction array and set it into our sensor state
-				 * so we don't accidentally modify the data from the other state
+				 * make sure this step doesn't already have a prediction set 
+				 * and that there was a prediction state from the previous
+				 * associated step before we try to retrieve that prediction and
+				 * set it into our prediction array
 				 */
-				this.sensorState.predictionArray = JSON.parse(JSON.stringify(predictionState.predictionArray));
-				
-				var predictionAnnotations = [];
-				
-				//get all the prediction annotations
-				for(var x=0; x<predictionState.annotationArray.length; x++) {
-					var annotation = predictionState.annotationArray[x];
+				if(this.sensorState.predictionArray.length == 0 && predictionState != null && predictionState != "") {
+					/*
+					 * make a copy of the prediction array and set it into our sensor state
+					 * so we don't accidentally modify the data from the other state
+					 */
+					this.sensorState.predictionArray = JSON.parse(JSON.stringify(predictionState.predictionArray));
 					
-					if(annotation.seriesName.indexOf("prediction") != -1) {
-						predictionAnnotations.push(annotation);
+					var predictionAnnotations = [];
+					
+					//get all the prediction annotations
+					for(var x=0; x<predictionState.annotationArray.length; x++) {
+						var annotation = predictionState.annotationArray[x];
+						
+						if(annotation.seriesName.indexOf("prediction") != -1) {
+							predictionAnnotations.push(annotation);
+						}
 					}
-				}
-				
-				/*
-				 * make a copy of the prediction annotations so we don't accidentally modify
-				 * the data in the other state 
-				 */ 
-				predictionAnnotations = JSON.parse(JSON.stringify(predictionAnnotations));
-				
-				//add the prediction annotations to our annotation array
-				for(var y=0; y<predictionAnnotations.length; y++) {
-					this.sensorState.annotationArray.push(predictionAnnotations[y]);
-				}
+					
+					/*
+					 * make a copy of the prediction annotations so we don't accidentally modify
+					 * the data in the other state 
+					 */ 
+					predictionAnnotations = JSON.parse(JSON.stringify(predictionAnnotations));
+					
+					//add the prediction annotations to our annotation array
+					for(var y=0; y<predictionAnnotations.length; y++) {
+						this.sensorState.annotationArray.push(predictionAnnotations[y]);
+					}
+				}				
 			}
 		}
 	}

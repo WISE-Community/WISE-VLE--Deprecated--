@@ -964,28 +964,37 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 		
 		//loop through and add any previous work to html
 		for(var n=0;n<this.prevWorkNodeIds.length;n++){
-			var work = this.view.state.getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
-			if(work){
-				//get the node object
-				var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
-				
-				//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
-				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(node.id);
-				
-				if(typeof work == "string") {
-					//replace all \n with <br>
-					work = work.replace(/\n/g, '<br>');
+			if(this.view.state != null) {
+				var work = this.view.state.getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
+				if(work){
+					//get the node object
+					var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
 					
-					//append the html
-					html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';					
-				}
-			};
+					//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
+					var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(node.id);
+					
+					if(typeof work == "string") {
+						//replace all \n with <br>
+						work = work.replace(/\n/g, '<br>');
+						
+						//append the html
+						html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
+					} else {
+						html += node.getHtmlView(work);
+					}
+				};
+			}
 		};
 		
 		//add reminders to this node's html if div exists
 		var prevWorkDiv = doc.getElementById('previousWorkDiv');
 		if(prevWorkDiv){
-			prevWorkDiv.innerHTML = html;
+			if(html != null && html != "") {
+				prevWorkDiv.innerHTML = html;
+				
+				//make the div visible
+				prevWorkDiv.style.display = "block";
+			}
 		};
 	};
 };
@@ -1359,6 +1368,16 @@ Node.prototype.setIsNotPartOfReviewSequence = function() {
  */
 Node.prototype.isPartOfReviewSequence = function() {
 	return this.isStepPartOfReviewSequence;
+};
+
+/**
+ * Get the html view for the given student work. This function
+ * should be implemented by child classes.
+ * @returns a string with the html that will display
+ * the student work for this step
+ */
+Node.prototype.getHtmlView = function(work) {
+	return "";
 };
 
 //used to notify scriptloader that this script has finished loading

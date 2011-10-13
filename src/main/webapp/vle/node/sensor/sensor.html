@@ -177,6 +177,8 @@
 		</script>
 	</head>
 	<body>
+		<div id="previousWorkDiv" style=" display:none;"></div>
+		
 		<!-- where the prompt/instructions will be displayed to the student -->
 		<div id='promptDiv'></div>
 		
@@ -185,11 +187,20 @@
 		
 		<!-- where the start, stop, clear buttons are -->
 		<div id='buttonsDiv'>
-	      <input id="startButton" type="button" value="Start" onclick="startSensor()" />
-	      <input id="stopButton" type="button" value="Stop" onclick="stopSensor()" />
-	      <input id="clearButton" type="button" value="Clear Probe Data" onclick="clearData()" />
-	      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction()" />
-	      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange()" />
+		  <table>
+		  	<tr>
+		  		<td>
+				  <input id="startButton" type="button" value="Start" onclick="startSensor()" />
+			      <input id="stopButton" type="button" value="Stop" onclick="stopSensor()" />
+			      <input id="clearButton" type="button" value="Clear Probe Data" onclick="clearData()" />
+			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction()" />
+			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange()" />
+	      		</td>
+		  		<td>
+		  			<div id="plotHoverPosition"></div>
+		  		</td>
+		  	</tr>
+	      </table>
 	    </div>
 	    
 	    <!-- the graph will be displayed in this graphDiv -->

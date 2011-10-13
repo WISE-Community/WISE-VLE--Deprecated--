@@ -85,7 +85,7 @@ function CARGRAPH(node) {
 	this.clearDataOnStart = true;
 	
 	//get the prediction from the previous step if there is a prevWorkNodeIds
-	//this.getPreviousPrediction();
+	this.getPreviousPrediction();
 	
 	//default ids for our graph and graph checkboxes divs
 	this.graphDivId = "graphDiv";
@@ -223,6 +223,13 @@ CARGRAPH.prototype.render = function() {
 	// calculate how many pixels there are between the y ticks in the animation div
 	this.yTickSize = 800 / this.content.graphParams.ymax;  
 
+	//find the position of the graph div so we can display the message in the center of it
+	var animationDivPosition = $('#animationDiv').position();
+	
+	//get the position that will show the message in the center of the graph div
+	var animationDivTop = animationDivPosition.top;
+	var animationDivLeft = animationDivPosition.left;
+	
 	// display the static images (e.g. houses and schools)
 	for (var i=0; i < this.content.staticImages.length; i++) {
 		var staticImage = this.content.staticImages[i];		
@@ -234,14 +241,14 @@ CARGRAPH.prototype.render = function() {
 	// display the ticks in the animationDiv
 	for (var i=parseInt(this.content.graphParams.ymin); i <= parseInt(this.content.graphParams.ymax); i++) {
 		var yTickPosition = i*this.yTickSize;         // this tick's x position
-		$("#animationDiv").append("<div style='position:absolute; display:inline; top:50px; left:"+yTickPosition+"'>"+i+"</div>");
+		$("#animationDiv").append("<div style='position:absolute; top:" + (animationDivTop + 40) + "px; left:"+yTickPosition+"'>"+i+"</div>");
 	}
 	
 	// display the dynamic images (e.g. cars)	
 	var topSoFar = 75;  // offset from the top of the screen, to ensure that the images don't overlap
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		var dynamicImage = this.content.dynamicImages[i];		
-		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+topSoFar+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
+		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
 		
 		// add radio input so students can choose which car they're drawing the graph for
 		var checked = "";
@@ -716,8 +723,19 @@ CARGRAPH.prototype.setupPlotHover = function() {
      * will be passed into the function and accessed through event.data.thisCarGraph
      */
     $("#" + this.graphDivId).bind("plothover", {thisCarGraph:this}, function (event, pos, item) {
-		$("#x").text(pos.x.toFixed(2));
-		$("#y").text(pos.y.toFixed(2)); 
+    	//get the position of the mouse in the graph
+    	var plotHoverPositionX = pos.x.toFixed(2);
+    	var plotHoverPositionY = pos.y.toFixed(2);
+
+    	//get the x units
+    	var graphXUnits = "min";
+    	
+    	//get the y units
+    	var graphYUnits = "km";
+    	
+    	//display the position e.g. (10.52 min, 4.34 km)
+    	var plotHoverPositionText = "(" + plotHoverPositionX + " " + graphXUnits + ", " + plotHoverPositionY + " " + graphYUnits + ")";
+    	$('#plotHoverPosition').html(plotHoverPositionText); 
 
         if (item) {
             if (previousPoint != item.datapoint) {
@@ -1731,42 +1749,78 @@ CARGRAPH.prototype.setupAxisValues = function() {
 CARGRAPH.prototype.getPreviousPrediction = function() {
 	if(this.node.prevWorkNodeIds.length > 0) {
 		if(this.view.state != null) {
-			//get the state from the previous step that this step is linked to
-			var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
-			
-			/*
-			 * make sure this step doesn't already have a prediction set 
-			 * and that there was a prediction state from the previous
-			 * associated step before we try to retrieve that prediction and
-			 * set it into our prediction array
-			 */
-			if(this.carGraphState.predictionArray.length == 0 && predictionState != null && predictionState != "") {
+			//get the node type for the previous work
+			var prevWorkNodeType = this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type;
+
+			//we can only pre populate the work from a previous node if it is a graph step like this one
+			if(prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
+				//get the state from the previous step that this step is linked to
+				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+				
 				/*
-				 * make a copy of the prediction array and set it into our carGraph state
-				 * so we don't accidentally modify the data from the other state
+				 * make sure this step doesn't already have a prediction set 
+				 * and that there was a prediction state from the previous
+				 * associated step before we try to retrieve that prediction and
+				 * set it into our prediction array
 				 */
-				this.carGraphState.predictionArray = JSON.parse(JSON.stringify(predictionState.predictionArray));
-				
-				var predictionAnnotations = [];
-				
-				//get all the prediction annotations
-				for(var x=0; x<predictionState.annotationArray.length; x++) {
-					var annotation = predictionState.annotationArray[x];
+				if(this.carGraphState.predictionArray.length == 0 && predictionState != null && predictionState != "") {
+
+					var predictionId = "";
 					
-					if(annotation.seriesName.indexOf("prediction") != -1) {
-						predictionAnnotations.push(annotation);
+					//get the cars that are used in this step
+					var dynamicImages = this.content.dynamicImages;
+					
+					/*
+					 * find the id of the car that is used in this step, we will assume
+					 * only one car is used
+					 */
+					for(var x=0; x<dynamicImages.length; x++) {
+						var dynamicImage = dynamicImages[x];
+						
+						if(dynamicImage != null) {
+							//get the id of the car e.g. "greenCar"
+							predictionId = dynamicImage.id;
+						}
 					}
-				}
-				
-				/*
-				 * make a copy of the prediction annotations so we don't accidentally modify
-				 * the data in the other state 
-				 */ 
-				predictionAnnotations = JSON.parse(JSON.stringify(predictionAnnotations));
-				
-				//add the prediction annotations to our annotation array
-				for(var y=0; y<predictionAnnotations.length; y++) {
-					this.carGraphState.annotationArray.push(predictionAnnotations[y]);
+					
+					/*
+					 * make a copy of the prediction array and set it into our carGraph state
+					 * so we don't accidentally modify the data from the other state
+					 */
+					var predictions = JSON.parse(JSON.stringify(predictionState.predictionArray));
+					
+					//create a prediction object from the previous work from the previous work node
+					var predictionObject = {
+						id:predictionId,
+						predictions:predictions
+					};
+					
+					//put the previous work into our state
+					this.carGraphState.predictionArray.push(predictionObject);
+					
+					var predictionAnnotations = [];
+					
+					//get all the prediction annotations
+					for(var x=0; x<predictionState.annotationArray.length; x++) {
+						var annotation = predictionState.annotationArray[x];
+						
+						if(annotation.seriesName.indexOf("prediction") != -1) {
+							predictionAnnotations.push(annotation);
+						}
+					}
+					
+					/*
+					 * make a copy of the prediction annotations so we don't accidentally modify
+					 * the data in the other state 
+					 */ 
+					predictionAnnotations = JSON.parse(JSON.stringify(predictionAnnotations));
+					
+					//add the prediction annotations to our annotation array
+					for(var y=0; y<predictionAnnotations.length; y++) {
+						this.carGraphState.annotationArray.push(predictionAnnotations[y]);
+					}
+					
+					this.graphChanged = true;
 				}
 			}
 		}
