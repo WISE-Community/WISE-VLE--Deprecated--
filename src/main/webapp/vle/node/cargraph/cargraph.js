@@ -1402,13 +1402,6 @@ CARGRAPH.prototype.showGraphOptions = function() {
 };
 
 /**
- * returns true iff the input is a number
- */
-function IsValidInput(input) {
-	return (input - 0) == input && input.length > 0;	
-};
-
-/**
  * The student has changed the axis range so we will obtain those
  * values and plot the graph again
  */
@@ -1423,17 +1416,12 @@ CARGRAPH.prototype.updateAxisRange = function() {
 		var yMin = $('#yMinInput').val();
 		var yMax = $('#yMaxInput').val();
 		
-		// validate the values
-		var isValid = IsValidInput(xMin) && IsValidInput(xMax) && IsValidInput(yMin) && IsValidInput(yMax)
-				&& (xMin < xMax) && (yMin < yMax);
-
-		// if not valid, alert the user and don't save the values.
-		if (!isValid) {
-			alert("Please enter a number.");
-			$('#xMinInput').val(this.carGraphState.xMin);
-			$('#xMaxInput').val(this.carGraphState.xMax);
-			$('#yMinInput').val(this.carGraphState.yMin);
-			$('#yMaxInput').val(this.carGraphState.yMax);
+		//check if the limit values are valid
+		if(!this.areLimitsValid(xMin, xMax, yMin, yMax, true, true)) {
+			/*
+			 * at least one of the values is not valid so we will
+			 * return without saving any of the values.
+			 */
 			return;
 		}
 		
@@ -1449,6 +1437,179 @@ CARGRAPH.prototype.updateAxisRange = function() {
 		//plot the graph again
 		this.plotData();
 	}
+};
+
+
+/**
+ * Check if the axis limits are valid. Makes sure the values are numbers
+ * and also that the min values are less than the max values
+ * @param xMin the x min value
+ * @param xMax the x max value
+ * @param yMin the y min value
+ * @param yMax the y max value
+ * @param resetInvalidValues whether to reset the values that are invalid
+ * @param enableAlert whether to display the alert message with feedback
+ */
+CARGRAPH.prototype.areLimitsValid = function(xMin, xMax, yMin, yMax, resetInvalidValues, enableAlert) {
+	var result = true;
+	
+	if(isNaN(Number(xMin))) {
+		if(enableAlert) {
+			//x min is not a number
+			alert("Error: x min is not a number");			
+		}
+		
+		if(resetInvalidValues) {
+			//reset the x min value
+			this.resetXMin();			
+		}
+		
+		result = false;
+	} else if(isNaN(Number(xMax))) {
+		if(enableAlert) {
+			//x max is not a number
+			alert("Error: x max is not a number");			
+		}
+
+		if(resetInvalidValues) {
+			//reset the x max value
+			this.resetXMax();			
+		}
+		
+		result = false;
+	} else if(isNaN(Number(yMin))) {
+		if(enableAlert) {
+			//y min is not a number
+			alert("Error: y min is not a number");			
+		}
+		
+		if(resetInvalidValues) {
+			//reset the y min value
+			this.resetYMin();			
+		}
+		
+		result = false;
+	} else if(isNaN(Number(yMax))) {
+		if(enableAlert) {
+			//y max is not a number
+			alert("Error: y max is not a number");			
+		}
+		
+		if(resetInvalidValues) {
+			//reset the y max value
+			this.resetYMax();			
+		}
+		
+		result = false;
+	} else if(Number(xMin) >= Number(xMax)) {
+		if(enableAlert) {
+			//x min is greater than x max
+			alert("Error: x min is greater than x max");			
+		}
+		
+		if(resetInvalidValues) {
+			//reset the x min value
+			this.resetXMin();
+			
+			//reset the x max value
+			this.resetXMax();			
+		}
+		
+		result = false;
+	} else if(Number(yMin) >= Number(yMax)) {
+		if(enableAlert) {
+			//y min is greater than y max
+			alert("Error: y min is greater than y max");			
+		}
+		
+		if(resetInvalidValues) {
+			//reset the y min value
+			this.resetYMin();
+			
+			//reset the y max value
+			this.resetYMax();			
+		}
+		
+		result = false;
+	}
+	
+	return result;
+};
+
+/**
+ * Reset the x min value. First check for an x min value in
+ * the state, and if it is not found there, check the content
+ */
+CARGRAPH.prototype.resetXMin = function() {
+	var previousXMin = null;
+	
+	if(this.carGraphState.xMin != null) {
+		//reset the x min value from the state
+		previousXMin = this.carGraphState.xMin;
+	} else if(this.content.graphParams.xmin != null) {
+		//reset the x min value from the content
+		previousXMin = this.content.graphParams.xmin;
+	}
+	
+	//reset the x min value
+	$('#xMinInput').val(previousXMin);
+};
+
+/**
+ * Reset the x max value. First check for an x max value in
+ * the state, and if it is not found there, check the content
+ */
+CARGRAPH.prototype.resetXMax = function() {
+	var previousXMax = null;
+	
+	if(this.carGraphState.xMax != null) {
+		//reset the x max value from the state
+		previousXMax = this.carGraphState.xMax;
+	} else if(this.content.graphParams.xmax != null) {
+		//reset the x max value from the content
+		previousXMax = this.content.graphParams.xmax;
+	}
+	
+	//reset the x max value
+	$('#xMaxInput').val(previousXMax);
+};
+
+/**
+ * Reset the y min value. First check for an y min value in
+ * the state, and if it is not found there, check the content
+ */
+CARGRAPH.prototype.resetYMin = function() {
+	var previousYMin = null;
+	
+	if(this.carGraphState.yMin != null) {
+		//reset the y min value from the state
+		previousYMin = this.carGraphState.yMin;
+	} else if(this.content.graphParams.ymin != null) {
+		//reset the y min value from the content
+		previousYMin = this.content.graphParams.ymin;
+	}
+	
+	//reset the x min value
+	$('#yMinInput').val(previousYMin);
+};
+
+/**
+ * Reset the x max value. First check for an x max value in
+ * the state, and if it is not found there, check the content
+ */
+CARGRAPH.prototype.resetYMax = function() {
+	var previousYMax = null;
+	
+	if(this.carGraphState.yMax != null) {
+		//reset the y max value from the state
+		previousYMax = this.carGraphState.yMax;
+	} else if(this.content.graphParams.ymax != null) {
+		//reset the y max value from the content
+		previousYMax = this.content.graphParams.ymax;
+	}
+	
+	//reset the x max value
+	$('#yMaxInput').val(previousYMax);
 };
 
 /**
@@ -2145,7 +2306,7 @@ CARGRAPH.prototype.handleKeyDown = function(event) {
 /**
  * Remove the prediction point from the graph. First remove any
  * annotations for the point and then remove the point from
- * the sensorState
+ * the carGraphState
  */
 CARGRAPH.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
 	//check that this is a prediction line
@@ -2153,7 +2314,7 @@ CARGRAPH.prototype.removePredictionPoint = function(seriesName, dataIndex, x) {
 		//remove any annotations associated with the point
 		this.deleteAnnotation(seriesName, dataIndex, x);
 		
-		//remove the data point from the sensorState
+		//remove the data point from the carGraphState
 		this.carGraphState.removePredictionPoint(seriesName, dataIndex);		
 	}
 };
