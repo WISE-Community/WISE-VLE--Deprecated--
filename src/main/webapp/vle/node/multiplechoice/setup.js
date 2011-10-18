@@ -52,7 +52,7 @@ var multipleChoiceNodeClasses = [
 ];
 
 var challengeNodeClasses = [
-	{nodeClass:'instantquiz', nodeClassText:'Challenge Question'}
+	{nodeClass:'challengequestion', nodeClassText:'Challenge Question'}
 ];
 
 scriptloader.addScriptToComponent('core', coreScripts);
