@@ -16,7 +16,7 @@ public class MySQL5MyISAMDialect extends MySQL5Dialect {
 
 	@Override
 	public String getTableTypeString() {
-	    return " ENGINE=MyISAM";
+	    return " ENGINE=MyISAM DEFAULT CHARSET=utf8";
 	}
 	
 	@Override
