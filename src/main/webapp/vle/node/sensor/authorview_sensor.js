@@ -73,12 +73,16 @@ View.prototype.SensorNode.generatePage = function(view){
 	var chooseMotionRadioButtonText = document.createTextNode('Motion Sensor');
 	var chooseTemperatureRadioButton = createElement(document, 'input', {type: 'radio', id: 'temperatureRadioButton', name: 'chooseSensorType', value: 'temperature', onclick: 'eventManager.fire("sensorUpdateSensorType","temperature")'});
 	var chooseTemperatureRadioButtonText = document.createTextNode('Temperature Sensor');
+	var chooseNoneRadioButton = createElement(document, 'input', {type: 'radio', id: 'noneRadioButton', name: 'chooseSensorType', value: 'none', onclick: 'eventManager.fire("sensorUpdateSensorType","none")'});
+	var chooseNoneRadioButtonText = document.createTextNode('None');
 	
 	var sensorType = this.getSensorType();
 	if(sensorType == 'motion') {
 		chooseMotionRadioButton.checked = true;
 	} else if(sensorType == 'temperature') {
 		chooseTemperatureRadioButton.checked = true;
+	} else {
+		chooseNoneRadioButton.checked = true;
 	}
 	
 	//insert the sensor type radio buttons
@@ -89,6 +93,9 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(chooseTemperatureRadioButton);
 	pageDiv.appendChild(chooseTemperatureRadioButtonText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(chooseNoneRadioButton);
+	pageDiv.appendChild(chooseNoneRadioButtonText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -209,7 +216,21 @@ View.prototype.SensorNode.generatePage = function(view){
 	pageDiv.appendChild(yMaxText);
 	pageDiv.appendChild(yMaxInput);
 	pageDiv.appendChild(createBreak());
+	
+	//create the check box to allow the student to change the axis limits
+	var allowUpdateAxisRangeCheckBox = createElement(document, 'input', {id: 'allowUpdateAxisRangeCheckBox', type: 'checkbox', onclick: 'eventManager.fire("sensorUpdateAllowUpdateAxisRange")'});
+	var allowUpdateAxisRangeText = document.createTextNode("Allow Student to Change Axis Limits");
+	
+	//insert the allow student to change axis limit check box
+	pageDiv.appendChild(allowUpdateAxisRangeCheckBox);
+	pageDiv.appendChild(allowUpdateAxisRangeText);
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//populate the allow student to change axis limit check box
+	if(this.content.graphParams.allowUpdateAxisRange) {
+		allowUpdateAxisRangeCheckBox.checked = true;
+	}
 	
 	//create the show graph options elements
 	var showGraphOptionsText = document.createTextNode(' Show Graph Options');
@@ -859,6 +880,17 @@ View.prototype.SensorNode.isChecked = function(value) {
 	}
 	
 	return checked;
+};
+
+/**
+ * Update the allow update axis range value
+ */
+View.prototype.SensorNode.updateAllowUpdateAxisRange = function() {
+	//get the value of the allow update axis range and set it into the content
+	this.content.graphParams.allowUpdateAxisRange = this.isChecked($('#allowUpdateAxisRangeCheckBox').attr('checked'));
+	
+	//fire source updated event
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 //used to notify scriptloader that this script has finished loading

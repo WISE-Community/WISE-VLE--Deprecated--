@@ -128,6 +128,10 @@ function SENSOR(node) {
 		var graphName = "temperature prediction";
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "C";
+	} else {
+		var graphName = "";
+		this.graphNames.prediction = graphName;
+		this.graphUnits[graphName] = "";
 	}
 	
 	/*
@@ -993,16 +997,20 @@ SENSOR.prototype.setupPlotHover = function() {
     	var plotHoverPositionX = pos.x.toFixed(2);
     	var plotHoverPositionY = pos.y.toFixed(2);
 
-    	//get the x units
-    	var graphXUnits = event.data.thisSensor.getGraphUnits("time");
+    	var xLabel = "";
     	
-    	//get the sensor type
+    	//get the sensor type and x label
     	var seriesType = "";
     	if(event.data.thisSensor.sensorType == "motion") {
     		seriesType = "distance";
+    		xLabel = "time";
     	} else if(event.data.thisSensor.sensorType == "temperature") {
     		seriesType = "temperature";
+    		xLabel = "time";
     	}
+    	
+    	//get the x units
+    	var graphXUnits = event.data.thisSensor.getGraphUnits(xLabel);
     	
     	//get the y units
     	var graphYUnits = event.data.thisSensor.getGraphUnits(seriesType);
@@ -1033,8 +1041,16 @@ SENSOR.prototype.setupPlotHover = function() {
         		var plotOffsetX = offsetObject.left;
         		var plotOffsetY = offsetObject.top;
                 
+                //get the x label
+            	var xLabel = "";
+            	if(event.data.thisSensor.sensorType == "motion") {
+            		xLabel = "time";
+            	} else if(event.data.thisSensor.sensorType == "temperature") {
+            		xLabel = "time";
+            	}
+        		
                 //get the units for the x and y values
-                var xUnits = event.data.thisSensor.getGraphUnits("time");
+                var xUnits = event.data.thisSensor.getGraphUnits(xLabel);
                 var yUnits = event.data.thisSensor.getGraphUnits(item.series.name);
                 
                 //create the text that we will display in the tool tip
@@ -1526,8 +1542,17 @@ SENSOR.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
 	//get the y units
 	var graphYUnits = this.getGraphUnits(seriesName);
 	
+	//get the x label
+	var xLabel = "";
+	var seriesType = "";
+	if(this.sensorType == "motion") {
+		xLabel = "time";
+	} else if(this.sensorType == "temperature") {
+		xLabel = "time";
+	}
+	
 	//get the x units
-	var graphXUnits = this.getGraphUnits("time");
+	var graphXUnits = this.getGraphUnits(xLabel);
 	
 	//get the x and y values
 	var x = dataPoint[0];
@@ -2182,8 +2207,16 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 			//get the y units
 			var graphYUnits = this.getGraphUnits(seriesName);
 			
+			//get the x label
+	    	var xLabel = "";
+	    	if(this.sensorType == "motion") {
+	    		xLabel = "time";
+	    	} else if(this.sensorType == "temperature") {
+	    		xLabel = "time";
+	    	}
+	    	
 			//get the x units
-			var graphXUnits = this.getGraphUnits("time");
+			var graphXUnits = this.getGraphUnits(xLabel);
 			
 			//get the text representation of the data point
 			var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
@@ -2294,13 +2327,20 @@ SENSOR.prototype.setupAxisValues = function() {
 	$('#yMinInput').val(yMin);
 	$('#yMaxInput').val(yMax);
 	
-	// disable input boxes if updating axis rang is not permitted.
+	// disable input boxes if updating axis range is not permitted.
 	if (!this.content.graphParams.allowUpdateAxisRange) {
+		//disable the axis range text inputs so the student can't change the limits
 		$('#xMinInput').attr("disabled","disabled");		
 		$('#xMaxInput').attr("disabled","disabled");		
 		$('#yMinInput').attr("disabled","disabled");		
 		$('#yMaxInput').attr("disabled","disabled");		
-	}	
+	} else {
+		//enable the student to change the axis limits
+		$('#xMinInput').attr("disabled","");		
+		$('#xMaxInput').attr("disabled","");		
+		$('#yMinInput').attr("disabled","");		
+		$('#yMaxInput').attr("disabled","");
+	}
 };
 
 /**

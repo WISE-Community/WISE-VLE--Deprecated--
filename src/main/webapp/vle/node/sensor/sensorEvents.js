@@ -35,6 +35,8 @@ View.prototype.sensorDispatcher = function(type,args,obj){
 		obj.SensorNode.updateLockPredictionOnCollectionStart();
 	} else if(type=='sensorUpdateDataCollectionTimeLimit'){
 		obj.SensorNode.updateDataCollectionTimeLimit();
+	} else if(type=='sensorUpdateAllowUpdateAxisRange'){
+		obj.SensorNode.updateAllowUpdateAxisRange();
 	}
 };
 
@@ -55,7 +57,8 @@ var events = [
 	'sensorUpdateRequirePredictionBeforeEnter',
 	'sensorUpdateGraphTitle',
 	'sensorUpdateLockPredictionOnCollectionStart',
-	'sensorUpdateDataCollectionTimeLimit'
+	'sensorUpdateDataCollectionTimeLimit',
+	'sensorUpdateAllowUpdateAxisRange'
 ];
 
 /*
