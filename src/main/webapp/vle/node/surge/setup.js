@@ -11,6 +11,7 @@ var coreMinScripts = ['vle/node/surge/surge_core_min.js'];
 
 //the scripts used in the vle
 var studentVLEScripts = [
+	'vle/node/common/nodehelpers.js',
 	'vle/node/surge/surge.js',
 	'vle/node/surge/surgeState.js',
 	'vle/jquery/js/jquery-1.6.1.min.js',

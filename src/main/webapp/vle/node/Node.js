@@ -13,6 +13,8 @@ function Node(nodeType, view){
 	
 	this.prevWorkNodeIds = [];
 	this.populatePreviousWorkNodeId = "";
+	this.tags = [];
+	this.tagMaps = [];
 	this.links = [];
 	this.extraData;
 	this.view = view;
@@ -436,6 +438,8 @@ Node.prototype.nodeJSON = function(contentBase){
 			ref:this.content.getFilename(contentBase),
 			previousWorkNodeIds:this.prevWorkNodeIds,
 			populatePreviousWorkNodeId:this.populatePreviousWorkNodeId,
+			tags:this.tags,
+			tagMaps:this.tagMaps,
 			links:this.links
 		};
 
