@@ -349,6 +349,12 @@ Surge.prototype.save = function(st) {
 	//push the state object into this or object's own copy of states
 	this.states.push(surgeState);
 	
+	/*
+	 * process the student work to see if we need to display a bronze,
+	 * silver, or gold star next to the step in the nav menu
+	 */
+	this.node.processStudentWork(surgeState);
+	
 	if(this.showTopScore) {
 		//show the top score for the current step
 		this.displayTopScore();

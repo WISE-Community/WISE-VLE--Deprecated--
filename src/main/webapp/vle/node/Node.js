@@ -1384,6 +1384,21 @@ Node.prototype.getHtmlView = function(work) {
 	return "";
 };
 
+/**
+ * Process the student work to determine if we need to display
+ * anything special or perform any additional processing.
+ * For example this can be used to process the student work and
+ * determine whether to display a bronze, silver, or gold
+ * star next to the step in the navigation menu. Each step
+ * type will need to implement this function on their own.
+ * @param studentWork the student work to look at to determine
+ * if anything special needs to occur. usually this will be
+ * the latest student step state for the given step.
+ */
+Node.prototype.processStudentWork = function(studentWork) {
+	
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/Node.js');

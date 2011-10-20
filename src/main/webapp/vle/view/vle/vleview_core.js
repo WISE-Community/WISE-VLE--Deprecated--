@@ -25,6 +25,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.renderStartNode();
 	} else if(type=='navigationLoadingComplete'){
 		obj.renderStartNode();
+		obj.processStudentWork();
 	} else if(type=='renderNode'){
 		obj.renderNode(args[0]);
 	} else if(type=='renderNodeStart'){
@@ -751,6 +752,36 @@ View.prototype.setDialogEvents = function() {
 	$('.ui-dialog').live("dialogresizestop dialogdragstop", function(event, ui) {
 		$('#vleOverlay').remove();
 	});
+};
+
+/**
+ * Process all the work for each step and perform any
+ * special processing if necessary. For example, show a gold
+ * star for the steps that the student successfully completed.
+ */
+View.prototype.processStudentWork = function() {
+	//make sure the student work has been loaded
+	if(this.viewStateLoaded) {
+		//get all the node ids in the project
+		var nodeIds = this.getProject().getNodeIds();
+
+		//loop through all the node ids
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			//get a node
+			var node = this.getProject().getNodeById(nodeId);
+			
+			//get the latest work for the node
+			var latestWork = this.state.getLatestWorkByNodeId(nodeId);
+			
+			if(latestWork != null && latestWork != "") {
+				//tell the node to process the student work
+				node.processStudentWork(latestWork);
+			}
+		}
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -44,47 +44,51 @@ SDMenu.prototype.toggleMenu = function(submenu) {
 	}
 };
 SDMenu.prototype.expandMenu = function(submenu) {
-	var fullHeight = submenu.getElementsByTagName("span")[0].offsetHeight;
-	var links = submenu.getElementsByTagName("a");
-	for (var i = 0; i < links.length; i++)
-		fullHeight += links[i].offsetHeight;
-	var moveBy = Math.round(this.speed * links.length);
-	
-	var mainInstance = this;
-	var intId = setInterval(function() {
-		var curHeight = submenu.offsetHeight;
-		var newHeight = curHeight + moveBy;
-		if (newHeight < fullHeight)
-			submenu.style.height = newHeight + "px";
-		else {
-			clearInterval(intId);
-			//submenu.style.height = "";
-			submenu.className = "";
-			SDMenu.prototype.removeClass(submenu, "collapsed");
-			submenu.style.height = fullHeight + "px";
-			mainInstance.memorize();
-		}
-	}, 30);
-	this.collapseOthers(submenu);
+	if(submenu.getElementsByTagName("span")[0] != null) {
+		var fullHeight = submenu.getElementsByTagName("span")[0].offsetHeight;
+		var links = submenu.getElementsByTagName("a");
+		for (var i = 0; i < links.length; i++)
+			fullHeight += links[i].offsetHeight;
+		var moveBy = Math.round(this.speed * links.length);
+		
+		var mainInstance = this;
+		var intId = setInterval(function() {
+			var curHeight = submenu.offsetHeight;
+			var newHeight = curHeight + moveBy;
+			if (newHeight < fullHeight)
+				submenu.style.height = newHeight + "px";
+			else {
+				clearInterval(intId);
+				//submenu.style.height = "";
+				submenu.className = "";
+				SDMenu.prototype.removeClass(submenu, "collapsed");
+				submenu.style.height = fullHeight + "px";
+				mainInstance.memorize();
+			}
+		}, 30);
+		this.collapseOthers(submenu);		
+	}
 };
 SDMenu.prototype.collapseMenu = function(submenu) {
-	var minHeight = submenu.getElementsByTagName("span")[0].offsetHeight;
-	var moveBy = Math.round(this.speed * submenu.getElementsByTagName("a").length);
-	var mainInstance = this;
-	var intId = setInterval(function() {
-		var curHeight = submenu.offsetHeight;
-		var newHeight = curHeight - moveBy;
-		if (newHeight > minHeight)
-			submenu.style.height = newHeight + "px";
-		else {
-			clearInterval(intId);
-			submenu.style.height = "";
-			//submenu.className = "collapsed";
-			SDMenu.prototype.addClass(submenu, "collapsed");
-			submenu.style.height = minHeight + "px";
-			mainInstance.memorize();
-		}
-	}, 30);
+	if(submenu.getElementsByTagName("span")[0] != null) {
+		var minHeight = submenu.getElementsByTagName("span")[0].offsetHeight;
+		var moveBy = Math.round(this.speed * submenu.getElementsByTagName("a").length);
+		var mainInstance = this;
+		var intId = setInterval(function() {
+			var curHeight = submenu.offsetHeight;
+			var newHeight = curHeight - moveBy;
+			if (newHeight > minHeight)
+				submenu.style.height = newHeight + "px";
+			else {
+				clearInterval(intId);
+				submenu.style.height = "";
+				//submenu.className = "collapsed";
+				SDMenu.prototype.addClass(submenu, "collapsed");
+				submenu.style.height = minHeight + "px";
+				mainInstance.memorize();
+			}
+		}, 30);		
+	}
 };
 SDMenu.prototype.collapseOthers = function(submenu) {
 	if (this.oneSmOnly) {

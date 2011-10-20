@@ -717,7 +717,8 @@ var componentloader = function(em, sl){
 				'removeMenuBubble':[null,null],
 				'removeAllMenuBubbles':[null,null],
 				'highlightStepInMenu':[null,null],
-				'unhighlightStepInMenu':[null,null]
+				'unhighlightStepInMenu':[null,null],
+				'updateStepRightIcon':[null,null]
 			},
 			initialize:{
 				init:function(view){
@@ -735,6 +736,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('removeAllMenuBubbles', view.menuDispatcher, view);
 					view.eventManager.subscribe('highlightStepInMenu', view.menuDispatcher, view);
 					view.eventManager.subscribe('unhighlightStepInMenu', view.menuDispatcher, view);
+					view.eventManager.subscribe('updateStepRightIcon', view.menuDispatcher, view);
 				}
 			}
 		},
