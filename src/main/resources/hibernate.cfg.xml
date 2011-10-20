@@ -13,7 +13,7 @@
         <property name="connection.username">wise4user</property>
         <property name="connection.password">wise4pass</property>
         <property name="connection.release_mode">auto</property>        
-        <property name="connection.characterEncoding">utf8</property> 
+        <property name="connection.characterEncoding">UTF-8</property> 
         <property name="c3p0.acquire_increment">1</property>
         <property name="c3p0.idle_test_period">100</property>          <!-- seconds -->        
         <property name="c3p0.min_size">10</property>
