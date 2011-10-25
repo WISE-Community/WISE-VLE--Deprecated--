@@ -55,23 +55,6 @@ View.prototype.HtmlNode.save = function(close){
 View.prototype.HtmlNode.populatePrompt = function() {
 	
 	$('#promptInput').val(this.view.activeNode.baseHtmlContent.getContentString());
-	/*this.richTextEditor = new tinymce.Editor('promptInput', 
-			{theme:'advanced',
-			plugins: 'safari',
-			theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,emotions,|,forecolor,backcolor,|,formatselect,fontselect,fontsizeselect',
-			theme_advanced_buttons2: '',
-			theme_advanced_buttons3: '',
-			relative_urls: false,
-			remove_script_host: true,
-			document_base_url: vleLoc,
-			theme_advanced_toolbar_location : 'top',
-			theme_advanced_toolbar_align : 'left'});*/
-	
-	/* add keypress listener */
-	//this.richTextEditor.onKeyPress.add(this.updatePrompt, this);
-	
-	/* render the rich text editor */
-	//this.richTextEditor.render();
 };
 
 /**

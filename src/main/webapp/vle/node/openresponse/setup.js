@@ -26,7 +26,8 @@ var studentVLEScripts = [
 	'vle/node/openresponse/openresponse.js',
 	'vle/grading/Annotation.js',
 	'vle/grading/Annotations.js',
-	'vle/data/nodevisit.js'
+	'vle/data/nodevisit.js',
+	'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js'
 ];
 
 var authorScripts = [
