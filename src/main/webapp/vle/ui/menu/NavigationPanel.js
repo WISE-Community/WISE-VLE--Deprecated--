@@ -533,7 +533,18 @@ NavigationPanel.prototype.createStepHtml = function(pxIndent, classString, deep,
 	 */
 	var html = "<a name=\"menuItem\" class=\"" + classString + " depth" + (deep + 2) + " " + position + "_menu menuStep\" onclick=\"eventManager.fire('renderNode','" + position + "');\" id=\"" + position + "\">"; 
 	
+	//create a table inside the anchor for each step
+	html += "<table>";
+	html += "<tr>";
+	html += "<td width='25px'>";
+	
+	//the step icon
 	html += icon;
+	
+	html += "</td>";
+	html += "<td width='150px'>";
+	
+	//the span to display the step title
 	html += "<span class=\"menusteptitle\">";
 	
 	if(currentStepNum != null) {
@@ -548,7 +559,18 @@ NavigationPanel.prototype.createStepHtml = function(pxIndent, classString, deep,
 		position = '';
 	};
 	
-	html += getTitlePositionFromLocation(position) + " " + title + "</span></a>";
+	html += getTitlePositionFromLocation(position) + " " + title + "</span>";
+	
+	html += "</td>";
+	html += "<td height='16px'>";
+	
+	//the div to display any special icons such as colored stars
+	html += "<div id='" + nodeId + "_right_icon' class='empty'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
+	
+	html += "</td>";
+	html += "</table>";
+	html += "</a>";
+	
 	return html;
 };
 

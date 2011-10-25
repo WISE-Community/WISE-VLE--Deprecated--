@@ -13,6 +13,8 @@ function Surge(node) {
 	} else {
 		this.states = [];  
 	};
+	
+	this.showTopScore = true;
 };
 
 //identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
@@ -39,23 +41,236 @@ Surge.prototype.sendStateToGame = function(value) {
 };
 
 /**
+ * Check the scores for all the steps that have the given tag and occur
+ * before the current step in the project
+ * @param tagName the tag name
+ * @param functionArgs the arguments to this function
+ * @returns the results from the check, the result object
+ * contains a pass field and a message field
+ */
+Surge.prototype.checkScoreForTags = function(tagName, functionArgs) {
+	//default values for the result
+	var result = {
+		pass:true,
+		message:''
+	};
+	
+	//get the minimum required score
+	var minScore = functionArgs[0];
+	
+	//array to accumulate the nodes that the student has not completed with a high enough score
+	var nodesFailed = [];
+
+	//the node ids of the steps that come before the current step and have the given tag
+	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.node.id);
+	
+	if(nodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			if(nodeId != null) {
+				//get the latest work for the node
+				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				
+				if(latestWork != "") {
+					//get the top score for the step
+					var score = latestWork.response.topScore;
+					
+					if(score < minScore) {
+						//the score is not high enough
+						nodesFailed.push(nodeId);
+					}
+				} else {
+					/*
+					 * the student does not have any work for the step so we
+					 * will add it to our array
+					 */
+					nodesFailed.push(nodeId);
+				}
+			}
+		}
+	}
+	
+	if(nodesFailed.length != 0) {
+		//the student has failed at least one of the steps
+		
+		//create the message to display to the student
+		var message = "You must obtain a score higher than " + minScore + " on these steps before you can work on this step<br><br>";
+		
+		//loop through all the failed steps
+		for(var x=0; x<nodesFailed.length; x++) {
+			var nodeId = nodesFailed[x];
+			
+			//get the step number and title for the failed step
+			var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+			
+			//add the step number and title to the message
+			message += stepNumberAndTitle + "<br>";
+		}
+		
+		//set the fields in the result
+		result.pass = false;
+		result.message = message;		
+	}
+	
+	return result;
+};
+
+/**
+ * Get the accumulated score for all the steps with the given tag
+ * @param tagName the tag name
+ * @param functionArgs the arguments to this function (this is not actually used in this function)
+ * @return the accumulated score for all the steps that are tagged
+ */
+Surge.prototype.getAccumulatedScoreForTags = function(tagName, functionArgs) {
+	var result = 0;
+	
+	//get all the node ids with the given tag
+	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
+
+	if(nodeIds != null) {
+		//loop through all the node ids
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			if(nodeId != null) {
+				//get the latest work for the node
+				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				
+				if(latestWork != "" && latestWork.response != null) {
+					
+					if(latestWork.response.topScore != null) {
+						//get the top score for the step
+						var score = latestWork.response.topScore;
+						
+						//try to convert the score to a number in case it is stored as a string
+						score = parseFloat(score);
+						
+						//check if the score is a number
+						if(!isNaN(score)) {
+							//the score is a number
+							result += score;							
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
  * This function renders everything the student sees when they visit the step.
  * This includes setting up the html ui elements as well as reloading any
  * previous work the student has submitted when they previously worked on this
  * step, if any.
  */
 Surge.prototype.render = function() {
-	//display any prompts to the student
-	$('#promptDiv').html(this.content.prompt);
+	//whether we want to allow the student to work on this step
+	var enableStep = true;
 	
-	var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="surge" align="middle">'
-		+ '<param name="allowScriptAccess" value="sameDomain" />'
-		+ '<param name="allowFullScreen" value="false" />'
-		+ '<param name="movie" value="surge.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />'
-		+ '<embed src="surge.swf" quality="high" bgcolor="#ffffff" width="770" height="480" name="surge" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
-		+ '</object>';
+	/*
+	 * a message to display to the student at the top of the step
+	 * usually used to display error messages when they need to
+	 * complete a previous step before being able to work on the
+	 * current step
+	 */
+	var message = '';
 	
-	$('#swfDiv').html(swfHtml);	
+	//the accumulated score among a family tag of steps
+	var acuumulatedScore = 0;
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "checkScore") {
+					//we will check the score for the steps that are tagged
+					
+					//get the result of the check
+					var result = this.checkScoreForTags(tagName, functionArgs);
+					enableStep = result.pass;
+					message = result.message;
+				} else if(functionName == "getAccumulatedScore") {
+					//we will get the accumulated score for the steps that are tagged
+					
+					//get the accumulated score
+					accumulatedScore = this.getAccumulatedScoreForTags(tagName, functionArgs);
+					
+					//display the accumulated score to the student
+					$('#accumulatedScoreDiv').html('Accumulated Score: ' + accumulatedScore);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = checkCompletedForTags(this, tagName, functionArgs);
+					enableStep = result.pass;
+					message = result.message;
+				}
+			}
+		}
+	}
+	
+	if(enableStep) {
+		//the student is able to work on this step
+		
+		//display any prompts to the student
+		$('#promptDiv').html(this.content.prompt);
+		
+		var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="surge" align="middle">'
+			+ '<param name="allowScriptAccess" value="sameDomain" />'
+			+ '<param name="allowFullScreen" value="false" />'
+			+ '<param name="movie" value="surge.swf" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />'
+			+ '<embed src="surge.swf" quality="high" bgcolor="#ffffff" width="770" height="480" name="surge" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
+			+ '</object>';
+		
+		$('#swfDiv').html(swfHtml);	
+		
+		if(this.showTopScore) {
+			//show the top score for the current step
+			this.displayTopScore();
+		}
+	}
+	
+	//if there is a message, display it to the student
+	$('#messageDiv').html(message);
+};
+
+/**
+ * Display the top score to the student
+ */
+Surge.prototype.displayTopScore = function() {
+	//get the latest state
+	var latestState = this.getLatestState();
+	var topScoreMessage = '';
+	
+	//make the message to display the top score
+	if(latestState != null) {
+		topScoreMessage = 'Top Score: ' + latestState.response.topScore;
+	} else {
+		topScoreMessage = 'Top Score: 0';
+	}
+	
+	//display the top score to the student
+	$('#topScoreDiv').html(topScoreMessage);
 };
 
 /**
@@ -133,6 +348,17 @@ Surge.prototype.save = function(st) {
 
 	//push the state object into this or object's own copy of states
 	this.states.push(surgeState);
+	
+	/*
+	 * process the student work to see if we need to display a bronze,
+	 * silver, or gold star next to the step in the nav menu
+	 */
+	this.node.processStudentWork(surgeState);
+	
+	if(this.showTopScore) {
+		//show the top score for the current step
+		this.displayTopScore();
+	}
 	
 	/*
 	 * post the current node visit to the db immediately without waiting

@@ -159,6 +159,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					//get the previous node id to populate work from
 					thisNode.populatePreviousWorkNodeId = currNode.populatePreviousWorkNodeId;
+					
+					//get the tags
+					thisNode.tags = currNode.tags;
+					
+					//get the tagMaps
+					thisNode.tagMaps = currNode.tagMaps;
 
 					/* get links to other nodes and add it to node */
 					if(currNode.links){
@@ -624,12 +630,14 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		};
 		
 		/**
-		 * Get all the nodeIds that are actually used in the project
+		 * Get all the nodeIds that are actually used in the project in the
+		 * order that they appear in the project
 		 * @param nodeTypesToExclude a : delimited string of node types to exclude
 		 * in the resulting array
 		 * @return an array containing all the leaf nodeIds that are used
-		 * in the project (this does not include the unused nodes that
-		 * are in the project.json nodes array)
+		 * in the project, in the order that they appear in the project
+		 * (this does not include the unused nodes that are in the 
+		 * project.json nodes array)
 		 */
 		var getNodeIds = function(nodeTypesToExclude) {
 			//get the project content
@@ -1605,6 +1613,164 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return stepNumberAndTitle;
 		};
 		
+		/**
+		 * Recursively obtain all the leaf nodeIds that have the given tag
+		 * @param tagName the tag we are looking for
+		 * @return an array containing all the leaf nodes that contain the given tag
+		 */
+		var getNodeIdsByTag = function(tagName) {
+			//get the project content
+			var project = content.getContentJSON();
+			
+			//get the starting point of the project
+			var startPoint = project.startPoint;
+			
+			//create the array that we will store the nodeIds in
+			var nodeIds = [];
+			
+			//get the start node
+			var startNode = getNodeById(startPoint);
+			
+			//get the leaf nodeIds
+			nodeIds = getNodeIdsByTagHelper(nodeIds, startNode, tagName);
+			
+			//return the populated array containing nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Recursively obtain all the leaf nodeIds that have the given tag
+		 * @param nodeIds an array containing all the nodeIds we have found so far
+		 * @param currentNode the current node
+		 * @param tagName the tag we are looking for
+		 * @return an array containing all the leaf nodes that contain the given tag 
+		 */
+		var getNodeIdsByTagHelper = function(nodeIds, currentNode, tagName) {
+			
+			if(currentNode.type == 'sequence') {
+				//current node is a sequence
+				
+				//get the child nodes
+				var childNodes = currentNode.children;
+				
+				//loop through all the child nodes
+				for(var x=0; x<childNodes.length; x++) {
+					//get a child node
+					var childNode = childNodes[x];
+					
+					//recursively call this function with the child node
+					nodeIds = getNodeIdsByTagHelper(nodeIds, childNode, tagName);
+				}
+			} else {
+				//current node is a leaf node
+				
+				//get the tags for this node
+				var tagsForNode = currentNode.tags;
+				
+				//check if the node has the tag we are looking for
+				if(tagsForNode != null && tagsForNode.indexOf(tagName) != -1) {
+					nodeIds.push(currentNode.id);					
+				}
+			}
+			
+			//return the updated array of nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Get all the node ids by tag that occur before the current node id
+		 * in the project
+		 * @param tagName the tag
+		 * @param nodeId the node id we want to stop at
+		 */
+		var getPreviousNodeIdsByTag = function(tagName, nodeId) {
+			//get the project content
+			var project = content.getContentJSON();
+			
+			//get the starting point of the project
+			var startPoint = project.startPoint;
+			
+			//create the array that we will store the nodeIds in
+			var nodeIds = [];
+			
+			//get the start node
+			var startNode = getNodeById(startPoint);
+			
+			//whether we have found our node id yet
+			var foundNodeId = false;
+			
+			//get the leaf nodeIds
+			var nodeIdsAndFoundNodeId = getPreviousNodeIdsByTagHelper(nodeIds, startNode, tagName, nodeId, foundNodeId);
+			
+			//return the populated array containing nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Recursively obtain all the leaf nodeIds that occur before the given
+		 * nodeId in the project and also have the given tag
+		 * @param nodeIds an array containing all the nodeIds we have found so far
+		 * @param currentNode the current node
+		 * @param tagName 
+		 * @param nodeId 
+		 * @param foundNodeId 
+		 * @return an array containing all the leaf nodes that contain the given
+		 * tag and occur before the given nodeId in the project
+		 */
+		var getPreviousNodeIdsByTagHelper = function(nodeIds, currentNode, tagName, nodeId, foundNodeId) {
+			
+			if(currentNode.type == 'sequence') {
+				//current node is a sequence
+				
+				//get the child nodes
+				var childNodes = currentNode.children;
+				
+				//loop through all the child nodes
+				for(var x=0; x<childNodes.length; x++) {
+					//get a child node
+					var childNode = childNodes[x];
+					
+					//recursively call this function with the child node
+					var nodeIdsAndFoundNodeId = getPreviousNodeIdsByTagHelper(nodeIds, childNode, tagName, nodeId, foundNodeId);
+					
+					//update these values
+					nodeIds = nodeIdsAndFoundNodeId.nodeIds;
+					foundNodeId = nodeIdsAndFoundNodeId.foundNodeId;
+					
+					if(foundNodeId) {
+						break;
+					}
+				}
+			} else {
+				//current node is a leaf node
+
+				if(currentNode.id == nodeId) {
+					//we have found the node id that we need to stop at
+					foundNodeId = true;
+				} else {
+					//get the tags for this node
+					var tagsForNode = currentNode.tags;
+					
+					//check if this node has the tag we are looking for
+					if(tagsForNode != null && tagsForNode.indexOf(tagName) != -1) {
+						nodeIds.push(currentNode.id);					
+					}					
+				}
+			}
+			
+			/*
+			 * create an object so we can return the nodeIds and also whether
+			 * we have found our nodeId yet
+			 */
+			var nodeIdsAndFoundNodeId = {
+				nodeIds:nodeIds,
+				foundNodeId:foundNodeId
+			};
+			
+			//return the object with nodeIds array and foundNodeId boolean
+			return nodeIdsAndFoundNodeId;
+		};
+		
 		/* check to see if this project was passed a minifiedStr, in which we will
 		 * set the totalProjectContent and this project's content */
 		 if(totalProjectContent){
@@ -1757,7 +1923,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* returns whether we found new feedback after generating the show all work */
 			hasNewFeedback:function() {return hasNewFeedback();},
 			//get the step number and title for a step
-			getStepNumberAndTitle:function(id) {return getStepNumberAndTitle(id);}
+			getStepNumberAndTitle:function(id) {return getStepNumberAndTitle(id);},
+			//get all the node ids that have the given tag
+			getNodeIdsByTag:function(tagName) {return getNodeIdsByTag(tagName);},
+			//get all the node ids that are before the given node id and have the given tag
+			getPreviousNodeIdsByTag:function(tagName, nodeId) {return getPreviousNodeIdsByTag(tagName, nodeId);},
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

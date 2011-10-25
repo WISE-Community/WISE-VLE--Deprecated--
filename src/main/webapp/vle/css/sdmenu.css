@@ -107,3 +107,31 @@ div.sdmenu div .depth5 {
 div.sdmenu div a {
 	border-left: 1px solid #6699CC;
 }
+
+div.sdmenu div a .goldStar {
+	background-image:url('../images/goldStar.png');
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}
+
+div.sdmenu div a .silverStar {
+	background-image:url('../images/silverStar.png');
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}
+
+div.sdmenu div a .bronzeStar {
+	background-image:url('../images/bronzeStar.gif');
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}
+
+div.sdmenu div a .empty {
+	background-image:none;
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}

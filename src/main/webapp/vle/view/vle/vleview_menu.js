@@ -31,6 +31,8 @@ View.prototype.menuDispatcher = function(type,args,obj){
 		obj.highlightStepInMenu(args[0]);
 	} else if(type == 'unhighlightStepInMenu') {
 		obj.unhighlightStepInMenu(args[0]);
+	} else if(type=='updateStepRightIcon'){
+		obj.updateStepRightIcon(args[0], args[1]);
 	}
 };
 
@@ -287,6 +289,39 @@ View.prototype.unhighlightStepInMenu = function(nodeId) {
 			}			
 		}
 	}
+};
+
+/**
+ * Update the right icon for the step
+ * @param nodeId the node id of the step
+ * @param className the class we want to change the div to.
+ * each class should be associated with a specific background
+ * image that is defined in sdmenu.css
+ * e.g. look for goldStar in sdmenu.css as an example
+ */
+View.prototype.updateStepRightIcon = function(nodeId, className) {
+	/*
+	 * replace all the '.' with '\\.' so that the jquery id selector works
+	 * if we didn't do this, it would treat the '.' as a class selector and
+	 * would not be able to find the element by its id because almost all
+	 * of our ids contain a '.'
+	 * e.g. node_1.ht
+	 */
+	nodeId = nodeId.replace(/\./g, '\\.');
+	
+	//get the div id for the right icon
+	var divId = nodeId + "_right_icon";
+	
+	//remove any existing classes
+	$('#' + divId).removeClass();
+	
+	if(className == null || className == '') {
+		//empty is the default class name if we do not want to show anything
+		className = 'empty';
+	}
+	
+	//add the new class
+	$('#' + divId).addClass(className);
 };
 
 /* used to notify scriptloader that this script has finished loading */

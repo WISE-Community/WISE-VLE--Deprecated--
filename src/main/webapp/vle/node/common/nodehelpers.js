@@ -360,6 +360,70 @@ function getMaxScore(scores) {
 	return maxScore;
 };
 
+/**
+ * Check whether the student completed the steps that have the given tag and occur
+ * before the current step in the project
+ * @param tagName the tag name
+ * @param functionArgs the arguments to this function (this is not actually used in this function)
+ * @returns the results from the check, the result object
+ * contains a pass field and a message field
+ */
+function checkCompletedForTags(thisStep, tagName, functionArgs) {
+	//default values for the result
+	var result = {
+		pass:true,
+		message:''
+	};
+	
+	//array to accumulate the nodes that the student has not completed with a high enough score
+	var nodesFailed = [];
+
+	//the node ids of the steps that come before the current step and have the given tag
+	var nodeIds = thisStep.view.getProject().getPreviousNodeIdsByTag(tagName, thisStep.node.id);
+	
+	if(nodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			if(nodeId != null) {
+				//get the latest work for the node
+				var latestWork = thisStep.view.state.getLatestWorkByNodeId(nodeId);
+				
+				if(latestWork == null || latestWork == "") {
+					//the student has not completed this step
+					nodesFailed.push(nodeId);
+				}
+			}
+		}
+	}
+	
+	if(nodesFailed.length != 0) {
+		//the student has not completed one of the steps
+		
+		//create the message to display to the student
+		var message = "You must complete these steps before you can work on this step<br><br>";
+		
+		//loop through all the failed steps
+		for(var x=0; x<nodesFailed.length; x++) {
+			var nodeId = nodesFailed[x];
+			
+			//get the step number and title for the failed step
+			var stepNumberAndTitle = thisStep.view.getProject().getStepNumberAndTitle(nodeId);
+			
+			//add the step number and title to the message
+			message += stepNumberAndTitle + "<br>";
+		}
+		
+		//set the fields in the result
+		result.pass = false;
+		result.message = message;
+	}
+	
+	return result;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/common/nodehelpers.js');

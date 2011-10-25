@@ -141,6 +141,33 @@ SurgeNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/surge/surge.html');
 };
 
+/**
+ * Process the student work to see if we need to display a colored
+ * star next to the step in the nav menu
+ * @param studentWork the student's surge state
+ */
+SurgeNode.prototype.processStudentWork = function(studentWork) {
+	if(studentWork != null) {
+		if(studentWork.response != null && studentWork.response != "") {
+			var className = "";
+			
+			//get the top score
+			var topScore = studentWork.response.topScore;
+			
+			if(topScore == 10) {
+				className = "bronzeStar";
+			} else if(topScore == 20) {
+				className = "silverStar";
+			} else if(topScore == 30) {
+				className = "goldStar";
+			}
+			
+			//display the star next to the step in the nav menu
+			eventManager.fire('updateStepRightIcon', [this.id, className]);			
+		}
+	}
+};
+
 //Add this node to the node factory so the vle knows it exists.
 NodeFactory.addNode('SurgeNode', SurgeNode);
 
