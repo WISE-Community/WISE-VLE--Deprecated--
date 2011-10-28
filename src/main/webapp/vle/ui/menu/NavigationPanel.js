@@ -330,7 +330,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		classString += " currentNode";
 	}
     
-    if (node.children.length > 0) {
+    if (node.children.length > 0 || node.type == "sequence") {
     	//the node is a sequence
     	
     	if(node.getView() == "hidden") {
