@@ -66,11 +66,11 @@ View.prototype.HtmlNode.save = function(close){
 };
 
 View.prototype.HtmlNode.populatePrompt = function() {
-	var that = this;
+	//var that = this;
 	
 	$('#promptInput').val(this.view.activeNode.baseHtmlContent.getContentString());
 	
-	$('textarea#promptInput').tinymce({
+	/*$('textarea#promptInput').tinymce({
 		document_base_url : that.view.authoringBaseUrl,
 		// Location of TinyMCE script
 		script_url : 'jquery/tiny_mce/tiny_mce.js',
@@ -106,7 +106,7 @@ View.prototype.HtmlNode.populatePrompt = function() {
 		var val = tinyMCE.activeEditor.getContent();
 		$('#promptInput').val(val);
 		eventManager.fire('stepPromptChanged');
-	};
+	};*/
 	
 };
 

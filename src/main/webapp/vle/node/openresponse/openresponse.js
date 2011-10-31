@@ -554,27 +554,42 @@ OPENRESPONSE.prototype.displayRegular = function() {
 	
 	/* start the rich text editor if specified */
 	if(this.content.isRichTextEditorAllowed){
-		
+		var context = this;
 		var loc = window.location.toString();
 		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
 		
-		this.richTextEditor = new tinymce.Editor('responseBox', 
-				{theme:'advanced',
-				plugins: 'safari,emotions',
-				theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,emotions,|,forecolor,backcolor,|,formatselect,fontselect,fontsizeselect',
-				theme_advanced_buttons2: '',
-				theme_advanced_buttons3: '',
-				relative_urls: false,
-				remove_script_host: true,
-				document_base_url: vleLoc,
-				theme_advanced_toolbar_location : 'top',
-				theme_advanced_toolbar_align : 'left'});
-		
-		/* add keypress listener */
-		this.richTextEditor.onKeyPress.add(this.responseEdited, this);
-		
-		/* render the rich text editor */
-		this.richTextEditor.render();
+		$('#responseBox').tinymce({
+			// Location of TinyMCE script
+			script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
+			
+			// General options
+			theme : "advanced",
+			plugins : "emotions",
+			
+			// Theme options
+			theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,emotions,|,forecolor,backcolor,|,formatselect,fontselect,fontsizeselect',
+			theme_advanced_buttons2: '',
+			theme_advanced_buttons3: '',
+			theme_advanced_buttons4: '',
+			theme_advanced_toolbar_location : "top",
+			theme_advanced_toolbar_align : "left",
+			theme_advanced_statusbar_location : "bottom",
+			relative_urls: false,
+			remove_script_host: true,
+			document_base_url: vleLoc,
+			
+			onchange_callback: function(ed){
+				/* add change listener */
+		        context.responseEdited();
+		    },
+			setup: function(ed){
+				// store editor as prototype variable
+				context.richTextEditor = ed;
+				
+				/* add keyup listener */
+		        ed.onKeyUp.add(context.responseEdited, context);
+		    }
+		});
 	}
 	
 	/*
