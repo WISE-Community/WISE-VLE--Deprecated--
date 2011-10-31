@@ -92,6 +92,24 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.updateProject();
 	} else if(type=='openStepTypeDescriptions') {
 		obj.openStepTypeDescriptions();
+	} else if(type == 'displayTagView') {
+		obj.displayTagView();
+	} else if(type == 'populateAddTagSelect') {
+		obj.populateAddTagSelect(args[0]);
+	} else if(type == 'populateAddTagMapSelect') {
+		obj.populateAddTagMapSelect(args[0]);
+	} else if(type == 'addTag') {
+		obj.addTag(args[0]);
+	} else if(type == 'addTagMap') {
+		obj.addTagMap(args[0]);
+	} else if(type == 'removeTag') {
+		obj.removeTag(args[0], args[1]);
+	} else if(type == 'tagNameChanged') {
+		obj.tagNameChanged(args[0], args[1]);
+	} else if(type == 'tagMapChanged') {
+		obj.tagMapChanged(args[0], args[1]);
+	} else if(type == 'removeTagMap') {
+		obj.removeTagMap(args[0], args[1]);
 	};
 };
 

@@ -717,6 +717,14 @@ View.prototype.initializeStepTypeDescriptionsDialog = function() {
 	$('#stepTypeDescriptions').dialog({autoOpen:false, title:'Step Type Descriptions', width:600, height:400});
 };
 
+/**
+ * Create the tag view dialog popup
+ */
+View.prototype.initializeTagViewDialog = function() {
+	//create the dialog element so we can use it later
+	$('#tagViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Tags', buttons: {'Close': function(){$(this).dialog("close");}}});
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_dialog.js');

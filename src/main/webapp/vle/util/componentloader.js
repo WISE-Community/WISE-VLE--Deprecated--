@@ -410,7 +410,16 @@ var componentloader = function(em, sl){
 				'browserResize':[null,null],
 				'reviewUpdateProject':[null,null],
 				'updateProject':[null,null],
-				'openStepTypeDescriptions':[null,null]
+				'openStepTypeDescriptions':[null,null],
+				'displayTagView':[null,null],
+				'populateAddTagSelect':[null,null],
+				'populateAddTagMapSelect':[null,null],
+				'addTag':[null,null],
+				'addTagMap':[null,null],
+				'removeTag':[null,null],
+				'tagNameChanged':[null,null],
+				'tagMapChanged':[null,null],
+				'removeTagMap':[null,null]
 			},
 			methods: {
 				onWindowUnload:function(view){return function(){view.onWindowUnload();};}
@@ -541,6 +550,15 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('projectTagTagChanged', view.projectTagsDispatcher, view);
 					view.eventManager.subscribe('projectTagRemoveTag', view.projectTagsDispatcher, view);
 					view.eventManager.subscribe('browserResize', view.authorDispatcher, view);
+					view.eventManager.subscribe('displayTagView', view.authorDispatcher, view);
+					view.eventManager.subscribe('populateAddTagSelect', view.authorDispatcher, view);
+					view.eventManager.subscribe('populateAddTagMapSelect', view.authorDispatcher, view);
+					view.eventManager.subscribe('addTag', view.authorDispatcher, view);
+					view.eventManager.subscribe('addTagMap', view.authorDispatcher, view);
+					view.eventManager.subscribe('removeTag', view.authorDispatcher, view);
+					view.eventManager.subscribe('tagNameChanged', view.authorDispatcher, view);
+					view.eventManager.subscribe('tagMapChanged', view.authorDispatcher, view);
+					view.eventManager.subscribe('removeTagMap', view.authorDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
 						window.parent.loaded();
@@ -569,6 +587,7 @@ var componentloader = function(em, sl){
 					view.initializeEditProjectTagsDialog();
 					view.initializeReviewUpdateProjectDialog();
 					view.initializeStepTypeDescriptionsDialog();
+					view.initializeTagViewDialog();
 										
 					window.onunload = env.onWindowUnload();
 				}

@@ -1161,7 +1161,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			var vlePosition = "";
 			
 			//get the position
-			var position = getPositionById(id);
+			var position = getPositionById(id) + "";
 			
 			if(position != null) {
 				//split the position at the periods
@@ -1771,6 +1771,138 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return nodeIdsAndFoundNodeId;
 		};
 		
+		/**
+		 * Get all the unique tags in the project.
+		 */
+		var getAllUniqueTagsInProject = function() {
+			var uniqueTags = [];
+			
+			//get all the step nodes
+			var nodes = allLeafNodes;
+			
+			//loop through all the step nodes
+			for(var x=0; x<nodes.length; x++) {
+				//get a node
+				var node = nodes[x];
+				
+				if(node != null) {
+					//get the tags for the node
+					var tags = node.tags;
+					
+					if(tags != null) {
+						
+						//loop through all the tags for this node
+						for(var t=0; t<tags.length; t++) {
+							//get a tag
+							var tag = tags[t];
+							
+							if(uniqueTags.indexOf(tag) == -1) {
+								//tag is not in our array so we will add it
+								uniqueTags.push(tag);
+							}
+						}
+					}
+				}
+			}
+			
+			return uniqueTags;
+		};
+		
+		/**
+		 * Get all the unique tag maps in the project.
+		 */
+		var getAllUniqueTagMapsInProject = function() {
+			var uniqueTagMaps = [];
+			
+			//get all the step nodes
+			var nodes = allLeafNodes;
+			
+			//loop through all the step nodes
+			for(var x=0; x<nodes.length; x++) {
+				//get a node
+				var node = nodes[x];
+				
+				if(node != null) {
+					//get all the tag maps for this node
+					var tagMaps = node.tagMaps;
+					
+					if(tagMaps != null) {
+						
+						//loop through all the tag maps for this node
+						for(var t=0; t<tagMaps.length; t++) {
+							//get the current tag map
+							var tagMap = tagMaps[t];
+							
+							var tagMapAlreadyExists = false;
+							
+							/*
+							 * loop through all the unique tag maps we have already found
+							 * to see if the current tag map should be added or not
+							 */
+							for(var y=0; y<uniqueTagMaps.length; y++) {
+								//get a tag map that we have already found
+								var uniqueTagMap = uniqueTagMaps[y];
+								
+								/*
+								 * check if we already have this current tag map by comparing
+								 * all the fields with the tag map we have already found
+								 */
+								if(uniqueTagMap.tagName == tagMap.tagName &&
+										uniqueTagMap.functionName == tagMap.functionName &&
+										arraysEqual(uniqueTagMap.functionArgs, tagMap.functionArgs)) {
+									//tag is not in our array so we will mark it to be added
+									tagMapAlreadyExists = true;
+									break;
+								}
+							}
+							
+							if(!tagMapAlreadyExists) {
+								//we do not have this tag map yet so we will add it
+								uniqueTagMaps.push(tagMap);
+							}
+						}
+					}
+				}
+			}
+			
+			return uniqueTagMaps;
+		};
+		
+		/**
+		 * Shallow compare the two arrays to see if all the elements
+		 * are the same
+		 * @param array1 an array that we will compare
+		 * @param array2 an array that we will compare
+		 */
+		var arraysEqual = function(array1, array2) {
+			var result = true;
+			
+			if(array1.length != array2.length) {
+				//arrays are not the same length
+				result = false;
+			} else {
+				//arrays are the same length
+				
+				//loop through the elements in both arrays
+				for(var x=0; x<array1.length; x++) {
+					var array1Element = array1[x];
+					var array2Element = array2[x];
+					
+					//compare the elements
+					if(array1Element != array2Element) {
+						/*
+						 * the elements are not the same which means the
+						 * arrays are not equal
+						 */
+						result = false;
+						break;
+					}
+				}
+			}
+			
+			return result;
+		};
+		
 		/* check to see if this project was passed a minifiedStr, in which we will
 		 * set the totalProjectContent and this project's content */
 		 if(totalProjectContent){
@@ -1928,6 +2060,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			getNodeIdsByTag:function(tagName) {return getNodeIdsByTag(tagName);},
 			//get all the node ids that are before the given node id and have the given tag
 			getPreviousNodeIdsByTag:function(tagName, nodeId) {return getPreviousNodeIdsByTag(tagName, nodeId);},
+			//get all the unique tags in the project
+			getAllUniqueTagsInProject:function() {return getAllUniqueTagsInProject();},
+			//get all the unique tag maps in the project
+			getAllUniqueTagMapsInProject:function() {return getAllUniqueTagMapsInProject();}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

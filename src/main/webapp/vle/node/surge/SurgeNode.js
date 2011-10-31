@@ -13,6 +13,15 @@ SurgeNode.authoringToolName = "Surge";
  */
 SurgeNode.authoringToolDescription = "This is a generic step only used by developers";
 
+/*
+ * The tag map functions that are available for this step type
+ */
+SurgeNode.tagMapFunctions = [
+	{functionName:'checkCompleted', functionArgs:[]},
+	{functionName:'checkScore', functionArgs:['Min Score']},
+	{functionName:'getAccumulatedScore', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * 
@@ -166,6 +175,46 @@ SurgeNode.prototype.processStudentWork = function(studentWork) {
 			eventManager.fire('updateStepRightIcon', [this.id, className]);			
 		}
 	}
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+SurgeNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = SurgeNode.tagMapFunctions;
+	
+	return tagMapFunctions;
+};
+
+/**
+ * Get a tag map function given the function name
+ * @param functionName
+ * @return 
+ */
+SurgeNode.prototype.getTagMapFunctionByName = function(functionName) {
+	var fun = null;
+	
+	//get all the tag map function for this step type
+	var tagMapFunctions = this.getTagMapFunctions();
+	
+	//loop through all the tag map functions
+	for(var x=0; x<tagMapFunctions.length; x++) {
+		//get a tag map function
+		var tagMapFunction = tagMapFunctions[x];
+		
+		if(tagMapFunction != null) {
+			
+			//check if the function name matches
+			if(functionName == tagMapFunction.functionName) {
+				//the function name matches so we have found what we want
+				fun = tagMapFunction;
+				break;
+			}			
+		}
+	};
+	
+	return fun;
 };
 
 //Add this node to the node factory so the vle knows it exists.
