@@ -162,6 +162,9 @@ View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 		
 		//close the table for the step
 		htmlSoFar += "</table></td></tr>";
+		
+		//create a line break after each step
+		htmlSoFar += "<tr><td>&nbsp</td></tr>";
 	}
 	
 	return htmlSoFar;
@@ -213,6 +216,12 @@ View.prototype.populateAddTagSelect = function(nodeId) {
  * @param nodeId
  */
 View.prototype.populateAddTagMapSelect = function(nodeId) {
+	//get the node
+	var node = this.project.getNodeById(nodeId);
+	
+	//get the tag map functions for this step type
+	var tagMapFunctions = node.getTagMapFunctions();
+	
 	/*
 	 * replace all the '.' with '\\.' so that the jquery id selector works
 	 * if we didn't do this, it would treat the '.' as a class selector and
@@ -237,14 +246,28 @@ View.prototype.populateAddTagMapSelect = function(nodeId) {
 	for(var x=0; x<tagMaps.length; x++) {
 		//get a tag map
 		var tagMap = tagMaps[x];
-
-		//get the tag map in string form
-		var tagMapString = this.tagMapToString(tagMap);
 		
-		//add the tag map into the drop down
-		html += "<option>";
-		html += tagMapString;
-		html += "</option>";
+		//get the function name
+		var functionName = tagMap.functionName;
+		
+		/*
+		 * see if the step implements this function. if this
+		 * returns null, it means the step does not implement
+		 * the function.
+		 */
+		var fun = node.getTagMapFunctionByName(functionName);
+		
+		if(fun != null) {
+			//the step implements this function
+			
+			//get the tag map in string form
+			var tagMapString = this.tagMapToString(tagMap);
+			
+			//add the tag map into the drop down
+			html += "<option>";
+			html += tagMapString;
+			html += "</option>";			
+		}
 	}
 
 	//insert the options into the select drop down for the given step
@@ -408,6 +431,10 @@ View.prototype.tagMapChanged = function(nodeId, tagMapIndex) {
 		//get the selected function name
 		var functionName = $('#tagMapFunctionSelect_' + nodeIdEscaped + '_' + tagMapIndex).val();
 		
+		if(functionName == null) {
+			functionName = '';
+		}
+		
 		var functionArgs = [];
 		
 		//get the tag map function
@@ -421,6 +448,12 @@ View.prototype.tagMapChanged = function(nodeId, tagMapIndex) {
 				if($('#tagMapFunctionArgs_' + nodeIdEscaped + '_' + tagMapIndex + '_' + argCounter).length != 0) {
 					//get the value of the function arg that the user has input into the text input
 					argValue = $('#tagMapFunctionArgs_' + nodeIdEscaped + '_' + tagMapIndex + '_' + argCounter).val();
+				}
+				
+				//check if the arg value is a number string
+				if(!isNaN(argValue)) {
+					//the value is a number string so we will convert the string to a number
+					argValue = Number(argValue);
 				}
 				
 				//put the function arg value into the array
@@ -537,9 +570,13 @@ View.prototype.getTagMapInnerHtml = function(nodeId, tagName, functionName, func
 	tagMapInnerHtml += "Function: ";
 	
 	var tagMapFunctionNameHtml = "";
+	
+	//create an empty string function name option
+	tagMapFunctionNameHtml = "<option></option>";
+	
 	var tagMapFunctionArgsHtml = "";
 	
-	//loop through all the available tag map functions for this step typ
+	//loop through all the available tag map functions for this step type
 	for(var x=0; x<tagMapFunctions.length; x++) {
 		//get a function
 		var tagMapFunction = tagMapFunctions[x];
@@ -798,9 +835,26 @@ View.prototype.addTagMap = function(nodeId) {
 			} else if(x == 3) {
 				//third capture is the function args which
 				arguments = matches[x];
-				functionArgs = [arguments];
+				
+				if(arguments != null) {
+					//split the arguments into an array
+					functionArgs = arguments.split(', ');
+				}
 			}
 		}
+	}
+	
+	if(functionArgs != null) {
+		//loop through all the function args
+		for(var a=0; a<functionArgs.length; a++) {
+			var functionArg = functionArgs[a];
+			
+			//check if the arg is a number string
+			if(!isNaN(functionArg)) {
+				//the arg is a number string so we will convert it to a number
+				functionArgs[a] = Number(functionArg);
+			}
+		}		
 	}
 
 	//create the html for the tag map
