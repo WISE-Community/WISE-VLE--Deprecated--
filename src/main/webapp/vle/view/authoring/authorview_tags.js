@@ -836,7 +836,7 @@ View.prototype.addTagMap = function(nodeId) {
 				//third capture is the function args which
 				arguments = matches[x];
 				
-				if(arguments != null) {
+				if(arguments != null && arguments != "") {
 					//split the arguments into an array
 					functionArgs = arguments.split(', ');
 				}
@@ -844,13 +844,13 @@ View.prototype.addTagMap = function(nodeId) {
 		}
 	}
 	
-	if(functionArgs != null) {
+	if(functionArgs != null && functionArgs != "") {
 		//loop through all the function args
 		for(var a=0; a<functionArgs.length; a++) {
 			var functionArg = functionArgs[a];
 			
 			//check if the arg is a number string
-			if(!isNaN(functionArg)) {
+			if(functionArg != "" && !isNaN(functionArg)) {
 				//the arg is a number string so we will convert it to a number
 				functionArgs[a] = Number(functionArg);
 			}
