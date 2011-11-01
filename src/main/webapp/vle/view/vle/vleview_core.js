@@ -455,6 +455,16 @@ View.prototype.renderStartNode = function(){
 			}
 			
 			var startPos = this.getProject().getPositionById(node.id);
+			
+			/*
+			 * if we could not find the startPos we will just render
+			 * the first step in the project. this can occur when an
+			 * author deletes a step during a run in which case the
+			 * step the student was last on, no longer exists.
+			 */
+			if(startPos == null) {
+				startPos = this.getProject().getStartNodePosition();
+			}
 		} else {
 			var startPos = this.getProject().getStartNodePosition();
 		}
