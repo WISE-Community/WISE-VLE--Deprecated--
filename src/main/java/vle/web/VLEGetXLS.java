@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -98,6 +100,9 @@ public class VLEGetXLS extends VLEServlet {
 	
 	private static long debugStartTime = 0;
 	
+	//the type of export "latestStudentWork" or "allStudentWork"
+	private String exportType = "";
+	
 	/**
 	 * Clear the instance variables because only one instance of a servlet
 	 * is ever created
@@ -142,6 +147,9 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//reset the number of columns to width auto size
 		numColumnsToAutoSize = 0;
+		
+		//holds the export type
+		exportType = "";
 	}
 	
 	/**
@@ -251,7 +259,7 @@ public class VLEGetXLS extends VLEServlet {
 		parentProjectId = request.getParameter("parentProjectId");
 		
 		//the export type "latestStudentWork" or "allStudentWork"
-		String exportType = request.getParameter("exportType");
+		exportType = request.getParameter("exportType");
 		
 		JSONArray customStepsArray = new JSONArray();
 		
@@ -2415,17 +2423,19 @@ public class VLEGetXLS extends VLEServlet {
 		String nodeType = null;
 		
 		try {
-			//get the node type
-			nodeType = nodeContent.getString("type");
-			
-			if(nodeType == null) {
+			if(nodeContent != null) {
+				//get the node type
+				nodeType = nodeContent.getString("type");
 				
-			} else if(nodeType.equals("AssessmentList")) {
-				//get the number of assessments
-				JSONArray assessmentParts = nodeContent.getJSONArray("assessments");
-				
-				//the number of assessments will be the same as the number of answers
-				numAnswerFields = assessmentParts.length();
+				if(nodeType == null) {
+					
+				} else if(nodeType.equals("AssessmentList")) {
+					//get the number of assessments
+					JSONArray assessmentParts = nodeContent.getJSONArray("assessments");
+					
+					//the number of assessments will be the same as the number of answers
+					numAnswerFields = assessmentParts.length();
+				}				
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -2443,10 +2453,11 @@ public class VLEGetXLS extends VLEServlet {
 	private String getStepWorkResponse(StepWork stepWork) {
 		String stepWorkResponse = "";
 		String nodeType = "";
+		Node node = null;
 		
 		//get the node type
 		if(stepWork != null) {
-			Node node = stepWork.getNode();
+			node = stepWork.getNode();
 			
 			if(node != null) {
 				if(node.getNodeType() != null) {
@@ -2681,10 +2692,352 @@ public class VLEGetXLS extends VLEServlet {
     	} else if(stepWork instanceof StepWorkHtml) {
 	    	stepWorkResponse = "N/A";
     	} else {
-    		//do nothing
+    		/*
+    		 * this case will handle all the other step types. the data that will
+    		 * be displayed in the cell will be determined by excelExportString field
+    		 * in the step content. The excelExportString is a template
+    		 * for how the text should be displayed. For example if we wanted to
+    		 * display the top score the excelExportString would look something
+    		 * like this
+    		 * "Top Score: {response.topScore}"
+    		 * the value of {response.topScore} will be replaced with that value
+    		 * from the node state so it would end up looking something like
+    		 * this in the excel cell
+    		 * "Top Score: 10"
+    		 */
+    		
+    		String excelExportStringTemplate = null;
+    		
+    		try {
+				if(node != null) {
+					//get the node id
+					String nodeId = node.getNodeId();
+					
+					if(nodeId != null) {
+						//get the content for the step
+						JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);	
+						
+						if(nodeContent != null) {
+							if(nodeContent.has("excelExportStringTemplate") && !nodeContent.isNull("excelExportStringTemplate")) {
+								//get the excelExportStringTemplate field from the step content
+								excelExportStringTemplate = nodeContent.getString("excelExportStringTemplate");
+							}
+						}
+					}
+				}
+				
+				//check if excelExportStringTemplate is provied in the step content
+				if(excelExportStringTemplate != null) {
+					//excelExportStringTemplate is provided
+					
+					if(stepWork != null) {
+	    				//obtain the json string
+	        			String data = stepWork.getData();
+	        			
+	        			if(data != null) {
+	        				//parse the json string into a json object
+	            			JSONObject jsonData = new JSONObject(data);
+	            			
+	            			if(jsonData.has("nodeStates")) {
+	            				//obtain the node states array json object
+	                			JSONArray jsonNodeStatesArray = jsonData.getJSONArray("nodeStates");
+	                			
+	                			//check if there are any elements in the node states array
+	            				if(jsonNodeStatesArray != null && jsonNodeStatesArray.length() > 0) {
+	            					
+	            					if("latestStudentWork".equals(exportType)) {
+	            						//only show the data from the last state in the node states array
+	            						
+	            						if(!jsonNodeStatesArray.isNull(jsonNodeStatesArray.length() - 1)) {
+	            							//node state is not null
+	            							
+	            							//obtain the last element in the node states
+	                    					Object nodeStateObject = jsonNodeStatesArray.get(jsonNodeStatesArray.length() - 1);
+	                						//check if the nodeStateObject is a JSONObject
+	                    					
+	                						if(nodeStateObject instanceof JSONObject) {
+	                							JSONObject lastState = (JSONObject) nodeStateObject;
+	                    						
+	                							if(excelExportStringTemplate != null) {
+	                								//generate the excel export string that we will display in the cell
+	                								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	                							}
+	                						}
+	            						}
+	            					} else if("allStudentWork".equals(exportType)) {
+	            						//show data from all the states in the node state array
+	            						
+	            						//string buffer to accumulate the text we will display in the cell
+	            						StringBuffer stepWorkResponseStrBuf = new StringBuffer();
+	            						
+	            						//loop through all the node states
+	            						for(int x=0; x<jsonNodeStatesArray.length(); x++) {
+	            							
+	            							if(!jsonNodeStatesArray.isNull(x)) {
+	            								//node state is not null
+	            								
+	                							//get the node state
+	                							Object nodeStateObject = jsonNodeStatesArray.get(x);
+	                							
+	            								//check if the nodeStateObject is a JSONObject
+	            								if(nodeStateObject instanceof JSONObject) {
+	            									JSONObject lastState = (JSONObject) nodeStateObject;
+
+	            									if(excelExportStringTemplate != null) {
+	            										//generate the excel export string with the student work inserted
+	            										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	            										
+	            										if(stepWorkResponseStrBuf.length() != 0) {
+	            											//add a new line to separate each node state
+	            											stepWorkResponseStrBuf.append("\n");
+	            										}
+	            										
+	            										//display the node state number
+	            										stepWorkResponseStrBuf.append("Submit #" + (x + 1) + ": ");
+	            										
+	            										//display the excel export string that contains the student data
+	            										stepWorkResponseStrBuf.append(nodeStateResponse);
+	            									}
+	            								}
+	            							}
+	            						}
+	            						
+	            						//get the string that we will display in the cell
+	            						stepWorkResponse = stepWorkResponseStrBuf.toString();
+	            					}
+	            				}            				
+	            			}
+	        			}    				
+	    			}					
+				}
+    		} catch (JSONException e) {
+    			e.printStackTrace();
+    		}
     	}
     	
     	return stepWorkResponse;
+	}
+	
+	/**
+	 * Parse the excel export string template and insert the appropriate
+	 * data from the student work into it
+	 * @param excelExportStringTemplate the template for how the text should
+	 * be displayed in the cell
+	 * e.g.
+	 * "Top Score: {response.topScore}, Phase 1 Score: {response.phases[0].score}"
+	 * @param nodeState the node state
+	 * @return a string containing the student work that will be displayed
+	 * in the cell
+	 * e.g.
+	 * "Top Score: 30, Phase 1 Score: 10"
+	 */
+	private String generateExcelExportString(String excelExportStringTemplate, JSONObject nodeState) {
+		StringBuffer resultString = new StringBuffer();
+		
+		/*
+		 * a regular expression pattern to match the patterns that
+		 * will be used to specify where we need to insert student work.
+		 * here are some examples
+		 * {response}
+		 * {response.topScore}
+		 * {response.phases[0].score}
+		 */
+		Pattern p = Pattern.compile("\\{[\\w\\.\\d\\[\\]]*\\}");
+		
+		//run the pattern matcher on our template string
+		Matcher m = p.matcher(excelExportStringTemplate);
+		
+		//search for the first match
+		boolean foundMatch = m.find();
+		
+		//loop until we find all the matches
+		while(foundMatch) {
+			/*
+			 * get the string that has matched our regular expression pattern
+			 * e.g.
+			 * {response}
+			 */
+			String field = m.group();
+			
+			/*
+			 * get the the student data that we will use to
+			 * insert into the excel export string template
+			 */
+			String replacement = getNodeStateField(field, nodeState);
+			
+			//append the replacement string
+			m.appendReplacement(resultString, replacement);
+
+			//look for the next match
+			foundMatch = m.find();
+		}
+		
+		//append the remainder of the original template string
+		m.appendTail(resultString);
+		
+		//return the string
+		return resultString.toString();
+	}
+	
+	/**
+	 * Get the student data for the given field path
+	 * @param fieldPath
+	 * here are some examples
+	 * {response}
+	 * {response.topScore}
+	 * {response.phases[0].score}
+	 * @param nodeState the student work
+	 * @return the value of the given field from the student work
+	 */
+	private String getNodeStateField(String fieldPath, JSONObject nodeState) {
+		String fieldValue = "";
+		
+		//remove the {
+		fieldPath = fieldPath.replaceAll("\\{", "");
+		
+		//remove the }
+		fieldPath = fieldPath.replaceAll("\\}", "");
+
+		//get the value of the given field from the student work
+		fieldValue = getFieldValue(fieldPath, nodeState);
+		
+		return fieldValue;
+	}
+	
+	/**
+	 * Get the student data for the given field path
+	 * @param fieldPath
+	 * here are some examples
+	 * response
+	 * response.topScore
+	 * response.phases[0].score
+	 * @param nodeState the student work
+	 * @return the value of the given field from the student work
+	 */
+	private String getFieldValue(String fieldPath, JSONObject nodeState) {
+		String fieldValue = "";
+
+		//split the field path by .
+		String[] split = fieldPath.split("\\.");
+
+		//get the current node state
+		JSONObject currentJSONObject = nodeState;
+
+		try {
+			boolean lastField = false;
+			
+			//loop through all the fields
+			for(int x=0; x<split.length; x++) {
+
+				if(x == split.length - 1) {
+					//this is the last field
+					lastField = true;
+				}
+
+				//get the field name
+				String fieldName = split[x];
+				
+				//the array index we will use if the field value is an array
+				int arrayIndex = 0;
+				
+				/*
+				 * a pattern matcher that will match field names and array references
+				 * here are some examples
+				 * topScore
+				 * phases[0]
+				 * 
+				 * we will use groups to capture parts of the field
+				 * (1)*(2[(3)])?
+				 */
+				Pattern p = Pattern.compile("(\\w*)(\\[(\\d)*\\])?");
+				
+				//run the pattern matcher on our field name
+				Matcher m = p.matcher(fieldName);
+				
+				if(m.matches()) {
+					//we have found a match
+					
+					//loop through all the groups
+					for(int y=0; y<=m.groupCount(); y++) {
+						
+						if(y == 1) {
+							//get the field name
+							fieldName = m.group(y);
+						} else if(y == 3) {
+							if(m.group(y) != null) {
+								try {
+									//get the array index
+									arrayIndex = Integer.parseInt(m.group(y));
+								} catch(NumberFormatException e) {
+									e.printStackTrace();									
+								}
+							}
+						}
+					}
+				}
+
+				if(currentJSONObject != null) {
+					
+					//check if the JSONObject has the given field
+					if(currentJSONObject.has(fieldName)) {
+						//get the value at the field
+						Object fieldObject = currentJSONObject.get(fieldName);
+
+						if(fieldObject instanceof JSONObject) {
+							//object is a JSONObject
+							
+							if(lastField) {
+								//this is the last field
+								fieldValue = ((JSONObject) fieldObject).toString();
+							} else {
+								//this is not the last field
+								currentJSONObject = (JSONObject) fieldObject;
+							}
+						} else if(fieldObject instanceof JSONArray) {
+							//object is a JSONArray
+							
+							if(lastField) {
+								//this is the last field
+								fieldValue = ((JSONArray) fieldObject).toString();
+							} else {
+								//this is not the last field
+								
+								/*
+								 * get the element at the given array index.
+								 * this assumes the element at the given index is a JSONObject
+								 */
+								currentJSONObject = ((JSONArray) fieldObject).getJSONObject(arrayIndex);
+							}
+						} else if(fieldObject instanceof String) {
+							//object is a String
+							
+							if(lastField) {
+								//this is the last field
+								fieldValue = (String) fieldObject;
+							} else {
+								//this is not the last field
+								currentJSONObject = new JSONObject(fieldObject);
+							}
+						} else if(fieldObject instanceof Integer) {
+							//object is an Integer
+							
+							//get the integer value
+							fieldValue = ((Integer) fieldObject).toString();
+							
+							/*
+							 * set the currentJSONObject to null because we can't go
+							 * any deeper since we have hit an integer
+							 */
+							currentJSONObject = null;
+						}
+					}					
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return fieldValue;
 	}
 	
 	/**
