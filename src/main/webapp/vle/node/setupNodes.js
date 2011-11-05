@@ -99,7 +99,11 @@ SetupNodes.setupFiles = [
 	 {
 		 nodeName:"Mysystem2Node",
 		 nodeSetupPath:"vle/node/mysystem2/setup.js"
-	 }		 		 		 
+	 },
+	 {
+		 nodeName:"FlashNode",
+		 nodeSetupPath:"vle/node/flash/setup.js"
+	 }
 ];
 
 //insert the setup paths into the scriptloader so they will be loaded

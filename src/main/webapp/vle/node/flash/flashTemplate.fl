@@ -1,0 +1,12 @@
+{
+   "flashvars":{},
+   "height":"400",
+   "width":"600",
+   "minPlayerVersion":"7.0.0",
+   "activity_uri":"",
+   "prompt":"",
+   "enableData":false,
+   "enableGrading":false,
+   "gradingType":"flashDisplay",
+   "type": "Flash"
+}

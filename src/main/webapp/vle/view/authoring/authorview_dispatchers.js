@@ -54,7 +54,11 @@ View.prototype.authorDispatcher = function(type,args,obj){
 	} else if(type=='uploadAsset'){
 		obj.uploadAsset();
 	} else if(type=='viewAssets'){
-		obj.viewAssets();
+		if(args){
+			obj.viewAssets(args[0]);
+		} else {
+			obj.viewAssets();
+		}
 	} else if(type=='submitUpload'){
 		obj.submitUpload();
 	} else if(type=='editProjectFile'){

@@ -164,7 +164,7 @@ Event.prototype.subscribe = function(handler, obj){
  * @param args
  */
 Event.prototype.fire = function(args){
-	if(!args){//set to empty array for easy concatenation later
+	if(typeof args == "undefined"){//set to empty array for easy concatenation later
 		args = [];
 	};
 	

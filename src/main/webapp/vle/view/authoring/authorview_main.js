@@ -636,6 +636,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 	var done = function(){
 		$('#assetEditorDialog').dialog('close');
 		$('#uploadAssetFile').val('');
+		this.assetEditorParams = null;
 		
 		replaceNotificationsDiv();
 	};
@@ -667,7 +668,9 @@ View.prototype.initializeAssetEditorDialog = function(){
 		eventManager.fire('browserResize');
 	};
 	
-	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:600, title: 'Project Files', buttons: {'Done': done, 'Remove Selected File': remove}, close: cancel, open:show});
+	// set default buttons for asset editor dialog
+	this.assetEditorButtons = {'Close': done, 'Remove Selected File': remove};
+	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:600, title: 'Project Files', buttons: this.assetEditorButtons, close: cancel, open:show});
 };
 
 /**
@@ -680,7 +683,7 @@ View.prototype.uploadAsset = function(view){
 
 		var callback = function(text, xml, o){
 			if(text >= o.MAX_ASSET_SIZE){
-				o.notificationManager.notify('Maximum space allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '.', 3);
+				o.notificationManager.notify('Maximum storage allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '.', 3);
 			} else if(view){
 				document.getElementById('sizeDiv').innerHTML = "You are using " + o.utils.appropriateSizeText(text) + " of your " + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + " storage space.";
 			} else {
@@ -746,8 +749,11 @@ View.prototype.submitUpload = function() {
  * from the server, populates a list of the assets in the assetEditorDialog
  * and displays the dialog.
  */
-View.prototype.viewAssets = function(){
+View.prototype.viewAssets = function(params){
 	if(this.project){
+		if (params){
+			this.assetEditorParams = params;
+		}
 		showElement('assetEditorDialog');
 		var populateOptions = function(names, view){
 			if(names && names!=''){
@@ -763,6 +769,23 @@ View.prototype.viewAssets = function(){
 				//loop through all the file names
 				for(var d=0;d<fileNames.length;d++){
 					var fileName = fileNames[d];
+					//check for type parameter and only show files with matching extensions
+					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
+						var extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "flash"){
+						var extensions = ['swf', 'flv'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "media"){
+						var extensions = ['swf', 'flv', 'mov', 'mp4', 'avi', 'wmv', 'mpg', 'mpeg', 'ogg'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					}
 					
 					//create a drop down option for each file name
 					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
@@ -775,6 +798,69 @@ View.prototype.viewAssets = function(){
 			//call upload asset with 'true' to get total file size for assets
 			view.uploadAsset(true);
 			
+			// get default buttons for asset editor dialog
+			var buttons = $.extend({}, view.assetEditorButtons);
+			
+			// check whether parameters were sent
+			if(view.assetEditorParams && view.assetEditorParams.type){
+				var type = view.assetEditorParams.type;
+				var field_name = view.assetEditorParams.field_name;
+				var win = view.assetEditorParams.win;
+				var callback = view.assetEditorParams.callback;
+				
+				// set z-index to show dialog above tinymce popups
+				$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
+				
+				// add new button depending on type param
+				if(type == "image"){
+					buttons['Insert Image'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select an image from the list.");
+						}
+					};
+				} else if (type == "media"){
+					buttons['Insert Media'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select a file from the list.");
+						}
+					};
+				} else if (type == "file"){
+					buttons['Insert Link'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select a file to link to from the list.");
+						}
+					};
+				} else if (type == "flash"){
+					buttons['Choose Selected File'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select a file from the list.");
+						}
+					};
+				}
+			} else {
+				//reset z-index
+				$( "#assetEditorDialog" ).dialog( "option", "zIndex", {} );
+			}
+			
+			// set buttons
+			$( "#assetEditorDialog" ).dialog( "option", "buttons", buttons );
+			
 			//show dialog
 			$('#assetEditorDialog').dialog('open');
 			
@@ -782,6 +868,7 @@ View.prototype.viewAssets = function(){
 			
 			$('#uploadAssetFile').val('');
 		};
+		
 
 		//get assets from servlet
 		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'assetList'}, function(txt,xml,obj){populateOptions(txt,obj);}, this);

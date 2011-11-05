@@ -487,6 +487,49 @@ View.prototype.injectAssetPath = function(contentString) {
 	return contentString;
 };
 
+/**
+ * Retrieve path to project folder for current node
+ * e.g.
+ * "http://wise4.berkeley.edu/curriculum/135/"
+ * @return full path to the project folder
+ */
+View.prototype.getProjectFolderPath = function() {
+	var contentBaseUrl = "";
+	
+	/*
+	 * get the content base url which should be the url to the curriculum folder
+	 * e.g.
+	 * http://wise4.berkeley.edu/curriculum
+	 */
+	var contentBaseUrl = this.activeNode.getAuthoringModeContentBaseUrl();
+	
+	//if the contentBaseUrl ends with '/' we will remove it
+	if(contentBaseUrl.charAt(contentBaseUrl.length - 1) == '/') {
+		contentBaseUrl = contentBaseUrl.substring(0, contentBaseUrl.length - 1);
+	}
+
+	var fullProjectFolderPath = null;
+	
+	if(this.projectMetadata.projectFolder != null) {
+		/*
+		 * the project folder is in the project meta data
+		 * e.g.
+		 * /135
+		 * 
+		 * so the full project folder path will look like
+		 * http://wise4.berkeley.edu/curriculum/135
+		 */
+		fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
+	}
+	
+	//make sure the projectFolder ends with '/'
+	if(fullProjectFolderPath.charAt(fullProjectFolderPath.length - 1) != '/') {
+		fullProjectFolderPath += '/';
+	}
+	
+	return fullProjectFolderPath;
+};
+
 View.prototype.insertCommonComponents = function() {
 	var commonComponents = this[this.resolveType(this.activeNode.type)].getCommonComponents();
 	if(commonComponents) {

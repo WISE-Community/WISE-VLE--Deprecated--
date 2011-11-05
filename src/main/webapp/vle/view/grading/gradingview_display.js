@@ -821,7 +821,7 @@ View.prototype.displayGradeByStepSelectPageHelper = function(node) {
 		var position = this.getProject().getVLEPositionById(nodeId);
 		
 		/* add the right html to the displayGradeByStepSelectPageHtml based on the given node's type */
-		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode") {
+		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" || (node.type == "FlashNode" && node.getContent().getContentJSON().enableGrading == false)) {
 			displayGradeByStepSelectPageHtml += this.getGradeByStepSelectPageLinklessHtmlForNode(node, position, node.type);
 		} else if(node.type=='DuplicateNode'){
 			displayGradeByStepSelectPageHtml += this.getGradeByStepSelectPageHtmlForDuplicateNode(node, position);
@@ -1755,7 +1755,8 @@ View.prototype.calculateGradeByStepGradingStatistics = function(node) {
 	if(node.isLeafNode()) {
 		//this node is a leaf/step
 
-		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" || node.type == 'DuplicateNode') {
+		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" || node.type == 'DuplicateNode' ||
+				(node.type == "FlashNode" && node.getContent().getContentJSON().enableGrading == false)) {
 
 		} else {
 			//calculate the grading statistics for this step
@@ -2846,8 +2847,8 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 		//get the position as seen by the student
 		var position = this.getProject().getVLEPositionById(nodeId);
-		
-		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode") {
+		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" ||
+				(node.type == "FlashNode" && node.getContent().getContentJSON.enableGrading == false)) {
 			//the node is an html node so we do not need to display a link for it, we will just display the text
 			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageNonWorkStepTable'><tr><td class='chooseStepToGradeStepTd'><p>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr></table>";
 			displayGradeByTeamGradingPageHtml += "<br>";
@@ -4087,7 +4088,21 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 			//the div is empty so we need to render the student work
 			
 			//tell the node to insert/render the student work into the div
-			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
+			if(node.type == "FlashNode"){
+				if(node.getContent().getContentJSON().gradingType == "flashDisplay"){
+					//if node type if FlashNode and grading type is set to flashDisplaty render Flash applet with stored student data
+					var nodeContent = node.getContent().getContentJSON();
+					node.renderGradingViewFlash("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId, nodeContent);
+				} else if (node.getContent().getContentJSON().gradingType == "custom"){
+					//if node type if FlashNode and grading type is set to custom render custom grading output
+					var nodeContent = node.getContent().getContentJSON();
+					node.renderGradingViewCustom("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId, nodeContent);
+				} else {
+					node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
+				}
+			} else {
+				node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
+			}
 			
 			//add the post time stamp to the bottom of the student work
 			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitPostTime) + "</p>");	
