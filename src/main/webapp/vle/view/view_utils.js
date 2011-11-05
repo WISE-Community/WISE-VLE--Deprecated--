@@ -753,6 +753,22 @@ View.prototype.utils.prependContentBaseUrlToAssets = function(contentBaseUrl, st
 	return stringIn;
 };
 
+/**
+ * Escape the DOM id so that it can be used in a jquery id selector.
+ * e.g.
+ * node_1.or will be converted to node_1\.or
+ * If we do not do this, the jquery selector will treat the . as a
+ * class selector and will not find the element.
+ * @param id the DOM id
+ * @returns the id with . escaped
+ */
+View.prototype.escapeIdForJquery = function(id) {
+	//replace all . with \.
+	id = id.replace(/\./g, '\\.');
+	
+	return id;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');

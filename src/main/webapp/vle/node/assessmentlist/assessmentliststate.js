@@ -74,14 +74,16 @@ ASSESSMENTLISTSTATE.prototype.getStudentWork = function(showAutoScoreResult) {
 						} else {
 							studentWorkSoFar += "Student got this question INCORRECT";							
 						}
+						var studentScore = autoScoreResult.choiceScore ? autoScoreResult.choiceScore : 0;
+						var maxScore = autoScoreResult.maxScore ? autoScoreResult.maxScore : 0;
 						studentWorkSoFar += " and received ";
-						studentWorkSoFar += autoScoreResult.choiceScore;
+						studentWorkSoFar += studentScore;
 						studentWorkSoFar += " points out of ";
-						studentWorkSoFar += autoScoreResult.maxScore;
+						studentWorkSoFar += maxScore;
 						
 						// update total scores
-						autoScoreTotalScore += autoScoreResult.choiceScore;
-						autoScoreTotalMaxScore += autoScoreResult.maxScore;
+						autoScoreTotalScore += studentScore;
+						autoScoreTotalMaxScore += maxScore;
 					}
 				} else if (assessment.type == "text") {
 					studentWorkSoFar += assessment.response.text;

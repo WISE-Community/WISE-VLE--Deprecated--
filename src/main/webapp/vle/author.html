@@ -249,6 +249,9 @@ var view;
 		<button id='useButton' disabled='true' class='mid' title='Mirror Selected Step (Make Data Clone)' onclick='eventManager.fire("useSelected");' ><span class='tool-icon action-icon action-icon-clone action-icon-inactive'></span><span class='tool-label'>Mirror</span></button>
 		<button id='deleteSelected' disabled='true' class='last' title='Delete Selected Items' onclick='eventManager.fire("deleteSelected");'><span class='tool-icon action-icon action-icon-delete action-icon-inactive'></span><span class='tool-label'>Delete</span></button>
 	</div>
+	<div id='tagTools'>
+		<button id='displayTagView' title='Tags' onclick='eventManager.fire("displayTagView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Tags</span></button>
+	</div>
 	<div id='visibiltyNodeTools'>
 		<button id='hideNodesBtn' title='Hide All Steps in Project' onclick='eventManager.fire("hideNodes");'><span class='tool-icon action-icon action-icon-hide'></span><span class='tool-label'>Hide Steps</span></button>
 		<button id='showNodesBtn' title='Show All Steps in Project' onclick='eventManager.fire("unhideNodes");' class='hidden'><span class='tool-icon action-icon action-icon-show'></span><span class='tool-label'>Show Steps</span></button>
@@ -624,6 +627,10 @@ var view;
 		<div>Create A New Tag</div>
 		<div><input id="createTagInput" type="text"/><input type="button" value="create" onclick="eventManager.fire('projectTagCreateTag')"/></div>
 	</div>
+</div>
+
+<div id='tagViewDialog' style="display: none;">
+	<div id='projectTagView'></div>
 </div>
 
 <div id="reviewUpdateProjectDiv" style='display:none;'>

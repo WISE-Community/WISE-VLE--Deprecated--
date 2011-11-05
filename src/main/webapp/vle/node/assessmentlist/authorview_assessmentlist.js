@@ -295,7 +295,7 @@ View.prototype.AssessmentListNode.generateAssessments = function(){
 
 				// add Score field
 				choiceAutoScoreDiv.appendChild(document.createTextNode("Score:"));
-				var choiceScore = choices[c].choiceScore ? choices[c].choiceScore : null;
+				var choiceScore = (choices[c].choiceScore || choices[c].choiceScore == 0) ? choices[c].choiceScore : null;
 				var choiceScoreInput = createElement(document, "input",							
 						{id:'choiceScoreInput_' + a + '_' + c, type:"text", "class":"choiceScoreInput",size:'5',
 						 name:'choiceScoreInput',value:choiceScore,wrap:'hard',

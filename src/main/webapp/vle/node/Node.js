@@ -1399,6 +1399,32 @@ Node.prototype.processStudentWork = function(studentWork) {
 	
 };
 
+/**
+ * Get the tag map function objects that are available for the
+ * step. Each child class should overwrite this function if they
+ * make use of tags. A tag map function object should contain
+ * 3 fields.
+ * 
+ * tagName (string)
+ * functionName (string)
+ * functionArgs (array of strings)
+ * 
+ * @return an array containing the tag map functions
+ */
+Node.prototype.getTagMapFunctions = function() {
+	return [];
+};
+
+/**
+ * Get a tag map function given the function name. Each child class
+ * should overwrite this function if they make use of tags.
+ * @param functionName the name of the function
+ * @returns a tag map object
+ */
+Node.prototype.getTagMapFunctionByName = function(functionName) {
+	return null;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/Node.js');
