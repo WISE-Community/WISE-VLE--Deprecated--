@@ -111,6 +111,16 @@ View.prototype.SurgeNode.generatePage = function(view){
 		thisMovie("surge").sendToGame(value);
 	}
 	*/
+	
+	var levelString = '';
+	
+	if(this.content != null) {
+		//get the existing level string
+		levelString = this.content.levelString;
+	}
+	
+	//populate the level string into the textarea
+	$('#levelStringTextArea').val(levelString);
 		
 	var authoringSwfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="leveleditor" align="middle">'
 	+ '<param name="allowScriptAccess" value="sameDomain" />'

@@ -184,46 +184,50 @@ Surge.prototype.render = function() {
 	//the accumulated score among a family tag of steps
 	var acuumulatedScore = 0;
 	
-	//the tag maps
-	var tagMaps = this.node.tagMaps;
-	
-	//check if there are any tag maps
-	if(tagMaps != null) {
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
 		
-		//loop through all the tag maps
-		for(var x=0; x<tagMaps.length; x++) {
+		//the tag maps
+		var tagMaps = this.node.tagMaps;
+		
+		//check if there are any tag maps
+		if(tagMaps != null) {
 			
-			//get a tag map
-			var tagMapObject = tagMaps[x];
-			
-			if(tagMapObject != null) {
-				//get the variables for the tag map
-				var tagName = tagMapObject.tagName;
-				var functionName = tagMapObject.functionName;
-				var functionArgs = tagMapObject.functionArgs;
+			//loop through all the tag maps
+			for(var x=0; x<tagMaps.length; x++) {
 				
-				if(functionName == "checkScore") {
-					//we will check the score for the steps that are tagged
+				//get a tag map
+				var tagMapObject = tagMaps[x];
+				
+				if(tagMapObject != null) {
+					//get the variables for the tag map
+					var tagName = tagMapObject.tagName;
+					var functionName = tagMapObject.functionName;
+					var functionArgs = tagMapObject.functionArgs;
 					
-					//get the result of the check
-					var result = this.checkScoreForTags(tagName, functionArgs);
-					enableStep = result.pass;
-					message = result.message;
-				} else if(functionName == "getAccumulatedScore") {
-					//we will get the accumulated score for the steps that are tagged
-					
-					//get the accumulated score
-					accumulatedScore = this.getAccumulatedScoreForTags(tagName, functionArgs);
-					
-					//display the accumulated score to the student
-					$('#accumulatedScoreDiv').html('Accumulated Score: ' + accumulatedScore);
-				} else if(functionName == "checkCompleted") {
-					//we will check that all the steps that are tagged have been completed
-					
-					//get the result of the check
-					var result = checkCompletedForTags(this, tagName, functionArgs);
-					enableStep = result.pass;
-					message = result.message;
+					if(functionName == "checkScore") {
+						//we will check the score for the steps that are tagged
+						
+						//get the result of the check
+						var result = this.checkScoreForTags(tagName, functionArgs);
+						enableStep = result.pass;
+						message = result.message;
+					} else if(functionName == "getAccumulatedScore") {
+						//we will get the accumulated score for the steps that are tagged
+						
+						//get the accumulated score
+						accumulatedScore = this.getAccumulatedScoreForTags(tagName, functionArgs);
+						
+						//display the accumulated score to the student
+						$('#accumulatedScoreDiv').html('Accumulated Score: ' + accumulatedScore);
+					} else if(functionName == "checkCompleted") {
+						//we will check that all the steps that are tagged have been completed
+						
+						//get the result of the check
+						var result = checkCompletedForTags(this, tagName, functionArgs);
+						enableStep = result.pass;
+						message = result.message;
+					}
 				}
 			}
 		}
