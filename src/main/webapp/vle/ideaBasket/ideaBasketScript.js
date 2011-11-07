@@ -63,12 +63,16 @@ var documentReadyFunction = function(object, createForStep, stepBasket) {
 		"OK": function(){				
 		if($("#ideaForm").validate().form()){
 			var source = $('#source').val();
-			if(source=='Other'){
-				source = 'Other: ' + $('#other').val();
+			if(source == 'empty'){
+				alert('Please select a source for your idea.');
+			} else {
+				if(source=='Other'){
+					source = 'Other: ' + $('#other').val();
+				}
+				basket.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+				$(this).dialog("close");
+				resetForm('ideaForm');
 			}
-			basket.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
-			$(this).dialog("close");
-			resetForm('ideaForm');
 		}
 	}, Cancel: function(){
 		$(this).dialog("close");

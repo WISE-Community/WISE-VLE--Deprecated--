@@ -399,27 +399,31 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 		"OK": function(){
 			var answer = false;
 			if($("#editForm").validate().form()){
-				if($('#editText').val() != text){
-					/*
-					 * if the idea text has changed, check if the idea is being used
-					 * in an explanation builder step, if it is, we will display
-					 * a confirmation popup that asks the students if they're sure
-					 * they want to edit the idea. if the idea is not being used
-					 * in an eb step it will return true by default.
-					 */
-					var answer = basket.checkIfIdeaUsed(id);
+				if($('#editSource').val() == 'empty'){
+					alert('Please select a source for your idea.');
 				} else {
-					answer = true;
-				}
-				
-				if(answer) {
-					var source = $('#editSource').val();
-					if(source=='Other'){
-						source = 'Other: ' + $('#editOther').val();
+					if($('#editText').val() != text){
+						/*
+						 * if the idea text has changed, check if the idea is being used
+						 * in an explanation builder step, if it is, we will display
+						 * a confirmation popup that asks the students if they're sure
+						 * they want to edit the idea. if the idea is not being used
+						 * in an eb step it will return true by default.
+						 */
+						var answer = basket.checkIfIdeaUsed(id);
+					} else {
+						answer = true;
 					}
-					basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
-					$(this).dialog("close");
-					resetForm('editForm');						
+					
+					if(answer) {
+						var source = $('#editSource').val();
+						if(source=='Other'){
+							source = 'Other: ' + $('#editOther').val();
+						}
+						basket.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),$clicked);
+						$(this).dialog("close");
+						resetForm('editForm');						
+					}
 				}
 			}
 		}, Cancel: function(){

@@ -74,8 +74,8 @@ View.prototype.adjustHintSize = function() {
 	var widthBuffer = 50;    
 	var heightBuffer = 150;
 	$("#hintsPanel").find(".hintText").filter(":visible").children().each(function() { 
-		console.log("width:" +$(this).width());
-		console.log("height:" +$(this).height());
+		//console.log("width:" +$(this).width());
+		//console.log("height:" +$(this).height());
 		if ($(this).width() > widthSoFar) {
 			widthSoFar = $(this).width();
 		}
@@ -672,7 +672,8 @@ View.prototype.displayAddAnIdeaDialog = function() {
     addAnIdeaHtml += "			<p style:'height:24px; line-height:24px;'>";
     addAnIdeaHtml += "				<label for='source'>Source*: </label>";
     addAnIdeaHtml += "				<select id='addAnIdeaSource' name='source' class='required' style='height:24px;'>";
-    addAnIdeaHtml += "					<option value='Evidence Step'>Evidence Step</option>";
+    addAnIdeaHtml += "				  <option value='empty'>Choose One:</option>";	
+    addAnIdeaHtml += "				  <option value='Evidence Step'>Evidence Step</option>";
     addAnIdeaHtml += "				  <option value='Visualization or Model'>Visualization or Model</option>";
     addAnIdeaHtml += "				  <option value='Movie/Video'>Movie/Video</option>";
     addAnIdeaHtml += "				  <option value='Everyday Observation'>Everyday Observation</option>";
@@ -727,30 +728,34 @@ View.prototype.addIdeaToBasket = function() {
 	} else {
 		
 		var source = $('#addAnIdeaSource').val();
-		var tags = $('#addAnIdeaTags').val();
-		var flag = $("input[@name=addAnIdeaFlag]:checked").val();
-		
-		//get the node id, node name and vle position for the step
-		var nodeId = this.getCurrentNode().id;
-		var nodeName = this.getCurrentNode().getTitle();
-		var vlePosition = this.getProject().getVLEPositionById(nodeId);
-		
-		//prepend the vlePosition so nodeName will now look something like "2.3: How Airbags Work"
-		nodeName = vlePosition + ": " + nodeName;
-
-		//get the idea basket
-		var ideaBasket = this.ideaBasket;
-		
-		//create and add the new idea to the basket
-		ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
-		
-		ideaBasket.saveIdeaBasket(this);
-		
-		//close the create an idea popup
-		$('#addAnIdeaDiv').dialog('close');		
-		
-		// update idea count on toolbar
-		ideaBasket.updateToolbarCount(1,true);
+		if(source == 'empty'){
+			alert('Please select a source for your idea.');
+		} else {
+			var tags = $('#addAnIdeaTags').val();
+			var flag = $("input[@name=addAnIdeaFlag]:checked").val();
+			
+			//get the node id, node name and vle position for the step
+			var nodeId = this.getCurrentNode().id;
+			var nodeName = this.getCurrentNode().getTitle();
+			var vlePosition = this.getProject().getVLEPositionById(nodeId);
+			
+			//prepend the vlePosition so nodeName will now look something like "2.3: How Airbags Work"
+			nodeName = vlePosition + ": " + nodeName;
+	
+			//get the idea basket
+			var ideaBasket = this.ideaBasket;
+			
+			//create and add the new idea to the basket
+			ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
+			
+			ideaBasket.saveIdeaBasket(this);
+			
+			//close the create an idea popup
+			$('#addAnIdeaDiv').dialog('close');		
+			
+			// update idea count on toolbar
+			ideaBasket.updateToolbarCount(1,true);
+		}
 	}
 };
 

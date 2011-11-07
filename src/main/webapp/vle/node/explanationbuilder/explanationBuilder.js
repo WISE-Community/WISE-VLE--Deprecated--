@@ -110,12 +110,16 @@ ExplanationBuilder.prototype.initializeUI = function() {
 		"OK": function(){       
 		if($("#ideaForm").validate().form()){
 			var source = $('#source').val();
-			if(source=='Other'){
-				source = 'Other: ' + $('#other').val();
+			if(source == 'empty'){
+				alert('Please select a source for your idea.');
+			} else {
+				if(source=='Other'){
+					source = 'Other: ' + $('#other').val();
+				}
+				explanationBuilder.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+				$(this).dialog("close");
+				resetForm('ideaForm');
 			}
-			explanationBuilder.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
-			$(this).dialog("close");
-			resetForm('ideaForm');
 		}
 	}, Cancel: function(){
 		$(this).dialog("close");
@@ -614,22 +618,25 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 				if($("#editForm").validate().form()){
 					var answer = false;
 					var textChanged = false;
-					
-					if($('#editText').val() != text){ // check if the idea text has changed
-						textChanged = true; // idea text has changed
-						answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+					if($('#editSource').val() == 'empty'){
+						alert('Please select a source for your idea.');
 					} else {
-						answer = true;
-					}
-				
-					if(answer) {
-						var source = $('#editSource').val();
-						if(source=='Other'){
-							source = 'Other: ' + $('#editOther').val();
+						if($('#editText').val() != text){ // check if the idea text has changed
+							textChanged = true; // idea text has changed
+							answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+						} else {
+							answer = true;
 						}
-						context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
-						$(this).dialog("close");
-						resetForm('editForm');
+					
+						if(answer) {
+							var source = $('#editSource').val();
+							if(source=='Other'){
+								source = 'Other: ' + $('#editOther').val();
+							}
+							context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
+							$(this).dialog("close");
+							resetForm('editForm');
+						}
 					}
 				}
 			}, Cancel: function(){
@@ -823,22 +830,25 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 					if($("#editForm").validate().form()){
 						var answer = false;
 						var textChanged = false;
-						
-						if($('#editText').val() != text){ // check if the idea text has changed
-							textChanged = true; // idea text has changed
-							answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+						if($('#editSource').val() == 'empty'){
+							alert('Please select a source for your idea.');
 						} else {
-							answer = true;
-						}
-					
-						if(answer) {
-							var source = $('#editSource').val();
-							if(source=='Other'){
-								source = 'Other: ' + $('#editOther').val();
+							if($('#editText').val() != text){ // check if the idea text has changed
+								textChanged = true; // idea text has changed
+								answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+							} else {
+								answer = true;
 							}
-							context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
-							$(this).dialog("close");
-							resetForm('editForm');
+						
+							if(answer) {
+								var source = $('#editSource').val();
+								if(source=='Other'){
+									source = 'Other: ' + $('#editOther').val();
+								}
+								context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
+								$(this).dialog("close");
+								resetForm('editForm');
+							}
 						}
 					}
 				}, Cancel: function(){
@@ -1010,23 +1020,26 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 					if($("#editForm").validate().form()){
 						var answer = false;
 						var textChanged = false;
-						
-						if($('#editText').val() != text){ // check if the idea text has changed
-							textChanged = true; // idea text has changed
-							answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+						if($('#editSource').val() == 'empty'){
+							alert('Please select a source for your idea.');
 						} else {
-							answer = true;
-						}
-					
-						if(answer) {
-							var source = $('#editSource').val();
-							if(source=='Other'){
-								source = 'Other: ' + $('#editOther').val();
+							if($('#editText').val() != text){ // check if the idea text has changed
+								textChanged = true; // idea text has changed
+								answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+							} else {
+								answer = true;
 							}
-							context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
-							$(this).dialog("close");
-							resetForm('editForm');
-							//setLastAcceptedText(id);
+						
+							if(answer) {
+								var source = $('#editSource').val();
+								if(source=='Other'){
+									source = 'Other: ' + $('#editOther').val();
+								}
+								context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+								$(this).dialog("close");
+								resetForm('editForm');
+								//setLastAcceptedText(id);
+							}
 						}
 					}
 				}, Cancel: function(){
@@ -1052,20 +1065,24 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470', buttons:{
 				"OK": function(){       
 					var source = $('#editSource').val();
-					if(source=='Other'){
-						source = 'Other: ' + $('#editOther').val();
+					if(source == 'empty'){
+						alert('Please select a source for your idea.');
+					} else {
+						if(source=='Other'){
+							source = 'Other: ' + $('#editOther').val();
+						}
+						var color = context.putBack(id); // move idea out of trash (returns assigned color)
+						context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+						setTimeout(function(){
+							$('#idea' + id).css('opacity','.5');
+						},1200);
+						$('#explanationIdea' + id).css('background-color',color);
+						$('#explanationIdea' + id).removeClass('deleted');
+						$('#idea' + id).draggable('disable');
+						resetForm('editForm');
+						//setLastAcceptedText(id);
+						$(this).dialog("close");
 					}
-					var color = context.putBack(id); // move idea out of trash (returns assigned color)
-					context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
-					setTimeout(function(){
-						$('#idea' + id).css('opacity','.5');
-					},1200);
-					$('#explanationIdea' + id).css('background-color',color);
-					$('#explanationIdea' + id).removeClass('deleted');
-					$('#idea' + id).draggable('disable');
-					resetForm('editForm');
-					//setLastAcceptedText(id);
-					$(this).dialog("close");
 				}, Cancel: function(){
 					$(this).dialog("close");
 					resetForm('editForm');
