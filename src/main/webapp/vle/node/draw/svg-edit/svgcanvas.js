@@ -4358,7 +4358,7 @@ function BatchCommand(text) {
 				
 				setSelection(textinput.selectionStart, textinput.selectionEnd, true);
 				
-				// fix firefox bug where text is invisible during input (issue 831: http://code.google.com/p/svg-edit/issues/detail?id=831 - should be fixed in trunk)
+				// wise4: fix firefox bug where text is invisible during input (issue 831: http://code.google.com/p/svg-edit/issues/detail?id=831 - should be fixed in trunk)
 				curtext.setAttribute("fill-opacity", 0);
 				curtext.setAttribute("stroke-opacity", 0);
 				curtext.setAttribute("fill-opacity", 1);

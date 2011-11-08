@@ -27,7 +27,7 @@ function SVGDRAW(node) {
 			"selected": null
 			};
 	this.init(node.getContent().getContentUrl());
-}
+};
 
 SVGDRAW.prototype.init = function(jsonURL) {
 	console.log('svgdraw.init');
@@ -229,6 +229,11 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		//initiate snapshots
 		if(context.snapshotsActive){
 			svgEditor.setMaxSnaps(context.snapshots_max);
+			if(context.snapshots_max > 10){
+				svgEditor.maxDrawSize = 20480;
+			} else {
+				svgEditor.maxDrawSize = 10240;
+			}
 			if(data && data.snapshots && data.snapshots.length > 0){
 				svgEditor.initSnap = true;
 				svgEditor.snapTotal = data.snapTotal;
@@ -428,7 +433,8 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 					}
 				}
 			}
-			if(!context.toolbarOptions.basic && !context.toolbarOptions.annotate){
+			if(!context.toolbarOptions.pencil && !context.toolbarOptions.line && !context.toolbarOptions.rectangle &&
+					!context.toolbarOptions.ellipse && !context.toolbarOptions.polygon && !context.toolbarOptions.text){
 				$('#colors').hide();
 			}
 		}
@@ -449,7 +455,12 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 			
 			$('#loading_overlay').hide();
 			$('#overlay_content').dialog('close');
+			
+			if ($.browser.webkit) {
+				$(window).height($(window).height-1);
+			}
 			svgEditor.resizeCanvas();
+			
 		},500);
 		
 		svgEditor.initLoad = false;
@@ -465,12 +476,20 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 // hide specified set of drawing tools
 // TODO: should we remove the options from the DOM instead?
 SVGDRAW.prototype.hideTools = function(option){
-	if(option=='annotate'){
-		$('#tool_text, #mode_connect').hide();
-	} else if (option=='basic'){
-		$('#tool_line, #tools_rect_show, #tools_ellipse_show, #tool_path').hide();
-	} else if (option=='freehand'){
+	if(option=='pencil'){
 		$('#tool_fhpath').hide();
+	} else if(option=='line'){
+		$('#tool_line').hide();
+	} else if(option=='connector'){
+		$('#mode_connect').hide();
+	} else if (option=='rectangle'){
+		$('#tools_rect_show').hide();
+	} else if(option=='ellipse'){
+		$('#tools_ellipse_show').hide();
+	} else if(option=='polygon'){
+		$('#tool_path').hide();
+	} else if (option=='text'){
+		$('#tool_text').hide();
 	}
 };
 

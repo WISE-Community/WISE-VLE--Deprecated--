@@ -154,8 +154,8 @@ svgEditor.addExtension("WISE4", function(S) {
 		var current = svgCanvas.getSvgString();
 		var compressed = lz77.compress(current);
 		//alert(current.length*2 + ' ' + compressed.length * 2);
-		// if compressed svg string is larger than 20k, alert user and undo latest change
-		if(compressed.length * 2 > 20480){
+		// if compressed svg string is larger than 20k (or 10k if maxSnaps > 10), alert user and undo latest change
+		if(compressed.length * 2 > svgEditor.maxDrawSize){
 			$('#tool_undo').click();
 			$('#drawlimit_dialog').dialog('open');
 		}

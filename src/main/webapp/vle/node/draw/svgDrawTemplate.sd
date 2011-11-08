@@ -5,5 +5,14 @@
    "snapshots_active": true,
    "stamps": [],
    "svg_background": "",
+   "toolbar_options":{
+		"pencil":true,
+		"line":true,
+		"connector":true,
+		"rectangle":true,
+		"ellipse":true,
+		"polygon":true,
+		"text":true
+	},
    "type": "SVGDraw"
 }

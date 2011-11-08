@@ -37,7 +37,7 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(descriptionOptionDiv);
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(document.createTextNode('Enter instructions for students (optional): '));
+	pageDiv.appendChild(document.createTextNode('Enter instructions for students (optional):'));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
 	pageDiv.appendChild(createBreak());
@@ -48,7 +48,6 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	
 	this.generateToolbarOptions();
 	this.generateSnapshotOption();
-	this.generateSnapshotMaxOption();
 	this.generateDescriptionOption();
 	this.generateBackground();
 	this.generateStamps();
@@ -70,30 +69,55 @@ View.prototype.SVGDrawNode.generateToolbarOptions = function(){
 	
 	var toolbarHtml = 'Select which drawing tools to enable:<br />';
 	toolbarHtml += '<form>';
-	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="basicCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Basic drawing (lines and shapes)<br />';
-	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="annotateCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Annotation (text and connectors)<br />';
-	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="freehandCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Pencil (freehand)<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="pencilCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Pencil (freehand)*<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="lineCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Line<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="connectorCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Connector<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="rectangleCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Rectangle/Square<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="ellipseCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Ellipse/Circle<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="polygonCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Polygon<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="textCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/>Text<br />';
 	toolbarHtml += '</form>';
 	
 	parent.innerHTML = toolbarHtml;
 	
 	if(this.content.toolbar_options){
-		if (this.content.toolbar_options.basic){
-			document.getElementById('basicCbx').checked = true;
+		if (this.content.toolbar_options.pencil){
+			document.getElementById('pencilCbx').checked = true;
 		} else {
-			document.getElementById('basicCbx').checked = false;
+			document.getElementById('pencilCbx').checked = false;
 		}
-		if (this.content.toolbar_options.annotate){
-			document.getElementById('annotateCbx').checked = true;
+		if (this.content.toolbar_options.line){
+			document.getElementById('lineCbx').checked = true;
 		} else {
-			document.getElementById('annotateCbx').checked = false;
+			document.getElementById('lineCbx').checked = false;
 		}
-		if (this.content.toolbar_options.freehand){
-			document.getElementById('freehandCbx').checked = true;
+		if (this.content.toolbar_options.connector){
+			document.getElementById('connectorCbx').checked = true;
 		} else {
-			document.getElementById('freehandCbx').checked = false;
+			document.getElementById('connectorCbx').checked = false;
+		}
+		if (this.content.toolbar_options.rectangle){
+			document.getElementById('rectangleCbx').checked = true;
+		} else {
+			document.getElementById('rectangleCbx').checked = false;
+		}
+		if (this.content.toolbar_options.ellipse){
+			document.getElementById('ellipseCbx').checked = true;
+		} else {
+			document.getElementById('ellipseCbx').checked = false;
+		}
+		if (this.content.toolbar_options.polygon){
+			document.getElementById('polygonCbx').checked = true;
+		} else {
+			document.getElementById('polygonCbx').checked = false;
+		}
+		if (this.content.toolbar_options.text){
+			document.getElementById('textCbx').checked = true;
+		} else {
+			document.getElementById('textCbx').checked = false;
 		}
 	}
+	this.generateSnapshotMaxOption();
 };
 
 /**
@@ -102,7 +126,7 @@ View.prototype.SVGDrawNode.generateToolbarOptions = function(){
 View.prototype.SVGDrawNode.generateSnapshotOption = function(){
 	var parent = document.getElementById('snapshotOptionDiv');
 	
-	var snapshotHtml = 'Enable Flipbook Animator (snapshots)?<br/>';
+	var snapshotHtml = 'Enable Flipbook Animator (frames)?<br/>';
 	if(this.content.snapshots_active){
 		snapshotHtml += '<input type="radio" name="snapshotRadio" id="sRadioTrue" value="true" CHECKED onclick="eventManager.fire(\'svgdrawSnapshotOptionChanged\')"/> Yes<br/>';
 		snapshotHtml += '<input type="radio" name="snapshotRadio" id="sRadioFalse" value="false" onclick="eventManager.fire(\'svgdrawSnapshotOptionChanged\')"/> No<br/>';
@@ -131,6 +155,16 @@ View.prototype.SVGDrawNode.generateSnapshotMaxOption = function(){
 		'<option value="8">8</option>' +
 		'<option value="9">9</option>' +
 		'<option value="10">10</option>' +
+		'<option value="11" class="noPencil">11</option>' +
+		'<option value="12" class="noPencil">12</option>' +
+		'<option value="13" class="noPencil">13</option>' +
+		'<option value="14"class="noPencil" >14</option>' +
+		'<option value="15" class="noPencil">15</option>' +
+		'<option value="16" class="noPencil">16</option>' +
+		'<option value="17" class="noPencil">17</option>' +
+		'<option value="18" class="noPencil">18</option>' +
+		'<option value="19" class="noPencil">19</option>' +
+		'<option value="20" class="noPencil">20</option>' +
 		'</select>';
 	
 	parent.innerHTML = snapshotMaxHtml;
@@ -145,6 +179,8 @@ View.prototype.SVGDrawNode.generateSnapshotMaxOption = function(){
 	if(this.content.snapshots_active){
 		document.getElementById('snapMaxInput').disabled = false;
 	}
+	
+	this.toolbarOptionsChanged();
 };
 
 /**
@@ -256,7 +292,7 @@ View.prototype.SVGDrawNode.toolbarOptionsChanged = function(){
 	var options = document.getElementsByName('toolbarCbx');
 	
 	// set initial toolbar_options variable if not yet defined
-	if(this.content.toolbar_options == null || this.content.toolbar_options == 'undefiend'){
+	if(this.content.toolbar_options == null || typeof this.content.toolbar_options == 'undefined'){
 		this.content.toolbar_options = {};
 	}
 	
@@ -267,12 +303,29 @@ View.prototype.SVGDrawNode.toolbarOptionsChanged = function(){
 			isActive = true;
 		}
 		
-		if(current == 'basic'){
-			this.content.toolbar_options.basic = isActive;
-		} else if (current == 'annotate'){
-			this.content.toolbar_options.annotate = isActive;
-		} else if (current == 'freehand'){
-			this.content.toolbar_options.freehand = isActive;
+		if(current == 'pencil'){
+			this.content.toolbar_options.pencil = isActive;
+			if(isActive){
+				if(this.content.snapshots_max > 10){
+					this.content.snapshots_max = 10;
+					document.getElementById('snapMaxInput').options[8].selected = true;
+				}
+				$('#snapMaxInput option.noPencil').attr('disabled', 'disabled');
+			} else {
+				$('#snapMaxInput option.noPencil').removeAttr('disabled');
+			}
+		} else if (current == 'line'){
+			this.content.toolbar_options.line = isActive;
+		} else if (current == 'connector'){
+			this.content.toolbar_options.connector = isActive;
+		} else if (current == 'rectangle'){
+			this.content.toolbar_options.rectangle = isActive;
+		} else if (current == 'ellipse'){
+			this.content.toolbar_options.ellipse = isActive;
+		} else if (current == 'polygon'){
+			this.content.toolbar_options.polygon = isActive;
+		} else if (current == 'text'){
+			this.content.toolbar_options.text = isActive;
 		}
 	}
 	
