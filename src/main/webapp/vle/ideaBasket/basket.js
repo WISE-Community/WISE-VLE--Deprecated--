@@ -20,7 +20,7 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId,
  * for an idea basket step
  * @return an IdeaBasket instance
  */
-function IdeaBasket(ideaBasketJSONObj, createForStep) {
+function IdeaBasket(ideaBasketJSONObj, createForStep, node) {
 	if(createForStep) {
 		//we are creating an idea basket for an idea basket step
 		
@@ -802,9 +802,12 @@ IdeaBasket.prototype.saveIdeaBasket = function(thisView) {
 			data:data 
 	};
 	
-	//post the idea basket back to the server to be saved
-	thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.saveIdeaBasketCallback, {thisView:thisView});
-
+	//check if we are in preview mode
+	if(thisView.config.getConfigParam('mode') != "portalpreview") {
+		//we are not in preview mode so we will post the idea basket back to the server to be saved
+		thisView.connectionManager.request('POST', 3, thisView.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.saveIdeaBasketCallback, {thisView:thisView});
+	}
+	
 	//set the updated ideaBasket back into the view
 	thisView.ideaBasket = newIdeaBasket;
 	
@@ -1015,6 +1018,20 @@ IdeaBasket.prototype.loadIdeaBasket = function() {
 		
 		//load the idea basket into the step
 		loadIdeaBasket(ideaBasketJSONObj, true, this.view);		
+	} else if(this.view.authoringMode) {
+		/*
+		 * we are in authoring preview step mode so we will just create
+		 * a dummy idea basket
+		 */
+		
+		//generate the JSON string for the dummy idea basket
+		var ideaBasketJSON = '{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}';
+		
+		//generate the JSON object for the idea basket
+		var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
+		
+		//load the idea basket into the step
+		loadIdeaBasket(ideaBasketJSONObj, true, this.view);	
 	} else {
 		/*
 		 * the vle failed to retrieve the idea basket so we will disable

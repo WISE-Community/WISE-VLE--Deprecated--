@@ -222,15 +222,19 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 			!runInfo.isStudentAssetUploaderEnabled) {
 		$("#studentAssetsTD").hide();
 	}
-	if (runInfo.isIdeaManagerEnabled != null &&
-			runInfo.isIdeaManagerEnabled) {
+	
+	if (this.config.getConfigParam('mode') == "portalpreview" || 
+			(runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled)) {
+		/*
+		 * display the idea basket icons in the top menu if we are
+		 * in project preview or the run has idea basket enabled
+		 */
 		$("#ideaBasketTD").show();
 		$("#addIdeaTD").show();
 	} else if (runInfo.isIdeaManagerEnabled != null &&
 			!runInfo.isIdeaManagerEnabled) {
 		$("#ideaBasketTD").hide();
 		$("#addIdeaTD").hide();
-
 	}
 };
 /**
@@ -374,6 +378,11 @@ View.prototype.onProjectLoad = function(){
 	} else if (this.config.getConfigParam('mode') == "portalpreview") {
 		//if preview mode, only get the user and class info and not learner data
 		this.loadUserAndClassInfo(createContent(this.config.getConfigParam('getUserInfoUrl')));
+	}
+	
+	if(this.config.getConfigParam('mode') == "portalpreview") {
+		//we are previewing the project so we will create a dummy idea basket
+		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}');
 	}
 	
 	if (this.config.getConfigParam('navMode') == "dropDownTree") {

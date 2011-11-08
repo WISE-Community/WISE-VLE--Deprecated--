@@ -402,21 +402,22 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 
 	$('.exIdea').remove();
 
+	if(this.view.authoringMode) {
+		//we are in preview step so we will create a dummy idea basket
+		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}');
+	}
+	
 	if(this.ideaBasket == null) {
 		//we do not have the basket
 		
-		if(this.view.authoringMode) {
-			//we are in authoring mode so we do not need to do anything
-		} else {
-			/*
-			 * display a message to the student and disable the buttons 
-			 * and textarea so the student can't work on the step
-			 */
-			alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
-			$('#addNew').attr('disabled', 'disabled');
-			$('#save').attr('disabled', 'disabled');
-			$('#explanationText').attr('disabled', 'disabled');			
-		}
+		/*
+		 * display a message to the student and disable the buttons 
+		 * and textarea so the student can't work on the step
+		 */
+		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
+		$('#addNew').attr('disabled', 'disabled');
+		$('#save').attr('disabled', 'disabled');
+		$('#explanationText').attr('disabled', 'disabled');
 	} else {
 		//we have the basket
 		
