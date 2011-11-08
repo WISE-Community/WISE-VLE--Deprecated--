@@ -819,7 +819,7 @@ View.prototype.displayIdeaBasket = function() {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv"></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:(document.height - 100),modal:false,title:this.getI18NString("idea_basket"),close:this.ideaBasketDivClose,
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:500,modal:false,title:this.getI18NString("idea_basket"),close:this.ideaBasketDivClose,
 			// because idea basket content is delivered in an iframe
 			// need to show transparent div overlay when dragging/resizing dialog
 			// so that iframe does not catch mouse movements and interupt dragging/resizing
