@@ -3030,7 +3030,9 @@ public class VLEGetXLS extends VLEServlet {
 							 */
 							currentJSONObject = null;
 						}
-					}					
+					} else {
+						currentJSONObject = null;
+					}
 				}
 			}
 		} catch (JSONException e) {
