@@ -8,6 +8,22 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
+	/*'vle/node/draw/svg-edit/jquery-1.4.2.min.js',
+	'vle/jquery/js/jsonplugin.js',
+	'vle/node/draw/svg-edit/jquery-ui/jquery-ui-1.7.2.custom.min.js',
+	'vle/node/draw/svg-edit/jgraduate/jpicker-1.0.12.min.js',
+	'vle/node/draw/svg-edit/js-hotkeys/jquery.hotkeys.min.js',
+	'vle/node/draw/svg-edit/jgraduate/jquery.jgraduate.js',
+	'vle/node/draw/svg-edit/jquerybbq/jquery.bbq.min.js',
+	'vle/node/draw/svg-edit/spinbtn/JQuerySpinBtn.js',
+	'vle/node/draw/svg-edit/extensions/jquery-rscp/jquery.colorPicker.js',
+	'vle/node/draw/svg-edit/lz77.js',
+	'vle/node/draw/svg-edit/utils.js',
+	'vle/node/draw/svg-edit/jquery.timers-1.2.js',
+	'vle/node/draw/svg-edit/svgicons/jquery.svgicons.js',
+	'vle/node/draw/svg-edit/svgcanvas.js',
+	'vle/node/draw/svg-edit/svg-editor.js',
+	'vle/node/draw/svg-edit/locale/locale.js',*/
 	'vle/node/draw/svg-edit/svgdraw.js'
 ];
 
