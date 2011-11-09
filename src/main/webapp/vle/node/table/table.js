@@ -497,6 +497,7 @@ Table.prototype.hideEverythingBelowTable = function() {
 
 /**
  * Show all the divs below the table
+ * testing2
  */
 Table.prototype.showEverythingBelowTable = function() {
 	$('#prompt2Div').show();
