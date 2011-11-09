@@ -86,6 +86,8 @@ View.prototype.initiateGradingDisplay = function() {
 	
 	this.gradingType = this.getConfig().getConfigParam('gradingType');
 	
+	this.excelExportRestriction = this.getConfig().getConfigParam('excelExportRestriction');
+	
 	//the array to store the original order of the row ids
 	this.originalStudentWorkRowOrder = [];
 	
@@ -133,6 +135,59 @@ View.prototype.initiateGradingDisplay = function() {
 	}
 };
 
+View.prototype.convertTime24to12 = function(time) {
+	var hours = Math.floor(time/100);
+	var minutes = time % 100;
+	var meridian = "am";
+	
+	if(hours > 12) {
+		meridian = "pm";
+		
+		hours = hours - 12;
+	}
+	
+	if(hours == 0) {
+		hours = 12;
+	}
+	
+	if(minutes < 10) {
+		minutes = "0" + minutes;
+	}
+	
+	var time = hours + ":" + minutes + meridian;
+	
+	return time;
+};
+
+/**
+ * Get the current time in the PST timezone
+ * @returns the current time date object for the PST timezone
+ */
+View.prototype.getPSTTime = function() {
+	//get the local time
+	var currentTime = new Date();
+	
+	//get the local time in milliseconds
+	var currentTimeMilliseconds = currentTime.getTime();
+	
+	//get the local time zone offset from UTC, PST will be 8, EST will be 5, etc. in hours
+	var timezoneOffset = currentTime.getTimezoneOffset()/60;
+	
+	//get the UTC time by adding the local time and the offset in milliseconds
+	var utcMilliseconds = currentTimeMilliseconds + (60 * 60 * 1000 * timezoneOffset);
+	
+	//get the PST offset in hours
+	var pstOffset = 8;
+	
+	//get the PST time by subtracting the PST offset from the UTC time in milliseoncds
+	var pstMilliseconds = utcMilliseconds - (60 * 60 * 1000 * pstOffset);
+	
+	//make a new date object with the milliseconds from the PST time
+	var pstTime = new Date(pstMilliseconds);
+	
+	return pstTime;
+};
+
 /**
  * Displays the excel export buttons
  */
@@ -144,6 +199,58 @@ View.prototype.displayResearcherToolsPage = function() {
 	 */
 	var getResearcherToolsHtml = "<div class='gradingContent'><div id='exportCenterButtons'>";
 	getResearcherToolsHtml += "<table>";
+	
+	//check if we want to display the excel export restriction message
+	if(this.excelExportRestriction) {
+		//get the current time in the PST timezone
+		var pstTime = this.getPSTTime();
+		
+		//get the hours (0-23)
+		var pstHours = pstTime.getHours();
+		
+		//get the minutes (0-59)
+		var pstMinutes = pstTime.getMinutes();
+		
+		//am or pm
+		var meridian = "am";
+		
+		if(pstMinutes < 10) {
+			//add a leading 0
+			pstMinutes = "0" + pstMinutes;
+		}
+		
+		//the start and end time for school hours
+		var schoolStartTime = 800;
+		var schoolEndTime = 1500;
+		
+		//get the current time in 24 hour format e.g. 1049
+		var pst24HourTime = pstHours + "" + pstMinutes;
+
+		//get the current time in 24 hour format as a number
+		var pst24HourTimeNumber = Number(pst24HourTime);
+		
+		if(pst24HourTimeNumber > schoolStartTime && pst24HourTimeNumber < schoolEndTime) {
+			//school is currently in session so we will display the caution message
+			
+			if(pstHours > 12) {
+				//hours is greater than 12 so we will subtract 12 and change to pm
+				pstHours = pstHours - 12;
+				meridian = "pm";
+			}
+			
+			//create the current PST clock time e.g. 10:49am
+			var pstClockTime = pstHours + ":" + pstMinutes + meridian;
+			
+			//create the message
+			getResearcherToolsHtml += "<tr><td colspan='2'>";
+			getResearcherToolsHtml += "<p style='color:red'>";
+			getResearcherToolsHtml += "Caution: Please try not to generate Excel export files between 8am-3pm PST to minimize server load during school hours. It is currently " + pstClockTime + " PST.<br>";
+			getResearcherToolsHtml += "If you urgently need to generate excel export files, you may still do so. If you do not need them right away, we would appreciate it if you waited until after 3pm PST.";
+			getResearcherToolsHtml += "</p>";
+			getResearcherToolsHtml += "</td></tr>";
+		}
+	}
+	
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_latest_student_work")+"' onClick=\"eventManager.fire('getLatestStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_latest_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['latestStudentWork'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_all_student_work")+"' onClick=\"eventManager.fire('getAllStudentWorkXLSExport')\"></input></td><td>"+this.getI18NString("grading_button_export_all_student_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['allStudentWork'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td></tr>";

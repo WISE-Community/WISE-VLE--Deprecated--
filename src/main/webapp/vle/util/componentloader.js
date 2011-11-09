@@ -70,7 +70,28 @@ var componentloader = function(em, sl){
 					//define the x position of the note dialog so that it shows up in the center of the document
 					var noteXPos = (document.width / 2) - (noteWidth / 2);
 					
-					$('#notePanel').dialog({autoOpen:false, width:noteWidth, title:'Reflection Note', resizable:false, position: [noteXPos, 45]});
+					$('#notePanel').dialog({
+						autoOpen:false,
+						width:noteWidth,
+						title:'Reflection Note',
+						resizable:false,
+						position: [noteXPos, 45],
+						closeOnEscape: false,
+						open: function(){
+							// add transparent overlay to contentDiv to disable editing of previous step while note is open
+							var height = $('#contentDiv').height()+10000;
+							var width = $('#contentDiv').width()+10000;
+							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'top':0, 'height':height, 'width':width, 'overflow':'hidden'});
+							$('#contentDiv').after(contentOverlay);
+							
+							// hide closing "X" for this dialog
+						     $(this).parent().children().children("a.ui-dialog-titlebar-close").remove();
+						},
+						close: function(){
+							// remove transparent overlay on contentDiv
+							$('#contentOverlay').remove();
+						}
+					});
 				}
 			}
 		},
