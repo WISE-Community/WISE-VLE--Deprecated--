@@ -107,6 +107,11 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		
 		//close the note dialog
 		obj.eventManager.fire('closeDialog','notePanel');
+		// render previously visited node (so WISE will correctly save data if users interact with previous node before moving on to another step)
+		var prevNodeId = obj.state.visitedNodes[obj.state.visitedNodes.length-2].nodeId;
+		var prevNode = obj.getProject().getPositionById(prevNodeId);
+		obj.eventManager.fire("renderNode", prevNode);
+		
 	} else if (type=='importWork') {
 		//get importFrom and importTo node
 		var fromNodeId = args[0];
