@@ -15,7 +15,8 @@ FlashNode.authoringToolDescription = "Embed Flash content in a WISE step.";
 
 /**
  * This is the constructor for the Node
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

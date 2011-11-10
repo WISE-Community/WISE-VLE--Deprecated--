@@ -7,6 +7,14 @@ HtmlNode.prototype.constructor = HtmlNode;
 HtmlNode.prototype.parent = Node.prototype;
 HtmlNode.authoringToolName = "Text/HTML Page";
 HtmlNode.authoringToolDescription = "Students read information from an HTML page";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {HtmlNode}
+ */
 function HtmlNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

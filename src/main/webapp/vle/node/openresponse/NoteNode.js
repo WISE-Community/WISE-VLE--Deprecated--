@@ -7,6 +7,14 @@ NoteNode.prototype.constructor = NoteNode;
 NoteNode.prototype.parent = OpenResponseNode.prototype;
 NoteNode.authoringToolName = "Reflection Note";
 NoteNode.authoringToolDescription = "Students write text to answer a question or explain their thoughts";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {NoteNode}
+ */
 function NoteNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

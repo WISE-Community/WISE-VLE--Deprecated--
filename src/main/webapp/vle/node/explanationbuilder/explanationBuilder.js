@@ -30,7 +30,7 @@
  * This is the constructor for the object that will perform the logic for
  * the step when the students work on it. An instance of this object will
  * be created in the .html for this step (look at template.html)
- * 
+ * @constructor
  * xTODO: rename TEMPLATE
  */
 function ExplanationBuilder(node, view) {

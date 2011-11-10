@@ -1,6 +1,6 @@
 /**
  * Sets the CarGraphNode type as an object of this view
- * 
+ * @constructor
  * TODO: rename CarGraphNode
  */
 View.prototype.CarGraphNode = {};

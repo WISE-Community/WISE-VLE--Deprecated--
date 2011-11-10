@@ -15,7 +15,8 @@ Mysystem2Node.authoringToolDescription = "This is a generic step only used by de
 
 /**
  * This is the constructor for the Node
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

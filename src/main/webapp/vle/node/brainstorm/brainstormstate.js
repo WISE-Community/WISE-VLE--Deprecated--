@@ -1,5 +1,6 @@
 /**
  * Object for storing the student's response to the brainstorm
+ * @constructor
  */
 function BRAINSTORMSTATE(response, timestamp){
 	this.type = "bs";

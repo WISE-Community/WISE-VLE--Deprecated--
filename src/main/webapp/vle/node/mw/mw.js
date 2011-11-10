@@ -1,3 +1,9 @@
+
+/**
+ * @constructor
+ * @param node
+ * @returns
+ */
 function MW(node) {
 	this.node = node;
 	this.content = node.getContent().getContentJSON();

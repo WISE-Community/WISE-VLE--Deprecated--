@@ -1,3 +1,10 @@
+
+/**
+ * @constructor
+ * @param state
+ * @param timestamp
+ * @returns
+ */
 function MYSYSTEMSTATE(state, timestamp) {
 	this.type = "mysystem";
 	this.data = state;

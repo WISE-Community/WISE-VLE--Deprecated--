@@ -4,6 +4,14 @@ SVGDrawNode.prototype.constructor = SVGDrawNode;
 SVGDrawNode.prototype.parent = Node.prototype;
 SVGDrawNode.authoringToolName = "Draw";
 SVGDrawNode.authoringToolDescription = "Students draw using basic drawing tools, take snapshots and create flipbook animations";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {SVGDrawNode}
+ */
 function SVGDrawNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

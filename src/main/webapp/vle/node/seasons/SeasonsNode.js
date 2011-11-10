@@ -40,7 +40,8 @@ SeasonsNode.authoringToolDescription = "This is a generic step only used by deve
  * This is the constructor for the Node
  * 
  * TODO: rename SeasonsNode
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

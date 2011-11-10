@@ -24,7 +24,8 @@ SurgeNode.tagMapFunctions = [
 
 /**
  * This is the constructor for the Node
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

@@ -34,6 +34,8 @@
  * note: you can change the variables in this constructor, the response variable
  * is just used as an example. you can add any variables that will help you 
  * represent the student's work for your step type.
+ * 
+ * @constructor
  */
 function TableState(response, tableData) {
 	//the text response the student wrote

@@ -22,10 +22,12 @@
  *
  * @author: Hiroki Terashima
  */
+
 /**
  * MatchSequence (MS) object.
  * Given xmldocument, will create a new instance of the MatchSequence object and 
  * populate its attributes. Does not render anything on the screen (see MS.render() for rendering).
+ * @constructor
  */
 function MS(node, view) {
 	this.node = node;

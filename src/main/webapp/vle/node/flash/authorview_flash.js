@@ -1,6 +1,6 @@
 /**
  * Sets the FlashNode type as an object of this view
- * 
+ * @constructor
  * TODO: rename FlashNode
  */
 View.prototype.FlashNode = {};

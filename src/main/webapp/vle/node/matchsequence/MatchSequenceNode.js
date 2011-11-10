@@ -7,6 +7,14 @@ MatchSequenceNode.prototype.constructor = MatchSequenceNode;
 MatchSequenceNode.prototype.parent = Node.prototype;
 MatchSequenceNode.authoringToolName = "Match & Sequence";
 MatchSequenceNode.authoringToolDescription = "Students drag and drop choices into boxes";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {MatchSequenceNode}
+ */
 function MatchSequenceNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

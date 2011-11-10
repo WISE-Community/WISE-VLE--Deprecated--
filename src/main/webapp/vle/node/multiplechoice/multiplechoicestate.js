@@ -1,5 +1,6 @@
 /**
  * Object for storing state information of MultipleChoice item.
+ * @constructor
  */
 function MCSTATE(args) {
 	this.type = "mc";

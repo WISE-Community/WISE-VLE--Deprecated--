@@ -6,6 +6,9 @@
  */
 /*globals View createBreak createElement eventManager*/
 
+/**
+ * @constructor
+ */
 View.prototype.Mysystem2Node = {};
 View.prototype.Mysystem2Node.commonComponents = ['Prompt', 'LinkTo'];
 

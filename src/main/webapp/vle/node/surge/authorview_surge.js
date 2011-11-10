@@ -1,5 +1,6 @@
 /**
  * Sets the SurgeNode type as an object of this view
+ * @constructor
  */
 View.prototype.SurgeNode = {};
 

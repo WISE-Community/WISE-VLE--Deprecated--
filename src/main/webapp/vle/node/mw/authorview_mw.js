@@ -2,6 +2,7 @@
  * Sets the MWNode type as an object of this view
  * 
  * TODO: rename MWNode
+ * @constructor
  */
 View.prototype.MWNode = {};
 

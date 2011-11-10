@@ -1,6 +1,6 @@
 /**
  * Sets the OpenResponseNode type as an object of this view
- * 
+ * @constructor
  * @author patrick lawler
  */
 View.prototype.OpenResponseNode = {};

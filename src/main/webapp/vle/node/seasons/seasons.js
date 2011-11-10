@@ -32,6 +32,7 @@
  * be created in the .html for this step (look at seasons.html)
  * 
  * TODO: rename SEASONS
+ * @constructor
  */
 function SEASONS(node, view) {
 	this.node = node;

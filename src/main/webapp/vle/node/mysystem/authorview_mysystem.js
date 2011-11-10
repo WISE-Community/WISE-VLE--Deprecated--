@@ -1,6 +1,6 @@
 /**
  * Sets the MySystemNode type as an object of this view
- * 
+ * @constructor
  * @author patrick lawler
  */
 View.prototype.MySystemNode = {};

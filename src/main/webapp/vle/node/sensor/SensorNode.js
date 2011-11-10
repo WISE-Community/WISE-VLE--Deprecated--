@@ -4,6 +4,14 @@ SensorNode.prototype.constructor = SensorNode;
 SensorNode.prototype.parentNode = Node.prototype;
 SensorNode.authoringToolName = "Graph/Sensor";
 SensorNode.authoringToolDescription = "Students plot points on a graph and can use a USB probe to collect data";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {SensorNode}
+ */
 function SensorNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

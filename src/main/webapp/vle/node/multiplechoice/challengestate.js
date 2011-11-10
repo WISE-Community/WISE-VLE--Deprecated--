@@ -1,5 +1,6 @@
 /**
  * Object for storing state information of Challenge item.
+ * @constructor
  */
 function CHALLENGESTATE(args) {
 	this.type = "challenge";

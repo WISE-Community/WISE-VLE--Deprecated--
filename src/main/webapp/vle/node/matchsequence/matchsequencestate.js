@@ -22,9 +22,11 @@
  *
  * @author: Hiroki Terashima
  */
+
 /**
  * STATE
  *   buckets
+ * @constructor
  */
 function MSSTATE() {
 	this.type = "ms";

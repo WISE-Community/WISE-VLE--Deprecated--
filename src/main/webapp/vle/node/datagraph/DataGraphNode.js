@@ -3,6 +3,14 @@ DataGraphNode.prototype.constructor = DataGraphNode;
 DataGraphNode.prototype.parent = Node.prototype;
 DataGraphNode.authoringToolName = "Data Graph";
 DataGraphNode.authoringToolDescription = "Students enter data values and generate a graph";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {DataGraphNode}
+ */
 function DataGraphNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

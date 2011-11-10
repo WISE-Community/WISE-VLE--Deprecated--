@@ -22,11 +22,13 @@
  *
  * @author: Hiroki Terashima
  */
+
 /**
  * MatchSequence Bucket object
  *
  * SAMPLE bucketDOM:
  *   <gapMultiple identifier="yes" ordinal="false" numberOfEntries="0">&lt;html&gt;&lt;body class="slot"&gt;Items that contain one or more computers:)&lt;/body&gt;&lt;/html&gt;</gapMultiple>
+ * @constructor
  */
 function MSBUCKET(bucketObj) {
   if (bucketObj) {

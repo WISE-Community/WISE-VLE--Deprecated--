@@ -40,7 +40,8 @@ TemplateNode.authoringToolDescription = "This is a generic step only used by dev
  * This is the constructor for the Node
  * 
  * TODO: rename TemplateNode
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

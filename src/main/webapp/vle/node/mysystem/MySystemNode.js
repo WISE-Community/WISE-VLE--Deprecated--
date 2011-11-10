@@ -4,6 +4,14 @@ MySystemNode.prototype.constructor = MySystemNode;
 MySystemNode.prototype.parent = Node.prototype;
 MySystemNode.authoringToolName = "My System";
 MySystemNode.authoringToolDescription = "Students work on a diagram where they can add images and connect them with lines";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {MySystemNode}
+ */
 function MySystemNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

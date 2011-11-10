@@ -40,7 +40,8 @@ IdeaBasketNode.authoringToolDescription = "Students view their Idea Basket and a
  * This is the constructor for the Node
  * 
  * TODO: rename TemplateNode
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

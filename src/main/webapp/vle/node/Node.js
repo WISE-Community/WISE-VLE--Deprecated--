@@ -1,4 +1,7 @@
-/* Node */
+/**
+ * @constructor
+ * Node
+ */
 function Node(nodeType, view){
 	this.id;
 	this.parent;
@@ -113,7 +116,7 @@ Node.prototype.setContent = function(content){
  * e.g. HtmlNode=>{Display, Evidence}, NoteNode=>Note, etc.
  * If type is not defined, return an empty string.
  * @param humanReadable
- * @return
+ * @return the node type
  */
 Node.prototype.getType = function(humanReadable) {
 	if (this.type) {
@@ -314,7 +317,6 @@ Node.prototype.pageRenderComplete = function(type, args, obj){
 
 /**
  * Creates constraints for this node if necessary
- * @return
  */
 Node.prototype.renderConstraints = function() {
 	//check if there is content
@@ -502,7 +504,7 @@ Node.prototype.translateStudentWork = function(studentWork) {
 /**
  * Injects base ref in the head of the html if base-ref is not found, and returns the result
  * @param content
- * @return
+ * @return the content with the injected base ref
  */
 Node.prototype.injectBaseRef = function(content) {
 	if (content.search(/<base/i) > -1) {
@@ -1220,7 +1222,6 @@ Node.prototype.createKeystrokeManager = function(){
  * linked node still exists in the project and then calls vle render if it does.
  * 
  * @param linkId
- * @return
  */
 Node.prototype.linkTo = function(key){
 	var link = this.getLink(key);

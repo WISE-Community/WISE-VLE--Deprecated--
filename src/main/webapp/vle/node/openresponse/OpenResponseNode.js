@@ -8,6 +8,14 @@ OpenResponseNode.prototype.constructor = OpenResponseNode;
 OpenResponseNode.prototype.parent = Node.prototype;
 OpenResponseNode.authoringToolName = "Open Response";
 OpenResponseNode.authoringToolDescription = "Students write text to answer a question or explain their thoughts";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {OpenResponseNode}
+ */
 function OpenResponseNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

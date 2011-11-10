@@ -3,7 +3,7 @@
  * A representation of a Brainstorm which can be either 
  * open_response or single_choice (not implemented) and
  * can run with a server or serverless
- * 
+ * @constructor
  * @author: patrick lawler
  */
 function BRAINSTORM(node){

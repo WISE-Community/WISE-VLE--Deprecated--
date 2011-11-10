@@ -1,6 +1,6 @@
 /**
  * Sets the AssessmentList type as an object of this view
- * 
+ * @constructor
  * @author hiroki
  */
 View.prototype.AssessmentListNode = {};

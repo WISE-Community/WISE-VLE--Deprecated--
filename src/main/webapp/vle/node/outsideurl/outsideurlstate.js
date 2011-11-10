@@ -1,5 +1,6 @@
 /**
  * Object for storing state information of OpenResponse item.
+ * @constructor
  * @author Hiroki Terashima
  */
 function OUTSIDEURLSTATE(response) {
@@ -9,8 +10,8 @@ function OUTSIDEURLSTATE(response) {
 }
 
 OUTSIDEURLSTATE.prototype.print = function() {
-}
+};
 
 OUTSIDEURLSTATE.prototype.getHtml = function() {
 	return "timestamp: " + this.timestamp + "<br/>response: " + this.response;
-}
+};

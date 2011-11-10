@@ -1,6 +1,7 @@
 /**
  * The constructor for the carGraph object that we use to perform rendering
  * and logic in a carGraph step
+ * @constructor
  * @param node the step we are on
  * @param view the vle view
  */

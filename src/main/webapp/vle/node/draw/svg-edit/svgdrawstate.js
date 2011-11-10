@@ -1,3 +1,10 @@
+
+/**
+ * @constructor
+ * @param state
+ * @param timestamp
+ * @returns
+ */
 function SVGDRAWSTATE(state, timestamp) {
 	this.type = "html";
 	this.data = state;

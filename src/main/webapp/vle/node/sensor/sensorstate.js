@@ -4,6 +4,7 @@
 
 /**
  * The constructor for the sensor state
+ * @constructor
  * @param response the text response the student typed
  * @param sensorDataArray an array containing data from the sensor
  * @param annotationArray an array containing objects that represent annotations

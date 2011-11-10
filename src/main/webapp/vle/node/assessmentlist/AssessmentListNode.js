@@ -3,6 +3,14 @@ AssessmentListNode.prototype.constructor = AssessmentListNode;
 AssessmentListNode.prototype.parent = Node.prototype;
 AssessmentListNode.authoringToolName = "Questionnaire";
 AssessmentListNode.authoringToolDescription = "Students answer a collection of questions that require text or multiple choice answers";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {AssessmentListNode}
+ */
 function AssessmentListNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

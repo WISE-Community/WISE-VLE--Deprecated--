@@ -1,5 +1,10 @@
 // TODO: Comment me more thoroughly!
 
+/**
+ * @constructor
+ * @param node
+ * @returns
+ */
 function SVGDRAW(node) {
 	this.node = node;
 	this.content = node.getContent().getContentJSON();

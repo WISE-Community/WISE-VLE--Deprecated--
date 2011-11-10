@@ -34,7 +34,8 @@ CarGraphNode.authoringToolDescription = "Lets students draw graphs and have cars
 
 /**
  * This is the constructor for the Node
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

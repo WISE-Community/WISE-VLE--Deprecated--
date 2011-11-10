@@ -7,8 +7,17 @@
 BrainstormNode.prototype = new Node();
 BrainstormNode.prototype.constructor = BrainstormNode;
 BrainstormNode.prototype.parent = Node.prototype;
+
 BrainstormNode.authoringToolName = "Brainstorm Discussion";
 BrainstormNode.authoringToolDescription = "Students post their answer for everyone in the class to read and discuss";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {BrainstormNode}
+ */
 function BrainstormNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

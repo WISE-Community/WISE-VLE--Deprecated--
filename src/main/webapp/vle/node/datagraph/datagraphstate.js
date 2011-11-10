@@ -1,6 +1,6 @@
 /**
  * Datagraph state object
- * 
+ * @constructor
  * @author patrick lawler
  */
 function DATAGRAPHSTATE(args){

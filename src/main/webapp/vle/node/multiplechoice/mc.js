@@ -1,3 +1,10 @@
+
+/**
+ * @constructor
+ * @param node
+ * @param view
+ * @returns
+ */
 function MC(node, view) {
 	this.node = node;
 	this.view = view;

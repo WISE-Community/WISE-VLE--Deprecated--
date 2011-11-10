@@ -22,6 +22,7 @@
  *
  * @author: Hiroki Terashima
  */
+
 /**
  * MatchSequence Choice object
  * 
@@ -31,6 +32,7 @@
  *
  * SAMPLE choiceDOM:
  *   <gapText identifier="ps3" matchMax="1">&lt;html&gt;&lt;body class="choice"&gt;Playstation 3&lt;/body&gt;&lt;/html&gt;</gapText>
+ * @constructor
  */
 function MSCHOICE(choiceObj, bucket) {
     if (choiceObj) {

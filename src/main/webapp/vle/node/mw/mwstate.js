@@ -1,3 +1,10 @@
+
+/**
+ * @constructor
+ * @param state
+ * @param timestamp
+ * @returns
+ */
 function MWSTATE(state, timestamp) {
 	this.type = "mw";
 	this.data = state;

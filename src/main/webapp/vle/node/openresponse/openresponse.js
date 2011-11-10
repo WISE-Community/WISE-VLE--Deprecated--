@@ -1,3 +1,9 @@
+/**
+ * @constructor
+ * @param node
+ * @param view
+ * @returns
+ */
 function OPENRESPONSE(node, view) {
 	this.node = node;
 	this.view = view;

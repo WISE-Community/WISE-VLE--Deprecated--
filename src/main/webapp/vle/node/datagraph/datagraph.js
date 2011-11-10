@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param node
+ * @returns
+ */
 function DATAGRAPH(node){
 	this.node = node;
 	this.content = node.getContent().getContentJSON();

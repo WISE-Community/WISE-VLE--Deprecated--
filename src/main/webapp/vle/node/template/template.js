@@ -32,6 +32,8 @@
  * be created in the .html for this step (look at template.html)
  * 
  * TODO: rename Template
+ * 
+ * @constructor
  */
 function Template(node) {
 	this.node = node;

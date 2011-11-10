@@ -2,6 +2,7 @@
  * Sets the TemplateNode type as an object of this view
  * 
  * TODO: rename TemplateNode
+ * @constructor
  */
 View.prototype.TableNode = {};
 

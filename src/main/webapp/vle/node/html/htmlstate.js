@@ -1,3 +1,11 @@
+
+/**
+ * @constructor
+ * @extends Node
+ * @param state
+ * @param timestamp
+ * @returns
+ */
 function HTMLSTATE(state, timestamp) {
 	this.type = "html";
 	this.data = state;

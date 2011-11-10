@@ -6,6 +6,7 @@
 /**
  * For re-creating the student's vle_state from their xml for
  * researcher/teacher display
+ * @constructor
  */
 function FILLINSTATE(textEntryInteractionIndex, response, timestamp) {
 	this.type = "fi";
@@ -21,11 +22,11 @@ function FILLINSTATE(textEntryInteractionIndex, response, timestamp) {
 }
 
 FILLINSTATE.prototype.print = function() {
-}
+};
 
 FILLINSTATE.prototype.getDataXML = function() {
 	return "<textEntryInteractionIndex>" + this.textEntryInteractionIndex + "</textEntryInteractionIndex><response>" + this.response + "</response><timestamp>" + this.timestamp + "</timestamp>";
-}
+};
 
 FILLINSTATE.prototype.parseDataXML = function(stateXML) {
 	var textEntryInteractionIndex = stateXML.getElementsByTagName("textEntryInteractionIndex")[0];
@@ -37,7 +38,7 @@ FILLINSTATE.prototype.parseDataXML = function(stateXML) {
 	} else {
 		return new FILLINSTATE(textEntryInteractionIndex.textContent, response.textContent, timestamp.textContent);
 	}
-}
+};
 
 
 /**
@@ -56,7 +57,7 @@ FILLINSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	
 	//return the FILLINSTATE object
 	return fillinState;
-}
+};
 
 /**
  * Returns what the student typed
@@ -64,7 +65,7 @@ FILLINSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  */
 FILLINSTATE.prototype.getStudentWork = function() {
 	return this.response;
-}
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

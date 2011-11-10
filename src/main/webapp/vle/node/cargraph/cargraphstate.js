@@ -1,5 +1,6 @@
 /**
  * The constructor for the cargraph state
+ * @constructor
  * @param response the text response the student typed
  * @param annotationArray an array containing objects that represent annotations
  * for points on the graph 

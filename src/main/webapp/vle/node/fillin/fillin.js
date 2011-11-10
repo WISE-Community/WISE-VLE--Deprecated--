@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param node
+ * @returns
+ */
 function FILLIN(node) {
 	this.node = node;
 	this.content = this.node.getContent().getContentJSON();

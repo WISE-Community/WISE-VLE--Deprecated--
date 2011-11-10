@@ -33,7 +33,8 @@ TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename
  * This is the constructor for the Node
  * 
  * TODO: rename TemplateNode
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

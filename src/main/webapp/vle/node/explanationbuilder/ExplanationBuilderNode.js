@@ -33,7 +33,8 @@ ExplanationBuilderNode.authoringToolDescription = "Students use ideas from their
  * This is the constructor for the Node
  * 
  * xTODO: rename TemplateNode
- * 
+ * @constructor
+ * @extends Node
  * @param nodeType
  * @param view
  */

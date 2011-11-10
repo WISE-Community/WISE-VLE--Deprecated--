@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param args
+ * @returns
+ */
 function ASSESSMENTLISTSTATE(args) {
 	this.type = "assessmentlist";
 	this.submit = false;

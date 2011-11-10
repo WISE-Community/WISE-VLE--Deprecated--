@@ -1,6 +1,6 @@
 /**
  * Sets the TemplateNode type as an object of this view
- * 
+ * @constructor
  * xTODO: rename TemplateNode
  */
 View.prototype.ExplanationBuilderNode = {};

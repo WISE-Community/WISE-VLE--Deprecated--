@@ -6,6 +6,7 @@
 /**
  * The constructor for the sensor object that we use to peform rendering
  * and logic in a sensor step
+ * @param constructor
  * @param node the step we are on
  * @param view the vle view
  */

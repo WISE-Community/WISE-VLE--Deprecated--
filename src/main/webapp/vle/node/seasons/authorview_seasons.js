@@ -2,6 +2,7 @@
  * Sets the SeasonsNode type as an object of this view
  * 
  * TODO: rename SeasonsNode
+ * @constructor
  */
 View.prototype.SeasonsNode = {};
 

@@ -1,6 +1,6 @@
 /**
  * Sets the FillinNode type as an object of this view
- * 
+ * @constructor
  * @author patrick lawler
  */
 View.prototype.FillinNode = {};

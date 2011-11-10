@@ -7,6 +7,14 @@ OutsideUrlNode.prototype.constructor = OutsideUrlNode;
 OutsideUrlNode.prototype.parent = Node.prototype;
 OutsideUrlNode.authoringToolName = "Outside Url";
 OutsideUrlNode.authoringToolDescription = "Students see a webpage from the internet";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {OutsideUrlNode}
+ */
 function OutsideUrlNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

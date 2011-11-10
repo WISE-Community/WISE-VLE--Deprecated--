@@ -1,6 +1,6 @@
 /**
  * Utility functions for Nodes
- *
+ * @constructor
  * @author patrick lawler
  */
 Node.prototype.utils = function(){

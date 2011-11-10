@@ -7,6 +7,14 @@ MultipleChoiceNode.prototype.constructor = MultipleChoiceNode;
 MultipleChoiceNode.prototype.parent = Node.prototype;
 MultipleChoiceNode.authoringToolName = "Multiple Choice";
 MultipleChoiceNode.authoringToolDescription = "Students answer a multiple choice question";
+
+/**
+ * @constructor
+ * @extends Node
+ * @param nodeType
+ * @param view
+ * @returns {MultipleChoiceNode}
+ */
 function MultipleChoiceNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;

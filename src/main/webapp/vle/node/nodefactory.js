@@ -1,3 +1,8 @@
+
+/**
+ * @constructor
+ * @returns
+ */
 function NodeFactory(){
 };
 

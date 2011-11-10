@@ -1,5 +1,6 @@
 /**
  * Object for storing state information of MultipleChoice item.
+ * @constructor
  */
 function BRANCHSTATE(args) {
 	this.type = "branch";

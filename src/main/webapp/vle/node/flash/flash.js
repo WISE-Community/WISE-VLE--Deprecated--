@@ -2,6 +2,7 @@
  * This is the constructor for the object that will perform the logic for
  * the step when the students work on it. An instance of this object will
  * be created in the .html for this step (look at surge.html)
+ * @constructor
  */
 function Flash(node) {
 	this.node = node;

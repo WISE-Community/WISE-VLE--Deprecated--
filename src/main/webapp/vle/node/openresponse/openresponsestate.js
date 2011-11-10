@@ -1,5 +1,6 @@
 /**
  * Object for storing state information of OpenResponse item.
+ * @constructor
  * @author Hiroki Terashima
  */
 function OPENRESPONSESTATE(response, timestamp, locked, submitPeerReview) {
