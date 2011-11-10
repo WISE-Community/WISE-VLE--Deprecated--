@@ -61,6 +61,7 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
+                                        <webappDirectory>${maven.war.vlewrapper.webappDirectory}</webappDirectory>
 					<webResources>
 						<resource>
 							<!-- this is relative to the pom.xml directory -->
