@@ -25,7 +25,7 @@ import vle.hibernate.HibernateUtil;
 @Table(name="stepwork_svgdraw")
 public class StepWorkSVGDraw extends StepWork {
 
-	@Column(name="data", columnDefinition="TEXT")
+	@Column(name="data", columnDefinition="MEDIUMTEXT")
 	private String data;
 	
 	@Override
