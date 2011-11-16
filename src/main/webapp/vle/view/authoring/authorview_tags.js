@@ -108,10 +108,23 @@ View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 		//create the row to display the tags
 		htmlSoFar += "<tr><td id='tagsForStep_" + nodeId + "'>";
 		
-		//create the select element for the user to add a tag
-		htmlSoFar += "<select id='addTagSelect_" + nodeId + "' style='display:inline' onclick='eventManager.fire(\"populateAddTagSelect\", [\"" + nodeId + "\"])' onchange='eventManager.fire(\"addTag\", [\"" + nodeId + "\"])'>";
-		htmlSoFar += "<option>&lt;Add Tag&gt;</option>";
-		htmlSoFar += "</select>";
+		if(navigator.userAgent.indexOf('Chrome') == -1) {
+			//browser is not chrome
+			
+			//create the select element for the user to add a tag
+			htmlSoFar += "<select id='addTagSelect_" + nodeId + "' style='display:inline' onClick='eventManager.fire(\"populateAddTagSelect\", [\"" + nodeId + "\"])' onChange='eventManager.fire(\"addTag\", [\"" + nodeId + "\"])'>";
+			htmlSoFar += "<option>&lt;Add Tag&gt;</option>";
+			htmlSoFar += "</select>";
+		} else {
+			/*
+			 * browser is chrome so we will create a simple button
+			 * instead of a select because the onclick event for
+			 * select elements does not work in chrome
+			 */
+			
+			//create a button for the user to create a tag
+			htmlSoFar += "<input type='button' value='Create New Tag' onclick='eventManager.fire(\"addTag\", [\"" + nodeId + "\"])' />";
+		}
 		
 		//get any existing tags for the step
 		var tags = currentNode.tags;
@@ -135,10 +148,23 @@ View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 		//create the row to display the tag maps
 		htmlSoFar += "<tr id='tagMapTr_" + nodeId + "'><td id='tagMapTd_" + nodeId + "'>";
 		
-		//create the select element for teh user to add a tag map
-		htmlSoFar += "<select id='addTagMapSelect_" + nodeId + "' style='display:inline' onclick='eventManager.fire(\"populateAddTagMapSelect\", [\"" + nodeId + "\"])' onchange='eventManager.fire(\"addTagMap\", [\"" + nodeId + "\"])'>";
-		htmlSoFar += "<option>&lt;Add Tag Map&gt;</option>";
-		htmlSoFar += "</select>";
+		if(navigator.userAgent.indexOf('Chrome') == -1) {
+			//browser is not chrome
+			
+			//create the select element for the user to add a tag map
+			htmlSoFar += "<select id='addTagMapSelect_" + nodeId + "' style='display:inline' onclick='eventManager.fire(\"populateAddTagMapSelect\", [\"" + nodeId + "\"])' onchange='eventManager.fire(\"addTagMap\", [\"" + nodeId + "\"])'>";
+			htmlSoFar += "<option>&lt;Add Tag Map&gt;</option>";
+			htmlSoFar += "</select>";			
+		} else {
+			/*
+			 * browser is chrome so we will create a simple button
+			 * instead of a select because the onclick event for
+			 * select elements does not work in chrome
+			 */
+			
+			//create a button for the user to create a new tag map
+			htmlSoFar += "<input type='button' value='Create New Tag Map' onclick='eventManager.fire(\"addTagMap\", [\"" + nodeId + "\"])' />";
+		}
 
 		//get all the existing tag maps
 		var tagMaps = currentNode.tagMaps;
@@ -344,7 +370,7 @@ View.prototype.addTag = function(nodeId) {
 	//get the existing tags
 	var existingTags = node.tags;
 	
-	if(tagName == '(Create New Tag)') {
+	if(tagName == '(Create New Tag)' || tagName == null) {
 		//the user wants to create a brand new tag
 		tagName = '';
 	}
@@ -428,60 +454,72 @@ View.prototype.tagMapChanged = function(nodeId, tagMapIndex) {
 		//get the selected tag name
 		var tagName = $('#tagMapTagInput_' + nodeIdEscaped + '_' + tagMapIndex).val();
 		
-		//get the selected function name
-		var functionName = $('#tagMapFunctionSelect_' + nodeIdEscaped + '_' + tagMapIndex).val();
-		
-		if(functionName == null) {
-			functionName = '';
-		}
-		
-		var functionArgs = [];
-		
-		//get the tag map function
-		var tagMapFunction = node.getTagMapFunctionByName(functionName);
-		
-		if(tagMapFunction != null) {
-			//loop through all the function args for the given function
-			for(var argCounter=0; argCounter<tagMapFunction.functionArgs.length; argCounter++) {
-				var argValue = '';
-				
-				if($('#tagMapFunctionArgs_' + nodeIdEscaped + '_' + tagMapIndex + '_' + argCounter).length != 0) {
-					//get the value of the function arg that the user has input into the text input
-					argValue = $('#tagMapFunctionArgs_' + nodeIdEscaped + '_' + tagMapIndex + '_' + argCounter).val();
-				}
-				
-				//check if the arg value is a number string
-				if(!isNaN(argValue)) {
-					//the value is a number string so we will convert the string to a number
-					argValue = Number(argValue);
-				}
-				
-				//put the function arg value into the array
-				functionArgs[argCounter] = argValue;
-			}			
-		}
+		//check that the tag name only contains letters or numbers
+		if(tagName != null && tagName.match(/^\w*$/)) {
+			//get the selected function name
+			var functionName = $('#tagMapFunctionSelect_' + nodeIdEscaped + '_' + tagMapIndex).val();
+			
+			if(functionName == null) {
+				functionName = '';
+			}
+			
+			var functionArgs = [];
+			
+			//get the tag map function
+			var tagMapFunction = node.getTagMapFunctionByName(functionName);
+			
+			if(tagMapFunction != null) {
+				//loop through all the function args for the given function
+				for(var argCounter=0; argCounter<tagMapFunction.functionArgs.length; argCounter++) {
+					var argValue = '';
+					
+					if($('#tagMapFunctionArgs_' + nodeIdEscaped + '_' + tagMapIndex + '_' + argCounter).length != 0) {
+						//get the value of the function arg that the user has input into the text input
+						argValue = $('#tagMapFunctionArgs_' + nodeIdEscaped + '_' + tagMapIndex + '_' + argCounter).val();
+					}
+					
+					//check if the arg value is a number string
+					if(!isNaN(argValue)) {
+						//the value is a number string so we will convert the string to a number
+						argValue = Number(argValue);
+					}
+					
+					//put the function arg value into the array
+					functionArgs[argCounter] = argValue;
+				}			
+			}
 
-		//update the tag map attributes
-		tagMap.tagName = tagName;
-		tagMap.functionName = functionName;
-		tagMap.functionArgs = functionArgs;
+			//update the tag map attributes
+			tagMap.tagName = tagName;
+			tagMap.functionName = functionName;
+			tagMap.functionArgs = functionArgs;
 
-		//generate the tag map html
-		var tagMapHtml = '';
-		tagMapHtml += this.getTagMapInnerHtml(nodeId, tagName, functionName, functionArgs, tagMapIndex);
-		
-		/*
-		 * insert the tag map html into the tag map div.
-		 * this will overwrite the previous version of the
-		 * tag map. overwriting is much easier to perform
-		 * in the case when the user changes the functionName
-		 * and we need to generate additional text input elements
-		 * for the function args.
-		 */
-		$('#tagMapDiv_' + nodeIdEscaped + '_' + tagMapIndex).html(tagMapHtml);
-		
-		//save the project to the server
-		this.saveProject();
+			//generate the tag map html
+			var tagMapHtml = '';
+			tagMapHtml += this.getTagMapInnerHtml(nodeId, tagName, functionName, functionArgs, tagMapIndex);
+			
+			/*
+			 * insert the tag map html into the tag map div.
+			 * this will overwrite the previous version of the
+			 * tag map. overwriting is much easier to perform
+			 * in the case when the user changes the functionName
+			 * and we need to generate additional text input elements
+			 * for the function args.
+			 */
+			$('#tagMapDiv_' + nodeIdEscaped + '_' + tagMapIndex).html(tagMapHtml);
+			
+			//save the project to the server
+			this.saveProject();
+		} else {
+			//tag contains invalid characters
+			alert('Error: tag can only contain letters and numbers');
+			
+			//get the old tag
+			var oldTag = tagMap.tagName;
+			
+			//set the tag back to the previous value
+			$('#tagMapTagInput_' + nodeIdEscaped + '_' + tagMapIndex).val(oldTag);
+		}
 	}
 };
 
@@ -730,11 +768,23 @@ View.prototype.tagNameChanged = function(nodeId, tagIndex) {
 	//get the new tag name
 	var newTagName = $('#tagInput_' + nodeIdEscaped + '_' + tagIndex).val();
 	
-	//update the tag in the project
-	existingTags[tagIndex] = newTagName;
+	//check that the tag name only contains letters or numbers
+	if(newTagName != null && newTagName.match(/^\w*$/)) {
+		//update the tag in the project
+		existingTags[tagIndex] = newTagName;
 
-	//save the project back to the server
-	this.saveProject();
+		//save the project back to the server
+		this.saveProject();		
+	} else {
+		//tag contains invalid characters
+		alert('Error: tag can only contain letters and numbers');
+		
+		//get the old tag
+		var oldTag = existingTags[tagIndex];
+		
+		//set the tag back to the previous value
+		$('#tagInput_' + nodeIdEscaped + '_' + tagIndex).val(oldTag);
+	}
 };
 
 /**
@@ -812,14 +862,16 @@ View.prototype.addTagMap = function(nodeId) {
 	var functionName = "";
 	var functionArgs = [];
 	
-	if(tagMapSelected != "(Create New Tag Map)") {
+	if(tagMapSelected == null || tagMapSelected == "(Create New Tag Map)") {
+		//author is creating a new tag map
+	} else {
 		/*
 		 * the author has selected an existing tag map and not
 		 * the option to create a brand new tag map
 		 */
 		
 		//create the regex string so we can extract the tag map attributes
-		var regExString = /Tag:\s*(\w*),\s*Function:\s*(\w*),\s*Arguments:\s*(\w*)/;
+		var regExString = /Tag:\s*(\w*),\s*Function:\s*(\w*),\s*Arguments:\s*([\w\s]*)/;
 		var regEx = new RegExp(regExString);
 		
 		//run the regex on the selected tag map string
