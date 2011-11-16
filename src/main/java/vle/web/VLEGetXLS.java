@@ -2509,19 +2509,26 @@ public class VLEGetXLS extends VLEServlet {
 									//obtain the response
 									Object jsonResponse = nodeState.get("response");
 									
-									String currentResponse = "";
+									StringBuffer currentResponse = new StringBuffer();
 									
 									if(jsonResponse instanceof JSONArray) {
 										//if the object is an array obtain the first element
 										JSONArray lastResponseArray = (JSONArray) jsonResponse;
 										
-										//check if there are any elements in the array
-										if(lastResponseArray.length() > 0) {
-											currentResponse = (String) lastResponseArray.get(0);										
+										//loop through the response array
+										for(int x=0; x<lastResponseArray.length(); x++) {
+											
+											if(currentResponse.length() != 0) {
+												//separate the responses with a comma
+												currentResponse.append(", ");
+											}
+											
+											//append the response
+											currentResponse.append((String) lastResponseArray.get(x));	
 										}
 									} else if(jsonResponse instanceof String) {
 										//if the object is a string just use the string
-										currentResponse = (String) jsonResponse;
+										currentResponse.append((String) jsonResponse);
 									}
 									
 									//separate answers with a comma
