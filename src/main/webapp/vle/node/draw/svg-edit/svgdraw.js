@@ -234,7 +234,7 @@ SVGDRAW.prototype.initDisplay = function(data,context) {
 		//initiate snapshots
 		if(context.snapshotsActive){
 			svgEditor.setMaxSnaps(context.snapshots_max);
-			if(context.snapshots_max > 10){
+			if(context.snapshots_max < 11){
 				svgEditor.maxDrawSize = 20480;
 			} else {
 				svgEditor.maxDrawSize = 10240;
