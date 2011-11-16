@@ -2466,8 +2466,132 @@ public class VLEGetXLS extends VLEServlet {
 			}
 		}
 		
-    	//obtain the student work from the json data
-    	if(stepWork instanceof StepWorkOR || stepWork instanceof StepWorkNote || 
+		String excelExportStringTemplate = null;
+		
+		if(node != null) {
+			//get the node id
+			String nodeId = node.getNodeId();
+			
+			if(nodeId != null) {
+				//get the content for the step
+				JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);	
+				
+				if(nodeContent != null) {
+					if(nodeContent.has("excelExportStringTemplate") && !nodeContent.isNull("excelExportStringTemplate")) {
+						
+						try {
+							//get the excelExportStringTemplate field from the step content
+							excelExportStringTemplate = nodeContent.getString("excelExportStringTemplate");							
+						} catch(JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+		
+		//check if excelExportStringTemplate is provided in the step content
+		if(excelExportStringTemplate != null) {
+			//excelExportStringTemplate is provided
+			
+    		/*
+    		 * this case will handle all the other step types. the data that will
+    		 * be displayed in the cell will be determined by excelExportString field
+    		 * in the step content. The excelExportString is a template
+    		 * for how the text should be displayed. For example if we wanted to
+    		 * display the top score the excelExportString would look something
+    		 * like this
+    		 * "Top Score: {response.topScore}"
+    		 * the value of {response.topScore} will be replaced with that value
+    		 * from the node state so it would end up looking something like
+    		 * this in the excel cell
+    		 * "Top Score: 10"
+    		 */
+
+			try {
+				if(stepWork != null) {
+					//obtain the json string
+	    			String data = stepWork.getData();
+	    			
+	    			if(data != null) {
+	    				//parse the json string into a json object
+	        			JSONObject jsonData = new JSONObject(data);
+	        			
+	        			if(jsonData.has("nodeStates")) {
+	        				//obtain the node states array json object
+	            			JSONArray jsonNodeStatesArray = jsonData.getJSONArray("nodeStates");
+	            			
+	            			//check if there are any elements in the node states array
+	        				if(jsonNodeStatesArray != null && jsonNodeStatesArray.length() > 0) {
+	        					
+	        					if("latestStudentWork".equals(exportType)) {
+	        						//only show the data from the last state in the node states array
+	        						
+	        						if(!jsonNodeStatesArray.isNull(jsonNodeStatesArray.length() - 1)) {
+	        							//node state is not null
+	        							
+	        							//obtain the last element in the node states
+	                					Object nodeStateObject = jsonNodeStatesArray.get(jsonNodeStatesArray.length() - 1);
+	            						//check if the nodeStateObject is a JSONObject
+	                					
+	            						if(nodeStateObject instanceof JSONObject) {
+	            							JSONObject lastState = (JSONObject) nodeStateObject;
+	                						
+	            							if(excelExportStringTemplate != null) {
+	            								//generate the excel export string that we will display in the cell
+	            								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	            							}
+	            						}
+	        						}
+	        					} else if("allStudentWork".equals(exportType)) {
+	        						//show data from all the states in the node state array
+	        						
+	        						//string buffer to accumulate the text we will display in the cell
+	        						StringBuffer stepWorkResponseStrBuf = new StringBuffer();
+	        						
+	        						//loop through all the node states
+	        						for(int x=0; x<jsonNodeStatesArray.length(); x++) {
+	        							
+	        							if(!jsonNodeStatesArray.isNull(x)) {
+	        								//node state is not null
+	        								
+	            							//get the node state
+	            							Object nodeStateObject = jsonNodeStatesArray.get(x);
+	            							
+	        								//check if the nodeStateObject is a JSONObject
+	        								if(nodeStateObject instanceof JSONObject) {
+	        									JSONObject lastState = (JSONObject) nodeStateObject;
+
+	        									if(excelExportStringTemplate != null) {
+	        										//generate the excel export string with the student work inserted
+	        										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	        										
+	        										if(stepWorkResponseStrBuf.length() != 0) {
+	        											//add a new line to separate each node state
+	        											stepWorkResponseStrBuf.append("\n");
+	        										}
+	        										
+	        										//display the node state number
+	        										stepWorkResponseStrBuf.append("Submit #" + (x + 1) + ": ");
+	        										
+	        										//display the excel export string that contains the student data
+	        										stepWorkResponseStrBuf.append(nodeStateResponse);
+	        									}
+	        								}
+	        							}
+	        						}
+	        						
+	        						//get the string that we will display in the cell
+	        						stepWorkResponse = stepWorkResponseStrBuf.toString();
+	        					}
+	        				}            				
+	        			}
+	    			}    				
+				}
+			} catch(JSONException e) {
+				e.printStackTrace();
+			}
+		} else if(stepWork instanceof StepWorkOR || stepWork instanceof StepWorkNote || 
     			stepWork instanceof StepWorkBS || stepWork instanceof StepWorkFillin ||
     				stepWork instanceof StepWorkMC || stepWork instanceof StepWorkMatchSequence ||
     				stepWork instanceof StepWorkAssessmentList || nodeType.equals("SensorNode")
@@ -2699,127 +2823,7 @@ public class VLEGetXLS extends VLEServlet {
     	} else if(stepWork instanceof StepWorkHtml) {
 	    	stepWorkResponse = "N/A";
     	} else {
-    		/*
-    		 * this case will handle all the other step types. the data that will
-    		 * be displayed in the cell will be determined by excelExportString field
-    		 * in the step content. The excelExportString is a template
-    		 * for how the text should be displayed. For example if we wanted to
-    		 * display the top score the excelExportString would look something
-    		 * like this
-    		 * "Top Score: {response.topScore}"
-    		 * the value of {response.topScore} will be replaced with that value
-    		 * from the node state so it would end up looking something like
-    		 * this in the excel cell
-    		 * "Top Score: 10"
-    		 */
-    		
-    		String excelExportStringTemplate = null;
-    		
-    		try {
-				if(node != null) {
-					//get the node id
-					String nodeId = node.getNodeId();
-					
-					if(nodeId != null) {
-						//get the content for the step
-						JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);	
-						
-						if(nodeContent != null) {
-							if(nodeContent.has("excelExportStringTemplate") && !nodeContent.isNull("excelExportStringTemplate")) {
-								//get the excelExportStringTemplate field from the step content
-								excelExportStringTemplate = nodeContent.getString("excelExportStringTemplate");
-							}
-						}
-					}
-				}
-				
-				//check if excelExportStringTemplate is provied in the step content
-				if(excelExportStringTemplate != null) {
-					//excelExportStringTemplate is provided
-					
-					if(stepWork != null) {
-	    				//obtain the json string
-	        			String data = stepWork.getData();
-	        			
-	        			if(data != null) {
-	        				//parse the json string into a json object
-	            			JSONObject jsonData = new JSONObject(data);
-	            			
-	            			if(jsonData.has("nodeStates")) {
-	            				//obtain the node states array json object
-	                			JSONArray jsonNodeStatesArray = jsonData.getJSONArray("nodeStates");
-	                			
-	                			//check if there are any elements in the node states array
-	            				if(jsonNodeStatesArray != null && jsonNodeStatesArray.length() > 0) {
-	            					
-	            					if("latestStudentWork".equals(exportType)) {
-	            						//only show the data from the last state in the node states array
-	            						
-	            						if(!jsonNodeStatesArray.isNull(jsonNodeStatesArray.length() - 1)) {
-	            							//node state is not null
-	            							
-	            							//obtain the last element in the node states
-	                    					Object nodeStateObject = jsonNodeStatesArray.get(jsonNodeStatesArray.length() - 1);
-	                						//check if the nodeStateObject is a JSONObject
-	                    					
-	                						if(nodeStateObject instanceof JSONObject) {
-	                							JSONObject lastState = (JSONObject) nodeStateObject;
-	                    						
-	                							if(excelExportStringTemplate != null) {
-	                								//generate the excel export string that we will display in the cell
-	                								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState);
-	                							}
-	                						}
-	            						}
-	            					} else if("allStudentWork".equals(exportType)) {
-	            						//show data from all the states in the node state array
-	            						
-	            						//string buffer to accumulate the text we will display in the cell
-	            						StringBuffer stepWorkResponseStrBuf = new StringBuffer();
-	            						
-	            						//loop through all the node states
-	            						for(int x=0; x<jsonNodeStatesArray.length(); x++) {
-	            							
-	            							if(!jsonNodeStatesArray.isNull(x)) {
-	            								//node state is not null
-	            								
-	                							//get the node state
-	                							Object nodeStateObject = jsonNodeStatesArray.get(x);
-	                							
-	            								//check if the nodeStateObject is a JSONObject
-	            								if(nodeStateObject instanceof JSONObject) {
-	            									JSONObject lastState = (JSONObject) nodeStateObject;
-
-	            									if(excelExportStringTemplate != null) {
-	            										//generate the excel export string with the student work inserted
-	            										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState);
-	            										
-	            										if(stepWorkResponseStrBuf.length() != 0) {
-	            											//add a new line to separate each node state
-	            											stepWorkResponseStrBuf.append("\n");
-	            										}
-	            										
-	            										//display the node state number
-	            										stepWorkResponseStrBuf.append("Submit #" + (x + 1) + ": ");
-	            										
-	            										//display the excel export string that contains the student data
-	            										stepWorkResponseStrBuf.append(nodeStateResponse);
-	            									}
-	            								}
-	            							}
-	            						}
-	            						
-	            						//get the string that we will display in the cell
-	            						stepWorkResponse = stepWorkResponseStrBuf.toString();
-	            					}
-	            				}            				
-	            			}
-	        			}    				
-	    			}					
-				}
-    		} catch (JSONException e) {
-    			e.printStackTrace();
-    		}
+    		//do nothing
     	}
     	
     	return stepWorkResponse;
