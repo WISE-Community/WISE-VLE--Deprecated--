@@ -79,13 +79,13 @@ var componentloader = function(em, sl){
 						closeOnEscape: false,
 						open: function(){
 							// add transparent overlay to contentDiv to disable editing of previous step while note is open
-							var height = $('#contentDiv').height()+10000;
-							var width = $('#contentDiv').width()+10000;
-							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'top':0, 'height':height, 'width':width, 'overflow':'hidden'});
+							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'top':0, 'right':0, 'bottom':0});
 							$('#contentDiv').after(contentOverlay);
 							
-							// hide closing "X" for this dialog
-						     $(this).parent().children().children("a.ui-dialog-titlebar-close").remove();
+							// bind click event to X link in dialog that saves and closes note
+							$(this).parent().children().children("a.ui-dialog-titlebar-close").click(function(){
+								window.eventManager.fire('saveAndCloseNote');
+							});
 						},
 						close: function(){
 							// remove transparent overlay on contentDiv
