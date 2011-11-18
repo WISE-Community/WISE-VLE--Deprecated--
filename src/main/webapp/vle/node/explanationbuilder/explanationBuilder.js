@@ -87,6 +87,28 @@ ExplanationBuilder.prototype.render = function() {
 		$('#instructions').html(instructions);
 	}
 	
+	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
+		/*
+		 * previous instances of the eb step did not have this field
+		 * so we will display the student text area if it is null
+		 * or if it is set to true
+		 */
+		
+		//show the student text area
+		$('#answer').show();
+		
+		//resize the idea drop area
+		$('#explanationIdeas').css('height', '315px');
+	} else {
+		//we do not want to display the student text are
+		
+		//hide the student text area
+		$('#answer').hide();
+		
+		//resize the idea drop area
+		$('#explanationIdeas').css('height', '480px');
+	}
+	
 	if(bg){
 		this.bg = bg;
 		$('#explanationIdeas').css('background-image','url(' + bg + ')');

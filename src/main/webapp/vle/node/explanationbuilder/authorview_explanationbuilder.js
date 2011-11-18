@@ -82,6 +82,12 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	 */
 	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
 	
+	//create the text for the enable student text area checkbox
+	var enableStudentTextAreaText = document.createTextNode("Enable Student Text Area:");
+	
+	//create the checkbox for enabling the student text area
+	var enableStudentTextAreaCheckBox = createElement(document, 'input', {id: 'enableStudentTextAreaCheckBox', type: 'checkbox', onclick: 'eventManager.fire("explanationBuilderUpdateEnableStudentTextAreaCheckBox")'});
+	
 	//create the label for the textarea that the author will write the instructions in
 	var instructionsText = document.createTextNode("Instructions for Student:");
 	
@@ -115,6 +121,13 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptTextArea);
+	pageDiv.appendChild(createBreak());
+	
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(enableStudentTextAreaText);
+	pageDiv.appendChild(enableStudentTextAreaCheckBox);
+	pageDiv.appendChild(createBreak());
+	
 	pageDiv.appendChild(instructionsText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(instructionsTextArea);	
@@ -136,6 +149,11 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	
 	//populate the prompt if this step has been authored before
 	this.populatePrompt();
+	
+	//populate the enable student text area checkbox
+	if(this.content.enableStudentTextArea) {
+		enableStudentTextAreaCheckBox.checked = true;
+	}
 };
 
 /**
@@ -210,6 +228,37 @@ View.prototype.ExplanationBuilderNode.updateInstructions = function(){
 	 * fire source updated event, this will update the preview
 	 */
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update whether to display the student text area or not
+ */
+View.prototype.ExplanationBuilderNode.updateEnableStudentTextAreaCheckBox = function() {
+	//update the content
+	this.content.enableStudentTextArea = this.isChecked($('#enableStudentTextAreaCheckBox').attr('checked'));
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Determine if the value is checked or not
+ * @param the string 'checked' or the value null
+ * @return true if the value is 'checked'
+ */
+View.prototype.ExplanationBuilderNode.isChecked = function(value) {
+	var checked = false;
+	
+	//check if the value is the string 'checked' or boolean value true
+	if(value == 'checked' || value == true) {
+		checked = true;
+	} else {
+		checked = false;
+	}
+	
+	return checked;
 };
 
 //used to notify scriptloader that this script has finished loading

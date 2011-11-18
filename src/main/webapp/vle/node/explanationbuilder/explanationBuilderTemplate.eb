@@ -2,5 +2,6 @@
    "background": "",
    "prompt": "Enter prompt here",
    "instructions": "Enter instructions here",
+   "enableStudentTextArea": false,
    "type": "ExplanationBuilder"
 }

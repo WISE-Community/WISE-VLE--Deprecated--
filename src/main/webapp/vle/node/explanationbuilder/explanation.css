@@ -16,10 +16,10 @@ header {
 }
 
 #container {
-  width:700px;
+  width:900px;
   margin:auto;
   display:block;
-  height:500px;
+  height:550px;
 }
 
 #main {
@@ -121,7 +121,7 @@ tr.ui-draggable-disabled:hover td {
 }
 
 #explanationIdeas{
-  height:315px;
+  height:480px;
   border-bottom:1px solid #777;
   background-color:#fff;
 }
@@ -210,6 +210,7 @@ tr.ui-draggable-disabled:hover td {
 }
 
 #answer {
+  display:none;
 }
 
 #instruction {
