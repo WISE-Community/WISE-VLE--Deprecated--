@@ -68,7 +68,11 @@ WorkOnXConstraint.prototype.isSatisfied = function(toVisitPosition){
 	var toVisitNode = this.view.getProject().getNodeByPosition(toVisitPosition);
 	this.constraintSatisfaction.toVisitId = (toVisitNode == null) ? null : toVisitNode.id;
 	
-	return this._isConstraintSatisfied(this.constraintSatisfaction);
+	// only invoke the WorkOnXConstraint when the student is on node X.
+	if (this.xId == this.view.getProject().getNodeByPosition(this.view.getCurrentPosition()).id) {
+		return this._isConstraintSatisfied(this.constraintSatisfaction);		
+	}
+	return true;
 };
 
 /**
