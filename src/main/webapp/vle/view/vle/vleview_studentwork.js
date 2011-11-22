@@ -120,7 +120,9 @@ View.prototype.postUnsavedNodeVisit = function(nodeVisit, sync) {
 									userId: this.getUserAndClassInfo().getWorkgroupId(),
 									data: postData};
 	
-	this.connectionManager.request('POST', 3, url, postStudentDataUrlParams, this.processPostResponse, {vle: this, nodeVisit:nodeVisit}, null, sync);
+	var timeout = 3*1000; // timeout is 3 seconds
+	
+	this.connectionManager.request('POST', 3, url, postStudentDataUrlParams, this.processPostResponse, {vle: this, nodeVisit:nodeVisit}, null, sync, timeout);
 };
 
 
