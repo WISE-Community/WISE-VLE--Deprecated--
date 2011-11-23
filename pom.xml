@@ -122,6 +122,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.1.1</version>
 				<configuration>
+                    <webappDirectory>${maven.war.vlewrapper.webappDirectory}</webappDirectory>
 					<webResources>
 						<resource>
 							<!-- this is relative to the pom.xml directory -->

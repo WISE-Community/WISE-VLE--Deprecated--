@@ -22,15 +22,16 @@ function ConnectionManager(em) {
  * @param hArgs - args that are needed by the success and/or failure handler
  * @param fHandler - failure handler function with takes 2 params: o (the response object), and args (the
  * 		hArgs that gets passed in
+ * @param timeout timeout limit, in millseconds
  * @return
  */
-ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs, fHandler, sync){
+ConnectionManager.prototype.request = function(type, priority, url, cArgs, handler, hArgs, fHandler, sync,timeout){
 	
 	var connection;
 	if(type=='GET'){
-		connection = new GetConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler, sync);
+		connection = new GetConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler, sync,timeout);
 	} else if(type=='POST'){
-		connection = new PostConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler, sync);
+		connection = new PostConnection(priority, url, cArgs, handler, hArgs, this.em, fHandler, sync,timeout);
 	} else {
 		alert('unknown connection type: ' + type + '\nExiting...');
 		return;
@@ -87,7 +88,7 @@ ConnectionManager.prototype.generateEventName = function(){
  * A Connection object encapsulates all of the necessary variables
  * to make an async request to an url
  */
-function Connection(priority, url, cArgs, handler, hArgs, em, sync){
+function Connection(priority, url, cArgs, handler, hArgs, em, sync, timeout){
 	this.em = em;
 };
 
@@ -97,7 +98,7 @@ function Connection(priority, url, cArgs, handler, hArgs, em, sync){
 Connection.prototype.startRequest = function(eventName){
 	this.en = eventName;
 
-	$.ajax({type:this.type, url:this.url, error:this.failure, success:this.success, dataType:'text', data:this.params, context:this, async:(this.sync ? false : true)});
+	$.ajax({type:this.type, url:this.url, error:this.failure, success:this.success, dataType:'text', data:this.params, context:this, timeout:(this.timeout ? this.timeout : null), async:(this.sync ? false : true)});
 };
 
 /**
@@ -194,7 +195,7 @@ Connection.prototype.failure = function(request, status, exception) {
 GetConnection.prototype = new Connection();
 GetConnection.prototype.constructor = GetConnection;
 GetConnection.prototype.parent = Connection.prototype;
-function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync){
+function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync,timeout){
 	this.type = 'GET';
 	this.priority = priority;
 	this.em = em;
@@ -205,6 +206,7 @@ function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync)
 	this.fHandler = fHandler;
 	this.params = null;
 	this.sync = sync;
+	this.timeout = timeout;
 	this.parseConnectionArgs();
 };
 
@@ -215,7 +217,7 @@ function GetConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync)
 PostConnection.prototype = new Connection();
 PostConnection.prototype.constructor = PostConnection;
 PostConnection.prototype.parent = Connection.prototype;
-function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync){
+function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync, timeout){
 	this.type = 'POST';
 	this.priority = priority;
 	this.em = em;
@@ -226,6 +228,7 @@ function PostConnection(priority, url, cArgs, handler, hArgs, em, fHandler, sync
 	this.fHandler = fHandler;
 	this.params = null;
 	this.sync = sync;
+	this.timeout = timeout;
 	this.parseConnectionArgs();
 };
 

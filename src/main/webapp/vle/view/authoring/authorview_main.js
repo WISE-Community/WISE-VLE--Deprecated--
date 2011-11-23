@@ -785,9 +785,15 @@ View.prototype.viewAssets = function(params){
 						if (!view.utils.fileFilter(extensions,fileName)){
 							continue;
 						}
+					} else if(view.assetEditorParams && view.assetEditorParams.extensions 
+						&& view.assetEditorParams.extensions.length > 0){
+						var extensions = view.assetEditorParams.extensions;
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
 					}
 					
-					//create a drop down option for each file name
+					//create an entry for each file
 					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
 					opt.text = fileName;
 					opt.value = fileName;
@@ -842,8 +848,12 @@ View.prototype.viewAssets = function(params){
 							alert("Please select a file to link to from the list.");
 						}
 					};
-				} else if (type == "flash"){
-					buttons['Choose Selected File'] = function(){
+				} else {
+					var buttonText = 'Choose Selected File';
+					if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext == 'string'){
+						buttonText = view.assetEditorParams.buttontext;
+					}
+					buttons[buttonText] = function(){
 						var url = $('#assetSelect option:selected').val();
 						if(url){
 							callback(field_name, url, type, win);

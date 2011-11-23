@@ -690,10 +690,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				
 				/*
 				 * if there are no node types to exclude or if the current node type
-				 * is not in the : delimited string of node types to exclude, we will
+				 * is not in the : delimited string of node types to exclude or if
+				 * the node type is FlashNode and grading is enabled, we will
 				 * add the node id to the array
 				 */
-				if(!nodeTypesToExclude || nodeTypesToExclude.indexOf(nodeType) == -1) {
+				if((!nodeTypesToExclude || nodeTypesToExclude.indexOf(nodeType) == -1) || (nodeType == "FlashNode" && currentNode.getContent().getContentJSON().enableGrading == true)) {
 					nodeIds.push(currentNode.id);					
 				}
 			}
