@@ -378,6 +378,8 @@ var view;
 		<tr><td id="col1">Project Title:</td><td class="col2"><div id='projectMetadataTitle'/>[Project Title (non-editable) shown here]</div></td></tr>
 		<tr><td>Author:</td><td> <div id='projectMetadataAuthor'/>[Name of original author (non-editable) shown here]</div></td></tr>
 		<tr><td>Contact Name/Email:</td><td>  <input type='text' id='projectMetadataContact'/></td></tr>
+		
+		<!-- TODO: Load all metadata options programmatically based on vle config -->
 		<tr><td>Subject:</td>
 			<td >
 				<select name="searchSubject" id="projectMetadataSubject">
@@ -389,7 +391,7 @@ var view;
 					<option id='subjectChemistry' value='Chemistry'>Chemistry</option>
 					<option id='subjectPhysics'  value='Physics'>Physics</option>
 					<option id='subjectWISEResearch'  value='WISE Research'>WISE Research</option>
-					<option selected id='subjectAll' disabled="disabled" value=""'>select an option</option>
+					<option selected id='subjectAll' disabled="disabled" value=''>select an option</option>
 				</select> 
 			</td></tr>
 			
@@ -459,9 +461,9 @@ var view;
 				<input id='enableStudentAssetUploader' name="enableStudentAssetUploader" type="checkbox"></input><label for="enableStudentAssetUploader">Enable Student File Uploads</label>&nbsp;&nbsp;
 
 			</td></tr>		
-		<tr><td colspan="2">Lesson Plan:</td></tr>
+		<tr><td colspan="2">Teaching Tips:</td></tr>
 		<tr><td colspan="2"><textarea class="size4" id='projectMetadataLessonPlan'></textarea></td></tr>
-		<tr><td colspan="2">Lesson Goals and Standards:</td></tr>
+		<tr><td colspan="2">Learning Goals and Standards:</td></tr>
 		<tr><td colspan="2"><textarea class="size4" id='projectMetadataStandards'></textarea></td></tr>
 		</table>
 	</div>
