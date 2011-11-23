@@ -298,7 +298,10 @@ View.prototype.editHints = function(tabIndex){
 	    		currentNode.content.getContentJSON().hints = {"hintsArray":[],"forceShow":"never"};
 	    	}
 	    };
-	    var hintsArr = currentNode.getHints().hintsArray;
+	    
+	    //get the hints array from the content we are authoring
+	    var hintsArr = this.activeContent.getContentJSON().hints.hintsArray;
+	    
 	    for (var i=0; i< hintsArr.length; i++) {
 	    	var currentHint = hintsArr[i];
 	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
@@ -481,8 +484,12 @@ View.prototype.injectAssetPath = function(contentString) {
 		fullProjectFolderPath += '/';
 	}
 	
-	//replace any relative references to assets with the absolute path to the assets
-	contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, fullProjectFolderPath + 'assets');
+	/*
+	 * replace any relative references to assets/ with the absolute path to the assets
+	 * e.g.
+	 * assets/ is replaced with http://wise4.berkeley.edu/curriculum/123/assets/
+	 */
+	contentString = contentString.replace(/\.\/assets\/|\/assets\/|assets\//gi, fullProjectFolderPath + 'assets/');
 	
 	return contentString;
 };
