@@ -177,9 +177,6 @@ View.prototype.FlashNode.generatePage = function(view){
 		this.populateSwfUrl();
 	}
 	
-	// populate the prompt text that has been authored before
-	this.populatePrompt();
-	
 	//populate the dimensions if this step has been authored before
 	this.populateSwfDimensions();
 	
@@ -193,6 +190,9 @@ View.prototype.FlashNode.generatePage = function(view){
 	
 	// enable rich text eidtor for prompt
 	this.enableRichTextEditing($('#promptTextArea'),function() {eventManager.fire('flashPromptChanged');});
+	
+	// populate the prompt text that has been authored before
+	this.populatePrompt();
 };
 
 /**
@@ -256,7 +256,7 @@ View.prototype.FlashNode.updatePrompt = function(){
  * Populate the swfUrl textarea where the user types the url for the swf file
  */
 View.prototype.FlashNode.populateSwfUrl = function() {
-	//get the prompt from the content and set it into the authoring textarea
+	//get the url from the content and set it into the authoring textarea
 	$('#swfUrlInput').val(this.content.activity_uri);
 };
 
@@ -569,6 +569,8 @@ View.prototype.FlashNode.browseFlashAssets = function() {
 	var params = {};
 	params.field_name = 'swfUrlInput';
 	params.type = 'flash';
+	params.buttonText = 'Please select a file from the list.';
+	params.extensions = ['swf', 'flv'];
 	params.win = null;
 	params.callback = callback;
 	eventManager.fire('viewAssets',params);
@@ -586,7 +588,7 @@ function fileBrowser(field_name, url, type, win){
         }
         // if we are in a media browser
         if (typeof(win.Media) != "undefined") {
-            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type (also doesn't get dimensions)
+            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
             //if (win.MediaDialog.showPreviewImage) win.MediaDialog.showPreviewImage(url);
         }
 	};
