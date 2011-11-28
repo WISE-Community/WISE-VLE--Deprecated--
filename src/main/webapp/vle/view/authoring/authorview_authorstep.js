@@ -200,10 +200,45 @@ View.prototype.refreshNow = function(){
 };
 
 /**
+ * Get the hints for authoring
+ * @return a hint object or null if the step does not have hints
+ */
+View.prototype.getAuthoringHints = function() {
+	var hints = null;
+	
+    //check if this step already has hints
+    if(this.activeContent != null) {
+    	if(this.activeContent.getContentJSON() != null) {
+    		//get the hints from the active content
+    		hints = this.activeContent.getContentJSON().hints;
+    	}
+    }
+    
+    return hints;
+};
+
+/**
+ * Get the hints array for authoring
+ * @returns an array or null if the step does not have hints
+ */
+View.prototype.getAuthoringHintsArray = function() {
+	var hintsArray = null;
+	
+	//get the hints if any
+	var hints = this.getAuthoringHints();
+	
+	if(hints != null) {
+		//get the hints array from the hints
+		hintsArray = hints.hintsArray;
+	}
+	
+	return hintsArray;
+};
+
+/**
  * saves hints to local var
  */
 View.prototype.saveHint = function(){	
-    var currentNode = this.activeNode;    
     var hintTextBoxes = $('#hintsTabs').find("textarea");
     
     var newHintsArr = [];
@@ -227,11 +262,11 @@ View.prototype.saveHints = function(){
  * Add new hint to the current node
  */
 View.prototype.addHint = function(){
-    var currentNode = this.activeNode;
-    var hintsArr = currentNode.getHints().hintsArray;
-    hintsArr.push("new hint");
-    
-    eventManager.fire("editHints", [hintsArr.length-1]);
+	//get the hints array
+	var hintsArr = this.getAuthoringHintsArray();
+	
+	hintsArr.push("new hint");
+	eventManager.fire("editHints", [hintsArr.length-1]);
 };
 
 /**
@@ -242,8 +277,8 @@ View.prototype.deleteHint = function(){
 	// get index of currently-opened tab
 	var selectedIndex = $('#hintsTabs').tabs('option', 'selected');
 	
-    var currentNode = this.activeNode;
-    var hintsArr = currentNode.getHints().hintsArray;
+	//get the hints array
+    var hintsArr = this.getAuthoringHintsArray();
     hintsArr.splice(selectedIndex, 1);
     
     var newTabIndex = 0;  // which tab to open
@@ -291,14 +326,16 @@ View.prototype.editHints = function(tabIndex){
 	    	"Force Show: <select id='forceShowOptions'><option value='never'>Never</option><option value='firsttime'>First time only</option><option value='always'>Always</option></select>";     
 	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
 	    var hintsStringPart2 = "";   // second part will be the content within each tab
-	    // if there are no hints, make them
-	    if (currentNode.getHints() == null) {
-	    	if (currentNode.content &&
-	    			currentNode.content.getContentJSON()) {
-	    		currentNode.content.getContentJSON().hints = {"hintsArray":[],"forceShow":"never"};
-	    	}
-	    };
-	    var hintsArr = currentNode.getHints().hintsArray;
+	    
+	    //check if this step already has hints
+	    if(this.getAuthoringHints() == null) {
+	    	//there are no hints for this step so we will make them
+			this.activeContent.getContentJSON().hints = {"hintsArray":[],"forceShow":"never"};
+	    }
+	    
+	    //get the hints array from the content we are authoring
+	    var hintsArr = this.getAuthoringHintsArray();
+	    
 	    for (var i=0; i< hintsArr.length; i++) {
 	    	var currentHint = hintsArr[i];
 	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
@@ -317,7 +354,7 @@ View.prototype.editHints = function(tabIndex){
 		$("#hintsTabs").tabs({selected:tabIndex});		
 		
 		// select forceshow option
-	    var hintsForceShow = currentNode.getHints().forceShow;
+	    var hintsForceShow = this.getAuthoringHints().forceShow;
 		$("#forceShowOptions [value='"+hintsForceShow+"']").attr("selected", "selected");
 };
 
@@ -481,8 +518,12 @@ View.prototype.injectAssetPath = function(contentString) {
 		fullProjectFolderPath += '/';
 	}
 	
-	//replace any relative references to assets with the absolute path to the assets
-	contentString = contentString.replace(/\.\/assets|\/assets|assets/gi, fullProjectFolderPath + 'assets');
+	/*
+	 * replace any relative references to assets/ with the absolute path to the assets
+	 * e.g.
+	 * assets/ is replaced with http://wise4.berkeley.edu/curriculum/123/assets/
+	 */
+	contentString = contentString.replace(/\.\/assets\/|\/assets\/|assets\//gi, fullProjectFolderPath + 'assets/');
 	
 	return contentString;
 };
