@@ -53,6 +53,31 @@ function ExplanationBuilder(node, view) {
 	this.instructions = '';
 	this.bg = '';
 	this.latestState;
+	
+	//the max background height
+	this.maxBackgroundHeightWithoutResponseBox = 480;
+	this.maxBackgroundHeightWithResponseBox = 320;
+	
+	//the max drop area height
+	this.maxDropAreaHeightWithoutResponseBox = 460;
+	this.maxDropAreaHeightWithResponseBox = 300;
+	
+	//the background dimensions
+	this.backgroundWidth = 680;
+	this.backgroundHeight = this.maxBackgroundHeightWithoutResponseBox;
+	
+	/*
+	 * the drop area dimensions, this is smaller than the background dimensions
+	 * because we do not want the student ideas to spill out of the drop area
+	 */
+	this.dropAreaWidth = 515;
+	this.dropAreaHeight = this.maxDropAreaHeightWithoutResponseBox;
+	
+	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
+		//we are displaying the student text area (aka response box) so we need to use a smaller height
+		this.backgroundHeight = this.maxBackgroundHeightWithResponseBox;
+		this.dropAreaHeight = this.maxDropAreaHeightWithResponseBox;		
+	}
 };
 
 /**
@@ -97,16 +122,28 @@ ExplanationBuilder.prototype.render = function() {
 		//show the student text area
 		$('#answer').show();
 		
+		//set the height to the smaller value since we will show the student text area
+		this.backgroundHeight = this.maxBackgroundHeightWithResponseBox;
+		
 		//resize the idea drop area
-		$('#explanationIdeas').css('height', '315px');
+		$('#explanationIdeas').css('height', this.backgroundHeight + 'px');
+		
+		//set the max drop area height
+		this.dropAreaHeight = this.maxDropAreaHeightWithResponseBox;
 	} else {
 		//we do not want to display the student text are
 		
 		//hide the student text area
 		$('#answer').hide();
 		
+		//set the height to the larger size since we do not need to show the student text area
+		this.backgroundHeight = this.maxBackgroundHeightWithoutResponseBox;
+		
 		//resize the idea drop area
-		$('#explanationIdeas').css('height', '480px');
+		$('#explanationIdeas').css('height', this.backgroundHeight + 'px');
+		
+		//set the max drop area height
+		this.dropAreaHeight = this.maxDropAreaHeightWithoutResponseBox;
 	}
 	
 	if(bg){
@@ -332,8 +369,8 @@ ExplanationBuilder.prototype.init = function(context){
 
 		if(left < 1){
 			left = 1;
-		} else if (left > 320) {
-			left = 320;
+		} else if (left > context.dropAreaWidth) {
+			left = context.dropAreaWidth;
 		}
 		context.stateChanged = true;
 		context.addExpIdea(context,false,true,id,left,top);
@@ -821,7 +858,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 
 	$('#colorPicker').show(); // show color picker
 
-	var bottomBoundary = 300-$('#explanationIdea' + id).height();
+	var bottomBoundary = this.dropAreaHeight - $('#explanationIdea' + id).height();
 	if (top > bottomBoundary) {
 		top = bottomBoundary;
 		$('#explanationIdea' + id).css('top',top);
@@ -947,7 +984,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		var pos = $(this).position();
 		var left = pos.left;
 		var top = pos.top;
-		var bottomBoundary = 300-$(this).height();
+		var bottomBoundary = context.dropAreaHeight - $(this).height();
 		if (top > bottomBoundary) {
 			top = bottomBoundary;
 		} else if (top < 1){
@@ -956,8 +993,8 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 
 		if(left < 1){
 			left = 1;
-		} else if (left > 320) {
-			left = 320;
+		} else if (left > context.dropAreaWidth) {
+			left = context.dropAreaWidth;
 		}
 
 		$(this).css('top', top + 'px');

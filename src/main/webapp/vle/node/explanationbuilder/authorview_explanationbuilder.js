@@ -83,7 +83,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
 	
 	//create the text for the enable student text area checkbox
-	var enableStudentTextAreaText = document.createTextNode("Enable Student Text Area:");
+	var enableStudentTextAreaText = document.createTextNode("Enable Student Response Box:");
 	
 	//create the checkbox for enabling the student text area
 	var enableStudentTextAreaCheckBox = createElement(document, 'input', {id: 'enableStudentTextAreaCheckBox', type: 'checkbox', onclick: 'eventManager.fire("explanationBuilderUpdateEnableStudentTextAreaCheckBox")'});
@@ -112,7 +112,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	var backgroundImageUrlLabel = document.createTextNode("Background Image Url");
 	var localImageLabel = document.createTextNode(" - image you have uploaded to the project, e.g. assets/image.jpg");
 	var absoluteImageLabel = document.createTextNode(" - image from the internet, e.g. http://www.website.com/image.jpg");
-	var maxImageSizeLabel = document.createTextNode(" - max image size that you will be able to view is 485x315");
+	var maxImageSizeLabel = document.createTextNode(" - max image size that you will be able to view is 680x480 (680x320 with student response box)");
 	
 	//the text input for the background url
 	var backgroundImageUrl = createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: background, size:60, onchange: 'eventManager.fire("explanationBuilderUpdateBackgroundImageUrl")'});

@@ -185,9 +185,13 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 		}
 	}
 	
+	//get the background width and height
+	var backgroundWidth = explanationBuilder.backgroundWidth;
+	var backgroundHeight = explanationBuilder.backgroundHeight;
+	
 	//create the div that will contain the ideas
 	var explanationBuilderIdeasDivId = childDivIdPrefix + 'explanationBuilderIdeasDiv_' + stepWorkId;
-	var explanationBuilderIdeasDiv = createElement(document, 'div', {id: explanationBuilderIdeasDivId, style:'width:485px;height:315px;border: 1px solid;position:relative'});
+	var explanationBuilderIdeasDiv = createElement(document, 'div', {id: explanationBuilderIdeasDivId, style:'width:' + backgroundWidth + 'px;height:' + backgroundHeight + 'px;border: 1px solid;position:relative'});
 	
 	//add the explanationBuilderIdeasDiv to the grading div
 	$('#' + divId).append(explanationBuilderIdeasDiv);
