@@ -89,7 +89,8 @@ VLE_STATE.prototype.getLatestNodeVisitByNodeId = function(nodeId, canBeEmpty) {
 				//return the most recent node visit that contains work
 				// if html or outside url, student has done work if they just visited it.
 				// otherwise, check to see if there is any saved work.
-				if (this.visitedNodes[i].nodeType == "HtmlNode" || this.visitedNodes[i].nodeType == "OutsideUrlNode") {
+				if (this.visitedNodes[i].nodeType == "HtmlNode" || this.visitedNodes[i].nodeType == "OutsideUrlNode" || 
+						this.visitedNodes[i].nodeType == "IdeaBasketNode") {
 					return this.visitedNodes[i];					
 				} else {
 					if (this.visitedNodes[i].getLatestWork() != "") {
