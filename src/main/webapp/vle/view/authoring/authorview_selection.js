@@ -1234,7 +1234,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		//set the active and preserved objects for when saveStep() is called
 		this.activeNode = node1;
 		this.activeContent = createContent(node1.content.getContentUrl());
-		this.preservedContent = this.activeContent;
+		this.preservedContentString = this.activeContent.getContentString();
 		
 		var node1ContentJSON = this.activeContent.getContentJSON();
 		
@@ -1264,7 +1264,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		//set the active and preserved objects for when saveStep() is called
 		this.activeNode = node2;
 		this.activeContent = createContent(node2.content.getContentUrl());
-		this.preservedContent = this.activeContent;
+		this.preservedContentString = this.activeContent.getContentString();
 		
 		//set the 'authoredWork' attribute
 		var node2ContentJSON = this.activeContent.getContentJSON();
@@ -1322,7 +1322,7 @@ View.prototype.createReviewSequenceCallback = function(id, args) {
 		//set the active and preserved objects for when saveStep() is called
 		this.activeNode = node3;
 		this.activeContent = createContent(node3.content.getContentUrl());
-		this.preservedContent = this.activeContent;
+		this.preservedContentString = this.activeContent.getContentString();
 		
 		//set the 'authoredReview' attribute
 		var node3ContentJSON = this.activeContent.getContentJSON();

@@ -36,11 +36,36 @@ View.prototype.hideAuthorStepDialog = function(){
  * Sets the initial state of the authoring step dialog window
  */
 View.prototype.setInitialAuthorStepState = function(){
-	/* set active content as copy of the active nodes content */
+	/*
+	 * this.activeContent is the content object that contains the
+	 * latest content that is being authored, this may contain
+	 * content that is not yet saved to the server. this does not
+	 * contain the injected contentBaseUrl.
+	 * 
+	 * this.preservedContentString is the content string that
+	 * is currently saved to the server. this does not contain the
+	 * injected contentBaseUrl.
+	 * 
+	 * this.activeNode.content is the content object that is used
+	 * in the preview step. it currently does not contain the injected 
+	 * contentBaseUrl but after previewStep() is called, the content
+	 * object will contain the injected contentBaseUrl.
+	 */
+	
+	/*
+	 * set active content as copy of the active node's content.
+	 * this will serve as a temporary buffer for the content
+	 * that is being authored. 
+	 */
 	this.activeContent = createContent(this.activeNode.content.getContentUrl());
 	
-	/* preserve the content of the active node */
-	this.preservedContent = this.activeNode.content;
+	/*
+	 * obtain the content string that is currently saved to the server.
+	 * whenever the authored content is saved to the server, this string
+	 * will be updated so that it always mirrors the content saved on the
+	 * server.
+	 */
+	this.preservedContentString = this.activeNode.content.getContentString();
 	
 	/* set step saved boolean */
 	this.stepSaved = true;
@@ -166,14 +191,24 @@ View.prototype.generateAdvancedAuthoring = function(){
 };
 
 /**
- * saves the currently open step's content and hides the authoring dialog
+ * saves the currently open step's content and hides the authoring dialog.
+ * saving is performed even if nothing has changed because we need to revert
+ * the activeNode.content back to the content that does not contain the
+ * injected contentBaseUrl.
  */
 View.prototype.closeOnStepSaved = function(success){
 	if(success || confirm('Save failed, do you still want to exit?')){
 		this.cleanupCommonComponents();
 		document.getElementById('dynamicPage').innerHTML = '';
 		this.hideAuthorStepDialog();
-		this.activeNode.content.setContent(this.preservedContent.getContentJSON());
+		
+		/*
+		 * the activeNode.content contains the injected contentBaseUrl content
+		 * so we need to replace it with the content that does not have
+		 * the injected contentBaseUrl
+		 */
+		this.activeNode.content.setContent(this.preservedContentString);
+		
 		this.activeNode.baseHtmlContent = undefined;
 		this.activeNode = undefined;
 		this.activeContent = undefined;
@@ -395,7 +430,10 @@ View.prototype.saveStep = function(close, bypassUpdateSource){
 				obj.stepSaved = true;
 				obj.notificationManager.notify('Content saved to server.', 3);
 				obj.eventManager.fire('setLastEdited');
-				obj.preservedContent.setContent(obj.activeContent.getContentJSON());
+				
+				//update our local copy of the step content that mirrors the step content on the server
+				obj.preservedContentString = obj.activeContent.getContentString();
+				
 				if(close){
 					obj.eventManager.fire('closeOnStepSaved', [true]);
 				}
