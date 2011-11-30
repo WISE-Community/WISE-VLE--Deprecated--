@@ -187,8 +187,9 @@ View.prototype.displayFlaggedWork = function() {
 	
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
+    	var docHeight = $(document).height() * .96;
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:(document.height * .96),modal:true,title:'Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:docHeight,modal:true,title:'Flagged Work',zindex:9999});
     }
     
     //set the html into the div
@@ -411,9 +412,10 @@ View.prototype.displayShowAllWork = function() {
 
 	    
 		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr class='showAllWorkHR'><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
-
+		
+		var docHeight = $(document).height() * .96;
 	    if($('#showallwork').size()==0){
-	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:(document.height * .96),modal:true,title:'My Work (with Teacher Feedback and Scores)'});
+	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:docHeight,modal:true,title:'My Work (with Teacher Feedback and Scores)'});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
