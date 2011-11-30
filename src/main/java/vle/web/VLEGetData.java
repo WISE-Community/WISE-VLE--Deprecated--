@@ -231,7 +231,17 @@ public class VLEGetData extends VLEServlet {
 										cachedWork.setCacheTime(cacheTime);
 										cachedWork.setData(nodeVisitsJSON.toString());
 										cachedWork.setGetRevisions(getRevisions);
-										cachedWork.saveOrUpdate();
+										
+										try {
+											cachedWork.saveOrUpdate();
+										} catch(Exception e) {
+											/*
+											 * when the student's cached work is too large, an exception will be thrown.
+											 * if this exception is not caught, the student will not receive any of
+											 * their student data.
+											 */
+										}
+										
 									}
 							} else {
 								/*
@@ -321,8 +331,13 @@ public class VLEGetData extends VLEServlet {
 						 * if there are no states for the visit, we will ignore it or if it
 						 * is the last/latest visit we will add it so that the vle can
 						 * load the last step the student was on.
+						 * 
+						 * if the node visit is for HtmlNode or OutsideUrlNode,
+						 * we will add the node visit since those step types never have
+						 * node states. 
 						 */
-						if (getAllWork || (nodeStates != null && nodeStates.length() > 0 || x == (stepWorkList.size() - 1))) {
+						if (getAllWork || (nodeStates != null && nodeStates.length() > 0 || x == (stepWorkList.size() - 1)) ||
+								("HtmlNode".equals(nodeType) || "OutsideUrlNode".equals(nodeType) || "IdeaBasketNode".equals(nodeType))) {
 							/* add the duplicateId if one is found for this stepWork */
 							if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
 								nodeVisitJSON.put("duplicateId", stepWork.getDuplicateId());
@@ -379,7 +394,14 @@ public class VLEGetData extends VLEServlet {
 						JSONObject nodeVisitJSON = new JSONObject(data);
 						JSONArray nodeStates = (JSONArray) nodeVisitJSON.get("nodeStates");
 						
-						if(nodeStates != null && nodeStates.length() > 0) {
+						/*
+						 * check if there were any node states and only add the nodevisit if
+						 * there were node states. if the node visit is for HtmlNode or OutsideUrlNode,
+						 * we will add the node visit since those step types never have
+						 * node states. 
+						 */
+						if(nodeStates != null && nodeStates.length() > 0 ||
+								("HtmlNode".equals(nodeType) || "OutsideUrlNode".equals(nodeType) || "IdeaBasketNode".equals(nodeType))) {
 							/* add the duplicateId if one is found for this stepWork */
 							if(stepWork.getDuplicateId() != null && !stepWork.getDuplicateId().equals("")){
 								nodeVisitJSON.put("duplicateId", stepWork.getDuplicateId());

@@ -589,19 +589,19 @@ View.prototype.displayClassroomMonitorPage = function() {
 };
 
 View.prototype.createClassroomMonitorTable = function() {
-	var displayGradeByTeamSelectPageHtml = "";
+	var classroomMonitorTableHtml = "";
 	
 	//show the grading header buttons such as export and the other grading pages
 	//displayGradeByTeamSelectPageHtml += this.getGradingHeaderTableHtml();
 	
 	//get the html that will be used to filter workgroups by period
-	displayGradeByTeamSelectPageHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
+	classroomMonitorTableHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
 
 	//start the table that will contain the teams to choose
-	displayGradeByTeamSelectPageHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
+	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
 	
 	//the header row
-	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
+	classroomMonitorTableHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
 			"<th class='gradeColumn col2'>"+this.getI18NString("team")+"</th>"+
 			"<th class='gradeColumn col3'>Current Step</th>"+
 			"<th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th>"+
@@ -620,7 +620,7 @@ View.prototype.createClassroomMonitorTable = function() {
 	//get all the teacher workgroup ids including owner and shared
 	var teacherIds = this.getUserAndClassInfo().getAllTeacherWorkgroupIds();
 	
-	displayGradeByTeamSelectPageHtml += "<tbody>";
+	classroomMonitorTableHtml += "<tbody>";
 	
 	//loop through all the student work objects
 	for(var x=0; x<classmatesInAlphabeticalOrder.length; x++) {
@@ -640,24 +640,24 @@ View.prototype.createClassroomMonitorTable = function() {
 		var studentTRClass = "showScoreRow classroomMonitorStudentWorkRow studentWorkRow period" + periodName;
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr id='classroomMonitorWorkgroupRow_"+workgroupId+"' class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">";
-		displayGradeByTeamSelectPageHtml += "<td class='showScorePeriodColumn'>" + periodName + "</td>";
-		displayGradeByTeamSelectPageHtml += "<td class='showScoreWorkgroupIdColumn'>" + userNames + "</td>";
-		displayGradeByTeamSelectPageHtml += "<td id='teamCurrentStep_" + workgroupId + "'>N/A</td>";
-		displayGradeByTeamSelectPageHtml += "<td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'>0%</td>";
-		displayGradeByTeamSelectPageHtml += "<td id='teamStatus_" + workgroupId + "'></td></tr>";
+		classroomMonitorTableHtml += "<tr id='classroomMonitorWorkgroupRow_"+workgroupId+"' class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">";
+		classroomMonitorTableHtml += "<td class='showScorePeriodColumn'>" + periodName + "</td>";
+		classroomMonitorTableHtml += "<td class='showScoreWorkgroupIdColumn'>" + userNames + "</td>";
+		classroomMonitorTableHtml += "<td id='teamCurrentStep_" + workgroupId + "'>N/A</td>";
+		classroomMonitorTableHtml += "<td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'>0%</td>";
+		classroomMonitorTableHtml += "<td id='teamStatus_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
 	
-	displayGradeByTeamSelectPageHtml += "</tbody>";
+	classroomMonitorTableHtml += "</tbody>";
 	
-	displayGradeByTeamSelectPageHtml += "</table>";
+	classroomMonitorTableHtml += "</table>";
 	
-	displayGradeByTeamSelectPageHtml += "<div id='teamStatusDialog'></div>";
+	classroomMonitorTableHtml += "<div id='teamStatusDialog'></div>";
 	
 	//set the html into the div so it is displayed
-	return displayGradeByTeamSelectPageHtml;
+	return classroomMonitorTableHtml;
 };
 
 View.prototype.applyTableSorterToClassroomMonitorTable = function() {

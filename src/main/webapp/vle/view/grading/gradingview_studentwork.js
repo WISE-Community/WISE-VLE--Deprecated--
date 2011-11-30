@@ -130,8 +130,8 @@ View.prototype.getStudentWork = function() {
 	//clear the student work vle states to make sure we don't get duplicate data
 	this.vleStates = new Array();
 	
-	//get all node ids except for nodes that are HtmlNodes in an array
-	var nodeIds = this.getProject().getNodeIds("HtmlNode:OutsideUrlNode");
+	//get all node ids
+	var nodeIds = this.getProject().getNodeIds();
 	
 	//make a ':' delimited string of nodeIds
 	var nodeIdsString = nodeIds.toString().replace(/,/g, ':');

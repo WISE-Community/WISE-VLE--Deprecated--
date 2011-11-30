@@ -131,7 +131,7 @@ tr.ui-draggable-disabled:hover td {
 }
 
 #target {
-  height:315px !important;
+  height:315px;
   position:relative;
 }
 

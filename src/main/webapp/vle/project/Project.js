@@ -796,8 +796,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					var stepHasNewFeedback = false;
 					
-					tempAllFeedback += "<div id=\"showallStep\"><a href=\"#\" onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
-					tempNewFeedback += "<div id=\"showallStep\"><a href=\"#\" onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
+					tempAllFeedback += "<div id=\"showallStep\"><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
+					tempNewFeedback += "<div id=\"showallStep\"><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
 				    if (showGrades) {
 				    	
 				    	tempAllFeedback += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view) + "</div>";

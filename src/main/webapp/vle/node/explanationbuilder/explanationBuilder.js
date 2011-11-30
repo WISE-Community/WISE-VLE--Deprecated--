@@ -353,6 +353,9 @@ ExplanationBuilder.prototype.init = function(context){
 		$(this).addClass('ui-state-disabled');
 	});
 
+	//set the drop area height
+	$('#target').css('height', this.backgroundHeight);
+	
 	$('#target').droppable({
 		scope: 'drag-idea',
 		activeClass: 'active',
