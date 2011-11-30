@@ -748,11 +748,15 @@ View.prototype.submitUpload = function() {
  * Retrieves a list of any assets associated with the current project
  * from the server, populates a list of the assets in the assetEditorDialog
  * and displays the dialog.
+ * 
+ * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
  */
 View.prototype.viewAssets = function(params){
 	if(this.project){
 		if (params){
 			this.assetEditorParams = params;
+		} else {
+			this.assetEditorParams = null;
 		}
 		showElement('assetEditorDialog');
 		var populateOptions = function(names, view){
