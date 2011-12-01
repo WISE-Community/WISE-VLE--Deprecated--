@@ -1,16 +1,8 @@
-/**
- * 
- */
 package vle.domain.annotation;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import utils.VLEDataUtils;
 
 /**
  * Domain representing a user's score on other user's work.

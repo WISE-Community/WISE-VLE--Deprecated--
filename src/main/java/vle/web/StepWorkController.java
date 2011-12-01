@@ -10,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import vle.domain.PersistableDomain;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 
@@ -49,6 +48,7 @@ public class StepWorkController extends DomainController {
 		return (StepWork) StepWork.getById(id, StepWork.class);
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected List<StepWork> getObjectList() {
 		return (List<StepWork>) StepWork.getList(StepWork.class);
 	}

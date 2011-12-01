@@ -1,6 +1,3 @@
-/**
- * 
- */
 package vle.web;
 
 import java.io.IOException;
@@ -27,8 +24,8 @@ import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 
 /**
- * @author hirokiterashima
- *
+ * Controller for handling the peer review step
+ * @author Geoffrey Kwan
  */
 public class VLEPeerReviewController extends HttpServlet {
 
@@ -558,7 +555,7 @@ public class VLEPeerReviewController extends HttpServlet {
 			return null;
 		} else {
 			//get a List object of the workgroups to search through
-			List<String> workgroupList = new Vector(Arrays.asList(workgroupsToSearch));
+			List<String> workgroupList = new Vector<String>(Arrays.asList(workgroupsToSearch));
 
 			//get all the peer review work for this run, period, node
 			List<PeerReviewWork> peerReviewWorkList = PeerReviewWork.getPeerReviewWorkByRunPeriodNode(runId, periodId, node);
