@@ -432,7 +432,27 @@ var scriptloader = function(){
 			callerId = cid;
 			eventManager = em;
 			baseUrl = currentDoc.location.toString().substring(0, currentDoc.location.toString().lastIndexOf('/vle/') + 1);
-			timer = setTimeout(function(){alert(scriptloader.getTimeoutMessage());}, scriptLoaderWait);
+			
+			timer = setTimeout(function(){
+					/*
+					 * check if there are any scripts that have not been loaded
+					 * because sometimes the queue.length will be 0 and this
+					 * function will be called. this usually occurs because the
+					 * "previewFrameLoaded" event gets fired multiple times for
+					 * the same preview step so it tries to load the scripts for
+					 * the page multiple times but after the scripts are returned
+					 * the first time, only one of these setTimeout calls are 
+					 * disabled. the rest of the setTimeout calls eventually run
+					 * even though we have already retrieved all the files we need
+					 * and the queue is empty. this will check the queue before
+					 * displaying the message to avoid unnecessary popup alerts
+					 * which can get annoying to authors. 
+					 */
+					if(queue.length > 0) {
+						alert(scriptloader.getTimeoutMessage());						
+					}
+				}, scriptLoaderWait);
+				
 			loadScripts();
 		},
 		bootstrap:function(win, fun, isMinifiedEnabled){
