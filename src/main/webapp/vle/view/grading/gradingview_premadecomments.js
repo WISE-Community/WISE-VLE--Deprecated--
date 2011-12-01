@@ -522,10 +522,23 @@ View.prototype.editPremadeComment = function(idOfEditor, enteredText, originalTe
 	var premadeComment = enteredText;
 	var isGlobal = null;
 	
+	//get the length of the premade comment
+	var premadeCommentLength = premadeComment.length;
+	
+	if(premadeCommentLength > 255) {
+		//the database column is varchar(255) so premade comments can only be a max of 255 chars
+		
+		//display the error message
+		thisView.premadeCommentsWindow.alert("Error: Premade comment length must be 255 characters or less. Your premade comment is " + premadeCommentLength + " characters long. Your premade comment will be truncated.");
+		
+		//truncate the premade comment to 255 chars
+		premadeComment = premadeComment.substring(0, 255);
+	}
+	
 	//make the request to edit the premade comment on the server
 	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);
 	
-	return enteredText;
+	return premadeComment;
 };
 
 /**
