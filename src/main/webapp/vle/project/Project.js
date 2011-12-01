@@ -98,7 +98,13 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						if(!currNode.ref || currNode.ref==''){
 							view.notificationManager.notify('No filename specified for node with id: ' + thisNode.id + ' in the project file', 2);
 						} else {
-							thisNode.content = createContent(makeUrl(currNode.ref, thisNode));
+							if(thisNode.view != null && thisNode.view.authoringMode) {
+								//we are in the authoring tool so we do not want to inject the contentBaseUrl
+								thisNode.content = createContent(makeUrl(currNode.ref, thisNode));
+							} else {
+								//we are in the vle so we want to inject the contentBaseUrl
+								thisNode.content = createContent(makeUrl(currNode.ref, thisNode), contentBaseUrl);								
+							}
 						}
 						
 						//set the peerReview attribute if available
