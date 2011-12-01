@@ -51,22 +51,12 @@
   </servlet-mapping>
 
   <servlet>
-    <servlet-name>vlepostjournaldata</servlet-name>
+    <servlet-name>vlejournal</servlet-name>
     <servlet-class>vle.web.VLEJournalController</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>vlepostjournaldata</servlet-name>
-    <url-pattern>/journaldata.html</url-pattern>
-  </servlet-mapping>
-  
-  <servlet>
-    <servlet-name>vlegetjournaldata</servlet-name>
-    <servlet-class>vle.web.VLEJournalController</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>vlegetjournaldata</servlet-name>
+    <servlet-name>vlejournal</servlet-name>
     <url-pattern>/journaldata.html</url-pattern>
   </servlet-mapping>
   
