@@ -47,10 +47,13 @@ import org.json.JSONObject;
    
    private final static String PARAM1 = "param1";
    
+   @SuppressWarnings("unused")
    private final static String PARAM2 = "param2";
    
+   @SuppressWarnings("unused")
    private final static String PARAM3 = "param3";
    
+   @SuppressWarnings("unused")
    private final static String PARAM4 = "param4";
    
    private final static String PROJECT_PATHS = "projectPaths";

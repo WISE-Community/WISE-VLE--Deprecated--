@@ -172,7 +172,7 @@ public class Annotation extends PersistableDomain {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Annotation> getByFromWorkgroupAndToWorkgroup(UserInfo fromWorkgroup, UserInfo toWorkgroup, Class clazz) {
+	public static List<Annotation> getByFromWorkgroupAndToWorkgroup(UserInfo fromWorkgroup, UserInfo toWorkgroup, Class<?> clazz) {
 		// first get all the work done by the toWorkgroup.
 		List<StepWork> workByToWorkgroup = StepWork.getByUserInfo(toWorkgroup);
 
@@ -197,7 +197,8 @@ public class Annotation extends PersistableDomain {
 	 * @return a list of Annotation objects that match the toWorkgroup and any fromWorkgroup
 	 * in the list of fromWorkgroups
 	 */
-	public static List<Annotation> getByFromWorkgroupsAndToWorkgroup(List<UserInfo> fromWorkgroups, UserInfo toWorkgroup, Class clazz) {
+	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByFromWorkgroupsAndToWorkgroup(List<UserInfo> fromWorkgroups, UserInfo toWorkgroup, Class<?> clazz) {
 		// first get all the work done by the toWorkgroup.
 		List<StepWork> workByToWorkgroup = StepWork.getByUserInfo(toWorkgroup);
 
@@ -225,7 +226,8 @@ public class Annotation extends PersistableDomain {
 	 * @param clazz this Annotation.class
 	 * @return a list of Annotation
 	 */
-	public static List<? extends Annotation> getByRunId(Long runId, Class clazz) {
+	@SuppressWarnings("unchecked")
+	public static List<? extends Annotation> getByRunId(Long runId, Class<?> clazz) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
@@ -243,7 +245,7 @@ public class Annotation extends PersistableDomain {
 	 * @param clazz Which Annotation class {Annotation, AnnotationScore, AnnotationComment, AnnotationFlag}
 	 * @return
 	 */
-	public static Annotation getByUserInfoAndStepWork(UserInfo userInfo, StepWork stepWork, Class clazz) {
+	public static Annotation getByUserInfoAndStepWork(UserInfo userInfo, StepWork stepWork, Class<?> clazz) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
@@ -265,7 +267,8 @@ public class Annotation extends PersistableDomain {
 	 * @return a list of annotations that are from anyone in the fromWorkgroups list
 	 * to the specific step work
 	 */
-	public static List<Annotation> getByFromWorkgroupsAndStepWork(List<UserInfo> fromWorkgroups, StepWork stepWork, Class clazz) {
+	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByFromWorkgroupsAndStepWork(List<UserInfo> fromWorkgroups, StepWork stepWork, Class<?> clazz) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
@@ -284,7 +287,8 @@ public class Annotation extends PersistableDomain {
 	 * @param clazz
 	 * @return a list of annotations that are for a given stepwork
 	 */
-	public static List<Annotation> getByStepWork(StepWork stepWork, Class clazz) {
+	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByStepWork(StepWork stepWork, Class<?> clazz) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
@@ -305,7 +309,8 @@ public class Annotation extends PersistableDomain {
 	 * @return the latest annotation associated with any of the StepWork objects and has
 	 * a fromWorkgroup that is in the workgroupIds list
 	 */
-	public static Annotation getLatestAnnotationByStepWork(List<StepWork> stepWorks, List<String> workgroupIds, Class annotationClass) {
+	@SuppressWarnings("unchecked")
+	public static Annotation getLatestAnnotationByStepWork(List<StepWork> stepWorks, List<String> workgroupIds, Class<?> annotationClass) {
 		//if either lists are empty we will return null
 		if(stepWorks.size() == 0 || workgroupIds.size() == 0) {
 			return null;

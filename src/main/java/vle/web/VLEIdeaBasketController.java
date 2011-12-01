@@ -47,6 +47,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 				} else {
 					try {
 						//create a JSON object from the data to make sure it is valid JSON
+						@SuppressWarnings("unused")
 						JSONObject dataJSONObj = new JSONObject(data);
 						
 						//data is not the same so we will save a new row

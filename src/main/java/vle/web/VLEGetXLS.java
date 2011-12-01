@@ -19,7 +19,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -47,11 +46,12 @@ import vle.domain.work.StepWorkMatchSequence;
 import vle.domain.work.StepWorkNote;
 import vle.domain.work.StepWorkOR;
 
+/**
+ * Handles student work export in XLS format
+ * @author Geoffrey Kwan
+ */
 public class VLEGetXLS extends VLEServlet {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	//the max number of step work columns we need, only used for "allStudentWork"
@@ -167,6 +167,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * start time
 	 * @param label the label to display with the time difference
 	 */
+	@SuppressWarnings("unused")
 	private void displayCurrentTimeDifference(String label) {
 		long currentTime = new Date().getTime();
 		System.out.println(label + ": " + getDifferenceInSeconds(debugStartTime, currentTime));
@@ -738,9 +739,6 @@ public class VLEGetXLS extends VLEServlet {
 
 		XSSFWorkbook wb = new XSSFWorkbook();
 		
-		//create an object to help create values to that we'll put in cells
-		CreationHelper createHelper = wb.getCreationHelper();
-		
 		List<Node> customNodes = null;
 		
 		if(customSteps.size() != 0) {
@@ -1165,6 +1163,7 @@ public class VLEGetXLS extends VLEServlet {
 		XSSFWorkbook wb = new XSSFWorkbook();
 		
 		//create the sheet that will contain all the data
+		@SuppressWarnings("unused")
 		XSSFSheet mainSheet = wb.createSheet("Latest Work For All Students");
 
 		/*
@@ -1787,6 +1786,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param nodeJSONObject
 	 * @return whether the node is a peer review
 	 */
+	@SuppressWarnings("unused")
 	private boolean isPeerReview(JSONObject nodeJSONObject) {
 		if(nodeJSONObject == null) {
 			return false;
@@ -1802,6 +1802,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param nodeJSONObject
 	 * @return whether the node is a teacher review
 	 */
+	@SuppressWarnings("unused")
 	private boolean isTeacherReview(JSONObject nodeJSONObject) {
 		if(nodeJSONObject == null) {
 			return false;
@@ -2185,6 +2186,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param stepWorks a list of StepWork objects
 	 * @return a String containing the latest response
 	 */
+	@SuppressWarnings("unused")
 	private String getLatestStepWorkResponseWithResponse(List<StepWork> stepWorks) {
 		StepWork latestStepWorkWithResponse = getLatestStepWorkWithResponse(stepWorks);
 		
@@ -4180,6 +4182,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * objects in the list and has a fromWorkgroup from any of the workgroup ids in the
 	 * teacherWorkgroupIds list
 	 */
+	@SuppressWarnings("unused")
 	private String getLatestAnnotationScoreByStepWork(List<StepWork> stepWorksForNodeId, List<String> teacherWorkgroupIds) {
 		//get the latest annotation score with the given parameters
 		AnnotationScore latestAnnotationScoreByStepWork = Annotation.getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
@@ -4209,6 +4212,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * objects in the list and has a fromWorkgroup from any of the workgroup ids in the
 	 * teacherWorkgroupIds list
 	 */
+	@SuppressWarnings("unused")
 	private String getLatestAnnotationCommentByStepWork(List<StepWork> stepWorksForNodeId, List<String> teacherWorkgroupIds) {
 		//get the latest annotation comment with the given parameters
 		AnnotationComment latestAnnotationCommentByStepWork = Annotation.getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
@@ -4493,6 +4497,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param sheet the sheet to auto size columns in
 	 * @param numColumns the number of columns to auto size
 	 */
+	@SuppressWarnings("unused")
 	private void autoSizeColumns(XSSFSheet sheet, int numColumns) {
 		//this property needs to be set to true in order for auto sizing to work
 		System.setProperty("java.awt.headless", "true");

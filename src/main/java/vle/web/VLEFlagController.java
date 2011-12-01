@@ -4,8 +4,6 @@
 package vle.web;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
@@ -15,15 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import vle.VLEServlet;
-import vle.domain.PersistableDomain;
 import vle.domain.annotation.Annotation;
 import vle.domain.annotation.AnnotationFlag;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 
 /**
+ * Controller for Flag GET and POST
  * @author hirokiterashima
- *
  */
 public class VLEFlagController extends VLEServlet {
 
@@ -41,7 +38,8 @@ public class VLEFlagController extends VLEServlet {
         postData(request, response);
 	}
 	
-	 private static void getData(HttpServletRequest request,
+	 @SuppressWarnings("unchecked")
+	private static void getData(HttpServletRequest request,
 				HttpServletResponse response) {
 	    	try {
 		    	List<AnnotationFlag> annotationFlagList = AnnotationFlag.getByParamMap(request.getParameterMap());

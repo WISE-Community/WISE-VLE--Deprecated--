@@ -31,8 +31,8 @@ import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 
 /**
+ * Controllers for handling Annotation GET and POST 
  * @author hirokiterashima
- *
  */
 public class VLEAnnotationController extends HttpServlet {
 
@@ -78,6 +78,7 @@ public class VLEAnnotationController extends HttpServlet {
 		}
     }
 	
+	@SuppressWarnings("unchecked")
 	public void doGetJSON(HttpServletRequest request,
 			HttpServletResponse response)
 	throws ServletException, IOException {

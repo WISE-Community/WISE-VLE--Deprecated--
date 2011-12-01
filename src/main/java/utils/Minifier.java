@@ -176,6 +176,7 @@ public class Minifier extends HttpServlet implements Servlet{
 	 * @param <code>allScripts</code>
 	 * @throws <code>IOException</code>
 	 */
+	@SuppressWarnings("static-access")
 	private void shrink(File allScripts) throws IOException{
 		String rootFile = allScripts.getCanonicalPath();
 		String minFile = rootFile.substring(0, rootFile.lastIndexOf("."));
@@ -358,6 +359,7 @@ public class Minifier extends HttpServlet implements Servlet{
 	 * @throws IOException
 	 * @throws JSONException
 	 */
+	@SuppressWarnings("unused")
 	private boolean doMinify(File projectFile, File projectMetaFile, File minifiedFile) throws IOException{
 		/* if cached file does not exist, we need to minify */
 		if(!minifiedFile.exists()){

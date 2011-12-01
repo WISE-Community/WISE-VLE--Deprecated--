@@ -23,6 +23,9 @@ import org.json.JSONObject;
 
 /**
  * Servlet implementation class AssetManager
+ * 
+ * @author Patrick Lawler
+ * @author Geoffrey Kwan
  */
 public class AssetManager extends HttpServlet implements Servlet{
 	private static final long serialVersionUID = 1L;
@@ -122,6 +125,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 	 * @param <code>HttpServletRequest</code> request
 	 * @return <code>String</code> the message of the status of the upload
 	 */
+	@SuppressWarnings("unchecked")
 	private String uploadAsset(HttpServletRequest request) {
 		ServletFileUpload uploader = new ServletFileUpload(new DiskFileItemFactory());
 		Long maxSize = MAX_SIZE;
@@ -144,12 +148,12 @@ public class AssetManager extends HttpServlet implements Servlet{
 		}
 
 		try{
-			List fileList = uploader.parseRequest(request);
+			List<?> fileList = uploader.parseRequest(request);
 			/* if request was forwarded from the portal, the fileList will be empty because
 			 * Spring already retrieved the list (it can only be done once). But Spring wrapped
 			 * the request so we can get the file another way now */
 			if(fileList.size()>0){
-				Iterator fileIterator = fileList.iterator();
+				Iterator<?> fileIterator = fileList.iterator();
 				while(fileIterator.hasNext()){
 					FileItem item = (FileItem)fileIterator.next();
 					if(item.isFormField()){ //get path and set var
@@ -367,9 +371,12 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
+
+		/* dead code
 		if (path == null) {
 			path = (String) request.getAttribute(PATH);
 		}
+		*/
 		
 		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
 		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
