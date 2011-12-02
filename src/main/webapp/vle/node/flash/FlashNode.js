@@ -128,10 +128,10 @@ FlashNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 * @param workgroupId the id of the workgroup this work belongs to
 */
 FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDivIdPrefix, workgroupId, nodeContent) {
-	var gradingText = '';
+	var gradingHtml = '';
 	
 	if(typeof nodeVisit.getLatestWork().response.data != "undefined"){
-		gradingText += '<div id="alternateContent"><a href="http://www.adobe.com/go/getflashplayer">'+
+		gradingHtml += '<div id="alternateContent"><a href="http://www.adobe.com/go/getflashplayer">'+
 			'<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></div>';
 	
 		//Get the latest student state object for this step
@@ -149,15 +149,38 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 		var studentWork = JSON.stringify(flashState);
 		
 		//put the alternate content div into the DOM
-		$('#' + divId).html(gradingText);
+		$('#' + divId).html(gradingHtml);
 		
 		var width = nodeContent.width;
 		var height = nodeContent.height;
 		
-		// shrink flash dimensions to fit in grading display (TODO: provide enlarge button?)
+		// shrink flash dimensions to fit in grading display (TODO: provide enlarge button)
 		if(width > 500){
 			height = height*500/width;
 			width = 500;
+			
+			// insert enlarge link
+			var enlargeHtml = $('<a class="enlarge" title="View Full Size">Enlarge</a>');
+			$('#' + divId).prepend(enlargeHtml);
+			enlargeHtml.click(function(){
+				var flashContent = $('<div>').append($('#flashContent').clone()).remove().html();
+				flashContent = flashContent.replace(/width=['"]\d+\.*\d+['"]/gi,'width="' + nodeContent.width + '"');
+				flashContent = flashContent.replace(/height=['"]\d+\.*\d+['"]/gi,'height="' + nodeContent.height + '"');
+				flashContent = flashContent.replace(/studentData=\[\]/gi,'studentData=[' + studentWork + ']');
+				var newFlashContent = '<html><head></head><body>'+
+					'<div>' + flashContent + '</div>'+
+					'</body></html>';
+				newWindow=window.open();
+				newWindow.document.write(newFlashContent);
+				newWindow.focus();
+				/*$(newFlashContent).dialog({
+					title: 'Student Work',
+					modal:true,
+					height: 'auto',
+					position: 'center',
+					buttons: [{text:'Close',click:function() {$(this).dialog("close");}}]
+				});*/
+			});
 		}
 		var minPlayerVersion = nodeContent.minPlayerVersion;
 		var activity_uri = nodeContent.activity_uri;
@@ -177,10 +200,10 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 		attributes.styleclass = "flashContent";
 		swfobject.embedSWF(activity_uri, "alternateContent", width, height, minPlayerVersion, "/vlewrapper/vle/swfobject/expressInstall.swf", flashvars, params, attributes);
 	} else {
-		gradingText += 'Error: Student data not found. Check Flash file to ensure export format is correct.';
+		gradingHtml += 'Error: Student data not found. Check Flash file to ensure export format is correct.';
 		
 		//put the error string into the div
-		$('#' + divId).html(gradingText);
+		$('#' + divId).html(gradingHtml);
 	}
 		
 };
