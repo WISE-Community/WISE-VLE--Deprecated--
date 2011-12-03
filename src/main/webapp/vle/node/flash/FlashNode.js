@@ -131,7 +131,7 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 	var gradingHtml = '';
 	
 	if(typeof nodeVisit.getLatestWork().response.data != "undefined"){
-		gradingHtml += '<div id="alternateContent"><a href="http://www.adobe.com/go/getflashplayer">'+
+		gradingHtml += '<div id="alternateContent_' + divId + '"><a href="http://www.adobe.com/go/getflashplayer">'+
 			'<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></div>';
 	
 		//Get the latest student state object for this step
@@ -163,14 +163,14 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 			var enlargeHtml = $('<a class="enlarge" title="View Full Size">Enlarge</a>');
 			$('#' + divId).prepend(enlargeHtml);
 			enlargeHtml.click(function(){
-				var flashContent = $('<div>').append($('#flashContent').clone()).remove().html();
+				var flashContent = $('<div>').append($('#flashContent_' + divId).clone()).remove().html();
 				flashContent = flashContent.replace(/width=['"]\d+\.*\d+['"]/gi,'width="' + nodeContent.width + '"');
 				flashContent = flashContent.replace(/height=['"]\d+\.*\d+['"]/gi,'height="' + nodeContent.height + '"');
 				flashContent = flashContent.replace(/studentData=\[\]/gi,'studentData=[' + studentWork + ']');
 				var newFlashContent = '<html><head></head><body>'+
 					'<div>' + flashContent + '</div>'+
 					'</body></html>';
-				newWindow=window.open();
+				var newWindow=window.open('','','location=no');
 				newWindow.document.write(newFlashContent);
 				newWindow.focus();
 				/*$(newFlashContent).dialog({
@@ -195,10 +195,10 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 		params.wmode = "opaque";
 		params.allowscriptaccess = "sameDomain";
 		var attributes = {};
-		attributes.id = "flashContent";
-		attributes.name = "flashContent";
+		attributes.id = "flashContent_" + divId;
+		attributes.name = "flashContent_" + divId;
 		attributes.styleclass = "flashContent";
-		swfobject.embedSWF(activity_uri, "alternateContent", width, height, minPlayerVersion, "/vlewrapper/vle/swfobject/expressInstall.swf", flashvars, params, attributes);
+		swfobject.embedSWF(activity_uri, "alternateContent_" + divId, width, height, minPlayerVersion, "/vlewrapper/vle/swfobject/expressInstall.swf", flashvars, params, attributes);
 	} else {
 		gradingHtml += 'Error: Student data not found. Check Flash file to ensure export format is correct.';
 		
