@@ -16,23 +16,22 @@ function Flash(node) {
 	};
 };
 
-//identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
-Flash.prototype.thisMovie = function(movieName) {
-    if(navigator.appName.indexOf("Microsoft") != -1) {
-        return window[movieName];
-    } else {
-        return document[movieName];
-    }
-};
-
 // Call as3 function in identified Flash applet
 Flash.prototype.sendStateToFlash = function(value) {
-	swfobject.getObjectById("flashContent").importData(value);
+	if (swfobject.getObjectById("flashContent")){
+		swfobject.getObjectById("flashContent").importData(value);
+	} else {
+		if (window.console) console.log("Can't find importData function in Flash activity; no data loaded.");
+	}
 };
 
 //Call as3 function in identified Flash applet
 Flash.prototype.getStateFromFlash = function() {
-	return swfobject.getObjectById("flashContent").exportData();
+	if(swfobject.getObjectById("flashContent")){
+		return swfobject.getObjectById("flashContent").exportData();
+	} else {
+		if (window.console) console.log("Can't find importData function in Flash activity; no data saved.");
+	}
 };
 
 /**
@@ -108,21 +107,26 @@ Flash.prototype.save = function() {
 		if(typeof studentData != "undefined"){
 			var stateJSON = JSON.parse(studentData);
 			
-			/*
-			 * create the student state that will store the new work the student
-			 * just submitted
-			 */
-			var flashState = new FlashState(stateJSON);
+			var latestState = JSON.parse(JSON.stringify(this.getLatestState().response));
 			
-			/*
-			 * fire the event to push this state to the global view.states object.
-			 * the student work is saved to the server once they move on to the
-			 * next step.
-			 */
-			eventManager.fire('pushStudentWork', flashState);
-
-			//push the state object into this or object's own copy of states
-			this.states.push(flashState);
+			// check to see whether data has changed, if so add new state
+			if(!_.isEqual(stateJSON, latestState)){
+				/*
+				 * create the student state that will store the new work the student
+				 * just submitted
+				 */
+				var flashState = new FlashState(stateJSON);
+				
+				/*
+				 * fire the event to push this state to the global view.states object.
+				 * the student work is saved to the server once they move on to the
+				 * next step.
+				 */
+				eventManager.fire('pushStudentWork', flashState);
+				
+				//push the state object into this or object's own copy of states
+				this.states.push(flashState);
+			 }
 		}
 	}
 };
