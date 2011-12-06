@@ -19,7 +19,7 @@ function WorkOnXBeforeYConstraint(opts){
 	/* Set the message if provided, set default if not. The default message is dependent on the modes */
 	var xTitle = "";
 	
-	if(this.xMode=='node') {
+	if(this.xMode=='node' && this.node != null) {
 		xTitle = this.node.view.getProject().getStepNumberAndTitle(this.xId);
 	} else {
 		xTitle = this.view.getProject().getNodeById(this.xId).getTitle();
@@ -29,7 +29,7 @@ function WorkOnXBeforeYConstraint(opts){
 		'ALL steps in activity "' + xTitle + '"';
 	var yTitle = this.view.getProject().getNodeById(this.yId).getTitle();
 	
-	if(this.yMode=='node') {
+	if(this.yMode=='node' && this.node != null) {
 		yTitle = this.node.view.getProject().getStepNumberAndTitle(this.yId);
 	} else {
 		yTitle = this.view.getProject().getNodeById(this.yId).getTitle();
