@@ -37,14 +37,6 @@ import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewWork;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
-import vle.domain.work.StepWorkAssessmentList;
-import vle.domain.work.StepWorkBS;
-import vle.domain.work.StepWorkFillin;
-import vle.domain.work.StepWorkHtml;
-import vle.domain.work.StepWorkMC;
-import vle.domain.work.StepWorkMatchSequence;
-import vle.domain.work.StepWorkNote;
-import vle.domain.work.StepWorkOR;
 
 /**
  * Handles student work export in XLS format
@@ -640,46 +632,83 @@ public class VLEGetXLS extends VLEServlet {
 	/**
 	 * Obtain the node type for the step work
 	 * @param stepWork a StepWork object
-	 * @return the node type for the StepWork
+	 * @return the node type for the StepWork without the "Node"
+	 * part of the string
+	 * e.g. if a step work is for an "OpenResponseNode" the value
+	 * that is returned would be "OpenResponse"
 	 */
 	private String getNodeTypeFromStepWork(StepWork stepWork) {
 		//try to get the node type from the step work
 		String nodeType = stepWork.getNode().getNodeType();
 		
-		//check if the StepWork object already has the node type set
-		if(nodeType != null) {
-			//return the node type from the StepWork
-			
+		if(nodeType == null) {
 			/*
-			 * remove the "Node" portion of the node type
-			 * e.g. NoteNode just becomes Note
+			 * we could not get the node type from the Node object so
+			 * we will get it from the stepwork data
 			 */
-			nodeType = nodeType.replace("Node", "");
-			
-			return nodeType;
-		} else {
-			/*
-			 * check what type of StepWork object it really is and
-			 * return the appropriate node type
-			 */
-			if(stepWork instanceof StepWorkOR) {
-				return "OpenResponse";
-	    	} else if(stepWork instanceof StepWorkBS) {
-	    		return "Brainstorm";
-	    	} else if(stepWork instanceof StepWorkFillin) {
-	    		return "Fillin";
-	    	} else if(stepWork instanceof StepWorkHtml) {
-	    		return "Html";
-	    	} else if(stepWork instanceof StepWorkMatchSequence) {
-	    		return "MatchSequence";
-	    	} else if(stepWork instanceof StepWorkMC) {
-	    		return "MultipleChoice";
-	    	} else if(stepWork instanceof StepWorkNote) {
-	    		return "Note";
-	    	} else {
-	    		return "";
-	    	}
+			String data = stepWork.getData();
+			nodeType = getNodeTypeFromStepWorkJSONString(data);		
 		}
+		
+		/*
+		 * remove the "Node" portion of the node type
+		 * e.g. NoteNode just becomes Note
+		 */
+		nodeType = nodeType.replace("Node", "");
+		
+		return nodeType;
+	}
+	
+	/**
+	 * Get the node type from the StepWork data JSON string
+	 * @param stepWorkJSONString the step work data JSON string
+	 * @return the node type for the StepWork without the "Node"
+	 * part of the string
+	 * e.g. if a step work is for an "OpenResponseNode" the value
+	 * that is returned would be "OpenResponse"
+	 */
+	public String getNodeTypeFromStepWorkJSONString(String stepWorkJSONString) {
+		String nodeTypeFromStepWorkJSONObject = "";
+		
+		if(stepWorkJSONString != null) {
+			try {
+				//make the JSON object
+				JSONObject stepWorkJSONObject = new JSONObject(stepWorkJSONString);
+				
+				//get the node type from the JSON object
+				nodeTypeFromStepWorkJSONObject = getNodeTypeFromStepWorkJSONObject(stepWorkJSONObject);	
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return nodeTypeFromStepWorkJSONObject;
+	}
+	
+	/**
+	 * Get the node type from the JSON Object
+	 * @param stepWorkJSONObject the step work data JSON object
+	 * @return the node type for the StepWork without the "Node"
+	 * part of the string
+	 * e.g. if a step work is for an "OpenResponseNode" the value
+	 * that is returned would be "OpenResponse"
+	 */
+	public String getNodeTypeFromStepWorkJSONObject(JSONObject stepWorkJSONObject) {
+		String nodeType = "";
+		
+		if(stepWorkJSONObject != null) {
+			//check if the JSON object has a nodeType field
+			if(stepWorkJSONObject.has("nodeType")) {
+				try {
+					//get the nodeType
+					nodeType = stepWorkJSONObject.getString("nodeType");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}			
+		}
+		
+		return nodeType;
 	}
 	
 	/**
@@ -2461,10 +2490,24 @@ public class VLEGetXLS extends VLEServlet {
 		if(stepWork != null) {
 			node = stepWork.getNode();
 			
-			if(node != null) {
-				if(node.getNodeType() != null) {
-					nodeType = node.getNodeType();					
-				}
+			if(node != null && node.getNodeType() != null) {
+				//get the node type from the node object e.g. "OpenResponseNode"
+				nodeType = node.getNodeType();
+				
+				/*
+				 * remove the "Node" portion of the node type
+				 * e.g. NoteNode just becomes Note
+				 */
+				nodeType = nodeType.replace("Node", "");
+			} else {
+				/*
+				 * if the step work does not have a Node set into the object
+				 * we will retrieve the node type from the step work data.
+				 * the nodeType will not contain the word "Node"
+				 * e.g. if the type is "OpenResponseNode" we will receive
+				 * "OpenResponse"
+				 */
+				nodeType = getNodeTypeFromStepWork(stepWork);
 			}
 		}
 		
@@ -2593,11 +2636,11 @@ public class VLEGetXLS extends VLEServlet {
 			} catch(JSONException e) {
 				e.printStackTrace();
 			}
-		} else if(stepWork instanceof StepWorkOR || stepWork instanceof StepWorkNote || 
-    			stepWork instanceof StepWorkBS || stepWork instanceof StepWorkFillin ||
-    				stepWork instanceof StepWorkMC || stepWork instanceof StepWorkMatchSequence ||
-    				stepWork instanceof StepWorkAssessmentList || nodeType.equals("SensorNode")
-    				|| nodeType.equals("ExplanationBuilderNode") || nodeType.equals("SVGDrawNode")) {
+		} else if(nodeType.equals("OpenResponse") || nodeType.equals("Note") ||
+				nodeType.equals("Brainstorm") || nodeType.equals("Fillin") ||
+				nodeType.equals("MultipleChoice") || nodeType.equals("MatchSequence") ||
+				nodeType.equals("AssessmentList") || nodeType.equals("Sensor") ||
+				nodeType.equals("ExplanationBuilder") || nodeType.equals("SVGDraw")) {
     		try {
     			//obtain the json string
     			String data = stepWork.getData();
@@ -2608,8 +2651,8 @@ public class VLEGetXLS extends VLEServlet {
 				//obtain the node states array json object
 				JSONArray jsonNodeStatesArray = jsonData.getJSONArray("nodeStates");
 				
-				if(stepWork instanceof StepWorkMC || stepWork instanceof StepWorkFillin || 
-						stepWork instanceof StepWorkMatchSequence || stepWork instanceof StepWorkAssessmentList) {
+				if(nodeType.equals("MultipleChoice") || nodeType.equals("Fillin") ||
+						nodeType.equals("MatchSequence") || nodeType.equals("AssessmentList")) {
 					/*
 					 * if the stepwork is for multiple choice or fillin, we will display
 					 * all node states so that researchers can see how many times
@@ -2628,7 +2671,7 @@ public class VLEGetXLS extends VLEServlet {
 							//obtain a node state
 							JSONObject nodeState = (JSONObject) nodeStateObject;
 							
-							if(stepWork instanceof StepWorkMC || stepWork instanceof StepWorkFillin) {
+							if(nodeType.equals("MultipleChoice") || nodeType.equals("Fillin")) {
 								if(nodeState.has("response")) {
 									//this case handles mc and fillin
 									
@@ -2662,7 +2705,7 @@ public class VLEGetXLS extends VLEServlet {
 										responses.append(", ");
 									}
 									
-									if(stepWork instanceof StepWorkFillin) {
+									if(nodeType.equals("Fillin")) {
 										//for fillin we will obtain the text entry index
 										Object blankNumber = nodeState.get("textEntryInteractionIndex");
 										
@@ -2670,12 +2713,12 @@ public class VLEGetXLS extends VLEServlet {
 											//display the response as Blank{blank number} [submit attempt]: {student response}
 											responses.append("{Blank" + (((Integer) blankNumber) + 1) + "[" + (z+1) + "]: " + currentResponse + "}");
 										}
-									} else if(stepWork instanceof StepWorkMC) {
+									} else if(nodeType.equals("MultipleChoice")) {
 										//display the response as Answer[{attempt number}]: {student response}
 										responses.append("{Answer[" + (z+1) + "]: " + currentResponse + "}");	
 									}
 								}
-							} else if(stepWork instanceof StepWorkMatchSequence) {
+							} else if(nodeType.equals("MatchSequence")) {
 								//get the array of buckets
 								JSONArray buckets = (JSONArray) nodeState.get("buckets");
 
@@ -2733,7 +2776,7 @@ public class VLEGetXLS extends VLEServlet {
 								 * wants to view the response in their browser
 								 */
 								responses.append("}<br><br>");
-							} else if(stepWork instanceof StepWorkAssessmentList) {
+							} else if(nodeType.equals("AssessmentList")) {
 								//wrap each node state with braces {}
 								responses.append("{");
 								
@@ -2822,7 +2865,7 @@ public class VLEGetXLS extends VLEServlet {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-    	} else if(stepWork instanceof StepWorkHtml) {
+    	} else if(nodeType.equals("Html")) {
 	    	stepWorkResponse = "N/A";
     	} else {
     		//do nothing

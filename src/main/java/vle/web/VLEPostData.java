@@ -18,7 +18,6 @@ import vle.domain.peerreview.PeerReviewGate;
 import vle.domain.peerreview.PeerReviewWork;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
-import vle.domain.work.StepWorkFactory;
 
 /**
  * Servlet for handling POSTed vle data
@@ -124,7 +123,7 @@ public class VLEPostData extends VLEServlet {
 				stepWork = (StepWork) StepWork.getById(stepWorkIdLong, StepWork.class);
 			} else if(nodeType != null && nodeType !=""){
 				//step work id was not passed in so we will create a new StepWork object
-				stepWork = StepWorkFactory.createStepWork(nodeType);				
+				stepWork = new StepWork();
 			}
 
 			Node node = getOrCreateNode(runId, nodeId, nodeType);
