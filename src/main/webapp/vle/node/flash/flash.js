@@ -30,7 +30,7 @@ Flash.prototype.getStateFromFlash = function() {
 	if(swfobject.getObjectById("flashContent")){
 		return swfobject.getObjectById("flashContent").exportData();
 	} else {
-		if (window.console) console.log("Can't find importData function in Flash activity; no data saved.");
+		if (window.console) console.log("Can't find exportData function in Flash activity; no data saved.");
 	}
 };
 
@@ -56,7 +56,7 @@ Flash.prototype.render = function() {
 	if(this.content.enableData){
 		var lastState = '';
 		// get latest student state
-		if (flash.getLatestState() != null) {
+		if (flash.getLatestState()) {
 			lastState = JSON.stringify(flash.getLatestState().response.data);
 		}
 		// add student data to flashvars (needs to be processed by Flash on load)
@@ -104,10 +104,13 @@ Flash.prototype.save = function() {
 	if(this.content.enableData){
 		var studentData = flash.getStateFromFlash();
 		
-		if(typeof studentData != "undefined"){
+		if(studentData && typeof studentData != "undefined"){
 			var stateJSON = JSON.parse(studentData);
 			
-			var latestState = JSON.parse(JSON.stringify(this.getLatestState().response));
+			var latestState = this.getLatestState();
+			if(latestState && typeof latestState != "undefined"){
+				latestState = JSON.parse(JSON.stringify(latestState.response)); // not sure why, but stringify and re-parse is necessary for _.isEqual comparison to work correctly here
+			}
 			
 			// check to see whether data has changed, if so add new state
 			if(!_.isEqual(stateJSON, latestState)){
