@@ -1,7 +1,4 @@
-/**
- * 
- */
-package vle;
+ package vle;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -81,6 +78,7 @@ public class VLEGetJournalData extends VLEJournalServlet {
 			 */
 			try {
 				//timestamp format like Thu, Jul 16, 2009 02:36:17 PM
+				@SuppressWarnings("unused")
 				String dateFormat = "%a, %b %e, %Y %r";
 				
 				//the select query

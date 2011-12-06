@@ -1,10 +1,6 @@
-/**
- * 
- */
 package vle.domain.work;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -75,6 +71,14 @@ public class StepWorkCache extends PersistableDomain {
         return result;
 	}
 	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	/**
 	 * @return the userInfo
 	 */

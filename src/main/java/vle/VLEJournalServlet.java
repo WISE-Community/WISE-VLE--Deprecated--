@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 public class VLEJournalServlet extends VLEServlet {
 	
+	private static final long serialVersionUID = 1L;
 	protected static boolean debug = false; 
 	
 	/**

@@ -1,7 +1,6 @@
 package vle;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,7 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class VLEPostFlag extends HttpServlet {
-    private static Connection conn = null;
+	private static final long serialVersionUID = 1L;
+	private static Connection conn = null;
     private static Statement stmt = null;
 	
 	public void doPost(HttpServletRequest request,
@@ -33,7 +33,8 @@ public class VLEPostFlag extends HttpServlet {
         shutdown();
 	}
 	
-    private static void createTable()
+    @SuppressWarnings("unused")
+	private static void createTable()
     {
         try
         {
@@ -83,7 +84,8 @@ public class VLEPostFlag extends HttpServlet {
         	flagEntry.append("</flagEntry>");
         	
         	stmt = conn.createStatement();
-        	ResultSet results = null;
+        	@SuppressWarnings("unused")
+			ResultSet results = null;
         	
         	if(action != null && action.equals("unflag")) {
         		String deleteStmt = "delete from flags where runId=" + runId + " and nodeId='" + nodeId + "' and toWorkgroup=" + toWorkgroup + " and fromWorkgroup=" + fromWorkgroup + " and value='" + flagEntry + "'";

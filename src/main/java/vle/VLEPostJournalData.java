@@ -3,8 +3,6 @@ package vle;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +31,8 @@ public class VLEPostJournalData extends VLEJournalServlet {
         shutdown();
 	}
 
-    private static void createTable()
+    @SuppressWarnings("unused")
+	private static void createTable()
     {
         try
         {
@@ -132,6 +131,7 @@ public class VLEPostJournalData extends VLEJournalServlet {
 				stmt.execute(insertStmt);
 				
 				//retrieve the row that we just inserted
+				@SuppressWarnings("unused")
 				String dateFormat = "%a, %b %e, %Y %r";
 				String selectQuery = "select id, workgroupId, journalPageId, deleted, UNIX_TIMESTAMP(pageCreatedTime), UNIX_TIMESTAMP(pageLastEditedTime), location, nodeId, data from journaldata where workgroupid=" + workgroupId + " and journalpageid=" + journalPageId + " and deleted=false order by id desc limit 1";
 				debugPrint(selectQuery);

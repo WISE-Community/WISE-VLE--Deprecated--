@@ -42,6 +42,7 @@ public abstract class PersistableDomain {
 	 * @param class1 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<? extends PersistableDomain> getList(Class<?> clazz) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();

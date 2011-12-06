@@ -1,6 +1,3 @@
-/**
- * 
- */
 package vle.domain.work;
 
 import java.util.List;
@@ -45,6 +42,7 @@ public class StepWorkOR extends StepWork {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		
 		if (args[0].equals("store")) {

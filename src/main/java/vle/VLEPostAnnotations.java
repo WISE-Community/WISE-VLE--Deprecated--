@@ -13,7 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class VLEPostAnnotations extends HttpServlet {
-    private static Connection conn = null;
+	private static final long serialVersionUID = 1L;
+	private static Connection conn = null;
     private static Statement stmt = null;
 	
 	public void doPost(HttpServletRequest request,
@@ -32,7 +33,8 @@ public class VLEPostAnnotations extends HttpServlet {
         shutdown();
 	}
 	
-    private static void createTable()
+    @SuppressWarnings("unused")
+	private static void createTable()
     {
         try
         {
