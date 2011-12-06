@@ -60,24 +60,35 @@ View.prototype.postCurrentNodeVisit = function() {
 	//obtain the json string representation of the node visit
 	var nodeVisitData = encodeURIComponent($.stringify(currentNodeVisit));
 	
-	if(this.getUserAndClassInfo() != null) {
-		this.connectionManager.request('POST', 3, url, 
-				{id: stepWorkId, 
-				runId: this.getConfig().getConfigParam('runId'), 
-				userId: this.getUserAndClassInfo().getWorkgroupId(), 
-				data: nodeVisitData
-				}, 
-				this.processPostResponse, 
-				{vle: this, nodeVisit:currentNodeVisit});
+	// Only POST this nodevisit if this nodevisit is not currently being POSTed to the server.
+	if (this.isInPOSTInProgressArray(currentNodeVisit)) {
+		return;
 	} else {
-		this.connectionManager.request('POST', 3, url, 
-				{id: stepWorkId, 
-				runId: this.getConfig().getConfigParam('runId'), 
-				userId: '-2', 
-				data: prepareDataForPost(diff)
-				}, 
-				this.processPostResponse);
-	};
+		// add  this nodevisit to postInProgress array
+		this.addToPOSTInProgressArray(currentNodeVisit);
+
+		if(this.getUserAndClassInfo() != null) {
+			this.connectionManager.request('POST', 3, url, 
+					{id: stepWorkId, 
+					runId: this.getConfig().getConfigParam('runId'), 
+					userId: this.getUserAndClassInfo().getWorkgroupId(), 
+					data: nodeVisitData
+					}, 
+					this.processPostResponse, 
+					{vle: this, nodeVisit:currentNodeVisit},
+					this.processPostFailResponse);
+		} else {
+			this.connectionManager.request('POST', 3, url, 
+					{id: stepWorkId, 
+					runId: this.getConfig().getConfigParam('runId'), 
+					userId: '-2', 
+					data: prepareDataForPost(diff)
+					}, 
+					this.processPostResponse,
+					null,
+					this.processPostFailResponse);
+		};
+	}
 };
 
 /**
@@ -120,9 +131,16 @@ View.prototype.postUnsavedNodeVisit = function(nodeVisit, sync) {
 									userId: this.getUserAndClassInfo().getWorkgroupId(),
 									data: postData};
 	
-	var timeout = 3*1000; // timeout is 3 seconds
-	
-	this.connectionManager.request('POST', 3, url, postStudentDataUrlParams, this.processPostResponse, {vle: this, nodeVisit:nodeVisit}, null, sync, timeout);
+	// Only POST this nodevisit if this nodevisit is not currently being POSTed to the server.
+	if (this.isInPOSTInProgressArray(nodeVisit)) {
+		return;
+	} else {
+		//var timeout = 3*1000; // timeout is 3 seconds
+		var timeout = null;
+		// add  this nodevisit to postInProgress array
+		this.addToPOSTInProgressArray(nodeVisit);
+		this.connectionManager.request('POST', 3, url, postStudentDataUrlParams, this.processPostResponse, {vle: this, nodeVisit:nodeVisit}, this.processPostFailResponse, sync, null);		
+	}
 };
 
 
@@ -179,9 +197,30 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	//set the post time
 	args.nodeVisit.visitPostTime = visitPostTime;
 	
+	// remove nodeVisit from postInProgress array
+	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
+	
 	//fire the event that says we are done processing the post response
 	eventManager.fire('processPostResponseComplete');
 };
+
+
+/**
+ * Handles the FAIL response from any time we post student data to the server.
+ * @param responseText a json string containing the response data
+ * @param responseXML
+ * @param args any args required by this callback function which
+ * 		were passed in when the request was created
+ */
+View.prototype.processPostFailResponse = function(responseText, responseXML, args){
+	notificationManager.notify("processPostFailResponse, responseText:" + responseText, 4);
+	notificationManager.notify("processPostFailResponse, nodeVisit: " + args.nodeVisit, 4);
+	
+	// remove this nodevisit from postInProgressArray
+	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
+};
+
+
 
 /**
  * Retrieve all the node states for a specific node in an array
@@ -544,6 +583,53 @@ View.prototype.getTeamProjectCompletionPercentage = function() {
 	return teamPercentProjectCompleted;	
 };
 
+/**
+ * Returns true iff specified nodeVisit exists in postInProgressArray
+ * @param nodeVisit
+ */
+View.prototype.isInPOSTInProgressArray = function(nodeVisit) {
+	if (this.postInProgressArray == null) {
+		return false;
+	}
+	for (var i=0; i < this.postInProgressArray.length; i++) {
+		var nodeVisitToCheck = this.postInProgressArray[i];
+		if ($.stringify(nodeVisit) == $.stringify(nodeVisitToCheck)) {
+			return true;
+		}
+	}
+	return false;
+};
+
+/**
+ * Add specified nodeVisit to postInProgressArray
+ * If nodeVisit exists in the postInProgressArray, do nothing
+ * @param nodeVisit
+ */
+View.prototype.addToPOSTInProgressArray = function(nodeVisit) {
+	if (this.postInProgressArray == null) {
+		this.postInProgressArray = [];
+	}
+	if (!this.isInPOSTInProgressArray(nodeVisit)) {
+		this.postInProgressArray.push(nodeVisit);		
+	}
+};
+
+/**
+ * Removes specified nodeVisit from postInProgressArray
+ * If nodeVisit does not exist in the postInProgressArray, do nothing
+ * @param nodeVisit
+ */
+View.prototype.removeFromPOSTInProgressArray = function(nodeVisit) {
+	if (this.postInProgressArray == null) {
+		return;
+	}
+	for (var i=0; i < this.postInProgressArray.length; i++) {
+		var nodeVisitToCheck = this.postInProgressArray[i];
+		if ($.stringify(nodeVisit) == $.stringify(nodeVisitToCheck)) {
+			this.postInProgressArray.splice(i,1);
+		}
+	}
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

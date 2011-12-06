@@ -94,10 +94,28 @@ public class VLEPostData extends VLEServlet {
 					return;
 				}
 			}
-			
+
 			StepWork stepWork = null;
 			
-			//check if the step work id was passed in
+			// check to see if student has already saved this nodevisit.
+			stepWork = StepWork.getByUserIdAndData(userInfo,nodeVisitJSON.toString());
+			if (stepWork != null) {
+				// this node visit has already been saved. return id and postTime and exit.
+				//create a JSONObject to contain the step work id and post time
+				JSONObject jsonResponse = new JSONObject();
+				jsonResponse.put("id", stepWork.getId());
+				if(endTime != null) {
+					//end time is set so we can send back a post time
+					if (stepWork.getPostTime() != null) {
+						jsonResponse.put("visitPostTime", stepWork.getPostTime().getTime());
+					}
+				}
+				//send back the json string with step work id and post time
+				response.getWriter().print(jsonResponse.toString());
+				return;
+			}
+				
+			//check if the step work id was passed in. if it was, then it's an update to a nodevisit.
 			if(stepWorkId != null && !stepWorkId.equals("") && !stepWorkId.equals("undefined")) {
 				//step work id was passed in so we will obtain the id in long format
 				long stepWorkIdLong = Long.parseLong(stepWorkId);

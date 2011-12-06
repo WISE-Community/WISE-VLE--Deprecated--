@@ -228,6 +228,7 @@ public class StepWork extends PersistableDomain {
 	 * @param node
 	 * @return a list of StepWork for the user and node
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<StepWork> getByUserInfoAndNode(UserInfo userInfo,Node node) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -365,6 +366,20 @@ public class StepWork extends PersistableDomain {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         StepWork result =  (StepWork) session.createCriteria(StepWork.class).add(Restrictions.eq("id", id)).uniqueResult();
+        session.getTransaction().commit();
+        return result;
+	}
+	
+	/**
+	 * Returns the StepWork with the specified userInfo and data
+	 * @param userInfo UserInfo of user to check
+	 * @param data String data to check for
+	 * @return the StepWork object with the specified userInfo and data or null if DNE.
+	 */
+	public static StepWork getByUserIdAndData(UserInfo userInfo,String data) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        StepWork result =  (StepWork) session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).add(Restrictions.eq("data",data)).uniqueResult();
         session.getTransaction().commit();
         return result;
 	}
