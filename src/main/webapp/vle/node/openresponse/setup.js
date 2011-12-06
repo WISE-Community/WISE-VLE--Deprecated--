@@ -40,7 +40,8 @@ var gradingScripts = [
 
 var dependencies = [
 	{child:"vle/node/openresponse/OpenResponseNode.js", parent:["vle/node/Node.js"]},
-	{child:"vle/node/openresponse/NoteNode.js", parent:["vle/node/Node.js", "vle/node/openresponse/OpenResponseNode.js"]}
+	{child:"vle/node/openresponse/NoteNode.js", parent:["vle/node/Node.js", "vle/node/openresponse/OpenResponseNode.js"]},
+	{child:"vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js",parent:["vle/jquery/js/jquery-1.6.1.min.js"]}
 ];
 
 var css = [
