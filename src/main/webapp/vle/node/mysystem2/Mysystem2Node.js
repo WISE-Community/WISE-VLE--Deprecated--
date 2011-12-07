@@ -15,8 +15,7 @@ Mysystem2Node.authoringToolDescription = "This is a generic step only used by de
 
 /**
  * This is the constructor for the Node
- * @constructor
- * @extends Node
+ * 
  * @param nodeType
  * @param view
  */
@@ -63,6 +62,10 @@ Mysystem2Node.prototype.translateStudentWork = function(studentWork) {
 };
 
 /**
+ * Note: it seems this method isn't needed on the Node anymore
+ *   but since this step type is currently needs to work in old versions of Wise4
+ *   we have to be careful deleting it.
+ *
  * This function is called when the student exits the step. It is mostly
  * used for error checking.
  * 

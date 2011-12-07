@@ -6,9 +6,6 @@
  */
 /*globals View createBreak createElement eventManager*/
 
-/**
- * @constructor
- */
 View.prototype.Mysystem2Node = {};
 View.prototype.Mysystem2Node.commonComponents = ['Prompt', 'LinkTo'];
 
@@ -54,11 +51,11 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : 72cb000dc1b4f9b91484b0a023fde690a9eb045e ");
-  var git_time        = document.createTextNode("commit time : Fri Sep 23 18:55:43 2011 -0400 ");
-  var git_branch      = document.createTextNode("git branch  : (HEAD, usingVisibilityBindingsInInspector, master) ");
-  var sc_build_time   = document.createTextNode("build time  : 2011-09-23 19:00:42 -0400 ");
-  var sc_build_number = document.createTextNode("build no.   : b7496a1eec79ffecb2969797c585818a31348044 ");
+  var git_sha         = document.createTextNode("commit sha  : c20c7255c9613ad9d84c31498e579456a6a52817 ");
+  var git_time        = document.createTextNode("commit time : Thu Nov 17 17:11:25 2011 -0500 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master) ");
+  var sc_build_time   = document.createTextNode("build time  : 2011-11-18 11:09:27 -0500 ");
+  var sc_build_number = document.createTextNode("build no.   : 9ccb202ac04c24c917260694b9e806036e34d5e4 ");
   
   git_sha_div.appendChild(git_sha);
   git_time_div.appendChild(git_time);
