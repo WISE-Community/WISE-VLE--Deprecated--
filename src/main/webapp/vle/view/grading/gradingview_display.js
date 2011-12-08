@@ -86,6 +86,15 @@ View.prototype.initiateGradingDisplay = function() {
 	
 	this.gradingType = this.getConfig().getConfigParam('gradingType');
 	
+	if(this.gradingType != "monitor" && this.gradingType != "export") {
+		this.getRevisions = false;
+
+		//determine if we are getting all revisions or only the latest work
+		if(this.getConfig().getConfigParam('getRevisions') == "true") {
+			this.getRevisions = true;
+		}
+	}
+	
 	this.excelExportRestriction = this.getConfig().getConfigParam('excelExportRestriction');
 	
 	//the array to store the original order of the row ids
@@ -124,12 +133,6 @@ View.prototype.initiateGradingDisplay = function() {
 	}
 
 	if(this.gradingType != "monitor" && this.gradingType != "export") {
-		this.getRevisions = false;
-		
-		if(this.getConfig().getConfigParam('getRevisions') == "true") {
-			this.getRevisions = true;
-		}
-		
 		this.getPeerReviewWork();
 		this.getStudentWork();		
 	}
@@ -518,6 +521,14 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	}
 	gradingHeaderHtml += "<a class='gradingButton " + stepClass + "' onClick=\"eventManager.fire('displayGradeByStepSelectPage')\">"+this.getI18NString("grading_button_grade_by_step")+"</a>";
 	gradingHeaderHtml += "<a class='gradingButton " + teamClass + "' onClick=\"eventManager.fire('displayGradeByTeamSelectPage')\">"+this.getI18NString("grading_button_grade_by_team")+"</a>";
+
+	//display whether we are showing all revisions or only latest work
+	if(this.getRevisions) {
+		gradingHeaderHtml += "<span> (All Revisions)</span>";
+	} else {
+		gradingHeaderHtml += "<span> (Latest Work)</span>";
+	}
+	
 	// TODO: classroom monitor link button could go here
 	gradingHeaderHtml += "</div>";
 	
