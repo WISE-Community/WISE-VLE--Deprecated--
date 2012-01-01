@@ -355,14 +355,16 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     		 * step, they will step through the sequence and the 
     		 * sequence's children.
     		 */
-    		var sequenceIcon = '<img src=\'images/stepIcons/UCCP/instantquiz16.png\'/>';
+    		var sequenceIcon = '<img src=\'images/stepIcons/instantquiz16.png\'/>';
     		htmlSoFar ;
     		for(var t=0;t<depth;t++){
     			htmlSoFar += space;
     		};
     		
     		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-    			sequenceIcon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
+    			var nodeIconPath = this.view.nodeIconPaths[node.type];
+    			//sequenceIcon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
+    			sequenceIcon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
     		};
     		
     		//display a step with the title of the sequence for this glue sequence
@@ -398,7 +400,9 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		};
 		
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
-			icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
+			//icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
+			var nodeIconPath = this.view.nodeIconPaths[node.type];
+			icon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
 		};
 		
 		//display the step

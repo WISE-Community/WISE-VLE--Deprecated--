@@ -47,7 +47,8 @@ var dependencies = [
 ];
 
 var css = [
-	'vle/node/draw/svg-edit/jquery-ui/jquery-ui-1.7.2.custom.css',
+	//'vle/node/draw/svg-edit/jquery-ui/jquery-ui-1.7.2.custom.css',
+	'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jPicker-1.0.12.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jgraduate.css',
 	'vle/node/draw/svg-edit/svg-editor.css',
@@ -57,6 +58,9 @@ var css = [
 var nodeClasses = [
 	{nodeClass:'quickdraw', nodeClassText:'Drawing'}
 ];
+
+var nodeIconPath = 'node/draw/icons/';
+componentloader.addNodeIconPath('SVGDrawNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

@@ -43,8 +43,8 @@ var dependencies = [
 
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/multiplechoice/mcstyles.css",,
-	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
+	"vle/node/multiplechoice/mcstyles.css",
+	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css"
 ];
 
 var multipleChoiceNodeClasses = [
@@ -54,6 +54,10 @@ var multipleChoiceNodeClasses = [
 var challengeNodeClasses = [
 	{nodeClass:'challengequestion', nodeClassText:'Challenge Question'}
 ];
+
+var nodeIconPath = 'node/multiplechoice/icons/';
+componentloader.addNodeIconPath('MultipleChoiceNode', nodeIconPath);
+componentloader.addNodeIconPath('ChallengeNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

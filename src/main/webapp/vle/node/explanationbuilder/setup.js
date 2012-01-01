@@ -91,13 +91,16 @@ var css = [
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
        	"vle/node/explanationbuilder/explanation.css",
-       	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css",
+       	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css"
 ];
 
 var nodeClasses = [
 	{nodeClass:'codeit', nodeClassText:'Explanation Builder'}
 ];
+
+var nodeIconPath = 'node/explanationbuilder/icons/';
+componentloader.addNodeIconPath('ExplanationBuilderNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

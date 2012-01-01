@@ -81,6 +81,9 @@ var nodeClasses = [
 	{nodeClass:'display', nodeClassText:'Seasons'}
 ];
 
+var nodeIconPath = 'node/seasons/icons/';
+componentloader.addNodeIconPath('SeasonsNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreScripts);
 

@@ -32,6 +32,9 @@ var nodeClasses = [
 	{nodeClass:'display', nodeClassText:'Mysystem2'}
 ];
 
+var nodeIconPath = 'node/mysystem2/icons/';
+componentloader.addNodeIconPath('MySystem2Node', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('mysystem2', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);

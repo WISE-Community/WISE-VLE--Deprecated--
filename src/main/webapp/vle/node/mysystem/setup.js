@@ -36,6 +36,9 @@ var nodeClasses = [
 	{nodeClass:'mysystem', nodeClassText:'My System'}
 ];
 
+var nodeIconPath = 'node/mysystem/icons/';
+componentloader.addNodeIconPath('MySystemNode', nodeIconPath);
+
 var css = [
 	'vle/node/mysystem/css/YUI/reset-font-grids.css',
 	'vle/node/mysystem/css/YUI/base-min.css',

@@ -25,6 +25,9 @@ var nodeClasses = [
 	{nodeClass:'www', nodeClassText:'WWW Page'}
 ];
 
+var nodeIconPath = 'node/outsideurl/icons/';
+componentloader.addNodeIconPath('OutsideUrlNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('outsideurl', studentVLEScripts);

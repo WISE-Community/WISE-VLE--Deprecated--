@@ -47,7 +47,7 @@ var dependencies = [
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/openresponse/openresponse.css",
-	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
+	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css"
 ];
 
 var openResponseNodeClasses = [
@@ -57,6 +57,10 @@ var openResponseNodeClasses = [
 var noteNodeClasses = [
 	{nodeClass:'note', nodeClassText:'Reflection Note (popup)'}
 ];
+
+var nodeIconPath = 'node/openresponse/icons/';
+componentloader.addNodeIconPath('NoteNode', nodeIconPath);
+componentloader.addNodeIconPath('OpenResponseNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

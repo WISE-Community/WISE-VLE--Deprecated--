@@ -37,6 +37,9 @@ var nodeClasses = [
 	{nodeClass:'display', nodeClassText:'Surge'}
 ];
 
+var nodeIconPath = 'node/surge/icons/';
+componentloader.addNodeIconPath('SurgeNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('surge', studentVLEScripts);

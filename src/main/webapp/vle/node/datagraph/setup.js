@@ -39,6 +39,9 @@ var nodeClasses = [
 	{nodeClass:'datatable', nodeClassText:'Data Graph'}
 ];
 
+var nodeIconPath = 'node/datagraph/icons/';
+componentloader.addNodeIconPath('DataGraphNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('datagraph', studentVLEScripts);

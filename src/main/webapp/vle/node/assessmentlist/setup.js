@@ -30,13 +30,16 @@ var dependencies = [
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/assessmentlist/assessmentlist.css",,
-	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
+	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css"
 ];
 
 var nodeClasses = [
 	{nodeClass:'instantquiz', nodeClassText:'Survey 1'},
 	{nodeClass:'teacherquiz', nodeClassText:'Survey 2'}
 ];
+
+var nodeIconPath = 'node/assessmentlist/icons/';
+componentloader.addNodeIconPath('AssessmentListNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

@@ -41,6 +41,9 @@ var nodeClasses = [
 	{nodeClass:'qadiscuss', nodeClassText:'Q&A Discussion'}
 ];
 
+var nodeIconPath = 'node/brainstorm/icons/';
+componentloader.addNodeIconPath('BrainstormNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('brainstorm', studentVLEScripts);

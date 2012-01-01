@@ -39,6 +39,9 @@ var nodeClasses = [
 	{nodeClass:'simulation', nodeClassText:'CarGraph'}
 ];
 
+var nodeIconPath = 'node/cargraph/icons/';
+componentloader.addNodeIconPath('CarGraphNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('cargraph', studentVLEScripts);

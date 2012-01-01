@@ -86,6 +86,9 @@ var nodeClasses = [
 	{nodeClass:'table', nodeClassText:'Table'}
 ];
 
+var nodeIconPath = 'node/table/icons/';
+componentloader.addNodeIconPath('TableNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 

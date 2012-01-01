@@ -33,6 +33,9 @@ var nodeClasses = [
 	{nodeClass:'simulation', nodeClassText:'Flash'}
 ];
 
+var nodeIconPath = 'node/flash/icons/';
+componentloader.addNodeIconPath('FlashNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('flash', studentVLEScripts);

@@ -32,12 +32,15 @@ var dependencies = [
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/fillin/fillin.css",
-	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
+	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css"
 ];
 
 var nodeClasses = [
 	{nodeClass:'fillblank', nodeClassText:'Fill the Blank'}
 ];
+
+var nodeIconPath = 'node/fillin/icons/';
+componentloader.addNodeIconPath('FillinNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

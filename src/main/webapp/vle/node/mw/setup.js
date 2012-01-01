@@ -28,6 +28,9 @@ var nodeClasses = [
 	{nodeClass:'simulation', nodeClassText:'Molecular Workbench'}
 ];
 
+var nodeIconPath = 'node/mw/icons/';
+componentloader.addNodeIconPath('MWNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreScripts);
 scriptloader.addScriptToComponent('mw', studentVLEScripts);

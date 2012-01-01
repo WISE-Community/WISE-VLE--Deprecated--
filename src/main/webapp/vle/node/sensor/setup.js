@@ -37,6 +37,9 @@ var nodeClasses = [
 	{nodeClass:'simulation', nodeClassText:'Sensor'}
 ];
 
+var nodeIconPath = 'node/sensor/icons/';
+componentloader.addNodeIconPath('SensorNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('sensor', studentVLEScripts);

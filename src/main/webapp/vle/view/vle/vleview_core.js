@@ -565,7 +565,9 @@ View.prototype.onRenderNodeComplete = function(position){
 	
 	/* Set icon in nav bar */
 	if(this.currentNode.getNodeClass() && this.currentNode.getNodeClass()!='null' && this.currentNode.getNodeClass()!=''){
-		document.getElementById('stepIcon').innerHTML = '<img src=\'' + this.iconUrl + this.currentNode.getNodeClass() + '28.png\'/>';
+		var nodeIconPath = this.nodeIconPaths[this.currentNode.type];
+		//document.getElementById('stepIcon').innerHTML = '<img src=\'' + this.iconUrl + this.currentNode.getNodeClass() + '28.png\'/>';
+		document.getElementById('stepIcon').innerHTML = '<img src=\'' + nodeIconPath + this.currentNode.getNodeClass() + '28.png\'/>';
 	}
 	
 	/* set title in nav bar */

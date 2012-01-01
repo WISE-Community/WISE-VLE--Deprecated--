@@ -40,12 +40,15 @@ var dependencies = [
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/matchsequence/matchstyles.css",
-	"vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css"
+	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css"
 ];
 
 var nodeClasses = [
 	{nodeClass:'matchsequence', nodeClassText:'Match & Sequence'}
 ];
+
+var nodeIconPath = 'node/matchsequence/icons/';
+componentloader.addNodeIconPath('MatchSequenceNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);

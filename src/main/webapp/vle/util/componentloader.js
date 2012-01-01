@@ -30,8 +30,9 @@ var componentloader = function(em, sl){
 				HTML_CONTENT_TEMPLATES:{}, 
 				isLoadedProjectMinified:false, 
 				minifierUrl:'../util/minifier.html',
-				iconUrl:'images/stepIcons/UCCP/',
-				nodeClasses:{}
+				//iconUrl:'images/stepIcons/UCCP/',
+				nodeClasses:{},
+				nodeIconPaths:{}
 			},
 			events: {
 				'loadingProjectStart': [null, null], 
@@ -77,6 +78,7 @@ var componentloader = function(em, sl){
 						resizable:false,
 						position: [noteXPos, 45],
 						closeOnEscape: false,
+						zIndex: '99999',
 						open: function(){
 							// add transparent overlay to contentDiv to disable editing of previous step while note is open
 							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'top':0, 'right':0, 'bottom':0});
@@ -1074,6 +1076,14 @@ var componentloader = function(em, sl){
 		 */
 		addNodeClasses:function(nodeType, nodeClassesArray) {
 			components.core.variables.nodeClasses[nodeType] = nodeClassesArray;
+		},
+		/*
+		 * Add an entry to the nodeIconPaths
+		 * @param nodeType the name of the node type
+		 * @param nodeIconPath a string containing the path to the node type's icon directory
+		 */
+		addNodeIconPath:function(nodeType, nodeIconPath) {
+			components.core.variables.nodeIconPaths[nodeType] = nodeIconPath;
 		},
 		/*
 		 * Add an entry to the nodeTemplateParams object. The template file params

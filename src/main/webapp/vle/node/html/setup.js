@@ -35,6 +35,9 @@ var nodeClasses = [
 	{nodeClass:'summary', nodeClassText:'Summary Page'}
 ];
 
+var nodeIconPath = 'node/html/icons/';
+componentloader.addNodeIconPath('HtmlNode', nodeIconPath);
+
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
 scriptloader.addScriptToComponent('html', studentVLEScripts);
