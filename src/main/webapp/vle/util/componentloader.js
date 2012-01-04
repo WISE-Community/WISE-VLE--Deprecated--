@@ -68,30 +68,27 @@ var componentloader = function(em, sl){
 					//define the width of the note dialog
 					var noteWidth = 650;
 					
-					//define the x position of the note dialog so that it shows up in the center of the document
-					var noteXPos = (document.width / 2) - (noteWidth / 2);
+					var maxHeight = $(window).height() - 100;
 					
 					$('#notePanel').dialog({
 						autoOpen:false,
 						width:noteWidth,
 						title:'Reflection Note',
 						resizable:false,
-						position: [noteXPos, 45],
+						position: ['center','middle'],
 						closeOnEscape: false,
 						zIndex: '99999',
 						open: function(){
-							// add transparent overlay to contentDiv to disable editing of previous step while note is open
-							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'top':0, 'right':0, 'bottom':0});
-							$('#contentDiv').after(contentOverlay);
+							$(this).css({'max-height':maxHeight, 'overflow-y':'auto'});
+							
+							// add transparent overlay to step content to disable editing of previous step when note is opened
+							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'right':0, 'top':0, 'bottom':0 });
+							$('body',$('#ifrm')[0].contentWindow.document).append(contentOverlay).css('position','relative');
 							
 							// bind click event to X link in dialog that saves and closes note
 							$(this).parent().children().children("a.ui-dialog-titlebar-close").click(function(){
 								window.eventManager.fire('saveAndCloseNote');
 							});
-						},
-						close: function(){
-							// remove transparent overlay on contentDiv
-							$('#contentOverlay').remove();
 						}
 					});
 				}
