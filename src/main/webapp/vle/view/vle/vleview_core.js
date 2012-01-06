@@ -601,6 +601,11 @@ View.prototype.onRenderNodeComplete = function(position){
 	//if (parseInt($('#projectLeftBox').attr('offsetHeight')) > 0) {
 		//$('#projectRightLowerBox').height($('#projectLeftBox').height());
 	//}
+	
+	// remove any content overlays (if previous node was a note)
+	if(this.currentNode.getType() && this.currentNode.getType() != 'NoteNode'){
+		$('#contentOverlay',$('#ifrm')[0].contentWindow.document).remove();
+	}
     
 	/* if centered div is not displayed, display it */
 	$('#centeredDiv').css("display", "block");

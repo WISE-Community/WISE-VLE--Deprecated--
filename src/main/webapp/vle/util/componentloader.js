@@ -82,8 +82,8 @@ var componentloader = function(em, sl){
 							$(this).css({'max-height':maxHeight, 'overflow-y':'auto'});
 							
 							// add transparent overlay to step content to disable editing of previous step when note is opened
-							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'absolute', 'left':0, 'right':0, 'top':0, 'bottom':0 });
-							$('body',$('#ifrm')[0].contentWindow.document).append(contentOverlay).css('position','relative');
+							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'fixed', 'left':0, 'width':'100%', 'top':0, 'height':'100%', 'z-index':99999 });
+							$('body',$('#ifrm')[0].contentWindow.document).append(contentOverlay);
 							
 							// bind click event to X link in dialog that saves and closes note
 							$(this).parent().children().children("a.ui-dialog-titlebar-close").click(function(){
