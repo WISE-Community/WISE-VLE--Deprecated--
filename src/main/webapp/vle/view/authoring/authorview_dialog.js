@@ -319,7 +319,7 @@ View.prototype.populateCreateNodeChoices = function() {
 		var nodeName = authoringToolNamesToNodeNames[authoringToolName];
 		
 		//create the option html
-		var optionHtml = "<option value='" + nodeName + "'>" + authoringToolName + "</option>";
+		var optionHtml = "<option value='" + nodeName + "' name='selectStepTypeOption'>" + authoringToolName + "</option>";
 		
 		//add the option to the select drop down box
 		$('#createNodeType').append(optionHtml);
