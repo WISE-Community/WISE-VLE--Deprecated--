@@ -2569,7 +2569,7 @@ public class VLEGetXLS extends VLEServlet {
 	            			//check if there are any elements in the node states array
 	        				if(jsonNodeStatesArray != null && jsonNodeStatesArray.length() > 0) {
 	        					
-	        					if("latestStudentWork".equals(exportType)) {
+	        					if("latestStudentWork".equals(exportType) || "customLatestStudentWork".equals(exportType)) {
 	        						//only show the data from the last state in the node states array
 	        						
 	        						if(!jsonNodeStatesArray.isNull(jsonNodeStatesArray.length() - 1)) {
@@ -2588,7 +2588,7 @@ public class VLEGetXLS extends VLEServlet {
 	            							}
 	            						}
 	        						}
-	        					} else if("allStudentWork".equals(exportType)) {
+	        					} else if("allStudentWork".equals(exportType) || "customAllStudentWork".equals(exportType)) {
 	        						//show data from all the states in the node state array
 	        						
 	        						//string buffer to accumulate the text we will display in the cell
