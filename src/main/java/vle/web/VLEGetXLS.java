@@ -30,8 +30,6 @@ import org.json.JSONObject;
 import utils.FileManager;
 import vle.VLEServlet;
 import vle.domain.annotation.Annotation;
-import vle.domain.annotation.AnnotationComment;
-import vle.domain.annotation.AnnotationScore;
 import vle.domain.ideabasket.IdeaBasket;
 import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewWork;
@@ -1493,7 +1491,7 @@ public class VLEGetXLS extends VLEServlet {
 					List<UserInfo> fromWorkgroups = UserInfo.getByWorkgroupIds(teacherWorkgroupIds);
 					
 					//get all annotation comments from all the teachers for this step work
-					List<Annotation> annotations = Annotation.getByFromWorkgroupsAndStepWork(fromWorkgroups, latestStepWorkForNodeId, AnnotationComment.class);
+					List<Annotation> annotations = Annotation.getByFromWorkgroupsAndStepWork(fromWorkgroups, latestStepWorkForNodeId, "comment");
 					
 					Annotation latestAnnotation = null;
 					
@@ -4228,7 +4226,7 @@ public class VLEGetXLS extends VLEServlet {
 	@SuppressWarnings("unused")
 	private String getLatestAnnotationScoreByStepWork(List<StepWork> stepWorksForNodeId, List<String> teacherWorkgroupIds) {
 		//get the latest annotation score with the given parameters
-		AnnotationScore latestAnnotationScoreByStepWork = Annotation.getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
+		Annotation latestAnnotationScoreByStepWork = Annotation.getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
 		String score = "";
 		
 		if(latestAnnotationScoreByStepWork != null) {
@@ -4258,7 +4256,7 @@ public class VLEGetXLS extends VLEServlet {
 	@SuppressWarnings("unused")
 	private String getLatestAnnotationCommentByStepWork(List<StepWork> stepWorksForNodeId, List<String> teacherWorkgroupIds) {
 		//get the latest annotation comment with the given parameters
-		AnnotationComment latestAnnotationCommentByStepWork = Annotation.getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
+		Annotation latestAnnotationCommentByStepWork = Annotation.getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
 		String comment = ""; 
 		
 		if(latestAnnotationCommentByStepWork != null) {
@@ -4290,7 +4288,7 @@ public class VLEGetXLS extends VLEServlet {
 		 * get the latest annotation associated with any of the StepWork objects
 		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
 		 */
-		AnnotationScore latestAnnotationScoreByStepWork = Annotation.getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
+		Annotation latestAnnotationScoreByStepWork = Annotation.getLatestAnnotationScoreByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
 		
 		if(latestAnnotationScoreByStepWork != null) {
 			try {
@@ -4336,7 +4334,7 @@ public class VLEGetXLS extends VLEServlet {
 		 * get the latest annotation associated with any of the StepWork objects
 		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
 		 */
-		AnnotationComment latestAnnotationCommentByStepWork = Annotation.getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
+		Annotation latestAnnotationCommentByStepWork = Annotation.getLatestAnnotationCommentByStepWork(stepWorksForNodeId, teacherWorkgroupIds);
 		
 		if(latestAnnotationCommentByStepWork != null) {
 			try {

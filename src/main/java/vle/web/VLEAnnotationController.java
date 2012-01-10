@@ -23,8 +23,6 @@ import org.json.JSONObject;
 
 import utils.SecurityUtils;
 import vle.domain.annotation.Annotation;
-import vle.domain.annotation.AnnotationFactory;
-import vle.domain.annotation.AnnotationFlag;
 import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewWork;
 import vle.domain.user.UserInfo;
@@ -153,7 +151,7 @@ public class VLEAnnotationController extends HttpServlet {
 				//user is requesting an annotation they wrote themselves for a specific stepWork
 				UserInfo fromWorkgroup = UserInfo.getByWorkgroupId(new Long(fromWorkgroupIdStr));
 				StepWork stepWork = (StepWork) StepWork.getById(stepWorkId, StepWork.class);
-				annotation = Annotation.getByUserInfoAndStepWork(fromWorkgroup, stepWork, Annotation.class);
+				annotation = Annotation.getByUserInfoAndStepWork(fromWorkgroup, stepWork, null);
 			} else if(fromWorkgroupIdsStr != null && toWorkgroupIdStr != null) {
 				/*
 				 * user is requesting all annotations to toWorkgroup and from any fromWorkgroup
@@ -193,7 +191,7 @@ public class VLEAnnotationController extends HttpServlet {
 			 * get the flags based on the paremeters that were passed in the request.
 			 * this will return the flag annotations ordered from oldest to newest
 			 */
-	    	annotationList = AnnotationFlag.getByParamMap(request.getParameterMap());
+	    	annotationList = Annotation.getByParamMap(request.getParameterMap());
 		}
 
 		JSONObject annotationsJSONObj = null;
@@ -398,12 +396,11 @@ public class VLEAnnotationController extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		Annotation annotationType = AnnotationFactory.createAnnotation(type);
-		Annotation annotation = Annotation.getByUserInfoAndStepWork(userInfo, stepWork, annotationType.getClass());
+		Annotation annotation = Annotation.getByUserInfoAndStepWork(userInfo, stepWork, type);
 
 		if(annotation == null) {
 			//the annotation was not found so we will create it
-			annotation = AnnotationFactory.createAnnotation(type);
+			annotation = new Annotation(type);
 			annotation.setUserInfo(userInfo);
 			annotation.setStepWork(stepWork);
 		}

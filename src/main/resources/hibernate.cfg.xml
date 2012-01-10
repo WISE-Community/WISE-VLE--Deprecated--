@@ -42,9 +42,6 @@
  		<mapping class="vle.domain.work.StepWorkCache" />
  		<mapping class="vle.domain.journal.Journal" />
   		<mapping class="vle.domain.annotation.Annotation" />
-  		<mapping class="vle.domain.annotation.AnnotationFlag" />
-  		<mapping class="vle.domain.annotation.AnnotationScore" />
-  		<mapping class="vle.domain.annotation.AnnotationComment" />
   		<mapping class="vle.domain.peerreview.PeerReviewWork" />
   		<mapping class="vle.domain.peerreview.PeerReviewGate" />
   		<mapping class="vle.domain.ideabasket.IdeaBasket" />

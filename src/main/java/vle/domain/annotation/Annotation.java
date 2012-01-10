@@ -4,8 +4,10 @@
 package vle.domain.annotation;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.persistence.CascadeType;
@@ -26,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import vle.domain.PersistableDomain;
+import vle.domain.node.Node;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 import vle.hibernate.HibernateUtil;
@@ -61,6 +64,12 @@ public class Annotation extends PersistableDomain {
 
 	@Column(name="runId")
 	private Long runId = null;
+	
+	@Column(name="type")
+	private String type = null;
+	
+	@Column(name="data", columnDefinition="MEDIUMTEXT")
+	private String data = null;
 
 	public Long getId() {
         return id;
@@ -150,11 +159,28 @@ public class Annotation extends PersistableDomain {
 	}
 
 	/**
+	 * 
+	 * @return
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	/**
 	 * populates the data of the annotation
 	 * @param nodeVisit
 	 */
-	public void setData(String annotation) {
+	public void setData(String data) {
 		// to be overridden by subclass.
+		this.data = data;
 	}
 	
 	/**
@@ -162,7 +188,21 @@ public class Annotation extends PersistableDomain {
 	 * @return
 	 */
 	public String getData() {
-		return "";
+		return this.data;
+	}
+	
+	/**
+	 * The default constructor for Annotation
+	 */
+	public Annotation() {
+	}
+	
+	/**
+	 * The constructor for Annotation
+	 * @param type the annotation type
+	 */
+	public Annotation(String type) {
+		this.type = type;
 	}
 	
 	/**
@@ -242,19 +282,31 @@ public class Annotation extends PersistableDomain {
 	/**
 	 * @param userInfo User who did the annotation
 	 * @param stepWork stepWork that was annotated
-	 * @param clazz Which Annotation class {Annotation, AnnotationScore, AnnotationComment, AnnotationFlag}
 	 * @return
 	 */
-	public static Annotation getByUserInfoAndStepWork(UserInfo userInfo, StepWork stepWork, Class<?> clazz) {
+	public static Annotation getByUserInfoAndStepWork(UserInfo userInfo, StepWork stepWork, String type) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        Annotation result = 
-        	(Annotation) session.createCriteria(clazz)
-        		.add( Restrictions.eq("userInfo", userInfo))
-        		.add( Restrictions.eq("stepWork", stepWork))
-        		.uniqueResult();
-        session.getTransaction().commit();
+        Annotation result = null;
+        
+        if(type != null) {
+        	result = 
+        			(Annotation) session.createCriteria(Annotation.class)
+        			.add( Restrictions.eq("userInfo", userInfo))
+        			.add( Restrictions.eq("stepWork", stepWork))
+        			.add( Restrictions.eq("type", type))
+        			.uniqueResult();
+        	session.getTransaction().commit();        	
+        } else {
+        	result = 
+        			(Annotation) session.createCriteria(Annotation.class)
+        			.add( Restrictions.eq("userInfo", userInfo))
+        			.add( Restrictions.eq("stepWork", stepWork))
+        			.uniqueResult();
+        	session.getTransaction().commit();
+        }
+        
         return result;
 	}
 	
@@ -268,16 +320,29 @@ public class Annotation extends PersistableDomain {
 	 * to the specific step work
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Annotation> getByFromWorkgroupsAndStepWork(List<UserInfo> fromWorkgroups, StepWork stepWork, Class<?> clazz) {
+	public static List<Annotation> getByFromWorkgroupsAndStepWork(List<UserInfo> fromWorkgroups, StepWork stepWork, String type) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
+        
+        List<Annotation> results = null;
+        		
+        if(type != null) {
+        	results = 
+                	(List<Annotation>) session.createCriteria(Annotation.class)
+                		.add( Restrictions.in("userInfo", fromWorkgroups))
+                		.add( Restrictions.eq("stepWork", stepWork))
+                		.add( Restrictions.eq("type", type))
+                		.list();
+                session.getTransaction().commit();
+        } else {
+        	results = 
+                	(List<Annotation>) session.createCriteria(Annotation.class)
+                		.add( Restrictions.in("userInfo", fromWorkgroups))
+                		.add( Restrictions.eq("stepWork", stepWork))
+                		.list();
+                session.getTransaction().commit();
+        }
 
-        List<Annotation> results = 
-        	(List<Annotation>) session.createCriteria(clazz)
-        		.add( Restrictions.in("userInfo", fromWorkgroups))
-        		.add( Restrictions.eq("stepWork", stepWork))
-        		.list();
-        session.getTransaction().commit();
         return results;
 	}
 	
@@ -306,11 +371,12 @@ public class Annotation extends PersistableDomain {
 	 * @param stepWorks the list of StepWork objects whose annotations we want to search
 	 * @param workgroupIds the list of workgroup ids that we will accept fromWorkgroup
 	 * to be in the annotation
+	 * @param type the annotation type. must not be null.
 	 * @return the latest annotation associated with any of the StepWork objects and has
 	 * a fromWorkgroup that is in the workgroupIds list
 	 */
 	@SuppressWarnings("unchecked")
-	public static Annotation getLatestAnnotationByStepWork(List<StepWork> stepWorks, List<String> workgroupIds, Class<?> annotationClass) {
+	public static Annotation getLatestAnnotationByStepWork(List<StepWork> stepWorks, List<String> workgroupIds, String type) {
 		//if either lists are empty we will return null
 		if(stepWorks.size() == 0 || workgroupIds.size() == 0) {
 			return null;
@@ -324,8 +390,9 @@ public class Annotation extends PersistableDomain {
          * order the results from newest to oldest
          */
         List<Annotation> results = 
-        	(List<Annotation>) session.createCriteria(annotationClass)
+        	(List<Annotation>) session.createCriteria(Annotation.class)
         		.add(Restrictions.in("stepWork", stepWorks)).addOrder(Order.desc("postTime"))
+        		.add(Restrictions.eq("type", type))
         		.list();
         session.getTransaction().commit();
 
@@ -369,8 +436,8 @@ public class Annotation extends PersistableDomain {
 	 * @return the latest score annotation associated with any of the StepWork objects and has
 	 * a fromWorkgroup that is in the workgroupIds list
 	 */
-	public static AnnotationScore getLatestAnnotationScoreByStepWork(List<StepWork> stepWorks, List<String> workgroupIds) {
-		return (AnnotationScore) getLatestAnnotationByStepWork(stepWorks, workgroupIds, AnnotationScore.class);
+	public static Annotation getLatestAnnotationScoreByStepWork(List<StepWork> stepWorks, List<String> workgroupIds) {
+		return (Annotation) getLatestAnnotationByStepWork(stepWorks, workgroupIds, "score");
 	}
 	
 	/**
@@ -382,7 +449,62 @@ public class Annotation extends PersistableDomain {
 	 * @return the latest comment annotation associated with any of the StepWork objects and has
 	 * a fromWorkgroup that is in the workgroupIds list
 	 */
-	public static AnnotationComment getLatestAnnotationCommentByStepWork(List<StepWork> stepWorks, List<String> workgroupIds) {
-		return (AnnotationComment) getLatestAnnotationByStepWork(stepWorks, workgroupIds, AnnotationComment.class);
+	public static Annotation getLatestAnnotationCommentByStepWork(List<StepWork> stepWorks, List<String> workgroupIds) {
+		return (Annotation) getLatestAnnotationByStepWork(stepWorks, workgroupIds, "comment");
+	}
+	
+	/**
+	 * Returns a list of Annotation based on the request parameters
+	 * @param map
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByParamMap(Map<String, String[]> map) {
+		//obtain the parameters
+    	String runId = null;
+    	String nodeId = null;
+    	List<Annotation> result = new ArrayList<Annotation>();
+    	if (map.containsKey("runId") && map.containsKey("nodeId")) {
+    		// get all the flagged items for the specified runId and nodeId
+    		runId = map.get("runId")[0];
+    		nodeId = map.get("nodeId")[0];
+        	Node node = Node.getByNodeIdAndRunId(nodeId, runId, true);
+        	List<StepWork> stepWorkList = StepWork.getByNodeId(node.getId());
+        	result = getByStepWorkList(stepWorkList);
+    	} else if (map.containsKey("runId")) {
+    		// get all the flagged items for all of the nodes for the specified runId
+    		runId = map.get("runId")[0];
+    		result = (List<Annotation>) getByRunId(Long.parseLong(runId), Annotation.class);
+    		
+    		/*
+    		List<Node> nodeList = Node.getByRunId(runId);
+    		List<StepWork> stepWorkList = new ArrayList<StepWork>();
+    		for (Node node: nodeList) {
+    			stepWorkList.addAll(StepWork.getByNodeId(node.getId()));
+    		}
+        	result = getByStepWorkList(stepWorkList);
+        	*/
+    	}
+		return result;
+	}
+	
+	/**
+	 * Given a list of StepWork, returns all annotation flags that were made on
+	 * them. If the stepWorkList is empty, return an empty AnnotationList.
+	 * @param stepWorkList
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByStepWorkList(List<StepWork> stepWorkList) {
+		List<Annotation> result = new ArrayList<Annotation>();
+		if (!stepWorkList.isEmpty()) {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+
+			result = 
+				session.createCriteria(Annotation.class).add( Restrictions.in("stepWork", stepWorkList)).list();
+			session.getTransaction().commit();
+		}
+		return result;
 	}
 }
