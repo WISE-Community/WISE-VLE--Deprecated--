@@ -42,6 +42,7 @@
  		<mapping class="vle.domain.work.StepWorkCache" />
  		<mapping class="vle.domain.journal.Journal" />
   		<mapping class="vle.domain.annotation.Annotation" />
+  		<mapping class="vle.domain.cRater.CRaterRequest" />
   		<mapping class="vle.domain.peerreview.PeerReviewWork" />
   		<mapping class="vle.domain.peerreview.PeerReviewGate" />
   		<mapping class="vle.domain.ideabasket.IdeaBasket" />

@@ -8,11 +8,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.VLEDataUtils;
 import vle.VLEServlet;
+import vle.domain.cRater.CRaterRequest;
 import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewGate;
 import vle.domain.peerreview.PeerReviewWork;
@@ -61,6 +63,7 @@ public class VLEPostData extends VLEServlet {
 		JSONObject nodeVisitJSON = null;
 		try {
 			nodeVisitJSON = new JSONObject(data);
+
 			Calendar now = Calendar.getInstance();
 			Timestamp postTime = new Timestamp(now.getTimeInMillis());
 
@@ -160,6 +163,42 @@ public class VLEPostData extends VLEServlet {
 				if(endTime != null) {
 					//end time is set so we can send back a post time
 					jsonResponse.put("visitPostTime", newPostTime);
+				}
+				
+				//get the first cRaterItemId if it exists in the POSTed NodeState
+				String cRaterItemId = null;
+				try {
+					if (nodeVisitJSON != null) {
+						JSONArray nodeStateArray = nodeVisitJSON.getJSONArray("nodeStates");
+						if (nodeStateArray != null) {
+							for (int i=0; i<nodeStateArray.length(); i++) {
+								JSONObject nodeStateObj = nodeStateArray.getJSONObject(i);
+								
+								if(nodeStateObj.has("cRaterItemId")) {
+									cRaterItemId = nodeStateObj.getString("cRaterItemId");
+									break;
+								}
+							}
+						}
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				
+				if(cRaterItemId != null) {
+					//send back the cRater item id to the student in the response
+					//student VLE would get this cRaterItemId and make a GET to
+					//VLEAnnotationController to get the CRater Annotation
+					jsonResponse.put("cRaterItemId", cRaterItemId);
+					long lastNodeStateTimestamp = stepWork.getLastNodeStateTimestamp();
+					// also save a CRaterRequest in db for tracking
+					try {
+						CRaterRequest cRR = new CRaterRequest(cRaterItemId, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
+						cRR.saveOrUpdate();
+					} catch (Exception cre) {
+						// do nothing if there was an error, let continue
+						cre.printStackTrace();
+					}
 				}
 				
 				try {

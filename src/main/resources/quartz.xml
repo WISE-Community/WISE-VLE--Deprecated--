@@ -35,11 +35,36 @@
 			<name>DailyJob</name>
 			<job-class>background.jobs.DailyJob</job-class>
 		</job>
+		<job>
+			<name>CRaterJob</name>
+			<job-class>background.jobs.CRaterJob</job-class>
+			<job-data-map>
+				<entry>
+					<key>cRater_verification_url</key>
+					<value>https://crater-stg.ets.org/crater/scoring/internal/CraterVerifyServlet</value>
+				</entry>
+				<entry>
+					<key>cRater_scoring_url</key>
+					<value>https://crater-stg.ets.org/crater/scoring/internal/CraterScoringServlet</value>
+				</entry>
+				<entry>
+					<key>cRater_client_id</key>
+					<value>WISETEST</value>
+				</entry>
+			</job-data-map>
+		</job>
 		<trigger>
 			<cron>
 				<name>TriggerEveryDay</name>
 				<job-name>DailyJob</job-name>
 				<cron-expression>0 0 23 * * ?</cron-expression>
+			</cron>
+		</trigger>
+		<trigger>
+			<cron>
+				<name>CRaterTrigger</name>
+				<job-name>CRaterJob</job-name>
+				<cron-expression>0 * * * * ?</cron-expression>
 			</cron>
 		</trigger>
 	</schedule>

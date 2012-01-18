@@ -147,6 +147,11 @@ OPENRESPONSE.prototype.save = function(saveAndLock) {
 		if(this.isResponseChanged() || saveAndLock) {
 			//response was changed so we will create a new state and save it
 			var orState = new OPENRESPONSESTATE([response]);
+			
+			//set the cRaterItemId into the node state if this step is a CRater item
+			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null) {
+				orState.cRaterItemId = this.content.cRater.cRaterItemId;
+			}
 
 			if(saveAndLock) {
 				//display a confirm message to make sure they want to submit and lock

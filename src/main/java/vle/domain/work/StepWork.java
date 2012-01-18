@@ -21,6 +21,8 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import vle.domain.PersistableDomain;
@@ -382,6 +384,91 @@ public class StepWork extends PersistableDomain {
         StepWork result =  (StepWork) session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).add(Restrictions.eq("data",data)).uniqueResult();
         session.getTransaction().commit();
         return result;
+	}
+	
+	/**
+	 * Returns the node state object within this stepwork with the specified timestamp
+	 * or null if does not exist.
+	 * @param timestamp
+	 * @return
+	 */
+	public JSONObject getNodeStateByTimestamp(Long timestampIn) {
+		try {
+			JSONObject dataJSON = new JSONObject(this.data);
+			if (dataJSON != null) {
+				JSONArray valueArray = dataJSON.getJSONArray("nodeStates");
+				if (valueArray != null) {
+					for (int i=0; i<valueArray.length(); i++) {
+						JSONObject nodeStateObj = valueArray.getJSONObject(i);
+						long timestampFromNodeState = nodeStateObj.getLong("timestamp");
+						if (timestampIn != null && timestampIn.equals(timestampFromNodeState)) {
+							return nodeStateObj;
+						}
+						
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;		
+	}
+	
+	/**
+	 * If this StepWork contains response for a CRater item, return the
+	 * CRaterItemId. Otherwise, return null.
+	 * @return
+	 */
+	public String getCRaterItemId() {
+		String cRaterItemId = null;
+		
+		try {
+			JSONObject dataJSON = new JSONObject(this.data);
+			if (dataJSON != null) {
+				JSONArray nodeStateArray = dataJSON.getJSONArray("nodeStates");
+				if (nodeStateArray != null) {
+					for (int i=0; i<nodeStateArray.length(); i++) {
+						JSONObject nodeStateObj = nodeStateArray.getJSONObject(i);
+						
+						if(nodeStateObj.has("cRaterItemId")) {
+							cRaterItemId = nodeStateObj.getString("cRaterItemId");
+							break;
+						}
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return cRaterItemId;
+	}
+	
+	/**
+	 * Returns the timestamp of the latest NodeState in this StepWork. 
+	 * This is the same as the NodeStateId. If no NodeState exists in this StepWork,
+	 * return 0.
+	 * @return 0 or the timestamp of the latest NodeState in this StepWork.
+	 */
+	public long getLastNodeStateTimestamp() {
+		long timestamp = 0;
+
+		try {
+			JSONObject dataJSON = new JSONObject(this.data);
+			if (dataJSON != null) {
+				JSONArray nodeStateArray = dataJSON.getJSONArray("nodeStates");
+				if (nodeStateArray != null && nodeStateArray.length() > 0) {
+					JSONObject nodeStateObj = nodeStateArray.getJSONObject(nodeStateArray.length() - 1);
+					if(nodeStateObj.has("timestamp")) {
+						timestamp = nodeStateObj.getLong("timestamp");
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return timestamp;
 	}
 	
 	/**

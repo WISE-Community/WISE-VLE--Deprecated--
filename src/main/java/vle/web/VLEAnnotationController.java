@@ -23,14 +23,17 @@ import org.json.JSONObject;
 
 import utils.SecurityUtils;
 import vle.domain.annotation.Annotation;
+import vle.domain.cRater.CRaterRequest;
 import vle.domain.node.Node;
 import vle.domain.peerreview.PeerReviewWork;
 import vle.domain.user.UserInfo;
+import vle.domain.webservice.crater.CRaterHttpClient;
 import vle.domain.work.StepWork;
 
 /**
  * Controllers for handling Annotation GET and POST 
  * @author hirokiterashima
+ * @author geoffreykwan
  */
 public class VLEAnnotationController extends HttpServlet {
 
@@ -76,6 +79,15 @@ public class VLEAnnotationController extends HttpServlet {
 		}
     }
 	
+	/**
+	 * Handle GETing of Annotations.
+	 * This includes GETing CRater Annotations, which involves POSTing to the
+	 * CRater server (if needed).
+	 * @param request
+	 * @param response
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	@SuppressWarnings("unchecked")
 	public void doGetJSON(HttpServletRequest request,
 			HttpServletResponse response)
@@ -87,6 +99,12 @@ public class VLEAnnotationController extends HttpServlet {
 		String runId = request.getParameter("runId");
 		String stepWorkIdStr = request.getParameter("stepWorkId");
 		String isStudentStr = request.getParameter("isStudent");
+		String annotationType = request.getParameter("annotationType");
+		String nodeStateIdStr = request.getParameter("nodeStateId");
+		
+		String cRaterVerificationUrl = (String) request.getAttribute("cRaterVerificationUrl");
+		String cRaterScoringUrl = (String) request.getAttribute("cRaterScoringUrl");
+		String cRaterClientId = (String) request.getAttribute("cRaterClientId");
 		
 		//this is only used when students retrieve flags
 		Vector<JSONObject> flaggedAnnotationsList = new Vector<JSONObject>();
@@ -109,6 +127,11 @@ public class VLEAnnotationController extends HttpServlet {
 		boolean isStudent = false;
 		if(isStudentStr != null) {
 			isStudent = Boolean.parseBoolean(isStudentStr);
+		}
+		
+		Long nodeStateId = null;
+		if(nodeStateIdStr != null) {
+			nodeStateId = Long.parseLong(nodeStateIdStr);
 		}
 		
 		/*
@@ -146,7 +169,8 @@ public class VLEAnnotationController extends HttpServlet {
 		// if requestedType is null, return all annotations
 		List<? extends Annotation> annotationList = null;
 		Annotation annotation = null;
-		if (requestedType == null || requestedType.equals("annotation")) {
+		if (requestedType == null || 
+				(requestedType.equals("annotation") && !"cRater".equals(annotationType))) {
 			if(fromWorkgroupIdStr != null && stepWorkId != null) {
 				//user is requesting an annotation they wrote themselves for a specific stepWork
 				UserInfo fromWorkgroup = UserInfo.getByWorkgroupId(new Long(fromWorkgroupIdStr));
@@ -186,6 +210,7 @@ public class VLEAnnotationController extends HttpServlet {
 			} else {
 				annotationList = (List<Annotation>) Annotation.getList(Annotation.class);
 			}
+			
 		} else if (requestedType.equals("flag")) {
 			/*
 			 * get the flags based on the paremeters that were passed in the request.
@@ -193,6 +218,13 @@ public class VLEAnnotationController extends HttpServlet {
 			 */
 	    	annotationList = Annotation.getByParamMap(request.getParameterMap());
 		}
+		
+		// handle request for cRater annotation
+		if ("annotation".equals(requestedType) && "cRater".equals(annotationType)) {
+			annotation = getCRaterAnnotation(nodeStateId, runId, stepWorkId,
+					annotationType, cRaterScoringUrl, cRaterClientId);
+		} 
+		
 
 		JSONObject annotationsJSONObj = null;
 		if(annotationList != null) {
@@ -356,8 +388,165 @@ public class VLEAnnotationController extends HttpServlet {
 
 		if(annotationsJSONObj != null) {
 			response.getWriter().write(annotationsJSONObj.toString());	
+		} else {
+			// there was an error retrieving the annotation
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"error retrieving annotations");
 		}
     }
+
+	/**
+	 * Returns a CRater Annotation based on parameters, if exists. If not, makes a request to the 
+	 * CRater server to get automated feedback and saves it as an Annotation.
+	 * 
+	 * Also updates/appends to an already-existing CRater Annotation if needed.
+	 * @param request
+	 * @param runId
+	 * @param stepWorkIdStr
+	 * @param annotationType
+	 * @param cRaterScoringUrl
+	 * @param cRaterClientId
+	 * @param stepWorkId
+	 * @return CRater annotation for the specified stepwork, or null if there was an error getting the CRater response
+	 */
+	public static Annotation getCRaterAnnotation(Long nodeStateId,
+			String runId, Long stepWorkId, String annotationType,
+			String cRaterScoringUrl, String cRaterClientId) {
+
+		// for identifying this response when sending to the CRater server.
+		String cRaterResponseId = stepWorkId.toString();
+		
+		Annotation annotation = Annotation.getCRaterAnnotationByStepWorkId(stepWorkId);
+		if (annotation != null) {
+			// cRater annotation already exists, we are either getting it if it also exists for the
+			// specified nodestate or appending to the annotation array if it doesn't exist
+			JSONObject nodeStateCRaterAnnotation = annotation.getAnnotationForNodeStateId(nodeStateId);
+			if (nodeStateCRaterAnnotation != null) {
+				// do nothing...this stepwork has already been scored and saved in the annotation
+				// this will be returned to user later in this function							
+			} else {
+				try {
+					// make a request to CRater
+					StepWork stepWork = StepWork.getByStepWorkId(stepWorkId);
+					JSONObject nodeStateByTimestamp = stepWork.getNodeStateByTimestamp(nodeStateId);
+					
+					String studentResponse = "";
+					
+					//get the response
+					Object object = nodeStateByTimestamp.get("response");
+					
+					if(object instanceof JSONArray) {
+						//the response is an array so we will obtain the first element
+						studentResponse = ((JSONArray) object).getString(0);
+					} else if(object instanceof String) {
+						//the response is a string
+						studentResponse = (String) object;
+					}
+					
+					// get CRaterItemId from the StepWork and post to CRater server.
+					String cRaterItemId = stepWork.getCRaterItemId();
+					String cRaterResponseXML = CRaterHttpClient.post(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
+					JSONObject cRaterResponseJSONObj = new JSONObject();
+
+					JSONObject studentNodeStateResponse = stepWork.getNodeStateByTimestamp(nodeStateId);
+
+					cRaterResponseJSONObj = 
+							Annotation.createCRaterNodeStateAnnotation(
+									nodeStateId, 
+									CRaterHttpClient.getScore(cRaterResponseXML), 
+									studentNodeStateResponse, 
+									cRaterResponseXML);
+
+					// append the cRaterResponse to the existing annotation for this stepwork.
+					annotation.appendNodeStateAnnotation(cRaterResponseJSONObj);
+					annotation.saveOrUpdate();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+			}
+		} else {
+			// CRater annotation for this stepWork is null, so make a request to CRater to score the item.
+			try {
+				// make a request to CRater and insert new row in annotation.
+				StepWork stepWork = StepWork.getByStepWorkId(stepWorkId);
+				JSONObject nodeStateByTimestamp = stepWork.getNodeStateByTimestamp(nodeStateId);
+
+				String studentResponse = "";
+				
+				//get the response
+				Object object = nodeStateByTimestamp.get("response");
+				
+				if(object instanceof JSONArray) {
+					//the response is an array so we will obtain the first element
+					studentResponse = ((JSONArray) object).getString(0);
+				} else if(object instanceof String) {
+					//the response is a string
+					studentResponse = (String) object;
+				}
+				
+				// get CRaterItemId from the StepWork and post to CRater server.
+				String cRaterItemId = stepWork.getCRaterItemId();
+				String cRaterResponseXML = CRaterHttpClient.post(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
+				if (cRaterResponseXML != null) {
+					// create a new cRater annotation object based on CRater response
+					Calendar now = Calendar.getInstance();
+					Timestamp postTime = new Timestamp(now.getTimeInMillis());
+
+					Node node = stepWork.getNode();
+					String nodeId = node.getNodeId();
+					String type = annotationType;
+
+					Long workgroupId = stepWork.getUserInfo().getWorkgroupId();
+					String toWorkgroup = workgroupId.toString();
+					String fromWorkgroup = "-1";  // default for auto-scored items.
+
+					int score = CRaterHttpClient.getScore(cRaterResponseXML);
+					JSONObject studentResponseNodeState = stepWork.getNodeStateByTimestamp(nodeStateId);
+					String cRaterResponse = cRaterResponseXML;
+
+					JSONObject cRaterNodeStateAnnotation = 
+							Annotation.createCRaterNodeStateAnnotation(nodeStateId, score, studentResponseNodeState, cRaterResponse);
+
+					JSONArray nodeStateAnnotationArray = new JSONArray();
+					nodeStateAnnotationArray.put(cRaterNodeStateAnnotation);
+
+					JSONObject dataJSONObj = new JSONObject();
+					try {
+						dataJSONObj.put("runId", runId);
+						dataJSONObj.put("nodeId", nodeId);
+						dataJSONObj.put("toWorkgroup", toWorkgroup);
+						dataJSONObj.put("fromWorkgroup", fromWorkgroup);
+						dataJSONObj.put("stepWorkId", stepWorkId);
+						dataJSONObj.put("type", type);
+						dataJSONObj.put("value", nodeStateAnnotationArray);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+
+					annotation = new Annotation(stepWork, null, new Long(runId), postTime, type, dataJSONObj.toString());
+					annotation.saveOrUpdate();
+					
+					// update CRaterRequest table and mark this request as completed.
+					CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork,nodeStateId);
+					Calendar cRaterRequestCompletedTime = Calendar.getInstance();
+					cRaterRequest.setTimeCompleted(new Timestamp(cRaterRequestCompletedTime.getTimeInMillis()));
+					cRaterRequest.setcRaterResponse(cRaterResponse);
+					cRaterRequest.saveOrUpdate();
+				} else {
+					// there was an error connecting to the CRater servlet
+					// do nothing so this method will return null
+					// increment fail count
+					CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork, nodeStateId);
+					cRaterRequest.setFailCount(cRaterRequest.getFailCount()+1);
+					cRaterRequest.saveOrUpdate();
+				}
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		return annotation;
+	}
 
 	/**
 	 * Handles POST requests for annotations using JSON data storage
@@ -427,4 +616,5 @@ public class VLEAnnotationController extends HttpServlet {
 		
 		response.getWriter().print(postTime.getTime());
 	}
+
 }

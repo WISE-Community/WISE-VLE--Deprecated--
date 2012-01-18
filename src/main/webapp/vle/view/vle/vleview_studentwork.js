@@ -176,6 +176,7 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	var responseJSONObj = $.parseJSON(responseText);
 	var id = responseJSONObj.id;
 	var visitPostTime = responseJSONObj.visitPostTime;
+	var cRaterItemId = responseJSONObj.cRaterItemId;
 	
 	/*
 	 * this is for resolving node visits that used to end up with null
@@ -199,6 +200,16 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	
 	// remove nodeVisit from postInProgress array
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
+	
+	// if cRaterItemId is in the response, make a request to GET the
+	// CRater Annotation
+	if(cRaterItemId != null) {
+		var nodeVisit = args.nodeVisit;
+		var latestState = nodeVisit.getLatestState();
+		var nodeStateTimestamp = latestState.timestamp;
+		
+		args.vle.getCRaterResponse(id, nodeStateTimestamp);
+	}
 	
 	//fire the event that says we are done processing the post response
 	eventManager.fire('processPostResponseComplete');
@@ -629,6 +640,75 @@ View.prototype.removeFromPOSTInProgressArray = function(nodeVisit) {
 			this.postInProgressArray.splice(i,1);
 		}
 	}
+};
+
+/**
+ * Make a request to GET the CRater response. This invokes the VLEAnnotationController
+ * with a GET request and returns an Annotation with the CRater score/response.
+ * @param stepWorkId
+ * @param nodeStateId
+ */
+View.prototype.getCRaterResponse = function(stepWorkId, nodeStateId) {
+	var postAnnotationsURL = this.getConfig().getConfigParam('getAnnotationsUrl');
+	
+	var getCRaterResponseArgs = {
+		stepWorkId:stepWorkId,
+		nodeStateId:nodeStateId,
+		annotationType:"cRater"
+	};
+	
+	//make the call to GET the annotation
+	this.connectionManager.request('GET', 1, postAnnotationsURL, getCRaterResponseArgs, this.getCRaterResponseCallback, [this, stepWorkId, nodeStateId], this.getCRaterResponseCallbackFail);
+};
+
+/**
+ * Success callback for the CRater Annotation request. Displays the Annotation immediately
+ * if specified in the callee's step content.
+ * @param responseText
+ * @param responseXML
+ * @param args
+ */
+View.prototype.getCRaterResponseCallback = function(responseText, responseXML, args) {
+	if (responseText != null) {
+		var annotationJSON = JSON.parse(responseText);
+		var nodeId = annotationJSON.nodeId;
+		
+		// display feedback immediately, if specified in the content
+		var vle = args[0];
+		var nodeStateId = args[2];
+		// check the step content to see if we need to display the CRater feedback to the student.
+		var displayCRaterFeedbackImmediately = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater.displayCRaterFeedbackImmediately;
+		if (displayCRaterFeedbackImmediately) {
+			var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
+			// TODO: prettify me
+			alert(cRaterAnnotationJSON.score);
+		}
+	}
+};
+
+/**
+ * Returns the specified NodeState annotation object within the stepwork cRater annotation object
+ */
+View.prototype.getCRaterNodeStateAnnotationByNodeStateId = function(cRaterAnnotationJSON, nodeStateId) {
+	var annotationValues = cRaterAnnotationJSON.value;
+	for (var i=0; i < annotationValues.length; i++) {
+		var annotationValue = annotationValues[i];
+		if (annotationValue.nodeStateId == nodeStateId) {
+			return annotationValue;
+		}
+	}
+	return null;
+};
+
+/**
+ * Error callback for the CRater Annotation request.
+ * @param responseText
+ * @param responseXML
+ * @param args
+ */
+View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXML, args) {
+	//console.log("fail");
+	//console.log(responseText);
 };
 
 //used to notify scriptloader that this script has finished loading

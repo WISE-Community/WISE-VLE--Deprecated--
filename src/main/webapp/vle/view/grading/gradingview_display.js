@@ -1452,6 +1452,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
 		var annotationCommentValue = annotationData.annotationCommentValue;
 		var annotationScoreValue = annotationData.annotationScoreValue;
+		var annotationCRaterScoreValue = annotationData.annotationCRaterScoreValue;
 		var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
 		
 		//get the period name for this student
@@ -1536,8 +1537,14 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		//make the css class for the td that will contain the score and comment boxes
 		var scoringAndCommentingTdClass = "gradeColumn gradingColumn";
 		
+		var cRaterScore = annotationCRaterScoreValue;
+		var maxCRaterScore = null;
+		
+		//TODO: read in the maxCRaterScore from the cRater Servlet
+		maxCRaterScore = 4;
+		
 		//get the html for the score and comment td
-		gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId);
+		gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, cRaterScore, maxCRaterScore);
 
 		//make the css class for the td that will contain the flag checkbox
 		var flaggingTdClass = "gradeColumn toolsColumn";
@@ -1566,6 +1573,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				var annotationDataForRevision = this.getAnnotationDataForRevision(revisionStepWorkId);
 				var annotationCommentValue = annotationDataForRevision.annotationCommentValue;
 				var annotationScoreValue = annotationDataForRevision.annotationScoreValue;
+				var annotationCRaterScoreValue = annotationDataForRevision.annotationCRaterScoreValue;
 				var latestAnnotationPostTime = annotationDataForRevision.latestAnnotationPostTime;
 				
 				var isGradingDisabled = "disabled";
@@ -1580,11 +1588,17 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				//add the row id to our array so we can remember the original order of these rows
 				this.originalStudentWorkRowOrder.push(studentWorkRowRevisionId);
 				
+				var cRaterScore = annotationCRaterScoreValue;
+				var maxCRaterScore = null;
+				
+				//TODO: read in the maxCRaterScore from the cRater Servlet
+				maxCRaterScore = 4;
+				
 				//display the data for the revision
 				gradeByStepGradingPageHtml += "<tr id='" + studentWorkRowRevisionId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none' isFlagged='" + isFlagged + "'>";
 				gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div>" + userNamesHtml + "</div><div>Revision " + (revisionCount + 1) + "</div></td>";
 				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
-				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork);
+				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, cRaterScore, maxCRaterScore);
 				gradeByStepGradingPageHtml += this.getFlaggingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 				gradeByStepGradingPageHtml += "</tr>";
 				
@@ -2228,15 +2242,18 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 	var annotationData = new Object();
 	var annotationComment = null;
 	var annotationScore = null;
+	var annotationCRaterScore = null;
 	
 	if(stepWorkId == null) {
 		//obtain the annotation for this workgroup and step if any
-		var annotationComment = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "comment");
-		var annotationScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "score");
+		annotationComment = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "comment");
+		annotationScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "score");
+		annotationCRaterScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, [-1], "cRater");
 	} else {
 		//obtain the annotation for this workgroup and step if any
-		var annotationComment = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "comment");
-		var annotationScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "score");	
+		annotationComment = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "comment");
+		annotationScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "score");
+		annotationCRaterScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "cRater");
 	}
 	
 	//the value to display in the comment text box
@@ -2259,8 +2276,28 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 		annotationData.annotationScorePostTime = annotationScore.postTime;
 	}
 	
+	//the default values for the cRater score
+	annotationData.annotationCRaterScoreValue = null;
+	annotationData.annotationCRaterScorePostTime = null;
+	
+	if(annotationCRaterScore != null) {
+		//get the cRater annotation array
+		var annotationArray = annotationCRaterScore.value;
+		
+		if(annotationArray != null && Array.isArray(annotationArray) && annotationArray.length > 0) {
+			//get the latest element in the array
+			var cRaterAnnotation = annotationArray[annotationArray.length -1];
+			
+			//get the score
+			annotationData.annotationCRaterScoreValue = cRaterAnnotation.score;
+			
+			//get the timestamp for the node state
+			annotationData.annotationCRaterScorePostTime = annotationCRaterScore.postTime;		
+		}
+	}
+	
 	//get the latest annotation post time for comparing with student work post time
-	annotationData.latestAnnotationPostTime = Math.max(annotationData.annotationCommentPostTime, annotationData.annotationScorePostTime);
+	annotationData.latestAnnotationPostTime = Math.max(annotationData.annotationCommentPostTime, annotationData.annotationScorePostTime, annotationData.annotationCRaterScorePostTime);
 	
 	//return the object containing the values we need
 	return annotationData;
@@ -2625,7 +2662,7 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
  * of the previous revision rows (optional: only required when a step has an auto grading criteria)
  * @return html for the td that will display the score and comment box
  */
-View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId) {
+View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, cRaterScore, maxCRaterScore) {
 	var scoringAndCommentingTdHtml = "";
 	
 	//get the max score for this step, or "" if there is no max score
@@ -2744,6 +2781,14 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	
 	//display the score box
 	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("score")+": <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('saveScore', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
+	
+	if(maxCRaterScore != null) {
+		if(cRaterScore == null) {
+			cRaterScore = "(Not Yet Scored)";
+		}
+		
+		scoringAndCommentingTdHtml += "<tr><td>Auto "+this.getI18NString("score")+": " + cRaterScore + " / " + maxCRaterScore + "</td></tr>";
+	}
 	
 	var openPremadeCommentsLink = "";
 	

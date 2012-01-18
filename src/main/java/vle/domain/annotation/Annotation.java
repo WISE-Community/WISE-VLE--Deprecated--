@@ -24,6 +24,7 @@ import javax.persistence.Table;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -206,6 +207,24 @@ public class Annotation extends PersistableDomain {
 	}
 	
 	/**
+	 * Constructor for Annotation
+	 * @param stepWork
+	 * @param userInfo
+	 * @param runId
+	 * @param postTime
+	 * @param type
+	 * @param data
+	 */
+	public Annotation(StepWork stepWork, UserInfo userInfo, Long runId, Timestamp postTime, String type, String data) {
+		setStepWork(stepWork);
+		setUserInfo(userInfo);
+		setRunId(runId);
+		setPostTime(postTime);
+		setType(type);
+		setData(data);
+	}
+	
+	/**
 	 * Returns a list of Annotation that were made from
 	 * the specified workgroup to the specified workgroup.
 	 * If either workgroup is null, handle for all workgroup.
@@ -366,6 +385,27 @@ public class Annotation extends PersistableDomain {
 	}
 	
 	/**
+	 * Get all the annotations for the given stepwork
+	 * @param stepWork
+	 * @param clazz
+	 * @return a list of annotations that are for a given stepwork
+	 */
+	@SuppressWarnings("unchecked")
+	public static Annotation getByStepWorkAndAnnotationType(StepWork stepWork, String annotationType) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        Annotation result = 
+        	(Annotation) session.createCriteria(Annotation.class)
+        		.add( Restrictions.eq("stepWork", stepWork))
+        		.add( Restrictions.eq("type", annotationType))
+        		.uniqueResult();
+        session.getTransaction().commit();
+        return result;
+	}
+	
+	
+	/**
 	 * Get the latest annotation that is associated with any of the StepWork objects
 	 * and has a fromWorkgroup that is in the workgroupIds list 
 	 * @param stepWorks the list of StepWork objects whose annotations we want to search
@@ -484,8 +524,21 @@ public class Annotation extends PersistableDomain {
     		}
         	result = getByStepWorkList(stepWorkList);
         	*/
-    	}
+    	} 
 		return result;
+	}
+
+	
+	/**
+	 * Returns a list of Annotation based on the request parameters
+	 * @param map
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")	
+	public static Annotation getCRaterAnnotationByStepWorkId(Long stepWorkId) {
+		// TODO Auto-generated method stub
+		StepWork stepWork = StepWork.getByStepWorkId(stepWorkId);
+		return getByStepWorkAndAnnotationType(stepWork,"cRater");
 	}
 	
 	/**
@@ -506,5 +559,57 @@ public class Annotation extends PersistableDomain {
 			session.getTransaction().commit();
 		}
 		return result;
+	}
+
+	public JSONObject getAnnotationForNodeStateId(Long nodeStateId) {
+		try {
+			JSONObject dataJSON = new JSONObject(this.data);
+			if (dataJSON != null) {
+				JSONArray valueArray = dataJSON.getJSONArray("value");
+				if (valueArray != null) {
+					for (int i=0; i<valueArray.length(); i++) {
+						JSONObject nodeStateCRaterAnnotation = valueArray.getJSONObject(i);
+						long nodeStateIdFromAnnotation = nodeStateCRaterAnnotation.getLong("nodeStateId");
+						if (nodeStateId != null && nodeStateId.equals(nodeStateIdFromAnnotation)) {
+							return nodeStateCRaterAnnotation;
+						}
+						
+					}
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void appendNodeStateAnnotation(JSONObject nodeStateAnnotation) {
+		try {
+			JSONObject dataJSON = new JSONObject(this.data);
+			if (dataJSON != null) {
+				JSONArray valueArray = dataJSON.getJSONArray("value");
+				if (valueArray != null) {
+					valueArray.put(nodeStateAnnotation);
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static JSONObject createCRaterNodeStateAnnotation(Long nodeStateId, int score, JSONObject studentResponse, String cRaterResponse) {
+		JSONObject cRaterNodeStateAnnotation = new JSONObject();
+		
+		try {
+			cRaterNodeStateAnnotation.put("nodeStateId", nodeStateId);
+			cRaterNodeStateAnnotation.put("score", score);
+			cRaterNodeStateAnnotation.put("studentResponse", studentResponse);
+			cRaterNodeStateAnnotation.put("cRaterResponse", cRaterResponse);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return cRaterNodeStateAnnotation;
 	}
 }
