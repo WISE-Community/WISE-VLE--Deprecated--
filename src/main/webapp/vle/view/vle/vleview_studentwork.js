@@ -223,9 +223,16 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
  * @param args any args required by this callback function which
  * 		were passed in when the request was created
  */
-View.prototype.processPostFailResponse = function(responseText, responseXML, args){
+View.prototype.processPostFailResponse = function(responseText, args){
 	notificationManager.notify("processPostFailResponse, responseText:" + responseText, 4);
 	notificationManager.notify("processPostFailResponse, nodeVisit: " + args.nodeVisit, 4);
+	
+	/*
+	 * display a message to the student to ask them to refresh 
+	 * their browser in case they have lost connection to the
+	 * server
+	 */
+	notificationManager.notify("Warning: Your work from the previous step may not have been saved. Please refresh your browser and make sure it was saved.", 3);
 	
 	// remove this nodevisit from postInProgressArray
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
