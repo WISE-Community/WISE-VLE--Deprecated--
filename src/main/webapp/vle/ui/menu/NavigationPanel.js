@@ -15,7 +15,7 @@ function NavigationPanel(view) {
  * some of the elements.
  */
 NavigationPanel.prototype.render = function() {
-
+	// TODO: remove this first if conditional - navMode is now specified by the active project
 	if (this.view.config.getConfigParam("navMode") != "none" && this.view.config.getConfigParam("navMode") != "dropDownTree") {
 		//obtain the html in the nav div and run trim on it
 		var currentNavHtml = document.getElementById("my_menu").innerHTML.replace(/^\s*/, "").replace(/\s*$/, "");
@@ -25,36 +25,25 @@ NavigationPanel.prototype.render = function() {
 			//the nav html is not empty string so we will just update some of the elements
 
 			//obtain the node pos that was previously just highlighted in the nav
-			var previousPos = $('.currentNode').attr('id');		
+			var previousPos = $('.currentNode').attr('id');
+			if(previousPos){
+				previousPos = previousPos.replace(/(:|\.)/g,'\\$1'); // escape : and . characters to allow them to work with jQuery selectors
+			}
 
 			//obtain the new current pos we are moving to
-			//var currentNodeId = vle.getCurrentNode().id;
-			var currentPos = this.view.getCurrentPosition();
+			var currentPos = 'node_' + this.view.getCurrentPosition();
+			currentPos = currentPos.replace(/(:|\.)/g,'\\$1'); // escape : and . characters to allow them to work with jQuery selectors
 
-			//obtain the nav elements for the node positions we just obtained
-			var previousNavElement = document.getElementById(previousPos);
-			var currentNavElement = document.getElementById(currentPos);
-
-			var previousNavElementClass = null;
+			//obtain the nav elements for the current  and previous nodes
+			var previousNavElement = $('#' + previousPos);
+			var currentNavElement = $('#' + currentPos);
 
 			/*
 			 * remove the currentNode class from the previousNavElement so
 			 * it is no longer highlighted
 			 */
 			if(previousNavElement != null) {
-				previousNavElementClass = previousNavElement.getAttribute("class");
-				if(!previousNavElementClass){//could be ie, try className
-					previousNavElementClass = previousNavElement.getAttribute('className');
-					if(previousNavElementClass){
-						//remove the 'currentNode' class from the 'className' attribute
-						previousNavElementClass = previousNavElementClass.replace('currentNode', '');
-						previousNavElement.setAttribute('className', previousNavElementClass);
-					};
-				} else {
-					//remove the 'currentNode' class from the 'class' attribute
-					previousNavElementClass = previousNavElementClass.replace("currentNode", "");
-					previousNavElement.setAttribute("class", previousNavElementClass);
-				};
+				previousNavElement.removeClass('currentNode');
 
 				/*
 				 * Check for glue sequences and if it was previous set icon
@@ -81,26 +70,7 @@ NavigationPanel.prototype.render = function() {
 			 * it becomes highlighted
 			 */
 			if(currentNavElement != null) {
-				//the attribute to look up, try className first in case browser is IE
-				var classAttributeName = "className";
-				var currentNavElementClass = currentNavElement.getAttribute(classAttributeName);
-
-				if(currentNavElementClass){
-					//if IE, since IE uses className as the attribute
-					currentNavElementClass = currentNavElementClass + " currentNode";
-					currentNavElement.setAttribute(classAttributeName, currentNavElementClass);
-				} else {
-					/*
-					 * "className" was not found so we will try just "class", which is used 
-					 * by Firefox and other browsers
-					 */
-					classAttributeName = "class";
-					currentNavElementClass = currentNavElement.getAttribute(classAttributeName);
-					if(currentNavElementClass){
-						currentNavElementClass = currentNavElementClass + " currentNode";
-						currentNavElement.setAttribute(classAttributeName, currentNavElementClass);
-					};
-				};
+				currentNavElement.addClass('currentNode');
 
 				var child = this.view.getProject().getNodeById(this.view.state.getCurrentNodeVisit().getNodeId());
 				if(child.parent.getView()=='glue'){//must be first step in glue
@@ -125,20 +95,12 @@ NavigationPanel.prototype.render = function() {
 					if(child.parent.getView()=='glue'){
 						this.processGlue(enclosingNavParentElement, child);
 					};
+					
 					/*
 					 * add the currentNode class to the parent so that it becomes
 					 * highlighted
 					 */
-
-					//try to look up the 'class' attribute
-					var classAttributeName = "class";
-					var enclosingNavParentElementClass = enclosingNavParentElement.getAttribute(classAttributeName);
-					if(!enclosingNavParentElementClass){//maybe its ie, trying className
-						classAttributeName = "className";
-						enclosingNavParentElementClass = enclosingNavParentElement.getAttribute(classAttributeName);
-					};
-					enclosingNavParentElementClass = enclosingNavParentElementClass + " currentNode";
-					enclosingNavParentElement.setAttribute(classAttributeName, enclosingNavParentElementClass);
+					enclosingNavParentElement.addClass('currentNode');
 				}
 			}
 
@@ -166,7 +128,9 @@ NavigationPanel.prototype.render = function() {
 			//set the nav html into the div
 			document.getElementById("my_menu").innerHTML = navHtml;
 			
-			eventManager.fire('resizeMenu');
+			//eventManager.fire('resizeMenu');
+			//eventManager.fire('navigationMenuCreated');
+			eventManager.fire('menuCreated');
 		};
 
 		//collapse all activities except for the current one
@@ -219,8 +183,9 @@ NavigationPanel.prototype.processGlue = function(el, child){
 	var newTitle;
 	var parentTitle = child.parent.title;
 	var positionText = ' (part ' + (child.parent.children.indexOf(child) + 1) + ' of ' + child.parent.children.length + ')';
-					
-	el.firstChild.src = this.view.iconUrl + child.className + '16.png';
+	var nodeIconPath = this.view.nodeIconPaths[child.parent.type];
+	el.firstChild.src = nodeIconPath + child.parent.getNodeClass() + '16.png';
+	//el.firstChild.src = this.view.iconUrl + child.className + '16.png';
 	
 	if(currentTitle && currentTitle.indexOf(parentTitle)!=-1){
 		newTitle = currentTitle.substring(0, currentTitle.indexOf(parentTitle) + parentTitle.length + 1) + positionText;
@@ -233,7 +198,7 @@ NavigationPanel.prototype.processGlue = function(el, child){
  * to find the previous node that actually has an element
  * in the nav. Some nodes do not have an element in the nav
  * such as glue nodes.
- * @param node the node to find the parent for
+ * @param pos the node position to find the parent for
  * @return the parent nav element of the node at the given position
  */
 NavigationPanel.prototype.getEnclosingNavParent = function(pos) {
@@ -243,7 +208,7 @@ NavigationPanel.prototype.getEnclosingNavParent = function(pos) {
 		
 		if(prevNodePos != null) {
 			//see if the previous node has an element in the nav
-			var prevElement = document.getElementById(prevNodePos);
+			var prevElement = document.getElementById('node_' + prevNodePos);
 			
 			if(prevElement != null) {
 				//the previous element does have an element in the nav
@@ -261,35 +226,6 @@ NavigationPanel.prototype.getEnclosingNavParent = function(pos) {
 };
 
 /**
- * Toggles the visibility of the navigation panel
- */
-NavigationPanel.prototype.toggleVisibility = function() {
-	var currentStyle = document.getElementById("projectLeftBox").style.display;
-	if (currentStyle == null || currentStyle == 'none') {
-		document.getElementById("projectLeftBox").style.display = "block";
-		document.getElementById("projectRightUpperBox").style.marginLeft = "0";
-		//document.getElementById("projectRightLowerBox").style.marginLeft = "226";
-		document.getElementById("projectRightLowerBox").style.left = "228px";
-	} else {
-		document.getElementById("projectLeftBox").style.display = "none";		
-		document.getElementById("projectRightUpperBox").style.marginLeft = "0";
-		//document.getElementById("projectRightLowerBox").style.marginLeft = "0";
-		document.getElementById("projectRightLowerBox").style.left = "4px";
-	}
-	
-	/* if there is a disabled panel over the ifrm, we want to resize that too */
-	if($('#disabledPanel').size()>0){
-		/* get the ifrm position, height and width */
-		var panelPosition = $('#projectRightLowerBox').offset();
-		var panelHeight = $('#projectRightLowerBox').height() + 2;
-		var panelWidth = $('#projectRightLowerBox').width() + 2;
-		
-		/* set the panel css with the position, height and width */
-		$('#disabledPanel').css({top:panelPosition.top, left:panelPosition.left, height:panelHeight, width:panelWidth});
-	}
-};
-
-/**
  * 
  * @param node
  * @param depth the current level of the navigation in tree terms
@@ -298,21 +234,34 @@ NavigationPanel.prototype.toggleVisibility = function() {
  */
 NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 	var htmlSoFar = "";
-	var classString = "node";
-	var space = "";
+	var classString = "step";
 	var deep = depth;
-	
-	var pxIndent = 10 * depth;
-	
 	if(!deep){
 		deep = 0;
 	};
+	
+	/*
+	 * depth# gets added to each node/sequence class so it can be styled; when
+	 * creating the html for a node/sequence, we add 1 to the deep value so that the
+	 * depths range from 0 and up in the DOM, e.g.
+	 * 0 - project level
+	 * 1 - activity level
+	 * 2 - step (or activity) level
+	 * 3 - step (or activity) level
+	 * 4 - step (or activity) level
+	 * etc.
+	 */
+	deep = deep + 1;
+	
+	classString += " depth_" + deep;
 	
 	if (node == null) {
 		// this is for nodes that don't appear in navigation
 		// like journal
 		return;
 	}
+	
+	var stepId = 'node_' + position;
 	
 	/* this might be rendered from duplicate node, so check the nodeVisit for this
 	 * node to see if it has a duplicateId, if so do not set this one as the current
@@ -332,6 +281,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     
     if (node.children.length > 0 || node.type == "sequence") {
     	//the node is a sequence
+    	classString = 'sequence';
     	
     	if(node.getView() == "hidden") {
     		/*
@@ -345,6 +295,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
         		htmlSoFar += this.getNavigationHtml(node.children[x], deep, position + '.' + x);
         	};
     	} else if(node.getView() == "glue") {
+    		position = position + '.0';
+    		stepId = 'node_' + position;
     		/*
     		 * the sequence is a glue sequence so the user will only see
     		 * the sequence title in the nav bar. they will not see
@@ -355,11 +307,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     		 * step, they will step through the sequence and the 
     		 * sequence's children.
     		 */
+    		classString = 'glue';
     		var sequenceIcon = '<img src=\'images/stepIcons/instantquiz16.png\'/>';
-    		htmlSoFar ;
-    		for(var t=0;t<depth;t++){
-    			htmlSoFar += space;
-    		};
     		
     		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
     			var nodeIconPath = this.view.nodeIconPaths[node.type];
@@ -369,35 +318,35 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     		
     		//display a step with the title of the sequence for this glue sequence
     		if(this.autoStep) {
-    			htmlSoFar += this.createStepHtml(pxIndent, classString, deep, node.children[0].id, sequenceIcon, position + '.0', node.getTitle(), this.getStudentViewPosition(position + '.0'));
+    			htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, node.getTitle(), this.getStudentViewPosition(position + '.0'));
     			this.currentStepNum ++;
     		} else {
-    			htmlSoFar += this.createStepHtml(pxIndent, classString, deep, node.children[0].id, sequenceIcon, position + '.0', node.getTitle());
+    			htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, node.getTitle());
     		}
     	} else {
     		//the sequence is normal
-    		var submenu = document.getElementById(position);
     		
-    		//display this sequence in the nav
-        	if (submenu && submenu.className) {
-        		htmlSoFar += this.createSequenceHtml(pxIndent, submenu.classname, deep, node.id, node.getTitle(), position);
-        	} else {
-        		htmlSoFar += this.createSequenceHtml(pxIndent, classString, deep, node.id, node.getTitle(), position);
-        	}
+    		// if depth is is greater than 1, activity is nested in a parent activity so add 'nested' class to classString
+    		if(deep > 1){
+    			classString += " nested";
+    		}
+    		
+    		// create the DOM object for this sequence
+       		//htmlSoFar += this.createSequenceHtml(classString, deep, node.id, node.getTitle(), position);
+    		var sequence = $(this.createSequenceHtml(classString, stepId, node.getTitle(), position));
         	
-        	//display the children in the nav
+        	// add the steps to this sequence
         	for (var i = 0; i < node.children.length; i++) {
-        		htmlSoFar += this.getNavigationHtml(node.children[i], deep + 1, position + '.' + i);
+        		htmlSoFar += this.getNavigationHtml(node.children[i], deep, position + '.' + i);
         	};
-    		htmlSoFar += "</div>";
+        	sequence.append(htmlSoFar);
+        	
+        	// convert to html string
+        	htmlSoFar = $('<div>').append(sequence.clone()).html();
     	}
 	} else {
 		//the node is a step
 		var icon = '';
-		htmlSoFar ;
-		for(var t=0;t<depth;t++){
-			htmlSoFar += space;
-		};
 		
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
 			//icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
@@ -407,10 +356,10 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		
 		//display the step
 		if(this.autoStep){
-			htmlSoFar += this.createStepHtml(pxIndent, classString, deep, node.id, icon, position, node.getTitle(), this.getStudentViewPosition(position));
+			htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, node.getTitle(), this.getStudentViewPosition(position));
 			this.currentStepNum ++;
 		} else {
-			htmlSoFar += this.createStepHtml(pxIndent, classString, deep, node.id, icon, position, node.getTitle());
+			htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, node.getTitle());
 		};
 	};
 	return htmlSoFar;
@@ -462,6 +411,7 @@ NavigationPanel.prototype.getStudentViewPosition = function(position) {
 
 /**
  * Shows Navigation Tree
+ * TODO: remove this
  * @return
  */
 NavigationPanel.prototype.showNavigationTree = function() {
@@ -484,98 +434,6 @@ NavigationPanel.prototype.showNavigationTree = function() {
     
     //make the div visible
     $('#dropDownTreeNavigationDiv').dialog('open');
-};
-
-/**
- * Create the html to display a sequence in the navigation
- * @param pxIndent
- * @param classString
- * @param deep the depth of the node starting from 0
- * @param nodeId
- * @param title
- * @return the html for the sequence for the navigation
- */
-NavigationPanel.prototype.createSequenceHtml = function(pxIndent, classString, deep, nodeId, title, position) {
-	//return "<div class=\""+ classString +"\" id=\"" + nodeId + "_menu\"><span style=\"border-left:" + pxIndent + "px solid #6699FF\" onclick=\"myMenu.toggleMenu(document.getElementById('"+ nodeId +"_menu'))\">" + title + "</span>";
-	/*
-	 * add the depth# class to the div so it can be styled, we need to add
-	 * 2 to the deep value so that the depth ranges from 1 and up e.g.
-	 * 1 - project level
-	 * 2 - activity level
-	 * 3 - step (or activity) level
-	 * 4 - step (or activity) level
-	 * 5 - step (or activity) level
-	 * etc.
-	 */
-	return "<div name=\"menuItem\" class=\""+ classString + " depth" + (deep + 2) + " " + position + "_menu menuActivity\" id=\"" + position + "\"><span class=\"menuspan\" onclick=\"eventManager.fire('toggleMenu', '" + position + "')\">" + title + "</span>";
-};
-
-/**
- * Create the html to display a step in the navigation
- * @param pxIndent
- * @param classString
- * @param deep the depth of the node starting from 0
- * @param nodeId
- * @param icon
- * @param position the tree numbering e.g. 1, 1.1, 1.1.2
- * @param title
- * @param currentStepNum the global step number e.g. 1, 2, 3, or null if not used
- * @return the html for the step for the navigation
- */
-NavigationPanel.prototype.createStepHtml = function(pxIndent, classString, deep, nodeId, icon, position, title, currentStepNum) {
-	//var html = "<a style=\"border-left:" + pxIndent + "px solid #6699FF\" class=\"" + classString + "\" onclick=\"vle.renderNode('" + nodeId + "');\" id=\"" + nodeId + "_menu\">" + icon;
-	
-	/*
-	 * add the depth# class to the a so it can be styled, we need to add
-	 * 2 to the deep value so that the depth ranges from 1 and up e.g.
-	 * 1 - project level
-	 * 2 - activity level
-	 * 3 - step (or activity) level
-	 * 4 - step (or activity) level
-	 * 5 - step (or activity) level
-	 * etc.
-	 */
-	var html = "<a name=\"menuItem\" class=\"" + classString + " depth" + (deep + 2) + " " + position + "_menu menuStep\" onclick=\"eventManager.fire('renderNode','" + position + "');\" id=\"" + position + "\">"; 
-	
-	//create a table inside the anchor for each step
-	html += "<table>";
-	html += "<tr>";
-	html += "<td width='25px'>";
-	
-	//the step icon
-	html += icon;
-	
-	html += "</td>";
-	html += "<td width='150px'>";
-	
-	//the span to display the step title
-	html += "<span class=\"menusteptitle\">";
-	
-	if(currentStepNum != null) {
-		html += this.stepTerm + " " + currentStepNum + ": "; 
-	} else {
-		if(this.stepTerm && this.stepTerm != ''){
-			html += this.stepTerm + ': ';
-		};
-	};
-	
-	if(!this.stepLevelNumbering){
-		position = '';
-	};
-	
-	html += getTitlePositionFromLocation(position) + " " + title + "</span>";
-	
-	html += "</td>";
-	html += "<td height='16px'>";
-	
-	//the div to display any special icons such as colored stars
-	html += "<div id='" + nodeId + "_right_icon' class='empty'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>";
-	
-	html += "</td>";
-	html += "</table>";
-	html += "</a>";
-	
-	return html;
 };
 
 /**
@@ -616,7 +474,7 @@ NavigationPanel.prototype.getMenuItems = function(){
 	var menuItems = {};
 	
 	$('[name="menuItem"]').each(function(ndx,el){
-		var node = view.getProject().getNodeByPosition($(this).attr('id'));
+		var node = view.getProject().getNodeByPosition($(this).attr('id').replace('node_',''));
 		if(node){
 			menuItems[node.id] = this;
 		}
@@ -629,7 +487,7 @@ NavigationPanel.prototype.getMenuItems = function(){
  * Given a location, adds 1 to each position in location and returns result
  * @param loc
  */
-function getTitlePositionFromLocation(loc){
+NavigationPanel.prototype.getTitlePositionFromLocation = function(loc){
 	if(loc && loc!=''){
 		var splitz = loc.split('.');
 		var retStr = '';

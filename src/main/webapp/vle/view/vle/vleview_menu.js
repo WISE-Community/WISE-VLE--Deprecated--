@@ -2,26 +2,29 @@
  * Dispatches events that are specific to the menu.
  */
 View.prototype.menuDispatcher = function(type,args,obj){
-	if(type=='loadingProjectComplete'){
+	//if(type=='loadingProjectComplete'){
+	if(type=='menuCreated'){
 		obj.createMenuOnProjectLoad();
 	} else if(type=='renderNodeComplete'){
 		obj.renderNavigationPanel();
 		obj.expandActivity(args[0]);
-	} else if(type=='toggleNavigationPanelVisibility'){
+	} /*else if(type=='toggleNavigationPanelVisibility'){
 		obj.navigationPanel.toggleVisibility();
-	} else if(type=='menuExpandAll'){
+	}*/ else if(type=='menuExpandAll'){
 		obj.myMenu.expandAll();
 	} else if(type=='menuCollapseAll'){
 		obj.myMenu.collapseAll();
 	} else if(type=='menuCollapseAllNonImmediate'){
 		obj.collapseAllNonImmediate();
-	} else if(type=='toggleMenu'){
-		obj.myMenu.toggleMenu(document.getElementById(args[0]));
+	} else if(type=='toggleSequence'){
+		// escape : and . characters to allow them to work with jQuery selectors
+		var pos = args[0].replace(/(:|\.)/g,'\\$1');
+		obj.myMenu.toggleSequence($('#node_' + pos));
 	} else if(type=='updateNavigationConstraints'){
 		obj.updateNavigationConstraints();
-	} else if(type=='resizeMenu'){
+	} /*else if(type=='resizeMenu'){
 		obj.resizeMenu();
-	} else if(type == 'displayMenuBubble') {
+	}*/ else if(type == 'displayMenuBubble') {
 		obj.displayMenuBubble(args[0], args[1]);
 	} else if(type == 'removeMenuBubble') {
 		obj.removeMenuBubble(args[0]);
@@ -50,7 +53,7 @@ View.prototype.createMenuOnProjectLoad = function(){
 		this.myMenu.init();
 	};
 	
-	
+	// TODO: remove this
 	if (this.config != null && this.config.getConfigParam('mainNav') != null) {
 		var mainNav = this.config.getConfigParam('mainNav');
 		
@@ -91,10 +94,11 @@ View.prototype.updateNavigationConstraints = function(){
 View.prototype.expandActivity = function(position) {
 	var node = this.getProject().getNodeByPosition(position);
 	if (node.parent) {
-		submenu = document.getElementById(this.getProject().getPositionById(node.parent.id));
+		submenu = document.getElementById("node_" + this.getProject().getPositionById(node.parent.id));
 		if(submenu){
 			//remove the collapsed class from the menu so it becomes expanded
-			submenu.className = submenu.className.replace("collapsed", "");
+			//submenu.className = submenu.className.replace("collapsed", "");
+			this.myMenu.expandMenu(submenu);
 		};
 	};
 };
@@ -133,7 +137,7 @@ View.prototype.getEnclosingNavParents = function(position, enclosingNavParents) 
 	if(ndx != -1) {
 		var parentPos = position.substring(0, position.lastIndexOf('.'));
 		//see if the parent has an element in the nav
-		var parentNavElement = document.getElementById(parentPos);
+		var parentNavElement = document.getElementById("node_" + parentPos);
 		if(parentNavElement != null) {
 			/*
 			 * the parent does have an element in the nav so we will add it
@@ -155,20 +159,20 @@ View.prototype.getEnclosingNavParents = function(position, enclosingNavParents) 
 /**
  * Toggles the visibility of the navigation panel
  */
-View.prototype.toggleNavigationPanelVisibility = function() {
+/*View.prototype.toggleNavigationPanelVisibility = function() {
 	this.navigationPanel.toggleVisibility();	
-};
+};*/
 
 /**
  * Resizes navigation panel menu box to fit window height
  */
-View.prototype.resizeMenu = function() {
+/*View.prototype.resizeMenu = function() {
 	if($('#projectLeftBox').length>0){
 		var navHeight = $('#projectLeftBox').height() - $('#hostBrandingBoxUpper').outerHeight() -
 			$('#projectLogoBox').outerHeight() - $('#navMenuControls').outerHeight() - 4;
 		$('#navigationMenuBox').height(navHeight);
 	}
-};
+};*/
 
 /**
  * Display a bubble next to the navigation menu that points to a specific step
@@ -250,7 +254,7 @@ View.prototype.highlightStepInMenu = function(nodeId) {
 		
 		if(nodePosition != null) {
 			//get the DOM step element in the menu
-			var node = document.getElementById(nodePosition);
+			var node = document.getElementById("node_" + nodePosition);
 			
 			if(node != null) {
 				//add the class 'menuStepHighlight' to make the background of the step yellow
@@ -276,7 +280,7 @@ View.prototype.unhighlightStepInMenu = function(nodeId) {
 		
 		if(nodePosition != null) {
 			//get the DOM step element in the menu
-			var node = document.getElementById(nodePosition);
+			var node = document.getElementById("node_" + nodePosition);
 			
 			if(node != null) {
 				//remove the 'menuStepHighlight' class so that the background of the step is no longer yellow

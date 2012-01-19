@@ -25,7 +25,7 @@ function hasClass(identifier, classString) {
  * Clears innerHTML of a div with id=feedbackDiv
  */
 function clearFeedbackDiv() {
-	document.getElementById("feedbackDiv").innerHTML = "";
+	$("#feedbackDiv").html('');
 };
 
 /**

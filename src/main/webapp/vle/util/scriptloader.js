@@ -99,36 +99,121 @@ var scriptloader = function(){
 	 */
 	var loadScripts = function(){
 		var s = scripts[currentName];
-		var c = css[currentName];
+		var c = [];
 		
-		//load each css specified
-		if(c){
-			for(var d=0;d<c.length;d++){
-				loadCss(c[d]);
-			}
-		}
-		
-		//load each script specified, if none specified fire scriptsLoaded event
-		if(s && s.length>0){
-			/* because of ie, we need to stick all of the scripts into the queue before
-			 * attempting to launch any of them (otherwise it may empty the queue for each
-			 * script and continue to fire the scriptsLoaded event) */
-			for(var a=0;a<s.length;a++){
-				queue.push(s[a]);
-			}
-			
-			/* now load any scripts without dependencies or those whose dependencies
-			 * have already been loaded or stick them in the waiting queue */
-			for(var a=0;a<s.length;a++){
-				if(hasDependency(s[a]) && !dependenciesLoaded(s[a])){
-					waitingOnDependencyQueue.push(s[a]);
-				} else {
-					loadScript(s[a]);
+		var executeScriptsLoad = function(){
+			//load each css specified
+			if(c){
+				for(var d=0;d<c.length;d++){
+					loadCss(c[d]);
 				}
 			}
+			
+			//load each script specified, if none specified fire scriptsLoaded event
+			if(s && s.length>0){
+				/* because of ie, we need to stick all of the scripts into the queue before
+				 * attempting to launch any of them (otherwise it may empty the queue for each
+				 * script and continue to fire the scriptsLoaded event) */
+				for(var a=0;a<s.length;a++){
+					queue.push(s[a]);
+				}
+				
+				/* now load any scripts without dependencies or those whose dependencies
+				 * have already been loaded or stick them in the waiting queue */
+				for(var a=0;a<s.length;a++){
+					if(hasDependency(s[a]) && !dependenciesLoaded(s[a])){
+						waitingOnDependencyQueue.push(s[a]);
+					} else {
+						loadScript(s[a]);
+					}
+				}
+			} else {
+				resetTimer();
+				eventManager.fire('scriptsLoaded', [callerId, currentName]);
+			}
+		};
+		
+		// if loading theme scripts, generate theme + navigation css and js paths to load
+		// TODO: make alert texts i18n
+		if(callerId == 'theme'){
+			// get theme's config file
+			var themepath = 'themes/' + currentName[0] + '/';
+			var configpath = themepath + 'config.json';
+			$.ajax({
+				url: configpath,
+				success: function(data){
+					if (typeof s == 'undefined'){
+						s = [];
+					}
+					
+					// set navMode (either based on project config or theme default)
+					var navMode = null;
+					if(currentName[1]){
+						navMode = currentName[1];
+					} else if(data.nav_modes && $.isArray(data.nav_modes)) {
+						navMode = data.nav_modes[0].id;
+					} else {
+						alert('Selected VLE theme is broken: Navigation modes not set.');
+					}
+					
+					// add theme css to load
+					if(data.css && $.isArray(data.css)){
+						var themecss = data.css;
+						for(var x=0; x<themecss.length; x++){
+							var csspath = 'vle/' + themepath + themecss[x];
+							c.push(csspath);
+						}
+					}
+					
+					// add theme js to load
+					if(data.js && $.isArray(data.js)){
+						var themejs = data.js;
+						for(var i=0;i<themejs.length; i++){
+							var jspath = 'vle/' + themepath + themejs[i];
+							s.push(jspath);
+						}
+					}
+					
+					// add navigation css and js to load
+					if(navMode){
+						// add navMode's css file to load
+						var navcsspath = 'vle/' + themepath + 'navigation/' + navMode + '/nav.css';
+						c.push(navcsspath);
+						
+						// add navMode's setup file to load
+						var naveventspath = 'vle/' + themepath + 'navigation/' + navMode + '/nav.js';
+						s.push(naveventspath);
+					}
+					
+					// add jqueryui css (either from theme or WISE default)
+					if(data.jqueryui_css && typeof data.jqueryui_css == 'string'){
+						var csspath = 'vle/' + themepath + data.jqueryui_css;
+						c.push(csspath);
+					} else {
+						c.push('vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css');
+					}
+					
+					// set theme logo in vle html
+					if(data.logo && typeof data.logo == 'string'){
+						var logopath = themepath + data.logo;
+						$('#logo').html('<img src="' + logopath + '" alt="logo" />');
+					}
+					
+					// load scripts
+					executeScriptsLoad();
+				},
+				error: function(jqXHR,textStatus,errorThrown){
+					alert('Selected VLE theme is broken: Cannot load configuration file.');
+				},
+				statusCode: {
+					404: function(){
+						alert('Selected VLE theme is broken: Configuration file not found.');
+					}
+				}
+			});
 		} else {
-			resetTimer();
-			eventManager.fire('scriptsLoaded', [callerId, currentName]);
+			c = css[currentName];
+			executeScriptsLoad();
 		}
 	};
 	
@@ -204,7 +289,7 @@ var scriptloader = function(){
                   'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
                   'vle/jquery/js/jquery-1.6.1.min.js',
-  		          'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
+  		          'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
@@ -363,7 +448,7 @@ var scriptloader = function(){
                 'vle/view/authoring/components/authorview_startersentenceauthoring.js'],
         premadecomments:['vle/jquery/js/jquery-1.6.1.min.js',
                          'vle/jquery/js/jquery.editinplace.js',
-                         'vle/jquery/js/jquery-ui-1.8.7.custom.min.js'],
+                         'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'],
         ideabasket:['vle/ideaBasket/basket.js']
 	};
 	
@@ -371,24 +456,25 @@ var scriptloader = function(){
 	 * Css urls specified for all component css
 	 */
 	var css = {
-		bootstrap:['vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'],
-		bootstrap_min:['vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'],
+		bootstrap:[],
+		bootstrap_min:[],
 		core: ['vle/css/message.css'],
 		core_min: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
-		         'vle/css/ui-tools.css'
+		         'vle/css/ui-tools.css',
+		         'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css'
 		         ],
-		wise: ["vle/css/wise/WISE_styles.css"],
-		uccp: ["vle/css/uccp/UCCP_styles.css"],
-		vle: ["vle/css/niftycube.css"],
-    	navigation:["vle/css/navigation.css"],
-    	menu:["vle/css/sdmenu.css"],
+		//wise: ["vle/css/wise/WISE_styles.css"],
+		//uccp: ["vle/css/uccp/UCCP_styles.css"],
+		vle: [/*"vle/css/niftycube.css"*/],
+    	navigation:[/*"vle/css/navigation.css"*/],
+    	menu:[/*"vle/css/sdmenu.css"*/],
  		grading: ['vle/css/portal/teachergrading.css',
- 		         //'vle/jquery/css/blue/style.css',
  		         'vle/jquery/jquery-dataTables/css/datatable.css',
  		         'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css'],
  		grading_min: ['vle/css/portal/teachergrading.css',
- 		 		         'vle/jquery/css/blue/style.css'],
+ 	 		         'vle/jquery/jquery-dataTables/css/datatable.css',
+ 	 		         'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css'],
  		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
     	         
 	};
@@ -396,7 +482,7 @@ var scriptloader = function(){
 	/**
 	 * Known dependencies for a script
 	 */
-	var dependencies = {	
+	var dependencies = {
 		"vle/node/setupNodes.js": ["vle/node/nodefactory.js"],
     	"vle/project/Project.js": ["vle/node/Node.js"],
     	'vle/node/NodeUtils.js': ['vle/node/Node.js'],
@@ -409,9 +495,13 @@ var scriptloader = function(){
         'vle/node/BranchNode.js':['vle/node/Node.js','vle/node/MultipleChoiceNode.js'],
         "vle/ui/vleui.js": ["vle/VLE.js"],
         "vle/util/projectutils.js": ["vle/project/Project.js"],
-        'vle/jquery/js/jquery-ui-1.8.7.custom.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
+        'vle/jquery/js/jquery-ui-1.8.17.custom.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
         'vle/jquery/js/jsonplugin.js':['vle/jquery/js/jquery-1.6.1.min.js'],
         'vle/jquery/js/jqueryhelper.js':['vle/jquery/js/jquery-1.6.1.min.js'],
+        'vle/jquery/js/jquery.form.js':['vle/jquery/js/jquery-1.6.1.min.js'],
+        'vle/jquery/js/jquery.form.js':['vle/jquery/js/jquery-1.6.1.min.js'],
+        'vle/jquery/js/jquery.tools.tooltip.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
+        'vle/jquery/js/jquery.tablesorter.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],

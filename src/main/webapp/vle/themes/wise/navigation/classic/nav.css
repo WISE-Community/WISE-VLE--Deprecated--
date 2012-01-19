@@ -1,0 +1,197 @@
+/* Navigation specific css and theme customization */
+
+#vle_body #toggleNavLink.menu {
+	padding-left:28px;
+	background:transparent url('images/menu.png') no-repeat left center;
+}
+
+#vle_body #menuControls {
+	padding:0 .25em !important;
+}
+
+#vle_body #menuControls a {
+	font-size:.75em;
+	color:#C5CD61;
+	padding:0 .5em;
+}
+
+/* Styles for navigation menu elements */
+
+.sdmenu {
+	margin: 0 auto;
+	width:100%;
+	font-family: Arial, Verdana, "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
+	font-size: .6em;
+	font-size-adjust: 0.6;
+	height:100%;
+	overflow:auto;
+}
+
+.sdmenu .sequence {
+	
+}
+
+.sdmenu .sequence a {
+	display:block;
+	padding: 0.25em 0.5em;
+}
+
+.sdmenu .sequenceTitle {
+	
+}
+
+.sdmenu .sequenceTitle a {
+	color: #FFFFFF;
+    font-weight: bold;
+    padding: 0.5em;
+    margin-right:.5em;
+}
+
+.sdmenu .sequence.inactive .sequenceTitle a {
+	padding-right:14px;
+	background:transparent url('images/plus.png') no-repeat right center;
+}
+
+.sdmenu .sequence.active .sequenceTitle a {
+	padding-right:14px;
+	background:transparent url('images/minus.png') no-repeat right center;
+}
+
+.sdmenu a.step, .sdmenu a.glue, .sdmenu a.sequenceTitle {
+	display: block;
+}
+
+.sdmenu .step {
+	
+}
+
+.sdmenu a {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	
+}
+
+.sdmenu .step a {
+	background-color:#F4F2EF;
+    color: #563C17;
+}
+
+.sdmenu .step a:hover {
+	text-decoration: none;
+    color:#000;
+    background-color:#EBE7E2;
+}
+
+.sdmenu .step {
+	border-bottom: 1px solid #EAE8E5;
+}
+
+.sdmenu a.glue {
+	
+}
+
+.sdmenu .sequence {
+	margin: 0 0 0.5em;
+    padding: 0;
+	/*background-color:#A4937A;*/
+	background-color: #9D8B71;
+	/*border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;*/
+}
+.sdmenu .sequence:last-child {
+	margin-bottom:0;
+}
+
+.sdmenu .sequence.nested {
+	border-left: .25em solid #745A34;
+    margin-bottom: 0;
+}
+
+.sdmenu .sequence.nested.inactive .sequenceTitle a {
+	background:transparent url('images/plus.png') no-repeat right center;
+}
+
+.sdmenu .sequence.nested.active .sequenceTitle a {
+	background:transparent url('images/minus.png') no-repeat right center;
+}
+
+.sdmenu .sequence.nested.hide {
+	/*display:none;*/
+}
+
+.sdmenu .sequence.nested.show {
+	
+}
+
+.sdmenu .step.inactive {
+	/*display:none;*/
+}
+
+.sdmenu .step.active {
+	/*display:block;*/
+}
+
+.sdmenu .step.constraintDisable a, .sdmenu .step.constraintDisable a:hover {
+	background-color: #EBE7E2;
+	color:#A4937A;
+}
+
+.sdmenu .step.menuStepHighlight a {
+	background-color:#E2E896;
+}
+
+.sdmenu .step.constraintHidden {
+	display:none;
+}
+
+.sdmenu .currentNode a {
+	background-color: #FFFFFF !important;
+    border-color: #F47F6E;
+    border-style: solid;
+    border-width: 0 0 0 0.5em;
+    color: #333333 !important;
+    padding:.25em .5em .25em 0;
+}
+
+.sdmenu .depth3 {
+	/*margin-left: -1px;*/
+}
+
+.sdmenu .depth4 {
+	/*margin-left: 8px;*/
+}
+
+.sdmenu .depth5 {
+	/*margin-left: 12px;*/
+}
+
+.sdmenu a .goldStar {
+	background-image:url('../images/goldStar.png');
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}
+
+.sdmenu a .silverStar {
+	background-image:url('../images/silverStar.png');
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}
+
+.sdmenu a .bronzeStar {
+	background-image:url('../images/bronzeStar.gif');
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}
+
+.sdmenu a .empty {
+	background-image:none;
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+}

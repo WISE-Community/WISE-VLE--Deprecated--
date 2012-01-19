@@ -7,7 +7,7 @@
 View.prototype.audioDispatcher = function(type, args, obj) {
     // debugger;
     if (type == 'loadingProjectComplete') {
-        obj.createAudioManagerOnProjectLoad();
+        //obj.createAudioManagerOnProjectLoad();
     } else if (type == 'rewindStepAudio') {
         obj.rewindStepAudio();
     } else if (type == 'previousStepAudio') {
@@ -37,19 +37,6 @@ View.prototype.audioDispatcher = function(type, args, obj) {
 };
 
 /**
- * pauses for specified milliseconds
- * Nate: EVIL: never use this!
- */
-//View.prototype.pausecomp = function(millis) {
-//    var date = new Date();
-//    var curDate = null;
-//
-//    do {
-//        curDate = new Date();
-//    } while (curDate - date < millis);
-//};
-
-/**
  * Creates the audio manager when the vle starts and checks to see if we need to
  * update the audio (request from authoring tool)
  */
@@ -63,7 +50,7 @@ View.prototype.createAudioManagerOnProjectLoad = function() {
             // make audioControls visible -- hopefully they were hidden this
             // way!
             document.getElementById("audioControls").style.visibility = "visible";
-            document.getElementById("audioControls").style.display = 'inline';
+            document.getElementById("audioControls").style.display = 'inline-block';
         }
     } else {
         document.getElementById("audioControls").style.visibility = "hidden";

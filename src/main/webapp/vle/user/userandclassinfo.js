@@ -18,7 +18,9 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 		var teacherUserInfo = teacherUserInfoParam;
 		
 		var getWorkgroupId = function() {
-			return myUserInfo.workgroupId;
+			if (myUserInfo != null) {
+				return myUserInfo.workgroupId;
+			}
 		};
 		
 		var getUserName = function() {

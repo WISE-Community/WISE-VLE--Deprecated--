@@ -17,6 +17,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var postLevel = 5; //default to post all steps
 		var totalProjectContent = totalProjectContent;
 		var constraints = [];
+		var navMode = null;
+		var theme = null;
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -802,18 +804,18 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					var stepHasNewFeedback = false;
 					
-					tempAllFeedback += "<div id=\"showallStep\"><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
-					tempNewFeedback += "<div id=\"showallStep\"><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class=\"type\">"+node.getType(true)+"</div></div>";
+					tempAllFeedback += "<div id='showallStep'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class='type'>"+node.getType(true)+"</div></div>";
+					tempNewFeedback += "<div id='showallStep'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class='type'>"+node.getType(true)+"</div></div>";
 				    if (showGrades) {
 				    	
-				    	tempAllFeedback += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view) + "</div>";
+				    	tempAllFeedback += "<div class='showallStatus'>Status: " + node.getShowAllWorkHtml(view) + "</div>";
 				    	
 				    	/*
 				    	 * we need to pass in a prefix to be prepended to the div that is made
 				    	 * otherwise there will be two divs with the same id and when we
 				    	 * render the work, it will only show up in one of the divs
 				    	 */
-				    	tempNewFeedback += "<div class=\"showallStatus\">Status: " + node.getShowAllWorkHtml(view, "new_") + "</div>";
+				    	tempNewFeedback += "<div class='showallStatus'>Status: " + node.getShowAllWorkHtml(view, "new_") + "</div>";
 						
 						commonFeedback += "<div><table id='teacherTable'>";
 						
@@ -855,7 +857,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							//check if the annotation is new for the student
 							if(annotationScorePostTime > lastTimeVisited) {
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p style='display: inline; color: red;'> [New]</p>";
+								newP = "<p style='display: inline; color: red;' class='newAnnotation'> [New]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -884,7 +886,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							//check if the annotation is new for the student
 							if(annotationCommentPostTime > lastTimeVisited) {
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p style='display: inline; color: red;'> [New]</p>";
+								newP = "<p style='display: inline; color: red;' class='newAnnotation'> [New]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -976,7 +978,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					constraints: constraints,
 					nodes: [],
 					sequences: [],
-					startPoint: ""
+					startPoint: "",
+					navMode: navMode,
+					theme: theme
 			};
 			
 			/* set start point */
@@ -1934,6 +1938,16 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* set constraints */
 			constraints = (project.constraints) ? project.constraints : [];
 			
+			/* set navigation mode */
+			if(project.navMode){
+				navMode = project.navMode;
+			}
+			
+			/* set theme */
+			if(project.theme){
+				theme = project.theme;
+			}
+			
 			/* create nodes for project and set rootNode*/
 			generateProjectNodes();
 			generateSequences();
@@ -2070,7 +2084,15 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			//get all the unique tags in the project
 			getAllUniqueTagsInProject:function() {return getAllUniqueTagsInProject();},
 			//get all the unique tag maps in the project
-			getAllUniqueTagMapsInProject:function() {return getAllUniqueTagMapsInProject();}
+			getAllUniqueTagMapsInProject:function() {return getAllUniqueTagMapsInProject();},
+			/* returns the navigation mode of this project */
+			getNavMode:function(){return navMode;},
+			/* sets the navigation mode of this project */
+			setNavMode:function(n){navMode = n;},
+			/* returns the theme for this project */
+			getTheme:function(){return theme;},
+			/* sets the them for this project */
+			setTheme:function(t){theme = t;}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

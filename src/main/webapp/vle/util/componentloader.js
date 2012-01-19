@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','vle','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', 'journal', 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','vle','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
@@ -630,7 +630,7 @@ var componentloader = function(em, sl){
 				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
 				'ifrmLoaded':[null,null], 'processLoadViewStateResponseComplete':[null,null], 'saveNote':[null,null],
 				'saveAndLockNote':[null,null], 'noteHandleEditorKeyPress':[null,null], 'noteShowStarter':[null,null],
-				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null]
+				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -667,6 +667,8 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('saveAndCloseNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('importWork', view.vleDispatcher, view);
 						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('loadingThemeComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('scriptsLoaded', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);
@@ -745,11 +747,11 @@ var componentloader = function(em, sl){
 		},
 		menu:{
 			variables:{myMenu:undefined,navigationPanel:undefined},
-			events:{'toggleNavigationPanelVisibility':[null,null],
+			events:{//'toggleNavigationPanelVisibility':[null,null],
 				'menuExpandAll':[null,null],
 				'menuCollapseAll':[null,null],
 				'menuCollapseAllNonImmediate':[null,null],
-				'toggleMenu':[null,null],
+				'toggleSequence':[null,null],
 				'resizeMenu':[null,null],
 				'logout':[null,null],
 				'displayMenuBubble':[null,null],
@@ -757,17 +759,18 @@ var componentloader = function(em, sl){
 				'removeAllMenuBubbles':[null,null],
 				'highlightStepInMenu':[null,null],
 				'unhighlightStepInMenu':[null,null],
-				'updateStepRightIcon':[null,null]
+				'updateStepRightIcon':[null,null],
+				'menuCreated': [null,null]
 			},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('loadingProjectComplete', view.menuDispatcher, view);
+					view.eventManager.subscribe('menuCreated', view.menuDispatcher, view);
 					view.eventManager.subscribe('renderNodeComplete', view.menuDispatcher, view);
-					view.eventManager.subscribe('toggleNavigationPanelVisibility', view.menuDispatcher, view);
+					//view.eventManager.subscribe('toggleNavigationPanelVisibility', view.menuDispatcher, view);
 					view.eventManager.subscribe('menuExpandAll', view.menuDispatcher, view);
 					view.eventManager.subscribe('menuCollapseAll', view.menuDispatcher, view);
 					view.eventManager.subscribe('menuCollapseAllNonImmediate', view.menuDispatcher, view);
-					view.eventManager.subscribe('toggleMenu', view.menuDispatcher, view);
+					view.eventManager.subscribe('toggleSequence', view.menuDispatcher, view);
 					view.eventManager.subscribe('resizeMenu', view.menuDispatcher, view);
 					view.eventManager.subscribe('updateNavigationConstraints', view.menuDispatcher, view);
 					view.eventManager.subscribe('displayMenuBubble', view.menuDispatcher, view);

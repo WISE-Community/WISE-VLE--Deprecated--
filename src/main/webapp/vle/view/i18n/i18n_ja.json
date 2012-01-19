@@ -1,43 +1,43 @@
 {
-	"top_toolbar_file_button_text":{
+	"file_button_text":{
 		"value":"ファイル",
-		"description":"Text on the File Manager button on Top Toolbar"
+		"description":"Text on the File Manager button"
 	},
-	"top_toolbar_ideas_button_text":{
+	"ideas_button_text":{
 		"value":"アイデア",
-		"description":"Text on the Idea Manager button on Top Toolbar"
+		"description":"Text on the Idea Manager button"
 	},
-	"top_toolbar_addidea_button_text":{
+	"addidea_button_text":{
 		"value":"アイデアを追加",
-		"description":"Text on the Add Idea button on Top Toolbar"
+		"description":"Text on the Add Idea button"
 	},
-	"top_toolbar_mywork_button_text":{
+	"mywork_button_text":{
 		"value":"マイワーク",
-		"description":"Text on the My Work button on Top Toolbar"
+		"description":"Text on the My Work button"
 	},
-	"top_toolbar_flagged_button_text":{
+	"flagged_button_text":{
 		"value":"重要",
-		"description":"Text on the Flagged button on Top Toolbar"
+		"description":"Text on the Flagged button"
 	},
-	"top_toolbar_journal_button_text":{
+	"journal_button_text":{
 		"value":"メモ帳",
-		"description":"Text on the Journal button on Top Toolbar"
+		"description":"Text on the Journal button"
 	},
-	"top_toolbar_fullscreen_button_text":{
+	"toggle_nav_button_text":{
 		"value":"全画面表示",
-		"description":"Text on the Full Screen button on Top Toolbar"
+		"description":"Text on the Toggle Navigation button when navigation UI is on (visible)"
 	},
-	"top_toolbar_signout_button_text":{
+	"signout_button_text":{
 		"value":"ログアウト",
-		"description":"Text on the Log out button on Top Toolbar"
+		"description":"Text on the Log out button"
 	},
-	"top_toolbar_gohome_button_text":{
+	"gohome_button_text":{
 		"value":"ホームページ",
-		"description":"Text on the Home button on Top Toolbar"
+		"description":"Text on the Home button"
 	},		
-	"top_toolbar_hint_button_text":{
+	"hint_button_text":{
 		"value":"ヒント",
-		"description":"Text that shows up next to the Hint button in the top nav bar"
+		"description":"Text that shows up next to the Hint button"
 	},
 	"hint_title":{
 		"value":"ステップヒント",

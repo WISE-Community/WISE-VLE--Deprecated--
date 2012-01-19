@@ -100,8 +100,7 @@ View.prototype.adjustHintSize = function() {
  */
 View.prototype.showStepHints = function() {
 	$('#hintsLink').stop();
-	$('#hintsLink').css('background-color','#FFFA7F');
-	//$('#hintsLink').css('color','#333333');
+	$('#hintsLink').css('color','#FFFFFF');
 	
 	var currentNode = this.getCurrentNode();
 	
@@ -111,7 +110,7 @@ View.prototype.showStepHints = function() {
 	// log when hint was opened
 	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
 	currentNode.view.pushHintState(hintState);
-	eventManager.fire('adjustHintSize');	
+	//eventManager.fire('adjustHintSize');	
 };
 /**
  * Display the flagged work for the project.
@@ -187,15 +186,17 @@ View.prototype.displayFlaggedWork = function() {
 	
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
-    	var docHeight = $(document).height() * .96;
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:docHeight,modal:true,title:'Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,title:'Flagged Work',zindex:9999});
     }
     
     //set the html into the div
     $('#showflaggedwork').html(flaggedWorkHtml);
     
     //make the div visible
+    var docHeight = $(document).height()-25;
+	var docWidth = $(document).width()-25;
+	$('#showflaggedwork').dialog({height:docHeight,width:docWidth});
     $('#showflaggedwork').dialog('open');
 
 	//display the flagged work for the node id that is selected in the select box
@@ -413,9 +414,8 @@ View.prototype.displayShowAllWork = function() {
 	    
 		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr class='showAllWorkHR'><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
 		
-		var docHeight = $(document).height() * .96;
 	    if($('#showallwork').size()==0){
-	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',width:'96%',height:docHeight,modal:true,title:'My Work (with Teacher Feedback and Scores)'});
+	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,title:'My Work (with Teacher Feedback and Scores)'});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
@@ -434,6 +434,9 @@ View.prototype.displayShowAllWork = function() {
 			$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
 		});
 	    
+	    var docHeight = $(document).height()-25;
+		var docWidth = $(document).width()-25;
+		$('#showallwork').dialog({height:docHeight,width:docWidth});
 	    $('#showallwork').dialog('open');
 	    // print mysystem...should happen after opening showallworkdialog
 		$(".mysystem").each(function() {
@@ -659,7 +662,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:[300,40],buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:['center',40],buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
     }
     
     //the html we will insert into the popup
@@ -821,7 +824,7 @@ View.prototype.displayIdeaBasket = function() {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv"></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,width:800,height:500,position:'center',title:this.getI18NString("idea_basket"),close:this.ideaBasketDivClose,
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,position:'center',title:this.getI18NString("idea_basket"),open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
 			// because idea basket content is delivered in an iframe
 			// need to show transparent div overlay when dragging/resizing dialog
 			// so that iframe does not catch mouse movements and interupt dragging/resizing
@@ -846,6 +849,11 @@ View.prototype.displayIdeaBasket = function() {
 	 */
 	if($('#ideaBasketDiv').is(':hidden')) {
 		//open the dialog
+		var docHeight = $(document).height()-25;
+		if(docHeight>499){
+			docHeight = 500;
+		}
+		$('#ideaBasketDiv').dialog({width:800,height:docHeight});
 		$('#ideaBasketDiv').dialog('open');
 		
 		if($('#ideaBasketIfrm').attr('src') == null) {
@@ -865,6 +873,19 @@ View.prototype.displayIdeaBasket = function() {
 			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true);
 		}		
 	}
+};
+
+/**
+ * Called when the idea basket dialog popup is opened
+ */
+View.prototype.ideaBasketDivOpen = function() {
+	/*
+	 * remove href attribute in 'X' close link of ui-dialog, as clicking
+	 * X to close dialog results in window request for '/vlewrapper/vle/#'
+	 * after deleting/restoring an idea in the basket for some unknown
+	 * reason when in preview mode
+	 */
+	$('.ui-dialog-titlebar-close',$(this).parent()).removeAttr('href');
 };
 
 /**

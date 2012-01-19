@@ -1,46 +1,94 @@
 {
-	"top_toolbar_file_button_text":{
+	"file_button_text":{
 		"value":"Files",
-		"description":"Text on the File Manager button on Top Toolbar"
+		"description":"Text on the File Manager button"
 	},
-	"top_toolbar_ideas_button_text":{
+	"ideas_button_text":{
 		"value":"Ideas",
-		"description":"Text on the Idea Manager button on Top Toolbar"
+		"description":"Text on the Idea Manager button"
 	},
-	"top_toolbar_addidea_button_text":{
+	"addidea_button_text":{
 		"value":"Add Idea",
-		"description":"Text on the Add Idea button on Top Toolbar"
+		"description":"Text on the Add Idea button"
 	},
-	"top_toolbar_mywork_button_text":{
+	"mywork_button_text":{
 		"value":"My Work",
-		"description":"Text on the My Work button on Top Toolbar"
+		"description":"Text on the My Work button"
 	},
-	"top_toolbar_flagged_button_text":{
+	"mywork_button_title":{
+		"value":"Review My Work",
+		"description":"Text for mouse hover title on the My Work button"
+	},
+	"flagged_button_text":{
 		"value":"Flagged",
-		"description":"Text on the Flagged button on Top Toolbar"
+		"description":"Text on the Flagged button"
 	},
-	"top_toolbar_journal_button_text":{
+	"flagged_button_title":{
+		"value":"Review Teacher Flagged Work",
+		"description":"Text for mouse hover title on the Flagged button"
+	},
+	"journal_button_text":{
 		"value":"Journal",
-		"description":"Text on the Journal button on Top Toolbar"
+		"description":"Text on the Journal button"
 	},
-	"top_toolbar_fullscreen_button_text":{
+	"toggle_nav_button_text":{
 		"value":"Full Screen",
-		"description":"Text on the Full Screen button on Top Toolbar"
+		"description":"Text on the Toggle Navigation button when navigation UI is on (visible)"
 	},
-	"top_toolbar_signout_button_text":{
+	"toggle_nav_button_title":{
+		"value":"Full Screen Mode (Hide Navigation Menu)",
+		"description":"Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
+	},
+	"toggle_nav_button_text_off":{
+		"value":"Show Menu",
+		"description":"Text on the Toggle Navigation button when navigation UI is off (hidden)"
+	},
+	"toggle_nav_button_title_off":{
+		"value":"Show Navigation Menu",
+		"description":"Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
+	},
+	"signout_button_text":{
 		"value":"Sign Out",
-		"description":"Text on the Log out button on Top Toolbar"
+		"description":"Text on the Log out button"
 	},
-	"top_toolbar_gohome_button_text":{
+	"signout_button_title":{
+		"value":"Save & Sign Out of WISE",
+		"description":"Text for mouse hover title on the Log out button"
+	},
+	"previous_step_text":{
+		"value":"< Previous",
+		"description":"Text on button in the project vle that will show the previous step in the project"
+	},
+	"previous_step_title":{
+		"value":"Previous Step",
+		"description":"Text for mouse hover title on button in the project vle that will show the previous step in the project"
+	},
+	"next_step_text":{
+		"value":"Next >",
+		"description":"Text on button in the project vle that will show the next step in the project"
+	},
+	"next_step_title":{
+		"value":"Next Step",
+		"description":"Text for mouse hover title on button in the project vle that will show the next step in the project"
+	},
+	"gohome_button_text":{
 		"value":"Home",
-		"description":"Text on the Home button on Top Toolbar"
+		"description":"Text on the Home button"
+	},
+	"gohome_button_title":{
+		"value":"Save & Exit to Student Home",
+		"description":"Text for mouse hover title on the Home button"
 	},		
-	"top_toolbar_hint_button_text":{
+	"hint_button_text":{
 		"value":"Hints",
-		"description":"Text that shows up next to the Hint button in the top tool bar"
+		"description":"Text that shows up next to the Hint button"
+	},
+	"hint_button_title":{
+		"value":"View Hints",
+		"description":"Text for mouse hover title on the Hint button"
 	},
 	"hint_title":{
-		"value":"Step Hint",
+		"value":"Step Hints",
 		"description":"Title that shows up in the hint window"
 	},
 	"hint_hint":{
@@ -56,12 +104,12 @@
 		"description":"previous hint"
 	},
 	"navigation_expand_all":{
-		"value":"Expand All",
-		"description":"Text on a button to expand all navigation items"
+		"value":"Show All",
+		"description":"Text on a button to show all navigation items"
 	},
 	"navigation_collapse_all":{
-		"value":"Collaps All",
-		"description":"Text on a button to collapse all navigation items"
+		"value":"Collapse All",
+		"description":"Text on a button to hide all navigation items"
 	},	
 	"student_assets_upload_new_file":{
 		"value":"Upload New File",
@@ -100,7 +148,7 @@
 		"description":"Text on a button in Student Asset Manager to delete a selected file"
 	},
 	"cancel":{
-		"value":"cancel",
+		"value":"Cancel",
 		"description":"Text 'cancel'"
 	},
 	"ok":{
@@ -108,7 +156,7 @@
 		"description":"Text 'OK'"
 	},
 	"done":{
-		"value":"done",
+		"value":"Done",
 		"description":"Text 'done', to mean completed"
 	},
 	"idea_basket":{
@@ -362,5 +410,18 @@
 	"grading_change_team":{
 		"value":"Change Team",
 		"description":"text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
-	}	
+	},
+	"welcome": {
+		"value":"Welcome",
+		"description":"Text for 'Welcome'"
+	},
+	"welcome_users_default": {
+		"value":"Welcome Test User!",
+		"description":"Text to display in VLE for user name in preview mode"
+	},
+	"note_title" : {
+		"value":"Reflection Note",
+		"description":"Text to display in the title bar of a note dialog window"
+	}
+	
 }

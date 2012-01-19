@@ -53,6 +53,12 @@ NoteNode.prototype.render = function(contentPanel, studentWork){
 	/* render the content for this node */
 	this.view.activeNote.render();
 	
+	/* set the dialog title to the node title */
+	var title = this.view.getI18NString("note_title") + ': ' + this.view.activeNote.node.getTitle();
+	$('#notePanel').dialog({
+		title: title
+	});
+	
 	/* show the note panel */
 	$('#notePanel').dialog('open');
 	
