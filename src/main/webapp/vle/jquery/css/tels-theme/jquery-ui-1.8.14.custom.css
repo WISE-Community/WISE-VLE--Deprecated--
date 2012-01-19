@@ -64,10 +64,7 @@
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Arial,sans-serif; font-size: 1em; }
 .ui-widget-content { border: 1px solid #dddddd; background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #444444; }
 .ui-widget-content a { }
-.ui-widget-header { border: 1px solid #ffffff; background: #0e7590 url(images/ui-bg_highlight-hard_20_0e7590_1x100.png) 50% 50% repeat-x; color: #ffffff; font-weight: bold;
-	/* WISE Edits */
-	color: #E3ED5E;
-}
+.ui-widget-header { border: 1px solid #ffffff; background: #0e7590 url(images/ui-bg_highlight-hard_20_0e7590_1x100.png) 50% 50% repeat-x; color: #ffffff; font-weight: bold; }
 .ui-widget-header a { color: #ffffff; }
 
 /* Interaction states
@@ -467,9 +464,9 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 	border-radius: 0 0 0 0;
 	-webkit-border-radius: 0 0 0 0;
 	-moz-border-radius: 0 0 0 0;
-    margin: -0.1em;
+    margin: -0.1em -0.1em 0;
     padding: 0.25em 0.5em;
-     border-bottom: 1px solid #AAAAAA;
+    border-bottom: 2px solid #C6CF51;
 }
 .ui-dialog .ui-dialog-title { float: left; margin: .1em 16px .1em 0; 
 	/*WISE Edits */

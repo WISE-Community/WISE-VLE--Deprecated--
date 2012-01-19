@@ -12,7 +12,7 @@ var studentVLEScripts = [
 	'vle/node/flash/flash.js',
 	'vle/node/flash/flashState.js',
 	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.7.custom.min.js',
+	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
 	'vle/swfobject/swfobject.js',
 	'vle/util/underscore-min.js'
 ];
