@@ -39,15 +39,18 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
  * REQUIRED - Specifies what a step looks like in this navigation menu.
  * 
  * @param classString
- * @param deep The depth of the node
- * @param nodeId
- * @param icon
- * @param position The tree numbering e.g. 1, 1.1, 1.1.2
- * @param title
- * @param currentStepNum The global step number e.g. 1, 2, 3, or null if not used
+ * @param stepId String id for the step DOM element
+ * @param nodeId String id for the node in the project
+ * @param icon html string for the step icon (an <img> element)
+ * @param position Tree numbering position in project (e.g. 1, 1.1, 1.1.2)
+ * @param title Title string of the step
  * @return the html for the step
  */
-NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId, icon, position, title, currentStepNum) {
+NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId, icon, position, title) {
+	// create the opening tag for the step DOM element
+	// *REQUIRED*: the id for this element should be the stepId param
+	// *REQUIRED*: the classString param should be added to the class attribute
+	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');
 	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('renderNode','" + position + "');\">"; 
 	
 	//create a table inside the anchor for each step
@@ -61,28 +64,16 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 	html += "</td>";
 	html += "<td>";
 	
+	//*SUGGESTED*: if you want to display the step's title, include the title param
 	//insert the span to display the step title
-	html += "<span class='nodeTitle'>";
-	
-	if(currentStepNum != null) {
-		html += this.stepTerm + " " + currentStepNum + ": "; 
-	} else {
-		if(this.stepTerm && this.stepTerm != ''){
-			html += this.stepTerm + ': ';
-		};
-	};
-	
-	if(!this.stepLevelNumbering){
-		position = '';
-	};
-	
-	html += this.getTitlePositionFromLocation(position) + " " + title + "</span>";
+	html += "<span class='nodeTitle'>" + title + "</span>";
 	
 	html += "</td>";
 	html += "<td height='16px'>";
 	
 	//insert the span to display any special icons such as colored stars or badges
-	html += "<span id='" + nodeId + "_right_icon' class='empty'></span>";
+	//*REQUIRED*: the special icon element must have an id attribute of 'nodeId + "_status_icon"'
+	html += "<span id='" + nodeId + "_status_icon' class='empty'></span>";
 	
 	html += "</td>";
 	html += "</table>";

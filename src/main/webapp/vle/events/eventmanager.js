@@ -210,7 +210,7 @@ function LoadingManager(em, fixedCenter){
  * message in the middle of the window
  */
 LoadingManager.prototype.initializeOverlay = function(fixedCenter){
-	$('#loading div.bd').html("<img src='images/loading.gif'/>");;
+	$('#loading div.bd').html("<br /><img src='images/loading.gif'/>");;
 	$('#loading').dialog({
 		autoOpen:false,
 		width:300,

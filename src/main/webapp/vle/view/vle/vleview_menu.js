@@ -314,7 +314,7 @@ View.prototype.updateStepRightIcon = function(nodeId, className) {
 	nodeId = nodeId.replace(/\./g, '\\.');
 	
 	//get the div id for the right icon
-	var divId = nodeId + "_right_icon";
+	var divId = nodeId + "_status_icon";
 	
 	//remove any existing classes
 	$('#' + divId).removeClass();

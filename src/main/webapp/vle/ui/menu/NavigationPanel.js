@@ -316,13 +316,28 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     			sequenceIcon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
     		};
     		
-    		//display a step with the title of the sequence for this glue sequence
+    		var title = '';
+    		
+    		var nodeTitle = node.getTitle();
+    		var currentStepNum = this.getStudentViewPosition(position);
     		if(this.autoStep) {
-    			htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, node.getTitle(), this.getStudentViewPosition(position + '.0'));
-    			this.currentStepNum ++;
+    			title += this.stepTerm + " " + currentStepNum + ": "; 
     		} else {
-    			htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, node.getTitle());
-    		}
+    			if(this.stepTerm && this.stepTerm != ''){
+    				title += this.stepTerm + ': ';
+    			};
+    		};
+    		
+    		var titlePosition = position;
+    		
+    		if(!this.stepLevelNumbering){
+    			titlePosition = '';
+    		};
+    		
+    		title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
+    		
+    		//display a step with the title of the sequence for this glue sequence
+    		htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, title, this.getStudentViewPosition(position + '.0'));
     	} else {
     		//the sequence is normal
     		
@@ -354,13 +369,28 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 			icon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
 		};
 		
-		//display the step
-		if(this.autoStep){
-			htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, node.getTitle(), this.getStudentViewPosition(position));
-			this.currentStepNum ++;
+		var title = '';
+		
+		var nodeTitle = node.getTitle();
+		var currentStepNum = this.getStudentViewPosition(position);
+		if(this.autoStep) {
+			title += this.stepTerm + " " + currentStepNum + ": "; 
 		} else {
-			htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, node.getTitle());
+			if(this.stepTerm && this.stepTerm != ''){
+				title += this.stepTerm + ': ';
+			};
 		};
+		
+		var titlePosition = position;
+		
+		if(!this.stepLevelNumbering){
+			titlePosition = '';
+		};
+		
+		title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
+		
+		//display the step
+		htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, title);
 	};
 	return htmlSoFar;
 };

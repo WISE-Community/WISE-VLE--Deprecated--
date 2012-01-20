@@ -243,7 +243,6 @@ body#w4_vle {
 	left:0;
 	right:0;
 	top:0;
-	/*background: url("../images/vle-wrapper-bg.png") no-repeat scroll center top transparent;*/
 }
 
 #vle_body header {
@@ -701,8 +700,15 @@ body#w4_vle {
 	padding-right:15px;
 }
 
+
+/* Loading dialog content */
+#loading div {
+	text-align:center;
+	padding:0.5em;
+}
+
 .no-title .ui-dialog-titlebar {
-	display: none;	
+	display: none;
 }
 
 
