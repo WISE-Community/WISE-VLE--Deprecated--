@@ -23,25 +23,27 @@ public class CRaterJob implements Job {
 		String cRaterScoringUrl = mergedJobDataMap.getString("cRater_scoring_url");
 		String cRaterClientId = mergedJobDataMap.getString("cRater_client_id");
 		
-		List<CRaterRequest> incompleteCRaterRequests = CRaterRequest.getIncompleteCRaterRequests();
-		
-		for(int x=0; x<incompleteCRaterRequests.size(); x++) {
-			CRaterRequest cRaterRequest = incompleteCRaterRequests.get(x);
+		if(cRaterScoringUrl != null) {
+			List<CRaterRequest> incompleteCRaterRequests = CRaterRequest.getIncompleteCRaterRequests();
 			
-			StepWork stepWork = cRaterRequest.getStepWork();
-			Long stepWorkId = stepWork.getId();
-			Long nodeStateId = cRaterRequest.getNodeStateId();
-			String runId = cRaterRequest.getRunId().toString();
-			String annotationType = "cRater";
-			
-			VLEAnnotationController.getCRaterAnnotation(nodeStateId, runId, stepWorkId, annotationType, cRaterScoringUrl, cRaterClientId);
-			
-			//sleep for 10 seconds between each request
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			for(int x=0; x<incompleteCRaterRequests.size(); x++) {
+				CRaterRequest cRaterRequest = incompleteCRaterRequests.get(x);
+				
+				StepWork stepWork = cRaterRequest.getStepWork();
+				Long stepWorkId = stepWork.getId();
+				Long nodeStateId = cRaterRequest.getNodeStateId();
+				String runId = cRaterRequest.getRunId().toString();
+				String annotationType = "cRater";
+				
+				VLEAnnotationController.getCRaterAnnotation(nodeStateId, runId, stepWorkId, annotationType, cRaterScoringUrl, cRaterClientId);
+				
+				//sleep for 10 seconds between each request
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}			
 		}
 	}
 }

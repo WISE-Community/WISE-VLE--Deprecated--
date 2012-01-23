@@ -415,7 +415,11 @@ public class VLEAnnotationController extends HttpServlet {
 		// for identifying this response when sending to the CRater server.
 		String cRaterResponseId = stepWorkId.toString();
 		
-		Annotation annotation = Annotation.getCRaterAnnotationByStepWorkId(stepWorkId);
+		Annotation annotation = null;
+		
+		//try to obtain the crater annotation if it exists
+		annotation = Annotation.getCRaterAnnotationByStepWorkId(stepWorkId);
+		
 		if (annotation != null) {
 			// cRater annotation already exists, we are either getting it if it also exists for the
 			// specified nodestate or appending to the annotation array if it doesn't exist
@@ -424,6 +428,7 @@ public class VLEAnnotationController extends HttpServlet {
 				// do nothing...this stepwork has already been scored and saved in the annotation
 				// this will be returned to user later in this function							
 			} else {
+				//this node state does not have a crater annotation yet so we will make it and add it to the array of annotations
 				try {
 					// make a request to CRater
 					StepWork stepWork = StepWork.getByStepWorkId(stepWorkId);
@@ -445,20 +450,23 @@ public class VLEAnnotationController extends HttpServlet {
 					// get CRaterItemId from the StepWork and post to CRater server.
 					String cRaterItemId = stepWork.getCRaterItemId();
 					String cRaterResponseXML = CRaterHttpClient.post(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
-					JSONObject cRaterResponseJSONObj = new JSONObject();
+					
+					if(cRaterResponseXML != null) {
+						JSONObject cRaterResponseJSONObj = new JSONObject();
 
-					JSONObject studentNodeStateResponse = stepWork.getNodeStateByTimestamp(nodeStateId);
+						JSONObject studentNodeStateResponse = stepWork.getNodeStateByTimestamp(nodeStateId);
 
-					cRaterResponseJSONObj = 
-							Annotation.createCRaterNodeStateAnnotation(
-									nodeStateId, 
-									CRaterHttpClient.getScore(cRaterResponseXML), 
-									studentNodeStateResponse, 
-									cRaterResponseXML);
+						cRaterResponseJSONObj = 
+								Annotation.createCRaterNodeStateAnnotation(
+										nodeStateId, 
+										CRaterHttpClient.getScore(cRaterResponseXML), 
+										studentNodeStateResponse, 
+										cRaterResponseXML);
 
-					// append the cRaterResponse to the existing annotation for this stepwork.
-					annotation.appendNodeStateAnnotation(cRaterResponseJSONObj);
-					annotation.saveOrUpdate();
+						// append the cRaterResponse to the existing annotation for this stepwork.
+						annotation.appendNodeStateAnnotation(cRaterResponseJSONObj);
+						annotation.saveOrUpdate();						
+					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -528,17 +536,23 @@ public class VLEAnnotationController extends HttpServlet {
 					
 					// update CRaterRequest table and mark this request as completed.
 					CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork,nodeStateId);
-					Calendar cRaterRequestCompletedTime = Calendar.getInstance();
-					cRaterRequest.setTimeCompleted(new Timestamp(cRaterRequestCompletedTime.getTimeInMillis()));
-					cRaterRequest.setcRaterResponse(cRaterResponse);
-					cRaterRequest.saveOrUpdate();
+					
+					if(cRaterRequest != null) {
+						Calendar cRaterRequestCompletedTime = Calendar.getInstance();
+						cRaterRequest.setTimeCompleted(new Timestamp(cRaterRequestCompletedTime.getTimeInMillis()));
+						cRaterRequest.setcRaterResponse(cRaterResponse);
+						cRaterRequest.saveOrUpdate();						
+					}
 				} else {
 					// there was an error connecting to the CRater servlet
 					// do nothing so this method will return null
 					// increment fail count
 					CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork, nodeStateId);
-					cRaterRequest.setFailCount(cRaterRequest.getFailCount()+1);
-					cRaterRequest.saveOrUpdate();
+					
+					if(cRaterRequest != null) {
+						cRaterRequest.setFailCount(cRaterRequest.getFailCount()+1);
+						cRaterRequest.saveOrUpdate();						
+					}
 				}
 			} catch (JSONException e1) {
 				e1.printStackTrace();

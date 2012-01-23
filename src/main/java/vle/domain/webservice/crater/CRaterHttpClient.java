@@ -44,53 +44,58 @@ public class CRaterHttpClient extends HttpClient {
 	 * @return responseBody as a String, or null if there was an error during the request to CRater.
 	 */
 	public static String post(String cRaterUrl, String cRaterClientId, String itemId, String responseId, String studentData) {
-		HttpClient client = new HttpClient();
-
-		// Create a method instance.
-		PostMethod method = new PostMethod(cRaterUrl);
-
-		// Provide custom retry handler is necessary
-		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, 
-				new DefaultHttpMethodRetryHandler(3, false));
-
-		String bodyData = "<crater-request includeRNS='N'><client id='" + cRaterClientId + "'/><items><item id='" + itemId + "'>"
-					+"<responses><response id='" + responseId + "'><![CDATA["+studentData+"]]></response></responses></item></items></crater-request>";
-		System.out.println("crater request bodyData:" + bodyData);
-		try {
-			method.setRequestEntity(new StringRequestEntity(bodyData, "text/xml", "utf8"));
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
+		String responseString = null;
 		
-		byte[] responseBody = null;
-		try {
-			// Execute the method.
-			int statusCode = client.executeMethod(method);
+		if(cRaterUrl != null) {
+			HttpClient client = new HttpClient();
 
-			if (statusCode != HttpStatus.SC_OK) {
-				System.err.println("Method failed: " + method.getStatusLine());
+			// Create a method instance.
+			PostMethod method = new PostMethod(cRaterUrl);
+
+			// Provide custom retry handler is necessary
+			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, 
+					new DefaultHttpMethodRetryHandler(3, false));
+
+			String bodyData = "<crater-request includeRNS='N'><client id='" + cRaterClientId + "'/><items><item id='" + itemId + "'>"
+						+"<responses><response id='" + responseId + "'><![CDATA["+studentData+"]]></response></responses></item></items></crater-request>";
+			System.out.println("crater request bodyData:" + bodyData);
+			try {
+				method.setRequestEntity(new StringRequestEntity(bodyData, "text/xml", "utf8"));
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
 			}
+			
+			byte[] responseBody = null;
+			try {
+				// Execute the method.
+				int statusCode = client.executeMethod(method);
 
-			// Read the response body.
-			responseBody = method.getResponseBody();
+				if (statusCode != HttpStatus.SC_OK) {
+					System.err.println("Method failed: " + method.getStatusLine());
+				}
 
-			// Deal with the response.
-			// Use caution: ensure correct character encoding and is not binary data
-		} catch (HttpException e) {
-			System.err.println("Fatal protocol violation: " + e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.err.println("Fatal transport error: " + e.getMessage());
-			e.printStackTrace();
-		} finally {
-			// Release the connection.
-			method.releaseConnection();
-		}  
-		
-		if (responseBody == null) {
-			return null;
+				// Read the response body.
+				responseBody = method.getResponseBody();
+
+				// Deal with the response.
+				// Use caution: ensure correct character encoding and is not binary data
+			} catch (HttpException e) {
+				System.err.println("Fatal protocol violation: " + e.getMessage());
+				e.printStackTrace();
+			} catch (IOException e) {
+				System.err.println("Fatal transport error: " + e.getMessage());
+				e.printStackTrace();
+			} finally {
+				// Release the connection.
+				method.releaseConnection();
+			}  
+			
+			if (responseBody != null) {
+				responseString = new String(responseBody);
+			}			
 		}
-		return new String(responseBody);
+		
+		return responseString;
 	}
 	
 	/**
