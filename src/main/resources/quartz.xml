@@ -64,7 +64,7 @@
 			<cron>
 				<name>CRaterTrigger</name>
 				<job-name>CRaterJob</job-name>
-				<cron-expression>0 * * * * ?</cron-expression>
+				<cron-expression>0 0 23 * * ?</cron-expression>
 			</cron>
 		</trigger>
 	</schedule>
