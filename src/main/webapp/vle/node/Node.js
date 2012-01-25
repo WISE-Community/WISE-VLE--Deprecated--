@@ -965,7 +965,7 @@ Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
  */
 Node.prototype.insertPreviousWorkIntoPage = function(doc){
 	//only do anything if there is anything to do
-	if(this.prevWorkNodeIds.length>0){
+	if(this.prevWorkNodeIds != null && this.prevWorkNodeIds.length>0){
 		var html = '';
 		
 		//loop through and add any previous work to html

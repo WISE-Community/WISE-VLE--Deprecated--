@@ -13,15 +13,16 @@ function NavigationPanel(view) {
  * need to create the nav html. If the string is not empty that means
  * we have previously created the nav html and we only need to update
  * some of the elements.
+ * @param forceReRender true iff we want to rerender the navigation from scratch
  */
-NavigationPanel.prototype.render = function() {
+NavigationPanel.prototype.render = function(forceReRender) {
 	// TODO: remove this first if conditional - navMode is now specified by the active project
 	if (this.view.config.getConfigParam("navMode") != "none" && this.view.config.getConfigParam("navMode") != "dropDownTree") {
 		//obtain the html in the nav div and run trim on it
 		var currentNavHtml = document.getElementById("my_menu").innerHTML.replace(/^\s*/, "").replace(/\s*$/, "");
 
 		//check if the nav html is empty string after the trim
-		if(currentNavHtml != "") {
+		if(!forceReRender && currentNavHtml != "") {
 			//the nav html is not empty string so we will just update some of the elements
 
 			//obtain the node pos that was previously just highlighted in the nav
@@ -316,28 +317,10 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     			sequenceIcon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
     		};
     		
-    		var title = '';
     		
-    		var nodeTitle = node.getTitle();
-    		var currentStepNum = this.getStudentViewPosition(position);
-    		if(this.autoStep) {
-    			title += this.stepTerm + " " + currentStepNum + ": "; 
-    		} else {
-    			if(this.stepTerm && this.stepTerm != ''){
-    				title += this.stepTerm + ': ';
-    			};
-    		};
-    		
-    		var titlePosition = position;
-    		
-    		if(!this.stepLevelNumbering){
-    			titlePosition = '';
-    		};
-    		
-    		title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
     		
     		//display a step with the title of the sequence for this glue sequence
-    		htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, title, this.getStudentViewPosition(position + '.0'));
+    		htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, node, this.getStudentViewPosition(position + '.0'));
     	} else {
     		//the sequence is normal
     		
@@ -369,28 +352,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 			icon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
 		};
 		
-		var title = '';
-		
-		var nodeTitle = node.getTitle();
-		var currentStepNum = this.getStudentViewPosition(position);
-		if(this.autoStep) {
-			title += this.stepTerm + " " + currentStepNum + ": "; 
-		} else {
-			if(this.stepTerm && this.stepTerm != ''){
-				title += this.stepTerm + ': ';
-			};
-		};
-		
-		var titlePosition = position;
-		
-		if(!this.stepLevelNumbering){
-			titlePosition = '';
-		};
-		
-		title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
-		
 		//display the step
-		htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, title);
+		htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, node);
 	};
 	return htmlSoFar;
 };

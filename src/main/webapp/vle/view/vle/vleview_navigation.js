@@ -43,8 +43,16 @@ View.prototype.updateNavigationConstraints = function(){
 /**
  * Creates the navigation logic using the dfs algorithm
  */
-View.prototype.createNavigationLogicOnProjectLoad = function(){
+View.prototype.updateNavigationLogic = function(){
 	this.navigationLogic = new NavigationLogic(new DFS(this.getProject().getRootNode()), this);
+};
+
+/**
+ * Creates the navigation logic using the dfs algorithm
+ */
+View.prototype.createNavigationLogicOnProjectLoad = function(){
+	//this.navigationLogic = new NavigationLogic(new DFS(this.getProject().getRootNode()), this);
+	this.updateNavigationLogic();
 };
 
 /**

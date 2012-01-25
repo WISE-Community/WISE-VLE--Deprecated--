@@ -84,26 +84,30 @@ SetupNodes.setupFiles = [
 		nodeName:"IdeaBasketNode",
 		nodeSetupPath:"vle/node/ideabasket/setup.js"
 	},
-	 {
-		 nodeName:"CarGraphNode",
-		 nodeSetupPath:"vle/node/cargraph/setup.js"
-	 },
-	 {
-		 nodeName:"SeasonsNode",
-		 nodeSetupPath:"vle/node/seasons/setup.js"
-	 },
-	 {
-		 nodeName:"SurgeNode",
-		 nodeSetupPath:"vle/node/surge/setup.js"
-	 },
-	 {
-		 nodeName:"Mysystem2Node",
-		 nodeSetupPath:"vle/node/mysystem2/setup.js"
-	 },
-	 {
-		 nodeName:"FlashNode",
-		 nodeSetupPath:"vle/node/flash/setup.js"
-	 }
+	{
+		nodeName:"CarGraphNode",
+		nodeSetupPath:"vle/node/cargraph/setup.js"
+	},
+	{
+		nodeName:"SeasonsNode",
+		nodeSetupPath:"vle/node/seasons/setup.js"
+	},
+	{
+		nodeName:"SurgeNode",
+		nodeSetupPath:"vle/node/surge/setup.js"
+	},
+	{
+		nodeName:"Mysystem2Node",
+		nodeSetupPath:"vle/node/mysystem2/setup.js"
+	},
+	{
+		nodeName:"FlashNode",
+		nodeSetupPath:"vle/node/flash/setup.js"
+	},
+	{
+		nodeName:"BranchingNode",
+		nodeSetupPath:"vle/node/branching/setup.js"
+	}
 ];
 
 //insert the setup paths into the scriptloader so they will be loaded

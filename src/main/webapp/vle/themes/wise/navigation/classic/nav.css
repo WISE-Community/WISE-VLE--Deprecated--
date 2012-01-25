@@ -169,21 +169,21 @@
 }
 
 .sdmenu a .goldStar {
-	background-image:url('../images/goldStar.png');
+	background-image:url('images/goldStar.png');
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	height:100%;
 }
 
 .sdmenu a .silverStar {
-	background-image:url('../images/silverStar.png');
+	background-image:url('images/silverStar.png');
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	height:100%;
 }
 
 .sdmenu a .bronzeStar {
-	background-image:url('../images/bronzeStar.gif');
+	background-image:url('images/bronzeStar.gif');
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	height:100%;

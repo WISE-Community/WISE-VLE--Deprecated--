@@ -1,0 +1,10 @@
+{
+Ê "maxPathVisitable":1,  // how many paths you can go down if you revisit the step.. -1 for infinite
+Ê "branchingFunction":"",
+Ê "branchingFunctionParams":[],
+ Ê"paths":[ Ê Ê Ê
+  ],
+  "prompt": "",
+  "excelExportStringTemplate":"",
+  "type": "Branching"
+}
