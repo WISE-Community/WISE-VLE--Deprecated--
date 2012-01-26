@@ -34,6 +34,13 @@ Node.prototype.getNodeId = function() {
 	return this.id;
 };
 
+Node.prototype.isHiddenFromNavigation = function() {
+	if (this.isHidden) {
+		return this.isHidden;
+	}
+	return false;
+};
+
 Node.prototype.getTitle = function() {
 	if (this.title != null) {
 		return this.title;
@@ -1414,6 +1421,13 @@ Node.prototype.processStudentWork = function(studentWork) {
  */
 Node.prototype.getTagMapFunctions = function() {
 	return [];
+};
+
+/**
+ * Handle any processing before creating the node navigation html.
+ */
+Node.prototype.onBeforeCreateNavigationHtml = function() {
+	// to be overriden by child nodes
 };
 
 /**

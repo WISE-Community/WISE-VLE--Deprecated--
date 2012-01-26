@@ -107,19 +107,16 @@ Branching.prototype.render = function() {
 
 		var pathToVisitJSONObj = this.getPathToVisit();
 		// inject the nodes in the path into the Project
-		this.chosenPathId = pathToVisitJSONObj.sequenceRef;
+		this.chosenPathId = pathToVisitJSONObj.identifier;
 		
-		var sequenceId = this.node.parent.id;
-		var currentPosition = this.view.getCurrentPosition();
-		var locationOfBranchNode = parseInt(currentPosition.split(".")[currentPosition.split(".").length-1]);
-		var pathSequence = this.view.getProject().getNodeById(this.chosenPathId);  // get the sequence node
-		if (!this.view.getProject().getPositionById(this.chosenPathId)) {
-			this.view.getProject().addNodeToSequence(this.chosenPathId, sequenceId, locationOfBranchNode+1);
-		}
+		var chosenSequenceId = pathToVisitJSONObj.sequenceRef;
+		var pathSequence = this.view.getProject().getNodeById(chosenSequenceId);  // get the sequence node
+
 		// loop through the nodes in the sequence and add them to the current sequence after the branch node
 		for (var i=0; i < pathSequence.children.length; i++) {
-			// check to see if the node has already been added to the project
 			var nodeInPath = pathSequence.children[i];
+			// show the nodes in the navigation
+			nodeInPath.isHidden=false;
 			// also preload the nodes in path
 			nodeInPath.preloadContent();							
 		}

@@ -320,7 +320,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     		
     		
     		//display a step with the title of the sequence for this glue sequence
-    		htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, node, this.getStudentViewPosition(position + '.0'));
+    		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, sequenceIcon, position, node, this.getStudentViewPosition(position + '.0'));
     	} else {
     		//the sequence is normal
     		
@@ -353,7 +353,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		};
 		
 		//display the step
-		htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, node);
+		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, icon, position, node);
 	};
 	return htmlSoFar;
 };

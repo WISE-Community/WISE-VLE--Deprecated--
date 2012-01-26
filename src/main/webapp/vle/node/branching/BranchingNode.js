@@ -192,6 +192,73 @@ BranchingNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/branching/branching.html');
 };
 
+/**
+ * Returns the JSON of the path specified by the path ID.
+ * @param pathId
+ */
+BranchingNode.prototype.getPathsJSON = function() {
+	return this.content.getContentJSON().paths;
+};
+
+/**
+ * Returns the JSON of the path specified by the path ID.
+ * @param pathId
+ */
+BranchingNode.prototype.getPathJSON = function(pathId) {
+	var paths = this.getPathsJSON();
+	for (var i=0; i < paths.length; i++) {
+		var path = paths[i];
+		if (path.identifier == pathId) {
+			return path;
+		}
+	}
+	return null;
+};
+
+/**
+ * Handle any processing before creating the node navigation html.
+ * For the branch node, check if student has already visited the branch path
+ * If yes, show only the path that they went under and hide the other paths.
+ * If no, hide all paths.
+ */
+BranchingNode.prototype.onBeforeCreateNavigationHtml = function() {
+	var latestState = this.view.state.getLatestWorkByNodeId(this.id);
+	if (latestState != null && latestState.response != null && latestState.response.chosenPathId != null) {
+		// student has already been to this branch and has been "branched"
+		if (!this.content.showBranchNodeAfterBranching) {
+			// hide this branchnode if needed
+			this.isHidden = true;
+		}
+		var chosenPathId = latestState.response.chosenPathId;
+		var paths = this.getPathsJSON();
+		for (var i=0; i < paths.length; i++) {
+			var path = paths[i];
+			var pathSequence = this.view.getProject().getNodeById(path.sequenceRef);
+			var nodesInPath = pathSequence.children;
+			for (var j=0; j < nodesInPath.length; j++) {
+				var nodeInPath = this.view.getProject().getNodeById(nodesInPath[j].id);
+				if (chosenPathId==path.identifier) {
+					nodeInPath.isHidden=false;
+				} else {
+					nodeInPath.isHidden=true;					
+				}
+			}
+		}
+	} else {
+		// student has not been to this branch, so we hide the branch paths
+		var paths = this.getPathsJSON();
+		for (var i=0; i < paths.length; i++) {
+			var path = paths[i];
+			var pathSequence = this.view.getProject().getNodeById(path.sequenceRef);
+			var nodesInPath = pathSequence.children;
+			for (var j=0; j < nodesInPath.length; j++) {
+				var nodeInPath = this.view.getProject().getNodeById(nodesInPath[j].id);
+				nodeInPath.isHidden=true;
+			}
+		}
+	}
+};
+
 /*
  * Add this node to the node factory so the vle knows it exists.
  * TODO: rename both occurrences of BranchingNode

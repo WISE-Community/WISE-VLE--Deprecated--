@@ -96,7 +96,8 @@ NavigationLogic.prototype.getNextVisitableNode = function(location){
 	var nextNodeLoc = this.getNextNode(location);
 	while (nextNodeLoc != null && 
 			(this.view.getProject().getNodeByPosition(nextNodeLoc).isSequence() ||
-			this.getVisitableStatus(nextNodeLoc).value !== 0)) {
+			 this.view.getProject().getNodeByPosition(nextNodeLoc).isHiddenFromNavigation() ||
+			 this.getVisitableStatus(nextNodeLoc).value !== 0)) {
 		nextNodeLoc = this.getNextNode(nextNodeLoc);
 	}
 	
@@ -133,8 +134,10 @@ NavigationLogic.prototype.getNextStepNodeInProject = function(location){
  */
 NavigationLogic.prototype.getPrevVisitableNode = function(location){
 	var prevNodeLoc = this.getPrevNode(location);
-	while (prevNodeLoc != null && (this.view.getProject().getNodeByPosition(prevNodeLoc).isSequence() || 
-			this.getVisitableStatus(prevNodeLoc).value !== 0)) {
+	while (prevNodeLoc != null && 
+			(this.view.getProject().getNodeByPosition(prevNodeLoc).isSequence() || 
+			 this.view.getProject().getNodeByPosition(prevNodeLoc).isHiddenFromNavigation() ||
+			 this.getVisitableStatus(prevNodeLoc).value !== 0)) {
 		prevNodeLoc = this.getPrevNode(prevNodeLoc);
 	}
 	
