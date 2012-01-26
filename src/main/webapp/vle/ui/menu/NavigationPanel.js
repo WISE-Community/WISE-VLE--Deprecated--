@@ -241,6 +241,34 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		deep = 0;
 	};
 	
+	var title = '';
+
+	// handle any processing (e.g. for branching) before we create the navigation html.
+	node.onBeforeCreateNavigationHtml();
+
+	var nodeTitle = node.getTitle();
+	var currentStepNum = this.getStudentViewPosition(position);
+	if(this.autoStep) {
+		title += this.stepTerm + " " + currentStepNum + ": "; 
+	} else {
+		if(this.stepTerm && this.stepTerm != ''){
+			title += this.stepTerm + ': ';
+		};
+	};
+	
+	var titlePosition = position;
+	
+	if(!this.stepLevelNumbering){
+		titlePosition = '';
+	};
+	
+	title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
+
+	if (node.isHiddenFromNavigation()) {
+		// hide the node if node.isHidden is true
+		classString += " hidden ";
+	} 
+
 	/*
 	 * depth# gets added to each node/sequence class so it can be styled; when
 	 * creating the html for a node/sequence, we add 1 to the deep value so that the
@@ -317,10 +345,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     			sequenceIcon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
     		};
     		
-    		
-    		
     		//display a step with the title of the sequence for this glue sequence
-    		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, sequenceIcon, position, node, this.getStudentViewPosition(position + '.0'));
+    		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, sequenceIcon, position, title, this.getStudentViewPosition(position + '.0'));
     	} else {
     		//the sequence is normal
     		
@@ -353,7 +379,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		};
 		
 		//display the step
-		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, icon, position, node);
+		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, icon, position, title);
 	};
 	return htmlSoFar;
 };

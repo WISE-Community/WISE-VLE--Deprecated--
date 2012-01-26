@@ -46,39 +46,11 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
  * @param title Title string of the step
  * @return the html for the step
  */
-NavigationPanel.prototype.createStepNavigationHtml = function(classString, stepId, nodeId, icon, position, node) {
+NavigationPanel.prototype.createStepNavigationHtml = function(classString, stepId, nodeId, icon, position, title) {
 	// create the opening tag for the step DOM element
 	// *REQUIRED*: the id for this element should be the stepId param
 	// *REQUIRED*: the classString param should be added to the class attribute
-	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');
-	var title = '';
-
-	// handle any processing (e.g. for branching) before we create the navigation html.
-	node.onBeforeCreateNavigationHtml();
-
-	var nodeTitle = node.getTitle();
-	var currentStepNum = this.getStudentViewPosition(position);
-	if(this.autoStep) {
-		title += this.stepTerm + " " + currentStepNum + ": "; 
-	} else {
-		if(this.stepTerm && this.stepTerm != ''){
-			title += this.stepTerm + ': ';
-		};
-	};
-	
-	var titlePosition = position;
-	
-	if(!this.stepLevelNumbering){
-		titlePosition = '';
-	};
-	
-	if (node.isHiddenFromNavigation()) {
-		// hide the node if node.isHidden is true
-		classString += " hidden ";
-	} 
-
-	title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
-	
+	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');	
 	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('renderNode','" + position + "');\">"; 
 	
 	//create a table inside the anchor for each step
