@@ -40,6 +40,7 @@ function Branching(node) {
 	this.view = node.view;
 	this.content = node.getContent().getContentJSON();
 	this.chosenPathId = null; // which path the student has chosen or was assigned to
+	this.chosenPathName = null; //the title of the path that was chosen
 	
 	if(node.studentWork != null) {
 		this.states = node.studentWork; 
@@ -112,6 +113,9 @@ Branching.prototype.render = function() {
 		var chosenSequenceId = pathToVisitJSONObj.sequenceRef;
 		var pathSequence = this.view.getProject().getNodeById(chosenSequenceId);  // get the sequence node
 
+		//get the title of the path
+		this.chosenPathName = pathSequence.title;
+		
 		// loop through the nodes in the sequence and add them to the current sequence after the branch node
 		for (var i=0; i < pathSequence.children.length; i++) {
 			var nodeInPath = pathSequence.children[i];
@@ -168,7 +172,10 @@ Branching.prototype.getLatestState = function() {
  */
 Branching.prototype.save = function() {
 	//get the answer the student wrote
-	var response = {"chosenPathId":this.chosenPathId};
+	var response = {
+		"chosenPathId":this.chosenPathId,
+		"chosenPathName":this.chosenPathName
+	};
 	
 	/*
 	 * create the student state that will store the new work the student

@@ -953,7 +953,9 @@ View.prototype.displayGradeByStepSelectPageHelper = function(node) {
 		 * this.activityNumber is 0, so all the subsequent activities will
 		 * start at 1.
 		 */
-		if(this.activityNumber != 0) {
+		if(node.json.view == "hidden") {
+			//do not display the activity label
+		} else if(this.activityNumber != 0) {
 			//this node is a sequence so we will display the activity number and title
 			displayGradeByStepSelectPageHtml += "<tr><td class='chooseStepToGradeActivityTd'><h4>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td><td class='header col2'></td><td class=' header col3'></td><td class='header col4'></td><td class='header col5'></td></tr>";
 		}

@@ -168,8 +168,19 @@ BranchingNode.prototype.renderGradingView = function(divId, nodeVisit, childDivI
 	 */
 	var studentWork = branchingState.getStudentWork();
 	
+	var studentWorkHtml = "";
+	
+	if(studentWork != null) {
+		if(studentWork.response != null) {
+			if(studentWork.response.chosenPathName != null) {
+				//get the branching path name that was chosen
+				studentWorkHtml = studentWork.response.chosenPathName;
+			}
+		}
+	}
+	
 	//put the student work into the div
-	$('#' + divId).html(studentWork.response);
+	$('#' + divId).html(studentWorkHtml);
 };
 
 /**
