@@ -32,7 +32,9 @@ var componentloader = function(em, sl){
 				minifierUrl:'../util/minifier.html',
 				//iconUrl:'images/stepIcons/UCCP/',
 				nodeClasses:{},
-				nodeIconPaths:{}
+				nodeIconPaths:{},
+				activeThemes: [],
+				themeNavModes: {}
 			},
 			events: {
 				'loadingProjectStart': [null, null], 
@@ -75,6 +77,8 @@ var componentloader = function(em, sl){
 						width:noteWidth,
 						title:'Reflection Note',
 						resizable:false,
+						show:{effect:"fade",duration:200},
+						hide:{effect:"fade",duration:200},
 						position: ['center','middle'],
 						closeOnEscape: false,
 						zIndex: '99999',
@@ -759,7 +763,7 @@ var componentloader = function(em, sl){
 				'removeAllMenuBubbles':[null,null],
 				'highlightStepInMenu':[null,null],
 				'unhighlightStepInMenu':[null,null],
-				'updateStepRightIcon':[null,null],
+				'updateStepStatusIcon':[null,null],
 				'menuCreated': [null,null]
 			},
 			initialize:{
@@ -778,7 +782,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('removeAllMenuBubbles', view.menuDispatcher, view);
 					view.eventManager.subscribe('highlightStepInMenu', view.menuDispatcher, view);
 					view.eventManager.subscribe('unhighlightStepInMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('updateStepRightIcon', view.menuDispatcher, view);
+					view.eventManager.subscribe('updateStepStatusIcon', view.menuDispatcher, view);
 				}
 			}
 		},
@@ -1097,7 +1101,16 @@ var componentloader = function(em, sl){
 		 */
 		addNodeTemplateParams:function(nodeType, nodeTemplateParams) {
 			components.author.variables.nodeTemplateParams[nodeType] = nodeTemplateParams;
-		}
+		},
+		/*
+		 * Add an entry to the VLE's activeThemes
+		 * @param themeName the name of the theme
+		 * @param themeNavModes an array containing the names of the theme's navigation modes
+		 */
+		addTheme:function(themeName, themeNavModes) {
+			components.core.variables.activeThemes.push(themeName);
+			components.core.variables.themeNavModes[themeName] = themeNavModes;
+		},
 	};
 }(eventManager, scriptloader);
 

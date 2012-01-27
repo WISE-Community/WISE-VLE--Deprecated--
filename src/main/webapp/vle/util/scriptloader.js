@@ -153,7 +153,7 @@ var scriptloader = function(){
 					} else if(data.nav_modes && $.isArray(data.nav_modes)) {
 						navMode = data.nav_modes[0].id;
 					} else {
-						alert('Selected VLE theme is broken: Navigation modes not set.');
+						alert('Selected VLE theme "' + themeName + '" is broken: Navigation modes not set.');
 					}
 					
 					// add theme css to load
@@ -203,11 +203,11 @@ var scriptloader = function(){
 					executeScriptsLoad();
 				},
 				error: function(jqXHR,textStatus,errorThrown){
-					alert('Selected VLE theme is broken: Cannot load configuration file.');
+					alert('Selected VLE theme "' + themeName + '" is broken: Invalid configuration file.');
 				},
 				statusCode: {
 					404: function(){
-						alert('Selected VLE theme is broken: Configuration file not found.');
+						alert('Selected VLE theme "' + themeName + '" is broken: Configuration file not found.');
 					}
 				}
 			});
@@ -294,7 +294,8 @@ var scriptloader = function(){
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
  			      'vle/node/DuplicateNode.js', 
-  		          'vle/node/setupNodes.js'
+  		          'vle/node/setupNodes.js',
+  		          'vle/themes/setupThemes.js'
   		          ],
   		bootstrap_min: ['vle/minified/bootstrap_min.js'],
   		setup: [],
