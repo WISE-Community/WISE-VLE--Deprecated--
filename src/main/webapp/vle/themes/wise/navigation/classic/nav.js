@@ -46,45 +46,17 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
  * @param title Title string of the step
  * @return the html for the step
  */
-NavigationPanel.prototype.createStepNavigationHtml = function(classString, stepId, nodeId, icon, position, node) {
+NavigationPanel.prototype.createStepNavigationHtml = function(classString, stepId, nodeId, icon, position, title) {
 	// create the opening tag for the step DOM element
 	// *REQUIRED*: the id for this element should be the stepId param
 	// *REQUIRED*: the classString param should be added to the class attribute
-	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');
-	var title = '';
-
-	// handle any processing (e.g. for branching) before we create the navigation html.
-	node.onBeforeCreateNavigationHtml();
-
-	var nodeTitle = node.getTitle();
-	var currentStepNum = this.getStudentViewPosition(position);
-	if(this.autoStep) {
-		title += this.stepTerm + " " + currentStepNum + ": "; 
-	} else {
-		if(this.stepTerm && this.stepTerm != ''){
-			title += this.stepTerm + ': ';
-		};
-	};
-	
-	var titlePosition = position;
-	
-	if(!this.stepLevelNumbering){
-		titlePosition = '';
-	};
-	
-	if (node.isHiddenFromNavigation()) {
-		// hide the node if node.isHidden is true
-		classString += " hidden ";
-	} 
-
-	title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
-	
+	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');	
 	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('renderNode','" + position + "');\">"; 
 	
 	//create a table inside the anchor for each step
 	html += "<table>";
 	html += "<tr>";
-	html += "<td width='18px'>";
+	html += "<td class='stepIcon'>";
 	
 	//insert the step icon
 	html += icon;
@@ -97,12 +69,10 @@ NavigationPanel.prototype.createStepNavigationHtml = function(classString, stepI
 	html += "<span class='nodeTitle'>" + title + "</span>";
 	
 	html += "</td>";
-	html += "<td height='16px'>";
 	
-	//insert the span to display any special icons such as colored stars or badges
+	//insert the td to display any special icons such as colored stars or badges
 	//*REQUIRED*: the special icon element must have an id attribute of 'nodeId + "_status_icon"'
-	html += "<span id='" + nodeId + "_status_icon' class='empty'></span>";
-	
+	html += "<td class='statusIcon' id='" + nodeId + "_status_icon'>";
 	html += "</td>";
 	html += "</table>";
 	html += "</a></li>";
@@ -131,13 +101,17 @@ NavigationPanel.prototype.menuCreated = function() {
 	$('#stepHeader').hover(
 		function(){
 			clearTimeout($(this).data('stepHeaderTimer'));
-			$('#stepInfo').show();
+			$('#stepInfo').fadeIn();
 		},
 		function(){
 			$('#stepInfo').stop(true,true);
-			setTimeout(function(){$('#stepInfo').hide();},1000);
+			$('#stepInfo').fadeOut();
+			//setTimeout(function(){$('#stepInfo').fadeOut('medium');},1000);
 		}
 	);
+	
+	// show project content
+	$('#vle_body').css('opacity',1);
 	
 	// resize navigation menu on load to fit remaining space in sidebar
 	this.resizeMenu();
@@ -162,11 +136,11 @@ NavigationPanel.prototype.nodeRendered = function(node) {
 	
 	// show the step title overlay (unless current step is a note, in which case the title is displayed in the note dialog)
 	if(node.getType() != "NoteNode"){
-		$('#stepInfo').show();
+		$('#stepInfo').fadeIn();
 		
 		// hide step title overlay after 4 seconds
 		var stepHeaderTimer = setTimeout(function(){
-			$('#stepInfo').hide();
+			$('#stepInfo').fadeOut();
 		}, 4000);
 		$('#stepHeader').data('stepHeaderTimer',stepHeaderTimer);
 	}

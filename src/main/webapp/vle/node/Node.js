@@ -41,6 +41,21 @@ Node.prototype.isHiddenFromNavigation = function() {
 	return false;
 };
 
+/**
+ * Shows/Hides this node from appearing in the navigation panel
+ * @param doDisplay true iff this node should show up in the navigation.
+ * @returns
+ */
+Node.prototype.displayInNavigation = function(doDisplay) {
+	this.isHidden = !doDisplay;
+	var navItem = $("#node_"+this.view.escapeIdForJquery(this.view.getProject().getPositionById(this.id)));
+	if (doDisplay) {
+		navItem.removeClass("hidden");		
+	} else {
+		navItem.addClass("hidden");
+	}
+};
+
 Node.prototype.getTitle = function() {
 	if (this.title != null) {
 		return this.title;

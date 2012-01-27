@@ -120,17 +120,20 @@ Branching.prototype.render = function() {
 		for (var i=0; i < pathSequence.children.length; i++) {
 			var nodeInPath = pathSequence.children[i];
 			// show the nodes in the navigation
-			nodeInPath.isHidden=false;
+			var doDisplay = true;
+			nodeInPath.displayInNavigation(doDisplay);
+			
 			// also preload the nodes in path
 			nodeInPath.preloadContent();							
 		}
 
 		// check to see if we need to hide this BranchNode.
 		if (!this.content.showBranchNodeAfterBranching) {
-			this.node.isHidden = true;
+			var doDisplay = false;
+			this.node.displayInNavigation(doDisplay);
 		}
 
-		// update navigation logic with changes to the sequence
+		// update navigation logic with changes to the sequence (e.g. skip hidden nodes, etc)
 		this.view.updateNavigationLogic();
 
 		// render the next node, which should be the first node of the branched path

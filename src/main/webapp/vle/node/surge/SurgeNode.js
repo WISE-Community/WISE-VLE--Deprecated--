@@ -149,21 +149,34 @@ SurgeNode.prototype.getHTMLContentTemplate = function() {
 SurgeNode.prototype.processStudentWork = function(studentWork) {
 	if(studentWork != null) {
 		if(studentWork.response != null && studentWork.response != "") {
-			var className = "";
+			//var className = "";
+			var imgPath = '';
 			
 			//get the top score
 			var topScore = studentWork.response.topScore;
+			var scoreAbsolute = studentWork.response.scoreAbsolute;
 			
-			if(topScore == 10) {
-				className = "bronzeStar";
-			} else if(topScore == 20) {
-				className = "silverStar";
-			} else if(topScore == 30) {
-				className = "goldStar";
+			var best;
+			
+			if(topScore > scoreAbsolute || topScore == scoreAbsolute){
+				best = topScore;
+			} else {
+				best = scoreAbsolute;
+			}
+			
+			if(best == 10) {
+				//className = "bronzeStar";
+				imgPath = '/vlewrapper/vle/node/surge/images/bronzeStar.gif';
+			} else if(best == 20) {
+				//className = "silverStar";
+				imgPath = '/vlewrapper/vle/node/surge/images/silverStar.png';
+			} else if(best == 30) {
+				//className = "goldStar";
+				imgPath = '/vlewrapper/vle/node/surge/images/goldStar.png';
 			}
 			
 			//display the star next to the step in the nav menu
-			eventManager.fire('updateStepRightIcon', [this.id, className]);			
+			eventManager.fire('updateStepStatusIcon', [this.id, imgPath]);			
 		}
 	}
 };
