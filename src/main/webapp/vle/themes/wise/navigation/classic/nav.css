@@ -88,6 +88,23 @@
 	border-bottom: 1px solid #EAE8E5;
 }
 
+.sdmenu .step table {
+	width:100%;
+}
+
+.sdmenu .step table td img {
+	vertical-align:top;
+}
+
+.sdmenu .step table td.stepIcon {
+	width:18px;
+}
+
+.sdmenu .step table td.statusIcon {
+	text-align: right;
+    width: 18px;
+}
+
 .sdmenu a.glue {
 	
 }
@@ -101,6 +118,7 @@
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;*/
 }
+
 .sdmenu .sequence:last-child {
 	margin-bottom:0;
 }
@@ -166,32 +184,4 @@
 
 .sdmenu .depth5 {
 	/*margin-left: 12px;*/
-}
-
-.sdmenu a .goldStar {
-	background-image:url('images/goldStar.png');
-	background-repeat:no-repeat;
-	background-position:50% 50%;
-	height:100%;
-}
-
-.sdmenu a .silverStar {
-	background-image:url('images/silverStar.png');
-	background-repeat:no-repeat;
-	background-position:50% 50%;
-	height:100%;
-}
-
-.sdmenu a .bronzeStar {
-	background-image:url('images/bronzeStar.gif');
-	background-repeat:no-repeat;
-	background-position:50% 50%;
-	height:100%;
-}
-
-.sdmenu a .empty {
-	background-image:none;
-	background-repeat:no-repeat;
-	background-position:50% 50%;
-	height:100%;
 }

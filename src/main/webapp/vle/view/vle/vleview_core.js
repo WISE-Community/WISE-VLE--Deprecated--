@@ -270,14 +270,15 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 };
 /**
  * Loads the theme given theme in the VLE view. Default is the wise theme.
+ * @param themeName the name of the theme to load
  */
-View.prototype.loadTheme = function(theme,navMode){
+View.prototype.loadTheme = function(themeName){
 	var view = this;
 	// set default step icon directory path
 	// TODO: remove when glue icon path is resolved; not used anymore - steps specify their own icons
 	this.iconUrl = 'images/stepIcons/';
 	
-	var themeHtml = 'themes/' + theme.toLowerCase() + '/vle_body.html';
+	var themeHtml = 'themes/' + themeName.toLowerCase() + '/vle_body.html'; // TODO: remove toLowerCase()
 	var context = this;
 	
 	// inject theme's body.html into vle.html body
@@ -285,15 +286,19 @@ View.prototype.loadTheme = function(theme,navMode){
 		view.displayGlobalTools();
 		view.createAudioManagerOnProjectLoad();
 		
-		var currentTheme = [theme.toLowerCase()]; // TODO: remove toLowerCase()
-		if(navMode){
+		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
+		
+		// get navMode
+		var navMode = context.projectMetadata.navMode;
+		if(navMode && context.themeNavModes[themeName].indexOf(navMode)>-1) {
+			// navMode is set and is in active navModes list for specified theme, so add to currentTheme
 			currentTheme.push(navMode);
 		}
 		
 		/* load scripts for specified theme and navMode */
 		scriptloader.loadScripts(currentTheme, document, 'theme', context.eventManager);
 		
-		if (theme && theme == "UCCP") { // TODO: move this to UCCP theme setup
+		if (themeName && themeName == "UCCP") { // TODO: move this to UCCP theme setup
 			/* update the project menu links */
 			$("#gotoStudentHomePageLink").attr("href","../../moodle/index.php");
 			$("#quitAndLogoutLink").attr("href","../index.php");
@@ -407,17 +412,16 @@ View.prototype.onProjectLoad = function(){
 	
 	/* load the theme based on project parameters */
 	if(this.getProject()){
-		var theme = this.getProject().getTheme();
-		var navMode = this.getProject().getNavMode();
-		if(theme && theme != null){
-			if(navMode && navMode != null) {
-				this.loadTheme(theme,navMode);
-			} else {
-				this.loadTheme(theme);
-			}
+		var themeName = this.projectMetadata.theme;
+		
+		if(themeName && this.activeThemes.indexOf(themeName)>-1){
+			// theme specified by project matches an active theme, so load specified theme
+			this.loadTheme(themeName);
 		} else {
-			/* if project parameters don't contain theme, load theme based on config object parameters (vle default) */
-			this.loadTheme(this.config.getConfigParam('theme'));
+			// either project paramters don't contain a theme or theme specified by project
+			// is not active, so load vle default
+			this.loadTheme(this.activeThemes[0]);
+			//this.loadTheme(this.config.getConfigParam('theme'));
 		}
 	} else {
 		this.notificationManager.notify('VLE and project not ready to load theme', 3);
@@ -434,7 +438,7 @@ View.prototype.onThemeLoad = function(){
 	 * TODO: remove this
 	 */
 	if(this.getProject()){
-		var navMode = this.getProject().getNavMode();
+		var navMode = this.projectMetadata.navMode;
 		if(navMode && navMode != null){
 			this.loadNavMode(navMode);
 		} else {
@@ -665,7 +669,7 @@ View.prototype.onRenderNodeComplete = function(position){
 	//}
     
 	/* if centered div is not displayed, display it */
-	$('#centeredDiv').css("display", "block");
+	//$('#centeredDiv').css("display", "block");
 	
 	// remove any content overlays (if previous node was a note)
 	if(this.currentNode.getType() && this.currentNode.getType() != 'NoteNode'){
