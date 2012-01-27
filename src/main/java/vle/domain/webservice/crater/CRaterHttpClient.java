@@ -31,19 +31,15 @@ import org.xml.sax.SAXException;
  */
 public class CRaterHttpClient extends HttpClient {
 
-	
 	/**
 	 * Handles POSTing a CRater Request to the CRater Servlet and returns the 
 	 * CRater response string.
 	 * 
-	 * @param cRaterUrl
-	 * @param cRaterClientId
-	 * @param itemId
-	 * @param responseId
-	 * @param studentData
-	 * @return responseBody as a String, or null if there was an error during the request to CRater.
+	 * @param cRaterUrl the CRater url
+	 * @param bodyData the xml body data to be sent to the CRater server
+	 * @return the response from the CRater server
 	 */
-	public static String post(String cRaterUrl, String cRaterClientId, String itemId, String responseId, String studentData) {
+	public static String post(String cRaterUrl, String bodyData) {
 		String responseString = null;
 		
 		if(cRaterUrl != null) {
@@ -53,13 +49,10 @@ public class CRaterHttpClient extends HttpClient {
 			PostMethod method = new PostMethod(cRaterUrl);
 
 			// Provide custom retry handler is necessary
-			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, 
-					new DefaultHttpMethodRetryHandler(3, false));
-
-			String bodyData = "<crater-request includeRNS='N'><client id='" + cRaterClientId + "'/><items><item id='" + itemId + "'>"
-						+"<responses><response id='" + responseId + "'><![CDATA["+studentData+"]]></response></responses></item></items></crater-request>";
-			System.out.println("crater request bodyData:" + bodyData);
+			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+			
 			try {
+				System.out.println("CRater request bodyData:" + bodyData);
 				method.setRequestEntity(new StringRequestEntity(bodyData, "text/xml", "utf8"));
 			} catch (UnsupportedEncodingException e1) {
 				e1.printStackTrace();
@@ -67,6 +60,7 @@ public class CRaterHttpClient extends HttpClient {
 			
 			byte[] responseBody = null;
 			try {
+				
 				// Execute the method.
 				int statusCode = client.executeMethod(method);
 
@@ -88,12 +82,55 @@ public class CRaterHttpClient extends HttpClient {
 			} finally {
 				// Release the connection.
 				method.releaseConnection();
-			}  
+			}
 			
 			if (responseBody != null) {
 				responseString = new String(responseBody);
-			}			
+			}
 		}
+		
+		return responseString;
+	}
+	
+	/**
+	 * Sends student work to the CRater server and receives the score as the response
+	 * 
+	 * @param cRaterUrl the CRater scoring url
+	 * @param cRaterClientId the client id e.g. WISETEST
+	 * @param itemId the item id e.g. Photo_Sun
+	 * @param responseId the node state timestamp
+	 * @param studentData the student work
+	 * @return responseBody as a String, or null if there was an error during the request to CRater.
+	 */
+	public static String getCRaterScoringResponse(String cRaterUrl, String cRaterClientId, String itemId, String responseId, String studentData) {
+		String responseString = null;
+		
+		//create the body data to request the score for the student work
+		String bodyData = "<crater-request includeRNS='N'><client id='" + cRaterClientId + "'/><items><item id='" + itemId + "'>"
+				+"<responses><response id='" + responseId + "'><![CDATA["+studentData+"]]></response></responses></item></items></crater-request>";
+		
+		//make the post to the CRater server and receive the response
+		responseString = post(cRaterUrl, bodyData);
+		
+		return responseString;
+	}
+	
+	/**
+	 * Makes a request to the CRater server for the scoring rubric for a specific item id.
+	 * 
+	 * @param cRaterUrl the CRater verification url
+	 * @param cRaterClientId the client id e.g. WISETEST
+	 * @param itemId the item id e.g. Photo_Sun
+	 * @return the scoring rubric for the item id
+	 */
+	public static String getCRaterVerificationResponse(String cRaterUrl, String cRaterClientId, String itemId) {
+		String responseString = null;
+		
+		//create the body data to request the scoring rubric
+		String bodyData = "<crater-verify><client id='" + cRaterClientId + "'/><items><item id='" + itemId + "'/></items></crater-verify>";
+		
+		//make the post to the CRater server and receive the response
+		responseString = post(cRaterUrl, bodyData);
 		
 		return responseString;
 	}

@@ -449,7 +449,7 @@ public class VLEAnnotationController extends HttpServlet {
 					
 					// get CRaterItemId from the StepWork and post to CRater server.
 					String cRaterItemId = stepWork.getCRaterItemId();
-					String cRaterResponseXML = CRaterHttpClient.post(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
+					String cRaterResponseXML = CRaterHttpClient.getCRaterScoringResponse(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
 					
 					if(cRaterResponseXML != null) {
 						JSONObject cRaterResponseJSONObj = new JSONObject();
@@ -494,7 +494,7 @@ public class VLEAnnotationController extends HttpServlet {
 				
 				// get CRaterItemId from the StepWork and post to CRater server.
 				String cRaterItemId = stepWork.getCRaterItemId();
-				String cRaterResponseXML = CRaterHttpClient.post(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
+				String cRaterResponseXML = CRaterHttpClient.getCRaterScoringResponse(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
 				if (cRaterResponseXML != null) {
 					// create a new cRater annotation object based on CRater response
 					Calendar now = Calendar.getInstance();

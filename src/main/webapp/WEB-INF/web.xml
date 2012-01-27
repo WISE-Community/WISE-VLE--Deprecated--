@@ -71,6 +71,16 @@
   </servlet-mapping>	
   
   <servlet>
+    <servlet-name>cRater</servlet-name>
+    <servlet-class>vle.web.CRaterController</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>cRater</servlet-name>
+    <url-pattern>/cRater.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>vlepeerreview</servlet-name>
     <servlet-class>vle.web.VLEPeerReviewController</servlet-class>
   </servlet>
