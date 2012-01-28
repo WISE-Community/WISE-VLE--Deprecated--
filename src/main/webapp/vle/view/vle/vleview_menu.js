@@ -46,7 +46,7 @@ View.prototype.createMenuOnProjectLoad = function(){
 	var menuEl = document.getElementById('my_menu');
 	
 	if(menuEl){
-		this.myMenu = new SDMenu('my_menu');
+		this.myMenu = new WMenu('my_menu');
 	};
 	
 	if(typeof this.myMenu != 'undefined'){

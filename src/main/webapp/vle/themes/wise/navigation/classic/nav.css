@@ -17,7 +17,7 @@
 
 /* Styles for navigation menu elements */
 
-.sdmenu {
+.wmenu {
 	margin: 0 auto;
 	width:100%;
 	font-family: Arial, Verdana, "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
@@ -26,45 +26,45 @@
 	overflow:auto;
 }
 
-.sdmenu .sequence {
+.wmenu .sequence {
 	
 }
 
-.sdmenu .sequence a {
+.wmenu .sequence a {
 	display:block;
 	padding: 0.25em 0.5em;
 }
 
-.sdmenu .sequenceTitle {
+.wmenu .sequenceTitle {
 	
 }
 
-.sdmenu .sequenceTitle a {
+.wmenu .sequenceTitle a {
 	color: #FFFFFF;
     font-weight: bold;
     padding: 0.5em;
     margin-right:.5em;
 }
 
-.sdmenu .sequence.inactive .sequenceTitle a {
+.wmenu .sequence.inactive .sequenceTitle a {
 	padding-right:14px;
 	background:transparent url('images/plus.png') no-repeat right center;
 }
 
-.sdmenu .sequence.active .sequenceTitle a {
+.wmenu .sequence.active .sequenceTitle a {
 	padding-right:14px;
 	background:transparent url('images/minus.png') no-repeat right center;
 }
 
-.sdmenu a.step, .sdmenu a.glue, .sdmenu a.sequenceTitle {
+.wmenu a.step, .wmenu a.glue, .wmenu a.sequenceTitle {
 	display: block;
 }
 
-.sdmenu .step {
+.wmenu .step {
 	
 }
 
-.sdmenu a {
+.wmenu a {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-o-user-select: none;
@@ -72,43 +72,43 @@
 	
 }
 
-.sdmenu .step a {
+.wmenu .step a {
 	background-color:#F4F2EF;
     color: #563C17;
 }
 
-.sdmenu .step a:hover {
+.wmenu .step a:hover {
 	text-decoration: none;
     color:#000;
     background-color:#EBE7E2;
 }
 
-.sdmenu .step {
+.wmenu .step {
 	border-bottom: 1px solid #EAE8E5;
 }
 
-.sdmenu .step table {
+.wmenu .step table {
 	width:100%;
 }
 
-.sdmenu .step table td img {
+.wmenu .step table td img {
 	vertical-align:top;
 }
 
-.sdmenu .step table td.stepIcon {
+.wmenu .step table td.stepIcon {
 	width:18px;
 }
 
-.sdmenu .step table td.statusIcon {
+.wmenu .step table td.statusIcon {
 	text-align: right;
     width: 18px;
 }
 
-.sdmenu a.glue {
+.wmenu a.glue {
 	
 }
 
-.sdmenu .sequence {
+.wmenu .sequence {
 	margin: 0 0 0.5em;
     padding: 0;
 	/*background-color:#A4937A;*/
@@ -118,69 +118,69 @@
 	-moz-border-radius: 4px;*/
 }
 
-.sdmenu .sequence:last-child {
+.wmenu .sequence:last-child {
 	margin-bottom:0;
 }
 
-.sdmenu .sequence.nested {
+.wmenu .sequence.nested {
 	border-left: .25em solid #745A34;
     margin-bottom: 0;
 }
 
-.sdmenu .sequence.nested.inactive .sequenceTitle a {
+.wmenu .sequence.nested.inactive .sequenceTitle a {
 	background:transparent url('images/plus.png') no-repeat right center;
 }
 
-.sdmenu .sequence.nested.active .sequenceTitle a {
+.wmenu .sequence.nested.active .sequenceTitle a {
 	background:transparent url('images/minus.png') no-repeat right center;
 }
 
-.sdmenu .sequence.nested.hide {
+.wmenu .sequence.nested.hide {
 	/*display:none;*/
 }
 
-.sdmenu .sequence.nested.show {
+.wmenu .sequence.nested.show {
 	
 }
 
-.sdmenu .step.inactive {
+.wmenu .step.inactive {
 	/*display:none;*/
 }
 
-.sdmenu .step.active {
+.wmenu .step.active {
 	/*display:block;*/
 }
 
-.sdmenu .step.constraintDisable a, .sdmenu .step.constraintDisable a:hover {
+.wmenu .step.constraintDisable a, .wmenu .step.constraintDisable a:hover {
 	background-color: #EBE7E2;
 	color:#A4937A;
 }
 
-.sdmenu .step.menuStepHighlight a {
+.wmenu .step.menuStepHighlight a {
 	background-color:#E2E896;
 }
 
-.sdmenu .step.constraintHidden {
+.wmenu .step.constraintHidden {
 	display:none;
 }
 
-.sdmenu .currentNode a {
+.wmenu .currentNode a {
 	background-color: #FFFFFF !important;
     border-color: #F47F6E;
     border-style: solid;
     border-width: 0 0 0 0.5em;
-    color: #333333 !important;
+    color: #000 !important;
     padding:.25em .5em .25em 0;
 }
 
-.sdmenu .depth3 {
+.wmenu .depth3 {
 	/*margin-left: -1px;*/
 }
 
-.sdmenu .depth4 {
+.wmenu .depth4 {
 	/*margin-left: 8px;*/
 }
 
-.sdmenu .depth5 {
+.wmenu .depth5 {
 	/*margin-left: 12px;*/
 }

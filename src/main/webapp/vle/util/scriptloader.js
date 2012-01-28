@@ -424,7 +424,7 @@ var scriptloader = function(){
 		            'vle/navigation/constraints/workonxconstraint.js',
 		            'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
 		            'vle/navigation/constraints/constraintmanager.js'],
-		menu:['vle/ui/menu/sdmenu.js',
+		menu:['vle/ui/menu/wmenu.js',
 		      'vle/ui/menu/NavigationPanel.js',
 		      'vle/view/vle/vleview_menu.js'],
 		uicontrol:['vle/ui/control/RunManager.js',
