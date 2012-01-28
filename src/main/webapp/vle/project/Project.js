@@ -17,8 +17,6 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var postLevel = 5; //default to post all steps
 		var totalProjectContent = totalProjectContent;
 		var constraints = [];
-		var navMode = null;
-		var theme = null;
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/

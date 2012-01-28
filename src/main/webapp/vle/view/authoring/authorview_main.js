@@ -268,8 +268,9 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 			}
 		}
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
+			var nodeIconPath = this.nodeIconPaths[node.type];
 			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
-			mainDiv.innerHTML = '<img src=\'' + this.iconUrl + node.getNodeClass() + '16.png\'/> ';
+			mainDiv.innerHTML = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
 		} //else {
 			//mainDiv.innerHTML = reviewHtml + tabs;
 			//mainDiv.innerHTML = reviewHtml;
@@ -300,14 +301,17 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		mainDiv.appendChild(selectDrop);
 		
 		var nodeClassesForNode = [];
+		var nodeIconPath;
 
 		/* check to see if current node is in nodeTypes, if not ignore so that authoring 
 		 * tool will continue processing remaining nodes. Resolve duplicate nodes to the
 		 * type of the node that they represent */
 		if(node.type=='DuplicateNode'){
 			nodeClassesForNode = this.nodeClasses[node.getNode().type];
+			nodeIconPath = this.nodeIconPaths[node.getNode().type];
 		} else {
 			nodeClassesForNode = this.nodeClasses[node.type];
+			nodeIconPath = this.nodeIconPaths[node.type];
 		}
 		
 		//populate select with icons for its step type
@@ -321,7 +325,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 				var nodeClassObj = nodeClassesForNode[x];
 				var opt = createElement(document, 'option');
 				opt.value = nodeClassObj.nodeClass;
-				opt.innerHTML = '<img src=\'' + this.iconUrl + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
+				opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
 				selectDrop.appendChild(opt);
 				if(node.getNodeClass() == nodeClassObj.nodeClass){
 					selectDrop.selectedIndex = x + 1;
@@ -1064,8 +1068,19 @@ View.prototype.toggleProjectMode = function(){
 View.prototype.editProjectMetadata = function(){
 	if(this.getProject()){
 		showElement('editProjectMetadataDialog');
-		document.getElementById('projectMetadataTitle').value = this.utils.resolveNullToEmptyString(this.projectMeta.title);
-		document.getElementById('projectMetadataAuthor').value = this.utils.resolveNullToEmptyString(this.projectMeta.author);
+		$('#projectMetadataTitle').val(this.utils.resolveNullToEmptyString(this.projectMeta.title));
+		$('#projectMetadataAuthor').text(this.utils.resolveNullToEmptyString(this.projectMeta.author)); // TODO: author is null - fix
+		
+		if(this.projectMeta.theme != null){
+			this.utils.setSelectedValueById('projectMetadataTheme', this.projectMeta.theme);
+		}
+		var navMode = '';
+		if(this.projectMeta.navMode != null){
+			navMode = this.projectMeta.navMode;
+		}
+		var themeName = $('#projectMetadataTheme').val();
+		this.populateNavModes(themeName,navMode);
+		
 		this.utils.setSelectedValueById('projectMetadataSubject', this.utils.resolveNullToEmptyString(this.projectMeta.subject));
 		document.getElementById('projectMetadataSummary').value = this.utils.resolveNullToEmptyString(this.projectMeta.summary);
 		this.utils.setSelectedValueById('projectMetadataGradeRange', this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
@@ -1094,7 +1109,7 @@ View.prototype.editProjectMetadata = function(){
 			}
 
 			//set the tech details string
-			$('#projectMetadataTechDetails').attr('value', techReqs.techDetails);
+			$('#projectMetadataTechDetails').attr('value', this.utils.resolveNullToEmptyString(this.projectMeta.techReqs.techDetails));
 			
 			if (this.projectMeta.tools != null) {
 				var tools = this.projectMeta.tools;
@@ -1114,6 +1129,8 @@ View.prototype.editProjectMetadata = function(){
 		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
 		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
 		document.getElementById('projectMetadataKeywords').value = this.utils.resolveNullToEmptyString(this.projectMeta.keywords);
+		var height = $(window).height()-40;
+		$('#editProjectMetadataDialog').dialog({'height':height});
 		$('#editProjectMetadataDialog').dialog('open');
 		eventManager.fire('browserResize');
 	} else {
@@ -1182,6 +1199,8 @@ View.prototype.onProjectLoaded = function(){
 
 		//set the project id so it is displayed to the author
 		$('#projectIdDisplay').text(this.portalProjectId);
+		
+		this.populateThemes();
 	
 		this.generateAuthoring();
 	
@@ -1364,6 +1383,7 @@ View.prototype.nodeTypeSelected = function(){
 	};
 	
 	if(val && val!=""){
+		var nodeIconPath = this.nodeIconPaths[val];
 		var nodeClassesForNode = this.nodeClasses[val];
 		
 		var selectDiv = createElement(document, 'div', {id: 'selectNodeIconDiv'});
@@ -1374,7 +1394,7 @@ View.prototype.nodeTypeSelected = function(){
 			var nodeClassObj = nodeClassesForNode[x];
 			var opt = createElement(document, 'option', {name: 'nodeClassOption'});
 			opt.value = nodeClassObj.nodeClass;
-			opt.innerHTML = '<img src=\'' + this.iconUrl + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
+			opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
 			
 			select.appendChild(opt);
 		};
@@ -1782,7 +1802,81 @@ View.prototype.openStepTypeDescriptions = function(){
 	$('#stepTypeDescriptions').dialog('open');
 };
 
+/**
+ * Populates the available themes for this VLE installation.
+ */
+View.prototype.populateThemes = function(){
+	var themeSelect = $('#projectMetadataTheme').html('');
+	for(var i=0;i<this.activeThemes.length;i++){
+		var themeName = this.activeThemes[i];
+		// get theme's config file
+		var themepath = 'themes/' + themeName + '/';
+		var configpath = themepath + 'config.json';
+		$.ajax({
+			url: configpath,
+			success: function(data){
+				themeSelect.append('<option value="' + themeName + '">' + data.name + '</option>');
+				// TODO: insert thumnail and screenshot
+				
+			},
+			error: function(jqXHR,textStatus,errorThrown){
+				alert('Selected VLE theme "' + themeName + '" is broken: Invalid configuration file.');
+			},
+			statusCode: {
+				404: function(){
+					alert('Selected VLE theme "' + themeName + '" is broken: Configuration file not found.');
+				}
+			}
+		});
+	}
+};
+
+/**
+ * Populates the available navigation modes for selected theme
+ * @param themeName the name of the theme
+ * @param navMode the name of the navMode to set (optional)
+ */
+View.prototype.populateNavModes = function(themeName,navMode){
+	var view = this;
+	// get theme's config file
+	var themepath = 'themes/' + themeName + '/';
+	var configpath = themepath + 'config.json';
+	$.ajax({
+		url: configpath,
+		success: function(data){
+			// populate navModes for selected theme
+			var navSelect = $('#projectMetadataNavigation').html('');
+			for(var i=0;i<data.nav_modes.length;i++){
+				navSelect.append('<option value="' + data.nav_modes[i].id + '">' + data.nav_modes[i].name + '</option>');
+			}
+			
+			if(navMode){
+				view.setNavMode(navMode);
+			}
+		},
+		error: function(jqXHR,textStatus,errorThrown){
+			alert('Selected VLE theme "' + themeName + '" is broken: Invalid configuration file.');
+		},
+		statusCode: {
+			404: function(){
+				alert('Selected VLE theme "' + themeName + '" is broken: Configuration file not found.');
+			}
+		}
+	});
+};
+
+/**
+ * Sets the project's navigation mode in the project metadata dialog based
+ * on the project's metadata
+ * @param navMode the navigation mode identifer
+ */
+View.prototype.setNavMode = function(navMode){
+	if(navMode != ''){
+		this.utils.setSelectedValueById('projectMetadataNavigation', navMode);
+	}
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_main.js');
-}
+};
