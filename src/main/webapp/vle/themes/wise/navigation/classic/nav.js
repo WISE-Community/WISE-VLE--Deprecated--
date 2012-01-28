@@ -110,6 +110,12 @@ NavigationPanel.prototype.menuCreated = function() {
 		}
 	);
 	
+	// for some reason, the first time a node loads when the project is opened,
+	// the stepInfo div is not fading after 4 seconds, so force here
+	setTimeout(function(){
+		$('#stepInfo').fadeOut();
+	}, 4000);
+	
 	// show project content
 	$('#vle_body').css('opacity',1);
 	

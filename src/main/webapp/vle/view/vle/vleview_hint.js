@@ -34,6 +34,8 @@ View.prototype.displayHint = function(){
 			{	autoOpen:false,
 				closeText:'Close',
 				modal:false,
+				show:{effect:"fade",duration:200},
+				hide:{effect:"fade",duration:200},
 				title:this.getI18NString("hint_title"),
 				zindex:9999,
 				width:450,

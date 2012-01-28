@@ -21,8 +21,7 @@
 	margin: 0 auto;
 	width:100%;
 	font-family: Arial, Verdana, "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
-	font-size: .6em;
-	font-size-adjust: 0.6;
+	font-size: .75em;
 	height:100%;
 	overflow:auto;
 }

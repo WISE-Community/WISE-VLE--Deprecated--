@@ -187,7 +187,7 @@ View.prototype.displayFlaggedWork = function() {
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,title:'Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'Flagged Work',zindex:9999});
     }
     
     //set the html into the div
@@ -213,117 +213,119 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 		nodeId = $('#flagNodeIdSelect').val();
 	}
 	
-	//get the node
-	var node = this.getProject().getNodeById(nodeId);
-	
-	//get all the flags for the current node
-	var flagsForNodeId = this.flags.getAnnotationsByNodeId(nodeId);
-	
-	//get the position
-	var position = this.getProject().getVLEPositionById(nodeId);
-	
-	var flaggedWorkHtml = "";
-	
-	//display the step position, title, and type
-	flaggedWorkHtml += "<div><br><b><u>" + position + " " + node.title + " (" + node.type + ")" + "</u></b><br><br>";
-	
-	//display the prompt for the step
-	flaggedWorkHtml += "Prompt:<br/>";
-	flaggedWorkHtml += node.getPrompt() + "<br/><br/></div><hr size=4 noshade><br/>";
-	
-	var flaggedWorkAnswers = "";
-	
-	//loop through all the flags for the current node
-	for(var y=0; y<flagsForNodeId.length; y++) {
-		//get a flag
-		var flagForNodeId = flagsForNodeId[y];
+	if(nodeId){
+		//get the node
+		var node = this.getProject().getNodeById(nodeId);
 		
-		//get the work that was flagged
-		var flaggedWork = flagForNodeId.data.getLatestWork();
-		var flaggedWorkPostTime = flagForNodeId.postTime;
+		//get all the flags for the current node
+		var flagsForNodeId = this.flags.getAnnotationsByNodeId(nodeId);
 		
-		if(flaggedWorkAnswers != "") {
-			//add line breaks to separate the multiple answers that were flagged
-			flaggedWorkAnswers += "<br/><br/>";
-		}
+		//get the position
+		var position = this.getProject().getVLEPositionById(nodeId);
 		
-		flaggedWorkAnswers += "<div style='border-width:thin; border-style:solid'>";
+		var flaggedWorkHtml = "";
 		
-		//display the flagged work/answer
-		flaggedWorkAnswers += "<div>Answer (Team Anonymous " + (y + 1) + "):</div><br/>";
-		if (node.type == "MySystemNode") {
-			var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
-			var divId = "mysystemDiagram_"+flaggedWorkPostTime;
-			flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystem' style=\"height:350px;\">" + flaggedWork + "</div>";
-		} else if (node.type == "SVGDrawNode") {
-    		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
-			var divId = "svgDraw_"+flaggedWorkPostTime;
-			flaggedWork = node.translateStudentWork(flaggedWork);
-			var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
-			flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
-    	} else if(this.isSelfRenderingGradingViewNodeType(node.type)) {
-    		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
-    	} else {
-			flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
-		}
+		//display the step position, title, and type
+		flaggedWorkHtml += "<div><br><b><u>" + position + " " + node.title + " (" + node.type + ")" + "</u></b><br><br>";
 		
-		flaggedWorkAnswers += "</div>";
-	}
-	
-	flaggedWorkHtml += flaggedWorkAnswers;
-
-	//add the html to the flagged work div
-	$('#flaggedWorkForNodeIdDiv').html(flaggedWorkHtml);
-	
-    // inject svgdrawings
-    $('.svgdraw2').each(function(){
-		var svgString = String($(this).html());
-		var contentBaseUrl = $(this).attr("contentBaseUrl");
-		svgString = Utils.decode64(svgString);
-		// shrink svg image to fit
-		svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-		svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
-		svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-		var svgXml = Utils.text2xml(svgString); // convert to xml
-		$(this).html('');
-		$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
-	});
-    
-    // print mysystem...should happen after opening showflaggedwork dialog
-	$(".mysystem").each(function() {
-		var json_str = $(this).html();
-		$(this).html("");
-		var divId = $(this).attr("id");
-		var contentBaseUrl = $(this).attr("contentBaseUrl");
-		try {
-			new MySystemPrint(json_str,divId,contentBaseUrl);
-		} catch (err) {
-			// do nothing
-		}
-	});
-	
-	//loop through all the flags for the current node
-	for(var y=0; y<flagsForNodeId.length; y++) {
-		//get a flag
-		var flagForNodeId = flagsForNodeId[y];
+		//display the prompt for the step
+		flaggedWorkHtml += "Prompt:<br/>";
+		flaggedWorkHtml += node.getPrompt() + "<br/><br/></div><hr size=4 noshade><br/>";
 		
-		//only perform this for sensor nodes until we implement it for all other steps
-		if(this.isSelfRenderingGradingViewNodeType(node.type)) {
-
-			//get the nodevisit from the flag
-			var nodeVisit = flagForNodeId.data;
+		var flaggedWorkAnswers = "";
+		
+		//loop through all the flags for the current node
+		for(var y=0; y<flagsForNodeId.length; y++) {
+			//get a flag
+			var flagForNodeId = flagsForNodeId[y];
 			
-			if(nodeVisit != null) {
-				/*
-				 * get the step work id and set it into the nodevisit
-				 * because for some reason it does not have its id set
-				 */
-				nodeVisit.id = flagForNodeId.stepWorkId;
+			//get the work that was flagged
+			var flaggedWork = flagForNodeId.data.getLatestWork();
+			var flaggedWorkPostTime = flagForNodeId.postTime;
+			
+			if(flaggedWorkAnswers != "") {
+				//add line breaks to separate the multiple answers that were flagged
+				flaggedWorkAnswers += "<br/><br/>";
+			}
+			
+			flaggedWorkAnswers += "<div style='border-width:thin; border-style:solid'>";
+			
+			//display the flagged work/answer
+			flaggedWorkAnswers += "<div>Answer (Team Anonymous " + (y + 1) + "):</div><br/>";
+			if (node.type == "MySystemNode") {
+				var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
+				var divId = "mysystemDiagram_"+flaggedWorkPostTime;
+				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystem' style=\"height:350px;\">" + flaggedWork + "</div>";
+			} else if (node.type == "SVGDrawNode") {
+	    		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
+				var divId = "svgDraw_"+flaggedWorkPostTime;
+				flaggedWork = node.translateStudentWork(flaggedWork);
+				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
+				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
+	    	} else if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+	    		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
+	    	} else {
+				flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
+			}
+			
+			flaggedWorkAnswers += "</div>";
+		}
+		
+		flaggedWorkHtml += flaggedWorkAnswers;
+	
+		//add the html to the flagged work div
+		$('#flaggedWorkForNodeIdDiv').html(flaggedWorkHtml);
+		
+	    // inject svgdrawings
+	    $('.svgdraw2').each(function(){
+			var svgString = String($(this).html());
+			var contentBaseUrl = $(this).attr("contentBaseUrl");
+			svgString = Utils.decode64(svgString);
+			// shrink svg image to fit
+			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
+			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
+			var svgXml = Utils.text2xml(svgString); // convert to xml
+			$(this).html('');
+			$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+		});
+	    
+	    // print mysystem...should happen after opening showflaggedwork dialog
+		$(".mysystem").each(function() {
+			var json_str = $(this).html();
+			$(this).html("");
+			var divId = $(this).attr("id");
+			var contentBaseUrl = $(this).attr("contentBaseUrl");
+			try {
+				new MySystemPrint(json_str,divId,contentBaseUrl);
+			} catch (err) {
+				// do nothing
+			}
+		});
+		
+		//loop through all the flags for the current node
+		for(var y=0; y<flagsForNodeId.length; y++) {
+			//get a flag
+			var flagForNodeId = flagsForNodeId[y];
+			
+			//only perform this for sensor nodes until we implement it for all other steps
+			if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+	
+				//get the nodevisit from the flag
+				var nodeVisit = flagForNodeId.data;
 				
-				var workgroupId = parseInt(flagForNodeId.toWorkgroup);
-				
-				//render the work into the div to display it
-				node.renderGradingView("flaggedStudentWorkDiv_" + nodeVisit.id, nodeVisit, "flag_", workgroupId);					
+				if(nodeVisit != null) {
+					/*
+					 * get the step work id and set it into the nodevisit
+					 * because for some reason it does not have its id set
+					 */
+					nodeVisit.id = flagForNodeId.stepWorkId;
+					
+					var workgroupId = parseInt(flagForNodeId.toWorkgroup);
+					
+					//render the work into the div to display it
+					node.renderGradingView("flaggedStudentWorkDiv_" + nodeVisit.id, nodeVisit, "flag_", workgroupId);					
+				}
 			}
 		}
 	}
@@ -415,7 +417,7 @@ View.prototype.displayShowAllWork = function() {
 		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr class='showAllWorkHR'><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
 		
 	    if($('#showallwork').size()==0){
-	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,title:'My Work (with Teacher Feedback and Scores)'});
+	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'My Work (with Teacher Feedback and Scores)'});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
@@ -662,7 +664,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:['center',40],buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:'center',buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
     }
     
     //the html we will insert into the popup
@@ -824,7 +826,7 @@ View.prototype.displayIdeaBasket = function() {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv"></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,position:'center',title:this.getI18NString("idea_basket"),open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},position:'center',title:this.getI18NString("idea_basket"),open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
 			// because idea basket content is delivered in an iframe
 			// need to show transparent div overlay when dragging/resizing dialog
 			// so that iframe does not catch mouse movements and interupt dragging/resizing

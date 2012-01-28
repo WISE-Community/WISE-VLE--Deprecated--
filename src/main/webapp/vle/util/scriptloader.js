@@ -467,7 +467,8 @@ var scriptloader = function(){
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
 		//uccp: ["vle/css/uccp/UCCP_styles.css"],
-		vle: [/*"vle/css/niftycube.css"*/],
+		vle: ["vle/css/global-tools.css"
+		      /*"vle/css/niftycube.css"*/],
     	navigation:[/*"vle/css/navigation.css"*/],
     	menu:[/*"vle/css/sdmenu.css"*/],
  		grading: ['vle/css/portal/teachergrading.css',
