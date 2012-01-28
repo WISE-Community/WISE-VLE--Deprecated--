@@ -35,7 +35,7 @@ View.prototype.menuDispatcher = function(type,args,obj){
 	} else if(type == 'unhighlightStepInMenu') {
 		obj.unhighlightStepInMenu(args[0]);
 	} else if(type=='updateStepStatusIcon'){
-		obj.updateStepStatusIcon(args[0], args[1]);
+		obj.updateStepStatusIcon(args[0], args[1], args[2]);
 	}
 };
 
@@ -299,8 +299,9 @@ View.prototype.unhighlightStepInMenu = function(nodeId) {
  * Update the status icon for the step
  * @param nodeId the node id of the step
  * @param src the path to the icon image file
+ * @param tooltip the text to display when user hovers over the icon
  */
-View.prototype.updateStepStatusIcon = function(nodeId, src) {
+View.prototype.updateStepStatusIcon = function(nodeId, src, tooltip) {
 	if(src && typeof src == 'string' && src != ''){
 		/*
 		 * replace all the '.' with '\\.' so that the jquery id selector works
@@ -328,8 +329,13 @@ View.prototype.updateStepStatusIcon = function(nodeId, src) {
 		//add the new class
 		//$('#' + divId).addClass(className);
 		
+		var title = '';
+		if(tooltip && typeof tooltip == 'string'){
+			title = tooltip;
+		}
+		
 		// insert the new icon
-		$('#' + divId).html("<img alt='status icon' src='" + src + "' />");
+		$('#' + divId).html("<img alt='status icon' title='" + title + "' src='" + src + "' />");
 	}
 };
 
