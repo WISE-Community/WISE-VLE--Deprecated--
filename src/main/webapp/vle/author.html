@@ -375,11 +375,19 @@ var view;
 <div class='bd'>
 	<div id='editProjectMetadataMainDiv'>
 		<table>
-		<tr><td id="col1">Project Title:</td><td class="col2"><div id='projectMetadataTitle'/>[Project Title (non-editable) shown here]</div></td></tr>
+		<tr><td id="col1">Project Title:</td><td class="col2"><input id='projectMetadataTitle' type="text"/></input></td></tr>
 		<tr><td>Author:</td><td> <div id='projectMetadataAuthor'/>[Name of original author (non-editable) shown here]</div></td></tr>
 		<tr><td>Contact Name/Email:</td><td>  <input type='text' id='projectMetadataContact'/></td></tr>
 		
-		<!-- TODO: Load all metadata options programmatically based on vle config -->
+		<!-- TODO: Perhaps load metadata options programmatically based on vle config? -->
+		<tr><td>Theme:</td>
+			<td >
+				<select name="theme" id="projectMetadataTheme"></select>
+				<select name="navMode" id="projectMetadataNavigation"></select> 
+			</td>
+		</tr>
+		
+		<!-- TODO: Perhaps load metadata options programmatically based on vle config? -->
 		<tr><td>Subject:</td>
 			<td >
 				<select name="searchSubject" id="projectMetadataSubject">
@@ -393,7 +401,8 @@ var view;
 					<option id='subjectWISEResearch'  value='WISE Research'>WISE Research</option>
 					<option selected id='subjectAll' disabled="disabled" value=''>select an option</option>
 				</select> 
-			</td></tr>
+			</td>
+		</tr>
 			
 		<tr><td>Grade Level:</td>
 			<td>

@@ -424,7 +424,7 @@ var scriptloader = function(){
 		            'vle/navigation/constraints/workonxconstraint.js',
 		            'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
 		            'vle/navigation/constraints/constraintmanager.js'],
-		menu:['vle/ui/menu/sdmenu.js',
+		menu:['vle/ui/menu/wmenu.js',
 		      'vle/ui/menu/NavigationPanel.js',
 		      'vle/view/vle/vleview_menu.js'],
 		uicontrol:['vle/ui/control/RunManager.js',
@@ -468,7 +468,8 @@ var scriptloader = function(){
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
 		//uccp: ["vle/css/uccp/UCCP_styles.css"],
-		vle: [/*"vle/css/niftycube.css"*/],
+		vle: ["vle/css/global-tools.css"
+		      /*"vle/css/niftycube.css"*/],
     	navigation:[/*"vle/css/navigation.css"*/],
     	menu:[/*"vle/css/sdmenu.css"*/],
  		grading: ['vle/css/portal/teachergrading.css',

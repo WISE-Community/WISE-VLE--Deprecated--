@@ -33,8 +33,15 @@ NavigationLogic.prototype.findVisitingOrder = function(node) {
  * @return 0/1/2, default: 0
  */
 NavigationLogic.prototype.getVisitableStatus = function(position){
+	if (this.view.getConfig().getConfigParam("mode") == "portalpreview") {
+		// if user is previewing, don't add any constraints so they can go on to next steps without having to answer all the questions.
+		// commented out since there were too many message popups
+		//this.view.notificationManager.notify('In the actual run, students must complete all parts on this step before moving on to the next step.', 3); 
+		return {value:0, msg:''};
+	} 
+
 	if(this.constraintManager){
-		return this.constraintManager.getVisitableStatus(position);
+		return this.constraintManager.getVisitableStatus(position);	
 	}
 	
 	return {value:0, msg:''};

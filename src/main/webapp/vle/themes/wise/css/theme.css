@@ -243,6 +243,7 @@ body#w4_vle {
 	left:0;
 	right:0;
 	top:0;
+	opacity:0;
 }
 
 #vle_body header {
@@ -333,6 +334,7 @@ body#w4_vle {
 #vle_body #stepInfo, #vle_body #hints, #vle_body #audioControls, #vle_body #stepNav {
 	display:inline-block;
 	line-height:34px;
+	white-space: nowrap;
 }
 
 #vle_body #stepNav {
@@ -437,7 +439,7 @@ body#w4_vle {
     right: 0;
     position: absolute;
     top: 0;
-    width: 215px;
+    width: 210px;
 }
 
 #vle_body #navigation {

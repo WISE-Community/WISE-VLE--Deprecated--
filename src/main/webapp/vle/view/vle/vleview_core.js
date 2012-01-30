@@ -467,7 +467,7 @@ View.prototype.onThemeLoad = function(){
 		}
 		
 		// insert menu into vle DOM
-		var navigationHtml = "<div id='my_menu' class='sdmenu'></div>";
+		var navigationHtml = "<div id='my_menu' class='wmenu'></div>";
 		$("#navigation").prepend(navigationHtml);
         
 		//display the show flagged work link if flagging is enabled

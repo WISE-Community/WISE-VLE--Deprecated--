@@ -1,12 +1,12 @@
 {
 	"id": "wise",
-	"name": "WISE v4",
+	"name": "WISE",
 	"description": "Default theme for the WISE Virtual Learning Environment v4",
 	"version" : "1.0",
 	"author": "Jonathan Lim-Breitbart <breity10@gmail.com>",
 	"date": "Tue, 06 Dec 2011 16:18:00 -0800",
-	"screenshot": "images/screenshot.png",
-	"thumb": "images/thumb.png",
+	"screenshot": "images/wise-screenshot.png",
+	"thumb": "images/wise-thumb.png",
 	"logo": "images/wise4-logo-vle-nobg.png",
 	"css": [
 		"css/theme.css"	
@@ -16,13 +16,15 @@
 	"nav_modes": [
 		{
 			"id":"classic",
-			"name":"WISE Inquiry Map (Left Menu)",
-			"description":"The classic WISE navigation menu (left sidebar)"
+			"name":"Inquiry Map (Left)",
+			"description":"The classic WISE navigation menu (left sidebar)",
+			"screenshot":"images/classic.png"
 		},
 		{
 			"id":"classic_right",
-			"name":"WISE Inquiry Map (Right Menu)",
-			"description":"The classic WISE navigation menu (right sidebar)"
+			"name":"Inquiry Map (Right)",
+			"description":"The classic WISE navigation menu (right sidebar)",
+			"screenshot":"images/classic-right.png"
 		}
 	]
 }

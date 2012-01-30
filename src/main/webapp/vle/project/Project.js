@@ -17,8 +17,6 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var postLevel = 5; //default to post all steps
 		var totalProjectContent = totalProjectContent;
 		var constraints = [];
-		var navMode = null;
-		var theme = null;
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -969,6 +967,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		
 		/* Returns an object representation of this project */
 		var projectJSON = function(){
+			if (typeof navMode == 'undefined') {
+				navMode = null;
+			}
+			if (typeof theme == 'undefined') {
+				theme = null;
+			}
 			/* create project object with variables from this project */
 			var project = {
 					autoStep: autoStep,
