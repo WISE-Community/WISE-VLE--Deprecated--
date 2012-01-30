@@ -149,7 +149,8 @@ OPENRESPONSE.prototype.save = function(saveAndLock) {
 			var orState = new OPENRESPONSESTATE([response]);
 			
 			//set the cRaterItemId into the node state if this step is a CRater item
-			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null) {
+			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
+					&& this.content.cRater.cRaterItemId != '') {
 				orState.cRaterItemId = this.content.cRater.cRaterItemId;
 			}
 

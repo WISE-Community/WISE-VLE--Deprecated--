@@ -1542,8 +1542,10 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var cRaterScore = annotationCRaterScoreValue;
 		var maxCRaterScore = null;
 		
-		//TODO: read in the maxCRaterScore from the cRater Servlet
-		maxCRaterScore = 4;
+		//get the maxCRaterScore from the step content
+		if(nodeContent != null && nodeContent.cRater != null && nodeContent.cRater.cRaterMaxScore != null) {
+			maxCRaterScore = nodeContent.cRater.cRaterMaxScore;
+		}
 		
 		//get the html for the score and comment td
 		gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, cRaterScore, maxCRaterScore);
@@ -1591,10 +1593,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				this.originalStudentWorkRowOrder.push(studentWorkRowRevisionId);
 				
 				var cRaterScore = annotationCRaterScoreValue;
-				var maxCRaterScore = null;
-				
-				//TODO: read in the maxCRaterScore from the cRater Servlet
-				maxCRaterScore = 4;
 				
 				//display the data for the revision
 				gradeByStepGradingPageHtml += "<tr id='" + studentWorkRowRevisionId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none' isFlagged='" + isFlagged + "'>";

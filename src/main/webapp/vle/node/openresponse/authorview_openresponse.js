@@ -485,6 +485,9 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 		//obtain the max score from the response
 		maxScore = this.view.getCRaterMaxScoreFromXML(responseText);
 	} else {
+		//the item id the author has entered is invalid so we will set it to '' in the content
+		itemId = '';
+		
 		//item id is invalid so we will display a red invalid message to the author
 		$('#cRaterItemIdStatus').html('<font color="red">Invalid Item Id</font>');
 	}
