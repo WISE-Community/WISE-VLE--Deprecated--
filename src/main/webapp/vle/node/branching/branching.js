@@ -107,6 +107,10 @@ Branching.prototype.render = function() {
 	if (!this.content.showSplashPage) {
 
 		var pathToVisitJSONObj = this.getPathToVisit();
+		if (!pathToVisitJSONObj) {
+			this.view.notificationManager.notify("No branching path is available at this time. Please move on to the next step.",3);
+			return;
+		}
 		// inject the nodes in the path into the Project
 		this.chosenPathId = pathToVisitJSONObj.identifier;
 		
