@@ -4,7 +4,7 @@
  * @author patrick lawler
  */
 View.prototype.OpenResponseNode = {};
-View.prototype.OpenResponseNode.commonComponents = ['StudentResponseBoxSize', 'RichTextEditorToggle', 'StarterSentenceAuthoring', 'Prompt', 'LinkTo'];
+View.prototype.OpenResponseNode.commonComponents = ['StudentResponseBoxSize', 'RichTextEditorToggle', 'StarterSentenceAuthoring', 'Prompt', 'LinkTo', 'CRater'];
 
 /**
  * Generates the authoring page for open response node types
@@ -49,6 +49,8 @@ View.prototype.OpenResponseNode.generatePage = function(view){
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createElement(document, 'div', {id: 'cRaterContainer'}));
 	
 	parent.appendChild(pageDiv);
 };
@@ -427,6 +429,76 @@ View.prototype.OpenResponseNode.peerReviewStepNotOpenCustomMessageUpdated = func
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Populate the CRater item id from the content
+ */
+View.prototype.OpenResponseNode.populateCRater = function() {
+	if(this.content.cRater != null && this.content.cRater.cRaterItemId != null) {
+		$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);		
+	}
+};
+
+/**
+ * Updates the CRater item id to match what the user has input
+ */
+View.prototype.OpenResponseNode.updateCRater = function(){
+	//create the cRater object in the content if it does not exist
+	if(this.content.cRater == null) {
+		this.content.cRater = {};
+	}
+
+	//create the cRater.cRaterItemId in the content if it does not exist
+	if(this.content.cRater.cRaterItemId == null) {
+		this.content.cRater.cRaterItemId = '';
+	}
+	
+	//create the cRater.displayCRaterFeedbackImmediately in the content if it does not exist
+	if(this.content.cRater.displayCRaterFeedbackImmediately == null) {
+		this.content.cRater.displayCRaterFeedbackImmediately = false;
+	}
+	
+	//create the cRater.cRaterMaxScore in the content if it does not exist
+	if(this.content.cRater.cRaterMaxScore == null) {
+		this.content.cRater.cRaterMaxScore = null;
+	}
+	
+	//get the item id the user has entered
+	var itemId = document.getElementById('cRaterItemIdInput').value;
+	
+	//make a verify request to the CRater server with the item id the user has entered
+	this.view.makeCRaterVerifyRequest(itemId);
+	
+	//obtain the CRater server response from our request
+	var responseText = this.view.cRaterResponseText;
+	
+	//check if the item id is valid
+	var isCRaterItemIdValid = this.view.checkCRaterVerifyResponse(responseText);
+	
+	var maxScore = null;
+	
+	if(isCRaterItemIdValid) {
+		//item id is valid so we will display a green valid message to the author
+		$('#cRaterItemIdStatus').html('<font color="green">Valid Item Id</font>');
+		
+		//obtain the max score from the response
+		maxScore = this.view.getCRaterMaxScoreFromXML(responseText);
+	} else {
+		//item id is invalid so we will display a red invalid message to the author
+		$('#cRaterItemIdStatus').html('<font color="red">Invalid Item Id</font>');
+	}
+	
+	/* update content */
+	this.content.cRater.cRaterItemId = itemId;
+	this.content.cRater.cRaterMaxScore = maxScore;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+View.prototype.OpenResponseNode.populateStudentResponseBoxSize = function() {
+	$('#studentResponseBoxSizeInput').val(this.content.assessmentItem.interaction.expectedLines);
 };
 
 //used to notify scriptloader that this script has finished loading

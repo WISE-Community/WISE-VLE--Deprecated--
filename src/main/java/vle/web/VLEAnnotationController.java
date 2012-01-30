@@ -496,52 +496,56 @@ public class VLEAnnotationController extends HttpServlet {
 				String cRaterItemId = stepWork.getCRaterItemId();
 				String cRaterResponseXML = CRaterHttpClient.getCRaterScoringResponse(cRaterScoringUrl, cRaterClientId, cRaterItemId, cRaterResponseId, studentResponse);
 				if (cRaterResponseXML != null) {
-					// create a new cRater annotation object based on CRater response
-					Calendar now = Calendar.getInstance();
-					Timestamp postTime = new Timestamp(now.getTimeInMillis());
+					if(cRaterResponseXML.contains("<error code=")) {
+						//there was an error so we will not create Annotation or CRaterRequest objects
+					} else {
+						// create a new cRater annotation object based on CRater response
+						Calendar now = Calendar.getInstance();
+						Timestamp postTime = new Timestamp(now.getTimeInMillis());
 
-					Node node = stepWork.getNode();
-					String nodeId = node.getNodeId();
-					String type = annotationType;
+						Node node = stepWork.getNode();
+						String nodeId = node.getNodeId();
+						String type = annotationType;
 
-					Long workgroupId = stepWork.getUserInfo().getWorkgroupId();
-					String toWorkgroup = workgroupId.toString();
-					String fromWorkgroup = "-1";  // default for auto-scored items.
+						Long workgroupId = stepWork.getUserInfo().getWorkgroupId();
+						String toWorkgroup = workgroupId.toString();
+						String fromWorkgroup = "-1";  // default for auto-scored items.
 
-					int score = CRaterHttpClient.getScore(cRaterResponseXML);
-					JSONObject studentResponseNodeState = stepWork.getNodeStateByTimestamp(nodeStateId);
-					String cRaterResponse = cRaterResponseXML;
+						int score = CRaterHttpClient.getScore(cRaterResponseXML);
+						JSONObject studentResponseNodeState = stepWork.getNodeStateByTimestamp(nodeStateId);
+						String cRaterResponse = cRaterResponseXML;
 
-					JSONObject cRaterNodeStateAnnotation = 
-							Annotation.createCRaterNodeStateAnnotation(nodeStateId, score, studentResponseNodeState, cRaterResponse);
+						JSONObject cRaterNodeStateAnnotation = 
+								Annotation.createCRaterNodeStateAnnotation(nodeStateId, score, studentResponseNodeState, cRaterResponse);
 
-					JSONArray nodeStateAnnotationArray = new JSONArray();
-					nodeStateAnnotationArray.put(cRaterNodeStateAnnotation);
+						JSONArray nodeStateAnnotationArray = new JSONArray();
+						nodeStateAnnotationArray.put(cRaterNodeStateAnnotation);
 
-					JSONObject dataJSONObj = new JSONObject();
-					try {
-						dataJSONObj.put("runId", runId);
-						dataJSONObj.put("nodeId", nodeId);
-						dataJSONObj.put("toWorkgroup", toWorkgroup);
-						dataJSONObj.put("fromWorkgroup", fromWorkgroup);
-						dataJSONObj.put("stepWorkId", stepWorkId);
-						dataJSONObj.put("type", type);
-						dataJSONObj.put("value", nodeStateAnnotationArray);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
+						JSONObject dataJSONObj = new JSONObject();
+						try {
+							dataJSONObj.put("runId", runId);
+							dataJSONObj.put("nodeId", nodeId);
+							dataJSONObj.put("toWorkgroup", toWorkgroup);
+							dataJSONObj.put("fromWorkgroup", fromWorkgroup);
+							dataJSONObj.put("stepWorkId", stepWorkId);
+							dataJSONObj.put("type", type);
+							dataJSONObj.put("value", nodeStateAnnotationArray);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
 
-					annotation = new Annotation(stepWork, null, new Long(runId), postTime, type, dataJSONObj.toString());
-					annotation.saveOrUpdate();
-					
-					// update CRaterRequest table and mark this request as completed.
-					CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork,nodeStateId);
-					
-					if(cRaterRequest != null) {
-						Calendar cRaterRequestCompletedTime = Calendar.getInstance();
-						cRaterRequest.setTimeCompleted(new Timestamp(cRaterRequestCompletedTime.getTimeInMillis()));
-						cRaterRequest.setcRaterResponse(cRaterResponse);
-						cRaterRequest.saveOrUpdate();						
+						annotation = new Annotation(stepWork, null, new Long(runId), postTime, type, dataJSONObj.toString());
+						annotation.saveOrUpdate();
+						
+						// update CRaterRequest table and mark this request as completed.
+						CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork,nodeStateId);
+						
+						if(cRaterRequest != null) {
+							Calendar cRaterRequestCompletedTime = Calendar.getInstance();
+							cRaterRequest.setTimeCompleted(new Timestamp(cRaterRequestCompletedTime.getTimeInMillis()));
+							cRaterRequest.setcRaterResponse(cRaterResponse);
+							cRaterRequest.saveOrUpdate();						
+						}
 					}
 				} else {
 					// there was an error connecting to the CRater servlet

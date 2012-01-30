@@ -738,6 +738,44 @@ View.prototype.cleanupLinkTo = function() {
 	this.linkManager.cleanupLinkTo();
 };
 
+/*
+ * CRater functions
+ */
+
+/**
+ * Inserts the CRater authoring items
+ */
+View.prototype.insertCRater = function() {
+	this.cRaterManager.insertCRater(this);
+};
+
+/**
+ * Populates the values in the CRater authoring items with the values
+ * from the authored content
+ */
+View.prototype.populateCRater = function() {
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].populateCRater){
+		this[this.resolveType(this.activeNode.type)].populateCRater();
+	}
+};
+
+/**
+ * Updates the CRater authored content
+ */
+View.prototype.updateCRater = function(){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updatePrompt){
+		this[this.resolveType(this.activeNode.type)].updateCRater();
+	}
+};
+
+/**
+ * Removes the CRater authoring items from the authorstep page and
+ * clears input values
+ */
+View.prototype.cleanupCRater = function() {
+	this.cRaterManager.cleanupCRater();
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_authorstep.js');

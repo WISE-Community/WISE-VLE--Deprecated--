@@ -894,7 +894,8 @@ var componentloader = function(em, sl){
 				'stepStudentResponseBoxSizeChanged':[null, null],
 				'stepRichTextEditorToggleChanged':[null, null],
 				'stepStarterSentenceAuthoringOptionChanged':[null, null],
-				'stepStarterSentenceAuthoringSentenceChanged':[null, null]
+				'stepStarterSentenceAuthoringSentenceChanged':[null, null],
+				'cRaterItemIdChanged':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -910,6 +911,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepRichTextEditorToggleChanged', view.richTextEditorToggleManager.dispatcher, view);
 					view.eventManager.subscribe('stepStarterSentenceAuthoringOptionChanged', view.starterSentenceAuthoringManager.dispatcher, view);
 					view.eventManager.subscribe('stepStarterSentenceAuthoringSentenceChanged', view.starterSentenceAuthoringManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterItemIdChanged', view.cRaterManager.dispatcher, view);
 				}
 			}
 		}

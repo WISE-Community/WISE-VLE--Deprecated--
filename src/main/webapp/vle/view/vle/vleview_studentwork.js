@@ -677,18 +677,26 @@ View.prototype.getCRaterResponse = function(stepWorkId, nodeStateId) {
  */
 View.prototype.getCRaterResponseCallback = function(responseText, responseXML, args) {
 	if (responseText != null) {
-		var annotationJSON = JSON.parse(responseText);
-		var nodeId = annotationJSON.nodeId;
-		
-		// display feedback immediately, if specified in the content
-		var vle = args[0];
-		var nodeStateId = args[2];
-		// check the step content to see if we need to display the CRater feedback to the student.
-		var displayCRaterFeedbackImmediately = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater.displayCRaterFeedbackImmediately;
-		if (displayCRaterFeedbackImmediately) {
-			var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
-			// TODO: prettify me
-			alert(cRaterAnnotationJSON.score);
+		try {
+			var annotationJSON = JSON.parse(responseText);
+			var nodeId = annotationJSON.nodeId;
+			
+			// display feedback immediately, if specified in the content
+			var vle = args[0];
+			var nodeStateId = args[2];
+			// check the step content to see if we need to display the CRater feedback to the student.
+			var displayCRaterFeedbackImmediately = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater.displayCRaterFeedbackImmediately;
+			if (displayCRaterFeedbackImmediately) {
+				var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
+				// TODO: prettify me
+				alert(cRaterAnnotationJSON.score);
+			}			
+		} catch(err) {
+			/*
+			 * failed to parse JSON. this can occur if the item id is invalid which
+			 * causes an error to be returned from the server instead of the JSON
+			 * that we expect.
+			 */
 		}
 	}
 };
