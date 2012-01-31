@@ -50,11 +50,11 @@ function Branching(node) {
 };
 
 /**
- * Translates VLE constants like VLE_WORKGROUP_ID to actual workgroup value
+ * Translates VLE constants like WISE_WORKGROUP_ID to actual workgroup value
  * @param operand
  */
 Branching.prototype.translateOperand = function(operand) {
-	if (operand == "VLE_WORKGROUP_ID") {
+	if (operand == "WISE_WORKGROUP_ID") {
 		if (this.view.getConfig().getConfigParam("mode") == "portalpreview") {
 			return 0;
 		} else {
