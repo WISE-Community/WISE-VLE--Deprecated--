@@ -46,7 +46,7 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
  * @param title Title string of the step
  * @return the html for the step
  */
-NavigationPanel.prototype.createStepNavigationHtml = function(classString, stepId, nodeId, icon, position, title) {
+NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId, icon, position, title) {
 	// create the opening tag for the step DOM element
 	// *REQUIRED*: the id for this element should be the stepId param
 	// *REQUIRED*: the classString param should be added to the class attribute

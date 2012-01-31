@@ -16,7 +16,7 @@ function NavigationPanel(view) {
  * @param forceReRender true iff we want to rerender the navigation from scratch
  */
 NavigationPanel.prototype.render = function(forceReRender) {
-	// TODO: remove this first if conditional - navMode is now specified by the active project
+	// TODO: remove this first if conditional - navMode is now specified by the project metadata
 	if (this.view.config.getConfigParam("navMode") != "none" && this.view.config.getConfigParam("navMode") != "dropDownTree") {
 		//obtain the html in the nav div and run trim on it
 		var currentNavHtml = document.getElementById("my_menu").innerHTML.replace(/^\s*/, "").replace(/\s*$/, "");
@@ -374,12 +374,23 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
 			//icon = '<img src=\'' + this.view.iconUrl + node.getNodeClass() + '16.png\'/> ';
+			var nodeClass = node.getNodeClass();
+			var isValid = false;
+			for(var a=0;a<this.view.nodeClasses[node.type].length;a++){
+				if(this.view.nodeClasses[node.type][a].nodeClass == nodeClass){
+					isValid = true;
+					break;
+				}
+			}
+			if(!isValid){
+				nodeClass = this.view.nodeClasses[node.type][0].nodeClass;
+			}
 			var nodeIconPath = this.view.nodeIconPaths[node.type];
-			icon = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
+			icon = '<img src=\'' + nodeIconPath + nodeClass + '16.png\'/> ';
 		};
 		
 		//display the step
-		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, icon, position, title);
+		htmlSoFar += this.createStepHtml(classString, stepId, node.id, icon, position, title);
 	};
 	return htmlSoFar;
 };
