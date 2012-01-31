@@ -1170,10 +1170,17 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
             }
         }
         var latestState = states[states.length - 1];
-        showAllWorkHtmlSoFar += "Last visited on ";
+        
+        if(latestState!=null){
+        	// TODO: i18n
+            showAllWorkHtmlSoFar += "<p class='info lastVisit'>Last visited on ";
+        } else {
+        	// TODO: i18n
+            showAllWorkHtmlSoFar += "<p class='info'>Last visited on ";
+        }
         
         if(latestNodeVisit!=null){
-        	showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString();
+        	showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString() + "</p>";
         	
         };
         
@@ -1211,7 +1218,7 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
         };
     }
     else {
-        showAllWorkHtmlSoFar += "Step not visited yet.";
+        showAllWorkHtmlSoFar += "<p class='info'>You haven't visited this step.</p>";
     }
     
     for (var i = 0; i < this.children.length; i++) {

@@ -1,0 +1,281 @@
+/** Styles for global vle tools and elements **/
+
+p.info {
+	font-size: 0.9em;
+    margin: 0 0.5em 0.5em;
+    color: #745A33;
+}
+
+input[type="button"], input[type="submit"], input[type="text"], input[type="password"], textarea  {
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+    background-color: #F9F9F9;
+    border: 1px solid #CCCCCC;
+    color: #444;
+    font-size: 0.9em;
+    margin: .25em;
+    padding: 0.25em;
+    font-family:Arial,Helvetica,Tahoma,sans-serif;
+}
+
+input[type="text"]:focus {
+	border-color:#DADF8B;
+	background-color:#FFFFFF;
+}
+
+input[type="submit"], input[type="button"] {
+	cursor:pointer;
+	padding:.25em .5em;
+	/*color:#555;
+	border-color: #aaa;
+	background-color: #F4F4F4;*/
+	color: #585f0c;
+	background-color:#F2F5DB;
+	border-color: #C5CD61;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	box-shadow:0 0 1px #ccc;
+	-moz-box-shadow:0 0 1px #ccc;
+	-webkit-box-shadow:0 0 1px #ccc;
+	font-size:.8em;
+}
+
+input[type="submit"]:hover, input[type="button"]:hover {
+	box-shadow:0 0 2px #aaa;
+	-moz-box-shadow:0 0 2px #aaa;
+	-webkit-box-shadow:0 0 2px #aaa;
+	/*color: #007391;
+	background-color:#F2F5DB;*/
+	border-color: #91c6b7;
+	color: #007391;
+}
+
+input[type="submit"].disabled, input[type="button"].disabled {
+	color:#999999;
+	background-color: #F4F4F4;
+	border-color:#CCCCCC;
+}
+
+table.wisetable {
+	border-collapse: collapse;
+	margin: .5em auto;
+	border: 0 none;
+	text-align: center;
+}
+
+table.wisetable th {
+	border-bottom: 2px solid #777;
+	color: #444;
+	font-weight: bold;
+	padding: .25em .5em;
+	text-align: center;
+}
+
+table.wisetable td {
+	border: 1px solid #DDD;
+	text-align: center;
+	vertical-align: middle;
+	padding: .5em;
+	font-size: 0.9em;
+}
+
+table.wisetable td.emph {
+	color: #745A33;
+}
+
+.pValue {
+	width: 40px;
+	float: right;
+}
+
+.ui-progressbar.progress {
+	margin: 0 40px 0 5px;
+	border-radius: 0 0 0 0;
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0 0 0 0;
+	height:18px;
+	line-height:20px;
+}
+
+.progress .ui-progressbar-value {
+	border-radius: 0 0 0 0;
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0 0 0 0;
+}
+
+/** Dialog and Content Styles **/
+
+.dialogContent {
+	background:#FFFFFF;
+	padding:.5em;
+	font-size:.9em;
+	font-family: Arial,Helvetica,Tahoma,sans-serif;
+}
+
+.dialogSection {
+	padding:.5em;
+	line-height:1.25em;
+}
+
+.dialogTextInput {
+	margin-top:.5em;
+	color:#444444;
+}
+
+.sectionHead {
+	font-weight:bold;
+	font-size:1em;
+	padding:0.5em 0.5em 0.25em;
+	border-bottom:1px solid #999999;
+}
+
+.sectionContent {
+	margin:1em;
+}
+
+.sectionContent ol {
+	font-size:.9em;
+	list-style-type:decimal;
+}
+
+.sectionContent li {
+	margin-left:1.5em;
+	margin-bottom:.5em;
+}
+
+.sectionContent h5, .sectionContent div {
+	margin:.5em 0;
+	font-size:.9em
+	line-height:1.2em;
+}
+
+.sectionContent p {
+	margin:.5em 0;
+}
+
+.inactive {
+	color:#555; 
+}
+
+.sectionContent td, .sectionContent th {
+	padding:.5em 0;
+}
+
+.sectionContent th {
+	font-weight:bold;
+}
+
+.panelHeader {
+	border-bottom: 1px solid #D8C6B3;
+    color: #745A33;
+    font-family: Trebuchet MS;
+    font-size: 1.3em;
+    font-weight: bold;
+    /*margin: 0 0.75em;*/
+    padding: 0.5em 0 0.25em;
+}
+
+.infoContent .panelHeader {
+	margin: 0 0 .5em;
+	padding: 0 0 .25em 0;
+	color: #F97F6E;
+}
+
+.panelContent {
+	padding:1em;
+}
+
+.contentPanel .panelContent {
+	min-height: 350px;
+}
+
+#msgDiv {
+	color:#FF563F;
+	margin:.5em;
+}
+
+/* STUDENT: SHOW ALL WORK */
+
+.nodeType {
+	color: #777777;
+    font-weight: normal;
+    margin: 0 0.25em;
+}
+
+#showallwork .stepWork {
+	border: 1px solid #CCCCCC;
+    border-radius: 6px 6px 6px 6px;
+    box-shadow: 0 0 2px #CCCCCC;
+    margin: 0.75em 0.25em;
+}
+
+#showWorkContainer {
+	background-color:#FFF;
+	margin:0 auto;
+	text-align:left; 
+	overflow: auto;
+	padding:.5em;
+}
+
+#showallwork .activityHeader {
+	background-color: #555555;
+    color: #FFFFFF;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 1em 0 .5em;
+    padding: 0.5em;
+}
+
+#showallwork .sectionHead {
+	margin: 0 0.5em;
+    padding: 0.5em 0 0.25em;
+    border:0 none;
+}
+
+#showallwork .sectionContent {
+	margin:.5em 1em;
+}
+
+#showallwork .showallLatestWork {
+	background-color: #EEEEEE;
+    border: 1px solid #CCCCCC;
+    margin: 0.5em 0;
+    padding: 0.5em;
+}
+	
+#showallwork .teacherFeedback td {
+	color:#745A33;
+	font-weight:bold;
+}
+
+#showallwork .teacherFeedback .teachermsg1, #showallwork .teacherFeedback .teachermsg2 {
+	
+}
+	
+#showallwork .teacherFeedback .teachermsg3 {
+	
+}
+
+#showallwork .scoreValue {
+	color:#19253d;
+	font-weight:bold;
+	font-size:.9em;
+}
+
+#showallwork .showallLatest {
+	font-weight:bold;
+}
+
+#showallwork .lastVisit {
+	float:right;
+	margin:0;
+}
+
+#showallwork .newAnnotation {
+	display:inline;
+	color:#FF563F;
+}
+
+/* FLAGGED WORK */

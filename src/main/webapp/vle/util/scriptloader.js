@@ -446,8 +446,7 @@ var scriptloader = function(){
                 'vle/view/authoring/components/authorview_linkto.js',
                 'vle/view/authoring/components/authorview_studentresponseboxsize.js',
                 'vle/view/authoring/components/authorview_richtexteditortoggle.js',
-                'vle/view/authoring/components/authorview_startersentenceauthoring.js',
-                'vle/view/authoring/components/authorview_cRater.js'],
+                'vle/view/authoring/components/authorview_startersentenceauthoring.js'],
         premadecomments:['vle/jquery/js/jquery-1.6.1.min.js',
                          'vle/jquery/js/jquery.editinplace.js',
                          'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'],
@@ -458,8 +457,8 @@ var scriptloader = function(){
 	 * Css urls specified for all component css
 	 */
 	var css = {
-		bootstrap:[],
-		bootstrap_min:[],
+		bootstrap:["vle/css/globalstyles.css"],
+		bootstrap_min:["vle/css/globalstyles.css"],
 		core: ['vle/css/message.css'],
 		core_min: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
@@ -468,8 +467,7 @@ var scriptloader = function(){
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
 		//uccp: ["vle/css/uccp/UCCP_styles.css"],
-		vle: ["vle/css/global-tools.css"
-		      /*"vle/css/niftycube.css"*/],
+		vle: [/*"vle/css/niftycube.css"*/],
     	navigation:[/*"vle/css/navigation.css"*/],
     	menu:[/*"vle/css/sdmenu.css"*/],
  		grading: ['vle/css/portal/teachergrading.css',
@@ -487,6 +485,7 @@ var scriptloader = function(){
 	 */
 	var dependencies = {
 		"vle/node/setupNodes.js": ["vle/node/nodefactory.js"],
+		"vle/themes/setupThemes.js": ["vle/util/componentloader.js"],
     	"vle/project/Project.js": ["vle/node/Node.js"],
     	'vle/node/NodeUtils.js': ['vle/node/Node.js'],
     	"vle/node/DrawNode.js": ["vle/node/HtmlNode.js"],

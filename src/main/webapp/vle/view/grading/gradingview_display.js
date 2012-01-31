@@ -609,7 +609,7 @@ View.prototype.createClassroomMonitorTable = function() {
 	classroomMonitorTableHtml += this.getPeriodRadioButtonTableHtml("displayGradeByTeamSelectPage");
 
 	//start the table that will contain the teams to choose
-	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
+	classroomMonitorTableHtml += "<table id='chooseTeamToGradeTable' class='wisetable tablesorter'>";
 	
 	//the header row
 	classroomMonitorTableHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
@@ -753,7 +753,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 	displayGradeByTeamSelectPageHtml += "</div><div class='gradingContent'>";
 	
 	//start the table that will contain the teams to choose
-	displayGradeByTeamSelectPageHtml += "<table id='chooseTeamToGradeTable' class='chooseTeamToGradeTable tablesorter'>";
+	displayGradeByTeamSelectPageHtml += "<table id='chooseTeamToGradeTable' class='wisetable tablesorter'>";
 	
 	//the header row
 	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
@@ -834,7 +834,7 @@ View.prototype.displayStudentUploadedFiles = function() {
 		$('#studentAssetsDiv').dialog('close');			
 	};
 
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,position:'center',modal:true,title:'Students\' Uploaded Files', buttons:{'Done':done}});
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,position:['center',50],show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:true,title:'Students\' Uploaded Files', buttons:{'Done':done}});
 
 	var displayStudentAssets = function(workgroupAssetListsStr, view) {
 		// clear out the panel
@@ -3490,7 +3490,7 @@ View.prototype.displayFinished = function() {
 	$(window).resize(function(){
 		// fix the height of the gradeWorkDiv so no scrollbars are displayed for the iframe
 		that.fixGradingDisplayHeight();
-	})
+	});
 };
 
 /**
@@ -3519,7 +3519,7 @@ View.prototype.fixGradingDisplayHeight = function() {
 		$('#statisticsTable').width($('#chooseStepToGradeTable').width()+10);
 	} else if (this.gradingType == "team"){
 		//fix the width of the fixedHeader clone to match the team select table
-		// TODO: remove when fixedHeader init option "right": true no long throws error
+		// TODO: remove when fixedHeader init option "right": true no longer throws error
 		$('.fixedHeader').width($('#chooseTeamToGradeTable_wrapper').width());
 	}
 };

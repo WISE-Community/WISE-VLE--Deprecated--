@@ -733,11 +733,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			
 			var newFeedback = "";
 			
+			// TODO: i18n
 			if(showAllWorkHtml.newFeedback != "") {
-				newFeedback = "<h2 class='showAllWorkH2'>New Feedback</h2><br><hr class='showAllWorkHR'><br>" + showAllWorkHtml.newFeedback;
+				newFeedback = "<div class='panelHeader'>New Feedback</div><div class='dialogSection'>" + showAllWorkHtml.newFeedback + "</div>";
 			}
 			
-			var allFeedback = "<h2 class='showAllWorkH2'>All Work</h2><br><hr class='showAllWorkHR'><br>" + showAllWorkHtml.allFeedback;
+			var allFeedback = "<div class='panelHeader'>All My Work</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
 			
 			return newFeedback + allFeedback;
 		};
@@ -764,7 +765,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				 */
 				if(this.showAllWorkActivityCounter != 0) {
 					//we are not on the root node, we are on a sequence/activity
-					htmlSoFar.allFeedback += "<div class='showAllWorkActivity'><h3>" + this.showAllWorkActivityCounter + ". " + node.title + "</h3></div><br><hr class='showAllWorkHR'><br>";
+					htmlSoFar.allFeedback += "<div class='activityHeader'>" + node.title + "</div>";
 				}
 				
 				this.showAllWorkActivityCounter++;
@@ -778,6 +779,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				// this is a leaf node
 				if(node.type != "HtmlNode" && node.type != "OutsideUrlNode") {
 					//only display non-HtmlNode steps
+					// TODO: exclude all nodes that return null for grading html
 					
 					var nodeId = node.id;
 					
@@ -802,20 +804,41 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					var stepHasNewFeedback = false;
 					
-					tempAllFeedback += "<div id='showallStep'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class='type'>"+node.getType(true)+"</div></div>";
-					tempNewFeedback += "<div id='showallStep'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + vlePosition + " " + node.title + "</a><div class='type'>"+node.getType(true)+"</div></div>";
+					var title = '';
+					var nodeTitle = node.getTitle();
+					var currentStepNum = vlePosition;
+					if(project.autoStep) {
+						title += project.stepTerm + " " + currentStepNum + ": "; 
+					} else {
+						if(project.stepTerm && project.stepTerm != ''){
+							title += project.stepTerm + ': ';
+						};
+					};
+					
+					var titlePosition = getPositionById(node.id);
+					
+					if(!project.stepLevelNumbering){
+						titlePosition = '';
+					};
+					
+					title += view.navigationPanel.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
+					
+					tempAllFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
+					tempNewFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
 				    if (showGrades) {
 				    	
-				    	tempAllFeedback += "<div class='showallStatus'>Status: " + node.getShowAllWorkHtml(view) + "</div>";
+				    	//tempAllFeedback += "<div class='sectionContent'>Status: " + node.getShowAllWorkHtml(view) + "</div>";
+				    	tempAllFeedback += "<div class='sectionContent'>" + node.getShowAllWorkHtml(view) + "</div>";
 				    	
 				    	/*
 				    	 * we need to pass in a prefix to be prepended to the div that is made
 				    	 * otherwise there will be two divs with the same id and when we
 				    	 * render the work, it will only show up in one of the divs
 				    	 */
-				    	tempNewFeedback += "<div class='showallStatus'>Status: " + node.getShowAllWorkHtml(view, "new_") + "</div>";
+				    	//tempNewFeedback += "<div class='sectionContent'>Status: " + node.getShowAllWorkHtml(view, "new_") + "</div>";
+				    	tempNewFeedback += "<div class='sectionContent'>" + node.getShowAllWorkHtml(view, "new_") + "</div>";
 						
-						commonFeedback += "<div><table id='teacherTable'>";
+						commonFeedback += "<div class='sectionContent'><table class='teacherFeedback'>";
 						
 						var runId = view.getConfig().getConfigParam('runId');
 						
@@ -855,7 +878,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							//check if the annotation is new for the student
 							if(annotationScorePostTime > lastTimeVisited) {
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p style='display: inline; color: red;' class='newAnnotation'> [New]</p>";
+								newP = "<p class='newAnnotation'> [New]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -884,7 +907,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 							//check if the annotation is new for the student
 							if(annotationCommentPostTime > lastTimeVisited) {
 								//the annotation is new so we will add a [New] label to it that is red
-								newP = "<p style='display: inline; color: red;' class='newAnnotation'> [New]</p>";
+								newP = "<p class='newAnnotation'> [New]</p>";
 								
 								stepHasNewFeedback = true;
 								
@@ -906,7 +929,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						
 						commonFeedback += annotationHtml;
 						
-						commonFeedback += "</table></div><br><hr class='showAllWorkHR'><br>";
+						commonFeedback += "</table></div></div>";
 				    } else {
 				    	//note: I don't think this else branch is used anymore
 						var childHtmlSoFar = node.getShowAllWorkHtmlHelper(view);

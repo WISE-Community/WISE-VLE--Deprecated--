@@ -135,7 +135,7 @@ iframe {
 }
 
 
-.chooseStepToGradeTable td, .chooseTeamToGradeTable td, .showScoreTable td, .gradingHeaderTable td {
+.chooseStepToGradeTable td, .showScoreTable td, .gradingHeaderTable td {
 	padding:2px;
 	vertical-align:top;
 }
@@ -315,7 +315,7 @@ a.periodChoice.checked {
 	color:#333; 
 }
 	
-.chooseStepToGradeTable a, .chooseTeamToGradeTable a, .showScoreTable a {
+.chooseStepToGradeTable a, .showScoreTable a {
 	font-weight:bold;
 }
 
@@ -327,7 +327,7 @@ a.periodChoice.checked {
 	font-size: .9em;
 }
 
-.chooseStepToGradeTable p, .chooseTeamToGradeTable p, .showScoreTable p {
+.chooseStepToGradeTable p, #chooseTeamToGradeTable p, .showScoreTable p {
 	display: block;
 	margin-left: .75em;
 	padding-left: .6em;
@@ -509,6 +509,7 @@ a.selectStep:hover {
 
 #chooseTeamToGradeTable {
 	margin-top: -0.45em;
+	margin-bottom:0;
 }
 
 input#chooseTeamToGrade_search {
@@ -525,33 +526,16 @@ input#chooseTeamToGrade_search:focus {
 }
 
 .fixedHeader {
-	margin-top:.4em;
-}
-
-#chooseTeamToGradeTable td, #chooseTeamToGradeTable td {
-	border:1px solid #DDDDDD;
-	text-align:center;
-	vertical-align: middle;
-	padding:5px;
-	font-size: 0.9em;
-}
-
-#chooseTeamToGradeTable th, #studentworkTable th {
-	background-color: #FFFFFF;
-    border-bottom: 2px solid #777777;
-    border-color: #FFFFFF #FFFFFF #777777;
-    color: #444444;
-    font-size: 0.8em;
-    font-weight: bold;
-    padding: 10px 5px 5px;
-    text-align:center;
+	padding-top:.45em;
+	font-size: .85em;
+	background-color:#FFFFFF;
 }
 
 #chooseTeamToGradeTable th:hover {
 	cursor:pointer;
 }
 
-#showScoreTable thead tr, #chooseTeamToGradeTable thead tr {
+#showScoreTable thead tr {
 	background-color:#CCC;
 }
 
@@ -706,15 +690,15 @@ td.workColumn p, td.workColumn span {
 	text-align:center;
 }
 
-.chooseTeamToGradeTable .col1 {
+#chooseTeamToGradeTable .col1 {
 	width: 70px;
 }
 
-.chooseTeamToGradeTable .col2 {
+#chooseTeamToGradeTable .col2 {
 	width: 300px;
 }
 
-.chooseTeamToGradeTable .col3  {
+#chooseTeamToGradeTable .col3  {
 	width: 200px;
 }
 

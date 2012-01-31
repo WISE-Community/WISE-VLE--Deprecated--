@@ -406,21 +406,29 @@ View.prototype.displayShowAllWork = function() {
 		var teamPercentProjectCompleted = Math.floor((numStepsCompleted / nodeIds.length) * 100) + "%";
 	    
 		// var closeButton1 = "<a href='#' class='container-close'>Close</a>";
-		
-	    var scoresDiv1 = "<table id='showAllWorkScoresTable'><tr><td class='scoreHeader' colspan='4'>Current Score & Progress</td></tr>";
+		// TODO: i18n
+	    var scoresDiv1 = "<table class='wisetable'>";
 	    
-	    var scoresDiv2 = "<tr><td>Teacher Graded Score</td><td>Computer Graded Score</td><td>TOTAL SCORE</td><td>% of Project Completed</td></tr>";
+	    var scoresDiv2 = "<thead><tr><th>Teacher Score</th><th>Computer Score</th><th>TOTAL SCORE</th><th>% of Project Completed</th></tr></thead>";
 	    	
-	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'>" + teamPercentProjectCompleted + "</td></tr></table>";
-
+	    var scoresDiv3 = "<tr><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForWorkgroup + "</td><td class='scoreValue'>not available</td><td class='scoreValue'>" + totalScoreForWorkgroup + "/" + totalPossibleForProject + "</td><td class='scoreValue'><div class='pValue'>" + teamPercentProjectCompleted + "</div><div id='teamProgress' class='progress'></td></tr></table>";
 	    
-		allWorkHtml = "<div id=\"showWorkContainer\">" + scoresDiv1 + scoresDiv2 + scoresDiv3 + "<br><hr class='showAllWorkHR'><br>" + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
+		allWorkHtml = "<div id='showWorkContainer' class='dialogContent'>" + scoresDiv1 + scoresDiv2 + scoresDiv3 + this.project.getShowAllWorkHtml(this.project.getRootNode(), true) + "</div>";
 		
 	    if($('#showallwork').size()==0){
 	    	$('<div id="showallwork"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'My Work (with Teacher Feedback and Scores)'});
 	    }	    
 	    
 	    $('#showallwork').html(allWorkHtml);
+	    
+	    //the default bar size, we will use this for the thickness of the hr
+		var percentBarSize = 0;
+		
+		//check if the percent complete is 0%
+		if(teamPercentProjectCompleted != '0%') {
+			//set the thickness to 3
+			percentBarSize = 3;
+		}
 	    
 	    // inject svgdrawings
 	    $('.svgdraw').each(function(){
@@ -440,6 +448,12 @@ View.prototype.displayShowAllWork = function() {
 		var docWidth = $(document).width()-25;
 		$('#showallwork').dialog({height:docHeight,width:docWidth});
 	    $('#showallwork').dialog('open');
+	    
+	    //display the percentage and jqueryui progressbar
+		var completedVal = parseInt(teamPercentProjectCompleted.replace('%',''));
+		var item = document.getElementById("teamProgress");
+		$(item).progressbar({value: completedVal});
+		
 	    // print mysystem...should happen after opening showallworkdialog
 		$(".mysystem").each(function() {
 			var json_str = $(this).html();

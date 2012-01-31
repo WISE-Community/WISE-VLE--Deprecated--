@@ -244,10 +244,6 @@ header {
 }
 
 #addNew {
-	margin:0 .5em;
-	border-radius:4px;
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
 }
 
 #toggleDeleted {
@@ -450,8 +446,8 @@ textarea#text, textarea#editText {
 
 
 label { width: 10em; float: left; }
-label.error { float: none; color: red; padding-left: .5em; vertical-align: top; }
-p { clear: both; }
+label.error { float: none; color: red; padding-left: .5em; vertical-align: middle; }
+/*p { clear: both; }*/
 .submit { margin-left: 12em; }
 em { font-weight: bold; padding-right: 1em; vertical-align: top; }
 
