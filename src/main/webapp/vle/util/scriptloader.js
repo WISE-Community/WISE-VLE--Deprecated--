@@ -141,6 +141,7 @@ var scriptloader = function(){
 			var configpath = themepath + 'config.json';
 			$.ajax({
 				url: configpath,
+				dataType: 'json',
 				success: function(data){
 					if (typeof s == 'undefined'){
 						s = [];
