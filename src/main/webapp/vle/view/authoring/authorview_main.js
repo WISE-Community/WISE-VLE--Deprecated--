@@ -1813,6 +1813,8 @@ View.prototype.populateThemes = function(){
 		var themepath = 'themes/' + themeName + '/';
 		var configpath = themepath + 'config.json';
 		$.ajax({
+			dataType:'json',
+			async:false,
 			url: configpath,
 			success: function(data){
 				themeSelect.append('<option value="' + themeName + '">' + data.name + '</option>');
@@ -1843,6 +1845,7 @@ View.prototype.populateNavModes = function(themeName,navMode){
 	var configpath = themepath + 'config.json';
 	$.ajax({
 		url: configpath,
+		dataType: 'json',
 		success: function(data){
 			// populate navModes for selected theme
 			var navSelect = $('#projectMetadataNavigation').html('');
