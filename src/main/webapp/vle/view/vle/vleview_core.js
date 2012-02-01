@@ -253,8 +253,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		$('#viewMyFiles').remove();
 	}
 	
-	if (this.config.getConfigParam('mode') == "portalpreview" || 
-			(runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled)) {
+	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
 		/*
 		 * display the idea basket icons if we are in project preview or the run
 		 * has idea basket enabled
@@ -263,8 +262,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title='Add New Idea'>"+this.getI18NString("addidea_button_text")+"</a>";
 		$("#viewIdeaBasket").html(ideaBasketLink);
 		$("#addIdea").html(addIdeaLink);
-	} else if (runInfo.isIdeaManagerEnabled != null &&
-			!runInfo.isIdeaManagerEnabled) {
+	} else {
 		$("#ideaBasketLinks").remove();
 	}
 };
