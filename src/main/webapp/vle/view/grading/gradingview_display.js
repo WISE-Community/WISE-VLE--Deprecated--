@@ -2297,7 +2297,7 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 	}
 	
 	//get the latest annotation post time for comparing with student work post time
-	annotationData.latestAnnotationPostTime = Math.max(annotationData.annotationCommentPostTime, annotationData.annotationScorePostTime, annotationData.annotationCRaterScorePostTime);
+	annotationData.latestAnnotationPostTime = Math.max(annotationData.annotationCommentPostTime, annotationData.annotationScorePostTime);
 	
 	//return the object containing the values we need
 	return annotationData;
