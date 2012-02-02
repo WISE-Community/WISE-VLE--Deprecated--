@@ -153,10 +153,10 @@ View.prototype.FlashNode.generatePage = function(view){
 	//create the label for the radio buttons that the author will use to select the grading format
 	var gradingTypeLabel = $(document.createElement('div')).text('Grading Mode:');
 	//create the radio buttons and labels for each grading type
-	var gradingLabelFlash = $(document.createElement('span')).text('Flash Display');
-	var gradingRadioFlash = $(createElement(document, 'input', {id: 'flashGradingType', type: 'radio', name: 'gradingType', value: 'flashDisplay'})).prop('checked',true);
 	var gradingLabelData = $(document.createElement('span')).text('Student Data String');
-	var gradingRadioData = $(createElement(document, 'input', {id: 'dataGradingType', type: 'radio', name: 'gradingType', value: 'data'}));
+	var gradingRadioData = $(createElement(document, 'input', {id: 'dataGradingType', type: 'radio', name: 'gradingType', value: 'data'})).prop('checked',true);
+	var gradingLabelFlash = $(document.createElement('span')).text('Flash Display');
+	var gradingRadioFlash = $(createElement(document, 'input', {id: 'flashGradingType', type: 'radio', name: 'gradingType', value: 'flashDisplay'}));
 	var gradingLabelCustom = $(document.createElement('span')).text('Custom');
 	var gradingRadioCustom = $(createElement(document, 'input', {id: 'customGradingType', type: 'radio', name: 'gradingType', value: 'custom'}));
 	

@@ -170,7 +170,7 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 				var newFlashContent = '<html><head></head><body>'+
 					'<div>' + flashContent + '</div>'+
 					'</body></html>';
-				var newWindow=window.open('','','location=no');
+				var newWindow=window.open('','','');
 				newWindow.document.write(newFlashContent);
 				newWindow.focus();
 				/*$(newFlashContent).dialog({
