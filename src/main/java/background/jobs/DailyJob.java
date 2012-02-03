@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Vector;
 
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.json.JSONArray;
@@ -143,6 +144,7 @@ public class DailyJob implements Job {
 			ResultSet annotationCountQuery = statement.executeQuery("select count(*) from annotation");
 			
 			if(annotationCountQuery.first()) {
+				//get the total number of annotations
 				long annotationCount = annotationCountQuery.getLong(1);
 				
 				try {
@@ -153,60 +155,39 @@ public class DailyJob implements Job {
 				}
 			}
 			
+			//this will hold all the annotation types e.g. "comment", "score", "flag", "cRater"
+			Vector<String> annotationTypes = new Vector<String>();
+			
+			//get all the different types of annotations
+			ResultSet annotationTypeQuery = statement.executeQuery("select distinct type from annotation");
+			
+			while(annotationTypeQuery.next()) {
+				String annotationType = annotationTypeQuery.getString(1);
+				annotationTypes.add(annotationType);
+			}
+			
 			//the array to store the counts for each annotation type
 			JSONArray annotationCounts = new JSONArray();
 			
-			//get the total number of comment annotations
-			ResultSet annotationCommentCountQuery = statement.executeQuery("select count(*) from annotation_comment");
-			
-			if(annotationCommentCountQuery.first()) {
-				long annotationCommentCount = annotationCommentCountQuery.getLong(1);
+			//loop through all the annotation types
+			for(String annotationType : annotationTypes) {
+				//get the total number of annotations for the current annotation type
+				ResultSet annotationTypeCountQuery = statement.executeQuery("select count(*) from annotation where type='" + annotationType + "'");
 				
-				try {
-					//create an object to store the type and count in
-					JSONObject annotationCommentObject = new JSONObject();
-					annotationCommentObject.put("annotationType", "comment");
-					annotationCommentObject.put("count", annotationCommentCount);
+				if(annotationTypeCountQuery.first()) {
+					//get the count for the current annotation type
+					long annotationTypeCount = annotationTypeCountQuery.getLong(1);
 					
-					annotationCounts.put(annotationCommentObject);
-				} catch(JSONException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			//get the total number of flag annotations
-			ResultSet annotationFlagCountQuery = statement.executeQuery("select count(*) from annotation_flag");
-			
-			if(annotationFlagCountQuery.first()) {
-				long annotationFlagCount = annotationFlagCountQuery.getLong(1);
-				
-				try {
-					//create an object to store the type and count in
-					JSONObject annotationFlagObject = new JSONObject();
-					annotationFlagObject.put("annotationType", "flag");
-					annotationFlagObject.put("count", annotationFlagCount);
-					
-					annotationCounts.put(annotationFlagObject);
-				} catch(JSONException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			//get the total number of score annotations
-			ResultSet annotationScoreCountQuery = statement.executeQuery("select count(*) from annotation_score");
-			
-			if(annotationScoreCountQuery.first()) {
-				long annotationScoreCount = annotationScoreCountQuery.getLong(1);
-				
-				try {
-					//create an object to store the type and count in
-					JSONObject annotationScoreObject = new JSONObject();
-					annotationScoreObject.put("annotationType", "score");
-					annotationScoreObject.put("count", annotationScoreCount);
-					
-					annotationCounts.put(annotationScoreObject);	
-				} catch(JSONException e) {
-					e.printStackTrace();
+					try {
+						//create an object to store the type and count in
+						JSONObject annotationObject = new JSONObject();
+						annotationObject.put("annotationType", annotationType);
+						annotationObject.put("count", annotationTypeCount);
+						
+						annotationCounts.put(annotationObject);
+					} catch(JSONException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			
