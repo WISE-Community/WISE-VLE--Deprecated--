@@ -253,18 +253,15 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		$('#viewMyFiles').remove();
 	}
 	
-	if (this.config.getConfigParam('mode') == "portalpreview" || 
-			(runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled)) {
+	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
 		/*
-		 * display the idea basket icons if we are in project preview or the run
-		 * has idea basket enabled
+		 * display the idea basket links if the run/project has idea basket enabled
 		 */
 		var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")' title='View Idea Basket'>"+this.getI18NString("ideas_button_text")+" <span id='ideaCount' class='count'>(0)</span></a>";
 		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title='Add New Idea'>"+this.getI18NString("addidea_button_text")+"</a>";
 		$("#viewIdeaBasket").html(ideaBasketLink);
 		$("#addIdea").html(addIdeaLink);
-	} else if (runInfo.isIdeaManagerEnabled != null &&
-			!runInfo.isIdeaManagerEnabled) {
+	} else {
 		$("#ideaBasketLinks").remove();
 	}
 };

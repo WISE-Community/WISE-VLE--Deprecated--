@@ -262,7 +262,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 		titlePosition = '';
 	};
 	
-	title += this.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
+	title += this.getTitlePositionFromLocation(titlePosition.toString()) + " " + nodeTitle;
 
 	if (node.isHiddenFromNavigation()) {
 		// hide the node if node.isHidden is true
@@ -346,7 +346,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     		};
     		
     		//display a step with the title of the sequence for this glue sequence
-    		htmlSoFar += this.createStepNavigationHtml(classString, stepId, node.id, sequenceIcon, position, title, this.getStudentViewPosition(position + '.0'));
+    		htmlSoFar += this.createStepHtml(classString, stepId, node.id, sequenceIcon, position, title, this.getStudentViewPosition(position + '.0'));
     	} else {
     		//the sequence is normal
     		
