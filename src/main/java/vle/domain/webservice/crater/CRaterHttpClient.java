@@ -52,7 +52,7 @@ public class CRaterHttpClient extends HttpClient {
 			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 			
 			try {
-				System.out.println("CRater request bodyData:" + bodyData);
+				//System.out.println("CRater request bodyData:" + bodyData);
 				method.setRequestEntity(new StringRequestEntity(bodyData, "text/xml", "utf8"));
 			} catch (UnsupportedEncodingException e1) {
 				e1.printStackTrace();
