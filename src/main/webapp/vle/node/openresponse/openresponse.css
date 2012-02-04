@@ -331,3 +331,13 @@ textarea:focus {
     color:#000;
     cursor:pointer;
 }
+
+#openresponseOptionsTable {
+	border: solid black 1px;
+	width:100%;
+}
+
+#openresponseOptionsTable td {
+	width: 33.3%;
+}
+

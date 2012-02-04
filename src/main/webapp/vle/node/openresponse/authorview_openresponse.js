@@ -25,6 +25,11 @@ View.prototype.OpenResponseNode.generatePage = function(view){
 	var richTextEditorText = document.createTextNode("Use Rich Text Editor");
 	
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(document.createTextNode("Open Response Options:"));
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createElement(document, 'div', {id: 'openresponseOptionsContainer'}));
+	pageDiv.appendChild(createBreak());
+
 	pageDiv.appendChild(createElement(document, 'div', {id: 'studentResponseBoxSizeContainer'}));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
@@ -53,6 +58,7 @@ View.prototype.OpenResponseNode.generatePage = function(view){
 	pageDiv.appendChild(createElement(document, 'div', {id: 'cRaterContainer'}));
 	
 	parent.appendChild(pageDiv);
+	this.generateOptions();
 };
 
 /**
@@ -62,6 +68,48 @@ View.prototype.OpenResponseNode.generatePage = function(view){
 View.prototype.OpenResponseNode.getCommonComponents = function() {
 	return this.commonComponents;
 };
+
+/**
+ * Generates the options for an assessment list node
+ */
+View.prototype.OpenResponseNode.generateOptions = function(){
+	var optionsHtml = '<table id="openresponseOptionsTable"><thead><tr><td>Display Answer After Submit</td><td>Lock After Submit</td><td>Complete All Before Exit</td></tr></thead>' + 
+		'<tbody><tr><td><label for="displayRadioYes"><input type="radio" name="displayRadio" id="displayRadioYes" value="true" onclick="eventManager.fire(\'openresponseOptionChanged\',\'display\')"/>Yes</label></br>' +
+		'<label for="displayRadioNo"><input type="radio" name="displayRadio" id="displayRadioNod" value="false" onclick="eventManager.fire(\'openresponseOptionChanged\',\'display\')"/>No</label></td>' +
+		'<td><label for="lockRadioYes"><input type="radio" name="lockRadio" id="lockRadioYes" value="true" onclick="eventManager.fire(\'openresponseOptionChanged\',\'lock\')"/>Yes</label></br>' +
+		'<label for="lockRadioNo"><input type="radio" name="lockRadio" id="lockRadioNo" value="false" onclick="eventManager.fire(\'openresponseOptionChanged\',\'lock\')"/>No</label></td>' +
+		'<td><label for="completeRadioYes"><input type="radio" name="completeRadio" id="completeRadioYes" value="true" onclick="eventManager.fire(\'openresponseOptionChanged\',\'complete\')"/>Yes</label></br>' +
+		'<label for="completeRadioNo"><input type="radio" name="completeRadio" id="completeRadioNo" value="false" onclick="eventManager.fire(\'openresponseOptionChanged\',\'complete\')"/>No</label></td></tr></tbody></table>';
+	
+	$('#openresponseOptionsContainer').append(optionsHtml);
+
+	$('input[name=displayRadio]').filter('[value=' + this.content.displayAnswerAfterSubmit + ']').attr('checked', true);
+	$('input[name=lockRadio]').filter('[value=' + this.content.isLockAfterSubmit + ']').attr('checked', true);
+	$('input[name=completeRadio]').filter('[value=' + this.content.isMustCompleteAllPartsBeforeExit + ']').attr('checked', true);
+};
+
+/**
+ * Given the option type, updates the corresponding option in the content
+ * with the user specified value.
+ * 
+ * @param String - type
+ */
+View.prototype.OpenResponseNode.optionChanged = function(type){
+	var val = $('input[name=' + type + 'Radio]:checked').val();
+	val = (val==="true") ? true : false;
+	
+	if(type=='display'){
+		this.content.displayAnswerAfterSubmit = val;
+	} else if(type=='lock'){
+		this.content.isLockAfterSubmit = val;
+	} else if(type=='complete'){
+		this.content.isMustCompleteAllPartsBeforeExit = val;
+	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
 
 /**
  * Generates and returns the lines element for the html

@@ -13,6 +13,8 @@ View.prototype.openResponseDispatcher = function(type,args,obj){
 		obj.OpenResponseNode.starterUpdated();
 	} else if(type=='openResponseUpdateRichText'){
 		obj.OpenResponseNode.updateRichText();
+	} else if(type=='openresponseOptionChanged'){
+		obj.OpenResponseNode.optionChanged(args[0]);
 	} else if(type=='openResponseLinesChanged'){
 		obj.OpenResponseNode.linesUpdated();
 	} else if(type=='openResponsePeerReviewAuthoredWorkUpdated'){
@@ -33,6 +35,7 @@ var events = [
 	'openResponsePromptChanged',
 	'openResponseStarterOptionChanged',
 	'openResponseStarterSentenceUpdated',
+	'openresponseOptionChanged',
 	'openResponseUpdateRichText',
 	'openResponseLinesChanged',
 	'openResponsePeerReviewAuthoredWorkUpdated',

@@ -21,5 +21,8 @@
       "display": "0",
       "sentence": ""
    },
+   "displayAnswerAfterSubmit": true,
+   "isLockAfterSubmit": false,
+   "isMustCompleteAllPartsBeforeExit": false,   
    "type": "OpenResponse"
 }
