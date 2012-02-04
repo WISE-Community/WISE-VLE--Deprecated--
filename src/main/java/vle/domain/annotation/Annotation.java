@@ -468,6 +468,54 @@ public class Annotation extends PersistableDomain {
 	}
 	
 	/**
+	 * Get the latest annotation that is associated with any of the StepWork objects
+	 * @param stepWorks the list of StepWork objects whose annotations we want to search
+	 * to be in the annotation
+	 * @param type the annotation type. must not be null.
+	 * @return the latest annotation associated with any of the StepWork objects
+	 */
+	@SuppressWarnings("unchecked")
+	public static Annotation getLatestAnnotationByStepWork(List<StepWork> stepWorks, String type) {
+		if(stepWorks.size() == 0) {
+			return null;
+		}
+		
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        /*
+         * perform the query to obtain the annotations associated with the workgroup ids,
+         * order the results from newest to oldest
+         */
+        List<Annotation> results = 
+        	(List<Annotation>) session.createCriteria(Annotation.class)
+        		.add(Restrictions.in("stepWork", stepWorks)).addOrder(Order.desc("postTime"))
+        		.add(Restrictions.eq("type", type))
+        		.list();
+        session.getTransaction().commit();
+
+        Annotation annotation = null;
+        
+        if(results.size() > 0) {
+        	//get the newest annotation
+        	annotation = results.get(0);
+        }
+        
+        return annotation;
+	}
+	
+	/**
+	 * Get the latest cRater score annotation that is associated with any of the StepWork objects
+	 * @param stepWorks the list of StepWork objects whose annotations we want to search
+	 * to be in the annotation
+	 * @return the latest cRater score annotation associated with any of the StepWork objects and has
+	 * a fromWorkgroup that is in the workgroupIds list
+	 */
+	public static Annotation getLatestCRaterScoreByStepWork(List<StepWork> stepWorks) {
+		return (Annotation) getLatestAnnotationByStepWork(stepWorks, "crater");
+	}
+	
+	/**
 	 * Get the latest score annotation that is associated with any of the StepWork objects
 	 * and has a fromWorkgroup that is in the workgroupIds list 
 	 * @param stepWorks the list of StepWork objects whose annotations we want to search
