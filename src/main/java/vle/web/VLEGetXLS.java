@@ -1294,6 +1294,12 @@ public class VLEGetXLS extends VLEServlet {
 				//set the step work data into the row in the given column
 				workgroupColumnCounter = setStepWorkResponse(rowForWorkgroupId, workgroupColumnCounter, latestStepWorkWithResponse, nodeId);
 
+				//check if this step utilizes CRater scoring
+				if(isCRaterType(nodeContent)) {
+					//set the latest CRater score and timestamp
+					workgroupColumnCounter = setLatestCRaterScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
+				}
+				
 				//set the latest annotation score and timestamp from any of the teachers
 				workgroupColumnCounter = setLatestAnnotationScoreAndTimestamp(stepWorksForNodeId, rowForWorkgroupId, workgroupColumnCounter);
 				
@@ -1685,6 +1691,11 @@ public class VLEGetXLS extends VLEServlet {
 			columnCounter = setGetLatestStudentWorkAssessmentListHeaderCells(
 					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
 					columnCounter, nodeId, nodeTitle, nodeContent);
+		} else if(isCRaterType(nodeContent)) {
+			//the step is uses CRater grading
+			columnCounter = setGetLatestStudentWorkCRaterHeaderCells(
+					stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+					columnCounter, nodeId, nodeTitle, nodeContent);
 		} else {
 			//the column is for all other step types
 			columnCounter = setGetLatestStudentWorkRegularHeaderCells(
@@ -1901,6 +1912,39 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Check if the node utilizes CRater
+	 * @param nodeJSONObject the step content
+	 * @return whether the step uses CRater
+	 */
+	private boolean isCRaterType(JSONObject nodeJSONObject) {
+		boolean result = false;
+		
+		if(nodeJSONObject == null) {
+			result = false;
+		} else {
+			if(nodeJSONObject.has("cRater")) {
+				try {
+					//get the CRater object in the content
+					JSONObject cRaterJSONObject = nodeJSONObject.getJSONObject("cRater");
+					
+					if(cRaterJSONObject.has("cRaterItemId")) {
+						String cRaterItemId = cRaterJSONObject.getString("cRaterItemId");
+						
+						//make sure the cRaterItemId is not null and not an empty string
+						if(cRaterItemId != null && !cRaterItemId.equals("")) {
+							result = true;
+						}
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
 	 * Set the header cells for getLatestStudentWork for a review type node
 	 * which may require multiple columns
 	 * @param stepTitleRow
@@ -2078,6 +2122,67 @@ public class VLEGetXLS extends VLEServlet {
 				e.printStackTrace();
 			}
 		}
+		
+		return columnCounter;
+	}
+	
+	/**
+	 * Set the header cells for a regular node that only requires one column
+	 * @param stepTitleRow
+	 * @param stepTypeRow
+	 * @param stepPromptRow
+	 * @param nodeIdRow
+	 * @param stepExtraRow
+	 * @param columnCounter
+	 * @param nodeId
+	 * @param nodeTitle
+	 * @param nodeContent
+	 * @return the updated column position
+	 */
+	private int setGetLatestStudentWorkCRaterHeaderCells(
+			Row stepTitleRow,
+			Row stepTypeRow,
+			Row stepPromptRow,
+			Row nodeIdRow,
+			Row stepExtraRow,
+			int columnCounter, 
+			String nodeId,
+			String nodeTitle, 
+			JSONObject nodeContent) {
+		
+		String nodeType = "";
+		try {
+			if(nodeContent != null) {
+				//get the node type
+				nodeType = nodeContent.getString("type");
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		//get the prompt
+		String nodePrompt = getPromptFromNodeContent(nodeContent);
+		
+		String stepExtra = "";
+		
+		//set the header cells
+		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
+				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
+		
+		stepExtra = "CRater score timestamp";
+		
+		//set the crater header cells for the CRater score timestamp column
+		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
+				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
+		
+		stepExtra = "CRater score";
+		
+		//set the crater header cells for the CRater score column
+		columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
+				stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+				nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
 		
 		return columnCounter;
 	}
@@ -4273,6 +4378,77 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return comment;
+	}
+	
+	/**
+	 * Get the latest CRater score and timestamp and set it into the row
+	 * @param stepWorksForNodeId the StepWork objects we want to look at
+	 * for the associated annotation
+	 * @param rowForWorkgroupId the row
+	 * @param workgroupColumnCounter the column index
+	 * @return the updated column counter pointing to the next empty column
+	 */
+	private int setLatestCRaterScoreAndTimestamp(List<StepWork> stepWorksForNodeId, Row rowForWorkgroupId, int workgroupColumnCounter) {
+		/*
+		 * get the latest annotation associated with any of the StepWork objects
+		 * and have fromWorkgroup as any of the workgroup ids in teacherWorkgroupIds
+		 */
+		Annotation latestAnnotationScoreByStepWork = Annotation.getLatestCRaterScoreByStepWork(stepWorksForNodeId);
+		
+		if(latestAnnotationScoreByStepWork != null) {
+			try {
+				//get the annotation data
+				String data = latestAnnotationScoreByStepWork.getData();
+				JSONObject annotationData = new JSONObject(data);
+				
+				/*
+				 * get the value e.g.
+				 * "value": [
+				 *     {
+				 *         "studentResponse": {
+				 *             "response": [
+				 *                 "animals carbon chemical dioxide energy food giving glucose heat off oxygen plants sun them to transformed vitamin warmth water"
+				 *             ],
+				 *             "timestamp": 1328317997000,
+				 *             "cRaterItemId": "Photo_Sun",
+				 *             "type": "or"
+				 *         },
+				 *         "nodeStateId": 1328317997000,
+				 *         "score": 3,
+				 *         "cRaterResponse": "<crater-results>\n  <tracking id=\"1016300\"/>\n  <client id=\"WISETEST\"/>\n  <items>\n     <item id=\"Photo_Sun\">\n        <responses>\n      <response id=\"1566085\" score=\"3\" concepts=\"1,2,3,5\"/>\n       </responses>\n     </item>\n  </items>\n</crater-results>\r"
+				 *     }
+				 * ]
+				 */
+				JSONArray value = annotationData.getJSONArray("value");
+				
+				if(value.length() > 0) {
+					//get the last entry in the array
+					JSONObject valueElement = value.getJSONObject(value.length() - 1);
+					
+					//get the score
+					long score = valueElement.getLong("score");
+					
+					//get the timestamp for the annotation
+					Timestamp postTime = latestAnnotationScoreByStepWork.getPostTime();
+					
+					//get the timestamp as a string
+					String timestampAnnotationPostTime = timestampToFormattedString(postTime);
+					
+					//set the timestamp
+					rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
+					
+					//set the score
+					workgroupColumnCounter = setCellValue(rowForWorkgroupId, workgroupColumnCounter, score + "");
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			//there is no annotation so we will just increment the column counter
+			workgroupColumnCounter += 2;
+		}
+		
+		return workgroupColumnCounter;
 	}
 	
 	/**
