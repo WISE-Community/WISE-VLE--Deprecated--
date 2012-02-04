@@ -50,8 +50,12 @@
                     }
                 }
                 
-                or = new OPENRESPONSE(node, node.view);
-                or.render();
+                try {
+                  or = new OPENRESPONSE(node, node.view);
+                  or.render();
+                } catch (error) {
+                	// ignore
+                }
             };
             
             /**

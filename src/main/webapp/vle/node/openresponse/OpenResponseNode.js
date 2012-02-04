@@ -160,6 +160,25 @@ OpenResponseNode.prototype.importFile = function(filename) {
 	return false;
 };
 
+
+/**
+ * Sets up a WorkOnXConstraint before rendering so that students will
+ * not be able to navigate to any other step before completing work on
+ * this step if that was specified in the content.
+ * 
+ * @param contentPanel
+ * @param studentWork
+ */
+OpenResponseNode.prototype.render = function(contentPanel,studentWork, disable) {
+	/* add a new constraint for this node if the content specifies that
+	 * student must complete work before exiting to another step */		
+	if (this.content.getContentJSON().isMustCompleteAllPartsBeforeExit) {
+		this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
+	}
+	/* call super */
+	Node.prototype.render.call(this, contentPanel, studentWork, disable);
+};
+
 /**
  * Called when the step is exited. This is used for auto-saving.
  */

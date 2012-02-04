@@ -307,6 +307,20 @@ ConstraintManager.prototype.processStateConstraints = function(){
 			}
 		}
 		
+		/* get assessment list nodeVisits keyed by id */
+		var openresponseVisits = this.view.state.getNodeVisitsByNodeType('OpenResponseNode');
+		
+		/* iterate each and check to see if the work was completed, if it was, then
+		 * no constraint is needed, if not, then we need to add a constraint if isMustCompleteAllPartsBeforeExit
+		 * == true */
+		for(var nodeId in openresponseVisits){
+			if(this.view.getProject().getNodeById(nodeId).getContent().getContentJSON().isMustCompleteAllPartsBeforeExit){
+				if(!this.view.getProject().getNodeById(nodeId).isCompleted()){
+					this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:nodeId, mode:'node'}});
+				}
+			}
+		}
+		
 		/* get branch nodeVisits keyed by id */
 		var branchVisits = this.view.state.getNodeVisitsByNodeType('BranchNode');
 		

@@ -79,7 +79,8 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 		this.projectMeta.maxScores = $.stringify(this.maxScores.maxScoresArray);
 		
 		//create a JSON string from the metadata and then escape the JSON string
-		var metadataString = escape($.stringify(this.projectMeta));
+		//var metadataString = escape($.stringify(this.projectMeta));
+		var metadataString = $.stringify(this.projectMeta,null,3);
 		
 		var postMetadataParams = {
 			"projectId":this.portalProjectId,
