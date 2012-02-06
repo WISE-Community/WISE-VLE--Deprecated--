@@ -188,8 +188,34 @@ SVGDrawNode.prototype.onExit = function() {
 	}
 };
 
+/**
+ * SVGDraw does not actually use this function to render the grading view.
+ * The grading view for SVGDraw steps is handled a special way in the vle code.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ * 
+ */
+SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+	//do nothing
+};
+
 SVGDrawNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/draw/svg-edit/svg-editor.html');
+};
+
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode.
+ * @returns whether this step type has a grading view
+ */
+SVGDrawNode.prototype.hasGradingView = function() {
+	return true;
 };
 
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);

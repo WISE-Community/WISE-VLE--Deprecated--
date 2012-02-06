@@ -49,7 +49,7 @@ BRAINSTORMSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 }
 
 BRAINSTORMSTATE.prototype.getStudentWork = function() {
-	return this.response;
+	return this;
 }
 
 //used to notify scriptloader that this script has finished loading

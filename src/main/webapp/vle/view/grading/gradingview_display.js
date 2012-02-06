@@ -939,7 +939,8 @@ View.prototype.displayGradeByStepSelectPageHelper = function(node) {
 		var position = this.getProject().getVLEPositionById(nodeId);
 		
 		/* add the right html to the displayGradeByStepSelectPageHtml based on the given node's type */
-		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" || (node.type == "FlashNode" && node.getContent().getContentJSON().enableGrading == false)) {
+		if(!node.hasGradingView()) {
+			//step type does not have a grading view
 			displayGradeByStepSelectPageHtml += this.getGradeByStepSelectPageLinklessHtmlForNode(node, position, node.type);
 		} else if(node.type=='DuplicateNode'){
 			displayGradeByStepSelectPageHtml += this.getGradeByStepSelectPageHtmlForDuplicateNode(node, position);
@@ -1887,9 +1888,8 @@ View.prototype.calculateGradeByStepGradingStatistics = function(node) {
 	if(node.isLeafNode()) {
 		//this node is a leaf/step
 
-		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" || node.type == 'DuplicateNode' ||
-				(node.type == "FlashNode" && node.getContent().getContentJSON().enableGrading == false)) {
-
+		if(!node.hasGradingView()) {
+			//do nothing since this step is not graded
 		} else {
 			//calculate the grading statistics for this step
 			var gradeByStepGradingStatistics = this.getGradeByStepGradingStatistics(nodeId);
@@ -2429,7 +2429,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
 		
 		//add the post time stamp to the bottom of the student work
 		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
-	} else if(studentWork != "" && this.isSelfRenderingGradingViewNodeType(node.type)) {
+	} else if(studentWork != "" && node.hasGradingView()) {
 		//create the student work div that we will insert the student work into later
 		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
 	} else {
@@ -4176,7 +4176,7 @@ View.prototype.renderAllStudentWorkForNode = function(node) {
 		 * for new node types at the moment. we will convert all the other steps to
 		 * this way later.
 		 */
-		if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+		if(node.hasGradingView()) {
 			//check if the student submitted any work
 			if(latestNodeVisit != null) {
 				//render the student work for the node visit
@@ -4211,7 +4211,7 @@ View.prototype.renderAllStudentWorkForWorkgroupId = function(workgroupId) {
 		 * for new node types at the moment. we will convert all the other steps to
 		 * this way later.
 		 */
-		if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+		if(node.hasGradingView()) {
 			//get the latest node visit for this workgroup for this node
 			var latestNodeVisit = vleState.getLatestNodeVisitByNodeId(nodeId);
 			

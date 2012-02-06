@@ -28,6 +28,16 @@ OutsideUrlNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/outsideurl/outsideurl.html');
 };
 
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode.
+ * @returns whether this step type has a grading view
+ */
+OutsideUrlNode.prototype.hasGradingView = function() {
+	return false;
+};
+
 NodeFactory.addNode('OutsideUrlNode', OutsideUrlNode);
 
 //used to notify scriptloader that this script has finished loading

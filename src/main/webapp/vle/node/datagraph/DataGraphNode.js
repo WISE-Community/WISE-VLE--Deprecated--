@@ -38,6 +38,16 @@ DataGraphNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/datagraph/datagraph.html');
 };
 
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode.
+ * @returns whether this step type has a grading view
+ */
+DataGraphNode.prototype.hasGradingView = function() {
+	return false;
+};
+
 NodeFactory.addNode('DataGraphNode', DataGraphNode);
 
 //used to notify scriptloader that this script has finished loading

@@ -25,6 +25,16 @@ MWNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/mw/mw.html');
 };
 
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode.
+ * @returns whether this step type has a grading view
+ */
+MWNode.prototype.hasGradingView = function() {
+	return false;
+};
+
 NodeFactory.addNode('MWNode', MWNode);
 
 //used to notify scriptloader that this script has finished loading

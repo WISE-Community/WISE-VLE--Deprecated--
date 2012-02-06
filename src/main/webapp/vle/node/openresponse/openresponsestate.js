@@ -52,6 +52,7 @@ OPENRESPONSESTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * @return the answer the student typed
  */
 OPENRESPONSESTATE.prototype.getStudentWork = function() {
+	/*
 	var studentWork = this.response;
 	
 	//check if the response is an array
@@ -59,10 +60,12 @@ OPENRESPONSESTATE.prototype.getStudentWork = function() {
 		/*
 		 * response is an array so we will use the toString() of the array
 		 * which should give us just the text within it
-		 */
+		 *
 		studentWork = this.response.toString();
 	}
 	return studentWork;
+	*/
+	return this;
 };
 
 OPENRESPONSESTATE.prototype.isLocked = function() {

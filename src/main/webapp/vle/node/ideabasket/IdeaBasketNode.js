@@ -193,10 +193,10 @@ IdeaBasketNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	 * TODO: rename templateState to match the variable name you
 	 * changed in the previous line above
 	 */
-	var studentWork = ideaBasketState.getStudentWork();
+	//var studentWork = ideaBasketState.getStudentWork();
 	
 	//put the student work into the div
-	$('#' + divId).html();
+	//$('#' + divId).html();
 };
 
 /**

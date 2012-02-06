@@ -91,6 +91,22 @@ MySystemNode.prototype.onExit = function() {
 	}
 };
 
+/**
+ * MySystem does not actually use this function to render the grading view.
+ * The grading view for MySystem steps is handled a special way in the vle code.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ * 
+ */
+MySystemNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+	//do nothing
+};
+
 MySystemNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/mysystem/mysystem.html');
 };

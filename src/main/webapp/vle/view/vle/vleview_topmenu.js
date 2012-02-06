@@ -262,7 +262,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 				flaggedWork = node.translateStudentWork(flaggedWork);
 				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
 				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
-	    	} else if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+			} else if(node.hasGradingView()) {
 	    		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
 	    	} else {
 				flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
@@ -309,7 +309,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			var flagForNodeId = flagsForNodeId[y];
 			
 			//only perform this for sensor nodes until we implement it for all other steps
-			if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+			if(node.hasGradingView()) {
 	
 				//get the nodevisit from the flag
 				var nodeVisit = flagForNodeId.data;
@@ -476,7 +476,7 @@ View.prototype.displayShowAllWork = function() {
 			var node = this.project.getNodeById(nodeIds[x]);
 
 			//only perform this for sensor nodes until we implement it for all other steps
-			if(this.isSelfRenderingGradingViewNodeType(node.type)) {
+			if(node.hasGradingView()) {
 				//get the node id
 				var nodeId = node.id;
 				

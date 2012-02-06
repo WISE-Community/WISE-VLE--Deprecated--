@@ -64,7 +64,7 @@ FILLINSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * @return the answer the student typed
  */
 FILLINSTATE.prototype.getStudentWork = function() {
-	return this.response;
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

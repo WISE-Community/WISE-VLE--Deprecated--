@@ -192,6 +192,19 @@ TemplateNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/template/template.html');
 };
 
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode. For those step types, this function should
+ * return false. If you return false, the step will be grayed out
+ * in the grading tool and will not be shown in the student vle
+ * show all work section.
+ * @returns whether this step type has a grading view
+ */
+TemplateNode.prototype.hasGradingView = function() {
+	return true;
+};
+
 /*
  * Add this node to the node factory so the vle knows it exists.
  * TODO: rename both occurrences of TemplateNode

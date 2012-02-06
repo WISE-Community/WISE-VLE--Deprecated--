@@ -578,6 +578,7 @@ View.prototype.getIdeaBasketByWorkgroupId = function(workgroupId) {
  * @param nodeType the type of the node
  * @return whether this node type implements renderGradingView()
  */
+/*
 View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 	var isSelfRenderingGradingView = false;
 	
@@ -600,6 +601,7 @@ View.prototype.isSelfRenderingGradingViewNodeType = function(nodeType) {
 	
 	return isSelfRenderingGradingView;
 };
+*/
 
 /**
  * Get the max possible score for the project

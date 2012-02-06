@@ -1199,7 +1199,10 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
         	var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
         	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
         	
-        	if(this.view.isSelfRenderingGradingViewNodeType(this.type)) {
+        	if(this.type == "MySystemNode" || this.type == "SVGDrawNode") {
+        		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+    			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
+        	} else if(this.hasGradingView()) {
         		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
         		'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\"></div>';
         	} else {
@@ -1460,6 +1463,17 @@ Node.prototype.onBeforeCreateNavigationHtml = function() {
  */
 Node.prototype.getTagMapFunctionByName = function(functionName) {
 	return null;
+};
+
+/**
+ * Whether this step type has a grading view. Steps that do not save
+ * any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode. Steps types that do not have a grading view 
+ * should override this function and return false.
+ * @returns whether this step type has a grading view
+ */
+Node.prototype.hasGradingView = function() {
+	return true;
 };
 
 //used to notify scriptloader that this script has finished loading

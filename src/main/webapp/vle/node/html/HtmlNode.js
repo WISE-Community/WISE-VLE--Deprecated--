@@ -67,6 +67,16 @@ HtmlNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('');
 };
 
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode.
+ * @returns whether this step type has a grading view
+ */
+HtmlNode.prototype.hasGradingView = function() {
+	return false;
+};
+
 NodeFactory.addNode('HtmlNode', HtmlNode);
 
 //used to notify scriptloader that this script has finished loading

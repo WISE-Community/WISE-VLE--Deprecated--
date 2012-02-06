@@ -259,6 +259,34 @@ FlashNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/flash/flash.html');
 };
 
+/**
+ * Whether this step type has a grading view. Steps types that do not
+ * save any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode. Flash steps will need to look at the step content
+ * to determine if this instance of the Flash step implements the
+ * grading view.
+ * @returns whether this step type has a grading view
+ */
+FlashNode.prototype.hasGradingView = function() {
+	var result = false;
+	
+	//get the content
+	var content = this.getContent();
+	
+	if(content != null) {
+		//get the content JSON
+		var contentJSON = content.getContentJSON();
+		
+		if(contentJSON != null) {
+			//obtain the enableGrading field
+			var enableGrading = contentJSON.enableGrading;
+			
+			result = enableGrading;
+		}
+	}
+	return result;
+};
+
 //Add this node to the node factory so the vle knows it exists.
 NodeFactory.addNode('FlashNode', FlashNode);
 
