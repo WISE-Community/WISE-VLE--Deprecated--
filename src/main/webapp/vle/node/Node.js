@@ -299,9 +299,9 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 	/* if there is a disable constraint, we want to set a semi-transparent panel over the content div */
 	if(disable==1){
 		/* get the position, height and width of the content panel */
-		var panelPosition = $('#projectRightLowerBox').offset();
-		var panelHeight = $('#projectRightLowerBox').height() + 2;
-		var panelWidth = $('#projectRightLowerBox').width() + 2;
+		var panelPosition = $('#contentDiv').offset();
+		var panelHeight = $('#contentDiv').height() + 2;
+		var panelWidth = $('#contentDiv').width() + 2;
 		
 		/* create the disabledPanel and append it to the given document */
 		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
