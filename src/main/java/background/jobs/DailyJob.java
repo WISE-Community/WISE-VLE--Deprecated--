@@ -171,23 +171,26 @@ public class DailyJob implements Job {
 			
 			//loop through all the annotation types
 			for(String annotationType : annotationTypes) {
-				//get the total number of annotations for the current annotation type
-				ResultSet annotationTypeCountQuery = statement.executeQuery("select count(*) from annotation where type='" + annotationType + "'");
-				
-				if(annotationTypeCountQuery.first()) {
-					//get the count for the current annotation type
-					long annotationTypeCount = annotationTypeCountQuery.getLong(1);
+				if(annotationType != null && !annotationType.equals("")
+						&& !annotationType.equals("null") && !annotationType.equals("NULL")) {
+					//get the total number of annotations for the current annotation type
+					ResultSet annotationTypeCountQuery = statement.executeQuery("select count(*) from annotation where type='" + annotationType + "'");
 					
-					try {
-						//create an object to store the type and count in
-						JSONObject annotationObject = new JSONObject();
-						annotationObject.put("annotationType", annotationType);
-						annotationObject.put("count", annotationTypeCount);
+					if(annotationTypeCountQuery.first()) {
+						//get the count for the current annotation type
+						long annotationTypeCount = annotationTypeCountQuery.getLong(1);
 						
-						annotationCounts.put(annotationObject);
-					} catch(JSONException e) {
-						e.printStackTrace();
-					}
+						try {
+							//create an object to store the type and count in
+							JSONObject annotationObject = new JSONObject();
+							annotationObject.put("annotationType", annotationType);
+							annotationObject.put("count", annotationTypeCount);
+							
+							annotationCounts.put(annotationObject);
+						} catch(JSONException e) {
+							e.printStackTrace();
+						}
+					}					
 				}
 			}
 			
