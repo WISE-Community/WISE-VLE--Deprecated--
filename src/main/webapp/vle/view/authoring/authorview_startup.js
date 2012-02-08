@@ -9,7 +9,7 @@
  */
 View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle){
 	this.portalUrl = url;
-	this.editingPollInterval = setInterval('eventManager.fire("whoIsEditing")', this.EDITING_POLL_TIME);
+	//this.editingPollInterval = setInterval('eventManager.fire("whoIsEditing")', this.EDITING_POLL_TIME);
 	this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&command=retrieveFile&fileName=';
 	this.requestUrl = this.portalUrl;
 	this.assetRequestUrl = this.portalUrl;

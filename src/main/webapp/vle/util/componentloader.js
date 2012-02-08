@@ -613,7 +613,7 @@ var componentloader = function(em, sl){
 					view.initializeStepTypeDescriptionsDialog();
 					view.initializeTagViewDialog();
 										
-					window.onunload = env.onWindowUnload();
+					window.onunload = env.onWindowUnload;
 				}
 			}
 		},
