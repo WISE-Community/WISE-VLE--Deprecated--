@@ -107,6 +107,10 @@ table.wisetable td.emph {
 
 /** Dialog and Content Styles **/
 
+.no-title .ui-dialog-titlebar {
+	display: none;	
+}
+
 .dialogContent {
 	background:#FFFFFF;
 	padding:.5em;
@@ -196,7 +200,7 @@ table.wisetable td.emph {
 	margin:.5em;
 }
 
-/* STUDENT: SHOW ALL WORK */
+/* STUDENT: SHOW ALL WORK/FLAGGED WORK */
 
 .nodeType {
 	color: #777777;
@@ -204,7 +208,7 @@ table.wisetable td.emph {
     margin: 0 0.25em;
 }
 
-#showallwork .stepWork {
+#showallwork .stepWork, #showflaggedwork .stepWork {
 	border: 1px solid #CCCCCC;
     border-radius: 4px;
     box-shadow: 0 0 2px #CCCCCC;
@@ -239,17 +243,17 @@ table.wisetable td.emph {
     text-decoration:underline;
 }
 
-#showallwork .sectionHead {
+#showallwork .sectionHead, #showflaggedwork .sectionHead {
 	margin: 0 0.5em;
     padding: 0.5em 0 0.25em;
     border:0 none;
 }
 
-#showallwork .sectionContent {
+#showallwork .sectionContent, #showflaggedwork .sectionContent {
 	margin:.5em 1em;
 }
 
-#showallwork .showallLatestWork {
+#showallwork .showallLatestWork, #showflaggedwork .showallLatestWork {
 	background-color: #FFFFFF;
     border: 1px solid #DDDDDD;
     margin: 0.5em 0;
@@ -290,4 +294,10 @@ table.wisetable td.emph {
 	color:#FF563F;
 }
 
-/* FLAGGED WORK */
+#showflaggedwork #chooseStep {
+	background-color: #EEEEEE;
+    border-bottom: 1px solid #CCCCCC;
+    font-weight: bold;
+    margin: -0.5em -0.5em 0;
+    padding: 0.25em 0.5em;
+}

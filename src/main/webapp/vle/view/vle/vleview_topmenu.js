@@ -117,6 +117,8 @@ View.prototype.showStepHints = function() {
 };
 /**
  * Display the flagged work for the project.
+ * 
+ * TODO: i18n
  */
 View.prototype.displayFlaggedWork = function() {
 	var flaggedWorkHtml = "";
@@ -145,8 +147,7 @@ View.prototype.displayFlaggedWork = function() {
 		//get all the node ids in the project
 		var nodeIds = this.getProject().getNodeIds();
 		
-		flaggedWorkHtml += "<div>";
-		flaggedWorkHtml += "<p><b>Choose a step</b></p>";
+		flaggedWorkHtml += "<div id='chooseStep'>Choose a step: ";
 		
 		//select box for the student to choose which step's flagged work to look at
 		flaggedWorkHtml += "<select id='flagNodeIdSelect' onchange='eventManager.fire(\"displayFlaggedWorkForNodeId\")'>";
@@ -171,14 +172,14 @@ View.prototype.displayFlaggedWork = function() {
 				
 				//add an option into the select box
 				flaggedWorkHtml += "<option value=" + nodeId + ">";
-				flaggedWorkHtml += stepTerm + " " + position + ": " + node.title + " (" + node.type + ")";
+				flaggedWorkHtml += stepTerm + " " + position + ": " + node.title;
 				flaggedWorkHtml += "</option>";
 			}
 		}
 		
 		flaggedWorkHtml += "</select>";
 		flaggedWorkHtml += "</div>";
-		flaggedWorkHtml += "<br>";
+		flaggedWorkHtml += "<div class='dialogContent'>";
 		
 		//div that we will use to display the flagged work
 		flaggedWorkHtml += "<div id='flaggedWorkForNodeIdDiv'></div>";
@@ -190,7 +191,7 @@ View.prototype.displayFlaggedWork = function() {
 	//check if the showflaggedwork div exists
     if($('#showflaggedwork').size()==0){
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'Flagged Work',zindex:9999});
+    	$('<div id="showflaggedwork" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:'Teacher Flagged Work',zindex:9999});
     }
     
     //set the html into the div
@@ -229,11 +230,15 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 		var flaggedWorkHtml = "";
 		
 		//display the step position, title, and type
-		flaggedWorkHtml += "<div><br><b><u>" + position + " " + node.title + " (" + node.type + ")" + "</u></b><br><br>";
+		//flaggedWorkHtml += "<div class='panelHeader'>" + position + " " + node.title + "</div>";
 		
 		//display the prompt for the step
-		flaggedWorkHtml += "Prompt:<br/>";
-		flaggedWorkHtml += node.getPrompt() + "<br/><br/></div><hr size=4 noshade><br/>";
+		if(node.getPrompt() && node.getPrompt() != ''){
+			flaggedWorkHtml += "<div class='panelHeader'>Question/Instructions:</div>";
+			flaggedWorkHtml += "<div class='dialogSection'><div class='sectionContent showallLatestWork'>" + node.getPrompt() + "</div></div>";
+		}
+		
+		flaggedWorkHtml += "<div class='panelHeader'>Sample Responses:</div><div class='dialogSection'>";
 		
 		var flaggedWorkAnswers = "";
 		
@@ -246,32 +251,29 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			var flaggedWork = flagForNodeId.data.getLatestWork();
 			var flaggedWorkPostTime = flagForNodeId.postTime;
 			
-			if(flaggedWorkAnswers != "") {
-				//add line breaks to separate the multiple answers that were flagged
-				flaggedWorkAnswers += "<br/><br/>";
-			}
-			
-			flaggedWorkAnswers += "<div style='border-width:thin; border-style:solid'>";
+			flaggedWorkAnswers += "<div class='stepWork'>";
 			
 			//display the flagged work/answer
-			flaggedWorkAnswers += "<div>Answer (Team Anonymous " + (y + 1) + "):</div><br/>";
+			flaggedWorkAnswers += "<div class='sectionHead'>Team " + (y + 1) + " (Anonymous):</div>";
+			flaggedWorkAnswers += "<div class='sectionContent'>";
 			if (node.type == "MySystemNode") {
 				var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
 				var divId = "mysystemDiagram_"+flaggedWorkPostTime;
-				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystem' style=\"height:350px;\">" + flaggedWork + "</div>";
+				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystem showallLatestWork' style=\"height:350px;\">" + flaggedWork + "</div>";
 			} else if (node.type == "SVGDrawNode") {
+				// TODO: remove (move to SVGDrawNode.js)
 	    		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
 				var divId = "svgDraw_"+flaggedWorkPostTime;
 				flaggedWork = node.translateStudentWork(flaggedWork);
 				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
-				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
+				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2 showallLatestWork' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
 			} else if(node.hasGradingView()) {
-	    		flaggedWorkAnswers += "<div id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
+	    		flaggedWorkAnswers += "<div class='showallLatestWork' id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
 	    	} else {
-				flaggedWorkAnswers += "<div>"+flaggedWork+"</div>";
+				flaggedWorkAnswers += "<div class='showallLatestWork'>"+flaggedWork+"</div>";
 			}
 			
-			flaggedWorkAnswers += "</div>";
+			flaggedWorkAnswers += "</div></div>";
 		}
 		
 		flaggedWorkHtml += flaggedWorkAnswers;
@@ -311,7 +313,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			//get a flag
 			var flagForNodeId = flagsForNodeId[y];
 			
-			//only perform this for sensor nodes until we implement it for all other steps
+			//only perform this for nodes that have a grading view
 			if(node.hasGradingView()) {
 	
 				//get the nodevisit from the flag

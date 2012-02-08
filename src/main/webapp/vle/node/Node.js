@@ -100,10 +100,7 @@ Node.prototype.getPrompt = function() {
 				var assessmentItem = contentJSON.assessmentItem;
 				var interaction = assessmentItem.interaction;
 				prompt = interaction.prompt;	
-			}
-			// check if node is an SVGDrawNode
-			if(this.type=='SVGDrawNode'){
-			//obtain the prompt
+			} else {
 				if(contentJSON.prompt != null){
 					prompt = contentJSON.prompt;
 				}
