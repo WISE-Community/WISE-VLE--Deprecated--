@@ -3010,9 +3010,8 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 
 		//get the position as seen by the student
 		var position = this.getProject().getVLEPositionById(nodeId);
-		if(node.type == "HtmlNode" || node.type == "OutsideUrlNode" ||
-				(node.type == "FlashNode" && node.getContent().getContentJSON.enableGrading == false)) {
-			//the node is an html node so we do not need to display a link for it, we will just display the text
+		if(!node.hasGradingView()) {
+			//the node does not have a grading view so we do not need to display a link for it, we will just display the text
 			displayGradeByTeamGradingPageHtml += "<table class='gradeByTeamGradingPageNonWorkStepTable'><tr><td class='chooseStepToGradeStepTd'><p>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr></table>";
 			displayGradeByTeamGradingPageHtml += "<br>";
 		} else if(node.type == 'DuplicateNode'){
@@ -4251,21 +4250,7 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 			//the div is empty so we need to render the student work
 			
 			//tell the node to insert/render the student work into the div
-			if(node.type == "FlashNode"){
-				if(node.getContent().getContentJSON().gradingType == "flashDisplay"){
-					//if node type if FlashNode and grading type is set to flashDisplaty render Flash applet with stored student data
-					var nodeContent = node.getContent().getContentJSON();
-					node.renderGradingViewFlash("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId, nodeContent);
-				} else if (node.getContent().getContentJSON().gradingType == "custom"){
-					//if node type if FlashNode and grading type is set to custom render custom grading output
-					var nodeContent = node.getContent().getContentJSON();
-					node.renderGradingViewCustom("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId, nodeContent);
-				} else {
-					node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
-				}
-			} else {
-				node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
-			}
+			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
 			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitPostTime) + "</p>");	

@@ -399,7 +399,8 @@ var scriptloader = function(){
 		vle: ['vle/util/icon.js',
 		      'vle/view/vle/vleview_core.js',
 		      'vle/view/vle/vleview_utils.js',
-		      'vle/view/vle/vleview_studentwork.js'],
+		      'vle/view/vle/vleview_studentwork.js',
+              'vle/swfobject/swfobject.js'],
 		studentwork: ['vle/data/vlestate.js',
 		              'vle/data/nodevisit.js'
 		              ],

@@ -700,7 +700,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				 * the node type is FlashNode and grading is enabled, we will
 				 * add the node id to the array
 				 */
-				if((!nodeTypesToExclude || nodeTypesToExclude.indexOf(nodeType) == -1) || (nodeType == "FlashNode" && currentNode.getContent().getContentJSON().enableGrading == true)) {
+				if((!nodeTypesToExclude || nodeTypesToExclude.indexOf(nodeType) == -1) && currentNode.hasGradingView()) {
 					nodeIds.push(currentNode.id);					
 				}
 			}
