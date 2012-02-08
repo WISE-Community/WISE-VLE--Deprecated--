@@ -104,7 +104,10 @@ View.prototype.showStepHints = function() {
 	
 	var currentNode = this.getCurrentNode();
 	
-	// show the notes panel
+	// hide all dialogs
+	this.eventManager.fire('closeDialogs');
+	
+	// show the hints panel
     $('#hintsPanel').dialog('open');
 		
 	// log when hint was opened
@@ -431,6 +434,7 @@ View.prototype.displayShowAllWork = function() {
 		}
 	    
 	    // inject svgdrawings
+		// TODO: show snapshots (if enabled); move this to SVGDrawNode.js renderGradingView
 	    $('.svgdraw').each(function(){
 			var svgString = String($(this).html());
 			var contentBaseUrl = $(this).attr("contentBaseUrl");
@@ -475,7 +479,7 @@ View.prototype.displayShowAllWork = function() {
 			//get a node object
 			var node = this.project.getNodeById(nodeIds[x]);
 
-			//only perform this for sensor nodes until we implement it for all other steps
+			//only perform this for steps that have a grading view
 			if(node.hasGradingView()) {
 				//get the node id
 				var nodeId = node.id;
@@ -722,6 +726,9 @@ View.prototype.displayAddAnIdeaDialog = function() {
     //insert the html into the popup
     $('#addAnIdeaDiv').html(addAnIdeaHtml);
 	
+    // close all dialogs
+    this.eventManager.fire('closeDialogs');
+    
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');
 	
@@ -864,6 +871,9 @@ View.prototype.displayIdeaBasket = function() {
 	 * if it's already open, we don't have to do anything
 	 */
 	if($('#ideaBasketDiv').is(':hidden')) {
+		// close all dialogs
+		this.eventManager.fire('closeDialogs');
+		
 		//open the dialog
 		var docHeight = $(document).height()-25;
 		if(docHeight>499){
