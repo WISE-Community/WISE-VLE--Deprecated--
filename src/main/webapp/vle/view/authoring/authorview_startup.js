@@ -9,7 +9,16 @@
  */
 View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle){
 	this.portalUrl = url;
-	this.editingPollInterval = setInterval('eventManager.fire("whoIsEditing")', this.EDITING_POLL_TIME);
+	/*
+	 * this editingPollInterval is used to check who is also currently editing the
+	 * project. this was never actually used because stopEditingInterval() used
+	 * to be called at the beginning of loading the authoring tool because of
+	 * a bug. if this editingPollInterval is actually used, it throws server
+	 * side errors so I have commented it out. the authoring tool still checks
+	 * and displays who is also currently authoring the project when the project 
+	 * is initially loaded just like before.
+	 */
+	//this.editingPollInterval = setInterval('eventManager.fire("whoIsEditing")', this.EDITING_POLL_TIME);
 	this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&command=retrieveFile&fileName=';
 	this.requestUrl = this.portalUrl;
 	this.assetRequestUrl = this.portalUrl;

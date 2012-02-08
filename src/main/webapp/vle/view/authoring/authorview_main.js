@@ -1531,8 +1531,11 @@ View.prototype.getCurrentNode = function(){
  * Cleans up before exiting the authoring tool.
  */
 View.prototype.onWindowUnload = function(){
-	this.stopEditingInterval();
+	//this.stopEditingInterval();
 	this.notifyPortalCloseProject(true);
+
+	//log out the user
+	window.top.location = "/webapp/j_spring_security_logout";
 };
 
 /**
