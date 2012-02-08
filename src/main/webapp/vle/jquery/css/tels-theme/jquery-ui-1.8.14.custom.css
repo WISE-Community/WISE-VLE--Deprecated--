@@ -64,7 +64,10 @@
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Arial,sans-serif; font-size: 1em; }
 .ui-widget-content { border: 1px solid #dddddd; background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #444444; }
 .ui-widget-content a { }
-.ui-widget-header { border: 1px solid #ffffff; background: #0e7590 url(images/ui-bg_highlight-hard_20_0e7590_1x100.png) 50% 50% repeat-x; color: #ffffff; font-weight: bold; }
+.ui-widget-header { border: 1px solid #ffffff; background: #0e7590 url(images/ui-bg_highlight-hard_20_0e7590_1x100.png) 50% 50% repeat-x; color: #ffffff; font-weight: bold;
+	/* WISE Edits */
+	background: none repeat scroll 0 0 #047492;
+}
 .ui-widget-header a { color: #ffffff; }
 
 /* Interaction states
@@ -73,7 +76,11 @@
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #ffffff; text-decoration: none; }
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #dddddd; background: #7c5b3d url(images/ui-bg_glow-ball_10_7c5b3d_600x600.png) 50% 50% repeat-x; font-weight: bold; color: #ffffff; }
 .ui-state-hover a, .ui-state-hover a:hover { color: #ffffff; text-decoration: none; }
-.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { border: 1px solid #dddddd; background: #e8ddd4 url(images/ui-bg_flat_50_e8ddd4_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #444444; }
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { border: 1px solid #dddddd; background: #e8ddd4 url(images/ui-bg_flat_50_e8ddd4_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #444444;
+	/* WISE Edits */
+	background: #A59174;
+	color: #fff;
+}
 .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { color: #444444; text-decoration: none; }
 .ui-widget :active { outline: none; }
 
@@ -470,7 +477,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 }
 .ui-dialog .ui-dialog-title { float: left; margin: .1em 16px .1em 0; 
 	/*WISE Edits */
-	font-weight: bold;
+	font-weight: normal;
 } 
 .ui-dialog .ui-dialog-titlebar-close { position: absolute; right: .3em; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog .ui-dialog-titlebar-close span { display: block; margin: 1px; }
