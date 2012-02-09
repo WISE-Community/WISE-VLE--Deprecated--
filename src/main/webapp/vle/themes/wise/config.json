@@ -12,7 +12,7 @@
 		"css/theme.css"	
 	],
 	"js": [],
-	"jqueryui_css": "css/jquery-ui/jquery-ui-1.8.14.custom.css",
+	"jqueryui_css": "css/jquery-ui/jquery-ui-1.8.17.custom.css",
 	"nav_modes": [
 		{
 			"id":"classic",

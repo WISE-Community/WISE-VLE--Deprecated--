@@ -396,7 +396,7 @@ View.prototype.initializeAssetUploaderDialog = function(){
 				frame.addEventListener('load',view.assetUploaded,false);
 				
 				/* change the name attribute to reflect that of the file selected by user */
-				document.getElementById('uploadAssetFile').setAttribute("name", filename);
+				document.getElementById('uploadAssetFile').setAttribute("name", filename).setAttribute("size","40");
 				
 				/* remove file input from the dialog and append it to the frame before submitting, we'll put it back later */
 				var fileInput = document.getElementById('uploadAssetFile');

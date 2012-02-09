@@ -738,7 +738,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				newFeedback = "<div class='panelHeader'>New Feedback</div><div class='dialogSection'>" + showAllWorkHtml.newFeedback + "</div>";
 			}
 			
-			var allFeedback = "<div class='panelHeader'>All My Work</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
+			var allFeedback = "<div class='panelHeader'>My Work</div><div class='dialogSecton'>" + showAllWorkHtml.allFeedback + "</div>";
 			
 			return newFeedback + allFeedback;
 		};

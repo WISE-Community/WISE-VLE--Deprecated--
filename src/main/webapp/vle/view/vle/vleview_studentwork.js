@@ -419,7 +419,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	var addSelectedFileText = this.getI18NString("student_assets_add_selected_file");
 	var deleteSelectedFileText = this.getI18NString("student_assets_delete_selected_file");
 	var doneText = this.getI18NString("done");
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,position:['center',50],show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("student_assets_my_files"), 
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("student_assets_my_files"), 
 			buttons:[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]});
 
 	/*

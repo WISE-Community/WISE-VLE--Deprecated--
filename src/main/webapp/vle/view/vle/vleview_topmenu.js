@@ -454,6 +454,7 @@ View.prototype.displayShowAllWork = function() {
 		var docWidth = $(document).width()-25;
 		$('#showallwork').dialog({height:docHeight,width:docWidth});
 	    $('#showallwork').dialog('open');
+	    $('#showallwork').scrollTop(0);
 	    
 	    //display the percentage and jqueryui progressbar
 		var completedVal = parseInt(teamPercentProjectCompleted.replace('%',''));
