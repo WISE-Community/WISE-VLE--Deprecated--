@@ -28,7 +28,7 @@ var dependencies = [
 ];
 
 var css = [
-	scriptloader.jqueryUICss(),
+	scriptloader.jqueryUICss,
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/assessmentlist/assessmentlist.css"
 ];
