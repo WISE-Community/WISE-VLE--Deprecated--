@@ -8,14 +8,15 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
-    'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
+    scriptloader.getjQuerySrc(),
+    scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/common/nodehelpers.js',
 	'vle/common/helperfunctions.js',
 	'vle/node/brainstorm/brainstorm.js',
 	'vle/node/brainstorm/brainstormstate.js',
-	'vle/data/nodevisit.js'
+	'vle/data/nodevisit.js',
+	'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js'
 ];
 
 var authorScripts = [
@@ -27,7 +28,8 @@ var gradingScripts = [
 ];
 
 var dependencies = [
-	{child:"vle/node/brainstorm/BrainstormNode.js", parent:["vle/node/Node.js"]}
+	{child:"vle/node/brainstorm/BrainstormNode.js", parent:["vle/node/Node.js"]},
+	{child:"vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js",parent:[scriptloader.getjQuerySrc(),]}
 ];
 
 var css = [

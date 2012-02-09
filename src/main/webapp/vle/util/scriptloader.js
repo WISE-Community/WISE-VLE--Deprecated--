@@ -48,6 +48,9 @@ var scriptloader = function(){
 	var scriptLoaderWait = 30000;
 	var callerId;
 	var loaded = [];
+	var jquerySrc = 'vle/jquery/js/jquery-1.6.1.min.js';
+	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.8.17.custom.min.js';
+	var jqueryUICss = 'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css';
 	
 	/**
 	 * scriptLoader listener listens for all scriptLoaded events and
@@ -191,7 +194,7 @@ var scriptloader = function(){
 						var csspath = 'vle/' + themepath + data.jqueryui_css;
 						c.push(csspath);
 					} else {
-						c.push('vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css');
+						c.push(jqueryUICss);
 					}
 					
 					// set theme logo in vle html
@@ -289,8 +292,8 @@ var scriptloader = function(){
                   'vle/view/view.js',
                   'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
-                  'vle/jquery/js/jquery-1.6.1.min.js',
-  		          'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
+                  jquerySrc,
+  		          jqueryUISrc,
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
@@ -450,9 +453,9 @@ var scriptloader = function(){
                 'vle/view/authoring/components/authorview_richtexteditortoggle.js',
                 'vle/view/authoring/components/authorview_startersentenceauthoring.js',
                 'vle/view/authoring/components/authorview_cRater.js'],
-        premadecomments:['vle/jquery/js/jquery-1.6.1.min.js',
+        premadecomments:[jquerySrc,
                          'vle/jquery/js/jquery.editinplace.js',
-                         'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'],
+                         jqueryUISrc],
         ideabasket:['vle/ideaBasket/basket.js']
 	};
 	
@@ -466,7 +469,7 @@ var scriptloader = function(){
 		core_min: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
 		         'vle/css/ui-tools.css',
-		         'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css'
+		         jqueryUICss
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
 		//uccp: ["vle/css/uccp/UCCP_styles.css"],
@@ -475,10 +478,10 @@ var scriptloader = function(){
     	menu:[/*"vle/css/sdmenu.css"*/],
  		grading: ['vle/css/portal/teachergrading.css',
  		         'vle/jquery/jquery-dataTables/css/datatable.css',
- 		         'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css'],
+ 		         jqueryUICss],
  		grading_min: ['vle/css/portal/teachergrading.css',
  	 		         'vle/jquery/jquery-dataTables/css/datatable.css',
- 	 		         'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css'],
+ 	 		         jqueryUICss],
  		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
     	         
 	};
@@ -500,13 +503,11 @@ var scriptloader = function(){
         'vle/node/BranchNode.js':['vle/node/Node.js','vle/node/MultipleChoiceNode.js'],
         "vle/ui/vleui.js": ["vle/VLE.js"],
         "vle/util/projectutils.js": ["vle/project/Project.js"],
-        'vle/jquery/js/jquery-ui-1.8.17.custom.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
-        'vle/jquery/js/jsonplugin.js':['vle/jquery/js/jquery-1.6.1.min.js'],
-        'vle/jquery/js/jqueryhelper.js':['vle/jquery/js/jquery-1.6.1.min.js'],
-        'vle/jquery/js/jquery.form.js':['vle/jquery/js/jquery-1.6.1.min.js'],
-        'vle/jquery/js/jquery.form.js':['vle/jquery/js/jquery-1.6.1.min.js'],
-        'vle/jquery/js/jquery.tools.tooltip.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
-        'vle/jquery/js/jquery.tablesorter.min.js':['vle/jquery/js/jquery-1.6.1.min.js'],
+        'vle/jquery/js/jsonplugin.js':[jquerySrc],
+        'vle/jquery/js/jqueryhelper.js':[jquerySrc],
+        'vle/jquery/js/jquery.form.js':[jquerySrc],
+        'vle/jquery/js/jquery.tools.tooltip.min.js':[jquerySrc],
+        'vle/jquery/js/jquery.tablesorter.min.js':[jquerySrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
@@ -518,6 +519,9 @@ var scriptloader = function(){
         'vle/xmpp/js/student.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
         'vle/xmpp/js/teacher.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js']
     };
+	
+	// add jQuery UI/jQuery core dependency
+	dependencies[jqueryUISrc] = [jquerySrc];
 	
 	return {
 		loadScripts:function(name, doc, cid, em){
@@ -811,6 +815,30 @@ var scriptloader = function(){
 				//add the path into the setup component
 				scriptloader.addScriptToComponent('setup', nodeSetupPath);
 			}
+		},
+		
+		/**
+		 * returns the jQuery src path - utilized by node setup files when jQuery
+		 * is required for the step type
+		 */
+		getjQuerySrc:function(){
+			return jquerySrc;
+		},
+		
+		/**
+		 * returns the jQuery UI src path - utilized by node setup files when
+		 * jQuery UI is required for the step type
+		 */
+		getjQueryUISrc:function(){
+			return jqueryUISrc;
+		},
+		
+		/**
+		 * returns the jQuery UI css path - utilized by node setup files when
+		 * jQuery UI css is required for the step type
+		 */
+		getjQueryUICss:function(){
+			return jqueryUICss;
 		}
 	};
 }();

@@ -10,8 +10,8 @@ var coreMinScripts = [
 
 var studentVLEScripts = [
 	'vle/node/common/nodehelpers.js',
-    'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
+	scriptloader.getjQuerySrc(),
+	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/matchsequence/matchsequencedragdrop.js',
 	'vle/node/matchsequence/matchsequencebucket.js',
@@ -38,9 +38,9 @@ var dependencies = [
 ];
 
 var css = [
+	scriptloader.getjQueryUICss(),
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/matchsequence/matchstyles.css",
-	"vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css"
+	"vle/node/matchsequence/matchstyles.css"
 ];
 
 var nodeClasses = [

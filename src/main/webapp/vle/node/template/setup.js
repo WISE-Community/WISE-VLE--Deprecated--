@@ -18,6 +18,24 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
+	/*
+	 * TODO: If your node requires the jQuery library, keep the following the line
+	 * to load the jQuery version included with the WISE installation.
+	 * 
+	 * If your node requires a legacy or specific version of jQuery, remove the
+	 * following line, include the jQuery source file in your node's folder and
+	 * add an entry to its path here (e.g. 'vle/node/template/jquery.js')
+	 */
+	scriptloader.getjQuerySrc(),
+	/*
+	 * TODO: If your node requires the jQuery UI library, keep the following the line
+	 * to load the jQuery UI version included with the WISE installation.
+	 * 
+	 * If your node requires a legacy or specific version of jQuery UI, remove the
+	 * following line, include the jQuery UI source file in your node's folder and
+	 * add an entry to its path here (e.g. 'vle/node/template/jquery-ui.js')
+	 */
+	scriptloader.getjQueryUISrc(),
  	/*
      * TODO: rename template
      * TODO: rename template.js
@@ -33,9 +51,7 @@ var studentVLEScripts = [
      * For example if you are creating a quiz node you would change it to
      * 'vle/node/quiz/quizState.js'
 	 */
-	'vle/node/template/templateState.js',
-	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'
+	'vle/node/template/templateState.js'
 ];
 
 var authorScripts = [
@@ -131,13 +147,24 @@ scriptloader.addDependencies(dependencies);
  */
 componentloader.addNodeClasses('TemplateNode', nodeClasses);
 
-/*
- * TODO: rename the file path value
- * 
- * For example if you are creating a quiz node you would change it to
- * 'vle/node/quiz/quiz.css'
- */
 var css = [
+        /*
+         * If your node requires the jQuery UI library, keep the following
+         * line to load the jQuery UI css styles included with the WISE
+         * installation.
+         * 
+         * If you would like to substitute your own jQuery UI css styles,
+         * remove the following line, include the jQuery UI images and css
+         * file in your node's directory and add an entry to the css path here
+         * (e.g. 'vle/node/template/jquery-ui.css')
+         */
+        scriptloader.getjQueryUISrc(),
+        /*
+         * TODO: rename the file path value
+         * 
+         * For example if you are creating a quiz node you would change it to
+         * 'vle/node/quiz/quiz.css'
+         */
        	"vle/node/template/template.css"
 ];
 

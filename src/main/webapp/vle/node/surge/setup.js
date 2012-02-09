@@ -11,11 +11,11 @@ var coreMinScripts = ['vle/node/surge/surge_core_min.js'];
 
 //the scripts used in the vle
 var studentVLEScripts = [
+	scriptloader.getjQuerySrc(),
+	scriptloader.getjQueryUISrc(),
 	'vle/node/common/nodehelpers.js',
 	'vle/node/surge/surge.js',
-	'vle/node/surge/surgeState.js',
-	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'
+	'vle/node/surge/surgeState.js'
 ];
 
 //the scripts used in the authoring tool

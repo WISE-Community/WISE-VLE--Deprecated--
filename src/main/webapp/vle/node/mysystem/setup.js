@@ -15,8 +15,8 @@ var coreMinScripts = [
 var studentVLEScripts = [
 	'vle/node/mysystem/mysystem_complete.js',
 	'vle/node/mysystem/mysystem_print.js',
-	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
+	scriptloader.getjQuerySrc(),
+	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js'
 ];
 

@@ -20,6 +20,8 @@ var coreScripts = [
 var coreMinScripts = ['vle/node/table/table_core_min.js'];
 
 var studentVLEScripts = [
+	scriptloader.getjQuerySrc(),
+	scriptloader.getjQueryUISrc(),
  	/*
      * TODO: rename template
      * TODO: rename template.js
@@ -35,9 +37,7 @@ var studentVLEScripts = [
      * For example if you are creating a quiz node you would change it to
      * 'vle/node/quiz/quizstate.js'
 	 */
-	'vle/node/table/tablestate.js',
-	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'
+	'vle/node/table/tablestate.js'
 ];
 
 var authorScripts = [

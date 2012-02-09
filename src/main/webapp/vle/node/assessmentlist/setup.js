@@ -8,7 +8,7 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
-   	'vle/jquery/js/jquery-1.6.1.min.js',
+   	scriptloader.getjQuerySrc(),
 	'vle/node/assessmentlist/assessmentlist.js',
 	'vle/node/assessmentlist/assessmentliststate.js',
 	'vle/grading/Annotation.js',
@@ -28,9 +28,9 @@ var dependencies = [
 ];
 
 var css = [
+	scriptloader.getjQueryUICss(),
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/assessmentlist/assessmentlist.css",,
-	"vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css"
+	"vle/node/assessmentlist/assessmentlist.css"
 ];
 
 var nodeClasses = [

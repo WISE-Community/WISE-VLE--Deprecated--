@@ -28,8 +28,8 @@ var studentVLEScripts = [
      * 'vle/node/quiz/quizstate.js'
 	 */
 	'vle/node/ideabasket/ideaBasketState.js',
-    'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
+	scriptloader.getjQuerySrc(),
+	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jquery-validate/jquery.validate.pack.js',
 	'vle/jquery/js/jquery.form.js',
 	'vle/jquery/js/jsonplugin.js',
@@ -69,7 +69,7 @@ var dependencies = [
 	 * 'vle/node/quiz/QuizNode.js'
 	 */
 	{child:"vle/node/ideabasket/IdeaBasketNode.js", parent:["vle/node/Node.js"]},
-	{child:"vle/jquery/js/jquery.tablesorter.min.js", parent:["vle/jquery/js/jquery-1.6.1.min.js"]}
+	{child:"vle/jquery/js/jquery.tablesorter.min.js", parent:[scriptloader.getjQuerySrc(),]}
 ];
 
 /*
@@ -116,9 +116,9 @@ componentloader.addNodeClasses('IdeaBasketNode', nodeClasses);
  * 'vle/node/quiz/quiz.css'
  */
 var css = [
+       	scriptloader.getjQueryUICss(),
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
-       	"vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css",
        	"vle/node/ideabasket/ideaBasket.css"
 ];

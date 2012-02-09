@@ -18,6 +18,8 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
+	scriptloader.getjQuerySrc(),
+	scriptloader.getjQueryUISrc(),
  	/*
      * TODO: rename seasons
      * TODO: rename seasons.js
@@ -33,9 +35,7 @@ var studentVLEScripts = [
      * For example if you are creating a quiz node you would change it to
      * 'vle/node/quiz/quizstate.js'
 	 */
-	'vle/node/seasons/seasonsstate.js',
-	'vle/jquery/js/jquery-1.6.1.min.js',
-	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js'
+	'vle/node/seasons/seasonsstate.js'
 ];
 
 var authorScripts = [
