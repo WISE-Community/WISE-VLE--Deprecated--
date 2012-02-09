@@ -191,7 +191,7 @@ var scriptloader = function(){
 						var csspath = 'vle/' + themepath + data.jqueryui_css;
 						c.push(csspath);
 					} else {
-						c.push('vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css');
+						c.push('vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css');
 					}
 					
 					// set theme logo in vle html
@@ -466,7 +466,7 @@ var scriptloader = function(){
 		core_min: ['vle/css/message.css'],
 		author: ['vle/css/authoring/authoring.css',
 		         'vle/css/ui-tools.css',
-		         'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css'
+		         'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css'
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
 		//uccp: ["vle/css/uccp/UCCP_styles.css"],
@@ -475,10 +475,10 @@ var scriptloader = function(){
     	menu:[/*"vle/css/sdmenu.css"*/],
  		grading: ['vle/css/portal/teachergrading.css',
  		         'vle/jquery/jquery-dataTables/css/datatable.css',
- 		         'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css'],
+ 		         'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css'],
  		grading_min: ['vle/css/portal/teachergrading.css',
  	 		         'vle/jquery/jquery-dataTables/css/datatable.css',
- 	 		         'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css'],
+ 	 		         'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css'],
  		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
     	         
 	};

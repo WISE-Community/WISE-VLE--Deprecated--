@@ -30,7 +30,7 @@ var dependencies = [
 var css = [
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/assessmentlist/assessmentlist.css",,
-	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css"
+	"vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css"
 ];
 
 var nodeClasses = [

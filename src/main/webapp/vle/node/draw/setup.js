@@ -48,7 +48,7 @@ var dependencies = [
 
 var css = [
 	//'vle/node/draw/svg-edit/jquery-ui/jquery-ui-1.7.2.custom.css',
-	'vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css',
+	'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jPicker-1.0.12.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jgraduate.css',
 	'vle/node/draw/svg-edit/svg-editor.css',

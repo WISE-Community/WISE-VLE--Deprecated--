@@ -91,7 +91,7 @@ var css = [
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
        	"vle/node/explanationbuilder/explanation.css",
-       	"vle/jquery/css/tels-theme/jquery-ui-1.8.14.custom.css",
+       	"vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css"
 ];
 
