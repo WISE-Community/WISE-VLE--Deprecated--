@@ -8,10 +8,10 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/node/cargraph/cargraph.js',
-	'vle/node/cargraph/cargraphstate.js',
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),	
+	'vle/node/cargraph/cargraphstate.js',	
 	'vle/jquery/js/flot/excanvas.js',
 	'vle/jquery/js/flot/jquery.js',
 	'vle/jquery/js/flot/jquery.flot.js',

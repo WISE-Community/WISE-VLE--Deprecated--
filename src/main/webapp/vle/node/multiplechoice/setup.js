@@ -9,10 +9,10 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/node/common/nodehelpers.js',
 	'vle/common/helperfunctions.js',
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/multiplechoice/multiplechoicestate.js',
 	'vle/node/multiplechoice/challengestate.js',
@@ -42,7 +42,7 @@ var dependencies = [
 ];
 
 var css = [
-	scriptloader.getjQueryUICss(),
+	scriptloader.jqueryUICss,
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/multiplechoice/mcstyles.css"
 ];

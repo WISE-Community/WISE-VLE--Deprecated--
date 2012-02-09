@@ -9,9 +9,9 @@ var coreMinScripts = [
 
 
 var studentVLEScripts = [
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/common/helperfunctions.js',
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js',
 	'vle/jquery/flot/jquery.flot.min.js',
 	'vle/node/datagraph/datagraph.js',

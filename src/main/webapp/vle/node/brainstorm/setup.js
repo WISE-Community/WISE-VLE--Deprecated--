@@ -8,8 +8,8 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
-    scriptloader.getjQuerySrc(),
-    scriptloader.getjQueryUISrc(),
+    scriptloader.jquerySrc,
+    scriptloader.jqueryUISrc,
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/common/nodehelpers.js',
 	'vle/common/helperfunctions.js',
@@ -29,7 +29,7 @@ var gradingScripts = [
 
 var dependencies = [
 	{child:"vle/node/brainstorm/BrainstormNode.js", parent:["vle/node/Node.js"]},
-	{child:"vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js",parent:[scriptloader.getjQuerySrc(),]}
+	{child:"vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js",parent:[scriptloader.jquerySrc]}
 ];
 
 var css = [

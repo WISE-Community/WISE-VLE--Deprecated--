@@ -4,7 +4,7 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
-	scriptloader.getjQuerySrc(),
+	scriptloader.jquerySrc,
 	'vle/node/mw/mw.js'
 ];
 

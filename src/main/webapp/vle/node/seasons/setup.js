@@ -18,8 +18,8 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
  	/*
      * TODO: rename seasons
      * TODO: rename seasons.js

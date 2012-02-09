@@ -17,10 +17,10 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/node/common/nodehelpers.js',
 	'vle/common/helperfunctions.js',
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/openresponse/openresponsestate.js',
 	'vle/node/openresponse/openresponse.js',
@@ -41,13 +41,13 @@ var gradingScripts = [
 var dependencies = [
 	{child:"vle/node/openresponse/OpenResponseNode.js", parent:["vle/node/Node.js"]},
 	{child:"vle/node/openresponse/NoteNode.js", parent:["vle/node/Node.js", "vle/node/openresponse/OpenResponseNode.js"]},
-	{child:"vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js",parent:[scriptloader.getjQuerySrc(),]}
+	{child:"vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js",parent:[scriptloader.jquerySrc]}
 ];
 
 var css = [
+	scriptloader.jqueryUICss,
 	"vle/node/common/css/htmlAssessment.css",
-	"vle/node/openresponse/openresponse.css",
-	"vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css"
+	"vle/node/openresponse/openresponse.css"
 ];
 
 var openResponseNodeClasses = [

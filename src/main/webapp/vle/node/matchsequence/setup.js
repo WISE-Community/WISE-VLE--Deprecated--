@@ -9,9 +9,9 @@ var coreMinScripts = [
 
 
 var studentVLEScripts = [
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/node/common/nodehelpers.js',
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/matchsequence/matchsequencedragdrop.js',
 	'vle/node/matchsequence/matchsequencebucket.js',
@@ -38,7 +38,7 @@ var dependencies = [
 ];
 
 var css = [
-	scriptloader.getjQueryUICss(),
+	scriptloader.jqueryUICss,
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/matchsequence/matchstyles.css"
 ];

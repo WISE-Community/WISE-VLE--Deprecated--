@@ -9,10 +9,10 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/node/flash/flash.js',
 	'vle/node/flash/flashState.js',
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
 	'vle/swfobject/swfobject.js',
 	'vle/util/underscore-min.js'
 ];

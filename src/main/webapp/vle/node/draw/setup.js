@@ -43,11 +43,11 @@ var gradingMinScripts = [
 
 var dependencies = [
 	{child:"vle/node/draw/SVGDrawNode.js", parent:["vle/node/Node.js"]},
-	{child:'vle/node/draw/svg-edit/svgdraw.js', parent:[scriptloader.getjQuerySrc()]}
+	{child:'vle/node/draw/svg-edit/svgdraw.js', parent:[scriptloader.jquerySrc]}
 ];
 
 var css = [
-	scriptloader.getjQueryUICss(),
+	scriptloader.jqueryUICss,
 	'vle/node/draw/svg-edit/jgraduate/css/jPicker-1.0.12.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jgraduate.css',
 	'vle/node/draw/svg-edit/svg-editor.css',

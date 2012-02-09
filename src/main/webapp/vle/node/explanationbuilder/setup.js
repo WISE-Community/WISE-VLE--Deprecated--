@@ -23,8 +23,8 @@ var coreMinScripts = [
                       
 
 var studentVLEScripts = [
-    scriptloader.getjQuerySrc(),
-    scriptloader.getjQueryUISrc(),
+    scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/jquery/js/jquery-validate/jquery.validate.pack.js',
 	'vle/jquery/js/jquery.form.js',
 	'vle/jquery/js/jsonplugin.js',
@@ -88,7 +88,7 @@ var dependencies = [
 ];
 
 var css = [
-       	scriptloader.getjQueryUICss(),
+       	scriptloader.jqueryUICss,
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
        	"vle/node/explanationbuilder/explanation.css",

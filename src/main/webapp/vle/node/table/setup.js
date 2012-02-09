@@ -20,8 +20,8 @@ var coreScripts = [
 var coreMinScripts = ['vle/node/table/table_core_min.js'];
 
 var studentVLEScripts = [
-	scriptloader.getjQuerySrc(),
-	scriptloader.getjQueryUISrc(),
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
  	/*
      * TODO: rename template
      * TODO: rename template.js

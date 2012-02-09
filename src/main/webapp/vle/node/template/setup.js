@@ -26,7 +26,7 @@ var studentVLEScripts = [
 	 * following line, include the jQuery source file in your node's folder and
 	 * add an entry to its path here (e.g. 'vle/node/template/jquery.js')
 	 */
-	scriptloader.getjQuerySrc(),
+	scriptloader.jquerySrc,
 	/*
 	 * TODO: If your node requires the jQuery UI library, keep the following the line
 	 * to load the jQuery UI version included with the WISE installation.
@@ -35,7 +35,7 @@ var studentVLEScripts = [
 	 * following line, include the jQuery UI source file in your node's folder and
 	 * add an entry to its path here (e.g. 'vle/node/template/jquery-ui.js')
 	 */
-	scriptloader.getjQueryUISrc(),
+	scriptloader.jqueryUISrc,
  	/*
      * TODO: rename template
      * TODO: rename template.js
@@ -158,7 +158,7 @@ var css = [
          * file in your node's directory and add an entry to the css path here
          * (e.g. 'vle/node/template/jquery-ui.css')
          */
-        scriptloader.getjQueryUISrc(),
+        scriptloader.jqueryUICss,
         /*
          * TODO: rename the file path value
          * 

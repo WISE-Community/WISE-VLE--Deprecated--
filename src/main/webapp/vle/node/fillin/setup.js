@@ -8,8 +8,8 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
-    scriptloader.getjQuerySrc(),
-    scriptloader.getjQueryUISrc(),
+    scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc,
 	'vle/jquery/js/jsonplugin.js',
 	'vle/node/common/nodehelpers.js',
 	'vle/node/fillin/textentryinteraction.js',
@@ -30,7 +30,7 @@ var dependencies = [
 ];
 
 var css = [
-	scriptloader.getjQueryUICss(),
+	scriptloader.jqueryUICss,
 	"vle/node/common/css/htmlAssessment.css",
 	"vle/node/fillin/fillin.css"
 ];
