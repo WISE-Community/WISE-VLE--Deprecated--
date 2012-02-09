@@ -211,5 +211,9 @@
 }
 
 #new_snap_dialog, #prompt_dialog, #snapwarning_dialog, #deletesnap_dialog {
-	/*display:none;*/
+	text-align:center;
+}
+
+#new_snap_dialog div, #prompt_dialog div, #snapwarning_dialog div, #deletesnap_dialog div {
+	margin:.5em 0;
 }
