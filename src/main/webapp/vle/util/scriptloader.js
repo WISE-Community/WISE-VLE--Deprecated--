@@ -524,6 +524,9 @@ var scriptloader = function(){
 	dependencies[jqueryUISrc] = [jquerySrc];
 	
 	return {
+		jquerySrc:jquerySrc,
+		jqueryUISrc:jqueryUISrc,
+		jqueryUICss:jqueryUICss,
 		loadScripts:function(name, doc, cid, em){
 			loaded = [];
 			currentDoc = doc;
@@ -815,30 +818,6 @@ var scriptloader = function(){
 				//add the path into the setup component
 				scriptloader.addScriptToComponent('setup', nodeSetupPath);
 			}
-		},
-		
-		/**
-		 * returns the jQuery src path - utilized by node setup files when jQuery
-		 * is required for the step type
-		 */
-		getjQuerySrc:function(){
-			return jquerySrc;
-		},
-		
-		/**
-		 * returns the jQuery UI src path - utilized by node setup files when
-		 * jQuery UI is required for the step type
-		 */
-		getjQueryUISrc:function(){
-			return jqueryUISrc;
-		},
-		
-		/**
-		 * returns the jQuery UI css path - utilized by node setup files when
-		 * jQuery UI css is required for the step type
-		 */
-		getjQueryUICss:function(){
-			return jqueryUICss;
 		}
 	};
 }();
