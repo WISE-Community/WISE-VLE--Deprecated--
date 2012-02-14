@@ -638,9 +638,9 @@ View.prototype.utils.getExtension = function(text){
  * Callback function for when the dynamically created frame for uploading assets has recieved
  * a response from the request. Notifies the response and removes the frame.
  */
-View.prototype.assetUploaded = function(e){
-	var htmlFrame = e.target;
-	var frame = window.frames[e.target.id];
+View.prototype.assetUploaded = function(target,view){
+	var htmlFrame = target;
+	var frame = window.frames[target.id];
 	
 	if(frame.document && frame.document.body && frame.document.body.innerHTML != ''){
 		notificationManager.notify(frame.document.body.innerHTML, 3, 'uploadMessage', 'notificationDiv');
@@ -652,10 +652,10 @@ View.prototype.assetUploaded = function(e){
 		//eventManager.fire('assetUploadCancel');
 		
 		// refresh edit asset dialog
-		if (e.target.getAttribute('type')=="student") {
+		if (target.getAttribute('type')=="student") {
 			eventManager.fire('viewStudentAssets');			
 		} else {
-			eventManager.fire('viewAssets');
+			eventManager.fire('viewAssets',view.assetEditorParams);
 		}
 		$('#assetProcessing').hide();
 		
