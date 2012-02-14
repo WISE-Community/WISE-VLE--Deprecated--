@@ -484,6 +484,20 @@ View.prototype.onThemeLoad = function(){
 	} else if (this.config.getConfigParam('mode') == "portalpreview") {
 		//if preview mode, only get the user and class info and not learner data
 		this.loadUserAndClassInfo(createContent(this.config.getConfigParam('getUserInfoUrl')));
+		
+		
+		/* if (TODO: check for any constraints in project) {*/
+			// we are in preview mode (and the project contains constraints)
+			var path = '/webapp/vle/preview.html?projectId=' + this.projectMetadata.projectId;
+			if(this.getConfig().getConfigParam("isConstraintsDisabled")){
+				// constraints are disabled, so show enable constraints link
+				this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+			} else {
+				// constraints are enabled, so show disable constraints link
+				path += '&isConstraintsDisabled=true';
+				this.notificationManager.notify('Student navigation constraints are currently enabled. To preview project without any constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+			}
+		//}	
 	}
 	
 	if(this.config.getConfigParam('mode') == "portalpreview") {
@@ -491,7 +505,7 @@ View.prototype.onThemeLoad = function(){
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}');
 	}
 	
-	/* TODO: move this to navMode processing */
+	/* TODO: move this to navMode processing/remove */
 	if (this.config.getConfigParam('navMode') == "dropDownTree") {
 		$("#stepInfoBar").css("left","15px");
 		$("#projectMenuButton").html('<a onclick="eventManager.fire(\'showNavigationTree\')"><img src=\'images/expanded.gif\'/></a>');
