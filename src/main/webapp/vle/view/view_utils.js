@@ -627,7 +627,7 @@ View.prototype.getMaxScoreForProject = function() {
  */
 View.prototype.utils.getExtension = function(text){
 	var ndx = text.lastIndexOf('.');
-	if(ndx){
+	if(-1 < ndx){
 		return text.substring(ndx + 1, text.length);
 	};
 
