@@ -70,9 +70,9 @@ View.prototype.SurgeNode.generatePage = function(view){
 	var sourceLabel = $(document.createElement('div')).text('SURGE activity source file (swf):');
 	//create the radio buttons and labels for each source option
 	var sourceLabelDefault = $(document.createElement('span')).text('Default (use level editor)');
-	var sourceRadioDefault = $(createElement(document, 'input', {id: 'defaultSource', type: 'radio', name: 'sourceSelect', value: false})).prop('checked',true);
+	var sourceRadioDefault = $(createElement(document, 'input', {id: 'defaultSource', type: 'radio', name: 'sourceSelect', value: 'false'})).prop('checked',true);
 	var sourceLabelCustom = $(document.createElement('span')).text('Custom');
-	var sourceRadioCustom = $(createElement(document, 'input', {id: 'customSource', type: 'radio', name: 'sourceSelect', value: true}));
+	var sourceRadioCustom = $(createElement(document, 'input', {id: 'customSource', type: 'radio', name: 'sourceSelect', value: 'true'}));
 	sourceDiv.append(sourceLabel).append(sourceRadioDefault).append(sourceLabelDefault).append(sourceRadioCustom).append(sourceLabelCustom);
 	
 	var swfUrlDiv = $(createElement(document, 'div', {id:'swfUrlDiv'})).css('display','none');
@@ -275,7 +275,7 @@ View.prototype.SurgeNode.updateSwfSource = function(){
 	var useCustom = $('input[name="sourceSelect"]:checked').val();
 	this.content.useCustomSwf = useCustom;
 	
-	if(useCustom){
+	if(useCustom == 'true'){
 		$('#swfUrlDiv').show();
 		$('#authoringSwfDiv').hide();
 	} else {
