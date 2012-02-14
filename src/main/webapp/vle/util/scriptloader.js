@@ -465,8 +465,8 @@ var scriptloader = function(){
 	var css = {
 		bootstrap:["vle/css/globalstyles.css"],
 		bootstrap_min:["vle/css/globalstyles.css"],
-		core: ['vle/css/message.css'],
-		core_min: ['vle/css/message.css'],
+		core: [/*'vle/css/message.css'*/],
+		core_min: [/*'vle/css/message.css'*/],
 		author: ['vle/css/authoring/authoring.css',
 		         'vle/css/ui-tools.css',
 		         jqueryUICss

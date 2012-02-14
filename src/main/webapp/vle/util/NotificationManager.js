@@ -109,12 +109,12 @@ var notificationManager = {
 		if(messageClass){
 			customClass = messageClass;
 		}
-		var id = 'superSecretMessageDiv_' + this.count;
+		var id = 'message_' + this.count;
 		if($('#' + id).size()!=0){
 			this.count ++;
 			return generateUniqueMessageDiv();
 		} else {
-			$('.messages').each(function(){
+			$('.message').each(function(){
 				if(!$(this).hasClass('keepMsg')){
 					$(this).remove(); // remove any existing alerts
 				}
@@ -130,7 +130,8 @@ var notificationManager = {
 			} else if(divId != null) {
 				$('#' + divId).append('<div id="' + id + '" class="' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
 			} else {
-				$('body').append('<div id="' + id + '" class="messages ' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
+				//$('body').append('<div id="' + id + '" class="message ' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
+				$('#vle_messages').append('<div id="' + id + '" class="message ' + customClass + '" style="opacity:0;"><span class="content"></span><a class="hide" title="Dismiss" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></a></div>');
 			}
 			this.count ++;
 			return id;
@@ -155,10 +156,16 @@ var notificationManager = {
 		notificationEventManager.subscribe('viewLatest', this.viewLatest);
 		notificationEventManager.subscribe('closeNotifyWindow', this.closeNotifyWindow);
 		
-		var mainMessage = createElement(document, 'div', {id:'mainMessageDiv', 'class':'minimessage'});
-		document.body.appendChild(mainMessage);
-		mainMessage.style.left = (document.body.clientWidth / 2) - 150;
-		mainMessage.innerHTML = '<div id="mainMessageMessage" onclick="notificationEventManager.fire(\'viewLatest\')">view last three notifications</div>';
+		// TODO: standardize for authoring, grading, etc.
+		if($('#vle_messages').length == 0){
+			$('body').prepend('<div id="vle_messages"></div>');
+		}
+		
+		// taking out, as we don't use this anymore
+		//var mainMessage = createElement(document, 'div', {id:'mainMessageDiv', 'class':'minimessage'});
+		//document.body.appendChild(mainMessage);
+		//mainMessage.style.left = (document.body.clientWidth / 2) - 150;
+		//mainMessage.innerHTML = '<div id="mainMessageMessage" onclick="notificationEventManager.fire(\'viewLatest\')">view last three notifications</div>';
 	}(
 			function(type,args,obj){
 				if(notificationManager.latestMessages.length<3){
@@ -167,7 +174,7 @@ var notificationManager = {
 					notificationManager.latestMessages.shift();
 					notificationManager.latestMessages.push(args[0]);
 				}
-			},
+			}/*,
 			function(type,args,obj){
 				var mainMessage = document.getElementById('mainMessageDiv');
 				mainMessage.setAttribute('class', 'messages');
@@ -185,7 +192,7 @@ var notificationManager = {
 				var mainMessage = document.getElementById('mainMessageDiv');
 				mainMessage.setAttribute('class', 'minimessage');
 				mainMessage.innerHTML = '<div id="mainMessageMessage" onclick="notificationEventManager.fire(\'viewLatest\')">view last three notifications</div>';
-			})
+			}*/)
 };
 
 /**
@@ -195,7 +202,7 @@ var notificationManager = {
  */
 function AlertObject(elId, msg, mode, divId){
 	
-	this.MSG_TIME = 5000;
+	this.MSG_TIME = 10000;
 	this.elId = elId;
 	this.msg = msg;
 	if(mode){
@@ -205,14 +212,22 @@ function AlertObject(elId, msg, mode, divId){
 	if(this.mode && this.mode == 'authoring'){
 		this.MSG_TIME = 30000;
 		$('#' + this.elId).prepend(msg);
+		eventManager.fire('browserResize');
+		if(!$('#' + this.elId).parent().hasClass('keepMsg')){
+			setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
+		}
 	} else {
-		$('#' + this.elId).html(msg);
-		$('#' + this.elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
+		$('#' + this.elId + '> .content').html(msg);
+		//$('#' + this.elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
+		var msgHeight = $('#vle_messages').height();
+		$('#' + this.elId).animate({opacity:1});
+		$('#vle_body').css({top:msgHeight});
+		eventManager.fire('browserResize');
+		if(!$('#' + this.elId).hasClass('keepMsg')){
+			setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
+		}
 	}
-	eventManager.fire('browserResize');
-	if(!$('#' + this.elId).parent().hasClass('keepMsg')){
-		setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
-	}
+	
 };
 
 /**
@@ -226,6 +241,9 @@ AlertObject.prototype.removeMsg = function(type,args,obj){
 			$('#notificationDiv').css('margin-top','.25em');
 		} else {
 			$('#' + obj.elId).remove();
+			// if in project view, reset #vle_body top position
+			var msgHeight = $('#vle_messages').height();
+			$('#vle_body').css({top:msgHeight});
 		}
 		eventManager.fire('browserResize');
 		notificationEventManager.fire('alertClosing', obj.msg);
