@@ -72,8 +72,6 @@ a:hover {
 }
 
 .ui-dialog.no-title {
-	border: 8px solid rgb(0, 115, 145);
-    border: 8px solid rgba(0, 115, 145, 0.9);
 }
 
 .no-title .ui-dialog-titlebar {

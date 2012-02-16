@@ -11,6 +11,12 @@ View.prototype.surgeDispatcher = function(type,args,obj){
 		obj.SurgeNode.updateLevelString(args);
 	} else if (type == 'surgeImportLevelStringToEditor') {
 		obj.SurgeNode.importLevelStringToEditor(args);
+	} else if (type == 'surgeUpdateSource'){
+		obj.SurgeNode.updateSwfSource(args);
+	} else if (type == 'surgeSwfUrlChanged'){
+		obj.SurgeNode.updateSwfUrl(args);
+	} else if (type == 'surgeBrowseClicked'){
+		obj.SurgeNode.browseFlashAssets(args);
 	}
 };
 
@@ -21,7 +27,10 @@ View.prototype.surgeDispatcher = function(type,args,obj){
  */
 var events = [
 	'surgeUpdateLevelString',
-	'surgeImportLevelStringToEditor'
+	'surgeImportLevelStringToEditor',
+	'surgeUpdateSource',
+	'surgeSwfUrlChanged',
+	'surgeBrowseClicked'
 ];
 
 /*

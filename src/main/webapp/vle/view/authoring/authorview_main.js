@@ -722,7 +722,7 @@ View.prototype.submitUpload = function() {
 			form.appendChild(createElement(document,'input',{type:'hidden', name:'projectId', value:view.portalProjectId}));
 
 			/* set up the event and callback when the response comes back to the frame */
-			frame.addEventListener('load',view.assetUploaded,false);
+			frame.addEventListener('load',function(){view.assetUploaded(this,view);},false);
 			
 			/* change the name attribute to reflect that of the file selected by user */
 			document.getElementById('uploadAssetFile').setAttribute("name", filename);

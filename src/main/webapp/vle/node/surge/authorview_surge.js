@@ -65,8 +65,30 @@ View.prototype.SurgeNode.generatePage = function(view){
 	
 	var authoringSwfDiv = createElement(document, 'div', {id: 'authoringSwfDiv'});
 	
+	var sourceDiv = $(document.createElement('div')).attr('id','sourceDiv');
+	//create the label for the radio buttons that the author will use to select the swf source option
+	var sourceLabel = $(document.createElement('div')).text('SURGE activity source file (swf):');
+	//create the radio buttons and labels for each source option
+	var sourceLabelDefault = $(document.createElement('span')).text('Default (use level editor)');
+	var sourceRadioDefault = $(createElement(document, 'input', {id: 'defaultSource', type: 'radio', name: 'sourceSelect', value: 'false'})).prop('checked',true);
+	var sourceLabelCustom = $(document.createElement('span')).text('Custom');
+	var sourceRadioCustom = $(createElement(document, 'input', {id: 'customSource', type: 'radio', name: 'sourceSelect', value: 'true'}));
+	sourceDiv.append(sourceLabel).append(sourceRadioDefault).append(sourceLabelDefault).append(sourceRadioCustom).append(sourceLabelCustom);
+	
+	var swfUrlDiv = $(createElement(document, 'div', {id:'swfUrlDiv'})).css('display','none');
+	//create the label for the textarea that the author will write the swf url in
+	var swfUrlLabel = $(document.createElement('span')).text('Custom swf file:');
+	//create the textarea that the author will write the swf url in
+	var swfUrlInput = $(createElement(document, 'input', {id: 'swfUrlInput', type:'text', size:'50', onchange:"eventManager.fire('surgeSwfUrlChanged')"}));
+	//create the browse button that allows author to choose swf from project assets
+	var swfBrowseButton = $(createElement(document, 'button', {id: 'swfBrowseButton', onclick:'eventManager.fire("surgeBrowseClicked")'})).text('Browse');
+	swfUrlDiv.append(swfUrlLabel).append(swfUrlInput).append(swfBrowseButton);
+	
 	//add the authoring components to the page
+	$(pageDiv).append(sourceDiv);
+	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(authoringSwfDiv);
+	$(pageDiv).append(swfUrlDiv);
 	//pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(levelStringLabel);
@@ -114,14 +136,34 @@ View.prototype.SurgeNode.generatePage = function(view){
 	*/
 	
 	var levelString = '';
+	var useCustomSwf = false;
+	var customUri = '';
 	
 	if(this.content != null) {
 		//get the existing level string
 		levelString = this.content.levelString;
+		if(this.content.useCustomSwf != 'undefined'){
+			useCustomSwf = this.content.useCustomSwf;
+		}
+		if (this.content.customUri != 'undefined'){
+			customUri = this.content.customUri;
+		}
 	}
 	
 	//populate the level string into the textarea
 	$('#levelStringTextArea').val(levelString);
+	
+	// get the source setting from the content and select corresponding radio button
+	$('input[name="sourceSelect"]').each(function(){
+		if($(this).val() == useCustomSwf){
+			$(this).prop('checked',true);
+		}
+	});
+	
+	this.updateSwfSource();
+	
+	//get the url from the content and set it into the authoring textarea
+	$('#swfUrlInput').val(customUri);
 		
 	var authoringSwfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="leveleditor" align="middle">'
 	+ '<param name="allowScriptAccess" value="sameDomain" />'
@@ -130,6 +172,11 @@ View.prototype.SurgeNode.generatePage = function(view){
 	+ '</object>';
 	
 	$('#authoringSwfDiv').html(authoringSwfHtml);
+	
+	//set change event listener for source radio buttons
+	$('input[name="sourceSelect"]').change(function(){
+		eventManager.fire('surgeUpdateSource');
+	});
 };
 
 /**
@@ -188,7 +235,6 @@ View.prototype.SurgeNode.updateContent = function(){
 	this.view.activeContent.setContent(this.content);
 };
 
-
 /**
  * Updates the content's level string to match that of what the user input
  */
@@ -206,6 +252,86 @@ View.prototype.SurgeNode.updateLevelString = function(levelStringIn){
 	 * fire source updated event, this will update the preview
 	 */
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the content's customUri to the user input
+ */
+View.prototype.SurgeNode.updateSwfUrl = function(){
+	/* update content */
+	this.content.customUri = $('#swfUrlInput').val();
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the source mode based on user input
+ */
+View.prototype.SurgeNode.updateSwfSource = function(){
+	/* update content */
+	var useCustom = $('input[name="sourceSelect"]:checked').val();
+	this.content.useCustomSwf = useCustom;
+	
+	if(useCustom == 'true'){
+		$('#swfUrlDiv').show();
+		$('#authoringSwfDiv').hide();
+	} else {
+		$('#swfUrlDiv').hide();
+		$('#authoringSwfDiv').show();
+	}
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Open asset editor dialog and allows user to choose the swf to use for this step
+ */
+View.prototype.SurgeNode.browseFlashAssets = function() {
+	var callback = function(field_name, url, type, win){
+		url = 'assets/' + url;
+		document.getElementById(field_name).value = url;
+		
+		//fire swfUrlChanged event
+		this.eventManager.fire('surgeSwfUrlChanged');
+	};
+	var params = {};
+	params.field_name = 'swfUrlInput';
+	params.type = 'flash';
+	params.buttonText = 'Please select a file from the list.';
+	params.extensions = ['swf', 'flv'];
+	params.win = null;
+	params.callback = callback;
+	eventManager.fire('viewAssets',params);
+};
+
+function fileBrowser(field_name, url, type, win){
+	var callback = function(field_name, url, type, win){
+		url = 'assets/' + url;
+		win.document.getElementById(field_name).value = url;
+		// if we are in an image browser
+        if (typeof(win.ImageDialog) != "undefined") {
+            // we are, so update image dimensions and preview if necessary
+            if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
+            if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(url);
+        }
+        // if we are in a media browser
+        if (typeof(win.Media) != "undefined") {
+            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
+            //if (win.MediaDialog.showPreviewImage) win.MediaDialog.showPreviewImage(url);
+        }
+	};
+	var params = {};
+	params.field_name = field_name;
+	params.type = type;
+	params.win = win;
+	params.callback = callback;
+	eventManager.fire('viewAssets',params);
 };
 
 //used to notify scriptloader that this script has finished loading

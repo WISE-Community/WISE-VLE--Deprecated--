@@ -464,9 +464,9 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
     border: 7px solid rgb(40, 40, 40);
     border: 7px solid rgba(40, 40, 40, 0.75);
     padding: 0;
-    -moz-border-radius:0;
-    -webkit-border-radius:0;
-    border-radius:0;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    border-radius:2px;
 }
 .ui-dialog .ui-dialog-titlebar { padding: .4em 1em; position: relative;   
 	/*WISE Edits */

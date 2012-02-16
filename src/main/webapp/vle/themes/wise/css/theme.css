@@ -224,26 +224,26 @@ a:hover { text-decoration:underline; }
 /* Layout elements */
 
 body#w4_vle {
-	background: url("../images/vle_bg4.png") repeat scroll center top #E2E2E2;
-	/*background: url("../images/surrounding_bg.png") repeat scroll center top #b2b2b2;
-	background: url("../images/vle-wrapper-bg.png") repeat-x scroll center top #FCEBC1;*/
+	background: url("../images/vle_bg4.png") repeat scroll center top #6B6B6B;
 	font-size:.9em
 	font-family: Arial, Helvetica, Tahoma, sans-serif;
 }
 
 #vle_body {
-	height:100%;
 	margin:0 auto;
 	max-width:1280px;
 	min-width:980px;
-	position:absolute;
 	text-align:left;
 	overflow:hidden;
+	opacity:0;
+	
+	/* Note: for WISE system notifications to display correctly, #vle_body must be absolutely
+	* positioned with top, bottom, left, and right values of 0 */
+	position:absolute;
 	bottom:0;
 	left:0;
 	right:0;
 	top:0;
-	opacity:0;
 }
 
 #vle_body header {
