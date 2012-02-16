@@ -98,6 +98,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.openStepTypeDescriptions();
 	} else if(type == 'displayTagView') {
 		obj.displayTagView();
+	} else if(type == 'displayImportView') {
+		obj.displayImportView();
 	} else if(type == 'populateAddTagSelect') {
 		obj.populateAddTagSelect(args[0]);
 	} else if(type == 'populateAddTagMapSelect') {
@@ -114,6 +116,10 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.tagMapChanged(args[0], args[1]);
 	} else if(type == 'removeTagMap') {
 		obj.removeTagMap(args[0], args[1]);
+	} else if(type == 'openProjectInImportView') {
+		obj.openProjectInImportView(args[0]);
+	} else if(type == 'importSelectedItems') {
+		obj.importSelectedItems();
 	};
 };
 

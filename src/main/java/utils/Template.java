@@ -61,7 +61,9 @@ public final class Template {
 		node.put("title", title);
 		node.put("class", nodeClass);
 		node.put("ref", name);
-		node.put("previousWorkNodeIds", new ArrayList<String>());
+		node.put("previousWorkNodeIds", new JSONArray());
+		node.put("hints", new JSONArray());
+		node.put("links", new JSONArray());
 		return node;
 	}
 	

@@ -727,6 +727,14 @@ View.prototype.initializeTagViewDialog = function() {
 	$('#tagViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Tags', buttons: {'Close': function(){$(this).dialog("close");}}});
 };
 
+/**
+ * Create the import view dialog popup
+ */
+View.prototype.initializeImportViewDialog = function() {
+	//create the dialog element so we can use it later
+	$('#importViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Import', buttons: {'Close': function(){$(this).dialog("close");}}});
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_dialog.js');

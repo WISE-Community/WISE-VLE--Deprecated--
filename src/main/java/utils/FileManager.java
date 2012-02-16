@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -125,6 +127,8 @@ import org.json.JSONObject;
 				this.reviewUpdateProject(request, response);
 			} else if(command.equals("updateProject")) {
 				this.updateProject(request, response);
+			} else if(command.equals("importSteps")) {
+				this.importSteps(request, response);
 			} else {
 				/* we don't understand this command */
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -1388,6 +1392,336 @@ import org.json.JSONObject;
 		
 		//copy the parent project folder contents to this project's folder
 		copyFile(new File(fullParentProjectFolderUrl), new File(fullChildProjectFolderUrl));
+	}
+	
+	/**
+	 * Import the steps from one project to another project
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	private void importSteps(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		//the file separator for the OS e.g. /
+		String fileSeparator = System.getProperty("file.separator");
+		
+		//get the curriculum base directory e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum
+		String curriculumBaseDir = (String) request.getAttribute("curriculumBaseDir");
+		
+		
+		//get the relative child project url e.g. /236/wise4.project.json
+		String toProjectUrl = (String) request.getAttribute("projectUrl");
+		
+		//get the full project file url e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/236/wise4.project.json
+		String fullToProjectFileUrl = curriculumBaseDir + toProjectUrl;
+		
+		//get the project folder e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/236
+		String fullToProjectFolderUrl = curriculumBaseDir + toProjectUrl.substring(0, toProjectUrl.lastIndexOf(fileSeparator));
+		File toProjectFolder = new File(fullToProjectFolderUrl);
+		
+		//get the project assets folder e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/236/assets
+		String toProjectAssetsUrl = fullToProjectFolderUrl + "/assets";
+		File toProjectAssetsFolder = new File(toProjectAssetsUrl);
+		
+		
+		//get the relative child project url e.g. /172/wise4.project.json
+		String fromProjectUrl = (String) request.getAttribute("fromProjectUrl");
+		
+		//get the full project file url e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/172/wise4.project.json
+		String fullFromProjectFileUrl = curriculumBaseDir + fromProjectUrl;
+		
+		//get the project folder e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/172
+		String fullFromProjectFolderUrl = curriculumBaseDir + fromProjectUrl.substring(0, fromProjectUrl.lastIndexOf(fileSeparator));
+		File fromProjectFolder = new File(fullFromProjectFolderUrl);
+		
+		//get the project assets folder e.g. /Users/geoffreykwan/dev/apache-tomcat-5.5.27/webapps/curriculum/172/assets
+		String fromProjectAssetsUrl = fullFromProjectFolderUrl + "/assets";
+		File fromProjectAssetsFolder = new File(fromProjectAssetsUrl);
+		
+		//get the project file in the "from" project
+		String fromProjectFileContent = FileUtils.readFileToString(new File(fullFromProjectFileUrl));
+		JSONObject fromProjectJSON = null;
+		
+		try {
+			fromProjectJSON = new JSONObject(fromProjectFileContent);
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		
+		//get all the files we need to import
+		String nodeIds = (String) request.getParameter("nodeIds");
+		JSONArray nodeIdsArray = null;
+		
+		try {
+			//get all the file names in an array
+			nodeIdsArray = new JSONArray(nodeIds);
+			
+			//loop through all the file names
+			for(int x=0; x<nodeIdsArray.length(); x++) {
+				//get node id
+				String nodeId = nodeIdsArray.getString(x);
+				
+				//get the node object in the "from" project
+				JSONObject fromNode = getNodeById(fromProjectJSON, nodeId);
+				
+				if(fromNode != null) {
+					//get the attributes of the node in the "from" project
+					String type = fromNode.getString("type");
+					String id = nodeId;
+					String title = fromNode.getString("title");
+					String nodeClass = fromNode.getString("class");
+					String fileName = fromNode.getString("ref");
+					
+					//make sure the file exists in the fromProjectFolder
+					File fileToImport = new File(fromProjectFolder, fileName);
+					
+					if(fileToImport.exists()) {
+						//get the content from the step
+						String fileContent = FileUtils.readFileToString(fileToImport);
+						
+						//the part of the file name before the . e.g. "node_5"
+						String fileNamePrefix = getUniqueFileNamePrefix(toProjectFolder);
+						
+						//the part of the file name after the . (including the .) e.g. ".or"
+						String fileNameExtension = fileName.substring(fileName.indexOf("."));
+						
+						//make the name of the new file we want to make
+						String newFileName = fileNamePrefix + fileNameExtension;
+						
+						/*
+						 * check if we are importing a .ht file since we also need to
+						 * import the associated .html file
+						 */
+						if(fileNameExtension.equals(".ht")) {
+							//get the html file name
+							String htmlFileName = fileName + "ml";
+							
+							//get a handle on the html file in the "from" project
+							File htmlFileToImport = new File(fromProjectFolder, htmlFileName);
+							
+							if(htmlFileToImport.exists()) {
+								//get the contents of the html file
+								String htmlString = FileUtils.readFileToString(htmlFileToImport);
+								
+								//import assets that are referenced in the html content
+								htmlString = importAssetsInContent(htmlString, fromProjectAssetsFolder, toProjectAssetsFolder);
+								
+								//make the html file name for our "to" project
+								String newHtmlFileName = newFileName + "ml";
+								
+								//make the new html file in our "to" project
+								File newHtmlFile = new File(toProjectFolder, newHtmlFileName);
+								
+								//write the content to the file in the "to" project
+								FileUtils.writeStringToFile(newHtmlFile, htmlString);
+								
+								/*
+								 * replace all references to the .html file in the new .ht file
+								 * e.g.
+								 * 
+								 * before
+								 * {
+								 *    "src": "node_0.html",
+								 *    "type": "Html"
+								 * }
+								 * 
+								 * after
+								 * {
+								 *    "src": "node_141.html",
+								 *    "type": "Html"
+								 * }
+								 */
+								fileContent = fileContent.replaceAll(htmlFileName, newHtmlFileName);
+							}
+						}
+						
+						//import assets that are reference in the step content
+						fileContent = importAssetsInContent(fileContent, fromProjectAssetsFolder, toProjectAssetsFolder);
+						
+						//create a new file in our project
+						File newFile = new File(toProjectFolder, newFileName);
+						
+						//write the contents to the new file
+						FileUtils.writeStringToFile(newFile, fileContent);
+						
+						//create the node object that we will put in our "to" project
+						JSONObject newNode = Template.getProjectNodeTemplate(type, newFileName, title, nodeClass);
+						
+						//add the node to our "to" project
+						this.addNodeToProject(new File(fullToProjectFileUrl), newNode);
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Search for any references to assets in the step content and copy the assets to our assets folder
+	 * @param content the step content
+	 * @param fromProjectAssetsFolder the project we are copying the asset from
+	 * @param toProjectAssetsFolder the project we are copying the asset to
+	 */
+	private String importAssetsInContent(String content, File fromProjectAssetsFolder, File toProjectAssetsFolder) {
+		/*
+		 * create a pattern that will match any of these below
+		 * "assets/myPicture.jpg"
+		 * 'assets/myPicture.jpg"
+		 * "./assets/myPicture.jpg"
+		 * './assets/myPicture.jpg'
+		 * 
+		 * if the pattern matcher is run on the last example './assets/myPicture.jpg'
+		 * this is what the groups will look like
+		 * group(0)='./assets/myPicture.jpg'
+		 * group(1)=./
+		 * group(2)=myPicture.jpg
+		 */
+		//Pattern p = Pattern.compile("[\\\"'](\\./)?assets/(.*)[\\\"']");
+		Pattern p = Pattern.compile("[\\\"'](\\./)?assets/([^\\\"']*)[\\\"']");
+		
+		//run the matcher
+		Matcher m = p.matcher(content);
+		
+		//loop through all the matches
+		while(m.find()) {
+			if(m.groupCount() == 2) {
+				//the file name e.g. myPicture.jpg
+				String fromAssetFileName = m.group(2);
+				
+				//create the file handle for the "from" file
+				File fromAsset = new File(fromProjectAssetsFolder, fromAssetFileName);
+				
+				//make sure the file exists in the "from" project
+				if(fromAsset.exists()) {
+					//create the file handle for the "to" file
+					String toAssetFileName = fromAssetFileName;
+					File toAsset = new File(toProjectAssetsFolder, toAssetFileName);
+					
+					boolean assetCompleted = false;
+					int counter = 1;
+					
+					/*
+					 * this while loop will check if the file already exists.
+					 * 
+					 * if the file already exists, we will check if the content in the "from" file is the same as in the "to" file.
+					 *    if the content is the same, we do not need to do anything.
+					 *    if the content is different, we will look for another file name to use.
+					 * if the file does not exist, we will make it.
+					 */
+					while(!assetCompleted) {
+						if(toAsset.exists()) {
+							//file already exists
+							
+							try {
+								if(FileUtils.contentEquals(fromAsset, toAsset)) {
+									//files are the same so we do not need to do anything
+									assetCompleted = true;
+								} else {
+									//files are not the same so we need to try a different file name
+									
+									//get new file name e.g. myPicture-1.jpg
+									toAssetFileName = createNewFileName(fromAssetFileName, counter);
+
+									//create the handle for the next file we will try to use
+									toAsset = new File(toProjectAssetsFolder, toAssetFileName);
+									
+									counter++;
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							//file does not exist so we will copy the file to the "to" assets folder
+							
+							try {
+								//copy the file into our new asset file
+								FileUtils.copyFile(fromAsset, toAsset);
+								assetCompleted = true;
+							} catch (IOException e) {
+								e.printStackTrace();
+								break;
+							}
+						}
+					}
+
+					//replace references to the file name in the content if we changed the file name
+					if(fromAssetFileName != null && toAssetFileName != null &&
+							!fromAssetFileName.equals(toAssetFileName)) {
+						content = content.replaceAll(fromAssetFileName, toAssetFileName);					
+					}					
+				}
+			}
+		}
+		
+		return content;
+	}
+	
+	/**
+	 * Create a new file name by adding '-' and a number to the end of
+	 * the file name.
+	 * 
+	 * before
+	 * myPicture.jpg
+	 * after
+	 * myPicture-1.jpg
+	 * 
+	 * @param fileName the current file name
+	 * @param counter the number to add to the file name
+	 * @return a new file name with '-' and a number added to the end
+	 */
+	private String createNewFileName(String fileName, int counter) {
+		String newFileName = "";
+		
+		int lastDot = fileName.lastIndexOf(".");
+
+		//get the beginning of the file e.g. myPicture
+		String fileNameBeginning = fileName.substring(0, lastDot);
+		
+		//get the end of the file e.g. .jpg
+		String fileNameEnding = fileName.substring(lastDot);
+		
+		//create the new file name e.g. myPicture-1.jpg
+		newFileName = fileNameBeginning + "-" + counter + fileNameEnding;
+		
+		return newFileName;
+	}
+	
+	/**
+	 * Get the node JSONObject from the project JSON
+	 * @param projectJSON the project JSON object
+	 * @param nodeId the node id
+	 * @return the JSONObject for the node in the project
+	 */
+	private JSONObject getNodeById(JSONObject projectJSON, String nodeId) {
+		JSONObject node = null;
+		
+		if(nodeId != null && !nodeId.equals("")) {
+			try {
+				//get the array of nodes in the project
+				JSONArray fromProjectNodes = projectJSON.getJSONArray("nodes");
+				
+				//loop through all the nodes in the project
+				for(int x=0; x<fromProjectNodes.length(); x++) {
+					//get a node
+					JSONObject tempNode = fromProjectNodes.getJSONObject(x);
+					
+					if(tempNode != null) {
+						//get the node id
+						String id = tempNode.getString("identifier");
+						
+						if(nodeId.equals(id)) {
+							//the node id matches the one we want so we are done searching
+							node = tempNode;
+							break;
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}			
+		}
+		
+		return node;
 	}
 	
 	/**

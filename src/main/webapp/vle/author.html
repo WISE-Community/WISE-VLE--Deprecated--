@@ -252,6 +252,9 @@ var view;
 	<div id='tagTools'>
 		<button id='displayTagView' title='Tags' onclick='eventManager.fire("displayTagView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Tags</span></button>
 	</div>
+	<div id='importTools'>
+		<button id='displayImportView' title='Import' onclick='eventManager.fire("displayImportView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Import</span></button>
+	</div>
 	<div id='visibiltyNodeTools'>
 		<button id='hideNodesBtn' title='Hide All Steps in Project' onclick='eventManager.fire("hideNodes");'><span class='tool-icon action-icon action-icon-hide'></span><span class='tool-label'>Hide Steps</span></button>
 		<button id='showNodesBtn' title='Show All Steps in Project' onclick='eventManager.fire("unhideNodes");' class='hidden'><span class='tool-icon action-icon action-icon-show'></span><span class='tool-label'>Show Steps</span></button>
@@ -646,6 +649,10 @@ var view;
 
 <div id='tagViewDialog' style="display: none;">
 	<div id='projectTagView'></div>
+</div>
+
+<div id='importViewDialog' style="display: none;">
+	<div id='importView'></div>
 </div>
 
 <div id="reviewUpdateProjectDiv" style='display:none;'>

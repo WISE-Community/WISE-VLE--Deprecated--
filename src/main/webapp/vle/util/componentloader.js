@@ -436,6 +436,7 @@ var componentloader = function(em, sl){
 				'updateProject':[null,null],
 				'openStepTypeDescriptions':[null,null],
 				'displayTagView':[null,null],
+				'displayImportView':[null,null],
 				'populateAddTagSelect':[null,null],
 				'populateAddTagMapSelect':[null,null],
 				'addTag':[null,null],
@@ -443,7 +444,9 @@ var componentloader = function(em, sl){
 				'removeTag':[null,null],
 				'tagNameChanged':[null,null],
 				'tagMapChanged':[null,null],
-				'removeTagMap':[null,null]
+				'removeTagMap':[null,null],
+				'openProjectInImportView':[null,null],
+				'importSelectedItems':[null,null]
 			},
 			methods: {
 				onWindowUnload:function(view){return function(){view.onWindowUnload();};}
@@ -575,6 +578,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('projectTagRemoveTag', view.projectTagsDispatcher, view);
 					view.eventManager.subscribe('browserResize', view.authorDispatcher, view);
 					view.eventManager.subscribe('displayTagView', view.authorDispatcher, view);
+					view.eventManager.subscribe('displayImportView', view.authorDispatcher, view);
 					view.eventManager.subscribe('populateAddTagSelect', view.authorDispatcher, view);
 					view.eventManager.subscribe('populateAddTagMapSelect', view.authorDispatcher, view);
 					view.eventManager.subscribe('addTag', view.authorDispatcher, view);
@@ -583,6 +587,8 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('tagNameChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('tagMapChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('removeTagMap', view.authorDispatcher, view);
+					view.eventManager.subscribe('openProjectInImportView', view.authorDispatcher, view);
+					view.eventManager.subscribe('importSelectedItems', view.authorDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
 						window.parent.loaded();
@@ -612,6 +618,7 @@ var componentloader = function(em, sl){
 					view.initializeReviewUpdateProjectDialog();
 					view.initializeStepTypeDescriptionsDialog();
 					view.initializeTagViewDialog();
+					view.initializeImportViewDialog();
 										
 					window.onunload = env.onWindowUnload;
 				}
