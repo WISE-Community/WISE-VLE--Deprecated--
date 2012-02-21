@@ -587,6 +587,11 @@ Node.prototype.injectBaseRef = function(content) {
 			newContent = content;
 		}
 		
+		// check for tinymce flv embed instances, inject baseURI into any 'url' flashvars
+		if(newContent.match('/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/media/moxieplayer.swf')){
+			newContent = newContent.replace(/url=assets/g,'url=' + cbu + 'assets');
+		}
+		
 		//return the updated content
 		return newContent;
 	}
