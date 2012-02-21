@@ -2991,7 +2991,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * "Top Score: 30, Phase 1 Score: 10"
 	 */
 	private String generateExcelExportString(String excelExportStringTemplate, JSONObject nodeState) {
-		StringBuffer resultString = new StringBuffer();
+		String resultString = excelExportStringTemplate;
 		
 		/*
 		 * a regular expression pattern to match the patterns that
@@ -3008,7 +3008,7 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//search for the first match
 		boolean foundMatch = m.find();
-		
+
 		//loop until we find all the matches
 		while(foundMatch) {
 			/*
@@ -3024,18 +3024,15 @@ public class VLEGetXLS extends VLEServlet {
 			 */
 			String replacement = getNodeStateField(field, nodeState);
 			
-			//append the replacement string
-			m.appendReplacement(resultString, replacement);
+			//replace all the instances of the field with the student data
+			resultString = resultString.replace(field, replacement);
 
 			//look for the next match
 			foundMatch = m.find();
 		}
-		
-		//append the remainder of the original template string
-		m.appendTail(resultString);
-		
+
 		//return the string
-		return resultString.toString();
+		return resultString;
 	}
 	
 	/**
@@ -3186,6 +3183,17 @@ public class VLEGetXLS extends VLEServlet {
 							/*
 							 * set the currentJSONObject to null because we can't go
 							 * any deeper since we have hit an integer
+							 */
+							currentJSONObject = null;
+						} else if(fieldObject instanceof Boolean) {
+							//object is a boolean
+							
+							//get the boolean value
+							fieldValue = ((Boolean) fieldObject).toString();
+							
+							/*
+							 * set the currentJSONObject to null because we can't go
+							 * any deeper since we have hit a boolean
 							 */
 							currentJSONObject = null;
 						}
