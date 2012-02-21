@@ -5,8 +5,7 @@ p.info {
 	color: #745A33;
 }
 
-input[type="button"],input[type="submit"],input[type="text"],input[type="password"],textarea
-	{
+input[type="button"],input[type="submit"],input[type="text"],input[type="password"],textarea {
 	border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -27,35 +26,44 @@ input[type="text"]:focus {
 input[type="submit"],input[type="button"] {
 	cursor: pointer;
 	padding: .25em .5em;
-	/*color:#555;
-	border-color: #aaa;
-	background-color: #F4F4F4;*/
-	color: #585f0c;
-	background-color: #F2F5DB;
-	border-color: #C5CD61;
-	border-radius: 6px;
-	-moz-border-radius: 6px;
-	-webkit-border-radius: 6px;
-	box-shadow: 0 0 1px #ccc;
-	-moz-box-shadow: 0 0 1px #ccc;
-	-webkit-box-shadow: 0 0 1px #ccc;
-	font-size: .8em;
+	border: 1px solid #aaaaaa;
+	background: #eeeeee url(../images/ui/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x;
+	font-weight: normal;
+	color: #444444;
+	font-size: .85em;
+	font-weight:bold;
+	margin: .1em;
+	text-decoration: none !important;
+	cursor: pointer;
+	text-align: center;
+	zoom: 1;
+	overflow: visible;
+	line-height:1.2em;
 }
 
 input[type="submit"]:hover,input[type="button"]:hover {
-	box-shadow: 0 0 2px #aaa;
-	-moz-box-shadow: 0 0 2px #aaa;
-	-webkit-box-shadow: 0 0 2px #aaa;
-	/*color: #007391;
-	background-color:#F2F5DB;*/
-	border-color: #91c6b7;
-	color: #007391;
+	-moz-box-shadow:0 0 1px #aaaaaa;
+	-webkit-box-shadow:0 0 1px #aaaaaa;
+	box-shadow:0 0 1px #aaaaaa;
+	border: 1px solid #888888;
+	background: #eeeeee url(../images/ui/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x;
+	color: #222222;
 }
 
-input[type="submit"].disabled,input[type="button"].disabled {
+input[type="submit"]:active,input[type="button"]:active {
+	border: 1px solid #666666;
+	background: #555555 url(../images/ui/ui-bg_flat_50_555555_40x100.png) 50% 50% repeat-x;
+	color: #ffffff;
+}
+
+input[type="submit"][disabled="disabled"],input[type="button"][disabled="disabled"] {
 	color: #999999;
-	background-color: #F4F4F4;
+	background: #F4F4F4;
 	border-color: #CCCCCC;
+	-moz-box-shadow:none;
+	-webkit-box-shadow:none;
+	box-shadow:none;
+	cursor:default;
 }
 
 table.wisetable {
@@ -116,14 +124,14 @@ table.wisetable td.emph {
 	border-bottom:1px solid #777777;
 	text-align: center;
 	color:#EEEEEE;
-	font-size:.9em;
+	font-size:.8em;
 	font-weight:normal;
 	position:relative;
 	background:url("../images/message_bg.png") repeat scroll center center #444444;
 }
 
 #vle_messages .message span.content {
-	padding:0 22px;
+	padding:0 20px;
 }
 
 #vle_messages .message span.content a {
@@ -132,8 +140,8 @@ table.wisetable td.emph {
 }
 
 #vle_messages .message a.hide {
-	width:18px;
-	height:18px;
+	width:16px;
+	height:16px;
 	line-height:1em;
 	position:absolute;
 	right:2px;
@@ -142,7 +150,7 @@ table.wisetable td.emph {
 }
 
 #vle_messages .message a.hide:hover {
-	background:url("../images/dismiss.png") no-repeat scroll center -19px transparent;
+	background:url("../images/dismiss.png") no-repeat scroll center -18px transparent;
 }
 
 /** Dialog and Content Styles **/

@@ -285,8 +285,7 @@ OPENRESPONSE.prototype.responseEdited = function() {
  * Turn the save button on so the student can click it
  */
 OPENRESPONSE.prototype.setSaveAvailable = function() {
-	//removeClassFromElement("saveButton", "ui-state-disabled");
-	$('#saveButton').parent().removeClass('ui-state-disabled');
+	$('#saveButton').removeAttr('disabled');
 };
 
 /**
@@ -295,8 +294,7 @@ OPENRESPONSE.prototype.setSaveAvailable = function() {
  * to save.
  */
 OPENRESPONSE.prototype.setSaveUnavailable = function() {
-	//addClassToElement("saveButton", "ui-state-disabled");
-	$('#saveButton').parent().addClass('ui-state-disabled');
+	$('#saveButton').attr('disabled','disabled');
 };
 
 /**
@@ -305,16 +303,18 @@ OPENRESPONSE.prototype.setSaveUnavailable = function() {
  * and is not available
  */
 OPENRESPONSE.prototype.isSaveAvailable = function() {
-	//return !hasClass("saveButton", "ui-state-disabled");
-	return !$('#saveButton').parent().hasClass('ui-state-disabled');
+	if($('#saveButton').attr('disabled')=='disabled'){
+		return false;
+	} else {
+		return true;
+	}
 };
 
 /**
  * Turn the save button on so the student can click it
  */
 OPENRESPONSE.prototype.setSaveAndLockAvailable = function() {
-	//removeClassFromElement("saveAndLockButton", "ui-state-disabled");
-	$('#saveAndLockButton').parent().removeClass('ui-state-disabled');
+	$('#saveAndLockButton').removeAttr('disabled');
 };
 
 /**
@@ -323,8 +323,7 @@ OPENRESPONSE.prototype.setSaveAndLockAvailable = function() {
  * to save.
  */
 OPENRESPONSE.prototype.setSaveAndLockUnavailable = function() {
-	//addClassToElement("saveAndLockButton", "ui-state-disabled");
-	$('#saveAndLockButton').parent().addClass('ui-state-disabled');
+	$('#saveAndLockButton').attr('disabled','disabled');
 };
 
 /**
@@ -333,8 +332,11 @@ OPENRESPONSE.prototype.setSaveAndLockUnavailable = function() {
  * and is not available
  */
 OPENRESPONSE.prototype.isSaveAndLockAvailable = function() {
-	//return !hasClass("saveAndLockButton", "ui-state-disabled");
-	return !$('#saveAndLockButton').parent().hasClass('ui-state-disabled');
+	if($('#saveAndLockButton').attr('disabled')=='disabled'){
+		return false;
+	} else {
+		return true;
+	}
 };
 
 /**
@@ -368,13 +370,13 @@ OPENRESPONSE.prototype.isResponseChanged = function() {
  * Hide all the divs in the openresponse.html 
  */
 OPENRESPONSE.prototype.hideAll = function() {
-	document.getElementById('promptDisplayDiv').style.display = 'none';
-	document.getElementById('originalPromptDisplayDiv').style.display = 'none';
-	document.getElementById('associatedWorkDisplayDiv').style.display = 'none';
-	document.getElementById('annotationDisplayDiv').style.display = 'none';
-	document.getElementById('starterParent').style.display = 'none';
-	document.getElementById('responseDisplayDiv').style.display = 'none';
-	document.getElementById('buttonDiv').style.display = 'none';
+	$('#promptDisplayDiv').hide();
+	$('#originalPromptDisplayDiv').hide();
+	$('#associatedWorkDisplayDiv').hide();
+	$('#annotationDisplayDiv').hide();
+	$('#starterParent').hide();
+	$('#responseDisplayDiv').hide();
+	$('#buttonDiv').hide();
 };
 
 /**
@@ -388,7 +390,7 @@ OPENRESPONSE.prototype.onlyDisplayMessage = function(message) {
 	this.hideAll();
 	
 	//display the prompt div
-	document.getElementById('promptDisplayDiv').style.display = 'block';
+	$('#promptDisplayDiv').show;
 	
 	//remove the text in this label div
 	document.getElementById('promptLabelDiv').innerHTML = '';
@@ -429,11 +431,11 @@ OPENRESPONSE.prototype.render = function() {
 			 * submits their original work or the step where they annotate
 			 * another student's work
 			 */
-			document.getElementById('saveAndLockButtonDiv').style.display = 'block';
+			$('#saveAndLockButton').show();
 		}
 	} else if (this.content.isLockAfterSubmit) {
 		// this node is set to lock after the student submits the answer. show saveAndLock button
-		document.getElementById('saveAndLockButtonDiv').style.display = 'block';
+		$('#saveAndLockButton').show();
 	}
 	
 	if(this.view != null && this.view.activeNode != null) {
@@ -449,7 +451,7 @@ OPENRESPONSE.prototype.render = function() {
 				 * submits their original work or the step where they annotate
 				 * another student's work
 				 */
-				document.getElementById('saveAndLockButtonDiv').style.display = 'block';
+				$('#saveAndLockButton').show();
 			}
 			
 			/*
@@ -462,7 +464,7 @@ OPENRESPONSE.prototype.render = function() {
 				
 				//display the prompt
 				document.getElementById('originalPromptTextDiv').innerHTML = '[Prompt from the first peer review step will display here]';
-				document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+				$('#originalPromptDisplayDiv').show();
 				
 				/*
 				 * display the other student's work or a message saying there is no other student work
@@ -470,7 +472,7 @@ OPENRESPONSE.prototype.render = function() {
 				 */
 				document.getElementById('associatedWorkLabelDiv').innerHTML = 'work submitted by <i>Team Anonymous</i>:';		
 				document.getElementById('associatedWorkTextDiv').innerHTML = '[Work from a random classmate will display here]';
-				document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+				$('#associatedWorkDisplayDiv').show();
 			} else if(this.node.peerReview == 'revise' || this.node.teacherReview == 'revise') {
 				//set more informative labels
 				document.getElementById('promptLabelDiv').innerHTML = 'instructions';
@@ -478,23 +480,23 @@ OPENRESPONSE.prototype.render = function() {
 				
 				//set the original prompt text and make it visible
 				document.getElementById('originalPromptTextDiv').innerHTML = '[Prompt from the first peer review step will display here]';
-				document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+				$('#originalPromptDisplayDiv').show();
 				
 				//set the original work text and make it visible
 				document.getElementById('associatedWorkLabelDiv').innerHTML = 'your original response&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">show/hide text';
 				document.getElementById('associatedWorkTextDiv').innerHTML = "[Student's work from first peer review step will display here]";
-				document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+				$('#associatedWorkDisplayDiv').show();
 				
 				//hide the original work
-				document.getElementById('associatedWorkTextDiv').style.display = 'none';
+				$('#associatedWorkTextDiv').hide();
 				
 				//display the div that says "text is hidden"
-				document.getElementById('associatedWorkTextDiv2').style.display = 'block';
+				$('#associatedWorkTextDiv2').show();
 				
 				//set the annotation text and make it visible
 				document.getElementById('annotationLabelDiv').innerHTML = '<i>Team Anonymous</i> has given you the following feedback:';
 				document.getElementById('annotationTextDiv').innerHTML = '[Feedback from classmate or teacher will display here]';
-				document.getElementById('annotationDisplayDiv').style.display = 'block';
+				$('#annotationDisplayDiv').show();
 			}
 		}
 		
@@ -650,12 +652,12 @@ OPENRESPONSE.prototype.displayTeacherWork = function() {
 		
 		//display the original prompt
 		document.getElementById('originalPromptTextDiv').innerHTML = this.associatedStartNode.getPeerReviewPrompt();
-		document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+		$('#originalPromptDisplayDiv').show();
 		
 		//display the authored work for the student to review
 		document.getElementById('associatedWorkLabelDiv').innerHTML = 'work submitted by <i>Team Anonymous</i>:' ;		
 		document.getElementById('associatedWorkTextDiv').innerHTML = teacherWorkText;
-		document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+		$('#associatedWorkDisplayDiv').show();
 		
 		//set the response if there were previous revisions
 		this.setResponse();
@@ -766,23 +768,23 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 		
 		//set the original prompt text and make it visible
 		document.getElementById('originalPromptTextDiv').innerHTML = this.associatedStartNodeContent.assessmentItem.interaction.prompt;
-		document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+		$('#originalPromptDisplayDiv').show();
 		
 		//set the original work text and make it visible
 		document.getElementById('associatedWorkLabelDiv').innerHTML = 'your first response to the question&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">show/hide text';
 		document.getElementById('associatedWorkTextDiv').innerHTML = latestWorkForassociatedStartNodeHtml;
-		document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+		$('#associatedWorkDisplayDiv').show();
 		
 		//hide the original work
-		document.getElementById('associatedWorkTextDiv').style.display = 'none';
+		$('#associatedWorkTextDiv').hide();
 		
 		//display the div that says "text is hidden"
-		document.getElementById('associatedWorkTextDiv2').style.display = 'block';
+		$('#associatedWorkTextDiv2').show();
 		
 		//set the teacher annotation text and make it visible
 		document.getElementById('annotationLabelDiv').innerHTML = 'teacher feedback';
 		document.getElementById('annotationTextDiv').innerHTML = latestCommentAnnotationForStep;
-		document.getElementById('annotationDisplayDiv').style.display = 'block';
+		$('#annotationDisplayDiv').show();
 		
 		/* set value of text area base on previous work, if any */
 		if (this.states!=null && this.states.length > 0) {
@@ -944,7 +946,7 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 		
 		//display the prompt
 		document.getElementById('originalPromptTextDiv').innerHTML = thisOr.associatedStartNode.getPeerReviewPrompt();
-		document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+		$('#originalPromptDisplayDiv').show();
 		
 		/*
 		 * display the other student's work or a message saying there is no other student work
@@ -952,7 +954,7 @@ OPENRESPONSE.prototype.retrieveOtherStudentWorkCallback = function(text, xml, ar
 		 */
 		document.getElementById('associatedWorkLabelDiv').innerHTML = 'work submitted by <i>Team Anonymous</i>:';		
 		document.getElementById('associatedWorkTextDiv').innerHTML = peerWorkText;
-		document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+		$('#associatedWorkDisplayDiv').show();
 		
 		//set the response if there were previous revisions 
 		thisOr.setResponse();
@@ -1102,23 +1104,23 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		
 		//set the original prompt text and make it visible
 		document.getElementById('originalPromptTextDiv').innerHTML = thisOr.associatedStartNodeContent.assessmentItem.interaction.prompt;
-		document.getElementById('originalPromptDisplayDiv').style.display = 'block';
+		$('#originalPromptDisplayDiv').show();
 		
 		//set the original work text and make it visible
 		document.getElementById('associatedWorkLabelDiv').innerHTML = 'your original response&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails2()">show/hide text';
 		document.getElementById('associatedWorkTextDiv').innerHTML = latestWorkHtml;
-		document.getElementById('associatedWorkDisplayDiv').style.display = 'block';
+		$('#associatedWorkDisplayDiv').show();
 		
 		//hide the original work
-		document.getElementById('associatedWorkTextDiv').style.display = 'none';
+		$('#associatedWorkTextDiv').hide();
 		
 		//display the div that says "text is hidden"
-		document.getElementById('associatedWorkTextDiv2').style.display = 'block';
+		$('#associatedWorkTextDiv2').show();
 		
 		//set the annotation text and make it visible
 		document.getElementById('annotationLabelDiv').innerHTML = '<i>Team Anonymous</i> has given you the following feedback:';
 		document.getElementById('annotationTextDiv').innerHTML = annotationText;
-		document.getElementById('annotationDisplayDiv').style.display = 'block';
+		$('#annotationDisplayDiv').show();
 		
 		/* set value of text area base on previous work, if any */
 		if (thisOr.states!=null && thisOr.states.length > 0) {
@@ -1235,10 +1237,10 @@ OPENRESPONSE.prototype.unlockResponseBox = function() {
  * response, button, divs
  */
 OPENRESPONSE.prototype.showDefaultDivs = function() {
-	document.getElementById('promptDisplayDiv').style.display = 'block';
-	document.getElementById('starterParent').style.display = 'block';
-	document.getElementById('responseDisplayDiv').style.display = 'block';
-	document.getElementById('buttonDiv').style.display = 'block';
+	$('#promptDisplayDiv').show();
+	$('#starterParent').show();
+	$('#responseDisplayDiv').show();
+	$('#buttonDiv').show();
 };
 
 /**
@@ -1246,9 +1248,9 @@ OPENRESPONSE.prototype.showDefaultDivs = function() {
  */
 OPENRESPONSE.prototype.showDefaultValues = function() {
 	if(this.content.starterSentence.display=='1' || this.content.starterSentence.display=='2'){
-		document.getElementById('starterParent').style.display = 'block';
+		$('#starterParent').show();
 	} else {
-		document.getElementById('starterParent').style.display = 'none';
+		$('#starterParent').hide();
 	};
 	
 	/* set html prompt element values */

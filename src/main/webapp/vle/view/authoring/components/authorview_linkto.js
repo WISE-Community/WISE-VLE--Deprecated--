@@ -34,21 +34,29 @@ View.prototype.linkManager.dispatcher = function(type,args,obj){
  * then passing control to the node selector.
  */
 View.prototype.linkManager.createLink = function(view){
-	var ta = document.getElementById('promptInput');
-	
 	/* check to ensure that the view was injected into the frame */
 	if(!view){
 		alert('Could not find view which is needed to create the link, aborting.');
 		return;
 	}
 	
-	/* get the highlighted text and its start and end positions */
-	this.currentStart = ta.selectionStart;
-	this.currentEnd = ta.selectionEnd;
-	
-	if(this.currentStart<0 || this.currentEnd<0 || this.currentStart==this.currentEnd){
-		view.notificationManager.notify('Please select some text before attempting to create a link.',3);
-		return;
+	if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+		var selection = $('#promptInput').tinymce().selection.getContent();
+		if (selection == ''){
+			view.notificationManager.notify('Please select some text before attempting to create a link.',3);
+			return;
+		}
+	} else {
+		var ta = document.getElementById('promptInput');
+		
+		/* get the highlighted text and its start and end positions */
+		this.currentStart = ta.selectionStart;
+		this.currentEnd = ta.selectionEnd;
+		
+		if(this.currentStart<0 || this.currentEnd<0 || this.currentStart==this.currentEnd){
+			view.notificationManager.notify('Please select some text before attempting to create a link.',3);
+			return;
+		}
 	}
 	
 	view.populateNodeSelector('nodeSelectorSelected', 'nodeSelectorCanceled');
@@ -60,7 +68,6 @@ View.prototype.linkManager.createLink = function(view){
 View.prototype.linkManager.nodeSelected = function(view){
 	var select = document.getElementById('nodeSelectorSelect');
 	var colorSelect = document.getElementById('colorSelectorSelect');
-	var ta = document.getElementById('promptInput');
 	
 	/* make sure that the step select element exists */
 	if(!select){
@@ -92,13 +99,23 @@ View.prototype.linkManager.nodeSelected = function(view){
 	var nodeIdentifier = select.options[ndx].id;
 	var color = colorSelect[colorNdx].value;
 	var link = this.createLinkForNode(view.activeNode, nodeIdentifier);
-	var text = ta.value.substring(this.currentStart, this.currentEnd);
-	var beginning = ta.value.substring(0,this.currentStart);
-	var end = ta.value.substring(this.currentEnd, ta.value.length);
-	var linkText = '<a style=\"color:' + color + '; cursor:pointer\" onclick=\"node.linkTo(\'' + link.key + '\')\">' + text + '</a>';
-	
-	/* set the text area's text */
-	ta.value = beginning + linkText + end;
+	if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+		var linkBefore = '<a style=\"color:' + color + '; cursor:pointer\" onclick=\"node.linkTo(\'' + link.key + '\')\">';
+		var linkAfter = '</a>';
+		$('#promptInput').tinymce().execCommand('mceReplaceContent',false,linkBefore + '{$selection}' + linkAfter);
+	} else {
+		var ta = document.getElementById('promptInput');
+		var text = ta.value.substring(this.currentStart, this.currentEnd);
+		var beginning = ta.value.substring(0,this.currentStart);
+		var end = ta.value.substring(this.currentEnd, ta.value.length);
+		var linkText = '<a style=\"color:' + color + '; cursor:pointer\" onclick=\"node.linkTo(\'' + link.key + '\')\">' + text + '</a>';
+		/* set the text area's text */
+		ta.value = beginning + linkText + end;
+		
+		/* clean up and hide dialog */
+		this.currentStart = undefined;
+		this.currentEnd = undefined;
+	}
 	
 	/* we need to call the active node's update prompt event to catch the changes we just
 	 * made. We also need call the source updated method so that the new text in
@@ -110,9 +127,6 @@ View.prototype.linkManager.nodeSelected = function(view){
 	view.sourceUpdated(true);
 	this.processExistingLinks(view);
 	
-	/* clean up and hide dialog */
-	this.currentStart = undefined;
-	this.currentEnd = undefined;
 	$('#nodeSelectorDialog').dialog('close');
 };
 
@@ -332,8 +346,14 @@ View.prototype.linkManager.removeLinkTo = function(view, key){
 		for(var g=0;g<linkStrings.length;g++){
 			if(linkStrings[g].indexOf(key)!=-1){
 				var words = linkStrings[g].substring(linkStrings[g].indexOf('>') + 1, linkStrings[g].indexOf('</a>'));
-				document.getElementById('promptInput').value = document.getElementById('promptInput').value.replace(linkStrings[g],words);
-				linkRemovedFromPrompt = true;
+				if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+					var newContent = $('#promptInput').tinymce().getContent().replace(linkStrings[g],words);
+					$('#promptInput').tinymce().setContent(newContent);
+					linkRemovedFromPrompt = true;
+				} else {
+					document.getElementById('promptInput').value = document.getElementById('promptInput').value.replace(linkStrings[g],words);
+					linkRemovedFromPrompt = true;
+				}
 			}
 		}
 	}

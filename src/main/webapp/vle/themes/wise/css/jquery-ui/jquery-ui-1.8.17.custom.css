@@ -47,7 +47,7 @@
  *
  * http://docs.jquery.com/UI/Theming/API
  *
- * To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Arial,sans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=4px&bgColorHeader=0e7590&bgTextureHeader=04_highlight_hard.png&bgImgOpacityHeader=35&borderColorHeader=cccccc&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=ffffff&bgTextureContent=01_flat.png&bgImgOpacityContent=75&borderColorContent=cccccc&fcContent=444444&iconColorContent=444444&bgColorDefault=eeeeee&bgTextureDefault=04_highlight_hard.png&bgImgOpacityDefault=100&borderColorDefault=cccccc&fcDefault=555555&iconColorDefault=555555&bgColorHover=eeeeee&bgTextureHover=04_highlight_hard.png&bgImgOpacityHover=100&borderColorHover=aaaaaa&fcHover=333333&iconColorHover=222222&bgColorActive=555555&bgTextureActive=01_flat.png&bgImgOpacityActive=50&borderColorActive=666666&fcActive=ffffff&iconColorActive=ffffff&bgColorHighlight=fefdec&bgTextureHighlight=01_flat.png&bgImgOpacityHighlight=55&borderColorHighlight=fff857&fcHighlight=444444&iconColorHighlight=007391&bgColorError=fde7e7&bgTextureError=08_diagonals_thick.png&bgImgOpacityError=60&borderColorError=ff3333&fcError=222222&iconColorError=ff3333&bgColorOverlay=a6a6a6&bgTextureOverlay=01_flat.png&bgImgOpacityOverlay=65&opacityOverlay=35&bgColorShadow=282828&bgTextureShadow=01_flat.png&bgImgOpacityShadow=0&opacityShadow=75&thicknessShadow=7px&offsetTopShadow=-7px&offsetLeftShadow=-7px&cornerRadiusShadow=4px
+ * To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Arial,sans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=4px&bgColorHeader=0e7590&bgTextureHeader=04_highlight_hard.png&bgImgOpacityHeader=35&borderColorHeader=cccccc&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=ffffff&bgTextureContent=01_flat.png&bgImgOpacityContent=75&borderColorContent=cccccc&fcContent=444444&iconColorContent=444444&bgColorDefault=eeeeee&bgTextureDefault=04_highlight_hard.png&bgImgOpacityDefault=100&borderColorDefault=aaaaaa&fcDefault=444444&iconColorDefault=555555&bgColorHover=eeeeee&bgTextureHover=04_highlight_hard.png&bgImgOpacityHover=100&borderColorHover=888888&fcHover=333333&iconColorHover=222222&bgColorActive=555555&bgTextureActive=01_flat.png&bgImgOpacityActive=50&borderColorActive=666666&fcActive=ffffff&iconColorActive=ffffff&bgColorHighlight=fefdec&bgTextureHighlight=01_flat.png&bgImgOpacityHighlight=55&borderColorHighlight=fff857&fcHighlight=444444&iconColorHighlight=007391&bgColorError=fde7e7&bgTextureError=08_diagonals_thick.png&bgImgOpacityError=60&borderColorError=ff3333&fcError=222222&iconColorError=ff3333&bgColorOverlay=a6a6a6&bgTextureOverlay=01_flat.png&bgImgOpacityOverlay=65&opacityOverlay=35&bgColorShadow=282828&bgTextureShadow=01_flat.png&bgImgOpacityShadow=0&opacityShadow=75&thicknessShadow=7px&offsetTopShadow=-7px&offsetLeftShadow=-7px&cornerRadiusShadow=4px
  */
 
 
@@ -69,13 +69,13 @@
 
 /* Interaction states
 ----------------------------------*/
-.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid #cccccc; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #555555; }
-.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #555555; text-decoration: none; }
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #aaaaaa; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #222222;
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid #aaaaaa; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #444444; }
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #444444; text-decoration: none; }
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #888888; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #222222;
 	/* WISE Edits */
-	-moz-box-shadow:0 0 1px #cccccc;
-	-webkit-box-shadow:0 0 1px #cccccc;
-	box-shadow:0 0 1px #cccccc;
+	-moz-box-shadow:0 0 1px #aaaaaa;
+	-webkit-box-shadow:0 0 1px #aaaaaa;
+	box-shadow:0 0 1px #aaaaaa;
 }
 .ui-state-hover a, .ui-state-hover a:hover { color: #333333; text-decoration: none; }
 .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { border: 1px solid #666666; background: #555555 url(images/ui-bg_flat_50_555555_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #ffffff; }

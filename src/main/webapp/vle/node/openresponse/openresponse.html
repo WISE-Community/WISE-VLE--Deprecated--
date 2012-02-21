@@ -65,66 +65,34 @@
             	scriptloader.loadScripts('openresponse', document, node.id, eventManager);
             };
         </script>
-        <!--  Javascript Pop up window -->
-        <script type="text/javascript">
-            
-            var newWin = null;
-            function popUp(strURL, strType, strHeight, strWidth){
-                if (newWin != null && !newWin.closed) 
-                    newWin.close();
-                var strOptions = "";
-                if (strType == "console") 
-                    strOptions = "resizable,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                if (strType == "fixed") 
-                    strOptions = "status,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                if (strType == "elastic") 
-                    strOptions = "toolbar,menubar,scrollbars," +
-                    "resizable,location,height=" +
-                    strHeight +
-                    ",width=" +
-                    strWidth;
-                newWin = window.open(strURL, 'newWin', strOptions);
-                newWin.focus();
-            }
-            
-        </script>
         
-<script type="text/javascript">
-	/* Toggles the ID originalPromptTextDiv */
-	function toggleDetails1(){
-		var searchDiv = document.getElementById('originalPromptTextDiv');
-		var searchDiv2 = document.getElementById('originalPromptTextDiv2');
-		if(searchDiv.style.display=='none'){
-			searchDiv.style.display = 'block';
-			searchDiv2.style.display = 'none';
-		} else {
-			searchDiv.style.display = 'none';
-			searchDiv2.style.display = 'block';
-		};
-	};
-</script>
-
-<script type="text/javascript">
-	/* Toggles the ID originalPromptTextDiv */
-	function toggleDetails2(){
-		var searchDiv3 = document.getElementById('associatedWorkTextDiv');
-		var searchDiv4 = document.getElementById('associatedWorkTextDiv2');
-		if(searchDiv3.style.display=='none'){
-			searchDiv3.style.display = 'block';
-			searchDiv4.style.display = 'none';
-		} else {
-			searchDiv3.style.display = 'none';
-			searchDiv4.style.display = 'block';
-		};
-	};
-</script>
-
+		<script type="text/javascript">
+			/* Toggles the ID originalPromptTextDiv */
+			function toggleDetails1(){
+				var searchDiv = document.getElementById('originalPromptTextDiv');
+				var searchDiv2 = document.getElementById('originalPromptTextDiv2');
+				if(searchDiv.style.display=='none'){
+					searchDiv.style.display = 'block';
+					searchDiv2.style.display = 'none';
+				} else {
+					searchDiv.style.display = 'none';
+					searchDiv2.style.display = 'block';
+				};
+			};
+			
+			/* Toggles the ID associatedWorkTextDiv */
+			function toggleDetails2(){
+				var searchDiv3 = document.getElementById('associatedWorkTextDiv');
+				var searchDiv4 = document.getElementById('associatedWorkTextDiv2');
+				if(searchDiv3.style.display=='none'){
+					searchDiv3.style.display = 'block';
+					searchDiv4.style.display = 'none';
+				} else {
+					searchDiv3.style.display = 'none';
+					searchDiv4.style.display = 'block';
+				};
+			};
+		</script>
     </head>
     <body>
         <div id="questionCountBox" class="bg3">
@@ -140,7 +108,6 @@
                     </td>
                 </tr>
             </table>
-            <div id='previousWorkDiv'></div>
             <div id="questionTable">
                 <div id="questionType">
                     open response
@@ -150,6 +117,7 @@
         <!-- end of questionCountBox -->
         <div id="currentQuestionBox">
             <div id="fullColumn">
+            	<div id='previousWorkDiv'></div>
             	<div id='promptDisplayDiv' style='display:none'>
                 	<div id='promptLabelDiv' class="itemLabel Color1">
                     question
@@ -163,17 +131,17 @@
                 
                 <div id='originalPromptDisplayDiv' style='display:none'>
                 	<div id='originalPromptLabelDiv' class="itemLabel Color1">
-                    original question&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails1()">show/hide text</a> 
+                    Question&nbsp;&nbsp;&nbsp;<a id="toggleSwitch" onclick="toggleDetails1()">show/hide</a> 
                 	</div>
                 	<div id="originalPromptContainer" class="promptContainer">
                 		<div id='originalPromptTextDiv' style="display:none;" class="promptText"></div>
-                		<div id='originalPromptTextDiv2' class="promptText2">text is hidden</div>
+                		<div id='originalPromptTextDiv2' class="promptText2">Question is hidden</div>
                 	</div>
                 </div>
                 
                 <div id='associatedWorkDisplayDiv' style='display:none'>
                 	<div id='associatedWorkLabelDiv' class="itemLabel Color1">
-                    your original response... this text is overwritten by javascript </a> 
+                    your original response... this text is overwritten by javascript 
                 	</div>
                 	<div id="associatedWorkPromptContainer" class="promptContainer">
                 		<div id='associatedWorkTextDiv' class="promptText"></div>
@@ -208,23 +176,12 @@
         </div>
         <div id="clearBoth">
         </div>
-        <!-- Anchor-Based Button Layout using TABLE -->
         <div id="buttonDiv" style='display:none'>
-            <div id="statusDiv">
-                <div id="numberAttemptsDiv">
-                </div>
+        	<div id="statusDiv">
+                <div id="numberAttemptsDiv"></div>
             </div>
-            <table id="buttonTable">
-                <tr>
-                    <td>
-                        <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveButton" onClick="javascript:save();">SAVE DRAFT</a></div>
-                    </td>
-                    <td>
-                        <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="saveAndLockButtonDiv" style="display:none" disabled="true">
-                        <a id="saveAndLockButton" onClick="javascript:saveAndLock();">SUBMIT (and lock)</a></div>
-                	</td>
-                </tr>
-            </table>
+	        <input type="button" id="saveButton" value="SAVE CHANGES" onclick="save();" />
+	        <input type="button" id="saveAndLockButton" value="SUBMIT (and lock)" onclick="saveAndLock();" style="display:none" disabled="disabled" />
         </div>
     </body>
 </html>

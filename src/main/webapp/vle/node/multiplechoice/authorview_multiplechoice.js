@@ -418,7 +418,17 @@ View.prototype.MultipleChoiceNode.populatePrompt = function() {
  */
 View.prototype.MultipleChoiceNode.updatePrompt = function(){
 	/* update prompt and answers */
-	this.content.assessmentItem.interaction.prompt = document.getElementById('promptInput').value;
+	var content = '';
+	if($('#promptInput').tinymce()){
+		content = $('#promptInput').tinymce().getContent();
+	} else {
+		content = $('#promptInput').val();
+	}
+	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
+	var assetPath = this.view.getProjectFolderPath() + 'assets/';
+	var assetPathExp = new RegExp(assetPath,"gi");
+	content.replace(assetPathExp,"assets/");
+	this.content.assessmentItem.interaction.prompt = content;
 	this.updateAnswer();
 	
 	/* fire source updated event */

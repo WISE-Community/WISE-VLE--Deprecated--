@@ -1,7 +1,7 @@
 Introduction to the WISE Virtual Learning Environment Project Theme Architecture
 
 Each WISE project theme is made up of a "vle_body.html" file, a "config.json" file, and
-folders for custom css, images, and javascript.
+folders for custom css, images, javascript, and navigation.
 
 -----------------------------------------------------------------------------------
 
@@ -29,16 +29,16 @@ your liking unless otherwise noted.
 The "config.json" file in this theme's root directory is responsible for setting the
 theme's identifying information and configuration options.
 
-To utilize any CSS or Javascript files for your theme, you must specify their file paths
+To utilize any CSS or javascript files for your theme, you must specify their file paths
 in the "config.json" file (see items 10 and 11 below) and include the corresponding files in
 the theme package.
 
 *NOTE*: WISE includes the jQuery (http://jquery.com) and jQuery UI (http://jqueryui.com)
-Javascript libraries by default.  You do not need to include these files with your theme.
+javascript libraries by default.  You do not need to include these files with your theme.
 WISE also provides a default theme for jQuery UI. If you would like to use a customized 
 jQuery UI theme instead of the WISE default, indicate the file path to your custom CSS file
 in the configuration options (see item 12 below).  (You can also make minor modifications
-to any jQuery UI styles using any of the CSS files included with this theme.)
+to any jQuery UI styles using any of the CSS files you include with this theme.)
 
 (For help creating your own jQuery UI themes, visit the jQuery UI ThemeRoller:
 http://jqueryui.com/themeroller/).
@@ -46,10 +46,10 @@ http://jqueryui.com/themeroller/).
 If you are including a screenshot and/or thumbnail image for this theme, be sure to add the
 corresponding image files to the theme package as well.
 
-The following fields should be included in the JSON object.  Modify each field to match
-your theme.
+The following fields must be included in the theme's "config.json" file.  Modify each field to
+match your theme.
 
-Configuration options:
+*Configuration Options*:
 1. "id" - A unique identifier for this theme; MUST be the same as this theme's root folder
 	name (String)
 2. "name" -  A text identifier for the theme; will be displayed when selecting the
@@ -68,12 +68,36 @@ Configuration options:
 	default jQuery UI theme; leave value as empty string ("") to use the default theme (File
 	path relative to theme root)
 13. "nav_modes" - The project navigation modes this theme supports; First entry in the array
-	will be set as the default; Each entry MUST match the name of a folder in the
-	"navigation" directory; You must include at least one navigation mode with your theme;
-	See "Project Navigation" section below for more details	(Array of Strings)
+	will be set as the default; Each navigation mode's 'id' entry MUST match the name of a folder
+	in the "navigation" directory for your theme; You must include at least one navigation mode
+	with your theme; See "Project Navigation" section below for more details (Array of Objects)
 
 
 **** Project Navigation ****
+
+With each WISE VLE theme, authors can include any number of accompanying navigation modes.
+Navigation modes define the visual appearance and behavior of the project navigation menu (i.e. the 
+activities and steps that make up each WISE project).
+
+Available navigation modes for a theme are defined in the theme's "config.json" file, in the
+"nav_modes" configuration option (item 13 above). Each navigation mode entry must be a JSON object
+with the following items:
+1. "id" - A unique identifier for this navigation mode; MUST match the name of a folder in the theme's
+	"navigation" directory (String)
+2. "name" - A text identifier for the navigation mode; will be displayed when selecting the
+	navigation mode in project authoring and/or run settings (String)
+3. "description" - A short text description of the theme's major features (String)
+4. "screenshot" - Preview screenshot of theme (File path relative to this navigation mode's root folder)
+
+*Every WISE VLE theme MUST include at least 1 (one) navigation mode.*
+
+For every navigation mode, you must include a corresponding folder (with the same name as the 
+navigation mode's "id" option) in the "navigation" directory for your theme.  Each navigation mode 
+folder must include the following:
+1. "nav.js" file - EXPLAIN
+2. "nav.css" file - EXPLAIN
+3. Any other assets (images, for example) that the navigation mode uses
+
 
 
 **** Internationalization ****

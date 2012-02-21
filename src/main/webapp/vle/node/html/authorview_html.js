@@ -33,8 +33,20 @@ View.prototype.HtmlNode.getCommonComponents = function() {
  * Updates this content object when requested, usually when preview is to be refreshed
  */
 View.prototype.HtmlNode.updateContent = function(){
+	var content = '';
 	/* update content object */
-	this.view.activeNode.baseHtmlContent.setContent(document.getElementById('promptInput').value);
+	if($('#promptInput').tinymce()){
+		content = $('#promptInput').tinymce().getContent();
+	} else {
+		content = $('#promptInput').val();
+	}
+	
+	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
+	var assetPath = this.view.getProjectFolderPath() + 'assets/';
+	var assetPathExp = new RegExp(assetPath,"gi");
+	content.replace(assetPathExp,"assets/");
+	
+	this.view.activeNode.baseHtmlContent.setContent(content);
 };
 
 /**
@@ -62,52 +74,15 @@ View.prototype.HtmlNode.save = function(close){
 	var contentString = encodeURIComponent($.stringify(this.view.activeContent.getContentJSON(),null,3));
 
 	this.view.connectionManager.request('POST', 3, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'updateFile', fileName:this.view.activeNode.content.getFilename(this.view.getProject().getContentBase()), data:contentString}, success, this.view, failure);
-	this.view.connectionManager.request('POST', 3, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'updateFile', fileName:this.view.activeNode.baseHtmlContent.getFilename(this.view.getProject().getContentBase()), data:encodeURIComponent(document.getElementById('promptInput').value)}, success, this.view, failure);
+	if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+		this.view.connectionManager.request('POST', 3, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'updateFile', fileName:this.view.activeNode.baseHtmlContent.getFilename(this.view.getProject().getContentBase()), data:encodeURIComponent($('#promptInput').tinymce().getContent())}, success, this.view, failure);
+	} else {
+		this.view.connectionManager.request('POST', 3, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'updateFile', fileName:this.view.activeNode.baseHtmlContent.getFilename(this.view.getProject().getContentBase()), data:encodeURIComponent(document.getElementById('promptInput').value)}, success, this.view, failure);
+	}
 };
 
-View.prototype.HtmlNode.populatePrompt = function() {
-	//var that = this;
-	
+View.prototype.HtmlNode.populatePrompt = function() {	
 	$('#promptInput').val(this.view.activeNode.baseHtmlContent.getContentString());
-	
-	/*$('textarea#promptInput').tinymce({
-		document_base_url : that.view.authoringBaseUrl,
-		// Location of TinyMCE script
-		script_url : 'jquery/tiny_mce/tiny_mce.js',
-
-		// General options
-		theme : "advanced",
-		plugins : "fullpage,autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,advlist",
-
-		// Theme options
-		theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
-		theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-		theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-		theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
-		theme_advanced_toolbar_location : "top",
-		theme_advanced_toolbar_align : "left",
-		theme_advanced_statusbar_location : "bottom",
-		theme_advanced_resizing : true,
-		convert_urls : false,
-
-		// Example content CSS (should be your site CSS)
-		//content_css : "css/content.css",
-
-		// Drop lists for link/image/media/template dialogs
-		//template_external_list_url : "lists/template_list.js",
-		//external_link_list_url : "lists/link_list.js",
-		//external_image_list_url : "jquery/tiny_mce/getImageList.js",
-		//media_external_list_url : "jquery/tiny_mce/getMediaList.js",
-		
-		onchange_callback : updateContent
-	});
-	
-	function updateContent(inst) {
-		var val = tinyMCE.activeEditor.getContent();
-		$('#promptInput').val(val);
-		eventManager.fire('stepPromptChanged');
-	};*/
-	
 };
 
 /**

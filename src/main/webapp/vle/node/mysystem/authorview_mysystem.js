@@ -63,7 +63,18 @@ View.prototype.MySystemNode.populatePrompt = function() {
  * Updates the html with the user entered prompt
  */
 View.prototype.MySystemNode.updatePrompt = function(){
-	this.content.prompt = document.getElementById('promptInput').value;
+	/* update content */
+	var content = '';
+	if($('#promptInput').tinymce()){
+		content = $('#promptInput').tinymce().getContent();
+	} else {
+		content = $('#promptInput').val();
+	}
+	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
+	var assetPath = this.view.getProjectFolderPath() + 'assets/';
+	var assetPathExp = new RegExp(assetPath,"gi");
+	content.replace(assetPathExp,"assets/");
+	this.content.prompt = content;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
