@@ -116,11 +116,11 @@ NavigationPanel.prototype.menuCreated = function() {
 		$('#stepInfo').fadeOut();
 	}, 4000);
 	
-	// show project content
-	$('#vle_body').css('opacity',1);
-	
 	// resize navigation menu on load to fit remaining space in sidebar
 	this.resizeMenu();
+	
+	// show project content
+	$('#vle_body').css('opacity',1);
 };
 
 /**
@@ -202,7 +202,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 			opacity: '1'
 		},100);
 		$('#stepContent').animate({
-			left: '225px'
+			left: '223px'
 		},100, resizeDisabled());
 		
 		// change text of toggleNavLink
