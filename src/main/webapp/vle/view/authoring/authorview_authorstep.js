@@ -705,6 +705,102 @@ View.prototype.cleanupRichTextEditorToggle = function() {
 	this.richTextEditorToggleManager.cleanupRichTextEditorToggle();
 };
 
+/**
+ * Enables rich text authoring for specified textarea
+ * @param target The textarea element on which to activate the rich text editor
+ * @param callback A callback function to run when the rich text editor content changes
+ */
+View.prototype.enableRichTextAuthoring = function(target,callback) {
+	var view = this;
+	var plugins = "";
+	if(view.resolveType(view.activeNode.type)=='HtmlNode'){
+		plugins = "fullpage,preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
+	} else {
+		plugins = "preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
+	}
+	
+	// enable rich text editing on prompt textarea
+	target.tinymce({
+		// Location of TinyMCE script
+		script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
+
+		// General options
+		doctype : '<!DOCTYPE html>',
+		theme : "advanced",
+		//plugins : "fullpage,preview,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,jqueryinlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+		plugins: plugins,
+		media_strict : false,
+		media_dialog_defaults: {bgcolor : "#000000"},
+		flash_video_player_absvideourl: false,
+		flash_video_player_params: {wmode : "opaque", allowFullScreen : true, src : "/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/media/moxieplayer.swf"},
+		skin : "cirkuit",
+		//media_use_script : true,
+		//forced_root_block : false,
+		//force_p_newlines : true,
+		
+        // Theme options
+        theme_advanced_buttons1 : "undo,redo,|,forecolor,backcolor,bold,italic,underline,strikethrough,justifyleft,justifycenter,justifyright,justifyfull,bullist,numlist,outdent,indent",
+        theme_advanced_buttons2 : "formatselect,fontselect,fontsizeselect,|,sub,sup,|,charmap,loremipsum,emotions,advhr",
+        theme_advanced_buttons3 : "template,|,image,media,|,link,unlink,anchor,|,table,tablecontrols",
+        theme_advanced_buttons4 : "cite,abbr,acronym,|,pastetext,pasteword,|,attribs,visualchars|,ltr,rtl,|,cleanup,preview,removeformat,|,search,replace,|,fullscreen,styleprops",//code,
+        theme_advanced_toolbar_location : "top",
+		theme_advanced_toolbar_align : "left",
+		theme_advanced_statusbar_location : "bottom",
+		theme_advanced_resizing : true,
+
+		// Example content CSS (should be your site CSS)
+		content_css : "/vlewrapper/vle/jquery/tinymce/examples/css/content.css",
+
+		// Drop lists for link/image/media/template dialogs
+		//template_external_list_url : "lists/template_list.js",
+		//external_link_list_url : "lists/link_list.js",
+		//external_image_list_url : "jquery/tiny_mce/getImageList.js",
+		//media_external_list_url : "jquery/tiny_mce/getMediaList.js",
+		document_base_url: view.getProjectFolderPath(),
+		//add onchange listener
+		onchange_callback : function(ed){
+			callback();
+		},
+		setup : function(ed){
+			/* add keyUp, setContent listeners*/
+	        ed.onKeyUp.add(function(){
+	        	callback();
+	        });
+	        ed.onSetContent.add(function(){
+	        	callback();
+	        });
+		},
+		oninit: function(){
+			//view.refreshNow();
+		},
+		file_browser_callback : 'fileBrowser'
+	});
+};
+
+function fileBrowser(field_name, url, type, win){
+	var callback = function(field_name, url, type, win){
+		url = 'assets/' + url;
+		win.document.getElementById(field_name).value = url;
+		// if we are in an image browser
+        if (typeof(win.ImageDialog) != "undefined") {
+            // we are, so update image dimensions and preview if necessary
+            if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
+            if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(url);
+        }
+        // if we are in a media browser
+        if (typeof(win.Media) != "undefined") {
+            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
+            //if (win.MediaDialog.showPreviewImage) win.MediaDialog.showPreviewImage(url);
+        }
+	};
+	var params = {};
+	params.field_name = field_name;
+	params.type = type;
+	params.win = win;
+	params.callback = callback;
+	eventManager.fire('viewAssets',params);
+};
+
 /*
  * StartSentence functions
  */

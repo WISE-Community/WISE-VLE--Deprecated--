@@ -6,7 +6,7 @@ HtmlNode.prototype = new Node();
 HtmlNode.prototype.constructor = HtmlNode;
 HtmlNode.prototype.parent = Node.prototype;
 HtmlNode.authoringToolName = "Text/HTML Page";
-HtmlNode.authoringToolDescription = "Students read information from an HTML page";
+HtmlNode.authoringToolDescription = "Students review information (text, multimedia artifacts) on an HTML page";
 
 /**
  * @constructor
