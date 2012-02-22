@@ -315,6 +315,11 @@ Table.prototype.getHtmlView = function(work) {
 	
 	html += "</table>";
 	
+	if(latestState.response != null && latestState.response != '') {
+		//display the text response the student wrote
+		html += "<p>" + latestState.response + "</p>";
+	}
+	
 	return html;
 };
 

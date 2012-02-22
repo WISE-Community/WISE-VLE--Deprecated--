@@ -243,6 +243,23 @@ OpenResponseNode.prototype.renderGradingView = function(divId, nodeVisit, childD
 	$('#' + divId).html(studentWork);
 };
 
+/**
+ * Get the html string representation of the student work
+ * @param work the student node state that we want to display
+ * @return an html string that will display the student work
+ */
+OpenResponseNode.prototype.getHtmlView = function(work) {
+	var latestState = work;
+	var html = '';
+	
+	if(latestState != null && typeof latestState == 'object') {
+		//get the student response as a string
+		html = latestState.response + '';
+	}
+	
+	return html;
+};
+
 OpenResponseNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/openresponse/openresponse.html');
 };

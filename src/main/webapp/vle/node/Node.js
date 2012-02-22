@@ -1006,12 +1006,13 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 					if(typeof work == "string") {
 						//replace all \n with <br>
 						work = work.replace(/\n/g, '<br>');
-						
-						//append the html
-						html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
 					} else {
-						html += node.getHtmlView(work);
+						//get the html view for the work
+						work = node.getHtmlView(work);
 					}
+					
+					//display the previous work step number and title along with the work
+					html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
 				};
 			}
 		};
