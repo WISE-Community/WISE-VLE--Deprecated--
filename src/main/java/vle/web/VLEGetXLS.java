@@ -3080,7 +3080,50 @@ public class VLEGetXLS extends VLEServlet {
 		JSONObject currentJSONObject = nodeState;
 
 		try {
+			/*
+			 * variable that determines whether we are on the last field
+			 * or not. if we are on the last field we will try to retrieve
+			 * the string value for the current field. if we are not on
+			 * the last field we will try to retrieve the object value
+			 * for the current field.
+			 */
 			boolean lastField = false;
+			
+			/*
+			 * this variable will be used in cases where the field name
+			 * contains a period such as
+			 * 
+			 * e.g.
+			 * response.MySystem.RuleFeedback.LAST_FEEDBACK.feedback
+			 * 
+			 * {
+			 *    response:{
+			 *       MySystem.RuleFeedback:{
+			 *          LAST_FEEDBACK:{
+			 *             feedback:""
+			 *          }
+			 *       }
+			 *    }
+			 * }
+			 * 
+			 * where 'MySystem.RuleFeedback' is the name of the field
+			 * even though JSON field names usually should not contain periods.
+			 * 
+			 * so in that example, the objects that are referenced would be 
+			 * response
+			 * MySystem.RuleFeedback
+			 * LAST_FEEDBACK
+			 * feedback
+			 * 
+			 * fieldNameSoFar will remember 'MySystem' when we don't find 
+			 * the 'MySystem' field in the 'response' object, so that when
+			 * we look for the next field 'RuleFeedback', we will prepend
+			 * the 'MySystem' to 'RuleFeedback' separated by a period so
+			 * that we look for the field 'MySystem.RuleFeedback' in the
+			 * 'response' object and successfully retrieve the 
+			 * 'MySystem.RuleFeedback' object.
+			 */
+			String fieldNameSoFar = "";
 			
 			//loop through all the fields
 			for(int x=0; x<split.length; x++) {
@@ -3130,14 +3173,22 @@ public class VLEGetXLS extends VLEServlet {
 							}
 						}
 					}
+					
+					if(!fieldNameSoFar.equals("")) {
+						//prepend the fieldNameSoFar
+						fieldNameSoFar = fieldNameSoFar + "." + fieldName;
+					} else {
+						//the fieldNameSoFar is empty so we will just use the fieldName
+						fieldNameSoFar = fieldName;
+					}
 				}
 
 				if(currentJSONObject != null) {
-					
+
 					//check if the JSONObject has the given field
-					if(currentJSONObject.has(fieldName)) {
+					if(currentJSONObject.has(fieldNameSoFar)) {
 						//get the value at the field
-						Object fieldObject = currentJSONObject.get(fieldName);
+						Object fieldObject = currentJSONObject.get(fieldNameSoFar);
 
 						if(fieldObject instanceof JSONObject) {
 							//object is a JSONObject
@@ -3171,8 +3222,11 @@ public class VLEGetXLS extends VLEServlet {
 								//this is the last field
 								fieldValue = (String) fieldObject;
 							} else {
+								//get the String
+								String fieldObjectString = (String) fieldObject;
+								
 								//this is not the last field
-								currentJSONObject = new JSONObject(fieldObject);
+								currentJSONObject = new JSONObject(fieldObjectString);
 							}
 						} else if(fieldObject instanceof Integer) {
 							//object is an Integer
@@ -3197,8 +3251,11 @@ public class VLEGetXLS extends VLEServlet {
 							 */
 							currentJSONObject = null;
 						}
+						
+						//clear the fieldNameSoFar
+						fieldNameSoFar = "";
 					} else {
-						currentJSONObject = null;
+						//do nothing
 					}
 				}
 			}
