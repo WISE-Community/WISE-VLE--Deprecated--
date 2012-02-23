@@ -300,7 +300,7 @@ View.prototype.addHint = function(){
 	//get the hints array
 	var hintsArr = this.getAuthoringHintsArray();
 	
-	hintsArr.push("new hint");
+	hintsArr.push(this.getI18NString("authoring_new_hint"));
 	eventManager.fire("editHints", [hintsArr.length-1]);
 };
 
@@ -358,7 +358,7 @@ View.prototype.editHints = function(tabIndex){
 	    var editHintsMenu = "<input type='button' value='add new hint' onclick='eventManager.fire(\"addHint\")'></input>"+
 	    	"<input type='button' value='delete current hint' onclick='eventManager.fire(\"deleteHint\")'></input>" +
 	    	"<input type='button' value='save hints' onclick='eventManager.fire(\"saveHints\")'></input>" + 
-	    	"Force Show: <select id='forceShowOptions'><option value='never'>Never</option><option value='firsttime'>First time only</option><option value='always'>Always</option></select>";     
+	    	this.getI18NString("authoring_hint_forceShow")+" <select id='forceShowOptions'><option value='never'>"+this.getI18NString("authoring_hint_option_never")+"</option><option value='firsttime'>"+this.getI18NString("authoring_hint_option_firstTimeOnly")+"</option><option value='always'>"+this.getI18NString("authoring_hint_option_always")+"</option></select>";     
 	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
 	    var hintsStringPart2 = "";   // second part will be the content within each tab
 	    
