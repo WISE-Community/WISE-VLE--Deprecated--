@@ -463,7 +463,7 @@ View.prototype.BrainstormNode.populatePrompt = function() {
 View.prototype.BrainstormNode.updatePrompt = function(){
 	/* update content */
 	var content = '';
-	if($('#promptInput').tinymce()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
 		content = $('#promptInput').tinymce().getContent();
 	} else {
 		content = $('#promptInput').val();

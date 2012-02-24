@@ -68,19 +68,11 @@ View.prototype.NetlogoNode.generatePage = function(view){
 	
 	//create the label for the textarea that the author will write the prompt in
 	var promptLabel = $(document.createElement('div')).text('Introductory Content (optional):');
+	
 	//create the textarea that the author will write the prompt in
 	var promptTextArea = $(createElement(document, 'textarea', {id: 'promptTextArea', name: 'promptTextArea', onkeyup:"eventManager.fire('netlogoPromptChanged')"})).css({'width':'100%','min-height':'100px'});
 	
-	//create rich text hide/show links div
-	var richtextToggleDiv = $(document.createElement('div'));
-	
-	//create rich text hide and show links
-	var richtextShow = $(createElement(document, 'a', {id: 'showRichText', title: 'Rich Text', onclick:"eventManager.fire('netlogoShowRichText')"})).text('Rich Text').addClass('richTextToggle');
-	var richtextHide = $(createElement(document, 'a', {id: 'hideRichText', title: 'HTML', onclick:"eventManager.fire('netlogoHideRichText')"})).text('HTML').addClass('richTextToggle');
-	
-	richtextToggleDiv.append(richtextShow).append(richtextHide);
-	
-	promptDiv.append(promptLabel).append(promptTextArea).append(richtextToggleDiv);
+	promptDiv.append(promptLabel).append(promptTextArea);
 	
 	var nlogoUrlDiv = $(document.createElement('div')).addClass('authorComponent');
 	
@@ -127,11 +119,11 @@ View.prototype.NetlogoNode.generatePage = function(view){
 	// populate the advanced options (data logging, grading)
 	this.populateAdvancedOptions();
 	
-	// enable rich text eidtor for prompt
-	this.enableRichTextEditing($('#promptTextArea'),function() {eventManager.fire('netlogoPromptChanged');});
-	
 	// populate the prompt text that has been authored before
 	this.populatePrompt();
+	
+	// enable rich text editing for prompt input
+	this.view.addRichTextAuthoring('promptTextArea',function() {eventManager.fire('netlogoPromptChanged');});
 };
 
 /**
@@ -161,11 +153,7 @@ View.prototype.NetlogoNode.updateContent = function(){
 View.prototype.NetlogoNode.populatePrompt = function() {
 	//get the prompt from the content and set it into the authoring textarea
 	if(this.content.prompt){
-		if(this.promptRichTextEnabled){
-			this.promptRichText.setContent(this.content.prompt);
-		} else {
-			$('#promptTextArea').val(this.content.prompt);
-		}
+		$('#promptTextArea').val(this.content.prompt);
 	}
 };
 
@@ -174,8 +162,9 @@ View.prototype.NetlogoNode.populatePrompt = function() {
  */
 View.prototype.NetlogoNode.updatePrompt = function(){
 	/* update content */
-	if(this.richTextPromptEnabled){
-		this.content.prompt = this.promptRichText.getContent();
+	if(typeof tinymce != 'undefined' && $('#promptTextArea').tinymce()){
+		// rich text editor is active on textarea, so get contents from editor
+		this.content.prompt = $('#promptTextArea').tinymce().getContent();
 	} else {
 		this.content.prompt = $('#promptTextArea').val();
 	}
@@ -261,83 +250,6 @@ View.prototype.NetlogoNode.updateWidth = function(){
 };
 
 /**
- * Shows rich text editor for prompt
- */
-View.prototype.NetlogoNode.showRichText = function() {
-	if(this.richTextPromptEnabled == false){
-		this.enableRichTextEditing($('#promptTextArea'),function() {eventManager.fire('netlogoPromptChanged');});
-		//this.richTextPromptEnabled = true;
-	}
-};
-
-/**
- * Shows rich text editor for prompt
- */
-View.prototype.NetlogoNode.hideRichText = function() {
-	if(this.richTextPromptEnabled == true){
-		$('#promptTextArea').tinymce().remove();
-		this.richTextPromptEnabled = false;
-	}
-};
-
-/**
- * Enables rich text editing for specified textarea
- * TODO: make this a component feature (not specific to indiviudal node types)
- * @param target The textarea element on which to activate the rich text editor
- * @param callback A callback function to run when the rich text editor content changes
- */
-View.prototype.NetlogoNode.enableRichTextEditing = function(target,callback) {
-	var context = this;
-	
-	// enable rich text editing on prompt textarea
-	target.tinymce({
-		// Location of TinyMCE script
-		script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
-
-		// General options
-		theme : "advanced",
-		plugins : "preview,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
-		media_strict : false,
-		//media_use_script : true,
-		
-        // Theme options
-        theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,styleselect,formatselect,fontselect,fontsizeselect",
-        theme_advanced_buttons2 : "forecolor,backcolor,|,link,unlink,anchor,image,media,|,cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo",
-        theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,advhr",
-        theme_advanced_buttons4 : "absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,|,print,|,ltr,rtl,|,fullscreen,help,cleanup,preview",
-        theme_advanced_toolbar_location : "top",
-		theme_advanced_toolbar_align : "left",
-		theme_advanced_statusbar_location : "bottom",
-		theme_advanced_resizing : true,
-
-		// Example content CSS (should be your site CSS)
-		//content_css : "css/content.css",
-
-		// Drop lists for link/image/media/template dialogs
-		//template_external_list_url : "lists/template_list.js",
-		//external_link_list_url : "lists/link_list.js",
-		//external_image_list_url : "jquery/tiny_mce/getImageList.js",
-		//media_external_list_url : "jquery/tiny_mce/getMediaList.js",
-		document_base_url: context.projectPath,
-		
-		onchange_callback : callback,
-		setup : function(ed){
-			/* add keypress listener */
-	        ed.onKeyUp.add(callback);
-	        
-	        // store editor instance as prototype variable
-	        context.promptRichText = ed;
-		},
-		oninit: function(){
-			//populate the prompt if this step has been authored before
-			context.populatePrompt();
-			context.richTextPromptEnabled = true;
-		},
-		file_browser_callback : 'fileBrowser'
-	});
-};
-
-/**
  * Open asset editor dialog and allows user to choose the swf to use for this step
  */
 View.prototype.NetlogoNode.browseAssets = function() {
@@ -357,31 +269,6 @@ View.prototype.NetlogoNode.browseAssets = function() {
 	params.callback = callback;
 	eventManager.fire('viewAssets',params);
 };
-
-function fileBrowser(field_name, url, type, win){
-	var callback = function(field_name, url, type, win){
-		url = 'assets/' + url;
-		win.document.getElementById(field_name).value = url;
-		// if we are in an image browser
-        if (typeof(win.ImageDialog) != "undefined") {
-            // we are, so update image dimensions and preview if necessary
-            if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
-            if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(url);
-        }
-        // if we are in a media browser
-        if (typeof(win.Media) != "undefined") {
-            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
-            //if (win.MediaDialog.showPreviewImage) win.MediaDialog.showPreviewImage(url);
-        }
-	};
-	var params = {};
-	params.field_name = field_name;
-	params.type = type;
-	params.win = win;
-	params.callback = callback;
-	eventManager.fire('viewAssets',params);
-};
-
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

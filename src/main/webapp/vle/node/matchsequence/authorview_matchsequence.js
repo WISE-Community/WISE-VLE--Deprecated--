@@ -462,7 +462,7 @@ View.prototype.MatchSequenceNode.populatePrompt = function() {
 View.prototype.MatchSequenceNode.updatePrompt = function(){
 	/* update content */
 	var content = '';
-	if($('#promptInput').tinymce()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
 		content = $('#promptInput').tinymce().getContent();
 	} else {
 		content = $('#promptInput').val();

@@ -202,6 +202,7 @@ SVGDrawNode.prototype.onExit = function() {
  */
 SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
 	//do nothing
+	//TODO: render grading view here and not in gradingview_display
 };
 
 SVGDrawNode.prototype.getHTMLContentTemplate = function() {

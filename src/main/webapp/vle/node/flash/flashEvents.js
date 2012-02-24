@@ -19,10 +19,6 @@ View.prototype.flashDispatcher = function(type,args,obj){
 		obj.FlashNode.updateEnableData(args);
 	} else if (type == 'flashEnableGradingChanged') {
 		obj.FlashNode.updateEnableGrading(args);
-	} else if (type == 'flashShowRichText') {
-		obj.FlashNode.showRichText(args);
-	} else if (type == 'flashHideRichText') {
-		obj.FlashNode.hideRichText(args);
 	} else if (type == 'flashBrowseClicked') {
 		obj.FlashNode.browseFlashAssets(args);
 	} else if (type == 'flashGradingTypeChanged') {
@@ -48,8 +44,6 @@ var events = [
 	'flashSwfWidthChanged',
 	'flashEnableDataChanged',
 	'flashEnableGradingChanged',
-	'flashShowRichText',
-	'flashHideRichText',
 	'flashBrowseClicked',
 	'flashGradingTypeChanged',
 	'flashAddFlashvar',

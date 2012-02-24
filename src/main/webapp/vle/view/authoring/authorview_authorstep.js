@@ -200,6 +200,15 @@ View.prototype.closeOnStepSaved = function(success){
 	if(success || confirm('Save failed, do you still want to exit?')){
 		this.cleanupCommonComponents();
 		document.getElementById('dynamicPage').innerHTML = '';
+		// remove any tinyMCE instances
+		if(typeof tinymce != 'undefined'){
+			for(var i=0; i<tinymce.editors.length; i++){
+				tinymce.editors[i].remove();
+			}
+		}
+		// remove any rich text toggles
+		$('.rtToggles').remove();
+		
 		this.hideAuthorStepDialog();
 		
 		/*
@@ -706,11 +715,53 @@ View.prototype.cleanupRichTextEditorToggle = function() {
 };
 
 /**
- * Enables rich text authoring for specified textarea
- * @param target The textarea element on which to activate the rich text editor
+ * Adds links to show and hide a rich text editor for specified textarea and initializes
+ * rich text editor on specified textarea
+ * @param id The id of the textarea element on which to activate the rich text editor
  * @param callback A callback function to run when the rich text editor content changes
  */
-View.prototype.enableRichTextAuthoring = function(target,callback) {
+View.prototype.addRichTextAuthoring = function(id,callback){
+	var view = this;
+	var target = $('#' + id); 
+	
+	// create rich text hide/show links div
+	var richtextToggleDiv = $(document.createElement('div')).addClass('rtToggles');
+	// create rich text hide and show links
+	var richtextShow = $('<input type="radio" value="showRichText" id="showRich_' + id + '" name="promptToggle_' + id + '" checked="checked" /><label for="showRich_' + id + '">Rich Text</label>');
+	var richtextHide = $('<input type="radio" value="hideRichText" id="hideRich_' + id + '" name="promptToggle_' + id + '" /><label for="hideRich_' + id + '">HTML</label>');
+	
+	richtextToggleDiv.append(richtextShow).append(richtextHide);
+	
+	// add rich text toggles to DOM
+	richtextToggleDiv.insertBefore(target);
+	
+	// bind show/hide rich text link clicks
+	$("input[name='promptToggle_" + id + "']").unbind('change');
+	$("input[name='promptToggle_" + id + "']").change(function(){
+		if ($("input[name='promptToggle_" + id + "']:checked").val()=='showRichText'){
+			view.enableRichTextAuthoring(id,callback);
+		} else if ($("input[name='promptToggle_" + id + "']:checked").val()=='hideRichText'){
+			if(typeof tinymce != 'undefined' && target.tinymce()){
+				target.tinymce().remove();
+			}
+		}
+	});
+	
+	// create jQuery UI buttonset on rich text toggle radios
+	richtextToggleDiv.buttonset();
+	richtextToggleDiv.buttonset('refresh');
+	
+	// enable rich text editor for textarea
+	this.enableRichTextAuthoring(id,callback);
+};
+
+/**
+ * Enables rich text authoring for specified textarea
+ * @param id The id of the textarea element on which to activate the rich text editor
+ * @param callback A callback function to run when the rich text editor content changes
+ */
+View.prototype.enableRichTextAuthoring = function(id,callback) {
+	var target = $('#' + id);
 	var view = this;
 	var plugins = "";
 	if(view.resolveType(view.activeNode.type)=='HtmlNode'){
@@ -753,22 +804,20 @@ View.prototype.enableRichTextAuthoring = function(target,callback) {
 
 		// Drop lists for link/image/media/template dialogs
 		//template_external_list_url : "lists/template_list.js",
-		//external_link_list_url : "lists/link_list.js",
-		//external_image_list_url : "jquery/tiny_mce/getImageList.js",
-		//media_external_list_url : "jquery/tiny_mce/getMediaList.js",
+		
 		document_base_url: view.getProjectFolderPath(),
 		//add onchange listener
 		onchange_callback : function(ed){
 			callback();
 		},
 		setup : function(ed){
-			/* add keyUp, setContent listeners*/
+			/* add keyUp listener*/
 	        ed.onKeyUp.add(function(){
 	        	callback();
 	        });
-	        ed.onSetContent.add(function(){
-	        	callback();
-	        });
+	        //ed.onSetContent.add(function(){
+	        	//callback();
+	        //});
 		},
 		oninit: function(){
 			//view.refreshNow();

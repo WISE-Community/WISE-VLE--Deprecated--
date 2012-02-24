@@ -8,10 +8,6 @@ View.prototype.netlogoDispatcher = function(type,args,obj){
 		obj.NetlogoNode.updateHeight(args);
 	} else if (type == 'netlogoWidthChanged') {
 		obj.NetlogoNode.updateWidth(args);
-	} else if (type == 'netlogoShowRichText') {
-		obj.NetlogoNode.showRichText(args);
-	} else if (type == 'netlogoHideRichText') {
-		obj.NetlogoNode.hideRichText(args);
 	} else if (type == 'netlogoBrowseClicked') {
 		obj.NetlogoNode.browseAssets(args);
 	}
@@ -23,8 +19,6 @@ var events = [
   'netlogoUrlChanged',
   'netlogoHeightChanged',
   'netlogoWidthChanged',
-  'netlogoShowRichText',
-  'netlogoHideRichText',
   'netlogoBrowseClicked'
 ];
 

@@ -419,7 +419,7 @@ View.prototype.MultipleChoiceNode.populatePrompt = function() {
 View.prototype.MultipleChoiceNode.updatePrompt = function(){
 	/* update prompt and answers */
 	var content = '';
-	if($('#promptInput').tinymce()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
 		content = $('#promptInput').tinymce().getContent();
 	} else {
 		content = $('#promptInput').val();

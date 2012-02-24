@@ -413,7 +413,7 @@ View.prototype.SVGDrawNode.populatePrompt = function() {
 View.prototype.SVGDrawNode.updatePrompt = function(){
 	var content = '';
 	/* update content object */
-	if($('#promptInput').tinymce()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
 		content = $('#promptInput').tinymce().getContent();
 	} else {
 		content = $('#promptInput').val();

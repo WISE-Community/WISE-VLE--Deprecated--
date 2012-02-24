@@ -4,7 +4,7 @@ var coreScripts = [
 ];
 
 var studentVLEScripts = [
-	'vle/jquery/js/jquery-1.6.1.min.js',
+	scriptloader.jquerySrc,
 	'vle/node/netlogo/netlogo.js'
 ];
 

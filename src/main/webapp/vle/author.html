@@ -577,10 +577,6 @@ var view;
 </div>
 
 <div id='promptDiv' class='authoringComponent' style='display:none;'>
-	<div id="promptToggleRichText">
-		<input type="radio" id="showRichText" name="promptToggle" checked="checked" /><label for="showRichText">Rich Text</label>
-		<input type="radio" id="hideRichText" name="promptToggle" /><label for="hideRichText">HTML</label>
-	</div>
 	<textarea id='promptInput' name='promptInput' cols='85' wrap='hard' onkeyup="eventManager.fire('stepPromptChanged')"></textarea>
 </div>
 
