@@ -40,7 +40,7 @@ View.prototype.linkManager.createLink = function(view){
 		return;
 	}
 	
-	if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
 		var selection = $('#promptInput').tinymce().selection.getContent();
 		if (selection == ''){
 			view.notificationManager.notify('Please select some text before attempting to create a link.',3);
@@ -99,7 +99,7 @@ View.prototype.linkManager.nodeSelected = function(view){
 	var nodeIdentifier = select.options[ndx].id;
 	var color = colorSelect[colorNdx].value;
 	var link = this.createLinkForNode(view.activeNode, nodeIdentifier);
-	if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
 		var linkBefore = '<a style=\"color:' + color + '; cursor:pointer\" onclick=\"node.linkTo(\'' + link.key + '\')\">';
 		var linkAfter = '</a>';
 		$('#promptInput').tinymce().execCommand('mceReplaceContent',false,linkBefore + '{$selection}' + linkAfter);
@@ -346,7 +346,7 @@ View.prototype.linkManager.removeLinkTo = function(view, key){
 		for(var g=0;g<linkStrings.length;g++){
 			if(linkStrings[g].indexOf(key)!=-1){
 				var words = linkStrings[g].substring(linkStrings[g].indexOf('>') + 1, linkStrings[g].indexOf('</a>'));
-				if($('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+				if(typeof tinymce != 'undefined' && $('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
 					var newContent = $('#promptInput').tinymce().getContent().replace(linkStrings[g],words);
 					$('#promptInput').tinymce().setContent(newContent);
 					linkRemovedFromPrompt = true;

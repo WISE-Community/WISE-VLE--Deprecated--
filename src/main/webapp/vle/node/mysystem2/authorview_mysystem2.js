@@ -116,7 +116,7 @@ View.prototype.Mysystem2Node.populatePrompt = function() {
 View.prototype.Mysystem2Node.updatePrompt = function(){
 	/* update content */
 	var content = '';
-	if($('#promptInput').tinymce()){
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
 		content = $('#promptInput').tinymce().getContent();
 	} else {
 		content = $('#promptInput').val();

@@ -14,8 +14,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.setDialogEvents();
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
 		obj.onThemeLoad();
-		//obj.displayGlobalTools();
-		obj.renderStartNode();
 	}
 	else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
@@ -310,27 +308,6 @@ View.prototype.loadTheme = function(themeName){
 };
 
 /**
- * Loads the navigation mode given navMode in the VLE view. Default is the classic wise navigation bar.
- */
-View.prototype.loadNavMode = function(navMode){
-	
-	if (navMode && navMode != null) {
-		
-		// TODO: All this should be done by the active navigation mode itself
-		$("#projectLeftBox").css("display","none");		
-		$("#projectRightUpperBox").css("marginLeft","0");
-		$("#projectRightLowerBox").css("marginLeft", "0");
-		$("#menuTD").hide();
-
-		if (navMode == "dropDownTree") {
-			$("#projectLeftBox").remove();
-		} else if (navMode == "none") {
-			$("#projectLeftBox").remove();
-		}
-	}
-};
-
-/**
  * Given a user URL, loads learner data for this view and project
  */
 View.prototype.loadLearnerData = function(userUrl){
@@ -428,23 +405,9 @@ View.prototype.onProjectLoad = function(){
 /**
  * Sets the values of html elements based on the loaded project's attributes
  * and creates the necessary values for fields for components that have
- * been loaded. Also sets the navigation mode (TODO: may need to move this when we decide on navmode architecture).
+ * been loaded.
  */
 View.prototype.onThemeLoad = function(){
-	/* load the navigation mode based on project parameters 
-	 * TODO: remove this
-	 */
-	if(this.getProject()){
-		var navMode = this.projectMetadata.navMode;
-		if(navMode && navMode != null){
-			this.loadNavMode(navMode);
-		} else {
-			/* if project parameters don't contain navMode, load the navigation mode based on config object parameters (vle default) */
-			this.loadNavMode(this.config.getConfigParam('navMode'));
-		}
-	} else {
-		this.notificationManager.notify('VLE and project not ready to load navigation mode', 3);
-	}
 	
 	/* set html elements' values */
 	if(this.getProject()){
@@ -456,11 +419,6 @@ View.prototype.onThemeLoad = function(){
 			if (window.parent) {
 				window.parent.document.title = window.parent.document.title + ": " + this.getProject().getTitle();
 			}
-		}
-		
-		//display the user name in the userNames div (TODO: remove perhaps - don't think this is used)
-		if(this.userAndClassInfo) {
-			$("#userNames").html(this.userAndClassInfo.getUserName());
 		}
 		
 		// insert menu into vle DOM
@@ -505,12 +463,7 @@ View.prototype.onThemeLoad = function(){
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}');
 	}
 	
-	/* TODO: move this to navMode processing/remove */
-	if (this.config.getConfigParam('navMode') == "dropDownTree") {
-		$("#stepInfoBar").css("left","15px");
-		$("#projectMenuButton").html('<a onclick="eventManager.fire(\'showNavigationTree\')"><img src=\'images/expanded.gif\'/></a>');
-		$("#projectMenuButton").show();
-	};
+	this.renderStartNode();
 	
 	/* fire startVLEComplete event */
 	this.eventManager.fire('startVLEComplete');

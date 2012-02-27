@@ -8,6 +8,7 @@
  * and starts authoring tool in appropriate state.
  */
 View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle){
+	
 	this.portalUrl = url;
 	/*
 	 * this editingPollInterval is used to check who is also currently editing the
@@ -32,6 +33,10 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	//create the config
 	this.config = this.createConfig(createContent(configUrl));
 	this.eventManager.fire('loadConfigComplete');
+	
+	/* retrieve i18n files, defined in view_i18n.js */
+	this.retrieveLocales();
+
 
 	if(this.config != null) {
 		//set some variables from values in the config

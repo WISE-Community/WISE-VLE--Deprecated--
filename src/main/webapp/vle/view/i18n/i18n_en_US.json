@@ -422,6 +422,29 @@
 	"note_title" : {
 		"value":"Reflection Note",
 		"description":"Text to display in the title bar of a note dialog window"
-	}
-	
+	},
+	"authoring_confirm_switch_authoring_mode": {
+		"value":"You are about to switch authoring mode but have not saved your changes. If you continue, your changes will be lost. Do you wish to continue?",
+		"description":"Message displayed in the Authoring Tool to authors when trying to switch between simple/advanced modes but their changes have not been saved."		
+	},
+	"authoring_new_hint": {
+		"value":"New Hint",
+		"description":"Text to display for 'new hint' in the Authoring Tool."
+	},
+	"authoring_hint_forceShow": {
+		"value":"Force Show:",
+		"description":"Text to display for \"Force Show: \" drop down lable for step hints"
+	},
+	"authoring_hint_option_never": {
+		"value":"Never",
+		"description":"The text \"Never\" to display in \"force show:\" drop down for step hints."
+	},		
+	"authoring_hint_option_firstTimeOnly": {
+		"value":"First Time Only",
+		"description":"The text \"First Time Only\" to display in \"force show:\" drop down for step hints."
+	},
+	"authoring_hint_option_always": {
+		"value":"Always",
+		"description":"The text \"Always\" to display in \"force show:\" drop down for step hints."
+	}		
 }

@@ -15,8 +15,6 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 			return;
 		}
 		obj.showStepHints();
-	} else if (type == 'adjustHintSize') {
-		obj.adjustHintSize();
 	} else if(type=='getIdeaBasket') {
 		obj.getIdeaBasket();
 	} else if(type=='ideaBasketChanged') {
@@ -62,36 +60,6 @@ View.prototype.showNavigationTree = function() {
 	this.navigationPanel.showNavigationTree();
 };
 
-/**
- * Sets size of hint panel to match size of the displayed content.
- * @return
- */
-View.prototype.adjustHintSize = function() {
-	var defaultWidth = 400;
-	var defaultHeight = 250;
-	var widthSoFar = 0;
-	var heightSoFar = 0;	
-	var widthBuffer = 50;    
-	var heightBuffer = 150;
-	$("#hintsPanel").find(".hintText").filter(":visible").children().each(function() { 
-		//console.log("width:" +$(this).width());
-		//console.log("height:" +$(this).height());
-		if ($(this).width() > widthSoFar) {
-			widthSoFar = $(this).width();
-		}
-		heightSoFar += $(this).height();		
-	});	
-	if (widthSoFar + widthBuffer > defaultWidth) {
-		 $('#hintsPanel').dialog("option", "width",widthSoFar+widthBuffer);		
-	} else {
-		 $('#hintsPanel').dialog("option", "width",defaultWidth);		
-	}
-	if (heightSoFar + heightBuffer > defaultHeight) {
-		$('#hintsPanel').dialog("option", "height",heightSoFar+heightBuffer);
-	} else {
-		$('#hintsPanel').dialog("option", "height",defaultHeight);
-	}
-};
 
 /**
  * Display hints for the current step.
@@ -113,7 +81,6 @@ View.prototype.showStepHints = function() {
 	// log when hint was opened
 	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
 	currentNode.view.pushHintState(hintState);
-	//eventManager.fire('adjustHintSize');	
 };
 /**
  * Display the flagged work for the project.
