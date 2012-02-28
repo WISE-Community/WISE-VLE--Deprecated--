@@ -184,6 +184,7 @@ var componentloader = function(em, sl){
 					 'saveScore':[null, null],
 					 'saveComment':[null, null],
 					 'saveFlag':[null, null],
+					 'saveInappropriateFlag':[null, null],
 					 'getAllStudentWorkXLSExport':[null, null],
 					 'getLatestStudentWorkXLSExport':[null, null],
 					 'getIdeaBasketsExcelExport':[null, null],
@@ -237,6 +238,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("saveScore", view.gradingDispatcher, view);
 					eventManager.subscribe("saveComment", view.gradingDispatcher, view);
 					eventManager.subscribe("saveFlag", view.gradingDispatcher, view);
+					eventManager.subscribe("saveInappropriateFlag", view.gradingDispatcher, view);
 					eventManager.subscribe("getAllStudentWorkXLSExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getLatestStudentWorkXLSExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsExcelExport", view.gradingDispatcher, view);

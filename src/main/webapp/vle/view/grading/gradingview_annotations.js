@@ -214,6 +214,102 @@ View.prototype.revertAnnotation = function(nodeId, toWorkgroupId, fromWorkgroupI
  * @param itemNumber the index of the item in the flaggedItemTable
  * @param stepWorkId the id of the node_visit of the work that is being flagged
  */
+View.prototype.saveInappropriateFlag = function(nodeId, toWorkgroup, fromWorkgroup, runId, itemNumber, stepWorkId) {
+	if (stepWorkId == "null") {
+		/**
+		 * If stepWorkId is null, it means that the teacher is commenting on a work that has
+		 * not been submitted. currently, we do not support this.
+		 */
+		alert("You are trying to flag a work that has not yet been submitted.  We currently do not support this feature.");
+		document.getElementById("inappropriateFlagButton"+toWorkgroup).checked = false;
+		return;
+	}
+
+	 // override deleteFlag with whether Flag Work checkbox is checked or not
+	deleteFlag = !document.getElementById("inappropriateFlagButton_" + stepWorkId).checked;
+		 
+	var postFlagsUrl = this.getConfig().getConfigParam('postInappropriateFlagsUrl');
+	
+	var value = '';
+	
+	//check if we are flagging or unflagging the flag
+	if(deleteFlag) {
+		//we are deleting/unflagging the flag
+		value = 'unflagged';
+	} else {
+		//we are flagging the flag
+		value = 'flagged';
+	}
+	
+	//build the post flag url with get arguments
+	var postFlagArgs = {runId:runId, nodeId:nodeId, toWorkgroup:toWorkgroup, fromWorkgroup:fromWorkgroup, stepWorkId:stepWorkId, value:value, annotationType:'inappropriateFlag'};
+
+
+	var postFlagCallback = function(text, xml, args) {
+			var thisView = args[0];
+
+			//create the flag annotation and update or add it to our local copy of annotations
+			var flagAnnotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, 'inappropriateFlag', value, text, stepWorkId);
+			thisView.annotations.updateOrAddAnnotation(flagAnnotation);
+			
+			// update isflagged attribute on the studentWorkRow. Also update what gets shown, based on if "only show flagged items" is checked.
+			if (deleteFlag) {
+				//set the isflagged attribute to false
+				document.getElementById('studentWorkRow_'+toWorkgroup+'_'+nodeId+'_'+stepWorkId).setAttribute('isflagged', false);
+				
+				/*
+				 * call the filter again because if the "show flagged" check box is
+				 * checked, and we unflag an item, we want it to immediately become
+				 * hidden
+				 */
+				thisView.filterStudentRows();
+			} else {
+				//set the isflagged attribute to true
+				document.getElementById('studentWorkRow_'+toWorkgroup+'_'+nodeId+'_'+stepWorkId).setAttribute('isflagged', true);
+			}
+	};
+	
+	var postFlagCallbackFail = function(text, args) {
+		var thisView = args[0];
+		var nodeId = args[1];
+		var toWorkgroup = args[2];
+		var fromWorkgroup = args[3];
+		var fromWorkgroups = thisView.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+		var runId = args[4];
+		var stepWorkId = args[5];
+		
+		//try to obtain the flag
+		var flag = thisView.flags.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, 'inappropriateFlag');
+		
+		//display a message telling the teacher the flag value will be reverted back
+		alert("Failed to save flag, the flag will be reverted back to its previous value.");
+		
+		//revert the check box back to the previous value
+		if(flag) {
+			//the flag previously exists so we will check it
+			document.getElementById("inappropriateFlagButton_" + stepWorkId).checked =  true;
+		} else {
+			//the flag did not previously exist so we will uncheck it
+			document.getElementById("inappropriateFlagButton_" + stepWorkId).checked = false;
+		}
+	};
+
+	//make the call to post the annotation
+	this.connectionManager.request('POST', 1, postFlagsUrl, postFlagArgs, postFlagCallback, [this, nodeId, toWorkgroup, fromWorkgroup, runId, stepWorkId], postFlagCallbackFail);
+};
+
+
+/**
+ * Posts the flag to the server and if it was successful, we will update our
+ * local copy of the flags
+ * @param nodeId the id of the node
+ * @param toWorkgroup id of the student
+ * @param fromWorkgroup id of the teacher
+ * @param runId the id of the run
+ * @param deleteFlag boolean whether to delete the flag or not
+ * @param itemNumber the index of the item in the flaggedItemTable
+ * @param stepWorkId the id of the node_visit of the work that is being flagged
+ */
 View.prototype.saveFlag = function(nodeId, toWorkgroup, fromWorkgroup, runId, itemNumber, stepWorkId) {
 	if (stepWorkId == "null") {
 		/**

@@ -138,7 +138,7 @@ public class VLEAnnotationController extends HttpServlet {
 		 * retrieval of periods is only required when students request flagged work
 		 * because we only want students to see flagged work from their own period
 		 */
-		if(requestedType.equals("flag") && isStudent) {
+		if((requestedType.equals("flag") || requestedType.equals("inappropriateFlag")) && isStudent) {
 			try {
 				//get the signed in student's user info and period id
 				String myUserInfoString = (String) request.getAttribute("myUserInfo");
@@ -211,7 +211,7 @@ public class VLEAnnotationController extends HttpServlet {
 				annotationList = (List<Annotation>) Annotation.getList(Annotation.class);
 			}
 			
-		} else if (requestedType.equals("flag")) {
+		} else if (requestedType.equals("flag") || requestedType.equals("inappropriateFlag")) {
 			/*
 			 * get the flags based on the paremeters that were passed in the request.
 			 * this will return the flag annotations ordered from oldest to newest
@@ -316,7 +316,7 @@ public class VLEAnnotationController extends HttpServlet {
 			 * objects into the annotationsJSONObj that will be returned as a response to the
 			 * user
 			 */
-			if(requestedType.equals("flag") && isStudent) {
+			if((requestedType.equals("flag") || requestedType.equals("inappropriateFlag")) && isStudent) {
 				//get all the stepwork ids that were flagged
 
 				//loop through all the flag annotations

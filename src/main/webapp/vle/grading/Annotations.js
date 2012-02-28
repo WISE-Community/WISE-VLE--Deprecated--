@@ -519,8 +519,8 @@ Annotations.prototype.annotationsAfterDate = function(date) {
 		//get an annotation
 		var annotation = this.annotationsArray[x];
 		
-		//make sure the annotation is not a flag annotation
-		if(annotation != null && annotation.type != 'flag') {
+		//make sure the annotation is not a flag or inappropriate flag annotation
+		if(annotation != null && annotation.type != 'flag' && annotation.type != 'inappropriateFlag') {
 			if(annotation.postTime > date) {
 				/*
 				 * the annotation post time is after the date so we

@@ -1554,9 +1554,9 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		//make the css class for the td that will contain the flag checkbox
 		var flaggingTdClass = "gradeColumn toolsColumn";
 		
-		//get the html for the flag td
-		gradeByStepGradingPageHtml += this.getFlaggingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
-		
+		//get the html for the tools td
+		gradeByStepGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
+				
 		//close the row for the student
 		gradeByStepGradingPageHtml += "</tr>";
 		
@@ -1600,7 +1600,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div>" + userNamesHtml + "</div><div>Revision " + (revisionCount + 1) + "</div></td>";
 				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
 				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, cRaterScore, maxCRaterScore);
-				gradeByStepGradingPageHtml += this.getFlaggingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
+				gradeByStepGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 				gradeByStepGradingPageHtml += "</tr>";
 				
 				//get the array of revision objects for this latest studentWorkRowId
@@ -2907,9 +2907,46 @@ View.prototype.evaluateConditional = function(operator, value1, value2) {
 	return result;
 };
 
-View.prototype.getFlaggingTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass) {
+/**
+ * Returns the HTML string for the tools TD element.
+ * "Flag" and "Flag as inappropriate" checkboxes show up in the TD element
+ * @param workgroupId
+ * @param nodeId
+ * @param teacherId
+ * @param runId
+ * @param stepWorkId
+ * @param isGradingDisabled
+ * @param flagChecked
+ * @param flaggingTdClass
+ * @returns {String} Tools TD element HTML string
+ */
+View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass) {
+	var node = this.getProject().getNodeById(nodeId);
+	var tdHtml = "<td class='" + flaggingTdClass + "'>"+
+	    "<div></div>"+
+	    "<div class='gradeColumn flagColumn'><input type='checkbox' value='Flag' name='flagButton" + workgroupId + "' id='flagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + isGradingDisabled + " " + flagChecked + ">"+this.getI18NString("flag")+"</div>";
 	
-	return "<td class='" + flaggingTdClass + "'><div></div><div class='gradeColumn flagColumn'><input type='checkbox' value='Flag' name='flagButton" + workgroupId + "' id='flagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + isGradingDisabled + " " + flagChecked + ">"+this.getI18NString("flag")+"</div></td>";
+	if (node.type == "BrainstormNode") {
+		//get the inappropriate flag value for the stepwork
+		var inappropriateFlagForStepWork = this.annotations.getAnnotationByStepWorkIdType(stepWorkId,'inappropriateFlag');
+		
+		//default will be unchecked/unflagged
+		var flagChecked = "";
+		
+		//we found a flag annotation
+		if(inappropriateFlagForStepWork) {
+			//check if it is 'flagged' or 'unflagged'
+			if(inappropriateFlagForStepWork.value == 'flagged') {
+				//the value of the flag is 'flagged' so the checkbox will be checked
+				flagChecked = " checked";
+			}
+		}
+
+		// add 'flag as inappropriate' checkbox, and have it enabled for all revisions.
+	    tdHtml += "<div class='gradeColumn flagColumn'><input type='checkbox' value='Inappropriate Flag' name='inappropriateFlagButton" + workgroupId + "' id='inappropriateFlagButton_" + stepWorkId + "' onClick='eventManager.fire(\"saveInappropriateFlag\", [\"" + nodeId + "\", " + workgroupId + ", " + teacherId + ", " + runId + ", null, \""+ stepWorkId +"\"])' " + flagChecked + ">"+this.getI18NString("flag_as_inappropriate")+"</div>";
+	}
+	tdHtml += "</td>";
+	return tdHtml;
 };
 
 /**
@@ -3158,8 +3195,8 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			//make the css class for the td that will contain the flag checkbox
 			var flaggingTdClass = "gradeByTeamToolsColumn gradeColumn toolsColumn";
 			
-			//get the html for the flag td
-			displayGradeByTeamGradingPageHtml += this.getFlaggingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
+			//get the html for the tools td
+			displayGradeByTeamGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 			
 			displayGradeByTeamGradingPageHtml += "</tr>";
 			
@@ -3193,7 +3230,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 					displayGradeByTeamGradingPageHtml += "<tr id='studentWorkRow_"+workgroupId+"_"+nodeId+"_" + revisionStepWorkId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none'>";
 					displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
 					displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, nodeVisitRevision.id, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork);
-					displayGradeByTeamGradingPageHtml += this.getFlaggingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
+					displayGradeByTeamGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 					displayGradeByTeamGradingPageHtml += "</tr>";
 				}
 			}
