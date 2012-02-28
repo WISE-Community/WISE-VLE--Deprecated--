@@ -202,8 +202,10 @@ Surge.prototype.render = function() {
 		
 		var surgeSource = 'surge.swf';
 		
-		if(this.content.useCustomSwf == 'true'){
-			surgeSource = this.content.customUri;
+		if("useCustomSwf" in this.content && this.content.useCustomSwf == 'true'){
+			if("customUri" in this.content){
+				surgeSource = this.content.customUri;
+			}
 		}
 		
 		var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="surge" align="middle">'
