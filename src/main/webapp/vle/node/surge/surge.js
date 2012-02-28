@@ -203,7 +203,7 @@ Surge.prototype.render = function() {
 		var surgeSource = 'surge.swf';
 		
 		if("useCustomSwf" in this.content && this.content.useCustomSwf == 'true'){
-			if("customUri" in this.content){
+			if("customUri" in this.content  && this.content.customUri != ''){
 				surgeSource = this.content.customUri;
 			}
 		}
