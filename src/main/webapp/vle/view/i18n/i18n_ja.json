@@ -303,6 +303,10 @@
         "value": "フラグ",
         "description": "Flag, for flagging student's work using the flaggingtool"
     },
+	"flag_as_inappropriate":{
+		"value":"Flag as inappropriate",
+		"description":"\"Flag as inappropriate\" text, for flagging inappropriate student's work using the flaggingtool"
+	},	
     "timestamp": {
         "value": "更新日時",
         "description": "timestamp"

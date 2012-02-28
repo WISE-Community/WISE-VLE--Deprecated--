@@ -27,6 +27,12 @@
  * @return the html for the activity
  */
 NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, title, position) {
+	// create the activity DOM element
+	// *REQUIRED*: the id for this element should be the stepId param
+	// *REQUIRED*: the classString param should be added to the class attribute
+	// *OPTIONAL*: If you want to include an element that shows the steps within this activity (and hides the steps in other activities), add an onclick event that runs this javascript code: eventManager.fire('toggleSequence','" + position + "');
+	// (see sequenceOpened and sequenceClosed prototype functions below for more details on toggling activity displays)
+	// *SUGGESTED*: if you want to display the activity's title, include the title param
 	var html = "<ul name='menuItem' class='"+ classString + "' id='" + stepId + "'>" +
 			"<li class='sequenceTitle'><a onclick='eventManager.fire(\"toggleSequence\", \"" + position + "\")'>" + title + "</a></li>" +
 			"</ul>";
@@ -37,6 +43,7 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
  * Creates the html to display a step in the navigation
  * 
  * REQUIRED - Specifies what a step looks like in this navigation menu.
+ * Each step will be APPENDED to its parent activity element.
  * 
  * @param classString
  * @param stepId String id for the step DOM element
@@ -53,25 +60,25 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');	
 	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('renderNode','" + position + "');\">"; 
 	
-	//create a table inside the anchor for each step
+	// create a table inside the anchor for each step
 	html += "<table>";
 	html += "<tr>";
 	html += "<td class='stepIcon'>";
 	
-	//insert the step icon
+	// insert the step icon
 	html += icon;
 	
 	html += "</td>";
 	html += "<td>";
 	
-	//*SUGGESTED*: if you want to display the step's title, include the title param
-	//insert the span to display the step title
+	// *SUGGESTED*: if you want to display the step's title, include the title param
+	// insert the span to display the step title
 	html += "<span class='nodeTitle'>" + title + "</span>";
 	
 	html += "</td>";
 	
-	//insert the td to display any special icons such as colored stars or badges
-	//*REQUIRED*: the special icon element must have an id attribute of 'nodeId + "_status_icon"'
+	// insert the td to display any special icons such as colored stars or badges
+	// *REQUIRED*: the special icon element must have an id attribute of 'nodeId + "_status_icon"'
 	html += "<td class='statusIcon' id='" + nodeId + "_status_icon'>";
 	html += "</td>";
 	html += "</table>";
@@ -91,9 +98,9 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 NavigationPanel.prototype.menuCreated = function() {
 	var view = this.view;
 	
-	//display ExpandAll/CollapseAll buttons
-	var expandAllText = view.getI18NString("navigation_expand_all");
-	var collapseAllText =  view.getI18NString("navigation_collapse_all");
+	// display ExpandAll/CollapseAll buttons
+	var expandAllText = view.theme.getI18NString("navigation_expand_all");
+	var collapseAllText =  view.theme.getI18NString("navigation_collapse_all");
 	var controls = "<div id='menuControls' class='panelContent centerContent'><a onclick='eventManager.fire(\"menuExpandAll\")'>" + expandAllText + "</a><a onclick='eventManager.fire(\"menuCollapseAll\")'>"+collapseAllText+"</a></div>";
 	$('#navigation').before(controls);
 	
@@ -106,7 +113,6 @@ NavigationPanel.prototype.menuCreated = function() {
 		function(){
 			$('#stepInfo').stop(true,true);
 			$('#stepInfo').fadeOut();
-			//setTimeout(function(){$('#stepInfo').fadeOut('medium');},1000);
 		}
 	);
 	
@@ -194,7 +200,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 		},100, resizeDisabled());
 		
 		// change text of toggleNavLink
-		$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title_off")).html(view.getI18NString("toggle_nav_button_text_off")).addClass('menu');
+		$('#toggleNavLink').attr('title',view.theme.getI18NString("toggle_nav_button_title_off")).html(view.theme.getI18NString("toggle_nav_button_text_off")).addClass('menu');
 	} else {
 		// vleSidebar is hidden, so show and resize stepContent
 		$('#vleSidebar').animate({
@@ -206,7 +212,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 		},100, resizeDisabled());
 		
 		// change text of toggleNavLink
-		$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title")).html(view.getI18NString("toggle_nav_button_text")).removeClass('menu');
+		$('#toggleNavLink').attr('title',view.theme.getI18NString("toggle_nav_button_title")).html(view.theme.getI18NString("toggle_nav_button_text")).removeClass('menu');
 	}
 };
 
@@ -222,8 +228,11 @@ NavigationPanel.prototype.toggleVisibility = function() {
  * activity that contains the starting node (step).
  * 
  * By default, WISE removes the 'inactive' CSS class from all activity and step
- * HTML elements for an activity that is opened and adds the 'active' class. If
- * you would like to customize the VLE's behavior beyond this CSS styling,
+ * HTML elements for an activity that is opened and adds the 'active' class.
+ * WISE also removes the 'hide' CSS class from any nested activities in the
+ * activity that is open and adds the 'show' class.
+ * 
+ * If you would like to customize the VLE's behavior beyond this CSS styling,
  * include them in this function. (It is okay to leave this function empty.)
  * 
  * @param sequence DOM element containing the html for the activity
@@ -248,8 +257,11 @@ NavigationPanel.prototype.sequenceOpened = function(sequence) {
  * step are closed.
  * 
  * By default, WISE removes the 'active' CSS class from all activity and step
- * HTML elements for an activity that is opened and adds the 'inactive' class. If
- * you would like to customize the VLE's behavior beyond this CSS styling,
+ * HTML elements for an activity that is opened and adds the 'inactive' class.
+ * WISE also removes the 'show' CSS class from any nested activities in the
+ * activity that is open and adds the 'hide' class.
+ * 
+ * If you would like to customize the VLE's behavior beyond this CSS styling,
  * include them in this function. (It is okay to leave this function empty.)
  * 
  * @param sequence DOM element containing the html for the activity
@@ -298,7 +310,10 @@ View.prototype.navModeDispatcher = function(type,args,obj){
 	};;
 };
 
-// this list of events (should include each of the types specified in the navModeDispatcher above) - REQUIRED
+/**
+ * this list of events (should include each of the types specified in the navModeDispatcher above)
+ * REQUIRED
+ */
 var events = [
 	'toggleNavigationVisibility', // REQUIRED (DO NOT EDIT)
 	'navigationMenuCreated', // REQUIRED (DO NOT EDIT)
@@ -307,9 +322,10 @@ var events = [
 	'navSequenceClosed' // REQUIRED (DO NOT EDIT)
 ];
 
-/*
+/**
  * add all the events to the vle so the vle will listen for these events
- * and call the dispatcher function when the event is fired - REQUIRED (DO NOT EDIT)
+ * and call the dispatcher function when the event is fired
+ * REQUIRED (DO NOT EDIT)
  */
 for(var x=0; x<events.length; x++) {
 	componentloader.addEvent(events[x], 'navModeDispatcher');
@@ -317,7 +333,10 @@ for(var x=0; x<events.length; x++) {
 
 
 
-//used to notify scriptloader that this script has finished loading - REQUIRED
+/**
+ * used to notify scriptloader that this script has finished loading
+ * REQUIRED
+ */
 if(typeof eventManager != 'undefined'){
 	/*
 	 * TODO: rename file path to include your theme and navigation mode folder names

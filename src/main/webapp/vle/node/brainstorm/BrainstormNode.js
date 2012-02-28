@@ -78,25 +78,12 @@ BrainstormNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	 * 
 	 * e.g. if you are creating a quiz step you would change it to quizState
 	 */
-	var brainstormState = nodeVisit.getLatestWork();
+	var brainstormResponse = nodeVisit.getLatestWork();
 	
-	/*
-	 * get the step work id from the node visit in case we need to use it in
-	 * a DOM id. we don't use it in this case but I have retrieved it in case
-	 * someone does need it. look at SensorNode.js to view an example of
-	 * how one might use it.
-	 */
-	var stepWorkId = nodeVisit.id;
-	
-	if(brainstormState != null) {
-		/*
-		 * TODO: rename templateState to match the variable name you
-		 * changed in the previous line above
-		 */
-		var studentWork = brainstormState.response;
+	if(brainstormResponse != null) {
 		
 		//put the student work into the div
-		$('#' + divId).html(studentWork);		
+		$('#' + divId).html(brainstormResponse);		
 	}
 };
 

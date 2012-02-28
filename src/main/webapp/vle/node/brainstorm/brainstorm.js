@@ -75,8 +75,7 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 		this.showCannedResponses(frameDoc);
 		
 		for(var x=0; x<this.states.length; x++) {
-			var state = this.states[x];
-			this.addStudentResponse(frameDoc, this.states[x].response, this.node.view.getWorkgroupId(), "responsestates" + x, this.node.view);
+			this.addStudentResponse(frameDoc, this.states[x], this.states[x].response, this.node.view.getWorkgroupId(), "responsestates" + x, this.node.view);
 		}
 	} else if(!this.content.isGated) {
 		/*
@@ -89,7 +88,8 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 	};
 	
 	/* start the rich text editor if specified */
-	if(this.content.isRichTextEditorAllowed){
+	/* rte disabled for now. erroneous behavior saving/loading */
+	if(this.content.isRichTextEditorAllowed && false){
 		var context = this;
 		var loc = window.location.toString();
 		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
@@ -180,7 +180,8 @@ BRAINSTORM.prototype.brainfullLoaded = function(frameDoc) {
 	};
 	
 	/* start the rich text editor if specified */
-	if(this.content.isRichTextEditorAllowed){
+	/* rte disabled for now. erroneous behavior saving/loading */
+	if(this.content.isRichTextEditorAllowed && false){
 		var loc = window.location.toString();
 		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
 		
@@ -318,6 +319,7 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 				responseState.userId = userId;
 				responseState.responseText = nodeState.getStudentWork();
 				responseState.timestamp = nodeState.timestamp;
+				responseState.nodeVisitId = nodeVisitObj.id;
 				
 				//add the responseState object to the array
 				responseStates.push(responseState);
@@ -334,13 +336,12 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 			
 			//obtain the userId and responseText
 			var userId = responseState.userId;
-			var responseText = responseState.responseText;
 			
 			//create a DOM id for the response we will add to the student's UI
 			var localResponseId = "response" + responsesParent.childNodes.length;
 			
 			//add the response to the UI
-			BRAINSTORM.prototype.addStudentResponse(frameDoc, responseText, userId, localResponseId, handlerArgs.vle);
+			BRAINSTORM.prototype.addStudentResponse(frameDoc, responseState, responseState.responseText, userId, localResponseId, handlerArgs.vle);
 		}
 	} else {
 		/*
@@ -389,15 +390,54 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 
 					//create a unique dom id for the response
 					var localResponseId = "response" + responsesParent.childNodes.length;
-
+					
 					//add the posted response to the user interface
-					BRAINSTORM.prototype.addStudentResponse(frameDoc, postText, userId, localResponseId, vle);
+					BRAINSTORM.prototype.addStudentResponse(frameDoc, null, postText, userId, localResponseId, vle);
 				};
 			};
 		};
 		
 		BRAINSTORM.prototype.showRecentResponses(frameDoc, recentResponses, responsesParent, vle);
 	};
+	
+	// get inappropriate flags for this brainstorm and hide them from student view
+	BRAINSTORM.prototype.filterInappropriatePosts(handlerArgs.vle);
+};
+
+/**
+ * Fetch inappropriate flag annotation for this bs step and hide ones that were annotated as inappropriate.
+ * @param vle
+ */
+BRAINSTORM.prototype.filterInappropriatePosts = function(vle){
+	this.vle = vle;
+	var getInappropriateFlagsCallback = function(responseText, responseXML, handlerArgs) {
+		if (responseText != null && responseText != "") {
+			var responseJSON = JSON.parse(responseText);
+			var flagArray = responseJSON.annotationsArray;
+			for (var i=0; i < flagArray.length; i++) {
+				var flagJSON = flagArray[i];
+				if (flagJSON.type == "inappropriateFlag" && flagJSON.value == "flagged") {
+					// replace student's response with generic message
+					$("div[bsNodeVisitId="+flagJSON.stepWorkId+"]").each(function() { $(this).find(".responseTextArea").html("This comment has been flagged as inappropriate.") });
+				}
+			}
+		}
+	};
+	
+	//make the request to get inappropriate flags made by class mates
+	vle.connectionManager.request(
+			'GET', 
+			2, 
+			vle.config.getConfigParam('getInappropriateFlagsUrl'), 
+			{
+				userId:vle.getUserAndClassInfo().getWorkgroupId(),
+				periodId:vle.getUserAndClassInfo().getPeriodId()
+			},
+			getInappropriateFlagsCallback, 
+			{
+				vle: vle
+			}
+	);
 };
 
 /**
@@ -458,7 +498,7 @@ BRAINSTORM.prototype.showRecentResponses = function(frameDoc, recentResponses, r
 		 * current node visit
 		 */
 		var recentResponse = recentResponses[z];
-		BRAINSTORM.prototype.addStudentResponse(frameDoc, recentResponse, vle.getWorkgroupId(), "response" + responsesParent.childNodes.length, vle);
+		BRAINSTORM.prototype.addStudentResponse(frameDoc, null, recentResponse, vle.getWorkgroupId(), "response" + responsesParent.childNodes.length, vle);
 	};
 };
 
@@ -546,8 +586,7 @@ BRAINSTORM.prototype.save = function(frameDoc){
 			//this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
 		} else {
 			for(var x=0; x<this.states.length; x++) {
-				var state = this.states[x];
-				this.addStudentResponse(frameDoc, this.states[x].response, this.node.view.getUserAndClassInfo().getWorkgroupId(), "responsestates" + x, this.node.view);
+				this.addStudentResponse(frameDoc,this.states[x],this.states[x].response, this.node.view.getUserAndClassInfo().getWorkgroupId(), "responsestates" + x, this.node.view);
 			}
 		}
 		
@@ -567,7 +606,7 @@ BRAINSTORM.prototype.save = function(frameDoc){
  * @param localResponseId a local dom id for the response element we are going to make
  * @param vle the vle of the student who is logged in
  */
-BRAINSTORM.prototype.addStudentResponse = function(frameDoc, responseText, userId, localResponseId, vle) {
+BRAINSTORM.prototype.addStudentResponse = function(frameDoc, state, responseText, userId, localResponseId, vle) {
 	//obtain the dom object that holds all the responses
 	var responsesParent = frameDoc.getElementById('responses');
 	
@@ -580,9 +619,13 @@ BRAINSTORM.prototype.addStudentResponse = function(frameDoc, responseText, userI
 	responseTitle.appendChild(createElement(frameDoc, 'br'));
 	responseTitle.appendChild(responseTextArea);
 	responseTitle.setAttribute('class', 'responseTitle');
+
+	if (state != null && state.nodeVisitId != null) {
+		responseTitle.setAttribute('bsNodeVisitId', state.nodeVisitId);
+	}
 	
 	//set the student text in the response textarea
-	responseTextArea.innerHTML = responseText;
+	responseTextArea.innerHTML = responseText;	
 	responseTextArea.setAttribute('class', 'responseTextArea');
 
 	//add the whole response element into the parent container
