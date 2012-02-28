@@ -8,6 +8,7 @@
 	"screenshot": "images/screenshot.png",
 	"thumb": "images/thumb.png",
 	"logo": "images/wise4-logo-vle-nobg-dark.png",
+	"i18n_enabled" : true,
 	"css": [
 		"css/theme.css"	
 	],

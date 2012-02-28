@@ -30,14 +30,14 @@ The "config.json" file in this theme's root directory is responsible for setting
 theme's identifying information and configuration options.
 
 To utilize any CSS or javascript files for your theme, you must specify their file paths
-in the "config.json" file (see items 10 and 11 below) and include the corresponding files in
+in the "config.json" file (see items 11 and 12 below) and include the corresponding files in
 the theme package.
 
 *NOTE*: WISE includes the jQuery (http://jquery.com) and jQuery UI (http://jqueryui.com)
 javascript libraries by default.  You do not need to include these files with your theme.
 WISE also provides a default theme for jQuery UI. If you would like to use a customized 
 jQuery UI theme instead of the WISE default, indicate the file path to your custom CSS file
-in the configuration options (see item 12 below).  (You can also make minor modifications
+in the configuration options (see item 13 below).  (You can also make minor modifications
 to any jQuery UI styles using any of the CSS files you include with this theme.)
 
 (For help creating your own jQuery UI themes, visit the jQuery UI ThemeRoller:
@@ -62,12 +62,14 @@ match your theme.
 8. "thumb" - Preview thumbnail image of theme (File path relative to theme root),
 9. "logo" - VLE logo for this theme; usually displayed in HTML for the VLE - see
 	"vle_logo" DOM element in "vle_body.html" (File path relative to theme root)
-10. "css" - CSS files required by theme (Array of file paths relative to theme root)
-11. "js" - Javascript files required by theme; Optional (Array of file paths relative to theme root)
-12. "jqueryui_css" - CSS file for customized jQuery UI theme; Optional, as WISE provides a
+10. "i18n" - Setting to specify whether internationalization is enabled/required for this theme; See
+	"Internationalization" section below for more details (Boolean)
+11. "css" - CSS files required by theme (Array of file paths relative to theme root)
+12. "js" - Javascript files required by theme; Optional (Array of file paths relative to theme root)
+13. "jqueryui_css" - CSS file for customized jQuery UI theme; Optional, as WISE provides a
 	default jQuery UI theme; leave value as empty string ("") to use the default theme (File
 	path relative to theme root)
-13. "nav_modes" - The project navigation modes this theme supports; First entry in the array
+14. "nav_modes" - The project navigation modes this theme supports; First entry in the array
 	will be set as the default; Each navigation mode's 'id' entry MUST match the name of a folder
 	in the "navigation" directory for your theme; You must include at least one navigation mode
 	with your theme; See "Project Navigation" section below for more details (Array of Objects)

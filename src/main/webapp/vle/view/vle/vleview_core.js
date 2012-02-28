@@ -13,9 +13,10 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.setProjectPostLevel();
 		obj.setDialogEvents();
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
+		obj.retrieveThemeLocales();
+	} else if (type=='retrieveThemeLocalesComplete'){
 		obj.onThemeLoad();
-	}
-	else if(type=='getUserAndClassInfoComplete'){
+	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
@@ -401,6 +402,15 @@ View.prototype.onProjectLoad = function(){
 		this.notificationManager.notify('VLE and project not ready to load theme', 3);
 	}
 };
+
+View.prototype.retrieveThemeLocales = function(){
+	if('theme' in this){
+		this.theme.config = this.config;
+		this.theme.retrieveLocales();
+	} else {
+		this.onThemeLoad();
+	}
+}
 
 /**
  * Sets the values of html elements based on the loaded project's attributes

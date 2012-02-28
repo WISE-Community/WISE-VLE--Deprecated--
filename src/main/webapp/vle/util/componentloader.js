@@ -635,7 +635,7 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'retrieveLocalesComplete':[null,null],'renderNode':[null,null], 'renderNodeStart':[null,null],
+				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'retrieveLocalesComplete':[null,null],'retrieveThemeLocalesComplete':[null,null],'renderNode':[null,null], 'renderNodeStart':[null,null],
 				'renderNodeComplete':[null,null],'resizeNote':[null,null],'onNotePanelResized':[null,null], 'startVLEBegin':[null,null],
 				'startVLEComplete':[null,null], 'setStyleOnElement':[null,null], 'closeDialogs':[null,null], 'closeDialog':[null,null],
 				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
@@ -650,6 +650,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('startVLEFromConfig',view.vleDispatcher, view);
 						view.eventManager.subscribe('startVLEFromParams', view.vleDispatcher, view);
 						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);
+						view.eventManager.subscribe('retrieveThemeLocalesComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingProjectStart', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingProjectComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getUserAndClassInfoBegin', view.vleDispatcher, view);
