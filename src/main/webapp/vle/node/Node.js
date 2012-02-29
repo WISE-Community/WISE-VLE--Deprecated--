@@ -1212,15 +1212,6 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
         		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
         			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
         	}
-        	
-        	if (this.view.getCurrentNode().importWork && 
-        			this.canExportWork &&
-        			this.canExportWork(this.view.getCurrentNode())) {
-        		// if the currently-opened node can import work from this node, show link to import.
-        		showAllWorkHtmlSoFar += "<div id=\"insertwork_"+divId+"\">" +        		
-        		"<a href=\"#\" onclick=\"eventManager.fire('importWork', ['" + this.id + "','"+this.view.getCurrentNode().id+"']); $('#showallwork').dialog('close');\">Insert this work into current step</a>" +
-        		"</div>";
-        	};
         };
     }
     else {
@@ -1478,6 +1469,17 @@ Node.prototype.getTagMapFunctionByName = function(functionName) {
 Node.prototype.hasGradingView = function() {
 	return true;
 };
+
+/**
+ * Returns true iff this node can import work from the specified node.
+ * @param exportToNode node to export work into
+ * @return true/false
+ */
+Node.prototype.canImportWork = function(importFromNode) {
+	return this.importableFromNodes &&
+		this.importableFromNodes.indexOf(importFromNode.type) > -1;
+};
+
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

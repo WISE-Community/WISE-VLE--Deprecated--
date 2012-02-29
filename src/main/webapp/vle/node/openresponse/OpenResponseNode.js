@@ -20,10 +20,7 @@ function OpenResponseNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
-	this.exportableToNodes = new Array(			
-			"NoteNode", 
-			"OpenResponseNode", 
-			"SVGDrawNode");	
+	this.importableFromNodes = new Array("NoteNode","OpenResponseNode");	
 	this.importableFileExtensions = new Array(
 			"jpg", "png");
 };
@@ -73,60 +70,30 @@ OpenResponseNode.prototype.getPeerReviewOtherStudentWork = function(otherStudent
 };
 
 /**
- * Returns true iff this node can export work to the specified node.
- * @param exportToNode node to export work into
- * @return true/false
- */
-OpenResponseNode.prototype.canExportWork = function(exportToNode) {
-	return this.exportableToNodes &&
-		this.exportableToNodes.indexOf(exportToNode.type) > -1;
-};
-
-/**
- * Returns a string of the work so that it can be imported by the specified exportToNode
- * @param exportToNode node that will import the return value of this method
- * @return null if this node cannot export work to the exportToNode
- */
-OpenResponseNode.prototype.exportWork = function(exportToNode) {	
-	if (this.canExportWork(exportToNode)) {
-	    var nodeVisitArray = this.view.state.getNodeVisitsByNodeId(this.id);
-	    if (nodeVisitArray.length > 0) {
-	        var states = [];
-	        var latestNodeVisit = nodeVisitArray[nodeVisitArray.length -1];
-	        for (var i = 0; i < nodeVisitArray.length; i++) {
-	            var nodeVisit = nodeVisitArray[i];
-	            for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
-	                states.push(nodeVisit.nodeStates[j]);
-	            }
-	        }
-	        var latestState = states[states.length - 1];
-	        var studentWork = latestState.getStudentWork();
-	        
-	        if (exportToNode.type == "SVGDrawNode") {
-	        	var svgString = '<text x="250" y="150" font-family="Verdana" font-size="35" fill="black" >'
-				+ studentWork
-				+ '</text>';
-				return svgString;
-	        } else {
-	        	return studentWork;
-	        }
-	    };			
-	};
-	return null;
-};
-
-/**
  * Imports and inserts the work from the specified importFromNode
- * @param importFromNode node that will export the data for this node to import
+ * @param importFromNode node that has the data for this node to import
  * @return
  */
 OpenResponseNode.prototype.importWork = function(importFromNode) {
-	var studentWork = importFromNode.exportWork(this);
-	if (studentWork != null) {
-		if(this.contentPanel && this.contentPanel.or) {
-			this.contentPanel.or.appendResponse(studentWork);
-		}
-	};
+	if (this.canImportWork(importFromNode)) {
+		var studentWorkState = this.view.state.getLatestWorkByNodeId(importFromNode.id);
+		if (studentWorkState != null) {
+			var studentWork = studentWorkState.response;
+
+			if(studentWork != null && studentWork.constructor.toString().indexOf("Array") != -1) {
+				/*
+				 * response is an array so we will use the toString() of the array
+				 * which should give us just the text within it
+				 */
+				studentWork = studentWork.toString();
+
+				if(this.contentPanel && this.contentPanel.or) {
+					this.contentPanel.or.appendResponse(studentWork);
+				}
+			}
+				
+		};		
+	}
 };
 
 /**
