@@ -645,7 +645,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * (this does not include the unused nodes that are in the 
 		 * project.json nodes array)
 		 */
-		var getNodeIds = function(nodeTypesToExclude) {
+		var getNodeIds = function(onlyGetNodesWithGradingView) {
 			//get the project content
 			var project = content.getContentJSON();
 			
@@ -659,7 +659,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			var startNode = getNodeById(startPoint);
 			
 			//get the leaf nodeIds
-			nodeIds = getNodeIdsHelper(nodeIds, startNode, nodeTypesToExclude);
+			nodeIds = getNodeIdsHelper(nodeIds, startNode, onlyGetNodesWithGradingView);
 			
 			//return the populated array containing nodeIds
 			return nodeIds;
@@ -672,7 +672,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @param nodeTypesToExclude a : delimited string of node types to exclude
 		 * @return an array containing all the leaf nodes 
 		 */
-		var getNodeIdsHelper = function(nodeIds, currentNode, nodeTypesToExclude) {
+		var getNodeIdsHelper = function(nodeIds, currentNode, onlyGetNodesWithGradingView) {
 			
 			if(currentNode.type == 'sequence') {
 				//current node is a sequence
@@ -686,7 +686,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					var childNode = childNodes[x];
 					
 					//recursively call this function with the child node
-					nodeIds = getNodeIdsHelper(nodeIds, childNode, nodeTypesToExclude);
+					nodeIds = getNodeIdsHelper(nodeIds, childNode, onlyGetNodesWithGradingView);
 				}
 			} else {
 				//current node is a leaf node
@@ -700,7 +700,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				 * the node type is FlashNode and grading is enabled, we will
 				 * add the node id to the array
 				 */
-				if((!nodeTypesToExclude || nodeTypesToExclude.indexOf(nodeType) == -1) && currentNode.hasGradingView()) {
+				if(!onlyGetNodesWithGradingView || (onlyGetNodesWithGradingView && currentNode.hasGradingView())) {
 					nodeIds.push(currentNode.id);					
 				}
 			}
@@ -1532,7 +1532,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 */
 		var getPreviousAndNextNodeIds = function(nodeId) {
 			//get all the nodeIds in the project ordered
-			var nodeIdsArray = getNodeIds("HtmlNode:OutsideUrlNode");
+			var nodeIdsArray = getNodeIds(true);
 			
 			//create the object that we will store the previous and next into
 			var previousAndNextNodeIds = new Object();
@@ -2016,7 +2016,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* Returns the node at the given position in the project if it exists, returns null otherwise */
 			getNodeByPosition:function(pos){return getNodeByPosition(pos);},
 			/* Returns an array containing all node ids of types that are not included in the provided nodeTypesToExclude */
-			getNodeIds:function(nodeTypesToExclude){return getNodeIds(nodeTypesToExclude);},
+			getNodeIds:function(onlyGetNodesWithGradingView){return getNodeIds(onlyGetNodesWithGradingView);},
 			/* Returns html showing all students work so far */
 			getShowAllWorkHtml:function(node,showGrades){return getShowAllWorkHtml(node,showGrades);},
 			/* Returns the first renderable node Id for this project */

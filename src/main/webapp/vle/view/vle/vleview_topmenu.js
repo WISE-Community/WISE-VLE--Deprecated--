@@ -354,8 +354,8 @@ View.prototype.displayShowAllWork = function() {
 	    
 	    var vleState = this.state;
 	    
-	    //get all the nodeIds in the projecte except HtmlNodes
-	    var nodeIds = this.getProject().getNodeIds("HtmlNode");
+	    //get all the nodeIds in the projecte except nodes that do not have a grading view
+	    var nodeIds = this.getProject().getNodeIds(true);
 	    
 	    var numStepsCompleted = 0;
 	    

@@ -1689,10 +1689,22 @@ View.prototype.calculateGradingStatistics = function(gradingType) {
  */
 View.prototype.calculateGradeByTeamGradingStatistics = function() {
 	/*
+	 * whether we only want to get the node types that have student work.
+	 * if this is false we will get all the node types.
+	 */
+	var onlyGetNodesWithGradingView = false;
+	
+	//check if the post level for the run is set to low
+	if(this.config.getConfigParam('postLevel') == 1) {
+		//post level is set to low so we only want to get the nodes types that have student work
+		onlyGetNodesWithGradingView = true;
+	}
+	
+	/*
 	 * get all the leaf nodes in the project except for HtmlNodes
 	 * this is a : delimited string of nodeIds
 	 */
-	var nodeIds = this.getProject().getNodeIds();
+	var nodeIds = this.getProject().getNodeIds(onlyGetNodesWithGradingView);
 	
 	//get the run id
 	var runId = this.getConfig().getConfigParam('runId');
