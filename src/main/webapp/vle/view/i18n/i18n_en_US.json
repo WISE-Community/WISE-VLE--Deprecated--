@@ -399,6 +399,10 @@
 		"value":"Enlarge Student Work",
 		"description":"text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
 	},
+	"grading_only_show_new_student_work":{
+		"value":"Only Show New Work",
+		"description":"text to show next to the 'Only Show New Work' checkbox in the grading tool"
+	},
 	"grading_show_all_revisions":{
 		"value":"Show All Revisions",
 		"description":"text to show next to the 'Show All Revisions' checkbox in the grading tool"

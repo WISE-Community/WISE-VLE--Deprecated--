@@ -1342,6 +1342,16 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	gradeByStepGradingPageHtml += "<input type='checkbox' id='enlargeStudentWorkTextCheckBox' value='show filtered items' onClick=\"eventManager.fire('enlargeStudentWorkText')\" " + enlargeStudentWorkTextChecked + "/>"
 		+"<p>"+this.getI18NString("grading_enlarge_student_work_text")+"</p>";
 	
+	//check if only show new student work check box was previously checked
+	var onlyShowNewStudentWorkChecked = '';
+	if(this.gradingOnlyShowNewStudentWork) {
+		onlyShowNewStudentWorkChecked = 'checked';
+	}
+	
+	//check box for only showing new student work
+	gradeByStepGradingPageHtml += "<input type='checkbox' id='onlyShowNewStudentWorkCheckBox' value='show filtered items' onClick=\"eventManager.fire('filterStudentRows')\" " + onlyShowNewStudentWorkChecked + "/>"
+		+"<p>"+this.getI18NString("grading_only_show_new_student_work")+"</p>";
+	
 	//check if show revisions check box was previously checked
 	var showRevisionsChecked = '';
 	if(this.gradingShowRevisions) {
@@ -3751,6 +3761,23 @@ View.prototype.isEnlargeStudentWorkText = function() {
 };
 
 /**
+ * Determine if the 'Only Show New Work' checkbox is checked
+ * @returns whether the 'Only Show New Work' checkbox is checked
+ */
+View.prototype.isOnlyShowNewStudentWorkChecked = function() {
+	var result = false;
+	
+	//get the checked attribute
+	var checked = $('#onlyShowNewStudentWorkCheckBox').attr('checked');
+	
+	if(checked == 'checked') {
+		result = true;
+	}
+	
+	return result;
+};
+
+/**
  * Determine if the "Sort By Auto Graded Score" checkbox is checked
  * @return whether the "Sort By Auto Graded Score" checkbox is checked
  */
@@ -3822,6 +3849,13 @@ View.prototype.filterStudentRows = function() {
 
 	if(enlargeStudentWorkText != null) {
 		this.gradingEnlargeStudentWorkText = enlargeStudentWorkText;
+	}
+	
+	//get whether we are only showing new work
+	var onlyShowNewStudentWork = this.isOnlyShowNewStudentWorkChecked();
+	
+	if(onlyShowNewStudentWork != null) {
+		this.gradingOnlyShowNewStudentWork = onlyShowNewStudentWork;
 	}
 	
 	// tell node to show/hide smart filter
@@ -3911,6 +3945,14 @@ View.prototype.filterStudentRows = function() {
 			//filter smart filtered items
 			if(studentRowClass.indexOf('smartFilterHide') != -1 || studentRowClass.indexOf('noWork') != -1) {
 				//the smart filter has set this row to be hidden
+				displayStudentRow = false;
+			}
+		}
+		
+		if(onlyShowNewStudentWork) {
+			//we are only showing new work
+			if(studentRowClass.indexOf('newWork') == -1) {
+				//this is not new work so we will not show it
 				displayStudentRow = false;
 			}
 		}
