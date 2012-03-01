@@ -591,6 +591,19 @@ ASSESSMENTLIST.prototype.save = function(isSubmit) {
 		//disable the save draft button
 		this.setSaveDraftUnavailable();	
 		
+		// show "saved" or "submitted" message
+		var confMSG = 'Your work has been saved.';
+		if (isSubmit) {
+			confMSG = 'Your work has been submitted.';				
+		}
+		if ($("#saveConfirmation").size() == 0) {
+			$("#submitButtonDiv").after('<br/><span style=\'font-size:.8em\' id="saveConfirmation">'+confMSG+'</span>&nbsp;');
+		} else {
+			$('#saveConfirmation').show();
+		}
+		$('#saveConfirmation').html(confMSG).delay(5000).fadeOut('medium');
+
+		
 		this.stateChanged = false;
 	}
 };
