@@ -64,7 +64,7 @@ OPENRESPONSESTATE.prototype.getStudentWork = function() {
 		studentWork = this.response.toString();
 	}
 	return studentWork;
-	*/
+		*/
 	return this;
 };
 
