@@ -1,0 +1,58 @@
+{
+   "file_button_text": {
+       "value": "",
+       "description": "Text on the File Manager button"
+   },
+   "ideas_button_text": {
+       "value": "",
+       "description": "Text on the Idea Manager button"
+   },
+   "addidea_button_text": {
+       "value": "",
+       "description": "Text on the Add Idea button"
+   },
+   "grading_enlarge_student_work_text": {
+       "value": "Antwoorden van leerlingen vergroten ",
+       "description": "text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
+   },
+   "grading_show_all_revisions": {
+       "value": "Toon alle aanpassingen van leerlingen",
+       "description": "text to show next to the 'Show All Revisions' checkbox in the grading tool"
+   },
+   "grading_hide_show_revisions": {
+       "value": "Aanpassing(en)",
+       "description": "text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
+   },
+   "last_annotation": {
+       "value": "Laatste opmerking",
+       "description": "the text 'last annotation'"
+   },
+   "comment": {
+       "value": "Opmerking",
+       "description": "Comment"
+   },
+   "flag": {
+       "value": "Op te volgen! ",
+       "description": "Flag, for flagging student's work using the flaggingtool"
+   },
+   "student_work": {
+       "value": "LEERLINGENACTIVITEITEN ",
+       "description": "student work column in the grading tool"
+   },
+   "teacher_comment_and_score": {
+       "value": "LEERKRACHT FEEDBACK/EVALUATIE",
+       "description": "Teacher comments / score column in the grading tool"
+   },
+   "team_caps": {
+       "value": "GROEP",
+       "description": "TEAM"
+   },
+   "period": {
+       "value": "Lesperiode",
+       "description": "Period"
+   },
+   "grading_next_step": {
+       "value": "Volgende >",
+       "description": "'Next Step' button in the gradingtool that will show the next step in the project"
+   }
+}

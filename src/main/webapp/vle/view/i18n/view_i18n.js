@@ -36,7 +36,7 @@ View.prototype.i18n.defaultLocale = "en_US";
 
 //"ja","zh_TW",
 View.prototype.i18n.supportedLocales = [
-                                        "en_US","ja","zh_TW"
+                                        "en_US","ja","zh_TW","nl_NL"
                                         ];
 
 /**
