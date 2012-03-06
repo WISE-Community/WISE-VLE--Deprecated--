@@ -1,7 +1,6 @@
 
 /**
  * @constructor
- * @returns
  */
 function NodeFactory(){
 };
