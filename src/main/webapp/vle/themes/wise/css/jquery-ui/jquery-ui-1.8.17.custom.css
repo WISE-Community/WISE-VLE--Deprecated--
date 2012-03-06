@@ -462,7 +462,7 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
     /*border: 8px solid rgb(197, 205, 97);
     border: 8px solid rgba(197, 205, 97, 0.75);*/
     border: 7px solid rgb(40, 40, 40);
-    border: 7px solid rgba(40, 40, 40, 0.75);
+    border: 7px solid rgba(40, 40, 40, 0.7);
     padding: 0;
     -moz-border-radius:2px;
     -webkit-border-radius:2px;

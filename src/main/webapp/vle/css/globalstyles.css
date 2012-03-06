@@ -5,25 +5,24 @@ p.info {
 	color: #745A33;
 }
 
-input[type="button"],input[type="submit"],input[type="text"],input[type="password"],textarea {
+input[type="text"], input[type="password"], textarea {
+	margin: .25em;
+	padding: 0.25em;
+    font-size: 0.9em;
+    border:1px solid #cccccc;
+    background-color: #FFFFFF;
+    font-family: Arial, Helvetica, Tahoma, sans-serif;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+	border-color: #4e94a2;
+}
+
+input[type="submit"],input[type="button"] {
 	border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	background-color: #F9F9F9;
-	border: 1px solid #CCCCCC;
-	color: #444;
-	font-size: 0.9em;
-	margin: .25em;
-	padding: 0.25em;
-	font-family: Arial, Helvetica, Tahoma, sans-serif;
-}
-
-input[type="text"]:focus {
-	border-color: #DADF8B;
-	background-color: #FFFFFF;
-}
-
-input[type="submit"],input[type="button"] {
 	cursor: pointer;
 	padding: .25em .5em;
 	border: 1px solid #aaaaaa;
@@ -127,7 +126,7 @@ table.wisetable td.emph {
 	font-size:.8em;
 	font-weight:normal;
 	position:relative;
-	background:url("../images/message_bg.png") repeat scroll center center #444444;
+	background:url("../images/message_bg.png") repeat scroll center center #2e2e2e;
 }
 
 #vle_messages .message span.content {
