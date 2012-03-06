@@ -89,7 +89,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	var enableStudentTextAreaCheckBox = createElement(document, 'input', {id: 'enableStudentTextAreaCheckBox', type: 'checkbox', onclick: 'eventManager.fire("explanationBuilderUpdateEnableStudentTextAreaCheckBox")'});
 	
 	//create the label for the textarea that the author will write the instructions in
-	var instructionsText = document.createTextNode("Instructions for Student:");
+	var instructionsText = document.createTextNode("Instructions for Student Explanation:");
 	
 	//get the instructions
 	var instructionsValue = this.content.instructions;

@@ -830,11 +830,19 @@ View.prototype.displayStudentUploadedFiles = function() {
 		$('#studentAssetsDiv').html(assetEditorDialogHtml);		
     }
 	
+	var show = function(){
+		//resize dialog height if larger than grading window
+		var maxHeight = $(window).height() - 20;
+		if($('#studentAssetsDiv').closest('.ui-dialog').height() > maxHeight){
+			$('#studentAssetsDiv').dialog('option','height',maxHeight);
+		}
+	}
+	
 	var done = function(){
 		$('#studentAssetsDiv').dialog('close');			
 	};
 
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,position:['center',50],show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:true,title:'Students\' Uploaded Files', buttons:{'Done':done}});
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,position:['center',50],show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:true,title:'Students\' Uploaded Files',open:show,buttons:{'Done':done}});
 
 	var displayStudentAssets = function(workgroupAssetListsStr, view) {
 		// clear out the panel

@@ -25,10 +25,10 @@ var coreMinScripts = [
 var studentVLEScripts = [
     scriptloader.jquerySrc,
 	scriptloader.jqueryUISrc,
-	'vle/jquery/js/jquery-validate/jquery.validate.pack.js',
-	'vle/jquery/js/jquery.form.js',
+	'vle/jquery/jquery-validation/jquery.validate.min.js',
+	//'vle/jquery/js/jquery.form.js',
 	'vle/jquery/js/jsonplugin.js',
-	'vle/jquery/js/jquery.tools.tooltip.min.js',
+	'vle/jquery/jquery-tools/jquery.tools.tooltip.min.js',
 	'vle/ideaBasket/basket.js',
  	/*
      * xTODO: rename template
@@ -84,7 +84,9 @@ var dependencies = [
 	 * For example if you are creating a quiz node you would change it to
 	 * 'vle/node/quiz/QuizNode.js'
 	 */
-	{child:"vle/node/explanationbuilder/ExplanationBuilderNode.js", parent:["vle/node/Node.js"]}
+	{child:"vle/node/explanationbuilder/ExplanationBuilderNode.js", parent:["vle/node/Node.js"]},
+	{child:"vle/jquery/jquery-validation/jquery.validate.min.js", parent:[scriptloader.jquerySrc]},
+	{child:"vle/jquery/jquery-tools/jquery.tools.tooltip.min.js", parent:[scriptloader.jquerySrc]}
 ];
 
 var css = [
@@ -92,6 +94,7 @@ var css = [
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
        	"vle/node/explanationbuilder/explanation.css",
+       	"vle/node/common/css/stepContent.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css"
 ];
 
