@@ -29,6 +29,15 @@ View.prototype.getIdeaBasketsExcelExport = function() {
 };
 
 /**
+ * Request the idea basket excel export
+ */
+View.prototype.getFlashExcelExport = function() {
+	this.setParamsForXLSExport();
+	document.getElementById('exportType').value = 'flashStudentWork';
+	document.getElementById('getStudentXLSExport').submit();
+};
+
+/**
  * Request the explanation builder work excel export
  */
 View.prototype.getExplanationBuilderWorkExcelExport = function() {

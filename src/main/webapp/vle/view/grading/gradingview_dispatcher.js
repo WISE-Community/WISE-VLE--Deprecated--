@@ -32,6 +32,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.getLatestStudentWorkXLSExport();
 	} else if(type=='getIdeaBasketsExcelExport') {
 		obj.getIdeaBasketsExcelExport();
+	} else if(type=='getFlashExcelExport') {
+		obj.getFlashExcelExport();
 	} else if(type=='getExplanationBuilderWorkExcelExport') {
 		obj.getExplanationBuilderWorkExcelExport();
 	} else if(type=='getCustomLatestStudentWorkExport') {

@@ -188,6 +188,7 @@ var componentloader = function(em, sl){
 					 'getAllStudentWorkXLSExport':[null, null],
 					 'getLatestStudentWorkXLSExport':[null, null],
 					 'getIdeaBasketsExcelExport':[null, null],
+					 'getFlashExcelExport':[null, null],
 					 'getExplanationBuilderWorkExcelExport':[null, null],
 					 'getCustomLatestStudentWorkExport':[null, null],
 					 'getCustomAllStudentWorkExport':[null, null],
@@ -242,6 +243,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getAllStudentWorkXLSExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getLatestStudentWorkXLSExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsExcelExport", view.gradingDispatcher, view);
+					eventManager.subscribe("getFlashExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getExplanationBuilderWorkExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomLatestStudentWorkExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);

@@ -418,6 +418,8 @@ public class VLEGetXLS extends VLEServlet {
 			wb = getLatestStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, nodeIdList, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
 		} else if(exportType.equals("customAllStudentWork")) {
 			wb = getAllStudentWorkXLSExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, teacherWorkgroupIds);
+		} else if(exportType.equals("flashStudentWork")) {
+			wb = getFlashWorkExcelExport(nodeIdToNodeTitlesWithPosition, workgroupIds, runId, nodeIdToNode, nodeIdToNodeContent, workgroupIdToPeriodId, workgroupIds);
 		}
 		
 		/*
@@ -440,6 +442,8 @@ public class VLEGetXLS extends VLEServlet {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-latest-student-work.xls\"");
 	    } else if(exportType.equals("customAllStudentWork")) {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-all-student-work.xls\"");
+	    } else if(exportType.equals("flashStudentWork")) {
+	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + "-custom-flash-student-work.xls\"");
 	    } else {
 	    	response.setHeader("Content-Disposition", "attachment; filename=\"" + projectName + "-" + runId + ".xls\"");	
 	    }
@@ -3592,6 +3596,671 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return wb;
+	}
+	
+	/**
+	 * Get the flash work excel export. We will generate a row 
+	 * for each item used in a flash step. The order of
+	 * the flash steps will be chronological from oldest to newest.
+	 * @param nodeIdToNodeTitlesMap
+	 * @param workgroupIds
+	 * @param runId
+	 * @param nodeIdToNode
+	 * @param nodeIdToNodeContent
+	 * @param workgroupIdToPeriodId
+	 * @param teacherWorkgroupIds
+	 * @return
+	 */
+	private XSSFWorkbook getFlashWorkExcelExport(HashMap<String, String> nodeIdToNodeTitlesMap,
+			Vector<String> workgroupIds, 
+			String runId,
+			HashMap<String, JSONObject> nodeIdToNode,
+			HashMap<String, JSONObject> nodeIdToNodeContent,
+			HashMap<Integer, Integer> workgroupIdToPeriodId,
+			List<String> teacherWorkgroupIds) {
+		
+		//the excel workbook
+		XSSFWorkbook wb = new XSSFWorkbook();
+		
+		//whether to also export all the other student work
+		boolean exportAllWork = true;
+		
+		//counter for the row that we are on
+		int rowCounter = 0;
+		
+		//we will export everything onto one sheet
+		XSSFSheet allWorkgroupsSheet = wb.createSheet("All Workgroups");
+
+		String teacherLogin = "";
+		
+		try {
+			//get the teacher login
+			teacherLogin = teacherUserInfoJSONObject.getString("userName");
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		
+		//counter for the header column cells
+		int headerColumn = 0;
+		
+		//create the first row which will contain the headers
+		Row headerRow = allWorkgroupsSheet.createRow(rowCounter++);
+    	
+    	//vector that contains all the header column names
+    	Vector<String> headerColumnNames = new Vector<String>();
+    	
+    	//define the text for the header cells
+    	headerColumnNames.add("Workgroup Id");
+    	headerColumnNames.add("Wise Id 1");
+    	headerColumnNames.add("Wise Id 2");
+    	headerColumnNames.add("Wise Id 3");
+    	headerColumnNames.add("Teacher Login");
+    	
+    	headerColumnNames.add("Project Id");
+    	headerColumnNames.add("Parent Project Id");
+    	headerColumnNames.add("Project Name");
+    	headerColumnNames.add("Run Id");
+    	headerColumnNames.add("Run Name");
+    	headerColumnNames.add("Start Date");
+    	headerColumnNames.add("End Date");
+    	
+    	headerColumnNames.add("Period");
+    	headerColumnNames.add("Step Work Id");
+    	headerColumnNames.add("Step Title");
+    	headerColumnNames.add("Step Type");
+    	headerColumnNames.add("Step Prompt");
+    	headerColumnNames.add("Node Id");
+    	headerColumnNames.add("Start Time");
+    	headerColumnNames.add("End Time");
+    	headerColumnNames.add("Time Spent (in seconds)");
+    	
+    	headerColumnNames.add("Revision Number");
+    	headerColumnNames.add("Item Number");
+    	headerColumnNames.add("Custom Grading");
+    	headerColumnNames.add("Label Text");
+    	headerColumnNames.add("X Pos");
+    	headerColumnNames.add("Y Pos");
+    	headerColumnNames.add("Is Deleted");
+    	headerColumnNames.add("X HandleBar");
+    	headerColumnNames.add("Y HandleBar");
+    	
+    	headerColumnNames.add("New");
+    	headerColumnNames.add("Revised");
+    	headerColumnNames.add("Repositioned");
+    	headerColumnNames.add("Deleted False to True");
+    	headerColumnNames.add("Deleted True to False");
+    	
+    	//add all the header column names to the row
+    	for(int y=0; y<headerColumnNames.size(); y++) {
+	    	headerRow.createCell(headerColumn).setCellValue(headerColumnNames.get(y));
+	    	headerColumn++;	    		
+    	}
+    	
+		//loop through all the workgroups
+    	for(int x=0; x<workgroupIds.size(); x++) {
+    		//get the workgroup id
+			String workgroupId = workgroupIds.get(x);
+
+			UserInfo userInfo = UserInfo.getByWorkgroupId(Long.parseLong(workgroupId));
+			
+			//get the period
+			String periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
+			
+    		//get all the user ids for this workgroup
+    		String studentLogins = workgroupIdToStudentLogins.get(Integer.parseInt(workgroupId + ""));
+    		
+			//the user ids string is delimited by ':'
+			String[] studentLoginsArray = studentLogins.split(":");
+			
+			//sort the user ids numerically and put them into a list
+			ArrayList<Long> studentLoginsList = sortStudentLoginsArray(studentLoginsArray);
+			
+			String wiseId1 = "";
+			String wiseId2 = "";
+			String wiseId3 = "";
+			
+			//loop through all the user ids in this workgroup
+			for(int z=0; z<studentLoginsList.size(); z++) {
+				//get a user id
+				Long studentLoginId = studentLoginsList.get(z);
+				
+				//set the appropriate wise id
+				if(z == 0) {
+					wiseId1 = studentLoginId + "";
+				} else if(z == 1) {
+					wiseId2 = studentLoginId + "";
+				} else if(z == 2) {
+					wiseId3 = studentLoginId + "";
+				}
+			}
+			
+			/*
+			 * vector to keep track of all the start time timestamps to eliminate
+			 * duplicate step work entries. we previously had a bug where a student
+			 * client would send hundreds or even thousands of post requests with
+			 * the same stepwork. we have resolved this bug by checking for duplicates
+			 * whenever a post request comes into the server but some of the previous
+			 * runs that experienced this bug still have the duplicate step work entries.
+			 */
+			Vector<Timestamp> previousTimestamps = new Vector<Timestamp>();
+	    	
+	    	//get all the work from the workgroup
+	    	List<StepWork> stepWorks = StepWork.getByUserInfo(userInfo);
+	    	
+	    	//remember the previous response so we can determine what has changed
+	    	JSONObject previousResponse = null;
+	    	
+	    	int revisionNumber = 1;
+	    	
+	    	//loop through all the work
+	    	for(int z=0; z<stepWorks.size(); z++) {
+	    		StepWork stepWork = stepWorks.get(z);
+	    		
+    			//get the start and end time for the student visit
+				Timestamp visitStartTime = stepWork.getStartTime();
+				Timestamp visitEndTime = stepWork.getEndTime();
+				
+				if(!previousTimestamps.contains(visitStartTime)) {
+					//get the node and node type
+		    		Node node = stepWork.getNode();
+		    		String nodeType = node.getNodeType();
+		    		String nodeId = node.getNodeId();
+		    		
+		    		if(nodeType != null && nodeType.equals("FlashNode") && nodeId != null && nodeId.equals("node_55.fl")) {
+		    			//the work is for a flash step
+		    			
+		    			//get the step type e.g. "Flash"
+		    			String stepType = nodeType.replace("Node", "");
+		    			
+		    			//get the student work
+		    			String data = stepWork.getData();
+		    			
+		    			try {
+		    				//get the JSONObject representation of the student work
+							JSONObject dataJSONObject = new JSONObject(data);
+							
+							//get the node states from the student work
+							JSONArray nodeStates = dataJSONObject.getJSONArray("nodeStates");
+							
+							if(nodeStates != null && nodeStates.length() > 0) {
+								//get the last node state
+								JSONObject nodeState = nodeStates.getJSONObject(nodeStates.length() - 1);
+								
+								JSONObject response = nodeState.getJSONObject("response");
+								
+								if(response != null) {
+									//get the array of items
+									JSONArray dataArray = response.getJSONArray("data");
+									
+									//get the human readable custom grading
+									String customGrading = response.getString("customGrading");
+									
+									//loop through all the items
+									for(int i=0; i<dataArray.length(); i++) {
+										//get an item
+										JSONObject itemLabel = dataArray.getJSONObject(i);
+										
+										//get the attributes of the item
+										String labelText = itemLabel.getString("labelText");
+										long xPos = itemLabel.getLong("xPos");
+										long yPos = itemLabel.getLong("yPos");
+										boolean isDeleted = itemLabel.getBoolean("isDeleted");
+										long handleBarX = itemLabel.getLong("handleBarX");
+										long handleBarY = itemLabel.getLong("handleBarY");
+										
+										//create a row for this idea
+						    			Row itemRow = allWorkgroupsSheet.createRow(rowCounter++);
+						    			
+						    			int columnCounter = 0;
+						    			
+						    			//get the step work id and node id
+						    			Long stepWorkId = stepWork.getId();
+						    			
+						    			//get the title of the step
+						    			String title = nodeIdToNodeTitlesMap.get(nodeId);
+						    			
+						    			//get the content for the step
+						    			JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+						    			String prompt = ""; 
+						    				
+						    			if(nodeContent != null) {
+						    				if(nodeContent.has("prompt")) {
+						    					//get the prompt
+						    					prompt = nodeContent.getString("prompt");					    					
+						    				}
+						    			}
+										
+										long timeSpentOnStep = 0;
+								    	
+								    	//calculate the time the student spent on the step
+								    	if(visitEndTime == null || visitStartTime == null) {
+								    		//set to -1 if either start or end was null so we can set the cell to N/A later
+								    		timeSpentOnStep = -1;
+								    	} else {
+								    		/*
+								    		 * find the difference between start and end and divide by
+								    		 * 1000 to obtain the value in seconds
+								    		 */
+								    		timeSpentOnStep = (visitEndTime.getTime() - visitStartTime.getTime()) / 1000;	
+								    	}
+								    	
+								    	//set the workgroup values into the row
+								    	columnCounter = setCellValue(itemRow, columnCounter, workgroupId);
+								    	columnCounter = setCellValue(itemRow, columnCounter, wiseId1);
+								    	columnCounter = setCellValue(itemRow, columnCounter, wiseId2);
+								    	columnCounter = setCellValue(itemRow, columnCounter, wiseId3);
+								    	
+								    	//set the project run values into the row
+								    	itemRow.createCell(columnCounter++).setCellValue(teacherLogin);
+								    	columnCounter = setCellValue(itemRow, columnCounter, projectId);
+								    	columnCounter = setCellValue(itemRow, columnCounter, parentProjectId);
+								    	itemRow.createCell(columnCounter++).setCellValue(projectName);
+								    	columnCounter = setCellValue(itemRow, columnCounter, runId);
+								    	itemRow.createCell(columnCounter++).setCellValue(runName);
+								    	itemRow.createCell(columnCounter++).setCellValue(startTime);
+								    	itemRow.createCell(columnCounter++).setCellValue(endTime);
+								    	
+								    	//set the step values into the row
+								    	columnCounter = setCellValue(itemRow, columnCounter, periodName);
+										itemRow.createCell(columnCounter++).setCellValue(stepWorkId);
+										itemRow.createCell(columnCounter++).setCellValue(title);
+										itemRow.createCell(columnCounter++).setCellValue(stepType);
+										itemRow.createCell(columnCounter++).setCellValue(prompt);
+										itemRow.createCell(columnCounter++).setCellValue(nodeId);
+										itemRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitStartTime));
+										
+										//set the visit end time
+										if(visitEndTime != null) {
+											itemRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitEndTime));
+										} else {
+											itemRow.createCell(columnCounter++).setCellValue("");						
+										}
+										
+										//set the time spent on the step
+								    	if(timeSpentOnStep == -1) {
+								    		itemRow.createCell(columnCounter++).setCellValue("N/A");
+								    	} else {
+								    		itemRow.createCell(columnCounter++).setCellValue(timeSpentOnStep);	
+								    	}
+								    	
+								    	//set the student work values into the row
+								    	itemRow.createCell(columnCounter++).setCellValue(revisionNumber);
+								    	itemRow.createCell(columnCounter++).setCellValue(i + 1);
+								    	itemRow.createCell(columnCounter++).setCellValue(customGrading);
+								    	itemRow.createCell(columnCounter++).setCellValue(labelText);
+								    	itemRow.createCell(columnCounter++).setCellValue(xPos);
+								    	itemRow.createCell(columnCounter++).setCellValue(yPos);
+								    	itemRow.createCell(columnCounter++).setCellValue(isDeleted);
+								    	itemRow.createCell(columnCounter++).setCellValue(handleBarX);
+								    	itemRow.createCell(columnCounter++).setCellValue(handleBarY);
+								    	
+								    	boolean isItemNew = isItemNew(itemLabel, i, previousResponse);
+								    	boolean isItemLabelTextRevised = isItemLabelTextRevised(itemLabel, i, previousResponse);
+								    	boolean isItemRepositioned = isItemRepositioned(itemLabel, i, previousResponse);
+								    	boolean isItemDeletedFalseToTrue = isItemDeletedFalseToTrue(itemLabel, i, previousResponse);
+								    	boolean isItemDeletedTrueToFalse = isItemDeletedTrueToFalse(itemLabel, i, previousResponse);
+								    	
+								    	//set the values that specify whether the student data has changed
+								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemNew));
+								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemLabelTextRevised));
+								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemRepositioned));
+								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemDeletedFalseToTrue));
+								    	itemRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isItemDeletedTrueToFalse));
+									}
+									
+									if(dataArray.length() > 0) {
+										previousResponse = response;
+										revisionNumber++;										
+									}
+								}
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+		    		} else if(exportAllWork) {
+		    			//we will export all the non flash step student work
+		    			
+		    			//get the student work
+		    			String data = stepWork.getData();
+		    			
+		    			//get the work from the step work
+		    			String stepWorkResponse = getStepWorkResponse(stepWork);
+		    			
+		    			/*
+		    			 * we will display the step work if it exists and is not for
+		    			 * SVGDrawNode because SVGDrawNode student data can sometimes
+		    			 * cause problems when Excel tries to parse the SVG student
+		    			 * data 
+		    			 */
+		    			if(stepWorkResponse.equals("") && !nodeType.equals("SVGDrawNode")) {
+			    			//get the JSONObject representation of the student work
+							try {
+								JSONObject dataJSONObject = new JSONObject(data);
+								
+								//get the node states from the student work
+								JSONArray nodeStates = dataJSONObject.getJSONArray("nodeStates");
+								
+								if(nodeStates != null && nodeStates.length() > 0) {
+									//get the last node state
+									JSONObject nodeState = nodeStates.getJSONObject(nodeStates.length() - 1);
+									
+									stepWorkResponse = nodeState.toString();
+								}
+							} catch (JSONException e1) {
+								e1.printStackTrace();
+							}
+		    			}
+		    			
+						//create a row for this idea
+		    			Row workRow = allWorkgroupsSheet.createRow(rowCounter++);
+		    			
+		    			int columnCounter = 0;
+		    			
+		    			//get the step work id and node id
+		    			Long stepWorkId = stepWork.getId();
+		    			
+		    			//get the title of the step
+		    			String title = nodeIdToNodeTitlesMap.get(nodeId);
+		    			
+		    			String stepType = nodeType.replace("Node", "");
+		    			
+		    			//get the content for the step
+		    			JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+
+		    			//String prompt = "";
+		    			String prompt = getPromptFromNodeContent(nodeContent);
+		    			
+		    			long timeSpentOnStep = 0;
+				    	
+				    	//calculate the time the student spent on the step
+				    	if(visitEndTime == null || visitStartTime == null) {
+				    		//set to -1 if either start or end was null so we can set the cell to N/A later
+				    		timeSpentOnStep = -1;
+				    	} else {
+				    		/*
+				    		 * find the difference between start and end and divide by
+				    		 * 1000 to obtain the value in seconds
+				    		 */
+				    		timeSpentOnStep = (visitEndTime.getTime() - visitStartTime.getTime()) / 1000;	
+				    	}
+		    			
+				    	//set the workgroup values into the row
+		    			columnCounter = setCellValue(workRow, columnCounter, workgroupId);
+				    	columnCounter = setCellValue(workRow, columnCounter, wiseId1);
+				    	columnCounter = setCellValue(workRow, columnCounter, wiseId2);
+				    	columnCounter = setCellValue(workRow, columnCounter, wiseId3);
+				    	
+				    	//set the run values into the row
+				    	workRow.createCell(columnCounter++).setCellValue(teacherLogin);
+				    	columnCounter = setCellValue(workRow, columnCounter, projectId);
+				    	columnCounter = setCellValue(workRow, columnCounter, parentProjectId);
+				    	workRow.createCell(columnCounter++).setCellValue(projectName);
+				    	columnCounter = setCellValue(workRow, columnCounter, runId);
+				    	workRow.createCell(columnCounter++).setCellValue(runName);
+				    	workRow.createCell(columnCounter++).setCellValue(startTime);
+				    	workRow.createCell(columnCounter++).setCellValue(endTime);
+				    	
+				    	//set the step values into the row
+				    	columnCounter = setCellValue(workRow, columnCounter, periodName);
+						workRow.createCell(columnCounter++).setCellValue(stepWorkId);
+						workRow.createCell(columnCounter++).setCellValue(title);
+						workRow.createCell(columnCounter++).setCellValue(stepType);
+						workRow.createCell(columnCounter++).setCellValue(prompt);
+						workRow.createCell(columnCounter++).setCellValue(nodeId);
+						workRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitStartTime));
+						
+						//set the visit end time
+						if(visitEndTime != null) {
+							workRow.createCell(columnCounter++).setCellValue(timestampToFormattedString(visitEndTime));
+						} else {
+							workRow.createCell(columnCounter++).setCellValue("");						
+						}
+						
+						//set the time spent on the step
+				    	if(timeSpentOnStep == -1) {
+				    		workRow.createCell(columnCounter++).setCellValue("N/A");
+				    	} else {
+				    		workRow.createCell(columnCounter++).setCellValue(timeSpentOnStep);	
+				    	}
+				    	
+				    	columnCounter++;
+				    	columnCounter++;
+				    	
+				    	//set the student work into the row
+				    	workRow.createCell(columnCounter++).setCellValue(stepWorkResponse);
+				    	
+		    		}
+		    		
+		    		//add the visit start time to our vector so we can check for duplicate entries
+		    		previousTimestamps.add(visitStartTime);
+				}
+	    	}
+		}
+		
+		return wb;
+	}
+	
+	/**
+	 * Determine if the item is new
+	 * @param itemLabel the item label object
+	 * @param itemIndex the item index
+	 * @param previousResponse the previous student work
+	 * @return whether the item is new
+	 */
+	private boolean isItemNew(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
+		boolean result = false;
+		
+		if(previousResponse == null) {
+			//there was no previous student work so this item is new
+			result = true;
+		} else {
+			try {
+				//get the previous student work data
+				JSONArray dataArray = previousResponse.getJSONArray("data");
+
+				/*
+				 * if the item index is greater than or equals to the length
+				 * of the previous student work data, it means this item is
+				 * new.
+				 * e.g.
+				 * if the previous student work data had 3 items and the item
+				 * index of this item we are checking is 3, it means
+				 * this item we are checking is new because it will be the
+				 * 4th element in the current student work data array
+				 */
+				if(itemIndex >= dataArray.length()) {
+					result = true;
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Determine if the item label text was revised
+	 * @param itemLabel the item label object
+	 * @param itemIndex the item index
+	 * @param previousResponse the previous student work
+	 * @return whether the item was revised
+	 */
+	private boolean isItemLabelTextRevised(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
+		boolean result = false;
+		
+		if(previousResponse != null) {
+			try {
+				//get the previous student work data
+				JSONArray dataArray = previousResponse.getJSONArray("data");
+				
+				//check if the current item index is in the data array
+				if(dataArray != null && dataArray.length() > itemIndex) {
+					//get the previous item at the given index
+					JSONObject previousItemLabel = dataArray.getJSONObject(itemIndex);
+
+					if(previousItemLabel != null) {
+						//get the text from the previous student work item
+						String previousItemLabelText = previousItemLabel.getString("labelText");
+						
+						//get the text from the current student work item
+						String itemLabelText = itemLabel.getString("labelText");
+						
+						if(!itemLabelText.equals(previousItemLabelText)) {
+							//the label text is not the same
+							result = true;
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Determine if the item was repositioned on the canvas
+	 * @param itemLabel the item label object
+	 * @param itemIndex the item index
+	 * @param previousResponse the previous student work
+	 * @return whether the item was repositioned on the canvas
+	 */
+	private boolean isItemRepositioned(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
+		boolean result = false;
+		
+		if(previousResponse != null) {
+			try {
+				//get the previous student work data
+				JSONArray dataArray = previousResponse.getJSONArray("data");
+				
+				//check if the current item index is in the data array
+				if(dataArray != null && dataArray.length() > itemIndex) {
+					//get the previous item at the given index
+					JSONObject previousItemLabel = dataArray.getJSONObject(itemIndex);
+
+					if(previousItemLabel != null) {
+						//get the x and y pos for the previous student work item
+						long previousXPos = previousItemLabel.getLong("xPos");
+						long previousYPos = previousItemLabel.getLong("yPos");
+						
+						//get the x and y pos for the current student work item
+						long xPos = itemLabel.getLong("xPos");
+						long yPos = itemLabel.getLong("yPos");
+						
+						if(previousXPos != xPos || previousYPos != yPos) {
+							//the position has changed
+							result = true;
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Determine if the item isDeleted field has changed from false to true
+	 * @param itemLabel the item label object
+	 * @param itemIndex the item index
+	 * @param previousResponse the previous student work
+	 * @return whether the item was set from deleted false to true
+	 */
+	private boolean isItemDeletedFalseToTrue(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
+		boolean result = false;
+		
+		if(previousResponse == null) {
+			//there was no previous student work
+			
+			try {
+				//we will use the isDeleted value since there is no previous student work
+				boolean isDeleted = itemLabel.getBoolean("isDeleted");
+				result = isDeleted;
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				//get the previous student data
+				JSONArray dataArray = previousResponse.getJSONArray("data");
+				
+				//check if the current item index is in the data array
+				if(dataArray != null && dataArray.length() > itemIndex) {
+					//get the previous item at the given index
+					JSONObject previousItemLabel = dataArray.getJSONObject(itemIndex);
+
+					if(previousItemLabel != null) {
+						//get the isDeleted value for the previous student work
+						boolean previousIsDeleted = previousItemLabel.getBoolean("isDeleted");
+						
+						//get the isDeleted value for the current student work
+						boolean isDeleted = itemLabel.getBoolean("isDeleted");
+						
+						if(previousIsDeleted == false && isDeleted == true) {
+							//isDeleted changed from false to true
+							result = true;
+						}
+					}
+				} else {
+					try {
+						//we will use the isDeleted value since there is no previous student work
+						boolean isDeleted = itemLabel.getBoolean("isDeleted");
+						result = isDeleted;
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Determine if the item isDeleted field has changed from true to false
+	 * @param itemLabel the item label object
+	 * @param itemIndex the item index
+	 * @param previousResponse the previous student work
+	 * @return whether the item was set from deleted true to false
+	 */
+	private boolean isItemDeletedTrueToFalse(JSONObject itemLabel, int itemIndex, JSONObject previousResponse) {
+		boolean result = false;
+		
+		if(previousResponse != null) {
+			try {
+				//get the previous student data
+				JSONArray dataArray = previousResponse.getJSONArray("data");
+				
+				//check if the current item index is in the data array
+				if(dataArray != null && dataArray.length() > itemIndex) {
+					//get the previous item at the given index
+					JSONObject previousItemLabel = dataArray.getJSONObject(itemIndex);
+
+					if(previousItemLabel != null) {
+						//get the isDeleted value for the previous student work
+						boolean previousIsDeleted = previousItemLabel.getBoolean("isDeleted");
+						
+						//get the isDeleted value for the current student work
+						boolean isDeleted = itemLabel.getBoolean("isDeleted");
+						
+						if(previousIsDeleted == true && isDeleted == false) {
+							//isDeleted changed from true to false
+							result = true;
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
 	}
 	
 	/**
