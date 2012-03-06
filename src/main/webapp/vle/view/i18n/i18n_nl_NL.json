@@ -1,58 +1,422 @@
 {
-   "file_button_text": {
-       "value": "",
-       "description": "Text on the File Manager button"
-   },
-   "ideas_button_text": {
-       "value": "",
-       "description": "Text on the Idea Manager button"
-   },
-   "addidea_button_text": {
-       "value": "",
-       "description": "Text on the Add Idea button"
-   },
-   "grading_enlarge_student_work_text": {
-       "value": "Antwoorden van leerlingen vergroten ",
-       "description": "text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
-   },
-   "grading_show_all_revisions": {
-       "value": "Toon alle aanpassingen van leerlingen",
-       "description": "text to show next to the 'Show All Revisions' checkbox in the grading tool"
-   },
-   "grading_hide_show_revisions": {
-       "value": "Aanpassing(en)",
-       "description": "text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
-   },
-   "last_annotation": {
-       "value": "Laatste opmerking",
-       "description": "the text 'last annotation'"
-   },
-   "comment": {
-       "value": "Opmerking",
-       "description": "Comment"
-   },
-   "flag": {
-       "value": "Op te volgen! ",
-       "description": "Flag, for flagging student's work using the flaggingtool"
-   },
-   "student_work": {
-       "value": "LEERLINGENACTIVITEITEN ",
-       "description": "student work column in the grading tool"
-   },
-   "teacher_comment_and_score": {
-       "value": "LEERKRACHT FEEDBACK/EVALUATIE",
-       "description": "Teacher comments / score column in the grading tool"
-   },
-   "team_caps": {
-       "value": "GROEP",
-       "description": "TEAM"
-   },
-   "period": {
-       "value": "Lesperiode",
-       "description": "Period"
-   },
-   "grading_next_step": {
-       "value": "Volgende >",
-       "description": "'Next Step' button in the gradingtool that will show the next step in the project"
-   }
+    "file_button_text": {
+        "value": "Bestanden",
+        "description": "Text on the File Manager button"
+    },
+    "ideas_button_text": {
+        "value": "Idee‘n",
+        "description": "Text on the Idea Manager button"
+    },
+    "addidea_button_text": {
+        "value": "Voeg een idee toe",
+        "description": "Text on the Add Idea button"
+    },
+    "grading_enlarge_student_work_text": {
+        "value": "Antwoorden van leerlingen vergroten ",
+        "description": "text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
+    },
+    "grading_show_all_revisions": {
+        "value": "Toon alle versies van het antwoord (niet enkel de laatste versie)",
+        "description": "text to show next to the 'Show All Revisions' checkbox in the grading tool"
+    },
+    "grading_hide_show_revisions": {
+        "value": "Herziening(en)",
+        "description": "text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
+    },
+    "last_annotation": {
+        "value": "Laatste opmerking",
+        "description": "the text 'last annotation'"
+    },
+    "comment": {
+        "value": "Opmerking",
+        "description": "Comment"
+    },
+    "flag": {
+        "value": "Op te volgen! ",
+        "description": "Flag, for flagging student's work using the flaggingtool"
+    },
+    "student_work": {
+        "value": "LEERLINGENACTIVITEITEN ",
+        "description": "student work column in the grading tool"
+    },
+    "teacher_comment_and_score": {
+        "value": "LEERKRACHT FEEDBACK/EVALUATIE",
+        "description": "Teacher comments / score column in the grading tool"
+    },
+    "team_caps": {
+        "value": "TEAM",
+        "description": "TEAM"
+    },
+    "period": {
+        "value": "WISE-periode",
+        "description": "Period"
+    },
+    "grading_next_step": {
+        "value": "Volgende >",
+        "description": "'Next Step' button in the gradingtool that will show the next step in the project"
+    },
+    "mywork_button_text": {
+        "value": "Onze activiteiten/antwoorden",
+        "description": "Text on the My Work button"
+    },
+    "mywork_button_title": {
+        "value": "Onze antwoorden evalueren/herwerken",
+        "description": "Text for mouse hover title on the My Work button"
+    },
+    "flagged_button_text": {
+        "value": "Op te volgen!",
+        "description": "Text on the Flagged button"
+    },
+    "flagged_button_title": {
+        "value": "Op te volgen antwoorden herwerken",
+        "description": "Text for mouse hover title on the Flagged button"
+    },
+    "toggle_nav_button_text": {
+        "value": "Volledig scherm",
+        "description": "Text on the Toggle Navigation button when navigation UI is on (visible)"
+    },
+    "toggle_nav_button_title": {
+        "value": "Kies volledig scherm (maak de navigatiebalk onzichtbaar) ",
+        "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
+    },
+    "toggle_nav_button_text_off": {
+        "value": "Toon menu",
+        "description": "Text on the Toggle Navigation button when navigation UI is off (hidden)"
+    },
+    "toggle_nav_button_title_off": {
+        "value": "Maak de navigatiebalk zichtbaar",
+        "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
+    },
+    "signout_button_text": {
+        "value": "Afmelden",
+        "description": "Text on the Log out button"
+    },
+    "signout_button_title": {
+        "value": "Opslaan en afmelden",
+        "description": "Text for mouse hover title on the Log out button"
+    },
+    "previous_step_text": {
+        "value": "< Vorige",
+        "description": "Text on button in the project vle that will show the previous step in the project"
+    },
+    "previous_step_title": {
+        "value": "Vorige stap",
+        "description": "Text for mouse hover title on button in the project vle that will show the previous step in the project"
+    },
+    "next_step_text": {
+        "value": "Volgende >",
+        "description": "Text on button in the project vle that will show the next step in the project"
+    },
+    "next_step_title": {
+        "value": "Volgende stap",
+        "description": "Text for mouse hover title on button in the project vle that will show the next step in the project"
+    },
+    "journal_button_text": {
+        "value": "Dagboek",
+        "description": "Text on the Journal button"
+    },
+    "gohome_button_title": {
+        "value": "Opslaan en het project verlaten ",
+        "description": "Text for mouse hover title on the Home button"
+    },
+    "gohome_button_text": {
+        "value": "Naar homepage",
+        "description": "Text on the Home button"
+    },
+    "hint_button_text": {
+        "value": "Tips",
+        "description": "Text that shows up next to the Hint button"
+    },
+    "hint_button_title": {
+        "value": "Bekijk de tips",
+        "description": "Text for mouse hover title on the Hint button"
+    },
+    "hint_title": {
+        "value": "Tips bij deze stap",
+        "description": "Title that shows up in the hint window"
+    },
+    "hint_hint": {
+        "value": "Tip",
+        "description": "will be shown as Hint (1 of 2)"
+    },
+    "hint_next": {
+        "value": "Volgende",
+        "description": "next hint"
+    },
+    "hint_prev": {
+        "value": "Vorige",
+        "description": "previous hint"
+    },
+    "navigation_expand_all": {
+        "value": "Uitklappen",
+        "description": "Text on a button to show all navigation items"
+    },
+    "navigation_collapse_all": {
+        "value": "Inklappen",
+        "description": "Text on a button to hide all navigation items"
+    },
+    "student_assets_upload_new_file": {
+        "value": "Upload een nieuw bestand",
+        "description": "Text 'Upload New File' in Student Asset Manager"
+    },
+    "student_assets_my_files": {
+        "value": "Mijn bestanden",
+        "description": "Text 'My Files' in Student Asset Manager"
+    },
+    "student_assets_remove_file_warning": {
+        "value": "Mijn bestanden",
+        "description": "Text in Student Asset Manager when student is not allowed to remove a file"
+    },
+    "student_assets_import_success_message": {
+        "value": "Bestand succesvol ge•mporteerd",
+        "description": "Text 'Successfully imported file' in Student Asset Manager"
+    },
+    "student_assets_import_failure_message": {
+        "value": "Importeren van bestand is mislukt. Selecteer een ander bestand om te importeren. ",
+        "description": "Text in Student Asset Manager when importing file failed"
+    },
+    "student_assets_add_selected_file": {
+        "value": "Voeg het geselecteerde bestand toe aan deze stap ",
+        "description": "Text on a button in Student Asset Manager to add the selected file to the current step"
+    },
+    "student_assets_delete_selected_file": {
+        "value": "Verwijder het geselecteerde bestand",
+        "description": "Text on a button in Student Asset Manager to delete a selected file"
+    },
+    "student_assets_student_usage_message": {
+        "value": "Je gebruikt momenteel {0} van de {1} beschikbare ruimte.",
+        "description": "Text on a button in Student Asset Manager to delete a selected file"
+    },
+    "cancel": {
+        "value": "Annuleer ",
+        "description": "Text 'cancel'"
+    },
+    "ok": {
+        "value": "OK",
+        "description": "Text 'OK'"
+    },
+    "done": {
+        "value": "Klaar",
+        "description": "Text 'done', to mean completed"
+    },
+    "idea_basket": {
+        "value": "Onze idee‘n",
+        "description": "The text 'Idea Basket' in the Idea Manager"
+    },
+    "idea_basket_add_an_idea": {
+        "value": "Voeg een idee toe",
+        "description": "The text 'Add an Idea' in the Idea Manager"
+    },
+    "idea_basket_retrieval_error": {
+        "value": "Foutmelding: kan de idee‘n niet openen, klik vernieuwen (F5) om ze opnieuw te laden",
+        "description": "Error message displayed when retrieving idea basket fails"
+    },
+    "grading_button_grade_by_step": {
+        "value": "Evalueer de antwoorden per stap",
+        "description": "GradingTool: Text in the grade-by-step button"
+    },
+    "grading_button_grade_by_team": {
+        "value": "Evalueer de antwoorden per groep",
+        "description": "GradingTool: Text in the grade-by-team button"
+    },
+    "grading_button_view_student_uploaded_files": {
+        "value": "Bekijk de bestanden opgeladen door je leerlingen",
+        "description": "GradingTool: Text in the View Student Uploaded Files button"
+    },
+    "grading_button_export_latest_student_work": {
+        "value": "Exporteer enkel de laatste versies van de antwoorden van de leerlingen",
+        "description": "GradingTool: Text in the Export Latest Student Work button"
+    },
+    "grading_button_export_all_student_work": {
+        "value": "Exporteer alle leerlingenactiviteiten",
+        "description": "GradingTool: Text in the Export All Student Work button"
+    },
+    "grading_button_export_idea_baskets": {
+        "value": "Exporteer de idee‘n ",
+        "description": "GradingTool: Text in the Export Idea Baskets button"
+    },
+    "grading_button_export_explanation_builder_work": {
+        "value": "Exporteer leerlingenactiviteiten mbt het opbouwen van verklaringen ",
+        "description": "GradingTool: Text in the Export Explanation Builder Work button"
+    },
+    "grading_button_export_custom_work": {
+        "value": "Exporteer een selectie uit de leerlingenactiviteiten",
+        "description": "GradingTool: Text in the Export Custom Student Work button"
+    },
+    "grading_button_export_student_names": {
+        "value": "Exporteer de deernemerslijst",
+        "description": "GradingTool: Text in the Export Student Names button"
+    },
+    "grading_button_export_latest_student_work_description": {
+        "value": "(Exporteer de laatste versie van de herwerking) ",
+        "description": "GradingTool: Description next the Export Student Names button"
+    },
+    "grading_button_export_all_student_work_description": {
+        "value": "(Exporteer alle herzieningen van leerlingen en hun navigatiegegevens) ",
+        "description": "GradingTool: Description next the Export All Student Work button"
+    },
+    "grading_button_export_idea_baskets_description": {
+        "value": "(Exporteer alle herzieningen/aanvullingen mbt hun idee‘n)",
+        "description": "GradingTool: Description next the Export Idea Baskets button"
+    },
+    "grading_button_export_explanation_builder_work_description": {
+        "value": "(Exporteer alle herzieningen/aanvullingen mbt het opbouwen van verklaringen)",
+        "description": "GradingTool: Description next the Export Explanation Builder Work button"
+    },
+    "student_assets_student_usage_exceeded_message": {
+        "value": "Limiet overschreden! Maximale ruimte bedraagt {0}, momenteel reeds {1} in gebruik. Gelieve enkele bestanden te verwijderen. ",
+        "description": "Text on a button in Student Asset Manager to delete a selected file"
+    },
+    "grading_button_export_custom_work_description": {
+        "value": "(Exporteer alle herzieningen of enkel de laatste versies van de antwoorden) ",
+        "description": "GradingTool: Description next the Export Custom Student Work button"
+    },
+    "grading_button_export_student_names_description": {
+        "value": "(Exporteer deelnemerslijsten met de bijhorende gegevens: periode, groep, WISE ID en login) ",
+        "description": "GradingTool: Description next the Export Student Names button"
+    },
+    "grading_button_explanation": {
+        "value": "Uitleg",
+        "description": "GradingTool: Text in the Explanation button"
+    },
+    "grading_button_check_for_new_student_work": {
+        "value": "Controleer voor nieuwe leerlingenactiviteiten/antwoorden",
+        "description": "GradingTool: Text in the Check for New Student Work button"
+    },
+    "grading_button_save_changes": {
+        "value": "WIJZIGINGEN OPSLAAN",
+        "description": "GradingTool: Text in the Save Changes button"
+    },
+    "welcome": {
+        "value": "Welkom",
+        "description": "Text for 'Welcome'"
+    },
+    "welcome_users_default": {
+        "value": "Welkom testgebruiker!",
+        "description": "Text to display in VLE for user name in preview mode"
+    },
+    "note_title": {
+        "value": "Antwoordenkader",
+        "description": "Text to display in the title bar of a note dialog window"
+    },
+    "grading_change_team": {
+        "value": "Wijzig team",
+        "description": "text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
+    },
+    "grading_show_flagged_items_only": {
+        "value": "Enkel op te volgen activiteiten",
+        "description": "text to show next to the 'Show Flagged Items Only' checkbox in the grading tool"
+    },
+    "grading_hide_personal_info": {
+        "value": "Anonieme weergave zonder namen ",
+        "description": "text to show next to the 'Hide Personal Info' checkbox in the grading tool"
+    },
+    "grading_sort_by_auto_graded_score_checkbox": {
+        "value": "Sorteer volgens automatische evaluatiescore",
+        "description": "text to show next to the 'Sort By Auto Graded Score' checkbox in the grading tool"
+    },
+    "grading_no_revisions": {
+        "value": "(Geen herzieningen)",
+        "description": "text to show in grading cells that do not have any revisions"
+    },
+    "not_available": {
+        "value": "niet beschikbaar",
+        "description": "the text 'not available'"
+    },
+    "grading_open_premade_comments": {
+        "value": "Open vooraf opgemaakte feedback",
+        "description": "the text 'open premade comments' that will open the premadecomments window when clicked"
+    },
+    "score": {
+        "value": "Score",
+        "description": "Score"
+    },
+    "tools": {
+        "value": "TOOLS",
+        "description": "Tools"
+    },
+    "team": {
+        "value": "Leerlingenteam",
+        "description": "Student Team"
+    },
+    "grading_change_step": {
+        "value": "Wijzig deze stap",
+        "description": "'Change Step' button in the gradingtool that will show the select step page"
+    },
+    "grading_next_step_not_exist": {
+        "value": "Volgende stap bestaat niet, dit is de laatste te evalueren stap",
+        "description": "Text to show when next step does not exist because this is the last gradable step in teh project"
+    },
+    "grading_previous_step": {
+        "value": "< Vorige",
+        "description": "'Previous Step' button in the gradingtool that will show the previous step in the project"
+    },
+    "grading_question": {
+        "value": "Vraag",
+        "description": "the text 'question', to be shown next to the question that was presented to the student"
+    },
+    "grading_grade_by_team_percentage_project_completed": {
+        "value": "% van het project reeds afgerond",
+        "description": "GradingTool: grade by team % of project completed table column"
+    },
+    "grading_grade_by_team_header": {
+        "value": "Selecteer een leerlingenteam om met de evaluatie te starten",
+        "description": "GradingTool: grade by team page header"
+    },
+    "grading_grade_by_step_all_periods": {
+        "value": "Alle WISE-perioden",
+        "description": "GradingTool: grade by step All Periods select option when choosing whose work to filter by"
+    },
+    "grading_grade_by_step_percent_completed_step": {
+        "value": "% opende deze stap",
+        "description": "GradingTool: grade by step % of Students Who Have Completed This Step table column"
+    },
+    "grading_grade_by_step_scored_items_only": {
+        "value": "enkel de ge‘valueerde stappen ",
+        "description": "GradingTool: grade by step scored items only table column"
+    },
+    "grading_grade_by_step_average_class_score": {
+        "value": "Gemiddelde score",
+        "description": "GradingTool: grade by step Avg Class Score table column"
+    },
+    "grading_grade_by_step_items_to_review": {
+        "value": "Te evalueren activiteiten/antwoorden ",
+        "description": "GradingTool: grade by step Items to Review table column"
+    },
+    "grading_grade_by_step_editable": {
+        "value": "Wijzigbaar",
+        "description": "GradingTool: grade by step editable table column"
+    },
+    "grading_grade_by_step_point_value": {
+        "value": "Maximale score",
+        "description": "GradingTool: grade by step point value table column"
+    },
+    "grading_grade_by_step_header": {
+        "value": "Selecteer hieronder een stap om te starten met de evaluatie (Max. score per stap kan gewijzigd worden) ",
+        "description": "GradingTool: grade by step page header, tell teacher to select a step below"
+    },
+    "grading_grade_by_team_teacher_graded_score": {
+        "value": "Score op basis van leerkrachtevaluatie",
+        "description": "GradingTool: grade by team teacher-graded score"
+    },
+    "grading_hide_show_question": {
+        "value": "Verberg/Toon de vraag",
+        "description": "'hide/show question' link that toggles the question's visibility in the gradingtool"
+    },
+    "grading_previous_step_not_exist": {
+        "value": "Vorige stap bestaat niet, dit is de eerste te evalueren stap",
+        "description": "Text to show when previous step does not exist because this is the first gradable step in the project"
+    },
+    "grading_only_latest_revision_displayed": {
+        "value": "(Enkel de laatste versie wordt getoond) ",
+        "description": "text to show in grading cells where only the latest revision is displayed"
+    },
+    "grading_no_work_warning": {
+        "value": "Deze groep heeft nog geen antwoord geformuleerd binnen deze stap. Evaluatie of feedback geven is niet mogelijk. ",
+        "description": "text to show in grading cells that do not have students' work to display"
+    },
+    "timestamp": {
+        "value": "Tijdsaanduiding",
+        "description": "timestamp"
+    }
 }
