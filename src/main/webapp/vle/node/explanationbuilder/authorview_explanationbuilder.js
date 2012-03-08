@@ -109,13 +109,12 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	var background = this.content.background;
 	
 	//the label for the background url input
-	var backgroundImageUrlLabel = document.createTextNode("Background Image Url");
-	var localImageLabel = document.createTextNode(" - image you have uploaded to the project, e.g. assets/image.jpg");
-	var absoluteImageLabel = document.createTextNode(" - image from the internet, e.g. http://www.website.com/image.jpg");
-	var maxImageSizeLabel = document.createTextNode(" - max image size that you will be able to view is 680x480 (680x320 with student response box)");
-	
+	var backgroundImageUrlLabel = document.createTextNode("Organizing Space Background Image");
+	var maxImageSizeLabel = document.createTextNode(" - organizing space dimensions are 680x480 pixels");
 	//the text input for the background url
-	var backgroundImageUrl = createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: background, size:60, onchange: 'eventManager.fire("explanationBuilderUpdateBackgroundImageUrl")'});
+	var backgroundImageUrl = createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: background, size:50, onchange: 'eventManager.fire("explanationBuilderUpdateBackgroundImageUrl")'});
+	//create the browse button that allows author to choose swf from project assets
+	var backgroundBrowseButton = $(createElement(document, 'button', {id: 'backgroundBrowseButton', onclick:'eventManager.fire("explanationBuilderBrowseClicked")'})).text('Browse');
 	
 	//add the authoring components to the page
 	pageDiv.appendChild(promptText);
@@ -136,13 +135,10 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(backgroundImageUrlLabel);
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(localImageLabel);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(absoluteImageLabel);
-	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(maxImageSizeLabel);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(backgroundImageUrl);
+	$(pageDiv).append(backgroundBrowseButton);
 	
 	//add the page to the parent
 	parent.appendChild(pageDiv);
@@ -259,6 +255,25 @@ View.prototype.ExplanationBuilderNode.isChecked = function(value) {
 	}
 	
 	return checked;
+};
+
+/**
+ * Open asset editor dialog and allows user to choose the image to use for the background
+ */
+View.prototype.ExplanationBuilderNode.browseImageAssets = function() {
+	var callback = function(field_name, url, type, win){
+		url = 'assets/' + url;
+		document.getElementById(field_name).value = url;
+		
+		//fire swfUrlChanged event
+		this.eventManager.fire('explanationBuilderUpdateBackgroundImageUrl');
+	};
+	var params = {};
+	params.field_name = 'backgroundImageUrl';
+	params.type = 'image';
+	params.win = null;
+	params.callback = callback;
+	eventManager.fire('viewAssets',params);
 };
 
 //used to notify scriptloader that this script has finished loading
