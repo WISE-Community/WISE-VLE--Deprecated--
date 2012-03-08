@@ -79,13 +79,15 @@ ExplanationBuilder.prototype.render = function() {
 	
 	if(question != null){
 		this.question = question;
-		$('#promptLabel').text(question);
+		$('#promptLabel').html(question);
 	}
 	
 	if(instructions != null) {
 		this.instructions = instructions;
 		$('#instructionsText').html(instructions);
 	}
+	
+	var spacePromptText = '';
 	
 	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
 		/*
@@ -101,13 +103,14 @@ ExplanationBuilder.prototype.render = function() {
 		$('#showResponse').show();
 		// bind showResponse click action
 		$('#showResponse').click(function(){
-			$('#response').slideDown();
-			$(this).fadeOut().attr('disabled','disabled');
+			if(!$(this).hasClass('disabled')){
+				$('#response').slideDown();
+				$(this).fadeOut().addClass('disabled');
+			}
 		});
 		
-		// append click Ready to Explain! instructions to spacePrompt
-		var text = $('#spacePromptText').html() + '<br /><br /><span style="font-weight:bold;">When you have finished organizing your ideas, click "Ready to Explain!" above.</span>';
-		$('#spacePromptText').html(text);
+		// set spacePromptText text
+		spacePromptText = 'This is your organizing space. Drag ideas here to help you build a response to the question or instructions above.<br /><br /><span style="font-weight:bold;">When you have finished organizing your ideas, click "Ready to Explain!" above.</span>';
 	} else {
 		//we do not want to display the student text are
 		
@@ -115,7 +118,12 @@ ExplanationBuilder.prototype.render = function() {
 		//$('#answer').hide();
 		$('#response').remove();
 		$('#showResponse').remove();
+		
+		// set spacePromptText text
+		spacePromptText = 'This is your organizing space. Drag ideas here to help you build a response to the question or instructions above.';
 	}
+	
+	$('#spacePromptText').html(spacePromptText);
 	
 	if(bg){
 		this.bg = bg;
@@ -288,7 +296,11 @@ ExplanationBuilder.prototype.save = function() {
 			
 			//set this back to false now that we have saved it
 			this.basketChanged = false;
-		}		
+		}
+		
+		setTimeout(function(){
+			$('#saveConfirm').html('Success!&nbsp;&nbsp;If you are finished, go to the next step in the project.').fadeIn('fast');
+		},1000);
 	}
 };
 
@@ -316,16 +328,22 @@ function resetForm(target){
 
 
 ExplanationBuilder.prototype.init = function(context){
-	$('#save').attr('disabled','disabled');
+	$('#save').addClass('disabled');
 	
 	$('#responseText').keyup(function(){
 		context.answer = $('#responseText').val();
-		$('#save').removeAttr('disabled');
+		$('#save').removeClass('disabled');
+		$('#saveConfirm').fadeOut('fast',function(){
+			$(this).text('');
+		});
 		//localStorage.answer = context.answer;
 	});
 	
 	$('#save').click(function(){
-		$(this).attr('disabled','disabled');
+		if(!$(this).hasClass('disabled')){
+			$(this).addClass('disabled');
+			context.save();
+		}
 	});
 
 	//set the drop area height
@@ -454,9 +472,10 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 		 * display a message to the student and disable the buttons 
 		 * and textarea so the student can't work on the step
 		 */
-		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
+		alert("Error: Failed to retrieve Idea Basket!  You will not be able to work on this step. Please reload this step or refresh the project to try again", 3);
 		$('#addNew').attr('disabled', 'disabled');
-		$('#save').attr('disabled', 'disabled');
+		$('#save').addClass('disabled');
+		$('#showResponse').addClass('disabled');
 		$('#responseText').attr('disabled', 'disabled');
 	} else {
 		//we have the basket
@@ -628,7 +647,9 @@ ExplanationBuilder.prototype.updateOrder = function(){
 ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 	$target.draggable({
 		helper: function(event) {
-			return $('<div class="drag-idea"><table class="tablesorter" style="width:260px;"></table></div>').find('table').append($(event.target).closest('tr').clone()).end().insertAfter($('#target'));
+			var width = $('#activeIdeas').width();
+			var helper = $('<div class="drag-idea"><table class="tablesorter"></table></div>').find('table').append($(event.target).closest('tr').clone()).end().width(width).insertAfter($('#target'));
+			return helper;
 		},
 		start: function(event){
 			$(event.target).addClass('drag');
@@ -636,7 +657,6 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 		stop: function(event){
 			$(event.target).removeClass('drag');
 		},
-		cursor: 'pointer',
 		scope: 'drag-idea'
 		//revert: 'invalid'
 	});
@@ -855,14 +875,14 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			$('#showResponse').hide();
 			$('#response').show();
 		} else {
-			$('#showResponse').removeAttr('disabled');
+			$('#showResponse').removeClass('disabled');
 		}
 	} else {
 		newIdea.lastAcceptedText = ideaText;
 		context.explanationIdeas.push(newIdea);
 		//localStorage.explanationIdeas = JSON.stringify(context.explanationIdeas);
 		
-		$('#showResponse').removeAttr('disabled');
+		$('#showResponse').removeClass('disabled');
 	}
 
 	if (!isActive){
@@ -1062,8 +1082,11 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 
 	if(context.explanationIdeas.length<1){
 		$('#spacePrompt').fadeIn();
-		$('#response').slideUp();
-		$('#showResponse').fadeIn().attr('disabled','disabled');
+		$('#response').slideUp(function(){
+			$('#saveConfirm').hide();
+			$('#save').addClass('disabled');
+		});
+		$('#showResponse').fadeIn().addClass('disabled');
 	}
 };
 

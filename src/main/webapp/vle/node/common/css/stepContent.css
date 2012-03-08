@@ -222,6 +222,7 @@ td { vertical-align: top; }
 
 body {
 	font-size:0.9em;
+	background: none repeat scroll 0 0 #666666;
 }
 
 header {
@@ -243,12 +244,11 @@ input[type="text"]:focus, textarea:focus {
 	border-color: #4e94a2;
 }
 
-input[type="submit"],input[type="button"] {
+button,input[type="submit"],input[type="button"] {
 	border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	background-color: #F9F9F9;
-	cursor: pointer;
 	padding: .35em .5em;
 	border: 1px solid #aaaaaa;
 	background: #eeeeee url(../images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x;
@@ -265,7 +265,7 @@ input[type="submit"],input[type="button"] {
 	line-height:1.2em;
 }
 
-input[type="submit"]:hover,input[type="button"]:hover {
+button:hover,input[type="submit"]:hover,input[type="button"]:hover {
 	-moz-box-shadow:0 0 1px #aaaaaa;
 	-webkit-box-shadow:0 0 1px #aaaaaa;
 	box-shadow:0 0 1px #aaaaaa;
@@ -274,13 +274,13 @@ input[type="submit"]:hover,input[type="button"]:hover {
 	color: #222222;
 }
 
-input[type="submit"]:active,input[type="button"]:active {
+button:active,input[type="submit"]:active,input[type="button"]:active {
 	border: 1px solid #666666;
 	background: #555555 url(../images/ui-bg_flat_50_555555_40x100.png) 50% 50% repeat-x;
 	color: #ffffff;
 }
 
-input[type="submit"][disabled="disabled"],input[type="button"][disabled="disabled"] {
+button[disabled='disabled'],input[type="submit"][disabled="disabled"],input[type="button"][disabled="disabled"] {
 	color: #999999;
 	background: #F4F4F4;
 	border-color: #CCCCCC;
@@ -289,6 +289,55 @@ input[type="submit"][disabled="disabled"],input[type="button"][disabled="disable
 	box-shadow:none;
 	cursor:default;
 }
+
+/* Submit buttons */
+
+a.submit {
+    background: #ff553f;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff5340), color-stop(100%,#ff553f));
+    background: -moz-linear-gradient(center top, #ff5340 0%, #ff553f 100%);
+    -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #db2911;
+    -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #db2911;
+    box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #db2911;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    /*text-shadow: 0px 0px 1px #c21300;*/
+    padding: 4px 8px;
+    display: inline-block;
+    font-family: Arial;
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: bold;
+    cursor:pointer;
+}
+a.submit:hover {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff553f), color-stop(100%,#eb1f0c));
+    background: -moz-linear-gradient(center top, #ff553f 0%, #eb1f0c 100%);
+    -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #bf220d, 0px 0px 0px 1px #de2007 inset;
+    -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #bf220d, 0px 0px 0px 1px #de2007 inset;
+    box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #bf220d, 0px 0px 0px 1px #de2007 inset;
+}
+a.submit:active {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff553f), color-stop(100%,#eb1f0c));
+    background: -moz-linear-gradient(center top, #ff553f 0%, #eb1f0c 100%);
+    -webkit-box-shadow: 0px -5px 15px #c71602 inset, 0px 0px 0px 1px #bd1300, 0px 0px 0px 1px #bd1300 inset;
+    -moz-box-shadow: 0px -5px 15px #c71602 inset, 0px 0px 0px 1px #bd1300, 0px 0px 0px 1px #bd1300 inset;
+    box-shadow: 0px -5px 15px #c71602 inset, 0px 0px 0px 1px #bd1300, 0px 0px 0px 1px #bd1300 inset;
+}
+a.submit.disabled {
+	color: #999999;
+	background: #F4F4F4;
+	border-color: #CCCCCC;
+	-moz-box-shadow:none;
+	-webkit-box-shadow:none;
+	box-shadow:none;
+	text-shadow:none;
+	cursor:default;
+}
+
+
+/* Layout items */
 
 .stepHeader {
 	background: url("../images/step_head_bg.png") repeat scroll 0 0 #2E2E2E;
@@ -305,10 +354,11 @@ input[type="submit"][disabled="disabled"],input[type="button"][disabled="disable
 
 .assessmentItem {
 	background: none repeat scroll 0 0 #666666;
-    border: 0.5em solid #666666;
+    border: 0.65em solid #666666;
 	font-size:.9em;
 	color:#444444;
 }
+
 
 /* Main prompt elements */
 .prompt {

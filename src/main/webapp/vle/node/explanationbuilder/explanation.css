@@ -24,7 +24,7 @@ header {
 #showResponse {
 	position:absolute;
 	right:.75em;
-	top:.65em;
+	top:.45em;
 	display:none;
 }
 
@@ -203,9 +203,17 @@ tr.ui-draggable-disabled:hover td {
 }
 
 .saveWrapper {
-	text-align:right;
+	text-align:center;
 	margin-top:.5em;
-	padding-right:.25em;
+	position:relative;
+}
+
+#saveConfirm {
+	color:#007391;
+	display:none;
+	position: absolute;
+    right: 0.5em;
+    top: 0.3em;
 }
 
 img.notification {

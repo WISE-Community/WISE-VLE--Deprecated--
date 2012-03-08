@@ -29,6 +29,8 @@ View.prototype.explanationBuilderDispatcher = function(type,args,obj){
 		obj.ExplanationBuilderNode.updateInstructions();
 	} else if(type == 'explanationBuilderUpdateEnableStudentTextAreaCheckBox') {
 		obj.ExplanationBuilderNode.updateEnableStudentTextAreaCheckBox();
+	} else if(type == 'explanationBuilderBrowseClicked'){
+		obj.ExplanationBuilderNode.browseImageAssets();
 	}
 };
 
@@ -45,7 +47,8 @@ var events = [
 	'explanationBuilderUpdatePrompt',
 	'explanationBuilderUpdateBackgroundImageUrl',
 	'explanationBuilderUpdateInstructions',
-	'explanationBuilderUpdateEnableStudentTextAreaCheckBox'
+	'explanationBuilderUpdateEnableStudentTextAreaCheckBox',
+	'explanationBuilderBrowseClicked'
 ];
 
 /*
