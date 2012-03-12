@@ -64,8 +64,14 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	//create a new div that will contain the authroing components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 	
+	//create the label for the require work checkbox
+	var requireWorkText = document.createTextNode("Require students to complete this step before moving forward:");
+	
+	//create the checkbox for requiring students to complete work on the step before moving on in the project
+	var requireWorkToggle = createElement(document, 'input', {id: 'requireWorkToggle', type: 'checkbox', onclick: 'eventManager.fire("explanationBuilderUpdateWorkRequired")'});
+	
 	//create the label for the textarea that the author will write the prompt in
-	var promptText = document.createTextNode("Prompt for Student:");
+	var promptText = document.createTextNode("Prompt/Question for Students:");
 	
 	/*
 	 * create the textarea that the author will write the prompt in
@@ -80,13 +86,14 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	 * new events in the <new step type name>Events.js file and then
 	 * create new functions to handle the event
 	 */
-	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
+	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
 	
 	//create the text for the enable student text area checkbox
 	var enableStudentTextAreaText = document.createTextNode("Enable Student Response Box:");
 	
 	//create the checkbox for enabling the student text area
 	var enableStudentTextAreaCheckBox = createElement(document, 'input', {id: 'enableStudentTextAreaCheckBox', type: 'checkbox', onclick: 'eventManager.fire("explanationBuilderUpdateEnableStudentTextAreaCheckBox")'});
+	enableStudentTextAreaCheckBox.checked = true;
 	
 	//create the label for the textarea that the author will write the instructions in
 	var instructionsText = document.createTextNode("Instructions for Student Explanation:");
@@ -100,7 +107,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	}
 	
 	//create the textarea that the author will write the instructions in
-	var instructionsTextArea = createElement(document, 'textarea', {id: 'instructionsTextArea', rows:'10', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdateInstructions')"});
+	var instructionsTextArea = createElement(document, 'textarea', {id: 'instructionsTextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdateInstructions')"});
 
 	//populate the instructions text area
 	instructionsTextArea.value = instructionsValue;
@@ -117,6 +124,11 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	var backgroundBrowseButton = $(createElement(document, 'button', {id: 'backgroundBrowseButton', onclick:'eventManager.fire("explanationBuilderBrowseClicked")'})).text('Browse');
 	
 	//add the authoring components to the page
+	pageDiv.appendChild(requireWorkText);
+	pageDiv.appendChild(requireWorkToggle);
+	pageDiv.appendChild(createBreak());
+	
+	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptTextArea);
@@ -147,8 +159,13 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	this.populatePrompt();
 	
 	//populate the enable student text area checkbox
-	if(this.content.enableStudentTextArea) {
-		enableStudentTextAreaCheckBox.checked = true;
+	if(!this.content.enableStudentTextArea) {
+		enableStudentTextAreaCheckBox.checked = false;
+	}
+	
+	//populate the require work checkbox
+	if("isMustComplete" in this.content && this.content.isMustComplete) {
+		requireWorkToggle.checked = true;
 	}
 };
 
@@ -232,6 +249,19 @@ View.prototype.ExplanationBuilderNode.updateInstructions = function(){
 View.prototype.ExplanationBuilderNode.updateEnableStudentTextAreaCheckBox = function() {
 	//update the content
 	this.content.enableStudentTextArea = this.isChecked($('#enableStudentTextAreaCheckBox').attr('checked'));
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update whether to require student work on step before moving on
+ */
+View.prototype.ExplanationBuilderNode.updateWorkRequired = function() {
+	//update the content
+	this.content.isMustComplete = this.isChecked($('#requireWorkToggle').attr('checked'));
 	
 	/*
 	 * fire source updated event, this will update the preview

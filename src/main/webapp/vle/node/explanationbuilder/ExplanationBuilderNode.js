@@ -51,6 +51,24 @@ function ExplanationBuilderNode(nodeType, view) {
 }
 
 /**
+ * Sets up constraints before rendering.
+ * 
+ * @param contentPanel
+ * @param studentWork
+ */
+ExplanationBuilderNode.prototype.render = function(contentPanel,studentWork, disable){
+	if(!this.constraintKey){
+		this.constraintKey = this.utils.generateKey(20);
+	}
+	
+	// add constraints
+	this.addConstraints();
+	
+	/* call super */
+	Node.prototype.render.call(this, contentPanel, studentWork, disable);
+};
+
+/**
  * This function is called when the vle loads the step and parses
  * the previous student answers, if any, so that it can reload
  * the student's previous answers into the step.
@@ -331,6 +349,67 @@ ExplanationBuilderNode.prototype.ideaBasketChanged = function(type,args,obj) {
 		//update the idea basket within the step
 		thisNode.contentPanel.explanationBuilder.ideaBasketChanged(thisNode.view.ideaBasket);
 	}
+};
+
+/**
+ * Override of Node.overridesIsCompleted
+ * Specifies whether the node overrides Node.isCompleted
+ * Note: we don't need to add a Node.isCompleted() override function, as
+ * we explicitly set node isCompleted() and isNotCompleted() in explanation.js
+ * after the appropriate conditions are met/not met.
+ */
+ExplanationBuilderNode.prototype.overridesIsCompleted = function(){
+	return true;
+};
+
+/**
+ * Adds a new constraint for this explanation if the content specifies that
+ * student must complete work before exiting to another step
+ */
+ExplanationBuilderNode.prototype.addConstraints = function() {
+	var content = this.content.getContentJSON();
+	var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.id);
+	if('isMustComplete' in content && content.isMustComplete){
+    	//isMustComplete is true so we will create the constraint
+		
+		// set constraint alert message depending on whether student text area is enabled
+		var message = '';
+		if(content.enableStudentTextArea == null || content.enableStudentTextArea) {
+			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
+		} else {
+			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
+		}
+		
+    	eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.constraintKey, workCorrect:false, msg:message});
+	}
+};
+
+ExplanationBuilderNode.prototype.removeConstraints = function(){
+	eventManager.fire('removeConstraint',this.constraintKey);
+};
+
+/**
+ * Override of Node.processStateConstraints
+ * Checks to see if the work was completed. If it was, then no constraint is needed.
+ * If not, then we need to add a constraint.
+ */
+ExplanationBuilderNode.prototype.processStateConstraints = function() {
+	if(!this.isCompleted()){
+		this.addConstraints();
+	}
+};
+
+/**
+ * Override on Node.canExit
+ */
+ExplanationBuilderNode.prototype.canExit = function(){
+	//check if the content panel has been set
+	if(this.contentPanel) {
+		if(this.contentPanel.explanationBuilder){
+			return this.contentPanel.explanationBuilder.canExit();
+		}
+	}
+	return true;
 };
 
 /*

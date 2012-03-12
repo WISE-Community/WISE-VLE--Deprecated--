@@ -233,6 +233,19 @@ html, button, input, select, textarea {
 	font-family: Arial, Helvetica, Tahoma, sans-serif;
 }
 
+a, a:visited {
+	color: #007391;
+    margin: 0;
+    text-decoration:none;
+    cursor:pointer;
+    outline:none;
+}
+
+a:hover {
+	text-decoration:underline;
+	color: #007391;
+}
+
 input[type="text"], textarea {
 	padding: 0.4em;
     font-size: 0.9em;
@@ -241,7 +254,7 @@ input[type="text"], textarea {
 }
 
 input[type="text"]:focus, textarea:focus {
-	border-color: #4e94a2;
+	border-color: #75BFCE;
 }
 
 button,input[type="submit"],input[type="button"] {
@@ -296,9 +309,9 @@ a.submit {
     background: #ff553f;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff5340), color-stop(100%,#ff553f));
     background: -moz-linear-gradient(center top, #ff5340 0%, #ff553f 100%);
-    -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #db2911;
-    -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #db2911;
-    box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #db2911;
+    -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #ff361c;
+    -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #ff361c;
+    box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #ff361c;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
@@ -310,13 +323,15 @@ a.submit {
     color: #ffffff;
     font-weight: bold;
     cursor:pointer;
+    margin:0 1em;
 }
 a.submit:hover {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff553f), color-stop(100%,#eb1f0c));
     background: -moz-linear-gradient(center top, #ff553f 0%, #eb1f0c 100%);
-    -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #bf220d, 0px 0px 0px 1px #de2007 inset;
-    -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #bf220d, 0px 0px 0px 1px #de2007 inset;
-    box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #bf220d, 0px 0px 0px 1px #de2007 inset;
+    -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #f02005, 0px 0px 0px 1px #de2007 inset;
+    -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #f02005, 0px 0px 0px 1px #de2007 inset;
+    box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #f02005, 0px 0px 0px 1px #de2007 inset;
+    text-decoration:none;
 }
 a.submit:active {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff553f), color-stop(100%,#eb1f0c));
