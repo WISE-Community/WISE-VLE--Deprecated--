@@ -539,7 +539,6 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 		this.bg = bg;
 		$('#target').css('background-image','url(' + bg + ')');
 		$('#target').css('background-repeat','no-repeat');
-		$('#target').css('background-position','left top');
 		//localStorage.bg = bg;
 	}
 

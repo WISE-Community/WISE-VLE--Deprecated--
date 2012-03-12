@@ -33,6 +33,8 @@ View.prototype.explanationBuilderDispatcher = function(type,args,obj){
 		obj.ExplanationBuilderNode.browseImageAssets();
 	} else if(type=='explanationBuilderUpdateWorkRequired') {
 		obj.ExplanationBuilderNode.updateWorkRequired();
+	} else if(type=='explanationBuilderUpdateBgAlign') {
+		obj.ExplanationBuilderNode.updateBgAlign();
 	}
 };
 
@@ -51,7 +53,8 @@ var events = [
 	'explanationBuilderUpdateInstructions',
 	'explanationBuilderUpdateEnableStudentTextAreaCheckBox',
 	'explanationBuilderBrowseClicked',
-	'explanationBuilderUpdateWorkRequired'
+	'explanationBuilderUpdateWorkRequired',
+	'explanationBuilderUpdateBgAlign'
 ];
 
 /*
