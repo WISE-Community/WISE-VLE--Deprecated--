@@ -666,6 +666,14 @@ View.prototype.renderNode = function(position){
 	//get the node
 	var node = this.getProject().getNodeByPosition(position);
 	
+	//get the previous node
+	var prevNode = this.getProject().getNodeByPosition(this.currentPosition);
+	
+	// if the previous node has exit restrictions set, return without rendering new node
+	if(prevNode != null && !prevNode.canExit()){
+		return;
+	}
+	
 	if(node != null) {
 		//get the node id
 		var nodeId = node.id;
@@ -687,6 +695,7 @@ View.prototype.renderNode = function(position){
 		//this.notificationManager.notify(status.msg, 3);
 		
 		//display any navigation logic constraint messages in an alert
+		if(status.msg)
 		alert(status.msg);
 		
 		if(status.value==2){

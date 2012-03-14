@@ -29,14 +29,14 @@
 		</header>
 		<div id="main" role="main" class="assessmentItem">
 			<div id='prompt' class='prompt'>
-				<input type='button' id='showResponse' value='Ready to Explain!' disabled='disabled' />
+				<a id='showResponse' class="submit disabled">Ready to Explain!</a>
 				<div id='promptLabel' class='promptLabel'></div>
 			</div>
 			<div id='response' class='response'>
     		    <div class='responseLabel' id='instructionsText'></div>
             	<div class='responseWrapper'><textarea id='responseText' class='responseText'></textarea></div>
             	<div class='saveWrapper'>
-            		<input type="button" id="save" value="Save" />
+            		<span id='saveConfirm'></span><a id='save' class='submit'>SAVE RESPONSE</a><a id='cancel' class='disabled'>Cancel</a>
             	</div>
   		    </div>
 	  		<div id='explanationSpace'>	
@@ -44,7 +44,7 @@
 		  			<div id='explanationIdeas'>
 		  		    	<div id='target'>
 		  		        	<div id='spacePrompt'>
-		  		        		<div id='spacePromptText'>This is your organizing space. Drag ideas here to help you build a response to the question or instructions above.</div>
+		  		        		<div id='spacePromptText'></div>
 		  		        	</div>
 		  		        	<div id='colorPicker'></div>
 		  		      	</div>

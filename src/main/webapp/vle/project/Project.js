@@ -17,6 +17,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var postLevel = 5; //default to post all steps
 		var totalProjectContent = totalProjectContent;
 		var constraints = [];
+		var usedNodeTypes = [];
 		
 		/* When parsing a minified project, looks up and returns each node's content
 		 * based on the given id.*/
@@ -75,6 +76,11 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					}
 
 					if(currNode.type != 'DuplicateNode'){
+						if(usedNodeTypes.indexOf(currNode.type) == -1) {
+							//add current node type to our array of node types if it is not already in the array
+							usedNodeTypes.push(currNode.type);
+						}
+						
 						/* validate and set title attribute */
 						if(!currNode.title || currNode.title==''){
 							view.notificationManager.notify('No title attribute for node with id: ' + thisNode.id, 2);
@@ -2119,7 +2125,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* returns the theme for this project */
 			getTheme:function(){return theme;},
 			/* sets the them for this project */
-			setTheme:function(t){theme = t;}
+			setTheme:function(t){theme = t;},
+			/* gets all the node types used in this project */
+			getUsedNodeTypes:function(){return usedNodeTypes;}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

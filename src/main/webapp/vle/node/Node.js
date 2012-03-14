@@ -1379,6 +1379,14 @@ Node.prototype.isCompleted = function() {
 };
 
 /**
+ * Get whether the step overrides Node.isCompleted or not
+ * @return a boolean value whether there is an override function or not
+ */
+Node.prototype.overridesIsCompleted = function() {
+	return false;
+};
+
+/**
  * Set the step boolean value part of review sequence to true
  */
 Node.prototype.setIsPartOfReviewSequence = function() {
@@ -1399,6 +1407,14 @@ Node.prototype.setIsNotPartOfReviewSequence = function() {
  */
 Node.prototype.isPartOfReviewSequence = function() {
 	return this.isStepPartOfReviewSequence;
+};
+
+/**
+ * Get whether the node has any exit restrictions set
+ * @returns Boolean whether the step can exit or not
+ */
+Node.prototype.canExit = function() {
+	return true;
 };
 
 /**
@@ -1478,6 +1494,13 @@ Node.prototype.hasGradingView = function() {
 Node.prototype.canImportWork = function(importFromNode) {
 	return this.importableFromNodes &&
 		this.importableFromNodes.indexOf(importFromNode.type) > -1;
+};
+
+/**
+ * Process any constraints in the node based on state
+ */
+Node.prototype.processStateConstraints = function() {
+	// to be overriden by child nodes
 };
 
 

@@ -48,11 +48,16 @@ function ExplanationBuilder(node, view) {
 	this.ideaBasket;
 	this.basketChanged = false;
 	this.stateChanged = false;
+	this.expIdeasChanged = false;
 	
 	this.question = '';
 	this.instructions = '';
 	this.bg = '';
 	this.latestState;
+	this.enableStudentTextArea;
+	
+	this.explanationIdeas = [];
+	this.answer = '';
 };
 
 /**
@@ -68,10 +73,12 @@ function ExplanationBuilder(node, view) {
  * the .html file for this step (look at template.html).
  */
 ExplanationBuilder.prototype.render = function() {
+	var context = this;
+	
 	//get the question or prompt the student will read
 	var question = this.content.prompt;
 	
-	//get the instructions the stuent will read
+	//get the instructions the student will read
 	var instructions = this.content.instructions;
 	
 	//get the background image that will be displayed in the drop area
@@ -79,7 +86,7 @@ ExplanationBuilder.prototype.render = function() {
 	
 	if(question != null){
 		this.question = question;
-		$('#promptLabel').text(question);
+		$('#promptLabel').html(question);
 	}
 	
 	if(instructions != null) {
@@ -87,12 +94,15 @@ ExplanationBuilder.prototype.render = function() {
 		$('#instructionsText').html(instructions);
 	}
 	
+	var spacePromptText = '';
+	
 	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
 		/*
 		 * previous instances of the eb step did not have this field
 		 * so we will display the student text area if it is null
 		 * or if it is set to true
 		 */
+		this.enableStudentTextArea = true;
 		
 		//show the student text area
 		//$('#response').show();
@@ -101,28 +111,122 @@ ExplanationBuilder.prototype.render = function() {
 		$('#showResponse').show();
 		// bind showResponse click action
 		$('#showResponse').click(function(){
-			$('#response').slideDown();
-			$(this).fadeOut().attr('disabled','disabled');
+			if(!$(this).hasClass('disabled')){
+				$('#response').slideDown();
+				$(this).fadeOut().addClass('disabled');
+			}
 		});
 		
-		// append click Ready to Explain! instructions to spacePrompt
-		var text = $('#spacePromptText').html() + '<br /><br /><span style="font-weight:bold;">When you have finished organizing your ideas, click "Ready to Explain!" above.</span>';
-		$('#spacePromptText').html(text);
+		$('#save').addClass('disabled');
+		
+		$('#responseText').keyup(function(){
+			//context.answer = $('#responseText').val();
+			var answer = $('#responseText').val();
+			//get the last state that was submitted (the previous time the student worked on this step)
+			if(context.getLatestState() == null) {
+				//the answer has changed since last time
+				context.stateChanged = true;
+			} else {
+				if(context.getLatestState().answer != answer) {
+					//the answer has changed since last time
+					context.stateChanged = true;
+				}
+			}
+			$('#save').removeClass('disabled');
+			$('#saveConfirm').fadeOut('fast',function(){
+				$(this).text('');
+			});
+			$('#cancel').removeClass('disabled');
+			//localStorage.answer = context.answer;
+		});
+		
+		// bind save button click action
+		$('#save').unbind('click');
+		$('#save').click(function(){
+			if(!$(this).hasClass('disabled')){
+				$(this).addClass('disabled');
+				$('#cancel').addClass('disabled');
+				context.answer = $('#responseText').val();
+				if ((/\S/.test(context.answer))){
+					// a valid answer has been submitted, so set node completed and remove constraint
+					context.node.setCompleted();
+					context.node.removeConstraints();
+				} else {
+					// a valid answer has not been submitted, so set node not completed and add constraint
+					context.node.setNotCompleted();
+					context.node.addConstraints();
+				}
+				context.save();
+				// update constraints in navigation menu
+				eventManager.fire('updateNavigationConstraints');
+			}
+		});
+		
+		// bind cancel click action
+		$('#cancel').unbind('click');
+		$('#cancel').click(function(){
+			if(!$(this).hasClass('disabled')){
+				$(this).addClass('disabled');
+				$('#save').addClass('disabled');
+				context.answer = context.getLatestState() != null ? context.getLatestState().answer : '';
+				$('#responseText').val(context.answer);
+				context.stateChanged = false;
+			}
+		});
+		
+		// set spacePromptText text
+		spacePromptText = 'This is your Organizing Space. Drag ideas here to help you build a response to the question or instructions above.<br /><br /><span style="font-weight:bold;">When you have finished organizing your ideas, click "Ready to Explain!" above.</span>';
 	} else {
 		//we do not want to display the student text are
+		this.enableStudentTextArea = false;
 		
-		//hide the student text area
+		//remove the student text area
 		//$('#answer').hide();
 		$('#response').remove();
 		$('#showResponse').remove();
+		
+		// set spacePromptText text
+		spacePromptText = 'This is your Organizing Space. Drag ideas here to help you build a response to the question or instructions above.';
 	}
+	
+	$('#spacePromptText').html(spacePromptText);
 	
 	if(bg){
 		this.bg = bg;
 		$('#target').css('background-image','url(' + bg + ')');
 		$('#target').css('background-repeat','no-repeat');
+	}
+	
+	// set background position
+	if('bgPosition' in this.content){
+		var bgPos = this.content.bgPosition;
+		if(bgPos == 'left-top'){
+			$('#target').css('background-position','left top');
+		} else if(bgPos == 'left-middle'){
+			$('#target').css('background-position','left middle');
+		} else if(bgPos == 'left-bottom'){
+			$('#target').css('background-position','left bottom');
+		} else if(bgPos == 'center-top'){
+			$('#target').css('background-position','center top');
+		} else if(bgPos == 'center-middle'){
+			$('#target').css('background-position','center middle');
+		} else if(bgPos == 'center-bottom'){
+			$('#target').css('background-position','center bottom');
+		}  else if(bgPos == 'right-top'){
+			$('#target').css('background-position','right top');
+		} else if(bgPos == 'right-middle'){
+			$('#target').css('background-position','right middle');
+		} else if(bgPos == 'right-bottom'){
+			$('#target').css('background-position','right bottom');
+		} else {
+			$('#target').css('background-position','left top');
+		}
+	} else {
 		$('#target').css('background-position','left top');
 	}
+	
+	// add navigation constraints
+	//this.node.addConstraints();
 
 	//initialize the UI and load the idea basket
 	this.initializeUI();
@@ -193,7 +297,7 @@ ExplanationBuilder.prototype.initializeUI = function() {
 		explanationIdeas = latestState.explanationIdeas;
 		
 		//get the answer the student typed last time
-		answer = latestState.answer;		
+		answer = latestState.answer;
 	}
 
 	//load idea basket, the explanation ideas, and other elements of the UI
@@ -236,18 +340,10 @@ ExplanationBuilder.prototype.save = function() {
 		//the vle has the basket so we will save the student work
 		
 		//get the answer the student wrote
-		var answer = $('#responseText').val();
-		
-		//get the last state that was submitted (the previous time the student worked on this step)
-		if(this.latestState != null) {
-			if(this.latestState.answer != answer) {
-				//the answer has changed since last time
-				this.stateChanged = true;
-			}
-		}
+		var answer = this.answer;
 		
 		//check if the student has changed anything in this step
-		if(this.stateChanged == true) {
+		if(this.stateChanged || this.expIdeasChanged) {
 			/*
 			 * create the student state that will store the new work the student
 			 * just submitted
@@ -269,7 +365,7 @@ ExplanationBuilder.prototype.save = function() {
 			 * and in that file you would define QUIZSTATE and therefore
 			 * would change the TEMPLATESTATE to QUIZSTATE below
 			 */
-			var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, $('#responseText').val(), Date.parse(new Date()));
+			var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, this.answer, Date.parse(new Date()));
 
 			/*
 			 * fire the event to push this state to the global view.states object.
@@ -280,6 +376,7 @@ ExplanationBuilder.prototype.save = function() {
 
 			//push the state object into this or object's own copy of states
 			this.states.push(explanationBuilderState);
+			this.stateChanged = false;
 		}
 		
 		if(this.basketChanged == true) {
@@ -288,7 +385,38 @@ ExplanationBuilder.prototype.save = function() {
 			
 			//set this back to false now that we have saved it
 			this.basketChanged = false;
-		}		
+		}
+		
+		// show success message if node has been completed
+		if(this.node.isCompleted()){
+			setTimeout(function(){
+				$('#saveConfirm').html('Saved!&nbsp;&nbsp;If you are finished, move on in the project.').fadeIn('fast');
+			},1000);
+		}
+	}
+};
+
+/**
+ * Checks whether there are any exit restrictions on this step.
+ * @returns Boolean whether we can exit the step
+ */
+ExplanationBuilder.prototype.canExit = function(){
+	function returnVal(value){
+		return value;
+	};
+	
+	if(this.enableStudentTextArea){
+		// student text area is enabled, so check whether there are unsaved changes
+		if(this.stateChanged){
+			// there are unsaved changes, so show confirm dialog asking users whether they want to leave without saving or cancel
+			return confirm('Warning, you have unsaved changes!\n\nIf you want to save your response, choose "Cancel" and click the "Save Response" button.\n\nAre you sure you want to leave without saving?');
+		} else {
+			// there are no unsaved changes, so we can exit, return true
+			return true;
+		}
+	} else {
+		// student text area is disabled, so we can exit, return true
+		return true;
 	}
 };
 
@@ -316,18 +444,6 @@ function resetForm(target){
 
 
 ExplanationBuilder.prototype.init = function(context){
-	$('#save').attr('disabled','disabled');
-	
-	$('#responseText').keyup(function(){
-		context.answer = $('#responseText').val();
-		$('#save').removeAttr('disabled');
-		//localStorage.answer = context.answer;
-	});
-	
-	$('#save').click(function(){
-		$(this).attr('disabled','disabled');
-	});
-
 	//set the drop area height
 	//$('#target').css('height', this.backgroundHeight);
 	
@@ -352,7 +468,7 @@ ExplanationBuilder.prototype.init = function(context){
 			} else if (left > context.dropAreaWidth) {
 				left = context.dropAreaWidth;
 			}
-			context.stateChanged = true;
+			context.expIdeasChanged = true;
 			context.addExpIdea(context,false,true,id,left,top);
 			ui.draggable.draggable('disable');
 		}
@@ -423,7 +539,6 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 		this.bg = bg;
 		$('#target').css('background-image','url(' + bg + ')');
 		$('#target').css('background-repeat','no-repeat');
-		$('#target').css('background-position','left top');
 		//localStorage.bg = bg;
 	}
 
@@ -454,9 +569,10 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 		 * display a message to the student and disable the buttons 
 		 * and textarea so the student can't work on the step
 		 */
-		alert("Error: Failed to retrieve Idea Basket, you will not be able to work on this step, reload this step or refresh the VLE to try to load it again", 3);
+		alert("Error: Failed to retrieve Idea Basket!  You will not be able to work on this step. Please reload this step or refresh the project to try again", 3);
 		$('#addNew').attr('disabled', 'disabled');
-		$('#save').attr('disabled', 'disabled');
+		$('#save').addClass('disabled');
+		$('#showResponse').addClass('disabled');
 		$('#responseText').attr('disabled', 'disabled');
 	} else {
 		//we have the basket
@@ -582,7 +698,7 @@ ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,textCha
 			var text = this.ideaBasket.ideas[i].text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
 			//if($tr){
 			$tr.html('<td>' + text + '</td><td>' + '<span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>');
-			$tr.effect("pulsate", { times:2 }, 500);
+			//$tr.effect("pulsate", { times:2 }, 500);
 			if($tr.hasClass('ui-draggable-disabled')){
 				setTimeout(function(){
 					$tr.css('opacity','.5');
@@ -628,7 +744,9 @@ ExplanationBuilder.prototype.updateOrder = function(){
 ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 	$target.draggable({
 		helper: function(event) {
-			return $('<div class="drag-idea"><table class="tablesorter" style="width:260px;"></table></div>').find('table').append($(event.target).closest('tr').clone()).end().insertAfter($('#target'));
+			var width = $('#activeIdeas').width();
+			var helper = $('<div class="drag-idea"><table class="tablesorter"></table></div>').find('table').append($(event.target).closest('tr').clone()).end().width(width).insertAfter($('#target'));
+			return helper;
 		},
 		start: function(event){
 			$(event.target).addClass('drag');
@@ -636,7 +754,6 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 		stop: function(event){
 			$(event.target).removeClass('drag');
 		},
-		cursor: 'pointer',
 		scope: 'drag-idea'
 		//revert: 'invalid'
 	});
@@ -855,14 +972,21 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			$('#showResponse').hide();
 			$('#response').show();
 		} else {
-			$('#showResponse').removeAttr('disabled');
+			$('#showResponse').removeClass('disabled');
 		}
 	} else {
 		newIdea.lastAcceptedText = ideaText;
 		context.explanationIdeas.push(newIdea);
+		if(!context.enableStudentTextArea || (/\S/.test(context.answer))){
+			// student text area is disabled or a valid answer has been submitted, so set node completed and remove constraint
+			context.node.setCompleted();
+			context.node.removeConstraints();
+			// update constraints in navigation menu
+			eventManager.fire('updateNavigationConstraints');
+		}
 		//localStorage.explanationIdeas = JSON.stringify(context.explanationIdeas);
 		
-		$('#showResponse').removeAttr('disabled');
+		$('#showResponse').removeClass('disabled');
 	}
 
 	if (!isActive){
@@ -1015,7 +1139,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 };
 
 ExplanationBuilder.prototype.updateExpIdea = function(id,left,top,color,lastAcceptedText){
-	this.stateChanged = true;
+	this.expIdeasChanged = true;
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
 			if(left){
@@ -1039,7 +1163,7 @@ ExplanationBuilder.prototype.updateExpIdea = function(id,left,top,color,lastAcce
 };
 
 ExplanationBuilder.prototype.removeExpIdea = function(context,id){
-	this.stateChanged = true;
+	this.expIdeasChanged = true;
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
 			this.explanationIdeas.splice(i,1);
@@ -1057,13 +1181,21 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 	$('#explanationIdea' + id).remove();
 	if ($('#idea' + id)){
 		$('#idea' + id).draggable('enable');
-		$('#idea' + id).effect("pulsate", { times:2 }, 500); 
+		//$('#idea' + id).effect("pulsate", { times:2 }, 500); 
 	}
 
 	if(context.explanationIdeas.length<1){
 		$('#spacePrompt').fadeIn();
-		$('#response').slideUp();
-		$('#showResponse').fadeIn().attr('disabled','disabled');
+		$('#response').slideUp(function(){
+			$('#saveConfirm').hide();
+			$('#save').addClass('disabled');
+		});
+		$('#showResponse').fadeIn().addClass('disabled');
+		// no ideas remain in organizing space, so set node not completed and add constraint
+		this.node.setNotCompleted();
+		this.node.addConstraints();
+		// update constraints in navigation menu
+		eventManager.fire('updateNavigationConstraints');
 	}
 };
 

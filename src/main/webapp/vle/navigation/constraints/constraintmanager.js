@@ -277,84 +277,16 @@ ConstraintManager.prototype.processStateConstraints = function(){
 	/* check to see in the project constraint processing is complete and the 
 	 * state has been loaded before proceeding. If it is not, exit. */
 	if(this.canProcessStateConstraints()){
-		/* get ChallengeNode nodeVisits keyed by id */
-		var challengeVisits = this.view.state.getNodeVisitsByNodeType('ChallengeNode');
-		for(var nodeId in challengeVisits){
-			/* check to see if a constraint is needed for the challenge node with nodeId */
-			if(this.isConstraintNeededForChallenge(challengeVisits[nodeId])){
-				/* set up vars for creating constraint */
+		// get all the node types used in the project
+		var nodeTypes = this.view.getProject().getUsedNodeTypes();
+		
+		for(var type in nodeTypes){
+			// for each node type, get all the nodeVisits
+			var nodeTypeVisits = this.view.state.getNodeVisitsByNodeType(type);
+			// for each nodeVisit, process state constraints for that node
+			for(var nodeId in nodeTypeVisits){
 				var node = this.view.getProject().getNodeById(nodeId);
-				var toNodeId = node.getContent().getContentJSON().assessmentItem.interaction.attempts.navigateTo;
-				
-				/* create the constraint */
-				this.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:toNodeId, mode:'node'}, y:{id:node.id, mode:'node'}, status: 1, menuStatus:0, effective:  Date.parse(new Date())});
-			}
-		}
-	
-		/* get assessment list nodeVisits keyed by id */
-		var assessmentVisits = this.view.state.getNodeVisitsByNodeType('AssessmentListNode');
-		
-		/* iterate each and check to see if the work was completed, if it was, then
-		 * no constraint is needed, if not, then we need to add a constraint if isMustCompleteAllPartsBeforeExit
-		 * == true */
-		for(var nodeId in assessmentVisits){
-			if(this.view.state.getLatestWorkByNodeId(nodeId) == ''){
-				/* no work found */
-				if(this.view.getProject().getNodeById(nodeId).getContent().getContentJSON().isMustCompleteAllPartsBeforeExit){
-					/* author specified that student must complete work before going to any other step, so create a constraint */
-					this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:nodeId, mode:'node'}});
-				}
-			}
-		}
-		
-		/* get assessment list nodeVisits keyed by id */
-		var openresponseVisits = this.view.state.getNodeVisitsByNodeType('OpenResponseNode');
-		
-		/* iterate each and check to see if the work was completed, if it was, then
-		 * no constraint is needed, if not, then we need to add a constraint if isMustCompleteAllPartsBeforeExit
-		 * == true */
-		for(var nodeId in openresponseVisits){
-			if(this.view.getProject().getNodeById(nodeId).getContent().getContentJSON().isMustCompleteAllPartsBeforeExit){
-				if(!this.view.getProject().getNodeById(nodeId).isCompleted()){
-					this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:nodeId, mode:'node'}});
-				}
-			}
-		}
-		
-		/* get branch nodeVisits keyed by id */
-		var branchVisits = this.view.state.getNodeVisitsByNodeType('BranchNode');
-		
-		/* loop through all node ids and see if work was completed, if so, we need to
-		 * remove the constraints for the branch specified in the content for that choice */
-		for(var nodeId in branchVisits){
-			var response = this.view.state.getLatestWorkByNodeId(nodeId);
-			if(response != ''){
-				var node = this.view.getProject().getNodeById(nodeId);
-				
-				/* we need to disallow further work on this branch node */
-				this.view.eventManager.fire('addConstraint', {type:'NotVisitableXConstraint', x:{id:node.id, mode:'node'}, status:1, menuStatus:0, msg:'You can only answer this question once.'});
-				
-				/* get the choice Id based on the response */
-				var content = node.getContent().getContentJSON(), choiceId = null;
-				for(var u=0;u<content.assessmentItem.interaction.choices.length;u++){
-					if(content.assessmentItem.interaction.choices[u].text == response){
-						choiceId = content.assessmentItem.interaction.choices[u].identifier;
-					}
-				}
-				
-				/**
-				 * Remove the constraints that are associated with the choice in
-				 * the student's response.
-				 */
-				for(var v=0;v<content.branches.length;v++){
-					/* if the determined choiceId is in the choiceIds of this branch, then
-					 * we need to remove the specified constraints for this branch */
-					if(content.branches[v].choiceIds.indexOf(choiceId) != -1){
-						for(var w=0;w<content.branches[v].constraintIds.length;w++){
-							this.view.eventManager.fire('removeConstraint', content.branches[v].constraintIds[w]);
-						}
-					}
-				}
+				node.processStateConstraints();
 			}
 		}
 		
@@ -376,63 +308,6 @@ ConstraintManager.prototype.processStateConstraints = function(){
  */
 ConstraintManager.prototype.canProcessStateConstraints = function(){
 	return this.view.viewStateLoaded && this.view.isProjectConstraintProcessingComplete;
-};
-
-/**
- * Walks through a Challenge Node's nodeVisits and determines if a constraint is needed
- * for this Challenge Node. This is only necessary when the states are first loaded.
- * 
- * @param nodeVisits
- * @return
- */
-ConstraintManager.prototype.isConstraintNeededForChallenge = function(nodeVisits){
-	/* keep track of the state of the challenge node as we step through the given
-	 * nodeVisits: 0=no work, 1=work completed and correct, 2=work completed, incorrect
-	 * and visited navigateTo node, 3=work completed, incorrect and did not visit 
-	 * navigateTo node. */
-	var currentChallengeState = 0;
-	
-	/* cycle (walk through) the nodeVisits for this challenge node */
-	for(var f=0;f<nodeVisits.length;f++){
-		if(nodeVisits[f].getLatestState()){
-			if(nodeVisits[f].getLatestState().isCorrect){
-				/* work completed and is correct */
-				currentChallengeState = 1;
-			} else {
-				/* not correct, the student should have navigated to the navigateTo node */
-				if(this.visitedNavigateToNode(this.view.getProject().getNodeById(nodeVisits[f].nodeId), nodeVisits[f].visitStartTime + 1)){
-					currentChallengeState = 2;
-				} else {
-					currentChallengeState = 3;
-				}
-			}
-		}
-	}
-	
-	/* if the currentChallengeState is 3 at this point, then we need a constraint,
-	 * for all other states, we do not */
-	return (currentChallengeState==3) ? true : false;
-};
-
-/**
- * Returns true if the navigateTo node specified in the given node's content 
- * has been visited after the given start time, returns false otherwise.
- * 
- * @param object - node
- * @param timestampe - startTime
- * @return boolean
- */
-ConstraintManager.prototype.visitedNavigateToNode = function(node, startTime){
-	var toVisitId = node.getContent().getContentJSON().assessmentItem.interaction.attempts.navigateTo;
-	var nodeVisits = this.view.state.getNodeVisitsByNodeId(toVisitId);
-	var nodeVisits = Constraint.prototype.getEffectiveNodeVisits(nodeVisits.slice(), startTime);
-	for(var a=0;a<nodeVisits.length;a++){
-		if(nodeVisits[a].nodeId == toVisitId){
-			return true;
-		}
-	}
-	
-	return false;
 };
 
 /**

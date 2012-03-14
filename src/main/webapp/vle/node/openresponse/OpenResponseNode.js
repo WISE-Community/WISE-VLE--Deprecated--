@@ -137,13 +137,32 @@ OpenResponseNode.prototype.importFile = function(filename) {
  * @param studentWork
  */
 OpenResponseNode.prototype.render = function(contentPanel,studentWork, disable) {
-	/* add a new constraint for this node if the content specifies that
-	 * student must complete work before exiting to another step */		
+	// add constraints
+	this.addConstraints();
+	
+	/* call super */
+	Node.prototype.render.call(this, contentPanel, studentWork, disable);
+};
+
+/**
+ * Adds a new constraint for this open response if the content specifies that
+ * student must complete work before exiting to another step
+ */
+OpenResponseNode.prototype.addConstraints = function() {
 	if (this.content.getContentJSON().isMustCompleteAllPartsBeforeExit) {
 		this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
 	}
-	/* call super */
-	Node.prototype.render.call(this, contentPanel, studentWork, disable);
+};
+
+/**
+ * Override of Node.processStateConstraints
+ * Checks to see if the work was completed. If it was, then no constraint is needed.
+ * If not, then we need to add a constraint.
+ */
+OpenResponseNode.prototype.processStateConstraints = function() {
+	if(!this.isCompleted()){
+		this.addConstraints();
+	}
 };
 
 /**
