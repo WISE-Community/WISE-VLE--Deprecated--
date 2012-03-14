@@ -759,23 +759,41 @@ View.prototype.createKeystrokeManagerForFrame = function(){
 };
 
 View.prototype.onFrameLoaded = function(){
-	var node = this.getProject().getNodeByPosition(this.getCurrentPosition());
+	//get the position in the project
+	var position = this.getCurrentPosition();
 	
-	//check if this node is a mirror/duplicate node
-	if(node.type == 'DuplicateNode') {
-		//get the real node this duplicate node points to 
-		node = node.realNode;
+	if(position == null) {
+		/*
+		 * the position is set to the first step in the project or the last step
+		 * the student was on, so if the position is null, it means there are no 
+		 * steps in the project.
+		 */
+		alert("Error: This project does not have any steps");
+		
+		//close the loading learning environment popup message
+		$('#loading').dialog('close');
+	} else {
+		//we have a position
+		var node = this.getProject().getNodeByPosition(position);
+		
+		if(node != null) {
+			//check if this node is a mirror/duplicate node
+			if(node.type == 'DuplicateNode') {
+				//get the real node this duplicate node points to 
+				node = node.realNode;
+			}
+			
+			//set the event manager into the content panel so the html has access to it
+			if(node.contentPanel){
+				node.contentPanel.eventManager = this.eventManager;
+				node.contentPanel.nodeId = node.id;
+				node.contentPanel.node = node;
+				node.contentPanel.scriptloader = this.scriptloader;
+			}
+			
+			this.eventManager.fire('pageRenderComplete', node.id);	
+		}
 	}
-	
-	//set the event manager into the content panel so the html has access to it
-	if(node.contentPanel){
-		node.contentPanel.eventManager = this.eventManager;
-		node.contentPanel.nodeId = node.id;
-		node.contentPanel.node = node;
-		node.contentPanel.scriptloader = this.scriptloader;
-	}
-	
-	this.eventManager.fire('pageRenderComplete', node.id);
 };
 
 /**
