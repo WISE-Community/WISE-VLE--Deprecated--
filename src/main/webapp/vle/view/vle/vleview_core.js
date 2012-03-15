@@ -29,13 +29,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.renderStartNode();
 		obj.processStudentWork();
 	} else if(type=='renderNode'){
-		obj.renderNode(args[0]);
-	} else if(type=='renderNodeStart'){
-		if(args){
-			obj.onRenderNodeStart(args[0]);
-		} else {
-			obj.onRenderNodeStart(null);
-		};
+		obj.renderNode(args[0]);		
 	} else if(type=='renderNodeComplete'){
 		if(args){
 			obj.onRenderNodeComplete(args[0]);
@@ -576,17 +570,25 @@ View.prototype.isAnyNavigationLoadingCompleted = function(){
 };
 
 /**
- * Handles cleanup of previously rendered node.
+ * Handles cleanup of previously rendered node, specified by position argument.
+ * Save nodevisit state for current position, close popups, remove highlighted steps, etc.
  */
-View.prototype.onRenderNodeStart = function(position){
+View.prototype.renderNodePrep = function(position){
 	/* ensures that only one popup (any notes and journal) is open at any given time */
 	this.eventManager.fire('closeDialogs');
-	
+		
 	/* retrieve previous node */
 	var prevNode = this.getProject().getNodeByPosition(position);
-
+	
 	/* tell previous step (if exists) to clean up */ 
 	if(prevNode) {
+		//get the node id
+		var nodeId = prevNode.id;
+		
+		//remove the bubble and remove the highlight for the step the student is now visiting
+		eventManager.fire('removeMenuBubble', [nodeId]);
+		eventManager.fire('unhighlightStepInMenu', [nodeId]);
+		
 		prevNode.onExit();  
 		if(this.state) {
 			this.state.endCurrentNodeVisit();  // set endtime, etc.	
@@ -661,6 +663,11 @@ View.prototype.onRenderNodeComplete = function(position){
 
 /**
  * Renders the node at the given position in the vle view
+ * RenderNode lifecycle:
+ * 1. Check (e.g. constraints) to see if user can move to the specified position
+ * 2. Prepare to move to the specified position. save nodevisit state for current position, close popups, remove highlighted steps, etc.
+ * 3. Do the actual rendering of the new node
+ * 4. Render Node Complete.
  */
 View.prototype.renderNode = function(position){
 	//get the node
@@ -672,15 +679,6 @@ View.prototype.renderNode = function(position){
 	// if the previous node has exit restrictions set, return without rendering new node
 	if(prevNode != null && !prevNode.canExit()){
 		return;
-	}
-	
-	if(node != null) {
-		//get the node id
-		var nodeId = node.id;
-		
-		//remove the bubble and remove the highlight for the step the student is now visiting
-		eventManager.fire('removeMenuBubble', [nodeId]);
-		eventManager.fire('unhighlightStepInMenu', [nodeId]);
 	}
 	
 	/* check to see if we can render the given position and if we should render it
@@ -703,7 +701,10 @@ View.prototype.renderNode = function(position){
 		}
 	}
 	
-	this.eventManager.fire('renderNodeStart', this.currentPosition);
+	// Prepare to move to the specified position. 
+	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.
+	this.renderNodePrep(this.currentPosition);
+	
 	this.notificationManager.notify('rendering  node, pos: ' + position,4);
 	
     var nodeToVisit = null;
