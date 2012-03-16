@@ -844,6 +844,103 @@ View.prototype.checkCRaterVerifyResponse = function(responseText) {
 	return isValid;
 };
 
+
+/**
+ * Get the scoring rules from the crater item verification response xml
+ * @param xml the string with the xml response text from the verify request 
+ */
+View.prototype.getCRaterScoringRulesFromXML = function(xml) {
+	var cRaterScoringRules = [];
+	
+	/*
+	 * find all the scoring rule values
+	 * e.g.
+	 * <scoring_rules>
+	 * <scoring_rule concepts="1-4" nummatches="4" rank="1" score="4"/>
+	 * <scoring_rule concepts="1" nummatches="1" rank="2" score="3"/>
+	 * <scoring_rule concepts="2-4" nummatches="3" rank="3" score="3"/>
+	 * <scoring_rule concepts="2-4" nummatches="1" rank="4" score="2"/>
+	 * <scoring_rule concepts="5" nummatches="1" rank="5" score="1"/>
+	 * </scoring_rules>
+	 */
+	var scoringRules = xml.match(/scoring_rule.*"/g);
+	
+	if(scoringRules != null) {
+		//loop through all the scoring rules
+		for(var x=0; x<scoringRules.length; x++) {
+			
+			var currScoreRule = {};
+			
+			//get a concepts rule e.g. concepts="1-4"
+			var scoringRule = scoringRules[x];
+						
+			//create a match to extract the concept value
+			var conceptsMatch = scoringRule.match(/concepts="(.*?)"/);
+			
+			if(conceptsMatch != null && conceptsMatch.length > 1) {
+				/*
+				 * get the concepts
+				 * conceptsMatch[0] = concepts="1-4"
+				 * conceptsMatch[1] = 1-4
+				 */
+				var concepts = conceptsMatch[1];
+				
+				currScoreRule.concepts = concepts;
+			}
+
+			// create a match to extract the nummatches value
+			var nummatchesMatch = scoringRule.match(/nummatches="(\d*)"/);
+			
+			if(nummatchesMatch != null && nummatchesMatch.length > 1) {
+				/*
+				 * get the nummatches
+				 * nummatchesMatch[0] = nummatches="1"
+				 * nummatchesMatch[1] = 1
+				 */
+				var nummatches = nummatchesMatch[1];
+				
+				currScoreRule.numMatches = nummatches;
+			}
+			
+			
+			//create a match to extract the rank value
+			var rankMatch = scoringRule.match(/rank="(\d*)"/);
+			
+			if(rankMatch != null && rankMatch.length > 1) {
+				/*
+				 * get the rank
+				 * rankMatch[0] = rank="1"
+				 * rankMatch[1] = 1
+				 */
+				var rank = rankMatch[1];
+				
+				currScoreRule.rank = rank;
+			}
+
+			//create a match to extract the score value
+			var scoreMatch = scoringRule.match(/score="(\d*)"/);
+			
+			if(scoreMatch != null && scoreMatch.length > 1) {
+				/*
+				 * get the score
+				 * scoreMatch[0] = score="1"
+				 * scoreMatch[1] = 1
+				 */
+				var score = scoreMatch[1];
+				
+				currScoreRule.score = score;
+			}
+			
+			// add empty feedback string by default
+			currScoreRule.feedback = "";
+			
+			cRaterScoringRules.push(currScoreRule);
+		}		
+	}
+	
+	return cRaterScoringRules;
+};
+
 /**
  * Get the max score from the xml
  * @param xml the string with the xml response text from the verify request 
@@ -890,6 +987,61 @@ View.prototype.getCRaterMaxScoreFromXML = function(xml) {
 	}
 	
 	return maxScore;
+};
+
+
+/**
+ * Returns the string of concepts converted into an array
+ * @param conceptsString, can be "1,2,3" or "1-4" or "1-4,7" or ""
+ * @return array [1,2,3], [1,2,3,4], [1,2,3,4,7], []
+ */
+View.prototype.convertCRaterConceptsToArray = function(conceptsString) {
+	var allConcepts = [];
+	if (conceptsString && conceptsString != "") {
+		var conceptsArr = conceptsString.split(",");
+		for (var i=0; i<conceptsArr.length; i++) {
+			var conceptsElement = conceptsArr[i];
+			if (conceptsElement.indexOf("-") >= 0) {
+				var conceptsElementArr = conceptsElement.split("-");		
+				for (var k=conceptsElementArr[0]; k <= conceptsElementArr[1]; k++) {
+					allConcepts.push(parseInt(k));							
+				}
+			} else {
+				allConcepts.push(parseInt(conceptsElement));			
+			}
+		}
+	}
+	return allConcepts;
+};
+
+/**
+ * Return true iff the specified studentConcepts exactly matches the specified ruleConcepts
+ * @param studentConcepts string of concepts the student got. like "1,2"
+ * @param ruleConcepts string of concepts in the rule. looks like "1", "1,2", "1-4"
+ */
+View.prototype.satisfiesCRaterRulePerfectly = function(studentConcepts, ruleConcepts) {
+	var studentConceptsArr = this.convertCRaterConceptsToArray(studentConcepts);
+	var ruleConceptsArr = this.convertCRaterConceptsToArray(ruleConcepts);
+	return (studentConceptsArr.length == ruleConceptsArr.length && studentConceptsArr.compare(ruleConceptsArr));
+};
+
+/**
+ * Return true iff the specified studentConcepts matches the specified ruleConcepts numMatches or more times
+ * @param studentConcepts string of concepts the student got
+ * @param ruleConcepts string of concepts in the rule
+ * @param numMatches number of concepts that need to match to be true.
+ */
+View.prototype.satisfiesCRaterRule = function(studentConcepts, ruleConcepts, numMatches) {
+	var studentConceptsArr = this.convertCRaterConceptsToArray(studentConcepts);
+	var ruleConceptsArr = this.convertCRaterConceptsToArray(ruleConcepts);
+	var countMatchSoFar = 0;  // keep track of matched concepts
+	for (var i=0; i < studentConceptsArr.length; i++) {
+		var studentConcept = studentConceptsArr[i];
+		if (ruleConceptsArr.indexOf(studentConcept) >= 0) {
+			countMatchSoFar++;
+		}
+	}
+	return countMatchSoFar >= numMatches;
 };
 
 /* used to notify scriptloader that this script has finished loading */

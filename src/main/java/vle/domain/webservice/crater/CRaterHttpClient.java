@@ -150,7 +150,7 @@ public class CRaterHttpClient extends HttpClient {
 	 *   </item>
 	 * </items>
 	 * 
-	 * @return integer score returned from the CRater. In the case above, this mehtod will return 4.
+	 * @return integer score returned from the CRater. In the case above, this method will return 4.
 	 */
 	public static int getScore(String cRaterResponseXML) {
 		try {
@@ -170,5 +170,45 @@ public class CRaterHttpClient extends HttpClient {
 			e.printStackTrace();
 		}
 		return -1;
+	}
+	
+	/**
+	 * Gets and Returns the Concepts from the CRater response XML string,
+	 * or "" if it does not exist.
+	 * @param cRaterResponseXML response XML from the CRater. Looks like this:
+	 * <crater-results>
+	 *   <tracking id="1013701"/>
+	 *   <client id="WISETEST"/>
+	 *   <items>
+	 *     <item id="Photo_Sun">
+	 *     <responses>
+	 *       <response id="testID" score="4" concepts="1,2,3,4,5"/>
+	 *     </responses>
+	 *   </item>
+	 * </items>
+	 * 
+	 * @return String concepts returned from the CRater. In the case above, this method will return "1,2,3,4,5".
+	 */
+	public static String getConcepts(String cRaterResponseXML) {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db;
+			db = dbf.newDocumentBuilder();
+			Document doc = db.parse(new ByteArrayInputStream(cRaterResponseXML.getBytes()));
+			NodeList responseList = doc.getElementsByTagName("response");
+			Node response = responseList.item(0);
+			if (response.getAttributes().getNamedItem("concepts") != null) {
+				return response.getAttributes().getNamedItem("concepts").getNodeValue();
+			} else {
+				return "";
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }
