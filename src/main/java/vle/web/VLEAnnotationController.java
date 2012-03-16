@@ -460,6 +460,7 @@ public class VLEAnnotationController extends HttpServlet {
 								Annotation.createCRaterNodeStateAnnotation(
 										nodeStateId, 
 										CRaterHttpClient.getScore(cRaterResponseXML), 
+										CRaterHttpClient.getConcepts(cRaterResponseXML), 
 										studentNodeStateResponse, 
 										cRaterResponseXML);
 
@@ -512,11 +513,12 @@ public class VLEAnnotationController extends HttpServlet {
 						String fromWorkgroup = "-1";  // default for auto-scored items.
 
 						int score = CRaterHttpClient.getScore(cRaterResponseXML);
+						String concepts = CRaterHttpClient.getConcepts(cRaterResponseXML);
 						JSONObject studentResponseNodeState = stepWork.getNodeStateByTimestamp(nodeStateId);
 						String cRaterResponse = cRaterResponseXML;
 
 						JSONObject cRaterNodeStateAnnotation = 
-								Annotation.createCRaterNodeStateAnnotation(nodeStateId, score, studentResponseNodeState, cRaterResponse);
+								Annotation.createCRaterNodeStateAnnotation(nodeStateId, score, concepts, studentResponseNodeState, cRaterResponse);
 
 						JSONArray nodeStateAnnotationArray = new JSONArray();
 						nodeStateAnnotationArray.put(cRaterNodeStateAnnotation);

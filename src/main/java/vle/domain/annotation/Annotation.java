@@ -646,12 +646,13 @@ public class Annotation extends PersistableDomain {
 		}
 	}
 	
-	public static JSONObject createCRaterNodeStateAnnotation(Long nodeStateId, int score, JSONObject studentResponse, String cRaterResponse) {
+	public static JSONObject createCRaterNodeStateAnnotation(Long nodeStateId, int score, String concepts, JSONObject studentResponse, String cRaterResponse) {
 		JSONObject cRaterNodeStateAnnotation = new JSONObject();
 		
 		try {
 			cRaterNodeStateAnnotation.put("nodeStateId", nodeStateId);
 			cRaterNodeStateAnnotation.put("score", score);
+			cRaterNodeStateAnnotation.put("concepts", concepts);
 			cRaterNodeStateAnnotation.put("studentResponse", studentResponse);
 			cRaterNodeStateAnnotation.put("cRaterResponse", cRaterResponse);
 		} catch (JSONException e) {

@@ -538,12 +538,17 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	
 	var maxScore = null;
 	
+	var cRaterScoringResults = null;
+	
 	if(isCRaterItemIdValid) {
 		//item id is valid so we will display a green valid message to the author
 		$('#cRaterItemIdStatus').html('<font color="green">Valid Item Id</font>');
 		
 		//obtain the max score from the response
 		maxScore = this.view.getCRaterMaxScoreFromXML(responseText);
+		
+		// obtain the cRaterScoringResults from the response as JSON
+		cRaterScoringRules = this.view.getCRaterScoringRulesFromXML(responseText);
 	} else {
 		//the item id the author has entered is invalid so we will set it to '' in the content
 		itemId = '';
@@ -555,6 +560,7 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	/* update content */
 	this.content.cRater.cRaterItemId = itemId;
 	this.content.cRater.cRaterMaxScore = maxScore;
+	this.content.cRater.cRaterScoringRules = cRaterScoringRules;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

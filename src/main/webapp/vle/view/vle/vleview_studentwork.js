@@ -685,11 +685,34 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 			var vle = args[0];
 			var nodeStateId = args[2];
 			// check the step content to see if we need to display the CRater feedback to the student.
-			var displayCRaterFeedbackImmediately = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater.displayCRaterFeedbackImmediately;
+			var cRaterJSON = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater;
+			var displayCRaterFeedbackImmediately = cRaterJSON.displayCRaterFeedbackImmediately;
 			if (displayCRaterFeedbackImmediately) {
 				var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
+				var score = cRaterAnnotationJSON.score;
+				var concepts = cRaterAnnotationJSON.concepts;
+				
+				// now find the feedback that the student should see
+				var scoringRules = cRaterJSON.cRaterScoringRules;
+				var feedbackSoFar = "No Feedback";
+				var maxScoreSoFar = 0;				
+				if (scoringRules) {
+					for (var i=0; i < scoringRules.length; i++) {
+						var scoringRule = scoringRules[i];
+						if (vle.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
+							feedbackSoFar = scoringRule.feedback;
+							break;  // no longer need to check other rules if we have a pefect match
+						} else if (scoringRule.score > maxScoreSoFar && vle.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
+							feedbackSoFar = scoringRule.feedback;
+							maxScoreSoFar = scoringRule.score;
+						} else {
+							
+						}
+					}
+				}
+				
 				// TODO: prettify me
-				alert(cRaterAnnotationJSON.score);
+				alert("You got a score of " + cRaterAnnotationJSON.score + "\nFeedback: " +feedbackSoFar);
 			}			
 		} catch(err) {
 			/*
