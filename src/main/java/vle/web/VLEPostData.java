@@ -166,17 +166,21 @@ public class VLEPostData extends VLEServlet {
 				}
 				
 				//get the first cRaterItemId if it exists in the POSTed NodeState
+				// also check if isSubmit is true
 				String cRaterItemId = null;
+				boolean isCRaterSubmit = false;
 				try {
 					if (nodeVisitJSON != null) {
 						JSONArray nodeStateArray = nodeVisitJSON.getJSONArray("nodeStates");
 						if (nodeStateArray != null) {
-							for (int i=0; i<nodeStateArray.length(); i++) {
-								JSONObject nodeStateObj = nodeStateArray.getJSONObject(i);
+							if (nodeStateArray.length() > 0) {
+								JSONObject nodeStateObj = nodeStateArray.getJSONObject(nodeStateArray.length()-1);
 								
 								if(nodeStateObj.has("cRaterItemId")) {
 									cRaterItemId = nodeStateObj.getString("cRaterItemId");
-									break;
+									if (nodeStateObj.has("isCRaterSubmit")) {
+										isCRaterSubmit = nodeStateObj.getBoolean("isCRaterSubmit");
+									}
 								}
 							}
 						}
@@ -186,18 +190,26 @@ public class VLEPostData extends VLEServlet {
 				}
 				
 				if(cRaterItemId != null) {
-					//send back the cRater item id to the student in the response
-					//student VLE would get this cRaterItemId and make a GET to
-					//VLEAnnotationController to get the CRater Annotation
-					jsonResponse.put("cRaterItemId", cRaterItemId);
+					// Send back the cRater item id to the student in the response
+					// student VLE would get this cRaterItemId and make a GET to
+					// VLEAnnotationController to get the CRater Annotation
+					// Only send back cRaterItemId and isCRaterSubmit back if we haven't invoked CRater before for this nodeState
 					long lastNodeStateTimestamp = stepWork.getLastNodeStateTimestamp();
-					// also save a CRaterRequest in db for tracking
-					try {
-						CRaterRequest cRR = new CRaterRequest(cRaterItemId, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
-						cRR.saveOrUpdate();
-					} catch (Exception cre) {
-						// do nothing if there was an error, let continue
-						cre.printStackTrace();
+
+					CRaterRequest cRaterRequestForLastNodeState = CRaterRequest.getByStepWorkIdNodeStateId(stepWork, lastNodeStateTimestamp);
+					if (cRaterRequestForLastNodeState == null) {
+						jsonResponse.put("cRaterItemId", cRaterItemId);
+						jsonResponse.put("isCRaterSubmit", isCRaterSubmit);
+						// also save a CRaterRequest in db for tracking if isCRaterSubmit is true
+						if (isCRaterSubmit) {
+							try {
+								CRaterRequest cRR = new CRaterRequest(cRaterItemId, stepWork, new Long(lastNodeStateTimestamp), runIdLong);
+								cRR.saveOrUpdate();
+							} catch (Exception cre) {
+								// do nothing if there was an error, let continue
+								cre.printStackTrace();
+							}
+						}
 					}
 				}
 				

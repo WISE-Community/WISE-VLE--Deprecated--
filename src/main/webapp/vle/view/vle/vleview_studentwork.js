@@ -177,6 +177,7 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	var id = responseJSONObj.id;
 	var visitPostTime = responseJSONObj.visitPostTime;
 	var cRaterItemId = responseJSONObj.cRaterItemId;
+	var isCRaterSubmit = responseJSONObj.isCRaterSubmit;
 	
 	/*
 	 * this is for resolving node visits that used to end up with null
@@ -201,9 +202,9 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	// remove nodeVisit from postInProgress array
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
 	
-	// if cRaterItemId is in the response, make a request to GET the
+	// if cRaterItemId is in the response and it was a CRater submit, make a request to GET the
 	// CRater Annotation
-	if(cRaterItemId != null) {
+	if(cRaterItemId != null && isCRaterSubmit != null && isCRaterSubmit) {
 		var nodeVisit = args.nodeVisit;
 		var latestState = nodeVisit.getLatestState();
 		var nodeStateTimestamp = latestState.timestamp;

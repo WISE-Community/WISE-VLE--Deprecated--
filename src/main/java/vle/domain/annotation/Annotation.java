@@ -639,6 +639,7 @@ public class Annotation extends PersistableDomain {
 				JSONArray valueArray = dataJSON.getJSONArray("value");
 				if (valueArray != null) {
 					valueArray.put(nodeStateAnnotation);
+					this.data = dataJSON.toString();
 				}
 			}
 		} catch (JSONException e) {
