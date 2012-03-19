@@ -144,7 +144,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 		response = this.getResponse();
 		
 		//check if the student changed their response
-		if(this.isResponseChanged() || saveAndLock) {
+		if(this.isResponseChanged() || saveAndLock || checkAnswer) {
 			//response was changed so we will create a new state and save it
 			var orState = new OPENRESPONSESTATE([response]);
 			
@@ -226,13 +226,13 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 */
 					this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());					
 				}
+				this.setCheckAnswerUnavailable();
 			}
 
 		};
 
 		//turn the save button off
 		this.setSaveUnavailable();
-		this.setCheckAnswerUnavailable();
 	}
 };
 
