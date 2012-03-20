@@ -25,11 +25,12 @@ header {
 	position:absolute;
 	right:0;
 	top:.45em;
+	margin:0 .5em;
 	display:none;
 }
 
 #promptLabel {
-	margin-right:115px;
+	margin-right:135px;
 }
 
 #addNew {
@@ -167,9 +168,9 @@ tr.ui-draggable-disabled:hover td {
 }
 
 .exIdea.selected {
-  -moz-box-shadow: 0 0 2px #000000;
-  -webkit-box-shadow: 0 0 2px #000000;
-  box-shadow: 0 0 2px #000000;
+  -moz-box-shadow: 0 0 2px 1px #222222;
+  -webkit-box-shadow: 0 0 2px 1px #222222;
+  box-shadow: 0 0 2px 1px #222222;
   /*border-color: #dadf8b;*/
   color: #FFFFFF;
 }
