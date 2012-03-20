@@ -355,6 +355,7 @@ var scriptloader = function(){
         teacherXMPP_min:['vle/minified/teacherXMPP_min.js'],
         author: ['vle/util/icon.js',
                  'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js',
+                 'vle/jquery/miniTip/jquery.miniTip.min.js',
                  'vle/view/authoring/authorview_dispatchers.js',
                  'vle/view/authoring/authorview_startup.js',
                  'vle/view/authoring/authorview_main.js',
@@ -476,6 +477,7 @@ var scriptloader = function(){
 		core_min: [/*'vle/css/message.css'*/],
 		author: ['vle/css/authoring/authoring.css',
 		         'vle/css/ui-tools.css',
+		         'vle/jquery/miniTip/miniTip.css',
 		         jqueryUICss
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
@@ -524,7 +526,8 @@ var scriptloader = function(){
         'vle/navigation/constraints/workonxbeforeadvancingconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/xmpp/js/sail.js/sail.strophe.js':['vle/xmpp/js/sail.js/deps/strophe.js'],
         'vle/xmpp/js/student.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
-        'vle/xmpp/js/teacher.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js']
+        'vle/xmpp/js/teacher.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
+        'vle/view/authoring/authorview_startup.js':['vle/view/i18n/view_i18n.js']
     };
 	
 	// add jQuery UI/jQuery core dependency
