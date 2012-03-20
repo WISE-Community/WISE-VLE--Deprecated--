@@ -130,21 +130,21 @@ OPENRESPONSE.prototype.getResponse = function() {
  * 
  * Then disable the textarea and save button and show the edit button
  */
-OPENRESPONSE.prototype.save = function(saveAndLock) {
+OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 	/*
 	 * check if the save button is available. if it is available
 	 * it means the student has modified the response. if it
 	 * is not available, it means the student has not made any
 	 * changes so we do not to do anything.
 	 */
-	if (this.isSaveAvailable() || this.isSaveAndLockAvailable()) {
+	if (this.isSaveAvailable() || this.isSaveAndLockAvailable() || this.isCheckAnswerAvailable()) {
 		var response = "";
 		
 		/* set html to textarea if richtexteditor exists */
 		response = this.getResponse();
 		
 		//check if the student changed their response
-		if(this.isResponseChanged() || saveAndLock) {
+		if(this.isResponseChanged() || saveAndLock || checkAnswer) {
 			//response was changed so we will create a new state and save it
 			var orState = new OPENRESPONSESTATE([response]);
 			
@@ -152,6 +152,11 @@ OPENRESPONSE.prototype.save = function(saveAndLock) {
 			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
 					&& this.content.cRater.cRaterItemId != '') {
 				orState.cRaterItemId = this.content.cRater.cRaterItemId;
+				
+				if (checkAnswer || !this.content.cRater.displayCRaterFeedbackImmediately) {
+					//set the cRaterItemId into the node state if this step is a CRater item
+					orState.isCRaterSubmit = true;
+				}
 			}
 
 			if(saveAndLock) {
@@ -192,7 +197,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock) {
 						}
 					}
 				}
-			}
+			} 
 
 			if(this.node.peerReview == 'revise' || this.node.teacherReview == 'revise') {
 				/*
@@ -203,12 +208,27 @@ OPENRESPONSE.prototype.save = function(saveAndLock) {
 				//tell the node that the student has completed it
 				this.node.setCompleted();
 			}
-			
+
 			//fire the event to push this state to the global view.states object
 			eventManager.fire('pushStudentWork', orState);
 
 			//push the state object into this or object's own copy of states
 			this.states.push(orState);
+
+			// if we want to check answer immediately (e.g. for CRater), post answer immediately, before going to the next step
+			if (checkAnswer) {
+				//set the cRaterItemId into the node state if this step is a CRater item
+				if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
+						&& this.content.cRater.cRaterItemId != '') {
+					/*
+					 * post the current node visit to the db immediately without waiting
+					 * for the student to exit the step.
+					 */
+					this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());					
+				}
+				this.setCheckAnswerUnavailable();
+			}
+
 		};
 
 		//turn the save button off
@@ -269,8 +289,21 @@ OPENRESPONSE.prototype.postAnnotation = function(response) {
  * change their answer
  */
 OPENRESPONSE.prototype.saveAndLock = function() {
-	this.save(true);
+	var doSaveAndLock=true;
+	var doCheckAnswer=false;
+	this.save(doSaveAndLock,doCheckAnswer);
 };
+
+/**
+ * Save the student work and lock the step so the student can't
+ * change their answer
+ */
+OPENRESPONSE.prototype.checkAnswer = function() {
+	var doSaveAndLock=false;
+	var doCheckAnswer=true;
+	this.save(doSaveAndLock,doCheckAnswer);
+};
+
 
 /**
  * The student has modified their response so we will perform
@@ -278,6 +311,7 @@ OPENRESPONSE.prototype.saveAndLock = function() {
  */
 OPENRESPONSE.prototype.responseEdited = function() {
 	this.setSaveAvailable();
+	this.setCheckAnswerAvailable();
 	displayNumberAttempts("This is your", "revision", this.states);
 };
 
@@ -333,6 +367,37 @@ OPENRESPONSE.prototype.setSaveAndLockUnavailable = function() {
  */
 OPENRESPONSE.prototype.isSaveAndLockAvailable = function() {
 	if($('#saveAndLockButton').attr('disabled')=='disabled'){
+		return false;
+	} else {
+		return true;
+	}
+};
+
+
+
+/**
+ * Turn the save button on so the student can click it
+ */
+OPENRESPONSE.prototype.setCheckAnswerAvailable = function() {
+	$('#checkAnswerButton').removeAttr('disabled');
+};
+
+/**
+ * Turn the save button off so the student can't click it.
+ * This is used when the data is saved and there is no need
+ * to save.
+ */
+OPENRESPONSE.prototype.setCheckAnswerUnavailable = function() {
+	$('#checkAnswerButton').attr('disabled','disabled');
+};
+
+/**
+ * Determine whether the save button is available or not.
+ * @return true if the save button is available, false is greyed out
+ * and is not available
+ */
+OPENRESPONSE.prototype.isCheckAnswerAvailable = function() {
+	if($('#checkAnswerButton').attr('disabled')=='disabled'){
 		return false;
 	} else {
 		return true;
@@ -402,7 +467,7 @@ OPENRESPONSE.prototype.onlyDisplayMessage = function(message) {
 /**
  * Render this OpenResponse item
  */
-OPENRESPONSE.prototype.render = function() {
+OPENRESPONSE.prototype.render = function() {	
 	/*
 	 * check if this is a peer/teacher review annotation step and it is locked.
 	 * a peer/teacher review annotation step becomes locked once the student
@@ -413,6 +478,7 @@ OPENRESPONSE.prototype.render = function() {
 		//disable save buttons
 		this.setSaveUnavailable();
 		this.setSaveAndLockUnavailable();
+		this.setCheckAnswerUnavailable();
 		
 		//display this message in the step frame
 		this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
@@ -436,6 +502,9 @@ OPENRESPONSE.prototype.render = function() {
 	} else if (this.content.isLockAfterSubmit) {
 		// this node is set to lock after the student submits the answer. show saveAndLock button
 		$('#saveAndLockButton').show();
+	} else if (this.content.cRater && this.content.cRater.displayCRaterFeedbackImmediately) {
+		// if this is a CRater-enabled item, also show the "check" button
+		$('#checkAnswerButton').show();
 	}
 	
 	if(this.view != null && this.view.activeNode != null) {

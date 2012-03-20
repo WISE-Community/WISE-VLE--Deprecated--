@@ -20,6 +20,12 @@
 				};
             };
             
+            function checkAnswer() {
+				if(or) {
+					or.checkAnswer();
+				};
+            };
+
             function handleEditorKeyPress() {
                 if(or) {
                 	or.responseEdited();
@@ -119,8 +125,7 @@
             <div id="fullColumn">
             	<div id='previousWorkDiv'></div>
             	<div id='promptDisplayDiv' style='display:none'>
-                	<div id='promptLabelDiv' class="itemLabel Color1">
-                    question
+                	<div id='promptLabelDiv' class="itemLabel Color1" i18n_key="question">
                 	</div>
                     <div id="promptContainer">
                     	<div id="orPromptDiv">
@@ -182,6 +187,7 @@
             </div>
 	        <input type="button" id="saveButton" value="SAVE CHANGES" onclick="save();" />
 	        <input type="button" id="saveAndLockButton" value="SUBMIT (and lock)" onclick="saveAndLock();" style="display:none" disabled="disabled" />
+	        <input type="button" id="checkAnswerButton" value="CHECK ANSWER" onclick="checkAnswer();" style="display:none" disabled="disabled" />
         </div>
     </body>
 </html>
