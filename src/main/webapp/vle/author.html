@@ -594,7 +594,11 @@ var view;
 </div>
 
 <div id='cRaterDiv' style='display:none;'>
-	CRater Item Id: <input id='cRaterItemIdInput' name='cRaterItemIdInput' type='text' size=15 onblur="eventManager.fire('cRaterItemIdChanged')" /> <input id='cRaterVerifyButton' type='button' value='Verify' onclick="eventManager.fire('cRaterItemIdChanged')"/> <div id='cRaterItemIdStatus' style='display:inline'></div>
+	CRater Item Id: <input id='cRaterItemIdInput' name='cRaterItemIdInput' type='text' size=15 onkeyup='eventManager.fire("cRaterItemIdChanged")' /> <input id='cRaterVerifyButton' type='button' value='Verify' onclick="eventManager.fire('cRaterVerify')"/> <div id='cRaterItemIdStatus' style='display:inline'></div>
+	<br>
+	Display CRater Feedback to Student: <input id='cRaterDisplayFeedbackImmediately' name='cRaterDisplayFeedbackImmediately' type='checkbox' onclick='eventManager.fire("cRaterDisplayFeedbackImmediatelyChanged")' />
+	<br>
+	<div id='cRaterFeedback'></div>
 </div>
 
 <div id='cleanProjectDialog' style='display:none;'>

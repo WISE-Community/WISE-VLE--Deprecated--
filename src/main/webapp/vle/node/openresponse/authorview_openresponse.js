@@ -495,8 +495,21 @@ View.prototype.OpenResponseNode.peerReviewStepNotOpenCustomMessageUpdated = func
  * Populate the CRater item id from the content
  */
 View.prototype.OpenResponseNode.populateCRater = function() {
-	if(this.content.cRater != null && this.content.cRater.cRaterItemId != null) {
-		$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);		
+	if(this.content.cRater != null) {
+		if(this.content.cRater.cRaterItemId != null) {
+			//populate the item id
+			$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);	
+		}
+	
+		if(this.content.cRater.displayCRaterFeedbackImmediately != null) {
+			//populate the display feedback immediately checkbox
+			$('#cRaterDisplayFeedbackImmediately').attr('checked', this.content.cRater.displayCRaterFeedbackImmediately);
+		}
+		
+		if(this.content.cRater.cRaterScoringRules != null) {
+			//populate the feedback
+			this.displayCRaterFeedback(this.content.cRater.cRaterScoringRules);
+		}
 	}
 };
 
@@ -525,7 +538,7 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	}
 	
 	//get the item id the user has entered
-	var itemId = document.getElementById('cRaterItemIdInput').value;
+	var itemId = $('#cRaterItemIdInput').val();
 	
 	//make a verify request to the CRater server with the item id the user has entered
 	this.view.makeCRaterVerifyRequest(itemId);
@@ -536,9 +549,9 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	//check if the item id is valid
 	var isCRaterItemIdValid = this.view.checkCRaterVerifyResponse(responseText);
 	
+	var updateCRater = false;
 	var maxScore = null;
-	
-	var cRaterScoringResults = null;
+	var cRaterScoringRules = null;
 	
 	if(isCRaterItemIdValid) {
 		//item id is valid so we will display a green valid message to the author
@@ -549,21 +562,162 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 		
 		// obtain the cRaterScoringResults from the response as JSON
 		cRaterScoringRules = this.view.getCRaterScoringRulesFromXML(responseText);
-	} else {
-		//the item id the author has entered is invalid so we will set it to '' in the content
-		itemId = '';
 		
+		//re-use the old feedback to re-populate the feedback for the new scoring rules
+		this.transferFeedback(this.content.cRater.cRaterScoringRules, cRaterScoringRules);
+		
+		//display the feedback UI
+		this.displayCRaterFeedback(cRaterScoringRules);
+		
+		updateCRater = true;
+	} else {
 		//item id is invalid so we will display a red invalid message to the author
 		$('#cRaterItemIdStatus').html('<font color="red">Invalid Item Id</font>');
+		
+		//the item id is invalid so we will ask them if they want to save it
+		var answer = confirm('The CRater Item Id is invalid, are you sure you want to keep it?');
+		
+		if(answer) {
+			//the author wants to save the invalid item id
+			
+			//update the CRater feedback
+			this.displayCRaterFeedback(cRaterScoringRules);
+			
+			updateCRater = true;
+		} else {
+			//the author does not want to save the invalid item id so we will revert the item id to the previous value
+			
+			//set the previous item id back into the text input
+			$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);
+			
+			//item id is invalid so we will display a red invalid message to the author
+			$('#cRaterItemIdStatus').html('');
+		}
 	}
 	
-	/* update content */
-	this.content.cRater.cRaterItemId = itemId;
-	this.content.cRater.cRaterMaxScore = maxScore;
-	this.content.cRater.cRaterScoringRules = cRaterScoringRules;
+	if(updateCRater) {
+		/* update content */
+		this.content.cRater.cRaterItemId = itemId;
+		this.content.cRater.cRaterMaxScore = maxScore;
+		this.content.cRater.cRaterScoringRules = cRaterScoringRules;
+	}
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * 
+ */
+View.prototype.OpenResponseNode.cRaterItemIdChanged = function() {
+	$('#cRaterItemIdStatus').html('<font color="blue">Click Verify to Check Item Id</font>');
+};
+
+/**
+ * Update the display feedback immediately value
+ */
+View.prototype.OpenResponseNode.updateCRaterDisplayFeedbackImmediately = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#cRaterDisplayFeedbackImmediately').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.cRater.displayCRaterFeedbackImmediately = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Transfer the old feedback from the old scoring rules to the new scoring rules.
+ * We do this because we don't want the author to accidentally lose all
+ * their feedback if they accidentally click on the 'Verify' button again.
+ */
+View.prototype.OpenResponseNode.transferFeedback = function(oldCRaterScoringRules, newCRaterScoringRules) {
+	
+	if(oldCRaterScoringRules != null && newCRaterScoringRules != null) {
+		//loop through all the old scoring rules
+		for(var x=0; x<oldCRaterScoringRules.length; x++) {
+			//get the old scoring rule
+			var oldCRaterScoringRule = oldCRaterScoringRules[x];
+			
+			//get the new scoring rule
+			var newCRaterScoringRule = newCRaterScoringRules[x];
+			
+			if(oldCRaterScoringRule != null && newCRaterScoringRule != null) {
+				//set the old feedback into the new scoring rule
+				var oldFeedback = oldCRaterScoringRule.feedback;
+				newCRaterScoringRule.feedback = oldFeedback;
+			}
+		}
+	}
+};
+
+/**
+ * Display the CRater feedback authoring UI
+ * @param cRaterScoringRules an array of scoring rule objects
+ */
+View.prototype.OpenResponseNode.displayCRaterFeedback = function(cRaterScoringRules) {
+	var cRaterFeedbackHtml = '';
+	
+	if(cRaterScoringRules != null) {
+		
+		//loop through all the scoring rules
+		for(var x=0; x<cRaterScoringRules.length; x++) {
+			//get a scoring rul
+			var cRaterScoringRule = cRaterScoringRules[x];
+			
+			//get the fields in the scoring rule
+			var concepts = cRaterScoringRule.concepts;
+			var numMatches = cRaterScoringRule.numMatches;
+			var rank = cRaterScoringRule.rank;
+			var score = cRaterScoringRule.score;
+			var feedback = cRaterScoringRule.feedback;
+			
+			//display all the fields in the scoring rule
+			cRaterFeedbackHtml += "Concepts: " + concepts + ", ";
+			cRaterFeedbackHtml += "Num Matches: " + numMatches + ", ";
+			cRaterFeedbackHtml += "Rank: " + rank + ", ";
+			cRaterFeedbackHtml += "Score: " + score + "<br>";
+			
+			//make the feedback field into an authorable text input
+			cRaterFeedbackHtml += "Feedback: <input id='cRaterFeedback_" + x + "' type='text' value='" + feedback + "' size='80' onchange='eventManager.fire(\"cRaterFeedbackChanged\", " + x + ")'/>";
+			cRaterFeedbackHtml += "<br>";
+		}
+	}
+	
+	$('#cRaterFeedback').html(cRaterFeedbackHtml);
+};
+
+/**
+ * Update the CRater feedback for a specific scoring rule
+ * @params args an array whose first element is the index of the scoring rule
+ */
+View.prototype.OpenResponseNode.updateCRaterFeedback = function(args) {
+	
+	//get the scoring rule index
+	var cRaterFeedbackIndex = args[0];
+	
+	//get the feedback input
+	var feedbackInput = $('#cRaterFeedback_' + cRaterFeedbackIndex);
+	
+	if(feedbackInput != null) {
+		//get the feedback text
+		var feedback = feedbackInput.val();
+		
+		if(this.content.cRater.cRaterScoringRules != null) {
+			if(this.content.cRater.cRaterScoringRules[cRaterFeedbackIndex] != null) {
+				//update the feedback
+				this.content.cRater.cRaterScoringRules[cRaterFeedbackIndex].feedback = feedback;
+			}
+		}		
+	}
 };
 
 View.prototype.OpenResponseNode.populateStudentResponseBoxSize = function() {

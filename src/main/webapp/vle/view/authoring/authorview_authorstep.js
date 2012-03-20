@@ -908,8 +908,35 @@ View.prototype.populateCRater = function() {
  * Updates the CRater authored content
  */
 View.prototype.updateCRater = function(){
-	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updatePrompt){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRater){
 		this[this.resolveType(this.activeNode.type)].updateCRater();
+	}
+};
+
+/**
+ * The author changed the CRater item id
+ */
+View.prototype.cRaterItemIdChanged = function(){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].cRaterItemIdChanged){
+		this[this.resolveType(this.activeNode.type)].cRaterItemIdChanged();
+	}
+};
+
+/**
+ * Updates the CRater feedback
+ */
+View.prototype.updateCRaterFeedback = function(args){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRaterFeedback){
+		this[this.resolveType(this.activeNode.type)].updateCRaterFeedback(args);
+	}
+};
+
+/**
+ * Updates the CRater display feedback immediately value
+ */
+View.prototype.updateCRaterDisplayFeedbackImmediately = function(){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRaterDisplayFeedbackImmediately){
+		this[this.resolveType(this.activeNode.type)].updateCRaterDisplayFeedbackImmediately();
 	}
 };
 

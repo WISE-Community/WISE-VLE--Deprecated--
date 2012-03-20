@@ -906,7 +906,10 @@ var componentloader = function(em, sl){
 				'stepRichTextEditorToggleChanged':[null, null],
 				'stepStarterSentenceAuthoringOptionChanged':[null, null],
 				'stepStarterSentenceAuthoringSentenceChanged':[null, null],
-				'cRaterItemIdChanged':[null, null]
+				'cRaterVerify':[null, null],
+				'cRaterItemIdChanged':[null, null],
+				'cRaterFeedbackChanged':[null, null],
+				'cRaterDisplayFeedbackImmediatelyChanged':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -922,7 +925,10 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepRichTextEditorToggleChanged', view.richTextEditorToggleManager.dispatcher, view);
 					view.eventManager.subscribe('stepStarterSentenceAuthoringOptionChanged', view.starterSentenceAuthoringManager.dispatcher, view);
 					view.eventManager.subscribe('stepStarterSentenceAuthoringSentenceChanged', view.starterSentenceAuthoringManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterVerify', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterItemIdChanged', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterFeedbackChanged', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterDisplayFeedbackImmediatelyChanged', view.cRaterManager.dispatcher, view);
 				}
 			}
 		}

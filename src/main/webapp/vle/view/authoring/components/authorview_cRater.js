@@ -4,8 +4,14 @@ View.prototype.cRaterManager = function() {
 };
 
 View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
-	if(type=='cRaterItemIdChanged') {
+	if(type=='cRaterVerify') {
 		obj.updateCRater();
+	} else if(type=='cRaterItemIdChanged') {
+		obj.cRaterItemIdChanged();
+	} else if(type=='cRaterFeedbackChanged') {
+		obj.updateCRaterFeedback(args);
+	} else if(type=='cRaterDisplayFeedbackImmediatelyChanged') {
+		obj.updateCRaterDisplayFeedbackImmediately();
 	}
 };
 
@@ -28,6 +34,8 @@ View.prototype.cRaterManager.insertCRater = function(view) {
 View.prototype.cRaterManager.cleanupCRater = function() {
 	$('#cRaterItemIdInput').val('');
 	$('#cRaterItemIdStatus').html('');
+	$('#cRaterDisplayFeedbackImmediately').attr('checked', false);
+	$('#cRaterFeedback').html('');
 	$('body').append($('#cRaterDiv').hide().detach());
 };
 
