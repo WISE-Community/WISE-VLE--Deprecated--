@@ -240,14 +240,17 @@ View.prototype.getCurriculumBaseUrlSuccess = function(t,x,o){
 
 /**
  * Removes the splash screen and shows the authoring tool when all
- * necessary parts have loaded.
- * Creates authoring config
+ * necessary parts have loaded.  Inserts i18n translations.
  */
 View.prototype.onAuthoringToolReady = function(){
+	var view = this;
 	notificationManager.setMode('authoring');
 	$('#centeredDiv').show();
 	$('#coverDiv').hide();
 	$('#overlay').hide();
+	
+	// insert i18n text and tooltips/help items into DOM
+	this.insertTranslations(function(){ view.insertTooltips(); });
 	//clearInterval(window.loadingInterval);
 };
 
