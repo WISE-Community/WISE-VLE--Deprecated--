@@ -170,7 +170,7 @@ public class VLEAnnotationController extends HttpServlet {
 		List<? extends Annotation> annotationList = null;
 		Annotation annotation = null;
 		if (requestedType == null || 
-				(requestedType.equals("annotation") && !"cRater".equals(annotationType))) {
+				(requestedType.equals("annotation") && !"cRater".equals(annotationType) && !"run".equals(annotationType)) ) {
 			if(fromWorkgroupIdStr != null && stepWorkId != null) {
 				//user is requesting an annotation they wrote themselves for a specific stepWork
 				UserInfo fromWorkgroup = UserInfo.getByWorkgroupId(new Long(fromWorkgroupIdStr));
@@ -217,6 +217,21 @@ public class VLEAnnotationController extends HttpServlet {
 			 * this will return the flag annotations ordered from oldest to newest
 			 */
 	    	annotationList = Annotation.getByParamMap(request.getParameterMap());
+		} else if ("run".equals(annotationType)) {
+			//split the fromWorkgroups
+			String[] split = fromWorkgroupIdsStr.split(",");
+			
+			//create a String List out of the fromWorkgroups
+			List<String> fromWorkgroupIds = Arrays.asList(split);
+			
+			//get the UserInfo objects for the fromWorkgroups
+			List<UserInfo> fromWorkgroups = UserInfo.getByWorkgroupIds(fromWorkgroupIds);
+
+			UserInfo toWorkgroup = null;			
+			if (toWorkgroupIdStr != null) {
+				toWorkgroup = UserInfo.getByWorkgroupId(new Long(toWorkgroupIdStr));
+			}
+			annotationList = Annotation.getByFromUserToUserType(fromWorkgroups, toWorkgroup, annotationType);
 		}
 		
 		// handle request for cRater annotation
@@ -510,6 +525,8 @@ public class VLEAnnotationController extends HttpServlet {
 
 						Long workgroupId = stepWork.getUserInfo().getWorkgroupId();
 						String toWorkgroup = workgroupId.toString();
+						UserInfo toUser = UserInfo.getByWorkgroupId(workgroupId);
+						UserInfo fromUser = null;
 						String fromWorkgroup = "-1";  // default for auto-scored items.
 
 						int score = CRaterHttpClient.getScore(cRaterResponseXML);
@@ -536,7 +553,7 @@ public class VLEAnnotationController extends HttpServlet {
 							e.printStackTrace();
 						}
 
-						annotation = new Annotation(stepWork, null, new Long(runId), postTime, type, dataJSONObj.toString());
+						annotation = new Annotation(stepWork, fromUser, toUser, new Long(runId), postTime, type, dataJSONObj.toString());
 						annotation.saveOrUpdate();
 						
 						// update CRaterRequest table and mark this request as completed.
@@ -610,7 +627,10 @@ public class VLEAnnotationController extends HttpServlet {
 		if(annotation == null) {
 			//the annotation was not found so we will create it
 			annotation = new Annotation(type);
-			annotation.setUserInfo(userInfo);
+			annotation.setFromUser(userInfo);
+			if (stepWork != null) {
+				annotation.setToUser(stepWork.getUserInfo());
+			}
 			annotation.setStepWork(stepWork);
 		}
 		

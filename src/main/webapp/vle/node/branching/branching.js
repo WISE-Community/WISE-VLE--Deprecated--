@@ -65,28 +65,58 @@ Branching.prototype.translateOperand = function(operand) {
 };
 
 /**
+ * 
+ * @param annotationKey key in the run annotations e.g. "groups"
+ */
+Branching.prototype.annotationLookup = function(annotationKey) {
+	var runAnnotations = this.node.view.getAnnotationsByType("run");
+
+	// lookup the annotationKey in the runAnnotations obj. runAnnotationsObj should be set by this point.
+	if (runAnnotations.getAnnotationsByType("run").length > 0) {
+		return runAnnotations.getAnnotationsByType("run")[0].value[annotationKey];
+	} else {
+		return [];
+	}
+	
+};	
+
+/**
  * Determine which path to visit
  */
 Branching.prototype.getPathToVisit = function() {
 	// invoke the branching function and get the results.
 	var branchingFunction = this.content.branchingFunction;
 	var branchingFunctionParams = this.content.branchingFunctionParams;
-	var result = null;
+	var pathToVisit = null;
 	if (branchingFunction == "mod") {
 		var leftOperand = this.translateOperand(branchingFunctionParams[0]);
 		var rightOperand = this.translateOperand(branchingFunctionParams[1]);
-		result = leftOperand % rightOperand;
+		var result = leftOperand % rightOperand;
+		// use the result to determine the path to visit
+		for (var i=0; i<this.content.paths.length; i++) {
+			var path = this.content.paths[i];
+			if (path.branchingFunctionExpectedResults == result) {
+				pathToVisit = path;
+				break;
+			}
+		}
+	} else if (branchingFunction == "annotationLookup") {
+		if (this.view.getConfig().getConfigParam("mode") == "portalpreview") {
+			// choose the first path for preview
+			pathToVisit = this.content.paths[0];			
+		} else {
+			result = this.annotationLookup(branchingFunctionParams[0]);
+			for (var i=0; i<this.content.paths.length; i++) {
+				var path = this.content.paths[i];
+				if (result.indexOf(path.branchingFunctionExpectedResults) != -1) {
+					pathToVisit = path;
+					break;
+				}
+			}			
+		}
+
 	}	
 	
-	// use the result to determine the path to visit
-	var pathToVisit = null;
-	for (var i=0; i<this.content.paths.length; i++) {
-		var path = this.content.paths[i];
-		if (path.branchingFunctionExpectedResults == result) {
-			pathToVisit = path;
-			break;
-		}
-	}
 	return pathToVisit;
 };
 

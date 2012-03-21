@@ -1055,6 +1055,35 @@ View.prototype.satisfiesCRaterRule = function(studentConcepts, ruleConcepts, num
 	return countMatchSoFar >= numMatches;
 };
 
+/**
+ * 
+ * @param annotationType annotation type
+ */
+View.prototype.getAnnotationsByType = function(annotationType) {
+	this.runAnnotations = {};  // looks like {"groups":["A","D","Branch1-A","Branch2-X"] }
+	var processGetAnnotationResponse = function(responseText, responseXML, args) {
+		var thisView = args[0];
+		
+		//parse the xml annotations object that contains all the annotations
+		thisView.runAnnotations = Annotations.prototype.parseDataJSONString(responseText);
+	};
+
+	var annotationsUrlParams = {
+				runId: this.getConfig().getConfigParam('runId'),
+				toWorkgroup: this.getUserAndClassInfo().getWorkgroupId(),
+				fromWorkgroups: this.getUserAndClassInfo().getAllTeacherWorkgroupIds(),
+				periodId:this.getUserAndClassInfo().getPeriodId(),
+				annotationType:annotationType
+			};
+	var fHArgs = null;
+	var synchronous = true;	
+	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getAnnotationsUrl'), 
+					annotationsUrlParams, processGetAnnotationResponse, [this], fHArgs, synchronous);
+
+	// lookup the annotationKey in the runAnnotations obj. runAnnotationsObj should be set by this point.
+	return this.runAnnotations;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');
