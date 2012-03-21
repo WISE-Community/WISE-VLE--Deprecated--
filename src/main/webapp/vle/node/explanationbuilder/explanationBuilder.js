@@ -390,7 +390,7 @@ ExplanationBuilder.prototype.save = function() {
 		// show success message if node has been completed
 		if(this.node.isCompleted()){
 			setTimeout(function(){
-				$('#saveConfirm').html('Saved!&nbsp;&nbsp;If you are finished, move on in the project.').fadeIn('fast');
+				$('#saveConfirm').html('Saved!&nbsp;&nbsp;If you are finished, go to the next step.').fadeIn('fast');
 			},1000);
 		}
 	}
@@ -662,7 +662,7 @@ ExplanationBuilder.prototype.addRow = function(idea,load){
 	//var $newLink = $('#' + currTable + idea.id + ' span.' + link);
 
 	if(!load){
-		$newTr.effect("pulsate", { times:2 }, 500);
+		//$newTr.effect("pulsate", { times:2 }, 500);
 	}
 
 	this.makeDraggable(this,$newTr);

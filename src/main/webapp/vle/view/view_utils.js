@@ -1056,7 +1056,7 @@ View.prototype.satisfiesCRaterRule = function(studentConcepts, ruleConcepts, num
 };
 
 /**
- * 
+ * Returns Annotations by specified annotationType
  * @param annotationType annotation type
  */
 View.prototype.getAnnotationsByType = function(annotationType) {
@@ -1082,6 +1082,95 @@ View.prototype.getAnnotationsByType = function(annotationType) {
 
 	// lookup the annotationKey in the runAnnotations obj. runAnnotationsObj should be set by this point.
 	return this.runAnnotations;
+};
+
+/*
+ * Finds and initializes any DOM elements with the 'tooltip' class and 
+ * initializes the tooltip plugin for each.
+ * 
+ * Tooltip options can be customized by adding additional attributes to the
+ * target DOM element:
+ * - tooltip-event:'click' sets the tooltip to render on mouse click (vs. hover,
+ * which is the default)
+ * - tooltip-anchor:'top', tooltip-anchor:'bottom', and tooltip-anchor':left' set
+ * the position of the tooltip to top, bottom, and left respectively (default is right)
+ * - tooltip-maxW:'XXXpx' sets the max-width of the tooltip element to XXX pixels
+ * (default is 200px); 
+ */
+View.prototype.insertTooltips = function(){
+	// for all DOM elements with the 'tooltip' class, initialize miniTip (http://goldfirestudios.com/blog/81/miniTip-jQuery-Plugin)
+	$('.tooltip').each(function(){
+		// setup miniTip options
+		var anchor = 'e', event = 'hover', aHide = false, maxW = '200px';
+		if($(this).attr('tooltip-event') == 'click'){
+			event = 'click';
+		}
+		if($(this).attr('tooltip-anchor') == 'top'){
+			anchor = 'n';
+		} else if ($(this).attr('tooltip-anchor') == 'bottom'){
+			anchor = 's';
+		} else if ($(this).attr('tooltip-anchor') == 'left'){
+			anchor = 'w';
+		}
+		if($(this).attr('tooltip-maxW') && $(this).attr('tooltip-maxW').match(/^[0-9]+px$/)){
+			maxW = $(this).attr('tooltip-maxW');
+		} 
+		// initialize miniTip on element
+		$(this).miniTip({
+			anchor:anchor,
+			event:event,
+			aHide:aHide,
+			maxW:maxW,
+			delay:100,
+			offset:1
+		});
+		// remove all tooltip attributes from DOM element
+		$(this).removeAttr('tooltip-event').removeAttr('tooltip-anchor').removeAttr('tooltip-maxW');
+	});
+};
+
+/**
+ * If the given item is a non-whitespace only string, return true.
+ */
+View.prototype.utils.isNonWSString = function(item){
+	if(typeof item == 'string' && /\S/.test(item)){
+		return true;
+	};
+	
+	return false;
+};
+
+/**
+ * Capitalizes the first letter of the given string.
+ * @returns string The new string
+ */
+View.prototype.utils.capitalize = function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+/**
+ * Generates and returns a random key of the given length if
+ * specified. If length is not specified, returns a key 10
+ * characters in length.
+ */
+View.prototype.utils.generateKey = function(length){
+	this.CHARS = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r", "s","t",
+	              "u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O",
+	              "P","Q","R","S","T", "U","V","W","X","Y","Z","0","1","2","3","4","5","6","7","8","9"];
+	
+	/* set default length if not specified */
+	if(!length){
+		length = 10;
+	}
+	
+	/* generate the key */
+	var key = '';
+	for(var a=0;a<length;a++){
+		key += this.CHARS[Math.floor(Math.random() * (this.CHARS.length - 1))];
+	};
+	
+	/* return the generated key */
+	return key;
 };
 
 /* used to notify scriptloader that this script has finished loading */

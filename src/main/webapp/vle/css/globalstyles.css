@@ -15,7 +15,7 @@ input[type="text"], input[type="password"], textarea {
 }
 
 input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
-	border-color: #4e94a2;
+	border-color: #86bbb3;
 }
 
 input[type="submit"],input[type="button"] {
@@ -150,6 +150,17 @@ table.wisetable td.emph {
 
 #vle_messages .message a.hide:hover {
 	background:url("../images/dismiss.png") no-repeat scroll center -18px transparent;
+}
+
+/** Tooltip/Help Content **/
+
+.tooltip {
+	cursor:pointer;
+}
+
+img.tooltip {
+	vertical-align:top;
+	margin:0 .1em;
 }
 
 /** Dialog and Content Styles **/
