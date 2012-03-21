@@ -1206,7 +1206,7 @@ View.prototype.populateIMSettings = function(settings){
 	} else {
 		// idea attributes haven't been set, so add default attributes
 		view.addIdeaAttribute('source');
-		view.addIdeaAttribute('flag',null,null,false);
+		view.addIdeaAttribute('icon',null,null,false);
 	}
 	
 	// make active attribute fields sortable
@@ -1226,7 +1226,7 @@ View.prototype.populateIMSettings = function(settings){
 
 /**
  * Adds a new idea attribute to the Idea Manager settings authoring panel
- * @param type String for the type of attribute ('source', 'flag', 'tag', 'label' are allowed)
+ * @param type String for the type of attribute ('source', 'icon', 'tag', 'label' are allowed)
  * @param options Array of the available options for the field (optional; allowed values depend on type)
  * @param name String for the name of the attribute field (optional)
  * @param isRequired Boolean for whether the attribute field is required or not (optional; default is true)
@@ -1239,7 +1239,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 	
 	function addOption(target,option){
 		// create new option input and add to DOM
-		var newInput = $("<div class='optionWrapper'><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><input type='text' class='option' value='" + option + "' /><a class='delete' title='Remove option' >X</a></div>");
+		var newInput = $("<div class='optionWrapper'><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><input type='text' class='option' value='" + option + "' maxlength='25' /><a class='delete' title='Remove option' >X</a></div>");
 		$('.add', target).before(newInput);
 		$('input',newInput).focus();
 		
@@ -1279,12 +1279,17 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			newAttribute = $('#ideaAttributes .attribute.empty').eq(0);
 		}
 		
+		// if id param wasn't sent, generate unique id for new attribute
+		if(!id || typeof id != 'string'){
+			id = view.utils.generateKey();
+		}
+		
 		var count = 0;
 		var header = null, choices = null;
 		// set header depending on attribute type
 		if(type=='source'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Source</span><a class='action delete' title='Delete attribute'>X</a></h6>");
-		} else if (type=='flag'){
+		} else if (type=='icon'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Icon</span><a class='action delete' title='Delete attribute'>X</a></h6>");
 		} else if (type=='tags'){
 			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Tags</span><a class='action delete' title='Delete attribute'>X</a></h6>");
@@ -1293,7 +1298,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		}
 		
 		if(type=='source' || type=='tags' || type=='label'){
-			choices = $(document.createElement('div')).addClass('options');
+			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
 			if(type=='tags'){
 				choices.append('<p>Options<span class="details">(students can choose any)</span>:</p>');
 			} else {
@@ -1336,10 +1341,10 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				items: '.optionWrapper',
 				handle: 'span.move'
 			});
-		} else if(type=='flag'){
-			choices = $(document.createElement('div')).addClass('options');
+		} else if(type=='icon'){
+			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
 			choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
-			var icons = {'blank':'None','important':'Important','question':'Question Mark','check':'Check Mark','favorite':'Favorite/Star','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
+			var icons = {'blank':'None','important':'Important','question':'Not Sure','check':'Check Mark','favorite':'Favorite/Star','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
 			for(key in icons){
 				var option = $("<div class='optionWrapper'><input type='checkbox' class='option' value='" + key + "' /><img class='icon' src='images/ideaManager/" + key + ".png' alt='" + key + "' />" + icons[key] + "</div>");
 				choices.append(option);
@@ -1365,27 +1370,19 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				fieldName = name;
 			}
 			var nameElement = $(document.createElement('p'));
-			var nameInput = $(createElement(document, 'input', {type: 'text', value: fieldName})).addClass('name');
-			nameElement.append(document.createTextNode('Name:')).append(nameInput);
+			var nameInput = $(createElement(document, 'input', {type: 'text', id: 'fieldName_' + id, name: 'fieldName_' + id, value: fieldName})).addClass('fieldName').addClass('required').attr('maxlength','25');
+			nameElement.append(document.createTextNode('Field Name:')).append(nameInput);
 			
 			// create required checkbox
 			var required = $(document.createElement('p'));
-			var requiredCheck = $(createElement(document, 'input', {type: 'checkbox'})).attr('checked','checked').css('margin-left','0').addClass('required');
+			var requiredCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'required_' + id})).attr('checked','checked').css('margin-left','0');
 			required.append(requiredCheck).append(document.createTextNode('This field is required'));
 			if(isRequired == false){
 				requiredCheck.removeAttr('checked');
 			}
 			
-			// clear new attribute element
-			newAttribute.html('');
-			
-			if(id && typeof id == 'string'){
-				// if id param was sent, add id to new attribute
-				newAttribute.attr('id',id);
-			} else {
-				// otherwise generate unique id
-				newAttribute.attr('id','attribute_' + view.utils.generateKey());
-			}
+			// clear new attribute element and add id
+			newAttribute.html('').attr('id','attribute_' + id);
 			
 			// add header and choices to new attribute element
 			newAttribute.append(header).append(choices);
@@ -1396,7 +1393,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			if(type=='source' || type=='label'){
 				// create allow custom field checkbox
 				var custom = $(document.createElement('p'));
-				var customCheck = $(createElement(document, 'input', {type: 'checkbox'})).css('margin-left','0').addClass('custom');
+				var customCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'custom_' + id})).css('margin-left','0');
 				custom.append(customCheck).append(document.createTextNode('Allow students specify their own ' + type));;
 				if(allowCustom == true){
 					customCheck.attr('checked','checked');
@@ -1433,13 +1430,13 @@ View.prototype.deleteIdeaAttribute = function(target){
 	var view = this;
 	
 	// clear content
-	target.html('').removeClass('active').addClass('empty');
+	target.html('').removeClass('active').addClass('empty').removeAttr('id');
 	
 	// create new attribute links
 	var newLinks = $(document.createElement('div')).addClass('newLinks');
 	newLinks.append('<h6>Add new attribute +</h6>');
 	var container = $(document.createElement('ul'));
-	container.append('<li><a name="source">Source</a></li><li><a name="label">Label</a></li><li><a name="flag">Icon</a></li><li><a name="tags">Tags</a></li>');
+	container.append('<li><a name="source">Source</a></li><li><a name="label">Label</a></li><li><a name="icon">Icon</a></li><li><a name="tags">Tags</a></li>');
 	newLinks.append(container);
 	
 	// add new attribute links to DOM element

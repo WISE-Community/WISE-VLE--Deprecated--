@@ -1753,6 +1753,17 @@ div#toolsAreaAuthor {
 }
 
 
+/* General */
+
+label.error {
+	color:red;
+}
+
+input[type='text'].error, textarea.error {
+	border-color:red;
+}
+
+
 /* Settings Panels */
 
 .featureSettings {
@@ -1908,8 +1919,8 @@ table#ideaAttributes {
     width: 100%;
 }
 
-#ideaAttributes .attribute input[type='text'].name {
-	width:120px;
+#ideaAttributes .attribute input[type='text'].fieldName {
+	width:90px;
 }
 
 #ideaAttributes .attribute .options img.icon {
