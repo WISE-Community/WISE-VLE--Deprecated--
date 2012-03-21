@@ -437,6 +437,26 @@ Annotations.prototype.getAnnotationsByType = function(type) {
 };
 
 /**
+ * Retrieves all the annotations with the given toWorkgroup and type 
+ * @param toWorkgroup the to workgroup
+ * @param type the type of annotation e.g. comment, grade, etc.
+ * @return an array containing all the annotations with the given toWorkgroup and type
+ */
+Annotations.prototype.getAnnotationsByToWorkgroupType = function(toWorkgroup, type) {
+	var annotations = new Array();
+	
+	for(var x=0; x<this.annotationsArray.length; x++) {
+		var annotation = this.annotationsArray[x];
+		
+		if(annotation.toWorkgroup == toWorkgroup && annotation.type == type) {
+			annotations.push(annotation);
+		}
+	}
+	
+	return annotations;
+};
+
+/**
  * Get an annotation with the given parameters
  * @param runId
  * @param nodeId

@@ -1912,6 +1912,37 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return uniqueTagMaps;
 		};
 		
+		var getAllGroupsUsed = function() {
+			var allGroupsUsed = [];
+			
+			//get all the step nodes
+			var nodes = allLeafNodes;
+			
+			//loop through all the step nodes
+			for(var x=0; x<nodes.length; x++) {
+				//get a node
+				var node = nodes[x];
+				
+				if(node != null) {
+					var nodeContentJSON = node.getContent().getContentJSON();
+					
+					if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
+						var nodeGroupsUsed = nodeContentJSON.groupsUsed;
+						
+						for(var y=0; y<nodeGroupsUsed.length; y++) {
+							var group = nodeGroupsUsed[y];
+							
+							if(allGroupsUsed.indexOf(group) == -1) {
+								allGroupsUsed.push(group);
+							}
+						}
+					}
+				}
+			}
+			
+			return allGroupsUsed;
+		};
+		
 		/**
 		 * Shallow compare the two arrays to see if all the elements
 		 * are the same
@@ -2127,7 +2158,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* sets the them for this project */
 			setTheme:function(t){theme = t;},
 			/* gets all the node types used in this project */
-			getUsedNodeTypes:function(){return usedNodeTypes;}
+			getUsedNodeTypes:function(){return usedNodeTypes;},
+			/* get all the groups that are used in the project */
+			getAllGroupsUsed:function(){return getAllGroupsUsed();}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };
