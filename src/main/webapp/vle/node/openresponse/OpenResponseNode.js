@@ -217,6 +217,145 @@ OpenResponseNode.prototype.renderGradingView = function(divId, nodeVisit, childD
 	 */
 	var studentWork = openResponseState.response;
 	
+	//get the string value of the student work in case student work is an array
+	studentWork = this.getStudentWorkString(studentWork);
+	
+	//get the step content
+	var contentJSON = this.content.getContentJSON();
+	
+	if(contentJSON.cRater != null) {
+		//this step is a CRater step so we will get he CRater grading view
+		studentWork = this.getCRaterGradingView(nodeVisit);
+	}
+	
+	//put the student work into the div
+	$('#' + divId).html(studentWork);
+};
+
+/**
+ * Get the CRater grading view which will display the individual
+ * check answer submits and the score and the feedback
+ * @param nodeVisit the node visit
+ * @return the html that will display the CRater grading view
+ */
+OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
+	var html = '';
+	
+	//get the step work id
+	var stepWorkId = nodeVisit.id;
+	
+	//get the step content
+	var contentJSON = this.content.getContentJSON();
+	
+	//get the CRater annotation for this step work
+	var cRaterAnnotation = this.view.annotations.getAnnotationByStepWorkIdType(stepWorkId, 'cRater');
+	
+	//get the node states
+	var nodeStates = nodeVisit.nodeStates;
+	
+	//the counter for the check answer submits
+	var checkAnswerCounter = 1;
+	
+	if(nodeStates != null && nodeStates.length > 0) {
+		/*
+		 * loop through all the node states so that we show all the individual check answer submits.
+		 * the newest node states will show up at the top and the oldest will show up at the bottom.
+		 */
+		for(var x=0; x<nodeStates.length; x++) {
+			var htmlForNodeState = '';
+			
+			//get a node state
+			var nodeState = nodeStates[x];
+			
+			//get the timestamp
+			var nodeStateTimestamp = nodeState.timestamp;
+			
+			//get the text the student typed
+			var studentWork = nodeState.response;
+			
+			//get the string value of the student work in case student work is an array
+			studentWork = this.getStudentWorkString(studentWork);
+			
+			var annotationRevision = null;
+			
+			if(cRaterAnnotation != null && cRaterAnnotation.value != null) {
+				//there was a CRater annotation
+				
+				/*
+				 * get the value of the annotation. the value of the annotation
+				 * is an array that can contain annotation revisions if the student
+				 * checked their answer multiple times within the same node visit
+				 */
+				var valueArray = cRaterAnnotation.value;
+				
+				//loop through all the values in the array
+				for(var y=0; y<valueArray.length; y++) {
+					//get an annotation revision
+					var tempAnnotationRevision = valueArray[y];
+					
+					if(tempAnnotationRevision != null) {
+						//get the node state id which is the timestamp when the node state was created
+						var nodeStateId = tempAnnotationRevision.nodeStateId;
+						
+						if(nodeStateTimestamp == nodeStateId) {
+							/*
+							 * the node state timestamp matches the annotation revision timestamp
+							 * so we have found the annotation for our node state
+							 */
+							annotationRevision = tempAnnotationRevision;
+							break;
+						}
+					}
+				}
+			}
+			
+			if(annotationRevision == null) {
+				//there was no CRater annotation for this node state
+				
+				//display the save answer for the node visit
+				htmlForNodeState += 'Save Answer';
+				htmlForNodeState += '<br>';
+				htmlForNodeState += studentWork;
+			} else {
+				//there was a CRater annotation for this node state
+				
+				//display the check answer number for the node visit
+				htmlForNodeState += 'Check Answer #' + checkAnswerCounter;
+				checkAnswerCounter++;
+				
+				htmlForNodeState += '<br>';
+				htmlForNodeState += studentWork;
+				htmlForNodeState += '<br>';
+				
+				//display the CRater score
+				htmlForNodeState += 'Auto-Score: ' + annotationRevision.score;
+				
+				if(contentJSON.cRater != null) {
+					//get the feedback
+					var feedback = this.view.getFeedbackFromScoringRules(contentJSON.cRater.cRaterScoringRules, annotationRevision.concepts);
+					htmlForNodeState += '<br>';	
+
+					//display the feedback
+					htmlForNodeState += 'Auto-Feedback: ' + feedback;
+				}
+			}
+
+			htmlForNodeState += '<br><br>';
+			
+			//prepend the html for this node state so that newest node state is displayed at the top
+			html = htmlForNodeState + html;
+		}
+	}
+	
+	return html;
+};
+
+/**
+ * Get the student work as a string in case student work is an array
+ * @param studentWork a string or an array containing the student work text
+ * @return the student work as a string
+ */
+OpenResponseNode.prototype.getStudentWorkString = function(studentWork) {
 	if(studentWork != null && studentWork.constructor.toString().indexOf("Array") != -1) {
 		/*
 		 * response is an array so we will use the toString() of the array
@@ -225,8 +364,7 @@ OpenResponseNode.prototype.renderGradingView = function(divId, nodeVisit, childD
 		studentWork = studentWork.toString();
 	}
 	
-	//put the student work into the div
-	$('#' + divId).html(studentWork);
+	return studentWork;
 };
 
 /**

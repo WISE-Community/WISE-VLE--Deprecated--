@@ -1055,6 +1055,41 @@ View.prototype.satisfiesCRaterRule = function(studentConcepts, ruleConcepts, num
 	return countMatchSoFar >= numMatches;
 };
 
+/**
+ * Get the feedback for the given concepts
+ * @param scoringRules an array of scoring rules
+ * @param concepts a string containing the concepts
+ * @returns the feedback
+ */
+View.prototype.getFeedbackFromScoringRules = function(scoringRules, concepts) {
+	var feedbackSoFar = "No Feedback";
+	var maxScoreSoFar = 0;
+	
+	if (scoringRules) {
+		//loop through all the scoring rules
+		for (var i=0; i < scoringRules.length; i++) {
+			//get a scoring rule
+			var scoringRule = scoringRules[i];
+			
+			if (this.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
+				//the concepts perfectly match this scoring rule
+				feedbackSoFar = scoringRule.feedback;
+				break;  // no longer need to check other rules if we have a pefect match
+			} else if (scoringRule.score > maxScoreSoFar && this.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
+				/*
+				 * the concepts match this scoring rule but we still need to
+				 * look at the other scoring rules to make sure there aren't
+				 * any better matches that will give the student a better score
+				 */
+				feedbackSoFar = scoringRule.feedback;
+				maxScoreSoFar = scoringRule.score;
+			}
+		}
+	}
+	
+	return feedbackSoFar;
+};
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');
