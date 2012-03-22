@@ -862,6 +862,7 @@ View.prototype.checkCRaterVerifyResponse = function(responseText) {
  */
 View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 	var cRaterScoringRules = [];
+	var zeroScoreScoringRule = false;
 	
 	/*
 	 * find all the scoring rule values
@@ -940,13 +941,33 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 				var score = scoreMatch[1];
 				
 				currScoreRule.score = score;
+				
+				if(score == 0) {
+					//we have found a zero score scoring rule
+					zeroScoreScoringRule = true;
+				}
 			}
 			
 			// add empty feedback string by default
 			currScoreRule.feedback = "";
 			
 			cRaterScoringRules.push(currScoreRule);
-		}		
+		}
+		
+		if(!zeroScoreScoringRule) {
+			//we did not find a zero score scoring rule so we will add one
+			
+			//create the scoring rule
+			var zeroScoreRule = {};
+			zeroScoreRule.concepts = "";
+			zeroScoreRule.numMatches = "";
+			zeroScoreRule.rank = "";
+			zeroScoreRule.score = "0";
+			zeroScoreRule.feedback = "";
+			
+			//add the scoring rule to the array of scoring rules
+			cRaterScoringRules.push(zeroScoreRule);
+		}
 	}
 	
 	return cRaterScoringRules;
