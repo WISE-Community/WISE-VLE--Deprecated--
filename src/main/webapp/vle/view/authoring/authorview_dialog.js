@@ -481,31 +481,50 @@ View.prototype.initializeCopyProjectDialog = function (){
 View.prototype.initializeEditProjectMetadataDialog = function(){
 	var view = this;
 	
+	// setup idea manager toggle change action
+	$('#enableIdeaManager').click(function() {
+		if(this.checked){
+			$("#ideaManagerSettings").slideDown();
+		} else {
+			$("#ideaManagerSettings").slideUp();
+		}
+	});
+	
 	var updateProjectMetadata = function(){
-		view.projectMeta.title = $('#projectMetadataTitle').val();
-		view.projectMeta.author = $('#projectMetadataAuthor').val();
-		view.projectMeta.theme = $('#projectMetadataTheme').val();
-		view.projectMeta.navMode = $('#projectMetadataNavigation').val();
-		view.projectMeta.subject = $('#projectMetadataSubject').val();
-		view.projectMeta.summary = $('#projectMetadataSummary').val();
-		view.projectMeta.gradeRange = view.utils.getSelectedValueById('projectMetadataGradeRange');
-		view.projectMeta.totalTime = view.utils.getSelectedValueById('projectMetadataTotalTime');
-		view.projectMeta.compTime = view.utils.getSelectedValueById('projectMetadataCompTime');
-		view.projectMeta.contact = $('#projectMetadataContact').val();
-		view.projectMeta.techReqs = {};
-		view.projectMeta.techReqs.java = $("#java").attr("checked");
-		view.projectMeta.techReqs.flash = $("#flash").attr("checked");
-		view.projectMeta.techReqs.quickTime = $("#quickTime").attr("checked");
-		view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
-		view.projectMeta.tools = {};
-		view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").attr("checked");
-		view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").attr("checked");
-		view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
-		view.projectMeta.standards = $('#projectMetadataStandards').val();
-		view.projectMeta.keywords = $('#projectMetadataKeywords').val();
-		view.projectMeta.language = $('#projectMetadataLanguage').val();
-		
-		view.updateProjectMetaOnServer(true);
+		$.extend(jQuery.validator.messages, {
+		  required: ' *This item is required.'
+		});
+		if($('#imSettings').validate().form()){
+			view.projectMeta.title = $('#projectMetadataTitle').val();
+			view.projectMeta.author = $('#projectMetadataAuthor').val();
+			view.projectMeta.theme = $('#projectMetadataTheme').val();
+			view.projectMeta.navMode = $('#projectMetadataNavigation').val();
+			view.projectMeta.subject = $('#projectMetadataSubject').val();
+			view.projectMeta.summary = $('#projectMetadataSummary').val();
+			view.projectMeta.gradeRange = view.utils.getSelectedValueById('projectMetadataGradeRange');
+			view.projectMeta.totalTime = view.utils.getSelectedValueById('projectMetadataTotalTime');
+			view.projectMeta.compTime = view.utils.getSelectedValueById('projectMetadataCompTime');
+			view.projectMeta.contact = $('#projectMetadataContact').val();
+			view.projectMeta.techReqs = {};
+			view.projectMeta.techReqs.java = $("#java").attr("checked");
+			view.projectMeta.techReqs.flash = $("#flash").attr("checked");
+			view.projectMeta.techReqs.quickTime = $("#quickTime").attr("checked");
+			view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
+			view.projectMeta.tools = {};
+			view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").attr("checked");
+			view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").attr("checked");
+			view.projectMeta.tools.ideaManagerSettings = {};
+			view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
+			view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
+			view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
+			view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
+			view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
+			view.projectMeta.standards = $('#projectMetadataStandards').val();
+			view.projectMeta.keywords = $('#projectMetadataKeywords').val();
+			view.projectMeta.language = $('#projectMetadataLanguage').val();
+			
+			view.updateProjectMetaOnServer(true);
+		}
 	};
 	
 

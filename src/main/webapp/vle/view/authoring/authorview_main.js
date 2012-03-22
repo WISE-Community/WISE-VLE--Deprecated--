@@ -1110,21 +1110,33 @@ View.prototype.editProjectMetadata = function(){
 
 			//set the tech details string
 			$('#projectMetadataTechDetails').attr('value', this.utils.resolveNullToEmptyString(this.projectMeta.techReqs.techDetails));
+		}
+		
+		// initialize idea manager settings object
+		var imSettings = {};
+		
+		if (this.projectMeta.tools != null) {
+			var tools = this.projectMeta.tools;
 			
-			if (this.projectMeta.tools != null) {
-				var tools = this.projectMeta.tools;
-				
-				//determine if enable idea manager needs to be checked
-				if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
-					$("#enableIdeaManager").attr('checked', true);
-				}
+			//determine if enable idea manager needs to be checked
+			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
+				$("#enableIdeaManager").attr('checked', true);
+				$('#ideaManagerSettings').show();
+			}
 
-				//determine if enable student asset uploader needs to be checked
-				if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
-					$("#enableStudentAssetUploader").attr('checked', true);
-				}
+			//determine if enable student asset uploader needs to be checked
+			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
+				$("#enableStudentAssetUploader").attr('checked', true);
+			}
+			
+			// get Idea Manager settings
+			if ('ideaManagerSettings' in tools){
+				imSettings = tools.ideaManagerSettings;
 			}
 		}
+		
+		//populate Idea Manager settings
+		this.populateIMSettings(imSettings);
 		
 		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
 		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
@@ -1136,6 +1148,309 @@ View.prototype.editProjectMetadata = function(){
 	} else {
 		this.notificationManager.notify('Open a project before using this tool.', 3);
 	};
+};
+
+/**
+ * Populates Idea Manager settings fields in the authoring DOM
+ * @param settings Idea Manager settings object
+ */
+View.prototype.populateIMSettings = function(settings){
+	var view = this;
+	
+	// get and populate any custom labels for IM terms
+	if('ideaTerm' in settings && this.utils.isNonWSString(settings.ideaTerm)) {
+		$('#imIdeaTerm').val(settings.ideaTerm);
+	} else {
+		$('#imIdeaTerm').val(this.getI18NString('idea'));
+	}
+	
+	if('ideaTermPlural' in settings && this.utils.isNonWSString(settings.ideaTermPlural)) {
+		$('#imIdeaTermPlural').val(settings.ideaTermPlural);
+	} else {
+		$('#imIdeaTermPlural').val(this.getI18NString('idea_plural'));
+	}
+	
+	if('basketTerm' in settings && this.utils.isNonWSString(settings.basketTerm)) {
+		$('#imBasketTerm').val(settings.basketTerm);
+	} else {
+		$('#imBasketTerm').val(this.getI18NString('idea_basket'));
+	}
+	
+	if('ebTerm' in settings && this.utils.isNonWSString(settings.ebTerm)) {
+		$('#imEBTerm').val(settings.ebTerm);
+	} else {
+		$('#imEBTerm').val(this.getI18NString('explanation_builder'));
+	}
+	
+	// clear active idea attributes
+	$('#ideaAttributes .attribute.active').each(function(){
+		$(this).html('').removeClass('active').addClass('empty');
+	});
+	
+	// get and populate idea attributes for this project
+	if('ideaAttributes' in settings){
+		// idea attributes have been previously set, so get and populate
+		var attributes = settings.ideaAttributes;
+		for(var i=0; i<attributes.length; i++){
+			var type = attribute[i].type;
+			var options = attribtue[i].options;
+			var name = attribute[i].name;
+			var isRequired = attribute[i].isRequired;
+			var id = attribute[i].id;
+			var allowCustom = null;
+			if('allowCustom' in attribute[id]){
+				allowCutsom = attribute[id].allowCustom;
+			}
+			view.addIdeaAttribute(type,options,name,isRequired,allowCustom,null,id);
+		}
+	} else {
+		// idea attributes haven't been set, so add default attributes
+		view.addIdeaAttribute('source');
+		view.addIdeaAttribute('icon',null,null,false);
+	}
+	
+	// make active attribute fields sortable
+	$('#ideaAttributes').sortable({
+		items:'td.attribute.active, td.attribute.empty',
+		handle:'h6 > span'
+	});
+	
+	// insert add new attribute links to all unused attribute fields
+	$('#ideaAttributes .attribute.empty').each(function(){
+		view.deleteIdeaAttribute($(this));
+	});
+	
+	// add validation
+	
+};
+
+/**
+ * Adds a new idea attribute to the Idea Manager settings authoring panel
+ * @param type String for the type of attribute ('source', 'icon', 'tag', 'label' are allowed)
+ * @param options Array of the available options for the field (optional; allowed values depend on type)
+ * @param name String for the name of the attribute field (optional)
+ * @param isRequired Boolean for whether the attribute field is required or not (optional; default is true)
+ * @param allowCustom Boolean for whether the students can add their own custom field (optional; only applies to 'source' and 'label')
+ * @param target jQuery DOM element to add new attribute content to (optional)
+ * @param id String to uniquely identify the idea attribute (optional)
+ */
+View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCustom,target,id){
+	var view = this;
+	
+	function addOption(target,option){
+		// create new option input and add to DOM
+		var newInput = $("<div class='optionWrapper'><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><input type='text' class='option' value='" + option + "' maxlength='25' /><a class='delete' title='Remove option' >X</a></div>");
+		$('.add', target).before(newInput);
+		$('input',newInput).focus();
+		
+		if ($('.option', target).length > 9){
+			// 10 option fields shown, so remove add more link
+			$('.add', target).hide();
+		}
+		
+		// add new item to jquery-ui sortable
+		target.sortable('refresh');
+		
+		// bind delete link click event
+		$('.delete',newInput).click(function(){
+			if($('.option', target).length == 1){
+				alert('You must specify at least one (1) option for this attribute.');
+				return;
+			}
+			newInput.fadeOut(function(){
+				$(this).remove();
+				//if($('.option', target).length < 10){
+					// show add option link
+					$('.add', target).fadeIn();
+				//}
+			});
+		});
+	};
+	
+	// check for unused attribute elements
+	if($('#ideaAttributes .attribute.empty').length > 0){
+		// there are empty attribute fields, so we can add another
+		
+		// get target param if provided or next unused attribute element
+		var newAttribute = null;
+		if(target){
+			newAttribute = target;
+		} else {
+			newAttribute = $('#ideaAttributes .attribute.empty').eq(0);
+		}
+		
+		// if id param wasn't sent, generate unique id for new attribute
+		if(!id || typeof id != 'string'){
+			id = view.utils.generateKey();
+		}
+		
+		var count = 0;
+		var header = null, choices = null;
+		// set header depending on attribute type
+		if(type=='source'){
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Source</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+		} else if (type=='icon'){
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Icon</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+		} else if (type=='tags'){
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Tags</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+		} else if (type=='label'){
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Label</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+		}
+		
+		if(type=='source' || type=='tags' || type=='label'){
+			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
+			if(type=='tags'){
+				choices.append('<p>Options<span class="details">(students can choose any)</span>:</p>');
+			} else {
+				choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
+			}
+			if(options && options.length > 0){
+				for(var i=0;i<options.length;i++){
+					if(typeof options[i] == 'string' && count<11){
+						addOption(choices,options[i]);
+						count++;
+					}
+				}
+			}
+			if(count<10){
+				// there are less than 10 options set, so we can show an add more link
+				var moreLink = $("<p class='add'><a>Add more +</a></p>");
+				choices.append(moreLink);
+				$('a',moreLink).click(function(){
+					addOption(choices,'');
+				});
+			}
+			if (count == 0){
+				// no valid options were set, so add default options
+				var defaults = [];
+				if(type=='source'){
+					defaults = ['Evidence Step','Visualization or Model','Movie/Video','Everyday Observation','School or Teacher'];
+				} else if(type=='tags'){
+					defaults = ['Tag1','Tag2'];
+					
+				} else if(type=='label'){
+					defaults = ['Label1','Label2'];
+				}
+				for(var a=0;a<defaults.length;a++){
+					addOption(choices,defaults[a]);
+				}
+			}
+			
+			// make options sortable
+			choices.sortable({
+				items: '.optionWrapper',
+				handle: 'span.move'
+			});
+		} else if(type=='icon'){
+			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
+			choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
+			var icons = {'blank':'None','important':'Important','question':'Not Sure','check':'Check Mark','favorite':'Favorite/Star','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
+			for(key in icons){
+				var option = $("<div class='optionWrapper'><input type='checkbox' class='option' value='" + key + "' /><img class='icon' src='images/ideaManager/" + key + ".png' alt='" + key + "' />" + icons[key] + "</div>");
+				choices.append(option);
+				if(options && options.length > 0){
+					for(var i=0;i<options.length;i++){
+						if(options[i] == key){
+							$('.option',option).attr('checked','checked');
+						}
+					}
+				} else {
+					if(key=='blank' || key=='important' || key=='question'){
+						$('.option',option).attr('checked','checked');
+					}
+				}
+			}
+		}
+		
+		if(header && choices){
+			// options have been set and type is valid, so populate new attribute element
+			// create name input
+			var fieldName = view.utils.capitalize(type);
+			if(typeof name == 'string' && view.utils.isNonWSString(name)){
+				fieldName = name;
+			}
+			var nameElement = $(document.createElement('p'));
+			var nameInput = $(createElement(document, 'input', {type: 'text', id: 'fieldName_' + id, name: 'fieldName_' + id, value: fieldName})).addClass('fieldName').addClass('required').attr('maxlength','25');
+			nameElement.append(document.createTextNode('Field Name:')).append(nameInput);
+			
+			// create required checkbox
+			var required = $(document.createElement('p'));
+			var requiredCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'required_' + id})).attr('checked','checked').css('margin-left','0');
+			required.append(requiredCheck).append(document.createTextNode('This field is required'));
+			if(isRequired == false){
+				requiredCheck.removeAttr('checked');
+			}
+			
+			// clear new attribute element and add id
+			newAttribute.html('').attr('id','attribute_' + id);
+			
+			// add header and choices to new attribute element
+			newAttribute.append(header).append(choices);
+			// add name inptu and required toggles to DOM
+			header.after(nameElement);
+			nameElement.after(required);
+			
+			if(type=='source' || type=='label'){
+				// create allow custom field checkbox
+				var custom = $(document.createElement('p'));
+				var customCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'custom_' + id})).css('margin-left','0');
+				custom.append(customCheck).append(document.createTextNode('Allow students specify their own ' + type));;
+				if(allowCustom == true){
+					customCheck.attr('checked','checked');
+				}
+				// add custom field checkbox to attribute element
+				newAttribute.append(custom);
+			}
+			// remove empty class and add active class
+			newAttribute.removeClass('empty').addClass('active').addClass(type);
+			
+			// bind attribute delete link click event (with confirm dialog)
+			$('.delete', header).click(function(){
+				var answer = confirm('Are you sure you want to permanently delete this attribute?');
+				if (answer){
+					// do delete
+					view.deleteIdeaAttribute($(this).parent().parent());
+				}
+			});
+		} else {
+			// header & choices elements not defined so type is not allowed, fire error notification
+			this.notificationManager.notify('Error adding idea attribute. Invalid type.', 2);
+		}
+	} else {
+		// there are no unused attribute elements left, so fire error notification
+		this.notificationManager.notify('Error adding idea attribute. Too many attributes specified.', 2);
+	}
+};
+
+/**
+ * Clears specified attribute DOM element and inserts add new attribute links
+ * @param target jQuery DOM element
+ */
+View.prototype.deleteIdeaAttribute = function(target){
+	var view = this;
+	
+	// clear content
+	target.html('').removeClass('active').addClass('empty').removeAttr('id');
+	
+	// create new attribute links
+	var newLinks = $(document.createElement('div')).addClass('newLinks');
+	newLinks.append('<h6>Add new attribute +</h6>');
+	var container = $(document.createElement('ul'));
+	container.append('<li><a name="source">Source</a></li><li><a name="label">Label</a></li><li><a name="icon">Icon</a></li><li><a name="tags">Tags</a></li>');
+	newLinks.append(container);
+	
+	// add new attribute links to DOM element
+	target.append(newLinks);
+	
+	// bind click actions to new links
+	$('a',container).click(function(){
+		var type = $(this).attr('name');
+		var isRequired = false;
+		if(type=='source' || type=='label'){
+			isRequired = true;
+		}
+		view.addIdeaAttribute(type,null,null,isRequired,null,target);
+	});
 };
 
 /**

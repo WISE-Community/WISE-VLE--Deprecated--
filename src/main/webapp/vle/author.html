@@ -448,6 +448,7 @@ var view;
 			<td>
 				<select name="languageType" id="projectMetadataLanguage">
 							<option id='english' value='English'>English</option>
+							<option id='spanish' value='Spanish'>English</option>
 							<option id='hebrew' value='Hebrew'>Hebrew</option>
 							<option id='chinese' value='Chinese'>Chinese</option>
 							<option id='japanese' value='Japanese'>Japanese</option>
@@ -473,7 +474,48 @@ var view;
 				<input id='enableIdeaManager' name="enableIdeaManager" type="checkbox"></input><label for="enableIdeaManager">Enable Idea Manager</label>&nbsp;&nbsp;
 				<input id='enableStudentAssetUploader' name="enableStudentAssetUploader" type="checkbox"></input><label for="enableStudentAssetUploader">Enable Student File Uploads</label>&nbsp;&nbsp;
 
-			</td></tr>		
+			</td>
+		</tr>
+		<tr>
+			<td colspan='2'>
+				<div class='featureSettings' id='ideaManagerSettings'>
+					<form id='imSettings'>
+						<h5>Idea Manager Settings</h5>
+						<div class='setting'>
+							<div class='settingLabel'>Idea Attributes
+								<span class='details'>Specify up to three (3) additional attributes (data fields) for each idea in this project</span>
+								<img src='images/icons/teal/question.png' alt='More Information' class='tooltip' tooltip-maxW='300px' i18n-title='authoring_imsettings_attribute_help' />
+							</div>
+							<p class='warning' style='font-size:.85em;'>WARNING: If this project is currently running in a classroom, changing idea attributes will result in student data loss. Be careful!</p>
+							<table id='ideaAttributes'>
+								<tr>
+									<td class='attribute required'>
+										<h6>Text<span class='details'>(Required)</span><span class='action'><img src='images/icons/red/lock.png' alt='locked' class='tooltip' i18n-title='authoring_imsettings_text_required' tooltip-anchor='top' /></span></h6>
+										<p>Students type the text of their idea into a textbox.</p>
+										<p>A maximum of 150 characters is allowed per idea.</p>
+									</td>
+									<td class='attribute empty'></td>
+									<td class='attribute empty'></td>
+									<td class='attribute empty'></td>
+								</tr>
+							</table>
+						</div>
+						<div class='setting'>
+							<div class='settingLabel'>Labels & Terminology
+								<span class='details'>Optional: Customize the names of Idea Manager components for this project</span>
+								<img src='images/icons/teal/question.png' alt='More Information' class='tooltip' tooltip-maxW='300px' i18n-title='authoring_imsettings_terminology_help' />
+							</div>
+							<ul class='inline'>
+								<li>Term for "idea": <input type='text' id='imIdeaTerm' name='imIdeaTerm' class='required' minlength='2' maxlength='20' /></li>
+								<li>Term for "idea" (plural): <input type='text' id='imIdeaTermPlural' name='imIdeaTermPlural' class='required' minlength='2' maxlength='20' /></li>
+								<li>Term for "Idea Basket": <input type='text' id='imBasketTerm' name='imBasketTerm' class='required' minlength='2' maxlength='40' /></li>
+								<li>Term for "Explanation Builder": <input type='text' id='imEBTerm' name='imEBTerm' class='required' minlength='2' maxlength='40' /></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</td>
+		</tr>
 		<tr><td colspan="2">Teaching Tips:</td></tr>
 		<tr><td colspan="2"><textarea class="size4" id='projectMetadataLessonPlan'></textarea></td></tr>
 		<tr><td colspan="2">Learning Goals and Standards:</td></tr>
@@ -674,7 +716,7 @@ browsers that don't support iframes goes here.] </iframe>
 
 <div id='coverDiv'>
 	<!--<div id='coverPlace' style='height:40%;'></div>0-->
-	<div id='coverTextDiv'>WISE 4 Authoring Tool is Loading</div>
+	<div id='coverTextDiv'>WISE Authoring Tool is Loading</div>
 	<!--<div id='coverTextUpdateDiv'></div>
 	<br/>
 	<div id='coverImgDiv'>

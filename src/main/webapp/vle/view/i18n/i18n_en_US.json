@@ -78,22 +78,18 @@
 	"gohome_button_title":{
 		"value":"Save & Exit to Student Home",
 		"description":"Text for mouse hover title on the Home button"
-	},		
-	"hint_button_text":{
-		"value":"Hints",
-		"description":"Text that shows up next to the Hint button"
-	},
-	"hint_button_title":{
-		"value":"View Hints",
-		"description":"Text for mouse hover title on the Hint button"
 	},
 	"hint_title":{
-		"value":"Step Hints",
-		"description":"Title that shows up in the hint window"
+		"value":"Hints",
+		"description":"Title of the hint dialog window and the text that shows up next to the Hint button"
 	},
-	"hint_hint":{
-		"value":"Hint",
-		"description":"will be shown as Hint (1 of 2)"
+	"hint_button_title":{
+		"value":"View ",
+		"description":"Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
+	},
+	"hint_num_separator":{
+		"value":"of",
+		"description":"Text to be shown between current Hint number and total (e.g. 1 'of' 2)"
 	},
 	"hint_next":{
 		"value":"Next",
@@ -159,6 +155,14 @@
 		"value":"Done",
 		"description":"Text 'done', to mean completed"
 	},
+	"idea":{
+		"value":"idea",
+		"description":"The default text for an 'idea' in the Idea Manager tool."
+	},
+	"idea_plural":{
+		"value":"ideas",
+		"description":"The default text for 'ideas' in the Idea Manager tool."
+	},
 	"idea_basket":{
 		"value":"Idea Basket",
 		"description":"The text 'Idea Basket' in the Idea Manager"
@@ -170,6 +174,10 @@
 	"idea_basket_retrieval_error":{
 		"value":"Error: Could not open Idea Basket, refresh the VLE to try to load it again",
 		"description":"Error message displayed when retrieving idea basket fails"
+	},
+	"explanation_builder":{
+		"value":"Explanation Builder",
+		"description":"The default text for the 'Explanation Builder' tool."
 	},
 	"grading_button_grade_by_step":{
 		"value":"Grade By Step",
@@ -441,7 +449,7 @@
 	},
 	"authoring_hint_forceShow": {
 		"value":"Force Show:",
-		"description":"Text to display for \"Force Show: \" drop down lable for step hints"
+		"description":"Text to display for \"Force Show: \" drop down label for step hints"
 	},
 	"authoring_hint_option_never": {
 		"value":"Never",
@@ -454,5 +462,17 @@
 	"authoring_hint_option_always": {
 		"value":"Always",
 		"description":"The text \"Always\" to display in \"force show:\" drop down for step hints."
-	}		
+	},
+	"authoring_imsettings_attribute_help": {
+		"value":"Help content will go here",
+		"description":""
+	},
+	"authoring_imsettings_terminology_help": {
+		"value":"Help content will go here",
+		"description":""
+	},
+	"authoring_imsettings_text_required": {
+		"value":"The <span style='font-weight:bold;'>text</span> attribute is the basic component of each idea and cannot be deleted.",
+		"description":"The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
+	}
 }

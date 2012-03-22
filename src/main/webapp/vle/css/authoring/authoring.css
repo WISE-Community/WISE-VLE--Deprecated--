@@ -1,4 +1,4 @@
-/* AUTHOR TOOL HOME PAGE*/
+/* AUTHOR TOOL STYLES*/
 a {
 	cursor:pointer;
 }
@@ -11,6 +11,12 @@ a, button, input[type='button'] {
 
 a:hover {
 	text-decoration:underline;
+}
+
+p.warning {
+	font-size:.85em;
+	color:#FF563F;
+	text-align:center;
 }
 
 .clickable {
@@ -861,9 +867,8 @@ button.mid, #centeredDiv button.mid, #centeredDiv input[type='button'].mid {
 }
 
 #editProjectMetadataMainDiv table input[type="text"] {
-	padding:2px;
-	width:410px;
-	border:1px solid #6666ff;
+	/*padding:2px;
+	width:410px;*/
 }
 
 #editProjectMetadataMainDiv table select {
@@ -1745,4 +1750,225 @@ div#toolsAreaAuthor {
 .hintTextBox {
 	height:200px;
 	width:100%;	
+}
+
+
+/* General */
+
+label.error {
+	color:red;
+}
+
+input[type='text'].error, textarea.error {
+	border-color:red;
+}
+
+
+/* Settings Panels */
+
+.featureSettings {
+	font-size:.9em;
+	border:1px solid #cccccc;
+	background-color:#f5f5f5;
+	margin:.25em;
+	padding:.5em;
+	color:#444444;
+}
+
+.featureSettings p {
+	font-size:.9em;
+	padding:0;
+	margin:.25em 0;
+}
+
+.featureSettings h5 {
+	border-bottom: 1px solid #DDDDDD;
+    color: #222222;
+    font-size: 1em;
+    margin: 0 0 0.5em;
+    padding: 0 0.1em 0.25em;
+}
+
+.featureSettings h6 {
+	border-bottom: 1px solid #DDDDDD;
+    color: #444444;
+    font-size: 0.9em;
+    margin: 0 0 0.25em;
+    padding: 0 0 0.25em 0.1em;
+    position:relative;
+}
+
+.featureSettings a.delete {
+	padding:0 .1em;
+	color:#555;
+}
+
+.featureSettings .move {
+	cursor: move;
+}
+
+.featureSettings .setting {
+	padding:.25em;
+}
+
+.featureSettings .settingLabel {
+	color:#222222;
+}
+
+.featureSettings .details {
+	font-size:.8em;
+	color:#555555;
+	margin-left:.25em;
+	font-weight:normal;
+}
+
+.featureSettings ul.inline {
+	list-style-type: none;
+	padding:0;
+	margin:.5em;
+	font-size:.9em;
+}
+
+.featureSettings ul.inline li {
+	display:inline-block;
+	margin-right:.25em;
+}
+
+.featureSettings input[type='text'], .featureSettings input[type='password'], .featureSettings textarea {
+	color:#333;
+	padding:.2em;
+}
+
+/* Project Metadata Settings */
+
+#ideaManagerSettings {
+	display:none;
+}
+
+table#ideaAttributes {
+	width:100%;
+	border: 0 none;
+	margin:0;
+	padding:0;
+	table-layout:fixed;
+	border-collapse:separate; 
+	border-spacing:.25em;
+}
+
+#ideaAttributes tr td {
+	background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #CCCCCC;
+    color: #555555;
+    font-size: 0.85em;
+	width:25%;
+	height:125px;
+	padding:.5em;
+}
+
+#ideaAttributes .attribute.required {
+	/*background: none repeat scroll 0 0 #f9f9f9;*/
+}
+
+#ideaAttributes .attribute.empty {
+	background: none repeat scroll 0 0 #dddddd;
+}
+
+#ideaAttributes .attribute.active h6 {
+	position:relative;
+	padding-left:8px;
+	cursor: move;
+}
+
+#ideaAttributes .attribute.active h6 .move {
+	left: -5px;
+    position: absolute;
+    top: -1px;
+}
+
+#ideaAttributes .attribute .details {
+	font-size:.85em;
+}
+
+#ideaAttributes .attribute .action {
+	float:right;
+}
+
+#ideaAttributes .attribute .action img {
+	height:16px;
+	width:16px;
+}
+
+#ideaAttributes .attribute .optionWrapper {
+	position:relative;
+}
+
+#ideaAttributes .attribute input[type='text'] {
+	background: none repeat scroll 0 0 #F5F5F5;
+    height: 20px;
+    line-height: 20px;
+    font-size:.95em;
+}
+
+#ideaAttributes .attribute input[type='text']:focus {
+	background: none repeat scroll 0 0 #FFFFFF;
+}
+
+#ideaAttributes .attribute input[type='text'].option {
+	margin: 3px 0;
+    padding: 1px 16px 1px 12px;
+    width: 100%;
+}
+
+#ideaAttributes .attribute input[type='text'].fieldName {
+	width:90px;
+}
+
+#ideaAttributes .attribute .options img.icon {
+	height: 20px;
+    margin: 0.1em 0.25em;
+    vertical-align: middle;
+    width: 20px;
+}
+
+#ideaAttributes .attribute .options {
+	margin-top:.25em;
+}
+
+#ideaAttributes .attribute .options .optionWrapper {
+	font-size:.9em;
+}
+
+#ideaAttributes .attribute .options a.delete {
+	border-left: 1px solid #CCCCCC;
+    color: #777777;
+    margin-left: -14px;
+    padding: 0 0 0 2px;
+    text-decoration: none;
+}
+
+#ideaAttributes .attribute .options .move {
+    left: 0;
+    line-height: 100%;
+    position: absolute;
+    top: 4px;
+}
+
+#ideaAttributes .attribute .add {
+	padding-left: 0.25em;
+}
+
+#ideaAttributes .attribute .newLinks {
+	padding:.5em;
+	border:1px solid #ccc;
+	background: none repeat scroll 0 0 #f5f5f5;
+}
+
+#ideaAttributes .attribute .newLinks ul {
+	font-size: 0.9em;
+    margin: 0.25em 0;
+    padding-left: 1.5em;
+}
+
+#ideaAttributes .attribute .newLinks ul li {
+	margin:.25em 0;
 }

@@ -52,8 +52,11 @@ public class Annotation extends PersistableDomain {
 	private Long id = null;
 
 	@ManyToOne(cascade = {CascadeType.PERSIST})
-	private UserInfo userInfo;  // who created this annotation
+	private UserInfo fromUser;  // who created this annotation
 
+	@ManyToOne(cascade = {CascadeType.PERSIST})
+	private UserInfo toUser;  // who this annotation is for
+	
 	@ManyToOne(cascade = {CascadeType.PERSIST})
 	private StepWork stepWork;   // the work that is being annotated
 
@@ -82,17 +85,31 @@ public class Annotation extends PersistableDomain {
     }
 
 	/**
-	 * @return the userInfo
+	 * @return the fromUser
 	 */
-	public UserInfo getUserInfo() {
-		return userInfo;
+	public UserInfo getFromUser() {
+		return fromUser;
 	}
 
 	/**
-	 * @param userInfo the userInfo to set
+	 * @param fromUser the fromUser to set
 	 */
-	public void setUserInfo(UserInfo userInfo) {
-		this.userInfo = userInfo;
+	public void setFromUser(UserInfo fromUser) {
+		this.fromUser = fromUser;
+	}
+
+	/**
+	 * @return the toUser
+	 */
+	public UserInfo getToUser() {
+		return toUser;
+	}
+
+	/**
+	 * @param toUser the toUser to set
+	 */
+	public void setToUser(UserInfo toUser) {
+		this.toUser = toUser;
 	}
 
 	/**
@@ -209,15 +226,17 @@ public class Annotation extends PersistableDomain {
 	/**
 	 * Constructor for Annotation
 	 * @param stepWork
-	 * @param userInfo
+	 * @param fromUser who this annotation is from
+	 * @param toUser who this annotation is for
 	 * @param runId
 	 * @param postTime
 	 * @param type
 	 * @param data
 	 */
-	public Annotation(StepWork stepWork, UserInfo userInfo, Long runId, Timestamp postTime, String type, String data) {
+	public Annotation(StepWork stepWork, UserInfo fromUser, UserInfo toUser, Long runId, Timestamp postTime, String type, String data) {
 		setStepWork(stepWork);
-		setUserInfo(userInfo);
+		setFromUser(fromUser);
+		setToUser(toUser);
 		setRunId(runId);
 		setPostTime(postTime);
 		setType(type);
@@ -240,7 +259,7 @@ public class Annotation extends PersistableDomain {
 
         List<Annotation> result = 
         	session.createCriteria(clazz)
-        		.add( Restrictions.eq("userInfo", fromWorkgroup))
+        		.add( Restrictions.eq("fromUser", fromWorkgroup))
         		.add( Restrictions.in("stepWork", workByToWorkgroup))
         		.list();
         session.getTransaction().commit();
@@ -270,7 +289,7 @@ public class Annotation extends PersistableDomain {
 
 	        result = 
 	        	session.createCriteria(clazz)
-	        		.add( Restrictions.in("userInfo", fromWorkgroups))
+	        		.add( Restrictions.in("fromUser", fromWorkgroups))
 	        		.add( Restrictions.in("stepWork", workByToWorkgroup))
 	        		.list();
 	        session.getTransaction().commit();
@@ -312,7 +331,7 @@ public class Annotation extends PersistableDomain {
         if(type != null) {
         	result = 
         			(Annotation) session.createCriteria(Annotation.class)
-        			.add( Restrictions.eq("userInfo", userInfo))
+        			.add( Restrictions.eq("fromUser", userInfo))
         			.add( Restrictions.eq("stepWork", stepWork))
         			.add( Restrictions.eq("type", type))
         			.uniqueResult();
@@ -320,7 +339,7 @@ public class Annotation extends PersistableDomain {
         } else {
         	result = 
         			(Annotation) session.createCriteria(Annotation.class)
-        			.add( Restrictions.eq("userInfo", userInfo))
+        			.add( Restrictions.eq("fromUser", userInfo))
         			.add( Restrictions.eq("stepWork", stepWork))
         			.uniqueResult();
         	session.getTransaction().commit();
@@ -348,7 +367,7 @@ public class Annotation extends PersistableDomain {
         if(type != null) {
         	results = 
                 	(List<Annotation>) session.createCriteria(Annotation.class)
-                		.add( Restrictions.in("userInfo", fromWorkgroups))
+                		.add( Restrictions.in("fromUser", fromWorkgroups))
                 		.add( Restrictions.eq("stepWork", stepWork))
                 		.add( Restrictions.eq("type", type))
                 		.list();
@@ -356,7 +375,7 @@ public class Annotation extends PersistableDomain {
         } else {
         	results = 
                 	(List<Annotation>) session.createCriteria(Annotation.class)
-                		.add( Restrictions.in("userInfo", fromWorkgroups))
+                		.add( Restrictions.in("fromUser", fromWorkgroups))
                 		.add( Restrictions.eq("stepWork", stepWork))
                 		.list();
                 session.getTransaction().commit();
@@ -379,6 +398,27 @@ public class Annotation extends PersistableDomain {
         List<Annotation> results = 
         	(List<Annotation>) session.createCriteria(clazz)
         		.add( Restrictions.eq("stepWork", stepWork))
+        		.list();
+        session.getTransaction().commit();
+        return results;
+	}
+	
+	/**
+	 * Get all the annotations for the given stepwork
+	 * @param stepWork
+	 * @param clazz
+	 * @return a list of annotations that are for a given stepwork
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByFromUserToUserType(List<UserInfo> fromUsers, UserInfo toUser, String annotationType) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        List<Annotation> results = 
+        	(List<Annotation>) session.createCriteria(Annotation.class)
+        		.add( Restrictions.in("fromUser", fromUsers))
+        		.add( Restrictions.eq("toUser", toUser))
+        		.add( Restrictions.eq("type", annotationType))
         		.list();
         session.getTransaction().commit();
         return results;

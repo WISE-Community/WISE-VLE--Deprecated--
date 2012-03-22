@@ -102,6 +102,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.displayExportExplanation(args[0]);
 	} else if(type=='setSelectedPeriod') {
 		obj.setSelectedPeriod(args[0]);
+	} else if(type=='editGroups') {
+		obj.editGroups(args[0]);
 	}
 };
 

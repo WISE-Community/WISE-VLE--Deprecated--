@@ -218,7 +218,8 @@ var componentloader = function(em, sl){
 					 'addPremadeComment':[null, null],
 					 'deletePremadeComment':[null, null],
 					 'getIdeaBasketsComplete':[null, null],
-					 'setSelectedPeriod':[null, null]},
+					 'setSelectedPeriod':[null, null],
+					 'editGroups':[null, null]},
    		    methods:{
 			  onWindowUnload:function(view){return function(){view.onWindowUnload();};}
 		    },					 
@@ -276,6 +277,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("setSelectedPeriod", view.gradingDispatcher, view);
+					eventManager.subscribe("editGroups", view.gradingDispatcher, view);
 					eventManager.initializeLoading([['gradingConfigUrlReceived','projectDataReceived','Project Data'], 
 					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data'],
 					                                ['initiateClassroomMonitorDisplayStart','classroomMonitorDisplayComplete','Classroom Monitor']], false);

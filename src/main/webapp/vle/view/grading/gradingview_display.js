@@ -1536,9 +1536,27 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 			toggleRevisionsLink = this.getI18NString("grading_no_revisions");
 		}
 		
+		var allGroupsUsed = this.project.getAllGroupsUsed();
+		
 		//display the student workgroup id
 		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>"+
-			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div></td>";
+			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div>";
+		
+		if(allGroupsUsed != null && allGroupsUsed.length > 0) {
+			gradeByStepGradingPageHtml += "<div>";
+
+			var groups = this.getGroupsByWorkgroupId(workgroupId);
+			var groupsString = groups.join(", ");
+			gradeByStepGradingPageHtml += "Groups: " + groupsString;
+
+			gradeByStepGradingPageHtml += "</div>";
+			
+			gradeByStepGradingPageHtml += "<div>";
+			gradeByStepGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";
+			gradeByStepGradingPageHtml += "</div>";
+		}
+		
+		gradeByStepGradingPageHtml += "</td>";
 		
 		//make the css class for the td that will contain the student's work
 		var studentWorkTdClass = "gradeColumn workColumn";
@@ -4417,6 +4435,73 @@ View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroup
 	
 	//we did not find any matching student work id/nodevisit id
 	return null;
+};
+
+View.prototype.editGroups = function(workgroupId) {
+	//check if the hintsDiv div exists
+    if($('#editGroupsPanel').size()==0){
+    	//the show hintsDiv does not exist so we will create it
+    	$('<div id="editGroupsPanel"></div>').dialog(
+		{	autoOpen:false,
+			closeText:'Close',
+			modal:false,
+			show:{effect:"fade",duration:200},
+			hide:{effect:"fade",duration:200},
+			title:"Edit Groups",
+			zindex:9999,
+			width:600,
+			height:'auto',
+			position:["center","middle"],
+			resizable:true    					
+		}).bind( "dialogbeforeclose", {view:this}, function(event, ui) {
+		    // before the dialog closes, save hintstate
+	    	//if ($(this).data("dialog").isOpen()) {	    		    		
+	    	//	var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
+	    	//	event.data.view.pushHintState(hintState);
+	    		//$('#hintsHeader').html('&nbsp').addClass('visited');
+	    	//};
+	    });
+    };
+    
+    var editGroupsHtml = "";
+    editGroupsHtml += "<div>";
+    
+    
+    var allGroupsUsed = this.project.getAllGroupsUsed();
+	var groupsForWorkgroupId = this.getGroupsByWorkgroupId(workgroupId);
+    
+    if(allGroupsUsed != null) {
+    	for(var x=0; x<allGroupsUsed.length; x++) {
+    		var group = allGroupsUsed[x];
+    		var checked = '';
+    		
+    		if(groupsForWorkgroupId != null && groupsForWorkgroupId.indexOf(group) != -1) {
+    			checked = 'checked';
+    		}
+    		
+    		editGroupsHtml += "<input type='checkbox' " + checked + "/>" + group;
+    		editGroupsHtml += "<br>";
+    	}
+    }
+    
+    editGroupsHtml += "</div>";
+
+    $('#editGroupsPanel').html(editGroupsHtml);
+    
+    $('#editGroupsPanel').dialog('open');
+};
+
+View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
+	var groups = [];
+	
+	var runAnnotations = this.annotations.getAnnotationsByToWorkgroupType(workgroupId, "run");
+	var runAnnotation = runAnnotations[0];
+	
+	if(runAnnotation != null && runAnnotation.value != null && runAnnotation.value.groups != null) {
+		groups = runAnnotation.value.groups;
+	}
+	
+	return groups;
 };
 
 /**

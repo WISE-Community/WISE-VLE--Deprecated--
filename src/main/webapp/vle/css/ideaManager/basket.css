@@ -1,5 +1,3 @@
-/* Common styles for WISE step types with assessment components */
-
 /*
  * HTML5 Boilerplate
  *
@@ -403,7 +401,7 @@ span.check {
 }
 
 span.blank {
-	/*background-image: url(../../images/ideaManager/blank.png);*/
+	background-image: url(../../images/ideaManager/blank.png);
 }
 
 #otherSource, #editOtherSource {
