@@ -17,6 +17,12 @@ function Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, post
 	this.value = value; //the feedback/grading
 	this.postTime = postTime;
 	this.stepWorkId = stepWorkId;
+	
+	try {
+		this.value = JSON.parse(value);
+	} catch(err) {
+		
+	}
 }
 
 
@@ -61,6 +67,12 @@ Annotation.prototype.parseDataJSONObj = function(annotationJSONObj) {
 	//only used when student retrieves flagged work
 	if(annotationJSONObj.annotationComment) {
 		annotation.annotationComment = Annotation.prototype.parseDataJSONObj(annotationJSONObj.annotationComment);
+	}
+	
+	try {
+		annotation.value = JSON.parse(annotationJSONObj.value);
+	} catch(err) {
+		
 	}
 	
 	//return the Annotation

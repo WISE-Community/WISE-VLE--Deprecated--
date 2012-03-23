@@ -606,8 +606,14 @@ public class VLEAnnotationController extends HttpServlet {
 
 		Calendar now = Calendar.getInstance();
 		Timestamp postTime = new Timestamp(now.getTimeInMillis());
-		StepWork stepWork = (StepWork) StepWork.getById(new Long(stepWorkId), StepWork.class);
-		UserInfo userInfo = UserInfo.getOrCreateByWorkgroupId(new Long(fromWorkgroup));
+		StepWork stepWork = null;
+		
+		if(stepWorkId != null) {
+			stepWork = (StepWork) StepWork.getById(new Long(stepWorkId), StepWork.class);
+		}
+		
+		UserInfo fromUserInfo = UserInfo.getOrCreateByWorkgroupId(new Long(fromWorkgroup));
+		UserInfo toUserInfo = UserInfo.getOrCreateByWorkgroupId(new Long(toWorkgroup));
 
 		JSONObject annotationEntryJSONObj = new JSONObject();
 		try {
@@ -617,19 +623,28 @@ public class VLEAnnotationController extends HttpServlet {
 			annotationEntryJSONObj.put("fromWorkgroup", fromWorkgroup);
 			annotationEntryJSONObj.put("stepWorkId", stepWorkId);
 			annotationEntryJSONObj.put("type", type);
-			annotationEntryJSONObj.put("value", value);
+			
+			try {
+				JSONObject valueJSONObject = new JSONObject(value);
+				annotationEntryJSONObj.put("value", valueJSONObject);
+			} catch (JSONException e1) {
+				//e1.printStackTrace();
+				annotationEntryJSONObj.put("value", value);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		
-		Annotation annotation = Annotation.getByUserInfoAndStepWork(userInfo, stepWork, type);
+		Annotation annotation = Annotation.getByFromUserInfoToUserInfoStepWorkType(fromUserInfo, toUserInfo, stepWork, type);
 
 		if(annotation == null) {
 			//the annotation was not found so we will create it
 			annotation = new Annotation(type);
-			annotation.setFromUser(userInfo);
+			annotation.setFromUser(fromUserInfo);
 			if (stepWork != null) {
 				annotation.setToUser(stepWork.getUserInfo());
+			} else {
+				annotation.setToUser(toUserInfo);				
 			}
 			annotation.setStepWork(stepWork);
 		}
@@ -651,7 +666,7 @@ public class VLEAnnotationController extends HttpServlet {
 		//check if this is a peer review annotation
 		if(action != null && action.equals("peerReviewAnnotate")) {
 			//set the annotation into the peerreviewwork table
-			PeerReviewWork.setPeerReviewAnnotation(new Long(runId), new Long(periodId), stepWork.getNode(), stepWork, userInfo, annotation);
+			PeerReviewWork.setPeerReviewAnnotation(new Long(runId), new Long(periodId), stepWork.getNode(), stepWork, fromUserInfo, annotation);
 		}
 		
 		response.getWriter().print(postTime.getTime());

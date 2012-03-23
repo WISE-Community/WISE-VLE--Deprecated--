@@ -88,6 +88,11 @@ View.prototype.saveComment = function(nodeId, toWorkgroupId, fromWorkgroupId, ru
 	}
 };
 
+View.prototype.saveRunAnnotation = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation) {
+	var value = JSON.stringify(runAnnotation.value);
+	this.saveAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, 'run', value, runId, stepWorkId);
+};
+
 /**
  * Posts the new or updated annotation back to the server and if that was 
  * successful, it will create a local Annotation object and place it in
@@ -163,8 +168,24 @@ View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, typ
 	//escape the annotation value
 	value = encodeURIComponent(value);
 	
+	var postAnnotationParams = {
+		runId:runId,
+		toWorkgroup:toWorkgroup,
+		fromWorkgroup:fromWorkgroup,
+		annotationType:type,
+		value:value
+	};
+	
+	if(nodeId != null) {
+		postAnnotationParams.nodeId = nodeId;
+	}
+	
+	if(stepWorkId != null) {
+		postAnnotationParams.stepWorkId = stepWorkId;
+	}
+	
 	//make the call to post the annotation
-	this.connectionManager.request('POST', 1, postAnnotationsURL, {runId:runId, nodeId:nodeId, toWorkgroup:toWorkgroup, fromWorkgroup:fromWorkgroup, annotationType:type, value:value, stepWorkId:stepWorkId}, postAnnotationCallback, [this, nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId], postAnnotationCallbackFail);
+	this.connectionManager.request('POST', 1, postAnnotationsURL, postAnnotationParams, postAnnotationCallback, [this, nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId], postAnnotationCallbackFail);
 };
 
 /**

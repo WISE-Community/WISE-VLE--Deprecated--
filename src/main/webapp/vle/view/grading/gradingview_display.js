@@ -4479,7 +4479,7 @@ View.prototype.editGroups = function(workgroupId) {
     			checked = 'checked';
     		}
     		
-    		editGroupsHtml += "<input type='checkbox' " + checked + "/>" + group;
+    		editGroupsHtml += "<input type='checkbox' " + checked + " name='groupCheckBox' value='" + group + "' onclick='eventManager.fire(\"groupClicked\", " + workgroupId + ")'/>" + group;
     		editGroupsHtml += "<br>";
     	}
     }
@@ -4491,11 +4491,56 @@ View.prototype.editGroups = function(workgroupId) {
     $('#editGroupsPanel').dialog('open');
 };
 
+View.prototype.groupClicked = function(workgroupId) {
+	var groups = [];
+	var checkedGroups = $('input[name=groupCheckBox]:checked');
+	
+	for(var x=0; x<checkedGroups.length; x++) {
+		var checkedGroup = checkedGroups[x];
+		
+		if(checkedGroup != null) {
+			groups.push($(checkedGroup).val());			
+		}
+	}
+	
+	var runAnnotation = this.getRunAnnotationByWorkgroupId(workgroupId);
+	
+	if(runAnnotation == null) {
+		runAnnotation = {};
+	}
+	
+	if(runAnnotation.value == null) {
+		runAnnotation.value = {};
+	}
+	
+	var runAnnotationValue = runAnnotation.value;
+	
+	runAnnotationValue.groups = groups;
+	
+	var nodeId = null;
+	var toWorkgroupId = workgroupId;
+	var fromWorkgroupId = this.getUserAndClassInfo().getTeacherWorkgroupId();
+	var runId = this.config.getConfigParam("runId");
+	var stepWorkId = null;
+	
+	this.saveRunAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation);
+};
+
+View.prototype.getRunAnnotationByWorkgroupId = function(workgroupId) {
+	var runAnnotations = this.annotations.getAnnotationsByToWorkgroupType(workgroupId, "run");
+	var runAnnotation = null;
+	
+	if(runAnnotations != null && runAnnotations.length > 0){
+		runAnnotation = runAnnotations[0];
+	}
+	
+	return runAnnotation;
+};
+
 View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
 	var groups = [];
 	
-	var runAnnotations = this.annotations.getAnnotationsByToWorkgroupType(workgroupId, "run");
-	var runAnnotation = runAnnotations[0];
+	var runAnnotation = this.getRunAnnotationByWorkgroupId(workgroupId);
 	
 	if(runAnnotation != null && runAnnotation.value != null && runAnnotation.value.groups != null) {
 		groups = runAnnotation.value.groups;

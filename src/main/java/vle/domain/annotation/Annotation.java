@@ -21,6 +21,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -344,6 +345,37 @@ public class Annotation extends PersistableDomain {
         			.uniqueResult();
         	session.getTransaction().commit();
         }
+        
+        return result;
+	}
+	
+	public static Annotation getByFromUserInfoToUserInfoStepWorkType(UserInfo fromUserInfo, UserInfo toUserInfo, StepWork stepWork, String type) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        Annotation result = null;
+        
+        Criteria criteria = session.createCriteria(Annotation.class)
+		.add( Restrictions.eq("fromUser", fromUserInfo))
+		.add( Restrictions.eq("toUser", toUserInfo))
+		.add( Restrictions.eq("type", type));
+        
+        if(stepWork != null) {
+        	criteria.add( Restrictions.eq("stepWork", stepWork));
+        }
+        
+        result = (Annotation) criteria.uniqueResult();
+        
+    	/*
+    	result = 
+    			(Annotation) session.createCriteria(Annotation.class)
+    			.add( Restrictions.eq("fromUser", fromUserInfo))
+    			.add( Restrictions.eq("toUser", toUserInfo))
+    			.add( Restrictions.eq("stepWork", stepWork))
+    			.add( Restrictions.eq("type", type))
+    			.uniqueResult();
+    	session.getTransaction().commit();  
+        */
         
         return result;
 	}
