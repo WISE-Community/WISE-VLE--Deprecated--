@@ -186,7 +186,6 @@ p {
 }
 
 .buttonDiv a, .buttonDiv input {
-	color: #FFFFFF;
     display: inline-block;
     font-size: 0.8em;
     padding: 0.2em 0.75em;
@@ -205,7 +204,6 @@ p {
 }
 
 .buttonDiv a:hover, .buttonDiv input:hover {
-	color: #FBCB09;
 	cursor:pointer;
 }
 
