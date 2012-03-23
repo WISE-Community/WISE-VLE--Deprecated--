@@ -796,8 +796,15 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		//get the cumulative score for the workgroup
 		var totalScoreForWorkgroup = this.annotations.getTotalScoreByToWorkgroupAndFromWorkgroups(workgroupId, teacherIds);
 		
+		var teacherScorePercentage = "";
+		
+		if(maxScoresSum != null && maxScoresSum != 0) {
+			//get the teacher score percentage
+			teacherScorePercentage = " = " + 100 * totalScoreForWorkgroup / maxScoresSum + "%";
+		}
+		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
