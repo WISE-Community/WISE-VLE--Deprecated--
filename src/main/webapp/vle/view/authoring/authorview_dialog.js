@@ -501,23 +501,60 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 			view.projectMeta.navMode = $('#projectMetadataNavigation').val();
 			view.projectMeta.subject = $('#projectMetadataSubject').val();
 			view.projectMeta.summary = $('#projectMetadataSummary').val();
-			view.projectMeta.gradeRange = view.utils.getSelectedValueById('projectMetadataGradeRange');
-			view.projectMeta.totalTime = view.utils.getSelectedValueById('projectMetadataTotalTime');
-			view.projectMeta.compTime = view.utils.getSelectedValueById('projectMetadataCompTime');
+			view.projectMeta.gradeRange = $('#projectMetadataGradeRange').val();
+			view.projectMeta.totalTime = $('#projectMetadataTotalTime').val();
+			view.projectMeta.compTime = $('#projectMetadataCompTime').val();
 			view.projectMeta.contact = $('#projectMetadataContact').val();
 			view.projectMeta.techReqs = {};
-			view.projectMeta.techReqs.java = $("#java").attr("checked");
-			view.projectMeta.techReqs.flash = $("#flash").attr("checked");
-			view.projectMeta.techReqs.quickTime = $("#quickTime").attr("checked");
+			view.projectMeta.techReqs.java = $("#java").is(':checked');
+			view.projectMeta.techReqs.flash = $("#flash").is(':checked');
+			view.projectMeta.techReqs.quickTime = $("#quickTime").is(':checked');
 			view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
 			view.projectMeta.tools = {};
-			view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").attr("checked");
-			view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").attr("checked");
-			view.projectMeta.tools.ideaManagerSettings = {};
-			view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
-			view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
-			view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
-			view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
+			view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").is(':checked');
+			view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").is(':checked')
+			if(typeof $('#enableIdeaManager').attr('version') == 'string' ){
+				var imVersion = $('#enableIdeaManager').attr('version');
+				if(parseInt(imVersion) > 1){
+					view.projectMeta.tools.ideaManagerSettings = {};
+					view.projectMeta.tools.ideaManagerSettings.version = imVersion;
+					view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
+					view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
+					// loop through each of the active attributes and add to metadata
+					$('#ideaManagerSettings .attribute.active').each(function(){
+						var attribute = {};
+						var id = $(this).attr('id').replace('attribute_','');
+						var type = $(this).attr('type');
+						attribute.type = type;
+						attribute.id = id;
+						attribute.name = $('#fieldName_' + id).val();
+						attribute.isRequired = $('#required_' + id).is(':checked');
+						if($('#custom_' + id).length > 0){
+							attribute.allowCustom = $('#custom_' + id).is(':checked');
+						}
+						var options = [];
+						if(type=='icon'){
+							$('input.option',$('#options_' + id)).each(function(){
+								if($(this).is(':checked')){
+									options.push($(this).val());
+								}
+							});
+						} else {
+							$('input.option',$('#options_' + id)).each(function(){
+								var val = $(this).val();
+								if(view.utils.isNonWSString(val)){
+									options.push(val);
+								}
+							});
+						}
+						attribute.options = options;
+						view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
+					});
+				}
+			}
 			view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
 			view.projectMeta.standards = $('#projectMetadataStandards').val();
 			view.projectMeta.keywords = $('#projectMetadataKeywords').val();
