@@ -1569,6 +1569,8 @@ import org.json.JSONObject;
 		 * 'assets/myPicture.jpg"
 		 * "./assets/myPicture.jpg"
 		 * './assets/myPicture.jpg'
+		 * \"assets/myPicture.jpg\"
+		 * \'assets/myPicture.jpg\'
 		 * 
 		 * if the pattern matcher is run on the last example './assets/myPicture.jpg'
 		 * this is what the groups will look like
@@ -1576,8 +1578,7 @@ import org.json.JSONObject;
 		 * group(1)=./
 		 * group(2)=myPicture.jpg
 		 */
-		//Pattern p = Pattern.compile("[\\\"'](\\./)?assets/(.*)[\\\"']");
-		Pattern p = Pattern.compile("[\\\"'](\\./)?assets/([^\\\"']*)[\\\"']");
+		Pattern p = Pattern.compile("\\\\?[\\\"'](\\./)?assets/([^\\\"'\\\\]*)\\\\?[\\\"']");
 		
 		//run the matcher
 		Matcher m = p.matcher(content);
