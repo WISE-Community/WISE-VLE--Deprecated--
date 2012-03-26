@@ -83,6 +83,10 @@
 		"value":"Hints",
 		"description":"Title of the hint dialog window and the text that shows up next to the Hint button"
 	},
+	"hint_button_text":{
+		"value":"Hints",
+		"description":"Text that shows up next to the Hint button"
+	},
 	"hint_button_title":{
 		"value":"View ",
 		"description":"Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
@@ -90,6 +94,10 @@
 	"hint_num_separator":{
 		"value":"of",
 		"description":"Text to be shown between current Hint number and total (e.g. 1 'of' 2)"
+	},
+	"hint_hint":{
+		"value":"Hint",
+		"description":"will be shown as Hint (1 of 2)"
 	},
 	"hint_next":{
 		"value":"Next",
