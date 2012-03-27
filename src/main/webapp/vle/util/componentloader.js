@@ -915,7 +915,9 @@ var componentloader = function(em, sl){
 				'cRaterFeedbackChanged':[null, null],
 				'cRaterDisplayFeedbackImmediatelyChanged':[null, null],
 				'cRaterDisplayScoreToStudentChanged':[null, null],
-				'cRaterDisplayFeedbackToStudentChanged':[null, null]
+				'cRaterDisplayFeedbackToStudentChanged':[null, null],
+				'cRaterAddFeedback':[null, null],
+				'cRaterRemoveFeedback':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -937,6 +939,8 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('cRaterDisplayFeedbackImmediatelyChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayScoreToStudentChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterDisplayFeedbackToStudentChanged', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterAddFeedback', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterRemoveFeedback', view.cRaterManager.dispatcher, view);
 				}
 			}
 		}

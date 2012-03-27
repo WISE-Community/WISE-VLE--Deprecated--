@@ -948,8 +948,8 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 				}
 			}
 			
-			// add empty feedback string by default
-			currScoreRule.feedback = "";
+			//set an array as the feedback. put an empty string into the array for the feedback. 
+			currScoreRule.feedback = [""];
 			
 			cRaterScoringRules.push(currScoreRule);
 		}
@@ -963,7 +963,7 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			zeroScoreRule.numMatches = "";
 			zeroScoreRule.rank = "";
 			zeroScoreRule.score = "0";
-			zeroScoreRule.feedback = "";
+			zeroScoreRule.feedback = [""];
 			
 			//add the scoring rule to the array of scoring rules
 			cRaterScoringRules.push(zeroScoreRule);
@@ -1094,21 +1094,59 @@ View.prototype.getFeedbackFromScoringRules = function(scoringRules, concepts) {
 			
 			if (this.satisfiesCRaterRulePerfectly(concepts, scoringRule.concepts)) {
 				//the concepts perfectly match this scoring rule
-				feedbackSoFar = scoringRule.feedback;
-				break;  // no longer need to check other rules if we have a pefect match
+				
+				//if this scoring rule has more than one feedback, choose one randomly
+				feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
+				
+				//no longer need to check other rules if we have a pefect match
+				break;
 			} else if (scoringRule.score > maxScoreSoFar && this.satisfiesCRaterRule(concepts, scoringRule.concepts, parseInt(scoringRule.numMatches))) {
 				/*
 				 * the concepts match this scoring rule but we still need to
 				 * look at the other scoring rules to make sure there aren't
 				 * any better matches that will give the student a better score
 				 */
-				feedbackSoFar = scoringRule.feedback;
+				
+				//if this scoring rule has more than one feedback, choose one randomly
+				feedbackSoFar = this.chooseFeedbackRandomly(scoringRule.feedback);
 				maxScoreSoFar = scoringRule.score;
 			}
 		}
 	}
 	
 	return feedbackSoFar;
+};
+
+/**
+ * If the feedback is an array we will choose one of the elements at random.
+ * If the feedback is a string we will just return the string.
+ * @param feedback a string or an array of strings
+ * @return a feedback string
+ */
+View.prototype.chooseFeedbackRandomly = function(feedback) {
+	var chosenFeedback = "";
+	
+	if(feedback == null) {
+		//feedback is null
+	} else if(feedback.constructor.toString().indexOf("String") != -1) {
+		//feedback is a string
+		chosenFeedback = feedback;
+	} else if(feedback.constructor.toString().indexOf("Array") != -1) {
+		//feedback is an array
+		
+		if(feedback.length > 0) {
+			/*
+			 * randomly choose one of the elements in the array
+			 * Math.random() returns a value between 0 and 1
+			 * Math.random() * feedback.length returns a value between 0 and feedback.length (not inclusive)
+			 * Math.floor(Math.random() * feedback.length) returns an integer between 0 and feedback.length (not inclusive)
+			 */
+			var index = Math.floor(Math.random() * feedback.length);
+			chosenFeedback = feedback[index];
+		}
+	}
+	
+	return chosenFeedback;
 };
 
 /*

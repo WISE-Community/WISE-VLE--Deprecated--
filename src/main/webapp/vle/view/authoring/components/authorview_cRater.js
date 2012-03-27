@@ -16,6 +16,10 @@ View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
 		obj.updateCRaterDisplayScoreToStudent();
 	} else if(type=='cRaterDisplayFeedbackToStudentChanged') {
 		obj.updateCRaterDisplayFeedbackToStudent();
+	} else if(type=='cRaterAddFeedback') {
+		obj.cRaterAddFeedback(args);
+	} else if(type=='cRaterRemoveFeedback') {
+		obj.cRaterRemoveFeedback(args);
 	}
 };
 

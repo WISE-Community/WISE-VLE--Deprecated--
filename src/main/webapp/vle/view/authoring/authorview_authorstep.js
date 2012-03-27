@@ -959,6 +959,24 @@ View.prototype.updateCRaterDisplayFeedbackToStudent = function(){
 };
 
 /**
+ * Add a CRater feedback
+ */
+View.prototype.cRaterAddFeedback = function(args){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].cRaterAddFeedback){
+		this[this.resolveType(this.activeNode.type)].cRaterAddFeedback(args);
+	}
+};
+
+/**
+ * Remove a CRater feedback
+ */
+View.prototype.cRaterRemoveFeedback = function(args){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].cRaterRemoveFeedback){
+		this[this.resolveType(this.activeNode.type)].cRaterRemoveFeedback(args);
+	}
+};
+
+/**
  * Removes the CRater authoring items from the authorstep page and
  * clears input values
  */
