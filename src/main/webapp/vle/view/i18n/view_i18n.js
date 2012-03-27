@@ -83,8 +83,10 @@ View.prototype.i18n.getString = function(key,locale) {
 	}
 	if (this[locale][key] !== undefined) {
 		return this[locale][key].value;
-	} else {
+	} else if (this[View.prototype.i18n.defaultLocale][key] !== undefined) {
 		return this[View.prototype.i18n.defaultLocale][key].value;		
+	} else {
+		return "N/A";
 	}
 };
 
