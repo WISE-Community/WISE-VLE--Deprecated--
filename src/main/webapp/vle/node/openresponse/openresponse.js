@@ -153,8 +153,13 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					&& this.content.cRater.cRaterItemId != '') {
 				orState.cRaterItemId = this.content.cRater.cRaterItemId;
 				
-				if (checkAnswer || !this.content.cRater.displayCRaterFeedbackImmediately) {
-					//set the cRaterItemId into the node state if this step is a CRater item
+				if (checkAnswer || !(this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
+					/*
+					 * set the cRaterItemId into the node state if the student has clicked
+					 * check answer or if we are not displaying the score or feedback to
+					 * the student in which case we always want to CRater submit because
+					 * we are not displaying the check answer button to them.
+					 */
 					orState.isCRaterSubmit = true;
 				}
 			}
@@ -502,8 +507,8 @@ OPENRESPONSE.prototype.render = function() {
 	} else if (this.content.isLockAfterSubmit) {
 		// this node is set to lock after the student submits the answer. show saveAndLock button
 		$('#saveAndLockButton').show();
-	} else if (this.content.cRater && this.content.cRater.displayCRaterFeedbackImmediately) {
-		// if this is a CRater-enabled item, also show the "check" button
+	} else if (this.content.cRater && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
+		// if this is a CRater-enabled item and we are displaying the score or feedback to the student, also show the "check" button
 		$('#checkAnswerButton').show();
 	}
 	

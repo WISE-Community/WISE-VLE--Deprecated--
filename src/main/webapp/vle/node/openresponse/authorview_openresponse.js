@@ -506,6 +506,16 @@ View.prototype.OpenResponseNode.populateCRater = function() {
 			$('#cRaterDisplayFeedbackImmediately').attr('checked', this.content.cRater.displayCRaterFeedbackImmediately);
 		}
 		
+		if(this.content.cRater.displayCRaterScoreToStudent != null) {
+			//populate the display score to student checkbox
+			$('#cRaterDisplayScoreToStudent').attr('checked', this.content.cRater.displayCRaterScoreToStudent);
+		}
+		
+		if(this.content.cRater.displayCRaterFeedbackToStudent != null) {
+			//populate the display feedback to student checkbox
+			$('#cRaterDisplayFeedbackToStudent').attr('checked', this.content.cRater.displayCRaterFeedbackToStudent);
+		}
+		
 		if(this.content.cRater.cRaterScoringRules != null) {
 			//populate the feedback
 			this.displayCRaterFeedback(this.content.cRater.cRaterScoringRules);
@@ -530,6 +540,16 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	//create the cRater.displayCRaterFeedbackImmediately in the content if it does not exist
 	if(this.content.cRater.displayCRaterFeedbackImmediately == null) {
 		this.content.cRater.displayCRaterFeedbackImmediately = false;
+	}
+	
+	//create the cRater.displayCRaterScoreToStudent in the content if it does not exist
+	if(this.content.cRater.displayCRaterScoreToStudent == null) {
+		this.content.cRater.displayCRaterScoreToStudent = false;
+	}
+	
+	//create the cRater.displayCRaterFeedbackToStudent in the content if it does not exist
+	if(this.content.cRater.displayCRaterFeedbackToStudent == null) {
+		this.content.cRater.displayCRaterFeedbackToStudent = false;
 	}
 	
 	//create the cRater.cRaterMaxScore in the content if it does not exist
@@ -629,6 +649,48 @@ View.prototype.OpenResponseNode.updateCRaterDisplayFeedbackImmediately = functio
 	
 	//update the value in the content
 	this.content.cRater.displayCRaterFeedbackImmediately = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the display score to student value
+ */
+View.prototype.OpenResponseNode.updateCRaterDisplayScoreToStudent = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#cRaterDisplayScoreToStudent').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.cRater.displayCRaterScoreToStudent = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the display feedback to student value
+ */
+View.prototype.OpenResponseNode.updateCRaterDisplayFeedbackToStudent = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#cRaterDisplayFeedbackToStudent').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.cRater.displayCRaterFeedbackToStudent = value;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

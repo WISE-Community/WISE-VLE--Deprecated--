@@ -687,8 +687,14 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 			var nodeStateId = args[2];
 			// check the step content to see if we need to display the CRater feedback to the student.
 			var cRaterJSON = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater;
-			var displayCRaterFeedbackImmediately = cRaterJSON.displayCRaterFeedbackImmediately;
-			if (displayCRaterFeedbackImmediately) {
+			
+			//var displayCRaterFeedbackImmediately = cRaterJSON.displayCRaterFeedbackImmediately;
+			var displayCRaterScoreToStudent = cRaterJSON.displayCRaterScoreToStudent;
+			var displayCRaterFeedbackToStudent = cRaterJSON.displayCRaterFeedbackToStudent;
+			
+			if (displayCRaterScoreToStudent || displayCRaterFeedbackToStudent) {
+				//we will display the score or feedback (or both) to the student
+				
 				var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
 				var concepts = cRaterAnnotationJSON.concepts;
 				
@@ -698,8 +704,26 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 				//get the feedback for the given concepts the student satisfied
 				var feedback = vle.getFeedbackFromScoringRules(scoringRules, concepts);
 				
-				// TODO: prettify me
-				alert("You got a score of " + cRaterAnnotationJSON.score + "\nFeedback: " +feedback);
+				var message = "";
+				
+				if(displayCRaterScoreToStudent) {
+					//display the score
+					message += "You got a score of " + cRaterAnnotationJSON.score;
+				}
+				
+				if(displayCRaterFeedbackToStudent) {
+					//display the feedback
+					if(displayCRaterScoreToStudent) {
+						message += "\n";
+					}
+					
+					message += "Feedback: " +feedback;
+				}
+				
+				if(message != null && message != "") {
+					//popup the message to the student
+					alert(message);
+				}
 			}			
 		} catch(err) {
 			/*
