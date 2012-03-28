@@ -1,4 +1,26 @@
-View.prototype.displayHint = function(){
+/**
+ * Display hints for the current step.
+ * Hints will popup in a dialog and each hint will
+ * be in its own tab
+ */
+View.prototype.showStepHints = function() {
+	$('#hintsLink').stop();
+	$('#hintsLink').css('color','#FFFFFF');
+	
+	var currentNode = this.getCurrentNode();
+	
+	// hide all dialogs
+	this.eventManager.fire('closeDialogs');
+	
+	// show the hints panel
+    $('#hintsPanel').dialog('open');
+		
+	// log when hint was opened
+	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
+	currentNode.view.pushHintState(hintState);
+};
+
+View.prototype.displayHint = function(){	
 	/* set hints link in nav bar if hint exists for this step
 	 * populate hints panel with current node's hints
 	 * */

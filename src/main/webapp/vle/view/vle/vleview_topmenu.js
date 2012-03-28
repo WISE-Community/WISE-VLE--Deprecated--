@@ -7,6 +7,15 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.showFlaggedWork();
 	} else if (type == 'showNavigationTree') {
 		obj.showNavigationTree();
+	} else if (type == 'showNodeAnnotations') {
+		var nodeIdToShow = args[0];
+		// if annotations panel is already open, do not open up another annotations panel
+		if ($("#nodeAnnotationsPanel_"+nodeIdToShow) && 
+				$("#nodeAnnotationsPanel_"+nodeIdToShow).data("dialog") && 
+				$("#nodeAnnotationsPanel_"+nodeIdToShow).data("dialog").isOpen()) {
+			return;
+		}
+		obj.showNodeAnnotations(nodeIdToShow);
 	} else if (type == 'showStepHints') {
 		// if hint is already open, do not open up another hint
 		if ($("#hintsPanel") && 
@@ -60,28 +69,6 @@ View.prototype.showNavigationTree = function() {
 	this.navigationPanel.showNavigationTree();
 };
 
-
-/**
- * Display hints for the current step.
- * Hints will popup in a dialog and each hint will
- * be in its own tab
- */
-View.prototype.showStepHints = function() {
-	$('#hintsLink').stop();
-	$('#hintsLink').css('color','#FFFFFF');
-	
-	var currentNode = this.getCurrentNode();
-	
-	// hide all dialogs
-	this.eventManager.fire('closeDialogs');
-	
-	// show the hints panel
-    $('#hintsPanel').dialog('open');
-		
-	// log when hint was opened
-	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
-	currentNode.view.pushHintState(hintState);
-};
 /**
  * Display the flagged work for the project.
  * 
@@ -498,15 +485,14 @@ View.prototype.getAnnotations = function(callerId) {
 		thisView.annotationsRetrieved = true;
 		eventManager.fire('getAnnotationsComplete', callerId);
 	};
-
+	
 	var annotationsUrlParams = {
 				runId: this.getConfig().getConfigParam('runId'),
 				toWorkgroup: this.getUserAndClassInfo().getWorkgroupId(),
 				fromWorkgroups: this.getUserAndClassInfo().getAllTeacherWorkgroupIds(),
 				periodId:this.getUserAndClassInfo().getPeriodId()
 			};
-	
-	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getAnnotationsUrl'), annotationsUrlParams, processGetAnnotationResponse, [this, callerId]);
+	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getAnnotationsUrl'), annotationsUrlParams, processGetAnnotationResponse, [this, callerId], null, true);
 };
 
 /**

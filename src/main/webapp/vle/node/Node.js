@@ -81,6 +81,33 @@ Node.prototype.getHints = function() {
 	return null;
 };
 
+
+/**
+ * Retrieves the annotations for this node, if exists. Returns only annotations of
+ * type {score,comment} for the logged in user
+ * @return Annotations if exists. if not exist, return null
+ */
+Node.prototype.getNodeAnnotations = function() {
+	if (this.view &&
+			this.view.annotations && this.view.annotations != null &&
+			this.view.annotations.getAnnotationsByNodeId(this.id) != null) {
+		var allNodeAnnotations = this.view.annotations.getAnnotationsByNodeId(this.id);
+		var filteredNodeAnnotations = [];
+		var loggedInWorkgroupId = this.view.getUserAndClassInfo().getWorkgroupId();
+		for (var i=0; i < allNodeAnnotations.length; i++) {
+			var nodeAnnotation = allNodeAnnotations[i];
+			if (nodeAnnotation.type == "score" || nodeAnnotation.type == "comment" || nodeAnnotation.type == "cRater") {
+				if (nodeAnnotation.toWorkgroup == loggedInWorkgroupId) {
+					filteredNodeAnnotations.push(nodeAnnotation);					
+				}
+			}
+		}
+		return filteredNodeAnnotations;
+	}
+	return null;
+};
+
+
 /**
  * Retrieves the question/prompt the student reads for this step.
  * @return a string containing the prompt. (the string may be an

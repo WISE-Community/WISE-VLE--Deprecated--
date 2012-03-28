@@ -88,7 +88,7 @@
 		"description":"Text that shows up next to the Hint button"
 	},
 	"hint_button_title":{
-		"value":"View ",
+		"value":"View hints for this step",
 		"description":"Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
 	},
 	"hint_num_separator":{
@@ -106,6 +106,18 @@
 	"hint_prev":{
 		"value":"Prev",
 		"description":"previous hint"
+	},
+	"node_annotations_title":{
+		"value":"Step Feedback",
+		"description":"Title of the step feedback dialog window"
+	},
+	"node_annotations_button_text":{
+		"value":"Feedback",
+		"description":"Text that shows up next to the Hint button"
+	},
+	"node_annotations_button_title":{
+		"value":"View feedback for this step",
+		"description":"Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
 	},
 	"navigation_expand_all":{
 		"value":"Show All",

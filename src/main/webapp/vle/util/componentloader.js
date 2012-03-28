@@ -849,6 +849,7 @@ var componentloader = function(em, sl){
 					'displayProgress':[null,null],
 					'showFlaggedWork':[null,null],
 					'showStepHints':[null,null],
+					'showNodeAnnotations':[null,null],
 					'adjustHintSize':[null,null],
 					'showNavigationTree':[null,null],
 					'getIdeaBasket':[null,null],
@@ -871,6 +872,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('displayProgress', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showFlaggedWork', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showStepHints', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('showNodeAnnotations', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('adjustHintSize', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showNavigationTree', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('getIdeaBasket', view.dropDownMenuDispatcher, view);

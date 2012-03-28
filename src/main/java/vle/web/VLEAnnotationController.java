@@ -167,7 +167,7 @@ public class VLEAnnotationController extends HttpServlet {
 		}
 		
 		// if requestedType is null, return all annotations
-		List<? extends Annotation> annotationList = null;
+		List<Annotation> annotationList = null;
 		Annotation annotation = null;
 		if (requestedType == null || 
 				(requestedType.equals("annotation") && !"cRater".equals(annotationType) && !"run".equals(annotationType)) ) {
@@ -194,6 +194,9 @@ public class VLEAnnotationController extends HttpServlet {
 				
 				//get all the annotations that match
 				annotationList = Annotation.getByFromWorkgroupsAndToWorkgroup(fromWorkgroups, toWorkgroup, Annotation.class);
+				
+				// also get CRater annotations
+				annotationList.addAll(Annotation.getByToUserType(toWorkgroup, "cRater"));
 			} else if (fromWorkgroupIdStr != null || toWorkgroupIdStr != null) {
 				UserInfo fromWorkgroup = null;
 				UserInfo toWorkgroup = null;
