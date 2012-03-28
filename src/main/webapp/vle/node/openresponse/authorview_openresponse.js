@@ -631,6 +631,9 @@ View.prototype.OpenResponseNode.updateCRater = function(){
  */
 View.prototype.OpenResponseNode.cRaterItemIdChanged = function() {
 	$('#cRaterItemIdStatus').html('<font color="blue">Click Verify to Check Item Id</font>');
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
@@ -851,6 +854,9 @@ View.prototype.OpenResponseNode.updateCRaterFeedback = function(args) {
 			}
 		}		
 	}
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
@@ -902,6 +908,9 @@ View.prototype.OpenResponseNode.cRaterAddFeedback = function(args) {
 	
 	//update the CRater authoring UI
 	this.displayCRaterFeedback(cRaterScoringRules);
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
@@ -948,6 +957,9 @@ View.prototype.OpenResponseNode.cRaterRemoveFeedback = function(args) {
 	
 	//update the CRater authoring UI
 	this.displayCRaterFeedback(cRaterScoringRules);
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 View.prototype.OpenResponseNode.populateStudentResponseBoxSize = function() {
