@@ -692,17 +692,26 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 			var displayCRaterScoreToStudent = cRaterJSON.displayCRaterScoreToStudent;
 			var displayCRaterFeedbackToStudent = cRaterJSON.displayCRaterFeedbackToStudent;
 			
+			var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
+			var cRaterAnnotation = Annotation.prototype.parseDataJSONObj(annotationJSON);
+			
+			//add the CRater annotation to our local collection of annotations
+			vle.annotations.updateOrAddAnnotation(cRaterAnnotation);
+			
 			if (displayCRaterScoreToStudent || displayCRaterFeedbackToStudent) {
 				//we will display the score or feedback (or both) to the student
 				
-				var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
 				var concepts = cRaterAnnotationJSON.concepts;
 				
 				// now find the feedback that the student should see
 				var scoringRules = cRaterJSON.cRaterScoringRules;
 
 				//get the feedback for the given concepts the student satisfied
-				var feedback = vle.getFeedbackFromScoringRules(scoringRules, concepts);
+				var feedbackTextObject = vle.getFeedbackFromScoringRules(scoringRules, concepts);
+				
+				//get the feedback text and feedback id
+				var feedbackText = feedbackTextObject.feedbackText;
+				var feedbackId = feedbackTextObject.feedbackId;
 				
 				var message = "";
 				
@@ -717,12 +726,36 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 						message += "\n";
 					}
 					
-					message += "Feedback: " +feedback;
+					message += "Feedback: " + feedbackText;
 				}
 				
 				if(message != null && message != "") {
 					//popup the message to the student
 					alert(message);
+				}
+				
+				if(displayCRaterFeedbackToStudent) {
+					/*
+					 * we are displaying the CRater feedback to the student so we will
+					 * update the node state with the CRater feedback so we know which
+					 * feedback the student received.
+					 */
+					
+					//get the current node visit
+					var currentNodeVisit = vle.state.getCurrentNodeVisit();
+					
+					//get the current node state
+					var latestNodeState = currentNodeVisit.getLatestState();
+					
+					//insert the feedback text and feedback id into the node state
+					latestNodeState.cRaterFeedbackText = feedbackText;
+					latestNodeState.cRaterFeedbackId = feedbackId;
+					
+					/*
+					 * save the current node visit again so the stepwork row in the 
+					 * database will be updated to include the feedback text and feedback id
+					 */
+					vle.postCurrentNodeVisit(vle.state.getCurrentNodeVisit());
 				}
 			}			
 		} catch(err) {

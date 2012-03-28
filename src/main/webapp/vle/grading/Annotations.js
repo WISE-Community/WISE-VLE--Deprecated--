@@ -22,6 +22,7 @@ Annotations.prototype.addAnnotation = function(annotation) {
  * toWorkgroup
  * fromWorkgroup
  * type
+ * stepWorkId
  * If it finds one that is the same, it will remove the old Annotation
  * and add the new Annotation.
  * 
@@ -43,7 +44,8 @@ Annotations.prototype.updateOrAddAnnotation = function(newAnnotation) {
 				annotation.nodeId == newAnnotation.nodeId &&
 				annotation.toWorkgroup == newAnnotation.toWorkgroup &&
 				annotation.fromWorkgroup == newAnnotation.fromWorkgroup &&
-				annotation.type == newAnnotation.type) {
+				annotation.type == newAnnotation.type &&
+				annotation.stepWorkId == newAnnotation.stepWorkId) {
 			//the parameters are the same so we will remove the annotation we found
 			this.annotationsArray.splice(x, 1);
 			

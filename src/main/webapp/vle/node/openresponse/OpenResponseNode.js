@@ -330,13 +330,18 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 				//display the CRater score
 				htmlForNodeState += 'Auto-Score: ' + annotationRevision.score;
 				
-				if(contentJSON.cRater != null) {
-					//get the feedback
-					var feedback = this.view.getFeedbackFromScoringRules(contentJSON.cRater.cRaterScoringRules, annotationRevision.concepts);
-					htmlForNodeState += '<br>';	
+				/*
+				 * get the CRater feedback the student received, if any.
+				 * displayCRaterFeedbackToStudent must be enabled in order
+				 * for the cRaterFeedbackText to be set in the node state.
+				 */
+				var feedbackText = nodeState.cRaterFeedbackText;
+				
+				if(feedbackText != null) {
+					htmlForNodeState += '<br>';
 
 					//display the feedback
-					htmlForNodeState += 'Auto-Feedback: ' + feedback;
+					htmlForNodeState += 'Auto-Feedback: ' + feedbackText;					
 				}
 			}
 

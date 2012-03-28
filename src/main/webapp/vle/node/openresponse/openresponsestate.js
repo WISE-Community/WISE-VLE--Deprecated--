@@ -3,7 +3,7 @@
  * @constructor
  * @author Hiroki Terashima
  */
-function OPENRESPONSESTATE(response, timestamp, locked, submitPeerReview) {
+function OPENRESPONSESTATE(response, timestamp, locked, submitPeerReview, cRaterFeedbackId, cRaterFeedbackText) {
 	this.type = "or";
 	
 	//this is a single element array that contains the response the student wrote
@@ -17,6 +17,16 @@ function OPENRESPONSESTATE(response, timestamp, locked, submitPeerReview) {
 	}
 	this.locked = locked;
 	this.submitPeerReview = submitPeerReview;
+	
+	if(cRaterFeedbackId != null) {
+		//set the CRater feedback id if it exists
+		this.cRaterFeedbackId = cRaterFeedbackId;
+	}
+	
+	if(cRaterFeedbackText != null) {
+		//set the CRater feedback text if it exists
+		this.cRaterFeedbackText = cRaterFeedbackText;
+	}
 };
 
 OPENRESPONSESTATE.prototype.print = function() {
@@ -39,10 +49,12 @@ OPENRESPONSESTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	var timestamp = stateJSONObj.timestamp;
 	var submitPeerReview = stateJSONObj.submitPeerReview;
 	var locked = stateJSONObj.locked;
+	var cRaterFeedbackId = stateJSONObj.cRaterFeedbackId;
+	var cRaterFeedbackText = stateJSONObj.cRaterFeedbackText;
 	
 	//return the OPENRESPONSESTATE object
 	//create a new OPENRESPONSESTATE object
-	var orState = new OPENRESPONSESTATE(response, timestamp, locked, submitPeerReview);
+	var orState = new OPENRESPONSESTATE(response, timestamp, locked, submitPeerReview, cRaterFeedbackId, cRaterFeedbackText);
 	
 	return orState;
 };

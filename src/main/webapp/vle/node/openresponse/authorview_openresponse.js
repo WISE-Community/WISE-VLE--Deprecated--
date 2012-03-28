@@ -766,14 +766,22 @@ View.prototype.OpenResponseNode.displayCRaterFeedback = function(cRaterScoringRu
 					//loop through the elements in the array
 					for(var y=0; y<feedback.length; y++) {
 						//get a feedback string
-						var feedbackString = feedback[y];
+						var feedbackObject = feedback[y];
 						
-						//make the feedback field into an authorable text input
-						cRaterFeedbackHtml += "Feedback: <input id='cRaterFeedback_" + x + "_" + y + "' type='text' value='" + feedbackString + "' size='50' onchange='eventManager.fire(\"cRaterFeedbackChanged\", [" + x + ", " + y + "])'/>";
-						
-						//add the button to remove the feedback
-						cRaterFeedbackHtml += "<input id='' type='button' value='Remove' onclick='eventManager.fire(\"cRaterRemoveFeedback\", [" + x + ", " + y + "])'>";
-						cRaterFeedbackHtml += "<br>";
+						if(feedbackObject != null) {
+							var feedbackText = feedbackObject.feedbackText;
+							
+							if(feedbackText == null) {
+								feedbackText = "";
+							}
+							
+							//make the feedback field into an authorable text input
+							cRaterFeedbackHtml += "Feedback: <input id='cRaterFeedback_" + x + "_" + y + "' type='text' value='" + feedbackText + "' size='50' onchange='eventManager.fire(\"cRaterFeedbackChanged\", [" + x + ", " + y + "])'/>";
+							
+							//add the button to remove the feedback
+							cRaterFeedbackHtml += "<input id='' type='button' value='Remove' onclick='eventManager.fire(\"cRaterRemoveFeedback\", [" + x + ", " + y + "])'>";
+							cRaterFeedbackHtml += "<br>";							
+						}
 					}
 				}
 			}
@@ -813,7 +821,7 @@ View.prototype.OpenResponseNode.updateCRaterFeedback = function(args) {
 	
 	if(feedbackInput != null) {
 		//get the feedback text
-		var feedback = feedbackInput.val();
+		var feedbackText = feedbackInput.val();
 		
 		if(this.content.cRater.cRaterScoringRules != null) {
 			if(this.content.cRater.cRaterScoringRules[x] != null) {
@@ -821,18 +829,25 @@ View.prototype.OpenResponseNode.updateCRaterFeedback = function(args) {
 				//get the feedback from the scoring rule
 				var feedbackObject = this.content.cRater.cRaterScoringRules[x].feedback;
 				
-				if(feedbackObject.constructor.toString().indexOf("String") != -1) {
-					/*
-					 * feedback is a string so we will convert it to an array.
-					 * we used to store feedback as just a string but have switched
-					 * to an array so that authors can specify multiple feedback
-					 * for a single scoring rule.
-					 */
-					this.content.cRater.cRaterScoringRules[x].feedback = [];
+				if(feedbackObject != null) {
+					if(feedbackObject.constructor.toString().indexOf("String") != -1) {
+						/*
+						 * feedback is a string so we will convert it to an array.
+						 * we used to store feedback as just a string but have switched
+						 * to an array so that authors can specify multiple feedback
+						 * for a single scoring rule.
+						 */
+						this.content.cRater.cRaterScoringRules[x].feedback = [];
+					}
+					
+					if(this.content.cRater.cRaterScoringRules[x].feedback[y] == null) {
+						//create the feedback text object
+						this.content.cRater.cRaterScoringRules[x].feedback[y] = this.view.createCRaterFeedbackTextObject(feedbackText);
+					} else {
+						//update the feedback
+						this.content.cRater.cRaterScoringRules[x].feedback[y].feedbackText = feedbackText;
+					}
 				}
-				
-				//update the feedback
-				this.content.cRater.cRaterScoringRules[x].feedback[y] = feedback;
 			}
 		}		
 	}
@@ -864,7 +879,7 @@ View.prototype.OpenResponseNode.cRaterAddFeedback = function(args) {
 				cRaterScoringRule.feedback = [];
 				
 				//add an empty string which will be the new feedback
-				cRaterScoringRule.feedback.push("");
+				cRaterScoringRule.feedback.push(this.view.createCRaterFeedbackTextObject());
 			} else if(feedback.constructor.toString().indexOf("String") != -1) {
 				//feedback is a string
 				
@@ -872,15 +887,15 @@ View.prototype.OpenResponseNode.cRaterAddFeedback = function(args) {
 				cRaterScoringRule.feedback = [];
 				
 				//push the existing feedback into the array
-				cRaterScoringRule.feedback.push(feedback);
+				cRaterScoringRule.feedback.push(this.view.createCRaterFeedbackTextObject(feedback));
 				
 				//add an empty string which will be the new feedback
-				cRaterScoringRule.feedback.push("");
+				cRaterScoringRule.feedback.push(this.view.createCRaterFeedbackTextObject());
 			} else if(feedback.constructor.toString().indexOf("Array") != -1) {
 				//feedback is an array
 				
 				//add an empty string which will be the new feedback
-				cRaterScoringRule.feedback.push("");
+				cRaterScoringRule.feedback.push(this.view.createCRaterFeedbackTextObject());
 			}
 		}
 	}

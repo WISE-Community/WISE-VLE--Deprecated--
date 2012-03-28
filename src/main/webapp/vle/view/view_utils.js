@@ -949,7 +949,7 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			}
 			
 			//set an array as the feedback. put an empty string into the array for the feedback. 
-			currScoreRule.feedback = [""];
+			currScoreRule.feedback = [this.createCRaterFeedbackTextObject()];
 			
 			cRaterScoringRules.push(currScoreRule);
 		}
@@ -963,7 +963,7 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 			zeroScoreRule.numMatches = "";
 			zeroScoreRule.rank = "";
 			zeroScoreRule.score = "0";
-			zeroScoreRule.feedback = [""];
+			zeroScoreRule.feedback = [this.createCRaterFeedbackTextObject()];
 			
 			//add the scoring rule to the array of scoring rules
 			cRaterScoringRules.push(zeroScoreRule);
@@ -971,6 +971,31 @@ View.prototype.getCRaterScoringRulesFromXML = function(xml) {
 	}
 	
 	return cRaterScoringRules;
+};
+
+/**
+ * Create an object that we will put into the feedback array.
+ * This object will contain the fields feedbackText and feedbackId.
+ * @param feedbackText an optional argument that we will set the
+ * feedback text to
+ * @returns an object containing the fields feedbackText and feedbackid
+ */
+View.prototype.createCRaterFeedbackTextObject = function(feedbackText) {
+	//generate a random alphanumeric value e.g. 7fEEeHE73R
+	var feedbackId = this.utils.generateKey();
+	
+	if(feedbackText == null) {
+		//set the default feedbackText value
+		feedbackText = "";
+	}
+	
+	//create the feedback object
+	var feedbackObject = {
+		feedbackText:feedbackText,
+		feedbackId:feedbackId
+	};
+	
+	return feedbackObject;
 };
 
 /**
