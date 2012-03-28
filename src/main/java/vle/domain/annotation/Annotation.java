@@ -463,6 +463,26 @@ public class Annotation extends PersistableDomain {
 	 * @return a list of annotations that are for a given stepwork
 	 */
 	@SuppressWarnings("unchecked")
+	public static List<Annotation> getByToUserType(UserInfo toUser, String annotationType) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        List<Annotation> results = 
+        	(List<Annotation>) session.createCriteria(Annotation.class)
+        		.add( Restrictions.eq("toUser", toUser))
+        		.add( Restrictions.eq("type", annotationType))
+        		.list();
+        session.getTransaction().commit();
+        return results;
+	}
+	
+	/**
+	 * Get all the annotations for the given stepwork
+	 * @param stepWork
+	 * @param clazz
+	 * @return a list of annotations that are for a given stepwork
+	 */
+	@SuppressWarnings("unchecked")
 	public static Annotation getByStepWorkAndAnnotationType(StepWork stepWork, String annotationType) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();

@@ -602,6 +602,17 @@ body#w4_vle {
 	color:#FFE347;
 }
 
+#vle_body a#nodeAnnotationsLink {
+    margin-right:0.5em;
+    padding-left:28px;
+	background:transparent url('../images/hint/star.png') no-repeat left center;
+	color:#FFFFFF;
+}
+
+#vle_body a#nodeAnnotationsLink:hover {
+	text-decoration:none;
+	color:#FFE347;
+}
 
 /* Dialogs and overlays */
 

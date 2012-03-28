@@ -637,15 +637,9 @@ View.prototype.onRenderNodeComplete = function(position){
 			status:this.studentStatus});	
 	}
 	
-	this.displayHint();
-
-	/* adjust height of iframe. If nav bar is visible, set iframe height=navbarheight. else, leave it untouched */
-	//if (parseInt($('#projectLeftBox').attr('offsetHeight')) > 0) {
-		//$('#projectRightLowerBox').height($('#projectLeftBox').height());
-	//}
-    
-	/* if centered div is not displayed, display it */
-	//$('#centeredDiv').css("display", "block");
+	this.displayHint();  // display hint for the current step, if any
+	
+	this.displayNodeAnnotation(this.currentNode.id);  // display annotation for the current step, if any
 	
 	// remove any content overlays (if previous node was a note)
 	if(this.currentNode.getType() && this.currentNode.getType() != 'NoteNode'){
