@@ -800,7 +800,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		
 		if(maxScoresSum != null && maxScoresSum != 0) {
 			//get the teacher score percentage
-			teacherScorePercentage = " = " + 100 * totalScoreForWorkgroup / maxScoresSum + "%";
+			teacherScorePercentage = " = " + Math.floor(100 * totalScoreForWorkgroup / maxScoresSum) + "%";
 		}
 		
 		//add the html row for this workgroup
