@@ -1543,23 +1543,28 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 			toggleRevisionsLink = this.getI18NString("grading_no_revisions");
 		}
 		
-		var allGroupsUsed = this.project.getAllGroupsUsed();
-		
 		//display the student workgroup id
 		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>"+
 			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div>";
+
+		//get the groups used in this project, if any
+		var allGroupsUsed = this.project.getAllGroupsUsed();
 		
 		if(allGroupsUsed != null && allGroupsUsed.length > 0) {
 			gradeByStepGradingPageHtml += "<div>";
-
-			var groups = this.getGroupsByWorkgroupId(workgroupId);
-			var groupsString = groups.join(", ");
-			gradeByStepGradingPageHtml += "Groups: " + groupsString;
-
+			//display the link to edit the groups for this workgroup
+			gradeByStepGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";			
 			gradeByStepGradingPageHtml += "</div>";
 			
-			gradeByStepGradingPageHtml += "<div>";
-			gradeByStepGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";
+			gradeByStepGradingPageHtml += "<div id='groups_" + workgroupId + "'>";
+			//get the groups that have been assigned to this workgroup
+			var groups = this.getGroupsByWorkgroupId(workgroupId);
+			
+			//create a string from the groups this workgroup is in e.g. "A, B"
+			var groupsString = groups.join(", ");
+			
+			//display the groups this workgroup is in
+			gradeByStepGradingPageHtml += "Groups: " + groupsString;
 			gradeByStepGradingPageHtml += "</div>";
 		}
 		
@@ -3047,10 +3052,31 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		showRevisionsChecked = 'checked';
 	}
 	
+	gradeByTeamGradingPageHtml += "<div>";
+	
 	if (this.getRevisions) {
 		//check box for showing all revisions
-		gradeByTeamGradingPageHtml += "<div><input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p></div>";
+		gradeByTeamGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
+	
+	//get the groups used in this project, if any
+	var allGroupsUsed = this.project.getAllGroupsUsed();
+	
+	if(allGroupsUsed != null && allGroupsUsed.length > 0) {
+		//get the groups that have been assigned to this workgroup
+		var groups = this.getGroupsByWorkgroupId(workgroupId);
+		
+		//create a string from the groups this workgroup is in e.g. "A, B"
+		var groupsString = groups.join(", ");
+
+		//display the link to edit the groups for this workgroup
+		gradeByTeamGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";
+		
+		//display the groups this workgroup is in
+		gradeByTeamGradingPageHtml += "<p id='groups_" + workgroupId + "' style='display:inline'>Groups: " + groupsString + "</p>";
+	}
+	
+	gradeByTeamGradingPageHtml += "</div>";
 	
 	gradeByTeamGradingPageHtml += "</div></div></div>";
 	
@@ -4444,6 +4470,11 @@ View.prototype.getStudentWorkByStudentWorkId = function(studentWorkId, workgroup
 	return null;
 };
 
+/**
+ * Display the popup to allow the teacher to change the groups that
+ * this workgroup is in
+ * @param workgroupId the workgroup id
+ */
 View.prototype.editGroups = function(workgroupId) {
 	//check if the hintsDiv div exists
     if($('#editGroupsPanel').size()==0){
@@ -4472,20 +4503,25 @@ View.prototype.editGroups = function(workgroupId) {
     
     var editGroupsHtml = "";
     editGroupsHtml += "<div>";
-    
-    
+
+    //get all the groups used in the project
     var allGroupsUsed = this.project.getAllGroupsUsed();
+    
+    //get all the groups this workgroup is in
 	var groupsForWorkgroupId = this.getGroupsByWorkgroupId(workgroupId);
     
     if(allGroupsUsed != null) {
+    	//loop through all the groups used in the project
     	for(var x=0; x<allGroupsUsed.length; x++) {
     		var group = allGroupsUsed[x];
     		var checked = '';
     		
     		if(groupsForWorkgroupId != null && groupsForWorkgroupId.indexOf(group) != -1) {
+    			//this workgroup is in this group so we will check the checkbox
     			checked = 'checked';
     		}
     		
+    		//display a checkbox for this group
     		editGroupsHtml += "<input type='checkbox' " + checked + " name='groupCheckBox' value='" + group + "' onclick='eventManager.fire(\"groupClicked\", " + workgroupId + ")'/>" + group;
     		editGroupsHtml += "<br>";
     	}
@@ -4493,23 +4529,33 @@ View.prototype.editGroups = function(workgroupId) {
     
     editGroupsHtml += "</div>";
 
+    //set the html in the popup
     $('#editGroupsPanel').html(editGroupsHtml);
     
+    //open the popup
     $('#editGroupsPanel').dialog('open');
 };
 
+/**
+ * The teacher has clicked one of the group checkboxes in the edit groups popup
+ */
 View.prototype.groupClicked = function(workgroupId) {
 	var groups = [];
+	
+	//get all the group checkboxes that are checked
 	var checkedGroups = $('input[name=groupCheckBox]:checked');
 	
+	//loop through all the groups that are checked
 	for(var x=0; x<checkedGroups.length; x++) {
 		var checkedGroup = checkedGroups[x];
 		
 		if(checkedGroup != null) {
+			//add the group to our array
 			groups.push($(checkedGroup).val());			
 		}
 	}
 	
+	//get the run annotation for this workgroup
 	var runAnnotation = this.getRunAnnotationByWorkgroupId(workgroupId);
 	
 	if(runAnnotation == null) {
@@ -4520,8 +4566,10 @@ View.prototype.groupClicked = function(workgroupId) {
 		runAnnotation.value = {};
 	}
 	
+	//get the run annotation value
 	var runAnnotationValue = runAnnotation.value;
 	
+	//set the groups
 	runAnnotationValue.groups = groups;
 	
 	var nodeId = null;
@@ -4530,26 +4578,47 @@ View.prototype.groupClicked = function(workgroupId) {
 	var runId = this.config.getConfigParam("runId");
 	var stepWorkId = null;
 	
+	//save the annotation to the server
 	this.saveRunAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation);
+	
+	//get the string value of the array of groups that this workgroup is in
+	var groupsString = groups.join(", ");
+	
+	//update the grading UI with the new groups
+	$('#groups_' + workgroupId).html('Groups: ' + groupsString);
 };
 
+/**
+ * Get the run annotation by workgroup id
+ * @param workgroupId the workgroup id
+ * @returns the run annotation for the workgroup or null if it does not exist
+ */
 View.prototype.getRunAnnotationByWorkgroupId = function(workgroupId) {
+	//get the run annotations for this workgroup id
 	var runAnnotations = this.annotations.getAnnotationsByToWorkgroupType(workgroupId, "run");
 	var runAnnotation = null;
 	
 	if(runAnnotations != null && runAnnotations.length > 0){
+		//there should only be one run annotation for a workgroup
 		runAnnotation = runAnnotations[0];
 	}
 	
 	return runAnnotation;
 };
 
+/**
+ * Get the groups this workgroup is in
+ * @param workgroupId the workgroup id
+ * @returns an array of groups that this workgroup is in
+ */
 View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
 	var groups = [];
 	
+	//get the run annotation
 	var runAnnotation = this.getRunAnnotationByWorkgroupId(workgroupId);
 	
 	if(runAnnotation != null && runAnnotation.value != null && runAnnotation.value.groups != null) {
+		//get the groups
 		groups = runAnnotation.value.groups;
 	}
 	
