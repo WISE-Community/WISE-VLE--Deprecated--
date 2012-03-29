@@ -605,7 +605,7 @@ body#w4_vle {
 #vle_body a#nodeAnnotationsLink {
     margin-right:0.5em;
     padding-left:28px;
-	background:transparent url('../images/hint/star.png') no-repeat left center;
+	background:transparent url('../images/annotation/annotation.png') no-repeat left center;
 	color:#FFFFFF;
 }
 
