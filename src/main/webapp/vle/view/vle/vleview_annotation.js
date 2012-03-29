@@ -1,20 +1,19 @@
 /**
- * Display annotations for the current step.
- * Annotations will popup in a dialog
+ * Display annotations for the specified step.
+ * Annotations for the step will popup in a dialog
  * @param nodeIdToShow id of node to show
  */
 View.prototype.showNodeAnnotations = function(nodeId) {
 	$('#nodeAnnotationsLink').stop();
 	$('#nodeAnnotationsLink').css('color','#FFFFFF');
 	
-	//var currentNode = this.getCurrentNode();
-	var currentNode = this.getProject().getNodeById(nodeId); //get the node the student is currently on
+	var currentNode = this.getProject().getNodeById(nodeId);  //get the node
 	var currentNodeAnnotations = currentNode.getNodeAnnotations();
 	if (currentNodeAnnotations != null && currentNodeAnnotations.length > 0) {
 
-		//check if the hintsDiv div exists
+		//check if the nodeAnnotationPanel exists
 		if($('#nodeAnnotationsPanel').size()==0){
-			//the show hintsDiv does not exist so we will create it
+			//the show nodeAnnotationPanel does not exist so we will create it
 			$('<div id="nodeAnnotationsPanel" class="nodeAnnotationsPanel"></div>').dialog(
 					{	autoOpen:false,
 						closeText:'Close',
@@ -28,40 +27,59 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 						position:["center","middle"],
 						resizable:true    					
 					}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
-						// before the dialog closes, save hintstate
 						if ($(this).data("dialog").isOpen()) {	    		    		
-							//var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
-							//event.data.view.pushHintState(hintState);
+							// before the dialog closes
 						};
 					});
 		};
 
 		// set the title of the dialog based on step title
 		$('#nodeAnnotationsPanel').dialog("option","title",this.getI18NString("node_annotations_title")+" "+this.project.getVLEPositionById(currentNode.id)+": "+currentNode.getTitle());
-		var nodeAnnotationComment = "";  // latest comment
-		var nodeAnnotationScore = "";    // latest score
-		var nodeAnnotationCRater = "";    // latest cRater feedback
+		var nodeAnnotationComment = null;  // latest comment
+		var nodeAnnotationScore = null;    // latest score
+		var nodeAnnotationCRater = null;    // latest cRater feedback
 		for (var i=0; i< currentNodeAnnotations.length; i++) {
 			var currentNodeAnnotation = currentNodeAnnotations[i];
 			if (currentNodeAnnotation.type == "comment") {
-				nodeAnnotationComment = currentNodeAnnotation.value;
+				nodeAnnotationComment = currentNodeAnnotation;
 			} else if (currentNodeAnnotation.type == "score") {
-				nodeAnnotationScore = currentNodeAnnotation.value;
+				nodeAnnotationScore = currentNodeAnnotation;
 			} else if (currentNodeAnnotation.type == "cRater") {
-				nodeAnnotationCRater = currentNodeAnnotation.value[0].score;
+				nodeAnnotationCRater = currentNodeAnnotation;
 			}
 		}
-
+		
 		var nodeAnnotationsString = "<div id='nodeAnnotations'>";
-		if (nodeAnnotationScore != "") {
-			var maxScoreForThisStep = this.maxScores.getMaxScoreValueByNodeId(currentNode.id);
-			nodeAnnotationsString += "<span class='nodeAnnotationsScore'>Score: "+nodeAnnotationScore+" out of "+ maxScoreForThisStep +"</span><br/><br/>";
-		}
-		if (nodeAnnotationCRater != "") {
-			// if there is a CRater comment, show it instead of the teacher feedback
-			nodeAnnotationsString += "<span class='nodeAnnotationsScore'>Comments: "+nodeAnnotationCRater+"</span>";				
-		} else if (nodeAnnotationComment != "") {
-			nodeAnnotationsString += "<span class='nodeAnnotationsScore'>Comments: "+nodeAnnotationComment+"</span>";
+
+		// if the node is cRater-enabled and there's feedback, show it instead of teacher feedback.
+		if (currentNode.content.getContentJSON().cRater) {
+			var cRaterFeedbackStringSoFar = "<span class='nodeAnnotationsCRater'>";
+			if (currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent) {
+				if (nodeAnnotationCRater != null) {
+					// get the score from the annotation
+					cRaterFeedbackStringSoFar += "You got a score of "+nodeAnnotationCRater.value[0].score+"<br/>";					
+				}
+			}
+			if (currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent) {
+				// get the feedback that the student saw in the nodestate
+				if (this.state.getLatestWorkByNodeId(currentNode.id) != null) {
+					var cRaterFeedbackText = this.state.getLatestWorkByNodeId(currentNode.id).cRaterFeedbackText;
+					if (cRaterFeedbackText != null) {
+						cRaterFeedbackStringSoFar += "Feedback: "+cRaterFeedbackText+"<br/>";						
+					}
+				}
+			}
+			cRaterFeedbackStringSoFar += "</span>";
+			nodeAnnotationsString += cRaterFeedbackStringSoFar;
+		} else {
+			// otherwise, show the teacher score and feedback
+			if (nodeAnnotationScore != null && nodeAnnotationScore.value) {
+				var maxScoreForThisStep = this.maxScores.getMaxScoreValueByNodeId(currentNode.id);
+				nodeAnnotationsString += "<span class='nodeAnnotationsScore'>Score: "+nodeAnnotationScore.value+" out of "+ maxScoreForThisStep +"</span><br/><br/>";
+			}
+			if (nodeAnnotationComment != null && nodeAnnotationComment.value) {
+				nodeAnnotationsString += "<span class='nodeAnnotationsComment'>Comments: "+nodeAnnotationComment.value+"</span>";
+			}
 		}
 		
 		nodeAnnotationsString += "</div>";
@@ -69,7 +87,7 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 		//set the html into the div
 		$('#nodeAnnotationsPanel').html(nodeAnnotationsString);
 
-		// show the hints panel
+		// show the annotation panel
 		$('#nodeAnnotationsPanel').dialog('open');
 	}
     
