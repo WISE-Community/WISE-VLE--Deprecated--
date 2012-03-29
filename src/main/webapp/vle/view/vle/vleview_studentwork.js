@@ -727,14 +727,7 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					}
 					
 					message += "Feedback: " + feedbackText;
-				}
-				
-				if(message != null && message != "") {
-					//popup the message to the student
-					alert(message);
-				}
-				
-				if(displayCRaterFeedbackToStudent) {
+
 					/*
 					 * we are displaying the CRater feedback to the student so we will
 					 * update the node state with the CRater feedback so we know which
@@ -756,6 +749,11 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					 * database will be updated to include the feedback text and feedback id
 					 */
 					vle.postCurrentNodeVisit(vle.state.getCurrentNodeVisit());
+				}
+				
+				if(message != null && message != "") {
+					//popup the message to the student
+					eventManager.fire("showNodeAnnotations",[nodeId]);
 				}
 			}			
 		} catch(err) {
