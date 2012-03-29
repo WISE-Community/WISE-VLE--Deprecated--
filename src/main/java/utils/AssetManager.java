@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -38,15 +39,24 @@ public class AssetManager extends HttpServlet implements Servlet{
 	
 	private final static String FAILED = "failed";
 	
-	private final static Long MAX_SIZE = 10485760l; //10MB
+	private static Properties vleProperties = null;
 	
-	private final static Long STUDENT_MAX_UPLOAD_SIZE = 2097152l;  // 2 MB
-
 	private static final String DEFAULT_DIRNAME = "assets";
 	 
 	private boolean standAlone = true;
 	
 	private boolean modeRetrieved = false;
+	
+	{
+		try {
+			// Read properties file.
+			vleProperties = new Properties();
+			vleProperties.load(getClass().getClassLoader().getResourceAsStream("vle.properties"));
+		} catch (Exception e) {
+			System.err.println("AssetsManager could not read in vleProperties file");
+			e.printStackTrace();
+		}
+	}
 	
     /**
      * @see HttpServlet#HttpServlet()
@@ -128,7 +138,9 @@ public class AssetManager extends HttpServlet implements Servlet{
 	@SuppressWarnings("unchecked")
 	private String uploadAsset(HttpServletRequest request) {
 		ServletFileUpload uploader = new ServletFileUpload(new DiskFileItemFactory());
-		Long maxSize = MAX_SIZE;
+		Long projectMaxAssetsSize = new Long(vleProperties.getProperty("project_max_total_assets_size", "10485760"));
+		Long studentMaxAssetsSize = new Long(vleProperties.getProperty("student_max_total_assets_size", "2097152"));
+		Long maxSize = projectMaxAssetsSize;
 		String path = "";
 		String dirName = (String) request.getAttribute("dirName");
 		if (dirName == null) {
@@ -141,7 +153,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if (studentUploadsBaseDir != null) {
 			// this is a student asset upload
 			path = studentUploadsBaseDir;
-			maxSize = STUDENT_MAX_UPLOAD_SIZE;
+			maxSize = studentMaxAssetsSize;
 		} else if(projectFolderPath != null) {
 			//the user is a teacher
 			path = projectFolderPath;
