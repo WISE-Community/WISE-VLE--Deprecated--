@@ -484,7 +484,17 @@ public class VLEAnnotationController extends HttpServlet {
 
 						// append the cRaterResponse to the existing annotation for this stepwork.
 						annotation.appendNodeStateAnnotation(cRaterResponseJSONObj);
-						annotation.saveOrUpdate();						
+						annotation.saveOrUpdate();
+						
+						// update CRaterRequest table and mark this request as completed.
+						CRaterRequest cRaterRequest = CRaterRequest.getByStepWorkIdNodeStateId(stepWork,nodeStateId);
+						
+						if(cRaterRequest != null) {
+							Calendar cRaterRequestCompletedTime = Calendar.getInstance();
+							cRaterRequest.setTimeCompleted(new Timestamp(cRaterRequestCompletedTime.getTimeInMillis()));
+							cRaterRequest.setcRaterResponse(cRaterResponseXML);
+							cRaterRequest.saveOrUpdate();						
+						}
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
