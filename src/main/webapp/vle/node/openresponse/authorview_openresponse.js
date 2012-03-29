@@ -516,6 +516,11 @@ View.prototype.OpenResponseNode.populateCRater = function() {
 			$('#cRaterDisplayFeedbackToStudent').attr('checked', this.content.cRater.displayCRaterFeedbackToStudent);
 		}
 		
+		if(this.content.cRater.maxCheckAnswers != null) {
+			//populate the max check answers text input
+			$('#cRaterMaxCheckAnswers').val(this.content.cRater.maxCheckAnswers);
+		}
+		
 		if(this.content.cRater.cRaterScoringRules != null) {
 			//populate the feedback
 			this.displayCRaterFeedback(this.content.cRater.cRaterScoringRules);
@@ -957,6 +962,20 @@ View.prototype.OpenResponseNode.cRaterRemoveFeedback = function(args) {
 	
 	//update the CRater authoring UI
 	this.displayCRaterFeedback(cRaterScoringRules);
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the CRater max check answer value
+ */
+View.prototype.OpenResponseNode.updateCRaterMaxCheckAnswers = function() {
+	//get the value the author has entered
+	var maxCheckAnswers = $('#cRaterMaxCheckAnswers').val();
+	
+	//update the value in the content
+	this.content.cRater.maxCheckAnswers = maxCheckAnswers;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

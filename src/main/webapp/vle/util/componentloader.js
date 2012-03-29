@@ -919,7 +919,8 @@ var componentloader = function(em, sl){
 				'cRaterDisplayScoreToStudentChanged':[null, null],
 				'cRaterDisplayFeedbackToStudentChanged':[null, null],
 				'cRaterAddFeedback':[null, null],
-				'cRaterRemoveFeedback':[null, null]
+				'cRaterRemoveFeedback':[null, null],
+				'cRaterMaxCheckAnswersChanged':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -943,6 +944,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('cRaterDisplayFeedbackToStudentChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterAddFeedback', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterRemoveFeedback', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('cRaterMaxCheckAnswersChanged', view.cRaterManager.dispatcher, view);
 				}
 			}
 		}

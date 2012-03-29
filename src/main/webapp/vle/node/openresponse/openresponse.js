@@ -151,6 +151,28 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 			//set the cRaterItemId into the node state if this step is a CRater item
 			if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
 					&& this.content.cRater.cRaterItemId != '') {
+				
+				if(checkAnswer && !isNaN(parseInt(this.content.cRater.maxCheckAnswers))) {
+					/*
+					 * the student has clicked check answer and there is a max 
+					 * number of check answer submits specified for this step
+					 */
+					
+					//create the message to display to the student to notify them that there are a limited number of check answers
+					var submitCheckAnswerMessage = '';
+					submitCheckAnswerMessage += 'You have ' + this.content.cRater.maxCheckAnswers + ' chance(s) to check your answer. ';
+					submitCheckAnswerMessage += 'This will be your ' + (parseInt(this.getNumberOfCRaterSubmits()) + 1) + ' out of ' + this.content.cRater.maxCheckAnswers + ' check answer submit. ';
+					submitCheckAnswerMessage += 'Are you sure you want to check your answer?';
+					
+					//popup a confirm dialog
+					var submitCheckAnswer = confirm(submitCheckAnswerMessage);
+					
+					if(!submitCheckAnswer) {
+						//the student has cancelled their check answer submit
+						return;
+					}
+				}
+				
 				orState.cRaterItemId = this.content.cRater.cRaterItemId;
 				
 				if (checkAnswer || !(this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
@@ -316,7 +338,14 @@ OPENRESPONSE.prototype.checkAnswer = function() {
  */
 OPENRESPONSE.prototype.responseEdited = function() {
 	this.setSaveAvailable();
-	this.setCheckAnswerAvailable();
+	
+	if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+		//student has used up all of their CRater check answer submits so we will disable the check answer button
+		this.setCheckAnswerUnavailable();
+	} else {
+		this.setCheckAnswerAvailable();
+	}
+	
 	displayNumberAttempts("This is your", "revision", this.states);
 };
 
@@ -510,6 +539,11 @@ OPENRESPONSE.prototype.render = function() {
 	} else if (this.content.cRater && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
 		// if this is a CRater-enabled item and we are displaying the score or feedback to the student, also show the "check" button
 		$('#checkAnswerButton').show();
+		
+		if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+			//student has used up all of their CRater check answer submits so we will disable the check answer button
+			this.setCheckAnswerUnavailable();
+		}
 	}
 	
 	if(this.view != null && this.view.activeNode != null) {
@@ -1403,6 +1437,52 @@ OPENRESPONSE.prototype.doneRendering = function() {
 	//create any constraints if necessary
 	eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
+
+/**
+ * Determine if the student has used up all their CRater check answer submits
+ * @return whether the student has used up all their CRater check answer submits
+ */
+OPENRESPONSE.prototype.isCRaterMaxCheckAnswersUsedUp = function() {
+	var result = false;
+
+	//check if this step is a CRater step and if maxCheckAnswers is set
+	if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null) {
+		var maxCheckAnswers = this.content.cRater.maxCheckAnswers;
+		
+		if(!isNaN(parseInt(maxCheckAnswers))) {
+			//maxCheckAnswers is a number
+			
+			//get the number of times the student made a CRater submit aka check answer
+			var numCheckAnswers = this.getNumberOfCRaterSubmits();
+			
+			if(numCheckAnswers >= maxCheckAnswers) {
+				//student has checked answer more than or equal to the max allowed
+				result = true;
+			}			
+		}
+	}
+	
+	return result;
+};
+
+OPENRESPONSE.prototype.getNumberOfCRaterSubmits = function() {
+	var numCRaterSubmits = 0;
+	
+	//loop through all the node states for this step
+	for(var x=0; x<this.states.length; x++) {
+		//get a node state
+		var nodeState = this.states[x];
+		
+		if(nodeState != null) {
+			if(nodeState.isCRaterSubmit) {
+				//the node state was a CRater submit
+				numCRaterSubmits++;
+			}
+		}
+	}
+	
+	return numCRaterSubmits;
+}
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

@@ -20,6 +20,8 @@ View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
 		obj.cRaterAddFeedback(args);
 	} else if(type=='cRaterRemoveFeedback') {
 		obj.cRaterRemoveFeedback(args);
+	} else if(type=='cRaterMaxCheckAnswersChanged') {
+		obj.updateCRaterMaxCheckAnswers();
 	}
 };
 
@@ -45,6 +47,7 @@ View.prototype.cRaterManager.cleanupCRater = function() {
 	$('#cRaterDisplayFeedbackImmediately').attr('checked', false);
 	$('#cRaterDisplayScoreToStudent').attr('checked', false);
 	$('#cRaterDisplayFeedbackToStudent').attr('checked', false);
+	$('#cRaterMaxCheckAnswers').val('');
 	$('#cRaterFeedback').html('');
 	$('body').append($('#cRaterDiv').hide().detach());
 };

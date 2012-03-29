@@ -977,6 +977,15 @@ View.prototype.cRaterRemoveFeedback = function(args){
 };
 
 /**
+ * Update the CRater max check answers value
+ */
+View.prototype.updateCRaterMaxCheckAnswers = function(){
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRaterMaxCheckAnswers){
+		this[this.resolveType(this.activeNode.type)].updateCRaterMaxCheckAnswers();
+	}
+};
+
+/**
  * Removes the CRater authoring items from the authorstep page and
  * clears input values
  */
