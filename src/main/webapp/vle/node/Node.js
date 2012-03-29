@@ -96,8 +96,7 @@ Node.prototype.getNodeAnnotations = function() {
 		var loggedInWorkgroupId = this.view.getUserAndClassInfo().getWorkgroupId();
 		for (var i=0; i < allNodeAnnotations.length; i++) {
 			var nodeAnnotation = allNodeAnnotations[i];
-			if (nodeAnnotation.type == "score" || nodeAnnotation.type == "comment" || 
-					(this.content.getContentJSON().cRater && this.content.getContentJSON().cRater.displayCRaterScoreToStudent && nodeAnnotation.type == "cRater")) {
+			if (nodeAnnotation.type == "score" || nodeAnnotation.type == "comment" || nodeAnnotation.type == "cRater") {
 				if (nodeAnnotation.toWorkgroup == loggedInWorkgroupId) {
 					filteredNodeAnnotations.push(nodeAnnotation);					
 				}
