@@ -56,15 +56,6 @@ public class AssetManager extends HttpServlet implements Servlet{
 			System.err.println("AssetsManager could not read in vleProperties file");
 			e.printStackTrace();
 		}
-         /*
-		try {
-			projectsJSONString = readFileAsString(projectsJSONURL.getPath());
-			projectsJSONArray = new JSONArray(projectsJSONString);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		*/
 	}
 	
     /**
