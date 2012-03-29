@@ -12,11 +12,11 @@ SetupThemes.activeThemes = [
 	{
 		themeName:"wise",
 		themeNavModes: ["classic","classic_right"]
-	},
+	}/*,
 	{
 		themeName:"wise_alternate",
 		themeNavModes: ["classic","classic_right"]
-	}
+	}*/
 ];
 
 //register the active themes with the component loader
