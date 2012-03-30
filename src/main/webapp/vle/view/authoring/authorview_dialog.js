@@ -494,7 +494,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		$.extend(jQuery.validator.messages, {
 		  required: ' *This item is required.'
 		});
-		if($('#imSettings').validate().form()){
+//		if($('#imSettings').validate().form()){
 			view.projectMeta.title = $('#projectMetadataTitle').val();
 			view.projectMeta.author = $('#projectMetadataAuthor').val();
 			view.projectMeta.theme = $('#projectMetadataTheme').val();
@@ -561,7 +561,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 			view.projectMeta.language = $('#projectMetadataLanguage').val();
 			
 			view.updateProjectMetaOnServer(true);
-		}
+//		}
 	};
 	
 
