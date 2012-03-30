@@ -31,83 +31,6 @@ var documentReadyFunction = function(object, createForStep, stepBasket) {
 		}
 	}
 
-	$('#showAdmin').click(function(){
-		$('#adminLinks').toggle();
-	});
-
-	$("#ideaForm").validate();
-
-	$('#source').change(function(){
-		if($('#source').val()=='Other'){
-			$('#otherSource').show();
-			$('#other').addClass('required');
-		} else {
-			$('#otherSource').hide();
-			$('#other').removeClass('required');
-		}
-		$("#ideaForm").validate();
-	});
-
-	$('#editSource').change(function(){
-		if($('#editSource').val()=='Other'){
-			$('#editOtherSource').show();
-			$('#editOther').addClass('required');
-		} else {
-			$('#editOtherSource').hide();
-			$('#editOther').removeClass('required');
-		}
-		$("#ideaForm").validate();
-	});
-
-	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'470', buttons:{
-		"OK": function(){				
-		if($("#ideaForm").validate().form()){
-			var source = $('#source').val();
-			if(source == 'empty'){
-				alert('Please select a source for your idea.');
-			} else {
-				if(source=='Other'){
-					source = 'Other: ' + $('#other').val();
-				}
-				basket.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
-				$(this).dialog("close");
-				resetForm('ideaForm');
-			}
-		}
-	}, Cancel: function(){
-		$(this).dialog("close");
-		resetForm('ideaForm');
-	}
-	} });
-
-	$('#addNew').click(function(){
-		$('#ideaDialog').dialog('open');
-	});
-	
-	$('#toggleDeleted').toggle(
-			function() {
-				$('#trash').fadeIn();
-				$('#toggleDeleted').addClass('visible');
-				$('#showDeleted').text('(Click to hide)');
-				//$('#toggleDeleted img.arrow').attr('src','images/arrow-down.png');
-				return false;
-			},
-			function() {
-				$('#trash').fadeOut();
-				$('#toggleDeleted').removeClass('visible');
-				$('#showDeleted').text('(Click to show)');
-				//$('#toggleDeleted img.arrow').attr('src','images/arrow.png');
-				return false;
-			}
-	);
-	
-	$('textarea#text, textarea#editText, input#addAnIdeaText').keyup(function() {
-        var len = this.value.length;
-        if (len >= 150) {
-            this.value = this.value.substring(0, 150);
-        }
-    });
-
 	if(createForStep) {
 		//we are loading the basket for an idea basket step
 		basket.loadIdeaBasket();
@@ -127,7 +50,7 @@ var documentReadyFunction = function(object, createForStep, stepBasket) {
  * or just load the basket
  * @param thisView the view
  */
-var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView) {
+var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView, settings) {
 	//only subscribe to the 'ideaBasketChanged' event once
 	if(!subscribedToIdeaBasketChanged) {
 		
@@ -146,7 +69,7 @@ var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView) {
 	}
 	
 	//load the ideaBasket JSON object that should have been set into the iframe
-	basket.load(ideaBasketJSONObj, generateUI);
+	basket.load(ideaBasketJSONObj, generateUI, settings);
 };
 
 /**
@@ -203,11 +126,14 @@ var ideaBasketChanged = function(type,args,obj) {
 };
 
 function resetForm(target){
+	var element = $('#' + target);
+	// hide any 'other' text inputs
+	$('input.other',element).parent().hide();
 	//clear validator messages
 	var validator = $("#" + target).validate();
 	validator.resetForm();
 	//reset form values
-	$('#' + target).find(':input').each(function() {
+	element.find(':input').each(function() {
 		switch(this.type) {
 		case 'password':
 		case 'select-multiple':

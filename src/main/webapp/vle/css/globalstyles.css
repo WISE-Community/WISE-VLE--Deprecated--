@@ -256,6 +256,45 @@ img.tooltip {
 	margin: .5em;
 }
 
+/* Add an Idea Dialog Form */
+#addAnIdeaForm {
+	font-size:.9em;
+}
+
+#addAnIdeaForm > div  {
+    padding: 0.25em;
+}
+
+#addAnIdeaForm div.text {
+	padding:0 .25em;
+}
+
+#addAnIdeaForm div.attribute div {
+	line-height:24px;
+}
+
+#addAnIdeaForm div.attribute.icon div img {
+	height:24px;
+	width:24px;
+}
+
+#addAnIdeaForm div.attributeOther {
+	display:none;
+	margin-left:.5em;
+}
+
+#addAnIdeaForm div.tags input, #addAnIdeaForm div.icon input {
+	margin:0 .5em 0 .75em;
+}
+
+#addAnIdeaForm select {
+	vertical-align:bottom;
+}
+
+#addAnIdeaForm .attributeOther {
+	display:none;
+}
+
 /* STUDENT: SHOW ALL WORK/FLAGGED WORK */
 .nodeType {
 	color: #777777;

@@ -409,6 +409,7 @@ var scriptloader = function(){
 		ddMenu: ['vle/common/dropdown.js'],
 		topMenu: ['vle/view/vle/vleview_topmenu.js'],
 		vle: ['vle/util/icon.js',
+		      'vle/jquery/jquery-validation/jquery.validate.min.js',
 		      'vle/view/vle/vleview_core.js',
 		      'vle/view/vle/vleview_utils.js',
 		      'vle/view/vle/vleview_studentwork.js',

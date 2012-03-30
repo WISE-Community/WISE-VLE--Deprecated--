@@ -16,7 +16,7 @@ form.cmxform legend {
 form.cmxform label {
 	display: inline-block;
 	line-height: 1.8;
-	vertical-align: top;
+	/*vertical-align: top;*/
 	cursor: auto;
 	width:auto;
 	font-weight:bold;
@@ -63,6 +63,8 @@ form.cmxform fieldset fieldset label { margin-left: 103px; } /* Width plus 3 (ht
 form.cmxform label.error {
 	/*margin-left: 103px;
 	width: 220px;*/
+	color:red;
+	margin-left:.5em;
 }
 
 form.cmxform input.submit {
