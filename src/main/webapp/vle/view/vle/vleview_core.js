@@ -255,7 +255,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		$("#viewIdeaBasket").html(ideaBasketLink);
 		$("#addIdea").html(addIdeaLink);
 	} else {
-		$("#ideaBasketLinks").remove();
+		//$("#ideaBasketLinks").remove();
 	}
 };
 /**
