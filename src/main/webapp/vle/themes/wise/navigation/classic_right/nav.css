@@ -154,8 +154,8 @@
 }
 
 .wmenu .step.constraintDisable a, .wmenu .step.constraintDisable a:hover {
-	background-color: #EBE7E2;
-	color:#A4937A;
+	background-color: #BBBBBB;
+    color: #777777;
 }
 
 .wmenu .step.menuStepHighlight a {
