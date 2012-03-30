@@ -491,31 +491,37 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 	});
 	
 	var updateProjectMetadata = function(){
-		$.extend(jQuery.validator.messages, {
-		  required: ' *This item is required.'
-		});
-//		if($('#imSettings').validate().form()){
-			view.projectMeta.title = $('#projectMetadataTitle').val();
-			view.projectMeta.author = $('#projectMetadataAuthor').val();
-			view.projectMeta.theme = $('#projectMetadataTheme').val();
-			view.projectMeta.navMode = $('#projectMetadataNavigation').val();
-			view.projectMeta.subject = $('#projectMetadataSubject').val();
-			view.projectMeta.summary = $('#projectMetadataSummary').val();
-			view.projectMeta.gradeRange = $('#projectMetadataGradeRange').val();
-			view.projectMeta.totalTime = $('#projectMetadataTotalTime').val();
-			view.projectMeta.compTime = $('#projectMetadataCompTime').val();
-			view.projectMeta.contact = $('#projectMetadataContact').val();
-			view.projectMeta.techReqs = {};
-			view.projectMeta.techReqs.java = $("#java").is(':checked');
-			view.projectMeta.techReqs.flash = $("#flash").is(':checked');
-			view.projectMeta.techReqs.quickTime = $("#quickTime").is(':checked');
-			view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
-			view.projectMeta.tools = {};
-			view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").is(':checked');
-			view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").is(':checked')
+		var imVersion = $('#enableIdeaManager').attr('version');
+		
+		view.projectMeta.title = $('#projectMetadataTitle').val();
+		view.projectMeta.author = $('#projectMetadataAuthor').val();
+		view.projectMeta.theme = $('#projectMetadataTheme').val();
+		view.projectMeta.navMode = $('#projectMetadataNavigation').val();
+		view.projectMeta.subject = $('#projectMetadataSubject').val();
+		view.projectMeta.summary = $('#projectMetadataSummary').val();
+		view.projectMeta.gradeRange = $('#projectMetadataGradeRange').val();
+		view.projectMeta.totalTime = $('#projectMetadataTotalTime').val();
+		view.projectMeta.compTime = $('#projectMetadataCompTime').val();
+		view.projectMeta.contact = $('#projectMetadataContact').val();
+		view.projectMeta.techReqs = {};
+		view.projectMeta.techReqs.java = $("#java").is(':checked');
+		view.projectMeta.techReqs.flash = $("#flash").is(':checked');
+		view.projectMeta.techReqs.quickTime = $("#quickTime").is(':checked');
+		view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
+		view.projectMeta.tools = {};
+		view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").is(':checked');
+		view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").is(':checked');
+		view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
+		view.projectMeta.standards = $('#projectMetadataStandards').val();
+		view.projectMeta.keywords = $('#projectMetadataKeywords').val();
+		view.projectMeta.language = $('#projectMetadataLanguage').val();
+		
+		if(parseInt(imVersion) > 1){
 			if(typeof $('#enableIdeaManager').attr('version') == 'string' ){
-				var imVersion = $('#enableIdeaManager').attr('version');
-				if(parseInt(imVersion) > 1){
+				$.extend(jQuery.validator.messages, {
+				  required: ' *This item is required.'
+				});
+				if($('#imSettings').validate().form()){
 					view.projectMeta.tools.ideaManagerSettings = {};
 					view.projectMeta.tools.ideaManagerSettings.version = imVersion;
 					view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
@@ -552,18 +558,16 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 						}
 						attribute.options = options;
 						view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
+						view.updateProjectMetaOnServer(true);
+						$('#editProjectMetadataDialog').dialog('close');
 					});
 				}
 			}
-			view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
-			view.projectMeta.standards = $('#projectMetadataStandards').val();
-			view.projectMeta.keywords = $('#projectMetadataKeywords').val();
-			view.projectMeta.language = $('#projectMetadataLanguage').val();
-			
+		} else {
 			view.updateProjectMetaOnServer(true);
-//		}
+			$('#editProjectMetadataDialog').dialog('close');
+		}
 	};
-	
 
 	var undoProjectMetadata = function(){
 		view.editProjectMetadata();
