@@ -51,6 +51,12 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	//get the content of the step
 	this.content = this.view.activeContent.getContentJSON();
 	
+	this.version = 1;
+	//get the Idea Manager version
+	if('ideaManagerSettings' in this.view.projectMetadata.tools){
+		this.version = this.view.projectMetadata.tools.ideaManagerSettings.version;
+	}
+	
 	//get the html element that all the authoring components will be located
 	var parent = document.getElementById('dynamicParent');
 	
@@ -145,6 +151,23 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	pageDiv.appendChild(requireWorkToggle);
 	pageDiv.appendChild(createBreak());
 	
+	if(this.version > 1){
+		//the label for the background align drop-down select
+		var chooseAttributeLabel = $(document.createTextNode("Choose which idea attribute to show: "));
+		var chooseAttribute = $(createElement(document,'select',{id: 'attributeSelect', onchange: 'eventManager.fire("explanationBuilderUpdateAttribute")'}));
+		var attributes = this.view.projectMetadata.tools.ideaManagerSettings.ideaAttributes;
+		for(var i=0;i<attributes.length;i++){
+			var option = $(createElement(document, 'option', {value: attributes[i].id})).append($(document.createTextNode((i+1).toString() + ': ' + attributes[i].name + ' (Type: ' + this.view.utils.capitalize(attributes[i].type) + ')')));
+			if(i==0){
+				option.attr('checked','checked');
+			}
+			chooseAttribute.append(option);
+		}
+		chooseAttribute.append($(createElement(document, 'option', {value: ''})).append($(document.createTextNode('None'))));
+		$(pageDiv).append(chooseAttributeLabel).append(chooseAttribute);
+		pageDiv.appendChild(createBreak());
+	}
+	
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
@@ -190,6 +213,11 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	//populate the background align select
 	if("bgPosition" in this.content) {
 		$('#backgroundAlignSelect').val(this.content.bgPosition);
+	}
+	
+	if(this.version > 1){
+		//populate which attribute to show if this step has been authored before
+		this.populateAttribute(attributes);
 	}
 };
 
@@ -240,7 +268,7 @@ View.prototype.ExplanationBuilderNode.updatePrompt = function(){
 };
 
 /**
- * Updates the content's prompt to match that of what the user input
+ * Updates the background image url to match that of what the user input
  * 
  * xTODO: rename TemplateNode
  */
@@ -286,6 +314,35 @@ View.prototype.ExplanationBuilderNode.updateEnableStudentTextAreaCheckBox = func
 View.prototype.ExplanationBuilderNode.updateWorkRequired = function() {
 	//update the content
 	this.content.isMustComplete = this.isChecked($('#requireWorkToggle').attr('checked'));
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Populate the authoring textarea where the user types the prompt that
+ * the student will read
+ * @param attributes Array of attributes for the project this node belongs to
+ */
+View.prototype.ExplanationBuilderNode.populateAttribute = function(attributes) {
+	//get the set attribute from the content and set it as the authoring select's value
+	if('selectedAttribute' in this.content){
+		for(var i=0;i<attributes.length;i++){
+			if (this.content.selectedAttribute == attributes[i].id){
+				$('#attributeSelect').val(this.content.selectedAttribute);
+			}
+		}
+	}
+};
+
+/**
+ * Updates the content's selected attribute to match that of what the user input
+ */
+View.prototype.ExplanationBuilderNode.updateAttribute = function(){
+	/* update content */
+	this.content.selectedAttribute = document.getElementById('attributeSelect').value;
 	
 	/*
 	 * fire source updated event, this will update the preview

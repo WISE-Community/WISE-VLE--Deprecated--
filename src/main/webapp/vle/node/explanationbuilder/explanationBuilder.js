@@ -42,7 +42,7 @@ function ExplanationBuilder(node, view) {
 		this.states = node.studentWork; 
 	} else {
 		this.states = [];  
-	};
+	}
 
 	//var studentExplanation;
 	this.ideaBasket;
@@ -58,6 +58,12 @@ function ExplanationBuilder(node, view) {
 	
 	this.explanationIdeas = [];
 	this.answer = '';
+	
+	this.version = 1;
+	if('ideaManagerSettings' in this.view.projectMetadata.tools){
+		this.settings = this.view.projectMetadata.tools.ideaManagerSettings;
+		this.version = this.view.projectMetadata.tools.ideaManagerSettings.version;
+	}
 };
 
 /**
@@ -224,9 +230,6 @@ ExplanationBuilder.prototype.render = function() {
 	} else {
 		$('#target').css('background-position','left top');
 	}
-	
-	// add navigation constraints
-	//this.node.addConstraints();
 
 	//initialize the UI and load the idea basket
 	this.initializeUI();
@@ -243,27 +246,127 @@ ExplanationBuilder.prototype.initializeUI = function() {
 	// set drop area dimensions
 	this.dropAreaWidth = $('#target').width();
 	this.dropAreaHeight = $('#target').height();
+	
+	var context = this;
+		
+	if(this.version > 1){
+		// we only need to update the DOM if using Idea Manager v2 or greater
+		
+		var settings = this.settings;
+		this.selectedAtribute = '';
+		if('selectedAttribute' in this.content){
+			this.selectedAttribute = this.content.selectedAttribute;
+		}
+		
+		// clear add and edit idea forms, idea table
+		var ideaDialog = $('#ideaForm > fieldset').html('');
+		var editDialog = $('#editForm > fieldset').html('');
+		var ideaTable = $('#activeIdeas > thead > tr').html('');
+		
+		// insert text input and label for add and edit idea dialogs
+		var ideaText = $(document.createElement('div')).addClass('text');
+		ideaText.append('<div><label for="text">Type your idea here*:</label></div>');
+		ideaText.append('<div><textarea id="text" name="text" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
+		ideaDialog.append(ideaText);
+		
+		var editText = $(document.createElement('div')).addClass('text');
+		editText.append('<div><label for="editText">Type your idea here*:</label></div>');
+		editText.append('<div><textarea id="editText" name="editText" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
+		editDialog.append(editText);
+		
+		// insert idea text column for idea table
+		ideaTable.append("<th class='ideas'>Your Ideas</th>");
+		
+		this.selectedAttributeExists = false;
+		// insert attribute inputs for add and edit idea dialogs, as well as table attribute column based on settings
+		for (var i=0;i<settings.ideaAttributes.length;i++){
+			var attribute = settings.ideaAttributes[i];
+			var addAttr = this.ideaBasket.createAttributeInput(attribute,'add');
+			var editAttr = this.ideaBasket.createAttributeInput(attribute,'edit');
+			ideaDialog.append(addAttr);
+			editDialog.append(editAttr);
+			var name = attribute.name, type = attribute.type;
+			if(attribute.id == context.selectedAttribute){
+				ideaTable.append("<th class='" + type + "'>" + name + "</th>");
+				this.selectedAttributeExists = true;
+			}
+		}
+		
+		// set terminology based on settings (TODO)
+		
+	} else {
+		// set up add and idea form validation and 'other' select change event
+		$("#ideaForm").validate();
 
-	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'470', buttons:{
-		"OK": function(){       
-		if($("#ideaForm").validate().form()){
-			var source = $('#source').val();
-			if(source == 'empty'){
-				alert('Please select a source for your idea.');
+		$('#source').change(function(){
+			if($('#source').val()=='Other'){
+				$('#otherSource').show();
+				$('#other').addClass('required');
 			} else {
-				if(source=='Other'){
-					source = 'Other: ' + $('#other').val();
+				$('#otherSource').hide();
+				$('#other').removeClass('required');
+			}
+			$("#ideaForm").validate();
+		});
+
+		$('#editSource').change(function(){
+			if($('#editSource').val()=='Other'){
+				$('#editOtherSource').show();
+				$('#editOther').addClass('required');
+			} else {
+				$('#editOtherSource').hide();
+				$('#editOther').removeClass('required');
+			}
+			$("#editForm").validate();
+		});
+	}
+
+	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'470', 
+		buttons:{
+			"OK": function(){       
+				if($("#ideaForm").validate().form()){
+					if(context.version > 1){
+						var attributes = context.getIdeaAttributes('add');
+						context.addV2($('#text').val(),attributes);
+					} else {
+						var source = $('#source').val();
+						if(source == 'empty'){
+							alert('Please select a source for your idea.');
+						} else {
+							if(source=='Other'){
+								source = 'Other: ' + $('#other').val();
+							}
+							context.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+						}
+					}
+					$(this).dialog("close");
+					resetForm('ideaForm');
 				}
-				explanationBuilder.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+			},
+			Cancel: function(){
 				$(this).dialog("close");
 				resetForm('ideaForm');
 			}
+		},
+		open: function(event, ui){
+			$.validator.addMethod('require-one', function (value) {
+		          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+			var checkboxes = $('#ideaForm .require-one');
+			var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
+
+			$('#ideaForm').validate({
+				groups: { checks: checkbox_names },
+				errorPlacement: function(error, element) {
+		             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+		            	 error.insertAfter(element.parent().children(':last'));
+		             } else {
+		            	 error.insertAfter(element);
+		             }
+				},
+				ignore: '.inactive'
+			});
 		}
-	}, Cancel: function(){
-		$(this).dialog("close");
-		resetForm('ideaForm');
-	}
-	} });
+	});
 
 	$('#addNew').click(function(){
 		$('#ideaDialog').dialog('open');
@@ -422,11 +525,14 @@ ExplanationBuilder.prototype.canExit = function(){
 
 
 function resetForm(target){
+	var element = $('#' + target);
+	// hide any 'other' text inputs
+	$('input.other',element).parent().hide();
 	//clear validator messages
 	var validator = $("#" + target).validate();
 	validator.resetForm();
 	//reset form values
-	$('#' + target).find(':input').each(function() {
+	element.find(':input').each(function() {
 		switch(this.type) {
 		case 'password':
 		case 'select-multiple':
@@ -559,7 +665,11 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 
 	if(this.view.authoringMode) {
 		//we are in preview step so we will create a dummy idea basket
-		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}');
+		var settings = {};
+		if('ideaManagerSettings' in this.view.projectMetadata.tools){
+			settings = this.view.projectMetadata.tools.ideaManagerSettings;
+		}
+		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,settings);
 	}
 	
 	if(this.ideaBasket == null) {
@@ -640,21 +750,54 @@ ExplanationBuilder.prototype.add = function(text,source,tags,flag) {
 	//localStorage.index = JSON.stringify(basket.index);
 };
 
+ExplanationBuilder.prototype.addV2 = function(text,attributes) {
+	//get the values for the current step
+	var nodeId = this.view.getCurrentNode().id;
+	var nodeName = this.view.getCurrentNode().getTitle();
+	var vlePosition = this.view.getProject().getVLEPositionById(nodeId);
+	nodeName = vlePosition + ": " + nodeName;
+	
+	var newIdea = this.ideaBasket.addIdeaToBasketArrayV2(text,attributes,nodeId,nodeName);
+	this.ideaBasket.index++;
+	this.basketChanged = true;
+	this.addRow(newIdea);
+};
+
 ExplanationBuilder.prototype.addRow = function(idea,load){
 	var title = 'Click and drag to add to idea space, Double click to edit';
 	var text = idea.text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
-	/*if(idea.tags && idea.tags != 'undefined'){
-		var tags = idea.tags;
+	
+	var html = '';
+	if (this.version > 1){
+		if(this.selectedAttributeExists){
+			for(var i=0;i<idea.attributes.length;i++){
+				var attribute = idea.attributes[i];
+				if(attribute.id == this.selectedAttribute){
+					if(attribute.type=='icon'){
+						html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td style="text-align:center;"><span title="' + attribute.value + '" class="' + attribute.value + '"></span></td></tr>';
+					} else if(attribute.type=='tags'){
+						html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td class="tags">';
+						for(var a=0;a<attribute.value.length;a++){
+							html += '<span class="tag">' + attribute.value[a] + '</span>';
+						}
+						html += '</td></tr>';
+					} else {
+						html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td>' + attribute.value + '</td></tr>';
+					}
+				}
+			}
+		} else {
+			html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td></tr>';
+		}
 	} else {
-		var tags = '';
-	}*/
-	if(idea.flag && idea.flag != 'undefined'){
-		var flag = idea.flag;
-	} else {
-		var flag = '';
-	}
+		if(idea.flag && idea.flag != 'undefined'){
+			var flag = idea.flag;
+		} else {
+			var flag = '';
+		}
 
-	var html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span>';
+		html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td></tr>';
+	}
 
 	$('#activeIdeas tbody').prepend(html);
 
@@ -672,6 +815,52 @@ ExplanationBuilder.prototype.addRow = function(idea,load){
 	} else {
 		$('#ideasEmpty').show();
 	}
+};
+
+/**
+ * Get the array of attributes specified in the add or edit idea form
+ * @param mode String identifying which form we're in ('add' or 'edit' are the allowed values)
+ * @returns attributes Array of attributes for the idea
+ */
+ExplanationBuilder.prototype.getIdeaAttributes = function(mode){
+	var attributes = [], form;
+	if(mode=='edit'){
+		form = $('#editForm');
+	} else if (mode=='add'){
+		form = $('#ideaForm');
+	} else {
+		return attributes;
+	}
+	$('.attribute',form).each(function(){
+		var attribute = {};
+		var attrId = $(this).attr('id').replace(mode + '_attribute_','');
+		var type = '';
+		if($(this).hasClass('label')){
+			type = 'label';
+		} else if($(this).hasClass('source')){
+			type = 'source';
+		} else if($(this).hasClass('icon')){
+			type = 'icon';
+			attribute.value = $('[name=' + mode + '_' + type + '_' + attrId + ']:checked').val();
+		} if($(this).hasClass('tags')){
+			type = 'tags';
+			var tags = [];
+			$('[name=' + mode + '_' + type + '_' + attrId + ']:checked').each(function(){
+				tags.push($(this).val());
+			});
+			attribute.value = tags;
+		}
+		if(type=='label' || type=='source'){
+			if($('#' + mode + '_' + type + '_' + attrId).val() == 'Other'){
+				attribute.value = 'Other: ' + $('input[name="' + mode + '_other_' + attrId + '"]').val();
+			} else {
+				attribute.value = $('#' + mode + '_' + type + '_' + attrId).val();
+			} 
+		}
+		attribute.id = attrId, attribute.type = type;
+		attributes.push(attribute);
+	});
+	return attributes;
 };
 
 ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,textChanged) {
@@ -698,6 +887,71 @@ ExplanationBuilder.prototype.edit = function(index,text,source,tags,flag,textCha
 			var text = this.ideaBasket.ideas[i].text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
 			//if($tr){
 			$tr.html('<td>' + text + '</td><td>' + '<span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>');
+			//$tr.effect("pulsate", { times:2 }, 500);
+			if($tr.hasClass('ui-draggable-disabled')){
+				setTimeout(function(){
+					$tr.css('opacity','.5');
+				},1200);
+			}
+			//}
+			this.basketChanged = true;
+			//localStorage.ideas = JSON.stringify(basket.ideas);
+			break;
+		}
+	}
+	if(textChanged){ // set lastAcceptedText of exp idea to idea's current text
+		for (var i=0; i<this.explanationIdeas.length; i++){
+			if(this.explanationIdeas[i].id == index){
+				this.updateExpIdea(id,null,null,null,text);
+				break;
+			}
+		}
+	}
+};
+
+ExplanationBuilder.prototype.editV2 = function(index,text,attributes,textChanged) {
+	var title = 'Click and drag to add to idea space, Double click to edit';
+	var id;
+	var idea;
+	for(var i=0; i<this.ideaBasket.ideas.length; i++){
+		if(this.ideaBasket.ideas[i].id == index){
+			id = this.ideaBasket.ideas[i].id;
+			var $tr = $('#idea' + id);
+			this.ideaBasket.ideas[i].text = text;
+			this.ideaBasket.ideas[i].attributes = attributes;
+			
+			//get the current time
+			var newDate = new Date();
+			var time = newDate.getTime();
+			
+			//update the timeLastEdited
+			this.ideaBasket.ideas[i].timeLastEdited = time;
+			
+			idea = this.ideaBasket.ideas[i];
+			var text = this.ideaBasket.ideas[i].text.replace(new RegExp("(\\w{" + 25 + "})(?=\\w)", "g"), "$1<wbr>");
+			//if($tr){
+			var html = '';
+			if(this.selectedAttributeExists){
+				for(var i=0;i<idea.attributes.length;i++){
+					var attribute = idea.attributes[i];
+					if(attribute.id == this.selectedAttribute){
+						if(attribute.type=='icon'){
+							html = '<td>' + text + '</td><td style="text-align:center;"><span title="' + attribute.value + '" class="' + attribute.value + '"></span></td>';
+						} else if(attribute.type=='tags'){
+							html = '<td>' + text + '</td><td class="tags">';
+							for(var a=0;a<attribute.value.length;a++){
+								html += '<span class="tag">' + attribute.value[a] + '</span>';
+							}
+							html += '</td>';
+						} else {
+							html = '<td>' + text + '</td><td>' + attribute.value + '</td>';
+						}
+					}
+				}
+			} else {
+				html = '<td>' + text + '</td>';
+			}
+			$tr.html(html);
 			//$tr.effect("pulsate", { times:2 }, 500);
 			if($tr.hasClass('ui-draggable-disabled')){
 				setTimeout(function(){
@@ -771,37 +1025,80 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 		var text = context.populateEditForm(context,id,true);
 		
 		// open edit dialog
-		$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', buttons:{
-			"OK": function(){       
-				if($("#editForm").validate().form()){
+		$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', 
+			buttons:{
+				"OK": function(){
 					var answer = false;
-					var textChanged = false;
-					if($('#editSource').val() == 'empty'){
-						alert('Please select a source for your idea.');
-					} else {
-						if($('#editText').val() != text){ // check if the idea text has changed
-							textChanged = true; // idea text has changed
-							answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
-						} else {
-							answer = true;
-						}
-					
-						if(answer) {
-							var source = $('#editSource').val();
-							if(source=='Other'){
-								source = 'Other: ' + $('#editOther').val();
+					if($("#editForm").validate().form()){
+						if(context.version > 1){
+							if($('#editText').val() != text){
+								/*
+								 * if the idea text has changed, check if the idea is being used
+								 * in an explanation builder step, if it is, we will display
+								 * a confirmation popup that asks the students if they're sure
+								 * they want to edit the idea. if the idea is not being used
+								 * in an eb step it will return true by default.
+								 */
+								var answer = context.checkIfIdeaUsed(id);
+								textChanged = true;
+							} else {
+								answer = true;
 							}
-							context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
-							$(this).dialog("close");
-							resetForm('editForm');
+							if(answer) {
+								var attributes = context.getIdeaAttributes('edit');
+								context.editV2(id,$('#editText').val(),attributes,textChanged);
+								$(this).dialog("close");
+								resetForm('editForm');						
+							}
+						} else {
+							var answer = false;
+							var textChanged = false;
+							if($('#editSource').val() == 'empty'){
+								alert('Please select a source for your idea.');
+							} else {
+								if($('#editText').val() != text){ // check if the idea text has changed
+									textChanged = true; // idea text has changed
+									answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+								} else {
+									answer = true;
+								}
+							
+								if(answer) {
+									var source = $('#editSource').val();
+									if(source=='Other'){
+										source = 'Other: ' + $('#editOther').val();
+									}
+									context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
+									$(this).dialog("close");
+									resetForm('editForm');
+								}
+							}
 						}
 					}
+				}, Cancel: function(){
+					$(this).dialog("close");
+					resetForm('editForm');
 				}
-			}, Cancel: function(){
-				$(this).dialog("close");
-				resetForm('editForm');
+			},
+			open: function(event, ui){
+				$.validator.addMethod('require-one', function (value) {
+			          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+				var checkboxes = $('#editForm .require-one');
+				var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
+
+				$('#editForm').validate({
+					groups: { checks: checkbox_names },
+					errorPlacement: function(error, element) {
+			             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+			            	 error.insertAfter(element.parent().children(':last'));
+			             } else {
+			            	 error.insertAfter(element);
+			             }
+					},
+					ignore: '.inactive'
+				});
 			}
-		} });
+		});
 	});
 };
 
@@ -1005,37 +1302,79 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			var text = context.populateEditForm(context,id,true);
 			
 			// open edit dialog
-			$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', buttons:{
-				"OK": function(){       
-					if($("#editForm").validate().form()){
-						var answer = false;
-						var textChanged = false;
-						if($('#editSource').val() == 'empty'){
-							alert('Please select a source for your idea.');
-						} else {
-							if($('#editText').val() != text){ // check if the idea text has changed
-								textChanged = true; // idea text has changed
-								answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
-							} else {
-								answer = true;
-							}
-						
-							if(answer) {
-								var source = $('#editSource').val();
-								if(source=='Other'){
-									source = 'Other: ' + $('#editOther').val();
+			$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470', 
+				buttons:{
+					"OK": function(){       
+						if($("#editForm").validate().form()){
+							var answer = false;
+							var textChanged = false;
+							if(context.version > 1){
+								if($('#editText').val() != text){
+									/*
+									 * if the idea text has changed, check if the idea is being used
+									 * in an explanation builder step, if it is, we will display
+									 * a confirmation popup that asks the students if they're sure
+									 * they want to edit the idea. if the idea is not being used
+									 * in an eb step it will return true by default.
+									 */
+									answer = context.checkIfIdeaUsed(id);
+									textChanged = true;
+								} else {
+									answer = true;
 								}
-								context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
-								$(this).dialog("close");
-								resetForm('editForm');
+								if(answer) {
+									var attributes = context.getIdeaAttributes('edit');
+									context.editV2(id,$('#editText').val(),attributes,textChanged);
+									$(this).dialog("close");
+									resetForm('editForm');						
+								}
+							} else {
+								if($('#editSource').val() == 'empty'){
+									alert('Please select a source for your idea.');
+								} else {
+									if($('#editText').val() != text){ // check if the idea text has changed
+										textChanged = true; // idea text has changed
+										answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+									} else {
+										answer = true;
+									}
+								
+									if(answer) {
+										var source = $('#editSource').val();
+										if(source=='Other'){
+											source = 'Other: ' + $('#editOther').val();
+										}
+										context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),textChanged);
+										$(this).dialog("close");
+										resetForm('editForm');
+									}
+								}
 							}
 						}
+					}, Cancel: function(){
+						$(this).dialog("close");
+						resetForm('editForm');
 					}
-				}, Cancel: function(){
-					$(this).dialog("close");
-					resetForm('editForm');
+				},
+				open: function(event, ui){
+					$.validator.addMethod('require-one', function (value) {
+				          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+					var checkboxes = $('#editForm .require-one');
+					var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
+
+					$('#editForm').validate({
+						groups: { checks: checkbox_names },
+						errorPlacement: function(error, element) {
+				             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+				            	 error.insertAfter(element.parent().children(':last'));
+				             } else {
+				            	 error.insertAfter(element);
+				             }
+						},
+						ignore: '.inactive'
+					});
 				}
-			} });
+			});
 		});
 	}
 	
@@ -1216,38 +1555,73 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 			//populate edit form fields
 			var text = context.populateEditForm(context,id,true);
 
-			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470', buttons:{
-				"OK": function(){
-					if($("#editForm").validate().form()){
-						var answer = false;
-						var textChanged = false;
-						if($('#editSource').val() == 'empty'){
-							alert('Please select a source for your idea.');
-						} else {
-							if($('#editText').val() != text){ // check if the idea text has changed
-								textChanged = true; // idea text has changed
-								answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
-							} else {
-								answer = true;
-							}
-						
-							if(answer) {
-								var source = $('#editSource').val();
-								if(source=='Other'){
-									source = 'Other: ' + $('#editOther').val();
+			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470',
+				buttons:{
+					"OK": function(){
+						if($("#editForm").validate().form()){
+							var answer = false;
+							var textChanged = false;
+							if(context.version > 1){
+								if($('#editText').val() != text){
+									textChanged = true;
+									answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+								} else {
+									answer = true;
 								}
-								context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
-								$(this).dialog("close");
-								resetForm('editForm');
-								//setLastAcceptedText(id);
+								if(answer) {
+									var attributes = context.getIdeaAttributes('edit');
+									context.editV2(id,$('#editText').val(),attributes,true);
+									$(this).dialog("close");
+									resetForm('editForm');						
+								}
+							} else {
+								if($('#editSource').val() == 'empty'){
+									alert('Please select a source for your idea.');
+								} else {
+									if($('#editText').val() != text){ // check if the idea text has changed
+										textChanged = true; // idea text has changed
+										answer = context.checkIfIdeaUsed(id); // check if idea is being used in any explanation builder steps (returns true by default)
+									} else {
+										answer = true;
+									}
+								
+									if(answer) {
+										var source = $('#editSource').val();
+										if(source=='Other'){
+											source = 'Other: ' + $('#editOther').val();
+										}
+										context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+										$(this).dialog("close");
+										resetForm('editForm');
+										//setLastAcceptedText(id);
+									}
+								}
 							}
 						}
+					}, Cancel: function(){
+						$(this).dialog("close");
+						resetForm('editForm');
 					}
-				}, Cancel: function(){
-					$(this).dialog("close");
-					resetForm('editForm');
+				},
+				open: function(event, ui){
+					$.validator.addMethod('require-one', function (value) {
+				          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+					var checkboxes = $('#editForm .require-one');
+					var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
+
+					$('#editForm').validate({
+						groups: { checks: checkbox_names },
+						errorPlacement: function(error, element) {
+				             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+				            	 error.insertAfter(element.parent().children(':last'));
+				             } else {
+				            	 error.insertAfter(element);
+				             }
+						},
+						ignore: '.inactive'
+					});
 				}
-			} });
+			});
 		});
 		
 		// set 'accept' click action
@@ -1263,32 +1637,69 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 			//populate edit form fields
 			context.populateEditForm(context,id,false);
 
-			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470', buttons:{
-				"OK": function(){       
-					var source = $('#editSource').val();
-					if(source == 'empty'){
-						alert('Please select a source for your idea.');
-					} else {
-						if(source=='Other'){
-							source = 'Other: ' + $('#editOther').val();
+			$('#editDialog').dialog({ title:'Revise Your Idea', modal:true, resizable:false, width:'470',
+				buttons:{
+					"OK": function(){
+						if($("#editForm").validate().form()){
+							if(context.version > 1){
+								var attributes = context.getIdeaAttributes('edit');
+								var color = context.putBack(id); // move idea out of trash (returns assigned color)
+								context.editV2(id,$('#editText').val(),attributes,true);
+								setTimeout(function(){
+									$('#idea' + id).css('opacity','.5');
+								},1200);
+								$('#explanationIdea' + id).css('background-color',color);
+								$('#explanationIdea' + id).removeClass('deleted');
+								$('#idea' + id).draggable('disable');
+								resetForm('editForm');
+								//setLastAcceptedText(id);
+								$(this).dialog("close");
+							} else {
+								var source = $('#editSource').val();
+								if(source == 'empty'){
+									alert('Please select a source for your idea.');
+								} else {
+									if(source=='Other'){
+										source = 'Other: ' + $('#editOther').val();
+									}
+									var color = context.putBack(id); // move idea out of trash (returns assigned color)
+									context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+									setTimeout(function(){
+										$('#idea' + id).css('opacity','.5');
+									},1200);
+									$('#explanationIdea' + id).css('background-color',color);
+									$('#explanationIdea' + id).removeClass('deleted');
+									$('#idea' + id).draggable('disable');
+									resetForm('editForm');
+									//setLastAcceptedText(id);
+									$(this).dialog("close");
+								}
+							}
 						}
-						var color = context.putBack(id); // move idea out of trash (returns assigned color)
-						context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
-						setTimeout(function(){
-							$('#idea' + id).css('opacity','.5');
-						},1200);
-						$('#explanationIdea' + id).css('background-color',color);
-						$('#explanationIdea' + id).removeClass('deleted');
-						$('#idea' + id).draggable('disable');
-						resetForm('editForm');
-						//setLastAcceptedText(id);
+					}, Cancel: function(){
 						$(this).dialog("close");
+						resetForm('editForm');
 					}
-				}, Cancel: function(){
-					$(this).dialog("close");
-					resetForm('editForm');
+				},
+				open: function(event, ui){
+					$.validator.addMethod('require-one', function (value) {
+				          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+					var checkboxes = $('#editForm .require-one');
+					var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
+
+					$('#editForm').validate({
+						groups: { checks: checkbox_names },
+						errorPlacement: function(error, element) {
+				             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+				            	 error.insertAfter(element.parent().children(':last'));
+				             } else {
+				            	 error.insertAfter(element);
+				             }
+						},
+						ignore: '.inactive'
+					});
 				}
-			} });
+			});
 		});
 		
 		// set 'remove' click action
@@ -1450,25 +1861,47 @@ ExplanationBuilder.prototype.populateEditForm = function(context,id,active) {
 		if(ideas[i].id==id){
 			text = ideas[i].text;
 			$('#editText').val(text);
-			if(ideas[i].source.match(/^Other: /)){
-				$('#editSource').val("Other");
-				$('#editOther').val(ideas[i].source.replace(/^Other: /,''));
-				$('#editOtherSource').show();
-				$('#editOther').addClass('required');
-			} else {
-				$('#editSource').val(ideas[i].source);
-				$('#editOtherSource').hide();
-				$('#editOther').removeClass('required');
-			}
-			$('#editTags').val(ideas[i].tags);
-			$("input[name='editFlag']").each(function(){
-				if($(this).attr('value')==ideas[i].flag){
-					$(this).attr('checked', true);
-				} else {
-					$(this).attr('checked', false);
+			if(this.version > 1){
+				var attributes = ideas[i].attributes;
+				for(var a=0;a<attributes.length;a++){
+					var attrId = attributes[a].id, type = attributes[a].type;
+					if(type=='source' || type=='label'){
+						if(attributes[a].value.match(/^Other: /)){
+							$('#edit_' + type + '_' + attrId).val('Other');
+							$('input[name="edit_other_' + attrId + '"]').val(attributes[a].value.replace(/^Other: /,''));
+							$('#edit_other_' + attrId).show();
+						} else {
+							$('#edit_' + type + '_' + attrId).val(attributes[a].value);
+						}
+					} else if (type=='icon'){
+						$('[name=edit_' + type + '_' + attrId + ']').filter('[value='+attributes[a].value+']').prop("checked",true);
+					} else if (type=='tags'){
+						for(var x=0;x<attributes[a].value.length;x++){
+							$('[name=edit_' + type + '_' + attrId + ']').filter('[value='+attributes[a].value[x]+']').prop("checked",true);
+						}
+					}
 				}
-			});
-			break;
+			} else {
+				if(ideas[i].source.match(/^Other: /)){
+					$('#editSource').val("Other");
+					$('#editOther').val(ideas[i].source.replace(/^Other: /,''));
+					$('#editOtherSource').show();
+					$('#editOther').addClass('required');
+				} else {
+					$('#editSource').val(ideas[i].source);
+					$('#editOtherSource').hide();
+					$('#editOther').removeClass('required');
+				}
+				$('#editTags').val(ideas[i].tags);
+				$("input[name='editFlag']").each(function(){
+					if($(this).attr('value')==ideas[i].flag){
+						$(this).attr('checked', true);
+					} else {
+						$(this).attr('checked', false);
+					}
+				});
+				break;
+			}
 		}
 	}
 	return text;

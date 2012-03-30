@@ -35,6 +35,8 @@ View.prototype.explanationBuilderDispatcher = function(type,args,obj){
 		obj.ExplanationBuilderNode.updateWorkRequired();
 	} else if(type=='explanationBuilderUpdateBgAlign') {
 		obj.ExplanationBuilderNode.updateBgAlign();
+	} else if(type=='explanationBuilderUpdateAttribute'){
+		obj.ExplanationBuilderNode.updateAttribute();
 	}
 };
 
@@ -54,7 +56,8 @@ var events = [
 	'explanationBuilderUpdateEnableStudentTextAreaCheckBox',
 	'explanationBuilderBrowseClicked',
 	'explanationBuilderUpdateWorkRequired',
-	'explanationBuilderUpdateBgAlign'
+	'explanationBuilderUpdateBgAlign',
+	'explanationBuilderUpdateAttribute'
 ];
 
 /*
