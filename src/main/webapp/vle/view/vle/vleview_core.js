@@ -241,9 +241,10 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		 */
 		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\")' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
 		$('#viewMyFiles').html(studentAssetsLink);
+		$('#viewMyFiles').show().css('display','inline');
 	} else if (runInfo.isStudentAssetUploaderEnabled != null &&
 			!runInfo.isStudentAssetUploaderEnabled) {
-		$('#viewMyFiles').remove();
+		$('#viewMyFiles').hide();
 	}
 	
 	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
@@ -254,8 +255,9 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title='Add New Idea'>"+this.getI18NString("addidea_button_text")+"</a>";
 		$("#viewIdeaBasket").html(ideaBasketLink);
 		$("#addIdea").html(addIdeaLink);
+		$("#ideaBasketLinks").show().css('display','inline');
 	} else {
-		//$("#ideaBasketLinks").remove();
+		$("#ideaBasketLinks").hide();
 	}
 };
 /**
