@@ -977,16 +977,17 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	} else {
 		newIdea.lastAcceptedText = ideaText;
 		context.explanationIdeas.push(newIdea);
-		if(!context.enableStudentTextArea || (/\S/.test(context.answer))){
-			// student text area is disabled or a valid answer has been submitted, so set node completed and remove constraint
-			context.node.setCompleted();
-			context.node.removeConstraints();
-			// update constraints in navigation menu
-			eventManager.fire('updateNavigationConstraints');
-		}
 		//localStorage.explanationIdeas = JSON.stringify(context.explanationIdeas);
 		
 		$('#showResponse').removeClass('disabled');
+	}
+	
+	if(!context.enableStudentTextArea || (/\S/.test(context.answer))){
+		// student text area is disabled or a valid answer has been submitted, so set node completed and remove constraint
+		context.node.setCompleted();
+		context.node.removeConstraints();
+		// update constraints in navigation menu
+		eventManager.fire('updateNavigationConstraints');
 	}
 
 	if (!isActive){
