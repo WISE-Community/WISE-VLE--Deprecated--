@@ -685,7 +685,7 @@ View.prototype.createAddAnIdeaAttribute = function(attribute){
 	
 	if($inputLabel && $input){
 		inputContent = $(document.createElement('div')).addClass('attribute').addClass(type).attr('id',dialog + '_attribute_' + attribute.id).append($inputLabel).append($input);
-		if($customInput){
+		if($custom){
 			inputContent.append($custom);
 		}
 	}

@@ -335,6 +335,7 @@ View.prototype.ExplanationBuilderNode.populateAttribute = function(attributes) {
 			}
 		}
 	}
+	this.updateAttribute();
 };
 
 /**

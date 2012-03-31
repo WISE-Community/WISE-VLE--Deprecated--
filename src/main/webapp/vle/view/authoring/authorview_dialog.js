@@ -558,9 +558,9 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 						}
 						attribute.options = options;
 						view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
-						view.updateProjectMetaOnServer(true);
-						$('#editProjectMetadataDialog').dialog('close');
 					});
+					view.updateProjectMetaOnServer(true);
+					$('#editProjectMetadataDialog').dialog('close');
 				}
 			}
 		} else {
