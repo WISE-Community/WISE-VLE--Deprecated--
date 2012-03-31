@@ -159,11 +159,16 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 */
 					
 					//create the message to display to the student to notify them that there are a limited number of check answers
-					var submitCheckAnswerMessage = '';
-					submitCheckAnswerMessage += 'You have ' + this.content.cRater.maxCheckAnswers + ' chance(s) to check your answer. ';
-					submitCheckAnswerMessage += 'This will be your ' + (parseInt(this.getNumberOfCRaterSubmits()) + 1) + ' out of ' + this.content.cRater.maxCheckAnswers + ' check answer submit. ';
-					submitCheckAnswerMessage += 'Are you sure you want to check your answer?';
-					
+					var numChancesLeft = this.content.cRater.maxCheckAnswers - (parseInt(this.getNumberOfCRaterSubmits()));
+					var submitCheckAnswerMessage = 'You have ' + numChancesLeft;
+					if (numChancesLeft > 1) {
+						submitCheckAnswerMessage += ' chances';
+					} else {
+						submitCheckAnswerMessage += ' chance';
+					}
+					submitCheckAnswerMessage += ' to receive feedback on your answer so this should be your best work!\n\n';	
+					submitCheckAnswerMessage += 'Are you ready to receive feedback on this answer?';
+							
 					//popup a confirm dialog
 					var submitCheckAnswer = confirm(submitCheckAnswerMessage);
 					
