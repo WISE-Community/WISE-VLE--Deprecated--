@@ -81,12 +81,10 @@ table#activeIdeas {
   margin-bottom:0;
 }
 
-th.tags {
-  width:75px;
-}
-
-th.flag {
+th.flag, th.icon, th.source, th.label, th.tags,
+td.flag, td.icon, td.source, td.label, td.tags {
   width:25px;
+  max-width:50%;
 }
 
 table.tablesorter tbody tr {

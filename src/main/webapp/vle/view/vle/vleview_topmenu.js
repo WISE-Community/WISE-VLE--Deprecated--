@@ -622,6 +622,77 @@ View.prototype.checkForNewTeacherAnnotations = function() {
 };
 
 /**
+ * Creates a label and an input DOM element for the specified idea attribute
+ * @param attribtue JS object with the attribute settings
+ * @returns jQuery DOM element
+ */
+View.prototype.createAddAnIdeaAttribute = function(attribute){
+	var inputContent = '', dialog = 'addAnIdea';
+	var type = attribute.type;
+	var labelText = attribute.name, requiredClass = '';
+	if(attribute.isRequired){
+		labelText += '*';
+		requiredClass = 'required';
+	}
+	var idName = dialog + '_' + type + '_' + attribute.id;
+	var $inputLabel = null, $input = null, $custom = null;
+	if(type=='label' || type=='source'){
+		$inputLabel = $('<label for="' + idName + '">' + labelText + ': </label>');
+		$input = $(document.createElement('select')).attr('id', idName).attr('name', idName).addClass(requiredClass);
+		$input.append('<option value="">Choose One:</option>');
+		for(var a=0;a<attribute.options.length;a++){
+			var option = '<option value="' + attribute.options[a] + '">' + attribute.options[a] + '</option>';
+			$input.append(option);
+		}
+		if('allowCustom' in attribute && attribute.allowCustom){
+			$input.append('<option value="Other">Other</option>');
+			$custom = $(document.createElement('div')).attr('id',dialog + '_other_' + attribute.id).addClass('attributeOther');
+			$custom.append('<label for="' + dialog + '_other_' + attribute.id +'">Please specify: </label>');
+			$customInput = $('<input type="text" name="' + dialog + '_other_' + attribute.id +'" class="other required inactive" size="25" minlength="2" maxlength="25"></input>').addClass(requiredClass);
+			$custom.append($customInput);
+			$input.change(function(){
+				if($(this).val() == 'Other'){
+					$custom.children().removeClass('inactive');
+					$custom.show();
+				} else {
+					$custom.hide();
+					$custom.children().addClass('inactive');
+				}
+			});
+		}
+	} else if (type=='tags') {
+		$inputLabel = $('<div><label for="' + idName + '">' + labelText + ' (select all that apply): </label><div>');
+		$input = $(document.createElement('div'));
+		if(attribute.isRequired){
+			requiredClass = 'require-one';
+		}
+		for(var x=0;x<attribute.options.length;x++){
+			var option = $('<input type="checkbox" name="' + idName + '" value="' + attribute.options[x] + '" class="' + requiredClass + '">' + '<span>' + attribute.options[x] + '</span>');
+			$input.append(option);
+		}
+	} else if(type=='icon'){
+		$inputLabel = $('<div><label for="' + idName + '">' + labelText + ' (select one): </label><div>');
+		$input = $(document.createElement('div'));
+		for(var x=0;x<attribute.options.length;x++){
+			var text = 'None';
+			if(attribute.options[x] != 'blank'){
+				text = '<img src="./images/ideaManager/' + attribute.options[x] + '.png" alt="' + attribute.options[x] + '" />';
+			}
+			var option = $('<input type="radio" name="' + idName + '" value="' + attribute.options[x] + '" class="' + requiredClass + '"><span>' + text + '</span>');
+			$input.append(option);
+		}
+	}
+	
+	if($inputLabel && $input){
+		inputContent = $(document.createElement('div')).addClass('attribute').addClass(type).attr('id',dialog + '_attribute_' + attribute.id).append($inputLabel).append($input);
+		if($custom){
+			inputContent.append($custom);
+		}
+	}
+	return inputContent;
+};
+
+/**
  * Displays the Add an Idea dialog popup so the student can create a new Idea
  */
 View.prototype.displayAddAnIdeaDialog = function() {
@@ -638,99 +709,178 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:240,resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:'center',buttons:[{text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},{text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}]});
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:'auto',resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:'center',
+    		buttons:[
+    		         {text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},
+    		         {text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}
+    		         ],
+    		open: function(event,ui){
+    			$.validator.addMethod('require-one', function (value) {
+  		          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');
+	  			var checkboxes = $('#ideaForm .require-one');
+	  			var checkbox_names = $.map(checkboxes, function(e,i) { return $(e).attr("name"); }).join(" ");
+	
+	  			$('#addAnIdeaForm').validate({
+	  				groups: { checks: checkbox_names },
+	  				errorPlacement: function(error, element) {
+	  		             if (element.attr("type") == "checkbox" || element.attr('type') == 'radio'){
+	  		            	 error.insertAfter(element.parent().children(':last'));
+	  		             } else {
+	  		            	 error.insertAfter(element);
+	  		             }
+	  				},
+	  				ignore: '.inactive'
+	  			});
+    		}
+    	});
     }
     
     //the html we will insert into the popup
     var addAnIdeaHtml = "";
     
-    addAnIdeaHtml += "<form class='cmxform' id='ideaForm' method='get' action=''>";
-    addAnIdeaHtml += "<fieldset>";
-    addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></p>";
-    addAnIdeaHtml += "			<table>";
-    addAnIdeaHtml += "				<tr>";
-    addAnIdeaHtml += "					<td>";
-    addAnIdeaHtml += "			<p style:'height:24px; line-height:24px;'>";
-    addAnIdeaHtml += "				<label for='source'>Source*: </label>";
-    addAnIdeaHtml += "				<select id='addAnIdeaSource' name='source' class='required' style='height:24px;'>";
-    addAnIdeaHtml += "				  <option value='empty'>Choose One:</option>";	
-    addAnIdeaHtml += "				  <option value='Evidence Step'>Evidence Step</option>";
-    addAnIdeaHtml += "				  <option value='Visualization or Model'>Visualization or Model</option>";
-    addAnIdeaHtml += "				  <option value='Movie/Video'>Movie/Video</option>";
-    addAnIdeaHtml += "				  <option value='Everyday Observation'>Everyday Observation</option>";
-    addAnIdeaHtml += "				  <option value='School or Teacher'>School or Teacher</option>";
-    addAnIdeaHtml += "				  <option value='Other'>Other</option>";
-    addAnIdeaHtml += "				</select>";
-    addAnIdeaHtml += "			</p>";
-    addAnIdeaHtml += "					</td>";
-    addAnIdeaHtml += "					<td>";
-    addAnIdeaHtml += "			<p id='addAnIdeaOtherSource' style='display:none'><label for='other'>Specify*: </label><input id='addAnIdeaOther' name='other' size='15' minlength='2' maxlength='25'></input></p>";
-    addAnIdeaHtml += "					</td>";
-    addAnIdeaHtml += "				</tr>";
-    addAnIdeaHtml += "			</table>";
-    addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTags' name='tags' size='20' maxlength='20'></input></p>";
-    addAnIdeaHtml += "				<p>";
-	addAnIdeaHtml += "				<label for='flag'>Flag (choose one)*: </label>";
-	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='blank' class='required' checked style='margin-left:0;'><span style='vertical-align:top; line-height:24px;'> None</span>";
-   	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='important'><img src='images/ideaManager/important.png' alt='important' /><span style='vertical-align:top; line-height:24px;'>Important</span>";
-    addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='question'><img src='images/ideaManager/question.png' alt='question' /><span style='vertical-align:top; line-height:24px;'>Not Sure</span>";
-    //addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='check'><img src='images/ideaManager/check.png' alt='check' />";
-    addAnIdeaHtml += "				</p>";
-    addAnIdeaHtml += "	</fieldset>";
-    addAnIdeaHtml += "</form>";
+    var imVersion = 1, imSettings = {};
+    if('ideaManagerSettings' in this.projectMetadata.tools){
+    	imSettings = this.projectMetadata.tools.ideaManagerSettings;
+    	imVersion = this.projectMetadata.tools.ideaManagerSettings.version;
+    }
+    
+    if(imVersion > 1){
+    	addAnIdeaHtml = $("<form class='cmxform' id='addAnIdeaForm' method='get' action=''></form>");
+    	var fieldset = $(document.createElement('fieldset'));
+    	fieldset.append("<div><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></div>");
+    	var attributes = imSettings.ideaAttributes;
+    	for(var i=0;i<attributes.length;i++){
+    		fieldset.append(this.createAddAnIdeaAttribute(attributes[i]));
+    	}
+    	addAnIdeaHtml.append(fieldset);
     	
-    //insert the html into the popup
-    $('#addAnIdeaDiv').html(addAnIdeaHtml);
+    	//insert the html into the popup
+        $('#addAnIdeaDiv').html('').append(addAnIdeaHtml);
+    } else {
+    	addAnIdeaHtml += "<form class='cmxform' id='addAnIdeaForm' method='get' action=''>";
+        addAnIdeaHtml += "<fieldset>";
+    	addAnIdeaHtml += "			<p><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></p>";
+    	addAnIdeaHtml += "			<table>";
+        addAnIdeaHtml += "				<tr>";
+    	addAnIdeaHtml += "					<td>";
+        addAnIdeaHtml += "			<p style:'height:24px; line-height:24px;'>";
+        addAnIdeaHtml += "				<label for='source'>Source*: </label>";
+        addAnIdeaHtml += "				<select id='addAnIdeaSource' name='source' class='required' style='height:24px;'>";
+        addAnIdeaHtml += "				  <option value='empty'>Choose One:</option>";	
+        addAnIdeaHtml += "				  <option value='Evidence Step'>Evidence Step</option>";
+        addAnIdeaHtml += "				  <option value='Visualization or Model'>Visualization or Model</option>";
+        addAnIdeaHtml += "				  <option value='Movie/Video'>Movie/Video</option>";
+        addAnIdeaHtml += "				  <option value='Everyday Observation'>Everyday Observation</option>";
+        addAnIdeaHtml += "				  <option value='School or Teacher'>School or Teacher</option>";
+        addAnIdeaHtml += "				  <option value='Other'>Other</option>";
+        addAnIdeaHtml += "				</select>";
+        addAnIdeaHtml += "			</p>";
+        addAnIdeaHtml += "					</td>";
+        addAnIdeaHtml += "					<td>";
+        addAnIdeaHtml += "			<p id='addAnIdeaOtherSource' style='display:none'><label for='other'>Specify*: </label><input id='addAnIdeaOther' name='other' size='15' minlength='2' maxlength='25'></input></p>";
+        addAnIdeaHtml += "					</td>";
+        addAnIdeaHtml += "				</tr>";
+        addAnIdeaHtml += "			</table>";
+        addAnIdeaHtml += "			<p><label for='tags'>Tags (keywords): </label><input id='addAnIdeaTags' name='tags' size='20' maxlength='20'></input></p>";
+        addAnIdeaHtml += "				<p>";
+    	addAnIdeaHtml += "				<label for='flag'>Flag (choose one)*: </label>";
+    	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='blank' class='required' checked style='margin-left:0;'><span style='vertical-align:top; line-height:24px;'> None</span>";
+       	addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='important'><img src='images/ideaManager/important.png' alt='important' /><span style='vertical-align:top; line-height:24px;'>Important</span>";
+        addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='question'><img src='images/ideaManager/question.png' alt='question' /><span style='vertical-align:top; line-height:24px;'>Not Sure</span>";
+        //addAnIdeaHtml += "				<input type='radio' name='addAnIdeaFlag' value='check'><img src='images/ideaManager/check.png' alt='check' />";
+        addAnIdeaHtml += "				</p>";
+        addAnIdeaHtml += "	</fieldset>";
+        addAnIdeaHtml += "</form>";
+        
+        //insert the html into the popup
+        $('#addAnIdeaDiv').html(addAnIdeaHtml);
+        
+        //display or hide the specify other source field when Other is chosen or not chosen
+		$('#addAnIdeaSource').change(function(){
+			if($('#addAnIdeaSource').val()=='Other'){
+				$('#addAnIdeaOtherSource').show();
+				$('#addAnIdeaOther').addClass('required');
+			} else {
+				$('#addAnIdeaOtherSource').hide();
+				$('#addAnIdeaOther').removeClass('required');
+			}
+		});
+    }
 	
     // close all dialogs
     this.eventManager.fire('closeDialogs');
     
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');
-	
-	//display or hide the specify other source field when Other is chosen or not chosen
-	$('#addAnIdeaSource').change(function(){
-		if($('#addAnIdeaSource').val()=='Other'){
-			$('#addAnIdeaOtherSource').show();
-			$('#addAnIdeaOther').addClass('required');
-		} else {
-			$('#addAnIdeaOtherSource').hide();
-			$('#addAnIdeaOther').removeClass('required');
+};
+
+/**
+ * Get the array of attributes specified in the add idea dialog
+ * @returns attributes Array of attributes for the idea
+ */
+View.prototype.getIdeaAttributes = function(){
+	var attributes = [], form = $('#addAnIdeaForm'), mode = 'addAnIdea';
+	$('.attribute',form).each(function(){
+		var attribute = {};
+		var attrId = $(this).attr('id').replace(mode + '_attribute_','');
+		var type = '';
+		if($(this).hasClass('label')){
+			type = 'label';
+		} else if($(this).hasClass('source')){
+			type = 'source';
+		} else if($(this).hasClass('icon')){
+			type = 'icon';
+			attribute.value = $('[name=' + mode + '_' + type + '_' + attrId + ']:checked').val();
+		} if($(this).hasClass('tags')){
+			type = 'tags';
+			var tags = [];
+			$('[name=' + mode + '_' + type + '_' + attrId + ']:checked').each(function(){
+				tags.push($(this).val());
+			});
+			attribute.value = tags;
 		}
+		if(type=='label' || type=='source'){
+			if($('#' + mode + '_' + type + '_' + attrId).val() == 'Other'){
+				attribute.value = 'Other: ' + $('input[name="' + mode + '_other_' + attrId + '"]').val();
+			} else {
+				attribute.value = $('#' + mode + '_' + type + '_' + attrId).val();
+			} 
+		}
+		attribute.id = attrId, attribute.type = type;
+		attributes.push(attribute);
 	});
+	return attributes;
 };
 
 /**
  * Add the idea to the basket and save the basket back to the server
  */
 View.prototype.addIdeaToBasket = function() {
-	//get the values the student entered
-	var text = $('#addAnIdeaText').val();
+	var view = this;
+	var imVersion = 1;
+	if('ideaManagerSettings' in this.projectMetadata.tools){
+		imVersion = this.projectMetadata.tools.ideaManagerSettings.version;
+	}
 	
-	if(text == "") {
-		alert("Please enter text in the idea field");
-	} else {
-		
-		var source = $('#addAnIdeaSource').val();
-		if(source == 'empty'){
-			alert('Please select a source for your idea.');
-		} else {
-			var tags = $('#addAnIdeaTags').val();
-			var flag = $("input[@name=addAnIdeaFlag]:checked").val();
-			
-			//get the node id, node name and vle position for the step
-			var nodeId = this.getCurrentNode().id;
-			var nodeName = this.getCurrentNode().getTitle();
-			var vlePosition = this.getProject().getVLEPositionById(nodeId);
-			
-			//prepend the vlePosition so nodeName will now look something like "2.3: How Airbags Work"
-			nodeName = vlePosition + ": " + nodeName;
+	//get the node id, node name and vle position for the step
+	var nodeId = this.getCurrentNode().id;
+	var nodeName = this.getCurrentNode().getTitle();
+	var vlePosition = this.getProject().getVLEPositionById(nodeId);
 	
-			//get the idea basket
-			var ideaBasket = this.ideaBasket;
+	//prepend the vlePosition so nodeName will now look something like "2.3: How Airbags Work"
+	nodeName = vlePosition + ": " + nodeName;
+
+	//get the idea basket
+	var ideaBasket = this.ideaBasket;
+	
+	if(imVersion > 1){
+		if($("#addAnIdeaForm").validate().form()){
+			//get the values the student entered
+			var text = $('#addAnIdeaText').val();
+			var attributes = view.getIdeaAttributes();
 			
 			//create and add the new idea to the basket
-			ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
+			ideaBasket.addIdeaToBasketArrayV2(text,attributes,nodeId,nodeName);
 			
 			ideaBasket.saveIdeaBasket(this);
 			
@@ -739,6 +889,43 @@ View.prototype.addIdeaToBasket = function() {
 			
 			// update idea count on toolbar
 			ideaBasket.updateToolbarCount(1,true);
+		}
+	} else {
+		//get the values the student entered
+		var text = $('#addAnIdeaText').val();
+		
+		if(text == "") {
+			alert("Please enter text in the idea field");
+		} else {
+			
+			var source = $('#addAnIdeaSource').val();
+			if(source == "Other") {
+				var otherText = $('#addAnIdeaOther').val();
+				if(view.utils.isNonWSString(otherText)){
+					source = "Other: " + otherText;
+				} else {
+					alert("Please enter a source for your idea");
+					return;
+				}
+			}
+			
+			if(source == 'empty'){
+				alert('Please select a source for your idea.');
+			} else {
+				var tags = $('#addAnIdeaTags').val();
+				var flag = $("input[@name=addAnIdeaFlag]:checked").val();
+				
+				//create and add the new idea to the basket
+				ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);
+				
+				ideaBasket.saveIdeaBasket(this);
+				
+				//close the create an idea popup
+				$('#addAnIdeaDiv').dialog('close');		
+				
+				// update idea count on toolbar
+				ideaBasket.updateToolbarCount(1,true);
+			}
 		}
 	}
 };
@@ -852,7 +1039,11 @@ View.prototype.displayIdeaBasket = function() {
 			 * the ideaManager.html has already previously been loaded
 			 * so we just need to reload the idea basket contents
 			 */
-			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true);
+			var imSettings = null;
+			if('ideaManagerSettings' in this.projectMetadata.tools){
+				imSettings = this.projectMetadata.tools.ideaManagerSettings;
+			}
+			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, null, imSettings);
 		}		
 	}
 };
@@ -996,8 +1187,13 @@ View.prototype.loadIdeaBasket = function() {
 	//generate the JSON object for the idea basket
 	var ideaBasketJSONObj = $.parseJSON(ideaBasketJSON);
 	
+	var imSettings = null;
+	if('ideaManagerSettings' in this.projectMetadata.tools){
+		imSettings = this.projectMetadata.tools.ideaManagerSettings
+	}
+	
 	//load the idea basket into the iframe
-	window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this);
+	window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this, imSettings);
 };
 
 /**

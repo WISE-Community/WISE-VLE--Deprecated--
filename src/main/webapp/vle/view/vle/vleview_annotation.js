@@ -49,7 +49,7 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 			}
 		}
 		
-		var nodeAnnotationsString = "<div id='nodeAnnotations'>";
+		var nodeAnnotationsString = "<div id='nodeAnnotations' style='line-height:150%'>";
 
 		// if the node is cRater-enabled and there's feedback, show it instead of teacher feedback.
 		if (currentNode.content.getContentJSON().cRater) {
@@ -57,19 +57,19 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 			if (currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent) {
 				if (nodeAnnotationCRater != null) {
 					// get the score from the annotation
-					cRaterFeedbackStringSoFar += "You got a score of "+nodeAnnotationCRater.value[0].score+"<br/>";					
+					cRaterFeedbackStringSoFar += "You got a score of "+nodeAnnotationCRater.value[0].score+"<br/><br/>";					
 				}
 			}
 			if (currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent) {
 				// get the feedback that the student saw in the nodestate
-				if (this.state.getLatestWorkByNodeId(currentNode.id) != null) {
-					var cRaterFeedbackText = this.state.getLatestWorkByNodeId(currentNode.id).cRaterFeedbackText;
+				if (this.state.getLatestCRaterFeedbackByNodeId(currentNode.id) != null) {
+					var cRaterFeedbackText = this.state.getLatestCRaterFeedbackByNodeId(currentNode.id);
 					if (cRaterFeedbackText != null) {
-						cRaterFeedbackStringSoFar += "Feedback: "+cRaterFeedbackText+"<br/>";						
+						cRaterFeedbackStringSoFar += cRaterFeedbackText+"<br/>";						
 					}
 				}
 			}
-			cRaterFeedbackStringSoFar += "</span>";
+			cRaterFeedbackStringSoFar += "</span><br/>";
 			nodeAnnotationsString += cRaterFeedbackStringSoFar;
 		} else {
 			// otherwise, show the teacher score and feedback
@@ -78,10 +78,11 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 				nodeAnnotationsString += "<span class='nodeAnnotationsScore'>Score: "+nodeAnnotationScore.value+" out of "+ maxScoreForThisStep +"</span><br/><br/>";
 			}
 			if (nodeAnnotationComment != null && nodeAnnotationComment.value) {
-				nodeAnnotationsString += "<span class='nodeAnnotationsComment'>Comments: "+nodeAnnotationComment.value+"</span>";
+				nodeAnnotationsString += "<span class='nodeAnnotationsComment'>Comments: "+nodeAnnotationComment.value+"</span><br/>";
 			}
 		}
 		
+		nodeAnnotationsString += "<span class='nodeAnnotationsFooter' style='font-style:italic'>You can always view this feedback by clicking on the \"Feedback\" icon in the top right corner.</span>";
 		nodeAnnotationsString += "</div>";
 
 		//set the html into the div

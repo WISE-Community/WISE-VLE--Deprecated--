@@ -26,7 +26,7 @@ var studentVLEScripts = [
     scriptloader.jquerySrc,
 	scriptloader.jqueryUISrc,
 	'vle/jquery/jquery-validation/jquery.validate.min.js',
-	//'vle/jquery/js/jquery.form.js',
+	'vle/jquery/js/jquery.form.js',
 	'vle/jquery/js/jsonplugin.js',
 	'vle/jquery/jquery-tools/jquery.tools.tooltip.min.js',
 	'vle/ideaBasket/basket.js',
@@ -86,6 +86,7 @@ var dependencies = [
 	 */
 	{child:"vle/node/explanationbuilder/ExplanationBuilderNode.js", parent:["vle/node/Node.js"]},
 	{child:"vle/jquery/jquery-validation/jquery.validate.min.js", parent:[scriptloader.jquerySrc]},
+	{child:"vle/jquery/js/jquery.form.js", parent:[scriptloader.jquerySrc]},
 	{child:"vle/jquery/jquery-tools/jquery.tools.tooltip.min.js", parent:[scriptloader.jquerySrc]}
 ];
 

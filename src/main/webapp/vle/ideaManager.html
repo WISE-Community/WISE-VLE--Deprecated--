@@ -48,7 +48,7 @@
 	
 	<div id="container">
 		<header>
-			<h3>Ideas for this Project</h3>
+			<h3 id='basketTitle'>Ideas for this Project</h3>
 		</header>
 		  
 		<div id="main" role="main">
@@ -56,7 +56,7 @@
 				<span class="ui-button-text">Add New Idea +</span>
 			</button>
 			<div id='ideas'>
-				<table id='basketIdeas' class='tablesorter' cellspacing='1'>
+				<table id='basketIdeas' class='tablesorter'>
 					<thead>
 						<tr>
 							<th class='ideas' title='Click to sort'>Your Ideas</th>
@@ -74,11 +74,11 @@
 			</div>
 			
 			<div id='toggleDeleted'>
-				<img src='images/ideaManager/trash.png' alt='trash' /><span id='numDeleted' title='Show/Hide deleted ideas'>0 Deleted idea(s) </span><span id='showDeleted' title='Show/Hide deleted ideas'>(Click to show)</span><!--<img class='arrow' src='images/arrow.png' alt='arrow' />-->
+				<img src='images/ideaManager/trash.png' alt='trash' /><span id='numDeleted' title='Show/Hide deleted ideas'>Trash (0) </span><span id='showDeleted' title='Show/Hide deleted ideas'>(Click to show)</span><!--<img class='arrow' src='images/arrow.png' alt='arrow' />-->
 			</div>
 			
 			<div id='trash'>
-				<table id='basketDeleted' class='tablesorter' cellspacing='1'>
+				<table id='basketDeleted' class='tablesorter'>
 					<thead>
 						<tr>
 							<th class='ideas' title='Click to sort'>Deleted Ideas</th>
@@ -115,7 +115,7 @@
 						  <option value="Other">Other</option>
 						</select>
 					</p>
-					<p id='otherSource'><label for="other">Please specify*: </label><input id='other' name='other' size='25' minlength='2' maxlength='25'></textarea></p>
+					<p id='otherSource'><label for="other">Please specify*: </label><input type='text' id='other' name='other' size='25' minlength='2' maxlength='25'></input></p>
 					
 					<p><label for="tags">Tags (keywords): </label><input id='tags' name='tags' size='20' maxlength='20'></input></p>
 					<p>
@@ -133,7 +133,7 @@
 		<form class="cmxform" id="editForm" method="get" action="">
 			<fieldset>
 					<p><label for="editText">Type your idea here*:</label></p>
-					<p><textarea id="editText" name="text" rows='2' class="required" minlength="2" maxlength="150"></textarea></p>
+					<p><textarea id="editText" name="editText" rows='2' class="required" minlength="2" maxlength="150"></textarea></p>
 					<p style='height:24px; line-height:24px;'>
 						<label for="editSource">Source*: </label>
 						<select id="editSource" name="editSource" class="required" style='height:24px;'>
@@ -146,7 +146,7 @@
 						  <option value="Other">Other</option>
 						</select>
 					</p>
-					<p id='editOtherSource'><label for="editOther">Please specify*: </label><input id='editOther' name='editOther' size='25' minlength='2' maxlength='25'></textarea></p>
+					<p id='editOtherSource'><label for="editOther">Please specify*: </label><input type='text' id='editOther' name='editOther' size='25' minlength='2' maxlength='25'></input></p>
 					
 					<p><label for="editTags">Tags (keywords): </label><input id='editTags' name='editTags' size='20' maxlength='20'></input></p>
 					<p>

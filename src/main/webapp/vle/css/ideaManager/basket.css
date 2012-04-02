@@ -297,7 +297,7 @@ table.tablesorter th, table.tablesorter td {
 }
 
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-	background-color:#DFFFE0;
+	background-color:#F2FFE0;
 }
 
 #trash {
@@ -328,7 +328,23 @@ table#basketDeleted tbody tr {
 }
 
 table.tablesorter tbody tr:hover td {
-	background-color:#FAFCE5;
+	background-color:#f5f5f5;
+}
+
+table span.tag {
+	background-color: #E2E88D;
+    border: 1px solid #C5CD61;
+    border-radius: 2px 2px 2px 2px;
+    color: #585F0C;
+    font-size: 0.9em;
+    margin: 0 0.2em;
+    padding: 0.2em 0.25em;
+}
+
+table#basketDeleted span.tag {
+	color:red;
+	background-color:#FFDFE0;
+	border-color:red;
 }
 
 #ideasEmpty, #deletedEmpty {
@@ -336,7 +352,7 @@ table.tablesorter tbody tr:hover td {
 	font-size:.9em;
 }
 
-th.delete, th.flag {
+th.delete, th.flag, th.icon {
 	width:50px;
 }
 
@@ -369,7 +385,7 @@ th.tags {
 	width:125px;
 }
 
-th.source {
+th.source, th.label {
 	width:150px;
 }
 
@@ -379,7 +395,8 @@ th.source {
 	border:1px solid #ccc;
 }
 
-span.important, span.blank, span.question, span.check, span.delete, span.restore {
+span.important, span.blank, span.question, span.check, span.delete, span.restore,
+span.favorite, span.star_empty, span.star_half, span.star_full {
   background-repeat: no-repeat; 
   background-position: center center;
   height:24px;
@@ -402,6 +419,22 @@ span.check {
 
 span.blank {
 	background-image: url(../../images/ideaManager/blank.png);
+}
+
+span.favorite {
+	background-image: url(../../images/ideaManager/favorite.png);
+}
+
+span.star_empty {
+	background-image: url(../../images/ideaManager/star_empty.png);
+}
+
+span.star_half {
+	background-image: url(../../images/ideaManager/star_half.png);
+}
+
+span.star_full {
+	background-image: url(../../images/ideaManager/star_full.png);
 }
 
 #otherSource, #editOtherSource {
@@ -439,6 +472,38 @@ textarea#text, textarea#editText {
 	text-decoration:underline;
 	margin-right:10px;
 	color:#366097;
+}
+
+/* Dialogs */
+
+form div.attribute  {
+    padding: 0.5em 0.25em 0;
+}
+
+form div.text {
+	padding:0 .25em;
+}
+
+form div.attribute div {
+	line-height:24px;
+}
+
+form div.attribute.icon div img {
+	height:24px;
+	width:24px;
+}
+
+form div.attributeOther {
+	display:none;
+	margin-left:.5em;
+}
+
+form div.tags input, form div.icon input {
+	margin:0 .5em 0 .75em;
+}
+
+form select {
+	vertical-align:bottom;
 }
 
 

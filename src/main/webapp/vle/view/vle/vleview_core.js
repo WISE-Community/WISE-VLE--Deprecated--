@@ -241,9 +241,10 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		 */
 		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\")' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
 		$('#viewMyFiles').html(studentAssetsLink);
+		$('#viewMyFiles').show().css('display','inline');
 	} else if (runInfo.isStudentAssetUploaderEnabled != null &&
 			!runInfo.isStudentAssetUploaderEnabled) {
-		$('#viewMyFiles').remove();
+		$('#viewMyFiles').hide();
 	}
 	
 	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
@@ -254,8 +255,9 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title='Add New Idea'>"+this.getI18NString("addidea_button_text")+"</a>";
 		$("#viewIdeaBasket").html(ideaBasketLink);
 		$("#addIdea").html(addIdeaLink);
+		$("#ideaBasketLinks").show().css('display','inline');
 	} else {
-		$("#ideaBasketLinks").remove();
+		$("#ideaBasketLinks").hide();
 	}
 };
 /**
@@ -464,7 +466,11 @@ View.prototype.onThemeLoad = function(){
 	
 	if(this.config.getConfigParam('mode') == "portalpreview") {
 		//we are previewing the project so we will create a dummy idea basket
-		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}');
+		var imSettings = null;
+		if('ideaManagerSettings' in this.projectMetadata.tools){
+			imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		}
+		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,imSettings);
 	}
 	
 	this.renderStartNode();

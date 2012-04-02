@@ -1112,8 +1112,8 @@ View.prototype.editProjectMetadata = function(){
 			$('#projectMetadataTechDetails').attr('value', this.utils.resolveNullToEmptyString(this.projectMeta.techReqs.techDetails));
 		}
 		
-		// initialize idea manager settings object
-		var imSettings = {};
+		// initialize idea manager settings object and IM version
+		var imSettings = {}, imVersion = '1';
 		
 		if (this.projectMeta.tools != null) {
 			var tools = this.projectMeta.tools;
@@ -1121,7 +1121,6 @@ View.prototype.editProjectMetadata = function(){
 			//determine if enable idea manager needs to be checked
 			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
 				$("#enableIdeaManager").attr('checked', true);
-				$('#ideaManagerSettings').show();
 			}
 
 			//determine if enable student asset uploader needs to be checked
@@ -1129,14 +1128,37 @@ View.prototype.editProjectMetadata = function(){
 				$("#enableStudentAssetUploader").attr('checked', true);
 			}
 			
+			// get Idea Manager version
+			if('ideaManagerVersion' in tools){
+				imVersion = tools.ideaManagerVersion;
+			}
+			
 			// get Idea Manager settings
 			if ('ideaManagerSettings' in tools){
 				imSettings = tools.ideaManagerSettings;
+				if('version' in tools.ideaManagerSettings){
+					imVersion = tools.ideaManagerSettings;
+				}
 			}
 		}
 		
-		//populate Idea Manager settings
-		this.populateIMSettings(imSettings);
+		if(this.projectHasRun && parseInt(imVersion) < 2){
+			// project has run in classroom and uses older version of Idea Manager, so remove IM v2 settings panel
+			$('#ideaManagerSettings').remove();
+		} else {
+			// since project hasn't run and Idea Manager version hasn't been set < 2, we can use IM v2 for this project
+			imVersion = '2';
+			// set version as attribute of enable IM checkbox (will be read and stored when saving project metadata)
+			$('#enableIdeaManager').attr('version',imVersion);
+			
+			// if Idea Manager is enabled, show settings panel
+			if($('#enableIdeaManager').is(':checked')){
+				$('#ideaManagerSettings').show();
+			}
+			
+			//populate Idea Manager settings
+			this.populateIMSettings(imSettings);
+		}
 		
 		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
 		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
@@ -1192,14 +1214,14 @@ View.prototype.populateIMSettings = function(settings){
 		// idea attributes have been previously set, so get and populate
 		var attributes = settings.ideaAttributes;
 		for(var i=0; i<attributes.length; i++){
-			var type = attribute[i].type;
-			var options = attribtue[i].options;
-			var name = attribute[i].name;
-			var isRequired = attribute[i].isRequired;
-			var id = attribute[i].id;
+			var type = attributes[i].type;
+			var options = attributes[i].options;
+			var name = attributes[i].name;
+			var isRequired = attributes[i].isRequired;
+			var id = attributes[i].id;
 			var allowCustom = null;
-			if('allowCustom' in attribute[id]){
-				allowCutsom = attribute[id].allowCustom;
+			if('allowCustom' in attributes[i]){
+				allowCustom = attributes[i].allowCustom;
 			}
 			view.addIdeaAttribute(type,options,name,isRequired,allowCustom,null,id);
 		}
@@ -1253,8 +1275,8 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		
 		// bind delete link click event
 		$('.delete',newInput).click(function(){
-			if($('.option', target).length == 1){
-				alert('You must specify at least one (1) option for this attribute.');
+			if($('.option', target).length == 2){
+				alert('You must specify at least two (2) options for this attribute.');
 				return;
 			}
 			newInput.fadeOut(function(){
@@ -1304,6 +1326,15 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			} else {
 				choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
 			}
+			
+			// insert add more link and bind click
+			var moreLink = $("<p class='add'><a>Add more +</a></p>");
+			choices.append(moreLink);
+			$('a',moreLink).click(function(){
+				addOption(choices,'');
+			});
+			
+			// insert saved options
 			if(options && options.length > 0){
 				for(var i=0;i<options.length;i++){
 					if(typeof options[i] == 'string' && count<11){
@@ -1312,14 +1343,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 					}
 				}
 			}
-			if(count<10){
-				// there are less than 10 options set, so we can show an add more link
-				var moreLink = $("<p class='add'><a>Add more +</a></p>");
-				choices.append(moreLink);
-				$('a',moreLink).click(function(){
-					addOption(choices,'');
-				});
-			}
+			
 			if (count == 0){
 				// no valid options were set, so add default options
 				var defaults = [];
@@ -1334,6 +1358,17 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				for(var a=0;a<defaults.length;a++){
 					addOption(choices,defaults[a]);
 				}
+			} else if (count == 1){
+				// only one option was set, so add a default second option (minimum of two options allowed for these attribute types)
+				var choice = '';
+				if(type=='source'){
+					choice = 'Source2';
+				} else if (type=='tags'){
+					choice = 'Tag2';
+				} else if (type=='label'){
+					choice = 'Label2';
+				}
+				addOption(choices,choice);
 			}
 			
 			// make options sortable
@@ -1344,7 +1379,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		} else if(type=='icon'){
 			choices = $(document.createElement('div')).addClass('options').attr('id','options_' + id);
 			choices.append('<p>Options<span class="details">(students choose 1)</span>:</p>');
-			var icons = {'blank':'None','important':'Important','question':'Not Sure','check':'Check Mark','favorite':'Favorite/Star','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
+			var icons = {'blank':'None','important':'Important','question':'Not Sure','check':'Check','favorite':'Favorite','star_empty':'Star Empty','star_half':'Star Half Full','star_full':'Star Full'};
 			for(key in icons){
 				var option = $("<div class='optionWrapper'><input type='checkbox' class='option' value='" + key + "' /><img class='icon' src='images/ideaManager/" + key + ".png' alt='" + key + "' />" + icons[key] + "</div>");
 				choices.append(option);
@@ -1402,7 +1437,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				newAttribute.append(custom);
 			}
 			// remove empty class and add active class
-			newAttribute.removeClass('empty').addClass('active').addClass(type);
+			newAttribute.removeClass('empty').addClass('active').attr('type',type);
 			
 			// bind attribute delete link click event (with confirm dialog)
 			$('.delete', header).click(function(){
@@ -1460,6 +1495,7 @@ View.prototype.deleteIdeaAttribute = function(target){
 View.prototype.onProjectLoaded = function(){
 	if(this.cleanMode){
 		this.retrieveMetaData();
+		this.retrieveProjectRunStatus();
 		eventManager.fire('cleanProject');
 	} else {
 		//make the top project authoring container visible (where project title shows up)
@@ -1521,6 +1557,8 @@ View.prototype.onProjectLoaded = function(){
 	
 		this.retrieveMetaData();
 		
+		this.retrieveProjectRunStatus();
+		
 		//add these two params to the config
 		this.getConfig().setConfigParam('getContentUrl', this.getProject().getUrl());
 		this.getConfig().setConfigParam('getContentBaseUrl', this.getProject().getContentBase());
@@ -1532,6 +1570,43 @@ View.prototype.onProjectLoaded = function(){
 		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 3);
 	}
 };
+
+/**
+ * Checks whether project has been run in classrooms
+ * @returns Boolean
+ */
+View.prototype.retrieveProjectRunStatus = function(){
+	if(this.mode == "portal") {
+		var requestParams = {
+			"projectId":this.portalProjectId,
+			"command":"getNumberOfRuns"
+		};
+		this.connectionManager.request('GET', 1, '/webapp/teacher/projects/projectinfo.html', requestParams, this.retrieveProjectRunStatusSuccess, this, this.retrieveProjectRunStatusFailure);
+	} else {
+		this.projectHasRun = false;
+	}
+	
+};
+
+/**
+ * Success callback for project run check
+ */
+View.prototype.retrieveProjectRunStatusSuccess = function(text,xml,o) {
+	var numRuns = parseInt(text);
+	if(numRuns > 0){
+		o.projectHasRun = true;
+	} else {
+		o.projectHasRun = false;
+	}
+};
+
+/**
+ * Failure callback for project run check
+ */
+function retrieveProjectRunStatusFailure(c,o) {
+	o.notificationManager.notify('Error retrieving run listing for this project. Assuming project has not been run.', 2);
+	o.projectHasRun = false;
+}
 
 /**
  * Notifies portal that this user is now authoring this project
