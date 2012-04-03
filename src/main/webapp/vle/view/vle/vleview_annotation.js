@@ -52,7 +52,9 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 		var nodeAnnotationsString = "<div id='nodeAnnotations' style='line-height:150%'>";
 
 		// if the node is cRater-enabled and there's feedback, show it instead of teacher feedback.
-		if (currentNode.content.getContentJSON().cRater) {
+		if (currentNode.content.getContentJSON().cRater && 
+				(currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent ||
+						currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent)) {
 			var cRaterFeedbackStringSoFar = "<span class='nodeAnnotationsCRater'>";
 			if (currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent) {
 				if (nodeAnnotationCRater != null) {
