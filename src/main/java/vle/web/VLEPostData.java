@@ -2,7 +2,9 @@ package vle.web;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,35 @@ import vle.domain.work.StepWork;
 public class VLEPostData extends VLEServlet {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static Properties vleProperties = null;
+	
+	// max size for all nodes allowed to have default student work size, in bytes. Default:  50K=51200 bytes 
+	private int studentMaxWorkSizeDefault = 51200;
+
+	// max size for all nodes allowed to have large student work size, in bytes. Default: 250K=256000 bytes
+	private int studentMaxWorkSizeLarge = 256000;
+
+	private ArrayList<String> nodesWithLargeStudentWork = null;
+	
+	{
+		try {
+			// Read properties file.
+			vleProperties = new Properties();
+			vleProperties.load(getClass().getClassLoader().getResourceAsStream("vle.properties"));
+			studentMaxWorkSizeDefault = Integer.valueOf(vleProperties.getProperty("student_max_work_size_default", "51200"));
+			studentMaxWorkSizeLarge = Integer.valueOf(vleProperties.getProperty("student_max_work_size_large", "256000"));	
+			String nodes_with_large_student_work = vleProperties.getProperty("nodes_with_large_student_work", "SVGDrawNode,Mysystem2Node");
+			String[] nodes_with_large_student_work_array = nodes_with_large_student_work.split(",");
+			nodesWithLargeStudentWork = new ArrayList<String>();
+			for (int i=0; i < nodes_with_large_student_work_array.length; i++) {
+				nodesWithLargeStudentWork.add(nodes_with_large_student_work_array[i]);
+			}
+		} catch (Exception e) {
+			System.err.println("VLEPostData could not read in vleProperties file");
+			e.printStackTrace();
+		}
+	}
 	
 	public void doPost(HttpServletRequest request,
 			HttpServletResponse response)
@@ -85,14 +116,17 @@ public class VLEPostData extends VLEServlet {
 			//obtain the node type from the json node visit
 			String nodeType = VLEDataUtils.getNodeType(nodeVisitJSON);
 			
-			if (nodeType.equals("SVGDrawNode")) {
-				if (request.getContentLength() > (1024*250)) {  // posted data must not exceed 250K
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "post data: too large (>250k)");
+			// check if student's posted data size is under the limit of the specific node type.
+			if (nodesWithLargeStudentWork.contains(nodeType)) {
+				if (request.getContentLength() > studentMaxWorkSizeLarge) {  // posted data must not exceed STUDENT_MAX_WORK_SIZE_LARGE
+					System.err.println("post data: too large (>"+studentMaxWorkSizeLarge+" bytes)");
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "post data: too large (>"+studentMaxWorkSizeLarge+" bytes)");
 					return;
 				}
 			} else {
-				if (request.getContentLength() > (1024*50)) {  // posted data must not exceed 50K
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "post data: too large (>50k)");
+				if (request.getContentLength() > studentMaxWorkSizeDefault) {  // posted data must not exceed STUDENT_MAX_WORK_SIZE_DEFAULT
+					System.err.println("post data: too large (>"+studentMaxWorkSizeDefault+" bytes)");
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "post data: too large (>"+studentMaxWorkSizeDefault+" bytes)");
 					return;
 				}
 			}
