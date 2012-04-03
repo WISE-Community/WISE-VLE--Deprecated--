@@ -106,7 +106,7 @@ Mysystem2Node.prototype.renderGradingView = function(divId, nodeVisit, childDivI
 	 * how one might use it.
 	 */
 	var stepWorkId = nodeVisit.id;
-	
+
 	// get content
     var contentString = this.getContent().getContentString();
     var contentJSON = this.getContent().getContentJSON();

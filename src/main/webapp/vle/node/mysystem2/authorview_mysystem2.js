@@ -51,11 +51,11 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : 4f8537517b3688bc26af30ecaa60ab8add6a3cfb ");
-  var git_time        = document.createTextNode("commit time : Wed Feb 15 16:57:54 2012 -0500 ");
-  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, styleFeedback, master) ");
-  var sc_build_time   = document.createTextNode("build time  : 2012-02-15 17:44:12 -0500 ");
-  var sc_build_number = document.createTextNode("build no.   : fb78d358c0edd6c9958a470485df4e3499c9dfc6 ");
+  var git_sha         = document.createTextNode("commit sha  : 0a253a888865bd6d64a71ff179e13a223a27d137 ");
+  var git_time        = document.createTextNode("commit time : Mon Mar 26 17:13:16 2012 -0400 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master, html_feedback) ");
+  var sc_build_time   = document.createTextNode("build time  : 2012-03-27 14:16:36 -0400 ");
+  var sc_build_number = document.createTextNode("build no.   : 4141c7168d204c8cc5d3591ffdc8944c4b6e6dbb ");
   
   git_sha_div.appendChild(git_sha);
   git_time_div.appendChild(git_time);
@@ -114,18 +114,7 @@ View.prototype.Mysystem2Node.populatePrompt = function() {
  * Updates the html with the user entered prompt
  */
 View.prototype.Mysystem2Node.updatePrompt = function(){
-	/* update content */
-	var content = '';
-	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
-		content = $('#promptInput').tinymce().getContent();
-	} else {
-		content = $('#promptInput').val();
-	}
-	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
-	var assetPath = this.view.getProjectFolderPath() + 'assets/';
-	var assetPathExp = new RegExp(assetPath,"gi");
-	content.replace(assetPathExp,"assets/");
-	this.content.prompt = content;
+  this.content.prompt = document.getElementById('promptInput').value;
 
   /* fire source updated event */
   this.view.eventManager.fire('sourceUpdated');
