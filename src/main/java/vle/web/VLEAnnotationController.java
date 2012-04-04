@@ -398,6 +398,9 @@ public class VLEAnnotationController extends HttpServlet {
 			try {
 				//only one annotation will be returned
 				annotationsJSONObj = new JSONObject(annotation.getData());
+				
+				//add the postTime
+				annotationsJSONObj.put("postTime", annotation.getPostTime().getTime());
 			} catch (JSONException e) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "error retrieving annotations");
 				e.printStackTrace();

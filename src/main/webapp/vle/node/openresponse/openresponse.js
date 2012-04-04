@@ -189,6 +189,18 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 */
 					orState.isCRaterSubmit = true;
 				}
+				
+				if(!checkAnswer && this.content.cRater != null && 
+						(this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) 
+						&& this.content.cRater.maxCheckAnswers != null && !this.isCRaterMaxCheckAnswersUsedUp()) {
+					/*
+					 * the student has clicked the save button or made changes and is moving to another step
+					 * and we are displaying CRater score or feedback immediately to the student
+					 * and the student still has check answer submits left so we will display
+					 * a popup to remind them to click the check answer button
+					 */
+					alert("If you are ready to check your answer, click the 'Check Answer' button.");
+				}
 			}
 
 			if(saveAndLock) {
@@ -258,7 +270,27 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 */
 					this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());					
 				}
-				this.setCheckAnswerUnavailable();
+				
+				if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+					//student has used up all of their CRater check answer submits so we will disable the check answer button
+					this.setCheckAnswerUnavailable();
+				} else {
+					//the student still has check answer submits available
+					this.setCheckAnswerAvailable();
+				}
+				
+				if(this.content.showPreviousWorkThatHasCRaterAnnotation) {
+					/*
+					 * move the current work to the previous work response box
+					 * because we want to display the previous work to the student
+					 * and have them re-write another response after they
+					 * receive the immediate CRater feedback
+					 */
+					this.showPreviousWorkThatHasCRaterAnnotation($('#responseBox').val());
+					
+					//clear the response box so they will need to write a new response
+					$('#responseBox').val('');
+				}
 			}
 
 		};
@@ -548,6 +580,9 @@ OPENRESPONSE.prototype.render = function() {
 		if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
 			//student has used up all of their CRater check answer submits so we will disable the check answer button
 			this.setCheckAnswerUnavailable();
+		} else {
+			//the student still has check answer submits available so we will enable the check answer button
+			this.setCheckAnswerAvailable();
 		}
 	}
 	
@@ -656,6 +691,16 @@ OPENRESPONSE.prototype.render = function() {
 		this.displayRegular();
 	}
 	
+	if(this.content.showPreviousWorkThatHasCRaterAnnotation) {
+		//show the previous work that has a CRater annotation
+		this.showPreviousWorkThatHasCRaterAnnotation();
+	}
+	
+	if(this.content.showPreviousWorkThatHasTeacherCommentAnnotation) {
+		//show the previous work that has a teacher comment annotaiton
+		this.showPreviousWorkThatHasTeacherCommentAnnotation();
+	}
+	
 	if (this.content.isLockAfterSubmit) {
 		// this node is set to lock after the student submits the answer. show saveAndLock button
 		$("#saveButton").hide();
@@ -669,6 +714,106 @@ OPENRESPONSE.prototype.render = function() {
 	} else {
 		//make the save and lock button clickable
 		this.setSaveAndLockAvailable();
+	}
+};
+
+/**
+ * Show the previous work that has had a CRater annotation.
+ * @param previousResponse an optional argument which is the previous work which
+ * we will show without having to look it up
+ */
+OPENRESPONSE.prototype.showPreviousWorkThatHasCRaterAnnotation = function(previousResponse) {
+	if(previousResponse != null) {
+		//display the previous response div
+		$('#previousResponseDisplayDiv').show();
+		
+		//set the previous response
+		$('#previousResponseBox').val(previousResponse);
+	} else {
+		//get the annotation attributes that we will use to look up the CRater annotation
+		var runId = this.view.getConfig().getConfigParam('runId');
+		var nodeId = this.view.currentNode.id;
+		var toWorkgroup = this.view.getUserAndClassInfo().getWorkgroupId();
+		var fromWorkgroups = [-1];
+		var type = 'cRater';
+		var stepWorkId = null;
+
+		//get the latest CRater annotation for this step
+		var latestCRaterAnnotation = this.view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
+		
+		if(latestCRaterAnnotation != null) {
+			if(latestCRaterAnnotation.value != null && latestCRaterAnnotation.value.length > 0) {
+				//get the annotation value which contains the student response submitted to CRater
+				var latestCRaterValue = latestCRaterAnnotation.value[latestCRaterAnnotation.value.length - 1];
+				
+				if(latestCRaterValue != null && latestCRaterValue.studentResponse != null && latestCRaterValue.studentResponse.response != null) {
+					//get the student response
+					var response = this.node.getStudentWorkString(latestCRaterValue.studentResponse.response);
+					
+					//display the previous response div
+					$('#previousResponseDisplayDiv').show();
+					
+					//set the student response into the previous response disabled textarea
+					$('#previousResponseBox').val(response);
+				}
+			}
+		}		
+	}
+};
+
+/**
+ * Show the previous work that has had a teacher comment annotation.
+ * @param previousResponse an optional argument which is the previous work which
+ * we will show without having to look it up
+ */
+OPENRESPONSE.prototype.showPreviousWorkThatHasTeacherCommentAnnotation = function(previousResponse) {
+	if(previousResponse != null) {
+		//display the previous response div
+		$('#previousResponseDisplayDiv').show();
+		
+		//set the previous response
+		$('#previousResponseBox').val(previousResponse);
+	} else {
+		//get the annotation attributes that we will use to look up the teacher comment annotation
+		var runId = this.view.getConfig().getConfigParam('runId');
+		var nodeId = this.view.currentNode.id;
+		var toWorkgroup = this.view.getUserAndClassInfo().getWorkgroupId();
+		var fromWorkgroups = this.view.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+		var type = 'comment';
+		var stepWorkId = null;
+		
+		//get the latest teacher comment annotation for this step
+		var latestTeacherCommentAnnotation = this.view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
+		
+		if(latestTeacherCommentAnnotation != null) {
+			//get the step work id that the annotation was for
+			var stepWorkId = latestTeacherCommentAnnotation.stepWorkId;
+			
+			//get the node visit with the stepw work id
+			var nodeVisit = this.view.state.getNodeVisitById(stepWorkId);
+			
+			if(nodeVisit != null) {
+				//get all the node states in the node visit
+				var nodeStates = nodeVisit.nodeStates;
+				
+				if(nodeStates != null && nodeStates.length != 0) {
+					//get the last node state
+					var nodeState = nodeStates[nodeStates.length - 1];
+					
+					if(nodeState != null) {
+						//get the student response
+						var response = nodeState.response;
+						response = this.node.getStudentWorkString(response);
+						
+						//display the previous response div
+						$('#previousResponseDisplayDiv').show();
+						
+						//set the student response into the previous response disabled textarea
+						$('#previousResponseBox').val(response);
+					}
+				}
+			}
+		}
 	}
 };
 

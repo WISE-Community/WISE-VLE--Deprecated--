@@ -27,6 +27,10 @@ View.prototype.openResponseDispatcher = function(type,args,obj){
 		obj.OpenResponseNode.peerReviewAuthoredReviewUpdated();
 	} else if(type=='openResponsePeerReviewStepNotOpenCustomMessageUpdated'){
 		obj.OpenResponseNode.peerReviewStepNotOpenCustomMessageUpdated();
+	} else if(type=='openResponseUpdateShowPreviousWorkThatHasCRaterScore'){
+		obj.OpenResponseNode.updateShowPreviousWorkThatHasCRaterScore();
+	} else if(type=='openResponseUpdateShowPreviousWorkThatHasTeacherComment'){
+		obj.OpenResponseNode.updateShowPreviousWorkThatHasTeacherComment();
 	};
 };
 
@@ -42,7 +46,9 @@ var events = [
 	'openResponsePeerReviewPercentageTriggerUpdated',
 	'openResponsePeerReviewNumberTriggerUpdated',
 	'openResponsePeerReviewAuthoredReviewUpdated',
-	'openResponsePeerReviewStepNotOpenCustomMessageUpdated'
+	'openResponsePeerReviewStepNotOpenCustomMessageUpdated',
+	'openResponseUpdateShowPreviousWorkThatHasCRaterScore',
+	'openResponseUpdateShowPreviousWorkThatHasTeacherComment'
 ];
 
 /*

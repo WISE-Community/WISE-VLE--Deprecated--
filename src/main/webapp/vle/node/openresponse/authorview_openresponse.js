@@ -55,6 +55,22 @@ View.prototype.OpenResponseNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
 	pageDiv.appendChild(createBreak());
+	
+	//add the checkbox for showing previous work that has a CRater score
+	pageDiv.appendChild(document.createTextNode("Show previous work that has CRater score "));
+	var showPreviousWorkThatHasCRaterScore = createElement(document, 'input', {id: 'showPreviousWorkThatHasCRaterScore', type: 'checkbox', onclick: 'eventManager.fire("openResponseUpdateShowPreviousWorkThatHasCRaterScore")'});
+	pageDiv.appendChild(showPreviousWorkThatHasCRaterScore);	
+	showPreviousWorkThatHasCRaterScore.checked = this.content.showPreviousWorkThatHasCRaterAnnotation;
+	
+	pageDiv.appendChild(createBreak());
+	
+	//add the checkbox for showing the previous work that has a teacher comment
+	pageDiv.appendChild(document.createTextNode("Show previous work that has teacher comment "));
+	var showPreviousWorkThatHasTeacherComment = createElement(document, 'input', {id: 'showPreviousWorkThatHasTeacherComment', type: 'checkbox', onclick: 'eventManager.fire("openResponseUpdateShowPreviousWorkThatHasTeacherComment")'});
+	pageDiv.appendChild(showPreviousWorkThatHasTeacherComment);
+	showPreviousWorkThatHasTeacherComment.checked = this.content.showPreviousWorkThatHasTeacherCommentAnnotation;
+	
+	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createElement(document, 'div', {id: 'cRaterContainer'}));
 	
 	parent.appendChild(pageDiv);
@@ -983,6 +999,48 @@ View.prototype.OpenResponseNode.updateCRaterMaxCheckAnswers = function() {
 
 View.prototype.OpenResponseNode.populateStudentResponseBoxSize = function() {
 	$('#studentResponseBoxSizeInput').val(this.content.assessmentItem.interaction.expectedLines);
+};
+
+/**
+ * Update the showPreviousWorkThatHasCRaterAnnotation value
+ */
+View.prototype.OpenResponseNode.updateShowPreviousWorkThatHasCRaterScore = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#showPreviousWorkThatHasCRaterScore').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.showPreviousWorkThatHasCRaterAnnotation = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the showPreviousWorkThatHasTeacherCommentAnnotation value
+ */
+View.prototype.OpenResponseNode.updateShowPreviousWorkThatHasTeacherComment = function() {
+	var value = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#showPreviousWorkThatHasTeacherComment').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.showPreviousWorkThatHasTeacherCommentAnnotation = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 //used to notify scriptloader that this script has finished loading
