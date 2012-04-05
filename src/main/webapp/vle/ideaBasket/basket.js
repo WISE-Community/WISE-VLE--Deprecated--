@@ -929,12 +929,28 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 			//get the node id
 			var nodeId = stepsUsedIn[x];
 			
+			var view = null;
+				
+			if(parent.frames['ideaBasketIfrm'] == null) {
+				/*
+				 * get the view from this object. this case is used in idea basket 
+				 * steps and explanation builder steps.
+				 */
+				view = this.view;
+			} else {
+				/*
+				 * get the view from the frame. this case is used in the global
+				 * idea basket popup.
+				 */
+				view = parent.frames['ideaBasketIfrm'].thisView;
+			}
+			
 			//get the node
-			var node = parent.frames['ideaBasketIfrm'].thisView.getProject().getNodeById(nodeId);
+			var node = view.getProject().getNodeById(nodeId);
 			
 			if(node != null) {
 				//get the node position
-				var vlePosition = parent.frames['ideaBasketIfrm'].thisView.getProject().getVLEPositionById(nodeId);
+				var vlePosition = view.getProject().getVLEPositionById(nodeId);
 				
 				//get the node title
 				var title = node.title;
