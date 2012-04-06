@@ -44,13 +44,12 @@ function IdeaBasket(ideaBasketJSONObj, createForStep, node, settings) {
 	this.nextIdeaId = 1;
 	this.version = 1;
 	this.settings = null;
-	this.settingsProcessed = false;
 	
 	// set Idea Manager settings and version
 	if(settings){
 		this.settings = settings;
 		if('version' in settings){
-			this.version = settings.version;
+			this.version = Number(settings.version);
 		}
 	}
 	
@@ -134,11 +133,42 @@ IdeaBasket.prototype.init = function(context) {
  * Load the ideas into the tables in the interface
  * @param ideaBasketJSONObj the JSON object to populate the data from
  * @param generateUI boolean value whether to generate the UI
+ * @param view VLE View intstance object
  */
-IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings) {
+IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, view) {
 	if(settings){
 		this.settings = settings;
-		this.version = settings.version;
+		this.version = Number(settings.version);
+	}
+	
+	if(view){
+		this.view = view;
+	}
+	
+	if(this.view){
+		// set text for customizable terms based on settings or default i18n string
+		this.ideaTerm = this.view.getI18NString('idea');
+		this.ideaTermPlural = this.view.getI18NString('idea_plural');
+		this.basketTerm = this.view.getI18NString('idea_basket');
+		this.ebTerm = this.view.getI18NString('explanation_builder');
+		this.addIdeaTerm = this.view.getI18NString('idea_basket_add_an_idea');
+		if(this.version > 1){
+			if('ideaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.ideaTerm)){
+				this.ideaTerm = this.settings.ideaTerm;
+			}
+			if('ideaTermPlural' in this.settings && this.view.utils.isNonWSString(this.settings.ideaTermPlural)){
+				this.ideaTermPlural = this.settings.ideaTermPlural;
+			}
+			if('basketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.basketTerm)){
+				this.basketTerm = this.settings.basketTerm;
+			}
+			if('ebTerm' in this.settings && this.view.utils.isNonWSString(this.settings.ebTerm)){
+				this.ebTerm = this.settings.ebTerm;
+			}
+			if('addIdeaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.addIdeaTerm)){
+				this.addIdeaTerm = this.settings.addIdeaTerm;
+			}
+		}
 	}
 	/*
 	 * ideaBasketJSONObj will be null in authoring preview step in which case
@@ -276,9 +306,13 @@ IdeaBasket.prototype.processSettingsUI = function(){
 	var context = this;
 	
 	if(this.version > 1){
-		// we only need to update the DOM if using Idea Manager v2 or greater
+		// we only need to update the DOM and terminology if using Idea Manager v2 or greater
 		
 		var settings = this.settings;
+		
+		$('#basketTitle').text(this.view.utils.capitalize(this.ideaTermPlural) + ' for this Project');
+		$('#addNew > span').text(this.addIdeaTerm + ' +');
+		$('#ideasEmpty').text('Your ' + this.basketTerm + ' is empty.  Click "' + this.addIdeaTerm + '" above to start adding ' + this.ideaTermPlural + '.');
 		
 		// clear add and edit idea forms, idea tables
 		var ideaDialog = $('#ideaForm > fieldset').html('');
@@ -288,18 +322,18 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		
 		// insert text input and label for add and edit idea dialogs
 		var ideaText = $(document.createElement('div')).addClass('text');
-		ideaText.append('<div><label for="text">Type your idea here*:</label></div>');
+		ideaText.append('<div><label for="text">Type your ' + this.ideaTerm + ' here*:</label></div>');
 		ideaText.append('<div><textarea id="text" name="text" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
 		ideaDialog.append(ideaText);
 		
 		var editText = $(document.createElement('div')).addClass('text');
-		editText.append('<div><label for="editText">Type your idea here*:</label></div>');
+		editText.append('<div><label for="editText">Type your ' + this.ideaTerm + ' here*:</label></div>');
 		editText.append('<div><textarea id="editText" name="editText" rows="2" class="required" minlength="2" maxlength="150"></textarea></div>');
 		editDialog.append(editText);
 		
 		// insert idea text columns for idea tables
-		ideaTable.append("<th class='ideas' title='Click to sort'>Your Ideas</th>");
-		deletedTable.append("<th class='ideas' title='Click to sort'>Deleted Ideas</th>");
+		ideaTable.append("<th class='ideas' title='Click to sort'>Your " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
+		deletedTable.append("<th class='ideas' title='Click to sort'>Deleted " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
 		
 		// insert attribute inputs for add and edit idea dialogs, as well as table attribute columns based on settings
 		for (var i=0;i<settings.ideaAttributes.length;i++){
@@ -316,7 +350,6 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		ideaTable.append('<th class="delete">Delete</th>');
 		deletedTable.append('<th class="delete">Restore</th>');
 		
-		// set terminology based on settings (TODO)
 		
 	} else {
 		// set up add and idea form validation and 'other' select change event
@@ -346,7 +379,8 @@ IdeaBasket.prototype.processSettingsUI = function(){
 	}
 	
 	// set up add idea dialog
-	$('#ideaDialog').dialog({title:'Add New Idea to Basket', autoOpen:false, modal:true, resizable:false, width:'470',
+	var title = 'Add New ' + this.view.utils.capitalize(this.ideaTerm);
+	$('#ideaDialog').dialog({title:title, autoOpen:false, modal:true, resizable:false, width:'470',
 		buttons:{
 			"OK": function(){	
 				if($("#ideaForm").validate().form()){
@@ -590,13 +624,13 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 	var table = $('#basketIdeas tbody');
 	var link = 'delete';
 	var title = 'Click and drag to re-order, Double click to edit';
-	var linkText = idea.text +	'<span class="editLink" title="Edit idea">Edit</span>';
+	var linkText = idea.text +	'<span class="editLink" title="Edit ' + this.view.utils.capitalize(this.ideaTerm) + '">Edit</span>';
 	if (target===1){
 		currTable = 'deleted';
 		//table = this.deletedTable;
 		table = $('#basketDeleted tbody');
 		link = 'restore';
-		title = 'Click on the + icon to take this idea out of the trash';
+		title = 'Click on the + icon to take this ' + this.ideaTerm + ' out of the trash';
 		linkText = idea.text;
 	}
 	var html = '';
@@ -625,7 +659,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 			}
 			html.append(newTD);
 		}
-		html.append('<td><span class="' + link + '" title="' + link + ' idea"></span></td>');
+		html.append('<td><span class="' + link + '" title="' + link + ' ' + this.ideaTerm + '"></span></td>');
 	} else {
 		if(idea.tags && idea.tags != 'undefined'){
 			var tags = idea.tags;
@@ -635,7 +669,7 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 		html = '<tr id="' + currTable + idea.id + '" title="' + title + '"><td><div class="ideaText">' + linkText +
 			'</div></td><td>' + idea.source + '</td>' +	'<td><div class="ideaTags">' + tags +
 			'</div></td>' + '<td style="text-align:center;"><span title="' +idea.flag +	'" class="' + idea.flag + '"></span></td>'+
-			'<td style="text-align:center;"><span class="' + link + '" title="' + link + ' idea"></span></td></tr>';
+			'<td style="text-align:center;"><span class="' + link + '" title="' + link + ' ' + this.ideaTerm + '"></span></td></tr>';
 	}
 
 	table.prepend(html);
@@ -774,8 +808,8 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 			}
 		}
 	}
-	
-	$('#editDialog').dialog({ title:'Edit Your Idea', modal:true, resizable:false, width:'470',
+	var title = 'Edit Your ' + this.view.utils.capitalize(this.ideaTerm);
+	$('#editDialog').dialog({ title:title, modal:true, resizable:false, width:'470',
 		buttons:{
 			"OK": function(){
 				var answer = false;
@@ -801,7 +835,7 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 						}
 					} else {
 						if($('#editSource').val() == 'empty'){
-							alert('Please select a source for your idea.');
+							alert('Please select a source for your ' + this.ideaTerm + '.');
 						} else {
 							if($('#editText').val() != text){
 								/*
@@ -922,7 +956,7 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 	if(stepsUsedIn != null && stepsUsedIn.length > 0) {
 		//the student has used this idea in a step
 		
-		var message = "This idea is currently used in the following steps\n\n";
+		var message = "This " + this.ideaTerm + " is currently used in the following steps\n\n";
 		
 		//loop through all the steps the student has used this idea in
 		for(var x=0; x<stepsUsedIn.length; x++) {
@@ -960,7 +994,7 @@ IdeaBasket.prototype.checkIfIdeaUsed = function(id) {
 			}
 		}
 		
-		message += "\nIf you change this idea, you will also change your answer in those steps.";
+		message += "\nIf you change this " + this.ideaTerm + ", you will also change your answer in those steps.";
 		
 		/*
 		 * display the message to the student that notifies them 
@@ -1140,7 +1174,7 @@ IdeaBasket.prototype.edit = function(index,text,source,tags,flag,$tr) {
 				if($tr){
 					$tr.html('<td><div class="ideaText">' + linkText + '</div></td><td>' + idea.source + '</td>' +
 							'<td><div class="ideaTags">' + idea.tags + '</div></td>' + '<td style="text-align:center;"><span title="' + idea.flag + '" class="' + idea.flag + '"></span></td>'+
-					'<td style="text-align:center;"><span class="delete" title="delete idea"></span></td>');
+					'<td style="text-align:center;"><span class="delete" title="Delete ' + this.view.utils.capitalize(this.ideaTerm) + '"></span></td>');
 
 					$tr.effect("pulsate", { times:1 }, 500);
 				}
@@ -1209,7 +1243,7 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 				
 				idea.text = text;
 				idea.attributes = attributes;
-				var linkText = idea.text +	'<span class="editLink" title="Edit idea">Edit</span>';
+				var linkText = idea.text +	'<span class="editLink" title="Edit ' + this.view.utils.capitalize(this.ideaTerm) + '">Edit</span>';
 				var link = 'delete';
 				
 				//get the current time
@@ -1243,7 +1277,7 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 						}
 						$tr.append(newTD);
 					}
-					$tr.append('<td><span class="' + link + '" title="' + link + ' idea"></span></td>');
+					$tr.append('<td><span class="' + link + '" title="' + link + ' ' + this.ideaTerm + '"></span></td>');
 					$tr.effect("pulsate", { times:1 }, 500);
 				}
 
@@ -1466,7 +1500,7 @@ IdeaBasket.prototype.saveIdeaBasketCallback = function(responseText, responseXML
 		//we failed to save the basket
 		
 		//display a message to the student
-		thisView.notificationManager.notify("Error: Failed to save Idea Basket", 3);
+		thisView.notificationManager.notify("Error: Failed to save.", 3);
 		
 		//we received the previous basket revision to rollback to
 		var ideaBasketJSONObj = $.parseJSON(responseText);
@@ -1635,12 +1669,12 @@ IdeaBasket.prototype.save = function() {
  * @param settings
  */
 IdeaBasket.prototype.loadIdeaBasket = function() {
+	var settings = null;
+	var projectMeta = this.view.projectMetadata;
+	if(projectMeta != null && 'ideaManagerSettings' in projectMeta.tools){
+		settings = projectMeta.tools.ideaManagerSettings;
+	}
 	if(this.view.ideaBasket != null) {
-		var settings = null;
-		var projectMeta = this.view.projectMetadata;
-		if(projectMeta != null && 'ideaManagerSettings' in projectMeta.tools){
-			settings = projectMeta.tools.ideaManagerSettings;
-		}
 		//generate the JSON string for the idea basket
 		var ideaBasketJSON = $.stringify(this.view.ideaBasket);
 		
@@ -1674,7 +1708,7 @@ IdeaBasket.prototype.loadIdeaBasket = function() {
 		$('#main').hide();
 		
 		//set the error message
-		$('#errorMessageDialog').html("Error: Failed to retrieve Idea Basket, refresh the VLE or visit a different step and then come back to this step to try to load it again.");
+		$('#errorMessageDialog').html("Error: Failed to retrieve " + this.basketTerm + ". Refresh the project or visit a different step and then come back to this step to try to load it again.");
 		
 		//display the error message div
 		$('#errorMessageDialog').show();

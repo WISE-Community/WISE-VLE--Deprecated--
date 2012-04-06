@@ -69,7 +69,7 @@ var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView, settings)
 	}
 	
 	//load the ideaBasket JSON object that should have been set into the iframe
-	basket.load(ideaBasketJSONObj, generateUI, settings);
+	basket.load(ideaBasketJSONObj, generateUI, settings, thisView);
 };
 
 /**

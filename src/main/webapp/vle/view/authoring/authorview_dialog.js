@@ -528,6 +528,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 					view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
 					view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
 					// loop through each of the active attributes and add to metadata
 					$('#ideaManagerSettings .attribute.active').each(function(){

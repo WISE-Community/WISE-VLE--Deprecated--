@@ -709,7 +709,14 @@ View.prototype.displayAddAnIdeaDialog = function() {
 	//check if the addAnIdeaDiv exists
 	if($('#addAnIdeaDiv').size()==0){
 		//it does not already exist so we will create it
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:'auto',resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("idea_basket_add_an_idea"),position:'center',
+		var title = this.getI18NString("idea_basket_add_an_idea");
+		if('ideaManagerSettings' in this.projectMetadata.tools){
+			var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+			if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+				title = imSettings.addIdeaTerm;
+			}
+		}
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:'auto',resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:title,position:'center',
     		buttons:[
     		         {text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},
     		         {text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}
@@ -747,7 +754,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
     if(imVersion > 1){
     	addAnIdeaHtml = $("<form class='cmxform' id='addAnIdeaForm' method='get' action=''></form>");
     	var fieldset = $(document.createElement('fieldset'));
-    	fieldset.append("<div><label for='text'>Type your idea here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></div>");
+    	fieldset.append("<div><label for='text'>Type your " + imSettings.ideaTerm + " here*:</label><input id='addAnIdeaText' type='text' name='text' size='30' class='required' minlength='2' maxlength='150'></input></div>");
     	var attributes = imSettings.ideaAttributes;
     	for(var i=0;i<attributes.length;i++){
     		fieldset.append(this.createAddAnIdeaAttribute(attributes[i]));
@@ -990,7 +997,16 @@ View.prototype.displayIdeaBasket = function() {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="ideaBasketDiv"></div>');
 		$('#ideaBasketDiv').html('<iframe id="ideaBasketIfrm" name="ideaBasketIfrm" frameborder="0" width="100%" height="99%"></iframe><div id="ideaBasketOverlay" style="display:none;"></div>');
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},position:'center',title:this.getI18NString("idea_basket"),open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
+		
+		var title = this.getI18NString("idea_basket");
+		if('ideaManagerSettings' in this.projectMetadata.tools){
+			var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+			if('basketTerm' in imSettings && this.utils.isNonWSString(imSettings.basketTerm)){
+				title = imSettings.basketTerm;
+			}
+		}
+		
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},position:'center',title:title,open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
 			// because idea basket content is delivered in an iframe
 			// need to show transparent div overlay when dragging/resizing dialog
 			// so that iframe does not catch mouse movements and interupt dragging/resizing
@@ -1043,7 +1059,7 @@ View.prototype.displayIdeaBasket = function() {
 			if('ideaManagerSettings' in this.projectMetadata.tools){
 				imSettings = this.projectMetadata.tools.ideaManagerSettings;
 			}
-			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, null, imSettings);
+			window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this, imSettings);
 		}		
 	}
 };
@@ -1189,7 +1205,7 @@ View.prototype.loadIdeaBasket = function() {
 	
 	var imSettings = null;
 	if('ideaManagerSettings' in this.projectMetadata.tools){
-		imSettings = this.projectMetadata.tools.ideaManagerSettings
+		imSettings = this.projectMetadata.tools.ideaManagerSettings;
 	}
 	
 	//load the idea basket into the iframe
@@ -1206,7 +1222,11 @@ View.prototype.loadIdeaBasket = function() {
  * @return a new IdeaBasket with fields populated
  */
 View.prototype.createIdeaBasket = function(ideaBasketJSONObj) {
-	return new IdeaBasket(ideaBasketJSONObj);
+	var imSettings = null;
+	if('ideaManagerSettings' in this.projectMetadata.tools){
+		imSettings = this.projectMetadata.tools.ideaManagerSettings
+	}
+	return new IdeaBasket(ideaBasketJSONObj,null,null,imSettings);
 };
 
 /* used to notify scriptloader that this script has finished loading */

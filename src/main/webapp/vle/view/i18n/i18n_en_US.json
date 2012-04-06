@@ -9,7 +9,7 @@
 	},
 	"addidea_button_text":{
 		"value":"Add Idea",
-		"description":"Text on the Add Idea button"
+		"description":"Text on Add Idea buttons"
 	},
 	"mywork_button_text":{
 		"value":"My Work",
@@ -188,8 +188,8 @@
 		"description":"The text 'Idea Basket' in the Idea Manager"
 	},	
 	"idea_basket_add_an_idea":{
-		"value":"Add an Idea",
-		"description":"The text 'Add an Idea' in the Idea Manager"
+		"value":"Add Idea",
+		"description":"The text 'Add Idea' in the Idea Manager"
 	},
 	"idea_basket_retrieval_error":{
 		"value":"Error: Could not open Idea Basket, refresh the VLE to try to load it again",
@@ -321,11 +321,11 @@
 	},	
 	"grading_hide_show_question":{
 		"value":"Hide/Show the Question",
-		"description":"'hide/show question' link that toggles the question's visibility in the gradingtool"
+		"description":"'hide/show question' link that toggles the question's visibility in the grading tool"
 	},
 	"grading_previous_step":{
 		"value":"< Previous",
-		"description":"'Previous Step' button in the gradingtool that will show the previous step in the project"
+		"description":"'Previous Step' button in the grading tool that will show the previous step in the project"
 	},
 	"grading_previous_step_not_exist":{
 		"value":"Previous Step does not exist: this is the first gradable step",
@@ -333,11 +333,11 @@
 	},
 	"grading_change_step":{
 		"value":"Change Step",
-		"description":"'Change Step' button in the gradingtool that will show the select step page"
+		"description":"'Change Step' button in the grading tool that will show the select step page"
 	},
 	"grading_next_step":{
 		"value":"Next >",
-		"description":"'Next Step' button in the gradingtool that will show the next step in the project"
+		"description":"'Next Step' button in the grading tool that will show the next step in the project"
 	},	
 	"grading_next_step_not_exist":{
 		"value":"Next Step does not exist: this is the last gradable step",
@@ -377,11 +377,11 @@
 	},
 	"flag":{
 		"value":"Flag",
-		"description":"Flag, for flagging student's work using the flaggingtool"
+		"description":"Flag, for flagging student's work using the flagging tool"
 	},
 	"flag_as_inappropriate":{
 		"value":"Flag as inappropriate",
-		"description":"\"Flag as inappropriate\" text, for flagging inappropriate student's work using the flaggingtool"
+		"description":"\"Flag as inappropriate\" text, for flagging inappropriate student's work using the flagging tool"
 	},	
 	"timestamp":{
 		"value":"Timestamp",
@@ -393,7 +393,7 @@
 	},		
 	"grading_open_premade_comments":{
 		"value":"Open Premade Comments",
-		"description":"the text 'open premade comments' that will open the premadecomments window when clicked"
+		"description":"the text 'open premade comments' that will open the premade comments window when clicked"
 	},		
 	"not_available":{
 		"value":"not available",

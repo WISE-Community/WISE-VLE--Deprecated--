@@ -1204,6 +1204,12 @@ View.prototype.populateIMSettings = function(settings){
 		$('#imEBTerm').val(this.getI18NString('explanation_builder'));
 	}
 	
+	if('addIdeaTerm' in settings && this.utils.isNonWSString(settings.addIdeaTerm)) {
+		$('#imAddIdeaTerm').val(settings.addIdeaTerm);
+	} else {
+		$('#imAddIdeaTerm').val(this.getI18NString('idea_basket_add_an_idea'));
+	}
+	
 	// clear active idea attributes
 	$('#ideaAttributes .attribute.active').each(function(){
 		$(this).html('').removeClass('active').addClass('empty');

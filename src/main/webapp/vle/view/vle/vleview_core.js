@@ -248,11 +248,24 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 	}
 	
 	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
-		/*
-		 * display the idea basket links if the run/project has idea basket enabled
-		 */
-		var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")' title='View Idea Basket'>"+this.getI18NString("ideas_button_text")+" <span id='ideaCount' class='count'>(0)</span></a>";
-		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")' title='Add New Idea'>"+this.getI18NString("addidea_button_text")+"</a>";
+		// display the idea basket links if the run/project has idea basket enabled
+		// if project is using IM version > 1, set custom link text based on IM settings
+		var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
+		if (this.projectMetadata != null && this.projectMetadata.tools != null){
+			if('ideaManagerSettings' in this.projectMetadata.tools){
+				var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+				if(imSettings.version > 1){
+					if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
+						basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
+					}
+					if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+						addIdeaLinkText = imSettings.addIdeaTerm;
+					}
+				}
+			}
+		}
+		var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")'>"+basketLinktext+" <span id='ideaCount' class='count'>(0)</span></a>";
+		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")'>"+addIdeaLinkText+"</a>";
 		$("#viewIdeaBasket").html(ideaBasketLink);
 		$("#addIdea").html(addIdeaLink);
 		$("#ideaBasketLinks").show().css('display','inline');
