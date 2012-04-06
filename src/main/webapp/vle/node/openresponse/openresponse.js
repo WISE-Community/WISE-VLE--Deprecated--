@@ -279,14 +279,14 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					this.setCheckAnswerAvailable();
 				}
 				
-				if(this.content.showPreviousWorkThatHasCRaterAnnotation) {
+				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
 					/*
 					 * move the current work to the previous work response box
 					 * because we want to display the previous work to the student
 					 * and have them re-write another response after they
 					 * receive the immediate CRater feedback
 					 */
-					this.showPreviousWorkThatHasCRaterAnnotation($('#responseBox').val());
+					this.showPreviousWorkThatHasAnnotation($('#responseBox').val());
 					
 					//clear the response box so they will need to write a new response
 					$('#responseBox').val('');
@@ -691,14 +691,15 @@ OPENRESPONSE.prototype.render = function() {
 		this.displayRegular();
 	}
 	
-	if(this.content.showPreviousWorkThatHasCRaterAnnotation) {
-		//show the previous work that has a CRater annotation
-		this.showPreviousWorkThatHasCRaterAnnotation();
+	if(this.content.showPreviousWorkThatHasAnnotation) {
+		//show the previous work that has a teacher comment annotation
+		this.showPreviousWorkThatHasAnnotation(null, 'comment');
 	}
 	
-	if(this.content.showPreviousWorkThatHasTeacherCommentAnnotation) {
-		//show the previous work that has a teacher comment annotaiton
-		this.showPreviousWorkThatHasTeacherCommentAnnotation();
+	if(this.content.showPreviousWorkThatHasAnnotation && this.content.cRater &&
+			(this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
+		//show the previous work that has a CRater annotation
+		this.showPreviousWorkThatHasAnnotation(null, 'cRater');
 	}
 	
 	if (this.content.isLockAfterSubmit) {
@@ -718,98 +719,152 @@ OPENRESPONSE.prototype.render = function() {
 };
 
 /**
- * Show the previous work that has had a CRater annotation.
- * @param previousResponse an optional argument which is the previous work which
- * we will show without having to look it up
- */
-OPENRESPONSE.prototype.showPreviousWorkThatHasCRaterAnnotation = function(previousResponse) {
-	if(previousResponse != null) {
-		//display the previous response div
-		$('#previousResponseDisplayDiv').show();
-		
-		//set the previous response
-		$('#previousResponseBox').val(previousResponse);
-	} else {
-		//get the annotation attributes that we will use to look up the CRater annotation
-		var runId = this.view.getConfig().getConfigParam('runId');
-		var nodeId = this.view.currentNode.id;
-		var toWorkgroup = this.view.getUserAndClassInfo().getWorkgroupId();
-		var fromWorkgroups = [-1];
-		var type = 'cRater';
-		var stepWorkId = null;
-
-		//get the latest CRater annotation for this step
-		var latestCRaterAnnotation = this.view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
-		
-		if(latestCRaterAnnotation != null) {
-			if(latestCRaterAnnotation.value != null && latestCRaterAnnotation.value.length > 0) {
-				//get the annotation value which contains the student response submitted to CRater
-				var latestCRaterValue = latestCRaterAnnotation.value[latestCRaterAnnotation.value.length - 1];
-				
-				if(latestCRaterValue != null && latestCRaterValue.studentResponse != null && latestCRaterValue.studentResponse.response != null) {
-					//get the student response
-					var response = this.node.getStudentWorkString(latestCRaterValue.studentResponse.response);
-					
-					//display the previous response div
-					$('#previousResponseDisplayDiv').show();
-					
-					//set the student response into the previous response disabled textarea
-					$('#previousResponseBox').val(response);
-				}
-			}
-		}		
-	}
-};
-
-/**
  * Show the previous work that has had a teacher comment annotation.
  * @param previousResponse an optional argument which is the previous work which
  * we will show without having to look it up
+ * @param annotationType an optional argument which is the type of annotation
  */
-OPENRESPONSE.prototype.showPreviousWorkThatHasTeacherCommentAnnotation = function(previousResponse) {
+OPENRESPONSE.prototype.showPreviousWorkThatHasAnnotation = function(previousResponse, annotationType) {
+	
 	if(previousResponse != null) {
 		//display the previous response div
 		$('#previousResponseDisplayDiv').show();
 		
-		//set the previous response
+		//set the student response into the previous response disabled textarea
 		$('#previousResponseBox').val(previousResponse);
+		
+		//clear the response box so the student will have to type a new response
+		$('#responseBox').val('');
 	} else {
 		//get the annotation attributes that we will use to look up the teacher comment annotation
 		var runId = this.view.getConfig().getConfigParam('runId');
 		var nodeId = this.view.currentNode.id;
 		var toWorkgroup = this.view.getUserAndClassInfo().getWorkgroupId();
-		var fromWorkgroups = this.view.getUserAndClassInfo().getAllTeacherWorkgroupIds();
-		var type = 'comment';
+		var fromWorkgroups = null;
+		var type = null;
 		var stepWorkId = null;
 		
-		//get the latest teacher comment annotation for this step
-		var latestTeacherCommentAnnotation = this.view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
+		if(annotationType != null) {
+			//use the annotation type that was passed in
+			type = annotationType;
+		}
 		
-		if(latestTeacherCommentAnnotation != null) {
+		if(annotationType == 'cRater') {
+			//crater annotations have fromWorkgroup=-1
+			fromWorkgroups = [-1];
+		} else {
+			//get the teacher and shared teacher workgroups
+			fromWorkgroups = this.view.getUserAndClassInfo().getAllTeacherWorkgroupIds();
+		}
+		
+		//get the latest annotation for this step with the given parameters
+		var latestAnnotation = this.view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
+		
+		if(latestAnnotation != null) {
 			//get the step work id that the annotation was for
-			var stepWorkId = latestTeacherCommentAnnotation.stepWorkId;
+			var stepWorkId = latestAnnotation.stepWorkId;
 			
-			//get the node visit with the stepw work id
-			var nodeVisit = this.view.state.getNodeVisitById(stepWorkId);
+			//get the node visit with the step work id
+			var annotationNodeVisit = this.view.state.getNodeVisitById(stepWorkId);
+
+			//get the annotation post time
+			var annotationPostTime = latestAnnotation.postTime;
 			
-			if(nodeVisit != null) {
-				//get all the node states in the node visit
-				var nodeStates = nodeVisit.nodeStates;
+			//get all the node visits for this step
+			var nodeVisitsForNodeId = this.view.state.getNodeVisitsByNodeId(nodeId);
+			
+			//whether to show the previous work
+			var showPreviousResponse = true;
+			
+			if(nodeVisitsForNodeId != null) {
 				
-				if(nodeStates != null && nodeStates.length != 0) {
-					//get the last node state
-					var nodeState = nodeStates[nodeStates.length - 1];
+				/*
+				 * we will loop through all the node visits and look for any work that
+				 * is newer than the annotation. if there is no new work after the
+				 * annotation it means the student has not revised their work based
+				 * on the annotation so we will display their previous response
+				 * in the greyed out previous response box and clear out the
+				 * regular response box so that they need to type a new response.
+				 */ 
+				for(var x=0; x<nodeVisitsForNodeId.length; x++) {
+					//get a node visit
+					var tempNodeVisit = nodeVisitsForNodeId[x];
 					
-					if(nodeState != null) {
-						//get the student response
-						var response = nodeState.response;
-						response = this.node.getStudentWorkString(response);
+					if(tempNodeVisit != null) {
+						//get the latest node state for the node visit
+						var nodeState = tempNodeVisit.getLatestWork();
 						
-						//display the previous response div
-						$('#previousResponseDisplayDiv').show();
+						//get the response from the node state
+						var response = this.node.getStudentWorkString(nodeState.response);
 						
-						//set the student response into the previous response disabled textarea
-						$('#previousResponseBox').val(response);
+						if(response != null && response != "") {
+							//get the post time for the node visit
+							var tempPostTime = tempNodeVisit.visitPostTime;
+							
+							//get the node state timestamp
+							var nodeStateTimestamp = nodeState.timestamp;
+							
+							if(nodeStateTimestamp > annotationPostTime) {
+								/*
+								 * the node visit post time is later than the annotation
+								 */
+								showPreviousResponse = false;
+							}
+						}
+					}
+				}				
+			}
+			
+			if(showPreviousResponse) {
+				/*
+				 * we are going to show the previous response and clear out the response textarea
+				 * so that the student needs to write a new response based on the new annotation
+				 * they have received
+				 */
+				
+				if(annotationType == 'cRater' && latestAnnotation != null) {
+					if(latestAnnotation.value != null && latestAnnotation.value.length > 0) {
+						//get the annotation value which contains the student response submitted to CRater
+						var latestCRaterValue = latestAnnotation.value[latestAnnotation.value.length - 1];
+						
+						if(latestCRaterValue != null && latestCRaterValue.studentResponse != null && latestCRaterValue.studentResponse.response != null) {
+							//get the student response
+							var response = this.node.getStudentWorkString(latestCRaterValue.studentResponse.response);
+							
+							//display the previous response div
+							$('#previousResponseDisplayDiv').show();
+							
+							//set the student response into the previous response disabled textarea
+							$('#previousResponseBox').val(response);
+							
+							//clear the response box so the student will have to type a new response
+							$('#responseBox').val('');
+						}
+					}
+				} else {
+					if(annotationNodeVisit != null) {
+						//get all the node states in the node visit
+						var nodeStates = annotationNodeVisit.nodeStates;
+						
+						if(nodeStates != null && nodeStates.length != 0) {
+							//get the last node state
+							var nodeState = nodeStates[nodeStates.length - 1];
+							
+							if(nodeState != null) {
+								//get the student response
+								var response = nodeState.response;
+								response = this.node.getStudentWorkString(response);
+								
+								//display the previous response div
+								$('#previousResponseDisplayDiv').show();
+								
+								//set the student response into the previous response disabled textarea
+								$('#previousResponseBox').val(response);
+								
+								//clear the response box so the student will have to type a new response
+								$('#responseBox').val('');
+							}
+						}
 					}
 				}
 			}
