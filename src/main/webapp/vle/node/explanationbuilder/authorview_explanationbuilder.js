@@ -53,8 +53,8 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	
 	this.version = 1;
 	//get the Idea Manager version
-	if('ideaManagerSettings' in this.view.projectMetadata.tools){
-		this.version = this.view.projectMetadata.tools.ideaManagerSettings.version;
+	if('ideaManagerSettings' in this.view.projectMeta.tools){
+		this.version = this.view.projectMeta.tools.ideaManagerSettings.version;
 	}
 	
 	//get the html element that all the authoring components will be located
