@@ -464,8 +464,8 @@ Node.prototype.nodeJSON = function(contentBase){
 		/* create and return sequence object */
 		var sequence = {
 			type:'sequence',
-			identifier:makeHtmlSafe(this.id),
-			title:makeHtmlSafe(this.title),
+			identifier:this.id,
+			title:this.title,
 			view:this.getView(),
 			refs:[]
 		};
@@ -480,9 +480,9 @@ Node.prototype.nodeJSON = function(contentBase){
 		/* create and return node object */
 		var node = {
 			type:this.type,
-			identifier:makeHtmlSafe(this.id),
-			title:makeHtmlSafe(this.title),
-			hints:makeHtmlSafe(this.hints),
+			identifier:this.id,
+			title:this.title,
+			hints:this.hints,
 			ref:this.content.getFilename(contentBase),
 			previousWorkNodeIds:this.prevWorkNodeIds,
 			populatePreviousWorkNodeId:this.populatePreviousWorkNodeId,

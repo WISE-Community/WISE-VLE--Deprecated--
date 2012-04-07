@@ -355,6 +355,8 @@ View.prototype.initializeEditProjectFileDialog = function(){
 		
 		var filename = view.getProject().getProjectFilename();
 		
+		text = encodeURIComponent(text);
+		
 		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'updateFile',fileName:filename,data:text},success,view,failure);
 	};
 

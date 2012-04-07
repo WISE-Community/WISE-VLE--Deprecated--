@@ -115,7 +115,7 @@ DuplicateNode.prototype.nodeJSON = function(){
 	/* create and return node object */
 	var node = {
 		type:this.type,
-		identifier:makeHtmlSafe(this.id),
+		identifier:this.id,
 		title:'',
 		ref:'',
 		previousWorkNodeIds:[],
