@@ -366,14 +366,16 @@ Annotations.prototype.getLatestAnnotation = function(runId, nodeId, toWorkgroup,
 		var tempAnnotation = this.annotationsArray[x];
 		
 		/*
-		 * we will check that all the attributes match
+		 * we will check that the attributes match
 		 * the tempAnnotation.fromWorkgroup must match any id in the fromWorkgroups array
+		 * type can be null in which case any type will be accepted
+		 * stepWorkId can be null in which case any stepWorkId will be accepted
 		 */
 		if(tempAnnotation.runId == runId && 
 				tempAnnotation.nodeId == nodeId &&
 				tempAnnotation.toWorkgroup == toWorkgroup && 
 				fromWorkgroups.indexOf(parseInt(tempAnnotation.fromWorkgroup)) != -1 &&
-				tempAnnotation.type == type) {
+				(type == null || tempAnnotation.type == type)) {
 
 			//if stepWorkId was passed in, make sure it matches
 			if(stepWorkId == null || (stepWorkId != null && tempAnnotation.stepWorkId == stepWorkId)) {
