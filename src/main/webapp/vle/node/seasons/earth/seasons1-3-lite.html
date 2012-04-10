@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>Investigate: Temperature Patterns Around the World</title>
+    <title>Explore: Tilt and Temperature Patterns</title>
     <link href="../stylesheets/style.css"        rel="stylesheet" type="text/css"/>
     <link href="../stylesheets/video-js.css"     rel="stylesheet" type="text/css"/>
 		<link href="../stylesheets/flotr.css" rel="stylesheet" type="text/css" />
@@ -25,7 +25,7 @@
 </head>
 <div id="container">
   <div id="header-inner">
-    <h1 id="title">Investigate: Temperature Patterns Around the World</h1>
+    <h1 id="title">Explore: Tilt and Temperature Patterns</h1>
     <div id="simulation-controls"></div>
   </div>
   <div id="content">
@@ -50,89 +50,63 @@
       </ul>
       <ul class="hlist">
         <li>
-          <div class="underCanvasUI">
-            <ul class="hlist">
-              <li>
-                <form id="choose-view">
-                  <fieldset>
-                    <legend>Select view: </legend>
-                    <label><input type="radio" name="view" value="top"> Top</input></label>
-                    <label><input type="radio" name="view" value="side" checked> Side</input></label>
-                  </fieldset>
-                </form>
-              </li>
-              <li>
-                <form id="show-me">
-                  <fieldset>
-                    <legend>Show me: </legend>
-                    <label><input id="orbital-grid" type="checkbox"/ checked> Grid: </label>
-                    <label><input id="earth-rotation" type="checkbox" checked/> Rotation</label>
-                  </fieldset>
-                </form>
-              </li>
-            </ul>
-            <div id="results">
-              <p>
-                <form>
-                  <label for="choose-month">Choose month:</label>
-                  <select id="choose-month" name="chosen-month">
-                    <option value="mar">March</option>
-                    <option value="jun" selected>June</option>
-                    <option value="sep">September</option>
-                    <option value="dec">December</option>
-                  </select>
-                </form>
-              </p>
-              <p>
-                <form id="select-city-latitude">
-                  <label for="selected-city-latitude">Choose city:</label>
-                  <select id="selected-city-latitude" name="selected-city-latitude">
-                    <option disabled selected>city ...</option>
-                  </select>
-                </form>
-              </p>
-              <p>
-                <form id="city-latitude-temperature">
-                  <label id="city-latitude-temperature-label" for="city-latitude-temperature-prediction">Predict average temperature &deg;F</label>
-                  <input type="text" id="city-latitude-temperature-prediction" name="city-latitude-temperature-prediction" />
-                  <input type="submit" value="Collect Data" />
-                </form>
-              </p>
-              <p><span class="tip">TIP #1:</span> You can sort the data in the table by clicking on the column name.</p>
-            </div>
-            <div class="tableFrame">
-              <table id='city-data-table' class='sortable'>
-                <thead>
-                  <tr>
-                    <th class='sortfirstdesc number'></th>
-                    <th class='text'>City</th>
-                    <th class='text'>Month</th>
-                    <th class='number'>Temp</th>
-                    <th class='number'>Prediction</th>
-                    <th class="nosort">Graph</th>
-                </thead>
-                <tbody id="city-data-table-body">
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </li>
-        <li>
-          <ul class="hlist">
-            <li>
-              <!-- <form id="show-graph">
-                 <fieldset>
-                   <legend>Show graph: </legend>
-                   <label><input id="solar-radiation-graph" type="checkbox"/> Solar Radiation</label>
-                   <label><input id="sun-earth-distance-graph" type="checkbox"/> Distance from Sun</label>
-                 </fieldset>
-               </form> -->
-             </li>
-          </ul>
-          <div class="quarterFrame">
-            <div class="glGraphQuarterFrame" id="theCanvas4"></div>
-            <div id="city-color-keys">
-              <ul id="color-key-list" />
+          <div class="editorQuarterFrame">
+            <div class="underCanvasUI">
+              <ul class="hlist">
+                <li>
+                  <form id="choose-view">
+                    <fieldset>
+                      <legend>Select me: </legend>
+                      <label><input type="radio" name="view" value="top"> Top</input></label>
+                      <label><input type="radio" name="view" value="side" checked> Side</input></label>
+                    </fieldset>
+                  </form>
+                </li>
+                <li>
+                  <form id="show-me">
+                    <fieldset>
+                      <legend>Show me: </legend>
+                      <label><input id="orbital-grid" type="checkbox" checked/> Grid: </label>
+                      <label><input id="earth-rotation" type="checkbox" checked/> Rotation</label>
+                    </fieldset>
+                  </form>
+                </li>
+              </ul>
+              <div id="results">
+                <p>
+                  <form>
+                    <label for="choose-month">Choose month:</label>
+                    <select id="choose-month" name="chosen-month">
+                      <option value="mar">March</option>
+                      <option value="jun" selected>June</option>
+                      <option value="sep">September</option>
+                      <option value="dec">December</option>
+                    </select>
+                  </form>
+                </p>
+                <p>
+                  <form id="select-city-latitude">
+                    <label for="selected-city-latitude">Choose city:</label>
+                    <select id="selected-city-latitude" name="selected-city-latitude">
+                      <option disabled selected>city ...</option>
+                    </select>
+                  </form>
+                </p>
+                <p>
+                  <form id="choose-tilt">
+                    <label for="choose-tilt">Choose tilt of Earth</label>
+                    <label><input type="radio" name="tilt" value="yes" checked> Yes</input></label>
+                    <label><input type="radio" name="tilt" value="no"> No</input></label>
+                  </form>
+                </p>
+                <p>
+                  <form id="city-latitude-button-results">
+                    <input type="submit" value="Show Average Temperature" />
+                    <span id="button-results"></span>
+                    <label id="city-latitude-temperature-label" for="city-latitude-temperature-prediction">&deg;F</label>
+                  </form>
+                </p>
+              </div>
             </div>
           </div>
         </li>
@@ -194,9 +168,8 @@
   };
 
   window.onload=function() {
-    LITE_VERSION = false;
+    LITE_VERSION = true;
     var webGLEnabled = Modernizr.webgl;
-    // webGLEnabled = false;
     if (webGLEnabled){
       myRequire([
         "../lib/sprintf.js",
@@ -206,14 +179,13 @@
         "javascript/sun.js",
         "javascript/earth.js",
         "javascript/earth-orbit.js",
-        "javascript/earth-sun-line.js",
         "javascript/jpl-earth-ephemerides.js",
         "javascript/orbit-grid.js",
         "javascript/seasons.js",
         "javascript/cities.js",
         "javascript/latitude-line.js",
         "javascript/earth-surface-location-indicator.js",
-        "javascript/seasons1-2.js"
+        "javascript/seasons1-3.js"
       ]);
     } else {
       var content = document.getElementById('content');

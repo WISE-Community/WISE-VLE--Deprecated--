@@ -2,7 +2,7 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>Investigation 2: What Is the Shape of Earth's Orbit?</title>
+    <title>Investigate: Sun-Earth Distance and Shape of Earth's Orbit</title>
     <link href="../stylesheets/style.css" rel="stylesheet" type="text/css"/>
     <link href="../stylesheets/video-js.css" rel="stylesheet" type="text/css"/>
 
@@ -11,7 +11,7 @@
 </head>
 <div id="container">
   <div id="header-inner">
-    <h1 id="title">Investigation 2: What Is the Shape of Earth's Orbit?</h1>
+    <h1 id="title">Investigate: Sun-Earth Distance and Shape of Earth's Orbit</h1>
     <div id="simulation-controls"> </div>
   </div>
   <div id="content">
@@ -33,27 +33,25 @@
           <form id="show-me">
             <fieldset>
               <legend>Show me: </legend>
-              <label><input id="circle-orbit" type="checkbox" value="selected" /> Circular orbit</label>
-              <label><input id="orbital-grid" type="checkbox"/> Orbital grid: </label>
-            </fieldset>
-          </form>  
-        </li>
-        <li>
-          <form>
-            <fieldset>
-              <legend>Choose month</legend>
-              <select id="choose-month" name="chosen-month">
-                <option value="jun" selected>June</option>
-                <option value="sep">September</option>
-                <option value="dec">December</option>
-                <option value="mar">March</option>
-              </select>
+              <label><input id="circle-orbit" type="checkbox" checked/> Circular orbit</label>
+              <label><input id="orbital-grid" type="checkbox" checked/> Orbital grid: </label>
             </fieldset>
           </form>
         </li>
       </ul>
-      <ul class="hlist">
-      </ul>
+      <div id="results">
+        <p>
+          <form>
+            <label for="choose-month">Choose month:</label>
+            <select id="choose-month" name="chosen-month">
+              <option value="mar">March</option>
+              <option value="jun" selected>June</option>
+              <option value="sep">September</option>
+              <option value="dec">December</option>
+            </select>
+          </form>
+        </p>
+      </div>
     </div>
   </div>
 </div>
@@ -66,7 +64,7 @@
     } else {
       var libraries = [src];
     }
-    var script = document.createElement("script") 
+    var script = document.createElement("script")
     script.type = "text/javascript";
     // IE
     script.onreadystatechange = function () {
@@ -77,7 +75,7 @@
           myRequire(libraries)
         }
         if (callback) {
-          callback();            
+          callback();
         }
       }
     }
@@ -88,32 +86,33 @@
         myRequire(libraries)
       }
       if (callback) {
-        callback();            
+        callback();
       }
     }
     script.src = libraries[0];
     document.getElementsByTagName("head")[0].appendChild(script);
   };
-  
+
   window.onload=function() {
+    LITE_VERSION = false;
     var webGLEnabled = Modernizr.webgl;
     // webGLEnabled = false;
     if (webGLEnabled){
       myRequire([
         "../lib/sprintf.js",
         "../lib/scenejs-0.8.0/scenejs.js",
-        "solar-system-data.js",
-        "sky-sphere.js",
-        "earth-axis.js",
-        "earth-sphere.js",
-        "sun.js",
-        "earth.js",
-        "earth-orbit.js",
-        "earth-sun-line.js",
-        "jpl-earth-ephemerides.js",
-        "orbit-grid.js",
-        "seasons.js",
-        "seasons1-1.js"
+        "javascript/solar-system-data.js",
+        "javascript/sky-sphere.js",
+        "javascript/earth-axis.js",
+        "javascript/earth-sphere.js",
+        "javascript/sun.js",
+        "javascript/earth.js",
+        "javascript/earth-orbit.js",
+        "javascript/earth-sun-line.js",
+        "javascript/jpl-earth-ephemerides.js",
+        "javascript/orbit-grid.js",
+        "javascript/seasons.js",
+        "javascript/seasons1-1.js"
       ]);
     } else {
       var content = document.getElementById('content');

@@ -107,6 +107,15 @@ h4 {
     padding: 0px 10px;
 }
 
+#info {
+    background: #ffffff url() no-repeat scroll right center;
+    text-align: left;
+    margin: 0 auto;
+    min-height: 40px;
+    width: auto;
+    padding: 15px 0px 10px 15px;
+}
+
 #header {
       text-align: left;;
 }
@@ -600,6 +609,12 @@ fieldset label  {
     padding-top: 2px;
     padding-bottom: 0px;
 }
+
+#results {
+  margin: 0.5em 0em; }
+  #results p {
+    padding: 0.1em 0em;
+    line-height: 1.2em; }
 
 #content ul.hlist li {
     line-height: 1.4em;
