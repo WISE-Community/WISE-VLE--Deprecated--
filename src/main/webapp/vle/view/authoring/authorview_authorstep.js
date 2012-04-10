@@ -934,15 +934,6 @@ View.prototype.updateCRaterFeedback = function(args){
 /**
  * Updates the CRater display feedback immediately value
  */
-View.prototype.updateCRaterDisplayFeedbackImmediately = function(){
-	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRaterDisplayFeedbackImmediately){
-		this[this.resolveType(this.activeNode.type)].updateCRaterDisplayFeedbackImmediately();
-	}
-};
-
-/**
- * Updates the CRater display feedback immediately value
- */
 View.prototype.updateCRaterDisplayScoreToStudent = function(){
 	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateCRaterDisplayScoreToStudent){
 		this[this.resolveType(this.activeNode.type)].updateCRaterDisplayScoreToStudent();
@@ -991,6 +982,15 @@ View.prototype.updateCRaterMaxCheckAnswers = function(){
  */
 View.prototype.cleanupCRater = function() {
 	this.cRaterManager.cleanupCRater();
+};
+
+/**
+ * Enable CRater for this step
+ */
+View.prototype.updateEnableCRater = function() {
+	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateEnableCRater){
+		this[this.resolveType(this.activeNode.type)].updateEnableCRater();
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

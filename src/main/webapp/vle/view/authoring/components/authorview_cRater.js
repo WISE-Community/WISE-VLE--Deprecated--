@@ -10,8 +10,6 @@ View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
 		obj.cRaterItemIdChanged();
 	} else if(type=='cRaterFeedbackChanged') {
 		obj.updateCRaterFeedback(args);
-	} else if(type=='cRaterDisplayFeedbackImmediatelyChanged') {
-		obj.updateCRaterDisplayFeedbackImmediately();
 	} else if(type=='cRaterDisplayScoreToStudentChanged') {
 		obj.updateCRaterDisplayScoreToStudent();
 	} else if(type=='cRaterDisplayFeedbackToStudentChanged') {
@@ -22,6 +20,8 @@ View.prototype.cRaterManager.dispatcher = function(type, args, obj) {
 		obj.cRaterRemoveFeedback(args);
 	} else if(type=='cRaterMaxCheckAnswersChanged') {
 		obj.updateCRaterMaxCheckAnswers();
+	} else if(type=='enableCRater') {
+		obj.updateEnableCRater();
 	}
 };
 
@@ -42,13 +42,14 @@ View.prototype.cRaterManager.insertCRater = function(view) {
  * and put it back into the main authoring page
  */
 View.prototype.cRaterManager.cleanupCRater = function() {
+	$('#enableCRaterCheckbox').attr('checked', false);
 	$('#cRaterItemIdInput').val('');
 	$('#cRaterItemIdStatus').html('');
-	$('#cRaterDisplayFeedbackImmediately').attr('checked', false);
 	$('#cRaterDisplayScoreToStudent').attr('checked', false);
 	$('#cRaterDisplayFeedbackToStudent').attr('checked', false);
 	$('#cRaterMaxCheckAnswers').val('');
 	$('#cRaterFeedback').html('');
+	$('#cRaterSettingsDiv').hide();
 	$('body').append($('#cRaterDiv').hide().detach());
 };
 

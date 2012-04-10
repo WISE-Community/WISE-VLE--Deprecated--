@@ -637,16 +637,18 @@ var view;
 </div>
 
 <div id='cRaterDiv' style='display:none;'>
-	CRater Item Id: <input id='cRaterItemIdInput' name='cRaterItemIdInput' type='text' size=15 onkeyup='eventManager.fire("cRaterItemIdChanged")' /> <input id='cRaterVerifyButton' type='button' value='Verify' onclick="eventManager.fire('cRaterVerify')"/> <div id='cRaterItemIdStatus' style='display:inline'></div>
-	<br>
-	Display CRater Score to Student <input id='cRaterDisplayScoreToStudent' name='cRaterDisplayScoreToStudent' type='checkbox' onclick='eventManager.fire("cRaterDisplayScoreToStudentChanged")' />
-	<br>
-	Display CRater Feedback to Student <input id='cRaterDisplayFeedbackToStudent' name='cRaterDisplayFeedbackToStudent' type='checkbox' onclick='eventManager.fire("cRaterDisplayFeedbackToStudentChanged")' />
-	<br>
-	CRater Max Check Answers <input id='cRaterMaxCheckAnswers' name='cRaterMaxCheckAnswers' type='text' size=5 onkeyup='eventManager.fire("cRaterMaxCheckAnswersChanged")' />
-	<br>
-	<br>
-	<div id='cRaterFeedback'></div>
+	Enable CRater <input id='enableCRaterCheckbox' name='enableCRaterCheckbox' type='checkbox' onclick='eventManager.fire("enableCRater")' />
+	<div id='cRaterSettingsDiv' style='display:none;'>
+		CRater Item Id: <input id='cRaterItemIdInput' name='cRaterItemIdInput' type='text' size=15 onkeyup='eventManager.fire("cRaterItemIdChanged")' /> <input id='cRaterVerifyButton' type='button' value='Verify' onclick="eventManager.fire('cRaterVerify')"/> <div id='cRaterItemIdStatus' style='display:inline'></div>
+		<br>
+		Display CRater Score to Student <input id='cRaterDisplayScoreToStudent' name='cRaterDisplayScoreToStudent' type='checkbox' onclick='eventManager.fire("cRaterDisplayScoreToStudentChanged")' />
+		<br>
+		Display CRater Feedback to Student <input id='cRaterDisplayFeedbackToStudent' name='cRaterDisplayFeedbackToStudent' type='checkbox' onclick='eventManager.fire("cRaterDisplayFeedbackToStudentChanged")' />
+		<br>
+		CRater Max Check Answers <input id='cRaterMaxCheckAnswers' name='cRaterMaxCheckAnswers' type='text' size=5 onkeyup='eventManager.fire("cRaterMaxCheckAnswersChanged")' />
+		<br>
+		<div id='cRaterFeedback'></div>
+	</div>
 </div>
 
 <div id='cleanProjectDialog' style='display:none;'>

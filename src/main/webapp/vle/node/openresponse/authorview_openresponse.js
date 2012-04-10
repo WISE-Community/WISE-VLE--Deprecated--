@@ -503,14 +503,14 @@ View.prototype.OpenResponseNode.peerReviewStepNotOpenCustomMessageUpdated = func
  */
 View.prototype.OpenResponseNode.populateCRater = function() {
 	if(this.content.cRater != null) {
+		//show the CRater item id div and the CRater settings div
+		$('#cRaterSettingsDiv').show();
+		
 		if(this.content.cRater.cRaterItemId != null) {
+			$('#enableCRaterCheckbox').attr('checked', true);
+			
 			//populate the item id
-			$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);	
-		}
-	
-		if(this.content.cRater.displayCRaterFeedbackImmediately != null) {
-			//populate the display feedback immediately checkbox
-			$('#cRaterDisplayFeedbackImmediately').attr('checked', this.content.cRater.displayCRaterFeedbackImmediately);
+			$('#cRaterItemIdInput').val(this.content.cRater.cRaterItemId);
 		}
 		
 		if(this.content.cRater.displayCRaterScoreToStudent != null) {
@@ -543,31 +543,6 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	if(this.content.cRater == null) {
 		this.content.cRater = {};
 	}
-
-	//create the cRater.cRaterItemId in the content if it does not exist
-	if(this.content.cRater.cRaterItemId == null) {
-		this.content.cRater.cRaterItemId = '';
-	}
-	
-	//create the cRater.displayCRaterFeedbackImmediately in the content if it does not exist
-	if(this.content.cRater.displayCRaterFeedbackImmediately == null) {
-		this.content.cRater.displayCRaterFeedbackImmediately = false;
-	}
-	
-	//create the cRater.displayCRaterScoreToStudent in the content if it does not exist
-	if(this.content.cRater.displayCRaterScoreToStudent == null) {
-		this.content.cRater.displayCRaterScoreToStudent = false;
-	}
-	
-	//create the cRater.displayCRaterFeedbackToStudent in the content if it does not exist
-	if(this.content.cRater.displayCRaterFeedbackToStudent == null) {
-		this.content.cRater.displayCRaterFeedbackToStudent = false;
-	}
-	
-	//create the cRater.cRaterMaxScore in the content if it does not exist
-	if(this.content.cRater.cRaterMaxScore == null) {
-		this.content.cRater.cRaterMaxScore = null;
-	}
 	
 	//get the item id the user has entered
 	var itemId = $('#cRaterItemIdInput').val();
@@ -586,6 +561,26 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 	var cRaterScoringRules = null;
 	
 	if(isCRaterItemIdValid) {
+		//create the cRater.cRaterItemId in the content if it does not exist
+		if(this.content.cRater.cRaterItemId == null) {
+			this.content.cRater.cRaterItemId = '';
+		}
+		
+		//create the cRater.displayCRaterScoreToStudent in the content if it does not exist
+		if(this.content.cRater.displayCRaterScoreToStudent == null) {
+			this.content.cRater.displayCRaterScoreToStudent = false;
+		}
+		
+		//create the cRater.displayCRaterFeedbackToStudent in the content if it does not exist
+		if(this.content.cRater.displayCRaterFeedbackToStudent == null) {
+			this.content.cRater.displayCRaterFeedbackToStudent = false;
+		}
+		
+		//create the cRater.cRaterMaxScore in the content if it does not exist
+		if(this.content.cRater.cRaterMaxScore == null) {
+			this.content.cRater.cRaterMaxScore = null;
+		}
+		
 		//item id is valid so we will display a green valid message to the author
 		$('#cRaterItemIdStatus').html('<font color="green">Valid Item Id</font>');
 		
@@ -601,7 +596,10 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 		//display the feedback UI
 		this.displayCRaterFeedback(cRaterScoringRules);
 		
-		updateCRater = true;
+		//set the CRater settings into the content
+		this.content.cRater.cRaterItemId = itemId;
+		this.content.cRater.cRaterMaxScore = maxScore;
+		this.content.cRater.cRaterScoringRules = cRaterScoringRules;
 	} else {
 		//item id is invalid so we will display a red invalid message to the author
 		$('#cRaterItemIdStatus').html('<font color="red">Invalid Item Id</font>');
@@ -615,7 +613,8 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 			//update the CRater feedback
 			this.displayCRaterFeedback(cRaterScoringRules);
 			
-			updateCRater = true;
+			//set the CRater item id into the content
+			this.content.cRater.cRaterItemId = itemId;
 		} else {
 			//the author does not want to save the invalid item id so we will revert the item id to the previous value
 			
@@ -627,13 +626,6 @@ View.prototype.OpenResponseNode.updateCRater = function(){
 		}
 	}
 	
-	if(updateCRater) {
-		/* update content */
-		this.content.cRater.cRaterItemId = itemId;
-		this.content.cRater.cRaterMaxScore = maxScore;
-		this.content.cRater.cRaterScoringRules = cRaterScoringRules;
-	}
-	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
 };
@@ -643,27 +635,6 @@ View.prototype.OpenResponseNode.updateCRater = function(){
  */
 View.prototype.OpenResponseNode.cRaterItemIdChanged = function() {
 	$('#cRaterItemIdStatus').html('<font color="blue">Click Verify to Check Item Id</font>');
-	
-	/* fire source updated event */
-	this.view.eventManager.fire('sourceUpdated');
-};
-
-/**
- * Update the display feedback immediately value
- */
-View.prototype.OpenResponseNode.updateCRaterDisplayFeedbackImmediately = function() {
-	var value = false;
-	
-	//get the 'checked' attribute which will either be null or the string 'checked'
-	var checked = $('#cRaterDisplayFeedbackImmediately').attr('checked');
-	
-	if(checked == 'checked') {
-		//checkbox was checked
-		value = true;
-	}
-	
-	//update the value in the content
-	this.content.cRater.displayCRaterFeedbackImmediately = value;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
@@ -1008,6 +979,74 @@ View.prototype.OpenResponseNode.updateShowPreviousWorkThatHasAnnotation = functi
 	
 	//update the value in the content
 	this.content.showPreviousWorkThatHasAnnotation = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Enable or disable CRater for this step
+ */
+View.prototype.OpenResponseNode.updateEnableCRater = function() {
+	var enableCRater = false;
+	
+	//get the 'checked' attribute which will either be null or the string 'checked'
+	var checked = $('#enableCRaterCheckbox').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		enableCRater = true;
+	}
+	
+	if(enableCRater) {
+		//enable CRater
+		
+		if(this.content.cRater == null) {
+			//CRater does not exist in content so we will add CRater in the content
+			this.content.cRater = {
+				cRaterItemId:'',
+				displayCRaterScoreToStudent:false,
+				displayCRaterFeedbackToStudent:false,
+				cRaterMaxScore:null,
+				cRaterScoringRules:null
+			};
+			$('#cRaterSettingsDiv').show();
+		} else {
+			//CRater already exists so we don't need to do anything
+		}
+	} else {
+		//disable CRater
+		
+		if(this.content.cRater == null) {
+			//CRater doesn't exist in the content so we don't need to do anything
+		} else {
+			//CRater exists in the content so we will remove it
+			
+			//make sure the author wants to remove all of the CRater settings for this step
+			var answer = confirm('Are you sure you want to disable CRater for this step? All of the CRater settings and feedback will be removed.');
+			
+			if(answer) {
+				//the author is sure they want to disable and remove all the CRater settings
+				this.content.cRater = null;
+				
+				//clear all the CRater settings in the authoring UI
+				$('#cRaterItemIdInput').val('');
+				$('#cRaterItemIdStatus').html('');
+				$('#cRaterDisplayScoreToStudent').attr('checked', false);
+				$('#cRaterDisplayFeedbackToStudent').attr('checked', false);
+				$('#cRaterMaxCheckAnswers').val('');
+				$('#cRaterFeedback').html('');
+				
+				$('#cRaterSettingsDiv').hide();				
+			} else {
+				/*
+				 * the author does not want to remove all the CRater settings so we will
+				 * check the 'Enable CRater' checkbox and not touch the content
+				 */
+				$('#enableCRaterCheckbox').attr('checked', true);
+			}
+		}
+	}
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');
