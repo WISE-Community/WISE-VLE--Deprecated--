@@ -16,11 +16,11 @@
 		"description":"Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
 	},
 	"navigation_expand_all":{
-		"value":"Show All",
+		"value":"Expand All",
 		"description":"Text on a button to show all navigation items"
 	},
 	"navigation_collapse_all":{
-		"value":"Collapse All",
+		"value":"Collapse",
 		"description":"Text on a button to hide all navigation items"
 	}	
 }
