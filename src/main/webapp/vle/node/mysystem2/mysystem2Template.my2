@@ -12,7 +12,8 @@
    "enableLinkDescriptionEditing": false,
    "enableLinkLabelEditing": false,
    "enableCustomRuleEvaluator": false,
-   "customRuleEvaluator": ""
+   "customRuleEvaluator": "",
+   "excelExportStringTemplate": "Is Submit: {isSubmit}, Success: {response.MySystem.RuleFeedback.LAST_FEEDBACK.success}, Number of Submits: {response.MySystem.RuleFeedback.LAST_FEEDBACK.numOfSubmits}, Feedback: {response.MySystem.RuleFeedback.LAST_FEEDBACK.feedback}"
 }
 
 

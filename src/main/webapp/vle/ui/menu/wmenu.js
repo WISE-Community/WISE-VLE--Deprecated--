@@ -25,7 +25,9 @@ WMenu.prototype.init = function() {
 		};
 	};
 	
-	eventManager.fire('navigationMenuCreated');
+	setTimeout(function(){ // temporary kludge to fix problem with menu not resizing properly (in default WISE theme)
+		eventManager.fire('navigationMenuCreated');
+	},1000);
 };
 
 WMenu.prototype.toggleSequence = function(submenu) {

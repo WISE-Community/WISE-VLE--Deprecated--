@@ -5,8 +5,8 @@
  * 
  * REQUIRED items are noted as such.
  * 
- * Theme creators can also define customizations to execute when both the navigation
- * menu has been created in the DOM (see 'menuCreated' function) and a new step
+ * Theme creators can also define customizations to add when both the navigation
+ * menu has been created in the DOM (see 'menuCreated' function) and a when new step
  * has been opened by a student (see 'nodeRendered' function).
  */
 
@@ -71,7 +71,7 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 	html += "</td>";
 	html += "<td>";
 	
-	// *SUGGESTED*: if you want to display the step's title, include the title param
+	// *SUGGESTED*: if you want to display the step's title, include the title parameter some in the html
 	// insert the span to display the step title
 	html += "<span class='nodeTitle'>" + title + "</span>";
 	
@@ -88,7 +88,8 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 };
 
 /**
- * Called when the navigation menu has been inserted into the DOM
+ * Called when the navigation menu has been inserted into the DOM (when the project
+ * first starts up)
  * 
  * REQUIRED
  * 
@@ -97,6 +98,9 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
  */
 NavigationPanel.prototype.menuCreated = function() {
 	var view = this.view;
+	
+	// set the text and title for the toggle navigation menu button
+	$('#toggleNavLink').attr('title',view.theme.getI18NString("toggle_nav_button_title")).html(view.theme.getI18NString("toggle_nav_button_text"));
 	
 	// display ExpandAll/CollapseAll buttons
 	var expandAllText = view.theme.getI18NString("navigation_expand_all");
@@ -135,15 +139,16 @@ NavigationPanel.prototype.menuCreated = function() {
  * REQUIRED
  * 
  * By default, the new step's content is displayed. The 'currentNode'
- * class is added to the new step's DOM element and removed from the previous
- * step's DOM element. In addition, the 'inactive' class is added to all step 
- * and activity DOM elements that are not part of the current activity.
+ * class is added to the new step's menu element and removed from the previous
+ * step's menu element. In addition, the 'inactive' class is added to all step 
+ * and activity menu elements that are not part of the current activity.
  * Any DOM customizations, scripting, or event handlers beyond these should be
  * included in this function. (It is okay to leave this function empty.)
  * 
  * @param node Node that has been rendered
  */
 NavigationPanel.prototype.nodeRendered = function(node) {
+	// clear the stepHeaderTimer timeout actions on the step header
 	clearTimeout($('#stepHeader').data('stepHeaderTimer'));
 	
 	// show the step title overlay (unless current step is a note, in which case the title is displayed in the note dialog)
