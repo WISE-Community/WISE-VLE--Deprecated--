@@ -20,5 +20,6 @@
       },
       "timeDependent": false
    },
+   "excelExportStringTemplate": "Is Correct: {isCorrect}, Score: {score}, Answer: {response}",
    "type": "Challenge"
 }
