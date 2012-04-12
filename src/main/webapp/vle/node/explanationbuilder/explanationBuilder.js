@@ -217,6 +217,7 @@ ExplanationBuilder.prototype.render = function() {
 		//$('#answer').hide();
 		$('#response').remove();
 		$('#showResponse').remove();
+		$('#promptLabel').css('margin-right','0');
 		
 		// set spacePromptText text
 		spacePromptText = 'This is your Organizing Space. Drag ' + this.ideaTermPlural + ' here to help you build a response to the question or instructions above.';
@@ -747,11 +748,19 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 					lastAcceptedText = ideaText;
 				}
 				
+				var height = null, width = null;
+				if(explanationIdeas[a].height){
+					height = explanationIdeas[a].height;
+				}
+				if(explanationIdeas[a].width){
+					width = explanationIdeas[a].width;
+				}
+				
 				//determine if the idea is active or in the trash
 				var isActive = this.ideaBasket.isIdeaActive(id);
 				
 				//add the explanation idea to 
-				this.addExpIdea(this,true,isActive,id,left,top,color,lastAcceptedText);
+				this.addExpIdea(this,true,isActive,id,left,top,color,lastAcceptedText,height,width);
 			}
 			
 			this.explanationIdeas = explanationIdeas;
@@ -807,7 +816,7 @@ ExplanationBuilder.prototype.addRow = function(idea,load){
 				var attribute = idea.attributes[i];
 				if(attribute.id == this.selectedAttribute){
 					if(attribute.type=='icon'){
-						html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td style="text-align:center;"><span title="' + attribute.value + '" class="' + attribute.value + '"></span></td></tr>';
+						html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td class="' + attribute.type + '"><span title="' + attribute.value + '" class="' + attribute.value + '"></span></td></tr>';
 					} else if(attribute.type=='tags'){
 						html = '<tr id="idea' + idea.id + '" title="' + title + '"><td>' + text + '</td><td class="tags">';
 						for(var a=0;a<attribute.value.length;a++){
@@ -1058,7 +1067,7 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
 		var text = context.populateEditForm(context,id,true);
 		
 		// open edit dialog
-		var title = 'Edit Your ' + context.utils.capitalize(context.ideaTerm);
+		var title = 'Edit Your ' + context.view.utils.capitalize(context.ideaTerm);
 		$('#editDialog').dialog({ title:title, modal:true, resizable:false, width:'470', 
 			buttons:{
 				"OK": function(){
@@ -1200,7 +1209,7 @@ ExplanationBuilder.prototype.checkIfIdeaUsed = function(id) {
 	return answer;
 };
 
-ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,left,top,color,lastAcceptedText){
+ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,left,top,color,lastAcceptedText,height,width){
 	$('#spacePrompt').hide();
 	var text='';
 	var ideaText = '';
@@ -1217,7 +1226,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	if(isActive){
 		for(var i=0; i<this.ideaBasket.ideas.length; i++){
 			if(this.ideaBasket.ideas[i].id == id){
-				newIdea = new ExplanationIdea(id,left,top,color);
+				newIdea = new ExplanationIdea(id,left,top,color,height,width);
 				title = 'Click and drag to move; Click to change color';
 				ideaText = this.ideaBasket.ideas[i].text;
 				text = '<span title="' + title + '">' + ideaText + '</span>';
@@ -1255,7 +1264,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	} else {
 		for(var i=0; i<this.ideaBasket.deleted.length; i++){
 			if(this.ideaBasket.deleted[i].id == id){
-				newIdea = new ExplanationIdea(id,left,top,color);
+				newIdea = new ExplanationIdea(id,left,top,color,height,width);
 				title = 'Click and drag to move';
 				text = '<span title="' + title + '">' + this.ideaBasket.deleted[i].text + '</span>';
 				timeLastEdited = this.ideaBasket.deleted[i].timeLastEdited;
@@ -1281,9 +1290,11 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 	}
 
 	$('.exIdea').removeClass('selected'); // remove any current selection
-
-	$('#target').append('<div class="exIdea" class="selected" id="explanationIdea' + id + '" style="position:absolute; left:' +
+	
+	var $newIdea = $('<div class="exIdea" class="selected" id="explanationIdea' + id + '" style="position:absolute; left:' +
 			left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>');
+	
+	$('#target').append($newIdea);
 
 	$('#colorPicker').show(); // show color picker
 	
@@ -1297,6 +1308,13 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		left = rightBoundary;
 		$('#explanationIdea' + id).css('left',left);
 	};
+	
+	if(height){
+		$newIdea.height(height);
+	}
+	if(width){
+		$newIdea.width(width);
+	}
 
 	if(isLoad){
 		if(context.answer && context.answer != ''){
@@ -1509,11 +1527,35 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 			context.updateExpIdea(id,left,top);
 		}
 	});
+	
+	//var minHeight = $('span', $('#explanationIdea' + id)).height();
+	//var minWidth = $('span', $('#explanationIdea' + id)).width();
+	$('#explanationIdea' + id).resizable({
+		//minHeight:minHeight,
+		//minWidth:minWidth,
+		resize: function(event,ui){
+			var minHeight = $('span',$(this)).height();
+			var minWidth = $('span',$(this)).width();
+			if($(this).height() < minHeight){
+				$(this).height(minHeight);
+			}
+			if($(this).width() < minWidth){
+				$(this).width(minWidth);
+			}
+		},
+		stop: function(event,ui){
+			var height = $(this).height();
+			var width = $(this).width();
+			var id = $(this).attr('id');
+			id = id.replace('explanationIdea','');
+			context.updateExpIdea(id,null,null,null,null,height,width);
+		}
+	});
 
 	$('#explanationIdea' + id).click();
 };
 
-ExplanationBuilder.prototype.updateExpIdea = function(id,left,top,color,lastAcceptedText){
+ExplanationBuilder.prototype.updateExpIdea = function(id,left,top,color,lastAcceptedText,height,width){
 	this.expIdeasChanged = true;
 	for(var i=0; i<this.explanationIdeas.length; i++){
 		if(this.explanationIdeas[i].id == id){
@@ -1529,7 +1571,13 @@ ExplanationBuilder.prototype.updateExpIdea = function(id,left,top,color,lastAcce
 			if(lastAcceptedText){
 				this.explanationIdeas[i].lastAcceptedText = lastAcceptedText;
 				//update the text displayed in the explanation idea
-				$('#explanationIdea' + id).html(lastAcceptedText);
+				$('#explanationIdea' + id + ' > span').html(lastAcceptedText);
+			}
+			if(height){
+				this.explanationIdeas[i].height = height;
+			}
+			if(width){
+				this.explanationIdeas[i].width = width;
 			}
 			//localStorage.explanationIdeas = JSON.stringify(this.explanationIdeas);
 			break;
@@ -1618,8 +1666,9 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 									if(answer) {
 										var attributes = context.getIdeaAttributes('edit');
 										context.editV2(id,$('#editText').val(),attributes,true);
+										removeNotification();
 										$(this).dialog("close");
-										resetForm('editForm');						
+										resetForm('editForm');					
 									}
 								} else {
 									if($('#editSource').val() == 'empty'){
@@ -1638,6 +1687,7 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 												source = 'Other: ' + $('#editOther').val();
 											}
 											context.edit(id,$('#editText').val(),source,$('#editTags').val(),$("input[name='editFlag']:checked").val(),true);
+											removeNotification();
 											$(this).dialog("close");
 											resetForm('editForm');
 											//setLastAcceptedText(id);
@@ -1699,6 +1749,7 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 									},1200);
 									$('#explanationIdea' + id).css('background-color',color);
 									$('#explanationIdea' + id).removeClass('deleted');
+									removeNotification();
 									$('#idea' + id).draggable('disable');
 									resetForm('editForm');
 									//setLastAcceptedText(id);
@@ -1718,6 +1769,7 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 										},1200);
 										$('#explanationIdea' + id).css('background-color',color);
 										$('#explanationIdea' + id).removeClass('deleted');
+										removeNotification();
 										$('#idea' + id).draggable('disable');
 										resetForm('editForm');
 										//setLastAcceptedText(id);
