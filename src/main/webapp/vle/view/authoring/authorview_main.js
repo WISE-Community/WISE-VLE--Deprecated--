@@ -740,6 +740,23 @@ View.prototype.submitUpload = function() {
 			
 			$('#assetProcessing').show();
 			
+			if(filename.indexOf(' ') != -1) {
+				/*
+				 * the file name contains a space so we will alert a message to
+				 * notify them that they may need to replace the spaces with
+				 * %20 when they reference the file in steps.
+				 */ 
+				
+				/*
+				 * replace all the spaces with %20 so we can show the author how
+				 * they should reference the file
+				 */
+				var fixedFileName = filename.replace(/ /g, '%20');
+				
+				//display the popup message
+				alert('Note: Your file name contains a space character so when you reference it in steps\nyou may need to replace all the spaces with %20 in order for the image to work.\n\nIt should look like this\nassets/' + fixedFileName);
+			}
+			
 			/* close the dialog */
 			//$('#assetUploaderDialog').dialog('close');
 		}
