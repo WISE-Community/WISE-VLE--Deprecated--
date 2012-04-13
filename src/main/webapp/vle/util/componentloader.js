@@ -649,7 +649,8 @@ var componentloader = function(em, sl){
 				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
 				'ifrmLoaded':[null,null], 'processLoadViewStateResponseComplete':[null,null], 'saveNote':[null,null],
 				'saveAndLockNote':[null,null], 'noteHandleEditorKeyPress':[null,null], 'noteShowStarter':[null,null],
-				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null]
+				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null],
+				'assetUploaded':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -688,6 +689,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('startVLEComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingThemeComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('scriptsLoaded', view.vleDispatcher, view);
+						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);

@@ -217,7 +217,11 @@ function AlertObject(elId, msg, mode, divId){
 			setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
 		}
 	} else {
-		$('#' + this.elId + '> .content').html(msg);
+		//insert the message into the div
+		$('#' + this.elId).html(msg);
+		
+		//show the div
+		$('#' + this.elId).show();
 		//$('#' + this.elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
 		var msgHeight = $('#vle_messages').height();
 		$('#' + this.elId).animate({opacity:1});
