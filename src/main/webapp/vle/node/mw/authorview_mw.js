@@ -65,6 +65,11 @@ View.prototype.MWNode.generatePage = function(view){
 	//create a new div that will contain the authroing components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 
+	//create a span with authoring tips
+	var tipSpan = createElement(document, 'span', {id:'tipSpan'});
+	tipSpan.innerHTML = "Authoring Tip:<br/>Please upload both the .cml and .mml file to the project using the file uploader.<br/>" +
+		"Then, in the CML URL textbox below, enter \"./assets/FILENAME.cml\".<br/>If you need more help, please contact WISE.<br/><br/>";
+
 	//create the label for the textarea that the author will write the prompt in
 	var promptText = document.createTextNode("Prompt for Student:");
 
@@ -74,6 +79,7 @@ View.prototype.MWNode.generatePage = function(view){
 	var cmlUrlInput = createElement(document, 'input', {id: 'cmlUrlInput', type:'text', size:'50', onchange:"eventManager.fire('mwUpdateCmlUrlInput')"});
 
 	//add the authoring components to the page
+	pageDiv.appendChild(tipSpan);
 	pageDiv.appendChild(promptText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(promptTextArea);
