@@ -132,6 +132,7 @@ MSA.EnergyType = SCUtil.ModelObject.extend( SCUtil.UUIDModel, {
 // so there are different types of rule 
 MSA.DiagramRule = SCUtil.ModelObject.extend({
   suggestion: SCUtil.dataHashProperty,
+  name: SCUtil.dataHashProperty,
   comparison: SCUtil.dataHashProperty,
   number: SCUtil.dataHashProperty,
   type: SCUtil.dataHashProperty,
@@ -259,4 +260,41 @@ MSA.TextField = SC.TextField.extend({
   attributeBindings: ['type', 'value', 'size'],
   type: "text",
   size: null
+});
+
+MSA.customRuleController = SC.Object.create({
+  editorWindow: null,
+
+  editCustomRule: function() {
+    var editorWindow = this.get('editorWindow');
+    var features  = "menubar=no,location=no,titlebar=no,toolbar=no,resizable=yes,scrollbars=yes,status=no,width=750,height=650"; 
+    var javascript = MSA.activity.get('customRuleEvaluator');
+
+    // reuse existing window:
+    if (editorWindow) {
+      editorWindow.postMessage(javascript,"*");
+      editorWindow.focus();
+    }
+
+    // or create a new one:
+    else {
+      editorWindow = window.open("ace.html", 'editorwindow', features);
+      this.set('editorWindow', editorWindow);
+      editorWindow.srcText = javascript;
+      editorWindow.originParent = window;
+    }
+    var self = this;
+    var updateMessage = function(event) {
+      var message = JSON.parse(event.data);
+      if (message.javascript) {
+        MSA.activity.set('customRuleEvaluator',message.javascript);
+      }
+      if (message.windowClosed) {
+        self.set('editorWindow',null);
+      }
+    };
+
+    window.addEventListener("message", updateMessage, false);
+  }
+
 });

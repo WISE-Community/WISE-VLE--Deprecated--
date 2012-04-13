@@ -51,11 +51,11 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : 0a253a888865bd6d64a71ff179e13a223a27d137 ");
-  var git_time        = document.createTextNode("commit time : Mon Mar 26 17:13:16 2012 -0400 ");
-  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master, html_feedback) ");
-  var sc_build_time   = document.createTextNode("build time  : 2012-03-27 14:16:36 -0400 ");
-  var sc_build_number = document.createTextNode("build no.   : 4141c7168d204c8cc5d3591ffdc8944c4b6e6dbb ");
+  var git_sha         = document.createTextNode("commit sha  : 92876fac5c56caa95cc9666e594b31d48b2fc4d4 ");
+  var git_time        = document.createTextNode("commit time : Tue Apr 10 17:37:44 2012 -0400 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master) ");
+  var sc_build_time   = document.createTextNode("build time  : 2012-04-10 17:38:07 -0400 ");
+  var sc_build_number = document.createTextNode("build no.   : 9cb8d6b612145eb83b7f198727e7935e90004e49 ");
   
   git_sha_div.appendChild(git_sha);
   git_time_div.appendChild(git_time);
@@ -114,19 +114,19 @@ View.prototype.Mysystem2Node.populatePrompt = function() {
  * Updates the html with the user entered prompt
  */
 View.prototype.Mysystem2Node.updatePrompt = function(){
-	//get the prompt content
-	var promptContent = '';
-	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
-		promptContent = $('#promptInput').tinymce().getContent();
-	} else {
-		promptContent = $('#promptInput').val();
-	}
-	
-	//set the prompt content
-	this.content.prompt = promptContent;
+  //get the prompt content
+  var promptContent = '';
+  if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
+    promptContent = $('#promptInput').tinymce().getContent();
+  } else {
+    promptContent = $('#promptInput').val();
+  }
 
-	/* fire source updated event */
-	this.view.eventManager.fire('sourceUpdated');
+  //set the prompt content
+  this.content.prompt = promptContent;
+
+  /* fire source updated event */
+  this.view.eventManager.fire('sourceUpdated');
 };
 
 /**

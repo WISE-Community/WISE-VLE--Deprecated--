@@ -193,6 +193,12 @@
     <h2>Diagram Rules</h2>
     {{#collection contentBinding="MSA.diagramRulesController" tagName="ol" attributeBindings="start" start="0"}}
         <div class="diagram_rule">
+          <div class="diagram_rule_name">
+            <span class="label">Rule Name:</span>
+            <span class="value">
+              {{view MSA.TextField valueBinding="parentView.content.name" placeholder="name"}}
+            </span>
+          </div>
           The diagram 
           {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.shouldOptions" valueBinding="parentView.content.shouldOption"}} contain
           {{collection SCUtil.Select contentBinding="MSA.diagramRulesController.comparisons" valueBinding="parentView.content.comparison"}}
@@ -246,20 +252,22 @@
         id="customRuleEvaluator"}}
     {{#if "MSA.activity.enableCustomRuleEvaluator"}}
 
-        Javascipt for custom rules. e.g.
-        <br/>
-        <pre>
-          <code>
-            var rule_a = rules.objectAt(0).check(nodes);
-            var rule_b = rules.objectAt(1).check(nodes);
-            var rule_c = rules.objectAt(2).check(nodes);
-            if(! ((rule_a && rule_b) || rule_c)) {
-              suggestions.pushObject(rules.objectAt(2).get('suggestion'));
-            }
-          </code>
-        </pre>
-
-        <br/>
+Javascipt for custom rules. e.g.
+<br/>
+<pre>
+  // sample use:
+  if (Rules.extraLinks()) {
+    Rules.addSuggestion("You have some extra links!");
+  }
+  if (!Rules.iconsUsedOnce()) {
+    Rules.addSuggestion("You can only use each icon once.");
+  }
+  if (!Rules.hasTransformation()) {
+    Rules.addSuggestion("How is energy transformed?");
+  }
+</code>
+</pre>
+<br/>
         <div id="customRuleEvaluator">
           {{
             view MSA.TextArea 
@@ -268,6 +276,7 @@
             rows          = "20"
             cols          = "72" 
           }}
+          {{#view SC.Button target="MSA.customRuleController" action="editCustomRule"}} edit {{/view}}
         </div>
     {{/if}}
   </div>
@@ -280,7 +289,6 @@
 </div>
 </script>
   
-
 
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>

@@ -19,8 +19,8 @@
           authorIframeLoaded = false,
           appIframeLoaded = false;
       
-      function createIframe(url, id, $elem, callback) {
-        $iframe = $('<iframe id='+id+'>').attr('src', url).attr('width', '100%').attr('height', 700);
+      function createIframe(url, id, $elem, callback, authoring) {
+        $iframe = $('<iframe id='+id+'>').attr('src', url).attr('width', '100%').attr('height', 600);
         $elem.append($iframe);
         $('iframe#'+id).load(function() 
         {
@@ -110,6 +110,7 @@
           }
         });
         $('#autosave_time').keyup(function(){
+          console.log("woo")
           if ($('#autosave_external')[0].checked){
             runtimeContent.MySystem.setAutoSaveFrequency(this.value * 1000);
           }
@@ -120,22 +121,14 @@
   </script>
 </head>
 <body>
-  <h1>MySystem Authoring Preview</h1>
-  <table width="100%">
-    <tr>
-      <td width="50%" id="authoring_td">
-        <button id="save_authoring">Save authored activity</button>
-      </td>
-      <td width="50%" id="runtime_td" style="text-align: right">
-        <span class="options_disabled">
-          <input type="checkbox" id="save_external" disabled>Enable diagram saving &nbsp;&nbsp;
-          <span class="options_disabled">
-            <input type="checkbox" id="autosave_external" disabled>Autosave every
-            <input type="text" size="2" value="20" id="autosave_time" disabled> seconds
-          </span>
-        </span>
-      </td>
-    </tr>
-  </table>
+  <h1>MySystem:</h1>
+  <br/>
+  <div style="display: none;" id="authoring_td"><button id="save_authoring">Save authored activity</button></div>
+  <div style="width: 100%;text-align: right;" id="runtime_td">
+    <span class="options_disabled">
+      <input type="checkbox" id="save_external" disabled>Enable diagram saving</input>
+    </span>
+  </div>
+
 </body>
 </html>
