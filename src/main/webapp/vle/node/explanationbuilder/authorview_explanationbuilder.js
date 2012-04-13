@@ -92,17 +92,21 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	 * new events in the <new step type name>Events.js file and then
 	 * create new functions to handle the event
 	 */
-	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
+	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'3', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdatePrompt')"});
 	
 	//create the text for the enable student text area checkbox
 	var enableStudentTextAreaText = document.createTextNode("Enable Student Response Box:");
 	
-	//create the checkbox for enabling the student text area
+	//create the checkbox for enabling the student response area
 	var enableStudentTextAreaCheckBox = createElement(document, 'input', {id: 'enableStudentTextAreaCheckBox', type: 'checkbox', onclick: 'eventManager.fire("explanationBuilderUpdateEnableStudentTextAreaCheckBox")'});
 	enableStudentTextAreaCheckBox.checked = true;
 	
+	// create the section for student response area
+	var instructionsTextAreaDiv = document.createElement('div');
+	$(instructionsTextAreaDiv).attr('id','instructions');
+	
 	//create the label for the textarea that the author will write the instructions in
-	var instructionsText = document.createTextNode("Instructions for Student Explanation:");
+	var instructionsText = document.createTextNode("Instructions for Student Response:");
 	
 	//get the instructions
 	var instructionsValue = this.content.instructions;
@@ -113,7 +117,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	}
 	
 	//create the textarea that the author will write the instructions in
-	var instructionsTextArea = createElement(document, 'textarea', {id: 'instructionsTextArea', rows:'5', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdateInstructions')"});
+	var instructionsTextArea = createElement(document, 'textarea', {id: 'instructionsTextArea', rows:'3', cols:'85', onkeyup:"eventManager.fire('explanationBuilderUpdateInstructions')"});
 
 	//populate the instructions text area
 	instructionsTextArea.value = instructionsValue;
@@ -179,9 +183,10 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	pageDiv.appendChild(enableStudentTextAreaCheckBox);
 	pageDiv.appendChild(createBreak());
 	
-	pageDiv.appendChild(instructionsText);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(instructionsTextArea);	
+	instructionsTextAreaDiv.appendChild(instructionsText);
+	instructionsTextAreaDiv.appendChild(createBreak());
+	instructionsTextAreaDiv.appendChild(instructionsTextArea);
+	pageDiv.appendChild(instructionsTextAreaDiv);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(backgroundImageUrlLabel);
@@ -203,6 +208,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	//populate the enable student text area checkbox
 	if(!this.content.enableStudentTextArea) {
 		enableStudentTextAreaCheckBox.checked = false;
+		$('#instructions').hide();
 	}
 	
 	//populate the require work checkbox
@@ -299,8 +305,16 @@ View.prototype.ExplanationBuilderNode.updateInstructions = function(){
  * Update whether to display the student text area or not
  */
 View.prototype.ExplanationBuilderNode.updateEnableStudentTextAreaCheckBox = function() {
+	var checked = $('#enableStudentTextAreaCheckBox').attr('checked');
 	//update the content
-	this.content.enableStudentTextArea = this.isChecked($('#enableStudentTextAreaCheckBox').attr('checked'));
+	this.content.enableStudentTextArea = this.isChecked(checked);
+	
+	// show/hide the instructions prompt
+	if(checked){
+		$('#instructions').slideDown('fast');
+	} else {
+		$('#instructions').slideUp('fast');
+	}
 	
 	/*
 	 * fire source updated event, this will update the preview
