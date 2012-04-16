@@ -112,10 +112,11 @@ View.prototype.linkManager.nodeSelected = function(view){
 		/* set the text area's text */
 		ta.value = beginning + linkText + end;
 		
-		/* clean up and hide dialog */
 		this.currentStart = undefined;
 		this.currentEnd = undefined;
 	}
+	
+	/* clean up and hide dialog */
 	
 	/* we need to call the active node's update prompt event to catch the changes we just
 	 * made. We also need call the source updated method so that the new text in
@@ -259,9 +260,14 @@ View.prototype.linkManager.cleanNodePrompt = function(view, node){
  * Returns any links found in the currently authored prompt.
  */
 View.prototype.linkManager.getLinkStrings = function(){
-	var ta = document.getElementById('promptInput');
-	var exp = /<a .{0,50} onclick="node\.linkTo\('.{10}'\)">.{0,30}<\/a>/g;
-	var result = ta.value.match(exp);
+	var ta = '';
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce() && !$('#promptInput').tinymce().isHidden()){
+		ta = $('#promptInput').tinymce().getContent();
+	} else {
+		ta = document.getElementById('promptInput').value;
+	}
+	var exp = /<a .*onclick="node\.linkTo\('.{10}'\)">.*<\/a>/g;
+	var result = ta.match(exp);
 	
 	return result;
 };
