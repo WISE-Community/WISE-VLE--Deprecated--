@@ -802,9 +802,9 @@ OPENRESPONSE.prototype.showPreviousWorkThatHasAnnotation = function(previousResp
 							var tempPostTime = tempNodeVisit.visitPostTime;
 							
 							//get the node state timestamp
-							var nodeStateTimestamp = nodeState.timestamp;
+							//var nodeStateTimestamp = nodeState.timestamp;
 							
-							if(nodeStateTimestamp > annotationPostTime) {
+							if(tempPostTime > annotationPostTime) {
 								/*
 								 * the node visit post time is later than the annotation
 								 */
