@@ -127,7 +127,7 @@ View.prototype.ExplanationBuilderNode.generatePage = function(view){
 	
 	//the label for the background url input
 	var backgroundImageUrlLabel = document.createTextNode("Organizing Space Background Image:");
-	var maxImageSizeLabel = document.createTextNode(" - organizing space dimensions are 680x480 pixels");
+	var maxImageSizeLabel = document.createTextNode(" - organizing space dimensions are 640x480 pixels");
 	//the text input for the background url
 	var backgroundImageUrl = createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: background, size:50, onchange: 'eventManager.fire("explanationBuilderUpdateBackgroundImageUrl")'});
 	//create the browse button that allows author to choose swf from project assets
