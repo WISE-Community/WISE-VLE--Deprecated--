@@ -1084,7 +1084,7 @@ Node.prototype.copy = function(eventName, project){
 	if(this.type!='sequence'){
 		/* copy node section */
 		var project = this.view.getProject();
-		var data = this.content.getContentString();
+
 		if(this.type=='HtmlNode' || this.type=='DrawNode' || this.type=='MySystemNode'){
 			var contentFile = this.content.getContentJSON().src;
 		} else {
@@ -1096,7 +1096,8 @@ Node.prototype.copy = function(eventName, project){
 			this.view.eventManager.fire(eventName,[this.id, null]);
 			return;
 		};
-		var contentString = escape(this.content.getContentString());
+
+		var contentString = encodeURIComponent(this.content.getContentString());
 		
 		/*
 		 * get the project file name
