@@ -31,6 +31,7 @@ View.prototype.promptManager.insertPrompt = function(view) {
 };
 
 View.prototype.promptManager.cleanupPrompt = function() {
+	$('#promptDiv .rtToggles').remove();
 	$('body').append($('#promptDiv').hide().detach());
 };
 
