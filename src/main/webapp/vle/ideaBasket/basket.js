@@ -778,10 +778,10 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 							$('#edit_' + type + '_' + attrId).val(attributes[a].value);
 						}
 					} else if (type=='icon'){
-						$('[name=edit_' + type + '_' + attrId + ']').filter('[value='+attributes[a].value+']').prop("checked",true);
+						$('[name=edit_' + type + '_' + attrId + ']').filter('[value="'+attributes[a].value+'"]').prop("checked",true);
 					} else if (type=='tags'){
 						for(var x=0;x<attributes[a].value.length;x++){
-							$('[name=edit_' + type + '_' + attrId + ']').filter('[value='+attributes[a].value[x]+']').prop("checked",true);
+							$('[name=edit_' + type + '_' + attrId + ']').filter('[value="'+attributes[a].value[x]+'"]').prop("checked",true);
 						}
 					}
 				}
