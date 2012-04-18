@@ -766,6 +766,17 @@ View.prototype.submitUpload = function() {
 };
 
 /**
+ * Export currently-opened project as a zip file. Simply directs user to a servlet that does all the work.
+ */
+View.prototype.exportProject = function(params){
+	if(this.project && this.portalProjectId){
+		window.open("/webapp/author/project/exportproject.html?projectId=" + this.portalProjectId);
+	} else {
+		this.notificationManager.notify("Please open or create a project that you wish to export.", 3);
+	}
+};
+
+/**
  * Retrieves a list of any assets associated with the current project
  * from the server, populates a list of the assets in the assetEditorDialog
  * and displays the dialog.

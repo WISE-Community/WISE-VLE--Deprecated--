@@ -63,6 +63,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.submitUpload();
 	} else if(type=='editProjectFile'){
 		obj.editProjectFile();
+	} else if(type=='exportProject'){
+		obj.exportProject();
 	} else if(type=='updateAudio'){
 		obj.updateAudio();
 	} else if(type=='publishProject'){

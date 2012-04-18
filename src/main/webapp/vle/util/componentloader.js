@@ -374,6 +374,7 @@ var componentloader = function(em, sl){
 				'uploadAsset':[null,null], 
 				'viewAssets':[null,null], 
 				'submitUpload':[null,null],
+				'exportProject':[null,null],
 				'moveSelected':[null,null],
 				'deleteSelected':[null,null], 
 				'duplicateSelected':[null,null], 
@@ -492,6 +493,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('uploadAsset', view.authorDispatcher, view);
 					view.eventManager.subscribe('viewAssets', view.authorDispatcher, view);
 					view.eventManager.subscribe('submitUpload', view.authorDispatcher, view);
+					view.eventManager.subscribe('exportProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('editProjectFile', view.authorDispatcher, view);
 					view.eventManager.subscribe('updateAudio', view.authorDispatcher, view);
 					view.eventManager.subscribe('previewProject', view.authorDispatcher, view);
