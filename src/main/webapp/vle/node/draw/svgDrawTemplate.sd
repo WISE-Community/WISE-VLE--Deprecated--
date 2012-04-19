@@ -5,6 +5,8 @@
    "snapshots_active": true,
    "stamps": [],
    "svg_background": "",
+   "img_background": "",
+   "bg_position": "",
    "toolbar_options":{
 		"pencil":true,
 		"line":true,

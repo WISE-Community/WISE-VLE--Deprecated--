@@ -348,7 +348,7 @@ svgEditor.addExtension("Snapshots", function(S) {
 		svgEditor.warningStackSize = 0;
 		$("#tool_undo").addClass("tool_button_disabled").addClass("disabled");
 		if (pulse==true){
-			$('#svgcanvas').effect("pulsate", {times: '0'}, 700); // pulsate new canvas
+			$('#svgcanvas').effect("pulsate", {times: '1'}, 700); // pulsate new canvas
 		}
 		svgEditor.selected = true;
 		svgEditor.index = index;

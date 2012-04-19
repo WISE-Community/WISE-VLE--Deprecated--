@@ -55,6 +55,12 @@ View.prototype.svgdrawDispatcher = function(type,args,obj){
 		obj.SVGDrawNode.stampWidthClicked(args[0]);
 	} else if(type=='svgdrawStampHeightClicked'){
 		obj.SVGDrawNode.stampHeightClicked(args[0]);
+	} else if(type=='svgdrawUpdateBackgroundImageUrl') {
+		obj.SVGDrawNode.updateBackgroundImageUrl();
+	} else if(type=='svgdrawBrowseClicked') {
+		obj.SVGDrawNode.browseImageAssets();
+	} else if(type=='svgdrawUpdateBgAlign') {
+		obj.SVGDrawNode.updateBgAlign();
 	};
 };
 
@@ -84,7 +90,10 @@ var events = [
 	'svgdrawStampTitleClicked',
 	'svgdrawDescriptionClicked',
 	'svgdrawStampWidthClicked',
-	'svgdrawStampHeightClicked'
+	'svgdrawStampHeightClicked',
+	'svgdrawUpdateBackgroundImageUrl',
+	'svgdrawBrowseClicked',
+	'svgdrawUpdateBgAlign'
 ];
 
 /*

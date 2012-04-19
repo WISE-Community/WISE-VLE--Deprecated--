@@ -27,7 +27,9 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	var snapshotOptionDiv = createElement(document, 'div', {id: 'snapshotOptionDiv'});
 	var snapMaxDiv = createElement(document, 'div', {id: 'snapMaxDiv'});
 	var descriptionOptionDiv = createElement(document, 'div', {id: 'descriptionOptionDiv'});
+	var backgroundLabel = document.createTextNode('Specify a background for the drawing canvas: ');
 	var backgroundDiv = createElement(document, 'div', {id: 'backgroundDiv'});
+	$(backgroundDiv).addClass('promptContainer');
 	var stampsDiv = createElement(document, 'div', {id:'stampsDiv'});
 	
 	parent.appendChild(pageDiv);
@@ -40,6 +42,8 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	pageDiv.appendChild(document.createTextNode('Enter instructions for students (optional):'));
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(backgroundLabel);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(backgroundDiv);
 	pageDiv.appendChild(createBreak());
@@ -145,27 +149,15 @@ View.prototype.SVGDrawNode.generateSnapshotMaxOption = function(){
 	var parent = document.getElementById('snapMaxDiv');
 	
 	var snapshotMaxHtml = 'What is the maximum number of frames (snapshots) students can create?<br/>';
-	snapshotMaxHtml += '<select id="snapMaxInput" disabled="disabled" onchange="eventManager.fire(\'svgdrawSnapshotMaxOptionChanged\')">' + 
-		'<option value="2">2</option>' +
-		'<option value="3">3</option>' +
-		'<option value="4">4</option>' +
-		'<option value="5">5</option>' +
-		'<option value="6">6</option>' +
-		'<option value="7">7</option>' +
-		'<option value="8">8</option>' +
-		'<option value="9">9</option>' +
-		'<option value="10">10</option>' +
-		'<option value="11" class="noPencil">11</option>' +
-		'<option value="12" class="noPencil">12</option>' +
-		'<option value="13" class="noPencil">13</option>' +
-		'<option value="14"class="noPencil" >14</option>' +
-		'<option value="15" class="noPencil">15</option>' +
-		'<option value="16" class="noPencil">16</option>' +
-		'<option value="17" class="noPencil">17</option>' +
-		'<option value="18" class="noPencil">18</option>' +
-		'<option value="19" class="noPencil">19</option>' +
-		'<option value="20" class="noPencil">20</option>' +
-		'</select>';
+	snapshotMaxHtml += '<select id="snapMaxInput" disabled="disabled" onchange="eventManager.fire(\'svgdrawSnapshotMaxOptionChanged\')">';
+	for(var i=2;i<21;i++){
+		if(i<11){
+			snapshotMaxHtml += '<option value="'+i+'">'+i+'</option>';
+		} else {
+			snapshotMaxHtml += '<option class="noPencil" value="'+i+'">'+i+'</option>';
+		}
+	}
+	snapshotMaxHtml += '</select>';
 	
 	parent.innerHTML = snapshotMaxHtml;
 	
@@ -224,7 +216,8 @@ View.prototype.SVGDrawNode.generateBackground = function(){
 	};
 	
 	/* create new */
-	var text = document.createTextNode('Enter svg xml string to specify a background image. If no background image is desired, leave blank.');
+	var introText = document.createTextNode('To create a background, you can either input an svg-edit xml string or choose an image file to use.  (If no background is desired, leave both fields blank.)');
+	var text = document.createTextNode('Svg xml string: ');
 	var backgroundPathInput = createElement(document, 'input', {type:'text', size:'30', id:'backgroundPathInput', onchange:'eventManager.fire("svgdrawBackgroundChanged")'});
 	
 	if(this.content.svg_background){
@@ -233,9 +226,57 @@ View.prototype.SVGDrawNode.generateBackground = function(){
 		this.content.svg_background = "";
 	};
 	
-	parent.appendChild(text);
+	var imgBg = '';
+	if("img_background" in this.content){
+		imgBg = this.content.img_background;
+	}
+	
+	//the label for the background url input
+	var backgroundImageUrlLabel = $(document.createTextNode("Image file (this will override any svg xml string specified above): "));
+	var maxImageSizeLabel = $(document.createTextNode(" - drawing dimensions are 600x450 pixels"));
+	//the text input for the background image url input
+	var backgroundImageUrl = $(createElement(document, 'input', {type: 'text', id: 'backgroundImageUrl', name: 'backgroundImageUrl', value: imgBg, size:50, onchange: 'eventManager.fire("svgdrawUpdateBackgroundImageUrl")'}));
+	//create the browse button that allows author to choose swf from project assets
+	var backgroundBrowseButton = $(createElement(document, 'button', {id: 'backgroundBrowseButton', onclick:'eventManager.fire("svgdrawBrowseClicked")'})).text('Browse');
+	
+	//the label for the background align drop-down select
+	var backgroundAlignLabel = $(document.createTextNode("Background Image Alignment: "));
+	//create the background align drop-down select
+	var backgroundAlignSelect = $(createElement(document, 'select', {id: 'backgroundAlignSelect', onchange:'eventManager.fire("svgdrawUpdateBgAlign")'}));
+	//create the options for background align drop-down select
+	var leftTopOption = $(createElement(document, 'option', {value: 'left-top'})).append($(document.createTextNode('Left-Top')));
+	var leftMiddleOption = $(createElement(document, 'option', {value: 'left-middle'})).append($(document.createTextNode('Left-Middle')));
+	var leftBottomOption = $(createElement(document, 'option', {value: 'left-bottom'})).append($(document.createTextNode('Left-Bottom')));
+	var centerTopOption = $(createElement(document, 'option', {value: 'center-top'})).append($(document.createTextNode('Center-Top')));
+	var centerMiddleOption = $(createElement(document, 'option', {value: 'center-middle'})).append($(document.createTextNode('Center-Middle')));
+	var centerBottomOption = $(createElement(document, 'option', {value: 'center-bottom'})).append($(document.createTextNode('Center-Bottom')));
+	var rightTopOption = $(createElement(document, 'option', {value: 'right-top'})).append($(document.createTextNode('Right-Top')));
+	var rightMiddleOption = $(createElement(document, 'option', {value: 'right-middle'})).append($(document.createTextNode('Right-Middle')));
+	var rightBottomOption = $(createElement(document, 'option', {value: 'right-bottom'})).append($(document.createTextNode('Right-Bottom')));
+	
+	$(backgroundAlignSelect).append(leftTopOption).append(leftMiddleOption).append(leftBottomOption).append(centerTopOption).append(centerMiddleOption).append(centerBottomOption).append(rightTopOption).append(rightMiddleOption).append(rightBottomOption);
+	
+	parent.appendChild(introText);
 	parent.appendChild(createBreak());
+	parent.appendChild(createBreak());
+	parent.appendChild(text);
 	parent.appendChild(backgroundPathInput);
+	parent.appendChild(createBreak());
+	parent.appendChild(createBreak());
+	$(parent).append(backgroundImageUrlLabel);
+	parent.appendChild(createBreak());
+	$(parent).append(maxImageSizeLabel);
+	parent.appendChild(createBreak());
+	$(parent).append(backgroundImageUrl).append(backgroundBrowseButton);
+	parent.appendChild(createBreak());
+	$(parent).append(backgroundAlignLabel);
+	parent.appendChild(createBreak());
+	$(parent).append(backgroundAlignSelect);
+	
+	//populate the background align select
+	if("bg_position" in this.content) {
+		$('#backgroundAlignSelect').val(this.content.bg_position);
+	}
 };
 
 /**
@@ -577,6 +618,51 @@ View.prototype.SVGDrawNode.stampHeightClicked = function(ndx){
 	if(height.value==0){
 		height.value = '';
 	};
+};
+
+/**
+ * Updates the background image url to match that of what the user input
+ */
+View.prototype.SVGDrawNode.updateBackgroundImageUrl = function(){
+	/* update content */
+	this.content.img_background = document.getElementById('backgroundImageUrl').value;
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Open asset editor dialog and allows user to choose the image to use for the background
+ */
+View.prototype.SVGDrawNode.browseImageAssets = function() {
+	var callback = function(field_name, url, type, win){
+		url = 'assets/' + url;
+		document.getElementById(field_name).value = url;
+		
+		//fire background url changed event
+		this.eventManager.fire('svgdrawUpdateBackgroundImageUrl');
+	};
+	var params = {};
+	params.field_name = 'backgroundImageUrl';
+	params.type = 'image';
+	params.win = null;
+	params.callback = callback;
+	eventManager.fire('viewAssets',params);
+};
+
+/**
+ * Update background image position
+ */
+View.prototype.SVGDrawNode.updateBgAlign = function() {
+	//update the content
+	this.content.bg_position = $('#backgroundAlignSelect').val();
+	
+	/*
+	 * fire source updated event, this will update the preview
+	 */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**

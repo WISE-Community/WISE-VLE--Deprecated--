@@ -1292,6 +1292,37 @@ View.prototype.utils.generateKey = function(length){
 	return key;
 };
 
+/**
+ * Given an image url, calculates and returns the height and width of the image in pixels.
+ * Modified from: http://stackoverflow.com/questions/106828/javascript-get-image-height/952185#952185
+ * @param url String identifying the url of an image file
+ * @returns dimensions Object specifying height and width of the image file (defaults to 0, 0)
+ */
+View.prototype.utils.getImageDimensions = function(url,callback){
+	var dimensions = {
+		"height": 0,
+		"width": 0
+	};
+	
+	function findHHandWW() {
+		if(this.height){
+			dimensions.height = this.height;
+		}
+		if(this.width){
+			dimensions.width = this.width;
+		}
+		callback(dimensions);
+	}
+	
+	var myImage = new Image();
+	myImage.name = url;
+	myImage.onload = findHHandWW;
+	myImage.src = url;
+	
+	//return dimensions;
+};
+
+
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/view_utils.js');

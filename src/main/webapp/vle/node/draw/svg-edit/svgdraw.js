@@ -42,6 +42,12 @@ SVGDRAW.prototype.init = function(jsonURL) {
 
 
 SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
+	var view = this.node.view;
+	
+	var myDataService = new VleDS(vle);
+ 	// or var myDataService = new DSSService(read,write);
+	context.setDataService(myDataService);
+	
 	var data = context.content;
 	
 	if(data.stamps.length > 0){
@@ -68,17 +74,52 @@ SVGDRAW.prototype.loadModules = function(jsonfilename, context) {
 	if(data.prompt){
 		context.instructions = data.prompt;
 	}
-	if(data.svg_background){
-		context.defaultImage = data.svg_background;
-	}
 	if(data.toolbar_options){
 		context.toolbarOptions = data.toolbar_options;
 	}
-	
-	var myDataService = new VleDS(vle);
- 	// or var myDataService = new DSSService(read,write);
-	context.setDataService(myDataService);
-	context.load();   // load preview data, if any, or load default background
+	if(data.img_background && view.utils.isNonWSString(data.img_background)){
+		var bgUrl = data.img_background;
+		var position = 'left-top';
+		var xPos = 1, yPos = 1;
+		view.utils.getImageDimensions(data.img_background,function(dimensions){
+			var height = dimensions.height, width = dimensions.width;
+			if(data.bg_position){
+				position = data.bg_position;
+			}
+			var rightX = 599-width;
+			var centerX = (rightX+1)/2;
+			var bottomY = 449-height;
+			var middleY = (bottomY+1)/2;
+			if(position=='left-top'){
+				xPos = 1, yPos = 1;
+			} else if(position=='left-middle') {
+				xPos = 1, yPos = middleY;
+			} else if(position=='left-bottom') {
+				xPos = 1, yPos = bottomY;
+			} else if(position=='right-top') {
+				xPos = rightX, yPos = 1;
+			} else if(position=='right-middle') {
+				xPos = rightX, yPos = middleY;
+			} else if(position=='right-bottom') {
+				xPos = rightX, yPos = bottomY;
+			} else if(position=='center-top') {
+				xPos = centerX, yPos = 1;
+			} else if(position=='center-middle') {
+				xPos = centerX, yPos = middleY;
+			} else if(position=='center-bottom') {
+				xPos = centerX, yPos = bottomY;
+			} 
+			context.defaultImage = '<svg width="600" height="450" xmlns="http://www.w3.org/2000/svg" ' +
+				'xmlns:xlink="http://www.w3.org/1999/xlink"><g><title>teacher</title>' +
+				'<image x="' + xPos + '" y="' + yPos + '" width="' + width + '" height="' + height + '" xlink:href="' + bgUrl + '" /></g></svg>';
+			context.load();   // load preview data, if any, or load default background
+		});
+	} else if(data.svg_background && view.utils.isNonWSString(data.svg_background)){
+		context.defaultImage = data.svg_background;
+		context.load();   // load preview data, if any, or load default background
+	} else {
+		context.load();   // load preview data, if any, or load default background
+	}
 };
 
 
@@ -149,7 +190,7 @@ SVGDRAW.prototype.loadCallback = function(studentWorkJSON, context) {
 			}*/
 
 		} else if (context.defaultSnapshots){ // if no previous work, load author-specified default snapshots
-			var snpashots = context.defaultSnapshots;
+			var snapshots = context.defaultSnapshots;
 			svgEditor.loadSnapshots(snapshots);
 		} else if (context.defaultImage){ // if no previous work and no default snaps, load default background drawing
 			//TODO: Perhaps modify this to allow foreground (editable) starting drawings as well
