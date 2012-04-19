@@ -398,7 +398,7 @@ View.prototype.nodeTitleChanged = function(id){
 	if(val.length>60 && node.type!='sequence'){
 		this.notificationManager.notify('Step titles cannot exceed 60 characters.', 3);
 		document.getElementById('titleInput_' + id).value = val.substring(0, 60);
-	} else if(val.length>28 && node.type=='sequence'){
+	} else if(val.length>50 && node.type=='sequence'){
 		this.notificationManager.notify('Activity titles cannot exceed 50 characters.', 3);
 		document.getElementById('titleInput_' + id).value = val.substring(0, 50);
 	} else {
