@@ -132,7 +132,7 @@ MC.prototype.render = function() {
 			$('#answersLabelDiv').hide();
 			
 			//display the message to the student
-			$('#promptDiv').html('You have already answered this question correctly.');
+			$('#promptDiv').html('You have completed this step.');
 			
 			//we are done rendering the step
 			this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);

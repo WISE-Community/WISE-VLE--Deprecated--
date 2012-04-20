@@ -417,7 +417,7 @@ ASSESSMENTLIST.prototype.submit = function() {
 	
 	if (allCompleted) {
 		if (this.content.isLockAfterSubmit) {
-			doLockStep=confirm("Click 'OK' to save and lock this step.  Your data will be saved and you will not be able to make any more changes.\nIf you want to keep working on this step, click 'Cancel'.");
+			doLockStep=confirm("Click 'OK' to save and lock this step.  Your work will be saved and you will not be able to make any more changes.\nIf you want to keep working on this step, click 'Cancel'.");
 			if (doLockStep==true) { 
 				//disable the submit and save draft buttons
 				this.setSaveUnavailable();
