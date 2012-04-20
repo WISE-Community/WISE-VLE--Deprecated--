@@ -34,6 +34,8 @@ View.prototype.MultipleChoiceNode.generatePage = function(view){
 	pageDiv.appendChild(feedbackText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(this.generateFeedbackOptions());
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(this.generateHideQuestionAndAnswersAfterAnsweredCorrectly());
 	
 	/* if this is a branch node, we always want the bullets to
 	 * show up for a choice, so do not allow athors to modify it */
@@ -132,6 +134,32 @@ View.prototype.MultipleChoiceNode.generateFeedbackOptions = function(){
 		feedbackOptionFalse.checked = true;
 	};
 	return feedbackOptionDiv;
+};
+
+/**
+ * Generate the checkbox to specify to not display anything after the student
+ * answers correctly
+ */
+View.prototype.MultipleChoiceNode.generateHideQuestionAndAnswersAfterAnsweredCorrectly = function() {
+	//create a div to contain the elements we are about to make
+	var hideQuestionAndAnswersDiv = createElement(document, 'div', {id: 'hideQuestionAndAnswersAfterAnsweredCorrectlyDiv'});
+	
+	//make the text
+	var hideQuestionAndAnswersText = document.createTextNode("Hide Question and Answers after answered correctly");
+	
+	//make the checkbox
+	var hideQuestionAndAnswersCheckBox = createElement(document, 'input', {id: 'hideQuestionAndAnswersAfterAnsweredCorrectlyCheckBox', type: 'checkbox', onclick: 'eventManager.fire("mcHideQuestionAndAnswersAfterAnsweredCorrectlyChanged")'});
+	
+	//add the elements to the div
+	hideQuestionAndAnswersDiv.appendChild(hideQuestionAndAnswersText);
+	hideQuestionAndAnswersDiv.appendChild(hideQuestionAndAnswersCheckBox);
+	
+	if(this.content.hideQuestionAndAnswersAfterAnsweredCorrectly) {
+		//populate the checkbox
+		hideQuestionAndAnswersCheckBox.checked = true;
+	}
+	
+	return hideQuestionAndAnswersDiv;
 };
 
 /**
@@ -951,6 +979,29 @@ View.prototype.MultipleChoiceNode.save = function(close){
 			}
 		}
 	}
+};
+
+/**
+ * Updates the displayNothingAfterAnsweredCorrectly field which specifies
+ * whether to display anything after the student answers correctly and
+ * comes back to the step.
+ */
+View.prototype.MultipleChoiceNode.mcHideQuestionAndAnswersAfterAnsweredCorrectlyChanged = function() {
+	var value = false;
+	
+	//get the checkbox value
+	var checked = $('#hideQuestionAndAnswersAfterAnsweredCorrectlyCheckBox').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox was checked
+		value = true;
+	}
+	
+	//update the value in the content
+	this.content.hideQuestionAndAnswersAfterAnsweredCorrectly = value;
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 /* used to notify scriptloader that this script has finished loading */

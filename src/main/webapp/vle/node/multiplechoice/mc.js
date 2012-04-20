@@ -118,6 +118,28 @@ MC.prototype.render = function() {
 	/* set the question type title */
 	$('#questionType').html((this.node.getType()=='ChallengeNode') ? 'Challenge Question' : 'Multiple Choice');
 	
+	//get the latest state
+	var latestState = this.getLatestState();
+	
+	if(latestState != null && latestState.isCorrect) {
+		//the student previously answered the question correctly
+		
+		if(this.content.hideQuestionAndAnswersAfterAnsweredCorrectly) {
+			//we do not want to show the question or the answers
+			
+			//hide the labels
+			$('#questionLabelDiv').hide();
+			$('#answersLabelDiv').hide();
+			
+			//display the message to the student
+			$('#promptDiv').html('You have already answered this question correctly.');
+			
+			//we are done rendering the step
+			this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
+			return;
+		}
+	}
+	
 	/* render the prompt */
 	$('#promptDiv').html(this.content.assessmentItem.interaction.prompt);
 
@@ -171,9 +193,6 @@ MC.prototype.render = function() {
 	} else {
 		displayNumberAttempts("This is your", "attempt", this.attempts);
 	};
-	
-	//get the latest state
-	var latestState = this.getLatestState();
 	
 	if(latestState != null && latestState.isCorrect) {
 		//the student previously answered the question correctly

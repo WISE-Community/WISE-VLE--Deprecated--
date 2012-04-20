@@ -45,6 +45,8 @@ View.prototype.multiplechoiceDispatcher = function(type,args,obj){
 		obj.MultipleChoiceNode.selectedAssociateAnswer(args[0]);
 	} else if(type=='branchSelectAssociateNode'){
 		obj.MultipleChoiceNode.selectedAssociateNode(args[0]);
+	} else if(type=='mcHideQuestionAndAnswersAfterAnsweredCorrectlyChanged'){
+		obj.MultipleChoiceNode.mcHideQuestionAndAnswersAfterAnsweredCorrectlyChanged();
 	}
 };
 
@@ -69,7 +71,8 @@ var events = [
 	'branchRemoveNode',
 	'branchAssociateNode',
 	'branchSelectAssociateAnswer',
-	'branchSelectAssociateNode'
+	'branchSelectAssociateNode',
+	'mcHideQuestionAndAnswersAfterAnsweredCorrectlyChanged'
 ];
 
 /*
