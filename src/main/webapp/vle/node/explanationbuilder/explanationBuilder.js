@@ -1158,7 +1158,6 @@ ExplanationBuilder.prototype.makeDraggable = function(context,$target) {
  * and will just return true
  */
 ExplanationBuilder.prototype.checkIfIdeaUsed = function(id) {
-	// TODO: ignore current node in this check
 	var answer = true;
 	var idea = this.ideaBasket.getIdeaById(id);
 	var stepsUsedIn = idea.stepsUsedIn;
@@ -1824,6 +1823,7 @@ ExplanationBuilder.prototype.bindNotificationLinks = function(context,isActive,i
 		for(var i=0; i<context.explanationIdeas.length; i++){
 			if(context.explanationIdeas[i].id == id){
 				context.explanationIdeas[i].lastAcceptedText = ideaText;
+				context.expIdeasChanged = true;
 			}
 		}
 	};
