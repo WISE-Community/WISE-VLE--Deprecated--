@@ -133,7 +133,7 @@ IdeaBasket.prototype.init = function(context) {
  * Load the ideas into the tables in the interface
  * @param ideaBasketJSONObj the JSON object to populate the data from
  * @param generateUI boolean value whether to generate the UI
- * @param view VLE View intstance object
+ * @param view VLE View instance object
  */
 IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, view) {
 	if(settings){
@@ -1031,7 +1031,7 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 			//update the timeLastEdited
 			idea.timeLastEdited = time;
 			
-			var ideaId = idea.id;
+			//var ideaId = idea.id;
 			this.ideas.splice(i,1);
 			this.addRow(1,idea);
 
@@ -1065,7 +1065,7 @@ IdeaBasket.prototype.putBack = function(index,$tr) {
 			//update the timeLastEdited
 			idea.timeLastEdited = time;
 			
-			var ideaId = idea.id;
+			//var ideaId = idea.id;
 			this.deleted.splice(i,1);
 			this.addRow(0,idea);
 
@@ -1105,30 +1105,44 @@ IdeaBasket.prototype.isIdeaChanged = function(idea, text, source, tags, flag) {
 IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 	var ideaChanged = true;
 	var attributesChanged = false;
-	for(var i=0;i<attributes.length;i++){
-		if(attributes[i].id != idea.attributes[i].id || attributes[i].type != idea.attributes[i].type){
-			attributesChanged = true;
-		} else {
-			if(attributes[i].type=='tags'){
-				if(attributes[i].value.length != idea.attributes[i].length){
-					attributesChanged = true;
-				} else {
-					for(var x=0;x<attribute[i].tags.length;x++){
-						if(attribute[i].value[x] != idea.attributes[i].value[x]){
+	
+	//compare all the attributes
+	if(attributes.length != idea.attributes.length){
+		attributesChanged = true;
+	} else {
+		var ids = [];
+		$.each(idea.attributes, function(index,value){
+			ids.push(value.id);
+		});
+		$.each(attributes,function(index,attr){
+			if(!$.inArray(attr.id,ids)){
+				attributesChanged = true;
+				return false;
+			} else {
+				for(var i=0;i<idea.attributes;i++){
+					if(attr.id==idea.attributes[i].id){
+						if(attr.type != idea.attributes[i].type){
 							attributesChanged = true;
-							break;
+						} else {
+							if(attr.type=='tags'){
+								if(attr.value.sort().toString() != idea.attributes[i].value.sort().toString()){
+									attributesChanged = true;
+									break;
+								}
+							} else {
+								if(attributes[i].value != idea.attributes.value){
+									attributesChanged = true;
+									break;
+								}
+							}
 						}
 					}
 				}
-			} else {
-				if(attributes[i].value != idea.attributes.value){
-					attributesChanged = true;
-				}
 			}
-		}
+		});
 	}
 	
-	//compare all the fields
+	//compare text
 	if(idea.text == text  && !attributesChanged) {
 		ideaChanged = false;
 	}
