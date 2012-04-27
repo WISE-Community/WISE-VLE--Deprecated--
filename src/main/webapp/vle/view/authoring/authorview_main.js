@@ -619,7 +619,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 		var ndx = parent.selectedIndex;
 		if(ndx!=-1){
 			var opt = parent.options[parent.selectedIndex];
-			var name = opt.value;
+			var name = encodeURIComponent(opt.value);
 
 			var success = function(text, xml, o){
 				if(text.status==401){
