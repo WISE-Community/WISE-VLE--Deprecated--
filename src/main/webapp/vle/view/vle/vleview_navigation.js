@@ -144,8 +144,11 @@ View.prototype.renderNextNode = function() {
 		 */
 		var nextNode = this.navigationLogic.getNextStepNodeInProject(location);
 		
-		//check if there is a next node in the project
-		if(nextNode != null) {
+		//get the next node object
+		var nextNodeObject = this.getProject().getNodeByPosition(nextNode);
+		
+		//check if there is a next node in the project that is not hidden
+		if(nextNode != null && nextNodeObject != null && !nextNodeObject.isHidden) {
 			/*
 			 * we will try to render the next node in the project, this
 			 * is just to trigger the constraint message, the node will
