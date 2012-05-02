@@ -355,6 +355,11 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     			classString += " nested";
     		}
     		
+    		if(node.isHidden) {
+    			//set the step to be hidden in the navigation panel
+    			classString += " hidden";
+    		}
+    		
     		// create the DOM object for this sequence
        		//htmlSoFar += this.createSequenceHtml(classString, deep, node.id, node.getTitle(), position);
     		var sequence = $(this.createSequenceHtml(classString, stepId, node.getTitle(), position));

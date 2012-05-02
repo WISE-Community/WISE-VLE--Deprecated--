@@ -249,9 +249,11 @@ BranchingNode.prototype.onBeforeCreateNavigationHtml = function() {
 			for (var j=0; j < nodesInPath.length; j++) {
 				var nodeInPath = this.view.getProject().getNodeById(nodesInPath[j].id);
 				if (chosenPathId==path.identifier) {
-					nodeInPath.isHidden=false;
+					//make this node visible because it is in the path the student has entered
+					this.setNodeHidden(nodeInPath, false);
 				} else {
-					nodeInPath.isHidden=true;					
+					//make this node hidden because it is not in the path the student has entered
+					this.setNodeHidden(nodeInPath, true);
 				}
 			}
 		}
@@ -264,11 +266,47 @@ BranchingNode.prototype.onBeforeCreateNavigationHtml = function() {
 			var nodesInPath = pathSequence.children;
 			for (var j=0; j < nodesInPath.length; j++) {
 				var nodeInPath = this.view.getProject().getNodeById(nodesInPath[j].id);
-				nodeInPath.isHidden=true;
+
+				//make this node hidden because the student has not reached this branch yet
+				this.setNodeHidden(nodeInPath, true);
 			}
 		}
 	}
 };
+
+
+/**
+ * Make this node hidden. If this node is a sequence, also make the children
+ * hidden.
+ * @param node the node
+ * @param isHidden whether we will set the node to be hidden
+ */
+BranchingNode.prototype.setNodeHidden = function(node, isHidden) {
+	if(node == null) {
+		
+	} else if(node.type == 'sequence') {
+		//the node is a sequence
+		
+		//set the sequence visibility
+		node.isHidden = isHidden;
+		
+		//get the children of this sequence
+		var children = node.children;
+		
+		//loop through all the children
+		for(var x=0; x<children.length; x++) {
+			//get a child
+			var child = children[x];
+			
+			//set the child visibility
+			this.setNodeHidden(child, isHidden);
+		}
+	} else {
+		//the node is a step
+		node.isHidden = isHidden;
+	}
+};
+
 
 /*
  * Add this node to the node factory so the vle knows it exists.

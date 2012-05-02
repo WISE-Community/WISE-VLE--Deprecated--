@@ -154,11 +154,14 @@ Branching.prototype.render = function() {
 		for (var i=0; i < pathSequence.children.length; i++) {
 			var nodeInPath = pathSequence.children[i];
 			// show the nodes in the navigation
-			var doDisplay = true;
-			nodeInPath.displayInNavigation(doDisplay);
+
+			//display this sequence in the navigation panel
+			this.displayInNavigationIncludingChildren(nodeInPath);
 			
-			// also preload the nodes in path
-			nodeInPath.preloadContent();							
+			if(nodeInPath.type != 'sequence') {
+				// also preload the nodes in path
+				nodeInPath.preloadContent();
+			}
 		}
 
 		// check to see if we need to hide this BranchNode.
@@ -174,6 +177,41 @@ Branching.prototype.render = function() {
 		eventManager.fire("renderNextNode");
 	} else {
 		// show the splash page and let the user choose a branch to go down
+	}
+};
+
+/**
+ * Make the node visible in the navigation panel. If the node is a sequence
+ * we will alsmo make the children visible.
+ * @param node the node to make visible
+ */
+Branching.prototype.displayInNavigationIncludingChildren = function(node) {
+	var doDisplay = true;
+	
+	if(node == null) {
+		
+	} else if(node.type == 'sequence') {
+		//the node is a sequence
+
+		//make the sequence visible
+		node.displayInNavigation(doDisplay);
+		
+		//get the children of the sequence
+		var children = node.children;
+		
+		//loop through all the children of the sequence
+		for(var x=0; x<children.length; x++) {
+			//get a child
+			var child = children[x];
+			
+			//make the child visible
+			this.displayInNavigationIncludingChildren(child);
+		}
+	} else {
+		//the node is a step
+		
+		//make the step visible
+		node.displayInNavigation(doDisplay);
 	}
 };
 
