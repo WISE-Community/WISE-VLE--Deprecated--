@@ -76,7 +76,7 @@ var componentloader = function(em, sl){
 						autoOpen:false,
 						width:noteWidth,
 						title:'Reflection Note',
-						resizable:false,
+						resizable:true,
 						show:{effect:"fade",duration:200},
 						hide:{effect:"fade",duration:200},
 						position: ['center','middle'],
