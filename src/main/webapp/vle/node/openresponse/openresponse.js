@@ -526,7 +526,7 @@ OPENRESPONSE.prototype.onlyDisplayMessage = function(message) {
 	this.hideAll();
 	
 	//display the prompt div
-	$('#promptDisplayDiv').show;
+	$('#promptDisplayDiv').show();
 	
 	//remove the text in this label div
 	document.getElementById('promptLabelDiv').innerHTML = '';
@@ -1006,15 +1006,15 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 	var isAnnotateNodeLocked = this.view.isLatestNodeStateLocked(this.associatedAnnotateNode.id);
 	
 	var startNodeTitle = "";
-	if(thisOr.associatedStartNode != null) {
+	if(this.associatedStartNode != null) {
 		//get the step number and node title for the start node
-		startNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedStartNode.id);
+		startNodeTitle = this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id);
 	}
 	
 	var annotateNodeTitle = "";
-	if(thisOr.associatedAnnotateNode != null) {
+	if(this.associatedAnnotateNode != null) {
 		//get the step number and node title for the annotate node
-		annotateNodeTitle = thisOr.view.getProject().getStepNumberAndTitle(thisOr.associatedAnnotateNode.id);
+		annotateNodeTitle = this.view.getProject().getStepNumberAndTitle(this.associatedAnnotateNode.id);
 	}
 	
 	if(!isOriginalNodeLocked) {
@@ -1401,11 +1401,18 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		//get the node visit
 		var nodeVisit = NODE_VISIT.prototype.parseDataJSONObj(annotationAndWork.nodeVisit, thisOr.view);
 		
-		//get the latest work from the node visit
+		//get the latest state from the node visit
 		var latestWork = nodeVisit.getLatestWork();
+		var latestWorkText = "";
+		var latestWorkHtml = "";
 		
-		//replace \n with <br>
-		var latestWorkHtml = thisOr.replaceSlashNWithBR(latestWork);
+		if(latestWork != null) {
+			//get the response string the student wrote
+			latestWorkText = thisOr.node.getStudentWorkString(latestWork.response);
+			
+			//replace \n with <br>
+			latestWorkHtml = thisOr.replaceSlashNWithBR(latestWorkText);			
+		}
 		
 		//show regular divs such as prompt, starter, and response and populate them
 		thisOr.showDefaultDivs();
@@ -1446,17 +1453,12 @@ OPENRESPONSE.prototype.retrieveAnnotationAndWorkCallback = function(text, xml, a
 		} else {
 			document.getElementById("numberAttemptsDiv").innerHTML = "This is your first revision.";
 			
-			if(latestWork != null && latestWork != '') {
+			if(latestWork != null && latestWorkText != null) {
 				if(thisOr.richTextEditor != null) {
-					if(latestWork.constructor.toString().indexOf('Array') != -1) {
-						//latestWork is an array so we will use the first element in it
-						thisOr.richTextEditor.setContent(latestWork[0]);	
-					} else {
-						thisOr.richTextEditor.setContent(latestWork);
-					}
+					thisOr.richTextEditor.setContent(latestWorkText);
 				} else {
 					//set the latest work in the responseBox
-					document.getElementById('responseBox').value = latestWork;	
+					document.getElementById('responseBox').value = latestWorkText;	
 				}
 			}
 		}
