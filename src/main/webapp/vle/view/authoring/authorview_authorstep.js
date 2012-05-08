@@ -282,15 +282,24 @@ View.prototype.getAuthoringHintsArray = function() {
 /**
  * saves hints to local var
  */
-View.prototype.saveHint = function(){	
+View.prototype.saveHint = function(){
     var hintTextBoxes = $('#hintsTabs').find("textarea");
     
     var newHintsArr = [];
     for(var i=0; i<hintTextBoxes.length; i++) {
-    	newHintsArr.push(hintTextBoxes[i].value);
+    	var id = $(hintTextBoxes[i]).attr('id');
+    	if(typeof tinymce != 'undefined' && $('#' + id).tinymce()){
+    		// rich text editor is active on textarea, so get contents from editor
+    		newHintsArr.push($('#' + id).tinymce().getContent());
+    	} else {
+    		newHintsArr.push(hintTextBoxes[i].value);
+    	}
     }    
     var forceShow = $("#forceShowOptions option:selected").val();
-    this.activeContent.getContentJSON().hints = {"hintsArray":newHintsArr,"forceShow":forceShow};
+    var hintTerm = $("#hintTerm").val();
+    var hintTermPlural = $("#hintTermPlural").val();
+    var isModal = $('#modalOption').prop('checked');
+    this.activeContent.getContentJSON().hints = {"hintsArray":newHintsArr,"forceShow":forceShow,"isModal":isModal,"hintTerm":hintTerm,"hintTermPlural":hintTermPlural};
 };
 
 /**
@@ -309,7 +318,7 @@ View.prototype.addHint = function(){
 	//get the hints array
 	var hintsArr = this.getAuthoringHintsArray();
 	
-	hintsArr.push(this.getI18NString("authoring_new_hint"));
+	hintsArr.push(this.getI18NString("authoring_hint_new"));
 	eventManager.fire("editHints", [hintsArr.length-1]);
 };
 
@@ -339,67 +348,116 @@ View.prototype.deleteHint = function(){
  * @tabIndex which tab index to open
  */
 View.prototype.editHints = function(tabIndex){
-     var currentNode = this.activeNode;
-	 if($('#editHintsPanel').size()==0){
-	    	//the show hintsDiv does not exist so we will create it
-	    	$('<div id="editHintsPanel" style="text-align:left"></div>').dialog(
-	    			{	autoOpen:false,
-	    				closeText:'',
-	    				width:650,
-	    				modal:false,
-	    				resizable:false,
-	    				title:'Add/Edit Hints for this Step',
-	    				zIndex:3000, 
-	    				left:0
-	    			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
-	    			    // before the dialog closes, save hintstate
-	    		    	if ($(this).data("dialog").isOpen()) {	    		    		
-	    		    		//var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
-	    		    		//event.data.view.pushHintState(hintState);
-	    		    	};
-	    		    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
-	    		    	//var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
-	    		    	//event.data.view.pushHintState(hintState);
-	    		    });
-	    };
+	var currentNode = this.activeNode;
+	if($('#editHintsPanel').size()==0){
+    	//the show hintsDiv does not exist so we will create it
+		var title = this.getI18NString('authoring_hint_dialog_title');
+    	$('<div id="editHintsPanel" style="text-align:left"></div>').dialog({
+    		autoOpen:false,
+			closeText:'',
+			width:650,
+			modal:false,
+			resizable:false,
+			title:title,
+			zIndex:3000, 
+			left:0,
+			buttons:{"Save": function(){
+				eventManager.fire('saveHints');
+				$(this).dialog('close');
+			}}
+		}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+		    // before the dialog closes, save hintstate
+	    	if ($(this).data("dialog").isOpen()) {	    		    		
+	    		//var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
+	    		//event.data.view.pushHintState(hintState);
+	    	};
+	    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+	    	//var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
+	    	//event.data.view.pushHintState(hintState);
+	    });
+    };
+    
+    var hints = {"hintsArray":[],"forceShow":"never"};
+    //check if this step already has hints
+    if(this.getAuthoringHints() == null) {
+    	//there are no hints for this step so we will make them
+		this.activeContent.getContentJSON().hints = hints;
+    } else {
+    	hints = this.getAuthoringHints();
+    }
+    
+    //get the hints array from the content we are authoring
+    var hintsArr = this.getAuthoringHintsArray();
+    
+    // get the hint terminology settings (if any), set defaults
+    var hintTerms = {};
+    hintTerms.hintDefault = this.getI18NString("hint_hint");
+    hintTerms.pluralDefault = this.getI18NString("hint_plural");
+    if(this.utils.isNonWSString(hints.hintTerm)){
+    	hintTerms.hint = hints.hintTerm;
+    } else {
+    	hintTerms.hint = hintTerms.hintDefault;
+    }
+    if(this.utils.isNonWSString(hints.hintTermPlural)){
+    	hintTerms.plural = hints.hintTermPlural;
+    } else {
+    	hintTerms.plural = hintTerms.pluralDefault;
+    }
 	    
-	    // append hints into one html string
-	    var editHintsMenu = "<input type='button' value='add new hint' onclick='eventManager.fire(\"addHint\")'></input>"+
-	    	"<input type='button' value='delete current hint' onclick='eventManager.fire(\"deleteHint\")'></input>" +
-	    	"<input type='button' value='save hints' onclick='eventManager.fire(\"saveHints\")'></input>" + 
-	    	this.getI18NString("authoring_hint_forceShow")+" <select id='forceShowOptions'><option value='never'>"+this.getI18NString("authoring_hint_option_never")+"</option><option value='firsttime'>"+this.getI18NString("authoring_hint_option_firstTimeOnly")+"</option><option value='always'>"+this.getI18NString("authoring_hint_option_always")+"</option></select>";     
-	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
-	    var hintsStringPart2 = "";   // second part will be the content within each tab
-	    
-	    //check if this step already has hints
-	    if(this.getAuthoringHints() == null) {
-	    	//there are no hints for this step so we will make them
-			this.activeContent.getContentJSON().hints = {"hintsArray":[],"forceShow":"never"};
-	    }
-	    
-	    //get the hints array from the content we are authoring
-	    var hintsArr = this.getAuthoringHintsArray();
-	    
-	    for (var i=0; i< hintsArr.length; i++) {
-	    	var currentHint = hintsArr[i];
-	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>Hint "+(i+1)+"</a></li>";
-	    	hintsStringPart2 += "<div id='tabs-"+i+"'><textarea class='hintTextBox' onblur='eventManager.fire(\"saveHint\")'>"+currentHint+"</textarea></div>";
-	    }
-	    hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
+    // generate hints authoring DOM elements
+    var settings = $("<div class='featureSettings'></div>");
+    var editHintsTerms = $("<div class='setting'>" +
+    	"<div class='settingLabel'><span>" + this.getI18NString("authoring_hint_terminology_label") + "</span><span class='details'>" + this.getI18NString("authoring_hint_terminology_instructions") + "</span></div>" +
+    	"<ul class='inline'>" + 
+    	"<li>" + this.getI18NString("authoring_hint_term_label") + "<input id='hintTerm' name='hintTerm' type='text' class='required' minlength='2' maxlength='20' value='" + hintTerms.hint + "' /></li>" +
+    	"<li>" + this.getI18NString("authoring_hint_term_plural_label") + "<input id='hintTermPlural' name='hintTermPlural' type='text' class='required' minlength='2' maxlength='20' type='text' value='" + hintTerms.plural + "' /></li>" + 
+    	"</ul></div>");
+    var editHintsMenu = $("<div class='setting'>" + 
+    	"<div class='settingLabel'><span>" + this.getI18NString("authoring_hint_options_label") + "</span></div>" +
+    	"<ul class='inline'>" +
+    	"<li>" + this.getI18NString("authoring_hint_forceShow")+" <select id='forceShowOptions'><option value='never'>"+this.getI18NString("authoring_hint_option_never")+"</option><option value='firsttime'>"+this.getI18NString("authoring_hint_option_firstTimeOnly")+"</option><option value='always'>"+this.getI18NString("authoring_hint_option_always")+"</option></select></li>" + 
+    	"<li><input type='checkbox' id='modalOption' />" + this.getI18NString("authoring_hint_modal")+"</li>" +
+    	"</ul></div>");
+    settings.append(editHintsMenu).append(editHintsTerms);
+    var hintButtons = "<div><input type='button' value='" + this.getI18NString("authoring_hint_add") + "' onclick='eventManager.fire(\"addHint\")'></input>"+
+    	"<input type='button' value='" + this.getI18NString("authoring_hint_delete") + "' onclick='eventManager.fire(\"deleteHint\")'></input></div>";
+    
+    var hintsPart1 = $("<ul></ul>");   // first part will be the <ul> for text on tabs
+    var hintsPart2 = $("<div id='hintContent'></div>");   // second part will include the content within each tab
+    
+    for (var i=0; i< hintsArr.length; i++) {
+    	var currentHint = hintsArr[i];
+    	hintsPart1.append("<li><a href='#tabs-"+i+"'>" + this.utils.capitalize(this.getI18NString("hint_hint")) + " "+(i+1)+"</a></li>");
+    	hintsPart2.append("<div id='tabs-"+i+"'><textarea id='hintInput_" + i + "' class='hintTextBox' onblur='eventManager.fire(\"saveHint\")'>"+currentHint+"</textarea></div>");
+    }
+    //hintsStringPart1 = "<ul>" + hintsStringPart1 + "</ul>";
 
-	    hintsString = "<div id='hintsTabs'>" + editHintsMenu + hintsStringPart1 + hintsStringPart2 + "</div>";
-	    //set the html into the div
-	    $('#editHintsPanel').html(hintsString);
-	    
-	    //make the div visible
-	    $('#editHintsPanel').dialog('open');
+    var hintElement = $("<div id='hintsTabs'></div>").append(hintsPart1).append(hintsPart2);
+    //set the html into the div
+    $('#editHintsPanel').html('').append(settings).append(hintButtons).append(hintElement);
+    
+    //add HTML/Rich Text editing toggles for hint inputs (disable rich text by default)
+    for (var i=0; i< hintsArr.length; i++) {
+    	var id = 'hintInput_' + i;
+    	this.addRichTextAuthoring(id, function(){eventManager.fire('saveHint');});
+    }
+    
+    //make the div visible
+    $('#editHintsPanel').dialog('open');
 
-	    // instantiate tabs 
-		$("#hintsTabs").tabs({selected:tabIndex});		
-		
-		// select forceshow option
-	    var hintsForceShow = this.getAuthoringHints().forceShow;
-		$("#forceShowOptions [value='"+hintsForceShow+"']").attr("selected", "selected");
+    // instantiate tabs 
+	$("#hintsTabs").tabs({selected:tabIndex});		
+	
+	// set forceshow option
+    var hintsForceShow = hints.forceShow;
+	$("#forceShowOptions [value='"+hintsForceShow+"']").attr("selected", "selected");
+	
+	// set the modal option
+	var isModal = false;
+	if(typeof hints.isModal == 'boolean'){
+		isModal = hints.isModal;
+	}
+	$('#modalOption').prop("checked", isModal);
 };
 
 /**
@@ -719,15 +777,16 @@ View.prototype.cleanupRichTextEditorToggle = function() {
  * rich text editor on specified textarea
  * @param id The id of the textarea element on which to activate the rich text editor
  * @param callback A callback function to run when the rich text editor content changes
+ * @param disable A boolean to specify whether to disable the rich text editor by default
  */
-View.prototype.addRichTextAuthoring = function(id,callback){
+View.prototype.addRichTextAuthoring = function(id,callback,disable){
 	var view = this;
 	var target = $('#' + id); 
 	
 	// create rich text hide/show links div
 	var richtextToggleDiv = $(document.createElement('div')).addClass('rtToggles');
 	// create rich text hide and show links
-	var richtextShow = $('<input type="radio" value="showRichText" id="showRich_' + id + '" name="promptToggle_' + id + '" checked="checked" /><label for="showRich_' + id + '">Rich Text</label>');
+	var richtextShow = $('<input type="radio" value="showRichText" id="showRich_' + id + '" name="promptToggle_' + id + '" /><label for="showRich_' + id + '">Rich Text</label>');
 	var richtextHide = $('<input type="radio" value="hideRichText" id="hideRich_' + id + '" name="promptToggle_' + id + '" /><label for="hideRich_' + id + '">HTML</label>');
 	
 	richtextToggleDiv.append(richtextShow).append(richtextHide);
@@ -747,12 +806,20 @@ View.prototype.addRichTextAuthoring = function(id,callback){
 		}
 	});
 	
+	if(disable == true){
+		// set "HTML" link as active
+		$('#hideRich_' + id).prop('checked',true);
+	} else {
+		// set "Rich Text" link as active
+		$('#showRich_' + id).prop('checked',true);
+		
+		// enable rich text editor for textarea
+		this.enableRichTextAuthoring(id,callback);
+	}
+	
 	// create jQuery UI buttonset on rich text toggle radios
 	richtextToggleDiv.buttonset();
 	richtextToggleDiv.buttonset('refresh');
-	
-	// enable rich text editor for textarea
-	this.enableRichTextAuthoring(id,callback);
 };
 
 /**
@@ -764,11 +831,11 @@ View.prototype.enableRichTextAuthoring = function(id,callback) {
 	var target = $('#' + id);
 	var view = this;
 	var plugins = "";
-	if(view.resolveType(view.activeNode.type)=='HtmlNode'){
-		plugins = "fullpage,preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
-	} else {
+	//if(view.resolveType(view.activeNode.type)=='HtmlNode'){
+		//plugins = "fullpage,preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
+	//} else {
 		plugins = "preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
-	}
+	//}
 	
 	// enable rich text editing on prompt textarea
 	target.tinymce({

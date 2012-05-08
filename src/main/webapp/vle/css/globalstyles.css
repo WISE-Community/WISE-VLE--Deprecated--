@@ -404,3 +404,13 @@ img.tooltip {
 	margin: -0.5em -0.5em 0;
 	padding: 0.25em 0.5em;
 }
+
+
+/** HINTS DISPLAY **/
+.hintText p {
+	margin: 0 0 0.5em;
+}
+
+.hintText p:last-child {
+	margin-bottom:0;
+}
