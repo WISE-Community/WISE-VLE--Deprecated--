@@ -37,8 +37,16 @@ NetlogoState.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Get the student work.
  * @return the student's work
  */
-NetlogoState.prototype.getStudentWork = function() {
+NetlogoState.prototype.getStudentWorkString = function() {
 	return this.data;
+};
+
+/**
+ * Get this node state
+ * @return this node state
+ */
+NetlogoState.prototype.getStudentWork = function() {
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

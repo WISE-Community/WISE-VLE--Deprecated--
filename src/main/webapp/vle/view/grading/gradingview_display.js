@@ -1681,12 +1681,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		$(".mysystemCell").each(showDiagramNode);
 	}
 	
-	// if this step is an svgdraw step, call showDrawNode for each div that has student data
-	if (node.type == "SVGDrawNode") {
-		$(".svgdrawCell").each(showDrawNode);
-		$(".snapCell").each(showSnaps);
-	}
-	
 	// make table sortable by any of its columns, TODO: re-enable
 	/*var oTable2 = $("#studentWorkTable").dataTable({
     	"bSort": false,
@@ -2375,12 +2369,15 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
  */
 View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitPostTime) {
 	var studentWorkTdHtml = "";
+	var studentWorkString = "";
 	
 	//if student work is null set to empty string
 	if(studentWork == null) {
 		//since there was no student work we will display a default message in its place
-		studentWork = "<div style='text-align:center'>"+this.getI18NString("grading_no_work_warning")+"</div>";
-	} else if (studentWork != "" && node.type == "MySystemNode") {
+		studentWorkString = "<div style='text-align:center'>"+this.getI18NString("grading_no_work_warning")+"</div>";
+	} else if (node.type == "MySystemNode") {
+		studentWorkString = studentWork.data;
+		
 		//var divId = "mysystemDiagram_"+workgroupId;
 		var divId = "mysystemDiagram_"+stepWorkId+"_"+latestNodeVisitPostTime;
 		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
@@ -2392,7 +2389,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
         content = content.replace(/\.\/assets\//gmi, 'assets\/');
         content = content.replace(/assets\//gmi, contentBaseUrl+'\/assets\/');
 
-        var studentWorkFixedLink = studentWork.replace(/\.\/images\//gmi, 'images\/');
+        var studentWorkFixedLink = studentWorkString.replace(/\.\/images\//gmi, 'images\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/images\//gmi, contentBaseUrl+'\/images\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/\.\/assets\//gmi, 'assets\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/assets\//gmi, contentBaseUrl+'\/assets\/');
@@ -2401,111 +2398,31 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
         
 		//commented the line below because my system grading is broken at the moment
 		// onclick=\"showDiagram('"+divId+"','"+contentBaseUrl+"')\"
-		studentWork = "<a class='msEnlarge' style='text-decoration:underline; color:blue;' onclick='enlargeMS(\""+divId+"\");'>enlarge</a>" +
+        studentWorkString = "<a class='msEnlarge' style='text-decoration:underline; color:blue;' onclick='enlargeMS(\""+divId+"\");'>enlarge</a>" +
 				      "<span id='content_"+divId+"' style='display:none'>"+content+"</span>" +
 				      "<span id='contenturl_"+divId+"' style='display:none'>"+contentUrl+"</span>" +
 				      "<span id='studentwork_"+divId+"' style='display:none'>"+studentWorkFixedLink+"</span>" +
-					  "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystemCell'  style=\"height:350px;\">"+studentWork+"</div>";
+					  "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystemCell'  style=\"height:350px;\">"+studentWorkString+"</div>";
 		//studentWork = "(Grading for MySystem not available)";
 		
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</p>";
-	} else if (studentWork != "" && node.type == "SVGDrawNode") {
-		// if the work is for a SVGDrawNode, embed the svg
-		var divId = "svgDraw_"+stepWorkId+"_"+latestNodeVisitPostTime;
-		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
-		// if studentData has been compressed, decompress it and parse (for legacy compatibility)
-		if (typeof studentWork == "string") {
-			if (studentWork.match(/^--lz77--/)) {
-				var lz77 = new LZ77();
-				studentWork = studentWork.replace(/^--lz77--/, "");
-				studentWork = lz77.decompress(studentWork);
-				studentWork = $.parseJSON(studentWork);
-			}
-		} 
-		var svgString = studentWork.svgString;
-		var description = studentWork.description;
-		var snaps = studentWork.snapshots;
-		var contentUrl = node.getContent().getContentUrl();
-		studentWork = "<div id='"+divId+"_contentUrl' style='display:none;'>"+contentUrl+"</div>"+
-			"<a class='drawEnlarge' onclick='enlargeDraw(\""+divId+"\");'>enlarge</a>";
-		// if the svg has been compressed, decompress it
-		if (svgString != null){
-			if (svgString.match(/^--lz77--/)) {
-				var lz77 = new LZ77();
-				svgString = svgString.replace(/^--lz77--/, "");
-				svgString = lz77.decompress(svgString);
-			}
-			
-			//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			// only replace local hrefs. leave absolute hrefs alone!
-			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-				  if (value.indexOf("http://") == -1) {
-				    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-				  }
-				  return m;
-				});
-			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			//svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
-			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-			svgString = Utils.encode64(svgString);
-		}
-		if(snaps != null && snaps.length>0){
-			var snapTxt = "<div id='"+divId+"_snaps' class='snaps'>";
-			for(var i=0;i<snaps.length;i++){
-				var snapId = divId+"_snap_"+i;
-				var currSnap = snaps[i].svg;
-				if (currSnap.match(/^--lz77--/)) {
-					var lz77 = new LZ77();
-					currSnap = currSnap.replace(/^--lz77--/, "");
-					currSnap = lz77.decompress(currSnap);
-				}
-				//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-				// only replace local hrefs. leave absolute hrefs alone!
-				currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-					  if (value.indexOf("http://") == -1) {
-					    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-					  }
-					  return m;
-					});
-				
-				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-				//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
-				currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.2)">');
-				currSnap = Utils.encode64(currSnap);
-				snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+divId+"\");'>"+currSnap+"</div>";
-				var currDescription = snaps[i].description;
-				snapTxt += "<div id='"+snapId+"_description' class='snapDescription' style='display:none;'>"+currDescription+"</div>";
-			}
-			snapTxt += "</div>";
-			studentWork += snapTxt;
-		} else {
-			studentWork += "<div id='"+divId+"' class='svgdrawCell'>"+svgString+"</div>";
-			if(description != null){
-				studentWork += "<span>Description: </span><div id='"+divId+"_description' class='drawDescription'>"+description+"</div>";
-			}
-		}
-		
-		//add the post time stamp to the bottom of the student work
-		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
-	} else if(studentWork != "" && node.hasGradingView()) {
+        studentWorkString += "<br><br><br><p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</p>";
+	} else if(node.hasGradingView()) {
 		//create the student work div that we will insert the student work into later
-		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
+		studentWorkString = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
 	} else {
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
+		studentWorkString += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
 		
 		//replace \n with <br> so that the line breaks are displayed for the teacher
-		studentWork = this.replaceSlashNWithBR(studentWork);
+		studentWorkString = this.replaceSlashNWithBR(studentWorkString);
 		
 		//insert the student work into a div so we can display scrollbars if the student work overflows
-		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" class="studentWorkDiv" style="overflow:auto; width:500px">' + studentWork + '</div>';
+		studentWorkString = '<div id="studentWorkDiv_' + stepWorkId + '" class="studentWorkDiv" style="overflow:auto; width:500px">' + studentWorkString + '</div>';
 	}
 	
 	//display the student work for this step/node
-	studentWorkTdHtml += "<td id='studentWorkColumn_" + stepWorkId + "' class='" + studentWorkTdClass + "'>" + studentWork + "</td>";
+	studentWorkTdHtml += "<td id='studentWorkColumn_" + stepWorkId + "' class='" + studentWorkTdClass + "'>" + studentWorkString + "</td>";
 	
 	return studentWorkTdHtml;
 };
@@ -3101,8 +3018,6 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	
 	// call showDiagrams for each div that has mysystem/drawing student data
 	$(".mysystemCell").each(showDiagramNode);
-	$(".svgdrawCell").each(showDrawNode);
-	$(".snapCell").each(showSnaps);
 	
 	if($('#filterOptions').html()==''){
 		$('#filterOptions').hide();
@@ -3678,7 +3593,7 @@ View.prototype.toggleGradingDisplayRevisions = function(workgroupId, nodeId) {
 			revisionRow.style.display = "none";
 		}
 	}
-	
+
 	//fix the height so scrollbars don't show up
 	this.fixGradingDisplayHeight();
 };
@@ -4656,11 +4571,23 @@ function showDrawNode(currNode) {
 }
 
 function showSnaps(currNode){
+	//get the string in the snaps div
 	var svgString = String($(this).html());
-	svgString = Utils.decode64(svgString);
-	var svgXml = Utils.text2xml(svgString);
-	$(this).html('');
-	$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+	
+	/*
+	 * check if the string starts with "<svg", if it does
+	 * then it has already been decoded and we do not need
+	 * to do anything. if it does not start with "<svg", then
+	 * we will decode it.
+	 */
+	if(svgString.toLowerCase().indexOf("<svg") == -1) {
+		//string does not contain "<svg"
+		
+		svgString = Utils.decode64(svgString);
+		var svgXml = Utils.text2xml(svgString);
+		$(this).html('');
+		$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+	}
 }
 
 // TODO: figure out a fix for arrows (markers) not displaying in enlarged view

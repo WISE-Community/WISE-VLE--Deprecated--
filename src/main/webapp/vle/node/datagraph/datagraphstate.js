@@ -36,9 +36,17 @@ DATAGRAPHSTATE.prototype.getDataXML = function() {
 /**
  * Returns the student edited table as a string
  */
-DATAGRAPHSTATE.prototype.getStudentWork = function() {
+DATAGRAPHSTATE.prototype.getStudentWorkString = function() {
 	return this.tableString;
-}
+};
+
+/**
+ * Returns this datagraph state
+ * @return this datagraph state
+ */
+DATAGRAPHSTATE.prototype.getStudentWork = function() {
+	return this;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

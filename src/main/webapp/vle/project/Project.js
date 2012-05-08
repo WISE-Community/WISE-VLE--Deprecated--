@@ -735,7 +735,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			this.foundNewFeedback = false;
 			
 			//get the show all work html
-			var showAllWorkHtml =  getShowAllWorkHtmlHelper(node, showGrades, lastTimeVisited);
+			var showAllWorkHtml = getShowAllWorkHtmlHelper(node, showGrades, lastTimeVisited);
 			
 			var newFeedback = "";
 			

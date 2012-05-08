@@ -46,11 +46,22 @@ BRAINSTORMSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	
 	//return the BRAINSTORMSTATE object
 	return brainState;
-}
+};
 
-BRAINSTORMSTATE.prototype.getStudentWork = function() {
+/**
+ * Get the response
+ */
+BRAINSTORMSTATE.prototype.getStudentWorkString = function() {
 	return this.response;
-}
+};
+
+/**
+ * Get this brainstorm state
+ * @returns this brainstorm state
+ */
+BRAINSTORMSTATE.prototype.getStudentWork = function() {
+	return this;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

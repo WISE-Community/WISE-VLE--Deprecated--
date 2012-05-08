@@ -91,7 +91,7 @@ CHALLENGESTATE.prototype.getHumanReadableForm = function() {
  * 		the student chose. if the step is check box type
  * 		the choices chosen will be separated by a comma
  */
-CHALLENGESTATE.prototype.getStudentWork_old = function() {
+CHALLENGESTATE.prototype.getStudentWorkString = function() {
 	var studentWork = "";
 	
 	//check if there were any choices chosen

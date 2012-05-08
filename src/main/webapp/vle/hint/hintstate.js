@@ -30,8 +30,16 @@ HINTSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Get the student work.
  * @return the student's work
  */
-HINTSTATE.prototype.getStudentWork = function() {
+HINTSTATE.prototype.getStudentWorkString = function() {
 	return this.data;
+};
+
+/**
+ * Get this state
+ * @return this state
+ */
+HINTSTATE.prototype.getStudentWork = function() {
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

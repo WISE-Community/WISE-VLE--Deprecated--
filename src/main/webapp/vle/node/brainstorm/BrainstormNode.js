@@ -78,12 +78,14 @@ BrainstormNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	 * 
 	 * e.g. if you are creating a quiz step you would change it to quizState
 	 */
-	var brainstormResponse = nodeVisit.getLatestWork();
+	var brainstormState = nodeVisit.getLatestWork();
 	
-	if(brainstormResponse != null) {
+	if(brainstormState != null) {
+		//get the response
+		var brainstormResponse = brainstormState.response;
 		
 		//put the student work into the div
-		$('#' + divId).html(brainstormResponse);		
+		$('#' + divId).html(brainstormResponse);
 	}
 };
 

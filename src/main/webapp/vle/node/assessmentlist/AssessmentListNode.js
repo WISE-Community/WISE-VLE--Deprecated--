@@ -54,7 +54,7 @@ AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 	
 	// get human readable work string
 	var showAutoScoreResult = true;
-	var readableStudentWork = assessmentListState.getStudentWork(showAutoScoreResult);
+	var readableStudentWork = assessmentListState.getStudentWorkString(showAutoScoreResult);
 	$('#' + divId).html(readableStudentWork);
 };
 

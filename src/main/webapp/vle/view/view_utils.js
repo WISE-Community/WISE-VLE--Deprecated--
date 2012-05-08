@@ -1322,6 +1322,13 @@ View.prototype.utils.getImageDimensions = function(url,callback){
 	//return dimensions;
 };
 
+/**
+ * Used in Show My Work for draw steps
+ */
+function enlargeDraw(divId){
+	var newwindow = window.open("/vlewrapper/vle/node/draw/svg-edit/svg-editor-grading.html");
+	newwindow.divId = divId;
+};
 
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){

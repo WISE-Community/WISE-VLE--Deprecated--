@@ -388,22 +388,7 @@ View.prototype.displayShowAllWork = function() {
 			//set the thickness to 3
 			percentBarSize = 3;
 		}
-	    
-	    // inject svgdrawings
-		// TODO: show snapshots (if enabled); move this to SVGDrawNode.js renderGradingView
-	    $('.svgdraw').each(function(){
-			var svgString = String($(this).html());
-			var contentBaseUrl = $(this).attr("contentBaseUrl");
-			svgString = Utils.decode64(svgString);
-			// shrink svg image to fit
-			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
-			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-			var svgXml = Utils.text2xml(svgString); // convert to xml
-			$(this).html('');
-			$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
-		});
-	    
+
 	    var docHeight = $(document).height()-25;
 		var docWidth = $(document).width()-25;
 		$('#showallwork').dialog({height:docHeight,width:docWidth});
