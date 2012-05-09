@@ -111,12 +111,9 @@ NODE_VISIT.prototype.getLatestState = function() {
 NODE_VISIT.prototype.getLatestWork = function() {
 	//loop through all the states from latest to earliest
 	for(var x=this.nodeStates.length - 1; x >= 0; x--) {
-		//check if the state's work is not blank
-		if(this.nodeStates[x] != null && 
-				this.nodeStates[x].getStudentWork() != null &&
-				this.nodeStates[x].getStudentWork() != "") {
+		if(this.nodeStates[x] != null) {
 			//return the student work
-			return this.nodeStates[x].getStudentWork();
+			return this.nodeStates[x];
 		}
 	}
 	

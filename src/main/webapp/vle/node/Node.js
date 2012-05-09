@@ -1230,7 +1230,7 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
         	var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
         	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
         	
-        	if(this.type == "MySystemNode" || this.type == "SVGDrawNode") {
+        	if(this.type == "MySystemNode") {
         		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
     			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
         	} else if(this.hasGradingView()) {

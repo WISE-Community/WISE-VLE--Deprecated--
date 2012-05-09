@@ -37,8 +37,16 @@ MWSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Get the student work.
  * @return the student's work
  */
-MWSTATE.prototype.getStudentWork = function() {
+MWSTATE.prototype.getStudentWorkString = function() {
 	return this.data;
+};
+
+/**
+ * Get this node state
+ * @return this node state
+ */
+MWSTATE.prototype.getStudentWork = function() {
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

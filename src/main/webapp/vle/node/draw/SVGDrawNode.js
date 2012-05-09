@@ -39,7 +39,10 @@ SVGDrawNode.prototype.parseDataJSONObj = function(stateJSONObj) {
  * @param studentWork json
  * @return base64 encoded svgstring
  */
-SVGDrawNode.prototype.translateStudentWork = function(studentWork) {
+SVGDrawNode.prototype.translateStudentWork = function(svgState) {
+	//get the svg string
+	studentWork = svgState.data;
+	
 	// if the student data has been compressed, decompress it
 	if(typeof studentWork == "string"){
 		if (studentWork.match(/^--lz77--/)) {
@@ -168,8 +171,97 @@ SVGDrawNode.prototype.onExit = function() {
  * 
  */
 SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
-	//do nothing
-	//TODO: render grading view here and not in gradingview_display
+	var latestNodeState = nodeVisit.getLatestWork();
+	var studentWork = latestNodeState.data;
+	var latestNodeVisitPostTime = nodeVisit.visitPostTime;
+	var stepWorkId = nodeVisit.id;
+	
+	// if the work is for a SVGDrawNode, embed the svg
+	var innerDivId = "svgDraw_"+stepWorkId+"_"+latestNodeVisitPostTime;
+	var contentBaseUrl = this.view.config.getConfigParam('getContentBaseUrl');
+	// if studentData has been compressed, decompress it and parse (for legacy compatibility)
+	if (typeof studentWork == "string") {
+		if (studentWork.match(/^--lz77--/)) {
+			var lz77 = new LZ77();
+			studentWork = studentWork.replace(/^--lz77--/, "");
+			studentWork = lz77.decompress(studentWork);
+			studentWork = $.parseJSON(studentWork);
+		}
+	} 
+	var svgString = studentWork.svgString;
+	var description = studentWork.description;
+	var snaps = studentWork.snapshots;
+	var contentUrl = this.getContent().getContentUrl();
+	studentWork = "<div id='"+innerDivId+"_contentUrl' style='display:none;'>"+contentUrl+"</div>"+
+		"<a class='drawEnlarge' onclick='enlargeDraw(\""+innerDivId+"\");'>enlarge</a>";
+	// if the svg has been compressed, decompress it
+	if (svgString != null){
+		if (svgString.match(/^--lz77--/)) {
+			var lz77 = new LZ77();
+			svgString = svgString.replace(/^--lz77--/, "");
+			svgString = lz77.decompress(svgString);
+		}
+		
+		//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+		// only replace local hrefs. leave absolute hrefs alone!
+		svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
+			  if (value.indexOf("http://") == -1) {
+			    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+			  }
+			  return m;
+			});
+		svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+		svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+		//svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
+		svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
+		svgString = Utils.encode64(svgString);
+	}
+	if(snaps != null && snaps.length>0){
+		var snapTxt = "<div id='"+innerDivId+"_snaps' class='snaps'>";
+		for(var i=0;i<snaps.length;i++){
+			var snapId = innerDivId+"_snap_"+i;
+			var currSnap = snaps[i].svg;
+			if (currSnap.match(/^--lz77--/)) {
+				var lz77 = new LZ77();
+				currSnap = currSnap.replace(/^--lz77--/, "");
+				currSnap = lz77.decompress(currSnap);
+			}
+			//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+			// only replace local hrefs. leave absolute hrefs alone!
+			currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
+				  if (value.indexOf("http://") == -1) {
+				    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+				  }
+				  return m;
+				});
+			
+			currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+			currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+			//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
+			currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.2)">');
+			currSnap = Utils.encode64(currSnap);
+			snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+innerDivId+"\");'>"+currSnap+"</div>";
+			var currDescription = snaps[i].description;
+			snapTxt += "<div id='"+snapId+"_description' class='snapDescription' style='display:none;'>"+currDescription+"</div>";
+		}
+		snapTxt += "</div>";
+		studentWork += snapTxt;
+	} else {
+		studentWork += "<div id='"+innerDivId+"' class='svgdrawCell'>"+svgString+"</div>";
+		if(description != null){
+			studentWork += "<span>Description: </span><div id='"+innerDivId+"_description' class='drawDescription'>"+description+"</div>";
+		}
+	}
+	
+	//add the post time stamp to the bottom of the student work
+	//studentWork += "<div class='lastAnnotationPostTime'>"+this.view.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
+	
+	//insert the html into the div
+	$('#' + divId).html(studentWork);
+	
+	//perform post processing of the svg data so that the drawing is displayed
+	$('#' + divId).find(".svgdrawCell").each(this.showDrawNode);
+	$('#' + divId).find(".snapCell").each(this.showSnaps);
 };
 
 SVGDrawNode.prototype.getHTMLContentTemplate = function() {
@@ -184,6 +276,42 @@ SVGDrawNode.prototype.getHTMLContentTemplate = function() {
  */
 SVGDrawNode.prototype.hasGradingView = function() {
 	return true;
+};
+
+/**
+ * Shows the draw node that is in the element
+ * @param currNode the svgdrawCell element
+ */
+SVGDrawNode.prototype.showDrawNode = function(currNode) {
+	var svgString = String($(this).html());
+	svgString = Utils.decode64(svgString);
+	var svgXml = Utils.text2xml(svgString);
+	$(this).html('');
+	$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+};
+
+/**
+ * Shows the snap elements
+ * @param currNode the snapCell element
+ */
+SVGDrawNode.prototype.showSnaps = function(currNode) {
+	//get the string in the snaps div
+	var svgString = String($(this).html());
+	
+	/*
+	 * check if the string starts with "<svg", if it does
+	 * then it has already been decoded and we do not need
+	 * to do anything. if it does not start with "<svg", then
+	 * we will decode it.
+	 */
+	if(svgString.toLowerCase().indexOf("<svg") == -1) {
+		//string does not contain "<svg"
+		
+		svgString = Utils.decode64(svgString);
+		var svgXml = Utils.text2xml(svgString);
+		$(this).html('');
+		$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+	}
 };
 
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);

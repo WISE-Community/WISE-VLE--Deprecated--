@@ -25,11 +25,26 @@ View.prototype.displayHint = function(){
 	 * populate hints panel with current node's hints
 	 * */
 	var currentNode = this.getCurrentNode(); //get the node the student is currently on
+	var hints = currentNode.getHints(); // get the hints object for the current node
     if (currentNode.getHints() != null && currentNode.getHints().hintsArray != null && currentNode.getHints().hintsArray.length > 0) {
-    	var hintsLink = "<a id='hintsLink' onclick='eventManager.fire(\"showStepHints\")' title='"+this.getI18NString("hint_button_title")+"'>"+this.getI18NString("hint_button_text")+"</a>";
+    	//var hintTerm = '';
+    	//if(hints.hintTerm && this.utils.isNonWSString(hints.hintTerm)){
+    		//hintTerm = hints.hintTerm;
+    	//} else {
+    		//hintTitle = this.getI18NString("hint_hint");
+    	//}
+    	
+    	var hintTitle = '';
+    	if(hints.hintTermPlural && this.utils.isNonWSString(hints.hintTermPlural)){
+    		hintTitle = this.utils.capitalize(hints.hintTermPlural);
+    	} else {
+    		hintTitle = this.getI18NString("hint_title");
+    	}
+    	
+    	var hintsLink = "<a id='hintsLink' onclick='eventManager.fire(\"showStepHints\")' title='"+this.getI18NString("hint_button_title")+hintTitle+"'>"+hintTitle+"</a>";
     	$('#hints').empty().html(hintsLink);
 	
-		var numHints = currentNode.getHints().hintsArray.length; //get the number of hints for current node
+		var numHints = hints.hintsArray.length; //get the number of hints for current node
 		
 		function highlight(){
 			$('#hintsLink').animate({
@@ -48,6 +63,11 @@ View.prototype.displayHint = function(){
 				}
 			});
 		}
+		
+		var modal = false;
+		if(typeof hints.isModal == 'boolean'){
+			modal = hints.isModal;
+		}
 
 		//check if the hintsDiv div exists
 	    if($('#hintsPanel').size()==0){
@@ -55,12 +75,12 @@ View.prototype.displayHint = function(){
 	    	$('<div id="hintsPanel"></div>').dialog(
 			{	autoOpen:false,
 				closeText:'Close',
-				modal:false,
+				modal:modal,
 				show:{effect:"fade",duration:200},
 				hide:{effect:"fade",duration:200},
-				title:this.getI18NString("hint_title"),
+				title:hintTitle,
 				zindex:9999,
-				width:450,
+				width:600,
 				height:'auto',
 				position:["center","middle"],
 				resizable:true    					
@@ -80,7 +100,7 @@ View.prototype.displayHint = function(){
 	    // append hints into one html string
 	    var hintsStringPart1 = "";   // first part will be the <ul> for text on tabs
 	    var hintsStringPart2 = "";   // second part will be the content within each tab
-	    var hintsArr = currentNode.getHints().hintsArray;
+	    var hintsArr = hints.hintsArray;
 	    
 	    var contentBaseUrl = this.config.getConfigParam("getContentBaseUrl");
 	    for (var i=0; i< hintsArr.length; i++) {
@@ -95,9 +115,9 @@ View.prototype.displayHint = function(){
 	    	} else if (i==numHints-1){
 	    		nextLink = '';
 	    	}
-	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+this.getI18NString("hint_hint")+" "+(i+1)+"</a></li>";
+	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+hintTitle+" "+(i+1)+"</a></li>";
 	    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
-		    	"<div class='hintHeader'>"+this.getI18NString("hint_hint")+" "+ (i+1) +" of " + numHints + "</div>"+
+		    	"<div class='hintHeader'>"+ (i+1) + ' ' + this.getI18NString("hint_num_separator") + ' ' + numHints + "</div>"+
 		    	"<div class='hintText'>"+currentHint+"</div>"+
 		    	"<div class='hintControls'>" + prevLink + nextLink + "</div>"+
 	    		"</div>";
@@ -132,11 +152,15 @@ View.prototype.displayHint = function(){
 		// check if forceShow is set
 		var forceShow = currentNode.getHints().forceShow;
 		if (forceShow == "always") {  // always force show hints
-			this.eventManager.fire("showStepHints");
+			setTimeout(function(){ // TODO: remove - for some reason, if this timeout isn't set and the hints dialog is modal, it does not show the modal overlay
+				this.eventManager.fire("showStepHints");
+			},1000);
 		} else if (forceShow == "firsttime") {  // only show hints if this is the first time
 		    var nodeVisitArray = this.state.getNodeVisitsByNodeId(currentNode.id);
 		    if (nodeVisitArray.length == 1) {  // if this is the first time, the first nodevisit will already be created.
-				this.eventManager.fire("showStepHints");
+		    	setTimeout(function(){ // TODO: remove - for some reason, if this timeout isn't set and the hints dialog is modal, it does not show the modal overlay
+					this.eventManager.fire("showStepHints");
+				},1000);
 		    }
 		} else {
 			var nodeVisitArray = this.state.getNodeVisitsByNodeId(currentNode.id);

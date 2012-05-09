@@ -49,7 +49,7 @@ ASSESSMENTLISTSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Returns the human readable student's answer
  * @return a string containing the human readable answer
  */
-ASSESSMENTLISTSTATE.prototype.getStudentWork = function(showAutoScoreResult) {
+ASSESSMENTLISTSTATE.prototype.getStudentWorkString = function(showAutoScoreResult) {
 	var studentWorkSoFar = "";
 	var autoScoreTotalScore = 0;   // total auto scored points the student earned
 	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
@@ -105,6 +105,14 @@ ASSESSMENTLISTSTATE.prototype.getStudentWork = function(showAutoScoreResult) {
 	}
 	
 	return studentWorkSoFar;
+};
+
+/**
+ * Get this assessmentlist state
+ * @returns this assessmentlist state
+ */
+ASSESSMENTLISTSTATE.prototype.getStudentWork = function() {
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

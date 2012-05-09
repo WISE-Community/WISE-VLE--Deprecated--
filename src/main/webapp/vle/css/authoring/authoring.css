@@ -973,7 +973,7 @@ button.mid, #centeredDiv button.mid, #centeredDiv input[type='button'].mid {
 	left:5px;
 	right:5px;
 	bottom:5px;
-	z-index: 1002;
+	z-index: 1001;
 	border:1px solid #777;
 	border-radius:10px;
 	-moz-border-radius:10px;
@@ -1763,6 +1763,10 @@ input[type='text'].error, textarea.error {
 	border-color:red;
 }
 
+form {
+	margin:0;
+}
+
 
 /* Settings Panels */
 
@@ -1808,11 +1812,19 @@ input[type='text'].error, textarea.error {
 }
 
 .featureSettings .setting {
-	padding:.25em;
+	padding:0.25em 0.25em 0.5em;
+}
+
+.featureSettings .setting:last-child {
+	padding-bottom:.25em;
 }
 
 .featureSettings .settingLabel {
-	color:#222222;
+	/*color:#222222;*/
+}
+
+.featureSettings .settingLabel span {
+	text-decoration:underline;
 }
 
 .featureSettings .details {
@@ -1820,18 +1832,19 @@ input[type='text'].error, textarea.error {
 	color:#555555;
 	margin-left:.25em;
 	font-weight:normal;
+	text-decoration:none !important;
 }
 
 .featureSettings ul.inline {
 	list-style-type: none;
 	padding:0;
-	margin:.5em;
+	margin:.5em .5em 0;
 	font-size:.9em;
 }
 
 .featureSettings ul.inline li {
 	display:inline-block;
-	margin-right:.25em;
+	margin-right:.5em;
 }
 
 .featureSettings input[type='text'], .featureSettings input[type='password'], .featureSettings textarea {

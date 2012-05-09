@@ -73,9 +73,17 @@ MYSYSTEMSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Get the student work.
  * @return the student's work
  */
-MYSYSTEMSTATE.prototype.getStudentWork = function() {
+MYSYSTEMSTATE.prototype.getStudentWorkString = function() {
 	return this.data;
-}
+};
+
+/**
+ * Get this node state
+ * @return this node state
+ */
+MYSYSTEMSTATE.prototype.getStudentWork = function() {
+	return this;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
