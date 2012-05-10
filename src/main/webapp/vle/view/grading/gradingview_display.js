@@ -1386,6 +1386,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 			"<p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
+	this.studentWorkRowOrderObjects = [];
+	
 	//used to set which radio button is checked
 	var sortByUsernameChecked = '';
 	var sortByTeacherGradedScoreChecked = '';
@@ -1510,7 +1512,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
 		var annotationCommentValue = annotationData.annotationCommentValue;
 		var annotationScoreValue = annotationData.annotationScoreValue;
-		var annotationCRaterScoreValue = annotationData.annotationCRaterScoreValue;
 		var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
 		
 		//get the period name for this student
@@ -2325,18 +2326,15 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 	var annotationData = new Object();
 	var annotationComment = null;
 	var annotationScore = null;
-	var annotationCRaterScore = null;
 	
 	if(stepWorkId == null) {
 		//obtain the annotation for this workgroup and step if any
 		annotationComment = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "comment");
 		annotationScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "score");
-		annotationCRaterScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, [-1], "cRater");
 	} else {
 		//obtain the annotation for this workgroup and step if any
 		annotationComment = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "comment");
 		annotationScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "score");
-		annotationCRaterScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "cRater");
 	}
 	
 	//the value to display in the comment text box
@@ -2357,26 +2355,6 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 		//get the value of the annotationScore
 		annotationData.annotationScoreValue = annotationScore.value;
 		annotationData.annotationScorePostTime = annotationScore.postTime;
-	}
-	
-	//the default values for the cRater score
-	annotationData.annotationCRaterScoreValue = null;
-	annotationData.annotationCRaterScorePostTime = null;
-	
-	if(annotationCRaterScore != null) {
-		//get the cRater annotation array
-		var annotationArray = annotationCRaterScore.value;
-		
-		if(annotationArray != null && Array.isArray(annotationArray) && annotationArray.length > 0) {
-			//get the latest element in the array
-			var cRaterAnnotation = annotationArray[annotationArray.length -1];
-			
-			//get the score
-			annotationData.annotationCRaterScoreValue = cRaterAnnotation.score;
-			
-			//get the timestamp for the node state
-			annotationData.annotationCRaterScorePostTime = annotationCRaterScore.postTime;		
-		}
 	}
 	
 	//get the latest annotation post time for comparing with student work post time
@@ -2740,12 +2718,17 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 			teacherGradedScore = 0;
 		}
 		
+		//get the user names in the workgroup
+		var username = this.getUserNamesByWorkgroupId(workgroupId, 0);
+		
 		/*
 		 * create the object with the row id, teacher graded score, and auto graded score.
 		 * if there are multiple auto graded fields we will just use the score for
 		 * the last one.
 		 */
 		var studentWorkRowOrderObject = {
+			username:username,
+			stepWorkId:stepWorkId,
 			studentWorkRowId:studentWorkRowId,
 			teacherGradedScore:teacherGradedScore,
 			autoGradedScore:autoGradedScore
@@ -4004,7 +3987,7 @@ View.prototype.filterStudentRows = function() {
 	
 	if(this.gradingSortByUsername) {
 		//sort by username (which is the default)
-		this.sortByOriginalOrder();
+		this.sortByUsername();
 	} else if(this.gradingSortByTeacherGradedScore) {
 		//sort by teacher graded score
 		this.sortByTeacherGradedScore();
@@ -4013,7 +3996,7 @@ View.prototype.filterStudentRows = function() {
 		this.sortByAutoGradedScore();
 	} else {
 		//revert the rows back to the original sort order (which should be alphabetical)
-		this.sortByOriginalOrder();
+		this.sortByUsername();
 	}
 	
 	//fix the height so scrollbars don't show up
@@ -4106,12 +4089,14 @@ View.prototype.enlargeStudentWorkText = function() {
  * Sort the student rows by auto graded score. This is only called in
  * grade by step and the step has a grading criteria.
  */
-View.prototype.sortByScore = function(sortField) {
-	//get the node content
-	var nodeId = this.currentGradingDisplayParam[1];
-	var node = this.project.getNodeById(nodeId);
+View.prototype.gradeByStepSortBy = function(sortField) {
 	
-	if(sortField == 'teacherGradedScore') {
+	if(sortField == 'username') {
+		/*
+		 * so the rows based on the username alphabetically
+		 */
+		this.studentWorkRowOrderObjects.sort(this.sortStudentWorkRowsByUsername);
+	} else if(sortField == 'teacherGradedScore') {
 		/*
 		 * sort the rows based on the auto graded score from
 		 * highest score to lowest
@@ -4163,8 +4148,8 @@ View.prototype.sortByScore = function(sortField) {
  * Sort the student rows by auto graded score. This is only called in
  * grade by step and the step has a grading criteria.
  */
-View.prototype.sortByAutoGradedScore = function() {
-	this.sortByScore('autoGradedScore');
+View.prototype.sortByUsername = function() {
+	this.gradeByStepSortBy('username');
 };
 
 /**
@@ -4172,7 +4157,15 @@ View.prototype.sortByAutoGradedScore = function() {
  * grade by step and the step has a grading criteria.
  */
 View.prototype.sortByTeacherGradedScore = function() {
-	this.sortByScore('teacherGradedScore');
+	this.gradeByStepSortBy('teacherGradedScore');
+};
+
+/**
+ * Sort the student rows by auto graded score. This is only called in
+ * grade by step and the step has a grading criteria.
+ */
+View.prototype.sortByAutoGradedScore = function() {
+	this.gradeByStepSortBy('autoGradedScore');
 };
 
 /**
@@ -4200,7 +4193,7 @@ View.prototype.sortByOriginalOrder = function() {
  * 0 if obj1 and obj2 should be equal in position
  * more than 0 if obj1 should be after obj2
  */
-View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2){
+View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2) {
 	var result = 0;
 	
 	if(obj1 != null && obj2 != null) {
@@ -4221,6 +4214,14 @@ View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2){
 			//if obj2 does not have a score, obj1 should come before obj2
 			result = -1;
 		}
+		
+		if(result == 0) {
+			/*
+			 * the scores are the same so we will now sort by username
+			 * among the scores that are the same
+			 */
+			result = View.prototype.sortStudentWorkRowsByUsername(obj1, obj2);
+		}
 	}
 	
 	return result;
@@ -4236,7 +4237,7 @@ View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2){
  * 0 if obj1 and obj2 should be equal in position
  * more than 0 if obj1 should be after obj2
  */
-View.prototype.sortStudentWorkRowsByTeacherGradedScore = function(obj1, obj2){
+View.prototype.sortStudentWorkRowsByTeacherGradedScore = function(obj1, obj2) {
 	var result = 0;
 	
 	if(obj1 != null && obj2 != null) {
@@ -4255,6 +4256,52 @@ View.prototype.sortStudentWorkRowsByTeacherGradedScore = function(obj1, obj2){
 			result = 1;
 		} else if(obj2Score == null) {
 			//if obj2 does not have a score, obj1 should come before obj2
+			result = -1;
+		}
+		
+		if(result == 0) {
+			/*
+			 * the scores are the same so we will now sort by username
+			 * among the scores that are the same
+			 */
+			result = View.prototype.sortStudentWorkRowsByUsername(obj1, obj2);
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Function used by array.sort(function) to sort the objects in the 
+ * studentWorkRowOrderObjects array
+ * @param obj1 a studentWorkRowOrderObject
+ * @param obj2 a studentWorkRowOrderObject
+ * @return 
+ * less than 0 if obj1 should be before obj2
+ * 0 if obj1 and obj2 should be equal in position
+ * more than 0 if obj1 should be after obj2
+ */
+View.prototype.sortStudentWorkRowsByUsername = function(obj1, obj2) {
+	var result = 0;
+	
+	if(obj1 != null && obj2 != null) {
+		//get the username for each object
+		var obj1Username = obj1.username;
+		var obj2Username = obj2.username;
+		
+		if(obj1Username != null && obj2Username != null) {
+			if(obj1Username == obj2Username) {
+				result = 0;
+			} else if(obj1Username < obj2Username) {
+				result = -1;
+			} else if(obj1Username > obj2Username) {
+				result = 1;
+			}
+		} else if(obj1Username == null) {
+			//if obj1 does not have a username, obj2 should come before obj1
+			result = 1;
+		} else if(obj2Username == null) {
+			//if obj2 does not have a username, obj1 should come before obj2
 			result = -1;
 		}
 	}
@@ -4617,6 +4664,29 @@ View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
 	}
 	
 	return groups;
+};
+
+/**
+ * Update the teacher graded score in the studentWorkRowOrderObjects
+ * @param stepWorkId used to find which studentWorkRowOrderObject to update
+ * @param teacherGradedScore the new teacher graded score
+ */
+View.prototype.updateStudentWorkRowOrderObjectTeacherGradedScore = function(stepWorkId, teacherGradedScore) {
+	
+	if(this.studentWorkRowOrderObjects != null) {
+		//loop through all the studentWorkRowOrderObjects
+		for(var x=0; x<this.studentWorkRowOrderObjects.length; x++) {
+			//get a studentWorkRowOrderObject
+			var studentWorkRowOrderObject = this.studentWorkRowOrderObjects[x];
+			
+			if(studentWorkRowOrderObject != null) {
+				if(studentWorkRowOrderObject.stepWorkId == stepWorkId) {
+					//the stepWorkId matches so we will update the teacher graded score
+					studentWorkRowOrderObject.teacherGradedScore = teacherGradedScore;
+				}
+			}
+		}
+	}
 };
 
 /**

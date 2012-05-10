@@ -146,7 +146,15 @@ View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, typ
 				studentWorkRow.className = className.replace("newWork", "");
 				
 				//update the Last Annotation time
-				document.getElementById("lastAnnotationPostTime_" + toWorkgroup + "_" + nodeId).innerHTML = "Last Annotation: " + new Date(parseInt(postTime));				
+				document.getElementById("lastAnnotationPostTime_" + toWorkgroup + "_" + nodeId).innerHTML = "Last Annotation: " + new Date(parseInt(postTime));
+				
+				if(type == 'score') {
+					/*
+					 * the teacher has updated a score so we will update the
+					 * teacher graded score in the studentWorkRowOrderObjects
+					 */
+					thisView.updateStudentWorkRowOrderObjectTeacherGradedScore(stepWorkId, value);					
+				}
 			}
 	};
 	
