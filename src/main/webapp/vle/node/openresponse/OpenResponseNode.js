@@ -389,6 +389,108 @@ OpenResponseNode.prototype.getHtmlView = function(work) {
 	return html;
 };
 
+/**
+ * Whether this step has auto graded fields
+ * @return whether this step has auto graded fields
+ */
+OpenResponseNode.prototype.hasAutoGradedFields = function() {
+	var result = false;
+	
+	//get the step content
+	var nodeContent = this.content.getContentJSON();
+	
+	if(nodeContent != null) {
+		if(nodeContent.cRater != null) {
+			//this step is a CRater step so it has an auto graded field
+			result = true;
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Get the auto graded fields for this step including the auto graded
+ * scores
+ * @param stepWorkId the step work id 
+ * @param runId the run id
+ * @param nodeId the node id
+ * @param toWorkgroup the student workgroup id
+ * @param fromWorkgroup the teacher workgroup ids
+ * @return an array of objects that contain auto graded field data
+ */
+OpenResponseNode.prototype.getAutoGradedFields = function(stepWorkId, runId, nodeId, toWorkgroup, fromWorkgroup) {
+	var autoGradedFields = [];
+	
+	//get the step content
+	var nodeContent = this.content.getContentJSON();
+	
+	if(nodeContent != null) {
+		if(nodeContent.cRater != null) {
+			//this step uses CRater
+			
+			var autoGradedField = 'cRater';
+			var autoGradedMaxScore = null;
+			var autoGradedScore = null;
+			var cRaterAnnotation = null;
+			
+			if(nodeContent.cRater.cRaterMaxScore != null) {
+				//get the CRater max score
+				autoGradedMaxScore = nodeContent.cRater.cRaterMaxScore;
+			}
+			
+			/*
+			 * get the CRater annotation (if any) so we can get the CRater
+			 * score the student received
+			 */
+			if(stepWorkId != null) {
+				//stepWorkId was provided
+				cRaterAnnotation = this.view.annotations.getAnnotationByStepWorkIdType(parseInt(stepWorkId), 'cRater');
+			} else {
+				/*
+				 * stepWorkId was not provided so we need to look 
+				 * up the annotation using the other fields
+				 */
+				cRaterAnnotation = this.view.annotations.getLatestAnnotationByAll(runId, nodeId, toWorkgroup, "-1", 'cRater');								
+			}
+			
+			if(cRaterAnnotation != null) {
+				/*
+				 * get the value of the annotation which will be an array
+				 * because a CRater annotation contains all the CRater scores
+				 * for each submit within a single node visit
+				 */
+				var annotationArray = cRaterAnnotation.value;
+				
+				if(annotationArray.length > 0) {
+					//get the last sub annotation
+					var lastAnnotation = annotationArray[annotationArray.length - 1];
+					
+					//get the CRater score
+					autoGradedScore = lastAnnotation.score;
+				}
+			}
+			
+			if(autoGradedScore == null || autoGradedScore == "") {
+				//set the value to 0 if it is null or ""
+				autoGradedScore = 0;
+			}
+			
+			//create the object that will contain all the fields
+			var autoGradedFieldObject = {
+				autoGradedField:autoGradedField,
+				autoGradedMaxScore:autoGradedMaxScore,
+				autoGradedScore:autoGradedScore
+			};
+			
+			autoGradedFields.push(autoGradedFieldObject);
+		}
+	}
+	
+	//return the array
+	return autoGradedFields;
+};
+
 OpenResponseNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/openresponse/openresponse.html');
 };

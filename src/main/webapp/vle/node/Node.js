@@ -1515,6 +1515,23 @@ Node.prototype.hasGradingView = function() {
 };
 
 /**
+ * Whether this step has auto graded fields to display in the
+ * grading tool
+ * @returns whether this step has auto graded fields
+ */
+Node.prototype.hasAutoGradedFields = function() {
+	return false;
+};
+
+/**
+ * Get the auto graded fields
+ * @returns an array that contains the auto graded fields
+ */
+Node.prototype.getAutoGradedFields = function() {
+	return [];
+};
+
+/**
  * Returns true iff this node can import work from the specified node.
  * @param exportToNode node to export work into
  * @return true/false

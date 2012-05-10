@@ -492,7 +492,8 @@ Annotations.prototype.getLatestAnnotationByAll = function(runId, nodeId, toWorkg
 		}
 	}
 	
-	return annotation;
+	//we did not find any matches
+	return null;
 };
 
 /**
