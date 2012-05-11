@@ -434,7 +434,7 @@ View.prototype.displayShowAllWork = function() {
 					//render the work into the div to display it
 					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);
 					
-					if($("#new_latestWork_" + nodeVisit.id).size != 0) {
+					if($("#new_latestWork_" + nodeVisit.id).length != 0) {
 						/*
 						 * render the work into the new feedback div if it exists. the
 						 * new feedback div exists when the teacher has given a new

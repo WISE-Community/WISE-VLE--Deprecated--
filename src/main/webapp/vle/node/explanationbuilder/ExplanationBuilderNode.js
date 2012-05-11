@@ -202,18 +202,50 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 			backgroundPath = this.view.getConfig().getConfigParam('getContentBaseUrl') + explanationBuilder.background;			
 		}
 	}
+
+	/*
+	 * the default background width and height values. these
+	 * values will be overridden once the backgroundImage.onload
+	 * function gets called
+	 */
+	var backgroundWidth = 1000;
+	var backgroundHeight = 800;
 	
-	//get the background width and height
-	var backgroundWidth = explanationBuilder.backgroundWidth;
-	var backgroundHeight = explanationBuilder.backgroundHeight;
+	//create the div that will contain the ideas div
+	var explanationBuilderContainerDivId = childDivIdPrefix + 'explanationBuilderContainerDiv_' + stepWorkId;
+	var explanationBuilderContainerDiv = createElement(document, 'div', {id: explanationBuilderContainerDivId, style:'width:' + 490 + 'px;height:' + 300 + 'px;border: 1px solid;position:relative;overflow:auto'});
 	
 	//create the div that will contain the ideas
 	var explanationBuilderIdeasDivId = childDivIdPrefix + 'explanationBuilderIdeasDiv_' + stepWorkId;
 	var explanationBuilderIdeasDiv = createElement(document, 'div', {id: explanationBuilderIdeasDivId, style:'width:' + backgroundWidth + 'px;height:' + backgroundHeight + 'px;border: 1px solid;position:relative'});
 	
-	//add the explanationBuilderIdeasDiv to the grading div
-	$('#' + divId).append(explanationBuilderIdeasDiv);
+	/*
+	 * create an image object so we can obtain the width and height
+	 * of the background image
+	 */
+	var backgroundImage = new Image();
 	
+	/*
+	 * we can't immediately retrieve the width and height so
+	 * we must implement the onload function which gets called
+	 * when the image actually loads and only then can we
+	 * retrieve the width and height
+	 */ 
+	backgroundImage.onload = function() {
+		//set the dimensions of the div that contains the background image
+		$('#' + explanationBuilderIdeasDivId).css('width', this.width);
+		$('#' + explanationBuilderIdeasDivId).css('height', this.height);
+	};
+	
+	//set the path of the background image
+	backgroundImage.src = backgroundPath;
+	
+	//add the explanationBuilderContainerDiv to the grading div
+	$('#' + divId).append(explanationBuilderContainerDiv);
+	
+	//add the explanationBuilderIdeasDiv to the explanationBuilderContainerDiv
+	$('#' + explanationBuilderContainerDivId).append(explanationBuilderIdeasDiv);
+
 	if(backgroundPath != null) {
 		//set the background attributes
 		$('#' + explanationBuilderIdeasDivId).css('background-image','url(' + backgroundPath + ')');
@@ -270,11 +302,11 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	}
 	
 	//create a div to display the student answer
-	var explanationBuilderAnswerDiv = childDivIdPrefix + 'explanationBuilderAnswerDiv_' + stepWorkId;
-	var answerDiv = createElement(document, 'div', {id: explanationBuilderAnswerDiv});
+	var explanationBuilderAnswerDivId = childDivIdPrefix + 'explanationBuilderAnswerDiv_' + stepWorkId;
+	var answerDiv = createElement(document, 'div', {id: explanationBuilderAnswerDivId});
 	$('#' + divId).append(answerDiv);
 
-	//replacen \n with <br>
+	//replace \n with <br>
 	answer = this.view.replaceSlashNWithBR(answer);
 	
 	/*
@@ -283,8 +315,7 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	 */
 	answer = "<br>" + answer;
 	
-	//set the answer in the div
-	$('#' + explanationBuilderAnswerDiv).html(answer);
+	$('#' + explanationBuilderAnswerDivId).html(answer);
 };
 
 /**
