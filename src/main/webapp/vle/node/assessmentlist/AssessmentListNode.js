@@ -185,6 +185,72 @@ AssessmentListNode.prototype.onExit = function() {
 	}	
 };
 
+/**
+ * Display the work for an assessmentliststate object
+ * @param nodeState the node state to display work from
+ */
+AssessmentListNode.prototype.getHtmlView = function(nodeState) {
+	var showAutoScoreResult = false;
+	
+	var studentWorkSoFar = "";
+	var autoScoreTotalScore = 0;   // total auto scored points the student earned
+	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
+	
+	if(nodeState != null) {
+		//check if there were any responses
+		if(nodeState.assessments) {
+			//loop through the array of assessments
+			for(var x=0; x<nodeState.assessments.length; x++) {
+				if(studentWorkSoFar != "") {
+					//separate each response
+					studentWorkSoFar += "<br/><br/>";
+				}
+				
+				//add the response to the student work
+				studentWorkSoFar += "Part " + (x+1) + ": <br/>";
+				var assessment = nodeState.assessments[x];
+
+				if (assessment.type && assessment.response) {
+					if (assessment.type == "radio") {
+						studentWorkSoFar += assessment.response.text;
+						if (assessment.response.autoScoreResult && showAutoScoreResult) {
+							// append results from auto score
+							var autoScoreResult = assessment.response.autoScoreResult;
+							studentWorkSoFar += "<br/>Auto Score Results:<br/>";
+							if (autoScoreResult.isCorrect) {
+								studentWorkSoFar += "Student got this question CORRECT";
+							} else {
+								studentWorkSoFar += "Student got this question INCORRECT";							
+							}
+							var studentScore = autoScoreResult.choiceScore ? autoScoreResult.choiceScore : 0;
+							var maxScore = autoScoreResult.maxScore ? autoScoreResult.maxScore : 0;
+							studentWorkSoFar += " and received ";
+							studentWorkSoFar += studentScore;
+							studentWorkSoFar += " points out of ";
+							studentWorkSoFar += maxScore;
+							
+							// update total scores
+							autoScoreTotalScore += studentScore;
+							autoScoreTotalMaxScore += maxScore;
+						}
+					} else if (assessment.type == "text") {
+						studentWorkSoFar += assessment.response.text;
+					}
+				}
+			}
+		}
+		
+		// append autoScore result summary at the end, if request
+		if (showAutoScoreResult && autoScoreTotalMaxScore > 0) {
+			studentWorkSoFar += "<br/><br/>";
+			studentWorkSoFar += "Auto Score Results Summary: ";
+			studentWorkSoFar += "Student got " + autoScoreTotalScore + " points out of " + autoScoreTotalMaxScore;
+		}
+	}
+	
+	return studentWorkSoFar;
+};
+
 AssessmentListNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/assessmentlist/assessmentlist.html');
 };
