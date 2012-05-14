@@ -6,10 +6,10 @@
     <meta http-equiv="Content-Script-Type" content="text/javascript" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="my_system_sc_git_sha"    content ="92876fac5c56caa95cc9666e594b31d48b2fc4d4" />
-    <meta name="my_system_sc_git_time"   content ="Tue Apr 10 17:37:44 2012 -0400" />
+    <meta name="my_system_sc_git_sha"    content ="4fb2b2db06cd19e652824beb065f73631e4f4450" />
+    <meta name="my_system_sc_git_time"   content ="Mon May 14 15:37:10 2012 -0400" />
     <meta name="my_system_sc_git_branch" content ="(HEAD, origin/master, origin/HEAD, master)" />
-    <meta name="sc_build_time"           content ="2012-04-10 17:38:07 -0400" />
+    <meta name="sc_build_time"           content ="2012-05-14 15:37:29 -0400" />
     <meta name="sc_build_number"         content ="9cb8d6b612145eb83b7f198727e7935e90004e49" />
     <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="apple-touch-icon" href="images/00_my_system_sproutcore-logo.png" />
@@ -133,14 +133,16 @@ SC.setupBodyClassNames = function() {
   <script type="text/javascript" src="js/00_my_system_javascript-packed.js"></script>
   <script type="text/javascript">
     String.preferredLanguage = "en";
-    var mysystem2;
+    var mysystem2 = null;
 
     /**
      * Called back when ... some part of this thing loads.
      */
     window.loadContentAfterScriptsLoad = function (node) {
       // mysystem = new Mysystem(node, node.view);
-      mysystem2 = new Mysystem2(node, node.view);
+      if (mysystem2 === null) {
+        mysystem2 = new Mysystem2(node, node.view);
+      }
       mysystem2.render();
     };
 
