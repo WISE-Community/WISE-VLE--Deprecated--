@@ -245,9 +245,19 @@ CARGRAPH.prototype.render = function() {
 		$("#animationDiv").append("<div style='position:absolute; top:" + (animationDivTop + 40) + "px; left:"+yTickPosition+"'>"+i+"</div>");
 	}
 	
-	// display the dynamic images (e.g. cars)	
 	var topSoFar = 75;  // offset from the top of the screen, to ensure that the images don't overlap
+	
+	// display the dynamic images (e.g. cars)	
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
+		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
+		if (this.content.runCorrectAnswer) {
+			var dynamicImage = this.content.dynamicImages[i];		
+			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ (animationDivTop + topSoFar) +"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
+			$("#animationDiv").height($("#animationDiv").height()+dynamicImage.height+10);
+			// increment topSoFar
+			topSoFar += dynamicImage.height+10;
+		}
+		
 		var dynamicImage = this.content.dynamicImages[i];		
 		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
 		
@@ -261,6 +271,7 @@ CARGRAPH.prototype.render = function() {
 		// increment topSoFar
 		topSoFar += dynamicImage.height;
 	}	
+	
 };
 
 /**
@@ -278,6 +289,32 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 	    var leftValue = yValue*this.yTickSize;
     	$("#"+dynamicImage.id).css("left",leftValue);
     	this.setCrosshair({x:xValue,y:yValue});  // show cross hair on current x
+    }
+    
+    // if runCorrectAnswer is enabled, move the position of the correct image in the animationDiv also
+    if (this.content.runCorrectAnswer) {
+        for (var i=0; i<this.content.dynamicImages.length;i++) {
+    	    var dynamicImage = this.content.dynamicImages[i];
+
+    		//get the expected results
+    		var expectedResults = this.content.expectedResults;
+    		//loop through all the expected results
+    		for(var y=0; y<expectedResults.length; y++) {
+    			//get an expected result
+    			var expectedResult = expectedResults[y];
+    			
+    			if(dynamicImage != null && expectedResult != null) {
+    				//check if we have found an expected result for the car that is used in this step
+    				if(dynamicImage.id == expectedResult.id) {
+    					var expectedResultArray = expectedResult.expectedPoints;
+    		    	    var yValue = this.getYValueObj(xValue,expectedResultArray);
+    		    	    console.log('expected (x,y): (' + xValue + ","+ yValue +")");
+    		    	    var leftValue = yValue*this.yTickSize;
+    		        	$("#"+dynamicImage.id+"-correct").css("left",leftValue);
+    				}
+    			}
+    		}
+        }
     }
 };
 
