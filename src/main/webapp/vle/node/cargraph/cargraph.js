@@ -247,19 +247,44 @@ CARGRAPH.prototype.render = function() {
 	
 	var topSoFar = 75;  // offset from the top of the screen, to ensure that the images don't overlap
 	
-	// display the dynamic images (e.g. cars)	
+	// display the dynamic images (e.g. cars) at time=0 (starting point)
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
 		if (this.content.runCorrectAnswer) {
 			var dynamicImage = this.content.dynamicImages[i];		
-			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ (animationDivTop + topSoFar) +"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
+
+			var correctStartingYValue = -100;  // if there is no correct y-value at time=0, hide this car from the view.
+			
+			//get the expected results
+			var expectedResults = this.content.expectedResults;
+			//loop through all the expected results
+			for(var y=0; y<expectedResults.length; y++) {
+				//get an expected result
+				var expectedResult = expectedResults[y];
+
+				if(dynamicImage != null && expectedResult != null) {
+					//check if we have found an expected result for the car that is used in this step
+					if(dynamicImage.id == expectedResult.id) {
+						var expectedResultArray = expectedResult.expectedPoints;
+						var yValue = this.getYValueObj(0,expectedResultArray);
+						correctStartingYValue = yValue*this.yTickSize;
+					}
+				}
+			}
+
+			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ (animationDivTop + topSoFar) +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
 			$("#animationDiv").height($("#animationDiv").height()+dynamicImage.height+10);
 			// increment topSoFar
 			topSoFar += dynamicImage.height+10;
 		}
 		
+		var predictionStartingYValue = -100;  // if no prediction at time=0, hide this car from the view.	
+		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
+	    var yValue = this.getYValue(0,predictionArr);
+	    var predictionStartingYValue = yValue*this.yTickSize;
+    	
 		var dynamicImage = this.content.dynamicImages[i];		
-		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
+		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
 		
 		// add radio input so students can choose which car they're drawing the graph for
 		var checked = "";
@@ -308,7 +333,6 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
     				if(dynamicImage.id == expectedResult.id) {
     					var expectedResultArray = expectedResult.expectedPoints;
     		    	    var yValue = this.getYValueObj(xValue,expectedResultArray);
-    		    	    console.log('expected (x,y): (' + xValue + ","+ yValue +")");
     		    	    var leftValue = yValue*this.yTickSize;
     		        	$("#"+dynamicImage.id+"-correct").css("left",leftValue);
     				}
@@ -326,6 +350,9 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
  * the yValue in (3,?) when your predictionArray only contains 
  * [(1,2),(2,4),(7,3)]. In this case, algebra is used to calculate the y value.
  * 
+ *  * If the array does not contain a value for x less than the specified xValue, return -100.
+ * e.g. xValue=4, predictionArray=[(5,6),(10,10),(7,3)]
+ * 
  * @param xValue: x Value in the prediction graph
  * @param predictionArray: array of points for one prediction graph
  * @return: corresponding y-Value within the prediction graph.
@@ -333,6 +360,13 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
     var xSoFar = 0;
     var ySoFar = 0;
+    if (predictionArray.length > 0) {
+    	// check if the array contains a value for x less than the specified xValue. If not, return -100.
+    	var firstPrediction = predictionArray[0];
+    	if (firstPrediction[0] > xValue) {
+    		return -100;
+    	}
+    }
     for (var i=0; i< predictionArray.length; i++) {
 	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
 	    if (prediction[0] < xValue) {
@@ -364,6 +398,9 @@ CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
  * the yValue in (3,?) when your predictionArray only contains 
  * [(1,2),(2,4),(7,3)]. In this case, algebra is used to calculate the y value.
  * 
+ * If the array does not contain a value for x less than the specified xValue, return -100.
+ * e.g. xValue=4, predictionArray=[(5,6),(10,10),(7,3)]
+ * 
  * @param xValue: x Value in the prediction graph
  * @param predictionArray: array of points for one prediction graph
  * @return: corresponding y-Value within the prediction graph.
@@ -371,6 +408,13 @@ CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
 CARGRAPH.prototype.getYValueObj = function(xValue,predictionArray) {
     var xSoFar = 0;
     var ySoFar = 0;
+    if (predictionArray.length > 0) {
+    	// check if the array contains a value for x less than the specified xValue. If not, return -100.
+    	var firstPrediction = predictionArray[0];
+    	if (firstPrediction.x > xValue) {
+    		return -100;
+    	}
+    }
     for (var i=0; i< predictionArray.length; i++) {
 	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
 	    if (prediction.x < xValue) {
@@ -2046,6 +2090,13 @@ CARGRAPH.prototype.clearPrediction = function() {
 	this.plotData();
 	
 	this.graphChanged = true;
+};
+
+/**
+ * Callback when predictionArray is updated
+ */
+CARGRAPH.prototype.predictionArrayUpdated = function() {
+
 };
 
 /**
