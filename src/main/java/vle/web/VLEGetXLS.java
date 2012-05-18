@@ -197,11 +197,13 @@ public class VLEGetXLS extends VLEServlet {
 		//get the path of the project meta data
 		String projectMetaDataJSONString = (String) request.getAttribute("projectMetaData");
 		
-		try {
-			//get the project meta data JSON object
-			projectMetaData = new JSONObject(projectMetaDataJSONString);
-		} catch (JSONException e2) {
-			e2.printStackTrace();
+		if (projectMetaDataJSONString != null) {
+			try {
+				//get the project meta data JSON object
+				projectMetaData = new JSONObject(projectMetaDataJSONString);
+			} catch (JSONException e2) {
+				e2.printStackTrace();
+			}
 		}
 		
 		//holds the run info
