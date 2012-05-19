@@ -18,6 +18,10 @@ View.prototype.showStepHints = function() {
 	// log when hint was opened
 	var hintState = new HINTSTATE({action:"hintopened",nodeId:currentNode.id});
 	currentNode.view.pushHintState(hintState);
+	
+	// by default, the first part is selected.
+	var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":currentNode.id,"partindex":0});
+	currentNode.view.pushHintState(hintState);
 };
 
 View.prototype.displayHint = function(){	
@@ -69,6 +73,11 @@ View.prototype.displayHint = function(){
 			modal = hints.isModal;
 		}
 
+		var isMustViewAllPartsBeforeClosing = false;
+		if(typeof hints.isMustViewAllPartsBeforeClosing == 'boolean'){
+			isMustViewAllPartsBeforeClosing = hints.isMustViewAllPartsBeforeClosing;
+		}
+
 		//check if the hintsDiv div exists
 	    if($('#hintsPanel').size()==0){
 	    	//the show hintsDiv does not exist so we will create it
@@ -85,6 +94,39 @@ View.prototype.displayHint = function(){
 				position:["center","middle"],
 				resizable:true    					
 			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+				// check if isMustViewAllPartsBeforeClosing is true. If true, check if this is the first time they view the hints, and student has viewed all parts.
+				var currHints = event.data.view.getCurrentNode().getHints();
+				if ($(this).data("dialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.state) {
+					
+					var studentHasSeenAllParts = false;
+					var nodeVisitsForThisNode = event.data.view.state.getNodeVisitsByNodeId(event.data.view.getCurrentNode().id);
+					for (var h=0;h<nodeVisitsForThisNode.length; h++) { // h is for hints
+						var nodeVisitForThisNode = nodeVisitsForThisNode[h];
+						if (nodeVisitForThisNode.hintStates) {
+							var hintPartIdsViewedInThisVisit = [];  // keep track of all hint parts the student viewed during this node visit
+							for (var z=0;z<nodeVisitForThisNode.hintStates.length;z++) {  // z is for zebra
+								var nodeVisitHintState = nodeVisitForThisNode.hintStates[z];
+								if (nodeVisitHintState.data.action == "hintpartselected") {
+									if (hintPartIdsViewedInThisVisit.indexOf(nodeVisitHintState.data.partindex) == -1) {
+										hintPartIdsViewedInThisVisit.push(nodeVisitHintState.data.partindex);
+									};
+								};
+							};
+							// after going thru the hintstates in this nodevisit, see if they visited all hint parts by checking if the size match
+							if (hintPartIdsViewedInThisVisit.length == currHints.hintsArray.length) {
+								studentHasSeenAllParts = true;
+								break;
+							};
+						};
+					};
+
+					if (!studentHasSeenAllParts) {
+				    	// student can't close the hints yet because they haven't viewed all parts
+						$("#hintMsg").html("You must view all hints before closing");
+				    	return false;
+				    };
+				};
+				
 			    // before the dialog closes, save hintstate
 		    	if ($(this).data("dialog").isOpen()) {	    		    		
 		    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
@@ -117,6 +159,7 @@ View.prototype.displayHint = function(){
 	    	}
 	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+hintTitle+" "+(i+1)+"</a></li>";
 	    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
+	    	    "<div class='hintMsg' id='hintMsg'></div>"+
 		    	"<div class='hintHeader'>"+ (i+1) + ' ' + this.getI18NString("hint_num_separator") + ' ' + numHints + "</div>"+
 		    	"<div class='hintText'>"+currentHint+"</div>"+
 		    	"<div class='hintControls'>" + prevLink + nextLink + "</div>"+

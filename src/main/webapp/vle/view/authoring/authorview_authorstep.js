@@ -299,7 +299,8 @@ View.prototype.saveHint = function(){
     var hintTerm = $("#hintTerm").val();
     var hintTermPlural = $("#hintTermPlural").val();
     var isModal = $('#modalOption').prop('checked');
-    this.activeContent.getContentJSON().hints = {"hintsArray":newHintsArr,"forceShow":forceShow,"isModal":isModal,"hintTerm":hintTerm,"hintTermPlural":hintTermPlural};
+    var isMustViewAllPartsBeforeClosing = $('#isMustViewAllPartsBeforeClosingOption').prop('checked');
+    this.activeContent.getContentJSON().hints = {"hintsArray":newHintsArr,"forceShow":forceShow,"isModal":isModal,"isMustViewAllPartsBeforeClosing":isMustViewAllPartsBeforeClosing,"hintTerm":hintTerm,"hintTermPlural":hintTermPlural};
 };
 
 /**
@@ -417,6 +418,7 @@ View.prototype.editHints = function(tabIndex){
     	"<ul class='inline'>" +
     	"<li>" + this.getI18NString("authoring_hint_forceShow")+" <select id='forceShowOptions'><option value='never'>"+this.getI18NString("authoring_hint_option_never")+"</option><option value='firsttime'>"+this.getI18NString("authoring_hint_option_firstTimeOnly")+"</option><option value='always'>"+this.getI18NString("authoring_hint_option_always")+"</option></select></li>" + 
     	"<li><input type='checkbox' id='modalOption' />" + this.getI18NString("authoring_hint_modal")+"</li>" +
+    	"<li><input type='checkbox' id='isMustViewAllPartsBeforeClosingOption' />" + this.getI18NString("authoring_hint_isMustViewAllPartsBeforeClosing")+"</li>" +
     	"</ul></div>");
     settings.append(editHintsMenu).append(editHintsTerms);
     var hintButtons = "<div><input type='button' value='" + this.getI18NString("authoring_hint_add") + "' onclick='eventManager.fire(\"addHint\")'></input>"+
@@ -458,6 +460,14 @@ View.prototype.editHints = function(tabIndex){
 		isModal = hints.isModal;
 	}
 	$('#modalOption').prop("checked", isModal);
+	
+	// set the isMustViewAllPartsBeforeClosing option
+	var isMustViewAllPartsBeforeClosing = false;
+	if(typeof hints.isMustViewAllPartsBeforeClosing == 'boolean'){
+		isMustViewAllPartsBeforeClosing = hints.isMustViewAllPartsBeforeClosing;
+	}
+	$('#isMustViewAllPartsBeforeClosingOption').prop("checked", isMustViewAllPartsBeforeClosing);
+
 };
 
 /**
