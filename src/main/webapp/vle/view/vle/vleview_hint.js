@@ -122,7 +122,11 @@ View.prototype.displayHint = function(){
 
 					if (!studentHasSeenAllParts) {
 				    	// student can't close the hints yet because they haven't viewed all parts
-						$("#hintMsg").html("You must view all hints before closing");
+						var hintTermPlural = this.getI18NString("hint_plural");
+						if(typeof hints.hintTermPlural == 'string'){
+							hintTermPlural = hints.hintTermPlural;
+						}
+						$("#hintMsg").html("You must view all " + hintTermPlural + " before closing");
 				    	return false;
 				    };
 				};
