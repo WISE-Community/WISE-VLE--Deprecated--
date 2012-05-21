@@ -308,8 +308,8 @@ View.prototype.saveHint = function(){
  */
 View.prototype.saveHints = function(){	
 	this.saveHint();    
-    eventManager.fire("saveStep");
-    $('#editHintsPanel').dialog('close');
+    eventManager.fire("saveStep");    
+	$('#editHintsPanel').dialog('close');
 };
 
 /**
@@ -358,7 +358,7 @@ View.prototype.editHints = function(tabIndex){
 			closeText:'',
 			width:650,
 			modal:false,
-			resizable:false,
+			resizable:true,
 			title:title,
 			zIndex:3000, 
 			left:0,
@@ -376,7 +376,19 @@ View.prototype.editHints = function(tabIndex){
 	    	//var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
 	    	//event.data.view.pushHintState(hintState);
 	    });
-    };
+    } else {
+    	// remove any existing tinyMCE instances
+    	if(typeof tinymce != 'undefined'){
+    		$('.hintTextBox',$('#editHintsPanel')).each(function(){
+    			if($(this).tinymce()){
+    				$(this).tinymce().remove();
+    			}
+    		});
+    	}
+    	
+    	// remove any rich text toggles
+    	$('.rtToggles',$('#editHintsPanel')).remove();
+    }
     
     var hints = {"hintsArray":[],"forceShow":"never"};
     //check if this step already has hints
@@ -438,14 +450,14 @@ View.prototype.editHints = function(tabIndex){
     //set the html into the div
     $('#editHintsPanel').html('').append(settings).append(hintButtons).append(hintElement);
     
+    //make the div visible
+    $('#editHintsPanel').dialog('open');
+    
     //add HTML/Rich Text editing toggles for hint inputs (disable rich text by default)
     for (var i=0; i< hintsArr.length; i++) {
     	var id = 'hintInput_' + i;
     	this.addRichTextAuthoring(id, function(){eventManager.fire('saveHint');});
     }
-    
-    //make the div visible
-    $('#editHintsPanel').dialog('open');
 
     // instantiate tabs 
 	$("#hintsTabs").tabs({selected:tabIndex});		
@@ -720,7 +732,7 @@ View.prototype.populatePrompt = function() {
 };
 
 /**
- * Calls the currently authored node's update date prompt event if we are in easy
+ * Calls the currently authored node's update prompt event if we are in easy
  * mode and one exists, does nothing otherwise.
  */
 View.prototype.updatePrompt = function(){
@@ -787,9 +799,10 @@ View.prototype.cleanupRichTextEditorToggle = function() {
  * rich text editor on specified textarea
  * @param id The id of the textarea element on which to activate the rich text editor
  * @param callback A callback function to run when the rich text editor content changes
- * @param disable A boolean to specify whether to disable the rich text editor by default
+ * @param disable A boolean to specify whether to disable the rich text editor by default (default is false)
+ * @param fullpage A boolean to specify whether to allow full html page editing (default is false)
  */
-View.prototype.addRichTextAuthoring = function(id,callback,disable){
+View.prototype.addRichTextAuthoring = function(id,callback,disable,fullpage){
 	var view = this;
 	var target = $('#' + id); 
 	
@@ -808,7 +821,7 @@ View.prototype.addRichTextAuthoring = function(id,callback,disable){
 	$("input[name='promptToggle_" + id + "']").unbind('change');
 	$("input[name='promptToggle_" + id + "']").change(function(){
 		if ($("input[name='promptToggle_" + id + "']:checked").val()=='showRichText'){
-			view.enableRichTextAuthoring(id,callback);
+			view.enableRichTextAuthoring(id,callback,fullpage);
 		} else if ($("input[name='promptToggle_" + id + "']:checked").val()=='hideRichText'){
 			if(typeof tinymce != 'undefined' && target.tinymce()){
 				target.tinymce().remove();
@@ -824,7 +837,7 @@ View.prototype.addRichTextAuthoring = function(id,callback,disable){
 		$('#showRich_' + id).prop('checked',true);
 		
 		// enable rich text editor for textarea
-		this.enableRichTextAuthoring(id,callback);
+		this.enableRichTextAuthoring(id,callback,fullpage);
 	}
 	
 	// create jQuery UI buttonset on rich text toggle radios
@@ -836,16 +849,18 @@ View.prototype.addRichTextAuthoring = function(id,callback,disable){
  * Enables rich text authoring for specified textarea
  * @param id The id of the textarea element on which to activate the rich text editor
  * @param callback A callback function to run when the rich text editor content changes
+ * @param fullpage A boolean to specify whether to allow full html page editing (default is false)
  */
-View.prototype.enableRichTextAuthoring = function(id,callback) {
+View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 	var target = $('#' + id);
 	var view = this;
 	var plugins = "";
-	//if(view.resolveType(view.activeNode.type)=='HtmlNode'){
-		//plugins = "fullpage,preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
-	//} else {
+	if(fullpage == true){
+		// if full page editing is allowed, include fullpage plugin
+		plugins = "fullpage,preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
+	} else {
 		plugins = "preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
-	//}
+	}
 	
 	// enable rich text editing on prompt textarea
 	target.tinymce({
