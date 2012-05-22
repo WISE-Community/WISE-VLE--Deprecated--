@@ -2610,10 +2610,14 @@ public class VLEGetXLS extends VLEServlet {
 		String stepWorkResponse = "";
 		String nodeType = "";
 		Node node = null;
+		Long stepWorkId = null;
 		
 		//get the node type
 		if(stepWork != null) {
 			node = stepWork.getNode();
+			
+			//get the step work id
+			stepWorkId = stepWork.getId();
 			
 			if(node != null && node.getNodeType() != null) {
 				//get the node type from the node object e.g. "OpenResponseNode"
@@ -2709,7 +2713,7 @@ public class VLEGetXLS extends VLEServlet {
 	                						
 	            							if(excelExportStringTemplate != null) {
 	            								//generate the excel export string that we will display in the cell
-	            								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	            								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState, stepWorkId);
 	            							}
 	            						}
 	        						}
@@ -2734,7 +2738,7 @@ public class VLEGetXLS extends VLEServlet {
 
 	        									if(excelExportStringTemplate != null) {
 	        										//generate the excel export string with the student work inserted
-	        										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	        										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState, stepWorkId);
 	        										
 	        										if(stepWorkResponseStrBuf.length() != 0) {
 	        											//add a new line to separate each node state
@@ -2742,7 +2746,7 @@ public class VLEGetXLS extends VLEServlet {
 	        										}
 	        										
 	        										//display the node state number
-	        										stepWorkResponseStrBuf.append("Submit #" + (x + 1) + ": ");
+	        										stepWorkResponseStrBuf.append("Response #" + (x + 1) + ": ");
 	        										
 	        										//display the excel export string that contains the student data
 	        										stepWorkResponseStrBuf.append(nodeStateResponse);
@@ -3007,12 +3011,13 @@ public class VLEGetXLS extends VLEServlet {
 	 * e.g.
 	 * "Top Score: {response.topScore}, Phase 1 Score: {response.phases[0].score}"
 	 * @param nodeState the node state
+	 * @param stepWorkId the step work id
 	 * @return a string containing the student work that will be displayed
 	 * in the cell
 	 * e.g.
 	 * "Top Score: 30, Phase 1 Score: 10"
 	 */
-	private String generateExcelExportString(String excelExportStringTemplate, JSONObject nodeState) {
+	private String generateExcelExportString(String excelExportStringTemplate, JSONObject nodeState, Long stepWorkId) {
 		String resultString = excelExportStringTemplate;
 		
 		/*
@@ -3044,7 +3049,7 @@ public class VLEGetXLS extends VLEServlet {
 			 * get the the student data that we will use to
 			 * insert into the excel export string template
 			 */
-			String replacement = getNodeStateField(field, nodeState);
+			String replacement = getNodeStateField(field, nodeState, stepWorkId);
 			
 			//replace all the instances of the field with the student data
 			resultString = resultString.replace(field, replacement);
@@ -3065,9 +3070,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * {response.topScore}
 	 * {response.phases[0].score}
 	 * @param nodeState the student work
+	 * @param stepWorkId the step work id
 	 * @return the value of the given field from the student work
 	 */
-	private String getNodeStateField(String fieldPath, JSONObject nodeState) {
+	private String getNodeStateField(String fieldPath, JSONObject nodeState, Long stepWorkId) {
 		String fieldValue = "";
 		
 		//remove the {
@@ -3077,7 +3083,7 @@ public class VLEGetXLS extends VLEServlet {
 		fieldPath = fieldPath.replaceAll("\\}", "");
 
 		//get the value of the given field from the student work
-		fieldValue = getFieldValue(fieldPath, nodeState);
+		fieldValue = getFieldValue(fieldPath, nodeState, stepWorkId);
 		
 		return fieldValue;
 	}
@@ -3090,9 +3096,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * response.topScore
 	 * response.phases[0].score
 	 * @param nodeState the student work
+	 * @param stepWorkId the step work id
 	 * @return the value of the given field from the student work
 	 */
-	private String getFieldValue(String fieldPath, JSONObject nodeState) {
+	private String getFieldValue(String fieldPath, JSONObject nodeState, Long stepWorkId) {
 		String fieldValue = "";
 
 		//split the field path by .
@@ -3203,6 +3210,22 @@ public class VLEGetXLS extends VLEServlet {
 						//the fieldNameSoFar is empty so we will just use the fieldName
 						fieldNameSoFar = fieldName;
 					}
+				}
+				
+				//check for a special case where we want the CRater annotation score
+				if(fieldNameSoFar != null && fieldNameSoFar.equals("cRaterAnnotationScore")) {
+					//get the CRater score if any
+					long cRaterScore = getCRaterScoreByStepWorkIdAndNodeState(stepWorkId, nodeState);
+					
+					if(cRaterScore == -1) {
+						//there was no CRater score so we will just display empty string
+						fieldValue = "";
+					} else {
+						//convert the score into a string
+						fieldValue = cRaterScore + "";
+					}
+					
+					return fieldValue;
 				}
 
 				if(currentJSONObject != null) {
@@ -5765,5 +5788,108 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//set this property back to false
 		System.setProperty("java.awt.headless", "false");
+	}
+	
+	/**
+	 * Get the CRater annotation score for the given step work id if the score exists
+	 * @param stepWorkId the step work id
+	 * @param nodeState the node state
+	 * @return the CRater score or -1 if there is no CRater score
+	 */
+	private long getCRaterScoreByStepWorkIdAndNodeState(Long stepWorkId, JSONObject nodeState) {
+		//set default values
+		long score = -1;
+		long nodeStateId = -1;
+		
+		if(nodeState != null) {
+			try {
+				//get the node state id aka timestamp
+				nodeStateId = nodeState.getLong("timestamp");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//get the CRater score for the step work id
+		Annotation cRaterAnnotationByStepWorkId = Annotation.getCRaterAnnotationByStepWorkId(stepWorkId);
+		
+		if(cRaterAnnotationByStepWorkId != null) {
+			//CRater score exists
+			
+			//get the annotation data
+			String data = cRaterAnnotationByStepWorkId.getData();
+			
+			if(data != null) {
+				try {
+					/*
+					 * get the data as a JSONObject
+					 * 
+					 * here's an example of what the annotation looks like
+					 * 
+					 * {
+					 * 		"stepWorkId": 3388281,
+					 * 		"nodeId": "node_136.or",
+					 * 		"fromWorkgroup": "-1",
+					 * 		"value": [
+					 * 			{
+					 * 				"studentResponse": {
+					 * 					"response": [
+					 * 						"The sun gives plants sunlight which lets them grow and release oxygen. So the sun helps animals survive by giving them plants to eat and oxygen to breath."
+					 * 					],
+					 * 					"timestamp": 1334610850000,
+					 * 					"isCRaterSubmit": true,
+					 * 					"cRaterItemId": "Photo_Sun",
+					 * 					"type": "or"
+					 * 				},
+					 * 				"nodeStateId": 1334610850000,
+					 * 				"score": 2,
+					 * 				"cRaterResponse": "<crater-results>\n  <tracking id=\"1025926\"/>\n  <client id=\"WISETEST\"/>\n  <items>\n     <item id=\"Photo_Sun\">\n        <responses>\n      <response id=\"3388281\" score=\"2\" concepts=\"2\"/>\n       </responses>\n     </item>\n  </items>\n</crater-results>\r",
+					 * 				"concepts": "2"
+					 * 			}
+					 * 		],
+					 * 		"runId": "2103",
+					 * 		"type": "cRater",
+					 * 		"toWorkgroup": "60562"
+					 * }
+					 */
+					JSONObject dataJSONObject = new JSONObject(data);
+					
+					if(dataJSONObject.has("value")) {
+						//get the value
+						JSONArray value = dataJSONObject.getJSONArray("value");
+						
+						//loop through all the objects in the value
+						for(int x=0; x<value.length(); x++) {
+							//get one of the objects in the value array
+							JSONObject nodeStateAnnotation = value.getJSONObject(x);
+							
+							if(nodeStateAnnotation != null) {
+								if(nodeStateAnnotation.has("nodeStateId")) {
+									//get the node state id aka timestamp
+									long tempNodeStateId = nodeStateAnnotation.getLong("nodeStateId");
+									
+									if(tempNodeStateId == nodeStateId) {
+										//the ids match so we have found the annotation we want
+										
+										if(nodeStateAnnotation.has("score")) {
+											//get the score
+											score = nodeStateAnnotation.getLong("score");
+										}
+										
+										//we have found the annotation we want so we will break out of the for loop
+										break;
+									}
+								}
+							}
+						}
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}
+		
+		return score;
 	}
 }
