@@ -467,10 +467,7 @@ View.prototype.MatchSequenceNode.updatePrompt = function(){
 	} else {
 		content = $('#promptInput').val();
 	}
-	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
-	var assetPath = this.view.getProjectFolderPath() + 'assets/';
-	var assetPathExp = new RegExp(assetPath,"gi");
-	content.replace(assetPathExp,"assets/");
+	
 	this.content.assessmentItem.interaction.prompt = content;
 	
 	/* fire source updated event */
