@@ -870,12 +870,10 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 		// General options
 		doctype : '<!DOCTYPE html>',
 		theme : "advanced",
-		//plugins : "fullpage,preview,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,jqueryinlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
 		plugins: plugins,
 		media_strict : false,
-		media_dialog_defaults: {bgcolor : "#000000"},
+		media_dialog_defaults: {bgcolor : "#000000", flash_wmode : "opaque", video_autoplay : false, flash_play : false, quicktime_autoplay : false, windowsmedia_autostart : false},
 		flash_video_player_absvideourl: false,
-		flash_video_player_params: {wmode : "opaque", allowFullScreen : true, src : "/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/media/moxieplayer.swf"},
 		skin : "cirkuit",
 		//media_use_script : true,
 		//forced_root_block : false,
@@ -898,6 +896,7 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 		//template_external_list_url : "lists/template_list.js",
 		
 		document_base_url: view.getProjectFolderPath(),
+		
 		//add onchange listener
 		onchange_callback : function(ed){
 			callback();
@@ -913,6 +912,21 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 		},
 		oninit: function(){
 			//view.refreshNow();
+		},
+		save_callback: function(element_id, html, body) {
+			// strip out any urls with the full project path (and replace with 'assets/file.jpg')
+			var assetPath = view.getProjectFolderPath() + 'assets/';
+			var assetPathExp = new RegExp(assetPath,"gi");
+			html.replace(assetPathExp,"assets/");
+			
+			return html;
+		},
+		urlconverter_callback : function(url, node, on_save){
+			if(on_save){
+				// fix problem caused by automatic url processing of root path links (that begin wih '/vlewrapper') by tinymce
+				url = url.replace(/[..\/]+vlewrapper/, "/vlewrapper");
+			}
+			return url;
 		},
 		file_browser_callback : 'fileBrowser'
 	});
@@ -930,7 +944,7 @@ function fileBrowser(field_name, url, type, win){
         }
         // if we are in a media browser
         if (typeof(win.Media) != "undefined") {
-            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
+            //if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
             //if (win.MediaDialog.showPreviewImage) win.MediaDialog.showPreviewImage(url);
         }
 	};
