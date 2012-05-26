@@ -239,6 +239,10 @@
 		"value":"Export Student Names",
 		"description":"GradingTool: Text in the Export Student Names button"
 	},
+	"grading_button_special_export":{
+		"value":"Special Export",
+		"description":"GradingTool: Text in the Special Export button"
+	},
 	"grading_button_export_latest_student_work_description":{
 		"value":"(Export the latest student revision)",
 		"description":"GradingTool: Description next the Export Student Names button"
@@ -262,6 +266,10 @@
 	"grading_button_export_student_names_description":{
 		"value":"(Export the student names along with their period, workgroup id, wise id, and login)",
 		"description":"GradingTool: Description next the Export Student Names button"
+	},
+	"grading_button_special_export_description":{
+		"value":"(Export the work for special steps as a zip file)",
+		"description":"GradingTool: Description next the Special Export button"
 	},
 	"grading_button_explanation":{
 		"value":"Explanation",

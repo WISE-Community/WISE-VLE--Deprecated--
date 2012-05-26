@@ -314,6 +314,14 @@ SVGDrawNode.prototype.showSnaps = function(currNode) {
 	}
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+SVGDrawNode.prototype.canSpecialExport = function() {
+	return true;
+};
+
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);
 	
 //used to notify scriptloader that this script has finished loading

@@ -1548,6 +1548,13 @@ Node.prototype.processStateConstraints = function() {
 	// to be overriden by child nodes
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+Node.prototype.canSpecialExport = function() {
+	return false;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

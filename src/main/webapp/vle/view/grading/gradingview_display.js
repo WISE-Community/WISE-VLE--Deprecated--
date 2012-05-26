@@ -259,6 +259,7 @@ View.prototype.displayResearcherToolsPage = function() {
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_special_export")+"' onClick=\"eventManager.fire('displaySpecialExportPage')\"></input></td><td>"+this.getI18NString("grading_button_special_export_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['special'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
 	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='Export Flash' onClick=\"eventManager.fire('getFlashExcelExport')\"></input></td><td>N/A <input class='blueButton' type='button' value='N/A' onClick=\"\"></input></td></tr>";
 	getResearcherToolsHtml += "</table>";
@@ -457,6 +458,99 @@ View.prototype.displayCustomExportPageHelper = function(node) {
 		for(var x=0; x<node.children.length; x++) {
 			//get the html for the children
 			displayCustomExportPageHelperHtml += this.displayCustomExportPageHelper(node.children[x]);
+		}
+	}
+
+	return displayCustomExportPageHelperHtml;
+};
+
+/**
+ * Display the page for the teacher to choose which step in the project they want to special export
+ */
+View.prototype.displaySpecialExportPage = function() {
+	
+	/*
+	 * wrap everything in a div with the class 'gradingContent' so 
+	 * a scroll bar will be created for it
+	 */
+	var customExportPageHtml = "<div class='gradingContent'>";
+	
+	customExportPageHtml += "<h3>Special Export Page</h3>";
+	
+	//the button to go back to the previous page
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	//the buttons to generate the excel export
+	customExportPageHtml += "<br>";
+	
+	customExportPageHtml += "<table>";
+
+	//set the counter for the activities
+	this.activityNumber = 0;
+	
+	//display all the activities and steps with checkboxes next to all of them
+	customExportPageHtml += this.displaySpecialExportPageHelper(this.getProject().getRootNode());
+	
+	customExportPageHtml += "</table>";
+
+	customExportPageHtml += "<br>";
+	
+	//the button to go back to the previous page
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+
+	customExportPageHtml += "</div>";
+	
+	//fix the page height
+	$('#gradeWorkDiv').html(customExportPageHtml);
+	
+	this.fixGradingDisplayHeight();
+};
+
+/**
+ * A recursive function that traverses the project and displays a button
+ * for steps that can be special exported
+ * @param node the current node we are on
+ * @return html that will display all the steps for the project
+ */
+View.prototype.displaySpecialExportPageHelper = function(node) {
+	var displayCustomExportPageHelperHtml = "";
+	
+	//get the current node id
+	var nodeId = node.id;
+	
+	if(node.isLeafNode()) {
+		//this node is a leaf/step
+
+		//get the position as seen by the student
+		var position = this.getProject().getVLEPositionById(nodeId);
+		
+		if(node.canSpecialExport()) {
+			//this step type can be special exported so we will display a button
+			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepButton_" + nodeId + "' type='button' value='" + position + " " + node.getTitle() + " (" + node.type + ")' style='margin-left:20px' onClick=\"eventManager.fire('getSpecialExport', '" + nodeId + "')\"/></td></tr>";			
+		} else {
+			//this step can't be special exported so we will just display the step name as text
+			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><p style='display:inline;margin-left:20px'>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr>";
+		}
+	} else {
+		/*
+		 * we need to skip the first sequence because that is always the
+		 * master sequence. we will encounter the master sequence when 
+		 * this.activityNumber is 0, so all the subsequent activities will
+		 * start at 1.
+		 */
+		if(this.activityNumber != 0) {
+			//this node is a sequence so we will display a checkbox and label for the current activity
+			//displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><input id='activityCheckBox_" + this.activityNumber + "' class='stepCheckBox' type='checkbox' name='customExportActivityCheckbox' value='" + nodeId + "' onClick='eventManager.fire(\"customActivityCheckBoxClicked\", [\"activityCheckBox_" + this.activityNumber + "\"])' /><h4 style='display:inline'>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td></tr>";
+			displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><h4 style='display:inline'>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td></tr>";
+		}
+
+		//increment the activity number
+		this.activityNumber++;
+		
+		//loop through all its children
+		for(var x=0; x<node.children.length; x++) {
+			//get the html for the children
+			displayCustomExportPageHelperHtml += this.displaySpecialExportPageHelper(node.children[x]);
 		}
 	}
 

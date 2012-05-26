@@ -178,6 +178,7 @@ var componentloader = function(em, sl){
 					 'displayGradeByTeamGradingPage':[null, null],
 					 'displayResearcherToolsPage':[null, null],
 					 'displayCustomExportPage':[null, null],
+					 'displaySpecialExportPage':[null, null],
 					 'customActivityCheckBoxClicked':[null, null],
 					 'customSelectAllStepsCheckBoxClicked':[null, null],
 					 'getStudentNamesExport':[null, null],
@@ -192,6 +193,7 @@ var componentloader = function(em, sl){
 					 'getExplanationBuilderWorkExcelExport':[null, null],
 					 'getCustomLatestStudentWorkExport':[null, null],
 					 'getCustomAllStudentWorkExport':[null, null],
+					 'getSpecialExport':[null, null],
 					 'displayExportExplanation':[null, null],
 					 'saveMaxScore':[null, null],
 					 'showScoreSummary':[null, null],
@@ -235,6 +237,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("displayGradeByTeamGradingPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayResearcherToolsPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayCustomExportPage", view.gradingDispatcher, view);
+					eventManager.subscribe("displaySpecialExportPage", view.gradingDispatcher, view);
 					eventManager.subscribe("customActivityCheckBoxClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("customSelectAllStepsCheckBoxClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("getStudentNamesExport", view.gradingDispatcher, view);
@@ -249,6 +252,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getExplanationBuilderWorkExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomLatestStudentWorkExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);
+					eventManager.subscribe("getSpecialExport", view.gradingDispatcher, view);
 					eventManager.subscribe("displayExportExplanation", view.gradingDispatcher, view);
 					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);

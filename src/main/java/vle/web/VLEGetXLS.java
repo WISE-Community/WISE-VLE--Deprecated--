@@ -2318,16 +2318,17 @@ public class VLEGetXLS extends VLEServlet {
 		 */
 		for(int z=stepWorks.size() - 1; z>=0; z--) {
 			//get a step work
-			stepWork = stepWorks.get(z);
+			StepWork tempStepWork = stepWorks.get(z);
 			
 			//retrieve the student work from the step work, if any
-			stepWorkResponse = getStepWorkResponse(stepWork);
+			stepWorkResponse = getStepWorkResponse(tempStepWork);
 			
 			/*
 			 * if the step work is not empty, we are done looking
 			 * for the latest work
 			 */
 			if(!stepWorkResponse.equals("")) {
+				stepWork = tempStepWork;
 				break;
 			}
 		}

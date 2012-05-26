@@ -7,6 +7,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.displayResearcherToolsPage();
 	} else if(type=='displayCustomExportPage') {
 		obj.displayCustomExportPage();
+	} else if(type=='displaySpecialExportPage') {
+		obj.displaySpecialExportPage();
 	} else if(type=='saveScore') {
 		obj.checkAndSaveScore(args[0], args[1], args[2], args[3], args[4]);
 	} else if(type=='saveComment') {
@@ -106,6 +108,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.editGroups(args[0]);
 	} else if(type=='groupClicked') {
 		obj.groupClicked(args[0]);
+	} else if(type=='getSpecialExport') {
+		obj.getSpecialExport(args[0]);
 	}
 };
 
