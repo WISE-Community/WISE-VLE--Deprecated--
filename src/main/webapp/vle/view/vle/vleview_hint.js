@@ -122,7 +122,7 @@ View.prototype.displayHint = function(){
 
 					if (!studentHasSeenAllParts) {
 				    	// student can't close the hints yet because they haven't viewed all parts
-						var hintTermPlural = this.getI18NString("hint_plural");
+						var hintTermPlural = event.data.view.getI18NString("hint_plural");
 						if(typeof hints.hintTermPlural == 'string'){
 							hintTermPlural = hints.hintTermPlural;
 						}
