@@ -126,7 +126,7 @@ View.prototype.displayHint = function(){
 						if(typeof hints.hintTermPlural == 'string'){
 							hintTermPlural = hints.hintTermPlural;
 						}
-						$("#hintMsg").html("You must view all " + hintTermPlural + " before closing");
+						$(".hintMsg").html("You must view all " + hintTermPlural + " before closing");
 				    	return false;
 				    };
 				};
@@ -180,6 +180,7 @@ View.prototype.displayHint = function(){
 		
 		// bind tab navigation link clicks
 		$('.tabPrev').click(function(){
+			$(".hintMsg").html("");
 			var selected = $tabs.tabs('option', 'selected');
 			if(selected != 0){
 				$tabs.tabs('select', selected-1);
@@ -189,6 +190,7 @@ View.prototype.displayHint = function(){
 		
 		// bind tab navigation links
 		$('.tabNext').click(function(){
+			$(".hintMsg").html("");
 			var selected = $tabs.tabs('option', 'selected');
 			if(selected < numHints-1){
 				$tabs.tabs('select', selected+1);

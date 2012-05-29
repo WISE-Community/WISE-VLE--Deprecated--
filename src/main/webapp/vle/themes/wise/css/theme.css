@@ -653,7 +653,7 @@ body#w4_vle {
     line-height: 26px;
 }
 
-#hintMsg {
+.hintMsg {
 	color: red;	
 	text-align: center;
 }
