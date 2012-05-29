@@ -956,6 +956,11 @@ View.prototype.startPreview = function(em){
  * loads the project into the authoring tool.
  */
 View.prototype.projectOptionSelected = function(){
+	// notify portal that a previously-opened project (if any) is closed
+	if(this.getProject() && this.portalUrl){
+		this.notifyPortalCloseProject();
+	}
+
 	var projectId = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
 	projectId = parseInt(projectId);
 
@@ -1659,7 +1664,7 @@ View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 		}
 	};
 	
-	this.connectionManager.request('POST', 1, this.portalUrl, {command: 'notifyProjectOpen', path: this.project.getUrl()}, handler, this);
+	this.connectionManager.request('POST', 1, this.portalUrl, {command: 'notifyProjectOpen', projectId: this.portalProjectId}, handler, this);
 };
 
 /**
@@ -1676,8 +1681,7 @@ View.prototype.notifyPortalCloseProject = function(sync){
 		var failure = function(t,o){
 			//o.notificationManager.notify('Unable to notify portal that project session is closed', 3);
 		};
-		
-		this.connectionManager.request('POST', 1, this.portalUrl, {command:'notifyProjectClose', path: this.getProject().getUrl()}, success, this, failure, sync);
+		this.connectionManager.request('POST', 1, this.portalUrl, {command:'notifyProjectClose', projectId: this.portalProjectId}, success, this, failure, sync);
 	}
 };
 
