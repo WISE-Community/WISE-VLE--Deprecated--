@@ -225,7 +225,7 @@ a:hover { text-decoration:underline; }
 
 body#w4_vle {
 	background: url("../images/vle_bg4.png") repeat scroll center top #6B6B6B;
-	font-size:.9em
+	font-size:.9em;
 	font-family: Arial, Helvetica, Tahoma, sans-serif;
 }
 
@@ -293,7 +293,7 @@ body#w4_vle {
 
 #vle_body #logo {
 	display:inline-block;
-	line-height:38px;
+	line-height:37px;
 	margin-left:.5em;
 }
 
@@ -592,14 +592,13 @@ body#w4_vle {
 
 #vle_body a#hintsLink {
     margin-right:0.5em;
-    padding-left:28px;
+    padding:9px 0 9px 28px;
 	background:transparent url('../images/hint/star.png') no-repeat left center;
 	color:#FFFFFF;
 }
 
 #vle_body a#hintsLink:hover {
-	text-decoration:none;
-	color:#FFE347;
+	text-decoration:underline;
 }
 
 #vle_body a#nodeAnnotationsLink {
@@ -625,7 +624,7 @@ body#w4_vle {
 }
 
 #ideaBasketDiv {
-	padding:0;
+	padding:0 .5em;
 	overflow-y:hidden;
 }
 

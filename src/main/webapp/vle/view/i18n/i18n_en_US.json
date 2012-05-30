@@ -92,7 +92,7 @@
 		"description":"Text that shows up next to the Hint button"
 	},
 	"hint_button_title":{
-		"value":"View hints for this step",
+		"value":"View ",
 		"description":"Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
 	},
 	"hint_num_separator":{
