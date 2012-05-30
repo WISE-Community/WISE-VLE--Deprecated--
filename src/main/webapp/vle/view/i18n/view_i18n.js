@@ -6,6 +6,39 @@ View.prototype.i18n = {
 		locales:[]
 };
 
+// default locale, in case all else fails...this guy will save the day.
+View.prototype.i18n.defaultLocale = "en_US";
+
+/**
+ * Map dictionary of supportedLocales and their equivalent locale codes that WISE knows about.
+ * For example, nl_NL and nl_BG are both nederlands, and should map to locale "nl", which WISE knows about.
+ * WISE doesn't know about nl_NL and nl_BG translations (yet).
+ * This saves us from having to write out two translation files 
+ * (unless we want to translate to nl_NL and nl_BG...we can certainly do this also, but probably unlikely. "nl" should
+ * be sufficient for both parties)
+ */  
+View.prototype.i18n.supportedLocales = {
+		"en_US":"en_US",
+		"ja":"ja",
+		"zh_TW":"zh_TW",
+		"nl":"nl",
+		"nl_NL":"nl",
+		"nl_BG":"nl"
+};
+
+/**
+ * Given a locale, like "nl_NL" or "nl_BG", returns a canonical, supported locale, if exists, like "nl", in this case.
+ * If it doesn't exist, return locale.
+ */
+View.prototype.i18n.convertToSupportedLocale = function(locale) {
+	console.log("converting");
+	if (this.localeConversions[locale] != null) {
+		return this.localeConversions[locale];
+	} else {
+		return locale;
+	}
+};
+
 /**
  * Returns translated value of the given key.
  * Uses locale that was specified in config. To specify
@@ -15,37 +48,6 @@ View.prototype.i18n = {
  */
 View.prototype.getI18NString = function(key) {
 	return this.i18n.getString(key,this.config.getConfigParam("locale"));	
-};
-
-/**
- * Finds any DOM elements with i18n and i18n-title attributes and inserts
- * translation text as the inner html and/or title for each element.
- * @param onComplete Callback function to run when i18n insertion is complete.
- */
-View.prototype.insertTranslations = function(onComplete){
-	var view = this;
-	// process and insert i18n text
-	var count = $('[i18n], [i18n-title]').length;
-	$('[i18n], [i18n-title]').each(function(){
-		// get i18n and i18n-title attributes from elements
-		var i18n = $(this).attr('i18n'), i18nTitle = $(this).attr('i18n-title');
-		
-		// insert i18n translations
-		if (typeof i18n !== 'undefined' && i18n !== false) {
-			$(this).html(view.getI18NString(i18n));
-		}
-		if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
-			$(this).attr('title',view.getI18NString(i18nTitle));
-		}
-		// remove i18n attributes from DOM element
-		$(this).removeAttr('18n').removeAttr('i18n-title');
-		// when all i18n text has been inserted, run the callback function
-		if(--count == 0){
-			if(typeof onComplete === 'function'){
-				onComplete();
-			}
-		}
-	});
 };
 
 /**
@@ -63,13 +65,6 @@ View.prototype.getStringWithParams = function(key,params) {
 	return this.i18n.getStringWithParams(key,this.config.getConfigParam("locale"),params);		
 };
 
-View.prototype.i18n.defaultLocale = "en_US";
-
-//"ja","zh_TW",
-View.prototype.i18n.supportedLocales = [
-                                        "en_US","ja","zh_TW","nl_NL"
-                                        ];
-
 /**
  * key is the key used to lookup the value in i18n_XX.js file
  * locale is which locale to use. will be appended in i18n_[locale].js
@@ -77,8 +72,11 @@ View.prototype.i18n.supportedLocales = [
  * if key is not found, use defaultLocale's values
  */
 View.prototype.i18n.getString = function(key,locale) {
-	// if specified locale does not exist, use default locale
-	if (View.prototype.i18n.supportedLocales.indexOf(locale) == -1) {
+	if (View.prototype.i18n.supportedLocales[locale] != null) {
+		// convert locale to a locale that WISE knows about
+		locale = View.prototype.i18n.supportedLocales[locale];
+	} else {
+		// if specified locale does not exist, use default locale
 		locale = View.prototype.i18n.defaultLocale;
 	}
 	if (this[locale][key] !== undefined) {
@@ -141,16 +139,46 @@ View.prototype.retrieveLocales = function() {
 	// retrieve user locale, if exists
 	var userLocale = this.config.getConfigParam("locale");		
 	if (userLocale != View.prototype.i18n.defaultLocale) {
-		for (var i=0; i < View.prototype.i18n.supportedLocales.length; i++) {
-			var locale = View.prototype.i18n.supportedLocales[i];
-			if (locale == userLocale) {
-				View.prototype.i18n[locale] = {};
-				this.retrieveLocale(locale);
-			}
-		};
-	};
+		if (View.prototype.i18n.supportedLocales[userLocale] != null) {
+			var locale = View.prototype.i18n.supportedLocales[userLocale];
+			View.prototype.i18n[locale] = {};
+			this.retrieveLocale(locale);
+		}
+	}
 	eventManager.fire('retrieveLocalesComplete');
 };
+
+/**
+ * Finds any DOM elements with i18n and i18n-title attributes and inserts
+ * translation text as the inner html and/or title for each element.
+ * @param onComplete Callback function to run when i18n insertion is complete.
+ */
+View.prototype.insertTranslations = function(onComplete){
+	var view = this;
+	// process and insert i18n text
+	var count = $('[i18n], [i18n-title]').length;
+	$('[i18n], [i18n-title]').each(function(){
+		// get i18n and i18n-title attributes from elements
+		var i18n = $(this).attr('i18n'), i18nTitle = $(this).attr('i18n-title');
+		
+		// insert i18n translations
+		if (typeof i18n !== 'undefined' && i18n !== false) {
+			$(this).html(view.getI18NString(i18n));
+		}
+		if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
+			$(this).attr('title',view.getI18NString(i18nTitle));
+		}
+		// remove i18n attributes from DOM element
+		$(this).removeAttr('18n').removeAttr('i18n-title');
+		// when all i18n text has been inserted, run the callback function
+		if(--count == 0){
+			if(typeof onComplete === 'function'){
+				onComplete();
+			}
+		}
+	});
+};
+
 
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){
