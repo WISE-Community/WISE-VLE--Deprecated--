@@ -96,6 +96,9 @@ public class VLEGetXLS extends VLEServlet {
 	//the type of export "latestStudentWork" or "allStudentWork"
 	private String exportType = "";
 	
+	//used to keep track of the number of oversized (larger than 32767 char) responses
+	private long oversizedResponses = 0;
+	
 	/**
 	 * Clear the instance variables because only one instance of a servlet
 	 * is ever created
@@ -146,6 +149,9 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//holds the export type
 		exportType = "";
+		
+		//holds the number of oversized responses
+		oversizedResponses = 0;
 	}
 	
 	/**
@@ -399,7 +405,7 @@ public class VLEGetXLS extends VLEServlet {
 					
 					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
 						/*
-						 * get the student logins, this is a singls string with the logins
+						 * get the student logins, this is a single string with the logins
 						 * separated by ':'
 						 */
 						String studentLogins = classmate.getString("studentLogins");
@@ -474,6 +480,9 @@ public class VLEGetXLS extends VLEServlet {
 			wb.write(outputStream);
 		}
 		
+		if(oversizedResponses > 0) {
+			System.out.println("Oversized Responses: " + oversizedResponses);
+		}
 		clearVariables();
 	}
 
@@ -2501,8 +2510,18 @@ public class VLEGetXLS extends VLEServlet {
 			String stepWorkResponse = getStepWorkResponse(stepWork);
 			
 			if(stepWorkResponse != null) {
+				//check if the response has more characters than the max allowable 
+				if(stepWorkResponse.length() > 32767) {
+					//response has more characters than the max allowable so we will truncate it
+					stepWorkResponse = stepWorkResponse.substring(0, 32767);
+					
+					//increment the counter to keep track of how many oversized responses we have
+					oversizedResponses++;
+				}
+				
 				//set the response into the cell and increment the counter
-				rowForWorkgroupId.createCell(columnCounter++).setCellValue(stepWorkResponse);				
+				rowForWorkgroupId.createCell(columnCounter++).setCellValue(stepWorkResponse);
+				
 			} else {
 				//there was no work so we will leave the cell blank and increment the counter
 				columnCounter++;
