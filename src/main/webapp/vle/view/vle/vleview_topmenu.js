@@ -219,7 +219,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 	    		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
 				var divId = "svgDraw_"+flaggedWorkPostTime;
 				flaggedWork = node.translateStudentWork(flaggedWork);
-				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
+				var divStyle = "height:275px; width:375px; border:1px solid #aaa; background-color:#fff;";
 				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2 showallLatestWork' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
 			} else if(node.hasGradingView()) {
 	    		flaggedWorkAnswers += "<div class='showallLatestWork' id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
@@ -242,7 +242,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			svgString = Utils.decode64(svgString);
 			// shrink svg image to fit
 			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
+			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="375" height="275"');
 			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
 			var svgXml = Utils.text2xml(svgString); // convert to xml
 			$(this).html('');

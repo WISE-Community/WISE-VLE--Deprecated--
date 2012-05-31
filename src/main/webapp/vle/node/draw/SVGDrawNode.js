@@ -238,7 +238,7 @@ SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
 			currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 			currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
 			//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
-			currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.2)">');
+			currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.6)">');
 			currSnap = Utils.encode64(currSnap);
 			snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+innerDivId+"\");'>"+currSnap+"</div>";
 			var currDescription = snaps[i].description;

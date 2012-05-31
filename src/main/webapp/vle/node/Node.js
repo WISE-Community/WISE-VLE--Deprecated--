@@ -1224,7 +1224,8 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
         	}
         	if (this.type == "SVGDrawNode") {
         		divClass = "svgdraw";
-        		divStyle = "height:270px; width:360px; border:1px solid #aaa";
+        		//divStyle = "height:300px; width:375px; border:1px solid #aaa";
+        		divStyle = "width:375px; border:1px solid #aaa";
         	} 
         	//create the div id for where we will display the student work
         	var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
