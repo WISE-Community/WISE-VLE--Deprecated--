@@ -276,7 +276,21 @@ MC.prototype.isChallengeEnabled = function() {
 	var isChallengeQuestion = false;
 	
 	if(this.node.getType() == 'ChallengeNode') {
-		isChallengeQuestion = true;
+		if(this.content.assessmentItem.interaction.attempts != null) {
+			var navigateTo = this.content.assessmentItem.interaction.attempts.navigateTo;
+			
+			/*
+			 * get the navigateToPosition to make sure the navigateTo step is in the project.
+			 * steps that are inactive will not have a position, so as long as getPositionById()
+			 * returns a non null value, we know that step is an active step in the project.
+			 */
+			var navigateToPosition = this.node.view.getProject().getPositionById(navigateTo);
+			
+			if(navigateToPosition != null) {
+				//the navigateTo field has been set which means challenge is enabled
+				isChallengeQuestion = true;				
+			}
+		}
 	}
 	
 	return isChallengeQuestion;
@@ -574,12 +588,14 @@ MC.prototype.getScore = function(numAttempts){
  * @return string - html response
  */
 MC.prototype.getResultMessage = function(isCorrect){
+	var message = '';
+	
 	/* we need to retrieve the attempt object corresponding to the current number of attempts */
 	var attempt = this.content.assessmentItem.interaction.attempts;
 	
 	/* if this attempt is correct, then we only need to return a msg */
 	if(isCorrect){
-		return "You have successfully completed this question!";
+		message = "You have successfully completed this question!";
 	} else {
 		/* this is not correct, so we need to set up a linkTo and constraint
 		 * and return a message with the linkTo if a step has been specified
@@ -587,26 +603,29 @@ MC.prototype.getResultMessage = function(isCorrect){
 		if(attempt.navigateTo && attempt.navigateTo != ''){
 			var msg = 'Please review ';
 			var position = this.node.view.getProject().getPositionById(attempt.navigateTo);
-			var linkNode = this.node.view.getProject().getNodeById(attempt.navigateTo);
-			var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
 			
-			/* create the linkTo and add it to the message */
-			var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
-			this.node.addLink(linkTo);
-			msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.';
-			
-			//create the message that will display in the alert
-			var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
-			
-			/* create the constraint to disable this step until students have gone to
-			 * the step specified by this attempt */
-			this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20), msg:optsMsg});
-			
-			return msg;
-		} else {
-			return '';
+			if(position != null) {
+				var linkNode = this.node.view.getProject().getNodeById(attempt.navigateTo);
+				var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
+				
+				/* create the linkTo and add it to the message */
+				var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
+				this.node.addLink(linkTo);
+				msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.';
+				
+				//create the message that will display in the alert
+				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
+				
+				/* create the constraint to disable this step until students have gone to
+				 * the step specified by this attempt */
+				this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20), msg:optsMsg});
+				
+				message = msg;
+			}
 		}
 	}
+	
+	return message;
 };
 
 /**
