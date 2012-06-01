@@ -1953,7 +1953,7 @@ public class VLEGetXLS extends VLEServlet {
 		if(nodeJSONObject == null) {
 			result = false;
 		} else {
-			if(nodeJSONObject.has("cRater")) {
+			if(nodeJSONObject.has("cRater") && !nodeJSONObject.isNull("cRater")) {
 				try {
 					//get the CRater object in the content
 					JSONObject cRaterJSONObject = nodeJSONObject.getJSONObject("cRater");

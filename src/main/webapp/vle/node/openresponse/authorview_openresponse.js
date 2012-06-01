@@ -1009,6 +1009,9 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 		} else {
 			//CRater already exists so we don't need to do anything
 		}
+		
+		//set the excelExportStringTemplate
+		this.content.excelExportStringTemplate = "Student Response: {response}, Check Answer: [{isCRaterSubmit}], CRater Score: [{cRaterAnnotationScore}], CRater Feedback: [{cRaterFeedbackText}]";
 	} else {
 		//disable CRater
 		
@@ -1041,6 +1044,9 @@ View.prototype.OpenResponseNode.updateEnableCRater = function() {
 				$('#enableCRaterCheckbox').attr('checked', true);
 			}
 		}
+		
+		//remove the excelExportStringTemplate
+		this.content.excelExportStringTemplate = null;
 	}
 	
 	/* fire source updated event */
