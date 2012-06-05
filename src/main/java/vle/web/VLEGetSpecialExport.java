@@ -4,8 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -91,8 +90,18 @@ public class VLEGetSpecialExport extends VLEServlet {
 	//the type of export "latestStudentWork" or "allStudentWork"
 	private String exportType = "";
 	
-	//LZ77 object to decompress LZ77 strings
-	private LZ77 lz77 = new LZ77();
+	private static Properties vleProperties = null;
+	
+	{
+		try {
+			//get the vle.properties file
+			vleProperties = new Properties();
+			vleProperties.load(getClass().getClassLoader().getResourceAsStream("vle.properties"));
+		} catch (Exception e) {
+			System.err.println("VLEGetSpecialExport could not read in vleProperties file");
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * Clear the instance variables because only one instance of a servlet
@@ -196,6 +205,9 @@ public class VLEGetSpecialExport extends VLEServlet {
 		//get the path of the project meta data
 		String projectMetaDataJSONString = (String) request.getAttribute("projectMetaData");
 
+		//get the path of the vlewrapper base dir
+		String vlewrapperBaseDir = vleProperties.getProperty("vlewrapperBaseDir");
+		
 		try {
 			//get the project meta data JSON object
 			projectMetaData = new JSONObject(projectMetaDataJSONString);
@@ -397,7 +409,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 					
 					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
 						/*
-						 * get the student logins, this is a singls string with the logins
+						 * get the student logins, this is a single string with the logins
 						 * separated by ':'
 						 */
 						String studentLogins = classmate.getString("studentLogins");
@@ -454,6 +466,32 @@ public class VLEGetSpecialExport extends VLEServlet {
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
+				}
+			}
+			
+			if(nodeType == null) {
+				
+			} else if(nodeType.equals("svgdraw")) {
+				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") {
+					//get the lz77.js file from the server
+					File sourcelz77File = new File(vlewrapperBaseDir + "/vle/node/draw/svg-edit/lz77.js");
+					
+					//create a lz77.js file in the folder we are creating
+					File newlz77File = new File(zipFolder, "lz77.js");
+					
+					//copy the contents of the lz77.js file into our new file
+					FileUtils.copyFile(sourcelz77File, newlz77File);					
+				}
+			} else if(nodeType.equals("mysystem2")) {
+				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") {
+					//get the lz77.js file from the server
+					File sourcelz77File = new File(vlewrapperBaseDir + "/vle/node/mysystem2/authoring/js/libs/lz77.js");
+
+					//create a lz77.js file in the folder we are creating
+					File newlz77File = new File(zipFolder, "lz77.js");
+					
+					//copy the contents of the lz77.js file into our new file
+					FileUtils.copyFile(sourcelz77File, newlz77File);					
 				}
 			}
 			
@@ -570,8 +608,26 @@ public class VLEGetSpecialExport extends VLEServlet {
 		//add the import of studentData.js
 		html.append("<script type='text/javascript' src='studentData.js'></script>\n");
 		
+		//import any other necessary .js files
+		if(nodeType == null) {
+			
+		} else if(nodeType.equals("svgdraw")) {
+			html.append("<script type='text/javascript' src='lz77.js'></script>\n");
+		} else if(nodeType.equals("mysystem2")) {
+			html.append("<script type='text/javascript' src='lz77.js'></script>\n");
+		}
+		
 		html.append("<script>\n");
-
+		
+		//create any necessary global variables
+		if(nodeType == null) {
+			
+		} else if(nodeType.equals("svgdraw")) {
+			html.append("var lz77 = new LZ77();\n\n");
+		} else if(nodeType.equals("mysystem2")) {
+			html.append("var lz77 = new LZ77();\n\n");
+		}
+		
 		//create the function that will load the student data
 		html.append("function loadStudentData() {\n");
 		html.append("	for(var x=0; x<studentData.length; x++) {\n");
@@ -579,13 +635,37 @@ public class VLEGetSpecialExport extends VLEServlet {
 		
 		if(nodeType == null) {
 			
-		} else if(nodeType.equals("svgdraw") || nodeType.equals("mysystem2")) {
-			//display the workgroup id, step work id, and student data
+		} else if(nodeType.equals("svgdraw")) {
+			/*
+			 * perform the necessary processing to retrieve the SVG string.
+			 * the student data from svgdraw steps must be lz77 decompressed.
+			 */
 			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id:' + tempStudentData.workgroupId + '<br>';\n");
 			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id:' + tempStudentData.stepWorkId + '<br>';\n");
 			html.append("\n");
 			html.append("		var data = tempStudentData.data;\n");
-			html.append("		var svgString = data;\n\n");
+			html.append("		var svgString = '';\n\n");
+			html.append("		if(data != null && data != '') {\n");
+			html.append("			data = data.replace(/^--lz77--/,'');\n");
+			html.append("			data = JSON.parse(lz77.decompress(data));\n");
+			html.append("			svgString = data.svgString;\n");
+			html.append("		}\n\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data:<br>' + svgString + '<br>';\n");
+		} else if(nodeType.equals("mysystem2")) {
+			/*
+			 * perform the necessary processing to retrieve the SVG string.
+			 * the student data from mysystem2 steps must be unescaped and
+			 * then lz77 decompressed.
+			 */
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id:' + tempStudentData.workgroupId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id:' + tempStudentData.stepWorkId + '<br>';\n");
+			html.append("\n");
+			html.append("		var data = tempStudentData.data;\n");
+			html.append("		var svgString = '';\n\n");
+			html.append("		if(data != null && data != '') {\n");
+			html.append("			data = unescape(data);\n");
+			html.append("			svgString = lz77.decompress(data);\n");
+			html.append("		}\n\n");
 			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data:<br>' + svgString + '<br>';\n");
 		}
 		
@@ -696,19 +776,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 										
 										if(latestNodeState.has("data")) {
 											//get the data
-											studentData = latestNodeState.getString("data");
-											
-											if(studentData != null) {
-												//remove the --lz77-- at the beginning of the string
-												studentData = studentData.replaceAll("--lz77--", "");
-
-												//decompress the LZ77 string
-												String decompressedStudentData = lz77.decompress(studentData);
-
-												//get the svgString field from the JSONObject
-												JSONObject studentDataJSONObject = new JSONObject(decompressedStudentData);
-												studentData = studentDataJSONObject.getString("svgString");												
-											}
+											studentData = latestNodeState.getString("data");											
 										}
 									} else if(nodeType.equals("Mysystem2Node")) {
 										//get the svg string that is embedded inside the response
@@ -732,18 +800,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 														if(lastGraphicPreview != null && lastGraphicPreview.has("svg")) {
 															//get the svg string
 															String svg = lastGraphicPreview.getString("svg");
-
-															if(svg != null) {
-																try {
-																	//decode the string
-																	svg = URLDecoder.decode(svg, "UTF-8");
-																} catch (UnsupportedEncodingException e) {
-																	e.printStackTrace();
-																}
-
-																//decompress the LZ77 string
-																studentData = lz77.decompress(svg);
-															}
+															studentData = svg;
 														}
 													}
 												}
