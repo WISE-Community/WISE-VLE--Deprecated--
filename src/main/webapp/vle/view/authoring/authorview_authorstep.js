@@ -97,6 +97,18 @@ View.prototype.setInitialAuthorStepState = function(){
 	//$('body', window.frames['previewFrame'].document).html("");
 	$('#previewFrame').html('');
 	
+	if($('#notePanel').length > 0) {
+		/*
+		 * clear out the content in the notePanel. for some reason the content
+		 * in the notePanel was preventing steps from being previewed after
+		 * the author previewed a note. the content in the notePanel contained
+		 * a base href which was later being used when retrieving step html files
+		 * which caused the authoring tool to look for the step html files in the
+		 * wrong path.
+		 */
+		$('#notePanel').empty();	
+	}
+	
 	//clear out the previous nodeId value in the preview frame
 	//window.frames['previewFrame'].nodeId = null;
 	$('#previewFrame').nodeId = null;
