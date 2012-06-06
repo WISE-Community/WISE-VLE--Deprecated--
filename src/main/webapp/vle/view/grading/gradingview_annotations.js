@@ -88,17 +88,35 @@ View.prototype.saveComment = function(nodeId, toWorkgroupId, fromWorkgroupId, ru
 	}
 };
 
-View.prototype.saveRunAnnotation = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation) {
+/**
+ * Save the run annotation to the server
+ * @param nodeId
+ * @param toWorkgroupId
+ * @param fromWorkgroupId
+ * @param runId
+ * @param stepWorkId
+ * @param runAnnotation
+ * @param sync whether to make a sync request
+ */
+View.prototype.saveRunAnnotation = function(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation, sync) {
 	var value = JSON.stringify(runAnnotation.value);
-	this.saveAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, 'run', value, runId, stepWorkId);
+	this.saveAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, 'run', value, runId, stepWorkId, sync);
 };
 
 /**
  * Posts the new or updated annotation back to the server and if that was 
  * successful, it will create a local Annotation object and place it in
  * our array of Annotations so our local copy is up to date
+ * @param nodeId
+ * @param toWorkgroup
+ * @param fromWorkgroup
+ * @param type
+ * @param value
+ * @param runId
+ * @param stepWorkId
+ * @param sync whether to make a sync request
  */
-View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId) {
+View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId, sync) {
 	//alert("nodeId: " + nodeId + "\ntoWorkgroup: " + toWorkgroup + "\nfromWorkgroup: " + fromWorkgroup + "\ntype: " + type + "\nvalue: " + value);
 
 	//build the post annotation url with get arguments
@@ -138,15 +156,17 @@ View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, typ
 				var annotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, postTime, stepWorkId);
 				thisView.annotations.updateOrAddAnnotation(annotation);
 				
-				/*
-				 * remove the highlighting from the student row
-				 */
-				var studentWorkRow = document.getElementById("studentWorkRow_" + toWorkgroup + "_" + nodeId + "_" + stepWorkId);
-				var className = studentWorkRow.className;
-				studentWorkRow.className = className.replace("newWork", "");
-				
-				//update the Last Annotation time
-				document.getElementById("lastAnnotationPostTime_" + toWorkgroup + "_" + nodeId).innerHTML = "Last Annotation: " + new Date(parseInt(postTime));
+				if(type != 'run') {
+					/*
+					 * remove the highlighting from the student row
+					 */
+					var studentWorkRow = document.getElementById("studentWorkRow_" + toWorkgroup + "_" + nodeId + "_" + stepWorkId);
+					var className = studentWorkRow.className;
+					studentWorkRow.className = className.replace("newWork", "");
+					
+					//update the Last Annotation time
+					document.getElementById("lastAnnotationPostTime_" + toWorkgroup + "_" + nodeId).innerHTML = "Last Annotation: " + new Date(parseInt(postTime));
+				}
 				
 				if(type == 'score') {
 					/*
@@ -193,7 +213,7 @@ View.prototype.saveAnnotation = function(nodeId, toWorkgroup, fromWorkgroup, typ
 	}
 	
 	//make the call to post the annotation
-	this.connectionManager.request('POST', 1, postAnnotationsURL, postAnnotationParams, postAnnotationCallback, [this, nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId], postAnnotationCallbackFail);
+	this.connectionManager.request('POST', 1, postAnnotationsURL, postAnnotationParams, postAnnotationCallback, [this, nodeId, toWorkgroup, fromWorkgroup, type, value, runId, stepWorkId], postAnnotationCallbackFail, sync);
 };
 
 /**

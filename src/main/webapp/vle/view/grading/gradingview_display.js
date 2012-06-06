@@ -1353,6 +1353,8 @@ View.prototype.resizeTextArea = function(textArea) {
  * @param showRevisions boolean whether to show revisions or not
  */
 View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
+	this.gradingType = 'step';
+	
 	if(nodeId == null || nodeId == 'undefined') {
 		return;
 	}
@@ -1671,24 +1673,43 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>"+
 			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div>";
 
-		//get the groups used in this project, if any
-		var allGroupsUsed = this.project.getAllGroupsUsed();
+		//get the automatically assigned groups used in this project, if any
+		var autoGroupsUsed = this.project.getAutoGroupsUsed();
 		
-		if(allGroupsUsed != null && allGroupsUsed.length > 0) {
-			gradeByStepGradingPageHtml += "<div>";
-			//display the link to edit the groups for this workgroup
-			gradeByStepGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";			
-			gradeByStepGradingPageHtml += "</div>";
+		if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
+			gradeByStepGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
 			
-			gradeByStepGradingPageHtml += "<div id='groups_" + workgroupId + "'>";
 			//get the groups that have been assigned to this workgroup
-			var groups = this.getGroupsByWorkgroupId(workgroupId);
+			var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+			
+			//make all the elements in the array bold
+			autoGroups = this.makeElementsBold(autoGroups);
 			
 			//create a string from the groups this workgroup is in e.g. "A, B"
-			var groupsString = groups.join(", ");
+			var groupsString = autoGroups.join("");
 			
 			//display the groups this workgroup is in
-			gradeByStepGradingPageHtml += "Groups: " + groupsString;
+			gradeByStepGradingPageHtml += "Auto Groups:<br>" + groupsString;
+			gradeByStepGradingPageHtml += "</div>";
+		}
+		
+		//get the manual assigned groups used in this project, if any
+		var manualGroupsUsed = this.project.getManualGroupsUsed();
+		
+		if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
+			gradeByStepGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
+			
+			//get the groups that have been assigned to this workgroup
+			var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
+			
+			//make all the elements in the array bold
+			manualGroups = this.makeElementsBold(manualGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "A, B"
+			var groupsString = manualGroups.join("");
+			
+			//display the groups this workgroup is in
+			gradeByStepGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
 			gradeByStepGradingPageHtml += "</div>";
 		}
 		
@@ -2997,6 +3018,8 @@ View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, 
  * @param workgroupId the id of the workgroup
  */
 View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
+	this.gradingType = 'team';
+	
 	// detach FixedHeader clones
 	$('.fixedHeader').detach();
 		
@@ -3040,21 +3063,46 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		gradeByTeamGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
+	//get the automatically assigned groups in this project, if any
+	var autoGroupsUsed = this.project.getAutoGroupsUsed();
+	
+	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
+		gradeByTeamGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+		
+		//make all the elements in the array bold
+		autoGroups = this.makeElementsBold(autoGroups);
+		
+		//create a string from the groups this workgroup is in e.g. "A, B"
+		var groupsString = autoGroups.join(", ");
+		
+		//display the groups this workgroup is in
+		gradeByTeamGradingPageHtml += "Auto Groups: " + groupsString;
+		gradeByTeamGradingPageHtml += "</div>";
+	}
+	
 	//get the groups used in this project, if any
-	var allGroupsUsed = this.project.getAllGroupsUsed();
+	var allGroupsUsed = this.project.getManualGroupsUsed();
 	
 	if(allGroupsUsed != null && allGroupsUsed.length > 0) {
 		//get the groups that have been assigned to this workgroup
-		var groups = this.getGroupsByWorkgroupId(workgroupId);
+		var groups = this.getManualGroupsByWorkgroupId(workgroupId);
+		
+		//make all the elements in the array bold
+		groups = this.makeElementsBold(groups);
 		
 		//create a string from the groups this workgroup is in e.g. "A, B"
 		var groupsString = groups.join(", ");
 
-		//display the link to edit the groups for this workgroup
-		gradeByTeamGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";
+		//create the div to display the manually assigned groups
+		gradeByTeamGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
 		
-		//display the groups this workgroup is in
-		gradeByTeamGradingPageHtml += "<p id='groups_" + workgroupId + "' style='display:inline'>Groups: " + groupsString + "</p>";
+		//display the manually assigned groups
+		gradeByTeamGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")' style='margin:0'>edit</a>): " + groupsString;
+		
+		gradeByTeamGradingPageHtml += "</div>";
 	}
 	
 	gradeByTeamGradingPageHtml += "</div>";
@@ -4640,11 +4688,11 @@ View.prototype.editGroups = function(workgroupId) {
     editGroupsHtml += "<div>";
 
     //get all the groups used in the project
-    var allGroupsUsed = this.project.getAllGroupsUsed();
+    var allGroupsUsed = this.project.getManualGroupsUsed();
     
     //get all the groups this workgroup is in
-	var groupsForWorkgroupId = this.getGroupsByWorkgroupId(workgroupId);
-    
+	var groupsForWorkgroupId = this.getManualGroupsByWorkgroupId(workgroupId);
+	
     if(allGroupsUsed != null) {
     	//loop through all the groups used in the project
     	for(var x=0; x<allGroupsUsed.length; x++) {
@@ -4714,13 +4762,39 @@ View.prototype.groupClicked = function(workgroupId) {
 	var stepWorkId = null;
 	
 	//save the annotation to the server
-	this.saveRunAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation);
+	this.saveRunAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation, true);
+	
+	/*
+	 * get all the groups this workgroup is in. this includes automatic group
+	 * assignments as well as manual group assignments.
+	 */
+	groups = this.getManualGroupsByWorkgroupId(workgroupId);
+	
+	//make all the elements in the array bold
+	groups = this.makeElementsBold(groups);
 	
 	//get the string value of the array of groups that this workgroup is in
-	var groupsString = groups.join(", ");
+	var groupsString = "";
+	
+	//what to display after the :
+	var spacing = "";
+	
+	if(this.gradingType == "step") {
+		//join the groups into a string
+		groupsString = groups.join("");
+		
+		//include a line break
+		spacing = "<br>";
+	} else if(this.gradingType == "team") {
+		//join the groups into a string separated by ,
+		groupsString = groups.join(", ");
+		
+		//do not include a line break
+		spacing = " ";
+	}
 	
 	//update the grading UI with the new groups
-	$('#groups_' + workgroupId).html('Groups: ' + groupsString);
+	$('#manualGroups_' + workgroupId).html("Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")' style='margin:0'>edit</a>):" + spacing + groupsString);
 };
 
 /**
@@ -4746,7 +4820,7 @@ View.prototype.getRunAnnotationByWorkgroupId = function(workgroupId) {
  * @param workgroupId the workgroup id
  * @returns an array of groups that this workgroup is in
  */
-View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
+View.prototype.getManualGroupsByWorkgroupId = function(workgroupId) {
 	var groups = [];
 	
 	//get the run annotation
@@ -4754,10 +4828,83 @@ View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
 	
 	if(runAnnotation != null && runAnnotation.value != null && runAnnotation.value.groups != null) {
 		//get the groups
-		groups = runAnnotation.value.groups;
+		var annotationGroups = runAnnotation.value.groups;
+		
+		if(annotationGroups != null) {
+			//loop through all the groups this workgroup is in
+			for(var x=0; x<annotationGroups.length; x++) {
+				//add the group to our array that we will return
+				var annotationGroup = annotationGroups[x];
+				groups.push(annotationGroup);
+			}
+		}
 	}
 	
 	return groups;
+};
+
+/**
+ * Get the groups this workgroup is in
+ * @param workgroupId the workgroup id
+ * @returns an array of groups that this workgroup is in
+ */
+View.prototype.getAutoGroupsByWorkgroupId = function(workgroupId) {
+	var groups = [];
+	
+	//get the vlestate for the workgroup
+	var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	
+	//get all the branch node ids in the project
+	var branchNodeIds = this.getProject().getNodeIdsByNodeType('BranchingNode');
+	
+	//loop through all the branch node ids
+	for(var x=0; x<branchNodeIds.length; x++) {
+		//get a branch node id
+		var branchNodeId = branchNodeIds[x];
+
+		//get the latest work from the workgroup for this branch node
+		var latestWork = vleState.getLatestWorkByNodeId(branchNodeId);
+		
+		if(latestWork != null) {
+			//get the response
+			var response = latestWork.response;
+			
+			if(response != null) {
+				//get the chosen path name which should be the activity title for the branch path
+				var chosenPathName = response.chosenPathName;
+				
+				if(chosenPathName != null && chosenPathName != '') {
+					//add the branch path name to our array
+					groups.push(chosenPathName);
+				}
+			}
+		}
+	}
+	
+	return groups;
+};
+
+/**
+ * Make all the elements in the array bold
+ * @param array an array of strings
+ * @returns an array of strings that are each wrapped in a 
+ * paragraph element and bolded
+ */
+View.prototype.makeElementsBold = function(array) {
+	var newArray = [];
+	
+	if(array != null) {
+		//loop through all the elements in the array
+		for(var x=0; x<array.length; x++) {
+			/*
+			 * wrap the element in a paragraph element that is bolded and add it
+			 * to the array that we will return
+			 */
+			newArray.push("<p style='font-weight:bold;margin-right:0'>" + array[x] + "</p>");
+		}
+	}
+	
+	return newArray;
 };
 
 /**
