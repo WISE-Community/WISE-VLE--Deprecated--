@@ -152,8 +152,8 @@ var scriptloader = function(){
 					
 					// check if i18n is enabled for theme, add theme_i18n.js to scripts if enabled
 					if(data.i18n_enabled){
-						var i18n_js = 'vle/' + themepath + 'i18n/theme_i18n.js';
-						s.push(i18n_js);
+						//var i18n_js = 'vle/' + themepath + 'i18n/theme_i18n.js';
+						//s.push(i18n_js);
 					}
 					
 					// set navMode (either based on project config or theme default)

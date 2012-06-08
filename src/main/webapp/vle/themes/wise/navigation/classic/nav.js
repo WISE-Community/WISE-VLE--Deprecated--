@@ -100,11 +100,11 @@ NavigationPanel.prototype.menuCreated = function() {
 	var view = this.view;
 	
 	// set the text and title for the toggle navigation menu button
-	$('#toggleNavLink').attr('title',view.theme.getI18NString("toggle_nav_button_title")).html(view.theme.getI18NString("toggle_nav_button_text"));
+	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title"),"theme").html(view.getI18NString("toggle_nav_button_text"),"theme");
 	
 	// display ExpandAll/CollapseAll buttons
-	var expandAllText = view.theme.getI18NString("navigation_expand_all");
-	var collapseAllText =  view.theme.getI18NString("navigation_collapse_all");
+	var expandAllText = view.getI18NString("navigation_expand_all","theme");
+	var collapseAllText =  view.getI18NString("navigation_collapse_all","theme");
 	var controls = "<div id='menuControls' class='panelContent centerContent'><a onclick='eventManager.fire(\"menuExpandAll\")'>" + expandAllText + "</a><a onclick='eventManager.fire(\"menuCollapseAll\")'>"+collapseAllText+"</a></div>";
 	$('#navigation').before(controls);
 	
@@ -205,7 +205,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 		},100, resizeDisabled());
 		
 		// change text of toggleNavLink
-		$('#toggleNavLink').attr('title',view.theme.getI18NString("toggle_nav_button_title_off")).html(view.theme.getI18NString("toggle_nav_button_text_off")).addClass('menu');
+		$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title_off"),"theme").html(view.getI18NString("toggle_nav_button_text_off"),"theme").addClass('menu');
 	} else {
 		// vleSidebar is hidden, so show and resize stepContent
 		$('#vleSidebar').animate({
@@ -217,7 +217,7 @@ NavigationPanel.prototype.toggleVisibility = function() {
 		},100, resizeDisabled());
 		
 		// change text of toggleNavLink
-		$('#toggleNavLink').attr('title',view.theme.getI18NString("toggle_nav_button_title")).html(view.theme.getI18NString("toggle_nav_button_text")).removeClass('menu');
+		$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title"),"theme").html(view.getI18NString("toggle_nav_button_text"),"theme").removeClass('menu');
 	}
 };
 

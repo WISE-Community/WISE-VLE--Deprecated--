@@ -79,6 +79,14 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						if(usedNodeTypes.indexOf(currNode.type) == -1) {
 							//add current node type to our array of node types if it is not already in the array
 							usedNodeTypes.push(currNode.type);
+							// also fetch i18n files
+							if (thisNode.i18nEnabled) {		
+								// check to see if we've already fetched i18n files for this node type
+								if (!view.i18n.supportedLocales[currNode.type]) {
+									view.i18n.supportedLocales[currNode.type] = thisNode.supportedLocales;
+									view.retrieveLocales(currNode.type,thisNode.i18nPath);								
+								} 
+							}							
 						}
 						
 						/* validate and set title attribute */

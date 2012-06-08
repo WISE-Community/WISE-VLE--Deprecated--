@@ -22,7 +22,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='gradingConfigUrlReceived') {
 		obj.getGradingConfig(args[0]);
 	} else if(type=='getGradingConfigComplete') {
-		obj.retrieveLocales();		
+		obj.retrieveLocales("main");		
 		obj.loadProject(args[0], args[1], args[2]);
 		obj.initializeSession();
 	} else if(type=='loadingProjectComplete') {

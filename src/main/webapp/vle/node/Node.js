@@ -404,7 +404,9 @@ Node.prototype.renderConstraints = function() {
 
 Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
 	if(obj.id==args[0]) {
-		obj.contentPanel.loadContentAfterScriptsLoad(obj);		
+		if (obj.contentPanel) {
+			obj.contentPanel.loadContentAfterScriptsLoad(obj);		
+		}
 	}
 };
 
@@ -415,6 +417,11 @@ Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
  */
 Node.prototype.contentRenderComplete = function(type, args, obj){
 	/* args[0] is the id of node's page that has been rendered */
+	var nodeId = args[0];
+	var node = obj.view.getProject().getNodeById(nodeId);
+	if (node && node.i18nEnabled && args[0] == obj.id) {
+		obj.view.insertTranslations(obj.getType());		
+	}
 };
 
 /**

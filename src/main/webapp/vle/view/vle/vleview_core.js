@@ -6,7 +6,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.startVLEFromConfig(args[0]);
 	} else if(type=='startVLEFromParams'){
 		obj.startVLEFromParams(args[0]);
-	} else if (type=='retrieveLocalesComplete') {
+	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
@@ -135,7 +135,7 @@ View.prototype.startVLEFromConfig = function(configUrl){
 	this.eventManager.fire('loadConfigComplete');
 
 	/* retrieve i18n files, defined in view_i18n.js */
-	this.retrieveLocales();
+	this.retrieveLocales("main");
 };
 
 /**
@@ -417,11 +417,11 @@ View.prototype.onProjectLoad = function(){
 View.prototype.retrieveThemeLocales = function(){
 	if('theme' in this){
 		this.theme.config = this.config;
-		this.theme.retrieveLocales();
+		this.theme.retrieveLocales("theme","/vlewrapper/vle/themes/wise/i18n/");
 	} else {
 		this.onThemeLoad();
 	}
-}
+};
 
 /**
  * Sets the values of html elements based on the loaded project's attributes

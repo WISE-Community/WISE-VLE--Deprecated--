@@ -35,7 +35,7 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	this.eventManager.fire('loadConfigComplete');
 	
 	/* retrieve i18n files, defined in view_i18n.js */
-	this.retrieveLocales();
+	this.retrieveLocales("main");
 
 
 	if(this.config != null) {
@@ -250,7 +250,7 @@ View.prototype.onAuthoringToolReady = function(){
 	$('#overlay').hide();
 	
 	// insert i18n text and tooltips/help items into DOM
-	this.insertTranslations(function(){ view.insertTooltips(); });
+	this.insertTranslations("main", function(){ view.insertTooltips(); });
 	//clearInterval(window.loadingInterval);
 };
 

@@ -3,6 +3,15 @@ AssessmentListNode.prototype.constructor = AssessmentListNode;
 AssessmentListNode.prototype.parent = Node.prototype;
 AssessmentListNode.authoringToolName = "Questionnaire";
 AssessmentListNode.authoringToolDescription = "Students answer a collection of questions that require text or multiple choice answers";
+AssessmentListNode.prototype.i18nEnabled = true;
+AssessmentListNode.prototype.i18nPath = "/vlewrapper/vle/node/assessmentlist/i18n/";
+AssessmentListNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"nl":"nl",
+			"nl_GE":"nl",
+			"nl_DE":"nl"
+};
 
 /**
  * @constructor

@@ -1,0 +1,14 @@
+{
+    "journal_button_text": {
+        "value": "rivista",
+        "description": "Text on the Journal button"
+    },
+    "ideas_button_text": {
+        "value": "idee",
+        "description": "Text on the Idea Manager button"
+    },
+    "file_button_text": {
+        "value": "file",
+        "description": "Text on the File Manager button"
+    }
+}
