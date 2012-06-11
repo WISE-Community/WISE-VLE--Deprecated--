@@ -2229,6 +2229,77 @@ View.prototype.updateProject = function() {
 };
 
 /**
+ * Delete the project so that it will no longer show up for the logged in user.
+ * This will not actually delete the project folder or content. It will only
+ * set the isDeleted boolean flag in the projects database table.
+ */
+View.prototype.deleteProject = function() {
+	//get the project title
+	var projectTitle = this.project.getTitle();
+	
+	//get the project id
+	var projectId = this.portalProjectId;
+	
+	//get the url for making the request to delete the project
+	var deleteProjectUrl = this.getConfig().getConfigParam('deleteProjectUrl');
+	
+	//confirm with the user that they really want to delete the project
+	var response = confirm("WARNING!!!\n\nAre you really sure you want to delete this project?\nThis will remove the project from your library and\nyou will no longer be able to see it.\n\nProject Title: " + projectTitle + "\n" + "Project Id: " + projectId + "\n\nClick 'OK' to delete the project.\nClick 'Cancel' to keep the project.");
+	
+	//params for making the delete project request
+	var requestParams = {
+		projectId:this.portalProjectId
+	};
+	
+	if(response) {
+		//the user clicked 'OK' to delete the project so we will make the request
+		this.connectionManager.request('POST', 1, deleteProjectUrl, requestParams, this.deleteProjectSuccess, this, this.deleteProjectFailure);
+	}
+};
+
+/**
+ * The success function for deleting the project
+ * @param text a string containg success or failure
+ * @param xml
+ * @param obj
+ */
+View.prototype.deleteProjectSuccess = function(text, xml, obj) {
+	var thisView = obj;
+	
+	if(text == 'success') {
+		//the project was successfully deleted
+		
+		//get the title and project id
+		var projectTitle = thisView.project.getTitle();
+		var projectId = thisView.portalProjectId;
+		
+		//display the success message to the user
+		alert("Successfully deleted project.\n\nProject Title: " + projectTitle + "\n" + "Project Id: " + projectId + "\n\nThe Authoring Tool will now reload.");
+		
+		//refresh the authoring tool
+		location.reload();
+	} else if(text == 'failure: not owner') {
+		//the user is not the owner of the project so the project was not deleted
+		alert('Error: Failed to delete project.\n\nYou must be the owner to delete this project.');
+	} else if(text == 'failure: invalid project id') {
+		alert('Error: Failed to delete project.\n\nInvalid project id.');
+	} else if(text == 'failure: project does not exist') {
+		alert('Error: Failed to delete project.\n\nInvalid project id.');
+	} else if(text == 'failure') {
+		alert('Error: Failed to delete project.');
+	}
+};
+
+/**
+ * Th failure function for deleting the project
+ * @param text
+ * @param obj
+ */
+View.prototype.deleteProjectFailure = function(text, obj) {
+	alert('Error: Failed to delete project.');
+};
+
+/**
  * Show the step type descriptions popup to the author 
  */
 View.prototype.openStepTypeDescriptions = function(){

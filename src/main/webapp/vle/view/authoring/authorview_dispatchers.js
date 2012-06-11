@@ -122,6 +122,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.openProjectInImportView(args[0]);
 	} else if(type == 'importSelectedItems') {
 		obj.importSelectedItems();
+	} else if(type == 'deleteProject') {
+		obj.deleteProject();
 	};
 };
 

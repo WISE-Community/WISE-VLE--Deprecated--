@@ -413,6 +413,7 @@ var componentloader = function(em, sl){
 				'authorWindowScrolled':[null,null],
 				'previewFrameLoaded':[null,null],
 				'cleanProject':[null,null],
+				'deleteProject':[null,null],
 				'cleanClosingProjectStart':[null,null],
 				'cleanClosingProjectComplete':[null,null], 
 				'cleanLoadingProjectFileStart':[null,null], 
@@ -541,6 +542,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('closeOnStepSaved', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('closeStep', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('cleanProject', view.cleanDispatcher, view);
+					view.eventManager.subscribe('deleteProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('cleanSavingProjectStart', view.cleanDispatcher, view);
 					view.eventManager.subscribe('cleanSavingProjectComplete', view.cleanDispatcher, view);
 					view.eventManager.subscribe('cleanClosingProjectStart', view.cleanDispatcher, view);
