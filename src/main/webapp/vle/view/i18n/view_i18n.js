@@ -195,6 +195,9 @@ View.prototype.retrieveLocales = function(componentName,localePath) {
  * @param onComplete Callback function to run when i18n insertion is complete.
  */
 View.prototype.insertTranslations = function(componentName, onComplete){
+	if (!componentName) {
+		componentName = "main";
+	}
 	var view = this;
 	// process and insert i18n text
 	var translatableElements = [];
