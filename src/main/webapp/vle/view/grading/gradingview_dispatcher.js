@@ -100,6 +100,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.addPremadeComment(args[0]);
 	} else if(type=='deletePremadeComment') {
 		obj.deletePremadeComment(args[0], args[1]);
+	} else if(type=='deletePremadeCommentList') {
+		obj.deletePremadeCommentList(args[0]);
 	} else if(type=='displayExportExplanation') {
 		obj.displayExportExplanation(args[0]);
 	} else if(type=='setSelectedPeriod') {
