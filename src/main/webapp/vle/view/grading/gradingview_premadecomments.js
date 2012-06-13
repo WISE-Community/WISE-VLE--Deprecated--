@@ -391,10 +391,9 @@ View.prototype.sortPremadeCommentList = function(premadeCommentList) {
  * false if a comes after b
  */
 View.prototype.sortPremadeCommentsListByLabelAlphabetical = function(a, b) {
-	var aListLabel = a.label;
-	var bListLabel = b.label;
-	
-	return aListLabel < bListLabel;
+	var aListLabel = a.label.toLowerCase();
+	var bListLabel = b.label.toLowerCase();
+	return aListLabel > bListLabel;
 };
 
 /**
