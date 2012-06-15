@@ -212,9 +212,11 @@ View.prototype.renderPremadeComments = function() {
 		//allow user to edit the premadecomment label in place
 		if(signedInUserIsOwner) {
 			//make the label editable in place if the user owns this list
-			this.makePremadeCommentListLabelEditable(premadeCommentList.id);				
+			this.makePremadeCommentListLabelEditable(premadeCommentList.id);
+			
+			//make the comments in the list editable in place
+			this.makePremadeCommentListEditable(premadeCommentList);
 		}
-		
 	}
 	
 	//make the lists that this user owns sortable
@@ -360,11 +362,6 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 		
 		//add the LI to the UL
 		premadeCommentListUL.appendChild(premadeCommentLI);
-		
-		if(signedInUserIsOwner) {
-			//make the comment editable in place if the user owns this list
-			this.makePremadeCommentEditable(premadeCommentId);				
-		}
 	}	
 	
 	return premadeCommentsListDiv;
@@ -1209,6 +1206,24 @@ View.prototype.getPremadeCommentListLocally = function(premadeCommentListId) {
 			//the id matches so we will return the list
 			return currentPremadeCommentList;
 		}
+	}
+};
+
+/**
+ * Make the comments in the list editable in the DOM
+ * @param premadeCommentList the premade comment list
+ */
+View.prototype.makePremadeCommentListEditable = function(premadeCommentList) {
+	//loop through all the premade comments in the list
+	for(var y=0; y<premadeCommentList.premadeComments.length; y++) {
+		//get a premade comment
+		var premadeComment = premadeCommentList.premadeComments[y];
+		
+		//get the id of the premade comment
+		var premadeCommentId = premadeComment.id;
+		
+		//make the premade comment editable in place in the DOM
+		this.makePremadeCommentEditable(premadeCommentId);
 	}
 };
 
