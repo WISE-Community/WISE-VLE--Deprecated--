@@ -124,6 +124,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.importSelectedItems();
 	} else if(type == 'deleteProject') {
 		obj.deleteProject();
+	} else if(type == 'findBrokenLinksInProject') {
+		obj.findBrokenLinksInProject();
 	};
 };
 

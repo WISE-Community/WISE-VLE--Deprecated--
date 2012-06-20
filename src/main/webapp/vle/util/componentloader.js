@@ -416,6 +416,7 @@ var componentloader = function(em, sl){
 				'previewFrameLoaded':[null,null],
 				'cleanProject':[null,null],
 				'deleteProject':[null,null],
+				'findBrokenLinksInProject':[null,null],
 				'cleanClosingProjectStart':[null,null],
 				'cleanClosingProjectComplete':[null,null], 
 				'cleanLoadingProjectFileStart':[null,null], 
@@ -545,6 +546,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('closeStep', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('cleanProject', view.cleanDispatcher, view);
 					view.eventManager.subscribe('deleteProject', view.authorDispatcher, view);
+					view.eventManager.subscribe('findBrokenLinksInProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('cleanSavingProjectStart', view.cleanDispatcher, view);
 					view.eventManager.subscribe('cleanSavingProjectComplete', view.cleanDispatcher, view);
 					view.eventManager.subscribe('cleanClosingProjectStart', view.cleanDispatcher, view);
@@ -637,6 +639,7 @@ var componentloader = function(em, sl){
 					view.initializeStepTypeDescriptionsDialog();
 					view.initializeTagViewDialog();
 					view.initializeImportViewDialog();
+					view.initializeFindBrokenLinksInProjectDialog();
 										
 					window.onunload = env.onWindowUnload;
 				}
