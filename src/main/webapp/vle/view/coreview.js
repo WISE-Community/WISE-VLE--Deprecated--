@@ -100,6 +100,7 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 			// project metadata does not exist and metadataurl is unspecified so start project normally
 			this.eventManager.fire('loadingProjectStart');
 			this.project = createProject(createContent(url), contentBase, lazyLoading, this);
+			this.projectMetadata = this.project.projectJSON();
 			this.isLoadedProjectMinified = false;
 			this.eventManager.fire('loadingProjectComplete');
 		}
