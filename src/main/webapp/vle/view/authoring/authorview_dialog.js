@@ -798,6 +798,13 @@ View.prototype.initializeImportViewDialog = function() {
 	$('#importViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Import', buttons: {'Close': function(){$(this).dialog("close");}}});
 };
 
+/**
+ * Create the find broken links in project dialog popup
+ */
+View.prototype.initializeFindBrokenLinksInProjectDialog = function() {
+	$('#findBrokenLinksInProjectDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Find Broken Links In Project', buttons: {'Close': function(){$(this).dialog("close");}}});
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_dialog.js');

@@ -2300,6 +2300,53 @@ View.prototype.deleteProjectFailure = function(text, obj) {
 };
 
 /**
+ * Make the request to find broken links in the project
+ */
+View.prototype.findBrokenLinksInProject = function() {
+	//display a popup message notifying the user that it may take a littl while to analyze the project
+	alert("Analyzing the project to find broken links may take up to 30 seconds.\nClick 'OK' to start analyzing.");
+	
+	//get the project id
+	var projectId = this.portalProjectId;
+	
+	//get the url for making the request to analyze the project for broken links
+	var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
+	
+	//the params for the request
+	var requestParams = {
+		analyzeType:'findBrokenLinks',
+		projectId:projectId,
+		html:true
+	};
+	
+	//make the request to analyze the project for broken links
+	this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, this.findBrokenLinksInProjectSuccess, this, this.findBrokenLinksInProjectFailure);
+};
+
+/**
+ * Success callback for finding broken links in the project
+ * @param text the response text
+ * @param xml
+ * @param obj
+ */
+View.prototype.findBrokenLinksInProjectSuccess = function(text, xml, obj) {
+	//insert the text into the div
+	$('#findBrokenLinksInProjectDialog').html(text);
+	
+	//display the dialog
+	$('#findBrokenLinksInProjectDialog').dialog('open');
+};
+
+/**
+ * Failure callback for finding broken links in the project
+ * @param text
+ * @param obj
+ */
+View.prototype.findBrokenLinksInProjectFailure = function(text, obj) {
+	alert("Error: an error occurred while trying to find broken links in the project.")
+};
+
+/**
  * Show the step type descriptions popup to the author 
  */
 View.prototype.openStepTypeDescriptions = function(){
