@@ -125,7 +125,9 @@ View.prototype.authorDispatcher = function(type,args,obj){
 	} else if(type == 'deleteProject') {
 		obj.deleteProject();
 	} else if(type == 'findBrokenLinksInProject') {
-		obj.findBrokenLinksInProject();
+		obj.analyzeProject(type);
+	} else if(type == 'findUnusedAssetsInProject') {
+		obj.analyzeProject(type);
 	};
 };
 

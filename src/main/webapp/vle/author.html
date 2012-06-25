@@ -164,6 +164,8 @@ var view;
 			
 			<li><a onclick="eventManager.fire('findBrokenLinksInProject')"><img src="images/constraint.png" alt="find broken links in project" />Find Broken Links in Project</a></li>
 			
+			<li><a onclick="eventManager.fire('findUnusedAssetsInProject')"><img src="images/constraint.png" alt="find unused assets in project" />Find Unused Assets in Project</a></li>
+			
 			<li><a onclick="eventManager.fire('deleteProject')"><img src="images/constraint.png" alt="delete project" />Delete Project</a></li>
 			
 			<li><a onclick="eventManager.fire('cleanProject')"><img src="images/edit-clear.png" alt="clean project" />Clean Project</a></li>
@@ -720,7 +722,7 @@ var view;
 	<div id='importView'></div>
 </div>
 
-<div id='findBrokenLinksInProjectDialog' style="display: none;">
+<div id='analyzeProjectDialog' style="display: none;">
 </div>
 
 <div id="reviewUpdateProjectDiv" style='display:none;'>

@@ -801,8 +801,8 @@ View.prototype.initializeImportViewDialog = function() {
 /**
  * Create the find broken links in project dialog popup
  */
-View.prototype.initializeFindBrokenLinksInProjectDialog = function() {
-	$('#findBrokenLinksInProjectDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Find Broken Links In Project', buttons: {'Close': function(){$(this).dialog("close");}}});
+View.prototype.initializeAnalyzeProjectDialog = function() {
+	$('#analyzeProjectDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Analyze Project', buttons: {'Close': function(){$(this).dialog("close");}}});
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -2300,11 +2300,24 @@ View.prototype.deleteProjectFailure = function(text, obj) {
 };
 
 /**
- * Make the request to find broken links in the project
+ * Make the request to analyze the project
+ * @param analyzeType the analyze type e.g. 'findBrokenLinksInProject' or 'findUnusedAssetsInProject'
  */
-View.prototype.findBrokenLinksInProject = function() {
-	//display a popup message notifying the user that it may take a littl while to analyze the project
-	alert("Analyzing the project to find broken links may take up to 30 seconds.\nClick 'OK' to start analyzing.");
+View.prototype.analyzeProject = function(analyzeType) {
+	
+	if(analyzeType == 'findBrokenLinksInProject') {
+		/*
+		 * display a popup message notifying the user that it may take 
+		 * a little while to analyze the broken links in the project
+		 */
+		alert("Analyzing the project to find broken links may take up to\n30 seconds depending on how many links are in your project.\n\nClick 'OK' to start analyzing.");
+		
+		//remove the 'InProject' part from the string
+		analyzeType = 'findBrokenLinks';
+	} else if(analyzeType == 'findUnusedAssetsInProject') {
+		//remove the 'InProject' part from the string
+		analyzeType = 'findUnusedAssets';
+	}
 	
 	//get the project id
 	var projectId = this.portalProjectId;
@@ -2314,27 +2327,37 @@ View.prototype.findBrokenLinksInProject = function() {
 	
 	//the params for the request
 	var requestParams = {
-		analyzeType:'findBrokenLinks',
+		analyzeType:analyzeType,
 		projectId:projectId,
 		html:true
 	};
 	
 	//make the request to analyze the project for broken links
-	this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, this.findBrokenLinksInProjectSuccess, this, this.findBrokenLinksInProjectFailure);
+	this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, this.analyzeProjectSuccess, [this, analyzeType], this.analyzeProjectFailure);
 };
 
 /**
- * Success callback for finding broken links in the project
+ * Success callback for analyzing the project
  * @param text the response text
  * @param xml
  * @param obj
  */
-View.prototype.findBrokenLinksInProjectSuccess = function(text, xml, obj) {
+View.prototype.analyzeProjectSuccess = function(text, xml, obj) {
+	//get the analyze type
+	var analyzeType = obj[1];
+	
+	//change the title of the popup dialog appropriately
+	if(analyzeType == 'findBrokenLinks') {
+		$('#analyzeProjectDialog').dialog('option', 'title', 'Find Broken Links');
+	} else if(analyzeType == 'findUnusedAssets') {
+		$('#analyzeProjectDialog').dialog('option', 'title', 'Find Unused Assets');
+	}
+	
 	//insert the text into the div
-	$('#findBrokenLinksInProjectDialog').html(text);
+	$('#analyzeProjectDialog').html(text);
 	
 	//display the dialog
-	$('#findBrokenLinksInProjectDialog').dialog('open');
+	$('#analyzeProjectDialog').dialog('open');
 };
 
 /**
@@ -2342,8 +2365,15 @@ View.prototype.findBrokenLinksInProjectSuccess = function(text, xml, obj) {
  * @param text
  * @param obj
  */
-View.prototype.findBrokenLinksInProjectFailure = function(text, obj) {
-	alert("Error: an error occurred while trying to find broken links in the project.")
+View.prototype.analyzeProjectFailure = function(text, obj) {
+	//get the analyze type
+	var analyzeType = obj[1];
+	
+	if(analyzeType == 'findBrokenLinks') {
+		alert("Error: an error occurred while trying to find broken links in the project.");		
+	} else if(analyzeType == 'findUnusedAssets') {
+		alert("Error: an error occurred while trying to find unused assets in the project.");
+	}
 };
 
 /**
