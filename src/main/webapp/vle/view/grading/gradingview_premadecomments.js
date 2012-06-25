@@ -435,6 +435,11 @@ View.prototype.selectPremadeComment = function(premadeCommentDOMId) {
 	//obtain the text already in the text area
 	var existingCommentText = $('#premadeCommentsTextArea', this.premadeCommentsWindow.document).attr('value');
 	
+	if(existingCommentText != '') {
+		//add a new line if text already exists in the textarea
+		existingCommentText = existingCommentText + '\n';
+	}
+	
 	/*
 	 * retrieve the premade comment text that was chosen and append it
 	 * into the text area at the bottom of the premade comments window
