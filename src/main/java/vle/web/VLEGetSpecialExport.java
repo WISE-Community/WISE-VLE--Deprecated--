@@ -630,6 +630,16 @@ public class VLEGetSpecialExport extends VLEServlet {
 		
 		//create the function that will load the student data
 		html.append("function loadStudentData() {\n");
+		
+		//get the step title with position
+		String nodeTitleWithPosition = nodeIdToNodeTitlesWithPosition.get(nodeId);
+		
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Name: " + projectName + "<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Id: " + projectId + "<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Run Id: " + runId + "<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Step " + nodeTitleWithPosition + "<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += '<hr>';\n");
+    	html.append("\n");
 		html.append("	for(var x=0; x<studentData.length; x++) {\n");
 		html.append("		var tempStudentData = studentData[x];\n");
 		
@@ -640,8 +650,8 @@ public class VLEGetSpecialExport extends VLEServlet {
 			 * perform the necessary processing to retrieve the SVG string.
 			 * the student data from svgdraw steps must be lz77 decompressed.
 			 */
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id:' + tempStudentData.workgroupId + '<br>';\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id:' + tempStudentData.stepWorkId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentData.workgroupId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentData.stepWorkId + '<br>';\n");
 			html.append("\n");
 			html.append("		var data = tempStudentData.data;\n");
 			html.append("		var svgString = '';\n\n");
@@ -649,27 +659,75 @@ public class VLEGetSpecialExport extends VLEServlet {
 			html.append("			data = data.replace(/^--lz77--/,'');\n");
 			html.append("			data = JSON.parse(lz77.decompress(data));\n");
 			html.append("			svgString = data.svgString;\n");
-			html.append("		}\n\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data:<br>' + svgString + '<br>';\n");
+			html.append("		}\n");
+			html.append("\n");
+			html.append("		if(svgString == '') {\n");
+			html.append("			svgString = 'No Student Work';\n");
+			html.append("		} else {\n");
+			html.append("			svgString = '<br>' + svgString;\n");
+			html.append("		}\n");
+			html.append("\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data: ' + svgString + '<br>';\n");
 		} else if(nodeType.equals("mysystem2")) {
 			/*
 			 * perform the necessary processing to retrieve the SVG string.
 			 * the student data from mysystem2 steps must be unescaped and
 			 * then lz77 decompressed.
 			 */
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id:' + tempStudentData.workgroupId + '<br>';\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id:' + tempStudentData.stepWorkId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentData.workgroupId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentData.stepWorkId + '<br>';\n");
 			html.append("\n");
 			html.append("		var data = tempStudentData.data;\n");
 			html.append("		var svgString = '';\n\n");
 			html.append("		if(data != null && data != '') {\n");
 			html.append("			data = unescape(data);\n");
 			html.append("			svgString = lz77.decompress(data);\n");
-			html.append("		}\n\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data:<br>' + svgString + '<br>';\n");
+			html.append("\n");
+			html.append("			//add the xmlns:xlink if it does not exist\n");
+			html.append("			if(svgString.indexOf('xmlns:xlink=\"http://www.w3.org/1999/xlink\"') == -1) {\n");
+			html.append("				var svgOpenTagPattern = /<svg .*?>/;\n");
+			html.append("				var svgOpenTagMatch = svgOpenTagPattern.exec(svgString);\n");
+			html.append("				var svgOpenTagMatch0 = svgOpenTagMatch[0];\n");
+			html.append("\n");
+			html.append("				var newSVGOpenTag = svgOpenTagMatch0.replace('>', ' xmlns:xlink=\"http://www.w3.org/1999/xlink\">');\n");
+			html.append("				svgString = svgString.replace(svgOpenTagMatch0, newSVGOpenTag);\n");
+			html.append("			}\n");
+			html.append("\n");
+			html.append("			//replace all imagexlink with image xlink\n");
+			html.append("			svgString = svgString.replace(/imagexlink/g, 'image xlink');\n");
+			html.append("\n");
+			html.append("			//add the </image> closing tags if they are not present\n");
+			html.append("			var pattern = /(<image .*?>)(<\\/image>)?/g;\n");
+			html.append("			var match = pattern.exec(svgString);\n");
+			html.append("\n");
+			html.append("			while(match != null) {\n");
+			html.append("				var wholeMatch = match[0];\n");
+			html.append("				var match1 = match[1];\n");
+			html.append("				var match2 = match[2];\n");
+			html.append("\n");
+			html.append("				if(match2 == null) {\n");
+			html.append("					svgString = svgString.replace(wholeMatch, wholeMatch + \"</image>\");\n");
+			html.append("				}\n");
+			html.append("\n");
+			html.append("				match = pattern.exec(svgString);\n");
+			html.append("			}\n");
+			html.append("\n");
+			html.append("		}\n");
+			html.append("\n");
+			html.append("		if(svgString == '') {\n");
+			html.append("			svgString = 'No Student Work';\n");
+			html.append("		} else {\n");
+			html.append("			svgString = '<br>' + svgString;\n");
+			html.append("		}\n");
+			html.append("\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data: ' + svgString + '<br>';\n");
 		}
 		
 		html.append("		document.getElementById('studentDataDiv').innerHTML += '<br>';\n");
+		html.append("\n");
+		html.append("		if(x != studentData.length - 1) {\n");
+		html.append("			document.getElementById('studentDataDiv').innerHTML += '<hr>';\n");
+		html.append("		}\n");
 		html.append("	}\n");
 		html.append("}\n");
 		
