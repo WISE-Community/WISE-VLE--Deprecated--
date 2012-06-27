@@ -431,7 +431,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 	    
 	    if(exportType.equals("specialExport")) {
 
-	    	String nodeTitleWithPosition = nodeIdToNodeTitlesWithPosition.get(nodeId);
+	    	String nodeTitleWithPosition = "Step " + nodeIdToNodeTitlesWithPosition.get(nodeId);
 	    	String fileName = projectName + "-" + runId + "-" + nodeTitleWithPosition;
 	    	fileName = fileName.replaceAll(" ", "_");
 	    	
@@ -446,9 +446,21 @@ public class VLEGetSpecialExport extends VLEServlet {
 			File zipFolder = new File(fileName);
 			zipFolder.mkdir();
 			
-			//create the file that will contain all the student data in a JSON array
-			File studentDataFile = new File(zipFolder, "studentData.js");
+			//create the file that will contain all the data in a JSON object
+			File dataFile = new File(zipFolder, "data.js");
+			
+			JSONObject data = new JSONObject();
 			JSONArray studentDataArray = new JSONArray();
+			
+			try {
+				//add the project, run, and step information
+				data.put("projectName", projectName);
+				data.put("projectId", projectId);
+				data.put("runId", runId);
+				data.put("stepName", nodeTitleWithPosition);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
 			
 			String nodeType = "";
 			
@@ -530,7 +542,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 					studentObject.put("workgroupId", userIdLong);
 					
 					//put the student data into the JSON object
-					studentObject.put("data", studentData);
+					studentObject.put("studentData", studentData);
 					
 					//put the step work id into the JSON Object
 					if(stepWorkId == null) {
@@ -546,18 +558,25 @@ public class VLEGetSpecialExport extends VLEServlet {
 				studentDataArray.put(studentObject);
 			}
 			
+			try {
+				//put the student data array into the data object
+				data.put("studentDataArray", studentDataArray);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
 			/*
-			 * turn the student data array into a javascript declaration
+			 * turn the student data object into a javascript declaration
 			 * e.g.
 			 * from
-			 * []
+			 * {}
 			 * to
-			 * var studentData = [];
+			 * var data = {};
 			 */
-			String javascriptArrayString = getJavascriptArrayText("studentData", studentDataArray);
+			String javascriptDataString = getJavascriptText("data", data);
 			
-			//write the student data to the studentData.js file
-			FileUtils.writeStringToFile(studentDataFile, javascriptArrayString);
+			//write the data to the data.js file
+			FileUtils.writeStringToFile(dataFile, javascriptDataString);
 			
 			//create an html file that users will use to view the student data
 			File htmlFile = new File(zipFolder, "viewStudentWork.html");
@@ -606,7 +625,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 		html.append("<head>\n");
 		
 		//add the import of studentData.js
-		html.append("<script type='text/javascript' src='studentData.js'></script>\n");
+		html.append("<script type='text/javascript' src='data.js'></script>\n");
 		
 		//import any other necessary .js files
 		if(nodeType == null) {
@@ -630,18 +649,21 @@ public class VLEGetSpecialExport extends VLEServlet {
 		
 		//create the function that will load the student data
 		html.append("function loadStudentData() {\n");
-		
-		//get the step title with position
-		String nodeTitleWithPosition = nodeIdToNodeTitlesWithPosition.get(nodeId);
-		
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Name: " + projectName + "<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Id: " + projectId + "<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Run Id: " + runId + "<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Step " + nodeTitleWithPosition + "<br>';\n");
+		html.append("	if(typeof data == 'undefined') {\n");
+		html.append("		document.getElementById('studentDataDiv').innerHTML += 'Error: Unable to load data<br>';\n");
+		html.append("		return;\n");
+		html.append("	}\n");
+		html.append("\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Name: ' + data.projectName + '<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Id: ' + data.projectId + '<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Run Id: ' + data.runId + '<br>';\n");
+    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Step Name: ' + data.stepName + '<br>';\n");
     	html.append("	document.getElementById('studentDataDiv').innerHTML += '<hr>';\n");
     	html.append("\n");
-		html.append("	for(var x=0; x<studentData.length; x++) {\n");
-		html.append("		var tempStudentData = studentData[x];\n");
+    	html.append("	var studentDataArray = data.studentDataArray;\n");
+    	html.append("\n");
+		html.append("	for(var x=0; x<studentDataArray.length; x++) {\n");
+		html.append("		var tempStudentDataObj = studentDataArray[x];\n");
 		
 		if(nodeType == null) {
 			
@@ -650,15 +672,15 @@ public class VLEGetSpecialExport extends VLEServlet {
 			 * perform the necessary processing to retrieve the SVG string.
 			 * the student data from svgdraw steps must be lz77 decompressed.
 			 */
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentData.workgroupId + '<br>';\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentData.stepWorkId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentDataObj.workgroupId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentDataObj.stepWorkId + '<br>';\n");
 			html.append("\n");
-			html.append("		var data = tempStudentData.data;\n");
+			html.append("		var studentData = tempStudentDataObj.studentData;\n");
 			html.append("		var svgString = '';\n\n");
-			html.append("		if(data != null && data != '') {\n");
-			html.append("			data = data.replace(/^--lz77--/,'');\n");
-			html.append("			data = JSON.parse(lz77.decompress(data));\n");
-			html.append("			svgString = data.svgString;\n");
+			html.append("		if(studentData != null && studentData != '') {\n");
+			html.append("			studentData = studentData.replace(/^--lz77--/,'');\n");
+			html.append("			studentData = JSON.parse(lz77.decompress(studentData));\n");
+			html.append("			svgString = studentData.svgString;\n");
 			html.append("		}\n");
 			html.append("\n");
 			html.append("		if(svgString == '') {\n");
@@ -674,14 +696,15 @@ public class VLEGetSpecialExport extends VLEServlet {
 			 * the student data from mysystem2 steps must be unescaped and
 			 * then lz77 decompressed.
 			 */
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentData.workgroupId + '<br>';\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentData.stepWorkId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentDataObj.workgroupId + '<br>';\n");
+			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentDataObj.stepWorkId + '<br>';\n");
 			html.append("\n");
-			html.append("		var data = tempStudentData.data;\n");
-			html.append("		var svgString = '';\n\n");
-			html.append("		if(data != null && data != '') {\n");
-			html.append("			data = unescape(data);\n");
-			html.append("			svgString = lz77.decompress(data);\n");
+			html.append("		var studentData = tempStudentDataObj.studentData;\n");
+			html.append("		var svgString = '';\n");
+			html.append("\n");
+			html.append("		if(studentData != null && studentData != '') {\n");
+			html.append("			studentData = unescape(studentData);\n");
+			html.append("			svgString = lz77.decompress(studentData);\n");
 			html.append("\n");
 			html.append("			//add the xmlns:xlink if it does not exist\n");
 			html.append("			if(svgString.indexOf('xmlns:xlink=\"http://www.w3.org/1999/xlink\"') == -1) {\n");
@@ -748,38 +771,38 @@ public class VLEGetSpecialExport extends VLEServlet {
 	}
 	
 	/**
-	 * Turn the JSONArray into a javascript array declaration in
+	 * Turn the JSONObject into a javascript object declaration in
 	 * the form of a string.
 	 * e.g.
 	 * before
-	 * []
+	 * {}
 	 * after
-	 * var studentData = [];
+	 * var data = {};
 	 * @param jsVariableName the javascript variable name that we will use
-	 * @param jsonArray a JSONArray
-	 * @return a string containing the javascript array declaration
+	 * @param jsonObject a JSONObject
+	 * @return a string containing the javascript object declaration
 	 */
-	private String getJavascriptArrayText(String jsVariableName, JSONArray jsonArray) {
+	private String getJavascriptText(String jsVariableName, JSONObject jsonObject) {
 		StringBuffer result = new StringBuffer();
 		
-		if(jsonArray != null) {
+		if(jsonObject != null) {
 			String jsonArrayString = "";
 			try {
 				/*
-				 * get the string representation of the JSONArray with
+				 * get the string representation of the JSONObject with
 				 * proper indentation (using 3 spaces per tab) so it 
 				 * will be easy for a human to read 
 				 */
-				jsonArrayString = jsonArray.toString(3);
+				jsonArrayString = jsonObject.toString(3);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 			
 			if(jsonArrayString != null && !jsonArrayString.equals("")) {
-				//make the array declaration string
+				//make the object declaration string
 				result.append("var " + jsVariableName + " = ");
 				result.append(jsonArrayString);
-				result.append(";");			
+				result.append(";");
 			}
 		}
 
