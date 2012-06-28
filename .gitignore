@@ -1,3 +1,6 @@
+# ignore vle.properties
+src/main/resources/vle.properties
+
 # ignore target directory
 target
 
