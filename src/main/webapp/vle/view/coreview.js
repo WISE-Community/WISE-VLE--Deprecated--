@@ -79,7 +79,7 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 	
 	//check if we have loaded the project metadata before
 	if(this.projectMetaData == null) {
-		//we have not loaded the project metadata before so we ned to retrieve them
+		//we have not loaded the project metadata before so we need to retrieve them
 		
 		//get the url that we will use to retrieve the metadata
 		var projectMetaDataUrl = this.getConfig().getConfigParam('projectMetaDataUrl');
