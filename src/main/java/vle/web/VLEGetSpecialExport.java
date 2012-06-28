@@ -492,7 +492,16 @@ public class VLEGetSpecialExport extends VLEServlet {
 					File newlz77File = new File(zipFolder, "lz77.js");
 					
 					//copy the contents of the lz77.js file into our new file
-					FileUtils.copyFile(sourcelz77File, newlz77File);					
+					FileUtils.copyFile(sourcelz77File, newlz77File);
+					
+					//get the viewStudentWork.html file for svgdraw
+					File sourceViewStudentWorkFile = new File(vlewrapperBaseDir + "/vle/node/draw/viewStudentWork.html");
+					
+					//create a viewStudentWork.html file in the folder we are creating
+					File newViewStudentWorkFile = new File(zipFolder, "viewStudentWork.html");
+					
+					//copy the contents of the viewStudentWork.html file into our new file
+					FileUtils.copyFile(sourceViewStudentWorkFile, newViewStudentWorkFile);
 				}
 			} else if(nodeType.equals("mysystem2")) {
 				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") {
@@ -503,7 +512,16 @@ public class VLEGetSpecialExport extends VLEServlet {
 					File newlz77File = new File(zipFolder, "lz77.js");
 					
 					//copy the contents of the lz77.js file into our new file
-					FileUtils.copyFile(sourcelz77File, newlz77File);					
+					FileUtils.copyFile(sourcelz77File, newlz77File);
+					
+					//get the viewStudentWork.html file for mysystem
+					File sourceViewStudentWorkFile = new File(vlewrapperBaseDir + "/vle/node/mysystem2/viewStudentWork.html");
+					
+					//create a viewStudentWork.html file in the folder we are creating
+					File newViewStudentWorkFile = new File(zipFolder, "viewStudentWork.html");
+					
+					//copy the contents of the viewStudentWork.html file into our new file
+					FileUtils.copyFile(sourceViewStudentWorkFile, newViewStudentWorkFile);
 				}
 			}
 			
@@ -578,12 +596,6 @@ public class VLEGetSpecialExport extends VLEServlet {
 			//write the data to the data.js file
 			FileUtils.writeStringToFile(dataFile, javascriptDataString);
 			
-			//create an html file that users will use to view the student data
-			File htmlFile = new File(zipFolder, "viewStudentWork.html");
-			
-			//write the html to the display.html file
-			FileUtils.writeStringToFile(htmlFile, getHtmlDisplayFileText(nodeType));
-			
 			//get the response output stream
 			ServletOutputStream outputStream = response.getOutputStream();
 			
@@ -609,165 +621,6 @@ public class VLEGetSpecialExport extends VLEServlet {
 		
 	    //perform cleanup
 		clearVariables();
-	}
-	
-	/**
-	 * Get the html that we will put into the display.html file
-	 * @param nodeType the step type (make sure it is all lowercase) e.g. svgdraw or mysystem2
-	 * @return the html text that we will put into the display.html file
-	 */
-	private String getHtmlDisplayFileText(String nodeType) {
-		//used to accumulate the html text
-		StringBuffer html = new StringBuffer();
-		
-		html.append("<html>\n");
-		
-		html.append("<head>\n");
-		
-		//add the import of studentData.js
-		html.append("<script type='text/javascript' src='data.js'></script>\n");
-		
-		//import any other necessary .js files
-		if(nodeType == null) {
-			
-		} else if(nodeType.equals("svgdraw")) {
-			html.append("<script type='text/javascript' src='lz77.js'></script>\n");
-		} else if(nodeType.equals("mysystem2")) {
-			html.append("<script type='text/javascript' src='lz77.js'></script>\n");
-		}
-		
-		html.append("<script>\n");
-		
-		//create any necessary global variables
-		if(nodeType == null) {
-			
-		} else if(nodeType.equals("svgdraw")) {
-			html.append("var lz77 = new LZ77();\n\n");
-		} else if(nodeType.equals("mysystem2")) {
-			html.append("var lz77 = new LZ77();\n\n");
-		}
-		
-		//create the function that will load the student data
-		html.append("function loadStudentData() {\n");
-		html.append("	if(typeof data == 'undefined') {\n");
-		html.append("		document.getElementById('studentDataDiv').innerHTML += 'Error: Unable to load data<br>';\n");
-		html.append("		return;\n");
-		html.append("	}\n");
-		html.append("\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Name: ' + data.projectName + '<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Project Id: ' + data.projectId + '<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Run Id: ' + data.runId + '<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += 'Step Name: ' + data.stepName + '<br>';\n");
-    	html.append("	document.getElementById('studentDataDiv').innerHTML += '<hr>';\n");
-    	html.append("\n");
-    	html.append("	var studentDataArray = data.studentDataArray;\n");
-    	html.append("\n");
-		html.append("	for(var x=0; x<studentDataArray.length; x++) {\n");
-		html.append("		var tempStudentDataObj = studentDataArray[x];\n");
-		
-		if(nodeType == null) {
-			
-		} else if(nodeType.equals("svgdraw")) {
-			/*
-			 * perform the necessary processing to retrieve the SVG string.
-			 * the student data from svgdraw steps must be lz77 decompressed.
-			 */
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentDataObj.workgroupId + '<br>';\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentDataObj.stepWorkId + '<br>';\n");
-			html.append("\n");
-			html.append("		var studentData = tempStudentDataObj.studentData;\n");
-			html.append("		var svgString = '';\n\n");
-			html.append("		if(studentData != null && studentData != '') {\n");
-			html.append("			studentData = studentData.replace(/^--lz77--/,'');\n");
-			html.append("			studentData = JSON.parse(lz77.decompress(studentData));\n");
-			html.append("			svgString = studentData.svgString;\n");
-			html.append("		}\n");
-			html.append("\n");
-			html.append("		if(svgString == '') {\n");
-			html.append("			svgString = 'No Student Work';\n");
-			html.append("		} else {\n");
-			html.append("			svgString = '<br>' + svgString;\n");
-			html.append("		}\n");
-			html.append("\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data: ' + svgString + '<br>';\n");
-		} else if(nodeType.equals("mysystem2")) {
-			/*
-			 * perform the necessary processing to retrieve the SVG string.
-			 * the student data from mysystem2 steps must be unescaped and
-			 * then lz77 decompressed.
-			 */
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Workgroup Id: ' + tempStudentDataObj.workgroupId + '<br>';\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentDataObj.stepWorkId + '<br>';\n");
-			html.append("\n");
-			html.append("		var studentData = tempStudentDataObj.studentData;\n");
-			html.append("		var svgString = '';\n");
-			html.append("\n");
-			html.append("		if(studentData != null && studentData != '') {\n");
-			html.append("			studentData = unescape(studentData);\n");
-			html.append("			svgString = lz77.decompress(studentData);\n");
-			html.append("\n");
-			html.append("			//add the xmlns:xlink if it does not exist\n");
-			html.append("			if(svgString.indexOf('xmlns:xlink=\"http://www.w3.org/1999/xlink\"') == -1) {\n");
-			html.append("				var svgOpenTagPattern = /<svg .*?>/;\n");
-			html.append("				var svgOpenTagMatch = svgOpenTagPattern.exec(svgString);\n");
-			html.append("				var svgOpenTagMatch0 = svgOpenTagMatch[0];\n");
-			html.append("\n");
-			html.append("				var newSVGOpenTag = svgOpenTagMatch0.replace('>', ' xmlns:xlink=\"http://www.w3.org/1999/xlink\">');\n");
-			html.append("				svgString = svgString.replace(svgOpenTagMatch0, newSVGOpenTag);\n");
-			html.append("			}\n");
-			html.append("\n");
-			html.append("			//replace all imagexlink with image xlink\n");
-			html.append("			svgString = svgString.replace(/imagexlink/g, 'image xlink');\n");
-			html.append("\n");
-			html.append("			//add the </image> closing tags if they are not present\n");
-			html.append("			var pattern = /(<image .*?>)(<\\/image>)?/g;\n");
-			html.append("			var match = pattern.exec(svgString);\n");
-			html.append("\n");
-			html.append("			while(match != null) {\n");
-			html.append("				var wholeMatch = match[0];\n");
-			html.append("				var match1 = match[1];\n");
-			html.append("				var match2 = match[2];\n");
-			html.append("\n");
-			html.append("				if(match2 == null) {\n");
-			html.append("					svgString = svgString.replace(wholeMatch, wholeMatch + \"</image>\");\n");
-			html.append("				}\n");
-			html.append("\n");
-			html.append("				match = pattern.exec(svgString);\n");
-			html.append("			}\n");
-			html.append("\n");
-			html.append("		}\n");
-			html.append("\n");
-			html.append("		if(svgString == '') {\n");
-			html.append("			svgString = 'No Student Work';\n");
-			html.append("		} else {\n");
-			html.append("			svgString = '<br>' + svgString;\n");
-			html.append("		}\n");
-			html.append("\n");
-			html.append("		document.getElementById('studentDataDiv').innerHTML += 'Student Data: ' + svgString + '<br>';\n");
-		}
-		
-		html.append("		document.getElementById('studentDataDiv').innerHTML += '<br>';\n");
-		html.append("\n");
-		html.append("		if(x != studentData.length - 1) {\n");
-		html.append("			document.getElementById('studentDataDiv').innerHTML += '<hr>';\n");
-		html.append("		}\n");
-		html.append("	}\n");
-		html.append("}\n");
-		
-		html.append("</script>\n");
-		html.append("</head>\n");
-		
-		//set the body onload to load the student data
-		html.append("<body onload='loadStudentData()'>\n");
-		
-		//the div that will display all the student data
-		html.append("<div id='studentDataDiv'></div>\n");
-		
-		html.append("</body>\n");
-		
-		html.append("</html>\n");
-		
-		return html.toString();
 	}
 	
 	/**
