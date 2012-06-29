@@ -465,7 +465,7 @@ View.prototype.getAnnotations = function(callerId) {
 		var callerId = args[1];
 		
 		//parse the xml annotations object that contains all the annotations
-		thisView.annotations = Annotations.prototype.parseDataJSONString(responseText);
+		thisView.annotations = Annotations.prototype.parseDataJSONString(responseText, true, thisView);
 
 		thisView.annotationsRetrieved = true;
 		eventManager.fire('getAnnotationsComplete', callerId);

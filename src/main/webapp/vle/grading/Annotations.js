@@ -99,12 +99,117 @@ Annotations.prototype.removeFlagAnnotation = function(runId, nodeId, toWorkgroup
  * @param annotationsJSONString a JSON string representing an Annotations object
  * @return an Annotations object
  */
-Annotations.prototype.parseDataJSONString = function(annotationsJSONString) {
+Annotations.prototype.parseDataJSONString = function(annotationsJSONString, insertStepLinks, vle) {
+	
+	if(insertStepLinks) {
+		//replace all the instances of 'Step X' with a link to 'Step X'
+		annotationsJSONString = this.insertStepLinks(annotationsJSONString, vle);
+	}
+	
 	//convert the JSON string into a JSON object
 	var annotationsJSONObj = $.parseJSON(annotationsJSONString);
 	
 	//create an Annotations object from the JSON object
 	return Annotations.prototype.parseDataJSONObj(annotationsJSONObj);
+};
+
+/**
+ * Replace all the instances of 'Step X' with a link to 'Step X'. We will
+ * perform this by traversing through the old annotations JSON string and cutting 
+ * and moving the text into our new annotations JSON string. Whenever we find an 
+ * instance of 'Step X' we will replace that with a link to the step in the vle.
+ * @param annotationsJSONString the annotation JSON string
+ * @param vle the vle so we can check if step numbers exist in the project
+ * @returns the annotation JSON string with all the instances
+ * of 'Step X' replaced with a link to 'Step X'
+ */
+Annotations.prototype.insertStepLinks = function(annotationsJSONString, vle) {
+	//will be used to accumulate the new annotations JSON string
+	var newAnnotationsJSONString = '';
+	
+	//will be used to hold the old annotations JSON string
+	var oldAnnotationsJSONString = annotationsJSONString;
+	
+	/*
+	 * a pattern to match 'Step x.x'
+	 * this will match lower and uppercase 'Step' and an unlimited number of .x
+	 * here are some examples of what it will match 
+	 * Step 1.1
+	 * step 1.1
+	 * sTeP 1.1
+	 * Step 1.1.1
+	 * Step 1.1.1.1
+	 */
+	var pattern = /Step (\d+(?:\.\d+)*)/i;
+	
+	//find the first pattern match
+	var position = oldAnnotationsJSONString.search(pattern);
+	
+	//keep looping as long as we have found a match
+	while(position != -1) {
+		//get the match
+		var match = oldAnnotationsJSONString.match(pattern);
+		
+		//get the whole match e.g. Step 1.1
+		var wholeMatch = match[0];
+		
+		//get the step number group match e.g. 1.1
+		var stepNumber = match[1];
+		
+		//split the step number string by the .
+		var stepNumberParts = stepNumber.split('.');
+		
+		var vleStepNumber = '';
+		
+		if(stepNumberParts != null) {
+			//loop through all the step number parts
+			for(var y=0; y<stepNumberParts.length; y++) {
+				//get a step number part
+				var stepNumberPart = stepNumberParts[y];
+				
+				//decrement the step number part by 1 to get the vle step number
+				var vleStepNumberPart = parseInt(stepNumberPart) - 1;
+				
+				if(vleStepNumber != '') {
+					//add a . between all the vle step number parts
+					vleStepNumber += '.';
+				}
+				
+				//prepend the vle step number part
+				vleStepNumber += vleStepNumberPart;
+			}
+		}
+		
+		//add everything before the match we found
+		newAnnotationsJSONString += oldAnnotationsJSONString.substring(0, position);
+		
+		if(vle == null) {
+			//vle was not passed in so we will display a link regardless of whether the step really exists or not
+			newAnnotationsJSONString += "<a onclick='eventManager.fire(\\\"renderNode\\\", \\\"" + vleStepNumber + "\\\")'>" + wholeMatch + "</a>";
+		} else {
+			//the vle was passed in so we will try to obtain the node at the vle step number position
+			var node = vle.getProject().getNodeByPosition(vleStepNumber);
+			
+			if(node == null) {
+				//node does not exist so we will just display the text
+				newAnnotationsJSONString += wholeMatch;
+			} else {
+				//node exists so we will display a link
+				newAnnotationsJSONString += "<a onclick='eventManager.fire(\\\"renderNode\\\", \\\"" + vleStepNumber + "\\\")'>" + wholeMatch + "</a>";				
+			}
+		}
+		
+		//cut the old string down to remove everything we have just moved over to the new annotations JSON string
+		oldAnnotationsJSONString = oldAnnotationsJSONString.substring(position + wholeMatch.length);
+		
+		//try to find the position of the next match
+		position = oldAnnotationsJSONString.search(pattern);
+	}
+	
+	//add anything that is remaining in the old annotations JSON string
+	newAnnotationsJSONString += oldAnnotationsJSONString;
+	
+	return newAnnotationsJSONString;
 };
 
 /**

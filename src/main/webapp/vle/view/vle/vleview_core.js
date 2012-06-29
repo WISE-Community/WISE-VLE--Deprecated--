@@ -616,6 +616,9 @@ View.prototype.renderNodePrep = function(position){
 		}
 	};
 	
+	//close the show all work popup
+	$('#showallwork').dialog('close');
+	
 	// save all unsaved nodes
 	this.eventManager.fire('postAllUnsavedNodeVisits');
 };
@@ -735,6 +738,7 @@ View.prototype.renderNode = function(position){
 	
 	if (nodeToVisit == null) {
 		this.notificationManager.notify("VLE: nodeToVisit is null Exception. Exiting", 3);
+		alert('Error: Step does not exist');
 		return;
 	}
 	
