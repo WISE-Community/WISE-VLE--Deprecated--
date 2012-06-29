@@ -174,6 +174,44 @@ function displayStudentData() {
 		
 		//get the svgstring field
 		svgString = studentData.svgString;
+		
+		/*
+		 * get the snapshots if any. if there are snapshots we will
+		 * display all the snapshots instead of the svgString.
+		 */
+		var snapshots = studentData.snapshots;
+		
+		if(snapshots != null && snapshots.length > 0) {
+			//there are snapshots
+			
+			var snapshotsSVGString = '';
+			
+			//loop through all the snapshots
+			for(var x=0; x<snapshots.length; x++) {
+				//get a snapshot
+				var snapshot = snapshots[x];
+				
+				if(snapshot != null) {
+					//get the svg from the snapshot
+					var snapshotSVG = snapshot.svg;
+					
+					//lz77 decompress if necessary
+					if(snapshotSVG.match(/^--lz77--/)) {
+						snapshotSVG = snapshotSVG.replace(/^--lz77--/, "");
+						snapshotSVG = lz77.decompress(snapshotSVG);
+					}
+					
+					//append the snapshot svg
+					snapshotsSVGString += snapshotSVG;
+				}
+			}
+			
+			/*
+			 * set the the cumulative snapshots as the svg string which 
+			 * will be displayed as the student data
+			 */
+			svgString = snapshotsSVGString;
+		}
 	}
 
 	if(svgString == '') {
