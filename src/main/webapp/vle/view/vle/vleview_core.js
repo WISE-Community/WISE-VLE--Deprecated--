@@ -482,7 +482,7 @@ View.prototype.onThemeLoad = function(){
 	if(this.config.getConfigParam('mode') == "portalpreview") {
 		//we are previewing the project so we will create a dummy idea basket
 		var imSettings = null;
-		if('ideaManagerSettings' in this.projectMetadata.tools){
+		if(this.projectMetadata.tools && 'ideaManagerSettings' in this.projectMetadata.tools){
 			imSettings = this.projectMetadata.tools.ideaManagerSettings;
 		}
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,imSettings);
