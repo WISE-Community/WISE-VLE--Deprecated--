@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <script type='text/javascript' src='data.js'></script>
@@ -155,11 +156,19 @@ function displayStudentData() {
 	//get the student data object for the workgroup id
 	var tempStudentDataObj = getStudentDataByWorkgroupId(workgroupId);
 	
+	//get the step work id
+	var stepWorkId = tempStudentDataObj.stepWorkId;
+	
+	if(stepWorkId == null || stepWorkId == '') {
+		//there is no step work id
+		stepWorkId = 'No Step Work Id';
+	}
+	
 	//clear out the student data div to wipe out the previous student data we were displaying
 	document.getElementById('studentDataDiv').innerHTML = '';
 	
 	//display the step work id
-	document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + tempStudentDataObj.stepWorkId + '<br>';
+	document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + stepWorkId + '<br>';
 
 	//get the student data
 	var studentData = tempStudentDataObj.studentData;
@@ -224,7 +233,6 @@ function displayStudentData() {
 
 	//display the student work
 	document.getElementById('studentDataDiv').innerHTML += 'Student Data: ' + svgString + '<br>';
-	document.getElementById('studentDataDiv').innerHTML += '<br>';
 }
 
 </script>
