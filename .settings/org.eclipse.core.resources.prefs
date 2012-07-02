@@ -1,5 +1,7 @@
-#Wed Jun 06 16:18:33 PDT 2012
+#Mon Jul 02 12:13:30 PDT 2012
 eclipse.preferences.version=1
 encoding//src/main/webapp/vle/node/assessmentlist/i18n/i18n_ja.json=UTF-8
+encoding//src/main/webapp/vle/node/brainstorm/i18n/i18n_ja.json=UTF-8
+encoding//src/main/webapp/vle/node/openresponse/i18n/i18n_ja.json=UTF-8
 encoding//src/main/webapp/vle/view/i18n/i18n_ja.json=UTF-8
 encoding//src/main/webapp/vle/view/i18n/i18n_zh_TW.json=UTF-8

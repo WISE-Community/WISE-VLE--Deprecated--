@@ -162,7 +162,9 @@ View.prototype.retrieveLocale = function(locale,componentName,localePath) {
 				}
 				View.prototype.i18n[componentName][locale] = obj;
 			},
-			error:function(){}
+			error:function(){
+				notificationManager.notify('Please notify server admin: Error retrieving locale file for component:'+componentName, 3);
+			}
 	});	
 };
 

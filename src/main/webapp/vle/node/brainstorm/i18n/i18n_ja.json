@@ -1,0 +1,26 @@
+{
+	"brainstorm_title": {
+		"value":"オープンフォーラム",
+		"description":"The text 'Student Brainstorm: Server Based' in the page title"
+	},
+	"brainstorm_instructions": {
+		"value":"下のトピックを読んでから答えを書きなさい。<br/>  <em>セーブ</em>　ボタンをクリックするとクラスメートの応答が表示されます。",
+		"description":"The instructions for the brainstorm step"
+	},	
+	"my_response": {
+		"value":"応答",
+		"description":"The text 'My Response' right above the textbox where the student types in their response"
+	},	
+	"save": {
+		"value":"セーブ",
+		"description":"The text 'Save' on the button to save and post a brainstorm response"
+	},
+	"other_student_responses": {
+		"value":"クラスメートの応答",
+		"description":"The text 'Other Student Responses' that is displayed above the list of other students' responses"
+	},	
+	"check_for_new_responses": {
+		"value":"応答リストをリフレッシュする",
+		"description":"The text 'Check for New Responses' that is displayed on a button that triggers the loading of other students' responses"
+	}		
+}
