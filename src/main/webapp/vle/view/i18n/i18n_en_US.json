@@ -546,5 +546,21 @@
 	"authoring_imsettings_text_required": {
 		"value":"The <span style='font-weight:bold;'>text</span> attribute is the basic component of each idea and cannot be deleted.",
 		"description":"The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
+	},
+	"project_error_has_no_steps": {
+		"value":"Error: This project does not have any steps.",
+		"description":"The error text to be displayed when the project has no steps in it"
+	},
+	"preview_project_constraint_enabled_message": {
+		"value":"Student navigation constraints are currently enabled. To preview project without any constraints,",
+		"description":"The message shown in preview project mode when student navigation constraints are enabled."
+	},
+	"preview_project_constraint_disabled_message": {
+		"value":"Student navigation constraints are currently disabled. To preview project with all constraints,",
+		"description":"The message shown in preview project mode when student navigation constraints are enabled."
+	},
+	"common_click_here": {
+		"value":"click here",
+		"description":"the common text 'click here'"
 	}
 }

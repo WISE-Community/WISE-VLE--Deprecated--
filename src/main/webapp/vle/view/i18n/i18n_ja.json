@@ -510,5 +510,33 @@
    "authoring_hint_delete": {
        "value": "ヒントを削除",
        "description": "The label for the 'delete current hint' button in the step hint authoring panel"
-   }
+   },
+	"authoring_imsettings_attribute_help": {
+		"value":"ヘルプのコンテンツはここに表示されます。",
+		"description":""
+	},
+	"authoring_imsettings_terminology_help": {
+		"value":"ヘルプのコンテンツはここに表示されます。",
+		"description":""
+	},
+	"authoring_imsettings_text_required": {
+		"value":"The <span style='font-weight:bold;'>text</span> attribute is the basic component of each idea and cannot be deleted.",
+		"description":"The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
+	},
+	"project_error_has_no_steps": {
+		"value":"エラーが発生しました。このプロジェクトにはステップがありません。",
+		"description":"The error text to be displayed when the project has no steps in it"
+	},
+	"preview_project_constraint_enabled_message": {
+		"value":"ナビゲーションコンストレイントシステムが起動中です。ナビゲーションコンストレイント無しでこのプロジェクトをプレビューするには、",
+		"description":"The message shown in preview project mode when student navigation constraints are enabled."
+	},
+	"preview_project_constraint_disabled_message": {
+		"value":"ナビゲーションコンストレイントシステムが不動中です。ナビゲーションコンストレイントを動かしてこのプロジェクトをプレビューするには、",
+		"description":"The message shown in preview project mode when student navigation constraints are enabled."
+	},
+	"common_click_here": {
+		"value":"ここをクリック",
+		"description":"the common text 'click here'"
+	}
 }

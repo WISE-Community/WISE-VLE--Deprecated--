@@ -470,11 +470,12 @@ View.prototype.onThemeLoad = function(){
 			var path = '/webapp/vle/preview.html?projectId=' + this.projectMetadata.projectId;
 			if(this.getConfig().getConfigParam("isConstraintsDisabled")){
 				// constraints are disabled, so show enable constraints link
-				this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+				//this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+				this.notificationManager.notify(this.getI18NString("preview_project_constraint_disabled_message","main") + ' <a href="' + path + '">'+this.getI18NString("common_click_here","main")+'</a>.', 3, 'keepMsg');
 			} else {
 				// constraints are enabled, so show disable constraints link
 				path += '&isConstraintsDisabled=true';
-				this.notificationManager.notify('Student navigation constraints are currently enabled. To preview project without any constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+				this.notificationManager.notify(this.getI18NString("preview_project_constraint_enabled_message","main") + ' <a href="' + path + '">'+this.getI18NString("common_click_here","main")+'</a>.', 3, 'keepMsg');
 			}
 		//}	
 	}
@@ -796,8 +797,9 @@ View.prototype.onFrameLoaded = function(){
 		 * the position is set to the first step in the project or the last step
 		 * the student was on, so if the position is null, it means there are no 
 		 * steps in the project.
+		 * 
 		 */
-		alert("Error: This project does not have any steps");
+		alert(this.getI18NString("project_error_has_no_steps","main"));
 		
 		//close the loading learning environment popup message
 		$('#loading').dialog('close');
