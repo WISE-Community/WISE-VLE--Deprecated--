@@ -138,7 +138,7 @@ View.prototype.getPremadeComments = function() {
  * @param premadeComment the comment string
  * @param isGlobal whether we are dealing with a global element
  */
-View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions) {
+View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels) {
 	//get the url that will post the premade comment to the server
 	var postPremadeCommentsUrl = this.getConfig().getConfigParam('postPremadeCommentsUrl');
 	
@@ -154,12 +154,13 @@ View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeC
 			premadeCommentListLabel:premadeCommentListLabel,
 			premadeCommentId:premadeCommentId,
 			premadeComment:premadeComment,
+			premadeCommentLabels:premadeCommentLabels,
 			isGlobal:isGlobal,
 			premadeCommentListPositions:premadeCommentListPositions
 	};
 	
 	//make the post to the server
-	this.connectionManager.request('POST', 1, postPremadeCommentsUrl, postPremadeCommentsArgs, postPremadeCommentsCallback, [this], postPremadeCommentsCallbackFail);
+	this.connectionManager.request('POST', 1, postPremadeCommentsUrl, postPremadeCommentsArgs, postPremadeCommentsCallback, [this, postPremadeCommentsArgs], postPremadeCommentsCallbackFail);
 };
 
 /**
@@ -323,12 +324,29 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 		premadeCommentsListDiv.append("<br>").append(premadeCommentListAddCommentButton);			
 		
 		//create the button that the user will use to delete this list
-		var premadeCommentListDeleteListButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListDeleteListButton_' + premadeCommentListId, 'class':'premadeCommentListDeleteListButton', value:'DELETE THIS LIST', onclick:'eventManager.fire("deletePremadeCommentList", [' + premadeCommentListId + '])'});
+		var premadeCommentListDeleteListButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListDeleteListButton_' + premadeCommentListId, 'class':'premadeCommentListDeleteListButton', value:'Delete This List', onclick:'eventManager.fire("deletePremadeCommentList", [' + premadeCommentListId + '])'});
 
 		//add the premade comment add comment button to the div
-		premadeCommentsListDiv.append(premadeCommentListDeleteListButton);			
-
+		premadeCommentsListDiv.append(premadeCommentListDeleteListButton);
 	}
+	
+	//create the button that will uncheck all the label checkboxes
+	var premadeCommentListUncheckCheckboxesButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, value:'Uncheck All Labels', onclick:'eventManager.fire("premadeCommentListUncheckLabels", [' + premadeCommentListId + '])'});
+
+	//add the uncheck label checkboxes button to the div
+	premadeCommentsListDiv.append(premadeCommentListUncheckCheckboxesButton);
+	
+	//get an array of unique labels that are used in this list
+	var labels = this.getPremadeCommentLabelsFromList(premadeCommentListId);
+	
+	//make the div to contain the label checkboxes
+	var premadeCommentsListLabelsDiv = $("<div>").attr("id", "premadeCommentsListLabelsDiv_" + premadeCommentListId);
+	
+	//generate the label checkboxes inside the div
+	this.generateLabelCheckboxes(premadeCommentListId, premadeCommentsListLabelsDiv, labels);
+	
+	//add the label checkboxes div to the main div
+	premadeCommentsListDiv.append(premadeCommentsListLabelsDiv);
 	
 	/*
 	 * if the signed in user is the owner, we will give it the
@@ -357,12 +375,15 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 		//get the comment
 		var comment = premadeComment.comment;
 		
+		//get the labels
+		var labels = premadeComment.labels;
+		
 		//create the premade comment LI
-		var premadeCommentLI = this.createPremadeCommentLI(premadeCommentId, comment, premadeCommentListId, signedInUserIsOwner);
+		var premadeCommentLI = this.createPremadeCommentLI(premadeCommentId, comment, premadeCommentListId, signedInUserIsOwner, labels);
 		
 		//add the LI to the UL
 		premadeCommentListUL.appendChild(premadeCommentLI);
-	}	
+	}
 	
 	return premadeCommentsListDiv;
 };
@@ -526,14 +547,20 @@ View.prototype.addPremadeCommentCallback = function(text, xml, args) {
 	//this is a new comment so the comment will be empty
 	var premadeCommentMessage = premadeComment.comment;
 	
+	//this is a new comment so the labels will be empty
+	var premadeCommentLabels = premadeComment.labels;
+	
 	//create the LI element for the premade comment
-	var premadeCommentLI = thisView.createPremadeCommentLI(premadeCommentId, premadeCommentMessage, premadeCommentListId, true);
+	var premadeCommentLI = thisView.createPremadeCommentLI(premadeCommentId, premadeCommentMessage, premadeCommentListId, true, premadeCommentLabels);
 	
 	//add the premade comment LI to the top of the premade comment list UL
 	$('#premadeCommentUL_' + premadeCommentListId, thisView.premadeCommentsWindow.document).prepend(premadeCommentLI);
 	
 	//make the premade comment LI editable
 	thisView.makePremadeCommentEditable(premadeCommentId);
+	
+	//make the premade comment labels editable
+	thisView.makePremadeCommentLabelsEditable(premadeCommentId);
 	
 	//add the premade comment to our local array of premade comments
 	thisView.addPremadeCommentLocally(premadeCommentListId, premadeComment);
@@ -641,12 +668,12 @@ View.prototype.deletePremadeCommentListLocally = function(premadeCommentListId) 
  * @return an LI element that contains a select button, the premade comment text,
  * a drag handle, and a delete button
  */
-View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, premadeCommentListId, signedInUserIsOwner) {
+View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, premadeCommentListId, signedInUserIsOwner, labels) {
 	//get the premade comment dom id for the element that will hold the comment text
 	var premadeCommentDOMId = this.getPremadeCommentDOMId(premadeCommentId);
 	
 	//create the LI element that will hold the button, the comment, and the handle
-	var premadeCommentListLI = createElement(this.premadeCommentsWindow.document, 'li', {id:'premadeCommentLI_' + premadeCommentId, style:'list-style-type:none;margin-left:0px;padding-left:0px'});
+	var premadeCommentLI = createElement(this.premadeCommentsWindow.document, 'li', {id:'premadeCommentLI_' + premadeCommentId, style:'list-style-type:none;margin-left:0px;padding-left:0px', class:'premadeCommentLI'});
 	
 	//the input button the user will click to choose the comment
 	var premadeCommentSelectButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentSelectButton_' + premadeCommentId, type:'button', value:'Select', onclick:'eventManager.fire("selectPremadeComment", ["' + premadeCommentDOMId + '"])'});
@@ -656,15 +683,36 @@ View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, prem
 	premadeCommentP.innerHTML = comment;
 
 	//add the elements to the LI
-	premadeCommentListLI.appendChild(premadeCommentSelectButton);
-	premadeCommentListLI.appendChild(document.createTextNode(' '));
-	premadeCommentListLI.appendChild(premadeCommentP);
+	premadeCommentLI.appendChild(premadeCommentSelectButton);
+	premadeCommentLI.appendChild(document.createTextNode(' '));
+	premadeCommentLI.appendChild(premadeCommentP);
 
 	/*
 	 * check if the signed in user is the owner of the list so we can determine
 	 * if we want to display the '[Drag Me]' and Delete button UI elements
 	 */
 	if(signedInUserIsOwner) {
+		
+		if(labels == null) {
+			labels = '';
+		}
+		
+		//the p element that will display the open paren around the labels
+		var premadeCommentLabelsOpenParenText = createElement(this.premadeCommentsWindow.document, 'p', {id:'premadeCommentLabelsOpenParenText_' + premadeCommentId, style:'display:inline'});
+		premadeCommentLabelsOpenParenText.innerHTML = '(';
+		premadeCommentLI.appendChild(document.createTextNode(' '));
+		premadeCommentLI.appendChild(premadeCommentLabelsOpenParenText);
+		
+		//make a p element for the labels
+		var premadeCommentLabels = createElement(this.premadeCommentsWindow.document, 'p', {id:'premadeCommentLabels_' + premadeCommentId, style:'display:inline'});
+		premadeCommentLabels.innerHTML = labels;
+		premadeCommentLI.appendChild(premadeCommentLabels);
+		
+		//the p element that will display the close paren around the labels
+		var premadeCommentLabelsCloseParenText = createElement(this.premadeCommentsWindow.document, 'p', {id:'premadeCommentLabelsCloseParenText_' + premadeCommentId, style:'display:inline'});
+		premadeCommentLabelsCloseParenText.innerHTML = ')';
+		premadeCommentLI.appendChild(premadeCommentLabelsCloseParenText);
+		
 		//the p element that will display the handle to use for re-ordering comments in the list
 		var premadeCommentDragHandle = createElement(this.premadeCommentsWindow.document, 'p', {id:'premadeCommentHandle_' + premadeCommentId, style:'display:inline', 'class':'premadeCommentHandle'});
 		premadeCommentDragHandle.innerHTML = '[Drag Me]';
@@ -673,13 +721,13 @@ View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, prem
 		var premadeCommentDeleteButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentDeleteButton_' + premadeCommentId, type:'button', value:'Delete', onclick:'eventManager.fire("deletePremadeComment", [' + premadeCommentId + ', ' + premadeCommentListId + '])'});
 		
 		//add the elements to the LI
-		premadeCommentListLI.appendChild(document.createTextNode(' '));
-		premadeCommentListLI.appendChild(premadeCommentDragHandle);
-		premadeCommentListLI.appendChild(document.createTextNode(' '));
-		premadeCommentListLI.appendChild(premadeCommentDeleteButton);
+		premadeCommentLI.appendChild(document.createTextNode(' '));
+		premadeCommentLI.appendChild(premadeCommentDragHandle);
+		premadeCommentLI.appendChild(document.createTextNode(' '));
+		premadeCommentLI.appendChild(premadeCommentDeleteButton);
 	}
 	
-	return premadeCommentListLI;
+	return premadeCommentLI;
 };
 
 /**
@@ -722,6 +770,50 @@ View.prototype.editPremadeComment = function(idOfEditor, enteredText, originalTe
 	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);
 	
 	return premadeComment;
+};
+
+/**
+ * Called when the user finishes editing a comment's labels in place
+ * @param idOfEditor the dom id of the element that contains the comment labels
+ * @param enteredText the text that the user entered
+ * @param originalText the text that was there before the user edited
+ * @param args an array that holds extra args, in our case the view
+ * @return the entered text
+ */
+View.prototype.editPremadeCommentLabels = function(idOfEditor, enteredText, originalText, args) {
+	//get the view
+	var thisView = args[0];
+	
+	//arguments used in the server post
+	var premadeCommentAction = 'editCommentLabels';
+	var postPremadeCommentsCallback = thisView.editPremadeCommentLabelsCallback;
+	var premadeCommentListId = null;
+	var premadeCommentListLabel = null;
+	
+	//get the premade comment id (an integer)
+	var premadeCommentId = idOfEditor.replace('premadeCommentLabels_', '');
+	var premadeComment = null;
+	var premadeCommentLabels = enteredText;
+	var isGlobal = null;
+	var premadeCommentListPositions = null;
+	
+	//get the length of the premade comment
+	var premadeCommentLabelsLength = premadeCommentLabels.length;
+	
+	if(premadeCommentLabelsLength > 255) {
+		//the database column is varchar(255) so premade comments can only be a max of 255 chars
+		
+		//display the error message
+		thisView.premadeCommentsWindow.alert("Error: Premade comment labels length must be 255 characters or less. Your premade comment labels is " + premadeCommentLabelsLength + " characters long. Your premade comment labels will be truncated.");
+		
+		//truncate the premade comment to 255 chars
+		premadeCommentLabels = premadeCommentLabels.substring(0, 255);
+	}
+	
+	//make the request to edit the premade comment on the server
+	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels);
+	
+	return premadeCommentLabels;
 };
 
 /**
@@ -791,12 +883,42 @@ View.prototype.editPremadeCommentCallback = function(text, xml, args) {
  * @param xml
  * @param args
  */
+View.prototype.editPremadeCommentLabelsCallback = function(text, xml, args) {
+	//obtain the view
+	var thisView = args[0];
+	
+	//obtain the post args
+	var postPremadeCommentsArgs = args[1];
+
+	//get the premade comment list id
+	var premadeCommentId = postPremadeCommentsArgs.premadeCommentId;
+	
+	//parse the premade comment
+	var premadeComment = $.parseJSON(text);
+
+	//update the premade comment locally
+	thisView.editPremadeCommentLocally(premadeComment);
+	
+	//update the premade comment list labels
+	thisView.updatePremadeCommentListLabels(null, premadeCommentId);
+};
+
+/**
+ * The callback that is called after the server we receive the
+ * response from the editComment request
+ * @param text the JSON of the edited comment
+ * @param xml
+ * @param args
+ */
 View.prototype.newPremadeCommentListCallback = function(text, xml, args) {
 	//obtain the view
 	var thisView = args[0];
 	
 	//parse the premade comment
 	var premadeCommentList = $.parseJSON(text);
+	
+	//update the premade comment list locally
+	thisView.addPremadeCommentListLocally(premadeCommentList);
 	
 	var premadeCommentListId = premadeCommentList.id;
 
@@ -839,18 +961,15 @@ View.prototype.newPremadeCommentListCallback = function(text, xml, args) {
 	
 	//also save the last shown list id so we can open it next time.
 	localStorage.setItem("lastPremadeCommentsListIdShown",premadeCommentListId);
-	
-	//update the premade comment list locally
-	thisView.editNewPremadeCommentListLabelLocally(premadeCommentList);
 };
 
 /**
- * Updates the the comment text in our local copy of the premade comments
- * @param premadeComment the premade comment that was updated
+ * Add the new premade comment list to our array of lists
+ * @param premadeCommentList the new premade comment list
  */
-View.prototype.editNewPremadeCommentListLabelLocally = function(premadeCommentListIn) {
-	//append new list at the end
-	this.premadeCommentLists.push(premadeCommentListIn);
+View.prototype.addPremadeCommentListLocally = function(premadeCommentList) {
+	//add the new premade comment list to our array of lists
+	this.premadeCommentLists.push(premadeCommentList);
 };
 
 /**
@@ -915,6 +1034,9 @@ View.prototype.editPremadeCommentLocally = function(premadeComment) {
 			if(currentPremadeComment.id == premadeComment.id) {
 				//update the comment text
 				currentPremadeComment.comment = premadeComment.comment;
+				
+				//update the comment labels
+				currentPremadeComment.labels = premadeComment.labels;
 			}
 		}
 	}
@@ -947,6 +1069,12 @@ View.prototype.deletePremadeCommentCallback = function(text, xml, args) {
 	//obtain the view
 	var thisView = args[0];
 	
+	//get the post args
+	var postPremadeCommentsArgs = args[1];
+	
+	//get the premade comment list id
+	var premadeCommentListId = postPremadeCommentsArgs.premadeCommentListId;
+	
 	//parse the premade comment
 	var premadeComment = $.parseJSON(text);
 	
@@ -960,6 +1088,9 @@ View.prototype.deletePremadeCommentCallback = function(text, xml, args) {
 	
 	//delete the premade comment locally
 	thisView.deletePremadeCommentLocally(premadeComment);
+	
+	//update the label checkboxes
+	thisView.updatePremadeCommentListLabels(premadeCommentListId, premadeCommentId);
 };
 
 /**
@@ -1013,6 +1144,18 @@ View.prototype.makePremadeCommentEditable = function(premadeCommentId) {
 };
 
 /**
+ * Make a premade comment label editable in place
+ * @param premadeCommentId the id of the premade comment
+ */
+View.prototype.makePremadeCommentLabelsEditable = function(premadeCommentId) {
+	//obtain the dom id of the element that holds the comment text
+	var premadeCommentLabelsDOMId = this.getPremadeCommentLabelsDOMId(premadeCommentId);
+	
+	//make the comment editable in place
+	$("#" + premadeCommentLabelsDOMId, this.premadeCommentsWindow.document).editInPlace({callback:this.editPremadeCommentLabels, params:[this], text_size:60, default_text:'Edit labels'});
+};
+
+/**
  * Get the premade comment dom id of the element that holds the comment
  * text
  * @param premadeCommentId the id of the premade comment (an integer)
@@ -1020,6 +1163,16 @@ View.prototype.makePremadeCommentEditable = function(premadeCommentId) {
  */
 View.prototype.getPremadeCommentDOMId = function(premadeCommentId) {
 	return 'premadeComment_' + premadeCommentId;
+};
+
+/**
+ * Get the premade comment labels dom id of the element that holds the labels
+ * text
+ * @param premadeCommentId the id of the premade comment (an integer)
+ * @return a string containing the dom id
+ */
+View.prototype.getPremadeCommentLabelsDOMId = function(premadeCommentId) {
+	return 'premadeCommentLabels_' + premadeCommentId;
 };
 
 /**
@@ -1229,7 +1382,355 @@ View.prototype.makePremadeCommentListEditable = function(premadeCommentList) {
 		
 		//make the premade comment editable in place in the DOM
 		this.makePremadeCommentEditable(premadeCommentId);
+		
+		//make the premade comment labels editable in place in the DOM
+		this.makePremadeCommentLabelsEditable(premadeCommentId);
 	}
+};
+
+/**
+ * Get a unique array of labels from a premade comment list
+ * @param premadeCommentListId the id of the list
+ * @returns an array that will contain all the unique labels that are
+ * used in the list sorted alphabetically
+ */
+View.prototype.getPremadeCommentLabelsFromList = function(premadeCommentListId) {
+	//array to store all the unique labels
+	var allLabels = [];
+	
+	//get the list we want labels from
+	var premadeCommentList = this.getPremadeCommentListLocally(premadeCommentListId);
+	
+	//get the array of premade comments
+	var premadeComments = premadeCommentList.premadeComments;
+	
+	//loop through all the premade comments
+	for(var x=0; x<premadeComments.length; x++) {
+		//get a premade comment
+		var currentPremadeComment = premadeComments[x];
+		
+		//get the labels for the comment
+		var currentLabels = currentPremadeComment.labels;
+		
+		if(currentLabels != null) {
+			//split the labels by , in case there are comma separated labels
+			var currentLabelsArray = currentLabels.split(",");
+			
+			//loop through each label
+			for(var y=0; y<currentLabelsArray.length; y++) {
+				//get a label
+				var currentLabel = currentLabelsArray[y];
+				
+				if(currentLabel != null) {
+					//remove any leading and trailing white space
+					currentLabel = currentLabel.trim();
+					
+					if(allLabels.indexOf(currentLabel) == -1) {
+						//we do not have this label yet so we will add it to our array
+						allLabels.push(currentLabel);
+					}
+				}
+			}
+		}
+	}
+	
+	//sort the list alphabetically
+	allLabels.sort();
+	
+	return allLabels;
+};
+
+/**
+ * One of the label checkboxes was clicked
+ */
+View.prototype.premadeCommentLabelClicked = function(premadeCommentListId) {
+	//get all the labels that are checked
+	var labelsChecked = this.getLabelsChecked(premadeCommentListId);
+	
+	//filter the premade comments to only show the ones that have the labels that are checked
+	this.filterPremadeComments(premadeCommentListId, labelsChecked);
+};
+
+/**
+ * Get all the labels that are checked
+ * @param premadeCommentListId the id of the premade comment list
+ * @returns an array of labels
+ */
+View.prototype.getLabelsChecked = function(premadeCommentListId) {
+	//get the visible checkboxes that are checked
+	var checkboxesChecked = $('#premadeCommentsListLabelsDiv_' + premadeCommentListId + ' :checkbox:visible:checked', this.premadeCommentsWindow.document);
+	
+	var labels = [];
+	
+	//loop through all the visible checkboxes that are checked
+	for(var x=0; x<checkboxesChecked.length; x++) {
+		//get a checkbox
+		var checkbox = checkboxesChecked[x];
+		
+		//get the value
+		var checkboxValue = checkbox.value;
+		
+		//add it to our array
+		labels.push(checkboxValue);
+	}
+	
+	return labels;
+};
+
+/**
+ * Only display the premade comments that have the labels that are checked.
+ * If there are no labels checked, we will show all the premade comments.
+ * @param premadeCommentListId the id of the premade comment list
+ * @param labelsChecked an array of the labels that are checked
+ */
+View.prototype.filterPremadeComments = function(premadeCommentListId, labelsChecked) {
+	//get the list
+	var premadeCommentList = this.getPremadeCommentListLocally(premadeCommentListId);
+	
+	//get the array of premade comments
+	var premadeComments = premadeCommentList.premadeComments;
+	
+	//loop through all the premade comments
+	for(var x=0; x<premadeComments.length; x++) {
+		//get a premade comment
+		var currentPremadeComment = premadeComments[x];
+		
+		//get the id of the premade comment
+		var premadeCommentId = currentPremadeComment.id;
+		
+		//whether we will display the premade comment
+		var showPremadeComment = false;
+		
+		//get the labels for the comment
+		var currentLabels = currentPremadeComment.labels;
+		
+		if(currentLabels != null) {
+			//split the labels by , in case there are comma separated labels
+			var currentLabelsArray = currentLabels.split(",");
+			
+			//loop through each label
+			for(var y=0; y<currentLabelsArray.length; y++) {
+				//get a label
+				var currentLabel = currentLabelsArray[y];
+				
+				if(currentLabel != null) {
+					//remove any leading and trailing white space
+					currentLabel = currentLabel.trim();
+					
+					if(labelsChecked.indexOf(currentLabel) != -1) {
+						showPremadeComment = true;
+					}
+				}
+			}
+		}
+		
+		if(showPremadeComment || labelsChecked.length == 0) {
+			/*
+			 * we want to show this premade comment because it has a label that is checked
+			 * or there are no labels checked in which case we show all the premade comments
+			 */
+			$('#premadeCommentLI_' + premadeCommentId, this.premadeCommentsWindow.document).show();
+		} else {
+			//do not show this premade comment
+			$('#premadeCommentLI_' + premadeCommentId, this.premadeCommentsWindow.document).hide();
+		}
+	}
+};
+
+/**
+ * Update the label checkboxes in case any labels have been changed
+ * or removed.
+ * Only one of the two arguments below need to be passed in
+ * @param premadeCommentListId the premade comment list id
+ * @param premadeCommentId the premade comment id
+ */
+View.prototype.updatePremadeCommentListLabels = function(premadeCommentListId, premadeCommentId) {
+	
+	if(premadeCommentListId == null) {
+		/*
+		 * the premade comment list id was not passed in so we need
+		 * to find it from the premade comment id
+		 */
+		var premadeCommentList = this.getPremadeCommentListByPremadeCommentId(premadeCommentId);
+		
+		if(premadeCommentList != null) {
+			premadeCommentListId = premadeCommentList.id;
+		}
+	}
+
+	//get the labels that are currently checked
+	var labelsChecked = this.getLabelsChecked(premadeCommentListId);
+	
+	//get an array of unique labels that are used in this list
+	var labels = this.getPremadeCommentLabelsFromList(premadeCommentListId);
+	
+	//remove any labels that are no longer used in the list
+	labelsChecked = this.removeUnusedLabels(labelsChecked, labels);
+	
+	//get the div that contains all the label checkboxes
+	var premadeCommentsListLabelsDiv = $('#premadeCommentsListLabelsDiv_' + premadeCommentListId, this.premadeCommentsWindow.document);
+	
+	//clear the existing label checkboxes
+	premadeCommentsListLabelsDiv.html('');
+	
+	//regenerate the label checkboxes
+	this.generateLabelCheckboxes(premadeCommentListId, premadeCommentsListLabelsDiv, labels);
+	
+	//check the labels that were previously checked
+	this.populateCheckboxes(premadeCommentListId, labelsChecked);
+	
+	//filter the premade comments based on the labels that are checked
+	this.filterPremadeComments(premadeCommentListId, labelsChecked);
+};
+
+/**
+ * Remove any labels that are not used anymore. This is used to handle the
+ * corner case when a label is only associated with one premade comment
+ * and that label is currently checked and that premade comment gets deleted.
+ * The premade comment first gets removed from its list and then we gather
+ * the labels that are checked and then we gather the labels that are current.
+ * We must then make sure the labels that were checked all still exist in the
+ * current labels and remove any that do not exist anymore.
+ * 
+ * @param previouslyCheckedLabels an array of labels that were previously checked
+ * @param currentLabels the array of labels that are currently used
+ * @returns an array of labels that were previously checked and still currently exist
+ */
+View.prototype.removeUnusedLabels = function(previouslyCheckedLabels, currentLabels) {
+	//array to keep track of all the previously checked labels that still exist
+	var activeCheckedLabels = [];
+	
+	//loop through all the previously checked labels
+	for(var x=0; x<previouslyCheckedLabels.length; x++) {
+		//get a previously checked label
+		var previouslyCheckedLabel = previouslyCheckedLabels[x];
+		
+		if(currentLabels.indexOf(previouslyCheckedLabel) == -1) {
+			//label is no longer used in the list
+		} else {
+			//label is used in the list
+			activeCheckedLabels.push(previouslyCheckedLabel);
+		}
+	}
+	
+	return activeCheckedLabels;
+};
+
+/**
+ * Create the checkboxes for the labels
+ * @param premadeCommentListId the id of the premade comment list
+ * @param premadeCommentsListLabelsDiv the div that contains all the checkbox labels for the
+ * given premade comment list
+ * @param labels the unique labels that are used in the premade comment list
+ */
+View.prototype.generateLabelCheckboxes = function(premadeCommentListId, premadeCommentsListLabelsDiv, labels) {
+
+	//loop through all the labels
+	for(var x=0; x<labels.length; x++) {
+		//get a label
+		var label = labels[x];
+		
+		if(label != null) {
+			//create the checkbox that the user will use filter the list
+			var premadeCommentLabelCheckbox = createElement(this.premadeCommentsWindow.document, 'input', {type:'checkbox', id:'premadeCommentLabelCheckbox_' + '_' + premadeCommentListId + '_' + x, value:label, onclick:'eventManager.fire("premadeCommentLabelClicked", ' + premadeCommentListId + ')'});
+
+			//the p element that will display the comment
+			var premadeCommentLabelText = createElement(this.premadeCommentsWindow.document, 'p', {id:'premadeCommentLabelText_' + premadeCommentListId + '_' + x, style:'display:inline'});
+			premadeCommentLabelText.innerHTML = label;
+			
+			//add the label checkbox to the div
+			premadeCommentsListLabelsDiv.append(premadeCommentLabelCheckbox);
+			premadeCommentsListLabelsDiv.append(premadeCommentLabelText);
+			premadeCommentsListLabelsDiv.append('<br>');
+		}
+	}
+};
+
+/**
+ * Check the checkboxes that we want to have checked
+ * @param premadeCommentListId the id of the premade comment list
+ * @param labels the labels that we want checked
+ */
+View.prototype.populateCheckboxes = function(premadeCommentListId, labels) {
+	
+	//get all the checkboxes for this premade comment list
+	var checkboxes = $('#premadeCommentsListLabelsDiv_' + premadeCommentListId + ' :checkbox', this.premadeCommentsWindow.document);
+	
+	//loop through all the checkboxes
+	for(var x=0; x<checkboxes.length; x++) {
+		//get a checkbox
+		var checkbox = checkboxes[x];
+		
+		if(checkbox != null) {
+			//get the value of the checkbox
+			var value = checkbox.value;
+			
+			//check if the label is in the array of labels we want checked
+			if(labels.indexOf(value) != -1) {
+				//the checkbox should be checked
+				$(checkbox).attr('checked', true);
+			}
+		}
+	}
+};
+
+
+/**
+ * Find the premade comment list that contains the premade comment with the
+ * given id
+ * @param premadeCommentId the id of the premade comment
+ * @returns the premade comment list that contains the premade comment with
+ * the given id
+ */
+View.prototype.getPremadeCommentListByPremadeCommentId = function(premadeCommentId) {
+	
+	if(premadeCommentId != null) {
+		//loop through all the premade comment lists
+		for(var x=0; x<this.premadeCommentLists.length; x++) {
+			//get a premade comment list
+			var tempPremadeCommentList = this.premadeCommentLists[x];
+			
+			//get the array of premade comments
+			var premadeComments = tempPremadeCommentList.premadeComments;
+			
+			//loop through all the comments
+			for(var y=0; y<premadeComments.length; y++) {
+				//get a comment
+				var tempPremadeComment = premadeComments[y];
+				
+				if(tempPremadeComment != null) {
+					//get the comment id
+					var tempPremadeCommentId = tempPremadeComment.id;
+					
+					if(premadeCommentId == tempPremadeCommentId) {
+						//the comment id matches the one we want
+						return tempPremadeCommentList;
+					}
+				}
+			}
+		}		
+	}
+	
+	//we did not find a premade comment list that contained a premade comment with the given id
+	return null;
+};
+
+/**
+ * Uncheck all the checkboxes for the premade comment list
+ * @param premadeCommentListId the if of the premade comment list
+ */
+View.prototype.premadeCommentListUncheckLabels = function(premadeCommentListId) {
+	//get all the checkboxes for this premade comment list and uncheck them
+	$('#premadeCommentsListDiv_' + premadeCommentListId + ' :checkbox', this.premadeCommentsWindow.document).removeAttr('checked');
+	
+	//none of the labels are checked so we will just use an empty array
+	var labelsChecked = [];
+	
+	/*
+	 * filter the premade comments (this will basically show all 
+	 * the premade comments since none of the labels are checked
+	 */
+	this.filterPremadeComments(premadeCommentListId, labelsChecked);
 };
 
 //used to notify scriptloader that this script has finished loading

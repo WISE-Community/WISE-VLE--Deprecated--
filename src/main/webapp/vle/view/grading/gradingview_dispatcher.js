@@ -102,6 +102,10 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.deletePremadeComment(args[0], args[1]);
 	} else if(type=='deletePremadeCommentList') {
 		obj.deletePremadeCommentList(args[0]);
+	} else if(type=='premadeCommentLabelClicked') {
+		obj.premadeCommentLabelClicked(args[0]);
+	} else if(type=='premadeCommentListUncheckLabels') {
+		obj.premadeCommentListUncheckLabels(args[0]);
 	} else if(type=='displayExportExplanation') {
 		obj.displayExportExplanation(args[0]);
 	} else if(type=='setSelectedPeriod') {

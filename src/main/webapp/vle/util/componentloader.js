@@ -220,6 +220,8 @@ var componentloader = function(em, sl){
 					 'addPremadeComment':[null, null],
 					 'deletePremadeComment':[null, null],
 					 'deletePremadeCommentList':[null, null],
+					 'premadeCommentLabelClicked':[null, null],
+					 'premadeCommentListUncheckLabels':[null, null],
 					 'getIdeaBasketsComplete':[null, null],
 					 'setSelectedPeriod':[null, null],
 					 'editGroups':[null, null],
@@ -282,6 +284,8 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("addPremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("deletePremadeCommentList", view.gradingDispatcher, view);
+					eventManager.subscribe("premadeCommentLabelClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("premadeCommentListUncheckLabels", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("setSelectedPeriod", view.gradingDispatcher, view);
 					eventManager.subscribe("editGroups", view.gradingDispatcher, view);
