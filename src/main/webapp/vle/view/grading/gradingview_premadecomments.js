@@ -228,10 +228,7 @@ View.prototype.renderPremadeComments = function() {
 	
 	//id of premadecommentsList to show at the beginning. See if last-shown list was stored in localstorage.
 	var premadeCommentsListIdToShow = this.premadeCommentLists[0].id;
-	if (localStorage.getItem("lastPremadeCommentsListIdShown") !== null) {
-		premadeCommentsListIdToShow = JSON.parse(localStorage.getItem("lastPremadeCommentsListIdShown"));
-	}
-
+	
 	var premadeCommentsListLabelDD = $("<select>").attr("id","premadeCommentsListLabelDD");
 	for (var i=0; i<this.premadeCommentLists.length; i++) {
 		var premadeCommentLists = this.premadeCommentLists[i];
@@ -242,7 +239,9 @@ View.prototype.renderPremadeComments = function() {
 			premadeCommentsListLabelDDItem.attr("selected","selected");
 		};
 
-		premadeCommentsListLabelDDItem.click(function() {
+		var thisView = this;
+		
+		premadeCommentsListLabelDDItem.click({"thisView":thisView}, function() {
 			var listIdChosen = this.value;
 			//now hide all the lists except the last one that user had opened, or the first one if none exists.
 			$(premadeCommentsListsDiv).find(".premadeCommentsListDiv").hide();
@@ -250,8 +249,12 @@ View.prototype.renderPremadeComments = function() {
 			//show just the selected premadecommentslist div.
 			$(premadeCommentsListsDiv).find("#premadeCommentsListDiv_"+listIdChosen).show();		
 			
-			//also save the last shown list id so we can open it next time.
-			localStorage.setItem("lastPremadeCommentsListIdShown",listIdChosen);
+			/*
+			 * save the current state of the premade comments so that it
+			 * can be restored the next time the user opens up the premade
+			 * comments again
+			 */
+			thisView.savePremadeCommentsState();
 		});
 		premadeCommentsListLabelDD.append(premadeCommentsListLabelDDItem);
 	}
@@ -285,6 +288,9 @@ View.prototype.renderPremadeComments = function() {
 	
 	//this call will remove the loading message and make the UI elements visible
 	this.renderPremadeCommentsComplete();
+	
+	//display the premade comment list that was last open and check the checkboxes there were previously checked
+	this.restorePremadeCommentsState();
 };
 
 /**
@@ -343,7 +349,7 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 	var premadeCommentsListLabelsDiv = $("<div>").attr("id", "premadeCommentsListLabelsDiv_" + premadeCommentListId);
 	
 	//generate the label checkboxes inside the div
-	this.generateLabelCheckboxes(premadeCommentListId, premadeCommentsListLabelsDiv, labels);
+	this.premadeCommentsGenerateLabelCheckboxes(premadeCommentListId, premadeCommentsListLabelsDiv, labels);
 	
 	//add the label checkboxes div to the main div
 	premadeCommentsListDiv.append(premadeCommentsListLabelsDiv);
@@ -633,8 +639,12 @@ View.prototype.deletePremadeCommentListCallback = function(text, xml, args) {
 	//show the newly-selected premadecommentlist
 	$("#premadeCommentsListDiv_"+newlySelectedPremadeCommentListId,thisView.premadeCommentsWindow.document).show();
 	
-	//also save the last shown list id so we can open it next time.
-	localStorage.setItem("lastPremadeCommentsListIdShown",newlySelectedPremadeCommentListId);
+	/*
+	 * save the current state of the premade comments so that it
+	 * can be restored the next time the user opens up the premade
+	 * comments again
+	 */
+	thisView.savePremadeCommentsState();
 		
 	//add the premade comment to our local array of premade comments
 	thisView.deletePremadeCommentListLocally(premadeCommentListId);
@@ -936,8 +946,12 @@ View.prototype.newPremadeCommentListCallback = function(text, xml, args) {
 		//show just the selected premadecommentslist div.
 		$("#premadeCommentsListsDiv",thisView.premadeCommentsWindow.document).find("#premadeCommentsListDiv_"+listIdChosen).show();		
 		
-		//also save the last shown list id so we can open it next time.
-		localStorage.setItem("lastPremadeCommentsListIdShown",listIdChosen);
+		/*
+		 * save the current state of the premade comments so that it
+		 * can be restored the next time the user opens up the premade
+		 * comments again
+		 */
+		thisView.savePremadeCommentsState();
 	});
 	
 	$("#premadeCommentsListLabelDD",thisView.premadeCommentsWindow.document).append(premadeCommentsListLabelDDItem);
@@ -959,8 +973,12 @@ View.prototype.newPremadeCommentListCallback = function(text, xml, args) {
 	//create and append a new div for this new premadecommentslist
 	$("#premadeCommentsListDiv_"+premadeCommentListId,thisView.premadeCommentsWindow.document).show();		
 	
-	//also save the last shown list id so we can open it next time.
-	localStorage.setItem("lastPremadeCommentsListIdShown",premadeCommentListId);
+	/*
+	 * save the current state of the premade comments so that it
+	 * can be restored the next time the user opens up the premade
+	 * comments again
+	 */
+	thisView.savePremadeCommentsState();
 };
 
 /**
@@ -1091,6 +1109,12 @@ View.prototype.deletePremadeCommentCallback = function(text, xml, args) {
 	
 	//update the label checkboxes
 	thisView.updatePremadeCommentListLabels(premadeCommentListId, premadeCommentId);
+	
+	/*
+	 * save the current state of the premade comments which includes
+	 * which list id is being displayed and which labels are checked
+	 */
+	this.savePremadeCommentsState();
 };
 
 /**
@@ -1365,6 +1389,9 @@ View.prototype.getPremadeCommentListLocally = function(premadeCommentListId) {
 			return currentPremadeCommentList;
 		}
 	}
+	
+	//the list was not found
+	return null;
 };
 
 /**
@@ -1445,10 +1472,16 @@ View.prototype.getPremadeCommentLabelsFromList = function(premadeCommentListId) 
  */
 View.prototype.premadeCommentLabelClicked = function(premadeCommentListId) {
 	//get all the labels that are checked
-	var labelsChecked = this.getLabelsChecked(premadeCommentListId);
+	var labelsChecked = this.premadeCommentsGetLabelsChecked(premadeCommentListId);
 	
 	//filter the premade comments to only show the ones that have the labels that are checked
 	this.filterPremadeComments(premadeCommentListId, labelsChecked);
+	
+	/*
+	 * save the current state of the premade comments which includes
+	 * which list id is being displayed and which labels are checked
+	 */
+	this.savePremadeCommentsState();
 };
 
 /**
@@ -1456,7 +1489,7 @@ View.prototype.premadeCommentLabelClicked = function(premadeCommentListId) {
  * @param premadeCommentListId the id of the premade comment list
  * @returns an array of labels
  */
-View.prototype.getLabelsChecked = function(premadeCommentListId) {
+View.prototype.premadeCommentsGetLabelsChecked = function(premadeCommentListId) {
 	//get the visible checkboxes that are checked
 	var checkboxesChecked = $('#premadeCommentsListLabelsDiv_' + premadeCommentListId + ' :checkbox:visible:checked', this.premadeCommentsWindow.document);
 	
@@ -1559,13 +1592,13 @@ View.prototype.updatePremadeCommentListLabels = function(premadeCommentListId, p
 	}
 
 	//get the labels that are currently checked
-	var labelsChecked = this.getLabelsChecked(premadeCommentListId);
+	var labelsChecked = this.premadeCommentsGetLabelsChecked(premadeCommentListId);
 	
 	//get an array of unique labels that are used in this list
 	var labels = this.getPremadeCommentLabelsFromList(premadeCommentListId);
 	
 	//remove any labels that are no longer used in the list
-	labelsChecked = this.removeUnusedLabels(labelsChecked, labels);
+	labelsChecked = this.premadeCommentsRemoveUnusedLabels(labelsChecked, labels);
 	
 	//get the div that contains all the label checkboxes
 	var premadeCommentsListLabelsDiv = $('#premadeCommentsListLabelsDiv_' + premadeCommentListId, this.premadeCommentsWindow.document);
@@ -1574,13 +1607,19 @@ View.prototype.updatePremadeCommentListLabels = function(premadeCommentListId, p
 	premadeCommentsListLabelsDiv.html('');
 	
 	//regenerate the label checkboxes
-	this.generateLabelCheckboxes(premadeCommentListId, premadeCommentsListLabelsDiv, labels);
+	this.premadeCommentsGenerateLabelCheckboxes(premadeCommentListId, premadeCommentsListLabelsDiv, labels);
 	
 	//check the labels that were previously checked
-	this.populateCheckboxes(premadeCommentListId, labelsChecked);
+	this.premadeCommentsPopulateCheckboxes(premadeCommentListId, labelsChecked);
 	
 	//filter the premade comments based on the labels that are checked
 	this.filterPremadeComments(premadeCommentListId, labelsChecked);
+	
+	/*
+	 * save the current state of the premade comments which includes
+	 * which list id is being displayed and which labels are checked
+	 */
+	this.savePremadeCommentsState();
 };
 
 /**
@@ -1596,7 +1635,7 @@ View.prototype.updatePremadeCommentListLabels = function(premadeCommentListId, p
  * @param currentLabels the array of labels that are currently used
  * @returns an array of labels that were previously checked and still currently exist
  */
-View.prototype.removeUnusedLabels = function(previouslyCheckedLabels, currentLabels) {
+View.prototype.premadeCommentsRemoveUnusedLabels = function(previouslyCheckedLabels, currentLabels) {
 	//array to keep track of all the previously checked labels that still exist
 	var activeCheckedLabels = [];
 	
@@ -1623,7 +1662,7 @@ View.prototype.removeUnusedLabels = function(previouslyCheckedLabels, currentLab
  * given premade comment list
  * @param labels the unique labels that are used in the premade comment list
  */
-View.prototype.generateLabelCheckboxes = function(premadeCommentListId, premadeCommentsListLabelsDiv, labels) {
+View.prototype.premadeCommentsGenerateLabelCheckboxes = function(premadeCommentListId, premadeCommentsListLabelsDiv, labels) {
 
 	//loop through all the labels
 	for(var x=0; x<labels.length; x++) {
@@ -1651,7 +1690,7 @@ View.prototype.generateLabelCheckboxes = function(premadeCommentListId, premadeC
  * @param premadeCommentListId the id of the premade comment list
  * @param labels the labels that we want checked
  */
-View.prototype.populateCheckboxes = function(premadeCommentListId, labels) {
+View.prototype.premadeCommentsPopulateCheckboxes = function(premadeCommentListId, labels) {
 	
 	//get all the checkboxes for this premade comment list
 	var checkboxes = $('#premadeCommentsListLabelsDiv_' + premadeCommentListId + ' :checkbox', this.premadeCommentsWindow.document);
@@ -1731,6 +1770,123 @@ View.prototype.premadeCommentListUncheckLabels = function(premadeCommentListId) 
 	 * the premade comments since none of the labels are checked
 	 */
 	this.filterPremadeComments(premadeCommentListId, labelsChecked);
+	
+	/*
+	 * save the current state of the premade comments which includes
+	 * which list id is being displayed and which labels are checked
+	 */
+	this.savePremadeCommentsState();
+};
+
+/**
+ * Save the current state of the premade comments which includes
+ * which premade comment list is being shown and which checkboxes
+ * are checked
+ */
+View.prototype.savePremadeCommentsState = function() {
+	//get the premade comment list option that is selected and being shown
+	var selectedPremadeCommentListOption = $('#premadeCommentsListLabelDD option:selected', this.premadeCommentsWindow.document);
+	
+	if(selectedPremadeCommentListOption.length > 0) {
+		//get the DOM option element for the premade comment list
+		var selectedPremadeCommentList = selectedPremadeCommentListOption[0];
+		
+		//get the premade comment list id
+		var premadeCommentListIdSelected = parseInt(selectedPremadeCommentList.value);
+		
+		//get the labels that are currently checked
+		var labelsChecked = this.premadeCommentsGetLabelsChecked(premadeCommentListIdSelected);
+		
+		//create an object to contain the information we are saving
+		var wise4PremadeCommentsState = {
+			premadeCommentListIdSelected:premadeCommentListIdSelected,
+			labelsChecked:labelsChecked
+		};
+		
+		/*
+		 * save the object to local storage so we can retrieve it the next
+		 * time the premade comments page is open
+		 */
+		this.setLocalStorageValue('wise4PremadeCommentsState', wise4PremadeCommentsState);
+	}
+};
+
+/**
+ * Restore the previous state of the premade comments which includes
+ * which premade comment list was being shown and which checkboxes
+ * were checked
+ */
+View.prototype.restorePremadeCommentsState = function() {
+	//get the local storage item we saved from the previous session
+	var wise4PremadeCommentsState = this.getLocalStorageValue('wise4PremadeCommentsState');
+	
+	if(wise4PremadeCommentsState != null) {
+		//create the JSON object
+		wise4PremadeCommentsState = JSON.parse(wise4PremadeCommentsState);
+		
+		if(wise4PremadeCommentsState != null) {
+			//get the premade comment list id that was previously shown
+			var premadeCommentListIdSelected = wise4PremadeCommentsState.premadeCommentListIdSelected;
+			
+			//get the labels that were previously checked
+			var labelsChecked = wise4PremadeCommentsState.labelsChecked;
+			
+			if(premadeCommentListIdSelected != null) {
+				//select the list in the drop down
+				$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).attr('selected', 'selected');
+				
+				//perform a click on the select option so that the premade comments for the list are displayed
+				$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).click();
+				
+				if(labelsChecked != null) {
+					//check the labels that were previously checked
+					this.premadeCommentsPopulateCheckboxes(premadeCommentListIdSelected, labelsChecked);
+
+					//filter the premade comments based on the labels that are checked
+					this.filterPremadeComments(premadeCommentListIdSelected, labelsChecked);
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Set the key value pair into the localStorage if localStorage exists
+ * @param key the key as a string
+ * @param value the value as a string, number, or object
+ */
+View.prototype.setLocalStorageValue = function(key, value) {
+	if(localStorage) {
+		//localStorage is available on this browser
+		
+		if(value == null) {
+			localStorage.setItem(key, value);
+		} else if(typeof value == 'object') {
+			/*
+			 * the value is an object so we will turn it into a string
+			 * since values can only be numbers or strings
+			 */
+			localStorage.setItem(key, JSON.stringify(value));
+		} else if(typeof value == 'string') {
+			localStorage.setItem(key, value);
+		}
+	}
+};
+
+/**
+ * Get the key value from localStorage if localStorage exists
+ * @param key the key as a string
+ * @returns the value corresponding to the key, or null if
+ * localStorage is not available on this browser
+ */
+View.prototype.getLocalStorageValue = function(key) {
+	var value = null;
+	
+	if(localStorage) {
+		value = localStorage.getItem(key);
+	}
+	
+	return value;
 };
 
 //used to notify scriptloader that this script has finished loading
