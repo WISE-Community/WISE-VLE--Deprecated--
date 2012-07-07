@@ -791,20 +791,47 @@ View.prototype.viewAssets = function(params){
 			this.assetEditorParams = null;
 		}
 		showElement('assetEditorDialog');
-		var populateOptions = function(names, view){
-			if(names && names!=''){
-				//get the JSONArray of file names
-				var fileNames = JSON.parse(names);
+		var populateOptions = function(projectListText, args){
+			var view = args[0];
+			
+			if(projectListText && projectListText!=''){
+				//get the project list as JSON
+				var projectList = JSON.parse(projectListText);
 				
-				//sort the file names alphabetically
-				fileNames.sort();
+				//get the first project (there will only be one anyway)
+				var projectAssetsInfo = projectList[0];
+				
+				var assets = [];
+				
+				if(projectAssetsInfo != null) {
+					//get the assets array
+					assets = projectAssetsInfo.assets;
+				}
 				
 				var parent = document.getElementById('assetSelect');
 				parent.innerHTML = '';
 				
-				//loop through all the file names
-				for(var d=0;d<fileNames.length;d++){
-					var fileName = fileNames[d];
+				//loop through all the assets
+				for(var d=0;d<assets.length;d++){
+					//get an asset
+					var asset = assets[d];
+					
+					//get the file name of the asset
+					var fileName = asset.assetFileName;
+					
+					var status = '';
+					
+					if(asset.activeStepsUsedIn.length > 0) {
+						//the asset is used in an active step
+						status = 'active';
+					} else if(asset.inactiveStepsUsedIn.length > 0) {
+						//the asset is used in an inactive step
+						status = 'inactive';
+					} else {
+						//the asset is not used in any step
+						status = 'notUsed';
+					}
+					
 					//check for type parameter and only show files with matching extensions
 					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
 						var extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
@@ -829,9 +856,22 @@ View.prototype.viewAssets = function(params){
 						}
 					}
 					
+					var text = '';
+					
+					if(status == 'inactive') {
+						//the asset is only used in an inactive step
+						text = fileName + ' (Only used in inactive steps)';
+					} else if(status == 'notUsed') {
+						//the asset is not used in any step
+						text = fileName + ' (Not used)';
+					} else {
+						//the asset is used in an active step
+						text = fileName;
+					}
+					
 					//create an entry for each file
 					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
-					opt.text = fileName;
+					opt.text = text;
 					opt.value = fileName;
 					parent.appendChild(opt);
 				}
@@ -915,9 +955,24 @@ View.prototype.viewAssets = function(params){
 			$('#uploadAssetFile').val('');
 		};
 		
-
-		//get assets from servlet
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'assetList'}, function(txt,xml,obj){populateOptions(txt,obj);}, this);
+		//get the list of all assets and which steps those assets are used in
+		var analyzeType = 'findUnusedAssets';
+		
+		//get the project id
+		var projectId = this.portalProjectId;
+		
+		//get the url for making the request to retrieve the asset information
+		var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
+		
+		//the params for the request
+		var requestParams = {
+			analyzeType:analyzeType,
+			projectId:projectId,
+			html:false
+		};
+		
+		//make the request to retrieve the asset information
+		this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, function(txt,xml,obj){populateOptions(txt,obj);}, [this, analyzeType]);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to view assets for.", 3);
 	}
