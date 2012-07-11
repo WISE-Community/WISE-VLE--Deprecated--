@@ -116,13 +116,28 @@ View.prototype.getPremadeComments = function() {
 		
 		var getPremadeCommentsArgs = {};
 		
+		if(this.authoringMode) {
+			/*
+			 * we are in the authoring tool so we will pass in the project id
+			 * that we are currently working on in case we do not have any
+			 * premade comments lists for this project and the server needs
+			 * to create a new list and give it a name such as
+			 * "Project 684 Premade Comment List"
+			 */
+			getPremadeCommentsArgs['projectId'] = this.portalProjectId;
+		}
+		
 		//make the request for the premade comments
 		this.connectionManager.request('GET', 1, getPremadeCommentsUrl, getPremadeCommentsArgs, getPremadeCommentsCallback, [this], getPremadeCommentsCallbackFail);
 	}
 };
 
 /**
- * Posts premade comment data back to the server
+ * Posts premade comment data back to the server. This handles all premade comments
+ * posting. Some of the parameters are optional depending on what kind of post
+ * request we are making.
+ * e.g. if we are changing the premadeComment text, we do not need to pass
+ * in the premadeComentLabels
  * @param premadeCommentAction the type of premade comment data we are sending
  * back to the server such as
  * 'addComment'
@@ -137,8 +152,11 @@ View.prototype.getPremadeComments = function() {
  * @param premadeCommentId the id of the premade comment
  * @param premadeComment the comment string
  * @param isGlobal whether we are dealing with a global element
+ * @param premadeCommentListPositions the positions of the premade comments within a list
+ * @param premadeCommentLabels the labels string for a premade comment
+ * @param projectId the project id
  */
-View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels) {
+View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId) {
 	//get the url that will post the premade comment to the server
 	var postPremadeCommentsUrl = this.getConfig().getConfigParam('postPremadeCommentsUrl');
 	
@@ -156,11 +174,38 @@ View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeC
 			premadeComment:premadeComment,
 			premadeCommentLabels:premadeCommentLabels,
 			isGlobal:isGlobal,
+			projectId:projectId,
 			premadeCommentListPositions:premadeCommentListPositions
 	};
 	
 	//make the post to the server
 	this.connectionManager.request('POST', 1, postPremadeCommentsUrl, postPremadeCommentsArgs, postPremadeCommentsCallback, [this, postPremadeCommentsArgs], postPremadeCommentsCallbackFail);
+};
+
+/**
+ * Filter the premade comment lists to only contain lists that have the
+ * given projectId
+ * @param projectId the project id we want premade comment lists for
+ * @returns an array of premade comment lists that have the given project id
+ */
+View.prototype.filterPremadeCommentListsByProjectId = function(projectId) {
+	var filteredPremadeCommentLists = [];
+	
+	//loop through all the premade comment lists
+	for(var x=0; x<this.premadeCommentLists.length; x++) {
+		//get a premade comment list
+		var premadeCommentList = this.premadeCommentLists[x];
+		
+		//get the project id of the premade comment list if any
+		var premadeCommentListProjectId = premadeCommentList.projectId;
+		
+		if(premadeCommentListProjectId == projectId) {
+			//we have found a premade comment list with the project id we want
+			filteredPremadeCommentLists.push(premadeCommentList);
+		}
+	}
+	
+	return filteredPremadeCommentLists;
 };
 
 /**
@@ -170,29 +215,47 @@ View.prototype.renderPremadeComments = function() {
 	//get the div that we will put the premade comment lists into
 	var premadeCommentsListsDiv = this.premadeCommentsWindow.document.getElementById('premadeCommentsListsDiv');
 	
-	//get the student work from the element in the original grading page
-	var studentWork = $('#' + this.studentWorkColumnId).html();
+	//check if we are authoring premade comments from the authoring tool
+	if(this.authoringMode) {
+		//we are in authoring mode
+		
+		//obtain only the premade comment lists with the current project id we are authoring
+		this.premadeCommentLists = this.filterPremadeCommentListsByProjectId(this.portalProjectId);
+	} else {
+		//we are not in the authoring tool
+		
+		//get the student work from the element in the original grading page
+		var studentWork = $('#' + this.studentWorkColumnId).html();
+		
+		//get the id of the comment box in the grading page
+		var commentBoxId = '#' + this.commentBoxId.replace('.', '\\.');
+		
+		//get the existing comment
+		var existingComment = $(commentBoxId).attr('value');
+		
+		//populate the premade comment submit box with the existing comment
+		$('#premadeCommentsTextArea', this.premadeCommentsWindow.document).attr('value', existingComment);
+		
+		//find the index of the timestamp in the student work
+		var indexOfTimestamp = studentWork.indexOf('<br><br><br><p class="lastAnnotationPostTime">');
+		
+		//remove the timestamp from the student work
+		studentWork = studentWork.substring(0, indexOfTimestamp);
+		
+		//display the student work in the premade comments window
+		$('#premadeCommentsStudentWorkDiv', this.premadeCommentsWindow.document).html(studentWork);	
+	}
 	
-	//get the id of the comment box in the grading page
-	var commentBoxId = '#' + this.commentBoxId.replace('.', '\\.');
-	
-	//get the existing comment
-	var existingComment = $(commentBoxId).attr('value');
-	
-	//populate the premade comment submit box with the existing comment
-	$('#premadeCommentsTextArea', this.premadeCommentsWindow.document).attr('value', existingComment);
-	
-	//find the index of the timestamp in the student work
-	var indexOfTimestamp = studentWork.indexOf('<br><br><br><p class="lastAnnotationPostTime">');
-	
-	//remove the timestamp from the student work
-	studentWork = studentWork.substring(0, indexOfTimestamp);
-	
-	//display the student work in the premade comments window
-	$('#premadeCommentsStudentWorkDiv', this.premadeCommentsWindow.document).html(studentWork);
+	var userLoginName = '';
 	
 	//get the user login name that they use to sign in
-	var userLoginName = this.getUserAndClassInfo().getUserLoginName();
+	if(this.authoringMode) {
+		//we are in authoring mode so we will get the username from the config
+		userLoginName = this.getConfig().getConfigParam('username');
+	} else {
+		//we are not in authoring mode so we will get it from the userandclassinfo
+		userLoginName = this.getUserAndClassInfo().getUserLoginName();
+	}
 	
 	//loop through all the premade comment lists
 	for(var x=0; x<this.premadeCommentLists.length; x++) {
@@ -271,9 +334,21 @@ View.prototype.renderPremadeComments = function() {
 		var premadeCommentListId = null;
 		var premadeCommentListLabel = "My New List";
 		var isGlobal = null;
+		var premadeCommentListPositions = null;
+		var premadeCommentLabels = null;
+		var projectId = null;
+		
+		if(thisView.authoringMode) {
+			/*
+			 * we are in authoring mode so we will pass in the project id
+			 * and the new list label that contains the project id
+			 */
+			projectId = thisView.portalProjectId;
+			premadeCommentListLabel = "Project " + thisView.portalProjectId + " Premade Comment List (New)";
+		}
 
 		//make the request to edit the premade comment on the server
-		thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);		
+		thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);		
 	});
 	premadeCommentsListLabelDD.append(newPremadeCommentsListDDItem);
 	
@@ -285,6 +360,16 @@ View.prototype.renderPremadeComments = function() {
 	
 	//show just the selected premadecommentslist div.
 	$(premadeCommentsListsDiv).find("#premadeCommentsListDiv_"+premadeCommentsListIdToShow).show();
+	
+	if(this.authoringMode) {
+		//we are in authoring mode
+		
+		//obtain only the premade comment lists with the current project id we are authoring
+		this.premadeCommentLists = this.filterPremadeCommentListsByProjectId(this.portalProjectId);
+		
+		$('#premadeCommentsTextArea', this.premadeCommentsWindow.document).hide();
+		$('#premadeCommentsSubmitButton', this.premadeCommentsWindow.document).hide();
+	}
 	
 	//this call will remove the loading message and make the UI elements visible
 	this.renderPremadeCommentsComplete();
@@ -320,14 +405,14 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 	
 	//add the premade comment list name to the div
 	premadeCommentsListDiv.append(premadeCommentListLabelP);
-	
+	premadeCommentsListDiv.append("<br>");
 	
 	if(signedInUserIsOwner) {
 		//create the button that the user will use to add a new premade comment
 		var premadeCommentListAddCommentButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListAddCommentButton_' + premadeCommentListId, 'class':'premadeCommentListAddCommentButton', value:'Add New Comment', onclick:'eventManager.fire("addPremadeComment", [' + premadeCommentListId + '])'});
 
 		//add the premade comment add comment button to the div
-		premadeCommentsListDiv.append("<br>").append(premadeCommentListAddCommentButton);			
+		premadeCommentsListDiv.append(premadeCommentListAddCommentButton);			
 		
 		//create the button that the user will use to delete this list
 		var premadeCommentListDeleteListButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListDeleteListButton_' + premadeCommentListId, 'class':'premadeCommentListDeleteListButton', value:'Delete This List', onclick:'eventManager.fire("deletePremadeCommentList", [' + premadeCommentListId + '])'});
@@ -526,9 +611,12 @@ View.prototype.addPremadeComment = function(premadeCommentListId) {
 	var premadeCommentId = null;
 	var premadeComment = null;
 	var isGlobal = null;
+	var premadeCommentListPositions = null;
+	var premadeCommentLabels = null;
+	var projectId = null;
 	
 	//make the request to create a new comment
-	this.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);
+	this.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);
 };
 
 /**
@@ -605,9 +693,12 @@ View.prototype.deletePremadeCommentList = function(premadeCommentListId) {
 		var premadeCommentId = null;
 		var premadeComment = null;
 		var isGlobal = null;
+		var premadeCommentListPositions = null;
+		var premadeCommentLabels = null;
+		var projectId = null;
 		
 		//make the request to create a new comment
-		this.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);		
+		this.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);		
 	};
 };
 
@@ -685,15 +776,21 @@ View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, prem
 	//create the LI element that will hold the button, the comment, and the handle
 	var premadeCommentLI = createElement(this.premadeCommentsWindow.document, 'li', {id:'premadeCommentLI_' + premadeCommentId, style:'list-style-type:none;margin-left:0px;padding-left:0px', class:'premadeCommentLI'});
 	
-	//the input button the user will click to choose the comment
-	var premadeCommentSelectButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentSelectButton_' + premadeCommentId, type:'button', value:'Select', onclick:'eventManager.fire("selectPremadeComment", ["' + premadeCommentDOMId + '"])'});
+	if(this.authoringMode != true) {
+		/*
+		 * the input button the user will click to choose the comment.
+		 * this is not displayed in the authoring tool but is displayed
+		 * in the grading tool.
+		 */
+		var premadeCommentSelectButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentSelectButton_' + premadeCommentId, type:'button', value:'Select', onclick:'eventManager.fire("selectPremadeComment", ["' + premadeCommentDOMId + '"])'});
+		premadeCommentLI.appendChild(premadeCommentSelectButton);
+	}
 	
 	//the p element that will display the comment
 	var premadeCommentP = createElement(this.premadeCommentsWindow.document, 'p', {id:premadeCommentDOMId, style:'display:inline'});
 	premadeCommentP.innerHTML = comment;
 
 	//add the elements to the LI
-	premadeCommentLI.appendChild(premadeCommentSelectButton);
 	premadeCommentLI.appendChild(document.createTextNode(' '));
 	premadeCommentLI.appendChild(premadeCommentP);
 
@@ -762,6 +859,9 @@ View.prototype.editPremadeComment = function(idOfEditor, enteredText, originalTe
 	var premadeCommentId = idOfEditor.replace('premadeComment_', '');
 	var premadeComment = enteredText;
 	var isGlobal = null;
+	var premadeCommentListPositions = null;
+	var premadeCommentLabels = null;
+	var projectId = null;
 	
 	//get the length of the premade comment
 	var premadeCommentLength = premadeComment.length;
@@ -777,7 +877,7 @@ View.prototype.editPremadeComment = function(idOfEditor, enteredText, originalTe
 	}
 	
 	//make the request to edit the premade comment on the server
-	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);
+	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);
 	
 	return premadeComment;
 };
@@ -803,9 +903,10 @@ View.prototype.editPremadeCommentLabels = function(idOfEditor, enteredText, orig
 	//get the premade comment id (an integer)
 	var premadeCommentId = idOfEditor.replace('premadeCommentLabels_', '');
 	var premadeComment = null;
-	var premadeCommentLabels = enteredText;
 	var isGlobal = null;
 	var premadeCommentListPositions = null;
+	var premadeCommentLabels = enteredText;
+	var projectId = null;
 	
 	//get the length of the premade comment
 	var premadeCommentLabelsLength = premadeCommentLabels.length;
@@ -821,7 +922,7 @@ View.prototype.editPremadeCommentLabels = function(idOfEditor, enteredText, orig
 	}
 	
 	//make the request to edit the premade comment on the server
-	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels);
+	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);
 	
 	return premadeCommentLabels;
 };
@@ -848,6 +949,9 @@ View.prototype.editPremadeCommentListLabel = function(idOfEditor, enteredText, o
 	var premadeCommentListId = idOfEditor.replace('premadeCommentsListP_', '');
 	var premadeCommentListLabel = enteredText;
 	var isGlobal = null;
+	var premadeCommentListPositions = null;
+	var premadeCommentLabels = null;
+	var projectId = null;
 	
 	//get the length of the premade comment
 	var premadeCommentLength = premadeCommentListLabel.length;
@@ -863,7 +967,7 @@ View.prototype.editPremadeCommentListLabel = function(idOfEditor, enteredText, o
 	}
 	
 	//make the request to edit the premade comment on the server
-	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);
+	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);
 	
 	return premadeCommentListLabel;
 };
@@ -1072,9 +1176,12 @@ View.prototype.deletePremadeComment = function(premadeCommentId, premadeCommentL
 	var premadeCommentListLabel = null;
 	var premadeComment = null;
 	var isGlobal = null;
+	var premadeCommentListPositions = null;
+	var premadeCommentLabels = null;
+	var projectId = null;
 	
 	//make the request to delete the premade comment on the server
-	this.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal);
+	this.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);
 };
 
 /**
@@ -1114,7 +1221,7 @@ View.prototype.deletePremadeCommentCallback = function(text, xml, args) {
 	 * save the current state of the premade comments which includes
 	 * which list id is being displayed and which labels are checked
 	 */
-	this.savePremadeCommentsState();
+	thisView.savePremadeCommentsState();
 };
 
 /**
@@ -1288,8 +1395,10 @@ View.prototype.sortUpdate = function(event, ui, thisView) {
 	var premadeComment = null;
 	var isGlobal = null;
 	var premadeCommentListPositions = $.stringify(listPositions);
+	var premadeCommentLabels = null;
+	var projectId = null;
 	
-	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions);
+	thisView.postPremadeComments(premadeCommentAction, postPremadeCommentsCallback, premadeCommentListId, premadeCommentListLabel, premadeCommentId, premadeComment, isGlobal, premadeCommentListPositions, premadeCommentLabels, projectId);
 };
 
 /**
@@ -1832,18 +1941,26 @@ View.prototype.restorePremadeCommentsState = function() {
 			var labelsChecked = wise4PremadeCommentsState.labelsChecked;
 			
 			if(premadeCommentListIdSelected != null) {
-				//select the list in the drop down
-				$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).attr('selected', 'selected');
+				/*
+				 * try to retrieve the list with the given list id to make sure
+				 * the id corresponds to one of our lists and not someone else's
+				 */
+				var premadeCommentList = this.getPremadeCommentListLocally(premadeCommentListIdSelected);
 				
-				//perform a click on the select option so that the premade comments for the list are displayed
-				$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).click();
-				
-				if(labelsChecked != null) {
-					//check the labels that were previously checked
-					this.premadeCommentsPopulateCheckboxes(premadeCommentListIdSelected, labelsChecked);
+				if(premadeCommentList != null) {
+					//select the list in the drop down
+					$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).attr('selected', 'selected');
+					
+					//perform a click on the select option so that the premade comments for the list are displayed
+					$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).click();
+					
+					if(labelsChecked != null) {
+						//check the labels that were previously checked
+						this.premadeCommentsPopulateCheckboxes(premadeCommentListIdSelected, labelsChecked);
 
-					//filter the premade comments based on the labels that are checked
-					this.filterPremadeComments(premadeCommentListIdSelected, labelsChecked);
+						//filter the premade comments based on the labels that are checked
+						this.filterPremadeComments(premadeCommentListIdSelected, labelsChecked);
+					}					
 				}
 			}
 		}

@@ -131,6 +131,24 @@ View.prototype.authorDispatcher = function(type,args,obj){
 	};
 };
 
+View.prototype.authoringToolPremadeCommentsDispatcher = function(type, args, obj) {
+	if(type == 'openPremadeComments') {
+		obj.openPremadeComments();
+	} else if(type=='premadeCommentWindowLoaded') {
+		obj.premadeCommentWindowLoaded();
+	} else if(type=='addPremadeComment') {
+		obj.addPremadeComment(args[0]);
+	} else if(type=='deletePremadeComment') {
+		obj.deletePremadeComment(args[0], args[1]);
+	} else if(type=='deletePremadeCommentList') {
+		obj.deletePremadeCommentList(args[0]);
+	} else if(type=='premadeCommentLabelClicked') {
+		obj.premadeCommentLabelClicked(args[0]);
+	} else if(type=='premadeCommentListUncheckLabels') {
+		obj.premadeCommentListUncheckLabels(args[0]);
+	}
+};
+
 /**
  * The selectDispatcher catches events specific to the selection and
  * delegates them to the appropriate functions for this view.

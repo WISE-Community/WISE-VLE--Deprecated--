@@ -468,7 +468,14 @@ var componentloader = function(em, sl){
 				'tagMapChanged':[null,null],
 				'removeTagMap':[null,null],
 				'openProjectInImportView':[null,null],
-				'importSelectedItems':[null,null]
+				'importSelectedItems':[null,null],
+				'openPremadeComments':[null,null],
+				'premadeCommentWindowLoaded':[null, null],
+				'addPremadeComment':[null, null],
+				'deletePremadeComment':[null, null],
+				'deletePremadeCommentList':[null, null],
+				'premadeCommentLabelClicked':[null, null],
+				'premadeCommentListUncheckLabels':[null, null]
 			},
 			methods: {
 				onWindowUnload:function(view){return function(){view.onWindowUnload();};}
@@ -615,6 +622,13 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('removeTagMap', view.authorDispatcher, view);
 					view.eventManager.subscribe('openProjectInImportView', view.authorDispatcher, view);
 					view.eventManager.subscribe('importSelectedItems', view.authorDispatcher, view);
+					view.eventManager.subscribe('openPremadeComments', view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("premadeCommentWindowLoaded", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("addPremadeComment", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("deletePremadeComment", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("deletePremadeCommentList", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("premadeCommentLabelClicked", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("premadeCommentListUncheckLabels", view.authoringToolPremadeCommentsDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
 						window.parent.loaded();
