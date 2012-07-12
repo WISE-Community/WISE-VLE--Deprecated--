@@ -1661,6 +1661,8 @@ View.prototype.onProjectLoaded = function(){
 			this.placeNewNode(this.placeNodeId);
 		}
 		
+		this.premadeCommentLists = null;
+		
 		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 3);
 	}
 };
