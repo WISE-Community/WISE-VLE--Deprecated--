@@ -116,13 +116,17 @@ View.prototype.getPremadeComments = function() {
 		
 		var getPremadeCommentsArgs = {};
 		
-		if(this.authoringMode) {
+		if(this.authoringMode && this.portalProjectId != null) {
 			/*
 			 * we are in the authoring tool so we will pass in the project id
 			 * that we are currently working on in case we do not have any
 			 * premade comments lists for this project and the server needs
 			 * to create a new list and give it a name such as
-			 * "Project 684 Premade Comment List"
+			 * "Project 684 Premade Comment List". the portalProjectId will be
+			 * null if the user is opening the premade comments from the teacher
+			 * home page. in this case we do not want to set a projectId in
+			 * our request because we want to display all their premade comment
+			 * lists.
 			 */
 			getPremadeCommentsArgs['projectId'] = this.portalProjectId;
 		}
@@ -185,10 +189,22 @@ View.prototype.postPremadeComments = function(premadeCommentAction, postPremadeC
 /**
  * Filter the premade comment lists to only contain lists that have the
  * given projectId
- * @param projectId the project id we want premade comment lists for
+ * @param projectId the project id we want premade comment lists for. if null
+ * is passed in to this function, we will not perform any filtering.
  * @returns an array of premade comment lists that have the given project id
  */
 View.prototype.filterPremadeCommentListsByProjectId = function(projectId) {
+
+	/*
+	 * do not perform any filtering if projectId is null. the project id
+	 * will be null when the user clicks on "Edit Premade Comments" from
+	 * the portal because in that case there is no specific project id they
+	 * are trying to open.
+	 */
+	if(projectId == null) {
+		return this.premadeCommentLists;
+	}
+	
 	var filteredPremadeCommentLists = [];
 	
 	//loop through all the premade comment lists

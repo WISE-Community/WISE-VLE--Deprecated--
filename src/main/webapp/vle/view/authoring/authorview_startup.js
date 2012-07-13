@@ -7,8 +7,7 @@
  * Sets variables so that the authoring tool is running in portal mode
  * and starts authoring tool in appropriate state.
  */
-View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle){
-	
+View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle, editPremadeComments){
 	this.portalUrl = url;
 	/*
 	 * this editingPollInterval is used to check who is also currently editing the
@@ -66,6 +65,14 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 			
 			this.loadProject(projectFileUrl, projectFolderUrl, true);
 		}
+	}
+	
+	if(editPremadeComments == "true") {
+		//we are only loading the authoring tool so that we can open the premade comments
+		eventManager.fire('openPremadeComments');
+		
+		//we will exit this function since we don't need to really load the rest of the authoring tool
+		return;
 	}
 	
 	//load the template files for all the step types

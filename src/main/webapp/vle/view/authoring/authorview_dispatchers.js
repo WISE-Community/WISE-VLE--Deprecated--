@@ -79,7 +79,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		var relativeProjectUrl = args[2];
 		var projectId = args[3];
 		var projectTitle = args[4];
-		obj.startPortalMode(portalAuthorUrl, command, relativeProjectUrl, projectId, projectTitle);
+		var editPremadeComments = args[5];
+		obj.startPortalMode(portalAuthorUrl, command, relativeProjectUrl, projectId, projectTitle, editPremadeComments);
 	} else if(type=='whoIsEditing'){
 		obj.getEditors();
 	} else if(type=='editProjectSubmit'){
