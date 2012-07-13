@@ -446,6 +446,11 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 	//get an array of unique labels that are used in this list
 	var labels = this.getPremadeCommentLabelsFromList(premadeCommentListId);
 	
+	if(labels.length == 0) {
+		//there are no labels so we will disable the "Uncheck All Labels" button
+		$(premadeCommentListUncheckCheckboxesButton).attr('disabled', true);
+	}
+	
 	//make the div to contain the label checkboxes
 	var premadeCommentsListLabelsDiv = $("<div>").attr("id", "premadeCommentsListLabelsDiv_" + premadeCommentListId);
 	
@@ -839,6 +844,9 @@ View.prototype.createPremadeCommentLI = function(premadeCommentId, comment, prem
 		//the p element that will display the handle to use for re-ordering comments in the list
 		var premadeCommentDragHandle = createElement(this.premadeCommentsWindow.document, 'p', {id:'premadeCommentHandle_' + premadeCommentId, style:'display:inline', 'class':'premadeCommentHandle'});
 		premadeCommentDragHandle.innerHTML = '[Drag Me]';
+		
+		//make the mouse cursor into a hand when it is over the [Drag Me]
+		$(premadeCommentDragHandle).mouseover(function() {$(this).css('cursor', 'pointer');});
 		
 		//the delete button to delete the premade comment
 		var premadeCommentDeleteButton = createElement(this.premadeCommentsWindow.document, 'input', {id:'premadeCommentDeleteButton_' + premadeCommentId, type:'button', value:'Delete', onclick:'eventManager.fire("deletePremadeComment", [' + premadeCommentId + ', ' + premadeCommentListId + '])'});
@@ -1564,7 +1572,7 @@ View.prototype.getPremadeCommentLabelsFromList = function(premadeCommentListId) 
 		//get the labels for the comment
 		var currentLabels = currentPremadeComment.labels;
 		
-		if(currentLabels != null) {
+		if(currentLabels != null && currentLabels != '') {
 			//split the labels by , in case there are comma separated labels
 			var currentLabelsArray = currentLabels.split(",");
 			
@@ -1807,6 +1815,14 @@ View.prototype.premadeCommentsGenerateLabelCheckboxes = function(premadeCommentL
 			premadeCommentsListLabelsDiv.append(premadeCommentLabelText);
 			premadeCommentsListLabelsDiv.append('<br>');
 		}
+	}
+	
+	if(labels.length == 0) {
+		//there are no labels so we will disable the "Uncheck All Labels" button
+		$('#premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, this.premadeCommentsWindow.document).attr('disabled', true);
+	} else {
+		//there are labels so we will enable the "Uncheck All Labels" button
+		$('#premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, this.premadeCommentsWindow.document).removeAttr('disabled');
 	}
 };
 
