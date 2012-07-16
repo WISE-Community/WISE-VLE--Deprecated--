@@ -166,7 +166,7 @@ public class StepWork extends PersistableDomain {
 	
 	/**
 	 * Returns a list of StepWork done by the specified workgroup with the specified id or null
-	 * if no such StepWork exists.
+	 * if no such StepWork exists. The list will be ordered oldest to newest.
 	 * @param id
 	 * @param clazz 
 	 * @return 
@@ -225,7 +225,8 @@ public class StepWork extends PersistableDomain {
 	}
 	
 	/**
-	 * Get the StepWork for the given UserInfo and Node
+	 * Get the StepWork for the given UserInfo and Node. The list will be ordered from
+	 * newest to oldest.
 	 * @param userInfo
 	 * @param node
 	 * @return a list of StepWork for the user and node
@@ -244,7 +245,7 @@ public class StepWork extends PersistableDomain {
 	
 	/**
 	 * Returns a list of StepWork done by the specified UserInfo user and have 
-	 * 		a nodeId that is in the nodeList
+	 * a nodeId that is in the nodeList. The list will be ordered oldest to newest.
 	 * @param userInfo a UserInfo object
 	 * @param nodeList a list of Node objects
 	 * @return a list of StepWork objects
@@ -253,7 +254,7 @@ public class StepWork extends PersistableDomain {
 	public static List<StepWork> getByUserInfoAndNodeList(UserInfo userInfo, List<Node> nodeList) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<StepWork> result =  session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).add(createNodeOrCriterion(nodeList, 0)).list();
+        List<StepWork> result =  session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).add(createNodeOrCriterion(nodeList, 0)).addOrder(Order.asc("endTime")).list();
         session.getTransaction().commit();
         return result;
 	}
@@ -282,7 +283,7 @@ public class StepWork extends PersistableDomain {
 	
 	/**
 	 * Returns a list of StepWork done by the specified workgroup with the specified id or null
-	 * if no such Environment exists.
+	 * if no such Environment exists. The list will be ordered oldest to newest.
 	 * @param id
 	 * @param clazz 
 	 * @return 
@@ -292,7 +293,7 @@ public class StepWork extends PersistableDomain {
 	public static List<StepWork> getByUserInfosAndNode(List<UserInfo> userInfos, Node node) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<StepWork> result =  session.createCriteria(StepWork.class).add(createUserInfoOrCriterion(userInfos, 0)).add(Restrictions.eq("node", node)).list();
+        List<StepWork> result =  session.createCriteria(StepWork.class).add(createUserInfoOrCriterion(userInfos, 0)).add(Restrictions.eq("node", node)).addOrder(Order.asc("endTime")).list();
         session.getTransaction().commit();
         return result;
 	}
@@ -343,7 +344,8 @@ public class StepWork extends PersistableDomain {
 	
 	/**
 	 * Returns an Environment with the specified id or null
-	 * if no such Environment exists.
+	 * if no such Environment exists. The list will be ordered
+	 * oldest to newest.
 	 * @param id
 	 * @param clazz 
 	 * @return 
@@ -354,7 +356,7 @@ public class StepWork extends PersistableDomain {
     	Node node = (Node) Node.getById(new Long(id), Node.class);
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<StepWork> result =  session.createCriteria(StepWork.class).add( Restrictions.eq("node", node)).list();
+        List<StepWork> result =  session.createCriteria(StepWork.class).add(Restrictions.eq("node", node)).addOrder(Order.asc("endTime")).list();
         session.getTransaction().commit();
         return result;
 	}
