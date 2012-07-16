@@ -176,7 +176,7 @@ public class StepWork extends PersistableDomain {
 	public static List<StepWork> getByUserInfo(UserInfo userInfo) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<StepWork> result =  session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).list();
+        List<StepWork> result =  session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).addOrder(Order.asc("endTime")).list();
         session.getTransaction().commit();
         return result;
 	}
@@ -193,7 +193,7 @@ public class StepWork extends PersistableDomain {
 	public static StepWork getLatestByUserInfo(UserInfo userInfo) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<StepWork> list = session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).addOrder(Order.desc("postTime")).list();
+        List<StepWork> list = session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo)).addOrder(Order.desc("endTime")).list();
         StepWork result = null;
         if (list.size() > 0) {
         	result = list.get(0);
@@ -215,7 +215,7 @@ public class StepWork extends PersistableDomain {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         List<StepWork> list = session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo))
-        	.add(Restrictions.eq("node",node)).addOrder(Order.desc("postTime")).list();
+        	.add(Restrictions.eq("node",node)).addOrder(Order.desc("endTime")).list();
         StepWork result = null;
         if (list.size() > 0) {
         	result = list.get(0);
@@ -235,7 +235,7 @@ public class StepWork extends PersistableDomain {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         List<StepWork> result = session.createCriteria(StepWork.class).add(Restrictions.eq("userInfo", userInfo))
-        	.add(Restrictions.eq("node",node)).addOrder(Order.desc("postTime")).list();
+        	.add(Restrictions.eq("node",node)).addOrder(Order.desc("endTime")).list();
 
         session.getTransaction().commit();
         return result;
