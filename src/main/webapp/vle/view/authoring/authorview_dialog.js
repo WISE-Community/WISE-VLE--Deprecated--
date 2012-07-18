@@ -449,6 +449,9 @@ View.prototype.initializeCopyProjectDialog = function (){
 		 * 513
 		 */
 		var success = function(t,x,o){
+			// close any project that has been opened, if any.
+			o.notifyPortalCloseProject();
+
 			o.notificationManager.notify('Project Copied', 3);
 			/* create new project in the portal if in portal mode */
 			if(o.portalUrl){
