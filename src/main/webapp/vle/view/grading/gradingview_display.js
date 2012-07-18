@@ -1580,6 +1580,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var stepWorkId = null;
 		var studentWork = null;
 		var latestNodeVisitPostTime = null;
+		var latestNodeVisitEndTime = null;
 		
 		//get the revisions
 		var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
@@ -1595,6 +1596,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 			stepWorkId = latestNodeVisit.id;
 			studentWork = latestNodeVisit.getLatestWork();
 			latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+			latestNodeVisitEndTime = latestNodeVisit.visitEndTime;
 		}
 		
 		/*
@@ -1729,7 +1731,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		}
 		
 		//get the html for the student work td
-		gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitPostTime);
+		gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitEndTime);
 		
 		//make the css class for the td that will contain the score and comment boxes
 		var scoringAndCommentingTdClass = "gradeColumn gradingColumn";
@@ -1760,6 +1762,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				//get a node visit
 				var nodeVisitRevision = nodeVisitRevisions[revisionCount];
 				var revisionPostTime = nodeVisitRevision.visitPostTime;
+				var revisionEndTime = nodeVisitRevision.visitEndTime;
 				
 				//get the work from the node visit
 				var revisionWork = nodeVisitRevision.getLatestWork();
@@ -1791,7 +1794,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				//display the data for the revision
 				gradeByStepGradingPageHtml += "<tr id='" + studentWorkRowRevisionId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none' isFlagged='" + isFlagged + "'>";
 				gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div>" + userNamesHtml + "</div><div>Revision " + (revisionCount + 1) + "</div></td>";
-				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
+				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionEndTime);
 				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, autoGradedFields);
 				gradeByStepGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 				gradeByStepGradingPageHtml += "</tr>";
@@ -3198,11 +3201,13 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			var stepWorkId = null;
 			var studentWork = null;
 			var latestNodeVisitPostTime = null;
+			var latestNodeVisitEndTime = null;
 			
 			if (latestNodeVisit != null) {
 				stepWorkId = latestNodeVisit.id;
 				studentWork = latestNodeVisit.getLatestWork();
 				latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+				latestNodeVisitEndTime = latestNodeVisit.visitEndTime;
 			}
 
 			//get the latest flag value
@@ -3283,7 +3288,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			var studentWorkTdClass = "gradeByTeamWorkColumn";
 			
 			//get the html for the student work td
-			displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitPostTime);
+			displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitEndTime);
 			
 			//check if we want to enable/disable grading for this student/row
 			var isGradingDisabled = "";
@@ -3323,6 +3328,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 					//get a node visit
 					var nodeVisitRevision = nodeVisitRevisions[revisionCount];
 					var revisionPostTime = nodeVisitRevision.visitPostTime;
+					var revisionEndTime = nodeVisitRevision.visitEndTime;
 					
 					//get the work from the node visit
 					var revisionWork = nodeVisitRevision.getLatestWork();
@@ -3351,7 +3357,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 					
 					//display the data for the revision
 					displayGradeByTeamGradingPageHtml += "<tr id='studentWorkRow_"+workgroupId+"_"+nodeId+"_" + revisionStepWorkId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none'>";
-					displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
+					displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionEndTime);
 					displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, nodeVisitRevision.id, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, autoGradedFields);
 					displayGradeByTeamGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 					displayGradeByTeamGradingPageHtml += "</tr>";
@@ -4572,6 +4578,9 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 		//get the timestamp for when the work was posted
 		var nodeVisitPostTime = nodeVisit.visitPostTime;
 		
+		//get the timestamp for when the student ended the visit
+		var nodeVisitEndTime = nodeVisit.visitEndTime;
+		
 		//get the node object that the work is for
 		var node = this.getProject().getNodeById(nodeVisit.nodeId);
 		
@@ -4587,7 +4596,7 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
-			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitPostTime) + "</p>");	
+			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitEndTime) + "</p>");	
 		}
 	}
 };
