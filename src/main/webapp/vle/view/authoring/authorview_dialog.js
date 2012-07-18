@@ -21,6 +21,9 @@ View.prototype.initializeCreateProjectDialog = function(){
 		
 		/* success callback function for creating a new project */
 		var success = function(t,x,o){
+			/* notify to close any opened projects in the AT */
+			o.notifyPortalCloseProject();
+
 			var path = t;
 			
 			/*
@@ -33,7 +36,7 @@ View.prototype.initializeCreateProjectDialog = function(){
 			/* publish the project to the portal if we are in portal mode */
 			if(o.portalUrl){
 				o.createPortalProject(path, $('#projectInput').val());
-			} else {
+			} else {				
 				/* just load the newly created project */
 				o.loadProject(o.authoringBaseUrl + projectFileName, o.utils.getContentBaseFromFullUrl(o.authoringBaseUrl + path), false);
 			}
