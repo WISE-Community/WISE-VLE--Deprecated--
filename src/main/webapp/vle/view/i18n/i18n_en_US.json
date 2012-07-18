@@ -359,6 +359,10 @@
 		"value":"Period",
 		"description":"Period"
 	},	
+	"workgroupId":{
+		"value":"Workgroup Id",
+		"description":"Workgroup Id"
+	},	
 	"team":{
 		"value":"Student Team",
 		"description":"Student Team"

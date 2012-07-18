@@ -853,6 +853,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 	//the header row
 	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
 			"<th class='gradeColumn col2'>"+this.getI18NString("team")+"</th>"+
+			"<th class='gradeColumn'>"+this.getI18NString("workgroupId")+"</th>"+
 			"<th class='gradeColumn col3'>"+this.getI18NString("grading_grade_by_team_teacher_graded_score")+"</th>"+
 			"<th>"+this.getI18NString("grading_grade_by_step_items_to_review")+"</th><th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th></tr></thead>";
 	
@@ -898,7 +899,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
@@ -1672,9 +1673,11 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		}
 		
 		//display the student workgroup id
-		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>"+
-			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div>";
-
+		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>";
+		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("workgroupId")+": " + workgroupId + "</div>";
+		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("period")+" " + periodName + "</div>";
+		gradeByStepGradingPageHtml += "<div>" + toggleRevisionsLink + "</div>";
+		
 		//get the automatically assigned groups used in this project, if any
 		var autoGroupsUsed = this.project.getAutoGroupsUsed();
 		
@@ -3038,7 +3041,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	
 	var userNames = this.getUserNamesByWorkgroupId(workgroupId, 0);
 	
-	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames+ "</span>";
+	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames + " [" + this.getI18NString("workgroupId") + ": " + workgroupId + "]</span>";
 	gradeByTeamGradingPageHtml += "<div style='float:right;'>";
 	
 	//show the step title and prompt
