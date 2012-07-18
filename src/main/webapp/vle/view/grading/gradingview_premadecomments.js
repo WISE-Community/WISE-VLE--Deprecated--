@@ -357,10 +357,12 @@ View.prototype.renderPremadeComments = function() {
 		if(thisView.authoringMode) {
 			/*
 			 * we are in authoring mode so we will pass in the project id
-			 * and the new list label that contains the project id
+			 * and null for the label because the server will generate
+			 * the label for us and populate it with the project id, run id,
+			 * and project/run name
 			 */
 			projectId = thisView.portalProjectId;
-			premadeCommentListLabel = "Project " + thisView.portalProjectId + " Premade Comment List (New)";
+			premadeCommentListLabel = null;
 		}
 
 		//make the request to edit the premade comment on the server
