@@ -440,7 +440,7 @@ View.prototype.createPremadeCommentsListDiv = function(premadeCommentList,signed
 	}
 	
 	//create the button that will uncheck all the label checkboxes
-	var premadeCommentListUncheckCheckboxesButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, value:'Uncheck All Labels', onclick:'eventManager.fire("premadeCommentListUncheckLabels", [' + premadeCommentListId + '])'});
+	var premadeCommentListUncheckCheckboxesButton = createElement(this.premadeCommentsWindow.document, 'input', {type:'button', id:'premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, value:'Uncheck All Labels', onclick:'eventManager.fire("premadeCommentListUncheckLabels", [' + premadeCommentListId + '])', disabled:true});
 
 	//add the uncheck label checkboxes button to the div
 	premadeCommentsListDiv.append(premadeCommentListUncheckCheckboxesButton);
@@ -1658,6 +1658,9 @@ View.prototype.filterPremadeComments = function(premadeCommentListId, labelsChec
 	//get the array of premade comments
 	var premadeComments = premadeCommentList.premadeComments;
 	
+	//whether any of the checkboxes are checked
+	var atLeastOneChecked = false;
+	
 	//loop through all the premade comments
 	for(var x=0; x<premadeComments.length; x++) {
 		//get a premade comment
@@ -1687,6 +1690,7 @@ View.prototype.filterPremadeComments = function(premadeCommentListId, labelsChec
 					
 					if(labelsChecked.indexOf(currentLabel) != -1) {
 						showPremadeComment = true;
+						atLeastOneChecked = true;
 					}
 				}
 			}
@@ -1702,6 +1706,14 @@ View.prototype.filterPremadeComments = function(premadeCommentListId, labelsChec
 			//do not show this premade comment
 			$('#premadeCommentLI_' + premadeCommentId, this.premadeCommentsWindow.document).hide();
 		}
+	}
+	
+	if(atLeastOneChecked) {
+		//there is at least one label checked so we will enable the "Uncheck All Labels" button
+		$('#premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, this.premadeCommentsWindow.document).removeAttr('disabled');
+	} else {
+		//there are no checkboxes checked so we will disable the "Uncheck All Labels" button
+		$('#premadeCommentListUncheckCheckboxesButton_' + premadeCommentListId, this.premadeCommentsWindow.document).attr('disabled', true);
 	}
 };
 
