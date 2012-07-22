@@ -66,6 +66,7 @@ var componentloader = function(em, sl){
 					
 					/* set up the notePanel dialog in the view */
 					document.body.appendChild(createElement(document, 'div', {id:'notePanel'}));
+					document.body.appendChild(createElement(document, 'div', {id:'feedbackDialog'}));
 					
 					//define the width of the note dialog
 					var noteWidth = 650;
@@ -95,6 +96,8 @@ var componentloader = function(em, sl){
 							});
 						}
 					});
+					
+					$('#feedbackDialog').dialog({autoOpen:false, dialogClass: 'dialogFeed', zIndex: '100009', buttons: [{text: "OK", click: function() {$(this).dialog('close');}}]});
 				}
 			}
 		},
