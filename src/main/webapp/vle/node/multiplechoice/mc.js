@@ -403,6 +403,12 @@ MC.prototype.checkAnswer = function() {
 				if(this.node.getType()=='ChallengeNode') {
 					//highlight the feedback in yellow if this is a challenge question
 					$('#feedback_' + choiceIdentifier).css('background-color', 'yellow');
+					
+					//show the feedback in popup style dialog as well
+					var resultMsg = this.getResultMessage(this.isCorrect(choice.identifier), true);
+					if ((choice.feedback.length + resultMsg.length) != 0) {
+						this.node.showFeedbackDialog(choice.feedback + "<br\>" + resultMsg);
+					}
 				}
 				
 				var choiceTextDiv = document.getElementById("choicetext:" + choiceIdentifier);
@@ -585,9 +591,10 @@ MC.prototype.getScore = function(numAttempts){
  * constraints and returns a message string.
  * 
  * @param boolean - isCorrect
+ * @param boolean - noFormat, return plain text
  * @return string - html response
  */
-MC.prototype.getResultMessage = function(isCorrect){
+MC.prototype.getResultMessage = function(isCorrect, noFormat){
 	var message = '';
 	
 	/* we need to retrieve the attempt object corresponding to the current number of attempts */
@@ -611,7 +618,11 @@ MC.prototype.getResultMessage = function(isCorrect){
 				/* create the linkTo and add it to the message */
 				var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
 				this.node.addLink(linkTo);
-				msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.';
+				if (noFormat === true) {
+					msg += 'Step ' + stepNumberAndTitle + ' before trying again.';
+				} else {
+					msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.';
+				}
 				
 				//create the message that will display in the alert
 				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
