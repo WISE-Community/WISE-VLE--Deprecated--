@@ -47,9 +47,11 @@ ASSESSMENTLISTSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 
 /**
  * Returns the human readable student's answer
+ * @param showAutoScoreResult whether to show the auto score result
+ * @param isLockAfterSubmit whether the step locks after submit
  * @return a string containing the human readable answer
  */
-ASSESSMENTLISTSTATE.prototype.getStudentWorkString = function(showAutoScoreResult) {
+ASSESSMENTLISTSTATE.prototype.getStudentWorkString = function(showAutoScoreResult, isLockAfterSubmit) {
 	var studentWorkSoFar = "";
 	var autoScoreTotalScore = 0;   // total auto scored points the student earned
 	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
@@ -102,6 +104,17 @@ ASSESSMENTLISTSTATE.prototype.getStudentWorkString = function(showAutoScoreResul
 		studentWorkSoFar += "<br/><br/>";
 		studentWorkSoFar += "Auto Score Results Summary: ";
 		studentWorkSoFar += "Student got " + autoScoreTotalScore + " points out of " + autoScoreTotalMaxScore;
+	}
+	
+	var isSubmit = this.isSubmit;
+	
+	if(isLockAfterSubmit) {
+		/*
+		 * this is a lock after submit step so we will display whether
+		 * this node state was a submit
+		 */
+		studentWorkSoFar += "<br/><br/>";
+		studentWorkSoFar += "Is Submit: " + isSubmit;
 	}
 	
 	return studentWorkSoFar;

@@ -2154,6 +2154,28 @@ public class VLEGetXLS extends VLEServlet {
 			}
 		}
 		
+		if(nodeContent != null && nodeContent.has("isLockAfterSubmit")) {
+			try {
+				boolean isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+				
+				if(isLockAfterSubmit) {
+					/*
+					 * this step locks after submit so we will create a header column
+					 * for whether the student work "Is Submit"
+					 */
+					stepExtra = "Is Submit";
+					
+					//set the header cells for the column
+					columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
+							stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+							nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
 		return columnCounter;
 	}
 	
@@ -2447,6 +2469,14 @@ public class VLEGetXLS extends VLEServlet {
 				//get the node states
 				JSONArray nodeStatesJSON = stepWorkDataJSON.getJSONArray("nodeStates");
 
+				JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+				boolean isLockAfterSubmit = false;
+				
+				if(nodeContent != null && nodeContent.has("isLockAfterSubmit")) {
+					//get whether this step locks after submit
+					isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+				}
+				
 				if(nodeStatesJSON.length() != 0) {
 					//get the last state
 					JSONObject lastState = nodeStatesJSON.getJSONObject(nodeStatesJSON.length() - 1);
@@ -2485,6 +2515,16 @@ public class VLEGetXLS extends VLEServlet {
 								columnCounter++;
 							}
 							
+							if(isLockAfterSubmit) {
+								//this step locks after submit
+								boolean isSubmit = lastState.getBoolean("isSubmit");
+								
+								//set whether the student work was a submit
+								rowForWorkgroupId.createCell(columnCounter).setCellValue(isSubmit);
+								
+								columnCounter++;
+							}
+							
 							//set the max number of step work parts if necessary
 							if(assessments.length() > maxNumberOfStepWorkParts) {
 								maxNumberOfStepWorkParts = assessments.length();
@@ -2499,6 +2539,14 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//increment the column counter
 					columnCounter += numberOfAnswerFields;
+					
+					if(isLockAfterSubmit) {
+						/*
+						 * increment the counter by one to take into consideration
+						 * the column for "Is Submit"
+						 */
+						columnCounter++;
+					}
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -2611,6 +2659,21 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//the number of assessments will be the same as the number of answers
 					numAnswerFields = assessmentParts.length();
+					
+					boolean isLockAfterSubmit = false;
+					
+					if(nodeContent.has("isLockAfterSubmit")) {
+						isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+					}
+					
+					if(isLockAfterSubmit) {
+						/*
+						 * this step locks after submit so there will be a column
+						 * for "Is Submit" so we will need to increment the numAnswerFields
+						 * by 1.
+						 */
+						numAnswerFields++;
+					}
 				}				
 			}
 		} catch (JSONException e) {

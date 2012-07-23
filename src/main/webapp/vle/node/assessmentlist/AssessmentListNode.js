@@ -63,7 +63,16 @@ AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 	
 	// get human readable work string
 	var showAutoScoreResult = true;
-	var readableStudentWork = assessmentListState.getStudentWorkString(showAutoScoreResult);
+	
+	var isLockAfterSubmit = false;
+	var contentJSON = this.content.getContentJSON();
+	
+	if(contentJSON != null) {
+		//get whether this step locks after submit
+		isLockAfterSubmit = contentJSON.isLockAfterSubmit;
+	}
+	
+	var readableStudentWork = assessmentListState.getStudentWorkString(showAutoScoreResult, isLockAfterSubmit);
 	$('#' + divId).html(readableStudentWork);
 };
 
@@ -205,6 +214,14 @@ AssessmentListNode.prototype.getHtmlView = function(nodeState) {
 	var autoScoreTotalScore = 0;   // total auto scored points the student earned
 	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
 	
+	var isLockAfterSubmit = false;
+	var contentJSON = this.content.getContentJSON();
+	
+	if(contentJSON != null) {
+		//get whether this step locks after submit
+		isLockAfterSubmit = contentJSON.isLockAfterSubmit;
+	}
+	
 	if(nodeState != null) {
 		//check if there were any responses
 		if(nodeState.assessments) {
@@ -254,6 +271,17 @@ AssessmentListNode.prototype.getHtmlView = function(nodeState) {
 			studentWorkSoFar += "<br/><br/>";
 			studentWorkSoFar += "Auto Score Results Summary: ";
 			studentWorkSoFar += "Student got " + autoScoreTotalScore + " points out of " + autoScoreTotalMaxScore;
+		}
+		
+		var isSubmit = nodeState.isSubmit;
+		
+		if(isLockAfterSubmit) {
+			/*
+			 * this is a lock after submit step so we will display whether
+			 * this node state was a submit
+			 */
+			studentWorkSoFar += "<br/><br/>";
+			studentWorkSoFar += "Is Submit: " + isSubmit;
 		}
 	}
 	
