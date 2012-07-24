@@ -539,6 +539,31 @@ SVGDRAW.prototype.hideTools = function(option){
 	}
 };
 
+SVGDRAW.prototype.autoGradeWork = function() {
+	console.log('autograding begin');
+	var scorer = new DrawScorer();	
+	scorer.parseXMLSpec("autograde/MethaneSpec.xml");		
+	
+	if (this.teacherAnnotation != "") {
+		svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
+	}
+	this.studentData.svgString = svgCanvas.getSvgString();
+	this.studentData.description = svgEditor.description;
+	this.studentData.snapshots = svgEditor.snapshots;
+	this.studentData.snapTotal = svgEditor.snapTotal;
+	if(svgEditor.selected == true){
+		this.studentData.selected = svgEditor.active;
+	} else {
+		this.studentData.selected = -1;
+	}
+	
+	scorer.scoreDrawing(this.studentData);
+	alert("auto score returned: " + this.studentData.rubricScore + " out of 5.");
+	console.log('autograding end');
+};
+
+
+
 /*SVGDRAW.prototype.checkDrawSize = function(context){
 	var current = svgCanvas.getSvgString();
 	var compressed = context.lz77.compress(current);
