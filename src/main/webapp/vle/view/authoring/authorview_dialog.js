@@ -480,7 +480,7 @@ View.prototype.initializeCopyProjectDialog = function (){
 		$('#copyProjectDialog').dialog('close');
 	};
 	
-	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, draggable:false, title:'Copy a Project', width:500, buttons: {'Cancel': cancel, 'Copy': submit}});
+	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, draggable:false, title:'Copy a Project', width:650, buttons: {'Cancel': cancel, 'Copy': submit}});
 };
 
 /**

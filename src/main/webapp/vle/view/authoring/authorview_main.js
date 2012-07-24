@@ -1123,7 +1123,7 @@ View.prototype.copyProject = function(){
 	};
 	
 	if(this.portalUrl){
-		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList'}, function(t,x,o){doSuccess(t,o);}, this);
+		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', projectTag: 'authorableAndLibrary'}, function(t,x,o){doSuccess(t,o);}, this);
 	} else {
 		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', 'projectPaths': this.projectPaths}, function(t,x,o){doSuccess(t,o);}, this);
 	};
@@ -2030,7 +2030,7 @@ View.prototype.onWindowUnload = function(logout){
  * Retrieves and populates the project list for the open project dialog.
  */
 View.prototype.retrieveProjectList = function(){
-	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths}, this.retrieveProjectListSuccess, this, this.retrieveProjectListFailure);
+	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', projectTag: 'authorable', 'projectPaths': this.projectPaths}, this.retrieveProjectListSuccess, this, this.retrieveProjectListFailure);
 };
 
 /**

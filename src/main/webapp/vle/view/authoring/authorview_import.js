@@ -12,10 +12,10 @@ View.prototype.displayImportView = function() {
 	$('#importView').html(html);
 	
 	//retrieve the projects that are authorable by the user
-	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths}, this.retrieveImportProjectListSuccess, {thisView:this, projectType:'authorable'}, this.retrieveImportProjectListFail);
+	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths, projectTag: 'authorable'}, this.retrieveImportProjectListSuccess, {thisView:this, projectType:'authorable'}, this.retrieveImportProjectListFail);
 	
 	//retrieve the library projects
-	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths, 'projectTag':'library'}, this.retrieveImportProjectListSuccess, {thisView:this, projectType:'library'}, this.retrieveImportProjectListFail);
+	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths, projectTag: 'library'}, this.retrieveImportProjectListSuccess, {thisView:this, projectType:'library'}, this.retrieveImportProjectListFail);
 	
 	//display the dialog
 	$('#importViewDialog').dialog('open');
