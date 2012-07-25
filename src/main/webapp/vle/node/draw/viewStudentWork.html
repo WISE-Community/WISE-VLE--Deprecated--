@@ -36,21 +36,21 @@ function loadStudentData() {
 	document.getElementById('navigationDiv').innerHTML += '<input type="button" value="Next" onclick="displayNext()"/>';
 
 	//get the array of student data
-	var studentDataArray = data.studentDataArray;
+	var students = data.students;
 
 	//loop through the array of student data
-	for(var x=0; x<studentDataArray.length; x++) {
+	for(var x=0; x<students.length; x++) {
 		//get a student data object
-		var tempStudentDataObj = studentDataArray[x];
+		var student = students[x];
 		
-		if(tempStudentDataObj != null) {
+		if(student != null) {
 			//get the workgroup id
-			var tempWorkgroupId = tempStudentDataObj.workgroupId;
+			var workgroupId = student.workgroupId;
 			
 			//create an option element
 			var tempOption = document.createElement('option');
-			tempOption.value = tempWorkgroupId;
-			tempOption.text = tempWorkgroupId;
+			tempOption.value = workgroupId;
+			tempOption.text = workgroupId;
 			
 			//put the option element into the drop down
 			document.getElementById('workgroupIdSelect').appendChild(tempOption);
@@ -67,20 +67,20 @@ function loadStudentData() {
  */
 function getStudentDataByWorkgroupId(workgroupId) {
 	//get the array of student data
-	var studentDataArray = data.studentDataArray;
+	var students = data.students;
 
 	//loop through the array of student data
-	for(var x=0; x<studentDataArray.length; x++) {
+	for(var x=0; x<students.length; x++) {
 		//get a student data object
-		var tempStudentDataObj = studentDataArray[x];
+		var student = students[x];
 		
-		if(tempStudentDataObj != null) {
+		if(student != null) {
 			//get the workgroup id
-			var tempWorkgroupId = tempStudentDataObj.workgroupId;
+			var tempWorkgroupId = student.workgroupId;
 			
 			if(workgroupId == tempWorkgroupId) {
 				//we have found the workgroup id we want
-				return tempStudentDataObj;
+				return student;
 			}
 		}
 	}
@@ -141,7 +141,7 @@ function displayNext() {
 
 /**
  * Display the student data for the workgroup id that is currently selected
- * in the drop down
+ * in the drop down. This will also display all revisions if there were any.
  */
 function displayStudentData() {
 	//get the selected index in the drop down
@@ -154,10 +154,10 @@ function displayStudentData() {
 	var workgroupId = options[selectedIndex].value;
 	
 	//get the student data object for the workgroup id
-	var tempStudentDataObj = getStudentDataByWorkgroupId(workgroupId);
+	var student = getStudentDataByWorkgroupId(workgroupId);
 	
 	//get the step work id
-	var stepWorkId = tempStudentDataObj.stepWorkId;
+	var stepWorkId = student.stepWorkId;
 	
 	if(stepWorkId == null || stepWorkId == '') {
 		//there is no step work id
@@ -167,28 +167,115 @@ function displayStudentData() {
 	//clear out the student data div to wipe out the previous student data we were displaying
 	document.getElementById('studentDataDiv').innerHTML = '';
 	
-	//display the step work id
-	document.getElementById('studentDataDiv').innerHTML += 'Step Work Id: ' + stepWorkId + '<br>';
+	//counts the number of revisions
+	var revisionCounter = 1;
 
-	//get the student data
-	var studentData = tempStudentDataObj.studentData;
-	var svgString = '';
+	//will hold all the student work including revisions
+	var studentDataHtml = '';
 
-	if(studentData != null && studentData != '') {
+	//get the array of student data for the selected workgroup id
+	var studentDataArray = student.studentDataArray;
+	
+	if(studentDataArray != null && studentDataArray != '') {
+		//loop through all the student data
+		for(var x=0; x<studentDataArray.length; x++) {
+			//get a student data
+			var studentData = studentDataArray[x];
+			
+			if(studentData != null) {
+				//get the data
+				var data = studentData.data;
+				
+				//get the step work id
+				var stepWorkId = studentData.stepWorkId;
+				
+				//get the time the student started working on the step
+				var startTime = data.visitStartTime;
+				
+				//get the time the student ended working on the step
+				var endTime = data.visitEndTime;
+				
+				if(startTime != null) {
+					//convert the start time from milliseconds to date
+					startTime = new Date(startTime);
+				}
+				
+				if(endTime != null) {
+					//convert the end time from milliseconds to date
+					endTime = new Date(endTime);
+				}
+				
+				//get all the node states
+				var nodeStates = data.nodeStates;
+				
+				if(nodeStates != null && nodeStates != '') {
+					//loop through the node states backwards to find the latest node state that has work
+					for(var y=nodeStates.length - 1; y>=0; y--) {
+						//get a node state
+						var nodeState = nodeStates[y];
+						
+						if(nodeStateHasWork(nodeState)) {
+							//this node state has work
+							var nodeStateStudentDataHtml = '';
+						
+							//display information about the node state
+							nodeStateStudentDataHtml += 'Revision: ' + revisionCounter + '<br>';
+							nodeStateStudentDataHtml += 'Step Work Id: ' + stepWorkId + '<br>';
+							nodeStateStudentDataHtml += 'Start Time: ' + startTime + '<br>';
+							nodeStateStudentDataHtml += 'End Time: ' + endTime + '<br>';
+							nodeStateStudentDataHtml += getStudentDataHtml(nodeState);
+							nodeStateStudentDataHtml += '<hr>';
+							
+							//add this node state html to the top so that the latest node state is at the top
+							studentDataHtml = nodeStateStudentDataHtml + studentDataHtml;
+							
+							//increment the revision counter
+							revisionCounter++;
+							
+							//break out of the for loop since we have found a node state that has work
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(studentDataHtml == '') {
+		//this student didn't do any work
+		studentDataHtml = 'No Student Work';
+	}
+
+	//display the student work
+	document.getElementById('studentDataDiv').innerHTML += '<h3 style="text-align:center">Student Data</h3>' + studentDataHtml + '<br>';
+}
+
+/**
+ * Get the student work from the node state
+ * @param nodeState the node state to get student data from
+ * @return the html that will display the student work
+ */
+function getStudentDataHtml(nodeState) {
+	var studentDataHtml = '';
+
+	if(nodeState != null) {
+		//get the data
+		var data = nodeState.data;
+		
 		//remove the lz77 text
-		studentData = studentData.replace(/^--lz77--/,'');
+		data = data.replace(/^--lz77--/,'');
 		
 		//decompress the student data and create a JSON object from it
-		studentData = JSON.parse(lz77.decompress(studentData));
+		data = JSON.parse(lz77.decompress(data));
 		
 		//get the svgstring field
-		svgString = studentData.svgString;
+		svgString = data.svgString;
 		
 		/*
 		 * get the snapshots if any. if there are snapshots we will
 		 * display all the snapshots instead of the svgString.
 		 */
-		var snapshots = studentData.snapshots;
+		var snapshots = data.snapshots;
 		
 		if(snapshots != null && snapshots.length > 0) {
 			//there are snapshots
@@ -222,18 +309,37 @@ function displayStudentData() {
 			svgString = snapshotsSVGString;
 		}
 	}
-
+	
 	if(svgString == '') {
 		//this student didn't do any work
-		svgString = 'No Student Work';
+		studentDataHtml = 'No Student Work';
 	} else {
 		//add a new line before displaying the work
-		svgString = '<br>' + svgString;
+		studentDataHtml = svgString;
 	}
-
-	//display the student work
-	document.getElementById('studentDataDiv').innerHTML += 'Student Data: ' + svgString + '<br>';
+	
+	return studentDataHtml;
 }
+
+/**
+ * Check if the node state has work
+ * @param nodeState the node state we want to check if has work
+ */
+function nodeStateHasWork(nodeState) {
+	var hasWork = false;
+	
+	if(nodeState != null && nodeState != '') {
+		//get the data
+		var data = nodeState.data;
+		
+		if(data != null && data != '') {
+			//the data is not null or empty so this node state has work
+			hasWork = true;
+		}
+	}
+	
+	return hasWork;
+};
 
 </script>
 </head>

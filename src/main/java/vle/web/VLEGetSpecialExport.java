@@ -450,7 +450,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 			File dataFile = new File(zipFolder, "data.js");
 			
 			JSONObject data = new JSONObject();
-			JSONArray studentDataArray = new JSONArray();
+			JSONArray students = new JSONArray();
 			
 			try {
 				//add the project, run, and step information
@@ -540,45 +540,38 @@ public class VLEGetSpecialExport extends VLEServlet {
 				//get all the step works for this node id
 				List<StepWork> stepWorksForNodeId = getStepWorksForNodeId(stepWorksForWorkgroupId, nodeId);
 				
-				//get the latest step work that contains a response
-				StepWork latestStepWorkWithResponse = getLatestStepWorkWithResponse(stepWorksForNodeId);
+				JSONArray studentDataArray = new JSONArray();
 				
-				Long stepWorkId = null;
-				String studentData = "";
-				
-				if(latestStepWorkWithResponse != null) {
-					//get the step work id
-					stepWorkId = latestStepWorkWithResponse.getId();
+				//loop through all the step works
+				for(int y=0; y<stepWorksForNodeId.size(); y++) {
+					//get a stepwork
+					StepWork stepWork = stepWorksForNodeId.get(y);
 					
-					//get the student data
-					studentData = getStudentData(latestStepWorkWithResponse);
+					//get the student data from the step work
+					JSONObject studentData = getStudentData(stepWork);
+					
+					//put the student data into the student data array
+					studentDataArray.put(studentData);
 				}
 				
 				JSONObject studentObject = new JSONObject();
 				try {
-					//put the workgroup id into the JSON object
+					//put the workgroup id into the student object
 					studentObject.put("workgroupId", userIdLong);
 					
-					//put the student data into the JSON object
-					studentObject.put("studentData", studentData);
-					
-					//put the step work id into the JSON Object
-					if(stepWorkId == null) {
-						studentObject.put("stepWorkId", "");
-					} else {
-						studentObject.put("stepWorkId", stepWorkId);						
-					}
+					//put the array of student work into the student object
+					studentObject.put("studentDataArray", studentDataArray);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 				
 				//add the student object into the array
-				studentDataArray.put(studentObject);
+				students.put(studentObject);
 			}
 			
 			try {
-				//put the student data array into the data object
-				data.put("studentDataArray", studentDataArray);
+				//put the student array into the data object
+				data.put("students", students);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -669,137 +662,36 @@ public class VLEGetSpecialExport extends VLEServlet {
 	 * contents of the string depend on the step type
 	 * that the work was for.
 	 */
-	private String getStudentData(StepWork stepWork) {
-		String studentData = "";
+	private JSONObject getStudentData(StepWork stepWork) {
+		JSONObject studentData = new JSONObject();
 		
-		String nodeType = "";
-		Node node = null;
-
-		//get the node type
-		if(stepWork != null) {
-			node = stepWork.getNode();
+		//get the step work id
+		Long stepWorkId = stepWork.getId();
+		
+		try {
+			//set the step work id
+			studentData.put("stepWorkId", stepWorkId);
 			
-			if(node != null && node.getNodeType() != null) {
-				//get the node type from the node object e.g. "OpenResponseNode"
-				nodeType = node.getNodeType();
-			}
-		}
-		
-		if(stepWork != null) {
+			//set the default value in case there is no data
+			studentData.put("data", JSONObject.NULL);
+			
 			//get the step work data
-			String stepWorkData = stepWork.getData();
+			String data = stepWork.getData();
 			
-			if(stepWorkData != null) {
-				try {
-					//create a JSONObject from the data
-					JSONObject dataJSONObject = new JSONObject(stepWorkData);
-					
-					if(dataJSONObject.has("nodeStates")) {
-						//get the node states
-						JSONArray nodeStates = dataJSONObject.getJSONArray("nodeStates");
-						
-						if(nodeStates != null) {
-							if(nodeStates.length() > 0) {
-								//get the latest node state
-								JSONObject latestNodeState = nodeStates.getJSONObject(nodeStates.length() - 1);
-								
-								if(latestNodeState != null) {
-									if(nodeType == null || nodeType.equals("")) {
-										
-									} else if(nodeType.equals("SVGDrawNode")) {
-										
-										if(latestNodeState.has("data")) {
-											//get the data
-											studentData = latestNodeState.getString("data");											
-										}
-									} else if(nodeType.equals("Mysystem2Node")) {
-										//get the svg string that is embedded inside the response
-										
-										if(latestNodeState.has("response")) {
-											//get the response
-											String response = latestNodeState.getString("response");
-											
-											if(response != null && !response.equals("")) {
-												//get the response as a JSONObject
-												JSONObject responseJSONObject = new JSONObject(response);
-												
-												if(responseJSONObject != null && responseJSONObject.has("MySystem.GraphicPreview")) {
-													//get the MySystem.GraphicPreview JSONObject
-													JSONObject graphicPreview = responseJSONObject.getJSONObject("MySystem.GraphicPreview");
-													
-													if(graphicPreview != null && graphicPreview.has("LAST_GRAPHIC_PREVIEW")) {
-														//get the LAST_GRAPHIC_PREVIEW JSONObject
-														JSONObject lastGraphicPreview = graphicPreview.getJSONObject("LAST_GRAPHIC_PREVIEW");
-														
-														if(lastGraphicPreview != null && lastGraphicPreview.has("svg")) {
-															//get the svg string
-															String svg = lastGraphicPreview.getString("svg");
-															studentData = svg;
-														}
-													}
-												}
-											}
-										}
-									}
-								}								
-							}
-						}
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+			if(data != null && !data.equals("")) {
+				//get the JSONObject of the data
+				JSONObject jsonData = new JSONObject(data);
+				
+				//put the data into the object we will return
+				studentData.put("data", jsonData);
 			}
+		} catch (JSONException e1) {
+			e1.printStackTrace();
 		}
 		
 		return studentData;
 	}
-	
-	/**
-	 * Get the student work from the step work
-	 * @param stepWork the step work object
-	 * @return the student work as a string
-	 */
-	private String getStepWorkResponse(StepWork stepWork) {
-		String stepWorkResponse = "";
-		
-		//get the student work
-		stepWorkResponse = getStudentData(stepWork);
-		
-		return stepWorkResponse;
-	}
-	
-	/**
-	 * Get the latest StepWork that has a non-empty response
-	 * @param stepWorks a list of StepWork objects
-	 * @return a String containing the latest response
-	 */
-	private StepWork getLatestStepWorkWithResponse(List<StepWork> stepWorks) {
-		String stepWorkResponse = "";
-		StepWork stepWork = null;
-		
-		/*
-		 * loop through all the stepworks for the node id and find
-		 * the latest work
-		 */
-		for(int z=stepWorks.size() - 1; z>=0; z--) {
-			//get a step work
-			StepWork tempStepWork = stepWorks.get(z);
-			
-			//retrieve the student work from the step work, if any
-			stepWorkResponse = getStepWorkResponse(tempStepWork);
-			
-			/*
-			 * if the step work is not empty, we are done looking
-			 * for the latest work
-			 */
-			if(!stepWorkResponse.equals("")) {
-				stepWork = tempStepWork;
-				break;
-			}
-		}
-		
-		return stepWork;
-	}
+
 	/**
 	 * Get the step works only for a specific node id
 	 * @param stepWorks a list of StepWork objects
