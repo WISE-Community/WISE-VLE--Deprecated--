@@ -3,10 +3,10 @@
 #miniTip {
     /* main styles for tooltip */
     background-color: rgb(50,50,50);
-    background-color: rgba(50,50,50,.9);
+    background-color: rgba(50,50,50,.95);
 	border: 2px solid #222222;
 	color: #ffffff;
-	font-size: .8em;
+	font-size: .7em;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -22,12 +22,16 @@
 #miniTip_t {
 	/*background-color: #f5edc2;*/
 	font-weight: bold;
-	padding: .4em;
+	padding: 4px 6px;
+	width:auto;
 }
 
 /* main content style */
-#miniTip_c { padding: .4em;
+#miniTip_c {
+	padding: 2px 6px;;
 	text-align:center;
+	width:auto;
+	font-weight:bold;
 }
 
 
@@ -90,13 +94,17 @@
 
 /* title bar style */
 #miniTip.info #miniTip_t {
-	padding: .6em;
+	padding: .5em;
 	text-decoration:underline;
+	text-align:left;
 }
 
 /* main content style */
 #miniTip.info #miniTip_c {
-	padding: .6em;
+	padding: .5em;
+	text-align:left;
+	color:#444444;
+	font-weight:normal;
 }
 
 /* arrow pointing down, change border-top color to change color of the arrow */
@@ -129,4 +137,51 @@
 	border-top: 10px solid transparent;
 	border-left: 10px solid #dadf8b;
 	border-right:0;
+}
+
+#miniTip.light {
+	background-color:rgb(236, 236, 180);
+	background-color: rgba(236, 236, 180, 0.95);
+    border-color: #C6CF51;
+    border-style: solid;
+    border-width: 2px;
+    color: #333333;
+}
+
+/* title bar style */
+#miniTip.light #miniTip_t {
+	
+}
+
+/* main content style */
+#miniTip.light #miniTip_c {
+	/*font-weight:normal;*/
+}
+
+/* arrow pointing down, change border-top color to change color of the arrow */
+#miniTip.light .n {
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-top: 8px solid #C6CF51;
+}
+
+/* arrow pointing up, change border-bottom color to change color of the arrow */
+#miniTip.light .s {
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-bottom: 8px solid #C6CF51;
+}
+
+/* arrow pointing left, change border-right color to change color of the arrow */
+#miniTip.light .e {
+	border-bottom: 8px solid transparent;
+	border-top: 8px solid transparent;
+	border-right: 8px solid #C6CF51;
+}
+
+/* arrow pointing right, change border-left color to change color of the arrow */
+#miniTip.light .w {
+	border-bottom: 8px solid transparent;
+	border-top: 8px solid transparent;
+	border-left: 8px solid #C6CF51;
 }
