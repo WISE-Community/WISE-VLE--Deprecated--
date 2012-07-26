@@ -1,6 +1,7 @@
 /*!
  * jQuery Toggle Switch plugin (converts input checkboxes to toggle on/off switches)
  * Author: Jonathan Lim-Breitbart
+ * Version: 1.0
  * Licensed under the MIT license
  * Inspired by: http://tutorialzine.com/2011/03/better-check-boxes-jquery-css/
  */
@@ -75,7 +76,8 @@
 							cSlider.css({'margin-left':-offset-1 + 'px','background-color':offColor});
 		
 						// Synchronize with the original checkbox
-						cBox.attr('checked',isChecked);
+						cBox.prop('checked',isChecked);
+						cBox.triggerHandler('click');
 					});
 		
 					// Listen for changes on the original checkbox and update switch
