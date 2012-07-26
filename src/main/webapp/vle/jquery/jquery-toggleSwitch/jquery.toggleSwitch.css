@@ -1,0 +1,62 @@
+.tSwitch {
+	cursor:pointer;
+	overflow:hidden;
+	display:inline-block;
+	vertical-align:middle;
+}
+
+.tSwitch .tSwitchSlider {
+	display:block;
+	overflow:hidden;
+	position:relative;
+	height:20px;
+	line-height:20px;
+	-moz-box-shadow: inset 0 3px 4px rgba(0,0,0,.5);
+	-webkit-box-shadow: inset 0 3px 4px rgba(0,0,0,.5);
+	box-shadow: inset 0 3px 4px rgba(0,0,0,.5);
+	/*background-color:#eeeeee;*/
+	border:1px solid #565656;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	-webkit-transition: background-color 150ms, margin 150ms;
+	-moz-transition: background-color 150ms, margin 150ms;
+	-o-transition: background-color 150ms, margin 150ms;
+	-ms-transition: background-color 150ms, margin 150ms;
+	transition: background-color 150ms, margin 150ms;
+}
+
+.tSwitch.checked .tSwitchSlider {
+	/*background-color:#007391;*/
+}
+
+.tSwitch .tSwitchSlider > span {
+	position:absolute;
+	display:block;
+}
+
+.tSwitch .tSwitchLabel {
+	text-align:center;
+	font-size:10px;
+	padding:0 5px;
+	font-weight:bold;
+}
+
+.tSwitch .tSwitchOn {
+	color:#ffffff;
+}
+
+.tSwitch .tSwitchOff {
+	color:#555555;
+}
+
+.tSwitch .tSwitchHandle {
+	-moz-box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.25) inset;
+	-webkit-box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.25) inset;
+	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.25) inset;
+	background-color:#dddddd;
+	border:1px solid #777777;
+	top:0;
+	bottom:0;
+	width:20px;
+}

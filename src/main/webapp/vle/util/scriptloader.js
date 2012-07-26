@@ -48,8 +48,8 @@ var scriptloader = function(){
 	var scriptLoaderWait = 30000;
 	var callerId;
 	var loaded = [];
-	var jquerySrc = 'vle/jquery/js/jquery-1.6.1.min.js';
-	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.8.17.custom.min.js';
+	var jquerySrc = 'vle/jquery/js/jquery-1.7.2.min.js';
+	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.8.21.custom.min.js';
 	var jqueryUICss = 'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css';
 	
 	/**
@@ -300,6 +300,7 @@ var scriptloader = function(){
                   'vle/environment/environment.js',
                   jquerySrc,
   		          jqueryUISrc,
+  		          'vle/jquery/js/jquery.ui.touch-punch.min.js',
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
@@ -356,6 +357,7 @@ var scriptloader = function(){
         author: ['vle/util/icon.js',
                  'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js',
                  'vle/jquery/miniTip/jquery.miniTip.min.js',
+                 'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.js',
                  'vle/jquery/jquery-validation/jquery.validate.min.js',
                  'vle/view/authoring/authorview_dispatchers.js',
                  'vle/view/authoring/authorview_startup.js',
@@ -480,9 +482,11 @@ var scriptloader = function(){
 		bootstrap_min:["vle/css/globalstyles.css"],
 		core: [/*'vle/css/message.css'*/],
 		core_min: [/*'vle/css/message.css'*/],
-		author: ['vle/css/authoring/authoring.css',
+		author: [/*'vle/css/authoring/authoring.css',*/
+		         'vle/css/authoring/author.css',
 		         'vle/css/ui-tools.css',
 		         'vle/jquery/miniTip/miniTip.css',
+		         'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.css',
 		         jqueryUICss
 		         ],
 		//wise: ["vle/css/wise/WISE_styles.css"],
@@ -528,6 +532,7 @@ var scriptloader = function(){
         'vle/jquery/jquery-validation/jquery.validate.min.js':[jquerySrc],
         'vle/jquery/miniTip/jquery.miniTip.min.js':[jquerySrc],
         'vle/jquery/js/jquery.editinplace.js':[jquerySrc],
+        'vle/jquery/js/jquery.ui.touch-punch.min.js':[jqueryUISrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],

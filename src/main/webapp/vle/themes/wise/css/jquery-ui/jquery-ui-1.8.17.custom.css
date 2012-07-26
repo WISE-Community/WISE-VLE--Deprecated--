@@ -53,17 +53,11 @@
 
 /* Component containers
 ----------------------------------*/
-.ui-widget { font-family: Arial,sans-serif; font-size: 1.1em;  
-	/* WISE Edits */
-	font-size:1em;
-}
+.ui-widget { font-family: Arial,sans-serif; font-size: 1.1em; }
 .ui-widget .ui-widget { font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Arial,sans-serif; font-size: 1em; }
 .ui-widget-content { border: 1px solid #dddddd; background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #444444; }
-.ui-widget-content a { color: #444444;
-	/* WISE Edits */
-	color: #007391;
-}
+.ui-widget-content a { color: #444444; }
 .ui-widget-header { border: 1px solid #dddddd; background: #0e7590 url(images/ui-bg_highlight-hard_35_0e7590_1x100.png) 50% 50% repeat-x; color: #ffffff; font-weight: bold; }
 .ui-widget-header a { color: #ffffff; }
 
@@ -71,12 +65,7 @@
 ----------------------------------*/
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid #aaaaaa; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #444444; }
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #444444; text-decoration: none; }
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #888888; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #222222;
-	/* WISE Edits */
-	-moz-box-shadow:0 0 1px #aaaaaa;
-	-webkit-box-shadow:0 0 1px #aaaaaa;
-	box-shadow:0 0 1px #aaaaaa;
-}
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #888888; background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x; font-weight: bold; color: #222222; }
 .ui-state-hover a, .ui-state-hover a:hover { color: #333333; text-decoration: none; }
 .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { border: 1px solid #666666; background: #555555 url(images/ui-bg_flat_50_555555_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #ffffff; }
 .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { color: #ffffff; text-decoration: none; }
@@ -314,7 +303,8 @@
 .ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
 .ui-resizable-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
 .ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
-.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}/*
+.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
+/*
  * jQuery UI Selectable 1.8.17
  *
  * Copyright 2011, AUTHORS.txt (http://jqueryui.com/about)
@@ -324,6 +314,33 @@
  * http://docs.jquery.com/UI/Selectable#theming
  */
 .ui-selectable-helper { position: absolute; z-index: 100; border:1px dotted black; }
+/* Selectmenu
+----------------------------------*/
+.ui-selectmenu { display: block; display: inline-block; position: relative; height: 2.2em; vertical-align: middle; text-decoration: none; overflow: hidden; zoom: 1; }
+.ui-selectmenu-icon { position:absolute; right:6px; margin-top:-8px; top: 50%; }
+.ui-selectmenu-menu { padding:0; margin:0; position:absolute; top: 0; display: none; z-index: 1005;} /* z-index: 1005 to make selectmenu work with dialog */
+.ui-selectmenu-menu  ul { padding:0; margin:0; list-style:none; position: relative; overflow: auto; overflow-y: auto ; overflow-x: hidden; -webkit-overflow-scrolling: touch;} 
+.ui-selectmenu-open { display: block; }
+.ui-selectmenu-menu-popup { margin-top: -1px; }
+.ui-selectmenu-menu li { padding:0; margin:0; display: block; border-top: 1px dotted transparent; border-bottom: 1px dotted transparent; border-right-width: 0 !important; border-left-width: 0 !important; font-weight: normal !important; }
+.ui-selectmenu-menu li a,.ui-selectmenu-status { line-height: 1.4em; display: block; padding: .405em 2.1em .405em 1em; outline:none; text-decoration:none; }
+.ui-selectmenu-menu li.ui-state-disabled a, .ui-state-disabled { cursor: default; }
+.ui-selectmenu-menu li.ui-selectmenu-hasIcon a,
+.ui-selectmenu-hasIcon .ui-selectmenu-status { padding-left: 20px; position: relative; margin-left: 5px; }
+.ui-selectmenu-menu li .ui-icon, .ui-selectmenu-status .ui-icon { position: absolute; top: 1em; margin-top: -8px; left: 0; }
+.ui-selectmenu-status { line-height: 1.4em; }
+.ui-selectmenu-menu li span,.ui-selectmenu-status span { display:block; margin-bottom: .2em; }
+.ui-selectmenu-menu li .ui-selectmenu-item-header { font-weight: bold; }
+.ui-selectmenu-menu li .ui-selectmenu-item-footer { opacity: .8; }
+/* for optgroups */
+.ui-selectmenu-menu .ui-selectmenu-group { font-size: 1em; }
+.ui-selectmenu-menu .ui-selectmenu-group .ui-selectmenu-group-label { line-height: 1.4em; display:block; padding: .6em .5em 0; font-weight: bold; }
+.ui-selectmenu-menu .ui-selectmenu-group ul { margin: 0; padding: 0; }
+/* IE6 workaround (dotted transparent borders) */
+* html .ui-selectmenu-menu li { border-color: pink; filter:chroma(color=pink); width:100%; }
+* html .ui-selectmenu-menu li a { position: relative }
+/* IE7 workaround (opacity disabled) */
+*+html .ui-state-disabled, *+html .ui-state-disabled a { color: silver; }
 /*
  * jQuery UI Accordion 1.8.17
  *
@@ -412,16 +429,8 @@ button.ui-button-icon-only { width: 2.4em; } /* button elements seem to need a l
 button.ui-button-icons-only { width: 3.7em; } 
 
 /*button text element */
-.ui-button .ui-button-text { display: block; line-height: 1.4;   
-	/* WISE Edits */
-	font-size: 0.85em;
-    line-height:1.2em;
-    font-weight:normal;
-}
-.ui-button-text-only .ui-button-text { padding: .4em 1em; 
-	/* WISE Edits */
-	padding: 0.25em 0.4em;
-}
+.ui-button .ui-button-text { display: block; line-height: 1.4; }
+.ui-button-text-only .ui-button-text { padding: .4em 1em; }
 .ui-button-icon-only .ui-button-text, .ui-button-icons-only .ui-button-text { padding: .4em; text-indent: -9999999px; }
 .ui-button-text-icon-primary .ui-button-text, .ui-button-text-icons .ui-button-text { padding: .4em 1em .4em 2.1em; }
 .ui-button-text-icon-secondary .ui-button-text, .ui-button-text-icons .ui-button-text { padding: .4em 2.1em .4em 1em; }
@@ -451,65 +460,16 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
  *
  * http://docs.jquery.com/UI/Dialog#theming
  */
-.ui-dialog { position: absolute; padding: .2em; width: 300px; overflow: hidden;  
-	/* WISE edits */
-	background-clip: padding-box;
-	-moz-background-clip: padding;
-	-webkit-background-clip: padding;
-    box-shadow: 0 0 2px #222;
-    -moz-box-shadow: 0 0 2px #222;
-    -webkit-box-shadow: 0 0 2px #222;
-    /*border: 8px solid rgb(197, 205, 97);
-    border: 8px solid rgba(197, 205, 97, 0.75);*/
-    border: 7px solid rgb(40, 40, 40);
-    border: 7px solid rgba(40, 40, 40, 0.7);
-    padding: 0;
-    -moz-border-radius:2px;
-    -webkit-border-radius:2px;
-    border-radius:2px;
-}
-.ui-dialog .ui-dialog-titlebar { padding: .4em 1em; position: relative;   
-	/*WISE Edits */
-	border-radius: 0 0 0 0;
-	-webkit-border-radius: 0 0 0 0;
-	-moz-border-radius: 0 0 0 0;
-    margin: -0.1em -0.1em 0;
-    padding: 0.25em 0.5em;
-    border-bottom: 2px solid #CCCCCC;
-    background:none repeat scroll 0 0 #333333;
-}
-.ui-dialog .ui-dialog-title { float: left; margin: .1em 16px .1em 0; 
-	/*WISE Edits */
-	font-weight: normal;
-	font-size:.95em;
-}  
+.ui-dialog { position: absolute; padding: .2em; width: 300px; overflow: hidden; }
+.ui-dialog .ui-dialog-titlebar { padding: .4em 1em; position: relative; }
+.ui-dialog .ui-dialog-title { float: left; margin: .1em 16px .1em 0; }  
 .ui-dialog .ui-dialog-titlebar-close { position: absolute; right: .3em; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog .ui-dialog-titlebar-close span { display: block; margin: 1px; }
-.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus { padding: 0;
-	/* WISE Edits */
-	background: #333333;
-	padding:1px;
-	border: 0 none;
-}
-/* WISE Edits */
-.ui-dialog .ui-dialog-titlebar-close:hover .ui-icon, .ui-dialog .ui-dialog-titlebar-close:focus .ui-icon {
-	background-image: url(images/ui-icons_ffffff_256x240.png);
-}
-.ui-dialog .ui-dialog-content { position: relative; border: 0; padding: .5em 1em; background: none; overflow: auto; zoom: 1; 
-	/* WISE Edits */
-	padding: 0.5em;
-	font-size:.9em;
-}
-.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 1px 0 0 0; background-image: none; margin: .5em 0 0 0; padding: .3em 1em .5em .4em; 
-	/* WISE Edits */
-    padding: 0.2em 1em 0.4em 0.4em;
-    margin: 0;
-}
+.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus { padding: 0; }
+.ui-dialog .ui-dialog-content { position: relative; border: 0; padding: .5em 1em; background: none; overflow: auto; zoom: 1; }
+.ui-dialog .ui-dialog-buttonpane { text-align: left; border-width: 1px 0 0 0; background-image: none; margin: .5em 0 0 0; padding: .3em 1em .5em .4em; }
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset { float: right; }
-.ui-dialog .ui-dialog-buttonpane button { margin: .5em .4em .5em 0; cursor: pointer; 
-	/*WISE Edits */
-	margin: 0.3em 0.1em 0.1em 0.5em;
-}
+.ui-dialog .ui-dialog-buttonpane button { margin: .5em .4em .5em 0; cursor: pointer; }
 .ui-dialog .ui-resizable-se { width: 14px; height: 14px; right: 3px; bottom: 3px; }
 .ui-draggable .ui-dialog-titlebar { cursor: move; }
 /*
@@ -544,56 +504,14 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
  *
  * http://docs.jquery.com/UI/Tabs#theming
  */
-.ui-tabs { position: relative; padding: .2em; zoom: 1; 
-	/* WISE Edits */
-	border:0 none;
-} /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
-.ui-tabs .ui-tabs-nav { margin: 0; padding: .2em .2em 0; 
-	/* WISE Edits */
-	border-color: #DDDDDD;
-	border-radius: 0 0 0 0;
-	border-style: none none solid;
-	border-width: 0 0 1px;
-	background:transparent;
-	margin: 0 0 0.25em;
-	padding: 0.2em 0.2em 0.5em 0;
-}
-.ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 0 !important; padding: 0; white-space: nowrap;
-	/* WISE Edits */
-	border-radius: 4px 4px 4px 4px;
-	background:transparent;
-	border:0 none;
-	color: #007391;
-}
-.ui-tabs .ui-tabs-nav li a { float: left; padding: .5em 1em; text-decoration: none; 
-	/* WISE Edits */
-	color: #007391;
-	font-size:.8em;
-}
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 1px; 
-	/* WISE Edits */
-	background: #007391;
-	border: 1px solid #DDDDDD;
-	color: #FFFFFF;
-}
-/* WISE Edits */
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a {
-	color: #FFFFFF;
-}
-/* WISE Edits */
-.ui-tabs .ui-tabs-nav li a:hover, .ui-tabs .ui-tabs-nav li:hover a {
-	text-decoration:underline;
-}
-/* WISE Edits */
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a:hover, .ui-tabs .ui-tabs-nav li.ui-tabs-selected:hover a {
-	text-decoration:none;
-}
+.ui-tabs { position: relative; padding: .2em; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+.ui-tabs .ui-tabs-nav { margin: 0; padding: .2em .2em 0; }
+.ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 0 !important; padding: 0; white-space: nowrap; }
+.ui-tabs .ui-tabs-nav li a { float: left; padding: .5em 1em; text-decoration: none; }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 1px; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
-.ui-tabs .ui-tabs-panel { display: block; border-width: 0; padding: 1em 1.4em; background: none; 
-	/* WISE Edits */
-	padding:0;
-}
+.ui-tabs .ui-tabs-panel { display: block; border-width: 0; padding: 1em 1.4em; background: none; }
 .ui-tabs .ui-tabs-hide { display: none !important; }
 /*
  * jQuery UI Datepicker 1.8.17
@@ -673,12 +591,374 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
  */
 .ui-progressbar { height:2em; text-align: left; overflow: hidden; }
 .ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; }
-.ui-progressbar { height:2em; text-align: left; 
-/*WISE Edits*/
-background: none repeat scroll 0 0 #EEEEEE;
-border: 1px solid #CCCCCC;
+.ui-progressbar { height:2em; text-align: left; }
+.ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; }
+
+
+
+/*
+ * WISE Custom Style Overrides
+ */
+
+/* Component containers
+----------------------------------*/
+
+.ui-widget { font-size:1em; }
+
+.ui-widget-content a { color: #007391; }
+
+/* Interaction states
+----------------------------------*/
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+	background: #0095b3; /* Old browsers */
+	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwOTViMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwYzc2OTYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -moz-linear-gradient(top,  #0095b3 0%, #0c7696 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0095b3), color-stop(100%,#0c7696)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* IE10+ */
+	background: linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0095b3', endColorstr='#0c7696',GradientType=0 ); /* IE6-8 */
+	border: 0 none;
+    /*box-shadow: 0 0 2px #000000;*/
+    color: #FFFFFF;
 }
-.ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; 
-/*WISE Edits*/
-border: 1px solid #CCCCCC;
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { 
+	background: #eeeeee url(images/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x;
+	-moz-text-shadow: none;
+    -webkit-text-shadow: none;
+    text-shadow: none;
+	color:#007391;
+	border:0 none;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { 
+	-moz-text-shadow:none;
+	-webkit-text-shadow:none;
+	text-shadow:none;
+	color:#444444;
+	border:0 none;
+	background: #dbdbdb; /* Old browsers */
+	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2RiZGJkYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmY2ZjZmMiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -moz-linear-gradient(top,  #dbdbdb 0%, #fcfcfc 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#dbdbdb), color-stop(100%,#fcfcfc)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #dbdbdb 0%,#fcfcfc 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #dbdbdb 0%,#fcfcfc 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #dbdbdb 0%,#fcfcfc 100%); /* IE10+ */
+	background: linear-gradient(top,  #dbdbdb 0%,#fcfcfc 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dbdbdb', endColorstr='#fcfcfc',GradientType=0 ); /* IE6-8 */
+}
+
+/* Misc visuals
+----------------------------------*/
+
+/* Overlays */
+.ui-widget-overlay { 
+	background: none repeat scroll 0 0 #cccccc;
+	opacity: .5;
+	filter:Alpha(Opacity=50);
+}
+
+/*
+ * jQuery UI Button 1.8.17
+ */
+ 
+ /*button text element */
+.ui-button .ui-button-text { 
+	font-size: 0.9em;
+    line-height:1.2em;
+    -o-text-shadow: 0 0 1px #111111;
+    -moz-text-shadow: 0 0 1px #111111;
+    -webkit-text-shadow: 0 0 1px #111111;
+    text-shadow: 0 0 1px #111111;
+}
+.ui-button.ui-state-hover .ui-button-text, .ui-button.ui-state-focus .ui-button-text {
+	-o-text-shadow: none;
+	-moz-text-shadow: none;
+    -webkit-text-shadow: none;
+    text-shadow: none;
+}
+.ui-button-text-only .ui-button-text { 
+	padding: 0.4em 0.5em;
+}
+
+/*
+ * jQuery UI Dialog 1.8.17
+ */
+ 
+.ui-dialog { 
+	background: none repeat scroll 0 0 rgb(30, 30, 30);
+	background: none repeat scroll 0 0 rgba(30, 30, 30, 0.9);
+    border: 0 none;
+    -o-border-radius: 5px 5px 5px 5px;
+    -moz-border-radius: 5px 5px 5px 5px;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    -o-box-shadow: 0 0 3px #555555;
+    -moz-box-shadow: 0 0 3px #555555;
+    -webkit-box-shadow: 0 0 3px #555555;
+    box-shadow: 0 0 3px #555555;
+    padding: 0.5em 0.75em .75em;
+}
+.ui-dialog .ui-dialog-titlebar { 
+	background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    margin: 0;
+    padding: 0 0 0.5em;
+}
+.ui-dialog .ui-dialog-title { 
+	font-weight: bold;
+	font-size:.95em;
+	margin: 0.1em 16px 0.1em 2px;
+}  
+.ui-dialog .ui-dialog-titlebar-close { 
+	margin: -13px 0 0 0;
+	padding:0;
+	width: 16px;
+	right:0;
+}
+.ui-dialog .ui-dialog-titlebar-close:hover, .ui-dialog .ui-dialog-titlebar-close:focus { 
+	background: none;
+	border: 0 none transparent;
+	-o-box-shadow: 0 0 0 transparent;
+	-moz-box-shadow: 0 0 0 transparent;
+	-webkit-box-shadow: 0 0 0 transparent;
+	box-shadow: 0 0 0 transparent;
+}
+.ui-dialog .ui-dialog-titlebar-close:hover .ui-icon, .ui-dialog .ui-dialog-titlebar-close:focus .ui-icon {
+	background-image: url(images/ui-icons_ffffff_256x240.png);
+}
+.ui-dialog .ui-dialog-content { 
+	background: none repeat scroll 0 0 #FFFFFF;
+    border: 0 none;
+    -o-box-shadow: 0 0 2px 0 #000000 inset;
+    -moz-box-shadow: 0 0 2px 0 #000000 inset;
+    -webkit-box-shadow: 0 0 2px 0 #000000 inset;
+    box-shadow: 0 0 2px 0 #000000 inset;
+    font-size: 0.95em;
+    padding: 0.5em;
+}
+.ui-dialog .ui-dialog-buttonpane { 
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    margin: 0;
+    padding: 0.2em 0 0 0.4em;
+}
+.ui-dialog .ui-dialog-buttonpane button { 
+	margin: 0.5em 0 0 0.6em;
+	-o-box-shadow: 0 0 2px #000000;
+	-moz-box-shadow: 0 0 2px #000000;
+	-webkit-box-shadow: 0 0 2px #000000;
+	box-shadow: 0 0 2px #000000;
+}
+
+/*
+ * jQuery UI Tabs 1.8.17
+ */
+ 
+.ui-tabs { 
+	border:0 none;
+}
+.ui-tabs .ui-tabs-nav {
+	background: none repeat scroll 0 0 transparent;
+    border-color:#007391;
+    border-style:solid;
+    border-width:0 0 2px 0; 
+    -o-border-radius: 0 0 0 0;
+    -moz-border-radius: 0 0 0 0;
+    -webkit-border-radius: 0 0 0 0;
+    border-radius: 0 0 0 0;
+    margin: 0 0.25em 0.5em;
+    padding: 0.25em 0.25em 0;
+}
+.ui-tabs .ui-tabs-nav li {
+	-o-border-radius: 5px 5px 0 0;
+	-moz-border-radius: 5px 5px 0 0;
+	-webkit-border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 0 0;
+	background:transparent;
+	border:0 none;
+	color: #007391;
+}
+
+.ui-tabs .ui-tabs-nav li a {
+	color: #007391;
+	font-size:.8em;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+	background: #007391;
+	border: 0 none;
+	color: #FFFFFF;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a {
+	color: #FFFFFF;
+}
+.ui-tabs .ui-tabs-nav li a:hover, .ui-tabs .ui-tabs-nav li:hover a {
+	text-decoration:underline;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a:hover, .ui-tabs .ui-tabs-nav li.ui-tabs-selected:hover a {
+	text-decoration:none;
+}
+.ui-tabs .ui-tabs-panel {
+	padding:0;
+}
+
+/*
+ * jQuery UI Progressbar 1.8.17
+ */
+ 
+.ui-progressbar {
+	background: none repeat scroll 0 0 #EEEEEE;
+	border: 1px solid #CCCCCC;
+}
+.ui-progressbar .ui-progressbar-value {
+	border: 1px solid #CCCCCC;
+}
+
+/* Selectmenu
+----------------------------------*/
+.ui-selectmenu {
+	height:1.7em;
+	background:#5f5f5f;
+	-o-border-radius:0;
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	border-radius:0;
+	color:#ffffff;
+	font-weight:normal;
+}
+.ui-selectmenu-icon { 
+	right:2px; margin-top:-7px; top: 50%;
+	background-image:url("images/ui-icons_ffffff_256x240.png"); 
+}
+a.ui-selectmenu {
+	text-decoration:none;
+}
+a.ui-selectmenu .ui-selectmenu-icon {
+	background-image:url("images/ui-icons_ffffff_256x240.png"); 
+}
+a.ui-selectmenu.ui-state-focus, a.ui-selectmenu.ui-state-active,
+a.ui-selectmenu:hover {
+	background:#777777;
+}
+.ui-selectmenu-menu ul {
+	background:#ffffff;
+	-o-border-radius:0;
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	border-radius:0;
+	border:0 none;
+	border-bottom:2px solid #ffffff;
+} 
+.ui-selectmenu-open {
+	box-shadow:0 1px 3px #444444;
+}
+.ui-selectmenu-menu-popup { }
+.ui-selectmenu-menu li {
+	font-size:.85em;
+}
+.ui-selectmenu-menu li.ui-corner-bottom {
+	-o-border-radius:0;
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	border-radius:0;
+}
+.ui-selectmenu-menu li a,.ui-selectmenu-status { 
+	padding: 0 .4em;
+}
+.ui-selectmenu-menu li a {
+	border-width:0 2px;
+	border-style:solid;
+	border-color:#ffffff;
+	padding: 1px .4em;
+	color:#444444;
+}
+.ui-selectmenu-menu li:last-child {
+	border-bottom:0 none;
+}
+.ui-selectmenu-menu li:last-child a {
+	padding:2px .4em 1px;
+}
+.ui-selectmenu-menu li:first-child a {
+	border-top-width:2px;
+}
+.ui-selectmenu-menu li a.ui-state-focus, .ui-selectmenu-menu li a.ui-state-active,
+.ui-selectmenu-menu li a:hover {
+	background: #0095b3; /* Old browsers */
+	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzAwOTViMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwYzc2OTYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -moz-linear-gradient(top,  #0095b3 0%, #0c7696 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0095b3), color-stop(100%,#0c7696)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* IE10+ */
+	background: linear-gradient(top,  #0095b3 0%,#0c7696 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0095b3', endColorstr='#0c7696',GradientType=0 ); /* IE6-8 */
+    /*box-shadow: 0 0 2px #000000;*/
+    color: #FFFFFF;
+	padding:2px .4em;
+}
+.ui-selectmenu-status {
+	color:#ffffff;
+}
+.ui-selectmenu-menu li.ui-state-disabled {
+	display:none;
+}
+.ui-selectmenu-menu li.ui-state-disabled a, .ui-state-disabled { }
+.ui-selectmenu-menu li.ui-selectmenu-hasIcon a,
+.ui-selectmenu-hasIcon .ui-selectmenu-status { }
+.ui-selectmenu-menu li .ui-icon, .ui-selectmenu-status .ui-icon { position: absolute; top: 1em; margin-top: -7px; left: 0; }
+.ui-selectmenu-status { line-height: 1.7em; }
+.ui-selectmenu-menu li span,.ui-selectmenu-status span { }
+.ui-selectmenu-menu li .ui-selectmenu-item-header { }
+.ui-selectmenu-menu li .ui-selectmenu-item-footer { opacity: .8; }
+/* for optgroups */
+.ui-selectmenu-menu .ui-selectmenu-group { font-size: .85em; }
+.ui-selectmenu-menu .ui-selectmenu-group .ui-selectmenu-group-label { line-height: 1em; padding: .6em .5em 0; }
+.ui-selectmenu-menu .ui-selectmenu-group ul { }
+
+/* WISE Extras
+----------------------------------*/
+ 
+/* special styles for secondary jquery-ui dialog buttons like 'cancel' and 'close' */
+.ui-button.secondary.ui-state-default {
+	background:transparent;
+	color:#ffffff;
+	-o-text-shadow: none;
+	-moz-text-shadow: none;
+    -webkit-text-shadow: none;
+    text-shadow: none;
+    -o-box-shadow:none;
+    -moz-box-shadow:none;
+    -webkit-box-shadow:none;
+    box-shadow:none;
+    border:0 none;
+}
+.ui-button.secondary.ui-state-hover, .ui-button.secondary.ui-state-focus {
+	background:transparent;
+	color:#F97F6E;
+	-o-text-shadow: none;
+	-moz-text-shadow: none;
+    -webkit-text-shadow: none;
+    text-shadow: none;
+    -o-box-shadow:none;
+    -moz-box-shadow:none;
+    -webkit-box-shadow:none;
+    box-shadow:none;
+    border:0 none;
+}
+.ui-button.secondary.ui-state-active, .ui-button.secondary:active {
+	background:transparent;
+	color:#f7a391;
+	-o-text-shadow: none;
+	-moz-text-shadow: none;
+    -webkit-text-shadow: none;
+    text-shadow: none;
+    -o-box-shadow:none;
+    -moz-box-shadow:none;
+    -webkit-box-shadow:none;
+    box-shadow:none;
+    border:0 none;
 }

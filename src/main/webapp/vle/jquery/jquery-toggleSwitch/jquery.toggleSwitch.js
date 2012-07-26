@@ -1,0 +1,134 @@
+/*!
+ * jQuery Toggle Switch plugin (converts input checkboxes to toggle on/off switches)
+ * Author: Jonathan Lim-Breitbart
+ * Licensed under the MIT license
+ * Inspired by: http://tutorialzine.com/2011/03/better-check-boxes-jquery-css/
+ */
+
+;(function($){
+	
+	var methods = {
+		init : function( options ){
+			// Extend default options
+			options = $.extend({}, $.fn.toggleSwitch.options, options);
+	
+			return this.each(function(){
+				var cBox = $(this),
+					data = cBox.data('toggleSwitch');
+				
+				if(!data){
+					var labels = [],
+						onColor = options.onColor,
+						offColor = options.offColor;
+		
+					// Check for 'data-on' and 'data-off' HTML5 attributes
+					if(cBox.data('on')){
+						labels[0] = cBox.data('on');
+						labels[1] = cBox.data('off');
+					} else {
+						labels = options.labels;
+					}
+		
+					// Create new switch markup
+					var cSwitch = $('<div>',{
+						'class' : 'tSwitch '+(this.checked?'checked':''),
+						'html' : '<div class="tSwitchSlider">'+
+								'<span class="tSwitchOn tSwitchLabel">'+labels[0]+'</span>'+
+								'<span class="tSwitchHandle"></span>'+
+								'<span class="tSwitchOff tSwitchLabel">'+labels[1]+'</span></div>'
+								
+					});
+					
+					var cSlider = cSwitch.children('.tSwitchSlider');
+		
+					// Insert the new switch, hide the original checkbox
+					cSwitch.insertAfter(cBox.hide());
+					
+					// Set label content element widths equal to widest label width
+					var labels = $('.tSwitchLabel',cSwitch),
+						labelW = Math.max.apply(Math, labels.map(function(){ return $(this).width(); }).get());
+					labels.each(function(){
+						$(this).width(labelW);
+					});
+					
+					// Set slider margin offset
+					var offset = $('.tSwitchOn',cSwitch).outerWidth();
+					
+					// Set 'off' label position
+					$('.tSwitchOff',cSwitch).css('left',offset+$('.tSwitchHandle',cSwitch).outerWidth());
+					
+					// Set handle position
+					$('.tSwitchHandle',cSwitch).css('left',offset);
+					
+					// Set switch width
+					cSwitch.width(offset + $('.tSwitchHandle',cSwitch).outerWidth());
+					
+					// set initial state
+					this.checked ? cSlider.css({'margin-left':'0','background-color':onColor}) : 
+						cSlider.css({'margin-left':-offset-1 + 'px','background-color':offColor});
+					
+					// Bind click action on new switch
+					cSwitch.on('click.toggleSwitch',function(){
+						cSwitch.toggleClass('checked');
+						var isChecked = cSwitch.hasClass('checked');
+						isChecked ? cSlider.css({'margin-left':'0','background-color':onColor}) : 
+							cSlider.css({'margin-left':-offset-1 + 'px','background-color':offColor});
+		
+						// Synchronize with the original checkbox
+						cBox.attr('checked',isChecked);
+					});
+		
+					// Listen for changes on the original checkbox and update switch
+					cBox.on('change.toggleSwitch',function(){
+						cSwitch.click();
+					});
+					
+					cBox.data('toggleSwitch', {
+						target : cBox,
+						cSwitch : cSwitch
+					});
+				}
+			});
+		},
+		destroy : function(){
+			return this.each(function(){
+				var cBox = $(this),
+					data = cBox.data('toggleSwitch');
+				
+				if( typeof data !== 'undefined'){
+					// Unbind original checkbox change event listener for toggleSwitch and remove the switch
+					cBox.off('.toggleSwitch');
+					data.cSwitch.remove();
+					
+					// show original checkbox
+					cBox.show();
+					
+					cBox.removeData('toggleSwitch');
+				}
+			});
+		}
+	};
+	
+	$.fn.toggleSwitch = function( method ){
+		if ( methods[method] ) {
+	      return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+	    } else if ( typeof method === 'object' || ! method ) {
+	      return methods.init.apply( this, arguments );
+	    } else {
+	      $.error( 'Method ' +  method + ' does not exist on jQuery.toggleSwitch' );
+	    }  
+	};
+	
+	// Default options
+	$.fn.toggleSwitch.options = {
+        labels: ['ON','OFF'],
+        onColor: '#007391',
+        offColor: '#EEEEEE'
+    };
+	
+})(jQuery);
+
+//used to notify scriptloader that this script has finished loading
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.js');
+}
