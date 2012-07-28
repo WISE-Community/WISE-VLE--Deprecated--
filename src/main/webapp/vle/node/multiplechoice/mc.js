@@ -407,7 +407,7 @@ MC.prototype.checkAnswer = function() {
 					//show the feedback in popup style dialog as well
 					var resultMsg = this.getResultMessage(this.isCorrect(choice.identifier), true);
 					if ((choice.feedback.length + resultMsg.length) != 0) {
-						this.node.showFeedbackDialog(choice.feedback + "<br\>" + resultMsg);
+						this.node.showFeedbackDialog(choice.feedback + "<br\><br\>" + resultMsg);
 					}
 				}
 				
