@@ -61,10 +61,11 @@ View.prototype.initializeCreateProjectDialog = function(){
 	};
 	
 	var cancel = function(){
+		$('#createProjectDialog').dialog('close');
 		$('#projectInput').val('');
 	};
 	
-	$('#createProjectDialog').dialog({autoOpen:false, modal:true, draggable:false, title:'Create a New Project', width:650, buttons: {'Submit':submit, 'Cancel': function(){$(this).dialog("close");}}});
+	$('#createProjectDialog').dialog({autoOpen:false, modal:true, resizable:false, title:this.getI18NString("authoring_dialog_create_title"), width:750, buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'}, {text: this.getI18NString("submit"), click: submit}]});
 };
 
 /**
@@ -431,6 +432,7 @@ View.prototype.initializeAssetUploaderDialog = function(){
 
 /**
  * Initializes and renders copy project dialog
+ * TODO: remove (deprecated)
  */
 View.prototype.initializeCopyProjectDialog = function (){
 	var view = this;
@@ -479,8 +481,8 @@ View.prototype.initializeCopyProjectDialog = function (){
 	var cancel = function(){
 		$('#copyProjectDialog').dialog('close');
 	};
-	
-	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, draggable:false, title:'Copy a Project', width:650, buttons: {'Cancel': cancel, 'Copy': submit}});
+
+	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, title:'Copy a Project', width:500, buttons: {'Cancel': cancel, 'Copy': submit}});
 };
 
 /**
@@ -502,7 +504,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		var imVersion = $('#enableIdeaManager').attr('version');
 		
 		view.projectMeta.title = $('#projectMetadataTitle').val();
-		view.projectMeta.author = $('#projectMetadataAuthor').val();
+		//view.projectMeta.author = $('#projectMetadataAuthor').val();
 		view.projectMeta.theme = $('#projectMetadataTheme').val();
 		view.projectMeta.navMode = $('#projectMetadataNavigation').val();
 		view.projectMeta.subject = $('#projectMetadataSubject').val();
@@ -682,7 +684,20 @@ View.prototype.initializeConstraintAuthoringDialog = function(){
  * Initializes the open project dialog.
  */
 View.prototype.initializeOpenProjectDialog = function(){
-	$('#openProjectDialog').dialog({autoOpen:false, draggable:false, width:650, modal:true, title:'Open a Project', buttons: {'Open': function(){eventManager.fire('projectSelected');}, 'Cancel': function(){$(this).dialog("close");}}});
+	var view = this;
+	var title = this.getI18NString("authoring_dialog_open_title");
+	$('#openProjectDialog').dialog({autoOpen:false, width:800, modal:true, title:title,
+		//open: function(){
+			//deselect all buttons
+			//$('.ui-dialog :button').blur();
+		//},
+		resize: function(){
+			// set project tabs height to fit bottom of dialog, project list elements to fit widths
+			view.setProjectTabsHeight();
+			view.setProjectListingWidths();
+		}//,
+		//buttons: {'Cancel': {text: 'Cancel', click: function(){$(this).dialog("close");}, class: 'secondary'}, 'Open': {text: 'Open', click: function(){eventManager.fire('projectSelected');}}}
+	});
 };
 
 /**

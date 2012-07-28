@@ -707,9 +707,9 @@ View.prototype.displayAddAnIdeaDialog = function() {
 		}
     	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:'auto',resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:title,position:'center',
     		buttons:[
-    		         {text:this.getI18NString("ok"),click:function() {eventManager.fire("addIdeaToBasket");}},
-    		         {text:this.getI18NString("cancel"),click:function() {$(this).dialog("close");}}
-    		         ],
+    		         {text:this.getI18NString("cancel"), click:function() {$(this).dialog("close");}, class:'secondary'},
+    		         {text:this.getI18NString("ok"), click:function() {eventManager.fire("addIdeaToBasket");}}
+    		],
     		open: function(event,ui){
     			$.validator.addMethod('require-one', function (value) {
   		          return $('.require-one:checked').size() > 0; }, 'Please select at least one (1).');

@@ -230,6 +230,10 @@ body#w4_author {
 	display:none;
 }
 
+.dialog {
+	display:none;
+}
+
 .overlay {
 	background: none repeat scroll 0 0 #ffffff;
 	opacity: .8;

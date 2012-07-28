@@ -462,6 +462,11 @@ View.prototype.editHints = function(tabIndex){
     //set the html into the div
     $('#editHintsPanel').html('').append(settings).append(hintButtons).append(hintElement);
     
+    if(!Modernizr.testAllProps('boxSizing')){
+		// prevent textarea from extending beyond parent div in old browsers
+		$('textarea.hintTextBox',$('#editHintsPanel')).css('width','auto');
+	}
+    
     //make the div visible
     $('#editHintsPanel').dialog('open');
     
@@ -868,9 +873,10 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 	var view = this;
 	var plugins = "";
 	if(fullpage == true){
-		// if full page editing is allowed, include fullpage plugin
+		// if full page editing is allowed, include fullpage plugin and other advanced extras
 		plugins = "fullpage,preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
 	} else {
+		// TODO: remove some of these plugins to simplify interface
 		plugins = "preview,media,style,layer,table,advhr,advimage,advlist,advimagescale,loremipsum,image_tools,emotions,jqueryinlinepopups,tableextras,searchreplace,contextmenu,paste,directionality,fullscreen,visualchars,xhtmlxtras,template,wordcount";
 	}
 	

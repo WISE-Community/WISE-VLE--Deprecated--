@@ -6,9 +6,17 @@
  */
 View.prototype.authorDispatcher = function(type,args,obj){
 	if(type=='openProject'){
-		obj.openProject();
+		if(args){
+			obj.openProject(args[0]);
+		} else {
+			obj.openProject();
+		}
 	} else if(type=='projectSelected'){
-		obj.projectOptionSelected();
+		if(args){
+			obj.projectOptionSelected(args[0]);
+		} else {
+			obj.projectOptionSelected();
+		}
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoaded();
 	} else if(type=='hideNodes'){
@@ -45,6 +53,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.createNewProject();
 	} else if(type=='copyProject'){
 		obj.copyProject();
+	} else if(type=='copyProjectSelected'){
+		obj.copyOptionSelected(args[0]);
 	} else if(type=='createNewSequence'){
 		obj.createNewSequence();
 	} else if(type=='createNewNode'){

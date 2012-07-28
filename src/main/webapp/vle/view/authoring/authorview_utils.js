@@ -2,6 +2,7 @@
  * Util functions for the authoring view
  * 
  * @author patrick lawler
+ * @author jonathan lim-breitbart
  */
 /**
  * Returns the content base from the given full url to a file.
@@ -91,18 +92,22 @@ View.prototype.utils.unhideNodes = function(){
 };
 
 /**
- * On browser resize, sets the authoringContainer to fit the remaining height of the browser window
+ * Adjustments to be made when browser window is resized
  */
 View.prototype.utils.resize = function(){
-	var height = $(window).height()-($('#authorHeader').height()+$('#currentProjectContainer').height()+$('#projectTools').height()+46);
-	$('#authoringContainer').height(height);
+	// set max width of project title display
+	var titleMaxW = $('#infoSummary').width() - $('#infoSummary a.bookmark').outerWidth() - $('#projectId').outerWidth() - $('#sharedIcon').outerWidth() - $('#libraryIcon').outerWidth()- $('#topProjectTools').outerWidth() - 50;
+	$('#projectTitle').css('max-width',titleMaxW + 'px');
+	
+	// set the authoringContainer to fit the remaining height of the browser window
+	//var height = $(window).height()-($('#authorHeader').height()+$('#currentProjectContainer').height()+$('#projectTools').height()+46);
+	//$('#authoringContainer').height(height);
 };
 
 /*
  * Returns the current view mode (student, grading, authoring, etc.)
  */
 View.prototype.getMode = function() {
-	debugger;
 	var mode = this.config.getConfigParam('mode');
 	return mode;
 };

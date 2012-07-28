@@ -1,7 +1,6 @@
 
 /* STYLING FOR ALL ASSESSMENT ITEM TYPES  (StudentCheck, Student Quiz, Teacher Check, TeacherQuiz, Brainstorm) */
-body {
-	/* font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, "Gill Sans", Helvetica;	*/
+/*body {
 	font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Verdana,
 		"Gill Sans", sans-serif;
 	font-size: 100%;
@@ -12,7 +11,7 @@ body {
 
 img {
 	border: 0px;
-}
+}*/
 
 /* This override presents Firefox browser from drawing an ugly dotted line around the focus Input button */
 button  ::-moz-focus-inner,input[type="reset"]  ::-moz-focus-inner,input[type="button"]
@@ -45,12 +44,12 @@ h6 {
 	font-size: .8em;
 }
 
-p {
+/*p {
 	font-size: .8em;
 	line-height: 130%;
 	padding: 0px;
 	margin: 0px 0 12px 0;
-}
+}*/
 
 /*    This is the middle toned 88.236 palette  */
 .color1 {color:#164CBA;}   /* vibrant blue */

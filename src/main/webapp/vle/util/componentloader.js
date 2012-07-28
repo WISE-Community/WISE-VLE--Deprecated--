@@ -320,7 +320,7 @@ var componentloader = function(em, sl){
 				disambiguateMode:false, 
 				selectOrigSeqs:undefined, 
 				selectOrigNodes:undefined, 
-				simpleProject:true,
+				simpleProject:false,
 				projectStructureViolation:false, 
 				pathSeparator:undefined, 
 				selectedType:undefined,
@@ -330,6 +330,7 @@ var componentloader = function(em, sl){
 				portalProjectPaths:[], 
 				portalProjectIds:[], 
 				portalProjectTitles:[],
+				portalFavorites:0,
 				portalProjectId:undefined, 
 				portalCurriculumBaseDir:undefined, 
 				excludedPrevWorkNodes:['HtmlNode', 'OutsideUrlNode', 'MySystemNode', 'SVGDrawNode', 'MWNode', 'DrawNode','DuplicateNode'], 
@@ -365,7 +366,8 @@ var componentloader = function(em, sl){
 				assetRequestUrl:'assetmanager.html',
 				tagNameMap:{},
 				tagIdForRequest:undefined,
-				nodeTemplateParams:{}
+				nodeTemplateParams:{},
+				defaultThumbUrl:'/vlewrapper/vle/images/projectThumb.png'
 			},
 			events: {
 				'openProject':[null,null], 
@@ -392,7 +394,8 @@ var componentloader = function(em, sl){
 				'moveSelectedRight':[null,null], 
 				'saveProject':[null,null],
 				'createNewProject':[null,null], 
-				'copyProject':[null,null], 
+				'copyProject':[null,null],
+				'copyProjectSelected':[null,null],
 				'createNewSequence':[null,null], 
 				'createNewNode':[null,null],
 				'nodeTypeSelected':[null,null], 
@@ -522,6 +525,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('saveProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('createNewProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('copyProject', view.authorDispatcher, view);
+					view.eventManager.subscribe('copyProjectSelected', view.authorDispatcher, view);
 					view.eventManager.subscribe('createNewSequence', view.authorDispatcher, view);
 					view.eventManager.subscribe('createNewNode', view.authorDispatcher, view);
 					view.eventManager.subscribe('nodeTypeSelected', view.authorDispatcher, view);

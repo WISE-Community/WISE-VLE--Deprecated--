@@ -36,6 +36,7 @@ View.prototype.projectMetaSuccess = function(text,xml,o){
 	//o.verifyCleaning(); //TODO: Jon re-enable when stable
 	o.populateMaxScores();
 	o.setPostLevel();
+	o.populateMetaSettings();
 	o.hasProjectMeta = true;
 };
 
@@ -53,6 +54,7 @@ View.prototype.projectMetaFailure = function(c,o){
 View.prototype.updateProjectMetaOnServer = function(publish, silent){
 	var callback = function(text, xml, o){
 		o.hasProjectMeta = true;
+		o.populateMetaSettings();
 		$('#editProjectMetadataDialog').dialog('close');
 		
 		if(!silent){
@@ -199,23 +201,74 @@ View.prototype.populateMaxScores = function(){
  */
 View.prototype.setPostLevel = function(){
 	if(this.projectMeta.postLevel){
-		var opts = document.getElementById('postLevelSelect').options;
+		if(this.projectMeta.postLevel == 1){
+			$('#loggingToggle').attr('checked',false);
+		} else if(this.projectMeta.postLevel == 5){
+			$('#loggingToggle').attr('checked',true);
+		}
+		/*var opts = document.getElementById('postLevelSelect').options;
 		for(var x=0;x<opts.length;x++){
 			if(this.projectMeta.postLevel==opts[x].value){
 				this.getProject().setPostLevel(opts[x].value);
-				document.getElementById('postLevelSelect').selectedIndex = x;
+				//document.getElementById('postLevelSelect').selectedIndex = x;
 			};
-		};
+		};*/
 	};
+};
+
+/**
+ * Populates the project metadata settings in the project editing panel
+ */
+View.prototype.populateMetaSettings = function(){
+	// project setting toggles
+	$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
+	
+	if (this.projectMeta.tools != null) {
+		var tools = this.projectMeta.tools;
+		// determine if idea manager is enabled
+		if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
+			$("#enableIM").attr('checked', 'checked');
+		}
+	
+		// determine if enable student asset uploader is enabled
+		if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
+			$("#enableStudentAssetUploader").attr('checked', 'checked');
+		}
+	}
+	
+	$('#projectInfo input[type="checkbox"]').toggleSwitch();
+	
+	this.utils.setSelectedValueById('projectMetadataSubject', this.utils.resolveNullToEmptyString(this.projectMeta.subject));
+	this.utils.setSelectedValueById('projectMetadataGradeRange', this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
+	this.utils.setSelectedValueById('projectMetadataTotalTime', this.utils.resolveNullToEmptyString(this.projectMeta.totalTime));
+	this.utils.setSelectedValueById('projectMetadataLanguage', this.utils.resolveNullToEmptyString(this.projectMeta.language));
+	
+	if(this.projectMeta.theme != null){
+		this.utils.setSelectedValueById('projectMetadataTheme', this.projectMeta.theme);
+	}
+	var navMode = '';
+	if(this.projectMeta.navMode != null){
+		navMode = this.projectMeta.navMode;
+	}
+	var themeName = $('#projectMetadataTheme').val();
+	this.populateNavModes(themeName,navMode);
+	
+	$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
+	
+	// initialize jQuery UI selectmenus on projectInfo select elements
+	$('#projectInfo select').selectmenu({customClass:'dark'});
 };
 
 /**
  * Retrieves the user selected value for logging level and updates the metadata file.
  */
 View.prototype.postLevelChanged = function(){
-	var val = document.getElementById('postLevelSelect').options[document.getElementById('postLevelSelect').selectedIndex].value;
+	/*var val = document.getElementById('postLevelSelect').options[document.getElementById('postLevelSelect').selectedIndex].value;
 	this.projectMeta.postLevel = parseInt(val);
-	this.getProject().setPostLevel(parseInt(val));
+	this.getProject().setPostLevel(parseInt(val));*/
+	var val = ($('#loggingToggle').prop('checked') ? 5 : 1);
+	this.projectMeta.postLevel = val;
+	this.getProject().setPostLevel(val);
 	this.updateProjectMetaOnServer(false);
 };
 

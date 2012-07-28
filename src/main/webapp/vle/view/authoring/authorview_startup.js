@@ -8,6 +8,10 @@
  * and starts authoring tool in appropriate state.
  */
 View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle, editPremadeComments){
+	this.portalProjectPaths = [];
+	this.portalProjectIds = [];
+	this.portalProjectTitles = [];
+	this.portalFavorites = 0;
 	this.portalUrl = url;
 	/*
 	 * this editingPollInterval is used to check who is also currently editing the
@@ -36,11 +40,14 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	/* retrieve i18n files, defined in view_i18n.js */
 	this.retrieveLocales("main");
 
-
 	if(this.config != null) {
 		//set some variables from values in the config
 		this.portalUsername = this.config.getConfigParam("username");
+		this.portalUserFullname = this.config.getConfigParam("userfullname");
 		this.vlewrapperBaseUrl = this.config.getConfigParam("vlewrapperBaseUrl");
+		
+		//set user's name in page
+		$('#userName').text(this.portalUserFullname);
 	}
 	
 	if(command && command!=''){
@@ -51,6 +58,11 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 		if(command=='createProject'){
 			this.createMode = true;
 		} else if(command=='editProject' || command=='cleanProject'){
+			$('#projectContent').show();
+			$('#projectOverlay').show();
+			$('#projectLoading').show();
+			$('#projectWelcome').hide();
+			
 			this.portalProjectId = parseInt(projectId);
 			this.authoringBaseUrl = this.portalUrl + '?forward=filemanager&projectId=' + this.portalProjectId + '&command=retrieveFile&fileName=';
 			
@@ -64,7 +76,11 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 			var projectFolderUrl = this.authoringBaseUrl;
 			
 			this.loadProject(projectFileUrl, projectFolderUrl, true);
+			this.onAuthoringToolReady();
 		}
+	} else {
+		this.loadWelcomeScreen();
+		this.onAuthoringToolReady();
 	}
 	
 	if(editPremadeComments == "true") {
@@ -82,8 +98,6 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	
 	//load the template files for all the step types
 	this.loadNodeTemplateFiles();
-	
-	this.onAuthoringToolReady();
 	
 	/* launch create project dialog if create mode has been set */
 	if(this.createMode){
@@ -251,20 +265,160 @@ View.prototype.getCurriculumBaseUrlSuccess = function(t,x,o){
 };
 
 /**
+ * Retrieves user's authorable projects and populates the authoring welcome screen
+ */
+View.prototype.loadWelcomeScreen = function(){
+	this.retrieveWelcomeProjectList();
+	
+	
+};
+
+/**
  * Removes the splash screen and shows the authoring tool when all
- * necessary parts have loaded.  Inserts i18n translations.
+ * necessary parts have loaded. Inserts i18n translations and binds
+ * general events.
  */
 View.prototype.onAuthoringToolReady = function(){
 	var view = this;
 	notificationManager.setMode('authoring');
-	$('#centeredDiv').show();
-	$('#coverDiv').hide();
-	$('#overlay').hide();
+	
+	// bind general (non-changing) click events
+	this.bindGeneralEvents();
 	
 	// insert i18n text and tooltips/help items into DOM
-	this.insertTranslations("main", function(){ view.insertTooltips(); });
+	this.insertTranslations("main", function(){ 
+		view.insertTooltips();
+		
+		// hide loading objects and show authoring body
+		$('#author_body').show();
+		$('#coverDiv').hide();
+		$('#overlay').hide();
+	});
 	//clearInterval(window.loadingInterval);
 };
+
+/**
+ * Binds events that remain constant (don't change depending on context or 
+ * active project).
+ */
+View.prototype.bindGeneralEvents = function(){
+	var view = this;
+	
+	// top toolbar events
+	$("#openProjectLink").on("click", function(){
+		eventManager.fire("openProject");
+	});
+	$("#newProjectLink").on("click", function(){
+		eventManager.fire("createNewProject");
+	});
+	
+	// welcome panel elements
+	$('#projectWelcome').on('click','#families li',function(){
+		var panel = $(this).attr('id'), tab = 0, doOpen = true;
+		switch (panel){
+			case 'myFavorites':
+				tab = 0;
+				break;
+			case 'myOwned':
+				tab = 1;
+				break;
+			case 'myShared':
+				tab = 2;
+				break;
+			case 'myCreate':
+				doOpen = false;
+				break;
+		}
+		if(doOpen){
+			eventManager.fire('openProject',tab);
+		} else {
+			eventManager.fire('createNewProject');
+		}
+	});
+	
+	// project editing panel elements
+	
+	// toggle as favorite link
+	$('#projectInfo').on('click','a.bookmark',function(){
+		var toggle = $(this);
+		toggle.miniTip({doHide: true});
+		var id = toggle.attr('data-projectid');
+		var isBookmark = toggle.hasClass('true');
+		view.toggleBookmark(id, isBookmark, function(id,isBookmark){
+			if(isBookmark){
+				//remove star
+				toggle.removeClass('true');
+				
+				//update favorites count
+				view.portalFavorites-=1;
+			} else {
+				//add star
+				toggle.addClass('true');
+				
+				//update favorites count
+				view.portalFavorites+=1;
+			}
+		});
+	});
+	
+	// project thumb editing	
+	$('#editThumb').on('click',function(){
+		eventManager.fire('editProjectThumbnail');
+	});
+	
+	// project title input - show input field on title click
+	$('#projectTitle').on('click',function(){
+		$('#titleInput').width($(this).width());
+		$(this).hide();
+		$('#titleInput').show().focus().val('').val($(this).text());
+	});
+	
+	// update title on change, hide input on blur or enter keyup
+	$('#titleInput').on('change',function(){
+		eventManager.fire('projectTitleChanged');
+		// update display
+		$('#projectTitle').text($(this).val());
+	}).on('blur keyup',function(e){
+		if (e.type === 'blur' || e.keyCode === 13) {
+			$(this).hide();
+			$('#projectTitle').show();
+		}
+	});
+	
+	// step term input
+	$('#stepTerm').on('change',function(){
+		eventManager.fire("stepTermChanged");
+	}).on('keyup',function(e){
+		if (e.keyCode === 13) {
+			$(this).blur();
+		}
+	});
+	
+	// step numbering select option
+	$('#numberStepSelect').on('change',function(){
+		eventManager.fire("stepNumberChanged");
+	});
+	
+	// project tools
+	$('#editInfo, #moreDetails').on('click',function(){
+		eventManager.fire('editProjectMetadata');
+	});
+	$('#manageFiles').on('click',function(){
+		eventManager.fire('viewAssets');
+	});
+	$('#previewProject').on('click',function(){
+		eventManager.fire('previewProject');
+	});
+	
+	// project info controls
+	$('#loggingToggle').on('click',function(){
+		eventManager.fire('postLevelChanged');
+	});
+	
+	// set logging level data-on and data-off attributes
+	$('#loggingToggle').attr('data-on',this.getI18NString('authoring_project_panel_logging_high')).attr('data-off',this.getI18NString('authoring_project_panel_logging_low'));
+};
+
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

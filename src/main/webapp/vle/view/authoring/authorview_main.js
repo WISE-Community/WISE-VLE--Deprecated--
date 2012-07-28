@@ -148,6 +148,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	}
 	
 	//project structure validation
+	// TODO: remove, simple project deprecated
 	if(el.id=='existingTable' && this.simpleProject){
 		if(depth>2 || (depth==1 && node.type!='sequence') || (depth==2 && node.type=='sequence')){
 			this.projectStructureViolation = true;
@@ -422,7 +423,9 @@ View.prototype.nodeTitleChanged = function(id){
  */
 View.prototype.projectTitleChanged = function(){
 	/* get user input title */
-	var newTitle = document.getElementById('projectTitleInput').value;
+	var newTitle = document.getElementById('titleInput').value;
+	
+	// TODO: add validation!
 	
 	/* if not defined, set it to an empty string */
 	if(!newTitle){
@@ -563,6 +566,7 @@ View.prototype.launchPrevWork = function(nodeId){
  */
 View.prototype.createNewProject = function(){
 	showElement('createProjectDialog');
+	$("#openProjectDialog").dialog("close");
 	$('#createProjectDialog').dialog('open');
 };
 
@@ -1009,15 +1013,20 @@ View.prototype.startPreview = function(em){
 /**
  * Retrieves the project name and sets global path and name, then
  * loads the project into the authoring tool.
+ * @param id The id of the project to open (optional)
  */
-View.prototype.projectOptionSelected = function(){
-	// notify portal that a previously-opened project (if any) is closed
-	if(this.getProject() && this.portalUrl){
-		this.notifyPortalCloseProject();
+View.prototype.projectOptionSelected = function(id){
+	var projectId = null;
+	if (typeof id == 'string'){
+		projectId = id;
+		projectId = parseInt(projectId);
+	} else if(typeof id == 'number'){
+		projectId = id;
+	} else {
+		//projectId = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
+		this.notificationManager.notify('Please select a project to open.', 2);
+		return;
 	}
-
-	var projectId = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
-	projectId = parseInt(projectId);
 
 	var path = "";
 	
@@ -1036,51 +1045,146 @@ View.prototype.projectOptionSelected = function(){
 	
 	//if all is set, load project into authoring tool
 	if(path!=null && path!=""){
+		// hide the welcome panel, show the loading message
+		$('#projectContent').show();
+		$('#projectOverlay').show();
+		$('#projectLoading').show();
+		$('#projectWelcome').hide();
+		
 		/* if a project is currently open and the authoring tool is in portal mode, notify the
-		 * portal that this user is not longer working on the project */
+		 * portal that this user is no longer working on the project */
 		if(this.getProject() && this.portalUrl){
 			this.notifyPortalCloseProject();
 		}
 		
 		this.loadProject(this.authoringBaseUrl + path, this.utils.getContentBaseFromFullUrl(this.authoringBaseUrl + path), true);
 		$('#openProjectDialog').dialog('close');
-		$('#currentProjectContainer').show();
-		$('#authoringContainer').show();
-		$('#projectTools').show();
-		//$('#projectButtons button').removeAttr('disabled');
+		
 		eventManager.fire('browserResize');
+	} else {
+		this.notificationManager.notify('Error: could not find project path.', 2);
+		return;
 	}
+};
+
+/**
+ * Retrieves the project name and sets global path and name, then
+ * copies the project and loads it into the authoring tool.
+ * @param id The id of the project to open
+ */
+View.prototype.copyOptionSelected = function (id){
+	var view = this;
+	
+	var portalProjectId = id;
+	/*
+	 * processes the response to the request to copy a project
+	 * @param t the new folder name
+	 * e.g.
+	 * 513
+	 */
+	var success = function(t,x,o){
+		o.notificationManager.notify('Project Copied', 3);
+		/* create new project in the portal if in portal mode */
+		if(o.portalUrl){
+			/*
+			 * the url (first argument) is the relative project folder path
+			 * e.g.
+			 * /513/wise4.project.json
+			 * the project file name is the same as the project file name
+			 * from the project that was copied
+			 */
+			var index = $.inArray(parseInt(portalProjectId),o.portalProjectIds);
+			var fileName = o.portalProjectPaths[index];
+			var title = o.portalProjectTitles[index];
+			o.createPortalProject('/' + t + fileName, title, portalProjectId);
+		}
+		
+		$('#openProjectDialog').dialog('close');
+	};
+	
+	/* handles a failure response to the request to copy a project */
+	var failure = function(t,o){
+		o.notificationManager.notify('Failed copying project on server.', 3);
+	};
+	
+	var index = $.inArray(portalProjectId,view.portalProjectIds);
+	var fileName = view.portalProjectPaths[index];
+	$('#openProjectLoading .loadingText').text(view.getI18NString('authoring_dialog_copy_processing'));
+	$('#openProjectOverlay').show();
+	$('#openProjectLoading').show();
+	view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:portalProjectId,command:'copyProject', fileName:fileName},success,view,failure);
 };
 
 /**
  * Retrieves an updated list of projects, either from the authoring tool
  * or the portal and shows the list in the open project dialog.
+ * 
+ * @param selectedTab Integer to indicate which tab should be selected by default (optional)
+ * @param copyMode Boolean to specify whether we are copying a project instead of opening
+ * one (default is false)
  */
-View.prototype.openProject = function(){
+View.prototype.openProject = function(selectedTab,copyMode){
+	var view = this;
+	
 	/* wipe out old select project options and set placeholder option */
 	$('#selectProject').children().remove();
 	$('#selectProject').append('<option name="projectOption" value=""></option>');
 	
+	//initialzie jQuery UI tabs
+	var tab = 0;
+	if(typeof selectedTab == 'number'){
+		tab = selectedTab;
+	}
+	$('#projectTabs').tabs({
+		selected:tab,
+		show: function(){
+			view.setProjectListingWidths();
+		}
+	});
+	
 	/* make request to populate the project select list */
-	this.retrieveProjectList();
+	this.retrieveProjectList(copyMode);
 	
 	/* show the loading div and hide the select drop down until the
 	 * project list request comes back */
-	$('#openProjectForm').hide();
-	$('#loadingProjectMessageDiv').show();
+	//$('#openProjectForm').hide();
+	//$('#loadingProjectMessageDiv').show();
+	//clear out existing project lists
+	$('#projectTabs .projectList').html('');
+	
+	// show loading overlay and message
+	$('#openProjectLoading .loadingText').text(view.getI18NString('authoring_dialog_open_loading'));
+	$('#openProjectOverlay').show();
+	$('#openProjectLoading').show();
+	
+	// set height for dialog to fill window (or 500 pixels)
+	var height = $(document).height() - 50;
+	if(height>500){
+		height = 500;
+	}
+	$('#openProjectDialog').dialog('option','height',height);
+	
+	var title = this.getI18NString('authoring_dialog_open_title');
+	if (copyMode === true){
+		title = this.getI18NString('authoring_dialog_open_titlecopy');
+	}
+	$('#openProjectDialog').dialog('option','title',title);
 	
 	/* open the dialog */
 	$('#openProjectDialog').dialog('open');
-	eventManager.fire('browserResize');
+	//eventManager.fire('browserResize');
 };
-
 
 /**
  * Opens the copy project dialog, populates the select-able projects,
  * sets hidden form elements, and shows the dialog.
  */
 View.prototype.copyProject = function(){
-	showElement('copyProjectDialog');
+	$("#createProjectDialog").dialog("close");
+	//use the open project dialog, but with copyMode set to true
+	this.openProject(0,true);
+	
+	/*showElement('copyProjectDialog');
 	
 	var doSuccess = function(list, view){
 		var parent = document.getElementById('copyProjectSelect');
@@ -1105,19 +1209,18 @@ View.prototype.copyProject = function(){
 			
 			//create a drop down option for the project
 			var opt = createElement(document, 'option', {name: 'copyProjectOption'});
-			parent.appendChild(opt);
+			parent.appendChild(opt);*/
 			
 			/*
 			 * create the text for the drop down for this project
 			 * e.g.
 			 * 531: Photosynthesis
 			 */
-			opt.text = projectId + ': ' + projectTitle;
+			/*opt.text = projectId + ': ' + projectTitle;
 			opt.value = projectId;
 			opt.fileName = projectPath;
 			opt.title = projectTitle;
 		}
-		
 		$('#copyProjectDialog').dialog('open');
 		eventManager.fire('browserResize');
 	};
@@ -1126,12 +1229,13 @@ View.prototype.copyProject = function(){
 		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', projectTag: 'authorableAndLibrary'}, function(t,x,o){doSuccess(t,o);}, this);
 	} else {
 		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', 'projectPaths': this.projectPaths}, function(t,x,o){doSuccess(t,o);}, this);
-	};
+	};*/
 };
 
 /**
  * Switches the project mode between Simple and Advanced and refreshes
  * the project.
+ * TODO: remove, deprecated
  */
 View.prototype.toggleProjectMode = function(){
 	this.projectStructureViolation = false;
@@ -1155,9 +1259,12 @@ View.prototype.toggleProjectMode = function(){
  */
 View.prototype.editProjectMetadata = function(){
 	if(this.getProject()){
+		//TODO: retrieve project meta from server (in case post failed last time user tried to update metadata)
+		
 		showElement('editProjectMetadataDialog');
 		$('#projectMetadataTitle').val(this.utils.resolveNullToEmptyString(this.projectMeta.title));
-		$('#projectMetadataAuthor').text(this.utils.resolveNullToEmptyString(this.projectMeta.author)); // TODO: author is null - fix
+		var author = $.parseJSON(this.projectMeta.author);
+		$('#projectMetadataAuthor').text(this.utils.resolveNullToEmptyString(author.fullname));
 		
 		if(this.projectMeta.theme != null){
 			this.utils.setSelectedValueById('projectMetadataTheme', this.projectMeta.theme);
@@ -1167,6 +1274,9 @@ View.prototype.editProjectMetadata = function(){
 			navMode = this.projectMeta.navMode;
 		}
 		var themeName = $('#projectMetadataTheme').val();
+		// display selected theme
+		$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
+		// set nav mode
 		this.populateNavModes(themeName,navMode);
 		
 		this.utils.setSelectedValueById('projectMetadataSubject', this.utils.resolveNullToEmptyString(this.projectMeta.subject));
@@ -1207,21 +1317,25 @@ View.prototype.editProjectMetadata = function(){
 			var tools = this.projectMeta.tools;
 			
 			//determine if enable idea manager needs to be checked
+			// TODO: remove once IM settings are moved to separate dialog
 			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
 				$("#enableIdeaManager").attr('checked', true);
 			}
 
 			//determine if enable student asset uploader needs to be checked
+			// TODO: remove once IM settings are moved to separate dialog
 			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
 				$("#enableStudentAssetUploader").attr('checked', true);
 			}
 			
 			// get Idea Manager version
+			// TODO: remove once IM settings are moved to separate dialog
 			if('ideaManagerVersion' in tools){
 				imVersion = tools.ideaManagerVersion;
 			}
 			
 			// get Idea Manager settings
+			// TODO: remove once IM settings are moved to separate dialog
 			if ('ideaManagerSettings' in tools){
 				imSettings = tools.ideaManagerSettings;
 				if('version' in tools.ideaManagerSettings){
@@ -1230,6 +1344,7 @@ View.prototype.editProjectMetadata = function(){
 			}
 		}
 		
+		// TODO: remove once IM settings are moved to separate dialog
 		if(this.projectHasRun && parseInt(imVersion) < 2){
 			// project has run in classroom and uses older version of Idea Manager, so remove IM v2 settings panel
 			$('#ideaManagerSettings').remove();
@@ -1356,6 +1471,10 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 	function addOption(target,option){
 		// create new option input and add to DOM
 		var newInput = $("<div class='optionWrapper'><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><input type='text' class='option' value='" + option + "' maxlength='25' /><a class='delete' title='Remove option' >X</a></div>");
+		if(!Modernizr.testAllProps('boxSizing')){
+			// prevent input from extending beyond parent div in old browsers
+			$('input.option',newInput).css('width','auto');
+		}
 		$('.add', target).before(newInput);
 		$('input',newInput).focus();
 		
@@ -1592,23 +1711,10 @@ View.prototype.onProjectLoaded = function(){
 		this.retrieveProjectRunStatus();
 		eventManager.fire('cleanProject');
 	} else {
-		//make the top project authoring container visible (where project title shows up)
-		$('#currentProjectContainer').show();
-		
-		//make the bottom project authoring container visible (where the steps show up)
-		$('#authoringContainer').show();
-		$('#projectTools').show();
-		
 		this.projectStructureViolation = false;
 		if(this.selectModeEngaged){
 			this.disengageSelectMode(-1);
 		};
-	
-		/*if(this.project && this.project.useAutoStep()==true){
-			document.getElementById('autoStepCheck1').checked = true;
-		} else {
-			document.getElementById('autoStepCheck1').checked = false;
-		};*/
 	
 		if(this.project && this.project.useStepLevelNumbering()==true){
 			//document.getElementById('stepLevel').checked = true;
@@ -1626,30 +1732,44 @@ View.prototype.onProjectLoaded = function(){
 			this.notificationManager.notify('stepTerm not set in project, setting default value: \"\"', 2);
 		};
 	
-		document.getElementById('postLevelSelect').selectedIndex = 0;
+		// reset logging level checkbox (default to checked, high post level)
+		$('#loggingToggle').attr('checked','checked');
+		//document.getElementById('postLevelSelect').selectedIndex = 0;
 	
 		// if we're in portal mode, tell the portal that we've opened this project
 		if (this.portalUrl) {
 			this.notifyPortalOpenProject(this.project.getContentBase(), this.project.getProjectFilename());
 		}
-	
+		
+		var title = '';
 		if(this.project.getTitle()){
-			var title = this.project.getTitle();
+			title = this.project.getTitle();
 		} else {
-			var title = this.project.getProjectFilename().substring(0, this.project.getProjectFilename().lastIndexOf('.project.json'));
+			title = this.project.getProjectFilename().substring(0, this.project.getProjectFilename().lastIndexOf('.project.json'));
 			this.project.setTitle(title);
 		};
+		
+		// reset thumbnail, toggle as favorite link, hide project info inputs, show project info input display text
+		$('#projectThumb').attr('src','');
+		$('a.bookmark',$('#projectContent')).removeClass('true');
+		$('#projectInfo input').hide();
+		$('#projectInfo .inputDisplay').show();
+		
+		// insert title
+		$('#titleInput').val(title);
+		$('#projectTitle').text(title);
 
-		document.getElementById('projectTitleInput').value = title;
-
-		//set the project id so it is displayed to the author
-		$('#projectIdDisplay').text(this.portalProjectId);
+		// insert project id
+		$('#projectId').text(this.getI18NString("ID") + ': ' + this.portalProjectId);
+		$('a.bookmark',$("#projectInfo")).attr('data-projectid',this.portalProjectId);
 		
 		this.populateThemes();
 	
 		this.generateAuthoring();
 	
 		this.retrieveMetaData();
+		
+		this.retrieveProjectInfo();
 		
 		this.retrieveProjectRunStatus();
 		
@@ -1663,9 +1783,90 @@ View.prototype.onProjectLoaded = function(){
 		
 		this.premadeCommentLists = null;
 		
-		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 3);
+		$('#stepTerm').show(); // TODO: not sure why this is necessary
+		
+		eventManager.fire('browserResize');
+		
+		// hide loading message and show the project content panel
+		$('#projectOverlay').hide();
+		$('#projectLoading').hide();
+		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 2);
 	}
 };
+
+/**
+ * Get basic info about project for authoring
+ * @returns Boolean
+ */
+View.prototype.retrieveProjectInfo = function(){
+	if(this.mode == "portal") {
+		var requestParams = {
+			"projectId":this.portalProjectId,
+			"command":"getProjectInfo"
+		};
+		this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), requestParams, this.retrieveProjectInfoSuccess, this, this.retrieveProjectInfoFailure);
+	}
+	
+};
+
+/**
+ * Success callback for project info request - inserts project info into editing panel
+ */
+View.prototype.retrieveProjectInfoSuccess = function(text,xml,o) {
+	var view = o, infoJSON = JSON.parse(text);
+	var thumbUrl = infoJSON.thumbUrl,
+		projectOwnerName = infoJSON.projectOwnerName,
+		projectOwnerUsername = infoJSON.projectOwnerUsername,
+		isLibrary = infoJSON.isLibrary,
+		isFavorite = infoJSON.isFavorite,
+		sharedUsers = infoJSON.sharedUsers;
+	
+	// check if thumb image exists, insert thumb image
+	$.ajax({
+	    url:thumbUrl,
+	    type:'HEAD',
+	    error: function(){
+	    	// image doesn't exist, so use default thumb url
+			$('#projectThumb').attr('src',view.defaultThumbUrl);
+	    },
+	    success: function(){
+	    	// insert thumbnail
+	    	$('#projectThumb').attr('src',thumbUrl);
+	    }
+	});
+	
+	// if project is bookmarked, add 'true' to toggle bookmark link
+	if(isFavorite){
+		$('a.bookmark',$("#projectInfo")).addClass('true');
+	}
+	
+	// clear out existing shared/library icons
+	$('.infoIcon').remove();
+	
+	// if project is shared, insert shared icon
+	if(projectOwnerUsername != view.portalUsername){
+		var sharedTitle = view.getI18NString("authoring_project_shared_pre") + projectOwnerName;
+		$('#topProjectTools').before('<img id="sharedIcon" class="infoIcon" alt="shared" src="/vlewrapper/vle/images/icons/red/multi-agents.png" title="' + sharedTitle + '" />');
+	}
+	
+	// if project is a library project, add library icon
+	if(isLibrary){
+		var libraryTitle = view.getI18NString("authoring_project_library");
+		$('#topProjectTools').before('<img id="libraryIcon" class="infoIcon" alt="library project" src="/vlewrapper/vle/images/icons/red/bookmark.png" title="' + libraryTitle + '" />');
+	}
+	
+	// insert tooltips
+	view.insertTooltips(null,$('#projectContent'));
+};
+	
+
+/**
+ * Failure callback for project info request
+ */
+function retrieveProjectInfoFailure(c,o) {
+	o.notificationManager.notify('Error retrieving information for this project. Please contact WISE for assistance.', 3);
+};
+
 
 /**
  * Checks whether project has been run in classrooms
@@ -2028,9 +2229,22 @@ View.prototype.onWindowUnload = function(logout){
 
 /**
  * Retrieves and populates the project list for the open project dialog.
+ * @param copyMode Boolean to specify whether we are opening the copy dialog instead of the open dialog
  */
-View.prototype.retrieveProjectList = function(){
-	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', projectTag: 'authorable', 'projectPaths': this.projectPaths}, this.retrieveProjectListSuccess, this, this.retrieveProjectListFailure);
+View.prototype.retrieveProjectList = function(copyMode){
+	//this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', projectTag: 'authorable', 'projectPaths': this.projectPaths}, this.retrieveProjectListSuccess, this, this.retrieveProjectListFailure);
+	if(copyMode === true){
+		this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths, 'listMode': 'copy'}, this.retrieveProjectListSuccess, {thisView: this, copyMode: true}, this.retrieveProjectListFailure);
+	} else {
+		this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths, 'listMode': ''}, this.retrieveProjectListSuccess, {thisView: this, copyMode: false}, this.retrieveProjectListFailure);
+	}
+};
+
+/**
+ * Retrieves and populates the project list for the welcome page.
+ */
+View.prototype.retrieveWelcomeProjectList = function(){
+	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'welcomeProjectList'}, this.retrieveProjectListWelcomeSuccess, this, this.retrieveProjectListFailure);
 };
 
 /**
@@ -2038,10 +2252,22 @@ View.prototype.retrieveProjectList = function(){
  * from the server for a project list.
  */
 View.prototype.retrieveProjectListSuccess = function(t,x,o){
-	if(o.portalUrl){
-		o.populatePortalProjects(t);
+	if(o.thisView.portalUrl){
+		o.thisView.populatePortalProjects(t,o.copyMode);
 	} else {
-		o.populateStandAloneProjects(t);
+		o.thisView.populateStandAloneProjects(t);
+	}
+};
+
+/**
+ * Processes the response and populates the project list with the response
+ * from the server for the welcome page.
+ */
+View.prototype.retrieveProjectListWelcomeSuccess = function(t,x,o){
+	if(o.portalUrl){
+		o.populateWelcomeProjects(t);
+	} else {
+		//o.populateStandAloneProjects(t,true);
 	}
 };
 
@@ -2053,50 +2279,488 @@ View.prototype.retrieveProjectListFailure = function(t,o){
 };
 
 /**
- * Populates the project list with projects retrieved from the portal.
+ * Populates the open project dialog with projects retrieved from the portal.
  * 
  * @param t
+ * @param copyMode Boolean to indicate whether user is copying a project (instead of opening one)
  * @return
  */
-View.prototype.populatePortalProjects = function(t){
-	this.portalProjectPaths = [];
-	this.portalProjectIds = [];
-	this.portalProjectTitles = [];
-
+View.prototype.populatePortalProjects = function(t,copyMode){
+	var view = this;
+	
 	//parse the JSON string into a JSONArray
 	var projectsArray = JSON.parse(t);
 	
-	//sort the array by id
+	//sort the array by id (descending)
 	projectsArray.sort(this.sortProjectsById);
 	
+	//variables to hold total number of favorite, owned, and shared projects
+	var numFave = 0, numOwned = 0, numShared = 0, numLibrary = 0; //numAll = 0;
+	//arrays to hold string segments for each project listing
+	var favoriteSegments = [], ownedSegments = [], sharedSegments = [], librarySegments = []; //allSegments = [];
+	//object to hold details tooltip content for each project listing
+	var detailsContent = {};
+	
+	// pre-load i18N strings
+	var createdDetailsPreText = this.getI18NString('authoring_project_created_pre'),
+	createdDetailsRunPreText = this.getI18NString('authoring_project_created_pre_run'),
+	runWarningShortText = this.getI18NString("authoring_project_run_warning_short"),
+	openDialogSharedText = this.getI18NString('authoring_dialog_open_shared'),
+	openDialogOwnedText = this.getI18NString('authoring_dialog_open_owned'),
+	projectSharedPreText = this.getI18NString("authoring_project_shared_pre"),
+	projectSharedUsersPreText = this.getI18NString("authoring_project_shared_users_pre"),
+	projectLibraryText = this.getI18NString("authoring_project_library"),
+	projectCopyLibraryPreText = this.getI18NString("authoring_project_copy_library_pre"),
+	projectCopyPreText = this.getI18NString("authoring_project_copy_pre"),
+	lastEditedPreText = this.getI18NString('authoring_project_last_edited_pre'),
+	toggleFavoriteTitleText = this.getI18NString("authoring_toggle_favorite_title"),
+	idText = this.getI18NString('ID'),
+	openText = this.getI18NString("open"),
+	copyText = this.getI18NString("copy");
+	
 	//loop through all the projects
-	for(var x=0; x<projectsArray.length; x++) {
+	for(var x=projectsArray.length-1; x>-1; x--) {
+		//add the fields to the appropriate arrays
+		var index = $.inArray(projectId,this.portalProjectIds);
+		if(index < 0){
+			this.portalProjectPaths.push(projectPath);
+			this.portalProjectIds.push(projectId);
+			this.portalProjectTitles.push(projectTitle);
+		} else {
+			this.portalProjectPaths[index] = projectPath;
+			this.portalProjectTitles[index] = projectTitle;
+		}
+		
 		//get a project and obtain the id, path, and title
 		var project = projectsArray[x];
 		var projectId = project.id;
 		var projectPath = project.path;
 		var projectTitle = project.title;
+		var lastEdited = project.lastEdited;
+		var isFavorite = project.isFavorite, bookmarkClass = '';
+		var isAuthorable = true;
+		if(copyMode && !project.authorable){
+			isAuthorable = false;
+		}
+		if(isFavorite){
+			bookmarkClass = 'true ';
+		}
+		if(isAuthorable){
+			bookmarkClass += 'authorable ';
+		}
+		var dateCreated = project.dateCreated;
+		var projectOwner = project.projectOwnerName;
+		var runId = null, hasRun = false, createdClass = '', createdPre = '';
+		var createdDetails = createdDetailsPreText + ': ';
+		var runDetails = '';
+		if(typeof project.runId == 'number' && typeof project.isLibrary == 'boolean' && !project.isLibrary){
+			hasRun = true;
+			runId = project.runId;
+			createdClass = 'runCopy ';
+			createdPre = createdDetailsRunPreText + ' ' + runId + ': ';
+			runDetails = '<p class="warning">' + runWarningShortText + '</p>';
+		} else {
+			createdPre = createdDetails;
+		}
+		var isOwned = false, iconSrc = '/vlewrapper/vle/images/icons/red/shared.png', iconAlt = openDialogSharedText;
+		var sharedDetails = '', sharedUsers = '';
+		if(projectOwner == this.portalUserFullname){
+			isOwned = true;
+			iconSrc = '/vlewrapper/vle/images/icons/teal/briefcase.png';
+			iconAlt = openDialogOwnedText;
+		} else {
+			if(isAuthorable){
+				sharedDetails = '<p class="sharedDetails">' +
+					'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
+					projectSharedPreText + projectOwner +
+					'</p>';
+				
+				sharedUsers = '<p class="sharedDetails sharedUsers">' +
+					'<img alt="copy" src="/vlewrapper/vle/images/icons/red/shared.png" />' +
+					projectSharedUsersPreText + project.sharedUsers +
+					'</p>';
+			}
+		}
+		var infoIcon = '';
+		var libraryDetails = '', parentDetails = '', isLibrary = false;
+		if(typeof project.isLibrary == 'boolean' && project.isLibrary){
+			isLibrary = true;
+			var infoTitle = projectLibraryText;
+			infoIcon = '<img alt="copy" src="/vlewrapper/vle/images/icons/brown/bookmark.png" title="' + infoTitle + '">';
+			libraryDetails = '<p class="libraryDetails">' +
+				'<img alt="copy" src="/vlewrapper/vle/images/icons/red/bookmark.png" />' +
+				infoTitle +
+				'</p>';
+		} else if(typeof project.parentId == 'number'){
+			var infoTitle = '', titlePre = '';
+			if(project.parentLibrary){
+				titlePre = projectCopyLibraryPreText;
+			} else {
+				titlePre = projectCopyPreText;
+			}
+			infoTitle = titlePre + project.parentId + ' (' + project.parentTitle + ')';
+			infoIcon = '<img alt="copy" src="/vlewrapper/vle/images/icons/brown/copy-item.png" title="' + infoTitle + '">';
+			parentDetails = '<p class="parentDetails">' + titlePre + ' <span>' + project.parentId + ' (' + project.parentTitle + ')</span></p>';
+		}
+		
+		var ownershipIcon = '';
+		if(isAuthorable){
+			ownershipIcon = '<img alt="' + iconAlt + '" title="' + iconAlt + '" src="' + iconSrc + '" />';
+		}
+		
+		createdDetails = '<p class="' + createdClass + 'createdDetails">' + createdDetails + '<span>' + dateCreated + '</span></p>';
+		
+		var editedDetails = '';
+		if(typeof lastEdited == 'string' && lastEdited != ''){
+			editedDetails = '<p class="editDetails">' + lastEditedPreText + '<span>' + lastEdited + '</span></p>';
+		}
+		
+		var detailsTitle = '<p class="titleDetails">' + projectTitle + ' <span>(' + idText + ': ' + projectId + ')</span></p>';
+		
+		// insert project thumb path attribute
+		var thumbUrl = '';
+		if(typeof project.thumbUrl == 'string'){
+			thumbUrl = project.thumbUrl; 
+		} else {
+			thumbUrl = view.defaultThumbUrl;
+		}
+		var details = $('<div><img class="projectThumb" src="' + thumbUrl + '" alt="thumb" />' + 
+			'<div class="summaryInfo">' + detailsTitle + libraryDetails + sharedDetails + createdDetails + editedDetails + parentDetails + sharedUsers + runDetails + '</div><div style="clear:both;"></div></div>');
+		//add to tooltip content object
+		detailsContent[projectId] = details;
+		//details = details.replace(/"/g,"&quot;"); // escape double quotes so that the details text can be set as the value of the tooltip attribute
+		
+		//set button class and value
+		var buttonValue = openText;
+		if(copyMode){
+			buttonValue = copyText;
+		}
+		
+		//create project listing DOM element
+		var projectListing = '<div class="projectListing" data-projectid="' + projectId + '">' +
+			'<input type="button" class="openProject" data-projectid="' + projectId + '" value="' + buttonValue + '" />' +
+			'<div class="infoWrapper">' +
+			'<div class="projectInfo">' +
+			'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" tooltip-anchor="bottom"></a>' +
+			'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
+			ownershipIcon + infoIcon + 
+			'</div>' +
+			'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" tooltip-class="info" tooltip-anchor="left" /></div>' +
+			'</div>' +
+			'</div>';
+		
+		if(isFavorite){
+			numFave+=1;
+			//add project to favorites list
+			favoriteSegments.push(projectListing);
+		}
+		if(isOwned){
+			numOwned+=1;
+			//add project to owned list
+			ownedSegments.push(projectListing);
+		} else if (isAuthorable){
+			numShared+=1;
+			//add project to shared list
+			sharedSegments.push(projectListing);
+		}
+		if(copyMode && isLibrary){
+			numLibrary+=1;
+			//add project to shared list
+			librarySegments.push(projectListing);
+		}
+		//if(!copyMode && isAuthorable){
+			//numAll+=1;
+			//add project to view all list
+			//allSegments.push(projectListing);
+		//}
+		
+		//populate the open project dialog with entry for project
+		//$('#selectProject').append('<option name="projectOption" value="' + projectId + '">' +  projectId + ': ' + projectTitle +'</option>');
+	}
+	
+	//populate the project tabs
+	$('#favoriteProjects').append(favoriteSegments.join(""));
+	$('#ownedProjects').append(ownedSegments.join(""));
+	$('#sharedProjects').append(sharedSegments.join(""));
+	if(copyMode){
+		$('#libraryProjects').append(librarySegments.join(""));
+	}// else {
+		//$('#allProjects').append(allSegments.join(""));
+	//}
+	
+	var projectTabs = $('#projectTabs');
+	
+	// insert project thumbs into project details content
+	$('img.info',projectTabs).each(function(){
+		var id = $(this).attr('data-projectid'),
+			content = detailsContent[id],
+			imgsrc = $('img.projectThumb',content).attr('src');
+		
+		if(imgsrc != view.defaultThumbUrl){
+			$.ajax({
+			    url:imgsrc,
+			    type:'HEAD',
+			    error: function(){
+			    	// image doesn't load, so use default thumb and insert details content as info icon tooltip
+					$('img.projectThumb',content).attr('src',view.defaultThumbUrl);
+					var infoImg = $('img.info[data-projectid="' + id + '"]',projectTabs);
+					infoImg.attr('title',content.html()).addClass('tooltip').attr('tooltip-class','info').attr('tooltip-anchor','left');
+					//initialize tooltip
+					view.insertTooltips(null,infoImg);
+			    },
+			    success: function(){
+			    	// image loads, so insert details content as info icon tooltip
+					var infoImg = $('img.info[data-projectid="' + id + '"]',projectTabs);
+					infoImg.attr('title',content.html()).addClass('tooltip').attr('tooltip-class','info').attr('tooltip-anchor','left');
+					// initialize tooltip
+					view.insertTooltips(null,infoImg);
+			    }
+			});
+		}
+	});
+	
+	// bind open project button clicks
+	projectTabs.off('click','.openProject');
+	projectTabs.on('click','.openProject',function(){
+		var id = $(this).attr('data-projectid');
+		if(copyMode){
+			eventManager.fire('copyProjectSelected',id);
+		} else {
+			eventManager.fire('projectSelected',id);
+		}
+	});
+	
+	//bind toggle bookmark link clicks
+	projectTabs.off('click','a.bookmark');
+	projectTabs.on('click','a.bookmark',function(){
+		$(this).miniTip({doHide: true});
+		var id = $(this).attr('data-projectid');
+		var isBookmark = $(this).hasClass('true');
+		view.toggleBookmark(id, isBookmark, function(id,isBookmark){
+			var authorableChange = 0;
+			var isAuthorable = $('a.bookmark[data-projectid="' + id + '"]', projectTabs).hasClass('authorable');
+			if(isBookmark){
+				//remove project entry from favorites tab
+				$('#favoriteProjects .projectListing[data-projectid="' + id + '"]').fadeOut(function(){$(this).remove();});
+				
+				//remove stars from project listings
+				$('a.bookmark[data-projectid="' + id + '"]', projectTabs).each(function(){
+					$(this).removeClass('true');
+				});
+				
+				// if id matches active project, remove star from editing panel
+				if(id == view.portalProjectId){
+					$('a.bookmark',$('#projectContent')).removeClass('true');
+				}
+				
+				//update favorites count
+				view.portalFavorites-=1;
+				if(isAuthorable){
+					authorableChange = -1;
+				}
+			} else {
+				//add stars to project listings
+				$('a.bookmark[data-projectid="' + id + '"]', projectTabs).each(function(){
+					$(this).addClass('true');
+				});
+				$('.projectListing[data-projectid="' + id + '"]', projectTabs).each(function(index){
+					if(index==0){
+						//create clone DOM element for project listing
+						var entry = $(this).clone(), infoTitle = detailsContent[$(this).attr('data-projectid')].html();
+						$('a.bookmark',entry).addClass('tooltip').attr('title',view.getI18NString("authoring_toggle_favorite_title")).attr('tooltip-anchor','right');
+						$('img.info',entry).addClass('tooltip').attr('title',infoTitle).attr('tooltip-class','info').attr('tooltip-anchor','left');
+						//add project listing to favorites tab
+						$('#favoriteProjects').append(entry);
+						// update tooltips for new entry
+						view.insertTooltips(null,entry);
+					}
+				});
+				
+				// if id matches active project, add star to editing panel
+				if(id == view.portalProjectId){
+					$('a.bookmark',$('#projectContent')).addClass('true');
+				}
+				
+				//update favorites count
+				view.portalFavorites+=1;
+				if(isAuthorable){
+					authorableChange = 1;
+				}
+			}
+			//update favorites count displays
+			$('#favoriteTab').html(view.getI18NString('authoring_dialog_open_favorites') + ' (' + view.portalFavorites + ')');
+			if(isAuthorable){
+				var count = parseInt($('#myFavorites > .count').text()) + authorableChange;
+				$('#myFavorites > .count').text(count);
+			}
+		});
+	});
+	
+	//insert total numbers of projects in open project dialog tabs
+	if(copyMode){
+		// if we're in copy mode, insert total number of library projects
+		$('#libraryTab').html(this.getI18NString('authoring_dialog_copy_library') + ' (' + numLibrary + ')');
+		//$('#allTab').hide();
+		$('#libraryTab').show();
+	} else {
+		// if we're not in copy mode, hide library tab
+		//$('#allTab').html(this.getI18NString('authoring_dialog_open_all') + ' (' + numAll + ')');
+		//$('#allTab').show();
+		$('#libraryTab').hide();
+	}
+	$('#favoriteTab').html(this.getI18NString('authoring_dialog_open_favorites') + ' (' + numFave + ')');
+	$('#ownedTab').html(this.getI18NString('authoring_dialog_open_owned') + ' (' + numOwned + ')');
+	$('#sharedTab').html(this.getI18NString('authoring_dialog_open_shared') + ' (' + numShared + ')');
+	
+	
+	this.portalFavorites = numFave;
+	
+	//set height of project tabs to fit bottom of dialog, widths of the project listing elements
+	this.setProjectTabsHeight();
+	this.setProjectListingWidths();
+	
+	// insert tooltips
+	this.insertTooltips(null,projectTabs);
+	
+	this.onOpenProjectReady();
+};
+
+/**
+ * Sets the height of the project tabs in the open project dialog so that it fills
+ * the dialog's height
+ */
+View.prototype.setProjectTabsHeight = function(){
+	var tabHeight = $('#openProjectDialog').height() - $('#familySelect').outerHeight();
+	$('.projectList').height(tabHeight-5);
+};
+
+/**
+ * Sets the widths of the project listing elements in the open project dialog so that they fit
+ * the list item's width
+ */
+View.prototype.setProjectListingWidths = function(){
+	$('.projectList:visible .projectListing').each(function(){
+		var buttonWidth = $('input.openProject',$(this)).outerWidth();
+		$('.infoWrapper',$(this)).css('margin-left',buttonWidth + 6);
+		var infoWidth = $('.infoWrapper',$(this)).width();
+		var detailsWidth = $('.projectDetails',$(this)).width();
+		$('.projectInfo',$(this)).width(infoWidth-detailsWidth-15);
+	});
+};
+
+/**
+ * Adds or removes bookmark (favorite) for a specified project.
+ * @param pID Integer that specifies id of project
+ * @param isFav Boolean to identify whether the project is currently bookmarked
+ * @param callback Function to run on update success (with pId and isBookmark params passed in)
+ */
+View.prototype.toggleBookmark = function(pID,isBookmark,callback){
+	var view = this;
+	$.ajax({
+		type: 'get',
+		url: '/webapp/teacher/projects/bookmark.html?projectId=' + pID + '&checked=' + !isBookmark,
+		success: function(request){
+			callback(pID,isBookmark);
+		},
+		error: function(request,error){
+			alert(view.getI18NString('authoring_toggle_favorite_failed'));
+		}
+	});
+};
+
+/**
+ * Populates the welcome project list with projects retrieved from the portal.
+ * 
+ * @param t
+ * @return
+ */
+View.prototype.populateWelcomeProjects = function(t){
+	var view = this;
+	
+	//parse the JSON string into a JSONObject
+	var projectsObj = JSON.parse(t);
+	
+	//get the number of favorite, owned, and shared projects and insert in DOM
+	$('#myOwned > .count').text(projectsObj.owned);
+	$('#myShared > .count').text(projectsObj.shared);
+	$('#myFavorites > .count').text(projectsObj.bookmarked);
+	
+	// set portal variables
+	this.portalFavorites = projectsObj.bookmarked;
+	this.portalProjectId = null;
+	
+	//loop through all the recently edited projects
+	for(var x=0; x<projectsObj.recentProjects.length; x++) {
+		//get a project and obtain the id, title, and last edited time
+		var project = projectsObj.recentProjects[x];
+		var projectId = project.id;
+		var projectTitle = project.title;
+		var projectPath = project.path;
+		var lastEdited = project.lastEdited;
 		
 		//add the fields to the appropriate arrays
-		this.portalProjectPaths.push(projectPath);
-		this.portalProjectIds.push(projectId);
-		this.portalProjectTitles.push(projectTitle);
+		var index = $.inArray(projectId,this.portalProjectIds);
+		if(index < 0){
+			this.portalProjectPaths.push(projectPath);
+			this.portalProjectIds.push(projectId);
+			this.portalProjectTitles.push(projectTitle);
+		} else {
+			this.portalProjectPaths[index] = projectPath;
+			this.portalProjectTitles[index] = projectTitle;
+		}
 		
-		//create an entry in the drop down box
-		$('#selectProject').append('<option name="projectOption" value="' + projectId + '">' +  projectId + ': ' + projectTitle +'</option>');
+		var linkClass = '';
+		if(x>2){
+			linkClass = 'extra';
+		}
+		//add the current project to the recently edited projects space
+		$('#recent').append('<p class="recentProject ' + linkClass + '"><a data-projectid="' + projectId + '" title="' + this.getI18NString('authoring_openlink_title') + ' ' + projectId + '">' + projectTitle + ' (' + this.getI18NString('authoring_id') + ' ' + projectId + ')' + '</a><span class="lastEdited">' + lastEdited + '</span></p>');
 	}
+	
+	if(projectsObj.recentProjects.length > 3){
+		var toggleEl = $('<p><a title="' + this.getI18NString('authoring_welcome_togglerecent_more') + '" class="tooltip more" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="5">...</a></p>');
+		$('#recent').append(toggleEl);
+		$('a',toggleEl).click(function(){
+			if($(this).hasClass('more')){
+				$(this).removeClass('more').attr('title',view.getI18NString('authoring_welcome_togglerecent_less')).tipTip('destroy').tipTip({cssClass:'light',defaultPosition:'bottom',edgeOffset:5});
+			} else {
+				$(this).addClass('more').attr('title',view.getI18NString('authoring_welcome_togglerecent_more')).tipTip('destroy').tipTip({cssClass:'light',defaultPosition:'bottom',edgeOffset:5});
+			}
+			$('.recentProject').each(function(){
+				if($(this).hasClass('extra')){
+					$(this).slideToggle('fast');
+				}
+			});
+		});
+	}
+	
+	//bind click action to recent project links
+	$('.recentProject > a').click(function(){
+		var id = $(this).attr('data-projectid');
+		//open selected project
+		eventManager.fire("projectSelected",id);
+	});
+	
+	//show more details text on create panel hover
+	$('#myCreate').hover(
+		function(){$('#myCreate > .familyDetails').fadeIn(250);},
+		function(){$('#myCreate > .familyDetails').fadeOut(250);}
+	);
+	
+	// insert tooltips
+	this.insertTooltips(null,$('#projectWelcome'));
 	
 	this.onOpenProjectReady();
 };
 
 /**
  * A function used by Array.sort() to sort the objects
- * by their id
+ * by their id (descending)
  * @param project1
  * @param project2
  * @return a value less than 0 if project1 comes before project2
  * 0 if project1 and project2 are equal
- * a value greater than 0 if project 1 comes after project2
+ * a value greater than 0 if project1 comes after project2
  */
 View.prototype.sortProjectsById = function(project1, project2) {
 	var result = 0;
@@ -2134,8 +2798,10 @@ View.prototype.populateStandAloneProjects = function(t){
  * loading div and shows the select project div.
  */
 View.prototype.onOpenProjectReady = function(){
-	$('#loadingProjectMessageDiv').hide();
-	$('#openProjectForm').show();
+	//$('#loadingProjectMessageDiv').hide();
+	//$('#openProjectForm').show();
+	$('#openProjectOverlay').hide();
+	$('#openProjectLoading').hide();
 };
 
 View.prototype.reviewUpdateProject = function() {
@@ -2491,9 +3157,11 @@ View.prototype.populateNavModes = function(themeName,navMode){
 			for(var i=0;i<data.nav_modes.length;i++){
 				navSelect.append('<option value="' + data.nav_modes[i].id + '">' + data.nav_modes[i].name + '</option>');
 			}
-			
 			if(navMode){
 				view.setNavMode(navMode);
+			} else {
+				// display selected (default) nav mode
+				$('#currentNavMode').text($('#projectMetadataNavigation option:selected').text());
 			}
 		},
 		error: function(jqXHR,textStatus,errorThrown){
@@ -2508,13 +3176,15 @@ View.prototype.populateNavModes = function(themeName,navMode){
 };
 
 /**
- * Sets the project's navigation mode in the project metadata dialog based
+ * Sets the project's navigation mode in the project metadata dialog and project settings based
  * on the project's metadata
  * @param navMode the navigation mode identifer
  */
 View.prototype.setNavMode = function(navMode){
 	if(navMode != ''){
 		this.utils.setSelectedValueById('projectMetadataNavigation', navMode);
+		// display selected nav mode
+		$('#currentNavMode').text($('#projectMetadataNavigation option:selected').text());
 	}
 };
 

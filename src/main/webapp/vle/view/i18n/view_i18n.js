@@ -230,7 +230,7 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 			$(this).attr('title',view.getI18NString(i18nTitle,componentName));
 		}
 		// remove i18n attributes from DOM element
-		$(this).removeAttr('18n').removeAttr('i18n-title');
+		$(this).removeAttr('i18n').removeAttr('i18n-title');
 		// when all i18n text has been inserted, run the callback function
 		if(--count == 0){
 			if(typeof onComplete === 'function'){
