@@ -1204,92 +1204,98 @@ View.prototype.getAnnotationsByType = function(annotationType) {
 };
 
 /*
- * Finds any DOM elements with the 'tooltip' class and initializes the miniTip plugin on each.
+ * Finds any DOM elements with the 'tooltip' class and initializes the tipTip (modified) plugin on each.
  * 
- * @param options An object to specify default miniTip settings for all tooltips (Optional; 
- * see http://goldfirestudios.com/blog/81/miniTip-jQuery-Plugin for allowable options)
+ * @param options An object to specify default tipTip settings for all tooltips (Optional; 
+ * see https://github.com/indyone/TipTip for allowable options)
  * @param target A jQuery DOM object on which to process elements (Optional; default is entire page)
  * 
  * Individual tooltip options can be customized by adding additional attributes to the DOM element 
  * (Optional; will override default settings):
- * - tooltip-event:'click' sets the tooltip to render on mouse click (vs. hover, which is the default)
- * - tooltip-anchor:'bottom', 'left', and 'right' set the positions of the tooltip to bottom, left, 
- * and right respectively (default is top)
- * - tooltip-maxw:'XXXpx' sets the max-width of the tooltip element to XXX pixels (default is '400px');
+ * - tooltip-event: 'hover', 'click', 'focus', and 'manual' set the tooltip to show on mouse click,
+ * mouse hover, element focus, and manual activation [via $('#element').tipTip.('show')] respectively
+ * (default is 'hover')
+ * - tooltip-anchor: 'bottom', 'top', 'left', and 'right' set the positions of the tooltip to bottom, top, left, 
+ * and right respectively (default is 'top')
+ * - tooltip-maxw: 'XXXpx' sets the max-width of the tooltip element to XXX pixels (default is '400px');
  * - tooltip-content: String (or HTML String) to set as the tooltip's content (default is the element's 
  * title attribute)
- * - tooltip-title: String to set as the tooltip's title (default is no title)
  * - tooltip-class: String to add to the tooltip element's css class (default is none)
  * - tooltip-offset: 'XX' sets as the offset of the tooltip element to XX pixels (default is '0')
+ * - tooltip-keep: String ('true' or 'false') to specify whether the tooltip should stay visible when mouse
+ * moves away from the element (and hide when the mouse leaves the tooltip or the user clicks on another
+ * part of the page) (default is 'false')
  */
 View.prototype.insertTooltips = function(options,target){
-	
 	function processElement(item,options){
-		// set miniTip default options
+		item.css('cursor','pointer');
+		
+		// set tipTip default options
 		var settings = {
-			anchor:'n',
-			event:'hover',
-			aHide:false,
-			maxW:'400px',
-			offset:1,
-			fadeIn:10,
-			fadOut:10,
-			delay:100,
-			show: function(){
-				$('#miniTip').width('auto');
-			}
+			defaultPosition:'top',
+			maxWidth:'400px',
+			edgeOffset:2,
+			fadeIn:100,
+			fadOut:100,
+			delay:200
 		};
 		if(options != null && typeof options == 'object'){
-			// miniTip options have been sent in as a parameter, so merge with defaults
+			// tipTip options have been sent in as a parameter, so merge with defaults
 			$.extend(settings,options);
 		}
 		
 		// set options based on target element attributes
 		if(item.attr('tooltip-event') == 'click'){
-			settings.event = 'click';
+			settings['activation'] = 'click';
+		} else if(item.attr('tooltip-event') == 'hover'){
+			settings['activation'] = 'hover';
+		} else if(item.attr('tooltip-event') == 'manual'){
+			settings['activation'] = 'manual';
 		}
 		if(item.attr('tooltip-anchor') == 'right'){
-			settings.anchor = 'e';
+			settings['defaultPosition'] = 'right';
 		} else if (item.attr('tooltip-anchor') == 'bottom'){
-			settings.anchor = 's';
+			settings['defaultPosition'] = 'bottom';
 		} else if (item.attr('tooltip-anchor') == 'left'){
-			settings.anchor = 'w';
+			settings['defaultPosition'] = 'left';
+		} else if (item.attr('tooltip-anchor') == 'top'){
+			settings['defaultPosition'] = 'top';
 		}
 		if(item.attr('tooltip-maxw') && item.attr('tooltip-maxw').match(/^[0-9]+px$/)){
-			settings.maxW = item.attr('tooltip-maxw');
+			settings['maxWidth'] = item.attr('tooltip-maxw');
 		}
 		if(typeof item.attr('tooltip-content') == 'string'){
 			settings['content'] = item.attr('tooltip-content');
 		}
-		if(typeof item.attr('tooltip-title') == 'string'){
-			settings['title'] = item.attr('tooltip-title');
-		}
 		if(typeof item.attr('tooltip-offset') == 'string'){
-			settings['offset'] = parseInt(item.attr('tooltip-offset'));
+			settings['edgeOffset'] = parseInt(item.attr('tooltip-offset'));
 		}
 		if(typeof item.attr('tooltip-class') == 'string'){
-			var doShow = settings.show, newClass = item.attr('tooltip-class');
-			settings.show = function(){
-				$('#miniTip').attr('class',''); // clear out existing class
-				$('#miniTip').addClass(newClass);
-				doShow();
-			};
-		} else {
-			var doShow = settings.show;
-			settings.show = function(){
-				$('#miniTip').attr('class',''); // clear out existing class
-				doShow();
-			};
+			settings['cssClass'] = item.attr('tooltip-class');
+		}
+		if(typeof item.attr('tooltip-keep') == 'string'){
+			if (item.attr('tooltip-keep') == 'true'){
+				settings['keepAlive'] = true;
+			} else if (item.attr('tooltip-keep') == 'false'){
+				settings['keepAlive'] = false;
+			}
 		}
 		
-		// initialize miniTip on element
-		item.miniTip(settings);
+		// prevent the title from showing on hover when activation is set to 'click', 'focus', or 'manual'
+		if(item.attr('title') && item.attr('title') != '' && !settings.content){
+			// if title is set and content is not, set content to title value and remove title
+			settings.content = item.attr('title');
+			item.removeAttr('title');
+		}
+		
+		// initialize tipTip on element
+		item.tipTip(settings);
 		
 		// remove all tooltip attributes and class from DOM element (to clean up html and so item are not re-processed if insertTooltips is called again on same page)
-		item.removeAttr('tooltip-event').removeAttr('tooltip-anchor').removeAttr('tooltip-maxw').removeAttr('tooltip-content').removeAttr('tooltip-class').removeAttr('tooltip-offset').removeAttr('tooltip-title').removeClass('tooltip');
+		item.removeAttr('tooltip-event').removeAttr('tooltip-anchor').removeAttr('tooltip-maxw').removeAttr('tooltip-content').removeAttr('tooltip-class').removeAttr('tooltip-offset').removeAttr('tooltip-keep').removeClass('tooltip');
 	}
 	
-	// for all DOM elements with the 'tooltip' class, initialize miniTip
+	// for all DOM elements with the 'tooltip' class, initialize tipTip
 	if(target){
 		if(target.hasClass('tooltip')){
 			processElement(target,options);

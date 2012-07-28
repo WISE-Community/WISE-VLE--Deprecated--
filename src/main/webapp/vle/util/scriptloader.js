@@ -356,7 +356,7 @@ var scriptloader = function(){
         teacherXMPP_min:['vle/minified/teacherXMPP_min.js'],
         author: ['vle/util/icon.js',
                  'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js',
-                 'vle/jquery/miniTip/jquery.miniTip.min.js',
+                 'vle/jquery/jquery-tipTip/jquery.tipTip.minified.js',
                  'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.js',
                  'vle/jquery/jquery-validation/jquery.validate.min.js',
                  'vle/view/authoring/authorview_dispatchers.js',
@@ -485,7 +485,7 @@ var scriptloader = function(){
 		author: [/*'vle/css/authoring/authoring.css',*/
 		         'vle/css/authoring/author.css',
 		         'vle/css/ui-tools.css',
-		         'vle/jquery/miniTip/miniTip.css',
+		         'vle/jquery/jquery-tipTip/tipTip.css',
 		         'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.css',
 		         jqueryUICss
 		         ],
@@ -530,9 +530,14 @@ var scriptloader = function(){
         'vle/jquery/js/jquery.tools.tooltip.min.js':[jquerySrc],
         'vle/jquery/js/jquery.tablesorter.min.js':[jquerySrc],
         'vle/jquery/jquery-validation/jquery.validate.min.js':[jquerySrc],
+<<<<<<< HEAD
         'vle/jquery/miniTip/jquery.miniTip.min.js':[jquerySrc],
         'vle/jquery/js/jquery.editinplace.js':[jquerySrc],
         'vle/jquery/js/jquery.ui.touch-punch.min.js':[jqueryUISrc],
+=======
+        'vle/jquery/jquery-tipTip/jquery.tipTip.minified.js':[jquerySrc],
+        'vle/jquery/js/jquery.ui.touch-punch.min.js':[jqueryUISrc],
+>>>>>>> Switched from miniTip to modified version of the TipTip jQuery plugin (https://github.com/drewwilson/TipTip) for tooltips
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
