@@ -17,6 +17,10 @@ input[type="text"]:focus, textarea:focus {
 	outline:none;
 }
 
+img.help {
+	vertical-align:text-top;
+}
+
 /* Layout elements */
 
 #author_body {
@@ -66,6 +70,11 @@ p.warning {
 	font-size:.85em;
 	color:#FF563F;
 	text-align:center;
+}
+
+label.error {
+	color: #FF563F;
+    font-size: 0.9em;
 }
 
 .projectThumb {
@@ -135,6 +144,7 @@ p.warning {
     color: #D6C7B1;
     font-weight:normal;
     text-align: left;
+    position:relative;
 }
 
 #author_body #projectContent {
@@ -337,7 +347,7 @@ p.warning {
 }
 
 #author_body #projectContent .panelHeader {
-    padding:0 0 0.25em;
+    padding:0 0 0.2em;
     font-size:1em;
 }
 
@@ -452,12 +462,14 @@ p.warning {
     padding:0 .1em;
     /*vertical-align:bottom;*/
 	font-size:115%;
-	/*display:inline-block;*/
+	display:inline-block;
 	overflow:hidden;
 	-o-text-overflow: ellipsis;
   	-webkit-text-overflow: ellipsis;
   	text-overflow: ellipsis;
 	white-space:nowrap;
+	vertical-align:text-top;
+	line-height:100%;
 }
 
 #author_body #projectInfo #projectTitle:hover {
@@ -487,7 +499,7 @@ p.warning {
     position: absolute;
     right: 0;
     text-align: right;
-    top: -0.25em;
+    bottom:.2em;
 }
 
 #author_body #projectInfo ul#topProjectTools li {
@@ -628,6 +640,13 @@ p.warning {
 
 /* Dialogs */
 
+.dialog h3 {
+	font-family:Trebuchet MS;
+	font-size: 1.25em;
+    margin: 0.5em 0;
+    color: #795C3A;
+}
+
 .contentOverlay {
 	opacity: 1;
 	filter:Alpha(Opacity=100);
@@ -678,13 +697,6 @@ p.warning {
 	margin: 0 0.25em;
 }
 
-#createProjectDialog h3 {
-	font-family:Trebuchet MS;
-	font-size: 1.25em;
-    margin: 0.5em 0 1em;;
-    color: #795C3A;
-}
-
 #createProjectDialog p {
 	font-size: 1em;
     margin: 0.5em 0;
@@ -718,6 +730,14 @@ p.warning {
 
 #createProjectDialog #projectInput {
 	width:250px;
+}
+
+#editTitleDialog #titleInput {
+	width:500px;
+}
+
+#editTitleDialog label.error {
+	display:block;
 }
 
 /* Tooltip Content Styling */

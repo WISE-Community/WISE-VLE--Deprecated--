@@ -282,6 +282,11 @@ View.prototype.onAuthoringToolReady = function(){
 	var view = this;
 	notificationManager.setMode('authoring');
 	
+	// set validator item required message
+	$.extend(jQuery.validator.messages, {
+	  required: ' ' + view.getI18NString('validator_item_required')
+	});
+	
 	// bind general (non-changing) click events
 	this.bindGeneralEvents();
 	
@@ -304,7 +309,7 @@ View.prototype.onAuthoringToolReady = function(){
 View.prototype.bindGeneralEvents = function(){
 	var view = this;
 	
-	// top toolbar events
+	/* top toolbar events */
 	$("#openProjectLink").on("click", function(){
 		eventManager.fire("openProject");
 	});
@@ -312,7 +317,7 @@ View.prototype.bindGeneralEvents = function(){
 		eventManager.fire("createNewProject");
 	});
 	
-	// welcome panel elements
+	/* welcome panel elements */
 	$('#projectWelcome').on('click','#families li',function(){
 		var panel = $(this).attr('id'), tab = 0, doOpen = true;
 		switch (panel){
@@ -336,9 +341,9 @@ View.prototype.bindGeneralEvents = function(){
 		}
 	});
 	
-	// project editing panel elements
+	/* project editing panel elements */
 	
-	// toggle as favorite link
+	// toggle favorite link
 	$('#projectInfo').on('click','a.bookmark',function(){
 		var toggle = $(this);
 		toggle.miniTip({doHide: true});
@@ -363,27 +368,18 @@ View.prototype.bindGeneralEvents = function(){
 	
 	// project thumb editing	
 	$('#editThumb').on('click',function(){
-		eventManager.fire('editProjectThumbnail');
+		view.editProjectThumbnail();
 	});
 	
-	// project title input - show input field on title click
+	// project title editing
 	$('#projectTitle').on('click',function(){
-		$('#titleInput').width($(this).width());
-		$(this).hide();
-		$('#titleInput').show().focus().val('').val($(this).text());
+		view.editTitle();
 	});
-	
-	// update title on change, hide input on blur or enter keyup
-	$('#titleInput').on('change',function(){
-		eventManager.fire('projectTitleChanged');
-		// update display
-		$('#projectTitle').text($(this).val());
-	}).on('blur keyup',function(e){
-		if (e.type === 'blur' || e.keyCode === 13) {
-			$(this).hide();
-			$('#projectTitle').show();
+	$('#titleInput').keypress(function (e) {
+		if(e.keyCode == 13){
+			$(this).blur();
 		}
-	});
+    });
 	
 	// step term input
 	$('#stepTerm').on('change',function(){
@@ -410,7 +406,7 @@ View.prototype.bindGeneralEvents = function(){
 		eventManager.fire('previewProject');
 	});
 	
-	// project info controls
+	// project feature toggles
 	$('#loggingToggle').on('click',function(){
 		eventManager.fire('postLevelChanged');
 	});

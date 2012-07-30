@@ -69,6 +69,37 @@ View.prototype.initializeCreateProjectDialog = function(){
 };
 
 /**
+ * Creates and renders the dialog to edit the project title.
+ */
+View.prototype.initializeEditTitleDialog = function(){
+	var view = this;
+	var submit = function(){
+		if($('#titleForm').validate().form()){
+			// get new title
+			var title = $('#titleInput').val();
+			
+			if(title !== view.projectMeta.title){
+				// title has changed, so update project with new title
+				eventManager.fire('projectTitleChanged',title);
+			}
+			$('#editTitleDialog').dialog('close');
+		}
+	};
+	
+	var cancel = function(){
+		$('#editTitleDialog').dialog('close');
+	};
+	
+	$('#editTitleDialog').dialog({autoOpen:false, modal:true, resizable:false, 
+		open:function(){
+			$(this).find('label.error').hide();
+			$('#titleInput').focus().val(view.utils.resolveNullToEmptyString(view.projectMeta.title)).select();
+		}, 
+		title:this.getI18NString("authoring_project_panel_edit_title"), width:600, 
+		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'}, {text: this.getI18NString("submit"), click: submit}]});
+};
+
+/**
  * Creates and renders the dialog to create a new sequence.
  */
 View.prototype.initializeCreateSequenceDialog = function(){
@@ -528,9 +559,9 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		
 		if(parseInt(imVersion) > 1){
 			if(typeof $('#enableIdeaManager').attr('version') == 'string' ){
-				$.extend(jQuery.validator.messages, {
-				  required: ' *This item is required.'
-				});
+				/*$.extend(jQuery.validator.messages, {
+				  required: ' ' + view.getI18NSTring('validator_item_required')
+				});*/
 				if($('#imSettings').validate().form()){
 					view.projectMeta.tools.ideaManagerSettings = {};
 					view.projectMeta.tools.ideaManagerSettings.version = imVersion;

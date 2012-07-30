@@ -42,8 +42,8 @@ body { margin: 0; font-size: 1em; line-height: 1.4; }
  * Customize the background color to match your design.
  */
 
-::-moz-selection { background: #cccccc; text-shadow: none; }
-::selection { background: #cccccc; text-shadow: none; }
+::-moz-selection { background: #bfff84; text-shadow: none; }
+::selection { background: #bfff84; text-shadow: none; }
 
 
 /* =============================================================================

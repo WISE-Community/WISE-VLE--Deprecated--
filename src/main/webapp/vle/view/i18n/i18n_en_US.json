@@ -199,6 +199,10 @@
 		"value":"Settings",
 		"description":"Text for the word 'Settings'"
 	},
+	"validator_item_required": {
+		"value":"*This item is required.",
+		"description":"Text that is displayed when a required validation item is missing"
+	},
 	"idea":{
 		"value":"idea",
 		"description":"The default text for an 'idea' in the Idea Manager tool."
@@ -636,7 +640,7 @@
 		"description":"Text for the title/tooltip of the preview project info button in the project authoring panel."
 	},
 	"authoring_project_panel_more_details":{
-		"value":"More Details",
+		"value":"More Settings",
 		"description":"Text for the edit project details link in the project authoring panel."
 	},
 	"authoring_project_panel_stepnumbering_label":{
@@ -740,7 +744,7 @@
 		"description":"Text for the processing message when copying a project in the copy project dialog window."
 	},
 	"authoring_dialog_title_nameinput":{
-		"value":"Please enter a name for your project:",
+		"value":"Please enter a name for this project:",
 		"description":"Text instructing user to enter a name for the project in the edit project title dialog window."
 	},
 	"authoring_project_loading":{

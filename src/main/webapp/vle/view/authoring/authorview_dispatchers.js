@@ -26,7 +26,7 @@ View.prototype.authorDispatcher = function(type,args,obj){
 	} else if(type=='toggleProjectMode'){
 		obj.toggleProjectMode();
 	} else if(type=='projectTitleChanged'){
-		obj.projectTitleChanged();
+		obj.projectTitleChanged(args[0]);
 	} else if(type=='stepLevelChanged'){
 		obj.stepLevelChanged();
 	} else if(type=='stepTermChanged'){

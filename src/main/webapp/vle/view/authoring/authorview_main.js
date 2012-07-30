@@ -420,17 +420,11 @@ View.prototype.nodeTitleChanged = function(id){
 /**
  * Updates the changed project title in the current project and updates the
  * metadata, publishing changes to the portal.
+ * @param newTitle String for the project's new title
  */
-View.prototype.projectTitleChanged = function(){
-	/* get user input title */
-	var newTitle = document.getElementById('titleInput').value;
-	
-	// TODO: add validation!
-	
-	/* if not defined, set it to an empty string */
-	if(!newTitle){
-		newTitle = '';
-	};
+View.prototype.projectTitleChanged = function(newTitle){
+	// update title display
+	$('#projectTitle').text(newTitle);
 	
 	/* update metadata and save */
 	this.projectMeta.title = newTitle;
@@ -1259,8 +1253,6 @@ View.prototype.toggleProjectMode = function(){
  */
 View.prototype.editProjectMetadata = function(){
 	if(this.getProject()){
-		//TODO: retrieve project meta from server (in case post failed last time user tried to update metadata)
-		
 		showElement('editProjectMetadataDialog');
 		$('#projectMetadataTitle').val(this.utils.resolveNullToEmptyString(this.projectMeta.title));
 		var author = $.parseJSON(this.projectMeta.author);
@@ -1319,13 +1311,17 @@ View.prototype.editProjectMetadata = function(){
 			//determine if enable idea manager needs to be checked
 			// TODO: remove once IM settings are moved to separate dialog
 			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
-				$("#enableIdeaManager").attr('checked', true);
+				$("#enableIdeaManager").prop('checked', true);
+			} else {
+				$("#enableIdeaManager").prop('checked', false);
 			}
 
 			//determine if enable student asset uploader needs to be checked
-			// TODO: remove once IM settings are moved to separate dialog
+			// TODO: remove once student asset settings are moved to separate dialog
 			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
-				$("#enableStudentAssetUploader").attr('checked', true);
+				$("#enableStudentAssetUploader").prop('checked', true);
+			} else {
+				$("#enableStudentAssetUploader").prop('checked', false);
 			}
 			
 			// get Idea Manager version
@@ -1373,6 +1369,13 @@ View.prototype.editProjectMetadata = function(){
 	} else {
 		this.notificationManager.notify('Open a project before using this tool.', 3);
 	};
+};
+
+/**
+ * Sets initial value and shows the edit title dialog
+ */
+View.prototype.editTitle = function(){
+	$('#editTitleDialog').dialog('open');
 };
 
 /**
@@ -1735,6 +1738,9 @@ View.prototype.onProjectLoaded = function(){
 		// reset logging level checkbox (default to checked, high post level)
 		$('#loggingToggle').attr('checked','checked');
 		//document.getElementById('postLevelSelect').selectedIndex = 0;
+		
+		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
+		$('#projectInfo input[type="checkbox"]').toggleSwitch();
 	
 		// if we're in portal mode, tell the portal that we've opened this project
 		if (this.portalUrl) {
@@ -1756,7 +1762,7 @@ View.prototype.onProjectLoaded = function(){
 		$('#projectInfo .inputDisplay').show();
 		
 		// insert title
-		$('#titleInput').val(title);
+		//$('#titleInput').val(title);
 		$('#projectTitle').text(title);
 
 		// insert project id
@@ -2644,7 +2650,7 @@ View.prototype.setProjectListingWidths = function(){
 		$('.infoWrapper',$(this)).css('margin-left',buttonWidth + 6);
 		var infoWidth = $('.infoWrapper',$(this)).width();
 		var detailsWidth = $('.projectDetails',$(this)).width();
-		$('.projectInfo',$(this)).width(infoWidth-detailsWidth-15);
+		$('.projectInfo',$(this)).width(infoWidth-detailsWidth-20);
 	});
 };
 
