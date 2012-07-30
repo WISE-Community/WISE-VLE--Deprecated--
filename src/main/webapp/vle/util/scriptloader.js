@@ -357,7 +357,7 @@ var scriptloader = function(){
         author: ['vle/util/icon.js',
                  'vle/jquery/tinymce/jscripts/tiny_mce/jquery.tinymce.js',
                  'vle/jquery/jquery-tipTip/jquery.tipTip.minified.js',
-                 'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.js',
+                 'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.min.js',
                  'vle/jquery/jquery-validation/jquery.validate.min.js',
                  'vle/view/authoring/authorview_dispatchers.js',
                  'vle/view/authoring/authorview_startup.js',
@@ -536,6 +536,7 @@ var scriptloader = function(){
         'vle/jquery/js/jquery.ui.touch-punch.min.js':[jqueryUISrc],
 =======
         'vle/jquery/jquery-tipTip/jquery.tipTip.minified.js':[jquerySrc],
+        'vle/jquery/jquery-toggleSwitch/jquery.toggleSwitch.min.js':[jquerySrc],
         'vle/jquery/js/jquery.ui.touch-punch.min.js':[jqueryUISrc],
 >>>>>>> Switched from miniTip to modified version of the TipTip jQuery plugin (https://github.com/drewwilson/TipTip) for tooltips
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],

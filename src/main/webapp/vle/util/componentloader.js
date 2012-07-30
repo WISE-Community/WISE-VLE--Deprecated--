@@ -679,6 +679,7 @@ var componentloader = function(em, sl){
 					view.initializeTagViewDialog();
 					view.initializeImportViewDialog();
 					view.initializeAnalyzeProjectDialog();
+					view.initializeEditTitleDialog();
 										
 					window.onunload = env.onWindowUnload;
 				}
