@@ -55,7 +55,7 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 	var callback = function(text, xml, o){
 		o.hasProjectMeta = true;
 		o.populateMetaSettings();
-		$('#editProjectMetadataDialog').dialog('close');
+		//$('#editProjectMetadataDialog').dialog('close');
 		
 		if(!silent){
 			o.notificationManager.notify('Project settings saved.', 3);
@@ -67,10 +67,18 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 	};
 	
 	var failed = function(text, xml, o){
-		o.notificationManager.notify('Error saving project settings.', 3);
+		o.notificationManager.notify('Error saving project settings. Please check your network connection and try again.', 3);
+		
+		// revert project metadata to state before POST attempt
+		this.projectMeta = this.previousProjectMeta;
+		o.setPostLevel();
+		o.populateMetaSettings();
 	};
 	
 	if(this.mode == "portal") {
+		// store previous project metadata (in case POST fails)
+		this.previousProjectMeta = this.projectMeta;
+		
 		/*
 		 * set the max scores into the metadata. we need to do this for max
 		 * scores because we do not keep the this.projectMeta.maxScores up to date
@@ -104,6 +112,7 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 
 /**
  * If the authoring tool is in portal mode, attempts to publish the current metadata to the portal.
+ * TODO: remove (deprecated)
  */
 View.prototype.updateProjectMetadataOnPortal = function(){
 	var success = function(t,x,o){
@@ -221,22 +230,28 @@ View.prototype.setPostLevel = function(){
  */
 View.prototype.populateMetaSettings = function(){
 	// project setting toggles
-	$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
+	//$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
 	
 	if (this.projectMeta.tools != null) {
 		var tools = this.projectMeta.tools;
 		// determine if idea manager is enabled
 		if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
-			$("#enableIM").attr('checked', 'checked');
+			$("#enableIM").prop('checked', true);
+		} else {
+			$("#enableIM").prop('checked',false);
 		}
 	
 		// determine if enable student asset uploader is enabled
 		if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
-			$("#enableStudentAssetUploader").attr('checked', 'checked');
+			$("#enableUpload").prop('checked', true);
+		} else {
+			$("#enableUpload").prop('checked', false);
 		}
 	}
 	
-	$('#projectInfo input[type="checkbox"]').toggleSwitch();
+	$('#projectInfo input[type="checkbox"]').toggleSwitch('refresh');
+	
+	//$('#projectInfo input[type="checkbox"]').toggleSwitch();
 	
 	this.utils.setSelectedValueById('projectMetadataSubject', this.utils.resolveNullToEmptyString(this.projectMeta.subject));
 	this.utils.setSelectedValueById('projectMetadataGradeRange', this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
@@ -257,6 +272,8 @@ View.prototype.populateMetaSettings = function(){
 	
 	// initialize jQuery UI selectmenus on projectInfo select elements
 	$('#projectInfo select').selectmenu({customClass:'dark'});
+	
+	eventManager.fire('browserResize');
 };
 
 /**
