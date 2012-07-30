@@ -64,16 +64,24 @@
 					// Set switch width
 					cSwitch.width(offset + $('.tSwitchHandle',cSwitch).outerWidth());
 					
-					// set initial state
-					this.checked ? cSlider.css({'margin-left':'0','background-color':onColor}) : 
-						cSlider.css({'margin-left':-offset-1 + 'px','background-color':offColor});
+					// Store plugin data
+					cBox.data('toggleSwitch', {
+						target : this,
+						cSwitch : cSwitch,
+						cSlider : cSlider,
+						onColor : onColor,
+						offColor : offColor,
+						offset : offset
+					});
+					
+					// Set initial state
+					setDisplay(cBox);
 					
 					// Bind click action on new switch
 					cSwitch.on('click.toggleSwitch',function(){
 						cSwitch.toggleClass('checked');
 						var isChecked = cSwitch.hasClass('checked');
-						isChecked ? cSlider.css({'margin-left':'0','background-color':onColor}) : 
-							cSlider.css({'margin-left':-offset-1 + 'px','background-color':offColor});
+						setDisplay(cBox,isChecked);
 		
 						// Synchronize with the original checkbox
 						cBox.prop('checked',isChecked);
@@ -83,11 +91,6 @@
 					// Listen for changes on the original checkbox and update switch
 					cBox.on('change.toggleSwitch',function(){
 						cSwitch.click();
-					});
-					
-					cBox.data('toggleSwitch', {
-						target : cBox,
-						cSwitch : cSwitch
 					});
 				}
 			});
@@ -108,7 +111,19 @@
 					cBox.removeData('toggleSwitch');
 				}
 			});
+		},
+		refresh : function(){
+			return this.each(function(){				
+				setDisplay($(this),this.checked)
+			});
 		}
+	};
+	
+	// Private function to update toggleSwitch display state
+	function setDisplay( cBox, checked ){
+		var data = cBox.data('toggleSwitch');
+		checked ? data.cSlider.css({'margin-left':'0','background-color':data.onColor}) : 
+			data.cSlider.css({'margin-left':-data.offset-1 + 'px','background-color':data.offColor});
 	};
 	
 	$.fn.toggleSwitch = function( method ){
