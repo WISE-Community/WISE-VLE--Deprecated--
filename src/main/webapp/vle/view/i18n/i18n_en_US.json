@@ -628,7 +628,7 @@
 		"description":"Text for the title/tooltip of the edit project thumbnail link in the project authoring panel."
 	},
 	"authoring_project_panel_edit_info":{
-		"value":"Project Info",
+		"value":"Project Details",
 		"description":"Text for the title/tooltip of the edit project info button in the project authoring panel."
 	},
 	"authoring_project_panel_manage_files":{
@@ -640,7 +640,7 @@
 		"description":"Text for the title/tooltip of the preview project info button in the project authoring panel."
 	},
 	"authoring_project_panel_more_details":{
-		"value":"More Settings",
+		"value":"More Details",
 		"description":"Text for the edit project details link in the project authoring panel."
 	},
 	"authoring_project_panel_stepnumbering_label":{

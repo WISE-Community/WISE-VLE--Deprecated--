@@ -339,6 +339,7 @@ label.error {
 /* Project Content Panel */
 
 #author_body #projectContent {
+	overflow:hidden;
 }
 
 #author_body #projectContent #infoSummary {
@@ -353,6 +354,7 @@ label.error {
 
 #author_body #projectInfo {
 	position:relative;
+	margin-bottom:.5em;
 }
 
 #author_body #projectInfo #frontDetails > div {
@@ -409,7 +411,7 @@ label.error {
 }
 
 #author_body #projectInfo .panelHeader a.bookmark {
-	margin:0 0 -1px 0;
+	margin:0;
 	background-image:url("/vlewrapper/vle/images/icons/star-empty-lt.png");
 }
 
@@ -540,6 +542,24 @@ label.error {
 	position:absolute;
 	top:0;
 	right:0;
+}
+
+#author_body #projectStructure {
+	background-color:#ffffff;
+	-moz-box-shadow:0 0 2px 0 #000000 inset;
+	-webkit-box-shadow:0 0 2px 0 #000000 inset;
+	-o-box-shadow:0 0 2px 0 #000000 inset;
+	box-shadow:0 0 2px 0 #000000 inset;
+	position:relative;
+}
+
+#author_body #projectStructure #structureWrapper {
+	position:absolute;
+	top:2px;
+	bottom:2px;
+	left:2px;
+	right:2px;
+	overflow:auto;
 }
 
 /* Toolbars */

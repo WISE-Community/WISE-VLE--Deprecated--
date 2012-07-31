@@ -215,13 +215,6 @@ View.prototype.setPostLevel = function(){
 		} else if(this.projectMeta.postLevel == 5){
 			$('#loggingToggle').attr('checked',true);
 		}
-		/*var opts = document.getElementById('postLevelSelect').options;
-		for(var x=0;x<opts.length;x++){
-			if(this.projectMeta.postLevel==opts[x].value){
-				this.getProject().setPostLevel(opts[x].value);
-				//document.getElementById('postLevelSelect').selectedIndex = x;
-			};
-		};*/
 	};
 };
 
@@ -274,6 +267,28 @@ View.prototype.populateMetaSettings = function(){
 	$('#projectInfo select').selectmenu({customClass:'dark'});
 	
 	eventManager.fire('browserResize');
+};
+
+/**
+ * Updates project metadata settings based on project editing panel changes
+ * @param item String representing the project metadata field to update
+ * @param val String/boolean/object with the value to set
+ * 
+ */
+View.prototype.updateMetaSettings = function(item,val){
+	this.projectMeta[item] = val;
+	this.updateProjectMetaOnServer();
+};
+
+/**
+ * Updates project metadata tools object on project editing panel changes
+ * @param item String representing the tools metadata field to update
+ * @param val String/boolean/object with the value to set
+ * 
+ */
+View.prototype.updateMetaTools = function(item,val){
+	this.projectMeta.tools[item] = val;
+	this.updateProjectMetaOnServer();
 };
 
 /**

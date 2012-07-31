@@ -98,10 +98,35 @@ View.prototype.utils.resize = function(){
 	// set max width of project title display
 	var titleMaxW = $('#infoSummary').width() - $('#infoSummary a.bookmark').outerWidth() - $('#projectId').outerWidth() - $('#sharedIcon').outerWidth() - $('#libraryIcon').outerWidth()- $('#topProjectTools').outerWidth() - 50;
 	$('#projectTitle').css('max-width',titleMaxW + 'px');
+	$('#projectTitle').width('auto').width($('#projectTitle').width() + 2);
 	
-	// set the authoringContainer to fit the remaining height of the browser window
-	//var height = $(window).height()-($('#authorHeader').height()+$('#currentProjectContainer').height()+$('#projectTools').height()+46);
-	//$('#authoringContainer').height(height);
+	// set projectStructure to fit the remaining height of the projectContent
+	var psHeight = $('#projectContent').height() - $('#projectInfo').outerHeight(true) - parseInt($('#projectContent > .panelContent').css('padding-top')) - parseInt($('#projectContent > .panelContent').css('padding-bottom'));
+	$('#projectStructure').height(psHeight);
+};
+
+/**
+ * Sets the height of a jQuery dialog (adjusts for window size)
+ * @param element jQuery dialog content element
+ * @param height Number specifying height of dialog (optional)
+ */
+View.prototype.utils.setDialogHeight = function(element,height){
+	// set default height to 500px
+	var maxH = 500;
+	if(typeof height == 'number'){
+		maxH = height;
+	}
+	
+	// set height to fill window
+	var dHeight = $(document).height() - 50;
+	
+	// if window height is greater than specified height, set dialog to specified height 
+	if(dHeight>maxH){
+		dHeight = maxH;
+	}
+	
+	// initialize dialog with new height value
+	element.dialog('option','height',dHeight);
 };
 
 /*

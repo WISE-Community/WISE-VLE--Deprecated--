@@ -1152,11 +1152,7 @@ View.prototype.openProject = function(selectedTab,copyMode){
 	$('#openProjectLoading').show();
 	
 	// set height for dialog to fill window (or 500 pixels)
-	var height = $(document).height() - 50;
-	if(height>500){
-		height = 500;
-	}
-	$('#openProjectDialog').dialog('option','height',height);
+	this.utils.setDialogHeight($('#openProjectDialog'));
 	
 	var title = this.getI18NString('authoring_dialog_open_title');
 	if (copyMode === true){
@@ -1343,7 +1339,7 @@ View.prototype.editProjectMetadata = function(){
 		// TODO: remove once IM settings are moved to separate dialog
 		if(this.projectHasRun && parseInt(imVersion) < 2){
 			// project has run in classroom and uses older version of Idea Manager, so remove IM v2 settings panel
-			$('#ideaManagerSettings').remove();
+			$('#ideaManagerSettings').hide();
 		} else {
 			// since project hasn't run and Idea Manager version hasn't been set < 2, we can use IM v2 for this project
 			imVersion = '2';
@@ -1362,8 +1358,7 @@ View.prototype.editProjectMetadata = function(){
 		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
 		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
 		document.getElementById('projectMetadataKeywords').value = this.utils.resolveNullToEmptyString(this.projectMeta.keywords);
-		var height = $(window).height()-40;
-		$('#editProjectMetadataDialog').dialog({'height':height});
+		this.utils.setDialogHeight($('#editProjectMetadataDialog'),600);
 		$('#editProjectMetadataDialog').dialog('open');
 		eventManager.fire('browserResize');
 	} else {
@@ -1372,7 +1367,7 @@ View.prototype.editProjectMetadata = function(){
 };
 
 /**
- * Sets initial value and shows the edit title dialog
+ * Shows the edit title dialog
  */
 View.prototype.editTitle = function(){
 	$('#editTitleDialog').dialog('open');
@@ -1736,7 +1731,7 @@ View.prototype.onProjectLoaded = function(){
 		};
 	
 		// reset logging level checkbox (default to checked, high post level)
-		$('#loggingToggle').attr('checked','checked');
+		$('#loggingToggle').prop('checked',true);
 		//document.getElementById('postLevelSelect').selectedIndex = 0;
 		
 		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
@@ -2447,7 +2442,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			'<input type="button" class="openProject" data-projectid="' + projectId + '" value="' + buttonValue + '" />' +
 			'<div class="infoWrapper">' +
 			'<div class="projectInfo">' +
-			'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" tooltip-anchor="bottom"></a>' +
+			'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" tooltip-offset="-2"></a>' +
 			'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
 			ownershipIcon + infoIcon + 
 			'</div>' +

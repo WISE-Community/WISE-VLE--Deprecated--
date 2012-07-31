@@ -406,7 +406,15 @@ View.prototype.bindGeneralEvents = function(){
 		eventManager.fire('previewProject');
 	});
 	
+	// project metadata select options
+	$('#projectInfo select.metaInfo').on('change',function(){
+		view.updateMetaSettings($(this).attr('data-field'),$(this).val());
+	});
+	
 	// project feature toggles
+	$('#projectInfo input[type="checkbox"].metaInfo').on('click',function(){
+		view.updateMetaTools($(this).attr('data-field'),$(this).prop('checked'));
+	});
 	$('#loggingToggle').on('click',function(){
 		eventManager.fire('postLevelChanged');
 	});

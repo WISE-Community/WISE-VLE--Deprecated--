@@ -656,9 +656,9 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
 
 /* Overlays */
 .ui-widget-overlay { 
-	background: none repeat scroll 0 0 #cccccc;
-	opacity: .5;
-	filter:Alpha(Opacity=50);
+	background: none repeat scroll 0 0 #ffffff;
+	opacity: .6;
+	filter:Alpha(Opacity=60);
 }
 
 /*
@@ -925,7 +925,7 @@ a.ui-selectmenu:hover {
 /* special styles for secondary jquery-ui dialog buttons like 'cancel' and 'close' */
 .ui-button.secondary.ui-state-default {
 	background:transparent;
-	color:#ffffff;
+	color:#dddddd;
 	-o-text-shadow: none;
 	-moz-text-shadow: none;
     -webkit-text-shadow: none;

@@ -95,13 +95,13 @@
 					<img id="editThumb" alt="Edit Thumbnail" src="/vlewrapper/vle/images/authoring/editThumb.png" />
 					<div id="infoSummary">
 						<div class="panelHeader">
-							<a class="bookmark tooltip" href="#nogo" i18n-title="authoring_toggle_favorite_title" tooltip-class="light" tooltip-anchor="top" tooltip-offset="5"></a>
-							<span id="projectTitle" class="inputDisplay tooltip" i18n-title="authoring_project_panel_edit_title" tooltip-class="light" tooltip-anchor="top"></span>
+							<a class="bookmark tooltip" href="#nogo" i18n-title="authoring_toggle_favorite_title" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="3"></a>
+							<span id="projectTitle" class="inputDisplay tooltip" i18n-title="authoring_project_panel_edit_title" tooltip-class="light" tooltip-anchor="bottom"></span>
 							<span id="projectId"></span>
 							<ul id="topProjectTools">
-								<li id="editInfo" class="tooltip" i18n-title="authoring_project_panel_edit_info" tooltip-class="light" tooltip-anchor="bottom"><img alt="edit details" src="/vlewrapper/vle/images/authoring/icons/configuration-teal-light.png" /></li>
-								<li id="manageFiles" class="tooltip" i18n-title="authoring_project_panel_manage_files" tooltip-class="light" tooltip-anchor="bottom"><img alt="manage files" src="/vlewrapper/vle/images/authoring/icons/container-teal-light.png" /></li>
-								<li id="previewProject" class="tooltip" i18n-title="authoring_project_panel_preview" tooltip-class="light" tooltip-anchor="bottom"><img alt="preview" src="/vlewrapper/vle/images/authoring/icons/screen-teal-light.png" /></li>
+								<li id="editInfo" class="tooltip" i18n-title="authoring_project_panel_edit_info" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="-1"><img alt="Project Details" src="/vlewrapper/vle/images/authoring/icons/configuration-teal-light.png" /></li>
+								<li id="manageFiles" class="tooltip" i18n-title="authoring_project_panel_manage_files" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="-1"><img alt="Art and Files" src="/vlewrapper/vle/images/authoring/icons/container-teal-light.png" /></li>
+								<li id="previewProject" class="tooltip" i18n-title="authoring_project_panel_preview" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="-1"><img alt="Preview Project" src="/vlewrapper/vle/images/authoring/icons/screen-teal-light.png" /></li>
 							</ul>
 						</div>
 						<div id="frontDetails">
@@ -118,7 +118,7 @@
 							</div>
 							<div>
 								<label for="projectMetadataSubject" i18n="authoring_meta_subject_label"></label>
-								<select name="searchSubject" id="projectMetadataSubject">
+								<select name="searchSubject" id="projectMetadataSubject" class="metaInfo" data-field="subject">
 									<option id='subjectLife'  value='Life Science' i18n='authoring_meta_subject_options_lifescience'></option>
 									<option id='subjectPhysical' value='Physical Science' i18n='authoring_meta_subject_options_physicalscience'></option>
 									<option id='subjectEarth'  value='Earth Science' i18n='authoring_meta_subject_options_earthscience'></option>
@@ -131,7 +131,7 @@
 									<option selected id='subjectAll' disabled="disabled" value='' i18n="select_option_choose"></option>
 								</select>
 								<label for="projectMetadataGradeRange" i18n="authoring_meta_grade_label"></label>
-								<select name="studentGrades" id="projectMetadataGradeRange">
+								<select name="studentGrades" id="projectMetadataGradeRange" class="metaInfo" data-field="gradeRange">
 									<option id='grade1' value='3-5' i18n='authoring_meta_grade_options_3_5'></option>
 									<option id='grade2' value='6-8' i18n='authoring_meta_grade_options_6_8'></option>
 									<option id='grade3' value='9-12' i18n='authoring_meta_grade_options_9_12'></option>
@@ -140,8 +140,8 @@
 									<option id='gradeOther' value='Other' i18n='select_option_other'></option>
 									<option selected id='gradeAll' disabled="disabled" value="" i18n="select_option_choose"></option>
 								</select>
-								<label for="projectMetadataTotalTime" i18n="authoring_meta_total_time_label"></label>
-								<select name="totalTime" id="projectMetadataTotalTime">
+								<label for="projectMetadataTotalTime" i18n="authoring_meta_total_time_label""></label>
+								<select name="totalTime" id="projectMetadataTotalTime" class="metaInfo" data-field="totalTime">
 									<option id='total1' value='0-2 hours' i18n='authoring_meta_time_options_0_2_hrs'></option>
 									<option id='total1' value='2-3 hours' i18n='authoring_meta_time_options_2_3_hrs'></option>
 									<option id='total2' value='4-5 hours' i18n='authoring_meta_time_options_4_5_hrs'></option>
@@ -152,7 +152,7 @@
 									<option selected id='totalTime' disabled="disabled" value="" i18n="select_option_choose"></option>
 								</select>
 								<label for="projectMetadataLanguage" i18n="authoring_meta_language_label"></label>
-								<select name="languageType" id="projectMetadataLanguage">
+								<select name="languageType" id="projectMetadataLanguage" class="metaInfo" data-field="language">
 									<option id='english' value='English' i18n='authoring_meta_language_options_english'></option>
 									<option id='chinese' value='Chinese' i18n='authoring_meta_language_options_chinese'></option>
 									<option id='dutch' value='Dutch' i18n='authoring_meta_language_options_dutch'></option>
@@ -171,13 +171,13 @@
 								<div id="featureToggles">
 								<span class="sectionLabel" i18n="authoring_project_panel_features"></span>
 									<div class="featureToggle">
-										<input type="checkbox" id="enableIM" name="enableIM" />
+										<input type="checkbox" id="enableIM" name="enableIM" class="metaInfo" data-field="isIdeaManagerEnabled" />
 										<label for="enableIM" i18n='idea_manager'></label>
 										<img src='images/icons/teal/question.png' alt='Idea Manager Help' class='tooltip help' tooltip-class='info' tooltip-anchor='right' tooltip-keep='true' tooltip-event='click' i18n-title='help_authoring_ideamanager_info' />
 										<a id="imSettings" href="#nogo" i18n="settings"></a>
 									</div>
 									<div class="featureToggle">
-										<input type="checkbox" id="enableUpload" name="enableUpload" />
+										<input type="checkbox" id="enableUpload" name="enableUpload" class="metaInfo" data-field="isStudentAssetUploaderEnabled" />
 										<label for="enableUpload" i18n="student_uploader"></label>
 										<img src='images/icons/teal/question.png' alt='Student Upoader Help' class='tooltip help' tooltip-class='info' tooltip-anchor='right' tooltip-keep='true' tooltip-event='click' i18n-title='help_authoring_studentuploader_info' />
 									</div>
@@ -193,97 +193,97 @@
 				</div>
 				
 				<div id="projectStructure">
-				
+					<div id="structureWrapper">
 			
-					<div id="authorHeader">
+						<div id="authorHeader">
+						
+							 <div id="toolsAreaAuthor">
+							    <dl class="dropdownAuthor">
+							        <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
+							            <span id="menuTitle">
+							                extras
+							            </span>
+							            <img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
+							        </dt>
+							        <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);" onmouseup="ddMenu('one',-1);">
+							            <ul>
+							     
+							                <li style="text-decoration:line-through;"><a onclick="" id="importNodeButton">
+							                <img src="images/importNode.png" alt="import step icon"  />Import an Activity or Step<br/>(from Library, Custom, or Shared project)</a></li>
+							
+							                <!--
+							         	    <li style="text-decoration:line-through;"><a onclick="" class="underline"><img src="images/shareProject.png"
+											alt="share project icon"  />Share Project</a></li>	
+											-->
+									
+										<!--<td><a onclick="eventManager.fire('createNewProject')" id="createProjectButton"><img src="images/createProject.png" alt="create project icon" />
+										Create Project</a></td>-->
+							
+										<!--<td><a onclick='eventManager.fire("copyProject")' id='copyProjectButton'><img src="images/copyProject.png" alt="create project icon" />
+										Copy Project</a></td>-->
+										
+										<!--<li id='editProjectTagsMenu' style='display:none;'><a onclick='eventManager.fire("editProjectTags")'>Add/Edit project tags</a></li>-->
+							
+										<!--<li><a onclick="eventManager.fire('uploadAsset')"><img src="images/uploadArt.png" alt="Upload Art/Files" />
+										Upload Art/Files</a></li>-->
+									
+										<!--<li><a onclick="eventManager.fire('viewAssets')"><img src="images/manageArt.png" alt="Manage Art/Files" />
+										Manage Art/Files</a></li>-->
+									
+										<!--<li><a onclick='eventManager.fire("useSelected")' id='useButton'>
+											<img src="images/link_copy2.png" alt="Mirror Copy Selected Item(s)" />Mirror Selected Step<br/>(make data-clone of selected step)</a></li>-->
+							
+										<li><a onclick="eventManager.fire('startCreateReviewSequence', 'Peer')"><img src="images/manageArt.png" alt="Create Peer Review Sequence" />
+										Create Peer Review Sequence</a></li>
+										
+										<li><a onclick="eventManager.fire('startCreateReviewSequence', 'Teacher')"><img src="images/manageArt.png" alt="Create Teacher Review Sequence" />
+										Create Teacher Review Sequence</a></li>
+										
+									<div id="listTitle">Advanced Users Only</div>
+									
+									<li><a onclick="eventManager.fire('openPremadeComments')"><img src="images/constraint.png" alt="find broken links in project" />Open Premade Comments for Project</a></li>
+									
+									<li><a onclick="eventManager.fire('findBrokenLinksInProject')"><img src="images/constraint.png" alt="find broken links in project" />Find Broken Links in Project</a></li>
 					
-						 <div id="toolsAreaAuthor">
-						    <dl class="dropdownAuthor">
-						        <dt id="one-ddheader" onmouseover="ddMenu('one',1);" onmouseout="ddMenu('one',-1);">
-						            <span id="menuTitle">
-						                extras
-						            </span>
-						            <img src="images/go-down.png" alt="Menu Arrow" width="15" height="14" border="0" />
-						        </dt>
-						        <dd id="one-ddcontent" onmouseover="cancelHide('one');" onmouseout="ddMenu('one',-1);" onmouseup="ddMenu('one',-1);">
-						            <ul>
-						     
-						                <li style="text-decoration:line-through;"><a onclick="" id="importNodeButton">
-						                <img src="images/importNode.png" alt="import step icon"  />Import an Activity or Step<br/>(from Library, Custom, or Shared project)</a></li>
-						
-						                <!--
-						         	    <li style="text-decoration:line-through;"><a onclick="" class="underline"><img src="images/shareProject.png"
-										alt="share project icon"  />Share Project</a></li>	
-										-->
-								
-									<!--<td><a onclick="eventManager.fire('createNewProject')" id="createProjectButton"><img src="images/createProject.png" alt="create project icon" />
-									Create Project</a></td>-->
-						
-									<!--<td><a onclick='eventManager.fire("copyProject")' id='copyProjectButton'><img src="images/copyProject.png" alt="create project icon" />
-									Copy Project</a></td>-->
+									<li><a onclick="eventManager.fire('findUnusedAssetsInProject')"><img src="images/constraint.png" alt="find unused assets in project" />Find Unused Assets in Project</a></li>
 									
-									<!--<li id='editProjectTagsMenu' style='display:none;'><a onclick='eventManager.fire("editProjectTags")'>Add/Edit project tags</a></li>-->
-						
-									<!--<li><a onclick="eventManager.fire('uploadAsset')"><img src="images/uploadArt.png" alt="Upload Art/Files" />
-									Upload Art/Files</a></li>-->
-								
-									<!--<li><a onclick="eventManager.fire('viewAssets')"><img src="images/manageArt.png" alt="Manage Art/Files" />
-									Manage Art/Files</a></li>-->
-								
-									<!--<li><a onclick='eventManager.fire("useSelected")' id='useButton'>
-										<img src="images/link_copy2.png" alt="Mirror Copy Selected Item(s)" />Mirror Selected Step<br/>(make data-clone of selected step)</a></li>-->
-						
-									<li><a onclick="eventManager.fire('startCreateReviewSequence', 'Peer')"><img src="images/manageArt.png" alt="Create Peer Review Sequence" />
-									Create Peer Review Sequence</a></li>
+									<li><a onclick="eventManager.fire('deleteProject')"><img src="images/constraint.png" alt="delete project" />Delete Project</a></li>
 									
-									<li><a onclick="eventManager.fire('startCreateReviewSequence', 'Teacher')"><img src="images/manageArt.png" alt="Create Teacher Review Sequence" />
-									Create Teacher Review Sequence</a></li>
+									<li><a onclick="eventManager.fire('cleanProject')"><img src="images/edit-clear.png" alt="clean project" />Clean Project</a></li>
 									
-								<div id="listTitle">Advanced Users Only</div>
-								
-								<li><a onclick="eventManager.fire('openPremadeComments')"><img src="images/constraint.png" alt="find broken links in project" />Open Premade Comments for Project</a></li>
-								
-								<li><a onclick="eventManager.fire('findBrokenLinksInProject')"><img src="images/constraint.png" alt="find broken links in project" />Find Broken Links in Project</a></li>
-				
-								<li><a onclick="eventManager.fire('findUnusedAssetsInProject')"><img src="images/constraint.png" alt="find unused assets in project" />Find Unused Assets in Project</a></li>
-								
-								<li><a onclick="eventManager.fire('deleteProject')"><img src="images/constraint.png" alt="delete project" />Delete Project</a></li>
-								
-								<li><a onclick="eventManager.fire('cleanProject')"><img src="images/edit-clear.png" alt="clean project" />Clean Project</a></li>
-								
-								 <li><a onclick="eventManager.fire('editProjectFile')"><img src="images/document-properties.png"
-								alt="edit project file icon" />Edit Project Data File</a></li>
-								
-								<li><a onclick="eventManager.fire('authorConstraints')"><img src="images/constraint.png" alt="author constraints icon"/>Author
-								Student Navigation Constraints</a></li>
-								
-								<!--  
-								<li><a onclick="eventManager.fire('updateAudio')" ><img src="images/textToSpeech.png"
-								alt="generate Text to Speech"  />Text to Speech Audio</a></li>
-					            -->
-					
-								<li><a onclick="eventManager.fire('exportProject')" ><img src="images/copyProject.png"
-								alt="Download Project as Zip File"  />Download Project</a></li>
-					            			
-								<li><a class='last' onclick="eventManager.fire('reviewUpdateProject')" ><img src="images/constraint.png"
-								alt="Update Project"  />Update Project</a></li>
-								
-								<!-- 
-								        <li><a onclick="eventManager.fire('importProject')" id="importProjectButton"><img
-								src="images/importProject.png" alt="import project icon"  />Restore Project</a></li>
-								 -->
-									    <!-- 	<li><a onclick="eventManager.fire('retrieveArchive')" id="retrieveArchiveButton">Retrieve Archived Project</a></li>  -->
-								
-								        <!--  <li><a onclick='eventManager.fire("createTODOTask")' id='createTODOTaskLI'>Create TODO Task</a></li>  -->
-								        
-								        <!--  <li><a onclick='eventManager.fire("editTODOTasks")' id='editTODOTasksLI'>Edit TODO Tasks</a></li>  -->
-								        
-						            </ul>
-						        </dd>
-						    </dl>
-						</div>
-					                
-					</div>   <!--end of div  authorHeader-->
+									 <li><a onclick="eventManager.fire('editProjectFile')"><img src="images/document-properties.png"
+									alt="edit project file icon" />Edit Project Data File</a></li>
+									
+									<li><a onclick="eventManager.fire('authorConstraints')"><img src="images/constraint.png" alt="author constraints icon"/>Author
+									Student Navigation Constraints</a></li>
+									
+									<!--  
+									<li><a onclick="eventManager.fire('updateAudio')" ><img src="images/textToSpeech.png"
+									alt="generate Text to Speech"  />Text to Speech Audio</a></li>
+						            -->
+						
+									<li><a onclick="eventManager.fire('exportProject')" ><img src="images/copyProject.png"
+									alt="Download Project as Zip File"  />Download Project</a></li>
+						            			
+									<li><a class='last' onclick="eventManager.fire('reviewUpdateProject')" ><img src="images/constraint.png"
+									alt="Update Project"  />Update Project</a></li>
+									
+									<!-- 
+									        <li><a onclick="eventManager.fire('importProject')" id="importProjectButton"><img
+									src="images/importProject.png" alt="import project icon"  />Restore Project</a></li>
+									 -->
+										    <!-- 	<li><a onclick="eventManager.fire('retrieveArchive')" id="retrieveArchiveButton">Retrieve Archived Project</a></li>  -->
+									
+									        <!--  <li><a onclick='eventManager.fire("createTODOTask")' id='createTODOTaskLI'>Create TODO Task</a></li>  -->
+									        
+									        <!--  <li><a onclick='eventManager.fire("editTODOTasks")' id='editTODOTasksLI'>Edit TODO Tasks</a></li>  -->
+									        
+							            </ul>
+							        </dd>
+							    </dl>
+							</div>
+						                
+						</div>   <!--end of div  authorHeader-->
 				
 					<div id="currentProjectContainer">
 						<div id="currentProjectContent">
@@ -293,31 +293,6 @@
 								<div id='projectID'>ID:&nbsp;<span id='projectIdDisplay'></span></div>
 								<div id='projectModeDiv'><span>Simple Mode</span><a id='toggleMode' onclick='eventManager.fire("toggleProjectMode")' title='Toggle Project Mode (Simple or Advanced)'>Toggle</a></div>
 							</div>
-							<div id="authorOptions">
-								<!-- <div class='authorOption'>Number Steps By: 
-									<select id='numberStepSelect' onchange='eventManager.fire("stepNumberChanged")'>
-										<option value='0'>Project</option>
-										<option value='1'>Activity</option>
-									</select> -->
-									<!--<input align="middle" type='checkbox' name='autoStepCheck' id='autoStepCheck1' onclick='eventManager.fire("autoStepChanged")'/>
-									<span class="spacer">Number steps per Project</span>-->
-								</div>
-								<!--<div class='authorOption'>
-									<input align="middle" type='checkbox' name='stepLevelNumbering' id='stepLevel' onclick='eventManager.fire("stepLevelChanged")'/>
-									<span class="spacer">Number steps per Activity</span>
-								</div>-->
-								<!-- <div class="authorOption">
-									Step Term:
-									<input type='text' name='stepTerm' title='Click to Edit Step Term' id='stepTerm' onchange='eventManager.fire("stepTermChanged")' size='8'/>
-									<a id='editStepTerm' onclick='$("#stepTerm").focus();' title='Edit Step Term'>Edit</a>
-								</div> -->
-								<div class='authorOption' id="postLevelOption">Logging Level:
-									<select id='postLevelSelect' onchange='eventManager.fire("postLevelChanged")'>
-										<option value='5'>High (All Steps)</option>
-										<option value='1'>Low (Only Steps With Student Work)</option>
-									</select>
-								</div>
-							</div>
 							<div id='notificationDiv'></div>
 								<!-- this modal div appears to display instructional messages to the user while MOVING item(s) -->
 							<div id='selectModeDiv' style="display:none;">
@@ -326,56 +301,56 @@
 							<div id="concurrentAuthorDiv"></div>
 						</div>
 				
-					<div id='projectTools'>
-						<div id='selectNodeTools'>
-							<button class='first' title='Select All Steps & Activities' onclick='eventManager.fire("selectAll");'><span class='tool-icon-left action-icon action-icon-select'></span><span class='tool-label'>Select All</span></button>
-							<button class='last' title='Deselect All Steps & Activities' onclick='eventManager.fire("clearAll");'><span class='tool-icon-left action-icon action-icon-deselect'></span><span class='tool-label'>Select None</span></button>
+						<div id='projectTools'>
+							<div id='selectNodeTools'>
+								<button class='first' title='Select All Steps & Activities' onclick='eventManager.fire("selectAll");'><span class='tool-icon-left action-icon action-icon-select'></span><span class='tool-label'>Select All</span></button>
+								<button class='last' title='Deselect All Steps & Activities' onclick='eventManager.fire("clearAll");'><span class='tool-icon-left action-icon action-icon-deselect'></span><span class='tool-label'>Select None</span></button>
+							</div>
+							<div id='createNodeTools'>
+								<button id='newSequence' class='first' title='Add New Activity to Project' onclick='eventManager.fire("createNewSequence");'><span class='tool-icon action-icon action-icon-new2'></span><span class='tool-label'>Add Activity</span></button>
+								<button id='newNode' class='last' title='Add New Step to Project' onclick='eventManager.fire("createNewNode");'><span class='tool-icon action-icon action-icon-new'></span><span class='tool-label'>Add Step</span></button>
+							</div>
+							<div id='editNodeTools'>
+								<button id='moveSelected' disabled='true' class='first' title='Move Selected Items' onclick='eventManager.fire("moveSelected");'><span class='tool-icon action-icon action-icon-move action-icon-inactive'></span><span class='tool-label'>Move</span></button>
+								<button id='duplicateSelected' disabled='true' class='mid' title='Duplicate Selected Items' onclick='eventManager.fire("duplicateSelected");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Duplicate</span></button>
+								<button id='useButton' disabled='true' class='mid' title='Mirror Selected Step (Make Data Clone)' onclick='eventManager.fire("useSelected");' ><span class='tool-icon action-icon action-icon-clone action-icon-inactive'></span><span class='tool-label'>Mirror</span></button>
+								<button id='deleteSelected' disabled='true' class='last' title='Delete Selected Items' onclick='eventManager.fire("deleteSelected");'><span class='tool-icon action-icon action-icon-delete action-icon-inactive'></span><span class='tool-label'>Delete</span></button>
+							</div>
+							<div id='tagTools'>
+								<button id='displayTagView' title='Tags' onclick='eventManager.fire("displayTagView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Tags</span></button>
+							</div>
+							<div id='importTools'>
+								<button id='displayImportView' title='Import' onclick='eventManager.fire("displayImportView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Import</span></button>
+							</div>
+							<div id='visibiltyNodeTools'>
+								<button id='hideNodesBtn' title='Hide All Steps in Project' onclick='eventManager.fire("hideNodes");'><span class='tool-icon action-icon action-icon-hide'></span><span class='tool-label'>Hide Steps</span></button>
+								<button id='showNodesBtn' title='Show All Steps in Project' onclick='eventManager.fire("unhideNodes");' class='hidden'><span class='tool-icon action-icon action-icon-show'></span><span class='tool-label'>Show Steps</span></button>
+							</div>
+							<!--<td><div id='projectTasks' class='taskInfo' style='display: none;' onMouseOver='eventManager.fire("showTaskBox","project")' onMouseOut='eventManager.fire("hideTaskBox")'>Project Tasks</div></td>
+							<td><div id='userTasks' class='taskInfo' style='display: none;' onMouseOver='eventManager.fire("showTaskBox","users")' onMouseOut='eventManager.fire("hideTaskBox")'>User Tasks</div></td>-->
 						</div>
-						<div id='createNodeTools'>
-							<button id='newSequence' class='first' title='Add New Activity to Project' onclick='eventManager.fire("createNewSequence");'><span class='tool-icon action-icon action-icon-new2'></span><span class='tool-label'>Add Activity</span></button>
-							<button id='newNode' class='last' title='Add New Step to Project' onclick='eventManager.fire("createNewNode");'><span class='tool-icon action-icon action-icon-new'></span><span class='tool-label'>Add Step</span></button>
-						</div>
-						<div id='editNodeTools'>
-							<button id='moveSelected' disabled='true' class='first' title='Move Selected Items' onclick='eventManager.fire("moveSelected");'><span class='tool-icon action-icon action-icon-move action-icon-inactive'></span><span class='tool-label'>Move</span></button>
-							<button id='duplicateSelected' disabled='true' class='mid' title='Duplicate Selected Items' onclick='eventManager.fire("duplicateSelected");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Duplicate</span></button>
-							<button id='useButton' disabled='true' class='mid' title='Mirror Selected Step (Make Data Clone)' onclick='eventManager.fire("useSelected");' ><span class='tool-icon action-icon action-icon-clone action-icon-inactive'></span><span class='tool-label'>Mirror</span></button>
-							<button id='deleteSelected' disabled='true' class='last' title='Delete Selected Items' onclick='eventManager.fire("deleteSelected");'><span class='tool-icon action-icon action-icon-delete action-icon-inactive'></span><span class='tool-label'>Delete</span></button>
-						</div>
-						<div id='tagTools'>
-							<button id='displayTagView' title='Tags' onclick='eventManager.fire("displayTagView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Tags</span></button>
-						</div>
-						<div id='importTools'>
-							<button id='displayImportView' title='Import' onclick='eventManager.fire("displayImportView");'><span class='tool-icon action-icon action-icon-copy action-icon-inactive'></span><span class='tool-label'>Import</span></button>
-						</div>
-						<div id='visibiltyNodeTools'>
-							<button id='hideNodesBtn' title='Hide All Steps in Project' onclick='eventManager.fire("hideNodes");'><span class='tool-icon action-icon action-icon-hide'></span><span class='tool-label'>Hide Steps</span></button>
-							<button id='showNodesBtn' title='Show All Steps in Project' onclick='eventManager.fire("unhideNodes");' class='hidden'><span class='tool-icon action-icon action-icon-show'></span><span class='tool-label'>Show Steps</span></button>
-						</div>
-						<!--<td><div id='projectTasks' class='taskInfo' style='display: none;' onMouseOver='eventManager.fire("showTaskBox","project")' onMouseOut='eventManager.fire("hideTaskBox")'>Project Tasks</div></td>
-						<td><div id='userTasks' class='taskInfo' style='display: none;' onMouseOver='eventManager.fire("showTaskBox","users")' onMouseOut='eventManager.fire("hideTaskBox")'>User Tasks</div></td>-->
-					</div>
 					
-					<div id="authoringContainer">
-					<div id="authoringTable">
-						<div id="assignedcontainer">
-							<div id="ddTable">
-								<div id='projectLayout'>
-									<div id='dynamicProject'></div>
-								</div>
+						<div id="authoringContainer">
+							<div id="authoringTable">
+								<div id="assignedcontainer">
+									<div id="ddTable">
+										<div id='projectLayout'>
+											<div id='dynamicProject'></div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 					
-					<div id="clearFloats" class="clearFloats"></div>
-					
-					<div class="overlay contentOverlay" id="projectOverlay"></div>
-					<div class="loading contentLoading" id="projectLoading">
-						<div class="loadingText" i18n="authoring_project_loading"></div>
-						<div><img src="images/loading.gif"/></div>
+						<div id="clearFloats" class="clearFloats"></div>
 					</div>
+				</div> <!-- end of structureWrapper -->
+				<div class="overlay contentOverlay" id="projectOverlay"></div>
+				<div class="loading contentLoading" id="projectLoading">
+					<div class="loadingText" i18n="authoring_project_loading"></div>
+					<div><img src="images/loading.gif"/></div>
 				</div>
-			</div>
+			</div> <!-- end of projectStructure -->
 		</section>   <!--end of projectContent-->
 	</div>
 	

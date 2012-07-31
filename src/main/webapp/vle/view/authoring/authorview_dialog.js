@@ -399,7 +399,7 @@ View.prototype.initializeEditProjectFileDialog = function(){
 		$('projectText').val('');
 	};
 	
-	$('#editProjectFileDialog').dialog({autoOpen:false, draggable:false, width:900, buttons: {'Submit':submit}, close: cancel});
+	$('#editProjectFileDialog').dialog({autoOpen:false, draggable:false, modal:true, width:700, buttons: {'Submit':submit}, close: cancel});
 };
 
 /**
@@ -619,7 +619,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		$('#editProjectMetadataDialog').dialog('close');
 	};
 	
-	$('#editProjectMetadataDialog').dialog({autoOpen:false, draggable:false, modal:true, title:'Edit Project Information', width:850, buttons: {'Close': cancel, 'Revert To Last Save': undoProjectMetadata, 'Save Changes': updateProjectMetadata}});
+	$('#editProjectMetadataDialog').dialog({autoOpen:false, draggable:false, modal:true, title:'Edit Project Information', width:800, buttons: {'Close': cancel, 'Revert To Last Save': undoProjectMetadata, 'Save Changes': updateProjectMetadata}});
 };
 
 /**
