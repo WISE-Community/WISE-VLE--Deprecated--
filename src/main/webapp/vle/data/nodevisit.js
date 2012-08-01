@@ -41,7 +41,7 @@ NODE_VISIT.prototype.getNodeId = function() {
  * passed in because env is not accessible in the context of the node
  * @return a NODE_VISIT object
  */
-NODE_VISIT.prototype.parseDataJSONObj = function(nodeVisitJSONObj, view) {
+NODE_VISIT.prototype.parseDataJSONObj = function(nodeVisitJSONObj, view, nodeObj) {
 	//create a new NODE_VISIT object
 	var nodeVisit = new NODE_VISIT();
 	
@@ -54,19 +54,21 @@ NODE_VISIT.prototype.parseDataJSONObj = function(nodeVisitJSONObj, view) {
 	nodeVisit.visitPostTime = nodeVisitJSONObj.visitPostTime;
 	nodeVisit.duplicateId = nodeVisitJSONObj.duplicateId;
 	
-	var nodeObj = null;
-	
-	if(typeof env == 'undefined') {
-		//use the view if env is not available
-		nodeObj = view.getProject().getNodeById(nodeVisit.nodeId);
-	} else {
-		//obtain the node object that this visit refers to
-		nodeObj = env.getProject().getNodeById(nodeVisit.nodeId);
-	}
-	
-	//return null if the node object was not found
-	if (!nodeObj || nodeObj == null) {
-		return null;
+	if(nodeObj == null) {
+		//var nodeObj = null;
+		
+		if(typeof env == 'undefined') {
+			//use the view if env is not available
+			nodeObj = view.getProject().getNodeById(nodeVisit.nodeId);
+		} else {
+			//obtain the node object that this visit refers to
+			nodeObj = env.getProject().getNodeById(nodeVisit.nodeId);
+		}
+		
+		//return null if the node object was not found
+		if (!nodeObj || nodeObj == null) {
+			return null;
+		}
 	}
 	
 	//create an array of nodeStates from the nodeStates in the JSON object
