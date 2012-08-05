@@ -94,6 +94,9 @@ ChallengeNode.prototype.visitedNavigateToNode = function(node, startTime){
 ChallengeNode.prototype.showFeedbackDialog = function(feedback){
 	$('#feedbackDialog').html(feedback);
 	$('#feedbackDialog').dialog('open');
+	
+	$(".ui-draggable").draggable( "option", "iframeFix", true );
+	$( ".ui-draggable" ).resizable( "option", "ghost", true );
 };
 
 NodeFactory.addNode('ChallengeNode', ChallengeNode);
