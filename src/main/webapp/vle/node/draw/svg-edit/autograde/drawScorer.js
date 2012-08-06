@@ -69,7 +69,7 @@ var DrawScorer = function() {
         curImageString = curImageString.trim().replace(/^--lz77--/,"");
         var uncompressedString = lz77.decompress(curImageString);
         curImageString = $.parseJSON(lz77.decompress(curImageString));
-        return this.scoreUncompressedDrawing(curImageString)
+        return this.scoreUncompressedDrawing(curImageString);
     }
     
     //Scores the drawing represented by svgFullObject. Returns an object with the score as well
@@ -269,7 +269,9 @@ var DrawScorer = function() {
         var atomNames = this.getAtomsGivenImages(listOfImages);
         var molSoFar = new Object();
         for(var i = 0; i < this.xmlSpecInfo.molecules.length; i++) {
-            molSoFar[this.xmlSpecInfo.molecules[i].getAttribute('name')] = 0;
+        	if(this.xmlSpecInfo.molecules[i].getAttribute) {
+        		molSoFar[this.xmlSpecInfo.molecules[i].getAttribute('name')] = 0;        		
+        	}
         }
         var allSets = new Array();        
         return this.addMolecules(0, atomNames, molSoFar, allSets);
@@ -374,7 +376,9 @@ var DrawScorer = function() {
         var molecules = new Object();
         var unnamedComponents = new Array();
         for (var i = 0; i < this.xmlSpecInfo.molecules.length; i++) {
-            molecules[this.xmlSpecInfo.molecules[i].getAttribute('name')] = 0;
+        	if(this.xmlSpecInfo.molecules[i].getAttribute != null) {
+        		molecules[this.xmlSpecInfo.molecules[i].getAttribute('name')] = 0;        		
+        	}
         }
         for(var i = 0; i < svg.connectedComponents.length; i++) {
            var name = this.matchMoleculeToComponent(svg.connectedComponents[i], this.xmlSpecInfo.molecules, false);
@@ -531,7 +535,7 @@ var DrawScorer = function() {
                         }
                     }
                 } else if(rootChildren[i].nodeName == "molecules") {//For now, we're just going to store the list of nodes
-                    this.xmlSpecInfo.molecules = rootChildren[i].children;
+                	this.xmlSpecInfo.molecules = getChildNodesThatAreNotTextNodes(rootChildren[i]);
                 }
             }
         }
@@ -560,26 +564,28 @@ var DrawScorer = function() {
     //      if all atoms assigned, return the assignment; otherwise, return null (no match)
     this.matchMoleculeToComponent = function(connectedComponent, molecules, useLooseTouching) {
         for(var i = 0; i < molecules.length; i++) {
-            var atomsInMolecule = molecules[i].getElementsByTagName("atom");
-            if(atomsInMolecule.length != connectedComponent.length) {
-                continue;
-            }
-            if(!this.checkMatchingAtomTypes(connectedComponent, molecules[i])) {
-                continue;
-            }
-            // now do the backtracking DFS search (this is the potentially expensive part)
-            var unassignedNodes = new Array();
-            for(var j = 0; j < connectedComponent.length; j++) {
-                unassignedNodes.push(connectedComponent[j]);
-            }
-            var partialAssignments = new Array();
-            partialAssignments.push(new Object());
-            var moleculesArray = new Array();
-            moleculesArray.push(molecules[i]);
-            var finalAssignment = this.backtrackingCSPSolverForMoleculeMatching(partialAssignments, unassignedNodes, connectedComponent, moleculesArray,useLooseTouching,true);
-            if(countAllAssignments(finalAssignment) == unassignedNodes.length) {
-                return molecules[i].getAttribute('name');
-            }
+        	if(molecules[i].getElementsByTagName) {
+                var atomsInMolecule = molecules[i].getElementsByTagName("atom");
+                if(atomsInMolecule.length != connectedComponent.length) {
+                    continue;
+                }
+                if(!this.checkMatchingAtomTypes(connectedComponent, molecules[i])) {
+                    continue;
+                }
+                // now do the backtracking DFS search (this is the potentially expensive part)
+                var unassignedNodes = new Array();
+                for(var j = 0; j < connectedComponent.length; j++) {
+                    unassignedNodes.push(connectedComponent[j]);
+                }
+                var partialAssignments = new Array();
+                partialAssignments.push(new Object());
+                var moleculesArray = new Array();
+                moleculesArray.push(molecules[i]);
+                var finalAssignment = this.backtrackingCSPSolverForMoleculeMatching(partialAssignments, unassignedNodes, connectedComponent, moleculesArray,useLooseTouching,true);
+                if(countAllAssignments(finalAssignment) == unassignedNodes.length) {
+                    return molecules[i].getAttribute('name');
+                }        		
+        	}
         }
         return null;//no molecules matched
     }
@@ -1128,7 +1134,7 @@ var DrawScorer = function() {
         if(typeof(svg.overlappingMolecules) != "undefined") {
             allMolecules = combineTwoAssociativeArrays(svg.molecules, svg.overlappingMolecules);
         }
-        var moleculesInFrame = this.getFrame(frameID).getElementsByTagName("molecules")[0].children;
+        var moleculesInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("molecules")[0]);
         return this.frameHasDesiredItems(moleculesInFrame,allMolecules) && !frameHasNonOverlappingUnnamedComponents(svgFullObject, frameID);
         
     }
@@ -1160,7 +1166,7 @@ var DrawScorer = function() {
             this.getAllStrictMolecules(svg);
             this.nameAllMolecules(svg);
         }
-        var moleculesInFrame = this.getFrame(frameID).getElementsByTagName("molecules")[0].children;
+        var moleculesInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("molecules")[0]);
         return this.frameHasDesiredItems(moleculesInFrame,svg.molecules) && svg.unnamedComponents.length == 0;
         
     }
@@ -1175,7 +1181,7 @@ var DrawScorer = function() {
             this.getAllStrictMolecules(svg);
             this.nameAllMolecules(svg);
         }
-        var moleculesInFrame = this.getFrame(frameID).getElementsByTagName("molecules")[0].children;
+        var moleculesInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("molecules")[0]);
         return this.frameHasNoUndesiredItems(moleculesInFrame,svg.molecules) && svg.unnamedComponents.length == 0;
         
     }
@@ -1268,7 +1274,7 @@ var DrawScorer = function() {
         if(typeof(svg.atoms) == "undefined") {
             this.getAtoms(svg);
         }
-        var atomsInFrame = this.getFrame(frameID).getElementsByTagName("atoms")[0].children;
+        var atomsInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("atoms")[0]);
         return this.frameHasDesiredItems(atomsInFrame, svg.atoms);
     }
     
@@ -1282,9 +1288,39 @@ var DrawScorer = function() {
         }
         return null;
     }
-
-
+    
+    /**
+     * Get all the child nodes of the node
+     * @param node the node to get the child nodes from
+     * @returns an array that contains the child nodes
+     */
+    function getChildNodesThatAreNotTextNodes(node) {
+    	var resultChildNodes = [];
+    	
+    	if(node != null) {
+    		//get the child nodes
+    		var childNodes = node.childNodes;
+    		
+    		//loop through all the child nodes
+    		for(var x=0; x<childNodes.length; x++) {
+    			//get a child node
+    			var childNode = childNodes[x];
+    			
+    			/*
+    			 * make sure the child node is not a text node. in Chrome, the new line
+    			 * white space shows up as a node which we want to ignore.
+    			 */
+    			if(childNode.nodeName != '#text') {
+    				//add this node to the array we will return
+    				resultChildNodes.push(childNode);
+    			}
+    		}
+    	}
+    	
+    	return resultChildNodes;
     };
+
+};
 
     //used to notify scriptloader that this script has finished loading
     if(typeof eventManager != 'undefined'){
