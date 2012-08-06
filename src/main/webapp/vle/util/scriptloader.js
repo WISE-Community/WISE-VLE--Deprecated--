@@ -496,7 +496,10 @@ var scriptloader = function(){
  		grading_min: ['vle/css/portal/teachergrading.css',
  	 		         'vle/jquery/jquery-dataTables/css/datatable.css',
  	 		         jqueryUICss],
- 		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
+ 		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css'],
+ 		premadecomments:['vle/css/globalstyles.css',
+ 		                 'vle/css/premadecomments/premadecomments.css',
+ 		                jqueryUICss],
     	         
 	};
 	
@@ -524,6 +527,7 @@ var scriptloader = function(){
         'vle/jquery/js/jquery.tablesorter.min.js':[jquerySrc],
         'vle/jquery/jquery-validation/jquery.validate.min.js':[jquerySrc],
         'vle/jquery/miniTip/jquery.miniTip.min.js':[jquerySrc],
+        'vle/jquery/js/jquery.editinplace.js':[jquerySrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
