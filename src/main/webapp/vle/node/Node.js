@@ -152,9 +152,6 @@ Node.prototype.getContent = function(){
  */
 Node.prototype.setContent = function(content){
 	this.content = content;
-	
-	debugger;
-	//if this.content.
 };
 
 /**

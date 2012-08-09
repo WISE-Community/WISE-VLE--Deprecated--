@@ -458,6 +458,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 				data.put("projectId", projectId);
 				data.put("runId", runId);
 				data.put("stepName", nodeTitleWithPosition);
+				data.put("nodeId", nodeId);
 			} catch (JSONException e1) {
 				e1.printStackTrace();
 			}
@@ -522,6 +523,34 @@ public class VLEGetSpecialExport extends VLEServlet {
 					
 					//copy the contents of the viewStudentWork.html file into our new file
 					FileUtils.copyFile(sourceViewStudentWorkFile, newViewStudentWorkFile);
+				}
+			} else if(nodeType.equals("sensor")) {
+				if(vlewrapperBaseDir != null && vlewrapperBaseDir != "") {
+					//get the paths of all the files we need to copy
+					Vector<String> filesToCopy = new Vector<String>();
+					filesToCopy.add(vlewrapperBaseDir + "/vle/content/content.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/common/helperfunctions.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/jquery/js/flot/jquery.flot.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/jquery/js/flot/jquery.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/node/Node.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/data/nodevisit.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/node/sensor/sensor.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/node/sensor/SensorNode.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/node/sensor/sensorstate.js");
+					filesToCopy.add(vlewrapperBaseDir + "/vle/node/sensor/viewStudentWork.html");
+					
+					//get the path to the step content file
+					String projectFolderPath = projectPath.substring(0, projectPath.lastIndexOf("/"));
+					filesToCopy.add(projectFolderPath + "/" + nodeId);
+					
+					//loop through all the file paths
+					for(int x=0; x<filesToCopy.size(); x++) {
+						//get a file path
+						String filePath = filesToCopy.get(x);
+						
+						//copy the file to our zip folder
+						copyFileToFolder(filePath, zipFolder);
+					}
 				}
 			}
 			
@@ -972,5 +1001,33 @@ public class VLEGetSpecialExport extends VLEServlet {
 		
 		//we did not find the sequence we wanted
 		return null;
+	}
+	
+	/**
+	 * Copy a file to a folder
+	 * @param sourcePath the absolute path to the file on the system
+	 * @param folder the folder object to copy to
+	 */
+	private void copyFileToFolder(String sourcePath, File folder) {
+		/*
+		 * get the file name
+		 * if the path is /Users/geoffreykwan/dev/apache-tomcat-7.0.28/webapps/vlewrapper/vle/jquery/js/flot/jquery.js
+		 * the file name will be
+		 * jquery.js
+		 */
+		String fileName = sourcePath.substring(sourcePath.lastIndexOf("/"));
+		
+		//get the source file
+		File sourceFile = new File(sourcePath);
+		
+		//create the destination file
+		File destinationFile = new File(folder, fileName);
+		
+		try {
+			//copy the file
+			FileUtils.copyFile(sourceFile, destinationFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

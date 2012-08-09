@@ -405,7 +405,7 @@ MC.prototype.checkAnswer = function() {
 					$('#feedback_' + choiceIdentifier).css('background-color', 'yellow');
 					
 					//show the feedback in popup style dialog as well
-					var resultMsg = this.getResultMessage(this.isCorrect(choice.identifier), true);
+					var resultMsg = this.getResultMessage(this.isCorrect(choice.identifier));
 					if ((choice.feedback.length + resultMsg.length) != 0) {
 						this.node.showFeedbackDialog(choice.feedback + "<br\><br\>" + resultMsg);
 					}
@@ -594,7 +594,7 @@ MC.prototype.getScore = function(numAttempts){
  * @param boolean - noFormat, return plain text
  * @return string - html response
  */
-MC.prototype.getResultMessage = function(isCorrect, noFormat){
+MC.prototype.getResultMessage = function(isCorrect){
 	var message = '';
 	
 	/* we need to retrieve the attempt object corresponding to the current number of attempts */
@@ -612,18 +612,11 @@ MC.prototype.getResultMessage = function(isCorrect, noFormat){
 			var position = this.node.view.getProject().getPositionById(attempt.navigateTo);
 			
 			if(position != null) {
-				var linkNode = this.node.view.getProject().getNodeById(attempt.navigateTo);
 				var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
-				
-				/* create the linkTo and add it to the message */
-				var linkTo = {key:this.node.utils.generateKey(),nodePosition:position};
-				this.node.addLink(linkTo);
-				if (noFormat === true) {
-					msg += 'Step ' + stepNumberAndTitle + ' before trying again.';
-				} else {
-					msg += '<a style=\"color:blue;text-decoration:underline;font-weight:bold;cursor:pointer\" onclick=\"node.linkTo(\'' + linkTo.key + '\')\">Step ' + stepNumberAndTitle + '</a> before trying again.';
-				}
-				
+
+				// create the link to the revisit step
+				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"renderNode\", \"" + position + "\")'>Step " + stepNumberAndTitle + "</a> before trying again.";
+
 				//create the message that will display in the alert
 				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
 				

@@ -158,6 +158,14 @@ SensorNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/sensor/sensor.html');
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+SensorNode.prototype.canSpecialExport = function() {
+	return true;
+};
+
 NodeFactory.addNode('SensorNode', SensorNode);
 
 //used to notify scriptloader that this script has finished loading

@@ -2,20 +2,37 @@
 <html>
 <head>
 <script type='text/javascript' src='data.js'></script>
-<script type='text/javascript' src='lz77.js'></script>
+<script type='text/javascript' src='content.js'></script>
+<script type='text/javascript' src='helperfunctions.js'></script>
+<script type='text/javascript' src='jquery.js'></script>
+<script type='text/javascript' src='jquery.flot.js'></script>
+<script type='text/javascript' src='Node.js'></script>
+<script type='text/javascript' src='SensorNode.js'></script>
+<script type='text/javascript' src='sensorstate.js'></script>
+<script type='text/javascript' src='sensor.js'></script>
+<script type='text/javascript' src='nodevisit.js'></script>
+
 <script>
-var lz77 = new LZ77();
+
+//this will hold the step content as a JSON object
+var stepContent = null;
 
 /**
  * Populate the drop down with the workgroup ids and display the work from
  * the first workgroup id
  */
 function loadStudentData() {
-	if(typeof data == 'undefined') {
+	if(data == null || typeof data == 'undefined') {
 		//we were unable to access the data in the data.js file
 		document.getElementById('metaDataDiv').innerHTML += 'Error: Unable to load data<br>';
 		return;
 	}
+	
+	//get the node id for the step
+	var nodeId = data.nodeId;
+	
+	//get the step content as a JSON object
+	stepContent = getStepContent();
 
 	//display the project, run, and step information
 	document.getElementById('metaDataDiv').innerHTML += 'Project Name: ' + data.projectName + '<br>';
@@ -170,40 +187,27 @@ function displayStudentData() {
 	//counts the number of revisions
 	var revisionCounter = 1;
 
-	//will hold all the student work including revisions
-	var studentDataHtml = '';
-
 	//get the array of student data for the selected workgroup id
 	var studentDataArray = student.studentDataArray;
 	
+	var stepWorkId = null;
+	
+	//an array of step work ids that have work and need to have renderGraph called on them
+	var stepWorkIdsToRender = [];
+	
+	//mapping of step work id to node visit data
+	var stepWorkIdToData = {};
+	
 	if(studentDataArray != null && studentDataArray != '') {
-		//loop through all the student data
+	
+		//loop through all the node visits from oldest to newest
 		for(var x=0; x<studentDataArray.length; x++) {
 			//get a student data
 			var studentData = studentDataArray[x];
 			
 			if(studentData != null) {
-				//get the data
+				//get the data aka node visit
 				var data = studentData.data;
-				
-				//get the step work id
-				var stepWorkId = studentData.stepWorkId;
-				
-				//get the time the student started working on the step
-				var startTime = data.visitStartTime;
-				
-				//get the time the student ended working on the step
-				var endTime = data.visitEndTime;
-				
-				if(startTime != null) {
-					//convert the start time from milliseconds to date
-					startTime = new Date(startTime);
-				}
-				
-				if(endTime != null) {
-					//convert the end time from milliseconds to date
-					endTime = new Date(endTime);
-				}
 				
 				//get all the node states
 				var nodeStates = data.nodeStates;
@@ -217,18 +221,43 @@ function displayStudentData() {
 						if(nodeStateHasWork(nodeState)) {
 							//this node state has work
 							var nodeStateStudentDataHtml = '';
+							
+							//get the step work id
+							stepWorkId = studentData.stepWorkId;
+						
+							//get the time the student started working on the step
+							var startTime = data.visitStartTime;
+							
+							//get the time the student ended working on the step
+							var endTime = data.visitEndTime;
+							
+							if(startTime != null) {
+								//convert the start time from milliseconds to date
+								startTime = new Date(startTime);
+							}
+							
+							if(endTime != null) {
+								//convert the end time from milliseconds to date
+								endTime = new Date(endTime);
+							}
+						
+							nodeStateStudentDataHtml = '';
 						
 							//display information about the node state
 							nodeStateStudentDataHtml += 'Revision: ' + revisionCounter + '<br>';
 							nodeStateStudentDataHtml += 'Step Work Id: ' + stepWorkId + '<br>';
 							nodeStateStudentDataHtml += 'Start Time: ' + startTime + '<br>';
 							nodeStateStudentDataHtml += 'End Time: ' + endTime + '<br>';
-							nodeStateStudentDataHtml += getStudentDataHtml(nodeState);
+							nodeStateStudentDataHtml += getStudentDataHtml(nodeState, stepWorkId);
 							nodeStateStudentDataHtml += '<hr>';
 							
-							//add this node state html to the top so that the latest node state is at the top
-							studentDataHtml = nodeStateStudentDataHtml + studentDataHtml;
+							//display the student work information, put the newest at the top
+							document.getElementById('studentDataDiv').innerHTML = nodeStateStudentDataHtml + document.getElementById('studentDataDiv').innerHTML;
 							
+							//remember this step work id and data so we can call renderGraph on the work later
+							stepWorkIdsToRender.push(stepWorkId);
+							stepWorkIdToData[stepWorkId] = data;
+
 							//increment the revision counter
 							revisionCounter++;
 							
@@ -241,82 +270,39 @@ function displayStudentData() {
 		}
 	}
 
-	if(studentDataHtml == '') {
+	if(document.getElementById('studentDataDiv').innerHTML == '') {
 		//this student didn't do any work
-		studentDataHtml = 'No Student Work';
+		document.getElementById('studentDataDiv').innerHTML = 'No Student Work';
 	}
-
-	//display the student work
-	document.getElementById('studentDataDiv').innerHTML += '<h3 style="text-align:center">Student Data</h3>' + studentDataHtml + '<br>';
+	
+	//add the Student Data header to the top of the div
+	document.getElementById('studentDataDiv').innerHTML = '<h3 style="text-align:center">Student Data</h3>' + document.getElementById('studentDataDiv').innerHTML;
+	
+	//loop through all the step work ids we need to call renderGraph on
+	for(var x=0; x<stepWorkIdsToRender.length; x++) {
+		//get the step work id
+		var stepWorkId = stepWorkIdsToRender[x];
+		
+		//get the node visit
+		var data = stepWorkIdToData[stepWorkId];
+		
+		//populate the student work into the div and render the graph
+		renderGraph(stepWorkId, data);
+	}
 }
 
 /**
- * Get the student work from the node state
+ * Get the student work to display. This will actually only return an empty div
+ * because the student work will be inserted into it later.
  * @param nodeState the node state to get student data from
+ * @param stepWorkId the step work id
  * @return the html that will display the student work
  */
-function getStudentDataHtml(nodeState) {
+function getStudentDataHtml(nodeState, stepWorkId) {
 	var studentDataHtml = '';
-
-	if(nodeState != null) {
-		//get the data
-		var data = nodeState.data;
-		
-		//remove the lz77 text
-		data = data.replace(/^--lz77--/,'');
-		
-		//decompress the student data and create a JSON object from it
-		data = JSON.parse(lz77.decompress(data));
-		
-		//get the svgstring field
-		svgString = data.svgString;
-		
-		/*
-		 * get the snapshots if any. if there are snapshots we will
-		 * display all the snapshots instead of the svgString.
-		 */
-		var snapshots = data.snapshots;
-		
-		if(snapshots != null && snapshots.length > 0) {
-			//there are snapshots
-			
-			var snapshotsSVGString = '';
-			
-			//loop through all the snapshots
-			for(var x=0; x<snapshots.length; x++) {
-				//get a snapshot
-				var snapshot = snapshots[x];
-				
-				if(snapshot != null) {
-					//get the svg from the snapshot
-					var snapshotSVG = snapshot.svg;
-					
-					//lz77 decompress if necessary
-					if(snapshotSVG.match(/^--lz77--/)) {
-						snapshotSVG = snapshotSVG.replace(/^--lz77--/, "");
-						snapshotSVG = lz77.decompress(snapshotSVG);
-					}
-					
-					//append the snapshot svg
-					snapshotsSVGString += snapshotSVG;
-				}
-			}
-			
-			/*
-			 * set the the cumulative snapshots as the svg string which 
-			 * will be displayed as the student data
-			 */
-			svgString = snapshotsSVGString;
-		}
-	}
 	
-	if(svgString == '') {
-		//this student didn't do any work
-		studentDataHtml = 'No Student Work';
-	} else {
-		//the svg string is the student work
-		studentDataHtml = svgString;
-	}
+	//create the div that we will later populate with the student work
+	studentDataHtml += '<div id="stepWork_' + stepWorkId + '"></div>';
 	
 	return studentDataHtml;
 }
@@ -329,17 +315,111 @@ function nodeStateHasWork(nodeState) {
 	var hasWork = false;
 	
 	if(nodeState != null && nodeState != '') {
-		//get the data
-		var data = nodeState.data;
 		
-		if(data != null && data != '') {
-			//the data is not null or empty so this node state has work
+		//get the node state fields
+		var predictionArray = nodeState.predictionArray;
+		var sensorDatArray = nodeState.sensorDatArray;
+		var annotationArray = nodeState.annotationArray;
+		var response = nodeState.response;
+
+		if(predictionArray != null && predictionArray.length > 0) {
+			hasWork = true;
+		}
+
+		if(sensorDatArray != null && sensorDatArray.length > 0) {
+			hasWork = true;
+		}
+		
+		if(annotationArray != null && annotationArray.length > 0) {
+			hasWork = true;
+		}
+		
+		if(response != null) {
 			hasWork = true;
 		}
 	}
 	
 	return hasWork;
 };
+
+/**
+ * Get the step content from the step content file
+ * @return the step content JSON object
+ */
+function getStepContent() {
+	var stepContent = null;
+	
+	//get the node id for the step
+	var nodeId = data.nodeId;
+	
+	//retrieve the step content from the step content file that should be in the same folder as this file
+	$.ajax({
+		url:nodeId,
+		async:false,
+		dataType:"text",
+		success:function(data, text, xhr) {
+			stepContent = data;
+		},
+		error:function(xhr, text) {
+			console.log("Error: failed to retrieve step content file");
+		}
+	});
+	
+	//turn the JSON string into a JSON object
+	stepContent = JSON.parse(stepContent);
+	
+	return stepContent;
+};
+
+/**
+ * Populate the student data into the div
+ * @param stepWorkId the step work id
+ * @param data the node visit
+ */
+function renderGraph(stepWorkId, data) {
+	//get the id of the div we will populate work in to
+	var stepWorkGraphDivId = 'stepWork_' + stepWorkId;
+	
+	//create a SensorNode object that we will use to render the student work
+	var sensorNode = new SensorNode();
+	
+	/*
+	 * insert the replaceSlashNWithBR() function that is used in sensorNode.renderGradingView().
+	 * this is required because the replaceSlashNWithBR() function is called but we don't really 
+	 * have the vle so we have to insert it otherwise sensorNode.renderGradingView() will
+	 * throw an error when it tries to call replaceSlashNWithBR().
+	 */
+	sensorNode.view = {};
+	sensorNode.view.replaceSlashNWithBR = function(studentWork) {
+		if(studentWork == null) {
+			//do nothing
+		} else if (studentWork.constructor.toString().indexOf("Array") == -1) {
+			//studentWork is not an array
+			studentWork = studentWork.replace(/\n/g, "<br>");
+		} else {
+			//studentWork is an array
+			studentWork = studentWork[0].replace(/\n/g, "<br>");
+		}
+		
+		return studentWork;
+	}
+	
+	//create the step content object
+	var contentObject = createContent();
+	contentObject.setContent(stepContent);
+	
+	//set the step content into the sensorNode
+	sensorNode.setContent(contentObject);
+	
+	//create a WISE node visit object
+	var nodeVisit = NODE_VISIT.prototype.parseDataJSONObj(data, null, sensorNode);
+	
+	//set the id
+	nodeVisit.id = stepWorkId;
+	
+	//populate the student data into the div
+	sensorNode.renderGradingView(stepWorkGraphDivId, nodeVisit);
+}
 
 </script>
 </head>
