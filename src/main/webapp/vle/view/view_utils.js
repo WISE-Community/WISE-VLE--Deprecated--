@@ -1290,6 +1290,84 @@ View.prototype.insertTooltips = function(options){
 };
 
 /**
+ * Get the step position given the step number
+ * @param stepNumber a step number which is a string with numbers
+ * separated by .'s. step numbers start count at 1. step positions
+ * start count at 0 so a step number that is 1.1 would have a step
+ * position of 0.0
+ * e.g.
+ * the step number for the first step in the project is 1.1
+ * the step number for activity 3 step 10 would be 3.10
+ * @returns the step position
+ */
+View.prototype.getStepPositionFromStepNumber = function(stepNumber) {
+	var stepPosition = '';
+	
+	//split the step number by the .'s
+	var stepSplits = stepNumber.split('.');
+	
+	//loop through each number that has been split
+	for(var x=0; x<stepSplits.length; x++) {
+		var stepSplit = stepSplits[x];
+		
+		//create an int from the number string
+		var intStepSplit = parseInt(stepSplit);
+		
+		if(stepPosition != '') {
+			//put a . between each number split
+			stepPosition += '.';
+		}
+		
+		/*
+		 * decrement the value to convert it from a step number to a step position
+		 * then append it to our ongoing step position string
+		 */
+		stepPosition += (intStepSplit - 1);
+	}
+	
+	return stepPosition;
+};
+
+/**
+ * Get the step number given the step position
+ * @param stepPosition a step position which is a string with numbers
+ * separated by .'s. step positions start count at 0. step numbers
+ * start count at 1 so a step position that is 0.0 would have a step
+ * number of 1.1
+ * e.g.
+ * the step position for the first step in the project is 0.0
+ * the step position for activity 3 step 10 would be 2.9
+ * @returns the step number
+ */
+View.prototype.getStepNumberFromStepPosition = function(stepPosition) {
+	var stepNumber = '';
+	
+	//split the step position by the .'s
+	var stepSplits = stepPosition.split('.');
+	
+	//loop through each number that has been split
+	for(var x=0; x<stepSplits.length; x++) {
+		var stepSplit = stepSplits[x];
+		
+		//create an int from the number string
+		var intStepSplit = parseInt(stepSplit);
+		
+		if(stepNumber != '') {
+			//put a . between each number split
+			stepNumber += '.';
+		}
+		
+		/*
+		 * increment the value to convert it from a step position to a step number
+		 * then append it to our ongoing step number string
+		 */
+		stepNumber += (intStepSplit + 1);
+	}
+	
+	return stepNumber;
+};
+
+/**
  * If the given item is a non-whitespace only string, return true.
  */
 View.prototype.utils.isNonWSString = function(item){

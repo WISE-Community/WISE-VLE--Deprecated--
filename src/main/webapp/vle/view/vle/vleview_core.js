@@ -510,6 +510,8 @@ View.prototype.onThemeLoad = function(){
 View.prototype.renderStartNode = function(){
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
+
+	var startPos = null;
 	
 	/* check to see if we can render the start node based on the current state of loading */
 	if(this.canRenderStartNode(mode) && this.isAnyNavigationLoadingCompleted()){
@@ -529,7 +531,7 @@ View.prototype.renderStartNode = function(){
 				var node = this.getProject().getNodeById(currentNodeVisit.nodeId);
 			}
 			
-			var startPos = this.getProject().getPositionById(node.id);
+			startPos = this.getProject().getPositionById(node.id);
 			
 			/*
 			 * if we could not find the startPos we will just render
@@ -540,8 +542,40 @@ View.prototype.renderStartNode = function(){
 			if(startPos == null) {
 				startPos = this.getProject().getStartNodePosition();
 			}
+		} else if(mode == 'portalpreview') {
+			//we are previewing a project
+			
+			//try obtain a step to load for the preview if any
+			var step = this.config.getConfigParam('step');
+			
+			if(step != null) {
+				//the step was specified in the url as a param so we will try to load that step
+				
+				/*
+				 * get the step position from the step number. step numbers
+				 * start at 1 but step positions start at 0. so a step number
+				 * of 1.1 would have a step position of 0.0
+				 */
+				var stepPosition = this.getStepPositionFromStepNumber(step);
+				
+				startPos = stepPosition;
+				
+				//try to get the node at the position
+				var node = this.getProject().getNodeByPosition(stepPosition);
+				
+				if(node == null) {
+					//the node does not exist which means there is no step at the given step number
+					alert('Error: Step ' + step + ' does not exist');
+					
+					//just load the first step in the project
+					startPos = this.getProject().getStartNodePosition();
+				}
+			} else {
+				//step was not specified so we will just load the first step in the project
+				startPos = this.getProject().getStartNodePosition();
+			}
 		} else {
-			var startPos = this.getProject().getStartNodePosition();
+			startPos = this.getProject().getStartNodePosition();
 		}
 		
 		/* render if start position has been set */
