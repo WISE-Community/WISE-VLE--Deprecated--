@@ -54,6 +54,8 @@ public class VLEGetSpecialExport extends VLEServlet {
 	
 	private HashMap<Long, JSONArray> workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 	
+	private HashMap<Integer, JSONArray> workgroupIdToWiseIds = new HashMap<Integer, JSONArray>();
+	
 	private List<String> nodeIdList = new Vector<String>();
 	
 	//the start time of the run (when the run was created)
@@ -119,6 +121,7 @@ public class VLEGetSpecialExport extends VLEServlet {
 		workgroupIdToPeriodName = new HashMap<Integer, String>();
 		workgroupIdToStudentLogins = new HashMap<Integer, String>();
 		workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
+		workgroupIdToWiseIds = new HashMap<Integer, JSONArray>();
 		
 		//the list of node ids in the project
 		nodeIdList = new Vector<String>();
@@ -423,6 +426,12 @@ public class VLEGetSpecialExport extends VLEServlet {
 						//add the workgroup id string to the List of workgroup ids
 						workgroupIds.add(workgroupId + "");
 					}
+					
+					if(classmate.has("wiseIds") && !classmate.isNull("wiseIds")) {
+						//get the wise ids for this workgroup
+						JSONArray wiseIds = classmate.getJSONArray("wiseIds");
+						workgroupIdToWiseIds.put(workgroupId, wiseIds);
+					}
 				}
 			}
 		} catch (JSONException e) {
@@ -562,6 +571,9 @@ public class VLEGetSpecialExport extends VLEServlet {
 				
 				//get the UserInfo object for the workgroup id
 				UserInfo userInfo = UserInfo.getByWorkgroupId(userIdLong);
+				
+				//get the wise ids
+				JSONArray wiseIds = workgroupIdToWiseIds.get(Integer.parseInt(userId));
 
 				//get all the work for a workgroup id
 				List<StepWork> stepWorksForWorkgroupId = StepWork.getByUserInfo(userInfo);
@@ -587,6 +599,9 @@ public class VLEGetSpecialExport extends VLEServlet {
 				try {
 					//put the workgroup id into the student object
 					studentObject.put("workgroupId", userIdLong);
+					
+					//put the wise ids into the student object
+					studentObject.put("wiseIds", wiseIds);
 					
 					//put the array of student work into the student object
 					studentObject.put("studentDataArray", studentDataArray);

@@ -187,6 +187,9 @@ function displayStudentData() {
 	//counts the number of revisions
 	var revisionCounter = 1;
 
+	//will hold all the student work including revisions
+	var studentDataHtml = '';
+	
 	//get the array of student data for the selected workgroup id
 	var studentDataArray = student.studentDataArray;
 	
@@ -252,7 +255,7 @@ function displayStudentData() {
 							nodeStateStudentDataHtml += '<hr>';
 							
 							//display the student work information, put the newest at the top
-							document.getElementById('studentDataDiv').innerHTML = nodeStateStudentDataHtml + document.getElementById('studentDataDiv').innerHTML;
+							studentDataHtml = nodeStateStudentDataHtml + studentDataHtml;
 							
 							//remember this step work id and data so we can call renderGraph on the work later
 							stepWorkIdsToRender.push(stepWorkId);
@@ -269,14 +272,26 @@ function displayStudentData() {
 			}
 		}
 	}
+	
+	//get the wise ids
+	var wiseIds = student.wiseIds;
+	if(wiseIds != null && wiseIds != '') {
+		//loop through all the wise ids
+		for(var x=0; x<wiseIds.length; x++) {
+			//display a wise id
+			var wiseId = wiseIds[x];
+			document.getElementById('studentDataDiv').innerHTML += 'Wise Id ' + (x + 1) + ': ' + wiseId;
+			document.getElementById('studentDataDiv').innerHTML += '<br>';
+		}
+	}
 
-	if(document.getElementById('studentDataDiv').innerHTML == '') {
+	if(studentDataHtml == '') {
 		//this student didn't do any work
-		document.getElementById('studentDataDiv').innerHTML = 'No Student Work';
+		studentDataHtml = 'No Student Work';
 	}
 	
 	//add the Student Data header to the top of the div
-	document.getElementById('studentDataDiv').innerHTML = '<h3 style="text-align:center">Student Data</h3>' + document.getElementById('studentDataDiv').innerHTML;
+	document.getElementById('studentDataDiv').innerHTML += '<h3 style="text-align:center">Student Data</h3>' + studentDataHtml + '<br>';
 	
 	//loop through all the step work ids we need to call renderGraph on
 	for(var x=0; x<stepWorkIdsToRender.length; x++) {

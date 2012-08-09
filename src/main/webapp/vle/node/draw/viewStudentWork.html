@@ -240,6 +240,18 @@ function displayStudentData() {
 			}
 		}
 	}
+	
+	//get the wise ids
+	var wiseIds = student.wiseIds;
+	if(wiseIds != null && wiseIds != '') {
+		//loop through all the wise ids
+		for(var x=0; x<wiseIds.length; x++) {
+			//display a wise id
+			var wiseId = wiseIds[x];
+			document.getElementById('studentDataDiv').innerHTML += 'Wise Id ' + (x + 1) + ': ' + wiseId;
+			document.getElementById('studentDataDiv').innerHTML += '<br>';
+		}
+	}
 
 	if(studentDataHtml == '') {
 		//this student didn't do any work
