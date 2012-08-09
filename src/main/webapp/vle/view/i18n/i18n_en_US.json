@@ -1,19 +1,23 @@
 {
 	"file_button_text":{
 		"value":"Files",
-		"description":"Text on the File Manager button"
+		"description":"Text on the File Manager button for Student VLE"
 	},
 	"ideas_button_text":{
 		"value":"Ideas",
-		"description":"Text on the Idea Manager button"
+		"description":"Text on the Idea Manager button for Student VLE"
 	},
 	"addidea_button_text":{
 		"value":"Add Idea",
-		"description":"Text on Add Idea buttons"
+		"description":"Text on Add Idea buttons for Student VLE"
 	},
 	"mywork_button_text":{
 		"value":"My Work",
-		"description":"Text on the My Work button"
+		"description":"Text on the My Work button for Student VLE"
+	},
+	"display_chat_room":{
+		"value":"Open Chat Room",
+		"description":"Text on the Chat Room button for Student VLE"
 	},
 	"mywork_button_title":{
 		"value":"Review My Work",
@@ -203,6 +207,10 @@
 		"value":"Explanation Builder",
 		"description":"The default text for the 'Explanation Builder' tool."
 	},
+	"chat_room":{
+		"value":"Chat Room",
+		"description":"The text 'Chat Room' in the Chat Room popup"
+	},	
 	"grading_button_grade_by_step":{
 		"value":"Grade By Step",
 		"description":"GradingTool: Text in the grade-by-step button"

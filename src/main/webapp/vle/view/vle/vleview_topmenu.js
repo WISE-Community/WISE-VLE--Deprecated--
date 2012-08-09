@@ -44,6 +44,8 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.moveIdeaOutOfTrash(args[0]);
 	} else if(type=='viewStudentAssets') {
 		obj.viewStudentAssets();
+	} else if(type=='displayChatRoom') {
+		obj.displayChatRoom();
 	} else if(type=='studentAssetSubmitUpload') {
 		obj.studentAssetSubmitUpload();
 	} else if(type=='ideaBasketDocumentLoaded') {
@@ -958,6 +960,52 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 
 View.prototype.displayStudentAssets = function() {
 	this.initializeAssetEditorDialog();
+};
+
+/**
+ * Send a chat message to the chat room
+ * @param chatMessage the message
+ */
+View.prototype.sendChat = function (chatMessage) {
+	this.xmpp.sendStudentToChatRoomMessage(chatMessage);
+};
+
+/**
+ * Display the Chat Room popup
+ */
+View.prototype.displayChatRoom = function() {
+	
+	//check if the chatRoomDiv exists
+	if($('#chatRoomDiv').size()==0){
+		//it does not exist so we will create it
+		$('#w4_vle').append('<div id="chatRoomDiv"><div id="chatRoomTextDisplay" style="height:85%;overflow:auto"></div><textarea id="chatRoomTextEntry" style="width:95%;height:40px"></textarea></div>');
+		var title = this.getI18NString("chat_room");
+		$('#chatRoomDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},position:'center',title:title,open:this.chatRoomDivOpen,close:this.chatRoomDivClose});
+		
+		$('#chatRoomTextEntry').keypress(function(event) {
+			if(event.which == 13) {
+				//the user has typed the enter key so we will submit the chat message
+				var chatMessage = $("#chatRoomTextEntry").val();
+				eventManager.fire("chatRoomTextEntrySubmitted", chatMessage);
+				$("#chatRoomTextEntry").attr("value","");
+				event.preventDefault();
+			}
+		});
+    }
+	
+	/*
+	 * check if the chat room div is hidden before trying to open it.
+	 * if it's already open, we don't have to do anything
+	 */
+	if($('#chatRoomDiv').is(':hidden')) {
+		//open the dialog
+		var docHeight = $(document).height()-25;
+		if(docHeight>499){
+			docHeight = 500;
+		}
+		$('#chatRoomDiv').dialog({width:400,height:500});
+		$('#chatRoomDiv').dialog('open');
+	}	
 };
 
 /**

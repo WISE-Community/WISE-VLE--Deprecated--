@@ -116,6 +116,20 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.groupClicked(args[0]);
 	} else if(type=='getSpecialExport') {
 		obj.getSpecialExport(args[0]);
+	} else if(type=='displayChatRoom') {
+		obj.displayChatRoom();
+	} else if(type=='chatRoomTextEntrySubmitted') {
+		obj.sendChat(args[0]);
+	} else if(type=='realTimeMonitorSelectWorkgroupIdDropDownClicked') {
+		obj.realTimeMonitorSelectWorkgroupIdDropDownClicked();
+	} else if(type=='realTimeMonitorSelectStepDropDownClicked') {
+		obj.realTimeMonitorSelectStepDropDownClicked();
+	} else if(type=='realTimeMonitorShareWithClassClicked') {
+		obj.realTimeMonitorShareWithClassClicked(args[0],args[1]);
+	} else if(type=='lockScreenAndShareWithClass') {
+		obj.lockScreenAndShareWithClass(args[0]);
+	} else if(type=='maximizeRightTdButtonClicked') {
+		obj.maximizeRightTdButtonClicked();
 	}
 };
 

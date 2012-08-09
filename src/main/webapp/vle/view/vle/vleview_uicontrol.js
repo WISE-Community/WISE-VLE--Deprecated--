@@ -2,24 +2,16 @@
  * Dispatches events that are specific to ui control
  */
 View.prototype.uicontrolDispatcher = function(type,args,obj){
-	if(type=='runManagerPoll'){
-		obj.runManagerPoll();
-	} else if(type=='lockScreenEvent'){
-		if(args){
-			obj.lockscreen(args[0]);
-		} else {
-			obj.lockscreen();
-		}
-	} else if(type=='unlockScreenEvent'){
+	if(type=='unlockScreenEvent'){
 		if(args){
 			obj.unlockscreen(args[0]);
 		} else {
 			obj.unlockscreen();
 		}
-	} else if(type=='startVLEBegin'){
-		obj.startRunManagerOnVLEStart();
 	} else if(type=='logout') {
 		obj.logout();
+	} else if(type=='lockScreenAndShareWithClass') {
+		obj.lockScreenAndShareWithClass(args[0]);
 	}
 };
 
@@ -40,37 +32,77 @@ View.prototype.renderLoginDialog = function(){
 };
 
 /**
- * Runs the runManager poll
+ * Lock the student screen and display what the teacher has shared with the class
+ * @param teacherShareWithClassObj
  */
-View.prototype.runManagerPoll = function(){
-	if(this.runManager){
-		this.runManager.poll();
-	}
-};
+View.prototype.lockScreenAndShareWithClass = function(teacherShareWithClassObj) {
+	if (teacherShareWithClassObj.shareType == "NodeVisit") {
+		//the teacher has shared a student node visit
+		
+		var nodeVisitShareObj = teacherShareWithClassObj.shareObject;
+	 	var stepNumberAndTitle = nodeVisitShareObj.stepNumberAndTitle;
+		var nodeVisit = nodeVisitShareObj.nodeVisit;
+		
+		//create a WISE node visit object
+		nodeVisit = NODE_VISIT.prototype.parseDataJSONObj(nodeVisit);
+		
+		var message = stepNumberAndTitle;
+		var stepWorkId = nodeVisitShareObj.stepWorkId;
+		var nodeId = nodeVisitShareObj.nodeId;
+		
+		if($('#lockscreen').size()==0){
+			this.renderLockDialog();
+		}
+		
+	    if (message == null) {
+	    	message = "<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table>";
+	    }
+	    
+	    //display the step number and title
+	    message = "<div class='teacherShareWithClassStepInfoDiv'>"+stepNumberAndTitle+"</div><div id='teacherShareWithClassDiv_" + nodeVisit.id + "'></div>";
 
-/**
- * Listens for the startVLEBegin event and creates and starts the run manager
- */
-View.prototype.startRunManagerOnVLEStart = function(){
-	if (this.config.getConfigParam('getRunInfoUrl') != null && this.config.getConfigParam('runInfoRequestInterval') != null) {
-		this.runManager = new RunManager(this.config.getConfigParam('getRunInfoUrl'), parseInt(this.config.getConfigParam('runInfoRequestInterval')), this.config.getConfigParam('runId'), this);
-	}
-};
+	    $('#lockscreen').html(message);
+	    
+	    $('#lockscreen').dialog('open');
+	    $('#lockscreen').dialog('option', 'width', 800);
+	    $('#lockscreen').dialog('option', 'height', 600);
+	    
+	    var node = this.project.getNodeById(nodeId);
+	    
+	    //render the grading view for the work so the student can see the work
+	    node.renderGradingView('teacherShareWithClassDiv_' + nodeVisit.id, nodeVisit);		
+	} else if (teacherShareWithClassObj.shareType == "Html") {
+		//the teacher has shared html
+		
+		var shareHTML = teacherShareWithClassObj.shareObject;
+		
+		if($('#lockscreen').size()==0){
+			this.renderLockDialog();
+		}
+		
+		message = "<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table><br/>" + shareHTML;
 
-/**
- * Locks the user screen
- */
-View.prototype.lockscreen = function(message) {
-	if($('#lockscreen').size()==0){
-		this.renderLockDialog();
+		$('#lockscreen').html(message);
+	    
+	    $('#lockscreen').dialog('open');
+	    $('#lockscreen').dialog('option', 'width', 800);
+	    $('#lockscreen').dialog('option', 'height', 600);
+	} else if (teacherShareWithClassObj.shareType == "TeacherMessage") {
+		//the teacher has shared a message with the class
+		
+		var shareHTML = teacherShareWithClassObj.shareObject;
+		
+		if($('#lockscreen').size()==0){
+			this.renderLockDialog();
+		}
+		
+		$('#lockscreen').html(shareHTML);
+	    
+	    $('#lockscreen').dialog('open');
+	    $('#lockscreen').dialog('option', 'width', 800);
+	    $('#lockscreen').dialog('option', 'height', 600);
 	}
-	
-    if (message == null) {
-    	message = "<table><tr align='center'>Your teacher has paused your screen.</tr><tr align='center'></tr><table>"
-    }
 
-    $('#lockscreen').html(message);
-    $('#lockscreen').dialog('open');
 };
 
 /**

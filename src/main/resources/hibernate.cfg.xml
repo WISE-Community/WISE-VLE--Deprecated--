@@ -47,6 +47,7 @@
   		<mapping class="vle.domain.peerreview.PeerReviewGate" />
   		<mapping class="vle.domain.ideabasket.IdeaBasket" />
   		<mapping class="vle.domain.statistics.VLEStatistics" />
+  		<mapping class="vle.domain.xmpp.ChatLog" />
  		
     </session-factory>
 

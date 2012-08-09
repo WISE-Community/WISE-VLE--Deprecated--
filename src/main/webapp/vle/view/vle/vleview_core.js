@@ -122,6 +122,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if (type == 'startVLEComplete') {
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
+	} else if(type=="chatRoomTextEntrySubmitted") {
+		obj.sendChat(args[0]);
 	}
 };
 
@@ -162,9 +164,6 @@ View.prototype.startVLEFromParams = function(obj){
  * and set and that the config object contains AT LEAST a content url and content base url.
  */
 View.prototype.startVLE = function(){
-	/* fire startVLEBegin event */
-	this.eventManager.fire('startVLEBegin');
-
 	/* load the project based on new config object parameters, lazy load */
 	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), true);
 	
@@ -248,6 +247,19 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 			!runInfo.isStudentAssetUploaderEnabled) {
 		$('#viewMyFiles').hide();
 	}
+	
+	if (runInfo.isXMPPEnabled != null && runInfo.isXMPPEnabled && 
+			runInfo.isChatRoomEnabled != null && runInfo.isChatRoomEnabled) {
+		/*
+		 * display chatroom link if run has chatroom enabled
+		 */
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		$('#viewChatRoom').html(displayChatRoomLink);
+		$('#viewChatRoom').show().css('display','inline');
+	} else {
+		$('#viewChatRoom').hide();
+	}
+	
 	
 	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
 		// display the idea basket links if the run/project has idea basket enabled
@@ -445,13 +457,6 @@ View.prototype.onThemeLoad = function(){
 		// insert menu into vle DOM
 		var navigationHtml = "<div id='my_menu' class='wmenu'></div>";
 		$("#navigation").prepend(navigationHtml);
-        
-		//display the show flagged work link if flagging is enabled
-		// TODO: remove - I don't think this is used anymore
-		if(this.runManager != null && this.runManager.isFlaggingEnabled) {
-			$("#viewFlagged").html("<a id='viewFlaggedLink' onclick='eventManager.fire(\"showFlaggedWork\")' title='Show Flagged Work'>"+this.getI18NString("flagged_button_text")+"</a>");
-		}
-		
 	} else {
 		this.notificationManager.notify('VLE and project not ready to load any nodes', 3);
 	}

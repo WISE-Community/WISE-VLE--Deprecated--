@@ -654,9 +654,15 @@ View.prototype.getGradingHeaderTableHtml = function() {
 	//return getGradingHeaderTableHtml;
 };
 
+/**
+ * Create and display the teacher real time monitor page
+ */
 View.prototype.displayClassroomMonitorPage = function() {
-	var classroomMonitorDiv = "<div id='classroomMonitorDiv>";
-	var pauseScreenDiv = "<div id='pauseScreenDiv'>"
+	var classroomMonitorTable = "<table id='classroomMonitorTable'>";
+	var classroomMonitorTr = "<tr><td id='classroomMonitorLeftTd'>";
+	
+	//controls for pausing the students' screen
+	var pauseScreenDiv = "<div id='pauseScreenDiv'>";
 	pauseScreenDiv += "<h2 style='margin-bottom:0px'>Pause All Screens <span style='font-size:.8em'>(Currently all students' screens are: <span id='studentScreenStatus' style='font-weight:bold; color:green'>unpaused</span></span>)</h2>";
 	pauseScreenDiv += "<div id='pauseScreenControls'>";
 	pauseScreenDiv += "<table><tr>";
@@ -666,24 +672,54 @@ View.prototype.displayClassroomMonitorPage = function() {
 	pauseScreenDiv += "</tr></table>";
 	pauseScreenDiv += "</div></div>";
 
-    classroomMonitorDiv += pauseScreenDiv;
+	classroomMonitorTr += pauseScreenDiv;
 
+	//table for displaying student progress
     var studentProgressDiv = "<div id='studentProgressDiv'>";    
     studentProgressDiv += "<h2>Student Progress</h2>";
-    
-    //studentProgressDiv += "	";
-    //display the percentage and an hr with a width of the percentage
-	//teamPercentProjectCompleted = teamPercentProjectCompleted + "<hr size=3 color='black' width='" + teamPercentProjectCompleted + "' align='left' noshade>";
     studentProgressDiv += "</div>";
     
-    classroomMonitorDiv += studentProgressDiv;
+    classroomMonitorTr += studentProgressDiv;
     
-    classroomMonitorDiv += this.createClassroomMonitorTable();
+    classroomMonitorTr += this.createClassroomMonitorTable();
     
-    classroomMonitorDiv += "</div>";
+    classroomMonitorTr += "</td><td id='classroomMonitorRightTd'>";
+    
+    //where the real time student work stream is displayed
+    classroomMonitorTr += "<div id='realTimeMonitorStudentWorkDiv'>";
+    classroomMonitorTr += "<select id='realTimeMonitorSelectStepDropDown'></select>";
+    classroomMonitorTr += "<select id='realTimeMonitorSelectWorkgroupIdDropDown'></select>";
+    classroomMonitorTr += "<div><input type='button' id='maximizeRightTdButton' value='Enlarge/Shrink' onclick='eventManager.fire(\"maximizeRightTdButtonClicked\")'></input></div>";
+    classroomMonitorTr += "<input type='button' id='shareRealTimeMonitorGraphWithClass' value='Share' onclick='eventManager.fire(\"realTimeMonitorShareWithClassClicked\",[\"DomElementId\",\"realTimeMonitorStepSummaryDiv\"])'></input>";
+    classroomMonitorTr += '<div id="realTimeMonitorStepSummaryDiv"></div>';
+    
+    classroomMonitorTr += "<div id='realTimeMonitorStudentWorkDisplayDiv' style='height:500px;overflow:auto'></div>";
+    classroomMonitorTr += "</div>";
+
+	classroomMonitorTr += "</td></tr>";
+    classroomMonitorTable += classroomMonitorTr + "</table>";
+	var classroomMonitorDiv = "<div id='classroomMonitorDiv'>" + classroomMonitorTable + "</div>";
+	
     $('#gradeWorkDiv').html(classroomMonitorDiv);
     
+    $('#realTimeMonitorStepSummaryDiv').hide();
+    
     $('#teamStatusDialog').dialog({autoOpen:false, width:400, height:300});
+    
+    $('#chatRoomDiv').dialog({autoOpen:false, width:400, height:300});
+    
+    $('#chatRoomTextEntry').keypress(function(event) {
+		if(event.which == 13) {
+			//user has typed the enter key so we will submit the chat message
+			var chatMessage = $("#chatRoomTextEntry").val();
+			eventManager.fire("chatRoomTextEntrySubmitted", chatMessage);
+			$("#chatRoomTextEntry").attr("value","");
+			event.preventDefault();
+		}
+	});
+    
+    this.populateRealTimeMonitorDropDowns();
+    this.populateRealTimeMonitorStudentWork();
     
     this.applyTableSorterToClassroomMonitorTable();
     
@@ -692,6 +728,134 @@ View.prototype.displayClassroomMonitorPage = function() {
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
+};
+
+/**
+ * Make the right td in the real time monitor fill up the whole dialog
+ */
+View.prototype.maximizeRightTdButtonClicked = function() {
+	$('#classroomMonitorLeftTd').toggle();
+	
+	if (!$('#classroomMonitorLeftTd').is(":visible")) {
+		// it's expanded
+		if ($("#realTimeMonitorDraggableCanvasDiv").length != 0) {
+			$("#realTimeMonitorDraggableCanvasDiv").css("width","900px").css("height","700px").css("border", "3px dotted");
+		}		
+	}
+};
+
+/**
+ * Populate the drop downs for the real time monitor student work stream
+ * with step titles and workgroup names
+ */
+View.prototype.populateRealTimeMonitorDropDowns = function() {
+	var classmates = this.userAndClassInfo.getClassmatesInAlphabeticalOrder();
+	
+	$('#realTimeMonitorSelectWorkgroupIdDropDown').append('<option value="all" onclick="eventManager.fire(\'realTimeMonitorSelectWorkgroupIdDropDownClicked\')">All</option>');
+	
+	for(var x=0; x<classmates.length; x++) {
+		var classmate = classmates[x];
+		var userName = classmate.userName;
+		var workgroupId = classmate.workgroupId;
+		
+		$('#realTimeMonitorSelectWorkgroupIdDropDown').append('<option value=' + workgroupId + ' onclick="eventManager.fire(\'realTimeMonitorSelectWorkgroupIdDropDownClicked\')">' + userName + '</option>');
+	}
+	
+	$('#realTimeMonitorSelectStepDropDown').append('<option value="all" onclick="eventManager.fire(\'realTimeMonitorSelectStepDropDownClicked\')">All</option>');
+	
+	var onlyGetNodesWithGradingView = true;
+	var allNodeIdsInProject = this.project.getNodeIds(onlyGetNodesWithGradingView);
+	for(var i=0; i<allNodeIdsInProject.length; i++) {
+		var nodeIdInProject = allNodeIdsInProject[i];
+		var nodeNumberAndTitle = this.project.getStepNumberAndTitle(nodeIdInProject);
+		var nodeType = this.project.getNodeById(nodeIdInProject).type;
+		
+		$('#realTimeMonitorSelectStepDropDown').append('<option value=' + nodeIdInProject + ' onclick="eventManager.fire(\'realTimeMonitorSelectStepDropDownClicked\')">' + nodeNumberAndTitle + ' ('+ nodeType + ')</option>');
+	}
+};
+
+/**
+ * One of the drop downs for the real time monitor student work stream
+ * was clicked so we will filter the student work stream.
+ */
+View.prototype.realTimeMonitorFilterClicked = function() {	
+	var selectedWorkgroupIdValue = $('#realTimeMonitorSelectWorkgroupIdDropDown :selected').val();
+	var selectedNodeIdValue = $('#realTimeMonitorSelectStepDropDown :selected').val();
+	$(".realTimeStudentWork").hide();
+	if (selectedWorkgroupIdValue == "all" && selectedNodeIdValue == "all") {
+		// show everything
+		$(".realTimeStudentWork").show();
+	} else if (selectedNodeIdValue != "all" && selectedWorkgroupIdValue != "all") {
+		// both workgroupId and nodeId are specified
+		$(".workgroupId_"+selectedWorkgroupIdValue+".nodeId_"+this.escapeIdForJquery(selectedNodeIdValue)).show();
+	} else if (selectedWorkgroupIdValue != "all") {
+		// workgroupId is specified
+		$(".workgroupId_"+selectedWorkgroupIdValue).show();
+	} else if (selectedNodeIdValue != "all") {
+		// nodeId is specified
+		$(".nodeId_"+this.escapeIdForJquery(selectedNodeIdValue)).show();	
+	} else {
+		//shouldn't reach here
+		console.log("shouldn't reach here");
+	}
+
+	// hide real time monitor statistics graph
+	$("#realTimeMonitorStepSummaryDiv").hide();
+
+	if (selectedNodeIdValue != null) {
+		var node = this.project.getNodeById(selectedNodeIdValue);
+		if (node != null) {
+			if (node.type == "MultipleChoiceNode") {
+				// clear graph image and show real time monitor statistics graph
+				$("#realTimeMonitorStepSummaryDiv").html('<img id="realTimeMonitorGraphImg" src="" width="300" height="225" alt="Student Responses"></img>');
+				$("#realTimeMonitorStepSummaryDiv").show();
+			} else if (node.type == "OpenResponseNode" || node.type == "NoteNode") {
+				$("#realTimeMonitorStepSummaryDiv").html('<div id="realTimeMonitorDraggableCanvasDiv" width="300" height="225"></div>');
+				$("#realTimeMonitorStepSummaryDiv").show();
+			}
+		};
+	};
+};
+
+/**
+ * The teacher has shared something with the class
+ * @param shareWithClassType the share type
+ * e.g.
+ * "Html"
+ * "NodeVisit"
+ * "DomElementId"
+ * @param value the value to share
+ */
+View.prototype.realTimeMonitorShareWithClassClicked = function(shareWithClassType, value) {
+	if (shareWithClassType == "DomElementId") {
+		var domId = value;
+		
+		//get the html in the element
+		var shareWithClassHtml = $("#"+domId).html();
+		
+		//share it with the class as html
+		this.xmpp.shareWithClass("Html", shareWithClassHtml);		
+	} else {
+		this.xmpp.shareWithClass(shareWithClassType, value);		
+	}
+};
+
+/**
+ * The workroup drop down for the real time monitor student stream was clicked 
+ */
+View.prototype.realTimeMonitorSelectWorkgroupIdDropDownClicked = function() {
+	this.realTimeMonitorFilterClicked();
+};
+
+/**
+ * The step drop down for the real time monitor student stream was clicked 
+ */
+View.prototype.realTimeMonitorSelectStepDropDownClicked = function() {
+	this.realTimeMonitorFilterClicked();
+};
+
+View.prototype.populateRealTimeMonitorStudentWork = function() {
+
 };
 
 View.prototype.createClassroomMonitorTable = function() {
@@ -762,8 +926,22 @@ View.prototype.createClassroomMonitorTable = function() {
 	
 	classroomMonitorTableHtml += "<div id='teamStatusDialog'></div>";
 	
+	
+	classroomMonitorTableHtml += "<button id='displayChatRoomButton' onclick='eventManager.fire(\"displayChatRoom\")'>Display Chat Room</button>";
+	classroomMonitorTableHtml += '<div id="chatRoomDiv"><div id="chatRoomTextDisplay" style="height:85%;overflow:auto"></div><textarea id="chatRoomTextEntry" style="width:95%;height:40px"></textarea></div>';
+
+	classroomMonitorTableHtml += "<button id='displayStudentWorkButton' onclick='eventManager.fire(\"displayStudentWork\")'>Display Student Work</button>";
+	
 	//set the html into the div so it is displayed
 	return classroomMonitorTableHtml;
+};
+
+View.prototype.displayChatRoom = function() {
+	$('#chatRoomDiv').dialog('open');
+};
+
+View.prototype.sendChat = function (chatMessage) {
+	this.xmpp.sendTeacherToChatRoomMessage(chatMessage);
 };
 
 View.prototype.applyTableSorterToClassroomMonitorTable = function() {
