@@ -563,7 +563,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 	var score = this.studentData.rubricScore;
 	
 	//create the auto score text that will be displayed in the popup
-	var message = 'Auto score returned: ' + score + " out of 5.\n\n";
+	var message = '(Auto score returned: ' + score + " out of 5.)\n\n";
 	
 	//create the feedback text that will be displayed in the popup
 	if(score == null) {
