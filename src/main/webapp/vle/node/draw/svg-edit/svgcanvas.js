@@ -1,4 +1,4 @@
-﻿/*
+﻿﻿/*
  * svgcanvas.js
  *
  * Licensed under the Apache License, Version 2
@@ -3009,9 +3009,20 @@ function BatchCommand(text) {
 		{
 			if(evt.button === 1 || canvas.spaceKey) return;
 			root_sctm = svgcontent.getScreenCTM().inverse();
-			var pt = transformPoint( evt.pageX, evt.pageY, root_sctm ),
-				mouse_x = pt.x * current_zoom,
+			var pt = transformPoint( evt.pageX, evt.pageY, root_sctm );
+			var mouse_x;
+			var mouse_y;
+			/*
+			 * fix for elements not being drawn where the mouse is positioned.
+			 * this is only a problem in Firefox.
+			 */
+			if(navigator.userAgent.indexOf("Firefox") != -1) {
+				mouse_x = pt.x;
+				mouse_y = pt.y;
+			} else{
+				mouse_x = pt.x * current_zoom;
 				mouse_y = pt.y * current_zoom;
+			}
 			evt.preventDefault();
 		
 			if($.inArray(current_mode, ['select', 'resize']) == -1) {
@@ -3314,11 +3325,22 @@ function BatchCommand(text) {
 		{
 			if (!started) return;
 			if(evt.button === 1 || canvas.spaceKey) return;
-			var selected = selectedElements[0],
-				pt = transformPoint( evt.pageX, evt.pageY, root_sctm ),
-				mouse_x = pt.x * current_zoom,
-				mouse_y = pt.y * current_zoom,
-				shape = getElem(getId());
+			var selected = selectedElements[0];
+			var pt = transformPoint( evt.pageX, evt.pageY, root_sctm );
+			var mouse_x;
+			var mouse_y;
+			/*
+			 * fix for elements not being drawn where the mouse is positioned.
+			 * this is only a problem in Firefox.
+			 */
+			if(navigator.userAgent.indexOf("Firefox") != -1) {
+				mouse_x = pt.x;
+				mouse_y = pt.y;
+			} else{
+				mouse_x = pt.x * current_zoom;
+				mouse_y = pt.y * current_zoom;
+			}
+			var shape = getElem(getId());
 		
 			x = mouse_x / current_zoom;
 			y = mouse_y / current_zoom;
@@ -3653,13 +3675,24 @@ function BatchCommand(text) {
 			var tempJustSelected = justSelected;
 			justSelected = null;
 			if (!started) return;
-			var pt = transformPoint( evt.pageX, evt.pageY, root_sctm ),
-				mouse_x = pt.x * current_zoom,
-				mouse_y = pt.y * current_zoom,
-				x = mouse_x / current_zoom,
-				y = mouse_y / current_zoom,
-				element = getElem(getId()),
-				keep = false;
+			var pt = transformPoint( evt.pageX, evt.pageY, root_sctm );
+			var mouse_x;
+			var mouse_y;
+			/*
+			 * fix for elements not being drawn where the mouse is positioned.
+			 * this is only a problem in Firefox.
+			 */
+			if(navigator.userAgent.indexOf("Firefox") != -1) {
+				mouse_x = pt.x;
+				mouse_y = pt.y;
+			} else{
+				mouse_x = pt.x * current_zoom;
+				mouse_y = pt.y * current_zoom;
+			}
+			var x = mouse_x / current_zoom;
+			var y = mouse_y / current_zoom;
+			var element = getElem(getId());
+			var keep = false;
 					
 			started = false;
 			switch (current_mode)
@@ -4176,9 +4209,20 @@ function BatchCommand(text) {
 		function selectWord(evt) {
 			if(!allow_dbl) return;
 		
-			var ept = transformPoint( evt.pageX, evt.pageY, root_sctm ),
-				mouse_x = ept.x * current_zoom,
-				mouse_y = ept.y * current_zoom;
+			var ept = transformPoint( evt.pageX, evt.pageY, root_sctm );
+			var mouse_x;
+			var mouse_y;
+			/*
+			 * fix for elements not being drawn where the mouse is positioned.
+			 * this is only a problem in Firefox.
+			 */
+			if(navigator.userAgent.indexOf("Firefox") != -1) {
+				mouse_x = pt.x;
+				mouse_y = pt.y;
+			} else{
+				mouse_x = pt.x * current_zoom;
+				mouse_y = pt.y * current_zoom;
+			}
 			var pt = screenToPt(mouse_x, mouse_y);
 			
 			var index = getIndexFromPoint(pt.x, pt.y);
