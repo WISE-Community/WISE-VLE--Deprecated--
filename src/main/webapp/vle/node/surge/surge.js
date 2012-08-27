@@ -98,7 +98,7 @@ Surge.prototype.checkScoreForTags = function(tagName, functionArgs) {
 		//the student has failed at least one of the steps
 		
 		//create the message to display to the student
-		var message = "You must obtain a score higher than " + minScore + " on these steps before you can work on this step<br><br>";
+		var message = "You must obtain a score higher than " + minScore + " on these steps before you can work on this step<br>";
 		
 		//loop through all the failed steps
 		for(var x=0; x<nodesFailed.length; x++) {
@@ -262,8 +262,14 @@ Surge.prototype.processTagMaps = function() {
 					
 					//get the result of the check
 					var result = this.checkScoreForTags(tagName, functionArgs);
-					enableStep = result.pass;
-					message = result.message;
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
 				} else if(functionName == "getAccumulatedScore") {
 					//we will get the accumulated score for the steps that are tagged
 					
@@ -277,11 +283,22 @@ Surge.prototype.processTagMaps = function() {
 					
 					//get the result of the check
 					var result = checkCompletedForTags(this, tagName, functionArgs);
-					enableStep = result.pass;
-					message = result.message;
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
 				}
 			}
 		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
 	}
 	
 	//put the variables in an object so we can return multiple variables
