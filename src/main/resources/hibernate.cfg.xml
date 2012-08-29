@@ -9,7 +9,7 @@
 
         <!-- Database connection settings -->
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="connection.url">jdbc:mysql://localhost:3306/vle_database</property>
+        <property name="connection.url">jdbc:mysql://bigphil.filament:3306/vle_latest</property>
         <property name="connection.username">wise4user</property>
         <property name="connection.password">wise4pass</property>
         <property name="connection.release_mode">auto</property>        
