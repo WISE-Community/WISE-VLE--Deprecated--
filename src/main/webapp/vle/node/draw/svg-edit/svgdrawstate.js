@@ -37,8 +37,16 @@ SVGDRAWSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Get the student work.
  * @return the student's work
  */
-SVGDRAWSTATE.prototype.getStudentWork = function() {
+SVGDRAWSTATE.prototype.getStudentWorkString = function() {
 	return this.data;
+};
+
+/**
+ * Get this node state
+ * @return this node state
+ */
+SVGDRAWSTATE.prototype.getStudentWork = function() {
+	return this;
 };
 
 //used to notify scriptloader that this script has finished loading

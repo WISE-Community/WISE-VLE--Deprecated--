@@ -88,10 +88,16 @@ public class VLEGetXLS extends VLEServlet {
 	//the number of columns to width auto size
 	int numColumnsToAutoSize = 0;
 	
+	//the project meta data
+	private JSONObject projectMetaData = null;
+	
 	private static long debugStartTime = 0;
 	
 	//the type of export "latestStudentWork" or "allStudentWork"
 	private String exportType = "";
+	
+	//used to keep track of the number of oversized (larger than 32767 char) responses
+	private long oversizedResponses = 0;
 	
 	/**
 	 * Clear the instance variables because only one instance of a servlet
@@ -138,8 +144,14 @@ public class VLEGetXLS extends VLEServlet {
 		//reset the number of columns to width auto size
 		numColumnsToAutoSize = 0;
 		
+		//reset the project meta data
+		projectMetaData = null;
+		
 		//holds the export type
 		exportType = "";
+		
+		//holds the number of oversized responses
+		oversizedResponses = 0;
 	}
 	
 	/**
@@ -187,6 +199,18 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//get the path of the project file on the server
 		String projectPath = (String) request.getAttribute("projectPath");
+		
+		//get the path of the project meta data
+		String projectMetaDataJSONString = (String) request.getAttribute("projectMetaData");
+		
+		if (projectMetaDataJSONString != null) {
+			try {
+				//get the project meta data JSON object
+				projectMetaData = new JSONObject(projectMetaDataJSONString);
+			} catch (JSONException e2) {
+				e2.printStackTrace();
+			}
+		}
 		
 		//holds the run info
 		String runInfo = (String) request.getAttribute("runInfo");
@@ -381,7 +405,7 @@ public class VLEGetXLS extends VLEServlet {
 					
 					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
 						/*
-						 * get the student logins, this is a singls string with the logins
+						 * get the student logins, this is a single string with the logins
 						 * separated by ':'
 						 */
 						String studentLogins = classmate.getString("studentLogins");
@@ -456,6 +480,9 @@ public class VLEGetXLS extends VLEServlet {
 			wb.write(outputStream);
 		}
 		
+		if(oversizedResponses > 0) {
+			System.out.println("Oversized Responses: " + oversizedResponses);
+		}
 		clearVariables();
 	}
 
@@ -1926,7 +1953,7 @@ public class VLEGetXLS extends VLEServlet {
 		if(nodeJSONObject == null) {
 			result = false;
 		} else {
-			if(nodeJSONObject.has("cRater")) {
+			if(nodeJSONObject.has("cRater") && !nodeJSONObject.isNull("cRater")) {
 				try {
 					//get the CRater object in the content
 					JSONObject cRaterJSONObject = nodeJSONObject.getJSONObject("cRater");
@@ -2127,6 +2154,28 @@ public class VLEGetXLS extends VLEServlet {
 			}
 		}
 		
+		if(nodeContent != null && nodeContent.has("isLockAfterSubmit")) {
+			try {
+				boolean isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+				
+				if(isLockAfterSubmit) {
+					/*
+					 * this step locks after submit so we will create a header column
+					 * for whether the student work "Is Submit"
+					 */
+					stepExtra = "Is Submit";
+					
+					//set the header cells for the column
+					columnCounter = setGetLatestStepWorkHeaderCells(columnCounter, 
+							stepTitleRow, stepTypeRow, stepPromptRow, nodeIdRow, stepExtraRow, 
+							nodeTitle, nodeType, nodePrompt, nodeId, stepExtra);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
 		return columnCounter;
 	}
 	
@@ -2300,16 +2349,17 @@ public class VLEGetXLS extends VLEServlet {
 		 */
 		for(int z=stepWorks.size() - 1; z>=0; z--) {
 			//get a step work
-			stepWork = stepWorks.get(z);
+			StepWork tempStepWork = stepWorks.get(z);
 			
 			//retrieve the student work from the step work, if any
-			stepWorkResponse = getStepWorkResponse(stepWork);
+			stepWorkResponse = getStepWorkResponse(tempStepWork);
 			
 			/*
 			 * if the step work is not empty, we are done looking
 			 * for the latest work
 			 */
 			if(!stepWorkResponse.equals("")) {
+				stepWork = tempStepWork;
 				break;
 			}
 		}
@@ -2419,6 +2469,14 @@ public class VLEGetXLS extends VLEServlet {
 				//get the node states
 				JSONArray nodeStatesJSON = stepWorkDataJSON.getJSONArray("nodeStates");
 
+				JSONObject nodeContent = nodeIdToNodeContent.get(nodeId);
+				boolean isLockAfterSubmit = false;
+				
+				if(nodeContent != null && nodeContent.has("isLockAfterSubmit")) {
+					//get whether this step locks after submit
+					isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+				}
+				
 				if(nodeStatesJSON.length() != 0) {
 					//get the last state
 					JSONObject lastState = nodeStatesJSON.getJSONObject(nodeStatesJSON.length() - 1);
@@ -2457,6 +2515,16 @@ public class VLEGetXLS extends VLEServlet {
 								columnCounter++;
 							}
 							
+							if(isLockAfterSubmit) {
+								//this step locks after submit
+								boolean isSubmit = lastState.getBoolean("isSubmit");
+								
+								//set whether the student work was a submit
+								rowForWorkgroupId.createCell(columnCounter).setCellValue(isSubmit);
+								
+								columnCounter++;
+							}
+							
 							//set the max number of step work parts if necessary
 							if(assessments.length() > maxNumberOfStepWorkParts) {
 								maxNumberOfStepWorkParts = assessments.length();
@@ -2471,6 +2539,14 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//increment the column counter
 					columnCounter += numberOfAnswerFields;
+					
+					if(isLockAfterSubmit) {
+						/*
+						 * increment the counter by one to take into consideration
+						 * the column for "Is Submit"
+						 */
+						columnCounter++;
+					}
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -2482,8 +2558,18 @@ public class VLEGetXLS extends VLEServlet {
 			String stepWorkResponse = getStepWorkResponse(stepWork);
 			
 			if(stepWorkResponse != null) {
+				//check if the response has more characters than the max allowable 
+				if(stepWorkResponse.length() > 32767) {
+					//response has more characters than the max allowable so we will truncate it
+					stepWorkResponse = stepWorkResponse.substring(0, 32767);
+					
+					//increment the counter to keep track of how many oversized responses we have
+					oversizedResponses++;
+				}
+				
 				//set the response into the cell and increment the counter
-				rowForWorkgroupId.createCell(columnCounter++).setCellValue(stepWorkResponse);				
+				rowForWorkgroupId.createCell(columnCounter++).setCellValue(stepWorkResponse);
+				
 			} else {
 				//there was no work so we will leave the cell blank and increment the counter
 				columnCounter++;
@@ -2573,6 +2659,21 @@ public class VLEGetXLS extends VLEServlet {
 					
 					//the number of assessments will be the same as the number of answers
 					numAnswerFields = assessmentParts.length();
+					
+					boolean isLockAfterSubmit = false;
+					
+					if(nodeContent.has("isLockAfterSubmit")) {
+						isLockAfterSubmit = nodeContent.getBoolean("isLockAfterSubmit");
+					}
+					
+					if(isLockAfterSubmit) {
+						/*
+						 * this step locks after submit so there will be a column
+						 * for "Is Submit" so we will need to increment the numAnswerFields
+						 * by 1.
+						 */
+						numAnswerFields++;
+					}
 				}				
 			}
 		} catch (JSONException e) {
@@ -2592,10 +2693,14 @@ public class VLEGetXLS extends VLEServlet {
 		String stepWorkResponse = "";
 		String nodeType = "";
 		Node node = null;
+		Long stepWorkId = null;
 		
 		//get the node type
 		if(stepWork != null) {
 			node = stepWork.getNode();
+			
+			//get the step work id
+			stepWorkId = stepWork.getId();
 			
 			if(node != null && node.getNodeType() != null) {
 				//get the node type from the node object e.g. "OpenResponseNode"
@@ -2691,7 +2796,7 @@ public class VLEGetXLS extends VLEServlet {
 	                						
 	            							if(excelExportStringTemplate != null) {
 	            								//generate the excel export string that we will display in the cell
-	            								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	            								stepWorkResponse = generateExcelExportString(excelExportStringTemplate, lastState, stepWorkId);
 	            							}
 	            						}
 	        						}
@@ -2716,7 +2821,7 @@ public class VLEGetXLS extends VLEServlet {
 
 	        									if(excelExportStringTemplate != null) {
 	        										//generate the excel export string with the student work inserted
-	        										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState);
+	        										String nodeStateResponse = generateExcelExportString(excelExportStringTemplate, lastState, stepWorkId);
 	        										
 	        										if(stepWorkResponseStrBuf.length() != 0) {
 	        											//add a new line to separate each node state
@@ -2724,7 +2829,7 @@ public class VLEGetXLS extends VLEServlet {
 	        										}
 	        										
 	        										//display the node state number
-	        										stepWorkResponseStrBuf.append("Submit #" + (x + 1) + ": ");
+	        										stepWorkResponseStrBuf.append("Response #" + (x + 1) + ": ");
 	        										
 	        										//display the excel export string that contains the student data
 	        										stepWorkResponseStrBuf.append(nodeStateResponse);
@@ -2989,12 +3094,13 @@ public class VLEGetXLS extends VLEServlet {
 	 * e.g.
 	 * "Top Score: {response.topScore}, Phase 1 Score: {response.phases[0].score}"
 	 * @param nodeState the node state
+	 * @param stepWorkId the step work id
 	 * @return a string containing the student work that will be displayed
 	 * in the cell
 	 * e.g.
 	 * "Top Score: 30, Phase 1 Score: 10"
 	 */
-	private String generateExcelExportString(String excelExportStringTemplate, JSONObject nodeState) {
+	private String generateExcelExportString(String excelExportStringTemplate, JSONObject nodeState, Long stepWorkId) {
 		String resultString = excelExportStringTemplate;
 		
 		/*
@@ -3026,7 +3132,7 @@ public class VLEGetXLS extends VLEServlet {
 			 * get the the student data that we will use to
 			 * insert into the excel export string template
 			 */
-			String replacement = getNodeStateField(field, nodeState);
+			String replacement = getNodeStateField(field, nodeState, stepWorkId);
 			
 			//replace all the instances of the field with the student data
 			resultString = resultString.replace(field, replacement);
@@ -3047,9 +3153,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * {response.topScore}
 	 * {response.phases[0].score}
 	 * @param nodeState the student work
+	 * @param stepWorkId the step work id
 	 * @return the value of the given field from the student work
 	 */
-	private String getNodeStateField(String fieldPath, JSONObject nodeState) {
+	private String getNodeStateField(String fieldPath, JSONObject nodeState, Long stepWorkId) {
 		String fieldValue = "";
 		
 		//remove the {
@@ -3059,7 +3166,7 @@ public class VLEGetXLS extends VLEServlet {
 		fieldPath = fieldPath.replaceAll("\\}", "");
 
 		//get the value of the given field from the student work
-		fieldValue = getFieldValue(fieldPath, nodeState);
+		fieldValue = getFieldValue(fieldPath, nodeState, stepWorkId);
 		
 		return fieldValue;
 	}
@@ -3072,9 +3179,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * response.topScore
 	 * response.phases[0].score
 	 * @param nodeState the student work
+	 * @param stepWorkId the step work id
 	 * @return the value of the given field from the student work
 	 */
-	private String getFieldValue(String fieldPath, JSONObject nodeState) {
+	private String getFieldValue(String fieldPath, JSONObject nodeState, Long stepWorkId) {
 		String fieldValue = "";
 
 		//split the field path by .
@@ -3185,6 +3293,22 @@ public class VLEGetXLS extends VLEServlet {
 						//the fieldNameSoFar is empty so we will just use the fieldName
 						fieldNameSoFar = fieldName;
 					}
+				}
+				
+				//check for a special case where we want the CRater annotation score
+				if(fieldNameSoFar != null && fieldNameSoFar.equals("cRaterAnnotationScore")) {
+					//get the CRater score if any
+					long cRaterScore = getCRaterScoreByStepWorkIdAndNodeState(stepWorkId, nodeState);
+					
+					if(cRaterScore == -1) {
+						//there was no CRater score so we will just display empty string
+						fieldValue = "";
+					} else {
+						//convert the score into a string
+						fieldValue = cRaterScore + "";
+					}
+					
+					return fieldValue;
 				}
 
 				if(currentJSONObject != null) {
@@ -4291,6 +4415,47 @@ public class VLEGetXLS extends VLEServlet {
 	}
 	
 	/**
+	 * Get the idea basket version
+	 * @param projectMetaData the project meta data 
+	 * @return the version number of the idea basket. the version
+	 * will be 1 if the project is using the original version of
+	 * the idea basket that contains static sources and icons.
+	 * the new version will be 2 or higher.
+	 */
+	private int getIdeaBasketVersion(JSONObject projectMetaData) {
+		//the version will be 1 if we don't find the version in the project meta data
+		int version = 1;
+		
+		try {
+			if(projectMetaData != null) {
+				if(projectMetaData.has("tools")) {
+					//get the tools
+					JSONObject tools = projectMetaData.getJSONObject("tools");
+					
+					if(tools != null) {
+						if(tools.has("ideaManagerSettings")) {
+							//get the idea manager settings
+							JSONObject ideaManagerSettings = tools.getJSONObject("ideaManagerSettings");
+							
+							if(ideaManagerSettings != null) {
+								if(ideaManagerSettings.has("version")) {
+									//get the version
+									String versionString = ideaManagerSettings.getString("version");
+									version = Integer.parseInt(versionString);
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return version;
+	}
+	
+	/**
 	 * Creates an excel workbook that contains student navigation data
 	 * Each sheet represents one student's work. The rows in each
 	 * sheet are sequential so the earliest navigation data is at
@@ -4313,7 +4478,87 @@ public class VLEGetXLS extends VLEServlet {
 			HashMap<String, JSONObject> nodeIdToNodeContent,
 			HashMap<Integer, Integer> workgroupIdToPeriodId,
 			List<String> teacherWorkgroupIds) {
-	
+
+		//get the idea basket version that this run uses
+		int ideaBasketVersion = getIdeaBasketVersion(projectMetaData);
+		
+		/**
+		 * The idea manager settings from the project meta data will look something
+		 * like this
+		 * 
+		 * 	"ideaManagerSettings": {
+         *		"ideaTermPlural": "ideas",
+         *		"ideaAttributes": [
+         *		    {
+         *		       "id": "eCE74fj87q",
+         *		       "allowCustom": false,
+         *		       "isRequired": true,
+         *		       "name": "Source",
+         *		       "type": "source",
+         *		       "options": [
+         *		       		"Evidence Step",
+         *		       		"Visualization or Model",
+         *		       		"Movie/Video",
+         *		       		"Everyday Observation",
+         *		       		"School or Teacher"
+         *		       	]
+         *		    },
+		 *			{
+         *          	"id": "KuHD6rZVBm",
+         *          	"allowCustom": false,
+         *          	"isRequired": true,
+         *          	"name": "Water Bottle",
+         *          	"type": "label",
+         *          	"options": [
+         *          		"Water",
+         *          		"Orange Juice"
+         *          	]
+         *          }
+         *		],
+         *		"basketTerm": "Idea Basket",
+         *		"addIdeaTerm": "Add Idea",
+         *		"ideaTerm": "idea",
+         *		"ebTerm": "Explanation Builder",
+         *		"version": "2"
+         * 	}
+		 */
+		JSONObject ideaManagerSettings = null;
+		
+		//will contain the ideaAttributes array from the idea manager settings
+		JSONArray ideaAttributes = null;
+		
+		//will contain the ideaAttribute ids
+		JSONArray ideaAttributeIds = new JSONArray();
+		
+		if(ideaBasketVersion > 1) {
+			if(projectMetaData != null) {
+				//check if there is a tools field in the project meta data
+				if(projectMetaData.has("tools")) {
+					try {
+						//get the tools field
+						JSONObject tools = projectMetaData.getJSONObject("tools");
+						if(tools != null) {
+							//check if there is an ideaManagerSettings field
+							if(tools.has("ideaManagerSettings")) {
+								//get the ideaManagerSettings field
+								ideaManagerSettings = tools.getJSONObject("ideaManagerSettings");
+								
+								if(ideaManagerSettings != null) {
+									//check if there is an ideaAttributes field
+									if(ideaManagerSettings.has("ideaAttributes")) {
+										//get the ideaAttributes
+										ideaAttributes = ideaManagerSettings.getJSONArray("ideaAttributes");
+									}
+								}
+							}
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
 		//the excel workbook
 		XSSFWorkbook wb = new XSSFWorkbook();
 		
@@ -4328,9 +4573,42 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Basket Revision");
 		headerFields.add("Idea #");
 		headerFields.add("Idea Text");
-		headerFields.add("Flag");
-		headerFields.add("Tags");
-		headerFields.add("Source");
+		
+		if(ideaBasketVersion == 1) {
+			//this run uses the first version of the idea basket which always has flag, tags, and source
+			headerFields.add("Flag");
+			headerFields.add("Tags");
+			headerFields.add("Source");
+		} else {
+			//this run uses the newer version of the idea basket which can have variable and authorable fields
+			if(ideaAttributes != null) {
+				
+				//loop through all the idea attributes
+				for(int x=0; x<ideaAttributes.length(); x++) {
+					try {
+						//get an idea attribute
+						JSONObject ideaAttribute = ideaAttributes.getJSONObject(x);
+						
+						if(ideaAttribute.has("name")) {
+							//get the name of the attribute
+							String ideaAttributeName = ideaAttribute.getString("name");
+							
+							//add the header for the attribute
+							headerFields.add(ideaAttributeName);
+							
+							//get the id of the attribute
+							String ideaAttributeId = ideaAttribute.getString("id");
+							
+							//add the id to our array of attribute ids
+							ideaAttributeIds.put(ideaAttributeId);
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
 		headerFields.add("Node Type");
 		headerFields.add("Node Id Created On");
 		headerFields.add("Node Name Created On");
@@ -4345,6 +4623,7 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Repositioned");
 		headerFields.add("Steps Used In Changed");
 		headerFields.add("Deleted In This Revision");
+		headerFields.add("Restored In This Revision");
 
 		//output the meta data header cells
 		Row metaDataHeaderRow = mainSheet.createRow(rowCounter++);
@@ -4462,15 +4741,41 @@ public class VLEGetXLS extends VLEServlet {
 							
 							//Idea Text
 							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("text"));
+
 							
-							//Flag
-							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
-							
-							//Tags
-							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
-							
-							//Source
-							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
+							if(ideaBasketVersion == 1) {
+								//this run uses the first version of the idea basket which always has flag, tags, and source
+								
+								//Flag
+								ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
+								
+								//Tags
+								ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
+								
+								//Source
+								ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
+							} else {
+								//this run uses the newer version of the idea basket which can have variable and authorable fields
+								
+								/*
+								 * loop through the attribute ids in the order that they appear in the metadata
+								 * 
+								 * we want to obtain what the student entered for each of the attributes in the
+								 * order that they appear in the metadata. this is just in case the attributes
+								 * somehow get disordered in the student data (even though this is unlikely to
+								 * happen).
+								 */
+								for(int idIndex=0; idIndex<ideaAttributeIds.length(); idIndex++) {
+									//get an attribute id
+									String attributeId = ideaAttributeIds.getString(idIndex);
+									
+									//get the value the student entered for this attribute
+									String value = getAttributeValueByAttributeId(idea, attributeId);
+									
+									//set the value into the cell
+									ideaBasketRow.createCell(columnCounter++).setCellValue(value);
+								}
+							}
 							
 							//Node Type
 							ideaBasketRow.createCell(columnCounter++).setCellValue(getNodeTypeFromIdea(idea, nodeIdToNodeContent));
@@ -4515,7 +4820,7 @@ public class VLEGetXLS extends VLEServlet {
 							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaNew));
 							
 							//Revised
-							boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON);
+							boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON, ideaBasketVersion, ideaAttributeIds);
 							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRevised));
 							
 							//Repositioned
@@ -4529,6 +4834,10 @@ public class VLEGetXLS extends VLEServlet {
 							//Deleted In This Revision
 							boolean ideaDeletedInThisRevision = isIdeaDeletedInThisRevision(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
 							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaDeletedInThisRevision));
+							
+							//Restored In This Revision
+							boolean ideaRestoredInThisRevision = isIdeaRestoredInThisRevision(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
+							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRestoredInThisRevision));
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -4545,6 +4854,52 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return wb;
+	}
+	
+	/**
+	 * Get the attribute from the idea given the attribute id
+	 * @param idea the student idea
+	 * @param attributeId the attribute id
+	 * @return the value of the attribute that the student entered
+	 */
+	private String getAttributeValueByAttributeId(JSONObject idea, String attributeId) {
+		String attributeValue = "";
+		
+		try {
+			if(idea.has("attributes")) {
+				JSONArray attributes = idea.getJSONArray("attributes");
+				
+				if(attributes != null) {
+					//loop through all the attributes in the student idea
+					for(int a=0; a<attributes.length(); a++) {
+						//get an attribute
+						JSONObject attribute = attributes.getJSONObject(a);
+						
+						//get the id of the student attribute
+						String id = attribute.getString("id");
+						
+						if(attributeId != null && id != null && attributeId.equals(id)) {
+							//the ids match so we have found the attribute we are looking for
+							
+							if(attribute.has("value")) {
+								//get the value that the student entered for the attribute
+								attributeValue = attribute.getString("value");
+							}
+							
+							/*
+							 * we have found the attribute with the id we were searching 
+							 * for so we will break out of the for loop
+							 */
+							break;
+						}
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return attributeValue;
 	}
 	
 	/**
@@ -4700,7 +5055,7 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param previousIdeaBasket the previous basket revision
 	 * @return whether the ideas was revised or not
 	 */
-	private boolean isIdeaRevised(JSONObject idea, JSONObject previousIdeaBasket) {
+	private boolean isIdeaRevised(JSONObject idea, JSONObject previousIdeaBasket, int ideaBasketVersion, JSONArray ideaAttributeIds) {
 		boolean ideaRevised = false;
 		try {
 			if(previousIdeaBasket != null) {
@@ -4717,43 +5072,74 @@ public class VLEGetXLS extends VLEServlet {
 
 					//compare the time last edited timestamps
 					if(timeLastEdited != previousTimeLastEdited) {
-						ideaRevised = true;					
-					}
-					
-					//get the text
-					String text = idea.getString("text");
-					String previousText = previousIdeaRevision.getString("text");
-					
-					//compare the text
-					if(text != null && !text.equals(previousText)) {
 						ideaRevised = true;
 					}
 					
-					//get the flags
-					String flag = idea.getString("flag");
-					String previousFlag = previousIdeaRevision.getString("flag");
-					
-					//compare the flags
-					if(flag != null && !flag.equals(previousFlag)) {
-						ideaRevised = true;
-					}
-					
-					//get the tags
-					String tags = idea.getString("tags");
-					String previousTags = previousIdeaRevision.getString("tags");
-					
-					//compare the tags
-					if(tags != null && !tags.equals(previousTags)) {
-						ideaRevised = true;
-					}
-					
-					//get the source
-					String source = idea.getString("source");
-					String previousSource = previousIdeaRevision.getString("source");
-					
-					//compare the source
-					if(source != null && !source.equals(previousSource)) {
-						ideaRevised = true;
+					if(ideaBasketVersion == 1) {
+						//get the text
+						String text = idea.getString("text");
+						String previousText = previousIdeaRevision.getString("text");
+						
+						//compare the text
+						if(text != null && !text.equals(previousText)) {
+							ideaRevised = true;
+						}
+						
+						//get the flags
+						String flag = idea.getString("flag");
+						String previousFlag = previousIdeaRevision.getString("flag");
+						
+						//compare the flags
+						if(flag != null && !flag.equals(previousFlag)) {
+							ideaRevised = true;
+						}
+						
+						//get the tags
+						String tags = idea.getString("tags");
+						String previousTags = previousIdeaRevision.getString("tags");
+						
+						//compare the tags
+						if(tags != null && !tags.equals(previousTags)) {
+							ideaRevised = true;
+						}
+						
+						//get the source
+						String source = idea.getString("source");
+						String previousSource = previousIdeaRevision.getString("source");
+						
+						//compare the source
+						if(source != null && !source.equals(previousSource)) {
+							ideaRevised = true;
+						}
+					} else {
+						//get the text
+						String text = idea.getString("text");
+						String previousText = previousIdeaRevision.getString("text");
+						
+						//compare the text
+						if(text != null && !text.equals(previousText)) {
+							ideaRevised = true;
+						}
+						
+						if(ideaAttributeIds != null) {
+							//loop through all the attribute ids
+							for(int x=0; x<ideaAttributeIds.length(); x++) {
+								
+								//get an attribute id
+								String attributeId = ideaAttributeIds.getString(x);
+								
+								//get the value of the attribute from the current idea
+								String currentValue = getAttributeValueByAttributeId(idea, attributeId);
+								
+								//get the value of the attribute from the previous idea
+								String previousValue = getAttributeValueByAttributeId(previousIdeaRevision, attributeId);
+								
+								//compare the values
+								if(currentValue != null && !currentValue.equals(previousValue)) {
+									ideaRevised = true;
+								}
+							}
+						}
 					}
 				}	
 			}
@@ -4852,6 +5238,30 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return ideaDeleted;
+	}
+	
+	/**
+	 * Determine whether the idea was taken out of the trash in this revision
+	 * @param ideaId the id of the idea
+	 * @param currentIdeaBasket the current basket revision
+	 * @param previousIdeaBasket the previous basket revision
+	 * @return whether the idea was taken out of the trash in this revision
+	 */
+	private boolean isIdeaRestoredInThisRevision(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean ideaRestored = false;
+		
+		//determine if the idea is in the trash in the current revision
+		boolean ideaInCurrentTrash = isIdeaInTrash(currentIdeaBasket, ideaId);
+		
+		//determine if the idea is in the trash in the previous revision
+		boolean ideaInPreviousTrash = isIdeaInTrash(previousIdeaBasket, ideaId);
+		
+		if(ideaInPreviousTrash && !ideaInCurrentTrash) {
+			//the idea was previously in the trash but now is not in the trash
+			ideaRestored = true;
+		}
+		
+		return ideaRestored;
 	}
 	
 	/**
@@ -5461,5 +5871,108 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//set this property back to false
 		System.setProperty("java.awt.headless", "false");
+	}
+	
+	/**
+	 * Get the CRater annotation score for the given step work id if the score exists
+	 * @param stepWorkId the step work id
+	 * @param nodeState the node state
+	 * @return the CRater score or -1 if there is no CRater score
+	 */
+	private long getCRaterScoreByStepWorkIdAndNodeState(Long stepWorkId, JSONObject nodeState) {
+		//set default values
+		long score = -1;
+		long nodeStateId = -1;
+		
+		if(nodeState != null) {
+			try {
+				//get the node state id aka timestamp
+				nodeStateId = nodeState.getLong("timestamp");
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//get the CRater score for the step work id
+		Annotation cRaterAnnotationByStepWorkId = Annotation.getCRaterAnnotationByStepWorkId(stepWorkId);
+		
+		if(cRaterAnnotationByStepWorkId != null) {
+			//CRater score exists
+			
+			//get the annotation data
+			String data = cRaterAnnotationByStepWorkId.getData();
+			
+			if(data != null) {
+				try {
+					/*
+					 * get the data as a JSONObject
+					 * 
+					 * here's an example of what the annotation looks like
+					 * 
+					 * {
+					 * 		"stepWorkId": 3388281,
+					 * 		"nodeId": "node_136.or",
+					 * 		"fromWorkgroup": "-1",
+					 * 		"value": [
+					 * 			{
+					 * 				"studentResponse": {
+					 * 					"response": [
+					 * 						"The sun gives plants sunlight which lets them grow and release oxygen. So the sun helps animals survive by giving them plants to eat and oxygen to breath."
+					 * 					],
+					 * 					"timestamp": 1334610850000,
+					 * 					"isCRaterSubmit": true,
+					 * 					"cRaterItemId": "Photo_Sun",
+					 * 					"type": "or"
+					 * 				},
+					 * 				"nodeStateId": 1334610850000,
+					 * 				"score": 2,
+					 * 				"cRaterResponse": "<crater-results>\n  <tracking id=\"1025926\"/>\n  <client id=\"WISETEST\"/>\n  <items>\n     <item id=\"Photo_Sun\">\n        <responses>\n      <response id=\"3388281\" score=\"2\" concepts=\"2\"/>\n       </responses>\n     </item>\n  </items>\n</crater-results>\r",
+					 * 				"concepts": "2"
+					 * 			}
+					 * 		],
+					 * 		"runId": "2103",
+					 * 		"type": "cRater",
+					 * 		"toWorkgroup": "60562"
+					 * }
+					 */
+					JSONObject dataJSONObject = new JSONObject(data);
+					
+					if(dataJSONObject.has("value")) {
+						//get the value
+						JSONArray value = dataJSONObject.getJSONArray("value");
+						
+						//loop through all the objects in the value
+						for(int x=0; x<value.length(); x++) {
+							//get one of the objects in the value array
+							JSONObject nodeStateAnnotation = value.getJSONObject(x);
+							
+							if(nodeStateAnnotation != null) {
+								if(nodeStateAnnotation.has("nodeStateId")) {
+									//get the node state id aka timestamp
+									long tempNodeStateId = nodeStateAnnotation.getLong("nodeStateId");
+									
+									if(tempNodeStateId == nodeStateId) {
+										//the ids match so we have found the annotation we want
+										
+										if(nodeStateAnnotation.has("score")) {
+											//get the score
+											score = nodeStateAnnotation.getLong("score");
+										}
+										
+										//we have found the annotation we want so we will break out of the for loop
+										break;
+									}
+								}
+							}
+						}
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}
+		
+		return score;
 	}
 }

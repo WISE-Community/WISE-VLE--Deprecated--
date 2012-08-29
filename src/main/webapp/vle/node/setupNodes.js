@@ -93,6 +93,10 @@ SetupNodes.setupFiles = [
 		nodeSetupPath:"vle/node/seasons/setup.js"
 	},
 	{
+		nodeName:"Seasons2Node",
+		nodeSetupPath:"vle/node/seasons2/setup.js"
+	},
+	{
 		nodeName:"SurgeNode",
 		nodeSetupPath:"vle/node/surge/setup.js"
 	},

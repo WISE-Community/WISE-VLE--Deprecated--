@@ -391,7 +391,7 @@ View.prototype.ExplanationBuilderNode.browseImageAssets = function() {
 		url = 'assets/' + url;
 		document.getElementById(field_name).value = url;
 		
-		//fire swfUrlChanged event
+		//fire background url changed event
 		this.eventManager.fire('explanationBuilderUpdateBackgroundImageUrl');
 	};
 	var params = {};

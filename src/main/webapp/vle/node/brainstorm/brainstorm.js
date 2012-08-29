@@ -317,7 +317,7 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 				 */ 
 				var responseState = new Object();
 				responseState.userId = userId;
-				responseState.responseText = nodeState.getStudentWork();
+				responseState.responseText = nodeState.getStudentWork().response;
 				responseState.timestamp = nodeState.timestamp;
 				responseState.nodeVisitId = nodeVisitObj.id;
 				

@@ -101,6 +101,16 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>vleGetSpecialExport</servlet-name>
+    <servlet-class>vle.web.VLEGetSpecialExport</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>vleGetSpecialExport</servlet-name>
+    <url-pattern>/getSpecialExport.html</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>echopostdata</servlet-name>
     <servlet-class>utils.EchoPostData</servlet-class>
   </servlet>

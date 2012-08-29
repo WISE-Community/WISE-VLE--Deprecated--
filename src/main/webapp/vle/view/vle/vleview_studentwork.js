@@ -318,6 +318,13 @@ View.prototype.onWindowUnload = function(logout){
 	/* synchronously save any unsaved node visits */
 	this.postAllUnsavedNodeVisits(true);
 	
+	/*
+	 * this will save the idea basket if it has changes that have 
+	 * not been saved. it will not do anything if the idea basket 
+	 * has not changed.
+	 */
+	this.ideaBasketDivClose();
+
 	/* try to blip final message before going */
 	$('#onUnloadSaveDiv').html('SAVED!!');
 

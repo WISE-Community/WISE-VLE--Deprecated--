@@ -1,0 +1,26 @@
+{
+	"brainstorm_title": {
+		"value":"Student Brainstorm: Server Based",
+		"description":"The text 'Student Brainstorm: Server Based' in the page title"
+	},
+	"brainstorm_instructions": {
+		"value":"Read the brainstorm topic below, then write your response in the blank box.<br/> Click <em>Save</em> to save your work and review responses from other students.",
+		"description":"The instructions for the brainstorm step"
+	},	
+	"my_response": {
+		"value":"My Response",
+		"description":"The text 'My Response' right above the textbox where the student types in their response"
+	},	
+	"save": {
+		"value":"Save",
+		"description":"The text 'Save' on the button to save and post a brainstorm response"
+	},
+	"other_student_responses": {
+		"value":"Other Student Responses",
+		"description":"The text 'Other Student Responses' that is displayed above the list of other students' responses"
+	},	
+	"check_for_new_responses": {
+		"value":"Check for New Responses",
+		"description":"The text 'Check for New Responses' that is displayed on a button that triggers the loading of other students' responses"
+	}		
+}

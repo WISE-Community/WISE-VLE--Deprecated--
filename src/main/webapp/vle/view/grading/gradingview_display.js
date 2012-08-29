@@ -259,6 +259,7 @@ View.prototype.displayResearcherToolsPage = function() {
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_idea_baskets")+"' onClick=\"eventManager.fire('getIdeaBasketsExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_idea_baskets_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['ideaBaskets'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
+	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_special_export")+"' onClick=\"eventManager.fire('displaySpecialExportPage')\"></input></td><td>"+this.getI18NString("grading_button_special_export_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['special'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
 	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='Export Flash' onClick=\"eventManager.fire('getFlashExcelExport')\"></input></td><td>N/A <input class='blueButton' type='button' value='N/A' onClick=\"\"></input></td></tr>";
 	getResearcherToolsHtml += "</table>";
@@ -457,6 +458,99 @@ View.prototype.displayCustomExportPageHelper = function(node) {
 		for(var x=0; x<node.children.length; x++) {
 			//get the html for the children
 			displayCustomExportPageHelperHtml += this.displayCustomExportPageHelper(node.children[x]);
+		}
+	}
+
+	return displayCustomExportPageHelperHtml;
+};
+
+/**
+ * Display the page for the teacher to choose which step in the project they want to special export
+ */
+View.prototype.displaySpecialExportPage = function() {
+	
+	/*
+	 * wrap everything in a div with the class 'gradingContent' so 
+	 * a scroll bar will be created for it
+	 */
+	var customExportPageHtml = "<div class='gradingContent'>";
+	
+	customExportPageHtml += "<h3>Special Export Page</h3>";
+	
+	//the button to go back to the previous page
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+	
+	//the buttons to generate the excel export
+	customExportPageHtml += "<br>";
+	
+	customExportPageHtml += "<table>";
+
+	//set the counter for the activities
+	this.activityNumber = 0;
+	
+	//display all the activities and steps with checkboxes next to all of them
+	customExportPageHtml += this.displaySpecialExportPageHelper(this.getProject().getRootNode());
+	
+	customExportPageHtml += "</table>";
+
+	customExportPageHtml += "<br>";
+	
+	//the button to go back to the previous page
+	customExportPageHtml += "<input class='blueButton' type='button' value='"+"Back To Researcher Tools"+"' onClick=\"eventManager.fire('displayResearcherToolsPage');\"></input>";
+
+	customExportPageHtml += "</div>";
+	
+	//fix the page height
+	$('#gradeWorkDiv').html(customExportPageHtml);
+	
+	this.fixGradingDisplayHeight();
+};
+
+/**
+ * A recursive function that traverses the project and displays a button
+ * for steps that can be special exported
+ * @param node the current node we are on
+ * @return html that will display all the steps for the project
+ */
+View.prototype.displaySpecialExportPageHelper = function(node) {
+	var displayCustomExportPageHelperHtml = "";
+	
+	//get the current node id
+	var nodeId = node.id;
+	
+	if(node.isLeafNode()) {
+		//this node is a leaf/step
+
+		//get the position as seen by the student
+		var position = this.getProject().getVLEPositionById(nodeId);
+		
+		if(node.canSpecialExport()) {
+			//this step type can be special exported so we will display a button
+			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><input id='stepButton_" + nodeId + "' type='button' value='" + position + " " + node.getTitle() + " (" + node.type + ")' style='margin-left:20px' onClick=\"eventManager.fire('getSpecialExport', '" + nodeId + "')\"/></td></tr>";			
+		} else {
+			//this step can't be special exported so we will just display the step name as text
+			displayCustomExportPageHelperHtml +=  "<tr><td class='chooseStepToGradeStepTd'><p style='display:inline;margin-left:20px'>" + position + " " + node.getTitle() + " (" + node.type + ")</p></td></tr>";
+		}
+	} else {
+		/*
+		 * we need to skip the first sequence because that is always the
+		 * master sequence. we will encounter the master sequence when 
+		 * this.activityNumber is 0, so all the subsequent activities will
+		 * start at 1.
+		 */
+		if(this.activityNumber != 0) {
+			//this node is a sequence so we will display a checkbox and label for the current activity
+			//displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><input id='activityCheckBox_" + this.activityNumber + "' class='stepCheckBox' type='checkbox' name='customExportActivityCheckbox' value='" + nodeId + "' onClick='eventManager.fire(\"customActivityCheckBoxClicked\", [\"activityCheckBox_" + this.activityNumber + "\"])' /><h4 style='display:inline'>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td></tr>";
+			displayCustomExportPageHelperHtml += "<tr><td class='chooseStepToGradeActivityTd'><h4 style='display:inline'>Activity " + this.activityNumber + ": " + node.getTitle() + "</h4></td></tr>";
+		}
+
+		//increment the activity number
+		this.activityNumber++;
+		
+		//loop through all its children
+		for(var x=0; x<node.children.length; x++) {
+			//get the html for the children
+			displayCustomExportPageHelperHtml += this.displaySpecialExportPageHelper(node.children[x]);
 		}
 	}
 
@@ -759,6 +853,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 	//the header row
 	displayGradeByTeamSelectPageHtml += "<thead><tr><th class='gradeColumn col1'>"+this.getI18NString("period")+"</th>"+
 			"<th class='gradeColumn col2'>"+this.getI18NString("team")+"</th>"+
+			"<th class='gradeColumn'>"+this.getI18NString("workgroupId")+"</th>"+
 			"<th class='gradeColumn col3'>"+this.getI18NString("grading_grade_by_team_teacher_graded_score")+"</th>"+
 			"<th>"+this.getI18NString("grading_grade_by_step_items_to_review")+"</th><th>"+this.getI18NString("grading_grade_by_team_percentage_project_completed")+"</th></tr></thead>";
 	
@@ -804,7 +899,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
@@ -1259,9 +1354,17 @@ View.prototype.resizeTextArea = function(textArea) {
  * @param showRevisions boolean whether to show revisions or not
  */
 View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
+	this.gradingType = 'step';
+	
 	if(nodeId == null || nodeId == 'undefined') {
 		return;
 	}
+	
+	//get the node
+	var node = this.project.getNodeById(nodeId);
+	
+	//get the node content
+	var nodeContent = node.getContent().getContentJSON();
 	
 	//perform any display page startup tasks
 	this.displayStart("displayGradeByStepGradingPage", [stepNumber, nodeId]);
@@ -1380,21 +1483,46 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 			"<p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
-	//get the node content
-	var nodeContent = this.project.getNodeById(nodeId).getContent().getContentJSON();
+	this.studentWorkRowOrderObjects = [];
 	
-	//check if the content has grading criteria
-	if(nodeContent.gradingCriteria != null) {
-		//check if sort by auto graded score check box was previously checked
-		var sortByAutoGradedScoreChecked = '';
-		
+	//used to set which radio button is checked
+	var sortByUsernameChecked = '';
+	var sortByTeacherGradedScoreChecked = '';
+	var sortByAutoGradedScoreChecked = '';
+	
+	if(this.gradingSortByUsername || (!this.gradingSortByTeacherGradedScore && !this.gradingSortByAutoGradedScore)) {
+		/*
+		 * the username radio button was previously checked or
+		 * nothing was previously checked so we will default
+		 * to sort by username
+		 */
+		sortByUsernameChecked = 'checked';
+	}
+	
+	if(this.gradingSortByTeacherGradedScore) {
+		//the sort by teacher graded score radio button was previously checked
+		sortByTeacherGradedScoreChecked = 'checked';
+	}
+	
+	//check if this step has auto grading
+	if(node.hasAutoGradedFields()) {
 		if(this.gradingSortByAutoGradedScore) {
-			//checkbox was checked
+			//the sort by auto graded score radio button was previously checked
 			sortByAutoGradedScoreChecked = 'checked';
 		}
-		
-		gradeByStepGradingPageHtml += "<input type='checkbox' id='sortByAutoGradedScoreCheckbox' value='sort by auto graded score checkbox' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByAutoGradedScoreChecked + "/>"+
-		"<p style='display:inline'>"+this.getI18NString("grading_sort_by_auto_graded_score_checkbox")+"</p>";
+	}
+	
+	gradeByStepGradingPageHtml += "Sort By: ";
+	
+	//create the sort by username radio button
+	gradeByStepGradingPageHtml += "<input type='radio' id='sortByUsernameRadioButton' name='gradeByStepSortBy' value='username' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByUsernameChecked + "/><p style='display:inline'>Username</p>";
+	
+	//create the sort by teacher graded score radio button
+	gradeByStepGradingPageHtml += "<input type='radio' id='sortByTeacherScoreRadioButton' name='gradeByStepSortBy' value='teacherScore' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByTeacherGradedScoreChecked + "/><p style='display:inline'>Teacher Score</p>";
+	
+	if(node.hasAutoGradedFields()) {
+		//create the sort by auto graded score radio button
+		gradeByStepGradingPageHtml += "<input type='radio' id='sortByAutoScoreRadioButton' name='gradeByStepSortBy' value='autoScore' onClick=\"eventManager.fire('filterStudentRows')\" " + sortByAutoGradedScoreChecked + "/><p style='display:inline'>Auto Score</p>";
 	}
 	
 	gradeByStepGradingPageHtml += "</div></div></div>"
@@ -1453,6 +1581,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var stepWorkId = null;
 		var studentWork = null;
 		var latestNodeVisitPostTime = null;
+		var latestNodeVisitEndTime = null;
 		
 		//get the revisions
 		var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
@@ -1468,6 +1597,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 			stepWorkId = latestNodeVisit.id;
 			studentWork = latestNodeVisit.getLatestWork();
 			latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+			latestNodeVisitEndTime = latestNodeVisit.visitEndTime;
 		}
 		
 		/*
@@ -1481,7 +1611,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		var annotationData = this.getAnnotationData(runId, nodeId, workgroupId, teacherIds);
 		var annotationCommentValue = annotationData.annotationCommentValue;
 		var annotationScoreValue = annotationData.annotationScoreValue;
-		var annotationCRaterScoreValue = annotationData.annotationCRaterScoreValue;
 		var latestAnnotationPostTime = annotationData.latestAnnotationPostTime;
 		
 		//get the period name for this student
@@ -1544,27 +1673,48 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		}
 		
 		//display the student workgroup id
-		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>"+
-			"<div>"+this.getI18NString("period")+" " + periodName + "</div><div>" + toggleRevisionsLink + "</div>";
-
-		//get the groups used in this project, if any
-		var allGroupsUsed = this.project.getAllGroupsUsed();
+		gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div><a onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\">" + userNamesHtml + "</a></div>";
+		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("workgroupId")+": " + workgroupId + "</div>";
+		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("period")+" " + periodName + "</div>";
+		gradeByStepGradingPageHtml += "<div>" + toggleRevisionsLink + "</div>";
 		
-		if(allGroupsUsed != null && allGroupsUsed.length > 0) {
-			gradeByStepGradingPageHtml += "<div>";
-			//display the link to edit the groups for this workgroup
-			gradeByStepGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";			
-			gradeByStepGradingPageHtml += "</div>";
+		//get the automatically assigned groups used in this project, if any
+		var autoGroupsUsed = this.project.getAutoGroupsUsed();
+		
+		if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
+			gradeByStepGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
 			
-			gradeByStepGradingPageHtml += "<div id='groups_" + workgroupId + "'>";
 			//get the groups that have been assigned to this workgroup
-			var groups = this.getGroupsByWorkgroupId(workgroupId);
+			var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+			
+			//make all the elements in the array bold
+			autoGroups = this.makeElementsBold(autoGroups);
 			
 			//create a string from the groups this workgroup is in e.g. "A, B"
-			var groupsString = groups.join(", ");
+			var groupsString = autoGroups.join("");
 			
 			//display the groups this workgroup is in
-			gradeByStepGradingPageHtml += "Groups: " + groupsString;
+			gradeByStepGradingPageHtml += "Auto Groups:<br>" + groupsString;
+			gradeByStepGradingPageHtml += "</div>";
+		}
+		
+		//get the manual assigned groups used in this project, if any
+		var manualGroupsUsed = this.project.getManualGroupsUsed();
+		
+		if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
+			gradeByStepGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
+			
+			//get the groups that have been assigned to this workgroup
+			var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
+			
+			//make all the elements in the array bold
+			manualGroups = this.makeElementsBold(manualGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "A, B"
+			var groupsString = manualGroups.join("");
+			
+			//display the groups this workgroup is in
+			gradeByStepGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
 			gradeByStepGradingPageHtml += "</div>";
 		}
 		
@@ -1584,21 +1734,20 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		}
 		
 		//get the html for the student work td
-		gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitPostTime);
+		gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitEndTime);
 		
 		//make the css class for the td that will contain the score and comment boxes
 		var scoringAndCommentingTdClass = "gradeColumn gradingColumn";
 		
-		var cRaterScore = annotationCRaterScoreValue;
-		var maxCRaterScore = null;
-		
-		//get the maxCRaterScore from the step content
-		if(nodeContent != null && nodeContent.cRater != null && nodeContent.cRater.cRaterMaxScore != null) {
-			maxCRaterScore = nodeContent.cRater.cRaterMaxScore;
+		var autoGradedFields = null;
+
+		if(node.hasAutoGradedFields()) {
+			//get the auto graded fields and scores
+			autoGradedFields = node.getAutoGradedFields(null, runId, nodeId, workgroupId, teacherIds);
 		}
 		
 		//get the html for the score and comment td
-		gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, cRaterScore, maxCRaterScore);
+		gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, autoGradedFields);
 
 		//make the css class for the td that will contain the flag checkbox
 		var flaggingTdClass = "gradeColumn toolsColumn";
@@ -1616,6 +1765,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				//get a node visit
 				var nodeVisitRevision = nodeVisitRevisions[revisionCount];
 				var revisionPostTime = nodeVisitRevision.visitPostTime;
+				var revisionEndTime = nodeVisitRevision.visitEndTime;
 				
 				//get the work from the node visit
 				var revisionWork = nodeVisitRevision.getLatestWork();
@@ -1627,7 +1777,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				var annotationDataForRevision = this.getAnnotationDataForRevision(revisionStepWorkId);
 				var annotationCommentValue = annotationDataForRevision.annotationCommentValue;
 				var annotationScoreValue = annotationDataForRevision.annotationScoreValue;
-				var annotationCRaterScoreValue = annotationDataForRevision.annotationCRaterScoreValue;
 				var latestAnnotationPostTime = annotationDataForRevision.latestAnnotationPostTime;
 				
 				var isGradingDisabled = "disabled";
@@ -1642,13 +1791,14 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 				//add the row id to our array so we can remember the original order of these rows
 				this.originalStudentWorkRowOrder.push(studentWorkRowRevisionId);
 				
-				var cRaterScore = annotationCRaterScoreValue;
+				//get the auto graded fields and scores
+				autoGradedFields = node.getAutoGradedFields(revisionStepWorkId);
 				
 				//display the data for the revision
 				gradeByStepGradingPageHtml += "<tr id='" + studentWorkRowRevisionId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none' isFlagged='" + isFlagged + "'>";
 				gradeByStepGradingPageHtml += "<td class='gradeColumn workgroupIdColumn'><div>" + userNamesHtml + "</div><div>Revision " + (revisionCount + 1) + "</div></td>";
-				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
-				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, cRaterScore, maxCRaterScore);
+				gradeByStepGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionEndTime);
+				gradeByStepGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, autoGradedFields);
 				gradeByStepGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 				gradeByStepGradingPageHtml += "</tr>";
 				
@@ -1679,12 +1829,6 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	// if this step is a mysystem step, call showDiagrams for each div that has student data
 	if (node.type == "MySystemNode") {
 		$(".mysystemCell").each(showDiagramNode);
-	}
-	
-	// if this step is an svgdraw step, call showDrawNode for each div that has student data
-	if (node.type == "SVGDrawNode") {
-		$(".svgdrawCell").each(showDrawNode);
-		$(".snapCell").each(showSnaps);
 	}
 	
 	// make table sortable by any of its columns, TODO: re-enable
@@ -2303,18 +2447,15 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 	var annotationData = new Object();
 	var annotationComment = null;
 	var annotationScore = null;
-	var annotationCRaterScore = null;
 	
 	if(stepWorkId == null) {
 		//obtain the annotation for this workgroup and step if any
 		annotationComment = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "comment");
 		annotationScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, teacherIds, "score");
-		annotationCRaterScore = this.annotations.getLatestAnnotation(runId, nodeId, workgroupId, [-1], "cRater");
 	} else {
 		//obtain the annotation for this workgroup and step if any
 		annotationComment = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "comment");
 		annotationScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "score");
-		annotationCRaterScore = this.annotations.getAnnotationByStepWorkIdType(stepWorkId, "cRater");
 	}
 	
 	//the value to display in the comment text box
@@ -2337,26 +2478,6 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
 		annotationData.annotationScorePostTime = annotationScore.postTime;
 	}
 	
-	//the default values for the cRater score
-	annotationData.annotationCRaterScoreValue = null;
-	annotationData.annotationCRaterScorePostTime = null;
-	
-	if(annotationCRaterScore != null) {
-		//get the cRater annotation array
-		var annotationArray = annotationCRaterScore.value;
-		
-		if(annotationArray != null && Array.isArray(annotationArray) && annotationArray.length > 0) {
-			//get the latest element in the array
-			var cRaterAnnotation = annotationArray[annotationArray.length -1];
-			
-			//get the score
-			annotationData.annotationCRaterScoreValue = cRaterAnnotation.score;
-			
-			//get the timestamp for the node state
-			annotationData.annotationCRaterScorePostTime = annotationCRaterScore.postTime;		
-		}
-	}
-	
 	//get the latest annotation post time for comparing with student work post time
 	annotationData.latestAnnotationPostTime = Math.max(annotationData.annotationCommentPostTime, annotationData.annotationScorePostTime);
 	
@@ -2375,12 +2496,15 @@ View.prototype.getAnnotationDataHelper = function(runId, nodeId, workgroupId, te
  */
 View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitPostTime) {
 	var studentWorkTdHtml = "";
+	var studentWorkString = "";
 	
 	//if student work is null set to empty string
 	if(studentWork == null) {
 		//since there was no student work we will display a default message in its place
-		studentWork = "<div style='text-align:center'>"+this.getI18NString("grading_no_work_warning")+"</div>";
-	} else if (studentWork != "" && node.type == "MySystemNode") {
+		studentWorkString = "<div style='text-align:center'>"+this.getI18NString("grading_no_work_warning")+"</div>";
+	} else if (node.type == "MySystemNode") {
+		studentWorkString = studentWork.data;
+		
 		//var divId = "mysystemDiagram_"+workgroupId;
 		var divId = "mysystemDiagram_"+stepWorkId+"_"+latestNodeVisitPostTime;
 		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
@@ -2392,7 +2516,7 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
         content = content.replace(/\.\/assets\//gmi, 'assets\/');
         content = content.replace(/assets\//gmi, contentBaseUrl+'\/assets\/');
 
-        var studentWorkFixedLink = studentWork.replace(/\.\/images\//gmi, 'images\/');
+        var studentWorkFixedLink = studentWorkString.replace(/\.\/images\//gmi, 'images\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/images\//gmi, contentBaseUrl+'\/images\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/\.\/assets\//gmi, 'assets\/');
         studentWorkFixedLink = studentWorkFixedLink.replace(/assets\//gmi, contentBaseUrl+'\/assets\/');
@@ -2401,111 +2525,31 @@ View.prototype.getStudentWorkTdHtml = function(studentWork, node, stepWorkId, st
         
 		//commented the line below because my system grading is broken at the moment
 		// onclick=\"showDiagram('"+divId+"','"+contentBaseUrl+"')\"
-		studentWork = "<a class='msEnlarge' style='text-decoration:underline; color:blue;' onclick='enlargeMS(\""+divId+"\");'>enlarge</a>" +
+        studentWorkString = "<a class='msEnlarge' style='text-decoration:underline; color:blue;' onclick='enlargeMS(\""+divId+"\");'>enlarge</a>" +
 				      "<span id='content_"+divId+"' style='display:none'>"+content+"</span>" +
 				      "<span id='contenturl_"+divId+"' style='display:none'>"+contentUrl+"</span>" +
 				      "<span id='studentwork_"+divId+"' style='display:none'>"+studentWorkFixedLink+"</span>" +
-					  "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystemCell'  style=\"height:350px;\">"+studentWork+"</div>";
+					  "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='mysystemCell'  style=\"height:350px;\">"+studentWorkString+"</div>";
 		//studentWork = "(Grading for MySystem not available)";
 		
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<br><br><br><p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</p>";
-	} else if (studentWork != "" && node.type == "SVGDrawNode") {
-		// if the work is for a SVGDrawNode, embed the svg
-		var divId = "svgDraw_"+stepWorkId+"_"+latestNodeVisitPostTime;
-		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
-		// if studentData has been compressed, decompress it and parse (for legacy compatibility)
-		if (typeof studentWork == "string") {
-			if (studentWork.match(/^--lz77--/)) {
-				var lz77 = new LZ77();
-				studentWork = studentWork.replace(/^--lz77--/, "");
-				studentWork = lz77.decompress(studentWork);
-				studentWork = $.parseJSON(studentWork);
-			}
-		} 
-		var svgString = studentWork.svgString;
-		var description = studentWork.description;
-		var snaps = studentWork.snapshots;
-		var contentUrl = node.getContent().getContentUrl();
-		studentWork = "<div id='"+divId+"_contentUrl' style='display:none;'>"+contentUrl+"</div>"+
-			"<a class='drawEnlarge' onclick='enlargeDraw(\""+divId+"\");'>enlarge</a>";
-		// if the svg has been compressed, decompress it
-		if (svgString != null){
-			if (svgString.match(/^--lz77--/)) {
-				var lz77 = new LZ77();
-				svgString = svgString.replace(/^--lz77--/, "");
-				svgString = lz77.decompress(svgString);
-			}
-			
-			//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			// only replace local hrefs. leave absolute hrefs alone!
-			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-				  if (value.indexOf("http://") == -1) {
-				    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-				  }
-				  return m;
-				});
-			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			//svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
-			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-			svgString = Utils.encode64(svgString);
-		}
-		if(snaps != null && snaps.length>0){
-			var snapTxt = "<div id='"+divId+"_snaps' class='snaps'>";
-			for(var i=0;i<snaps.length;i++){
-				var snapId = divId+"_snap_"+i;
-				var currSnap = snaps[i].svg;
-				if (currSnap.match(/^--lz77--/)) {
-					var lz77 = new LZ77();
-					currSnap = currSnap.replace(/^--lz77--/, "");
-					currSnap = lz77.decompress(currSnap);
-				}
-				//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-				// only replace local hrefs. leave absolute hrefs alone!
-				currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-					  if (value.indexOf("http://") == -1) {
-					    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-					  }
-					  return m;
-					});
-				
-				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-				//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
-				currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.2)">');
-				currSnap = Utils.encode64(currSnap);
-				snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+divId+"\");'>"+currSnap+"</div>";
-				var currDescription = snaps[i].description;
-				snapTxt += "<div id='"+snapId+"_description' class='snapDescription' style='display:none;'>"+currDescription+"</div>";
-			}
-			snapTxt += "</div>";
-			studentWork += snapTxt;
-		} else {
-			studentWork += "<div id='"+divId+"' class='svgdrawCell'>"+svgString+"</div>";
-			if(description != null){
-				studentWork += "<span>Description: </span><div id='"+divId+"_description' class='drawDescription'>"+description+"</div>";
-			}
-		}
-		
-		//add the post time stamp to the bottom of the student work
-		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
-	} else if(studentWork != "" && node.hasGradingView()) {
+        studentWorkString += "<br><br><br><p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</p>";
+	} else if(node.hasGradingView()) {
 		//create the student work div that we will insert the student work into later
-		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
+		studentWorkString = '<div id="studentWorkDiv_' + stepWorkId + '" style="overflow:auto;width:500px"></div>';
 	} else {
 		//add the post time stamp to the bottom of the student work
-		studentWork += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
+		studentWorkString += "<div class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
 		
 		//replace \n with <br> so that the line breaks are displayed for the teacher
-		studentWork = this.replaceSlashNWithBR(studentWork);
+		studentWorkString = this.replaceSlashNWithBR(studentWorkString);
 		
 		//insert the student work into a div so we can display scrollbars if the student work overflows
-		studentWork = '<div id="studentWorkDiv_' + stepWorkId + '" class="studentWorkDiv" style="overflow:auto; width:500px">' + studentWork + '</div>';
+		studentWorkString = '<div id="studentWorkDiv_' + stepWorkId + '" class="studentWorkDiv" style="overflow:auto; width:500px">' + studentWorkString + '</div>';
 	}
 	
 	//display the student work for this step/node
-	studentWorkTdHtml += "<td id='studentWorkColumn_" + stepWorkId + "' class='" + studentWorkTdClass + "'>" + studentWork + "</td>";
+	studentWorkTdHtml += "<td id='studentWorkColumn_" + stepWorkId + "' class='" + studentWorkTdClass + "'>" + studentWorkString + "</td>";
 	
 	return studentWorkTdHtml;
 };
@@ -2723,7 +2767,7 @@ View.prototype.getPeerOrTeacherReviewData = function(studentWork, node, workgrou
  * of the previous revision rows (optional: only required when a step has an auto grading criteria)
  * @return html for the td that will display the score and comment box
  */
-View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, cRaterScore, maxCRaterScore) {
+View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, studentWorkRowId, autoGradedFields) {
 	var scoringAndCommentingTdHtml = "";
 	
 	//get the max score for this step, or "" if there is no max score
@@ -2755,100 +2799,64 @@ View.prototype.getScoringAndCommentingTdHtml = function(workgroupId, nodeId, tea
 	//get the content for the step
 	var nodeContent = this.project.getNodeById(nodeId).getContent().getContentJSON();
 	
-	//check if the step has auto grading criteria
-	if(nodeContent.gradingCriteria != null) {
-		//get the auto grading criteria
-		var gradingCriteria = nodeContent.gradingCriteria;
-		
-		//the counter for the auto graded score
-		var autoGradedScore = 0;
-		
-		//the counter for total possible auto graded score
-		var totalPossibleAutoGradedScore = 0;
-		
-		//the table that displays all the auto graded data
-		scoringAndCommentingTdHtml += "<table id='teacherGradingCriteriaTable' class='gradingCriteriaTable'>";
-		
-		//the header row for the auto graded data table
-		scoringAndCommentingTdHtml += "<tr>";
-		scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>Criteria</td>";
-		scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>Auto Score</td>";
-		scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>Possible Score</td>";
-		scoringAndCommentingTdHtml += "</tr>";
-		
-		//loop through all the grading criteria
-		for(var x=0; x<gradingCriteria.length; x++) {
-			//get a single grading criteria
-			var singleGradingCriteria = gradingCriteria[x];
-			
-			//get the name of the single grading criteria
-			var gradingCriteriaName = singleGradingCriteria.name;
-			
-			//get the point value for the single grading criteria
-			var gradingCriteriaPointValue = singleGradingCriteria.pointValue;
-			
-			//check if the student work passed the grading criteria
-			var pass = this.runGradingCriteria(studentWork, singleGradingCriteria);
-			
-			var scoreForCriteria = 0;
-			
-			if(pass) {
-				//set the score if the student work passed
-				scoreForCriteria = gradingCriteriaPointValue;
-			}
-			
-			//accumulate the total possible score
-			totalPossibleAutoGradedScore += gradingCriteriaPointValue;
-			
-			//accumulate the student score
-			autoGradedScore += scoreForCriteria;
-			
-			//display the row for this grading criteria
-			scoringAndCommentingTdHtml += "<tr>";
-			scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>" + gradingCriteriaName + "</td>";
-			scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>" + scoreForCriteria + "</td>";
-			scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>" + gradingCriteriaPointValue + "</td>";
-			scoringAndCommentingTdHtml += "</tr>";
-		}
-		
-		//display the total score for the student and the total possible score
-		scoringAndCommentingTdHtml += "<tr>";
-		scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>Total</td>";
-		scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>" + autoGradedScore + "</td>";
-		scoringAndCommentingTdHtml += "<td class='gradingCriteriaTd'>" + totalPossibleAutoGradedScore + "</td>";
-		scoringAndCommentingTdHtml += "</tr>";
-		
-		if(studentWorkRowId != null) {
-			/*
-			 * this is a latest student work revision row so we will add an entry
-			 * into our studentWorkRowOrderObjects array
-			 */
-			
-			//create the object with the row id and auto graded score
-			var studentWorkRowOrderObject = {
-				studentWorkRowId:studentWorkRowId,
-				autoGradedScore:autoGradedScore
-			};
-			
-			//add it to the array that we will use later for sorting based on auto graded score
-			this.studentWorkRowOrderObjects.push(studentWorkRowOrderObject);
-		}
-		
-		scoringAndCommentingTdHtml += "</table>";
-	}
-	
 	//the td will contain a table
 	scoringAndCommentingTdHtml += "<table class='teacherAnnotationTable'>";
 	
 	//display the score box
 	scoringAndCommentingTdHtml += "<tr><td>"+this.getI18NString("score")+": <input type='text' id='annotationScoreTextArea_" + workgroupId + "_" + nodeId + "' value='" + annotationScoreValue + "' onblur=\"eventManager.fire('saveScore', ['"+nodeId+"','"+workgroupId+"', '"+teacherId+"', '"+runId+"', '"+stepWorkId+"'])\" " + isGradingDisabled + "/> / " + maxScore + "</td></tr>";
 	
-	if(maxCRaterScore != null) {
-		if(cRaterScore == null) {
-			cRaterScore = "(Not Yet Scored)";
+	//used to score the auto graded score so we can place it in the studentWorkRowOrderObject
+	var autoGradedScore = null;
+	
+	if(autoGradedFields != null) {
+		//loop through all the auto graded fields
+		for(var x=0; x<autoGradedFields.length; x++) {
+			//get an auto graded field
+			var autoGradedField = autoGradedFields[x];
+			
+			//get the score the student received
+			autoGradedScore = autoGradedField.autoGradedScore;
+			
+			//get the max possible score
+			var autoGradedMaxScore = autoGradedField.autoGradedMaxScore;
+			
+			//add this to the html so the teacher will be able to see it
+			scoringAndCommentingTdHtml += "<tr><td>Auto "+this.getI18NString("score")+": " + autoGradedScore + " / " + autoGradedMaxScore + "</td></tr>";
+		}
+	}
+	
+	if(studentWorkRowId != null) {
+		/*
+		 * this is a latest student work revision row so we will add an entry
+		 * into our studentWorkRowOrderObjects array
+		 */
+		
+		//get the teacher graded score
+		var teacherGradedScore = annotationScoreValue;
+		
+		if(teacherGradedScore == null || teacherGradedScore == "") {
+			//set the value to 0 if it is null or ""
+			teacherGradedScore = 0;
 		}
 		
-		scoringAndCommentingTdHtml += "<tr><td>Auto "+this.getI18NString("score")+": " + cRaterScore + " / " + maxCRaterScore + "</td></tr>";
+		//get the user names in the workgroup
+		var username = this.getUserNamesByWorkgroupId(workgroupId, 0);
+		
+		/*
+		 * create the object with the row id, teacher graded score, and auto graded score.
+		 * if there are multiple auto graded fields we will just use the score for
+		 * the last one.
+		 */
+		var studentWorkRowOrderObject = {
+			username:username,
+			stepWorkId:stepWorkId,
+			studentWorkRowId:studentWorkRowId,
+			teacherGradedScore:teacherGradedScore,
+			autoGradedScore:autoGradedScore
+		};
+		
+		//add it to the array that we will use later for sorting based on auto graded score
+		this.studentWorkRowOrderObjects.push(studentWorkRowOrderObject);
 	}
 	
 	var openPremadeCommentsLink = "";
@@ -3016,6 +3024,8 @@ View.prototype.getToolsTdHtml = function(workgroupId, nodeId, teacherId, runId, 
  * @param workgroupId the id of the workgroup
  */
 View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
+	this.gradingType = 'team';
+	
 	// detach FixedHeader clones
 	$('.fixedHeader').detach();
 		
@@ -3031,7 +3041,7 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	
 	var userNames = this.getUserNamesByWorkgroupId(workgroupId, 0);
 	
-	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames+ "</span>";
+	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames + " [" + this.getI18NString("workgroupId") + ": " + workgroupId + "]</span>";
 	gradeByTeamGradingPageHtml += "<div style='float:right;'>";
 	
 	//show the step title and prompt
@@ -3059,21 +3069,46 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 		gradeByTeamGradingPageHtml += "<input type='checkbox' id='showAllRevisions' value='show all revisions' onClick=\"eventManager.fire('filterStudentRows')\" " + showRevisionsChecked + "/><p style='display:inline'>"+this.getI18NString("grading_show_all_revisions")+"</p>";
 	}
 	
+	//get the automatically assigned groups in this project, if any
+	var autoGroupsUsed = this.project.getAutoGroupsUsed();
+	
+	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
+		gradeByTeamGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+		
+		//make all the elements in the array bold
+		autoGroups = this.makeElementsBold(autoGroups);
+		
+		//create a string from the groups this workgroup is in e.g. "A, B"
+		var groupsString = autoGroups.join(", ");
+		
+		//display the groups this workgroup is in
+		gradeByTeamGradingPageHtml += "Auto Groups: " + groupsString;
+		gradeByTeamGradingPageHtml += "</div>";
+	}
+	
 	//get the groups used in this project, if any
-	var allGroupsUsed = this.project.getAllGroupsUsed();
+	var allGroupsUsed = this.project.getManualGroupsUsed();
 	
 	if(allGroupsUsed != null && allGroupsUsed.length > 0) {
 		//get the groups that have been assigned to this workgroup
-		var groups = this.getGroupsByWorkgroupId(workgroupId);
+		var groups = this.getManualGroupsByWorkgroupId(workgroupId);
+		
+		//make all the elements in the array bold
+		groups = this.makeElementsBold(groups);
 		
 		//create a string from the groups this workgroup is in e.g. "A, B"
 		var groupsString = groups.join(", ");
 
-		//display the link to edit the groups for this workgroup
-		gradeByTeamGradingPageHtml += "<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>Edit Groups</a>";
+		//create the div to display the manually assigned groups
+		gradeByTeamGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
 		
-		//display the groups this workgroup is in
-		gradeByTeamGradingPageHtml += "<p id='groups_" + workgroupId + "' style='display:inline'>Groups: " + groupsString + "</p>";
+		//display the manually assigned groups
+		gradeByTeamGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")' style='margin:0'>edit</a>): " + groupsString;
+		
+		gradeByTeamGradingPageHtml += "</div>";
 	}
 	
 	gradeByTeamGradingPageHtml += "</div>";
@@ -3101,8 +3136,6 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	
 	// call showDiagrams for each div that has mysystem/drawing student data
 	$(".mysystemCell").each(showDiagramNode);
-	$(".svgdrawCell").each(showDrawNode);
-	$(".snapCell").each(showSnaps);
 	
 	if($('#filterOptions').html()==''){
 		$('#filterOptions').hide();
@@ -3171,11 +3204,13 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			var stepWorkId = null;
 			var studentWork = null;
 			var latestNodeVisitPostTime = null;
+			var latestNodeVisitEndTime = null;
 			
 			if (latestNodeVisit != null) {
 				stepWorkId = latestNodeVisit.id;
 				studentWork = latestNodeVisit.getLatestWork();
 				latestNodeVisitPostTime = latestNodeVisit.visitPostTime;
+				latestNodeVisitEndTime = latestNodeVisit.visitEndTime;
 			}
 
 			//get the latest flag value
@@ -3256,7 +3291,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			var studentWorkTdClass = "gradeByTeamWorkColumn";
 			
 			//get the html for the student work td
-			displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitPostTime);
+			displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(studentWork, node, stepWorkId, studentWorkTdClass, latestNodeVisitEndTime);
 			
 			//check if we want to enable/disable grading for this student/row
 			var isGradingDisabled = "";
@@ -3270,9 +3305,16 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 			
 			//make the css class for the td that will contain the score and comment boxes
 			var scoringAndCommentingTdClass = "gradeByTeamGradeColumn gradeColumn gradingColumn";
+
+			var autoGradedFields = null;
+
+			if(node.hasAutoGradedFields()) {
+				//get the auto graded fields and scores
+				autoGradedFields = node.getAutoGradedFields(null, runId, nodeId, workgroupId, teacherIds);
+			}
 			
 			//get the html for the score and comment td
-			displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork);
+			displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, stepWorkId, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, studentWork, null, autoGradedFields);
 			
 			//make the css class for the td that will contain the flag checkbox
 			var flaggingTdClass = "gradeByTeamToolsColumn gradeColumn toolsColumn";
@@ -3289,6 +3331,7 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 					//get a node visit
 					var nodeVisitRevision = nodeVisitRevisions[revisionCount];
 					var revisionPostTime = nodeVisitRevision.visitPostTime;
+					var revisionEndTime = nodeVisitRevision.visitEndTime;
 					
 					//get the work from the node visit
 					var revisionWork = nodeVisitRevision.getLatestWork();
@@ -3308,10 +3351,17 @@ View.prototype.displayGradeByTeamGradingPageHelper = function(node, vleState) {
 					var flagChecked = "";
 					var isFlagged = 'false';
 					
+					var autoGradedFields = null;
+
+					if(node.hasAutoGradedFields()) {
+						//get the auto graded fields and scores
+						autoGradedFields = node.getAutoGradedFields(revisionStepWorkId);
+					}
+					
 					//display the data for the revision
 					displayGradeByTeamGradingPageHtml += "<tr id='studentWorkRow_"+workgroupId+"_"+nodeId+"_" + revisionStepWorkId + "' class='studentWorkRow period" + periodName + " studentWorkRevisionRow studentWorkRevisionRow_" + workgroupId + "_" + nodeId + "' style='display:none'>";
-					displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionPostTime);
-					displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, nodeVisitRevision.id, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork);
+					displayGradeByTeamGradingPageHtml += this.getStudentWorkTdHtml(revisionWork, node, revisionStepWorkId, studentWorkTdClass, revisionEndTime);
+					displayGradeByTeamGradingPageHtml += this.getScoringAndCommentingTdHtml(workgroupId, nodeId, teacherId, runId, nodeVisitRevision.id, annotationScoreValue, annotationCommentValue, latestAnnotationPostTime, isGradingDisabled, scoringAndCommentingTdClass, revisionWork, null, autoGradedFields);
 					displayGradeByTeamGradingPageHtml += this.getToolsTdHtml(workgroupId, nodeId, teacherId, runId, revisionStepWorkId, isGradingDisabled, flagChecked, flaggingTdClass);
 					displayGradeByTeamGradingPageHtml += "</tr>";
 				}
@@ -3678,7 +3728,7 @@ View.prototype.toggleGradingDisplayRevisions = function(workgroupId, nodeId) {
 			revisionRow.style.display = "none";
 		}
 	}
-	
+
 	//fix the height so scrollbars don't show up
 	this.fixGradingDisplayHeight();
 };
@@ -3844,14 +3894,45 @@ View.prototype.isOnlyShowNewStudentWorkChecked = function() {
 View.prototype.isSortByAutoGradedScoreChecked = function() {
 	var sortByAutoGradedScoreChecked = false;
 	
-	if($('#sortByAutoGradedScoreCheckbox').length != 0) {
-		if($('#sortByAutoGradedScoreCheckbox').attr('checked') == 'checked') {
+	if($('#sortByAutoScoreRadioButton').length != 0) {
+		if($('#sortByAutoScoreRadioButton').attr('checked') == 'checked') {
 			sortByAutoGradedScoreChecked = true;
 		}
 	}
 	
-	//check box was not checked
 	return sortByAutoGradedScoreChecked;
+};
+
+/**
+ * Determine if the "Sort By Teacher Graded Score" checkbox is checked
+ * @return whether the "Sort By Teacher Graded Score" checkbox is checked
+ */
+View.prototype.isSortByTeacherGradedScoreChecked = function() {
+	var sortByTeacherGradedScoreChecked = false;
+	
+	if($('#sortByTeacherScoreRadioButton').length != 0) {
+		if($('#sortByTeacherScoreRadioButton').attr('checked') == 'checked') {
+			sortByTeacherGradedScoreChecked = true;
+		}
+	}
+	
+	return sortByTeacherGradedScoreChecked;
+};
+
+/**
+ * Determine if the "Sort By Username" checkbox is checked
+ * @return whether the "Sort By Username" checkbox is checked
+ */
+View.prototype.isSortByUsernameChecked = function() {
+	var sortByUsernameChecked = false;
+	
+	if($('#sortByUsernameRadioButton').length != 0) {
+		if($('#sortByUsernameRadioButton').attr('checked') == 'checked') {
+			sortByUsernameChecked = true;
+		}
+	}
+	
+	return sortByUsernameChecked;
 };
 
 /**
@@ -3861,7 +3942,7 @@ View.prototype.setSelectedPeriod = function(item) {
 	$('.periodChoice').removeClass('checked');
 	$(item).addClass('checked');
 	this.filterStudentRows();
-}
+};
 
 /**
  * Filter the student rows that are displayed in the grading view
@@ -4050,34 +4131,23 @@ View.prototype.filterStudentRows = function() {
 		this.enlargeStudentWorkText();
 	}
 	
-	//here we will check if we need to sort by auto graded score
-	if(this.currentGradingDisplayParam != null) {
-		var nodeId = this.currentGradingDisplayParam[1];
-		
-		/*
-		 * in grade by step the node id should be not null but in
-		 * grade by team the node id should be null
-		 */
-		if(nodeId != null) {
-			//get the content for the step
-			var nodeContent = this.project.getNodeById(nodeId).getContent().getContentJSON();
-			
-			if(nodeContent.gradingCriteria != null) {
-				/*
-				 * the step has a grading criteria so we will check if we need to sort by
-				 * auto graded score
-				 */
-				this.gradingSortByAutoGradedScore = this.isSortByAutoGradedScoreChecked();
-				
-				if(this.gradingSortByAutoGradedScore) {
-					//sort by auto graded score
-					this.sortByAutoGradedScore();
-				} else {
-					//revert the rows back to the original sort order (which should be alphabetical)
-					this.sortByOriginalOrder();
-				}
-			}			
-		}
+	//find which radio button was checked
+	this.gradingSortByUsername = this.isSortByUsernameChecked();
+	this.gradingSortByTeacherGradedScore = this.isSortByTeacherGradedScoreChecked();
+	this.gradingSortByAutoGradedScore = this.isSortByAutoGradedScoreChecked();
+	
+	if(this.gradingSortByUsername) {
+		//sort by username (which is the default)
+		this.sortByUsername();
+	} else if(this.gradingSortByTeacherGradedScore) {
+		//sort by teacher graded score
+		this.sortByTeacherGradedScore();
+	} else if(this.gradingSortByAutoGradedScore) {
+		//sort by auto graded score
+		this.sortByAutoGradedScore();
+	} else {
+		//revert the rows back to the original sort order (which should be alphabetical)
+		this.sortByUsername();
 	}
 	
 	//fix the height so scrollbars don't show up
@@ -4170,51 +4240,83 @@ View.prototype.enlargeStudentWorkText = function() {
  * Sort the student rows by auto graded score. This is only called in
  * grade by step and the step has a grading criteria.
  */
-View.prototype.sortByAutoGradedScore = function() {
-	//get the node content
-	var nodeId = this.currentGradingDisplayParam[1];
-	var nodeContent = this.project.getNodeById(nodeId).getContent().getContentJSON();
+View.prototype.gradeByStepSortBy = function(sortField) {
 	
-	if(nodeContent.gradingCriteria != null) {
-		//the step has a grading criteria
-		
+	if(sortField == 'username') {
+		/*
+		 * so the rows based on the username alphabetically
+		 */
+		this.studentWorkRowOrderObjects.sort(this.sortStudentWorkRowsByUsername);
+	} else if(sortField == 'teacherGradedScore') {
+		/*
+		 * sort the rows based on the auto graded score from
+		 * highest score to lowest
+		 */ 
+		this.studentWorkRowOrderObjects.sort(this.sortStudentWorkRowsByTeacherGradedScore);
+	} else if(sortField == 'autoGradedScore') {
 		/*
 		 * sort the rows based on the auto graded score from
 		 * highest score to lowest
 		 */ 
 		this.studentWorkRowOrderObjects.sort(this.sortStudentWorkRowsByAutoGradedScore);
+	} else {
+		return;
+	}
+	
+	//loop through all the student work row objects
+	for(var x=0; x<this.studentWorkRowOrderObjects.length; x++) {
+		//get an object
+		var studentWorkRowOrderObject = this.studentWorkRowOrderObjects[x];
 		
-		//loop through all the student work row objects
-		for(var x=0; x<this.studentWorkRowOrderObjects.length; x++) {
-			//get an object
-			var studentWorkRowOrderObject = this.studentWorkRowOrderObjects[x];
+		//get the DOM id of the tr row
+		var studentWorkRowId = studentWorkRowOrderObject.studentWorkRowId;
+		
+		/*
+		 * append the row to the end of the table. this will remove it from the existing
+		 * position it is already in within the table. we will eventually call append for 
+		 * all the rows so the whole table will end up being sorted the way we want it.
+		 */
+		$('#studentWorkTable').append(document.getElementById(studentWorkRowId));
+		
+		//check if this row has child revisions
+		if(this.studentWorkRowRevisions[studentWorkRowId] != null) {
+			//this row does have child revisions so we will get the ids of those child revision rows
+			var studentWorkRowRevisionsArray = this.studentWorkRowRevisions[studentWorkRowId];
 			
-			//get the DOM id of the tr row
-			var studentWorkRowId = studentWorkRowOrderObject.studentWorkRowId;
-			
-			/*
-			 * append the row to the end of the table. this will remove it from the existing
-			 * position it is already in within the table. we will eventually call append for 
-			 * all the rows so the whole table will end up being sorted the way we want it.
-			 */
-			$('#studentWorkTable').append(document.getElementById(studentWorkRowId));
-			
-			//check if this row has child revisions
-			if(this.studentWorkRowRevisions[studentWorkRowId] != null) {
-				//this row does have child revisions so we will get the ids of those child revision rows
-				var studentWorkRowRevisionsArray = this.studentWorkRowRevisions[studentWorkRowId];
+			//loop through all the child revision rows
+			for(var y=0; y<studentWorkRowRevisionsArray.length; y++) {
+				//get a child revision row id
+				var studentWorkRowRevisionId = studentWorkRowRevisionsArray[y];
 				
-				//loop through all the child revision rows
-				for(var y=0; y<studentWorkRowRevisionsArray.length; y++) {
-					//get a child revision row id
-					var studentWorkRowRevisionId = studentWorkRowRevisionsArray[y];
-					
-					//append the child revision row to the table
-					$('#studentWorkTable').append(document.getElementById(studentWorkRowRevisionId));
-				}
+				//append the child revision row to the table
+				$('#studentWorkTable').append(document.getElementById(studentWorkRowRevisionId));
 			}
 		}
 	}
+};
+
+/**
+ * Sort the student rows by auto graded score. This is only called in
+ * grade by step and the step has a grading criteria.
+ */
+View.prototype.sortByUsername = function() {
+	this.gradeByStepSortBy('username');
+};
+
+/**
+ * Sort the student rows by auto graded score. This is only called in
+ * grade by step and the step has a grading criteria.
+ */
+View.prototype.sortByTeacherGradedScore = function() {
+	this.gradeByStepSortBy('teacherGradedScore');
+};
+
+/**
+ * Sort the student rows by auto graded score. This is only called in
+ * grade by step and the step has a grading criteria.
+ */
+View.prototype.sortByAutoGradedScore = function() {
+	this.gradeByStepSortBy('autoGradedScore');
 };
 
 /**
@@ -4242,7 +4344,7 @@ View.prototype.sortByOriginalOrder = function() {
  * 0 if obj1 and obj2 should be equal in position
  * more than 0 if obj1 should be after obj2
  */
-View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2){
+View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2) {
 	var result = 0;
 	
 	if(obj1 != null && obj2 != null) {
@@ -4261,6 +4363,96 @@ View.prototype.sortStudentWorkRowsByAutoGradedScore = function(obj1, obj2){
 			result = 1;
 		} else if(obj2Score == null) {
 			//if obj2 does not have a score, obj1 should come before obj2
+			result = -1;
+		}
+		
+		if(result == 0) {
+			/*
+			 * the scores are the same so we will now sort by username
+			 * among the scores that are the same
+			 */
+			result = View.prototype.sortStudentWorkRowsByUsername(obj1, obj2);
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Function used by array.sort(function) to sort the objects in the 
+ * studentWorkRowOrderObjects array
+ * @param obj1 a studentWorkRowOrderObject
+ * @param obj2 a studentWorkRowOrderObject
+ * @return 
+ * less than 0 if obj1 should be before obj2
+ * 0 if obj1 and obj2 should be equal in position
+ * more than 0 if obj1 should be after obj2
+ */
+View.prototype.sortStudentWorkRowsByTeacherGradedScore = function(obj1, obj2) {
+	var result = 0;
+	
+	if(obj1 != null && obj2 != null) {
+		//get the auto graded score for each object
+		var obj1Score = obj1.teacherGradedScore;
+		var obj2Score = obj2.teacherGradedScore;
+		
+		if(obj1Score != null && obj2Score != null) {
+			/*
+			 * find the difference between the scores which will
+			 * determine how the objects should be ordered
+			 */
+			result = obj2Score - obj1Score;
+		} else if(obj1Score == null) {
+			//if obj1 does not have a score, obj2 should come before obj1
+			result = 1;
+		} else if(obj2Score == null) {
+			//if obj2 does not have a score, obj1 should come before obj2
+			result = -1;
+		}
+		
+		if(result == 0) {
+			/*
+			 * the scores are the same so we will now sort by username
+			 * among the scores that are the same
+			 */
+			result = View.prototype.sortStudentWorkRowsByUsername(obj1, obj2);
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Function used by array.sort(function) to sort the objects in the 
+ * studentWorkRowOrderObjects array
+ * @param obj1 a studentWorkRowOrderObject
+ * @param obj2 a studentWorkRowOrderObject
+ * @return 
+ * less than 0 if obj1 should be before obj2
+ * 0 if obj1 and obj2 should be equal in position
+ * more than 0 if obj1 should be after obj2
+ */
+View.prototype.sortStudentWorkRowsByUsername = function(obj1, obj2) {
+	var result = 0;
+	
+	if(obj1 != null && obj2 != null) {
+		//get the username for each object
+		var obj1Username = obj1.username;
+		var obj2Username = obj2.username;
+		
+		if(obj1Username != null && obj2Username != null) {
+			if(obj1Username == obj2Username) {
+				result = 0;
+			} else if(obj1Username < obj2Username) {
+				result = -1;
+			} else if(obj1Username > obj2Username) {
+				result = 1;
+			}
+		} else if(obj1Username == null) {
+			//if obj1 does not have a username, obj2 should come before obj1
+			result = 1;
+		} else if(obj2Username == null) {
+			//if obj2 does not have a username, obj1 should come before obj2
 			result = -1;
 		}
 	}
@@ -4389,6 +4581,9 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 		//get the timestamp for when the work was posted
 		var nodeVisitPostTime = nodeVisit.visitPostTime;
 		
+		//get the timestamp for when the student ended the visit
+		var nodeVisitEndTime = nodeVisit.visitEndTime;
+		
 		//get the node object that the work is for
 		var node = this.getProject().getNodeById(nodeVisit.nodeId);
 		
@@ -4404,7 +4599,7 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
-			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitPostTime) + "</p>");	
+			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitEndTime) + "</p>");	
 		}
 	}
 };
@@ -4505,11 +4700,11 @@ View.prototype.editGroups = function(workgroupId) {
     editGroupsHtml += "<div>";
 
     //get all the groups used in the project
-    var allGroupsUsed = this.project.getAllGroupsUsed();
+    var allGroupsUsed = this.project.getManualGroupsUsed();
     
     //get all the groups this workgroup is in
-	var groupsForWorkgroupId = this.getGroupsByWorkgroupId(workgroupId);
-    
+	var groupsForWorkgroupId = this.getManualGroupsByWorkgroupId(workgroupId);
+	
     if(allGroupsUsed != null) {
     	//loop through all the groups used in the project
     	for(var x=0; x<allGroupsUsed.length; x++) {
@@ -4579,13 +4774,39 @@ View.prototype.groupClicked = function(workgroupId) {
 	var stepWorkId = null;
 	
 	//save the annotation to the server
-	this.saveRunAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation);
+	this.saveRunAnnotation(nodeId, toWorkgroupId, fromWorkgroupId, runId, stepWorkId, runAnnotation, true);
+	
+	/*
+	 * get all the groups this workgroup is in. this includes automatic group
+	 * assignments as well as manual group assignments.
+	 */
+	groups = this.getManualGroupsByWorkgroupId(workgroupId);
+	
+	//make all the elements in the array bold
+	groups = this.makeElementsBold(groups);
 	
 	//get the string value of the array of groups that this workgroup is in
-	var groupsString = groups.join(", ");
+	var groupsString = "";
+	
+	//what to display after the :
+	var spacing = "";
+	
+	if(this.gradingType == "step") {
+		//join the groups into a string
+		groupsString = groups.join("");
+		
+		//include a line break
+		spacing = "<br>";
+	} else if(this.gradingType == "team") {
+		//join the groups into a string separated by ,
+		groupsString = groups.join(", ");
+		
+		//do not include a line break
+		spacing = " ";
+	}
 	
 	//update the grading UI with the new groups
-	$('#groups_' + workgroupId).html('Groups: ' + groupsString);
+	$('#manualGroups_' + workgroupId).html("Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")' style='margin:0'>edit</a>):" + spacing + groupsString);
 };
 
 /**
@@ -4611,7 +4832,7 @@ View.prototype.getRunAnnotationByWorkgroupId = function(workgroupId) {
  * @param workgroupId the workgroup id
  * @returns an array of groups that this workgroup is in
  */
-View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
+View.prototype.getManualGroupsByWorkgroupId = function(workgroupId) {
 	var groups = [];
 	
 	//get the run annotation
@@ -4619,10 +4840,106 @@ View.prototype.getGroupsByWorkgroupId = function(workgroupId) {
 	
 	if(runAnnotation != null && runAnnotation.value != null && runAnnotation.value.groups != null) {
 		//get the groups
-		groups = runAnnotation.value.groups;
+		var annotationGroups = runAnnotation.value.groups;
+		
+		if(annotationGroups != null) {
+			//loop through all the groups this workgroup is in
+			for(var x=0; x<annotationGroups.length; x++) {
+				//add the group to our array that we will return
+				var annotationGroup = annotationGroups[x];
+				groups.push(annotationGroup);
+			}
+		}
 	}
 	
 	return groups;
+};
+
+/**
+ * Get the groups this workgroup is in
+ * @param workgroupId the workgroup id
+ * @returns an array of groups that this workgroup is in
+ */
+View.prototype.getAutoGroupsByWorkgroupId = function(workgroupId) {
+	var groups = [];
+	
+	//get the vlestate for the workgroup
+	var vleState = this.getVleStateByWorkgroupId(workgroupId);
+	
+	//get all the branch node ids in the project
+	var branchNodeIds = this.getProject().getNodeIdsByNodeType('BranchingNode');
+	
+	//loop through all the branch node ids
+	for(var x=0; x<branchNodeIds.length; x++) {
+		//get a branch node id
+		var branchNodeId = branchNodeIds[x];
+
+		//get the latest work from the workgroup for this branch node
+		var latestWork = vleState.getLatestWorkByNodeId(branchNodeId);
+		
+		if(latestWork != null) {
+			//get the response
+			var response = latestWork.response;
+			
+			if(response != null) {
+				//get the chosen path name which should be the activity title for the branch path
+				var chosenPathName = response.chosenPathName;
+				
+				if(chosenPathName != null && chosenPathName != '') {
+					//add the branch path name to our array
+					groups.push(chosenPathName);
+				}
+			}
+		}
+	}
+	
+	return groups;
+};
+
+/**
+ * Make all the elements in the array bold
+ * @param array an array of strings
+ * @returns an array of strings that are each wrapped in a 
+ * paragraph element and bolded
+ */
+View.prototype.makeElementsBold = function(array) {
+	var newArray = [];
+	
+	if(array != null) {
+		//loop through all the elements in the array
+		for(var x=0; x<array.length; x++) {
+			/*
+			 * wrap the element in a paragraph element that is bolded and add it
+			 * to the array that we will return
+			 */
+			newArray.push("<p style='font-weight:bold;margin-right:0'>" + array[x] + "</p>");
+		}
+	}
+	
+	return newArray;
+};
+
+/**
+ * Update the teacher graded score in the studentWorkRowOrderObjects
+ * @param stepWorkId used to find which studentWorkRowOrderObject to update
+ * @param teacherGradedScore the new teacher graded score
+ */
+View.prototype.updateStudentWorkRowOrderObjectTeacherGradedScore = function(stepWorkId, teacherGradedScore) {
+	
+	if(this.studentWorkRowOrderObjects != null) {
+		//loop through all the studentWorkRowOrderObjects
+		for(var x=0; x<this.studentWorkRowOrderObjects.length; x++) {
+			//get a studentWorkRowOrderObject
+			var studentWorkRowOrderObject = this.studentWorkRowOrderObjects[x];
+			
+			if(studentWorkRowOrderObject != null) {
+				if(studentWorkRowOrderObject.stepWorkId == stepWorkId) {
+					//the stepWorkId matches so we will update the teacher graded score
+					studentWorkRowOrderObject.teacherGradedScore = teacherGradedScore;
+				}
+			}
+		}
+	}
 };
 
 /**
@@ -4656,11 +4973,23 @@ function showDrawNode(currNode) {
 }
 
 function showSnaps(currNode){
+	//get the string in the snaps div
 	var svgString = String($(this).html());
-	svgString = Utils.decode64(svgString);
-	var svgXml = Utils.text2xml(svgString);
-	$(this).html('');
-	$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+	
+	/*
+	 * check if the string starts with "<svg", if it does
+	 * then it has already been decoded and we do not need
+	 * to do anything. if it does not start with "<svg", then
+	 * we will decode it.
+	 */
+	if(svgString.toLowerCase().indexOf("<svg") == -1) {
+		//string does not contain "<svg"
+		
+		svgString = Utils.decode64(svgString);
+		var svgXml = Utils.text2xml(svgString);
+		$(this).html('');
+		$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
+	}
 }
 
 // TODO: figure out a fix for arrows (markers) not displaying in enlarged view

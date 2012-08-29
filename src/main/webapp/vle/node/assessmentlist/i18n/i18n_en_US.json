@@ -1,0 +1,18 @@
+{
+	"questionnaire": {
+		"value":"Questionnaire",
+		"description":"The text 'questionnaire' in the page title"
+	},
+	"question": {
+		"value":"Question",
+		"description":"The text 'question' in the step header, right above where the prompt/question is shown"
+	},
+	"submit": {
+		"value":"Submit the Questionnaire",
+		"description":"The text 'Submit the Questionnaire' on the button shown at the bottom of the questionnaire"
+	},
+	"save_draft": {
+		"value":"SAVE DRAFT",
+		"description":"The text 'SAVE DRAFT' on the button shown at the bottom of the questionnaire"
+	}	
+}

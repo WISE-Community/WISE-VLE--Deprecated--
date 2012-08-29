@@ -1204,48 +1204,167 @@ View.prototype.getAnnotationsByType = function(annotationType) {
 };
 
 /*
- * Finds and initializes any DOM elements with the 'tooltip' class and 
- * initializes the tooltip plugin for each.
+ * Finds any DOM elements with the 'tooltip' class and initializes the miniTip plugin on each.
  * 
- * Tooltip options can be customized by adding additional attributes to the
- * target DOM element:
- * - tooltip-event:'click' sets the tooltip to render on mouse click (vs. hover,
- * which is the default)
- * - tooltip-anchor:'top', tooltip-anchor:'bottom', and tooltip-anchor':left' set
- * the position of the tooltip to top, bottom, and left respectively (default is right)
- * - tooltip-maxW:'XXXpx' sets the max-width of the tooltip element to XXX pixels
- * (default is 200px); 
+ * @param options An object to specify default miniTip settings for all tooltips (Optional; 
+ * see http://goldfirestudios.com/blog/81/miniTip-jQuery-Plugin for allowable options)
+ * 
+ * Individual tooltip options can be customized by adding additional attributes to the target DOM 
+ * element (Optional; will override default settings):
+ * - tooltip-event:'click' sets the tooltip to render on mouse click (vs. hover, which is the default)
+ * - tooltip-anchor:'bottom', 'left', and 'right' set the positions of the tooltip to bottom, left, 
+ * and right respectively (default is top)
+ * - tooltip-maxW:'XXXpx' sets the max-width of the tooltip element to XXX pixels (default is '250px');
+ * - tooltip-content: String (or HTML String) to set as the tooltip's content (default is the element's 
+ * title attribute)
+ * - tooltip-title: String to set as the tooltip's title (default is no title)
+ * - tooltip-class: String to add to the tooltip element's css class (default is none)
  */
-View.prototype.insertTooltips = function(){
-	// for all DOM elements with the 'tooltip' class, initialize miniTip (http://goldfirestudios.com/blog/81/miniTip-jQuery-Plugin)
+View.prototype.insertTooltips = function(options){
+	// for all DOM elements with the 'tooltip' class, initialize miniTip
 	$('.tooltip').each(function(){
-		// setup miniTip options
-		var anchor = 'e', event = 'hover', aHide = false, maxW = '200px';
-		if($(this).attr('tooltip-event') == 'click'){
-			event = 'click';
+		// set miniTip default options
+		var settings = {};
+		if(options != null && typeof options == 'object'){
+			// options have been sent in as a parameter
+			settings = options;
+		} else {
+			// options have not been sent in as a paremeter, so set them 
+			settings = {
+				anchor:'n',
+				event:'hover',
+				aHide:false,
+				maxW:'250px',
+				fadeIn:10,
+				fadOut:10,
+				delay:100,
+				show: function(){},
+				hide: function(){}
+			};
 		}
-		if($(this).attr('tooltip-anchor') == 'top'){
-			anchor = 'n';
+		
+		// set options based on target element attributes
+		if($(this).attr('tooltip-event') == 'click'){
+			settings.event = 'click';
+		}
+		if($(this).attr('tooltip-anchor') == 'right'){
+			settings.anchor = 'e';
 		} else if ($(this).attr('tooltip-anchor') == 'bottom'){
-			anchor = 's';
+			settings.anchor = 's';
 		} else if ($(this).attr('tooltip-anchor') == 'left'){
-			anchor = 'w';
+			settings.anchor = 'w';
 		}
 		if($(this).attr('tooltip-maxW') && $(this).attr('tooltip-maxW').match(/^[0-9]+px$/)){
-			maxW = $(this).attr('tooltip-maxW');
-		} 
+			settings.maxW = $(this).attr('tooltip-maxW');
+		}
+		if(typeof $(this).attr('tooltip-content') == 'string'){
+			settings['content'] = $(this).attr('tooltip-content');
+		}
+		if(typeof $(this).attr('tooltip-title') == 'string'){
+			settings['title'] = $(this).attr('tooltip-title');
+		}
+		if(typeof $(this).attr('tooltip-class') == 'string'){
+			var doShow = settings.show, doHide = settings.hide;
+			settings.show = function(){
+				$('#miniTip').addClass($(this).attr('tooltip-class'));
+				doShow();
+			};
+			settings.hide = function(){
+				setTimeout(function(){$('#miniTip').removeClass($(this).attr('tooltip-class'));},200);
+				doHide();
+			};
+		} else {
+			var doShow = settings.show;
+			settings.show = function(){
+				$('#miniTip').attr('class','');
+				doShow();
+			};
+		}
+		
 		// initialize miniTip on element
-		$(this).miniTip({
-			anchor:anchor,
-			event:event,
-			aHide:aHide,
-			maxW:maxW,
-			delay:100,
-			offset:1
-		});
-		// remove all tooltip attributes from DOM element
-		$(this).removeAttr('tooltip-event').removeAttr('tooltip-anchor').removeAttr('tooltip-maxW');
+		$(this).miniTip(settings);
+		
+		// remove all tooltip attributes and class from DOM element (to clean up html and so item are not re-processed if insertTooltips is called again on same page)
+		$(this).removeAttr('tooltip-event').removeAttr('tooltip-anchor').removeAttr('tooltip-maxW').removeAttr('tooltip-content').removeAttr('tooltip-title').removeClass('tooltip');
 	});
+};
+
+/**
+ * Get the step position given the step number
+ * @param stepNumber a step number which is a string with numbers
+ * separated by .'s. step numbers start count at 1. step positions
+ * start count at 0 so a step number that is 1.1 would have a step
+ * position of 0.0
+ * e.g.
+ * the step number for the first step in the project is 1.1
+ * the step number for activity 3 step 10 would be 3.10
+ * @returns the step position
+ */
+View.prototype.getStepPositionFromStepNumber = function(stepNumber) {
+	var stepPosition = '';
+	
+	//split the step number by the .'s
+	var stepSplits = stepNumber.split('.');
+	
+	//loop through each number that has been split
+	for(var x=0; x<stepSplits.length; x++) {
+		var stepSplit = stepSplits[x];
+		
+		//create an int from the number string
+		var intStepSplit = parseInt(stepSplit);
+		
+		if(stepPosition != '') {
+			//put a . between each number split
+			stepPosition += '.';
+		}
+		
+		/*
+		 * decrement the value to convert it from a step number to a step position
+		 * then append it to our ongoing step position string
+		 */
+		stepPosition += (intStepSplit - 1);
+	}
+	
+	return stepPosition;
+};
+
+/**
+ * Get the step number given the step position
+ * @param stepPosition a step position which is a string with numbers
+ * separated by .'s. step positions start count at 0. step numbers
+ * start count at 1 so a step position that is 0.0 would have a step
+ * number of 1.1
+ * e.g.
+ * the step position for the first step in the project is 0.0
+ * the step position for activity 3 step 10 would be 2.9
+ * @returns the step number
+ */
+View.prototype.getStepNumberFromStepPosition = function(stepPosition) {
+	var stepNumber = '';
+	
+	//split the step position by the .'s
+	var stepSplits = stepPosition.split('.');
+	
+	//loop through each number that has been split
+	for(var x=0; x<stepSplits.length; x++) {
+		var stepSplit = stepSplits[x];
+		
+		//create an int from the number string
+		var intStepSplit = parseInt(stepSplit);
+		
+		if(stepNumber != '') {
+			//put a . between each number split
+			stepNumber += '.';
+		}
+		
+		/*
+		 * increment the value to convert it from a step position to a step number
+		 * then append it to our ongoing step number string
+		 */
+		stepNumber += (intStepSplit + 1);
+	}
+	
+	return stepNumber;
 };
 
 /**
@@ -1322,6 +1441,13 @@ View.prototype.utils.getImageDimensions = function(url,callback){
 	//return dimensions;
 };
 
+/**
+ * Used in Show My Work for draw steps
+ */
+function enlargeDraw(divId){
+	var newwindow = window.open("/vlewrapper/vle/node/draw/svg-edit/svg-editor-grading.html");
+	newwindow.divId = divId;
+};
 
 /* used to notify scriptloader that this script has finished loading */
 if(typeof eventManager != 'undefined'){

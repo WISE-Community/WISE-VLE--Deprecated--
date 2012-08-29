@@ -122,11 +122,13 @@ table.wisetable td.emph {
 	padding:.25em .5em;
 	border-bottom:1px solid #777777;
 	text-align: center;
-	color:#EEEEEE;
+	/*color:#EEEEEE;*/
+	color:#CCCCCC;
 	font-size:.8em;
-	font-weight:normal;
+	font-weight:bold;
 	position:relative;
-	background:url("../images/message_bg.png") repeat scroll center center #2e2e2e;
+	background: none repeat scroll 0 0 #333333;
+	/*background:url("../images/message_bg.png") repeat scroll center center #2e2e2e;*/
 }
 
 #vle_messages .message span.content {
@@ -401,4 +403,14 @@ img.tooltip {
 	font-weight: bold;
 	margin: -0.5em -0.5em 0;
 	padding: 0.25em 0.5em;
+}
+
+
+/** HINTS DISPLAY **/
+.hintText p {
+	margin: 0 0 0.5em;
+}
+
+.hintText p:last-child {
+	margin-bottom:0;
 }

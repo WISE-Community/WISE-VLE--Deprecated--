@@ -79,6 +79,14 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 						if(usedNodeTypes.indexOf(currNode.type) == -1) {
 							//add current node type to our array of node types if it is not already in the array
 							usedNodeTypes.push(currNode.type);
+							// also fetch i18n files
+							if (thisNode.i18nEnabled) {		
+								// check to see if we've already fetched i18n files for this node type
+								if (!view.i18n.supportedLocales[currNode.type]) {
+									view.i18n.supportedLocales[currNode.type] = thisNode.supportedLocales;
+									view.retrieveLocales(currNode.type,thisNode.i18nPath);								
+								} 
+							}							
 						}
 						
 						/* validate and set title attribute */
@@ -735,7 +743,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			this.foundNewFeedback = false;
 			
 			//get the show all work html
-			var showAllWorkHtml =  getShowAllWorkHtmlHelper(node, showGrades, lastTimeVisited);
+			var showAllWorkHtml = getShowAllWorkHtmlHelper(node, showGrades, lastTimeVisited);
 			
 			var newFeedback = "";
 			
@@ -1912,8 +1920,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return uniqueTagMaps;
 		};
 		
-		var getAllGroupsUsed = function() {
-			var allGroupsUsed = [];
+		/**
+		 * Get the manual assignment group names. These group names are in branch nodes
+		 * and can be assigned to workgroups in the grading tool.
+		 */
+		var getManualGroupsUsed = function() {
+			var manualGroupsUsed = [];
 			
 			//get all the step nodes
 			var nodes = allLeafNodes;
@@ -1924,23 +1936,114 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 				var node = nodes[x];
 				
 				if(node != null) {
+					//get the step content
 					var nodeContentJSON = node.getContent().getContentJSON();
 					
 					if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
+						//get the groups used
 						var nodeGroupsUsed = nodeContentJSON.groupsUsed;
 						
 						for(var y=0; y<nodeGroupsUsed.length; y++) {
+							//get a group
 							var group = nodeGroupsUsed[y];
-							
-							if(allGroupsUsed.indexOf(group) == -1) {
-								allGroupsUsed.push(group);
+
+							//add the group to our array if it has not already been added
+							if(manualGroupsUsed.indexOf(group) == -1) {
+								manualGroupsUsed.push(group);
 							}
 						}
 					}
 				}
 			}
 			
-			return allGroupsUsed;
+			return manualGroupsUsed;
+		};
+		
+		/**
+		 * Get the automatic assignment group names. These group names are in branch nodes
+		 * and can are automatically assigned to workgroups when they reach branch nodes.
+		 */
+		var getAutoGroupsUsed = function() {
+			var autoGroupsUsed = [];
+			
+			//get all the step nodes
+			var nodes = allLeafNodes;
+			
+			//loop through all the step nodes
+			for(var x=0; x<nodes.length; x++) {
+				//get a node
+				var node = nodes[x];
+				
+				if(node != null) {
+					//get the step content
+					var nodeContentJSON = node.getContent().getContentJSON();
+					
+					if(nodeContentJSON != null && nodeContentJSON.groupsUsed != null) {
+						//get the branch paths
+						var paths = nodeContentJSON.paths;
+						
+						if(paths != null && paths.length > 0) {
+							//loop through all the branch paths
+							for(var y=0; y<paths.length; y++) {
+								//get a path
+								var path = paths[y];
+								
+								if(path != null) {
+									//get the id of the activity for the branch path
+									var sequenceRef = path.sequenceRef;
+
+									if(sequenceRef != null && sequenceRef != '') {
+										//get the activity node
+										var activityNode = getNodeById(sequenceRef);
+										
+										if(activityNode != null) {
+											//get the title of the activity
+											var title = activityNode.title;
+											
+											//add the activity title to our array
+											autoGroupsUsed.push(title);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			return autoGroupsUsed;
+		};
+		
+		/**
+		 * Get all the node ids or nodes that have the given node type
+		 * @param nodeType the node type we want
+		 */
+		var getNodeIdsByNodeType = function(nodeType) {
+			var result = [];
+			
+			//get all the active node ids in the project
+			var nodeIds = getNodeIds();
+			
+			//loop through all the node ids
+			for(var x=0; x<nodeIds.length; x++) {
+				//get a node id
+				var nodeId = nodeIds[x];
+				
+				//get a node
+				var node = getNodeById(nodeId);
+				
+				if(node != null) {
+					//get the node type
+					var tempNodeType = node.type;
+					
+					if(nodeType == tempNodeType) {
+						//the node type matches the type we want
+						result.push(nodeId);
+					}
+				}
+			}
+			
+			return result;
 		};
 		
 		/**
@@ -2159,8 +2262,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			setTheme:function(t){theme = t;},
 			/* gets all the node types used in this project */
 			getUsedNodeTypes:function(){return usedNodeTypes;},
-			/* get all the groups that are used in the project */
-			getAllGroupsUsed:function(){return getAllGroupsUsed();}
+			/* get all the manual group assignments that are used in the project */
+			getManualGroupsUsed:function(){return getManualGroupsUsed();},
+			/* get all the automatic group assignments that are used in the project */
+			getAutoGroupsUsed:function(){return getAutoGroupsUsed();},
+			/* get all the node ids by node type */
+			getNodeIdsByNodeType:function(nodeType){return getNodeIdsByNodeType(nodeType);}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

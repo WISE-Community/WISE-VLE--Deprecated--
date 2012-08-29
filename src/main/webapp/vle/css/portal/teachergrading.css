@@ -616,8 +616,8 @@ input[type="text"]:focus {
 }
 
 .snapCell {
-	width:120px;
-	height:90px;
+	width:375px;
+	height:275px;
 	cursor:pointer;
 }
 
@@ -659,7 +659,7 @@ td.workgroupIdColumn > div {
 	/*width:42%;*/
 	width:500px;
 	max-width: 500px;
-	font-size: .9em !important;
+	font-size: .9em;
 }
 
 td.workColumn p, td.workColumn span {

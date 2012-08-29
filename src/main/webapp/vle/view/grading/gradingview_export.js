@@ -75,6 +75,20 @@ View.prototype.getCustomAllStudentWorkExport = function() {
 };
 
 /**
+ * Request a special export
+ * @param nodeId the node id for the step we will special export
+ */
+View.prototype.getSpecialExport = function(nodeId) {
+	this.setParamsForSpecialExport();
+	$('#exportType').val('specialExport');
+	
+	//set the node id
+	$('#nodeId').val(nodeId);
+	
+	$('#getStudentXLSExport').submit();
+};
+
+/**
  * Request the student names export
  */
 View.prototype.getStudentNamesExport = function() {
@@ -203,6 +217,42 @@ View.prototype.setParamsForXLSExport = function() {
 	 * set the url for where to get the xls
 	 */
 	document.getElementById('getStudentXLSExport').action = this.getConfig().getConfigParam('getXLSExportUrl');
+};
+
+/**
+ * Sets all the parameters that are required for the special export.
+ */
+View.prototype.setParamsForSpecialExport = function() {
+
+	/*
+	 * set the run id to an element that will be passed back to the server
+	 * when the export to xls is called 
+	 */
+	document.getElementById('runId').value = this.getConfig().getConfigParam('runId');
+
+	//set the project id
+	document.getElementById('projectId').value = this.getConfig().getConfigParam('projectId');
+	
+	//set the parent project id
+	document.getElementById('parentProjectId').value = this.getConfig().getConfigParam('parentProjectId');
+	
+	//set the run name
+	document.getElementById('runName').value = this.getConfig().getConfigParam('runName');
+	
+	/*
+	 * set the project title to an element that will be passed back to the server
+	 */
+	document.getElementById('projectName').value = this.project.getTitle();
+	
+	/*
+	 * set the type for the bridge controller to inspect
+	 */
+	document.getElementById('type').value = "specialExport";
+	
+	/*
+	 * set the url for where to get the xls
+	 */
+	document.getElementById('getStudentXLSExport').action = this.getConfig().getConfigParam('getSpecialExportUrl');
 };
 
 /**

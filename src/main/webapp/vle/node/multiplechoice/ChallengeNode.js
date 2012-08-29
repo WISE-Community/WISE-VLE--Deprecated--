@@ -91,6 +91,14 @@ ChallengeNode.prototype.visitedNavigateToNode = function(node, startTime){
 	return false;
 };
 
+ChallengeNode.prototype.showFeedbackDialog = function(feedback){
+	$('#feedbackDialog').html(feedback);
+	$('#feedbackDialog').dialog('open');
+	
+	$(".ui-draggable").draggable( "option", "iframeFix", true );
+	$( ".ui-draggable" ).resizable( "option", "ghost", true );
+};
+
 NodeFactory.addNode('ChallengeNode', ChallengeNode);
 
 //used to notify scriptloader that this script has finished loading

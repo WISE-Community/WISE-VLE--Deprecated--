@@ -21,6 +21,9 @@ View.prototype.initializeCreateProjectDialog = function(){
 		
 		/* success callback function for creating a new project */
 		var success = function(t,x,o){
+			/* notify to close any opened projects in the AT */
+			o.notifyPortalCloseProject();
+
 			var path = t;
 			
 			/*
@@ -33,7 +36,7 @@ View.prototype.initializeCreateProjectDialog = function(){
 			/* publish the project to the portal if we are in portal mode */
 			if(o.portalUrl){
 				o.createPortalProject(path, $('#projectInput').val());
-			} else {
+			} else {				
 				/* just load the newly created project */
 				o.loadProject(o.authoringBaseUrl + projectFileName, o.utils.getContentBaseFromFullUrl(o.authoringBaseUrl + path), false);
 			}
@@ -446,6 +449,9 @@ View.prototype.initializeCopyProjectDialog = function (){
 		 * 513
 		 */
 		var success = function(t,x,o){
+			// close any project that has been opened, if any.
+			o.notifyPortalCloseProject();
+
 			o.notificationManager.notify('Project Copied', 3);
 			/* create new project in the portal if in portal mode */
 			if(o.portalUrl){
@@ -474,7 +480,7 @@ View.prototype.initializeCopyProjectDialog = function (){
 		$('#copyProjectDialog').dialog('close');
 	};
 	
-	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, draggable:false, title:'Copy a Project', width:500, buttons: {'Cancel': cancel, 'Copy': submit}});
+	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, draggable:false, title:'Copy a Project', width:650, buttons: {'Cancel': cancel, 'Copy': submit}});
 };
 
 /**
@@ -796,6 +802,13 @@ View.prototype.initializeTagViewDialog = function() {
 View.prototype.initializeImportViewDialog = function() {
 	//create the dialog element so we can use it later
 	$('#importViewDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Import', buttons: {'Close': function(){$(this).dialog("close");}}});
+};
+
+/**
+ * Create the find broken links in project dialog popup
+ */
+View.prototype.initializeAnalyzeProjectDialog = function() {
+	$('#analyzeProjectDialog').dialog({autoOpen:false, draggable:true, resizable:true, width:800, height:600, title:'Analyze Project', buttons: {'Close': function(){$(this).dialog("close");}}});
 };
 
 //used to notify scriptloader that this script has finished loading

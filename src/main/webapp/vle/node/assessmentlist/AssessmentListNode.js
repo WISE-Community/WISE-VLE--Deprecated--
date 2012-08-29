@@ -3,6 +3,15 @@ AssessmentListNode.prototype.constructor = AssessmentListNode;
 AssessmentListNode.prototype.parent = Node.prototype;
 AssessmentListNode.authoringToolName = "Questionnaire";
 AssessmentListNode.authoringToolDescription = "Students answer a collection of questions that require text or multiple choice answers";
+AssessmentListNode.prototype.i18nEnabled = true;
+AssessmentListNode.prototype.i18nPath = "/vlewrapper/vle/node/assessmentlist/i18n/";
+AssessmentListNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja",
+			"nl":"nl",
+			"nl_GE":"nl",
+			"nl_DE":"nl"
+};
 
 /**
  * @constructor
@@ -54,7 +63,20 @@ AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 	
 	// get human readable work string
 	var showAutoScoreResult = true;
-	var readableStudentWork = assessmentListState.getStudentWork(showAutoScoreResult);
+	
+	var isLockAfterSubmit = false;
+	var contentJSON = this.content.getContentJSON();
+	
+	if(contentJSON != null) {
+		//get whether this step locks after submit
+		isLockAfterSubmit = contentJSON.isLockAfterSubmit;
+	}
+	
+	var readableStudentWork = assessmentListState.getStudentWorkString(showAutoScoreResult, isLockAfterSubmit);
+	
+	//replace \n with <br> so that newlines will be visible
+	readableStudentWork = this.view.replaceSlashNWithBR(readableStudentWork);
+	
 	$('#' + divId).html(readableStudentWork);
 };
 
@@ -183,6 +205,91 @@ AssessmentListNode.prototype.onExit = function() {
 			//setTimeout(function() {thisObj.render(this.ContentPanel)}, 500);
 		}
 	}	
+};
+
+/**
+ * Display the work for an assessmentliststate object
+ * @param nodeState the node state to display work from
+ */
+AssessmentListNode.prototype.getHtmlView = function(nodeState) {
+	var showAutoScoreResult = false;
+	
+	var studentWorkSoFar = "";
+	var autoScoreTotalScore = 0;   // total auto scored points the student earned
+	var autoScoreTotalMaxScore = 0;   // total auto scored points possible
+	
+	var isLockAfterSubmit = false;
+	var contentJSON = this.content.getContentJSON();
+	
+	if(contentJSON != null) {
+		//get whether this step locks after submit
+		isLockAfterSubmit = contentJSON.isLockAfterSubmit;
+	}
+	
+	if(nodeState != null) {
+		//check if there were any responses
+		if(nodeState.assessments) {
+			//loop through the array of assessments
+			for(var x=0; x<nodeState.assessments.length; x++) {
+				if(studentWorkSoFar != "") {
+					//separate each response
+					studentWorkSoFar += "<br/><br/>";
+				}
+				
+				//add the response to the student work
+				studentWorkSoFar += "Part " + (x+1) + ": <br/>";
+				var assessment = nodeState.assessments[x];
+
+				if (assessment.type && assessment.response) {
+					if (assessment.type == "radio") {
+						studentWorkSoFar += assessment.response.text;
+						if (assessment.response.autoScoreResult && showAutoScoreResult) {
+							// append results from auto score
+							var autoScoreResult = assessment.response.autoScoreResult;
+							studentWorkSoFar += "<br/>Auto Score Results:<br/>";
+							if (autoScoreResult.isCorrect) {
+								studentWorkSoFar += "Student got this question CORRECT";
+							} else {
+								studentWorkSoFar += "Student got this question INCORRECT";							
+							}
+							var studentScore = autoScoreResult.choiceScore ? autoScoreResult.choiceScore : 0;
+							var maxScore = autoScoreResult.maxScore ? autoScoreResult.maxScore : 0;
+							studentWorkSoFar += " and received ";
+							studentWorkSoFar += studentScore;
+							studentWorkSoFar += " points out of ";
+							studentWorkSoFar += maxScore;
+							
+							// update total scores
+							autoScoreTotalScore += studentScore;
+							autoScoreTotalMaxScore += maxScore;
+						}
+					} else if (assessment.type == "text") {
+						studentWorkSoFar += assessment.response.text;
+					}
+				}
+			}
+		}
+		
+		// append autoScore result summary at the end, if request
+		if (showAutoScoreResult && autoScoreTotalMaxScore > 0) {
+			studentWorkSoFar += "<br/><br/>";
+			studentWorkSoFar += "Auto Score Results Summary: ";
+			studentWorkSoFar += "Student got " + autoScoreTotalScore + " points out of " + autoScoreTotalMaxScore;
+		}
+		
+		var isSubmit = nodeState.isSubmit;
+		
+		if(isLockAfterSubmit) {
+			/*
+			 * this is a lock after submit step so we will display whether
+			 * this node state was a submit
+			 */
+			studentWorkSoFar += "<br/><br/>";
+			studentWorkSoFar += "Is Submit: " + isSubmit;
+		}
+	}
+	
+	return studentWorkSoFar;
 };
 
 AssessmentListNode.prototype.getHTMLContentTemplate = function() {

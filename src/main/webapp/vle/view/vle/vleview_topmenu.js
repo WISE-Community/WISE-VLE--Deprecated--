@@ -219,7 +219,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 	    		var contentBaseUrl = this.config.getConfigParam('getContentBaseUrl');
 				var divId = "svgDraw_"+flaggedWorkPostTime;
 				flaggedWork = node.translateStudentWork(flaggedWork);
-				var divStyle = "height:270px; width:360px; border:1px solid #aaa; background-color:#fff;";
+				var divStyle = "height:275px; width:375px; border:1px solid #aaa; background-color:#fff;";
 				flaggedWorkAnswers += "<div id='"+divId+"' contentBaseUrl='"+contentBaseUrl+"' class='svgdraw2 showallLatestWork' style=\"" + divStyle + "\">" + flaggedWork + "</div>";
 			} else if(node.hasGradingView()) {
 	    		flaggedWorkAnswers += "<div class='showallLatestWork' id='flaggedStudentWorkDiv_" + flagForNodeId.stepWorkId + "'></div>";
@@ -242,7 +242,7 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 			svgString = Utils.decode64(svgString);
 			// shrink svg image to fit
 			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
+			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="375" height="275"');
 			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
 			var svgXml = Utils.text2xml(svgString); // convert to xml
 			$(this).html('');
@@ -388,22 +388,7 @@ View.prototype.displayShowAllWork = function() {
 			//set the thickness to 3
 			percentBarSize = 3;
 		}
-	    
-	    // inject svgdrawings
-		// TODO: show snapshots (if enabled); move this to SVGDrawNode.js renderGradingView
-	    $('.svgdraw').each(function(){
-			var svgString = String($(this).html());
-			var contentBaseUrl = $(this).attr("contentBaseUrl");
-			svgString = Utils.decode64(svgString);
-			// shrink svg image to fit
-			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
-			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-			var svgXml = Utils.text2xml(svgString); // convert to xml
-			$(this).html('');
-			$(this).append(document.importNode(svgXml.documentElement, true)); // add svg to cell
-		});
-	    
+
 	    var docHeight = $(document).height()-25;
 		var docWidth = $(document).width()-25;
 		$('#showallwork').dialog({height:docHeight,width:docWidth});
@@ -449,7 +434,7 @@ View.prototype.displayShowAllWork = function() {
 					//render the work into the div to display it
 					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);
 					
-					if($("#new_latestWork_" + nodeVisit.id).size != 0) {
+					if($("#new_latestWork_" + nodeVisit.id).length != 0) {
 						/*
 						 * render the work into the new feedback div if it exists. the
 						 * new feedback div exists when the teacher has given a new
@@ -480,7 +465,7 @@ View.prototype.getAnnotations = function(callerId) {
 		var callerId = args[1];
 		
 		//parse the xml annotations object that contains all the annotations
-		thisView.annotations = Annotations.prototype.parseDataJSONString(responseText);
+		thisView.annotations = Annotations.prototype.parseDataJSONString(responseText, true, thisView);
 
 		thisView.annotationsRetrieved = true;
 		eventManager.fire('getAnnotationsComplete', callerId);
@@ -1082,7 +1067,9 @@ View.prototype.ideaBasketDivOpen = function() {
  */
 View.prototype.ideaBasketDivClose = function() {
 	//check if the idea basket has changed
-	if(window.frames['ideaBasketIfrm'].basket.isBasketChanged()) {
+	if(window.frames['ideaBasketIfrm'] != null &&
+			window.frames['ideaBasketIfrm'].basket != null &&
+			window.frames['ideaBasketIfrm'].basket.isBasketChanged()) {
 		/*
 		 * idea basket has changed so we will save it back to the server
 		 * thisView is accessed from window.frames['ideaBasketIfrm'] because

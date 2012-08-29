@@ -79,7 +79,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		var relativeProjectUrl = args[2];
 		var projectId = args[3];
 		var projectTitle = args[4];
-		obj.startPortalMode(portalAuthorUrl, command, relativeProjectUrl, projectId, projectTitle);
+		var editPremadeComments = args[5];
+		obj.startPortalMode(portalAuthorUrl, command, relativeProjectUrl, projectId, projectTitle, editPremadeComments);
 	} else if(type=='whoIsEditing'){
 		obj.getEditors();
 	} else if(type=='editProjectSubmit'){
@@ -122,7 +123,31 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.openProjectInImportView(args[0]);
 	} else if(type == 'importSelectedItems') {
 		obj.importSelectedItems();
+	} else if(type == 'deleteProject') {
+		obj.deleteProject();
+	} else if(type == 'findBrokenLinksInProject') {
+		obj.analyzeProject(type);
+	} else if(type == 'findUnusedAssetsInProject') {
+		obj.analyzeProject(type);
 	};
+};
+
+View.prototype.authoringToolPremadeCommentsDispatcher = function(type, args, obj) {
+	if(type == 'openPremadeComments') {
+		obj.openPremadeComments();
+	} else if(type=='premadeCommentWindowLoaded') {
+		obj.premadeCommentWindowLoaded();
+	} else if(type=='addPremadeComment') {
+		obj.addPremadeComment(args[0]);
+	} else if(type=='deletePremadeComment') {
+		obj.deletePremadeComment(args[0], args[1]);
+	} else if(type=='deletePremadeCommentList') {
+		obj.deletePremadeCommentList(args[0]);
+	} else if(type=='premadeCommentLabelClicked') {
+		obj.premadeCommentLabelClicked(args[0]);
+	} else if(type=='premadeCommentListUncheckLabels') {
+		obj.premadeCommentListUncheckLabels(args[0]);
+	}
 };
 
 /**

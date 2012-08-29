@@ -6,7 +6,7 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.startVLEFromConfig(args[0]);
 	} else if(type=='startVLEFromParams'){
 		obj.startVLEFromParams(args[0]);
-	} else if (type=='retrieveLocalesComplete') {
+	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
@@ -135,7 +135,7 @@ View.prototype.startVLEFromConfig = function(configUrl){
 	this.eventManager.fire('loadConfigComplete');
 
 	/* retrieve i18n files, defined in view_i18n.js */
-	this.retrieveLocales();
+	this.retrieveLocales("main");
 };
 
 /**
@@ -417,11 +417,11 @@ View.prototype.onProjectLoad = function(){
 View.prototype.retrieveThemeLocales = function(){
 	if('theme' in this){
 		this.theme.config = this.config;
-		this.theme.retrieveLocales();
+		this.theme.retrieveLocales("theme","/vlewrapper/vle/themes/wise/i18n/");
 	} else {
 		this.onThemeLoad();
 	}
-}
+};
 
 /**
  * Sets the values of html elements based on the loaded project's attributes
@@ -470,11 +470,12 @@ View.prototype.onThemeLoad = function(){
 			var path = '/webapp/vle/preview.html?projectId=' + this.projectMetadata.projectId;
 			if(this.getConfig().getConfigParam("isConstraintsDisabled")){
 				// constraints are disabled, so show enable constraints link
-				this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+				//this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+				this.notificationManager.notify(this.getI18NString("preview_project_constraint_disabled_message","main") + ' <a href="' + path + '">'+this.getI18NString("common_click_here","main")+'</a>.', 3, 'keepMsg');
 			} else {
 				// constraints are enabled, so show disable constraints link
 				path += '&isConstraintsDisabled=true';
-				this.notificationManager.notify('Student navigation constraints are currently enabled. To preview project without any constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
+				this.notificationManager.notify(this.getI18NString("preview_project_constraint_enabled_message","main") + ' <a href="' + path + '">'+this.getI18NString("common_click_here","main")+'</a>.', 3, 'keepMsg');
 			}
 		//}	
 	}
@@ -482,7 +483,7 @@ View.prototype.onThemeLoad = function(){
 	if(this.config.getConfigParam('mode') == "portalpreview") {
 		//we are previewing the project so we will create a dummy idea basket
 		var imSettings = null;
-		if('ideaManagerSettings' in this.projectMetadata.tools){
+		if(this.projectMetadata.tools && 'ideaManagerSettings' in this.projectMetadata.tools){
 			imSettings = this.projectMetadata.tools.ideaManagerSettings;
 		}
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,imSettings);
@@ -509,6 +510,8 @@ View.prototype.onThemeLoad = function(){
 View.prototype.renderStartNode = function(){
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
+
+	var startPos = null;
 	
 	/* check to see if we can render the start node based on the current state of loading */
 	if(this.canRenderStartNode(mode) && this.isAnyNavigationLoadingCompleted()){
@@ -528,7 +531,7 @@ View.prototype.renderStartNode = function(){
 				var node = this.getProject().getNodeById(currentNodeVisit.nodeId);
 			}
 			
-			var startPos = this.getProject().getPositionById(node.id);
+			startPos = this.getProject().getPositionById(node.id);
 			
 			/*
 			 * if we could not find the startPos we will just render
@@ -539,8 +542,40 @@ View.prototype.renderStartNode = function(){
 			if(startPos == null) {
 				startPos = this.getProject().getStartNodePosition();
 			}
+		} else if(mode == 'portalpreview') {
+			//we are previewing a project
+			
+			//try obtain a step to load for the preview if any
+			var step = this.config.getConfigParam('step');
+			
+			if(step != null) {
+				//the step was specified in the url as a param so we will try to load that step
+				
+				/*
+				 * get the step position from the step number. step numbers
+				 * start at 1 but step positions start at 0. so a step number
+				 * of 1.1 would have a step position of 0.0
+				 */
+				var stepPosition = this.getStepPositionFromStepNumber(step);
+				
+				startPos = stepPosition;
+				
+				//try to get the node at the position
+				var node = this.getProject().getNodeByPosition(stepPosition);
+				
+				if(node == null) {
+					//the node does not exist which means there is no step at the given step number
+					alert('Error: Step ' + step + ' does not exist');
+					
+					//just load the first step in the project
+					startPos = this.getProject().getStartNodePosition();
+				}
+			} else {
+				//step was not specified so we will just load the first step in the project
+				startPos = this.getProject().getStartNodePosition();
+			}
 		} else {
-			var startPos = this.getProject().getStartNodePosition();
+			startPos = this.getProject().getStartNodePosition();
 		}
 		
 		/* render if start position has been set */
@@ -615,6 +650,9 @@ View.prototype.renderNodePrep = function(position){
 			this.state.endCurrentNodeVisit();  // set endtime, etc.	
 		}
 	};
+	
+	//close the show all work popup
+	$('#showallwork').dialog('close');
 	
 	// save all unsaved nodes
 	this.eventManager.fire('postAllUnsavedNodeVisits');
@@ -735,6 +773,7 @@ View.prototype.renderNode = function(position){
 	
 	if (nodeToVisit == null) {
 		this.notificationManager.notify("VLE: nodeToVisit is null Exception. Exiting", 3);
+		alert('Error: Step does not exist');
 		return;
 	}
 	
@@ -792,8 +831,9 @@ View.prototype.onFrameLoaded = function(){
 		 * the position is set to the first step in the project or the last step
 		 * the student was on, so if the position is null, it means there are no 
 		 * steps in the project.
+		 * 
 		 */
-		alert("Error: This project does not have any steps");
+		alert(this.getI18NString("project_error_has_no_steps","main"));
 		
 		//close the loading learning environment popup message
 		$('#loading').dialog('close');

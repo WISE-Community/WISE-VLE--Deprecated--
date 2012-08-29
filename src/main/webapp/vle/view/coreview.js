@@ -79,7 +79,7 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 	
 	//check if we have loaded the project metadata before
 	if(this.projectMetaData == null) {
-		//we have not loaded the project metadata before so we ned to retrieve them
+		//we have not loaded the project metadata before so we need to retrieve them
 		
 		//get the url that we will use to retrieve the metadata
 		var projectMetaDataUrl = this.getConfig().getConfigParam('projectMetaDataUrl');
@@ -100,6 +100,7 @@ View.prototype.loadProject = function(url, contentBase, lazyLoading){
 			// project metadata does not exist and metadataurl is unspecified so start project normally
 			this.eventManager.fire('loadingProjectStart');
 			this.project = createProject(createContent(url), contentBase, lazyLoading, this);
+			this.projectMetadata = {};
 			this.isLoadedProjectMinified = false;
 			this.eventManager.fire('loadingProjectComplete');
 		}

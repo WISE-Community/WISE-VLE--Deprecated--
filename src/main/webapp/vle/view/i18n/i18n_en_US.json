@@ -96,8 +96,12 @@
 		"description":"Text to be shown between current Hint number and total (e.g. 1 'of' 2)"
 	},
 	"hint_hint":{
-		"value":"Hint",
-		"description":"will be shown as Hint (1 of 2)"
+		"value":"hint",
+		"description":"Default Text label for 'hint'"
+	},
+	"hint_plural":{
+		"value":"hints",
+		"description":"Default Text label for 'hints' (plural)"
 	},
 	"hint_next":{
 		"value":"Next",
@@ -235,6 +239,10 @@
 		"value":"Export Student Names",
 		"description":"GradingTool: Text in the Export Student Names button"
 	},
+	"grading_button_special_export":{
+		"value":"Special Export",
+		"description":"GradingTool: Text in the Special Export button"
+	},
 	"grading_button_export_latest_student_work_description":{
 		"value":"(Export the latest student revision)",
 		"description":"GradingTool: Description next the Export Student Names button"
@@ -258,6 +266,10 @@
 	"grading_button_export_student_names_description":{
 		"value":"(Export the student names along with their period, workgroup id, wise id, and login)",
 		"description":"GradingTool: Description next the Export Student Names button"
+	},
+	"grading_button_special_export_description":{
+		"value":"(Export the work for special steps as a zip file)",
+		"description":"GradingTool: Description next the Special Export button"
 	},
 	"grading_button_explanation":{
 		"value":"Explanation",
@@ -346,6 +358,10 @@
 	"period":{
 		"value":"Period",
 		"description":"Period"
+	},	
+	"workgroupId":{
+		"value":"Workgroup Id",
+		"description":"Workgroup Id"
 	},	
 	"team":{
 		"value":"Student Team",
@@ -463,25 +479,65 @@
 		"value":"You are about to switch authoring mode but have not saved your changes. If you continue, your changes will be lost. Do you wish to continue?",
 		"description":"Message displayed in the Authoring Tool to authors when trying to switch between simple/advanced modes but their changes have not been saved."		
 	},
-	"authoring_new_hint": {
+	"authoring_hint_dialog_title": {
+		"value":"Add/Edit Hints for this Step",
+		"description":"Text to display as the title of the edit step hints dialog window."
+	},
+	"authoring_hint_new": {
 		"value":"New Hint",
-		"description":"Text to display for 'new hint' in the Authoring Tool."
+		"description":"Default text for a new step hint."
 	},
 	"authoring_hint_forceShow": {
 		"value":"Force Show:",
-		"description":"Text to display for \"Force Show: \" drop down label for step hints"
+		"description":"Text to display for the label of the \"Force Show: \" drop down in the step hint authoring panel"
 	},
 	"authoring_hint_option_never": {
 		"value":"Never",
-		"description":"The text \"Never\" to display in \"force show:\" drop down for step hints."
+		"description":"The text \"Never\" to display in \"force show:\" drop down in the step hint authoring panel"
 	},		
 	"authoring_hint_option_firstTimeOnly": {
 		"value":"First Time Only",
-		"description":"The text \"First Time Only\" to display in \"force show:\" drop down for step hints."
+		"description":"The text \"First Time Only\" to display in \"force show:\" drop down in the step hint authoring panel"
 	},
 	"authoring_hint_option_always": {
 		"value":"Always",
-		"description":"The text \"Always\" to display in \"force show:\" drop down for step hints."
+		"description":"The text \"Always\" to display in \"force show:\" drop down in the step hint authoring panel"
+	},
+	"authoring_hint_modal": {
+		"value":"Modal Dialog",
+		"description":"Text to display for the label of the \"Modal Dialog\" checkbox in the step hint authoring panel"
+	},
+	"authoring_hint_isMustViewAllPartsBeforeClosing": {
+		"value":"Must View All Parts Before Closing",
+		"description":"Text to display for the label of the \"Must View All Parts Before Closing\" checkbox in the step hint authoring panel"
+	},
+	"authoring_hint_options_label": {
+		"value":"Options",
+		"description":"The label for the 'Options' settings in the step hint authoring panel"
+	},
+	"authoring_hint_terminology_label": {
+		"value":"Labels/Terminology",
+		"description":"The label for the 'Labels/Terminology' settings in the step hint authoring panel"
+	},
+	"authoring_hint_terminology_instructions": {
+		"value":"Optional: Customize the display name for \"hint(s)\" in this step.",
+		"description":"The instructions for the 'Labels/Terminology' settings in the step hint authoring panel"
+	},
+	"authoring_hint_term_label": {
+		"value":"Term for \"hint\": ",
+		"description":"The label for the 'hint' term input field in the step hint authoring panel"
+	},
+	"authoring_hint_term_plural_label": {
+		"value":"Term for \"hints\" (plural): ",
+		"description":"The label for the 'hints' term input field in the step hint authoring panel"
+	},
+	"authoring_hint_add": {
+		"value":"Add New Hint",
+		"description":"The label for the 'add new hint' button in the step hint authoring panel"
+	},
+	"authoring_hint_delete": {
+		"value":"Delete Current Hint",
+		"description":"The label for the 'delete current hint' button in the step hint authoring panel"
 	},
 	"authoring_imsettings_attribute_help": {
 		"value":"Help content will go here",
@@ -494,5 +550,21 @@
 	"authoring_imsettings_text_required": {
 		"value":"The <span style='font-weight:bold;'>text</span> attribute is the basic component of each idea and cannot be deleted.",
 		"description":"The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
+	},
+	"project_error_has_no_steps": {
+		"value":"Error: This project does not have any steps.",
+		"description":"The error text to be displayed when the project has no steps in it"
+	},
+	"preview_project_constraint_enabled_message": {
+		"value":"Student navigation constraints are currently enabled. To preview project without any constraints,",
+		"description":"The message shown in preview project mode when student navigation constraints are enabled."
+	},
+	"preview_project_constraint_disabled_message": {
+		"value":"Student navigation constraints are currently disabled. To preview project with all constraints,",
+		"description":"The message shown in preview project mode when student navigation constraints are enabled."
+	},
+	"common_click_here": {
+		"value":"click here",
+		"description":"the common text 'click here'"
 	}
 }

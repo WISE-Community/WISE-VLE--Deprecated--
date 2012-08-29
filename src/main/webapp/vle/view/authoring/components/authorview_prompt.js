@@ -22,12 +22,18 @@ View.prototype.promptManager.insertPrompt = function(view) {
 			MySystemNode:'5',
 			SVGDrawNode:'10'
 	};
-	$('#promptInput').attr('rows', nodeToPromptRowSize[view.resolveType(view.activeNode.type)]);
+	var nodeType = view.resolveType(view.activeNode.type);
+	$('#promptInput').attr('rows', nodeToPromptRowSize[nodeType]);
 	$('#promptContainer').append($('#promptDiv').show().detach());
 	
 	this.view.populatePrompt();
 	
-	this.view.addRichTextAuthoring('promptInput',function() {eventManager.fire('stepPromptChanged');});
+	var fullpage = false;
+	if(nodeType == 'HtmlNode'){
+		// if node type is HtmlNode, enable full page editing because the prompt is actually the full page content for html steps (TODO: specify this in the node type itself)
+		fullpage = true;
+	}
+	this.view.addRichTextAuthoring('promptInput',function() {eventManager.fire('stepPromptChanged');},false,fullpage);
 };
 
 View.prototype.promptManager.cleanupPrompt = function() {

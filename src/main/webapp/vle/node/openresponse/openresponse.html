@@ -106,16 +106,16 @@
                 <tr>
                     <td>
                         <div id="helpIcon">
-                            <a href="node/openresponse/OpenResponseInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp;&nbsp;&nbsp;</a>
+                            <a href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">&nbsp;&nbsp;&nbsp;</a>
                         </div>
                     </td>
                     <td>
-                        <a id="helpTextLink" href="node/openresponse/OpenResponseInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">help</a>
+                        <a id="helpTextLink" href="OpenResponseInfoBox.html" onclick="popUp(this.href,'console',800,800);return false;" target="_blank">help</a>
                     </td>
                 </tr>
             </table>
             <div id="questionTable">
-                <div id="questionType">
+                <div id="questionType" i18n='openresponse'>
                     open response
                 </div>
             </div>
@@ -125,7 +125,7 @@
             <div id="fullColumn">
             	<div id='previousWorkDiv'></div>
             	<div id='promptDisplayDiv' style='display:none'>
-                	<div id='promptLabelDiv' class="itemLabel Color1" i18n_key="question">
+                	<div id='promptLabelDiv' class="itemLabel Color1" i18n="question">
                 	</div>
                     <div id="promptContainer">
                     	<div id="orPromptDiv">
@@ -180,7 +180,7 @@
                 	<div id='starterSentenceDiv' class="starterSentence"><a onclick="showStarter()">Show Starter Sentence</a></div>
                 </div>
                 <div id='responseDisplayDiv' style='display:none'>
-	                <div id='responseLabelDiv' class="itemLabel Color1">
+	                <div id='responseLabelDiv' i18n="your_response" class="itemLabel Color1">
 	                    your response
 	                </div>
 	                <div id="promptContainer">
@@ -197,7 +197,7 @@
         	<div id="statusDiv">
                 <div id="numberAttemptsDiv"></div>
             </div>
-	        <input type="button" id="saveButton" value="SAVE CHANGES" onclick="save();" />
+	        <input type="button" id="saveButton" i18n="save_changes" value="SAVE CHANGES" onclick="save();" />
 	        <input type="button" id="saveAndLockButton" value="SUBMIT (and lock)" onclick="saveAndLock();" style="display:none" disabled="disabled" />
 	        <input type="button" id="checkAnswerButton" value="CHECK ANSWER" onclick="checkAnswer();" style="display:none" disabled="disabled" />
         </div>

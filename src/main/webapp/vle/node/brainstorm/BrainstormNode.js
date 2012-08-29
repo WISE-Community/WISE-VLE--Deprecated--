@@ -10,7 +10,12 @@ BrainstormNode.prototype.parent = Node.prototype;
 
 BrainstormNode.authoringToolName = "Brainstorm Discussion";
 BrainstormNode.authoringToolDescription = "Students post their answer for everyone in the class to read and discuss";
-
+BrainstormNode.prototype.i18nEnabled = true;
+BrainstormNode.prototype.i18nPath = "/vlewrapper/vle/node/brainstorm/i18n/";
+BrainstormNode.prototype.supportedLocales = {
+			"en_US":"en_US",
+			"ja":"ja"
+};
 /**
  * @constructor
  * @extends Node
@@ -78,12 +83,17 @@ BrainstormNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	 * 
 	 * e.g. if you are creating a quiz step you would change it to quizState
 	 */
-	var brainstormResponse = nodeVisit.getLatestWork();
+	var brainstormState = nodeVisit.getLatestWork();
 	
-	if(brainstormResponse != null) {
+	if(brainstormState != null) {
+		//get the response
+		var brainstormResponse = brainstormState.response;
+		
+		//replace \n with <br>
+		brainstormResponse = this.view.replaceSlashNWithBR(brainstormResponse);
 		
 		//put the student work into the div
-		$('#' + divId).html(brainstormResponse);		
+		$('#' + divId).html(brainstormResponse);
 	}
 };
 

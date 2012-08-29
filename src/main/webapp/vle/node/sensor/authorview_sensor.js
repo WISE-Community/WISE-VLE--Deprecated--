@@ -562,8 +562,16 @@ View.prototype.SensorNode.populatePrompt = function() {
  * Updates the content's prompt to match that of what the user input
  */
 View.prototype.SensorNode.updatePrompt = function(){
+	//get the prompt that was authored
+	var prompt = '';
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
+		prompt = $('#promptInput').tinymce().getContent();
+	} else {
+		prompt = $('#promptInput').val();
+	}
+	
 	/* update content */
-	this.content.prompt = document.getElementById('promptInput').value;
+	this.content.prompt = prompt;
 	
 	/* fire source updated event */
 	this.view.eventManager.fire('sourceUpdated');

@@ -16,5 +16,6 @@
 		"polygon":true,
 		"text":true
 	},
-   "type": "SVGDraw"
+   "type": "SVGDraw",
+   "excelExportStringTemplate": "{data}"
 }

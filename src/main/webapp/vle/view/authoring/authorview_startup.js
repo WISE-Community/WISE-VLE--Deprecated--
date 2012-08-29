@@ -7,8 +7,7 @@
  * Sets variables so that the authoring tool is running in portal mode
  * and starts authoring tool in appropriate state.
  */
-View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle){
-	
+View.prototype.startPortalMode = function(url, command, relativeProjectUrl, projectId, projectTitle, editPremadeComments){
 	this.portalUrl = url;
 	/*
 	 * this editingPollInterval is used to check who is also currently editing the
@@ -35,7 +34,7 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 	this.eventManager.fire('loadConfigComplete');
 	
 	/* retrieve i18n files, defined in view_i18n.js */
-	this.retrieveLocales();
+	this.retrieveLocales("main");
 
 
 	if(this.config != null) {
@@ -66,6 +65,19 @@ View.prototype.startPortalMode = function(url, command, relativeProjectUrl, proj
 			
 			this.loadProject(projectFileUrl, projectFolderUrl, true);
 		}
+	}
+	
+	if(editPremadeComments == "true") {
+		//we are only loading the authoring tool so that we can open the premade comments
+		eventManager.fire('openPremadeComments');
+		
+		if(window.parent != null && window.parent.parent != null && window.parent.parent.closeLoadingPremadeCommentsDialog != null) {
+			//close the loading premade comments message
+			window.parent.parent.closeLoadingPremadeCommentsDialog();			
+		}
+		
+		//we will exit this function since we don't need to really load the rest of the authoring tool
+		return;
 	}
 	
 	//load the template files for all the step types
@@ -250,7 +262,7 @@ View.prototype.onAuthoringToolReady = function(){
 	$('#overlay').hide();
 	
 	// insert i18n text and tooltips/help items into DOM
-	this.insertTranslations(function(){ view.insertTooltips(); });
+	this.insertTranslations("main", function(){ view.insertTooltips(); });
 	//clearInterval(window.loadingInterval);
 };
 

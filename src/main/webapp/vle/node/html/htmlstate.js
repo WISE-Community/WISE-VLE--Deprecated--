@@ -38,9 +38,17 @@ HTMLSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
  * Get the student work.
  * @return the student's work
  */
-HTMLSTATE.prototype.getStudentWork = function() {
+HTMLSTATE.prototype.getStudentWorkString = function() {
 	return this.data;
-}
+};
+
+/**
+ * Get this node state
+ * @return this node state
+ */
+HTMLSTATE.prototype.getStudentWork = function() {
+	return this;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

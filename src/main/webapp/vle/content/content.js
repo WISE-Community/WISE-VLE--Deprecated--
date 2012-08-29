@@ -110,6 +110,7 @@ function createContent(url, contentBaseUrlParam){
 					contentString = contentString.replace(new RegExp('\'./assets', 'g'), '\''+contentBaseUrl + 'assets');
 					contentString = contentString.replace(new RegExp('\'/assets', 'g'), '\''+contentBaseUrl + 'assets');
 					contentString = contentString.replace(new RegExp('\'assets', 'g'), '\''+contentBaseUrl + 'assets');
+					contentString = contentString.replace(new RegExp('\"url=assets', 'g'), '\"url='+contentBaseUrl + 'assets');
 
 					//contentString = contentString.replace(/^\.\/assets|^\/assets|^assets/gi, contentBaseUrl + 'assets');
 				}

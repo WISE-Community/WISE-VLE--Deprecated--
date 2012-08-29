@@ -152,8 +152,8 @@ var scriptloader = function(){
 					
 					// check if i18n is enabled for theme, add theme_i18n.js to scripts if enabled
 					if(data.i18n_enabled){
-						var i18n_js = 'vle/' + themepath + 'i18n/theme_i18n.js';
-						s.push(i18n_js);
+						//var i18n_js = 'vle/' + themepath + 'i18n/theme_i18n.js';
+						//s.push(i18n_js);
 					}
 					
 					// set navMode (either based on project config or theme default)
@@ -386,7 +386,9 @@ var scriptloader = function(){
 		         'vle/navigation/constraints/workonxconstraint.js',
 		         'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
 	             'vle/grading/MaxScores.js',
-		         'vle/grading/MaxScore.js'],
+		         'vle/grading/MaxScore.js',
+		         'vle/view/grading/gradingview_premadecomments.js',
+		         'vle/jquery/js/jquery.editinplace.js'],
 		grading: ['vle/view/grading/gradingview_annotations.js',
 		          'vle/view/grading/gradingview_dispatcher.js',
 		          'vle/view/grading/gradingview_display.js',
@@ -494,7 +496,10 @@ var scriptloader = function(){
  		grading_min: ['vle/css/portal/teachergrading.css',
  	 		         'vle/jquery/jquery-dataTables/css/datatable.css',
  	 		         jqueryUICss],
- 		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css']
+ 		ideabasket: ['vle/css/ideaManager/jquery-validate/cmxformTemplate.css'],
+ 		premadecomments:['vle/css/globalstyles.css',
+ 		                 'vle/css/premadecomments/premadecomments.css',
+ 		                jqueryUICss],
     	         
 	};
 	
@@ -522,6 +527,7 @@ var scriptloader = function(){
         'vle/jquery/js/jquery.tablesorter.min.js':[jquerySrc],
         'vle/jquery/jquery-validation/jquery.validate.min.js':[jquerySrc],
         'vle/jquery/miniTip/jquery.miniTip.min.js':[jquerySrc],
+        'vle/jquery/js/jquery.editinplace.js':[jquerySrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],

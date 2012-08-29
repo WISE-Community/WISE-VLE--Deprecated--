@@ -169,11 +169,6 @@ View.prototype.NetlogoNode.updatePrompt = function(){
 		this.content.prompt = $('#promptTextArea').val();
 	}
 	
-	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
-	var assetPath = this.projectPath + 'assets/';
-	var assetPathExp = new RegExp(assetPath,"gi");
-	this.content.prompt.replace(assetPathExp,"assets/");
-	
 	/*
 	 * fire source updated event, this will update the preview
 	 */

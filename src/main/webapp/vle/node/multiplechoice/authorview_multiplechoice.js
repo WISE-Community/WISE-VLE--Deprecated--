@@ -198,7 +198,7 @@ View.prototype.MultipleChoiceNode.generateAnswers = function(){
 		feedback = this.generateFeedback(answers[h], h);
 		options = this.generateOptions(h, answers.length);
 		var answerLI = createElement(document, 'li', {id: 'answerLI_' + h, name: 'answerLI', 'class': 'draggable'});
-		var answer = createElement(document, 'input', {type: 'text', key: answers[h].identifier, name: "answerInput", value: answerText, wrap: 'hard', onkeyup: 'eventManager.fire("mcXmlUpdated")'});
+		var answer = createElement(document, 'input', {type: 'text', key: answers[h].identifier, name: "answerInput", value: answerText, size: '90', wrap: 'hard', onkeyup: 'eventManager.fire("mcXmlUpdated")'});
 		answerLI.appendChild(answerTextLabel);
 		answerLI.appendChild(answer);
 		answerLI.appendChild(createBreak());
@@ -220,7 +220,7 @@ View.prototype.MultipleChoiceNode.generateAnswers = function(){
  */
 View.prototype.MultipleChoiceNode.generateFeedback = function(choice, index){
 	if(this.content.assessmentItem.interaction.hasInlineFeedback){
-		var feedbackEl = createElement(document, 'input', {type: 'text', wrap: 'hard', id: 'feedbackInput_' + index, name: "feedbackInput", onkeyup: 'eventManager.fire("mcXmlUpdated")'});
+		var feedbackEl = createElement(document, 'input', {type: 'text', wrap: 'hard', id: 'feedbackInput_' + index, name: "feedbackInput", size:'90', onkeyup: 'eventManager.fire("mcXmlUpdated")'});
 		feedbackEl.value = choice.feedback;
 	} else {
 		var feedbackEl = createElement(document, 'div', {id: 'feedbackInput_' + index, name: 'feedbackInput_' + index});
@@ -452,10 +452,7 @@ View.prototype.MultipleChoiceNode.updatePrompt = function(){
 	} else {
 		content = $('#promptInput').val();
 	}
-	// strip out any urls with the full project path (and replace with 'assets/file.jpg')
-	var assetPath = this.view.getProjectFolderPath() + 'assets/';
-	var assetPathExp = new RegExp(assetPath,"gi");
-	content.replace(assetPathExp,"assets/");
+	
 	this.content.assessmentItem.interaction.prompt = content;
 	this.updateAnswer();
 	

@@ -539,6 +539,66 @@ SVGDRAW.prototype.hideTools = function(option){
 	}
 };
 
+SVGDRAW.prototype.autoGradeWork = function() {
+	console.log('autograding begin');
+	var scorer = new DrawScorer();	
+	scorer.parseXMLSpec("autograde/MethaneSpec.xml");		
+	
+	if (this.teacherAnnotation != "") {
+		svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
+	}
+	this.studentData.svgString = svgCanvas.getSvgString();
+	this.studentData.description = svgEditor.description;
+	this.studentData.snapshots = svgEditor.snapshots;
+	this.studentData.snapTotal = svgEditor.snapTotal;
+	if(svgEditor.selected == true){
+		this.studentData.selected = svgEditor.active;
+	} else {
+		this.studentData.selected = -1;
+	}
+	
+	scorer.scoreDrawing(this.studentData);
+	
+	//get the score
+	var score = this.studentData.rubricScore;
+	
+	//create the auto score text that will be displayed in the popup
+	var message = '(Auto score returned: ' + score + " out of 5.)\n\n";
+	
+	//create the feedback text that will be displayed in the popup
+	if(score == null) {
+		
+	} else if(score == 0) {
+		message += '- This is a good start.\n\n';
+		message += '- Be sure to use 1 frame to represent the REACTANTS and another to represent the PRODUCTS in the methane combustion reaction. How does the arrangement of the atoms change from PRODUCTS to REACTANTS?\n\n';
+		message += '- Revisit steps 3.6-3.8. Then make an improved drawing in Step 7.1.\n\n';
+	} else if(score == 1) {
+		message += '- Good start. You have correctly created 2 frames that represent the reactants and products of the methane combustion reaction.\n\n';
+		message += '- Can atoms in the reaction be spontaneously CREATED OR DESTROYED?\n\n';
+		message += '- Reread the directions and revisit steps 3.6-3.8.Then make an improved drawing in Step 7.1.\n\n';
+	} else if(score == 2) {
+		message += '- Good start. You have correctly conserved mass by neither creating nor destroying atoms.\n\n';
+		message += '- What are the ONLY 4 substances (types of molecules) that can exist as either reactants or products in the combustion of methane?\n\n';
+		message += '- Reread the directions and revisit steps 3.6-3.8.Then make an improved drawing in Step 7.1.\n\n';
+	} else if(score == 3) {
+		message += '- Good start. You have correctly conserved mass and included ONLY CH4, H2O, CO2, and O2 molecules.\n\n';
+		message += '- HOW MANY O2 molecules are need to react with EACH CH4 molecule in the methane combustion reaction?\n\n';
+		message += '- Reread the directions and revisit steps 3.6-3.8.Then make an improved drawing in Step 7.1.\n\n';
+	} else if(score == 4) {
+		message += '- You are on the right track. You have correctly conserved mass and included the correct numbers of CH4,  H2O, CO2, and O2 molecules in the methane combustion reaction.\n\n';
+		message += '- Be sure to make the molecules in your drawings distinct from each other.\n\n';
+		message += '- Revisit steps 3.6-3.8. Then make an improved drawing in Step 7.1.\n\n';
+	} else if(score == 5) {
+		message += '- Great job--no revision needed!!\n\n';
+		message += '- You have correctly conserved mass and clearly included the correct numbers of CH4, H2O, CO2, and O2 molecules in the methane combustion reaction.\n\n';
+	}
+	
+	//display the popup that contains the score and the text feedback
+	alert(message);
+};
+
+
+
 /*SVGDRAW.prototype.checkDrawSize = function(context){
 	var current = svgCanvas.getSvgString();
 	var compressed = context.lz77.compress(current);

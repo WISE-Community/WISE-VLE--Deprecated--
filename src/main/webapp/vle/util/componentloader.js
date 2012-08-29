@@ -66,6 +66,7 @@ var componentloader = function(em, sl){
 					
 					/* set up the notePanel dialog in the view */
 					document.body.appendChild(createElement(document, 'div', {id:'notePanel'}));
+					document.body.appendChild(createElement(document, 'div', {id:'feedbackDialog'}));
 					
 					//define the width of the note dialog
 					var noteWidth = 650;
@@ -76,7 +77,7 @@ var componentloader = function(em, sl){
 						autoOpen:false,
 						width:noteWidth,
 						title:'Reflection Note',
-						resizable:false,
+						resizable:true,
 						show:{effect:"fade",duration:200},
 						hide:{effect:"fade",duration:200},
 						position: ['center','middle'],
@@ -95,6 +96,8 @@ var componentloader = function(em, sl){
 							});
 						}
 					});
+					
+					$('#feedbackDialog').dialog({autoOpen:false, dialogClass: 'dialogFeed', zIndex: '100009', buttons: [{text: "OK", click: function() {$(this).dialog('close');}}]});
 				}
 			}
 		},
@@ -178,6 +181,7 @@ var componentloader = function(em, sl){
 					 'displayGradeByTeamGradingPage':[null, null],
 					 'displayResearcherToolsPage':[null, null],
 					 'displayCustomExportPage':[null, null],
+					 'displaySpecialExportPage':[null, null],
 					 'customActivityCheckBoxClicked':[null, null],
 					 'customSelectAllStepsCheckBoxClicked':[null, null],
 					 'getStudentNamesExport':[null, null],
@@ -192,6 +196,7 @@ var componentloader = function(em, sl){
 					 'getExplanationBuilderWorkExcelExport':[null, null],
 					 'getCustomLatestStudentWorkExport':[null, null],
 					 'getCustomAllStudentWorkExport':[null, null],
+					 'getSpecialExport':[null, null],
 					 'displayExportExplanation':[null, null],
 					 'saveMaxScore':[null, null],
 					 'showScoreSummary':[null, null],
@@ -217,6 +222,9 @@ var componentloader = function(em, sl){
 					 'premadeCommentWindowLoaded':[null, null],
 					 'addPremadeComment':[null, null],
 					 'deletePremadeComment':[null, null],
+					 'deletePremadeCommentList':[null, null],
+					 'premadeCommentLabelClicked':[null, null],
+					 'premadeCommentListUncheckLabels':[null, null],
 					 'getIdeaBasketsComplete':[null, null],
 					 'setSelectedPeriod':[null, null],
 					 'editGroups':[null, null],
@@ -235,6 +243,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("displayGradeByTeamGradingPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayResearcherToolsPage", view.gradingDispatcher, view);
 					eventManager.subscribe("displayCustomExportPage", view.gradingDispatcher, view);
+					eventManager.subscribe("displaySpecialExportPage", view.gradingDispatcher, view);
 					eventManager.subscribe("customActivityCheckBoxClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("customSelectAllStepsCheckBoxClicked", view.gradingDispatcher, view);
 					eventManager.subscribe("getStudentNamesExport", view.gradingDispatcher, view);
@@ -249,6 +258,7 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("getExplanationBuilderWorkExcelExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomLatestStudentWorkExport", view.gradingDispatcher, view);
 					eventManager.subscribe("getCustomAllStudentWorkExport", view.gradingDispatcher, view);
+					eventManager.subscribe("getSpecialExport", view.gradingDispatcher, view);
 					eventManager.subscribe("displayExportExplanation", view.gradingDispatcher, view);
 					eventManager.subscribe("getProjectMetaDataComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("getRunExtrasComplete", view.gradingDispatcher, view);
@@ -276,6 +286,9 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("premadeCommentWindowLoaded", view.gradingDispatcher, view);
 					eventManager.subscribe("addPremadeComment", view.gradingDispatcher, view);
 					eventManager.subscribe("deletePremadeComment", view.gradingDispatcher, view);
+					eventManager.subscribe("deletePremadeCommentList", view.gradingDispatcher, view);
+					eventManager.subscribe("premadeCommentLabelClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("premadeCommentListUncheckLabels", view.gradingDispatcher, view);
 					eventManager.subscribe("getIdeaBasketsComplete", view.gradingDispatcher, view);
 					eventManager.subscribe("setSelectedPeriod", view.gradingDispatcher, view);
 					eventManager.subscribe("editGroups", view.gradingDispatcher, view);
@@ -409,6 +422,9 @@ var componentloader = function(em, sl){
 				'authorWindowScrolled':[null,null],
 				'previewFrameLoaded':[null,null],
 				'cleanProject':[null,null],
+				'deleteProject':[null,null],
+				'findBrokenLinksInProject':[null,null],
+				'findUnusedAssetsInProject':[null,null],
 				'cleanClosingProjectStart':[null,null],
 				'cleanClosingProjectComplete':[null,null], 
 				'cleanLoadingProjectFileStart':[null,null], 
@@ -455,7 +471,14 @@ var componentloader = function(em, sl){
 				'tagMapChanged':[null,null],
 				'removeTagMap':[null,null],
 				'openProjectInImportView':[null,null],
-				'importSelectedItems':[null,null]
+				'importSelectedItems':[null,null],
+				'openPremadeComments':[null,null],
+				'premadeCommentWindowLoaded':[null, null],
+				'addPremadeComment':[null, null],
+				'deletePremadeComment':[null, null],
+				'deletePremadeCommentList':[null, null],
+				'premadeCommentLabelClicked':[null, null],
+				'premadeCommentListUncheckLabels':[null, null]
 			},
 			methods: {
 				onWindowUnload:function(view){return function(){view.onWindowUnload();};}
@@ -537,6 +560,9 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('closeOnStepSaved', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('closeStep', view.authorStepDispatcher, view);
 					view.eventManager.subscribe('cleanProject', view.cleanDispatcher, view);
+					view.eventManager.subscribe('deleteProject', view.authorDispatcher, view);
+					view.eventManager.subscribe('findBrokenLinksInProject', view.authorDispatcher, view);
+					view.eventManager.subscribe('findUnusedAssetsInProject', view.authorDispatcher, view);
 					view.eventManager.subscribe('cleanSavingProjectStart', view.cleanDispatcher, view);
 					view.eventManager.subscribe('cleanSavingProjectComplete', view.cleanDispatcher, view);
 					view.eventManager.subscribe('cleanClosingProjectStart', view.cleanDispatcher, view);
@@ -599,6 +625,13 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('removeTagMap', view.authorDispatcher, view);
 					view.eventManager.subscribe('openProjectInImportView', view.authorDispatcher, view);
 					view.eventManager.subscribe('importSelectedItems', view.authorDispatcher, view);
+					view.eventManager.subscribe('openPremadeComments', view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("premadeCommentWindowLoaded", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("addPremadeComment", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("deletePremadeComment", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("deletePremadeCommentList", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("premadeCommentLabelClicked", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("premadeCommentListUncheckLabels", view.authoringToolPremadeCommentsDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
 						window.parent.loaded();
@@ -629,6 +662,7 @@ var componentloader = function(em, sl){
 					view.initializeStepTypeDescriptionsDialog();
 					view.initializeTagViewDialog();
 					view.initializeImportViewDialog();
+					view.initializeAnalyzeProjectDialog();
 										
 					window.onunload = env.onWindowUnload;
 				}

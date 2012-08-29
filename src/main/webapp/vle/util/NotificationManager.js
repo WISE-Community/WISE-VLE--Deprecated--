@@ -218,7 +218,11 @@ function AlertObject(elId, msg, mode, divId){
 		}
 	} else {
 		//insert the message into the div
-		$('#' + this.elId).html(msg);
+		if($('#' + this.elId).length){
+			$('#' + this.elId + '> .content').html(msg);
+		} else {
+			$('#' + this.elId).html(msg);
+		}
 		
 		//show the div
 		$('#' + this.elId).show();

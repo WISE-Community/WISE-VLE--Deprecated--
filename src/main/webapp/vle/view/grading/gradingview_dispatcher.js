@@ -7,6 +7,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.displayResearcherToolsPage();
 	} else if(type=='displayCustomExportPage') {
 		obj.displayCustomExportPage();
+	} else if(type=='displaySpecialExportPage') {
+		obj.displaySpecialExportPage();
 	} else if(type=='saveScore') {
 		obj.checkAndSaveScore(args[0], args[1], args[2], args[3], args[4]);
 	} else if(type=='saveComment') {
@@ -20,7 +22,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='gradingConfigUrlReceived') {
 		obj.getGradingConfig(args[0]);
 	} else if(type=='getGradingConfigComplete') {
-		obj.retrieveLocales();		
+		obj.retrieveLocales("main");		
 		obj.loadProject(args[0], args[1], args[2]);
 		obj.initializeSession();
 	} else if(type=='loadingProjectComplete') {
@@ -98,6 +100,12 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.addPremadeComment(args[0]);
 	} else if(type=='deletePremadeComment') {
 		obj.deletePremadeComment(args[0], args[1]);
+	} else if(type=='deletePremadeCommentList') {
+		obj.deletePremadeCommentList(args[0]);
+	} else if(type=='premadeCommentLabelClicked') {
+		obj.premadeCommentLabelClicked(args[0]);
+	} else if(type=='premadeCommentListUncheckLabels') {
+		obj.premadeCommentListUncheckLabels(args[0]);
 	} else if(type=='displayExportExplanation') {
 		obj.displayExportExplanation(args[0]);
 	} else if(type=='setSelectedPeriod') {
@@ -106,6 +114,8 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 		obj.editGroups(args[0]);
 	} else if(type=='groupClicked') {
 		obj.groupClicked(args[0]);
+	} else if(type=='getSpecialExport') {
+		obj.getSpecialExport(args[0]);
 	}
 };
 

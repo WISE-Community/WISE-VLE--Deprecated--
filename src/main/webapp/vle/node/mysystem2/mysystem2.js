@@ -4,7 +4,7 @@
  * the step when the students work on it. An instance of this object will
  * be created in the .html for this step (look at mysystem.html)
  */
-function Mysystem2(node,view) {
+function Mysystem2(node,view,secondTime) {
   this.node = node;
   this.content = node.getContent().getContentJSON();
 
@@ -24,6 +24,10 @@ function Mysystem2(node,view) {
   }
   
   this.mostRecentSavedState = null;
+  this.hasRegisteredDomListeners = false;
+  if(secondTime == true) {
+    this.hasRegisteredDomListeners = true;
+  }
 }
 
 Mysystem2.prototype.saveTriggeredByMySystem = function(isSubmit) {
@@ -63,24 +67,42 @@ Mysystem2.prototype.render = function() {
     SC.onReady.done();
   }
 
-  var lastRenewal = 0;
-  if (typeof eventManager != 'undefined') {
-    // watch for changes to the student data and renew the session whenever it changes
-    $('#my_system_state').bind("DOMSubtreeModified", function() {
-      var now = new Date().getTime();
-      if (now - lastRenewal > 15000) {  // only renew at most once every 15 seconds
-        SC.Logger.log("renewing session");
-        eventManager.fire('renewSession');
-        lastRenewal = now;
-      }
-    });
+  if (this.content) {
+    // not sure why we are getting called when its not a
+    // mysystem 2 state -- but it happens.
+    if (this.content['type'] === "mysystem2") {
+      MySystem.loadWiseConfig(this.content,latestState);
+    }
   }
 
-  if (this.content) {
-    MySystem.loadWiseConfig(this.content,latestState);
-  }
   if (latestState) {
     MySystem.updateFromDOM();
+  }
+
+  // TODO: Do we know if we are in preview mode?
+  this.keepStudentLogedIn();
+};
+
+Mysystem2.prototype.keepStudentLogedIn = function() {
+  // only register dom listeners once...
+  if (!this.hasRegisteredDomListeners) {
+    var lastRenewal = 0;
+    var interval    = 30; // seconds
+      if (typeof eventManager != 'undefined') {
+      // watch for changes to the student data and renew the session whenever it changes
+      $('#my_system_state').bind("DOMSubtreeModified", function() {
+        var now = new Date().getTime();
+        var state = $('#my_system_state').text();
+        var elapsed = (now - lastRenewal) / 1000;
+        if (elapsed > interval) {  // only renew at most once every interval seconds
+          SC.Logger.log("renewing session (" + elapsed + "s)");
+          lastSate = state;
+          eventManager.fire('renewSession');
+          lastRenewal = now;
+        }
+      });
+    }
+    this.hasRegisteredDomListeners = true;
   }
 };
 
@@ -108,7 +130,7 @@ Mysystem2.prototype.getLatestState = function() {
       state = this.states[i];
       // because of WISE4 corruption issues, reject states that may have been saved to our states array
       // by non-MySystem steps such as openresponse steps
-      if (state.type === "MySystem2" || (typeof state.type === 'undefined' && numberOfOwnProperties(state) === 1)) {
+      if (state.type === "mysystem2" || (typeof state.type === 'undefined' && numberOfOwnProperties(state) === 1)) {
         latestState = state;
         break;
       }
@@ -137,6 +159,10 @@ Mysystem2.prototype.save = function(isSubmit) {
   var response,
       state;
 
+  // sometimes we are called without a dom element, in which case,
+  // return immediately...
+  if (this.domIO === null) { return; }
+  
   // We use a simple dom element for our data passing
   response =this.domIO.textContent;
   

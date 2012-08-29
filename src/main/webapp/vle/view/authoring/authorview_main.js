@@ -619,7 +619,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 		var ndx = parent.selectedIndex;
 		if(ndx!=-1){
 			var opt = parent.options[parent.selectedIndex];
-			var name = opt.value;
+			var name = encodeURIComponent(opt.value);
 
 			var success = function(text, xml, o){
 				if(text.status==401){
@@ -791,20 +791,47 @@ View.prototype.viewAssets = function(params){
 			this.assetEditorParams = null;
 		}
 		showElement('assetEditorDialog');
-		var populateOptions = function(names, view){
-			if(names && names!=''){
-				//get the JSONArray of file names
-				var fileNames = JSON.parse(names);
+		var populateOptions = function(projectListText, args){
+			var view = args[0];
+			
+			if(projectListText && projectListText!=''){
+				//get the project list as JSON
+				var projectList = JSON.parse(projectListText);
 				
-				//sort the file names alphabetically
-				fileNames.sort();
+				//get the first project (there will only be one anyway)
+				var projectAssetsInfo = projectList[0];
+				
+				var assets = [];
+				
+				if(projectAssetsInfo != null) {
+					//get the assets array
+					assets = projectAssetsInfo.assets;
+				}
 				
 				var parent = document.getElementById('assetSelect');
 				parent.innerHTML = '';
 				
-				//loop through all the file names
-				for(var d=0;d<fileNames.length;d++){
-					var fileName = fileNames[d];
+				//loop through all the assets
+				for(var d=0;d<assets.length;d++){
+					//get an asset
+					var asset = assets[d];
+					
+					//get the file name of the asset
+					var fileName = asset.assetFileName;
+					
+					var status = '';
+					
+					if(asset.activeStepsUsedIn.length > 0) {
+						//the asset is used in an active step
+						status = 'active';
+					} else if(asset.inactiveStepsUsedIn.length > 0) {
+						//the asset is used in an inactive step
+						status = 'inactive';
+					} else {
+						//the asset is not used in any step
+						status = 'notUsed';
+					}
+					
 					//check for type parameter and only show files with matching extensions
 					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
 						var extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
@@ -829,9 +856,22 @@ View.prototype.viewAssets = function(params){
 						}
 					}
 					
+					var text = '';
+					
+					if(status == 'inactive') {
+						//the asset is only used in an inactive step
+						text = fileName + ' (Only used in inactive steps)';
+					} else if(status == 'notUsed') {
+						//the asset is not used in any step
+						text = fileName + ' (Not used)';
+					} else {
+						//the asset is used in an active step
+						text = fileName;
+					}
+					
 					//create an entry for each file
 					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
-					opt.text = fileName;
+					opt.text = text;
 					opt.value = fileName;
 					parent.appendChild(opt);
 				}
@@ -915,9 +955,24 @@ View.prototype.viewAssets = function(params){
 			$('#uploadAssetFile').val('');
 		};
 		
-
-		//get assets from servlet
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'assetList'}, function(txt,xml,obj){populateOptions(txt,obj);}, this);
+		//get the list of all assets and which steps those assets are used in
+		var analyzeType = 'findUnusedAssets';
+		
+		//get the project id
+		var projectId = this.portalProjectId;
+		
+		//get the url for making the request to retrieve the asset information
+		var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
+		
+		//the params for the request
+		var requestParams = {
+			analyzeType:analyzeType,
+			projectId:projectId,
+			html:false
+		};
+		
+		//make the request to retrieve the asset information
+		this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, function(txt,xml,obj){populateOptions(txt,obj);}, [this, analyzeType]);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to view assets for.", 3);
 	}
@@ -956,6 +1011,11 @@ View.prototype.startPreview = function(em){
  * loads the project into the authoring tool.
  */
 View.prototype.projectOptionSelected = function(){
+	// notify portal that a previously-opened project (if any) is closed
+	if(this.getProject() && this.portalUrl){
+		this.notifyPortalCloseProject();
+	}
+
 	var projectId = document.getElementById('selectProject').options[document.getElementById('selectProject').selectedIndex].value;
 	projectId = parseInt(projectId);
 
@@ -1063,7 +1123,7 @@ View.prototype.copyProject = function(){
 	};
 	
 	if(this.portalUrl){
-		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList'}, function(t,x,o){doSuccess(t,o);}, this);
+		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', projectTag: 'authorableAndLibrary'}, function(t,x,o){doSuccess(t,o);}, this);
 	} else {
 		this.connectionManager.request('GET', 1, this.requestUrl, {command: 'projectList', 'projectPaths': this.projectPaths}, function(t,x,o){doSuccess(t,o);}, this);
 	};
@@ -1601,6 +1661,8 @@ View.prototype.onProjectLoaded = function(){
 			this.placeNewNode(this.placeNodeId);
 		}
 		
+		this.premadeCommentLists = null;
+		
 		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 3);
 	}
 };
@@ -1659,7 +1721,7 @@ View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 		}
 	};
 	
-	this.connectionManager.request('POST', 1, this.portalUrl, {command: 'notifyProjectOpen', path: this.project.getUrl()}, handler, this);
+	this.connectionManager.request('POST', 1, this.portalUrl, {command: 'notifyProjectOpen', projectId: this.portalProjectId}, handler, this);
 };
 
 /**
@@ -1676,8 +1738,7 @@ View.prototype.notifyPortalCloseProject = function(sync){
 		var failure = function(t,o){
 			//o.notificationManager.notify('Unable to notify portal that project session is closed', 3);
 		};
-		
-		this.connectionManager.request('POST', 1, this.portalUrl, {command:'notifyProjectClose', path: this.getProject().getUrl()}, success, this, failure, sync);
+		this.connectionManager.request('POST', 1, this.portalUrl, {command:'notifyProjectClose', projectId: this.portalProjectId}, success, this, failure, sync);
 	}
 };
 
@@ -1969,7 +2030,7 @@ View.prototype.onWindowUnload = function(logout){
  * Retrieves and populates the project list for the open project dialog.
  */
 View.prototype.retrieveProjectList = function(){
-	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', 'projectPaths': this.projectPaths}, this.retrieveProjectListSuccess, this, this.retrieveProjectListFailure);
+	this.connectionManager.request('GET', 1, (this.portalUrl ? this.portalUrl : this.requestUrl), {command: 'projectList', projectTag: 'authorable', 'projectPaths': this.projectPaths}, this.retrieveProjectListSuccess, this, this.retrieveProjectListFailure);
 };
 
 /**
@@ -2221,6 +2282,154 @@ View.prototype.updateProject = function() {
 		};
 		
 		this.connectionManager.request('POST', 1, this.portalUrl, requestParams, success, this, failure);
+	}
+};
+
+/**
+ * Delete the project so that it will no longer show up for the logged in user.
+ * This will not actually delete the project folder or content. It will only
+ * set the isDeleted boolean flag in the projects database table.
+ */
+View.prototype.deleteProject = function() {
+	//get the project title
+	var projectTitle = this.project.getTitle();
+	
+	//get the project id
+	var projectId = this.portalProjectId;
+	
+	//get the url for making the request to delete the project
+	var deleteProjectUrl = this.getConfig().getConfigParam('deleteProjectUrl');
+	
+	//confirm with the user that they really want to delete the project
+	var response = confirm("WARNING!!!\n\nAre you really sure you want to delete this project?\nThis will remove the project from your library and\nyou will no longer be able to see it.\n\nProject Title: " + projectTitle + "\n" + "Project Id: " + projectId + "\n\nClick 'OK' to delete the project.\nClick 'Cancel' to keep the project.");
+	
+	//params for making the delete project request
+	var requestParams = {
+		projectId:this.portalProjectId
+	};
+	
+	if(response) {
+		//the user clicked 'OK' to delete the project so we will make the request
+		this.connectionManager.request('POST', 1, deleteProjectUrl, requestParams, this.deleteProjectSuccess, this, this.deleteProjectFailure);
+	}
+};
+
+/**
+ * The success function for deleting the project
+ * @param text a string containg success or failure
+ * @param xml
+ * @param obj
+ */
+View.prototype.deleteProjectSuccess = function(text, xml, obj) {
+	var thisView = obj;
+	
+	if(text == 'success') {
+		//the project was successfully deleted
+		
+		//get the title and project id
+		var projectTitle = thisView.project.getTitle();
+		var projectId = thisView.portalProjectId;
+		
+		//display the success message to the user
+		alert("Successfully deleted project.\n\nProject Title: " + projectTitle + "\n" + "Project Id: " + projectId + "\n\nThe Authoring Tool will now reload.");
+		
+		//refresh the authoring tool
+		location.reload();
+	} else if(text == 'failure: not owner') {
+		//the user is not the owner of the project so the project was not deleted
+		alert('Error: Failed to delete project.\n\nYou must be the owner to delete this project.');
+	} else if(text == 'failure: invalid project id') {
+		alert('Error: Failed to delete project.\n\nInvalid project id.');
+	} else if(text == 'failure: project does not exist') {
+		alert('Error: Failed to delete project.\n\nInvalid project id.');
+	} else if(text == 'failure') {
+		alert('Error: Failed to delete project.');
+	}
+};
+
+/**
+ * Th failure function for deleting the project
+ * @param text
+ * @param obj
+ */
+View.prototype.deleteProjectFailure = function(text, obj) {
+	alert('Error: Failed to delete project.');
+};
+
+/**
+ * Make the request to analyze the project
+ * @param analyzeType the analyze type e.g. 'findBrokenLinksInProject' or 'findUnusedAssetsInProject'
+ */
+View.prototype.analyzeProject = function(analyzeType) {
+	
+	if(analyzeType == 'findBrokenLinksInProject') {
+		/*
+		 * display a popup message notifying the user that it may take 
+		 * a little while to analyze the broken links in the project
+		 */
+		alert("Analyzing the project to find broken links may take up to\n30 seconds depending on how many links are in your project.\n\nClick 'OK' to start analyzing.");
+		
+		//remove the 'InProject' part from the string
+		analyzeType = 'findBrokenLinks';
+	} else if(analyzeType == 'findUnusedAssetsInProject') {
+		//remove the 'InProject' part from the string
+		analyzeType = 'findUnusedAssets';
+	}
+	
+	//get the project id
+	var projectId = this.portalProjectId;
+	
+	//get the url for making the request to analyze the project for broken links
+	var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
+	
+	//the params for the request
+	var requestParams = {
+		analyzeType:analyzeType,
+		projectId:projectId,
+		html:true
+	};
+	
+	//make the request to analyze the project for broken links
+	this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, this.analyzeProjectSuccess, [this, analyzeType], this.analyzeProjectFailure);
+};
+
+/**
+ * Success callback for analyzing the project
+ * @param text the response text
+ * @param xml
+ * @param obj
+ */
+View.prototype.analyzeProjectSuccess = function(text, xml, obj) {
+	//get the analyze type
+	var analyzeType = obj[1];
+	
+	//change the title of the popup dialog appropriately
+	if(analyzeType == 'findBrokenLinks') {
+		$('#analyzeProjectDialog').dialog('option', 'title', 'Find Broken Links');
+	} else if(analyzeType == 'findUnusedAssets') {
+		$('#analyzeProjectDialog').dialog('option', 'title', 'Find Unused Assets');
+	}
+	
+	//insert the text into the div
+	$('#analyzeProjectDialog').html(text);
+	
+	//display the dialog
+	$('#analyzeProjectDialog').dialog('open');
+};
+
+/**
+ * Failure callback for finding broken links in the project
+ * @param text
+ * @param obj
+ */
+View.prototype.analyzeProjectFailure = function(text, obj) {
+	//get the analyze type
+	var analyzeType = obj[1];
+	
+	if(analyzeType == 'findBrokenLinks') {
+		alert("Error: an error occurred while trying to find broken links in the project.");		
+	} else if(analyzeType == 'findUnusedAssets') {
+		alert("Error: an error occurred while trying to find unused assets in the project.");
 	}
 };
 

@@ -302,7 +302,7 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
  */
 ASSESSMENTLIST.prototype.render = function() {
 	//create the submit button
-	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" value="Submit the Questionnaire"></input>');
+	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" i18n="submit" value="Submit the Questionnaire"></input>');
 	
 	if(this.node.peerReview == 'annotate' || this.node.teacherReview == 'annotate') {
 		/*
@@ -310,7 +310,7 @@ ASSESSMENTLIST.prototype.render = function() {
 		 * so we will create a save draft button
 		 */
 		if ($("#saveDraftButton").size() == 0) {
-			$("#submitButtonDiv").before('<div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveDraftButton" onClick="javascript:save();">SAVE DRAFT</a></div>&nbsp;');
+			$("#submitButtonDiv").before('<div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveDraftButton" onClick="javascript:save();" i18n="save_draft">SAVE DRAFT</a></div>&nbsp;');
 			
 			/*
 			 * disable the save draft button initially. the save
@@ -408,7 +408,7 @@ ASSESSMENTLIST.prototype.render = function() {
 	if(!this.content.isLockAfterSubmit) {
 		this.setSaveUnavailable();
 	}
-	
+	console.log('firing contentrender complete from al.js');
 	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
 

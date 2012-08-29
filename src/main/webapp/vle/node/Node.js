@@ -152,9 +152,6 @@ Node.prototype.getContent = function(){
  */
 Node.prototype.setContent = function(content){
 	this.content = content;
-	
-	debugger;
-	//if this.content.
 };
 
 /**
@@ -404,7 +401,9 @@ Node.prototype.renderConstraints = function() {
 
 Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
 	if(obj.id==args[0]) {
-		obj.contentPanel.loadContentAfterScriptsLoad(obj);		
+		if (obj.contentPanel) {
+			obj.contentPanel.loadContentAfterScriptsLoad(obj);		
+		}
 	}
 };
 
@@ -415,6 +414,11 @@ Node.prototype.loadContentAfterScriptsLoad = function(type, args, obj){
  */
 Node.prototype.contentRenderComplete = function(type, args, obj){
 	/* args[0] is the id of node's page that has been rendered */
+	var nodeId = args[0];
+	var node = obj.view.getProject().getNodeById(nodeId);
+	if (node && node.i18nEnabled && args[0] == obj.id) {
+		obj.view.insertTranslations(obj.getType());		
+	}
 };
 
 /**
@@ -1224,13 +1228,14 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
         	}
         	if (this.type == "SVGDrawNode") {
         		divClass = "svgdraw";
-        		divStyle = "height:270px; width:360px; border:1px solid #aaa";
+        		//divStyle = "height:300px; width:375px; border:1px solid #aaa";
+        		divStyle = "width:375px; border:1px solid #aaa";
         	} 
         	//create the div id for where we will display the student work
         	var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
         	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
         	
-        	if(this.type == "MySystemNode" || this.type == "SVGDrawNode") {
+        	if(this.type == "MySystemNode") {
         		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
     			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
         	} else if(this.hasGradingView()) {
@@ -1515,6 +1520,23 @@ Node.prototype.hasGradingView = function() {
 };
 
 /**
+ * Whether this step has auto graded fields to display in the
+ * grading tool
+ * @returns whether this step has auto graded fields
+ */
+Node.prototype.hasAutoGradedFields = function() {
+	return false;
+};
+
+/**
+ * Get the auto graded fields
+ * @returns an array that contains the auto graded fields
+ */
+Node.prototype.getAutoGradedFields = function() {
+	return [];
+};
+
+/**
  * Returns true iff this node can import work from the specified node.
  * @param exportToNode node to export work into
  * @return true/false
@@ -1531,6 +1553,13 @@ Node.prototype.processStateConstraints = function() {
 	// to be overriden by child nodes
 };
 
+/**
+ * Returns whether this step type can be special exported
+ * @return a boolean value
+ */
+Node.prototype.canSpecialExport = function() {
+	return false;
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

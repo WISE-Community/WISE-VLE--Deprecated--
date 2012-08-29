@@ -310,30 +310,6 @@ View.prototype.SurgeNode.browseFlashAssets = function() {
 	eventManager.fire('viewAssets',params);
 };
 
-function fileBrowser(field_name, url, type, win){
-	var callback = function(field_name, url, type, win){
-		url = 'assets/' + url;
-		win.document.getElementById(field_name).value = url;
-		// if we are in an image browser
-        if (typeof(win.ImageDialog) != "undefined") {
-            // we are, so update image dimensions and preview if necessary
-            if (win.ImageDialog.getImageData) win.ImageDialog.getImageData();
-            if (win.ImageDialog.showPreviewImage) win.ImageDialog.showPreviewImage(url);
-        }
-        // if we are in a media browser
-        if (typeof(win.Media) != "undefined") {
-            if (win.Media.preview) win.Media.preview(); // TODO: fix - preview doesn't seem to work until you switch the media type
-            //if (win.MediaDialog.showPreviewImage) win.MediaDialog.showPreviewImage(url);
-        }
-	};
-	var params = {};
-	params.field_name = field_name;
-	params.type = type;
-	params.win = win;
-	params.callback = callback;
-	eventManager.fire('viewAssets',params);
-};
-
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/surge/authorview_surge.js');

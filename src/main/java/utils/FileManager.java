@@ -1589,6 +1589,14 @@ import org.json.JSONObject;
 				//the file name e.g. myPicture.jpg
 				String fromAssetFileName = m.group(2);
 				
+				if(fromAssetFileName.contains("?")) {
+					/*
+					 * the file name contains GET params e.g. sunlight.jpg?w=12&h=12
+					 * so we will remove everything after the ?
+					 */
+					fromAssetFileName = fromAssetFileName.substring(0, fromAssetFileName.indexOf("?"));
+				}
+				
 				//create the file handle for the "from" file
 				File fromAsset = new File(fromProjectAssetsFolder, fromAssetFileName);
 				

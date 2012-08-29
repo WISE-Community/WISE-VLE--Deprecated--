@@ -938,8 +938,17 @@ MS.prototype.challengeEnabled = function() {
 		var navigateTo = this.content.assessmentItem.interaction.attempts.navigateTo;
 		
 		if(navigateTo != null && navigateTo != "") {
-			//the navigateTo field has been set which means challenge is enabled
-			enabled = true;
+			/*
+			 * get the navigateToPosition to make sure the navigateTo step is in the project.
+			 * steps that are inactive will not have a position, so as long as getPositionById()
+			 * returns a non null value, we know that step is an active step in the project.
+			 */
+			var navigateToPosition = this.node.view.getProject().getPositionById(navigateTo);
+			
+			if(navigateToPosition != null) {
+				//the navigateTo field has been set which means challenge is enabled
+				enabled = true;				
+			}
 		}
 	}
 	
@@ -955,8 +964,17 @@ MS.prototype.isChallengeEnabled = function() {
 	if(this.content.assessmentItem.interaction.attempts != null &&
 			this.content.assessmentItem.interaction.attempts.navigateTo != null &&
 			this.content.assessmentItem.interaction.attempts.navigateTo != "") {
-		//the navigateTo variable is set so challenge question is enabled
-		isChallengeQuestion = true;
+		/*
+		 * get the navigateToPosition to make sure the navigateTo step is in the project.
+		 * steps that are inactive will not have a position, so as long as getPositionById()
+		 * returns a non null value, we know that step is an active step in the project.
+		 */
+		var navigateToPosition = this.node.view.getProject().getPositionById(this.content.assessmentItem.interaction.attempts.navigateTo);
+		
+		if(navigateToPosition != null) {
+			//the navigateTo field has been set which means challenge is enabled
+			isChallengeQuestion = true;				
+		}
 	}
 	
 	return isChallengeQuestion;

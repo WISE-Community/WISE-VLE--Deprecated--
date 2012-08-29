@@ -67,18 +67,18 @@
    <body>
 	<div id='main'>
 		<div id='previousWorkDiv'></div>
-		<div id="brain_title">Student Brainstorm: Server Based</div>
-		<p id="brain_instructions">Read the brainstorm topic below, then write your response in the blank box.<br/>
+		<div id="brain_title" i18n="brainstorm_title">Student Brainstorm: Server Based</div>
+		<p id="brain_instructions" i18n="brainstorm_instructions">Read the brainstorm topic below, then write your response in the blank box.<br/>
 		Click <em>Save</em> to save your work and review responses from other students.<p>
 		<div id="questionPrompt"></div>
 		
 		<div id="studentResponseDiv">
-			<br/>My Response:  <div id='starterParent'><div id='starterSentenceDiv' class="starterSentence"><a onclick="showStarter()">Show Starter Sentence</a></div></div></br>
+			<br/><span id='myResponse' i18n='my_response'>My Response</span>:  <div id='starterParent'><div id='starterSentenceDiv' class="starterSentence"><a onclick="showStarter()">Show Starter Sentence</a></div></div></br>
 			<textarea id='studentResponse' rows='5' cols = '100'></textarea><br/>
-			<input id='butt' type='button' value='save' onclick='save()'/><div id='saveMsg'></div>
+			<input id='butt' type='button' value='save' onclick='save()' i18n='save'/><div id='saveMsg'></div>
 		</div>
 		<br>
-		Other Student Responses: <input id="refreshResponsesButton" style="margin:0px 0 10px 10px;font-size:80%;" type="button" value="check for new responses" onClick="refreshResponses()" disabled="true">
+		<span id='otherStudentResponses' i18n='other_student_responses'>Other Student Responses</span>: <input id="refreshResponsesButton" style="margin:0px 0 10px 10px;font-size:80%;" type="button" i18n="check_for_new_responses" value="check for new responses" onClick="refreshResponses()" disabled="true">
 		<div id="responses">
 		</div>
 	</div>
