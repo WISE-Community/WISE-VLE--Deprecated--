@@ -31,6 +31,8 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	var backgroundDiv = createElement(document, 'div', {id: 'backgroundDiv'});
 	$(backgroundDiv).addClass('promptContainer');
 	var stampsDiv = createElement(document, 'div', {id:'stampsDiv'});
+	var autoScoringOptionsDiv = createElement(document, 'div', {id:'autoScoringOptionsDiv'});
+	var autoScoringFeedbackAuthoringDiv = createElement(document, 'div', {id:'autoScoringFeedbackAuthoringDiv'});
 	
 	parent.appendChild(pageDiv);
 	pageDiv.appendChild(toolbarOptionsDiv);
@@ -49,12 +51,17 @@ View.prototype.SVGDrawNode.generatePage = function(view){
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(stampsDiv);
 	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(autoScoringOptionsDiv);
+	pageDiv.appendChild(autoScoringFeedbackAuthoringDiv);
+	pageDiv.appendChild(createBreak());
 	
 	this.generateToolbarOptions();
 	this.generateSnapshotOption();
 	this.generateDescriptionOption();
 	this.generateBackground();
 	this.generateStamps();
+	this.generateAutoScoringOptions();
+	this.generateAutoScoringFeedbackAuthoringDiv();
 };
 
 /**
@@ -323,6 +330,128 @@ View.prototype.SVGDrawNode.generateStamps = function(){
 		parent.appendChild(removeButt);
 		parent.appendChild(createBreak());
 	};
+};
+
+/**
+ * Generate the drop down to select the auto scoring criteria
+ */
+View.prototype.SVGDrawNode.generateAutoScoringOptions = function() {
+	//get the div that we will put everything in
+	var generateAutoScoringOptions = document.getElementById('autoScoringOptionsDiv');
+	
+	//make the text and drop down box
+	var selectAutoScoringCriteriaText = document.createTextNode('Auto Scoring: ');
+	var selectAutoScoringCriteriaDropDown = createElement(document, 'select', {id: 'selectAutoScoringCriteriaDropDown', name: 'selectAutoScoringCriteriaDropDown', onchange: 'eventManager.fire("svgdrawUpdateAutoScoringCriteria")'});
+	
+	//add the none option
+	var noneOption = createElement(document, 'option', {value:'none'});
+	noneOption.text = 'None';
+	selectAutoScoringCriteriaDropDown.appendChild(noneOption);
+	
+	//add the methan option
+	var methaneOption = createElement(document, 'option', {value:'methane'});
+	methaneOption.text = 'Methane';
+	selectAutoScoringCriteriaDropDown.appendChild(methaneOption);
+	
+	//add the ethane option
+	var ethaneOption = createElement(document, 'option', {value:'ethane'});
+	ethaneOption.text = 'Ethane';
+	selectAutoScoringCriteriaDropDown.appendChild(ethaneOption);
+	
+	//add the text and drop down box to the div
+	generateAutoScoringOptions.appendChild(selectAutoScoringCriteriaText);
+	generateAutoScoringOptions.appendChild(selectAutoScoringCriteriaDropDown);
+	
+	//get the auto scoring criteria value from the content
+	var autoScoringCriteria = this.getAutoScoringField('autoScoringCriteria');
+	
+	if(autoScoringCriteria != null && autoScoringCriteria != '') {
+		//populate the drop down box
+		$('#selectAutoScoringCriteriaDropDown').val(autoScoringCriteria);		
+	}
+};
+
+/**
+ * Generate the auto scoring feedback elements such as the textareas to
+ * input the feedback for the different scores
+ */
+View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() {
+	//get the div that we will put everything in
+	var autoScoringFeedbackAuthoringDiv = document.getElementById('autoScoringFeedbackAuthoringDiv');
+	
+	//get the auto scoring criteria
+	var autoScoringCriteria = this.getAutoScoringField('autoScoringCriteria');
+	
+	if(autoScoringCriteria == '') {
+		//there is no auto scoring criteria so we will hide the div
+		this.hideAutoScoringFeedbackAuthoring();
+	} else if(autoScoringCriteria == 'methane' || autoScoringCriteria == 'ethane') {
+		//the auto scoring criteria is set so we will show the div
+		this.showAutoScoringFeedbackAuthoring();
+	}
+	
+	//create the text box to set whether we want to display the score to the student
+	var displayScoreToStudentCheckbox = createElement(document, 'input', {id: 'autoScoringDisplayScoreToStudentCheckbox', type: 'checkbox', onclick: 'eventManager.fire("svgdrawUpdateAutoScoringDisplayScoreToStudentClicked")'});
+	var displayScoreToStudentText = document.createTextNode('Display Score to Student');
+	
+	//populate the checkbox if necessary
+	if(this.getAutoScoringField('autoScoringDisplayScoreToStudent')) {
+		displayScoreToStudentCheckbox.checked = true;
+	}
+
+	//create the text box to set whether we want to display the feedback to the student
+	var displayFeedbackToStudentCheckbox = createElement(document, 'input', {id: 'autoScoringDisplayFeedbackToStudentCheckbox', type: 'checkbox', onclick: 'eventManager.fire("svgdrawUpdateAutoScoringDisplayFeedbackToStudentClicked")'});
+	var displayFeedbackToStudentText = document.createTextNode('Display Feedback Text to Student');
+	
+	//populate the checkbox if necessary
+	if(this.getAutoScoringField('autoScoringDisplayFeedbackToStudent')) {
+		displayFeedbackToStudentCheckbox.checked = true;
+	}
+	
+	//add all the elements into the div
+	autoScoringFeedbackAuthoringDiv.appendChild(displayScoreToStudentCheckbox);
+	autoScoringFeedbackAuthoringDiv.appendChild(displayScoreToStudentText);
+	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+	autoScoringFeedbackAuthoringDiv.appendChild(displayFeedbackToStudentCheckbox);
+	autoScoringFeedbackAuthoringDiv.appendChild(displayFeedbackToStudentText);
+	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+	
+	//get the feedback array
+	var autoScoringFeedback = this.getAutoScoringField('autoScoringFeedback');
+	
+	/*
+	 * the scores students can receive are 0-5 right now so we will
+	 * hard code this. in the future, the grading criteria should tell
+	 * us what scores are possible. 
+	 */
+	for(var x=0; x<=5; x++) {
+		var feedback = '';
+		
+		if(autoScoringFeedback != null) {
+			//get the feedback object
+			var autoScoringFeedbackObject = autoScoringFeedback[x];
+			
+			if(autoScoringFeedbackObject != null) {
+				//get the score and feedback
+				score = autoScoringFeedbackObject.score;
+				feedback = autoScoringFeedbackObject.feedback;
+			}
+		}
+		
+		//display the score
+		var scoreText = document.createTextNode('Score: ' + x);
+		
+		//create a textarea for the author to enter the feedback text
+		var feedbackTextArea = createElement(document, 'textarea', {id: 'autoScoringFeedback_' + x, cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("svgdrawUpdateAutoScoringFeedback", ' + x + ')'});
+		feedbackTextArea.value = feedback;
+		
+		//add the elements to the div
+		autoScoringFeedbackAuthoringDiv.appendChild(createElement(document, 'hr', null));
+		autoScoringFeedbackAuthoringDiv.appendChild(scoreText);
+		autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+		autoScoringFeedbackAuthoringDiv.appendChild(feedbackTextArea);
+		autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+	}
 };
 
 /**
@@ -659,6 +788,172 @@ View.prototype.SVGDrawNode.updateBgAlign = function() {
 	 * fire source updated event, this will update the preview
 	 */
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * The author has changed the auto scoring criteria so we will save it
+ * in the content
+ */
+View.prototype.SVGDrawNode.updateAutoScoringCriteria = function() {
+	//get the auto scoring criteria
+	var autoScoringCriteria = $('#selectAutoScoringCriteriaDropDown').val();
+	
+	if(autoScoringCriteria == 'none') {
+		//set the value in the content
+		this.setAutoScoringField('autoScoringCriteria', '');
+		
+		//hide the auto scoring feedback div
+		this.hideAutoScoringFeedbackAuthoring();
+	} else if(autoScoringCriteria == 'methane') {
+		//set the value into the content
+		this.setAutoScoringField('autoScoringCriteria', 'methane');
+		
+		//show the auto scoring feedback div
+		this.showAutoScoringFeedbackAuthoring();
+	} else if(autoScoringCriteria == 'ethane') {
+		//set the value into the content
+		this.setAutoScoringField('autoScoringCriteria', 'ethane');
+		
+		//show the auto scoring feedback div
+		this.showAutoScoringFeedbackAuthoring();
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Show the auto scoring feedback div
+ */
+View.prototype.SVGDrawNode.showAutoScoringFeedbackAuthoring = function() {
+	$('#autoScoringFeedbackAuthoringDiv').show();
+};
+
+/**
+ * Hide the auto scoring feedback div
+ */
+View.prototype.SVGDrawNode.hideAutoScoringFeedbackAuthoring = function() {
+	$('#autoScoringFeedbackAuthoringDiv').hide();
+};
+
+/**
+ * The author has changed the text for one of the feedback textareas
+ * @param score this score has had its feedback changed
+ */
+View.prototype.SVGDrawNode.updateAutoScoringFeedback = function(score) {
+	//get the feedback array
+	var autoScoringFeedback = this.getAutoScoringFeedback();
+	
+	if(autoScoringFeedback.length == 0) {
+		/*
+		 * populate the feedback array if it is empty. the only scores students
+		 * can receive now are 0-6 so we will hard code this for now. in the
+		 * future the grading criteria should tell us what scores are possible.
+		 */
+		for(var x=0; x<=5; x++) {
+			autoScoringFeedback[x] = {
+				score:x,
+				feedback:''
+			};
+		}
+	}
+	
+	//get the feedback text the author has written and set it in the content
+	var feedback = $('#autoScoringFeedback_' + score).val();
+	autoScoringFeedback[score].feedback = feedback;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the value that determines whether the student will see the
+ * auto score
+ */
+View.prototype.SVGDrawNode.updateAutoScoringDisplayScoreToStudent = function() {
+	//get whether the checkbox was checked or not
+	var checked = $('#autoScoringDisplayScoreToStudentCheckbox').attr('checked');
+	
+	if(checked == 'checked') {
+		this.setAutoScoringField('autoScoringDisplayScoreToStudent', true);
+	} else {
+		this.setAutoScoringField('autoScoringDisplayScoreToStudent', false);
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the value that determines whether the student will see the
+ * auto feedback
+ */
+View.prototype.SVGDrawNode.updateAutoScoringDisplayFeedbackToStudent = function() {
+	//get whether the checkbox was checked or not
+	var checked = $('#autoScoringDisplayFeedbackToStudentCheckbox').attr('checked');
+	
+	if(checked == 'checked') {
+		this.setAutoScoringField('autoScoringDisplayFeedbackToStudent', true);
+	} else {
+		this.setAutoScoringField('autoScoringDisplayFeedbackToStudent', false);
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Get the auto scoring feedback array
+ */
+View.prototype.SVGDrawNode.getAutoScoringFeedback = function() {
+	//populate the autoScoring object in the content if it does not exist
+	this.createAutoScoringObjectIfDoesNotExist();
+	
+	return this.content.autoScoring.autoScoringFeedback;
+};
+
+/**
+ * Set the auto scoring field in the autoScoring object in the content
+ * @param key the field
+ * @param value the value
+ */
+View.prototype.SVGDrawNode.setAutoScoringField = function(key, value) {
+	//populate the autoScoring object in the content if it does not exist
+	this.createAutoScoringObjectIfDoesNotExist();
+	
+	//set the value
+	this.content.autoScoring[key] = value;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Get the auto scoring field in the autoScoring object in the content
+ * @param key the field
+ */
+View.prototype.SVGDrawNode.getAutoScoringField = function(key) {
+	//populate the autoScoring object in the content if it does not exist
+	this.createAutoScoringObjectIfDoesNotExist();
+	
+	//get the value
+	var value = this.content.autoScoring[key];
+	
+	return value;
+};
+
+/**
+ * Populate the autoScoring object in the content if it does not exist
+ */
+View.prototype.SVGDrawNode.createAutoScoringObjectIfDoesNotExist = function() {
+	if(this.content.autoScoring == null) {
+		this.content.autoScoring = {
+			autoScoringCriteria:'',
+			autoScoringDisplayScoreToStudent:true,
+			autoScoringDisplayFeedbackToStudent:true,
+			autoScoringFeedback:[]
+		};
+	}
 };
 
 /**

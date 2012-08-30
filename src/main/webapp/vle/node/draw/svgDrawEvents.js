@@ -61,6 +61,14 @@ View.prototype.svgdrawDispatcher = function(type,args,obj){
 		obj.SVGDrawNode.browseImageAssets();
 	} else if(type=='svgdrawUpdateBgAlign') {
 		obj.SVGDrawNode.updateBgAlign();
+	} else if(type=='svgdrawUpdateAutoScoringCriteria') {
+		obj.SVGDrawNode.updateAutoScoringCriteria();
+	} else if(type=='svgdrawUpdateAutoScoringFeedback') {
+		obj.SVGDrawNode.updateAutoScoringFeedback(args[0]);
+	} else if(type=='svgdrawUpdateAutoScoringDisplayScoreToStudentClicked') {
+		obj.SVGDrawNode.updateAutoScoringDisplayScoreToStudent();
+	} else if(type=='svgdrawUpdateAutoScoringDisplayFeedbackToStudentClicked') {
+		obj.SVGDrawNode.updateAutoScoringDisplayFeedbackToStudent();
 	};
 };
 
@@ -93,7 +101,11 @@ var events = [
 	'svgdrawStampHeightClicked',
 	'svgdrawUpdateBackgroundImageUrl',
 	'svgdrawBrowseClicked',
-	'svgdrawUpdateBgAlign'
+	'svgdrawUpdateBgAlign',
+	'svgdrawUpdateAutoScoringCriteria',
+	'svgdrawUpdateAutoScoringFeedback',
+	'svgdrawUpdateAutoScoringDisplayScoreToStudentClicked',
+	'svgdrawUpdateAutoScoringDisplayFeedbackToStudentClicked'
 ];
 
 /*
