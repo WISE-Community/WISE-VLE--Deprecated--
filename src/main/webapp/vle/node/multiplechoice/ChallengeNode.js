@@ -92,7 +92,25 @@ ChallengeNode.prototype.visitedNavigateToNode = function(node, startTime){
 };
 
 ChallengeNode.prototype.showFeedbackDialog = function(feedback){
+	var toVisitId = this.getContent().getContentJSON().assessmentItem.interaction.attempts.navigateTo;
+	var toVisitPosition = this.view.getProject().getPositionById(toVisitId);
+	var challengePosition = this.view.getProject().getPositionById(this.id);
+	
 	$('#feedbackDialog').html(feedback);
+	
+	var dialogButtons ={};
+	var visited = false;
+	dialogButtons['Take me to the step!'] = function(){
+		if (!visited) {
+			eventManager.fire("renderNode", toVisitPosition);
+			visited = true;
+		} else {
+			eventManager.fire("renderNode", challengePosition);
+			visited = false;
+		}
+		 };
+
+	$('#feedbackDialog').dialog({buttons: dialogButtons});
 	$('#feedbackDialog').dialog('open');
 	
 	$(".ui-draggable").draggable( "option", "iframeFix", true );

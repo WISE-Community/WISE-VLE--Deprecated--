@@ -8,14 +8,14 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.startVLEFromParams(args[0]);
 	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
+	} else if (type=='retrieveLocalesComplete' && args[0]=="theme") {
+		obj.onThemeLoad();
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
 		obj.setDialogEvents();
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
 		obj.retrieveThemeLocales();
-	} else if (type=='retrieveThemeLocalesComplete'){
-		obj.onThemeLoad();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
 		// start the xmpp if xmpp is enabled
@@ -402,10 +402,12 @@ View.prototype.onProjectLoad = function(){
 		
 		if(themeName && this.activeThemes.indexOf(themeName)>-1){
 			// theme specified by project matches an active theme, so load specified theme
+			this.theme = themeName;
 			this.loadTheme(themeName);
 		} else {
 			// either project paramters don't contain a theme or theme specified by project
 			// is not active, so load vle default
+			this.theme = this.activeThemes[0];
 			this.loadTheme(this.activeThemes[0]);
 			//this.loadTheme(this.config.getConfigParam('theme'));
 		}
@@ -416,8 +418,7 @@ View.prototype.onProjectLoad = function(){
 
 View.prototype.retrieveThemeLocales = function(){
 	if('theme' in this){
-		this.theme.config = this.config;
-		this.theme.retrieveLocales("theme","/vlewrapper/vle/themes/wise/i18n/");
+		this.retrieveLocales("theme","/vlewrapper/vle/themes/" + this.theme + "/i18n/");
 	} else {
 		this.onThemeLoad();
 	}

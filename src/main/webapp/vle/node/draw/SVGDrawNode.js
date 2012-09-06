@@ -171,97 +171,133 @@ SVGDrawNode.prototype.onExit = function() {
  * 
  */
 SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
-	var latestNodeState = nodeVisit.getLatestWork();
-	var studentWork = latestNodeState.data;
-	var latestNodeVisitPostTime = nodeVisit.visitPostTime;
-	var stepWorkId = nodeVisit.id;
+
+	//get the node states
+	var nodeStates = nodeVisit.nodeStates;
 	
-	// if the work is for a SVGDrawNode, embed the svg
-	var innerDivId = "svgDraw_"+stepWorkId+"_"+latestNodeVisitPostTime;
-	var contentBaseUrl = this.view.config.getConfigParam('getContentBaseUrl');
-	// if studentData has been compressed, decompress it and parse (for legacy compatibility)
-	if (typeof studentWork == "string") {
-		if (studentWork.match(/^--lz77--/)) {
-			var lz77 = new LZ77();
-			studentWork = studentWork.replace(/^--lz77--/, "");
-			studentWork = lz77.decompress(studentWork);
-			studentWork = $.parseJSON(studentWork);
-		}
-	} 
-	var svgString = studentWork.svgString;
-	var description = studentWork.description;
-	var snaps = studentWork.snapshots;
-	var contentUrl = this.getContent().getContentUrl();
-	studentWork = "<div id='"+innerDivId+"_contentUrl' style='display:none;'>"+contentUrl+"</div>"+
-		"<a class='drawEnlarge' onclick='enlargeDraw(\""+innerDivId+"\");'>enlarge</a>";
-	// if the svg has been compressed, decompress it
-	if (svgString != null){
-		if (svgString.match(/^--lz77--/)) {
-			var lz77 = new LZ77();
-			svgString = svgString.replace(/^--lz77--/, "");
-			svgString = lz77.decompress(svgString);
-		}
+	//loop through all the node states from newest to oldest
+	for(var x=nodeStates.length - 1; x>=0; x--) {
+		//get a node state
+		var nodeState = nodeStates[x];
 		
-		//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-		// only replace local hrefs. leave absolute hrefs alone!
-		svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
-			  if (value.indexOf("http://") == -1) {
-			    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
-			  }
-			  return m;
-			});
-		svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-		svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-		//svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
-		svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-		svgString = Utils.encode64(svgString);
-	}
-	if(snaps != null && snaps.length>0){
-		var snapTxt = "<div id='"+innerDivId+"_snaps' class='snaps'>";
-		for(var i=0;i<snaps.length;i++){
-			var snapId = innerDivId+"_snap_"+i;
-			var currSnap = snaps[i].svg;
-			if (currSnap.match(/^--lz77--/)) {
+		var studentWork = nodeState.data;
+		var stepWorkId = nodeVisit.id;
+		var timestamp = nodeState.timestamp;
+		var autoScore = nodeState.autoScore;
+		var autoFeedback = nodeState.autoFeedback;
+		
+		// if the work is for a SVGDrawNode, embed the svg
+		var innerDivId = "svgDraw_"+stepWorkId+"_"+timestamp;
+		var contentBaseUrl = this.view.config.getConfigParam('getContentBaseUrl');
+		// if studentData has been compressed, decompress it and parse (for legacy compatibility)
+		if (typeof studentWork == "string") {
+			if (studentWork.match(/^--lz77--/)) {
 				var lz77 = new LZ77();
-				currSnap = currSnap.replace(/^--lz77--/, "");
-				currSnap = lz77.decompress(currSnap);
+				studentWork = studentWork.replace(/^--lz77--/, "");
+				studentWork = lz77.decompress(studentWork);
+				studentWork = $.parseJSON(studentWork);
 			}
-			//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+		} 
+		var svgString = studentWork.svgString;
+		var description = studentWork.description;
+		var snaps = studentWork.snapshots;
+		var contentUrl = this.getContent().getContentUrl();
+		studentWork = "<div id='"+innerDivId+"_contentUrl' style='display:none;'>"+contentUrl+"</div>"+
+			"<a class='drawEnlarge' onclick='enlargeDraw(\""+innerDivId+"\");'>enlarge</a>";
+		// if the svg has been compressed, decompress it
+		if (svgString != null){
+			if (svgString.match(/^--lz77--/)) {
+				var lz77 = new LZ77();
+				svgString = svgString.replace(/^--lz77--/, "");
+				svgString = lz77.decompress(svgString);
+			}
+			
+			//svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
 			// only replace local hrefs. leave absolute hrefs alone!
-			currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
+			svgString = svgString.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
 				  if (value.indexOf("http://") == -1) {
 				    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
 				  }
 				  return m;
 				});
-			
-			currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
-			//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
-			currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.6)">');
-			currSnap = Utils.encode64(currSnap);
-			snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+innerDivId+"\");'>"+currSnap+"</div>";
-			var currDescription = snaps[i].description;
-			snapTxt += "<div id='"+snapId+"_description' class='snapDescription' style='display:none;'>"+currDescription+"</div>";
+			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+			svgString = svgString.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+			//svgString = svgString.replace('<svg width="600" height="450"', '<svg width="360" height="270"');
+			svgString = svgString.replace(/<g>/gmi,'<g transform="scale(0.6)">');
+			svgString = Utils.encode64(svgString);
 		}
-		snapTxt += "</div>";
-		studentWork += snapTxt;
-	} else {
-		studentWork += "<div id='"+innerDivId+"' class='svgdrawCell'>"+svgString+"</div>";
-		if(description != null){
-			studentWork += "<span>Description: </span><div id='"+innerDivId+"_description' class='drawDescription'>"+description+"</div>";
+		if(snaps != null && snaps.length>0){
+			var snapTxt = "<div id='"+innerDivId+"_snaps' class='snaps'>";
+			for(var i=0;i<snaps.length;i++){
+				var snapId = innerDivId+"_snap_"+i;
+				var currSnap = snaps[i].svg;
+				if (currSnap.match(/^--lz77--/)) {
+					var lz77 = new LZ77();
+					currSnap = currSnap.replace(/^--lz77--/, "");
+					currSnap = lz77.decompress(currSnap);
+				}
+				//currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+				// only replace local hrefs. leave absolute hrefs alone!
+				currSnap = currSnap.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, function(m,key,value) {
+					  if (value.indexOf("http://") == -1) {
+					    return m.replace(/(<image.*xlink:href=)"(.*)"(.*\/>)/gmi, '$1'+'"'+contentBaseUrl+'$2'+'"'+'$3');
+					  }
+					  return m;
+					});
+				
+				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_bk)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+				currSnap = currSnap.replace(/(marker.*=)"(url\()(.*)(#se_arrow_fw)(\)")/gmi, '$1'+'"'+'$2'+'$4'+'$5');
+				//currSnap = currSnap.replace('<svg width="600" height="450"', '<svg width="120" height="90"');
+				currSnap = currSnap.replace(/<g>/gmi,'<g transform="scale(0.6)">');
+				currSnap = Utils.encode64(currSnap);
+				snapTxt += "<div id="+snapId+" class='snapCell' onclick='enlargeDraw(\""+innerDivId+"\");'>"+currSnap+"</div>";
+				var currDescription = snaps[i].description;
+				snapTxt += "<div id='"+snapId+"_description' class='snapDescription' style='display:none;'>"+currDescription+"</div>";
+			}
+			snapTxt += "</div>";
+			studentWork += snapTxt;
+		} else {
+			studentWork += "<div id='"+innerDivId+"' class='svgdrawCell'>"+svgString+"</div>";
+			if(description != null){
+				studentWork += "<span>Description: </span><div id='"+innerDivId+"_description' class='drawDescription'>"+description+"</div>";
+			}
+		}
+		
+		if($('#' + divId).html() != '') {
+			//separate node states with an hr
+			$('#' + divId).append('<hr style="border:1px solid">');
+		}
+		
+		//insert the html into the div
+		$('#' + divId).append(studentWork);
+		
+		//perform post processing of the svg data so that the drawing is displayed
+		$('#' + divId).find(".svgdrawCell").each(this.showDrawNode);
+		$('#' + divId).find(".snapCell").each(this.showSnaps);
+		
+		var autoScoreText = '';
+		
+		if(autoScore != null) {
+			//get the auto score if available
+			autoScoreText += 'Auto-Score: ' + autoScore;
+		}
+		
+		if(autoFeedback != null) {
+			//get the auto feedback if available
+			
+			if(autoScoreText != '') {
+				autoScoreText += '<br>';
+			}
+			
+			autoFeedback = autoFeedback.replace(/\n/g, '<br>');
+			autoScoreText += 'Auto-Feedback: ' + autoFeedback;
+		}
+		
+		if(autoScoreText != '') {
+			//insert the auto score text
+			$('#' + divId).append(autoScoreText);		
 		}
 	}
-	
-	//add the post time stamp to the bottom of the student work
-	//studentWork += "<div class='lastAnnotationPostTime'>"+this.view.getI18NString("timestamp")+": " + new Date(latestNodeVisitPostTime) + "</div>";
-	
-	//insert the html into the div
-	$('#' + divId).html(studentWork);
-	
-	//perform post processing of the svg data so that the drawing is displayed
-	$('#' + divId).find(".svgdrawCell").each(this.showDrawNode);
-	$('#' + divId).find(".snapCell").each(this.showSnaps);
 };
 
 SVGDrawNode.prototype.getHTMLContentTemplate = function() {
