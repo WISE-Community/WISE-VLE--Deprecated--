@@ -1,10 +1,10 @@
 {
 	"toggle_nav_button_text":{
-		"value":"Hide Map",
+		"value":"View Map",
 		"description":"Text on the Toggle Navigation button when navigation UI is on (visible)"
 	},
 	"toggle_nav_button_title":{
-		"value":"Close Star Map",
+		"value":"Open Star Map",
 		"description":"Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
 	},
 	"toggle_nav_button_text_off":{
