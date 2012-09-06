@@ -248,14 +248,7 @@ body#w4_vle {
 
 #vle_body header {
 	position:relative;
-	height:38px;
-	border: 4px solid #C6CF51;
-	-moz-box-shadow:1px 1px 3px #444;
-	-webkit-box-shadow:1px 1px 3px #444;
-	box-shadow:1px 1px 3px #444;
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
-	border-radius:6px;
+	height:32px;
 	/*background: #005b72;  Old browsers */
 	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
 	/*background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzU3OWQ5NCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDViNzIiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -266,7 +259,8 @@ body#w4_vle {
 	/*background: -ms-linear-gradient(top,  #579d94 0%,#005b72 100%); /* IE10+ */
 	/*background: linear-gradient(top,  #579d94 0%,#005b72 100%); /* W3C */
 	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#579d94', endColorstr='#005b72',GradientType=0 ); /* IE6-8 */
-	background:url("../images/header-bg-vle.png") repeat-x scroll 0 0 #5095A2;
+	background-color: #000;
+	/*background:url("../images/header-bg-vle.png") repeat-x scroll 0 0 #5095A2;*/
 }
 
 #vle_body footer {
@@ -276,7 +270,7 @@ body#w4_vle {
 }
 
 #vle_body header, #vle_body footer {
-	margin:.25em;
+	margin:0;
 }
 
 #vle_body header #userNames {
@@ -293,7 +287,7 @@ body#w4_vle {
 
 #vle_body #logo {
 	display:inline-block;
-	line-height:38px;
+	line-height:28px;
 	margin-left:.5em;
 }
 
@@ -315,7 +309,7 @@ body#w4_vle {
 #vle_body #projectContent {
 	position: absolute;
 	left: 0;
-	top: 55px;
+	top: 32px;
 	right: 0;
 	bottom: 0;
 }
@@ -487,8 +481,8 @@ body#w4_vle {
 
 #vle_body .toolbar ul li a {
 	margin: 0 0.25em;
-	height: 38px;
-	line-height: 38px;
+	height: 32px;
+	line-height: 32px;
 	display:inline-block;
 }
 
@@ -627,7 +621,7 @@ body#w4_vle {
 	color: #F47F6E;
 	font-size: 1em;
 	font-weight: bold;
-	padding: .25em .25em .25em 38px;
+	padding: .25em .25em .25em 32px;
 	line-height: 26px;
 }
 
