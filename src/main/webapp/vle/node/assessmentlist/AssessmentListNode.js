@@ -73,6 +73,10 @@ AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 	}
 	
 	var readableStudentWork = assessmentListState.getStudentWorkString(showAutoScoreResult, isLockAfterSubmit);
+	
+	//replace \n with <br> so that newlines will be visible
+	readableStudentWork = this.view.replaceSlashNWithBR(readableStudentWork);
+	
 	$('#' + divId).html(readableStudentWork);
 };
 

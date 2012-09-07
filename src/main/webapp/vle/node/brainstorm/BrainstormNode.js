@@ -89,6 +89,9 @@ BrainstormNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 		//get the response
 		var brainstormResponse = brainstormState.response;
 		
+		//replace \n with <br>
+		brainstormResponse = this.view.replaceSlashNWithBR(brainstormResponse);
+		
 		//put the student work into the div
 		$('#' + divId).html(brainstormResponse);
 	}

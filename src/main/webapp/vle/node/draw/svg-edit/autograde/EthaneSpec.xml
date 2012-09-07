@@ -12,7 +12,7 @@
 	</atom>
 </atoms>
 <molecules>
-	<molecule name="CH4">
+	<molecule name="C2H6">
 		<atom id="1" name="C">
 			<touches>2</touches>
 			<touches>3</touches>
@@ -28,8 +28,20 @@
 		<atom id="4" name="H">
 			<touches>1</touches>			
 		</atom>
-		<atom id="5" name="H">
-			<touches>1</touches>			
+		<atom id="5" name="C">
+			<touches>1</touches>	
+			<touches>6</touches>			
+			<touches>7</touches>			
+			<touches>8</touches>			
+		</atom>
+		<atom id="6" name="H">
+			<touches>5</touches>			
+		</atom>
+		<atom id="7" name="H">
+			<touches>5</touches>			
+		</atom>
+		<atom id="8" name="H">
+			<touches>5</touches>			
 		</atom>
 	</molecule>
 	<molecule name="O2">
@@ -67,25 +79,26 @@
 </molecules>
 <frame id="0">
 	<atoms>
-		<atom name="C" count="2"/>
-		<atom name="H" count="8"/>
-		<atom name="O" count="8"/>	
+		<atom name="C" count="4"/>
+		<atom name="H" count="12"/>
+		<atom name="O" count="20"/>	
 	</atoms>
 	<molecules>
-		<molecule name="CH4" count="2"/>
-		<molecule name="O2" count = "4"/>
+		<molecule name="C2H6" count="2"/>
+		<molecule name="O2" count = "10"/>
 	</molecules>
 </frame>
 <frame id="1">
 	<atoms>
-		<atom name="C" count="2"/>
-		<atom name="H" count="8"/>
-		<atom name="O" count="8"/>	
+		<atom name="C" count="4"/>
+		<atom name="H" count="12"/>
+		<atom name="O" count="20"/>	
 	</atoms>
 	<molecules>
-		<molecule name="CO2" count="2"/>
-		<molecule name="H2O" count="4"/>
+		<molecule name="CO2" count="4"/>
+		<molecule name="H2O" count="6"/>
+		<molecule name="O2" count="3"/>
 	</molecules>
 </frame>
-<problemDescription name="Combust Methane">Students use stamps to make 2 CH4 molecules and 4 O2 molecules in Frame 1. They recombine these molecules in Frame 2 to form 2 CO2 and 4 H2O molecules.</problemDescription>
+<problemDescription name="Combust Ethane">Students use stamps to make 2 C2H6 molecules (ethane) and 10 O2 molecules in Frame 1. They recombine these molecules in Frame 2 to form 4 CO2 molecules, 6 H2O molecules, and 3 O2 molecules. Some of the O2 molecules are thus spectators.</problemDescription>
 </root>

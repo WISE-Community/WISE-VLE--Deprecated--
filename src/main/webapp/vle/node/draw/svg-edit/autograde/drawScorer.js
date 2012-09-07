@@ -704,7 +704,20 @@ var DrawScorer = function() {
     
     //Gets the name from an SVG image node
     this.getAtomNameFromImage = function(imageNode) {
-        return this.xmlSpecInfo.atoms[imageNode.getAttribute('xlink:href')];
+    	var atomName = '';
+    	
+    	//get the full path to the image
+    	var fullFilePath = imageNode.getAttribute('xlink:href');
+    	
+    	if(fullFilePath != null) {
+        	//get the file name of the image
+        	var fileName = fullFilePath.substring(fullFilePath.lastIndexOf('/') + 1);
+        	
+        	//get the atom name associated with the file name
+        	atomName = this.xmlSpecInfo.atoms[fileName];
+    	}
+    	
+    	return atomName;
     }
     
     //Returns the XML for the named molecule
@@ -847,10 +860,18 @@ var DrawScorer = function() {
             atoms[this.xmlSpecInfo.atoms[field]] = 0;
         }
         for(var j = 0; j < images.length; j++) {
-            if (typeof(this.xmlSpecInfo.atoms[images[j].getAttribute('xlink:href')]) != "undefined") {
-                var imageName = this.xmlSpecInfo.atoms[images[j].getAttribute('xlink:href')];
-                atoms[imageName]++;
-            }
+        	//get the full path to the image
+        	var fullFilePath = images[j].getAttribute('xlink:href');
+        	
+        	if(fullFilePath != null) {
+            	//get the file name of the image
+            	var fileName = fullFilePath.substring(fullFilePath.lastIndexOf('/') + 1);
+            	
+                if (typeof(this.xmlSpecInfo.atoms[fileName]) != "undefined") {
+                    var imageName = this.xmlSpecInfo.atoms[fileName];
+                    atoms[imageName]++;
+                }        		
+        	}
         }
         return atoms;
     }

@@ -1115,7 +1115,9 @@ View.prototype.ideaBasketDivOpen = function() {
  */
 View.prototype.ideaBasketDivClose = function() {
 	//check if the idea basket has changed
-	if(window.frames['ideaBasketIfrm'].basket.isBasketChanged()) {
+	if(window.frames['ideaBasketIfrm'] != null &&
+			window.frames['ideaBasketIfrm'].basket != null &&
+			window.frames['ideaBasketIfrm'].basket.isBasketChanged()) {
 		/*
 		 * idea basket has changed so we will save it back to the server
 		 * thisView is accessed from window.frames['ideaBasketIfrm'] because

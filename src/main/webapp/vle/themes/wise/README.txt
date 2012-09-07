@@ -64,14 +64,12 @@ match your theme.
 8. "thumb" - Preview thumbnail image of theme (File path relative to theme root),
 9. "logo" - VLE logo for this theme; usually displayed in HTML for the project VLE - see
 	"vle_logo" DOM element in "vle_body.html" (File path relative to theme root)
-10. "i18n" - Setting to specify whether internationalization is enabled for this theme; See
-	"Internationalization" section below for more details (Boolean)
-11. "css" - CSS files required by theme (Array of file paths relative to theme root)
-12. "js" - Javascript files required by theme; Optional (Array of file paths relative to theme root)
-13. "jqueryui_css" - CSS file for customized jQuery UI theme; Optional, as WISE provides a
+10. "css" - CSS files required by theme (Array of file paths relative to theme root)
+11. "js" - Javascript files required by theme; Optional (Array of file paths relative to theme root)
+12. "jqueryui_css" - CSS file for customized jQuery UI theme; Optional, as WISE provides a
 	default jQuery UI theme; leave value as empty string ("") to use the default theme (File
 	path relative to theme root)
-14. "nav_modes" - The project navigation modes this theme supports; First entry in the array
+13. "nav_modes" - The project navigation modes this theme supports; First entry in the array
 	will be set as the default; Each navigation mode's 'id' entry MUST match the name of a folder
 	in the "navigation" directory for your theme; You must include at least one navigation mode
 	with your theme; See "Project Navigation" section below for more details (Array of Objects)
@@ -116,31 +114,25 @@ Each navigation mode folder must include the following:
 The WISE VLE project theme architecture supports internationalized text (based on the WISE installation's
 locale setting). If you would like to enable internationalization for your theme, ensure that the 
 "i18n_enabled" setting in the theme's "config.json" file is set to true and that you include the "i18n" 
-folder in your theme's root directory. The "i18n" folder must include the "theme_i18n.js" file, as well 
-as an "i18n_[locale].json" file for each locale you want to support.
+folder in your theme's root directory. The "i18n" folder must include an "i18n_[locale].json" file for 
+each locale you want to support.
 
-Project VLE internationalization operates just like the WISE VLE's internationalization. You can set the 
-default language for your theme in your theme's "theme_i18n.js" file by editing the 
-"View.prototype.theme.i18n.defaultLocale" entry. (If an i18n entry does not exist for the locale being used, 
-WISE will use the entry in the "i18n_[locale].js" file for the default language.)
-
-You can set the locales your theme supports with the "View.prototype.theme.i18n.supportedLocales" 
-item (array of strings). Then, for each internationalized text/HTML item you would like to use in the DOM, 
-add an entry to each of your "i18n_[locale].js" files. i18n items should be javascript objects in the 
-following format:
+For each internationalized text/HTML item you would like to use in the DOM, add an entry to each of your 
+"i18n_[locale].js" files. i18n items should be written in the following format:
 	
 	"key_value":{
 		"value":"The text or html to insert",
 		"description":"A short description of where this text is used"
 	}
 	
-To insert i18n text into your theme's DOM, simply invoke "getI18NString" function from "theme_i18n.js" in 
-any of the NavigationPanel.prototype functions in the "nav.js" files for your navigation modes in this 
-manner: "this.view.theme.getI18NString('key_value')" (where "this" is the NavigationPanel prototype object).
+To insert i18n text into your theme's DOM, simply invoke the view's "getI18NString" function in any of the 
+NavigationPanel.prototype functions in the "nav.js" files for your navigation modes in this manner: 
+"this.view.getI18NString('key_value','theme')" (where "this" is the NavigationPanel prototype object). Be
+sure to include the 'theme' parameter as the second argument of the getI18NString function call.
 
 For example (using the sample i18n item above),
 
->> $('#sample_div').html(this.view.theme.getI18NString("key_value"));
+>> $('#sample_div').html(this.view.getI18NString("key_value","theme"));
 
 will result in this HTML:
 

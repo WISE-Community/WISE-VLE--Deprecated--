@@ -8,14 +8,14 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.startVLEFromParams(args[0]);
 	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
+	} else if (type=='retrieveLocalesComplete' && args[0]=="theme") {
+		obj.onThemeLoad();
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
 		obj.setDialogEvents();
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
 		obj.retrieveThemeLocales();
-	} else if (type=='retrieveThemeLocalesComplete'){
-		obj.onThemeLoad();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
 		// start the xmpp if xmpp is enabled
@@ -414,10 +414,12 @@ View.prototype.onProjectLoad = function(){
 		
 		if(themeName && this.activeThemes.indexOf(themeName)>-1){
 			// theme specified by project matches an active theme, so load specified theme
+			this.theme = themeName;
 			this.loadTheme(themeName);
 		} else {
 			// either project paramters don't contain a theme or theme specified by project
 			// is not active, so load vle default
+			this.theme = this.activeThemes[0];
 			this.loadTheme(this.activeThemes[0]);
 			//this.loadTheme(this.config.getConfigParam('theme'));
 		}
@@ -428,8 +430,7 @@ View.prototype.onProjectLoad = function(){
 
 View.prototype.retrieveThemeLocales = function(){
 	if('theme' in this){
-		this.theme.config = this.config;
-		this.theme.retrieveLocales("theme","/vlewrapper/vle/themes/wise/i18n/");
+		this.retrieveLocales("theme","/vlewrapper/vle/themes/" + this.theme + "/i18n/");
 	} else {
 		this.onThemeLoad();
 	}
@@ -515,6 +516,8 @@ View.prototype.onThemeLoad = function(){
 View.prototype.renderStartNode = function(){
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
+
+	var startPos = null;
 	
 	/* check to see if we can render the start node based on the current state of loading */
 	if(this.canRenderStartNode(mode) && this.isAnyNavigationLoadingCompleted()){
@@ -534,7 +537,7 @@ View.prototype.renderStartNode = function(){
 				var node = this.getProject().getNodeById(currentNodeVisit.nodeId);
 			}
 			
-			var startPos = this.getProject().getPositionById(node.id);
+			startPos = this.getProject().getPositionById(node.id);
 			
 			/*
 			 * if we could not find the startPos we will just render
@@ -545,8 +548,40 @@ View.prototype.renderStartNode = function(){
 			if(startPos == null) {
 				startPos = this.getProject().getStartNodePosition();
 			}
+		} else if(mode == 'portalpreview') {
+			//we are previewing a project
+			
+			//try obtain a step to load for the preview if any
+			var step = this.config.getConfigParam('step');
+			
+			if(step != null) {
+				//the step was specified in the url as a param so we will try to load that step
+				
+				/*
+				 * get the step position from the step number. step numbers
+				 * start at 1 but step positions start at 0. so a step number
+				 * of 1.1 would have a step position of 0.0
+				 */
+				var stepPosition = this.getStepPositionFromStepNumber(step);
+				
+				startPos = stepPosition;
+				
+				//try to get the node at the position
+				var node = this.getProject().getNodeByPosition(stepPosition);
+				
+				if(node == null) {
+					//the node does not exist which means there is no step at the given step number
+					alert('Error: Step ' + step + ' does not exist');
+					
+					//just load the first step in the project
+					startPos = this.getProject().getStartNodePosition();
+				}
+			} else {
+				//step was not specified so we will just load the first step in the project
+				startPos = this.getProject().getStartNodePosition();
+			}
 		} else {
-			var startPos = this.getProject().getStartNodePosition();
+			startPos = this.getProject().getStartNodePosition();
 		}
 		
 		/* render if start position has been set */

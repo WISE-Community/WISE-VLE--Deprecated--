@@ -403,7 +403,7 @@ function checkCompletedForTags(thisStep, tagName, functionArgs) {
 		//the student has not completed one of the steps
 		
 		//create the message to display to the student
-		var message = "You must complete these steps before you can work on this step<br><br>";
+		var message = "You must complete these steps before you can work on this step<br>";
 		
 		//loop through all the failed steps
 		for(var x=0; x<nodesFailed.length; x++) {

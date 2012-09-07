@@ -32,11 +32,19 @@ function SVGDRAW(node) {
 			"selected": null
 			};
 	this.init(node.getContent().getContentUrl());
+	
+	if(this.content.autoScoring != null) {
+		if(this.content.autoScoring.autoScoringCriteria == null || this.content.autoScoring.autoScoringCriteria == '') {
+			//auto scoring criteria is null or empty string so we will hide the div that contains the 'Check Work' button
+			$('#autoGradeWorkButtonDiv').hide();
+		} else {
+			//show the hide work button
+			$('#autoGradeWorkButtonDiv').show();
+		}		
+	}
 };
 
 SVGDRAW.prototype.init = function(jsonURL) {
-	console.log('svgdraw.init');
-	
 	this.loadModules(jsonURL, this);  // process backgrounds, stamps, snapshots, descriptions, hidden tool options
 };
 
@@ -218,9 +226,34 @@ SVGDRAW.prototype.saveToVLE = function() {
 		} else {
 			this.studentData.selected = -1;
 		}
-		var data = this.studentData;
-		this.dataService.save(data);
+		//var data = this.studentData;
+		//this.dataService.save(data);
+		this.save();
 	//}
+};
+
+/**
+ * Save the student work
+ */
+SVGDRAW.prototype.save = function() {
+	var data = this.studentData;
+	
+	/* compress nodeState data */
+	var compressedData = "--lz77--" + this.lz77.compress($.stringify(data));
+	var autoScore = this.autoScore;
+	var autoFeedback = this.autoFeedback;
+
+	//create a new svgdrawstate
+	var svgDrawState = new SVGDRAWSTATE(compressedData, null, autoScore, autoFeedback);
+	
+	//fire the event to push this state to the global view.states object
+	eventManager.fire('pushStudentWork', svgDrawState);
+	
+    this.data = data;
+    
+    //clear out the auto score and auto feedback
+    this.autoScore = null;
+	this.autoFeedback = null;
 };
 
 SVGDRAW.prototype.load = function() {
@@ -539,65 +572,109 @@ SVGDRAW.prototype.hideTools = function(option){
 	}
 };
 
+/**
+ * Auto grade the drawing
+ */
 SVGDRAW.prototype.autoGradeWork = function() {
-	console.log('autograding begin');
-	var scorer = new DrawScorer();	
-	scorer.parseXMLSpec("autograde/MethaneSpec.xml");		
+	//create the object that will auto grade the drawing
+	var scorer = new DrawScorer();
 	
-	if (this.teacherAnnotation != "") {
-		svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
-	}
-	this.studentData.svgString = svgCanvas.getSvgString();
-	this.studentData.description = svgEditor.description;
-	this.studentData.snapshots = svgEditor.snapshots;
-	this.studentData.snapTotal = svgEditor.snapTotal;
-	if(svgEditor.selected == true){
-		this.studentData.selected = svgEditor.active;
-	} else {
-		this.studentData.selected = -1;
-	}
-	
-	scorer.scoreDrawing(this.studentData);
-	
-	//get the score
-	var score = this.studentData.rubricScore;
-	
-	//create the auto score text that will be displayed in the popup
-	var message = 'Auto score returned: ' + score + " out of 5.\n\n";
-	
-	//create the feedback text that will be displayed in the popup
-	if(score == null) {
+	if(this.content.autoScoring != null) {
 		
-	} else if(score == 0) {
-		message += '- This is a good start.\n\n';
-		message += '- Be sure to use 1 frame to represent the REACTANTS and another to represent the PRODUCTS in the methane combustion reaction. How does the arrangement of the atoms change from PRODUCTS to REACTANTS?\n\n';
-		message += '- Revisit steps 3.6-3.8. Then make an improved drawing in Step 7.1.\n\n';
-	} else if(score == 1) {
-		message += '- Good start. You have correctly created 2 frames that represent the reactants and products of the methane combustion reaction.\n\n';
-		message += '- Can atoms in the reaction be spontaneously CREATED OR DESTROYED?\n\n';
-		message += '- Reread the directions and revisit steps 3.6-3.8.Then make an improved drawing in Step 7.1.\n\n';
-	} else if(score == 2) {
-		message += '- Good start. You have correctly conserved mass by neither creating nor destroying atoms.\n\n';
-		message += '- What are the ONLY 4 substances (types of molecules) that can exist as either reactants or products in the combustion of methane?\n\n';
-		message += '- Reread the directions and revisit steps 3.6-3.8.Then make an improved drawing in Step 7.1.\n\n';
-	} else if(score == 3) {
-		message += '- Good start. You have correctly conserved mass and included ONLY CH4, H2O, CO2, and O2 molecules.\n\n';
-		message += '- HOW MANY O2 molecules are need to react with EACH CH4 molecule in the methane combustion reaction?\n\n';
-		message += '- Reread the directions and revisit steps 3.6-3.8.Then make an improved drawing in Step 7.1.\n\n';
-	} else if(score == 4) {
-		message += '- You are on the right track. You have correctly conserved mass and included the correct numbers of CH4,  H2O, CO2, and O2 molecules in the methane combustion reaction.\n\n';
-		message += '- Be sure to make the molecules in your drawings distinct from each other.\n\n';
-		message += '- Revisit steps 3.6-3.8. Then make an improved drawing in Step 7.1.\n\n';
-	} else if(score == 5) {
-		message += '- Great job--no revision needed!!\n\n';
-		message += '- You have correctly conserved mass and clearly included the correct numbers of CH4, H2O, CO2, and O2 molecules in the methane combustion reaction.\n\n';
+		//set the grading specification depending on the criteria
+		if(this.content.autoScoring.autoScoringCriteria == 'methane') {
+			scorer.parseXMLSpec("autograde/MethaneSpec.xml");
+		} else if(this.content.autoScoring.autoScoringCriteria == 'ethane') {
+			scorer.parseXMLSpec("autograde/EthaneSpec.xml");
+		} else {
+			//error
+			return;
+		}
+		
+		if (this.teacherAnnotation != "") {
+			svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
+		}
+		this.studentData.svgString = svgCanvas.getSvgString();
+		this.studentData.description = svgEditor.description;
+		this.studentData.snapshots = svgEditor.snapshots;
+		this.studentData.snapTotal = svgEditor.snapTotal;
+		if(svgEditor.selected == true){
+			this.studentData.selected = svgEditor.active;
+		} else {
+			this.studentData.selected = -1;
+		}
+		
+		//score the drawing
+		scorer.scoreDrawing(this.studentData);
+		
+		//get the score
+		var score = this.studentData.rubricScore;
+		
+		//get the feedback
+		var feedback = this.getFeedbackByScore(score);
+		
+		var message = '';
+		
+		//display the score if we need to
+		if(this.content.autoScoring.autoScoringDisplayScoreToStudent) {
+			message += 'Auto score returned: ' + score + " out of 5.";
+		}
+		
+		//display the feedback if we need to
+		if(this.content.autoScoring.autoScoringDisplayFeedbackToStudent) {
+			if(message != '') {
+				//add line breaks if we are displayed the score
+				message += '\n\n';
+			}
+			
+			message += feedback;
+		}
+		
+		if(message != '') {
+			//display the popup that may contain the score and the text feedback
+			alert(message);		
+		}
+		
+		//set the score and feedback so we can access them later when we save the svgdrawstate
+		this.autoScore = score;
+		this.autoFeedback = message;
+		
+		//save the student work with the score and feedback
+		this.saveToVLE();	
 	}
-	
-	//display the popup that contains the score and the text feedback
-	alert(message);
 };
 
-
+/**
+ * Get the feedback for the given score
+ * @param score the score we want feedback for
+ */
+SVGDRAW.prototype.getFeedbackByScore = function(score) {
+	var feedback = '';
+	
+	if(this.content.autoScoring != null) {
+		if(this.content.autoScoring.autoScoringFeedback != null) {
+			
+			//loop through all the feedback objects
+			for(var x=0; x<this.content.autoScoring.autoScoringFeedback.length; x++) {
+				//get a feedback object
+				var autoScoringFeedbackObject = this.content.autoScoring.autoScoringFeedback[x];
+				
+				if(autoScoringFeedbackObject != null) {
+					//compare the score
+					if(score == autoScoringFeedbackObject.score) {
+						//we found the score we want so we will get the feedback 
+						feedback = autoScoringFeedbackObject.feedback;
+						
+						//break out of the for loop
+						break;
+					}
+				}
+			}
+		}		
+	}
+	
+	return feedback;
+};
 
 /*SVGDRAW.prototype.checkDrawSize = function(context){
 	var current = svgCanvas.getSvgString();

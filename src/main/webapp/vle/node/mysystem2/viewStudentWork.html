@@ -35,6 +35,15 @@ function loadStudentData() {
 	//add the next button
 	document.getElementById('navigationDiv').innerHTML += '<input type="button" value="Next" onclick="displayNext()"/>';
 
+	//check if any of the student work has isSubmit=true
+	if(checkIfAnyStudentWorkHasIsSubmit(data)) {
+		/*
+		 * there is student work with isSubmit=true so we will allow
+		 * the user to "Only Show Submits" if they want
+		 */
+		document.getElementById('navigationDiv').innerHTML += '<input id="onlyShowSubmitsCheckbox" type="checkbox" value="onlyShowSubmits" onclick="onlyShowSubmitsClicked()"/> Only Show Submits';
+	}
+
 	//get the array of student data
 	var students = data.students;
 
@@ -58,6 +67,15 @@ function loadStudentData() {
 	}
 	
 	//display the first workgroup id since the first workgroup id will be the one initially selected
+	displayStudentData();
+}
+
+/**
+ * The "Only Show Submits" checkbox was clicked so we will display the 
+ * student data again so that it takes into consideration whether
+ * "Only Show Submits" is checked or not
+ */
+function onlyShowSubmitsClicked() {
 	displayStudentData();
 }
 
@@ -176,6 +194,13 @@ function displayStudentData() {
 	//get the array of student data for the selected workgroup id
 	var studentDataArray = student.studentDataArray;
 	
+	var onlyShowSubmits = false;
+	
+	if(document.getElementById('onlyShowSubmitsCheckbox') != null) {
+		//get whether the "Only Show Submits" checkbox was checked or not
+		onlyShowSubmits = document.getElementById('onlyShowSubmitsCheckbox').checked;
+	}
+	
 	if(studentDataArray != null && studentDataArray != '') {
 		//loop through all the student data
 		for(var x=0; x<studentDataArray.length; x++) {
@@ -209,35 +234,79 @@ function displayStudentData() {
 				var nodeStates = data.nodeStates;
 				
 				if(nodeStates != null && nodeStates != '') {
-					//loop through the node states backwards to find the latest node state that has work
-					for(var y=nodeStates.length - 1; y>=0; y--) {
-						//get a node state
-						var nodeState = nodeStates[y];
+				
+					if(onlyShowSubmits) {
+						//only show submits
 						
-						if(nodeStateHasWork(nodeState)) {
-							//this node state has work
-							var nodeStateStudentDataHtml = '';
-						
-							//display information about the node state
-							nodeStateStudentDataHtml += 'Revision: ' + revisionCounter + '<br>';
-							nodeStateStudentDataHtml += 'Step Work Id: ' + stepWorkId + '<br>';
-							nodeStateStudentDataHtml += 'Start Time: ' + startTime + '<br>';
-							nodeStateStudentDataHtml += 'End Time: ' + endTime + '<br>';
-							nodeStateStudentDataHtml += getStudentDataHtml(nodeState);
-							nodeStateStudentDataHtml += '<hr>';
+						//loop through all the node states from oldest to newest
+						for(var y=0; y<nodeStates.length; y++) {
+							//get a node state
+							var nodeState = nodeStates[y];
 							
-							//add this node state html to the top so that the latest node state is at the top
-							studentDataHtml = nodeStateStudentDataHtml + studentDataHtml;
+							if(nodeStateHasWork(nodeState)) {
+								//this node state has work
+								var nodeStateStudentDataHtml = '';
 							
-							//increment the revision counter
-							revisionCounter++;
+								//display information about the node state
+								nodeStateStudentDataHtml += 'Revision: ' + revisionCounter + '<br>';
+								nodeStateStudentDataHtml += 'Step Work Id: ' + stepWorkId + '<br>';
+								nodeStateStudentDataHtml += 'Start Time: ' + startTime + '<br>';
+								nodeStateStudentDataHtml += 'End Time: ' + endTime + '<br>';
+								nodeStateStudentDataHtml += getStudentDataHtml(nodeState);
+								nodeStateStudentDataHtml += '<hr>';
+	
+								//add this node state html to the top so that the latest node state is at the top
+								studentDataHtml = nodeStateStudentDataHtml + studentDataHtml;
+								
+								//increment the revision counter
+								revisionCounter++;
+							}
+						}
+					} else {
+						//show latest states for all node visits
+													
+						//loop through the node states from newest to oldest to find the latest node state that has work
+						for(var y=nodeStates.length - 1; y>=0; y--) {
+							//get a node state
+							var nodeState = nodeStates[y];
 							
-							//break out of the for loop since we have found a node state that has work
-							break;
+							if(nodeStateHasWork(nodeState)) {
+								//this node state has work
+								var nodeStateStudentDataHtml = '';
+							
+								//display information about the node state
+								nodeStateStudentDataHtml += 'Revision: ' + revisionCounter + '<br>';
+								nodeStateStudentDataHtml += 'Step Work Id: ' + stepWorkId + '<br>';
+								nodeStateStudentDataHtml += 'Start Time: ' + startTime + '<br>';
+								nodeStateStudentDataHtml += 'End Time: ' + endTime + '<br>';
+								nodeStateStudentDataHtml += getStudentDataHtml(nodeState);
+								nodeStateStudentDataHtml += '<hr>';
+	
+								//add this node state html to the top so that the latest node state is at the top
+								studentDataHtml = nodeStateStudentDataHtml + studentDataHtml;
+								
+								//increment the revision counter
+								revisionCounter++;
+								
+								//break out of the for loop since we have found a node state that has work
+								break;
+							}
 						}
 					}
 				}
 			}
+		}
+	}
+	
+	//get the wise ids
+	var wiseIds = student.wiseIds;
+	if(wiseIds != null && wiseIds != '') {
+		//loop through all the wise ids
+		for(var x=0; x<wiseIds.length; x++) {
+			//display a wise id
+			var wiseId = wiseIds[x];
+			document.getElementById('studentDataDiv').innerHTML += 'Wise Id ' + (x + 1) + ': ' + wiseId;
+			document.getElementById('studentDataDiv').innerHTML += '<br>';
 		}
 	}
 
@@ -360,11 +429,26 @@ function getStudentDataHtml(nodeState) {
 function nodeStateHasWork(nodeState) {
 	var hasWork = false;
 	
+	var onlyShowSubmits = false;
+	
+	if(document.getElementById('onlyShowSubmitsCheckbox') != null) {
+		//get whether the "Only Show Submits" checkbox is checked
+		onlyShowSubmits = document.getElementById('onlyShowSubmitsCheckbox').checked;
+	}
+	
 	if(nodeState != null && nodeState != '') {
 		//get the data
 		var response = nodeState.response;
 		
-		if(response != null && response != '') {
+		if(onlyShowSubmits) {
+			//we are only showing submits
+			var isSubmit = nodeState.isSubmit;
+			
+			if(isSubmit) {
+				//this node state is a submit
+				hasWork = true;
+			}
+		} else if(response != null && response != '') {
 			//the data is not null or empty so this node state has work
 			hasWork = true;
 		}
@@ -372,6 +456,67 @@ function nodeStateHasWork(nodeState) {
 	
 	return hasWork;
 };
+
+/**
+ * Check if any of the student work has isSubmit=true
+ * @param data the data from the data.js file
+ */
+function checkIfAnyStudentWorkHasIsSubmit(data) {
+	var hasIsSubmit = false;
+
+	//get the array of student data
+	var students = data.students;
+
+	//loop through the array of student data
+	for(var x=0; x<students.length; x++) {
+		//get a student data object
+		var student = students[x];
+		
+		if(student != null) {
+			//get the student data array aka node visits
+			var studentDataArray = student.studentDataArray;
+			
+			if(studentDataArray != null) {
+				
+				//loop through all the student data
+				for(var y=0; y<studentDataArray.length; y++) {
+					var studentData = studentDataArray[y];
+					
+					if(studentData != null) {
+						//get the data
+						var data = studentData.data;
+						
+						if(data != null) {
+							//get the node states
+							var nodeStates = data.nodeStates;
+							
+							if(nodeStates != null) {
+								
+								//loop through all the node states
+								for(var z=0; z<nodeStates.length; z++) {
+									//get a node state
+									var nodeState = nodeStates[z];
+									
+									if(nodeState != null) {
+										//get the isSubmit value
+										var isSubmit = nodeState.isSubmit;
+										
+										if(isSubmit) {
+											//isSubmit is true
+											hasIsSubmit = true;
+										}
+									}
+								}
+							}	
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return hasIsSubmit;
+}
 
 </script>
 </head>

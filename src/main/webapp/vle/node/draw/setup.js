@@ -24,7 +24,8 @@ var studentVLEScripts = [
 	'vle/node/draw/svg-edit/svgcanvas.js',
 	'vle/node/draw/svg-edit/svg-editor.js',
 	'vle/node/draw/svg-edit/locale/locale.js',*/
-	'vle/node/draw/svg-edit/svgdraw.js'
+	'vle/node/draw/svg-edit/svgdraw.js',
+	'vle/node/draw/svg-edit/svgdrawstate.js',
 ];
 
 var authorScripts = [

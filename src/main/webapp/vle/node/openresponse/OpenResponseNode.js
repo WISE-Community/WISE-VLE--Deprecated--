@@ -234,6 +234,9 @@ OpenResponseNode.prototype.renderGradingView = function(divId, nodeVisit, childD
 		studentWork = this.getCRaterGradingView(nodeVisit);
 	}
 	
+	//replace \n with <br>
+	studentWork = this.view.replaceSlashNWithBR(studentWork);
+	
 	//put the student work into the div
 	$('#' + divId).html(studentWork);
 };

@@ -275,11 +275,11 @@ View.prototype.OpenResponseNode.generateTeacherReview = function(peerReviewType)
 		//do nothing
 	} else if(peerReviewType == 'annotate') {
 		//create label and text area
-		var peerReviewAuthoreWorkText = document.createTextNode('Enter the canned work: ');
+		var peerReviewAuthoredWorkText = document.createTextNode('Enter the canned work: ');
 		var peerReviewAuthoredWorkInput = createElement(document, 'textarea', {id: 'peerReviewAuthoredWorkInput', cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("openResponsePeerReviewAuthoredWorkUpdated")'});
 		
 		//add the label and text area to the div that we will return
-		peerReviewDiv.appendChild(peerReviewAuthoreWorkText);
+		peerReviewDiv.appendChild(peerReviewAuthoredWorkText);
 		peerReviewDiv.appendChild(peerReviewAuthoredWorkInput);
 		
 		//set any previously set values for the authoredWork

@@ -8,12 +8,6 @@
 	"screenshot" : "images/screenshot-wise.png",
 	"thumb" : "images/thumb-wise.png",
 	"logo" : "images/wise4-logo-vle-nobg.png",
-	"i18n_enabled" : true,
-	"i18n_supported_locales":{
-			"en_US":"en_US",
-			"ja":"ja",
-			"zh_TW":"zh_TW"
-	},
 	"css" : [
 		"css/theme.css"	
 	],
