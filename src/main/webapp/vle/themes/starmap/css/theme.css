@@ -223,8 +223,12 @@ a:hover { text-decoration:underline; }
 
 /* Layout elements */
 
+html, body {
+	background: #090810;
+}
+
 body#w4_vle {
-	background: url("../images/vle_bg4.png") repeat scroll center top #6B6B6B;
+	background: #090810;
 	font-size:.9em
 	font-family: Arial, Helvetica, Tahoma, sans-serif;
 }
@@ -259,8 +263,7 @@ body#w4_vle {
 	/*background: -ms-linear-gradient(top,  #579d94 0%,#005b72 100%); /* IE10+ */
 	/*background: linear-gradient(top,  #579d94 0%,#005b72 100%); /* W3C */
 	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#579d94', endColorstr='#005b72',GradientType=0 ); /* IE6-8 */
-	background-color: #000;
-	/*background:url("../images/header-bg-vle.png") repeat-x scroll 0 0 #5095A2;*/
+	background:url("../images/banner.png") no-repeat #090810;
 }
 
 #vle_body footer {
@@ -288,7 +291,6 @@ body#w4_vle {
 #vle_body #logo {
 	display:inline-block;
 	line-height:28px;
-	margin-left:.5em;
 }
 
 #vle_body #projectTools {
@@ -315,7 +317,7 @@ body#w4_vle {
 }
 
 #vle_body .contentPanel {
-	background-color:#FFFFFF;
+	background-color: #090810;
 }
 
 #vle_body #stepInfo, #vle_body #hints, #vle_body #audioControls, #vle_body #stepNav, #vle_body #nodeAnnotations {
@@ -382,7 +384,7 @@ body#w4_vle {
 	margin:0;
 	width:100%;
 	height:100%;
-	background-color:#FFF;
+	background-color:#090810;
 	/*overflow-x:hidden;*/
 }
 
@@ -509,7 +511,7 @@ body#w4_vle {
 
 #vle_body #toggleNavLink {
 	padding-left:28px;
-	background:transparent url('../images/tools/fullscreen.png') no-repeat left center;
+	background:transparent url('../images/starmapBtn_24.png') no-repeat left center;
 }
 
 #vle_body #viewMyWorkLink {

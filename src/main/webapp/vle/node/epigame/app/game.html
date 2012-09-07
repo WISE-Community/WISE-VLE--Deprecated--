@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" style="height: 100%; ">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="../epigame.css" type="text/css"/>
+<title>Epigame</title>
+<script language="JavaScript" type="text/javascript" src="swfobject.js"></script>
+<script type="text/javascript">
+var epigame;
+
+function loadContentAfterScriptsLoad(node) {
+	epigame = new Epigame(node);
+	epigame.render();
+};
+
+function loadContent(node) {
+	/*
+	 * this loadScripts() function call will load the javascript imports
+	 * into this html file 
+	 */
+	scriptloader.loadScripts('epigame', document, node.id, eventManager);
+};
+
+/*
+ * This is called when the student clicks on the save button below in the body
+ */
+function save() {
+	/*
+	 * calls the save function in epigame.js
+	 */
+	//epigame.save();
+}
+
+var epigameLoader = function(){
+	var embedEpigame = function(flashVars) {
+		swfobject.embedSWF("Main.swf", "swfDiv", "100%", "100%", "10.2.0", "expressInstall.swf", flashVars);
+	};
+	
+	return {
+		loadBlankEditor: function() { embedEpigame({mode:"editmission"}); },
+		loadMissionEditor: function(missionStr) { embedEpigame({mode:"editmission", mission:missionStr}); },
+		loadMission: function(missionStr) { embedEpigame({mode:"playmission", mission:missionStr}); },
+		loadMap: function() { embedEpigame({mode:"playcampaign"}); }
+	};
+}();
+</script>
+</head>
+	<body bgcolor="#FFFFFF" style="overflow:hidden; margin:0; padding:0; height: 100%;">
+		<div id='messageDiv'></div>
+		<div id='promptDiv'></div>
+		<div id="swfDiv" style="margin:0; padding:0; height: 100%;">
+			<h1>The Flash Player is required to play this game.</h1>
+			<p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
+		</div>
+		<div id='authoredContentDiv'></div>
+		<div id='studentWorkDiv'></div>
+		<div id='topScoreDiv'></div>
+		<div id='accumulatedScoreDiv'></div>
+	</body>
+</html>

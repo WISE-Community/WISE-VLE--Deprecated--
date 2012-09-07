@@ -3,69 +3,72 @@
  * user is using the vle, authoring tool, or grading tool
  */
 var coreScripts = [
-	'vle/node/surge/SurgeNode.js',
-	'vle/node/surge/surgeEvents.js'
+	'vle/node/epigame/EpigameNode.js',
+	'vle/node/epigame/epigameEvents.js'
 ];
 
-var coreMinScripts = ['vle/node/surge/surge_core_min.js'];
+var coreMinScripts = ['vle/node/epigame/epigame_core_min.js'];
 
 //the scripts used in the vle
 var studentVLEScripts = [
 	scriptloader.jquerySrc,
 	scriptloader.jqueryUISrc,
 	'vle/node/common/nodehelpers.js',
-	'vle/node/surge/surge.js',
-	'vle/node/surge/surgeState.js'
+	'vle/node/epigame/epigame.js',
+	'vle/node/epigame/epigameState.js'
 ];
 
 //the scripts used in the authoring tool
 var authorScripts = [
-	'vle/node/surge/authorview_surge.js'
+	'vle/node/epigame/authorview_epigame.js'
 ];
 
 //the scripts used in the grading tool
 var gradingScripts = [
-	'vle/node/surge/surgeState.js'
+	'vle/node/epigame/epigameState.js'
 ];
 
 //dependencies when a file requires another file to be loaded before it
 var dependencies = [
-	{child:"vle/node/surge/SurgeNode.js", parent:["vle/node/Node.js"]}
+	{child:"vle/node/epigame/EpigameNode.js", parent:["vle/node/Node.js"]}
 ];
 
 var nodeClasses = [
-	{nodeClass:'display', nodeClassText:'Surge'}
+	{nodeClass:'mission', nodeClassText:'Generic Mission'},
+	{nodeClass:'bronze', nodeClassText:'Easy Mission'},
+	{nodeClass:'silver', nodeClassText:'Medium Mission'},
+	{nodeClass:'gold', nodeClassText:'Hard Mission'}
 ];
 
-var nodeIconPath = 'node/surge/icons/';
-componentloader.addNodeIconPath('SurgeNode', nodeIconPath);
+var nodeIconPath = 'node/epigame/icons/';
+componentloader.addNodeIconPath('EpigameNode', nodeIconPath);
 
 scriptloader.addScriptToComponent('core', coreScripts);
 scriptloader.addScriptToComponent('core_min', coreMinScripts);
-scriptloader.addScriptToComponent('surge', studentVLEScripts);
+scriptloader.addScriptToComponent('epigame', studentVLEScripts);
 scriptloader.addScriptToComponent('author', authorScripts);
 scriptloader.addScriptToComponent('studentwork', gradingScripts);
 scriptloader.addScriptToComponent('studentwork_min', gradingScripts);
 scriptloader.addDependencies(dependencies);
 
-componentloader.addNodeClasses('SurgeNode', nodeClasses);
+componentloader.addNodeClasses('EpigameNode', nodeClasses);
 
 var css = [
-       	"vle/node/surge/surge.css"
+	"vle/node/epigame/epigame.css"
 ];
 
-scriptloader.addCssToComponent('surge', css);
+scriptloader.addCssToComponent('epigame', css);
 
 var nodeTemplateParams = [
 	{
-		nodeTemplateFilePath:'node/surge/surgeTemplate.su',
-		nodeExtension:'su'
+		nodeTemplateFilePath:'node/epigame/epigameTemplate.ep',
+		nodeExtension:'ep'
 	}
 ];
 
-componentloader.addNodeTemplateParams('SurgeNode', nodeTemplateParams);
+componentloader.addNodeTemplateParams('EpigameNode', nodeTemplateParams);
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
-	eventManager.fire('scriptLoaded', 'vle/node/surge/setup.js');
+	eventManager.fire('scriptLoaded', 'vle/node/epigame/setup.js');
 };
