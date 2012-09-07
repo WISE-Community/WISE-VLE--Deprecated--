@@ -5,6 +5,7 @@
 function VLE_STATE() {
 	this.visitedNodes = [];  // array of NODE_VISIT objects
 	this.userName = null; //lets put this here for now, sssssh
+	this.workgroupId = null;  // sneak this in there too, ssssssh
 	this.dataId = null;
 }
 
@@ -199,6 +200,7 @@ VLE_STATE.prototype.parseDataJSONObj = function(vleStateJSONObj) {
 	
 	//populate the attributes
 	vleState.userName = vleStateJSONObj.userName;
+	vleState.workgroupId =  vleStateJSONObj.userId;
 	vleState.dataId = vleStateJSONObj.userId;
 	
 	//loop through the node visits and populate them in the VLE_STATE

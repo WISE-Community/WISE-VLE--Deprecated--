@@ -87,7 +87,7 @@ View.prototype.lockScreenAndShareWithClass = function(teacherShareWithClassObj) 
 	    $('#lockscreen').dialog('open');
 	    $('#lockscreen').dialog('option', 'width', 800);
 	    $('#lockscreen').dialog('option', 'height', 600);
-	} else if (teacherShareWithClassObj.shareType == "TeacherMessage") {
+	} else if (teacherShareWithClassObj.shareType == "TeacherMessage" || teacherShareWithClassObj.shareType == "PauseAll") {
 		//the teacher has shared a message with the class
 		
 		var shareHTML = teacherShareWithClassObj.shareObject;

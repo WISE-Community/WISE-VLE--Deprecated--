@@ -395,6 +395,7 @@ var scriptloader = function(){
 	              'vle/view/grading/gradingview_export.js',
 	              'vle/view/grading/gradingview_startup.js',
 	              'vle/view/grading/gradingview_studentwork.js',
+		      'vle/view/grading/gradingview_classroommonitor.js',
 	              'vle/jquery/js/jquery.tablesorter.min.js', // TODO: remove when all references are removed
 	              'vle/jquery/jquery-dataTables/js/jquery.dataTables.min.js',
 	              'vle/jquery/jquery-dataTables/extras/FixedHeader/js/FixedHeader.min.js',

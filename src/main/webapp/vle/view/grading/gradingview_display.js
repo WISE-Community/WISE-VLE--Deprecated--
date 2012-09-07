@@ -71,7 +71,7 @@ View.prototype.onlyShowWorkOnClick = function() {
  * Displays the steps in the project and then gets the student work
  */
 View.prototype.initiateGradingDisplay = function() {
-	removejscssfile("jquery-ui-1.8.7.custom.css", "css") //remove all occurences "jquery-ui-1.8.7.custom.css" on page
+	removejscssfile("jquery-ui-1.8.7.custom.css", "css"); //remove all occurences "jquery-ui-1.8.7.custom.css" on page
 	
 	//obtain the grading permission from the iframe window url
 	var permissionSearch = window.location.search.match(/permission=(\w*)/);
@@ -132,7 +132,7 @@ View.prototype.initiateGradingDisplay = function() {
 		this.displayResearcherToolsPage();
 	}
 
-	if(this.gradingType != "monitor" && this.gradingType != "export") {
+	if(this.gradingType != "export") {
 		this.getPeerReviewWork();
 		this.getStudentWork();		
 	}
@@ -809,6 +809,7 @@ View.prototype.realTimeMonitorFilterClicked = function() {
 				// clear graph image and show real time monitor statistics graph
 				$("#realTimeMonitorStepSummaryDiv").html('<img id="realTimeMonitorGraphImg" src="" width="300" height="225" alt="Student Responses"></img>');
 				$("#realTimeMonitorStepSummaryDiv").show();
+				this.displayStepGraph(selectedNodeIdValue);
 			} else if (node.type == "OpenResponseNode" || node.type == "NoteNode") {
 				$("#realTimeMonitorStepSummaryDiv").html('<div id="realTimeMonitorDraggableCanvasDiv" width="300" height="225"></div>');
 				$("#realTimeMonitorStepSummaryDiv").show();
@@ -1706,7 +1707,9 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 	gradeByStepGradingPageHtml += "</div></div></div>"
 	
 	gradeByStepGradingPageHtml += "<div class='gradingContent'>";
-	
+
+	gradeByStepGradingPageHtml += "<div id='summaryContent'></div>";
+
 	//show the button that toggles the question for the step
 	gradeByStepGradingPageHtml += "<div class='questionContentContainer'><div class='questionContentHeader'><b>"+this.getI18NString("grading_question")+":</b>"+
 		"<a onClick=\"eventManager.fire('togglePrompt', ['questionContentText_" + nodeId + "'])\">"+this.getI18NString("grading_hide_show_question")+"</a>";
@@ -2021,6 +2024,9 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
     
     //new FixedHeader( oTable, {"right": true} );  // for some reason, this causes an ActiveX error in mysystem_complete.js!
     new FixedHeader( oTable2 ); */
+	
+	//also render summary view for this node
+	this.renderSummaryViewForNode(node);
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
@@ -4666,37 +4672,91 @@ View.prototype.isWriteAllowed = function() {
  * @param node the node for the step we are displaying in the
  * grade by step
  */
-View.prototype.renderAllStudentWorkForNode = function(node) {
-	//get all the vleStates
-	var vleStates = this.getVleStatesSortedByUserName();
-	
-	//get the node id
-	var nodeId = node.id;
-	
-	//loop through all the vleStates, each vleState is for a workgroup
-	for(var x=0; x<vleStates.length; x++) {
-		//get a vleState
-		var vleState = vleStates[x];
+View.prototype.renderSummaryViewForNode = function(node) {
+	/*
+	 * this new way of displaying student work in grading is only implemented
+	 * for new node types at the moment. we will convert all the other steps to
+	 * this way later.
+	 */
+	if(node.hasSummaryView()) {
 		
-		//get the workgroup id
-		var workgroupId = vleState.dataId;
+		//get all the vleStates
+		var vleStates = this.getVleStatesSortedByUserName();
 
-		//get the revisions
-		var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
+		//get the node id
+		var nodeId = node.id;
 		
-		var latestNodeVisit = null;
 		
-		if(nodeVisitRevisions.length > 0) {
-			//get the latest work for the current workgroup
-			latestNodeVisit = nodeVisitRevisions[nodeVisitRevisions.length - 1];
+		var workgroupIdToWork = {};
+
+		//loop through all the vleStates, each vleState is for a workgroup
+		for(var x=0; x<vleStates.length; x++) {
+			//get a vleState
+			var vleState = vleStates[x];
+
+			//get the workgroup id
+			var workgroupId = vleState.dataId;
+
+			//get the revisions
+			var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
+
+			var latestNodeVisit = null;
+
+			if(nodeVisitRevisions.length > 0) {
+				//get the latest work for the current workgroup
+				latestNodeVisit = nodeVisitRevisions[nodeVisitRevisions.length - 1];
+			}
+
+			//check if the student submitted any work
+			if(latestNodeVisit != null) {
+				//render the student work for the node visit
+				//this.renderStudentWorkFromNodeVisit(latestNodeVisit, workgroupId);
+				//$("#summaryContent").append(latestNodeVisit.getLatestWork().response[0]);
+				workgroupIdToWork[workgroupId] = latestNodeVisit.getLatestWork().response;
+			}
 		}
-		
-		/*
-		 * this new way of displaying student work in grading is only implemented
-		 * for new node types at the moment. we will convert all the other steps to
-		 * this way later.
-		 */
-		if(node.hasGradingView()) {
+		node.renderSummaryView(workgroupIdToWork);
+	}
+};
+
+
+/**
+ * Render all the student work for a given node. This is used
+ * by gradeByStep.
+ * @param node the node for the step we are displaying in the
+ * grade by step
+ */
+View.prototype.renderAllStudentWorkForNode = function(node) {
+	/*
+	 * this new way of displaying student work in grading is only implemented
+	 * for new node types at the moment. we will convert all the other steps to
+	 * this way later.
+	 */
+	if(node.hasGradingView()) {
+		//get all the vleStates
+		var vleStates = this.getVleStatesSortedByUserName();
+
+		//get the node id
+		var nodeId = node.id;
+
+		//loop through all the vleStates, each vleState is for a workgroup
+		for(var x=0; x<vleStates.length; x++) {
+			//get a vleState
+			var vleState = vleStates[x];
+
+			//get the workgroup id
+			var workgroupId = vleState.dataId;
+
+			//get the revisions
+			var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
+
+			var latestNodeVisit = null;
+
+			if(nodeVisitRevisions.length > 0) {
+				//get the latest work for the current workgroup
+				latestNodeVisit = nodeVisitRevisions[nodeVisitRevisions.length - 1];
+			}
+
 			//check if the student submitted any work
 			if(latestNodeVisit != null) {
 				//render the student work for the node visit

@@ -198,7 +198,7 @@ WISE = {
           	    };
           	    
           	    //override the function that is called when someone leaves the chat room
-          	    WISE.groupchat. onParticipantLeave = function(who,pres) {
+          	    WISE.groupchat.onParticipantLeave = function(who,pres) {
           	    	if(WISE.isPresenceFromTeacher(who)) {
           	    		//the teacher has left the chat room
 	          	    	WISE.teacherResource = null;

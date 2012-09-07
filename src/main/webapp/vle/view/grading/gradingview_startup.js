@@ -132,7 +132,15 @@ View.prototype.onWindowUnload = function(){
 	
 	/* tell xmpp server that student is disconnecting */
 	if (this.xmpp && this.isXMPPEnabled) {
-		this.xmpp.disconnect();
+		if ($("#studentScreenStatus").html() == "paused") {
+			// if student screens are paused and teacher tries to exit, warn the teacher to unpause before exiting.
+			// this will also save us time to save the chat log. stopgap solution for https://github.com/WISE-Community/WISE-VLE/issues/196
+			this.xmpp.doUnPause();
+			this.xmpp.disconnect();
+			alert("Please remember to unpause students' monitors before closing the classroom monitor next time!");
+		} else {
+			this.xmpp.disconnect();
+		}
 	}
 };
 
