@@ -347,6 +347,38 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 };
 
 /**
+ * Renders the student work into the div. The grading tool will pass in a
+ * div id to this function and this function will insert the student data
+ * into the div.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ */
+Node.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+	// override by children
+};
+
+/**
+ * Renders the summary of all students' work into the div. The grading tool will pass in a
+ * div id to this function and this function will insert the student data
+ * into the div.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ */
+Node.prototype.renderSummaryView = function() {
+	// override by children
+};
+
+/**
  * Listens for page rendered event: the html has been fully loaded
  * and the event is fired from the page's window.onload function.
  */
@@ -1516,6 +1548,17 @@ Node.prototype.getTagMapFunctionByName = function(functionName) {
  * @returns whether this step type has a grading view
  */
 Node.prototype.hasGradingView = function() {
+	return true;
+};
+
+/**
+ * Whether this step type has a summary view. Steps that do not save
+ * any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode. Steps types that do not have a grading view 
+ * should override this function and return false.
+ * @returns whether this step type has a grading view
+ */
+Node.prototype.hasSummaryView = function() {
 	return true;
 };
 

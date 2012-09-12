@@ -210,6 +210,11 @@ var componentloader = function(em, sl){
 					 'projectDataReceived':[null,null],
 					 'initiateClassroomMonitorDisplayStart':[null,null],					 
 					 'classroomMonitorDisplayComplete':[null,null],
+					 'displayChatRoom':[null,null],
+					 'chatRoomTextEntrySubmitted':[null,null],
+					 'realTimeMonitorSelectWorkgroupIdDropDownClicked':[null,null],
+					 'realTimeMonitorSelectStepDropDownClicked':[null,null],
+					 'realTimeMonitorShareWithClassClicked':[null,null],
 					 'toggleGradingDisplayRevisions':[null, null],
 					 'toggleAllGradingDisplayRevisions':[null, null],
 					 'onlyShowFilteredItemsOnClick':[null, null],
@@ -228,7 +233,8 @@ var componentloader = function(em, sl){
 					 'getIdeaBasketsComplete':[null, null],
 					 'setSelectedPeriod':[null, null],
 					 'editGroups':[null, null],
-					 'groupClicked':[null, null]},
+					 'groupClicked':[null, null],
+					 'maximizeRightTdButtonClicked':[null, null]},
    		    methods:{
 			  onWindowUnload:function(view){return function(){view.onWindowUnload();};}
 		    },					 
@@ -293,6 +299,12 @@ var componentloader = function(em, sl){
 					eventManager.subscribe("setSelectedPeriod", view.gradingDispatcher, view);
 					eventManager.subscribe("editGroups", view.gradingDispatcher, view);
 					eventManager.subscribe("groupClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("displayChatRoom", view.gradingDispatcher, view);
+					eventManager.subscribe("chatRoomTextEntrySubmitted", view.gradingDispatcher, view);
+					eventManager.subscribe("realTimeMonitorSelectWorkgroupIdDropDownClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("realTimeMonitorSelectStepDropDownClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("realTimeMonitorShareWithClassClicked", view.gradingDispatcher, view);
+					eventManager.subscribe("maximizeRightTdButtonClicked", view.gradingDispatcher, view);
 					eventManager.initializeLoading([['gradingConfigUrlReceived','projectDataReceived','Project Data'], 
 					                                ['initiateGradingDisplayStart','getStudentWorkComplete','Student Data'],
 					                                ['initiateClassroomMonitorDisplayStart','classroomMonitorDisplayComplete','Classroom Monitor']], false);
@@ -680,13 +692,13 @@ var componentloader = function(em, sl){
 			},
 			events:{
 				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'retrieveLocalesComplete':[null,null],'retrieveThemeLocalesComplete':[null,null],'renderNode':[null,null],
-				'renderNodeComplete':[null,null],'resizeNote':[null,null],'onNotePanelResized':[null,null], 'startVLEBegin':[null,null],
+				'renderNodeComplete':[null,null],'resizeNote':[null,null],'onNotePanelResized':[null,null],
 				'startVLEComplete':[null,null], 'setStyleOnElement':[null,null], 'closeDialogs':[null,null], 'closeDialog':[null,null],
 				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
 				'ifrmLoaded':[null,null], 'processLoadViewStateResponseComplete':[null,null], 'saveNote':[null,null],
 				'saveAndLockNote':[null,null], 'noteHandleEditorKeyPress':[null,null], 'noteShowStarter':[null,null],
 				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null],
-				'assetUploaded':[null,null]
+				'assetUploaded':[null,null],'chatRoomTextEntrySubmitted':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -726,6 +738,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('loadingThemeComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('scriptsLoaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
+						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);
@@ -840,14 +853,15 @@ var componentloader = function(em, sl){
 			}
 		},
 		uicontrol:{
-			variables:{runManager:undefined},
-			events:{'runManagerPoll':[null,null],'lockScreenEvent':[null,null],'unlockScreenEvent':[null,null]},
+			variables:{},
+			events:{
+				'unlockScreenEvent':[null,null],
+				'lockScreenAndShareWithClass':[null,null]
+			},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('runManagerPoll', view.uicontrolDispatcher, view);
-					view.eventManager.subscribe('lockScreenEvent', view.uicontrolDispatcher, view);
+					view.eventManager.subscribe('lockScreenAndShareWithClass', view.uicontrolDispatcher, view);
 					view.eventManager.subscribe('unlockScreenEvent', view.uicontrolDispatcher, view);
-					view.eventManager.subscribe('startVLEBegin', view.uicontrolDispatcher, view);
 					view.eventManager.subscribe('logout', view.uicontrolDispatcher, view);
 				}
 			}
@@ -895,6 +909,7 @@ var componentloader = function(em, sl){
 					'displayAddAnIdeaDialog':[null,null],
 					'displayIdeaBasket':[null,null],
 					'viewStudentAssets':[null,null],
+					'displayChatRoom':[null,null],
 					'studentAssetSubmitUpload':[null,null],
 					'addIdeaToBasket':[null,null],
 					'moveIdeaToTrash':[null,null],
@@ -919,6 +934,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('displayIdeaBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('addIdeaToBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('viewStudentAssets', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('displayChatRoom', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('studentAssetSubmitUpload', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaToTrash', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('moveIdeaOutOfTrash', view.dropDownMenuDispatcher, view);

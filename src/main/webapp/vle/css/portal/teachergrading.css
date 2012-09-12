@@ -889,3 +889,14 @@ td.workColumn p, td.workColumn span {
 	border-style:inset;
 	border-width:1px;
 }
+
+/* real-time classroom monitor styling section */
+.realTimeStudentWork {
+	border-bottom: 2px solid;
+	margin-bottom: 5px;
+	padding-bottom: 5px;
+}
+
+.studentWorkInfoDiv {
+	font-weight:bold;
+}

@@ -212,6 +212,7 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 		};
 	}
 	var count = translatableElements.length;
+	if (count > 0) {
 	translatableElements.each(function(){
 		// get i18n and i18n-title attributes from elements
 		var i18n = $(this).attr('i18n'), i18nTitle = $(this).attr('i18n-title');
@@ -237,6 +238,7 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 			}
 		}
 	});
+	}
 };
 
 

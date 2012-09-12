@@ -195,6 +195,7 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	 * for the visit in the stepWork table in the db
 	 */
 	args.nodeVisit.id = id;
+	args.nodeVisit.stepWorkId = id;
 	
 	//set the post time
 	args.nodeVisit.visitPostTime = visitPostTime;
@@ -210,6 +211,34 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 		var nodeStateTimestamp = latestState.timestamp;
 		
 		args.vle.getCRaterResponse(id, nodeStateTimestamp);
+	}
+	
+	if(args.vle.xmpp != null && args.vle.isXMPPEnabled != null) {
+		//real time monitor is enabled
+		
+		/*
+		 * get the information to send to the student work stream for the
+		 * teacher to see
+		 */
+		var workgroupId = args.vle.userAndClassInfo.getWorkgroupId();
+		var nodeId = args.nodeVisit.nodeId;
+		var stepNumberAndTitle = args.vle.getProject().getStepNumberAndTitle(nodeId);
+		var type = "NodeVisit";
+		var nodeVisit = args.nodeVisit;
+		
+		if (this.studentStatus == null) {
+			this.studentStatus = new StudentStatus();
+		}
+		var workgroupName = args.vle.userAndClassInfo.getUserName();
+		this.studentStatus.updateMaxAlertLevel();
+		
+		//send the xmpp message
+		args.vle.xmpp.sendStudentToTeacherMessage({
+			workgroupId:workgroupId, 
+			workgroupName:workgroupName,
+			stepNumberAndTitle:stepNumberAndTitle, 
+			type:type,
+			nodeVisit:nodeVisit});
 	}
 	
 	//fire the event that says we are done processing the post response

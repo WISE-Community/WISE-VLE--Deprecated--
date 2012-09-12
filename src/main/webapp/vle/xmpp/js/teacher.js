@@ -33,15 +33,15 @@ WISE = {
             pre: function() {
         		//console.debug(arguments[0].type+'!',arguments);
         	}
-        })
+        });
         
-        $('#pause-button').click(function() {WISE.doPause();  return false})
+        $('#pause-button').click(function() {WISE.doPause();  return false});
 
-        $('#unPause-button').click(function() {WISE.doUnPause();  return false})
+        $('#unPause-button').click(function() {WISE.doUnPause();  return false});
         
-        $('#connecting').show()
+        $('#connecting').show();
         
-        WISE.authenticate()
+        WISE.authenticate();
         
         return this;
     },
@@ -62,18 +62,57 @@ WISE = {
     },
        
     doPause: function() {
-    	message = $('#pause-message').val();
+    	//get the message the teacher has typed
+    	var message = $('#pause-message').val();
+    	
     	if (message == "") {
-    		// if message is empty, populate with default message.
-    		$('#pause-message').val("Your teacher has paused your screen.");
+    		//teacher did not type any message so we will use a default one
+    		message = "Your teacher has paused your screen.";
     	}
-        sev = new Sail.Event('pause', {message:message});
-        WISE.groupchat.sendEvent(sev);
+    	
+    	//share the message with the class, this will also pause the student screens
+    	this.shareWithClass('PauseAll', message);
     },
 
+    /**
+     * 
+     */
     doUnPause: function() {
-        sev = new Sail.Event('unPause');
-        WISE.groupchat.sendEvent(sev);
+    	
+    	//get the url for the chat log controller
+    	var chatLogUrl = view.getConfig().getConfigParam('chatLogUrl');
+    	var runId = view.getConfig().getConfigParam('runId');
+    	
+    	/*
+    	 * send a message to the chat log controller so it can save this chat
+    	 * message to the database
+    	 */
+    	/*
+    	$.ajax({
+    		url:chatLogUrl,
+    		type:"POST",
+    		data:{"runId":runId,
+    			"fromWorkgroupId":view.userAndClassInfo.getWorkgroupId(),
+    			"fromWorkgroupName":view.userAndClassInfo.getUserName(),
+    			"chatRoomId":"general",
+    			"chatEventType":"unPause",
+    			"dataType":"string",
+    			"data":""},
+    		success:function(data, text, xhr) {
+    			//unpause the student screens
+    	        sev = new Sail.Event('unPause');
+    	        WISE.groupchat.sendEvent(sev);
+    		},
+    		error:function(xhr, text) {
+    			alert('teacher dounpause error');
+    		},
+    		async:false
+    	});
+    	*/
+    	
+    	//share the message with the class, this will also pause the student screens
+    	this.shareWithClass('UnPauseAll', "unpauseall");
+    	
     },
 
     authenticate: function() {
@@ -87,20 +126,133 @@ WISE = {
             $(WISE).trigger('authenticated');
         });
     },
+
+    sendTeacherToChatRoomMessage: function(msg) {    	
+    	var chatLogUrl = view.getConfig().getConfigParam('chatLogUrl');
+    	var runId = view.getConfig().getConfigParam('runId');
+    	
+    	message = msg;
+    	
+    	var data = {"runId":runId,
+    			"fromWorkgroupId":view.userAndClassInfo.getWorkgroupId(),
+    			"fromWorkgroupName":view.userAndClassInfo.getUserName(),
+    			"chatRoomId":"general",
+    			"chatEventType":"studentToChatRoomMessage",
+    			"dataType":"string",
+    			"data":message};
+
+    	/*
+    	 * send a message to the chat log controller so it can save this chat
+    	 * message to the database
+    	 */
+    	$.ajax({
+    		url:chatLogUrl,
+    		type:"POST",
+    		data:data,
+    		success:function(callbackData, text, xhr) {
+    			//send the message to the chat room
+    	    	sev = new Sail.Event('teacherToChatRoomMsg', data);   
+    	    	if (WISE.groupchat) {
+    	    		WISE.groupchat.sendEvent(sev);
+    	    	}
+    		},
+    		error:function(xhr, text) {
+    			
+    		},
+    		async:false
+    	});
+    },
+    
+    /**
+     * The teacher has shared something with the class
+     * @param shareWithClassType the type of object that is shared
+     * e.g.
+     * "Html"
+     * "NodeVisit"
+     * "TeacherMessage"
+     * @param value the object to share
+     */
+    shareWithClass: function(shareWithClassType, value) {
+    	//get the url for the chat log controller
+    	var chatLogUrl = view.getConfig().getConfigParam('chatLogUrl');
+    	var runId = view.getConfig().getConfigParam('runId');
+    	
+    	dateType = typeof(value);
+    	/*
+    	 * send a message to the chat log controller so it can save this chat
+    	 * message to the database
+    	 */
+    	$.ajax({
+    		url:chatLogUrl,
+    		type:"POST",
+    		data:{"runId":runId,
+    			"fromWorkgroupId":view.userAndClassInfo.getWorkgroupId(),
+    			"fromWorkgroupName":view.userAndClassInfo.getUserName(),
+    			"chatRoomId":"general",
+    			"chatEventType":shareWithClassType,
+    			"dataType":dateType,
+    			"data":value},
+    		success:function(data, text, xhr) {
+
+    			if (shareWithClassType == "NodeVisit") {
+    	    		//the teacher is sharing a student node visit
+    	        	var nodeVisitId = value;
+    	        	if (realTimeNodeVisitIdToNodeVisit != null) {
+    	        		var teacherShareWithClassObj = {};
+    	        		teacherShareWithClassObj.shareType = "NodeVisit";
+    	        		var nodeVisitShareObj = realTimeNodeVisitIdToNodeVisit[nodeVisitId];
+    	        		if (nodeVisitShareObj != null) {
+    	        			teacherShareWithClassObj.shareObject = nodeVisitShareObj;
+    	        	    	sev = new Sail.Event('teacherShareWithClass', teacherShareWithClassObj);   
+    	        	    	if (WISE.groupchat) {
+    	        	    		WISE.groupchat.sendEvent(sev);
+    	        	    	}    	    			
+    	        		}
+    	        	}
+    	    	} else if (shareWithClassType == "Html" || shareWithClassType == "TeacherMessage" || shareWithClassType == "PauseAll") {
+    	    		//the teacher is sharing html or a message
+    	    		var teacherShareWithClassObj = {};
+    	    		teacherShareWithClassObj.shareType = shareWithClassType;
+    	    		teacherShareWithClassObj.shareObject = value;
+    		    	sev = new Sail.Event('teacherShareWithClass', teacherShareWithClassObj);   
+    		    	if (WISE.groupchat) {
+    		    		WISE.groupchat.sendEvent(sev);
+    		    	}    	    			
+    	    	} else if (shareWithClassType == "UnPauseAll") {
+        	        sev = new Sail.Event('unPause');
+    		    	if (WISE.groupchat) {
+    		    		WISE.groupchat.sendEvent(sev);    	    		
+    		    	}
+    	    	}   	        
+    		},
+    		error:function(xhr, text) {
+    			alert('teacher share with class error');
+    		},
+    		async:false
+    	});
+    	
+    	
+    },
         
     disconnect: function() {
     	// make sure that students' screens are unpaused when teacher logs out.
-    	this.doUnPause();
-    	Sail.Strophe.disconnect();
+    	//var doTeacherDisconnect = true;
+    	//this.doUnPause(doTeacherDisconnect);
+    	//Sail.Strophe.disconnect();
+    	
+       	Sail.Strophe.disconnect();
+
     },
     
     events: {
         // mapping of Sail events to local Javascript events
 	
         sail: {
-	    	'pause':'pause',
             'unPause':'unPause',
             'studentToTeacherMsg':'studentToTeacherMsg',
+            'studentToChatRoomMsg':'studentToChatRoomMsg',
+            'teacherToChatRoomMsg':'teacherToChatRoomMsg',
+            'teacherShareWithClass':'teacherShareWithClass',
             'joinedGroupChat':'joinedGroupChat'
         },
 
@@ -138,7 +290,7 @@ WISE = {
       	    
       	    Sail.Strophe.connect();
         },
-        onPause: function(ev,sev) {            
+        onTeacherShareWithClass:function(ev,sev) {
             if(WISE.isEventFromTeacher(sev)) {            
             	$("#studentScreenStatus").html("paused");
             	$("#studentScreenStatus").css("color","red");
@@ -191,9 +343,45 @@ WISE = {
         					$('#teamStatusDialog').dialog('open');
     					});
         			}
+        		} else if(messageType == "NodeVisit") {
+        			var workgroupId = message.workgroupId;
+        			var nodeVisit = NODE_VISIT.prototype.parseDataJSONObj(message.nodeVisit);
+        			view.displayNodeVisitInStream(workgroupId, nodeVisit);
         		}
         	}
-        }        
+        },
+
+        onStudentToChatRoomMsg:function(ev,sev) {
+        	if(WISE.isEventFromStudent(sev)) {
+        		//an object containing the fromWorkgroupName and message
+        		var data = sev.payload;
+        		
+        		var fromWorkgroupName = data.fromWorkgroupName;
+        		var message = data.data;
+        		
+        		//display the message
+        		$('#chatRoomTextDisplay').append(fromWorkgroupName + ": " + message + "<br>");
+        		
+        		//scroll the div to the bottom
+        		$('#chatRoomTextDisplay').scrollTop(1000000);
+        	}
+        },
+        onTeacherToChatRoomMsg:function(ev,sev) {
+        	if(WISE.isEventFromStudent(sev)) {
+        		//an object containing the fromWorkgroupName and message
+        		var data = sev.payload;
+        		
+        		var fromWorkgroupName = data.fromWorkgroupName;
+        		var message = data.data;
+        		
+        		//display the message
+        		$('#chatRoomTextDisplay').append("<div style='font-weight:bold'>"+fromWorkgroupName + ": " + message + "</div>");
+        		
+        		//scroll the div to the bottom
+        		$('#chatRoomTextDisplay').scrollTop(1000000);
+        	}
+        } 
+        
     }
 };
 

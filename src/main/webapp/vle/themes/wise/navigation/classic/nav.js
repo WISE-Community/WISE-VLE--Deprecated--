@@ -100,7 +100,7 @@ NavigationPanel.prototype.menuCreated = function() {
 	var view = this.view;
 	
 	// set the text and title for the toggle navigation menu button
-	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title"),"theme").html(view.getI18NString("toggle_nav_button_text"),"theme");
+	$('#toggleNavLink').attr('title',view.getI18NString("toggle_nav_button_title","theme")).html(view.getI18NString("toggle_nav_button_text","theme"));
 	
 	// display ExpandAll/CollapseAll buttons
 	var expandAllText = view.getI18NString("navigation_expand_all","theme");

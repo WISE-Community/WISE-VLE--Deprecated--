@@ -8,14 +8,14 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.startVLEFromParams(args[0]);
 	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
+	} else if (type=='retrieveLocalesComplete' && args[0]=="theme") {
+		obj.onThemeLoad();
 	} else if(type=='loadingProjectComplete'){
 		obj.onProjectLoad();
 		obj.setProjectPostLevel();
 		obj.setDialogEvents();
 	} else if(type=='scriptsLoaded' && args[0]=='theme'){
 		obj.retrieveThemeLocales();
-	} else if (type=='retrieveThemeLocalesComplete'){
-		obj.onThemeLoad();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
 		// start the xmpp if xmpp is enabled
@@ -122,6 +122,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if (type == 'startVLEComplete') {
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
+	} else if(type=="chatRoomTextEntrySubmitted") {
+		obj.sendChat(args[0]);
 	}
 };
 
@@ -162,9 +164,6 @@ View.prototype.startVLEFromParams = function(obj){
  * and set and that the config object contains AT LEAST a content url and content base url.
  */
 View.prototype.startVLE = function(){
-	/* fire startVLEBegin event */
-	this.eventManager.fire('startVLEBegin');
-
 	/* load the project based on new config object parameters, lazy load */
 	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), true);
 	
@@ -248,6 +247,19 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 			!runInfo.isStudentAssetUploaderEnabled) {
 		$('#viewMyFiles').hide();
 	}
+	
+	if (runInfo.isXMPPEnabled != null && runInfo.isXMPPEnabled && 
+			runInfo.isChatRoomEnabled != null && runInfo.isChatRoomEnabled) {
+		/*
+		 * display chatroom link if run has chatroom enabled
+		 */
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		$('#viewChatRoom').html(displayChatRoomLink);
+		$('#viewChatRoom').show().css('display','inline');
+	} else {
+		$('#viewChatRoom').hide();
+	}
+	
 	
 	if (runInfo.isIdeaManagerEnabled != null && runInfo.isIdeaManagerEnabled) {
 		// display the idea basket links if the run/project has idea basket enabled
@@ -402,10 +414,12 @@ View.prototype.onProjectLoad = function(){
 		
 		if(themeName && this.activeThemes.indexOf(themeName)>-1){
 			// theme specified by project matches an active theme, so load specified theme
+			this.theme = themeName;
 			this.loadTheme(themeName);
 		} else {
 			// either project paramters don't contain a theme or theme specified by project
 			// is not active, so load vle default
+			this.theme = this.activeThemes[0];
 			this.loadTheme(this.activeThemes[0]);
 			//this.loadTheme(this.config.getConfigParam('theme'));
 		}
@@ -416,8 +430,7 @@ View.prototype.onProjectLoad = function(){
 
 View.prototype.retrieveThemeLocales = function(){
 	if('theme' in this){
-		this.theme.config = this.config;
-		this.theme.retrieveLocales("theme","/vlewrapper/vle/themes/wise/i18n/");
+		this.retrieveLocales("theme","/vlewrapper/vle/themes/" + this.theme + "/i18n/");
 	} else {
 		this.onThemeLoad();
 	}
@@ -445,13 +458,6 @@ View.prototype.onThemeLoad = function(){
 		// insert menu into vle DOM
 		var navigationHtml = "<div id='my_menu' class='wmenu'></div>";
 		$("#navigation").prepend(navigationHtml);
-        
-		//display the show flagged work link if flagging is enabled
-		// TODO: remove - I don't think this is used anymore
-		if(this.runManager != null && this.runManager.isFlaggingEnabled) {
-			$("#viewFlagged").html("<a id='viewFlaggedLink' onclick='eventManager.fire(\"showFlaggedWork\")' title='Show Flagged Work'>"+this.getI18NString("flagged_button_text")+"</a>");
-		}
-		
 	} else {
 		this.notificationManager.notify('VLE and project not ready to load any nodes', 3);
 	}
