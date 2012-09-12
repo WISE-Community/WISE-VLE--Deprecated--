@@ -98,17 +98,24 @@ ChallengeNode.prototype.showFeedbackDialog = function(feedback){
 	
 	$('#feedbackDialog').html(feedback);
 	
-	var dialogButtons ={};
 	var visited = false;
-	dialogButtons['Take me to the step!'] = function(){
-		if (!visited) {
-			eventManager.fire("renderNode", toVisitPosition);
-			visited = true;
-		} else {
-			eventManager.fire("renderNode", challengePosition);
-			visited = false;
-		}
-		 };
+	var dialogButtons = [
+		{
+            text: "Take me there!",
+            click: function() {
+            	if (!visited) {
+        			eventManager.fire("renderNode", toVisitPosition);
+        			$('.challenge-button > .ui-button-text').text('Back to Challenge Question');
+        			visited = true;
+        		} else {
+        			eventManager.fire("renderNode", challengePosition);
+        			$('.challenge-button > .ui-button-text').text('Take me there!');
+        			visited = false;
+        		}
+            },
+            'class': 'challenge-button'
+        }
+	];
 
 	$('#feedbackDialog').dialog({buttons: dialogButtons});
 	$('#feedbackDialog').dialog('open');
