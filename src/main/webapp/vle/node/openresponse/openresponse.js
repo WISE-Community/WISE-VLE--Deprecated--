@@ -690,9 +690,12 @@ OPENRESPONSE.prototype.render = function() {
 		 */
 		this.displayRegular();
 	}
-	
-	if(this.content.showPreviousWorkThatHasAnnotation) {
-		//show the previous work that has a teacher comment annotation
+
+	if(this.content.showPreviousWorkThatHasAnnotation && this.node.type != 'NoteNode') {
+		/*
+		 * show the previous work that has a teacher comment annotation.
+		 * this is not available for note steps.
+		 */
 		this.showPreviousWorkThatHasAnnotation(null, 'comment');
 	}
 	
