@@ -175,6 +175,25 @@ MultipleChoiceNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 	$('#' + divId).html(studentWork);
 };
 
+/**
+ * Renders the summary of all students' work into the div. The grading tool will pass in a
+ * div id to this function and this function will insert the student data
+ * into the div.
+ * 
+ * @param divId the id of the div we will render the student work into
+ * @param nodeVisit the student work
+ * @param childDivIdPrefix (optional) a string that will be prepended to all the 
+ * div ids use this to prevent DOM conflicts such as when the show all work div
+ * uses the same ids as the show flagged work div
+ * @param workgroupId the id of the workgroup this work belongs to
+ */
+MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork) {
+	var view = this.view;
+	var nodeId = this.id;
+	view.displayStepGraph(nodeId,"summaryContent",workgroupIdToWork);
+};
+
+
 NodeFactory.addNode('MultipleChoiceNode', MultipleChoiceNode);
 
 //used to notify scriptloader that this script has finished loading

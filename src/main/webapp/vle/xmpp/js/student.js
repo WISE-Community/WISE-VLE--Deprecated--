@@ -44,7 +44,24 @@ WISE = {
     	var sender = sev.from.split('/')[1].split('@')[0];
     	var teacherWorkgroupId = view.getUserAndClassInfo().getTeacherWorkgroupId();
         return sender == teacherWorkgroupId;
-    },    
+    },
+    
+    isEventFromStudent: function(sev) {
+    	var result = false;
+    	
+    	//get the sender, this will be the workgroupid as a string
+    	var sender = sev.from.split('/')[1].split('@')[0];
+    	
+    	//get all the student workgroup ids in the class
+    	var workgroupIds = view.getUserAndClassInfo().getWorkgroupIdsInClass();
+    	
+    	if(workgroupIds.indexOf(parseInt(sender)) != -1) {
+    		//the sender is in the class
+    		result = true;
+    	}
+    	
+    	return result;
+    },
     
     sendStudentToTeacherMessage: function(msg) {
     	if(WISE.teacherOnline) {
@@ -56,6 +73,45 @@ WISE = {
             	WISE.groupchat.sendEvent(sev, toJID);    	
             }    		
     	}
+    },    
+    
+    sendStudentToChatRoomMessage: function(msg) {
+    	var chatLogUrl = view.getConfig().getConfigParam('chatLogUrl');
+    	var runId = view.getConfig().getConfigParam('runId');
+    	
+    	message = msg;
+    	
+    	var data = {"runId":runId,
+    			"fromWorkgroupId":view.userAndClassInfo.getWorkgroupId(),
+    			"fromWorkgroupName":view.userAndClassInfo.getUserName(),
+    			"chatRoomId":"general",
+    			"chatEventType":"studentToChatRoomMessage",
+    			"dataType":"string",
+    			"data":message};
+
+    	/*
+    	 * send a message to the chat log controller so it can save this chat
+    	 * message to the database
+    	 */
+    	$.ajax({
+    		url:chatLogUrl,
+    		type:"POST",
+    		data:data,
+    		success:function(callbackData, text, xhr) {
+    	    	sev = new Sail.Event('studentToChatRoomMsg', data);   
+    	    	if (WISE.groupchat) {
+    	    		WISE.groupchat.sendEvent(sev);
+    	    	}
+    		},
+    		error:function(xhr, text) {
+    			
+    		},
+    		async:false
+    	});
+    },
+    
+    sendStudentWorkToTeacher: function() {
+    	
     },
     
     disconnect: function() {
@@ -103,7 +159,11 @@ WISE = {
 	
         sail: {
 	    	'pause':'pause',
-            'unPause':'unPause'
+            'unPause':'unPause',
+            'studentToChatRoomMsg':'studentToChatRoomMsg',
+            'teacherToChatRoomMsg':'teacherToChatRoomMsg',
+            'teacherShareWithClass':'teacherShareWithClass',
+            'teacherShareRealTimeMonitorGraphWithClass':'teacherShareRealTimeMonitorGraphWithClass'
         },
 
         // local Javascript event handlers
@@ -138,7 +198,7 @@ WISE = {
           	    };
           	    
           	    //override the function that is called when someone leaves the chat room
-          	    WISE.groupchat. onParticipantLeave = function(who,pres) {
+          	    WISE.groupchat.onParticipantLeave = function(who,pres) {
           	    	if(WISE.isPresenceFromTeacher(who)) {
           	    		//the teacher has left the chat room
 	          	    	WISE.teacherResource = null;
@@ -158,14 +218,54 @@ WISE = {
           	// connect to XMPP server
       	    Sail.Strophe.connect();
         },
-        onPause: function(ev,sev) {            
-            if(WISE.isEventFromTeacher(sev)) {            
-            	eventManager.fire('lockScreenEvent', sev.payload.message);
-            }
+        onPause: function(ev,sev) {
+        	if(WISE.isEventFromTeacher(sev)) {
+        		//the teacher has paused the student screen
+        		var teacherShareWithClassObj = sev.payload;
+        		eventManager.fire('lockScreenAndShareWithClass', teacherShareWithClassObj);
+        	}
         },
         onUnPause:function(ev,sev) {
         	if(WISE.isEventFromTeacher(sev)) {
+        		//the teacher has unpaused the student screen
         		eventManager.fire('unlockScreenEvent');
+        	}
+        },
+        onStudentToChatRoomMsg:function(ev,sev) {
+        	if(WISE.isEventFromStudent(sev)) {
+        		//an object containing the fromWorkgroupName and message
+        		var data = sev.payload;
+        		
+        		var fromWorkgroupName = data.fromWorkgroupName;
+        		var message = data.data;
+        		
+        		//display the message
+        		$('#chatRoomTextDisplay').append(fromWorkgroupName + ": " + message + "<br>");
+        		
+        		//scroll the div to the bottom
+        		$('#chatRoomTextDisplay').scrollTop(1000000);
+        	}
+        },
+        onTeacherToChatRoomMsg:function(ev,sev) {
+        	if(WISE.isEventFromTeacher(sev)) {
+        		//an object containing the fromWorkgroupName and message
+        		var data = sev.payload;
+        		
+        		var fromWorkgroupName = data.fromWorkgroupName;
+        		var message = data.data;
+        		
+        		//display the message
+        		$('#chatRoomTextDisplay').append("<div style='font-weight:bold'>"+fromWorkgroupName + ": " + message + "</div>");
+        		
+        		//scroll the div to the bottom
+        		$('#chatRoomTextDisplay').scrollTop(1000000);
+        	}
+        },
+        onTeacherShareWithClass:function(ev,sev) {
+        	if(WISE.isEventFromTeacher(sev)) {
+        		//teacher has shared student work or html with the class
+        		var teacherShareWithClassObj = sev.payload;
+        		eventManager.fire('lockScreenAndShareWithClass', teacherShareWithClassObj);
         	}
         }
     }

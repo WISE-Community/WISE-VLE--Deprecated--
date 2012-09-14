@@ -30,12 +30,17 @@ View.prototype.OpenResponseNode.generatePage = function(view){
 	pageDiv.appendChild(createElement(document, 'div', {id: 'openresponseOptionsContainer'}));
 	pageDiv.appendChild(createBreak());
 	
-	//add the checkbox for showing the previous work that has an annotation
-	pageDiv.appendChild(document.createTextNode("Show previous work that has annotation "));
-	var showPreviousWorkThatHasAnnotation = createElement(document, 'input', {id: 'showPreviousWorkThatHasAnnotation', type: 'checkbox', onclick: 'eventManager.fire("openResponseUpdateShowPreviousWorkThatHasAnnotation")'});
-	pageDiv.appendChild(showPreviousWorkThatHasAnnotation);
-	showPreviousWorkThatHasAnnotation.checked = this.content.showPreviousWorkThatHasAnnotation;
-	pageDiv.appendChild(createBreak());
+	if(this.content.type != 'Note') {
+		/*
+		 * add the checkbox for showing the previous work that has an annotation.
+		 * this is not available for note steps.
+		 */
+		pageDiv.appendChild(document.createTextNode("Show previous work that has annotation "));
+		var showPreviousWorkThatHasAnnotation = createElement(document, 'input', {id: 'showPreviousWorkThatHasAnnotation', type: 'checkbox', onclick: 'eventManager.fire("openResponseUpdateShowPreviousWorkThatHasAnnotation")'});
+		pageDiv.appendChild(showPreviousWorkThatHasAnnotation);
+		showPreviousWorkThatHasAnnotation.checked = this.content.showPreviousWorkThatHasAnnotation;
+		pageDiv.appendChild(createBreak());
+	}
 
 	pageDiv.appendChild(createElement(document, 'div', {id: 'studentResponseBoxSizeContainer'}));
 	pageDiv.appendChild(createBreak());

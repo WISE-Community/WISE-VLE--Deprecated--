@@ -395,6 +395,7 @@ var scriptloader = function(){
 	              'vle/view/grading/gradingview_export.js',
 	              'vle/view/grading/gradingview_startup.js',
 	              'vle/view/grading/gradingview_studentwork.js',
+		      'vle/view/grading/gradingview_classroommonitor.js',
 	              'vle/jquery/js/jquery.tablesorter.min.js', // TODO: remove when all references are removed
 	              'vle/jquery/jquery-dataTables/js/jquery.dataTables.min.js',
 	              'vle/jquery/jquery-dataTables/extras/FixedHeader/js/FixedHeader.min.js',
@@ -445,8 +446,7 @@ var scriptloader = function(){
 		menu:['vle/ui/menu/wmenu.js',
 		      'vle/ui/menu/NavigationPanel.js',
 		      'vle/view/vle/vleview_menu.js'],
-		uicontrol:['vle/ui/control/RunManager.js',
-		           'vle/view/vle/vleview_uicontrol.js'],
+		uicontrol:['vle/view/vle/vleview_uicontrol.js'],
 		audio:['vle/sound/AudioManager.js',
 		       'vle/sound/md5.js',
 		       'vle/sound/nodeaudio.js',

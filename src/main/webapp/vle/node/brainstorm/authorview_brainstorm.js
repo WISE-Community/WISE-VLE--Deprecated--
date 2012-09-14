@@ -126,8 +126,8 @@ View.prototype.BrainstormNode.generateOptions = function(){
 	var useServerText = document.createTextNode('Can students see peer responses?');
 	var useServerYesText = document.createTextNode('Yes. Student can see peer responses');
 	var useServerNoText = document.createTextNode('No. Student is working alone and should not see peer responses');
-	var useServerYesRadio = createElement(document, 'input', {type: 'radio', name: 'useServer', onclick: 'eventManager.fire("brainstormUseServerUpdated","true")'});
-	var useServerNoRadio = createElement(document, 'input', {type: 'radio', name: 'useServer', onclick: 'eventManager.fire("brainstormUseServerUpdated","false")'});
+	var useServerYesRadio = createElement(document, 'input', {type: 'radio', name: 'useServer', onclick: 'eventManager.fire("brainstormUseServerUpdated", true)'});
+	var useServerNoRadio = createElement(document, 'input', {type: 'radio', name: 'useServer', onclick: 'eventManager.fire("brainstormUseServerUpdated", false)'});
 
 	if(this.content.isInstantPollActive){
 		instantPollYesRadio.checked = true;
@@ -513,6 +513,17 @@ View.prototype.BrainstormNode.updateStarterSentenceAuthoring = function(){
 	this.content.starterSentence.sentence = $('#starterSentenceAuthoringInput').val();
 	
 	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the useServer field in the content
+ */
+View.prototype.BrainstormNode.useServerUpdated = function(useServer) {
+	//update the use server field
+	this.content.useServer = useServer;
+	
+	//fire source updated event
 	this.view.eventManager.fire('sourceUpdated');
 };
 
