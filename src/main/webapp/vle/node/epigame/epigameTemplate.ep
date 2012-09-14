@@ -1,7 +1,7 @@
 {
 	"levelString":"",
 	"excelExportStringTemplate":"{response}",
-	"useCustomSwf": "false",
 	"customUri": "",
+	"mode": "mission",
 	"type": "Epigame"
 }

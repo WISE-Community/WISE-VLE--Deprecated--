@@ -139,7 +139,7 @@ EpigameNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
  * html for this step type
  */
 EpigameNode.prototype.getHTMLContentTemplate = function() {
-	return createContent('node/epigame/app/game.html');
+	return createContent('node/epigame/epigame.html');
 };
 
 /**

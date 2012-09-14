@@ -30,6 +30,8 @@ View.prototype.EpigameNode = {};
  */
 View.prototype.EpigameNode.commonComponents = [];
 
+View.prototype.EpigameNode.modes = ["mission", "tutorial", "adaptiveMission", "adaptiveQuiz", "editor", "map"];
+
 /**
  * Generates the authoring page. This function will create the authoring
  * components such as textareas, radio buttons, check boxes, etc. that
@@ -40,8 +42,6 @@ View.prototype.EpigameNode.commonComponents = [];
  * the pre-existing prompt if the step has been authored before.
  */
 View.prototype.EpigameNode.generatePage = function(view){
-
-	
 	this.view = view;
 	
 	//get the content of the step
@@ -57,45 +57,59 @@ View.prototype.EpigameNode.generatePage = function(view){
 	 */
 	parent.removeChild(document.getElementById('dynamicPage'));
 
-	//create a new div that will contain the authroing components
+	//create a new div that will contain the authoring components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
-			
-	var levelStringLabel = document.createTextNode("Level String:");
-	var levelStringTextArea = createElement(document, 'textarea', {id: 'levelStringTextArea', rows:'20', cols:'85', onchange:"eventManager.fire('epigameUpdateLevelString')"});
 	
 	var authoringSwfDiv = createElement(document, 'div', {id: 'authoringSwfDiv'});
 	
-	var sourceDiv = $(document.createElement('div')).attr('id','sourceDiv');
+	/*
 	//create the label for the radio buttons that the author will use to select the swf source option
+	var sourceDiv = $(document.createElement('div')).attr('id','sourceDiv');
 	var sourceLabel = $(document.createElement('div')).text('SURGE activity source file (swf):');
+	
 	//create the radio buttons and labels for each source option
 	var sourceLabelDefault = $(document.createElement('span')).text('Default (use level editor)');
 	var sourceRadioDefault = $(createElement(document, 'input', {id: 'defaultSource', type: 'radio', name: 'sourceSelect', value: 'false'})).prop('checked',true);
 	var sourceLabelCustom = $(document.createElement('span')).text('Custom');
 	var sourceRadioCustom = $(createElement(document, 'input', {id: 'customSource', type: 'radio', name: 'sourceSelect', value: 'true'}));
 	sourceDiv.append(sourceLabel).append(sourceRadioDefault).append(sourceLabelDefault).append(sourceRadioCustom).append(sourceLabelCustom);
+	*/
 	
-	var swfUrlDiv = $(createElement(document, 'div', {id:'swfUrlDiv'})).css('display','none');
-	//create the label for the textarea that the author will write the swf url in
-	var swfUrlLabel = $(document.createElement('span')).text('Custom swf file:');
-	//create the textarea that the author will write the swf url in
-	var swfUrlInput = $(createElement(document, 'input', {id: 'swfUrlInput', type:'text', size:'50', onchange:"eventManager.fire('epigameSwfUrlChanged')"}));
-	//create the browse button that allows author to choose swf from project assets
+	//Custom SWF selection
+	var swfUrlDiv = $(createElement(document, 'div', {id:'swfUrlDiv'}));
+	var swfUrlLabel = $(document.createElement('span')).text('Custom swf file (Leave blank for default):');
+	var swfUrlInput = $(createElement(document, 'input', {id: 'swfUrlInput', type:'text', size:'36', onchange:"eventManager.fire('epigameSwfUrlChanged')"}));
 	var swfBrowseButton = $(createElement(document, 'button', {id: 'swfBrowseButton', onclick:'eventManager.fire("epigameBrowseClicked")'})).text('Browse');
-	swfUrlDiv.append(swfUrlLabel).append(swfUrlInput).append(swfBrowseButton);
+	swfUrlDiv.append(swfUrlLabel).append(createBreak()).append(swfUrlInput).append(swfBrowseButton);
+	
+	//Mode selection
+	var modeSelectorDiv = $(createElement(document, 'div', {id:'modeSelectorDiv'}));
+	var modeSelectorLabel = $(document.createElement('span')).text('Step type:');
+	
+	var modeLabels = ["Standard Mission", "Tutorial Mission", "Adaptive Mission", "Adaptive Quiz", "Mission Editor", "Star Map"];
+	var modeSelector = $(createElement(document, 'select', {id:'modeSelector', onchange:"eventManager.fire('epigameChangeMode')"}));
+	for (var i = 0; i < this.modes.length; ++i) {
+		modeSelector.append($(createElement(document, 'option', {value: this.modes[i]})).html(modeLabels[i]));
+	}
+	modeSelectorDiv.append(modeSelectorLabel).append(createBreak()).append(modeSelector);
+	
+	//Mission data input
+	var levelStringDiv = $(createElement(document, 'div', {id:'levelStringDiv'}));
+	var levelStringLabel = $(createElement(document, 'span', {id:'levelStringLabel'})).text('Mission String:');
+	var levelStringTextArea = createElement(document, 'input', {id: 'levelStringTextArea', type: 'text', size: '45', onchange:"eventManager.fire('epigameUpdateLevelString')"});
+	levelStringDiv.append(levelStringLabel).append(createBreak()).append(levelStringTextArea);
 	
 	//add the authoring components to the page
-	$(pageDiv).append(sourceDiv);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(authoringSwfDiv);
+	//$(pageDiv).append(sourceDiv);
+	//pageDiv.appendChild(createBreak());
+	//pageDiv.appendChild(authoringSwfDiv);
 	$(pageDiv).append(swfUrlDiv);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	$(pageDiv).append(modeSelectorDiv);
+	pageDiv.appendChild(createBreak());
+	$(pageDiv).append(levelStringDiv);
 	//pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(levelStringLabel);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(levelStringTextArea);
-	pageDiv.appendChild(createBreak());
-	
 
 	//add the page to the parent
 	parent.appendChild(pageDiv);
@@ -106,7 +120,7 @@ View.prototype.EpigameNode.generatePage = function(view){
 	/*
 	var jsFunctions = '<script type="text/javascipt">\nfunction receiveLevelData(value) {\n'+
 		'alert("receiveleveldata");\n'+
-	    '//sendDataToGame(value);\n' +
+		'//sendDataToGame(value);\n' +
 	'};\n</script>\n';
 	*/
 	//$("#dynamicPage").append(jsFunctions);
@@ -135,37 +149,44 @@ View.prototype.EpigameNode.generatePage = function(view){
 	}
 	*/
 	
-	var levelString = '';
-	var useCustomSwf = false;
-	var customUri = '';
+	var levelString = "";
+	//var useCustomSwf = false;
+	var customUri = "";
+	var mode = "mission";
 	
 	if(this.content != null) {
 		//get the existing level string
 		levelString = this.content.levelString;
-		/*
-		if(this.content.useCustomSwf != 'undefined'){
+		
+		/*if(this.content.useCustomSwf != 'undefined'){
 			useCustomSwf = this.content.useCustomSwf;
-		}
-		if (this.content.customUri != 'undefined'){
+		}*/
+		if (this.content.customUri){
 			customUri = this.content.customUri;
 		}
-		*/
+		
+		if (this.content.mode) {
+			mode = this.content.mode;
+		}
 	}
 	
 	//populate the level string into the textarea
+	$('#swfUrlInput').val(customUri);
 	$('#levelStringTextArea').val(levelString);
-	/*
+	$('#modeSelector').val(mode);
+	
 	// get the source setting from the content and select corresponding radio button
+	/*
 	$('input[name="sourceSelect"]').each(function(){
 		if($(this).val() == useCustomSwf){
 			$(this).prop('checked',true);
 		}
 	});
-	
-	this.updateSwfSource();
+	*/
+	this.updateModeSelection();
 	
 	//get the url from the content and set it into the authoring textarea
-	$('#swfUrlInput').val(customUri);
+	/*
 	var authoringSwfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="leveleditor" align="middle">'
 	+ '<param name="allowScriptAccess" value="sameDomain" />'
 	+ '<param name="allowFullScreen" value="false" />'
@@ -173,7 +194,6 @@ View.prototype.EpigameNode.generatePage = function(view){
 	+ '</object>';
 	
 	$('#authoringSwfDiv').html(authoringSwfHtml);
-	
 	//set change event listener for source radio buttons
 	$('input[name="sourceSelect"]').change(function(){
 		eventManager.fire('epigameUpdateSource');
@@ -186,9 +206,9 @@ View.prototype.EpigameNode.generatePage = function(view){
  * @param levelString
  * @return
  */
-View.prototype.EpigameNode.importLevelStringToEditor = function() {	
+View.prototype.EpigameNode.importLevelStringToEditor = function() {
 	var levelString = this.content.levelString;
-	thisMovie("leveleditor").editorImport(levelString);
+	//thisMovie("leveleditor").editorImport(levelString);
 };
 
 /**
@@ -203,22 +223,12 @@ function receiveLevelData(value) {
 	eventManager.fire("epigameUpdateLevelString", value);
 };
 
-//identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
-function thisMovie(movieName) {
-    if(navigator.appName.indexOf("Microsoft") != -1) {
-        return window[movieName];
-    } else {
-        return document[movieName];
-    }
-};
-
-
 // Call as3 function in identified Flash applet
 function sendDataToGame(value) {
-    // Put the string at the bottom of the page, so I can see easily what data has been sent
-    //document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
-    // Use callback setup at top of this file.
-   thisMovie("epigame").sendToGame(value);
+	// Put the string at the bottom of the page, so I can see easily what data has been sent
+	//document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
+	// Use callback setup at top of this file.
+	//thisMovie("epigame").sendToGame(value);
 };
 
 /**
@@ -273,7 +283,8 @@ View.prototype.EpigameNode.updateSwfUrl = function(){
  * Updates the source mode based on user input
  */
 View.prototype.EpigameNode.updateSwfSource = function(){
-	/* update content */
+	// update content
+	/*
 	var useCustom = $('input[name="sourceSelect"]:checked').val();
 	this.content.useCustomSwf = useCustom;
 	
@@ -284,10 +295,56 @@ View.prototype.EpigameNode.updateSwfSource = function(){
 		$('#swfUrlDiv').hide();
 		$('#authoringSwfDiv').show();
 	}
+	*/
 	
 	/*
 	 * fire source updated event, this will update the preview
 	 */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+View.prototype.EpigameNode.updateModeSelection = function(){
+	var selectedMode = $('#modeSelector').val();
+	var index = this.modes.indexOf(selectedMode);
+	
+	if (index == -1) {
+		//Invalid, use default and overwrite the current field value
+		index = 0;
+		selectedMode = this.modes[index];
+		$('#modeSelector').val(selectedMode);
+	}
+	
+	var dataDiv = $('#levelStringDiv');
+	var dataLabel = $('#levelStringLabel');
+	var dataField = $('#levelStringTextArea');
+	
+	switch (index) {
+		//Use data value as mission string
+		case 0://Mission
+		case 4://Editor
+			dataLabel.text("Mission Data String:");
+			dataDiv.show();
+			break;
+		
+		/*
+		//Use data value as adaptive index/identifier
+		case 2://Adaptive Mission
+		case 3://Adaptive Quiz
+			dataLabel.text("Mission/Question Index (integer):");
+			dataDiv.show();
+			break;
+		*/
+		
+		//Ignore data value
+		default:
+			dataLabel.text("");
+			dataDiv.hide();
+			break;
+	}
+	
+	this.content.mode = selectedMode;
+	
+	//Update the preview
 	this.view.eventManager.fire('sourceUpdated');
 };
 

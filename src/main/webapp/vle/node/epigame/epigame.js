@@ -18,27 +18,22 @@ function Epigame(node) {
 	this.showTopScore = true;
 };
 
-//identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
-Epigame.prototype.thisMovie = function(movieName) {
-    if(navigator.appName.indexOf("Microsoft") != -1) {
-        return window[movieName];
-    } else {
-        return document[movieName];
-    }
+Epigame.prototype.getGameElement = function() {
+	return $('#epigame').get(0);
 };
 
 
 // Call as3 function in identified Flash applet
 Epigame.prototype.sendDataToGame = function(value) {
-    // Put the string at the bottom of the page, so I can see easily what data has been sent
-    //document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
-    // Use callback setup at top of this file.
-   this.thisMovie("epigame").sendToGame(value);
+	// Put the string at the bottom of the page, so I can see easily what data has been sent
+	//document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
+	// Use callback setup at top of this file.
+	this.getgameElement().sendToGame(value);
 };
 
 // Call as3 function in identified Flash applet
 Epigame.prototype.sendStateToGame = function(value) {
-	this.thisMovie("epigame").stateToGame(value);
+	this.getGameElement().stateToGame(value);
 };
 
 /**
@@ -164,6 +159,18 @@ Epigame.prototype.getAccumulatedScoreForTags = function(tagName, functionArgs) {
 	return result;
 };
 
+Epigame.prototype.embedGame = function(flashVars) {
+	swfobject.embedSWF("app/Main.swf", "epigame", "100%", "100%", "10.2.0", "../../swfobject/expressInstall.swf", flashVars ? flashVars : {});
+}
+
+Epigame.prototype.loadMission = 		function(missionStr) { this.embedGame({mode:"playmission", mission:missionStr}); }
+Epigame.prototype.loadMissionEditor = 	function(missionStr) { this.embedGame({mode:"editmission", mission:missionStr}); }
+Epigame.prototype.loadBlankEditor = 	function() { this.embedGame({mode:"editmission"}); }
+Epigame.prototype.loadMap = 			function() { this.embedGame({mode:"playcampaign"}); }
+Epigame.prototype.loadTutorial = 		function() { this.embedGame({mode:"playtutorial"}); }
+Epigame.prototype.loadAdaptiveMission = function(index) { this.embedGame({mode:"playmissioncat", catIndex:index}); }
+Epigame.prototype.loadAdaptiveQuiz = 	function(index) { this.embedGame({mode:"playquiz", catIndex:index}); }
+
 /**
  * This function renders everything the student sees when they visit the step.
  * This includes setting up the html ui elements as well as reloading any
@@ -183,10 +190,19 @@ Epigame.prototype.render = function() {
 	var message = '';
 	
 	//the accumulated score among a family tag of steps
-	var acuumulatedScore = 0;
+	var accumulatedScore = 0;
+	
+	//Whether this is running normally in the VLE (outside authoring mode)
+	var runMode = this.view.authoringMode == null || !this.view.authoringMode;
+	
+	//Coalesce required parameters
+	if (!this.content.mode)
+		this.content.mode = "mission";
+	if (!this.content.levelString)
+		this.content.levelString = "";
 	
 	//process the tag maps if we are not in authoring mode
-	if(this.view.authoringMode == null || !this.view.authoringMode) {
+	if(runMode) {
 		var tagMapResults = this.processTagMaps();
 		
 		//get the result values
@@ -208,27 +224,67 @@ Epigame.prototype.render = function() {
 				}
 			}
 			
+			<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="100%" height="100%" id="epigameApp" align="middle">
+				<param name="movie" value="' + epigameSource + '"/>
+				<param name="wmode" value="opaque"/>
+				<param name="quality" value="high"/>
+				<param name="bgcolor" value="#000000"/>
+				<param name="allowScriptAccess" value="sameDomain"/>
+				<!--[if !IE]>-->
+				<object type="application/x-shockwave-flash" data="Untitled-1.swf" width="100%" height="100%">
+					<param name="movie" value="Untitled-1.swf"/>
+					<param name="wmode" value="opaque"/>
+					<param name="allowScriptAccess" value="sameDomain"/>
+					<param name="quality" value="high"/>
+					<param name="bgcolor" value="#000000"/>
+				<!--<![endif]-->
+					<a href="http://www.adobe.com/go/getflash">
+						<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+					</a>
+				<!--[if !IE]>-->
+				</object>
+				<!--<![endif]-->
+			</object>
 			var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="epigame" align="middle">'
 				+ '<param name="allowScriptAccess" value="sameDomain" />'
 				+ '<param name="allowFullScreen" value="false" />'
 				+ '<param name="wmode" value="opaque" />'
-				+ '<param name="movie" value="' + epigameSource + '" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" />'
+				+ '<param name="movie" value="' + epigameSource + '" />'
+				+ '<param name="quality" value="high" />'
+				+ '<param name="bgcolor" value="#ffffff" />'
 				+ '<embed src="' + epigameSource + '" wmode="opaque" quality="high" bgcolor="#ffffff" width="770" height="480" name="epigame" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
 				+ '</object>';
 			
 			$('#swfDiv').html(swfHtml);	
 			*/
-			epigameLoader.loadMission(this.content.levelString);
+			//this.loadMission(this.content.levelString);
 			
 			if(this.showTopScore) {
 				//show the top score for the current step
 				this.displayTopScore();
 			}
 		}
-	} else {
-		epigameLoader.loadMissionEditor(this.content.levelString);
 	}
 	
+	if (enableStep) {
+		if (this.content.mode == "mission") {
+			if (runMode) {
+				this.loadMission(this.content.levelString);
+			} else {
+				this.loadMissionEditor(this.content.levelString);
+			}
+		} else if (this.content.mode == "editor") {
+			this.loadMissionEditor(this.content.levelString);
+		} else if (this.content.mode == "adaptiveMission") {
+			this.loadAdaptiveMission(0);
+		} else if (this.content.mode == "adaptiveQuiz") {
+			this.loadAdaptiveQuiz(this.content.levelString);
+		} else if (this.content.mode == "map") {
+			this.loadMap();
+		} else if (this.content.mode == "tutorial") {
+			this.loadTutorial();
+		}
+	}
 	
 	//if there is a message, display it to the student
 	$('#messageDiv').html(message);

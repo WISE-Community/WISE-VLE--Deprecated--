@@ -17,6 +17,8 @@ View.prototype.epigameDispatcher = function(type,args,obj){
 		obj.EpigameNode.updateSwfUrl(args);
 	} else if (type == 'epigameBrowseClicked'){
 		obj.EpigameNode.browseFlashAssets(args);
+	} else if (type == 'epigameChangeMode'){
+		obj.EpigameNode.updateModeSelection(args);
 	}
 };
 
@@ -30,7 +32,8 @@ var events = [
 	'epigameImportLevelStringToEditor',
 	'epigameUpdateSource',
 	'epigameSwfUrlChanged',
-	'epigameBrowseClicked'
+	'epigameBrowseClicked',
+	'epigameChangeMode'
 ];
 
 /*
