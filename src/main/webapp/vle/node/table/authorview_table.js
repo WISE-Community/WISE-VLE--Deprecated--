@@ -150,6 +150,35 @@ View.prototype.TableNode.generatePage = function(view){
 	//add the table
 	tableDiv.appendChild(authoringTable);
 
+	//create the checkbox to enable graphing
+	var enableGraphingCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'enableGraphingCheckBox', name: 'enableGraphingCheckBox', onchange: 'eventManager.fire("tableEnableGraphingClicked")'});
+	
+	//create the label for the enable graphing checkbox
+	var enableGraphingCheckBoxText = document.createTextNode("Enable Graphing");
+	
+	//add the enable graphing elements
+	pageDiv.appendChild(enableGraphingCheckBox);
+	pageDiv.appendChild(enableGraphingCheckBoxText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//create the div that will hold the graphing options
+	var graphingOptionsDiv = createElement(document, 'div', {id: 'graphingOptionsDiv'});
+	
+	//create the radio buttons to choose the graph type
+	var graphTypeRadioButtons = this.generateGraphTypeRadioButtons();
+	graphingOptionsDiv.appendChild(graphTypeRadioButtons);
+	graphingOptionsDiv.appendChild(createBreak());
+	
+	//create the radio buttons to choose who will select the axes to graph
+	var graphSelectAxesRadioButtons = this.generateGraphSelectAxesRadioButtons();
+	graphingOptionsDiv.appendChild(graphSelectAxesRadioButtons);
+	graphingOptionsDiv.appendChild(createBreak());
+	
+	//add the graphing options div
+	pageDiv.appendChild(graphingOptionsDiv);
+	pageDiv.appendChild(createBreak());
+	
 	//create the checkbox to hide everything below the table
 	var hideEverythingBelowTableCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'hideEverythingBelowTableCheckBox', name: 'hideEverythingBelowTableCheckBox', onchange: 'eventManager.fire("tableUpdateHideEverythingBelowTable")'});
 	
@@ -193,10 +222,113 @@ View.prototype.TableNode.generatePage = function(view){
 	//populate the starter sentence
 	this.populateStarterSentence();
 	
+	//populate the graph options
+	this.populateGraphOptions();
+	
 	//set the checkbox
 	if(this.content.hideEverythingBelowTable) {
 		hideEverythingBelowTableCheckBox.checked = true;
 	}
+};
+
+/**
+ * Generate the radio buttons to let the author choose what type of
+ * graph to make
+ */
+View.prototype.TableNode.generateGraphTypeRadioButtons = function() {
+	//create the div to contain the radio buttons
+	var graphTypeRadioButtonsDiv = createElement(document, 'div', {id: 'graphTypeRadioButtonsDiv'});
+	
+	//display the text 'Graph Type'
+	var graphTypeText = document.createTextNode('Graph Type');
+	graphTypeRadioButtonsDiv.appendChild(graphTypeText);
+	graphTypeRadioButtonsDiv.appendChild(createBreak());
+	
+	//a list of all the graph types we support
+	var graphTypes = [
+	                  'Scatter Plot',
+	                  'Line Graph',
+	                  'Bar Graph',
+	                  'Pie Graph'
+	                  ];
+	
+	//loop through all the graph types
+	for(var x=0; x<graphTypes.length; x++) {
+		//get a graph type
+		var graphType = graphTypes[x];
+		
+		/*
+		 * get the camel case version of the graph type
+		 * e.g.
+		 * 'Scatter Plot' will change to 'scatterPlot'
+		 */
+		var graphTypeCamelCased = graphType.charAt(0).toLocaleLowerCase() + graphType.substring(1);
+		
+		//remove all spaces
+		graphTypeCamelCased = graphTypeCamelCased.replace(/ /g, '');
+		
+		//create the radio button
+		var graphTypeRadioButton = createElement(document, 'input', {type: 'radio', id: 'graphType_' + x, name: 'graphType', value: graphTypeCamelCased, onclick: "eventManager.fire('tableGraphTypeClicked')"});
+		
+		//create the text for the radio button
+		var graphTypeText = document.createTextNode(graphType);
+		
+		//add the radio button to the div
+		graphTypeRadioButtonsDiv.appendChild(graphTypeRadioButton);
+		graphTypeRadioButtonsDiv.appendChild(graphTypeText);
+		graphTypeRadioButtonsDiv.appendChild(createBreak());
+	}
+	
+	return graphTypeRadioButtonsDiv;
+};
+
+/**
+ * Generate the radio buttons to allow the author to decide who will
+ * select the axes
+ */
+View.prototype.TableNode.generateGraphSelectAxesRadioButtons = function() {
+	//create the div to contain the radio buttons
+	var graphSelectAxesRadioButtonsDiv = createElement(document, 'div', {id: 'graphSelectAxesRadioButtonsDiv'});
+	
+	//display the text 'Who will select Axes'
+	var graphSelectAxesText = document.createTextNode('Who will select axes?');
+	graphSelectAxesRadioButtonsDiv.appendChild(graphSelectAxesText);
+	graphSelectAxesRadioButtonsDiv.appendChild(createBreak());
+	
+	//the options for selecting the axes
+	var graphSelectAxesTypes = [
+	                  'Author Select',
+	                  'Student Select'
+	                  ];
+	
+	//loop through the select axes types
+	for(var x=0; x<graphSelectAxesTypes.length; x++) {
+		//get a select axes type
+		var graphSelectAxesType = graphSelectAxesTypes[x];
+		
+		/*
+		 * get the camel case version of the select axes type
+		 * e.g.
+		 * 'Author Select' will change to 'authorSelect'
+		 */
+		var graphSelectAxesTypeCamelCased = graphSelectAxesType.charAt(0).toLocaleLowerCase() + graphSelectAxesType.substring(1);
+		
+		//remove all spaces
+		graphSelectAxesTypeCamelCased = graphSelectAxesTypeCamelCased.replace(/ /g, '');
+		
+		//create the radio button
+		var graphSelectAxesTypeRadioButton = createElement(document, 'input', {type: 'radio', id: 'graphSelectAxesType_' + x, name: 'graphSelectAxesType', value: graphSelectAxesTypeCamelCased, onclick: "eventManager.fire('tableGraphSelectAxesTypeClicked')"});
+		
+		//create the text for the radio button
+		var graphSelectAxesTypeText = document.createTextNode(graphSelectAxesType);
+		
+		//add the radio button to the div
+		graphSelectAxesRadioButtonsDiv.appendChild(graphSelectAxesTypeRadioButton);
+		graphSelectAxesRadioButtonsDiv.appendChild(graphSelectAxesTypeText);
+		graphSelectAxesRadioButtonsDiv.appendChild(createBreak());
+	}
+	
+	return graphSelectAxesRadioButtonsDiv;
 };
 
 /**
@@ -218,12 +350,54 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 	for(var x=0; x<this.content.numColumns; x++) {
 		headerTD = createElement(document, 'td');
 		
+		var selectColumnToAxisMappingDropDownStyle = '';
+		
+		if(this.content.graphOptions != null && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+			//the author will select the axes so we will show the drop downs to select the axis for the columns
+			selectColumnToAxisMappingDropDownStyle = 'display:block';
+		} else {
+			//the author will not select the axes so we will not show the drop downs to select the axis for the columns
+			selectColumnToAxisMappingDropDownStyle = 'display:none';
+		}
+		
 		//create the insert and delete buttons
 		var insertColumnButton = createElement(document, 'input', {type: 'button', id: 'insertColumnButton_' + x, name: 'insertColumnButton_' + x, value: 'I', onclick: 'eventManager.fire("tableInsertColumn", {x:' + x + '})'});
 		var deleteColumnButton = createElement(document, 'input', {type: 'button', id: 'deleteColumnButton_' + x, name: 'deleteColumnButton_' + x, value: 'D', onclick: 'eventManager.fire("tableDeleteColumn", {x:' + x + '})'});
 		
+		//create the drop down to select the axis for the columns
+		var selectAxisDropDown = createElement(document, 'select', {id: 'selectColumnToAxisMappingDropDown_' + x, name: 'selectColumnToAxisMappingDropDown_' + x, class:'selectColumnToAxisMappingDropDown', style: selectColumnToAxisMappingDropDownStyle, onchange: 'eventManager.fire("tableSelectColumnToAxisMappingDropDownChanged")'});
+		
+		//create the 'None' option for the drop down
+		var noneOption = createElement(document, 'option', {value:''});
+		noneOption.text = 'None';
+		selectAxisDropDown.appendChild(noneOption);
+		
+		//create the 'X' option for the drop down
+		var xOption = createElement(document, 'option', {value:'x'});
+		xOption.text = 'X';
+		selectAxisDropDown.appendChild(xOption);
+		
+		//create the 'Y' option for the drop down
+		var yOption = createElement(document, 'option', {value:'y'});
+		yOption.text = 'Y';
+		selectAxisDropDown.appendChild(yOption);
+		
+		//get the axis for this column if it has been set
+		var columnAxis = this.getColumnAxisByColumnIndex(x);
+		
+		if(columnAxis != null) {
+			if(columnAxis == 'x') {
+				//this column is set to x
+				xOption.selected = true;
+			} else if(columnAxis == 'y') {
+				//this column is set to y
+				yOption.selected = true;
+			}
+		}
+		
 		headerTD.appendChild(insertColumnButton);
 		headerTD.appendChild(deleteColumnButton);
+		headerTD.appendChild(selectAxisDropDown);
 		
 		headerTR.appendChild(headerTD);
 	}
@@ -309,6 +483,44 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 	}
 	
 	return authoringTable;
+};
+
+/**
+ * Get the column axis given the column index
+ * @param columnIndex the column index to get the axis value for
+ * @return the axis value for the column or null if not set. axis
+ * values are either 'x', 'y', or null
+ */
+View.prototype.TableNode.getColumnAxisByColumnIndex = function(columnIndex) {
+	var result = null;
+	
+	if(this.content.graphOptions != null) {
+		if(this.content.graphOptions.columnToAxisMappings != null) {
+			//populate the column axis drop downs
+			
+			//loop through all the column graph axis objects
+			for(var x=0; x<this.content.graphOptions.columnToAxisMappings.length; x++) {
+				//get an object
+				var columnToAxisMapping = this.content.graphOptions.columnToAxisMappings[x];
+				
+				if(columnToAxisMapping != null) {
+					//get the column index and column axis
+					var tempColumnIndex = columnToAxisMapping.columnIndex;
+					var tempColumnAxis = columnToAxisMapping.columnAxis;
+					
+					if(columnIndex == tempColumnIndex) {
+						//get the axis value
+						result = tempColumnAxis;
+						
+						//break out of the for loop
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	return result;
 };
 
 /**
@@ -428,7 +640,7 @@ View.prototype.TableNode.truncateColumns = function(numColumns) {
 	var dif = tableDataNumColumns - numColumns;
 	
 	if(dif > 0) {
-		//we need to remove  some columns
+		//we need to remove some columns
 		this.content.tableData.splice(numColumns, dif);		
 	}
 };
@@ -804,6 +1016,9 @@ View.prototype.TableNode.tableDeleteColumn = function(args) {
 		//update the number of columns in the authoring columns text input
 		$('#numColumnsInput').val(this.content.numColumns);
 		
+		//delete the column axis object used for graphing if it exists for this column
+		this.deleteColumnAxisObject(x);
+		
 		//re-generate the authoring table
 		this.updateAuthoringTable();
 		
@@ -940,6 +1155,239 @@ View.prototype.TableNode.updateHideEverythingBelowTable = function() {
 	
 	//fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');	
+};
+
+/**
+ * Populate the graph options from the existing step content if it already exists
+ */
+View.prototype.TableNode.populateGraphOptions = function() {
+	if(this.content.graphOptions != null) {
+		
+		if(this.content.graphOptions.enableGraphing) {
+			//graphing is enabled so we will show the div
+			$('#enableGraphingCheckBox').attr('checked', true);
+			
+			$('#graphingOptionsDiv').show();
+		} else {
+			//graphing is not enabled so we will hide the div
+			$('#graphingOptionsDiv').hide();
+		}
+		
+		if(this.content.graphOptions.graphType != null && this.content.graphOptions.graphType != '') {
+			//check the radio button for the graph type
+			$('input[name=graphType][value=' + this.content.graphOptions.graphType + ']').attr('checked', true);
+		}
+		
+		if(this.content.graphOptions.graphSelectAxesType != null && this.content.graphOptions.graphSelectAxesType != '') {
+			//check the radio button for the select axes type
+			$('input[name=graphSelectAxesType][value=' + this.content.graphOptions.graphSelectAxesType + ']').attr('checked', true);
+			
+			if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+				/*
+				 * show the drop downs in the columns to allow the author to select
+				 * which column will be used for which axis
+				 */
+				$('.selectColumnToAxisMappingDropDown').show();
+			}
+		}
+		
+		//populate the drop downs for the column axis
+		this.populateColumnToAxisMappings();
+	} else {
+		//there are no graph options so we will not show the graph options div
+		$('#graphingOptionsDiv').hide();
+	}
+};
+
+/**
+ * Populate the column graph axis drop downs
+ */
+View.prototype.TableNode.populateColumnToAxisMappings = function() {
+	if(this.content.graphOptions != null) {
+		if(this.content.graphOptions.columnToAxisMappings != null) {
+			//populate the column axis drop downs
+			
+			//loop through all the column graph axis objects
+			for(var x=0; x<this.content.graphOptions.columnToAxisMappings.length; x++) {
+				//get an object
+				var columnAxisObject = this.content.graphOptions.columnToAxisMappings[x];
+				
+				if(columnAxisObject != null) {
+					//get the column index and column axis
+					var columnIndex = columnAxisObject.columnIndex;
+					var columnAxis = columnAxisObject.columnAxis;
+					
+					//populate the corresponding drop down with the axis value
+					$('#selectColumnToAxisMappingDropDown_' + columnIndex).val(columnAxis);
+				}
+			}
+		}
+	}
+};
+
+/**
+ * The 'Enable Graphing' checkbox was clicked
+ */
+View.prototype.TableNode.tableEnableGraphingClicked = function() {
+	//create the graph options in the step content if it does not exist
+	this.createGraphOptionsIfNotExist();
+	
+	//get whether the checkbox is checked or not
+	var checked = $('#enableGraphingCheckBox').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox is checked
+		this.content.graphOptions.enableGraphing = true;
+		
+		//populate the graph options values in the authoring
+		this.populateGraphOptions();
+		
+		$('#graphingOptionsDiv').show();
+	} else {
+		//checkbox is not checked
+		this.content.graphOptions.enableGraphing = false;
+		$('#graphingOptionsDiv').hide();
+	}		
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');	
+};
+
+/**
+ * The drop down for a column to select its axis has changed
+ * @param
+ */
+View.prototype.TableNode.tableSelectColumnToAxisMappingDropDownChanged = function() {
+	/*
+	 * clear out the column graph axis values because we will
+	 * obtain all the values again
+	 */
+	this.content.graphOptions.columnToAxisMappings = [];
+
+	//get the number of columns
+	var numColumns = this.content.numColumns;
+	
+	//loop through all the column numbers
+	for(var x=0; x<numColumns; x++) {
+		//get the value of the axis drop down for this column
+		var axis = $('#selectColumnToAxisMappingDropDown_' + x).val();
+		
+		if(axis != null && axis != '') {
+			//create an object to hold the column index and column axis
+			var columnAxisObject = {
+				columnIndex:x,
+				columnAxis:axis
+			};
+			
+			//put this object into the array
+			this.content.graphOptions.columnToAxisMappings.push(columnAxisObject);
+		}
+	}
+
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');	
+};
+
+/**
+ * Delete the column axis object from the array
+ * @param columnIndex the column index to delete
+ */
+View.prototype.TableNode.deleteColumnAxisObject = function(columnIndex) {
+	if(this.content.graphOptions != null) {
+		/*
+		 * get the column graph axis array that contains the mappings
+		 * of column index to column axis
+		 */ 
+		var columnToAxisMappings = this.content.graphOptions.columnToAxisMappings;
+		
+		if(columnToAxisMappings != null) {
+			//loop through all the column graph axis objects
+			for(var y=0; y<columnToAxisMappings.length; y++) {
+				//get a column axis object
+				var columnAxisObject = columnToAxisMappings[y];
+				
+				if(columnAxisObject != null) {
+					//get the column index from the object
+					var tempColumnIndex = columnAxisObject.columnIndex;
+					
+					if(columnIndex == tempColumnIndex) {
+						//the column index is the one we want to delete
+						
+						//remove it from the array
+						columnToAxisMappings.splice(y, 1);
+						
+						/*
+						 * move our index counter back one since we just 
+						 * removed an element from the array
+						 */
+						y--;
+					} else if(columnIndex < tempColumnIndex) {
+						/*
+						 * we need to shift the index of all indexes that are
+						 * greater than the index we are deleting
+						 */
+						columnAxisObject.columnIndex = tempColumnIndex - 1;
+					}
+				}
+			}		
+		}
+	}
+};
+
+/**
+ * A radio button to select the graph type was clicked
+ */
+View.prototype.TableNode.tableGraphTypeClicked = function() {
+	//get the radio button value that is checked
+	var graphType = $('input[name=graphType]:checked').val();
+	
+	//update the step content
+	this.content.graphOptions.graphType = graphType;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * The radio button to select who will select the axes,
+ * author or student.
+ */
+View.prototype.TableNode.tableGraphSelectAxesTypeClicked = function() {
+	//get the radio button that is checked
+	var graphSelectAxesType = $('input[name=graphSelectAxesType]:checked').val();
+	
+	if(graphSelectAxesType == 'authorSelect') {
+		/*
+		 * show the drop downs on each of the columns to let the author
+		 * select the axis for columns
+		 */
+		$('.selectColumnToAxisMappingDropDown').show();
+	} else {
+		//hide the drop downs on each of the columns
+		$('.selectColumnToAxisMappingDropDown').hide();
+	}
+	
+	//update the value in the content
+	this.content.graphOptions.graphSelectAxesType = graphSelectAxesType;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');	
+};
+
+/**
+ * Create the graph options in the step content if it does not exist
+ */
+View.prototype.TableNode.createGraphOptionsIfNotExist = function() {
+	if(this.content.graphOptions == null) {
+		//graph options does not exist
+		
+		//set the default values
+		this.content.graphOptions = {};
+		this.content.graphOptions.enableGraphing = false;
+		this.content.graphOptions.graphType = 'scatterPlot';
+		this.content.graphOptions.graphSelectAxesType = 'authorSelect';
+		this.content.graphOptions.columnToAxisMappings = [];
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

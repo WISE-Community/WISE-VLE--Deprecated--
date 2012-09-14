@@ -49,6 +49,14 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.updateStarterSentence();
 	} else if(type == 'tableUpdateHideEverythingBelowTable') {
 		obj.TableNode.updateHideEverythingBelowTable();
+	} else if(type == 'tableEnableGraphingClicked') {
+		obj.TableNode.tableEnableGraphingClicked();
+	} else if(type == 'tableSelectColumnToAxisMappingDropDownChanged') {
+		obj.TableNode.tableSelectColumnToAxisMappingDropDownChanged();
+	} else if(type == 'tableGraphTypeClicked') {
+		obj.TableNode.tableGraphTypeClicked();
+	} else if(type == 'tableGraphSelectAxesTypeClicked') {
+		obj.TableNode.tableGraphSelectAxesTypeClicked();
 	}
 };
 
@@ -75,7 +83,11 @@ var events = [
 	'tableUpdateCellSize',
 	'tableUpdatePrompt2',
 	'tableUpdateStarterSentence',
-	'tableUpdateHideEverythingBelowTable'
+	'tableUpdateHideEverythingBelowTable',
+	'tableEnableGraphingClicked',
+	'tableSelectColumnToAxisMappingDropDownChanged',
+	'tableGraphTypeClicked',
+	'tableGraphSelectAxesTypeClicked'
 ];
 
 /*

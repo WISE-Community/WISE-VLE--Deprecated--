@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		<script type="text/javascript">
 			/*
 			 * TODO: Copy this file and rename it to
@@ -18,6 +19,9 @@
 			 * vlewrapper/WebContent/vle/node/quiz/
 			 */
 		
+			//load the package to graph google charts
+			google.load("visualization", "1", {packages:["corechart"]});
+			 
 			var table;
 		
 			function loadContentAfterScriptsLoad(node) {
@@ -108,6 +112,13 @@
 	        function showStarterSentence() {
 	        	table.showStarterSentence();
 	        }
+	        
+	        /*
+	         * Called when the student clicks the make graph button
+	         */
+	        function makeGraph() {
+	        	table.makeGraph();
+	        }
 		</script>
 	</head>
 
@@ -120,6 +131,11 @@
 		<div id='promptDiv'></div>
 		<div id='buttonDiv'><input type='button' value='Reset Table' onclick='reset()'></input></div>
 		<div id='tableDiv'></div>
+		<div id='graphParentDiv' style="display:none">
+			<div id='graphOptionsDiv'></div>
+			<input id='graphButton' type='button' value='Make Graph' onclick='makeGraph()'></input>
+			<div id="graphDiv" style="width: 700px; height: 400px; display:none"></div>
+		</div>
 		<div id='prompt2Div'></div>
 		<div id='showStarterSentenceDiv'><input type='button' value='Show Starter Sentence' onclick='showStarterSentence()'></input></div>
 		<div id='responseDiv'><textarea id='studentResponseTextArea' rows='4' cols='80' onchange='studentResponseChanged()'></textarea></div>
