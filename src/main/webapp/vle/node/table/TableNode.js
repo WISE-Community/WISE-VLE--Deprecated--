@@ -184,17 +184,42 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	var response = tableState.response;
 	response = this.view.replaceSlashNWithBR(response);
 	
+	if(childDivIdPrefix != null && childDivIdPrefix != '') {
+		//add an _ after the child prefix if the child prefix is not empty string
+		childDivIdPrefix += '_';
+	}
+	
 	//div to display the table
 	var tableTableDataDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTableDataDiv_' + stepWorkId});
 	
 	//div to display a new line
 	var newLineDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLineDiv_' + stepWorkId});
 	
+	if(table.isGraphingEnabled() && tableState.graphRendered) {
+		//div to display the graph
+		var graphDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'graphDiv_' + stepWorkId, style: 'width:450px; height:250px'});
+		
+		//div to display a new line
+		var newLine2Div = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLine2Div_' + stepWorkId});
+	}
+	
 	//div to display the student response
 	var tableResponseDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableResponseDiv_' + stepWorkId});
 	
 	$('#' + divId).append(tableTableDataDiv);
 	$('#' + divId).append(newLineDiv);
+	
+	if(table.isGraphingEnabled() && tableState.graphRendered) {
+		//add the graph div
+		$('#' + divId).append(graphDiv);
+		
+		//display a loading message in the div, this will be overwritten by the graph
+		$('#' + graphDiv.id).html("Loading...");
+		
+		//display a new line
+		$('#' + divId).append(newLine2Div);		
+	}
+
 	$('#' + divId).append(tableResponseDiv);
 
 	//add the table
@@ -202,6 +227,11 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	
 	//newline to separate the graph from the response
 	$('#' + newLineDiv.id).append('<br>');
+	
+	if(table.isGraphingEnabled() && tableState.graphRendered) {
+		//display the graph in the div
+		table.makeGraph(graphDiv.id, tableState.tableData, tableState.graphOptions);
+	}
 	
 	//add the response
 	$('#' + tableResponseDiv.id).html(response);
