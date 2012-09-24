@@ -280,7 +280,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 			
 			/* inject urls and write html to content panel */
 			this.contentPanel.document.open();
-			this.contentPanel.document.write(this.injectBaseRef(this.injectKeystrokeManagerScript(this.baseHtmlContent.getContentString())));
+			this.contentPanel.document.write(this.injectBaseRef(this.baseHtmlContent.getContentString()));
 			this.contentPanel.document.close();
 		} else {
 			/* already rendered, just load content */
@@ -299,7 +299,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 		
 		//write the content into the contentPanel, this will render the html in that panel
 		this.contentPanel.document.open();
-		this.contentPanel.document.write(this.injectBaseRef(this.injectKeystrokeManagerScript(this.baseHtmlContent.getContentString())));
+		this.contentPanel.document.write(this.injectBaseRef(this.baseHtmlContent.getContentString()));
 		this.contentPanel.document.close();
 	}
 	
