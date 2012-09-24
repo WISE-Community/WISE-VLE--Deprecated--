@@ -37,12 +37,16 @@
  * 
  * @constructor
  */
-function TableState(response, tableData) {
+function TableState(response, tableData, graphRendered, graphOptions) {
 	//the text response the student wrote
 	this.response = "";
 	
 	//the table data that contains the values in the table as well as settings
 	this.tableData = [];
+	
+	this.graphRendered = false;
+	
+	this.graphOptions = null;
 
 	if(response != null) {
 		//set the response
@@ -52,6 +56,16 @@ function TableState(response, tableData) {
 	if(tableData != null) {
 		//set the table data
 		this.tableData = tableData;
+	}
+	
+	if(graphRendered) {
+		//set whether the student has rendered the graph
+		this.graphRendered = graphRendered;
+	}
+	
+	if(graphOptions != null) {
+		//set the graph options used to render the graph
+		this.graphOptions = graphOptions;
 	}
 };
 
@@ -76,11 +90,17 @@ TableState.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//obtain the student table data
 	var tableData = stateJSONObj.tableData;
 	
+	//obtain whether the student rendered the graph or not
+	var graphRendered = stateJSONObj.graphRendered;
+	
+	//obtain the graph options used to render the graph
+	var graphOptions = stateJSONObj.graphOptions;
+	
 	/*
 	 * create a state object with the student work
 	 * TODO: rename TEMPLATESTATE
 	 */
-	var tableState = new TableState(response, tableData);
+	var tableState = new TableState(response, tableData, graphRendered, graphOptions);
 	
 	//return the state object
 	return tableState;
