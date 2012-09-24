@@ -75,7 +75,7 @@
 					});
 					
 					// Set initial state
-					setDisplay(cBox);
+					setDisplay(cBox,this.checked);
 					
 					// Bind click action on new switch
 					cSwitch.on('click.toggleSwitch',function(){
@@ -139,7 +139,7 @@
 	// Default options
 	$.fn.toggleSwitch.options = {
         labels: ['ON','OFF'],
-        onColor: '#007391',
+        onColor: '#1c8ca8',
         offColor: '#EEEEEE'
     };
 	
