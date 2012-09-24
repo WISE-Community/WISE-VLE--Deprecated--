@@ -264,7 +264,7 @@ View.prototype.populateMetaSettings = function(){
 	$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
 	
 	// initialize jQuery UI selectmenus on projectInfo select elements
-	$('#projectInfo select').selectmenu({customClass:'dark'});
+	$('#projectInfo select').selectmenu();
 	
 	eventManager.fire('browserResize');
 };
@@ -287,8 +287,15 @@ View.prototype.updateMetaSettings = function(item,val){
  * 
  */
 View.prototype.updateMetaTools = function(item,val){
+	if(typeof this.projectMeta.tools == 'undefined'){
+		this.projectMeta.tools = {};
+	}
 	this.projectMeta.tools[item] = val;
 	this.updateProjectMetaOnServer();
+	
+	if(item=='isIdeaManagerEnabled' && val==true){
+		setTimeout(function(){ eventManager.fire('editIMSettings'); },500);
+	}
 };
 
 /**
