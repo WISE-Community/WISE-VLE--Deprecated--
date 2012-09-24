@@ -52,6 +52,7 @@ InitialMySystemData = {
     }
  ],
  "diagram_rules": [],
+ "rubric_categories": [],
  "minimum_requirements": [],
  "correctFeedback": "Your diagram has no obvious problems.",
  "maxFeedbackItems": 0,
@@ -62,5 +63,6 @@ InitialMySystemData = {
  "enableCustomRuleEvaluator": false,
  "customRuleEvaluator": "",
  "feedbackPanelWidth": 500,
- "feedbackPanelHeight": 250
+ "feedbackPanelHeight": 250,
+ "rubricExpression": "score(1);"
 };

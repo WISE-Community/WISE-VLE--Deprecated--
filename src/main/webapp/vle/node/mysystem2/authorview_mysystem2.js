@@ -34,13 +34,24 @@ View.prototype.Mysystem2Node.generatePage = function(view){
   parent.appendChild(this.getBuildInfoDiv());
 };
 
+var scoringFunction=function() {
+  var frame = window.frames['previewFrame'];
+  var mysystem = null;
+  if (typeof frame !== 'undefined') {
+    mysystem = frame.window.MySystem;
+    if (typeof mysystem !== 'undefined') {
+      mysystem.rubricController.displayScore();
+    }
+  }
+};
+
 View.prototype.Mysystem2Node.AuthoringIFrameLoaded = function(){
   var iframe = document.getElementById('mysystem2-authoring-iframe').contentWindow;
   
   iframe.MSA.setupParentIFrame(this.content, this, function (){
     /* fire source updated event */
     this.view.eventManager.fire('sourceUpdated');
-  });
+  }, scoringFunction);
 };
 
 View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
@@ -51,11 +62,11 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : b0dabf4fd6963b6d954d608e6572c492808a9c24 ");
-  var git_time        = document.createTextNode("commit time : Fri Jun 15 16:51:36 2012 -0400 ");
-  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master) ");
-  var sc_build_time   = document.createTextNode("build time  : 2012-06-15 17:01:38 -0400 ");
-  var sc_build_number = document.createTextNode("build no.   : ce94ec8481017d1939a977af4cc3fb8e7a94a787 ");
+  var git_sha         = document.createTextNode("commit sha  : ba81c3223fe18c6b0dc08aa55bf5556761de00a1 ");
+  var git_time        = document.createTextNode("commit time : Thu Aug 16 18:13:26 2012 -0400 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, 2012_08_20) ");
+  var sc_build_time   = document.createTextNode("build time  : 2012-08-24 16:46:27 -0400 ");
+  var sc_build_number = document.createTextNode("build no.   : 1a854796273a82afd8c53993f2cfc0dc4ede6f67 ");
   
   git_sha_div.appendChild(git_sha);
   git_time_div.appendChild(git_time);
