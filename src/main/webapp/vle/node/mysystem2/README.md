@@ -18,7 +18,7 @@ The build process uses ruby. We recommend installing the Ruby Version Manager [r
 1. checkout [This repository][] `git clone https://<username>@github.com/concord-consortium/MySystem-Wise-Integration-WIP.git`
 1. enter the directory: `cd MySystem-Wise-Integration-WIP`
 1. copy the files over: `cp -r ../mysystem_sc/vle/node/mysystem2/* .`
-1. commit your changes: `git ci -a -m "commit message here\n\n built from: b0dabf4"`
+1. commit your changes: `git ci -a -m "commit message here\n\n built from: d4c33da"`
 1. optionally tag the commit: `git tag -a <tagName> -m "<more info here>"`
 1. push the changes: `git push --tags`
 
@@ -30,15 +30,15 @@ Update `wise4/mysystem2/README.md.erb` To have your changes appear here.
 Otherwise *your local changes will be overwritten*.
 
 
-## Current [MySystem][] ( [b0dabf4][] ) Version fronzen into [This repository][]
+## Current [MySystem][] ( [d4c33da][] ) Version fronzen into [This repository][]
 
-    MySystem Git Sha :   b0dabf4fd6963b6d954d608e6572c492808a9c24
-    Git commit time  :   Fri Jun 15 16:51:36 2012 -0400
-    Git Branch / refs:   (HEAD, origin/master, origin/HEAD, master)
-    Build Time       :   2012-06-15 17:01:38 -0400
-    SproutCore Build :   ce94ec8481017d1939a977af4cc3fb8e7a94a787
+    MySystem Git Sha :   d4c33da7fec616ab133dab584bda7844adacfe52
+    Git commit time  :   Mon Sep 24 17:08:31 2012 -0400
+    Git Branch / refs:   (HEAD, origin/berkeley_deployed, berkeley_deployed)
+    Build Time       :   2012-09-24 17:18:52 -0400
+    SproutCore Build :   57e4500141f0558ba91cbb586caa13f1edf4eedc
 
-[b0dabf4]: https://github.com/concord-consortium/mysystem_sc/commits/b0dabf4fd6963b6d954d608e6572c492808a9c24
+[d4c33da]: https://github.com/concord-consortium/mysystem_sc/commits/d4c33da7fec616ab133dab584bda7844adacfe52
 [This repository]: https://github.com/concord-consortium/MySystem-Wise-Integration-WIP
 [WISE4]: http://wise4.org
 [MySystem]: https://github.com/concord-consortium/mysystem_sc
