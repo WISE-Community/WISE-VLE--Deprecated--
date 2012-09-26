@@ -1665,7 +1665,7 @@ SENSOR.prototype.editAnnotation = function(seriesName, x, annotationText) {
  */
 SENSOR.prototype.insertApplet = function() {
 	//display the loading message on the graph
-	this.showGraphMessage('Loading...<br>(Click "Allow" or "Trust" if you see a popup. If this message does not change in 1 minute, quit your browser, open it back up, and try again.)', 'red');
+	this.showGraphMessage('Loading...<br>(Click "Allow", "Run", or "Trust" if you see a popup. If this message does not change in 1 minute, quit your browser, open it back up, and try again.)', 'red');
 	
 	//the otml file determines what type of sensor the applet expects
 	var otmlFileName = "";
@@ -1767,7 +1767,7 @@ SENSOR.prototype.insertApplet = function() {
 	'<param name="resource" value="' + otmlFileName + '"/> ' + 
 	'<param name="name" value="sensor"/> ' +
 	'<param name="listenerPath" value="jsListener"/> ' +
-	'<param name="MAYSCRIPT" value="true"/>Your browser is completely ignoring the applet tag!' +
+	'<param name="MAYSCRIPT" value="true"/><font color="red">Error: Applets are disabled in your browser. Please read the instructions <a href="http://java.com/en/download/help/enable_browser.xml" target="_blank">here</a> to enable applets in your browser.</font>' +
 	'</applet>';
 	
 	
