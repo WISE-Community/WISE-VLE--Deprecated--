@@ -262,12 +262,12 @@ TableNode.prototype.getHTMLContentTemplate = function() {
  * @param work the student node state that we want to display
  * @return an html string that will display the student work
  */
-TableNode.prototype.getHtmlView = function(work) {
+TableNode.prototype.getStudentWorkHtmlView = function(work) {
 	//make an instance of the Table
 	var table = new Table(this, this.view);
 	
 	//get the html representation of the student work
-	var html = table.getHtmlView(work);
+	var html = table.getStudentWorkHtmlView(work);
 	
 	return html;
 };

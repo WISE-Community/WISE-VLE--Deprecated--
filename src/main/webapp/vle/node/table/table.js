@@ -268,7 +268,7 @@ Table.prototype.render = function() {
  * @param work the student work node state
  * @returns an html string that will display the student work for this step
  */
-Table.prototype.getHtmlView = function(work) {
+Table.prototype.getStudentWorkHtmlView = function(work) {
 	//make a table
 	var html = "<table>";
 

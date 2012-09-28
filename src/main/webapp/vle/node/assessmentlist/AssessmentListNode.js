@@ -211,7 +211,7 @@ AssessmentListNode.prototype.onExit = function() {
  * Display the work for an assessmentliststate object
  * @param nodeState the node state to display work from
  */
-AssessmentListNode.prototype.getHtmlView = function(nodeState) {
+AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 	var showAutoScoreResult = false;
 	
 	var studentWorkSoFar = "";

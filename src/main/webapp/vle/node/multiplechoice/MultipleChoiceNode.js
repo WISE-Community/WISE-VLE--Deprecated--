@@ -68,6 +68,22 @@ MultipleChoiceNode.prototype.getLatestWork = function(vle) {
 };
 
 /**
+ * Get the html string representation of the student work
+ * @param work the student node state that we want to display
+ * @return an html string that will display the student work
+ */
+MultipleChoiceNode.prototype.getStudentWorkHtmlView = function(work) {
+	var latestState = work;
+	var html = '';
+	
+	if(latestState != null && typeof latestState == 'object') {
+		//get the student response as a string
+		html = latestState.response + '';
+	}
+	
+	return html;
+};
+/**
  * Returns the prompt for this node by loading the MC content and then
  * obtaining it from the MC
  * @return the prompt for this node

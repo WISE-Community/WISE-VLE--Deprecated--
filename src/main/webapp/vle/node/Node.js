@@ -1071,7 +1071,7 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 						work = work.replace(/\n/g, '<br>');
 					} else {
 						//get the html view for the work
-						work = node.getHtmlView(work);
+						work = node.getStudentWorkHtmlView(work);
 					}
 					
 					//display the previous work step number and title along with the work
@@ -1488,7 +1488,7 @@ Node.prototype.canExit = function() {
  * @returns a string with the html that will display
  * the student work for this step
  */
-Node.prototype.getHtmlView = function(work) {
+Node.prototype.getStudentWorkHtmlView = function(work) {
 	return "";
 };
 
