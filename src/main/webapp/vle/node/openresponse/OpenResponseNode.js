@@ -386,7 +386,7 @@ OpenResponseNode.prototype.getStudentWorkString = function(studentWork) {
  * @param work the student node state that we want to display
  * @return an html string that will display the student work
  */
-OpenResponseNode.prototype.getHtmlView = function(work) {
+OpenResponseNode.prototype.getStudentWorkHtmlView = function(work) {
 	var latestState = work;
 	var html = '';
 	
