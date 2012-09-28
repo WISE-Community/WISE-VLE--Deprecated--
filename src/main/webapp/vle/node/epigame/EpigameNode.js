@@ -11,16 +11,49 @@ EpigameNode.authoringToolName = "Epigame";
  * will be seen by the author when they add a new step to their project to help
  * them understand what kind of step this is
  */
-EpigameNode.authoringToolDescription = "This is a generic step only used by developers";
+EpigameNode.authoringToolDescription = "Game step for Surge: The Fuzzy Chronicles";
 
 /*
  * The tag map functions that are available for this step type
  */
 EpigameNode.tagMapFunctions = [
-	{functionName:'checkCompleted', functionArgs:[]},
-	{functionName:'checkScore', functionArgs:['Min Score']},
-	{functionName:'getAccumulatedScore', functionArgs:[]}
+	{functionName:"checkCompletedAll", functionArgs:[]},
+	{functionName:"checkCompletedAny", functionArgs:[]},
+	{functionName:"checkStepPerformance", functionArgs:["Score to Unlock"]},
+	{functionName:"checkStepExplanation", functionArgs:["Score to Unlock"]},
+	{functionName:"getTotalPerformance", functionArgs:["Score to Unlock (optional)", "Tag Multipliers (advanced)"]},
+	{functionName:"getTotalExplanation", functionArgs:["Score to Unlock (optional)", "Tag Multipliers (advanced)"]},
+	{functionName:"getTotalAdaptive", functionArgs:["Score to Unlock (optional)"]}
+	//{functionName:"advanced_calcMovingScore", functionArgs:["Starting Score", "Mobility (0-100)"]}
 ];
+
+EpigameNode.prototype.getQuizData = function(customURL) {
+	var content = null;
+	
+	if (customURL && customURL != "") {
+		content = createContent(customURL);
+	} else {
+		if (!this.defaultQuizContent)
+			this.defaultQuizContent = createContent("node/epigame/adaptiveQuizData.json");
+			
+		content = this.defaultQuizContent;
+	}
+	return content.getContentJSON();
+};
+
+EpigameNode.prototype.getAdaptiveMissionData = function(customURL) {
+	var content = null;
+	
+	if (customURL && customURL != "") {
+		content = createContent(customURL);
+	} else {
+		if (!this.defaultAdaptiveMissionContent)
+			this.defaultAdaptiveMissionContent = createContent("node/epigame/adaptiveMissionData.json");
+			
+		content = this.defaultAdaptiveMissionContent;
+	}
+	return content.getContentJSON();
+};
 
 /**
  * This is the constructor for the Node
@@ -72,19 +105,14 @@ EpigameNode.prototype.translateStudentWork = function(studentWork) {
 };
 
 /**
- * We do not need to do anything onExit for SURGE since 
- * we are saving state intermediately.
+ * Notify the HTML so it can save state on exit if desired.
  */
 EpigameNode.prototype.onExit = function() {
 	//check if the content panel has been set
-	/*
-	if(this.contentPanel) {
-		if(this.contentPanel.save) {
-			//tell the content panel to save
-			this.contentPanel.save();
-		}
+	if (this.contentPanel && this.contentPanel.save) {
+		//tell the content panel to save
+		this.contentPanel.save();
 	}
-	*/
 };
 
 /**
@@ -111,18 +139,15 @@ EpigameNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
 	
 	if (nodeStates.length > 0) {
 		
-		// get the best score
-		gradingText += "<span style='font-weight:bold;'>Best medal earned for this level: "+nodeStates[nodeStates.length-1].getStudentWork().response.topScoreText+"</span><br/><br/>";
+		//get the best score
+		//gradingText += "<span style='font-weight:bold;'>Best medal earned for this level: "+nodeStates[nodeStates.length-1].getStudentWork().response.topScoreText+"</span><br/><br/>";
 		
-		// get the number of trials during this node visit.
-		gradingText += "This visit has " + nodeStates.length + " trial(s).<br/><br/>";
+		//get the number of trials during this node visit.
+		//gradingText += "This visit has " + nodeStates.length + " trial(s).<br/><br/>";
 		
-		/*
-		 * loop through the trials from newest to oldest so that
-		 * the newest displays at the top
-		 */
-		for (var i=nodeStates.length - 1; i>=0; i--) {
-			gradingText += "<b>Trial #"+(i+1)+"</b><br/>"
+		//loop through the trials from newest to oldest so that the newest displays at the top
+		for (var i = nodeStates.length - 1; i >= 0; --i) {
+			//gradingText += "<b>Trial #"+(i+1)+"</b><br/>"
 			gradingText += JSON.stringify(nodeStates[i].getStudentWork().response) + "<br/><br/>";
 		}
 
@@ -148,6 +173,8 @@ EpigameNode.prototype.getHTMLContentTemplate = function() {
  * @param studentWork the student's epigame state
  */
 EpigameNode.prototype.processStudentWork = function(studentWork) {
+	//Disabled for now...
+	/*
 	if(studentWork != null) {
 		if(studentWork.response != null && studentWork.response != "") {
 			//var className = "";
@@ -181,9 +208,10 @@ EpigameNode.prototype.processStudentWork = function(studentWork) {
 			}
 			
 			//display the star next to the step in the nav menu
-			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);			
+			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);
 		}
 	}
+	*/
 };
 
 /**
@@ -212,19 +240,57 @@ EpigameNode.prototype.getTagMapFunctionByName = function(functionName) {
 		//get a tag map function
 		var tagMapFunction = tagMapFunctions[x];
 		
-		if(tagMapFunction != null) {
-			
+		if (tagMapFunction != null) {
 			//check if the function name matches
-			if(functionName == tagMapFunction.functionName) {
+			if (functionName == tagMapFunction.functionName) {
 				//the function name matches so we have found what we want
 				fun = tagMapFunction;
 				break;
-			}			
+			}
 		}
 	};
 	
 	return fun;
 };
+
+EpigameNode.prototype.navHelper = function() {
+	var interpretNode = function(node) {
+		var result = {
+			id: node.id,
+			title: node.title,
+			type: node.type,
+			className: node.className,
+			content: null,
+			imagePathBase: node.view.nodeIconPaths[node.type],
+			tags: node.tags,
+			children: []
+		};
+		
+		if (node.children)
+			for (var i = 0; i < node.children.length; ++i)
+				result.children[i] = interpretNode(node.children[i]);
+				
+		if (node.content)
+			result.content = node.content.getContentJSON();
+			
+		return result;
+	}
+	
+	return {
+		getProjectData: function() {
+			var project = env.getProject();
+			return {
+				root: interpretNode(project.getRootNode()),
+				stepTerm: project.getStepTerm(),
+				title: project.getTitle()
+			};
+		},
+		executeNode: function(sequenceIndex, stepIndex) {
+			var pos = String(sequenceIndex) + "." + String(stepIndex);
+			eventManager.fire('renderNode', pos);
+		}
+	};
+}();
 
 //Add this node to the node factory so the vle knows it exists.
 NodeFactory.addNode('EpigameNode', EpigameNode);

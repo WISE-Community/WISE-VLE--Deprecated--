@@ -154,7 +154,7 @@ View.prototype.EpigameNode.generatePage = function(view){
 	var customUri = "";
 	var mode = "mission";
 	
-	if(this.content != null) {
+	if (this.content != null) {
 		//get the existing level string
 		levelString = this.content.levelString;
 		
@@ -170,7 +170,7 @@ View.prototype.EpigameNode.generatePage = function(view){
 		}
 	}
 	
-	//populate the level string into the textarea
+	//populate the fields
 	$('#swfUrlInput').val(customUri);
 	$('#levelStringTextArea').val(levelString);
 	$('#modeSelector').val(mode);

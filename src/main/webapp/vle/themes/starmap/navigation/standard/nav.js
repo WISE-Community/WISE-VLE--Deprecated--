@@ -346,6 +346,7 @@ var navHelper = function(){
 			title: node.title,
 			type: node.type,
 			className: node.className,
+			content: null,
 			imagePathBase: node.view.nodeIconPaths[node.type],
 			tags: node.tags,
 			children: []
@@ -355,6 +356,9 @@ var navHelper = function(){
 			for (var i = 0; i < node.children.length; ++i)
 				result.children[i] = interpretNode(node.children[i]);
 				
+		if (node.content)
+			result.content = node.content.getContentJSON();
+			
 		return result;
 	}
 	

@@ -14,8 +14,6 @@ function Epigame(node) {
 	} else {
 		this.states = [];  
 	};
-	
-	this.showTopScore = true;
 };
 
 Epigame.prototype.getGameElement = function() {
@@ -36,131 +34,402 @@ Epigame.prototype.sendStateToGame = function(value) {
 	this.getGameElement().stateToGame(value);
 };
 
+Epigame.prototype.parseMinScore = function(sourceStr) {
+	var result = parseInt(sourceStr);
+	if (isNaN(result))
+		return 0;
+		
+	return result;
+}
+
+Epigame.prototype.parseTagMultipliers = function(sourceStr) {
+	var result = {};
+	
+	//If the source string exists and is formatted correctly, parse it into the result
+	if (sourceStr != null && sourceStr != "" && sourceStr.indexOf(":") != -1) {
+		var tagMultStrs = sourceStr.split(";");
+		
+		for (var i = 0; i < tagMultStrs.length; ++i) {
+			var keyValPair = tagMultStrs[i].split(":");
+			
+			if (keyValPair.length == 2) {
+				var value = parseFloat(keyValPair[1]);
+				result[keyValPair[0]] = isNaN(value) ? 0 : value;
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Get the most recent student work entry from any Epigame node by timestamp.
+ * @param nodeFilterFunc a function to filter the acceptable results, sig: function(node) { return boolean; }
+ * @return the most recent student work object, or null if there is no valid student work
+ */
+Epigame.prototype.getLatestEpigameWork = function(nodeFilterFunc) {
+	var nodeIDs = this.view.getProject().getNodeIdsByNodeType("EpigameNode");
+	if (!nodeFilterFunc)
+		nodeFilterFunc = function(node) { return true; }
+	
+	var latestWork = null;
+	if (nodeIDs) {
+		for (var i = 0; i < nodeIDs.length; ++i) {
+			var node = this.view.getProject().getNodeById(nodeIDs[i]);
+			if (node && node.studentWork && node.studentWork.length && nodeFilterFunc(node)) {
+				var work = node.studentWork[node.studentWork.length - 1];
+				//If timestamped later than the latest (or no latest exists), this is the new latest
+				if (work && work.timestamp != null && (!latestWork || latestWork.timestamp < work.timestamp)) {
+					latestWork = work;
+				}
+			}
+		}
+	}
+	return latestWork;
+};
+
 /**
  * Check the scores for all the steps that have the given tag and occur
  * before the current step in the project
  * @param tagName the tag name
- * @param functionArgs the arguments to this function
+ * @param scoreProp the property name of the checked score in studentWork
+ * @param functionArgs the arguments to this function (minScore, tagMultipliers)
  * @returns the results from the check, the result object
  * contains a pass field and a message field
  */
-Epigame.prototype.checkScoreForTags = function(tagName, functionArgs) {
-	//default values for the result
-	var result = {
-		pass:true,
-		message:''
-	};
+Epigame.prototype.getTotalScore = function(tagName, scoreProp, readableScoreName, functionArgs) {
+	var minScore = this.parseMinScore(functionArgs[0]);
+	var tagMultipliers = this.parseTagMultipliers(functionArgs[1]);
+	var totalScore = 0;
 	
+	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
+	if (nodeIds) {
+		for (var i = 0; i < nodeIds.length; ++i) {
+			var nodeId = nodeIds[i];
+			if (nodeId != null) {
+				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var nodeScore = latestWork.response ? parseFloat(latestWork.response[scoreProp]) : NaN;
+				if (!isNaN(nodeScore)) {
+					var multiplier = 1;
+					if (node.tags) {
+						for (var j = 0; j < node.tags.length; ++i) {
+							var tagMult = tagMultipliers[node.tags[j]];
+							if (!isNaN(tagMult))
+								multiplier *= tagMult;
+						}
+					}
+					totalScore += nodeScore * multiplier;
+				}
+			}
+		}
+	}
+	
+	var result = {
+		pass: totalScore >= minScore,
+		message: totalScore >= minScore ? "" : "Your overall " + readableScoreName + " is " + totalScore + ". This mission requires " + minScore + " or higher."
+	};
+	result[scoreProp] = totalScore;
+	return result;
+}
+
+Epigame.prototype.checkStepScore = function(tagName, scoreProp, readableScoreName, functionArgs) {
 	//get the minimum required score
-	var minScore = functionArgs[0];
+	var minScore = this.parseMinScore(functionArgs[0]);
 	
 	//array to accumulate the nodes that the student has not completed with a high enough score
 	var nodesFailed = [];
-
-	//the node ids of the steps that come before the current step and have the given tag
-	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.node.id);
 	
-	if(nodeIds != null) {
-		//loop through all the node ids that come before the current step and have the given tag
-		for(var x=0; x<nodeIds.length; x++) {
-			//get a node id
-			var nodeId = nodeIds[x];
-			
-			if(nodeId != null) {
+	//the node ids of the steps that have the given tag
+	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
+	if (nodeIds != null) {
+		for(var i = 0; i < nodeIds.length; ++i) {
+			var nodeId = nodeIds[i];
+			if (nodeId != null) {
 				//get the latest work for the node
 				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
-				
-				if(latestWork != "") {
+				if (latestWork && latestWork.response) {
 					//get the top score for the step
-					var score = latestWork.response.topScore;
-					
-					if(score < minScore) {
-						//the score is not high enough
-						nodesFailed.push(nodeId);
+					var topScore = parseFloat(latestWork.response[scoreProp]);
+					if (isNaN(topScore) || topScore < minScore) {
+						//Score doesn't exist or is too low
+						nodesFailed.push({id:nodeId, score:topScore});
 					}
 				} else {
-					/*
-					 * the student does not have any work for the step so we
-					 * will add it to our array
-					 */
+					//If no work, consider it an incompletion failure
+					nodesFailed.push({id:nodeId, score:NaN});
+				}
+			}
+		}
+	}
+	
+	if (nodesFailed.length) {
+		//the student has failed at least one of the steps
+		
+		//create the message to display to the student
+		var message = "This mission requires a " + readableScoreName + " of " + minScore + " or higher "
+			+ (nodesFailed.length == 1 ? "on the following mission:<br>" : "on each of the following missions:<br>");
+		
+		//loop through all the failed steps
+		for(var i = 0; i < nodesFailed.length; ++i) {
+			var failData = nodesFailed[i];
+			
+			//get the step number and title for the failed step
+			var failNode = this.view.getProject().getNodeById(failData.id);
+			var stepNumberAndTitle = failNode.parent.title + " - " + failNode.title;
+			
+			//make a note explaining the player's progress toward the goal
+			var scoreText = isNaN(failData.score) ? "Not yet completed" : "Your score: " + failData.score;
+			
+			//add the step number and title to the message
+			message += stepNumberAndTitle + " (" + scoreText + ")<br>";
+		}
+		
+		return {
+			pass: false,
+			message: message
+		};
+	}
+	
+	return {
+		pass: true,
+		message: ""
+	};
+};
+
+Epigame.prototype.checkCompletedAll = function(tagName, functionArgs) {
+	//array to accumulate the nodes that the student has not completed with a high enough score
+	var nodesFailed = [];
+	
+	//the node ids of the steps that have the given tag
+	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
+	if (nodeIds != null) {
+		for(var i = 0; i < nodeIds.length; ++i) {
+			var nodeId = nodeIds[i];
+			if (nodeId != null) {
+				//get the latest work for the node
+				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				if (!(latestWork && latestWork.response && latestWork.response.success)) {
+					//If no work, consider it an incompletion failure
 					nodesFailed.push(nodeId);
 				}
 			}
 		}
 	}
 	
-	if(nodesFailed.length != 0) {
+	if (nodesFailed.length) {
 		//the student has failed at least one of the steps
 		
 		//create the message to display to the student
-		var message = "You must obtain a score higher than " + minScore + " on these steps before you can work on this step<br>";
+		var message = "You must complete the following mission(s) before playing this one:<br>";
 		
 		//loop through all the failed steps
-		for(var x=0; x<nodesFailed.length; x++) {
-			var nodeId = nodesFailed[x];
+		for(var i = 0; i < nodesFailed.length; ++i) {
+			var nodeId = nodesFailed[i];
 			
 			//get the step number and title for the failed step
-			var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+			var failNode = this.view.getProject().getNodeById(nodeId);
+			var stepNumberAndTitle = failNode.parent.title + " - " + failNode.title;
 			
 			//add the step number and title to the message
 			message += stepNumberAndTitle + "<br>";
 		}
 		
-		//set the fields in the result
-		result.pass = false;
-		result.message = message;		
+		return {
+			pass: false,
+			message: message
+		};
 	}
 	
-	return result;
+	return {
+		pass: true,
+		message: ""
+	};
 };
 
-/**
- * Get the accumulated score for all the steps with the given tag
- * @param tagName the tag name
- * @param functionArgs the arguments to this function (this is not actually used in this function)
- * @return the accumulated score for all the steps that are tagged
- */
-Epigame.prototype.getAccumulatedScoreForTags = function(tagName, functionArgs) {
-	var result = 0;
-	
-	//get all the node ids with the given tag
+Epigame.prototype.checkCompletedAny = function(tagName, functionArgs) {
+	//the node ids of the steps that have the given tag
 	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
-
-	if(nodeIds != null) {
-		//loop through all the node ids
-		for(var x=0; x<nodeIds.length; x++) {
-			//get a node id
-			var nodeId = nodeIds[x];
-			
-			if(nodeId != null) {
+	if (nodeIds && nodeIds.length) {
+		for(var i = 0; i < nodeIds.length; ++i) {
+			var nodeId = nodeIds[i];
+			if (nodeId != null) {
 				//get the latest work for the node
 				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
-				
-				if(latestWork != "" && latestWork.response != null) {
-					
-					if(latestWork.response.topScore != null) {
-						//get the top score for the step
-						var score = latestWork.response.topScore;
-						
-						//try to convert the score to a number in case it is stored as a string
-						score = parseFloat(score);
-						
-						//check if the score is a number
-						if(!isNaN(score)) {
-							//the score is a number
-							result += score;							
-						}
-					}
+				if (latestWork && latestWork.response && latestWork.response.success) {
+					return { pass: true, message: "" };
 				}
 			}
+		}
+	} else {
+		return { pass: true, message: "" };
+	}
+	
+	//Failed all steps
+	//create the message to display to the student
+	var message = "To play this mission, complete at least one of the following missions first:<br>";
+	
+	//loop through all the failed steps
+	for(var i = 0; i < nodeIds.length; ++i) {
+		var nodeId = nodeIds[i];
+		
+		//get the step number and title for the failed step
+		var failNode = this.view.getProject().getNodeById(nodeId);
+		var stepNumberAndTitle = failNode.parent.title + " - " + failNode.title;
+		
+		//add the step number and title to the message
+		message += stepNumberAndTitle + "<br>";
+	}
+	
+	return {
+		pass: false,
+		message: message
+	};
+};
+
+Epigame.prototype.getTotalPerformance = function(tagName, functionArgs) {
+	return this.getTotalScore(tagName, "highScore_performance", "Performance Score", functionArgs);
+};
+Epigame.prototype.getTotalExplanation = function(tagName, functionArgs) {
+	return this.getTotalScore(tagName, "highScore_explanation", "Explanation Score", functionArgs);
+};
+Epigame.prototype.getTotalAdaptive = function(tagName, functionArgs) {
+	return this.getTotalScore(tagName, "finalScore", "Warp Score", functionArgs);
+};
+
+Epigame.prototype.checkStepPerformance = function(tagName, functionArgs) {
+	return this.checkStepScore(tagName, "highScore_performance", "Performance Score", functionArgs);
+};
+Epigame.prototype.checkStepExplanation = function(tagName, functionArgs) {
+	return this.checkStepScore(tagName, "highScore_explanation", "Explanation Score", functionArgs);
+};
+Epigame.prototype.checkStepAdaptive = function(tagName, functionArgs) {
+	return this.checkStepScore(tagName, "finalScore", "Warp Score", functionArgs);
+};
+
+Epigame.prototype.getCampaignSettings = function() {
+	//If this node has settings, use those
+	if (this.content.settings)
+		return this.content.settings;
+		
+	//Otherwise find the first node in the project with settings and return those
+	var nodes = this.node.view.getProject().getLeafNodes();
+	if (nodes && nodes.length) {
+		for (var i = 0; i < nodes.length; ++i) {
+			if (nodes[i] && nodes[i].type == this.node.type && nodes[i].content) {
+				var nodeSettings = nodes[i].content.getContentJSON().settings;
+				if (nodeSettings)
+					return nodeSettings;
+			}
+		}
+	}
+	
+	//Defaults
+	return null;
+};
+
+Epigame.prototype.getUserSettings = function(totalPerfScore, totalExplScore, totalWarpScore) {
+	var result = {
+		perfScore: totalPerfScore,
+		explScore: totalExplScore,
+		warpScore: totalWarpScore
+	};
+	
+	var work = this.getLatestEpigameWork();
+	if (work && work.userPrefs) {
+		for (var prop in work.userPrefs) {
+			result[prop] = work.userPrefs[prop];
 		}
 	}
 	
 	return result;
 };
 
+Epigame.prototype.getNodeCompletionCount = function() {
+	var count = 0;
+	
+	if (this.states && this.states.length)
+		for (var i = 0; i < this.states.length; ++i)
+			if (this.states[i].response && this.states[i].response.success)
+				++count;
+				
+	return count;
+};
+
+Epigame.prototype.getCurrentValue = function(prop) {
+	var work = this.getLatestState();
+	if (work && work.response) {
+		return work.response[prop];
+	}
+	return null;
+};
+
+Epigame.prototype.getCurrentScore = function(scoreProp) {
+	var score = parseInt(getCurrentValue(scoreProp));
+	if (!isNaN(score))
+		return score;
+	return 0;
+};
+
+//Retrieve the high score of each type for the current mission/step (May be used by the game SWF)
+Epigame.prototype.getCurrentPerfScore = function() { return getCurrentScore("highScore_performance"); };
+Epigame.prototype.getCurrentExplScore = function() { return getCurrentScore("highScore_explanation"); };
+Epigame.prototype.getCurrentWarpScore = function() { return getCurrentScore("finalScore"); };
+
+//Retrieve the most recent action plan for the current mission/step (May be used by the game SWF)
+Epigame.prototype.getCurrentPerfScore = function() { return getCurrentScore("highScore_performance"); };
+
+Epigame.prototype.getCurrentAdaptiveIndex = function() {
+	var catIndex = String(this.node.view.userAndClassInfo.getWorkgroupId());
+	catIndex = parseInt(catIndex.charAt(catIndex.length - 1));
+	
+	//Use the last character of the workgroup ID as the index. If none (as in preview mode), use zero.
+	return isNaN(catIndex) ? 0 : catIndex;
+};
+
+Epigame.prototype.getCurrentQuizData = function() {
+	var data = {};
+	
+	var work = this.getLatestState();
+	if (work && work.response) {
+		data.quizTimeRemaining = work.response.quizTimeRemaining;
+		data.quizQuestionsCompleted = work.response.quizQuestionsCompleted;
+		data.quizQuestionsCorrect = work.response.quizQuestionsCorrect;
+		data.quizStarted = 1;
+	}
+	var allQuizData = this.node.getQuizData();
+	data.quiz = allQuizData[this.getCurrentAdaptiveIndex()];
+	
+	//Return in string form (Flash seems to handle it better)
+	return JSON.stringify(data);
+};
+
+Epigame.prototype.getCurrentAdaptiveMissionData = function() {
+	var missionTable = this.node.getAdaptiveMissionData();
+	var missionList = missionTable[this.getCurrentAdaptiveIndex()];
+	var index = this.getNodeCompletionCount();
+	
+	while (index >= missionList.length)
+		index -= missionList.length;
+		
+	//TODO: Account for the possibility of someone screwing up the data
+	return missionList[index];
+};
+
 Epigame.prototype.embedGame = function(flashVars) {
-	swfobject.embedSWF("app/Main.swf", "epigame", "100%", "100%", "10.2.0", "../../swfobject/expressInstall.swf", flashVars ? flashVars : {});
+	//Defaults
+	if (!flashVars) flashVars = {};
+	var url = "app/Main.swf";
+	var elementID = "epigame";
+	
+	//Pull in optional node data
+	if (this.content.customUri && this.content.customUri != "")
+		url = this.content.customUri;
+	if (this.campaignSettings)
+		flashVars.campaign = this.serializeCampaignSettings(this.campaignSettings);
+	if (this.userSettings)
+		flashVars.user = this.serializeUserSettings(this.userSettings);
+		
+	swfobject.embedSWF(url, elementID, "100%", "100%", "10.2.0", "../../swfobject/expressInstall.swf", flashVars ? flashVars : {});
 }
 
 Epigame.prototype.loadMission = 		function(missionStr) { this.embedGame({mode:"playmission", mission:missionStr}); }
@@ -168,8 +437,47 @@ Epigame.prototype.loadMissionEditor = 	function(missionStr) { this.embedGame({mo
 Epigame.prototype.loadBlankEditor = 	function() { this.embedGame({mode:"editmission"}); }
 Epigame.prototype.loadMap = 			function() { this.embedGame({mode:"playcampaign"}); }
 Epigame.prototype.loadTutorial = 		function() { this.embedGame({mode:"playtutorial"}); }
-Epigame.prototype.loadAdaptiveMission = function(index) { this.embedGame({mode:"playmissioncat", catIndex:index}); }
-Epigame.prototype.loadAdaptiveQuiz = 	function(index) { this.embedGame({mode:"playquiz", catIndex:index}); }
+Epigame.prototype.loadAdaptiveMission = function(missionStr) { this.embedGame({mode:"playcat", mission:missionStr}); }
+Epigame.prototype.loadAdaptiveQuiz = 	function() { this.embedGame({mode:"playquiz"}); }
+
+Epigame.prototype.serializeCampaignSettings = function(settings) {
+	if (!settings)
+		return null;
+		
+	return "C|@|@"
+		+ (settings.showPerfScore ? "|@1" : "|@0")
+		+ (settings.showExplScore ? "|@1" : "|@0")
+		+ (settings.showWarpScore ? "|@1" : "|@0")
+		+ (settings.showQuestions ? "|@1" : "|@0");
+};
+
+Epigame.prototype.serializeUserSettings = function(settings) {
+	if (!settings)
+		return null;
+		
+	var result = "UD|$";
+	var parsed;
+	
+	result += settings.needsTutorial == "true" ? "1" : "0";
+	
+	parsed = parseFloat(settings.soundVolume);
+	result += "|$" + isNaN(parsed) ? "" : parsed;
+	parsed = parseFloat(settings.musicVolume);
+	result += "|#" + isNaN(parsed) ? "" : parsed;
+	
+	//Some game data is unused for this implementation, so this lets the game control the defaults
+	result += "|$|#|#|$CP";
+	
+	parsed = parseInt(settings.perfScore);
+	result += "|@" + isNaN(parsed) ? "" : parsed;
+	parsed = parseInt(settings.explScore);
+	result += "|@" + isNaN(parsed) ? "" : parsed;
+	parsed = parseInt(settings.warpScore);
+	result += "|@" + isNaN(parsed) ? "" : parsed;
+	result += "|@";
+	
+	return result;
+};
 
 /**
  * This function renders everything the student sees when they visit the step.
@@ -187,10 +495,7 @@ Epigame.prototype.render = function() {
 	 * complete a previous step before being able to work on the
 	 * current step
 	 */
-	var message = '';
-	
-	//the accumulated score among a family tag of steps
-	var accumulatedScore = 0;
+	var message = "";
 	
 	//Whether this is running normally in the VLE (outside authoring mode)
 	var runMode = this.view.authoringMode == null || !this.view.authoringMode;
@@ -200,85 +505,42 @@ Epigame.prototype.render = function() {
 		this.content.mode = "mission";
 	if (!this.content.levelString)
 		this.content.levelString = "";
+		
+	//Default settings
+	this.campaignSettings = this.getCampaignSettings();
+	this.userSettings = null;
 	
-	//process the tag maps if we are not in authoring mode
-	if(runMode) {
+	//If not in authoring mode...
+	if (runMode) {
+		//Run the tag map functions to get pass/fail, message, and the three types of scores
 		var tagMapResults = this.processTagMaps();
 		
-		//get the result values
+		//Build a campaign settings object for the game
+		this.campaignSettings = this.getCampaignSettings();
+		
+		//Build a user settings object for the game
+		this.userSettings = this.getUserSettings(tagMapResults.perfScore, tagMapResults.explScore, tagMapResults.warpScore);
+		
+		//Grab the req-check results
 		enableStep = tagMapResults.enableStep;
 		message = tagMapResults.message;
-		
-		if(enableStep) {
-			//the student is able to work on this step
-			
-			//display any prompts to the student
-			$('#promptDiv').html(this.content.prompt);
-			
-			/*
-			var epigameSource = 'epigame.swf';
-			
-			if("useCustomSwf" in this.content && this.content.useCustomSwf == 'true'){
-				if("customUri" in this.content  && this.content.customUri != ''){
-					epigameSource = this.content.customUri;
-				}
-			}
-			
-			<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="100%" height="100%" id="epigameApp" align="middle">
-				<param name="movie" value="' + epigameSource + '"/>
-				<param name="wmode" value="opaque"/>
-				<param name="quality" value="high"/>
-				<param name="bgcolor" value="#000000"/>
-				<param name="allowScriptAccess" value="sameDomain"/>
-				<!--[if !IE]>-->
-				<object type="application/x-shockwave-flash" data="Untitled-1.swf" width="100%" height="100%">
-					<param name="movie" value="Untitled-1.swf"/>
-					<param name="wmode" value="opaque"/>
-					<param name="allowScriptAccess" value="sameDomain"/>
-					<param name="quality" value="high"/>
-					<param name="bgcolor" value="#000000"/>
-				<!--<![endif]-->
-					<a href="http://www.adobe.com/go/getflash">
-						<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
-					</a>
-				<!--[if !IE]>-->
-				</object>
-				<!--<![endif]-->
-			</object>
-			var	swfHtml = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="770" height="480" id="epigame" align="middle">'
-				+ '<param name="allowScriptAccess" value="sameDomain" />'
-				+ '<param name="allowFullScreen" value="false" />'
-				+ '<param name="wmode" value="opaque" />'
-				+ '<param name="movie" value="' + epigameSource + '" />'
-				+ '<param name="quality" value="high" />'
-				+ '<param name="bgcolor" value="#ffffff" />'
-				+ '<embed src="' + epigameSource + '" wmode="opaque" quality="high" bgcolor="#ffffff" width="770" height="480" name="epigame" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'
-				+ '</object>';
-			
-			$('#swfDiv').html(swfHtml);	
-			*/
-			//this.loadMission(this.content.levelString);
-			
-			if(this.showTopScore) {
-				//show the top score for the current step
-				this.displayTopScore();
-			}
-		}
 	}
 	
 	if (enableStep) {
 		if (this.content.mode == "mission") {
+			this.loadMission(this.content.levelString);
+			/*
 			if (runMode) {
 				this.loadMission(this.content.levelString);
 			} else {
 				this.loadMissionEditor(this.content.levelString);
-			}
+			}*/
 		} else if (this.content.mode == "editor") {
 			this.loadMissionEditor(this.content.levelString);
 		} else if (this.content.mode == "adaptiveMission") {
-			this.loadAdaptiveMission(0);
+			this.loadAdaptiveMission(this.getCurrentAdaptiveMissionData());
 		} else if (this.content.mode == "adaptiveQuiz") {
-			this.loadAdaptiveQuiz(this.content.levelString);
+			this.loadAdaptiveQuiz();
 		} else if (this.content.mode == "map") {
 			this.loadMap();
 		} else if (this.content.mode == "tutorial") {
@@ -286,7 +548,8 @@ Epigame.prototype.render = function() {
 		}
 	}
 	
-	//if there is a message, display it to the student
+	//If there is a message, display it to the student.
+	//Message and enableStep should be mutually exclusive; if both happen at once, something is wrong
 	$('#messageDiv').html(message);
 };
 
@@ -299,122 +562,69 @@ Epigame.prototype.render = function() {
  */
 Epigame.prototype.processTagMaps = function() {
 	var enableStep = true;
-	var message = '';
+	var messages = [];
+	var perfScore = 0;
+	var explScore = 0;
+	var warpScore = 0;
+	var result;
 	
-	//the tag maps
+	this.totalPerfScore = this.get
+	
 	var tagMaps = this.node.tagMaps;
-	
-	//check if there are any tag maps
-	if(tagMaps != null) {
-		
-		//loop through all the tag maps
-		for(var x=0; x<tagMaps.length; x++) {
+	if (tagMaps) {
+		for (var i = 0; i < tagMaps.length; ++i) {
+			var tagMap = tagMaps[i];
 			
-			//get a tag map
-			var tagMapObject = tagMaps[x];
-			
-			if(tagMapObject != null) {
-				//get the variables for the tag map
-				var tagName = tagMapObject.tagName;
-				var functionName = tagMapObject.functionName;
-				var functionArgs = tagMapObject.functionArgs;
+			if (tagMap != null) {
+				var tagName = tagMap.tagName;
+				var funcName = tagMap.functionName;
+				var funcArgs = tagMap.functionArgs;
 				
-				if(functionName == "checkScore") {
-					//we will check the score for the steps that are tagged
-					
-					//get the result of the check
-					var result = this.checkScoreForTags(tagName, functionArgs);
-					enableStep = enableStep && result.pass;
-					
-					if(message == '') {
-						message += result.message;
-					} else {
-						//message is not an empty string so we will add a new line for formatting
-						message += '<br>' + result.message;
-					}
-				} else if(functionName == "getAccumulatedScore") {
-					//we will get the accumulated score for the steps that are tagged
-					
-					//get the accumulated score
-					accumulatedScore = this.getAccumulatedScoreForTags(tagName, functionArgs);
-					
-					//display the accumulated score to the student
-					$('#accumulatedScoreDiv').html('Accumulated Score: ' + accumulatedScore);
-				} else if(functionName == "checkCompleted") {
-					//we will check that all the steps that are tagged have been completed
-					
-					//get the result of the check
-					var result = checkCompletedForTags(this, tagName, functionArgs);
-					enableStep = enableStep && result.pass;
-					
-					if(message == '') {
-						message += result.message;
-					} else {
-						//message is not an empty string so we will add a new line for formatting
-						message += '<br>' + result.message;
-					}
+				if (funcName == "checkCompletedAll") {
+					result = this.checkCompletedAll(tagName, funcArgs);
+				} else if (funcName == "checkCompletedAny") {
+					result = this.checkCompletedAny(tagName, funcArgs);
+				} else if (funcName == "checkStepPerformance") {
+					result = this.checkStepPerformance(tagName, funcArgs);
+				} else if (funcName == "checkStepExplanation") {
+					result = this.checkStepExplanation(tagName, funcArgs);
+				} else if (funcName == "getTotalPerformance") {
+					result = this.getTotalPerformance(tagName, funcArgs);
+				} else if (funcName == "getTotalExplanation") {
+					result = this.getTotalExplanation(tagName, funcArgs);
+				} else if (funcName == "getTotalAdaptive") {
+					result = this.getTotalAdaptive(tagName, funcArgs);
 				}
+				
+				if (result.pass == false)
+					enableStep = false;
+				if (result.message != "")
+					messages.push(result.message);
+				if (result.highScore_performance)
+					perfScore = result.highScore_performance;
+				if (result.highScore_explanation)
+					explScore = result.highScore_explanation;
+				if (result.finalScore)
+					warpScore = result.finalScore;
 			}
 		}
 	}
 	
-	if(message != '') {
-		//message is not an empty string so we will add a new line for formatting
-		message += '<br>';
-	}
+	//We don't want a drop in Warp Score to re-lock a visited mission.
+	//If this step already has work registered, it should remain unlocked forever.
+	enableStep = enableStep || this.getLatestState() != null;
 	
-	//put the variables in an object so we can return multiple variables
-	var returnObject = {
-		enableStep:enableStep,
-		message:message
+	return {
+		enableStep: enableStep,
+		message: messages.length ? messages.join("<br>") + "<br>" : "",
+		perfScore: perfScore,
+		explScore: explScore,
+		warpScore: warpScore
 	};
-	
-	return returnObject;
 };
 
 /**
- * Display the top score to the student
- */
-Epigame.prototype.displayTopScore = function() {
-	//get the latest state
-	var latestState = this.getLatestState();
-	var topScoreMessage = '';
-	
-	//make the message to display the top score
-	if(latestState != null) {
-		topScoreMessage = 'Top Score: ' + latestState.response.topScore;
-	} else {
-		topScoreMessage = 'Top Score: 0';
-	}
-	
-	//display the top score to the student
-	$('#topScoreDiv').html(topScoreMessage);
-};
-
-/**
- * Swf->js call when the swf has finished loading and is accessible by js
- */
-function gameLoaded() {
-	// load in authored content
-	epigame.sendDataToGame(epigame.content.levelString);
-	
-	// load in student data
-	//var lastState = '{"phase3":{"timeStart":0,"scoreAbsolute":0,"timeEnd":0,"scoreRelative":0,"description":""},"outcomeAbsolute":0,"trialID":0,"outcomeRelative":0,"trialTimeStart":0,"phase1":{"timeStart":0,"scoreAbsolute":0,"timeEnd":0,"scoreRelative":0,"description":""},"trialTimeSend":0,"scoreAbsolute":0,"stepID":0,"phase2":{"timeStart":0,"scoreAbsolute":0,"timeEnd":0,"scoreRelative":0,"description":""},"scoreRelative":0,"sessionID":0}';
-
-	var lastState = '{"outcomeAbsoluteText":"","trialTimeSend":0,"phases":[{"description":"","timeStart":0,"scoreAbsolute":0,"phaseID":0,"timeEnd":0,"scoreRelative":0},{"description":"","timeStart":0,"scoreAbsolute":0,"phaseID":0,"timeEnd":0,"scoreRelative":0},{"description":"","timeStart":0,"scoreAbsolute":0,"phaseID":0,"timeEnd":0,"scoreRelative":0}],"scoreAbsolute":0,"stepID":0,"scoreRelative":0,"sessionID":0,"outcomeAbsolute":0,"trialID":0,"outcomeRelative":0,"trialTimeStart":0}';
-	
-	if (epigame.getLatestState() != null) {
-		lastState = JSON.stringify(epigame.getLatestState().response);
-	}
-	
-	// override it for now
-	epigame.sendStateToGame(lastState);	
-};
-
-/**
- * Function called by the game SWF when a new
- * report string needs reporting. For example,
- * when entering a new phase
+ * Function called by the game SWF to save state or result data.
  */
 function reportString(value) {
 	epigame.save(value);
@@ -422,17 +632,14 @@ function reportString(value) {
 };
 
 /**
- * This function retrieves the latest student work
- *
- * @return the latest state object or null if the student has never submitted
- * work for this step
+ * Retrieves the latest student work for this step.
+ * @return the latest state object, or null if none has been submitted
  */
 Epigame.prototype.getLatestState = function() {
 	var latestState = null;
 	
-	//check if the states array has any elements
-	if(this.states != null && this.states.length > 0) {
-		//get the last state
+	//Get the latest state, if any states exist
+	if (this.states != null && this.states.length > 0) {
 		latestState = this.states[this.states.length - 1];
 	}
 	
@@ -440,58 +647,47 @@ Epigame.prototype.getLatestState = function() {
 };
 
 /**
- * This function retrieves the student work from the html ui, creates a state
- * object to represent the student work, and then saves the student work.
- * 
- * note: you do not have to use 'studentResponseTextArea', they are just 
- * provided as examples. you may create your own html ui elements in
- * the .html file for this step (look at epigame.html).
+ * Returns the latest state response string (may be called by the game SWF).
+ * @return the stringified response JSON
+ */
+Epigame.prototype.getLatestReportString = function() {
+	var latestState = getLatestState();
+	return latestState && latestState.response ? JSON.stringify(latestState.response) : null;
+};
+
+/**
+ * Creates a state object to represent the student work (if any), then saves it.
  */
 Epigame.prototype.save = function(st) {
-	
+	//Work may be null or undefined if the game isn't loaded.
+	//The game will send an empty string if it's not in a meaningful save state.
+	//If the work is null or blank, we don't want it saved, so ignore the request.
+	if (st == null || st == "")
+		return;
+		
 	var stateJSON = JSON.parse(st);
 	
-	/*
-	 * create the student state that will store the new work the student
-	 * just submitted
-	 */
+	//Create the state that will store the new work the student just submitted
 	var epigameState = new EpigameState(stateJSON);
 	
-	/*
-	 * fire the event to push this state to the global view.states object.
-	 * the student work is saved to the server once they move on to the
-	 * next step.
-	 */
+	//Push this state to the global view.states object.
 	eventManager.fire('pushStudentWork', epigameState);
 
-	//push the state object into this or object's own copy of states
+	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);
 	
-	/*
-	 * process the student work to see if we need to display a bronze,
-	 * silver, or gold star next to the step in the nav menu
-	 */
+	// Process the student work for nav display
 	this.node.processStudentWork(epigameState);
 	
-	if(this.showTopScore) {
-		//show the top score for the current step
-		this.displayTopScore();
-	}
-	
-	/*
-	 * post the current node visit to the db immediately without waiting
-	 * for the student to exit the step.
-	 */
+	//Post the current node visit to the DB immediately without waiting for exit.
 	this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
 	
-	//process the tag maps if we are not in authoring mode
-	if(this.view.authoringMode == null || !this.view.authoringMode) {
-		/*
-		 * process the tag maps again so the values are updated such as for
-		 * accumulated score
-		 */ 
+	//Process the tag maps again if we are not in authoring mode (currently no reason to)
+	/*
+	if (this.view.authoringMode == null || !this.view.authoringMode) {
 		this.processTagMaps();
 	}
+	*/
 };
 
 //used to notify scriptloader that this script has finished loading

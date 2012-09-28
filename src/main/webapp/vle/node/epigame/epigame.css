@@ -1,5 +1,6 @@
 html, body, div {
 	background: #090810;
+	color: #BFD6FF;
 }
 
 body, #swfDiv {
@@ -11,5 +12,4 @@ body, #swfDiv {
 
 #promptDiv {
 	font-size: 16px;
-	color: #BFD6FF;
 }
