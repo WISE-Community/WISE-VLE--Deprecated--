@@ -237,23 +237,29 @@ Table.prototype.render = function() {
 	if(this.isGraphingEnabled()) {
 		//graphing is enabled so we will show the graphing options
 		this.displayGraphOptions();
-	}
-	
-	if(this.isGraphPreviouslyRendered()) {
-		//populate the graph since the student previously rendered it
-		this.makeGraph();
 		
-		/*
-		 * set this back to false since the student has not clicked
-		 * the 'Make Graph' button at this time. the graphRendered
-		 * value is like the tableChanged value in that it keeps
-		 * track of whether something has changed and now needs to
-		 * be saved. in this case we set it to false because the
-		 * graph was previously rendered and not currently rendered.
-		 * if the student clicks 'Make Graph' again, we will set
-		 * this to true.
-		 */
-		this.graphRendered = false;
+		if(this.isGraphPreviouslyRendered()) {
+			//populate the graph since the student previously rendered it
+			this.makeGraph();
+			
+			/*
+			 * set this back to false since the student has not clicked
+			 * the 'Make Graph' button at this time. the graphRendered
+			 * value is like the tableChanged value in that it keeps
+			 * track of whether something has changed and now needs to
+			 * be saved. in this case we set it to false because the
+			 * graph was previously rendered and not currently rendered.
+			 * if the student clicks 'Make Graph' again, we will set
+			 * this to true.
+			 */
+			this.graphRendered = false;
+		} else {
+			/*
+			 * the graph was not previously rendered so we will suggest
+			 * the student to click "Make Graph"
+			 */
+			this.displayGraphMessage(' <font color="red">Click "Make Graph" to graph the data</font>');
+		}
 	}
 };
 
@@ -525,6 +531,15 @@ Table.prototype.studentTableChanged = function() {
 	 * in order to save the graph after the table has changed.
 	 */
 	this.graphRendered = false;
+	
+	if(this.isGraphingEnabled()) {
+		/*
+		 * display the message to tell the student to click the
+		 * 'Make Graph' button to make the graph with the new
+		 * table data
+		 */
+		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+	}
 };
 
 /**
@@ -803,8 +818,11 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 		divId = 'graphDiv';
 		
 		//show the graph div that will display the graph
-		$('#graphDiv').show();
+		$('#' + divId).show();
 	}
+	
+	//clear the graph div id to remove any existing graph
+	$('#' + divId).html('');
 	
 	/*
 	 * get the table data in the format google wants it in.
@@ -813,74 +831,89 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 	 */
 	var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
 
-	//create the data
-	var data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+	var data = null;
 	
-	//get the column indexes we will graph
-	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
-	
-	var hTitle = '';
-	var hMinValue = this.xMin;
-	var hMaxValue = this.xMax;
-	var vTitle = '';
-	var vMinValue = this.yMin;
-	var vMaxValue = this.yMax;
-	
-	if(columnIndexesToGraph != null) {
-		//loop through all the objects in the array
-		for(var x=0; x<columnIndexesToGraph.length; x++) {
-			//get an object
-			var columnObject = columnIndexesToGraph[x];
-			
-			//get the column index and column axis
-			var columnIndex = columnObject.columnIndex;
-			var columnAxis = columnObject.columnAxis;
-			
-			if(columnAxis == 'x') {
-				//get the column header for the x axis
-				hTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
-			} else if(columnAxis == 'y') {
-				/*
-				 * get the column header for the y axis, if there are
-				 * multiple columns that will be displayed on the
-				 * y axis, we will separate them with a comma
-				 */
-				if(vTitle != '') {
-					vTitle += ', ';
-				}
-				vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
-			}
-		}		
+	try {
+		//create the data
+		data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+	} catch(e) {
+		//inform the student that the data in the table is invalid
+		this.displayGraphMessage(' <font color="red">Error: Data in table is invalid, please fix and try again</font>');
 	}
-
-	//create the options to tell google how to display the graph
-	var options = {
-		title: hTitle + ' vs. ' + vTitle,
-		hAxis: {title: hTitle},
-		vAxis: {title: vTitle},
-		forceIFrame: false
-	};
-
-	var chart = null;
 	
-	if(this.content.graphOptions != null) {
-		//get the graph type we will display
-		var graphType = this.content.graphOptions.graphType;
+	if(data != null) {
+		//get the column indexes we will graph
+		var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
+		
+		var hTitle = '';
+		var hMinValue = this.xMin;
+		var hMaxValue = this.xMax;
+		var vTitle = '';
+		var vMinValue = this.yMin;
+		var vMaxValue = this.yMax;
+		
+		if(columnIndexesToGraph != null) {
+			//loop through all the objects in the array
+			for(var x=0; x<columnIndexesToGraph.length; x++) {
+				//get an object
+				var columnObject = columnIndexesToGraph[x];
+				
+				//get the column index and column axis
+				var columnIndex = columnObject.columnIndex;
+				var columnAxis = columnObject.columnAxis;
+				
+				if(columnAxis == 'x') {
+					//get the column header for the x axis
+					hTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+				} else if(columnAxis == 'y') {
+					/*
+					 * get the column header for the y axis, if there are
+					 * multiple columns that will be displayed on the
+					 * y axis, we will separate them with a comma
+					 */
+					if(vTitle != '') {
+						vTitle += ', ';
+					}
+					vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
+				}
+			}		
+		}
 
-		if(graphType == 'scatterPlot') {
-			chart = new google.visualization.ScatterChart(document.getElementById(divId));
-		} else if(graphType == 'lineGraph') {
-			chart = new google.visualization.LineChart(document.getElementById(divId));
-		} else if(graphType == 'barGraph') {
-			chart = new google.visualization.ColumnChart(document.getElementById(divId));
-		} else if(graphType == 'pieGraph') {
-			chart = new google.visualization.PieChart(document.getElementById(divId));
+		//create the options to tell google how to display the graph
+		var options = {
+			title: hTitle + ' vs. ' + vTitle,
+			hAxis: {title: hTitle},
+			vAxis: {title: vTitle},
+			forceIFrame: false
+		};
+
+		var chart = null;
+		
+		if(this.content.graphOptions != null) {
+			//get the graph type we will display
+			var graphType = this.content.graphOptions.graphType;
+
+			if(graphType == 'scatterPlot') {
+				chart = new google.visualization.ScatterChart(document.getElementById(divId));
+			} else if(graphType == 'lineGraph') {
+				chart = new google.visualization.LineChart(document.getElementById(divId));
+			} else if(graphType == 'barGraph') {
+				chart = new google.visualization.ColumnChart(document.getElementById(divId));
+			} else if(graphType == 'pieGraph') {
+				chart = new google.visualization.PieChart(document.getElementById(divId));
+			}
+		}
+
+		try {
+			//tell google to draw the graph
+			chart.draw(data, options);
+			this.graphRendered = true;
+			this.clearGraphMessage();
+		} catch(e) {
+			//inform the student that we were unable to draw the chart
+			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
 		}
 	}
-
-	//tell google to draw the graph
-	chart.draw(data, options);
-	this.graphRendered = true;
 };
 
 /**
@@ -1110,6 +1143,21 @@ Table.prototype.isGraphPreviouslyRendered = function() {
 	}
 	
 	return graphPreviouslyRendered;
+};
+
+/**
+ * Display a message about the graph
+ * @param message the message to display
+ */
+Table.prototype.displayGraphMessage = function(message) {
+	$('#graphMessageDiv').html(message);
+};
+
+/**
+ * Clear the message about the graph
+ */
+Table.prototype.clearGraphMessage = function() {
+	$('#graphMessageDiv').html('');
 };
 
 //used to notify scriptloader that this script has finished loading
