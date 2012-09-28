@@ -17,21 +17,8 @@ function Epigame(node) {
 };
 
 Epigame.prototype.getGameElement = function() {
-	return $('#epigame').get(0);
-};
-
-
-// Call as3 function in identified Flash applet
-Epigame.prototype.sendDataToGame = function(value) {
-	// Put the string at the bottom of the page, so I can see easily what data has been sent
-	//document.getElementById("outputdiv").innerHTML = "<b>Level Data Sent to Game:</b> "+value; 
-	// Use callback setup at top of this file.
-	this.getgameElement().sendToGame(value);
-};
-
-// Call as3 function in identified Flash applet
-Epigame.prototype.sendStateToGame = function(value) {
-	this.getGameElement().stateToGame(value);
+	return $("#epigame").get(0);
+	//return this.embeddedObject;
 };
 
 Epigame.prototype.parseMinScore = function(sourceStr) {
@@ -79,7 +66,8 @@ Epigame.prototype.getLatestEpigameWork = function(nodeFilterFunc) {
 			if (node && node.studentWork && node.studentWork.length && nodeFilterFunc(node)) {
 				var work = node.studentWork[node.studentWork.length - 1];
 				//If timestamped later than the latest (or no latest exists), this is the new latest
-				if (work && work.timestamp != null && (!latestWork || latestWork.timestamp < work.timestamp)) {
+				if (work && work.response && work.response.timestamp != null
+						&& (!latestWork || latestWork.response.timestamp < work.response.timestamp)) {
 					latestWork = work;
 				}
 			}
@@ -335,9 +323,9 @@ Epigame.prototype.getUserSettings = function(totalPerfScore, totalExplScore, tot
 	};
 	
 	var work = this.getLatestEpigameWork();
-	if (work && work.userPrefs) {
-		for (var prop in work.userPrefs) {
-			result[prop] = work.userPrefs[prop];
+	if (work && work.response.userPrefs) {
+		for (var prop in work.response.userPrefs) {
+			result[prop] = work.response.userPrefs[prop];
 		}
 	}
 	
@@ -378,12 +366,15 @@ Epigame.prototype.getCurrentWarpScore = function() { return getCurrentScore("fin
 //Retrieve the most recent action plan for the current mission/step (May be used by the game SWF)
 Epigame.prototype.getCurrentPerfScore = function() { return getCurrentScore("highScore_performance"); };
 
-Epigame.prototype.getCurrentAdaptiveIndex = function() {
-	var catIndex = String(this.node.view.userAndClassInfo.getWorkgroupId());
-	catIndex = parseInt(catIndex.charAt(catIndex.length - 1));
-	
-	//Use the last character of the workgroup ID as the index. If none (as in preview mode), use zero.
-	return isNaN(catIndex) ? 0 : catIndex;
+Epigame.prototype.getCurrentAdaptiveIndex = function(listLength) {
+	var catIndex = parseInt(this.node.view.userAndClassInfo.getWorkgroupId());
+	if (isNaN(catIndex))
+		return 0;
+		
+	while (catIndex >= listLength)
+		catIndex -= listLength;
+		
+	return catIndex;
 };
 
 Epigame.prototype.getCurrentQuizData = function() {
@@ -405,19 +396,25 @@ Epigame.prototype.getCurrentQuizData = function() {
 
 Epigame.prototype.getCurrentAdaptiveMissionData = function() {
 	var missionTable = this.node.getAdaptiveMissionData();
-	var missionList = missionTable[this.getCurrentAdaptiveIndex()];
+	//TODO: Account for the possibility of someone screwing up the data
+	var missionList = missionTable[this.getCurrentAdaptiveIndex(missionTable.length)];
 	var index = this.getNodeCompletionCount();
 	
 	while (index >= missionList.length)
 		index -= missionList.length;
 		
-	//TODO: Account for the possibility of someone screwing up the data
 	return missionList[index];
+};
+
+function embedGameResultCallback(success, id, ref) {
+	if (success) {
+		epigame.embeddedObject = ref;
+		epigame.embeddedID = id;
+	}
 };
 
 Epigame.prototype.embedGame = function(flashVars) {
 	//Defaults
-	if (!flashVars) flashVars = {};
 	var url = "app/Main.swf";
 	var elementID = "epigame";
 	
@@ -429,7 +426,14 @@ Epigame.prototype.embedGame = function(flashVars) {
 	if (this.userSettings)
 		flashVars.user = this.serializeUserSettings(this.userSettings);
 		
-	swfobject.embedSWF(url, elementID, "100%", "100%", "10.2.0", "../../swfobject/expressInstall.swf", flashVars ? flashVars : {});
+	var encodedFlashVars = {};
+	if (flashVars) {
+		for (var paramName in flashVars) {
+			encodedFlashVars[paramName] = encodeURIComponent(flashVars[paramName]);
+		}
+	}
+	swfobject.embedSWF(url, elementID, "100%", "100%", "10.2.0", "../../swfobject/expressInstall.swf",
+						encodedFlashVars, null, null, embedGameResultCallback);
 }
 
 Epigame.prototype.loadMission = 		function(missionStr) { this.embedGame({mode:"playmission", mission:missionStr}); }
@@ -458,7 +462,7 @@ Epigame.prototype.serializeUserSettings = function(settings) {
 	var result = "UD|$";
 	var parsed;
 	
-	result += settings.needsTutorial == "true" ? "1" : "0";
+	result += settings.needsTutorial == "false" ? "0" : "1";
 	
 	parsed = parseFloat(settings.soundVolume);
 	result += "|$" + isNaN(parsed) ? "" : parsed;
@@ -568,8 +572,6 @@ Epigame.prototype.processTagMaps = function() {
 	var warpScore = 0;
 	var result;
 	
-	this.totalPerfScore = this.get
-	
 	var tagMaps = this.node.tagMaps;
 	if (tagMaps) {
 		for (var i = 0; i < tagMaps.length; ++i) {
@@ -653,6 +655,13 @@ Epigame.prototype.getLatestState = function() {
 Epigame.prototype.getLatestReportString = function() {
 	var latestState = getLatestState();
 	return latestState && latestState.response ? JSON.stringify(latestState.response) : null;
+};
+
+Epigame.prototype.saveExitState = function() {
+	var elem = this.getGameElement();
+	if (elem && elem.getExitReport) {
+		this.save(elem.getExitReport());
+	}
 };
 
 /**

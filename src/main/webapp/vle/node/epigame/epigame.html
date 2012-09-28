@@ -9,23 +9,23 @@
 			var epigame;
 			
 			function loadContentAfterScriptsLoad(node) {
-				epigame = new Epigame(node);
-				epigame.render();
+				//TODO: This check shouldn't be necessary, because the scripts should already be loaded.
+				if (window.Epigame) {
+					epigame = new Epigame(node);
+					epigame.render();
+				}
 			};
 			
 			function loadContent(node) {
-				/*
-				 * this loadScripts() function call will load the javascript imports
-				 * into this html file 
-				 */
+				//Load the javascript imports into this html file
 				scriptloader.loadScripts('epigame', document, node.id, eventManager);
 			};
 			
 			function save() {
-				/*
-				 * calls the save function in epigame.js
-				 */
-				//epigame.save();
+				//Request an exit save from the game if available
+				if (epigame) {
+					epigame.saveExitState();
+				}
 			}
 		</script>
 	</head>

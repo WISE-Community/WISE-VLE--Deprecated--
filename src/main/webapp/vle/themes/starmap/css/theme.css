@@ -377,6 +377,8 @@ body#w4_vle {
 
 #vle_body #contentDiv {
 	padding: 0;
+	width: 100%;
+	height: 100%;
 }
 
 #vle_body #ifrm {
