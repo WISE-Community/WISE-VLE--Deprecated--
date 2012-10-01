@@ -9,3 +9,6 @@ target
 
 # ignore .DS_Store files
 .DS_Store
+
+# ignore version file
+src/main/webapp/vle/version.html
