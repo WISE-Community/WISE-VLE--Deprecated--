@@ -1061,6 +1061,9 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		//get the user names for the workgroup
 		var userNames = student.userName.replace(/:/g, "<br>");
 		
+		//display the group assignments if any
+		var groupAssignmentsHtml = this.displayGroupAssignments('team', workgroupId);
+		
 		//get the period the workgroup is in
 		var periodName = student.periodName;
 
@@ -1078,7 +1081,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a>" + groupAssignmentsHtml + "</td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
@@ -1859,45 +1862,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("period")+" " + periodName + "</div>";
 		gradeByStepGradingPageHtml += "<div>" + toggleRevisionsLink + "</div>";
 		
-		//get the automatically assigned groups used in this project, if any
-		var autoGroupsUsed = this.project.getAutoGroupsUsed();
-		
-		if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
-			gradeByStepGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
-			
-			//get the groups that have been assigned to this workgroup
-			var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
-			
-			//make all the elements in the array bold
-			autoGroups = this.makeElementsBold(autoGroups);
-			
-			//create a string from the groups this workgroup is in e.g. "A, B"
-			var groupsString = autoGroups.join("");
-			
-			//display the groups this workgroup is in
-			gradeByStepGradingPageHtml += "Auto Groups:<br>" + groupsString;
-			gradeByStepGradingPageHtml += "</div>";
-		}
-		
-		//get the manual assigned groups used in this project, if any
-		var manualGroupsUsed = this.project.getManualGroupsUsed();
-		
-		if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
-			gradeByStepGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
-			
-			//get the groups that have been assigned to this workgroup
-			var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
-			
-			//make all the elements in the array bold
-			manualGroups = this.makeElementsBold(manualGroups);
-			
-			//create a string from the groups this workgroup is in e.g. "A, B"
-			var groupsString = manualGroups.join("");
-			
-			//display the groups this workgroup is in
-			gradeByStepGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
-			gradeByStepGradingPageHtml += "</div>";
-		}
+		//display the group assignments if any
+		gradeByStepGradingPageHtml += this.displayGroupAssignments('step', workgroupId);
 		
 		gradeByStepGradingPageHtml += "</td>";
 		
@@ -5178,6 +5144,91 @@ View.prototype.updateStudentWorkRowOrderObjectTeacherGradedScore = function(step
 			}
 		}
 	}
+};
+
+/**
+ * Get the html to display the group assignments for branching.
+ * @param gradingType the grading type, step or team
+ * @param workgroupId the workgroup id of the workgroup to display
+ * groups for
+ * @return the html that will display the group assignments
+ */
+View.prototype.displayGroupAssignments = function(gradingType, workgroupId) {
+	var groupAssignmentsHtml = "";
+	
+	//get the automatically assigned groups used in this project, if any
+	var autoGroupsUsed = this.project.getAutoGroupsUsed();
+	
+	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
+		groupAssignmentsHtml += "<div id='autoGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+		
+		var groupsString = '';
+		
+		if(gradingType == 'step') {
+			//make all the elements in the array a bolded paragraph
+			autoGroups = this.makeElementsBold(autoGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "AB"
+			groupsString = autoGroups.join("");
+		} else if(gradingType == 'team') {
+			//create a comma delimited string from the groups this workgroup is in e.g. "A, B"
+			groupsString = autoGroups.join(", ");
+			
+			//bold the group names
+			groupsString = "<b style='font-weight:bold'>" + groupsString + "</b>";
+		}
+		
+		if(gradingType == 'step') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Auto Groups:<br>" + groupsString;
+		} else if(gradingType == 'team') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Auto Groups: " + groupsString;
+		}
+		
+		groupAssignmentsHtml += "</div>";
+	}
+	
+	//get the manual assigned groups used in this project, if any
+	var manualGroupsUsed = this.project.getManualGroupsUsed();
+	
+	if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
+		groupAssignmentsHtml += "<div id='manualGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
+		
+		var groupsString = '';
+		
+		if(gradingType == 'step') {
+			//make all the elements in the array a bold paragraph
+			manualGroups = this.makeElementsBold(manualGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "AB"
+			groupsString = manualGroups.join("");
+		} else if(gradingType == 'team') {
+			//create a comma delimited string from the groups this workgroup is in e.g. "A, B"
+			groupsString = manualGroups.join(", ");
+			
+			//bold the group names
+			groupsString = "<b style='font-weight:bold'>" + groupsString + "</b>";
+		}
+		
+		if(gradingType == 'step') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
+		} else if(gradingType == 'team') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Manual Groups: " + groupsString;
+		}
+		
+		groupAssignmentsHtml += "</div>";
+	}
+	
+	return groupAssignmentsHtml;
 };
 
 /**
