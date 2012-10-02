@@ -99,18 +99,45 @@ View.prototype.EpigameNode.generatePage = function(view){
 	var levelStringTextArea = createElement(document, 'input', {id: 'levelStringTextArea', type: 'text', size: '45', onchange:"eventManager.fire('epigameUpdateLevelString')"});
 	levelStringDiv.append(levelStringLabel).append(createBreak()).append(levelStringTextArea);
 	
+	//Project settings input
+	var settingsToggle = createElement(document, "input", {id:'settingsToggle', type:"checkbox", checked:"checked", onclick:"eventManager.fire('epigameToggleSettings')"});
+	var settingsLabel = $(createElement(document, 'label', {id:'settingsLabel', "for":"settingsToggle"})).text('Use this step to define project settings');
+	var settingsDiv = $(createElement(document, 'fieldset', {id:'settingsDiv'}));
+	var settingsLegend = $(document.createElement("legend")).text("Project Settings");
+	var settingsExplScoreToggle = createElement(document, "input", {id:'explScoreToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
+	var settingsExplScoreLabel = $(createElement(document, 'label', {id:'explScoreLabel', "for":'explScoreToggle'})).text('Show Explanation Score (question-based) instead of Performance Score (completion-based)');
+	var settingsWarpScoreToggle = createElement(document, "input", {id:'warpScoreToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
+	var settingsWarpScoreLabel = $(createElement(document, 'label', {id:'warpScoreLabel', "for":"warpScoreToggle"})).text('Show Warp Scores (used for missions with Warp Questions)');
+	var settingsScoreReqsToggle = createElement(document, "input", {id:'scoreReqsToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
+	var settingsScoreReqsLabel = $(createElement(document, 'label', {id:'scoreReqsLabel', "for":"scoreReqsToggle"})).text('Ignore Tag Map "Score to Unlock" for hidden scores above');
+	var settingsQuestionsToggle = createElement(document, "input", {id:'questionsToggle', type:"checkbox", onclick:"eventManager.fire('epigameChangeSettings')"});
+	var settingsQuestionsLabel = $(createElement(document, 'label', {id:'questionsLabel', "for":"questionsToggle"})).text('Show Questions instead of Tips (recommended if using Explanation Score; does not affect Warp Questions)');
+	
+	settingsDiv.append(settingsLegend)
+	.append(settingsExplScoreToggle).append(settingsExplScoreLabel).append(createBreak()).append(createBreak())
+	.append(settingsWarpScoreToggle).append(settingsWarpScoreLabel).append(createBreak()).append(createBreak())
+	.append(settingsScoreReqsToggle).append(settingsScoreReqsLabel).append(createBreak()).append(createBreak())
+	.append(settingsQuestionsToggle).append(settingsQuestionsLabel);
+	
+	
 	//add the authoring components to the page
 	//$(pageDiv).append(sourceDiv);
 	//pageDiv.appendChild(createBreak());
 	//pageDiv.appendChild(authoringSwfDiv);
-	$(pageDiv).append(swfUrlDiv);
-	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(createBreak());
-	$(pageDiv).append(modeSelectorDiv);
-	pageDiv.appendChild(createBreak());
-	$(pageDiv).append(levelStringDiv);
+	$(pageDiv)
+	.append(swfUrlDiv)
+	.append(createBreak())
+	.append(createBreak())
+	.append(modeSelectorDiv)
+	.append(createBreak())
+	.append(levelStringDiv)
+	.append(createBreak())
+	.append(createBreak())
+	.append(settingsToggle)
+	.append(settingsLabel)
+	.append(settingsDiv);
 	//pageDiv.appendChild(createElement(document, 'button', {id:"importLevelButton", value:"import level", onclick:"editorLoaded()"}));
-
+	
 	//add the page to the parent
 	parent.appendChild(pageDiv);
 	
@@ -184,6 +211,7 @@ View.prototype.EpigameNode.generatePage = function(view){
 	});
 	*/
 	this.updateModeSelection();
+	this.updateSettingsDisplay();
 	
 	//get the url from the content and set it into the authoring textarea
 	/*
@@ -243,7 +271,7 @@ View.prototype.EpigameNode.getCommonComponents = function() {
  * Updates this content object when requested, usually when preview is to be refreshed
  */
 View.prototype.EpigameNode.updateContent = function(){
-	/* update content object */
+	// update content object
 	this.view.activeContent.setContent(this.content);
 };
 
@@ -254,28 +282,23 @@ View.prototype.EpigameNode.updateLevelString = function(levelStringIn){
 	/* update content */
 	if (levelStringIn != null) {
 		$('#levelStringTextArea').val(levelStringIn);
-	} 
+	}
 	
 	// get the level content from the editor
-	
 	this.content.levelString = $('#levelStringTextArea').val();
 	
-	/*
-	 * fire source updated event, this will update the preview
-	 */
+	// fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
 };
 
 /**
  * Updates the content's customUri to the user input
  */
-View.prototype.EpigameNode.updateSwfUrl = function(){
-	/* update content */
+View.prototype.EpigameNode.updateSwfUrl = function() {
+	// update content
 	this.content.customUri = $('#swfUrlInput').val();
 	
-	/*
-	 * fire source updated event, this will update the preview
-	 */
+	// fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
 };
 
@@ -297,13 +320,11 @@ View.prototype.EpigameNode.updateSwfSource = function(){
 	}
 	*/
 	
-	/*
-	 * fire source updated event, this will update the preview
-	 */
+	// fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
 };
 
-View.prototype.EpigameNode.updateModeSelection = function(){
+View.prototype.EpigameNode.updateModeSelection = function() {
 	var selectedMode = $('#modeSelector').val();
 	var index = this.modes.indexOf(selectedMode);
 	
@@ -346,6 +367,66 @@ View.prototype.EpigameNode.updateModeSelection = function(){
 	
 	//Update the preview
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+View.prototype.EpigameNode.updateSettings = function() {
+	if ($("#settingsToggle").prop("checked")) {
+		this.content.settings = {
+			showPerfScore: !Boolean($("#explScoreToggle").prop("checked")),
+			showExplScore: Boolean($("#explScoreToggle").prop("checked")),
+			showWarpScore: Boolean($("#warpScoreToggle").prop("checked")),
+			showQuestions: Boolean($("#scoreReqsToggle").prop("checked")),
+			globalizeReqs: Boolean($("#questionsToggle").prop("checked"))
+		};
+	} else {
+		delete this.content.settings;
+	}
+};
+
+View.prototype.EpigameNode.updateSettingsDisplay = function() {
+	if (this.content.settings) {
+		//Boolean cast ensures that false is passed if the result is undefined due to JSON tampering
+		$("#explScoreToggle").prop("checked", Boolean(this.content.settings.showExplScore));
+		$("#warpScoreToggle").prop("checked", Boolean(this.content.settings.showWarpScore));
+		$("#scoreReqsToggle").prop("checked", Boolean(this.content.settings.globalizeReqs));
+		$("#questionsToggle").prop("checked", Boolean(this.content.settings.showQuestions));
+		
+		//Settings enabled, so check the checkbox and show UI
+		$("#settingsToggle").prop("checked", true);
+		$("#settingsDiv").show();
+	} else {
+		//Settings disabled, so uncheck the checkbox and hide UI
+		$("#settingsToggle").prop("checked", false);
+		$("#settingsDiv").hide();
+	}
+};
+
+View.prototype.EpigameNode.toggleSettings = function() {
+	if ($("#settingsToggle").prop("checked")) {
+		//Create default settings
+		this.content.settings = {
+			showPerfScore: true,
+			showExplScore: false,
+			showWarpScore: false,
+			showQuestions: false,
+			globalizeReqs: false
+		};
+		
+		//Apply defaults to UI
+		$("#explScoreToggle").prop("checked", this.content.settings.showExplScore);
+		$("#warpScoreToggle").prop("checked", this.content.settings.showWarpScore);
+		$("#scoreReqsToggle").prop("checked", this.content.settings.globalizeReqs);
+		$("#questionsToggle").prop("checked", this.content.settings.showQuestions);
+		
+		//Show UI
+		$("#settingsDiv").show();
+	} else {
+		//Hide UI
+		$("#settingsDiv").hide();
+		
+		//Destroy settings so other steps don't try to use them
+		delete this.content.settings;
+	}
 };
 
 /**

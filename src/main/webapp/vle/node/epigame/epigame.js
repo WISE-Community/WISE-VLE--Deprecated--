@@ -85,11 +85,15 @@ Epigame.prototype.getLatestEpigameWork = function(nodeFilterFunc) {
  * @returns the results from the check, the result object
  * contains a pass field and a message field
  */
-Epigame.prototype.getTotalScore = function(tagName, scoreProp, readableScoreName, functionArgs) {
-	var minScore = this.parseMinScore(functionArgs[0]);
+Epigame.prototype.getTotalScore = function(tagName, functionArgs, scoreProp, readableScoreName, nullifierProp) {
 	var tagMultipliers = this.parseTagMultipliers(functionArgs[1]);
 	var totalScore = 0;
+	var minScore = 0;
 	
+	//Check for a global override before applying minScore
+	if (!(nullifierProp && this.campaignSettings && this.campaignSettings.globalizeReqs && this.campaignSettings[nullifierProp]))
+		minScore = this.parseMinScore(functionArgs[0]);
+		
 	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
 	if (nodeIds) {
 		for (var i = 0; i < nodeIds.length; ++i) {
@@ -100,7 +104,7 @@ Epigame.prototype.getTotalScore = function(tagName, scoreProp, readableScoreName
 				if (!isNaN(nodeScore)) {
 					var multiplier = 1;
 					if (node.tags) {
-						for (var j = 0; j < node.tags.length; ++i) {
+						for (var j = 0; j < node.tags.length; ++j) {
 							var tagMult = tagMultipliers[node.tags[j]];
 							if (!isNaN(tagMult))
 								multiplier *= tagMult;
@@ -184,6 +188,27 @@ Epigame.prototype.checkStepScore = function(tagName, scoreProp, readableScoreNam
 	};
 };
 
+Epigame.prototype.getLatestCompletionByNodeId = function(nodeID) {
+	var node = this.view.getProject().getNodeById(nodeID);
+	if (node && node.studentWork) {
+		//Reverse iterate until we hit one with success
+		var i = node.studentWork.length;
+		while (i--) {
+			var work = node.studentWork[i];
+			if (work && work.response && work.response.success) {
+				return work;
+			}
+		}
+	}
+	
+	//None found
+	return null;
+};
+
+Epigame.prototype.isNodeCompleted = function(nodeId) {
+	return this.getLatestCompletionByNodeId(nodeId) != null;
+};
+
 Epigame.prototype.checkCompletedAll = function(tagName, functionArgs) {
 	//array to accumulate the nodes that the student has not completed with a high enough score
 	var nodesFailed = [];
@@ -193,13 +218,8 @@ Epigame.prototype.checkCompletedAll = function(tagName, functionArgs) {
 	if (nodeIds != null) {
 		for(var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
-			if (nodeId != null) {
-				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
-				if (!(latestWork && latestWork.response && latestWork.response.success)) {
-					//If no work, consider it an incompletion failure
-					nodesFailed.push(nodeId);
-				}
+			if (nodeId && !this.isNodeCompleted(nodeId)) {
+				nodesFailed.push(nodeId);
 			}
 		}
 	}
@@ -240,12 +260,8 @@ Epigame.prototype.checkCompletedAny = function(tagName, functionArgs) {
 	if (nodeIds && nodeIds.length) {
 		for(var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
-			if (nodeId != null) {
-				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
-				if (latestWork && latestWork.response && latestWork.response.success) {
-					return { pass: true, message: "" };
-				}
+			if (nodeId && !this.isNodeCompleted(nodeId)) {
+				return { pass: true, message: "" };
 			}
 		}
 	} else {
@@ -275,22 +291,32 @@ Epigame.prototype.checkCompletedAny = function(tagName, functionArgs) {
 };
 
 Epigame.prototype.getTotalPerformance = function(tagName, functionArgs) {
-	return this.getTotalScore(tagName, "highScore_performance", "Performance Score", functionArgs);
+	return this.getTotalScore(tagName, functionArgs, "highScore_performance", "Performance Score", "showPerfScore");
 };
 Epigame.prototype.getTotalExplanation = function(tagName, functionArgs) {
-	return this.getTotalScore(tagName, "highScore_explanation", "Explanation Score", functionArgs);
+	return this.getTotalScore(tagName, functionArgs, "highScore_explanation", "Explanation Score", "showExplScore");
 };
 Epigame.prototype.getTotalAdaptive = function(tagName, functionArgs) {
-	return this.getTotalScore(tagName, "finalScore", "Warp Score", functionArgs);
+	return this.getTotalScore(tagName, functionArgs, "finalScore", "Warp Score", "showWarpScore");
 };
 
 Epigame.prototype.checkStepPerformance = function(tagName, functionArgs) {
+	if (this.campaignSettings && this.campaignSettings.globalizeReqs && !this.campaignSettings.showPerfScore)
+		return {pass:true, message:""};
 	return this.checkStepScore(tagName, "highScore_performance", "Performance Score", functionArgs);
 };
+
 Epigame.prototype.checkStepExplanation = function(tagName, functionArgs) {
+	if (this.campaignSettings && this.campaignSettings.globalizeReqs && !this.campaignSettings.showExplScore)
+		return {pass:true, message:""};
+		
 	return this.checkStepScore(tagName, "highScore_explanation", "Explanation Score", functionArgs);
 };
+
 Epigame.prototype.checkStepAdaptive = function(tagName, functionArgs) {
+	if (this.campaignSettings && this.campaignSettings.globalizeReqs && !this.campaignSettings.showWarpScore)
+		return {pass:true, message:""};
+		
 	return this.checkStepScore(tagName, "finalScore", "Warp Score", functionArgs);
 };
 
@@ -368,7 +394,7 @@ Epigame.prototype.getCurrentPerfScore = function() { return getCurrentScore("hig
 
 Epigame.prototype.getCurrentAdaptiveIndex = function(listLength) {
 	var catIndex = parseInt(this.node.view.userAndClassInfo.getWorkgroupId());
-	if (isNaN(catIndex))
+	if (!listLength || isNaN(catIndex))
 		return 0;
 		
 	while (catIndex >= listLength)
@@ -388,7 +414,7 @@ Epigame.prototype.getCurrentQuizData = function() {
 		data.quizStarted = 1;
 	}
 	var allQuizData = this.node.getQuizData();
-	data.quiz = allQuizData[this.getCurrentAdaptiveIndex()];
+	data.quiz = allQuizData[this.getCurrentAdaptiveIndex(allQuizData.length)];
 	
 	//Return in string form (Flash seems to handle it better)
 	return JSON.stringify(data);
@@ -519,9 +545,6 @@ Epigame.prototype.render = function() {
 		//Run the tag map functions to get pass/fail, message, and the three types of scores
 		var tagMapResults = this.processTagMaps();
 		
-		//Build a campaign settings object for the game
-		this.campaignSettings = this.getCampaignSettings();
-		
 		//Build a user settings object for the game
 		this.userSettings = this.getUserSettings(tagMapResults.perfScore, tagMapResults.explScore, tagMapResults.warpScore);
 		
@@ -626,14 +649,6 @@ Epigame.prototype.processTagMaps = function() {
 };
 
 /**
- * Function called by the game SWF to save state or result data.
- */
-function reportString(value) {
-	epigame.save(value);
-	//$("#studentWorkDiv").append("STATE:"+value +"<br/><br/>");
-};
-
-/**
  * Retrieves the latest student work for this step.
  * @return the latest state object, or null if none has been submitted
  */
@@ -657,6 +672,10 @@ Epigame.prototype.getLatestReportString = function() {
 	return latestState && latestState.response ? JSON.stringify(latestState.response) : null;
 };
 
+Epigame.prototype.saveGameState = function(reportString) {
+	this.save(reportString);
+};
+
 Epigame.prototype.saveExitState = function() {
 	var elem = this.getGameElement();
 	if (elem && elem.getExitReport) {
@@ -671,10 +690,10 @@ Epigame.prototype.save = function(st) {
 	//Work may be null or undefined if the game isn't loaded.
 	//The game will send an empty string if it's not in a meaningful save state.
 	//If the work is null or blank, we don't want it saved, so ignore the request.
-	if (st == null || st == "")
+	if (!st)
 		return;
 		
-	var stateJSON = JSON.parse(st);
+	var stateJSON = JSON.parse(decodeURIComponent(st));
 	
 	//Create the state that will store the new work the student just submitted
 	var epigameState = new EpigameState(stateJSON);

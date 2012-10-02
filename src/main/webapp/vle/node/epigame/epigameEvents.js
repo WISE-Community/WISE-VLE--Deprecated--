@@ -19,6 +19,10 @@ View.prototype.epigameDispatcher = function(type,args,obj){
 		obj.EpigameNode.browseFlashAssets(args);
 	} else if (type == 'epigameChangeMode'){
 		obj.EpigameNode.updateModeSelection(args);
+	} else if (type == 'epigameToggleSettings'){
+		obj.EpigameNode.toggleSettings(args);
+	} else if (type == 'epigameChangeSettings'){
+		obj.EpigameNode.updateSettings(args);
 	}
 };
 
@@ -33,7 +37,9 @@ var events = [
 	'epigameUpdateSource',
 	'epigameSwfUrlChanged',
 	'epigameBrowseClicked',
-	'epigameChangeMode'
+	'epigameChangeMode',
+	'epigameToggleSettings',
+	'epigameChangeSettings'
 ];
 
 /*
