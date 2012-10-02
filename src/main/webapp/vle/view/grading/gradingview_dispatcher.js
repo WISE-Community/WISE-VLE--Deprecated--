@@ -80,6 +80,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 			// if we're doing a classroom monitor, we need to display the student work in the div
 			obj.displayNodeVisitsInStream();
 		}
+		obj.displayGroupAssignments();
 	} else if(type=='toggleGradingDisplayRevisions') {
 		obj.toggleGradingDisplayRevisions(args[0], args[1]);
 	} else if(type=='toggleAllGradingDisplayRevisions') {
