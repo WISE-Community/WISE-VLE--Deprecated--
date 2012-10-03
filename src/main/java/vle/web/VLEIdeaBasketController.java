@@ -364,6 +364,97 @@ public class VLEIdeaBasketController extends HttpServlet {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+		} else if(action.equals("unCopyPublicIdea")) {
+			/*
+			 * a user is uncopying a public idea so we will remove that user from the list of users
+			 * who have copied that idea
+			 */
+			
+			//get the latest revision of the public idea basket
+			IdeaBasket publicIdeaBasket = getPublicIdeaBasket(new Long(runId), new Long(periodId), new Long(projectId));
+			
+			//get the data
+			String dataString = publicIdeaBasket.getData();
+			
+			try {
+				boolean publicIdeaBasketChanged = false;
+				boolean foundPublicIdea = false;
+				boolean previouslyCopied = false;
+				
+				//get the data as a JSON object
+				JSONObject dataJSON = new JSONObject(dataString);
+				
+				//get the ideas
+				JSONArray ideasJSON = dataJSON.getJSONArray("ideas");
+				
+				if(ideasJSON != null) {
+					//loop through all the ideas
+					for(int x=0; x<ideasJSON.length(); x++) {
+						//get an idea
+						JSONObject idea = ideasJSON.getJSONObject(x);
+						
+						//get the id and workgroup id from the idea
+						long tempId = idea.getLong("id");
+						long tempWorkgroupId = idea.getLong("workgroupId");
+						
+						if(new Long(ideaId) == tempId && new Long(workgroupId) == tempWorkgroupId) {
+							foundPublicIdea = true;
+							
+							if(idea.isNull("workgroupIdsThatHaveCopied")) {
+								idea.put("workgroupIdsThatHaveCopied", new JSONArray());
+							}
+							
+							//get the array of workgroups that have copied this idea
+							JSONArray workgroupIdsThatHaveCopied = idea.getJSONArray("workgroupIdsThatHaveCopied");
+							
+							//check if the signed in workgroup id is already in this array
+							for(int y=0; y<workgroupIdsThatHaveCopied.length(); y++) {
+								long workgroupIdThatHasCopied = workgroupIdsThatHaveCopied.getLong(y);
+								
+								if(new Long(signedInWorkgroupId) == workgroupIdThatHasCopied) {
+									/*
+									 * we found the signed in workgroup id in the array so
+									 * we will remove it. we will also move the counter back
+									 * one so that it will keep checking the array for all
+									 * instances of the workgroup id even though the workgroup
+									 * id should never appear more than once in the array.
+									 * this is just to be safe.
+									 */
+									workgroupIdsThatHaveCopied.remove(y);
+									y--;
+									publicIdeaBasketChanged = true;
+									previouslyCopied = true;
+								}
+							}
+						}
+					}					
+				}
+				
+				if(publicIdeaBasketChanged) {
+					//create a new public idea basket revision
+					IdeaBasket publicIdeaBasketRevision = createPublicIdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), dataJSON.toString());
+					
+					//get the string representation
+					String publicIdeaBasketRevisionString = publicIdeaBasketRevision.toJSONString();
+					
+					//return the new public idea basket revision
+					response.getWriter().print(publicIdeaBasketRevisionString);
+				} else {
+					if(!foundPublicIdea) {
+						//the public idea with the given id and workgroupId was not found
+						JSONObject errorMessageJSONObject = new JSONObject();
+						errorMessageJSONObject.put("errorMessage", "Error: Did not find public idea with id=" + ideaId + " and workgroupId=" + workgroupId);
+						response.getWriter().print(errorMessageJSONObject.toString());
+					} else if(!previouslyCopied) {
+						//the signed in workgroup has not previously copied the public idea before
+						JSONObject errorMessageJSONObject = new JSONObject();
+						errorMessageJSONObject.put("errorMessage", "Error: Signed in workgroup has not previously copied this public idea before");
+						response.getWriter().print(errorMessageJSONObject.toString());					
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
