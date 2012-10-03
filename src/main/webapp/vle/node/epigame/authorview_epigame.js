@@ -210,8 +210,8 @@ View.prototype.EpigameNode.generatePage = function(view){
 		}
 	});
 	*/
-	this.updateModeSelection();
 	this.updateSettingsDisplay();
+	this.updateModeSelection();
 	
 	//get the url from the content and set it into the authoring textarea
 	/*
@@ -375,8 +375,8 @@ View.prototype.EpigameNode.updateSettings = function() {
 			showPerfScore: !Boolean($("#explScoreToggle").prop("checked")),
 			showExplScore: Boolean($("#explScoreToggle").prop("checked")),
 			showWarpScore: Boolean($("#warpScoreToggle").prop("checked")),
-			showQuestions: Boolean($("#scoreReqsToggle").prop("checked")),
-			globalizeReqs: Boolean($("#questionsToggle").prop("checked"))
+			showQuestions: Boolean($("#questionsToggle").prop("checked")),
+			globalizeReqs: Boolean($("#scoreReqsToggle").prop("checked"))
 		};
 	} else {
 		delete this.content.settings;

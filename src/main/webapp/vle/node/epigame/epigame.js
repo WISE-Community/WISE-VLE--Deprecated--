@@ -91,7 +91,7 @@ Epigame.prototype.getTotalScore = function(tagName, functionArgs, scoreProp, rea
 	var minScore = 0;
 	
 	//Check for a global override before applying minScore
-	if (!(nullifierProp && this.campaignSettings && this.campaignSettings.globalizeReqs && this.campaignSettings[nullifierProp]))
+	if (!(nullifierProp && this.campaignSettings && this.campaignSettings.globalizeReqs && !this.campaignSettings[nullifierProp]))
 		minScore = this.parseMinScore(functionArgs[0]);
 		
 	var nodeIds = this.view.getProject().getNodeIdsByTag(tagName);
@@ -260,7 +260,7 @@ Epigame.prototype.checkCompletedAny = function(tagName, functionArgs) {
 	if (nodeIds && nodeIds.length) {
 		for(var i = 0; i < nodeIds.length; ++i) {
 			var nodeId = nodeIds[i];
-			if (nodeId && !this.isNodeCompleted(nodeId)) {
+			if (nodeId && this.isNodeCompleted(nodeId)) {
 				return { pass: true, message: "" };
 			}
 		}
@@ -491,19 +491,19 @@ Epigame.prototype.serializeUserSettings = function(settings) {
 	result += settings.needsTutorial == "false" ? "0" : "1";
 	
 	parsed = parseFloat(settings.soundVolume);
-	result += "|$" + isNaN(parsed) ? "" : parsed;
+	result += "|$" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseFloat(settings.musicVolume);
-	result += "|#" + isNaN(parsed) ? "" : parsed;
+	result += "|#" + (isNaN(parsed) ? "" : parsed);
 	
 	//Some game data is unused for this implementation, so this lets the game control the defaults
 	result += "|$|#|#|$CP";
 	
 	parsed = parseInt(settings.perfScore);
-	result += "|@" + isNaN(parsed) ? "" : parsed;
+	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseInt(settings.explScore);
-	result += "|@" + isNaN(parsed) ? "" : parsed;
+	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	parsed = parseInt(settings.warpScore);
-	result += "|@" + isNaN(parsed) ? "" : parsed;
+	result += "|@" + (isNaN(parsed) ? "" : parsed);
 	result += "|@";
 	
 	return result;
