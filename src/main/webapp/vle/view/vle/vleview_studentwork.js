@@ -39,8 +39,9 @@ View.prototype.postCurrentStep = function(currentNode) {
  * @return
  */
 View.prototype.postCurrentNodeVisit = function() {
-	if (this.getConfig().getConfigParam('mode') == "portalpreview") {
-		// no need to post data if we're in preview mode
+	if (this.getConfig().getConfigParam('mode') == "portalpreview" ||
+			this.getConfig().getConfigParam('isRunActive') === false) {
+		// no need to post data if we're in preview mode or the run is not active and the user is reviewing the run
 		return;
 	}
 	
@@ -104,7 +105,8 @@ View.prototype.postUnsavedNodeVisit = function(nodeVisit, sync) {
 			|| !this.getConfig().getConfigParam('mode') 
 			|| this.getConfig().getConfigParam('mode') == "portalpreview"
 			|| this.getConfig().getConfigParam('mode') == "developerpreview"
-			|| this.getConfig().getConfigParam('mode') == "standaloneauthorpreview") {
+			|| this.getConfig().getConfigParam('mode') == "standaloneauthorpreview"
+			|| this.getConfig().getConfigParam('isRunActive') === false) {
 		// no need to post data if we're in preview mode
 		return;
 	}
