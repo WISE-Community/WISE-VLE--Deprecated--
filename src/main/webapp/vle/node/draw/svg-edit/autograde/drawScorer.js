@@ -151,17 +151,17 @@ var DrawScorer = function() {
             rubricScore = 1;
         } else {
             //First, do they have the wrong number of CH_{4} in reactants?
-            if(!frameHasDesiredMoleculeByName(svgFullObject,0,"CH4")) {
-                return 2.1;//wrong number of CH4 in reactants frame
-            } else if(!frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
-                return 2.2;
+            if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"CH4")) {
+            	rubricScore = 2.1;//wrong number of CH4 in reactants frame
+            } else if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
+            	rubricScore = 2.2;
             } else if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,0)) {//Now we know you have the right number of CH4, O2 - check if there's nothing extra
-               return 2.3;
+            	rubricScore = 2.3;
             } else {
                 if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,1)) {//reactants are right, but products are not
-                    return 2.4;
+                	rubricScore = 2.4;
                 } else {
-                    return 4;
+                	rubricScore = 4;
                 }
             }
         }  
@@ -184,15 +184,15 @@ var DrawScorer = function() {
             rubricScore = 1;
         } else {
             //First, do they have the wrong number of desired reactants?
-            if(!frameHasDesiredMoleculeByName(svgFullObject,0,"C2H6") || !frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
-                return 2.1;//wrong number of C2H6 or O2 in reactants frame
+            if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"C2H6") || !this.frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
+            	rubricScore = 2.1;//wrong number of C2H6 or O2 in reactants frame
             } else if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,0)) {
-               return 2.2;
+            	rubricScore = 2.2;
             } else {
                 if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,1)) {//reactants are right, but products are not
-                    return 2.3;
+                	rubricScore = 2.3;
                 } else {
-                    return 4;
+                	rubricScore = 4;
                 }
             }
         }  
@@ -201,7 +201,7 @@ var DrawScorer = function() {
     }
 
     this.assignRubricScore = function(svgFullObject) {
-        problemName = getProblemName();
+        problemName = this.getProblemName();
         if(problemName == "Combust Methane") {
             return this.assignMethaneRubricScore(svgFullObject);
         } else if(problemName == "Combust Ethane"){
@@ -1281,7 +1281,7 @@ var DrawScorer = function() {
         var moleculesInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("molecules")[0]);
         for(var i = 0; i < moleculesInFrame.length; i++) {
             if(moleculesInFrame[i].getAttribute('name') == moleculeName) {
-                if(svg.molecules[curItem] != moleculesInFrame[i].getAttribute('count')) {
+                if(svg.molecules[moleculeName] != moleculesInFrame[i].getAttribute('count')) {
                     return false;
                 } else {
                     return true;

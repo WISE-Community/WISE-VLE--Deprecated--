@@ -74,6 +74,8 @@
 	<molecules>
 		<molecule name="CH4" count="2"/>
 		<molecule name="O2" count = "4"/>
+		<molecule name="CO2" count="0"/>
+		<molecule name="H2O" count="0"/>
 	</molecules>
 </frame>
 <frame id="1">
@@ -85,6 +87,8 @@
 	<molecules>
 		<molecule name="CO2" count="2"/>
 		<molecule name="H2O" count="4"/>
+		<molecule name="CH4" count="0"/>
+		<molecule name="O2" count = "0"/>
 	</molecules>
 </frame>
 <problemDescription name="Combust Methane">Students use stamps to make 2 CH4 molecules and 4 O2 molecules in Frame 1. They recombine these molecules in Frame 2 to form 2 CO2 and 4 H2O molecules.</problemDescription>
