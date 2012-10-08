@@ -249,9 +249,9 @@ CARGRAPH.prototype.render = function() {
 	
 	// display the dynamic images (e.g. cars) at time=0 (starting point)
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
+		var dynamicImage = this.content.dynamicImages[i];		
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
 		if (this.content.runCorrectAnswer) {
-			var dynamicImage = this.content.dynamicImages[i];		
 
 			var correctStartingYValue = -100;  // if there is no correct y-value at time=0, hide this car from the view.
 			
