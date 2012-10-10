@@ -664,11 +664,36 @@ Epigame.prototype.getLatestState = function() {
 };
 
 /**
+ * Returns the number of failed attempts since the last success.
+ * @return the number of failed attempts since the last success
+ */
+Epigame.prototype.getCurrentAttemptCount = function() {
+	var count = 0;
+	
+	//Search states in reverse until we hit a success or run out of states
+	var i = this.states.length;
+	while (i--) {
+		var state = this.states[i];
+		if (state.response) {
+			if (state.response.success)
+				break;
+				
+			if (state.response.failures)//Standard mission
+				count += state.response.failures.length;
+			if (state.response.attempts)//Warp mission
+				count += state.response.attempts.length;
+		}
+	}
+	
+	return count;
+};
+
+/**
  * Returns the latest state response string (may be called by the game SWF).
  * @return the stringified response JSON
  */
 Epigame.prototype.getLatestReportString = function() {
-	var latestState = getLatestState();
+	var latestState = this.getLatestState();
 	return latestState && latestState.response ? JSON.stringify(latestState.response) : null;
 };
 
