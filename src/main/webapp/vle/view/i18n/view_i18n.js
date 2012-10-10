@@ -130,11 +130,11 @@ View.prototype.i18n.getStringWithParams = function(key,locale,params, componentN
 	// first get translated string
 	var translatedString = this.getString(key,locale,componentName);
 	
-	// then go through the string and replace {0} with paramas[0], {1} with params[1], etc.
+	// then go through the string and replace {0} with params[0], {1} with params[1], etc.
 	for (var i=0; i< params.length; i++) {
-		var lookupString = "{"+i+"}";
+		var lookup = new RegExp("\\{" + i + "\\}","g");
 		var replaceString = params[i];
-		translatedString = translatedString.replace(lookupString,replaceString);
+		translatedString = translatedString.replace(lookup,replaceString);
 	}
 	return translatedString;
 };
