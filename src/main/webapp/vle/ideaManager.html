@@ -50,7 +50,14 @@
 		<header>
 			<h3 id='basketTitle'>Ideas for this Project</h3>
 		</header>
-		  
+		<div id="buttonDiv">
+			<button id="privateBasketButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+				<span class="ui-button-text">Private Basket</span>
+			</button>
+			<button id="publicBasketButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+				<span class="ui-button-text">Public Basket</span>
+			</button>
+		</div>
 		<div id="main" role="main">
 			<button id="addNew" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
 				<span class="ui-button-text">Add Idea +</span>
@@ -94,6 +101,48 @@
 				</table>
 				
 				<div id='deletedEmpty' class='empty'>The trash is empty.</div>
+			</div>
+		</div>
+		<div id='publicMain'>
+			<div id='publicIdeas'>
+				<table id='publicBasketIdeas' class='tablesorter'>
+					<thead>
+						<tr>
+							<th class='publicIdeas' title='Click to sort'>Public Ideas</th>
+							<th class='publicSource' title='Click to sort'>Source</th>
+							<th class='publicTags' title='Click to sort'>Tags</th>
+							<th class='publicFlag' title='Click to sort'>Flag</th>
+							<th class='publicCopy'>Copy</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+				<div id='publicIdeasEmpty' class='empty'>Your Idea Basket is empty.  Click 'Add Idea' above to start adding ideas.</div>
+			</div>
+			
+			<div id='publicToggleDeleted'>
+				<img src='images/ideaManager/trash.png' alt='trash' /><span id='publicNumDeleted' title='Show/Hide deleted ideas'>Trash (0) </span><span id='publicShowDeleted' title='Show/Hide deleted ideas'>(Click to show)</span><!--<img class='arrow' src='images/arrow.png' alt='arrow' />-->
+			</div>
+			
+			<div id='publicTrash'>
+				<table id='publicBasketDeleted' class='tablesorter'>
+					<thead>
+						<tr>
+							<th class='publicIdeas' title='Click to sort'>Deleted Ideas</th>
+							<th class='publicSource' title='Click to sort'>Source</th>
+							<th class='publicTags' title='Click to sort'>Tags</th>
+							<th class='publicFlag' title='Click to sort'>Flag</th>
+							<th class='publicDelete'>Restore</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+				
+				<div id='publicDeletedEmpty' class='empty'>The trash is empty.</div>
 			</div>
 		</div>
 	</div> <!--! end of #container -->

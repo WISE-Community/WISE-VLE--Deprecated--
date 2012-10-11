@@ -63,6 +63,22 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	//whether this basket is a public basket
 	@Column(name="isPublic")
 	private Boolean isPublic = false;
+	
+	//the action that is being performed to create this new basket revision (only used for public idea basket)
+	@Column(name="action")
+	private String action = "";
+	
+	//the workgroup id performing the action to create a new basket revision (only used for public idea basket)
+	@Column(name="actionPerformer")
+	private Long actionPerformer = null;
+	
+	//the idea id for the action being performed (only used for public idea basket)
+	@Column(name="ideaId")
+	private Long ideaId = null;
+	
+	//the workgroup id of the owner of the idea that the action is being performed on (only used for public idea basket)
+	@Column(name="ideaWorkgroupId")
+	private Long ideaWorkgroupId = null;
 
 	/**
 	 * the no args constructor
@@ -70,7 +86,7 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	public IdeaBasket() {
 		
 	}
-	
+
 	/**
 	 * Constructor that does not populate the data field
 	 * @param runId
@@ -101,6 +117,28 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		this.postTime = new Timestamp(now.getTimeInMillis());
 		this.data = data;
 		this.isPublic = isPublic;
+	}
+	
+	/**
+	 * Constructor that populates the values
+	 * @param runId the id of the run
+	 * @param projectId the id of the project
+	 * @param workgroupId the id of the workgroup
+	 * @param data the idea basket JSON
+	 */
+	public IdeaBasket(long runId, long periodId, long projectId, long workgroupId, String data, boolean isPublic, String action, Long actionPerformer, Long ideaId, Long ideaWorkgroupId) {
+		this.runId = runId;
+		this.projectId = projectId;
+		this.periodId = periodId;
+		this.workgroupId = workgroupId;
+		Calendar now = Calendar.getInstance();
+		this.postTime = new Timestamp(now.getTimeInMillis());
+		this.data = data;
+		this.isPublic = isPublic;
+		this.action = action;
+		this.actionPerformer = actionPerformer;
+		this.ideaId = ideaId;
+		this.ideaWorkgroupId = ideaWorkgroupId;
 	}
 	
 	public Long getId() {
@@ -167,16 +205,50 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		this.isPublic = isPublic;
 	}
 	
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	public Long getActionPerformer() {
+		return actionPerformer;
+	}
+
+	public void setActionPerformer(Long actionPerformer) {
+		this.actionPerformer = actionPerformer;
+	}
+
+	public Long getIdeaId() {
+		return ideaId;
+	}
+
+	public void setIdeaId(Long ideaId) {
+		this.ideaId = ideaId;
+	}
+
+	public Long getIdeaWorkgroupId() {
+		return ideaWorkgroupId;
+	}
+
+	public void setIdeaWorkgroupId(Long ideaWorkgroupId) {
+		this.ideaWorkgroupId = ideaWorkgroupId;
+	}
+	
 	@Override
 	protected Class<?> getObjectClass() {
 		return IdeaBasket.class;
 	}
 
 	/**
-	 * Get the JSON string representation of the IdeaBasket
-	 * @return
+	 * Get the JSON object representation of the IdeaBasket
+	 * @return a JSONObject containing the data from the idea basket
 	 */
-	public String toJSONString() {
+	public JSONObject toJSONObject() {
+		JSONObject jsonObject = null;
+		
 		String dataString = "";
 		
 		dataString = getData();
@@ -187,14 +259,13 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 			 * that has the metadata for the idea basket
 			 */
 			try {
-				JSONObject jsonObject = new JSONObject();
+				jsonObject = new JSONObject();
 				jsonObject.put("id", getId());
 				jsonObject.put("runId", getRunId());
 				jsonObject.put("periodId", getPeriodId());
 				jsonObject.put("workgroupId", getWorkgroupId());
 				jsonObject.put("projectId", getProjectId());
 				jsonObject.put("isPublic", isPublic());
-				dataString = jsonObject.toString(3);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -205,7 +276,7 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 			 * not already present in the data string
 			 */
 			try {
-				JSONObject jsonObject = new JSONObject(dataString);
+				jsonObject = new JSONObject(dataString);
 				
 				if(!jsonObject.has("id")) {
 					jsonObject.put("id", getId());
@@ -230,14 +301,34 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 				if(!jsonObject.has("isPublic")) {
 					jsonObject.put("isPublic", isPublic());
 				}
-				
-				dataString = jsonObject.toString(3);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		}
 		
-		return dataString;
+		return jsonObject;
+	}
+	
+	/**
+	 * Get the JSON string representation of the IdeaBasket
+	 * @return
+	 */
+	public String toJSONString() {
+		String jsonString = null;
+		
+		//get the JSONObject representation of the idea basket
+		JSONObject jsonObject = toJSONObject();
+
+		try {
+			if(jsonObject != null) {
+				//get the JSON string representation with indentation
+				jsonString = jsonObject.toString(3);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return jsonString;
 	}
 	
 	/**

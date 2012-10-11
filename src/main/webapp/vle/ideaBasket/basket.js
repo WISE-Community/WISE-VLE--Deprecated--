@@ -10,6 +10,9 @@ function Idea(id, timeCreated, timeLastEdited, text, source, tags, flag, nodeId,
 	this.flag = flag; //idea's flag
 	this.stepsUsedIn = [];
 	this.changeText = null;
+	this.workgroupId = null;
+	this.isPublishedToPublic = false;
+	this.wasCopiedFromPublic = false;
 };
 
 function IdeaV2(id, timeCreated, timeLastEdited, text, attributes, nodeId, nodeName) {
@@ -22,6 +25,9 @@ function IdeaV2(id, timeCreated, timeLastEdited, text, attributes, nodeId, nodeN
 	this.nodeName = nodeName; //the name of the step
 	this.stepsUsedIn = [];
 	this.changeText = null;
+	this.workgroupId = null;
+	this.isPublishedToPublic = false;
+	this.wasCopiedFromPublic = false;
 };
 
 /**
@@ -134,8 +140,9 @@ IdeaBasket.prototype.init = function(context) {
  * @param ideaBasketJSONObj the JSON object to populate the data from
  * @param generateUI boolean value whether to generate the UI
  * @param view VLE View instance object
+ * @param publicIdeaBasketJSONObj (optional) the public idea basket JSON object
  */
-IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, view) {
+IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, view, publicIdeaBasketJSONObj) {
 	if(settings){
 		this.settings = settings;
 		this.version = Number(settings.version);
@@ -143,6 +150,11 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 	
 	if(view){
 		this.view = view;
+	}
+	
+	//set the public idea basket if it was provided
+	if(publicIdeaBasketJSONObj != null) {
+		this.setPublicIdeaBasket(publicIdeaBasketJSONObj);
 	}
 	
 	if(this.view){
@@ -318,6 +330,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		var ideaDialog = $('#ideaForm > fieldset').html('');
 		var editDialog = $('#editForm > fieldset').html('');
 		var ideaTable = $('#basketIdeas > thead > tr').html('');
+		var publicIdeaTable = $('#publicBasketIdeas > thead > tr').html('');
 		var deletedTable = $('#basketDeleted > thead > tr').html('');
 		
 		// insert text input and label for add and edit idea dialogs
@@ -333,6 +346,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		
 		// insert idea text columns for idea tables
 		ideaTable.append("<th class='ideas' title='Click to sort'>Your " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
+		publicIdeaTable.append("<th class='ideas' title='Click to sort'>Public " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
 		deletedTable.append("<th class='ideas' title='Click to sort'>Deleted " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
 		
 		// insert attribute inputs for add and edit idea dialogs, as well as table attribute columns based on settings
@@ -344,13 +358,43 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			editDialog.append(editAttr);
 			var name = attribute.name, type = attribute.type;
 			ideaTable.append("<th class='" + type + "' title='Click to sort'>" + name + "</th>");
+			publicIdeaTable.append("<th class='" + type + "' title='Click to sort'>" + name + "</th>");
 			deletedTable.append("<th class='" + type + "' title='Click to sort'>" + name + "</th>");
 		}
 		
 		ideaTable.append('<th class="delete">Delete</th>');
+		publicIdeaTable.append('<th class="delete">Copy</th>');
 		deletedTable.append('<th class="delete">Restore</th>');
 		
+		//create the buttons to make an idea public or private
+		var makePublicButton = $('<input id="makePublicButton" type="button" name="makePublicButton" value="Make Public"></input>');
+		var makePrivateButton = $('<input id="makePrivateButton" type="button" name="makePrivateButton" value="Make Private"></input>');
 		
+		//create the p that will display whether the idea is public or private
+		var sharingStatusP = $('<p id="sharingStatus" style="display:inline"></p>');
+		
+		//add the elements to the edit idea dialog popup
+		editDialog.append(makePublicButton);
+		editDialog.append(makePrivateButton);
+		editDialog.append(sharingStatusP);
+		
+		//set the onclick event when the private idea basket button is clicked
+		$('#privateBasketButton').click(function(){
+			//hide the public basket
+			$('#publicMain').hide();
+			
+			//show the private basket
+			$('#main').show();
+		});
+
+		//set the onclick event when the public idea basket button is clicked		
+		$('#publicBasketButton').click(function(){
+			//hide the private basket
+			$('#main').hide();
+			
+			//show the public basket
+			$('#publicMain').show();
+		});
 	} else {
 		// set up add and idea form validation and 'other' select change event
 		$("#ideaForm").validate();
@@ -457,6 +501,25 @@ IdeaBasket.prototype.processSettingsUI = function(){
 	this.settingsProcessed = true;
 	// re-initialize the table sorting
 	this.init(this);
+	
+	if(this.version > 1) {
+		//public idea basket is only available in the newer version of the idea basket
+		this.loadPublicIdeaBasket();
+		
+		/*
+		 * hide the public idea basket when the basket is first opened.
+		 * the student must click to show the public idea basket.
+		 */
+		$('#publicMain').hide();
+	} else {
+		//public idea basket is not available for the old version of the idea basket
+		
+		//hide the public idea basket
+		$('#publicMain').hide();
+		
+		//hide the show public and private buttons 
+		$('#buttonDiv').hide();
+	}
 };
 
 /**
@@ -785,6 +848,39 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 						}
 					}
 				}
+				
+				/*
+				 * unbind any existing on click functions. this is required
+				 * because we bind an on click every time we open the edit
+				 * idea dialog to pass in the new id. if we did not unbind
+				 * the click would fire all previous functions we bound.
+				 */
+				$('#makePublicButton').unbind('click');
+				
+				//bind the function to make the idea public
+				$('#makePublicButton').click({thisView:this.view, id:id}, function() {
+					thisView.makeIdeaPublic(id);
+				});
+
+				/*
+				 * unbind any existing on click functions. this is required
+				 * because we bind an on click every time we open the edit
+				 * idea dialog to pass in the new id. if we did not unbind
+				 * the click would fire all previous functions we bound.
+				 */
+				$('#makePrivateButton').unbind('click');
+				
+				//bind the function to make the idea private
+				$('#makePrivateButton').click({thisView:this.view, id:id}, function() {
+					thisView.makeIdeaPrivate(id);
+				});
+				
+				//set the text to show whether this idea is currently public or private
+				if(idea.isPublishedToPublic) {
+					$('#sharingStatus').html('Public');				
+				} else {
+					$('#sharingStatus').html('Private');		
+				}
 			} else {
 				if(basket.ideas[i].source.match(/^Other: /)){
 					$('#editSource').val("Other");
@@ -804,6 +900,7 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 						$(this).attr('checked', false);
 					}
 				});
+				
 				break;
 			}
 		}
@@ -1035,6 +1132,16 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 			this.ideas.splice(i,1);
 			this.addRow(1,idea);
 
+			if(idea.wasCopiedFromPublic) {
+				/*
+				 * the student is removing an idea they copied from the public
+				 * basket so we will uncopy it from the public idea which means
+				 * we will remove this student's workgroup id from the 
+				 * workgroupIdsThatHaveCopied array.
+				 */
+				this.view.uncopyPublicIdea(idea.id);
+			}
+			
 			break;
 		}
 	}
@@ -1641,7 +1748,7 @@ IdeaBasket.prototype.getLatestState = function() {
  */
 IdeaBasket.prototype.save = function() {
 	if(this.isBasketChanged()) {
-		this.saveIdeaBasket(this.view);		
+		this.saveIdeaBasket(this.view);
 	}
 
 	/*
@@ -1727,6 +1834,189 @@ IdeaBasket.prototype.loadIdeaBasket = function() {
 		//display the error message div
 		$('#errorMessageDialog').show();
 	}
+};
+
+/**
+ * Set the public idea basket
+ * @param publicIdeaBasketJSONObj the public idea basket
+ */
+IdeaBasket.prototype.setPublicIdeaBasket = function(publicIdeaBasketJSONObj) {
+	this.publicIdeaBasket = publicIdeaBasketJSONObj;
+};
+
+/**
+ * Load the public idea basket into the UI
+ */
+IdeaBasket.prototype.loadPublicIdeaBasket = function() {
+	//clear out the previous revision of the public idea basket
+	$('#publicBasketIdeas tbody').html('');
+	
+	if(this.publicIdeaBasket != null) {
+		//get the public idea basket
+		var publicIdeaBasket = this.publicIdeaBasket;
+		
+		//get the public ideas
+		var publicIdeas = publicIdeaBasket.ideas;
+		
+		//loop through all the public ideas
+		for(var x=0; x<publicIdeas.length; x++) {
+			//get a public idea
+			var publicIdea = publicIdeas[x];
+			
+			//add the public idea row to the UI
+			this.addPublicRow(publicIdea);
+		}
+	}
+};
+
+/**
+ * Add a public idea row to the UI
+ * @param publicIdea the public idea
+ */
+IdeaBasket.prototype.addPublicRow = function(publicIdea) {
+	var currTable = 'publicIdea';
+	var table = $('#publicBasketIdeas tbody');
+	var link = 'copy';
+	var title = 'Click and drag to re-order, Double click to edit';
+	var linkText = publicIdea.text;
+	
+	if(this.version > 1){
+		/*
+		 * we are using the newer version of the ideas that can
+		 * have authorable attributes
+		 */
+		
+		var imAttributes = this.settings.ideaAttributes;
+		html = $(document.createElement('tr')).attr('id',currTable + publicIdea.id).attr('title',title);
+		html.append('<td><div class="ideaText">' + linkText + '</div></td>');
+		
+		//add the attributes for the idea
+		for(var i=0;i<imAttributes.length;i++){
+			var attrId = imAttributes[i].id;
+			var type = imAttributes[i].type;
+			var newTD = $(document.createElement('td'));
+			for(var a=0;a<publicIdea.attributes.length;a++){
+				if(publicIdea.attributes[a].id == attrId && publicIdea.attributes[a].type == type){
+					if(type == 'label' || type == 'source'){
+						newTD.append(publicIdea.attributes[a].value); 
+					} else if (type == 'icon'){
+						newTD.append('<span title="' + publicIdea.attributes[a].value +	'" class="' + publicIdea.attributes[a].value + '"></span>');
+					} else if (type == 'tags'){
+						var tagsHtml = '';
+						for(var x=0;x<publicIdea.attributes[a].value.length;x++){
+							tagsHtml += '<span class="tag">' + publicIdea.attributes[a].value[x] + '</span>';
+						}
+						newTD.append(tagsHtml);
+					}
+				}
+			}
+			html.append(newTD);
+		}
+		
+		//add the copy public idea button
+		html.append('<td><input id="copyPublicIdeaButton_' + publicIdea.id + '" type="button" value="Copy"></input></td>');
+	} else {
+		/*
+		 * we are using the old version of the ideas that have
+		 * preset attributes
+		 */
+		var tags = '';
+		
+		if(publicIdea.tags && publicIdea.tags != 'undefined') {
+			tags = publicIdea.tags;
+		}
+		html = '<tr id="' + currTable + publicIdea.id + '" title="' + title + '"><td><div class="ideaText">' + linkText +
+			'</div></td><td>' + publicIdea.source + '</td>' +	'<td><div class="ideaTags">' + tags +
+			'</div></td>' + '<td style="text-align:center;"><span title="' +publicIdea.flag +	'" class="' + publicIdea.flag + '"></span></td>'+
+			'<td style="text-align:center;"><input id="copyPublicIdeaButton_' + publicIdea.id + '" type="button" value="Copy"></input></td></tr>';
+	}
+	
+	//add the public idea row to the public idea basket UI
+	table.prepend(html);
+	
+	//get the copy public idea button for this idea
+	var $copyPublicIdeaButton = $('#copyPublicIdeaButton_' + publicIdea.id);
+	
+	var workgroupId = publicIdea.workgroupId;
+	var ideaId = publicIdea.id;
+	
+	//set the onclick event for the copy public idea button for this idea
+	$copyPublicIdeaButton.click({thisView:this.view, workgroupId:workgroupId, ideaId:ideaId}, function() {
+		//copy the public idea
+		thisView.copyPublicIdea(workgroupId, ideaId);
+	});
+};
+
+/**
+ * Set the sharing status to public
+ */
+IdeaBasket.prototype.setSharingStatusPublic = function() {
+	$('#sharingStatus').html('Public');
+};
+
+/**
+ * Set the sharing status to private
+ */
+IdeaBasket.prototype.setSharingStatusPrivate = function() {
+	$('#sharingStatus').html('Private');
+};
+
+/**
+ * Check if the idea with the given workgroup id and idea id is in
+ * our basket
+ * @param ideaWorkgroupId the workgroup id that published the idea
+ * @param ideaId the idea id of the published idea
+ * @returns whether the idea already exists in the basket
+ */
+IdeaBasket.prototype.isPublicIdeaInPrivateBasket = function(ideaWorkgroupId, ideaId) {
+	var result = false;
+	
+	/*
+	 * loop through all the ideas and check the publishers to
+	 * see if any of the ideas were copied from the given 
+	 * workgroup id and idea id
+	 */
+	for(var x=0; x<this.ideas.length; x++) {
+		//get an idea
+		var idea = this.ideas[x];
+		
+		//get the publishers of this idea if any
+		var publishers = idea.publishers;
+		
+		if(publishers != null && publishers.length > 0) {
+			
+			//get the last publisher
+			var lastPublisher = publishers[publishers.length - 1];
+			
+			if(lastPublisher != null) {
+				//get the workgroup id and idea id
+				var publisherWorkgroupId = lastPublisher.workgroupId;
+				var publisherIdeaId = lastPublisher.ideaId;
+				
+				if(ideaWorkgroupId == publisherWorkgroupId && ideaId == publisherIdeaId) {
+					/*
+					 * we found the workgroup id and idea id which means we have this
+					 * public idea in our idea basket already
+					 */
+					result = true;
+				}
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Get the next idea id that we can use and increment the counter
+ */
+IdeaBasket.prototype.getNextIdeaIdAndIncrement = function() {
+	var nextIdeaId = this.nextIdeaId;
+	
+	//increment the counter
+	this.nextIdeaId++;
+	
+	return nextIdeaId;
 };
 
 /* used to notify scriptloader that this script has finished loading */

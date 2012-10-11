@@ -50,7 +50,7 @@ var documentReadyFunction = function(object, createForStep, stepBasket) {
  * or just load the basket
  * @param thisView the view
  */
-var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView, settings) {
+var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView, settings, publicIdeaBasketJSONObj) {
 	//only subscribe to the 'ideaBasketChanged' event once
 	if(!subscribedToIdeaBasketChanged) {
 		
@@ -69,7 +69,7 @@ var loadIdeaBasket = function(ideaBasketJSONObj, generateUI, thisView, settings)
 	}
 	
 	//load the ideaBasket JSON object that should have been set into the iframe
-	basket.load(ideaBasketJSONObj, generateUI, settings, thisView);
+	basket.load(ideaBasketJSONObj, generateUI, settings, thisView, publicIdeaBasketJSONObj);
 };
 
 /**

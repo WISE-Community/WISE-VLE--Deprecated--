@@ -905,6 +905,7 @@ var componentloader = function(em, sl){
 					'adjustHintSize':[null,null],
 					'showNavigationTree':[null,null],
 					'getIdeaBasket':[null,null],
+					'getPublicIdeaBasket':[null,null],
 					'ideaBasketChanged':[null,null],
 					'displayAddAnIdeaDialog':[null,null],
 					'displayIdeaBasket':[null,null],
@@ -929,6 +930,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('adjustHintSize', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('showNavigationTree', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('getIdeaBasket', view.dropDownMenuDispatcher, view);
+					view.eventManager.subscribe('getPublicIdeaBasket', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('ideaBasketChanged', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('displayAddAnIdeaDialog', view.dropDownMenuDispatcher, view);
 					view.eventManager.subscribe('displayIdeaBasket', view.dropDownMenuDispatcher, view);
