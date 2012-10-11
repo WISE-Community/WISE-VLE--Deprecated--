@@ -1767,7 +1767,7 @@ SENSOR.prototype.insertApplet = function() {
 	'<param name="resource" value="' + otmlFileName + '"/> ' + 
 	'<param name="name" value="sensor"/> ' +
 	'<param name="listenerPath" value="jsListener"/> ' +
-	'<param name="MAYSCRIPT" value="true"/><font color="red">Error: Applets are disabled in your browser. Please read the instructions <a href="http://java.com/en/download/help/enable_browser.xml" target="_blank">here</a> to enable applets in your browser.</font>' +
+	'<param name="MAYSCRIPT" value="true"/><font color="red" style="font-family:arial">Error: Applets are disabled in your browser. Please read the instructions <a href="http://java.com/en/download/help/enable_browser.xml" target="_blank">here</a> to enable applets in your browser.</font>' +
 	'</applet>';
 	
 	
@@ -2717,6 +2717,7 @@ SENSOR.prototype.showGraphMessage = function(message, backgroundColor) {
 	//show the message
 	$('#graphMessageDiv').show();
 	$('#graphMessageTable').css('background-color', backgroundColor);
+	$('#graphMessage').css('font-family', 'arial');
 	$('#graphMessage').html(message);
 };
 
