@@ -1061,6 +1061,9 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		//get the user names for the workgroup
 		var userNames = student.userName.replace(/:/g, "<br>");
 		
+		//display the group assignments if any
+		var groupAssignmentsHtml = this.getGroupAssignmentsHtml('team', workgroupId);
+		
 		//get the period the workgroup is in
 		var periodName = student.periodName;
 
@@ -1078,7 +1081,7 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		}
 		
 		//add the html row for this workgroup
-		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a></td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
+		displayGradeByTeamSelectPageHtml += "<tr class='" + studentTRClass + "' onClick=\"eventManager.fire('displayGradeByTeamGradingPage', ['" + workgroupId + "'])\"><td class='showScorePeriodColumn'>" + periodName + "</td><td id='gradeByTeamStudentTeamTd_" + workgroupId + "' class='showScoreWorkgroupIdColumn'><a>" + userNames + "</a>" + groupAssignmentsHtml + "</td><td>" + workgroupId + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + teacherScorePercentage + "</td><td id='teamNumItemsNeedGrading_" + workgroupId + "'></td><td style='padding-left: 0pt;padding-right: 0pt' id='teamPercentProjectCompleted_" + workgroupId + "'></td></tr>";
 		
 		//showScoreSummaryHtml += "<tr class='" + studentTRClass + "'><td class='showScorePeriodColumn'>" + periodName + "</td><td class='showScoreWorkgroupIdColumn'>" + userNames + "</td><td class='showScoreScoreColumn'>" + totalScoreForWorkgroup + " / " + maxScoresSum + "</td></tr>";
 	}
@@ -1859,45 +1862,8 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		gradeByStepGradingPageHtml += "<div>"+this.getI18NString("period")+" " + periodName + "</div>";
 		gradeByStepGradingPageHtml += "<div>" + toggleRevisionsLink + "</div>";
 		
-		//get the automatically assigned groups used in this project, if any
-		var autoGroupsUsed = this.project.getAutoGroupsUsed();
-		
-		if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
-			gradeByStepGradingPageHtml += "<div id='autoGroups_" + workgroupId + "'>";
-			
-			//get the groups that have been assigned to this workgroup
-			var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
-			
-			//make all the elements in the array bold
-			autoGroups = this.makeElementsBold(autoGroups);
-			
-			//create a string from the groups this workgroup is in e.g. "A, B"
-			var groupsString = autoGroups.join("");
-			
-			//display the groups this workgroup is in
-			gradeByStepGradingPageHtml += "Auto Groups:<br>" + groupsString;
-			gradeByStepGradingPageHtml += "</div>";
-		}
-		
-		//get the manual assigned groups used in this project, if any
-		var manualGroupsUsed = this.project.getManualGroupsUsed();
-		
-		if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
-			gradeByStepGradingPageHtml += "<div id='manualGroups_" + workgroupId + "'>";
-			
-			//get the groups that have been assigned to this workgroup
-			var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
-			
-			//make all the elements in the array bold
-			manualGroups = this.makeElementsBold(manualGroups);
-			
-			//create a string from the groups this workgroup is in e.g. "A, B"
-			var groupsString = manualGroups.join("");
-			
-			//display the groups this workgroup is in
-			gradeByStepGradingPageHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
-			gradeByStepGradingPageHtml += "</div>";
-		}
+		//display the group assignments if any
+		gradeByStepGradingPageHtml += this.getGroupAssignmentsHtml('step', workgroupId);
 		
 		gradeByStepGradingPageHtml += "</td>";
 		
@@ -5104,28 +5070,30 @@ View.prototype.getAutoGroupsByWorkgroupId = function(workgroupId) {
 	//get the vlestate for the workgroup
 	var vleState = this.getVleStateByWorkgroupId(workgroupId);
 	
-	//get all the branch node ids in the project
-	var branchNodeIds = this.getProject().getNodeIdsByNodeType('BranchingNode');
-	
-	//loop through all the branch node ids
-	for(var x=0; x<branchNodeIds.length; x++) {
-		//get a branch node id
-		var branchNodeId = branchNodeIds[x];
-
-		//get the latest work from the workgroup for this branch node
-		var latestWork = vleState.getLatestWorkByNodeId(branchNodeId);
+	if(vleState != null) {
+		//get all the branch node ids in the project
+		var branchNodeIds = this.getProject().getNodeIdsByNodeType('BranchingNode');
 		
-		if(latestWork != null) {
-			//get the response
-			var response = latestWork.response;
+		//loop through all the branch node ids
+		for(var x=0; x<branchNodeIds.length; x++) {
+			//get a branch node id
+			var branchNodeId = branchNodeIds[x];
+
+			//get the latest work from the workgroup for this branch node
+			var latestWork = vleState.getLatestWorkByNodeId(branchNodeId);
 			
-			if(response != null) {
-				//get the chosen path name which should be the activity title for the branch path
-				var chosenPathName = response.chosenPathName;
+			if(latestWork != null) {
+				//get the response
+				var response = latestWork.response;
 				
-				if(chosenPathName != null && chosenPathName != '') {
-					//add the branch path name to our array
-					groups.push(chosenPathName);
+				if(response != null) {
+					//get the chosen path name which should be the activity title for the branch path
+					var chosenPathName = response.chosenPathName;
+					
+					if(chosenPathName != null && chosenPathName != '') {
+						//add the branch path name to our array
+						groups.push(chosenPathName);
+					}
 				}
 			}
 		}
@@ -5174,6 +5142,141 @@ View.prototype.updateStudentWorkRowOrderObjectTeacherGradedScore = function(step
 				if(studentWorkRowOrderObject.stepWorkId == stepWorkId) {
 					//the stepWorkId matches so we will update the teacher graded score
 					studentWorkRowOrderObject.teacherGradedScore = teacherGradedScore;
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Get the html to display the group assignments for branching.
+ * @param gradingType the grading type, step or team
+ * @param workgroupId the workgroup id of the workgroup to display
+ * groups for
+ * @return the html that will display the group assignments
+ */
+View.prototype.getGroupAssignmentsHtml = function(gradingType, workgroupId) {
+	var groupAssignmentsHtml = "";
+	
+	//get the automatically assigned groups used in this project, if any
+	var autoGroupsUsed = this.project.getAutoGroupsUsed();
+	
+	if(autoGroupsUsed != null && autoGroupsUsed.length > 0) {
+		groupAssignmentsHtml += "<div id='autoGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var autoGroups = this.getAutoGroupsByWorkgroupId(workgroupId);
+		
+		var groupsString = '';
+		
+		if(gradingType == 'step') {
+			//make all the elements in the array a bolded paragraph
+			autoGroups = this.makeElementsBold(autoGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "AB"
+			groupsString = autoGroups.join("");
+		} else if(gradingType == 'team') {
+			//create a comma delimited string from the groups this workgroup is in e.g. "A, B"
+			groupsString = autoGroups.join(", ");
+			
+			//bold the group names
+			groupsString = "<b style='font-weight:bold'>" + groupsString + "</b>";
+		}
+		
+		if(gradingType == 'step') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Auto Groups:<br>" + groupsString;
+		} else if(gradingType == 'team') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Auto Groups: " + groupsString;
+		}
+		
+		groupAssignmentsHtml += "</div>";
+	}
+	
+	//get the manual assigned groups used in this project, if any
+	var manualGroupsUsed = this.project.getManualGroupsUsed();
+	
+	if(manualGroupsUsed != null && manualGroupsUsed.length > 0) {
+		groupAssignmentsHtml += "<div id='manualGroups_" + workgroupId + "'>";
+		
+		//get the groups that have been assigned to this workgroup
+		var manualGroups = this.getManualGroupsByWorkgroupId(workgroupId);
+		
+		var groupsString = '';
+		
+		if(gradingType == 'step') {
+			//make all the elements in the array a bold paragraph
+			manualGroups = this.makeElementsBold(manualGroups);
+			
+			//create a string from the groups this workgroup is in e.g. "AB"
+			groupsString = manualGroups.join("");
+		} else if(gradingType == 'team') {
+			//create a comma delimited string from the groups this workgroup is in e.g. "A, B"
+			groupsString = manualGroups.join(", ");
+			
+			//bold the group names
+			groupsString = "<b style='font-weight:bold'>" + groupsString + "</b>";
+		}
+		
+		if(gradingType == 'step') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Manual Groups (<a onclick='eventManager.fire(\"editGroups\", " + workgroupId + ")'>edit</a>):<br>" + groupsString;
+		} else if(gradingType == 'team') {
+			//display the groups this workgroup is in
+			groupAssignmentsHtml += "Manual Groups: " + groupsString;
+		}
+		
+		groupAssignmentsHtml += "</div>";
+	}
+	
+	if(groupAssignmentsHtml != '') {
+		/*
+		 * groupsAssignmentsHtml is not empty string which means 
+		 * this project has branching/group assignments so we will
+		 * create a div to contain the auto and manual group 
+		 * assignments for this workgroup
+		 */
+		groupAssignmentsHtml = '<div id="assignedGroups_' + workgroupId + '">' + groupAssignmentsHtml + '</div>';
+	}
+	
+	return groupAssignmentsHtml;
+};
+
+/**
+ * Get the html to display the group assignments and insert
+ * it into the assigned groups div for the given workgroup
+ * @param workgroupId the workgroup id
+ */
+View.prototype.displayGroupAssignments = function(workgroupId) {
+	/*
+	 * this only needs to be performed for the grade by team select
+	 * page and not the grade by step select page since we don't
+	 * display the group assignments on the grade by step select
+	 * page
+	 */
+	if(this.gradingType == 'team') {
+		//get the classmates
+		var classmatesInAlphabeticalOrder = this.getUserAndClassInfo().getClassmatesInAlphabeticalOrder();
+		
+		//loop through all the classmates
+		for(var x=0; x<classmatesInAlphabeticalOrder.length; x++) {
+			if(classmatesInAlphabeticalOrder != null) {
+				//get a vleState
+				var student = classmatesInAlphabeticalOrder[x];
+				
+				//get the workgroup id
+				var workgroupId = student.workgroupId;
+				
+				/*
+				 * get the html that will display the auto and manual group
+				 * assignments for this workgroup
+				 */
+				var groupAssignmentHtml = this.getGroupAssignmentsHtml(this.gradingType, workgroupId);
+				
+				if($('#assignedGroups_' + workgroupId).length > 0) {
+					//the div exists so we will insert the html
+					$('#assignedGroups_' + workgroupId).html(groupAssignmentHtml);
 				}
 			}
 		}

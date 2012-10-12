@@ -237,23 +237,29 @@ Table.prototype.render = function() {
 	if(this.isGraphingEnabled()) {
 		//graphing is enabled so we will show the graphing options
 		this.displayGraphOptions();
-	}
-	
-	if(this.isGraphPreviouslyRendered()) {
-		//populate the graph since the student previously rendered it
-		this.makeGraph();
 		
-		/*
-		 * set this back to false since the student has not clicked
-		 * the 'Make Graph' button at this time. the graphRendered
-		 * value is like the tableChanged value in that it keeps
-		 * track of whether something has changed and now needs to
-		 * be saved. in this case we set it to false because the
-		 * graph was previously rendered and not currently rendered.
-		 * if the student clicks 'Make Graph' again, we will set
-		 * this to true.
-		 */
-		this.graphRendered = false;
+		if(this.isGraphPreviouslyRendered()) {
+			//populate the graph since the student previously rendered it
+			this.makeGraph();
+			
+			/*
+			 * set this back to false since the student has not clicked
+			 * the 'Make Graph' button at this time. the graphRendered
+			 * value is like the tableChanged value in that it keeps
+			 * track of whether something has changed and now needs to
+			 * be saved. in this case we set it to false because the
+			 * graph was previously rendered and not currently rendered.
+			 * if the student clicks 'Make Graph' again, we will set
+			 * this to true.
+			 */
+			this.graphRendered = false;
+		} else {
+			/*
+			 * the graph was not previously rendered so we will suggest
+			 * the student to click "Make Graph"
+			 */
+			this.displayGraphMessage(' <font color="red">Click "Make Graph" to graph the data</font>');
+		}
 	}
 };
 
@@ -262,7 +268,7 @@ Table.prototype.render = function() {
  * @param work the student work node state
  * @returns an html string that will display the student work for this step
  */
-Table.prototype.getHtmlView = function(work) {
+Table.prototype.getStudentWorkHtmlView = function(work) {
 	//make a table
 	var html = "<table>";
 
@@ -525,6 +531,15 @@ Table.prototype.studentTableChanged = function() {
 	 * in order to save the graph after the table has changed.
 	 */
 	this.graphRendered = false;
+	
+	if(this.isGraphingEnabled()) {
+		/*
+		 * display the message to tell the student to click the
+		 * 'Make Graph' button to make the graph with the new
+		 * table data
+		 */
+		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+	}
 };
 
 /**
@@ -693,40 +708,50 @@ Table.prototype.displayGraphOptions = function() {
 
 /**
  * Get the column indexes that we will graph
+ * @param graphOptions (optional) the graph options which contains
+ * the graph type, columnToAxisMappings, and perhaps other graph options.
+ * this is passed in when it is called from the grading tool.
+ * the student vle does not need this argument.
  * @returns an array containing objects that have a columnIndex
  * and columnAxis
  */
-Table.prototype.getColumnIndexesToGraph = function() {
+Table.prototype.getColumnIndexesToGraph = function(graphOptions) {
 	var result = null;
 	
-	if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
-		/*
-		 * the author selected the axes so we will retrieve the
-		 * graph axes from the step content
-		 */
-		result = this.content.graphOptions.columnToAxisMappings;
-	} else if(this.content.graphOptions.graphSelectAxesType == 'studentSelect') {
-		/*
-		 * the student is supposed to select the axes so we will
-		 * retrieve the values they chose from the drop downs
-		 */
-		var xColumnIndex = $('#studentSelectXAxis').val();
-		var yColumnIndex = $('#studentSelectYAxis').val();
-		
-		//create the object for the x axis
-		var xColumnObject = {
-			columnIndex:xColumnIndex,
-			columnAxis:'x'
-		};
-		
-		//create the object for the y axis
-		var yColumnObject = {
-			columnIndex:yColumnIndex,
-			columnAxis:'y'
-		};
-		
-		//put the objects in an array
-		result = [xColumnObject, yColumnObject];
+	if(graphOptions == null) {
+		//graph options were not provided so we will look at the step content
+		if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+			/*
+			 * the author selected the axes so we will retrieve the
+			 * graph axes from the step content
+			 */
+			result = this.content.graphOptions.columnToAxisMappings;
+		} else if(this.content.graphOptions.graphSelectAxesType == 'studentSelect') {
+			/*
+			 * the student is supposed to select the axes so we will
+			 * retrieve the values they chose from the drop downs
+			 */
+			var xColumnIndex = $('#studentSelectXAxis').val();
+			var yColumnIndex = $('#studentSelectYAxis').val();
+			
+			//create the object for the x axis
+			var xColumnObject = {
+				columnIndex:xColumnIndex,
+				columnAxis:'x'
+			};
+			
+			//create the object for the y axis
+			var yColumnObject = {
+				columnIndex:yColumnIndex,
+				columnAxis:'y'
+			};
+			
+			//put the objects in an array
+			result = [xColumnObject, yColumnObject];
+		}
+	} else {
+		//the graph options were provided so we will get the columnToAxisMappings from it
+		result = graphOptions.columnToAxisMappings;
 	}
 	
 	return result;
@@ -735,13 +760,23 @@ Table.prototype.getColumnIndexesToGraph = function() {
 /**
  * Get the column header by the column index
  * @param index the column index (starts at 0)
+ * @param tableData (optional) the table data the student submitted.
+ * this argument is passed in when called from the grading tool.
+ * the student vle does not need to provide this argument.
  * @returns the column header
  */
-Table.prototype.getColumnHeaderByIndex = function(index) {
+Table.prototype.getColumnHeaderByIndex = function(index, tableData) {
 	var columnHeader = '';
 	
-	//get the data from the student table 
-	var studentTableData = this.getStudentTableData();
+	var studentTableData  = null;
+	
+	if(tableData == null) {
+		//get the data from the student table 
+		studentTableData = this.getStudentTableData();
+	} else {
+		//the table data was passed in as an argument
+		studentTableData = tableData;
+	}
 	
 	if(studentTableData != null) {
 		//get the column with the given index
@@ -766,85 +801,119 @@ Table.prototype.getColumnHeaderByIndex = function(index) {
 
 /**
  * The student has clicked the make graph button so we will make the graph
+ * @param divId (optional) the div id to make the graph in. this argument
+ * will be passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
+ * @param tableData (optional) the student table data. this argument
+ * will be passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
+ * @param graphOptions (optional) the graph options. this argument
+ * will be passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
  */
-Table.prototype.makeGraph = function() {
-	//show the graph div that will display the graph
-	$('#graphDiv').show();
+Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
+	
+	if(divId == null) {
+		//the default div id to make the graph in
+		divId = 'graphDiv';
+		
+		//show the graph div that will display the graph
+		$('#' + divId).show();
+	}
+	
+	//clear the graph div id to remove any existing graph
+	$('#' + divId).html('');
 	
 	/*
 	 * get the table data in the format google wants it in.
 	 * we store it in Array[x][y] and google wants it in
 	 * Array[y][x].
 	 */
-	var dataInGoogleFormat = this.getDataInGoogleFormat();
+	var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+
+	var data = null;
 	
-	//create the data
-	var data = google.visualization.arrayToDataTable(dataInGoogleFormat);
-	
-	//get the column indexes we will graph
-	var columnIndexesToGraph = this.getColumnIndexesToGraph();
-	
-	var hTitle = '';
-	var hMinValue = this.xMin;
-	var hMaxValue = this.xMax;
-	var vTitle = '';
-	var vMinValue = this.yMin;
-	var vMaxValue = this.yMax;
-	
-	if(columnIndexesToGraph != null) {
-		//loop through all the objects in the array
-		for(var x=0; x<columnIndexesToGraph.length; x++) {
-			//get an object
-			var columnObject = columnIndexesToGraph[x];
-			
-			//get the column index and column axis
-			var columnIndex = columnObject.columnIndex;
-			var columnAxis = columnObject.columnAxis;
-			
-			if(columnAxis == 'x') {
-				//get the column header for the x axis
-				hTitle = this.getColumnHeaderByIndex(columnIndex);
-			} else if(columnAxis == 'y') {
-				/*
-				 * get the column header for the y axis, if there are
-				 * multiple columns that will be displayed on the
-				 * y axis, we will separate them with a comma
-				 */
-				if(vTitle != '') {
-					vTitle += ', ';
-				}
-				vTitle += this.getColumnHeaderByIndex(columnIndex);
-			}
-		}		
+	try {
+		//create the data
+		data = google.visualization.arrayToDataTable(dataInGoogleFormat);
+	} catch(e) {
+		//inform the student that the data in the table is invalid
+		this.displayGraphMessage(' <font color="red">Error: Data in table is invalid, please fix and try again</font>');
 	}
-
-	//create the options to tell google how to display the graph
-	var options = {
-		title: hTitle + ' vs. ' + vTitle,
-		hAxis: {title: hTitle},
-		vAxis: {title: vTitle}
-	};
-
-	var chart = null;
 	
-	if(this.content.graphOptions != null) {
-		//get the graph type we will display
-		var graphType = this.content.graphOptions.graphType;
+	if(data != null) {
+		//get the column indexes we will graph
+		var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
+		
+		var hTitle = '';
+		var hMinValue = this.xMin;
+		var hMaxValue = this.xMax;
+		var vTitle = '';
+		var vMinValue = this.yMin;
+		var vMaxValue = this.yMax;
+		
+		if(columnIndexesToGraph != null) {
+			//loop through all the objects in the array
+			for(var x=0; x<columnIndexesToGraph.length; x++) {
+				//get an object
+				var columnObject = columnIndexesToGraph[x];
+				
+				//get the column index and column axis
+				var columnIndex = columnObject.columnIndex;
+				var columnAxis = columnObject.columnAxis;
+				
+				if(columnAxis == 'x') {
+					//get the column header for the x axis
+					hTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+				} else if(columnAxis == 'y') {
+					/*
+					 * get the column header for the y axis, if there are
+					 * multiple columns that will be displayed on the
+					 * y axis, we will separate them with a comma
+					 */
+					if(vTitle != '') {
+						vTitle += ', ';
+					}
+					vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
+				}
+			}		
+		}
 
-		if(graphType == 'scatterPlot') {
-			chart = new google.visualization.ScatterChart(document.getElementById('graphDiv'));		
-		} else if(graphType == 'lineGraph') {
-			chart = new google.visualization.LineChart(document.getElementById('graphDiv'));
-		} else if(graphType == 'barGraph') {
-			chart = new google.visualization.ColumnChart(document.getElementById('graphDiv'));
-		} else if(graphType == 'pieGraph') {
-			chart = new google.visualization.PieChart(document.getElementById('graphDiv'));
+		//create the options to tell google how to display the graph
+		var options = {
+			title: hTitle + ' vs. ' + vTitle,
+			hAxis: {title: hTitle},
+			vAxis: {title: vTitle},
+			forceIFrame: false
+		};
+
+		var chart = null;
+		
+		if(this.content.graphOptions != null) {
+			//get the graph type we will display
+			var graphType = this.content.graphOptions.graphType;
+
+			if(graphType == 'scatterPlot') {
+				chart = new google.visualization.ScatterChart(document.getElementById(divId));
+			} else if(graphType == 'lineGraph') {
+				chart = new google.visualization.LineChart(document.getElementById(divId));
+			} else if(graphType == 'barGraph') {
+				chart = new google.visualization.ColumnChart(document.getElementById(divId));
+			} else if(graphType == 'pieGraph') {
+				chart = new google.visualization.PieChart(document.getElementById(divId));
+			}
+		}
+
+		try {
+			//tell google to draw the graph
+			chart.draw(data, options);
+			this.graphRendered = true;
+			this.clearGraphMessage();
+		} catch(e) {
+			//inform the student that we were unable to draw the chart
+			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
 		}
 	}
-
-	//tell google to draw the graph
-	chart.draw(data, options);
-	this.graphRendered = true;
 };
 
 /**
@@ -872,13 +941,19 @@ Table.prototype.makeGraph = function() {
  * 	[2, 20],
  * ]
  * 
+ * @param tableData (optional) the student data table. this argument
+ * will be passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
+ * @param graphOptions (optional) the graph options. this argument
+ * will be passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
  * @returns a two dimensional array that contains the table 
  * data where the first dimension is y and the second dimension
  * is x
  */
-Table.prototype.getDataInGoogleFormat = function() {
+Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 	//get the columns to graph
-	var columnIndexesToGraph = this.getColumnIndexesToGraph();
+	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
 	
 	//create the array that we will return
 	var rows = [];
@@ -917,7 +992,7 @@ Table.prototype.getDataInGoogleFormat = function() {
 			 */
 			for(var r=0; r<this.content.numRows; r++) {
 				//get the cell value of one of the cells in the column
-				var cellValue = this.getCellValue(columnIndex, r);
+				var cellValue = this.getCellValue(columnIndex, r, tableData);
 				
 				if(!isNaN(parseFloat(cellValue))) {
 					//cell value is a number
@@ -961,15 +1036,48 @@ Table.prototype.getDataInGoogleFormat = function() {
  * Get the cell value at the given coordinates
  * @param x the x coordinate
  * @param y the y coordinate
+ * @param tableData (optional) the student data table. this argument
+ * will be passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
  * @return the value of the cell at the given coordinates
  */
-Table.prototype.getCellValue = function(x, y) {
-	//get the cell value
-	var tableCellValue = $('#tableCell_' + x + '-' + y).val();
+Table.prototype.getCellValue = function(x, y, tableData) {
+	var tableCellValue = '';
 	
-	if(!isNaN(parseFloat(tableCellValue))) {
-		//value is a number so we will parse it as a float
-		tableCellValue = parseFloat(tableCellValue);
+	if(tableData == null) {
+		/*
+		 * table data was not passed in so we will retrieve the
+		 * cell value from the UI
+		 */ 
+		
+		//get the cell value
+		tableCellValue = $('#tableCell_' + x + '-' + y).val();
+		
+		if(!isNaN(parseFloat(tableCellValue))) {
+			//value is a number so we will parse it as a float
+			tableCellValue = parseFloat(tableCellValue);
+		}
+	} else {
+		/*
+		 * table data was passed in so we will use it to retrieve
+		 * the cell value
+		 */
+		
+		//get the cell from the 2D array
+		tableCell = tableData[x][y];
+		
+		if(tableCell != null) {
+			//get the text which is a string
+			var text = tableCell.text;
+			
+			if(!isNaN(parseFloat(text))) {
+				//value is a number so we will convert it to a number
+				tableCellValue = parseFloat(text);
+			} else {
+				//value is text
+				tableCellValue = text;
+			}
+		}
 	}
 	
 	return tableCellValue;
@@ -1035,6 +1143,21 @@ Table.prototype.isGraphPreviouslyRendered = function() {
 	}
 	
 	return graphPreviouslyRendered;
+};
+
+/**
+ * Display a message about the graph
+ * @param message the message to display
+ */
+Table.prototype.displayGraphMessage = function(message) {
+	$('#graphMessageDiv').html(message);
+};
+
+/**
+ * Clear the message about the graph
+ */
+Table.prototype.clearGraphMessage = function() {
+	$('#graphMessageDiv').html('');
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -134,13 +134,89 @@ var DrawScorer = function() {
         }
         this.imageCount = imageCount;
     }
-
+    
     
     //Compares the given drawing object (contains both frames and has already been annotatd) to the rubric
     //to assign a numerical integer score. This score is annotated on the object, and returned.
     //Right now, we just have a hard coded rubric - could think about changing that to allow rubrics
     //to be specified in the XML for the problem.
+    // Version of rubric from October 2012
+    this.assignMethaneRubricScore = function(svgFullObject) {
+        rubricScore = -1;
+        if(svgFullObject.isCorrect) {//5 for correct, then work up from the bottom
+            rubricScore = 5;
+        } else if(!svgFullObject.hasFrames || someFramesLackImages(svgFullObject)) {//Interface issues get a 0
+            rubricScore = 0;
+        } else if(this.atomsAddedOrDeletedBetweenFrames(svgFullObject)) {//Lack of particle conservation is a 1
+            rubricScore = 1;
+        } else {
+            //First, do they have the wrong number of CH_{4} in reactants?
+            if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"CH4")) {
+            	rubricScore = 2.1;//wrong number of CH4 in reactants frame
+            } else if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
+            	rubricScore = 2.2;
+            } else if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,0)) {//Now we know you have the right number of CH4, O2 - check if there's nothing extra
+            	rubricScore = 2.3;
+            } else {
+                if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,1)) {//reactants are right, but products are not
+                	rubricScore = 2.4;
+                } else {
+                	rubricScore = 4;
+                }
+            }
+        }  
+        svgFullObject.rubricScore = rubricScore;
+        return rubricScore;
+    }
+    
+    //Compares the given drawing object (contains both frames and has already been annotatd) to the rubric
+    //to assign a numerical integer score. This score is annotated on the object, and returned.
+    //Right now, we just have a hard coded rubric - could think about changing that to allow rubrics
+    //to be specified in the XML for the problem.
+    // Version of rubric from October 2012
+    this.assignEthaneRubricScore = function(svgFullObject) {
+        rubricScore = -1;
+        if(svgFullObject.isCorrect) {//5 for correct, then work up from the bottom
+            rubricScore = 5;
+        } else if(!svgFullObject.hasFrames || someFramesLackImages(svgFullObject)) {//Interface issues get a 0
+            rubricScore = 0;
+        } else if(this.atomsAddedOrDeletedBetweenFrames(svgFullObject)) {//Lack of particle conservation is a 1
+            rubricScore = 1;
+        } else {
+            //First, do they have the wrong number of desired reactants?
+            if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"C2H6") || !this.frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
+            	rubricScore = 2.1;//wrong number of C2H6 or O2 in reactants frame
+            } else if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,0)) {
+            	rubricScore = 2.2;
+            } else {
+                if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,1)) {//reactants are right, but products are not
+                	rubricScore = 2.3;
+                } else {
+                	rubricScore = 4;
+                }
+            }
+        }  
+        svgFullObject.rubricScore = rubricScore;
+        return rubricScore;
+    }
+
     this.assignRubricScore = function(svgFullObject) {
+        problemName = this.getProblemName();
+        if(problemName == "Combust Methane") {
+            return this.assignMethaneRubricScore(svgFullObject);
+        } else if(problemName == "Combust Ethane"){
+            return this.assignEthaneRubricScore(svgFullObject);
+        } else {
+            return this.assignRubricScoreOriginal(svgFullObject);
+        }
+    }
+    
+    //Compares the given drawing object (contains both frames and has already been annotatd) to the rubric
+    //to assign a numerical integer score. This score is annotated on the object, and returned.
+    //Right now, we just have a hard coded rubric - could think about changing that to allow rubrics
+    //to be specified in the XML for the problem.
+    //This is the old version used for studies prior to September 2012 - it assigned on the original 1-5 rubric
+    this.assignRubricScoreOriginal = function(svgFullObject) {
         rubricScore = -1;
         if(svgFullObject.isCorrect) {//5 for correct, then work up from the bottom
             rubricScore = 5;
@@ -1189,6 +1265,30 @@ var DrawScorer = function() {
         }
         var moleculesInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("molecules")[0]);
         return this.frameHasDesiredItems(moleculesInFrame,svg.molecules) && svg.unnamedComponents.length == 0;
+        
+    }
+    
+    //Checks if the given frame has exactly the right number of molecule with the given name. They may not be overlapping.
+    this.frameHasDesiredMoleculeByName = function(svgFullObject, frameID, moleculeName) {
+        if(typeof(svgFullObject.snapshots[frameID]) == "undefined") {
+            return false;
+        }
+        var svg = svgFullObject.snapshots[frameID];
+        if(typeof(svg.molecules) == "undefined") {
+            this.getAllStrictMolecules(svg);
+            this.nameAllMolecules(svg);
+        }
+        var moleculesInFrame = getChildNodesThatAreNotTextNodes(this.getFrame(frameID).getElementsByTagName("molecules")[0]);
+        for(var i = 0; i < moleculesInFrame.length; i++) {
+            if(moleculesInFrame[i].getAttribute('name') == moleculeName) {
+                if(svg.molecules[moleculeName] != moleculesInFrame[i].getAttribute('count')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return svg.molecules[curItem] == 0;
         
     }
     

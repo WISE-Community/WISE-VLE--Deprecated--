@@ -11,10 +11,13 @@ if (top === self) {
     "modules": [],
     "energy_types": [],
     "diagram_rules": [],
+    "rubric_categories": [],
+    "rubricExpression": "true;",
     "correctFeedback": "Your diagram has no obvious problems.",
     "minimum_requirements": [],
     "maxFeedbackItems": 0,
     "minimumRequirementsFeedback": "You need to work more on your diagram to get feedback!",
+    "enableNodeLabelDisplay": true,
     "enableNodeLabelEditing": false,
     "enableNodeDescriptionEditing": false,
     "enableLinkDescriptionEditing": false,
@@ -24,11 +27,16 @@ if (top === self) {
     "maxSubmissionClicks": 0,
     "maxSubmissionFeedback":  "You have clicked 'submit' too many times. Please continue working without hints.",
     "feedbackPanelWidth": 500,
-    "feedbackPanelHeight": 250
+    "feedbackPanelHeight": 250,
+    "terminalRadius": 14,
+    "nodeHeight": 110,
+    "nodeWidth": 110,
+    "backgroundImage": null,
+    "backgroundImageScaling": false
   };
 }
 
-MSA.setupParentIFrame = function(dataHash, updateObject, updateFn) {
+MSA.setupParentIFrame = function(dataHash, updateObject, updateFn, scoreFn) {
   if (typeof dataHash === "undefined" || dataHash === null){
     dataHash = MSA.data;
   }
@@ -37,11 +45,20 @@ MSA.setupParentIFrame = function(dataHash, updateObject, updateFn) {
   if (!dataHash.diagram_rules) {
     dataHash.diagram_rules = [];
   } 
+  if (!dataHash.rubric_categories) {
+    dataHash.rubric_categories = [];
+  }
+  if (!dataHash.rubricExpression) {
+    dataHash.rubricExpression = "true;";
+  }
   if (typeof dataHash.correctFeedback === "undefined" || dataHash.correctFeedback === null){
     dataHash.correctFeedback = "";
   }
   if (typeof dataHash.minimumRequirementsFeedback === "undefined" || dataHash.minimumRequirementsFeedback === null){
     dataHash.minimumRequirementsFeedback = "";
+  }
+  if (typeof dataHash.enableNodeLabelDisplay === "undefined" || dataHash.enableNodeLabelDisplay === null){
+    dataHash.enableNodeLabelDisplay = true;
   }
   if (typeof dataHash.enableNodeLabelEditing === "undefined" || dataHash.enableNodeLabelEditing === null){
     dataHash.enableNodeLabelEditing = false;
@@ -82,23 +99,42 @@ MSA.setupParentIFrame = function(dataHash, updateObject, updateFn) {
   if (typeof dataHash.nodeWidth === "undefined" || dataHash.nodeWidth === null){
     dataHash.nodeWidth = 100;
   }
-  if (typeof dataHash.nodeHeight === "undefined" || dataHash.nodeWidth === null){
-    dataHash.nodeWidth = 110;
+  if (typeof dataHash.nodeHeight === "undefined" || dataHash.nodeHeight === null){
+    dataHash.nodeHeight = 110;
   }
+
+  if (typeof dataHash.backgroundImage === "undefined" || dataHash.backgroundImage === null){
+    dataHash.backgroundImage = null;
+  }
+
+  if (typeof dataHash.backgroundImageScaling === "undefined" || dataHash.backgroundImageScaling === null){
+    dataHash.backgroundImageScaling = false;
+  }
+
   // TODO: migrate objects to have uuids that don't already have them
 
   MSA.loadData(dataHash);
 
   MSA.dataController.addObserver('data', updateObject, updateFn);
+  MSA.rubricCategoriesController.set('scoreFunction',scoreFn);
 };
 
 MSA.loadData = function(dataHash) {
   MSA.data = dataHash;
 
+  // old authored data hasn't specified this.
+  // authoring interface incorrectly checks a box
+  MSA.data.diagram_rules.forEach(function(rule) {
+    if ((typeof rule.isJavascript === 'undefined')) {
+      rule.isJavascript = NO;
+    }
+  });
+  
   MSA.set('activity', MSA.ActivityModel.create({dataHash: MSA.data}));
   MSA.modulesController.setExternalContent(dataHash.modules);
   MSA.energyTypesController.setExternalContent(dataHash.energy_types);
   MSA.diagramRulesController.setExternalContent(dataHash.diagram_rules);
+  MSA.rubricCategoriesController.setExternalContent(dataHash.rubric_categories);
   MSA.minRequirementsController.setExternalContent(dataHash.minimum_requirements);
 };
 
@@ -106,6 +142,7 @@ MSA.ActivityModel = SCUtil.ModelObject.extend({
   correctFeedback: SCUtil.dataHashProperty,
   maxFeedbackItems: SCUtil.dataHashProperty,
   minimumRequirementsFeedback: SCUtil.dataHashProperty,
+  enableNodeLabelDisplay: SCUtil.dataHashProperty,
   enableNodeLabelEditing: SCUtil.dataHashProperty,
   enableNodeDescriptionEditing: SCUtil.dataHashProperty,
   enableLinkDescriptionEditing: SCUtil.dataHashProperty,
@@ -118,7 +155,10 @@ MSA.ActivityModel = SCUtil.ModelObject.extend({
   feedbackPanelHeight: SCUtil.dataHashProperty,
   terminalRadius: SCUtil.dataHashProperty,
   nodeWidth: SCUtil.dataHashProperty,
-  nodeHeight: SCUtil.dataHashProperty
+  nodeHeight: SCUtil.dataHashProperty,
+  backgroundImage: SCUtil.dataHashProperty,
+  backgroundImageScaling: SCUtil.dataHashProperty,
+  rubricExpression: SCUtil.dataHashProperty
 });
 
 MSA.Module = SCUtil.ModelObject.extend( SCUtil.UUIDModel, {
@@ -144,6 +184,7 @@ MSA.EnergyType = SCUtil.ModelObject.extend( SCUtil.UUIDModel, {
 MSA.DiagramRule = SCUtil.ModelObject.extend({
   suggestion: SCUtil.dataHashProperty,
   name: SCUtil.dataHashProperty,
+  category: SCUtil.dataHashProperty,
   comparison: SCUtil.dataHashProperty,
   number: SCUtil.dataHashProperty,
   type: SCUtil.dataHashProperty,
@@ -151,7 +192,13 @@ MSA.DiagramRule = SCUtil.ModelObject.extend({
   linkDirection: SCUtil.dataHashProperty,
   otherNodeType: SCUtil.dataHashProperty,
   energyType: SCUtil.dataHashProperty,
+  javascriptExpression: SCUtil.dataHashProperty,
+  isJavascript: SCUtil.dataHashProperty,
   not: SCUtil.dataHashProperty,
+  defaultDataHash: {
+     "javascriptExpression": "",
+     "isJavascript": false
+  },
   shouldOption: function(key, value) {
     if (value){
       this.set("not", value !== "should");
@@ -160,8 +207,65 @@ MSA.DiagramRule = SCUtil.ModelObject.extend({
   }.property('not'),
   toggleHasLink: function(){
     this.set('hasLink', !this.get('hasLink'));
+  },
+  editorWindow: null,
+  helpDiv: '#ruleHelp',
+  editJSRule: function() {
+    var self = this;
+    var myCallback = function(newValue) {
+      self.set('javascriptExpression',newValue);
+    }.bind(self);
+    MSA.editorController.editCustomRule(this,this.get('javascriptExpression'),myCallback);
   }
 });
+
+MSA.RubricCategory = SCUtil.ModelObject.extend({
+  name: SCUtil.dataHashProperty
+});
+
+MSA.RubricCategoriesController = SCUtil.ModelArray.extend({
+  modelType: MSA.RubricCategory,
+  scoreFunction: null,
+
+  moveItemUp: function(button) {
+    var c = this.get('content');
+    var item = button.get('item');
+    var i = c.indexOf(item.get('dataHash'));
+
+    if (i > 0) {
+      this.contentWillChange();
+      var itemBefore = this.objectAt(i-1);
+      this.replaceContent(i-1, 2, [item, itemBefore]);
+      this.contentDidChange();
+    }
+  },
+
+  moveItemDown: function(button) {
+    var c = this.get('content');
+    var item = button.get('item');
+    var i = c.indexOf(item.get('dataHash'));
+
+    if (i < (c.length-1)) {
+      this.contentWillChange();
+      var itemAfter = this.objectAt(i+1);
+      this.replaceContent(i, 2, [itemAfter, item]);
+      this.contentDidChange();
+    }
+  },
+  
+  showScore: function() {
+    var scoreFunction = this.get('scoreFunction');
+    if (scoreFunction) {
+      scoreFunction();
+    }
+  }
+});
+
+
+MSA.rubricCategoriesController = MSA.RubricCategoriesController.create({
+  content: MSA.data.rubric_categories
+});
+
 
 MSA.modulesController = SCUtil.ModelArray.create({
   content: MSA.data.modules,
@@ -183,6 +287,10 @@ MSA.RulesController = SCUtil.ModelArray.extend({
   energyTypes: function() {
     return MSA.energyTypesController.mapProperty('label').insertAt(0, 'any');
   }.property('MSA.energyTypesController.[]', 'MSA.energyTypesController.@each.label').cacheable(),
+
+  categories: function (){
+    return MSA.rubricCategoriesController.mapProperty('name').insertAt(0, 'none');
+  }.property('MSA.rubricCategoriesController.[]', 'MSA.rubricCategoriesController.@each.name').cacheable(),
 
   comparisons: ['more than', 'less than', 'exactly'],
 
@@ -221,6 +329,8 @@ MSA.diagramRulesController = MSA.RulesController.create({
   content: MSA.data.diagram_rules
 });
 
+
+
 MSA.minRequirementsController = MSA.RulesController.create({
   content: MSA.data.minimum_requirements,
   updateHasRequirements: function() {
@@ -239,6 +349,7 @@ MSA.dataController = SC.Object.create({
              'MSA.minRequirementsController.@each.rev',
              'MSA.activity.correctFeedback',
              'MSA.activity.minimumRequirementsFeedback',
+             'MSA.activity.enableNodeLabelDisplay',
              'MSA.activity.enableNodeLabelEditing',
              'MSA.activity.enableNodeDescriptionEditing',
              'MSA.activity.enableLinkDescriptionEditing',
@@ -252,7 +363,10 @@ MSA.dataController = SC.Object.create({
              'MSA.activity.feedbackPanelHeight',
              'MSA.activity.terminalRadius',
              'MSA.activity.nodeWidth',
-             'MSA.activity.nodeHeight')
+             'MSA.activity.nodeHeight',
+             'MSA.activity.backgroundImage',
+             'MSA.activity.backgroundImageScaling',
+             'MSA.activity.rubricExpression')
 });
 
 MSA.NodeTypesView = SC.CollectionView.extend({
@@ -276,39 +390,79 @@ MSA.TextField = SC.TextField.extend({
   size: null
 });
 
-MSA.customRuleController = SC.Object.create({
+MSA.editorController = SC.Object.create({
+  owner: null,
   editorWindow: null,
+  value: '',
+  callback: function() {},
 
-  editCustomRule: function() {
+  
+  editCustomRule: function(owner,value,callback) {
+    this.registerWindowCallbacks();
+    this.save();// save the previous data back to whomever.
+    this.set('owner',owner);
+    this.set('value',value);
+    this.set('callback',callback);
+
     var editorWindow = this.get('editorWindow');
     var features  = "menubar=no,location=no,titlebar=no,toolbar=no,resizable=yes,scrollbars=yes,status=no,width=750,height=650"; 
-    var javascript = MSA.activity.get('customRuleEvaluator');
 
     // reuse existing window:
     if (editorWindow) {
-      editorWindow.postMessage(javascript,"*");
+      editorWindow.postMessage(value,"*");
       editorWindow.focus();
+      editorWindow.setHelp(owner.helpDiv);
     }
 
     // or create a new one:
     else {
       editorWindow = window.open("ace.html", 'editorwindow', features);
       this.set('editorWindow', editorWindow);
-      editorWindow.srcText = javascript;
+      editorWindow.srcText = value;
+      editorWindow.helpSelector = owner.helpDiv;
       editorWindow.originParent = window;
+    }
+    
+  },
+
+  registerWindowCallbacks: function() {
+    if(this.hasregisteredCallbacks) {
+      return;
     }
     var self = this;
     var updateMessage = function(event) {
       var message = JSON.parse(event.data);
       if (message.javascript) {
-        MSA.activity.set('customRuleEvaluator',message.javascript);
+        self.set('value',message.javascript);
+        self.save();
       }
       if (message.windowClosed) {
         self.set('editorWindow',null);
       }
-    };
-
+    }.bind(self);
     window.addEventListener("message", updateMessage, false);
-  }
+    this.hasregisteredCallbacks = true;
+  },
 
+  save: function() {
+    var value = this.get('value');
+    var callback = this.get("callback");
+    if (callback) {
+      callback(value);
+    }
+    else {
+      console.log("no callback defined");
+    }
+  }
+});
+
+MSA.customRuleController = SC.Object.create({
+  helpDiv: '#evalHelp',
+  editCustomRule: function() {
+    var value = MSA.activity.get('customRuleEvaluator');
+    var callback = function(value) {
+      MSA.activity.set('customRuleEvaluator',value);
+    }.bind(this);
+    MSA.editorController.editCustomRule(this,value,callback);
+  }
 });

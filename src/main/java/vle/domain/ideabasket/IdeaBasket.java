@@ -55,6 +55,30 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	//the time the idea basket was posted
 	@Column(name="postTime")
 	private Timestamp postTime;
+	
+	//the period id of the basket
+	@Column(name="periodId")
+	private Long periodId = null;
+	
+	//whether this basket is a public basket
+	@Column(name="isPublic")
+	private Boolean isPublic = false;
+	
+	//the action that is being performed to create this new basket revision (only used for public idea basket)
+	@Column(name="action")
+	private String action = "";
+	
+	//the workgroup id performing the action to create a new basket revision (only used for public idea basket)
+	@Column(name="actionPerformer")
+	private Long actionPerformer = null;
+	
+	//the idea id for the action being performed (only used for public idea basket)
+	@Column(name="ideaId")
+	private Long ideaId = null;
+	
+	//the workgroup id of the owner of the idea that the action is being performed on (only used for public idea basket)
+	@Column(name="ideaWorkgroupId")
+	private Long ideaWorkgroupId = null;
 
 	/**
 	 * the no args constructor
@@ -62,14 +86,14 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	public IdeaBasket() {
 		
 	}
-	
+
 	/**
 	 * Constructor that does not populate the data field
 	 * @param runId
 	 * @param projectId
 	 * @param workgroupId
 	 */
-	public IdeaBasket(long runId, long projectId, long workgroupId) {
+	public IdeaBasket(long runId, long periodId, long projectId, long workgroupId) {
 		this.runId = runId;
 		this.projectId = projectId;
 		this.workgroupId = workgroupId;
@@ -84,13 +108,37 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 	 * @param workgroupId the id of the workgroup
 	 * @param data the idea basket JSON
 	 */
-	public IdeaBasket(long runId, long projectId, long workgroupId, String data) {
+	public IdeaBasket(long runId, long periodId, long projectId, long workgroupId, String data, boolean isPublic) {
 		this.runId = runId;
 		this.projectId = projectId;
+		this.periodId = periodId;
 		this.workgroupId = workgroupId;
 		Calendar now = Calendar.getInstance();
 		this.postTime = new Timestamp(now.getTimeInMillis());
 		this.data = data;
+		this.isPublic = isPublic;
+	}
+	
+	/**
+	 * Constructor that populates the values
+	 * @param runId the id of the run
+	 * @param projectId the id of the project
+	 * @param workgroupId the id of the workgroup
+	 * @param data the idea basket JSON
+	 */
+	public IdeaBasket(long runId, long periodId, long projectId, long workgroupId, String data, boolean isPublic, String action, Long actionPerformer, Long ideaId, Long ideaWorkgroupId) {
+		this.runId = runId;
+		this.projectId = projectId;
+		this.periodId = periodId;
+		this.workgroupId = workgroupId;
+		Calendar now = Calendar.getInstance();
+		this.postTime = new Timestamp(now.getTimeInMillis());
+		this.data = data;
+		this.isPublic = isPublic;
+		this.action = action;
+		this.actionPerformer = actionPerformer;
+		this.ideaId = ideaId;
+		this.ideaWorkgroupId = ideaWorkgroupId;
 	}
 	
 	public Long getId() {
@@ -141,34 +189,94 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 		this.postTime = postTime;
 	}
 	
+	public Long getPeriodId() {
+		return periodId;
+	}
+
+	public void setPeriodId(Long periodId) {
+		this.periodId = periodId;
+	}
+
+	public Boolean isPublic() {
+		return isPublic;
+	}
+
+	public void setPublic(Boolean isPublic) {
+		this.isPublic = isPublic;
+	}
+	
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	public Long getActionPerformer() {
+		return actionPerformer;
+	}
+
+	public void setActionPerformer(Long actionPerformer) {
+		this.actionPerformer = actionPerformer;
+	}
+
+	public Long getIdeaId() {
+		return ideaId;
+	}
+
+	public void setIdeaId(Long ideaId) {
+		this.ideaId = ideaId;
+	}
+
+	public Long getIdeaWorkgroupId() {
+		return ideaWorkgroupId;
+	}
+
+	public void setIdeaWorkgroupId(Long ideaWorkgroupId) {
+		this.ideaWorkgroupId = ideaWorkgroupId;
+	}
+	
 	@Override
 	protected Class<?> getObjectClass() {
 		return IdeaBasket.class;
 	}
 
 	/**
-	 * Get the JSON string representation of the IdeaBasket
-	 * @return
+	 * Get the JSON object representation of the IdeaBasket
+	 * @return a JSONObject containing the data from the idea basket
 	 */
-	public String toJSONString() {
-		String jsonString = "";
+	public JSONObject toJSONObject() {
+		JSONObject jsonObject = null;
 		
-		jsonString = getData();
+		String dataString = "";
 		
-		if(jsonString == null) {
+		dataString = getData();
+		
+		if(dataString == null) {
+			/*
+			 * the data is null so we will create and return a JSONObject
+			 * that has the metadata for the idea basket
+			 */
 			try {
-				JSONObject jsonObject = new JSONObject();
+				jsonObject = new JSONObject();
 				jsonObject.put("id", getId());
 				jsonObject.put("runId", getRunId());
+				jsonObject.put("periodId", getPeriodId());
 				jsonObject.put("workgroupId", getWorkgroupId());
 				jsonObject.put("projectId", getProjectId());
-				jsonString = jsonObject.toString(3);
+				jsonObject.put("isPublic", isPublic());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		} else {
+			/*
+			 * the data is not null so we will create a JSONObject from
+			 * the data string and inject metadata values if they are
+			 * not already present in the data string
+			 */
 			try {
-				JSONObject jsonObject = new JSONObject(jsonString);
+				jsonObject = new JSONObject(dataString);
 				
 				if(!jsonObject.has("id")) {
 					jsonObject.put("id", getId());
@@ -176,6 +284,10 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 				
 				if(!jsonObject.has("runId")) {
 					jsonObject.put("runId", getRunId());
+				}
+				
+				if(!jsonObject.has("periodId")) {
+					jsonObject.put("periodId", getPeriodId());
 				}
 				
 				if(!jsonObject.has("workgroupId")) {
@@ -186,10 +298,34 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
 					jsonObject.put("projectId", getProjectId());
 				}
 				
-				jsonString = jsonObject.toString(3);
+				if(!jsonObject.has("isPublic")) {
+					jsonObject.put("isPublic", isPublic());
+				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+		}
+		
+		return jsonObject;
+	}
+	
+	/**
+	 * Get the JSON string representation of the IdeaBasket
+	 * @return
+	 */
+	public String toJSONString() {
+		String jsonString = null;
+		
+		//get the JSONObject representation of the idea basket
+		JSONObject jsonObject = toJSONObject();
+
+		try {
+			if(jsonObject != null) {
+				//get the JSON string representation with indentation
+				jsonString = jsonObject.toString(3);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 		
 		return jsonString;
@@ -325,6 +461,14 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
         return result;
 	}
 	
+	/**
+	 * Get all the idea basket revisions for a run. The results will be
+	 * ordered by workgroup id and within the ordered workgroup ids it
+	 * will be ordered by post time
+	 * @param runId the run id
+	 * @return a list of idea baskets ordered by workgroup id and then
+	 * by post time
+	 */
 	public static List<IdeaBasket> getIdeaBasketsForRunId(long runId) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -334,5 +478,31 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
         		Restrictions.eq("runId", runId)).addOrder(Order.asc("workgroupId")).addOrder(Order.asc("postTime")).list();
         session.getTransaction().commit();
         return result;
+	}
+	
+	/**
+	 * Get the latest public idea basket for the given run id, period id
+	 * @param runId the run id
+	 * @param periodId the period id
+	 * @return the latest public idea basket for this run id, period id or null if there is none
+	 */
+	public static IdeaBasket getPublicIdeaBasketForRunIdPeriodId(long runId, long periodId) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        
+        //get the latest idea basket revision that matches
+        List<IdeaBasket> result =  session.createCriteria(IdeaBasket.class).add(
+        		Restrictions.eq("runId", runId)).add(Restrictions.eq("periodId", periodId)).add(Restrictions.eq("isPublic", true)).addOrder(Order.desc("id")).list();
+        session.getTransaction().commit();
+        
+        IdeaBasket ideaBasket = null;
+        if(result.size() > 0) {
+        	/*
+        	 * get the first IdeaBasket from the result list since 
+        	 * that will be the latest revision of that idea basket
+        	 */
+        	ideaBasket = result.get(0);
+        }
+        return ideaBasket;
 	}
 }

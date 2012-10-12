@@ -246,7 +246,7 @@ Mysystem2Node.prototype.getHTMLContentTemplate = function() {
  * @return a boolean value
  */
 Mysystem2Node.prototype.canSpecialExport = function() {
-	return true;
+					 return true;
 };
 
 //Add this node to the node factory so the vle knows it exists.

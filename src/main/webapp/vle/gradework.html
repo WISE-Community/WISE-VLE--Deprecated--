@@ -4,10 +4,14 @@
 <title>Grade By Step</title>
 <script type='text/javascript' src='events/eventmanager.js'></script>
 <script type="text/javascript" src="util/scriptloader.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <!--  
 <script type="text/javascript" src="node/mysystem/mysystem_print.js"></script>
 -->
 <script type="text/javascript">
+
+//load the package to graph google charts
+google.load("visualization", "1", {packages:["corechart"]});
 
 function load(gradingConfigUrl) {
 	eventManager.fire('gradingConfigUrlReceived', [gradingConfigUrl]);

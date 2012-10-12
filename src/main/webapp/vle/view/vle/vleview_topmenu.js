@@ -26,6 +26,8 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 		obj.showStepHints();
 	} else if(type=='getIdeaBasket') {
 		obj.getIdeaBasket();
+	} else if(type=='getPublicIdeaBasket') {
+		obj.getPublicIdeaBasket();
 	} else if(type=='ideaBasketChanged') {
 		/*
 		 * nothing needs to be done here since the idea basket and all the
@@ -955,6 +957,45 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 		//create the IdeaBasket from the JSON and set it into the view
 		thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);
 		thisView.ideaBasket.updateToolbarCount();
+		eventManager.fire('getPublicIdeaBasket');
+	}
+};
+
+/**
+ * Retrieve the public idea basket from the server
+ */
+View.prototype.getPublicIdeaBasket = function() {
+	//get the period id
+	var periodId = parseInt(this.userAndClassInfo.getPeriodId());
+	
+	//set the params we will use in the request to the server
+	var ideaBasketParams = {
+		action:"getPublicIdeaBasket",
+		periodId:periodId
+	};
+	
+	//request the public idea basket from the server
+	this.connectionManager.request('GET', 3, this.getConfig().getConfigParam('getIdeaBasketUrl'), ideaBasketParams, this.getPublicIdeaBasketCallback, {thisView:this});
+};
+
+/**
+ * Callback for when we receive the public idea basket from the server
+ * @param responseText
+ * @param responseXML
+ * @param args
+ */
+View.prototype.getPublicIdeaBasketCallback = function(responseText, responseXML, args) {
+	var thisView = args.thisView;
+	
+	//parse the JSON string
+	var publicIdeaBasketJSONObj = $.parseJSON(responseText);
+	
+	if(publicIdeaBasketJSONObj == null) {
+		//we failed to retrieve the public idea basket
+		thisView.notificationManager.notify(this.getI18NString("idea_basket_retrieval_error"), 3);
+	} else {
+		//set the public idea basket
+		thisView.ideaBasket.setPublicIdeaBasket(publicIdeaBasketJSONObj);
 	}
 };
 
@@ -1244,7 +1285,7 @@ View.prototype.loadIdeaBasket = function() {
 	}
 	
 	//load the idea basket into the iframe
-	window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this, imSettings);
+	window.frames['ideaBasketIfrm'].loadIdeaBasket(ideaBasketJSONObj, true, this, imSettings, this.ideaBasket.publicIdeaBasket);
 };
 
 /**
@@ -1259,9 +1300,378 @@ View.prototype.loadIdeaBasket = function() {
 View.prototype.createIdeaBasket = function(ideaBasketJSONObj) {
 	var imSettings = null;
 	if('ideaManagerSettings' in this.projectMetadata.tools){
-		imSettings = this.projectMetadata.tools.ideaManagerSettings
+		imSettings = this.projectMetadata.tools.ideaManagerSettings;
 	}
 	return new IdeaBasket(ideaBasketJSONObj,null,null,imSettings);
+};
+
+/**
+ * Make an idea public
+ * @param ideaId the idea id
+ */
+View.prototype.makeIdeaPublic = function(ideaId) {
+	//get the workgroup id
+	var workgroupId = this.getUserAndClassInfo().getWorkgroupId();
+	
+	//get the idea
+	var idea = window.frames['ideaBasketIfrm'].basket.getIdeaById(ideaId);
+	
+	//set this student's workgroup id into the idea
+	idea.workgroupId = workgroupId;
+	
+	if(idea.publishers == null) {
+		//create the publishers array if it does not already exist
+		idea.publishers = [];
+	}
+	
+	/*
+	 * add an entry into the publishers array which will contain
+	 * the idea id and workgroup id so we have a history that
+	 * remembers who have published this idea
+	 */
+	var publisherEntry = {
+		ideaId:parseInt(ideaId),
+		workgroupId:parseInt(workgroupId)
+	};
+	
+	idea.publishers.push(publisherEntry);
+	
+	/*
+	 * clear out the workgroups that have copied since this will
+	 * be a new public idea. workgroupIdsThatHaveCopied may contain
+	 * elements if this idea was originally copied from the public
+	 * basket.
+	 */
+	idea.workgroupIdsThatHaveCopied = [];
+	
+	idea.isPublishedToPublic = true;
+	
+	//get the idea as a string
+	var ideaString = $.stringify(idea);
+	
+	//create the params for the request
+	var ideaBasketParams = {
+		action:"addPublicIdea",
+		ideaId:ideaId,
+		ideaString:ideaString,
+		workgroupId:workgroupId
+	};
+	
+	//make the request to add this idea as a public idea
+	this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.makeIdeaPublicCallback, {thisView:this, ideaId:ideaId});	
+};
+
+/**
+ * Callback for making an idea public
+ * @param responseText the public idea basket JSON string
+ * @param responseXML
+ * @param args
+ */
+View.prototype.makeIdeaPublicCallback = function(responseText, responseXML, args) {
+	if(responseText != null && responseText != '') {
+		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
+		
+		if(publicIdeaBasketJSONObj == null) {
+			//we failed to retrieve the public idea basket
+			alert('Error: Failed to retrieve the public idea basket');
+		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
+			//there was an error so we will display the message in a popup
+			alert(publicIdeaBasketJSONObj.errorMessage);
+		} else {
+			//set the sharing status to Public
+			window.frames['ideaBasketIfrm'].basket.setSharingStatusPublic();
+			
+			//set the updated public idea basket
+			window.frames['ideaBasketIfrm'].basket.setPublicIdeaBasket(publicIdeaBasketJSONObj);
+			
+			//load the updated public idea basket
+			window.frames['ideaBasketIfrm'].basket.loadPublicIdeaBasket();
+			
+			//get the idea that we made public
+			var ideaId = args.ideaId;
+			
+			//get the idea
+			var idea = window.frames['ideaBasketIfrm'].basket.getIdeaById(ideaId);
+			
+			/*
+			 * set this isPublishedToPublic field to true so we can easily tell
+			 * if this idea is currently in the public idea basket
+			 */
+			idea.isPublishedToPublic = true;
+			
+			/*
+			 * set the private idea basket to changed so it will save the 
+			 * changes to our idea that we made public
+			 */
+			window.frames['ideaBasketIfrm'].basket.setBasketChanged(true);
+		}
+	}
+};
+
+/**
+ * Make an idea private. This is makes a public idea no longer public.
+ * @param ideaId the idea id to make private
+ */
+View.prototype.makeIdeaPrivate = function(ideaId) {
+	//get the workgroup id
+	var workgroupId = this.getUserAndClassInfo().getWorkgroupId();
+	
+	//get the params for making the request
+	var ideaBasketParams = {
+		action:"deletePublicIdea",
+		ideaId:ideaId,
+		workgroupId:workgroupId
+	};
+	
+	//make the request to make this idea private
+	this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.makeIdeaPrivateCallback, {thisView:this, ideaId:ideaId});	
+};
+
+/**
+ * Callback for making an idea private
+ * @param responseText the public idea basket JSON string
+ * @param responseXML
+ * @param args
+ */
+View.prototype.makeIdeaPrivateCallback = function(responseText, responseXML, args) {
+	if(responseText != null && responseText != '') {
+		//get the public idea basket as a JSON object
+		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
+		
+		if(publicIdeaBasketJSONObj == null) {
+			//we failed to retrieve the public idea basket
+			alert('Error: Failed to retrieve the public idea basket');
+		} else if(publicIdeaBasketJSONObj.errorMessage != null) {
+			//there was an error so we will display it in a popup
+			alert(publicIdeaBasketJSONObj.errorMessage);
+		} else {
+			//set the sharing status to private
+			window.frames['ideaBasketIfrm'].basket.setSharingStatusPrivate();
+			
+			//set the updated public idea basket
+			window.frames['ideaBasketIfrm'].basket.setPublicIdeaBasket(publicIdeaBasketJSONObj);
+			
+			//load the updated public idea basket
+			window.frames['ideaBasketIfrm'].basket.loadPublicIdeaBasket();
+			
+			//get the idea id of the idea we made private
+			var ideaId = args.ideaId;
+			
+			//get the idea
+			var idea = window.frames['ideaBasketIfrm'].basket.getIdeaById(ideaId);
+			
+			/*
+			 * set this isPublishedToPublic field to false so we can easily tell
+			 * that this idea is not currently in the public idea basket
+			 */
+			idea.isPublishedToPublic = false;
+			
+			/*
+			 * set the private idea basket to changed so it will save the 
+			 * changes to our idea that we made public
+			 */
+			window.frames['ideaBasketIfrm'].basket.setBasketChanged(true);
+		}
+	}
+};
+
+/**
+ * Copy a public idea
+ * @param ideaWorkgroupId the workgroup id that owns the idea
+ * @param ideaId the idea id
+ */
+View.prototype.copyPublicIdea = function(ideaWorkgroupId, ideaId) {
+	//get the current workgroup id
+	var workgroupId = this.getUserAndClassInfo().getWorkgroupId();
+	
+	//check if the idea exists in the private basket
+	var isPublicIdeaInPrivateBasket = window.frames['ideaBasketIfrm'].basket.isPublicIdeaInPrivateBasket(ideaWorkgroupId, ideaId);
+	
+	if(isPublicIdeaInPrivateBasket) {
+		//the public idea is already in the private basket 
+		alert('Error: This idea is already in your basket');
+	} else if(workgroupId == ideaWorkgroupId) {
+		/*
+		 * the student is trying to copy their own idea that is in
+		 * the public basket which is not allowed
+		 */ 
+		alert('Error: You are not allowed to copy your own public idea');
+	} else {
+		//we will copy the public idea into our private basket
+		var ideaBasketParams = {
+			action:"copyPublicIdea",
+			ideaId:ideaId,
+			workgroupId:ideaWorkgroupId
+		};
+			
+		//make the request to copy the public idea
+		this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.copyPublicIdeaCallback, {thisView:this, ideaWorkgroupId:ideaWorkgroupId, ideaId:ideaId});	
+	}
+};
+
+/**
+ * Callback for copying a public idea
+ * @param responseText the public idea basket JSON string
+ * @param responseXML
+ * @param args
+ */
+View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args) {
+	//get the view
+	var thisView = args.thisView;
+	
+	//get the workgroup id of the owner of the public idea
+	var ideaWorkgroupId = args.ideaWorkgroupId;
+	
+	//get the idea id
+	var ideaId = args.ideaId;
+
+	//get the workgroup id of the logged in student
+	var workgroupId = thisView.getUserAndClassInfo().getWorkgroupId();
+	
+	if(responseText != null && responseText != '') {
+		//create the public idea basket JSON object
+		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
+		
+		if(publicIdeaBasketJSONObj == null) {
+			//we failed to retrieve the public idea basket
+			alert('Error: Failed to retrieve the public idea basket');
+		} else {
+			if(publicIdeaBasketJSONObj.errorMessage != null) {
+				//there was an error so we will display it in a popup
+				alert(publicIdeaBasketJSONObj.errorMessage);
+			}
+			
+			if(publicIdeaBasketJSONObj.ideas != null) {
+				/*
+				 * the public idea basket was returned which means we will
+				 * copy the public idea and make a private idea from it
+				 */
+				
+				//get all the public ideas
+				var publicIdeas = publicIdeaBasketJSONObj.ideas;
+				var copiedPublicIdea = null;
+				
+				if(publicIdeas != null) {
+					//loop through all the public ideas
+					for(var x=0; x<publicIdeas.length; x++) {
+						//get a public idea
+						var publicIdea = publicIdeas[x];
+						
+						//get the public idea workgroup id
+						var tempWorkgroupId = publicIdea.workgroupId;
+						
+						//get the public idea id
+						var tempIdeaId = publicIdea.id;
+						
+						if(ideaWorkgroupId == tempWorkgroupId && ideaId == tempIdeaId) {
+							//we have found the public idea that we want to copy
+							
+							//create a copy of the public idea
+							var copiedPublicIdeaString = $.stringify(publicIdea);
+							copiedPublicIdea = $.parseJSON(copiedPublicIdeaString);
+							
+							break;
+						}
+					}
+				}
+				
+				if(copiedPublicIdea != null) {
+					/*
+					 * set the workgroup id in the idea to the logged in workgroup id
+					 * since the logged in workgroup id is now the owner of this idea
+					 * since it is a private idea
+					 */
+					copiedPublicIdea.workgroupId = workgroupId;
+					
+					//set the idea id
+					copiedPublicIdea.id = window.frames['ideaBasketIfrm'].basket.getNextIdeaIdAndIncrement();
+					
+					//add the idea to the private idea basket
+					copiedPublicIdea.wasCopiedFromPublic = true;
+					copiedPublicIdea.isPublishedToPublic = false;
+					window.frames['ideaBasketIfrm'].basket.ideas.push(copiedPublicIdea);
+					window.frames['ideaBasketIfrm'].basket.addRow(0, copiedPublicIdea, true);
+					window.frames['ideaBasketIfrm'].basket.updateToolbarCount();
+					window.frames['ideaBasketIfrm'].basket.setBasketChanged(true);
+					
+					alert('Successfully copied Public Idea');
+				}
+			}
+		}		
+	}
+};
+
+/**
+ * Uncopy a public idea. This occurs when a public idea is copied and becomes
+ * and private idea. Then that private idea is moved to the trash. We need
+ * to make a request when this happens because we keep track of all the
+ * workgroup ids that have copied the public idea. We will need to remove
+ * this workgroup id from that array that is used to keep track.
+ * @param ideaId the idea id to uncopy
+ */
+View.prototype.uncopyPublicIdea = function(ideaId) {
+	//get the currently logged in workgroup id
+	var workgroupId = this.getUserAndClassInfo().getWorkgroupId();
+	
+	//get the idea
+	var idea = window.frames['ideaBasketIfrm'].basket.getIdeaById(ideaId);
+	
+	if(idea.wasCopiedFromPublic) {
+		/*
+		 * the idea was copied from the public basket so we will
+		 * make a request to uncopy it
+		 */
+
+		var publishers = idea.publishers;
+		var publisherIdeaId = null;
+		var publisherWorkgroupId = null;
+		
+		if(publishers != null && publishers.length > 0) {
+			var publisher = publishers[publishers.length - 1];
+			
+			publisherIdeaId = publisher.ideaId;
+			publisherWorkgroupId = publisher.workgroupId;
+		}
+		
+		var ideaBasketParams = {
+			action:"uncopyPublicIdea",
+			ideaId:publisherIdeaId,
+			workgroupId:publisherWorkgroupId
+		};
+
+		//make the request to uncopy the idea
+		this.connectionManager.request('POST', 3, this.getConfig().getConfigParam('postIdeaBasketUrl'), ideaBasketParams, this.uncopyPublicIdeaCallback, {thisView:this, workgroupId:workgroupId, ideaId:ideaId});	
+	}
+};
+
+/**
+ * Callback for uncopying an idea
+ * @param responseText the public idea basket as a JSON string
+ * @param responseXML
+ * @param args
+ */
+View.prototype.uncopyPublicIdeaCallback = function(responseText, responseXML, args) {
+	var thisView = args.thisView;
+	var workgroupId = args.workgroupId;
+	var ideaId = args.ideaId;
+	
+	if(responseText != null && responseText != '') {
+		//get the public idea basket as a JSON object
+		var publicIdeaBasketJSONObj = $.parseJSON(responseText);
+		
+		if(publicIdeaBasketJSONObj == null || publicIdeaBasketJSONObj.errorMessage != null) {
+			//there was an error so we will display the message in a popup
+			alert(publicIdeaBasketJSONObj.errorMessage);
+		} else {
+			//update the public idea basket
+			
+			//set the updated public idea basket
+			window.frames['ideaBasketIfrm'].basket.setPublicIdeaBasket(publicIdeaBasketJSONObj);
+			
+			//load the updated public idea basket
+			window.frames['ideaBasketIfrm'].basket.loadPublicIdeaBasket();
+		}
+	}
 };
 
 /* used to notify scriptloader that this script has finished loading */

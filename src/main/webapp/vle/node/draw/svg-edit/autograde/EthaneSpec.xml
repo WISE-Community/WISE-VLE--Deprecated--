@@ -86,6 +86,8 @@
 	<molecules>
 		<molecule name="C2H6" count="2"/>
 		<molecule name="O2" count = "10"/>
+		<molecule name="H2O" count="0"/>
+		<molecule name="CO2" count="0"/>
 	</molecules>
 </frame>
 <frame id="1">
@@ -98,6 +100,7 @@
 		<molecule name="CO2" count="4"/>
 		<molecule name="H2O" count="6"/>
 		<molecule name="O2" count="3"/>
+		<molecule name="C2H6" count="0"/>
 	</molecules>
 </frame>
 <problemDescription name="Combust Ethane">Students use stamps to make 2 C2H6 molecules (ethane) and 10 O2 molecules in Frame 1. They recombine these molecules in Frame 2 to form 4 CO2 molecules, 6 H2O molecules, and 3 O2 molecules. Some of the O2 molecules are thus spectators.</problemDescription>
