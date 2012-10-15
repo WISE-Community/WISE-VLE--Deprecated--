@@ -32,9 +32,9 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
 	// *REQUIRED*: the classString param should be added to the class attribute
 	// *OPTIONAL*: If you want to include an element that shows the steps within this activity (and hides the steps in other activities), add an onclick event that runs this javascript code: eventManager.fire('toggleSequence','" + position + "');
 	// (see sequenceOpened and sequenceClosed prototype functions below for more details on toggling activity displays)
-	// *SUGGESTED*: if you want to display the activity's title, include the title param
+	// *SUGGESTED*: if you want to display the activity's title and position, include the title and position params (add 1 to the position to show the correct sequence number)
 	var html = "<ul name='menuItem' class='"+ classString + "' id='" + stepId + "'>" +
-			"<li class='sequenceTitle'><a onclick='eventManager.fire(\"toggleSequence\", \"" + position + "\")'>" + title + "</a></li>" +
+			"<li class='sequenceTitle'><a onclick='eventManager.fire(\"toggleSequence\", \"" + position + "\")'>" + (position+1) + ": " + title + "</a></li>" +
 			"</ul>";
 	return html;
 };
