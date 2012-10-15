@@ -102,36 +102,40 @@ var notificationManager = {
 		}
 	},
 	notifyAlert: function(msg, messageClass, divId){
-		new AlertObject(this.generateUniqueMessageDiv(messageClass, divId), msg, this.mode, divId);
+		new AlertObject(this.generateUniqueMessage(messageClass, divId), msg, this.mode, divId);
 	},
-	generateUniqueMessageDiv: function(messageClass, divId){
-		var customClass = '';
+	generateUniqueMessage: function(messageClass, divId){
+		var customClass = '', msgId = 'vle_messages', mode = '';
+		if(this.mode){
+			mode = this.mode;
+		}
 		if(messageClass){
 			customClass = messageClass;
+		}
+		if(mode=='authoring'){
+			customClass += ' authorMsg';
+		}
+		if(typeof divId == 'string'){
+			msgId = divId;
+		} else if (mode == 'authoring'){
+			msgId = 'author_messages';
 		}
 		var id = 'message_' + this.count;
 		if($('#' + id).size()!=0){
 			this.count ++;
-			return generateUniqueMessageDiv();
+			return generateUniqueMessage();
 		} else {
 			$('.message').each(function(){
 				if(!$(this).hasClass('keepMsg')){
 					$(this).remove(); // remove any existing alerts
 				}
 			});
-			$('.authoringMessages').each(function(){
-				if(!$(this).hasClass('keepMsg')){
-					$(this).remove(); // remove any existing alerts
-				}
-			});
-			//if in authoring mode
-			if(this.mode && this.mode=='authoring'){
-				$('#notificationDiv').append('<div class="authoringMessages ' + customClass + '"><span id="' + id + '" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></span></div>');
-			} else if(divId != null) {
-				$('#' + divId).append('<div id="' + id + '" class="' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
+			//insert message into DOM
+			 if(divId != null || mode != '') {
+				$('#' + msgId).append('<div id="' + id + '" class="message ' + customClass + '"><div class="content"></div></div>');
 			} else {
 				//$('body').append('<div id="' + id + '" class="message ' + customClass + '" style="display:none;" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></div>');
-				$('#vle_messages').append('<div id="' + id + '" class="message ' + customClass + '" style="opacity:0;"><span class="content"></span><a class="hide" title="Dismiss" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></a></div>');
+				$('#vle_messages').append('<div id="' + id + '" class="message ' + customClass + '"><div class="content"></div><a class="hide" title="Dismiss" onClick="notificationEventManager.fire(\'removeMsg\',\'' + id + '\')"></a></div>');
 			}
 			this.count ++;
 			return id;
@@ -196,13 +200,13 @@ var notificationManager = {
 };
 
 /**
- * The Alert Object takes a html div element and a message, displays the given
- * message at the top of the page for the time specified in MSG_TIME and then
- * removes the element from the page.
+ * The Alert Object takes a html block element and a message, displays the given
+ * message in the element for the time specified in MSG_TIME and then
+ * removes the message from the page.
  */
 function AlertObject(elId, msg, mode, divId){
 	
-	this.MSG_TIME = 10000;
+	this.MSG_TIME = 20000;
 	this.elId = elId;
 	this.msg = msg;
 	if(mode){
@@ -210,31 +214,37 @@ function AlertObject(elId, msg, mode, divId){
 	}
 	notificationEventManager.subscribe('removeMsg', this.removeMsg, this);
 	if(this.mode && this.mode == 'authoring'){
-		this.MSG_TIME = 30000;
-		$('#' + this.elId).prepend(msg);
-		eventManager.fire('browserResize');
-		if(!$('#' + this.elId).parent().hasClass('keepMsg')){
-			setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
-		}
-	} else {
-		//insert the message into the div
-		if($('#' + this.elId).length){
-			$('#' + this.elId + '> .content').html(msg);
-		} else {
-			$('#' + this.elId).html(msg);
-		}
+		//this.MSG_TIME = 30000;
 		
-		//show the div
-		$('#' + this.elId).show();
-		//$('#' + this.elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
-		var msgHeight = $('#vle_messages').height();
-		$('#' + this.elId).animate({opacity:1});
-		$('#vle_body').css({top:msgHeight});
-		eventManager.fire('browserResize');
-		if(!$('#' + this.elId).hasClass('keepMsg')){
-			setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
-		}
+		//$('#' + this.elId).prepend(msg);
+		//eventManager.fire('browserResize');
+		//if(!$('#' + this.elId).parent().hasClass('keepMsg')){
+			//setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
+		//}
+	} //else {
+	
+	//insert the message into the div
+	if($('#' + this.elId).length){
+		$('#' + this.elId + '> .content').html(msg);
+	} else {
+		$('#' + this.elId).html(msg);
 	}
+	
+	//show the div
+	$('#' + this.elId).hide();
+	$('#' + this.elId).fadeIn();
+	//$('#' + this.elId).css({'display':'block', 'left':(document.body.clientWidth / 2) - 150, 'top':(document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)});
+	
+	// if in project view, set #vle_body top position
+	var msgHeight = $('#vle_messages').height();
+	//$('#' + this.elId).animate({opacity:1});
+	$('#vle_body').css({top:msgHeight});
+	eventManager.fire('browserResize');
+	
+	if(!$('#' + this.elId).hasClass('keepMsg')){
+		setTimeout('notificationEventManager.fire("removeMsg","' + this.elId + '")', this.MSG_TIME);
+	}
+	//}
 	
 };
 
@@ -243,16 +253,19 @@ function AlertObject(elId, msg, mode, divId){
  */
 AlertObject.prototype.removeMsg = function(type,args,obj){
 	if(args[0]==obj.elId){
-		var mode = obj.mode;
-		if(mode && mode=='authoring'){
-			$('#' + obj.elId).parent().remove();
-			$('#notificationDiv').css('margin-top','.25em');
-		} else {
-			$('#' + obj.elId).remove();
-			// if in project view, reset #vle_body top position
-			var msgHeight = $('#vle_messages').height();
-			$('#vle_body').css({top:msgHeight});
-		}
+		//var mode = obj.mode;
+		//if(mode && mode=='authoring'){
+			//$('#' + obj.elId).parent().remove();
+			//$('#notificationDiv').css('margin-top','.25em');
+		//} else {
+		$('#' + obj.elId).fadeOut(function(){
+			$(this).remove();
+		});
+			
+		// if in project view, reset #vle_body top position
+		var msgHeight = $('#vle_messages').height();
+		$('#vle_body').css({top:msgHeight});
+		//}
 		eventManager.fire('browserResize');
 		notificationEventManager.fire('alertClosing', obj.msg);
 	}

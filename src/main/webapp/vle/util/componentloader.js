@@ -334,7 +334,16 @@ var componentloader = function(em, sl){
 				portalProjectId:undefined, 
 				portalCurriculumBaseDir:undefined, 
 				excludedPrevWorkNodes:['HtmlNode', 'OutsideUrlNode', 'MySystemNode', 'SVGDrawNode', 'MWNode', 'DrawNode','DuplicateNode'], 
-				allowedAssetExtensions:['jpg', 'jpeg', 'gif', 'png', 'swf', 'flv', 'bmp', 'tif', 'pdf', 'nlogo', 'jar', 'cml', 'mml', 'otml', 'mov', 'mp4', 'mp3', 'wav', 'aac', 'avi', 'wmv', 'mpg', 'mpeg', 'ogg', 'css'],
+				allowedAssetExtensions:['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tif', 'mp4', 'webm', 'ogg', 'ogv', 'm4v', 'mpg', 'mpeg', 'mov', 'avi', 'wmv', 'mp3', 'm4a', 'oga', 'aac', 'wav', 'swf', 'flv', 'f4v', 'pdf', 'nlogo', 'jar', 'cml', 'mml', 'otml', 'css'],
+				allowedExtensionsByType:{
+					image:['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tif'],
+					video:['mp4', 'webm', 'ogg', 'ogv', 'm4v', 'mpg', 'mpeg', 'mov', 'avi', 'wmv'],
+					audio:['mp3', 'm4a', 'oga', 'aac', 'wav'],
+					flash:['swf'],
+					flashvideo:['flv', 'f4v'],
+					java:['nlogo', 'jar', 'cml', 'mml', 'otml'],
+					misc:['pdf', 'css']
+				},
 				MAX_ASSET_SIZE:10485760, 
 				currentStepNum:undefined, 
 				activeNode:undefined, 
@@ -411,7 +420,8 @@ var componentloader = function(em, sl){
 				'processChoice':[null,null], 
 				'editProjectFile':[null,null], 
 				'updateAudio':[null,null], 
-				'editProjectMetadata':[null,null], 
+				'editProjectMetadata':[null,null],
+				'editIMSettings':[null,null],
 				'saveStep':[null,null], 
 				'saveAndCloseStep':[null,null], 
 				'authorStepModeChanged':[null,null], 
@@ -559,6 +569,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('disengageSelectMode', view.selectDispatcher, view);
 					view.eventManager.subscribe('processChoice', view.selectDispatcher, view);
 					view.eventManager.subscribe('editProjectMetadata', view.metaDispatcher, view);
+					view.eventManager.subscribe('editIMSettings', view.metaDispatcher, view);
 					view.eventManager.subscribe('maxScoreUpdated', view.metaDispatcher, view);
 					view.eventManager.subscribe('postLevelChanged', view.metaDispatcher, view);
 					view.eventManager.subscribe('setLastEdited', view.metaDispatcher, view);
@@ -680,6 +691,7 @@ var componentloader = function(em, sl){
 					view.initializeImportViewDialog();
 					view.initializeAnalyzeProjectDialog();
 					view.initializeEditTitleDialog();
+					view.initializeEditIMSettingsDialog();
 										
 					window.onunload = env.onWindowUnload;
 				}

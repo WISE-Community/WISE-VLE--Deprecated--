@@ -575,7 +575,9 @@ table.wisetable {
 }
 
 table.wisetable th {
-	border-bottom: 2px solid #777;
+	border-width:0 1px 2px;
+	border-style:solid;
+	border-color:transparent transparent #777;
 	color: #444;
 	font-weight: bold;
 	padding: .25em .5em;
@@ -613,7 +615,7 @@ table.wisetable.scroll tr.odd {
 
 table.wisetable.scroll tbody tr:hover {
 	background-color:#F2F5DB;
-	cursor:default;
+	cursor:pointer;
 }
 
 table.wisetable.scroll tbody tr.selected {

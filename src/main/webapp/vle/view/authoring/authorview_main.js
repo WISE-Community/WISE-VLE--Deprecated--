@@ -2,13 +2,14 @@
  * Functions related to the main layout of the project in the authoring view
  * 
  * @author patrick lawler
+ * @authopr jonathan lim-breitbart
  */
 
 /**
  * Creates the html elements necessary for authoring the currently
  * opened project.
  */
-View.prototype.generateAuthoring = function(){
+/*View.prototype.generateAuthoring = function(){
 	var parent = document.getElementById('dynamicProject');
 	$('#projectButtons button').removeAttr('disabled');
 	
@@ -127,7 +128,7 @@ View.prototype.generateAuthoring = function(){
 		eventManager.fire('browserResize');
 	});
 	eventManager.fire('browserResize');
-};
+};*/
 
 /**
  * Generates the individual html elements that represent the given node and
@@ -136,11 +137,11 @@ View.prototype.generateAuthoring = function(){
  * @param node - the node to represent
  * @param parentNode - the node's parent, can be null
  * @param el - the parent element that this element will append to
- * @param depth - depth (how many ancestors does it have
+ * @param depth - depth (how many ancestors does it have)
  * @param pos - position in reference to its siblings (if no parent or siblings, this will be 0)
  */
-View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
-	//create an id that represents this nodes absolute position in the project/sequence
+/*View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
+	//create an id that represents this node's absolute position in the project/sequence
 	if(parentNode){
 		var absId = parentNode.id + '--' + node.id + '--' + pos;
 	} else {
@@ -159,22 +160,22 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	//create and append element representing this node
 	var mainTR = createElement(document, 'tr');
 	var mainDiv = null;
-	if(absId.match(/null.*/) || absId.match(/master.*/)){
+	if(absId.match(/null.*//*) || absId.match(/master.*//*)){
 		mainDiv = createElement(document, 'div', {id: absId, onclick: 'eventManager.fire("selectClick","' + absId + '")', onMouseOver: 'eventManager.fire("checkAndSelect","' + absId + '")', onMouseOut: 'eventManager.fire("checkAndDeselect","' + absId + '")'});
 	} else {
 		mainDiv = createElement(document, 'div', {id: absId, onclick: 'eventManager.fire("selectClick","' + absId + '")', ondblclick: 'eventManager.fire("author", "' + absId + '----' + node.id + '")', onMouseOver: 'eventManager.fire("checkAndSelect","' + absId + '")', onMouseOut: 'eventManager.fire("checkAndDeselect","' + absId + '")'});
 	}
 	var taskTD = createElement(document, 'td');
 	var mainTD = createElement(document, 'td');
-	el.appendChild(mainTR);
+	el.appendChild(	);
 	mainTR.appendChild(taskTD);
 	mainTR.appendChild(mainTD);
 	
 	//create space according to the depth of this node
-	/*var tabs = "";
-	for(var b=0;b<depth;b++){
-		tabs += this.tab;
-	}*/
+	//var tabs = "";
+	//for(var b=0;b<depth;b++){
+		//tabs += this.tab;
+	//}
 	
 	//create space according to the depth of this node
 	var indent = 0;
@@ -190,7 +191,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	
 	if(node.type=='sequence'){
 		var seqTitleDiv = createElement(document, 'div', {id: 'seqTitleDiv_' + absId});
-		if(absId.match(/null.*/)){
+		if(absId.match(/null.*//*)){
 			var titleText = document.createTextNode('Activity: ');
 		} else {
 			var titleText = document.createTextNode('Activity ' + this.currentSeqNum + ': ');
@@ -282,7 +283,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		}
 		
 		var titletext = '';
-		if(absId.match(/null.*/)){
+		if(absId.match(/null.*//*)){
 			var titleText = document.createTextNode(this.getProject().getStepTerm() + ': ');
 		} else {
 			var titleText = document.createTextNode(this.getProject().getStepTerm() + ' ' + this.getProject().getVLEPositionById(node.id) + ': ');
@@ -302,12 +303,12 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		mainDiv.appendChild(selectDrop);
 		
 		var nodeClassesForNode = [];
-		var nodeIconPath;
+		var nodeIconPath;*/
 
 		/* check to see if current node is in nodeTypes, if not ignore so that authoring 
 		 * tool will continue processing remaining nodes. Resolve duplicate nodes to the
 		 * type of the node that they represent */
-		if(node.type=='DuplicateNode'){
+		/*if(node.type=='DuplicateNode'){
 			nodeClassesForNode = this.nodeClasses[node.getNode().type];
 			nodeIconPath = this.nodeIconPaths[node.getNode().type];
 		} else {
@@ -332,14 +333,14 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 					selectDrop.selectedIndex = x + 1;
 				}
 			}
-		}
+		}*/
 		
 		/* add max scores input field. values will be set on retrieval of metadata */
-		var maxScoreText = document.createTextNode('Max Score: ');
+		/*var maxScoreText = document.createTextNode('Max Score: ');
 		var maxScoreInput = createElement(document, 'input', {type: 'text', 'class':'maxScoreInput', title: 'Click to Edit Maximum Score', id: 'maxScore_' + node.id, 'size':'2', onchange: 'eventManager.fire("maxScoreUpdated","'+ node.id + '")'});
 		mainDiv.appendChild(createSpace());
 		mainDiv.appendChild(maxScoreText);
-		mainDiv.appendChild(maxScoreInput);
+		mainDiv.appendChild(maxScoreInput);*/
 		
 		/* add link to revert node to its original state when version was created
 		var revertNodeLink = createElement(document, 'a', {class: 'revertNodeLink', id:'revertNode_' + node.id, value:'Revert Node', onclick: 'eventManager.fire("versionRevertNode","' + node.id + '")'});
@@ -350,7 +351,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		/* Add button to reference work to student's work in other steps, if this is
 		 * a duplicate node, the type should be resolved to that of the node that it
 		 * represents. */
-		if(node.type=='DuplicateNode'){
+		/*if(node.type=='DuplicateNode'){
 			var ndx2 = this.excludedPrevWorkNodes.indexOf(node.getNode().type);
 		} else {
 			var ndx2 = this.excludedPrevWorkNodes.indexOf(node.type);
@@ -379,11 +380,476 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	if(!$(mainDiv).hasClass('master')){
 		var selectBox = createElement(document, 'input', {id:'select_' + node.id, type:'checkbox', 'class':'selectNodeInput', title:'Click to Select', onclick:'eventManager.fire("selectBoxClick","'+absId+'")'});
 		$(mainDiv).prepend(selectBox);
+	}*/
+
+	/* generate the node elements for any children that this node has */
+	/*for(var a=0;a<node.children.length;a++){
+		this.generateNodeElement(node.children[a], node, el, depth + 1, a);
 	}
+};*/
+
+/**
+ * Creates the html elements necessary for authoring the currently
+ * opened project.
+ */
+View.prototype.generateAuthoring = function(){
+	var view = this,
+		$parent = $('#dynamicProject');
+	//$('#projectButtons button').removeAttr('disabled');
+	
+	//remove any old elements and clear variables
+	$parent.empty();
+	this.currentStepNum = 1;
+	this.currentSeqNum = 1;
+	
+	//set up project table
+	/*var tab = createElement(document, 'table', {id: 'projectTable'});
+	var tHead = createElement(document, 'thead', {id: 'projectTableHead'});
+	var tBod = createElement(document, 'tbody', {id: 'projectTableBody'});
+	var existingRow = createElement(document, 'tr', {id: 'existingRow'});
+	var unattachedSequenceRow = createElement(document, 'tr', {id: 'unattachedSequenceRow'});
+	var unattachedNodeRow = createElement(document, 'tr', {id: 'unattachedNodeRow'});
+	
+	$parent.append(tab);
+	tab.appendChild(tHead);
+	tab.appendChild(tBod);
+	tBod.appendChild(existingRow);
+	tBod.appendChild(unattachedSequenceRow);
+	tBod.appendChild(unattachedNodeRow);
+	
+	//generate existing project structure
+	var existingTable = createElement(document, 'table', {id: 'existingTable'});
+	var existingTH = createElement(document, 'thead', {id: 'existingTableHead'});
+	var existingTB = createElement(document, 'tbody', {id: 'existingTableBody'});
+	existingRow.appendChild(existingTable);
+	existingTable.appendChild(existingTH);
+	existingTable.appendChild(existingTB);*/
+	
+	// generate active project structure container
+	var activeContainer = createElement(document,'div',{id: 'activeContainer'});
+	$parent.append(activeContainer);
+	
+	if(this.project.getRootNode()){
+		this.generateNodeElement(this.project.getRootNode(), null, activeContainer, 0, 0);
+	};
+	
+	//generate unattached nodes
+	/*var uSeqTable = createElement(document, 'table', {id: 'unusedSequenceTable'});
+	var uSeqTH = createElement(document, 'thead');
+	var uSeqTB = createElement(document, 'tbody', {id: 'unusedSequenceTableBody'});
+	var uSeqTR = createElement(document, 'tr', {id: 'unusedSequenceTitleRow'});
+	var uSeqETD = createElement(document, 'td');
+	var uSeqTD = createElement(document, 'td');
+	
+	unattachedSequenceRow.appendChild(uSeqTable);
+	uSeqTable.appendChild(uSeqTH);
+	uSeqTable.appendChild(uSeqTB);
+	uSeqTB.appendChild(uSeqTR);
+	uSeqTR.appendChild(uSeqETD);
+	uSeqTR.appendChild(uSeqTD);
+	
+	var unusedSeqDiv = createElement(document, 'div', {id: 'uSeq', 'class': 'uSeq', onclick: 'eventManager.fire("selectClick","uSeq")', onMouseOver: 'eventManager.fire("checkAndSelect","uSeq")', onMouseOut: 'eventManager.fire("checkAndDeselect","uSeq")'});
+	var unusedSeqText = document.createTextNode('Inactive Activities');
+	var unusedSeqs = this.project.getUnattached('sequence');
+	
+	uSeqTD.appendChild(unusedSeqDiv);
+	unusedSeqDiv.appendChild(unusedSeqText);
+	unusedSeqDiv.innerHTML += ' <span>(Not Shown in Project)</span>';
+	for(var d=0;d<unusedSeqs.length;d++){
+		this.generateNodeElement(unusedSeqs[d], null, uSeqTB, 0, 0);
+	};
+	
+	var uNodeTable = createElement(document, 'table', {id: 'unusedNodeTable'});
+	var uNodeTH = createElement(document, 'thead');
+	var uNodeTB = createElement(document, 'tbody', {id: 'unusedNodeTableBody'});
+	var uNodeTR = createElement(document, 'tr', {id: 'unusedNodeTitleRow'});
+	var uNodeETD = createElement(document, 'td');
+	var uNodeTD = createElement(document, 'td');
+	
+	unattachedNodeRow.appendChild(uNodeTable);
+	uNodeTable.appendChild(uNodeTH);
+	uNodeTable.appendChild(uNodeTB);
+	uNodeTB.appendChild(uNodeTR);
+	uNodeTR.appendChild(uNodeETD);
+	uNodeTR.appendChild(uNodeTD);
+	
+	var unusedNodeDiv = createElement(document, 'div', {id: 'uNode', onclick: 'eventManager.fire("selectClick","uNode")', onMouseOver: 'eventManager.fire("checkAndSelect","uNode")', onMouseOut: 'eventManager.fire("checkAndDeselect","uNode")'});
+	var unusedNodesText = document.createTextNode('Inactive Steps');
+	var unusedNodes = this.project.getUnattached('node');
+	
+	uNodeTD.appendChild(unusedNodeDiv);
+	unusedNodeDiv.appendChild(unusedNodesText);
+	unusedNodeDiv.innerHTML += ' <span>(Not Shown in Project)</span>';
+	for(var e=0;e<unusedNodes.length;e++){
+		this.generateNodeElement(unusedNodes[e], null, uNodeTB, 0, 0);
+	};*/
+	
+	//notify user if any of their project violates their project structure mode and
+	//advise to fix it in advanced structure mode if it does.
+	// TODO: remove/update once new project structure is implemented
+	if(this.projectStructureViolation){
+		this.notificationManager.notify("The current project mode is Simple Project, but while generating the authoring, " +
+				"nodes have been found that violate that structure (Project-->Activity-->Step). Those nodes have been " +
+				"ignored! You should fix this by either authoring in Advanced Project mode or switching to Advanced " +
+				"Project mode long enough to put the project in the structure required for Simple Project.", 3);
+	};
+	
+	// make element draggable and show number of nodes per sequence
+	$('#dynamicProject .seq').each(function(){
+		view.initSequence(this);
+	});
+	
+	this.updateSelectCounts();
+	
+	$(window).resize(function() {
+		eventManager.fire('browserResize');
+	});
+	eventManager.fire('browserResize');
+};
+
+/**
+ * Initializes new sequence DOM elements
+ * @param target DOM element containing sequence contents
+ */
+View.prototype.initSequence = function(target){
+	var seq = $(target), view = this;
+	seq.draggable({
+		handle: '.sequenceTitle'
+	});
+	var split = seq.attr('id').split('--');
+	var sequenceId = split[1];
+	var numNodes = $('[id^='+sequenceId+']').length;
+	if(numNodes==1){
+		seq.append('<div id="'+ sequenceId +'_count" class="nodeCount"><span class="toggle">'+ numNodes +' Step +</span><span class="selectCount"></span></div>');
+	} else {
+		seq.append('<div id="'+ sequenceId +'_count" class="nodeCount"><span class="toggle">'+ numNodes +' Steps +</span><span class="selectCount"></span></div>');
+		if(numNodes>3){
+			$('.more',seq).show();
+		}
+	}
+	
+	$('li.node',seq).each(function(index){
+		if(index>2){
+			$(this).addClass('extra');
+		}
+	});
+	
+	$('.nodeCount .toggle', seq).off('click');
+	$('.nodeCount .toggle', seq).on('click',function(){
+		if(seq.hasClass('selected')){
+			view.toggleSequence(target,false);
+		} else {
+			view.toggleSequence(target,true);
+		}
+	});
+	
+	seq.off('dblclick');
+	seq.on('dblclick',function(){
+		if(seq.hasClass('selected')){
+			view.toggleSequence(target,false);
+		} else {
+			view.toggleSequence(target,true);
+		}
+	});
+};
+
+View.prototype.toggleSequence = function(target,expand){
+	var view = this,
+		doExpand = (expand===true) ? true : false,
+		seq = $(target);
+	
+	if(doExpand){
+		seq.addClass('selected');
+		var toggleText = $('.nodeCount .toggle',seq).html().replace('+','-');
+		$('.nodeCount .toggle',seq).html(toggleText);
+		$('.more',seq).slideUp(250);
+		$('li.node.extra',seq).each(function(){
+			$(this).slideDown(250);
+		});
+		$('ul.sequence',seq).sortable({
+			placeholder: 'placeholder'
+		});
+		seq.siblings().each(function(){
+			view.toggleSequence(this,false);
+		});
+	} else {
+		seq.removeClass('selected');
+		var toggleText = $('.nodeCount .toggle',seq).html().replace('-','+');
+		$('.nodeCount .toggle',seq).html(toggleText);
+		var numNodes = $('li.node',seq).length;
+		if(numNodes>3){
+			$('.more',seq).slideDown(250);
+		}
+		$('li.node.extra',seq).each(function(){
+			$(this).slideUp(250);
+		});
+		$('ul.sequence',seq).sortable('destroy');
+	}
+};
+
+/**
+ * Generates the individual html elements that represent the given node and
+ * appends them to the given element.
+ * 
+ * @param node - the node to represent
+ * @param parentNode - the node's parent, can be null
+ * @param el - the parent element that this element will append to
+ * @param depth - depth (how many ancestors does it have)
+ * @param pos - position in reference to its siblings (if no parent or siblings, this will be 0)
+ */
+View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
+	//create an id that represents this node's absolute position in the project/sequence
+	var absId = parentNode ? parentNode.id + '--' + node.id + '--' + pos : 'null--' + node.id + '--' + pos;
+	var title = node.getTitle();
+	var targetEl = el;
+	
+	//project structure validation
+	// TODO: update/remove when new project structure is implemented
+	if(el.id=='activeContainer' && this.simpleProject){
+		if(depth>2 || (depth==1 && node.type!='sequence') || (depth==2 && node.type=='sequence')){
+			this.projectStructureViolation = true;
+			return;
+		}
+	}
+	
+	//create and append element representing this node
+	//var mainTR = createElement(document, 'tr');
+	//var mainDiv = null;
+	
+	//create space according to the depth of this node
+	/*var tabs = "";
+	for(var b=0;b<depth;b++){
+		tabs += this.tab;
+	}*/
+	
+	//create space according to the depth of this node
+	// TODO: remove
+	var indent = 0;
+	for(var b=0;b<depth;b++){
+		indent ++;
+	}
+	
+	//create and set title for this node along with step term and/or numbering as specified
+	//var titleInput = createElement(document, 'input', {id: 'titleInput_' + node.id, type: 'text', 'class':'nodeTitleInput', onchange: 'eventManager.fire("nodeTitleChanged","' + node.id + '")', title: 'Click to Edit Step Name', value: node.getTitle()});
+	//var taskDiv = createElement(document, 'div', {id: 'taskDiv_' + node.id, 'class': 'taskDiv'});
+	//taskTD.appendChild(taskDiv);
+	//mainTD.appendChild(mainDiv);
+	
+	if(node.type=='sequence' && (this.getProject().getRootNode() && node.id!=this.project.getRootNode().id)){
+		var sequenceEl = createElement(document, 'div', {id: absId, 'class': 'projectNode seq'}),
+			seqTitleEl = createElement(document, 'div', {id: 'seqTitle_' + absId, 'class': 'sequenceTitle'});
+		//var seqTitleDiv = createElement(document, 'div', {id: 'seqTitleDiv_' + absId});
+		var titleText = 'Activity';
+		if(absId.match(/null.*/)){
+			titleText += ': ';
+		} else {
+			titleText += ' ' + this.currentSeqNum + ': ';
+			this.currentSeqNum++;
+		}
+		$(seqTitleEl).text(titleText + ' ' + title);
+		$(sequenceEl).append(seqTitleEl);
+		var seqUl = createElement(document, 'ul', {id: 'seqContents_' + absId, 'class': 'sequence'});
+		var moreDiv = createElement(document, 'div', {'class': 'more'});
+		$(moreDiv).html('...');
+		$(sequenceEl).append(seqUl).append(moreDiv);
+		
+		$(el).append(sequenceEl);
+		//var choiceDiv = createElement(document, 'div', {id: 'choiceDiv_' + absId});
+		
+		//mainDiv.appendChild(seqTitleDiv);
+		//mainDiv.appendChild(choiceDiv);
+		//seqTitleDiv.innerHTML = tabs;
+		//if(indent>0){
+			//var marginlt = indent*.5 + 'em';
+			//$(mainDiv).css('margin-left',marginlt);
+		//}
+		//seqTitleDiv.appendChild(titleText);
+		//seqTitleDiv.appendChild(titleInput);
+		//titleInput.title = 'Click to Edit Activity Name';
+		
+		//choiceDiv.style.display = 'none';
+		//choiceDiv.className = 'choice';
+		
+		//mainDiv.className = 'projectNode seq';
+		
+		if(this.project.useStepLevelNumbering()){
+			this.currentStepNum = 1;
+		}
+		
+		targetEl = seqUl;
+	} else if(!absId.match(/null.*/)) {
+		var nodeEl = createElement(document, 'li', {id: absId, 'class': 'projectNode node'}),
+			nodeTitleEl = createElement(document, 'span', {id: 'nodeTitle_' + absId});
+		
+		//the html for the review html
+		var reviewHtml = "",
+			reviewLink = null;
+		
+		//check if the step is a peer or teacher review
+		if(node.peerReview || node.teacherReview) {
+			//get the review group number
+			var reviewGroup = node.reviewGroup;
+			
+			//check if there was a review group number
+			if(reviewGroup) {
+				var peerReviewStep = null;
+				var reviewPhase = '';
+				var reviewType = '';
+
+				//get the review phase 'start', 'annotate', 'revise'
+				if(node.peerReview) {
+					reviewPhase = node.peerReview;
+					reviewType = 'P';
+				} else if(node.teacherReview) {
+					reviewPhase = node.teacherReview;
+					reviewType = 'T';
+				}
+				
+				//set the phase number 1, 2, 3
+				if(reviewPhase == 'start') {
+					peerReviewStep = 1;
+				} else if(reviewPhase == 'annotate') {
+					peerReviewStep = 2;
+				} else if(reviewPhase == 'revise') {
+					peerReviewStep = 3;
+				}
+				
+				if(peerReviewStep) {
+					//make the review group class so we can obtain the elements in the group easily in the future
+					var peerReviewGroupClass = "reviewGroup" + reviewGroup;
+					
+					//create a p element that will display the review label (e.g. PR1.1, PR1.2, PR1.3)
+					reviewHtml = "<p class='" + peerReviewGroupClass + " reviewLabel' style='display:inline'>" + reviewType + "R" + reviewGroup + "." + peerReviewStep + "</p>";
+					
+					reviewLink = createElement(document, 'a', {'class': 'reviewLink ' + peerReviewGroupClass, id: 'reviewLink_' + reviewGroup, value: 'Delete Review Sequence', onclick: 'eventManager.fire("cancelReviewSequence",' + reviewGroup + ')'});
+					//set the tabs to just one &nbsp since we now display the p element to the left of the step
+					//tabs = "&nbsp;";
+				}
+			}
+		}
+		
+		var nodeIconPath = null;
+		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
+			nodeIconPath = this.nodeIconPaths[node.type];
+			$(nodeEl).append('<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/>');
+			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
+			//mainDiv.innerHTML = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
+		} //else {
+			//mainDiv.innerHTML = reviewHtml + tabs;
+			//mainDiv.innerHTML = reviewHtml;
+		//}
+		//if(indent>0){
+			//var marginlt = indent*.5 + 'em';
+			//$(mainDiv).css('margin-left',marginlt);
+		//}
+		
+		var titleText = '';
+		if(el.id!='unused'){
+			if(absId.match(/null.*/)){
+				titleText = this.getProject().getStepTerm() + ': ';
+			} else {
+				titleText = this.getProject().getStepTerm() + ' ' + this.getProject().getVLEPositionById(node.id) + ': ';
+				this.currentStepNum++;
+			}
+		}
+		
+		$(nodeTitleEl).text(title);
+		$(nodeEl).append(titleText).append(nodeTitleEl);
+		
+		//mainDiv.appendChild(titleInput);
+		//mainDiv.className = 'projectNode node';
+		
+		//set up select for changing this node's icon
+		/*var selectNodeText = document.createTextNode('Icon: ');
+		var selectDrop = createElement(document, 'select', {id: 'nodeIcon_' + node.id, onchange: 'eventManager.fire("nodeIconUpdated","' + node.id + '")'});
+		mainDiv.appendChild(selectNodeText);
+		mainDiv.appendChild(selectDrop);*/
+		
+		var nodeClassesForNode = [];
+		//var nodeIconPath;
+
+		/* check to see if current node is in nodeTypes, if not ignore so that authoring 
+		 * tool will continue processing remaining nodes. Resolve duplicate nodes to the
+		 * type of the node that they represent */
+		if(node.type=='DuplicateNode'){
+			nodeClassesForNode = this.nodeClasses[node.getNode().type];
+			nodeIconPath = this.nodeIconPaths[node.getNode().type];
+		} else {
+			nodeClassesForNode = this.nodeClasses[node.type];
+			nodeIconPath = this.nodeIconPaths[node.type];
+		}
+		
+		//populate select with icons for its step type
+		/*if(nodeClassesForNode.length > 0){
+			var opt = createElement(document, 'option');
+			opt.innerHTML = '';
+			opt.value = '';
+			selectDrop.appendChild(opt);
+			
+			for(var x=0; x<nodeClassesForNode.length; x++) {
+				var nodeClassObj = nodeClassesForNode[x];
+				var opt = createElement(document, 'option');
+				opt.value = nodeClassObj.nodeClass;
+				opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
+				selectDrop.appendChild(opt);
+				if(node.getNodeClass() == nodeClassObj.nodeClass){
+					selectDrop.selectedIndex = x + 1;
+				}
+			}
+		}*/
+		
+		/* add max scores input field. values will be set on retrieval of metadata */
+		/*var maxScoreText = document.createTextNode('Max Score: ');
+		var maxScoreInput = createElement(document, 'input', {type: 'text', 'class':'maxScoreInput', title: 'Click to Edit Maximum Score', id: 'maxScore_' + node.id, 'size':'2', onchange: 'eventManager.fire("maxScoreUpdated","'+ node.id + '")'});
+		mainDiv.appendChild(createSpace());
+		mainDiv.appendChild(maxScoreText);
+		mainDiv.appendChild(maxScoreInput);*/
+		
+		/* add link to revert node to its original state when version was created
+		var revertNodeLink = createElement(document, 'a', {class: 'revertNodeLink', id:'revertNode_' + node.id, value:'Revert Node', onclick: 'eventManager.fire("versionRevertNode","' + node.id + '")'});
+		mainDiv.appendChild(createSpace());
+		mainDiv.appendChild(revertNodeLink);
+		revertNodeLink.appendChild(document.createTextNode("Revert"));*/
+		
+		/* Add button to reference work to student's work in other steps, if this is
+		 * a duplicate node, the type should be resolved to that of the node that it
+		 * represents. */
+		/*if(node.type=='DuplicateNode'){
+			var ndx2 = this.excludedPrevWorkNodes.indexOf(node.getNode().type);
+		} else {
+			var ndx2 = this.excludedPrevWorkNodes.indexOf(node.type);
+		}
+		
+		if(ndx2==-1){
+			var prevWorkLink = createElement(document, 'a', {'class': 'prevWorkLink', id: 'prevWork_' + node.id, title: 'Show Work from Preview Step', onclick: 'eventManager.fire("launchPrevWork","' + node.id + '")'});
+			mainDiv.appendChild(createSpace());
+			mainDiv.appendChild(prevWorkLink);
+			prevWorkLink.appendChild(document.createTextNode("Show Previous Work"));
+		}
+		
+		if(reviewLink){ // if part of review sequence, add review title and remove link
+			$(mainDiv).append(reviewHtml);
+			mainDiv.appendChild(reviewLink);
+			reviewLink.appendChild(document.createTextNode("Delete Review Sequence"));
+			$(mainDiv).addClass('reviewNode');
+		}
+		
+		// Add edit button to open node's editing interface
+		var editInput = createElement(document, 'input', {type: 'button', value:'Edit', 'class':'editNodeInput', title: 'Click to Edit Step Content', id: 'editNode_' + node.id, onclick: 'eventManager.fire("author", "' + absId + '----' + node.id + '")'});
+		mainDiv.appendChild(editInput);*/
+		
+		$(el).append(nodeEl);
+	}
+	
+	// create select checkbox for this node
+	//if(!$(mainDiv).hasClass('master')){
+		//var selectBox = createElement(document, 'input', {id:'select_' + node.id, type:'checkbox', 'class':'selectNodeInput', title:'Click to Select', onclick:'eventManager.fire("selectBoxClick","'+absId+'")'});
+		//$(mainDiv).prepend(selectBox);
+	//}
 
 	/* generate the node elements for any children that this node has */
 	for(var a=0;a<node.children.length;a++){
-		this.generateNodeElement(node.children[a], node, el, depth + 1, a);
+		this.generateNodeElement(node.children[a], node, targetEl, depth + 1, a);
 	}
 };
 
@@ -605,164 +1071,6 @@ View.prototype.editProjectFile = function(){
 };
 
 
-
-/**
- * Initializes and renders asset editor dialog with clean up function.
- */
-View.prototype.initializeAssetEditorDialog = function(){
-	var view = this;
-	
-	var remove = function(){
-		var parent = document.getElementById('assetSelect');
-		var ndx = parent.selectedIndex;
-		if(ndx!=-1){
-			var opt = parent.options[parent.selectedIndex];
-			var name = encodeURIComponent(opt.value);
-
-			var success = function(text, xml, o){
-				if(text.status==401){
-					xml.notificationManager.notify('You are not authorized to remove assets from this project. If you believe this is an error, please contact an administrator.',3);
-				} else {
-					parent.removeChild(opt);
-					o.notificationManager.notify(text, 3);
-					
-					/* call upload asset with 'true' to get new total file size for assets */
-					o.uploadAsset(true);
-				}
-			};
-			
-			view.connectionManager.request('POST', 1, view.assetRequestUrl, {forward:'assetmanager', projectId:view.portalProjectId, command: 'remove', path: view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase()), asset: name}, success, view, success);
-		}
-	};
-
-	var done = function(){
-		$('#assetEditorDialog').dialog('close');
-		$('#uploadAssetFile').val('');
-		this.assetEditorParams = null;
-		
-		replaceNotificationsDiv();
-	};
-	
-	var cancel = function(){
-		$('#assetSelect').children().remove();
-		$('#uploadAssetFile').val('');
-		$('#sizeDiv').html('');
-		
-		replaceNotificationsDiv();
-	};
-	
-	var show = function(){
-		$('#assetUploaderBodyDiv').after($('#notificationDiv')); // temporarily move notifications div to assets dialog
-		clearNotifcations(); // clear out any existing notifications
-		eventManager.fire('browserResize');
-	};
-	
-	var clearNotifcations = function(){
-		$('.authoringMessages > span').each(function(){
-			var messageId = $(this).attr('id');
-			notificationEventManager.fire('removeMsg',messageId);
-		});
-	};
-	
-	var replaceNotificationsDiv = function(){
-		$('#authorOptions').after($('#notificationDiv')); // move notifications div back to default authoring location
-		clearNotifcations(); // clear out any existing notifications
-		eventManager.fire('browserResize');
-	};
-	
-	// set default buttons for asset editor dialog
-	this.assetEditorButtons = {'Close': done, 'Remove Selected File': remove};
-	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:600, title: 'Project Files', buttons: this.assetEditorButtons, close: cancel, open:show});
-};
-
-/**
- * Checks to ensure that a project path exists, validates size and
- * file extension
- */
-View.prototype.uploadAsset = function(view){
-	if(this.project){
-		//showElement('assetUploaderDialog');
-
-		var callback = function(text, xml, o){
-			if(text >= o.MAX_ASSET_SIZE){
-				o.notificationManager.notify('Maximum storage allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '.', 3);
-			} else if(view){
-				document.getElementById('sizeDiv').innerHTML = "You are using " + o.utils.appropriateSizeText(text) + " of your " + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + " storage space.";
-			} else {
-				//$('#assetUploaderDialog').dialog('open');
-			}
-		};
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getSize', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
-	} else {
-		this.notificationManager.notify("Please open or create a project that you wish to upload assets to.", 3);
-	}
-};
-
-View.prototype.submitUpload = function() {
-	var filename = $('#uploadAssetFile').val();
-	var view = this;
-	if(filename && filename != ''){
-		filename = filename.replace("C:\\fakepath\\", "");  // chrome/IE8 fakepath issue: http://acidmartin.wordpress.com/2009/06/09/the-mystery-of-cfakepath-unveiled/	
-		if(!view.utils.fileFilter(view.allowedAssetExtensions,filename)){
-			view.notificationManager.notify('Sorry, the specified file type is not allowed.', 3);
-			return;
-		} else {
-			var frameId = 'assetUploadTarget_' + Math.floor(Math.random() * 1000001);
-			var frame = createElement(document, 'iframe', {id:frameId, name:frameId, src:'about:blank', style:'display:none;'});
-			var form = createElement(document, 'form', {id:'assetUploaderFrm', method:'POST', enctype:'multipart/form-data', action:view.assetRequestUrl, target:frameId, style:'display:none;'});
-			var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase());
-			
-			/* create and append elements */
-			document.body.appendChild(frame);
-			document.body.appendChild(form);
-			form.appendChild(createElement(document,'input',{type:'hidden', name:'path', value:assetPath}));
-			form.appendChild(createElement(document,'input',{type:'hidden', name:'forward', value:'assetmanager'}));
-			form.appendChild(createElement(document,'input',{type:'hidden', name:'projectId', value:view.portalProjectId}));
-
-			/* set up the event and callback when the response comes back to the frame */
-			frame.addEventListener('load',function(){view.assetUploaded(this,view);},false);
-			
-			/* change the name attribute to reflect that of the file selected by user */
-			document.getElementById('uploadAssetFile').setAttribute("name", filename);
-			
-			/* remove file input from the dialog and append it to the frame before submitting, we'll put it back later */
-			var fileInput = document.getElementById('uploadAssetFile');
-			form.appendChild(fileInput);
-			
-			/* submit hidden form */
-			form.submit();
-			
-			/* put the file input back and remove form now that the form has been submitted */
-			document.getElementById('assetUploaderBodyDiv').insertBefore(fileInput, document.getElementById('assetUploaderBodyDiv').firstChild);
-			document.body.removeChild(form);
-			
-			$('#assetProcessing').show();
-			
-			if(filename.indexOf(' ') != -1) {
-				/*
-				 * the file name contains a space so we will alert a message to
-				 * notify them that they may need to replace the spaces with
-				 * %20 when they reference the file in steps.
-				 */ 
-				
-				/*
-				 * replace all the spaces with %20 so we can show the author how
-				 * they should reference the file
-				 */
-				var fixedFileName = filename.replace(/ /g, '%20');
-				
-				//display the popup message
-				alert('Note: Your file name contains a space character so when you reference it in steps\nyou may need to replace all the spaces with %20 in order for the image to work.\n\nIt should look like this\nassets/' + fixedFileName);
-			}
-			
-			/* close the dialog */
-			//$('#assetUploaderDialog').dialog('close');
-		}
-	} else {
-		view.notificationManager.notify('Please specify a file to upload.',3);
-	}
-};
-
 /**
  * Export currently-opened project as a zip file. Simply directs user to a servlet that does all the work.
  */
@@ -771,208 +1079,6 @@ View.prototype.exportProject = function(params){
 		window.open("/webapp/author/project/exportproject.html?projectId=" + this.portalProjectId);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to export.", 3);
-	}
-};
-
-/**
- * Retrieves a list of any assets associated with the current project
- * from the server, populates a list of the assets in the assetEditorDialog
- * and displays the dialog.
- * 
- * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
- */
-View.prototype.viewAssets = function(params){
-	if(this.project){
-		if (params){
-			this.assetEditorParams = params;
-		} else {
-			this.assetEditorParams = null;
-		}
-		showElement('assetEditorDialog');
-		var populateOptions = function(projectListText, args){
-			var view = args[0];
-			
-			if(projectListText && projectListText!=''){
-				//get the project list as JSON
-				var projectList = JSON.parse(projectListText);
-				
-				//get the first project (there will only be one anyway)
-				var projectAssetsInfo = projectList[0];
-				
-				var assets = [];
-				
-				if(projectAssetsInfo != null) {
-					//get the assets array
-					assets = projectAssetsInfo.assets;
-				}
-				
-				var parent = document.getElementById('assetSelect');
-				parent.innerHTML = '';
-				
-				//loop through all the assets
-				for(var d=0;d<assets.length;d++){
-					//get an asset
-					var asset = assets[d];
-					
-					//get the file name of the asset
-					var fileName = asset.assetFileName;
-					
-					var status = '';
-					
-					if(asset.activeStepsUsedIn.length > 0) {
-						//the asset is used in an active step
-						status = 'active';
-					} else if(asset.inactiveStepsUsedIn.length > 0) {
-						//the asset is used in an inactive step
-						status = 'inactive';
-					} else {
-						//the asset is not used in any step
-						status = 'notUsed';
-					}
-					
-					//check for type parameter and only show files with matching extensions
-					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
-						var extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					} else if(view.assetEditorParams && view.assetEditorParams.type == "flash"){
-						var extensions = ['swf', 'flv'];
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					} else if(view.assetEditorParams && view.assetEditorParams.type == "media"){
-						var extensions = ['swf', 'flv', 'mov', 'mp4', 'avi', 'wmv', 'mpg', 'mpeg', 'ogg'];
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					} else if(view.assetEditorParams && view.assetEditorParams.extensions 
-						&& view.assetEditorParams.extensions.length > 0){
-						var extensions = view.assetEditorParams.extensions;
-						if (!view.utils.fileFilter(extensions,fileName)){
-							continue;
-						}
-					}
-					
-					var text = '';
-					
-					if(status == 'inactive') {
-						//the asset is only used in an inactive step
-						text = fileName + ' (Only used in inactive steps)';
-					} else if(status == 'notUsed') {
-						//the asset is not used in any step
-						text = fileName + ' (Not used)';
-					} else {
-						//the asset is used in an active step
-						text = fileName;
-					}
-					
-					//create an entry for each file
-					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
-					opt.text = text;
-					opt.value = fileName;
-					parent.appendChild(opt);
-				}
-			}
-
-			//call upload asset with 'true' to get total file size for assets
-			view.uploadAsset(true);
-			
-			// get default buttons for asset editor dialog
-			var buttons = $.extend({}, view.assetEditorButtons);
-			
-			// check whether parameters were sent
-			if(view.assetEditorParams && view.assetEditorParams.type){
-				var type = view.assetEditorParams.type;
-				var field_name = view.assetEditorParams.field_name;
-				var win = view.assetEditorParams.win;
-				var callback = view.assetEditorParams.callback;
-				
-				// set z-index to show dialog above tinymce popups
-				$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
-				
-				// add new button depending on type param
-				if(type == "image"){
-					buttons['Insert Image'] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select an image from the list.");
-						}
-					};
-				} else if (type == "media"){
-					buttons['Insert Media'] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file from the list.");
-						}
-					};
-				} else if (type == "file"){
-					buttons['Insert Link'] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file to link to from the list.");
-						}
-					};
-				} else {
-					var buttonText = 'Choose Selected File';
-					if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext == 'string'){
-						buttonText = view.assetEditorParams.buttontext;
-					}
-					buttons[buttonText] = function(){
-						var url = $('#assetSelect option:selected').val();
-						if(url){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file from the list.");
-						}
-					};
-				}
-			} else {
-				//reset z-index
-				$( "#assetEditorDialog" ).dialog( "option", "zIndex", {} );
-			}
-			
-			// set buttons
-			$( "#assetEditorDialog" ).dialog( "option", "buttons", buttons );
-			
-			//show dialog
-			$('#assetEditorDialog').dialog('open');
-			
-			eventManager.fire('browserResize');
-			
-			$('#uploadAssetFile').val('');
-		};
-		
-		//get the list of all assets and which steps those assets are used in
-		var analyzeType = 'findUnusedAssets';
-		
-		//get the project id
-		var projectId = this.portalProjectId;
-		
-		//get the url for making the request to retrieve the asset information
-		var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
-		
-		//the params for the request
-		var requestParams = {
-			analyzeType:analyzeType,
-			projectId:projectId,
-			html:false
-		};
-		
-		//make the request to retrieve the asset information
-		this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, function(txt,xml,obj){populateOptions(txt,obj);}, [this, analyzeType]);
-	} else {
-		this.notificationManager.notify("Please open or create a project that you wish to view assets for.", 3);
 	}
 };
 
@@ -1039,6 +1145,7 @@ View.prototype.projectOptionSelected = function(id){
 	
 	//if all is set, load project into authoring tool
 	if(path!=null && path!=""){
+		$('#projectContent').css('z-index','auto');
 		// hide the welcome panel, show the loading message
 		$('#projectContent').show();
 		$('#projectOverlay').show();
@@ -1249,7 +1356,7 @@ View.prototype.toggleProjectMode = function(){
  */
 View.prototype.editProjectMetadata = function(){
 	if(this.getProject()){
-		showElement('editProjectMetadataDialog');
+		//showElement('editProjectMetadataDialog');
 		$('#projectMetadataTitle').val(this.utils.resolveNullToEmptyString(this.projectMeta.title));
 		var author = $.parseJSON(this.projectMeta.author);
 		$('#projectMetadataAuthor').text(this.utils.resolveNullToEmptyString(author.fullname));
@@ -1298,69 +1405,12 @@ View.prototype.editProjectMetadata = function(){
 			$('#projectMetadataTechDetails').attr('value', this.utils.resolveNullToEmptyString(this.projectMeta.techReqs.techDetails));
 		}
 		
-		// initialize idea manager settings object and IM version
-		var imSettings = {}, imVersion = '1';
-		
-		if (this.projectMeta.tools != null) {
-			var tools = this.projectMeta.tools;
-			
-			//determine if enable idea manager needs to be checked
-			// TODO: remove once IM settings are moved to separate dialog
-			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
-				$("#enableIdeaManager").prop('checked', true);
-			} else {
-				$("#enableIdeaManager").prop('checked', false);
-			}
-
-			//determine if enable student asset uploader needs to be checked
-			// TODO: remove once student asset settings are moved to separate dialog
-			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
-				$("#enableStudentAssetUploader").prop('checked', true);
-			} else {
-				$("#enableStudentAssetUploader").prop('checked', false);
-			}
-			
-			// get Idea Manager version
-			// TODO: remove once IM settings are moved to separate dialog
-			if('ideaManagerVersion' in tools){
-				imVersion = tools.ideaManagerVersion;
-			}
-			
-			// get Idea Manager settings
-			// TODO: remove once IM settings are moved to separate dialog
-			if ('ideaManagerSettings' in tools){
-				imSettings = tools.ideaManagerSettings;
-				if('version' in tools.ideaManagerSettings){
-					imVersion = tools.ideaManagerSettings;
-				}
-			}
-		}
-		
-		// TODO: remove once IM settings are moved to separate dialog
-		if(this.projectHasRun && parseInt(imVersion) < 2){
-			// project has run in classroom and uses older version of Idea Manager, so remove IM v2 settings panel
-			$('#ideaManagerSettings').hide();
-		} else {
-			// since project hasn't run and Idea Manager version hasn't been set < 2, we can use IM v2 for this project
-			imVersion = '2';
-			// set version as attribute of enable IM checkbox (will be read and stored when saving project metadata)
-			$('#enableIdeaManager').attr('version',imVersion);
-			
-			// if Idea Manager is enabled, show settings panel
-			if($('#enableIdeaManager').is(':checked')){
-				$('#ideaManagerSettings').show();
-			}
-			
-			//populate Idea Manager settings
-			this.populateIMSettings(imSettings);
-		}
-		
 		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
 		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
 		document.getElementById('projectMetadataKeywords').value = this.utils.resolveNullToEmptyString(this.projectMeta.keywords);
 		this.utils.setDialogHeight($('#editProjectMetadataDialog'),600);
 		$('#editProjectMetadataDialog').dialog('open');
-		eventManager.fire('browserResize');
+		//eventManager.fire('browserResize');
 	} else {
 		this.notificationManager.notify('Open a project before using this tool.', 3);
 	};
@@ -1371,6 +1421,81 @@ View.prototype.editProjectMetadata = function(){
  */
 View.prototype.editTitle = function(){
 	$('#editTitleDialog').dialog('open');
+};
+
+/**
+ * Sets intial values and shows the edit IM Settings dialog
+ */
+View.prototype.editIMSettings = function(){
+	// enable or disable IM settings panel
+	var enableIMSettings = function(enabled){
+		if(enabled) {
+			$('#enableIdeaManager').prop('checked',true);
+			$('#imSettings input').prop('disabled',false);
+			$('#imSettings a').removeClass('disabled');
+			$('#imSettings').fadeTo('fast',1);
+		} else {
+			$('#enableIdeaManager').prop('checked',false);
+			$('#imSettings input').prop('disabled',true);
+			$('#imSettings a').addClass('disabled');
+			$('#imSettings').fadeTo('fast',.5);
+		}
+		if($('#editIMSettingsDialog').is(':visible')){
+			$('#enableIdeaManager').toggleSwitch('refresh');
+		}
+	};
+	
+	// clear out validation error messages
+	$('#editIMSettingsDialog label.error').remove();
+	
+	// initialize idea manager settings object and IM version
+	var imSettings = {}, imVersion = '1', imEnabled = true;
+	
+	if (this.projectMeta.tools != null) {
+		var tools = this.projectMeta.tools;
+		
+		// get whether Idea Manager is enabled
+		if(typeof tools.isIdeaManagerEnabled != 'undefined'){
+			imEnabled = tools.isIdeaManagerEnabled;
+		}
+		
+		// get Idea Manager settings
+		if (typeof tools.ideaManagerSettings != 'undefined'){
+			imSettings = tools.ideaManagerSettings;
+			if(typeof tools.ideaManagerSettings.version != 'undefined'){
+				imVersion = tools.ideaManagerSettings;
+			}
+		}
+	}
+	
+	if(this.projectHasRun && parseInt(imVersion) < 2){
+		// notify user that project uses old version of IM and has run in classroom, so settings cannot be changed
+		
+		// disable IM settings panel
+		$('#ideaManagerSettings :input').prop('disabled',true);
+		$('#ideaManagerSettings .delete').off('click.imSettings');
+	} else {
+		// bind click action for enable IM checkbox
+		$('#enableIdeaManager').on('click.imSettings',function(){
+			enableIMSettings($(this).prop('checked'));
+		});
+		
+		// since project hasn't run with IM v1, we can use IM v2 for this project from now on
+		imVersion = '2';
+		// set version as attribute of enable IM checkbox (will be read and stored when saving project metadata)
+		$('#enableIdeaManager').attr('data-version',imVersion);
+		
+		// show run warning text if project has been run in classroom, vice versa
+		this.projectHasRun ? $('#imRunWarning').show() : $('#imRunWarning').hide();
+		
+		//populate Idea Manager settings
+		this.populateIMSettings(imSettings);
+	}
+	
+	enableIMSettings(imEnabled);
+	
+	this.utils.setDialogHeight($('#editIMSettingsDialog'),600);
+	$('#editIMSettingsDialog').dialog('open');
 };
 
 /**
@@ -1441,16 +1566,14 @@ View.prototype.populateIMSettings = function(settings){
 	// make active attribute fields sortable
 	$('#ideaAttributes').sortable({
 		items:'td.attribute.active, td.attribute.empty',
-		handle:'h6 > span'
+		handle:'h6',
+		cancel: 'h6 < a'
 	});
 	
 	// insert add new attribute links to all unused attribute fields
 	$('#ideaAttributes .attribute.empty').each(function(){
 		view.deleteIdeaAttribute($(this));
 	});
-	
-	// add validation
-	
 };
 
 /**
@@ -1485,7 +1608,9 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		target.sortable('refresh');
 		
 		// bind delete link click event
-		$('.delete',newInput).click(function(){
+		$('.delete',newInput).on('click.imSettings',function(){
+			if($(this).hasClass('disabled')) return;
+			
 			if($('.option', target).length == 2){
 				alert('You must specify at least two (2) options for this attribute.');
 				return;
@@ -1521,13 +1646,13 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		var header = null, choices = null;
 		// set header depending on attribute type
 		if(type=='source'){
-			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Source</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Source</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
 		} else if (type=='icon'){
-			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Icon</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Icon</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
 		} else if (type=='tags'){
-			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Tags</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Tags</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
 		} else if (type=='label'){
-			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Label</span><a class='action delete' title='Delete attribute'>X</a></h6>");
+			header = $("<h6><span class='ui-icon ui-icon-grip-dotted-vertical move'></span><span>Label</span><a class='action delete tooltip' title='Delete attribute'>X</a></h6>");
 		}
 		
 		if(type=='source' || type=='tags' || type=='label'){
@@ -1541,7 +1666,8 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			// insert add more link and bind click
 			var moreLink = $("<p class='add'><a>Add more +</a></p>");
 			choices.append(moreLink);
-			$('a',moreLink).click(function(){
+			$('a',moreLink).on('click.imSettings',function(){
+				if($(this).hasClass('disabled')) return;
 				addOption(choices,'');
 			});
 			
@@ -1597,12 +1723,12 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				if(options && options.length > 0){
 					for(var i=0;i<options.length;i++){
 						if(options[i] == key){
-							$('.option',option).attr('checked','checked');
+							$('.option',option).prop('checked',true);
 						}
 					}
 				} else {
 					if(key=='blank' || key=='important' || key=='question'){
-						$('.option',option).attr('checked','checked');
+						$('.option',option).prop('checked',true);
 					}
 				}
 			}
@@ -1624,7 +1750,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			var requiredCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'required_' + id})).attr('checked','checked').css('margin-left','0');
 			required.append(requiredCheck).append(document.createTextNode('This field is required'));
 			if(isRequired == false){
-				requiredCheck.removeAttr('checked');
+				requiredCheck.prop('checked',false);
 			}
 			
 			// clear new attribute element and add id
@@ -1642,22 +1768,25 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 				var customCheck = $(createElement(document, 'input', {type: 'checkbox', id: 'custom_' + id})).css('margin-left','0');
 				custom.append(customCheck).append(document.createTextNode('Allow students specify their own ' + type));;
 				if(allowCustom == true){
-					customCheck.attr('checked','checked');
+					customCheck.prop('checked',true);
 				}
 				// add custom field checkbox to attribute element
 				newAttribute.append(custom);
 			}
 			// remove empty class and add active class
-			newAttribute.removeClass('empty').addClass('active').attr('type',type);
+			newAttribute.removeClass('empty').addClass('active').attr('data-type',type);
 			
 			// bind attribute delete link click event (with confirm dialog)
-			$('.delete', header).click(function(){
+			$('.delete', header).on('click.imSettings',function(){
+				if($(this).hasClass('disabled')) return;
 				var answer = confirm('Are you sure you want to permanently delete this attribute?');
 				if (answer){
 					// do delete
 					view.deleteIdeaAttribute($(this).parent().parent());
 				}
 			});
+			
+			view.insertTooltips(newAttribute);
 		} else {
 			// header & choices elements not defined so type is not allowed, fire error notification
 			this.notificationManager.notify('Error adding idea attribute. Invalid type.', 2);
@@ -1791,6 +1920,7 @@ View.prototype.onProjectLoaded = function(){
 		// hide loading message and show the project content panel
 		$('#projectOverlay').hide();
 		$('#projectLoading').hide();
+		$('#projectContent').css('z-index',1);
 		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 2);
 	}
 };
@@ -1857,7 +1987,7 @@ View.prototype.retrieveProjectInfoSuccess = function(text,xml,o) {
 	}
 	
 	// insert tooltips
-	view.insertTooltips(null,$('#projectContent'));
+	view.insertTooltips($('#projectContent'));
 };
 	
 
@@ -2416,7 +2546,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			editedDetails = '<p class="editDetails">' + lastEditedPreText + '<span>' + lastEdited + '</span></p>';
 		}
 		
-		var detailsTitle = '<p class="titleDetails">' + projectTitle + ' <span>(' + idText + ': ' + projectId + ')</span></p>';
+		var detailsTitle = '<h3 class="titleDetails">' + projectTitle + ' <span>(' + idText + ': ' + projectId + ')</span></h3>';
 		
 		// insert project thumb path attribute
 		var thumbUrl = '';
@@ -2426,7 +2556,8 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			thumbUrl = view.defaultThumbUrl;
 		}
 		var details = $('<div><img class="projectThumb" src="' + thumbUrl + '" alt="thumb" />' + 
-			'<div class="summaryInfo">' + detailsTitle + libraryDetails + sharedDetails + createdDetails + editedDetails + parentDetails + sharedUsers + runDetails + '</div><div style="clear:both;"></div></div>');
+			'<div class="summaryInfo">' + libraryDetails + sharedDetails + createdDetails + editedDetails + parentDetails + sharedUsers + runDetails + '</div><div style="clear:both;"></div></div>');
+		details.prepend(detailsTitle);
 		//add to tooltip content object
 		detailsContent[projectId] = details;
 		//details = details.replace(/"/g,"&quot;"); // escape double quotes so that the details text can be set as the value of the tooltip attribute
@@ -2442,11 +2573,11 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			'<input type="button" class="openProject" data-projectid="' + projectId + '" value="' + buttonValue + '" />' +
 			'<div class="infoWrapper">' +
 			'<div class="projectInfo">' +
-			'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" tooltip-offset="-2"></a>' +
+			'<a class="' + bookmarkClass + 'bookmark tooltip" data-projectid="' + projectId + '" title="' +  toggleFavoriteTitleText + '" data-tooltip-offset="-2"></a>' +
 			'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
 			ownershipIcon + infoIcon + 
 			'</div>' +
-			'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" tooltip-class="info" tooltip-anchor="left" /></div>' +
+			'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" /></div>' +
 			'</div>' +
 			'</div>';
 		
@@ -2505,16 +2636,16 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			    	// image doesn't load, so use default thumb and insert details content as info icon tooltip
 					$('img.projectThumb',content).attr('src',view.defaultThumbUrl);
 					var infoImg = $('img.info[data-projectid="' + id + '"]',projectTabs);
-					infoImg.attr('title',content.html()).addClass('tooltip').attr('tooltip-class','info').attr('tooltip-anchor','left');
+					infoImg.attr('title',content.html()).addClass('tooltip').attr('data-tooltip-class','info').attr('data-tooltip-anchor','left');
 					//initialize tooltip
-					view.insertTooltips(null,infoImg);
+					view.insertTooltips(infoImg);
 			    },
 			    success: function(){
 			    	// image loads, so insert details content as info icon tooltip
 					var infoImg = $('img.info[data-projectid="' + id + '"]',projectTabs);
-					infoImg.attr('title',content.html()).addClass('tooltip').attr('tooltip-class','info').attr('tooltip-anchor','left');
+					infoImg.attr('title',content.html()).addClass('tooltip').attr('data-tooltip-class','info').attr('data-tooltip-anchor','left');
 					// initialize tooltip
-					view.insertTooltips(null,infoImg);
+					view.insertTooltips(infoImg);
 			    }
 			});
 		}
@@ -2534,7 +2665,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 	//bind toggle bookmark link clicks
 	projectTabs.off('click','a.bookmark');
 	projectTabs.on('click','a.bookmark',function(){
-		$(this).miniTip({doHide: true});
+		$(this).tipTip('hide');
 		var id = $(this).attr('data-projectid');
 		var isBookmark = $(this).hasClass('true');
 		view.toggleBookmark(id, isBookmark, function(id,isBookmark){
@@ -2568,12 +2699,12 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 					if(index==0){
 						//create clone DOM element for project listing
 						var entry = $(this).clone(), infoTitle = detailsContent[$(this).attr('data-projectid')].html();
-						$('a.bookmark',entry).addClass('tooltip').attr('title',view.getI18NString("authoring_toggle_favorite_title")).attr('tooltip-anchor','right');
-						$('img.info',entry).addClass('tooltip').attr('title',infoTitle).attr('tooltip-class','info').attr('tooltip-anchor','left');
+						$('a.bookmark',entry).addClass('tooltip').attr('title',view.getI18NString("authoring_toggle_favorite_title")).attr('data-tooltip-anchor','right');
+						$('img.info',entry).addClass('tooltip').attr('title',infoTitle).attr('data-tooltip-class','info').attr('data-tooltip-anchor','left');
 						//add project listing to favorites tab
 						$('#favoriteProjects').append(entry);
 						// update tooltips for new entry
-						view.insertTooltips(null,entry);
+						view.insertTooltips(entry);
 					}
 				});
 				
@@ -2621,7 +2752,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 	this.setProjectListingWidths();
 	
 	// insert tooltips
-	this.insertTooltips(null,projectTabs);
+	this.insertTooltips(projectTabs);
 	
 	this.onOpenProjectReady();
 };
@@ -2719,13 +2850,13 @@ View.prototype.populateWelcomeProjects = function(t){
 	}
 	
 	if(projectsObj.recentProjects.length > 3){
-		var toggleEl = $('<p><a title="' + this.getI18NString('authoring_welcome_togglerecent_more') + '" class="tooltip more" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="5">...</a></p>');
+		var toggleEl = $('<p><a title="' + this.getI18NString('authoring_welcome_togglerecent_more') + '" class="tooltip more" data-tooltip-anchor="bottom" tooltip-offset="5">...</a></p>');
 		$('#recent').append(toggleEl);
 		$('a',toggleEl).click(function(){
 			if($(this).hasClass('more')){
-				$(this).removeClass('more').attr('title',view.getI18NString('authoring_welcome_togglerecent_less')).tipTip('destroy').tipTip({cssClass:'light',defaultPosition:'bottom',edgeOffset:5});
+				$(this).removeClass('more').attr('title',view.getI18NString('authoring_welcome_togglerecent_less')).tipTip('destroy').tipTip({defaultPosition:'bottom',edgeOffset:5});
 			} else {
-				$(this).addClass('more').attr('title',view.getI18NString('authoring_welcome_togglerecent_more')).tipTip('destroy').tipTip({cssClass:'light',defaultPosition:'bottom',edgeOffset:5});
+				$(this).addClass('more').attr('title',view.getI18NString('authoring_welcome_togglerecent_more')).tipTip('destroy').tipTip({defaultPosition:'bottom',edgeOffset:5});
 			}
 			$('.recentProject').each(function(){
 				if($(this).hasClass('extra')){
@@ -2749,7 +2880,7 @@ View.prototype.populateWelcomeProjects = function(t){
 	);
 	
 	// insert tooltips
-	this.insertTooltips(null,$('#projectWelcome'));
+	this.insertTooltips($('#projectWelcome'));
 	
 	this.onOpenProjectReady();
 };

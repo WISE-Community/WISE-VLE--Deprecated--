@@ -150,11 +150,11 @@ View.prototype.utils.containsApplet = function(content){
  */
 View.prototype.utils.appropriateSizeText = function(bytes){
 	if(bytes>1048576){
-		return this.roundToDecimal(((bytes/1024)/1024), 1) + ' mb';
-	} else if(bytes>1024){
-		return this.roundToDecimal((bytes/1024), 1) + ' kb';
-	} else {
-		return bytes + ' b';
+		return this.roundToDecimal(((bytes/1024)/1024), 1) + ' MB';
+	} else /*if(bytes>1024)*/{
+		return this.roundToDecimal((bytes/1024), 0) + ' KB';
+	//} else {
+		//return bytes + ' b';
 	};
 };
 
@@ -632,51 +632,6 @@ View.prototype.utils.getExtension = function(text){
 	};
 
 	return null;
-};
-
-/**
- * Callback function for when the dynamically created frame for uploading assets has recieved
- * a response from the request. Notifies the response and removes the frame.
- */
-View.prototype.assetUploaded = function(target,view){
-	var htmlFrame = target;
-	var frame = window.frames[target.id];
-	
-	if(frame.document && frame.document.body && frame.document.body.innerHTML != ''){
-		var message = "";
-		
-		if(frame.document.body.innerHTML != null && frame.document.body.innerHTML.indexOf("server has encountered an error") != -1) {
-			//the server returned a generic error page
-			message = "Error: an error occurred while trying to upload your file, please make sure you do not try to upload files larger than 10 mb";
-		} else {
-			//there was no error so we will display the message that we received
-			message = frame.document.body.innerHTML;
-		}
-		
-		//display the message in the upload manager
-		notificationManager.notify(message, 3, 'uploadMessage', 'notificationDiv');
-		
-		/* set source to blank in case of page reload */
-		htmlFrame.src = 'about:blank';
-		
-		/* cancel fired to clean up and hide the dialog */
-		//eventManager.fire('assetUploadCancel');
-		
-		// refresh edit asset dialog
-		if (target.getAttribute('type')=="student") {
-			eventManager.fire('viewStudentAssets');			
-		} else {
-			eventManager.fire('viewAssets',view.assetEditorParams);
-		}
-		$('#assetProcessing').hide();
-		
-		/* change cursor back to default */
-		document.body.style.cursor = 'default';
-		
-		document.getElementById('uploadAssetFile').setAttribute("name", 'uploadAssetFile');
-	} else {
-		document.body.removeChild(htmlFrame);
-	}
 };
 
 /**
@@ -1206,27 +1161,29 @@ View.prototype.getAnnotationsByType = function(annotationType) {
 /*
  * Finds any DOM elements with the 'tooltip' class and initializes the tipTip (modified) plugin on each.
  * 
+ * @param target A jQuery DOM object on which to process elements (Optional; default is entire page)
  * @param options An object to specify default tipTip settings for all tooltips (Optional; 
  * see https://github.com/indyone/TipTip for allowable options)
- * @param target A jQuery DOM object on which to process elements (Optional; default is entire page)
  * 
- * Individual tooltip options can be customized by adding additional attributes to the DOM element 
+ * Individual tooltip options can be customized by adding jQuery data fields or HTML5 data-* attributes 
+ * to the DOM element 
  * (Optional; will override default settings):
  * - tooltip-event: 'hover', 'click', 'focus', and 'manual' set the tooltip to show on mouse click,
  * mouse hover, element focus, and manual activation [via $('#element').tipTip.('show')] respectively
  * (default is 'hover')
  * - tooltip-anchor: 'bottom', 'top', 'left', and 'right' set the positions of the tooltip to bottom, top, left, 
  * and right respectively (default is 'top')
- * - tooltip-maxw: 'XXXpx' sets the max-width of the tooltip element to XXX pixels (default is '400px');
+ * - tooltip-maxw: 'X' sets the max-width of the tooltip element to X pixels (default is '400');
  * - tooltip-content: String (or HTML String) to set as the tooltip's content (default is the element's 
  * title attribute)
  * - tooltip-class: String to add to the tooltip element's css class (default is none)
- * - tooltip-offset: 'XX' sets as the offset of the tooltip element to XX pixels (default is '0')
+ * - tooltip-offset: 'X' sets the offset of the tooltip element to X pixels (default is '0')
+ * - tooltip-delay: 'X' sets the appearance delay of the tooltip element to X milliseconds (default is '200')
  * - tooltip-keep: String ('true' or 'false') to specify whether the tooltip should stay visible when mouse
  * moves away from the element (and hide when the mouse leaves the tooltip or the user clicks on another
  * part of the page) (default is 'false')
  */
-View.prototype.insertTooltips = function(options,target){
+View.prototype.insertTooltips = function(target,options){
 	function processElement(item,options){
 		item.css('cursor','pointer');
 		
@@ -1237,7 +1194,7 @@ View.prototype.insertTooltips = function(options,target){
 			edgeOffset:2,
 			fadeIn:100,
 			fadOut:100,
-			delay:200
+			delay:100
 		};
 		if(options != null && typeof options == 'object'){
 			// tipTip options have been sent in as a parameter, so merge with defaults
@@ -1245,38 +1202,44 @@ View.prototype.insertTooltips = function(options,target){
 		}
 		
 		// set options based on target element attributes
-		if(item.attr('tooltip-event') == 'click'){
+		if(item.data('tooltip-event') == 'click' || jQuery.browser.mobile){ // if using a mobile browser, always set activation to 'click' (mobile browsers don't support hover events well)
 			settings['activation'] = 'click';
-		} else if(item.attr('tooltip-event') == 'hover'){
+		} else if(item.data('tooltip-event') == 'hover'){
 			settings['activation'] = 'hover';
-		} else if(item.attr('tooltip-event') == 'manual'){
+		} else if(item.data('tooltip-event') == 'manual'){
 			settings['activation'] = 'manual';
 		}
-		if(item.attr('tooltip-anchor') == 'right'){
+		if(item.data('tooltip-anchor') == 'right'){
 			settings['defaultPosition'] = 'right';
-		} else if (item.attr('tooltip-anchor') == 'bottom'){
+		} else if (item.data('tooltip-anchor') == 'bottom'){
 			settings['defaultPosition'] = 'bottom';
-		} else if (item.attr('tooltip-anchor') == 'left'){
+		} else if (item.data('tooltip-anchor') == 'left'){
 			settings['defaultPosition'] = 'left';
-		} else if (item.attr('tooltip-anchor') == 'top'){
+		} else if (item.data('tooltip-anchor') == 'top'){
 			settings['defaultPosition'] = 'top';
 		}
-		if(item.attr('tooltip-maxw') && item.attr('tooltip-maxw').match(/^[0-9]+px$/)){
-			settings['maxWidth'] = item.attr('tooltip-maxw');
+		if(typeof item.data('tooltip-maxw') == 'string'){
+			settings['maxWidth'] = item.data('tooltip-maxw') + 'px';
 		}
-		if(typeof item.attr('tooltip-content') == 'string'){
-			settings['content'] = item.attr('tooltip-content');
+		if(typeof item.data('tooltip-content') == 'string'){
+			settings['content'] = item.data('tooltip-content');
 		}
-		if(typeof item.attr('tooltip-offset') == 'string'){
-			settings['edgeOffset'] = parseInt(item.attr('tooltip-offset'));
+		if(typeof item.data('tooltip-offset') == 'string'){
+			settings['edgeOffset'] = parseInt(item.data('tooltip-offset'));
 		}
-		if(typeof item.attr('tooltip-class') == 'string'){
-			settings['cssClass'] = item.attr('tooltip-class');
+		if(typeof item.data('tooltip-class') == 'string'){
+			settings['cssClass'] = item.data('tooltip-class');
 		}
-		if(typeof item.attr('tooltip-keep') == 'string'){
-			if (item.attr('tooltip-keep') == 'true'){
+		if(typeof item.data('tooltip-delay') == 'string'){
+			var delay = parseInt(item.data('tooltip-delay'));
+			if(delay != 'NaN'){
+				settings['delay'] = delay;
+			}
+		}
+		if(typeof item.data('tooltip-keep') == 'string'){
+			if (item.data('tooltip-keep') == 'true'){
 				settings['keepAlive'] = true;
-			} else if (item.attr('tooltip-keep') == 'false'){
+			} else if (item.data('tooltip-keep') == 'false'){
 				settings['keepAlive'] = false;
 			}
 		}
@@ -1292,7 +1255,7 @@ View.prototype.insertTooltips = function(options,target){
 		item.tipTip(settings);
 		
 		// remove all tooltip attributes and class from DOM element (to clean up html and so item are not re-processed if insertTooltips is called again on same page)
-		item.removeAttr('tooltip-event').removeAttr('tooltip-anchor').removeAttr('tooltip-maxw').removeAttr('tooltip-content').removeAttr('tooltip-class').removeAttr('tooltip-offset').removeAttr('tooltip-keep').removeClass('tooltip');
+		item.removeAttr('data-tooltip-event').removeAttr('data-tooltip-anchor').removeAttr('data-tooltip-maxw').removeAttr('data-tooltip-content').removeAttr('data-tooltip-class').removeAttr('data-tooltip-offset').removeAttr('data-tooltip-keep').removeAttr('data-tooltip-delay').removeClass('tooltip');
 	}
 	
 	// for all DOM elements with the 'tooltip' class, initialize tipTip
@@ -1412,6 +1375,8 @@ View.prototype.utils.capitalize = function(string) {
  * Generates and returns a random key of the given length if
  * specified. If length is not specified, returns a key 10
  * characters in length.
+ * 
+ * @param length Integer
  */
 View.prototype.utils.generateKey = function(length){
 	this.CHARS = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r", "s","t",
@@ -1434,10 +1399,30 @@ View.prototype.utils.generateKey = function(length){
 };
 
 /**
+ * Given a nodeType, returns the readable node name (as specified in a node's 
+ * authoringToolName variable.
+ * 
+ * @param nodeType String
+ */
+View.prototype.utils.getAuthoringNodeName = function(nodeType){
+	var nodeName = '';
+	// get all the node constructors
+	var nodeConstructors = NodeFactory.nodeConstructors;
+	var constructor = nodeConstructors[nodeType];
+	
+	// check if there is a constructor
+	if(constructor != null) {
+		// get the readable name of the node
+		nodeName = constructor.authoringToolName;
+	}
+	return nodeName;
+};
+
+/**
  * Given an image url, calculates and returns the height and width of the image in pixels.
  * Modified from: http://stackoverflow.com/questions/106828/javascript-get-image-height/952185#952185
  * @param url String identifying the url of an image file
- * @returns dimensions Object specifying height and width of the image file (defaults to 0, 0)
+ * @param callback Function to execute when dimensions have been found
  */
 View.prototype.utils.getImageDimensions = function(url,callback){
 	var dimensions = {
@@ -1464,7 +1449,39 @@ View.prototype.utils.getImageDimensions = function(url,callback){
 };
 
 /**
+ * Given a swf url, calculates and returns the height and width of the swf in pixels.
+ * With help from: http://stackoverflow.com/questions/7710799/load-timer-on-swfobject-for-swf-load-time
+ * @param url String identifying the url of an swf file
+ * @param callback Function to execute when dimensions have been found
+ */
+View.prototype.utils.getSwfDimensions = function(url,callback){
+	// TODO: accomplish by loading swf in a helper swf that loads the file and sends dimensions to browser via ExternalInterface
+};
+
+/**
+ * Given a string, escapes : and . characters and returns the escaped string.
+ * @param selector String
+ * @returns String
+ * 
+ * Since jQuery uses CSS syntax for selecting elements, escaping CSS notation characters is necessary 
+ * when using jQuery to select elements that contain them.
+ * See: http://docs.jquery.com/Frequently_Asked_Questions#How_do_I_select_an_element_by_an_ID_that_has_characters_used_in_CSS_notation.3F
+ */
+View.prototype.jquerySelectorEscape = function(selector){
+	return selector.replace(/(:|\.)/g,'\\$1');
+};
+
+/**
+ * jQuery.browser.mobile (http://detectmobilebrowser.com/)
+ *
+ * jQuery.browser.mobile will be true if the browser is a mobile device
+ *
+ **/
+(function(a){jQuery.browser.mobile=/android.+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|meego.+mobile|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(di|rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))})(navigator.userAgent||navigator.vendor||window.opera);
+
+/**
  * Used in Show My Work for draw steps
+ * TODO: move
  */
 function enlargeDraw(divId){
 	var newwindow = window.open("/vlewrapper/vle/node/draw/svg-edit/svg-editor-grading.html");

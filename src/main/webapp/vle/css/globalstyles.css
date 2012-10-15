@@ -1,8 +1,50 @@
 /** Styles for global vle tools and elements **/
+
+.center {
+	text-align:center;
+}
+
+.hidden {
+	display:none;
+}
+
+.block {
+	display:block;
+}
+
+.transparent {
+	opacity:0;
+	filter:alpha(opacity: 0);
+}
+
 p.info {
 	font-size: 0.9em;
 	margin: 0 0.5em 0.5em;
 	color: #745A33;
+}
+
+/* Links and input elements */
+
+a { 
+	/*color: #007391;*/
+	color:#1c8ca8;
+	margin: 0;
+    text-decoration:none;
+    cursor:pointer;
+    outline:none;
+}
+
+a:hover { text-decoration:underline; }
+
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+	outline:none;
+}
+
+img.help {
+	vertical-align:text-top;
+	margin-right:.25em;
+	height:16px;
+	width:16px;
 }
 
 input[type="text"], input[type="password"], textarea {
@@ -21,13 +63,15 @@ input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
 input[type="submit"], input[type="button"] {
 	background-color: #F2F5DB;
     border: 1px solid #C5CD61;
-    -moz-border-radius: 6px 6px 6px 6px;
-    -webkit-border-radius: 6px 6px 6px 6px;
-    border-radius: 6px 6px 6px 6px;
+    -o-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
     /*-moz-box-shadow: 0 0 1px #CCCCCC;
     -webkit-box-shadow: 0 0 1px #CCCCCC;
-    box-shadow: 0 0 1px #CCCCCC;*/
-    color: #585F0C;
+    box-shadow: 0 0 1px #CCCCCC;
+    color: #585F0C;*/
+    color:#727708;
     cursor: pointer;
     font-size: 0.9em;
     padding: 0.25em 0.5em;
@@ -50,38 +94,11 @@ input[type="submit"]:hover, input[type="button"]:hover {
 	color: #ffffff;
 }*/
 
-input[type="submit"][disabled="disabled"],input[type="button"][disabled="disabled"],
+input[type="submit"][disabled],input[type="button"][disabled],
 input.disabled[type="submit"], input.disabled[type="button"] {
 	background-color: #F4F4F4;
     border-color: #CCCCCC;
     color: #999999;
-}
-
-table.wisetable {
-	border-collapse: collapse;
-	margin: .5em auto;
-	border: 0 none;
-	text-align: center;
-}
-
-table.wisetable th {
-	border-bottom: 2px solid #777;
-	color: #444;
-	font-weight: bold;
-	padding: .25em .5em;
-	text-align: center;
-}
-
-table.wisetable td {
-	border: 1px solid #DDD;
-	text-align: center;
-	vertical-align: middle;
-	padding: .5em;
-	font-size: 0.9em;
-}
-
-table.wisetable td.emph {
-	color: #745A33;
 }
 
 .pValue {
@@ -124,7 +141,7 @@ a.submit {
     color: #ffffff !important;
     font-weight: bold;
     cursor:pointer;
-    margin:0 1em;
+    margin:0;
 }
 a.submit:hover {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff553f), color-stop(100%,#eb1f0c));
@@ -155,28 +172,65 @@ a.submit.disabled {
 
 /* System Messages */
 
-#vle_messages {
-	
+.message {
+	color:#745a33;
+	border:1px solid #745a33;
+	background-color:#f4efe8;
+	padding:.25em .5em;
+	-moz-box-shadow:1px 1px 2px #aaa;
+	-webkit-box-shadow:1px 1px 2px #aaa;
+	-o-box-shadow:1px 1px 2px #aaa;
+	box-shadow:1px 1px 2px #aaa;
+	display:inline-block;
 }
+
+.message.error, .message.alert {
+	color:#FF563F;
+	border-color:#FF563F;
+	background-color:#fff3f2;
+}
+
+.error, .alert {
+	color:#FF563F;
+}
+
+.message.success {
+	color:#1c8ca8;
+	border-color:#1c8ca8;
+	background-color:#eaf4f7;
+}
+
+.success {
+	color:#1c8ca8;
+}
+
+#vle_messages {}
 							
 #vle_messages .message  {
 	padding:.25em .5em;
+	border:0 none;
 	border-bottom:1px solid #777777;
 	text-align: center;
 	/*color:#EEEEEE;*/
-	color:#CCCCCC;
+	color:#DDDDDD;
 	font-size:.8em;
-	font-weight:bold;
+	/*font-weight:bold;*/
 	position:relative;
 	background: none repeat scroll 0 0 #333333;
+	-moz-box-shadow:none;
+	-webkit-box-shadow:none;
+	-o-box-shadow:none;
+	box-shadow:none;
+	display:block;
 	/*background:url("../images/message_bg.png") repeat scroll center center #2e2e2e;*/
 }
 
-#vle_messages .message span.content {
-	padding:0 20px;
+#vle_messages .message .content {
+	margin:0 20px;
+	display:inline-block;
 }
 
-#vle_messages .message span.content a {
+#vle_messages .message .content a {
 	font-weight:bold;
 	color:#FFFFFF;
 }

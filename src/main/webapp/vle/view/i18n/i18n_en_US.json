@@ -1,4 +1,80 @@
 {
+	"ok":{
+		"value":"OK",
+		"description":"Text 'OK'"
+	},
+	"done":{
+		"value":"Done",
+		"description":"Text 'done', to mean completed"
+	},
+	"cancel": {
+		"value":"Cancel",
+		"description":"Text for the word 'Cancel'"
+	},
+	"close": {
+		"value":"Close",
+		"description":"Text for the word 'Close'"
+	},
+	"submit": {
+		"value":"Submit",
+		"description":"Text for the word 'Submit'"
+	},
+	"undo_changes": {
+		"value":"Undo Changes",
+		"description":"Text for the words 'Undo Changes'"
+	},
+	"settings": {
+		"value":"Settings",
+		"description":"Text for the word 'Settings'"
+	},
+	"save": {
+		"value":"Save",
+		"description":"Text for the word 'Save'"
+	},
+	"validator_item_required": {
+		"value":"*This item is required.",
+		"description":"Text that is displayed when a required validation item is missing"
+	},
+	"idea":{
+		"value":"idea",
+		"description":"The default text for an 'idea' in the Idea Manager tool."
+	},
+	"open":{
+		"value":"Open",
+		"description":"Text for the word 'Open'"
+	},
+	"copy":{
+		"value":"Copy",
+		"description":"Text for the word 'Copy'"
+	},
+	"ID": {
+		"value":"ID",
+		"description":"Text for the word 'ID'"
+	},
+	"toggle_on": {
+		"value":"ON",
+		"description":"Text to display when a control toggle is enabled ('on')"
+	},
+	"toggle_off": {
+		"value":"OFF",
+		"description":"Text to display when a control toggle is disabled ('off')"
+	},
+	"more_info":{
+		"value":"More Info",
+		"description":"Text for the phrase 'More Info'"
+	},
+	"filename":{
+		"value":"Filename",
+		"description":"Text for the word 'Filename'"
+	},
+	"size":{
+		"value":"Size",
+		"description":"Text for the word 'Size'"
+	},
+	"modified":{
+		"value":"Modified",
+		"description":"Text for the word 'Modified'"
+	},
 	"select_option_choose":{
 		"value":"Choose One",
 		"description":"Text for a default (disabled) option in a select drop-down element"
@@ -173,59 +249,11 @@
 	},
 	"student_assets_student_usage_message":{
 		"value":"You are using {0} of your {1} storage space.",
-		"description":"Text on a button in Student Asset Manager to delete a selected file"
+		"description":"Text in Student Asset Manager showing currently used storage space"
 	},
 	"student_assets_student_usage_exceeded_message":{
 		"value":"Maximum space exceeded! Maximum allowed is {0}, total on server is {1}. Please delete some files.",
 		"description":"Text on a button in Student Asset Manager to delete a selected file"
-	},
-	"ok":{
-		"value":"OK",
-		"description":"Text 'OK'"
-	},
-	"done":{
-		"value":"Done",
-		"description":"Text 'done', to mean completed"
-	},
-	"cancel": {
-		"value":"Cancel",
-		"description":"Text for the word 'Cancel'"
-	},
-	"submit": {
-		"value":"Submit",
-		"description":"Text for the word 'Submit'"
-	},
-	"settings": {
-		"value":"Settings",
-		"description":"Text for the word 'Settings'"
-	},
-	"validator_item_required": {
-		"value":"*This item is required.",
-		"description":"Text that is displayed when a required validation item is missing"
-	},
-	"idea":{
-		"value":"idea",
-		"description":"The default text for an 'idea' in the Idea Manager tool."
-	},
-	"open":{
-		"value":"Open",
-		"description":"Text for the word 'Open'"
-	},
-	"copy":{
-		"value":"Copy",
-		"description":"Text for the word 'Copy'"
-	},
-	"ID": {
-		"value":"ID",
-		"description":"Text for the word 'ID'"
-	},
-	"toggle_on": {
-		"value":"ON",
-		"description":"Text to display when a control toggle is enabled ('on')"
-	},
-	"toggle_off": {
-		"value":"OFF",
-		"description":"Text to display when a control toggle is disabled ('off')"
 	},
 	"idea_plural":{
 		"value":"ideas",
@@ -568,7 +596,7 @@
 		"description":"Text to display before the date created for a project (e.g. 'Created for Run 540: Jun 12, 2010')"
 	},
 	"authoring_toggle_favorite_title":{
-		"value":"Add/Remove as Favorite",
+		"value":"Toggle as Favorite",
 		"description":"Text for the title/tooltip of toggle favorite (bookmark) links."
 	},
 	"authoring_toggle_favorite_failed": {
@@ -623,6 +651,10 @@
 		"value":"Edit Step Term",
 		"description":"Text for the title/tooltip of the edit step term text input in the project authoring panel."
 	},
+	"authoring_project_panel_edit_activityterm":{
+		"value":"Edit Activity Term",
+		"description":"Text for the title/tooltip of the edit activity term text input in the project authoring panel."
+	},
 	"authoring_project_panel_edit_thumb":{
 		"value":"Edit Picture",
 		"description":"Text for the title/tooltip of the edit project thumbnail link in the project authoring panel."
@@ -656,16 +688,20 @@
 		"description":"Label text for the number by project option in the step numbering selector in the project authoring panel."
 	},
 	"authoring_project_panel_stepterm_label":{
-		"value":"Step Term",
+		"value":"\"Step\" Term",
 		"description":"Label text for the step term input in the project authoring panel."
+	},
+	"authoring_project_panel_activityterm_label":{
+		"value":"\"Activity\" Term",
+		"description":"Label text for the activity term input in the project authoring panel."
 	},
 	"authoring_project_panel_theme_label":{
 		"value":"Theme",
 		"description":"Label text for the edit theme link in the project authoring panel."
 	},
 	"authoring_project_panel_edit_theme":{
-		"value":"Change",
-		"description":"Label text for the edit theme link in the project authoring panel."
+		"value":"Change Theme",
+		"description":"Label/tooltip text for the edit theme link in the project authoring panel."
 	},
 	"authoring_project_panel_features":{
 		"value":"Features:",
@@ -743,9 +779,169 @@
 		"value":"Copying Project",
 		"description":"Text for the processing message when copying a project in the copy project dialog window."
 	},
+	"authoring_dialog_im_enable": {
+		"value":"Enable Idea Manager Tools",
+		"description":"Label text for the enable Idea Manager toggle switch in the Idea Manager settings dialog window."
+	},
 	"authoring_dialog_title_nameinput":{
 		"value":"Please enter a name for this project:",
 		"description":"Text instructing user to enter a name for the project in the edit project title dialog window."
+	},
+	"authoring_dialog_assets_title":{
+		"value":"Manage Project Files",
+		"description":"Text for the title of the manage project files dialog window."
+	},
+	"authoring_dialog_assets_max_storage_error":{
+		"value":"Sorry, adding this file will put you over the maximum storage allowed for this project. Please delete some files and try again.",
+		"description":"Error message when user attempts to upload a file that will exceed max storage capacity in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_max_storage_exceeded":{
+		"value":"Warning: You have exceeded the maximum file storage capacity for this project. To upload more, please delete some existing files.",
+		"description":"Error message when project has exceeded max storage capacity in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_header":{
+		"value":"Files for Project {0}",
+		"description":"Text for the header of the manage project files dialog window."
+	},
+	"authoring_dialog_assets_table_used":{
+		"value":"Use",
+		"description":"Text for the header of the usage column in the assets table of the manage project files dialog window."
+	},
+	"authoring_dialog_assets_notused":{
+		"value":"File is not used in any steps",
+		"description":"Text alerting user that a file is not used in any steps in the project in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_notused_warning":{
+		"value":"",
+		"description":""
+	},
+	"authoring_dialog_assets_isused":{
+		"value":"File is used in these step(s):",
+		"description":"Text alerting user that a file is used in the following step(s) in the project in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_inactiveused":{
+		"value":"File is only used in inactive step(s):",
+		"description":"Text alerting user that a file is only used in the following inactive step(s) in the project in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_inactive":{
+		"value":"Inactive:",
+		"description":"Label for an inactive step in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_ref_path":{
+		"value":"The HTML reference for an image named <b>myimage.png</b> will be: <b>&#60;img src=\"assets/myimage.png\" alt=\"description of image\" /&#62;</b>.",
+		"description":"Text that shows user how to reference an uploaded asset in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_link":{
+		"value":"Upload Files +",
+		"description":"Text for the upload file link in the manage project files dialog."
+	},
+	"authoring_dialog_assets_storage_label":{
+		"value":"Using {0} / {1}",
+		"description":"Text to display the used storage space in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_dropzone":{
+		"value":"Click the button to the left or drag and drop files here to upload",
+		"description":"Text identify the area on which users can drop files to upload them in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_header":{
+		"value":"Upload Progress",
+		"description":"Text to display as the header for the upload progress area in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_file_dimensions":{
+		"value":"w: {0}px&nbsp&nbsph: {1}px",
+		"description":"Text to display the dimensions of the currently selected file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_multi_select":{
+		"value":"{0} files selected",
+		"description":"Text to display when multiple files are selected in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_filetype_error":{
+		"value":"Sorry, this file type is not allowed.",
+		"description":"Error message displayed when user tries to upload a filetype that is not allowed in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_folder_error":{
+		"value":"Sorry, uploading folders is not allowed.",
+		"description":"Error message displayed when user tries to upload a folder in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_duplicate_skipped":{
+		"value":"File skipped.",
+		"description":"Message displayed when user decides not to overwrite an uploaded file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_confirm_overwrite":{
+		"value":"A file with the name \"{0}\" already exists. Do you want to overwrite this file?",
+		"description":""
+	},
+	"authoring_dialog_assets_max_upload_limit":{
+		"value":"Note: A maximum of {0} files per upload is allowed.\n\nThe first {0} files you selected will be added to the project. You can upload the remaining {1} file(s) after this upload has completed.",
+		"description":"Alert to display when user attempts to upload more than the max number of files at one time in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_uploading":{
+		"value":"Uploading {0}",
+		"description":"Message displayed when a file is being uploaded in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_size_error":{
+		"value":"Error: Please make sure you do not try to upload files larger than {1}.",
+		"description":"Error message displayed when file size exceeds max storage capacity in the manage project files dialog."
+	},
+	"authoring_dialog_assets_upload_exceed_capacity_error":{
+		"value":"Error: Not enough space.",
+		"description":"Error message displayed when uploading file would exceed max storage capacity in the manage project files dialog."
+	},
+	"authoring_dialog_assets_upload_perm_error":{
+		"value":"Sorry, you are not authorized to upload files to this project. If you believe this is an error, please contact the project owner or a WISE administrator.",
+		"description":"Error message displayed when user tries to upload a file without permission in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_generic_error":{
+		"value":"Sorry, there was an error uploading file. Please try again or contact WISE support.",
+		"description":"Error message displayed for a generic upload error in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_success":{
+		"value":"Success&nbsp&#x2713;",
+		"description":"Success message for an uploaded file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_upload_space_warning":{
+		"value":"Note: Some web browsers don't handle spaces in URLs correctly. If you reference this file in any step's HTML, be sure all the spaces are replaced with \"%20\" (i.e. <b>assets/{0}</b>).",
+		"description":"Warning text for when an uploaded file contains space characters in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_delete_perm_error":{
+		"value":"Sorry, you are not authorized to delete files from this project. If you believe this is an error, please contact the project owner or a WISE administrator.",
+		"description":"Error message displayed when user tries to delete a file without permission in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_delete_success":{
+		"value":"Successfully deleted <b>{0}</b>.",
+		"description":"Message displayed when user successfully deletes a file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_download_perm_error":{
+		"value":"Sorry, you are not authorized to download files from this project. If you believe this is an error, please contact the project owner or a WISE administrator.",
+		"description":"Error message displayed when user tries to download a file without permission in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_table_empty":{
+		"value":"This project contains no files.",
+		"description":"Text notifying user when the project contains no uploaded files in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_table_footer_files":{
+		"value":"File(s)",
+		"description":"Text for the word 'files' in the footer of the file table in the manage project dialog window."
+	},
+	"authoring_dialog_assets_preview_header":{
+		"value":"Preview",
+		"description":"Text for the header of the preview panel in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_view":{
+		"value":"Full Size",
+		"description":"Text for the link to view an uploaded file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_download":{
+		"value":"Download",
+		"description":"Text for the link to download an uploaded file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_delete":{
+		"value":"Delete",
+		"description":"Text for the link to delete an uploaded file in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_delete_confirm":{
+		"value":"Permanently delete \"{0}\" from project?",
+		"description":"Text for the confirmation message displayed when deleting an asset in the manage project files dialog window."
 	},
 	"authoring_project_loading":{
 		"value":"Loading Project Content",
@@ -988,16 +1184,16 @@
 		"description":""
 	},
 	"authoring_imsettings_text_required": {
-		"value":"The <span style='font-weight:bold;'>text</span> attribute is the basic component of each idea and cannot be deleted.",
+		"value":"The <b>text</b> attribute is the basic component of each idea and cannot be deleted.",
 		"description":"The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
 	},
 	"help_authoring_ideamanager_info": {
 		"value":"Help content here",
 		"description":"Help content for general information/summary about the Idea Manager tools"
 	},
-	"help_authoring_studentuploader_info": {
-		"value":"Help content here",
-		"description":"Help content for general information/summary about the Student File Uploader"
+	"help_authoring_assets_info": {
+		"value":"<h3>File Storage</h3><p>Each WISE project is provided {0} of storage space.</p><ul><lh>The following file types are permitted:</lh><li><b>Image:</b> {1}</li><li><b>Video:</b> {2}</li><li><b>Audio:</b> {3}</li><li><b>Flash (& Flash Video):</b> {4}</li><li><b>Java:</b> {5}</li><li><b>Other:</b> {6}</li></ul>",
+		"description":"Help content for the project file manager, including storage limit and allowed file types."
 	},
 	"help_authoring_logginglevel_info": {
 		"value":"Help content here",

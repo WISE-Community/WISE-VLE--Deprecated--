@@ -346,7 +346,7 @@ View.prototype.bindGeneralEvents = function(){
 	// toggle favorite link
 	$('#projectInfo').on('click','a.bookmark',function(){
 		var toggle = $(this);
-		toggle.miniTip({doHide: true});
+		toggle.tipTip('hide');
 		var id = toggle.attr('data-projectid');
 		var isBookmark = toggle.hasClass('true');
 		view.toggleBookmark(id, isBookmark, function(id,isBookmark){
@@ -411,12 +411,17 @@ View.prototype.bindGeneralEvents = function(){
 		view.updateMetaSettings($(this).attr('data-field'),$(this).val());
 	});
 	
-	// project feature toggles
+	// project metadata feature toggles
 	$('#projectInfo input[type="checkbox"].metaInfo').on('click',function(){
 		view.updateMetaTools($(this).attr('data-field'),$(this).prop('checked'));
 	});
 	$('#loggingToggle').on('click',function(){
 		eventManager.fire('postLevelChanged');
+	});
+	
+	// IM settings link
+	$('#imSettingsEdit').on('click',function(){
+		eventManager.fire('editIMSettings');
 	});
 	
 	// set logging level data-on and data-off attributes

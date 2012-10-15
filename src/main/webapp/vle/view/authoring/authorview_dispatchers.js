@@ -216,6 +216,8 @@ View.prototype.metaDispatcher = function(type,args,obj){
 		obj.postLevelChanged();
 	} else if(type=='setLastEdited'){
 		obj.setLastEdited();
+	} else if(type=='editIMSettings'){
+		obj.editIMSettings();
 	}
 };
 

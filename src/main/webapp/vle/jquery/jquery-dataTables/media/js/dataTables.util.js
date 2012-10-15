@@ -34,33 +34,45 @@ jQuery.extend( jQuery.fn.dataTableExt.oSort, {
  */
 
 jQuery.fn.dataTableExt.aTypes.unshift(
-	    function ( sData )
-	    {
-	        var sValidChars = "0123456789";
-	        var Char;
-	  
-	        /* Check the numeric part */
-	        for ( i=0 ; i<(sData.length - 3) ; i++ )
-	        {
-	            Char = sData.charAt(i);
-	            if (sValidChars.indexOf(Char) == -1)
-	            {
-	                return null;
-	            }
-	        }
-	  
-	        /* Check for size unit KB, MB or GB */
-	        if ( sData.substring(sData.length - 2, sData.length) == "KB"
-	            || sData.substring(sData.length - 2, sData.length) == "MB"
-	            || sData.substring(sData.length - 2, sData.length) == "GB" )
-	        {
-	            return 'file-size';
-	        }
-	        return null;
-	    }
-	);
+    function ( sData )
+    {
+        var sValidChars = "0123456789";
+        var Char;
+  
+        /* Check the numeric part */
+        for ( i=0 ; i<(sData.length - 3) ; i++ )
+        {
+            Char = sData.charAt(i);
+            if (sValidChars.indexOf(Char) == -1)
+            {
+                return null;
+            }
+        }
+  
+        /* Check for size unit KB, MB or GB */
+        if ( sData.substring(sData.length - 2, sData.length) == "KB"
+            || sData.substring(sData.length - 2, sData.length) == "MB"
+            || sData.substring(sData.length - 2, sData.length) == "GB" )
+        {
+            return 'file-size';
+        }
+        return null;
+    }
+);
+
+/** Create an array with the values of all the checkboxes in a column 
+ * From: http://datatables.net/examples/plug-ins/dom_sort.html
+ **/
+$.fn.dataTableExt.afnSortData['dom-checkbox'] = function  ( oSettings, iColumn )
+{
+	var aData = [];
+	$( 'td:eq('+iColumn+') input', oSettings.oApi._fnGetTrNodes(oSettings) ).each( function () {
+		aData.push( this.checked==true ? "1" : "0" );
+	} );
+	return aData;
+}
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
-	eventManager.fire('scriptLoaded', 'vle/jquery/jquery-dataTables/media/js/dataTables.fileSize.js');
+	eventManager.fire('scriptLoaded', 'vle/jquery/jquery-dataTables/media/js/dataTables.util.js');
 }

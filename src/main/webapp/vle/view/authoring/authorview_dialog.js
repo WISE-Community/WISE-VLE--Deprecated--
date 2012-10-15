@@ -404,6 +404,7 @@ View.prototype.initializeEditProjectFileDialog = function(){
 
 /**
  * Initializes and renders the asset uploader dialog.
+ * TODO: remove, deprecated
  */
 View.prototype.initializeAssetUploaderDialog = function(){
 	var view = this;
@@ -522,17 +523,8 @@ View.prototype.initializeCopyProjectDialog = function (){
 View.prototype.initializeEditProjectMetadataDialog = function(){
 	var view = this;
 	
-	// setup idea manager toggle change action
-	$('#enableIdeaManager').click(function() {
-		if(this.checked){
-			$("#ideaManagerSettings").slideDown();
-		} else {
-			$("#ideaManagerSettings").slideUp();
-		}
-	});
-	
 	var updateProjectMetadata = function(){
-		var imVersion = $('#enableIdeaManager').attr('version');
+		// TODO: add validation
 		
 		view.projectMeta.title = $('#projectMetadataTitle').val();
 		//view.projectMeta.author = $('#projectMetadataAuthor').val();
@@ -549,66 +541,13 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		view.projectMeta.techReqs.flash = $("#flash").is(':checked');
 		view.projectMeta.techReqs.quickTime = $("#quickTime").is(':checked');
 		view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
-		view.projectMeta.tools = {};
-		view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").is(':checked');
-		view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").is(':checked');
 		view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
 		view.projectMeta.standards = $('#projectMetadataStandards').val();
 		view.projectMeta.keywords = $('#projectMetadataKeywords').val();
 		view.projectMeta.language = $('#projectMetadataLanguage').val();
 		
-		if(parseInt(imVersion) > 1){
-			if(typeof $('#enableIdeaManager').attr('version') == 'string' ){
-				/*$.extend(jQuery.validator.messages, {
-				  required: ' ' + view.getI18NSTring('validator_item_required')
-				});*/
-				if($('#imSettings').validate().form()){
-					view.projectMeta.tools.ideaManagerSettings = {};
-					view.projectMeta.tools.ideaManagerSettings.version = imVersion;
-					view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
-					view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
-					view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
-					// loop through each of the active attributes and add to metadata
-					$('#ideaManagerSettings .attribute.active').each(function(){
-						var attribute = {};
-						var id = $(this).attr('id').replace('attribute_','');
-						var type = $(this).attr('type');
-						attribute.type = type;
-						attribute.id = id;
-						attribute.name = $('#fieldName_' + id).val();
-						attribute.isRequired = $('#required_' + id).is(':checked');
-						if($('#custom_' + id).length > 0){
-							attribute.allowCustom = $('#custom_' + id).is(':checked');
-						}
-						var options = [];
-						if(type=='icon'){
-							$('input.option',$('#options_' + id)).each(function(){
-								if($(this).is(':checked')){
-									options.push($(this).val());
-								}
-							});
-						} else {
-							$('input.option',$('#options_' + id)).each(function(){
-								var val = $(this).val();
-								if(view.utils.isNonWSString(val)){
-									options.push(val);
-								}
-							});
-						}
-						attribute.options = options;
-						view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
-					});
-					view.updateProjectMetaOnServer(true);
-					$('#editProjectMetadataDialog').dialog('close');
-				}
-			}
-		} else {
-			view.updateProjectMetaOnServer(true);
-			$('#editProjectMetadataDialog').dialog('close');
-		}
+		view.updateProjectMetaOnServer(true);
+		$('#editProjectMetadataDialog').dialog('close');
 	};
 
 	var undoProjectMetadata = function(){
@@ -619,7 +558,99 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		$('#editProjectMetadataDialog').dialog('close');
 	};
 	
-	$('#editProjectMetadataDialog').dialog({autoOpen:false, draggable:false, modal:true, title:'Edit Project Information', width:800, buttons: {'Close': cancel, 'Revert To Last Save': undoProjectMetadata, 'Save Changes': updateProjectMetadata}});
+	$('#editProjectMetadataDialog').dialog({autoOpen:false, modal:true, title:'Edit Project Information', width:800,
+		dialogClass: 'settings',
+		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
+		          {text: this.getI18NString("undo_changes"), click: undoProjectMetadata, class: 'secondary'},
+		          {text: this.getI18NString("save"), click: updateProjectMetadata}]});
+};
+
+/**
+ * Initialize and renders the edit IM settings dialog
+ */
+View.prototype.initializeEditIMSettingsDialog = function(){
+	var view = this;
+	
+	if(typeof view.projectMeta.tools == 'undefined'){
+		view.projectMeta.tools = {};
+	}
+	
+	var updateIMSettings = function(){
+		var imEnabled = $('#enableIdeaManager').prop('checked'),
+			imVersion = $('#enableIdeaManager').attr('data-version');
+		
+		if(parseInt(imVersion) > 1 && imEnabled){
+			if($('#imSettings').validate().form()){
+				view.projectMeta.tools.ideaManagerSettings = {};
+				view.projectMeta.tools.ideaManagerSettings.version = imVersion;
+				view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
+				view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
+				view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
+				view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
+				view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
+				view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
+				// loop through each of the active attributes and add to metadata
+				$('#ideaManagerSettings .attribute.active').each(function(){
+					var attribute = {};
+					var id = $(this).attr('id').replace('attribute_','');
+					var type = $(this).attr('data-type');
+					attribute.type = type;
+					attribute.id = id;
+					attribute.name = $('#fieldName_' + id).val();
+					attribute.isRequired = $('#required_' + id).is(':checked');
+					if($('#custom_' + id).length > 0){
+						attribute.allowCustom = $('#custom_' + id).is(':checked');
+					}
+					var options = [];
+					if(type=='icon'){
+						$('input.option',$('#options_' + id)).each(function(){
+							if($(this).is(':checked')){
+								options.push($(this).val());
+							}
+						});
+					} else {
+						$('input.option',$('#options_' + id)).each(function(){
+							var val = $(this).val();
+							if(view.utils.isNonWSString(val)){
+								options.push(val);
+							}
+						});
+					}
+					attribute.options = options;
+					view.projectMeta.tools.ideaManagerSettings.ideaAttributes.push(attribute);
+				});
+				view.projectMeta.tools.isIdeaManagerEnabled = imEnabled;
+				saveIMSettings();
+			}
+		} else {
+			view.projectMeta.tools.isIdeaManagerEnabled = imEnabled;
+			saveIMSettings();
+		}
+	};
+	
+	var saveIMSettings = function(){
+		view.updateProjectMetaOnServer(true);
+		$('#editIMSettingsDialog').dialog('close');
+	};
+	
+	var undoIMSettings = function(){
+		// re-populate settings panel with saved settings
+		view.editIMSettings();
+	};
+	
+	var cancel = function(){
+		$('#editIMSettingsDialog').dialog('close');
+	};
+	
+	$('#editIMSettingsDialog').dialog({autoOpen:false, modal:true, title:'Idea Manager Settings', width:800,
+		dialogClass: 'settings',
+		open: function(){
+			$('#enableIdeaManager').toggleSwitch();
+			$('#enableIdeaManager').toggleSwitch('refresh');
+		},
+		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
+		          {text: this.getI18NString("undo_changes"), click: undoIMSettings, class: 'secondary'},
+		          {text: this.getI18NString("save"), click: updateIMSettings}]});
 };
 
 /**
@@ -718,16 +749,11 @@ View.prototype.initializeOpenProjectDialog = function(){
 	var view = this;
 	var title = this.getI18NString("authoring_dialog_open_title");
 	$('#openProjectDialog').dialog({autoOpen:false, width:800, modal:true, title:title,
-		//open: function(){
-			//deselect all buttons
-			//$('.ui-dialog :button').blur();
-		//},
 		resize: function(){
 			// set project tabs height to fit bottom of dialog, project list elements to fit widths
 			view.setProjectTabsHeight();
 			view.setProjectListingWidths();
-		}//,
-		//buttons: {'Cancel': {text: 'Cancel', click: function(){$(this).dialog("close");}, class: 'secondary'}, 'Open': {text: 'Open', click: function(){eventManager.fire('projectSelected');}}}
+		}
 	});
 };
 

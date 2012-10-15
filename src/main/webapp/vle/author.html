@@ -33,25 +33,27 @@
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
 	<div id="author_body">
 		<header>
-			<div id="logo">
-				<img alt="logo" src="/vlewrapper/vle/images/wise4-logo-vle-nobg.png">
-				<span class="logoText" i18n="authoring_page_title"></span>
-			</div>
-			
-			<div id="globalTools" class="toolbar gradient">
-				<ul>
-					<li id="openProject">
-						<a id="openProjectLink" href="#nopath" i18n="authoring_open_project"></a>
-					</li>
-					
-					<li id="newProject" class="menuGroup">
-						<a id="newProjectLink" href="#nopath" i18n="authoring_new_project"></a>
-					</li>
-					
-					<li id="signOutLinks" class="menuGroup">
-						<a id="exitLink" href="/webapp/teacher/index.html" i18n="authoring_exit"></a>
-					</li>
-				</ul>
+			<div class="content">
+				<div id="logo">
+					<img alt="logo" src="/vlewrapper/vle/images/logo/WISE-logo-icon-60x54.png">
+					<span class="logoText" i18n="authoring_page_title"></span>
+				</div>
+				
+				<div id="globalTools" class="toolbar gradient">
+					<ul>
+						<li id="openProject">
+							<a id="openProjectLink" href="#nopath" i18n="authoring_open_project"></a>
+						</li>
+						
+						<li id="newProject" class="menuGroup">
+							<a id="newProjectLink" href="#nopath" i18n="authoring_new_project"></a>
+						</li>
+						
+						<li id="signOutLinks" class="menuGroup">
+							<a id="exitLink" href="/webapp/teacher/index.html" i18n="authoring_exit"></a>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</header>
 		
@@ -89,32 +91,31 @@
 		
 		<section id="projectContent" class="contentPanel">
 			<div class="panelContent">
-				
 				<div id="projectInfo">
 					<img id="projectThumb" class="projectThumb" />
 					<img id="editThumb" alt="Edit Thumbnail" src="/vlewrapper/vle/images/authoring/editThumb.png" />
 					<div id="infoSummary">
 						<div class="panelHeader">
-							<a class="bookmark tooltip" href="#nogo" i18n-title="authoring_toggle_favorite_title" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="3"></a>
-							<span id="projectTitle" class="inputDisplay tooltip" i18n-title="authoring_project_panel_edit_title" tooltip-class="light" tooltip-anchor="bottom"></span>
+							<a class="bookmark tooltip" href="#nogo" i18n-title="authoring_toggle_favorite_title" data-tooltip-offset="2"></a>
+							<span id="projectTitle" class="inputDisplay tooltip" i18n-title="authoring_project_panel_edit_title" data-tooltip-offset="0"></span>
 							<span id="projectId"></span>
 							<ul id="topProjectTools">
-								<li id="editInfo" class="tooltip" i18n-title="authoring_project_panel_edit_info" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="-1"><img alt="Project Details" src="/vlewrapper/vle/images/authoring/icons/configuration-teal-light.png" /></li>
-								<li id="manageFiles" class="tooltip" i18n-title="authoring_project_panel_manage_files" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="-1"><img alt="Art and Files" src="/vlewrapper/vle/images/authoring/icons/container-teal-light.png" /></li>
-								<li id="previewProject" class="tooltip" i18n-title="authoring_project_panel_preview" tooltip-class="light" tooltip-anchor="bottom" tooltip-offset="-1"><img alt="Preview Project" src="/vlewrapper/vle/images/authoring/icons/screen-teal-light.png" /></li>
+								<li id="editInfo" class="tooltip" i18n-title="authoring_project_panel_edit_info" data-tooltip-anchor="bottom" data-tooltip-offset="-1"><img alt="Project Details" src="/vlewrapper/vle/images/icons/teal/configuration.png" /></li>
+								<li id="manageFiles" class="tooltip" i18n-title="authoring_project_panel_manage_files" data-tooltip-anchor="bottom" data-tooltip-offset="-1"><img alt="Art and Files" src="/vlewrapper/vle/images/icons/teal/container.png" /></li>
+								<li id="previewProject" class="tooltip" i18n-title="authoring_project_panel_preview" data-tooltip-anchor="bottom" data-tooltip-offset="-1"><img alt="Preview Project" src="/vlewrapper/vle/images/icons/teal/screen.png" /></li>
 							</ul>
 						</div>
 						<div id="frontDetails">
 							<div>
-								<label for="numberStepSelect" i18n="authoring_project_panel_stepnumbering_label"></label> 
+								<!-- <label for="numberStepSelect" i18n="authoring_project_panel_stepnumbering_label"></label> 
 								<select id='numberStepSelect'>
 									<option value='0' i18n="authoring_project_panel_stepnumbering_project"></option>
 									<option value='1' i18n="authoring_project_panel_stepnumbering_activity"></option>
-								</select>
+								</select> -->
 								<label for="stepTerm" i18n="authoring_project_panel_stepterm_label"></label>
 								<input type='text' name='stepTerm' i18n-title='authoring_project_panel_edit_stepterm' id='stepTerm' size='8'/>
 								<label for="currentTheme" i18n="authoring_project_panel_theme_label"></label>
-								<span id="currentTheme"></span> - <span id="currentNavMode"></span><a id="changeTheme" href="#nopath" i18n="authoring_project_panel_edit_theme"></a>
+								<a id="changeTheme" class="tooltip" i18n-title="authoring_project_panel_edit_theme" href="#nopath"><span id="currentTheme"></span> - <span id="currentNavMode"></a>
 							</div>
 							<div>
 								<label for="projectMetadataSubject" i18n="authoring_meta_subject_label"></label>
@@ -173,19 +174,19 @@
 									<div class="featureToggle">
 										<input type="checkbox" id="enableIM" name="enableIM" class="metaInfo" data-field="isIdeaManagerEnabled" />
 										<label for="enableIM" i18n='idea_manager'></label>
-										<img src='images/icons/teal/question.png' alt='Idea Manager Help' class='tooltip help' tooltip-class='info' tooltip-anchor='right' tooltip-keep='true' tooltip-event='click' i18n-title='help_authoring_ideamanager_info' />
-										<a id="imSettings" href="#nogo" i18n="settings"></a>
+										<img src='images/icons/info.png' alt='Idea Manager Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='bottom' data-tooltip-keep='true' i18n-title='help_authoring_ideamanager_info' />
+										<a id="imSettingsEdit" href="#nogo" i18n="settings"></a>
 									</div>
 									<div class="featureToggle">
 										<input type="checkbox" id="enableUpload" name="enableUpload" class="metaInfo" data-field="isStudentAssetUploaderEnabled" />
 										<label for="enableUpload" i18n="student_uploader"></label>
-										<img src='images/icons/teal/question.png' alt='Student Upoader Help' class='tooltip help' tooltip-class='info' tooltip-anchor='right' tooltip-keep='true' tooltip-event='click' i18n-title='help_authoring_studentuploader_info' />
+										<img src='images/icons/info.png' alt='Student Upoader Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='bottom' data-tooltip-keep='true' i18n-title='help_authoring_studentuploader_info' />
 									</div>
 								</div>
 								<div id="loggingLevel">
 									<label for="loggingToggle" i18n="authoring_project_panel_logging_label"></label>
 									<input type="checkbox" checked="checked" id="loggingToggle" name="loggingToggle" />
-									<img src='images/icons/teal/question.png' alt='Logging Level Help' class='tooltip help' tooltip-class='info' tooltip-anchor='left' tooltip-keep='true' tooltip-event='click' i18n-title='help_authoring_logginglevel_info' />
+									<img src='images/icons/info.png' alt='Logging Level Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor=bottom data-tooltip-keep='true' i18n-title='help_authoring_logginglevel_info' />
 								</div>
 							</div>
 						</div>
@@ -193,9 +194,9 @@
 				</div>
 				
 				<div id="projectStructure">
-					<div id="structureWrapper">
+					<div class="contentWrapper">
 			
-						<div id="authorHeader">
+						<div id="authorHeader" style="display:none;">
 						
 							 <div id="toolsAreaAuthor">
 							    <dl class="dropdownAuthor">
@@ -286,7 +287,7 @@
 						</div>   <!--end of div  authorHeader-->
 				
 					<div id="currentProjectContainer">
-						<div id="currentProjectContent">
+						<div id="currentProjectContent" style="display:none;">
 							<div id='projectTitle'>Project Title: 
 								<input type="text" id='projectTitleInput' title='Click to Edit Project Title' size='40' onchange='eventManager.fire("projectTitleChanged")'/>
 								<a id='editProjectTitle' onclick='$("#projectTitleInput").focus();' title='Edit Project Title'>Edit</a>
@@ -301,7 +302,7 @@
 							<div id="concurrentAuthorDiv"></div>
 						</div>
 				
-						<div id='projectTools'>
+						<div id='projectTools' style="display:none;">
 							<div id='selectNodeTools'>
 								<button class='first' title='Select All Steps & Activities' onclick='eventManager.fire("selectAll");'><span class='tool-icon-left action-icon action-icon-select'></span><span class='tool-label'>Select All</span></button>
 								<button class='last' title='Deselect All Steps & Activities' onclick='eventManager.fire("clearAll");'><span class='tool-icon-left action-icon action-icon-deselect'></span><span class='tool-label'>Select None</span></button>
@@ -331,26 +332,17 @@
 						</div>
 					
 						<div id="authoringContainer">
-							<div id="authoringTable">
-								<div id="assignedcontainer">
-									<div id="ddTable">
-										<div id='projectLayout'>
-											<div id='dynamicProject'></div>
-										</div>
-									</div>
-								</div>
-							</div>
+							<div id='dynamicProject'></div>
 						</div>
-					
-						<div id="clearFloats" class="clearFloats"></div>
 					</div>
-				</div> <!-- end of structureWrapper -->
+				</div> <!-- end of contentWrapper -->
+			</div> <!-- end of projectStructure -->
 				<div class="overlay contentOverlay" id="projectOverlay"></div>
 				<div class="loading contentLoading" id="projectLoading">
 					<div class="loadingText" i18n="authoring_project_loading"></div>
 					<div><img src="images/loading.gif"/></div>
 				</div>
-			</div> <!-- end of projectStructure -->
+			</div>
 		</section>   <!--end of projectContent-->
 	</div>
 	
@@ -386,7 +378,7 @@
 			<!-- <div class="projectList" id="allProjects"></div> -->
 			<div class="projectList" id="libraryProjects"></div>
 		</div>
-		<div class="overlay contentOverlay" id="openProjectOverlay"></div>
+		<div class="overlay contentOverlay dialogOverlay" id="openProjectOverlay"></div>
 		<div class="loading contentLoading" id="openProjectLoading">
 			<div class="loadingText"></div>
 			<div><img src="images/loading.gif"/></div>
@@ -432,35 +424,70 @@
 		</div>
 	</div>
 	
-	<!--<div id="assetUploaderDialog" style="display: none;">
-		<div class='hd'>Upload a File to the WISE4 Server</div>
-		<div id='assetUploaderBodyDiv' class='bd'>
-		
-		<input type='file' id='uploadAssetFile' name='dontmatter' size='30'></input><br/>
-	
-		<div id="uploaderInstructions">
-			<h5>Example Link to an Uploaded File:</h5>
-			<p>If the uploaded file is called <b>myimage.jpg</b> then your HTML reference will be:</p>
-			<p class="sampleCode">&#60;img src="assets/myimage.jpg" alt="description of graphic here" /&nbsp;&#62;</p>
-		</div>
-		</div>
-	</div>-->
-	
 	<div id='assetEditorDialog' class="dialog">
-		<div class='hd'>
-			<div>Upload a file to the WISE4 server:</div>
-			<div id='assetUploaderBodyDiv' class='bd'>
-				<input type='file' id='uploadAssetFile' name='uploadAssetFile' size='50' onchange="eventManager.fire('submitUpload')"></input><div id='assetProcessing' style='display:none;'><img class='loadingImg' src='/vlewrapper/vle/images/ajax-loader.gif' alt='loading...' /></div>
+		<div class='featureSettings'>
+			<div class="settingsHeader">
+				<span id="assetsHeader"></span>
+				<div id="assetUsage">
+					<div id="sizeDiv"></div>
+					<div id="sizeBar"></div>
+					<img id="assetsHelp" src='images/icons/info.png' alt='File Manager Help' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='left' />
+				</div>
+			</div>
+			<div class="setting" id="assetUploadWrapper">
+				<div id="assetUpload">
+					<input id="uploadFile" i18n="authoring_dialog_assets_upload_link" type="button" />
+				</div>
+				<div id="assetNotify">
+					<div id="uploadDrop" class="show">
+						<span i18n="authoring_dialog_assets_upload_dropzone"></span>
+						<div id="uploadDropArea"></div>
+					</div>
+					<div id="uploadsWrapper"></div>
+				</div>
+				<div style="clear:both;"></div>
+			</div>
+			<div class="setting" id="assetsWrapper">
+				<!-- <select id='assetSelect' size='10'></select> -->
+				<div id="assets">
+					<table id="assetSelect" class="wisetable scroll left">
+						<thead>
+							<tr>
+								<th><input id="assetSelectAll" type="checkbox" /></th>
+								<th i18n="filename" style="max-width:200px;"></th>
+								<th i18n="size"></th>
+								<th i18n="modified"></th>
+								<th i18n="authoring_dialog_assets_table_used"></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+					<div class="overlay" id="assetsOverlay">
+						<div id="assetsLoading">
+							<img class="loadingImg" alt="loading..." src="/vlewrapper/vle/images/ajax-loader.gif" />
+						</div>
+					</div>
+				</div>
+				<div id="previewAsset">
+					<div id="previewHeader"><h6 i18n="authoring_dialog_assets_preview_header"></h6></div>
+					<div id="previewContent"></div>
+					<div id="previewDetails">
+						<div id="previewDimensions">&nbsp</div>
+						<div id="previewActions">
+							<a id="assetView" i18n="authoring_dialog_assets_view"></a>
+							<a id="assetDownload" i18n="authoring_dialog_assets_download"></a>
+							<a id="assetDelete" i18n="authoring_dialog_assets_delete"></a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="setting">
+				<div id="uploaderInstructions">
+					<p i18n="authoring_dialog_assets_ref_path"></p>
+				</div>
 			</div>
 		</div>
-		<div class='bd'><div>Existing Files: </div>
-			<select id='assetSelect' size='10'></select>
-			<div id='sizeDiv'></div>
-			<div id="uploaderInstructions">
-				<p>If an uploaded image is called <b>myimage.jpg</b>, its HTML reference will be:</p>
-				<p class="sampleCode">&#60;img src="assets/myimage.jpg" alt="description of image here" /&#62;</p>
-			</div>
-		</div>
+		<div id="assetNotifications" class="notifications"></div>
 	</div>
 	
 	<!-- TODO: Remove (deprecated)
@@ -477,155 +504,162 @@
 	<div id='contextMenu' class='contextMenu' style='display:none;'></div>
 	
 	<div id='editProjectMetadataDialog' class="dialog">
-	<div class='bd'>
-		<div id='editProjectMetadataMainDiv'>
-			<table>
-			<tr><td id="col1">Project Title:</td><td class="col2"><input id='projectMetadataTitle' type="text"/></input></td></tr>
-			<tr><td>Author:</td><td> <div id='projectMetadataAuthor'/>[Name of original author (non-editable) shown here]</div></td></tr>
-			<tr><td>Contact Name/Email:</td><td>  <input type='text' id='projectMetadataContact'/></td></tr>
-			
-			<!-- TODO: Perhaps load metadata options programmatically based on vle config? -->
-			<tr><td>Theme:</td>
-				<td >
-					<select name="theme" id="projectMetadataTheme"></select>
-					<select name="navMode" id="projectMetadataNavigation"></select> 
-				</td>
-			</tr>
-			
-			<!-- TODO: Perhaps load metadata options programmatically based on vle config? -->
-			<!-- <tr><td>Subject:</td>
-				<td >
-					<select name="searchSubject" id="projectMetadataSubject">
-						<option id='subjectLife'  value='Life Science'>Life Science</option>
-						<option id='subjectPhysical' value='Physical Science'>Physical Science</option>
-						<option id='subjectEarth'  value='Earth Science'>Earth Science</option>
-						<option id='subjectGeneralScience'  value='General Science'>General Science</option>
-						<option id='subjectBiology' value='Biology'>Biology</option>
-						<option id='subjectChemistry' value='Chemistry'>Chemistry</option>
-						<option id='subjectPhysics'  value='Physics'>Physics</option>
-						<option id='subjectWISEResearch'  value='WISE Research'>WISE Research</option>
-						<option selected id='subjectAll' disabled="disabled" value=''>select an option</option>
-					</select> 
-				</td>
-			</tr>
-				
-			<tr><td>Grade Level:</td>
-				<td>
-					<select name="studentGrades" id="projectMetadataGradeRange">
-						<option id='grade1' value='3-5'>Grades 3-5</option>
-						<option id='grade2' value='6-8'>Grades 6-8</option>
-						<option id='grade3' value='9-12'>Grades 9-12</option>
-						<option id='grade4' value='6-12'>Grades 6-12</option>
-						<option selected id='gradeAll' disabled="disabled" value="">select an option</option>
-					</select>	
-				</td></tr>
-			
-			<tr><td>Total Time (hrs):</td>
-				<td>
-					<select name="totalTime" id="projectMetadataTotalTime">
-								<option id='total1' value='2-3 hours'>2-3 hours</option>
-								<option id='total2' value='4-5 hours'>4-5 hours</option>
-								<option id='total3' value='6-7 hours'>6-7 hours</option>
-								<option id='total4' value='8-9 hours'>8-9 hours</option>
-								<option id='total5' value='10-11 hours'>10-11 hours</option>
-								<option id='total6' value='Over 12 hours'>Over 12 hours</option>
-								<option selected id='totalTime' disabled="disabled" value=""'>select an option</option>
-					</select>
-				</td></tr> -->
-				
-			<tr><td>Computer Time (hrs):</td>
-				<td>
-					<select name="totalTime" id="projectMetadataCompTime">
-								<option id='total1' value='2-3 hours'>2-3 hours</option>
-								<option id='total2' value='4-5 hours'>4-5 hours</option>
-								<option id='total3' value='6-7 hours'>6-7 hours</option>
-								<option id='total4' value='8-9 hours'>8-9 hours</option>
-								<option id='total5' value='10-11 hours'>10-11 hours</option>
-								<option id='total6' value='Over 12 hours'>Over 12 hours</option>
-								<option selected id='computerTime' disabled="disabled" value=""'>select an option</option>
-					</select>
-				</td></tr>	
+		<div class="contentWrapper">
+			<div class='dialogWrapper'>
+				<div id='editProjectMetadataMainDiv'>
+					<table>
+					<tr><td id="col1">Project Title:</td><td class="col2"><input id='projectMetadataTitle' type="text"/></input></td></tr>
+					<tr><td>Author:</td><td> <div id='projectMetadataAuthor'/></div></td></tr>
+					<tr><td>Contact Information (e.g. name, email):</td><td>  <input type='text' id='projectMetadataContact'/></td></tr>
+					
+					<!-- TODO: Perhaps load metadata options programmatically based on vle config? -->
+					<tr><td>Theme:</td>
+						<td >
+							<select name="theme" id="projectMetadataTheme"></select>
+							<select name="navMode" id="projectMetadataNavigation"></select> 
+						</td>
+					</tr>
 	
-			<!-- <tr><td>Language:</td>
-				<td>
-					<select name="languageType" id="projectMetadataLanguage">
-								<option id='english' value='English'>English</option>
-								<option id='spanish' value='Spanish'>Spanish</option>
-								<option id='hebrew' value='Hebrew'>Hebrew</option>
-								<option id='chinese' value='Chinese'>Chinese</option>
-								<option id='japanese' value='Japanese'>Japanese</option>
-								<option id='korean' value='Korean'>Korean</option>
-								<option id='dutch' value='Dutch'>Dutch</option>
-								<option selected id='languageAll'   disabled="disabled">select an option</option>
-					</select>
-				</td></tr> -->
-	
-			<tr><td>Project Summary:<br>(limit 255 characters)</br></td><td><textarea class="size1" id='projectMetadataSummary' onkeyup='checkTextAreaLength("Project Summary", "projectMetadataSummary", 255)'></textarea></td></tr>
-			<tr><td>Keywords:<br/>(comma separated)</td><td><textarea class="size2" id='projectMetadataKeywords'></textarea></td></tr>
-			<tr><td>Technical Needs:</td>
-				<td>
-					<span style="font-size:85%">(select all that apply)</span>&nbsp;&nbsp;
-					<input type="checkbox" name="flash" value="flash" id="flash"/>&nbsp;<label for="Flash">Flash</label>&nbsp;&nbsp;
-					<input type="checkbox" name="java" value="java" id="java"/>&nbsp;<label for="Java">Java</label>&nbsp;&nbsp;
-					<input type="checkbox" name="quickTime" value="quickTime" id="quickTime"/>&nbsp;<label for="quickTime">QuickTime</label>&nbsp;&nbsp;
-				</td></tr>		
-			<tr><td>Tech Details:</td><td><textarea class="size2" id='projectMetadataTechDetails'></textarea></td></tr>
-			<tr><td>Project settings:</td>
-				<td>
-					<span style="font-size:85%">(select all that apply)</span>&nbsp;&nbsp;
-					<input id='enableIdeaManager' name="enableIdeaManager" type="checkbox"></input><label for="enableIdeaManager">Enable Idea Manager</label>&nbsp;&nbsp;
-					<input id='enableStudentAssetUploader' name="enableStudentAssetUploader" type="checkbox"></input><label for="enableStudentAssetUploader">Enable Student File Uploads</label>&nbsp;&nbsp;
-	
-				</td>
-			</tr>
-			<tr>
-				<td colspan='2'>
-					<div class='featureSettings' id='ideaManagerSettings'>
-						<form id='imSettings'>
-							<h5>Idea Manager Settings</h5>
-							<div class='setting'>
-								<div class='settingLabel'><span>Idea Attributes</span>
-									<span class='details'>Specify up to three (3) additional attributes (data fields) for each idea in this project</span>
-									<img src='images/icons/teal/question.png' alt='More Information' class='tooltip' tooltip-maxw='300px' i18n-title='authoring_imsettings_attribute_help' />
-								</div>
-								<p class='warning'>WARNING: If this project is currently running in a classroom, changing idea attributes WILL result in student data loss. Be careful!</p>
-								<table id='ideaAttributes'>
-									<tr>
-										<td class='attribute required'>
-											<h6>Text<span class='details'>(Required)</span><span class='action'><img src='images/icons/red/lock.png' alt='locked' class='tooltip' i18n-title='authoring_imsettings_text_required' tooltip-anchor='top' /></span></h6>
-											<p>Students type the text of their idea into a textbox.</p>
-											<p>A maximum of 150 characters is allowed per idea.</p>
-										</td>
-										<td class='attribute empty'></td>
-										<td class='attribute empty'></td>
-										<td class='attribute empty'></td>
-									</tr>
-								</table>
-							</div>
-							<div class='setting'>
-								<div class='settingLabel'><span>Labels & Terminology</span>
-									<span class='details'>Optional: Customize the names of Idea Manager components for this project</span>
-									<img src='images/icons/teal/question.png' alt='More Information' class='tooltip' tooltip-maxw='300px' i18n-title='authoring_imsettings_terminology_help' />
-								</div>
-								<ul class='inline'>
-									<li>Term for "idea": <input type='text' id='imIdeaTerm' name='imIdeaTerm' class='required' minlength='2' maxlength='20' /></li>
-									<li>Term for "idea" (plural): <input type='text' id='imIdeaTermPlural' name='imIdeaTermPlural' class='required' minlength='2' maxlength='20' /></li>
-									<li>Term for "Idea Basket": <input type='text' id='imBasketTerm' name='imBasketTerm' class='required' minlength='2' maxlength='30' /></li>
-									<li>Term for "Explanation Builder": <input type='text' id='imEBTerm' name='imEBTerm' class='required' minlength='2' maxlength='30' /></li>
-									<li>Text for "Add Idea" buttons: <input type='text' id='imAddIdeaTerm' name='imAddIdeaTerm' class='required' minlength='2' maxlength='20' /></li>
-								</ul>
-							</div>
-						</form>
-					</div>
-				</td>
-			</tr>
-			<tr><td colspan="2">Teaching Tips:</td></tr>
-			<tr><td colspan="2"><textarea class="size4" id='projectMetadataLessonPlan'></textarea></td></tr>
-			<tr><td colspan="2">Learning Goals and Standards:</td></tr>
-			<tr><td colspan="2"><textarea class="size4" id='projectMetadataStandards'></textarea></td></tr>
-			</table>
+					<!-- <tr><td>Subject:</td>
+						<td >
+							<select name="searchSubject" id="projectMetadataSubject">
+								<option id='subjectLife'  value='Life Science'>Life Science</option>
+								<option id='subjectPhysical' value='Physical Science'>Physical Science</option>
+								<option id='subjectEarth'  value='Earth Science'>Earth Science</option>
+								<option id='subjectGeneralScience'  value='General Science'>General Science</option>
+								<option id='subjectBiology' value='Biology'>Biology</option>
+								<option id='subjectChemistry' value='Chemistry'>Chemistry</option>
+								<option id='subjectPhysics'  value='Physics'>Physics</option>
+								<option id='subjectWISEResearch'  value='WISE Research'>WISE Research</option>
+								<option selected id='subjectAll' disabled="disabled" value=''>select an option</option>
+							</select> 
+						</td>
+					</tr>
+						
+					<tr><td>Grade Level:</td>
+						<td>
+							<select name="studentGrades" id="projectMetadataGradeRange">
+								<option id='grade1' value='3-5'>Grades 3-5</option>
+								<option id='grade2' value='6-8'>Grades 6-8</option>
+								<option id='grade3' value='9-12'>Grades 9-12</option>
+								<option id='grade4' value='6-12'>Grades 6-12</option>
+								<option selected id='gradeAll' disabled="disabled" value="">select an option</option>
+							</select>	
+						</td></tr>
+					
+					<tr><td>Total Time (hrs):</td>
+						<td>
+							<select name="totalTime" id="projectMetadataTotalTime">
+										<option id='total1' value='2-3 hours'>2-3 hours</option>
+										<option id='total2' value='4-5 hours'>4-5 hours</option>
+										<option id='total3' value='6-7 hours'>6-7 hours</option>
+										<option id='total4' value='8-9 hours'>8-9 hours</option>
+										<option id='total5' value='10-11 hours'>10-11 hours</option>
+										<option id='total6' value='Over 12 hours'>Over 12 hours</option>
+										<option selected id='totalTime' disabled="disabled" value=""'>select an option</option>
+							</select>
+						</td></tr> -->
+						
+					<tr><td>Computer Time (hrs):</td>
+						<td>
+							<select name="totalTime" id="projectMetadataCompTime">
+										<option id='total1' value='2-3 hours'>2-3 hours</option>
+										<option id='total2' value='4-5 hours'>4-5 hours</option>
+										<option id='total3' value='6-7 hours'>6-7 hours</option>
+										<option id='total4' value='8-9 hours'>8-9 hours</option>
+										<option id='total5' value='10-11 hours'>10-11 hours</option>
+										<option id='total6' value='Over 12 hours'>Over 12 hours</option>
+										<option selected id='computerTime' disabled="disabled" value=""'>select an option</option>
+							</select>
+						</td></tr>	
+			
+					<!-- <tr><td>Language:</td>
+						<td>
+							<select name="languageType" id="projectMetadataLanguage">
+										<option id='english' value='English'>English</option>
+										<option id='spanish' value='Spanish'>Spanish</option>
+										<option id='hebrew' value='Hebrew'>Hebrew</option>
+										<option id='chinese' value='Chinese'>Chinese</option>
+										<option id='japanese' value='Japanese'>Japanese</option>
+										<option id='korean' value='Korean'>Korean</option>
+										<option id='dutch' value='Dutch'>Dutch</option>
+										<option selected id='languageAll'   disabled="disabled">select an option</option>
+							</select>
+						</td></tr> -->
+			
+					<tr><td>Project Summary:<br>(limit 255 characters)</br></td><td><textarea class="size1" id='projectMetadataSummary' onkeyup='checkTextAreaLength("Project Summary", "projectMetadataSummary", 255)'></textarea></td></tr>
+					<tr><td>Keywords:<br/>(comma separated)</td><td><textarea class="size2" id='projectMetadataKeywords'></textarea></td></tr>
+					<tr><td>Technical Needs:</td>
+						<td>
+							<span style="font-size:85%">(select all that apply)</span>&nbsp;&nbsp;
+							<input type="checkbox" name="flash" value="flash" id="flash"/>&nbsp;<label for="Flash">Flash</label>&nbsp;&nbsp;
+							<input type="checkbox" name="java" value="java" id="java"/>&nbsp;<label for="Java">Java</label>&nbsp;&nbsp;
+							<input type="checkbox" name="quickTime" value="quickTime" id="quickTime"/>&nbsp;<label for="quickTime">QuickTime</label>&nbsp;&nbsp;
+						</td></tr>		
+					<tr><td>Additional Tech Details (optional):</td><td><textarea class="size2" id='projectMetadataTechDetails'></textarea></td></tr>
+					<!-- <tr><td>Project settings:</td>
+						<td>
+							<span style="font-size:85%">(select all that apply)</span>&nbsp;&nbsp;
+							<input id='enableIdeaManager' name="enableIdeaManager" type="checkbox"></input><label for="enableIdeaManager">Enable Idea Manager</label>&nbsp;&nbsp;
+							<input id='enableStudentAssetUploader' name="enableStudentAssetUploader" type="checkbox"></input><label for="enableStudentAssetUploader">Enable Student File Uploads</label>&nbsp;&nbsp;
+			
+						</td>
+					</tr> -->
+					<tr><td colspan="2">Teaching Tips:</td></tr>
+					<tr><td colspan="2"><textarea class="size4" id='projectMetadataLessonPlan'></textarea></td></tr>
+					<tr><td colspan="2">Learning Goals and Standards:</td></tr>
+					<tr><td colspan="2"><textarea class="size4" id='projectMetadataStandards'></textarea></td></tr>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
+	
+	<div id="editIMSettingsDialog" class="dialog">
+		<div class="contentWrapper">
+			<div class="dialogWrapper">
+				<div class='featureSettings' id='ideaManagerSettings'>
+				<div class="settingsHeader">
+					<input type="checkbox" id="enableIdeaManager" name="enableIdeaManager" data-field="isIdeaManagerEnabled" />
+					<label for="enableIdeaManager" i18n='authoring_dialog_im_enable'></label>
+				</div>
+					<form id='imSettings'>
+						<div class='setting'>
+							<div class='settingLabel'><span>Idea Attributes</span>
+								<span class='details'>Specify up to three (3) additional attributes (data fields) for each idea in this project</span>
+								<img src='images/icons/teal/question.png' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-keep='true' data-tooltip-event='click' i18n-title='authoring_imsettings_attribute_help' />
+							</div>
+							<p id='imRunWarning' class='warning'>WARNING: This project is part of a classroom run. Changing idea attributes WILL result in student data loss. Be careful!</p> <!-- TODO: be more specific -->
+							<table id='ideaAttributes'>
+								<tr>
+									<td class='attribute required'>
+										<h6>Text<span class='details'>(Required)</span><span class='action'><img src='images/icons/red/lock.png' alt='locked' class='tooltip' i18n-title='authoring_imsettings_text_required' data-tooltip-maxw='150' /></span></h6>
+										<p>Students type the text of their idea into a textbox.</p>
+										<p>A maximum of 150 characters is allowed per idea.</p>
+									</td>
+									<td class='attribute empty'></td>
+									<td class='attribute empty'></td>
+									<td class='attribute empty'></td>
+								</tr>
+							</table>
+						</div>
+						<div class='setting'>
+							<div class='settingLabel'><span>Labels & Terminology</span>
+								<span class='details'>Optional: Customize the names of Idea Manager components for this project</span>
+								<img src='images/icons/teal/question.png' alt='More Information' class='tooltip help' data-tooltip-class='info' data-tooltip-anchor='right' data-tooltip-action='click' i18n-title='authoring_imsettings_terminology_help' />
+							</div>
+							<ul class='inline'>
+								<li>Term for "idea": <input type='text' id='imIdeaTerm' name='imIdeaTerm' class='required' minlength='2' maxlength='20' /></li>
+								<li>Term for "idea" (plural): <input type='text' id='imIdeaTermPlural' name='imIdeaTermPlural' class='required' minlength='2' maxlength='20' /></li>
+								<li>Term for "Idea Basket": <input type='text' id='imBasketTerm' name='imBasketTerm' class='required' minlength='2' maxlength='30' /></li>
+								<li>Term for "Explanation Builder": <input type='text' id='imEBTerm' name='imEBTerm' class='required' minlength='2' maxlength='30' /></li>
+								<li>Text for "Add Idea" buttons: <input type='text' id='imAddIdeaTerm' name='imAddIdeaTerm' class='required' minlength='2' maxlength='20' /></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 	
 	<div id='previousWorkDialog' class="dialog">
@@ -807,29 +841,29 @@
 	<div id='tagViewDialog' class="dialog">
 		<div id='projectTagView'></div>
 	</div>
-</div>
+	
 	<div id='importViewDialog' class="dialog">
 		<div id='importView'></div>
 	</div>
 	
 	<div id='analyzeProjectDialog' class="dialog">
-</div>
+	</div>
 	
 	<div id="reviewUpdateProjectDiv" class="dialog">
 	</div>
 	
 	<div id='stepTypeDescriptions' class="dialog"></div>
 	
-		<iframe id="hiddenifrm" name="hiddenifrm" scrolling="auto" frameborder="0" width="0%" height="0%"> [Your browser doesn't support iframes.] </iframe>
-		
-		<div id='overlay' class='overlay'></div>
-		
-		<div id='coverDiv' class='loading'>
-			<div class='loadingText'>Loading WISE Authoring Tool</div>
-			<div><img src='images/loading.gif'/></div>
-		</div>
-		
-		<div id="sessionMessageDiv">
+	<iframe id="hiddenifrm" name="hiddenifrm" scrolling="auto" frameborder="0" width="0%" height="0%"> [Your browser doesn't support iframes.] </iframe>
+	
+	<div id='overlay' class='overlay pageOverlay'></div>
+	
+	<div id='coverDiv' class='loading pageLoading'>
+		<div class='loadingText'>Loading WISE Authoring Tool</div>
+		<div><img src='images/loading.gif'/></div>
+	</div>
+	
+	<div id="sessionMessageDiv">
 	</div>
 	
 	<!-- Javascript -->

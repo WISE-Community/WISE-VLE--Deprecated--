@@ -46,11 +46,10 @@
 }
 
 #tiptip_content h3 {
-	font-weight:bold;
 	text-decoration:underline;
 	margin:0 0 .5em;
 	padding:0;
-	font-size:13px;
+	font-size:11px;
 }
 
 #tiptip_arrow, #tiptip_arrow_inner {
@@ -147,18 +146,26 @@
 
 /* Custom style elements */
 
-#tiptip_holder #tiptip_content ul {
-	margin: 0.5em 0;
-    padding-left: 1.5em;
+#tiptip_holder #tiptip_content ul, #tiptip_holder #tiptip_content ol {
+	margin: 0 0 .5em 0;
+    padding-left: 1.25em;
 }
 
-#tiptip_holder #tiptip_content ul lh {
-	margin-left:-1.5em;
+#tiptip_holder #tiptip_content ul:last-child, #tiptip_holder #tiptip_content ol:last-child {
+	margin-bottom:0;
+}
+
+#tiptip_holder #tiptip_content ul lh, #tiptip_holder #tiptip_content ol lh {
+	margin-left:-1.25em;
 }
 
 #tiptip_holder #tiptip_content p {
 	margin:0 0 .5em 0;
 	padding:0;
+}
+
+#tiptip_holder #tiptip_content p:last-child {
+	margin-bottom:0;
 }
 
 #tiptip_content p span {
@@ -177,7 +184,19 @@
 	font-size:11px;
 }
 
-/* Alternate Styles */
+/* Additional Styles */
+
+#tiptip_holder.align_left #tiptip_content {
+	text-align:left;
+}
+
+#tiptip_holder.align_right #tiptip_content {
+	text-align:right;
+}
+
+#tiptip_holder.nobold #tiptip_content {
+	font-weight:normal;
+}
 
 #tiptip_holder.info #tiptip_content {
 	background-color:rgb(255, 255, 255);
@@ -211,6 +230,13 @@
     margin: -11px -11px 10px;
     padding: 5px 7px;
     text-decoration: none;
+    font-weight:bold;
+	font-size:13px;
+}
+
+#tiptip_holder #tiptip_content .featureSettings {
+	font-size:12px;
+	margin:0;
 }
 
 #tiptip_holder.info #tiptip_arrow_inner {
