@@ -1843,13 +1843,13 @@ View.prototype.onProjectLoaded = function(){
 			this.disengageSelectMode(-1);
 		};
 	
-		if(this.project && this.project.useStepLevelNumbering()==true){
+		/*if(this.project && this.project.useStepLevelNumbering()==true){
 			//document.getElementById('stepLevel').checked = true;
 			document.getElementById('numberStepSelect').options[1].selected = true;
 		} else {
 			//document.getElementById('stepLevel').checked = false;
 			document.getElementById('numberStepSelect').options[0].selected = true;
-		};
+		};*/
 	
 		if(this.project && this.project.getStepTerm()){
 			document.getElementById('stepTerm').value = this.project.getStepTerm();

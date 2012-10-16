@@ -293,9 +293,9 @@ View.prototype.SurgeNode.updateSwfSource = function(){
  * Open asset editor dialog and allows user to choose the swf to use for this step
  */
 View.prototype.SurgeNode.browseFlashAssets = function() {
-	var callback = function(field_name, url, type, win){
+	var callback = function(url,params){
 		url = 'assets/' + url;
-		document.getElementById(field_name).value = url;
+		document.getElementById(params.field_name).value = url;
 		
 		//fire swfUrlChanged event
 		this.eventManager.fire('surgeSwfUrlChanged');
@@ -303,9 +303,7 @@ View.prototype.SurgeNode.browseFlashAssets = function() {
 	var params = {};
 	params.field_name = 'swfUrlInput';
 	params.type = 'flash';
-	params.buttonText = 'Please select a file from the list.';
-	params.extensions = ['swf', 'flv'];
-	params.win = null;
+	params.extensions = ['swf'];
 	params.callback = callback;
 	eventManager.fire('viewAssets',params);
 };

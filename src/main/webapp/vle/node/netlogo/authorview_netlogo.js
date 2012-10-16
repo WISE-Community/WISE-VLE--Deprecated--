@@ -248,19 +248,17 @@ View.prototype.NetlogoNode.updateWidth = function(){
  * Open asset editor dialog and allows user to choose the swf to use for this step
  */
 View.prototype.NetlogoNode.browseAssets = function() {
-	var callback = function(field_name, url, type, win){
+	var callback = function(url,params){
 		url = 'assets/' + url;
-		document.getElementById(field_name).value = url;
+		document.getElementById(params.field_name).value = url;
 		
 		//fire swfUrlChanged event
 		this.eventManager.fire('netlogoUrlChanged');
 	};
 	var params = {};
 	params.field_name = 'nlogoUrlInput';
-	params.type = 'netlogo';
-	params.buttonText = 'Please select a file from the list.';
 	params.extensions = ['nlogo'];
-	params.win = null;
+	params.button_text = 'Select a NetLogo file.';
 	params.callback = callback;
 	eventManager.fire('viewAssets',params);
 };

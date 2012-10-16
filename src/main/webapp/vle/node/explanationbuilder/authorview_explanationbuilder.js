@@ -387,9 +387,9 @@ View.prototype.ExplanationBuilderNode.isChecked = function(value) {
  * Open asset editor dialog and allows user to choose the image to use for the background
  */
 View.prototype.ExplanationBuilderNode.browseImageAssets = function() {
-	var callback = function(field_name, url, type, win){
+	var callback = function(url,params){
 		url = 'assets/' + url;
-		document.getElementById(field_name).value = url;
+		document.getElementById(params.field_name).value = url;
 		
 		//fire background url changed event
 		this.eventManager.fire('explanationBuilderUpdateBackgroundImageUrl');
@@ -397,7 +397,6 @@ View.prototype.ExplanationBuilderNode.browseImageAssets = function() {
 	var params = {};
 	params.field_name = 'backgroundImageUrl';
 	params.type = 'image';
-	params.win = null;
 	params.callback = callback;
 	eventManager.fire('viewAssets',params);
 };

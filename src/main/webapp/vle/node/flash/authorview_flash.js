@@ -464,9 +464,9 @@ View.prototype.FlashNode.deleteFlashvar = function(index){
  * Open asset editor dialog and allows user to choose the swf to use for this step
  */
 View.prototype.FlashNode.browseFlashAssets = function() {
-	var callback = function(field_name, url, type, win){
+	var callback = function(url,params){
 		url = 'assets/' + url;
-		document.getElementById(field_name).value = url;
+		document.getElementById(params.field_name).value = url;
 		
 		//fire swfUrlChanged event
 		this.eventManager.fire('flashSwfUrlChanged');
@@ -474,9 +474,7 @@ View.prototype.FlashNode.browseFlashAssets = function() {
 	var params = {};
 	params.field_name = 'swfUrlInput';
 	params.type = 'flash';
-	params.buttonText = 'Please select a file from the list.';
 	params.extensions = ['swf'];
-	params.win = null;
 	params.callback = callback;
 	eventManager.fire('viewAssets',params);
 };

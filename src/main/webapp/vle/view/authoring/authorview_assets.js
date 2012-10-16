@@ -24,7 +24,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 	},false);
 	
 	// insert info (help) icon tooltip content
-	$('#assetsHelp').attr('title',view.getStringWithParams('help_authoring_assets_info', [maxAssetSize,view.allowedExtensionsByType['image'].join(', '),view.allowedExtensionsByType['video'].join(', '),view.allowedExtensionsByType['audio'].join(', '),view.allowedExtensionsByType['flash'].concat(view.allowedExtensionsByType['flashvideo']).join(', '),view.allowedExtensionsByType['java'].join(', '),view.allowedExtensionsByType['misc'].join(', ')]));
+	$('#assetsHelp').attr('title',view.getStringWithParams('help_authoring_assets_info', [maxAssetSize,view.allowedAssetExtensionsByType['image'].join(', '),view.allowedAssetExtensionsByType['video'].join(', '),view.allowedAssetExtensionsByType['audio'].join(', '),view.allowedAssetExtensionsByType['flash'].concat(view.allowedAssetExtensionsByType['flashvideo']).join(', '),view.allowedAssetExtensionsByType['java'].join(', '),view.allowedAssetExtensionsByType['misc'].join(', ')]));
 	
 	// bind asset select all checkbox click action
 	$('#assetSelectAll').off('click').on('click',function(e){
@@ -326,20 +326,26 @@ View.prototype.initializeAssetEditorDialog = function(){
 };
 
 /**
- * Retrieves a list of any assets associated with the current project
- * from the server, populates a list of the assets in the assetEditorDialog
- * and displays the dialog.
+ * Retrieves a list of any assets associated with the current project from the server, populates a list of the 
+ * assets in the assetEditorDialog and displays the dialog.
+ * Optionally displays the dialog in select file mode (which allows user to select a file and submit it to a
+ * callback function) - activated by sending a "params" object as the function's argument
  * 
- * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
+ * @param params Object (optional) specifying asset editor options:
+ * - "type" String identifying type of files to show (optional; choices are "image", "video", "audio", "flash", 
+ * "media" [excludes images], "all"; default is "all")
+ * - "extensions" Array of strings identifying specific file extension types to show (optional; overrides "type" option)
+ * - "button_text" String to display on the new button that will be inserted into the dialog (optional; default is 
+ * i18n string for "Submit"; note: a "Cancel" button will also be added)
+ * - "callback" Function to run when file is selected and submit button is pressed (required)
+ * - any other variables your callback function may depend upon (callback function will be passed back the url [filename]
+ * of the asset that was selected as well as the "params" object as its two arguments)
+ * 
+ * If no params object is sent, the assets dialog will simply open (with no dialog buttons and no file extension filters)
  */
 View.prototype.viewAssets = function(params){
 	if(this.project){
-		if (params){
-			this.assetEditorParams = params;
-		} else {
-			this.assetEditorParams = null;
-		}
-		
+		this.assetEditorParams = params ? params : null;
 		var view = this;
 		
 		// clear assets table
@@ -353,7 +359,7 @@ View.prototype.viewAssets = function(params){
 				"sScrollY": "200px",
 				//"bScrollCollapse": true,
 		        "bPaginate": false,
-		        "sDom": 't<"bottom"i><"clear">',
+		        "sDom": 't<"bottom"if><"clear">',
 		        "aoColumns": [
                      { "sSortDataType": "dom-checkbox" },
                      null,
@@ -364,7 +370,9 @@ View.prototype.viewAssets = function(params){
                  "aaSorting": [ [1,'asc'] ],
                  "oLanguage": {
                 	 "sInfo": "_TOTAL_ " + view.getI18NString("authoring_dialog_assets_table_footer_files"),
-                	 "sEmptyTable": view.getI18NString("authoring_dialog_assets_table_empty")
+                	 "sEmptyTable": view.getI18NString("authoring_dialog_assets_table_empty"),
+                	 "sInfoFiltered": "/ _MAX_ " + view.getI18NString("datatables_total"), // (from _MAX_ total)
+                	 "sSearch": view.getI18NString("datatables_search")
                   }
 			} );
 		}
@@ -373,11 +381,14 @@ View.prototype.viewAssets = function(params){
 		//var buttons = view.assetEditorButtons;
 		
 		// check whether parameters were sent
-		if(view.assetEditorParams && view.assetEditorParams.type){
-			var type = view.assetEditorParams.type;
-			var field_name = view.assetEditorParams.field_name;
-			var win = view.assetEditorParams.win;
-			var callback = view.assetEditorParams.callback;
+		if(view.assetEditorParams){
+			var params = view.assetEditorParams;
+			// set variables based on params
+			var type, extensions, buttonText, callback;
+			type = params.type ? params.type : 'all';
+			extensions = params.extensions ? params.extensions : null;
+			button_text = params.button_text ? params.button_text : view.getI18NString("submit");
+			callback = params.callback ? params.callback : function(params,url){};
 			
 			// add a cancel button
 			var buttons = [];
@@ -387,67 +398,42 @@ View.prototype.viewAssets = function(params){
 			// set z-index to show dialog above tinymce popups
 			$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
 			
-			// add new button depending on type param
+			// add new submit button
+			var button = {
+					text: button_text,
+					click: function(){
+						var selected = oTable.$('tr.selected');
+						if(selected.length == 1){
+							url = selected[0].data('filename');
+							if(url != ''){
+								// fire the callback function with the select asset url and the asset editor parameters object
+								callback(url,params);
+								// close the dialog
+								$(this).dialog('close');
+							}
+						} else if(selected.length > 1){
+							// multiple files are selected
+							alert(view.getI18NString('authoring_dialog_assets_multi_selected_error'));
+						} else {
+							// no files are selected
+							alert(view.getI18NString('authoring_dialog_assets_none_selected_error'));
+						}
+					}
+				};
+			buttons.unshift(button);
+			
+			// set dialog title depending on type param
+			var title = view.getI18NString('authoring_dialog_assets_select_title');
 			if(type == "image"){
-				var button = {
-					text: 'Insert Image',
-					click: function(){
-						var url = $('#assetSelect').data('selected');
-						if(url != ''){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select an image from the list.");
-						}
-					}
-				};
-				buttons.unshift(button);
-			} else if (type == "media"){
-				var button = {
-					text: 'Insert Media',
-					click: function(){
-						var url = $('#assetSelect').data('selected');
-						if(url != ''){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file from the list.");
-						}
-					}
-				};
-				buttons.unshift(button);
-			} else if (type == "file"){
-				var button = {
-					text: 'Insert Link',
-					click: function(){
-						var url = $('#assetSelect').data('selected');
-						if(url != ''){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file to link to from the list.");
-						}
-					}
-				};
-				buttons.unshift(button);
-			} else {
-				var buttonText = 'Choose Selected File';
-				if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext == 'string'){
-					buttonText = view.assetEditorParams.buttontext;
-				}
-				var button = {
-					text: buttonText,
-					click: function(){
-						var url = $('#assetSelect').data('selected');
-						if(url != ''){
-							callback(field_name, url, type, win);
-							$(this).dialog('close');
-						} else {
-							alert("Please select a file from the list.");
-						}
-					}
-				};
-				buttons.unshift(button);
+				title = view.getI18NString('authoring_dialog_assets_select_title_image');
+			} else if (type == "video"){
+				title = view.getI18NString('authoring_dialog_assets_select_title_video');
+			} /*else if (type == "media"){
+				title = 'Select a Media File';
+			} */else if (type == "audio"){
+				title = view.getI18NString('authoring_dialog_assets_select_title_audio');
+			} else if (type == "flash"){
+				title = view.getI18NString('authoring_dialog_assets_select_title_flash');
 			}
 		} else {
 			//reset z-index
@@ -499,15 +485,30 @@ View.prototype.viewAssets = function(params){
 					
 					//check for type parameter and only show files with matching extensions
 					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
-						if (!view.utils.fileFilter(view.allowedExtensionsByType['image'],fileName)){
+						if (!view.utils.fileFilter(view.allowedAssetExtensionsByType['image'],fileName)){
 							continue;
 						}
 					} else if(view.assetEditorParams && view.assetEditorParams.type == "flash"){
-						if (!view.utils.fileFilter(view.allowedExtensionsByType['flash'],fileName)){
+						if (!view.utils.fileFilter(view.allowedAssetExtensionsByType['flash'],fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "video"){
+						var extensions = view.allowedAssetExtensionsByType['video'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "audio"){
+						var extensions = view.allowedAssetExtensionsByType['audio'];
+						if (!view.utils.fileFilter(extensions,fileName)){
 							continue;
 						}
 					} else if(view.assetEditorParams && view.assetEditorParams.type == "media"){
-						var extensions = view.allowedExtensionsByType['flash'].concat(view.allowedExtensionsByType['flashvideo'],view.allowedExtensionsByType['video'],view.allowedExtensionsByType['audio']);
+						var extensions = view.allowedAssetExtensionsByType['flash'].concat(view.allowedAssetExtensionsByType['flashvideo'],view.allowedAssetExtensionsByType['video'],view.allowedAssetExtensionsByType['audio']);
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "all"){
+						var extensions = view.allowedAssetExtensions;
 						if (!view.utils.fileFilter(extensions,fileName)){
 							continue;
 						}

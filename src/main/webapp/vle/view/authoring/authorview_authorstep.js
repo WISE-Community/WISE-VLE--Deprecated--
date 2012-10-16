@@ -677,25 +677,27 @@ View.prototype.injectAssetPath = function(contentString) {
  * e.g.
  * "http://wise4.berkeley.edu/curriculum/135/"
  * @return full path to the project folder
+ * 
+ * TODO: remove (moved to and updated in authorview_utils.js)
  */
-View.prototype.getProjectFolderPath = function() {
-	var contentBaseUrl = "";
+/*View.prototype.getProjectFolderPath = function() {
+	var contentBaseUrl = "";*/
 	
 	/*
 	 * get the content base url which should be the url to the curriculum folder
 	 * e.g.
 	 * http://wise4.berkeley.edu/curriculum
 	 */
-	var contentBaseUrl = this.activeNode.getAuthoringModeContentBaseUrl();
+	//var contentBaseUrl = this.activeNode.getAuthoringModeContentBaseUrl();
 	
 	//if the contentBaseUrl ends with '/' we will remove it
-	if(contentBaseUrl.charAt(contentBaseUrl.length - 1) == '/') {
+	/*if(contentBaseUrl.charAt(contentBaseUrl.length - 1) == '/') {
 		contentBaseUrl = contentBaseUrl.substring(0, contentBaseUrl.length - 1);
 	}
 
 	var fullProjectFolderPath = null;
 	
-	if(this.projectMetadata.projectFolder != null) {
+	if(this.projectMetadata.projectFolder != null) {*/
 		/*
 		 * the project folder is in the project meta data
 		 * e.g.
@@ -704,7 +706,7 @@ View.prototype.getProjectFolderPath = function() {
 		 * so the full project folder path will look like
 		 * http://wise4.berkeley.edu/curriculum/135
 		 */
-		fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
+		/*fullProjectFolderPath = contentBaseUrl + this.projectMetadata.projectFolder;
 	}
 	
 	//make sure the projectFolder ends with '/'
@@ -713,7 +715,7 @@ View.prototype.getProjectFolderPath = function() {
 	}
 	
 	return fullProjectFolderPath;
-};
+};*/
 
 View.prototype.insertCommonComponents = function() {
 	var commonComponents = this[this.resolveType(this.activeNode.type)].getCommonComponents();
@@ -951,8 +953,11 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 };
 
 function fileBrowser(field_name, url, type, win){
-	var callback = function(field_name, url, type, win){
+	var callback = function(url, params){
 		url = 'assets/' + url;
+		var field_name = params.field_name,
+			win = params.win,
+			type = params.type;
 		win.document.getElementById(field_name).value = url;
 		// if we are in an image browser
         if (typeof(win.ImageDialog) != "undefined") {

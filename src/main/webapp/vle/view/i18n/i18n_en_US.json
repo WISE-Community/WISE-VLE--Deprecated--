@@ -75,6 +75,14 @@
 		"value":"Modified",
 		"description":"Text for the word 'Modified'"
 	},
+	"datatables_search":{
+		"value":"Search:",
+		"description":"Label for a search (filter) field in a data table display"
+	},
+	"datatables_total":{
+		"value":"total",
+		"description":"Text for the word 'total' in a data table display"
+	},
 	"select_option_choose":{
 		"value":"Choose One",
 		"description":"Text for a default (disabled) option in a select drop-down element"
@@ -643,6 +651,10 @@
 		"value":"New Project or Copy",
 		"description":"The text for the header of the create (new project) panel in the authoring welcome screen."
 	},
+	"authoring_project_panel_edit_thumb":{
+		"value":"Edit Picture",
+		"description":"Text for the the edit project thumbnail image overlay in the project authoring panel."
+	},
 	"authoring_project_panel_edit_title":{
 		"value":"Edit Project Name",
 		"description":"Text for the title/tooltip of the edit title text input in the project authoring panel."
@@ -650,14 +662,6 @@
 	"authoring_project_panel_edit_stepterm":{
 		"value":"Edit Step Term",
 		"description":"Text for the title/tooltip of the edit step term text input in the project authoring panel."
-	},
-	"authoring_project_panel_edit_activityterm":{
-		"value":"Edit Activity Term",
-		"description":"Text for the title/tooltip of the edit activity term text input in the project authoring panel."
-	},
-	"authoring_project_panel_edit_thumb":{
-		"value":"Edit Picture",
-		"description":"Text for the title/tooltip of the edit project thumbnail link in the project authoring panel."
 	},
 	"authoring_project_panel_edit_info":{
 		"value":"Project Details",
@@ -688,12 +692,8 @@
 		"description":"Label text for the number by project option in the step numbering selector in the project authoring panel."
 	},
 	"authoring_project_panel_stepterm_label":{
-		"value":"\"Step\" Term",
+		"value":"Step Term",
 		"description":"Label text for the step term input in the project authoring panel."
-	},
-	"authoring_project_panel_activityterm_label":{
-		"value":"\"Activity\" Term",
-		"description":"Label text for the activity term input in the project authoring panel."
 	},
 	"authoring_project_panel_theme_label":{
 		"value":"Theme",
@@ -791,6 +791,30 @@
 		"value":"Manage Project Files",
 		"description":"Text for the title of the manage project files dialog window."
 	},
+	"authoring_dialog_assets_multi_selected_error":{
+		"value":"Please select only one file.",
+		"description":"Error text when a user presses the submit button when multiple files are selected in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_none_selected_error":{
+		"value":"Please select a file.",
+		"description":"Error text when a user presses the submit button when no files are selected in the manage project files dialog window."
+	},
+	"authoring_dialog_assets_select_title":{
+		"value":"Select a file.",
+		"description":"Title for the manage project files dialog window when in select mode."
+	},
+	"authoring_dialog_assets_select_title_audio":{
+		"value":"Select an audio file.",
+		"description":"Title for the manage project files dialog window when in audio select mode."
+	},
+	"authoring_dialog_assets_select_title_video":{
+		"value":"Select a video file.",
+		"description":"Title for the manage project files dialog window when in video select mode."
+	},
+	"authoring_dialog_assets_select_title_flash":{
+		"value":"Select a Flash file.",
+		"description":"Title for the manage project files dialog window when in Flash select mode."
+	},
 	"authoring_dialog_assets_max_storage_error":{
 		"value":"Sorry, adding this file will put you over the maximum storage allowed for this project. Please delete some files and try again.",
 		"description":"Error message when user attempts to upload a file that will exceed max storage capacity in the manage project files dialog window."
@@ -816,11 +840,11 @@
 		"description":""
 	},
 	"authoring_dialog_assets_isused":{
-		"value":"File is used in these step(s):",
+		"value":"File is used in the following steps:",
 		"description":"Text alerting user that a file is used in the following step(s) in the project in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_inactiveused":{
-		"value":"File is only used in inactive step(s):",
+		"value":"File is only used in inactive steps:",
 		"description":"Text alerting user that a file is only used in the following inactive step(s) in the project in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_inactive":{
@@ -916,11 +940,11 @@
 		"description":"Error message displayed when user tries to download a file without permission in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_table_empty":{
-		"value":"This project contains no files.",
+		"value":"No files to display.",
 		"description":"Text notifying user when the project contains no uploaded files in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_table_footer_files":{
-		"value":"File(s)",
+		"value":"file(s)",
 		"description":"Text for the word 'files' in the footer of the file table in the manage project dialog window."
 	},
 	"authoring_dialog_assets_preview_header":{
