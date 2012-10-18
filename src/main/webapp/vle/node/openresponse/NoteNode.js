@@ -44,7 +44,7 @@ NoteNode.prototype.render = function(contentPanel, studentWork){
 	}
 	
 	/* Set self as the active note node. Only one note can be active at a time */
-	$('#notePanel').html(this.injectBaseRef(this.injectKeystrokeManagerScript(this.view.injectVleUrl(this.baseHtmlContent.getContentString()))));
+	$('#notePanel').html(this.injectKeystrokeManagerScript(this.view.injectVleUrl(this.baseHtmlContent.getContentString())));
 	this.view.activeNote = new OPENRESPONSE(this, this.view);
 	
 	/* disable rich text editing for notes for now */
