@@ -341,7 +341,7 @@ View.prototype.addHint = function(){
  */
 View.prototype.deleteHint = function(){
 	// get index of currently-opened tab
-	var selectedIndex = $('#hintsTabs').tabs('option', 'selected');
+	var selectedIndex = $('#hintsTabs').tabs('option', 'active');
 	
 	//get the hints array
     var hintsArr = this.getAuthoringHintsArray();
@@ -477,7 +477,7 @@ View.prototype.editHints = function(tabIndex){
     }
 
     // instantiate tabs 
-	$("#hintsTabs").tabs({selected:tabIndex});		
+	$("#hintsTabs").tabs({active:tabIndex});		
 	
 	// set forceshow option
     var hintsForceShow = hints.forceShow;

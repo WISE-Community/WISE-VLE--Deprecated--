@@ -181,9 +181,9 @@ View.prototype.displayHint = function(){
 		// bind tab navigation link clicks
 		$('.tabPrev').click(function(){
 			$(".hintMsg").html("");
-			var selected = $tabs.tabs('option', 'selected');
+			var selected = $tabs.tabs('option', 'active');
 			if(selected != 0){
-				$tabs.tabs('select', selected-1);
+				$tabs.tabs('activate', selected-1);
 			}
 			//eventManager.fire("adjustHintSize");
 		});
@@ -191,9 +191,9 @@ View.prototype.displayHint = function(){
 		// bind tab navigation links
 		$('.tabNext').click(function(){
 			$(".hintMsg").html("");
-			var selected = $tabs.tabs('option', 'selected');
+			var selected = $tabs.tabs('option', 'active');
 			if(selected < numHints-1){
-				$tabs.tabs('select', selected+1);
+				$tabs.tabs('activate', selected+1);
 			}
 			//eventManager.fire("adjustHintSize");
 		});

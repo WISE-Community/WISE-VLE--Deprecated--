@@ -1237,8 +1237,8 @@ View.prototype.openProject = function(selectedTab,copyMode){
 		tab = selectedTab;
 	}
 	$('#projectTabs').tabs({
-		selected:tab,
-		show: function(){
+		active:tab,
+		activate: function(){
 			view.setProjectListingWidths();
 		}
 	});
@@ -1605,7 +1605,7 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 		}
 		
 		// add new item to jquery-ui sortable
-		target.sortable('refresh');
+		//target.sortable('refresh');
 		
 		// bind delete link click event
 		$('.delete',newInput).on('click.imSettings',function(){

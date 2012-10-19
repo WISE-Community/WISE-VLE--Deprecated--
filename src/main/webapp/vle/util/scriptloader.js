@@ -49,8 +49,8 @@ var scriptloader = function(){
 	var callerId;
 	var loaded = [];
 	var jquerySrc = 'vle/jquery/js/jquery-1.7.2.min.js';
-	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.8.21.custom.min.js';
-	var jqueryUICss = 'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css';
+	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.9.0.custom.min.js';
+	var jqueryUICss = 'vle/jquery/css/wise-theme/jquery-ui-1.9.0.custom.css';
 	
 	/**
 	 * scriptLoader listener listens for all scriptLoaded events and

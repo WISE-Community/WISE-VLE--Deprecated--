@@ -410,8 +410,12 @@ table.wisetable th, table.wisetable td {
 }
 
 #author_body #projectInfo input[type="text"], #author_body #projectInfo textarea, 
-#author_body #projectInfo .ui-selectmenu {
+#author_body #projectInfo .ui-selectmenu-button {
 	margin:0 0.5em 0 0.25em;
+}
+
+#author_body #projectInfo .ui-selectmenu-button a.ui-button {
+	vertical-align:bottom;
 }
 
 #author_body #projectInfo input[type="text"], #author_body #projectInfo textarea {
