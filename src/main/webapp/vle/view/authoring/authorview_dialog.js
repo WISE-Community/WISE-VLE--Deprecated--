@@ -583,6 +583,7 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 			if($('#imSettings').validate().form()){
 				view.projectMeta.tools.ideaManagerSettings = {};
 				view.projectMeta.tools.ideaManagerSettings.version = imVersion;
+				view.projectMeta.tools.isPublicIdeaManagerEnabled = $('#enablePublicIdeaManager').prop('checked');
 				view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
 				view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
 				view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();

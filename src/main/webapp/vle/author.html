@@ -93,7 +93,7 @@
 			<div class="panelContent">
 				<div id="projectInfo">
 					<img id="projectThumb" class="projectThumb" />
-					<img id="editThumb" alt="Edit Thumbnail" src="/vlewrapper/vle/images/authoring/editThumb.png" />
+					<div id="editThumb" i18n="authoring_project_panel_edit_thumb"></div>
 					<div id="infoSummary">
 						<div class="panelHeader">
 							<a class="bookmark tooltip" href="#nogo" i18n-title="authoring_toggle_favorite_title" data-tooltip-offset="2"></a>
@@ -622,6 +622,8 @@
 				<div class="settingsHeader">
 					<input type="checkbox" id="enableIdeaManager" name="enableIdeaManager" data-field="isIdeaManagerEnabled" />
 					<label for="enableIdeaManager" i18n='authoring_dialog_im_enable'></label>
+					<input id='enablePublicIdeaManager' name="enablePublicIdeaManager" type="checkbox" data-field="isPublicIdeaManagerEnabled"></input>
+					<label for="enablePublicIdeaManager" i18n='authoring_dialog_im_enable_public'></label>
 				</div>
 					<form id='imSettings'>
 						<div class='setting'>

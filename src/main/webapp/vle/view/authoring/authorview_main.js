@@ -426,7 +426,7 @@ View.prototype.generateAuthoring = function(){
 	existingTable.appendChild(existingTB);*/
 	
 	// generate active project structure container
-	var activeContainer = createElement(document,'div',{id: 'activeContainer'});
+	var activeContainer = createElement(document,'ul',{id: 'activeContainer'});
 	$parent.append(activeContainer);
 	
 	if(this.project.getRootNode()){
@@ -494,7 +494,15 @@ View.prototype.generateAuthoring = function(){
 				"Project mode long enough to put the project in the structure required for Simple Project.", 3);
 	};
 	
-	// make element draggable and show number of nodes per sequence
+	// make sequences sortable
+	$('#activeContainer').sortable({
+		placeholder:'dragTarget',
+		tolerance:'pointer',
+		revert:100,
+		opacity:.9
+	});
+	
+	// show number of nodes per sequence
 	$('#dynamicProject .seq').each(function(){
 		view.initSequence(this);
 	});
@@ -513,9 +521,9 @@ View.prototype.generateAuthoring = function(){
  */
 View.prototype.initSequence = function(target){
 	var seq = $(target), view = this;
-	seq.draggable({
+	/*seq.draggable({
 		handle: '.sequenceTitle'
-	});
+	});*/
 	var split = seq.attr('id').split('--');
 	var sequenceId = split[1];
 	var numNodes = $('[id^='+sequenceId+']').length;
@@ -636,7 +644,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	//mainTD.appendChild(mainDiv);
 	
 	if(node.type=='sequence' && (this.getProject().getRootNode() && node.id!=this.project.getRootNode().id)){
-		var sequenceEl = createElement(document, 'div', {id: absId, 'class': 'projectNode seq'}),
+		var sequenceEl = createElement(document, 'li', {id: absId, 'class': 'projectNode seq'}),
 			seqTitleEl = createElement(document, 'div', {id: 'seqTitle_' + absId, 'class': 'sequenceTitle'});
 		//var seqTitleDiv = createElement(document, 'div', {id: 'seqTitleDiv_' + absId});
 		var titleText = 'Activity';
@@ -1457,6 +1465,11 @@ View.prototype.editIMSettings = function(){
 		// get whether Idea Manager is enabled
 		if(typeof tools.isIdeaManagerEnabled != 'undefined'){
 			imEnabled = tools.isIdeaManagerEnabled;
+		}
+		
+		// get whether public Idea Manager is enabled
+		if(typeof tools.isPublicIdeaManagerEnabled != 'undefined'){
+			$('#enablePublicIdeaManager').prop('checked',tools.isPublicIdeaManagerEnabled);
 		}
 		
 		// get Idea Manager settings
