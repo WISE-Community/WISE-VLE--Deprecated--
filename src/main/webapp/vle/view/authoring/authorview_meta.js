@@ -222,6 +222,7 @@ View.prototype.setPostLevel = function(){
  * Populates the project metadata settings in the project editing panel
  */
 View.prototype.populateMetaSettings = function(){
+	var view = this;
 	// project setting toggles
 	//$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
 	
@@ -244,15 +245,13 @@ View.prototype.populateMetaSettings = function(){
 	
 	$('#projectInfo input[type="checkbox"]').toggleSwitch('refresh');
 	
-	//$('#projectInfo input[type="checkbox"]').toggleSwitch();
-	
-	this.utils.setSelectedValueById('projectMetadataSubject', this.utils.resolveNullToEmptyString(this.projectMeta.subject));
-	this.utils.setSelectedValueById('projectMetadataGradeRange', this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
-	this.utils.setSelectedValueById('projectMetadataTotalTime', this.utils.resolveNullToEmptyString(this.projectMeta.totalTime));
-	this.utils.setSelectedValueById('projectMetadataLanguage', this.utils.resolveNullToEmptyString(this.projectMeta.language));
+	$('#projectMetadataSubject').val(this.utils.resolveNullToEmptyString(this.projectMeta.subject));
+	$('#projectMetadataGradeRange').val(this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
+	$('#projectMetadataTotalTime').val(this.utils.resolveNullToEmptyString(this.projectMeta.totalTime));
+	$('#projectMetadataLanguage').val(this.utils.resolveNullToEmptyString(this.projectMeta.language));
 	
 	if(this.projectMeta.theme != null){
-		this.utils.setSelectedValueById('projectMetadataTheme', this.projectMeta.theme);
+		$('#projectMetadataTheme').val(this.projectMeta.theme);
 	}
 	var navMode = '';
 	if(this.projectMeta.navMode != null){
@@ -264,7 +263,12 @@ View.prototype.populateMetaSettings = function(){
 	$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
 	
 	// initialize jQuery UI selectmenus on projectInfo select elements
-	$('#projectInfo select').selectmenu();
+	$('#projectInfo select.metaInfo').selectmenu({
+		change: function(){
+			view.updateMetaSettings($(this).attr('data-field'),$(this).val());
+		}
+	});
+	$('#projectInfo select.metaInfo').selectmenu('refresh');
 	
 	eventManager.fire('browserResize');
 };

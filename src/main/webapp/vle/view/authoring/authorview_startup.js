@@ -407,9 +407,9 @@ View.prototype.bindGeneralEvents = function(){
 	});
 	
 	// project metadata select options
-	$('#projectInfo select.metaInfo').on('change',function(){
-		view.updateMetaSettings($(this).attr('data-field'),$(this).val());
-	});
+	//$('#projectInfo select.metaInfo').on('change',function(){
+		//view.updateMetaSettings($(this).attr('data-field'),$(this).val());
+	//});
 	
 	// project metadata feature toggles
 	$('#projectInfo input[type="checkbox"].metaInfo').on('click',function(){

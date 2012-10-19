@@ -1439,14 +1439,14 @@ View.prototype.editIMSettings = function(){
 	var enableIMSettings = function(enabled){
 		if(enabled) {
 			$('#enableIdeaManager').prop('checked',true);
-			$('#imSettings input').prop('disabled',false);
+			$('#imSettings input, #enablePublicIdeaManager').prop('disabled',false);
 			$('#imSettings a').removeClass('disabled');
-			$('#imSettings').fadeTo('fast',1);
+			$('#imSettings, #enablePublicIMLabel').fadeTo('fast',1);
 		} else {
 			$('#enableIdeaManager').prop('checked',false);
-			$('#imSettings input').prop('disabled',true);
+			$('#imSettings input, #enablePublicIdeaManager').prop('disabled',true);
 			$('#imSettings a').addClass('disabled');
-			$('#imSettings').fadeTo('fast',.5);
+			$('#imSettings, #enablePublicIMLabel').fadeTo('fast',.5);
 		}
 		if($('#editIMSettingsDialog').is(':visible')){
 			$('#enableIdeaManager').toggleSwitch('refresh');
