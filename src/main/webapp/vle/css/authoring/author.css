@@ -865,6 +865,20 @@ table.wisetable th, table.wisetable td {
     font-weight:bold;
 }
 
+.featureSettings .settingsHeader .details {
+	float: right;
+    font-size: 0.9em;
+    margin-right:.25em;
+}
+
+.featureSettings .settingsHeader .details input[type="checkbox"] {
+	margin-right:0;
+}
+
+.featureSettings .settingsHeader .details label {
+	vertical-align:middle;
+}
+
 .featureSettings .settingsHeader span.info {
 	font-size:.9em;
 	font-weight:normal;

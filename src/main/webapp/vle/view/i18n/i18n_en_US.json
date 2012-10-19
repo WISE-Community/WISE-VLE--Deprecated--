@@ -783,6 +783,10 @@
 		"value":"Enable Idea Manager Tools",
 		"description":"Label text for the enable Idea Manager toggle switch in the Idea Manager settings dialog window."
 	},
+	"authoring_dialog_im_enable_public": {
+		"value":"Enable Idea Sharing",
+		"description":"Label text for the enable public Idea Manager toggle switch in the Idea Manager settings dialog window."
+	},
 	"authoring_dialog_title_nameinput":{
 		"value":"Please enter a name for this project:",
 		"description":"Text instructing user to enter a name for the project in the edit project title dialog window."
