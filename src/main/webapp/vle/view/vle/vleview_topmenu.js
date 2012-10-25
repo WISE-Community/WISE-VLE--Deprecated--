@@ -1422,12 +1422,6 @@ View.prototype.makeIdeaPublicCallback = function(responseText, responseXML, args
 			 */
 			idea.isPublishedToPublic = true;
 			
-			/*
-			 * set the private idea basket to changed so it will save the 
-			 * changes to our idea that we made public
-			 */
-			basket.setBasketChanged(true);
-			
 			//make the idea row display the fact that the idea is public
 			basket.makeIdeaRowPublic(ideaId);
 		}
@@ -1632,6 +1626,9 @@ View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args
 					basket.updateToolbarCount();
 					basket.setBasketChanged(true);
 					
+					//save the idea basket back to the server
+					basket.saveIdeaBasket(thisView, 'addPrivateIdea', workgroupId, ideaId);
+					
 					alert('Successfully copied Public Idea');
 				}
 				
@@ -1727,10 +1724,30 @@ View.prototype.uncopyPublicIdea = function(basket, ideaId) {
 		var publisherWorkgroupId = null;
 		
 		if(publishers != null && publishers.length > 0) {
-			var publisher = publishers[publishers.length - 1];
+			var publisher = null;
 			
-			publisherIdeaId = publisher.ideaId;
-			publisherWorkgroupId = publisher.workgroupId;
+			if(idea.isPublishedToPublic) {
+				/*
+				 * the publishers will contain the publisher that originally
+				 * pushed the idea to the public basket and will also contain
+				 * this workgroup that has copied and also published this idea
+				 * to the public basket. we want the publisher that originally
+				 * pushed the idea to the public basket so we will get the
+				 * element at length - 2 
+				 */
+				publisher = publishers[publishers.length - 2];
+			} else {
+				/*
+				 * get the publisher that originally pushed the idea to
+				 * the public basket
+				 */
+				publisher = publishers[publishers.length - 1];
+			}
+			
+			if(publisher != null) {
+				publisherIdeaId = publisher.ideaId;
+				publisherWorkgroupId = publisher.workgroupId;
+			}
 		}
 		
 		var ideaBasketParams = {

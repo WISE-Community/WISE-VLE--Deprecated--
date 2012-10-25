@@ -1198,6 +1198,11 @@ IdeaBasket.prototype.remove = function(index,$tr) {
 				 * workgroupIdsThatHaveCopied array.
 				 */
 				this.view.uncopyPublicIdea(this, idea.id);
+			} else if(this.isPublicIdeaBasketEnabled() && idea.isPublishedToPublic) {
+				/*
+				 * should deleting a private idea that has been published to public
+				 * also delete the public idea?
+				 */ 
 			}
 			
 			editedIdea = idea;
@@ -1327,26 +1332,34 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 		attributesChanged = true;
 	} else {
 		var ids = [];
+		//get all the attribute ids in this idea
 		$.each(idea.attributes, function(index,value){
 			ids.push(value.id);
 		});
+		
+		//loop through all the basket attributes available for an idea
 		$.each(attributes,function(index,attr){
-			if(!$.inArray(attr.id,ids)){
+			if($.inArray(attr.id,ids) == -1){
+				//this basket attribute id is not in the attribute ids for the idea
 				attributesChanged = true;
 				return false;
 			} else {
-				for(var i=0;i<idea.attributes;i++){
-					if(attr.id==idea.attributes[i].id){
-						if(attr.type != idea.attributes[i].type){
+				//loop through all the attributes in the idea
+				for(var i=0;i<idea.attributes.length;i++){
+					var ideaAttribute = idea.attributes[i];
+					
+					if(attr.id==ideaAttribute.id){
+						if(attr.type != ideaAttribute.type){
 							attributesChanged = true;
 						} else {
 							if(attr.type=='tags'){
-								if(attr.value.sort().toString() != idea.attributes[i].value.sort().toString()){
+								if(attr.value.sort().toString() != ideaAttribute.value.sort().toString()){
 									attributesChanged = true;
 									break;
 								}
 							} else {
-								if(attributes[i].value != idea.attributes.value){
+								//compare the value chosen in the UI with the previous value in the idea 
+								if(attr.value != ideaAttribute.value){
 									attributesChanged = true;
 									break;
 								}
@@ -1358,8 +1371,27 @@ IdeaBasket.prototype.isIdeaChangedV2 = function(idea, text, attributes) {
 		});
 	}
 	
+	var sharingStatusChanged = false;
+	
+	//get the value of the sharing status from the edit idea dialog
+	var sharingStatus = $('#sharingStatus').html();
+
+	//if sharing status is null it means public basket is not enabled
+	if(sharingStatus != null) {
+		//get whether the idea was previously public
+		var isPublishedToPublic = idea.isPublishedToPublic;
+		
+		//check if the sharing status is 'Public'
+		var sharingStatusIsPublic = sharingStatus == 'Public';
+		
+		if(isPublishedToPublic != sharingStatusIsPublic) {
+			//the sharing status has changed
+			sharingStatusChanged = true;
+		}
+	}
+	
 	//compare text
-	if(idea.text == text  && !attributesChanged) {
+	if(idea.text == text && !attributesChanged && !sharingStatusChanged) {
 		ideaChanged = false;
 	}
 	
@@ -1569,9 +1601,11 @@ IdeaBasket.prototype.editV2 = function(index,text,attributes,$tr) {
 					
 					if(sharingStatusIsPublic) {
 						//the idea has changed to public
+						idea.isPublishedToPublic = true;
 						this.view.makeIdeaPublic(this, idea.id);
 					} else {
 						//the idea has changed to private
+						idea.isPublishedToPublic = false;
 						this.view.makeIdeaPrivate(this, idea.id);
 					}
 				}

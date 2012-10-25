@@ -47,14 +47,22 @@ public class VLEIdeaBasketController extends HttpServlet {
 			Long workgroupIdLong = null;
 			Long ideaIdLong = null;
 			
-			if(workgroupId != null && !"undefined".equals(workgroupId)) {
-				//get the long value if a workgroup id was passed in as an argument
-				workgroupIdLong = new Long(workgroupId);
+			if(workgroupId != null && !"undefined".equals(workgroupId) && !"null".equals(workgroupId)) {
+				try {
+					//get the long value if a workgroup id was passed in as an argument
+					workgroupIdLong = new Long(workgroupId);
+				} catch(NumberFormatException e) {
+					
+				}
 			}
 			
-			if(ideaId != null && !"undefined".equals(ideaId)) {
-				//get the long value if an idea id was passed in as an argument
-				ideaIdLong = new Long(ideaId);
+			if(ideaId != null && !"undefined".equals(ideaId) && !"null".equals(workgroupId)) {
+				try {
+					//get the long value if an idea id was passed in as an argument
+					ideaIdLong = new Long(ideaId);
+				} catch(NumberFormatException e) {
+					
+				}
 			}
 			
 			
@@ -384,7 +392,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 				} else if(previouslyCopied) {
 					//the signed in workgroup has previously copied the public idea before
 					JSONObject publicIdeaBasketJSONObject = publicIdeaBasket.toJSONObject();
-					publicIdeaBasketJSONObject.put("errorMessage", "Error: Signed in workgroup has previously copied this public idea before");
+					publicIdeaBasketJSONObject.put("errorMessage", "Error: You have already copied this public idea");
 					response.getWriter().print(publicIdeaBasketJSONObject.toString());
 				} else if(!foundPublicIdea) {
 					//the public idea with the given id and workgroupId was not found
