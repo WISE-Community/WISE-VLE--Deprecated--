@@ -44,23 +44,23 @@ View.prototype.postCurrentNodeVisit = function() {
 		// no need to post data if we're in preview mode or the run is not active and the user is reviewing the run
 		return;
 	}
-	
+
 	//obtain the current node visit
 	var currentNodeVisit = this.state.getCurrentNodeVisit();
-	
+
 	//obtain the step work id for the visit
 	var stepWorkId = currentNodeVisit.id;
-	
+
 	var url;
 	if(this.getConfig().getConfigParam('postStudentDataUrl')){
 		url = this.getConfig().getConfigParam('postStudentDataUrl');
 	} else {
 		url = "postdata.html";
 	};
-	
+
 	//obtain the json string representation of the node visit
 	var nodeVisitData = encodeURIComponent($.stringify(currentNodeVisit));
-	
+
 	// Only POST this nodevisit if this nodevisit is not currently being POSTed to the server.
 	if (this.isInPOSTInProgressArray(currentNodeVisit)) {
 		return;
@@ -71,9 +71,9 @@ View.prototype.postCurrentNodeVisit = function() {
 		if(this.getUserAndClassInfo() != null) {
 			this.connectionManager.request('POST', 3, url, 
 					{id: stepWorkId, 
-					runId: this.getConfig().getConfigParam('runId'), 
-					userId: this.getUserAndClassInfo().getWorkgroupId(), 
-					data: nodeVisitData
+				runId: this.getConfig().getConfigParam('runId'), 
+				userId: this.getUserAndClassInfo().getWorkgroupId(), 
+				data: nodeVisitData
 					}, 
 					this.processPostResponse, 
 					{vle: this, nodeVisit:currentNodeVisit},
@@ -81,9 +81,9 @@ View.prototype.postCurrentNodeVisit = function() {
 		} else {
 			this.connectionManager.request('POST', 3, url, 
 					{id: stepWorkId, 
-					runId: this.getConfig().getConfigParam('runId'), 
-					userId: '-2', 
-					data: prepareDataForPost(diff)
+				runId: this.getConfig().getConfigParam('runId'), 
+				userId: '-2', 
+				data: prepareDataForPost(diff)
 					}, 
 					this.processPostResponse,
 					null,
@@ -104,15 +104,15 @@ View.prototype.postUnsavedNodeVisit = function(nodeVisit, sync) {
 	if (!this.getConfig() 
 			|| !this.getConfig().getConfigParam('mode') 
 			|| this.getConfig().getConfigParam('mode') == "portalpreview"
-			|| this.getConfig().getConfigParam('mode') == "developerpreview"
-			|| this.getConfig().getConfigParam('mode') == "standaloneauthorpreview"
-			|| this.getConfig().getConfigParam('isRunActive') === false) {
+				|| this.getConfig().getConfigParam('mode') == "developerpreview"
+					|| this.getConfig().getConfigParam('mode') == "standaloneauthorpreview"
+						|| this.getConfig().getConfigParam('isRunActive') === false) {
 		// no need to post data if we're in preview mode
 		return;
 	}
 
 	var url = this.getConfig().getConfigParam('postStudentDataUrl');
-	
+
 	/* check the post level to determine, what if anything needs to be posted */
 	if(this.getProject().getPostLevel()==1){
 		/* if postLevel == 1, we are only interested in steps with student work */
@@ -126,13 +126,13 @@ View.prototype.postUnsavedNodeVisit = function(nodeVisit, sync) {
 		/* assuming that if logging level is not 1 then it is 5 (which is everything) */
 		var postData = encodeURIComponent($.stringify(nodeVisit));
 	};
-	
+
 	var postStudentDataUrlParams = {id: nodeVisit.id,
-									runId: this.getConfig().getConfigParam('runId'),
-									periodId: this.getUserAndClassInfo().getPeriodId(),
-									userId: this.getUserAndClassInfo().getWorkgroupId(),
-									data: postData};
-	
+			runId: this.getConfig().getConfigParam('runId'),
+			periodId: this.getUserAndClassInfo().getPeriodId(),
+			userId: this.getUserAndClassInfo().getWorkgroupId(),
+			data: postData};
+
 	// Only POST this nodevisit if this nodevisit is not currently being POSTed to the server.
 	if (this.isInPOSTInProgressArray(nodeVisit)) {
 		return;
@@ -173,14 +173,14 @@ View.prototype.postAllUnsavedNodeVisits = function(sync) {
 View.prototype.processPostResponse = function(responseText, responseXML, args){
 	notificationManager.notify("processPostResponse, responseText:" + responseText, 4);
 	notificationManager.notify("processPostResponse, nodeVisit: " + args.nodeVisit, 4);
-	
+
 	//obtain the id and post time from the json response
 	var responseJSONObj = $.parseJSON(responseText);
 	var id = responseJSONObj.id;
 	var visitPostTime = responseJSONObj.visitPostTime;
 	var cRaterItemId = responseJSONObj.cRaterItemId;
 	var isCRaterSubmit = responseJSONObj.isCRaterSubmit;
-	
+
 	/*
 	 * this is for resolving node visits that used to end up with null
 	 * endTime values in the db. this problem occurs when the student
@@ -191,33 +191,33 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	if(args.nodeVisit.id != null) {
 		//args.vle.postUnsavedNodeVisit(args.nodeVisit);
 	}
-	
+
 	/*
 	 * set the id for the node visit, this is the same as the id value
 	 * for the visit in the stepWork table in the db
 	 */
 	args.nodeVisit.id = id;
 	args.nodeVisit.stepWorkId = id;
-	
+
 	//set the post time
 	args.nodeVisit.visitPostTime = visitPostTime;
-	
+
 	// remove nodeVisit from postInProgress array
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
-	
+
 	// if cRaterItemId is in the response and it was a CRater submit, make a request to GET the
 	// CRater Annotation
 	if(cRaterItemId != null && isCRaterSubmit != null && isCRaterSubmit) {
 		var nodeVisit = args.nodeVisit;
 		var latestState = nodeVisit.getLatestState();
 		var nodeStateTimestamp = latestState.timestamp;
-		
+
 		args.vle.getCRaterResponse(id, nodeStateTimestamp);
 	}
-	
+
 	if(args.vle.xmpp != null && args.vle.isXMPPEnabled != null) {
 		//real time monitor is enabled
-		
+
 		/*
 		 * get the information to send to the student work stream for the
 		 * teacher to see
@@ -227,13 +227,13 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 		var stepNumberAndTitle = args.vle.getProject().getStepNumberAndTitle(nodeId);
 		var type = "NodeVisit";
 		var nodeVisit = args.nodeVisit;
-		
+
 		if (this.studentStatus == null) {
 			this.studentStatus = new StudentStatus();
 		}
 		var workgroupName = args.vle.userAndClassInfo.getUserName();
 		this.studentStatus.updateMaxAlertLevel();
-		
+
 		//send the xmpp message
 		args.vle.xmpp.sendStudentToTeacherMessage({
 			workgroupId:workgroupId, 
@@ -242,7 +242,7 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 			type:type,
 			nodeVisit:nodeVisit});
 	}
-	
+
 	//fire the event that says we are done processing the post response
 	eventManager.fire('processPostResponseComplete');
 };
@@ -258,14 +258,14 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 View.prototype.processPostFailResponse = function(responseText, args){
 	notificationManager.notify("processPostFailResponse, responseText:" + responseText, 4);
 	notificationManager.notify("processPostFailResponse, nodeVisit: " + args.nodeVisit, 4);
-	
+
 	/*
 	 * display a message to the student to ask them to refresh 
 	 * their browser in case they have lost connection to the
 	 * server
 	 */
 	notificationManager.notify("Warning: Your work from the previous step may not have been saved. Please refresh your browser and make sure it was saved.", 3);
-	
+
 	// remove this nodevisit from postInProgressArray
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
 };
@@ -284,7 +284,7 @@ View.prototype.getStudentWorkForNodeId = function(nodeId) {
 	if(node.type=='DuplicateNode'){
 		nodeId = node.getNode().id;
 	}
-	
+
 	var nodeStates = [];
 	for (var i=0; i < this.state.visitedNodes.length; i++) {
 		var nodeVisit = this.state.visitedNodes[i];
@@ -337,18 +337,18 @@ View.prototype.saveState = function(state, node) {
 View.prototype.onWindowUnload = function(logout){
 	/* display splash screen letting user know that saving is occuring */
 	$('#onUnloadSaveDiv').dialog('open');
-			
+
 	/* tell current step to clean up */ 
 	if(this.getCurrentNode()) {
 		this.getCurrentNode().onExit();		
 	}
-	
+
 	/* set the endVisitTime to the current time for the current state */
 	this.state.endCurrentNodeVisit();
-	
+
 	/* synchronously save any unsaved node visits */
 	this.postAllUnsavedNodeVisits(true);
-	
+
 	/*
 	 * this will save the idea basket if it has changes that have 
 	 * not been saved. it will not do anything if the idea basket 
@@ -378,8 +378,28 @@ View.prototype.onWindowUnload = function(logout){
 		this.connectionManager.request('GET',1,"/webapp/j_spring_security_logout", null, function(){},null,null,true);
 		window.top.location = "/webapp/index.html"; // redirect the top level window to the login page
 	}
-	
+
 	$('#onUnloadSaveDiv').dialog('close');
+};
+
+/**
+ * Returns absolute URL path to student's unreferenced uploaded assets folder
+ * e.g. http://localhost:8080/studentuploads/[runId]/[workgroupId]/unreferenced
+ */
+View.prototype.getAbsoluteRemoteStudentUnreferencedUploadsPath = function() {
+	var workgroupId = this.userAndClassInfo.getWorkgroupId();
+	var getStudentUploadsBaseUrl = this.config.getConfigParam("getStudentUploadsBaseUrl");
+	return getStudentUploadsBaseUrl + "/" + this.config.getConfigParam("runId") + "/" + workgroupId + "/unreferenced/";
+};
+
+/**
+ * Returns absolute URL path to student's referenced uploaded assets folder
+ * e.g. http://localhost:8080/studentuploads/[runId]/[workgroupId]/unreferenced
+ */
+View.prototype.getAbsoluteRemoteStudentReferencedUploadsPath = function() {
+	var workgroupId = this.userAndClassInfo.getWorkgroupId();
+	var getStudentUploadsBaseUrl = this.config.getConfigParam("getStudentUploadsBaseUrl");
+	return getStudentUploadsBaseUrl + "/" + this.config.getConfigParam("runId") + "/" + workgroupId + "/referenced/";
 };
 
 /**
@@ -403,7 +423,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 			+ "</div></div>";
 		$('#studentAssetsDiv').html(assetEditorDialogHtml);		
 	}
-	
+
 	var remove = function(){
 		var parent = document.getElementById('assetSelect');
 		var ndx = parent.selectedIndex;
@@ -417,7 +437,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 				} else {
 					parent.removeChild(opt);
 					o.notificationManager.notify(text, 3, 'uploadMessage', 'notificationDiv');
-					
+
 					/* call upload asset with 'true' to get new total file size for assets */
 					o.checkStudentAssetSizeLimit();
 				}
@@ -425,7 +445,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 			view.connectionManager.request('POST', 1, view.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'remove', asset: name, cmd: 'studentAssetUpload'}, success, view, success);
 		}
 	};
-	
+
 	var saImport = function() {
 		if(view.getCurrentNode() != null &&
 				view.getCurrentNode().importFile) {			
@@ -433,21 +453,46 @@ View.prototype.viewStudentAssets = function(launchNode) {
 			var ndx = parent.selectedIndex;
 			if(ndx!=-1){
 				var opt = parent.options[parent.selectedIndex];
-				var name = opt.value;
-				// make absolute path to file: http://studentuploadsBaseWWW/workgroupId/filename
-				var workgroupId = view.userAndClassInfo.getWorkgroupId();
-				var getStudentUploadsBaseUrl = view.config.getConfigParam("getStudentUploadsBaseUrl");
-				var fileWWW = getStudentUploadsBaseUrl + "/" + workgroupId + "/" + name;
-				if(view.getCurrentNode().importFile(fileWWW)) {
-					view.notificationManager.notify(this.getI18NString("student_assets_import_success_message")+": " + name, 3, 'uploadMessage', 'notificationDiv');
-					$('#studentAssetsDiv').dialog('close');	
-				} else {
-					view.notificationManager.notify(this.getI18NString("student_assets_import_failure_message"),3, 'uploadMessage', 'notificationDiv')
+				var filename = opt.value;
+
+				var postStudentAssetUrl = view.getConfig().getConfigParam("studentAssetManagerUrl");
+				// need to get rid of the ?type=StudentAssets&runId=X from the url because we're doing a POST and it will be syntactically incorrect.
+				if (postStudentAssetUrl.indexOf("?") != -1) {
+					postStudentAssetUrl = postStudentAssetUrl.substr(0,postStudentAssetUrl.indexOf("?"));
 				}
+
+				// need to make a copy of the asset in the referenced folder and use it instead of the original.
+				$.ajax({
+					url:postStudentAssetUrl,
+					type:"POST",
+					dataType:"json",
+					data:{
+						"type":"studentAssetManager",			
+						"runId":view.config.getConfigParam("runId"),
+						"forward":"assetmanager",
+						"command":"studentAssetCopyForReference",
+						"assetFilename":filename
+					},
+					success:function(responseJSON) {
+						if (responseJSON != null && responseJSON.result != "" && responseJSON.result == "SUCCESS") {
+							var newFilename = responseJSON.newFilename;
+							var fileWWW = view.getAbsoluteRemoteStudentReferencedUploadsPath() + newFilename;	// make absolute path to file: http://studentuploadsBaseWWW/runId/workgroupId/unreferenced/filename
+							if(view.getCurrentNode().importFile(fileWWW)) {
+								view.notificationManager.notify(view.getI18NString("student_assets_import_success_message")+": " + newFilename, 3, 'uploadMessage', 'notificationDiv');
+								$('#studentAssetsDiv').dialog('close');	
+							} else {
+								view.notificationManager.notify(view.getI18NString("student_assets_import_failure_message"),3, 'uploadMessage', 'notificationDiv');
+							}
+						} else {
+							view.notificationManager.notify(view.getI18NString("student_assets_import_failure_message"),3, 'uploadMessage', 'notificationDiv');
+						}
+					}
+				}
+				);
 			}
 		}
 	};
-	
+
 	var done = function(){
 		$('#studentAssetsDiv').dialog('close');			
 	};
@@ -459,7 +504,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	var deleteSelectedFileText = this.getI18NString("student_assets_delete_selected_file");
 	var doneText = this.getI18NString("done");
 	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("student_assets_my_files"), 
-			buttons:[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]});
+		buttons:[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]});
 
 	/*
 	 * check if the div is hidden before trying to open it.
@@ -470,18 +515,18 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		$('#studentAssetsDiv').dialog('open');
 		this.checkStudentAssetSizeLimit();
 	};	
-	
+
 	var studentAssetsPopulateOptions = function(names, view){
 		if(names && names!=''){
 			var parent = $('#assetSelect');
 			parent.html('');
-			
+
 			//create a JSON array
 			names = JSON.parse(names);
-			
+
 			//sort the file names alphabetically
 			names.sort(view.sortAlphabetically);
-			
+
 			//loop through all the file names and add an option for each file
 			for(var x=0; x<names.length; x++) {
 				var name = names[x];
@@ -496,17 +541,17 @@ View.prototype.viewStudentAssets = function(launchNode) {
 		$('#studentAssetEditorDialog').show();
 		view.checkStudentAssetSizeLimit();
 	};
-	
+
 	// if the currently-opened node supports file import, show file import button
 	if(this.getCurrentNode() != null &&
 			this.getCurrentNode().importFile) {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons",
 				[{text:addSelectedFileText,click:saImport},{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]
-             );		
+		);		
 	} else {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
 				[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]				
-             );		
+		);		
 	}
 
 	this.connectionManager.request('POST', 1, this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'assetList'}, function(txt,xml,obj){studentAssetsPopulateOptions(txt,obj);}, this);	
@@ -517,18 +562,18 @@ View.prototype.viewStudentAssets = function(launchNode) {
  */
 View.prototype.checkStudentAssetSizeLimit = function(){
 	var callback = function(text, xml, o){
-			o.currentAssetSize = text;
-			if(text >= o.MAX_ASSET_SIZE){
-				var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
-				var studentUsageSize = o.utils.appropriateSizeText(text);
-				var maxExceededMessage = o.getStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
-				o.notificationManager.notify(maxExceededMessage, 3, 'uploadMessage', 'notificationDiv');
-			} else {				
-				var studentUsage = o.utils.appropriateSizeText(text);
-				var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
-				$('#sizeDiv').html(o.getStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
-			} 
-		};
+		o.currentAssetSize = text;
+		if(text >= o.MAX_ASSET_SIZE){
+			var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
+			var studentUsageSize = o.utils.appropriateSizeText(text);
+			var maxExceededMessage = o.getStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
+			o.notificationManager.notify(maxExceededMessage, 3, 'uploadMessage', 'notificationDiv');
+		} else {				
+			var studentUsage = o.utils.appropriateSizeText(text);
+			var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
+			$('#sizeDiv').html(o.getStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
+		} 
+	};
 	this.connectionManager.request('POST', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);
 };
 
@@ -563,7 +608,7 @@ View.prototype.studentAssetSubmitUpload = function() {
 			/* create and append elements */
 			document.body.appendChild(frame);
 			document.body.appendChild(form);
-			
+
 			//form.appendChild(createElement(document,'input',{type:'hidden', name:'path', value:assetPath}));
 			form.appendChild(createElement(document,'input',{type:'hidden', name:'type', value:'studentAssetManager'}));			
 			form.appendChild(createElement(document,'input',{type:'hidden', name:'runId', value:this.config.getConfigParam("runId")}));
@@ -573,21 +618,21 @@ View.prototype.studentAssetSubmitUpload = function() {
 
 			/* set up the event and callback when the response comes back to the frame */
 			frame.addEventListener('load', function () { eventManager.fire('assetUploaded', [frame, view]); }, false);
-			
+
 			/* change the name attribute to reflect that of the file selected by user */
 			document.getElementById('uploadAssetFile').setAttribute("name", filename);
-			
+
 			/* remove file input from the dialog and append it to the frame before submitting, we'll put it back later */
 			var fileInput = document.getElementById('uploadAssetFile');
 			form.appendChild(fileInput);
-			
+
 			/* submit hidden form */
 			form.submit();
-			
+
 			/* put the file input back and remove form now that the form has been submitted */
 			document.getElementById('assetUploaderBodyDiv').insertBefore(fileInput, document.getElementById('assetUploaderBodyDiv').firstChild);
 			document.body.removeChild(form);
-			
+
 			$('#assetProcessing').show();
 		}
 	} else {
@@ -606,10 +651,10 @@ View.prototype.getTeamProjectCompletionPercentage = function() {
 	 * this is a : delimited string of nodeIds
 	 */
 	var nodeIds = this.getProject().getNodeIds();
-	
+
 	//get the run id
 	var runId = this.getConfig().getConfigParam('runId');
-	
+
 
 	//get a vleState
 	var vleState = this.state;
@@ -696,13 +741,13 @@ View.prototype.removeFromPOSTInProgressArray = function(nodeVisit) {
  */
 View.prototype.getCRaterResponse = function(stepWorkId, nodeStateId) {
 	var postAnnotationsURL = this.getConfig().getConfigParam('getAnnotationsUrl');
-	
+
 	var getCRaterResponseArgs = {
-		stepWorkId:stepWorkId,
-		nodeStateId:nodeStateId,
-		annotationType:"cRater"
+			stepWorkId:stepWorkId,
+			nodeStateId:nodeStateId,
+			annotationType:"cRater"
 	};
-	
+
 	//make the call to GET the annotation
 	this.connectionManager.request('GET', 1, postAnnotationsURL, getCRaterResponseArgs, this.getCRaterResponseCallback, [this, stepWorkId, nodeStateId], this.getCRaterResponseCallbackFail);
 };
@@ -719,51 +764,51 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 		try {
 			var annotationJSON = JSON.parse(responseText);
 			var nodeId = annotationJSON.nodeId;
-			
+
 			// display feedback immediately, if specified in the content
 			var vle = args[0];
 			var nodeStateId = args[2];
 			// check the step content to see if we need to display the CRater feedback to the student.
 			var cRaterJSON = vle.getProject().getNodeById(nodeId).content.getContentJSON().cRater;
-			
+
 			//var displayCRaterFeedbackImmediately = cRaterJSON.displayCRaterFeedbackImmediately;
 			var displayCRaterScoreToStudent = cRaterJSON.displayCRaterScoreToStudent;
 			var displayCRaterFeedbackToStudent = cRaterJSON.displayCRaterFeedbackToStudent;
-			
+
 			var cRaterAnnotationJSON = vle.getCRaterNodeStateAnnotationByNodeStateId(annotationJSON,nodeStateId);
 			var cRaterAnnotation = Annotation.prototype.parseDataJSONObj(annotationJSON);
-			
+
 			//add the CRater annotation to our local collection of annotations
 			vle.annotations.updateOrAddAnnotation(cRaterAnnotation);
-			
+
 			if (displayCRaterScoreToStudent || displayCRaterFeedbackToStudent) {
 				//we will display the score or feedback (or both) to the student
-				
+
 				var concepts = cRaterAnnotationJSON.concepts;
-				
+
 				// now find the feedback that the student should see
 				var scoringRules = cRaterJSON.cRaterScoringRules;
 
 				//get the feedback for the given concepts the student satisfied
 				var feedbackTextObject = vle.getFeedbackFromScoringRules(scoringRules, concepts);
-				
+
 				//get the feedback text and feedback id
 				var feedbackText = feedbackTextObject.feedbackText;
 				var feedbackId = feedbackTextObject.feedbackId;
-				
+
 				var message = "";
-				
+
 				if(displayCRaterScoreToStudent) {
 					//display the score
 					message += "You got a score of " + cRaterAnnotationJSON.score;
 				}
-				
+
 				if(displayCRaterFeedbackToStudent) {
 					//display the feedback
 					if(displayCRaterScoreToStudent) {
 						message += "\n";
 					}
-					
+
 					message += "Feedback: " + feedbackText;
 
 					/*
@@ -771,24 +816,24 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					 * update the node state with the CRater feedback so we know which
 					 * feedback the student received.
 					 */
-					
+
 					//get the current node visit
 					var currentNodeVisit = vle.state.getCurrentNodeVisit();
-					
+
 					//get the current node state
 					var latestNodeState = currentNodeVisit.getLatestState();
-					
+
 					//insert the feedback text and feedback id into the node state
 					latestNodeState.cRaterFeedbackText = feedbackText;
 					latestNodeState.cRaterFeedbackId = feedbackId;
-					
+
 					/*
 					 * save the current node visit again so the stepwork row in the 
 					 * database will be updated to include the feedback text and feedback id
 					 */
 					vle.postCurrentNodeVisit(vle.state.getCurrentNodeVisit());
 				}
-				
+
 				if(message != null && message != "") {
 					// display the feedback button
 					vle.displayNodeAnnotation(nodeId);  // display annotation for the current step, if any

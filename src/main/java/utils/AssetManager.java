@@ -1,9 +1,13 @@
 package utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,23 +34,23 @@ import org.json.JSONObject;
  */
 public class AssetManager extends HttpServlet implements Servlet{
 	private static final long serialVersionUID = 1L;
-       
+
 	private final static String COMMAND = "command";
-	
+
 	private final static String PATH = "path";
-	
+
 	private final static String ASSET = "asset";
-	
+
 	private final static String FAILED = "failed";
-	
+
 	private static Properties vleProperties = null;
-	
+
 	private static final String DEFAULT_DIRNAME = "assets";
-	 
+
 	private boolean standAlone = true;
-	
+
 	private boolean modeRetrieved = false;
-	
+
 	{
 		try {
 			// Read properties file.
@@ -57,13 +61,13 @@ public class AssetManager extends HttpServlet implements Servlet{
 			e.printStackTrace();
 		}
 	}
-	
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public AssetManager() {
-        super();
-    }
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public AssetManager() {
+		super();
+	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -80,7 +84,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 			this.standAlone = !SecurityUtils.isPortalMode(request);
 			this.modeRetrieved = true;
 		}
-		
+
 		if(this.standAlone || SecurityUtils.isAuthenticated(request)){
 			this.doRequest(request, response);
 		} else {
@@ -88,19 +92,19 @@ public class AssetManager extends HttpServlet implements Servlet{
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 	}
-	
+
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
 		String command = request.getParameter(COMMAND);
-		
+
 		String path = request.getParameter(PATH);
 		String dirName = (String) request.getAttribute("dirName");
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
-		
+
 		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
 		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
-		
+
 		if (path == null || "".equals(path)) {
 			if(studentUploadsBaseDir != null) {
 				//the user is a student
@@ -110,7 +114,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 				path = projectFolderPath;
 			}
 		}
-		
+
 		if(command!=null){
 			if(command.equals("remove")){
 				this.removeAsset(request, response);
@@ -118,16 +122,18 @@ public class AssetManager extends HttpServlet implements Servlet{
 				response.getWriter().write(this.getSize(path, dirName));
 			} else if(command.equals("assetList")){
 				response.getWriter().write(this.assetList(request));
+			} else if (command.equals("studentAssetCopyForReference")) {
+				response.getWriter().write(this.copyAssetForReference(request));
 			} else {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			}
+			} 
 		} else if(ServletFileUpload.isMultipartContent(request)){
 			response.getWriter().write(this.uploadAsset(request));
 		} else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	}
-	
+
 	/**
 	 * If the given <code>HttpServletRequest</code> contains a valid project path,
 	 * asset name and file, uploads the specified file to the given path.
@@ -146,10 +152,10 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if (dirName == null) {
 			dirName = DEFAULT_DIRNAME;
 		}
-		
+
 		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
 		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
-		
+
 		if (studentUploadsBaseDir != null) {
 			// this is a student asset upload
 			path = studentUploadsBaseDir;
@@ -202,36 +208,36 @@ public class AssetManager extends HttpServlet implements Servlet{
 				File projectDir = new File(path);
 				File assetsDir = new File(projectDir, dirName);
 				if(!assetsDir.exists()){
-					assetsDir.mkdir();
+					assetsDir.mkdirs();
 				}
-				
+
 				if(SecurityUtils.isAllowedAccess(request, assetsDir)){
 					ArrayList<String> filenames = (ArrayList<String>) request.getAttribute("filenames");
 					Map<String,byte[]> fileMap = (Map<String,byte[]>) request.getAttribute("fileMap");
 					String successMessage = "";
-					
+
 					if(filenames != null && filenames.size()>0 && fileMap != null && fileMap.size()>0 && filenames.size()==fileMap.size()){
 						Iterator<String> iter = filenames.listIterator();
 						while(iter.hasNext()){
 							String filename = iter.next();
 							File asset = new File(assetsDir, filename);
 							byte[] content = fileMap.get(filename);
-							
+
 							if(Long.parseLong(this.getSize(path, dirName)) + content.length > maxSize){
 								successMessage += "Uploading " + filename + " of size " + this.appropriateSize(content.length) + " would exceed your maximum storage capacity of "  + this.appropriateSize(maxSize) + ". Operation aborted.";
 							} else {
 								if(!asset.exists()){
 									asset.createNewFile();
 								}
-								
+
 								FileOutputStream fos = new FileOutputStream(asset);
 								fos.write(content);
-								
+
 								successMessage += asset.getName() + " was successfully uploaded! ";
 							}
 						}
 					}
-	
+
 					return successMessage;
 				} else {
 					return "Access to path is denied.";
@@ -241,231 +247,324 @@ public class AssetManager extends HttpServlet implements Servlet{
 			e.printStackTrace();
 			return e.getMessage();
 		}
-		
+
 		return FAILED;
-	}
-	
-	/**
-	 * Checks to make sure the provided project path exists. If not returns false,
-	 * if it does, then checks to see if the dirName directory exists. If it does, returns
-	 * true, if not, attempts to create it. If the creation is successful, returns true,
-	 * if not returns false.
-	 * 
-	 * @param <code>String</code> path
-	 * @param <code>String</code> dirName
-	 * @return boolean
-	 */
-	private boolean ensureAssetPath(String path, String dirName) {
-		File projectDir = new File(path);
-		if(projectDir.exists()){
-			File assetsDir = new File(projectDir, dirName);
-			if(assetsDir.exists() && assetsDir.isDirectory()){
-				return true;
-			} else {
-				return assetsDir.mkdir();
-			}
-		} else {
-			return false;
-		}
 	}
 
 	/**
-	 * Given an <code>HttpServletRequst</code> request that contains
-	 * a path, returns the size in bytes of all of the files in the assets
-	 * folder in that path.
+	 * Copies a student uploaded asset to the referenced directory with a 
+	 * timestamp and returns a JSON string that includes the filename of that copied file.
 	 * 
-	 * @param <code>HttpServletRequest</code> request
-	 * @return <code>String</code> size of all files in assets folder in bytes
+	 * @param request
+	 * @return String filename of the new copy
 	 */
-	private String getSize(String path, String dirName){
-		if(path==null){
-			return "No project path specified";
+	private String copyAssetForReference(HttpServletRequest request) {
+		JSONObject response = new JSONObject();
+
+		String unreferencedAssetsDirName = (String) request.getAttribute("dirName"); 
+		String referencedAssetsDirName = (String) request.getAttribute("referencedDirName");
+
+		String studentUploadsBaseDirStr = (String) request.getAttribute("studentuploads_base_dir");
+
+		/* file upload is coming from the portal so we need to read the bytes
+		 * that the portal set in the attribute
+		 */
+		File studentUploadsBaseDir = new File(studentUploadsBaseDirStr);
+		File unreferencedAssetsFullDir = new File(studentUploadsBaseDir, unreferencedAssetsDirName);
+		if(!unreferencedAssetsFullDir.exists()){
+			System.err.println("Unreferenced Directory Does Not Exist.");  // the unreferenced directory must exist.
+			return "ERROR";
+		}
+
+		// if the referenced directory does not exist, make it.
+		File referencedAssetsFullDir = new File(studentUploadsBaseDir, referencedAssetsDirName);
+		if(!referencedAssetsFullDir.exists()){
+			referencedAssetsFullDir.mkdirs();
+		}
+
+		if(SecurityUtils.isAllowedAccess(request, unreferencedAssetsFullDir)){
+			String filename = request.getParameter("assetFilename");
+			// append timestamp to the file to make it unique.
+			Calendar cal = Calendar.getInstance();
+			int lastIndexOfDot = filename.lastIndexOf(".");
+			String newFilename = filename.substring(0, lastIndexOfDot) + "-" + cal.getTimeInMillis() +filename.substring(lastIndexOfDot);  // e.g. sun-20121025102912.png
+			File unreferencedAsset = new File(unreferencedAssetsFullDir, filename);
+			File referencedAsset = new File(referencedAssetsFullDir, newFilename);
+
+			try {
+				this.copy(unreferencedAsset, referencedAsset);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			try {
+				response.put("result", "SUCCESS");
+				response.put("newFilename", newFilename);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		} else {
+		}
+		return response.toString();
+	}
+
+		/**
+		 * Copies the given <code>File</code> src to the given <code>File</code> dest. If they
+		 * are directories, recursively copies the contents of the directories.
+		 * 
+		 * @param File src
+		 * @param File dest
+		 * @throws FileNotFoundException
+		 * @throws IOException
+		 */
+		public void copy(File src, File dest) throws FileNotFoundException, IOException{
+			if(src.isDirectory()){
+				if(!dest.exists()){
+					dest.mkdir();
+				}
+
+				String[] files = src.list();
+				for(int a=0;a<files.length;a++){
+					copy(new File(src, files[a]), new File(dest, files[a]));
+				}
+			} else {
+				InputStream in = new FileInputStream(src);
+				FileOutputStream out = new FileOutputStream(dest);
+
+				byte[] buffer = new byte[2048];
+				int len;
+				while((len = in.read(buffer)) > 0){
+					out.write(buffer, 0, len);
+				}
+
+				in.close();
+				out.close();
+			}
+		}
+
+		/**
+		 * Checks to make sure the provided project path exists. If not returns false,
+		 * if it does, then checks to see if the dirName directory exists. If it does, returns
+		 * true, if not, attempts to create it. If the creation is successful, returns true,
+		 * if not returns false.
+		 * 
+		 * @param <code>String</code> path
+		 * @param <code>String</code> dirName
+		 * @return boolean
+		 */
+		private boolean ensureAssetPath(String path, String dirName) {
 			File projectDir = new File(path);
 			if(projectDir.exists()){
 				File assetsDir = new File(projectDir, dirName);
 				if(assetsDir.exists() && assetsDir.isDirectory()){
-					long total = 0;
-					//get all file sizes and add to total
-					File[] files = assetsDir.listFiles();
-					for(int q=0;q<files.length;q++){
-						total += files[q].length();
-					}
-					return String.valueOf(total);
+					return true;
 				} else {
-					return "0";
+					return assetsDir.mkdir();
 				}
 			} else {
-				return "Given project path does not exist.";
+				return false;
 			}
 		}
-	}
-	
-	/**
-	 * Given a <code>HttpServletRequest</code> with path and asset parameters
-	 * finds the given asset associated with the project in the given path and
-	 * removes it from the assets directory. Returns a <code>String</code> success
-	 * message upon successful removal, throws <code>ServletExceptions</code> otherwise.
-	 * 
-	 * @param <code>HttpServletRequest</code> request
-	 * @return <code>String</code> message
-	 * @throws <code>ServletException</code>
-	 */
-	private void removeAsset(HttpServletRequest request, HttpServletResponse response) throws IOException{
-		String path = request.getParameter(PATH);
-		String dirName = (String) request.getAttribute("dirName");
-		if (dirName == null) {
-			dirName = DEFAULT_DIRNAME;
-		}
-		if (path == null) {
-		 path = (String) request.getAttribute(PATH);
+
+		/**
+		 * Given an <code>HttpServletRequst</code> request that contains
+		 * a path, returns the size in bytes of all of the files in the assets
+		 * folder in that path.
+		 * 
+		 * @param <code>HttpServletRequest</code> request
+		 * @return <code>String</code> size of all files in assets folder in bytes
+		 */
+		private String getSize(String path, String dirName){
+			if(path==null){
+				return "No project path specified";
+			} else {
+				File projectDir = new File(path);
+				if(projectDir.exists()){
+					File assetsDir = new File(projectDir, dirName);
+					if(assetsDir.exists() && assetsDir.isDirectory()){
+						long total = 0;
+						//get all file sizes and add to total
+						File[] files = assetsDir.listFiles();
+						for(int q=0;q<files.length;q++){
+							total += files[q].length();
+						}
+						return String.valueOf(total);
+					} else {
+						return "0";
+					}
+				} else {
+					return "Given project path does not exist.";
+				}
+			}
 		}
 
-		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
-		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
-		
-		if (studentUploadsBaseDir != null) {
-			// this is a student asset upload
-			path = studentUploadsBaseDir;
-		} else if(projectFolderPath != null) {
-			//the user is a teacher
-			path = projectFolderPath;
-		}
-		
-		String asset = request.getParameter(ASSET);
-		
-		
-		File projectDir = new File(path);
-		if(path==null || !(projectDir.exists()) || !(projectDir.isDirectory())){
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			File assetDir = new File(projectDir, dirName);
-			if(!assetDir.exists() || !assetDir.isDirectory()){
+		/**
+		 * Given a <code>HttpServletRequest</code> with path and asset parameters
+		 * finds the given asset associated with the project in the given path and
+		 * removes it from the assets directory. Returns a <code>String</code> success
+		 * message upon successful removal, throws <code>ServletExceptions</code> otherwise.
+		 * 
+		 * @param <code>HttpServletRequest</code> request
+		 * @return <code>String</code> message
+		 * @throws <code>ServletException</code>
+		 */
+		private void removeAsset(HttpServletRequest request, HttpServletResponse response) throws IOException{
+			String path = request.getParameter(PATH);
+			String dirName = (String) request.getAttribute("dirName");
+			if (dirName == null) {
+				dirName = DEFAULT_DIRNAME;
+			}
+			if (path == null) {
+				path = (String) request.getAttribute(PATH);
+			}
+
+			String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
+			String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+
+			if (studentUploadsBaseDir != null) {
+				// this is a student asset upload
+				path = studentUploadsBaseDir;
+			} else if(projectFolderPath != null) {
+				//the user is a teacher
+				path = projectFolderPath;
+			}
+
+			String asset = request.getParameter(ASSET);
+
+
+			File projectDir = new File(path);
+			if(path==null || !(projectDir.exists()) || !(projectDir.isDirectory())){
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			} else {
-				if(asset==null){
+				File assetDir = new File(projectDir, dirName);
+				if(!assetDir.exists() || !assetDir.isDirectory()){
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				} else {
-					File assetFile = new File(assetDir, asset);
-					if(assetFile.exists() && assetFile.isFile()){
-						if(this.standAlone || SecurityUtils.isAllowedAccess(request, assetFile)){
-							if(assetFile.delete()){
-								response.getWriter().write("Asset " + asset + " successfully deleted from server.");
+					if(asset==null){
+						response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					} else {
+						File assetFile = new File(assetDir, asset);
+						if(assetFile.exists() && assetFile.isFile()){
+							if(this.standAlone || SecurityUtils.isAllowedAccess(request, assetFile)){
+								if(assetFile.delete()){
+									response.getWriter().write("Asset " + asset + " successfully deleted from server.");
+								} else {
+									response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+								}
 							} else {
-								response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+								response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 							}
 						} else {
-							response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+							response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 						}
-					} else {
-						response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					}
 				}
 			}
 		}
-	}
 
-	/**
-	 * Given a <code>HttpServletRequest</code> request, returns
-	 * a <code>String</code> ':' denoted list of all filenames
-	 * within the project path directory.
-	 * In the request:
-	 * - path
-	 * - dirName
-	 * path + dirName = full content folder path
-	 * 
-	 * @param <code>HttpServletRequest</code> request
-	 * @return <code>String</code>
-	 */
-	private String assetList(HttpServletRequest request){
-		String path = "";
-		String dirName = (String) request.getAttribute("dirName");
-		if (dirName == null) {
-			dirName = DEFAULT_DIRNAME;
-		}
+		/**
+		 * Given a <code>HttpServletRequest</code> request, returns
+		 * a <code>String</code> ':' denoted list of all filenames
+		 * within the project path directory.
+		 * In the request:
+		 * - path
+		 * - dirName
+		 * path + dirName = full content folder path
+		 * 
+		 * @param <code>HttpServletRequest</code> request
+		 * @return <code>String</code>
+		 */
+		private String assetList(HttpServletRequest request){
+			String path = "";
+			String dirName = (String) request.getAttribute("dirName");
+			if (dirName == null) {
+				dirName = DEFAULT_DIRNAME;
+			}
 
-		/* dead code
+			/* dead code
 		if (path == null) {
 			path = (String) request.getAttribute(PATH);
 		}
-		*/
-		
-		String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
-		String projectFolderPath = (String) request.getAttribute("projectFolderPath");
-		
-		if (studentUploadsBaseDir != null) {
-			// this is a student asset upload
-			path = studentUploadsBaseDir;
-		} else if(projectFolderPath != null) {
-			//the user is a teacher
-			path = projectFolderPath;
-		}
-		
-		// if dirname is : separated, get asset list for each dir and return concatenated result
-		String[] dirNames = dirName.split(":");
-		if (dirNames.length > 1) {
-			JSONArray jsonArr = new JSONArray();
-			try {
-			for (int i=0; i<dirNames.length; i++) {
-				String currDirName = dirNames[i];
-				String currAssetList = getAssetList(path,currDirName);
-				if (!"".equals(currAssetList)) {
-					JSONObject jsonObj = new JSONObject();
-					jsonObj.put("workgroupId", currDirName);
-					jsonObj.put("assets", currAssetList);
-					jsonArr.put(jsonObj);
-				}
-			}
-			return jsonArr.toString();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				return "";
-			}				
-		} else {
-			return getAssetList(path,dirName);
-		}
-	}
-	
-	private String getAssetList(String path, String dirName) {
-		File projectDir = new File(path);
-		if(projectDir.exists()){
-			File assetsDir = new File(projectDir, dirName);
-			if(assetsDir.exists() && assetsDir.isDirectory()){
-				File[] files = assetsDir.listFiles();
-				
-				JSONArray fileNames = new JSONArray();
+			 */
 
-				if(files==null){//no files in this dir
-					return "";
-				} else {
-					for(int v=0;v<files.length;v++){
-						fileNames.put(files[v].getName());
+			String studentUploadsBaseDir = (String) request.getAttribute("studentuploads_base_dir");
+			String projectFolderPath = (String) request.getAttribute("projectFolderPath");
+
+			if (studentUploadsBaseDir != null) {
+				// this is a student asset upload
+				path = studentUploadsBaseDir;
+			} else if(projectFolderPath != null) {
+				//the user is a teacher
+				path = projectFolderPath;
+			}
+
+			// if dirname is : separated, get asset list for each dir and return concatenated result
+			String[] dirNames = dirName.split(":");
+			if (dirNames.length > 1) {
+				JSONArray jsonArr = new JSONArray();
+				try {
+					for (int i=0; i<dirNames.length; i++) {
+						String currDirName = dirNames[i];
+						String currAssetList = getAssetList(path,currDirName);
+						if (!"".equals(currAssetList)) {
+							JSONObject jsonObj = new JSONObject();
+							jsonObj.put("workgroupId", currDirName);
+							jsonObj.put("assets", currAssetList);
+							jsonArr.put(jsonObj);
+						}
 					}
-					return fileNames.toString();
+					return jsonArr.toString();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					return "";
+				}				
+			} else {
+				return getAssetList(path,dirName);
+			}
+		}
+
+		private String getAssetList(String path, String dirName) {
+			File projectDir = new File(path);
+			if(projectDir.exists()){
+				File assetsDir = new File(projectDir, dirName);
+				if(assetsDir.exists() && assetsDir.isDirectory()){
+					File[] files = assetsDir.listFiles();
+
+					JSONArray fileNames = new JSONArray();
+
+					if(files==null){//no files in this dir
+						return "";
+					} else {
+						for(int v=0;v<files.length;v++){
+							fileNames.put(files[v].getName());
+						}
+						return fileNames.toString();
+					}
+				} else {
+					return "";
 				}
 			} else {
-				return "";
+				return "Given project path does not exist";
 			}
-		} else {
-			return "Given project path does not exist";
+		}
+
+		/**
+		 * Given a <code>long</code> size of bytes, returns a <code>String</code>
+		 * with the size either in: bytes, kilobytes or megabytes rounded
+		 * to the nearest 10th.
+		 * 
+		 * @param <code>long</code> size
+		 * @return <code>String</code>
+		 */
+		private String appropriateSize(long size){
+			if(size>1048576){
+				return String.valueOf(Math.round(((size/1024)/1024)*10)/10) + " mb";
+			} else if (size>1024){
+				return String.valueOf(Math.round((size/1024)*10)/10) + " kb";
+			} else {
+				return String.valueOf(size) + " b";
+			}
 		}
 	}
-	
-	/**
-	 * Given a <code>long</code> size of bytes, returns a <code>String</code>
-	 * with the size either in: bytes, kilobytes or megabytes rounded
-	 * to the nearest 10th.
-	 * 
-	 * @param <code>long</code> size
-	 * @return <code>String</code>
-	 */
-	private String appropriateSize(long size){
-		if(size>1048576){
-			return String.valueOf(Math.round(((size/1024)/1024)*10)/10) + " mb";
-		} else if (size>1024){
-			return String.valueOf(Math.round((size/1024)*10)/10) + " kb";
-		} else {
-			return String.valueOf(size) + " b";
-		}
-	}
-}
