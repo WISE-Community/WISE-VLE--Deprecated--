@@ -45,7 +45,7 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 	} else if(type=='moveIdeaOutOfTrash') {
 		obj.moveIdeaOutOfTrash(args[0]);
 	} else if(type=='viewStudentAssets') {
-		obj.viewStudentAssets();
+		obj.viewStudentAssets(args[0]);
 	} else if(type=='displayChatRoom') {
 		obj.displayChatRoom();
 	} else if(type=='studentAssetSubmitUpload') {

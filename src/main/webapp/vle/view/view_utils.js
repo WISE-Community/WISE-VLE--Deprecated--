@@ -664,7 +664,7 @@ View.prototype.assetUploaded = function(target,view){
 		
 		// refresh edit asset dialog
 		if (target.getAttribute('type')=="student") {
-			eventManager.fire('viewStudentAssets');			
+			eventManager.fire('viewStudentAssets',view.assetEditorParams);			
 		} else {
 			eventManager.fire('viewAssets',view.assetEditorParams);
 		}

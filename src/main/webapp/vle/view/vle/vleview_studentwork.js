@@ -383,31 +383,17 @@ View.prototype.onWindowUnload = function(logout){
 };
 
 /**
- * Returns absolute URL path to student's unreferenced uploaded assets folder
- * e.g. http://localhost:8080/studentuploads/[runId]/[workgroupId]/unreferenced
- */
-View.prototype.getAbsoluteRemoteStudentUnreferencedUploadsPath = function() {
-	var workgroupId = this.userAndClassInfo.getWorkgroupId();
-	var getStudentUploadsBaseUrl = this.config.getConfigParam("getStudentUploadsBaseUrl");
-	return getStudentUploadsBaseUrl + "/" + this.config.getConfigParam("runId") + "/" + workgroupId + "/unreferenced/";
-};
-
-/**
- * Returns absolute URL path to student's referenced uploaded assets folder
- * e.g. http://localhost:8080/studentuploads/[runId]/[workgroupId]/unreferenced
- */
-View.prototype.getAbsoluteRemoteStudentReferencedUploadsPath = function() {
-	var workgroupId = this.userAndClassInfo.getWorkgroupId();
-	var getStudentUploadsBaseUrl = this.config.getConfigParam("getStudentUploadsBaseUrl");
-	return getStudentUploadsBaseUrl + "/" + this.config.getConfigParam("runId") + "/" + workgroupId + "/referenced/";
-};
-
-/**
  * Display student assets
- * @param launchNode which node the file uploader was launched from. Null if launched from top menu.
+ * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
  */
-View.prototype.viewStudentAssets = function(launchNode) {
+View.prototype.viewStudentAssets = function(params) {
 	var view = this;
+	if (params){
+		view.assetEditorParams = params;
+	} else {
+		view.assetEditorParams = null;
+	}
+
 	//check if the studentAssetsDiv exists
 	if($('#studentAssetsDiv').size()==0){
 		//it does not exist so we will create it
@@ -503,6 +489,7 @@ View.prototype.viewStudentAssets = function(launchNode) {
 	var addSelectedFileText = this.getI18NString("student_assets_add_selected_file");
 	var deleteSelectedFileText = this.getI18NString("student_assets_delete_selected_file");
 	var doneText = this.getI18NString("done");
+	var insertImageText = this.getI18NString("insertImage")
 	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:false,width:600,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:this.getI18NString("student_assets_my_files"), 
 		buttons:[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]});
 
@@ -547,6 +534,10 @@ View.prototype.viewStudentAssets = function(launchNode) {
 			this.getCurrentNode().importFile) {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons",
 				[{text:addSelectedFileText,click:saImport},{text:deleteSelectedFileText,click:remove},{text:doneText,click:done}]
+		);		
+	} else if (view.assetEditorParams && view.assetEditorParams.type) {
+		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 
+				[{text:deleteSelectedFileText,click:remove},{text:doneText,click:done},{text:insertImageText,click:insertImage}]				
 		);		
 	} else {
 		$( "#studentAssetsDiv" ).dialog( "option", "buttons", 

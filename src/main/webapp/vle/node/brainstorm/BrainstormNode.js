@@ -29,6 +29,8 @@ function BrainstormNode(nodeType, view) {
 	this.audioSupported = true;
 	this.serverless = true;
 	this.prevWorkNodeIds = [];
+	this.importableFileExtensions = new Array(
+			"jpg", "jpeg", "png", "gif", "svg");
 };
 
 /**
@@ -107,6 +109,35 @@ BrainstormNode.prototype.getHTMLContentTemplate = function() {
 		content = createContent('node/brainstorm/brainlite.html');
 	}
 	return content;
+};
+
+/**
+ * Returns true iff the given file can be imported 
+ * into this step's work.
+ */
+BrainstormNode.prototype.canImportFile = function(filename) {
+	if (filename.indexOf(".") != -1) {
+		var fileExt = filename.substr(filename.lastIndexOf(".")+1);	
+		if (this.importableFileExtensions.indexOf(fileExt.toLowerCase()) != -1) {
+			return true;
+		}
+	}
+	return false;
+};
+
+/**
+ * Imports and inserts the specified file into current drawing.
+ * @param file to insert into current canvas
+ * @return true if import is successful
+ */
+BrainstormNode.prototype.importFile = function(filename) {
+	if (this.canImportFile(filename) && this.view) {
+		// assume it's an image for now.
+		var importFileHtml = "<img src=\""+filename +"\"></img>";
+		this.view.assetEditorParams.tinymce.execCommand('mceInsertContent', false, importFileHtml);  // this will insert the image at the cursor
+		return true;
+	}
+	return false;
 };
 
 //used to notify scriptloader that this script has finished loading
