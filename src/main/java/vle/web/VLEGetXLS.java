@@ -5076,11 +5076,33 @@ public class VLEGetXLS extends VLEServlet {
 				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isIdeaMadePrivate));
 				
 				//Copied In This Revision
-				boolean isCopiedInThisRevision = isCopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				boolean isCopiedInThisRevision = false;
+				if(isCopiedFromPublicInThisRevision) {
+					/*
+					 * the idea was copied from the public basket which
+					 * may have entries in the workgroupIdsThatHaveCopied
+					 * array which would cause isCopiedInThisRevision to
+					 * be true when it should be false
+					 */
+					isCopiedInThisRevision = false;
+				} else {
+					isCopiedInThisRevision = isCopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				}
 				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isCopiedInThisRevision));
 				
 				//Uncopied In This Revision
-				boolean isUncopiedInThisRevision = isUncopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				boolean isUncopiedInThisRevision = false;
+				if(isIdeaMadePublic) {
+					/*
+					 * the idea was made public and when we make an idea public
+					 * we clear out the workgroupIdsThatHaveCopied array which
+					 * can cause isUncopiedInThisRevision to be true when
+					 * it should really be false
+					 */
+					isUncopiedInThisRevision = false;
+				} else {
+					isUncopiedInThisRevision = isUncopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				}
 				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isUncopiedInThisRevision));
 			}
 		} catch (JSONException e) {
