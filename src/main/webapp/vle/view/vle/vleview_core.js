@@ -122,6 +122,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if (type == 'startVLEComplete') {
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
+	} else if (type == 'assetCopiedForReference') {
+		obj.assetCopiedForReference(args[0], args[1]);
 	} else if(type=="chatRoomTextEntrySubmitted") {
 		obj.sendChat(args[0]);
 	}
