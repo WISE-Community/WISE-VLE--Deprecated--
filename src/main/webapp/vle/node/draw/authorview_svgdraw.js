@@ -87,6 +87,7 @@ View.prototype.SVGDrawNode.generateToolbarOptions = function(){
 	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="ellipseCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/> <img alt="ellipse" src="node/draw/svg-edit/images/ellipse.png" /> Ellipse/Circle<br />';
 	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="polygonCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/> <img alt="polygon" src="node/draw/svg-edit/images/path.png" /> Polygon<br />';
 	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="textCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/> <img alt="text" src="node/draw/svg-edit/images/text.png" /> Text<br />';
+	toolbarHtml += '<input type="checkbox" name="toolbarCbx" id="importStudentAssetCbx" checked="checked" onclick="eventManager.fire(\'svgdrawToolbarOptionsChanged\')"/> <img src="node/draw/svg-edit/images/folder.png" /> Import Uploaded Files<br />';
 	toolbarHtml += '</form>';
 	
 	parent.innerHTML = toolbarHtml;
@@ -127,6 +128,12 @@ View.prototype.SVGDrawNode.generateToolbarOptions = function(){
 		} else {
 			document.getElementById('textCbx').checked = false;
 		}
+		if (this.content.toolbar_options.importStudentAsset){
+			document.getElementById('importStudentAssetCbx').checked = true;
+		} else {
+			document.getElementById('importStudentAssetCbx').checked = false;
+		}
+
 	}
 	this.generateSnapshotMaxOption();
 };
@@ -496,6 +503,8 @@ View.prototype.SVGDrawNode.toolbarOptionsChanged = function(){
 			this.content.toolbar_options.polygon = isActive;
 		} else if (current == 'text'){
 			this.content.toolbar_options.text = isActive;
+		} else if (current == 'importStudentAsset'){
+			this.content.toolbar_options.importStudentAsset = isActive;
 		}
 	}
 	

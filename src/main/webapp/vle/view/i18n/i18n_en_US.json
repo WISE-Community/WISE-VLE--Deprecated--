@@ -35,10 +35,6 @@
 		"value":"*This item is required.",
 		"description":"Text that is displayed when a required validation item is missing"
 	},
-	"idea":{
-		"value":"idea",
-		"description":"The default text for an 'idea' in the Idea Manager tool."
-	},
 	"open":{
 		"value":"Open",
 		"description":"Text for the word 'Open'"
@@ -262,6 +258,14 @@
 	"student_assets_student_usage_exceeded_message":{
 		"value":"Maximum space exceeded! Maximum allowed is {0}, total on server is {1}. Please delete some files.",
 		"description":"Text on a button in Student Asset Manager to delete a selected file"
+	},
+	"insertImage":{
+		"value":"Insert Image",
+		"description":"Text 'Insert Image', to use for file upload"
+	},
+	"idea":{
+		"value":"idea",
+		"description":"The default text for an 'idea' in the Idea Manager tool."
 	},
 	"idea_plural":{
 		"value":"ideas",

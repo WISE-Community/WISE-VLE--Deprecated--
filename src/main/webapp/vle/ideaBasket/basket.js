@@ -322,7 +322,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		
 		var settings = this.settings;
 		
-		$('#basketTitle').text(this.view.utils.capitalize(this.ideaTermPlural) + ' for this Project');
+		$('#basketTitle').text('Private Idea Basket');
 		$('#addNew > span').text(this.addIdeaTerm + ' +');
 		$('#ideasEmpty').text('Your ' + this.basketTerm + ' is empty.  Click "' + this.addIdeaTerm + '" above to start adding ' + this.ideaTermPlural + '.');
 		
@@ -2106,7 +2106,7 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		}
 		
 		var imAttributes = this.settings.ideaAttributes;
-		html = $(document.createElement('tr')).attr('id',currTable + publicIdea.id);
+		html = $(document.createElement('tr')).attr('id',currTable + publicIdea.id).addClass('publicRow');
 		html.append('<td><div class="ideaText">' + linkText + '</div></td>');
 		
 		//add the attributes for the idea

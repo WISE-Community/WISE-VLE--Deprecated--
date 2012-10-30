@@ -22,7 +22,7 @@ function SVGDrawNode(nodeType, view) {
 	this.audioSupported = true;	
 	this.importableFromNodes = new Array("SVGDrawNode","OpenResponseNode","NoteNode");	
 	this.importableFileExtensions = new Array(
-			"jpg", "png", "gif", "svg");
+			"jpg", "jpeg", "png", "gif", "svg");
 };
 
 SVGDrawNode.prototype.updateJSONContentPath = function(base){

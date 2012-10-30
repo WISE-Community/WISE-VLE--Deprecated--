@@ -45,7 +45,7 @@ View.prototype.dropDownMenuDispatcher = function(type,args,obj){
 	} else if(type=='moveIdeaOutOfTrash') {
 		obj.moveIdeaOutOfTrash(args[0]);
 	} else if(type=='viewStudentAssets') {
-		obj.viewStudentAssets();
+		obj.viewStudentAssets(args[0]);
 	} else if(type=='displayChatRoom') {
 		obj.displayChatRoom();
 	} else if(type=='studentAssetSubmitUpload') {
@@ -956,7 +956,7 @@ View.prototype.getIdeaBasketCallback = function(responseText, responseXML, args)
 	var ideaBasketJSONObj = $.parseJSON(responseText);
 	
 	if(ideaBasketJSONObj == null) {
-		thisView.notificationManager.notify(this.getI18NString("idea_basket_retrieval_error"), 3);
+		thisView.notificationManager.notify(thisView.getI18NString("idea_basket_retrieval_error"), 3);
 	} else {
 		//create the IdeaBasket from the JSON and set it into the view
 		thisView.ideaBasket = new IdeaBasket(ideaBasketJSONObj);

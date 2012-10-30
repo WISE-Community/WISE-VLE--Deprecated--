@@ -323,6 +323,11 @@ table.tablesorter tbody tr {
 	line-height: 24px;
 }
 
+table.tablesorter tbody tr.publicRow {
+	cursor:auto;
+	line-height: 24px;
+}
+
 table#basketDeleted tbody tr {
 	cursor:auto;
 }

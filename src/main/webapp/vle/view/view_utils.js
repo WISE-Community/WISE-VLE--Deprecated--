@@ -635,6 +635,51 @@ View.prototype.utils.getExtension = function(text){
 };
 
 /**
+ * Callback function for when the dynamically created frame for uploading assets has recieved
+ * a response from the request. Notifies the response and removes the frame.
+ */
+View.prototype.assetUploaded = function(target,view){
+	var htmlFrame = target;
+	var frame = window.frames[target.id];
+	
+	if(frame.document && frame.document.body && frame.document.body.innerHTML != ''){
+		var message = "";
+		
+		if(frame.document.body.innerHTML != null && frame.document.body.innerHTML.indexOf("server has encountered an error") != -1) {
+			//the server returned a generic error page
+			message = "Error: an error occurred while trying to upload your file, please make sure you do not try to upload files larger than 10 mb";
+		} else {
+			//there was no error so we will display the message that we received
+			message = frame.document.body.innerHTML;
+		}
+		
+		//display the message in the upload manager
+		notificationManager.notify(message, 3, 'uploadMessage', 'notificationDiv');
+		
+		/* set source to blank in case of page reload */
+		htmlFrame.src = 'about:blank';
+		
+		/* cancel fired to clean up and hide the dialog */
+		//eventManager.fire('assetUploadCancel');
+		
+		// refresh edit asset dialog
+		if (target.getAttribute('type')=="student") {
+			eventManager.fire('viewStudentAssets',view.assetEditorParams);			
+		} else {
+			eventManager.fire('viewAssets',view.assetEditorParams);
+		}
+		$('#assetProcessing').hide();
+		
+		/* change cursor back to default */
+		document.body.style.cursor = 'default';
+		
+		document.getElementById('uploadAssetFile').setAttribute("name", 'uploadAssetFile');
+	} else {
+		document.body.removeChild(htmlFrame);
+	}
+};
+
+/**
  * Initializes Session for currently logged in user.
  */
 View.prototype.initializeSession = function(){

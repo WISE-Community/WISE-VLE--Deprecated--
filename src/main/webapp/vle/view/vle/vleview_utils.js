@@ -1,4 +1,24 @@
 /**
+ * Returns absolute URL path to student's unreferenced uploaded assets folder
+ * e.g. http://localhost:8080/studentuploads/[runId]/[workgroupId]/unreferenced
+ */
+View.prototype.getAbsoluteRemoteStudentUnreferencedUploadsPath = function() {
+	var workgroupId = this.userAndClassInfo.getWorkgroupId();
+	var getStudentUploadsBaseUrl = this.config.getConfigParam("getStudentUploadsBaseUrl");
+	return getStudentUploadsBaseUrl + "/" + this.config.getConfigParam("runId") + "/" + workgroupId + "/unreferenced/";
+};
+
+/**
+ * Returns absolute URL path to student's referenced uploaded assets folder
+ * e.g. http://localhost:8080/studentuploads/[runId]/[workgroupId]/unreferenced
+ */
+View.prototype.getAbsoluteRemoteStudentReferencedUploadsPath = function() {
+	var workgroupId = this.userAndClassInfo.getWorkgroupId();
+	var getStudentUploadsBaseUrl = this.config.getConfigParam("getStudentUploadsBaseUrl");
+	return getStudentUploadsBaseUrl + "/" + this.config.getConfigParam("runId") + "/" + workgroupId + "/referenced/";
+};
+
+/**
  * Utility functions specific to the VLE view
  */
 View.prototype.utils.setStyleOnElement = function(elementToHighlight, styleName, styleValue){
