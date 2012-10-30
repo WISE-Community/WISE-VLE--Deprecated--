@@ -569,6 +569,8 @@ SVGDRAW.prototype.hideTools = function(option){
 		$('#tool_path').hide();
 	} else if (option=='text'){
 		$('#tool_text').hide();
+	} else if (option=='importStudentAsset'){
+		$('#tool_import_student_asset').hide();
 	}
 };
 
