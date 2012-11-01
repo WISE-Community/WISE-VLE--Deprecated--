@@ -24,7 +24,6 @@ EpigameNode.tagMapFunctions = [
 	{functionName:"getTotalPerformance", functionArgs:["Score to Unlock (optional)", "Tag Multipliers (advanced)"]},
 	{functionName:"getTotalExplanation", functionArgs:["Score to Unlock (optional)", "Tag Multipliers (advanced)"]},
 	{functionName:"getTotalAdaptive", functionArgs:["Score to Unlock (optional)"]}
-	//{functionName:"advanced_calcMovingScore", functionArgs:["Starting Score", "Mobility (0-100)"]}
 ];
 
 EpigameNode.prototype.getQuizData = function(customURL) {
