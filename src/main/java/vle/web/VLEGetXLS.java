@@ -61,6 +61,8 @@ public class VLEGetXLS extends VLEServlet {
 	
 	private HashMap<Long, JSONArray> workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
 	
+	private HashMap<Integer, String> periodIdToPeriodName = new HashMap<Integer, String>();
+	
 	private List<String> nodeIdList = new Vector<String>();
 	
 	//the start time of the run (when the run was created)
@@ -115,6 +117,7 @@ public class VLEGetXLS extends VLEServlet {
 		workgroupIdToPeriodName = new HashMap<Integer, String>();
 		workgroupIdToStudentLogins = new HashMap<Integer, String>();
 		workgroupIdToStudentAttendance = new HashMap<Long, JSONArray>();
+		periodIdToPeriodName = new HashMap<Integer, String>();
 		
 		//the list of node ids in the project
 		nodeIdList = new Vector<String>();
@@ -401,6 +404,21 @@ public class VLEGetXLS extends VLEServlet {
 						//get the period name such as 1, 2, 3, or 4, etc.
 						String periodName = classmate.getString("periodName");
 						workgroupIdToPeriodName.put(workgroupId, periodName);
+					}
+					
+					if(classmate.has("periodId") && !classmate.isNull("periodId") &&
+							classmate.has("periodName") && !classmate.isNull("periodName")) {
+						//get the period id for the classmate
+						int periodId = classmate.getInt("periodId");
+						
+						//get the period name such as 1, 2, 3, or 4, etc.
+						String periodName = classmate.getString("periodName");
+						
+						//check if we already have a key with this period id
+						if(!periodIdToPeriodName.containsKey(new Integer(periodId))) {
+							//we do not have this period id yet so we will add it
+							periodIdToPeriodName.put(new Integer(periodId), periodName);
+						}
 					}
 					
 					if(classmate.has("studentLogins") && !classmate.isNull("studentLogins")) {
@@ -848,7 +866,7 @@ public class VLEGetXLS extends VLEServlet {
 				 * for workgroup id, student login, teacher login, period name, etc.
 				 */
 				Row userDataRow = userIdSheet.createRow(rowCounter++);
-				createUserDataRow(userDataRow, userId, true, true);
+				createUserDataRow(userDataRow, userId, true, true, null);
 				
 				//create a blank row for spacing
 				rowCounter++;
@@ -1282,7 +1300,7 @@ public class VLEGetXLS extends VLEServlet {
 			 * create the row that will display the user data such as the actual values
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
-			workgroupColumnCounter = createUserDataRow(rowForWorkgroupId, userId, true, false);
+			workgroupColumnCounter = createUserDataRow(rowForWorkgroupId, userId, true, false, null);
 			
 			/*
 			 * increment the column counter to create an empty column under the header column
@@ -1620,7 +1638,7 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//create the row that will display the metadata column values
 		Row metaDataRow = mainSheet.createRow(rowCounter++);
-		createUserDataRow(metaDataRow, "", false, true);
+		createUserDataRow(metaDataRow, "", false, true, null);
 		
 		//create a blank row
 		rowCounter++;
@@ -3440,8 +3458,9 @@ public class VLEGetXLS extends VLEServlet {
 	 * as workgroup id, wise id 1, wise id 2, wise id 3, class period
 	 * @param includeMetaDataCells whether to output the metadata cells such
 	 * as teacher login, project id, project name, etc.
+	 * @param periodName (optional) the period name
 	 */
-	private int createUserDataRow(Row userDataRow, String workgroupId, boolean includeUserDataCells, boolean includeMetaDataCells) {
+	private int createUserDataRow(Row userDataRow, String workgroupId, boolean includeUserDataCells, boolean includeMetaDataCells, String periodName) {
 		//the column counter
 		int workgroupColumnCounter = 0;
 		
@@ -3479,18 +3498,36 @@ public class VLEGetXLS extends VLEServlet {
 				int numColumnsToAdd = 3 - studentLoginsList.size();
 				workgroupColumnCounter += numColumnsToAdd;
 				
-				//get the period name such as 1, 2, 3, 4, etc.
-				String periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
+				if(periodName == null) {
+					//get the period name such as 1, 2, 3, 4, etc.
+					periodName = workgroupIdToPeriodName.get(Integer.parseInt(workgroupId));
+				}
 				
-				//populate the cell with the period name
-				workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, periodName);
+				if(periodName != null) {
+					//populate the cell with the period name
+					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, periodName);					
+				} else {
+					//the period name is null so we will just increment the counter
+					workgroupColumnCounter++;
+				}
 			} else {
-				/*
-				 * we did not find any student logins so we will just increment the column
-				 * counter by 3 since we provide 3 columns for the student logins and 1
-				 * for the period
-				 */
-				workgroupColumnCounter += 4;
+				if(periodName != null) {
+					/*
+					 * we did not find any student logins so we will just increment the column
+					 * counter by 3 since we provide 3 columns for the student logins and then
+					 * we'll add the period name since it was provided. this is only used
+					 * in the public idea basket row excel export.
+					 */
+					workgroupColumnCounter += 3;
+					workgroupColumnCounter = setCellValue(userDataRow, workgroupColumnCounter, periodName);				
+				} else {
+					/*
+					 * we did not find any student logins so we will just increment the column
+					 * counter by 4 since we provide 3 columns for the student logins and 1
+					 * for the period
+					 */
+					workgroupColumnCounter += 4;
+				}
 			}
 		}
 		
@@ -3571,7 +3608,7 @@ public class VLEGetXLS extends VLEServlet {
 			 * for workgroup id, student login, teacher login, period name, etc.
 			 */
 			Row userDataRow = userIdSheet.createRow(rowCounter++);
-			createUserDataRow(userDataRow, workgroupId, true, true);
+			createUserDataRow(userDataRow, workgroupId, true, true, null);
 			
 			//create a blank row for spacing
 			rowCounter++;
@@ -4570,8 +4607,14 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//create all the header fields
 		Vector<String> headerFields = new Vector<String>();
+		headerFields.add("Is Basket Public");
 		headerFields.add("Basket Revision");
-		headerFields.add("Idea #");
+		headerFields.add("Action");
+		headerFields.add("Action Performer");
+		headerFields.add("Changed Idea Id");
+		headerFields.add("Changed Idea Workgroup Id");
+		headerFields.add("Idea Id");
+		headerFields.add("Idea Workgroup Id");
 		headerFields.add("Idea Text");
 		
 		if(ideaBasketVersion == 1) {
@@ -4614,16 +4657,25 @@ public class VLEGetXLS extends VLEServlet {
 		headerFields.add("Node Name Created On");
 		headerFields.add("Steps Used In Count");
 		headerFields.add("Steps Used In");
+		headerFields.add("Was Copied From Public");
+		headerFields.add("Is Published To Public");
+		headerFields.add("Times Copied");
+		headerFields.add("Workgroup Ids That Have Copied");
 		headerFields.add("Trash");
 		headerFields.add("Timestamp Basket Saved");
 		headerFields.add("Timestamp Idea Created");
 		headerFields.add("Timestamp Idea Last Edited");
 		headerFields.add("New");
+		headerFields.add("Copied From Public In This Revision");
 		headerFields.add("Revised");
 		headerFields.add("Repositioned");
 		headerFields.add("Steps Used In Changed");
 		headerFields.add("Deleted In This Revision");
 		headerFields.add("Restored In This Revision");
+		headerFields.add("Made Public");
+		headerFields.add("Made Private");
+		headerFields.add("Copied In This Revision");
+		headerFields.add("Uncopied In This Revision");
 
 		//output the meta data header cells
 		Row metaDataHeaderRow = mainSheet.createRow(rowCounter++);
@@ -4631,7 +4683,7 @@ public class VLEGetXLS extends VLEServlet {
 		
 		//output the meta data cells
 		Row metaDataRow = mainSheet.createRow(rowCounter++);
-		createUserDataRow(metaDataRow, "", false, true);
+		createUserDataRow(metaDataRow, "", false, true, null);
 		
 		//create a blank row
 		rowCounter++;
@@ -4666,7 +4718,7 @@ public class VLEGetXLS extends VLEServlet {
 		 * comparing a basket revision for the same workgroup since these
 		 * idea basket revisions are all in the list one after the other
 		 */
-		long previousWorkgroupId = -1L;
+		long previousWorkgroupId = -2;
 		
 		//counter for the basket revision for a workgroup
 		int basketRevision = 1;
@@ -4697,7 +4749,7 @@ public class VLEGetXLS extends VLEServlet {
 				 * previous basket revision was for a different workgroup
 				 * so we will reset these values
 				 */
-				previousWorkgroupId = -1L;
+				previousWorkgroupId = -2L;
 				basketRevision = 1;
 				previousIdeaBasketJSON = null;
 			}
@@ -4710,150 +4762,354 @@ public class VLEGetXLS extends VLEServlet {
 				try {
 					//create a JSON object from the basket revision
 					ideaBasketJSON = new JSONObject(data);
+					
+					JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
+					//loop through all the active ideas
+					for(int ideasCounter=0; ideasCounter<ideas.length(); ideasCounter++) {
+						JSONObject idea = ideas.getJSONObject(ideasCounter);
+						rowCounter = createIdeaBasketRow(mainSheet, dateTimeInstance, nodeIdToNodeTitlesMap, ideaBasket, ideaAttributeIds, rowCounter, workgroupId, basketRevision, ideaBasketVersion, ideaBasketJSON, idea, previousIdeaBasketJSON);
+					}
+					
+					JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
+					//loop through all the private ideas
+					for(int deletedCounter=0; deletedCounter<deleted.length(); deletedCounter++) {
+						JSONObject deletedIdea = deleted.getJSONObject(deletedCounter);
+						rowCounter = createIdeaBasketRow(mainSheet, dateTimeInstance, nodeIdToNodeTitlesMap, ideaBasket, ideaAttributeIds, rowCounter, workgroupId, basketRevision, ideaBasketVersion, ideaBasketJSON, deletedIdea, previousIdeaBasketJSON);
+					}
+					
+					/*
+					 * remember the workgroupid and basket so we can 
+					 * compare them to the next revision
+					 */
+					previousWorkgroupId = workgroupId;
+					previousIdeaBasketJSON = ideaBasketJSON;
+					
+					if(ideaBasket.isPublic() != null && ideaBasket.isPublic() && ideas.length() == 0 && deleted.length() == 0) {
+						/*
+						 * the first public idea basket revision will be empty so we have
+						 * skipped it and now need to decrement the counter to set it back to 1
+						 */
+						basketRevision--;
+					}
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
-				
-				//get the number of ideas in this revision
-				int numberOfIdeas = getNumberOfIdeas(ideaBasketJSON);
-				
-				//loop through all the ideas in the current revision
-				for(int y=1; y<=numberOfIdeas; y++) {
-					//each idea gets its own row so we will start at column 0
-					columnCounter = 0;
-					
-					try {
-						//get the idea
-						JSONObject idea = getIdeaById(ideaBasketJSON, y);
-						int ideaId = idea.getInt("id");
-						
-						if(idea != null) {
-							Row ideaBasketRow = mainSheet.createRow(rowCounter++);
-							
-							//WorkgrupId, Wise Id 1, Wise Id 2, Wise Id 3, Class Period
-							columnCounter = createUserDataRow(ideaBasketRow, workgroupId + "", true, false);
-							
-							//Basket Revision
-							ideaBasketRow.createCell(columnCounter++).setCellValue(basketRevision);
-							
-							//Idea #
-							ideaBasketRow.createCell(columnCounter++).setCellValue(ideaId);
-							
-							//Idea Text
-							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("text"));
-
-							
-							if(ideaBasketVersion == 1) {
-								//this run uses the first version of the idea basket which always has flag, tags, and source
-								
-								//Flag
-								ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
-								
-								//Tags
-								ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
-								
-								//Source
-								ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
-							} else {
-								//this run uses the newer version of the idea basket which can have variable and authorable fields
-								
-								/*
-								 * loop through the attribute ids in the order that they appear in the metadata
-								 * 
-								 * we want to obtain what the student entered for each of the attributes in the
-								 * order that they appear in the metadata. this is just in case the attributes
-								 * somehow get disordered in the student data (even though this is unlikely to
-								 * happen).
-								 */
-								for(int idIndex=0; idIndex<ideaAttributeIds.length(); idIndex++) {
-									//get an attribute id
-									String attributeId = ideaAttributeIds.getString(idIndex);
-									
-									//get the value the student entered for this attribute
-									String value = getAttributeValueByAttributeId(idea, attributeId);
-									
-									//set the value into the cell
-									ideaBasketRow.createCell(columnCounter++).setCellValue(value);
-								}
-							}
-							
-							//Node Type
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getNodeTypeFromIdea(idea, nodeIdToNodeContent));
-							
-							//Node Id Created On
-							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeId"));
-							
-							//Node Name Created On
-							ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeName"));
-							
-							//Steps Used In Count
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedInCount(idea));
-							
-							//Steps Used In
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedIn(idea, nodeIdToNodeTitlesMap));
-							
-							//Trash
-							boolean ideaInTrash = isIdeaInTrash(ideaBasketJSON, ideaId);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaInTrash));
-							
-							//Timestamp Basket Saved
-							Timestamp postTime = ideaBasket.getPostTime();
-							long time = postTime.getTime();
-							Date dateBasketSaved = new Date(time);
-							String timestampBasketSaved = dateTimeInstance.format(dateBasketSaved);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampBasketSaved);
-							
-							//Timestamp Idea Created
-							long timeCreated = idea.getLong("timeCreated");
-							Date dateCreated = new Date(timeCreated);
-							String timestampIdeaCreated = dateTimeInstance.format(dateCreated);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaCreated);
-							
-							//Timestamp Idea Last Edited
-							long timeLastEdited = idea.getLong("timeLastEdited");
-							Date dateLastEdited = new Date(timeLastEdited);
-							String timestampIdeaLastEdited = dateTimeInstance.format(dateLastEdited);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaLastEdited);
-							
-							//New
-							boolean ideaNew = isIdeaNew(idea, previousIdeaBasketJSON);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaNew));
-							
-							//Revised
-							boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON, ideaBasketVersion, ideaAttributeIds);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRevised));
-							
-							//Repositioned
-							boolean ideaPositionChanged = isIdeaPositionChanged(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaPositionChanged));
-							
-							//Steps Used In Changed
-							boolean stepsUsedInChanged = isStepsUsedInChanged(idea, previousIdeaBasketJSON, nodeIdToNodeTitlesMap);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(stepsUsedInChanged));
-							
-							//Deleted In This Revision
-							boolean ideaDeletedInThisRevision = isIdeaDeletedInThisRevision(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaDeletedInThisRevision));
-							
-							//Restored In This Revision
-							boolean ideaRestoredInThisRevision = isIdeaRestoredInThisRevision(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
-							ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRestoredInThisRevision));
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
-				
-				/*
-				 * remember the workgroupid and basket so we can 
-				 * compare them to the next revision
-				 */
-				previousWorkgroupId = workgroupId;
-				previousIdeaBasketJSON = ideaBasketJSON;				
 			}
 		}
 		
 		return wb;
+	}
+	
+	/**
+	 * Create the row for an idea basket
+	 * @param mainSheet the excel sheet
+	 * @param dateTimeInstance the object used to pretty print dates
+	 * @param nodeIdToNodeTitlesMap contains mappings between node id and node titles
+	 * @param ideaBasket the idea basket
+	 * @param ideaAttributeIds  the idea attribute ids
+	 * @param rowCounter the row counter
+	 * @param workgroupId the workgroup id
+	 * @param basketRevision the revision number for this basket
+	 * @param ideaBasketVersion the version of the basket (1 or 2)
+	 * @param ideaBasketJSON the basket contents
+	 * @param idea the idea we are displaying on this row
+	 * @param previousIdeaBasketJSON the contents of the previous revision of the basket
+	 * used for comparison purposes
+	 * @return the row counter
+	 */
+	private int createIdeaBasketRow(XSSFSheet mainSheet, DateFormat dateTimeInstance, HashMap<String, String> nodeIdToNodeTitlesMap, 
+			IdeaBasket ideaBasket, JSONArray ideaAttributeIds, int rowCounter, long workgroupId, int basketRevision, 
+			int ideaBasketVersion, JSONObject ideaBasketJSON, JSONObject idea, JSONObject previousIdeaBasketJSON) {
+		//each idea gets its own row so we will start at column 0
+		int columnCounter = 0;
+		
+		try {
+			if(idea != null) {
+				Integer ideaId = idea.getInt("id");
+				
+				Integer ideaWorkgroupId = null;
+				
+				//get the workgroup id if it is available
+				if(idea.has("workgroupId")) {
+					ideaWorkgroupId = idea.getInt("workgroupId");
+				}
+				
+				//create a new row
+				Row ideaBasketRow = mainSheet.createRow(rowCounter++);
+				
+				String periodName = null;
+				Long periodId = ideaBasket.getPeriodId();
+				
+				//get the period name if the period id is available
+				if(periodId != null) {
+					periodName = periodIdToPeriodName.get(periodId.intValue());
+				}
+				
+				//WorkgrupId, Wise Id 1, Wise Id 2, Wise Id 3, Class Period
+				columnCounter = createUserDataRow(ideaBasketRow, workgroupId + "", true, false, periodName);
+				
+				//Is Public
+				Boolean isPublic = ideaBasket.isPublic();
+				if(isPublic == null) {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(false));
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isPublic));
+				}
+				
+				//Basket Revision
+				ideaBasketRow.createCell(columnCounter++).setCellValue(basketRevision);
+				
+				//Action
+				String action = ideaBasket.getAction();
+				if(action == null) {
+					columnCounter++;
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(action);
+				}
+
+				//Action Performer
+				Long actionPerformer = ideaBasket.getActionPerformer();
+				if(actionPerformer == null) {
+					columnCounter++;
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(actionPerformer);					
+				}
+
+				//Changed Idea Id
+				Long changedIdeaId = ideaBasket.getIdeaId();
+				if(changedIdeaId == null) {
+					columnCounter++;
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(changedIdeaId);					
+				}
+
+				//Changed Idea Workgroup Id
+				Long changedIdeaWorkgroupId = ideaBasket.getIdeaWorkgroupId();
+				if(changedIdeaWorkgroupId == null) {
+					columnCounter++;
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(changedIdeaWorkgroupId);					
+				}
+				
+				//Idea Id
+				if(ideaId == null) {
+					columnCounter++;
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(ideaId);					
+				}
+				
+				//Idea Workgroup Id
+				if(ideaWorkgroupId == null) {
+					columnCounter++;
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(ideaWorkgroupId);					
+				}
+				
+				//Idea Text
+				ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("text"));
+
+				
+				if(ideaBasketVersion == 1) {
+					//this run uses the first version of the idea basket which always has flag, tags, and source
+					
+					//Flag
+					ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("flag"));
+					
+					//Tags
+					ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("tags"));
+					
+					//Source
+					ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("source"));
+				} else {
+					//this run uses the newer version of the idea basket which can have variable and authorable fields
+					
+					/*
+					 * loop through the attribute ids in the order that they appear in the metadata
+					 * 
+					 * we want to obtain what the student entered for each of the attributes in the
+					 * order that they appear in the metadata. this is just in case the attributes
+					 * somehow get disordered in the student data (even though this is unlikely to
+					 * happen).
+					 */
+					for(int idIndex=0; idIndex<ideaAttributeIds.length(); idIndex++) {
+						//get an attribute id
+						String attributeId = ideaAttributeIds.getString(idIndex);
+						
+						//get the value the student entered for this attribute
+						String value = getAttributeValueByAttributeId(idea, attributeId);
+						
+						//set the value into the cell
+						ideaBasketRow.createCell(columnCounter++).setCellValue(value);
+					}
+				}
+				
+				//Node Type
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getNodeTypeFromIdea(idea, nodeIdToNodeContent));
+				
+				//Node Id Created On
+				ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeId"));
+				
+				//Node Name Created On
+				ideaBasketRow.createCell(columnCounter++).setCellValue(idea.getString("nodeName"));
+				
+				//Steps Used In Count
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedInCount(idea));
+				
+				//Steps Used In
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getStepsUsedIn(idea, nodeIdToNodeTitlesMap));
+				
+				//Was Copied From Public
+				if(idea.has("wasCopiedFromPublic")) {
+					boolean wasCopiedFromPublic = idea.getBoolean("wasCopiedFromPublic");
+					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(wasCopiedFromPublic));
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(false));
+				}
+				
+				//Is Published To Public
+				if(idea.has("isPublishedToPublic")) {
+					boolean isPublishedToPublic = idea.getBoolean("isPublishedToPublic");
+					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isPublishedToPublic));
+				} else {
+					ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(false));
+				}
+				
+				if(idea.has("workgroupIdsThatHaveCopied")) {
+					JSONArray workgroupIdsThatHaveCopied = idea.getJSONArray("workgroupIdsThatHaveCopied");
+					
+					//Times Copied
+					int timesCopied = workgroupIdsThatHaveCopied.length();
+					ideaBasketRow.createCell(columnCounter++).setCellValue(timesCopied);
+					
+					//Workgroup Ids That Have Copied
+					StringBuffer workgroupIdsThatHaveCopiedStringBuffer = new StringBuffer();
+					
+					//loop through all the workgroup ids that have copied this idea
+					for(int workgroupIdsCopiedCounter=0; workgroupIdsCopiedCounter<workgroupIdsThatHaveCopied.length(); workgroupIdsCopiedCounter++) {
+						long workgroupIdThatHasCopied = workgroupIdsThatHaveCopied.getLong(workgroupIdsCopiedCounter);
+						
+						if(workgroupIdsThatHaveCopiedStringBuffer.length() != 0) {
+							//separate workgroup ids with a ,
+							workgroupIdsThatHaveCopiedStringBuffer.append(",");
+						}
+						
+						//add the workgroup id
+						workgroupIdsThatHaveCopiedStringBuffer.append(workgroupIdThatHasCopied);
+					}
+					
+					//set the workgroup ids that have copied as a comma separated string
+					ideaBasketRow.createCell(columnCounter++).setCellValue(workgroupIdsThatHaveCopiedStringBuffer.toString());
+				} else {
+					//this idea does not have workgroup ids that have copied
+					
+					//set the times copied value to 0
+					ideaBasketRow.createCell(columnCounter++).setCellValue(0);
+					
+					//increment the counter to skip over the Workgroup Ids That Have Copied column
+					columnCounter++;
+				}
+				
+				//Trash
+				boolean ideaInTrash = isIdeaInTrash(ideaBasketJSON, idea);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaInTrash));
+				
+				//Timestamp Basket Saved
+				Timestamp postTime = ideaBasket.getPostTime();
+				long time = postTime.getTime();
+				Date dateBasketSaved = new Date(time);
+				String timestampBasketSaved = dateTimeInstance.format(dateBasketSaved);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(timestampBasketSaved);
+				
+				//Timestamp Idea Created
+				long timeCreated = idea.getLong("timeCreated");
+				Date dateCreated = new Date(timeCreated);
+				String timestampIdeaCreated = dateTimeInstance.format(dateCreated);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaCreated);
+				
+				//Timestamp Idea Last Edited
+				long timeLastEdited = idea.getLong("timeLastEdited");
+				Date dateLastEdited = new Date(timeLastEdited);
+				String timestampIdeaLastEdited = dateTimeInstance.format(dateLastEdited);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(timestampIdeaLastEdited);
+				
+				//New
+				boolean ideaNew = isIdeaNew(idea, previousIdeaBasketJSON);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaNew));
+				
+				//Copied From Public In This Revision
+				boolean isCopiedFromPublicInThisRevision = false;
+				/*
+				 * ideas can't be copied from the public basket directly to the public basket.
+				 * you can only copy an idea from the public basket to a private basket.
+				 */
+				if(isPublic == null || isPublic == false) {
+					isCopiedFromPublicInThisRevision = isCopiedFromPublicInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON); 
+				}
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isCopiedFromPublicInThisRevision));
+				
+				//Revised
+				boolean ideaRevised = isIdeaRevised(idea, previousIdeaBasketJSON, ideaBasketVersion, ideaAttributeIds);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRevised));
+				
+				//Repositioned
+				boolean ideaPositionChanged = isIdeaPositionChanged(ideaId, ideaBasketJSON, previousIdeaBasketJSON);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaPositionChanged));
+				
+				//Steps Used In Changed
+				boolean stepsUsedInChanged = isStepsUsedInChanged(idea, previousIdeaBasketJSON, nodeIdToNodeTitlesMap);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(stepsUsedInChanged));
+				
+				//Deleted In This Revision
+				boolean ideaDeletedInThisRevision = isIdeaDeletedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaDeletedInThisRevision));
+				
+				//Restored In This Revision
+				boolean ideaRestoredInThisRevision = isIdeaRestoredInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(ideaRestoredInThisRevision));
+				
+				//Made Public
+				boolean isIdeaMadePublic = isIdeaMadePublic(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isIdeaMadePublic));
+				
+				//Made Private
+				boolean isIdeaMadePrivate = isIdeaMadePrivate(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isIdeaMadePrivate));
+				
+				//Copied In This Revision
+				boolean isCopiedInThisRevision = false;
+				if(isCopiedFromPublicInThisRevision) {
+					/*
+					 * the idea was copied from the public basket which
+					 * may have entries in the workgroupIdsThatHaveCopied
+					 * array which would cause isCopiedInThisRevision to
+					 * be true when it should be false
+					 */
+					isCopiedInThisRevision = false;
+				} else {
+					isCopiedInThisRevision = isCopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				}
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isCopiedInThisRevision));
+				
+				//Uncopied In This Revision
+				boolean isUncopiedInThisRevision = false;
+				if(isIdeaMadePublic) {
+					/*
+					 * the idea was made public and when we make an idea public
+					 * we clear out the workgroupIdsThatHaveCopied array which
+					 * can cause isUncopiedInThisRevision to be true when
+					 * it should really be false
+					 */
+					isUncopiedInThisRevision = false;
+				} else {
+					isUncopiedInThisRevision = isUncopiedInThisRevision(idea, ideaBasketJSON, previousIdeaBasketJSON);
+				}
+				ideaBasketRow.createCell(columnCounter++).setCellValue(getIntFromBoolean(isUncopiedInThisRevision));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return rowCounter;
 	}
 	
 	/**
@@ -4906,9 +5162,10 @@ public class VLEGetXLS extends VLEServlet {
 	 * Get the idea from a basket revision by idea id
 	 * @param ideaBasketJSON the basket revision
 	 * @param ideaId the id of the idea we want
+	 * @param workgroupId the id of the workgroup that owns the idea
 	 * @return the idea in JSONObject form
 	 */
-	private JSONObject getIdeaById(JSONObject ideaBasketJSON, int ideaId) {
+	private JSONObject getIdeaById(JSONObject ideaBasketJSON, Integer ideaId, Integer workgroupId) {
 		JSONObject idea = null;
 		boolean ideaFound = false;
 		
@@ -4917,11 +5174,16 @@ public class VLEGetXLS extends VLEServlet {
 			JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
 			JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
 			
-			//loop through the active ideas
-			for(int x=0; x<ideas.length(); x++) {
+			//loop through the active ideas from newest to oldest
+			for(int x=ideas.length() - 1; x>=0; x--) {
 				JSONObject activeIdea = ideas.getJSONObject(x);
 				
-				if(activeIdea != null && activeIdea.getInt("id") == ideaId) {
+				/*
+				 * check if the idea id matches the one we want. if a workgroup id
+				 * is passed in as a parameter we will make sure that matches too.
+				 */
+				if(activeIdea != null && activeIdea.getInt("id") == ideaId &&
+						(workgroupId == null || activeIdea.getInt("workgroupId") == workgroupId.intValue())) {
 					//we have found the idea we want so we will stop searching
 					idea = activeIdea;
 					ideaFound = true;
@@ -4930,11 +5192,17 @@ public class VLEGetXLS extends VLEServlet {
 			}
 			
 			if(!ideaFound) {
-				//we have not found the idea yet so we will search the trash
-				for(int y=0; y<deleted.length(); y++) {
+				//we have not found the idea yet so we will search the trash from newest to oldest
+				for(int y=deleted.length() - 1; y>=0; y--) {
 					JSONObject deletedIdea = deleted.getJSONObject(y);
 					
-					if(deletedIdea != null && deletedIdea.getInt("id") == ideaId) {
+					/*
+					 * check if the idea id matches the one we want. if a workgroup id
+					 * is passed in as a parameter we will make sure that matches too.
+					 */
+					if(deletedIdea != null && deletedIdea.getInt("id") == ideaId &&
+							(workgroupId == null || deletedIdea.getInt("workgroupId") == workgroupId.intValue())) {
+						//we have found the idea we want so we will stop searching
 						idea = deletedIdea;
 						ideaFound = true;
 						break;
@@ -4984,29 +5252,62 @@ public class VLEGetXLS extends VLEServlet {
 	 * @param ideaId the id of the idea
 	 * @return whether the idea is in the trash or not
 	 */
-	private boolean isIdeaInTrash(JSONObject ideaBasketJSON, int ideaId) {
+	private boolean isIdeaInTrash(JSONObject ideaBasketJSON, JSONObject idea) {
 		boolean ideaInTrash = false;
+		boolean ideaFound = false;
 		
 		try {
 			if(ideaBasketJSON != null) {
-				//get the deleted ideas from the basket revision
+				//get the id
+				int ideaId = idea.getInt("id");
+				
+				Integer workgroupId = null;
+				
+				if(idea.has("workgroupId")) {
+					//get the workgroup id that owns the idea
+					workgroupId = idea.getInt("workgroupId");
+				}
+				
+				//get the ideas
+				JSONArray ideas = ideaBasketJSON.getJSONArray("ideas");
 				JSONArray deleted = ideaBasketJSON.getJSONArray("deleted");
 				
-				//loop through all the ideas in the trash
-				for(int x=0; x<deleted.length(); x++) {
-					JSONObject deletedIdea = deleted.getJSONObject(x);
+				//loop through the active ideas from newest to oldest
+				for(int x=ideas.length() - 1; x>=0; x--) {
+					JSONObject activeIdea = ideas.getJSONObject(x);
 					
-					if(deletedIdea != null) {
-						//get the id of the idea in the trash
-						int deletedIdeaId = deletedIdea.getInt("id");
+					/*
+					 * check if the idea id matches the one we want. if a workgroup id
+					 * is passed in as a parameter we will make sure that matches too.
+					 */
+					if(activeIdea != null && activeIdea.getInt("id") == ideaId &&
+							(workgroupId == null || activeIdea.getInt("workgroupId") == workgroupId.intValue())) {
+						//we have found the idea we want so we will stop searching
+						idea = activeIdea;
+						ideaFound = true;
+						break;
+					}
+				}
+				
+				if(!ideaFound) {
+					//we have not found the idea yet so we will search the trash from newest to oldest
+					for(int y=deleted.length() - 1; y>=0; y--) {
+						JSONObject deletedIdea = deleted.getJSONObject(y);
 						
-						if(deletedIdeaId == ideaId) {
-							//the id matches so the idea is in the trash
+						/*
+						 * check if the idea id matches the one we want. if a workgroup id
+						 * is passed in as a parameter we will make sure that matches too.
+						 */
+						if(deletedIdea != null && deletedIdea.getInt("id") == ideaId &&
+								(workgroupId == null || deletedIdea.getInt("workgroupId") == workgroupId)) {
+							//we have found the idea we want so we will stop searching
+							idea = deletedIdea;
 							ideaInTrash = true;
+							ideaFound = true;
 							break;
 						}
 					}
-				}				
+				}
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -5031,8 +5332,15 @@ public class VLEGetXLS extends VLEServlet {
 				//get the id
 				int ideaId = idea.getInt("id");
 				
+				Integer workgroupId = null;
+				
+				if(idea.has("workgroupId")) {
+					//get the workgroup id that owns the idea
+					workgroupId = idea.getInt("workgroupId");
+				}
+				
 				//try to get the idea from the previous basket revision
-				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
+				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
 				
 				if(previousIdeaRevision == null) {
 					/*
@@ -5062,8 +5370,15 @@ public class VLEGetXLS extends VLEServlet {
 				//get the id of the idea
 				int ideaId = idea.getInt("id");
 				
+				Integer workgroupId = null;
+				
+				if(idea.has("workgroupId")) {
+					//get the workgroup id that owns the idea
+					workgroupId = idea.getInt("workgroupId");
+				}
+				
 				//get the idea from the previous basket revision
-				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
+				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
 				
 				if(previousIdeaRevision != null) {
 					//get the time last edited timestamps
@@ -5218,19 +5533,19 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine whether the idea was put into the trash in this revision
-	 * @param ideaId the id of the idea
+	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current basket revision
 	 * @param previousIdeaBasket the previous basket revision
 	 * @return whether the idea was put into the trash in this revision
 	 */
-	private boolean isIdeaDeletedInThisRevision(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+	private boolean isIdeaDeletedInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
 		boolean ideaDeleted = false;
-		
+
 		//determine if the idea is in the trash in the current revision
-		boolean ideaInCurrentTrash = isIdeaInTrash(currentIdeaBasket, ideaId);
+		boolean ideaInCurrentTrash = isIdeaInTrash(currentIdeaBasket, idea);
 		
 		//determine if the idea is in the trash in the previous revision
-		boolean ideaInPreviousTrash = isIdeaInTrash(previousIdeaBasket, ideaId);
+		boolean ideaInPreviousTrash = isIdeaInTrash(previousIdeaBasket, idea);
 		
 		if(!ideaInPreviousTrash && ideaInCurrentTrash) {
 			//the idea was not previously in the trash but now is in the trash
@@ -5242,19 +5557,19 @@ public class VLEGetXLS extends VLEServlet {
 	
 	/**
 	 * Determine whether the idea was taken out of the trash in this revision
-	 * @param ideaId the id of the idea
+	 * @param idea the idea JSONObject
 	 * @param currentIdeaBasket the current basket revision
 	 * @param previousIdeaBasket the previous basket revision
 	 * @return whether the idea was taken out of the trash in this revision
 	 */
-	private boolean isIdeaRestoredInThisRevision(int ideaId, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+	private boolean isIdeaRestoredInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
 		boolean ideaRestored = false;
 		
 		//determine if the idea is in the trash in the current revision
-		boolean ideaInCurrentTrash = isIdeaInTrash(currentIdeaBasket, ideaId);
+		boolean ideaInCurrentTrash = isIdeaInTrash(currentIdeaBasket, idea);
 		
 		//determine if the idea is in the trash in the previous revision
-		boolean ideaInPreviousTrash = isIdeaInTrash(previousIdeaBasket, ideaId);
+		boolean ideaInPreviousTrash = isIdeaInTrash(previousIdeaBasket, idea);
 		
 		if(ideaInPreviousTrash && !ideaInCurrentTrash) {
 			//the idea was previously in the trash but now is not in the trash
@@ -5262,6 +5577,333 @@ public class VLEGetXLS extends VLEServlet {
 		}
 		
 		return ideaRestored;
+	}
+	
+	/**
+	 * Determine if the idea was made public in this basket revision
+	 * @param idea the idea JSONObject
+	 * @param currentIdeaBasket the current idea basket
+	 * @param previousIdeaBasket the previous idea basket revision
+	 * @return whether the idea was made public in this basket revision
+	 */
+	private boolean isIdeaMadePublic(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean isIdeaMadePublic = false;
+		
+		if(idea != null) {
+			try {
+				/*
+				 * make sure the idea has an id, workgroup id, and is published to public fields.
+				 * if it does not have all these fields it can't have been published to public.
+				 */
+				if(idea.has("id") && idea.has("workgroupId") && idea.has("isPublishedToPublic")) {
+					Integer ideaId = idea.getInt("id");
+					Integer workgroupId = idea.getInt("workgroupId");
+					boolean isPublishedToPublic = idea.getBoolean("isPublishedToPublic");
+					
+					if(previousIdeaBasket != null) {
+						//get the idea from the previous basket revision
+						JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
+						
+						if(previousIdeaRevision == null) {
+							/*
+							 * the idea was not in the previous basket revision so
+							 * we will just use the isPublishedToPublic value
+							 */
+							isIdeaMadePublic = isPublishedToPublic;
+						} else {
+							if(previousIdeaRevision.has("isPublishedToPublic")) {
+								//get the isPublishedToPublic value from the previous idea revision
+								boolean isPreviousPublishedToPublic = previousIdeaRevision.getBoolean("isPublishedToPublic");
+								
+								if(isPublishedToPublic && !isPreviousPublishedToPublic) {
+									/*
+									 * the value of isPublishedToPublic was false but is
+									 * now true so it was made public in this revision
+									 */
+									isIdeaMadePublic = true;
+								}
+							} else {
+								isIdeaMadePublic = isPublishedToPublic;
+							}
+						}
+					} else {
+						/*
+						 * there was no previous basket revision so we will just use
+						 * the isPublishedToPublic value
+						 */
+						isIdeaMadePublic = isPublishedToPublic;
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return isIdeaMadePublic;
+	}
+	
+	/**
+	 * Determine if the idea was made private in this basket revision
+	 * @param idea the idea JSONObject
+	 * @param currentIdeaBasket the current idea basket
+	 * @param previousIdeaBasket the previous idea basket revision
+	 * @return whether the idea was made private in this basket revision
+	 */
+	private boolean isIdeaMadePrivate(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean isIdeaMadePrivate = false;
+		
+		if(idea != null) {
+			try {
+				/*
+				 * make sure the idea has an id, workgroup id, and is published to public fields.
+				 * if it does not have all these fields it can't have been published to public.
+				 */
+				if(idea.has("id") && idea.has("workgroupId") && idea.has("isPublishedToPublic")) {
+					Integer ideaId = idea.getInt("id");
+					Integer workgroupId = idea.getInt("workgroupId");
+					boolean isPublishedToPublic = idea.getBoolean("isPublishedToPublic");
+					boolean isPrivate = !isPublishedToPublic;
+					
+					if(previousIdeaBasket != null) {
+						//get the idea from the previous basket revision
+						JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
+						if(previousIdeaRevision == null) {
+							//all ideas are initially private
+							isIdeaMadePrivate = false;
+						} else {
+							if(previousIdeaRevision.has("isPublishedToPublic")) {
+								//get the isPublishedToPublic value from the previous idea revision
+								boolean isPreviousPublishedToPublic = previousIdeaRevision.getBoolean("isPublishedToPublic");
+								boolean isPreviousPrivate = !isPreviousPublishedToPublic;
+								
+								if(isPrivate && !isPreviousPrivate) {
+									/*
+									 * the idea was previously public but is now private
+									 */
+									isIdeaMadePrivate = true;
+								}
+							} else {
+								/*
+								 * the previous idea revision does not have the isPublishedToPublic
+								 * field so it is impossible for the idea to have been public
+								 * and made private for this revision
+								 */
+								isIdeaMadePrivate = false;
+							}
+						}
+					} else {
+						/*
+						 * there was no previous basket revision and all ideas are
+						 * initially private so it is impossible for the idea
+						 * to have been public and made private in this revision
+						 */
+						isIdeaMadePrivate = false;
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return isIdeaMadePrivate;
+	}
+	
+	/**
+	 * Determine if the idea was was copied from the public basket
+	 * in this basket revision
+	 * @param idea the idea JSONObject
+	 * @param currentIdeaBasket the current idea basket
+	 * @param previousIdeaBasket the previous idea basket revision
+	 * @return whether the idea was copied from the public basket in this basket revision
+	 */
+	private boolean isCopiedFromPublicInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean isCopiedFromPublicInThisRevision = false;
+		
+		if(idea != null) {
+			try {
+				/*
+				 * make sure the idea has an id, workgroup id, and was copied from public fields.
+				 * if it does not have all these fields it can't have been copied from public.
+				 */
+				if(idea.has("id") && idea.has("workgroupId") && idea.has("wasCopiedFromPublic")) {
+					Integer ideaId = idea.getInt("id");
+					Integer workgroupId = idea.getInt("workgroupId");
+					boolean wasCopiedFromPublic = idea.getBoolean("wasCopiedFromPublic");
+					
+					if(previousIdeaBasket != null) {
+						//get the idea from the previous basket revision
+						JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
+						
+						if(previousIdeaRevision == null) {
+							/*
+							 * the idea was not in the previous basket revision so
+							 * we will just use the wasCopiedFromPublic value
+							 */
+							isCopiedFromPublicInThisRevision = wasCopiedFromPublic;
+						} else {
+							if(previousIdeaRevision.has("wasCopiedFromPublic")) {
+								//get the wasCopiedFromPublic value from the previous idea revision
+								boolean isPreviousPublishedToPublic = previousIdeaRevision.getBoolean("wasCopiedFromPublic");
+								
+								if(wasCopiedFromPublic && !isPreviousPublishedToPublic) {
+									/*
+									 * the value of wasCopiedFromPublic was false but is
+									 * now true so it was copied from public in this revision
+									 */
+									isCopiedFromPublicInThisRevision = true;
+								}
+							} else {
+								/*
+								 * the previous revision did not have a wasCopiedFromPublic
+								 * field so we will just use the wasCopiedFromPublic field
+								 * from the current revision
+								 */
+								isCopiedFromPublicInThisRevision = wasCopiedFromPublic;
+							}
+						}
+					} else {
+						/*
+						 * there was no previous basket revision so we will just use
+						 * the wasCopiedFromPublic value
+						 */
+						isCopiedFromPublicInThisRevision = wasCopiedFromPublic;
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return isCopiedFromPublicInThisRevision;
+	}
+	
+	/**
+	 * Determine if the idea was copied by someone in this basket revision
+	 * @param idea the idea JSONObject
+	 * @param currentIdeaBasket the current idea basket
+	 * @param previousIdeaBasket the previous idea basket revision
+	 * @return whether the idea was copied by someone in this basket revision
+	 */
+	private boolean isCopiedInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean isCopiedInThisRevision = false;
+		
+		if(idea != null) {
+			try {
+				/*
+				 * make sure the idea has an id, workgroup id, and workgroupIdsThatHaveCopied fields.
+				 * if it does not have all these fields it can't have been copied.
+				 */
+				if(idea.has("id") && idea.has("workgroupId") && idea.has("workgroupIdsThatHaveCopied")) {
+					Integer ideaId = idea.getInt("id");
+					Integer workgroupId = idea.getInt("workgroupId");
+					JSONArray workgroupIdsThatHaveCopied = idea.getJSONArray("workgroupIdsThatHaveCopied");
+					int workgroupIdsThatHaveCopiedCount = workgroupIdsThatHaveCopied.length();
+					
+					if(previousIdeaBasket != null) {
+						//get the idea from the previous basket revision
+						JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
+						
+						if(previousIdeaRevision == null) {
+							/*
+							 * the idea was not in the previous basket revision so
+							 * we will just check if the current copied count is greater
+							 * than 0
+							 */
+							if(workgroupIdsThatHaveCopiedCount > 0) {
+								isCopiedInThisRevision = true;
+							}
+						} else {
+							if(previousIdeaRevision.has("workgroupIdsThatHaveCopied")) {
+								//get the workgroupIdsThatHaveCopied value from the previous idea revision
+								JSONArray previousWorkgroupIdsThatHaveCopied = previousIdeaRevision.getJSONArray("workgroupIdsThatHaveCopied");
+								int previousWorkgroupIdsThatHaveCopiedCount = previousWorkgroupIdsThatHaveCopied.length();
+								
+								if(workgroupIdsThatHaveCopiedCount == previousWorkgroupIdsThatHaveCopiedCount + 1) {
+									/*
+									 * the current copied count is one more than the previous copied
+									 * count which means the idea was copied by someone in this
+									 * revision
+									 */
+									isCopiedInThisRevision = true;
+								}
+							} else {
+								/*
+								 * the previous revision did not have a workgroupIdsThatHaveCopied
+								 * field so we will just check if the current copied count is
+								 * greater than 0
+								 */
+								if(workgroupIdsThatHaveCopiedCount > 0) {
+									isCopiedInThisRevision = true;
+								}
+							}
+						}
+					} else {
+						/*
+						 * there was no previous basket revision so we will 
+						 * just check if the current copied count is greater
+						 * than 0
+						 */
+						if(workgroupIdsThatHaveCopiedCount > 0) {
+							isCopiedInThisRevision = true;
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return isCopiedInThisRevision;
+	}
+	
+	/**
+	 * Determine if the idea was uncopied by someone in this basket revision
+	 * @param idea the idea JSONObject
+	 * @param currentIdeaBasket the current idea basket
+	 * @param previousIdeaBasket the previous idea basket revision
+	 * @return whether the idea was uncopied by someone in this basket revision
+	 */
+	private boolean isUncopiedInThisRevision(JSONObject idea, JSONObject currentIdeaBasket, JSONObject previousIdeaBasket) {
+		boolean isUncopiedInThisRevision = false;
+		
+		if(idea != null) {
+			try {
+				/*
+				 * make sure the idea has an id, workgroup id, and workgroupIdsThatHaveCopied fields.
+				 * if it does not have all these fields it can't have been uncopied.
+				 */
+				if(idea.has("id") && idea.has("workgroupId") && idea.has("workgroupIdsThatHaveCopied")) {
+					Integer ideaId = idea.getInt("id");
+					Integer workgroupId = idea.getInt("workgroupId");
+					JSONArray workgroupIdsThatHaveCopied = idea.getJSONArray("workgroupIdsThatHaveCopied");
+					int workgroupIdsThatHaveCopiedCount = workgroupIdsThatHaveCopied.length();
+					
+					if(previousIdeaBasket != null) {
+						//get the idea from the previous basket revision
+						JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
+						
+						if(previousIdeaRevision != null && previousIdeaRevision.has("workgroupIdsThatHaveCopied")) {
+							//get the workgroupIdsThatHaveCopied value from the previous idea revision
+							JSONArray previousWorkgroupIdsThatHaveCopied = previousIdeaRevision.getJSONArray("workgroupIdsThatHaveCopied");
+							int previousWorkgroupIdsThatHaveCopiedCount = previousWorkgroupIdsThatHaveCopied.length();
+							
+							if(workgroupIdsThatHaveCopiedCount == previousWorkgroupIdsThatHaveCopiedCount - 1) {
+								/*
+								 * the current copied count is one less than the previous copied
+								 * count which means the idea was uncopied by someone in this
+								 * revision
+								 */
+								isUncopiedInThisRevision = true;
+							}
+						}
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return isUncopiedInThisRevision;
 	}
 	
 	/**
@@ -5400,8 +6042,15 @@ public class VLEGetXLS extends VLEServlet {
 			if(previousIdeaBasket != null) {
 				int ideaId = idea.getInt("id");
 				
+				Integer workgroupId = null;
+				
+				if(idea.has("workgroupId")) {
+					//get the workgroup id that owns the idea
+					workgroupId = idea.getInt("workgroupId");
+				}
+				
 				//get the idea from the previous revision
-				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId);
+				JSONObject previousIdeaRevision = getIdeaById(previousIdeaBasket, ideaId, workgroupId);
 				
 				if(previousIdeaRevision != null) {
 					//the idea existed in the previous basket revision

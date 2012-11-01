@@ -122,6 +122,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if (type == 'startVLEComplete') {
 	} else if (type == 'assetUploaded') {
 		obj.assetUploaded(args[0], args[1]);
+	} else if (type == 'assetCopiedForReference') {
+		obj.assetCopiedForReference(args[0], args[1]);
 	} else if(type=="chatRoomTextEntrySubmitted") {
 		obj.sendChat(args[0]);
 	}
@@ -240,7 +242,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		/*
 		 * display student assets link if run has student asset uploader enabled
 		 */
-		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\")' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
+		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\",null)' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
 		$('#viewMyFiles').html(studentAssetsLink);
 		$('#viewMyFiles').show().css('display','inline');
 	} else if (runInfo.isStudentAssetUploaderEnabled != null &&

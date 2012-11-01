@@ -518,6 +518,7 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
 		view.projectMeta.tools = {};
 		view.projectMeta.tools.isIdeaManagerEnabled = $("#enableIdeaManager").is(':checked');
+		view.projectMeta.tools.isPublicIdeaManagerEnabled = $("#enablePublicIdeaManager").is(':checked');
 		view.projectMeta.tools.isStudentAssetUploaderEnabled = $("#enableStudentAssetUploader").is(':checked');
 		view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
 		view.projectMeta.standards = $('#projectMetadataStandards').val();

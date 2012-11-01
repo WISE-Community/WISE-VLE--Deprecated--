@@ -313,7 +313,12 @@ View.prototype.MatchSequenceNode.editIndividualFeedback = function(choiceId,cont
 	this.currentChoiceId = choiceId;
 	this.currentContainerId = containerId;
 	
-	document.getElementById('feedbackEditInput').value = this.getValueByChoiceAndFieldIdentifiers(choiceId,containerId).feedback;
+	var value = this.getValueByChoiceAndFieldIdentifiers(choiceId,containerId);
+	
+	if(value != null) {
+		document.getElementById('feedbackEditInput').value = this.getValueByChoiceAndFieldIdentifiers(choiceId,containerId).feedback;	
+	}
+	
 	showElement('feedbackEditDiv');
 };
 
@@ -920,7 +925,7 @@ View.prototype.MatchSequenceNode.createNewFeedback = function(choiceId,container
 		var vals = this.getResponseValuesByChoiceIdentifier(choiceId);
 		if(vals!=null & vals.length>0){
 			for(var r=0;r<vals.length;r++){
-				var foundOrder = vals[r].getAttribute('order');
+				var foundOrder = vals[r].order;
 				if(vals[r].order!=''){
 					val.order = foundOrder;
 				};

@@ -183,6 +183,10 @@
 		"value":"Done",
 		"description":"Text 'done', to mean completed"
 	},
+	"insertImage":{
+		"value":"Insert Image",
+		"description":"Text 'Insert Image', to use for file upload"
+	},
 	"idea":{
 		"value":"idea",
 		"description":"The default text for an 'idea' in the Idea Manager tool."

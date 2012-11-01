@@ -1210,6 +1210,11 @@ View.prototype.editProjectMetadata = function(){
 			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
 				$("#enableIdeaManager").attr('checked', true);
 			}
+			
+			//determine if enable public idea manager checkbox needs to be checked
+			if (tools.isPublicIdeaManagerEnabled != null && tools.isPublicIdeaManagerEnabled) {
+				$("#enablePublicIdeaManager").attr('checked', true);
+			}
 
 			//determine if enable student asset uploader needs to be checked
 			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {

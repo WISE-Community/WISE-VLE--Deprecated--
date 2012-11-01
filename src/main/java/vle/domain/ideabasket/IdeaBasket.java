@@ -475,7 +475,7 @@ public class IdeaBasket extends PersistableDomain implements Serializable {
         
         //find all the IdeaBasket objects that match
         List<IdeaBasket> result =  session.createCriteria(IdeaBasket.class).add(
-        		Restrictions.eq("runId", runId)).addOrder(Order.asc("workgroupId")).addOrder(Order.asc("postTime")).list();
+        		Restrictions.eq("runId", runId)).addOrder(Order.asc("workgroupId")).addOrder(Order.asc("periodId")).addOrder(Order.asc("postTime")).list();
         session.getTransaction().commit();
         return result;
 	}

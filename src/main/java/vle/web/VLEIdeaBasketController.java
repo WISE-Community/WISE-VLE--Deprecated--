@@ -40,8 +40,31 @@ public class VLEIdeaBasketController extends HttpServlet {
 
 		if(action == null) {
 			
-		} else if(action.equals("saveIdeaBasket")) {
+		} else if(action.equals("saveIdeaBasket") || action.equals("addPrivateIdea") || action.equals("editPrivateIdea") ||
+				 action.equals("deletePrivateIdea") || action.equals("restorePrivateIdea") || action.equals("reOrderPrivateBasket")) {
 			boolean savedBasket = false;
+			
+			Long workgroupIdLong = null;
+			Long ideaIdLong = null;
+			
+			if(workgroupId != null && !"undefined".equals(workgroupId) && !"null".equals(workgroupId)) {
+				try {
+					//get the long value if a workgroup id was passed in as an argument
+					workgroupIdLong = new Long(workgroupId);
+				} catch(NumberFormatException e) {
+					
+				}
+			}
+			
+			if(ideaId != null && !"undefined".equals(ideaId) && !"null".equals(workgroupId)) {
+				try {
+					//get the long value if an idea id was passed in as an argument
+					ideaIdLong = new Long(ideaId);
+				} catch(NumberFormatException e) {
+					
+				}
+			}
+			
 			
 			if(ideaBasket != null) {
 				//the idea basket was created before
@@ -58,7 +81,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 						JSONObject dataJSONObj = new JSONObject(data);
 						
 						//data is not the same so we will save a new row
-						ideaBasket = new IdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), new Long(signedInWorkgroupId), data, false);
+						ideaBasket = new IdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), new Long(signedInWorkgroupId), data, false, action, new Long(signedInWorkgroupId), ideaIdLong, workgroupIdLong);
 						ideaBasket.saveOrUpdate();
 						savedBasket = true;
 					} catch (JSONException e) {
@@ -69,7 +92,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 				}
 			} else {
 				//the idea basket was never created before so we will save a new row
-				ideaBasket = new IdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), new Long(signedInWorkgroupId), data, false);
+				ideaBasket = new IdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), new Long(signedInWorkgroupId), data, false, action, new Long(signedInWorkgroupId), ideaIdLong, workgroupIdLong);
 				ideaBasket.saveOrUpdate();
 				savedBasket = true;
 			}
@@ -369,7 +392,7 @@ public class VLEIdeaBasketController extends HttpServlet {
 				} else if(previouslyCopied) {
 					//the signed in workgroup has previously copied the public idea before
 					JSONObject publicIdeaBasketJSONObject = publicIdeaBasket.toJSONObject();
-					publicIdeaBasketJSONObject.put("errorMessage", "Error: Signed in workgroup has previously copied this public idea before");
+					publicIdeaBasketJSONObject.put("errorMessage", "Error: You have already copied this public idea");
 					response.getWriter().print(publicIdeaBasketJSONObject.toString());
 				} else if(!foundPublicIdea) {
 					//the public idea with the given id and workgroupId was not found
