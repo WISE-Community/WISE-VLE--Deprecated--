@@ -563,6 +563,15 @@ Table.prototype.studentGraphOptionsChanged = function() {
 	 * have changed.
 	 */
 	this.graphRendered = false;
+	
+	if(this.isGraphingEnabled()) {
+		/*
+		 * display the message to tell the student to click the
+		 * 'Make Graph' button to make the graph with the new
+		 * table data
+		 */
+		this.displayGraphMessage(' <font color="red">Table has changed, click "Make Graph" to graph the new data</font>');
+	}
 };
 
 /**
@@ -647,11 +656,11 @@ Table.prototype.displayGraphOptions = function() {
 		var selectYAxis = $('<select id="studentSelectYAxis">');
 		
 		selectXAxis.change({thisTable:this}, function(event) {
-			event.data.thisTable.graphOptionsChanged = true;
+			event.data.thisTable.studentGraphOptionsChanged();
 		});
 		
 		selectYAxis.change({thisTable:this}, function(event) {
-			event.data.thisTable.graphOptionsChanged = true;
+			event.data.thisTable.studentGraphOptionsChanged();
 		});
 		
 		//loop through all the columns
@@ -700,6 +709,86 @@ Table.prototype.displayGraphOptions = function() {
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+	
+	//get who will set the axes limits
+	var graphWhoSetAxesLimitsType = this.content.graphOptions.graphWhoSetAxesLimitsType;
+	
+	if(graphWhoSetAxesLimitsType != null) {
+		if(graphWhoSetAxesLimitsType == 'auto') {
+			/*
+			 * axes limits will be set automatically by google so
+			 * we do not need to display the input elements to
+			 * select the axes limits
+			 */
+		} else if(graphWhoSetAxesLimitsType == 'authorSelect') {
+			/*
+			 * the author has specified the axes limits so
+			 * we do not need to display the input elements to
+			 * select the axes limits
+			 */
+		} else if(graphWhoSetAxesLimitsType == 'studentSelect') {
+			//get the axes limits inputs
+			var xMinInput = $('<input id="studentGraphXMinInput" size="2">');
+			var xMaxInput = $('<input id="studentGraphXMaxInput" size="2">');
+			var yMinInput = $('<input id="studentGraphYMinInput" size="2">');
+			var yMaxInput = $('<input id="studentGraphYMaxInput" size="2">');
+			
+			//set the change event to update the graphOptionsChanged flag
+			xMinInput.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+			
+			//set the change event to update the graphOptionsChanged flag
+			xMaxInput.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+			
+			//set the change event to update the graphOptionsChanged flag
+			yMinInput.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+			
+			//set the change event to update the graphOptionsChanged flag
+			yMaxInput.change({thisTable:this}, function(event) {
+				event.data.thisTable.studentGraphOptionsChanged();
+			});
+			
+			if($('#graphOptionsDiv').html() != '') {
+				//there is already some content in the graphOptionsDiv so we will add a new line
+				$('#graphOptionsDiv').append('<br>');
+			}
+			
+			//insert the input elements into the div
+			$('#graphOptionsDiv').append('X Min: ');
+			$('#graphOptionsDiv').append(xMinInput);
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('X Max: ');
+			$('#graphOptionsDiv').append(xMaxInput);
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('Y Min: ');
+			$('#graphOptionsDiv').append(yMinInput);
+			$('#graphOptionsDiv').append('<br>');
+			$('#graphOptionsDiv').append('Y Max: ');
+			$('#graphOptionsDiv').append(yMaxInput);
+			$('#graphOptionsDiv').append('<br>');
+			
+			//populate the axes limits input values
+			if(latestState != null) {
+				//get the graph options from the latest student work
+				var graphOptions = latestState.graphOptions;
+				
+				if(graphOptions != null && graphOptions.axesLimits != null) {
+					var axesLimits = graphOptions.axesLimits;
+					
+					//set the values into the inputs
+					$('#studentGraphXMinInput').val(axesLimits.xMin);
+					$('#studentGraphXMaxInput').val(axesLimits.xMax);
+					$('#studentGraphYMinInput').val(axesLimits.yMin);
+					$('#studentGraphYMaxInput').val(axesLimits.yMax);
 				}
 			}
 		}
@@ -812,7 +901,6 @@ Table.prototype.getColumnHeaderByIndex = function(index, tableData) {
  * does not need to provide this argument.
  */
 Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
-	
 	if(divId == null) {
 		//the default div id to make the graph in
 		divId = 'graphDiv';
@@ -820,6 +908,9 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 		//show the graph div that will display the graph
 		$('#' + divId).show();
 	}
+	
+	//get the mode e.g. run, grading, authoring
+	var mode = this.view.config.getConfigParam('mode');
 	
 	//clear the graph div id to remove any existing graph
 	$('#' + divId).html('');
@@ -841,53 +932,27 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 		this.displayGraphMessage(' <font color="red">Error: Data in table is invalid, please fix and try again</font>');
 	}
 	
-	if(data != null) {
-		//get the column indexes we will graph
-		var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
+	if((mode == null || mode == 'run') && this.content.graphOptions != null && this.content.graphOptions.graphWhoSetAxesLimitsType == 'studentSelect') {
+		/*
+		 * the student is supposed to set the axes limits values so
+		 * we will check whether the student has entered valid values
+		 * into the axes limits
+		 */
+		var studentEnteredValidAxesLimits = this.checkStudentEnteredAxesLimits();
 		
-		var hTitle = '';
-		var hMinValue = this.xMin;
-		var hMaxValue = this.xMax;
-		var vTitle = '';
-		var vMinValue = this.yMin;
-		var vMaxValue = this.yMax;
-		
-		if(columnIndexesToGraph != null) {
-			//loop through all the objects in the array
-			for(var x=0; x<columnIndexesToGraph.length; x++) {
-				//get an object
-				var columnObject = columnIndexesToGraph[x];
-				
-				//get the column index and column axis
-				var columnIndex = columnObject.columnIndex;
-				var columnAxis = columnObject.columnAxis;
-				
-				if(columnAxis == 'x') {
-					//get the column header for the x axis
-					hTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
-				} else if(columnAxis == 'y') {
-					/*
-					 * get the column header for the y axis, if there are
-					 * multiple columns that will be displayed on the
-					 * y axis, we will separate them with a comma
-					 */
-					if(vTitle != '') {
-						vTitle += ', ';
-					}
-					vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
-				}
-			}		
+		if(!studentEnteredValidAxesLimits) {
+			//inform the student that we were unable to draw the chart
+			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
+			
+			return;
 		}
-
-		//create the options to tell google how to display the graph
-		var options = {
-			title: hTitle + ' vs. ' + vTitle,
-			hAxis: {title: hTitle},
-			vAxis: {title: vTitle},
-			forceIFrame: false
-		};
-
+	}
+	
+	if(data != null) {
 		var chart = null;
+		
+		//get the options that will be used to draw the chart
+		var options = this.getOptions(tableData, graphOptions);
 		
 		if(this.content.graphOptions != null) {
 			//get the graph type we will display
@@ -914,6 +979,277 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 			this.displayGraphMessage(' <font color="red">Error: Unable to draw chart</font>');
 		}
 	}
+};
+
+/**
+ * Create the options object that will be used to draw the chart
+ * @param tableData the table data
+ * @param graphOptions (optional) the graph options that contain fields such 
+ * as the graphWhoSetAxesLimitsType. this argument will be 
+ * passed in when called from the grading tool. the student vle
+ * does not need to provide this argument.
+ * @returns the options used to draw the chart
+ */
+Table.prototype.getOptions = function(tableData, graphOptions) {
+	var options = {};
+	
+	//get the column indexes we will graph
+	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
+	
+	var hTitle = '';
+	var vTitle = '';
+	
+	if(columnIndexesToGraph != null) {
+		//loop through all the objects in the array
+		for(var x=0; x<columnIndexesToGraph.length; x++) {
+			//get an object
+			var columnObject = columnIndexesToGraph[x];
+			
+			//get the column index and column axis
+			var columnIndex = columnObject.columnIndex;
+			var columnAxis = columnObject.columnAxis;
+			
+			if(columnAxis == 'x') {
+				//get the column header for the x axis
+				hTitle = this.getColumnHeaderByIndex(columnIndex, tableData);
+			} else if(columnAxis == 'y') {
+				/*
+				 * get the column header for the y axis, if there are
+				 * multiple columns that will be displayed on the
+				 * y axis, we will separate them with a comma
+				 */
+				if(vTitle != '') {
+					vTitle += ', ';
+				}
+				vTitle += this.getColumnHeaderByIndex(columnIndex, tableData);
+			}
+		}		
+	}
+	
+	//get the graph options from the content if it was not passed in
+	if(graphOptions == null) {
+		graphOptions = this.content.graphOptions;
+	}
+	
+	//get who is setting the axes limits auto, authorSelect, or studentSelect
+	var graphWhoSetAxesLimitsType = graphOptions.graphWhoSetAxesLimitsType;
+	
+	if(graphWhoSetAxesLimitsType != null) {
+		if(graphWhoSetAxesLimitsType == 'auto') {
+			/*
+			 * create the options to tell google how to display the graph.
+			 * the min/max values will be automatically calculated by google.
+			 */
+			options = {
+				title: hTitle + ' vs. ' + vTitle,
+				hAxis: {title: hTitle},
+				vAxis: {title: vTitle},
+				forceIFrame: false
+			};
+		} else if(graphWhoSetAxesLimitsType == 'authorSelect') {
+			var xMin = null;
+			var xMax = null;
+			var yMin = null;
+			var yMax = null;
+			
+			if(graphOptions.axesLimits != null) {
+				//get the min/max values that the author has specified
+				xMin = parseFloat(graphOptions.axesLimits.xMin);
+				xMax = parseFloat(graphOptions.axesLimits.xMax);
+				yMin = parseFloat(graphOptions.axesLimits.yMin);
+				yMax = parseFloat(graphOptions.axesLimits.yMax);
+			}
+			
+			var hAxis = {
+				title: hTitle,
+				viewWindowMode:'explicit',
+				viewWindow:{}
+			};
+
+			//set the x min if it is a valid number
+			if(xMin != null && !isNaN(xMin)) {
+				hAxis.viewWindow.min = xMin;
+			}
+			
+			//set the x max if it is a valid number
+			if(xMax != null && !isNaN(xMax)) {
+				hAxis.viewWindow.max = xMax;
+			}
+			
+			var vAxis = {
+				title: vTitle,
+				viewWindowMode:'explicit',
+				viewWindow:{}
+			};
+			
+			//set the y min if it is a valid number
+			if(yMin != null && !isNaN(yMin)) {
+				vAxis.viewWindow.min = yMin;
+			}
+			
+			//set the y max if it is a valid number
+			if(yMax != null && !isNaN(yMax)) {
+				vAxis.viewWindow.max = yMax;
+			}
+			
+			//create the options to tell google how to display the graph
+			options = {
+				title: hTitle + ' vs. ' + vTitle,
+				hAxis: hAxis,
+				vAxis: vAxis,
+				forceIFrame: false
+			};
+		} else if(graphWhoSetAxesLimitsType == 'studentSelect') {
+			//get axes limits from 
+			
+			var xMin = null;
+			
+			//get the x min value the student entered if it is available
+			var xMinInputVal = $('#studentGraphXMinInput').val();
+
+			if(xMinInputVal != null && !isNaN(parseFloat(xMinInputVal))) {
+				//use the student entered value
+				xMin = parseFloat(xMinInputVal);
+			} else if(graphOptions.axesLimits != null && graphOptions.axesLimits.xMin != null && !isNaN(parseFloat(graphOptions.axesLimits.xMin))) {
+				//get the x min from the graph options
+				xMin = parseFloat(graphOptions.axesLimits.xMin);
+			}
+			
+			var xMax = null;
+			
+			//get the x max value the student entered if it is available
+			var xMaxInputVal = $('#studentGraphXMaxInput').val();
+			
+			if(xMaxInputVal != null && !isNaN(parseFloat(xMaxInputVal))) {
+				//use the student entered value
+				xMax = parseFloat(xMaxInputVal);
+			} else if(graphOptions.axesLimits != null && graphOptions.axesLimits.xMax != null && !isNaN(parseFloat(graphOptions.axesLimits.xMax))) {
+				//get the x max from the graph options
+				xMax = parseFloat(graphOptions.axesLimits.xMax);
+			}
+			
+			var yMin = null;
+			
+			//get the y min value the student entered if it is available
+			var yMinInputVal = $('#studentGraphYMinInput').val();
+			
+			if(yMinInputVal != null && !isNaN(parseFloat(yMinInputVal))) {
+				//use the student entered value
+				yMin = parseFloat(yMinInputVal);
+			} else if(graphOptions.axesLimits != null && graphOptions.axesLimits.yMin != null && !isNaN(parseFloat(graphOptions.axesLimits.yMin))) {
+				//get the y min from the graph options
+				yMin = parseFloat(graphOptions.axesLimits.yMin);
+			}
+			
+			var yMax = null;
+			
+			//get the y max value the student entered if it is available
+			var yMaxInputVal = $('#studentGraphYMaxInput').val();
+			
+			if(yMaxInputVal != null && !isNaN(parseFloat(yMaxInputVal))) {
+				//use the student entered value
+				yMax = parseFloat(yMaxInputVal);
+			} else if(graphOptions.axesLimits != null && graphOptions.axesLimits.yMax != null && !isNaN(parseFloat(graphOptions.axesLimits.yMax))) {
+				//get the y max from the graph options
+				yMax = parseFloat(graphOptions.axesLimits.yMax);
+			}
+			
+			//create the horizontal axis attributes
+			var hAxis = {
+				title: hTitle,
+				viewWindowMode:'explicit',
+				viewWindow:{}
+			};
+			
+			if(xMin != null && !isNaN(xMin)) {
+				//set the x min
+				hAxis.viewWindow.min = xMin;
+			}
+			
+			if(xMax != null && !isNaN(xMax)) {
+				//set the x max
+				hAxis.viewWindow.max = xMax;
+			}
+			
+			//create the vertical axis attributes
+			var vAxis = {
+				title: vTitle,
+				viewWindowMode:'explicit',
+				viewWindow:{}
+			};
+			
+			if(yMin != null && !isNaN(yMin)) {
+				//set the y min
+				vAxis.viewWindow.min = yMin;
+			}
+			
+			if(yMax != null && !isNaN(yMax)) {
+				//set the y max
+				vAxis.viewWindow.max = yMax;
+			}
+			
+			//create the options to tell google how to display the graph
+			options = {
+				title: hTitle + ' vs. ' + vTitle,
+				hAxis: hAxis,
+				vAxis: vAxis,
+				forceIFrame: false
+			};
+		}
+	}
+	
+	return options;
+};
+
+/**
+ * Check if the values the student entered into the axes limits
+ * are valid
+ * @return whether all the axes limits values are valid
+ */
+Table.prototype.checkStudentEnteredAxesLimits = function() {
+	var result = true;
+	
+	//a message to display to the student if there are any errors
+	var message = '';
+	
+	//get the x min value the student entered
+	var xMinInputVal = $('#studentGraphXMinInput').val();
+	
+	if(xMinInputVal == null || isNaN(parseFloat(xMinInputVal))) {
+		result = false;
+		message += '\nInvalid X Min value';
+	}
+	
+	//get the x max value the student entered
+	var xMaxInputVal = $('#studentGraphXMaxInput').val();
+	
+	if(xMaxInputVal == null || isNaN(parseFloat(xMaxInputVal))) {
+		result = false;
+		message += '\nInvalid X Max value';
+	}
+	
+	//get the y min value the student entered
+	var yMinInputVal = $('#studentGraphYMinInput').val();
+	
+	if(yMinInputVal == null || isNaN(parseFloat(yMinInputVal))) {
+		result = false;
+		message += '\nInvalid Y Min value';
+	}
+	
+	//get the y max value the student entered
+	var yMaxInputVal = $('#studentGraphYMaxInput').val();
+	
+	if(yMaxInputVal == null || isNaN(parseFloat(yMaxInputVal))) {
+		result = false;
+		message += '\nInvalid Y Max value';
+	}
+	
+	if(message != '') {
+		message = 'Error: you must fix the problems below before we can make the graph\n' + message;
+		alert(message);
+	}
+	
+	return result;
 };
 
 /**
@@ -1092,6 +1428,14 @@ Table.prototype.getGraphOptions = function() {
 	var graphOptions = {};
 	
 	if(this.content.graphOptions != null) {
+		//set the enable graphing value into the graphOptions object
+		graphOptions.enableGraphing = this.content.graphOptions.enableGraphing;
+		
+		//set the graph type into the graphOptions object
+		graphOptions.graphType = this.content.graphOptions.graphType;
+		
+		//set the graphSelectAxesType into the graphOptions object
+		graphOptions.graphSelectAxesType = this.content.graphOptions.graphSelectAxesType;
 		
 		if(this.content.graphOptions.graphSelectAxesType == 'studentSelect') {
 			var columnToAxisMappings = [];
@@ -1121,6 +1465,23 @@ Table.prototype.getGraphOptions = function() {
 		} else if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
 			//get the column graph axis values from the content
 			graphOptions.columnToAxisMappings = this.content.graphOptions.columnToAxisMappings;
+		}
+		
+		if(this.content.graphOptions.graphWhoSetAxesLimitsType != null) {
+			//set graphWhoSetAxesLimitsType
+			graphOptions.graphWhoSetAxesLimitsType = this.content.graphOptions.graphWhoSetAxesLimitsType;
+		}
+		
+		if(this.content.graphOptions.graphWhoSetAxesLimitsType == 'authorSelect') {
+			//copy the axes limits from the content
+			graphOptions.axesLimits = this.content.graphOptions.axesLimits;
+		} else if(this.content.graphOptions.graphWhoSetAxesLimitsType == 'studentSelect') {
+			//get the axes limits from the values the student entered into the inputs
+			graphOptions.axesLimits = {};
+			graphOptions.axesLimits.xMin = $('#studentGraphXMinInput').val();
+			graphOptions.axesLimits.xMax = $('#studentGraphXMaxInput').val();
+			graphOptions.axesLimits.yMin = $('#studentGraphYMinInput').val();
+			graphOptions.axesLimits.yMax = $('#studentGraphYMaxInput').val();
 		}
 	} 
 	

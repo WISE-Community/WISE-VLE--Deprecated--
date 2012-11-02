@@ -195,12 +195,21 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	//div to display a new line
 	var newLineDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLineDiv_' + stepWorkId});
 	
+	//div to display the graph options if the student was required to select them
+	var tableGraphOptionsDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableGraphOptionsDiv_' + stepWorkId});
+	
+	//div to display a new line
+	var newLine2Div = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLineDiv_' + stepWorkId});
+	
+	var graphDiv = null;
+	var newLine3Div = null;
+	
 	if(table.isGraphingEnabled() && tableState.graphRendered) {
 		//div to display the graph
-		var graphDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'graphDiv_' + stepWorkId, style: 'width:450px; height:250px'});
+		graphDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'graphDiv_' + stepWorkId, style: 'width:450px; height:250px'});
 		
 		//div to display a new line
-		var newLine2Div = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLine2Div_' + stepWorkId});
+		newLine3Div = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'newLine2Div_' + stepWorkId});
 	}
 	
 	//div to display the student response
@@ -210,6 +219,23 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	$('#' + divId).append(newLineDiv);
 	
 	if(table.isGraphingEnabled() && tableState.graphRendered) {
+		var graphOptions = tableState.graphOptions;
+		var graphSelectAxesType = graphOptions.graphSelectAxesType;
+		var graphWhoSetAxesLimitsType = graphOptions.graphWhoSetAxesLimitsType;
+		
+		if(graphSelectAxesType == 'studentSelect' || graphWhoSetAxesLimitsType == 'studentSelect') {
+			/*
+			 * the step has the student select the axes or the axes limits
+			 * so we will add the div that we will insert that data into
+			 */
+			
+			//add the graph options div
+			$('#' + divId).append(tableGraphOptionsDiv);
+			
+			//display a new line
+			$('#' + divId).append(newLine2Div);
+		}
+		
 		//add the graph div
 		$('#' + divId).append(graphDiv);
 		
@@ -217,7 +243,7 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 		$('#' + graphDiv.id).html("Loading...");
 		
 		//display a new line
-		$('#' + divId).append(newLine2Div);		
+		$('#' + divId).append(newLine3Div);
 	}
 
 	$('#' + divId).append(tableResponseDiv);
@@ -229,6 +255,58 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	$('#' + newLineDiv.id).append('<br>');
 	
 	if(table.isGraphingEnabled() && tableState.graphRendered) {
+		//get the graph options
+		var graphOptions = tableState.graphOptions;
+		var graphSelectAxesType = graphOptions.graphSelectAxesType;
+		var columnToAxisMappings = graphOptions.columnToAxisMappings;
+		var graphWhoSetAxesLimitsType = graphOptions.graphWhoSetAxesLimitsType;
+		var axesLimits = graphOptions.axesLimits;
+		
+		if(graphSelectAxesType != null) {
+			if(graphSelectAxesType == 'studentSelect') {
+				//the student selected the axes
+				if(columnToAxisMappings != null) {
+					
+					//loop through all the column to axis mappings
+					for(var x=0; x<columnToAxisMappings.length; x++) {
+						var columnToAxisMapping = columnToAxisMappings[x];
+						
+						if(columnToAxisMapping != null) {
+							//get the column axis e.g. x or y
+							var columnAxis = columnToAxisMapping.columnAxis;
+							
+							//get the column index
+							var columnIndex = columnToAxisMapping.columnIndex;
+							
+							//get the column header
+							var columnHeader = table.getColumnHeaderByIndex(columnIndex, tableState.tableData);
+							
+							//display the axis and the column header for that axis
+							$('#' + tableGraphOptionsDiv.id).append(columnAxis + ': ' + columnHeader + '<br>');
+						}
+					}
+				}
+			}
+		}
+		
+		if(graphWhoSetAxesLimitsType != null) {
+			if(graphWhoSetAxesLimitsType == 'studentSelect') {
+				//the student selected the axes limits
+				if(axesLimits != null) {
+					var xMin = axesLimits.xMin;
+					var xMax = axesLimits.xMax;
+					var yMin = axesLimits.yMin;
+					var yMax = axesLimits.yMax;
+					
+					//display the min/max values
+					$('#' + tableGraphOptionsDiv.id).append('X Min: ' + xMin + '<br>');
+					$('#' + tableGraphOptionsDiv.id).append('X Max: ' + xMax + '<br>');
+					$('#' + tableGraphOptionsDiv.id).append('Y Min: ' + yMin + '<br>');
+					$('#' + tableGraphOptionsDiv.id).append('Y Max: ' + yMax + '<br>');
+				}
+			}
+		}
+		
 		//display the graph in the div
 		table.makeGraph(graphDiv.id, tableState.tableData, tableState.graphOptions);
 	}

@@ -57,6 +57,16 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.tableGraphTypeClicked();
 	} else if(type == 'tableGraphSelectAxesTypeClicked') {
 		obj.TableNode.tableGraphSelectAxesTypeClicked();
+	} else if(type == 'tableGraphWhoSetAxesLimitsTypeClicked') {
+		obj.TableNode.tableGraphWhoSetAxesLimitsTypeClicked();
+	} else if(type == 'tableUpdateGraphXMin') {
+		obj.TableNode.tableUpdateGraphXMin();
+	} else if(type == 'tableUpdateGraphXMax') {
+		obj.TableNode.tableUpdateGraphXMax();
+	} else if(type == 'tableUpdateGraphYMin') {
+		obj.TableNode.tableUpdateGraphYMin();
+	} else if(type == 'tableUpdateGraphYMax') {
+		obj.TableNode.tableUpdateGraphYMax();
 	}
 };
 
@@ -87,7 +97,12 @@ var events = [
 	'tableEnableGraphingClicked',
 	'tableSelectColumnToAxisMappingDropDownChanged',
 	'tableGraphTypeClicked',
-	'tableGraphSelectAxesTypeClicked'
+	'tableGraphSelectAxesTypeClicked',
+	'tableGraphWhoSetAxesLimitsTypeClicked',
+	'tableUpdateGraphXMin',
+	'tableUpdateGraphXMax',
+	'tableUpdateGraphYMin',
+	'tableUpdateGraphYMax'
 ];
 
 /*
