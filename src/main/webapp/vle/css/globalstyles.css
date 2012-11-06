@@ -12,6 +12,14 @@
 	display:block;
 }
 
+.inline-block {
+	display:inline-block;
+}
+
+.inline {
+	display:inline;
+}
+
 .transparent {
 	opacity:0;
 	filter:alpha(opacity: 0);
@@ -36,19 +44,19 @@ a {
 
 a:hover { text-decoration:underline; }
 
-input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+input, textarea, button {
 	outline:none;
 }
 
 img.help {
-	vertical-align:text-top;
-	margin-right:.25em;
+	vertical-align:text-bottom;
+	margin:0 .25em;
 	height:16px;
 	width:16px;
 }
 
 input[type="text"], input[type="password"], textarea {
-	margin: .25em;
+	margin: 0 .25em;
 	padding: 0.25em;
     font-size: 0.9em;
     border:1px solid #cccccc;
@@ -101,6 +109,26 @@ input.disabled[type="submit"], input.disabled[type="button"] {
     color: #999999;
 }
 
+::-webkit-input-placeholder {
+    color: #999 !important;
+}
+:-moz-placeholder {
+    color: #999 !important;
+}
+:-ms-input-placeholder {
+    color: #999 !important;
+}
+
+:focus::-webkit-input-placeholder {
+	color:transparent !important;
+}
+:focus:-moz-placeholder {
+	color:transparent !important;
+}
+:focus:-ms-input-placeholder {
+    color:transparent !important;
+}
+
 .pValue {
 	width: 40px;
 	float: right;
@@ -130,10 +158,11 @@ a.submit {
     -webkit-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #ff361c;
     -moz-box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #ff361c;
     box-shadow: 0px -5px 15px #f22b11 inset, 0px 0px 0px 1px #ff361c;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    /*text-shadow: 0px 0px 1px #c21300;*/
+    -o-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+    text-shadow: 0px 0px 1px #c21300;
     padding: 4px 8px;
     display: inline-block;
     font-family: Arial;
@@ -143,6 +172,12 @@ a.submit {
     cursor:pointer;
     margin:0;
 }
+
+a.submit.small {
+	font-size: 13px;
+    font-weight: normal;
+}
+
 a.submit:hover {
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff553f), color-stop(100%,#eb1f0c));
     background: -moz-linear-gradient(center top, #ff553f 0%, #eb1f0c 100%);
@@ -177,11 +212,12 @@ a.submit.disabled {
 	border:1px solid #745a33;
 	background-color:#f4efe8;
 	padding:.25em .5em;
-	-moz-box-shadow:1px 1px 2px #aaa;
-	-webkit-box-shadow:1px 1px 2px #aaa;
-	-o-box-shadow:1px 1px 2px #aaa;
-	box-shadow:1px 1px 2px #aaa;
+	-moz-box-shadow:0 0 1px #aaa;
+	-webkit-box-shadow:0 0 1px #aaa;
+	-o-box-shadow:0 0 1px #aaa;
+	box-shadow:0 0 1px #aaa;
 	display:inline-block;
+	font-weight:bold;
 }
 
 .message.error, .message.alert {
@@ -192,6 +228,10 @@ a.submit.disabled {
 
 .error, .alert {
 	color:#FF563F;
+}
+
+input[type="text"].error, textarea.error {
+	border-color:#FF563F;
 }
 
 .message.success {
@@ -265,6 +305,10 @@ img.tooltip {
 	display: none;
 }
 
+.dialog > form {
+	position:relative; /* for use with jQuery validation plugin auto scrolling to invalid elements */
+}
+
 .dialogContent {
 	background: #FFFFFF;
 	padding: .5em;
@@ -325,7 +369,8 @@ img.tooltip {
 }
 
 .panelHeader {
-	border-bottom: 1px solid #D8C6B3;
+	/*border-bottom: 1px solid #D8C6B3;*/
+	border-bottom: 1px solid #cccccc;
 	color: #745A33;
 	font-family: Trebuchet MS;
 	font-size: 1.3em;

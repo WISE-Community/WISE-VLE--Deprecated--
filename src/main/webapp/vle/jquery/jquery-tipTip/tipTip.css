@@ -147,12 +147,12 @@
 /* Custom style elements */
 
 #tiptip_holder #tiptip_content ul, #tiptip_holder #tiptip_content ol {
-	margin: 0 0 .5em 0;
+	margin: .5em 0 0 0;
     padding-left: 1.25em;
 }
 
-#tiptip_holder #tiptip_content ul:last-child, #tiptip_holder #tiptip_content ol:last-child {
-	margin-bottom:0;
+#tiptip_holder #tiptip_content ul:first-child, #tiptip_holder #tiptip_content ol:first-child {
+	margin-top:0;
 }
 
 #tiptip_holder #tiptip_content ul lh, #tiptip_holder #tiptip_content ol lh {
@@ -160,12 +160,12 @@
 }
 
 #tiptip_holder #tiptip_content p {
-	margin:0 0 .5em 0;
+	margin: .5em 0 0 0;
 	padding:0;
 }
 
-#tiptip_holder #tiptip_content p:last-child {
-	margin-bottom:0;
+#tiptip_holder #tiptip_content p:first-child {
+	margin-top:0;
 }
 
 #tiptip_content p span {
@@ -207,8 +207,8 @@
 	text-shadow: none;
 	font-weight:normal;
 	font-size:12px;
-	padding:10px;
-	color:#745A33;
+	padding:8px 10px;
+	color:#444444;
 	-o-box-shadow: 0 0 4px #444;
 	-webkit-box-shadow: 0 0 4px #444;
 	-moz-box-shadow: 0 0 4px #444;
@@ -220,15 +220,10 @@
 }
 
 #tiptip_holder.info #tiptip_content h3 {
-	background-color: #CAD266;
-    border: 1px solid #8C8C3D;
-    -o-box-shadow: 0 2px 2px -1px #bbb;
-    -moz-box-shadow: 0 2px 2px -1px #bbb;
-    -webkit-box-shadow: 0 2px 2px -1px #bbb;
-    box-shadow: 0 2px 2px -1px #bbb;
-    color: #3E3F01;
-    margin: -11px -11px 10px;
-    padding: 5px 7px;
+	color: #745A33;
+	border-bottom:1px solid #CCCCCC;
+    margin: 0 0 5px;
+    padding: 0 0 5px;
     text-decoration: none;
     font-weight:bold;
 	font-size:13px;
