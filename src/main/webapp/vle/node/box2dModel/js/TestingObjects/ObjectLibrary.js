@@ -37,6 +37,7 @@
 		this.shapes = new Array();
 		this.num_rows = Math.floor((this.height_px)/shape_height_px)
 		this.num_cols = Math.floor((this.width_px)/shape_width_px);
+		this.MAX_OBJECTS_IN_LIBRARY = Math.min(this.num_rows * this.num_cols -1, GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY);
 
 		stage.ready_to_update = true;
 	}
@@ -44,7 +45,7 @@
 	p.addObject = function (o)
 	{
 		var index = this.shapes.length + 1;
-		if (index < this.num_rows * this.num_cols)
+		if (index < this.MAX_OBJECTS_IN_LIBRARY)
 		{
 			this.addChild(o);
 			o.x = (index % this.num_cols) * this.shape_width_px + this.shape_dx;
@@ -112,6 +113,7 @@
 			if (this.shapes[i].html.attr("id") == html.attr("id"))
 			{
 				this.duplicateObject(this.shapes[i]);
+				eventManager.fire("duplicate-model", [this.shapes[i].skin.savedObject]);
 				return true;
 			}
 		}
@@ -133,7 +135,7 @@
 			{
 				this.shapes[i].skin.savedObject.is_deleted = true;
 				this.removeObject(this.shapes[i]);
-				eventLogger.addEvent("delete", "", [this.shapes[i].skin.savedObject]);
+				eventManager.fire("delete-model", [this.shapes[i].skin.savedObject]);
 				return true;
 			}
 		}

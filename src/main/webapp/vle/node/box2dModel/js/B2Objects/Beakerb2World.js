@@ -395,10 +395,10 @@
 		{
 			if (!evt.data.parent.draining)
 			{
-				eventLogger.addEvent("button_press", "beaker-refill");
 				var liquid_dy = evt.data.parent.init_liquid_y - evt.data.parent.liquid_y;
 				evt.data.parent.liquid_volume = evt.data.parent.init_liquid_volume;
 				evt.data.parent.controller.ChangeOffset(-liquid_dy/GLOBAL_PARAMETERS.SCALE);
+				eventManager.fire("press-refill", [-liquid_dy/GLOBAL_PARAMETERS.SCALE]);
 							
 				// remove refill button
 				evt.data.parent.refill_button_drawn = false;
@@ -435,9 +435,9 @@
 				if (obj.volume_above_spout > 0)
 				{
 					if (typeof evt.data.parent.spilloffContainer != "undefined" && evt.data.parent.spilloffContainer != null) {
-						eventLogger.addEvent("button_press", "beaker-spout", [obj], [evt.data.parent.spilloffContainer.skin.savedObject]);
+						eventManager.fire("press-release", [obj, evt.data.parent.spilloffContainer.skin.savedObject]);
 					} else{
-						eventLogger.addEvent("button_press", "beaker-spout", [obj]);
+						eventLogger.fire("press-release", "beaker-spout", [obj]);
 					}
 
 					evt.data.parent.spout_change = true;

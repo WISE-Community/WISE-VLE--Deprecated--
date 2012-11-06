@@ -38,7 +38,41 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			"materials": {},
 			"premades_available":[],
 			"premades":{},
-			"objectLibrary":[]
+			"objectLibrary":[],
+			"MAX_OBJECTS_IN_LIBRARY":100,
+			"feedbackEvents":[],
+			"ModelDataDescription":
+			{
+				"DataSeriesDescription":[],
+				"ComputationalInputs":
+				[
+					{"label":"object1-id", "units":"", "min":0, "max":1000},
+					{"label":"object1-location", "units":"", "min":"", "max":""},
+					{"label":"object1-mass", "units":"g", "min":0, "max":100000},
+					{"label":"object1-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object1-material-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object1-interior-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object1-liquid-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object1-liquid-perc-filled", "units":"%", "min":0, "max":1},
+					{"label":"object2-id", "units":"", "min":0, "max":1000},
+					{"label":"object2-location", "units":"", "min":"", "max":""},
+					{"label":"object2-mass", "units":"g", "min":0, "max":100000},
+					{"label":"object2-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object2-material-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object2-interior-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object2-liquid-volume", "units":"cm^3", "min":0, "max":100000},
+					{"label":"object2-liquid-perc-filled", "units":"%", "min":0, "max":1}
+				],
+				"ComputationalOutputs":
+				[
+					{"label":"balance-state", "units":"", "min":-1, "max":1},
+					{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000},
+					{"label":"beaker-liquid-height", "units":"cm", "min":0, "max":100},
+					{"label":"beaker-liquid-volume", "units":"cm^3", "min":0, "max":10000},
+					{"label":"spilloff-liquid-volume", "units":"cm^3", "min":0, "max":10000},
+					{"label":"spilloff-perc-filled", "units":"%", "min":0, "max":1}
+				],
+			}
         }
         
 		
@@ -48,7 +82,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var stage;
 		var builder;
 		var tester;
-		var eventLogger;
+		var feedbackManager;
 		
 		function init(wiseData)
 		{
@@ -87,10 +121,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage = new Stage(canvas);
 			stage.mouseEventsEnabled = true;
 			stage.enableMouseOver();
-			//this.stage = stage;
 			stage.needs_to_update = true;
-			//densityMain = new DensityMain(stage);
-			
+				
 			// setup builder
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
@@ -182,8 +214,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.addChild(tester);
 			tester.y = tester_y;
 
-			// setup the event logger
-			eventLogger = new EventLogger();
+			// setup the event logger and feedbacker
+			feedbackManager = new FeedbackManager(GLOBAL_PARAMETERS.feedbackEvents);
 
 			// make all objects given in parameters
 			for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
@@ -193,6 +225,9 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			}
 			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;
 
+			// get maximum number of library objects, create computational inputs for each
+			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
+			
 			Ticker.setFPS(24);
 			Ticker.addListener(window);
 		}
@@ -238,8 +273,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			if (typeof already_in_globals === "undefined" || !already_in_globals)
 				GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
 
-			eventLogger.addEvent("make", "", [savedObject]);
-			
+			eventManager.fire("make-model", [savedObject]);
 		}
 
 

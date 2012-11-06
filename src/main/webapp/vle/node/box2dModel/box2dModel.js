@@ -44,6 +44,29 @@ function Box2dModel(node) {
 	} else {
 		this.states = [];  
 	};
+
+	eventManager.subscribe('make-model', this.interpretEvent, this);
+	eventManager.subscribe('delete-model', this.interpretEvent, this);
+	eventManager.subscribe('duplicate-model', this.interpretEvent, this);
+	eventManager.subscribe('add-balance-world', this.interpretEvent, this);
+	eventManager.subscribe('add-balance', this.interpretEvent, this);
+	eventManager.subscribe('remove-balance-world', this.interpretEvent, this);
+	eventManager.subscribe('remove-balance', this.interpretEvent, this);
+	eventManager.subscribe('add-beaker-world', this.interpretEvent, this);
+	eventManager.subscribe('add-beaker', this.interpretEvent, this);
+	eventManager.subscribe('add-spilloff', this.interpretEvent, this);
+	eventManager.subscribe('remove-beaker-world', this.interpretEvent, this);
+	eventManager.subscribe('remove-beaker', this.interpretEvent, this);
+	eventManager.subscribe('remove-spilloff', this.interpretEvent, this);
+	eventManager.subscribe('press-refill', this.interpretEvent, this);
+	eventManager.subscribe('press-release', this.interpretEvent, this);
+	eventManager.subscribe('test-balance-1to1', this.interpretEvent, this);
+	eventManager.subscribe('test-balance-1toN', this.interpretEvent, this);
+	eventManager.subscribe('test-balance-Nto1', this.interpretEvent, this);
+	eventManager.subscribe('test-balance-NtoN', this.interpretEvent, this);
+	eventManager.subscribe('test-beaker-add', this.interpretEvent, this);
+	eventManager.subscribe('test-beaker-release', this.interpretEvent, this);
+	
 };
 
 /**
@@ -197,6 +220,19 @@ Box2dModel.prototype.getLatestState = function() {
 };
 
 /**
+ * When an event that is exclusive to Box2dModel is fired it is interpreted here.
+ * @param type, args, obj
+ * @return 
+ */
+Box2dModel.prototype.interpretEvent = function(type, args, obj) {
+	evt = {};
+	evt.type = type;
+	evt.args = args;
+	var state = obj.save(evt);
+	feedbackManager.checkEvent(evt.type, state);
+}
+
+/**
  * This function retrieves the student work from the html ui, creates a state
  * object to represent the student work, and then saves the student work.
  * 
@@ -206,21 +242,137 @@ Box2dModel.prototype.getLatestState = function() {
  * provided as examples. you may create your own html ui elements in
  * the .html file for this step (look at box2dModel.html).
  */
-Box2dModel.prototype.save = function() {
+Box2dModel.prototype.save = function(evt) {
 	//get the answer the student wrote
 	//var response = $('#studentResponseTextArea').val();
-	
+	if (typeof evt === "undefined") evt = {"type":"server"};
+
 	var response = {};
 	//load with objects from library
+
 	response.savedModels = [];
-	for (var i = 0; i < GLOBAL_PARAMETERS.objectLibrary.length; i++)
-	{
-		var o =  GLOBAL_PARAMETERS.objectLibrary[i];
-		if (typeof o.is_deleted == "undefined" || !o.is_deleted)
+	response.ModelDataDescriptions = {};
+	response.ModelDataDescriptions.DataSeriesDescription = [];
+	response.ModelDataDescriptions.ComputationalInputs = [];
+	response.ModelDataDescriptions.ComputationalOutputs = [];
+	response.ModelData = {};
+	response.ModelData.DataSeries = [];
+	response.ModelData.ComputationalInputValues = [];
+	response.ModelData.ComputationalOutputValues = [];
+
+	var mass_on_left, mass_on_right, mass_diff;
+	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
+	if (typeof evt === "undefined" || evt.type == "make" || evt.type == "delete")
+    {
+
+        // save all the models stored in the library    
+		for (var i = 0; i < GLOBAL_PARAMETERS.objectLibrary.length; i++)
 		{
-			response.savedModels.push(o);
+			var o =  GLOBAL_PARAMETERS.objectLibrary[i];
+			if (typeof o.is_deleted == "undefined" || !o.is_deleted)
+			{
+				response.savedModels.push(o);
+			}
 		}
+	} else if (evt.type == "test-balance-1to1")
+	{
+		response.eventType = evt.type;
+		response.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-left-id", "units":"", "min":0, "max":1000},
+			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000},
+			{"label":"object-right-id", "units":"", "min":0, "max":1000},
+			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}			
+		];
+		mass_on_left = evt.args[0].mass;
+		mass_on_right = evt.args[1].mass;
+		mass_diff = mass_on_right - mass_on_left;
+		response.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
+	
+		response.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000},			
+		];
+		response.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
+ 
+	} else if (evt.type == "test-balance-1toN")
+	{
+		response.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-left-id", "units":"", "min":0, "max":1000},
+			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},	
+			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000}	
+		];
+		mass_on_left = evt.args[0].mass;
+		mass_on_right = evt.args[1];
+		mass_diff = mass_on_right - mass_on_left;
+		response.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
+	
+		response.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
+		]
+		response.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff]; 
+	} else if (evt.type == "test-balance-Nto1")
+	{
+		response.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-right-id", "units":"", "min":0, "max":1000},
+			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}				
+		];
+		mass_on_left = evt.args[0];
+		mass_on_right = evt.args[1].mass;
+		mass_diff = mass_on_right - mass_on_left;
+		response.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
+	
+		response.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
+		];
+		response.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
+ 
+	} else if (evt.type == "test-balance-NtoN")
+	{
+		response.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000}		
+		];
+		mass_on_left = evt.args[0];
+		mass_on_right = evt.args[1];
+		mass_diff = mass_on_right - mass_on_left;
+		response.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right];
+	
+		response.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}			
+		];
+		response.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
+ 
 	}
+
+	//go thro
 	/*
 	 * create the student state that will store the new work the student
 	 * just submitted
@@ -243,6 +395,7 @@ Box2dModel.prototype.save = function() {
 	 * would change the Box2dModelState to QuizState below
 	 */
 	var box2dModelState = new Box2dModelState(response);
+	//if (typeof evt.type != "undefined") console.log(evt.type, response);
 	/*
 	 * fire the event to push this state to the global view.states object.
 	 * the student work is saved to the server once they move on to the
@@ -253,7 +406,10 @@ Box2dModel.prototype.save = function() {
 	//push the state object into this or object's own copy of states
 	this.states.push(box2dModelState);
 
+	return box2dModelState;
 };
+
+
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

@@ -24,6 +24,7 @@
 		this.unit_width_px = unit_width_px;
 		this.unit_height_px = unit_height_px;
 		this.unit_depth_px = unit_depth_px;
+		this.unit_volume = this.unit_width_px/GLOBAL_PARAMETERS.SCALE * this.unit_depth_px/GLOBAL_PARAMETERS.SCALE * this.unit_height_px/GLOBAL_PARAMETERS.SCALE;
 		this.savedObject = savedObject;
 		this.blockArray3d = savedObject.blockArray3d;
 		this.is_container = savedObject.is_container;
@@ -80,7 +81,7 @@
 			// start at bottom and find the lowest row with any blocks in it
 			var i, j, k
 			
-			for (j = this.blockArray3d[1].length-1; j >= 0; j--)
+			for (j = this.blockArray3d[0].length-1; j >= 0; j--)
 			{
 				for (i = 0; i < this.blockArray3d.length; i++)
 				{
@@ -108,7 +109,7 @@
 			// start at bottom and find the lowest row with any blocks in it
 			var i, j, k
 			
-			for (j = 0; j < this.blockArray3d[1].length; j++)
+			for (j = 0; j < this.blockArray3d[0].length; j++)
 			{
 				for (i = 0; i < this.blockArray3d.length; i++)
 				{
@@ -138,7 +139,7 @@
 			
 			for (i = 0; i < this.blockArray3d.length; i++)
 			{
-				for (j = 0; j < this.blockArray3d[1].length; j++)
+				for (j = 0; j < this.blockArray3d[0].length; j++)
 				{
 					for (k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
@@ -166,7 +167,7 @@
 			
 			for (i = this.blockArray3d.length-1; i >= 0; i--)
 			{
-				for (j = 0; j < this.blockArray3d[1].length; j++)
+				for (j = 0; j < this.blockArray3d[0].length; j++)
 				{
 					for (k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
@@ -186,6 +187,65 @@
 		}
 	}
 
+	p.getDeepestIndex = function ()
+	{
+		if (typeof(this.deepestColumn) == "undefined")
+		{
+			// start at bottom and find the lowest row with any blocks in it
+			var i, j, k
+			
+			for (k = this.blockArray3d[0][0].length - 1; k >= 0; k--)
+			{
+				for (i = this.blockArray3d.length-1; i >= 0; i--)
+				{
+					for (j = 0; j < this.blockArray3d[0].length; j++)
+					{
+					
+						if (this.blockArray3d[i][j][k] != "")
+						{
+							this.deepestColumn = k;
+							return this.deepestColumn;
+						}
+					}
+				}
+			}
+			this.deepestColumn = -1;
+			return this.deepestColumn;
+		} else
+		{
+			return this.deepestColumn;
+		}
+	}
+
+	p.getShallowistIndex = function ()
+	{
+		if (typeof(this.shallowistColumn) == "undefined")
+		{
+			// start at bottom and find the lowest row with any blocks in it
+			var i, j, k
+			
+			for (k = 0; k < this.blockArray3d[0][0].length; k++)
+			{
+				for (i = this.blockArray3d.length-1; i >= 0; i--)
+				{
+					for (j = 0; j < this.blockArray3d[0].length; j++)
+					{
+					
+						if (this.blockArray3d[i][j][k] != "")
+						{
+							this.shallowistColumn = k;
+							return this.shallowistColumn;
+						}
+					}
+				}
+			}
+			this.shallowistColumn = -1;
+			return this.shallowistColumn;
+		} else
+		{
+			return this.shallowistColumn;
+		}
+	}
 	
 	p.update_array2d = function ()
 	{
@@ -197,7 +257,8 @@
 			var right_x = this.getRightmostColumn();
 			var top_y = this.getHighestRow();
 			var bottom_y = this.getLowestRow();
-
+			var o_mass = 0, o_materialSpaces = 0, o_exteriorSpaces = 0, o_interiorSpaces = 0, o_protectedSpaces = 0;
+			
 			// go through rows and columns adding up mass in depths
 			var i, j, k, d;
 			for (i = left_x; i <= right_x; i++)
@@ -205,11 +266,7 @@
 				array2d[i - left_x] = new Array();
 				for (j = top_y; j <= bottom_y; j++)
 				{
-					var mass = 0;
-					var materialSpaces = 0;
-					var exteriorSpaces = 0;
-					var interiorSpaces = 0;
-					var protectedSpaces = 0;
+					var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
 					for (k = 0; k < this.blockArray3d[i][j].length; k++)
 					{
 						if (this.blockArray3d[i][j][k] != "")
@@ -231,10 +288,28 @@
 							protectedSpaces++;
 						}
 					}
+					o_mass += mass;
+					o_materialSpaces += materialSpaces;
+					o_exteriorSpaces += exteriorSpaces;
+					o_interiorSpaces += interiorSpaces;
+					o_protectedSpaces += protectedSpaces;
+			
 					array2d[i - left_x][j - top_y] = {"mass":mass, "totalSpaces":spaces3d[0][0].length, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
 				}
 			} 
-			return this.massArray2d;
+			this.savedObject.max_height = Math.abs(this.getLowestRow()+1 - this.getHighestRow());
+			this.savedObject.max_width = Math.abs(this.getRightmostColumn()+1 - this.getLeftmostColumn());
+			this.savedObject.max_depth = Math.abs(this.getDeepestIndex()+1 - this.getShallowistIndex());
+			this.savedObject.mass = o_mass;
+			this.savedObject.volume = (o_materialSpaces + o_interiorSpaces + o_protectedSpaces) * this.unit_volume;
+			this.savedObject.density = this.savedObject.mass/ this.savedObject.volume;
+			this.savedObject.material_volume = (o_materialSpaces) * this.unit_volume;
+			this.savedObject.interior_volume = (o_interiorSpaces + o_protectedSpaces) * this.unit_volume;
+			this.savedObject.liquid_mass = 0;
+			this.savedObject.liquid_volume = 0;
+			this.savedObject.liquid_perc_volume = 0;
+
+			return this.array2d;
 			
 		} else
 		{
@@ -643,8 +718,6 @@
 
 						// old code, keep just in case
 						//btr_x = i*this.unit_width_px - k*this.unit_depth_px*Math.sin(view_sideAngle); btr_y = j*this.unit_height_px + k*this.unit_depth_px*Math.sin(view_topAngle); bbr_x = btr_x; bbr_y = btr_y + this.unit_height_px; btl_x = btr_x - this.unit_width_px; btl_y = btr_y; bbl_x = btl_x; bbl_y = btl_y + this.unit_height_px; ftr_x = btr_x - this.unit_depth_px*Math.sin(view_sideAngle); ftr_y = btr_y + this.unit_depth_px*Math.sin(view_topAngle); fbr_x = ftr_x; fbr_y = ftr_y + this.unit_height_px; ftl_x = btl_x - this.unit_depth_px*Math.sin(view_sideAngle); ftl_y = btl_y + this.unit_depth_px*Math.sin(view_topAngle); fbl_x = ftl_x; fbl_y = ftl_y + this.unit_height_px;
-											
-
 						// setup overall corners
 						if (isNaN(this.tr_x) || isNaN(this.tr_y))
 						{ 

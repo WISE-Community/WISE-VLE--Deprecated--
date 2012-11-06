@@ -11,6 +11,7 @@
 	"MAX_WIDTH_UNITS":5,
 	"MAX_HEIGHT_UNITS":5,
 	"MAX_DEPTH_UNITS":5,
+	"MAX_OBJECTS_IN_LIBRARY": 5,
 	"view_sideAngle_degrees" : 10,
 	"view_topAngle_degrees" : 20,
 	"liquid_volume_perc" : 0.5,
@@ -407,5 +408,32 @@
  			"is_container":true, 
  			"is_deletable":false
  		}
- 	}
+ 	},
+
+ 	"feedbackEvents":
+    [
+      {
+         "feedback":
+         {
+            "type":"text",
+            "body":"Great job! You compared two unit objects with equal volume and unequal mass.",
+            "repetitionMax":0
+         }
+         "sequenceHead":
+         {
+            "maxMisses": 0,
+            "strictOrdering": true,
+            "matchItems" : 
+            [
+               {
+                  "eventType":"test-balance-1to1",
+                  "ComputationInputElement":{"label":"object-left-volume", "value":"=1"},
+                  "ComputationInputElement":{"label":"object-right-volume", "value":"=1"},
+                  "ComputationOutputElement":{"label":"balance-state", "value":"=0"}
+               }
+            ],
+            "breakItems":[]
+         }
+      }
+   ]
 }

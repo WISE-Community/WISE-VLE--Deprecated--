@@ -14,16 +14,37 @@ View.prototype.box2dModelDispatcher = function(type,args,obj){
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */ 
-	if(type == 'box2dModelUpdatePrompt') {
-		/*
-		 * the event name matches so we will call the function that
-		 * handles that event
-		 * 
-		 * TODO: rename Box2dModelNode
-		 * wait until you implement the authoring before you rename this 
-		 */
-		obj.Box2dModelNode.updatePrompt();
+	var evt = {"type":type, "args":args, "obj":obj};
+	switch (type)
+	{
+		case 'box2dModelUpdatePrompt': break;
+		case 'box2dModelUpdatePrompt':
+		case 'make-model':
+		case 'delete-model':
+		case 'duplicate-model':
+		case 'add-balance-world':
+		case 'add-balance':
+		case 'remove-balance-world':
+		case 'remove-balance':
+		case 'add-beaker-world':
+		case 'add-beaker':
+		case 'add-spilloff':
+		case 'remove-beaker-world':
+		case 'remove-beaker':
+		case 'remove-spilloff':
+		case 'press-refill':
+		case 'press-release':
+		case 'test-balance-1to1':
+		case 'test-balance-1toN':
+		case 'test-balance-Nto1':
+		case 'test-balance-NtoN':
+		case 'test-beaker-add':
+		case 'test-beaker-release':
+			//obj.currentNode.interpretEvent(evt);
+			break;
 	}
+
+
 };
 
 /*
@@ -36,8 +57,30 @@ var events = [
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */
-	'box2dModelUpdatePrompt'
+	'box2dModelUpdatePrompt',
+	'make-model',
+	'delete-model',
+	'duplicate-model',
+	'add-balance-world',
+	'add-balance',
+	'remove-balance-world',
+	'remove-balance',
+	'add-beaker-world',
+	'add-beaker',
+	'add-spilloff',
+	'remove-beaker-world',
+	'remove-beaker',
+	'remove-spilloff',
+	'press-release',
+	'press-refill',
+	'test-balance-1to1',
+	'test-balance-1toN',
+	'test-balance-Nto1',
+	'test-balance-NtoN',
+	'test-beaker-add',
+	'test-beaker-release'
 ];
+
 
 /*
  * add all the events to the vle so the vle will listen for these events

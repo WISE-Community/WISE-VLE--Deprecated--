@@ -28,6 +28,7 @@
 		this.unit_width_px = unit_width_px;
 		this.unit_height_px = unit_height_px;
 		this.unit_depth_px = unit_depth_px;
+		this.unit_volume = this.unit_width_px/GLOBAL_PARAMETERS.SCALE * this.unit_depth_px/GLOBAL_PARAMETERS.SCALE * this.unit_height_px/GLOBAL_PARAMETERS.SCALE;
 		this.savedObject = savedObject;
 		this.blockArray3d = savedObject.blockArray3d;
 		this.is_container = savedObject.is_container;
@@ -235,6 +236,66 @@
 		}
 	}
 
+	p.getDeepestIndex = function ()
+	{
+		if (typeof(this.deepestColumn) == "undefined")
+		{
+			// start at bottom and find the lowest row with any blocks in it
+			var i, j, k
+			
+			for (k = this.blockArray3d[0][0].length - 1; k >= 0; k--)
+			{
+				for (i = this.blockArray3d.length-1; i >= 0; i--)
+				{
+					for (j = 0; j < this.blockArray3d[0].length; j++)
+					{
+					
+						if (this.blockArray3d[i][j][k] != "")
+						{
+							this.deepestColumn = k;
+							return this.deepestColumn;
+						}
+					}
+				}
+			}
+			this.deepestColumn = -1;
+			return this.deepestColumn;
+		} else
+		{
+			return this.deepestColumn;
+		}
+	}
+
+	p.getShallowistIndex = function ()
+	{
+		if (typeof(this.shallowistColumn) == "undefined")
+		{
+			// start at bottom and find the lowest row with any blocks in it
+			var i, j, k
+			
+			for (k = 0; k < this.blockArray3d[0][0].length; k++)
+			{
+				for (i = this.blockArray3d.length-1; i >= 0; i--)
+				{
+					for (j = 0; j < this.blockArray3d[0].length; j++)
+					{
+					
+						if (this.blockArray3d[i][j][k] != "")
+						{
+							this.shallowistColumn = k;
+							return this.shallowistColumn;
+						}
+					}
+				}
+			}
+			this.shallowistColumn = -1;
+			return this.shallowistColumn;
+		} else
+		{
+			return this.shallowistColumn;
+		}
+	}
+	
 	/** For the block composition shape the standard array3d, which states the materials at each index
 	  * is sufficient.  Here we need more information, including which faces should be placed.  The mass 
 	  	considering these faces, etc.
@@ -261,7 +322,7 @@
 					{
 						this.array3d_details[i][j][k] = {};
 						var mass = 0;
-						var volume = this.unit_width_px / GLOBAL_PARAMETERS.SCALE * this.unit_height_px / GLOBAL_PARAMETERS.SCALE * this.unit_depth_px / GLOBAL_PARAMETERS.SCALE;
+						var volume = this.unit_volume;
 						if (this.blockArray3d[i][j][k] != "")
 						{
 							// top
@@ -388,22 +449,21 @@
 		var right_x = this.getRightmostColumn();
 		var top_y = this.getHighestRow();
 		var bottom_y = this.getLowestRow();
-		
+		var o_mass = 0, o_materialSpaces = 0, o_exteriorSpaces = 0, o_interiorSpaces = 0, o_protectedSpaces = 0, o_liquid_volume = 0, o_liquid_mass = 0;
+			
 		// go through rows and columns adding up mass in depths
 		for (var i = left_x; i <= right_x; i++)
 		{
 			array2d[i - left_x] = new Array();
 			for (var j = top_y; j <= bottom_y; j++)
 			{
-				var mass = 0;
-				var materialSpaces = 0;
-				var exteriorSpaces = 0;
-				var interiorSpaces = 0;
-				var protectedSpaces = 0;
+				var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0, liquid_volume, liquid_mass;
 				for (var k = 0; k < this.blockArray3d[i][j].length; k++)
 				{
 					if (this.blockArray3d[i][j][k] != "")
 					{
+						liquid_mass += array3d_details[i][j][k].liquidVolume * this.liquid.density;
+						liquid_volume += array3d_details[i][j][k].liquidVolume;						
 						mass += (array3d_details[i][j][k].baseMass + array3d_details[i][j][k].liquidVolume * this.liquid.density) / array3d_details[i][j][k].volume;
 					}
 					if (spaces3d[i][j][k] == "B")
@@ -420,13 +480,28 @@
 						protectedSpaces++;
 					}
 				}
+				o_mass += mass;
+				o_materialSpaces += materialSpaces;
+				o_exteriorSpaces += exteriorSpaces;
+				o_interiorSpaces += interiorSpaces;
+				o_protectedSpaces += protectedSpaces;
+				o_liquid_volume += liquid_volume;
+				o_liquid_mass += liquid_mass;
 				array2d[i - left_x][j - top_y] = {"mass":mass, "totalSpaces":spaces3d[0][0].length, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
 			}
 		} 
+		this.savedObject.max_height = Math.abs(this.getLowestRow()+1 - this.getHighestRow());
+		this.savedObject.max_width = Math.abs(this.getRightmostColumn()+1 - this.getLeftmostColumn());
+		this.savedObject.max_depth = Math.abs(this.getDeepestIndex()+1 - this.getShallowistIndex());
+		this.savedObject.mass = o_mass;
+		this.savedObject.volume = (o_materialSpaces + o_interiorSpaces + o_protectedSpaces) * this.unit_volume;
+		this.savedObject.density = this.savedObject.mass/ this.savedObject.volume;
+		this.savedObject.material_volume = (o_materialSpaces) * this.unit_volume;
+		this.savedObject.interior_volume = (o_interiorSpaces + o_protectedSpaces) * this.unit_volume;
+		this.savedObject.liquid_mass = o_liquid_mass;
+		this.savedObject.liquid_volume = o_liquid_volume;
+		this.savedObject.liquid_perc_volume = this.savedObject.liquid_volume/this.savedObject.volume;
 		return this.array2d;
-			
-			
-				
 	}
 
 	/** This function classifies each space as either "B" (has a block within it), "I" (empty space is on the interior of the hull), "E" (Empty space is on the exterior of the hull)

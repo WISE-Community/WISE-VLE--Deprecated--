@@ -333,6 +333,19 @@
 		}
 		savedObject.blockArray3d = blockArray3d;
 		savedObject.is_container = is_container;
+		// some other parameters of the object we'll fill in later, when the object is put together
+		savedObject.max_height = 0;
+		savedObject.max_width = 0;
+		savedObject.max_depth = 0;
+		savedObject.mass = 0;
+		savedObject.volume = 0;
+		savedObject.density = 0;
+		savedObject.material_volume = 0;
+		savedObject.interior_volume = 0;
+		savedObject.liquid_mass = 0;
+		savedObject.liquid_volume = 0;
+		savedObject.liquid_perc_volume = 0;
+
 
 		// clean up
 		// reset counts of blocks, remove object on screen

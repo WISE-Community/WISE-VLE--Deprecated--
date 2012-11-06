@@ -44,6 +44,17 @@
 		
 		this.mass_on_left_pan = 0;
 		this.mass_on_right_pan = 0;
+		this.actors_on_left_pan = [];
+		this.actors_on_right_pan = [];
+		this.balance_moving = false;
+
+		this.justAddedActor = null;
+		this.justRemovedActor = null;
+		this.justAddedActorToLeft = null;
+		this.justRemovedActorToLeft = null;
+		this.justAddedActorToRight = null;
+		this.justRemovedActorToRight = null;
+		
 
 		g = this.g = new Graphics();
 		this.shape = new Shape(g);
@@ -417,8 +428,6 @@
 		var contactListener = new b2ContactListener;
 		contactListener.BeginContact = this.BeginContact.bind(this);
 		this.b2world.SetContactListener(contactListener);
-		this.justAdded = null;
-
 		if (GLOBAL_PARAMETERS.DEBUG)
 		{
 			var debugDraw = this.debugDraw = new b2DebugDraw;
@@ -490,12 +499,14 @@
 			leftx = actor.body.GetPosition().x - actor.width_px_left/GLOBAL_PARAMETERS.SCALE;
 			rightx = actor.body.GetPosition().x + actor.width_px_right/GLOBAL_PARAMETERS.SCALE
 			y = actor.body.GetPosition().y;
-			if (y < pan_y && (leftx >= pan_leftx && leftx <= pan_rightx || rightx >= pan_leftx && rightx <= pan_rightx))
+			if (actor.parent == this && y < pan_y && (leftx >= pan_leftx && leftx <= pan_rightx || rightx >= pan_leftx && rightx <= pan_rightx))
 			{
 				// was this object here before?
 				if (typeof(actor.onLeftPan) == "undefined" || !actor.onLeftPan)
 				{	
-					eventLogger.addEvent("place", "balance-leftPan", [actor.skin.savedObject]);
+					eventManager.fire("add-balance", [actor.skin.savedObject]);
+					this.justAddedActorToLeft = actor;
+					this.actors_on_left_pan.push(actor);
 				}
 				actor.onLeftPan = true;
 				actor.onRightPan = false;
@@ -503,8 +514,10 @@
 			} else if (typeof(actor.onLeftPan) != "undefined" && actor.onLeftPan)
 			{
 				// remove event
-				eventLogger.addEvent("remove", "balance-leftPan", [actor.skin.savedObject]);
+				eventManager.fire("remove-balance", [actor.skin.savedObject]);
 				actor.onLeftPan = false;
+				this.actors_on_left_pan.splice(this.actors_on_left_pan.indexOf(actor));
+				this.justRemovedActorToLeft = actor;
 			}
 		}
 		this.mass_on_left_pan = mass;
@@ -520,12 +533,14 @@
 			leftx = actor.body.GetPosition().x - actor.width_px_left/GLOBAL_PARAMETERS.SCALE;
 			rightx = actor.body.GetPosition().x + actor.width_px_right/GLOBAL_PARAMETERS.SCALE
 			y = actor.body.GetPosition().y;
-			if (y < pan_y && (leftx >= pan_leftx && leftx <= pan_rightx || rightx >= pan_leftx && rightx <= pan_rightx))
+			if (actor.parent == this && y < pan_y && (leftx >= pan_leftx && leftx <= pan_rightx || rightx >= pan_leftx && rightx <= pan_rightx))
 			{
 								// was this object here before?
 				if (typeof(actor.onRightPan) == "undefined" || !actor.onRightPan)
 				{	
-					eventLogger.addEvent("place", "balance-rightPan", [actor.skin.savedObject]);
+					eventManager.fire("add-balance", [actor.skin.savedObject]);
+					this.justAddedActorToRight = actor;
+					this.actors_on_right_pan.push(actor);
 				}
 				actor.onLeftPan = false;
 				actor.onRightPan = true;
@@ -533,8 +548,10 @@
 			} else if (typeof(actor.onRightPan) != "undefined" && actor.onRightPan)
 			{
 				// remove event
-				eventLogger.addEvent("remove", "balance-rightPan", [actor.skin.savedObject]);
+				eventManager.fire("remove-balance", [actor.skin.savedObject]);
 				actor.onRightPan = false;
+				this.justRemovedActorToRight = actor;
+				this.actors_on_right_pan.splice(this.actors_on_right_pan.indexOf(actor));
 			}
 		}
 		this.mass_on_right_pan = mass;
@@ -571,8 +588,8 @@
 	}
 	p.addActor = function (actor, x, y)
 	{
-		eventLogger.addEvent("place", "balance-world", [actor.skin.savedObject]);
-
+		eventManager.fire('add-balance-world',[actor.skin.savedObject]);
+		
 		actor.x = x;
 		actor.y = y;
 		
@@ -605,37 +622,50 @@
 		}
 		this.actors.push(actor);
 		// set a flag so we can look for initial contact with this object
-		this.justAdded = body;
+		this.justAddedActor = body;
+		this.justRemovedActor = null;
+		this.justAddedActorToLeft = null;
+		this.justRemovedActorToLeft = null;
+		this.justAddedActorToRight = null;
+		this.justRemovedActorToRight = null;
 		this.updateMassOnPans();
 	}
 
 	p.removeActor = function (actor)
 	{
-		eventLogger.addEvent("remove", "balance-world", [actor.skin.savedObject]);
 		this.removeChild(actor);
+		this.justRemovedActor = actor;
+		this.justAddedActor = null;
+		this.justAddedActorToLeft = null;
+		this.justRemovedActorToLeft = null;
+		this.justAddedActorToRight = null;
+		this.justRemovedActorToRight = null;
+		this.updateMassOnPans();
+
+		eventManager.fire('remove-balance-world',[actor.skin.savedObject], box2dModel);
 		this.actors.splice(this.actors.indexOf(actor), 1);
 		this.b2world.DestroyBody(actor.body);
-		actor.world = null;
 		actor.body = null;
-		this.updateMassOnPans();
+		actor.world = null;
+		
 	}
 
 	p.BeginContact = function (contact)
 	{
 		
 		// When the object just added makes contact, set linear damping high to avoid too much motion.
-		if (this.justAdded != null)
+		if (this.justAddedActor != null)
 		{
-			if (contact.GetFixtureA().m_body == this.justAdded)
+			if (contact.GetFixtureA().m_body == this.justAddedActor.body)
 			{	
 				contact.GetFixtureA().m_body.SetLinearDamping(1);
 				contact.GetFixtureA().m_body.SetFixedRotation(true);
-			} else if (contact.GetFixtureB().m_body == this.justAdded)
+			} else if (contact.GetFixtureB().m_body == this.justAddedActor.body)
 			{
 				contact.GetFixtureB().m_body.SetLinearDamping(1);
 				contact.GetFixtureA().m_body.SetFixedRotation(true);
 			} 
-			this.justAdded = null;
+			//this.justAddedActor = null;
 		}
 		this.updateMassOnPans();
 	}
@@ -662,7 +692,32 @@
 		this.rightPanShape.y = this.rightPan.GetPosition().y * GLOBAL_PARAMETERS.SCALE - this.world_dy;
 		this.rightPanShape.rotation = this.rightPan.GetAngle() * 180 / Math.PI;
 
-		if (this.beam.IsAwake()) this.drawPans();
+		if (this.beam.IsAwake())
+		{
+			this.drawPans();
+			this.balance_moving = true;
+		} else if (this.balance_moving)
+		{
+			this.balance_moving = false;
+			// look to see if this is a direct comparison, 1xN, NxN
+			if (this.actors_on_left_pan.length == 1 && this.actors_on_right_pan.length == 1)
+			{
+				eventManager.fire('test-balance-1to1',[this.actors_on_left_pan[0].skin.savedObject, this.actors_on_right_pan[0].skin.savedObject], box2dModel);
+			} else if (this.actors_on_left_pan.length == 1)
+			{
+				eventManager.fire('test-balance-1toN',[this.actors_on_left_pan[0].skin.savedObject, this.mass_on_right_pan], box2dModel);
+			} else if (this.actors_on_left_pan.length == 1)
+			{
+				eventManager.fire('test-balance-Nto1',[this.mass_on_left_pan, this.actors_on_right_pan[0].skin.savedObject], box2dModel);
+			} else if (this.actors_on_left_pan.length > 0 || this.actors_on_right_pan.length > 0)
+			{
+				eventManager.fire('test-balance-NtoN',[this.mass_on_left_pan, this.mass_on_right_pan]);
+			}
+			this.justAddedActorToLeft = null;
+			this.justRemovedActorToLeft = null;
+			this.justAddedActorToRight = null;
+			this.justRemovedActorToRight = null;
+		}
 
 		for(i = 0; i < this.actors.length; i++)
 		{
