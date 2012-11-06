@@ -192,8 +192,9 @@ View.prototype.retrieveLocales = function(componentName,localePath) {
 };
 
 /**
- * Finds any DOM elements with i18n and i18n-title attributes and inserts
- * translation text as the inner html and/or title for each element.
+ * Finds any DOM elements with data-i18n, data-i18n-title, and data-i18n-placeholder attributes
+ * and inserts translation text as the inner html and/or title and/or placeholder for each element.
+ * 
  * @param onComplete Callback function to run when i18n insertion is complete.
  */
 View.prototype.insertTranslations = function(componentName, onComplete){
@@ -204,18 +205,18 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 	// process and insert i18n text
 	var translatableElements = [];
 	if (componentName == "main") {
-		translatableElements = $('[i18n], [i18n-title]');
+		translatableElements = $('[data-i18n], [data-i18n-title], [data-i18n-placeholder]');
 	} else if (this.project.getUsedNodeTypes().indexOf(componentName) > -1) {
 		//component is a node. we're trying to translate strings in the content panel where nodes are rendered
 		if (this.currentNode && this.currentNode.contentPanel && this.currentNode.contentPanel.$) {
-			translatableElements = $(this.currentNode.contentPanel.$.find("[i18n], [i18n-title]"));			
+			translatableElements = $(this.currentNode.contentPanel.$.find("[data-i18n], [data-i18n-title], [data-i18n-placeholder]"));			
 		};
 	}
 	var count = translatableElements.length;
 	if (count > 0) {
 	translatableElements.each(function(){
 		// get i18n and i18n-title attributes from elements
-		var i18n = $(this).attr('i18n'), i18nTitle = $(this).attr('i18n-title');
+		var i18n = $(this).attr('data-i18n'), i18nTitle = $(this).attr('data-i18n-title'), i18nPlaceholder = $(this).attr('data-i18n-placeholder');
 		
 		// insert i18n translations
 		if (typeof i18n !== 'undefined' && i18n !== false) {
@@ -229,8 +230,15 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 		if (typeof i18nTitle !== 'undefined' && i18nTitle !== false) {
 			$(this).attr('title',view.getI18NString(i18nTitle,componentName));
 		}
+		if (typeof i18nPlaceholder !== 'undefined' && i18nPlaceholder !== false) {
+			$(this).attr('placeholder',view.getI18NString(i18nPlaceholder,componentName));
+		}
 		// remove i18n attributes from DOM element
+<<<<<<< HEAD
 		$(this).removeAttr('18n').removeAttr('i18n-title');
+=======
+		$(this).removeAttr('data-i18n').removeAttr('data-i18n-title').removeAttr('data-i18n-placeholder');
+>>>>>>> 7bf1c20... Modified VLE insertTranslations function to look for elements with data-* attributes
 		// when all i18n text has been inserted, run the callback function
 		if(--count == 0){
 			if(typeof onComplete === 'function'){
