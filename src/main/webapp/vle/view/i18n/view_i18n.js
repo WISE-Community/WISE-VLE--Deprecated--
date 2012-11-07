@@ -234,11 +234,8 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 			$(this).attr('placeholder',view.getI18NString(i18nPlaceholder,componentName));
 		}
 		// remove i18n attributes from DOM element
-<<<<<<< HEAD
-		$(this).removeAttr('18n').removeAttr('i18n-title');
-=======
 		$(this).removeAttr('data-i18n').removeAttr('data-i18n-title').removeAttr('data-i18n-placeholder');
->>>>>>> 7bf1c20... Modified VLE insertTranslations function to look for elements with data-* attributes
+
 		// when all i18n text has been inserted, run the callback function
 		if(--count == 0){
 			if(typeof onComplete === 'function'){
