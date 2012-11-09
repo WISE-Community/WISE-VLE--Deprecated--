@@ -242,7 +242,7 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		/*
 		 * display student assets link if run has student asset uploader enabled
 		 */
-		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\")' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
+		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\",null)' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
 		$('#viewMyFiles').html(studentAssetsLink);
 		$('#viewMyFiles').show().css('display','inline');
 	} else if (runInfo.isStudentAssetUploaderEnabled != null &&

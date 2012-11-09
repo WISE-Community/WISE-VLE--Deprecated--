@@ -114,8 +114,9 @@ SVGDrawNode.prototype.importFile = function(filename) {
 	if (this.canImportFile(filename)) {
 		var importFileSVG = '<image x="250" y="150" height="150" width="150" xlink:href="'+filename+'" />';
 		var svgStringBefore = this.contentPanel.svgCanvas.getSvgString();
-		var svgStringAfter = svgStringBefore.replace("<title>student</title>", "<title>student</title>" + importFileSVG);
-			
+		// use regex to put newly-imported file at the very top layer
+		var svgStringAfter = svgStringBefore.replace(/<title>student<\/title>((.*\n\s)*)<\/g>/g, "<title>student</title>$1"+importFileSVG+"</g>");
+	    
 		// xmlns:xlink="http://www.w3.org/1999/xlink" <- make sure this is in xml namespace.
 		if (svgStringAfter.indexOf('xmlns:xlink="http://www.w3.org/1999/xlink"') == -1) {
 			svgStringAfter = svgStringAfter.replace("<svg ", "<svg " + 'xmlns:xlink="http://www.w3.org/1999/xlink" ');

@@ -115,6 +115,10 @@ SetupNodes.setupFiles = [
 	{
 		nodeName:"NetlogoNode",
 		nodeSetupPath:"vle/node/netlogo/setup.js"
+	},
+	{
+		nodeName:"EpigameNode",
+		nodeSetupPath:"vle/node/epigame/setup.js"
 	}
 ];
 

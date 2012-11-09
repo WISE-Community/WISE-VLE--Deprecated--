@@ -1,0 +1,24 @@
+{
+	"id" : "starmap",
+	"name" : "Star Map",
+	"description" : "Specialized theme using a field of stars to navigate among activities.",
+	"version" : "1.0",
+	"author" : "Dan Troon (Filament Games)",
+	"date" : "Tue, 9 Feb 2011 16:00:00 -0800",
+	"screenshot" : "images/screenshot-wise.png",
+	"thumb" : "images/thumb-wise.png",
+	"logo" : "images/logo.png",
+	"css" : [
+		"css/theme.css"	
+	],
+	"js" : [],
+	"jqueryui_css" : "css/jquery-ui/jquery-ui-1.8.17.custom.css",
+	"nav_modes" : [
+		{
+			"id" : "standard",
+			"name" : "Standard",
+			"description" : "Map access via button at the top of the window",
+			"screenshot" : "images/screenshot-classic.png"
+		}
+	]
+}

@@ -13,7 +13,7 @@ function BRAINSTORM(node){
 	this.states = [];
 	this.recentResponses = new Array();
 	this.subscribed = false;
-	
+
 	if(node.studentWork != null) {
 		this.states = node.studentWork; 
 	} else {
@@ -32,7 +32,7 @@ BRAINSTORM.prototype.prepareStarterSentence = function(){
 	if(this.content.starterSentence.display=='2'){
 		this.showStarter();
 	};
-	
+
 	if(this.content.starterSentence.display!='1'){
 		document.getElementById('starterParent').innerHTML = '';
 	} else {
@@ -50,19 +50,19 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 	var parent = frameDoc.getElementById('main');
 	var nextNode = frameDoc.getElementById('studentResponseDiv');
 	var old = frameDoc.getElementById('questionPrompt');
-	
+
 	if(old){
 		parent.removeChild(old);
 	};
-	
+
 	var newQuestion = createElement(frameDoc, 'div', {id: 'questionPrompt'});
 	newQuestion.innerHTML = this.content.assessmentItem.interaction.prompt;
-	
+
 	parent.insertBefore(newQuestion, nextNode);
-	
+
 	/* clear any lingering responses */
 	frameDoc.getElementById('studentResponse').value = '';
-	
+
 	//get the starterSentence from the xml if any
 	this.prepareStarterSentence();
 
@@ -74,7 +74,7 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 		 */
 		frameDoc.getElementById('studentResponse').value = this.states[this.states.length - 1].response;
 		this.showCannedResponses(frameDoc);
-		
+
 		for(var x=0; x<this.states.length; x++) {
 			this.addStudentResponse(frameDoc, this.states[x], this.states[x].response, this.node.view.getWorkgroupId(), "responsestates" + x, this.node.view);
 		}
@@ -87,22 +87,22 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 		 */
 		this.showCannedResponses(frameDoc);
 	};
-	
+
 	/* start the rich text editor if specified */
 	/* rte disabled for now. erroneous behavior saving/loading */
 	if(this.content.isRichTextEditorAllowed && false){
 		var context = this;
 		var loc = window.location.toString();
 		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
-		
+
 		$('#studentResponse').tinymce({
 			// Location of TinyMCE script
 			script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
-			
+
 			// General options
 			theme : "advanced",
 			plugins : "emotions",
-			
+
 			// Theme options
 			theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,emotions,|,forecolor,backcolor,|,formatselect,fontselect,fontsizeselect',
 			theme_advanced_buttons2: '',
@@ -114,14 +114,14 @@ BRAINSTORM.prototype.brainliteLoaded = function(frameDoc){
 			relative_urls: false,
 			remove_script_host: true,
 			document_base_url: vleLoc,
-			
+
 			setup: function(ed){
 				// store editor as prototype variable
 				context.richTextEditor = ed;
 			}
 		});
 	}
-	
+
 	this.node.view.eventManager.fire('contentRenderComplete', this.node.getNodeId(), this.node);
 };
 
@@ -153,26 +153,26 @@ BRAINSTORM.prototype.brainfullLoaded = function(frameDoc) {
 	var parent = frameDoc.getElementById('main');
 	var nextNode = frameDoc.getElementById('studentResponseDiv');
 	var old = frameDoc.getElementById('questionPrompt');
-	
+
 	if(old){
 		parent.removeChild(old);
 	};
-	
+
 	/*
 	 * create the element that will display the question for the student to
 	 * respond to
 	 */
 	var newQuestion = createElement(frameDoc, 'div', {id: 'questionPrompt'});
 	newQuestion.innerHTML = this.content.assessmentItem.interaction.prompt;
-	
+
 	parent.insertBefore(newQuestion, nextNode);
-	
+
 	/* clear any lingering responses */
 	frameDoc.getElementById('studentResponse').value = '';
-	
+
 	//get the starterSentence from the xml if any
 	this.prepareStarterSentence();
-	
+
 	if (this.states!=null && this.states.length > 0) {
 		/*
 		 * if the student has previously posted a response to this brainstorm
@@ -199,23 +199,22 @@ BRAINSTORM.prototype.brainfullLoaded = function(frameDoc) {
 		this.showClassmateResponses(frameDoc);
 		this.enableRefreshResponsesButton();
 	};
-	
+
 	/* start the rich text editor if specified */
 	/* rte disabled for now. erroneous behavior saving/loading */
-	if(this.content.isRichTextEditorAllowed && false){
+	if(this.content.isRichTextEditorAllowed){
 		var loc = window.location.toString();
 		var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
-		
 		$('#studentResponse').tinymce({
 			// Location of TinyMCE script
 			script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
-			
+
 			// General options
 			theme : "advanced",
-			plugins : "emotions",
-			
+			skin : "cirkuit",
+
 			// Theme options
-			theme_advanced_buttons1: 'bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,emotions,|,forecolor,backcolor,|,formatselect,fontselect,fontsizeselect',
+			theme_advanced_buttons1: 'bold,italic,importAsset',
 			theme_advanced_buttons2: '',
 			theme_advanced_buttons3: '',
 			theme_advanced_buttons4: '',
@@ -224,10 +223,22 @@ BRAINSTORM.prototype.brainfullLoaded = function(frameDoc) {
 			theme_advanced_statusbar_location : "bottom",
 			relative_urls: false,
 			remove_script_host: true,
-			document_base_url: vleLoc
+			document_base_url: vleLoc,
+			setup : function(ed) {
+				// Register import asset button
+				ed.addButton('importAsset', {
+					title : 'Use My Asset',
+					image : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/image_tools/img/image_alt.png',
+					onclick : function() {
+						var params = {};
+						params.tinymce = this;
+						eventManager.fire('viewStudentAssets',params);
+					}
+				});
+			}
 		});
 	} 
-	
+
 	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
 
@@ -278,7 +289,7 @@ function sortByTimestamp(object1, object2) {
 	//get the timestamp values
 	var timestamp1 = object1.timestamp;
 	var timestamp2 = object2.timestamp;
-	
+
 	/*
 	 * return a negative value if 1 comes before 2
 	 * return 0 if values are the same
@@ -296,42 +307,42 @@ function sortByTimestamp(object1, object2) {
  * @param handlerArgs the extra arguments used by this function
  */
 function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
-	
+
 	if(responseText) {
 		//the responseText should be json
-		
+
 		//parse the json
 		visits = $.parseJSON(responseText);
-		
+
 		//used for adding responses to the student UI
 		var frameDoc = handlerArgs.frameDoc;
 		var responsesParent = frameDoc.getElementById('responses');
-		
+
 		/*
 		 * the array that holds objects that represent a response. the
 		 * object contains a userId, responseText, timestamp 
 		 */
 		var responseStates = new Array();
-		
+
 		//loop through the visits
 		for(var x=0; x<visits.length; x++) {
 			//obtain a visit
 			var visitObj = visits[x];
-			
+
 			//create a node visit object from the json data
 			var nodeVisitObj = NODE_VISIT.prototype.parseDataJSONObj(visitObj.data, handlerArgs.vle);
-			
+
 			//set the id of the node visit object
 			nodeVisitObj.id = visitObj.stepWorkId;
-			
+
 			//obtain the userId
 			var userId = visitObj.userId;
-			
+
 			//loop through the states in the visit
 			for(var y=0; y<nodeVisitObj.nodeStates.length; y++) {
 				//obtain a state
 				var nodeState = nodeVisitObj.nodeStates[y];
-				
+
 				/*
 				 * create an object that will contain the userId, responseText,
 				 * and timestamp
@@ -341,26 +352,26 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 				responseState.responseText = nodeState.getStudentWork().response;
 				responseState.timestamp = nodeState.timestamp;
 				responseState.nodeVisitId = nodeVisitObj.id;
-				
+
 				//add the responseState object to the array
 				responseStates.push(responseState);
 			}
 		}
-		
+
 		//sort the array by timestamp using the function we wrote
 		responseStates.sort(sortByTimestamp);
-		
+
 		//loop through the responseStates
 		for(var z=0; z<responseStates.length; z++) {
 			//obtain a responseState
 			var responseState = responseStates[z];
-			
+
 			//obtain the userId and responseText
 			var userId = responseState.userId;
-			
+
 			//create a DOM id for the response we will add to the student's UI
 			var localResponseId = "response" + responsesParent.childNodes.length;
-			
+
 			//add the response to the UI
 			BRAINSTORM.prototype.addStudentResponse(frameDoc, responseState, responseState.responseText, userId, localResponseId, handlerArgs.vle);
 		}
@@ -370,19 +381,19 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 		 * dom object for the brainstorm html interface
 		 */
 		var frameDoc = handlerArgs.frameDoc;
-		
+
 		/*
 		 * retrieve the response(s) the student has posted during this current
 		 * node visit
 		 */ 
 		var recentResponses = handlerArgs.recentResponses;
-		
+
 		//the student's vle
 		var vle = handlerArgs.vle;
-		
+
 		//obtain the dom object that holds all the responses
 		var responsesParent = frameDoc.getElementById('responses');
-		
+
 		/*
 		 * node_visits are wrapped in a workgroup tag, the same workgroup may show
 		 * up multiple times in the xml if that workgroup posted multiple times
@@ -393,7 +404,7 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 		for(var x=0; x<workgroups.length; x++) {
 			//obtain the userId (same as workgroupId)
 			var userId = workgroups[x].attributes.getNamedItem("userId").nodeValue;
-			
+
 			//the data is the node state xml text
 			var data = workgroups[x].getElementsByTagName("data")[0];
 			if(data != null && data != "") {
@@ -411,16 +422,16 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 
 					//create a unique dom id for the response
 					var localResponseId = "response" + responsesParent.childNodes.length;
-					
+
 					//add the posted response to the user interface
 					BRAINSTORM.prototype.addStudentResponse(frameDoc, null, postText, userId, localResponseId, vle);
 				};
 			};
 		};
-		
+
 		BRAINSTORM.prototype.showRecentResponses(frameDoc, recentResponses, responsesParent, vle);
 	};
-	
+
 	// get inappropriate flags for this brainstorm and hide them from student view
 	BRAINSTORM.prototype.filterInappropriatePosts(handlerArgs.vle);
 };
@@ -435,16 +446,18 @@ BRAINSTORM.prototype.filterInappropriatePosts = function(vle){
 		if (responseText != null && responseText != "") {
 			var responseJSON = JSON.parse(responseText);
 			var flagArray = responseJSON.annotationsArray;
-			for (var i=0; i < flagArray.length; i++) {
-				var flagJSON = flagArray[i];
-				if (flagJSON.type == "inappropriateFlag" && flagJSON.value == "flagged") {
-					// replace student's response with generic message
-					$("div[bsNodeVisitId="+flagJSON.stepWorkId+"]").each(function() { $(this).find(".responseTextArea").html("This comment has been flagged as inappropriate.") });
+			if (typeof flagArray != "undefined") {
+				for (var i=0; i < flagArray.length; i++) {
+					var flagJSON = flagArray[i];
+					if (flagJSON.type == "inappropriateFlag" && flagJSON.value == "flagged") {
+						// replace student's response with generic message
+						$("div[bsNodeVisitId="+flagJSON.stepWorkId+"]").each(function() { $(this).find(".responseTextArea").html("This comment has been flagged as inappropriate.") });
+					}
 				}
 			}
 		}
 	};
-	
+
 	//make the request to get inappropriate flags made by class mates
 	vle.connectionManager.request(
 			'GET', 
@@ -470,12 +483,12 @@ BRAINSTORM.prototype.filterInappropriatePosts = function(vle){
 BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
 	/* get parent */
 	var responsesParent = frameDoc.getElementById('responses');
-	
+
 	/* remove any old children */
 	while(responsesParent.firstChild){
 		responsesParent.removeChild(responsesParent.firstChild);
 	};
-	
+
 	if (this.content.cannedResponses) {
 		/* create new response elements for each response in canned responses and append to parent */
 		for(var p=0;p<this.content.cannedResponses.length;p++){
@@ -492,7 +505,7 @@ BRAINSTORM.prototype.showCannedResponses = function(frameDoc){
 			responsesParent.appendChild(createElement(frameDoc, 'br'));
 		};
 	};
-	
+
 };
 
 /**
@@ -533,15 +546,12 @@ BRAINSTORM.prototype.save = function(frameDoc){
 	if (this.node.view.config.getConfigParam('mode') != "run") {
 		return;
 	};
-	if(this.richTextEditor){
-		frameDoc.getElementById('studentResponse').value = this.richTextEditor.getContent();
-	};
 	
-	var response = frameDoc.getElementById('studentResponse').value;
-	
+	var response = $('#studentResponse').val();
+
 	//obtain the dom object that holds all the responses
 	var responsesParent = frameDoc.getElementById('responses');
-	
+
 	/*
 	 * clear out all the responses from the last time we loaded
 	 * them so we do not have any duplicates. down below, we will 
@@ -550,32 +560,32 @@ BRAINSTORM.prototype.save = function(frameDoc){
 	while(responsesParent.firstChild){
 		responsesParent.removeChild(responsesParent.firstChild);
 	};
-	
+
 	if(response && response!=""){
 //		if(this.node.view){
-			var currentState = new BRAINSTORMSTATE(response);
-			eventManager.fire('pushStudentWork',currentState);
-			this.states.push(currentState);
-//			this.node.view.state.getCurrentNodeVisit().nodeStates.push(currentState);
+		var currentState = new BRAINSTORMSTATE(response);
+		eventManager.fire('pushStudentWork',currentState);
+		this.states.push(currentState);
+//		this.node.view.state.getCurrentNodeVisit().nodeStates.push(currentState);
 //		} else {
-//			var currentState = new BRAINSTORMSTATE(response);
-//			this.states.push(currentState);
+//		var currentState = new BRAINSTORMSTATE(response);
+//		this.states.push(currentState);
 //		};
-		
+
 		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>";
-		
+
 		this.recentResponses.push(response);
-		
+
 		//display the canned responses
 		this.showCannedResponses(frameDoc);
-		
+
 		//check if we are using a server backend
 		if(this.content.useServer) {
 			/*
 			 * we are using a server backend so we can retrieve other students'
 			 * responses
 			 */
-			
+
 			/*
 			 * post the current node visit to the db immediately without waiting
 			 * for the student to exit the step.
@@ -583,23 +593,23 @@ BRAINSTORM.prototype.save = function(frameDoc){
 			this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
 
 			this.showClassmateResponses(frameDoc);
-			
+
 			/*
 			 * check if we have already subscribed to the event otherwise the
 			 * callback will be called multiple times
 			 */
 			//if(!this.subscribed) {
-				/*
-				 * subscribe to the processPostResponseComplete event so we know when
-				 * we can request all the classmate responses. these classmate
-				 * responses also contain the current student using the vle which
-				 * is why we need to wait for the post from below to return
-				 * before calling showClassmateResponsesCallback()
-				 */
-				//this.node.view.eventManager.subscribe('processPostResponseComplete', this.showClassmateResponsesCallback, {frameDoc: frameDoc, bs: this});
-				//this.subscribed = true;
+			/*
+			 * subscribe to the processPostResponseComplete event so we know when
+			 * we can request all the classmate responses. these classmate
+			 * responses also contain the current student using the vle which
+			 * is why we need to wait for the post from below to return
+			 * before calling showClassmateResponsesCallback()
+			 */
+			//this.node.view.eventManager.subscribe('processPostResponseComplete', this.showClassmateResponsesCallback, {frameDoc: frameDoc, bs: this});
+			//this.subscribed = true;
 			//}
-			
+
 			/*
 			 * post the current node visit to the db immediately without waiting
 			 * for the student to exit the step.
@@ -610,7 +620,7 @@ BRAINSTORM.prototype.save = function(frameDoc){
 				this.addStudentResponse(frameDoc,this.states[x],this.states[x].response, this.node.view.getUserAndClassInfo().getWorkgroupId(), "responsestates" + x, this.node.view);
 			}
 		}
-		
+
 		//make the "check for new responses" button clickable
 		this.enableRefreshResponsesButton();
 	} else {
@@ -630,11 +640,11 @@ BRAINSTORM.prototype.save = function(frameDoc){
 BRAINSTORM.prototype.addStudentResponse = function(frameDoc, state, responseText, userId, localResponseId, vle) {
 	//obtain the dom object that holds all the responses
 	var responsesParent = frameDoc.getElementById('responses');
-	
+
 	//create the response and response title elements
 	var responseTextArea = createElement(frameDoc, 'div', {rows: '7', cols:  '80', disabled: true, id: localResponseId});
 	var responseTitle = createElement(frameDoc, 'div', {id: 'responseTitle_' + localResponseId});
-	
+
 	//set the html for the response title
 	responseTitle.innerHTML = 'Posted By: &nbsp;' + vle.getUserAndClassInfo().getUserNameByUserId(userId);
 	responseTitle.appendChild(createElement(frameDoc, 'br'));
@@ -644,7 +654,7 @@ BRAINSTORM.prototype.addStudentResponse = function(frameDoc, state, responseText
 	if (state != null && state.nodeVisitId != null) {
 		responseTitle.setAttribute('bsNodeVisitId', state.nodeVisitId);
 	}
-	
+
 	//set the student text in the response textarea
 	responseTextArea.innerHTML = responseText;	
 	responseTextArea.setAttribute('class', 'responseTextArea');
@@ -677,13 +687,13 @@ BRAINSTORM.prototype.injectBaseRef = function(content){
 		// no injection needed because base is already in the html
 		return content;
 	} else {
-	    // NATE!!
-	    var cbu = contentBaseUrl;
-	    if (this.node.ContentBaseUrl) {
-	        cbu = this.node.ContentBaseUrl;
-	    }
+		// NATE!!
+		var cbu = contentBaseUrl;
+		if (this.node.ContentBaseUrl) {
+			cbu = this.node.ContentBaseUrl;
+		}
 		var domain = 'http://' + window.location.toString().split("//")[1].split("/")[0];
-		
+
 		if(window.parent.vle){
 			var baseRefTag = "<base href='" + window.parent.vle.project.cbu + "'/>";
 		} else if(typeof vle!='undefined'){
@@ -691,7 +701,7 @@ BRAINSTORM.prototype.injectBaseRef = function(content){
 		} else {
 			return content;
 		};
-		
+
 		var headPosition = content.indexOf("<head>");
 		var newContent = content.substring(0, headPosition + 6);  // all the way up until ...<head>
 		newContent += baseRefTag;
@@ -710,14 +720,14 @@ BRAINSTORM.prototype.showStarter = function(){
 
 		//get the response box element
 		var responseBox = document.getElementById('studentResponse');
-		
+
 		//update normally if rich text editor is not available
 		if(!this.richTextEditor){
 			responseBox.value = this.content.starterSentence.sentence + '\n\n' + responseBox.value;
 		} else {//otherwise, we need to set it in the editor instance
 			this.richTextEditor.setContent(this.content.starterSentence.sentence + '<br/><br/>' + this.richTextEditor.getContent());
 		};
-		
+
 		//link clicked, so remove it
 		document.getElementById('starterParent').innerHTML = '';
 	} else {
@@ -736,10 +746,10 @@ BRAINSTORM.prototype.refreshResponses = function(frameDoc) {
 	 * just append to the div
 	 */
 	this.clearResponses();
-	
+
 	//show the canned responses
 	this.showCannedResponses(frameDoc);
-	
+
 	//check if we are using a server
 	if(this.content.useServer) {
 		//show the classmate responses by requesting them from the server

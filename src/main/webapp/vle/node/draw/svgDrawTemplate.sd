@@ -14,7 +14,8 @@
 		"rectangle":true,
 		"ellipse":true,
 		"polygon":true,
-		"text":true
+		"text":true,
+		"importStudentAsset":true
 	},
    "type": "SVGDraw",
    "excelExportStringTemplate": "{data}"
