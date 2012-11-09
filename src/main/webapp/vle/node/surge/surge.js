@@ -16,6 +16,7 @@ function Surge(node) {
 	};
 	
 	this.showTopScore = true;
+	this.workToImport = [];
 };
 
 //identify the Flash applet in the DOM - Provided by Adobe on a section on their site about the AS3 ExternalInterface usage.
@@ -185,13 +186,21 @@ Surge.prototype.render = function() {
 	//the accumulated score among a family tag of steps
 	var acuumulatedScore = 0;
 	
+	var workToImport = [];
+	
 	//process the tag maps if we are not in authoring mode
 	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
 		var tagMapResults = this.processTagMaps();
 		
 		//get the result values
 		enableStep = tagMapResults.enableStep;
 		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
+	if(workToImport != null) {
+		this.workToImport = workToImport;
 	}
 	
 	if(enableStep) {
@@ -231,13 +240,15 @@ Surge.prototype.render = function() {
 /**
  * Process the tag maps and obtain the results
  * @return an object containing the results from processing the
- * tag maps. the object contains two fields
+ * tag maps. the object contains three fields
  * enableStep
  * message
+ * workToImport
  */
 Surge.prototype.processTagMaps = function() {
 	var enableStep = true;
 	var message = '';
+	var workToImport = [];
 	
 	//the tag maps
 	var tagMaps = this.node.tagMaps;
@@ -257,7 +268,13 @@ Surge.prototype.processTagMaps = function() {
 				var functionName = tagMapObject.functionName;
 				var functionArgs = tagMapObject.functionArgs;
 				
-				if(functionName == "checkScore") {
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkScore") {
 					//we will check the score for the steps that are tagged
 					
 					//get the result of the check
@@ -282,7 +299,7 @@ Surge.prototype.processTagMaps = function() {
 					//we will check that all the steps that are tagged have been completed
 					
 					//get the result of the check
-					var result = checkCompletedForTags(this, tagName, functionArgs);
+					var result = this.node.checkCompleted(tagName, functionArgs);
 					enableStep = enableStep && result.pass;
 					
 					if(message == '') {
@@ -304,7 +321,8 @@ Surge.prototype.processTagMaps = function() {
 	//put the variables in an object so we can return multiple variables
 	var returnObject = {
 		enableStep:enableStep,
-		message:message
+		message:message,
+		workToImport:workToImport
 	};
 	
 	return returnObject;
@@ -343,6 +361,13 @@ function gameLoaded() {
 	
 	if (surge.getLatestState() != null) {
 		lastState = JSON.stringify(surge.getLatestState().response);
+	} else if(surge.workToImport != null && surge.workToImport.length > 0) {
+		/*
+		 * the student has not done any work for this step yet and
+		 * there is work to import so we will load the work to import
+		 */
+		lastState = surge.workToImport[surge.workToImport.length - 1];
+		lastState = JSON.stringify(lastState);
 	}
 	
 	// override it for now

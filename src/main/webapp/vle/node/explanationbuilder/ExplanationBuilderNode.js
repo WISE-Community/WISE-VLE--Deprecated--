@@ -29,6 +29,11 @@ ExplanationBuilderNode.authoringToolName = "Explanation Builder";
 
 ExplanationBuilderNode.authoringToolDescription = "Students use ideas from their Idea Basket to generate a response"; //xTODO: rename TemplateNode
 
+ExplanationBuilderNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * 
@@ -170,7 +175,7 @@ ExplanationBuilderNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -182,9 +187,13 @@ ExplanationBuilderNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+ExplanationBuilderNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//get the step work id
 	var stepWorkId = nodeVisit.id;
+	
+	if(childDivIdPrefix == null) {
+		childDivIdPrefix = '';
+	}
 	
 	//create an ExplanationBuilder object so that we can retrieve the prompt an background
 	var explanationBuilder = new ExplanationBuilder(this, this.view);
@@ -233,24 +242,24 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	 */ 
 	backgroundImage.onload = function() {
 		//set the dimensions of the div that contains the background image
-		$('#' + explanationBuilderIdeasDivId).css('width', this.width);
-		$('#' + explanationBuilderIdeasDivId).css('height', this.height);
+		$(explanationBuilderIdeasDiv).css('width', this.width);
+		$(explanationBuilderIdeasDiv).css('height', this.height);
 	};
 	
 	//set the path of the background image
 	backgroundImage.src = backgroundPath;
 	
 	//add the explanationBuilderContainerDiv to the grading div
-	$('#' + divId).append(explanationBuilderContainerDiv);
+	displayStudentWorkDiv.append(explanationBuilderContainerDiv);
 	
 	//add the explanationBuilderIdeasDiv to the explanationBuilderContainerDiv
-	$('#' + explanationBuilderContainerDivId).append(explanationBuilderIdeasDiv);
+	$(explanationBuilderContainerDiv).append(explanationBuilderIdeasDiv);
 
 	if(backgroundPath != null) {
 		//set the background attributes
-		$('#' + explanationBuilderIdeasDivId).css('background-image','url(' + backgroundPath + ')');
-		$('#' + explanationBuilderIdeasDivId).css('background-repeat','no-repeat');
-		$('#' + explanationBuilderIdeasDivId).css('background-position','left top');		
+		$(explanationBuilderIdeasDiv).css('background-image','url(' + backgroundPath + ')');
+		$(explanationBuilderIdeasDiv).css('background-repeat','no-repeat');
+		$(explanationBuilderIdeasDiv).css('background-position','left top');		
 	}
 	
 	//get the idea basket for this student
@@ -298,13 +307,13 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 			+ id + '_' + stepWorkId + '" style="position:absolute; left:' + left + 'px; top:' + top + 'px; background-color:' + currColor + '">' + text + '</div>';
 		
 		//add the idea div to the explanationBuilderIdeasDiv
-		$('#' + explanationBuilderIdeasDivId).append(explanationIdeaHtml);
+		$(explanationBuilderIdeasDiv).append(explanationIdeaHtml);
 	}
 	
 	//create a div to display the student answer
 	var explanationBuilderAnswerDivId = childDivIdPrefix + 'explanationBuilderAnswerDiv_' + stepWorkId;
 	var answerDiv = createElement(document, 'div', {id: explanationBuilderAnswerDivId});
-	$('#' + divId).append(answerDiv);
+	displayStudentWorkDiv.append(answerDiv);
 
 	//replace \n with <br>
 	answer = this.view.replaceSlashNWithBR(answer);
@@ -315,7 +324,7 @@ ExplanationBuilderNode.prototype.renderGradingView = function(divId, nodeVisit, 
 	 */
 	answer = "<br>" + answer;
 	
-	$('#' + explanationBuilderAnswerDivId).html(answer);
+	$(answerDiv).html(answer);
 };
 
 /**
@@ -441,6 +450,16 @@ ExplanationBuilderNode.prototype.canExit = function(){
 		}
 	}
 	return true;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+ExplanationBuilderNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = ExplanationBuilderNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 /*

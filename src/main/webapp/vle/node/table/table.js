@@ -112,6 +112,18 @@ Table.prototype.populatePreviousWork = function() {
  * the .html file for this step (look at template.html).
  */
 Table.prototype.render = function() {
+	var workToImport = null;
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
 	//check if we need to hide everything below the table
 	if(this.content.hideEverythingBelowTable) {
 		this.hideEverythingBelowTable();
@@ -133,6 +145,14 @@ Table.prototype.render = function() {
 	
 	//get the latest state
 	var latestState = this.getLatestState();
+	
+	if(latestState == null && workToImport != null && workToImport.length > 0) {
+		/*
+		 * the student has not done any work on this step yet and there
+		 * is specified work to import so we will use the import work
+		 */
+		latestState = workToImport[workToImport.length - 1];
+	}
 	
 	//loop through all the rows
 	for(var y=0; y<this.content.numRows; y++) {
@@ -205,9 +225,6 @@ Table.prototype.render = function() {
 	//get the starter sentence
 	var starterSentence = this.content.starterSentence;
 	
-	//load any previous responses the student submitted for this step
-	var latestState = this.getLatestState();
-	
 	if(latestState != null) {
 		/*
 		 * get the response from the latest state. the response variable is
@@ -238,7 +255,7 @@ Table.prototype.render = function() {
 		//graphing is enabled so we will show the graphing options
 		this.displayGraphOptions();
 		
-		if(this.isGraphPreviouslyRendered()) {
+		if(this.isGraphPreviouslyRendered(latestState)) {
 			//populate the graph since the student previously rendered it
 			this.makeGraph();
 			
@@ -900,31 +917,34 @@ Table.prototype.getColumnHeaderByIndex = function(index, tableData) {
  * will be passed in when called from the grading tool. the student vle
  * does not need to provide this argument.
  */
-Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
-	if(divId == null) {
+Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRenderGradingView) {
+	if(graphDiv == null) {
 		//the default div id to make the graph in
-		divId = 'graphDiv';
+		graphDiv = $('#graphDiv');
 		
 		//show the graph div that will display the graph
-		$('#' + divId).show();
+		graphDiv.show();
 	}
+	
+	//get the graph div id
+	var divId = graphDiv.attr('id');
 	
 	//get the mode e.g. run, grading, authoring
 	var mode = this.view.config.getConfigParam('mode');
 	
 	//clear the graph div id to remove any existing graph
-	$('#' + divId).html('');
+	graphDiv.html('');
 	
-	/*
-	 * get the table data in the format google wants it in.
-	 * we store it in Array[x][y] and google wants it in
-	 * Array[y][x].
-	 */
-	var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
-
 	var data = null;
 	
 	try {
+		/*
+		 * get the table data in the format google wants it in.
+		 * we store it in Array[x][y] and google wants it in
+		 * Array[y][x].
+		 */
+		var dataInGoogleFormat = this.getDataInGoogleFormat(tableData, graphOptions);
+		
 		//create the data
 		data = google.visualization.arrayToDataTable(dataInGoogleFormat);
 	} catch(e) {
@@ -932,7 +952,7 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 		this.displayGraphMessage(' <font color="red">Error: Data in table is invalid, please fix and try again</font>');
 	}
 	
-	if((mode == null || mode == 'run') && this.content.graphOptions != null && this.content.graphOptions.graphWhoSetAxesLimitsType == 'studentSelect') {
+	if((mode == null || mode == 'run') && !isRenderGradingView && this.content.graphOptions != null && this.content.graphOptions.graphWhoSetAxesLimitsType == 'studentSelect') {
 		/*
 		 * the student is supposed to set the axes limits values so
 		 * we will check whether the student has entered valid values
@@ -959,13 +979,13 @@ Table.prototype.makeGraph = function(divId, tableData, graphOptions) {
 			var graphType = this.content.graphOptions.graphType;
 
 			if(graphType == 'scatterPlot') {
-				chart = new google.visualization.ScatterChart(document.getElementById(divId));
+				chart = new google.visualization.ScatterChart(graphDiv[0]);
 			} else if(graphType == 'lineGraph') {
-				chart = new google.visualization.LineChart(document.getElementById(divId));
+				chart = new google.visualization.LineChart(graphDiv[0]);
 			} else if(graphType == 'barGraph') {
-				chart = new google.visualization.ColumnChart(document.getElementById(divId));
+				chart = new google.visualization.ColumnChart(graphDiv[0]);
 			} else if(graphType == 'pieGraph') {
-				chart = new google.visualization.PieChart(document.getElementById(divId));
+				chart = new google.visualization.PieChart(graphDiv[0]);
 			}
 		}
 
@@ -1490,12 +1510,17 @@ Table.prototype.getGraphOptions = function() {
 
 /**
  * Check if the graph was previously rendered
+ * @latestState the latest node state for this step
+ * @return whether the student previously made the graph with
+ * the latest table data
  */
-Table.prototype.isGraphPreviouslyRendered = function() {
+Table.prototype.isGraphPreviouslyRendered = function(latestState) {
 	var graphPreviouslyRendered = false;
 	
-	//get the latest state
-	var latestState = this.getLatestState();
+	if(latestState == null) {
+		//get the latest state
+		latestState = this.getLatestState();		
+	}
 	
 	if(latestState != null) {
 		if(latestState.graphRendered != null) {
@@ -1519,6 +1544,63 @@ Table.prototype.displayGraphMessage = function(message) {
  */
 Table.prototype.clearGraphMessage = function() {
 	$('#graphMessageDiv').html('');
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+Table.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
 };
 
 //used to notify scriptloader that this script has finished loading

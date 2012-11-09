@@ -8,6 +8,11 @@ MatchSequenceNode.prototype.parent = Node.prototype;
 MatchSequenceNode.authoringToolName = "Match & Sequence";
 MatchSequenceNode.authoringToolDescription = "Students drag and drop choices into boxes";
 
+MatchSequenceNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -40,14 +45,14 @@ MatchSequenceNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
  * @param workgroupId the id of the workgroup this work belongs to
  */
-MatchSequenceNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create the match sequence object so we can reference the content later
 	var matchSequence = new MS(this, this.view);
 	
@@ -96,7 +101,17 @@ MatchSequenceNode.prototype.renderGradingView = function(divId, nodeVisit, child
 		text += "Auto-Graded Score: " + state.score + "/" + maxScore;
 	}
 	
-	$('#' + divId).append(text);
+	displayStudentWorkDiv.append(text);
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+MatchSequenceNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = MatchSequenceNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 MatchSequenceNode.prototype.getHTMLContentTemplate = function() {

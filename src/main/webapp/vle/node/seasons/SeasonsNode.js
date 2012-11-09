@@ -158,7 +158,7 @@ SeasonsNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  *
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -171,7 +171,7 @@ SeasonsNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-SeasonsNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+SeasonsNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
    * Get the latest student state object for this step
    * TODO: rename seasonsState to reflect your new step type
@@ -199,7 +199,7 @@ SeasonsNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
 	}
 
 	//put the student work into the div
-	$('#' + divId).html(studentWork);
+	displayStudentWorkDiv.html(studentWork);
 };
 
 /**

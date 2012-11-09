@@ -286,8 +286,11 @@ View.prototype.displayFlaggedWorkForNodeId = function(nodeId) {
 					
 					var workgroupId = parseInt(flagForNodeId.toWorkgroup);
 					
+					var divId = "flaggedStudentWorkDiv_" + nodeVisit.id;
+					var studentWorkDiv = $('#' + divId);
+					
 					//render the work into the div to display it
-					node.renderGradingView("flaggedStudentWorkDiv_" + nodeVisit.id, nodeVisit, "flag_", workgroupId);					
+					node.renderGradingView(studentWorkDiv, nodeVisit, "flag_", workgroupId);					
 				}
 			}
 		}
@@ -435,8 +438,11 @@ View.prototype.displayShowAllWork = function() {
 				
 				//check if the student has any work for this step
 				if(nodeVisit != null) {
+					//get the div to display the work in
+					var studentWorkDiv = $("#latestWork_" + nodeVisit.id);
+					
 					//render the work into the div to display it
-					node.renderGradingView("latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);
+					node.renderGradingView(studentWorkDiv, nodeVisit, "", workgroupId);
 					
 					if($("#new_latestWork_" + nodeVisit.id).length != 0) {
 						/*
@@ -445,7 +451,7 @@ View.prototype.displayShowAllWork = function() {
 						 * score or comment and we need to show the work and feedback
 						 * for that step at the the top of the show all work
 						 */
-						node.renderGradingView("new_latestWork_" + nodeVisit.id, nodeVisit, "", workgroupId);
+						node.renderGradingView(studentWorkDiv, nodeVisit, "", workgroupId);
 					}
 				}
 			}

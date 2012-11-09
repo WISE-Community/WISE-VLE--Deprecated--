@@ -17,6 +17,8 @@ SurgeNode.authoringToolDescription = "This is a generic step only used by develo
  * The tag map functions that are available for this step type
  */
 SurgeNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]},
 	{functionName:'checkCompleted', functionArgs:[]},
 	{functionName:'checkScore', functionArgs:['Min Score']},
 	{functionName:'getAccumulatedScore', functionArgs:[]}
@@ -92,7 +94,7 @@ SurgeNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -104,7 +106,7 @@ SurgeNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-SurgeNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+SurgeNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	var gradingText = "";
 	// Get all the trials (ie states) for this nodevisit
 	var nodeStates = nodeVisit.nodeStates;
@@ -127,7 +129,7 @@ SurgeNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 		}
 
 		//put the student work into the div
-		$('#' + divId).html(gradingText);
+		displayStudentWorkDiv.html(gradingText);
 	}
 };
 
@@ -194,36 +196,6 @@ SurgeNode.prototype.getTagMapFunctions = function() {
 	var tagMapFunctions = SurgeNode.tagMapFunctions;
 	
 	return tagMapFunctions;
-};
-
-/**
- * Get a tag map function given the function name
- * @param functionName
- * @return 
- */
-SurgeNode.prototype.getTagMapFunctionByName = function(functionName) {
-	var fun = null;
-	
-	//get all the tag map function for this step type
-	var tagMapFunctions = this.getTagMapFunctions();
-	
-	//loop through all the tag map functions
-	for(var x=0; x<tagMapFunctions.length; x++) {
-		//get a tag map function
-		var tagMapFunction = tagMapFunctions[x];
-		
-		if(tagMapFunction != null) {
-			
-			//check if the function name matches
-			if(functionName == tagMapFunction.functionName) {
-				//the function name matches so we have found what we want
-				fun = tagMapFunction;
-				break;
-			}			
-		}
-	};
-	
-	return fun;
 };
 
 //Add this node to the node factory so the vle knows it exists.

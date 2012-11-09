@@ -68,6 +68,8 @@ function ASSESSMENTLIST(node, view) {
 		//tell the node that the student has completed it
 		this.node.setCompleted();
 	}
+	
+	this.workToImport = [];
 
 	this.stateChanged = false;
 };
@@ -301,6 +303,20 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
  * Render the AssessmentList
  */
 ASSESSMENTLIST.prototype.render = function() {
+	var enableStep = true;
+	var message = '';
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		this.workToImport = tagMapResults.workToImport;
+	}
+	
 	//create the submit button
 	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" i18n="submit" value="Submit the Questionnaire"></input>');
 	
@@ -408,7 +424,7 @@ ASSESSMENTLIST.prototype.render = function() {
 	if(!this.content.isLockAfterSubmit) {
 		this.setSaveUnavailable();
 	}
-	console.log('firing contentrender complete from al.js');
+	
 	this.node.view.eventManager.fire('contentRenderComplete', this.node.id, this.node);
 };
 
@@ -762,8 +778,18 @@ ASSESSMENTLIST.prototype.isSubmitted = function() {
  * Returns last saved response for given assessment part.
  */
 ASSESSMENTLIST.prototype.getLastSavedResponse = function(assessmentJSON) {
+	var latestState = null;
+	
 	if (this.states && this.states.length > 0) {
-		var latestState = this.states[this.states.length-1];
+		latestState = this.states[this.states.length-1];
+	} else {
+		//there is no previous work so we will check if there is any work to import
+		if(this.workToImport != null && this.workToImport.length > 0) {
+			latestState = this.workToImport[this.workToImport.length - 1];
+		}
+	}
+	
+	if(latestState != null) {
 		for (var i=0; i<latestState.assessments.length; i++) {
 			if (latestState.assessments[i].id == assessmentJSON.id) {
 				//check if the response is null
@@ -780,7 +806,8 @@ ASSESSMENTLIST.prototype.getLastSavedResponse = function(assessmentJSON) {
 				}
 			};
 		};
-	};
+	}
+	
 	return null;
 };
 
@@ -904,6 +931,76 @@ ASSESSMENTLIST.prototype.replaceSlashNWithBR = function(response) {
 	
 	//replace \n with <br>
 	return responseString.replace(/\n/g, '<br>');
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+ASSESSMENTLIST.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = this.node.checkCompleted(tagName, functionArgs);
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
 };
 
 //used to notify scriptloader that this script has finished loading

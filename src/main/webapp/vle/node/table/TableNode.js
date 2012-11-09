@@ -29,6 +29,11 @@ TableNode.authoringToolName = "Table";
 
 TableNode.authoringToolDescription = "Students fill out a table"; //TODO: rename TemplateNode
 
+TableNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * 
@@ -152,7 +157,7 @@ TableNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -165,9 +170,12 @@ TableNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create the table object so we can reference the content later
 	var table = new Table(this, this.view);
+	
+	//get the div id
+	var divId = displayStudentWorkDiv.attr('id');
 	
 	/*
 	 * Get the latest student state object for this step
@@ -184,7 +192,9 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	var response = tableState.response;
 	response = this.view.replaceSlashNWithBR(response);
 	
-	if(childDivIdPrefix != null && childDivIdPrefix != '') {
+	if(childDivIdPrefix == null) {
+		childDivIdPrefix = '';
+	} else if(childDivIdPrefix != null && childDivIdPrefix != '') {
 		//add an _ after the child prefix if the child prefix is not empty string
 		childDivIdPrefix += '_';
 	}
@@ -215,8 +225,8 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 	//div to display the student response
 	var tableResponseDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableResponseDiv_' + stepWorkId});
 	
-	$('#' + divId).append(tableTableDataDiv);
-	$('#' + divId).append(newLineDiv);
+	displayStudentWorkDiv.append(tableTableDataDiv);
+	displayStudentWorkDiv.append(newLineDiv);
 	
 	if(table.isGraphingEnabled() && tableState.graphRendered) {
 		var graphOptions = tableState.graphOptions;
@@ -230,29 +240,29 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 			 */
 			
 			//add the graph options div
-			$('#' + divId).append(tableGraphOptionsDiv);
+			displayStudentWorkDiv.append(tableGraphOptionsDiv);
 			
 			//display a new line
-			$('#' + divId).append(newLine2Div);
+			displayStudentWorkDiv.append(newLine2Div);
 		}
 		
 		//add the graph div
-		$('#' + divId).append(graphDiv);
+		displayStudentWorkDiv.append(graphDiv);
 		
 		//display a loading message in the div, this will be overwritten by the graph
-		$('#' + graphDiv.id).html("Loading...");
+		$(graphDiv).html("Loading...");
 		
 		//display a new line
-		$('#' + divId).append(newLine3Div);
+		displayStudentWorkDiv.append(newLine3Div);
 	}
 
-	$('#' + divId).append(tableResponseDiv);
+	displayStudentWorkDiv.append(tableResponseDiv);
 
 	//add the table
-	$('#' + tableTableDataDiv.id).html(tableState.getTableHtml());
+	$(tableTableDataDiv).html(tableState.getTableHtml());
 	
 	//newline to separate the graph from the response
-	$('#' + newLineDiv.id).append('<br>');
+	$(newLineDiv).append('<br>');
 	
 	if(table.isGraphingEnabled() && tableState.graphRendered) {
 		//get the graph options
@@ -282,7 +292,7 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 							var columnHeader = table.getColumnHeaderByIndex(columnIndex, tableState.tableData);
 							
 							//display the axis and the column header for that axis
-							$('#' + tableGraphOptionsDiv.id).append(columnAxis + ': ' + columnHeader + '<br>');
+							$(tableGraphOptionsDiv).append(columnAxis + ': ' + columnHeader + '<br>');
 						}
 					}
 				}
@@ -299,20 +309,22 @@ TableNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 					var yMax = axesLimits.yMax;
 					
 					//display the min/max values
-					$('#' + tableGraphOptionsDiv.id).append('X Min: ' + xMin + '<br>');
-					$('#' + tableGraphOptionsDiv.id).append('X Max: ' + xMax + '<br>');
-					$('#' + tableGraphOptionsDiv.id).append('Y Min: ' + yMin + '<br>');
-					$('#' + tableGraphOptionsDiv.id).append('Y Max: ' + yMax + '<br>');
+					$(tableGraphOptionsDiv).append('X Min: ' + xMin + '<br>');
+					$(tableGraphOptionsDiv).append('X Max: ' + xMax + '<br>');
+					$(tableGraphOptionsDiv).append('Y Min: ' + yMin + '<br>');
+					$(tableGraphOptionsDiv).append('Y Max: ' + yMax + '<br>');
 				}
 			}
 		}
 		
+		var isRenderGradingView = true;
+		
 		//display the graph in the div
-		table.makeGraph(graphDiv.id, tableState.tableData, tableState.graphOptions);
+		table.makeGraph($(graphDiv), tableState.tableData, tableState.graphOptions, isRenderGradingView);
 	}
 	
 	//add the response
-	$('#' + tableResponseDiv.id).html(response);
+	$(tableResponseDiv).html(response);
 };
 
 /**
@@ -348,6 +360,16 @@ TableNode.prototype.getStudentWorkHtmlView = function(work) {
 	var html = table.getStudentWorkHtmlView(work);
 	
 	return html;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+TableNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = TableNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 /*
