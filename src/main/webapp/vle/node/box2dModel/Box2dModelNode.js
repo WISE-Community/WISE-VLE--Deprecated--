@@ -113,6 +113,51 @@ Box2dModelNode.prototype.translateStudentWork = function(studentWork) {
 };
 
 /**
+ * Sets up a WorkOnXConstraint before rendering so that students will
+ * not be able to navigate to any other step before completing work on
+ * this step if that was specified in the content.
+ * 
+ * @param contentPanel
+ * @param studentWork
+ */
+Box2dModelNode.prototype.render = function(contentPanel,studentWork, disable) {
+	// add constraints
+	this.addConstraints();
+	
+	/* call super */
+	Node.prototype.render.call(this, contentPanel, studentWork, disable);
+};
+
+
+/**
+ * Adds a new constraint for this open response if the content specifies that
+ * student must complete work before exiting to another step
+ */
+Box2dModelNode.prototype.addConstraints = function() {
+	
+	if (true){
+		this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
+	}
+		
+};
+
+
+	
+
+/**
+ * Override of Node.processStateConstraints
+ * Checks to see if the work was completed. If it was, then no constraint is needed.
+ * If not, then we need to add a constraint.
+ */
+Box2dModelNode.prototype.processStateConstraints = function() {
+	if(!this.isCompleted()){
+		this.addConstraints();
+	}
+};
+
+
+
+/**
  * This function is called when the student exits the step. It is mostly
  * used for error checking.
  * 
