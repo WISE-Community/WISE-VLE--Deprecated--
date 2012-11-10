@@ -227,39 +227,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	evt.type = type;
 	evt.args = args;
 	var state = obj.save(evt);
-	var fevt = obj.flattenObject(state.response.evt,"",{});
-	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null) obj.feedbackManager.checkEvent(fevt);
+	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null) obj.feedbackManager.checkEvent(state.response.evt);
 }
 
-Box2dModel.prototype.flattenObject = function(obj, prefix, returnObj) {
-	if (typeof obj == "object"){
-		if (Object.prototype.toString.call(obj) == "[object Object]"){
-			if (prefix.length > 0) prefix += ".";
-			for (var key in obj){
-				if (typeof obj[key] != "object"){
-					returnObj[prefix+key] = obj[key];
-				} else {
-					returnObj = this.flattenObject(obj[key], prefix+key, returnObj);
-				}	
-			} 
-			return returnObj;
-		} else if (Object.prototype.toString.call(obj) == "[object Array]"){
-			
-			for (var i = 0; i < obj.length; i++){
-				if (typeof obj[i] != "object"){
-					returnObj[prefix+"["+i+"]"] = obj[i];
-				} else {
-					returnObj = this.flattenObject(obj[i], prefix+"["+i+"]", returnObj);
-				}	
-			}
-			
-			return returnObj;
-		}
-	} else {
-		return returnObj;
-	}
-
-};
 
 
 /**

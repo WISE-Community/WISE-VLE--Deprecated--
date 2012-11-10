@@ -69,6 +69,7 @@
   
     var p = FeedbackManager.prototype;    
    
+
     /**
     *   A new event is passed to checkEvent to search for any matching feedbackEvents.
     *   The event should be an object with all of its accessible properties on the top-level.
@@ -76,6 +77,8 @@
     *     if properties are nested in objects, a "flattening" function should be applied first
     */
     p.checkEvent = function (evt){
+        evt = this.flattenObject(evt,"",{});
+
         evt.id = evt.type+"_"+this.eventCount;
         // in case the time was not defined.
         if (typeof evt.time === "undefined"){var d = new Date(); evt.time = d.getTime();}
@@ -116,6 +119,54 @@
         }
         return false;
     }
+
+    /**
+    *   If the properties in the event object are to be used in expression they must be placed
+    *   on the top level of the object.  This function recurses through the nested hierarchy
+    *   and constructs a path string representing the original nesting.
+    *   For example: 
+    *   {
+    *        "ObjectProperties":
+    *        {
+    *            "id":1,
+    *            "size":5
+    *        }
+    *    }
+    *    will become:
+    *    {
+    *        "ObjectProperties.id":1,
+    *        "ObjectProperties.size":5
+    *    }
+    */
+    p.flattenObject = function(obj, prefix, returnObj) {
+        if (typeof obj == "object"){
+            if (Object.prototype.toString.call(obj) == "[object Object]"){
+                if (prefix.length > 0) prefix += ".";
+                for (var key in obj){
+                    if (typeof obj[key] != "object"){
+                        returnObj[prefix+key] = obj[key];
+                    } else {
+                        returnObj = this.flattenObject(obj[key], prefix+key, returnObj);
+                    }   
+                } 
+                return returnObj;
+            } else if (Object.prototype.toString.call(obj) == "[object Array]"){
+                
+                for (var i = 0; i < obj.length; i++){
+                    if (typeof obj[i] != "object"){
+                        returnObj[prefix+"["+i+"]"] = obj[i];
+                    } else {
+                        returnObj = this.flattenObject(obj[i], prefix+"["+i+"]", returnObj);
+                    }   
+                }
+                
+                return returnObj;
+            }
+        } else {
+            return returnObj;
+        }
+
+    };
 
     /**
     *   Walks through the feedback events array in the json file looking for constaints that are
