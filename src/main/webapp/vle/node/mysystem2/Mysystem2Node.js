@@ -13,6 +13,12 @@ Mysystem2Node.authoringToolName = "My System 2";
  */
 Mysystem2Node.authoringToolDescription = "This is a generic step only used by developers";
 
+
+Mysystem2Node.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * 
@@ -86,7 +92,7 @@ Mysystem2Node.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -98,7 +104,7 @@ Mysystem2Node.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-Mysystem2Node.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
 	 * get the step work id from the node visit in case we need to use it in
 	 * a DOM id. we don't use it in this case but I have retrieved it in case
@@ -106,6 +112,7 @@ Mysystem2Node.prototype.renderGradingView = function(divId, nodeVisit, childDivI
 	 * how one might use it.
 	 */
 	var stepWorkId = nodeVisit.id;
+	var divId = displayStudentWorkDiv.attr('id');
 
 	// get content
     var contentString = this.getContent().getContentString();
@@ -227,7 +234,7 @@ Mysystem2Node.prototype.renderGradingView = function(divId, nodeVisit, childDivI
     	}
     }
     
-	$('#' + divId).html(divContent);
+    displayStudentWorkDiv.html(divContent);
 };
 
 /**
@@ -247,6 +254,16 @@ Mysystem2Node.prototype.getHTMLContentTemplate = function() {
  */
 Mysystem2Node.prototype.canSpecialExport = function() {
 					 return true;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+Mysystem2Node.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = Mysystem2Node.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 //Add this node to the node factory so the vle knows it exists.

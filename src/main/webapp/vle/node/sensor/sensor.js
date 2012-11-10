@@ -175,6 +175,29 @@ function SENSOR(node) {
  * Render the sensor step
  */
 SENSOR.prototype.render = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
+	if(this.states != null && this.states.length == 0 && workToImport != null && workToImport.length > 0) {
+		/*
+		 * the student has not done any work for this step and
+		 * there is work to import so we will use the work to import
+		 */
+		this.sensorState = workToImport[workToImport.length - 1];
+	}
+	
 	if(this.content.requirePredictionBeforeEnter && this.node.prevWorkNodeIds.length != 0 && this.sensorState.predictionArray.length == 0) {
 		/*
 		 * this step requires a prediction before opening, there is an associated prevWorkNodeId
@@ -779,19 +802,22 @@ SENSOR.prototype.getResponseFromSensorState = function() {
  * @param graphDivId the id of the div we will use to plot the graph
  * @param graphCheckBoxesDivId the id of the div we will put the filter check boxes in
  */
-SENSOR.prototype.plotData = function(graphDivId, graphCheckBoxesDivId) {
-	if(graphDivId == null) {
-		//this will be the default graphDivId if none is provided as an argument
-		graphDivId = this.graphDivId;
+SENSOR.prototype.plotData = function(graphDiv, graphCheckBoxesDiv) {
+	if(graphDiv == null) {
+		//this will be the default graphDiv if none is provided as an argument
+		graphDiv = $('#' + this.graphDivId);
 	}
 	
 	//set the graph div id so it can be accessed later by other functions
-	this.graphDivId = graphDivId;
+	this.graphDivId = graphDiv.attr('id');
 	
-	if(graphCheckBoxesDivId == null) {
+	if(graphCheckBoxesDiv == null) {
 		//this will be the default graphCheckBoxesDivId if none is provided as an argument
-		graphCheckBoxesDivId = "graphCheckBoxesDiv";
+		graphCheckBoxesDiv = $("#graphCheckBoxesDiv");
 	}
+	
+	//get the id for the checkboxes div
+	var graphCheckBoxesDivId = graphCheckBoxesDiv.attr('id');
 	
 	//set the graph check boxes div id so it can be accessed later by other functions
 	this.graphCheckBoxesDivId = graphCheckBoxesDivId;
@@ -842,7 +868,7 @@ SENSOR.prototype.plotData = function(graphDivId, graphCheckBoxesDivId) {
 	    this.globalDataSets = dataSets;
 	    
 		//plot the data onto the graph and create the filter check box options
-	    this.setupPlotFilter();
+	    this.setupPlotFilter(graphDiv, graphCheckBoxesDiv);
 	} else if(this.sensorType == 'temperature') {
 		//this is a temperature sensor step
 		
@@ -867,7 +893,7 @@ SENSOR.prototype.plotData = function(graphDivId, graphCheckBoxesDivId) {
 		this.globalDataSets = dataSets;
 		
 		//plot the data onto the graph and create the filter check box options
-	    this.setupPlotFilter();
+	    this.setupPlotFilter(graphDiv, graphCheckBoxesDiv);
 	} else {
 		//this is a generic sensor step without any specific type
 		
@@ -885,7 +911,7 @@ SENSOR.prototype.plotData = function(graphDivId, graphCheckBoxesDivId) {
 		this.globalDataSets = dataSets;
 		
 		//plot the data onto the graph
-		this.globalPlot = $.plot($("#" + graphDivId), dataSets, graphParams);
+		this.globalPlot = $.plot(graphDiv, dataSets, graphParams);
 		
 		//delete all the annotation tool tips from the UI
 		this.removeAllAnnotationToolTips();
@@ -1165,9 +1191,11 @@ SENSOR.prototype.setupPlotClick = function() {
  * Setup the plot filter so students can turn on/off the different
  * lines in the graph when there is more than one line displayed
  */
-SENSOR.prototype.setupPlotFilter = function() {
-    //get the div where we display the checkboxes
-    var graphCheckBoxesDiv = $("#" + this.graphCheckBoxesDivId);
+SENSOR.prototype.setupPlotFilter = function(graphDiv, graphCheckBoxesDiv) {
+	if(graphCheckBoxesDiv == null) {
+	    //get the div where we display the checkboxes
+	    var graphCheckBoxesDiv = $("#" + this.graphCheckBoxesDivId);
+	}
     
     //get the graph params
     var graphParams = this.getGraphParams();
@@ -1209,7 +1237,7 @@ SENSOR.prototype.setupPlotFilter = function() {
     	}
 
     	//display the graph lines that we want to display
-    	thisSensor.globalPlot = $.plot($("#" + thisSensor.graphDivId), dataToDisplay, graphParams);
+    	thisSensor.globalPlot = $.plot(graphDiv, dataToDisplay, graphParams);
     	
     	//delete all the annotation tool tips form the UI
     	thisSensor.removeAllAnnotationToolTips();
@@ -2794,6 +2822,76 @@ SENSOR.prototype.seriesIsPrediction = function(seriesName) {
 	}
 	
 	return result;
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+SENSOR.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = this.node.checkCompleted(tagName, functionArgs);
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
 };
 
 //used to notify scriptloader that this script has finished loading

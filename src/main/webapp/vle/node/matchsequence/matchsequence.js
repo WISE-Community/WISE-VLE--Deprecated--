@@ -31,7 +31,7 @@
  */
 function MS(node, view) {
 	this.node = node;
-	this.view = view;
+	this.view = node.view;
 	this.content = node.getContent().getContentJSON();
     this.attempts = [];
     this.feedbacks = this.content.assessmentItem.responseDeclaration.correctResponses;
@@ -81,9 +81,6 @@ function MS(node, view) {
       this.buckets.push(new MSBUCKET(this.content.assessmentItem.interaction.fields[i]));
     };
     
-    //load the student's previous work
-    this.loadStudentWork();
-    
     /*
 	 * allow the submit answer button to be enabled. this is set to
 	 * false when challenge question is enabled and the student answers
@@ -124,15 +121,16 @@ MS.prototype.getCorrectChoicesForBucket = function(bucketId) {
  * visited the step. Parses through the student state and
  * places choices in the target buckets and removes the
  * choices from the source bucket.
+ * @param nodeState the student work to load
  */
-MS.prototype.loadStudentWork = function() {
-	//all states should contain non-empty values for ms
-	var latestState = this.states[this.states.length - 1];
-
+MS.prototype.loadStudentWork = function(nodeState) {
+	//clear the source and target buckets
+	this.clearBuckets();
+	
 	//check that there is a latest state, if not, we don't need to do anything
-	if(latestState != null) {
+	if(nodeState != null) {
 		//get the target buckets from the student state
-		var targetBuckets = latestState.buckets;
+		var targetBuckets = nodeState.buckets;
 		
 		//loop through the target buckets
 		for(var x=0; x<targetBuckets.length; x++) {
@@ -292,6 +290,34 @@ function addOrderToChoice(identifier, orderNumber) {
  * MS must have been instantiated already (ie this.choices should be populated)
  */
 MS.prototype.render = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
+	//get the latest node state
+	var nodeState = this.states[this.states.length - 1];
+	
+	if(nodeState == null && workToImport != null && workToImport.length > 0) {
+		/*
+		 * there was no previous node state but there is work to
+		 * import so we will import the work
+		 */
+		nodeState = workToImport[workToImport.length - 1];
+	}
+	
+	this.loadStudentWork(nodeState);
+	
 	// render the prompt
 	var promptdiv = document.getElementById('promptDiv');
 	promptdiv.innerHTML=this.content.assessmentItem.interaction.prompt;
@@ -1181,6 +1207,92 @@ MS.prototype.getMaxPossibleScore = function() {
 	}
 	
 	return maxScore;
+};
+
+/**
+ * Remove all the choices from all the buckets
+ */
+MS.prototype.clearBuckets = function() {
+	//loop through the target buckets
+	for(var x=0; x<this.buckets.length; x++) {
+		//get a bucket
+		var bucket = this.buckets[x];
+		
+		if(bucket != null) {
+			//empty the bucket
+			this.buckets.choices = [];
+		}
+	}
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+MS.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = this.node.checkCompleted(tagName, functionArgs);
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
 };
 
 //used to notify scriptloader that this script has finished loading

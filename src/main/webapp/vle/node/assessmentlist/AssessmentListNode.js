@@ -13,6 +13,11 @@ AssessmentListNode.prototype.supportedLocales = {
 			"nl_DE":"nl"
 };
 
+AssessmentListNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -50,14 +55,14 @@ AssessmentListNode.prototype.render = function(contentPanel,studentWork, disable
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
  * @param workgroupId the id of the workgroup this work belongs to
  */
-AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+AssessmentListNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
     // Get the latest student state object for this step
 	var assessmentListState = nodeVisit.getLatestState();
 	
@@ -77,7 +82,7 @@ AssessmentListNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 	//replace \n with <br> so that newlines will be visible
 	readableStudentWork = this.view.replaceSlashNWithBR(readableStudentWork);
 	
-	$('#' + divId).html(readableStudentWork);
+	displayStudentWorkDiv.html(readableStudentWork);
 };
 
 /**
@@ -291,6 +296,17 @@ AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 	
 	return studentWorkSoFar;
 };
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+AssessmentListNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = AssessmentListNode.tagMapFunctions;
+	
+	return tagMapFunctions;
+};
+
 
 AssessmentListNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/assessmentlist/assessmentlist.html');

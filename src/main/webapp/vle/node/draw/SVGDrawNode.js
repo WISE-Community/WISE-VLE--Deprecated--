@@ -5,6 +5,11 @@ SVGDrawNode.prototype.parent = Node.prototype;
 SVGDrawNode.authoringToolName = "Draw";
 SVGDrawNode.authoringToolDescription = "Students draw using basic drawing tools, take snapshots and create flipbook animations";
 
+SVGDrawNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -163,7 +168,7 @@ SVGDrawNode.prototype.onExit = function() {
  * SVGDraw does not actually use this function to render the grading view.
  * The grading view for SVGDraw steps is handled a special way in the vle code.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -171,7 +176,7 @@ SVGDrawNode.prototype.onExit = function() {
  * @param workgroupId the id of the workgroup this work belongs to
  * 
  */
-SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+SVGDrawNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 
 	//get the node states
 	var nodeStates = nodeVisit.nodeStates;
@@ -264,17 +269,17 @@ SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
 			}
 		}
 		
-		if($('#' + divId).html() != '') {
+		if(displayStudentWorkDiv.html() != '') {
 			//separate node states with an hr
-			$('#' + divId).append('<hr style="border:1px solid">');
+			displayStudentWorkDiv.append('<hr style="border:1px solid">');
 		}
 		
 		//insert the html into the div
-		$('#' + divId).append(studentWork);
+		displayStudentWorkDiv.append(studentWork);
 		
 		//perform post processing of the svg data so that the drawing is displayed
-		$('#' + divId).find(".svgdrawCell").each(this.showDrawNode);
-		$('#' + divId).find(".snapCell").each(this.showSnaps);
+		displayStudentWorkDiv.find(".svgdrawCell").each(this.showDrawNode);
+		displayStudentWorkDiv.find(".snapCell").each(this.showSnaps);
 		
 		var autoScoreText = '';
 		
@@ -296,7 +301,7 @@ SVGDrawNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdP
 		
 		if(autoScoreText != '') {
 			//insert the auto score text
-			$('#' + divId).append(autoScoreText);		
+			displayStudentWorkDiv.append(autoScoreText);		
 		}
 	}
 };
@@ -357,6 +362,16 @@ SVGDrawNode.prototype.showSnaps = function(currNode) {
  */
 SVGDrawNode.prototype.canSpecialExport = function() {
 	return true;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+SVGDrawNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = SVGDrawNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);

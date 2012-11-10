@@ -32,6 +32,11 @@ CarGraphNode.authoringToolName = "Car Graph";
  */
 CarGraphNode.authoringToolDescription = "Lets students draw graphs and have cars move according to the graph";
 
+CarGraphNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * @constructor
@@ -263,7 +268,7 @@ CarGraphNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -276,7 +281,7 @@ CarGraphNode.prototype.onExit = function() {
  * look at carGraphNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+CarGraphNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create a carGraph object that we will use to perform all the graphing logic for us
 	var carGraph = new CARGRAPH(this, this.view);
 	
@@ -313,10 +318,10 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	var carGraphResponseDiv = createElement(document, 'div', {id: childDivIdPrefix + 'carGraphResponseDiv_' + stepWorkId});
 	
 	//add all the divs to the main work div 
-	$('#' + divId).append(carGraphGraphDiv);
-	$('#' + divId).append(carGraphGraphCheckBoxesDiv);
-	$('#' + divId).append(carGraphAnnotationsDiv);
-	$('#' + divId).append(carGraphResponseDiv);
+	displayStudentWorkDiv.append(carGraphGraphDiv);
+	displayStudentWorkDiv.append(carGraphGraphCheckBoxesDiv);
+	displayStudentWorkDiv.append(carGraphAnnotationsDiv);
+	displayStudentWorkDiv.append(carGraphResponseDiv);
 	
 	// run smart filter and flag if the smart filter returns true
 	var smartFilterResult = this.smartFilter(carGraphState); // obj
@@ -342,13 +347,13 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 		// some error handling???
 	}
 		
-	$('#' + divId).append(carGraphSmartFilterDiv);
+	displayStudentWorkDiv.append(carGraphSmartFilterDiv);
 	
 	//tell the car graph to show the correct graph along with the student graph
 	carGraph.showCorrectGraph = true;
 	
 	//plot the graph in the carGraph graph div
-	carGraph.plotData(carGraphGraphDiv.id, carGraphGraphCheckBoxesDiv.id);
+	carGraph.plotData($(carGraphGraphDiv), $(carGraphGraphCheckBoxesDiv));
 	
 	/*
 	 * used to hide or show the annotation tool tips. if the teacher has
@@ -357,10 +362,10 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	 * when the mouse cursor is outside of the graph div we will show the
 	 * annotation tool tips for them to view.
 	 */
-	$("#" + carGraphGraphDiv.id).bind('mouseover', (function(event) {
+	$(carGraphGraphDiv).bind('mouseover', (function(event) {
 		$(".activeAnnotationToolTip").hide();
 	}));
-	$("#" + carGraphGraphDiv.id).bind('mouseleave', (function(event) {
+	$(carGraphGraphDiv).bind('mouseleave', (function(event) {
 		$(".activeAnnotationToolTip").show();
 	}));
 	
@@ -368,7 +373,7 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	var annotationsHtml = carGraphState.getAnnotationsHtml();
 	
 	//set the annotations text
-	$('#' + carGraphAnnotationsDiv.id).html(annotationsHtml);
+	$(carGraphAnnotationsDiv).html(annotationsHtml);
 	
 	//get the student response that was typed
 	var response = carGraphState.response;
@@ -377,7 +382,7 @@ CarGraphNode.prototype.renderGradingView = function(divId, nodeVisit, childDivId
 	response = this.view.replaceSlashNWithBR(response);
 	
 	//insert the response the student typed
-	$('#' + carGraphResponseDiv.id).html(response);
+	$(carGraphResponseDiv).html(response);
 };
 
 /**
@@ -430,6 +435,16 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 		$("#smartFilter").hide();
 	}
 	return true;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+CarGraphNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = CarGraphNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 /**

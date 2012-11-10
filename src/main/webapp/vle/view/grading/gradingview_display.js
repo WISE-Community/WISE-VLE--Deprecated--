@@ -4799,11 +4799,14 @@ View.prototype.renderStudentWorkFromNodeVisit = function(nodeVisit, workgroupId)
 		if($("#studentWorkDiv_" + stepWorkId).html() == "") {
 			//the div is empty so we need to render the student work
 			
+			var divId = "studentWorkDiv_" + stepWorkId;
+			var studentWorkDiv = $('#' + divId);
+			
 			//tell the node to insert/render the student work into the div
-			node.renderGradingView("studentWorkDiv_" + stepWorkId, nodeVisit, "", workgroupId);
+			node.renderGradingView(studentWorkDiv, nodeVisit, "", workgroupId);
 			
 			//add the post time stamp to the bottom of the student work
-			$("#studentWorkDiv_" + stepWorkId).append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitEndTime) + "</p>");	
+			studentWorkDiv.append("<p class='lastAnnotationPostTime'>"+this.getI18NString("timestamp")+": " + new Date(nodeVisitEndTime) + "</p>");	
 		}
 	}
 };
