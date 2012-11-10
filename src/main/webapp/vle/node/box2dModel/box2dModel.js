@@ -44,28 +44,18 @@ function Box2dModel(node) {
 	} else {
 		this.states = [];  
 	};
+	var d = new Date();
+	this.timestamp = d.getTime();
 
-	eventManager.subscribe('make-model', this.interpretEvent, this);
-	eventManager.subscribe('delete-model', this.interpretEvent, this);
-	eventManager.subscribe('duplicate-model', this.interpretEvent, this);
-	eventManager.subscribe('add-balance-world', this.interpretEvent, this);
-	eventManager.subscribe('add-balance', this.interpretEvent, this);
-	eventManager.subscribe('remove-balance-world', this.interpretEvent, this);
-	eventManager.subscribe('remove-balance', this.interpretEvent, this);
-	eventManager.subscribe('add-beaker-world', this.interpretEvent, this);
-	eventManager.subscribe('add-beaker', this.interpretEvent, this);
-	eventManager.subscribe('add-spilloff', this.interpretEvent, this);
-	eventManager.subscribe('remove-beaker-world', this.interpretEvent, this);
-	eventManager.subscribe('remove-beaker', this.interpretEvent, this);
-	eventManager.subscribe('remove-spilloff', this.interpretEvent, this);
-	eventManager.subscribe('press-refill', this.interpretEvent, this);
-	eventManager.subscribe('press-release', this.interpretEvent, this);
-	eventManager.subscribe('test-balance-1to1', this.interpretEvent, this);
-	eventManager.subscribe('test-balance-1toN', this.interpretEvent, this);
-	eventManager.subscribe('test-balance-Nto1', this.interpretEvent, this);
-	eventManager.subscribe('test-balance-NtoN', this.interpretEvent, this);
-	eventManager.subscribe('test-beaker-add', this.interpretEvent, this);
-	eventManager.subscribe('test-beaker-release', this.interpretEvent, this);
+	this.customEventTypes = ['make-model', 'delete-model', 'add-balance-world', 'add-balance', 'remove-balance-world',
+		'remove-balance', 'add-beaker-world', 'add-beaker', 'add-spilloff', 'remove-beaker-world', 'remove-beaker', 
+		'remove-spilloff','press-refill', 'press-release','test-balance-1to1', 'test-balance-1toN', 'test-balance-Nto1',
+		'test-balance-NtoN', 'test-beaker-add','test-beaker-release'
+	];
+
+	for (var i = 0; i < this.customEventTypes.length; i++){
+		eventManager.subscribe(this.customEventTypes[i], this.interpretEvent, this);
+	}
 	
 };
 
@@ -96,7 +86,7 @@ Box2dModel.prototype.checkPreviousModelsForTags = function(tagName, functionArgs
 				if(nodeId != null) {
 					//get the latest work for the node
 					var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
-					console.log(latestWork, latestWork.response.savedModels, result.previousModels,  result.previousModels.concat(latestWork.response.savedModels))
+					//console.log(latestWork, latestWork.response.savedModels, result.previousModels,  result.previousModels.concat(latestWork.response.savedModels))
 					result.previousModels = result.previousModels.concat(latestWork.response.savedModels);					
 				}
 			}
@@ -145,6 +135,12 @@ Box2dModel.prototype.render = function() {
 		//set the previous student work into the text area
 		$('#studentResponseTextArea').val(latestResponse); 
 	}
+
+
+	// setup the event logger and feedbacker
+	if (typeof this.content.feedbackEvents != "undefined")
+		this.feedbackManager =  new FeedbackManager(this.node, this.content.feedbackEvents, this.customEventTypes) ;
+
 
 	init(box2dModel.content);
 
@@ -219,6 +215,8 @@ Box2dModel.prototype.getLatestState = function() {
 	return latestState;
 };
 
+
+
 /**
  * When an event that is exclusive to Box2dModel is fired it is interpreted here.
  * @param type, args, obj
@@ -229,8 +227,40 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	evt.type = type;
 	evt.args = args;
 	var state = obj.save(evt);
-	feedbackManager.checkEvent(evt.type, state);
+	var fevt = obj.flattenObject(state.response.evt,"",{});
+	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null) obj.feedbackManager.checkEvent(fevt);
 }
+
+Box2dModel.prototype.flattenObject = function(obj, prefix, returnObj) {
+	if (typeof obj == "object"){
+		if (Object.prototype.toString.call(obj) == "[object Object]"){
+			if (prefix.length > 0) prefix += ".";
+			for (var key in obj){
+				if (typeof obj[key] != "object"){
+					returnObj[prefix+key] = obj[key];
+				} else {
+					returnObj = this.flattenObject(obj[key], prefix+key, returnObj);
+				}	
+			} 
+			return returnObj;
+		} else if (Object.prototype.toString.call(obj) == "[object Array]"){
+			
+			for (var i = 0; i < obj.length; i++){
+				if (typeof obj[i] != "object"){
+					returnObj[prefix+"["+i+"]"] = obj[i];
+				} else {
+					returnObj = this.flattenObject(obj[i], prefix+"["+i+"]", returnObj);
+				}	
+			}
+			
+			return returnObj;
+		}
+	} else {
+		return returnObj;
+	}
+
+};
+
 
 /**
  * This function retrieves the student work from the html ui, creates a state
@@ -249,23 +279,36 @@ Box2dModel.prototype.save = function(evt) {
 
 	var response = {};
 	//load with objects from library
-
 	response.savedModels = [];
-	response.ModelDataDescriptions = {};
-	response.ModelDataDescriptions.DataSeriesDescription = [];
-	response.ModelDataDescriptions.ComputationalInputs = [];
-	response.ModelDataDescriptions.ComputationalOutputs = [];
-	response.ModelData = {};
-	response.ModelData.DataSeries = [];
-	response.ModelData.ComputationalInputValues = [];
-	response.ModelData.ComputationalOutputValues = [];
+	// the rest can get saved in the evt obj
+	response.evt = {};
+	response.evt.type = evt.type;
+	var d = new Date();
+	response.evt.time = d.getTime() - this.timestamp;
+	response.evt.ModelDataDescriptions = {};
+	response.evt.ModelDataDescriptions.DataSeriesDescription = [];
+	response.evt.ModelDataDescriptions.ComputationalInputs = [];
+	response.evt.ModelDataDescriptions.ComputationalOutputs = [];
+	response.evt.ModelData = {};
+	response.evt.ModelData.DataSeries = [];
+	response.evt.ModelData.ComputationalInputValues = [];
+	response.evt.ModelData.ComputationalOutputValues = [];
+	response.evt.ObjectProperties = {};
 
 	var mass_on_left, mass_on_right, mass_diff;
-	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
-	if (typeof evt === "undefined" || evt.type == "make" || evt.type == "delete")
-    {
+	// for the following types there is a central object, set its properties
+	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance-world" || evt.type == "add-balance" ||
+		evt.type == "remove-balance"  || evt.type == "add-beaker-world" || evt.type == "add-beaker" || evt.type == "remove-beaker"
+	){
+		response.evt.ObjectProperties.id = evt.args[0].id;
+		response.evt.ObjectProperties.mass = evt.args[0].mass;
+		response.evt.ObjectProperties.volume = evt.args[0].volume;
+	}
 
-        // save all the models stored in the library    
+	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
+	if (evt.type == "make-model" || evt.type == "delete-model")
+    {
+    	// save all the models stored in the library    
 		for (var i = 0; i < GLOBAL_PARAMETERS.objectLibrary.length; i++)
 		{
 			var o =  GLOBAL_PARAMETERS.objectLibrary[i];
@@ -274,10 +317,18 @@ Box2dModel.prototype.save = function(evt) {
 				response.savedModels.push(o);
 			}
 		}
+		response.evt.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"object-id", "units":"", "min":0, "max":1000},
+			{"label":"object-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-volume", "units":"cm^3", "min":0, "max":100000}		
+		];
+		response.evt.ModelData.ComputationalInputValues =
+		[evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
+	
 	} else if (evt.type == "test-balance-1to1")
 	{
-		response.eventType = evt.type;
-		response.ModelDataDescriptions.ComputationalInputs = 
+		response.evt.ModelDataDescriptions.ComputationalInputs = 
 		[
 			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
 			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
@@ -291,20 +342,20 @@ Box2dModel.prototype.save = function(evt) {
 		mass_on_left = evt.args[0].mass;
 		mass_on_right = evt.args[1].mass;
 		mass_diff = mass_on_right - mass_on_left;
-		response.ModelData.ComputationalInputValues =
+		response.evt.ModelData.ComputationalInputValues =
 		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
 	
-		response.ModelDataDescriptions.ComputationalOutputs = 
+		response.evt.ModelDataDescriptions.ComputationalOutputs = 
 		[
 			{"label":"balance-state", "units":"", "min":-1, "max":1},
 			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000},			
 		];
-		response.ModelData.ComputationalOutputValues = 
+		response.evt.ModelData.ComputationalOutputValues = 
 		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
  
 	} else if (evt.type == "test-balance-1toN")
 	{
-		response.ModelDataDescriptions.ComputationalInputs = 
+		response.evt.ModelDataDescriptions.ComputationalInputs = 
 		[
 			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
 			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
@@ -315,19 +366,19 @@ Box2dModel.prototype.save = function(evt) {
 		mass_on_left = evt.args[0].mass;
 		mass_on_right = evt.args[1];
 		mass_diff = mass_on_right - mass_on_left;
-		response.ModelData.ComputationalInputValues =
+		response.evt.ModelData.ComputationalInputValues =
 		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
 	
-		response.ModelDataDescriptions.ComputationalOutputs = 
+		response.evt.ModelDataDescriptions.ComputationalOutputs = 
 		[
 			{"label":"balance-state", "units":"", "min":-1, "max":1},
 			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
 		]
-		response.ModelData.ComputationalOutputValues = 
+		response.evt.ModelData.ComputationalOutputValues = 
 		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff]; 
 	} else if (evt.type == "test-balance-Nto1")
 	{
-		response.ModelDataDescriptions.ComputationalInputs = 
+		response.evt.ModelDataDescriptions.ComputationalInputs = 
 		[
 			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
 			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
@@ -338,20 +389,20 @@ Box2dModel.prototype.save = function(evt) {
 		mass_on_left = evt.args[0];
 		mass_on_right = evt.args[1].mass;
 		mass_diff = mass_on_right - mass_on_left;
-		response.ModelData.ComputationalInputValues =
+		response.evt.ModelData.ComputationalInputValues =
 		[mass_on_left, mass_on_right, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
 	
-		response.ModelDataDescriptions.ComputationalOutputs = 
+		response.evt.ModelDataDescriptions.ComputationalOutputs = 
 		[
 			{"label":"balance-state", "units":"", "min":-1, "max":1},
 			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
 		];
-		response.ModelData.ComputationalOutputValues = 
+		response.evt.ModelData.ComputationalOutputValues = 
 		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
  
 	} else if (evt.type == "test-balance-NtoN")
 	{
-		response.ModelDataDescriptions.ComputationalInputs = 
+		response.evt.ModelDataDescriptions.ComputationalInputs = 
 		[
 			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
 			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000}		
@@ -359,15 +410,15 @@ Box2dModel.prototype.save = function(evt) {
 		mass_on_left = evt.args[0];
 		mass_on_right = evt.args[1];
 		mass_diff = mass_on_right - mass_on_left;
-		response.ModelData.ComputationalInputValues =
+		response.evt.ModelData.ComputationalInputValues =
 		[mass_on_left, mass_on_right];
 	
-		response.ModelDataDescriptions.ComputationalOutputs = 
+		response.evt.ModelDataDescriptions.ComputationalOutputs = 
 		[
 			{"label":"balance-state", "units":"", "min":-1, "max":1},
 			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}			
 		];
-		response.ModelData.ComputationalOutputValues = 
+		response.evt.ModelData.ComputationalOutputValues = 
 		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
  
 	}

@@ -82,7 +82,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var stage;
 		var builder;
 		var tester;
-		var feedbackManager;
+		//var feedbackManager;
 		
 		function init(wiseData)
 		{
@@ -214,9 +214,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.addChild(tester);
 			tester.y = tester_y;
 
-			// setup the event logger and feedbacker
-			feedbackManager = new FeedbackManager(GLOBAL_PARAMETERS.feedbackEvents);
-
+			
 			// make all objects given in parameters
 			for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
 			{

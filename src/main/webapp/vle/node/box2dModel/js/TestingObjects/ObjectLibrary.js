@@ -134,8 +134,8 @@
 			if (this.shapes[i].html.attr("id") == html.attr("id"))
 			{
 				this.shapes[i].skin.savedObject.is_deleted = true;
-				this.removeObject(this.shapes[i]);
 				eventManager.fire("delete-model", [this.shapes[i].skin.savedObject]);
+				this.removeObject(this.shapes[i]);
 				return true;
 			}
 		}
