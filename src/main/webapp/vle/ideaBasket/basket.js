@@ -100,7 +100,7 @@ IdeaBasket.prototype.init = function(context) {
 	var workToImport = [];
 	
 	//process the tag maps if we are not in authoring mode
-	if(this.view.authoringMode == null || !this.view.authoringMode) {
+	if(this.view != null && (this.view.authoringMode == null || !this.view.authoringMode)) {
 		//get the tag map results
 		var tagMapResults = this.processTagMaps();
 		
@@ -455,6 +455,9 @@ IdeaBasket.prototype.processSettingsUI = function(){
 					if(context.version > 1){
 						var attributes = context.getIdeaAttributes('add');
 						context.addV2($('#text').val(),attributes);
+						
+						$(this).dialog("close");
+						resetForm('ideaForm');
 					} else {
 						var source = $('#source').val();
 						if(source == 'empty'){
@@ -464,10 +467,11 @@ IdeaBasket.prototype.processSettingsUI = function(){
 								source = 'Other: ' + $('#other').val();
 							}
 							context.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+							
+							$(this).dialog("close");
+							resetForm('ideaForm');
 						}
 					}
-					$(this).dialog("close");
-					resetForm('ideaForm');
 				}
 			}, Cancel: function(){
 				$(this).dialog("close");
@@ -991,7 +995,13 @@ IdeaBasket.prototype.openEditDialog = function(context,id,$clicked){
 						var idea = null;
 						
 						if($('#editSource').val() == 'empty'){
-							alert('Please select a source for your ' + this.ideaTerm + '.');
+							var ideaTerm = this.ideaTerm;
+							
+							if(ideaTerm == null || ideaTerm == '') {
+								ideaTerm = 'idea';
+							}
+							
+							alert('Please select a source for your ' + ideaTerm + '.');
 						} else {
 							if($('#editText').val() != text){
 								/*
@@ -2366,8 +2376,12 @@ IdeaBasket.prototype.processTagMaps = function() {
 	var message = '';
 	var workToImport = [];
 	
-	//the tag maps
-	var tagMaps = this.node.tagMaps;
+	var tagMaps = null;
+	
+	if(this.node != null) {
+		//get the tag maps
+		tagMaps = this.node.tagMaps;
+	}
 	
 	//check if there are any tag maps
 	if(tagMaps != null) {
