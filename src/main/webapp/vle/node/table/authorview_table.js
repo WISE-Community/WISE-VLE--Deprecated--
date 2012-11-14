@@ -62,7 +62,7 @@ View.prototype.TableNode.generatePage = function(view){
 	 */
 	parent.removeChild(document.getElementById('dynamicPage'));
 
-	//create a new div that will contain the authroing components
+	//create a new div that will contain the authoring components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 	
 	//create the label for the textarea that the author will write the prompt in
@@ -173,6 +173,16 @@ View.prototype.TableNode.generatePage = function(view){
 	//create the radio buttons to choose who will select the axes to graph
 	var graphSelectAxesRadioButtons = this.generateGraphSelectAxesRadioButtons();
 	graphingOptionsDiv.appendChild(graphSelectAxesRadioButtons);
+	graphingOptionsDiv.appendChild(createBreak());
+	
+	//create the radio buttons to choose who will select the axes limits
+	var graphWhoSetAxesLimitsRadioButtons = this.generateGraphWhoSetAxesLimitsRadioButtons();
+	graphingOptionsDiv.appendChild(graphWhoSetAxesLimitsRadioButtons);
+	graphingOptionsDiv.appendChild(createBreak());
+	
+	//create the input fields for entering the axes limits
+	var generateGraphAxesLimitsInputs = this.generateGraphAxesLimitsInputs();
+	graphingOptionsDiv.appendChild(generateGraphAxesLimitsInputs);
 	graphingOptionsDiv.appendChild(createBreak());
 	
 	//add the graphing options div
@@ -329,6 +339,102 @@ View.prototype.TableNode.generateGraphSelectAxesRadioButtons = function() {
 	}
 	
 	return graphSelectAxesRadioButtonsDiv;
+};
+
+/**
+ * Generate the radio buttons to allow the author to decide who will
+ * set the axes limits
+ */
+View.prototype.TableNode.generateGraphWhoSetAxesLimitsRadioButtons = function() {
+	//create the div to contain the radio buttons
+	var graphWhoSetAxesLimitsRadioButtonsDiv = createElement(document, 'div', {id: 'graphWhoSetAxesLimitsRadioButtonsDiv'});
+	
+	//display the text 'Who will select Axes'
+	var graphWhoSetAxesLimitsText = document.createTextNode('Who will set axes limits?');
+	graphWhoSetAxesLimitsRadioButtonsDiv.appendChild(graphWhoSetAxesLimitsText);
+	graphWhoSetAxesLimitsRadioButtonsDiv.appendChild(createBreak());
+	
+	//the options for selecting the axes
+	var graphWhoSetAxesLimitsTypes = [
+	                  'Auto',
+	                  'Author Select',
+	                  'Student Select'
+	                  ];
+	
+	//loop through the select axes types
+	for(var x=0; x<graphWhoSetAxesLimitsTypes.length; x++) {
+		//get a select axes type
+		var graphWhoSetAxesLimitsType = graphWhoSetAxesLimitsTypes[x];
+		
+		/*
+		 * get the camel case version of the select axes type
+		 * e.g.
+		 * 'Author Select' will change to 'authorSelect'
+		 */
+		var graphWhoSetAxesLimitsTypeCamelCased = graphWhoSetAxesLimitsType.charAt(0).toLocaleLowerCase() + graphWhoSetAxesLimitsType.substring(1);
+		
+		//remove all spaces
+		graphWhoSetAxesLimitsTypeCamelCased = graphWhoSetAxesLimitsTypeCamelCased.replace(/ /g, '');
+		
+		//create the radio button
+		var graphWhoSetAxesLimitsTypeRadioButton = createElement(document, 'input', {type: 'radio', id: 'graphWhoSetAxesLimitsType_' + x, name: 'graphWhoSetAxesLimitsType', value: graphWhoSetAxesLimitsTypeCamelCased, onclick: "eventManager.fire('tableGraphWhoSetAxesLimitsTypeClicked')"});
+		
+		//create the text for the radio button
+		var graphWhoSetAxesLimitsTypeText = document.createTextNode(graphWhoSetAxesLimitsType);
+		
+		//add the radio button to the div
+		graphWhoSetAxesLimitsRadioButtonsDiv.appendChild(graphWhoSetAxesLimitsTypeRadioButton);
+		graphWhoSetAxesLimitsRadioButtonsDiv.appendChild(graphWhoSetAxesLimitsTypeText);
+		graphWhoSetAxesLimitsRadioButtonsDiv.appendChild(createBreak());
+	}
+	
+	return graphWhoSetAxesLimitsRadioButtonsDiv;
+};
+
+/**
+ * Generate the input elements for the axes limits
+ */
+View.prototype.TableNode.generateGraphAxesLimitsInputs = function() {
+	
+	//create the div to contain the graph axes limits inputs
+	var graphAxesLimitsInputsDiv = createElement(document, 'div', {id: 'graphAxesLimitsInputsDiv'});
+	
+	var xMin = '';
+	var xMax = '';
+	
+	//create the X Min input
+	var xMinText = document.createTextNode('X Min: ');
+	var xMinInput = createElement(document, 'input', {type: 'input', id: 'graphXMinInput', name: 'graphXMinInput', value: xMin, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphXMin")'});
+	
+	//create the X Max input
+	var xMaxText = document.createTextNode('X Max: ');
+	var xMaxInput = createElement(document, 'input', {type: 'input', id: 'graphXMaxInput', name: 'graphXMaxInput', value: xMax, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphXMax")'});
+	
+	var yMin = '';
+	var yMax = '';
+	
+	//create the Y Min input
+	var yMinText = document.createTextNode('Y Min: ');
+	var yMinInput = createElement(document, 'input', {type: 'input', id: 'graphYMinInput', name: 'graphYMinInput', value: yMin, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphYMin")'});
+	
+	//create the Y Max input
+	var yMaxText = document.createTextNode('Y Max: ');
+	var yMaxInput = createElement(document, 'input', {type: 'input', id: 'graphYMaxInput', name: 'graphYMaxInput', value: yMax, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphYMax")'});
+	
+	//add the elements to the div
+	graphAxesLimitsInputsDiv.appendChild(xMinText);
+	graphAxesLimitsInputsDiv.appendChild(xMinInput);
+	graphAxesLimitsInputsDiv.appendChild(createBreak());
+	graphAxesLimitsInputsDiv.appendChild(xMaxText);
+	graphAxesLimitsInputsDiv.appendChild(xMaxInput);
+	graphAxesLimitsInputsDiv.appendChild(createBreak());
+	graphAxesLimitsInputsDiv.appendChild(yMinText);
+	graphAxesLimitsInputsDiv.appendChild(yMinInput);
+	graphAxesLimitsInputsDiv.appendChild(createBreak());
+	graphAxesLimitsInputsDiv.appendChild(yMaxText);
+	graphAxesLimitsInputsDiv.appendChild(yMaxInput);
+	
+	return graphAxesLimitsInputsDiv;
 };
 
 /**
@@ -1191,6 +1297,41 @@ View.prototype.TableNode.populateGraphOptions = function() {
 			}
 		}
 		
+		if(this.content.graphOptions.graphWhoSetAxesLimitsType != null && this.content.graphOptions.graphWhoSetAxesLimitsType != '') {
+			//check the radio button for the select axes type
+			$('input[name=graphWhoSetAxesLimitsType][value=' + this.content.graphOptions.graphWhoSetAxesLimitsType + ']').attr('checked', true);
+			
+			if(this.content.graphOptions.graphWhoSetAxesLimitsType == 'authorSelect') {
+				//enable the axes limits inputs so the author can edit
+				this.enableGraphAxesLimitsInputs();
+			} else {
+				//disable the axes limits inputs since graphWhoSetAxesLimitsType is set to 'auto' or 'studentSelect'
+				this.disableGraphAxesLimitsInputs();
+			}
+		}
+		
+		if(this.content.graphOptions.axesLimits != null) {
+			if(this.content.graphOptions.axesLimits.xMin != null) {
+				//populate the graph x min value
+				$('#graphXMinInput').val(this.content.graphOptions.axesLimits.xMin);
+			}
+			
+			if(this.content.graphOptions.axesLimits.xMax != null) {
+				//populate the graph x max value
+				$('#graphXMaxInput').val(this.content.graphOptions.axesLimits.xMax);
+			}
+			
+			if(this.content.graphOptions.axesLimits.yMin != null) {
+				//populate the graph y min value
+				$('#graphYMinInput').val(this.content.graphOptions.axesLimits.yMin);
+			}
+			
+			if(this.content.graphOptions.axesLimits.yMax != null) {
+				//populate the graph y max value
+				$('#graphYMaxInput').val(this.content.graphOptions.axesLimits.yMax);
+			}
+		}
+		
 		//populate the drop downs for the column axis
 		this.populateColumnToAxisMappings();
 	} else {
@@ -1375,19 +1516,243 @@ View.prototype.TableNode.tableGraphSelectAxesTypeClicked = function() {
 };
 
 /**
+ * One of the radio buttons to select who will set the axes limits
+ * was clicked.
+ */
+View.prototype.TableNode.tableGraphWhoSetAxesLimitsTypeClicked = function() {
+	//get the radio button that is checked
+	var graphWhoSetAxesLimitsType = $('input[name=graphWhoSetAxesLimitsType]:checked').val();
+	
+	if(graphWhoSetAxesLimitsType == 'auto') {
+		//the Auto radio button was clicked
+		
+		if(!this.isAxesLimitsEmpty()) {
+			/*
+			 * the axes limits are not empty so we will ask the 
+			 * author if they are sure they want to set it to
+			 * auto because we will clear out all the axes limits
+			 */
+			var result = confirm('This will clear the X Min, X Max, Y Min, and Y Max values. Are you sure you want to do this?');
+			
+			if(result) {
+				//they answered ok so we will clear the axes limit values
+				this.clearGraphAxesLimits();
+				
+				//disable the axes limits input elements
+				this.disableGraphAxesLimitsInputs();
+			} else {
+				/*
+				 * they answered cancel so we will revert the radio button
+				 * to the last item that was checked
+				 */
+				graphWhoSetAxesLimitsType = this.content.graphOptions.graphWhoSetAxesLimitsType;
+				$('input[name=graphWhoSetAxesLimitsType][value=' + graphWhoSetAxesLimitsType + ']').attr('checked', true);
+			}
+		} else {
+			//disable the axes limits input elements
+			this.disableGraphAxesLimitsInputs();
+		}
+	} else if(graphWhoSetAxesLimitsType == 'authorSelect') {
+		//the Author Select radio button was clicked
+		
+		//enable the axes limits input elements
+		this.enableGraphAxesLimitsInputs();
+	} else if(graphWhoSetAxesLimitsType == 'studentSelect') {
+		//the Student Select radio button was clicked
+		
+		if(!this.isAxesLimitsEmpty()) {
+			/*
+			 * the axes limits are not empty so we will ask the 
+			 * author if they are sure they want to set it to
+			 * auto because we will clear out all the axes limits
+			 */
+			var result = confirm('This will clear the X Min, X Max, Y Min, and Y Max values. Are you sure you want to do this?');
+			
+			if(result) {
+				//they answered ok so we will clear the axes limit values
+				this.clearGraphAxesLimits();
+				
+				//disable the axes limits input elements
+				this.disableGraphAxesLimitsInputs();
+			} else {
+				/*
+				 * they answered cancel so we will revert the radio button
+				 * to the last item that was checked
+				 */
+				graphWhoSetAxesLimitsType = this.content.graphOptions.graphWhoSetAxesLimitsType;
+				$('input[name=graphWhoSetAxesLimitsType][value=' + graphWhoSetAxesLimitsType + ']').attr('checked', true);
+			}
+		} else {
+			//disable the axes limits input elements
+			this.disableGraphAxesLimitsInputs();
+		}
+	}
+	
+	//update the value in the content
+	this.content.graphOptions.graphWhoSetAxesLimitsType = graphWhoSetAxesLimitsType;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Check if the axes limits inputs are empty
+ * @return true if all the axes limits inputs are empty
+ */
+View.prototype.TableNode.isAxesLimitsEmpty = function() {
+	var result = true;
+
+	//check all the inputs to see they are empty
+	if($('#graphXMinInput').val() != '' || $('#graphXMaxInput').val() != '' || 
+			$('#graphYMinInput').val() != '' || $('#graphYMaxInput').val() != '') {
+		//at least one of the inputs is not empty
+		result = false;
+	}
+	
+	return result;
+};
+
+/**
  * Create the graph options in the step content if it does not exist
  */
 View.prototype.TableNode.createGraphOptionsIfNotExist = function() {
 	if(this.content.graphOptions == null) {
-		//graph options does not exist
-		
-		//set the default values
+		//graph options does not exist so we will create it
 		this.content.graphOptions = {};
+	}
+	
+	if(this.content.graphOptions.enableGraphing == null) {
+		//set the default enableGraphing value
 		this.content.graphOptions.enableGraphing = false;
+	}
+	
+	if(this.content.graphOptions.graphType == null) {
+		//set the default graphType value
 		this.content.graphOptions.graphType = 'scatterPlot';
+	}
+	
+	if(this.content.graphOptions.graphSelectAxesType == null) {
+		//set the default graphSelectAxesType value
 		this.content.graphOptions.graphSelectAxesType = 'authorSelect';
+	}
+	
+	if(this.content.graphOptions.columnToAxisMappings == null) {
+		//set the default columnToAxisMappings value
 		this.content.graphOptions.columnToAxisMappings = [];
 	}
+
+	if(this.content.graphOptions.graphWhoSetAxesLimitsType == null) {
+		//set the default graphWhoSetAxesLimitsType
+		this.content.graphOptions.graphWhoSetAxesLimitsType = 'auto';
+	}
+	
+	if(this.content.graphOptions.axesLimits == null) {
+		//set the default axesLimits value
+		this.content.graphOptions.axesLimits = {};
+	}
+};
+
+/**
+ * Clear the axes limits inputs
+ */
+View.prototype.TableNode.clearGraphAxesLimits = function() {
+	//clear the axes limits inputs
+	$('#graphXMinInput').val('');
+	$('#graphXMaxInput').val('');
+	$('#graphYMinInput').val('');
+	$('#graphYMaxInput').val('');
+	
+	if(this.content.graphOptions != null && this.content.graphOptions.axesLimits != null) {
+		//clear the axes limits in the content
+		this.content.graphOptions.axesLimits.xMin = '';
+		this.content.graphOptions.axesLimits.xMax = '';
+		this.content.graphOptions.axesLimits.yMin = '';
+		this.content.graphOptions.axesLimits.yMax = '';
+	}
+};
+
+/**
+ * Disable the axes limits inputs
+ */
+View.prototype.TableNode.disableGraphAxesLimitsInputs = function() {
+	$('#graphXMinInput').attr('disabled', true);
+	$('#graphXMaxInput').attr('disabled', true);
+	$('#graphYMinInput').attr('disabled', true);
+	$('#graphYMaxInput').attr('disabled', true);
+};
+
+/**
+ * Enable the axes limits inputs
+ */
+View.prototype.TableNode.enableGraphAxesLimitsInputs = function() {
+	$('#graphXMinInput').removeAttr('disabled');
+	$('#graphXMaxInput').removeAttr('disabled');
+	$('#graphYMinInput').removeAttr('disabled');
+	$('#graphYMaxInput').removeAttr('disabled');
+};
+
+/**
+ * Update the x min value since it has changed
+ */
+View.prototype.TableNode.tableUpdateGraphXMin = function() {
+	this.createGraphOptionsIfNotExist();
+	
+	//get the x min the author has entered
+	var xMin = $('#graphXMinInput').val();
+	
+	//update the content
+	this.content.graphOptions.axesLimits.xMin = xMin;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the x max value since it has changed
+ */
+View.prototype.TableNode.tableUpdateGraphXMax = function() {
+	this.createGraphOptionsIfNotExist();
+	
+	//get the x max the author has entered
+	var xMax = $('#graphXMaxInput').val();
+	
+	//update the content
+	this.content.graphOptions.axesLimits.xMax = xMax;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the y min value since it has changed
+ */
+View.prototype.TableNode.tableUpdateGraphYMin = function() {
+	this.createGraphOptionsIfNotExist();
+	
+	//get the y min the author has entered
+	var yMin = $('#graphYMinInput').val();
+	
+	//update the content
+	this.content.graphOptions.axesLimits.yMin = yMin;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the y max value since it has changed
+ */
+View.prototype.TableNode.tableUpdateGraphYMax = function() {
+	this.createGraphOptionsIfNotExist();
+	
+	//get the y max the author has entered
+	var yMax = $('#graphYMaxInput').val();
+	
+	//update the content
+	this.content.graphOptions.axesLimits.yMax = yMax;
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
 };
 
 //used to notify scriptloader that this script has finished loading

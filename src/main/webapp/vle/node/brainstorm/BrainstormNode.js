@@ -16,6 +16,12 @@ BrainstormNode.prototype.supportedLocales = {
 			"en_US":"en_US",
 			"ja":"ja"
 };
+
+BrainstormNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -65,7 +71,7 @@ NodeFactory.addNode('BrainstormNode', BrainstormNode);
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param studentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -78,7 +84,7 @@ NodeFactory.addNode('BrainstormNode', BrainstormNode);
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-BrainstormNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+BrainstormNode.prototype.renderGradingView = function(studentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
 	 * Get the latest student state object for this step
 	 * TODO: rename templateState to reflect your new step type
@@ -95,8 +101,18 @@ BrainstormNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 		brainstormResponse = this.view.replaceSlashNWithBR(brainstormResponse);
 		
 		//put the student work into the div
-		$('#' + divId).html(brainstormResponse);
+		studentWorkDiv.html(brainstormResponse);
 	}
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+BrainstormNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = BrainstormNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 BrainstormNode.prototype.getHTMLContentTemplate = function() {

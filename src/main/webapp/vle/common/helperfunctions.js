@@ -105,20 +105,6 @@ if(!Array.indexOf){
     };
 }
 
-/**
- * Array prototype that takes in a function which is passed
- * each element in the array and returns an array of the return
- * values of the function.
- */
-if(!Array.map){
-	 Array.prototype.map = function(fun){
-		 var out = [];
-		 for(var k=0;k<this.length;k++){
-			 out.push(fun(this[k]));
-		 }
-		 return out;
-	 };
-};
 
 /**
  * Adds a compare function to Array.prototype if one

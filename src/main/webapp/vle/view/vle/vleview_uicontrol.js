@@ -68,9 +68,11 @@ View.prototype.lockScreenAndShareWithClass = function(teacherShareWithClassObj) 
 	    $('#lockscreen').dialog('option', 'height', 600);
 	    
 	    var node = this.project.getNodeById(nodeId);
+	    var divId = 'teacherShareWithClassDiv_' + nodeVisit.id;
+	    var studentWorkDiv = $('#' + divId);
 	    
 	    //render the grading view for the work so the student can see the work
-	    node.renderGradingView('teacherShareWithClassDiv_' + nodeVisit.id, nodeVisit);		
+	    node.renderGradingView(studentWorkDiv, nodeVisit);		
 	} else if (teacherShareWithClassObj.shareType == "Html") {
 		//the teacher has shared html
 		

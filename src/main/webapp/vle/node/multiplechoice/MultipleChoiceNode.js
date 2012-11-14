@@ -8,6 +8,11 @@ MultipleChoiceNode.prototype.parent = Node.prototype;
 MultipleChoiceNode.authoringToolName = "Multiple Choice";
 MultipleChoiceNode.authoringToolDescription = "Students answer a multiple choice question";
 
+MultipleChoiceNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -150,14 +155,14 @@ MultipleChoiceNode.prototype.getHTMLContentTemplate = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
  * @param workgroupId the id of the workgroup this work belongs to
  */
-MultipleChoiceNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+MultipleChoiceNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create the multiple choice object so we can reference the content later
 	var multipleChoice = new MC(this, this.view);
 	
@@ -188,7 +193,7 @@ MultipleChoiceNode.prototype.renderGradingView = function(divId, nodeVisit, chil
 		}
 	}
 	
-	$('#' + divId).html(studentWork);
+	displayStudentWorkDiv.html(studentWork);
 };
 
 /**
@@ -209,6 +214,15 @@ MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork) {
 	view.displayStepGraph(nodeId,"summaryContent",workgroupIdToWork);
 };
 
+/**
+ * Get the tag map functions that are available for this step type
+ */
+MultipleChoiceNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = MultipleChoiceNode.tagMapFunctions;
+	
+	return tagMapFunctions;
+};
 
 NodeFactory.addNode('MultipleChoiceNode', MultipleChoiceNode);
 

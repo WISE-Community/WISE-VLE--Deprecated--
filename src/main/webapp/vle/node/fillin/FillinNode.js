@@ -8,6 +8,11 @@ FillinNode.prototype.parent = Node.prototype;
 FillinNode.authoringToolName = "Fill In";
 FillinNode.authoringToolDescription = "Students fill in the missing text blanks in a body of text";
 
+FillinNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -43,7 +48,7 @@ FillinNode.prototype.getHTMLContentTemplate = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -56,7 +61,7 @@ FillinNode.prototype.getHTMLContentTemplate = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-FillinNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+FillinNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
 	 * Get the latest student state object for this step
 	 * TODO: rename templateState to reflect your new step type
@@ -80,7 +85,17 @@ FillinNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	var studentWork = templateState.response;
 	
 	//put the student work into the div
-	$('#' + divId).html(studentWork);
+	displayStudentWorkDiv.html(studentWork);
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+FillinNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = FillinNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 NodeFactory.addNode('FillinNode', FillinNode);

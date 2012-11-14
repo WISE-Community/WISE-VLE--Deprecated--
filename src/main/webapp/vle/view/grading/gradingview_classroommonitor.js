@@ -184,13 +184,14 @@ View.prototype.displayNodeVisitInStream = function(workgroupId, nodeVisit) {
 	$("#realTimeMonitorStudentWorkDisplayDiv").append('<div id="' + divId + '" class="realTimeStudentWork workgroupId_' + workgroupId + ' nodeId_' + nodeId + '" ' + styleDisplay + '></div>');
 
 	try {
+		var studentWorkDiv = $('#' + divId);
 		//render the student grading view for the student work
-		node.renderGradingView(divId,nodeVisit,null,workgroupId);      
+		node.renderGradingView(studentWorkDiv,nodeVisit,null,workgroupId);      
 		var nodeVisitPostTime = new Date(nodeVisit.visitPostTime);
 
 		var studentWorkInfoDiv = "<div id='studentWorkInfoDiv_"+workgroupId+"' class='studentWorkInfoDiv nodeVisitId_"+nodeVisit.id+"'>"+workgroupName+" "+
 		stepNumberAndTitle+ "(" + nodeVisitPostTime + ")<a class='shareWithClass' onclick='eventManager.fire(\"realTimeMonitorShareWithClassClicked\", [\"NodeVisit\","+nodeVisit.id+"])'>Share with class</a></div>";
-		$("#"+divId).prepend(studentWorkInfoDiv);
+		studentWorkDiv.prepend(studentWorkInfoDiv);
 
 		if (node.type == "MultipleChoiceNode") {
 			// if the step for this work can be plotted in a histogram, add/update nodeIdToWork

@@ -13,6 +13,11 @@ FlashNode.authoringToolName = "Flash";
  */
 FlashNode.authoringToolDescription = "Embed Flash content in a WISE step.";
 
+FlashNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * @constructor
@@ -80,7 +85,7 @@ FlashNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -92,14 +97,15 @@ FlashNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-FlashNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+FlashNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
+	var divId = displayStudentWorkDiv.attr('id');
 	var nodeContent = this.getContent().getContentJSON();
 	if(nodeContent.gradingType == "flashDisplay"){
 		//if node type if FlashNode and grading type is set to flashDisplaty render Flash applet with stored student data
-		this.renderGradingViewFlash(divId, nodeVisit, "", workgroupId, nodeContent);
+		this.renderGradingViewFlash(displayStudentWorkDiv, nodeVisit, "", workgroupId, nodeContent);
 	} else if (nodeContent.gradingType == "custom"){
 		//if node type if FlashNode and grading type is set to custom render custom grading output
-		this.renderGradingViewCustom(divId, nodeVisit, "", workgroupId, nodeContent);
+		this.renderGradingViewCustom(displayStudentWorkDiv, nodeVisit, "", workgroupId, nodeContent);
 	} else {
 		//otherwise, render the saved student data string
 		var gradingText = "";
@@ -121,7 +127,7 @@ FlashNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 		gradingText += studentWork;
 		
 		//put the student work into the div
-		$('#' + divId).html(gradingText);
+		displayStudentWorkDiv.html(gradingText);
 	}
 };
 
@@ -130,7 +136,7 @@ FlashNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 * The grading tool will pass in a div id to this function and this function will insert the student data
 * into the div.
 * 
-* @param divId the id of the div we will render the student work into
+* @param displayStudentWorkDiv the div we will render the student work into
 * @param nodeVisit the student work
 * @param childDivIdPrefix (optional) a string that will be prepended to all the 
 * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -138,8 +144,10 @@ FlashNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPre
 * @param workgroupId the id of the workgroup this work belongs to
 * @param nodeContent the step contentJSON
 */
-FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDivIdPrefix, workgroupId, nodeContent) {
+FlashNode.prototype.renderGradingViewFlash = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId, nodeContent) {
 	var gradingHtml = '';
+	var divId = displayStudentWorkDiv.attr('id');
+	var escapedDivId = this.view.escapeIdForJquery(divId);
 	
 	if(typeof nodeVisit.getLatestWork().response.data != "undefined"){
 		gradingHtml += '<div id="alternateContent_' + divId + '"><a href="http://www.adobe.com/go/getflashplayer">'+
@@ -160,7 +168,7 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 		var studentWork = JSON.stringify(flashState);
 		
 		//put the alternate content div into the DOM
-		$('#' + divId).html(gradingHtml);
+		displayStudentWorkDiv.html(gradingHtml);
 		
 		var width = nodeContent.width;
 		var height = nodeContent.height;
@@ -172,9 +180,9 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 			
 			// insert enlarge link
 			var enlargeHtml = $('<a class="enlarge" title="View Full Size">Enlarge</a>');
-			$('#' + divId).prepend(enlargeHtml);
+			displayStudentWorkDiv.prepend(enlargeHtml);
 			enlargeHtml.click(function(){
-				var flashContent = $('<div>').append($('#flashContent_' + divId).clone()).remove().html();
+				var flashContent = $('<div>').append($('#flashContent_' + escapedDivId).clone()).remove().html();
 				flashContent = flashContent.replace(/width=['"]\d+\.*\d+['"]/gi,'width="' + nodeContent.width + '"');
 				flashContent = flashContent.replace(/height=['"]\d+\.*\d+['"]/gi,'height="' + nodeContent.height + '"');
 				flashContent = flashContent.replace(/studentData=\[\]/gi,'studentData=[' + studentWork + ']');
@@ -214,7 +222,7 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 		gradingHtml += 'Error: Student data not found. Check Flash file to ensure export format is correct.';
 		
 		//put the error string into the div
-		$('#' + divId).html(gradingHtml);
+		displayStudentWorkDiv.html(gradingHtml);
 	}
 		
 };
@@ -224,7 +232,7 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 * The grading tool will pass in a div id to this function and this function will insert the data
 * into the div.
 * 
-* @param divId the id of the div we will render the student work into
+* @param displayStudentWorkDiv the div we will render the student work into
 * @param nodeVisit the student work
 * @param childDivIdPrefix (optional) a string that will be prepended to all the 
 * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -232,7 +240,7 @@ FlashNode.prototype.renderGradingViewFlash = function(divId, nodeVisit, childDiv
 * @param workgroupId the id of the workgroup this work belongs to
 * @param nodeContent the step contentJSON
 */
-FlashNode.prototype.renderGradingViewCustom = function(divId, nodeVisit, childDivIdPrefix, workgroupId, nodeContent) {
+FlashNode.prototype.renderGradingViewCustom = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId, nodeContent) {
 	var gradingText = "";
 	
 	if(typeof nodeVisit.getLatestWork().response.customGrading != "undefined"){
@@ -257,7 +265,7 @@ FlashNode.prototype.renderGradingViewCustom = function(divId, nodeVisit, childDi
 	}
 	
 	//put the custom grading string into the div
-	$('#' + divId).html(gradingText);	
+	displayStudentWorkDiv.html(gradingText);	
 };
 
 /**
@@ -297,6 +305,16 @@ FlashNode.prototype.hasGradingView = function() {
 		}
 	}
 	return result;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+FlashNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = FlashNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 //Add this node to the node factory so the vle knows it exists.

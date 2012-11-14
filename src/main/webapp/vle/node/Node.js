@@ -351,14 +351,14 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
  * @param workgroupId the id of the workgroup this work belongs to
  */
-Node.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+Node.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	// override by children
 };
 
@@ -1531,13 +1531,33 @@ Node.prototype.onBeforeCreateNavigationHtml = function() {
 };
 
 /**
- * Get a tag map function given the function name. Each child class
- * should overwrite this function if they make use of tags.
+ * Get a tag map function given the function name.
  * @param functionName the name of the function
  * @returns a tag map object
  */
 Node.prototype.getTagMapFunctionByName = function(functionName) {
-	return null;
+	var fun = null;
+	
+	//get all the tag map function for this step type
+	var tagMapFunctions = this.getTagMapFunctions();
+	
+	//loop through all the tag map functions
+	for(var x=0; x<tagMapFunctions.length; x++) {
+		//get a tag map function
+		var tagMapFunction = tagMapFunctions[x];
+		
+		if(tagMapFunction != null) {
+			
+			//check if the function name matches
+			if(functionName == tagMapFunction.functionName) {
+				//the function name matches so we have found what we want
+				fun = tagMapFunction;
+				break;
+			}			
+		}
+	};
+	
+	return fun;
 };
 
 /**
@@ -1602,6 +1622,169 @@ Node.prototype.processStateConstraints = function() {
  */
 Node.prototype.canSpecialExport = function() {
 	return false;
+};
+
+/**
+ * Get the latest node state from all the steps with the given tag
+ * @param tagName the tag for the step(s) we want to import work from
+ * @param functionArgs the arguments for this tag map function
+ * @returns an array of node state objects that contains node states
+ * from the steps we want to import work from
+ */
+Node.prototype.getWorkToImport = function(tagName, functionArgs) {
+	//default values for the importWork
+	var workToImport = [];
+	
+	//the node ids of the steps that come before the current step and have the given tag
+	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+	
+	if(nodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			if(nodeId != null) {
+				//get the node
+				var node = this.view.getProject().getNodeById(nodeId);
+				
+				if(node != null) {
+					//get the latest work for the node
+					var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
+					
+					if(nodeState != null && nodeState != '') {
+						//add the work to the array of work to import
+						workToImport.push(nodeState);
+					}
+				}
+			}
+		}
+	}
+	
+	return workToImport;
+};
+
+/**
+ * Show the previous work for all the steps with the given tag
+ * @param previousWorkDiv the div that we will display all the previous work in
+ * @param tagName we will get all the steps with the given tag and
+ * display work from them
+ * @param functionArgs the arguments to this tag map function
+ */
+Node.prototype.showPreviousWork = function(previousWorkDiv, tagName, functionArgs) {
+	//the node ids of the steps that come before the current step and have the given tag
+	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+	
+	//the signed in workgroup id
+	var workgroupId = this.view.userAndClassInfo.getWorkgroupId();
+	
+	//clear out the previous work div
+	previousWorkDiv.html('');
+	
+	if(nodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			if(nodeId != null) {
+				//get the node object for the step we will retrieve work from
+				var node = this.view.getProject().getNodeById(nodeId);
+				
+				//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
+				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+				
+				if(node != null) {
+					//get the latest work for the node
+					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
+					
+					//make the id for the div that we will show previous work in for the step
+					var showPreviousWorkDivId = 'showPreviousWork_' + nodeId;
+					
+					//create the div to display the work for the step
+					var showPreviousWorkForNodeDiv = $('<div id="' + showPreviousWorkDivId + '"></div>');
+					
+					//put the div into the parent previous work div
+					previousWorkDiv.append(showPreviousWorkForNodeDiv);
+					
+					if(nodeVisit != null) {
+						//render the grading view
+						node.renderGradingView(showPreviousWorkForNodeDiv, nodeVisit, null, workgroupId);
+					}
+					
+					//add a header so the student can tell what step the work was from
+					showPreviousWorkForNodeDiv.prepend('Your work from Step ' + stepNumberAndTitle + ' was<br>');
+					
+					//make the show previous work div visible
+					previousWorkDiv.show();
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Check whether the student completed the steps that have the given tag and occur
+ * before the current step in the project
+ * @param tagName the tag name
+ * @param functionArgs the arguments to this function (this is not actually used in this function)
+ * @returns the results from the check, the result object
+ * contains a pass field and a message field
+ */
+Node.prototype.checkCompleted = function(tagName, functionArgs) {
+	//default values for the result
+	var result = {
+		pass:true,
+		message:''
+	};
+	
+	//array to accumulate the nodes that the student has not completed with a high enough score
+	var nodesFailed = [];
+
+	//the node ids of the steps that come before the current step and have the given tag
+	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+	
+	if(nodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+			
+			if(nodeId != null) {
+				//get the latest work for the node
+				var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
+				
+				if(nodeState == null || nodeState == "") {
+					//the student has not completed this step
+					nodesFailed.push(nodeId);
+				}
+			}
+		}
+	}
+	
+	if(nodesFailed.length != 0) {
+		//the student has not completed one of the steps
+		
+		//create the message to display to the student
+		var message = "You must complete these steps before you can work on this step<br>";
+		
+		//loop through all the failed steps
+		for(var x=0; x<nodesFailed.length; x++) {
+			var nodeId = nodesFailed[x];
+			
+			//get the step number and title for the failed step
+			var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+			
+			//add the step number and title to the message
+			message += stepNumberAndTitle + "<br>";
+		}
+		
+		//set the fields in the result
+		result.pass = false;
+		result.message = message;
+	}
+	
+	return result;
 };
 
 //used to notify scriptloader that this script has finished loading
