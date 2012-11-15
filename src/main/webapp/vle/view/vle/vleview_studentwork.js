@@ -545,7 +545,7 @@ View.prototype.viewStudentAssets = function(params) {
 		);		
 	}
 
-	this.connectionManager.request('POST', 1, this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'assetList'}, function(txt,xml,obj){studentAssetsPopulateOptions(txt,obj);}, this);	
+	this.connectionManager.request('GET', 1, this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'assetList'}, function(txt,xml,obj){studentAssetsPopulateOptions(txt,obj);}, this);	
 };
 
 /**
@@ -565,7 +565,7 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 			$('#sizeDiv').html(o.getStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
 		} 
 	};
-	this.connectionManager.request('POST', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);
+	this.connectionManager.request('GET', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);
 };
 
 /**

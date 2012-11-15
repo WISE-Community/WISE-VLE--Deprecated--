@@ -95,6 +95,21 @@ function IdeaBasket(ideaBasketJSONObj, createForStep, node, settings) {
  * @param context
  */
 IdeaBasket.prototype.init = function(context) {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
 	//allow the ideas and deleted tables to be auto sorted by columns by clicking on the header columns
 	$("#basketIdeas").tablesorter({textExtraction: "complex", sortMultiSortKey:'', widgets:['zebra'], headers:{4:{sorter:false}}});
 	$("#basketDeleted").tablesorter({textExtraction: "complex", sortMultiSortKey:'', headers:{4:{sorter:false}}});
@@ -2336,6 +2351,73 @@ IdeaBasket.prototype.makeIdeaRowPrivate = function(ideaId) {
 			context.openEditDialog(context,id,$clicked);
 		});
 	}
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+IdeaBasket.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = this.node.checkCompleted(tagName, functionArgs);
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
 };
 
 /* used to notify scriptloader that this script has finished loading */

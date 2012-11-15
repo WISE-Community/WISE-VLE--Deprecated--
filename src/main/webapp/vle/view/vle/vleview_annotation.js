@@ -59,7 +59,7 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 			if (currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent) {
 				if (nodeAnnotationCRater != null) {
 					// get the score from the annotation
-					cRaterFeedbackStringSoFar += "You got a score of "+nodeAnnotationCRater.value[0].score+"<br/><br/>";					
+					cRaterFeedbackStringSoFar += "You got a score of "+nodeAnnotationCRater.value[nodeAnnotationCRater.value.length - 1].score+"<br/><br/>";					
 				}
 			}
 			if (currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent) {

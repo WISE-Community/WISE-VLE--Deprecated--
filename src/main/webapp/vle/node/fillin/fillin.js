@@ -5,6 +5,7 @@
  */
 function FILLIN(node) {
 	this.node = node;
+	this.view = node.view;
 	this.content = this.node.getContent().getContentJSON();
 	
 	this.states = [];
@@ -38,6 +39,21 @@ function FILLIN(node) {
  * textInteractionEntries before the specified index will reveal the correct response.
  */
 FILLIN.prototype.render = function(textInteractionEntryIndex) {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
 	this.html = "";
 	clearFeedbackDiv();
 	//removeClassFromElement("checkAnswerButton", "disabledLink");
@@ -216,6 +232,76 @@ FILLIN.prototype.getCorrectText = function(blanks, tries){
 	};
 	
 	return outStr;
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+FILLIN.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = this.node.checkCompleted(tagName, functionArgs);
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
 };
 
 //used to notify scriptloader that this script has finished loading

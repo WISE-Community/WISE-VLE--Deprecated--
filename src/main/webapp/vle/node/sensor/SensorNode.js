@@ -5,6 +5,11 @@ SensorNode.prototype.parentNode = Node.prototype;
 SensorNode.authoringToolName = "Graph/Sensor";
 SensorNode.authoringToolDescription = "Students plot points on a graph and can use a USB probe to collect data";
 
+SensorNode.tagMapFunctions = [
+	{functionName:'importWork', functionArgs:[]},
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * @constructor
  * @extends Node
@@ -66,14 +71,14 @@ SensorNode.prototype.onExit = function() {
 
 /**
  * Renders the student work into the div
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
  * @param workgroupId the id of the workgroup this work belongs to
  */
-SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+SensorNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	//create a SENSOR object that we will use to perform all the graphing logic for us
 	var sensor = new SENSOR(this, this.view);
 	
@@ -84,6 +89,10 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	
 	//get the step work id from the node visit
 	var stepWorkId = nodeVisit.id;
+	
+	if(stepWorkId == null) {
+		stepWorkId = '';
+	}
 	
 	/*
 	 * get the student work, in this case the student work is
@@ -116,13 +125,13 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	var sensorResponseDiv = createElement(document, 'div', {id: childDivIdPrefix + 'sensorResponseDiv_' + stepWorkId});
 	
 	//add all the divs to the main work div 
-	$('#' + divId).append(sensorGraphDiv);
-	$('#' + divId).append(sensorGraphCheckBoxesDiv);
-	$('#' + divId).append(sensorAnnotationsDiv);
-	$('#' + divId).append(sensorResponseDiv);
+	displayStudentWorkDiv.append(sensorGraphDiv);
+	displayStudentWorkDiv.append(sensorGraphCheckBoxesDiv);
+	displayStudentWorkDiv.append(sensorAnnotationsDiv);
+	displayStudentWorkDiv.append(sensorResponseDiv);
 	
 	//plot the graph in the sensor graph div
-	sensor.plotData(sensorGraphDiv.id, sensorGraphCheckBoxesDiv.id);
+	sensor.plotData($(sensorGraphDiv), $(sensorGraphCheckBoxesDiv));
 	
 	/*
 	 * used to hide or show the annotation tool tips. if the teacher has
@@ -131,10 +140,10 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	 * when the mouse cursor is outside of the graph div we will show the
 	 * annotation tool tips for them to view.
 	 */
-	$("#" + sensorGraphDiv.id).bind('mouseover', (function(event) {
+	$(sensorGraphDiv).bind('mouseover', (function(event) {
 		$(".activeAnnotationToolTip").hide();
 	}));
-	$("#" + sensorGraphDiv.id).bind('mouseleave', (function(event) {
+	$(sensorGraphDiv).bind('mouseleave', (function(event) {
 		$(".activeAnnotationToolTip").show();
 	}));
 	
@@ -142,7 +151,7 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	var annotationsHtml = sensorState.getAnnotationsHtml();
 	
 	//set the annotations text
-	$('#' + sensorAnnotationsDiv.id).html(annotationsHtml);
+	$(sensorAnnotationsDiv).html(annotationsHtml);
 	
 	//get the student response that was typed
 	var response = sensorState.response;
@@ -151,7 +160,17 @@ SensorNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPr
 	response = this.view.replaceSlashNWithBR(response);
 	
 	//insert the response the student typed
-	$('#' + sensorResponseDiv.id).html(response);
+	$(sensorResponseDiv).html(response);
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+SensorNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = SensorNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 SensorNode.prototype.getHTMLContentTemplate = function() {

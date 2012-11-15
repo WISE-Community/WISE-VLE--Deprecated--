@@ -36,6 +36,10 @@ IdeaBasketNode.authoringToolName = "Idea Basket";
  */
 IdeaBasketNode.authoringToolDescription = "Students view their Idea Basket and are prompted to add an idea";
 
+IdeaBasketNode.tagMapFunctions = [
+	{functionName:'showPreviousWork', functionArgs:[]}
+];
+
 /**
  * This is the constructor for the Node
  * 
@@ -159,7 +163,7 @@ IdeaBasketNode.prototype.onExit = function() {
  * div id to this function and this function will insert the student data
  * into the div.
  * 
- * @param divId the id of the div we will render the student work into
+ * @param displayStudentWorkDiv the div we will render the student work into
  * @param nodeVisit the student work
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
@@ -172,7 +176,7 @@ IdeaBasketNode.prototype.onExit = function() {
  * look at SensorNode.renderGradingView() as an example of a step that
  * requires additional processing
  */
-IdeaBasketNode.prototype.renderGradingView = function(divId, nodeVisit, childDivIdPrefix, workgroupId) {
+IdeaBasketNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, childDivIdPrefix, workgroupId) {
 	/*
 	 * Get the latest student state object for this step
 	 * TODO: rename templateState to reflect your new step type
@@ -197,6 +201,16 @@ IdeaBasketNode.prototype.renderGradingView = function(divId, nodeVisit, childDiv
 	
 	//put the student work into the div
 	//$('#' + divId).html();
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+IdeaBasketNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = IdeaBasketNode.tagMapFunctions;
+	
+	return tagMapFunctions;
 };
 
 /**

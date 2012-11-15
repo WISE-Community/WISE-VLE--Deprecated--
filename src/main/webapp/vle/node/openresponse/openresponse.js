@@ -538,7 +538,22 @@ OPENRESPONSE.prototype.onlyDisplayMessage = function(message) {
 /**
  * Render this OpenResponse item
  */
-OPENRESPONSE.prototype.render = function() {	
+OPENRESPONSE.prototype.render = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//process the tag maps if we are not in authoring mode
+	if(this.view.authoringMode == null || !this.view.authoringMode) {
+		//get the tag map results
+		var tagMapResults = this.processTagMaps();
+		
+		//get the result values
+		enableStep = tagMapResults.enableStep;
+		message = tagMapResults.message;
+		workToImport = tagMapResults.workToImport;
+	}
+	
 	/*
 	 * check if this is a peer/teacher review annotation step and it is locked.
 	 * a peer/teacher review annotation step becomes locked once the student
@@ -704,6 +719,9 @@ OPENRESPONSE.prototype.render = function() {
 		//show the previous work that has a CRater annotation
 		this.showPreviousWorkThatHasAnnotation(null, 'cRater');
 	}
+	
+	//import any work if necessary
+	this.importWork(workToImport);
 	
 	if (this.content.isLockAfterSubmit) {
 		// this node is set to lock after the student submits the answer. show saveAndLock button
@@ -1692,7 +1710,114 @@ OPENRESPONSE.prototype.getNumberOfCRaterSubmits = function() {
 	}
 	
 	return numCRaterSubmits;
-}
+};
+
+/**
+ * Process the tag maps and obtain the results
+ * @return an object containing the results from processing the
+ * tag maps. the object contains three fields
+ * enableStep
+ * message
+ * workToImport
+ */
+OPENRESPONSE.prototype.processTagMaps = function() {
+	var enableStep = true;
+	var message = '';
+	var workToImport = [];
+	
+	//the tag maps
+	var tagMaps = this.node.tagMaps;
+	
+	//check if there are any tag maps
+	if(tagMaps != null) {
+		
+		//loop through all the tag maps
+		for(var x=0; x<tagMaps.length; x++) {
+			
+			//get a tag map
+			var tagMapObject = tagMaps[x];
+			
+			if(tagMapObject != null) {
+				//get the variables for the tag map
+				var tagName = tagMapObject.tagName;
+				var functionName = tagMapObject.functionName;
+				var functionArgs = tagMapObject.functionArgs;
+				
+				if(functionName == "importWork") {
+					//get the work to import
+					workToImport = this.node.getWorkToImport(tagName, functionArgs);
+				} else if(functionName == "showPreviousWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "checkCompleted") {
+					//we will check that all the steps that are tagged have been completed
+					
+					//get the result of the check
+					var result = this.node.checkCompleted(tagName, functionArgs);
+					enableStep = enableStep && result.pass;
+					
+					if(message == '') {
+						message += result.message;
+					} else {
+						//message is not an empty string so we will add a new line for formatting
+						message += '<br>' + result.message;
+					}
+				}
+			}
+		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
+	}
+	
+	//put the variables in an object so we can return multiple variables
+	var returnObject = {
+		enableStep:enableStep,
+		message:message,
+		workToImport:workToImport
+	};
+	
+	return returnObject;
+};
+
+/**
+ * Import work if necessary
+ * @param workToImport an array of node states to import into this step
+ */
+OPENRESPONSE.prototype.importWork = function(workToImport) {
+	if(workToImport != null && workToImport != "" && workToImport.length != 0) {
+		var currentResponse = $('#responseBox').val();
+		
+		//check if the response box is empty
+		if(currentResponse == '') {
+			//the response box is empty so we will import the previous work
+			var response = '';
+			
+			for(var x=0; x<workToImport.length; x++) {
+				//get one of the work
+				var nodeState = workToImport[x];
+				
+				if(nodeState != null) {
+					var type = nodeState.constructor.name;
+					if(type == 'OPENRESPONSESTATE') {
+						if(response != '') {
+							//separate work with a blank line
+							response += '\n\n';
+						}
+						
+						//append the response
+						response += nodeState.response;
+					}
+				}
+			}
+			
+			//set the imported work into the response box
+			$('#responseBox').val(response);
+		}
+	}
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
