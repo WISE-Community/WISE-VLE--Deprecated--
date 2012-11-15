@@ -127,7 +127,7 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
     var divContent = "";
     
     // given the nodeState, returns the HTML that should be displayed in the div for student work.
-    function getDivContentFromNodeState(nodeState, view, contentBaseUrl) {
+    function getDivContentFromNodeState(nodeState, nodeStateIndex, view, contentBaseUrl) {
 			var studentWork = nodeState.response;
 			var isSubmit = nodeState.isSubmit;
             var svg = null; 
@@ -177,9 +177,9 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
             // put the student work and content in a hidden element
             // add enlarge link to show student's diagram in a popup window
             divContent += "<a class='msEnlarge' style='text-decoration:underline; color:blue;'" +
-                "onclick='var newWindow=window.open(\"/vlewrapper/vle/node/mysystem2/mysystem2.html\"); newWindow.divId=\""+divId+"_"+x+"\"'>enlarge</a>" +
-                "<span id='content_"+divId+"_"+x+"' style='display:none'>"+contentString+"</span>" +
-                "<span id='studentwork_"+divId+"_"+x+"' style='display:none'>"+studentWork+"</span>";
+                "onclick='var newWindow=window.open(\"/vlewrapper/vle/node/mysystem2/mysystem2.html\"); newWindow.divId=\""+divId+"_"+nodeStateIndex+"\"'>enlarge</a>" +
+                "<span id='content_"+divId+"_"+nodeStateIndex+"' style='display:none'>"+contentString+"</span>" +
+                "<span id='studentwork_"+divId+"_"+nodeStateIndex+"' style='display:none'>"+studentWork+"</span>";
 
     		if (svg != null) {
                 divContent += "<div class='preview svg image'" + 
@@ -205,7 +205,7 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
     		//only display the latest node state
     		//Get the latest student state object for this step
     		var nodeState = nodeVisit.getLatestWork();
-    		divContent = getDivContentFromNodeState(nodeState, this.view, contentBaseUrl);
+    		divContent = getDivContentFromNodeState(nodeState, 0, this.view, contentBaseUrl);
     	} else {
     		/*
     		 * display all the node states because this step utilizes automated feedback
@@ -216,7 +216,7 @@ Mysystem2Node.prototype.renderGradingView = function(displayStudentWorkDiv, node
     		for(var x=nodeVisit.nodeStates.length - 1; x>=0; x--) {
     			//get a node state
     			var nodeState = nodeVisit.nodeStates[x];
-    			divContent += getDivContentFromNodeState(nodeState, this.view, contentBaseUrl);
+    			divContent += getDivContentFromNodeState(nodeState, x, this.view, contentBaseUrl);
     			if(x != nodeVisit.nodeStates.length - 1) {
     				//divide each node state with an hr
     				divContent += "<hr style='border:1px solid lightgrey'>";
