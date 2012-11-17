@@ -1,13 +1,15 @@
 {
 	"prompt": "",
 	"excelExportStringTemplate":"",
-	"type": "Box2dModel",
+	"isMustCompleteAllPartsBeforeExit":true,
+   	"type": "Box2dModel",
 	"IN_WISE":true,
 	"DEBUG" : false,
 	"INCLUDE_BUILDER": true,
 	"INCLUDE_BALANCE": true,
 	"INCLUDE_BEAKER": true,
-	"SCALE" : 20,
+	"SHOW_MASS_BALANCE": true,
+    "SCALE" : 20,
 	"MAX_WIDTH_UNITS":5,
 	"MAX_HEIGHT_UNITS":5,
 	"MAX_DEPTH_UNITS":5,
@@ -19,6 +21,9 @@
 	"fill_spilloff_depth_from_middle":false,
 	"spilloff_volume_perc" : 0.5,
 	"materials_available" : ["DWood", "Metal", "Plastic"],
+	"liquid_available":"Water",
+	"premades_available": [],
+	"feedbackEvents": [],
 	"materials" :
 	{
 		"DWood":
@@ -98,7 +103,6 @@
 			"container_thickness":1				
 		}
 	},
-	"liquid_available":"Water",
 	"liquids" : 
 	{
 		"Water":
@@ -120,7 +124,6 @@
 			"stroke_color_container":"rgba(100,125,70,1.0)"
 		}
 	},
-	"premades_available": [],
 	"premades":{
  		"1x1x1_DWood":
  		{
@@ -408,32 +411,5 @@
  			"is_container":true, 
  			"is_deletable":false
  		}
- 	},
-
- 	"feedbackEvents":
-    [
-      {
-         "feedback":
-         {
-            "type":"text",
-            "body":"Great job! You compared two unit objects with equal volume and unequal mass.",
-            "repetitionMax":0
-         }
-         "sequenceHead":
-         {
-            "maxMisses": 0,
-            "strictOrdering": true,
-            "matchItems" : 
-            [
-               {
-                  "eventType":"test-balance-1to1",
-                  "ComputationInputElement":{"label":"object-left-volume", "value":"=1"},
-                  "ComputationInputElement":{"label":"object-right-volume", "value":"=1"},
-                  "ComputationOutputElement":{"label":"balance-state", "value":"=0"}
-               }
-            ],
-            "breakItems":[]
-         }
-      }
-   ]
+ 	}
 }

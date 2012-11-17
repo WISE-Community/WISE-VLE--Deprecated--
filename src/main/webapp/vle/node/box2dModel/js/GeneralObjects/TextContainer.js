@@ -26,7 +26,7 @@
 		this.textColor = textColor;
 		this.width_px = (typeof width_px === "undefined") ? 0 : width_px;
 		this.height_px = (typeof height_px === "undefined") ? 0 : height_px;
-		this.backgroundColor = (typeof backgroundColor === "undefined") ? "rgba(255,255,255,1.0)" : backgroundColor;
+		this.backgroundColor = (typeof backgroundColor === "undefined" || backgroundColor == null) ? "rgba(255,255,255,0)" : backgroundColor;
 		this.strokeColor = (typeof strokeColor === "undefined") ? this.backgroundColor : strokeColor;
 		this.strokeSize = (typeof strokeSize === "undefined") ? 0 : strokeSize;
 		this.hAlign = (typeof hAlign === "undefined") ? "center" : hAlign;

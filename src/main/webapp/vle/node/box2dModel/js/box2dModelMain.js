@@ -82,7 +82,6 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var stage;
 		var builder;
 		var tester;
-		//var feedbackManager;
 		
 		function init(wiseData)
 		{
@@ -131,7 +130,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				
 				var htmlText, htmlElement;
 				// jquery ui
-			
+				if ($("#make-object").length == 0){
 				 	htmlText = '<input type="submit" id="make-object" value="Create"/>';
 
 			        //htmlElement = $( "input[id='make-object']" )
@@ -182,24 +181,25 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		
 			
 
-				// setup buttons for volume viewer	
-				var element = new DOMElement($("#make-object")[0]);
-				stage.addChild(element);
-				element.x = builder.x + builder.width_px / 2 + 2 * GLOBAL_PARAMETERS.PADDING;
-				element.y = builder.y  + GLOBAL_PARAMETERS.PADDING * 2;
+					// setup buttons for volume viewer	
+					var element = new DOMElement($("#make-object")[0]);
+					stage.addChild(element);
+					element.x = builder.x + builder.width_px / 2 + 2 * GLOBAL_PARAMETERS.PADDING;
+					element.y = builder.y  + GLOBAL_PARAMETERS.PADDING * 2;
 
-				element = new DOMElement($("#slider-sideAngle")[0]);
-				stage.addChild(element);
-				element.x = builder.x + builder.width_px / 2 + (builder.width_px / 2 - 100) / 2 ;
-				element.y = builder.y + builder.height_px - 2 * GLOBAL_PARAMETERS.PADDING;
-				
-				element = new DOMElement($("#slider-topAngle")[0]);
-				stage.addChild(element);
-				element.x = builder.x + builder.width_px - 4 * GLOBAL_PARAMETERS.PADDING;
-				element.y = builder.y + 4 * GLOBAL_PARAMETERS.PADDING;
-				$("#make-object").show();
-				$("#slider-sideAngle").show();
-				$("#slider-topAngle").show();
+					element = new DOMElement($("#slider-sideAngle")[0]);
+					stage.addChild(element);
+					element.x = builder.x + builder.width_px / 2 + (builder.width_px / 2 - 100) / 2 ;
+					element.y = builder.y + builder.height_px - 2 * GLOBAL_PARAMETERS.PADDING;
+					
+					element = new DOMElement($("#slider-topAngle")[0]);
+					stage.addChild(element);
+					element.x = builder.x + builder.width_px - 4 * GLOBAL_PARAMETERS.PADDING;
+					element.y = builder.y + 4 * GLOBAL_PARAMETERS.PADDING;
+					$("#make-object").show();
+					$("#slider-sideAngle").show();
+					$("#slider-topAngle").show();
+				}
 
 			}
 			var tester_y;
@@ -225,7 +225,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 
 			// get maximum number of library objects, create computational inputs for each
 			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
-			
+					
+
 			Ticker.setFPS(24);
 			Ticker.addListener(window);
 		}

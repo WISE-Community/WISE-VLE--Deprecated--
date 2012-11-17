@@ -25,6 +25,7 @@
 	p.BEAM_MASS = 1000;
 	p.PAN_DY = 100;
 	p.PAN_HEIGHT = 2;
+	p.MASS_DISPLAY_WIDTH = 58;
 	
 	p.initialize = function (width_px, height_px, world_dx, world_dy, width_units, depth_units)
 	{
@@ -41,6 +42,7 @@
 		this.BEAM_ANGLE = Math.tan(this.BEAM_LENGTH_Y/this.BEAM_LENGTH_X);
 		this.PAN_WIDTH = this.width_units * GLOBAL_PARAMETERS.SCALE;
 		this.PAN_DEPTH = this.depth_units * GLOBAL_PARAMETERS.SCALE;
+		this.SHOW_MASS = typeof GLOBAL_PARAMETERS.SHOW_MASS_BALANCE != "undefined" ? GLOBAL_PARAMETERS.SHOW_MASS_BALANCE : true;
 		
 		this.mass_on_left_pan = 0;
 		this.mass_on_right_pan = 0;
@@ -117,14 +119,18 @@
 		g.curveTo(-this.BEAM_LENGTH_X/2, this.BEAM_ARC_DY-this.BEAM_HEIGHT_EDGE, -this.BEAM_LENGTH_X, this.BEAM_ARC_DY-this.BEAM_HEIGHT_EDGE);
 		g.lineTo(-this.BEAM_LENGTH_X, this.BEAM_ARC_DY);	
 		g.endFill();
-		g.beginStroke("#AA9900");
-		g.beginFill("#DDCC00");
-		g.drawEllipse (-20, -this.BEAM_HEIGHT - 40, 40, 40);
+		g.setStrokeStyle(2);
+		g.beginStroke("#888888");
+		g.beginFill("#EEEEEE");
+		g.drawEllipse (-this.MASS_DISPLAY_WIDTH/2, -this.BEAM_HEIGHT - this.MASS_DISPLAY_WIDTH, this.MASS_DISPLAY_WIDTH, this.MASS_DISPLAY_WIDTH);
 		g.endFill();
-		var text = new Text("Slow", "16px Arial", "rgba(100,100,50,1.0)");
-		this.addChild(text);
-		text.x = this.beamShape.x - text.getMeasuredWidth()/2;
-		text.y = this.beamShape.y -this.BEAM_HEIGHT - 30 - text.getMeasuredLineHeight();
+		
+		if (this.SHOW_MASS){
+			this.massText = new TextContainer("0", "16px Arial", "rgba(100,100,50,1.0)", this.MASS_DISPLAY_WIDTH, this.MASS_DISPLAY_WIDTH, null, null, 0, "center", "center", 0, 0,"rect" ,true)
+			this.addChild(this.massText);
+			this.massText.x = this.beamShape.x;
+			this.massText.y = this.beamShape.y -this.BEAM_HEIGHT - this.MASS_DISPLAY_WIDTH/2;			
+		}
 		
 		// pans
 		// easel
@@ -278,7 +284,7 @@
 		// b2
 		var panDip = 0.5;
 		var leftPanFixtureL = new b2FixtureDef;
-		leftPanFixtureL.density = 10;
+		leftPanFixtureL.density = 50;
 		leftPanFixtureL.restitution = 0.0;
 		leftPanFixtureL.friction = 1.0;
 		leftPanFixtureL.filter.categoryBits = 2;
@@ -292,7 +298,7 @@
 		leftPanFixtureL.shape.SetAsArray(vecs, vecs.length);
 
 		var leftPanFixtureR = new b2FixtureDef;
-		leftPanFixtureR.density = 10;
+		leftPanFixtureR.density = 50;
 		leftPanFixtureR.restitution = 0.0;
 		leftPanFixtureR.friction = 1.0;
 		leftPanFixtureR.filter.categoryBits = 2;
@@ -353,7 +359,7 @@
 		//b2
 		
 		var rightPanFixtureL = new b2FixtureDef;
-		rightPanFixtureL.density = 10;
+		rightPanFixtureL.density = 50;
 		rightPanFixtureL.restitution = 0.0;
 		rightPanFixtureL.friction = 1.0;
 		rightPanFixtureL.filter.categoryBits = 2;
@@ -367,7 +373,7 @@
 		rightPanFixtureL.shape.SetAsArray(vecs, vecs.length);
 
 		var rightPanFixtureR = new b2FixtureDef;
-		rightPanFixtureR.density = 10;
+		rightPanFixtureR.density = 50;
 		rightPanFixtureR.restitution = 0.0;
 		rightPanFixtureR.friction = 1.0;
 		rightPanFixtureR.filter.categoryBits = 2;
@@ -555,6 +561,17 @@
 			}
 		}
 		this.mass_on_right_pan = mass;
+
+		if (this.SHOW_MASS){
+			var mass_diff = this.mass_on_right_pan - this.mass_on_left_pan;
+			if (mass_diff != 0){
+				this.massText.setText(Math.round(1000*mass_diff)/1000);
+			} else {
+				this.massText.setText("0");
+			}
+			
+			
+		}
 	}
 
 	/** This works for objecs where the width_px_left, height_px_above, width_px_right, width_px_below are defined
@@ -588,7 +605,7 @@
 	}
 	p.addActor = function (actor, x, y)
 	{
-		eventManager.fire('add-balance-world',[actor.skin.savedObject]);
+		eventManager.fire('add-balance-world',[actor.skin.savedObject], box2dModel);
 		
 		actor.x = x;
 		actor.y = y;
@@ -722,6 +739,12 @@
 		for(i = 0; i < this.actors.length; i++)
 		{
 			this.actors[i].update();
+		}
+
+		if (this.SHOW_MASS){
+			var r = this.beamShape.rotation * Math.PI / 180;
+			this.massText.x = this.beamShape.x + (this.BEAM_HEIGHT+this.MASS_DISPLAY_WIDTH/2) * Math.sin(r);
+			this.massText.y = this.beamShape.y - (this.BEAM_HEIGHT+this.MASS_DISPLAY_WIDTH/2) * Math.cos(r);
 		}
 
 		this.b2world.Step(1/Ticker.getFPS(), 10, 10);

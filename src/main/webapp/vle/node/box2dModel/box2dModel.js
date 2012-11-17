@@ -47,16 +47,6 @@ function Box2dModel(node) {
 	var d = new Date();
 	this.timestamp = d.getTime();
 
-	this.customEventTypes = ['make-model', 'delete-model', 'add-balance-world', 'add-balance', 'remove-balance-world',
-		'remove-balance', 'add-beaker-world', 'add-beaker', 'add-spilloff', 'remove-beaker-world', 'remove-beaker', 
-		'remove-spilloff','press-refill', 'press-release','test-balance-1to1', 'test-balance-1toN', 'test-balance-Nto1',
-		'test-balance-NtoN', 'test-beaker-add','test-beaker-release'
-	];
-
-	for (var i = 0; i < this.customEventTypes.length; i++){
-		eventManager.subscribe(this.customEventTypes[i], this.interpretEvent, this);
-	}
-	
 };
 
 /**
@@ -138,16 +128,23 @@ Box2dModel.prototype.render = function() {
 
 
 	// setup the event logger and feedbacker
-	if (typeof this.content.feedbackEvents != "undefined")
-		this.feedbackManager =  new FeedbackManager(this.node, this.content.feedbackEvents, this.customEventTypes) ;
-
+	if (typeof this.content.feedbackEvents != "undefined"){
+		this.feedbackManager =  new FeedbackManager(this.node, this.content.feedbackEvents, this.node.customEventTypes) ;
+	} else {
+		this.feedbackManager =  new FeedbackManager(this.node, [], this.node.customEventTypes) ;
+		this.node.setCompleted();
+	}
 
 	init(box2dModel.content);
-
+	//eventManager.fire("box2dInit", [{}], this);
+	eventManager.fire('pushStudentWork', {});
+	
 	for (var i = 0; i < previousModels.length; i++)
 	{
 		createObject(previousModels[i]);
 	}
+	
+	
 };
 
 /**
@@ -226,8 +223,148 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	evt = {};
 	evt.type = type;
 	evt.args = args;
-	var state = obj.save(evt);
-	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null) obj.feedbackManager.checkEvent(state.response.evt);
+	var d = new Date();
+	evt.time = d.getTime() - this.timestamp;
+	evt.ModelDataDescriptions = {};
+	evt.ModelDataDescriptions.DataSeriesDescription = [];
+	evt.ModelDataDescriptions.ComputationalInputs = [];
+	evt.ModelDataDescriptions.ComputationalOutputs = [];
+	evt.ModelData = {};
+	evt.ModelData.DataSeries = [];
+	evt.ModelData.ComputationalInputValues = [];
+	evt.ModelData.ComputationalOutputValues = [];
+	evt.ObjectProperties = {};
+
+	var mass_on_left, mass_on_right, mass_diff;
+	// for the following types there is a central object, set its properties
+	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance-world" || evt.type == "add-balance" ||
+		evt.type == "remove-balance"  || evt.type == "add-beaker-world" || evt.type == "add-beaker" || evt.type == "test-add-beaker" || evt.type == "remove-beaker"){
+		evt.ObjectProperties.id = evt.args[0].id;
+		evt.ObjectProperties.mass = evt.args[0].mass;
+		evt.ObjectProperties.volume = evt.args[0].volume;
+		evt.ObjectProperties.density = evt.args[0].mass/ evt.args[0].volume;
+	}
+
+	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
+	if (evt.type == "make-model" || evt.type == "delete-model")
+    {
+    	
+		evt.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"object-id", "units":"", "min":0, "max":1000},
+			{"label":"object-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-volume", "units":"cm^3", "min":0, "max":100000}		
+		];
+		evt.ModelData.ComputationalInputValues =
+		[evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
+	
+	} else if (evt.type == "test-balance-1to1")
+	{
+		evt.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-left-id", "units":"", "min":0, "max":1000},
+			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000},
+			{"label":"object-right-id", "units":"", "min":0, "max":1000},
+			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}			
+		];
+		mass_on_left = evt.args[0].mass;
+		mass_on_right = evt.args[1].mass;
+		mass_diff = mass_on_right - mass_on_left;
+		evt.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
+	
+		evt.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000},			
+		];
+		evt.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
+ 
+	} else if (evt.type == "test-balance-1toN")
+	{
+		evt.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-left-id", "units":"", "min":0, "max":1000},
+			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},	
+			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000}	
+		];
+		mass_on_left = evt.args[0].mass;
+		mass_on_right = evt.args[1];
+		mass_diff = mass_on_right - mass_on_left;
+		evt.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
+	
+		evt.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
+		]
+		evt.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff]; 
+	} else if (evt.type == "test-balance-Nto1")
+	{
+		evt.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-right-id", "units":"", "min":0, "max":1000},
+			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
+			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}				
+		];
+		mass_on_left = evt.args[0];
+		mass_on_right = evt.args[1].mass;
+		mass_diff = mass_on_right - mass_on_left;
+		evt.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
+	
+		evt.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
+		];
+		evt.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
+ 
+	} else if (evt.type == "test-balance-NtoN")
+	{
+		evt.ModelDataDescriptions.ComputationalInputs = 
+		[
+			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
+			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000}		
+		];
+		mass_on_left = evt.args[0];
+		mass_on_right = evt.args[1];
+		mass_diff = mass_on_right - mass_on_left;
+		evt.ModelData.ComputationalInputValues =
+		[mass_on_left, mass_on_right];
+	
+		evt.ModelDataDescriptions.ComputationalOutputs = 
+		[
+			{"label":"balance-state", "units":"", "min":-1, "max":1},
+			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}			
+		];
+		evt.ModelData.ComputationalOutputValues = 
+		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
+ 
+	} else if (evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
+		evt.perc_filled_in_spilloff_container = evt.args[0].perc_filled_in_spilloff_container;
+	}
+	evt.isStepCompleted = true;
+	// run event through feedback manager
+	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null){
+		 obj.feedbackManager.checkEvent(evt);
+		 evt.isStepCompleted = obj.feedbackManager.completed;
+	}
+
+	//var state = obj.save(evt);
+	
 }
 
 
@@ -242,42 +379,19 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
  * provided as examples. you may create your own html ui elements in
  * the .html file for this step (look at box2dModel.html).
  */
-Box2dModel.prototype.save = function(evt) {
+Box2dModel.prototype.save = function() {
 	//get the answer the student wrote
 	//var response = $('#studentResponseTextArea').val();
-	if (typeof evt === "undefined") evt = {"type":"server"};
+	console.log("---------------------- SAVING -----------------------")
+	//if (typeof evt === "undefined") evt = {"type":"server"};
 
 	var response = {};
 	//load with objects from library
 	response.savedModels = [];
-	// the rest can get saved in the evt obj
-	response.evt = {};
-	response.evt.type = evt.type;
-	var d = new Date();
-	response.evt.time = d.getTime() - this.timestamp;
-	response.evt.ModelDataDescriptions = {};
-	response.evt.ModelDataDescriptions.DataSeriesDescription = [];
-	response.evt.ModelDataDescriptions.ComputationalInputs = [];
-	response.evt.ModelDataDescriptions.ComputationalOutputs = [];
-	response.evt.ModelData = {};
-	response.evt.ModelData.DataSeries = [];
-	response.evt.ModelData.ComputationalInputValues = [];
-	response.evt.ModelData.ComputationalOutputValues = [];
-	response.evt.ObjectProperties = {};
-
-	var mass_on_left, mass_on_right, mass_diff;
-	// for the following types there is a central object, set its properties
-	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance-world" || evt.type == "add-balance" ||
-		evt.type == "remove-balance"  || evt.type == "add-beaker-world" || evt.type == "add-beaker" || evt.type == "remove-beaker"
-	){
-		response.evt.ObjectProperties.id = evt.args[0].id;
-		response.evt.ObjectProperties.mass = evt.args[0].mass;
-		response.evt.ObjectProperties.volume = evt.args[0].volume;
-	}
-
+	//response.evt = evt;
 	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
-	if (evt.type == "make-model" || evt.type == "delete-model")
-    {
+	//if (evt.type == "make-model" || evt.type == "delete-model")
+    //{
     	// save all the models stored in the library    
 		for (var i = 0; i < GLOBAL_PARAMETERS.objectLibrary.length; i++)
 		{
@@ -286,113 +400,11 @@ Box2dModel.prototype.save = function(evt) {
 			{
 				response.savedModels.push(o);
 			}
-		}
-		response.evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"object-id", "units":"", "min":0, "max":1000},
-			{"label":"object-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-volume", "units":"cm^3", "min":0, "max":100000}		
-		];
-		response.evt.ModelData.ComputationalInputValues =
-		[evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
-	
-	} else if (evt.type == "test-balance-1to1")
-	{
-		response.evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-left-id", "units":"", "min":0, "max":1000},
-			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000},
-			{"label":"object-right-id", "units":"", "min":0, "max":1000},
-			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}			
-		];
-		mass_on_left = evt.args[0].mass;
-		mass_on_right = evt.args[1].mass;
-		mass_diff = mass_on_right - mass_on_left;
-		response.evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
-	
-		response.evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000},			
-		];
-		response.evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
- 
-	} else if (evt.type == "test-balance-1toN")
-	{
-		response.evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-left-id", "units":"", "min":0, "max":1000},
-			{"label":"object-left-mass", "units":"g", "min":0, "max":100000},	
-			{"label":"object-left-volume", "units":"cm^3", "min":0, "max":100000}	
-		];
-		mass_on_left = evt.args[0].mass;
-		mass_on_right = evt.args[1];
-		mass_diff = mass_on_right - mass_on_left;
-		response.evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right, evt.args[0].id, evt.args[0].mass, evt.args[0].volume];
-	
-		response.evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
-		]
-		response.evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff]; 
-	} else if (evt.type == "test-balance-Nto1")
-	{
-		response.evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-right-id", "units":"", "min":0, "max":1000},
-			{"label":"object-right-mass", "units":"g", "min":0, "max":100000},
-			{"label":"object-right-volume", "units":"cm^3", "min":0, "max":100000}				
-		];
-		mass_on_left = evt.args[0];
-		mass_on_right = evt.args[1].mass;
-		mass_diff = mass_on_right - mass_on_left;
-		response.evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right, evt.args[1].id, evt.args[1].mass, evt.args[1].volume];
-	
-		response.evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}		
-		];
-		response.evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
- 
-	} else if (evt.type == "test-balance-NtoN")
-	{
-		response.evt.ModelDataDescriptions.ComputationalInputs = 
-		[
-			{"label":"objects-left-mass", "units":"g", "min":0, "max":100000},
-			{"label":"objects-right-mass", "units":"g", "min":0, "max":100000}		
-		];
-		mass_on_left = evt.args[0];
-		mass_on_right = evt.args[1];
-		mass_diff = mass_on_right - mass_on_left;
-		response.evt.ModelData.ComputationalInputValues =
-		[mass_on_left, mass_on_right];
-	
-		response.evt.ModelDataDescriptions.ComputationalOutputs = 
-		[
-			{"label":"balance-state", "units":"", "min":-1, "max":1},
-			{"label":"balance-mass-difference", "units":"g", "min":-1000, "max":1000}			
-		];
-		response.evt.ModelData.ComputationalOutputValues = 
-		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
- 
-	}
-
+		}	
+	// save event history
+	response.history = this.feedbackManager.history;
+	response.feedbackEvents = this.feedbackManager.feedbackEvents;
+	//} 
 	//go thro
 	/*
 	 * create the student state that will store the new work the student

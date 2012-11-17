@@ -21,10 +21,19 @@
 		this.width_px_3d = unit_width_px * width_units;
 		this.height_px_3d = unit_height_px * height_units;
 		this.depth_px_3d = unit_depth_px * depth_units;
-		
+
 		this.g = new Graphics();
 		this.shape = new Shape(this.g);
 		this.addChild(this.shape);
+
+		this.backHingeG = new Graphics();
+		this.backHinge = new Shape(this.backHingeG);
+		this.addChild(this.backHinge);
+
+		this.frontHingeG = new Graphics();
+		this.frontHinge = new Shape(this.frontHingeG);
+		this.addChild(this.frontHinge);
+
 		
 		this.width_from_depth = this.unit_depth_px*this.depth_units*Math.sin(this.view_sideAngle);
 		this.height_from_depth = this.unit_depth_px*this.depth_units*Math.sin(this.view_topAngle);
@@ -96,7 +105,14 @@
 		this.bottomRight = new Point3D(-this.width_units/2, -this.height_units/2 + this.height_units, -this.depth_units/2);
 		this.bottomLeft = new Point3D(-this.width_units/2 + this.width_units, -this.height_units/2 + this.height_units, -this.depth_units/2);
 		this.backCenter = new Point3D(0, 0, -this.depth_units/2);
-
+		var off = 2;
+		this.frontHingeA = new Point3D(-this.width_units/2 + this.width_units, -this.height_units/2 + this.height_units-off, this.depth_units/2);
+		this.frontHingeB = new Point3D(-this.width_units/2 + this.width_units, -this.height_units/2 + this.height_units, this.depth_units/2-off);
+		this.frontHingeC = new Point3D(-this.width_units/2 + this.width_units, -this.height_units/2 + this.height_units, this.depth_units/2);
+		this.backHingeA = new Point3D(-this.width_units/2, -this.height_units/2 + this.height_units-off, this.depth_units/2);
+		this.backHingeB = new Point3D(-this.width_units/2, -this.height_units/2 + this.height_units, this.depth_units/2-off);
+		this.backHingeC = new Point3D(-this.width_units/2, -this.height_units/2 + this.height_units, this.depth_units/2);
+	
 		this.highest_index = this.height_units;
 
 		this.cubes_projected = this.cubes;
@@ -211,6 +227,18 @@
 		this.bottomLeft_projected = this.bottomLeft_projected.rotateX(-this.view_topAngle); 
 		this.backCenter_projected = this.backCenter.rotateY(this.view_sideAngle);
 		this.backCenter_projected = this.backCenter_projected.rotateX(-this.view_topAngle); 
+		this.backHingeA_projected = this.backHingeA.rotateY(this.view_sideAngle);
+		this.backHingeA_projected = this.backHingeA_projected.rotateX(this.view_topAngle);
+		this.backHingeB_projected = this.backHingeB.rotateY(this.view_sideAngle);
+		this.backHingeB_projected = this.backHingeB_projected.rotateX(this.view_topAngle);
+		this.backHingeC_projected = this.backHingeC.rotateY(this.view_sideAngle);
+		this.backHingeC_projected = this.backHingeC_projected.rotateX(this.view_topAngle);
+		this.frontHingeA_projected = this.frontHingeA.rotateY(this.view_sideAngle);
+		this.frontHingeA_projected = this.frontHingeA_projected.rotateX(this.view_topAngle);
+		this.frontHingeB_projected = this.frontHingeB.rotateY(this.view_sideAngle);
+		this.frontHingeB_projected = this.frontHingeB_projected.rotateX(this.view_topAngle);
+		this.frontHingeC_projected = this.frontHingeC.rotateY(this.view_sideAngle);
+		this.frontHingeC_projected = this.frontHingeC_projected.rotateX(this.view_topAngle);
 
 		return this.cubes_projected;
 	}
@@ -260,6 +288,12 @@
 		this.bottomRight_projected2d = new Point(this.bottomRight_projected.x*this.unit_width_px, this.bottomRight_projected.y*this.unit_height_px);
 		this.bottomLeft_projected2d = new Point(this.bottomLeft_projected.x*this.unit_width_px, this.bottomLeft_projected.y*this.unit_height_px);
 		this.backCenter_projected2d = new Point(this.backCenter_projected.x*this.unit_width_px, this.backCenter_projected.y*this.unit_height_px);
+		this.backHingeA_projected2d = new Point(this.backHingeA_projected.x*this.unit_width_px, this.backHingeA_projected.y*this.unit_height_px);
+		this.backHingeB_projected2d = new Point(this.backHingeB_projected.x*this.unit_width_px, this.backHingeB_projected.y*this.unit_height_px);
+		this.backHingeC_projected2d = new Point(this.backHingeC_projected.x*this.unit_width_px, this.backHingeC_projected.y*this.unit_height_px);
+		this.frontHingeA_projected2d = new Point(this.frontHingeA_projected.x*this.unit_width_px, this.frontHingeA_projected.y*this.unit_height_px);
+		this.frontHingeB_projected2d = new Point(this.frontHingeB_projected.x*this.unit_width_px, this.frontHingeB_projected.y*this.unit_height_px);
+		this.frontHingeC_projected2d = new Point(this.frontHingeC_projected.x*this.unit_width_px, this.frontHingeC_projected.y*this.unit_height_px);
 		return this.cubes_projected2d;
 	}
 
@@ -308,8 +342,30 @@
 		g.endFill();
 		g.endStroke(); 
 
-		// get some markers to use for placing objects
-
+		// draw "hinges"
+		//console.log()
+		var g = this.backHingeG;
+		g.clear();
+		g.setStrokeStyle(1);
+		g.beginStroke("rgba(100,100,100,1.0)");
+		g.beginFill("rgba(200,200,200,1.0)");
+		g.moveTo(this.backHingeA_projected2d.x, this.backHingeA_projected2d.y);
+		g.lineTo(this.backHingeB_projected2d.x, this.backHingeB_projected2d.y);
+		g.lineTo(this.backHingeC_projected2d.x, this.backHingeC_projected2d.y);
+		g.endFill();
+		g.endStroke();
+		
+		var g = this.frontHingeG;
+		g.clear();
+		g.setStrokeStyle(1);
+		g.beginStroke("rgba(100,100,100,1.0)");
+		g.beginFill("rgba(200,200,200,1.0)");
+		g.moveTo(this.frontHingeA_projected2d.x, this.frontHingeA_projected2d.y);
+		g.lineTo(this.frontHingeB_projected2d.x, this.frontHingeB_projected2d.y);
+		g.lineTo(this.frontHingeC_projected2d.x, this.frontHingeC_projected2d.y)
+		g.endFill();
+		g.endStroke();
+		
 	}
 	
 	/** Releases object from the hold of this container */
@@ -371,14 +427,14 @@
 					}
 				}
 				// swap array index based on number of objects under o after background shape
-				this.addChildAt(o, underCount+1);
+				this.addChildAt(o, underCount+2);
 				var goodLocation = false;
 				// Use rules
 				// is this space occupied?
 				if (this.blockArray2d[x_index][y_index]  == null)
 				{
 					// is this the first block?
-					if (this.getNumChildren() == 2)
+					if (this.getNumChildren() == 4)
 					{
 						// cannot be an "ends" piece
 						if (o.allBlocksConnected())
@@ -483,7 +539,7 @@
 	p.clearBlocks = function ()
 	{
 		var i, j;
-		for (i = this.getNumChildren()-1; i > 0; i--)
+		for (i = this.getNumChildren()-2; i > 1; i--)
 		{
 			this.removeChildAt(i);
 		}

@@ -14,37 +14,7 @@ View.prototype.box2dModelDispatcher = function(type,args,obj){
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */ 
-	var evt = {"type":type, "args":args, "obj":obj};
-	switch (type)
-	{
-		case 'box2dModelUpdatePrompt': break;
-		case 'box2dModelUpdatePrompt':
-		case 'make-model':
-		case 'delete-model':
-		case 'duplicate-model':
-		case 'add-balance-world':
-		case 'add-balance':
-		case 'remove-balance-world':
-		case 'remove-balance':
-		case 'add-beaker-world':
-		case 'add-beaker':
-		case 'add-spilloff':
-		case 'remove-beaker-world':
-		case 'remove-beaker':
-		case 'remove-spilloff':
-		case 'press-refill':
-		case 'press-release':
-		case 'test-balance-1to1':
-		case 'test-balance-1toN':
-		case 'test-balance-Nto1':
-		case 'test-balance-NtoN':
-		case 'test-beaker-add':
-		case 'test-beaker-release':
-			//obj.currentNode.interpretEvent(evt);
-			break;
-	}
-
-
+	obj.currentNode.contentPanel.box2dModel.interpretEvent(type, args, obj.currentNode.contentPanel.box2dModel);
 };
 
 /*
@@ -52,12 +22,14 @@ View.prototype.box2dModelDispatcher = function(type,args,obj){
  * the dispatcher function above will be called and then call the
  * appropriate function to handle the event.
  */
-var events = [
+var events = 
+[
 	/*
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */
 	'box2dModelUpdatePrompt',
+	'box2dInit',
 	'make-model',
 	'delete-model',
 	'duplicate-model',
@@ -67,18 +39,18 @@ var events = [
 	'remove-balance',
 	'add-beaker-world',
 	'add-beaker',
-	'add-spilloff',
+	'add-beaker-spilloff',
 	'remove-beaker-world',
 	'remove-beaker',
 	'remove-spilloff',
-	'press-release',
-	'press-refill',
+	'press-release-beaker',
+	'press-release-beaker',
 	'test-balance-1to1',
 	'test-balance-1toN',
 	'test-balance-Nto1',
 	'test-balance-NtoN',
-	'test-beaker-add',
-	'test-beaker-release'
+	'test-add-beaker',
+	'test-release-beaker'
 ];
 
 
@@ -94,6 +66,7 @@ for(var x=0; x<events.length; x++) {
 	 * name at the top of this file.
 	 */
 	componentloader.addEvent(events[x], 'box2dModelDispatcher');
+	
 };
 
 //used to notify scriptloader that this script has finished loading
@@ -107,4 +80,5 @@ if(typeof eventManager != 'undefined'){
 	 * eventManager.fire('scriptLoaded', 'vle/node/quiz/quizEvents.js');
 	 */
 	eventManager.fire('scriptLoaded', 'vle/node/box2dModel/box2dModelEvents.js');
+
 };

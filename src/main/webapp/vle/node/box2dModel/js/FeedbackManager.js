@@ -48,7 +48,7 @@
          this.feedbackEvents = feedbackEvents;
          this.eventTypes = eventTypes;
          this.initialTimestamp = new Date().getTime();
-         this.historyArr = []; // stores all previous events;
+         this.history = []; // stores all previous events;
          this.eventCount = 0;
           
          // for each feedback event attach a parsed object associated with each query
@@ -59,11 +59,17 @@
                 this.feedbackEvents[i].constraint["released"] = false;
                 if (!constraintFound){
                     constraintFound = true;
-                    this.node.setNotCompleted();
                 }
             }
             this.feedbackEvents[i].feedback["repeatCount"] = -1;
             this.feedbackEvents[i].feedback["lastGivenIndex"] = -1;
+         }
+         //console.log(constraintFound, this.feedbackEvents, this.node);
+         this.completed = !constraintFound;
+         if (!constraintFound){
+            this.node.setCompleted();
+         } else {
+            this.node.setNotCompleted();
          }
     };
   
@@ -77,12 +83,12 @@
     *     if properties are nested in objects, a "flattening" function should be applied first
     */
     p.checkEvent = function (evt){
+        console.log(evt.type, evt);
         evt = this.flattenObject(evt,"",{});
-
         evt.id = evt.type+"_"+this.eventCount;
         // in case the time was not defined.
         if (typeof evt.time === "undefined"){var d = new Date(); evt.time = d.getTime();}
-        this.historyArr.push(evt);
+        this.history.push(evt);
        // this.printEventHistory(false);
         this.eventCount++;
         // iterate through each feedbackEvent
@@ -91,8 +97,8 @@
             var startingIndex = this.feedbackEvents[i].feedback.lastGivenIndex+1;
             if (typeof this.feedbackEvents[i].query.within != "undefined"){
                 var ts = evt.time;
-                for (var j = this.historyArr.length-1; j >= startingIndex; j--){
-                    if (ts - this.historyArr[j].time > this.feedbackEvents[i].query.within * 1000){
+                for (var j = this.history.length-1; j >= startingIndex; j--){
+                    if (ts - this.history[j].time > this.feedbackEvents[i].query.within * 1000){
                         startingIndex = j + 1;
                         break;
                     }
@@ -103,17 +109,16 @@
             // hit, deliver
             if (matchArr.length > 0){
                 this.feedbackEvents[i].feedback.repeatCount++;
-                this.feedbackEvents[i].constraint.released = true;
+                if (typeof this.feedbackEvents[i].constraint != "undefined") this.feedbackEvents[i].constraint.released = true;
                 this.feedbackEvents[i].feedback.lastGivenIndex = matchArr[matchArr.length-1];
-                console.log("matched history array indices:", matchArr);
+                //console.log("matched history array indices:", matchArr);
                 alert(this.feedbackEvents[i].feedback.text);
                 if (this.feedbackEvents[i].feedback.repeatCount >= this.feedbackEvents[i].feedback.repeatMax){
                     this.feedbackEvents.splice(i,1);
                 } 
                 //this.giveFeedback(this.feedbackEvents[i].feedback);
-                if (!this.isConstrained()){
-                    this.node.setCompleted();
-                }
+                this.completed = !this.isConstrained();
+                if (this.completed) this.node.setCompleted();
                 return true;
             }
         }
@@ -203,9 +208,9 @@
     *   Head function for matching a queries' pattern.
     */
     p.matchQuery = function (lindex, query){
-        //console.log(this.historyArr[this.historyArr.length-1].type, "event______________________________________", lindex);
+        //console.log(this.history[this.history.length-1].type, "event______________________________________", lindex);
         var matchArr = [];
-        matchArr = this.matchByFunctionType (lindex, this.historyArr.length-1, query.parsedPattern, {}, []);
+        matchArr = this.matchByFunctionType (lindex, this.history.length-1, query.parsedPattern, {}, []);
        return matchArr;
     }
 
@@ -242,15 +247,15 @@
     *       OR (A, SEQ(B, NOT(C), D))  <--- the NOT(C) is relevant to the SEQ and is processed
     */
     p.matchOR = function (lindex, args, parentVars, skipArr){
-        if (lindex >= this.historyArr.length) return [];
+        if (lindex >= this.history.length) return [];
         var theseVars = $.extend({}, parentVars);
         var sequenceFailed = false;
         for (var i = 0; i < args.length; i++){
             if (this.isEvent(args[i])){
-                var index = this.matchHistoryForEvent(lindex, this.historyArr.length-1, args[i].eventType, skipArr);
-                if (index < this.historyArr.length){
+                var index = this.matchHistoryForEvent(lindex, this.history.length-1, args[i].eventType, skipArr);
+                if (index < this.history.length){
                    if (typeof args[i].variable != "undefined"){
-                        theseVars[args[i].variable] = this.historyArr[index];
+                        theseVars[args[i].variable] = this.history[index];
                     }  
                     return [index];
                 }
@@ -261,7 +266,7 @@
             } else if (this.isFunction(args[i])){
                 if (args[i].functionName.toUpperCase() != "NOT")
                 {
-                    var arr = this.matchByFunctionType(lindex, this.historyArr.length-1, args[i], skipArr);           
+                    var arr = this.matchByFunctionType(lindex, this.history.length-1, args[i], skipArr);           
                     if (arr.length > 0){
                         return arr;
                     } else {
@@ -279,7 +284,7 @@
         // so for example if we are matching A, NOT B, C  and we have event history A B A C
         // we will fail from lindex 0, but we will succeed from lindex 2
         if (sequenceFailed){
-           if (lindex < this.historyArr.length-1){
+           if (lindex < this.history.length-1){
                return this.matchOR(lindex+1, args, parentVars, skipArr);
             } else {
                 return [];
@@ -307,7 +312,7 @@
     *           then a match is not returned.
     */
     p.matchAND = function (lindex, args, parentVars, skipArr){
-        if (lindex >= this.historyArr.length) return [];
+        if (lindex >= this.history.length) return [];
         var theseVars = $.extend({}, parentVars);
         var sequenceFailed = false;
         var iskipArr = skipArr.slice();
@@ -316,12 +321,12 @@
         var arr, narr;
         for (var i = 0; i < args.length; i++){
             if (this.isEvent(args[i])){
-                var index = this.matchHistoryForEvent(lindex, this.historyArr.length-1, args[i].eventType, skipArr);
-                if (index < this.historyArr.length){
+                var index = this.matchHistoryForEvent(lindex, this.history.length-1, args[i].eventType, skipArr);
+                if (index < this.history.length){
                     returnArr.push(index);
                     skipArr.push(index);
                     if (typeof args[i].variable != "undefined"){
-                        theseVars[args[i].variable] = this.historyArr[index];
+                        theseVars[args[i].variable] = this.history[index];
                     }  
                 }
                 else {
@@ -331,7 +336,7 @@
             } else if (this.isFunction(args[i])){
                 if (args[i].functionName.toUpperCase() != "NOT")
                 {
-                    arr = this.matchByFunctionType(lindex, this.historyArr.length-1, args[i], skipArr);           
+                    arr = this.matchByFunctionType(lindex, this.history.length-1, args[i], skipArr);           
                     if (arr.length > 0){
                         returnArr = returnArr.concat(arr);
                         skipArr = skipArr.concat(arr);
@@ -365,7 +370,7 @@
         // so for example if we are matching A, NOT B, C  and we have event history A B A C
         // we will fail from lindex 0, but we will succeed from lindex 2
         if (sequenceFailed){
-           if (lindex < this.historyArr.length-1){
+           if (lindex < this.history.length-1){
                return this.matchAND(lindex+1, args, parentVars, iskipArr);
             } else {
                 return [];
@@ -392,7 +397,7 @@
     *   more than one NOT function can be placed in sequence between not-NOT events, order is irrelevant.
     */
     p.matchSEQ = function (lindex, args, parentVars, skipArr){
-        if (lindex >= this.historyArr.length) return [];
+        if (lindex >= this.history.length) return [];
         var theseVars = $.extend({}, parentVars);
         var sequenceFailed = false;
         var returnArr = [];
@@ -401,12 +406,12 @@
         var arr, narr;
         for (var i = 0; i < args.length; i++){
             if (this.isEvent(args[i])){
-                index = this.matchHistoryForEvent(index, this.historyArr.length-1, args[i].eventType, skipArr);
-                if (index < this.historyArr.length){
+                index = this.matchHistoryForEvent(index, this.history.length-1, args[i].eventType, skipArr);
+                if (index < this.history.length){
                     // is there a previous not call that must be processed
                     for (var j = 0; j < notCalls.length; j++){
                         narr = this.matchNOT(returnArr[returnArr.length-1]+1, index, notCalls[j].args, theseVars, skipArr);
-                        //console.log("return from not", narr,"from", returnArr[returnArr.length-1]+1, "to", index, "lindex", lindex, this.historyArr);
+                        //console.log("return from not", narr,"from", returnArr[returnArr.length-1]+1, "to", index, "lindex", lindex, this.history);
                         if (narr.length > 0){
                             sequenceFailed = true;
                             break;
@@ -416,7 +421,7 @@
                     notCalls = []; 
                     returnArr.push(index);
                     if (typeof args[i].variable != "undefined"){
-                        theseVars[args[i].variable] = this.historyArr[index];
+                        theseVars[args[i].variable] = this.history[index];
                     }                    
                     index++;
                 }
@@ -427,7 +432,7 @@
             } else if (this.isFunction(args[i])){
                 if (args[i].functionName.toUpperCase() != "NOT")
                 {
-                    arr = this.matchByFunctionType(index, this.historyArr.length-1, args[i], skipArr);           
+                    arr = this.matchByFunctionType(index, this.history.length-1, args[i], skipArr);           
                     if (arr.length > 0){
                         for (j = 0; j < notCalls.length; j++){
                             narr = this.matchNOT(returnArr[returnArr.length-1]+1, arr[0], notCalls[j].args, theseVars, skipArr);
@@ -456,7 +461,7 @@
         // so for example if we are matching A, NOT B, C  and we have event history A B A C
         // we will fail from lindex 0, but we will succeed from lindex 2
         if (sequenceFailed){
-           if (lindex < this.historyArr.length-1){
+           if (lindex < this.history.length-1){
                return this.matchSEQ(lindex+1, args, parentVars, skipArr);
             } else {
                 return [];
@@ -483,9 +488,9 @@
         if (args.length > 1 && this.isExpression(args[1])){ exp = args[1].expression;}
         if (this.isEvent(arg)){            
             var index = this.matchHistoryForEvent(lindex, uindex, arg.eventType, skipArr);
-            if (index < this.historyArr.length){
+            if (index < this.history.length){
                 if (typeof arg.variable != "undefined"){
-                    theseVars[arg.variable] = this.historyArr[index];
+                    theseVars[arg.variable] = this.history[index];
                 } 
                 if (exp != null){
                     if (this.evalExpression(exp, theseVars)){
@@ -513,9 +518,9 @@
     */
     p.matchHistoryForEvent = function (start, stop, eventType, skipArr){
         if (typeof skipArr === "undefined") skipArr = [];
-        var historyArr = this.historyArr;
+        var history = this.history;
         for (var i = start; i <= stop; i++){
-            if (eventType == historyArr[i].type){
+            if (eventType == history[i].type){
                 var skipFound = false;
                 for (var j = 0; j < skipArr.length; j++){
                     if (skipArr[j] == i){
@@ -525,7 +530,7 @@
                 if (!skipFound) return i;
             }
         }
-        return historyArr.length;
+        return history.length;
     };
 
     /**
@@ -559,7 +564,7 @@
                 var index = exp.search(s);
                 if (index >= 0){
                     var pre = exp.match(s)[0];
-                    var post = exp.substr(index+pre.length).match(/[A-Za-z0-0\.\[\]]*/)[0];
+                    var post = exp.substr(index+pre.length).match(/[A-Za-z0-0_\-\.\[\]]*/)[0];
                     var full = pre + post;
                     if (post.substr(0,1) == ".") post = post.substr(1);
                     expression = expression.replace(full, variables[key][post]);
@@ -585,11 +590,11 @@
 
     
     p.printEventHistory = function (full){
-        for (var i = 0; i < this.historyArr.length; i++){
+        for (var i = 0; i < this.history.length; i++){
             if (full){
-                console.log(this.historyArr[i]);
+                console.log(this.history[i]);
             } else {
-                console.log(this.historyArr[i].eventID);
+                console.log(this.history[i].eventID);
             }
         }
     };

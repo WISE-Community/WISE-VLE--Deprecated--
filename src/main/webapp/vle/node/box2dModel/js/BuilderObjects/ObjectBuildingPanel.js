@@ -291,7 +291,7 @@
 
 	p.validObject = function ()
 	{
-		return (this.vv.getNumChildren() > 1);
+		return (this.vv.getNumChildren() > 3);
 	}
 
 	/** This function is used to end the creation of a specific block */

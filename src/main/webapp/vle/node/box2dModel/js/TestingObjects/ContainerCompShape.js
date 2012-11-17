@@ -457,11 +457,12 @@
 			array2d[i - left_x] = new Array();
 			for (var j = top_y; j <= bottom_y; j++)
 			{
-				var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0, liquid_volume, liquid_mass;
+				var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0, liquid_volume = 0, liquid_mass = 0;
 				for (var k = 0; k < this.blockArray3d[i][j].length; k++)
 				{
 					if (this.blockArray3d[i][j][k] != "")
 					{
+
 						liquid_mass += array3d_details[i][j][k].liquidVolume * this.liquid.density;
 						liquid_volume += array3d_details[i][j][k].liquidVolume;						
 						mass += (array3d_details[i][j][k].baseMass + array3d_details[i][j][k].liquidVolume * this.liquid.density) / array3d_details[i][j][k].volume;
@@ -826,6 +827,23 @@
 		console.log("_________________stop________________________________");
 		
 	}
+	/**
+	*	Remove all liquid.
+	*/
+	p.empty= function (){
+		this.isFull = false;
+		this.available_volume = this.cube_count * this.liquid_unit_volume;
+		this.filled_volume = 0;
+		for (var i = 0; i < this.blockArray3d.length; i++){
+			for (var j = 0; j < this.blockArray3d[i].length; j++){
+				for (var k = 0; k < this.blockArray3d[i][j].length; k++){
+					this.array3d_details[i][j][k].liquidVolume = 0;					
+				}
+			}
+		}
+		this.update_array2d();
+		this.redraw();
+	}
 	
 	/** Fill the unit cube with the current index with the given volume, if filled move to the next */
 	p.fillWithVolume = function (volume)
@@ -963,6 +981,7 @@
 		}
 		this.available_volume -= volume_distributed;
 		this.filled_volume += volume_distributed;
+		this.perc_filled = this.filled_volume / (this.available_volume + this.filled_volume);
 		if (this.available_volume < .0001) this.isFull = true;
 		this.update_array2d();
 		this.redraw();
@@ -1381,7 +1400,7 @@
 								g.lineTo(c_ftl_x, c_ftl_y);
 								g.lineTo(c_fbl_x, c_fbl_y);
 								g.lineTo(c_bbl_x, c_bbl_y);
-								g.lineTo(c_btl_x, c_btl_y);s
+								g.lineTo(c_btl_x, c_btl_y);
 								g.endStroke();
 								g.endFill();
 							}

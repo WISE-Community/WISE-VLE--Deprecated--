@@ -42,6 +42,7 @@
 		this.liquid_volume = this.init_liquid_volume;
 		this.contents_volume = this.liquid_volume;
 		this.volume_under_spout = this.spilloff_volume_perc * this.liquid_volume;
+		this.liquid_volume_released = 0;
 		this.min_liquid_y = this.beaker_height_px - this.beaker_height_px * this.spilloff_volume_perc
 		this.beaker_x = 40 + beaker_width_px/2;
 
@@ -379,7 +380,7 @@
 	*/
 	p.drawRefillButton = function ()
 	{
-		if (!this.refill_button_drawn && this.liquid_y > (this.init_liquid_y+.01))
+		if (!this.refill_button_drawn && !this.release_button_drawn && this.liquid_volume_released > 0)
 		{
 			$('#beaker-button-holder').append('<input type="submit" id="refill-button" value="Refill" style="font-size:14px; position:absolute"/>');
 			var htmlElement = $('#refill-button').button().bind('click', {parent: this}, this.refillBeaker);
@@ -395,10 +396,18 @@
 		{
 			if (!evt.data.parent.draining)
 			{
-				var liquid_dy = evt.data.parent.init_liquid_y - evt.data.parent.liquid_y;
+				// find containers and empty them
+				for (var i = 0; i < evt.data.parent.actors.length; i++){
+					if (evt.data.parent.actors[i].skin.is_container){
+						evt.data.parent.actors[i].skin.empty();
+					}
+				}
+				evt.data.parent.puddleGraphics.clear();
+				var liquid_dy = -evt.data.parent.liquid_volume_released / (evt.data.parent.beaker_depth_px/GLOBAL_PARAMETERS.SCALE * evt.data.parent.beaker_width_px/GLOBAL_PARAMETERS.SCALE) * GLOBAL_PARAMETERS.SCALE;
 				evt.data.parent.liquid_volume = evt.data.parent.init_liquid_volume;
 				evt.data.parent.controller.ChangeOffset(-liquid_dy/GLOBAL_PARAMETERS.SCALE);
-				eventManager.fire("press-refill", [-liquid_dy/GLOBAL_PARAMETERS.SCALE]);
+				eventManager.fire("press-refill-beaker", [-liquid_dy/GLOBAL_PARAMETERS.SCALE], box2dModel);
+				evt.data.parent.liquid_volume_released = 0;
 							
 				// remove refill button
 				evt.data.parent.refill_button_drawn = false;
@@ -421,6 +430,7 @@
 			element.x = this.beaker_x + this.beaker_width_px/2 + 20;
 			element.y = this.height_px / 2;
 			this.release_button_drawn = true;
+			this.liquid_volume_released = 0;
 		}
 	}
 
@@ -429,20 +439,24 @@
 		{
 			if (!evt.data.parent.draining)
 			{
+				evt.data.parent.liquid_volume_released = ((evt.data.parent.beaker_height_px - evt.data.parent.liquid_y) - evt.data.parent.spilloff_volume_perc * evt.data.parent.beaker_height_px)/GLOBAL_PARAMETERS.SCALE * evt.data.parent.beaker_depth_px/GLOBAL_PARAMETERS.SCALE * evt.data.parent.beaker_width_px/GLOBAL_PARAMETERS.SCALE;
 				var obj = {};
-				obj.volume_above_spout = Math.round(1000*((evt.data.parent.beaker_height_px - evt.data.parent.liquid_y) - evt.data.parent.spilloff_volume_perc * evt.data.parent.beaker_height_px)/GLOBAL_PARAMETERS.SCALE * evt.data.parent.beaker_depth_px/GLOBAL_PARAMETERS.SCALE * evt.data.parent.beaker_width_px/GLOBAL_PARAMETERS.SCALE)/1000;
+				obj.volume_above_spout = Math.round(1000*evt.data.parent.liquid_volume_released)/1000;
 				obj.available_volume_in_spilloff_container = evt.data.parent.spilloffContainer == null ? -1 : Math.round(1000*evt.data.parent.spilloffContainer.skin.available_volume)/1000;
+				obj.filled_volume_in_spilloff_container = evt.data.parent.spilloffContainer == null ? -1 : Math.round(1000*evt.data.parent.spilloffContainer.skin.filled_volume)/1000;
+				obj.perc_filled_in_spilloff_container = evt.data.parent.spilloffContainer == null ? -1 : Math.round(1000*evt.data.parent.spilloffContainer.skin.perc_filled)/1000;
 				if (obj.volume_above_spout > 0)
 				{
 					if (typeof evt.data.parent.spilloffContainer != "undefined" && evt.data.parent.spilloffContainer != null) {
-						eventManager.fire("press-release", [obj, evt.data.parent.spilloffContainer.skin.savedObject]);
+						eventManager.fire("press-release-beaker", [obj, evt.data.parent.spilloffContainer.skin.savedObject], box2dModel);
 					} else{
-						eventLogger.fire("press-release", "beaker-spout", [obj]);
+						eventManager.fire("press-release-beaker", [obj], box2dModel);
 					}
 
 					evt.data.parent.spout_change = true;
 					
 				}
+
 			}
 		}
 	
@@ -545,7 +559,7 @@
 	/** Place an actor object in this world */
 	p.addActor = function (actor, x, y)
 	{
-		eventLogger.addEvent("place", "beaker-world", [actor.skin.savedObject]);
+		eventManager.fire('add-beaker-world',[actor.skin.savedObject], box2dModel);
 
 		actor.x = x;
 		actor.y = y;
@@ -617,7 +631,8 @@
 			// add only if within confines of beaker
 			if (body.GetPosition().x >= this.beakerLeftWall.GetPosition().x - this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE && body.GetPosition().x + body.local_width_right <= this.beakerRightWall.GetPosition().x + this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE)
 			{
-				eventLogger.addEvent("place", "beaker", [actor.skin.savedObject]);
+				eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
+
 				this.controller.AddBody(body);
 				// set a reference so we can look for initial contact with this object
 				this.justAddedActorToBuoyancy = actor;
@@ -638,7 +653,7 @@
 			// is on space to the right of the beaker?
 			if (body.GetPosition().x >= this.beakerRightWall.GetPosition().x + this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE && body.GetPosition().x + body.local_width_right <= this.rightWall.GetPosition().x - this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE)
 			{
-				eventLogger.addEvent("place", "beaker-spilloff", [actor.skin.savedObject]);
+				eventManager.fire('add-beaker-spilloff',[actor.skin.savedObject], box2dModel);
 				this.spilloffContainer = actor;
 				this.drawSpout();
 				return true;
@@ -656,9 +671,9 @@
 
 	p.removeActor = function (actor)
 	{
-		eventLogger.addEvent("remove", "beaker-world", [actor.skin.savedObject]);
 		if (actor == this.spilloffContainer) this.spilloffContainer = null;
 		this.removeChild(actor);
+		eventManager.fire('remove-beaker-world',[actor.skin.savedObject], box2dModel);
 		this.actors.splice(this.actors.indexOf(this), 1);
 		this.b2world.DestroyBody(actor.body);
 		actor.body = null;
@@ -671,7 +686,7 @@
 	{
 		//console.log("here");
 		// When the object just added makes contact, wake up anything it makes contact with
-		{
+		//{
 			if (contact.GetFixtureA().m_body == this.justAddedActorToBuoyancy)
 			{	
 				contact.GetFixtureB().m_body.SetAwake(true);
@@ -681,7 +696,7 @@
 			} 
 			
 
-		}
+		//}
 	}
 
 	/** Tick function called on every step, if update, redraw */
@@ -704,11 +719,16 @@
 		}
 
 		// if a newly added body is asleep see if we should "hook up" the spilloff spout
-		if (this.justAddedActor != null )
+		if (this.justAddedActor != null && this.justAddedActor.body != null)
 		{
 			if (!this.justAddedActor.body.IsAwake())
 			{
-				this.setAsSpilloffContainerWithinDomain(this.justAddedActor);
+				if (this.justAddedActor.controlledByBuoyancy){
+					eventManager.fire('test-add-beaker',[this.justAddedActor.skin.savedObject], box2dModel);
+				} else {
+					this.setAsSpilloffContainerWithinDomain(this.justAddedActor);
+				}
+				
 				this.justAddedActor = null;
 			}
 		}
@@ -744,6 +764,12 @@
 					liquid_dy = this.min_liquid_y - this.liquid_y;
 					this.liquid_volume = this.volume_under_spout;
 					this.controller.ChangeOffset(-liquid_dy/GLOBAL_PARAMETERS.SCALE);
+					var obj = {};
+					obj.volume_above_spout = Math.round(1000*((this.beaker_height_px - this.liquid_y) - this.spilloff_volume_perc * this.beaker_height_px)/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE)/1000;
+					obj.available_volume_in_spilloff_container = this.spilloffContainer == null ? -1 : Math.round(1000*this.spilloffContainer.skin.available_volume)/1000;
+					obj.filled_volume_in_spilloff_container = this.spilloffContainer == null ? -1 : Math.round(1000*this.spilloffContainer.skin.filled_volume)/1000;
+					obj.perc_filled_in_spilloff_container = this.spilloffContainer == null ? -1 : Math.round(1000*this.spilloffContainer.skin.perc_filled)/1000;
+					
 					if (this.spilloffContainer != null )
 					{
 						if (!this.spilloffContainer.skin.overflowing)
@@ -754,6 +780,7 @@
 						this.spilloffContainer.constructFixtures();
 						this.createActorsBody(this.spilloffContainer);
 						this.spilloffContainer.body.SetPosition(wp);
+						eventManager.fire("test-release-beaker", [obj, this.spilloffContainer.skin.savedObject], box2dModel);
 					} else
 					{
 						g = this.puddleGraphics;
@@ -762,6 +789,7 @@
 						g.beginFill(this.liquid.fill_color);
 						g.drawEllipse(this.spout_point.x - 10*this.puddle_width*Math.cos(GLOBAL_PARAMETERS.view_topAngle), this.height_px - this.beaker_bottom_dy - this.height_from_depth/2 - Math.min(this.height_from_depth, 20*this.puddle_width*Math.sin(GLOBAL_PARAMETERS.view_topAngle))/2, 20*this.puddle_width*Math.cos(GLOBAL_PARAMETERS.view_topAngle), Math.min(this.height_from_depth, 20*this.puddle_width*Math.sin(GLOBAL_PARAMETERS.view_topAngle)));
 						g.endFill();
+						eventManager.fire("test-release-beaker", [obj], box2dModel);
 					}
 					
 					this.draining = false;	
@@ -771,7 +799,7 @@
 						this.release_button_drawn = false;
 						this.removeChild($('#release-button')[0]);
 						$('#release-button').remove();	
-					}		
+					}	
 				}
 				
 			}
@@ -809,7 +837,7 @@
 
 		// convert the buoyant controller's offset to pixels
 		this.liquid_y = -this.controller.offset * GLOBAL_PARAMETERS.SCALE - this.world_dy - this.height_px + this.beaker_bottom_dy + this.beaker_height_px;
-		if (!this.refill_button_drawn && this.liquid_y > (this.init_liquid_y+0.01)) this.drawRefillButton();
+		if (!this.release_button_drawn && !this.refill_button_drawn && this.liquid_volume_released > 0) this.drawRefillButton();
 		if (!this.release_button_drawn && this.spilloff_volume_perc < 1.0 && (this.beaker_height_px - this.liquid_y) - this.spilloff_volume_perc * this.beaker_height_px > 0.01 ) this.drawReleaseButton();
 
 		this.b2world.Step(1/Ticker.getFPS(), 10, 10);

@@ -52,6 +52,17 @@ function Box2dModelNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	/////
+	////	THESE NEED TO BE PLACED IN box2dModelEvents as well;
+
+	this.customEventTypes = ['box2dInit','make-model', 'delete-model', 'add-balance-world', 'add-balance', 'remove-balance-world',
+		'remove-balance', 'add-beaker-world', 'add-beaker', 'add-beaker-spilloff', 'remove-beaker-world', 'remove-beaker', 
+		'remove-spilloff','press-refill-beaker', 'press-release-beaker','test-balance-1to1', 'test-balance-1toN', 'test-balance-Nto1',
+		'test-balance-NtoN', 'test-add-beaker','test-release-beaker'
+	];
+	
+	
 }
 
 /**
@@ -134,27 +145,29 @@ Box2dModelNode.prototype.render = function(contentPanel,studentWork, disable) {
  * student must complete work before exiting to another step
  */
 Box2dModelNode.prototype.addConstraints = function() {
-	
-	if (true){
+	if (!this.isCompleted()){
 		this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
 	}
 		
 };
 
 
-	
-
 /**
- * Override of Node.processStateConstraints
- * Checks to see if the work was completed. If it was, then no constraint is needed.
- * If not, then we need to add a constraint.
+ * Override of Node.overridesIsCompleted
+ * Specifies whether the node overrides Node.isCompleted
  */
-Box2dModelNode.prototype.processStateConstraints = function() {
-	if(!this.isCompleted()){
-		this.addConstraints();
-	}
+Box2dModelNode.prototype.overridesIsCompleted = function() {
+	return true;
 };
 
+/**
+ * Override of Node.isCompleted
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+Box2dModelNode.prototype.isCompleted = function() {
+	return this.isStepCompleted;
+};
 
 
 /**
