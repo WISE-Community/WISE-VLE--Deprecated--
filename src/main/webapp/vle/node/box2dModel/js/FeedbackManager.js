@@ -75,6 +75,23 @@
   
     var p = FeedbackManager.prototype;    
    
+   /** Since we don't want to overwhelm the server we make sure that the returnd history is not too large */
+   p.getHistory = function (maxSize){
+      var hstring = this.historyToString(0);
+      var i = 0;
+      while (hstring.length*2 > maxSize){
+        i++;
+        hstring = this.historyToString(i);
+      }
+      return this.history.slice(i);
+   }
+        p.historyToString = function (start){
+            var s = JSON.stringify(this.history.slice(start));
+            //for (var i = start; i < this.history.length; i++){
+            //    s = s + this.history[i];
+           // }
+            return s;
+        }
 
     /**
     *   A new event is passed to checkEvent to search for any matching feedbackEvents.
@@ -108,6 +125,7 @@
             if (startingIndex >= 0) matchArr = this.matchQuery(startingIndex, this.feedbackEvents[i].query);
             // hit, deliver
             if (matchArr.length > 0){
+                var f = this.feedbackEvents[i];
                 this.feedbackEvents[i].feedback.repeatCount++;
                 if (typeof this.feedbackEvents[i].constraint != "undefined") this.feedbackEvents[i].constraint.released = true;
                 this.feedbackEvents[i].feedback.lastGivenIndex = matchArr[matchArr.length-1];
@@ -119,10 +137,10 @@
                 //this.giveFeedback(this.feedbackEvents[i].feedback);
                 this.completed = !this.isConstrained();
                 if (this.completed) this.node.setCompleted();
-                return true;
+                return f;
             }
         }
-        return false;
+        return null;
     }
 
     /**
