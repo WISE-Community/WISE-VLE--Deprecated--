@@ -136,7 +136,7 @@
                 } 
                 //this.giveFeedback(this.feedbackEvents[i].feedback);
                 this.completed = !this.isConstrained();
-                if (this.completed){ this.node.setCompleted(); console.log("set completed node");}
+                if (this.completed){ this.node.setCompleted();}
                 return f;
             }
         }
