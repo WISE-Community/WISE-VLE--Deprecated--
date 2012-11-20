@@ -355,15 +355,26 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
  
 	} else if (evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
 		evt.perc_filled_in_spilloff_container = evt.args[0].perc_filled_in_spilloff_container;
+	} else if (evt.type == "gave-feedback"){
+		evt.feedbackEvent = evt.args[0];
 	}
 	evt.isStepCompleted = true;
+	// delete args
+	delete evt.args;
 	// run event through feedback manager
-	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null){
-		 obj.feedbackManager.checkEvent(evt);
+	if (typeof obj.feedbackManager != "undefined" && obj.feedbackManager != null && evt.type != "gave-feedback"){
+		 var f = obj.feedbackManager.checkEvent(evt);
+		 if (f != null){
+		 	eventManager.fire("gave-feedback",[f]);
+		 }
+
 		 evt.isStepCompleted = obj.feedbackManager.completed;
 	}
 
-	//var state = obj.save(evt);
+	// save on a test
+	if (evt.type.substr(0,4) == "test"){
+		obj.save();
+	}
 	
 }
 
@@ -382,7 +393,6 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 Box2dModel.prototype.save = function() {
 	//get the answer the student wrote
 	//var response = $('#studentResponseTextArea').val();
-	console.log("---------------------- SAVING -----------------------")
 	//if (typeof evt === "undefined") evt = {"type":"server"};
 
 	var response = {};
@@ -393,8 +403,11 @@ Box2dModel.prototype.save = function() {
 	//if (evt.type == "make-model" || evt.type == "delete-model")
     //{
     	// save all the models stored in the library    
+
 		for (var i = 0; i < GLOBAL_PARAMETERS.objectLibrary.length; i++)
 		{
+			if (response.savedModels.length > 12) break; // just in case
+
 			var o =  GLOBAL_PARAMETERS.objectLibrary[i];
 			if (typeof o.is_deleted == "undefined" || !o.is_deleted)
 			{
@@ -402,8 +415,8 @@ Box2dModel.prototype.save = function() {
 			}
 		}	
 	// save event history
-	response.history = this.feedbackManager.history;
-	response.feedbackEvents = this.feedbackManager.feedbackEvents;
+	response.history = this.feedbackManager.getHistory(25000);
+	console.log("---------------------- SAVING appx length -----------------------", (JSON.stringify(response.history).length+JSON.stringify(response.savedModels).length)*2);
 	//} 
 	//go thro
 	/*
@@ -428,7 +441,6 @@ Box2dModel.prototype.save = function() {
 	 * would change the Box2dModelState to QuizState below
 	 */
 	var box2dModelState = new Box2dModelState(response);
-	//if (typeof evt.type != "undefined") console.log(evt.type, response);
 	/*
 	 * fire the event to push this state to the global view.states object.
 	 * the student work is saved to the server once they move on to the
