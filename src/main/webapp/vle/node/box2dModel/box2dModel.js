@@ -358,7 +358,7 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	} else if (evt.type == "gave-feedback"){
 		evt.feedbackEvent = evt.args[0];
 	}
-	evt.isStepCompleted = true;
+	var isStepCompleted = true;
 	// delete args
 	delete evt.args;
 	// run event through feedback manager
@@ -368,14 +368,15 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		 	eventManager.fire("gave-feedback",[f]);
 		 }
 
-		 evt.isStepCompleted = obj.feedbackManager.completed;
+		 isStepCompleted = obj.feedbackManager.completed;
+		 // trick to get student constraints to end
+		 if (isStepCompleted){eventManager.fire('pushStudentWork', {});}
 	}
 
 	// save on a test
 	if (evt.type.substr(0,4) == "test"){
 		obj.save();
-	}
-	
+	}	
 }
 
 
