@@ -225,7 +225,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 
 			// get maximum number of library objects, create computational inputs for each
 			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
-					
+
 
 			Ticker.setFPS(24);
 			Ticker.addListener(window);
@@ -267,12 +267,13 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
 			}
 			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;
-			tester.createObjectForLibrary(compShape);
-			GLOBAL_PARAMETERS.total_objects_made++;
-			if (typeof already_in_globals === "undefined" || !already_in_globals)
-				GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
+			if (tester.createObjectForLibrary(compShape)){
+				GLOBAL_PARAMETERS.total_objects_made++;
+				if (typeof already_in_globals === "undefined" || !already_in_globals)
+					GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
 
-			eventManager.fire("make-model", [savedObject]);
+				eventManager.fire("make-model", [savedObject]);
+			} else {} // too mancy shapes already			
 		}
 
 

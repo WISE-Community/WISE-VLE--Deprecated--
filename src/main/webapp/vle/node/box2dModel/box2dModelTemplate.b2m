@@ -86,6 +86,36 @@
 			"block_count":[0, 0, 0, 0],
 			"is_container":false				
 		},
+		"Rubber":
+		{
+		   "display_name":"Rubber",
+		   "density":0.75,
+		   "fill_colors":["#202020", "#303030", "#202020", "#404040", "#303030", "#202020", "#303030"],
+		   "fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+		   "fill_colors_shadow":["#000000", "#101010", "#000000", "#202020", "#101010", "#000000", "#101010"],
+		   "fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+		   "stroke_colors":["#000000", "#000000"],
+		   "stroke_ratios":[0, 1],
+		   "depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+		   "block_max":[10, 10, 10, 10],
+		   "block_count":[0, 0, 0, 0],
+		   "is_container":false          
+		},
+		"Clay":
+	      {
+	         "display_name":"Clay",
+	         "density":1.1,
+	         "fill_colors":["#F0540C", "#EB700B", "#EB500B", "#F0540C", "#EB700B", "#EB500B", "#F0746C"],
+	         "fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	         "fill_colors_shadow":["#C0540C", "#BB500B", "#BB500B", "#C0540C", "#BB500B", "#BB002B", "#C0443C"],
+	         "fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	         "stroke_colors":["#AB400B", "#AB400B"],
+	         "stroke_ratios":[0, 1],
+	         "depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+	         "block_max":[10, 10, 10, 10],
+	         "block_count":[0, 0, 0, 0],
+	         "is_container":false          
+	      },
 		"Glass":
 		{
 			"display_name":"Glass",

@@ -85,10 +85,15 @@
 	p.createObjectForLibrary = function (o)
 	{
 		var actor = new Blockb2Actor(o); 
-		this.library.addObject(actor);
-		actor.onPress = this.actorPressHandler.bind(this);
-		actor.orig_parent = this.library;
-		this.actors.push(actor);
+		if (this.library.addObject(actor)){
+			actor.onPress = this.actorPressHandler.bind(this);
+			actor.orig_parent = this.library;
+			this.actors.push(actor);
+			return true;
+		} else {
+			return false;
+		}
+		
 	}	
 
 	

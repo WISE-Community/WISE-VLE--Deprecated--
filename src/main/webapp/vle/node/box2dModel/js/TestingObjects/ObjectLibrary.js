@@ -102,6 +102,9 @@
 			element.y = this.y + this.height_px - 30;
 			o.html = htmlElement.parent();
 			o.button = element;
+			return true;
+		} else {
+			return false;
 		}
 	}
 

@@ -50,7 +50,8 @@ var events =
 	'test-balance-Nto1',
 	'test-balance-NtoN',
 	'test-add-beaker',
-	'test-release-beaker'
+	'test-release-beaker',
+	'gave-feedback'
 ];
 
 
