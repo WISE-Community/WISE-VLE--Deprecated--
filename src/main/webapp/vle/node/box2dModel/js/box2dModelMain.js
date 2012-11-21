@@ -271,7 +271,6 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				GLOBAL_PARAMETERS.total_objects_made++;
 				if (typeof already_in_globals === "undefined" || !already_in_globals)
 					GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
-
 				eventManager.fire("make-model", [savedObject]);
 			} else {} // too mancy shapes already			
 		}

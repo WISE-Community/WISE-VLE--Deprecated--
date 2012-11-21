@@ -64,22 +64,39 @@
 		this.blocks = [];
 		this.drawMaterial(this.materialsMenu.current_material_name);
 
+		this.enabled = true;
 		stage.ready_to_update = true;
 	}
 
-	p._tick = function()
-	{
-		this.Container_tick();
-
-	}
-
-	p.redraw = function()
-	{
-		stage.ready_to_update = true;
+	/** Disable is primarilly to be used when the library is full */
+	p.disableWithText = function (str){
+		if (this.enabled){
+			var g = new Graphics();
+			this.screen = new Shape(this.g);
+			this.addChild(this.screen);
+			g.beginFill("rgba(255,255,255,0.5)");
+			g.drawRect(0, 0, this.width_px, this.height_px);
+			g.endFill();
 			
+			this.screenText = new Text(str, "20px Arial", "#444");
+			this.screenText.x = (this.width_px - str.length*10)/2;
+			this.screenText.y = (this.height_px - 20)/2;
+			this.addChild(this.screenText);
+			this.enabled = false;
+
+		}
+		
 	}
 
-	
+	/** Reverses disableWithText function */
+	p.enable = function (){
+		if (!this.enabled){
+			this.removeChild(this.screen);
+			this.removeChild(this.screenText);
+			this.enabled = true;
+		}
+	}
+
 	////////////////////// CLASS SPECIFIC ////////////////////
 	p.update_view_sideAngle = function (degrees)
 	{
@@ -362,6 +379,12 @@
 		//console.log(blockArray3d);
 		return savedObject;
 	}
+
+	p._tick = function(){this.Container_tick();}
+
+	p.redraw = function(){stage.ready_to_update = true;}
+
+	
 
 	window.ObjectBuildingPanel = ObjectBuildingPanel;
 }(window));

@@ -41,6 +41,9 @@
 
 		stage.ready_to_update = true;
 	}
+	p.getIsFull = function(){
+		return this.shapes.length+1 >= this.MAX_OBJECTS_IN_LIBRARY;
+	}
 
 	p.addObject = function (o)
 	{
@@ -139,35 +142,35 @@
 				this.shapes[i].skin.savedObject.is_deleted = true;
 				eventManager.fire("delete-model", [this.shapes[i].skin.savedObject]);
 				this.removeObject(this.shapes[i]);
+				this.parent.removeObjectFromLibrary();
 				return true;
 			}
 		}
 		return false;
 	}
 
-	p.removeObject= function (o)
-	{
-		var index = this.shapes.indexOf(o);
-		this.shapes.splice(index, 1);
-		if (typeof o.button != "undefined") this.removeChild(o.button);
-		if (typeof o.html != "undefined" && o.html != null)	o.html.remove();
-		
-		this.removeChild(o);
-		// move shapes below up
-		for (var i = index; i < this.shapes.length; i++)
+		p.removeObject= function (o)
 		{
-			var s = this.shapes[i];
-			var new_index = i + 1;
-			s.x = (new_index % this.num_cols) * this.shape_width_px + this.shape_dx;
-			s.y = Math.floor(new_index / this.num_cols) * this.shape_height_px + this.shape_dy;
-			if (typeof s.button != "undefined")
+			var index = this.shapes.indexOf(o);
+			this.shapes.splice(index, 1);
+			if (typeof o.button != "undefined") this.removeChild(o.button);
+			if (typeof o.html != "undefined" && o.html != null)	o.html.remove();
+			
+			this.removeChild(o);
+			// move shapes below up
+			for (var i = index; i < this.shapes.length; i++)
 			{
-				s.button.x = this.x + s.x;
-				s.button.y = this.y + this.height_px - 30;						
-			}
+				var s = this.shapes[i];
+				var new_index = i + 1;
+				s.x = (new_index % this.num_cols) * this.shape_width_px + this.shape_dx;
+				s.y = Math.floor(new_index / this.num_cols) * this.shape_height_px + this.shape_dy;
+				if (typeof s.button != "undefined")
+				{
+					s.button.x = this.x + s.x;
+					s.button.y = this.y + this.height_px - 30;						
+				}
+			}			
 		}
-		
-	}
 
 	p._tick = function()
 	{

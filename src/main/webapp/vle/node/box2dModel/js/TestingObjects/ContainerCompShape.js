@@ -832,8 +832,7 @@
 	*/
 	p.empty= function (){
 		this.isFull = false;
-		this.available_volume = this.cube_count * this.liquid_unit_volume;
-		this.filled_volume = 0;
+		this.overflowing = false;
 		for (var i = 0; i < this.blockArray3d.length; i++){
 			for (var j = 0; j < this.blockArray3d[i].length; j++){
 				for (var k = 0; k < this.blockArray3d[i][j].length; k++){
@@ -841,13 +840,24 @@
 				}
 			}
 		}
+		this.available_volume = this.cube_count * this.liquid_unit_volume;
+		this.filled_volume = 0;
+		this.current_volume_on_y_index = 0;
+		this.perc_filled = 0;
+		this.x_index = this.getLeftmostColumn();
+		this.y_index = this.getLowestRow();
+		if (GLOBAL_PARAMETERS.fill_spilloff_depth_from_middle) {this.z_index = Math.floor(this.depth_units/2);}
+		else {this.z_index = this.depth_units-1;}
+
 		this.update_array2d();
 		this.redraw();
+		console.log("overflowing",this.overflowing)
 	}
 	
 	/** Fill the unit cube with the current index with the given volume, if filled move to the next */
 	p.fillWithVolume = function (volume)
 	{
+		console.log(this)
 		if (typeof(this.overflowing) == "undefined") this.overflowing = false;
 		if (this.overflowing) return;
 
@@ -982,7 +992,7 @@
 		this.available_volume -= volume_distributed;
 		this.filled_volume += volume_distributed;
 		this.perc_filled = this.filled_volume / (this.available_volume + this.filled_volume);
-		if (this.available_volume < .0001) this.isFull = true;
+		if (this.available_volume < .0001){ this.isFull = true; } else {this.isFull = false;}
 		this.update_array2d();
 		this.redraw();
 	}

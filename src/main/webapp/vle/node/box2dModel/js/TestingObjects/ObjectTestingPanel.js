@@ -89,13 +89,19 @@
 			actor.onPress = this.actorPressHandler.bind(this);
 			actor.orig_parent = this.library;
 			this.actors.push(actor);
+			if (this.library.getIsFull()){
+				builder.disableWithText('The library is full. To make a new model, first delete an old one.');
+			}
 			return true;
 		} else {
 			return false;
 		}
-		
 	}	
 
+	/** Called by the library, updated the building panel */
+	p.removeObjectFromLibrary = function (o){
+		builder.enable();
+	}
 	
 	/** Removes object from its current parent, allows movement based on current*/
 	p.actorPressHandler = function (evt)
