@@ -135,7 +135,7 @@ Box2dModel.prototype.render = function() {
 		this.node.setCompleted();
 	}
 
-	init(box2dModel.content);
+	if (typeof tester == "undefined") init(box2dModel.content);
 	//eventManager.fire("box2dInit", [{}], this);
 	eventManager.fire('pushStudentWork', {});
 	

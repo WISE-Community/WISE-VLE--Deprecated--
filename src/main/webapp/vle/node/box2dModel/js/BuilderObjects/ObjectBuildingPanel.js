@@ -212,25 +212,14 @@
 			// place within bounds of this object
 			if (parent instanceof ObjectBuildingPanel)
 			{
-				if (newX < 0)
-				{
-					this.target.x = 0;
-				} else if (newX > parent.width_px)
-				{
-					this.target.x = ob.width_px;
-				} else
-				{
-					this.target.x = newX;
+				if (newX < 0){this.target.x = 0;
+				} else if (newX > parent.width_px){ this.target.x = parent.width_px;
+				} else { this.target.x = newX;
 				}
-				if (newY < 0)
-				{
-					this.target.y = 0;
-				} else if (newY > parent.height_py)
-				{
-					this.target.y = parent.height_py;
-				} else
-				{
-					this.target.y = newY;
+
+				if (newY < 0){this.target.y = 0;
+				} else if (newY > parent.height_py){this.target.y = parent.height_py;
+				} else {this.target.y = newY;
 				} 
 
 				parent.vv.placeBlock(this.target);

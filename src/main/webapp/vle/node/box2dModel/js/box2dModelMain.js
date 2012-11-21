@@ -111,7 +111,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
 				start();
-			}
+			}	
 		}
 
 		function start()
