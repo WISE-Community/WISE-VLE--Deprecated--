@@ -180,7 +180,9 @@
 			this.blockTexts[i].setText(GLOBAL_PARAMETERS.materials[material_name].block_max[i] - GLOBAL_PARAMETERS.materials[material_name].block_count[i]);
 		}
 	}
-	/** */
+	/** When a block is pressed it should either be in the display area or on the volume viewer.
+		In the case of the volume viewer there are special rules that allow or do not allow it to be removed.
+	*/
 	p.blockPressHandler = function (evt)
 	{
 		var offset = evt.target.globalToLocal(evt.stageX, evt.stageY);
@@ -188,9 +190,12 @@
 		
 		if (source_parent instanceof VolumeViewer)
 		{ // if this object is in the volume viewer remove it and place on this 	
-			source_parent.clearBlock(evt.target);
-			this.addChild(evt.target);
-			source_parent.placeBlock(evt.target);
+			if (source_parent.clearBlock(evt.target)){
+				this.addChild(evt.target);
+				source_parent.placeBlock(evt.target);	
+			} else {
+				return;
+			}			
 		} else
 		{ 
 			var i = source_parent.blocks.indexOf(evt.target);

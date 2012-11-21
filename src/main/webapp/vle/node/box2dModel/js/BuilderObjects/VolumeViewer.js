@@ -367,7 +367,15 @@
 		g.endStroke();
 		
 	}
-	
+	p.blocksInViewer = function (o){
+		var count = 0;
+		for (var i = 0; i < this.blockArray2d.length; i++){
+			for (var j = 0; j < this.blockArray2d[i].length; j++){
+				if (this.blockArray2d[i][j] != null) count++;
+			}
+		}
+		return count;
+	}
 	/** Releases object from the hold of this container */
 	p.releaseBlock = function (o)
 	{
@@ -468,57 +476,56 @@
 		return o.placed;
 	}
 
-	/** Can the object o be added to the cell in the 2d array indicated by x_index and y_index */
-	p.canAddToCell = function (o, x_index, y_index){
-		// Use rules
-		// is this space occupied?
-		var goodLocation = false;
-		if (this.blockArray2d[x_index][y_index]  == null)
-		{
-			// is this the first block?
-			if (this.getNumChildren() == 4)
+		/** Can the object o be added to the cell in the 2d array indicated by x_index and y_index */
+		p.canAddToCell = function (o, x_index, y_index){
+			// Use rules
+			// is this space occupied?
+			var goodLocation = false;
+			if (this.blockArray2d[x_index][y_index]  == null)
 			{
-				// cannot be an "ends" piece
-				if (o.allBlocksConnected())
+				// is this the first block?
+				if (this.getNumChildren() == 4)
 				{
-					goodLocation = true;
-				} else
-				{
-					goodLocation = false;
-				}
-			}  else
-			{	
-				// separate rules for container
-				if (GLOBAL_PARAMETERS.materials[o.material_name].is_container)
-				{
-					// is this block attached to another, and is the block below the same size or smaller
-					if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index+1], "below")) {goodLocation = true;}
-					else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index-1][y_index], "left")) {goodLocation = true;}
-					else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index+1][y_index], "right")) {goodLocation = true;}
-					else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index-1], "above")) {goodLocation = true;}
-					else {goodLocation = false;}
-				} else
-				{
-					// is this block attached to another?
-					// bottom-left, bottom-center,...
-					if (x_index > 0 && y_index < this.height_units-1 && this.blockArray2d[x_index-1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index+1])) {goodLocation = true;}
-					else if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index+1])) {goodLocation = true;}
-					else if (x_index < this.width_units-1 && y_index < this.height_units-1 && this.blockArray2d[x_index+1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index+1])) {goodLocation = true;}
-					else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index])) {goodLocation = true;}
-					//else if (this.blockArray2d[x_index][y_index] != null && o.connectsToOther(this.blockArray2d[x_index][y_index])) {goodLocation = true;}
-					else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index])) {goodLocation = true;}
-					else if (x_index > 0 && y_index > 0 && this.blockArray2d[x_index-1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index-1])) {goodLocation = true;}
-					else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index-1])) {goodLocation = true;}
-					else if (x_index < this.width_units-1 && y_index > 0 && this.blockArray2d[x_index+1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index-1])) {goodLocation = true;}
-					else {goodLocation = false;}
-				}
-			}					
-		} else
-		{
-			goodLocation = false;
+					// cannot be an "ends" piece
+					if (o.allBlocksConnected())
+					{
+						goodLocation = true;
+					} else
+					{
+						goodLocation = false;
+					}
+				}  else
+				{	
+					// separate rules for container
+					if (GLOBAL_PARAMETERS.materials[o.material_name].is_container)
+					{
+						// is this block attached to another, and is the block below the same size or smaller
+						if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index+1], "below")) {goodLocation = true;}
+						else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index-1][y_index], "left")) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index+1][y_index], "right")) {goodLocation = true;}
+						else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index-1], "above")) {goodLocation = true;}
+						else {goodLocation = false;}
+					} else
+					{
+						// is this block attached to another?
+						// bottom-left, bottom-center,...
+						if (x_index > 0 && y_index < this.height_units-1 && this.blockArray2d[x_index-1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index+1])) {goodLocation = true;}
+						else if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index+1])) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && y_index < this.height_units-1 && this.blockArray2d[x_index+1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index+1])) {goodLocation = true;}
+						else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index])) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index])) {goodLocation = true;}
+						else if (x_index > 0 && y_index > 0 && this.blockArray2d[x_index-1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index-1])) {goodLocation = true;}
+						else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index-1])) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && y_index > 0 && this.blockArray2d[x_index+1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index-1])) {goodLocation = true;}
+						else {goodLocation = false;}
+					}
+				}					
+			} else
+			{
+				goodLocation = false;
+			}
+			return goodLocation;
 		}
-		return goodLocation;
-	}
 
 	p.setBlock = function(o)
 	{
@@ -539,10 +546,82 @@
 	}
 	p.clearBlock = function (o)
 	{
-		this.updateBlockRelations(o, o.x_index, o.y_index, false);
-		this.blockArray2d[o.x_index][o.y_index] = null;
-		this.removeChild(o);
+		if (this.canRemoveFromCell(o.x_index, o.y_index)){
+			this.updateBlockRelations(o, o.x_index, o.y_index, false);
+			this.blockArray2d[o.x_index][o.y_index] = null;
+			this.removeChild(o);
+			return true;
+		} else {
+			return false;
+		}		
 	}
+		/** Can the object o be removed from the cell in the 2d array indicated by x_index and y_index */
+		p.canRemoveFromCell = function (x_index, y_index){
+			// temporarily take o off of the 2d block array, then go through each object in the 2d array
+			// around the objects position to see if the
+			var obj = this.blockArray2d[x_index][y_index];
+			this.blockArray2d[x_index][y_index] = null;
+			var blockCount = this.blocksInViewer();
+			if (blockCount == 0) return true;
+
+			var goodLocation = true;
+
+			// create a boolean array to tell whether we've processed the current index
+			var processedArr2d = [];
+			for (var i = 0; i < this.blockArray2d.length; i++){
+				processedArr2d[i] = [];
+				for (var j = 0; j < this.blockArray2d[i].length; j++){
+					processedArr2d[i][j] = false;
+				}
+			}
+
+			// iterate through block2d to find a block
+			var obreak = false;
+			for (i = 0; i < this.blockArray2d.length; i++){
+				for (j = 0; j < this.blockArray2d[i].length; j++){
+					if (this.blockArray2d[i][j] != null){
+						var connectionCount = this.getSizeOfObjectFromIndex(i, j, processedArr2d);
+						obreak = true; break;
+					} else {
+						processedArr2d[i][j] = true;
+					}					
+				}
+				if (obreak) break;
+			}
+			// put back in array
+			this.blockArray2d[x_index][y_index] = obj;
+			// is the block we found connected to all other blocks?
+			if (connectionCount < blockCount){
+				return false;
+			} else {
+				return true;
+			}
+		}	 
+
+			/** This function starts from an upper-left index to find all connected blocks, recursively */
+			p.getSizeOfObjectFromIndex = function (x_index, y_index, processedArr2d, x_index_prev, y_index_prev){
+				if (this.blockArray2d[x_index][y_index] != null && !processedArr2d[x_index][y_index] && !(x_index == x_index_prev && y_index == y_index_prev)){
+					if (typeof x_index_prev == "undefined") x_index_prev = -1;
+					if (typeof y_index_prev == "undefined") y_index_prev = -1;
+					var o = this.blockArray2d[x_index][y_index];
+					processedArr2d[x_index][y_index] = true;
+					var count = 1;					
+					// circle all around and process
+					if (x_index > 0 && y_index < this.height_units-1 && this.blockArray2d[x_index-1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index+1])) {count +=this.getSizeOfObjectFromIndex(x_index-1, y_index+1,processedArr2d, x_index, y_index);}
+					if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index+1])) {count +=this.getSizeOfObjectFromIndex(x_index, y_index+1, processedArr2d, x_index, y_index);}
+					if (x_index < this.width_units-1 && y_index < this.height_units-1 && this.blockArray2d[x_index+1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index+1])) {count +=this.getSizeOfObjectFromIndex(x_index+1, y_index+1,processedArr2d, x_index, y_index);}
+					if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index])) {count +=this.getSizeOfObjectFromIndex(x_index-1, y_index, processedArr2d, x_index, y_index);}
+					if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index])) {count +=this.getSizeOfObjectFromIndex(x_index+1, y_index, processedArr2d, x_index, y_index);}
+					if (x_index > 0 && y_index > 0 && this.blockArray2d[x_index-1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index-1])) {count +=this.getSizeOfObjectFromIndex(x_index-1, y_index-1, processedArr2d, x_index, y_index);}
+					if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index-1])) {count +=this.getSizeOfObjectFromIndex(x_index, y_index-1, processedArr2d, x_index, y_index);}
+					if (x_index < this.width_units-1 && y_index > 0 && this.blockArray2d[x_index+1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index-1])) {count +=this.getSizeOfObjectFromIndex(x_index+1, y_index-1, processedArr2d, x_index, y_index);}
+					
+					return count;
+				} else {
+					return 0;
+				}
+			}
+
 
 	p.clearBlocks = function ()
 	{
