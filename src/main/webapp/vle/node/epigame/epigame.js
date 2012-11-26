@@ -62,13 +62,17 @@ Epigame.prototype.getLatestEpigameWork = function(nodeFilterFunc) {
 	var latestWork = null;
 	if (nodeIDs) {
 		for (var i = 0; i < nodeIDs.length; ++i) {
-			var node = this.view.getProject().getNodeById(nodeIDs[i]);
-			if (node && node.studentWork && node.studentWork.length && nodeFilterFunc(node)) {
-				var work = node.studentWork[node.studentWork.length - 1];
-				//If timestamped later than the latest (or no latest exists), this is the new latest
-				if (work && work.response && work.response.timestamp != null
-						&& (!latestWork || latestWork.response.timestamp < work.response.timestamp)) {
-					latestWork = work;
+			var nodeID = nodeIDs[i];
+			var node = this.view.getProject().getNodeById(nodeID);
+			if (node && nodeFilterFunc(node)) {
+				var nodeWork = this.view.getStudentWorkForNodeId(nodeID);
+				if (nodeWork && nodeWork.length) {
+					var work = nodeWork[nodeWork.length - 1];
+					//If timestamped later than the latest (or no latest exists), this is the new latest
+					if (work && work.response && work.response.timestamp != null
+							&& (!latestWork || latestWork.response.timestamp < work.response.timestamp)) {
+						latestWork = work;
+					}
 				}
 			}
 		}
@@ -189,12 +193,12 @@ Epigame.prototype.checkStepScore = function(tagName, scoreProp, readableScoreNam
 };
 
 Epigame.prototype.getLatestCompletionByNodeId = function(nodeID) {
-	var node = this.view.getProject().getNodeById(nodeID);
-	if (node && node.studentWork) {
+	var nodeWork = this.view.getStudentWorkForNodeId(nodeID)
+	if (nodeWork) {
 		//Reverse iterate until we hit one with success
-		var i = node.studentWork.length;
+		var i = nodeWork.length;
 		while (i--) {
-			var work = node.studentWork[i];
+			var work = nodeWork[i];
 			if (work && work.response && work.response.success) {
 				return work;
 			}
