@@ -9,7 +9,7 @@
 	{
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, depth_array, view_sideAngle, view_topAngle, material_name, material);
 	}
-	var p = RectBlockShape.prototype = new Container();
+	var p = RectBlockShape.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;
@@ -43,8 +43,8 @@
 		this.belowBlock = null;
 
 		// composition vars
-		var g = this.g = new Graphics();
-		this.shape = new Shape(g);
+		var g = this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 		//this.shape.mouseEnabled = false;
 		
@@ -215,7 +215,7 @@
 				for (j = 0; j < this.cubes_projected[i].back.length; j++)
 				{
 					point = this.cubes_projected[i].back[j];
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].back[j] = npoint;
 				}
 
@@ -223,7 +223,7 @@
 				for (j = 0; j < this.cubes_projected[i].top.length; j++)
 				{
 					point = this.cubes_projected[i].top[j];
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].top[j] = npoint;
 				}
 
@@ -231,7 +231,7 @@
 				for (j = 0; j < this.cubes_projected[i].bottom.length; j++)
 				{
 					point = this.cubes_projected[i].bottom[j];
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].bottom[j] = npoint;
 				}
 
@@ -239,7 +239,7 @@
 				for (j = 0; j < this.cubes_projected[i].front.length; j++)
 				{
 					point = this.cubes_projected[i].front[j];
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].front[j] = npoint;
 				}
 
@@ -247,7 +247,7 @@
 				for (j = 0; j < this.cubes_projected[i].right.length; j++)
 				{
 					point = this.cubes_projected[i].right[j];
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].right[j] = npoint;
 				}
 
@@ -255,7 +255,7 @@
 				for (j = 0; j < this.cubes_projected[i].left.length; j++)
 				{
 					point = this.cubes_projected[i].left[j];
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].left[j] = npoint;
 				}
 			} else

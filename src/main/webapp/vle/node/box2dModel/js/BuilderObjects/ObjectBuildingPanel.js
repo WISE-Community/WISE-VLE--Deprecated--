@@ -6,7 +6,7 @@
 	{
 		this.initialize(width_px, height_px);
 	}
-	var p = ObjectBuildingPanel.prototype = new Container();
+	var p = ObjectBuildingPanel.prototype = new createjs.Container();
 	p.Container_initialize = ObjectBuildingPanel.prototype.initialize;
 	p.Container_tick = p._tick;
 	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
@@ -22,19 +22,22 @@
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
 		
 		//background
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
 		// the list of material names
 		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px);
 		this.addChild(this.materialsMenu);
+
 		
 		this.vv = new VolumeViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
 		this.addChild(this.vv);
 		this.vv.x = this.width_px * 3 / 4;
 		this.vv.y = this.height_px / 2 - GLOBAL_PARAMETERS.PADDING;
 		
+		this.dragging_object = null;
+
 		this.block_space_width = this.width_px/2 - this.materialsMenu.x - this.materialsMenu.width_px;
 		this.block_space_height = this.height_px; 
 
@@ -71,8 +74,8 @@
 	/** Disable is primarilly to be used when the library is full */
 	p.disableWithText = function (str){
 		if (this.enabled){
-			var g = new Graphics();
-			this.screen = new Shape(this.g);
+			var g = new createjs.Graphics();
+			this.screen = new createjs.Shape(this.g);
 			this.addChild(this.screen);
 			g.beginFill("rgba(255,255,255,0.5)");
 			g.drawRect(0, 0, this.width_px, this.height_px);
@@ -185,9 +188,10 @@
 	*/
 	p.blockPressHandler = function (evt)
 	{
+		if (this.dragging_object != null) return;
+		this.dragging_object = evt.target;
 		var offset = evt.target.globalToLocal(evt.stageX, evt.stageY);
 		var source_parent = evt.target.parent;		
-		
 		if (source_parent instanceof VolumeViewer)
 		{ // if this object is in the volume viewer remove it and place on this 	
 			if (source_parent.clearBlock(evt.target)){
@@ -235,6 +239,7 @@
 		{
 			var parent = this.target.parent;
 			var o = this.target; 
+			builder.dragging_object = null;
 			if (parent instanceof ObjectBuildingPanel)
 			{
 				// the source matters
@@ -293,10 +298,9 @@
 						o.redraw();
 						o.orig_parent.addChild(o);
 						o.orig_parent.placeBlock(o, o.depth_array_index);
-					}
-					
+					}					
 				}
-			}		
+			}
 		}
 	}
 

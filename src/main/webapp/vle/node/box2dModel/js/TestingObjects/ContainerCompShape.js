@@ -9,7 +9,7 @@
 	{
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, savedObject);
 	} 
-	var p = ContainerCompShape.prototype = new Container();
+	var p = ContainerCompShape.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;
@@ -81,8 +81,8 @@
 		this.isFull = false;
 
 		// composition vars
-		var g = this.g = new Graphics();
-		this.shape = new Shape(g);
+		var g = this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 		this.getHighestRow();
 		this.getLowestRow();
@@ -108,8 +108,8 @@
 
 		if (this.DEBUG)
 		{
-			var dg = new Graphics();
-			var dshape = new Shape(dg);
+			var dg = new createjs.Graphics();
+			var dshape = new createjs.Shape(dg);
 			this.addChild(dshape);
 			dg.beginFill("rgba(255,0,0,0.5)");
 			dg.drawCircle(0, 0, 2);
@@ -997,7 +997,7 @@
 		this.redraw();
 	}
 ////////////////////// DRAWING STUFF /////////////////////////
-	p.redraw = function(r)
+	p.redraw = function(r, percentSubmerged2d)
 	{
 		var rotation;
 		if (typeof(r) != "undefined") {rotation = r} else {rotation = 0}
@@ -1513,7 +1513,53 @@
 							}
 						}
 						//console.log("_________________");
-						
+					
+						var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[i_shift][j_shift];
+						// draw liquid in front
+						if (percentSubmerged > 0 && percentSubmerged < 1){ 
+							var liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
+							var angle = rotation / 180 * Math.PI;
+							var pheightSubmerged;
+							if (angle % (Math.PI/2) != 0){
+								var divisor = Math.sin(angle)/Math.cos(angle) + Math.cos(angle)/Math.sin(angle);
+								pheightSubmerged = Math.sqrt(2*percentSubmerged / divisor);								
+							} else {
+								pheightSubmerged = percentSubmerged;
+							}
+
+							//console.log("percentSubmerged", percentSubmerged, "pheightSubmerged", pheightSubmerged, "divisor", divisor);
+							// four points in parent's coordinates.
+							var g_ftl = this.localToLocal(ftl_x, ftl_y, this.parent.parent);
+							var g_ftr = this.localToLocal(ftr_x, ftr_y, this.parent.parent);
+							var g_fbl = this.localToLocal(fbl_x, fbl_y, this.parent.parent);
+							var g_fbr = this.localToLocal(fbr_x, fbr_y, this.parent.parent);
+							var g_miny = Math.min(g_ftl.y, g_ftr.y, g_fbl.y, g_fbr.y);
+							var g_maxy = Math.max(g_ftl.y, g_ftr.y, g_fbl.y, g_fbr.y);
+							var g_minx = Math.min(g_ftl.x, g_ftr.x, g_fbl.x, g_fbr.x);
+							var g_maxx = Math.max(g_ftl.x, g_ftr.x, g_fbl.x, g_fbr.x);
+							// associate back with local points
+							//var lmin = this.parent.parent.localToLocal(g_minx, g_miny, this);
+							var bl = this.parent.parent.localToLocal(g_minx, g_maxy, this);
+							var br = this.parent.parent.localToLocal(g_maxx, g_maxy, this);
+							var tl = this.parent.parent.localToLocal(g_minx, g_maxy - (g_maxy - g_miny)*percentSubmerged, this);
+							var tr = this.parent.parent.localToLocal(g_maxx, g_maxy - (g_maxy - g_miny)*percentSubmerged, this);
+							g.setStrokeStyle(0);
+							//g.beginStroke(liquid.stroke_color);
+							g.beginFill(liquid.fill_color);
+							g.moveTo(tl.x, tl.y);
+							g.lineTo(tr.x, tr.y);
+							g.lineTo(br.x, br.y);
+							g.lineTo(bl.x, bl.y);
+							g.lineTo(tl.x, tl.y);
+							//g.endStroke();
+							g.endFill();
+
+							g.setStrokeStyle(2);
+							g.beginStroke(liquid.stroke_color);
+							g.moveTo(tl.x, tl.y);
+							g.lineTo(tr.x, tr.y);
+							g.endStroke();
+						}	
 					} else if (this.DEBUG && k == 0)
 					{
 						g.beginFill("rgba(255,255,0,0.5)");

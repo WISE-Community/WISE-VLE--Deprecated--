@@ -6,7 +6,7 @@
 		this.initialize (width_px, height_px, world_dx, world_dy, beaker_width_px, beaker_height_px, beaker_depth_px);
 	} 
 
-	var p = Beakerb2World.prototype = new Container();
+	var p = Beakerb2World.prototype = new createjs.Container();
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
@@ -50,8 +50,8 @@
 		this.liquid_color = this.liquid.fill_color; //.replace("1.0", "0.5");
 		this.liquid_stroke_color = this.liquid.stroke_color;//.replace("1.0", "0.5");
 
-		g = this.g = new Graphics();
-		this.shape = new Shape(g);
+		g = this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 
 		g.beginFill("rgba(220, 220, 255, 1.0)");
@@ -62,29 +62,29 @@
 		g.drawRect(0, this.height_px-100, this.width_px, 100);
 		g.endFill();
 
-		this.puddleGraphics = new Graphics();
-		this.puddleShape = new Shape(this.puddleGraphics);
+		this.puddleGraphics = new createjs.Graphics();
+		this.puddleShape = new createjs.Shape(this.puddleGraphics);
 		this.addChild(this.puddleShape);
 
-		this.backWaterGraphics = new Graphics();
-		this.backWaterShape = new Shape(this.backWaterGraphics);
-		this.backWaterLineGraphics = new Graphics();
-		this.backWaterLineShape = new Shape(this.backWaterLineGraphics);
-		this.backGraphics = new Graphics();
-		this.backShape = new Shape(this.backGraphics);
-		this.frontWaterGraphics = new Graphics();
-		this.frontWaterShape = new Shape(this.frontWaterGraphics);
-		this.frontWaterLineGraphics = new Graphics();
-		this.frontWaterLineShape = new Shape(this.frontWaterLineGraphics);
-		this.frontGraphics = new Graphics();
-		this.frontShape = new Shape(this.frontGraphics);
-		this.spoutGraphics = new Graphics();
-		this.spoutShape = new Shape(this.spoutGraphics);
-		this.rulerGraphics = new Graphics();
-		this.rulerShape = new Shape(this.rulerGraphics);
-		this.pointerGraphics = new Graphics();
-		this.pointerShape = new Shape(this.pointerGraphics);
-		this.pointerText = new Text(Math.round(this.total_volume), "1.0em Bold Arial", "#222");
+		this.backWaterGraphics = new createjs.Graphics();
+		this.backWaterShape = new createjs.Shape(this.backWaterGraphics);
+		this.backWaterLineGraphics = new createjs.Graphics();
+		this.backWaterLineShape = new createjs.Shape(this.backWaterLineGraphics);
+		this.backGraphics = new createjs.Graphics();
+		this.backShape = new createjs.Shape(this.backGraphics);
+		this.frontWaterGraphics = new createjs.Graphics();
+		this.frontWaterShape = new createjs.Shape(this.frontWaterGraphics);
+		this.frontWaterLineGraphics = new createjs.Graphics();
+		this.frontWaterLineShape = new createjs.Shape(this.frontWaterLineGraphics);
+		this.frontGraphics = new createjs.Graphics();
+		this.frontShape = new createjs.Shape(this.frontGraphics);
+		this.spoutGraphics = new createjs.Graphics();
+		this.spoutShape = new createjs.Shape(this.spoutGraphics);
+		this.rulerGraphics = new createjs.Graphics();
+		this.rulerShape = new createjs.Shape(this.rulerGraphics);
+		this.pointerGraphics = new createjs.Graphics();
+		this.pointerShape = new createjs.Shape(this.pointerGraphics);
+		this.pointerText = new createjs.Text(Math.round(this.total_volume), "1.0em Bold Arial", "#222");
 
 		// add to display
 		this.addChild(this.backShape);
@@ -111,7 +111,7 @@
 		this.spout_open = false;
 		this.draining = false;
 		this.spout_change = false;
-		this.spout_point = new Point (this.spoutShape.x + 50, this.spoutShape.y + 50);
+		this.spout_point = new createjs.Point (this.spoutShape.x + 50, this.spoutShape.y + 50);
 		this.refill_button_drawn = false;
 		this.release_button_drawn = false;
 
@@ -204,9 +204,9 @@
 			g.moveTo(0, ry);
 			g.lineTo(10, ry);
 			vstr = Math.round(((this.height_px - this.beaker_bottom_dy) - ry) / GLOBAL_PARAMETERS.SCALE);
-			text = new Text(vstr, "1.0em Bold Arial", "#888");
+			text = new createjs.Text(vstr, "1.0em Bold Arial", "#888");
 			text.x = this.beaker_x - this.beaker_width_px/2 - 33;
-			text.y = ry + 4; 
+			text.y = ry - 10; 
 			this.addChild(text);
 		}
 		this.addChild(this.pointerShape);
@@ -384,7 +384,7 @@
 		{
 			$('#beaker-button-holder').append('<input type="submit" id="refill-button" value="Refill" style="font-size:14px; position:absolute"/>');
 			var htmlElement = $('#refill-button').button().bind('click', {parent: this}, this.refillBeaker);
-			var element = new DOMElement(htmlElement[0]);
+			var element = new createjs.DOMElement(htmlElement[0]);
 			this.addChild(element);
 			element.x = this.beaker_x - 20;
 			element.y = 30;
@@ -425,7 +425,7 @@
 		{
 			$('#beaker-button-holder').append('<input type="submit" id="release-button" value="Release" style="font-size:14px; position:absolute"/>');
 			var htmlElement = $('#beaker-button-holder').find("input[id='release-button']").button().bind('click', {parent: this}, this.releaseSpout);
-			var element = new DOMElement(htmlElement[0]);
+			var element = new createjs.DOMElement(htmlElement[0]);
 			this.addChild(element);
 			element.x = this.beaker_x + this.beaker_width_px/2 + 20;
 			element.y = this.height_px / 2;
@@ -467,23 +467,23 @@
 		{
 			var spoutDiameter = 10;
 			var p1, p2, p3, p4, p5, p6;
-			p1 = new Point(0, 0);
+			p1 = new createjs.Point(0, 0);
 			if (this.spilloffContainer != null)
 			{
 				// attach to top of spilloff container
-				p3 = new Point( this.spilloffContainer.x + this.spilloffContainer.skin.width_px_right/2 - this.spoutShape.x, this.spilloffContainer.y - + this.spilloffContainer.skin.height_px_above/2 - this.spoutShape.y);
+				p3 = new createjs.Point( this.spilloffContainer.x + this.spilloffContainer.skin.width_px_right/2 - this.spoutShape.x, this.spilloffContainer.y - + this.spilloffContainer.skin.height_px_above/2 - this.spoutShape.y);
 			} else
 			{
-				p3 = new Point (50, 50);
+				p3 = new createjs.Point (50, 50);
 			}
 			
 			var spoutIncline = Math.atan((p3.y-p1.y)/(p3.x-p1.x));
 			var spoutWidth = p3.x - p1.x; var spoutHeight = p3.y - p1.y;
 			var spoutLength = Math.sqrt((p3.y-p1.y)*(p3.y-p1.y) + (p3.x-p1.x)*(p3.x-p1.x));
-			//p2 = new Point (p1.x + spoutWidth/2 - spoutDiameter/2*Math.sin(spoutIncline), p1.y + spoutHeight/4 + spoutDiameter/2*Math.cos(spoutIncline));
-			//p5 = new Point (p1.x + spoutWidth/2 + spoutDiameter/2*Math.sin(spoutIncline), p1.y + spoutHeight/4 - spoutDiameter/2*Math.cos(spoutIncline));
-			p4 = new Point(p3.x + spoutDiameter * Math.sin(spoutIncline), p3.y - spoutDiameter * Math.cos(spoutIncline));
-			p6 = new Point(0, -spoutDiameter/Math.cos(spoutIncline));
+			//p2 = new createjs.Point (p1.x + spoutWidth/2 - spoutDiameter/2*Math.sin(spoutIncline), p1.y + spoutHeight/4 + spoutDiameter/2*Math.cos(spoutIncline));
+			//p5 = new createjs.Point (p1.x + spoutWidth/2 + spoutDiameter/2*Math.sin(spoutIncline), p1.y + spoutHeight/4 - spoutDiameter/2*Math.cos(spoutIncline));
+			p4 = new createjs.Point(p3.x + spoutDiameter * Math.sin(spoutIncline), p3.y - spoutDiameter * Math.cos(spoutIncline));
+			p6 = new createjs.Point(0, -spoutDiameter/Math.cos(spoutIncline));
 			
 			var g = this.spoutGraphics;
 			g.clear();
@@ -494,7 +494,7 @@
 			g.endFill();
 			g.endStroke();
 
-			var mp = new Point ((p3.x + p4.x)/2, (p3.y + p4.y)/2);
+			var mp = new createjs.Point ((p3.x + p4.x)/2, (p3.y + p4.y)/2);
 			g.setStrokeStyle(1);
 			g.beginStroke("rgba(160, 160, 160, 1.0)"); 		
 			g.beginFill("rgba(200,200, 200, 1.0)");
@@ -502,7 +502,7 @@
 			g.endStroke();
 			g.endFill();
 
-			this.spout_point = new Point (this.spoutShape.x + mp.x, this.spoutShape.y + mp.y);
+			this.spout_point = new createjs.Point (this.spoutShape.x + mp.x, this.spoutShape.y + mp.y);
 		}
 	}
 
@@ -591,10 +591,13 @@
 		{
 			var fixDef = actor.fixDefs[i];
 			var f = body.CreateFixture(fixDef);
+			f.x_index = fixDef.x_index;
+			f.y_index = fixDef.y_index;
 			f.materialDensity = fixDef.materialDensity;
 			f.totalSpaces = fixDef.totalSpaces;
 			f.materialSpaces = fixDef.materialSpaces;
 			f.exteriorSpaces = fixDef.exteriorSpaces;
+			f.percentSubmerged = 0;
 			if (typeof(fixDef.interiorSpaces) != "undefined"){f.interiorSpaces = fixDef.interiorSpaces;}else{f.interiorSpaces = 0;}
 			if (typeof(fixDef.protectedSpaces) != "undefined"){f.protectedSpaces = fixDef.protectedSpaces;}else{f.protectedSpaces = 0;}
 			// set density for the length of the entire depth
@@ -604,7 +607,8 @@
 
 			var lowerBound = f.GetAABB().lowerBound;
 			var upperBound = f.GetAABB().upperBound;
-			area += Math.abs((upperBound.x - lowerBound.x) * (upperBound.y - lowerBound.y));
+			f.area = Math.abs((upperBound.x - lowerBound.x) * (upperBound.y - lowerBound.y));
+			area += f.area;
 			if (typeof(f.emptySpaces) != "undefined") body.emptySpaces += f.emptySpaces;
 		}
 		
@@ -615,8 +619,17 @@
 		body.volume = volume;
 		body.fullySubmerged = false;
 		body.fullyEmerged = true;
+		body.percentSubmerged2d = bodyDef.percentSubmerged2d;
+		body.percentSubmergedChangedFlag = false;
 		body.soaked = false;
 		body.is_container = actor.is_container;
+		body.percentSubmerged2d = [];
+		for (i = 0; i < actor.skin.array2d.length; i++) {
+			body.percentSubmerged2d[i] = [];
+			for (j = 0; j < actor.skin.array2d[0].length; j++){
+				body.percentSubmerged2d[i][j] = 0;
+			}
+		}
 		if (typeof(bodyDef.IsFixedRotation) != "undefined" && bodyDef.IsFixedRotation) body.SetFixedRotation(true);
 		//body.SetSleepingAllowed(false);
 		body.ResetMassData();
@@ -633,7 +646,7 @@
 			{
 				eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
 
-				this.controller.AddBody(body);
+				this.controller.MyAddBody(body);
 				// set a reference so we can look for initial contact with this object
 				this.justAddedActorToBuoyancy = actor;
 				actor.controlledByBuoyancy = true;
@@ -740,9 +753,9 @@
 			if (this.liquid_y < this.min_liquid_y)
 			{
 				liquid_diff_y = this.min_liquid_y - this.liquid_y;
-				if (liquid_diff_y > this.DRAINING_PER_SECOND/Ticker.getFPS())
+				if (liquid_diff_y > this.DRAINING_PER_SECOND/createjs.Ticker.getFPS())
 				{
-					liquid_dy = this.DRAINING_PER_SECOND/Ticker.getFPS();
+					liquid_dy = this.DRAINING_PER_SECOND/createjs.Ticker.getFPS();
 					this.controller.ChangeOffset(-liquid_dy/GLOBAL_PARAMETERS.SCALE);
 					if (this.spilloffContainer != null && !this.spilloffContainer.skin.overflowing)
 					{
@@ -840,7 +853,7 @@
 		if (!this.release_button_drawn && !this.refill_button_drawn && this.liquid_volume_released > 0) this.drawRefillButton();
 		if (!this.release_button_drawn && this.spilloff_volume_perc < 1.0 && (this.beaker_height_px - this.liquid_y) - this.spilloff_volume_perc * this.beaker_height_px > 0.01 ) this.drawReleaseButton();
 
-		this.b2world.Step(1/Ticker.getFPS(), 10, 10);
+		this.b2world.Step(1/createjs.Ticker.getFPS(), 10, 10);
 		this.redraw();
 		if (GLOBAL_PARAMETERS.DEBUG) this.b2world.DrawDebugData();
 		//console.log(this, this.getNumChildren());
@@ -887,7 +900,7 @@
 		this.pointerShape.y = this.frontWaterLineShape.y;
 		this.pointerText.text = Math.round( (this.beaker_height_px - this.liquid_y) / GLOBAL_PARAMETERS.SCALE * 100) / 100;
 		
-		this.pointerText.y = this.pointerShape.y + 5;
+		this.pointerText.y = this.pointerShape.y - 10;
 	}
 	
 	

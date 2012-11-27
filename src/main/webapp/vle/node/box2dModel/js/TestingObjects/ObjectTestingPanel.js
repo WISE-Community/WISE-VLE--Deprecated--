@@ -6,7 +6,7 @@
 	{
 		this.initialize(width_px, height_px);
 	}
-	var p = ObjectTestingPanel.prototype = new Container();
+	var p = ObjectTestingPanel.prototype = new createjs.Container();
 	p.Container_initialize = ObjectTestingPanel.prototype.initialize;
 	p.Container_tick = p._tick;
 	p.TITLE_HEIGHT = 40;
@@ -24,8 +24,8 @@
 		this.max_shape_height_px = this.height_from_depth +  GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS * GLOBAL_PARAMETERS.SCALE;
 		
 		//background
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
 		//library
@@ -33,6 +33,7 @@
 		this.addChild(this.library);
 		this.library.x = 0;
 		this.library.y = 0;
+		this.dragging_object = null;
 		//balanceWorld
 		var current_x = 0;
 		var current_y = this.library.y + this.library.height_px + GLOBAL_PARAMETERS.PADDING;
@@ -106,6 +107,8 @@
 	/** Removes object from its current parent, allows movement based on current*/
 	p.actorPressHandler = function (evt)
 	{
+		if (this.dragging_object != null) return;
+		this.dragging_object = evt.target;
 		var source_parent = evt.target.parent;
 		var gp = source_parent.localToGlobal(evt.target.x, evt.target.y);
 		var offset = evt.target.globalToLocal(evt.stageX, evt.stageY);
@@ -166,6 +169,7 @@
 		}
 		evt.onMouseUp = function (ev)
 		{
+			tester.dragging_object = null;
 			var parent = this.target.parent;
 			//
 			if (parent.balanceWorld != null && parent.balanceWorld.hitTestObject(this.target))

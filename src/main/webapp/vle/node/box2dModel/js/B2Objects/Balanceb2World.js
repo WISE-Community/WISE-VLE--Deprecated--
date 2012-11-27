@@ -6,7 +6,7 @@
 		this.initialize (width_px, height_px, world_dx, world_dy, width_units, depth_units);
 	}
 
-	var p = Balanceb2World.prototype = new Container();
+	var p = Balanceb2World.prototype = new createjs.Container();
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
@@ -58,8 +58,8 @@
 		this.justRemovedActorToRight = null;
 		
 
-		g = this.g = new Graphics();
-		this.shape = new Shape(g);
+		g = this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 
 		g.beginFill("rgba(220, 220, 255, 1.0)");
@@ -74,8 +74,8 @@
 
 		// draw the center pole
 		// easel
-		var g = this.baseg = new Graphics();
-		this.baseShape = new Shape(g);
+		var g = this.baseg = new createjs.Graphics();
+		this.baseShape = new createjs.Shape(g);
 		this.baseShape.x = this.width_px / 2;
 		this.addChild(this.baseShape);
 		g.clear();
@@ -101,8 +101,8 @@
 
 		/// beam
 		// easel
-		g = this.beamg = new Graphics();
-		this.beamShape = new Shape(g);
+		g = this.beamg = new createjs.Graphics();
+		this.beamShape = new createjs.Shape(g);
 		this.beamShape.x = this.width_px / 2;
 		this.beamShape.y = this.height_px - this.STEM_HEIGHT;
 		this.addChild(this.beamShape);
@@ -134,16 +134,16 @@
 		
 		// pans
 		// easel
-		g = this.leftPang = new Graphics();
-		this.leftPanShape = new Shape(g);
+		g = this.leftPang = new createjs.Graphics();
+		this.leftPanShape = new createjs.Shape(g);
 		this.leftPanShape.x = this.width_px / 4;
 		this.leftPanShape.y = this.height_px - this.STEM_HEIGHT + this.BEAM_ARC_DY + this.PAN_DY;
 		this.addChild(this.leftPanShape);
 		
 		/// right pan
 		// easel
-		g = this.rightPang = new Graphics();
-		this.rightPanShape = new Shape(g);
+		g = this.rightPang = new createjs.Graphics();
+		this.rightPanShape = new createjs.Shape(g);
 		this.rightPanShape.x = this.width_px * 3 / 4;
 		this.rightPanShape.y = this.height_px - this.STEM_HEIGHT + this.BEAM_ARC_DY + this.PAN_DY;
 		this.addChild(this.rightPanShape);
@@ -747,7 +747,7 @@
 			this.massText.y = this.beamShape.y - (this.BEAM_HEIGHT+this.MASS_DISPLAY_WIDTH/2) * Math.cos(r);
 		}
 
-		this.b2world.Step(1/Ticker.getFPS(), 10, 10);
+		this.b2world.Step(1/createjs.Ticker.getFPS(), 10, 10);
 		//console.log(this, this.getNumChildren());
 		if (GLOBAL_PARAMETERS.DEBUG) this.b2world.DrawDebugData();
 	}

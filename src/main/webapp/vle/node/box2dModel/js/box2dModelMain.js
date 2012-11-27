@@ -73,9 +73,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 					{"label":"spilloff-perc-filled", "units":"%", "min":0, "max":1}
 				],
 			}
-        }
-        
-		
+        }	
 		
 		// GLOBAL OBJECTS			
 		var canvas;
@@ -117,7 +115,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		function start()
 		{
 			canvas = document.getElementById("canvas");
-			stage = new Stage(canvas);
+			stage = new createjs.Stage(canvas);
 			stage.mouseEventsEnabled = true;
 			stage.enableMouseOver();
 			stage.needs_to_update = true;
@@ -182,17 +180,17 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			
 
 					// setup buttons for volume viewer	
-					var element = new DOMElement($("#make-object")[0]);
+					var element = new createjs.DOMElement($("#make-object")[0]);
 					stage.addChild(element);
 					element.x = builder.x + builder.width_px / 2 + 2 * GLOBAL_PARAMETERS.PADDING;
 					element.y = builder.y  + GLOBAL_PARAMETERS.PADDING * 2;
 
-					element = new DOMElement($("#slider-sideAngle")[0]);
+					element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 					stage.addChild(element);
 					element.x = builder.x + builder.width_px / 2 + (builder.width_px / 2 - 100) / 2 ;
 					element.y = builder.y + builder.height_px - 2 * GLOBAL_PARAMETERS.PADDING;
 					
-					element = new DOMElement($("#slider-topAngle")[0]);
+					element = new createjs.DOMElement($("#slider-topAngle")[0]);
 					stage.addChild(element);
 					element.x = builder.x + builder.width_px - 4 * GLOBAL_PARAMETERS.PADDING;
 					element.y = builder.y + 4 * GLOBAL_PARAMETERS.PADDING;
@@ -227,8 +225,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
 
 
-			Ticker.setFPS(24);
-			Ticker.addListener(window);
+			createjs.Ticker.setFPS(24);
+			createjs.Ticker.addListener(window);
 		}
 
 		function tick() 

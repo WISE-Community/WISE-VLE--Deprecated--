@@ -5,7 +5,7 @@
 	{
 		this.initialize(width_px, height_px, shape_width_px, shape_height_px, shape_dx, shape_dy);
 	}
-	var p = ObjectLibrary.prototype = new Container();
+	var p = ObjectLibrary.prototype = new createjs.Container();
 	p.Container_initialize = ObjectLibrary.prototype.initialize;
 	p.Container_tick = p._tick;
 	p.TEXT_COLOR = "rgba(0,0,0,1.0)";
@@ -21,8 +21,8 @@
 		this.shape_dx = shape_dx;
 		this.shape_dy = shape_dy;
 		//background
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
 		// text
@@ -99,7 +99,7 @@
                     return false;
 			    });
                 
-			var element = new DOMElement(htmlElement[0]);
+			var element = new createjs.DOMElement(htmlElement[0]);
 			this.addChild(element);
 			element.x = this.x + o.x;
 			element.y = this.y + this.height_px - 30;

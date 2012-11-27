@@ -5,7 +5,7 @@
 		
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units);
 	}
-	var p = VolumeViewer.prototype = new Container();
+	var p = VolumeViewer.prototype = new createjs.Container();
 	p.Container_initialize = VolumeViewer.prototype.initialize;
 
 	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
@@ -22,16 +22,16 @@
 		this.height_px_3d = unit_height_px * height_units;
 		this.depth_px_3d = unit_depth_px * depth_units;
 
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
-		this.backHingeG = new Graphics();
-		this.backHinge = new Shape(this.backHingeG);
+		this.backHingeG = new createjs.Graphics();
+		this.backHinge = new createjs.Shape(this.backHingeG);
 		this.addChild(this.backHinge);
 
-		this.frontHingeG = new Graphics();
-		this.frontHinge = new Shape(this.frontHingeG);
+		this.frontHingeG = new createjs.Graphics();
+		this.frontHinge = new createjs.Shape(this.frontHingeG);
 		this.addChild(this.frontHinge);
 
 		
@@ -256,8 +256,8 @@
 				for (j = 0; j < this.cubes_projected[i].back.length; j++)
 				{
 					point = this.cubes_projected[i].back[j];
-					//npoint = new Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					//npoint = new createjs.Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].back[j] = npoint;
 				}
 			} else
@@ -271,8 +271,8 @@
 				for (j = 0; j < this.cubes_projected[i].bottom.length; j++)
 				{
 					point = this.cubes_projected[i].bottom[j];
-					//npoint = new Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					//npoint = new createjs.Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].bottom[j] = npoint;
 				}
 
@@ -283,17 +283,17 @@
 		}
 
 		// project markers to 2d
-		this.topRight_projected2d = new Point(this.topRight_projected.x*this.unit_width_px, this.topRight_projected.y*this.unit_height_px);
-		this.topLeft_projected2d = new Point(this.topLeft_projected.x*this.unit_width_px, this.topLeft_projected.y*this.unit_height_px);
-		this.bottomRight_projected2d = new Point(this.bottomRight_projected.x*this.unit_width_px, this.bottomRight_projected.y*this.unit_height_px);
-		this.bottomLeft_projected2d = new Point(this.bottomLeft_projected.x*this.unit_width_px, this.bottomLeft_projected.y*this.unit_height_px);
-		this.backCenter_projected2d = new Point(this.backCenter_projected.x*this.unit_width_px, this.backCenter_projected.y*this.unit_height_px);
-		this.backHingeA_projected2d = new Point(this.backHingeA_projected.x*this.unit_width_px, this.backHingeA_projected.y*this.unit_height_px);
-		this.backHingeB_projected2d = new Point(this.backHingeB_projected.x*this.unit_width_px, this.backHingeB_projected.y*this.unit_height_px);
-		this.backHingeC_projected2d = new Point(this.backHingeC_projected.x*this.unit_width_px, this.backHingeC_projected.y*this.unit_height_px);
-		this.frontHingeA_projected2d = new Point(this.frontHingeA_projected.x*this.unit_width_px, this.frontHingeA_projected.y*this.unit_height_px);
-		this.frontHingeB_projected2d = new Point(this.frontHingeB_projected.x*this.unit_width_px, this.frontHingeB_projected.y*this.unit_height_px);
-		this.frontHingeC_projected2d = new Point(this.frontHingeC_projected.x*this.unit_width_px, this.frontHingeC_projected.y*this.unit_height_px);
+		this.topRight_projected2d = new createjs.Point(this.topRight_projected.x*this.unit_width_px, this.topRight_projected.y*this.unit_height_px);
+		this.topLeft_projected2d = new createjs.Point(this.topLeft_projected.x*this.unit_width_px, this.topLeft_projected.y*this.unit_height_px);
+		this.bottomRight_projected2d = new createjs.Point(this.bottomRight_projected.x*this.unit_width_px, this.bottomRight_projected.y*this.unit_height_px);
+		this.bottomLeft_projected2d = new createjs.Point(this.bottomLeft_projected.x*this.unit_width_px, this.bottomLeft_projected.y*this.unit_height_px);
+		this.backCenter_projected2d = new createjs.Point(this.backCenter_projected.x*this.unit_width_px, this.backCenter_projected.y*this.unit_height_px);
+		this.backHingeA_projected2d = new createjs.Point(this.backHingeA_projected.x*this.unit_width_px, this.backHingeA_projected.y*this.unit_height_px);
+		this.backHingeB_projected2d = new createjs.Point(this.backHingeB_projected.x*this.unit_width_px, this.backHingeB_projected.y*this.unit_height_px);
+		this.backHingeC_projected2d = new createjs.Point(this.backHingeC_projected.x*this.unit_width_px, this.backHingeC_projected.y*this.unit_height_px);
+		this.frontHingeA_projected2d = new createjs.Point(this.frontHingeA_projected.x*this.unit_width_px, this.frontHingeA_projected.y*this.unit_height_px);
+		this.frontHingeB_projected2d = new createjs.Point(this.frontHingeB_projected.x*this.unit_width_px, this.frontHingeB_projected.y*this.unit_height_px);
+		this.frontHingeC_projected2d = new createjs.Point(this.frontHingeC_projected.x*this.unit_width_px, this.frontHingeC_projected.y*this.unit_height_px);
 		return this.cubes_projected2d;
 	}
 

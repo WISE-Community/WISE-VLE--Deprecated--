@@ -11,13 +11,17 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
       this.initial_offset = this.offset;
       this.density = 0;
       this.velocity = new b2Vec2(0, 0);
-      this.linearDrag = 4;
+      this.linearDrag = 3;
       this.angularDrag = 1;
       this.useDensity = false;
       this.useWorldGravity = true;
       this.gravity = null;
       this.surfaceArea = 0;
    };
+   Myb2BuoyancyController.prototype.MyAddBody = function(body){
+      this.linearDrag = 3;
+      this.AddBody(body);
+   }
    Myb2BuoyancyController.prototype.Step = function (step) {
       if (!this.m_bodyList){
          this.offset = this.initial_offset;
@@ -30,10 +34,22 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
       // find out if any are awake
       var any_awake = false;
       for (var i = this.m_bodyList; i; i = i.nextBody) {
-         if (i.body.IsAwake()) {any_awake = true; break;}
+        if (i.body.IsAwake() && (Math.abs(i.body.GetLinearVelocity().x) <= 0.00001 || Math.abs(i.body.GetLinearVelocity().y) <= 0.00001)) {
+            //console.log(i.body.GetLinearVelocity().x, i.body.GetLinearVelocity().y);
+            any_awake = true; break;
+         }
       }
+      if (!any_awake){
+         this.linearDrag = 3;
+         //return;
+      } else {
+         this.linearDrag = Math.min(this.linearDrag+0.02, 20);
+      }
+      //console.log("drag", this.linearDrag)
+      
       for (var i = this.m_bodyList; i; i = i.nextBody) {
          var body = i.body;
+         body.percentSubmergedChangedFlag = false;
          //if (body.IsAwake() == false) {
            // continue;
         // }
@@ -45,6 +61,12 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
          for (var fixture = body.GetFixtureList(); fixture; fixture = fixture.GetNext()) {
             var sc = new b2Vec2();
             var sarea = fixture.GetShape().ComputeSubmergedArea(this.normal, this.offset, body.GetTransform(), sc);
+            if (sarea != fixture.percentSubmerged){
+               body.percentSubmergedChangedFlag = true;
+               fixture.percentSubmerged = sarea;
+               body.percentSubmerged2d[fixture.x_index][fixture.y_index] = fixture.percentSubmerged;
+             }
+           
             area += sarea;
             areac.x += sarea * sc.x;
             areac.y += sarea * sc.y;
