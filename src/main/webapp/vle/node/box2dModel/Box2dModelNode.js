@@ -183,6 +183,10 @@ Box2dModelNode.prototype.onExit = function() {
 	if(this.contentPanel) {
 		if (typeof this.contentPanel.tester != "undefined") this.contentPanel.tester = null
 		if (typeof this.contentPanel.builder != "undefined") this.contentPanel.builder = null;
+		if (typeof this.contentPanel.stage != "undefined"){
+			this.contentPanel.stage.removeAllChildren();
+			this.contentPanel.stage = null;
+		}
 		if(this.contentPanel.save) {
 			//tell the content panel to save
 			this.contentPanel.save();

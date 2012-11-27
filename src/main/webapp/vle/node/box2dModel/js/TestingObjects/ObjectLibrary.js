@@ -10,6 +10,7 @@
 	p.Container_tick = p._tick;
 	p.TEXT_COLOR = "rgba(0,0,0,1.0)";
 	p.BACKGROUND_COLOR = "rgba(255,245,245,1.0)";
+	p.PLACE_ON_GROUND = true;
 	
 	p.initialize = function(width_px, height_px, shape_width_px, shape_height_px, shape_dx, shape_dy)
 	{
@@ -52,7 +53,11 @@
 		{
 			this.addChild(o);
 			o.x = (index % this.num_cols) * this.shape_width_px + this.shape_dx;
-			o.y = Math.floor(index / this.num_cols) * this.shape_height_px + this.shape_dy;
+			if(this.PLACE_ON_GROUND){
+				o.y = Math.ceil(index / this.num_cols) * this.shape_height_px - o.height_px_below;
+			} else {
+				o.y = Math.floor(index / this.num_cols) * this.shape_height_px + this.shape_dy;
+			}
 			this.shapes.push(o);
 
 			// add html buttons
@@ -102,7 +107,12 @@
 			var element = new createjs.DOMElement(htmlElement[0]);
 			this.addChild(element);
 			element.x = this.x + o.x;
-			element.y = this.y + this.height_px - 30;
+			if (this.PLACE_ON_GROUND){
+				element.y = this.y;
+			} else {
+				element.y = this.y + this.height_px - 30;
+			}
+			
 			o.html = htmlElement.parent();
 			o.button = element;
 			return true;

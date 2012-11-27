@@ -121,7 +121,6 @@ Box2dModel.prototype.render = function() {
 		 * would like from the state object (look at box2dModelState.js)
 		 */
 		var latestResponse = latestState.response;
-		console.log(latestState); 
 		previousModels = previousModels.concat(latestResponse.savedModels);
 		
 		

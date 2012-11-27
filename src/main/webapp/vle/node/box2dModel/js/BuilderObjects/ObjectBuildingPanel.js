@@ -309,20 +309,71 @@
 		return (this.vv.getNumChildren() > 3);
 	}
 
-	/** This function is used to end the creation of a specific block */
+	/** This function is used to end the creation of a specific block 
+	*   In current version objects are moved to the bottom-left.
+	*/
 	p.saveObject = function()
 	{
 		// go through the 2d array of volume viewer and replace objects with their depth arrays
 		var savedObject = {};
 		var blockArray3d = [];
-		var blockArray2d = this.vv.blockArray2d;
 		var i_rev, i, j, k, block_count=0;
 		var is_container = true;
 
+		// shift the blockArray2d
+		/*
+		var blockArray2d_unshifted = this.vv.blockArray2d;
+		var shiftx = 0;
+		for (i = blockArray2d_unshifted.length-1; i > 0; i--){
+			var blockFound = false;
+			for (j = 0; j < blockArray2d_unshifted[i].length; j++){
+				if (blockArray2d_unshifted[i][j] != null){blockFound = true; break;}
+			}
+			if (!blockFound){
+				shiftx++;
+			} else {
+				break;
+			}
+		}
+		var shifty = 0;
+		for (j = blockArray2d_unshifted[0].length-1; j > 0; j--){
+			blockFound = false;
+			for (i = 0; i < blockArray2d_unshifted.length; i++){
+				if (blockArray2d_unshifted[i][j] != null){blockFound = true; break;}
+			}
+			if (!blockFound){
+				shifty++;
+			} else {
+				break;
+			}
+		}
+		//shifty = blockArray2d_unshifted[0].length-shifty; // don't understand but it works;
+
+		var blockArray2d = [];	
+		for (i = 0; i < blockArray2d_unshifted.length; i++){
+			blockArray2d[i] = [];	
+			for (j = 0; j < blockArray2d_unshifted[0].length; j++){
+				blockArray2d[i][j] = null;
+			}
+		}	
+		for (i = blockArray2d_unshifted.length-1; i > 0; i--){
+			for (j = 0; j < blockArray2d[0].length; j++){	
+			//for (j = blockArray2d[0].length-1; j > 0; j--){
+				if (i - shiftx >= 0 && j - shifty >= 0){
+					blockArray2d[i][j] = blockArray2d_unshifted[i-shiftx][j-shifty];
+				}
+			}
+		}
+		console.log(blockArray2d_unshifted, blockArray2d, shiftx, shifty);
+		
+		// map from shifted blocks to 3d array
+		*/
+
+		blockArray2d = this.vv.blockArray2d;
 		for (i = 0; i < blockArray2d.length; i++)
 		{
 			i_rev = blockArray2d.length - 1 - i;
-			blockArray3d[i_rev] = new Array();
+			blockArray3d[i_rev] = [];
 			for (j = 0; j < blockArray2d[i].length; j++)
 			{
 				if (blockArray2d[i][j] != null)
