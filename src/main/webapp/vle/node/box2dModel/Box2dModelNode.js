@@ -181,6 +181,8 @@ Box2dModelNode.prototype.isCompleted = function() {
 Box2dModelNode.prototype.onExit = function() {
 	//check if the content panel has been set
 	if(this.contentPanel) {
+		if (typeof this.contentPanel.tester != "undefined") this.contentPanel.tester = null
+		if (typeof this.contentPanel.builder != "undefined") this.contentPanel.builder = null;
 		if(this.contentPanel.save) {
 			//tell the content panel to save
 			this.contentPanel.save();

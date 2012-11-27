@@ -81,7 +81,7 @@
 			g.drawRect(0, 0, this.width_px, this.height_px);
 			g.endFill();
 			
-			this.screenText = new Text(str, "20px Arial", "#444");
+			this.screenText = new createjs.Text(str, "20px Arial", "#444");
 			this.screenText.x = (this.width_px - str.length*10)/2;
 			this.screenText.y = (this.height_px - 20)/2;
 			this.addChild(this.screenText);

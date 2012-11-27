@@ -121,6 +121,9 @@ Box2dModel.prototype.render = function() {
 		 * would like from the state object (look at box2dModelState.js)
 		 */
 		var latestResponse = latestState.response;
+		console.log(latestState); 
+		previousModels = previousModels.concat(latestResponse.savedModels);
+		
 		
 		//set the previous student work into the text area
 		$('#studentResponseTextArea').val(latestResponse); 
@@ -135,7 +138,9 @@ Box2dModel.prototype.render = function() {
 		this.node.setCompleted();
 	}
 
-	if (typeof tester == "undefined") init(box2dModel.content);
+	if (typeof tester == "undefined" || tester == null){ 
+		init(box2dModel.content, previousModels.length>0?false:true);
+	}
 	//eventManager.fire("box2dInit", [{}], this);
 	eventManager.fire('pushStudentWork', {});
 	

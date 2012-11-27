@@ -17,6 +17,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
         ;
 
           // GLOBAL VARIABLES, with default values
+        var b2m;
         var GLOBAL_PARAMETERS =
         {
        		"DEBUG" : true,
@@ -81,7 +82,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var builder;
 		var tester;
 		
-		function init(wiseData)
+		function init(wiseData, makePremades)
 		{
 			if (typeof wiseData === "undefined")
 			{
@@ -108,11 +109,11 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
-				start();
+				start(typeof makePremades=="undefined"? true:makePremades);
 			}	
 		}
 
-		function start()
+		function start(makePremades)
 		{
 			canvas = document.getElementById("canvas");
 			stage = new createjs.Stage(canvas);
@@ -214,10 +215,12 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 
 			
 			// make all objects given in parameters
-			for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
-			{
-				if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined")
-					createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+			if (makePremades){
+				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
+				{
+					if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined")
+						createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+				}
 			}
 			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;
 
@@ -231,7 +234,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 
 		function tick() 
 		{ 
-			tester._tick();
+
+			if (tester != null) tester._tick();
 			if (stage.needs_to_update)
 			{
 				stage.update();
