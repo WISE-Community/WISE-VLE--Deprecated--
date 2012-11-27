@@ -400,36 +400,40 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 			BRAINSTORM.prototype.addStudentResponse(replyState, handlerArgs.vle, handlerArgs.content);
 		}
 
-		/* when reply link is clicked, show the reply box directly below */
 		$(".replyLink").click(function() {
+			// when reply link is clicked, show the reply box directly below where students can enter a reply
 			var bsNodeVisitId = $(this).attr("bsnodevisitid");
 			var bsNodeStateTimestamp = $(this).attr("bsnodestatetimestamp");
 			if ($("#replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp).length != 0) {
 				// a reply box already exists, don't show another one.
 				return;
 			}
+			
 			var replyDiv = $("<div>").addClass("replyDiv").attr("bsNodeVisitId", bsNodeVisitId)
-			.attr("bsNodeStateTimestamp", bsNodeStateTimestamp).attr("id","replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp);
-			var replyTextareaId = "reply_"+bsNodeVisitId+"_"+bsNodeStateTimestamp;
+				.attr("bsNodeStateTimestamp", bsNodeStateTimestamp).attr("id","replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp);
+			var replyTextareaId = "replyTextArea_"+bsNodeVisitId+"_"+bsNodeStateTimestamp;
 			var replyTextarea = $("<textarea>").addClass("replyTextarea")
-			.attr("rows","5").attr("cols","100").attr("bsNodeVisitId", bsNodeVisitId)
-			.attr("id",replyTextareaId);
+				.attr("rows","5").attr("cols","100").attr("bsNodeVisitId", bsNodeVisitId)
+				.attr("id",replyTextareaId);
 			replyDiv.append(replyTextarea);
 
 			var replySaveButton = $("<input>").addClass("replySaveButton").attr("type","button").val("Post Reply");
 
 			replySaveButton.click(function() {
-				/* when Post Reply is clicked, post reply to server */				
+				// when Post Reply button is clicked, post reply to server and update UI
 				var replyText = $(this).siblings(".replyTextarea").val();
 				var replyToNodeVisitId = $(this).parents(".replyDiv").attr("bsNodeVisitId");
 				var replyToNodeStateTimestamp = $(this).parents(".replyDiv").attr("bsNodeStateTimestamp");
 				var bs = handlerArgs.bs;
 				bs.saveReply(replyText,replyToNodeVisitId,replyToNodeStateTimestamp);
 			});
+			// add the "Post Reply" button after the reply text area, at the bottom of the replyDiv
 			replyDiv.append(replySaveButton);
+
+			// add the reply div to the end of the div that contains the post/reply that we're replying to.
 			$(this).parents("[bsNodeVisitId='"+bsNodeVisitId+"'][bsNodeStateTimestamp='"+bsNodeStateTimestamp+"']").append(replyDiv);	
 
-			// show richtexteditor
+			// make the reply textareas into a rich text editor
 			if(handlerArgs.content.isRichTextEditorAllowed){
 				var loc = window.location.toString();
 				var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
@@ -755,7 +759,6 @@ BRAINSTORM.prototype.savePost = function(frameDoc){
  * Add the response to the brainstorm display. This function is used to display
  * canned responses, classmate responses, and recent responses.
  * @param state the node state containing the student's response
- * @param responseText the text a student has posted in response to the question
  * @param vle the vle of the student who is logged in
  * @param content content for this brainstorm
  */
@@ -765,13 +768,18 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 	var postedByUserId = state.userId;
 	
 	var responseMainDiv = $('<div>').addClass('responseMainDiv');
-	//create the response title and response elements
-	var responseTitle = $('<div>').addClass('responseTitle');
-	var responseTextArea = $('<div>').attr("rows","7").attr("cols","80").attr("disabled", true);
+	if (state != null && state.nodeVisitId != null) {
+		responseMainDiv.attr('bsNodeVisitId', state.nodeVisitId);
+		responseMainDiv.attr('bsNodeStateTimestamp', state.timestamp);
+	}
+
+	//create the response title and textarea elements
+	var responseTitle = $('<div>').addClass('responseTitle').html("<span class='postedBy'>Posted By: &nbsp;" + vle.getUserAndClassInfo().getUserNameByUserId(postedByUserId) + "<span>");
+	var responseTextArea = $('<div>').attr("rows","7").attr("cols","80").attr("disabled", true)
+		.attr('class', 'responseTextArea').html(state.response);
 	
-	//set the html for the response title
-	responseTitle.html("<span class='postedBy'>Posted By: &nbsp;" + vle.getUserAndClassInfo().getUserNameByUserId(postedByUserId) + "<span>");
 	if (content.isAllowStudentReply) {
+		// if student are allowed to reply to other students' posts, add the reply link
 		if (state != null && state.nodeVisitId != null) {
 			responseTitle.append("<span class='replyLink' bsNodeVisitId='"+state.nodeVisitId+"' bsNodeStateTimestamp='"+state.timestamp+"'>Reply</span>");			
 		} else {
@@ -779,35 +787,24 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 		}
 	}
 
+	// add the title and textarea to the response main div
 	responseMainDiv.append(responseTitle).append(responseTextArea);
 
-	if (state != null && state.nodeVisitId != null) {
-		responseMainDiv.attr('bsNodeVisitId', state.nodeVisitId);
-		responseMainDiv.attr('bsNodeStateTimestamp', state.timestamp);
-	}
-
-	// set the student text in the response textarea
-	responseTextArea.html(state.response);	
-	responseTextArea.attr('class', 'responseTextArea');
-
 	if (state != null && state.postType != null && state.postType == "reply") {
-		$(responseMainDiv).addClass("reply");
 		// this is a reply to a post. show it below the response to which it replies to.
 		var replyToNodeVisitId = state.bsReplyToNodeVisitId;
 		var replyToNodeStateTimestamp = state.bsReplyToNodeStateTimestamp;
-		/*
-		 * get the div that contains the original post that this reply is for
-		 */
+		
+		// get the div that contains the original post that this reply is for
 		var replyToDiv = $("div[bsnodevisitid='"+replyToNodeVisitId+"'][bsnodestatetimestamp='"+replyToNodeStateTimestamp+"']");
 
+		$(responseMainDiv).addClass("reply");
 		replyToDiv.append(responseMainDiv);
 	} else {
-		$(responseMainDiv).addClass("response");
-
 		// this is an original post. show it in the top level 'responses' div.
+		$(responseMainDiv).addClass("response");
 		responsesParent.append(responseMainDiv);	
 	}
-
 };
 
 //REMOVE - for testing purposes
