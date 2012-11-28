@@ -349,7 +349,21 @@ View.prototype.BrainstormNode.updateDisplayName = function(val){
 };
 
 /**
- * Updates the value of the isRichTextEditorAllowed attribute in xmlPage
+ * Updates the value of the isAllowStudentReply attribute
+ */
+View.prototype.BrainstormNode.updateAllowStudentReply = function(val){
+	if(val=='true'){
+		this.content.isAllowStudentReply = true;
+	} else {
+		this.content.isAllowStudentReply = false;
+	};
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the value of the isRichTextEditorAllowed attribute
  */
 View.prototype.BrainstormNode.updateRichText = function(val){
 	if(val=='true'){
