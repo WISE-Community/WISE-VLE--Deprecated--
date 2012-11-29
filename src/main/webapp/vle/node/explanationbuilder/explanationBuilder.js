@@ -396,6 +396,9 @@ ExplanationBuilder.prototype.initializeUI = function() {
 					if(context.version > 1){
 						var attributes = context.getIdeaAttributes('add');
 						context.addV2($('#text').val(),attributes);
+						
+						$(this).dialog("close");
+						resetForm('ideaForm');
 					} else {
 						var source = $('#source').val();
 						if(source == 'empty'){
@@ -405,10 +408,11 @@ ExplanationBuilder.prototype.initializeUI = function() {
 								source = 'Other: ' + $('#other').val();
 							}
 							context.add($('#text').val(),source,$('#tags').val(),$("input[name='flag']:checked").val());
+							
+							$(this).dialog("close");
+							resetForm('ideaForm');
 						}
 					}
-					$(this).dialog("close");
-					resetForm('ideaForm');
 				}
 			},
 			Cancel: function(){
