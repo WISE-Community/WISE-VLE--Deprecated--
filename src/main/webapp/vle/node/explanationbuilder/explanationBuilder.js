@@ -713,13 +713,13 @@ ExplanationBuilder.prototype.init = function(context){
 ExplanationBuilder.prototype.load = function(question, instructions, bg, explanationIdeas, answer){
 	if(question != null){
 		this.question = question;
-		$('#promptLabel').text(question);
+		$('#promptLabel').html(question);
 		//localStorage.question = question;
 	}
 	
 	if(instructions != null) {
 		this.instructions = instructions;
-		$('#instructionsText').text(instructions);
+		$('#instructionsText').html(instructions);
 	}
 	
 	if(bg){
