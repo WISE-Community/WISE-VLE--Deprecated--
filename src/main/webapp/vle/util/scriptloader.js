@@ -442,7 +442,14 @@ var scriptloader = function(){
 		            'vle/navigation/constraints/workonxbeforeyconstraint.js',
 		            'vle/navigation/constraints/workonxconstraint.js',
 		            'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
-		            'vle/navigation/constraints/constraintmanager.js'],
+		            'vle/navigation/constraints/constraintmanager.js',
+		            'vle/navigation/tagmapconstraints/TagMapConstraintManager.js',
+		            'vle/navigation/tagmapconstraints/TagMapConstraint.js',
+		            'vle/navigation/tagmapconstraints/TagMapConstraintFactory.js',
+		            'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js',
+		            'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js',
+		            'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js',
+		            'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js'],
 		menu:['vle/ui/menu/wmenu.js',
 		      'vle/ui/menu/NavigationPanel.js',
 		      'vle/view/vle/vleview_menu.js'],
@@ -538,7 +545,11 @@ var scriptloader = function(){
         'vle/xmpp/js/sail.js/sail.strophe.js':['vle/xmpp/js/sail.js/deps/strophe.js'],
         'vle/xmpp/js/student.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
         'vle/xmpp/js/teacher.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
-        'vle/view/authoring/authorview_startup.js':['vle/view/i18n/view_i18n.js']
+        'vle/view/authoring/authorview_startup.js':['vle/view/i18n/view_i18n.js'],
+        'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js']
     };
 	
 	// add jQuery UI/jQuery core dependency

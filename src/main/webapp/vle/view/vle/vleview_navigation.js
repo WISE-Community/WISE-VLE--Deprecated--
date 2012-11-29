@@ -18,6 +18,10 @@ View.prototype.navigationDispatcher = function(type,args,obj){
 		obj.removeNavigationConstraint(args[0]);
 	} else if(type=='processLoadViewStateResponseComplete'){
 		obj.processStateConstraints();
+	} else if(type=='addActiveTagMapConstraint') {
+		obj.addActiveTagMapConstraint(args[0], args[1], args[2], args[3], args[4], args[5]);
+	} else if(type=='removeActiveTagMapConstraint') {
+		obj.removeActiveTagMapConstraint(args[0], args[1], args[2], args[3], args[4], args[5]);
 	}
 };
 
@@ -255,6 +259,70 @@ View.prototype.processStateConstraints = function(){
 	if(this.navigationLogic){
 		this.navigationLogic.constraintManager.processStateConstraints();
 	}
+};
+
+/**
+ * Add all the global tag map constraints that are not satisfied.
+ * This should be called when the vle loads.
+ */
+View.prototype.addGlobalTagMapConstraints = function() {
+	if(this.navigationLogic != null) {
+		this.navigationLogic.addGlobalTagMapConstraints();		
+	}
+};
+
+/**
+ * Add tag map constraints for a node.
+ */
+View.prototype.addTagMapConstraints = function(nodeId) {
+	if(this.navigationLogic != null) {
+		this.navigationLogic.addTagMapConstraints(nodeId);		
+	}
+};
+
+/**
+ * Update the tag map constraints to look for constraints that
+ * have been satisfied and therefore removed.
+ */
+View.prototype.updateActiveTagMapConstraints = function() {
+	if(this.navigationLogic != null) {
+		this.navigationLogic.updateActiveTagMapConstraints();		
+	}
+};
+
+/**
+ * Add a tag map constraint.
+ */
+View.prototype.addActiveTagMapConstraint = function(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage) {
+	if(this.navigationLogic != null) {
+		this.navigationLogic.addActiveTagMapConstraint(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);
+		this.navigationLogic.updateActiveTagMapConstraints();
+	}
+};
+
+/**
+ * Remove a tag map constraint.
+ */
+View.prototype.removeActiveTagMapConstraint = function(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage) {
+	if(this.navigationLogic != null) {
+		this.navigationLogic.removeActiveTagMapConstraint(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);		
+	}
+};
+
+/**
+ * Process the tag map constraints for the given node
+ * @param nodeId the node id
+ * @return the results object which contains the fields
+ * canMove and message
+ */
+View.prototype.processTagMapConstraints = function(nodeId) {
+	var processTagMapConstraintResults = null;
+	
+	if(this.navigationLogic != null) {
+		processTagMapConstraintResults = this.navigationLogic.processTagMapConstraints(nodeId);
+	}
+
+	return processTagMapConstraintResults;
 };
 
 //used to notify scriptloader that this script has finished loading

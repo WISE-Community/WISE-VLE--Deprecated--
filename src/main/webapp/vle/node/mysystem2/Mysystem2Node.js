@@ -29,6 +29,8 @@ function Mysystem2Node(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(Mysystem2Node.tagMapFunctions);
 }
 
 /**
@@ -254,16 +256,6 @@ Mysystem2Node.prototype.getHTMLContentTemplate = function() {
  */
 Mysystem2Node.prototype.canSpecialExport = function() {
 					 return true;
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-Mysystem2Node.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = Mysystem2Node.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 //Add this node to the node factory so the vle knows it exists.

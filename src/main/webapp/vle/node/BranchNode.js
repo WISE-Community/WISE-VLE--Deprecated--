@@ -28,7 +28,7 @@ BranchNode.prototype.processStateConstraints = function() {
 	if(response != ''){
 		
 		/* we need to disallow further work on this branch node */
-		this.view.eventManager.fire('addConstraint', {type:'NotVisitableXConstraint', x:{id:this.id, mode:'node'}, status:1, menuStatus:0, msg:'You can only answer this question once.'});
+		//this.view.eventManager.fire('addConstraint', {type:'NotVisitableXConstraint', x:{id:this.id, mode:'node'}, status:1, menuStatus:0, msg:'You can only answer this question once.'});
 		
 		/* get the choice Id based on the response */
 		var content = this.content.getContentJSON(), choiceId = null;
@@ -47,7 +47,7 @@ BranchNode.prototype.processStateConstraints = function() {
 			 * we need to remove the specified constraints for this branch */
 			if(content.branches[v].choiceIds.indexOf(choiceId) != -1){
 				for(var w=0;w<content.branches[v].constraintIds.length;w++){
-					this.view.eventManager.fire('removeConstraint', content.branches[v].constraintIds[w]);
+					//this.view.eventManager.fire('removeConstraint', content.branches[v].constraintIds[w]);
 				}
 			}
 		}

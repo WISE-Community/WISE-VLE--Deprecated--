@@ -30,6 +30,8 @@ function MultipleChoiceNode(nodeType, view) {
 	this.contentPanel;
 	this.audioSupported = true;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(MultipleChoiceNode.tagMapFunctions);
 };
 
 /**
@@ -215,13 +217,34 @@ MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork) {
 };
 
 /**
- * Get the tag map functions that are available for this step type
+ * Determine whether the student has completed the step or not
+ * @param nodeState the latest node state for the step
+ * @return whether the student has completed the step or not
  */
-MultipleChoiceNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = MultipleChoiceNode.tagMapFunctions;
+MultipleChoiceNode.prototype.isCompleted = function(nodeState) {
+	var result = false;
 	
-	return tagMapFunctions;
+	if(nodeState != null && nodeState != '') {
+		var content = this.content.getContentJSON();
+		
+		if(content!= null &&
+				content.assessmentItem != null &&
+				content.assessmentItem.responseDeclaration != null &&
+				content.assessmentItem.responseDeclaration.correctResponse != null &&
+				content.assessmentItem.responseDeclaration.correctResponse.length > 0) {
+			/*
+			 * this step has a correct answer so we will check if the
+			 * student answered correctly
+			 */
+			if(nodeState.isCorrect) {
+				result = true;
+			}
+		} else {
+			result = true;
+		}
+	}
+	
+	return result;
 };
 
 NodeFactory.addNode('MultipleChoiceNode', MultipleChoiceNode);

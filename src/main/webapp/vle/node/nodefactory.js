@@ -44,6 +44,8 @@ NodeFactory.createNode = function(jsonNode, view){
 			//set the attributes of the sequence
 			sequenceNode.id = jsonNode.identifier;
 			sequenceNode.title = jsonNode.title;
+			sequenceNode.tags = jsonNode.tags;
+			sequenceNode.tagMaps = jsonNode.tagMaps;
 			
 			//return the sequence
 			return sequenceNode;

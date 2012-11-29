@@ -139,7 +139,7 @@ NavigationPanel.prototype.render = function(forceReRender) {
 
 		/* add appropriate classes for any constraints that may apply to 
 		 * the current navigation */
-		this.processConstraints();
+		//this.processConstraints();
 	}
 };
 
@@ -537,6 +537,95 @@ NavigationPanel.prototype.getTitlePositionFromLocation = function(loc){
 	} else {
 		return '';
 	};
+};
+
+/**
+ * Grey out all the steps that come after the given node id
+ * @param nodeId the node id to grey out all steps after
+ */
+NavigationPanel.prototype.disableAllStepsAfter = function(nodeId) {
+	//get all the node ids that come after this one
+	var nodeIdsAfter = this.view.getProject().getNodeIdsAfter(nodeId);
+	
+	//get all the menu elements
+	var menuItems = this.getMenuItems();
+	
+	//loop through all the menu elements
+	for(var id in menuItems){
+		if(nodeIdsAfter.indexOf(id) != -1) {
+			//the element comes after so we will grey it out
+			$(menuItems[id]).addClass('constraintDisable');
+		}
+	}
+};
+
+/**
+ * Grey out all the steps except for the given node id
+ * @param nodeId the node id to not grey out
+ */
+NavigationPanel.prototype.disableAllOtherSteps = function(nodeId) {
+	//get all the menu elements
+	var menuItems = this.getMenuItems();
+	
+	//get the node
+	var node = this.view.getProject().getNodeById(nodeId);
+	var nodeIds = [];
+	
+	if(node.type == 'sequence') {
+		//the node is a sequence so we will get all the node ids in it
+		nodeIds = this.view.getProject().getNodeIdsInSequence(nodeId);
+	}
+	
+	//loop through all the menu elements
+	for(var id in menuItems){
+		if(node.type == 'sequence') {
+			//the node is a sequence
+			if(nodeIds.indexOf(id) == -1) {
+				//the menu element is not in the sequence so we will grey it out
+				$(menuItems[id]).addClass('constraintDisable');
+			}
+		} else {
+			//the node is a step
+			if(nodeId != id) {
+				/*
+				 * the menu element does not have the node id that was passed in
+				 * as an argument so we will grey it out
+				 */
+				$(menuItems[id]).addClass('constraintDisable');
+			}
+		}
+	}
+};
+
+/**
+ * Grey out the given node id
+ * @param nodeId the node id to grey out
+ */
+NavigationPanel.prototype.disableStepOrActivity = function(nodeId) {
+	//get all the menu elements
+	var menuItems = this.getMenuItems();
+	
+	//loop through all the menu elements
+	for(var id in menuItems){
+		if(nodeId == id) {
+			//we found the given node id so we will grey it out
+			$(menuItems[id]).addClass('constraintDisable');
+		}
+	}
+};
+
+/**
+ * Enable all the steps
+ */
+NavigationPanel.prototype.enableAllSteps = function() {
+	//get all the menu elements
+	var menuItems = this.getMenuItems();
+	
+	//loop through all the menu elements
+	for(var id in menuItems){
+		//remove the class that makes the element greyed out
+		$(menuItems[id]).removeClass('constraintHidden constraintDisable');
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

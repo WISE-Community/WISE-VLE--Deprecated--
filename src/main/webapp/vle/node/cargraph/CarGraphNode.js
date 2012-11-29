@@ -48,6 +48,8 @@ function CarGraphNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(CarGraphNode.tagMapFunctions);
 }
 
 /**
@@ -435,16 +437,6 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 		$("#smartFilter").hide();
 	}
 	return true;
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-CarGraphNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = CarGraphNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 /**

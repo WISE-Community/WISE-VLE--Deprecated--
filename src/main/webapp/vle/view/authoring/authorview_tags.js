@@ -43,6 +43,7 @@ View.prototype.getProjectTagView = function() {
  * and generates the html tag UI for the nodes.
  * @param currentNode the current node we are on
  * @param htmlSoFar the html generated so far
+ * @return the html tag UI for the nodes
  */
 View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 	
@@ -57,38 +58,11 @@ View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 	//get the node id
 	var nodeId = currentNode.id;
 	
-	if(currentNode.type == 'sequence') {
-		//current node is a sequence
-		
-		//get the position of the node
-		var position = this.getProject().getPositionById(nodeId);
-		
-		if(position != null) {
-			//get the step number and title
-			var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
-			
-			//output the html to show the activity
-			htmlSoFar += "<tr>";
-			htmlSoFar += "<td><b>Activity " + stepNumberAndTitle + "</b></td>";
-			htmlSoFar += "</tr>";
-		}
-		
-		//get the child nodes
-		var childNodes = currentNode.children;
-		
-		//loop through all the child nodes
-		for(var x=0; x<childNodes.length; x++) {
-			//get a child node
-			var childNode = childNodes[x];
-			
-			//recursively call this function with the child node
-			htmlSoFar = this.getProjectTagViewHelper(childNode, htmlSoFar);
-		}
-		
-		//create a line break after each activity
-		htmlSoFar += "<tr><td>&nbsp</td></tr>";
-	} else {
-		//current node is a leaf node
+	var rootNode = this.getProject().getRootNode();
+	var rootNodeId = rootNode.id;
+	
+	if(rootNodeId != nodeId) {
+		//we only need to display the nodes that are not the root node
 		
 		//get the step number and title
 		var stepNumberAndTitle = this.getProject().getStepNumberAndTitle(nodeId);
@@ -102,8 +76,13 @@ View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 		//create the table to contain everything for this step
 		htmlSoFar += "<table id='tagTableForStep_" + nodeId + "' border='1' width='100%'>";
 		
-		//create the row to display the step number, step title, and step type
-		htmlSoFar += "<tr><td width='70%'>Step " + stepNumberAndTitle + " (" + nodeType + ")</td></tr>";
+		if(currentNode.type == 'sequence') {
+			//create the row to display the step number, step title, and step type
+			htmlSoFar += "<tr><td width='70%'><b>Activity " + stepNumberAndTitle + "</b></td></tr>";		
+		} else {
+			//create the row to display the step number, step title, and step type
+			htmlSoFar += "<tr><td width='70%'>Step " + stepNumberAndTitle + " (" + nodeType + ")</td></tr>";
+		}
 		
 		//create the row to display the tags
 		htmlSoFar += "<tr><td id='tagsForStep_" + nodeId + "'>";
@@ -191,6 +170,22 @@ View.prototype.getProjectTagViewHelper = function(currentNode, htmlSoFar) {
 		
 		//create a line break after each step
 		htmlSoFar += "<tr><td>&nbsp</td></tr>";
+	}
+	
+	if(currentNode.type == 'sequence') {
+		//current node is a sequence
+		
+		//get the child nodes
+		var childNodes = currentNode.children;
+		
+		//loop through all the child nodes
+		for(var x=0; x<childNodes.length; x++) {
+			//get a child node
+			var childNode = childNodes[x];
+			
+			//recursively call this function with the child node
+			htmlSoFar = this.getProjectTagViewHelper(childNode, htmlSoFar);
+		}
 	}
 	
 	return htmlSoFar;
@@ -913,7 +908,7 @@ View.prototype.addTagMap = function(nodeId) {
 	var html = "";
 	html += this.getTagMapHtml(nodeId, tagName, functionName, functionArgs);
 	
-	//append the tap map html
+	//append the tag map html
 	$('#tagMapTd_' + nodeIdEscaped).append(html);
 	
 	//create the tag map object

@@ -28,6 +28,8 @@ AssessmentListNode.tagMapFunctions = [
 function AssessmentListNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(AssessmentListNode.tagMapFunctions);
 };
 
 AssessmentListNode.prototype.parseDataJSONObj = function(stateJSONObj) {
@@ -44,7 +46,7 @@ AssessmentListNode.prototype.parseDataJSONObj = function(stateJSONObj) {
  */
 AssessmentListNode.prototype.render = function(contentPanel,studentWork, disable){
 	// add constraints
-	this.addConstraints();
+	//this.addConstraints();
 	
 	/* call super */
 	Node.prototype.render.call(this, contentPanel, studentWork, disable);
@@ -160,7 +162,8 @@ AssessmentListNode.prototype.getPrompt = function() {
 AssessmentListNode.prototype.addConstraints = function() {
 	if(this.content.getContentJSON().isMustCompleteAllPartsBeforeExit){
 		/* author specified that student must complete work before going to any other step, so create a constraint */
-		this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}});
+		//this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}});
+		//this.view.addDynamicTagMap(this.id, 'mustCompleteBeforeExit');
 	}
 };
 
@@ -172,7 +175,7 @@ AssessmentListNode.prototype.addConstraints = function() {
 AssessmentListNode.prototype.processStateConstraints = function() {
 	if(this.view.state.getLatestWorkByNodeId(this.id) == ''){
 		/* no work found */
-		this.addConstraints();
+		//this.addConstraints();
 	}
 };
 
@@ -296,17 +299,6 @@ AssessmentListNode.prototype.getStudentWorkHtmlView = function(nodeState) {
 	
 	return studentWorkSoFar;
 };
-
-/**
- * Get the tag map functions that are available for this step type
- */
-AssessmentListNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = AssessmentListNode.tagMapFunctions;
-	
-	return tagMapFunctions;
-};
-
 
 AssessmentListNode.prototype.getHTMLContentTemplate = function() {
 	return createContent('node/assessmentlist/assessmentlist.html');

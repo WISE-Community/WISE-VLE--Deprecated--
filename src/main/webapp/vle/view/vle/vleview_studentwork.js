@@ -6,7 +6,7 @@
  */
 View.prototype.pushStudentWork = function(nodeState){
 	this.state.getCurrentNodeVisit().nodeStates.push(nodeState);
-	this.eventManager.fire('updateNavigationConstraints');
+	this.updateActiveTagMapConstraints();
 };
 
 /**

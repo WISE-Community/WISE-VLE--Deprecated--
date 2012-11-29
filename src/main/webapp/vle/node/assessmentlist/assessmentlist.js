@@ -317,6 +317,20 @@ ASSESSMENTLIST.prototype.render = function() {
 		this.workToImport = tagMapResults.workToImport;
 	}
 	
+	if(this.content.isMustCompleteAllPartsBeforeExit) {
+		//the student must complete all parts before leaving the step
+		if(this.states.length == 0) {
+			/*
+			 * the student has not submitted any work yet so we will create
+			 * the constraint. in order to have work, the student must have
+			 * completed all the parts which is why we only need to check for
+			 * existence of any work and we don't have to specifically check
+			 * for all parts.
+			 */
+			this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeExiting', null, null]);
+		}
+	}
+	
 	//create the submit button
 	$("#submitButtonDiv").html('<input id="submitButton" type="button" onclick="submit()" data-i18n="submit" value="Submit the Questionnaire"></input>');
 	
@@ -452,7 +466,6 @@ ASSESSMENTLIST.prototype.submit = function() {
 						this.postAnnotation(response);
 					}
 				}
-				
 			} 
 		} else {
 			//disable the submit and save draft buttons

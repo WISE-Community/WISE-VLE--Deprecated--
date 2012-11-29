@@ -1767,11 +1767,6 @@ OPENRESPONSE.prototype.processTagMaps = function() {
 		}
 	}
 	
-	if(message != '') {
-		//message is not an empty string so we will add a new line for formatting
-		message += '<br>';
-	}
-	
 	//put the variables in an object so we can return multiple variables
 	var returnObject = {
 		enableStep:enableStep,

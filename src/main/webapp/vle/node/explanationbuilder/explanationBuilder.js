@@ -129,6 +129,26 @@ ExplanationBuilder.prototype.render = function() {
 	
 	var spacePromptText = '';
 	
+	if(this.content.isMustComplete){
+    	//isMustComplete is true so we will create the constraint
+		
+		var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.node.id);
+		
+		// set constraint alert message depending on whether student text area is enabled
+		var message = '';
+		if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
+			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
+		} else {
+			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
+		}
+
+		/*
+		 * create the constraint that the student must complete the step
+		 * before they can move forward in the project
+		 */
+		this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null, message]);
+	}
+	
 	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
 		/*
 		 * previous instances of the eb step did not have this field
@@ -183,15 +203,14 @@ ExplanationBuilder.prototype.render = function() {
 				if ((/\S/.test(context.answer))){
 					// a valid answer has been submitted, so set node completed and remove constraint
 					context.node.setCompleted();
-					context.node.removeConstraints();
+					//context.node.removeConstraints();
 				} else {
 					// a valid answer has not been submitted, so set node not completed and add constraint
 					context.node.setNotCompleted();
-					context.node.addConstraints();
+					//context.node.addConstraints();
 				}
 				context.save();
 				// update constraints in navigation menu
-				eventManager.fire('updateNavigationConstraints');
 			}
 		});
 		
@@ -1359,7 +1378,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		context.node.setCompleted();
 		context.node.removeConstraints();
 		// update constraints in navigation menu
-		eventManager.fire('updateNavigationConstraints');
+		this.view.eventManager.fire('updateNavigationConstraints');
 	}
 
 	if (!isActive){
@@ -1639,9 +1658,6 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 		$('#showResponse').fadeIn().addClass('disabled');
 		// no ideas remain in organizing space, so set node not completed and add constraint
 		this.node.setNotCompleted();
-		this.node.addConstraints();
-		// update constraints in navigation menu
-		eventManager.fire('updateNavigationConstraints');
 	}
 };
 

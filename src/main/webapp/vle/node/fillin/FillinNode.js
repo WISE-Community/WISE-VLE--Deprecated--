@@ -24,6 +24,8 @@ function FillinNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(FillinNode.tagMapFunctions);
 };
 
 /**
@@ -86,16 +88,6 @@ FillinNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVis
 	
 	//put the student work into the div
 	displayStudentWorkDiv.html(studentWork);
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-FillinNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = FillinNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 NodeFactory.addNode('FillinNode', FillinNode);
