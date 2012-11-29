@@ -23,17 +23,18 @@ Netlogo.prototype.render = function(){
 
     //handle the case that there is no uri selected yet.
     var model = '';
+    var applet = '';
+    
     if(this.content.activity_uri != '') {
 		model = '<param name="DefaultModel" value="' + this.content.activity_uri + '">';
-	}
-    
-	var applet = '<applet code="org.nlogo.lite.Applet" codebase="/vlewrapper/vle/node/netlogo/"' +  
+		
+		applet = '<applet code="org.nlogo.lite.Applet" codebase="/vlewrapper/vle/node/netlogo/"' +  
         'archive="' + archive + '" width="' + this.content.width + '" height="' + this.content.height + '">' +
          model + 
         '</applet>';
-        
-	$('#netlogo_wrapper').html(applet);
+	}
     
+    $('#netlogo_wrapper').html(applet);
 };
 
 
