@@ -1,0 +1,118 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="libs/jquery-ui-1.9.0.custom.min.css"></script>
+		<script type="text/javascript">
+			/*
+			 * TODO: Copy this file and rename it to
+			 * 
+			 * <new step type>.html
+			 * e.g. quiz.html
+			 *
+			 * and then put the new file into the new folder
+			 * you created for your new step type
+			 *
+			 * your new folder will look something like
+			 * vlewrapper/WebContent/vle/node/<new step type>/
+			 *
+			 * e.g. if you are creating a quiz step it would look
+			 * something like this
+			 * vlewrapper/WebContent/vle/node/quiz/
+			 */
+		
+			var box2dModel;
+		
+			function loadContentAfterScriptsLoad(node) {
+				/*
+				 * TODO: rename Box2dModel
+				 * 
+				 * make sure you rename Box2dModel to the object you created in
+				 * the file when you copied and modified
+				 * 
+				 * vlewrapper/WebContent/vle/node/box2dModel/box2dModel.js
+				 * 
+				 * for example if you are creating a quiz step and you
+				 * created the file
+				 *
+				 * vlewrapper/WebContent/vle/node/quiz/quiz.js
+				 *
+				 * and in that file you defined the Quiz object, you would
+				 * change Box2dModel to Quiz
+				 *
+				 * TODO: rename box2dModel variable
+				 * 
+				 * you should also rename the local var box2dModel variable to something
+				 * appropriate. following my previous example I would rename it
+				 * to quiz.
+				 */
+				box2dModel = new Box2dModel(node);
+	        	box2dModel.render();
+	        };
+			
+	        function loadContent(node) {
+		        /*
+		         * this loadScripts() function call will load the javascript imports
+		         * into this html file 
+		         * 
+		         * TODO: rename box2dModel
+		         *
+		         * you will need to rename box2dModel to the variable name that you
+		         * used in 
+		         * 
+		         * vlewrapper/WebContent/vle/util/scriptloader.js
+		         *
+		         * when you defined your script paths in the 'scripts' array
+		         * 
+		         * for example if you are creating a quiz step and you added
+		         * the variable named quiz to the scripts array, you would change
+		         * 'box2dModel' to 'quiz'
+		         */
+	        	scriptloader.loadScripts('box2dModel', document, node.id, eventManager);
+	        };
+
+	        /*
+	         * This is called when the student clicks on the save button below in the body
+	         */
+	        function save() {
+		        /*
+		         * calls the save function in box2dModel.js
+				 *
+		         * TODO: rename box2dModel variable
+		         */
+				box2dModel.save();
+	        }
+		</script>
+	</head>
+
+	<body>
+		<script src="libs/easel.js"></script>
+		<script src="libs/Box2dWeb-2.1.a.3.min.js"></script>
+		<script src="js/GeneralObjects/Point3D.js"></script>
+		<script src="js/GeneralObjects/TextContainer.js"></script>		
+		<script src="js/BuilderObjects/VolumeViewer.js"></script>
+		<script src="js/BuilderObjects/MaterialsMenu.js"></script>
+		<script src="js/BuilderObjects/ObjectBuildingPanel.js"></script>		
+		<script src="js/BuilderObjects/RectBlockShape.js"></script>
+		<script src="js/BuilderObjects/RectLiquidShape.js"></script>
+		<script src="js/TestingObjects/ObjectLibrary.js"></script>
+		<script src="js/TestingObjects/ObjectTestingPanel.js"></script>
+		<script src="js/TestingObjects/BlockCompShape.js"></script>
+		<script src="js/TestingObjects/ContainerCompShape.js"></script>
+		<script src="js/B2Objects/Myb2BuoyancyController.js"></script>
+		<script src="js/B2Objects/Beakerb2World.js"></script>
+		<script src="js/B2Objects/Balanceb2World.js"></script>
+		<script src="js/B2Objects/Emptyb2World.js"></script>
+		<script src="js/B2Objects/Blockb2Actor.js"></script>
+		<script src="js/B2Objects/Liquidb2Actor.js"></script>
+		<script src="js/FeedbackManager.js"></script>
+		<script src="js/box2dModelMain.js"></script>
+		
+		<!-- TODO create the html UI that the student will see when they visit the step -->
+		<div id='messageDiv'></div>
+		<div id='promptDiv'></div>
+		<div id="builder-button-holder" style="position: absolute;"></div>
+		<div id="library-button-holder"></div>
+		<div id="beaker-button-holder"></div>
+		<div id="beaker-button-holder"></div>
+		<canvas width=810 height=680 id="canvas" ></canvas>
+		</body>
+</html>

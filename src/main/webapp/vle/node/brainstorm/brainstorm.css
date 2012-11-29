@@ -127,6 +127,13 @@ body {
 #main input:hover {
 	background-color: #FFFF00;
 }
+.response {
+	margin-bottom:10px;	
+}
+
+.reply {	
+    margin-left:20px;
+}
 
 .responseTitle {
 	padding: 4px 6px 7px 6px;
@@ -150,4 +157,8 @@ body {
 	-moz-border-radius:2px;
 	-webkit-border-radius:2px;
 	border-radius:2px;
+}
+
+.replyLink {
+	float:right;
 }

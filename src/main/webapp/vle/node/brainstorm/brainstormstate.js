@@ -1,34 +1,29 @@
 /**
  * Object for storing the student's response to the brainstorm
  * @constructor
+ * @param response what student typed in the post or reply
+ * @param postType the type of brainstorm post this state contains {new, reply}
  */
-function BRAINSTORMSTATE(response, timestamp){
-	this.type = "bs";
+function BRAINSTORMSTATE(response, postType, bsReplyToNodeVisitId, bsReplyToNodeStateTimestamp){
+	this.type = "bs"
 	this.response = response;
-	if(arguments.length == 1) {
-		this.timestamp = Date.parse(new Date());
+	this.timestamp = Date.parse(new Date());;
+
+	if (postType != null) {
+		this.postType = postType;
 	} else {
-		this.timestamp = timestamp;
-	};
+		this.postType = "new";
+	}
+	if(bsReplyToNodeVisitId != null) {
+		this.bsReplyToNodeVisitId = bsReplyToNodeVisitId;
+	}
+	if (bsReplyToNodeStateTimestamp != null) {
+		this.bsReplyToNodeStateTimestamp = bsReplyToNodeStateTimestamp;
+	}
 };
 
 BRAINSTORMSTATE.prototype.getHtml = function() {
-	return "timestamp: " + this.timestamp + "<br/>response: " + this.response;
-};
-
-BRAINSTORMSTATE.prototype.getDataXML = function() {
-	return "<response>" + this.response + "</response><timestamp>" + this.timestamp + "</timestamp>";
-};
-
-BRAINSTORMSTATE.prototype.parseDataXML = function(stateXML) {
-	var reponse = stateXML.getElementsByTagName("response")[0];
-	var timestamp = stateXML.getElementsByTagName("timestamp")[0];
-	
-	if(reponse == undefined || timestamp == undefined) {
-		return null;
-	} else {
-		return new BRAINSTORMSTATE(reponse.textContent, timestamp.textContent);		
-	}
+	return "Timestamp: " + this.timestamp + "<br/>Post Type: " + this.postType + "<br/>Response: " + this.response;
 };
 
 /**
@@ -43,6 +38,18 @@ BRAINSTORMSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//set the attributes of the BRAINSTORMSTATE object
 	brainState.response = stateJSONObj.response;
 	brainState.timestamp = stateJSONObj.timestamp;
+	if (stateJSONObj.postType != null) {
+		brainState.postType = stateJSONObj.postType;		
+	} else {
+		brainState.postType = "new";
+	}
+	brainState.type = stateJSONObj.type;
+	if (stateJSONObj.bsReplyToNodeVisitId != null) {
+		brainState.bsReplyToNodeVisitId = stateJSONObj.bsReplyToNodeVisitId;		
+	}
+	if (stateJSONObj.bsReplyToNodeStateTimestamp != null) {
+		brainState.bsReplyToNodeStateTimestamp = stateJSONObj.bsReplyToNodeStateTimestamp;		
+	}
 	
 	//return the BRAINSTORMSTATE object
 	return brainState;

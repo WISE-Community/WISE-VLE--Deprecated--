@@ -114,6 +114,13 @@ View.prototype.BrainstormNode.generateOptions = function(){
 	var pollEndedNoText = document.createTextNode('poll is not ended');
 	var pollEndedYesRadio = createElement(document, 'input', {type: 'radio', name: 'pollEnded', onclick: 'eventManager.fire("brainstormUpdatePollEnded","true")'});
 	var pollEndedNoRadio = createElement(document, 'input', {type: 'radio', name: 'pollEnded', onclick: 'eventManager.fire("brainstormUpdatePollEnded","false")'});
+
+	var allowStudentReplyTD = createElement(document, 'td', {id: 'allowStudentReplyTD'});
+	var allowStudentReplyText = document.createTextNode('Allow Students to Reply?');
+	var allowStudentReplyYesText = document.createTextNode('Yes. Students can reply to posts.');
+	var allowStudentReplyNoText = document.createTextNode('No. Students cannot reply to posts.');
+	var allowStudentReplyYesRadio = createElement(document, 'input', {type: 'radio', name: 'allowStudentReply', onclick: 'eventManager.fire("brainstormUpdateAllowStudentReply","true")'});
+	var allowStudentReplyNoRadio = createElement(document, 'input', {type: 'radio', name: 'allowStudentReply', onclick: 'eventManager.fire("brainstormUpdateAllowStudentReply","false")'});
 	
 	var instantPollTD = createElement(document, 'td', {id: 'instantPoll'});
 	var instantPollText = document.createTextNode('Instant Poll Active?');
@@ -154,6 +161,19 @@ View.prototype.BrainstormNode.generateOptions = function(){
 	pollEndedTD.appendChild(createBreak());
 	pollEndedTD.appendChild(pollEndedNoRadio);
 	pollEndedTD.appendChild(pollEndedNoText);
+	
+	if(this.content.isAllowStudentReply){
+		allowStudentReplyYesRadio.checked = true;
+	} else {
+		allowStudentReplyNoRadio.checked = true;
+	};
+	allowStudentReplyTD.appendChild(allowStudentReplyText);
+	allowStudentReplyTD.appendChild(createBreak());
+	allowStudentReplyTD.appendChild(allowStudentReplyYesRadio);
+	allowStudentReplyTD.appendChild(allowStudentReplyYesText);
+	allowStudentReplyTD.appendChild(createBreak());
+	allowStudentReplyTD.appendChild(allowStudentReplyNoRadio);
+	allowStudentReplyTD.appendChild(allowStudentReplyNoText);	
 	
 	if(this.content.isRichTextEditorAllowed){
 		richTextEditorYesRadio.checked = true;
@@ -215,7 +235,8 @@ View.prototype.BrainstormNode.generateOptions = function(){
 	optionsRow1.appendChild(gatedTD);
 	optionsRow1.appendChild(displayNameTD);
 	optionsRow2.appendChild(richTextEditorTD);
-	optionsRow2.appendChild(pollEndedTD);
+	optionsRow2.appendChild(allowStudentReplyTD);
+	//optionsRow2.appendChild(pollEndedTD);
 	optionsRow2.appendChild(useServerTD);
 	//optionsRow2.appendChild(instantPollTD);
 };
@@ -328,7 +349,21 @@ View.prototype.BrainstormNode.updateDisplayName = function(val){
 };
 
 /**
- * Updates the value of the isRichTextEditorAllowed attribute in xmlPage
+ * Updates the value of the isAllowStudentReply attribute
+ */
+View.prototype.BrainstormNode.updateAllowStudentReply = function(val){
+	if(val=='true'){
+		this.content.isAllowStudentReply = true;
+	} else {
+		this.content.isAllowStudentReply = false;
+	};
+	
+	/* fire source updated event */
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Updates the value of the isRichTextEditorAllowed attribute
  */
 View.prototype.BrainstormNode.updateRichText = function(val){
 	if(val=='true'){

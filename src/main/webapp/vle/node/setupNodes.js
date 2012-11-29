@@ -13,6 +13,10 @@ SetupNodes.setupFiles = [
 		nodeSetupPath:"vle/node/assessmentlist/setup.js"
 	},
 	{
+		nodeName:"Box2dModelNode",
+		nodeSetupPath:"vle/node/box2dModel/setup.js"
+	},
+	{
 		nodeName:"BrainstormNode",
 		nodeSetupPath:"vle/node/brainstorm/setup.js"
 	},

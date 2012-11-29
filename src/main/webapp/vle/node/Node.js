@@ -332,7 +332,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 		
 		if(this.type == 'MySystemNode' || this.type == 'SVGDrawNode' || 
 				this.type == 'OpenResponseNode' || this.type == 'HtmlNode' ||
-				this.type == 'MWNode') {
+				this.type == 'MWNode' || this.type == 'Box2dModelNode') {
 			this.contentPanel.vle = this.view;
 		}
 	}
