@@ -36,9 +36,11 @@ View.prototype.postCurrentStep = function(currentNode) {
  * intermediate step data before the user has exited the step. An example
  * of this would be brainstorm in which we post the response immediately
  * after the student clicks save and we don't wait until they exit the step.
+ * @param callback function to invoke when response is received from the POST. This will be called after 
+ * the default callback is invoked.
  * @return
  */
-View.prototype.postCurrentNodeVisit = function() {
+View.prototype.postCurrentNodeVisit = function(successCallback, failureCallback, additionalData) {
 	if (this.getConfig().getConfigParam('mode') == "portalpreview" ||
 			this.getConfig().getConfigParam('isRunActive') === false) {
 		// no need to post data if we're in preview mode or the run is not active and the user is reviewing the run
@@ -69,6 +71,7 @@ View.prototype.postCurrentNodeVisit = function() {
 		this.addToPOSTInProgressArray(currentNodeVisit);
 
 		if(this.getUserAndClassInfo() != null) {
+			
 			this.connectionManager.request('POST', 3, url, 
 					{id: stepWorkId, 
 				runId: this.getConfig().getConfigParam('runId'), 
@@ -76,7 +79,11 @@ View.prototype.postCurrentNodeVisit = function() {
 				data: nodeVisitData
 					}, 
 					this.processPostResponse, 
-					{vle: this, nodeVisit:currentNodeVisit},
+					{vle: this, 
+					 nodeVisit:currentNodeVisit, 
+					 successCallback:successCallback,
+					 failureCallback:failureCallback,
+					 additionalData:additionalData},
 					this.processPostFailResponse);
 		} else {
 			this.connectionManager.request('POST', 3, url, 
@@ -205,6 +212,16 @@ View.prototype.processPostResponse = function(responseText, responseXML, args){
 	// remove nodeVisit from postInProgress array
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
 
+	// if successCallback is passed in as callback, delegate the rest of this callback to it and return
+	if (args.successCallback != null && typeof args.successCallback == "function") {
+		args.successCallback(responseText, responseXML, args);
+		
+		//fire the event that says we are done processing the post response
+		eventManager.fire('processPostResponseComplete');
+
+		return;
+	}
+	
 	// if cRaterItemId is in the response and it was a CRater submit, make a request to GET the
 	// CRater Annotation
 	if(cRaterItemId != null && isCRaterSubmit != null && isCRaterSubmit) {
@@ -268,6 +285,13 @@ View.prototype.processPostFailResponse = function(responseText, args){
 
 	// remove this nodevisit from postInProgressArray
 	args.vle.removeFromPOSTInProgressArray(args.nodeVisit);
+	
+	// if successCallback is passed in as callback, delegate the rest of this callback to it and return
+	if (args.failureCallback != null && typeof args.failureCallback == "function") {
+		args.failureCallback(responseText, args);
+		
+		return;
+	}
 };
 
 
@@ -822,7 +846,7 @@ View.prototype.getCRaterResponseCallback = function(responseText, responseXML, a
 					 * save the current node visit again so the stepwork row in the 
 					 * database will be updated to include the feedback text and feedback id
 					 */
-					vle.postCurrentNodeVisit(vle.state.getCurrentNodeVisit());
+					vle.postCurrentNodeVisit();
 				}
 
 				if(message != null && message != "") {

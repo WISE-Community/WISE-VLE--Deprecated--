@@ -147,7 +147,7 @@ BRAINSTORM.prototype.brainfullLoaded = function(frameDoc) {
 
 	//post the current node visit to the db without an end time
 	if (this.state) {
-		this.postCurrentNodeVisit();
+		this.postCurrentNodeVisit(this.processPostSuccessResponse,this.processPostFailureResponse,{});
 	}
 	this.recentResponses = new Array();
 	var parent = frameDoc.getElementById('main');
@@ -309,7 +309,7 @@ function sortByTimestamp(object1, object2) {
  * @param handlerArgs the extra arguments used by this function
  */
 function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
-
+	var bs = handlerArgs.bs;
 	if(responseText) {
 		//the responseText should be json
 
@@ -369,11 +369,11 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 				responseState.responseText = nodeState.getStudentWork().response;
 				responseState.timestamp = nodeState.timestamp;
 				responseState.nodeVisitId = nodeVisitObj.id;
-				
+
 
 				//add the responseState object to the array
 				responseStates.push(responseState);
-				*/
+				 */
 			}
 		}
 
@@ -387,9 +387,9 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 			var responseState = responseStates[z];
 
 			//add the response to the UI. this will also show the reply link if reply is enabled for this step.
-			BRAINSTORM.prototype.addStudentResponse(responseState, handlerArgs.vle, handlerArgs.content);
+			bs.addStudentResponse(responseState, handlerArgs.vle, handlerArgs.content);
 		}
-		
+
 		// then loop through the reply states and show them
 		//loop through the responseStates
 		for(var z=0; z<replyStates.length; z++) {
@@ -397,80 +397,10 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
 			var replyState = replyStates[z];
 
 			//add the response to the UI. this will also show the reply link if reply is enabled for this step.
-			BRAINSTORM.prototype.addStudentResponse(replyState, handlerArgs.vle, handlerArgs.content);
+			bs.addStudentResponse(replyState, handlerArgs.vle, handlerArgs.content);
 		}
 
-		$(".replyLink").click(function() {
-			// when reply link is clicked, show the reply box directly below where students can enter a reply
-			var bsNodeVisitId = $(this).attr("bsnodevisitid");
-			var bsNodeStateTimestamp = $(this).attr("bsnodestatetimestamp");
-			if ($("#replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp).length != 0) {
-				// a reply box already exists, don't show another one.
-				return;
-			}
-			
-			var replyDiv = $("<div>").addClass("replyDiv").attr("bsNodeVisitId", bsNodeVisitId)
-				.attr("bsNodeStateTimestamp", bsNodeStateTimestamp).attr("id","replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp);
-			var replyTextareaId = "replyTextArea_"+bsNodeVisitId+"_"+bsNodeStateTimestamp;
-			var replyTextarea = $("<textarea>").addClass("replyTextarea")
-				.attr("rows","5").attr("cols","100").attr("bsNodeVisitId", bsNodeVisitId)
-				.attr("id",replyTextareaId);
-			replyDiv.append(replyTextarea);
 
-			var replySaveButton = $("<input>").addClass("replySaveButton").attr("type","button").val("Post Reply");
-
-			replySaveButton.click(function() {
-				// when Post Reply button is clicked, post reply to server and update UI
-				var replyText = $(this).siblings(".replyTextarea").val();
-				var replyToNodeVisitId = $(this).parents(".replyDiv").attr("bsNodeVisitId");
-				var replyToNodeStateTimestamp = $(this).parents(".replyDiv").attr("bsNodeStateTimestamp");
-				var bs = handlerArgs.bs;
-				bs.saveReply(replyText,replyToNodeVisitId,replyToNodeStateTimestamp);
-			});
-			// add the "Post Reply" button after the reply text area, at the bottom of the replyDiv
-			replyDiv.append(replySaveButton);
-
-			// add the reply div to the end of the div that contains the post/reply that we're replying to.
-			$(this).parents("[bsNodeVisitId='"+bsNodeVisitId+"'][bsNodeStateTimestamp='"+bsNodeStateTimestamp+"']").append(replyDiv);	
-
-			// make the reply textareas into a rich text editor
-			if(handlerArgs.content.isRichTextEditorAllowed){
-				var loc = window.location.toString();
-				var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
-				$('#'+replyTextareaId).tinymce({
-					// Location of TinyMCE script
-					script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
-
-					// General options
-					theme : "advanced",
-					skin : "cirkuit",
-
-					// Theme options
-					theme_advanced_buttons1: 'bold,italic,importAsset',
-					theme_advanced_buttons2: '',
-					theme_advanced_buttons3: '',
-					theme_advanced_buttons4: '',
-					theme_advanced_toolbar_location : "top",
-					theme_advanced_toolbar_align : "left",
-					theme_advanced_statusbar_location : "bottom",
-					relative_urls: false,
-					remove_script_host: true,
-					document_base_url: vleLoc,
-					setup : function(ed) {
-						// Register import asset button
-						ed.addButton('importAsset', {
-							title : 'Use My Asset',
-							image : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/image_tools/img/image_alt.png',
-							onclick : function() {
-								var params = {};
-								params.tinymce = this;
-								eventManager.fire('viewStudentAssets',params);
-							}
-						});
-					}
-				});
-			} 
-		});
 	} else {
 		/*
 		 * obtain the frameDoc from the handlerArgs. the frameDoc is the
@@ -542,17 +472,16 @@ function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
  * @replyToNodeStateTimestamp the timestamp of the node state within the nodevisit that the student is replying to
  */
 BRAINSTORM.prototype.saveReply = function(replyText, replyToNodeVisitId, replyToNodeStateTimestamp) {
-	if (this.node.view.config.getConfigParam('mode') != "run") {
+	if (this.vle.config.getConfigParam('mode') != "run") {
 		return;
 	};
 
 	if(replyText && replyText!=""){
+		// create a reply brainstorm state
 		var postType = "reply";
 		var currentState = new BRAINSTORMSTATE(replyText, postType, replyToNodeVisitId, replyToNodeStateTimestamp);
 		eventManager.fire('pushStudentWork',currentState);
 		this.states.push(currentState);
-
-		document.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>";
 
 		this.recentResponses.push(replyText);
 
@@ -562,19 +491,22 @@ BRAINSTORM.prototype.saveReply = function(replyText, replyToNodeVisitId, replyTo
 			 * we are using a server backend so we can retrieve other students'
 			 * responses
 			 */
+			currentState.userId=this.node.view.getUserAndClassInfo().getWorkgroupId();
+
+
+			// create additional data for reply save callback function 
+			var additionalCallbackData = {
+					"replyState":currentState,
+					"replyToNodeVisitId":replyToNodeVisitId,
+					"replyToNodeStateTimestamp":replyToNodeStateTimestamp,
+					"bs":this
+			}
 
 			/*
 			 * post the current node visit to the db immediately without waiting
 			 * for the student to exit the step.
-			 */
-			this.node.view.postCurrentNodeVisit();
-			
-			// remove replyDiv with textarea from dom
-			$(".replyDiv[bsnodevisitid='"+replyToNodeVisitId+"'][bsnodestatetimestamp='"+replyToNodeStateTimestamp+"']").remove();
-			// also show this reply on the forum immediately so student doesn't have to refresh.
-			currentState.userId=this.node.view.getUserAndClassInfo().getWorkgroupId();
-			this.addStudentResponse(currentState, this.node.view, this.content);
-
+			 */	
+			this.node.view.postCurrentNodeVisit(this.processPostSuccessResponse,this.processPostFailureResponse,additionalCallbackData);
 		} else {
 			for(var x=0; x<this.states.length; x++) {
 				this.addStudentResponse(this.states[x], this.node.view, this.content);
@@ -739,7 +671,7 @@ BRAINSTORM.prototype.savePost = function(frameDoc){
 			 * post the current node visit to the db immediately without waiting
 			 * for the student to exit the step.
 			 */
-			this.node.view.postCurrentNodeVisit();
+			this.node.view.postCurrentNodeVisit(this.processPostSuccessResponse,this.processPostSuccessResponse,{"hi":"ho"});
 
 			this.showClassmateResponses(frameDoc);
 		} else {
@@ -766,7 +698,7 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 	//obtain the dom object that holds all the responses
 	var responsesParent = $('#responses');
 	var postedByUserId = state.userId;
-	
+
 	var responseMainDiv = $('<div>').addClass('responseMainDiv');
 	if (state != null && state.nodeVisitId != null) {
 		responseMainDiv.attr('bsNodeVisitId', state.nodeVisitId);
@@ -776,15 +708,93 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 	//create the response title and textarea elements
 	var responseTitle = $('<div>').addClass('responseTitle').html("<span class='postedBy'>Posted By: &nbsp;" + vle.getUserAndClassInfo().getUserNameByUserId(postedByUserId) + "<span>");
 	var responseTextArea = $('<div>').attr("rows","7").attr("cols","80").attr("disabled", true)
-		.attr('class', 'responseTextArea').html(state.response);
-	
+	.attr('class', 'responseTextArea').html(state.response);
+
 	if (content.isAllowStudentReply) {
 		// if student are allowed to reply to other students' posts, add the reply link
 		if (state != null && state.nodeVisitId != null) {
-			responseTitle.append("<span class='replyLink' bsNodeVisitId='"+state.nodeVisitId+"' bsNodeStateTimestamp='"+state.timestamp+"'>Reply</span>");			
-		} else {
-			responseTitle.append("<span class='replyLink'>Reply</span>");			
-		}
+			var replyLink = $("<span>").addClass("replyLink")
+			.attr("bsNodeVisitId", state.nodeVisitId)
+			.attr("bsNodeStateTimestamp", state.timestamp)
+			.html("Reply");
+			replyLink.click({bs: this, content: content},function(event) {
+				var bs = event.data.bs;
+				var content = event.data.content;
+				// when reply link is clicked, show the reply box directly below where students can enter a reply
+				var bsNodeVisitId = $(this).attr("bsnodevisitid");
+				var bsNodeStateTimestamp = $(this).attr("bsnodestatetimestamp");
+				if ($("#replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp).length != 0) {
+					// a reply box already exists, don't show another one.
+					return;
+				}
+
+				var replyDiv = $("<div>").addClass("replyDiv").attr("bsNodeVisitId", bsNodeVisitId)
+				.attr("bsNodeStateTimestamp", bsNodeStateTimestamp).attr("id","replyDiv_"+bsNodeVisitId+"_"+bsNodeStateTimestamp);
+				var replyTextareaId = "replyTextArea_"+bsNodeVisitId+"_"+bsNodeStateTimestamp;
+				var replyTextarea = $("<textarea>").addClass("replyTextarea")
+				.attr("rows","5").attr("cols","100").attr("bsNodeVisitId", bsNodeVisitId)
+				.attr("id",replyTextareaId);
+				replyDiv.append(replyTextarea);
+
+				var replySaveButton = $("<input>").addClass("replySaveButton").attr("type","button").val("Post Reply");
+
+				replySaveButton.click({bs:bs},function(event) {
+					var bs = event.data.bs;
+					// when Post Reply button is clicked, post reply to server and update UI
+					var replyText = $(this).siblings(".replyTextarea").val();
+					var replyToNodeVisitId = $(this).parents(".replyDiv").attr("bsNodeVisitId");
+					var replyToNodeStateTimestamp = $(this).parents(".replyDiv").attr("bsNodeStateTimestamp");
+					//var bs = handlerArgs.bs;
+					bs.saveReply(replyText,replyToNodeVisitId,replyToNodeStateTimestamp);
+				});
+				// add the "Post Reply" button after the reply text area, at the bottom of the replyDiv
+				replyDiv.append(replySaveButton);
+
+				// add the reply div to the end of the div that contains the post/reply that we're replying to.
+				$(this).parents("[bsNodeVisitId='"+bsNodeVisitId+"'][bsNodeStateTimestamp='"+bsNodeStateTimestamp+"']").append(replyDiv);	
+
+				// make the reply textareas into a rich text editor
+				if(content.isRichTextEditorAllowed){
+					var loc = window.location.toString();
+					var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
+					$('#'+replyTextareaId).tinymce({
+						// Location of TinyMCE script
+						script_url : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/tiny_mce.js',
+
+						// General options
+						theme : "advanced",
+						skin : "cirkuit",
+
+						// Theme options
+						theme_advanced_buttons1: 'bold,italic,importAsset',
+						theme_advanced_buttons2: '',
+						theme_advanced_buttons3: '',
+						theme_advanced_buttons4: '',
+						theme_advanced_toolbar_location : "top",
+						theme_advanced_toolbar_align : "left",
+						theme_advanced_statusbar_location : "bottom",
+						relative_urls: false,
+						remove_script_host: true,
+						document_base_url: vleLoc,
+						setup : function(ed) {
+							// Register import asset button
+							ed.addButton('importAsset', {
+								title : 'Use My Asset',
+								image : '/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/image_tools/img/image_alt.png',
+								onclick : function() {
+									var params = {};
+									params.tinymce = this;
+									eventManager.fire('viewStudentAssets',params);
+								}
+							});
+						}
+					});
+				} 
+			});
+
+			// add reply link alongside the title
+			responseTitle.append(replyLink);
+		} 
 	}
 
 	// add the title and textarea to the response main div
@@ -794,7 +804,7 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 		// this is a reply to a post. show it below the response to which it replies to.
 		var replyToNodeVisitId = state.bsReplyToNodeVisitId;
 		var replyToNodeStateTimestamp = state.bsReplyToNodeStateTimestamp;
-		
+
 		// get the div that contains the original post that this reply is for
 		var replyToDiv = $("div[bsnodevisitid='"+replyToNodeVisitId+"'][bsnodestatetimestamp='"+replyToNodeStateTimestamp+"']");
 
@@ -805,6 +815,7 @@ BRAINSTORM.prototype.addStudentResponse = function(state, vle, content) {
 		$(responseMainDiv).addClass("response");
 		responsesParent.append(responseMainDiv);	
 	}
+
 };
 
 //REMOVE - for testing purposes
@@ -989,6 +1000,46 @@ BRAINSTORM.prototype.processTagMaps = function() {
 	};
 
 	return returnObject;
+};
+
+/**
+ * Handles the response from posting student data to the server. 
+ * Gets called after default processPostResponse.
+ * 
+ * @param responseText a json string containing the response data
+ * @param responseXML
+ * @param args any args required by this callback function which
+ * 		were passed in when the request was created
+ */
+BRAINSTORM.prototype.processPostSuccessResponse = function(responseText, responseXML, args){
+	if (args.additionalData.replyState) {  // this is a callback for a reply that was saved successfully. remove the reply textarea and show it in the UI.
+		var replyState = args.additionalData.replyState;
+		replyState.nodeVisitId = JSON.parse(responseText).id; // get the new nodevisit id and set it in this state so replies can happen on this reply.
+		var replyToNodeVisitId = args.additionalData.replyToNodeVisitId;
+		var replyToNodeStateTimestamp = args.additionalData.replyToNodeStateTimestamp;
+		var bs = args.additionalData.bs;
+		var content = bs.content;
+
+		// remove replyDiv with textarea from dom
+		$(".replyDiv[bsnodevisitid='"+replyToNodeVisitId+"'][bsnodestatetimestamp='"+replyToNodeStateTimestamp+"']").remove();
+
+		// also show this reply on the forum immediately so student doesn't have to refresh.
+		debugger;
+		bs.addStudentResponse(replyState, this.vle, content);		
+	}
+};
+
+/**
+ * Handles the FAIL response from posting student data to the server.
+ * @param responseText a json string containing the response data
+ * @param responseXML
+ * @param args any args required by this callback function which
+ * 		were passed in when the request was created
+ */
+BRAINSTORM.prototype.processPostFailResponse = function(responseText, args){
+	// this is a callback for a failed save.
+	var bs = args.additionalData.bs;
+	bs.node.view.notificationManager.notify("Failed to save reply. Please talk to your teacher.", 5);	
 };
 
 //used to notify scriptloader that this script has finished loading
