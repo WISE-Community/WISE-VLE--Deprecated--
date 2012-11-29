@@ -1952,13 +1952,13 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var getAllUniqueTagsInProject = function() {
 			var uniqueTags = [];
 			
-			//get all the step nodes
-			var nodes = allLeafNodes;
+			//get all the node ids in the project. this includes step nodes and activity nodes
+			var nodeIds = getNodeIds(null, true);
 			
-			//loop through all the step nodes
-			for(var x=0; x<nodes.length; x++) {
-				//get a node
-				var node = nodes[x];
+			//loop through all the nodes in the project
+			for(var x=0; x<nodeIds.length; x++) {
+				var nodeId = nodeIds[x];
+				var node = getNodeById(nodeId);
 				
 				if(node != null) {
 					//get the tags for the node
