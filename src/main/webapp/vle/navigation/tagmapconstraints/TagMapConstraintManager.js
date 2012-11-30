@@ -4,6 +4,7 @@
  */
 function TagMapConstraintManager(view) {
 	this.view = view;
+	this.activeTagMapConstraints = [];
 };
 
 //value to turn on console output for debugging purposes
@@ -25,6 +26,12 @@ TagMapConstraintManager.debugOutput = function(message) {
  * Step tag map constraints will be processed later when the step is rendered.
  */
 TagMapConstraintManager.prototype.addGlobalTagMapConstraints = function() {
+	
+	if(this.activeTagMapConstraints == null) {
+		//create the active tag map constraints array if it does not exist
+		this.activeTagMapConstraints = [];
+	}
+	
 	//get all the node ids in the project
 	var nodeIds = this.view.getProject().getAllNodeIds();
 	
