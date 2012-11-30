@@ -925,24 +925,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					var stepHasNewFeedback = false;
 					
-					var title = '';
-					var nodeTitle = node.getTitle();
+					var title = project.stepTerm + ' ' + getStepNumberAndTitle(nodeId);
 					var currentStepNum = vlePosition;
-					if(project.autoStep) {
-						title += project.stepTerm + " " + currentStepNum + ": "; 
-					} else {
-						if(project.stepTerm && project.stepTerm != ''){
-							title += project.stepTerm + ': ';
-						};
-					};
-					
-					var titlePosition = getPositionById(node.id);
-					
-					if(!project.stepLevelNumbering){
-						titlePosition = '';
-					};
-					
-					title += view.navigationPanel.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
 					
 					tempAllFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
 					tempNewFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
