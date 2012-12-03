@@ -18,6 +18,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.retrieveThemeLocales();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
+		obj.addGlobalTagMapConstraints();
+		obj.updateActiveTagMapConstraints();
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
 			obj.startXMPP();
@@ -89,14 +91,14 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		var nodeId = args[0];
 		var node = obj.getProject().getNodeById(nodeId);
 		
-		node.view.eventManager.fire('renderConstraints', node.id, node);
+		//node.view.eventManager.fire('renderConstraints', node.id, node);
 	} else if(type=='renderConstraints'){
 		//get the node
 		var nodeId = args[0];
 		var node = obj.getProject().getNodeById(nodeId);
 		
 		//tell the node to render any constraints if applicable
-		node.renderConstraints();
+		//node.renderConstraints();
 	} else if(type=='saveAndCloseNote'){
 		//save the note
 		obj.eventManager.fire('saveNote');
@@ -731,6 +733,30 @@ View.prototype.onRenderNodeComplete = function(position){
  * 4. Render Node Complete.
  */
 View.prototype.renderNode = function(position){
+	//get the next node id
+	var nextNode = this.getProject().getNodeByPosition(position);
+	var nextNodeId = nextNode.id;
+	
+	//perform any tag map processing
+	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
+	
+	if(processTagMapConstraintResults != null) {
+		if(processTagMapConstraintResults.canMove == false) {
+			/*
+			 * the student is not allowed to move to the next node
+			 * so we will display a message telling them so and also
+			 * prevent the next node from being rendered so that they
+			 * stay on the current node they are already on
+			 */
+			var message = processTagMapConstraintResults.message;
+			alert(message);
+			return;
+		}
+	}
+	
+	//add any tag map constraints for the next node we are about to visit
+	this.addTagMapConstraints(nextNodeId);
+	
 	//get the node
 	var node = this.getProject().getNodeByPosition(position);
 	
@@ -790,6 +816,10 @@ View.prototype.renderNode = function(position){
 	/* set this node as current node visit */
 	this.state.setCurrentNodeVisit(nodeToVisit);
 	nodeToVisit.render(null, studentWork, status.value);
+	
+	//update the active tag map constraints to see if any have been satisfied and we need to remove any
+	this.updateActiveTagMapConstraints();
+	
 	this.eventManager.fire('renderNodeComplete', this.currentPosition);
 };
 

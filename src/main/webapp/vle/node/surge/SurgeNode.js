@@ -35,6 +35,8 @@ function SurgeNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(SurgeNode.tagMapFunctions);
 }
 
 /**
@@ -186,16 +188,6 @@ SurgeNode.prototype.processStudentWork = function(studentWork) {
 			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);			
 		}
 	}
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-SurgeNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = SurgeNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 //Add this node to the node factory so the vle knows it exists.

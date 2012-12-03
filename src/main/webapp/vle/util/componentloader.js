@@ -817,7 +817,9 @@ var componentloader = function(em, sl){
 				'addConstraint':[null,null],
 				'removeConstraint':[null,null],
 				'navigationLoadingComplete':[null,null],
-				'updateNavigationConstraints':[null,null]
+				'updateNavigationConstraints':[null,null],
+				'addActiveTagMapConstraint':[null,null],
+				'removeActiveTagMapConstraint':[null,null]
 			},
 			initialize:{
 				init:function(view){
@@ -829,6 +831,8 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('removeConstraint', view.navigationDispatcher, view);
 					view.eventManager.subscribe('navigationLoadingComplete', view.vleDispatcher, view);
 					view.eventManager.subscribe('processLoadViewStateResponseComplete', view.navigationDispatcher, view);
+					view.eventManager.subscribe('addActiveTagMapConstraint', view.navigationDispatcher, view);
+					view.eventManager.subscribe('removeActiveTagMapConstraint', view.navigationDispatcher, view);
 				}
 			}
 		},

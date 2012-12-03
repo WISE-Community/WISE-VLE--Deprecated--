@@ -28,6 +28,8 @@ function SVGDrawNode(nodeType, view) {
 	this.importableFromNodes = new Array("SVGDrawNode","OpenResponseNode","NoteNode");	
 	this.importableFileExtensions = new Array(
 			"jpg", "jpeg", "png", "gif", "svg");
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(SVGDrawNode.tagMapFunctions);
 };
 
 SVGDrawNode.prototype.updateJSONContentPath = function(base){
@@ -362,16 +364,6 @@ SVGDrawNode.prototype.showSnaps = function(currNode) {
  */
 SVGDrawNode.prototype.canSpecialExport = function() {
 	return true;
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-SVGDrawNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = SVGDrawNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);

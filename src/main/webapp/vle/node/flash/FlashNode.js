@@ -29,6 +29,8 @@ function FlashNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(FlashNode.tagMapFunctions);
 }
 
 /**
@@ -305,16 +307,6 @@ FlashNode.prototype.hasGradingView = function() {
 		}
 	}
 	return result;
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-FlashNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = FlashNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 //Add this node to the node factory so the vle knows it exists.

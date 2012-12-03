@@ -654,12 +654,14 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * order that they appear in the project
 		 * @param nodeTypesToExclude a : delimited string of node types to exclude
 		 * in the resulting array
+		 * @param includeSequenceNodeIds boolean value whether to include sequence
+		 * ids in the results
 		 * @return an array containing all the leaf nodeIds that are used
 		 * in the project, in the order that they appear in the project
 		 * (this does not include the unused nodes that are in the 
 		 * project.json nodes array)
 		 */
-		var getNodeIds = function(onlyGetNodesWithGradingView) {
+		var getNodeIds = function(onlyGetNodesWithGradingView, includeSequenceNodeIds) {
 			//get the project content
 			var project = content.getContentJSON();
 			
@@ -673,7 +675,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			var startNode = getNodeById(startPoint);
 			
 			//get the leaf nodeIds
-			nodeIds = getNodeIdsHelper(nodeIds, startNode, onlyGetNodesWithGradingView);
+			nodeIds = getNodeIdsHelper(nodeIds, startNode, onlyGetNodesWithGradingView, includeSequenceNodeIds);
 			
 			//return the populated array containing nodeIds
 			return nodeIds;
@@ -684,12 +686,18 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @param nodeIds an array containing all the nodeIds we have found so far
 		 * @param currentNode the current node
 		 * @param nodeTypesToExclude a : delimited string of node types to exclude
+		 * @param includeSequenceNodeIds boolean value whether to include sequence
+		 * ids in the results
 		 * @return an array containing all the leaf nodes 
 		 */
-		var getNodeIdsHelper = function(nodeIds, currentNode, onlyGetNodesWithGradingView) {
+		var getNodeIdsHelper = function(nodeIds, currentNode, onlyGetNodesWithGradingView, includeSequenceNodeIds) {
 			
 			if(currentNode.type == 'sequence') {
 				//current node is a sequence
+				
+				if(includeSequenceNodeIds) {
+					nodeIds.push(currentNode.id);
+				}
 				
 				//get the child nodes
 				var childNodes = currentNode.children;
@@ -700,7 +708,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					var childNode = childNodes[x];
 					
 					//recursively call this function with the child node
-					nodeIds = getNodeIdsHelper(nodeIds, childNode, onlyGetNodesWithGradingView);
+					nodeIds = getNodeIdsHelper(nodeIds, childNode, onlyGetNodesWithGradingView, includeSequenceNodeIds);
 				}
 			} else {
 				//current node is a leaf node
@@ -720,6 +728,105 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			}
 			
 			//return the updated array of nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Get all the node ids in the sequence
+		 * @param nodeId the sequence id
+		 * @return the node ids in the sequence
+		 */
+		var getNodeIdsInSequence = function(nodeId) {
+			//create the array that we will store the nodeIds in
+			var nodeIds = [];
+			
+			//get the start node
+			var sequenceNode = getNodeById(nodeId);
+			
+			//get the leaf nodeIds
+			nodeIds = getNodeIdsHelper(nodeIds, sequenceNode);
+			
+			//return the populated array containing nodeIds
+			return nodeIds;
+		};
+		
+		/**
+		 * Get all the node ids that come after the one passed in
+		 * @param nodeId we want all the node ids after this one
+		 * @return an array of node ids that come after the one 
+		 * passed in
+		 */
+		var getNodeIdsAfter = function(nodeId) {
+			
+			var node = getNodeById(nodeId);
+			
+			if(node.type == 'sequence') {
+				/*
+				 * if the node is a sequence, we will get the last node ref
+				 * in the sequence and use that as the limiter
+				 */
+				nodeId = node.json.refs[node.json.refs.length - 1];
+			}
+			
+			//get all the node ids
+			var nodeIds = getNodeIds();
+			
+			//the array that will contain all the node ids that come after
+			var resultNodeIds = [];
+			
+			if(nodeIds != null) {
+				//loop through all the node ids
+				for(var x=0; x<nodeIds.length; x++) {
+					//get a node id
+					var tempNodeId = nodeIds[x];
+					
+					if(nodeId == tempNodeId) {
+						/*
+						 * the node id matches the one we want so we will
+						 * slice out all the node ids after this
+						 */
+						resultNodeIds = nodeIds.slice(x + 1);
+						
+						//break out of the for loop since we are done
+						break;
+					}
+				}
+			}
+			
+			return resultNodeIds;
+		};
+		
+		/**
+		 * Get all the other node ids besides the one passed in
+		 * @param nodeId get all node ids except this one
+		 * @return an array of node ids without the one passed in 
+		 */
+		var getAllOtherNodeIds = function(nodeId) {
+			//get all the node ids
+			var nodeIds = getNodeIds();
+			
+			if(nodeIds != null) {
+				//loop through all the node ids
+				for(var x=0; x<nodeIds.length; x++) {
+					//get a node id
+					var tempNodeId = nodeIds[x];
+					
+					if(nodeId == tempNodeId) {
+						/*
+						 * we have found the node id we want so we will
+						 * remove it from the array
+						 */
+						nodeIds.splice(x, 1);
+						
+						/*
+						 * decrement the counter to continue searching for the
+						 * node id in case it appears more than once in the array
+						 */
+						x--;
+					}
+				}
+			}
+			
 			return nodeIds;
 		};
 		
@@ -818,24 +925,8 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					
 					var stepHasNewFeedback = false;
 					
-					var title = '';
-					var nodeTitle = node.getTitle();
+					var title = project.stepTerm + ' ' + getStepNumberAndTitle(nodeId);
 					var currentStepNum = vlePosition;
-					if(project.autoStep) {
-						title += project.stepTerm + " " + currentStepNum + ": "; 
-					} else {
-						if(project.stepTerm && project.stepTerm != ''){
-							title += project.stepTerm + ': ';
-						};
-					};
-					
-					var titlePosition = getPositionById(node.id);
-					
-					if(!project.stepLevelNumbering){
-						titlePosition = '';
-					};
-					
-					title += view.navigationPanel.getTitlePositionFromLocation(titlePosition) + " " + nodeTitle;
 					
 					tempAllFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
 					tempNewFeedback += "<div class='stepWork'><div class='sectionHead'><a onclick=\"eventManager.fire('renderNode', ['" + getPositionById(node.id) + "']); $('#showallwork').dialog('close');\">" + title + "</a><span class='nodeType'>("+node.getType(true)+")</span></div>";
@@ -1496,6 +1587,10 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @return whether nodePosition1 comes after nodePosition2
 		 */
 		var positionAfter = function(nodePosition1, nodePosition2) {
+			//make the node positions into strings
+			nodePosition1 += '';
+			nodePosition2 += '';
+			
 			//split nodePosition1 by the '.'
 			var nodePosition1Array = nodePosition1.split(".");
 			
@@ -1774,24 +1869,36 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			if(currentNode.type == 'sequence') {
 				//current node is a sequence
 				
-				//get the child nodes
-				var childNodes = currentNode.children;
-				
-				//loop through all the child nodes
-				for(var x=0; x<childNodes.length; x++) {
-					//get a child node
-					var childNode = childNodes[x];
+				if(currentNode.id == nodeId) {
+					foundNodeId = true;
+				} else {
+					//get the tags for this node
+					var tagsForNode = currentNode.tags;
 					
-					//recursively call this function with the child node
-					var nodeIdsAndFoundNodeId = getPreviousNodeIdsByTagHelper(nodeIds, childNode, tagName, nodeId, foundNodeId);
+					//check if this node has the tag we are looking for
+					if(tagsForNode != null && tagsForNode.indexOf(tagName) != -1) {
+						nodeIds.push(currentNode.id);					
+					}	
 					
-					//update these values
-					nodeIds = nodeIdsAndFoundNodeId.nodeIds;
-					foundNodeId = nodeIdsAndFoundNodeId.foundNodeId;
+					//get the child nodes
+					var childNodes = currentNode.children;
 					
-					if(foundNodeId) {
-						break;
-					}
+					//loop through all the child nodes
+					for(var x=0; x<childNodes.length; x++) {
+						//get a child node
+						var childNode = childNodes[x];
+						
+						//recursively call this function with the child node
+						var nodeIdsAndFoundNodeId = getPreviousNodeIdsByTagHelper(nodeIds, childNode, tagName, nodeId, foundNodeId);
+						
+						//update these values
+						nodeIds = nodeIdsAndFoundNodeId.nodeIds;
+						foundNodeId = nodeIdsAndFoundNodeId.foundNodeId;
+						
+						if(foundNodeId) {
+							break;
+						}
+					}					
 				}
 			} else {
 				//current node is a leaf node
@@ -1829,13 +1936,13 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var getAllUniqueTagsInProject = function() {
 			var uniqueTags = [];
 			
-			//get all the step nodes
-			var nodes = allLeafNodes;
+			//get all the node ids in the project. this includes step nodes and activity nodes
+			var nodeIds = getNodeIds(null, true);
 			
-			//loop through all the step nodes
-			for(var x=0; x<nodes.length; x++) {
-				//get a node
-				var node = nodes[x];
+			//loop through all the nodes in the project
+			for(var x=0; x<nodeIds.length; x++) {
+				var nodeId = nodeIds[x];
+				var node = getNodeById(nodeId);
 				
 				if(node != null) {
 					//get the tags for the node
@@ -2081,6 +2188,63 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			return result;
 		};
 		
+		/**
+		 * Check if the node id is in the sequence
+		 * @param nodeId the node id
+		 * @param sequenceId the sequence id
+		 * @return whether the node id is in the sequence
+		 */
+		var isNodeIdInSequence = function(nodeId, sequenceId) {
+			var result = false;
+			
+			//get all the node ids in the sequence
+			var nodeIds = getNodeIdsInSequence(sequenceId);
+			
+			//loop through all the node ids in the sequence
+			for(var x=0; x<nodeIds.length; x++) {
+				var tempNodeId = nodeIds[x];
+				
+				if(nodeId == tempNodeId) {
+					//the node id is in the sequence
+					result = true;
+					break;
+				}
+			}
+			
+			return result;
+		};
+		
+		/**
+		 * Get the parent node id.
+		 * Note: this only searches the first level of sequences and
+		 * does not perform a deep search
+		 * @param node id the node id to find the parent of
+		 * @return the parent node id
+		 */
+		var getParentNodeId = function(nodeId) {
+			var parentNodeId = null;
+			
+			//get all the sequence ids
+			for(var x=0; x<allSequenceNodes.length; x++) {
+				//get a sequence node
+				var sequenceNode = allSequenceNodes[x];
+				
+				if(sequenceNode != null) {
+					//get the id of the sequence
+					var sequenceNodeId = sequenceNode.id;
+					
+					if(sequenceNode.json.refs.indexOf(nodeId) != -1) {
+						//the node id is in this sequence
+						
+						parentNodeId = sequenceNodeId;
+						break;
+					}
+				}
+			}
+			
+			return parentNodeId;
+		};
+		
 		/* check to see if this project was passed a minifiedStr, in which we will
 		 * set the totalProjectContent and this project's content */
 		 if(totalProjectContent){
@@ -2267,7 +2431,19 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* get all the automatic group assignments that are used in the project */
 			getAutoGroupsUsed:function(){return getAutoGroupsUsed();},
 			/* get all the node ids by node type */
-			getNodeIdsByNodeType:function(nodeType){return getNodeIdsByNodeType(nodeType);}
+			getNodeIdsByNodeType:function(nodeType){return getNodeIdsByNodeType(nodeType);},
+			/* get all the node ids that come after this one */
+			getNodeIdsAfter:function(nodeId) {return getNodeIdsAfter(nodeId);},
+			/* get all the other node ids besides this one */
+			getAllOtherNodeIds:function(nodeId) {return getAllOtherNodeIds(nodeId);},
+			/* get all the node ids including sequence ids */
+			getAllNodeIds:function() {return getNodeIds(null, true);},
+			/* get all the node ids including sequence ids */
+			getNodeIdsInSequence:function(nodeId) {return getNodeIdsInSequence(nodeId);},
+			/* determine if the node id is in the sequence */
+			isNodeIdInSequence:function(nodeId, sequenceId) {return isNodeIdInSequence(nodeId, sequenceId);},
+			/* get the node id of the parent sequence of the step */
+			getParentNodeId:function(nodeId) {return getParentNodeId(nodeId);}
 		};
 	}(content, contentBaseUrl, lazyLoading, view, totalProjectContent);
 };

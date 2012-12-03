@@ -35,9 +35,9 @@
  * 
  * @constructor
  */
-function Table(node, view) {
+function Table(node) {
 	this.node = node;
-	this.view = view;
+	this.view = node.view;
 	this.content = node.getContent().getContentJSON();
 	
 	if(node.studentWork != null) {

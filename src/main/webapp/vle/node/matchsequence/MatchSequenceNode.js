@@ -24,6 +24,8 @@ function MatchSequenceNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(MatchSequenceNode.tagMapFunctions);
 };
 
 /**
@@ -105,13 +107,20 @@ MatchSequenceNode.prototype.renderGradingView = function(displayStudentWorkDiv, 
 };
 
 /**
- * Get the tag map functions that are available for this step type
+ * Determine whether the student has completed the step or not
+ * @param nodeState the latest node state for the step
+ * @return whether the student has completed the step or not
  */
-MatchSequenceNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = MatchSequenceNode.tagMapFunctions;
+MatchSequenceNode.prototype.isCompleted = function(nodeState) {
+	var result = false;
 	
-	return tagMapFunctions;
+	if(nodeState != null && nodeState != '') {
+		if(nodeState.isCorrect) {
+			result = true;
+		}
+	}
+	
+	return result;
 };
 
 MatchSequenceNode.prototype.getHTMLContentTemplate = function() {

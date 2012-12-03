@@ -34,6 +34,8 @@ function OpenResponseNode(nodeType, view) {
 	this.importableFromNodes = new Array("NoteNode","OpenResponseNode");	
 	this.importableFileExtensions = new Array(
 			"jpg", "png");
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(OpenResponseNode.tagMapFunctions);
 };
 
 /**
@@ -161,7 +163,7 @@ OpenResponseNode.prototype.render = function(contentPanel,studentWork, disable) 
  */
 OpenResponseNode.prototype.addConstraints = function() {
 	if (this.content.getContentJSON().isMustCompleteAllPartsBeforeExit) {
-		this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
+		//this.view.eventManager.fire('addConstraint',{type:'WorkOnXConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20)});
 	}
 };
 
@@ -506,13 +508,20 @@ OpenResponseNode.prototype.getAutoGradedFields = function(stepWorkId, runId, nod
 };
 
 /**
- * Get the tag map functions that are available for this step type
+ * Determine whether the student has completed the step or not
+ * @param nodeState the latest node state for the step
+ * @return whether the student has completed the step or not
  */
-OpenResponseNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = OpenResponseNode.tagMapFunctions;
+OpenResponseNode.prototype.isCompleted = function(nodeState) {
+	var result = false;
 	
-	return tagMapFunctions;
+	if(nodeState != null && nodeState != '') {
+		if(nodeState.response != '') {
+			result = true;
+		}
+	}
+	
+	return result;
 };
 
 OpenResponseNode.prototype.getHTMLContentTemplate = function() {

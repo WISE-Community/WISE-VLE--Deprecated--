@@ -53,6 +53,8 @@ function Seasons2Node(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(Seasons2Node.tagMapFunctions);
 }
 
 /**
@@ -229,16 +231,6 @@ Seasons2Node.prototype.getHTMLContentTemplate = function() {
  */
 Seasons2Node.prototype.modelIFrameLoaded = function() {
 	this.contentPanel.seasons2.modelIFrameLoaded();
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-Seasons2Node.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = Seasons2Node.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 /*

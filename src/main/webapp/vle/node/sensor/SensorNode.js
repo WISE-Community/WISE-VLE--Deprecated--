@@ -21,6 +21,8 @@ function SensorNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(SensorNode.tagMapFunctions);
 }
 
 SensorNode.prototype.parseDataJSONObj = function(stateJSONObj) {
@@ -161,16 +163,6 @@ SensorNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVis
 	
 	//insert the response the student typed
 	$(sensorResponseDiv).html(response);
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-SensorNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = SensorNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 SensorNode.prototype.getHTMLContentTemplate = function() {

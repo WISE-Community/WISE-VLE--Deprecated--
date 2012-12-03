@@ -458,7 +458,14 @@ var scriptloader = function(){
 		            'vle/navigation/constraints/workonxbeforeyconstraint.js',
 		            'vle/navigation/constraints/workonxconstraint.js',
 		            'vle/navigation/constraints/workonxbeforeadvancingconstraint.js',
-		            'vle/navigation/constraints/constraintmanager.js'],
+		            'vle/navigation/constraints/constraintmanager.js',
+		            'vle/navigation/tagmapconstraints/TagMapConstraintManager.js',
+		            'vle/navigation/tagmapconstraints/TagMapConstraint.js',
+		            'vle/navigation/tagmapconstraints/TagMapConstraintFactory.js',
+		            'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js',
+		            'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js',
+		            'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js',
+		            'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js'],
 		menu:['vle/ui/menu/wmenu.js',
 		      'vle/ui/menu/NavigationPanel.js',
 		      'vle/view/vle/vleview_menu.js'],
@@ -566,6 +573,10 @@ var scriptloader = function(){
         'vle/view/authoring/authorview_startup.js':['vle/view/i18n/view_i18n.js'],
         'vle/util/plupload/js/plupload.html4.js':['vle/util/plupload/js/plupload.js'],
         'vle/util/plupload/js/plupload.html5.js':['vle/util/plupload/js/plupload.js']
+        'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
+        'vle/navigation/tagmapconstraints/MustVisitXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js']
     };
 	
 	// add jQuery UI/jQuery core dependency

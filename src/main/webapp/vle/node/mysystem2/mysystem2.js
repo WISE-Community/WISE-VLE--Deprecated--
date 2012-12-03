@@ -47,6 +47,8 @@ Mysystem2.prototype.saveTriggeredByMySystem = function(isSubmit) {
  * step, if any.
  */
 Mysystem2.prototype.render = function() {
+	var enableStep = true;
+	var message = '';
 	var workToImport = [];
 	
 	//process the tag maps if we are not in authoring mode
@@ -286,11 +288,6 @@ Mysystem2.prototype.processTagMaps = function() {
 				}
 			}
 		}
-	}
-	
-	if(message != '') {
-		//message is not an empty string so we will add a new line for formatting
-		message += '<br>';
 	}
 	
 	//put the variables in an object so we can return multiple variables

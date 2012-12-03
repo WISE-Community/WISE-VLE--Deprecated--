@@ -77,6 +77,16 @@ HtmlNode.prototype.hasGradingView = function() {
 	return false;
 };
 
+HtmlNode.prototype.isCompleted = function(nodeState) {
+	var result = true;
+	/*
+	if(nodeState != null && nodeState != '') {
+		result = true;
+	}
+	*/
+	return result;
+};
+
 NodeFactory.addNode('HtmlNode', HtmlNode);
 
 //used to notify scriptloader that this script has finished loading

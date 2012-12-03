@@ -53,6 +53,8 @@ function ExplanationBuilderNode(nodeType, view) {
 	 * anyone outside this step has changed the idea basket
 	 */
 	view.eventManager.subscribe('ideaBasketChanged', this.ideaBasketChanged, this);
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(ExplanationBuilderNode.tagMapFunctions);
 }
 
 /**
@@ -67,7 +69,7 @@ ExplanationBuilderNode.prototype.render = function(contentPanel,studentWork, dis
 	}
 	
 	// add constraints
-	this.addConstraints();
+	//this.addConstraints();
 	
 	/* call super */
 	Node.prototype.render.call(this, contentPanel, studentWork, disable);
@@ -420,12 +422,12 @@ ExplanationBuilderNode.prototype.addConstraints = function() {
 			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
 		}
 		
-    	eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.constraintKey, workCorrect:false, msg:message});
+    	//eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.constraintKey, workCorrect:false, msg:message});
 	}
 };
 
 ExplanationBuilderNode.prototype.removeConstraints = function(){
-	eventManager.fire('removeConstraint',this.constraintKey);
+	//eventManager.fire('removeConstraint',this.constraintKey);
 };
 
 /**
@@ -435,7 +437,7 @@ ExplanationBuilderNode.prototype.removeConstraints = function(){
  */
 ExplanationBuilderNode.prototype.processStateConstraints = function() {
 	if(!this.isCompleted()){
-		this.addConstraints();
+		//this.addConstraints();
 	}
 };
 
@@ -453,13 +455,33 @@ ExplanationBuilderNode.prototype.canExit = function(){
 };
 
 /**
- * Get the tag map functions that are available for this step type
+ * Determine whether the student has completed the step or not
+ * @param nodeState the latest node state for the step
+ * @return whether the student has completed the step or not
  */
-ExplanationBuilderNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = ExplanationBuilderNode.tagMapFunctions;
+ExplanationBuilderNode.prototype.isCompleted = function(nodeState) {
+	var result = false;
 	
-	return tagMapFunctions;
+	if(nodeState != null && nodeState != '') {
+		var content = this.content.getContentJSON();
+		
+		if(content!= null && content.isMustComplete) {
+			/*
+			 * this step has a correct answer so we will check if the
+			 * student answered correctly
+			 */
+			if(nodeState.answer != null && 
+					nodeState.answer != '' &&
+					nodeState.explanationIdeas != null &&
+					nodeState.explanationIdeas.length > 0) {
+				result = true;
+			}
+		} else {
+			result = true;
+		}
+	}
+	
+	return result;
 };
 
 /*

@@ -451,7 +451,7 @@ View.prototype.displayShowAllWork = function() {
 						 * score or comment and we need to show the work and feedback
 						 * for that step at the the top of the show all work
 						 */
-						node.renderGradingView(studentWorkDiv, nodeVisit, "", workgroupId);
+						node.renderGradingView($("#new_latestWork_" + nodeVisit.id), nodeVisit, "", workgroupId);
 					}
 				}
 			}
