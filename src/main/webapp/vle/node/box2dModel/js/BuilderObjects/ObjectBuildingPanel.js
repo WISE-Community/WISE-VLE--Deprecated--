@@ -11,7 +11,9 @@
 	p.Container_tick = p._tick;
 	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
-
+	p.TITLE_COLOR = "rgba(40,40,40,1.0";
+	p.BORDER_WIDTH = 10;
+	p.TITLE_HEIGHT = 40;
 	
 	p.initialize = function(width_px, height_px)
 	{
@@ -27,14 +29,16 @@
 		this.addChild(this.shape);
 
 		// the list of material names
-		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px);
+		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.BORDER_WIDTH-this.TITLE_HEIGHT);
 		this.addChild(this.materialsMenu);
+		this.materialsMenu.x = this.BORDER_WIDTH;
+		this.materialsMenu.y = this.BORDER_WIDTH+this.TITLE_HEIGHT;
 
 		
 		this.vv = new VolumeViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
 		this.addChild(this.vv);
-		this.vv.x = this.width_px * 3 / 4;
-		this.vv.y = this.height_px / 2 - GLOBAL_PARAMETERS.PADDING;
+		this.vv.x = this.width_px*3/4 - 30;
+		this.vv.y = (this.height_px-this.TITLE_HEIGHT) / 2 + this.TITLE_HEIGHT;
 		
 		this.dragging_object = null;
 
@@ -44,13 +48,62 @@
 		this.g.beginFill("rgba(225,225,255,1.0)");
 		this.g.drawRect(0, 0, this.width_px, this.height_px);
 		this.g.endFill();
+		// draw border
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,this.BORDER_WIDTH,0);
+		this.g.moveTo(0,0);
+		this.g.lineTo(this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH);
+		this.g.lineTo(0, this.height_px);
+		this.g.lineTo(0,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
+		this.g.moveTo(0,0);
+		this.g.lineTo(this.width_px,0);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.BORDER_WIDTH, this.BORDER_WIDTH);
+		this.g.lineTo(0,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px,0,this.width_px-this.BORDER_WIDTH,0);
+		this.g.moveTo(this.width_px,0);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px, this.height_px);
+		this.g.lineTo(this.width_px,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px,0,this.height_px-this.BORDER_WIDTH);
+		this.g.moveTo(0,this.height_px);
+		this.g.lineTo(this.width_px,this.height_px);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH);
+		this.g.lineTo(this.BORDER_WIDTH, this.height_px-this.BORDER_WIDTH);
+		this.g.lineTo(0,this.height_px);
+		this.g.endFill();
+						
+
 		// draw something under the volume viewer
+		/*
 		this.g.setStrokeStyle(1);
 		this.g.beginStroke("rgba(180,180,180,1.0)");
 		this.g.beginFill("rgba(220,220,220,1.0)");
 		this.g.drawRect(this.width_px / 2, GLOBAL_PARAMETERS.PADDING, this.width_px / 2 - GLOBAL_PARAMETERS.PADDING, this.height_px - 2 * GLOBAL_PARAMETERS.PADDING);
 		this.g.endFill();
 		this.g.endStroke();
+	*/
+		// titles
+		var ltitle  = new createjs.Text("Materials", "20px Arial", this.TITLE_COLOR);
+		this.addChild(ltitle);
+		ltitle.x = 20;
+		ltitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
+
+		var mtitle  = new createjs.Text("Pick your blocks", "20px Arial", this.TITLE_COLOR);
+		this.addChild(mtitle);
+		mtitle.x = (this.width_px/2 - 60)/2;
+		mtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
+
+
+		var rtitle  = new TextContainer("Build your model", "20px Arial", this.TITLE_COLOR);
+		this.addChild(rtitle);
+		rtitle.x = this.width_px/2 + (this.width_px/2 - 60)/2;
+		rtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
 
 		// a set of text to display the number of blocks that can be used
 		this.blockTexts = [];
@@ -59,7 +112,8 @@
 		{
 			var text = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width / current_material_block_count, GLOBAL_PARAMETERS.SCALE, this.TEXT_COLOR, this.TEXT_COLOR, 0, "right", "center", -4, 0);
 			text.x = this.materialsMenu.x + this.materialsMenu.width_px + i * this.block_space_width / current_material_block_count;
-			text.y = GLOBAL_PARAMETERS.PADDING;
+			//text.y = GLOBAL_PARAMETERS.PADDING+ this.TITLE_HEIGHT;
+			text.y = this.height_px - text.height_px - this.BORDER_WIDTH;
 			this.addChild(text);
 			this.blockTexts.push(text);
 		}
@@ -67,8 +121,88 @@
 		this.blocks = [];
 		this.drawMaterial(this.materialsMenu.current_material_name);
 
+		var htmlText, htmlElement;
+		// jquery ui
+		if ($("#make-object").length == 0){
+			htmlText = '<input type="submit" id="make-object" value="Make"/>';
+	        //htmlElement = $( "input[id='make-object']" )
+	        $("#builder-button-holder").append(htmlText);
+	        $("#make-object")
+	            .button()
+	            .click(function( event ) {
+	                event.preventDefault();
+	                builder.createObject();
+	            }).hide();  
+	
+		    htmlText = '<div id="slider-topAngle" style="height: 100px;"></div>';
+		   //$( "#slider-topAngle" )
+			$("#builder-button-holder").append(htmlText);
+			$("#slider-topAngle")
+			    .slider({
+                   orientation: "vertical",
+                   range: "min",
+                   min: 0,
+                   max: 90,
+                   value: 20,
+                   step: 10,
+                   slide: function( event, ui ) {
+                       $( "#amount" ).val( ui.value );
+                       builder.update_view_topAngle(ui.value);
+                   }
+               }).hide();
+		     $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
+				 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
+		   //$( "#slider-topAngle" )
+			$("#builder-button-holder").append(htmlText);
+			$("#slider-sideAngle")
+			    .slider({
+			       orientation: "horizontal",	
+	               range: "min",
+	               min: 0,
+	               max: 90,
+	               value: 10,
+	               step: 10,
+	               slide: function( event, ui ) {
+	                   $( "#amount" ).val( ui.value );
+	                    builder.update_view_sideAngle(ui.value);
+	               }
+	              }).hide();
+		       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
+			// setup buttons for volume viewer	
+			var element = new createjs.DOMElement($("#make-object")[0]);
+			this.addChild(element);
+			element.x = this.width_px - 100;
+			element.y = (this.height_px - this.TITLE_HEIGHT)/2;
+			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
+			this.addChild(element);
+			element.x = this.width_px - 280 ;
+			element.y = this.height_px - 30;					
+			element = new createjs.DOMElement($("#slider-topAngle")[0]);
+			this.addChild(element);
+			element.x = this.width_px - 155;
+			element.y = 80;
+			$("#make-object").show();
+			$("#slider-sideAngle").show();
+			$("#slider-topAngle").show();
+		}
+
 		this.enabled = true;
 		stage.ready_to_update = true;
+	}
+
+	p.createObject = function() 
+	{
+		if (this.validObject())
+		{
+			var savedObject = this.saveObject();
+			
+			// save to global parameters
+			if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
+			createObject(savedObject);
+		} else 
+		{
+			console.log("no object to make");
+		}
 	}
 
 	/** Disable is primarilly to be used when the library is full */
@@ -172,7 +306,7 @@
 		{	
 			var material_block_count = GLOBAL_PARAMETERS.materials[o.material_name].block_max.length;
 			o.x = this.materialsMenu.width_px + i * this.width_px/3/material_block_count + (o.width_px);
-			o.y = i * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + 20;	
+			o.y = i * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + this.TITLE_HEIGHT;	
 		}
 	}
 	p.updateCountText = function (material_name)

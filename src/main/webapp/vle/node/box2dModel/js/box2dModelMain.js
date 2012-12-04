@@ -22,12 +22,13 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
         {
        		"DEBUG" : true,
 	       	"INCLUDE_BUILDER": true,
-			"INCLUDE_BALANCE": true,
+			"INCLUDE_BALANCE": false,
+			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
 			"SCALE" : 20,
 	        "PADDING" : 10,
 	        "STAGE_WIDTH" : 810,
-			"STAGE_HEIGHT" : 680,
+			"STAGE_HEIGHT" : 730,
 			"PADDING" : 8,
 			"view_sideAngle" : 10*Math.PI/180,
 			"view_topAngle" : 20*Math.PI/180,
@@ -124,87 +125,13 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			// setup builder
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				builder = new ObjectBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 200);
+				builder = new ObjectBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
 				stage.addChild(builder);
-				
-				var htmlText, htmlElement;
-				// jquery ui
-				if ($("#make-object").length == 0){
-				 	htmlText = '<input type="submit" id="make-object" value="Create"/>';
-
-			        //htmlElement = $( "input[id='make-object']" )
-			        $("#builder-button-holder").append(htmlText);
-			        $("#make-object")
-			            .button()
-			            .click(function( event ) {
-			                event.preventDefault();
-			                createObjectFromBuilder();
-			            }).hide();  
-			
-
-				    htmlText = '<div id="slider-topAngle" style="height: 100px;"></div>';
-				   //$( "#slider-topAngle" )
-					$("#builder-button-holder").append(htmlText);
-					$("#slider-topAngle")
-					    .slider({
-		                   orientation: "vertical",
-		                   range: "min",
-		                   min: 0,
-		                   max: 90,
-		                   value: 20,
-		                   step: 10,
-		                   slide: function( event, ui ) {
-		                       $( "#amount" ).val( ui.value );
-		                       builder.update_view_topAngle(ui.value);
-		                   }
-		               }).hide();
-				     $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
-
-					 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
-				   //$( "#slider-topAngle" )
-					$("#builder-button-holder").append(htmlText);
-					$("#slider-sideAngle")
-					    .slider({
-					       orientation: "horizontal",	
-		                   range: "min",
-		                   min: 0,
-		                   max: 90,
-		                   value: 10,
-		                   step: 10,
-		                   slide: function( event, ui ) {
-		                       $( "#amount" ).val( ui.value );
-		                       builder.update_view_sideAngle(ui.value);
-		                   }
-		               }).hide();
-				       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
-		
-			
-
-					// setup buttons for volume viewer	
-					var element = new createjs.DOMElement($("#make-object")[0]);
-					stage.addChild(element);
-					element.x = builder.x + builder.width_px / 2 + 2 * GLOBAL_PARAMETERS.PADDING;
-					element.y = builder.y  + GLOBAL_PARAMETERS.PADDING * 2;
-
-					element = new createjs.DOMElement($("#slider-sideAngle")[0]);
-					stage.addChild(element);
-					element.x = builder.x + builder.width_px / 2 + (builder.width_px / 2 - 100) / 2 ;
-					element.y = builder.y + builder.height_px - 2 * GLOBAL_PARAMETERS.PADDING;
-					
-					element = new createjs.DOMElement($("#slider-topAngle")[0]);
-					stage.addChild(element);
-					element.x = builder.x + builder.width_px - 4 * GLOBAL_PARAMETERS.PADDING;
-					element.y = builder.y + 4 * GLOBAL_PARAMETERS.PADDING;
-					$("#make-object").show();
-					$("#slider-sideAngle").show();
-					$("#slider-topAngle").show();
-				}
-
 			}
 			var tester_y;
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				tester_y = builder.height_px;	
+				tester_y = builder.height_px + 20;	
 			} else
 			{
 				tester_y = GLOBAL_PARAMETERS.PADDING;	
@@ -242,21 +169,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			}
 		}
 
-		// BUTTON INTERACTION 
-		function createObjectFromBuilder() 
-		{
-			if (builder.validObject())
-			{
-				var savedObject = builder.saveObject();
-				
-				// save to global parameters
-				if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
-				createObject(savedObject);
-			} else 
-			{
-				console.log("no object to make");
-			}
-		}
+		
 
 		function createObject(savedObject, already_in_globals)
 		{

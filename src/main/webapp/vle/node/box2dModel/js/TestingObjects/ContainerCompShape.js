@@ -857,7 +857,6 @@
 	/** Fill the unit cube with the current index with the given volume, if filled move to the next */
 	p.fillWithVolume = function (volume)
 	{
-		console.log(this)
 		if (typeof(this.overflowing) == "undefined") this.overflowing = false;
 		if (this.overflowing) return;
 

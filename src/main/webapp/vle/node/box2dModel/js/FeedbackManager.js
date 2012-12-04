@@ -130,7 +130,9 @@
                 if (typeof this.feedbackEvents[i].constraint != "undefined") this.feedbackEvents[i].constraint.released = true;
                 this.feedbackEvents[i].feedback.lastGivenIndex = matchArr[matchArr.length-1];
                 //console.log("matched history array indices:", matchArr);
-                alert(this.feedbackEvents[i].feedback.text);
+                //vle.notificationManager.notify(this.feedbackEvents[i].feedback.text, 3, false, 'messageDiv');
+                this.giveFeedback(this.feedbackEvents[i].feedback)
+                //alert(this.feedbackEvents[i].feedback.text);
                 if (this.feedbackEvents[i].feedback.repeatCount >= this.feedbackEvents[i].feedback.repeatMax){
                     this.feedbackEvents.splice(i,1);
                 } 
@@ -141,6 +143,24 @@
             }
         }
         return null;
+    }
+
+    /**
+    *   Gives the proper feedback according to type, implemented
+    *   text(or html): Give feedback in a jquery ui dialog.
+    */
+    p.giveFeedback = function (feedback){
+         if (feedback.type == "text" || feedback.type == "html"){
+            $(function() {
+                $("#messageDiv").html(feedback.text).dialog({
+                    modal:true,
+                    show:"scale",
+                    hide:"blind"
+                });
+            });
+        } else {
+            console.log("type of feedback not valid");
+        }
     }
 
     /**

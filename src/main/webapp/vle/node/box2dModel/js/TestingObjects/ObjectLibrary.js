@@ -29,7 +29,9 @@
 		this.addChild(this.shape);
 
 		// text
-		this.title = new TextContainer("Library", "20px Arial", this.TEXT_COLOR, shape_width_px, shape_height_px, this.BACKGROUND_COLOR, this.BACKGROUND_COLOR, 0, "center", "center");
+		this.title = new createjs.Text("Model \nLibrary", "20px Arial", this.TEXT_COLOR);
+		this.title.x = 20;
+		this.title.y = 20;
 		this.addChild(this.title);
 		
 	
@@ -75,13 +77,13 @@
 		stage.ready_to_update = true;
 	}
 	p.getIsFull = function(){
-		return this.shapes.length+1 >= this.MAX_OBJECTS_IN_LIBRARY;
+		return this.shapes.length >= this.MAX_OBJECTS_IN_LIBRARY;
 	}
 
 	p.addObject = function (o)
 	{
 		var index = this.shapes.length + 1;
-		if (index < this.MAX_OBJECTS_IN_LIBRARY)
+		if (index <= this.MAX_OBJECTS_IN_LIBRARY)
 		{
 			this.addChild(o);
 			o.x = (index % this.num_cols) * this.shape_width_px + this.shape_dx;
@@ -205,11 +207,21 @@
 				var s = this.shapes[i];
 				var new_index = i + 1;
 				s.x = (new_index % this.num_cols) * this.shape_width_px + this.shape_dx;
-				s.y = Math.floor(new_index / this.num_cols) * this.shape_height_px + this.shape_dy;
+				if(this.PLACE_ON_GROUND){
+					s.y = Math.ceil(new_index / this.num_cols) * this.shape_height_px - o.height_px_below;
+				} else {
+					s.y = Math.floor(new_index / this.num_cols) * this.shape_height_px + this.shape_dy;
+				}
+
+				
 				if (typeof s.button != "undefined")
 				{
 					s.button.x = this.x + s.x;
-					s.button.y = this.y + this.height_px - 30;						
+					if (this.PLACE_ON_GROUND){
+						s.button.y = this.y;
+					} else {
+						s.button.y = this.y + this.height_px - 30;
+					}					
 				}
 			}			
 		}

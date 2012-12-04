@@ -43,9 +43,8 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
          this.linearDrag = 3;
          //return;
       } else {
-         this.linearDrag = Math.min(this.linearDrag+0.02, 20);
+         this.linearDrag = Math.min(this.linearDrag+0.02, 20); // increment the drag to ensure that the object stops
       }
-      //console.log("drag", this.linearDrag)
       
       for (var i = this.m_bodyList; i; i = i.nextBody) {
          var body = i.body;
@@ -82,10 +81,7 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
             massc.y += sarea * sc.y * shapeDensity;
 
             // adjust offset based on the amount of object submerged
-            if (this.surfaceArea > 0)
-            {
-              offset += sarea * shapeDensity / this.surfaceArea;              
-            }
+            if (this.surfaceArea > 0) { offset += sarea * shapeDensity / this.surfaceArea;}
          }
          
          areac.x /= area;
