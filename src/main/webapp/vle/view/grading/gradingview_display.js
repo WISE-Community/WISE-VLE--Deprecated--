@@ -663,7 +663,7 @@ View.prototype.displayClassroomMonitorPage = function() {
 	
 	//controls for pausing the students' screen
 	var pauseScreenDiv = "<div id='pauseScreenDiv'>";
-	pauseScreenDiv += "<h2 style='margin-bottom:0px'>Pause All Screens <span style='font-size:.8em'>(Currently all students' screens are: <span id='studentScreenStatus' style='font-weight:bold; color:green'>unpaused</span></span>)</h2>";
+	pauseScreenDiv += "<h2 style='margin-bottom:0px'>Pause All Screens BETA <span style='font-size:.8em'>(Currently all students' screens are: <span id='studentScreenStatus' style='font-weight:bold; color:green'>unpaused</span></span>)</h2>";
 	pauseScreenDiv += "<div id='pauseScreenControls'>";
 	pauseScreenDiv += "<table><tr>";
 	pauseScreenDiv += "<td><div>This is what your students will see when you pause their screens:</div><textarea type='text' id='pause-message' rows='2' cols='90' value=''>Your teacher has paused your screen.</textarea></td>";
