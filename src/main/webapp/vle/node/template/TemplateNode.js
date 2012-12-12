@@ -54,6 +54,8 @@ function TemplateNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(TemplateNode.tagMapFunctions);
 }
 
 /**
@@ -211,20 +213,6 @@ TemplateNode.prototype.getHTMLContentTemplate = function() {
  */
 TemplateNode.prototype.hasGradingView = function() {
 	return true;
-};
-
-/**
- * Get the tag map functions that are available for this step type
- * 
- * TODO: rename TemplateNode
- * 
- * @returns the tag map functions that are available for this step type
- */
-TemplateNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = TemplateNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 /*

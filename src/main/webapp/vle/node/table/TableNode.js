@@ -47,6 +47,8 @@ function TableNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(TableNode.tagMapFunctions);
 }
 
 /**
@@ -360,16 +362,6 @@ TableNode.prototype.getStudentWorkHtmlView = function(work) {
 	var html = table.getStudentWorkHtmlView(work);
 	
 	return html;
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-TableNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = TableNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 /*

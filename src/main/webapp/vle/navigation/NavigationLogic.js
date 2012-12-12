@@ -2,6 +2,7 @@ function NavigationLogic(algorithm, view) {
 	this.algorithm = algorithm;
 	this.view = view;
 	this.constraintManager = new ConstraintManager(view);
+	this.tagMapConstraintManager = new TagMapConstraintManager(view);
 };
 
 /**
@@ -171,6 +172,69 @@ NavigationLogic.prototype.getPrevStepNodeInProject = function(location){
 	}
 	
 	return prevNodeLoc;
+};
+
+/**
+ * Add all the global tag map constraints that are not satisfied.
+ * This should be called when the vle loads.
+ */
+NavigationLogic.prototype.addGlobalTagMapConstraints = function() {
+	if(this.tagMapConstraintManager != null) {
+		this.tagMapConstraintManager.addGlobalTagMapConstraints();		
+	}
+};
+
+/**
+ * Add tag map constraints for a node.
+ */
+NavigationLogic.prototype.addTagMapConstraints = function(nodeId) {
+	if(this.tagMapConstraintManager != null) {
+		this.tagMapConstraintManager.addTagMapConstraints(nodeId);		
+	}
+};
+
+/**
+ * Update the tag map constraints to look for constraints that
+ * have been satisfied and therefore removed.
+ */
+NavigationLogic.prototype.updateActiveTagMapConstraints = function() {
+	if(this.tagMapConstraintManager != null) {
+		this.tagMapConstraintManager.updateActiveTagMapConstraints();		
+	}
+};
+
+/**
+ * Add a tag map constraint.
+ */
+NavigationLogic.prototype.addActiveTagMapConstraint = function(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage) {
+	if(this.tagMapConstraintManager != null) {
+		this.tagMapConstraintManager.addActiveTagMapConstraintIfNecessary(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);		
+	}
+};
+
+/**
+ * Remove a tag map constraint.
+ */
+NavigationLogic.prototype.removeActiveTagMapConstraint = function(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage) {
+	if(this.tagMapConstraintManager != null) {
+		this.tagMapConstraintManager.removeActiveTagMapConstraint(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);		
+	}
+};
+
+/**
+ * Process the tag map constraints for the given node
+ * @param nodeId the node id
+ * @return the results object which contains the fields
+ * canMove and message
+ */
+NavigationLogic.prototype.processTagMapConstraints = function(nodeId) {
+	var processTagMapConstraintResults = null;
+	
+	if(this.tagMapConstraintManager != null) {
+		processTagMapConstraintResults = this.tagMapConstraintManager.processTagMapConstraints(nodeId);		
+	}
+
+	return processTagMapConstraintResults;
 };
 
 //used to notify scriptloader that this script has finished loading

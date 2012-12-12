@@ -317,26 +317,31 @@ View.prototype.renderPremadeComments = function() {
 			//if this is the premadeCommentListId to show, select it in the select dropdown list
 			premadeCommentsListLabelDDItem.attr("selected","selected");
 		};
-
-		var thisView = this;
 		
-		premadeCommentsListLabelDDItem.click({"thisView":thisView}, function() {
-			var listIdChosen = this.value;
-			//now hide all the lists except the last one that user had opened, or the first one if none exists.
-			$(premadeCommentsListsDiv).find(".premadeCommentsListDiv").hide();
-			
-			//show just the selected premadecommentslist div.
-			$(premadeCommentsListsDiv).find("#premadeCommentsListDiv_"+listIdChosen).show();		
-			
-			/*
-			 * save the current state of the premade comments so that it
-			 * can be restored the next time the user opens up the premade
-			 * comments again
-			 */
-			thisView.savePremadeCommentsState();
-		});
 		premadeCommentsListLabelDD.append(premadeCommentsListLabelDDItem);
 	}
+	
+	var thisView = this;
+	
+	premadeCommentsListLabelDD.change({"thisView":thisView}, function() {
+		//the teacher has changed the option in the drop down
+	
+		//get the value of the option chosen
+		var listIdChosen = $(this).val();
+		
+		//now hide all the lists except the last one that user had opened, or the first one if none exists.
+		$(premadeCommentsListsDiv).find(".premadeCommentsListDiv").hide();
+		
+		//show just the selected premadecommentslist div.
+		$(premadeCommentsListsDiv).find("#premadeCommentsListDiv_" + listIdChosen).show();		
+		
+		/*
+		 * save the current state of the premade comments so that it
+		 * can be restored the next time the user opens up the premade
+		 * comments again
+		 */
+		thisView.savePremadeCommentsState();
+	});
 	
 	//add option to add a new list at the bottom of the drop-down
 	var newPremadeCommentsListDDItem = $("<option>").attr("id","newPremadeCommentsListDDItem").attr("value","newPremadeCommentstList").text("CREATE NEW LIST...");
@@ -1996,9 +2001,12 @@ View.prototype.restorePremadeCommentsState = function() {
 				if(premadeCommentList != null) {
 					//select the list in the drop down
 					$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).attr('selected', 'selected');
+
+					//hide all the lists
+					$(".premadeCommentsListDiv", this.premadeCommentsWindow.document).hide();
 					
-					//perform a click on the select option so that the premade comments for the list are displayed
-					$('#premadeCommentsListLabelDDItem_' + premadeCommentListIdSelected, this.premadeCommentsWindow.document).click();
+					//show just the selected premadecommentslist div
+					$("#premadeCommentsListDiv_" + premadeCommentListIdSelected, this.premadeCommentsWindow.document).show();
 					
 					if(labelsChecked != null) {
 						//check the labels that were previously checked

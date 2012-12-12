@@ -15,6 +15,8 @@ View.prototype.brainstormDispatcher = function(type,args,obj){
 		obj.BrainstormNode.updateDisplayName(args[0]);
 	} else if(type=='brainstormUpdateRichText'){
 		obj.BrainstormNode.updateRichText(args[0]);
+	} else if(type=='brainstormUpdateAllowStudentReply'){
+		obj.BrainstormNode.updateAllowStudentReply(args[0]);
 	} else if(type=='brainstormUpdatePollEnded'){
 		obj.BrainstormNode.updatePollEnded(args[0]);
 	} else if(type=='brainstormUpdateInstantPoll'){
@@ -48,6 +50,7 @@ var events = [
 	'brainstormUpdateGated',
 	'brainstormUpdateDisplayName',
 	'brainstormUpdateRichText',
+	'brainstormUpdateAllowStudentReply',
 	'brainstormUpdatePollEnded',
 	'brainstormUpdateInstantPoll',
 	'brainstormStarterChanged',

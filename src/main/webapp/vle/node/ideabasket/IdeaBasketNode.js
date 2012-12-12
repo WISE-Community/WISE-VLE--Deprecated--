@@ -53,6 +53,8 @@ function IdeaBasketNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(IdeaBasketNode.tagMapFunctions);
 }
 
 /**
@@ -201,16 +203,6 @@ IdeaBasketNode.prototype.renderGradingView = function(displayStudentWorkDiv, nod
 	
 	//put the student work into the div
 	//$('#' + divId).html();
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-IdeaBasketNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = IdeaBasketNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 /**

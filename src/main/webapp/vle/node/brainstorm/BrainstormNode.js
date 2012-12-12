@@ -37,6 +37,8 @@ function BrainstormNode(nodeType, view) {
 	this.prevWorkNodeIds = [];
 	this.importableFileExtensions = new Array(
 			"jpg", "jpeg", "png", "gif", "svg");
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(BrainstormNode.tagMapFunctions);
 };
 
 /**
@@ -103,16 +105,6 @@ BrainstormNode.prototype.renderGradingView = function(studentWorkDiv, nodeVisit,
 		//put the student work into the div
 		studentWorkDiv.html(brainstormResponse);
 	}
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-BrainstormNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = BrainstormNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 BrainstormNode.prototype.getHTMLContentTemplate = function() {

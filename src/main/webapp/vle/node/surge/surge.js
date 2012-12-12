@@ -445,7 +445,7 @@ Surge.prototype.save = function(st) {
 	 * post the current node visit to the db immediately without waiting
 	 * for the student to exit the step.
 	 */
-	this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
+	this.node.view.postCurrentNodeVisit();
 	
 	//process the tag maps if we are not in authoring mode
 	if(this.view.authoringMode == null || !this.view.authoringMode) {

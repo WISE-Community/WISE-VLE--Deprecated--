@@ -268,7 +268,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					 * post the current node visit to the db immediately without waiting
 					 * for the student to exit the step.
 					 */
-					this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());					
+					this.node.view.postCurrentNodeVisit();					
 				}
 				
 				if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
@@ -1765,11 +1765,6 @@ OPENRESPONSE.prototype.processTagMaps = function() {
 				}
 			}
 		}
-	}
-	
-	if(message != '') {
-		//message is not an empty string so we will add a new line for formatting
-		message += '<br>';
 	}
 	
 	//put the variables in an object so we can return multiple variables

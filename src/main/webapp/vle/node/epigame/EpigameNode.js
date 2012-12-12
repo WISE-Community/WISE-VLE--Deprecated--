@@ -65,6 +65,8 @@ function EpigameNode(nodeType, view) {
 	this.view = view;
 	this.type = nodeType;
 	this.prevWorkNodeIds = [];
+	
+	this.tagMapFunctions = this.tagMapFunctions.concat(EpigameNode.tagMapFunctions);
 }
 
 /**
@@ -211,16 +213,6 @@ EpigameNode.prototype.processStudentWork = function(studentWork) {
 		}
 	}
 	*/
-};
-
-/**
- * Get the tag map functions that are available for this step type
- */
-EpigameNode.prototype.getTagMapFunctions = function() {
-	//get all the tag map function for this step type
-	var tagMapFunctions = EpigameNode.tagMapFunctions;
-	
-	return tagMapFunctions;
 };
 
 /**

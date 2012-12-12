@@ -30,7 +30,7 @@ ChallengeNode.prototype.processStateConstraints = function() {
 		var toNodeId = this.content.getContentJSON().assessmentItem.interaction.attempts.navigateTo;
 		
 		/* create the constraint */
-		this.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:toNodeId, mode:'node'}, y:{id:this.id, mode:'node'}, status: 1, menuStatus:0, effective:  Date.parse(new Date())});
+		//this.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:toNodeId, mode:'node'}, y:{id:this.id, mode:'node'}, status: 1, menuStatus:0, effective:  Date.parse(new Date())});
 	}
 };
 

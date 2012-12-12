@@ -28,6 +28,26 @@ function Node(nodeType, view){
 	this.isStepPartOfReviewSequence = false;
 	
 	this.selfRendering = false;
+	
+	this.tagMapFunctions = [];
+	
+	if(nodeType == 'sequence') {
+		//node is an activity
+		this.tagMapFunctions = [
+			{functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
+			{functionName:'mustCompleteBeforeExiting', functionArgs:[]},
+			{functionName:'mustCompleteXBefore', functionArgs:[]},
+			{functionName:'mustVisitXBefore', functionArgs:[]}
+		];
+	} else {
+		//node is a step
+		this.tagMapFunctions = [
+			{functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
+			{functionName:'mustCompleteBeforeExiting', functionArgs:[]},
+			{functionName:'mustCompleteXBefore', functionArgs:[]},
+			{functionName:'mustVisitXBefore', functionArgs:[]}
+		];
+	}
 };
 
 Node.prototype.getNodeId = function() {
@@ -425,7 +445,7 @@ Node.prototype.renderConstraints = function() {
 				}
 				
 				//add the constraint
-				this.view.eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20), updateAfterAdd: true, buttonName: buttonName});				
+				//this.view.eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20), updateAfterAdd: true, buttonName: buttonName});				
 			}
 		}
 	}
@@ -457,7 +477,7 @@ Node.prototype.contentRenderComplete = function(type, args, obj){
  * This is called when a node is exited
  */
 Node.prototype.onExit = function() {
-	//this function should be overriden by child classes
+	//this function should be overridden by child classes
 };
 
 /**
@@ -503,6 +523,8 @@ Node.prototype.nodeJSON = function(contentBase){
 			identifier:this.id,
 			title:this.title,
 			view:this.getView(),
+			tags:this.tags,
+			tagMaps:this.tagMaps,
 			refs:[]
 		};
 		
@@ -1436,11 +1458,20 @@ Node.prototype.setNotCompleted = function() {
 };
 
 /**
- * Get whether the step is completed or not
- * @return a boolean value whether the step is completed or not
+ * Determine whether the student has completed the step or not
+ * This function should be overridden by child classes if the
+ * child class requires more precise checking.
+ * @param nodeState the latest node state for the step
+ * @return whether the student has completed the step or not
  */
-Node.prototype.isCompleted = function() {
-	return this.isStepCompleted;
+Node.prototype.isCompleted = function(nodeState) {
+	var result = false;
+	
+	if(nodeState != null && nodeState != '') {
+		result = true;
+	}
+	
+	return result;
 };
 
 /**
@@ -1520,7 +1551,7 @@ Node.prototype.processStudentWork = function(studentWork) {
  * @return an array containing the tag map functions
  */
 Node.prototype.getTagMapFunctions = function() {
-	return [];
+	return this.tagMapFunctions;
 };
 
 /**
@@ -1721,70 +1752,6 @@ Node.prototype.showPreviousWork = function(previousWorkDiv, tagName, functionArg
 			}
 		}
 	}
-};
-
-/**
- * Check whether the student completed the steps that have the given tag and occur
- * before the current step in the project
- * @param tagName the tag name
- * @param functionArgs the arguments to this function (this is not actually used in this function)
- * @returns the results from the check, the result object
- * contains a pass field and a message field
- */
-Node.prototype.checkCompleted = function(tagName, functionArgs) {
-	//default values for the result
-	var result = {
-		pass:true,
-		message:''
-	};
-	
-	//array to accumulate the nodes that the student has not completed with a high enough score
-	var nodesFailed = [];
-
-	//the node ids of the steps that come before the current step and have the given tag
-	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
-	
-	if(nodeIds != null) {
-		//loop through all the node ids that come before the current step and have the given tag
-		for(var x=0; x<nodeIds.length; x++) {
-			//get a node id
-			var nodeId = nodeIds[x];
-			
-			if(nodeId != null) {
-				//get the latest work for the node
-				var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
-				
-				if(nodeState == null || nodeState == "") {
-					//the student has not completed this step
-					nodesFailed.push(nodeId);
-				}
-			}
-		}
-	}
-	
-	if(nodesFailed.length != 0) {
-		//the student has not completed one of the steps
-		
-		//create the message to display to the student
-		var message = "You must complete these steps before you can work on this step<br>";
-		
-		//loop through all the failed steps
-		for(var x=0; x<nodesFailed.length; x++) {
-			var nodeId = nodesFailed[x];
-			
-			//get the step number and title for the failed step
-			var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
-			
-			//add the step number and title to the message
-			message += stepNumberAndTitle + "<br>";
-		}
-		
-		//set the fields in the result
-		result.pass = false;
-		result.message = message;
-	}
-	
-	return result;
 };
 
 //used to notify scriptloader that this script has finished loading

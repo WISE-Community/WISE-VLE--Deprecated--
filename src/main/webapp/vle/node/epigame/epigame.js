@@ -737,7 +737,7 @@ Epigame.prototype.save = function(st) {
 	this.node.processStudentWork(epigameState);
 	
 	//Post the current node visit to the DB immediately without waiting for exit.
-	this.node.view.postCurrentNodeVisit(this.node.view.state.getCurrentNodeVisit());
+	this.node.view.postCurrentNodeVisit();
 	
 	//Process the tag maps again if we are not in authoring mode (currently no reason to)
 	/*

@@ -79,12 +79,12 @@ View.prototype.renderNavigationPanel = function(){
 View.prototype.updateNavigationConstraints = function(){
 	/* have the navigation logic update its active constraints */
 	if(this.navigationLogic){
-		this.navigationLogic.nodeRendered();
+		//this.navigationLogic.nodeRendered();
 	}
 	
 	/* have the navigation panel update the menu constraints */
 	if(this.navigationPanel){
-		this.navigationPanel.processConstraints();
+		//this.navigationPanel.processConstraints();
 	}
 };
 
