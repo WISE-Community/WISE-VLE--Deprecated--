@@ -163,7 +163,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		{ 
 
 			if (tester != null) tester._tick();
-			if (stage.needs_to_update)
+			if (stage != null && stage.needs_to_update)
 			{
 				stage.update();
 			}

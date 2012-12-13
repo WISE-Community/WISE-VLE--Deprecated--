@@ -574,11 +574,38 @@
 		}
 	}
 
+	/**
+	*	Will sort by the highest objects on top, then right-most objects
+	*/
+	p.sortActorsDisplayDepth = function(){
+		for (var i = this.actors.length-2; i >= 0; i--){
+			var i_index = this.getChildIndex(this.actors[i]);
+			for (var j = i+1; j < this.actors.length; j++){
+				var j_index = this.getChildIndex(this.actors[j]);
+				//console.log(i_index, j_index, this.getChildAt(i_index).x, this.getChildAt(i_index).y, this.getChildAt(j_index).x, this.getChildAt(j_index).y);
+				if (this.getChildAt(j_index).y - this.getChildAt(i_index).y > 10  || (Math.abs(this.getChildAt(i_index).y - this.getChildAt(j_index).y) <= 10 && this.getChildAt(i_index).x > this.getChildAt(j_index).x)){
+					// Actor i is in front of j if order in display is not the same, switch
+					if (i_index < j_index){
+						this.swapChildrenAt(i_index, j_index);
+						i_index = j_index;
+					}
+				} else {
+					// Actor j is in front of i if order in display is not the same, switch
+					if (j_index < i_index){
+						this.swapChildrenAt(i_index, j_index);
+						i_index = j_index;
+					}
+				}
+			}
+		}
+	}
+
 	/** This works for objecs where the width_px_left, height_px_above, width_px_right, width_px_below are defined
 	    i.e., there is no assumption of where 0,0 is relative to the object.
 	    Both objects must be on the stage, i.e. must have parents */
 	p.hitTestObject = function (o)
 	{
+		this.sortActorsDisplayDepth();
 		if (typeof(o.width_px_left) != "undefined" && typeof(o.width_px_right) != "undefined" && typeof(o.height_px_above) != "undefined" && typeof(o.height_px_below) != "undefined")
 		{
 			if (typeof(o.parent) != "undefined" && typeof(this.parent) != "undefined")
@@ -620,16 +647,14 @@
 		var body = actor.body = this.b2world.CreateBody(bodyDef);
 	
 		// figure out where to place this object based on it's relative position to other actors.
-		var count_right_of = 0;
 		for (var i = 0; i < this.actors.length; i++)
 		{
-			if (body.GetWorldCenter().x > this.actors[i].body.GetWorldCenter().x) count_right_of++;
-			// also, wake any actors up
 			this.actors[i].body.SetAwake(true);
 		} 
 
-		this.addChildAt(actor, this.getNumChildren() - this.actors.length + count_right_of);
-		
+		this.addChild(actor);
+		this.sortActorsDisplayDepth();
+			
 
 		for (var i = 0; i < actor.fixDefs.length; i++)
 		{

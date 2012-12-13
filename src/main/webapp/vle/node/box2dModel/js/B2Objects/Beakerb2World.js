@@ -15,7 +15,7 @@
 	p.WALL_THICKNESS = 4;
 	p.BEAKER_WALL_THICKNESS = 2;
 	p.NUM_RULER_TICKS = 10;
-	p.DRAINING_PER_SECOND = 0.5;
+	p.DRAINING_PER_SECOND = 1.0;
 	p.ALLOW_FILL_INTERIOR = true;
 	
 	p.initialize = function (width_px, height_px, world_dx, world_dy, beaker_width_px, beaker_height_px, beaker_depth_px)
@@ -83,6 +83,7 @@
 		this.puddleShape = new createjs.Shape(this.puddleGraphics);
 		
 		// add to display
+		this.addChild(this.puddleShape);
 		this.addChild(this.backShape);
 		this.addChild(this.backWaterShape);
 		this.addChild(this.backWaterLineShape);
@@ -92,8 +93,7 @@
 		this.addChild(this.rulerShape);
 		this.addChild(this.rulerShape);
 		this.addChild(this.addShape);
-		this.addChild(this.puddleShape);
-
+		
 		this.frontShape.x = this.beaker_x; this.frontShape.y = this.height_px - this.beaker_bottom_dy;
 		this.frontWaterShape.x = this.beaker_x; this.frontWaterShape.y = this.height_px - this.beaker_bottom_dy;
 		this.frontWaterLineShape.x = this.beaker_x; this.frontWaterLineShape.y = this.height_px - this.beaker_bottom_dy;
@@ -421,7 +421,7 @@
 				evt.data.parent.controller.ChangeOffset(-liquid_height_px_change/GLOBAL_PARAMETERS.SCALE);
 				eventManager.fire("press-refill-beaker", [-liquid_height_px_change/GLOBAL_PARAMETERS.SCALE], box2dModel);
 				evt.data.parent.liquid_volume_released = 0;
-							
+				evt.data.parent.puddle_width = 0;			
 				// remove refill button
 				evt.data.parent.refill_button_drawn = false;
 				evt.data.parent.removeChild(evt.target);
@@ -825,8 +825,23 @@
 		}	
 
 		// convert the buoyant controller's offset to pixels
-		//console.log("water height", this.liquid_height_px, this.spout_height_px);
 		this.liquid_height_px = -1*(-this.controller.offset * GLOBAL_PARAMETERS.SCALE - this.world_dy - this.height_px + this.beaker_bottom_dy);
+		// OVERFLOW
+		if (this.liquid_height_px > this.beaker_height_px){
+			liquid_volume_change = (this.liquid_height_px - this.beaker_height_px)/GLOBAL_PARAMETERS.SCALE*this.beaker_width_px/GLOBAL_PARAMETERS.SCALE*this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE;
+			this.liquid_volume_released += liquid_volume_change;
+			this.liquid_volume -= liquid_volume_change;
+			this.controller.ChangeOffset(-(this.liquid_height_px - this.beaker_height_px)/GLOBAL_PARAMETERS.SCALE);
+			g = this.puddleGraphics;
+			this.puddle_width += this.liquid_height_px - this.beaker_height_px;
+			g.clear();
+			g.beginFill(this.liquid.fill_color);
+			g.drawEllipse(this.spout_point.x - 10*this.puddle_width*Math.cos(GLOBAL_PARAMETERS.view_topAngle), this.height_px - this.beaker_bottom_dy - this.height_from_depth/2 - Math.min(this.height_from_depth, 20*this.puddle_width*Math.sin(GLOBAL_PARAMETERS.view_topAngle))/2, 20*this.puddle_width*Math.cos(GLOBAL_PARAMETERS.view_topAngle), Math.min(this.height_from_depth, 20*this.puddle_width*Math.sin(GLOBAL_PARAMETERS.view_topAngle)));
+			g.endFill();
+			this.liquid_height_px = -1*(-this.controller.offset * GLOBAL_PARAMETERS.SCALE - this.world_dy - this.height_px + this.beaker_bottom_dy);
+			
+		} 
+
 		if (!this.refill_button_drawn && !this.draining && this.liquid_volume_released > 0) this.drawRefillButton();
 		if (!this.release_button_drawn && this.spilloff_volume_perc < 1.0 && this.liquid_height_px - this.spout_height_px > 0.01 ) this.drawReleaseButton();
 

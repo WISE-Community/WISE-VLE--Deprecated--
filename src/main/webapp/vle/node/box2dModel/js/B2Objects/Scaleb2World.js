@@ -429,7 +429,7 @@
 			var i_index = this.getChildIndex(this.actors[i]);
 			for (var j = i+1; j < this.actors.length; j++){
 				var j_index = this.getChildIndex(this.actors[j]);
-				console.log(i_index, j_index, this.getChildAt(i_index).x, this.getChildAt(i_index).y, this.getChildAt(j_index).x, this.getChildAt(j_index).y);
+				//console.log(i_index, j_index, this.getChildAt(i_index).x, this.getChildAt(i_index).y, this.getChildAt(j_index).x, this.getChildAt(j_index).y);
 				if (this.getChildAt(j_index).y - this.getChildAt(i_index).y > 10  || (Math.abs(this.getChildAt(i_index).y - this.getChildAt(j_index).y) <= 10 && this.getChildAt(i_index).x > this.getChildAt(j_index).x)){
 					// Actor i is in front of j if order in display is not the same, switch
 					if (i_index < j_index){
