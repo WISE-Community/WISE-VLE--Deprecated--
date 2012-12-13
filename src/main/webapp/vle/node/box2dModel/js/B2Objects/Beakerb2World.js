@@ -517,7 +517,7 @@
 		actor.bodyDef.position.y = (this.y + y) / GLOBAL_PARAMETERS.SCALE;
 		
 		actor.world = this;
-		this.addChildAt(actor, this.NUM_BACK_OBJECTS + this.actors.length);
+		this.addChild(actor);
 		this.actors.push(actor);
 
 		this.createActorsBody(actor);
@@ -590,16 +590,28 @@
 			{
 				var body = actor.body;
 				// add only if within confines of beaker
-				if (body.GetPosition().x >= this.beakerLeftWall.GetPosition().x - this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE && body.GetPosition().x + body.local_width_right <= this.beakerRightWall.GetPosition().x + this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE)
-				{
-					eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
-					this.contents_volume += body.volume;
-					this.controller.MyAddBody(body);
-					// set a reference so we can look for initial contact with this object
-					this.justAddedActorToBuoyancy = actor;
-					actor.controlledByBuoyancy = true;
-				} else
-				{
+				if (actor.y + actor.height_px_below >= this.height_px - this.beaker_bottom_dy - this.liquid_height_px){
+					// just test the first fixture - I mean its either in or out right?	
+					var f = body.GetFixtureList();
+					var p1 = new b2Vec2(this.beakerLeftWall.GetPosition().x - this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
+					var p2 = new b2Vec2(this.beakerRightWall.GetPosition().x + this.WALL_THICKNESS/2/GLOBAL_PARAMETERS.SCALE, (f.GetAABB().lowerBound.y + f.GetAABB().upperBound.y)/2);
+					var ray_in = new Box2D.Collision.b2RayCastInput(p1, p2, 1);
+					var ray_out = new Box2D.Collision.b2RayCastOutput();
+					f.RayCast(ray_out, ray_in);
+					if (ray_out.fraction >= 0 && ray_out.fraction <= 1)
+					{
+						eventManager.fire('add-beaker',[actor.skin.savedObject], box2dModel);
+						this.contents_volume += body.volume;
+						this.controller.MyAddBody(body);
+						// set a reference so we can look for initial contact with this object
+						this.justAddedActorToBuoyancy = actor;
+						actor.controlledByBuoyancy = true;
+						this.addChildAt(actor, this.NUM_BACK_OBJECTS + this.actors.length-1);
+					} else
+					{
+						actor.controlledByBuoyancy = false;
+					}
+				} else {
 					actor.controlledByBuoyancy = false;
 				}
 			}
@@ -683,7 +695,12 @@
 				}
 				
 				this.justAddedActor = null;
-			}
+			} else {
+				// test if should be controlled by buoyancy (if not already)
+				if (!this.justAddedActor.controlledByBuoyancy){
+					this.addToBuoyancyControllerWithinDomain(this.justAddedActor);
+				}
+			}	
 		}
 
 		var liquid_height_px_change, liquid_volume_change, g;
