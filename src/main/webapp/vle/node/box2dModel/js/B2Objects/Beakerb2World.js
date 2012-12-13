@@ -49,8 +49,7 @@
 
 		g = this.g = new createjs.Graphics();
 		this.shape = new createjs.Shape(g);
-		this.addChild(this.shape);
-
+		
 		g.beginFill("rgba(220, 220, 255, 1.0)");
 		g.drawRect(0, 0, this.width_px, this.height_px);
 		g.endFill();
@@ -83,6 +82,7 @@
 		this.puddleShape = new createjs.Shape(this.puddleGraphics);
 		
 		// add to display
+		this.addChild(this.shape);
 		this.addChild(this.puddleShape);
 		this.addChild(this.backShape);
 		this.addChild(this.backWaterShape);
@@ -341,6 +341,7 @@
 		}
 
 		this.actors = new Array();
+		this.actorsInBeakerCount = 0;
 	}
 
 	
@@ -606,7 +607,8 @@
 						// set a reference so we can look for initial contact with this object
 						this.justAddedActorToBuoyancy = actor;
 						actor.controlledByBuoyancy = true;
-						this.addChildAt(actor, this.NUM_BACK_OBJECTS + this.actors.length-1);
+						this.addChildAt(actor, this.NUM_BACK_OBJECTS + this.actorsInBeakerCount);
+						this.actorsInBeakerCount++;
 					} else
 					{
 						actor.controlledByBuoyancy = false;
@@ -650,7 +652,8 @@
 		this.actors.splice(this.actors.indexOf(actor), 1);
 		if (actor.controlledByBuoyancy){
 			this.contents_volume -= actor.body.volume;
-			actor.controlledByBuoyancy = false;				
+			actor.controlledByBuoyancy = false;	
+			this.actorsInBeakerCount--;			
 		}
 		this.b2world.DestroyBody(actor.body);
 		actor.body = null;
