@@ -1,46 +1,27 @@
 /*globals MSA, SCUtil, InitialMySystemData*/
 
-MSA = SC.Application.create();
+MSA = Ember.Application.create();
 
-if (top === self) {
-  // we are not in iframe so load in some fake data
-  MSA.data = InitialMySystemData;
-} else {
-  // we are in an iframe
-  MSA.data = {
-    "modules": [],
-    "energy_types": [],
-    "diagram_rules": [],
-    "rubric_categories": [],
-    "rubricExpression": "true;",
-    "correctFeedback": "Your diagram has no obvious problems.",
-    "minimum_requirements": [],
-    "maxFeedbackItems": 0,
-    "minimumRequirementsFeedback": "You need to work more on your diagram to get feedback!",
-    "enableNodeLabelDisplay": true,
-    "enableNodeLabelEditing": false,
-    "enableNodeDescriptionEditing": false,
-    "enableLinkDescriptionEditing": false,
-    "enableLinkLabelEditing": false,
-    "enableCustomRuleEvaluator": false,
-    "customRuleEvaluator": "",
-    "maxSubmissionClicks": 0,
-    "maxSubmissionFeedback":  "You have clicked 'submit' too many times. Please continue working without hints.",
-    "feedbackPanelWidth": 500,
-    "feedbackPanelHeight": 250,
-    "terminalRadius": 14,
-    "nodeHeight": 110,
-    "nodeWidth": 110,
-    "backgroundImage": null,
-    "backgroundImageScaling": false
-  };
-}
-
-MSA.setupParentIFrame = function(dataHash, updateObject, updateFn, scoreFn) {
-  if (typeof dataHash === "undefined" || dataHash === null){
-    dataHash = MSA.data;
-  }
+MSA.setPreviewApp = function(mysystem) {
+  mysystem.setAuthoringDataController(MSA.dataController);
+  mysystem.reloadAuthoringData();
+  mysystem.saveInitialDiagramAsSaveFunction();
   
+  var _update_function = function() {
+    var data = MSA.dataController.get('data');
+    mysystem.updateRuntime(data);
+  };
+
+  MSA.dataController.addObserver('data', MSA.dataController, _update_function);
+  MSA.rubricCategoriesController.set('scoreFunction',mysystem.scoreDiagram);
+};
+
+MSA.setupParentIFrame = function(dataHash, updateObject, mysystem) {
+
+  if (typeof dataHash === "undefined" || dataHash === null){
+    dataHash = MSA.dataController.get('data');
+  }
+
   // migration from old content format
   if (!dataHash.diagram_rules) {
     dataHash.diagram_rules = [];
@@ -113,32 +94,16 @@ MSA.setupParentIFrame = function(dataHash, updateObject, updateFn, scoreFn) {
 
   // TODO: migrate objects to have uuids that don't already have them
 
-  MSA.loadData(dataHash);
-
-  MSA.dataController.addObserver('data', updateObject, updateFn);
-  MSA.rubricCategoriesController.set('scoreFunction',scoreFn);
+  MSA.dataController.loadData(dataHash);
+  if(mysystem) {
+    MSA.setPreviewApp(mysystem);
+  }
 };
 
-MSA.loadData = function(dataHash) {
-  MSA.data = dataHash;
 
-  // old authored data hasn't specified this.
-  // authoring interface incorrectly checks a box
-  MSA.data.diagram_rules.forEach(function(rule) {
-    if ((typeof rule.isJavascript === 'undefined')) {
-      rule.isJavascript = NO;
-    }
-  });
-  
-  MSA.set('activity', MSA.ActivityModel.create({dataHash: MSA.data}));
-  MSA.modulesController.setExternalContent(dataHash.modules);
-  MSA.energyTypesController.setExternalContent(dataHash.energy_types);
-  MSA.diagramRulesController.setExternalContent(dataHash.diagram_rules);
-  MSA.rubricCategoriesController.setExternalContent(dataHash.rubric_categories);
-  MSA.minRequirementsController.setExternalContent(dataHash.minimum_requirements);
-};
 
 MSA.ActivityModel = SCUtil.ModelObject.extend({
+  prompt: SCUtil.dataHashProperty,
   correctFeedback: SCUtil.dataHashProperty,
   maxFeedbackItems: SCUtil.dataHashProperty,
   minimumRequirementsFeedback: SCUtil.dataHashProperty,
@@ -158,7 +123,8 @@ MSA.ActivityModel = SCUtil.ModelObject.extend({
   nodeHeight: SCUtil.dataHashProperty,
   backgroundImage: SCUtil.dataHashProperty,
   backgroundImageScaling: SCUtil.dataHashProperty,
-  rubricExpression: SCUtil.dataHashProperty
+  rubricExpression: SCUtil.dataHashProperty,
+  initialDiagramJson: SCUtil.dataHashProperty
 });
 
 MSA.Module = SCUtil.ModelObject.extend( SCUtil.UUIDModel, {
@@ -261,28 +227,14 @@ MSA.RubricCategoriesController = SCUtil.ModelArray.extend({
   }
 });
 
-
-MSA.rubricCategoriesController = MSA.RubricCategoriesController.create({
-  content: MSA.data.rubric_categories
-});
-
-
-MSA.modulesController = SCUtil.ModelArray.create({
-  content: MSA.data.modules,
-  modelType: MSA.Module
-});
-
-MSA.energyTypesController = SCUtil.ModelArray.create({
-  content: MSA.data.energy_types,
-  modelType: MSA.EnergyType
-});
-
 MSA.RulesController = SCUtil.ModelArray.extend({
   modelType: MSA.DiagramRule,
 
+  nodesBinding: 'MSA.modulesController.content',
+
   nodeTypes: function (){
     return MSA.modulesController.mapProperty('name').insertAt(0, 'node');
-  }.property('MSA.modulesController.[]', 'MSA.modulesController.@each.name').cacheable(),
+  }.property('MSA.modulesController.@each.name').cacheable(),
 
   energyTypes: function() {
     return MSA.energyTypesController.mapProperty('label').insertAt(0, 'any');
@@ -298,84 +250,176 @@ MSA.RulesController = SCUtil.ModelArray.extend({
 
   linkDirections: ['-->', '<--', '---'],
 
-  moveItemUp: function(button) {
+  moveItemUp: function(item) {
     var c = this.get('content');
-    var item = button.get('item');
-    var i = c.indexOf(item.get('dataHash'));
+    var i = c.indexOf(item);
 
     if (i > 0) {
-      this.contentWillChange();
       var itemBefore = this.objectAt(i-1);
       this.replaceContent(i-1, 2, [item, itemBefore]);
-      this.contentDidChange();
     }
   },
 
-  moveItemDown: function(button) {
+  moveItemDown: function(item) {
     var c = this.get('content');
-    var item = button.get('item');
-    var i = c.indexOf(item.get('dataHash'));
+    var i = c.indexOf(item);
+
 
     if (i < (c.length-1)) {
-      this.contentWillChange();
       var itemAfter = this.objectAt(i+1);
       this.replaceContent(i, 2, [itemAfter, item]);
-      this.contentDidChange();
     }
   }
 });
 
-MSA.diagramRulesController = MSA.RulesController.create({
-  content: MSA.data.diagram_rules
+MSA.rubricCategoriesController = MSA.RubricCategoriesController.create({});
+
+
+MSA.modulesController = SCUtil.ModelArray.create({
+  modelType: MSA.Module
 });
+
+MSA.energyTypesController = SCUtil.ModelArray.create({
+  modelType: MSA.EnergyType
+});
+
+
+MSA.diagramRulesController = MSA.RulesController.create({});
 
 
 
 MSA.minRequirementsController = MSA.RulesController.create({
-  content: MSA.data.minimum_requirements,
   updateHasRequirements: function() {
-    this.set('hasRequirements', (this.getPath('content.length') > 0));
+    this.set('hasRequirements', (this.get('content.length') > 0));
   }.observes('content.length'),
-  hasRequirements: NO
+  hasRequirements: false
 });
 
-MSA.dataController = SC.Object.create({
-  data: function(){
-    return JSON.stringify(MSA.data, null, 2);
-  }.property('MSA.modulesController.[]', 
-             'MSA.modulesController.@each.rev', 
-             'MSA.energyTypesController.@each.rev', 
-             'MSA.diagramRulesController.@each.rev',
-             'MSA.minRequirementsController.@each.rev',
-             'MSA.activity.correctFeedback',
-             'MSA.activity.minimumRequirementsFeedback',
-             'MSA.activity.enableNodeLabelDisplay',
-             'MSA.activity.enableNodeLabelEditing',
-             'MSA.activity.enableNodeDescriptionEditing',
-             'MSA.activity.enableLinkDescriptionEditing',
-             'MSA.activity.enableLinkLabelEditing',
-             'MSA.activity.maxFeedbackItems',
-             'MSA.activity.enableCustomRuleEvaluator',
-             'MSA.activity.customRuleEvaluator',
-             'MSA.activity.maxSubmissionClicks',
-             'MSA.activity.maxSubmissionFeedback',
-             'MSA.activity.feedbackPanelWidth',
-             'MSA.activity.feedbackPanelHeight',
-             'MSA.activity.terminalRadius',
-             'MSA.activity.nodeWidth',
-             'MSA.activity.nodeHeight',
-             'MSA.activity.backgroundImage',
-             'MSA.activity.backgroundImageScaling',
-             'MSA.activity.rubricExpression')
+MSA.dataController = Ember.Object.create({
+
+  modulesBinding: 'MSA.modulesController.content',
+  energyTypesBinding: 'MSA.energyTypesController.content',
+  minRequirementsBinding: 'MSA.minRequirementsController.content',
+  diagramRulesBinding: 'MSA.diagramRulesController.content',
+  rubricCategoriesBinding: 'MSA.rubricCategoriesController.content',
+
+  defaultDataHash: function() {
+    var defaults = {
+      "modules"                      : [],
+      "energy_types"                 : [],
+      "diagram_rules"                : [],
+      "rubric_categories"            : [],
+      "rubricExpression"             : "true;",
+      "correctFeedback"              : "Your diagram has no obvious problems.",
+      "minimum_requirements"         : [],
+      "maxFeedbackItems"             : 0,
+      "minimumRequirementsFeedback"  : "You need to work more on your diagram to get feedback!",
+      "enableNodeLabelDisplay"       : true,
+      "enableNodeLabelEditing"       : false,
+      "enableNodeDescriptionEditing" : false,
+      "enableLinkDescriptionEditing" : false,
+      "enableLinkLabelEditing"       : false,
+      "enableCustomRuleEvaluator"    : false,
+      "customRuleEvaluator"          : "",
+      "maxSubmissionClicks"          : 0,
+      "maxSubmissionFeedback"        :  "You have clicked 'submit' too many times. Please continue working without hints.",
+      "feedbackPanelWidth"           : 500,
+      "feedbackPanelHeight"          : 250,
+      "terminalRadius"               : 14,
+      "nodeHeight"                   : 110,
+      "nodeWidth"                    : 110,
+      "backgroundImage"              : null,
+      "backgroundImageScaling"       : false,
+      "initialDiagramJson"           : ""
+    };
+
+    if (top === self) {
+      // TODO: (test this, is it still needed?)
+      // we are not in iframe so load in some fake data
+      defaults = InitialMySystemData;
+    }
+    return defaults;
+  }.property().cacheable(),
+
+  // update the dataHash we originated from.
+  updateParentHash: function(data) {
+    if (this.parentHash && typeof (this.parentHash === 'object')) {
+      for (var attr in data) {
+        if (data.hasOwnProperty(attr)){
+          this.parentHash[attr] = data[attr];
+        }
+      }
+    }
+  },
+
+  data: function() {
+    var activity = this.get('activity');
+    var data;
+    if(Ember.none(activity)) {
+      data = this.get('defaultDataHash');
+    }
+    else {
+      data = activity.get('dataHash');
+    }
+
+    data.modules              = this.get('modules').mapProperty('dataHash');       
+    data.energy_types         = this.get('energyTypes').mapProperty('dataHash');   
+    data.minimum_requirements = this.get('minRequirements').mapProperty('dataHash');
+    data.diagram_rules        = this.get('diagramRules').mapProperty('dataHash');  
+    data.rubric_categories    = this.get('rubricCategories').mapProperty('dataHash');
+    this.updateParentHash(data);
+    return data;
+  }.property( 'activity.rev',
+    'energyTypes.@each.rev',
+    'modules.@each.rev', 
+    'minRequirements.@each.rev',
+    'diagramRules.@each.rev',
+    'rubricCategories.@each.rev', 
+    'initialDiagramJson.rev'
+  ).cacheable(),
+
+  dataJson: function() {
+    return JSON.stringify(this.get('data'),null,2);
+  }.property('data').cacheable(),
+
+
+  loadData: function(dataHash) {
+    var data = dataHash;
+    this.parentHash = dataHash;
+    if (typeof data === 'string') {
+      data = JSON.parse(data);
+    }
+
+    // old authored data hasn't specified this.
+    // authoring interface incorrectly checks a box
+    data.diagram_rules.forEach(function(rule) {
+      if ((typeof rule.isJavascript === 'undefined')) {
+        rule.isJavascript = false;
+      }
+    });
+    
+    MSA.modulesController.contentFromHashArray(data.modules);
+    MSA.energyTypesController.contentFromHashArray(data.energy_types);
+    MSA.diagramRulesController.contentFromHashArray(data.diagram_rules);
+    MSA.rubricCategoriesController.contentFromHashArray(data.rubric_categories);
+    MSA.minRequirementsController.contentFromHashArray(data.minimum_requirements);
+
+    var activity = MSA.ActivityModel.create();
+    var item;
+    for (item in data) {
+      activity.set(item,data[item]);
+    }
+    this.set('activity',activity);
+  }
 });
 
-MSA.NodeTypesView = SC.CollectionView.extend({
+MSA.NodeTypesView = Ember.CollectionView.extend({
   tagName: 'ul',
-  contentBinding: "MSA.diagramRulesController.nodeTypes"
+  contentBinding: "MSA.diagramRulesController.nodes"
 });
 
 // add missing textarea tag attributes
-MSA.TextArea = SC.TextArea.extend({
+MSA.TextArea = Ember.TextArea.extend({
   attributeBindings: ['rows', 'cols', 'wrap'],
   // reasonable defaults?
   cols: 50,
@@ -384,13 +428,13 @@ MSA.TextArea = SC.TextArea.extend({
 });
 
 // add size attribute to text field
-MSA.TextField = SC.TextField.extend({
+MSA.TextField = Ember.TextField.extend({
   attributeBindings: ['type', 'value', 'size'],
   type: "text",
   size: null
 });
 
-MSA.editorController = SC.Object.create({
+MSA.editorController = Ember.Object.create({
   owner: null,
   editorWindow: null,
   value: '',
@@ -405,7 +449,7 @@ MSA.editorController = SC.Object.create({
     this.set('callback',callback);
 
     var editorWindow = this.get('editorWindow');
-    var features  = "menubar=no,location=no,titlebar=no,toolbar=no,resizable=yes,scrollbars=yes,status=no,width=750,height=650"; 
+    var features  = "menubar=false,location=false,titlebar=false,toolbar=false,resizable=yes,scrollbars=yes,status=false,width=750,height=650"; 
 
     // reuse existing window:
     if (editorWindow) {
@@ -451,18 +495,99 @@ MSA.editorController = SC.Object.create({
       callback(value);
     }
     else {
-      console.log("no callback defined");
+      console.log("false callback defined");
     }
   }
 });
 
-MSA.customRuleController = SC.Object.create({
+MSA.promptController = Ember.Object.create({
+  showPrompt: false
+});
+
+MSA.customRuleController = Ember.Object.create({
   helpDiv: '#evalHelp',
   editCustomRule: function() {
-    var value = MSA.activity.get('customRuleEvaluator');
+    var value = MSA.dataController.activity.get('customRuleEvaluator');
     var callback = function(value) {
-      MSA.activity.set('customRuleEvaluator',value);
+      MSA.dataController.activity.set('customRuleEvaluator',value);
     }.bind(this);
     MSA.editorController.editCustomRule(this,value,callback);
+  }
+});
+
+MSA.NodeView = Ember.View.extend({
+  templateName: 'node-template',
+  remove: function() {
+    MSA.modulesController.removeObject(this.get('node'));
+  }
+});
+
+MSA.LinkView = Ember.View.extend({
+  templateName: 'link-template',
+  remove: function() {
+    MSA.energyTypesController.removeObject(this.get('link'));
+  }
+});
+
+MSA.CategoryView = Ember.View.extend({
+  templateName: 'category-template',
+  remove: function() {
+    MSA.rubricCategoriesController.removeObject(this.get('category'));
+  }
+});
+
+MSA.RuleView = Ember.View.extend({
+  templateName: 'rule-template',
+  showName: true,
+  showSuggestion: true,
+  ruleType: "Diagram Rule",
+  remove: function() {
+    MSA.diagramRulesController.removeObject(this.get('rule'));
+  },
+  moveItemUp: function() {
+   MSA.diagramRulesController.moveItemUp(this.get('rule')); 
+  },
+  moveItemDown: function() {
+   MSA.diagramRulesController.moveItemDown(this.get('rule')); 
+  },
+  toggleHasLink: function() {
+    var rule   = this.get('rule');
+    rule.toggleHasLink();
+  },
+  editJSRule: function() {
+    var rule   = this.get('rule');
+    rule.editJSRule();
+  }
+});
+
+MSA.RubricExpressionView = Ember.View.extend({
+  templateName: 'rubricExpression-template',
+  showScore: function() {
+    MSA.rubricCategoriesController.showScore();
+  }
+});
+
+MSA.PromptView = Ember.View.extend({
+  templateName: 'prompt-template',
+  isVisibleBinding: 'MSA.promptController.showPrompt'
+});
+
+MSA.MinRequirementView = Ember.View.extend({
+  templateName: 'rule-template',
+  showName: false,
+  showSuggestion: false,
+  ruleType: "Requirement",
+  remove: function() {
+    MSA.minRequirementsController.removeObject(this.get('rule'));
+  },
+  moveItemUp: function() {
+   MSA.minRequirementsController.moveItemUp(this.get('rule')); 
+  },
+  moveItemDown: function() {
+   MSA.minRequirementsController.moveItemDown(this.get('rule')); 
+  },
+  toggleHasLink: function() {
+    var rule   = this.get('rule');
+    rule.toggleHasLink();
   }
 });
