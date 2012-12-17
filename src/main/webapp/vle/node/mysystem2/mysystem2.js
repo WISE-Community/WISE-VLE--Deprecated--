@@ -47,39 +47,46 @@ Mysystem2.prototype.saveTriggeredByMySystem = function(isSubmit) {
  * step, if any.
  */
 Mysystem2.prototype.render = function() {
-	var enableStep = true;
-	var message = '';
-	var workToImport = [];
+	var workToImport = [],
+      latestResponse = null,
+      initialDiagram = null,
+      tagMaps  = null;
 	
+  var filterIntialDiagram = function(obj) {
+    return {
+      'MySystem.Link': obj['MySystem.Link'], 
+      'MySystem.Node': obj['MySystem.Node']
+    };
+  }
 	//process the tag maps if we are not in authoring mode
 	if(this.view.authoringMode == null || !this.view.authoringMode) {
 		//get the tag map results
-		var tagMapResults = this.processTagMaps();
-		
-		//get the result values
-		enableStep = tagMapResults.enableStep;
-		message = tagMapResults.message;
+		tagMapResults = this.processTagMaps();
 		workToImport = tagMapResults.workToImport;
 	}
 	
   var latestState = this.getLatestState();
-  
-  if(latestState == null && workToImport != null && workToImport.length > 0) {
-	  /*
-	   * the student has not done any work for this step and
-	   * there is work to import so we will use the work to import
-	   */
-	  latestState = workToImport[workToImport.length - 1];
-  }
-  
   if (latestState !== null) {
     /*
      * get the response from the latest state. the response variable is
      * just provided as an example. you may use whatever variables you
      * would like from the state object (look at templatestate.js)
      */
-    var latestResponse = latestState.response;
+    latestResponse = latestState.response;
     this.domIO.textContent = latestResponse;
+  }
+  if(workToImport.length > 0) {
+	  /*
+	   * the student has not done any work for this step and
+	   * there is work to import so we will use the work to import
+     * but lets filter it first, only including the Links and Nodes.
+	   */
+    initialDiagram = JSON.parse(workToImport[workToImport.length - 1].response);
+    initialDiagram = filterIntialDiagram(initialDiagram);
+    if (latestState == null) {
+	   latestResponse = JSON.stringify(initialDiagram);
+     this.domIO.textContent = latestResponse;
+    }
   }
   
   // It turns out that sometimes when firebug is enabled and reloading
@@ -92,10 +99,14 @@ Mysystem2.prototype.render = function() {
     SC.onReady.done();
   }
 
+  // This is the authoring content:
   if (this.content) {
     // not sure why we are getting called when its not a
     // mysystem 2 state -- but it happens.
     if (this.content['type'] === "mysystem2") {
+      if (initialDiagram) {
+        this.content['initialDiagramJson'] = JSON.stringify(initialDiagram);
+      }
       MySystem.loadWiseConfig(this.content,latestState);
     }
   }
@@ -288,6 +299,11 @@ Mysystem2.prototype.processTagMaps = function() {
 				}
 			}
 		}
+	}
+	
+	if(message != '') {
+		//message is not an empty string so we will add a new line for formatting
+		message += '<br>';
 	}
 	
 	//put the variables in an object so we can return multiple variables

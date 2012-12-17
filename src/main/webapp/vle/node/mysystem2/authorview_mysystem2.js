@@ -34,24 +34,42 @@ View.prototype.Mysystem2Node.generatePage = function(view){
   parent.appendChild(this.getBuildInfoDiv());
 };
 
-var scoringFunction=function() {
+View.prototype.Mysystem2Node.getMySystem = function () {
   var frame = window.frames['previewFrame'];
   var mysystem = null;
   if (typeof frame !== 'undefined') {
-    mysystem = frame.window.MySystem;
-    if (typeof mysystem !== 'undefined') {
-      mysystem.rubricController.displayScore();
-    }
+    return frame.window.MySystem;
   }
+  return null;
+};
+
+
+View.prototype.Mysystem2Node.getAuthoringFrame = function() {
+  return document.getElementById('mysystem2-authoring-iframe').contentWindow;
+};
+
+View.prototype.Mysystem2Node.getAuthoringApp = function() {
+  if (this.getAuthoringFrame()) {
+    return this.getAuthoringFrame().MSA;
+  }
+};
+
+View.prototype.Mysystem2Node.getAuthoringActvityData = function() {
+  if(this.getAuthoringApp()) {
+    return this.getAuthoringApp().dataController.get('activity')
+  }
+};
+
+View.prototype.Mysystem2Node.previewFrameLoaded = function() {
+  this.getAuthoringApp().setPreviewApp(this.getMySystem());
 };
 
 View.prototype.Mysystem2Node.AuthoringIFrameLoaded = function(){
   var iframe = document.getElementById('mysystem2-authoring-iframe').contentWindow;
-  
-  iframe.MSA.setupParentIFrame(this.content, this, function (){
-    /* fire source updated event */
-    this.view.eventManager.fire('sourceUpdated');
-  }, scoringFunction);
+  var this_view = this.view;
+  var this_ref  = this;
+  var mysystem  = this.getMySystem();
+  this.getAuthoringApp().setupParentIFrame(this.content, this, this.getMySystem());
 };
 
 View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
@@ -62,11 +80,11 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : f01e98e65887fe9b88e4b9f4af8790e24e894b83 ");
-  var git_time        = document.createTextNode("commit time : Mon Sep 24 17:08:31 2012 -0400 ");
-  var git_branch      = document.createTextNode("git branch  : (HEAD, origin/berkeley, berkeley) ");
-  var sc_build_time   = document.createTextNode("build time  : 2012-10-01 13:48:06 -0400 ");
-  var sc_build_number = document.createTextNode("build no.   : 57e4500141f0558ba91cbb586caa13f1edf4eedc ");
+  var git_sha         = document.createTextNode("commit sha  : 6538a6ca19978294a5a1e19c5d39536edfafcf14 ");
+  var git_time        = document.createTextNode("commit time : Fri Dec 14 13:49:30 2012 -0500 ");
+  var git_branch      = document.createTextNode("git branch  : (HEAD, master) ");
+  var sc_build_time   = document.createTextNode("build time  : 2012-12-14 14:13:51 -0500 ");
+  var sc_build_number = document.createTextNode("build no.   : c4afb7adfb0141e848c75713f57925ed133e6ef7 ");
   
   git_sha_div.appendChild(git_sha);
   git_time_div.appendChild(git_time);
