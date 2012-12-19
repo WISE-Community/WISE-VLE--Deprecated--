@@ -2530,6 +2530,17 @@ View.prototype.reloadProject = function() {
 	this.loadProject(this.getProject().getContentBase() + this.utils.getSeparator(this.getProject().getContentBase()) + this.getProject().getProjectFilename(), this.getProject().getContentBase(), true);
 };
 
+/**
+ * Exit the authoring tool
+ */
+View.prototype.gotoDashboard = function() {
+	/*
+	 * click the link in the parent page that is outside of the authoring iframe
+	 * that will bring the teacher back to the portal
+	 */
+	$('#hiddenLogoutLink', window.parent.document).click();
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_main.js');

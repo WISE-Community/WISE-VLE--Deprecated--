@@ -85,7 +85,7 @@ var view;
 	
 	<div id="authorButtons">
 		<div>
-			<button onclick="top.location.href='/webapp/teacher/index.html';" id="gotoDashboard" title='Exit to Teacher Dashboard'><img src="images/go-home.png" alt="goto Teacher Dashboard icon" /><br />
+			<button onclick="eventManager.fire('gotoDashboard');" id="gotoDashboard" title='Exit to Teacher Dashboard'><img src="images/go-home.png" alt="goto Teacher Dashboard icon" /><br />
 				Exit to Home</button>
 			<button onclick="eventManager.fire('openProject');" id="openProjectButton" title='Open an Existing Project for Editing'><img src="images/openProject.png" alt="open project icon" /><br />
 				Open Project</button>
