@@ -287,7 +287,7 @@
 			if (actor.parent == this && y < pan_y && (leftx >= pan_leftx && leftx <= pan_rightx || rightx >= pan_leftx && rightx <= pan_rightx))
 			{
 				// was this object here before?
-				if (typeof(actor.onLeftPan) == "undefined" || !actor.onPan)
+				if (typeof(actor.onPan) == "undefined" || !actor.onPan)
 				{	
 					eventManager.fire("add-scale", [actor.skin.savedObject]);
 					this.justAddedActor = actor;

@@ -33,14 +33,14 @@
 		this.depth_units = this.blockArray3d[0][0].length;
 		this.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle;
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
-	
+		this.is_mystery = typeof savedObject.is_mystery != "undefined" ? savedObject.is_mystery : false; 
+		this.reveal_mystery = false;
 		this.DEBUG = false;
-
 		// composition vars
 		var g = this.g = new createjs.Graphics();
 		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
-		//this.shape.mouseEnabled = false;
+
 		this.getHighestRow();
 		this.getLowestRow();
 		this.getLeftmostColumn();
@@ -677,195 +677,214 @@
 			for (row = this.lowest_row; row >= this.highest_row; row--){rowarr[index] = row; index++}
 		}
 
-		for (k = 0; k < this.blockArray3d[0][0].length; k++)
-		{
-			k_rev = this.blockArray3d[0][0].length - k - 1;
-			for (i = 0; i < colarr.length; i++)
+		
+		if (this.is_mystery && !this.reveal_mystery){
+			g.beginStroke("rgba(0,0,0,1.0)");
+			g.beginFill("rgba(60,60,60, 1.0)");
+			console.log(this.leftmost_column, this.rightmostColumn, this.highest_row, this.lowest_row)
+			var tl = new createjs.Point(0, -(this.height_units - (this.lowest_row - this.highest_row) - 1) * GLOBAL_PARAMETERS.SCALE)
+			g.drawRect(tl.x, tl.y, this.width_units * GLOBAL_PARAMETERS.SCALE, this.height_units * GLOBAL_PARAMETERS.SCALE);
+			g.endFill();
+			g.endStroke();
+			g.setStrokeStyle(4);
+			g.beginStroke("rgba(255,255,255,1.0)");
+			g.arc(2.5*GLOBAL_PARAMETERS.SCALE, tl.y+2*GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, Math.PI, Math.PI/2, false); 
+			g.lineTo(2.5*GLOBAL_PARAMETERS.SCALE, tl.y+3.5*GLOBAL_PARAMETERS.SCALE);
+			g.moveTo(2.5*GLOBAL_PARAMETERS.SCALE, tl.y+4.25*GLOBAL_PARAMETERS.SCALE);
+			g.drawCircle(2.5*GLOBAL_PARAMETERS.SCALE, tl.y+4.55*GLOBAL_PARAMETERS.SCALE, 0.25*GLOBAL_PARAMETERS.SCALE);
+			g.endStroke();
+		} else {
+			for (k = 0; k < this.blockArray3d[0][0].length; k++)
 			{
-				col = colarr[i];
-				for (j = 0; j < rowarr.length; j++)
+				k_rev = this.blockArray3d[0][0].length - k - 1;
+				for (i = 0; i < colarr.length; i++)
 				{
-					row = rowarr[j];						
-					
-					// is there a cube at this depth?
-					if (this.blockArray3d[col][row][k] != "")
-					{		
-						var material = GLOBAL_PARAMETERS.materials[this.blockArray3d[col][row][k]];
+					col = colarr[i];
+					for (j = 0; j < rowarr.length; j++)
+					{
+						row = rowarr[j];						
 						
-						i_shift = col - this.leftmost_column;
-						j_shift = row - this.highest_row;
-						
-						ftl_x = i_shift*this.unit_width_px + k_rev*this.unit_depth_px*Math.sin(view_sideAngle);
-						ftl_y = j_shift*this.unit_height_px - k_rev*this.unit_depth_px*Math.sin(view_topAngle);
-						fbl_x = ftl_x;
-						fbl_y = ftl_y + this.unit_height_px;
+						// is there a cube at this depth?
+						if (this.blockArray3d[col][row][k] != "")
+						{		
+							var material = GLOBAL_PARAMETERS.materials[this.blockArray3d[col][row][k]];
+							
+							i_shift = col - this.leftmost_column;
+							j_shift = row - this.highest_row;
+							
+							ftl_x = i_shift*this.unit_width_px + k_rev*this.unit_depth_px*Math.sin(view_sideAngle);
+							ftl_y = j_shift*this.unit_height_px - k_rev*this.unit_depth_px*Math.sin(view_topAngle);
+							fbl_x = ftl_x;
+							fbl_y = ftl_y + this.unit_height_px;
 
-						ftr_x = ftl_x + this.unit_width_px;
-						ftr_y = ftl_y;
-						fbr_x = ftr_x;
-						fbr_y = ftr_y + this.unit_height_px;
+							ftr_x = ftl_x + this.unit_width_px;
+							ftr_y = ftl_y;
+							fbr_x = ftr_x;
+							fbr_y = ftr_y + this.unit_height_px;
 
-						btl_x = ftl_x + this.unit_depth_px*Math.sin(view_sideAngle);
-						btl_y = ftl_y - this.unit_depth_px*Math.sin(view_topAngle);
-						bbl_x = btl_x;
-						bbl_y = btl_y + this.unit_height_px;
+							btl_x = ftl_x + this.unit_depth_px*Math.sin(view_sideAngle);
+							btl_y = ftl_y - this.unit_depth_px*Math.sin(view_topAngle);
+							bbl_x = btl_x;
+							bbl_y = btl_y + this.unit_height_px;
 
-						btr_x = btl_x + this.unit_width_px;
-						btr_y = btl_y;
-						bbr_x = btr_x;
-						bbr_y = btr_y + this.unit_height_px;
+							btr_x = btl_x + this.unit_width_px;
+							btr_y = btl_y;
+							bbr_x = btr_x;
+							bbr_y = btr_y + this.unit_height_px;
 
-						// setup overall corners
-						if (isNaN(this.tr_x) || isNaN(this.tr_y))
-						{ 
-							this.tr_x = btr_x; this.tr_y = btr_y;
-						}
-						// continuously override bottom left
-						this.bl_x = fbl_x; this.bl_y = fbl_y;
-						
-						if (view_topAngle < 0)
-						{
-							// draw bottom
-							g.setStrokeStyle(1);
-							g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
-							g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
-							g.moveTo(bbr_x, bbr_y);
-							g.lineTo(bbl_x, bbl_y);
-							g.lineTo(fbl_x, fbl_y);
-							g.lineTo(fbr_x, fbr_y);
-							g.lineTo(bbr_x, bbr_y);
-							g.endStroke();
-							g.endFill();
-						} else
-						{
-							// draw top
-							g.setStrokeStyle(1);
-							g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-							g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-							g.moveTo(btr_x, btr_y);
-							g.lineTo(btl_x, btl_y);
-							g.lineTo(ftl_x, ftl_y);
-							g.lineTo(ftr_x, ftr_y);
-							g.lineTo(btr_x, btr_y);
-							g.endStroke();
-							g.endFill();						
-						}
-
-						if (view_sideAngle < 0)
-						{
-							// draw left
-							g.setStrokeStyle(1);
-							g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btl_x, btl_y);
-							g.beginLinearGradientFill(material.fill_colors_shadow, material.fill_ratios_shadow, ftl_x, ftl_y, btl_x, btl_y);
-							g.moveTo(btl_x, btl_y);
-							g.lineTo(ftl_x, ftl_y);
-							g.lineTo(fbl_x, fbl_y);
-							g.lineTo(bbl_x, bbl_y);
-							g.lineTo(btl_x, btl_y);
-							g.endStroke();
-							g.endFill();
-						}
-						else 
-						{
-							// draw right
-							g.setStrokeStyle(1);
-							g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftr_x, ftr_y, btr_x, btr_y);
-							g.beginLinearGradientFill(material.fill_colors_shadow, material.fill_ratios_shadow, ftr_x, ftr_y, btr_x, btr_y);
-							g.moveTo(btr_x, btr_y);
-							g.lineTo(ftr_x, ftr_y);
-							g.lineTo(fbr_x, fbr_y);
-							g.lineTo(bbr_x, bbr_y);
-							g.lineTo(btr_x, btr_y);
-							g.endStroke();
-							g.endFill();
-						}
-						
-						
-						/*
-						// draw back
-						g.setStrokeStyle(1);
-						g.beginLinearGradientStroke(this.getMaterialStrokeColors(materialName), this.getMaterialStrokeRatios(materialName), btl_x, btl_y, btr_x, btr_y);
-						if (k != 0) {g.beginLinearGradientFill(this.getMaterialFillColors(materialName), this.getMaterialFillRatios(materialName), btl_x, btl_y, btr_x, btl_y);}
-						else {g.beginLinearGradientFill(this.getMaterialFillColorsShadow(materialName), this.getMaterialFillRatios(materialName), btl_x, btl_y, btr_x, btl_y);}
-						g.moveTo(btr_x, btr_y);
-						g.lineTo(btl_x, btl_y);
-						g.lineTo(bbl_x, bbl_y);
-						g.lineTo(bbr_x, bbr_y);
-						g.lineTo(btr_x, btr_y);
-						g.endStroke();
-						g.endFill();
-						*/
-
-						// draw front
-						g.setStrokeStyle(1);
-						g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftr_x, ftr_y);
-						if (k != 0){ g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftr_y);}
-						else {g.beginLinearGradientFill(material.fill_colors_shadow, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftr_y);}
-						g.moveTo(ftr_x, ftr_y);
-						g.lineTo(ftl_x, ftl_y);
-						g.lineTo(fbl_x, fbl_y);
-						g.lineTo(fbr_x, fbr_y);
-						g.lineTo(ftr_x, ftr_y);
-						g.endStroke();
-						g.endFill();
-
-						var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[i_shift][j_shift];
-						// draw liquid in front
-						if (percentSubmerged > 0 && percentSubmerged < 1){ 
-							var liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
-							var angle = rotation / 180 * Math.PI;
-							var pheightSubmerged;
-							if (angle % (Math.PI/2) != 0){
-								var divisor = Math.sin(angle)/Math.cos(angle) + Math.cos(angle)/Math.sin(angle);
-								pheightSubmerged = Math.sqrt(2*percentSubmerged / divisor);								
-							} else {
-								pheightSubmerged = percentSubmerged;
+							// setup overall corners
+							if (isNaN(this.tr_x) || isNaN(this.tr_y))
+							{ 
+								this.tr_x = btr_x; this.tr_y = btr_y;
+							}
+							// continuously override bottom left
+							this.bl_x = fbl_x; this.bl_y = fbl_y;
+							
+							if (view_topAngle < 0)
+							{
+								// draw bottom
+								g.setStrokeStyle(1);
+								g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
+								g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
+								g.moveTo(bbr_x, bbr_y);
+								g.lineTo(bbl_x, bbl_y);
+								g.lineTo(fbl_x, fbl_y);
+								g.lineTo(fbr_x, fbr_y);
+								g.lineTo(bbr_x, bbr_y);
+								g.endStroke();
+								g.endFill();
+							} else
+							{
+								// draw top
+								g.setStrokeStyle(1);
+								g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
+								g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
+								g.moveTo(btr_x, btr_y);
+								g.lineTo(btl_x, btl_y);
+								g.lineTo(ftl_x, ftl_y);
+								g.lineTo(ftr_x, ftr_y);
+								g.lineTo(btr_x, btr_y);
+								g.endStroke();
+								g.endFill();						
 							}
 
-							//console.log("percentSubmerged", percentSubmerged, "pheightSubmerged", pheightSubmerged, "divisor", divisor);
-							// four points in parent's coordinates.
-							var g_ftl = this.localToLocal(ftl_x, ftl_y, this.parent.parent);
-							var g_ftr = this.localToLocal(ftr_x, ftr_y, this.parent.parent);
-							var g_fbl = this.localToLocal(fbl_x, fbl_y, this.parent.parent);
-							var g_fbr = this.localToLocal(fbr_x, fbr_y, this.parent.parent);
-							var g_miny = Math.min(g_ftl.y, g_ftr.y, g_fbl.y, g_fbr.y);
-							var g_maxy = Math.max(g_ftl.y, g_ftr.y, g_fbl.y, g_fbr.y);
-							var g_minx = Math.min(g_ftl.x, g_ftr.x, g_fbl.x, g_fbr.x);
-							var g_maxx = Math.max(g_ftl.x, g_ftr.x, g_fbl.x, g_fbr.x);
-							// associate back with local points
-							//var lmin = this.parent.parent.localToLocal(g_minx, g_miny, this);
-							var bl = this.parent.parent.localToLocal(g_minx, g_maxy, this);
-							var br = this.parent.parent.localToLocal(g_maxx, g_maxy, this);
-							var tl = this.parent.parent.localToLocal(g_minx, g_maxy - (g_maxy - g_miny)*percentSubmerged, this);
-							var tr = this.parent.parent.localToLocal(g_maxx, g_maxy - (g_maxy - g_miny)*percentSubmerged, this);
-							g.setStrokeStyle(0);
-							//g.beginStroke(liquid.stroke_color);
-							g.beginFill(liquid.fill_color);
-							g.moveTo(tl.x, tl.y);
-							g.lineTo(tr.x, tr.y);
-							g.lineTo(br.x, br.y);
-							g.lineTo(bl.x, bl.y);
-							g.lineTo(tl.x, tl.y);
-							//g.endStroke();
+							if (view_sideAngle < 0)
+							{
+								// draw left
+								g.setStrokeStyle(1);
+								g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btl_x, btl_y);
+								g.beginLinearGradientFill(material.fill_colors_shadow, material.fill_ratios_shadow, ftl_x, ftl_y, btl_x, btl_y);
+								g.moveTo(btl_x, btl_y);
+								g.lineTo(ftl_x, ftl_y);
+								g.lineTo(fbl_x, fbl_y);
+								g.lineTo(bbl_x, bbl_y);
+								g.lineTo(btl_x, btl_y);
+								g.endStroke();
+								g.endFill();
+							}
+							else 
+							{
+								// draw right
+								g.setStrokeStyle(1);
+								g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftr_x, ftr_y, btr_x, btr_y);
+								g.beginLinearGradientFill(material.fill_colors_shadow, material.fill_ratios_shadow, ftr_x, ftr_y, btr_x, btr_y);
+								g.moveTo(btr_x, btr_y);
+								g.lineTo(ftr_x, ftr_y);
+								g.lineTo(fbr_x, fbr_y);
+								g.lineTo(bbr_x, bbr_y);
+								g.lineTo(btr_x, btr_y);
+								g.endStroke();
+								g.endFill();
+							}
+							
+							
+							/*
+							// draw back
+							g.setStrokeStyle(1);
+							g.beginLinearGradientStroke(this.getMaterialStrokeColors(materialName), this.getMaterialStrokeRatios(materialName), btl_x, btl_y, btr_x, btr_y);
+							if (k != 0) {g.beginLinearGradientFill(this.getMaterialFillColors(materialName), this.getMaterialFillRatios(materialName), btl_x, btl_y, btr_x, btl_y);}
+							else {g.beginLinearGradientFill(this.getMaterialFillColorsShadow(materialName), this.getMaterialFillRatios(materialName), btl_x, btl_y, btr_x, btl_y);}
+							g.moveTo(btr_x, btr_y);
+							g.lineTo(btl_x, btl_y);
+							g.lineTo(bbl_x, bbl_y);
+							g.lineTo(bbr_x, bbr_y);
+							g.lineTo(btr_x, btr_y);
+							g.endStroke();
+							g.endFill();
+							*/
+
+							// draw front
+							g.setStrokeStyle(1);
+							g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftr_x, ftr_y);
+							if (k != 0){ g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftr_y);}
+							else {g.beginLinearGradientFill(material.fill_colors_shadow, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftr_y);}
+							g.moveTo(ftr_x, ftr_y);
+							g.lineTo(ftl_x, ftl_y);
+							g.lineTo(fbl_x, fbl_y);
+							g.lineTo(fbr_x, fbr_y);
+							g.lineTo(ftr_x, ftr_y);
+							g.endStroke();
 							g.endFill();
 
-							g.setStrokeStyle(2);
-							g.beginStroke(liquid.stroke_color);
-							g.moveTo(tl.x, tl.y);
-							g.lineTo(tr.x, tr.y);
-							g.endStroke();
+							var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[i_shift][j_shift];
+							// draw liquid in front
+							if (percentSubmerged > 0 && percentSubmerged < 1){ 
+								var liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
+								var angle = rotation / 180 * Math.PI;
+								var pheightSubmerged;
+								if (angle % (Math.PI/2) != 0){
+									var divisor = Math.sin(angle)/Math.cos(angle) + Math.cos(angle)/Math.sin(angle);
+									pheightSubmerged = Math.sqrt(2*percentSubmerged / divisor);								
+								} else {
+									pheightSubmerged = percentSubmerged;
+								}
+
+								//console.log("percentSubmerged", percentSubmerged, "pheightSubmerged", pheightSubmerged, "divisor", divisor);
+								// four points in parent's coordinates.
+								var g_ftl = this.localToLocal(ftl_x, ftl_y, this.parent.parent);
+								var g_ftr = this.localToLocal(ftr_x, ftr_y, this.parent.parent);
+								var g_fbl = this.localToLocal(fbl_x, fbl_y, this.parent.parent);
+								var g_fbr = this.localToLocal(fbr_x, fbr_y, this.parent.parent);
+								var g_miny = Math.min(g_ftl.y, g_ftr.y, g_fbl.y, g_fbr.y);
+								var g_maxy = Math.max(g_ftl.y, g_ftr.y, g_fbl.y, g_fbr.y);
+								var g_minx = Math.min(g_ftl.x, g_ftr.x, g_fbl.x, g_fbr.x);
+								var g_maxx = Math.max(g_ftl.x, g_ftr.x, g_fbl.x, g_fbr.x);
+								// associate back with local points
+								//var lmin = this.parent.parent.localToLocal(g_minx, g_miny, this);
+								var bl = this.parent.parent.localToLocal(g_minx, g_maxy, this);
+								var br = this.parent.parent.localToLocal(g_maxx, g_maxy, this);
+								var tl = this.parent.parent.localToLocal(g_minx, g_maxy - (g_maxy - g_miny)*percentSubmerged, this);
+								var tr = this.parent.parent.localToLocal(g_maxx, g_maxy - (g_maxy - g_miny)*percentSubmerged, this);
+								g.setStrokeStyle(0);
+								//g.beginStroke(liquid.stroke_color);
+								g.beginFill(liquid.fill_color);
+								g.moveTo(tl.x, tl.y);
+								g.lineTo(tr.x, tr.y);
+								g.lineTo(br.x, br.y);
+								g.lineTo(bl.x, bl.y);
+								g.lineTo(tl.x, tl.y);
+								//g.endStroke();
+								g.endFill();
+
+								g.setStrokeStyle(2);
+								g.beginStroke(liquid.stroke_color);
+								g.moveTo(tl.x, tl.y);
+								g.lineTo(tr.x, tr.y);
+								g.endStroke();
+							}
+							
+							
+						} else if (this.DEBUG && k == 0)
+						{
+							g.beginFill("rgba(255,255,0,0.5)");
+							g.drawRect((i-1)*this.unit_width_px, j*this.unit_height_px, this.unit_width_px, this.unit_height_px);
+							g.endFill();
 						}
-						
-						
-					} else if (this.DEBUG && k == 0)
-					{
-						g.beginFill("rgba(255,255,0,0.5)");
-						g.drawRect((i-1)*this.unit_width_px, j*this.unit_height_px, this.unit_width_px, this.unit_height_px);
-						g.endFill();
 					}
 				}
 			}
 		}
+
 		if (this.DEBUG)
 		{
 			g.beginFill("rgba(0,0,0,1.0)");

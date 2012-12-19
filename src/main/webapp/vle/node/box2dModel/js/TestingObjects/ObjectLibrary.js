@@ -100,7 +100,6 @@
 			if (typeof o.skin.savedObject.is_deletable === "undefined") o.skin.savedObject.is_deletable = true;
 			
 			var b_id = "library-button-" + id;
-			if (typeof o.is_deletable)
 			var htmlText;
 			if (o.skin.savedObject.is_deletable){
 				htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li><li><a href="#">Delete</a></li></ul></div>';
@@ -149,6 +148,7 @@
 			
 			o.html = htmlElement.parent();
 			o.button = element;
+
 			return true;
 		} else {
 			return false;
@@ -195,11 +195,11 @@
 
 		p.removeObject= function (o)
 		{
+			console.log(o.skin.savedObject.id);
 			var index = this.shapes.indexOf(o);
 			this.shapes.splice(index, 1);
 			if (typeof o.button != "undefined") this.removeChild(o.button);
 			if (typeof o.html != "undefined" && o.html != null)	o.html.remove();
-			
 			this.removeChild(o);
 			// move shapes below up
 			for (var i = index; i < this.shapes.length; i++)

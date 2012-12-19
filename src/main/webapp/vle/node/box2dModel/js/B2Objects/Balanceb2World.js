@@ -625,7 +625,7 @@
 			}
 		} else
 		{
-			console.log("The height and width next to the object are not defined.");
+			console.log("Thevar height and width next to the object are not defined.");
 			return false;
 		}
 

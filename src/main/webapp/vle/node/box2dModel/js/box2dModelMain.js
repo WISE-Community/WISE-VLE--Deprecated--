@@ -140,13 +140,22 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.addChild(tester);
 			tester.y = tester_y;
 
+			var premade = GLOBAL_PARAMETERS.premades['1x1x1_DWood'];
 			
 			// make all objects given in parameters
 			if (makePremades){
 				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
 				{
-					if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined")
-						createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+					var obj = GLOBAL_PARAMETERS.premades_available[i];
+					if (typeof obj == "object" && obj.length != "undefined" && obj.length > 0){
+						// is an array, pick one of array, replace original
+						GLOBAL_PARAMETERS.premades_available[i] = obj[Math.floor(Math.random()*obj.length)];
+						if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined"){
+							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+						}
+					} else if (typeof obj == "string" && typeof GLOBAL_PARAMETERS.premades[obj] != "undefined"){
+						createObject(GLOBAL_PARAMETERS.premades[obj]);
+					}						
 				}
 			}
 			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;

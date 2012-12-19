@@ -50,6 +50,7 @@
          this.initialTimestamp = new Date().getTime();
          this.history = []; // stores all previous events;
          this.eventCount = 0;
+         this.DEBUG = false;
           
          // for each feedback event attach a parsed object associated with each query
          var constraintFound = false;
@@ -268,6 +269,7 @@
         } else {
 
         }
+        if (this.DEBUG) console.log(fcall.functionName.toUpperCase(), matchArr);
         return matchArr;
     }
 
@@ -374,7 +376,8 @@
             } else if (this.isFunction(args[i])){
                 if (args[i].functionName.toUpperCase() != "NOT")
                 {
-                    arr = this.matchByFunctionType(lindex, this.history.length-1, args[i], skipArr);           
+                    arr = this.matchByFunctionType(lindex, this.history.length-1, args[i], skipArr);  
+
                     if (arr.length > 0){
                         returnArr = returnArr.concat(arr);
                         skipArr = skipArr.concat(arr);

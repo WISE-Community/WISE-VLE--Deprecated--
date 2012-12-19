@@ -134,9 +134,10 @@
 			actor.onPress = this.actorPressHandler.bind(this);
 			actor.orig_parent = this.library;
 			this.actors.push(actor);
-			if (this.library.getIsFull()){
+			if (this.library.getIsFull() && typeof builder != "undefined" && builder != null){
 				builder.disableWithText('The library is full. To make a new model, first delete an old one.');
 			}
+
 			return true;
 		} else {
 			return false;

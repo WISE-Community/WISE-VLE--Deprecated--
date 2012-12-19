@@ -241,12 +241,22 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 
 	var mass_on_left, mass_on_right, mass_diff;
 	// for the following types there is a central object, set its properties
-	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance-world" || evt.type == "add-balance" ||
-		evt.type == "remove-balance"  || evt.type == "add-beaker-world" || evt.type == "add-beaker" || evt.type == "test-add-beaker" || evt.type == "remove-beaker"){
+	if (evt.type == "make-model" || evt.type == "delete-model" || evt.type == "add-balance-world" || evt.type == "add-balance" || evt.type == "add-scale" || evt.type == "add-scale-world" || evt.type == "remove-scale" ||
+		evt.type == "remove-balance"  || evt.type == "add-beaker-world" || evt.type == "add-beaker" || evt.type == "test-scale-1" || evt.type == "test-add-beaker" || evt.type == "remove-beaker" || evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
 		evt.ObjectProperties.id = evt.args[0].id;
 		evt.ObjectProperties.mass = evt.args[0].mass;
 		evt.ObjectProperties.volume = evt.args[0].volume;
 		evt.ObjectProperties.density = evt.args[0].mass/ evt.args[0].volume;
+		evt.ObjectProperties.is_container = typeof evt.args[0].is_container != "undefined"? evt.args[0].is_container : false;
+		if (evt.ObjectProperties.is_container){
+			evt.ObjectProperties.liquid_perc_volume = evt.args[0].liquid_perc_volume;
+			evt.ObjectProperties.liquid_mass = evt.args[0].liquid_mass;
+			evt.ObjectProperties.liquid_volume = evt.args[0].liquid_volume;
+		} else {
+			evt.ObjectProperties.liquid_perc_volume = 0;
+			evt.ObjectProperties.liquid_mass = 0;
+			evt.ObjectProperties.liquid_volume = 0;
+		}
 	}
 
 	// when saved from a higher level function (i.e., not making use of event type, save objects in library)
@@ -358,7 +368,9 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
  
 	} else if (evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
-		evt.perc_filled_in_spilloff_container = evt.args[0].perc_filled_in_spilloff_container;
+		evt.perc_filled_in_spilloff_container = evt.args[1].perc_filled_in_spilloff_container;
+	} else if (evt.type == "test-add-beaker"){
+		evt.displacement = evt.args[1].displacement;
 	} else if (evt.type == "gave-feedback"){
 		evt.feedbackEvent = evt.args[0];
 	}

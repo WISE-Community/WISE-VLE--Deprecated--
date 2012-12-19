@@ -188,7 +188,7 @@
 			var ry = this.height_px - this.beaker_bottom_dy - this.beaker_height_px*i/this.NUM_RULER_TICKS
 			g.moveTo(0, ry);
 			g.lineTo(10, ry);
-			vstr = Math.round(((this.height_px - this.beaker_bottom_dy) - ry) / GLOBAL_PARAMETERS.SCALE);
+			vstr = Math.round(((this.height_px - this.beaker_bottom_dy) - ry) / GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE);
 			text = new createjs.Text(vstr, "1.0em Bold Arial", "#888");
 			text.x = this.beaker_x - this.beaker_width_px/2 - 33;
 			text.y = ry - 10; 
@@ -378,7 +378,7 @@
 				if (obj.volume_above_spout > 0)
 				{
 					if (typeof evt.data.parent.spilloffContainer != "undefined" && evt.data.parent.spilloffContainer != null) {
-						eventManager.fire("press-release-beaker", [obj, evt.data.parent.spilloffContainer.skin.savedObject], box2dModel);
+						eventManager.fire("press-release-beaker", [evt.data.parent.spilloffContainer.skin.savedObject, obj], box2dModel);
 					} else{
 						eventManager.fire("press-release-beaker", [obj], box2dModel);
 					}
@@ -679,6 +679,7 @@
 	/** Tick function called on every step, if update, redraw */
 	p._tick = function ()
 	{
+		var obj;
 		this.Container_tick();
 		if (this.spout_change || this.draining != this.spout_open){
 			if (!this.spout_open) { this.spout_open = true; this.draining = true;
@@ -692,7 +693,12 @@
 			if (!this.justAddedActor.body.IsAwake())
 			{
 				if (this.justAddedActor.controlledByBuoyancy){
-					eventManager.fire('test-add-beaker',[this.justAddedActor.skin.savedObject], box2dModel);
+					obj = {}
+					obj.liquid_volume = this.liquid_volume;
+					obj.contents_volume = this.contents_volume;
+					obj.displacement = this.contents_volume;
+					obj.total_volume = this.liquid_volume + this.contents_volume;
+					eventManager.fire('test-add-beaker',[this.justAddedActor.skin.savedObject, obj], box2dModel);
 				} else {
 					this.setAsSpilloffContainerWithinDomain(this.justAddedActor);
 				}
@@ -740,7 +746,7 @@
 					this.liquid_volume_released += liquid_volume_change;
 					this.liquid_volume -= liquid_volume_change;
 					this.controller.ChangeOffset(-liquid_height_px_change/GLOBAL_PARAMETERS.SCALE);
-					var obj = {};
+					obj = {};
 					obj.volume_above_spout = Math.round(1000*(this.liquid_height_px - this.spout_height_px)/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE)/1000;
 					obj.available_volume_in_spilloff_container = this.spilloffContainer == null ? -1 : Math.round(1000*this.spilloffContainer.skin.available_volume)/1000;
 					obj.filled_volume_in_spilloff_container = this.spilloffContainer == null ? -1 : Math.round(1000*this.spilloffContainer.skin.filled_volume)/1000;
@@ -756,7 +762,7 @@
 						this.spilloffContainer.constructFixtures();
 						this.createActorsBody(this.spilloffContainer);
 						this.spilloffContainer.body.SetPosition(wp);
-						eventManager.fire("test-release-beaker", [obj, this.spilloffContainer.skin.savedObject], box2dModel);
+						eventManager.fire("test-release-beaker", [this.spilloffContainer.skin.savedObject, obj], box2dModel);
 					} else
 					{
 						g = this.puddleGraphics;
@@ -792,7 +798,7 @@
 					this.spilloffContainer.constructFixtures();
 					this.createActorsBody(this.spilloffContainer);
 					this.spilloffContainer.body.SetPosition(wp);
-					eventManager.fire("test-release-beaker", [obj, this.spilloffContainer.skin.savedObject], box2dModel);
+					eventManager.fire("test-release-beaker", [this.spilloffContainer.skin.savedObject, obj], box2dModel);
 				} else
 				{
 					g = this.puddleGraphics;
@@ -906,7 +912,7 @@
 		// draw a pointer to the current position 
 		//this.pointerShape.x = this.beaker_width_px/2+2;
 		this.pointerShape.y = this.frontWaterLineShape.y;
-		this.pointerText.text = Math.round(this.liquid_height_px/ GLOBAL_PARAMETERS.SCALE * 100) / 100;
+		this.pointerText.text = Math.round(this.liquid_height_px/ GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE);
 		
 		this.pointerText.y = this.pointerShape.y - 10;
 	}
