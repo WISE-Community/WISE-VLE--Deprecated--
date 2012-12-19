@@ -36,8 +36,9 @@ msaPreview.CouchDS.prototype =
           callback(response);
         },
         error: function (response) {
-          alert("Could not find a document with the id '"+self.authoredDocId+"'");
-          window.location.hash = '';
+          // let us fail silently:
+          // alert("Could not find a document with the id '"+self.authoredDocId+"'");
+          // window.location.hash = '';
         }
       }
     );
@@ -45,7 +46,6 @@ msaPreview.CouchDS.prototype =
 
   saveData: function(data, docId, revId, callback) {
     if (!!docId){
-      console.log("saving with known id "+this.learnerDocId);
       data._id = docId;
     }
     if (!!revId){
@@ -57,19 +57,64 @@ msaPreview.CouchDS.prototype =
       data,  
       { 
         success: function(response) { 
-          console.log("Saved ok, id = "+response.id);
-          $.gritter.add({
-            title: 'Data saved',
-            text: 'ID: '+response.id,
-            time: 800
+          // try to intuit which ID is being sent:
+          if (self.authoredDocId) {
+            if (response.id != self.authoredDocId) {
+              self.learnerDocId = response.id;
+            }
+          }
+          else {
+            self.authoredDocId = response.id;
+          }
+
+          window.location.hash = (self.authoredDocId + (self.learnerDocId ?  ( "/" + self.learnerDocId) : ""));
+          var url = window.location.href;
+          window.location.href = url;
+          var gritId = $.gritter.add({
+            title: 'Data saved.',
+            text: url,
+            sticky: true,
+            after_open: function(e) {
+              self.makeCopyLink(e,url);
+            }
+
           });
+         
           callback(response);
-          window.location.hash = (self.authoredDocId || "") + (self.learnerDocId ? "/"+self.learnerDocId : "");
         }
       }  
     );
   },
-  
+
+  makeCopyLink: function(element,url) {
+    var textElement = element.find('p');
+    var length = url.length > 6 ? url.length - 6 : url.length;
+    var short_id = url.substr(length);
+    var a = $('<a id="clip_link" href="'+ url + '"> Copy your link to to the clipboard. ('+ short_id + ')</a>');
+    a.css('color','white');
+    textElement.html(a);
+    if (typeof ZeroClipboard !=='undefined') {
+      var clip = new ZeroClipboard.Client();
+      clip.glue(a[0],element[0]);
+      clip.setText(url);
+      clip.setHandCursor( true );
+      clip.setCSSEffects( true );                  
+      
+      clip.addEventListener( 'onComplete',function() {
+        // alert('A link to this diagram is now in your clipboard.');
+        element.find('.gritter-title').html('A link to this diagram is now in your clipboard.');
+        var gritterId = element.closest('.gritter-item-wrapper').attr('id');
+        gritterId = gritterId.replace(/gritter-item-/g,'');
+        console.log(gritterId);
+
+        $.gritter.remove(gritterId, { 
+          fade: true,
+          speed: 3000
+        });
+      });
+    }
+  },
+
   loadAuthoredData: function (authoredDocId) {
     this.authoredDocId = authoredDocId;
     var self = this;
@@ -78,7 +123,7 @@ msaPreview.CouchDS.prototype =
       function(response){
         if (response.authored_data){
           self.authoredDocRev = response._rev;
-          self.authorContentWindow.MSA.loadData(response.authored_data);
+          self.authorContentWindow.MSA.dataController.loadData(response.authored_data);
         }
       }
     );
@@ -101,7 +146,7 @@ msaPreview.CouchDS.prototype =
   },
   
   saveAuthoring: function () {
-    var authoredData = this.authorContentWindow.MSA.data,
+    var authoredData = this.authorContentWindow.MSA.dataController.get('dataJson'),
         authoredDataHash = JSON.parse(JSON.stringify(authoredData, null, 2));
         
     var data = {"authored_data": authoredDataHash};

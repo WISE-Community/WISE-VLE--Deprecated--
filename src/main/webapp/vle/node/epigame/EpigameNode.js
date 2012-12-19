@@ -276,6 +276,9 @@ EpigameNode.prototype.navHelper = function() {
 				title: project.getTitle()
 			};
 		},
+		toggleNav: function() {
+			eventManager.fire('toggleNavigationVisibility');
+		},
 		executeNode: function(sequenceIndex, stepIndex) {
 			var pos = String(sequenceIndex) + "." + String(stepIndex);
 			eventManager.fire('renderNode', pos);

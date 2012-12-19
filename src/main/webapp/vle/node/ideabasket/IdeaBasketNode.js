@@ -161,6 +161,18 @@ IdeaBasketNode.prototype.onExit = function() {
 };
 
 /**
+ * Whether this step type has a grading view. Steps that do not save
+ * any student work will not have a grading view such as HTMLNode
+ * and OutsideUrlNode. Steps types that do not have a grading view 
+ * should override this function and return false.
+ * @returns whether this step type has a grading view
+ */
+IdeaBasketNode.prototype.hasGradingView = function() {
+	return false;
+};
+
+
+/**
  * Renders the student work into the div. The grading tool will pass in a
  * div id to this function and this function will insert the student data
  * into the div.
