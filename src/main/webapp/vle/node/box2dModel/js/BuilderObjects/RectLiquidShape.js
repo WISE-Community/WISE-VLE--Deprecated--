@@ -5,7 +5,7 @@
 	{
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units, useCompleteDepth, useCompleteWidth);
 	}
-	var p = RectLiquidShape.prototype = new Container();
+	var p = RectLiquidShape.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;

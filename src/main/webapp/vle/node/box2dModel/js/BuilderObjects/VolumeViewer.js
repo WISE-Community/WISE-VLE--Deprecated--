@@ -5,7 +5,7 @@
 		
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units);
 	}
-	var p = VolumeViewer.prototype = new Container();
+	var p = VolumeViewer.prototype = new createjs.Container();
 	p.Container_initialize = VolumeViewer.prototype.initialize;
 
 	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
@@ -22,16 +22,16 @@
 		this.height_px_3d = unit_height_px * height_units;
 		this.depth_px_3d = unit_depth_px * depth_units;
 
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
-		this.backHingeG = new Graphics();
-		this.backHinge = new Shape(this.backHingeG);
+		this.backHingeG = new createjs.Graphics();
+		this.backHinge = new createjs.Shape(this.backHingeG);
 		this.addChild(this.backHinge);
 
-		this.frontHingeG = new Graphics();
-		this.frontHinge = new Shape(this.frontHingeG);
+		this.frontHingeG = new createjs.Graphics();
+		this.frontHinge = new createjs.Shape(this.frontHingeG);
 		this.addChild(this.frontHinge);
 
 		
@@ -256,8 +256,8 @@
 				for (j = 0; j < this.cubes_projected[i].back.length; j++)
 				{
 					point = this.cubes_projected[i].back[j];
-					//npoint = new Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					//npoint = new createjs.Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].back[j] = npoint;
 				}
 			} else
@@ -271,8 +271,8 @@
 				for (j = 0; j < this.cubes_projected[i].bottom.length; j++)
 				{
 					point = this.cubes_projected[i].bottom[j];
-					//npoint = new Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
-					npoint = new Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
+					//npoint = new createjs.Point(point.x*this.unit_width_px-point.z*this.unit_depth_px*Math.tan(this.view_sideAngle), point.y*this.unit_height_px+point.z*this.unit_depth_px*Math.tan(this.view_topAngle));
+					npoint = new createjs.Point(point.x*this.unit_width_px, point.y*this.unit_height_px);
 					this.cubes_projected2d[i].bottom[j] = npoint;
 				}
 
@@ -283,17 +283,17 @@
 		}
 
 		// project markers to 2d
-		this.topRight_projected2d = new Point(this.topRight_projected.x*this.unit_width_px, this.topRight_projected.y*this.unit_height_px);
-		this.topLeft_projected2d = new Point(this.topLeft_projected.x*this.unit_width_px, this.topLeft_projected.y*this.unit_height_px);
-		this.bottomRight_projected2d = new Point(this.bottomRight_projected.x*this.unit_width_px, this.bottomRight_projected.y*this.unit_height_px);
-		this.bottomLeft_projected2d = new Point(this.bottomLeft_projected.x*this.unit_width_px, this.bottomLeft_projected.y*this.unit_height_px);
-		this.backCenter_projected2d = new Point(this.backCenter_projected.x*this.unit_width_px, this.backCenter_projected.y*this.unit_height_px);
-		this.backHingeA_projected2d = new Point(this.backHingeA_projected.x*this.unit_width_px, this.backHingeA_projected.y*this.unit_height_px);
-		this.backHingeB_projected2d = new Point(this.backHingeB_projected.x*this.unit_width_px, this.backHingeB_projected.y*this.unit_height_px);
-		this.backHingeC_projected2d = new Point(this.backHingeC_projected.x*this.unit_width_px, this.backHingeC_projected.y*this.unit_height_px);
-		this.frontHingeA_projected2d = new Point(this.frontHingeA_projected.x*this.unit_width_px, this.frontHingeA_projected.y*this.unit_height_px);
-		this.frontHingeB_projected2d = new Point(this.frontHingeB_projected.x*this.unit_width_px, this.frontHingeB_projected.y*this.unit_height_px);
-		this.frontHingeC_projected2d = new Point(this.frontHingeC_projected.x*this.unit_width_px, this.frontHingeC_projected.y*this.unit_height_px);
+		this.topRight_projected2d = new createjs.Point(this.topRight_projected.x*this.unit_width_px, this.topRight_projected.y*this.unit_height_px);
+		this.topLeft_projected2d = new createjs.Point(this.topLeft_projected.x*this.unit_width_px, this.topLeft_projected.y*this.unit_height_px);
+		this.bottomRight_projected2d = new createjs.Point(this.bottomRight_projected.x*this.unit_width_px, this.bottomRight_projected.y*this.unit_height_px);
+		this.bottomLeft_projected2d = new createjs.Point(this.bottomLeft_projected.x*this.unit_width_px, this.bottomLeft_projected.y*this.unit_height_px);
+		this.backCenter_projected2d = new createjs.Point(this.backCenter_projected.x*this.unit_width_px, this.backCenter_projected.y*this.unit_height_px);
+		this.backHingeA_projected2d = new createjs.Point(this.backHingeA_projected.x*this.unit_width_px, this.backHingeA_projected.y*this.unit_height_px);
+		this.backHingeB_projected2d = new createjs.Point(this.backHingeB_projected.x*this.unit_width_px, this.backHingeB_projected.y*this.unit_height_px);
+		this.backHingeC_projected2d = new createjs.Point(this.backHingeC_projected.x*this.unit_width_px, this.backHingeC_projected.y*this.unit_height_px);
+		this.frontHingeA_projected2d = new createjs.Point(this.frontHingeA_projected.x*this.unit_width_px, this.frontHingeA_projected.y*this.unit_height_px);
+		this.frontHingeB_projected2d = new createjs.Point(this.frontHingeB_projected.x*this.unit_width_px, this.frontHingeB_projected.y*this.unit_height_px);
+		this.frontHingeC_projected2d = new createjs.Point(this.frontHingeC_projected.x*this.unit_width_px, this.frontHingeC_projected.y*this.unit_height_px);
 		return this.cubes_projected2d;
 	}
 
@@ -367,7 +367,15 @@
 		g.endStroke();
 		
 	}
-	
+	p.blocksInViewer = function (o){
+		var count = 0;
+		for (var i = 0; i < this.blockArray2d.length; i++){
+			for (var j = 0; j < this.blockArray2d[i].length; j++){
+				if (this.blockArray2d[i][j] != null) count++;
+			}
+		}
+		return count;
+	}
 	/** Releases object from the hold of this container */
 	p.releaseBlock = function (o)
 	{
@@ -428,53 +436,8 @@
 				}
 				// swap array index based on number of objects under o after background shape
 				this.addChildAt(o, underCount+2);
-				var goodLocation = false;
-				// Use rules
-				// is this space occupied?
-				if (this.blockArray2d[x_index][y_index]  == null)
-				{
-					// is this the first block?
-					if (this.getNumChildren() == 4)
-					{
-						// cannot be an "ends" piece
-						if (o.allBlocksConnected())
-						{
-							goodLocation = true;
-						} else
-						{
-							goodLocation = false;
-						}
-					}  else
-					{	
-						// separate rules for container
-						if (GLOBAL_PARAMETERS.materials[o.material_name].is_container)
-						{
-							// is this block attached to another, and is the block below the same size or smaller
-							if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index+1], "below")) {goodLocation = true;}
-							else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index-1][y_index], "left")) {goodLocation = true;}
-							else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index+1][y_index], "right")) {goodLocation = true;}
-							else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index-1], "above")) {goodLocation = true;}
-							else {goodLocation = false;}
-						} else
-						{
-							// is this block attached to another?
-							// bottom-left, bottom-center,...
-							if (x_index > 0 && y_index < this.height_units-1 && this.blockArray2d[x_index-1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index+1])) {goodLocation = true;}
-							else if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index+1])) {goodLocation = true;}
-							else if (x_index < this.width_units-1 && y_index < this.height_units-1 && this.blockArray2d[x_index+1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index+1])) {goodLocation = true;}
-							else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index])) {goodLocation = true;}
-							//else if (this.blockArray2d[x_index][y_index] != null && o.connectsToOther(this.blockArray2d[x_index][y_index])) {goodLocation = true;}
-							else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index])) {goodLocation = true;}
-							else if (x_index > 0 && y_index > 0 && this.blockArray2d[x_index-1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index-1])) {goodLocation = true;}
-							else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index-1])) {goodLocation = true;}
-							else if (x_index < this.width_units-1 && y_index > 0 && this.blockArray2d[x_index+1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index-1])) {goodLocation = true;}
-							else {goodLocation = false;}
-						}
-					}					
-				} else
-				{
-					goodLocation = false;
-				}
+				var goodLocation = this.canAddToCell(o, x_index, y_index);
+				
 				// if in a good location highlight and set boolean properties
 				if (goodLocation)
 				{
@@ -512,6 +475,58 @@
 		}
 		return o.placed;
 	}
+
+		/** Can the object o be added to the cell in the 2d array indicated by x_index and y_index */
+		p.canAddToCell = function (o, x_index, y_index){
+			// Use rules
+			// is this space occupied?
+			var goodLocation = false;
+			if (this.blockArray2d[x_index][y_index]  == null)
+			{
+				// is this the first block?
+				if (this.getNumChildren() == 4)
+				{
+					// cannot be an "ends" piece
+					if (o.allBlocksConnected())
+					{
+						goodLocation = true;
+					} else
+					{
+						goodLocation = false;
+					}
+				}  else
+				{	
+					// separate rules for container
+					if (GLOBAL_PARAMETERS.materials[o.material_name].is_container)
+					{
+						// is this block attached to another, and is the block below the same size or smaller
+						if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index+1], "below")) {goodLocation = true;}
+						else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index-1][y_index], "left")) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOtherContainer(this.blockArray2d[x_index+1][y_index], "right")) {goodLocation = true;}
+						else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOtherContainer(this.blockArray2d[x_index][y_index-1], "above")) {goodLocation = true;}
+						else {goodLocation = false;}
+					} else
+					{
+						// is this block attached to another?
+						// bottom-left, bottom-center,...
+						if (x_index > 0 && y_index < this.height_units-1 && this.blockArray2d[x_index-1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index+1])) {goodLocation = true;}
+						else if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index+1])) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && y_index < this.height_units-1 && this.blockArray2d[x_index+1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index+1])) {goodLocation = true;}
+						else if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index])) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index])) {goodLocation = true;}
+						else if (x_index > 0 && y_index > 0 && this.blockArray2d[x_index-1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index-1])) {goodLocation = true;}
+						else if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index-1])) {goodLocation = true;}
+						else if (x_index < this.width_units-1 && y_index > 0 && this.blockArray2d[x_index+1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index-1])) {goodLocation = true;}
+						else {goodLocation = false;}
+					}
+				}					
+			} else
+			{
+				goodLocation = false;
+			}
+			return goodLocation;
+		}
+
 	p.setBlock = function(o)
 	{
 		if (o.correct)
@@ -531,10 +546,82 @@
 	}
 	p.clearBlock = function (o)
 	{
-		this.updateBlockRelations(o, o.x_index, o.y_index, false);
-		this.blockArray2d[o.x_index][o.y_index] = null;
-		this.removeChild(o);
+		if (this.canRemoveFromCell(o.x_index, o.y_index)){
+			this.updateBlockRelations(o, o.x_index, o.y_index, false);
+			this.blockArray2d[o.x_index][o.y_index] = null;
+			this.removeChild(o);
+			return true;
+		} else {
+			return false;
+		}		
 	}
+		/** Can the object o be removed from the cell in the 2d array indicated by x_index and y_index */
+		p.canRemoveFromCell = function (x_index, y_index){
+			// temporarily take o off of the 2d block array, then go through each object in the 2d array
+			// around the objects position to see if the
+			var obj = this.blockArray2d[x_index][y_index];
+			this.blockArray2d[x_index][y_index] = null;
+			var blockCount = this.blocksInViewer();
+			if (blockCount == 0) return true;
+
+			var goodLocation = true;
+
+			// create a boolean array to tell whether we've processed the current index
+			var processedArr2d = [];
+			for (var i = 0; i < this.blockArray2d.length; i++){
+				processedArr2d[i] = [];
+				for (var j = 0; j < this.blockArray2d[i].length; j++){
+					processedArr2d[i][j] = false;
+				}
+			}
+
+			// iterate through block2d to find a block
+			var obreak = false;
+			for (i = 0; i < this.blockArray2d.length; i++){
+				for (j = 0; j < this.blockArray2d[i].length; j++){
+					if (this.blockArray2d[i][j] != null){
+						var connectionCount = this.getSizeOfObjectFromIndex(i, j, processedArr2d);
+						obreak = true; break;
+					} else {
+						processedArr2d[i][j] = true;
+					}					
+				}
+				if (obreak) break;
+			}
+			// put back in array
+			this.blockArray2d[x_index][y_index] = obj;
+			// is the block we found connected to all other blocks?
+			if (connectionCount < blockCount){
+				return false;
+			} else {
+				return true;
+			}
+		}	 
+
+			/** This function starts from an upper-left index to find all connected blocks, recursively */
+			p.getSizeOfObjectFromIndex = function (x_index, y_index, processedArr2d, x_index_prev, y_index_prev){
+				if (this.blockArray2d[x_index][y_index] != null && !processedArr2d[x_index][y_index] && !(x_index == x_index_prev && y_index == y_index_prev)){
+					if (typeof x_index_prev == "undefined") x_index_prev = -1;
+					if (typeof y_index_prev == "undefined") y_index_prev = -1;
+					var o = this.blockArray2d[x_index][y_index];
+					processedArr2d[x_index][y_index] = true;
+					var count = 1;					
+					// circle all around and process
+					if (x_index > 0 && y_index < this.height_units-1 && this.blockArray2d[x_index-1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index+1])) {count +=this.getSizeOfObjectFromIndex(x_index-1, y_index+1,processedArr2d, x_index, y_index);}
+					if (y_index < this.height_units-1 && this.blockArray2d[x_index][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index+1])) {count +=this.getSizeOfObjectFromIndex(x_index, y_index+1, processedArr2d, x_index, y_index);}
+					if (x_index < this.width_units-1 && y_index < this.height_units-1 && this.blockArray2d[x_index+1][y_index+1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index+1])) {count +=this.getSizeOfObjectFromIndex(x_index+1, y_index+1,processedArr2d, x_index, y_index);}
+					if (x_index > 0 && this.blockArray2d[x_index-1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index])) {count +=this.getSizeOfObjectFromIndex(x_index-1, y_index, processedArr2d, x_index, y_index);}
+					if (x_index < this.width_units-1 && this.blockArray2d[x_index+1][y_index] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index])) {count +=this.getSizeOfObjectFromIndex(x_index+1, y_index, processedArr2d, x_index, y_index);}
+					if (x_index > 0 && y_index > 0 && this.blockArray2d[x_index-1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index-1][y_index-1])) {count +=this.getSizeOfObjectFromIndex(x_index-1, y_index-1, processedArr2d, x_index, y_index);}
+					if (y_index > 0 && this.blockArray2d[x_index][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index][y_index-1])) {count +=this.getSizeOfObjectFromIndex(x_index, y_index-1, processedArr2d, x_index, y_index);}
+					if (x_index < this.width_units-1 && y_index > 0 && this.blockArray2d[x_index+1][y_index-1] != null && o.connectsToOther(this.blockArray2d[x_index+1][y_index-1])) {count +=this.getSizeOfObjectFromIndex(x_index+1, y_index-1, processedArr2d, x_index, y_index);}
+					
+					return count;
+				} else {
+					return 0;
+				}
+			}
+
 
 	p.clearBlocks = function ()
 	{

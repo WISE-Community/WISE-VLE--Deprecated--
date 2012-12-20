@@ -6,7 +6,7 @@
 		this.initialize (width_px, height_px, world_dx, world_dy, SCALE);
 	}
 
-	var p = Emptyb2World.prototype = new Container();
+	var p = Emptyb2World.prototype = new createjs.Container();
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
@@ -22,8 +22,8 @@
 		this.world_dy = world_dy;
 		this.SCALE = SCALE;
 
-		var g = this.g = new Graphics();
-		this.shape = new Shape(g);
+		var g = this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 
 		g.beginFill("rgba(200, 200, 255, 1.0)");

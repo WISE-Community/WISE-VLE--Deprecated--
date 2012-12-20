@@ -6,7 +6,7 @@
 		this.initialize (skin);
 	}
 
-	var p = Liquidb2Actor.prototype = new Container();
+	var p = Liquidb2Actor.prototype = new createjs.Container();
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;

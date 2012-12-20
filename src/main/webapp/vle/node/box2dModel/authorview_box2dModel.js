@@ -34,7 +34,7 @@ View.prototype.Box2dModelNode = {};
  * 
  * TODO: rename Box2dModelNode
  */
-View.prototype.Box2dModelNode.commonComponents = [];
+View.prototype.Box2dModelNode.commonComponents = ['Prompt'];
 
 /**
  * Generates the authoring page. This function will create the authoring
@@ -66,28 +66,9 @@ View.prototype.Box2dModelNode.generatePage = function(view){
 	//create a new div that will contain the authroing components
 	var pageDiv = createElement(document, 'div', {id:'dynamicPage', style:'width:100%;height:100%'});
 	
-	//create the label for the textarea that the author will write the prompt in
-	var promptText = document.createTextNode("Prompt for Student:");
-	
-	/*
-	 * create the textarea that the author will write the prompt in
-	 * 
-	 * onkeyup will fire the 'box2dModelUpdatePrompt' event which will
-	 * be handled in the <new step type name>Events.js file
-	 * 
-	 * For example if you are creating a quiz step you would look in
-	 * your quizEvents.js file.
-	 * 
-	 * when you add new authoring components you will need to create
-	 * new events in the <new step type name>Events.js file and then
-	 * create new functions to handle the event
-	 */
-	var promptTextArea = createElement(document, 'textarea', {id: 'promptTextArea', rows:'20', cols:'85', onkeyup:"eventManager.fire('box2dModelUpdatePrompt')"});
-	
-	//add the authoring components to the page
-	pageDiv.appendChild(promptText);
+	pageDiv.appendChild(document.createTextNode("Prompt for Student:"));
 	pageDiv.appendChild(createBreak());
-	pageDiv.appendChild(promptTextArea);
+	pageDiv.appendChild(createElement(document, 'div', {id: 'promptContainer'}));
 	pageDiv.appendChild(createBreak());
 
 	//add the page to the parent
@@ -125,7 +106,7 @@ View.prototype.Box2dModelNode.updateContent = function(){
  */
 View.prototype.Box2dModelNode.populatePrompt = function() {
 	//get the prompt from the content and set it into the authoring textarea
-	$('#promptTextArea').val(this.content.prompt);
+	$('#promptInput').val(this.content.prompt);
 };
 
 /**
@@ -135,7 +116,15 @@ View.prototype.Box2dModelNode.populatePrompt = function() {
  */
 View.prototype.Box2dModelNode.updatePrompt = function(){
 	/* update content */
-	this.content.prompt = $('#promptTextArea').val();
+	//this.content.prompt = $('#promptTextArea').val();
+	var content = '';
+	if(typeof tinymce != 'undefined' && $('#promptInput').tinymce()){
+		content = $('#promptInput').tinymce().getContent();
+	} else {
+		content = $('#promptInput').val();
+	}
+	
+	this.content.prompt = content;
 	
 	/*
 	 * fire source updated event, this will update the preview
@@ -145,13 +134,5 @@ View.prototype.Box2dModelNode.updatePrompt = function(){
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
-	/*
-	 * TODO: rename box2dModel to your new folder name
-	 * TODO: rename authorview_box2dModel
-	 * 
-	 * e.g. if you were creating a quiz step it would look like
-	 * 
-	 * eventManager.fire('scriptLoaded', 'vle/node/quiz/authorview_quiz.js');
-	 */
 	eventManager.fire('scriptLoaded', 'vle/node/box2dModel/authorview_box2dModel.js');
 };
