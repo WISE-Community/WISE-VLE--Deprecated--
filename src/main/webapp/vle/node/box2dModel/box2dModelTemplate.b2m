@@ -6,9 +6,10 @@
 	"IN_WISE":true,
 	"DEBUG" : false,
 	"INCLUDE_BUILDER": true,
-	"INCLUDE_BALANCE": true,
+	"INCLUDE_BALANCE": false,
+	"INCLUDE_SCALE": true,
 	"INCLUDE_BEAKER": true,
-	"SHOW_MASS_BALANCE": true,
+	"SHOW_MASS_BALANCE": false,
     "SCALE" : 20,
 	"MAX_WIDTH_UNITS":5,
 	"MAX_HEIGHT_UNITS":5,
@@ -17,9 +18,9 @@
 	"view_sideAngle_degrees" : 10,
 	"view_topAngle_degrees" : 20,
 	"liquid_volume_perc" : 0.5,
- 	"fill_spilloff_by_height":true,
+ 	"spilloff_volume_perc" : 0.5,
+	"fill_spilloff_by_height":true,
 	"fill_spilloff_depth_from_middle":false,
-	"spilloff_volume_perc" : 0.5,
 	"materials_available" : ["DWood", "Metal", "Plastic"],
 	"liquid_available":"Water",
 	"premades_available": [],
@@ -116,6 +117,21 @@
 	         "block_count":[0, 0, 0, 0],
 	         "is_container":false          
 	      },
+	    "Gold":
+	    {
+	    	"display_name":"Gold",
+	    	"density":1.1,
+	    	"fill_colors":["#EDDC9E", "#C9BC80", "#EFDEA2", "#DEB084", "#D7C98C", "#F3E6AA", "#EBDC9E"],
+	    	"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"fill_colors_shadow":["#ABAC6E", "#888C50", "#AFAE72", "#9E8054", "#97995C", "#B3B66A", "#ABAC6E"],
+	    	"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"stroke_colors":["#8F7143", "#8F7143"],
+	    	"stroke_ratios":[0, 1],
+	    	"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+	    	"block_max":[10, 10, 10, 10],
+	    	"block_count":[0, 0, 0, 0],
+	    	"is_container":false					
+	    },  
 		"Glass":
 		{
 			"display_name":"Glass",
@@ -220,6 +236,32 @@
  			"is_container":false, 
  			"is_deletable":false
  		},
+ 		"2x3x5_DWood":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["","","","",""]],
+ 			[["","","","",""],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"1x5x5_DWood":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"],["DWood","DWood","DWood","DWood","DWood"]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
  		"3x3x5_Plastic":
  		{
  			"blockArray3d":
@@ -228,6 +270,32 @@
  			[["","","","",""],["Plastic","Plastic","Plastic","Plastic","Plastic"],["Plastic","Plastic","Plastic","Plastic","Plastic"],["Plastic","Plastic","Plastic","Plastic","Plastic"],["","","","",""]],
  			[["","","","",""],["Plastic","Plastic","Plastic","Plastic","Plastic"],["Plastic","Plastic","Plastic","Plastic","Plastic"],["Plastic","Plastic","Plastic","Plastic","Plastic"],["","","","",""]],
  			[["","","","",""],["Plastic","Plastic","Plastic","Plastic","Plastic"],["Plastic","Plastic","Plastic","Plastic","Plastic"],["Plastic","Plastic","Plastic","Plastic","Plastic"],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"5x1x5_Metal":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"3x2x5_Metal":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["Metal","Metal","Metal","Metal","Metal"],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["Metal","Metal","Metal","Metal","Metal"],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["Metal","Metal","Metal","Metal","Metal"],["Metal","Metal","Metal","Metal","Metal"],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
  			],
  			"is_container":false, 
@@ -255,6 +323,19 @@
  			[["","","","",""],["LWood","LWood","LWood","LWood","LWood"],["LWood","","","","LWood"],["","","","","LWood"],["LWood","LWood","LWood","LWood","LWood"]],
  			[["","","","",""],["LWood","LWood","LWood","LWood","LWood"],["LWood","LWood","LWood","LWood","LWood"],["LWood","LWood","LWood","LWood","LWood"],["LWood","LWood","LWood","LWood","LWood"]],
  			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"5x5x5_Gold_hollow0":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"]],
+ 			[["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"]],
+ 			[["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"]],
+ 			[["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"]],
+ 			[["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"],["Gold","Gold","Gold","Gold","Gold"]]
  			],
  			"is_container":false, 
  			"is_deletable":false
@@ -389,6 +470,19 @@
  			"is_container":false, 
  			"is_deletable":false
  		},
+ 		"1xTetris_L_LWood":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","LWood","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
  		"1xTetris_L_long_Metal":
  		{
  			"blockArray3d":
@@ -410,6 +504,32 @@
  			[["","","","",""],["","","","",""],["","","DWood","",""],["","","","",""],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","DWood","",""],["","","","",""],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","DWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"1xTetris_L_long_LWood":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","LWood","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","LWood","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
+ 			],
+ 			"is_container":false, 
+ 			"is_deletable":false
+ 		},
+ 		"1xTetris_L_long_Plastic":
+ 		{
+ 			"blockArray3d":
+ 			[
+ 			[["","","","",""],["","","Plastic","",""],["","","Plastic","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","Plastic","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","Plastic","",""],["","","","",""],["","","","",""]],
+ 			[["","","","",""],["","","","",""],["","","Plasic","",""],["","","","",""],["","","","",""]],
  			[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]]
  			],
  			"is_container":false, 

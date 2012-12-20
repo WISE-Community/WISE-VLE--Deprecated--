@@ -5,7 +5,7 @@
 	{
 		this.initialize(width_px, height_px);
 	}
-	var p = MaterialsMenu.prototype = new Container();
+	var p = MaterialsMenu.prototype = new createjs.Container();
 	p.Container_initialize = MaterialsMenu.prototype.initialize;
 	p.Container_tick = p._tick;
 	p.SELECTED_COLOR = "rgba(225,225,255,1.0)";
@@ -23,8 +23,8 @@
 		this.rev_materialNameDisplayMapping = {};
 
 		//background
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 		this.g.beginFill(this.UNSELECTED_COLOR);
 		this.g.drawRect(0, 0, this.width_px, this.height_px);
@@ -46,8 +46,8 @@
 		}
 			
 		// projected selection outline
-		this.projectedTextOutlineGraphics = new Graphics();
-		this.projectedTextOutlineShape = new Shape(this.projectedTextOutlineGraphics);
+		this.projectedTextOutlineGraphics = new createjs.Graphics();
+		this.projectedTextOutlineShape = new createjs.Shape(this.projectedTextOutlineGraphics);
 		this.projectedTextOutlineShape.mouseEnabled = false;
 		this.addChild(this.projectedTextOutlineShape);
 		

@@ -6,7 +6,7 @@
 		this.initialize (skin);
 	}
 
-	var p = Blockb2Actor.prototype = new Container();
+	var p = Blockb2Actor.prototype = new createjs.Container();
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
@@ -36,7 +36,7 @@
 		bodyDef.position.x = 0;
 		bodyDef.position.y = 0;
 		bodyDef.userData = {"actor":this}
-
+		
 		this.viewing_rotation = 0;
 
 		this.constructFixtures();
@@ -55,6 +55,8 @@
 				if (skin.array2d[i][j].mass > 0)
 				{
 					var fixDef = new b2FixtureDef;
+					fixDef.x_index = i;
+					fixDef.y_index = j;
 					fixDef.density = skin.array2d[i][j].mass*1;
 					fixDef.friction = 0.5;
 					fixDef.restitution = 0.2;
@@ -82,13 +84,14 @@
 	{
 		if (this.body != null && typeof(this.body) != "undefined" && typeof(this.parent) != "undefined" && this.parent != null)
 		{
-			this.x = (this.body.GetPosition().x) * GLOBAL_PARAMETERS.SCALE  - this.parent.x;
-			this.y = (this.body.GetPosition().y ) * GLOBAL_PARAMETERS.SCALE - this.parent.y;
+			this.x = (this.body.GetPosition().x) * GLOBAL_PARAMETERS.SCALE - this.parent.x;
+			this.y = (this.body.GetPosition().y) * GLOBAL_PARAMETERS.SCALE - this.parent.y;
 			this.rotation = this.body.GetAngle() * (180 / Math.PI);
-			if (Math.abs (this.viewing_rotation - this.rotation) > 10)
+
+			if (Math.abs (this.viewing_rotation - this.rotation) > 10 || (typeof this.body.percentSubmergedChangedFlag != "undefined" && this.body.percentSubmergedChangedFlag))
 			{
 				this.viewing_rotation = Math.round(this.rotation/10) * 10;
-				this.skin.redraw(this.viewing_rotation);
+				this.skin.redraw(this.viewing_rotation, this.body.percentSubmerged2d);
 			}
 		} else
 		{

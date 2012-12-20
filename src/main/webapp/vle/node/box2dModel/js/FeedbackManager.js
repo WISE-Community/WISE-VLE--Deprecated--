@@ -50,6 +50,7 @@
          this.initialTimestamp = new Date().getTime();
          this.history = []; // stores all previous events;
          this.eventCount = 0;
+         this.DEBUG = false;
           
          // for each feedback event attach a parsed object associated with each query
          var constraintFound = false;
@@ -130,7 +131,9 @@
                 if (typeof this.feedbackEvents[i].constraint != "undefined") this.feedbackEvents[i].constraint.released = true;
                 this.feedbackEvents[i].feedback.lastGivenIndex = matchArr[matchArr.length-1];
                 //console.log("matched history array indices:", matchArr);
-                alert(this.feedbackEvents[i].feedback.text);
+                //vle.notificationManager.notify(this.feedbackEvents[i].feedback.text, 3, false, 'messageDiv');
+                this.giveFeedback(this.feedbackEvents[i].feedback)
+                //alert(this.feedbackEvents[i].feedback.text);
                 if (this.feedbackEvents[i].feedback.repeatCount >= this.feedbackEvents[i].feedback.repeatMax){
                     this.feedbackEvents.splice(i,1);
                 } 
@@ -141,6 +144,24 @@
             }
         }
         return null;
+    }
+
+    /**
+    *   Gives the proper feedback according to type, implemented
+    *   text(or html): Give feedback in a jquery ui dialog.
+    */
+    p.giveFeedback = function (feedback){
+         if (feedback.type == "text" || feedback.type == "html"){
+            $(function() {
+                $("#messageDiv").html(feedback.text).dialog({
+                    modal:true,
+                    show:"scale",
+                    hide:"blind"
+                });
+            });
+        } else {
+            console.log("type of feedback not valid");
+        }
     }
 
     /**
@@ -248,6 +269,7 @@
         } else {
 
         }
+        if (this.DEBUG) console.log(fcall.functionName.toUpperCase(), matchArr);
         return matchArr;
     }
 
@@ -354,7 +376,8 @@
             } else if (this.isFunction(args[i])){
                 if (args[i].functionName.toUpperCase() != "NOT")
                 {
-                    arr = this.matchByFunctionType(lindex, this.history.length-1, args[i], skipArr);           
+                    arr = this.matchByFunctionType(lindex, this.history.length-1, args[i], skipArr);  
+
                     if (arr.length > 0){
                         returnArr = returnArr.concat(arr);
                         skipArr = skipArr.concat(arr);
