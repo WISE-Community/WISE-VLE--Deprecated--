@@ -14,7 +14,15 @@ View.prototype.box2dModelDispatcher = function(type,args,obj){
 	 * TODO: rename box2dModelUpdatePrompt
 	 * wait until you implement the authoring before you rename this
 	 */ 
-	obj.currentNode.contentPanel.box2dModel.interpretEvent(type, args, obj.currentNode.contentPanel.box2dModel);
+	if(type == 'box2dModelUpdatePrompt') {
+		obj.Box2dModelNode.updatePrompt(args);
+	} else {
+		if (typeof obj.currentNode != "undefined"){
+			obj.currentNode.contentPanel.box2dModel.interpretEvent(type, args, obj.currentNode.contentPanel.box2dModel);	
+		} else if (typeof obj.activeNode != "undefined"){
+			obj.activeNode.contentPanel.box2dModel.interpretEvent(type, args, obj.activeNode.contentPanel.box2dModel);	
+		}
+	}
 };
 
 /*
@@ -37,6 +45,10 @@ var events =
 	'add-balance',
 	'remove-balance-world',
 	'remove-balance',
+	'add-scale-world',
+	'add-scale',
+	'remove-scale-world',
+	'remove-scale',
 	'add-beaker-world',
 	'add-beaker',
 	'add-beaker-spilloff',
@@ -49,6 +61,8 @@ var events =
 	'test-balance-1toN',
 	'test-balance-Nto1',
 	'test-balance-NtoN',
+	'test-scale-1',
+	'test-scale-N',
 	'test-add-beaker',
 	'test-release-beaker',
 	'gave-feedback'

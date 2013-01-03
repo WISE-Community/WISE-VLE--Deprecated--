@@ -155,7 +155,7 @@ View.prototype.initializeCreateSequenceDialog = function(){
 		$('#createSequenceInput').val('');
 	};
 	
-	$('#createSequenceDialog').dialog({autoOpen:false, draggable:true, resizable:false, title:'Add a New Activity', width:650, buttons: {'Submit':submit}, close: cancel});
+	$('#createSequenceDialog').dialog({autoOpen:false, draggable:true, resizable:false, title:'Add a New Activity', width:650, buttons: {'Submit':{id:'createActivityDialogSubmitButton', text:'Submit', click:submit}, close: cancel}});
 };
 
 /**
@@ -247,7 +247,7 @@ View.prototype.initializeCreateNodeDialog = function (){
 	this.populateCreateNodeChoices();
 	
 	//this should have height set to auto resize but it doesn't work so I just set it to 260
-	$('#createNodeDialog').dialog({autoOpen:false, draggable:false, resizable:false, width:650, height:260, title:'Add a New Step', buttons: {'Submit':submit}, close: cancel});
+	$('#createNodeDialog').dialog({autoOpen:false, draggable:false, resizable:false, width:650, height:260, title:'Add a New Step', buttons: {'Submit':{id:'createStepDialogSubmitButton', text:'Submit', click:submit}}, close: cancel});
 };
 
 /**
@@ -513,8 +513,9 @@ View.prototype.initializeCopyProjectDialog = function (){
 	var cancel = function(){
 		$('#copyProjectDialog').dialog('close');
 	};
-
+	
 	$('#copyProjectDialog').dialog({autoOpen:false, modal: true, title:'Copy a Project', width:500, buttons: {'Cancel': cancel, 'Copy': submit}});
+
 };
 
 /**

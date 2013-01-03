@@ -139,6 +139,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.analyzeProject(type);
 	} else if(type == 'findUnusedAssetsInProject') {
 		obj.analyzeProject(type);
+	} else if(type == 'gotoDashboard') {
+		obj.gotoDashboard();
 	};
 };
 

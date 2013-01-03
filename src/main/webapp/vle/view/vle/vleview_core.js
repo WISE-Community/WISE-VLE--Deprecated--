@@ -209,7 +209,7 @@ View.prototype.displayGlobalTools = function() {
 		goHomeHref = "/webapp/teacher/index.html";
 	}
 	var signOutLink = '<a id="signOutLink" title="'+this.getI18NString("signout_button_title")+'" onclick="eventManager.fire(\'logout\')">'+this.getI18NString("signout_button_text")+'</a>';
-	var exitLink = '<a id="exitLink" target="_parent" title="'+this.getI18NString("gohome_button_title")+'" href="' + goHomeHref + '">'+this.getI18NString("gohome_button_text")+'</a>';
+	var exitLink = '<a id="exitLink" target="_parent" title="'+this.getI18NString("gohome_button_title")+'" onclick="window.parent.location=\'' + goHomeHref + '\'">'+this.getI18NString("gohome_button_text")+'</a>';
 	$("#signOutLinks").html(exitLink +  ' / ' + signOutLink);
 	
 	// Insert default text for userNames

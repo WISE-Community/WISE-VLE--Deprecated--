@@ -503,7 +503,8 @@ var componentloader = function(em, sl){
 				'deletePremadeComment':[null, null],
 				'deletePremadeCommentList':[null, null],
 				'premadeCommentLabelClicked':[null, null],
-				'premadeCommentListUncheckLabels':[null, null]
+				'premadeCommentListUncheckLabels':[null, null],
+				'gotoDashboard':[null, null]
 			},
 			methods: {
 				onWindowUnload:function(view){return function(){view.onWindowUnload();};}
@@ -659,6 +660,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe("deletePremadeCommentList", view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("premadeCommentLabelClicked", view.authoringToolPremadeCommentsDispatcher, view);
 					view.eventManager.subscribe("premadeCommentListUncheckLabels", view.authoringToolPremadeCommentsDispatcher, view);
+					view.eventManager.subscribe("gotoDashboard", view.authorDispatcher, view);
 					
 					if (window.parent && window.parent.portalAuthorUrl) {
 						window.parent.loaded();

@@ -10,7 +10,7 @@
 	{
 		this.initialize(textString, font, textColor, width_px, height_px, backgroundColor, strokeColor, strokeSize, hAlign, vAlign, padding_x, padding_y, shapeType, orient_at_center);
 	}
-	var p = TextContainer.prototype = new Container();
+	var p = TextContainer.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;
@@ -37,13 +37,13 @@
 		this.orient_at_center = (typeof orient_at_center === "undefined") ? false : orient_at_center;
 		
 		//background
-		this.g = new Graphics();
-		this.shape = new Shape(this.g);
+		this.g = new createjs.Graphics();
+		this.shape = new createjs.Shape(this.g);
 		this.shape.mouseEventsEnabled = true;
 		
 		this.addChild(this.shape);
 		// create text
-		this.text = new Text(this.textString, this.font, this.textColor);
+		this.text = new createjs.Text(this.textString, this.font, this.textColor);
 		this.text.textBaseline = "top";
 		this.text.mouseEnabled = false;
 		this.addChild(this.text);
@@ -90,7 +90,7 @@
 		this.textString = textString;
 		if (this.text != null) this.removeChild(this.text);
 
-		this.text = new Text(this.textString, this.font, this.textColor);
+		this.text = new createjs.Text(this.textString, this.font, this.textColor);
 		this.text.textBaseline = "top";
 		this.text.mouseEnabled = false;
 		this.addChild(this.text);
@@ -134,10 +134,10 @@
 		var offset;
 		if (this.orient_at_center)
 		{
-			offset = new Point (-this.width_px/2, -this.height_px/2);		
+			offset = new createjs.Point (-this.width_px/2, -this.height_px/2);		
 		} else
 		{
-			offset = new Point (0, 0);
+			offset = new createjs.Point (0, 0);
 		}
 
 		this.g.clear();

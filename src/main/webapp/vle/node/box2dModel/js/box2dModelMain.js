@@ -17,16 +17,18 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
         ;
 
           // GLOBAL VARIABLES, with default values
+        var b2m;
         var GLOBAL_PARAMETERS =
         {
        		"DEBUG" : true,
 	       	"INCLUDE_BUILDER": true,
-			"INCLUDE_BALANCE": true,
+			"INCLUDE_BALANCE": false,
+			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
 			"SCALE" : 20,
 	        "PADDING" : 10,
 	        "STAGE_WIDTH" : 810,
-			"STAGE_HEIGHT" : 680,
+			"STAGE_HEIGHT" : 730,
 			"PADDING" : 8,
 			"view_sideAngle" : 10*Math.PI/180,
 			"view_topAngle" : 20*Math.PI/180,
@@ -73,9 +75,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 					{"label":"spilloff-perc-filled", "units":"%", "min":0, "max":1}
 				],
 			}
-        }
-        
-		
+        }	
 		
 		// GLOBAL OBJECTS			
 		var canvas;
@@ -83,7 +83,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var builder;
 		var tester;
 		
-		function init(wiseData)
+		function init(wiseData, makePremades)
 		{
 			if (typeof wiseData === "undefined")
 			{
@@ -110,14 +110,14 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
-				start();
-			}
+				start(typeof makePremades=="undefined"? true:makePremades);
+			}	
 		}
 
-		function start()
+		function start(makePremades)
 		{
 			canvas = document.getElementById("canvas");
-			stage = new Stage(canvas);
+			stage = new createjs.Stage(canvas);
 			stage.mouseEventsEnabled = true;
 			stage.enableMouseOver();
 			stage.needs_to_update = true;
@@ -125,87 +125,13 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			// setup builder
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				builder = new ObjectBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 200);
+				builder = new ObjectBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
 				stage.addChild(builder);
-				
-				var htmlText, htmlElement;
-				// jquery ui
-				if ($("#make-object").length == 0){
-				 	htmlText = '<input type="submit" id="make-object" value="Create"/>';
-
-			        //htmlElement = $( "input[id='make-object']" )
-			        $("#builder-button-holder").append(htmlText);
-			        $("#make-object")
-			            .button()
-			            .click(function( event ) {
-			                event.preventDefault();
-			                createObjectFromBuilder();
-			            }).hide();  
-			
-
-				    htmlText = '<div id="slider-topAngle" style="height: 100px;"></div>';
-				   //$( "#slider-topAngle" )
-					$("#builder-button-holder").append(htmlText);
-					$("#slider-topAngle")
-					    .slider({
-		                   orientation: "vertical",
-		                   range: "min",
-		                   min: 0,
-		                   max: 90,
-		                   value: 20,
-		                   step: 10,
-		                   slide: function( event, ui ) {
-		                       $( "#amount" ).val( ui.value );
-		                       builder.update_view_topAngle(ui.value);
-		                   }
-		               }).hide();
-				     $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
-
-					 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
-				   //$( "#slider-topAngle" )
-					$("#builder-button-holder").append(htmlText);
-					$("#slider-sideAngle")
-					    .slider({
-					       orientation: "horizontal",	
-		                   range: "min",
-		                   min: 0,
-		                   max: 90,
-		                   value: 10,
-		                   step: 10,
-		                   slide: function( event, ui ) {
-		                       $( "#amount" ).val( ui.value );
-		                       builder.update_view_sideAngle(ui.value);
-		                   }
-		               }).hide();
-				       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
-		
-			
-
-					// setup buttons for volume viewer	
-					var element = new DOMElement($("#make-object")[0]);
-					stage.addChild(element);
-					element.x = builder.x + builder.width_px / 2 + 2 * GLOBAL_PARAMETERS.PADDING;
-					element.y = builder.y  + GLOBAL_PARAMETERS.PADDING * 2;
-
-					element = new DOMElement($("#slider-sideAngle")[0]);
-					stage.addChild(element);
-					element.x = builder.x + builder.width_px / 2 + (builder.width_px / 2 - 100) / 2 ;
-					element.y = builder.y + builder.height_px - 2 * GLOBAL_PARAMETERS.PADDING;
-					
-					element = new DOMElement($("#slider-topAngle")[0]);
-					stage.addChild(element);
-					element.x = builder.x + builder.width_px - 4 * GLOBAL_PARAMETERS.PADDING;
-					element.y = builder.y + 4 * GLOBAL_PARAMETERS.PADDING;
-					$("#make-object").show();
-					$("#slider-sideAngle").show();
-					$("#slider-topAngle").show();
-				}
-
 			}
 			var tester_y;
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				tester_y = builder.height_px;	
+				tester_y = builder.height_px + 20;	
 			} else
 			{
 				tester_y = GLOBAL_PARAMETERS.PADDING;	
@@ -214,12 +140,23 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.addChild(tester);
 			tester.y = tester_y;
 
+			var premade = GLOBAL_PARAMETERS.premades['1x1x1_DWood'];
 			
 			// make all objects given in parameters
-			for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
-			{
-				if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined")
-					createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+			if (makePremades){
+				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
+				{
+					var obj = GLOBAL_PARAMETERS.premades_available[i];
+					if (typeof obj == "object" && obj.length != "undefined" && obj.length > 0){
+						// is an array, pick one of array, replace original
+						GLOBAL_PARAMETERS.premades_available[i] = obj[Math.floor(Math.random()*obj.length)];
+						if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined"){
+							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+						}
+					} else if (typeof obj == "string" && typeof GLOBAL_PARAMETERS.premades[obj] != "undefined"){
+						createObject(GLOBAL_PARAMETERS.premades[obj]);
+					}						
+				}
 			}
 			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;
 
@@ -227,34 +164,21 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
 
 
-			Ticker.setFPS(24);
-			Ticker.addListener(window);
+			createjs.Ticker.setFPS(24);
+			createjs.Ticker.addListener(window);
 		}
 
 		function tick() 
 		{ 
-			tester._tick();
-			if (stage.needs_to_update)
+
+			if (tester != null) tester._tick();
+			if (stage != null && stage.needs_to_update)
 			{
 				stage.update();
 			}
 		}
 
-		// BUTTON INTERACTION 
-		function createObjectFromBuilder() 
-		{
-			if (builder.validObject())
-			{
-				var savedObject = builder.saveObject();
-				
-				// save to global parameters
-				if(GLOBAL_PARAMETERS.DEBUG) console.log(JSON.stringify(savedObject));
-				createObject(savedObject);
-			} else 
-			{
-				console.log("no object to make");
-			}
-		}
+		
 
 		function createObject(savedObject, already_in_globals)
 		{
@@ -271,7 +195,6 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				GLOBAL_PARAMETERS.total_objects_made++;
 				if (typeof already_in_globals === "undefined" || !already_in_globals)
 					GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
-
 				eventManager.fire("make-model", [savedObject]);
 			} else {} // too mancy shapes already			
 		}
