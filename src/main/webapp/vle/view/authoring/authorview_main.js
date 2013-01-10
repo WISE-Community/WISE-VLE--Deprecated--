@@ -686,15 +686,17 @@ View.prototype.uploadAsset = function(view){
 		//showElement('assetUploaderDialog');
 
 		var callback = function(text, xml, o){
-			if(text >= o.MAX_ASSET_SIZE){
-				o.notificationManager.notify('Maximum storage allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + ', total on server is ' + o.utils.appropriateSizeText(text) + '.', 3);
+			var assetsSizeUsed = parseInt(text.split("/")[0]);  // how much space is taken up by existing assets
+			var assetsSizeTotalMax = parseInt(text.split("/")[1]);  // how much total space is available for this project
+			if(assetsSizeUsed >= assetsSizeTotalMax){
+				o.notificationManager.notify('Maximum storage allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(assetsSizeTotalMax) + ', total on server is ' + o.utils.appropriateSizeText(assetsSizeUsed) + '.', 3);
 			} else if(view){
-				document.getElementById('sizeDiv').innerHTML = "You are using " + o.utils.appropriateSizeText(text) + " of your " + o.utils.appropriateSizeText(o.MAX_ASSET_SIZE) + " storage space.";
+				document.getElementById('sizeDiv').innerHTML = "You are using " + o.utils.appropriateSizeText(assetsSizeUsed) + " of your " + o.utils.appropriateSizeText(assetsSizeTotalMax) + " storage space.";
 			} else {
 				//$('#assetUploaderDialog').dialog('open');
 			}
 		};
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getSize', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
+		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
 	} else {
 		this.notificationManager.notify("Please open or create a project that you wish to upload assets to.", 3);
 	}
