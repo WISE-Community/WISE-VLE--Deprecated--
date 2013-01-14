@@ -844,10 +844,11 @@ View.prototype.getAssetStorage = function(){
 	if(this.project){
 		var view = this;
 		var callback = function(text, xml, o){
-			view.assetStorageUsed = parseInt(text);
-			if(text >= o.MAX_ASSET_SIZE){
+			var assetsSizeUsed = parseInt(text.split("/")[0]);  // how much space is taken up by existing assets
+			var assetsSizeTotalMax = parseInt(text.split("/")[1]);  // how much total space is available for this project
+			if(assetsSizeUsed >= assetsSizeTotalMax){
 				o.assetStorageExceeded = true;
-				//o.notificationManager.notify(o.getI18NString("authoring_dialog_assets_max_storage_exceeded"), 3, 'error', 'assetNotifications');
+				//o.notificationManager.notify('Maximum storage allocation exceeded! Maximum allowed is ' + o.utils.appropriateSizeText(assetsSizeTotalMax) + ', total on server is ' + o.utils.appropriateSizeText(assetsSizeUsed) + '.', 3);
 			} else {
 				o.assetStorageExceeded = false;
 			}
@@ -857,7 +858,7 @@ View.prototype.getAssetStorage = function(){
 			$('#sizeDiv').html(o.getStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(text), o.utils.appropriateSizeText(o.MAX_ASSET_SIZE)]));
 			$('#sizeBar').progressbar({ value: percentUsed });
 		};
-		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getSize', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
+		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
 	}
 };
 

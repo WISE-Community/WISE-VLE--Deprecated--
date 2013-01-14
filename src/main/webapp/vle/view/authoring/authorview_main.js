@@ -1078,7 +1078,6 @@ View.prototype.editProjectFile = function(){
 	}
 };
 
-
 /**
  * Export currently-opened project as a zip file. Simply directs user to a servlet that does all the work.
  */

@@ -130,8 +130,19 @@ public class AssetManager extends HttpServlet implements Servlet{
 		if(command!=null){
 			if(command.equals("remove")){
 				this.removeAsset(request, response);
-			} else if(command.equals("getSize")){
+			} else if (command.equals("getSize")){
 				response.getWriter().write(this.getSize(path, dirName));
+			} else if (command.equals("getAssetsUsageAndMax")) { 
+				String sizeUsed = this.getSize(path, dirName);
+				Long projectMaxTotalAssetsSizeLong = (Long) request.getAttribute("projectMaxTotalAssetsSize");
+				String projectMaxTotalAssetsSizeString = null;
+				if (projectMaxTotalAssetsSizeLong != null) {
+					projectMaxTotalAssetsSizeString = projectMaxTotalAssetsSizeLong.toString();
+				} else {
+					projectMaxTotalAssetsSizeString = vleProperties.getProperty("project_max_total_assets_size", "10485760");
+				}
+				String usageString = sizeUsed + "/" + projectMaxTotalAssetsSizeString;
+				response.getWriter().write(usageString);
 			} else if(command.equals("assetList")){
 				response.getWriter().write(this.assetList(request));
 			} else if(command.equals("download")){
@@ -175,8 +186,12 @@ public class AssetManager extends HttpServlet implements Servlet{
 			path = studentUploadsBaseDir;
 			maxSize = studentMaxAssetsSize;
 		} else if(projectFolderPath != null) {
-			//the user is a teacher
+			//the user is a teacher, trying to upload an asset to the project using the authoring tool
 			path = projectFolderPath;
+			Long projectMaxTotalAssetsSizeLong = (Long) request.getAttribute("projectMaxTotalAssetsSize");
+			if (projectMaxTotalAssetsSizeLong != null) {
+				maxSize = projectMaxTotalAssetsSizeLong;
+			}
 		}
 
 		try{
@@ -405,9 +420,7 @@ public class AssetManager extends HttpServlet implements Servlet{
 		}
 
 		/**
-		 * Given an <code>HttpServletRequst</code> request that contains
-		 * a path, returns the size in bytes of all of the files in the assets
-		 * folder in that path.
+		 * Returns the size in bytes of all of the files in the specified path/dirname
 		 * 
 		 * @param <code>HttpServletRequest</code> request
 		 * @return <code>String</code> size of all files in assets folder in bytes
