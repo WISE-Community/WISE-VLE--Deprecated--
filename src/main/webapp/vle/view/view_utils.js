@@ -1218,9 +1218,12 @@ View.prototype.getAnnotationsByType = function(annotationType) {
  * (default is 'hover')
  * - tooltip-anchor: 'bottom', 'top', 'left', and 'right' set the positions of the tooltip to bottom, top, left, 
  * and right respectively (default is 'top')
- * - tooltip-maxw: 'X' sets the max-width of the tooltip element to X pixels (default is '400');
+ * - tooltip-maxw: 'X' sets the max-width of the tooltip element (accepts any valid css 'max-width' value, e.g 
+ * '100px', '50%', 'auto'; default is '400px');
  * - tooltip-content: String (or HTML String) to set as the tooltip's content (default is the element's 
  * title attribute)
+ * - tooltip-title: String (or inline HTML) to set as the tooltip's title (this will prepend an h3 element
+ * to the tooltip content)
  * - tooltip-class: String to add to the tooltip element's css class (default is none)
  * - tooltip-offset: 'X' sets the offset of the tooltip element to X pixels (default is '0')
  * - tooltip-delay: 'X' sets the appearance delay of the tooltip element to X milliseconds (default is '200')
@@ -1249,6 +1252,7 @@ View.prototype.insertTooltips = function(target,options){
 		// set options based on target element attributes
 		if(item.data('tooltip-event') == 'click' || jQuery.browser.mobile){ // if using a mobile browser, always set activation to 'click' (mobile browsers don't support hover events well)
 			settings['activation'] = 'click';
+			settings['keepAlive'] = true; // if activation is set to click, always keep tip alive
 		} else if(item.data('tooltip-event') == 'hover'){
 			settings['activation'] = 'hover';
 		} else if(item.data('tooltip-event') == 'manual'){
@@ -1264,7 +1268,7 @@ View.prototype.insertTooltips = function(target,options){
 			settings['defaultPosition'] = 'top';
 		}
 		if(typeof item.data('tooltip-maxw') == 'string'){
-			settings['maxWidth'] = item.data('tooltip-maxw') + 'px';
+			settings['maxWidth'] = item.data('tooltip-maxw');
 		}
 		if(typeof item.data('tooltip-content') == 'string'){
 			settings['content'] = item.data('tooltip-content');
@@ -1294,6 +1298,10 @@ View.prototype.insertTooltips = function(target,options){
 			// if title is set and content is not, set content to title value and remove title
 			settings.content = item.attr('title');
 			item.removeAttr('title');
+		}
+		
+		if(typeof item.data('tooltip-title') == 'string'){
+			settings['content'] = '<h3>' + item.data('tooltip-title') + '</h3>' + settings['content'];
 		}
 		
 		// initialize tipTip on element
@@ -1501,6 +1509,35 @@ View.prototype.utils.getImageDimensions = function(url,callback){
  */
 View.prototype.utils.getSwfDimensions = function(url,callback){
 	// TODO: accomplish by loading swf in a helper swf that loads the file and sends dimensions to browser via ExternalInterface
+};
+
+/**
+ * If jQuery dialog height is larger than window height, adjusts dialog to fit window (with
+ * 20px padding on top and bottom)
+ * @param element DOM element of jQuery dialog
+ */
+View.prototype.utils.adjustDialogHeight = function(element){
+	var winH = $(window).height()-40,
+		minH = $(element).dialog("option","minHeight"),
+		dialogH = $(element).parent().outerHeight(),
+		contentH = $(element).outerHeight(),
+		nonContentH = dialogH - contentH;
+	
+	// if window height is larger than dialog's minHeight option, resize to fit window height
+	// otherwise, do not resize because minHeight option should take precedent
+	if(winH > minH && $(element).parent().height() > winH){
+    	$(element).parent().height(winH);
+    	$(element).height($(element).parent().height()-nonContentH);
+    	$(element).scrollTop(0);
+	    
+		if($(element).dialog("option","modal") === true){
+			// resize jQuery widget overlay to fit window dimensions
+		    $('.ui-widget-overlay').height('100%').width('100%');
+		}
+	    
+	    // re-center dialog 
+	    $(element).dialog({position: "center"});
+	}
 };
 
 /**
