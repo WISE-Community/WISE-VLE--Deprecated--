@@ -24,7 +24,9 @@ View.prototype.initializeAssetEditorDialog = function(){
 	},false);
 	
 	// insert info (help) icon tooltip content
-	$('#assetsHelp').attr('title',view.getStringWithParams('help_authoring_assets_info', [maxAssetSize,view.allowedAssetExtensionsByType['image'].join(', '),view.allowedAssetExtensionsByType['video'].join(', '),view.allowedAssetExtensionsByType['audio'].join(', '),view.allowedAssetExtensionsByType['flash'].concat(view.allowedAssetExtensionsByType['flashvideo']).join(', '),view.allowedAssetExtensionsByType['java'].join(', '),view.allowedAssetExtensionsByType['misc'].join(', ')]));
+	$('#assetsHelp').addClass('tooltip').data({'tooltip-class':'info', 'tooltip-anchor':'left', 'tooltip-event':'click', 'tooltip-content':view.getStringWithParams('help_authoring_assets_info', [maxAssetSize,view.allowedAssetExtensionsByType['image'].join(', '),view.allowedAssetExtensionsByType['video'].join(', '),view.allowedAssetExtensionsByType['audio'].join(', '),view.allowedAssetExtensionsByType['flash'].concat(view.allowedAssetExtensionsByType['flashvideo']).join(', '),view.allowedAssetExtensionsByType['java'].join(', '),view.allowedAssetExtensionsByType['misc'].join(', ')])});
+	// insert tooltip
+	view.insertTooltips($('#assetsHelp'));
 	
 	// bind asset select all checkbox click action
 	$('#assetSelectAll').off('click').on('click',function(e){
@@ -32,9 +34,49 @@ View.prototype.initializeAssetEditorDialog = function(){
 		$(this).prop('checked') == true ? view.selectAssetsAll() : view.selectAssetsNone();
 	});
 	
-	// bind uploadFile button click to open file selector
-	$('#uploadFile').off('click').on('click',function(){
-		//$('#uploadAssetFile').click();
+	// close dialog function
+	var done = function(){
+		// clear out asset editor params, notifications, and upload progress
+		view.assetEditorParams = null;
+		$('#assetNotifications').empty();
+		$('#uploadsWrapper').removeClass('show').hide().html('');
+		$('#uploadDrop').addClass('show').height('').show();
+		if(view.uploadTimeout){
+			view.uploadTimeout.clearTimeout();
+		}
+	};
+	
+	var show = function(element){
+		// unfocus all dialog buttons (jQuery focuses 1st button by default)
+		$('.ui-dialog-buttonset .ui-button', $(element)).blur();
+		
+		// unfocus input elements (jQuery UI automatically focuses first input element on dialog open - will be fixed in jQuery 1.10: http://bugs.jqueryui.com/ticket/4731)
+		$('input, button',$(element)).blur();
+		
+		// refresh pluploader instance and fix z-index problem
+		view.assetUploader.refresh();
+		$('#uploadFile').css('zIndex',1); // default was 0
+		$('#assetUpload > div.plupload').css('zIndex',0); // default was -1, which was making browse click not work in Chrome/Webkit
+	};
+	
+	// set default buttons for asset editor dialog
+	//this.assetEditorButtons = [{text: this.getI18NString("close"), click: function(){ $('#assetEditorDialog').dialog('close'); }, class: 'secondary'}, 
+								//{text: this.getI18NString("authoring_dialog_assets_remove"), click: remove}];
+	
+	// setup asset editor dialog
+	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:800, title: this.getI18NString("authoring_dialog_assets_title"),
+		//buttons: this.assetEditorButtons,
+		dialogClass: 'settings',
+		open: function(){
+			show.call(this);
+		},
+		close: done,
+		beforeclose: function(){
+			// prevent dialog from closing when uploads are in progress
+			if(view.assetUploader.state === 2){
+				return false;
+			}
+		}
 	});
 	
 	// setup pluploader instance for file uploads
@@ -283,46 +325,6 @@ View.prototype.initializeAssetEditorDialog = function(){
 		// HTML5 drag and drop not supported, so remove asset drop area
 		$('#uploadDrop').remove();
 	}
-	
-	// close dialog function
-	var done = function(){
-		// clear out asset editor params, notifications, and upload progress
-		view.assetEditorParams = null;
-		$('#assetNotifications').empty();
-		$('#uploadsWrapper').removeClass('show').hide().html('');
-		$('#uploadDrop').addClass('show').height('').show();
-		if(view.uploadTimeout){
-			view.uploadTimeout.clearTimeout();
-		}
-	};
-	
-	var show = function(){
-		// refresh pluploader instance and fix z-index problem
-		view.assetUploader.refresh();
-		$('#uploadFile').css('zIndex',1); // default was 0
-		$('#assetUpload > div.plupload').css('zIndex',0); // default was -1, which was making browse click not work in Chrome/Webkit
-		
-		// unfocus input elements (jQuery UI automatically focuses first input element on dialog open - will be fixed in jQuery 1.9: http://bugs.jqueryui.com/ticket/4731)
-		$('#assetEditorDialog input').blur();
-	};
-	
-	// set default buttons for asset editor dialog
-	//this.assetEditorButtons = [{text: this.getI18NString("close"), click: function(){ $('#assetEditorDialog').dialog('close'); }, class: 'secondary'}, 
-								//{text: this.getI18NString("authoring_dialog_assets_remove"), click: remove}];
-	
-	// setup asset editor dialog
-	$('#assetEditorDialog').dialog({autoOpen:false, draggable:true, modal:true, width:800, title: this.getI18NString("authoring_dialog_assets_title"),
-		//buttons: this.assetEditorButtons,
-		dialogClass: 'settings',
-		open: show,
-		close: done,
-		beforeclose: function(){
-			// prevent dialog from closing when uploads are in progress
-			if(view.assetUploader.state === 2){
-				return false;
-			}
-		}
-	});
 };
 
 /**
@@ -575,12 +577,12 @@ View.prototype.insertAsset = function(details){
 		status = 'active';
 		usageTxt = activeSteps.length;
 		if(inactiveSteps.length > 0) {
-			usageTxt += '(' + inactiveSteps.length + ')';
+			usageTxt += ' (' + inactiveSteps.length + ')';
 		}
 	} else if(inactiveSteps.length > 0) {
 		//the asset is only used in inactive steps
 		status = 'inactive';
-		usageTxt = '(' + inactiveSteps.length + ')';
+		usageTxt = ' (' + inactiveSteps.length + ')';
 	} else {
 		//the asset is not used in any step
 		status = 'notUsed';
@@ -663,8 +665,6 @@ View.prototype.insertAsset = function(details){
 					if(status == 'active'){
 						liContent = '<b>' + view.getI18NString('authoring_dialog_assets_inactive') + '</b> ' + liContent;
 					}
-					
-					// TODO: adjust step numbering depending on whether project is numbered by step or project
 					
 					// create list item for step
 					var li = '<li>' + liContent + '</li>';
@@ -842,7 +842,6 @@ View.prototype.previewAsset = function(filename,mimetype){
  */
 View.prototype.getAssetStorage = function(){
 	if(this.project){
-		var view = this;
 		var callback = function(text, xml, o){
 			var assetsSizeUsed = parseInt(text.split("/")[0]);  // how much space is taken up by existing assets
 			var assetsSizeTotalMax = parseInt(text.split("/")[1]);  // how much total space is available for this project
@@ -853,9 +852,9 @@ View.prototype.getAssetStorage = function(){
 				o.assetStorageExceeded = false;
 			}
 			
-			var percentUsed = view.assetStorageUsed/o.MAX_ASSET_SIZE*100;
+			var percentUsed = assetsSizeUsed/assetsSizeTotalMax*100;
 			(percentUsed > 80) ? $('#assetUsage').addClass('full') : $('#assetUsage').removeClass('full');
-			$('#sizeDiv').html(o.getStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(text), o.utils.appropriateSizeText(o.MAX_ASSET_SIZE)]));
+			$('#sizeDiv').html(o.getStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(assetsSizeUsed), o.utils.appropriateSizeText(assetsSizeTotalMax)]));
 			$('#sizeBar').progressbar({ value: percentUsed });
 		};
 		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);

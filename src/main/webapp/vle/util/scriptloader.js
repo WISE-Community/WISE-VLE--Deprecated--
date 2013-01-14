@@ -572,7 +572,7 @@ var scriptloader = function(){
         'vle/xmpp/js/teacher.js':['vle/xmpp/js/sail.js/sail.js','vle/xmpp/js/sail.js/sail.strophe.js'],
         'vle/view/authoring/authorview_startup.js':['vle/view/i18n/view_i18n.js'],
         'vle/util/plupload/js/plupload.html4.js':['vle/util/plupload/js/plupload.js'],
-        'vle/util/plupload/js/plupload.html5.js':['vle/util/plupload/js/plupload.js']
+        'vle/util/plupload/js/plupload.html5.js':['vle/util/plupload/js/plupload.js'],
         'vle/navigation/tagmapconstraints/MustCompleteBeforeAdvancingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
         'vle/navigation/tagmapconstraints/MustCompleteBeforeExitingConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
         'vle/navigation/tagmapconstraints/MustCompleteXBeforeConstraint.js':['vle/navigation/tagmapconstraints/TagMapConstraint.js'],
