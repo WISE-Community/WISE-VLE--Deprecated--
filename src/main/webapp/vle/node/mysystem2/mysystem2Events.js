@@ -38,7 +38,7 @@ View.prototype.mysystem2Dispatcher = function(type,args,obj){
     obj.Mysystem2Node.AuthoringIFrameLoaded();
   }
   if(type === 'previewFrameLoaded') {
-    obj.Mysystem2Node.previewFrameLoaded();
+    //obj.Mysystem2Node.previewFrameLoaded();
   }
 };
 
