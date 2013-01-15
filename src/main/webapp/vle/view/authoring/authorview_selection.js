@@ -7,6 +7,99 @@
  */
 
 /**
+ * 
+ * 
+ * @param nLi
+ */
+View.prototype.selectStep = function(nLi){
+	var step = $(nLi),
+		selectedPos = jQuery.inArray(step.attr('id'),$('#sequenceEditor').data('selected'))
+
+	// check if step was previously selected or not
+	if(step.hasClass('selected')){
+		// row was selected, so deselect
+		step.removeClass('selected');
+		$('input.cbx',step).prop('checked',false);
+		// remove from selected data array
+		if(selectedPos > -1){
+			$('#sequenceEditor').data('selected').splice(selectedPos,1);
+		}
+	} else {
+		// step was not selected, so select
+		step.addClass('selected');
+		$('input.cbx',step).prop('checked',true);
+		// add to selected data array (if not already there)
+		if(selectedPos < 0){
+			$('#sequenceEditor').data('selected').push(step.attr('id'));
+		}
+	}
+	
+	var numSelected = $('#sequenceEditor li.node.selected').length;
+	
+	if(numSelected > 0){
+		// enable step action buttons
+		$('#stepActions button').prop('disabled',false);
+	} else {
+		// disable step action buttons
+		$('#stepActions button').prop('disabled',true);
+	}
+
+	// if all steps are selected, set select all checkbox to checked; vice versa
+	numSelected === ($('#sequenceEditor li.node').length) ? $('#stepSelectAll').prop('checked',true) : $('#stepSelectAll').prop('checked',false);
+};
+
+/**
+ * 
+ * @param onComplete
+ */
+View.prototype.selectStepsNone = function(onComplete){
+	// deselect all steps
+	$('li.node',$('#sequenceContent')).each(function(){
+		$(this).removeClass('selected');
+		$('.cbx',$(this)).prop('checked',false);
+	});
+	
+	// clear selection data from sequenceEditor
+	$('#sequenceEditor').data('selected',[]);
+	
+	// disable step action buttons
+	$('#stepActions button').prop('disabled',true);
+	
+	// deselect select all checkbox
+	$('#stepSelectAll').prop('checked',false);
+	
+	if(onComplete){
+		onComplete();
+	}
+};
+
+/**
+ * 
+ * @param onComplete
+ */
+View.prototype.selectStepsAll = function(onComplete){
+	var view = this;
+	
+	// clear selections
+	view.selectStepsNone();
+	
+	// select all steps
+	$('li.node',$('#sequenceContent')).each(function(){
+		view.selectStep($(this)[0]);
+	});
+	
+	if(onComplete){
+		onComplete();
+	}
+};
+
+
+/**
+ * LEGACY FUNCTIONS - TODO: remove unused, update remaining
+ */
+
+
+/**
  * Toggles whether the element with the given id is selected or not
  */
 View.prototype.selectClick = function(id){

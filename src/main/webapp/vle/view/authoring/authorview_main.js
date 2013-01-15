@@ -393,12 +393,13 @@
  * opened project.
  */
 View.prototype.generateAuthoring = function(){
-	var view = this,
-		$parent = $('#dynamicProject');
+	var view = this;
 	//$('#projectButtons button').removeAttr('disabled');
 	
 	//remove any old elements and clear variables
-	$parent.empty();
+	//$parent.empty();
+	$('#activeContainer').empty();
+	$('#inactiveContainer').empty();
 	this.currentStepNum = 1;
 	this.currentSeqNum = 1;
 	
@@ -426,9 +427,10 @@ View.prototype.generateAuthoring = function(){
 	existingTable.appendChild(existingTB);*/
 	
 	// generate active project structure container
-	var activeContainer = createElement(document,'ul',{id: 'activeContainer'});
-	$parent.append(activeContainer);
+	//var activeContainer = createElement(document,'ul',{id: 'activeContainer'});
+	//$parent.append(activeContainer);
 	
+	var activeContainer = $('#activeContainer');
 	if(this.project.getRootNode()){
 		this.generateNodeElement(this.project.getRootNode(), null, activeContainer, 0, 0);
 	};
@@ -449,17 +451,18 @@ View.prototype.generateAuthoring = function(){
 	uSeqTR.appendChild(uSeqTD);
 	
 	var unusedSeqDiv = createElement(document, 'div', {id: 'uSeq', 'class': 'uSeq', onclick: 'eventManager.fire("selectClick","uSeq")', onMouseOver: 'eventManager.fire("checkAndSelect","uSeq")', onMouseOut: 'eventManager.fire("checkAndDeselect","uSeq")'});
-	var unusedSeqText = document.createTextNode('Inactive Activities');
+	var unusedSeqText = document.createTextNode('Inactive Activities');*/
 	var unusedSeqs = this.project.getUnattached('sequence');
 	
-	uSeqTD.appendChild(unusedSeqDiv);
+	/*uSeqTD.appendChild(unusedSeqDiv);
 	unusedSeqDiv.appendChild(unusedSeqText);
-	unusedSeqDiv.innerHTML += ' <span>(Not Shown in Project)</span>';
+	unusedSeqDiv.innerHTML += ' <span>(Not Shown in Project)</span>';*/
+	var inactiveContainer = $('#inactiveContainer');
 	for(var d=0;d<unusedSeqs.length;d++){
-		this.generateNodeElement(unusedSeqs[d], null, uSeqTB, 0, 0);
+		this.generateNodeElement(unusedSeqs[d], null, inactiveContainer, 0, 0);
 	};
 	
-	var uNodeTable = createElement(document, 'table', {id: 'unusedNodeTable'});
+	/*var uNodeTable = createElement(document, 'table', {id: 'unusedNodeTable'});
 	var uNodeTH = createElement(document, 'thead');
 	var uNodeTB = createElement(document, 'tbody', {id: 'unusedNodeTableBody'});
 	var uNodeTR = createElement(document, 'tr', {id: 'unusedNodeTitleRow'});
@@ -484,6 +487,24 @@ View.prototype.generateAuthoring = function(){
 		this.generateNodeElement(unusedNodes[e], null, uNodeTB, 0, 0);
 	};*/
 	
+	var unusedNodes = this.project.getUnattached('node');
+	if(unusedNodes.length>0){
+		var stepTerm = view.getI18NString('step');
+		if(unusedNodes.length>1){
+			stepTerm = view.getI18NString('step_plural');
+		}
+		var unusedEl = $('<li id="unusedNodes" class="projectNode seq inactive">' +
+				'<div class="seqWrap"><div class="sequenceTitle ui-widget-header">' +
+				'<div class="title">' + view.getI18NString('authoring_project_content_inactive_steps') + '</div>' + 
+				'</div><ul class="sequence"></ul>' +
+				'<div class="sequenceInfo"><span class="nodeCount">' + unusedNodes.length + ' ' + stepTerm + ' +</span>' +
+				'</div></li>');
+		inactiveContainer.append(unusedEl);
+		for(var e=0;e<unusedNodes.length;e++){
+			this.generateNodeElement(unusedNodes[e], null, $('ul.sequence',unusedEl), 0, 0);
+		}
+	}
+	
 	//notify user if any of their project violates their project structure mode and
 	//advise to fix it in advanced structure mode if it does.
 	// TODO: remove/update once new project structure is implemented
@@ -497,102 +518,28 @@ View.prototype.generateAuthoring = function(){
 	// make sequences sortable
 	$('#activeContainer').sortable({
 		placeholder:'dragTarget',
-		tolerance:'pointer',
-		revert:100,
-		opacity:.9
+		//tolerance:'pointer',
+		revert:100
+		//opacity:.9
 	});
 	
 	// show number of nodes per sequence
 	$('#dynamicProject .seq').each(function(){
-		view.initSequence(this);
+		view.initSequence($(this).get(0));
 	});
 	
-	this.updateSelectCounts();
+	//this.updateSelectCounts();
+	
+	if($('#sequenceEditor').is(':visible')){
+		// sequence is being edited, so update its content
+		var target = $('#sequenceEditor').attr('data-contentid');
+		view.editSequence($('#' + target).get(0));
+	}
 	
 	$(window).resize(function() {
 		eventManager.fire('browserResize');
 	});
 	eventManager.fire('browserResize');
-};
-
-/**
- * Initializes new sequence DOM elements
- * @param target DOM element containing sequence contents
- */
-View.prototype.initSequence = function(target){
-	var seq = $(target), view = this;
-	/*seq.draggable({
-		handle: '.sequenceTitle'
-	});*/
-	var split = seq.attr('id').split('--');
-	var sequenceId = split[1];
-	var numNodes = $('[id^='+sequenceId+']').length;
-	if(numNodes==1){
-		seq.append('<div id="'+ sequenceId +'_count" class="nodeCount"><span class="toggle">'+ numNodes +' Step +</span><span class="selectCount"></span></div>');
-	} else {
-		seq.append('<div id="'+ sequenceId +'_count" class="nodeCount"><span class="toggle">'+ numNodes +' Steps +</span><span class="selectCount"></span></div>');
-		if(numNodes>3){
-			$('.more',seq).show();
-		}
-	}
-	
-	$('li.node',seq).each(function(index){
-		if(index>2){
-			$(this).addClass('extra');
-		}
-	});
-	
-	$('.nodeCount .toggle', seq).off('click');
-	$('.nodeCount .toggle', seq).on('click',function(){
-		if(seq.hasClass('selected')){
-			view.toggleSequence(target,false);
-		} else {
-			view.toggleSequence(target,true);
-		}
-	});
-	
-	seq.off('dblclick');
-	seq.on('dblclick',function(){
-		if(seq.hasClass('selected')){
-			view.toggleSequence(target,false);
-		} else {
-			view.toggleSequence(target,true);
-		}
-	});
-};
-
-View.prototype.toggleSequence = function(target,expand){
-	var view = this,
-		doExpand = (expand===true) ? true : false,
-		seq = $(target);
-	
-	if(doExpand){
-		seq.addClass('selected');
-		var toggleText = $('.nodeCount .toggle',seq).html().replace('+','-');
-		$('.nodeCount .toggle',seq).html(toggleText);
-		$('.more',seq).slideUp(250);
-		$('li.node.extra',seq).each(function(){
-			$(this).slideDown(250);
-		});
-		$('ul.sequence',seq).sortable({
-			placeholder: 'placeholder'
-		});
-		seq.siblings().each(function(){
-			view.toggleSequence(this,false);
-		});
-	} else {
-		seq.removeClass('selected');
-		var toggleText = $('.nodeCount .toggle',seq).html().replace('-','+');
-		$('.nodeCount .toggle',seq).html(toggleText);
-		var numNodes = $('li.node',seq).length;
-		if(numNodes>3){
-			$('.more',seq).slideDown(250);
-		}
-		$('li.node.extra',seq).each(function(){
-			$(this).slideUp(250);
-		});
-		$('ul.sequence',seq).sortable('destroy');
-	}
 };
 
 /**
@@ -606,13 +553,15 @@ View.prototype.toggleSequence = function(target,expand){
  * @param pos - position in reference to its siblings (if no parent or siblings, this will be 0)
  */
 View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
+	var view = this;
+	
 	//create an id that represents this node's absolute position in the project/sequence
 	var absId = parentNode ? parentNode.id + '--' + node.id + '--' + pos : 'null--' + node.id + '--' + pos;
 	var title = node.getTitle();
 	var targetEl = el;
 	
 	//project structure validation
-	// TODO: update/remove when new project structure is implemented
+	// TODO: remove (deprecated)
 	if(el.id=='activeContainer' && this.simpleProject){
 		if(depth>2 || (depth==1 && node.type!='sequence') || (depth==2 && node.type=='sequence')){
 			this.projectStructureViolation = true;
@@ -644,24 +593,34 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	//mainTD.appendChild(mainDiv);
 	
 	if(node.type=='sequence' && (this.getProject().getRootNode() && node.id!=this.project.getRootNode().id)){
-		var sequenceEl = createElement(document, 'li', {id: absId, 'class': 'projectNode seq'}),
-			seqTitleEl = createElement(document, 'div', {id: 'seqTitle_' + absId, 'class': 'sequenceTitle'});
-		//var seqTitleDiv = createElement(document, 'div', {id: 'seqTitleDiv_' + absId});
-		var titleText = 'Activity';
-		if(absId.match(/null.*/)){
-			titleText += ': ';
-		} else {
-			titleText += ' ' + this.currentSeqNum + ': ';
-			this.currentSeqNum++;
-		}
-		$(seqTitleEl).text(titleText + ' ' + title);
-		$(sequenceEl).append(seqTitleEl);
-		var seqUl = createElement(document, 'ul', {id: 'seqContents_' + absId, 'class': 'sequence'});
-		var moreDiv = createElement(document, 'div', {'class': 'more'});
-		$(moreDiv).html('...');
-		$(sequenceEl).append(seqUl).append(moreDiv);
+		var isActive = ($(el).attr('id')=='activeContainer');
 		
+		var sequenceEl = createElement(document, 'li', {id: absId, 'class': 'projectNode seq'}),
+			sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
+			seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
+		
+		var titleText = view.utils.capitalize(view.getI18NString('activity'));
+		if(isActive){
+			titleText += ' ' + this.currentSeqNum + ': ';
+			$(sequenceEl).attr('data-pos',this.currentSeqNum);
+			this.currentSeqNum++;
+			$(seqTitleEl).append('<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>');
+		} else {
+			titleText += ': ';
+			$(sequenceEl).addClass('inactive');
+		}
+		titleText += ' ' + title;
+		var seqTitleDiv = $(createElement(document, 'div', {'class': 'title'})).html(titleText);
+		$(seqTitleEl).append(seqTitleDiv);
+		$(sequenceWrap).append(seqTitleEl);
+		var seqUl = createElement(document, 'ul', {'class': 'sequence'});
+		$(sequenceWrap).append(seqUl);
+		$(sequenceEl).append(sequenceWrap);
 		$(el).append(sequenceEl);
+		
+		// attach node data to element
+		$(sequenceEl).data('node',node);
+		
 		//var choiceDiv = createElement(document, 'div', {id: 'choiceDiv_' + absId});
 		
 		//mainDiv.appendChild(seqTitleDiv);
@@ -685,9 +644,11 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		}
 		
 		targetEl = seqUl;
-	} else if(!absId.match(/null.*/)) {
-		var nodeEl = createElement(document, 'li', {id: absId, 'class': 'projectNode node'}),
-			nodeTitleEl = createElement(document, 'span', {id: 'nodeTitle_' + absId});
+	} else if(!absId.match(/null--startsequence/) && !absId.match(/null--master/)) {
+		var nodeEl = createElement(document, 'li', {'class': 'projectNode node'}),
+			nodeTitleEl = createElement(document, 'span', {'class': 'title'}),
+			nodeTitleTextEl = createElement(document, 'span'),
+			nodeTypeEl = createElement(document, 'span', {'class': 'type'});
 		
 		//the html for the review html
 		var reviewHtml = "",
@@ -739,7 +700,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		var nodeIconPath = null;
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){
 			nodeIconPath = this.nodeIconPaths[node.type];
-			$(nodeEl).append('<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/>');
+			$(nodeEl).append('<img class="nodeIcon" src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/>');
 			//mainDiv.innerHTML = reviewHtml + tabs + '<img src=\'' + iconUrl + node.getNodeClass() + '16.png\'/> ';
 			//mainDiv.innerHTML = '<img src=\'' + nodeIconPath + node.getNodeClass() + '16.png\'/> ';
 		} //else {
@@ -751,60 +712,35 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 			//$(mainDiv).css('margin-left',marginlt);
 		//}
 		
+		// insert step term and position
 		var titleText = '';
 		if(el.id!='unused'){
+			var stepTerm = this.getProject().getStepTerm(),
+				stepNum = this.getProject().getVLEPositionById(node.id);
 			if(absId.match(/null.*/)){
-				titleText = this.getProject().getStepTerm() + ': ';
+				titleText = stepTerm + ': ';
 			} else {
-				titleText = this.getProject().getStepTerm() + ' ' + this.getProject().getVLEPositionById(node.id) + ': ';
+				if(stepNum == 'NaN'){
+					titleText = stepTerm + ': ';
+				} else {
+					titleText = stepTerm + ' ' + stepNum + ': ';
+				}
 				this.currentStepNum++;
 			}
+			if (stepTerm == '' && stepNum == 'NaN'){
+				titleText = titleText.replace(/:\s$/,'');
+			}
 		}
+		$(nodeTitleTextEl).text(titleText);
+		
+		var nodeType = '(' + view.utils.getAuthoringNodeName(node.type) + ')';
+		$(nodeTypeEl).text(nodeType);
 		
 		$(nodeTitleEl).text(title);
-		$(nodeEl).append(titleText).append(nodeTitleEl);
+		$(nodeEl).append(nodeTitleTextEl).append(nodeTitleEl).append(nodeTypeEl);
 		
 		//mainDiv.appendChild(titleInput);
 		//mainDiv.className = 'projectNode node';
-		
-		//set up select for changing this node's icon
-		/*var selectNodeText = document.createTextNode('Icon: ');
-		var selectDrop = createElement(document, 'select', {id: 'nodeIcon_' + node.id, onchange: 'eventManager.fire("nodeIconUpdated","' + node.id + '")'});
-		mainDiv.appendChild(selectNodeText);
-		mainDiv.appendChild(selectDrop);*/
-		
-		var nodeClassesForNode = [];
-		//var nodeIconPath;
-
-		/* check to see if current node is in nodeTypes, if not ignore so that authoring 
-		 * tool will continue processing remaining nodes. Resolve duplicate nodes to the
-		 * type of the node that they represent */
-		if(node.type=='DuplicateNode'){
-			nodeClassesForNode = this.nodeClasses[node.getNode().type];
-			nodeIconPath = this.nodeIconPaths[node.getNode().type];
-		} else {
-			nodeClassesForNode = this.nodeClasses[node.type];
-			nodeIconPath = this.nodeIconPaths[node.type];
-		}
-		
-		//populate select with icons for its step type
-		/*if(nodeClassesForNode.length > 0){
-			var opt = createElement(document, 'option');
-			opt.innerHTML = '';
-			opt.value = '';
-			selectDrop.appendChild(opt);
-			
-			for(var x=0; x<nodeClassesForNode.length; x++) {
-				var nodeClassObj = nodeClassesForNode[x];
-				var opt = createElement(document, 'option');
-				opt.value = nodeClassObj.nodeClass;
-				opt.innerHTML = '<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText;
-				selectDrop.appendChild(opt);
-				if(node.getNodeClass() == nodeClassObj.nodeClass){
-					selectDrop.selectedIndex = x + 1;
-				}
-			}
-		}*/
 		
 		/* add max scores input field. values will be set on retrieval of metadata */
 		/*var maxScoreText = document.createTextNode('Max Score: ');
@@ -847,6 +783,9 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		mainDiv.appendChild(editInput);*/
 		
 		$(el).append(nodeEl);
+		
+		// attach node data and absId to element
+		$(nodeEl).data('node',node).attr('data-id',absId).attr('data-nodeid',node.id);
 	}
 	
 	// create select checkbox for this node
@@ -862,6 +801,382 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 };
 
 /**
+ * Initializes new sequence DOM elements
+ * @param target DOM element containing sequence contents
+ */
+View.prototype.initSequence = function(target){
+	var seq = $(target), 
+		view = this,
+		isActive = !seq.hasClass('inactive');
+	
+	// populate sequence info footer
+	// TODO: modify to support branching sequences
+	
+	//var split = seq.attr('id').split('--');
+	//var sequenceId = split[1];
+	var numNodes = $('.node',seq).length;
+	var stepTerm = view.getI18NString('step');
+	if(numNodes>1){
+		stepTerm = view.getI18NString('step_plural');
+	}
+	
+	// insert info element with number of steps/branches
+	var infoEl = $('<div class="sequenceInfo"><span class="nodeCount">'+ numNodes +' ' + stepTerm + ' +</span></div>');
+	
+	// insert delete and hide/show links
+	if(seq.attr('id')!=='unusedNodes'){
+		var actionsEl = $('<div class="actions"></div>');
+		var hideLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/></a>');
+		if(!isActive){
+			// sequence is inactive, so add show link instead of hide link
+			hideLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/></a>');
+		}
+		var deleteLink = $('<a class="tooltip" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png"/></a>');
+		
+		// TODO: bind click actions
+		
+		actionsEl.append(hideLink).append(deleteLink);
+		infoEl.append(actionsEl);
+		
+		$('.seqWrap',seq).append(infoEl);
+		
+		// add tooltips
+		view.insertTranslations('main',view.insertTooltips(infoEl));
+	} else {
+		$('li.node',seq).addClass('unused');
+	}
+	
+	// bind sequence click action
+	seq.on('click',function(){
+		if(!$(this).hasClass('ui-sortable-helper')){
+			view.editSequence(target);
+		}
+	});
+};
+
+/**
+ * 
+ * @param target DOM element representing sequence to edit
+ */
+View.prototype.editSequence = function(target){
+	var view = this,
+		headTitle = view.getI18NString('authoring_project_content_inactive_steps'),
+		nodeTitle = view.getI18NString('authoring_project_content_unused_steps'),
+		seq = $(target),
+		isActivity = (seq.attr('id')!=='unusedNodes'),
+		isActive = !seq.hasClass('inactive'),
+		node = null,
+		selected = [];
+	
+	// hide dynamic project and show sequence editor
+	if($('#dynamicProject').is(':visible')){
+		$('#dynamicProject').fadeOut(function(){
+			$('#sequenceEditor').fadeIn();
+		});
+	}
+	
+	function populateSequence() {
+		$('#sequenceEditor').attr('data-contentid',seq.attr('id'));
+		
+		var contentEl = $('#sequenceContent');
+		
+		// clear contents
+		contentEl.empty();
+		
+		// insert sequence title
+		var headerClass = isActive ? 'panelHeader' : 'panelHeader inactive';
+		var seqHead = $('<div class="' + headerClass + '"></div>');
+		var titleEl = $('<span>' + nodeTitle + '</span>');
+		var titleInput = '';
+		if(isActivity){
+			// create title display and input elements
+			node = seq.data('node');
+			if(isActive){
+				headTitle = view.utils.capitalize(view.getI18NString('activity')) + ' ' + seq.data('pos');
+			} else {
+				headTitle = view.getI18NString('authoring_project_content_inactive_activity');
+			}
+			nodeTitle = node.title;
+			
+			titleEl = $('<span class="nodeTitle"><span id="nodeTitle_' + node.id + '">' + nodeTitle + '</span>' +
+					'<a>' + view.getI18NString('authoring_project_content_edit_title') + '</a></span>');
+			titleInput = $(createElement(document, 'input', {id: 'titleInput_' + node.id, type: 'text', 'class':'seqTitleInput', 'maxlength':'50', value: node.getTitle()}));
+			
+			// on title click, show title input element
+			titleEl.on('click',function(){
+				$(this).hide();
+				var val = titleInput.val();
+				titleInput.width(titleEl.width()).show().focus().val('').val(val);
+			});
+			
+			// bind title input change event
+			titleInput.on('change blur keyup',function(e){
+				if(e.type === 'keyup' && e.keyCode !== 10 && e.keyCode !== 13) return;
+				if(e.type === 'change'){
+					// fire nodeTitleChanged event
+					eventManager.fire('nodeTitleChanged',node.id);
+				}
+				// hide seq title input & show title span
+				$(this).hide();
+				titleEl.show();
+			});
+		}
+		
+		// add display and input elements to DOM
+		seqHead.append(titleEl).append(titleInput);
+		contentEl.append(seqHead);
+		
+		// populate sequence editor header and forward/back links
+		$('#currentSequence').text(headTitle);
+		$('#prevSequence, #nextSequence').off('click').text('');
+		var prev = seq.prev(),
+			next = seq.next(),
+			max = 40; // set max char length for forward/back links
+		if(prev.length>0){
+			var pTitle = $('.sequenceTitle .title',prev).text();
+			pTitle = pTitle.length > max ? pTitle.substring(0, max - 3) + "..." : pTitle.substring(0, max);
+			$('#prevSequence').text('< ' + pTitle).on('click',function(){
+				view.editSequence($('#' + prev.attr('id')));
+			});
+		}
+		if(next.length>0){
+			var nTitle = $('.sequenceTitle .title',next).text();
+			nTitle = nTitle.length > max ? nTitle.substring(0, max - 3) + "..." : nTitle.substring(0, max);
+			$('#nextSequence').text(nTitle + ' >').on('click',function(){
+				view.editSequence($('#' + next.attr('id')));
+			});
+		}
+		
+		// create loading graphic
+		
+		// create sequence controls element
+		var controls = $('<div id="sequenceControls" class="settings"></div>');
+		
+		// insert select all checkbox
+		var selectAll = $('<span id="stepSelect"></span>');
+		var selectAllInput = $('<input type="checkbox" id="stepSelectAll"></input>');
+		controls.append(selectAll.append(selectAllInput)).append('<label for="stepSelectAll">' + view.getI18NString('select_all') + '</label>');
+		selectAllInput.on('click',function(){
+			if($(this).prop('checked')){
+				view.selectStepsAll();
+			} else {
+				view.selectStepsNone();
+			}
+		});
+		
+		// insert step action bar
+		var actionBar = $('<div id="stepTools" class="toolbar controls"></div>');
+		var actionList = $('<ul></ul>');
+		// insert new step and import buttons
+		var addButtons = $('<li id="newStepActions"></li>');
+		var newStep = $('<button><span class="tool-icon action-icon action-icon-new"></span>' + 
+				'<span class="tool-label">' + view.getI18NString('authoring_project_content_new_step') + '</span></button>');
+		var importStep = $('<button><span class="tool-icon action-icon action-icon-import"></span>' + 
+				'<span class="tool-label">' + view.getI18NString('authoring_project_content_import') + '</span></button>');
+		addButtons.append(newStep).append(importStep);
+		actionList.append(addButtons);
+		
+		// insert selected step action buttons
+		var actionButtons = $('<li id="stepActions"></li>');
+		var moveSteps = $('<button disabled="disabled"><span class="tool-icon action-icon action-icon-move"></span>' + 
+				'<span class="tool-label">' + view.getI18NString('authoring_project_content_move_step') + '</span></button>');
+		var copySteps = $('<button disabled="disabled"><span class="tool-icon action-icon action-icon-copy"></span>' + 
+				'<span class="tool-label">' + view.getI18NString('authoring_project_content_copy_step') + '</span></button>');
+		var hideSteps = $('<button disabled="disabled"><span class="tool-icon action-icon action-icon-hide"></span>' + 
+				'<span class="tool-label">' + view.getI18NString('authoring_project_content_hide_step') + '</span></button>');
+		var deleteSteps = $('<button disabled="disabled"><span class="tool-icon action-icon action-icon-delete"></span>' + 
+				'<span class="tool-label">' + view.getI18NString('authoring_project_content_delete_step') + '</span></button>');
+		//actionButtons.append(moveSteps).append(copySteps).append(hideSteps).append(deleteSteps);
+		actionButtons.append(moveSteps).append(copySteps).append(deleteSteps);
+		actionList.append(actionButtons);
+		
+		controls.append(actionBar.append(actionList));
+		contentEl.append(controls);
+		
+		// populate sequence content
+		var content = $('ul.sequence',seq).clone();
+		contentEl.append(content);
+		
+		if(isActivity){
+			// make steps sortable
+			$('ul.sequence',contentEl).sortable({
+				placeholder: 'placeholder',
+				containment: $('#sequenceEditor'),
+				opacity: .9,
+				revert:100,
+				change: function(e){
+					// TODO: add change event
+				}
+			});
+		}
+		
+		// add controls to each step
+		$('li.node',content).each(function(){
+			// get node
+			var stepid = $(this).data('nodeid');
+			var step = view.project.getNodeById(stepid);
+			
+			$(this).attr('id',stepid);
+			
+			// insert checkbox
+			var cBox = $('<input type="checkbox" class="cbx"></input>');
+			$(this).prepend(cBox);
+			
+			// set up checkbox change event
+			cBox.on('click',function(){
+				view.selectStep($(this).parent().get(0));
+			});
+			
+			// set up step click event to toggle checkbox
+			/*$(this).on('click',function(e){
+				if(!$(this).hasClass('ui-sortable-helper') && !$(e.target).hasClass('action')){
+					var nLi = $(this).get(0);
+					if(e.shiftKey || e.metaKey || $(e.target).hasClass('cbx')){
+						// if shift or meta key is pressed, add to current selection
+						view.selectStep(nLi);
+					} else {
+						// deselect all steps, then select clicked step
+						view.selectStepsNone( function(){
+							view.selectStep(nLi);
+						});
+					}
+				}
+			});*/
+			
+			if(isActivity){
+				// insert drag handle
+				$(this).prepend('<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>');
+			}
+
+			// create step title input element
+			var stepTitleInput = $(createElement(document, 'input', {id: 'titleInput_' + step.id, type: 'text', 'class':'stepTitleInput action', 'maxlength':'60', value: step.getTitle()}));
+			var stepTitleEl = $('.title',$(this)).attr('title',view.getI18NString('authoring_project_content_edit_step_title')).addClass('action');
+			stepTitleEl.after(stepTitleInput);
+			
+			// on title click, show title input element
+			stepTitleEl.on('click',function(e){
+				var width = $(this).width();
+				$(this).hide();
+				var val = stepTitleInput.val();
+				stepTitleInput.show().width(width).focus().val('').val(val);
+			});
+			
+			// bind title input change event
+			stepTitleInput.on('change blur keyup',function(e){
+				if(e.type === 'keyup' && e.keyCode !== 10 && e.keyCode !== 13) return;
+				if(e.type === 'change'){
+					// fire nodeTitleChanged event
+					eventManager.fire('nodeTitleChanged',step.id);
+				}
+				// hide step title input & show title span
+				$(this).hide();
+				stepTitleEl.show();
+			});
+			
+			// insert max score input
+			
+			
+			// insert edit button
+			var editButton = $(createElement(document, 'a', {'class':'edit'}))
+			editButton.html('<img class="icon" alt="edit" src="/vlewrapper/vle/images/icons/teal/edit.png"></img>' + view.getI18NString('authoring_project_content_edit_step'));
+			$(this).append(editButton);
+			
+			// add icon select menu - TODO: move this to the step editing panel
+			/*var stepid = $(this).data('nodeid');
+			var step = view.project.getNodeById(stepid);
+			var iconSelect = $(createElement(document, 'select', {id: 'nodeIcon_' + step.id}));
+			
+			var nodeClassesForNode = [];*/
+
+			/* check to see if current node is in nodeTypes, if not ignore so that authoring 
+			 * tool will continue processing remaining nodes. Resolve duplicate nodes to the
+			 * type of the node that they represent */
+			/*if(node.type=='DuplicateNode'){
+				nodeClassesForNode = view.nodeClasses[step.getNode().type];
+				nodeIconPath = view.nodeIconPaths[step.getNode().type];
+			} else {
+				nodeClassesForNode = view.nodeClasses[step.type];
+				nodeIconPath = view.nodeIconPaths[step.type];
+			}*/
+			
+			//populate select with icons for its step type
+			/*if(nodeClassesForNode.length > 0){
+				//var opt = createElement(document, 'option');
+				//opt.innerHTML = '';
+				//opt.value = '';
+				//iconSelect.append(opt);
+				
+				for(var x=0; x<nodeClassesForNode.length; x++) {
+					var nodeClassObj = nodeClassesForNode[x];
+					var opt = $(createElement(document, 'option'));
+					opt.val(nodeClassObj.nodeClass);
+					opt.html('<img src=\'' + nodeIconPath + nodeClassObj.nodeClass + '16.png\'/> ' + nodeClassObj.nodeClassText);
+					iconSelect.append(opt);
+					if(step.getNodeClass() == nodeClassObj.nodeClass){
+						//iconSelect.selectedIndex = x;
+						opt.prop('selected',true);
+					}
+				}
+			}
+			
+			// add icon select to step element
+			$('img.nodeIcon',$(this)).after(iconSelect);
+			
+			// initialize jQuery UI selectmenus on icon select
+			$('li.node select',contentEl).selectmenu();
+			//iconSelect.selectmenu('refresh');
+			
+			// bind change action to node icon select
+			iconSelect.on('change',function(){
+				eventManager.fire('nodeIconUpdated',step.id);
+			});*/
+		});
+			
+		// re-select all previously selected steps
+		$('#sequenceEditor').data('selected',selected);
+		for(var i=0; i<selected.length; i++){
+			var nodeid = view.jquerySelectorEscape(selected[i]);
+			var el = $('#' + nodeid)[0];
+			view.selectStep(el);
+		}
+		
+				
+		// TODO: modify to accomodate branching sequences
+		
+		
+		// insert close link
+		var closeEl = $('<a href="#nogo" class="close">' + view.getI18NString('authoring_project_content_activity_close') + '</a>');
+		contentEl.append(closeEl);
+		// bind click action on close link
+		closeEl.on('click',function(){
+			$('#sequenceEditor').fadeOut(function(){
+				// clear contents
+				contentEl.empty();
+				// show activities
+				$('#dynamicProject').fadeIn();
+			});
+		});
+		
+		contentEl.fadeIn(function(){
+			// set step title widths to fit activity editing panel
+			
+		});
+	};
+	
+	if($('#sequenceEditor').attr('data-contentid')===seq.attr('id')){
+		// get currently selected steps
+		selected = $('#sequenceEditor').data('selected');
+		// populate activity editor
+		populateSequence();
+	} else {
+		$('#sequenceContent').fadeOut(function(){
+			// populate activity editor
+			populateSequence();
+		});
+	}
+};
+
+/**
  * Changes the title of the node with the given id (@param id) in
  * the project with the value of the html element. Enforces size
  * restrictions for title length.
@@ -872,10 +1187,10 @@ View.prototype.nodeTitleChanged = function(id){
 
 	if(val.length>60 && node.type!='sequence'){
 		this.notificationManager.notify('Step titles cannot exceed 60 characters.', 3);
-		document.getElementById('titleInput_' + id).value = val.substring(0, 60);
+		$('#nodeTitle_' + id).text(val.substring(0, 60));
 	} else if(val.length>50 && node.type=='sequence'){
 		this.notificationManager.notify('Activity titles cannot exceed 50 characters.', 3);
-		document.getElementById('titleInput_' + id).value = val.substring(0, 50);
+		$('#nodeTitle_' + id).text(val.substring(0, 50));
 	} else {
 		/* if this node is a duplicate node, we need to update the value of the original
 		 * and any other duplicates of the original, if this node is not a duplicate, we
@@ -883,11 +1198,13 @@ View.prototype.nodeTitleChanged = function(id){
 		var nodes = this.getProject().getDuplicatesOf(node.id, true);
 		for(var b=0;b<nodes.length;b++){
 			nodes[b].setTitle(val);
-			document.getElementById('titleInput_' + nodes[b].id).value = val;
+			$('#nodeTitle_' + nodes[b].id).text(val);
 		}
 		
 		/* save the changes to the project file */
 		this.saveProject();
+		// update project structure
+		this.generateAuthoring();
 	};
 };
 
@@ -905,8 +1222,11 @@ View.prototype.projectTitleChanged = function(newTitle){
 	this.updateProjectMetaOnServer(true,true);
 	
 	/* update project and save */
+	// TODO: this is a pretty large post (entire project file) for just updating the title
 	this.project.setTitle(newTitle);
 	this.saveProject();
+	// update project structure
+	this.generateAuthoring();
 };
 
 /**
@@ -969,6 +1289,8 @@ View.prototype.stepTermChanged = function(){
 
 /**
  * Updates step numbering when step numbering option has changed
+ * 
+ * TODO: remove, not used anymore
  */
 View.prototype.stepNumberChanged = function(){
 	var val = parseInt(document.getElementById('numberStepSelect').options[document.getElementById('numberStepSelect').selectedIndex].value);
@@ -981,6 +1303,8 @@ View.prototype.stepNumberChanged = function(){
 
 /**
  * updates auto step labeling and project when autoStep is selected
+ * 
+ * TODO: remove, not used anymore
  */
 View.prototype.autoStepChanged = function(){
 	if(this.project){
@@ -995,6 +1319,8 @@ View.prototype.autoStepChanged = function(){
 /**
  * updates step labeling boolean for step level numbering (1.1.2, 1.3.1 etc.)
  * when step level numbering is selected
+ * 
+ * TODO: remove, not used anymore
  */
 View.prototype.stepLevelChanged = function(){
 	if(this.project){
@@ -1033,7 +1359,6 @@ View.prototype.launchPrevWork = function(nodeId){
  * Shows the create project dialog
  */
 View.prototype.createNewProject = function(){
-	showElement('createProjectDialog');
 	$("#openProjectDialog").dialog("close");
 	$('#createProjectDialog').dialog('open');
 };
@@ -1057,7 +1382,6 @@ View.prototype.createNewSequence = function(){
  */
 View.prototype.createNewNode = function(){
 	if(this.project){
-		showElement('createNodeDialog');
 		$('#createNodeDialog').dialog('open');
 	} else {
 		this.notificationManager.notify('Please open or create a Project before adding a Step', 3);
@@ -1265,9 +1589,6 @@ View.prototype.openProject = function(selectedTab,copyMode){
 	$('#openProjectOverlay').show();
 	$('#openProjectLoading').show();
 	
-	// set height for dialog to fill window (or 500 pixels)
-	this.utils.setDialogHeight($('#openProjectDialog'));
-	
 	var title = this.getI18NString('authoring_dialog_open_title');
 	if (copyMode === true){
 		title = this.getI18NString('authoring_dialog_open_titlecopy');
@@ -1359,71 +1680,6 @@ View.prototype.toggleProjectMode = function(){
 };
 
 /**
- * Sets initial values and shows the edit project metadata dialog
- */
-View.prototype.editProjectMetadata = function(){
-	if(this.getProject()){
-		//showElement('editProjectMetadataDialog');
-		$('#projectMetadataTitle').val(this.utils.resolveNullToEmptyString(this.projectMeta.title));
-		var author = $.parseJSON(this.projectMeta.author);
-		$('#projectMetadataAuthor').text(this.utils.resolveNullToEmptyString(author.fullname));
-		
-		if(this.projectMeta.theme != null){
-			this.utils.setSelectedValueById('projectMetadataTheme', this.projectMeta.theme);
-		}
-		var navMode = '';
-		if(this.projectMeta.navMode != null){
-			navMode = this.projectMeta.navMode;
-		}
-		var themeName = $('#projectMetadataTheme').val();
-		// display selected theme
-		$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
-		// set nav mode
-		this.populateNavModes(themeName,navMode);
-		
-		this.utils.setSelectedValueById('projectMetadataSubject', this.utils.resolveNullToEmptyString(this.projectMeta.subject));
-		document.getElementById('projectMetadataSummary').value = this.utils.resolveNullToEmptyString(this.projectMeta.summary);
-		this.utils.setSelectedValueById('projectMetadataGradeRange', this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
-		this.utils.setSelectedValueById('projectMetadataTotalTime', this.utils.resolveNullToEmptyString(this.projectMeta.totalTime));
-		this.utils.setSelectedValueById('projectMetadataCompTime', this.utils.resolveNullToEmptyString(this.projectMeta.compTime));
-		this.utils.setSelectedValueById('projectMetadataLanguage', this.utils.resolveNullToEmptyString(this.projectMeta.language));
-		document.getElementById('projectMetadataContact').value = this.utils.resolveNullToEmptyString(this.projectMeta.contact);
-		
-		var techReqs = this.projectMeta.techReqs;
-		
-		if(this.projectMeta.techReqs != null) {
-
-			//determine if flash needs to be checked
-			if(techReqs.flash) {
-				$('#flash').attr('checked', true);
-			}
-			
-			//determine if java needs to be checked
-			if(techReqs.java) {
-				$('#java').attr('checked', true);
-			}
-			
-			//determine if quicktime needs to be checked
-			if(techReqs.quickTime) {
-				$('#quickTime').attr('checked', true);
-			}
-
-			//set the tech details string
-			$('#projectMetadataTechDetails').attr('value', this.utils.resolveNullToEmptyString(this.projectMeta.techReqs.techDetails));
-		}
-		
-		document.getElementById('projectMetadataLessonPlan').value = this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan);
-		document.getElementById('projectMetadataStandards').value = this.utils.resolveNullToEmptyString(this.projectMeta.standards);
-		document.getElementById('projectMetadataKeywords').value = this.utils.resolveNullToEmptyString(this.projectMeta.keywords);
-		this.utils.setDialogHeight($('#editProjectMetadataDialog'),600);
-		$('#editProjectMetadataDialog').dialog('open');
-		//eventManager.fire('browserResize');
-	} else {
-		this.notificationManager.notify('Open a project before using this tool.', 3);
-	};
-};
-
-/**
  * Shows the edit title dialog
  */
 View.prototype.editTitle = function(){
@@ -1452,11 +1708,8 @@ View.prototype.editIMSettings = function(){
 		}
 	};
 	
-	// clear out validation error messages
-	$('#editIMSettingsDialog label.error').remove();
-	
 	// initialize idea manager settings object and IM version
-	var imSettings = {}, imVersion = '1', imEnabled = true;
+	var imSettings = {}, imVersion = '1', imEnabled = false; // TODO: enable IM by default for new projects from now on??
 	
 	if (this.projectMeta.tools != null) {
 		var tools = this.projectMeta.tools;
@@ -1506,7 +1759,7 @@ View.prototype.editIMSettings = function(){
 	
 	enableIMSettings(imEnabled);
 	
-	this.utils.setDialogHeight($('#editIMSettingsDialog'),600);
+	// open dialog
 	$('#editIMSettingsDialog').dialog('open');
 };
 
@@ -1851,17 +2104,13 @@ View.prototype.onProjectLoaded = function(){
 		eventManager.fire('cleanProject');
 	} else {
 		this.projectStructureViolation = false;
+		
+		$('#sequenceEditor').hide();
+		$('#dynamicProject').show();
+		
 		if(this.selectModeEngaged){
 			this.disengageSelectMode(-1);
 		};
-	
-		/*if(this.project && this.project.useStepLevelNumbering()==true){
-			//document.getElementById('stepLevel').checked = true;
-			document.getElementById('numberStepSelect').options[1].selected = true;
-		} else {
-			//document.getElementById('stepLevel').checked = false;
-			document.getElementById('numberStepSelect').options[0].selected = true;
-		};*/
 	
 		if(this.project && this.project.getStepTerm()){
 			document.getElementById('stepTerm').value = this.project.getStepTerm();
@@ -1870,10 +2119,12 @@ View.prototype.onProjectLoaded = function(){
 			this.project.setStepTerm('');
 			this.notificationManager.notify('stepTerm not set in project, setting default value: \"\"', 2);
 		};
+		
+		// clear out any data from the sequenceEditor
+		$('#sequenceEditor').removeData();
 	
 		// reset logging level checkbox (default to checked, high post level)
 		$('#loggingToggle').prop('checked',true);
-		//document.getElementById('postLevelSelect').selectedIndex = 0;
 		
 		$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
 		$('#projectInfo input[type="checkbox"]').toggleSwitch();
@@ -1927,12 +2178,14 @@ View.prototype.onProjectLoaded = function(){
 		
 		$('#stepTerm').show(); // TODO: not sure why this is necessary
 		
-		eventManager.fire('browserResize');
-		
 		// hide loading message and show the project content panel
 		$('#projectOverlay').hide();
 		$('#projectLoading').hide();
 		$('#projectContent').css('z-index',1);
+		
+		// TODO: check if there are missing required metadata fields and require meta form completion
+		
+		
 		this.notificationManager.notify("Loaded Project ID: " + this.portalProjectId, 2);
 	}
 };
@@ -2050,17 +2303,32 @@ function retrieveProjectRunStatusFailure(c,o) {
 
 /**
  * Notifies portal that this user is now authoring this project
+ * TODO: modify for new authoring - i18n, update notification message, tooltip
  */
 View.prototype.notifyPortalOpenProject = function(projectPath, projectName) {
 	var handler = function(responseText, responseXML, o){
 		if (responseText != "") {
-			o.notificationManager.notify(responseText + " is also editing this project right now. Please make sure not to overwrite each other's work.", 3);
-			document.getElementById("concurrentAuthorDiv").innerHTML = "Also Editing: " + responseText;
-			o.currentEditors = responseText;
-			eventManager.fire('browserResize');
+			var usersJSON = JSON.parse(responseText);
+			var currentUsers = '', currentEditors = '';
+			if(usersJSON.length>0){
+				for(var i=0;i<usersJSON.length;i++){
+					currentEditors += usersJSON[i].userFullName;
+					if(i !== usersJSON.length-1){
+						currentEditors += ', ';
+					}
+				}
+				var userTerm = o.getI18NString('user');
+				if (usersJSON.length > 1) userTerm = o.getI18NString('user_plural');
+				currentUsers = usersJSON.length + ' <a href="#nogo" class="tooltip" title="' + currentEditors + '">' + userTerm + '</a> ' + o.getI18NString('authoring_project_also_editing');
+				o.notificationManager.notify(o.getI18NString("authoring_multiple_editors_warning"), 3);
+				$('#currentUsers').html(currentUsers);
+				o.currentEditors = currentEditors;
+			} else {
+				$('#currentUsers').html('');
+			}
 		} else {
 			o.currentEditors = '';
-			document.getElementById("concurrentAuthorDiv").innerHTML = "";
+			document.getElementById("currentUsers").innerHTML = "";
 			eventManager.fire('browserResize');
 		}
 	};
@@ -2589,7 +2857,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 			'<span class="projectTitle">' + projectTitle + '</span><span class="projectId"> (' + idText + ': ' + projectId + ')</span>' +
 			ownershipIcon + infoIcon + 
 			'</div>' +
-			'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" /></div>' +
+			'<div class="' + createdClass + 'projectDetails">' + createdPre + dateCreated + '<img class="info" alt="more info" src="/vlewrapper/vle/images/icons/info.png" data-projectid="' + projectId + '" data-tooltip-class="info" data-tooltip-anchor="left" data-tooltip-event="click" data-tooltip-keep="true"/></div>' +
 			'</div>' +
 			'</div>';
 		
@@ -2636,7 +2904,7 @@ View.prototype.populatePortalProjects = function(t,copyMode){
 	
 	// insert project thumbs into project details content
 	$('img.info',projectTabs).each(function(){
-		var id = $(this).attr('data-projectid'),
+		var id = $(this).data('projectid'),
 			content = detailsContent[id],
 			imgsrc = $('img.projectThumb',content).attr('src');
 		

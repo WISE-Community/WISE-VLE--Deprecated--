@@ -40,7 +40,7 @@ View.prototype.authorDispatcher = function(type,args,obj){
 	} else if(type=='nodeIconUpdated'){
 		obj.nodeIconUpdated(args[0]);
 	} else if(type=='nodeTitleChanged'){
-		obj.nodeTitleChanged(args[0]);
+		obj.nodeTitleChanged(args[0],args[1]);
 	} else if(type=='launchPrevWork'){
 		obj.launchPrevWork(args[0]);
 	} else if(type=='moveSelectedLeft'){

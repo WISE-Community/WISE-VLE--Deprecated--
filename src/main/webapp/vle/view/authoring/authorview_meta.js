@@ -2,6 +2,7 @@
  * Functions specific to the creation, retrieving and updating of metadata
  * 
  * @author patrick lawler
+ * @author jonathan lim-breitbart
  */
 
 /**
@@ -219,12 +220,182 @@ View.prototype.setPostLevel = function(){
 };
 
 /**
+ * Initialize and renders the edit project metadata dialog
+ */
+View.prototype.initializeEditProjectMetadataDialog = function(){
+	var view = this;
+	
+	var updateProjectMetadata = function(){
+		// check for validation
+		if($('#projectMetadata').validate({
+			ignore: "",
+			invalidHandler: function(form, validator) {
+		        if (!validator.numberOfInvalids())
+		            return;
+		        var target = $(validator.errorList[0].element);
+		        if(target.is('select')){
+		        	// target is a select element that is hidden and uses a jQuery selectMenu button, so set target to replacement button
+	        		target = $('#' + target.attr('id') + '-button');
+	        	}
+		        $('#editProjectMetadataDialog').animate({
+		            scrollTop: target.position().top-2
+		        }, 250);
+
+		    }
+		}).form()){
+			view.projectMeta.title = $('#projectMetadataTitle').val();
+			view.projectMeta.theme = $('#projectMetadataTheme').val();
+			view.projectMeta.navMode = $('#projectMetadataNavigation').val();
+			view.projectMeta.subject = $('#projectMetadataSubject').val();
+			view.projectMeta.summary = $('#projectMetadataSummary').val();
+			view.projectMeta.gradeRange = $('#projectMetadataGradeRange').val();
+			view.projectMeta.totalTime = $('#projectMetadataTotalTime').val();
+			view.projectMeta.compTime = $('#projectMetadataCompTime').val();
+			view.projectMeta.contact = $('#projectMetadataContact').val();
+			view.projectMeta.techReqs = {};
+			view.projectMeta.techReqs.java = $("#projectMetadataTechJava").prop('checked');
+			view.projectMeta.techReqs.flash = $("#projectMetadataTechFlash").prop('checked');
+			view.projectMeta.techReqs.quickTime = $("#projectMetadataTechQuicktime").prop('checked');
+			view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
+			view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
+			view.projectMeta.standards = $('#projectMetadataStandards').val();
+			view.projectMeta.keywords = $('#projectMetadataKeywords').val();
+			view.projectMeta.language = $('#projectMetadataLanguage').val();
+			
+			// update metadata on server
+			view.updateProjectMetaOnServer(true);
+			
+			// update metadata and title displays
+			view.populateMetaSettings();
+			$('#projectTitle').text(view.projectMeta.title);
+			// TODO: do we need to update the project file as well here with any new title?
+			
+			// close dialog
+			$('#editProjectMetadataDialog').dialog('close');
+		}
+	};
+
+	var undoProjectMetadata = function(){
+		view.editProjectMetadata();
+	};
+	
+	var cancel = function(){
+		// close dialog
+		$('#editProjectMetadataDialog').dialog('close');
+	};
+	
+	$('#editProjectMetadataDialog').dialog({autoOpen:false, modal:true, title:this.getI18NString('authoring_dialog_meta_title'), width:800,
+		dialogClass: 'settings',
+		open: function(){
+			// initialize jQuery UI selectmenus on select elements
+			$('#editProjectMetadataDialog select').selectmenu();
+			$('#editProjectMetadataDialog select').selectmenu('refresh');
+			
+			// adjust dialog height to window
+			view.utils.adjustDialogHeight(this);
+		},
+		close: function(){
+			// reset form validation
+			$('#projectMetadata').validate().resetForm();
+		},
+		beforeClose: function(){
+			// TODO: check for validation and force save - maybe should hide the cancel button on load if fields are missing
+			//if(!$('#projectMetadata').validate().form()){
+				//return false;
+			//}
+		},
+		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
+		          {text: this.getI18NString("undo_changes"), click: undoProjectMetadata, class: 'secondary'},
+		          {text: this.getI18NString("save"), click: updateProjectMetadata}]});
+};
+
+/**
+ * Sets initial values and optionally shows the edit project metadata dialog
+ * 
+ * @param show Boolean specifying whether to show the dialog
+ */
+View.prototype.editProjectMetadata = function(show){
+	var doShow = true;
+	if (typeof show == 'boolean') doShow = show;
+	
+	if(this.getProject()){
+		$('#projectMetadataTitle').val(this.utils.resolveNullToEmptyString(this.projectMeta.title));
+		var author = $.parseJSON(this.projectMeta.author);
+		$('#projectMetadataAuthor').text(this.utils.resolveNullToEmptyString(author.fullname));
+		
+		// TODO: add project owner and shared info, a link to share with other teachers
+		
+		if(this.projectMeta.theme != null){
+			$('#projectMetadataTheme').val(this.projectMeta.theme);
+		}
+		var navMode = '';
+		if(this.projectMeta.navMode != null){
+			navMode = this.projectMeta.navMode;
+		}
+		var themeName = $('#projectMetadataTheme').val();
+		// display selected theme
+		$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
+		// set nav mode
+		this.populateNavModes(themeName,navMode);
+		
+		// TODO: make 'other' options functional - let user type in alternate values
+		$('#projectMetadataSubject').val(this.utils.resolveNullToEmptyString(this.projectMeta.subject));
+		$('#projectMetadataGradeRange').val(this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
+		$('#projectMetadataTotalTime').val(this.utils.resolveNullToEmptyString(this.projectMeta.totalTime));
+		$('#projectMetadataLanguage').val(this.utils.resolveNullToEmptyString(this.projectMeta.language));
+		$('#projectMetadataCompTime').val(this.utils.resolveNullToEmptyString(this.projectMeta.compTime));
+		$('#projectMetadataSummary').val(this.utils.resolveNullToEmptyString(this.projectMeta.summary));
+		$('#projectMetadataContact').val(this.utils.resolveNullToEmptyString(this.projectMeta.contact));
+		$('#projectMetadataLanguage').val(this.utils.resolveNullToEmptyString(this.projectMeta.language));
+		$('#projectMetadataLessonPlan').val(this.utils.resolveNullToEmptyString(this.projectMeta.lessonPlan));
+		$('#projectMetadataStandards').val(this.utils.resolveNullToEmptyString(this.projectMeta.standards));
+		$('#projectMetadataKeywords').val(this.utils.resolveNullToEmptyString(this.projectMeta.keywords));
+		
+		var techReqs = this.projectMeta.techReqs;
+		
+		if(techReqs != null) {
+
+			//determine if flash needs to be checked
+			if(techReqs.flash) {
+				$('#projectMetadataTechFlash').prop('checked', true);
+			}
+			
+			//determine if java needs to be checked
+			if(techReqs.java) {
+				$('#projectMetadataTechJava').prop('checked', true);
+			}
+			
+			//determine if quicktime needs to be checked
+			if(techReqs.quickTime) {
+				$('#projectMetadataTechQuicktime').prop('checked', true);
+			}
+
+			//set the tech details string
+			$('#projectMetadataTechDetails').val(this.utils.resolveNullToEmptyString(techReqs.techDetails));
+		}
+		
+		if(doShow){
+			// set header text with project id
+			$('#metaHeader').html(this.getStringWithParams('authoring_dialog_meta_header',[this.portalProjectId]));
+			
+			if ($('#editProjectMetadataDialog').is(':visible')){
+				// refresh jQuery UI selectmenus
+				$('#editProjectMetadataDialog select').selectmenu('refresh');
+			} else {
+				// open dialog
+				$('#editProjectMetadataDialog').dialog('open');
+			}
+		}
+	} else {
+		this.notificationManager.notify('Open a project before using this tool.', 3);
+	};
+};
+
+/**
  * Populates the project metadata settings in the project editing panel
  */
 View.prototype.populateMetaSettings = function(){
-	var view = this;
-	// project setting toggles
-	//$('#projectInfo input[type="checkbox"]').toggleSwitch('destroy');
+	this.editProjectMetadata(false);
 	
 	if (this.projectMeta.tools != null) {
 		var tools = this.projectMeta.tools;
@@ -245,10 +416,9 @@ View.prototype.populateMetaSettings = function(){
 	
 	$('#projectInfo input[type="checkbox"]').toggleSwitch('refresh');
 	
-	$('#projectMetadataSubject').val(this.utils.resolveNullToEmptyString(this.projectMeta.subject));
-	$('#projectMetadataGradeRange').val(this.utils.resolveNullToEmptyString(this.projectMeta.gradeRange));
-	$('#projectMetadataTotalTime').val(this.utils.resolveNullToEmptyString(this.projectMeta.totalTime));
-	$('#projectMetadataLanguage').val(this.utils.resolveNullToEmptyString(this.projectMeta.language));
+	// insert categories summary and link to edit project details
+	// TODO: change grade level category options (make more universal perhaps)
+	$('#summaryDetails').text($('#projectMetadataSubject option:selected').text() + ' / ' + $('#projectMetadataGradeRange option:selected').text() + ' / ' + $('#projectMetadataLanguage option:selected').text());
 	
 	if(this.projectMeta.theme != null){
 		$('#projectMetadataTheme').val(this.projectMeta.theme);
@@ -261,16 +431,6 @@ View.prototype.populateMetaSettings = function(){
 	this.populateNavModes(themeName,navMode);
 	
 	$('#currentTheme').text($('#projectMetadataTheme option:selected').text());
-	
-	// initialize jQuery UI selectmenus on projectInfo select elements
-	$('#projectInfo select.metaInfo').selectmenu({
-		change: function(){
-			view.updateMetaSettings($(this).attr('data-field'),$(this).val());
-		}
-	});
-	$('#projectInfo select.metaInfo').selectmenu('refresh');
-	
-	eventManager.fire('browserResize');
 };
 
 /**

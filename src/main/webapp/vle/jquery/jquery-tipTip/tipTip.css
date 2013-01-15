@@ -229,9 +229,8 @@
 	font-size:13px;
 }
 
-#tiptip_holder #tiptip_content .featureSettings {
+#tiptip_holder #tiptip_content ul {
 	font-size:12px;
-	margin:0;
 }
 
 #tiptip_holder.info #tiptip_arrow_inner {

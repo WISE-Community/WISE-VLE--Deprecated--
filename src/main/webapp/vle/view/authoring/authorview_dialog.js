@@ -519,54 +519,6 @@ View.prototype.initializeCopyProjectDialog = function (){
 };
 
 /**
- * Initialize and renders the edit project metadata dialog
- */
-View.prototype.initializeEditProjectMetadataDialog = function(){
-	var view = this;
-	
-	var updateProjectMetadata = function(){
-		// TODO: add validation
-		
-		view.projectMeta.title = $('#projectMetadataTitle').val();
-		//view.projectMeta.author = $('#projectMetadataAuthor').val();
-		view.projectMeta.theme = $('#projectMetadataTheme').val();
-		view.projectMeta.navMode = $('#projectMetadataNavigation').val();
-		view.projectMeta.subject = $('#projectMetadataSubject').val();
-		view.projectMeta.summary = $('#projectMetadataSummary').val();
-		view.projectMeta.gradeRange = $('#projectMetadataGradeRange').val();
-		view.projectMeta.totalTime = $('#projectMetadataTotalTime').val();
-		view.projectMeta.compTime = $('#projectMetadataCompTime').val();
-		view.projectMeta.contact = $('#projectMetadataContact').val();
-		view.projectMeta.techReqs = {};
-		view.projectMeta.techReqs.java = $("#java").is(':checked');
-		view.projectMeta.techReqs.flash = $("#flash").is(':checked');
-		view.projectMeta.techReqs.quickTime = $("#quickTime").is(':checked');
-		view.projectMeta.techReqs.techDetails = $('#projectMetadataTechDetails').val();
-		view.projectMeta.lessonPlan = $('#projectMetadataLessonPlan').val();
-		view.projectMeta.standards = $('#projectMetadataStandards').val();
-		view.projectMeta.keywords = $('#projectMetadataKeywords').val();
-		view.projectMeta.language = $('#projectMetadataLanguage').val();
-		
-		view.updateProjectMetaOnServer(true);
-		$('#editProjectMetadataDialog').dialog('close');
-	};
-
-	var undoProjectMetadata = function(){
-		view.editProjectMetadata();
-	};
-	
-	var cancel = function(){
-		$('#editProjectMetadataDialog').dialog('close');
-	};
-	
-	$('#editProjectMetadataDialog').dialog({autoOpen:false, modal:true, title:'Edit Project Information', width:800,
-		dialogClass: 'settings',
-		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
-		          {text: this.getI18NString("undo_changes"), click: undoProjectMetadata, class: 'secondary'},
-		          {text: this.getI18NString("save"), click: updateProjectMetadata}]});
-};
-
-/**
  * Initialize and renders the edit IM settings dialog
  */
 View.prototype.initializeEditIMSettingsDialog = function(){
@@ -606,7 +558,7 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 					var options = [];
 					if(type=='icon'){
 						$('input.option',$('#options_' + id)).each(function(){
-							if($(this).is(':checked')){
+							if($(this).prop('checked')==true){
 								options.push($(this).val());
 							}
 						});
@@ -649,6 +601,16 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 		open: function(){
 			$('#enableIdeaManager').toggleSwitch();
 			$('#enableIdeaManager').toggleSwitch('refresh');
+			
+			// adjust dialog height to window
+			view.utils.adjustDialogHeight(this);
+			
+			// unfocus all buttons (jQuery focuses 1st button by default)
+			$('.ui-dialog-buttonset .ui-button').blur().removeClass('ui-state-hover');
+		},
+		close: function(){
+			// reset form validation
+			$('#imSettings').validate().resetForm();
 		},
 		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
 		          {text: this.getI18NString("undo_changes"), click: undoIMSettings, class: 'secondary'},
@@ -750,11 +712,15 @@ View.prototype.initializeConstraintAuthoringDialog = function(){
 View.prototype.initializeOpenProjectDialog = function(){
 	var view = this;
 	var title = this.getI18NString("authoring_dialog_open_title");
-	$('#openProjectDialog').dialog({autoOpen:false, width:800, modal:true, title:title,
+	$('#openProjectDialog').dialog({autoOpen:false, width:800, height: 500, modal:true, title:title,
 		resize: function(){
 			// set project tabs height to fit bottom of dialog, project list elements to fit widths
 			view.setProjectTabsHeight();
 			view.setProjectListingWidths();
+		},
+		open: function() {
+			// adjust dialog height to window
+			view.utils.adjustDialogHeight(this);
 		}
 	});
 };

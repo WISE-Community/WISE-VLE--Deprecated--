@@ -19,6 +19,18 @@
 		"value":"Submit",
 		"description":"Text for the word 'Submit'"
 	},
+	"delete":{
+		"value":"Delete",
+		"description":"Text for the word 'Delete'"
+	},
+	"hide":{
+		"value":"Hide",
+		"description":"Text for the word 'Hide'"
+	},
+	"show":{
+		"value":"Show",
+		"description":"Text for the word 'Show'"
+	},
 	"undo_changes": {
 		"value":"Undo Changes",
 		"description":"Text for the words 'Undo Changes'"
@@ -42,6 +54,26 @@
 	"copy":{
 		"value":"Copy",
 		"description":"Text for the word 'Copy'"
+	},
+	"user":{
+		"value":"user",
+		"description":"Text for the word 'user'"
+	},
+	"user_plural":{
+		"value":"users",
+		"description":"Text for the plural form of 'user'"
+	},
+	"step":{
+		"value":"step",
+		"description":"Text for the word 'step'"
+	},
+	"step_plural":{
+		"value":"steps",
+		"description":"Text for the plural form of 'step'"
+	},
+	"activity":{
+		"value":"activity",
+		"description":"Text for the word 'activity'"
 	},
 	"ID": {
 		"value":"ID",
@@ -71,6 +103,10 @@
 		"value":"Modified",
 		"description":"Text for the word 'Modified'"
 	},
+	"select_all":{
+		"value":"Select All",
+		"description":"Text for the phrase 'Select All'"
+	},
 	"datatables_search":{
 		"value":"Search:",
 		"description":"Label for a search (filter) field in a data table display"
@@ -80,7 +116,7 @@
 		"description":"Text for the word 'total' in a data table display"
 	},
 	"select_option_choose":{
-		"value":"Choose One",
+		"value":"Select",
 		"description":"Text for a default (disabled) option in a select drop-down element"
 	},
 	"select_option_other": {
@@ -668,32 +704,20 @@
 		"description":"Text for the title/tooltip of the edit step term text input in the project authoring panel."
 	},
 	"authoring_project_panel_edit_info":{
-		"value":"Project Details",
+		"value":"Edit Project Details",
 		"description":"Text for the title/tooltip of the edit project info button in the project authoring panel."
 	},
 	"authoring_project_panel_manage_files":{
-		"value":"Art and Files",
+		"value":"Manage Files",
 		"description":"Text for the title/tooltip of the edit manage files button in the project authoring panel."
 	},
 	"authoring_project_panel_preview":{
 		"value":"Preview Project",
 		"description":"Text for the title/tooltip of the preview project info button in the project authoring panel."
 	},
-	"authoring_project_panel_more_details":{
-		"value":"More Details",
-		"description":"Text for the edit project details link in the project authoring panel."
-	},
-	"authoring_project_panel_stepnumbering_label":{
-		"value":"Number Steps By",
-		"description":"Label text for the step numbering selector in the project authoring panel."
-	},
-	"authoring_project_panel_stepnumbering_activity":{
-		"value":"Activity",
-		"description":"Label text for the number by activity option in the step numbering selector in the project authoring panel."
-	},
-	"authoring_project_panel_stepnumbering_project":{
-		"value":"Project",
-		"description":"Label text for the number by project option in the step numbering selector in the project authoring panel."
+	"authoring_project_panel_more_info":{
+		"value":"Edit",
+		"description":"Text for the edit project summary details link in the project authoring panel."
 	},
 	"authoring_project_panel_stepterm_label":{
 		"value":"Step Term",
@@ -711,17 +735,33 @@
 		"value":"Features:",
 		"description":"Label text for the project feature toggles in the project authoring panel."
 	},
-	"authoring_project_panel_logging_label": {
+	"authoring_project_also_editing":{
+		"value":"also editing",
+		"description":"Text to indicate when other users are also editing the project (proceeded by '2 users', for example)"
+	},
+	"authoring_multiple_editors_warning":{
+		"value":"Other users are editing this project. Please make sure not to overwrite each other's work.",
+		"description":"Text warning editor that other users are currently editing the same WISE project"
+	},
+	"authoring_logging_label": {
 		"value":"Logging Level",
 		"description":"Label text for the logging level switch in the project authoring panel" 
 	},
-	"authoring_project_panel_logging_high": {
+	"authoring_logging_high": {
 		"value":"HIGH",
 		"description":"Text for the 'high' logging level option in the project authoring panel" 
 	},
-	"authoring_project_panel_logging_low": {
+	"authoring_logging_low": {
 		"value":"LOW",
 		"description":"Text for the 'low' logging level option in the project authoring panel" 
+	},
+	"authoring_project_tools_header":{
+		"value":"Project Tools",
+		"description":"Header text for the project content tools panel."
+	},
+	"authoring_project_tools_create_activity":{
+		"value":"Create New Activity +",
+		"description":""
 	},
 	"authoring_or": {
 		"value":"- or -",
@@ -783,6 +823,98 @@
 		"value":"Copying Project",
 		"description":"Text for the processing message when copying a project in the copy project dialog window."
 	},
+	"authoring_dialog_meta_title": {
+		"value":"Edit Project Information",
+		"description":"Title for the project information dialog window."
+	},
+	"authoring_dialog_meta_header":{
+		"value":"Details for Project {0}",
+		"description":"Header text of the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_basic":{
+		"value":"Basic Information",
+		"description":"Header text for the basic information section in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_title":{
+		"value":"Project Name:",
+		"description":"Label text for the project title input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_title_placeholder":{
+		"value":"Choose a title (required)",
+		"description":"Placeholder text for the project title input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_author":{
+		"value":"Original Author:",
+		"description":"Label text for the original author field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_contact":{
+		"value":"Contact:",
+		"description":"Label text for the contact input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_contact_placeholder":{
+		"value":"(e.g. name, email)",
+		"description":"Placeholder text for the contact input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_summary":{
+		"value":"Project Summary",
+		"description":"Label text for the summary section in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_summary_details":{
+		"value":"A few sentences outlining what students will learn by completing this project",
+		"description":"Instructions text for the summary section in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_summary_placeholder":{
+		"value":"Enter summary (required)",
+		"description":"Placeholder text for the summary input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_keywords":{
+		"value":"Keywords:",
+		"description":"Label text for the keywords input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_keywords_placeholder":{
+		"value":"(comma separated)",
+		"description":"Label text for the keywords input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_tech":{
+		"value":"Technical Requirements",
+		"description":"Header text for the technical requirements section in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_tech_reqs":{
+		"value":"Check all that apply:",
+		"description":"Label text for the technical requirements checkboxes in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_tech_details":{
+		"value":"Other Technical Details (optional):",
+		"description":"Label text for the additional technical requirements input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_tech_placeholder":{
+		"value":"Enter any additional hardware, software, or materials requirements",
+		"description":"Placeholder text for the additional technical requirements input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_tips":{
+		"value":"Teaching Tips",
+		"description":"Header text for the teaching tips section in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_tips_details":{
+		"value":"Provide helpful hints or strategies for teachers planning to run this project in the classroom",
+		"description":"Instruction text for the teaching tips section in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_tips_placeholder":{
+		"value":"Enter teaching tips",
+		"description":"Placeholder text for the teaching tips input field in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_standards":{
+		"value":"Learning Goals and Standards",
+		"description":"Label text for the goals and standards section in the project information dialog window."
+	},
+	"authoring_dialog_meta_setting_standards_details":{
+		"value":"Identify goals and any curriculum standards the project addresses (with web links if applicable)",
+		"description":"Instruction text for the goals and standards section in the project information dialog window."
+	},
+	"authoring_dialog_meta_field_standards_placeholder":{
+		"value":"Enter goals and standards",
+		"description":"Placeholder text for the goals and standards input field in the project information dialog window."
+	},
 	"authoring_dialog_im_enable": {
 		"value":"Enable Idea Manager Tools",
 		"description":"Label text for the enable Idea Manager toggle switch in the Idea Manager settings dialog window."
@@ -840,7 +972,7 @@
 		"description":"Text for the header of the usage column in the assets table of the manage project files dialog window."
 	},
 	"authoring_dialog_assets_notused":{
-		"value":"File is not used in any steps",
+		"value":"Not used in any steps",
 		"description":"Text alerting user that a file is not used in any steps in the project in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_notused_warning":{
@@ -848,11 +980,11 @@
 		"description":""
 	},
 	"authoring_dialog_assets_isused":{
-		"value":"File is used in the following steps:",
+		"value":"Used in the following steps:",
 		"description":"Text alerting user that a file is used in the following step(s) in the project in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_inactiveused":{
-		"value":"File is only used in inactive steps:",
+		"value":"Only used in inactive steps:",
 		"description":"Text alerting user that a file is only used in the following inactive step(s) in the project in the manage project files dialog window."
 	},
 	"authoring_dialog_assets_inactive":{
@@ -1007,6 +1139,82 @@
 		"value":"This project was automatically created for a classroom run and editing it may result in student data loss.",
 		"description":"Warning text telling user that a project was created for a classroom run and making changes may have adverse effects."
 	},
+	"authoring_project_content_active": {
+		"value":"Active Content",
+		"description":"Header text for the active content section of the project content authoring screen"
+	},
+	"authoring_project_content_active_info": {
+		"value":"These activities make up the project structure",
+		"description":"Explanatory text for the active content section of the project content authoring screen"
+	},
+	"authoring_project_content_view_active": {
+		"value":"View Active",
+		"description":"Text for link to view the active content section of the project content authoring screen"
+	},
+	"authoring_project_content_inactive": {
+		"value":"Inactive Content",
+		"description":"Header text for the inactive content section of the project content authoring screen"
+	},
+	"authoring_project_content_inactive_info": {
+		"value":"These activities and steps do not appear in the project",
+		"description":"Explanatory text for the inactive content section of the project content authoring screen"
+	},
+	"authoring_project_content_view_inactive": {
+		"value":"View Inactive",
+		"description":"Text for link to view the inactive content section of the project content authoring screen"
+	},
+	"authoring_project_content_inactive_steps":{
+		"value":"Inactive Steps",
+		"description":"Text for the header of the inactive steps container in the project content authoring screen"
+	},
+	"authoring_project_content_unused_steps":{
+		"value":"Unused Steps",
+		"description":"Text for the title of the inactive steps editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_inactive_activity":{
+		"value":"Inactive Activity",
+		"description":"Text for the header of an inactive activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_edit_title":{
+		"value":"Edit Name",
+		"description":"Text for edit title links in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_edit_step_title":{
+		"value":"Edit Title",
+		"description":"Text for edit step title links in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_edit_step":{
+		"value":"Edit",
+		"description":"Text for edit step links in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_activity_close":{
+		"value":"Close X",
+		"description":"Text for the link to close the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_new_step":{
+		"value":"New Step",
+		"description":"Text for the new step button in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_import":{
+		"value":"Import",
+		"description":"Text for the import button in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_move_step":{
+		"value":"Move",
+		"description":"Text for the move step button in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_copy_step":{
+		"value":"Duplicate",
+		"description":"Text for the copy step button in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_delete_step":{
+		"value":"Delete",
+		"description":"Text for the delete step button in the activity editing panel in the project content authoring screen"
+	},
+	"authoring_project_content_hide_step":{
+		"value":"Hide",
+		"description":"Text for the hide step button in the activity editing panel in the project content authoring screen"
+	},
 	"authoring_project_last_edited_pre": {
 		"value":"Last Updated: ",
 		"description":"Text for displaying last edited time for a project (will be followed by last edited date, e.g. 'Last Updated: Aug 24, 2010 11:26AM')."
@@ -1076,19 +1284,23 @@
 		"description":"The label for the 'delete current hint' button in the step hint authoring panel"
 	},
 	"authoring_meta_subject_label":{
-		"value":"Subject",
+		"value":"Subject:",
 		"description":"Label text for the project metadata subject selector in the authoring tool."
 	},
 	"authoring_meta_grade_label":{
-		"value":"Level",
+		"value":"Level:",
 		"description":"Label text for the project metadata grade level selector in the authoring tool."
 	},
 	"authoring_meta_total_time_label":{
-		"value":"Duration",
+		"value":"Total Time:",
 		"description":"Label text for the project metadata total time (duration) selector in the authoring tool."
 	},
+	"authoring_meta_comp_time_label":{
+		"value":"Computer Time:",
+		"description":"Label text for the project metadata computer time (duration) selector in the authoring tool."
+	},
 	"authoring_meta_language_label":{
-		"value":"Language",
+		"value":"Language:",
 		"description":"Label text for the project metadata language selector in the authoring tool."
 	},
 	"authoring_meta_subject_options_lifescience": {
@@ -1123,19 +1335,19 @@
 		"value":"WISE Research",
 		"description":"Text for the 'WISE research' option in the subject select list"
 	},
-	"authoring_meta_grade_options_3_5": {
+	"authoring_meta_grade_options_3-5": {
 		"value":"Grades 3-5",
 		"description":"Text for the 'grades 3-5' option in the grade level select list"
 	},
-	"authoring_meta_grade_options_6_8": {
+	"authoring_meta_grade_options_6-8": {
 		"value":"Grades 6-8",
 		"description":"Text for the 'grades 6-8' option in the grade level select list"
 	},
-	"authoring_meta_grade_options_9_12": {
+	"authoring_meta_grade_options_9-12": {
 		"value":"Grades 9-12",
 		"description":"Text for the 'grades 9-12' option in the grade level select list"
 	},
-	"authoring_meta_grade_options_6_12": {
+	"authoring_meta_grade_options_6-12": {
 		"value":"Grades 6-12",
 		"description":"Text for the 'grades 6-12' option in the grade level select list"
 	},
@@ -1207,17 +1419,33 @@
 		"value":"Spanish",
 		"description":"Text for the 'Spanish' option in the language select list"
 	},
-	"authoring_imsettings_attribute_help": {
-		"value":"Help content will go here",
-		"description":""
+	"authoring_meta_tech_options_flash":{
+		"value":"Flash",
+		"description":"Text for the 'Flash' option in the technical requirements select list"
 	},
-	"authoring_imsettings_terminology_help": {
-		"value":"Help content will go here",
-		"description":""
+	"authoring_meta_tech_options_java":{
+		"value":"Java",
+		"description":"Text for the 'Java' option in the technical requirements select list"
+	},
+	"authoring_meta_tech_options_quicktime":{
+		"value":"Quicktime",
+		"description":"Text for the 'Quicktime' option in the technical requirements select list"
 	},
 	"authoring_imsettings_text_required": {
 		"value":"The <b>text</b> attribute is the basic component of each idea and cannot be deleted.",
 		"description":"The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
+	},
+	"help_authoring_imsettings_attribute": {
+		"value":"Help content will go here",
+		"description":""
+	},
+	"help_authoring_imsettings_terminology": {
+		"value":"Help content will go here",
+		"description":""
+	},
+	"help_authoring_imsettings_run_warning": {
+		"value":"Help content will go here",
+		"description":""
 	},
 	"help_authoring_ideamanager_info": {
 		"value":"Help content here",
@@ -1230,6 +1458,14 @@
 	"help_authoring_logginglevel_info": {
 		"value":"Help content here",
 		"description":"Help content explaining the logging level toggle"
+	},
+	"help_authoring_meta_general_info": {
+		"value":"<p>The information provided here will appear in the WISE Project Library (for users who have access to the project).</p><p>Try to include as much information as possible so that potential teachers can learn about your project and better prepare for classroom implementations.</p>",
+		"description":"Help content explaining the purpose of the project info dialog window."
+	},
+	"help_authoring_meta_author_info": {
+		"value":"If this project is a copy of another WISE project, the creator of the project family is identified as the original author (for attribution sake).",
+		"description":"Help content explaining the original author metadata field in the project info dialog window."
 	},
 	"project_error_has_no_steps": {
 		"value":"Error: This project does not have any steps.",

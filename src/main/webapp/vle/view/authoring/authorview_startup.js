@@ -390,11 +390,6 @@ View.prototype.bindGeneralEvents = function(){
 		}
 	});
 	
-	// step numbering select option
-	$('#numberStepSelect').on('change',function(){
-		eventManager.fire("stepNumberChanged");
-	});
-	
 	// project tools
 	$('#editInfo, #moreDetails').on('click',function(){
 		eventManager.fire('editProjectMetadata');
@@ -405,11 +400,6 @@ View.prototype.bindGeneralEvents = function(){
 	$('#previewProject').on('click',function(){
 		eventManager.fire('previewProject');
 	});
-	
-	// project metadata select options
-	//$('#projectInfo select.metaInfo').on('change',function(){
-		//view.updateMetaSettings($(this).attr('data-field'),$(this).val());
-	//});
 	
 	// project metadata feature toggles
 	$('#projectInfo input[type="checkbox"].metaInfo').on('click',function(){
@@ -426,6 +416,14 @@ View.prototype.bindGeneralEvents = function(){
 	
 	// set logging level data-on and data-off attributes
 	$('#loggingToggle').attr('data-on',this.getI18NString('authoring_project_panel_logging_high')).attr('data-off',this.getI18NString('authoring_project_panel_logging_low'));
+	
+	/* project structure authoring elements */
+	
+	// scrolling for active and inactive links
+	$("#dynamicProject .scroll").click(function(event){		
+		event.preventDefault();
+		$('#projectStructure > .contentWrapper').animate({scrollTop:$(this.hash).position().top-6}, 500, 'easeOutQuint');
+	});
 };
 
 

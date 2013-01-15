@@ -1,7 +1,7 @@
 /*! jQuery UI - v1.9.0 - 2012-10-18
 * http://jqueryui.com
 * Includes: jquery.ui.core.css, jquery.ui.resizable.css, jquery.ui.selectable.css, jquery.ui.accordion.css, jquery.ui.autocomplete.css, jquery.ui.button.css, jquery.ui.datepicker.css, jquery.ui.dialog.css, jquery.ui.menu.css, jquery.ui.progressbar.css, jquery.ui.slider.css, jquery.ui.spinner.css, jquery.ui.tabs.css, jquery.ui.tooltip.css
-* To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Arial%2Csans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=2px&bgColorHeader=0e7590&bgTextureHeader=04_highlight_hard.png&bgImgOpacityHeader=35&borderColorHeader=cccccc&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=ffffff&bgTextureContent=01_flat.png&bgImgOpacityContent=75&borderColorContent=cccccc&fcContent=444444&iconColorContent=444444&bgColorDefault=eeeeee&bgTextureDefault=04_highlight_hard.png&bgImgOpacityDefault=100&borderColorDefault=aaaaaa&fcDefault=444444&iconColorDefault=555555&bgColorHover=eeeeee&bgTextureHover=04_highlight_hard.png&bgImgOpacityHover=100&borderColorHover=888888&fcHover=333333&iconColorHover=222222&bgColorActive=555555&bgTextureActive=01_flat.png&bgImgOpacityActive=50&borderColorActive=666666&fcActive=ffffff&iconColorActive=ffffff&bgColorHighlight=fefdec&bgTextureHighlight=01_flat.png&bgImgOpacityHighlight=55&borderColorHighlight=fff857&fcHighlight=444444&iconColorHighlight=007391&bgColorError=fde7e7&bgTextureError=08_diagonals_thick.png&bgImgOpacityError=60&borderColorError=ff3333&fcError=222222&iconColorError=ff3333&bgColorOverlay=a6a6a6&bgTextureOverlay=01_flat.png&bgImgOpacityOverlay=65&opacityOverlay=35&bgColorShadow=282828&bgTextureShadow=01_flat.png&bgImgOpacityShadow=0&opacityShadow=75&thicknessShadow=7px&offsetTopShadow=-7px&offsetLeftShadow=-7px&cornerRadiusShadow=4px
+* To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Arial%2Csans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=2px&bgColorHeader=0e7590&bgTextureHeader=04_highlight_hard.png&bgImgOpacityHeader=35&borderColorHeader=cccccc&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=ffffff&bgTextureContent=01_flat.png&bgImgOpacityContent=75&borderColorContent=cccccc&fcContent=444444&iconColorContent=444444&bgColorDefault=eeeeee&bgTextureDefault=04_highlight_hard.png&bgImgOpacityDefault=100&borderColorDefault=aaaaaa&fcDefault=444444&iconColorDefault=555555&bgColorHover=eeeeee&bgTextureHover=04_highlight_hard.png&bgImgOpacityHover=100&borderColorHover=888888&fcHover=333333&iconColorHover=222222&bgColorActive=555555&bgTextureActive=01_flat.png&bgImgOpacityActive=50&borderColorActive=666666&fcActive=ffffff&iconColorActive=ffffff&bgColorHighlight=fefdec&bgTextureHighlight=01_flat.png&bgImgOpacityHighlight=55&borderColorHighlight=fff857&fcHighlight=444444&iconColorHighlight=1c8ca8&bgColorError=fde7e7&bgTextureError=08_diagonals_thick.png&bgImgOpacityError=60&borderColorError=ff3333&fcError=222222&iconColorError=ff3333&bgColorOverlay=a6a6a6&bgTextureOverlay=01_flat.png&bgImgOpacityOverlay=65&opacityOverlay=35&bgColorShadow=282828&bgTextureShadow=01_flat.png&bgImgOpacityShadow=0&opacityShadow=75&thicknessShadow=7px&offsetTopShadow=-7px&offsetLeftShadow=-7px&cornerRadiusShadow=4px
 * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT */
 
 /* Layout helpers
@@ -263,7 +263,7 @@ body .ui-tooltip { border-width:2px; }
 .ui-state-default .ui-icon { background-image: url(images/ui-icons_555555_256x240.png); }
 .ui-state-hover .ui-icon, .ui-state-focus .ui-icon {background-image: url(images/ui-icons_222222_256x240.png); }
 .ui-state-active .ui-icon {background-image: url(images/ui-icons_ffffff_256x240.png); }
-.ui-state-highlight .ui-icon {background-image: url(images/ui-icons_007391_256x240.png); }
+.ui-state-highlight .ui-icon {background-image: url(images/ui-icons_1c8ca8_256x240.png); }
 .ui-state-error .ui-icon, .ui-state-error-text .ui-icon {background-image: url(images/ui-icons_ff3333_256x240.png); }
 
 /* positioning */
@@ -485,7 +485,7 @@ body .ui-tooltip { border-width:2px; }
 ----------------------------------*/
 
 .ui-widget { font-size:1em; }
-.ui-widget-content a { color: #007391; }
+.ui-widget-content a { color: #1c8ca8; }
 .ui-widget-header { 
 	background: #0095b3; /* Old browsers */
 	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -590,10 +590,6 @@ body .ui-tooltip { border-width:2px; }
 	background: none repeat scroll 0 0 rgb(30, 30, 30);
 	background: none repeat scroll 0 0 rgba(30, 30, 30, 0.9);
     border: 0 none;
-    -o-border-radius:3px;
-    -moz-border-radius:3px;
-    -webkit-border-radius:3px;
-    border-radius:3px;
     -o-box-shadow: 0 0 2px #000000;
     -moz-box-shadow: 0 0 2px #000000;
     -webkit-box-shadow: 0 0 2px #000000;
@@ -630,11 +626,12 @@ body .ui-tooltip { border-width:2px; }
 }
 .ui-dialog .ui-dialog-content { 
 	background: none repeat scroll 0 0 #FFFFFF;
-    border: 0 none;
+	border:1px solid #999999;
+    /*border: 0 none;
     -o-box-shadow: 0 0 2px 0 #000000 inset;
     -moz-box-shadow: 0 0 2px 0 #000000 inset;
     -webkit-box-shadow: 0 0 2px 0 #000000 inset;
-    box-shadow: 0 0 2px 0 #000000 inset;
+    box-shadow: 0 0 2px 0 #000000 inset;*/
     font-size: 0.95em;
     padding: 0.5em;
 }
@@ -671,7 +668,7 @@ body .ui-tooltip { border-width:2px; }
 }
 .ui-tabs .ui-tabs-nav {
 	background: none repeat scroll 0 0 transparent;
-    border-color:#007391;
+    border-color:#1c8ca8;
     border-style:solid;
     border-width:0 0 2px 0; 
     -o-border-radius: 0 0 0 0;
@@ -688,15 +685,16 @@ body .ui-tooltip { border-width:2px; }
 	border-radius: 5px 5px 0 0;
 	background:transparent;
 	border:0 none;
-	color: #007391;
+	color: #1c8ca8;
+	outline:0;
 }
 
 .ui-tabs .ui-tabs-nav li a {
-	color: #007391;
+	color: #1c8ca8;
 	font-size:.8em;
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
-	background: #007391;
+	background: #1c8ca8;
 	border: 0 none;
 	color: #FFFFFF;
 }
@@ -706,7 +704,7 @@ body .ui-tooltip { border-width:2px; }
 .ui-tabs .ui-tabs-nav li a:hover, .ui-tabs .ui-tabs-nav li:hover a {
 	text-decoration:underline;
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a:hover, .ui-tabs .ui-tabs-nav li.ui-tabs-selected:hover a {
+.ui-tabs .ui-tabs-nav li.ui-tabs-active a:hover, .ui-tabs .ui-tabs-nav li.ui-tabs-active:hover a {
 	text-decoration:none;
 }
 .ui-tabs .ui-tabs-panel {

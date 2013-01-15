@@ -25,6 +25,11 @@
 	filter:alpha(opacity: 0);
 }
 
+.settings {
+	font-family: Helvetica,sans-serif;
+    font-weight: 300;
+}
+
 p.info {
 	font-size: 0.9em;
 	margin: 0 0.5em 0.5em;
@@ -65,7 +70,7 @@ input[type="text"], input[type="password"], textarea {
 }
 
 input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
-	border-color: #86bbb3;
+	border-color: #1C8CA8;
 }
 
 input[type="submit"], input[type="button"] {
@@ -212,12 +217,16 @@ a.submit.disabled {
 	border:1px solid #745a33;
 	background-color:#f4efe8;
 	padding:.25em .5em;
-	-moz-box-shadow:0 0 1px #aaa;
-	-webkit-box-shadow:0 0 1px #aaa;
-	-o-box-shadow:0 0 1px #aaa;
-	box-shadow:0 0 1px #aaa;
+	-moz-box-shadow:0 0 2px #aaa;
+	-webkit-box-shadow:0 0 2px #aaa;
+	-o-box-shadow:0 0 2px #aaa;
+	box-shadow:0 0 2px #aaa;
 	display:inline-block;
 	font-weight:bold;
+	-o-border-radius:2px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
 }
 
 .message.error, .message.alert {

@@ -625,6 +625,10 @@ table.wisetable.scroll tbody tr.selected {
 	color:#ffffff;
 }
 
+table.wisetable.scroll tbody tr.selected a {
+	color:#ffffff;
+}
+
 table.wisetable.scroll tr td {
 	padding: .25em .5em;
 }
