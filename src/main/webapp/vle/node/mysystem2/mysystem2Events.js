@@ -61,7 +61,6 @@ var events = [
   'mysystem2AuthoringIFrameLoaded',
   'templateUpdatePrompt',
   'previewFrameLoaded',
-  'pageRenderComplete',
   'processPostResponseComplete'
 ];
 
