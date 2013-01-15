@@ -1,7 +1,7 @@
 DataGraphNode.prototype = new Node();
 DataGraphNode.prototype.constructor = DataGraphNode;
 DataGraphNode.prototype.parent = Node.prototype;
-DataGraphNode.authoringToolName = "Data Graph";
+//DataGraphNode.authoringToolName = "Data Graph";   // removed from authoring. no new datagraph steps can be authored. existing datagraph steps will continue to work. https://github.com/WISE-Community/WISE-VLE/issues/238
 DataGraphNode.authoringToolDescription = "Students enter data values and generate a graph";
 
 /**
