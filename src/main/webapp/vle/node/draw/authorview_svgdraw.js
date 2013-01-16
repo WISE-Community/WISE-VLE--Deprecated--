@@ -182,11 +182,19 @@ View.prototype.SVGDrawNode.generateSnapshotMaxOption = function(){
 		$("#snapMaxInput").val(this.maxSnaps.toString());
 	}
 	
-	if(this.content.snapshots_active){
-		document.getElementById('snapMaxInput').disabled = false;
+	if ($('#pencilCbx').prop('checked')){
+		if(this.content.snapshots_max > 10){
+			$("#snapMaxInput").val('10');
+			this.content.snapshots_max = '10';
+		}
+		$('#snapMaxInput option.noPencil').prop('disabled',true);
 	}
 	
-	this.toolbarOptionsChanged();
+	if(this.content.snapshots_active){
+		$('#snapMaxInput').prop('disabled',false);
+	}
+	
+	//this.toolbarOptionsChanged();
 };
 
 /**
@@ -486,10 +494,11 @@ View.prototype.SVGDrawNode.toolbarOptionsChanged = function(){
 				if(this.content.snapshots_max > 10){
 					this.content.snapshots_max = 10;
 					document.getElementById('snapMaxInput').options[8].selected = true;
+					alert('Note: If the pencil tool is enabled, a maximum of 10 frames is allowed per step. This is because use of the pencil tool results in larger data files.\n\nAs a result, WISE has automatically set the maximum number of allowed frames for this step to 10.');
 				}
-				$('#snapMaxInput option.noPencil').attr('disabled', 'disabled');
+				$('#snapMaxInput option.noPencil').prop('disabled',true);
 			} else {
-				$('#snapMaxInput option.noPencil').removeAttr('disabled');
+				$('#snapMaxInput option.noPencil').prop('disabled',false);
 			}
 		} else if (current == 'line'){
 			this.content.toolbar_options.line = isActive;
