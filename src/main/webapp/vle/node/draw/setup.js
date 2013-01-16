@@ -29,7 +29,9 @@ var studentVLEScripts = [
 ];
 
 var authorScripts = [
-	'vle/node/draw/authorview_svgdraw.js'
+	'vle/node/draw/authorview_svgdraw.js',
+	'vle/node/draw/svg-edit/lz77.js',
+	'vle/node/draw/svg-edit/autograde/drawScorer.js'
 ];
 
 var gradingScripts = [

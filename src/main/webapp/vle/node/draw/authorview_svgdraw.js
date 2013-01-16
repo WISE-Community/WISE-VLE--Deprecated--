@@ -182,11 +182,19 @@ View.prototype.SVGDrawNode.generateSnapshotMaxOption = function(){
 		$("#snapMaxInput").val(this.maxSnaps.toString());
 	}
 	
-	if(this.content.snapshots_active){
-		document.getElementById('snapMaxInput').disabled = false;
+	if ($('#pencilCbx').prop('checked')){
+		if(this.content.snapshots_max > 10){
+			$("#snapMaxInput").val('10');
+			this.content.snapshots_max = '10';
+		}
+		$('#snapMaxInput option.noPencil').prop('disabled',true);
 	}
 	
-	this.toolbarOptionsChanged();
+	if(this.content.snapshots_active){
+		$('#snapMaxInput').prop('disabled',false);
+	}
+	
+	//this.toolbarOptionsChanged();
 };
 
 /**
@@ -386,6 +394,9 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 	//get the div that we will put everything in
 	var autoScoringFeedbackAuthoringDiv = document.getElementById('autoScoringFeedbackAuthoringDiv');
 	
+	//clear out the div in case it contained existing content
+	autoScoringFeedbackAuthoringDiv.innerHTML = '';
+	
 	//get the auto scoring criteria
 	var autoScoringCriteria = this.getAutoScoringField('autoScoringCriteria');
 	
@@ -415,6 +426,16 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 		displayFeedbackToStudentCheckbox.checked = true;
 	}
 	
+	//create the text and input field for the check work chances
+	var checkWorkChancesText = document.createTextNode('Check Work Chances (leave blank for unlimited tries)');
+	var checkWorkChancesInput = createElement(document, 'input', {id: 'autoScoringCheckWorkChancesInput', type: 'text', size: '4', onchange: 'eventManager.fire("svgdrawUpdateAutoScoringCheckWorkChancesChanged")'});
+
+	//populate the check work chances if necessary
+	var checkWorkChances = this.getAutoScoringField('autoScoringCheckWorkChances');
+	if(checkWorkChances != null) {
+		checkWorkChancesInput.value = checkWorkChances;		
+	}
+	
 	//add all the elements into the div
 	autoScoringFeedbackAuthoringDiv.appendChild(displayScoreToStudentCheckbox);
 	autoScoringFeedbackAuthoringDiv.appendChild(displayScoreToStudentText);
@@ -422,42 +443,61 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 	autoScoringFeedbackAuthoringDiv.appendChild(displayFeedbackToStudentCheckbox);
 	autoScoringFeedbackAuthoringDiv.appendChild(displayFeedbackToStudentText);
 	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+	autoScoringFeedbackAuthoringDiv.appendChild(checkWorkChancesText);
+	autoScoringFeedbackAuthoringDiv.appendChild(checkWorkChancesInput);
+	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 	
 	//get the feedback array
 	var autoScoringFeedback = this.getAutoScoringField('autoScoringFeedback');
 	
-	/*
-	 * the scores students can receive are 0-5 right now so we will
-	 * hard code this. in the future, the grading criteria should tell
-	 * us what scores are possible. 
-	 */
-	for(var x=0; x<=5; x++) {
-		var feedback = '';
-		
-		if(autoScoringFeedback != null) {
-			//get the feedback object
-			var autoScoringFeedbackObject = autoScoringFeedback[x];
+	var possibleScores = [];
+	
+	var drawScorer = new DrawScorer();
+	
+	if(autoScoringCriteria == 'methane') {
+		//get the possible scores for methane
+		possibleScores = drawScorer.getPossibleMethaneScoreKeys();
+	} else if(autoScoringCriteria == 'ethane') {
+		//get the possible scores for ethane
+		possibleScores = drawScorer.getPossibleEthaneScoreKeys();
+	}
+	
+	if(possibleScores != null) {
+		//loop through all the possible scores
+		for(var x=0; x<possibleScores.length; x++) {
+			var feedback = '';
+			var score = null;
 			
-			if(autoScoringFeedbackObject != null) {
-				//get the score and feedback
-				score = autoScoringFeedbackObject.score;
-				feedback = autoScoringFeedbackObject.feedback;
+			//get the possible score object
+			var possibleScore = possibleScores[x];
+			
+			//get the key value
+			var keyValue = possibleScore.key;
+			
+			if(autoScoringFeedback != null) {
+				//get the feedback object
+				var autoScoringFeedbackObject = autoScoringFeedback[x];
+				
+				if(autoScoringFeedbackObject != null) {
+					//get the existing feedback that was previously authored for this key
+					feedback = autoScoringFeedbackObject.feedback;
+				}
 			}
+			
+			//display the key value e.g. "0", "1", "2 Case 1", etc.
+			var scoreText = document.createTextNode('Score: ' + keyValue);
+			
+			//create a textarea for the author to enter the feedback text
+			var feedbackTextArea = createElement(document, 'textarea', {id: 'autoScoringFeedback_' + x, cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("svgdrawUpdateAutoScoringFeedback", ' + x + ')'});
+			feedbackTextArea.value = feedback;
+			
+			//add the elements to the div
+			autoScoringFeedbackAuthoringDiv.appendChild(createElement(document, 'hr', null));
+			autoScoringFeedbackAuthoringDiv.appendChild(scoreText);
+			autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+			autoScoringFeedbackAuthoringDiv.appendChild(feedbackTextArea);
+			autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 		}
-		
-		//display the score
-		var scoreText = document.createTextNode('Score: ' + x);
-		
-		//create a textarea for the author to enter the feedback text
-		var feedbackTextArea = createElement(document, 'textarea', {id: 'autoScoringFeedback_' + x, cols: '60', rows: '4', wrap: 'soft', onchange: 'eventManager.fire("svgdrawUpdateAutoScoringFeedback", ' + x + ')'});
-		feedbackTextArea.value = feedback;
-		
-		//add the elements to the div
-		autoScoringFeedbackAuthoringDiv.appendChild(createElement(document, 'hr', null));
-		autoScoringFeedbackAuthoringDiv.appendChild(scoreText);
-		autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
-		autoScoringFeedbackAuthoringDiv.appendChild(feedbackTextArea);
-		autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 	}
 };
 
@@ -486,10 +526,11 @@ View.prototype.SVGDrawNode.toolbarOptionsChanged = function(){
 				if(this.content.snapshots_max > 10){
 					this.content.snapshots_max = 10;
 					document.getElementById('snapMaxInput').options[8].selected = true;
+					alert('Note: If the pencil tool is enabled, a maximum of 10 frames is allowed per step. This is because use of the pencil tool results in larger data files.\n\nAs a result, WISE has automatically set the maximum number of allowed frames for this step to 10.');
 				}
-				$('#snapMaxInput option.noPencil').attr('disabled', 'disabled');
+				$('#snapMaxInput option.noPencil').prop('disabled',true);
 			} else {
-				$('#snapMaxInput option.noPencil').removeAttr('disabled');
+				$('#snapMaxInput option.noPencil').prop('disabled',false);
 			}
 		} else if (current == 'line'){
 			this.content.toolbar_options.line = isActive;
@@ -817,12 +858,14 @@ View.prototype.SVGDrawNode.updateAutoScoringCriteria = function() {
 		this.setAutoScoringField('autoScoringCriteria', 'methane');
 		
 		//show the auto scoring feedback div
+		this.generateAutoScoringFeedbackAuthoringDiv();
 		this.showAutoScoringFeedbackAuthoring();
 	} else if(autoScoringCriteria == 'ethane') {
 		//set the value into the content
 		this.setAutoScoringField('autoScoringCriteria', 'ethane');
 		
 		//show the auto scoring feedback div
+		this.generateAutoScoringFeedbackAuthoringDiv();
 		this.showAutoScoringFeedbackAuthoring();
 	}
 	
@@ -846,29 +889,51 @@ View.prototype.SVGDrawNode.hideAutoScoringFeedbackAuthoring = function() {
 
 /**
  * The author has changed the text for one of the feedback textareas
- * @param score this score has had its feedback changed
+ * @param index this score has had its feedback changed
  */
-View.prototype.SVGDrawNode.updateAutoScoringFeedback = function(score) {
+View.prototype.SVGDrawNode.updateAutoScoringFeedback = function(index) {
 	//get the feedback array
 	var autoScoringFeedback = this.getAutoScoringFeedback();
 	
+	var possibleScores = [];
+	
+	//get the draw scorer object
+	var drawScorer = new DrawScorer();
+	
+	//get the auto scoring criteria
+	var autoScoringCriteria = this.getAutoScoringField('autoScoringCriteria');
+	
+	if(autoScoringCriteria == 'methane') {
+		//get the possible scores for methane
+		possibleScores = drawScorer.getPossibleMethaneScoreKeys();
+	} else if(autoScoringCriteria == 'ethane') {
+		//get the possible scores for ethane
+		possibleScores = drawScorer.getPossibleEthaneScoreKeys();
+	}
+	
 	if(autoScoringFeedback.length == 0) {
-		/*
-		 * populate the feedback array if it is empty. the only scores students
-		 * can receive now are 0-6 so we will hard code this for now. in the
-		 * future the grading criteria should tell us what scores are possible.
-		 */
-		for(var x=0; x<=5; x++) {
-			autoScoringFeedback[x] = {
-				score:x,
-				feedback:''
-			};
+		if(possibleScores != null) {
+			//loop through all the possible score objects
+			for(var x=0; x<possibleScores.length; x++) {
+				//get a possible score object
+				var possibleScore = possibleScores[x];
+				
+				/*
+				 * create the auto scoring feedback object and insert the
+				 * score and key
+				 */
+				autoScoringFeedback[x] = {
+					score:possibleScore.score,
+					key:possibleScore.key,
+					feedback:''
+				};
+			}
 		}
 	}
 	
 	//get the feedback text the author has written and set it in the content
-	var feedback = $('#autoScoringFeedback_' + score).val();
-	autoScoringFeedback[score].feedback = feedback;
+	var feedback = $('#autoScoringFeedback_' + index).val();
+	autoScoringFeedback[index].feedback = feedback;
 	
 	//fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
@@ -908,6 +973,35 @@ View.prototype.SVGDrawNode.updateAutoScoringDisplayFeedbackToStudent = function(
 	
 	//fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Update the value that determines how many times the student can click the
+ * 'Check Work' button
+ */
+View.prototype.SVGDrawNode.updateAutoScoringCheckWorkChances = function() {
+	if($('#autoScoringCheckWorkChancesInput').length > 0) {
+		//get the check work chances value
+		var checkWorkChances = $('#autoScoringCheckWorkChancesInput').val();
+		
+		if(checkWorkChances == '' || !isNaN(parseInt(checkWorkChances))) {
+			//the user has entered '' or a number
+			
+			//set the value into the step content
+			this.setAutoScoringField('autoScoringCheckWorkChances', checkWorkChances);
+			
+			//fire source updated event, this will update the preview
+			this.view.eventManager.fire('sourceUpdated');
+		} else {
+			alert("Error: invalid 'Check Work Chances' value");
+			
+			//get the previous check work chances value
+			checkWorkChances = this.getAutoScoringField('autoScoringCheckWorkChances');
+			
+			//set the old value back into the input
+			$('#autoScoringCheckWorkChancesInput').val(checkWorkChances);
+		}
+	}
 };
 
 /**
@@ -956,6 +1050,7 @@ View.prototype.SVGDrawNode.getAutoScoringField = function(key) {
 View.prototype.SVGDrawNode.createAutoScoringObjectIfDoesNotExist = function() {
 	if(this.content.autoScoring == null) {
 		this.content.autoScoring = {
+			autoScoringCheckWorkChances:'',
 			autoScoringCriteria:'',
 			autoScoringDisplayScoreToStudent:true,
 			autoScoringDisplayFeedbackToStudent:true,

@@ -142,26 +142,54 @@ var DrawScorer = function() {
     //to be specified in the XML for the problem.
     // Version of rubric from October 2012
     this.assignMethaneRubricScore = function(svgFullObject) {
-        rubricScore = -1;
+        rubricScore = {
+        	score:-1,
+        	key:'-1'
+        };
         if(svgFullObject.isCorrect) {//5 for correct, then work up from the bottom
-            rubricScore = 5;
+            rubricScore = {
+            	score:5,
+            	key:'5'
+            };
         } else if(!svgFullObject.hasFrames || someFramesLackImages(svgFullObject)) {//Interface issues get a 0
-            rubricScore = 0;
+            rubricScore = {
+            	score:0,
+            	key:'0'
+            };
         } else if(this.atomsAddedOrDeletedBetweenFrames(svgFullObject)) {//Lack of particle conservation is a 1
-            rubricScore = 1;
+            rubricScore = {
+            	score:1,
+            	key:'1'
+            }
         } else {
             //First, do they have the wrong number of CH_{4} in reactants?
             if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"CH4")) {
-            	rubricScore = 2.1;//wrong number of CH4 in reactants frame
+            	//wrong number of CH4 in reactants frame
+            	rubricScore = {
+            		score:2,
+            		key:'2 Case 1'
+            	}
             } else if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
-            	rubricScore = 2.2;
+            	rubricScore = {
+                	score:2,
+                	key:'2 Case 2'
+                };
             } else if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,0)) {//Now we know you have the right number of CH4, O2 - check if there's nothing extra
-            	rubricScore = 2.3;
+            	rubricScore = {
+                	score:2,
+                	key:'2 Case 3'
+                };
             } else {
                 if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,1)) {//reactants are right, but products are not
-                	rubricScore = 2.4;
+                	rubricScore = {
+                    	score:3,
+                    	key:'3'
+                    };
                 } else {
-                	rubricScore = 4;
+                	rubricScore = {
+                    	score:4,
+                    	key:'4'
+                    };
                 }
             }
         }  
@@ -175,24 +203,48 @@ var DrawScorer = function() {
     //to be specified in the XML for the problem.
     // Version of rubric from October 2012
     this.assignEthaneRubricScore = function(svgFullObject) {
-        rubricScore = -1;
+        rubricScore = {
+        	score:-1,
+       		key:'-1'
+       	};
         if(svgFullObject.isCorrect) {//5 for correct, then work up from the bottom
-            rubricScore = 5;
+            rubricScore = {
+            	score:5,
+            	key:'5'
+            };
         } else if(!svgFullObject.hasFrames || someFramesLackImages(svgFullObject)) {//Interface issues get a 0
-            rubricScore = 0;
+            rubricScore = {
+            	score:0,
+            	key:'0'
+            };
         } else if(this.atomsAddedOrDeletedBetweenFrames(svgFullObject)) {//Lack of particle conservation is a 1
-            rubricScore = 1;
+            rubricScore = {
+            	score:1,
+            	key:'1'
+            };
         } else {
             //First, do they have the wrong number of desired reactants?
             if(!this.frameHasDesiredMoleculeByName(svgFullObject,0,"C2H6") || !this.frameHasDesiredMoleculeByName(svgFullObject,0,"O2")) {
-            	rubricScore = 2.1;//wrong number of C2H6 or O2 in reactants frame
+            	rubricScore = {
+                	score:2,
+                	key:'2 Case 1'
+                };//wrong number of C2H6 or O2 in reactants frame
             } else if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,0)) {
-            	rubricScore = 2.2;
+            	rubricScore = {
+                	score:2,
+                	key:'2 Case 2'
+                };
             } else {
                 if(!this.frameHasOverlappingDesiredMolecules(svgFullObject,1)) {//reactants are right, but products are not
-                	rubricScore = 2.3;
+                	rubricScore = {
+                    	score:3,
+                    	key:'3'
+                    };
                 } else {
-                	rubricScore = 4;
+                	rubricScore = {
+                    	score:4,
+                    	key:'4'
+                    };
                 }
             }
         }  
@@ -1441,9 +1493,44 @@ var DrawScorer = function() {
     	return resultChildNodes;
     };
 
+    /**
+     * Get the possible scores for methane
+     */
+    this.getPossibleMethaneScoreKeys = function() {
+    	var possibleScores = [
+    	                      {score:0, key:'0'},
+    	                      {score:1, key:'1'},
+    	                      {score:2, key:'2 Case 1'},
+    	                      {score:2, key:'2 Case 2'},
+    	                      {score:2, key:'2 Case 3'},
+    	                      {score:3, key:'3'},
+    	                      {score:4, key:'4'},
+    	                      {score:5, key:'5'}
+    	                     ];
+    	                      
+    	
+    	return possibleScores;
+    };
+    
+    /**
+     * Get the possible scores for ethane
+     */
+    this.getPossibleEthaneScoreKeys = function() {
+    	var possibleScores = [
+    	                      {score:0, key:'0'},
+    	                      {score:1, key:'1'},
+    	                      {score:2, key:'2 Case 1'},
+    	                      {score:2, key:'2 Case 2'},
+    	                      {score:3, key:'3'},
+    	                      {score:4, key:'4'},
+    	                      {score:5, key:'5'}
+    	                     ];
+    	
+    	return possibleScores;
+    };
 };
 
     //used to notify scriptloader that this script has finished loading
     if(typeof eventManager != 'undefined'){
-        eventManager.fire('scriptLoaded', 'drawScorer.js');
+        eventManager.fire('scriptLoaded', 'vle/node/draw/svg-edit/autograde/drawScorer.js');
     };

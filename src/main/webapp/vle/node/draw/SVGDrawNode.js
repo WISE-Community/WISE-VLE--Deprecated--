@@ -193,6 +193,8 @@ SVGDrawNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVi
 		var timestamp = nodeState.timestamp;
 		var autoScore = nodeState.autoScore;
 		var autoFeedback = nodeState.autoFeedback;
+		var autoFeedbackKey = nodeState.autoFeedbackKey;
+		var checkWork = nodeState.checkWork;
 		
 		// if the work is for a SVGDrawNode, embed the svg
 		var innerDivId = "svgDraw_"+stepWorkId+"_"+timestamp;
@@ -285,8 +287,18 @@ SVGDrawNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVi
 		
 		var autoScoreText = '';
 		
+		if(autoFeedbackKey != null) {
+			//get the auto feedback key if available
+			autoScoreText += 'Auto-Feedback Key: ' + autoFeedbackKey;
+		}
+		
 		if(autoScore != null) {
 			//get the auto score if available
+			
+			if(autoScoreText != '') {
+				autoScoreText += '<br>';
+			}
+			
 			autoScoreText += 'Auto-Score: ' + autoScore;
 		}
 		

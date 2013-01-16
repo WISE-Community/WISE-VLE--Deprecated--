@@ -7,7 +7,7 @@
  * @param autoFeedback the auto graded feedback
  * @returns
  */
-function SVGDRAWSTATE(data, timestamp, autoScore, autoFeedback) {
+function SVGDRAWSTATE(data, timestamp, autoScore, autoFeedback, autoFeedbackKey, checkWork) {
 	this.type = "html";
 	this.data = data;
 	
@@ -26,6 +26,16 @@ function SVGDRAWSTATE(data, timestamp, autoScore, autoFeedback) {
 		//set the auto graded feedback if provided
 		this.autoFeedback = autoFeedback;
 	}
+	
+	if(autoFeedbackKey != null) {
+		//set the auto feedback key if provided
+		this.autoFeedbackKey = autoFeedbackKey;
+	}
+	
+	if(checkWork != null) {
+		//set the auto graded check work value if provided
+		this.checkWork = checkWork;
+	}
 };
 
 /**
@@ -42,6 +52,8 @@ SVGDRAWSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	state.timestamp = stateJSONObj.timestamp;
 	state.autoScore = stateJSONObj.autoScore;
 	state.autoFeedback = stateJSONObj.autoFeedback;
+	state.autoFeedbackKey = stateJSONObj.autoFeedbackKey;
+	state.checkWork = stateJSONObj.checkWork;
 	
 	//return the SVGDRAWSTATE object
 	return state;
