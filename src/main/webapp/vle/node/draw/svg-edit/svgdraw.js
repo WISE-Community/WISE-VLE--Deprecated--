@@ -10,6 +10,12 @@ function SVGDRAW(node) {
 	this.view = node.view;
 	this.content = node.getContent().getContentJSON();
 	
+	if(node.studentWork != null) {
+		this.states = node.studentWork; 
+	} else {
+		this.states = [];  
+	};
+	
 	this.svgCanvas = null;
 	this.teacherAnnotation = "";
 	this.defaultImage = ""; // svg string to hold starting (or background) svg image
@@ -262,18 +268,25 @@ SVGDRAW.prototype.save = function() {
 	var compressedData = "--lz77--" + this.lz77.compress($.stringify(data));
 	var autoScore = this.autoScore;
 	var autoFeedback = this.autoFeedback;
+	var autoFeedbackKey = this.autoFeedbackKey;
+	var checkWork = this.checkWork;
 
 	//create a new svgdrawstate
-	var svgDrawState = new SVGDRAWSTATE(compressedData, null, autoScore, autoFeedback);
+	var svgDrawState = new SVGDRAWSTATE(compressedData, null, autoScore, autoFeedback, autoFeedbackKey, checkWork);
 	
 	//fire the event to push this state to the global view.states object
 	eventManager.fire('pushStudentWork', svgDrawState);
+	
+	//push the state object into this object's own copy of states
+	this.states.push(svgDrawState);	
 	
     this.data = data;
     
     //clear out the auto score and auto feedback
     this.autoScore = null;
 	this.autoFeedback = null;
+	this.autoFeedbackKey = null;
+	this.checkWork = null;
 };
 
 SVGDRAW.prototype.load = function() {
@@ -603,66 +616,122 @@ SVGDRAW.prototype.autoGradeWork = function() {
 	
 	if(this.content.autoScoring != null) {
 		
-		//set the grading specification depending on the criteria
-		if(this.content.autoScoring.autoScoringCriteria == 'methane') {
-			scorer.parseXMLSpec("autograde/MethaneSpec.xml");
-		} else if(this.content.autoScoring.autoScoringCriteria == 'ethane') {
-			scorer.parseXMLSpec("autograde/EthaneSpec.xml");
-		} else {
-			//error
-			return;
-		}
+		//get the max number of times the student can check work
+		var maxCheckWorkChances = this.getMaxCheckWorkChances();
 		
-		if (this.teacherAnnotation != "") {
-			svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
-		}
-		this.studentData.svgString = svgCanvas.getSvgString();
-		this.studentData.description = svgEditor.description;
-		this.studentData.snapshots = svgEditor.snapshots;
-		this.studentData.snapTotal = svgEditor.snapTotal;
-		if(svgEditor.selected == true){
-			this.studentData.selected = svgEditor.active;
-		} else {
-			this.studentData.selected = -1;
-		}
+		//get the number of check work chances the student has used
+		var checkWorkChancesUsed = this.getCheckWorkChancesUsed();
 		
-		//score the drawing
-		scorer.scoreDrawing(this.studentData);
-		
-		//get the score
-		var score = this.studentData.rubricScore;
-		
-		//get the feedback
-		var feedback = this.getFeedbackByScore(score);
-		
-		var message = '';
-		
-		//display the score if we need to
-		if(this.content.autoScoring.autoScoringDisplayScoreToStudent) {
-			message += 'Auto score returned: ' + score + " out of 5.";
-		}
-		
-		//display the feedback if we need to
-		if(this.content.autoScoring.autoScoringDisplayFeedbackToStudent) {
-			if(message != '') {
-				//add line breaks if we are displayed the score
-				message += '\n\n';
+		if(maxCheckWorkChances == null || checkWorkChancesUsed < maxCheckWorkChances) {
+			/*
+			 * there is no max check work chances or the student still has 
+			 * check work chances left so we will score the work
+			 */
+			
+			var checkWork = false;
+			
+			if(maxCheckWorkChances == null) {
+				//max check work chances has not been set so we will check the work
+				checkWork = true;
+			} else {
+				//we will notify the student of how many check work chances they have left
+				
+				//get the number of check work chances left
+				var chancesLeft = maxCheckWorkChances - checkWorkChancesUsed;
+				
+				var message = 'You have ' + chancesLeft;
+				
+				if(chancesLeft == 1) {
+					message += ' chance ';
+				} else {
+					message += ' chances ';
+				}
+				
+				message += 'left to receive feedback on your answer so this should be your best work!\n\n';
+				message += 'Are you ready to receive feedback on this answer?';
+				
+				//ask the student if they are sure they want to check the work now
+				checkWork = confirm(message);
 			}
 			
-			message += feedback;
+			if(checkWork) {
+				//we will score the work
+				
+				//set the grading specification depending on the criteria
+				if(this.content.autoScoring.autoScoringCriteria == 'methane') {
+					scorer.parseXMLSpec("autograde/MethaneSpec.xml");
+				} else if(this.content.autoScoring.autoScoringCriteria == 'ethane') {
+					scorer.parseXMLSpec("autograde/EthaneSpec.xml");
+				} else {
+					//error
+					return;
+				}
+				
+				if (this.teacherAnnotation != "") {
+					svgStringToSave = svgStringToSave.replace(this.teacherAnnotation, "");
+				}
+				this.studentData.svgString = svgCanvas.getSvgString();
+				this.studentData.description = svgEditor.description;
+				this.studentData.snapshots = svgEditor.snapshots;
+				this.studentData.snapTotal = svgEditor.snapTotal;
+				if(svgEditor.selected == true){
+					this.studentData.selected = svgEditor.active;
+				} else {
+					this.studentData.selected = -1;
+				}
+				
+				//score the drawing
+				scorer.scoreDrawing(this.studentData);
+				
+				//get the score
+				var scoreObject = this.studentData.rubricScore;
+				
+				var score = null;
+				var key = null;
+				
+				if(scoreObject != null) {
+					score = scoreObject.score;
+					key = scoreObject.key;
+				}
+				
+				//get the feedback
+				var feedback = this.getFeedbackByKey(key);
+				
+				var message = '';
+				
+				//display the score if we need to
+				if(this.content.autoScoring.autoScoringDisplayScoreToStudent) {
+					message += 'Auto score returned: ' + score + " out of 5.";
+				}
+				
+				//display the feedback if we need to
+				if(this.content.autoScoring.autoScoringDisplayFeedbackToStudent) {
+					if(message != '') {
+						//add line breaks if we are displaying the score
+						message += '\n\n';
+					}
+					
+					message += feedback;
+				}
+				
+				if(message != '') {
+					//display the popup that may contain the score and the text feedback
+					alert(message);		
+				}
+				
+				//set the score and feedback so we can access them later when we save the svgdrawstate
+				this.autoScore = score;
+				this.autoFeedback = message;
+				this.autoFeedbackKey = key;
+				this.checkWork = true;
+				
+				//save the student work with the score and feedback
+				this.saveToVLE();
+			}
+		} else {
+			//the student does not have anymore check work chances
+			alert('You have used all your chances to receive feedback.');
 		}
-		
-		if(message != '') {
-			//display the popup that may contain the score and the text feedback
-			alert(message);		
-		}
-		
-		//set the score and feedback so we can access them later when we save the svgdrawstate
-		this.autoScore = score;
-		this.autoFeedback = message;
-		
-		//save the student work with the score and feedback
-		this.saveToVLE();	
 	}
 };
 
@@ -696,6 +765,78 @@ SVGDRAW.prototype.getFeedbackByScore = function(score) {
 	}
 	
 	return feedback;
+};
+
+/**
+ * Get the feedback for the given key
+ * @param key the key we want feedback for
+ */
+SVGDRAW.prototype.getFeedbackByKey = function(key) {
+	var feedback = '';
+	
+	if(this.content.autoScoring != null) {
+		if(this.content.autoScoring.autoScoringFeedback != null) {
+			
+			//loop through all the feedback objects
+			for(var x=0; x<this.content.autoScoring.autoScoringFeedback.length; x++) {
+				//get a feedback object
+				var autoScoringFeedbackObject = this.content.autoScoring.autoScoringFeedback[x];
+				
+				if(autoScoringFeedbackObject != null) {
+					//compare the key
+					if(key == autoScoringFeedbackObject.key) {
+						//we found the key we want so we will get the feedback 
+						feedback = autoScoringFeedbackObject.feedback;
+						
+						//break out of the for loop
+						break;
+					}
+				}
+			}
+		}		
+	}
+	
+	return feedback;
+};
+
+/**
+ * Get the max number of check work chances
+ */
+SVGDRAW.prototype.getMaxCheckWorkChances = function() {
+	var checkWorkChances = null;
+	
+	if(this.content.autoScoring != null) {
+		if(this.content.autoScoring.autoScoringCheckWorkChances != null) {
+			checkWorkChances = this.content.autoScoring.autoScoringCheckWorkChances;
+		}
+	}
+	
+	return checkWorkChances;
+};
+
+/**
+ * Get the number of times the student has checked their work for this step
+ */
+SVGDRAW.prototype.getCheckWorkChancesUsed = function() {
+	var checkWorkChancesUsed = 0;
+	
+	if(this.states != null) {
+		//loop through all the node states for this step
+		for(var x=0; x<this.states.length; x++) {
+			//get a node state
+			var state = this.states[x];
+			
+			if(state.checkWork) {
+				/*
+				 * the checkWork value is set to true so this is work that 
+				 * the student had auto graded and received feedback on
+				 */
+				checkWorkChancesUsed++;
+			}
+		}
+	}
+	
+	return checkWorkChancesUsed;
 };
 
 /*SVGDRAW.prototype.checkDrawSize = function(context){
