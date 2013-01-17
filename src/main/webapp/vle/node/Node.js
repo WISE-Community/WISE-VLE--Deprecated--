@@ -1754,6 +1754,16 @@ Node.prototype.showPreviousWork = function(previousWorkDiv, tagName, functionArg
 	}
 };
 
+/**
+ * Get the feedback that will be displayed when the student clicks
+ * on the Feedback button at the upper right of the vle. Child
+ * classes will need to override this to make use of it. This will
+ * take precedence over teacher score and comment feedback.
+ */
+Node.prototype.getFeedback = function() {
+	return null;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/Node.js');
