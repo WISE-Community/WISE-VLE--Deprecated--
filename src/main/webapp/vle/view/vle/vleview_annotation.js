@@ -8,7 +8,12 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 	$('#nodeAnnotationsLink').css('color','#FFFFFF');
 	
 	var currentNode = this.getProject().getNodeById(nodeId);  //get the node
-	var currentNodeAnnotations = currentNode.getNodeAnnotations();
+	var currentNodeAnnotations = [];
+	
+	if(currentNode.getNodeAnnotations() != null) {
+		//get the node annotations
+		currentNodeAnnotations = currentNode.getNodeAnnotations();		
+	}
 	
 	//get any persistent feedback we want to show from the step
 	var stepFeedback = currentNode.getFeedback();

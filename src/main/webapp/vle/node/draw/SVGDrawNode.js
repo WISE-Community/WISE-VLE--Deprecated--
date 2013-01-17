@@ -401,7 +401,7 @@ SVGDrawNode.prototype.getFeedback = function() {
 			 * loop through all the node states and get the autoFeedback
 			 * from the last node state that was auto graded
 			 */
-			for(var x=0; x<nodeStates.length; x++) {
+			for(var x=nodeStates.length - 1; x>=0; x--) {
 				//get a node state
 				var nodeState = nodeStates[x];
 				
@@ -410,7 +410,15 @@ SVGDrawNode.prototype.getFeedback = function() {
 					 * this node state was work that was auto graded so we will
 					 * get the autoFeedback and display it
 					 */
-					feedback = nodeState.autoFeedback;
+					var autoFeedback = nodeState.autoFeedback;
+					
+					if(feedback == null || feedback == '') {
+						//this is the newest feedback the student has received
+						feedback = '<b>NEW FEEDBACK<br>' + autoFeedback + '</b><hr>';
+					} else {
+						//this is a previous feedback the student has received
+						feedback += 'PREVIOUS FEEDBACK<br>' + autoFeedback + '<hr>';
+					}
 				}
 			}		
 		}
