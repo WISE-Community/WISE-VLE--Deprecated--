@@ -74,7 +74,7 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
                shapeDensity = 1;
             }
             else {
-               shapeDensity = fixture.materialSpaces + fixture.interiorSpaces + fixture.protectedSpaces;
+               shapeDensity = (fixture.materialSpaces + fixture.interiorSpaces + fixture.protectedSpaces) / fixture.area;
             }
             mass += sarea * shapeDensity;
             massc.x += sarea * sc.x * shapeDensity;

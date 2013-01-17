@@ -1,12 +1,12 @@
 (function (window)
 {
 
-	function Blockb2Actor (skin)
+	function RectPrismb2Actor (skin)
 	{
 		this.initialize (skin);
 	}
 
-	var p = Blockb2Actor.prototype = new createjs.Container();
+	var p = RectPrismb2Actor.prototype = new createjs.Container();
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
@@ -32,7 +32,7 @@
 		
 		var bodyDef = this.bodyDef = new b2BodyDef;
 		bodyDef.type = b2Body.b2_dynamicBody;
-		bodyDef.angularDamping = 0.9;
+		bodyDef.angularDamping = 0.5;
 		bodyDef.position.x = 0;
 		bodyDef.position.y = 0;
 		bodyDef.userData = {"actor":this}
@@ -44,38 +44,36 @@
 	}
 	p.constructFixtures = function ()
 	{
-		var i, j;
+		var i;
 		var skin = this.skin;
 		// go from bottom up.
 		this.fixDefs = [];
-		for (j = 0; j < skin.array2d[0].length; j++)
+		for (i= 0; i < skin.array2d.length; i++)
 		{
-			for (i = 0; i < skin.array2d.length; i++)
+			if (skin.array2d[i].mass > 0)
 			{
-				if (skin.array2d[i][j].mass > 0)
-				{
-					var fixDef = new b2FixtureDef;
-					fixDef.x_index = i;
-					fixDef.y_index = j;
-					fixDef.density = skin.array2d[i][j].mass*1;
-					fixDef.friction = 0.5;
-					fixDef.restitution = 0.2;
-					fixDef.filter.categoryBits = 1;
-					fixDef.filter.maskBits = 3;
-					var vec = new b2Vec2();
-					vec.Set (((i+0.5)*skin.unit_width_px)/GLOBAL_PARAMETERS.SCALE, ((j+0.5)*skin.unit_width_px)/GLOBAL_PARAMETERS.SCALE);
-					fixDef.shape = new b2PolygonShape;
-					fixDef.shape.SetAsOrientedBox(skin.unit_width_px/2/GLOBAL_PARAMETERS.SCALE, (skin.unit_height_px/2/GLOBAL_PARAMETERS.SCALE), vec, 0.0);
-					// we need information about how many open spaces are in this fixture
-					fixDef.totalSpaces = skin.array2d[i][j].totalSpaces;
-					fixDef.materialSpaces = skin.array2d[i][j].materialSpaces;
-					fixDef.exteriorSpaces = skin.array2d[i][j].exteriorSpaces;
-					fixDef.interiorSpaces = skin.array2d[i][j].interiorSpaces;
-					fixDef.protectedSpaces = skin.array2d[i][j].protectedSpaces;
-					fixDef.materialDensity = skin.array2d[i][j].mass / skin.array2d[i][j].materialSpaces;
-					this.fixDefs.push(fixDef);	
-				}						
-			}
+				var fixDef = new b2FixtureDef;
+				fixDef.x_index = 0;
+				fixDef.y_index = i;
+				fixDef.area = skin.array2d[i].area;
+				fixDef.density = skin.array2d[i].mass/skin.array2d[i].area;
+				fixDef.friction = 0.5;
+				fixDef.restitution = 0.2;
+				fixDef.filter.categoryBits = 1;
+				fixDef.filter.maskBits = 3;
+				var vec = new b2Vec2();
+				vec.Set (skin.width_units/2, skin.array2d[i].y_offset + skin.array2d[i].height/2)
+				fixDef.shape = new b2PolygonShape;
+				fixDef.shape.SetAsOrientedBox(skin.array2d[i].width/2, skin.array2d[i].height/2, vec, 0.0);
+				// we need information about how many open spaces are in this fixture
+				fixDef.totalSpaces = skin.array2d[i].totalSpaces;
+				fixDef.materialSpaces = skin.array2d[i].materialSpaces;
+				fixDef.exteriorSpaces = skin.array2d[i].exteriorSpaces;
+				fixDef.interiorSpaces = skin.array2d[i].interiorSpaces;
+				fixDef.protectedSpaces = skin.array2d[i].protectedSpaces;
+				fixDef.materialDensity = skin.array2d[i].mass / skin.array2d[i].materialSpaces;
+				this.fixDefs.push(fixDef);	
+			}	
 		}
 	}
 	
@@ -106,5 +104,5 @@
 	}
 	
 	
-	window.Blockb2Actor = Blockb2Actor;
+	window.RectPrismb2Actor = RectPrismb2Actor;
 }(window));
