@@ -208,7 +208,7 @@
 				var new_index = i + 1;
 				s.x = (new_index % this.num_cols) * this.shape_width_px + this.shape_dx;
 				if(this.PLACE_ON_GROUND){
-					s.y = Math.ceil(new_index / this.num_cols) * this.shape_height_px - o.height_px_below;
+					s.y = Math.ceil(new_index / this.num_cols) * this.shape_height_px - s.height_px_below;
 				} else {
 					s.y = Math.floor(new_index / this.num_cols) * this.shape_height_px + this.shape_dy;
 				}
