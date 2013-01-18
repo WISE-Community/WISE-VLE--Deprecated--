@@ -47,75 +47,49 @@
 		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 		//this.shape.mouseEnabled = false;
+		this.width_units = 1;
+		this.height_units = 1;
+		this.depth_units = 1;
+		this.width_px = this.width_units * unit_width_px;
+		this.height_px = this.height_units * unit_height_px;
+		this.depth_px = this.depth_units * unit_depth_px;
 		
 		this.cubes = [];
 		this.cubeCount = 0;
-		// use depth array to set up 3d point vertices
-		for (var i=0; i < this.depth_array.length; i++)
-		{
-			if (this.depth_array[i] == 1)
-			{
-				this.cubes[i] = {};
-				var points3d = [];
-				points3d.push(new Point3D(0, 0, i));
-				points3d.push(new Point3D(-1, 0, i));
-				points3d.push(new Point3D(-1, 0, i+1));
-				points3d.push(new Point3D(0, 0, i+1));
-				this.cubes[i].top = points3d;
-				var points3d = [];
-				points3d.push(new Point3D(0, 1, i));
-				points3d.push(new Point3D(-1, 1, i));
-				points3d.push(new Point3D(-1, 1, i+1));
-				points3d.push(new Point3D(0, 1, i+1));
-				this.cubes[i].bottom = points3d;
-				points3d = [];
-				points3d.push(new Point3D(0, 0, i+1));
-				points3d.push(new Point3D(-1, 0, i+1));
-				points3d.push(new Point3D(-1, 1, i+1));
-				points3d.push(new Point3D(0, 1, i+1));
-				this.cubes[i].front = points3d;
-				points3d = [];
-				points3d.push(new Point3D(0, 0, i));
-				points3d.push(new Point3D(0, 0, i+1));
-				points3d.push(new Point3D(0, 1, i+1));
-				points3d.push(new Point3D(0, 1, i));
-				this.cubes[i].right = points3d;
-				points3d = [];
-				points3d.push(new Point3D(-1, 0, i));
-				points3d.push(new Point3D(-1, 0, i+1));
-				points3d.push(new Point3D(-1, 1, i+1));
-				points3d.push(new Point3D(-1, 1, i));
-				this.cubes[i].left = points3d;
-				points3d = [];
-				points3d.push(new Point3D(0, 0, i));
-				points3d.push(new Point3D(-1, 0, i));
-				points3d.push(new Point3D(-1, 1, i));
-				points3d.push(new Point3D(0, 1, i));
-				this.cubes[i].back = points3d;
-				this.cubeCount++;
-				
-			} else
-			{
-				this.cubes[i] = null;
-			}
-		}
+		this.updateCubes();
 		this.cubes_projected = this.cubes;
 		this.updateProjected();
 		this.updateProjected2d();
 		
-		this.width_px = unit_width_px*depth_array.length;
-		this.height_px = unit_height_px*depth_array.length;
-
 		// draw figure
 		this.redraw();
 
 	}
-
-	p._tick = function ()
-	{
-		this.Container_tick();
+	p.set_width_units = function(width){
+		this.width_units = width;
+		this.width_px = this.width_units * this.unit_width_px;
+		this.updateCubes();
+		this.updateProjected();
+		this.updateProjected2d();
+		this.redraw();
 	}
-
+	p.set_height_units = function(height){
+		this.height_units = height;
+		this.height_px = this.height_units * this.unit_height_px;
+		this.updateCubes();
+		this.updateProjected();
+		this.updateProjected2d();
+		this.redraw();
+	}
+	p.set_depth_units = function(depth){
+		this.depth_units = depth;
+		this.depth_px = this.depth_units * this.unit_depth_px;
+		this.updateCubes();
+		this.updateProjected();
+		this.updateProjected2d();
+		this.redraw();
+	}
+	
 	p.update_view_sideAngle = function (angle)
 	{
 		this.view_sideAngle = angle;
@@ -130,6 +104,57 @@
 		this.updateProjected();
 		this.updateProjected2d();
 		this.redraw();
+	}
+	p.updateCubes = function (){
+		// use depth array to set up 3d point vertices
+		for (var i=0; i < this.depth_array.length; i++)
+		{
+			if (this.depth_array[i] == 1)
+			{
+				this.cubes[i] = {};
+				var points3d = []; 
+				points3d.push(new Point3D(0, 0, i*this.depth_units)); 
+				points3d.push(new Point3D(-this.width_units, 0, i*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, 0, (i+1)*this.depth_units));
+				points3d.push(new Point3D(0, 0, (i+1)*this.depth_units));
+				this.cubes[i].top = points3d;
+				var points3d = [];
+				points3d.push(new Point3D(0, this.height_units, i*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, this.height_units, i*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, this.height_units, (i+1)*this.depth_units));
+				points3d.push(new Point3D(0, this.height_units, (i+1)*this.depth_units));
+				this.cubes[i].bottom = points3d;
+				points3d = [];
+				points3d.push(new Point3D(0, 0, (i+1)*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, 0, (i+1)*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, this.height_units, (i+1)*this.depth_units));
+				points3d.push(new Point3D(0, this.height_units, (i+1)*this.depth_units));
+				this.cubes[i].front = points3d;
+				points3d = [];
+				points3d.push(new Point3D(0, 0, i*this.depth_units));
+				points3d.push(new Point3D(0, 0, (i+1)*this.depth_units));
+				points3d.push(new Point3D(0, this.height_units, (i+1)*this.depth_units));
+				points3d.push(new Point3D(0, this.height_units, i*this.depth_units));
+				this.cubes[i].right = points3d;
+				points3d = [];
+				points3d.push(new Point3D(-this.width_units, 0, i*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, 0, (i+1)*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, this.height_units, (i+1)*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, this.height_units, i*this.depth_units));
+				this.cubes[i].left = points3d;
+				points3d = [];
+				points3d.push(new Point3D(0, 0, i*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, 0, i*this.depth_units));
+				points3d.push(new Point3D(-this.width_units, this.height_units, i*this.depth_units));
+				points3d.push(new Point3D(0, this.height_units, i*this.depth_units));
+				this.cubes[i].back = points3d;
+				this.cubeCount++;
+				
+			} else
+			{
+				this.cubes[i] = null;
+			}
+		}
 	}
 	/** This function converts the main set of vertices to a transformed set of 3dvertices */
 	p.updateProjected = function ()
@@ -541,6 +566,10 @@
 	p.highlightDefault = function()
 	{
 		this.redraw();
+	}
+	p._tick = function ()
+	{
+		this.Container_tick();
 	}
 
  window.RectBlockShape = RectBlockShape;

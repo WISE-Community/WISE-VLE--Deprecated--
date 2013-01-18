@@ -2,12 +2,12 @@
 {
 	/** A space for displaying the names of materials, clickable/draggable materials
 	and a grid space for putting them together */
-	function ObjectBuildingPanel (width_px, height_px)
+	function RectPrismBuildingPanel (width_px, height_px)
 	{
 		this.initialize(width_px, height_px);
 	}
-	var p = ObjectBuildingPanel.prototype = new createjs.Container();
-	p.Container_initialize = ObjectBuildingPanel.prototype.initialize;
+	var p = RectPrismBuildingPanel.prototype = new createjs.Container();
+	p.Container_initialize = RectPrismBuildingPanel.prototype.initialize;
 	p.Container_tick = p._tick;
 	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
@@ -35,7 +35,7 @@
 		this.materialsMenu.y = this.BORDER_WIDTH+this.TITLE_HEIGHT;
 
 		
-		this.vv = new VolumeViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
+		this.vv = new RectPrismViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
 		this.addChild(this.vv);
 		this.vv.x = this.width_px*3/4 - 30;
 		this.vv.y = (this.height_px-this.TITLE_HEIGHT) / 2 + this.TITLE_HEIGHT;
@@ -77,55 +77,36 @@
 		this.g.lineTo(this.BORDER_WIDTH, this.height_px-this.BORDER_WIDTH);
 		this.g.lineTo(0,this.height_px);
 		this.g.endFill();
-						
-
-		// draw something under the volume viewer
-		/*
-		this.g.setStrokeStyle(1);
-		this.g.beginStroke("rgba(180,180,180,1.0)");
-		this.g.beginFill("rgba(220,220,220,1.0)");
-		this.g.drawRect(this.width_px / 2, GLOBAL_PARAMETERS.PADDING, this.width_px / 2 - GLOBAL_PARAMETERS.PADDING, this.height_px - 2 * GLOBAL_PARAMETERS.PADDING);
-		this.g.endFill();
-		this.g.endStroke();
-	*/
+				
 		// titles
 		var ltitle  = new createjs.Text("Materials", "20px Arial", this.TITLE_COLOR);
 		this.addChild(ltitle);
 		ltitle.x = 20;
 		ltitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
 
-		var mtitle  = new createjs.Text("Pick your blocks", "20px Arial", this.TITLE_COLOR);
+		var mtitle  = new createjs.Text("Shape your blocks", "20px Arial", this.TITLE_COLOR);
 		this.addChild(mtitle);
-		mtitle.x = (this.width_px/2 - 60)/2;
+		mtitle.x = (this.width_px/2 + 40)/2;
 		mtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
 
-
-		var rtitle  = new TextContainer("Build your model", "20px Arial", this.TITLE_COLOR);
+		var rtitle  = new TextContainer("Drop your blocks here", "20px Arial", this.TITLE_COLOR);
 		this.addChild(rtitle);
-		rtitle.x = this.width_px/2 + (this.width_px/2 - 60)/2;
+		rtitle.x = this.width_px/2 + (this.width_px/2 - 120)/2;
 		rtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
 
-		// a set of text to display the number of blocks that can be used
-		this.blockTexts = [];
-		var current_material_block_count = GLOBAL_PARAMETERS.materials[this.materialsMenu.current_material_name].block_max.length;
-		for (i = 0; i < current_material_block_count; i++)
-		{
-			var text = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width / current_material_block_count, GLOBAL_PARAMETERS.SCALE, this.TEXT_COLOR, this.TEXT_COLOR, 0, "right", "center", -4, 0);
-			text.x = this.materialsMenu.x + this.materialsMenu.width_px + i * this.block_space_width / current_material_block_count;
-			//text.y = GLOBAL_PARAMETERS.PADDING+ this.TITLE_HEIGHT;
-			text.y = this.height_px - text.height_px - this.BORDER_WIDTH;
-			this.addChild(text);
-			this.blockTexts.push(text);
-		}
+		// a single text to show how many of this block can be applied
+		this.blockText = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width / 5, GLOBAL_PARAMETERS.SCALE, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
+		this.blockText.x = this.materialsMenu.x + this.materialsMenu.width_px;
+		this.blockText.y = this.height_px - this.blockText.height_px - this.BORDER_WIDTH;
+		this.addChild(this.blockText);
 
-		this.blocks = [];
+		this.displayed_block = null;
 		this.drawMaterial(this.materialsMenu.current_material_name);
 
 		var htmlText, htmlElement;
 		// jquery ui
 		if ($("#make-object").length == 0){
 			htmlText = '<input type="submit" id="make-object" value="Make"/>';
-	        //htmlElement = $( "input[id='make-object']" )
 	        $("#builder-button-holder").append(htmlText);
 	        $("#make-object")
 	            .button()
@@ -133,10 +114,60 @@
 	                event.preventDefault();
 	                builder.createObject();
 	            }).hide();  
-	
-		    htmlText = '<div id="slider-topAngle" style="height: 100px;"></div>';
-		   //$( "#slider-topAngle" )
-			$("#builder-button-holder").append(htmlText);
+
+			htmlText = '<div id="slider-width" style="width: 100px"></div>';
+		    $("#builder-button-holder").append(htmlText);
+			$("#slider-width")
+			    .slider({
+                   orientation: "horizontal",
+                   range: "min",
+                   min: 0,
+                   max: 4.9,
+                   value: 4,
+                   step: 0.1,
+                   slide: function( event, ui ) {
+                       $( "#amount" ).val( ui.value );
+                       builder.update_width(5-ui.value);
+                   }
+               }).hide();
+		     $("#slider-width").load(function (){$( "#amount" ).val( $( "#slider-width" ).slider( "value" ) );});
+			
+			htmlText = '<div id="slider-height" style="height: 100px"></div>';
+		    $("#builder-button-holder").append(htmlText);
+			$("#slider-height")
+			    .slider({
+                   orientation: "vertical",
+                   range: "min",
+                   min: 0,
+                   max: 4.9,
+                   value: 4,
+                   step: 0.1,
+                   slide: function( event, ui ) {
+                       $( "#amount" ).val( ui.value );
+                       builder.update_height(5-ui.value);
+                   }
+               }).hide();
+		     $("#slider-height").load(function (){$( "#amount" ).val( $( "#slider-height" ).slider( "value" ) );});
+			
+		    htmlText = '<div id="slider-depth" style="height: 100px"></div>';
+		    $("#builder-button-holder").append(htmlText);
+			$("#slider-depth")
+			    .slider({
+                   orientation: "vertical",
+                   range: "min",
+                   min: 0,
+                   max: 4.9,
+                   value: 4,
+                   step: 0.1,
+                   slide: function( event, ui ) {
+                       $( "#amount" ).val( ui.value );
+                       builder.update_depth(5-ui.value);
+                   }
+               }).hide();
+		     $("#slider-depth").load(function (){$( "#amount" ).val( $( "#slider-depth" ).slider( "value" ) );});
+			
+		    htmlText = '<div id="slider-topAngle" style="height: 100px"></div>';
+		    $("#builder-button-holder").append(htmlText);
 			$("#slider-topAngle")
 			    .slider({
                    orientation: "vertical",
@@ -150,10 +181,10 @@
                        builder.update_view_topAngle(ui.value);
                    }
                }).hide();
-		     $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
-				 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
-		   //$( "#slider-topAngle" )
-			$("#builder-button-holder").append(htmlText);
+		    $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
+			
+			htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
+		    $("#builder-button-holder").append(htmlText);
 			$("#slider-sideAngle")
 			    .slider({
 			       orientation: "horizontal",	
@@ -167,12 +198,25 @@
 	                    builder.update_view_sideAngle(ui.value);
 	               }
 	              }).hide();
-		       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
+		     $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
+			
 			// setup buttons for volume viewer	
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
 			element.x = this.width_px - 100;
 			element.y = (this.height_px - this.TITLE_HEIGHT)/2;
+			element = new createjs.DOMElement($("#slider-width")[0]);
+			this.addChild(element);
+			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 10;
+			element.y = this.height_px - 50;
+			element = new createjs.DOMElement($("#slider-height")[0]);
+			this.addChild(element);
+			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
+			element.y = this.TITLE_HEIGHT*2;
+			element = new createjs.DOMElement($("#slider-depth")[0]);
+			this.addChild(element);
+			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 - 60;
+			element.y = this.TITLE_HEIGHT*2;
 			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 			this.addChild(element);
 			element.x = this.width_px - 280 ;
@@ -182,6 +226,9 @@
 			element.x = this.width_px - 155;
 			element.y = 80;
 			$("#make-object").show();
+			$("#slider-width").show();
+			$("#slider-height").show();
+			$("#slider-depth").show();
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
 		}
@@ -220,9 +267,13 @@
 			this.screenText.y = (this.height_px - 20)/2;
 			this.addChild(this.screenText);
 			this.enabled = false;
-
+			$("#make-object").hide();
+			$("#slider-width").hide();
+			$("#slider-height").hide();
+			$("#slider-depth").hide();
+			$("#slider-sideAngle").hide();
+			$("#slider-topAngle").hide();
 		}
-		
 	}
 
 	/** Reverses disableWithText function */
@@ -231,27 +282,37 @@
 			this.removeChild(this.screen);
 			this.removeChild(this.screenText);
 			this.enabled = true;
+			$("#make-object").show();
+			$("#slider-width").show();
+			$("#slider-height").show();
+			$("#slider-depth").show();
+			$("#slider-sideAngle").show();
+			$("#slider-topAngle").show();
 		}
 	}
 
 	////////////////////// CLASS SPECIFIC ////////////////////
+	p.update_width = function (units){
+		if (this.displayed_block != null) this.displayed_block.set_width_units(units);
+	}
+	p.update_height = function (units){
+		if (this.displayed_block != null) this.displayed_block.set_height_units(units);
+	}
+	p.update_depth = function (units){
+		if (this.displayed_block != null) this.displayed_block.set_depth_units(units);
+	}
+
 	p.update_view_sideAngle = function (degrees)
 	{
 		this.view_sideAngle = degrees * Math.PI / 180;
-		for (var i = 0; i < this.blocks.length; i++) 
-		{
-			if (this.blocks[i] != null) this.blocks[i].update_view_sideAngle(this.view_sideAngle);
-		}
+		if (this.displayed_block != null) this.displayed_block.update_view_sideAngle(this.view_sideAngle);
 		this.vv.update_view_sideAngle(this.view_sideAngle);
 	}
 
 	p.update_view_topAngle = function (degrees)
 	{
 		this.view_topAngle = degrees * Math.PI / 180;
-		for (var i = 0; i < this.blocks.length; i++) 
-		{
-			if (this.blocks[i] != null) this.blocks[i].update_view_topAngle(this.view_topAngle);
-		}
+		if (this.displayed_block != null) this.displayed_block.update_view_topAngle(this.view_topAngle);
 		this.vv.update_view_topAngle(this.view_topAngle);
 	}
 
@@ -264,59 +325,53 @@
 	{
 		var o, i;
 		// if blocks array is not empty remove these from display
-		if (this.blocks.length != 0)
+		if (this.displayed_block != null)
 		{
-			for (i = 0; i < this.blocks.length; i++)
-			{
-				this.removeChild(this.blocks[i])
-			}
-			this.blocks = new Array();
+			this.removeChild(this.displayed_block);
+			this.displayed_block = null
 		}
-		for (i = 0; i < GLOBAL_PARAMETERS.materials[material_name].depth_arrays.length; i++)
-		{
-			o = this.newBlock(material_name, i);
-			this.placeBlock(o, i);			
-		}
+		o = this.newBlock(material_name);
+		this.placeBlock(o);	
 		this.updateCountText(material_name);
 		stage.ready_to_update = true;
 	}
-	p.newBlock = function (material_name, i)
+	p.newBlock = function (material_name)
 	{
-		if (GLOBAL_PARAMETERS.materials[material_name].block_count[i] < GLOBAL_PARAMETERS.materials[material_name].block_max[i])
+		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
-			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,GLOBAL_PARAMETERS.materials[material_name].depth_arrays[i], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			this.blocks[i] = o;
+			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
+			this.displayed_block = o;
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
-			o.depth_array_index = i;
+			o.depth_array_index = 0;
 			this.updateCountText(material_name);
+			$("#slider-width").slider('value', 4);
+			$("#slider-height").slider('value', 4);
+			$("#slider-depth").slider('value', 4);
 			return o;
 		} else
 		{
-			this.blocks[i] = null;
+			this.displayed_block = null;
 			this.updateCountText(material_name);
 			return null;
 		}
 	}
 	// WORKING WITH OBJECTS
-	p.placeBlock = function (o, i)
+	p.placeBlock = function (o)
 	{
 		if (o != null)
 		{	
-			var material_block_count = GLOBAL_PARAMETERS.materials[o.material_name].block_max.length;
-			o.x = this.materialsMenu.width_px + i * this.width_px/3/material_block_count + (o.width_px);
-			o.y = i * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + this.TITLE_HEIGHT;	
+			o.x = this.materialsMenu.width_px + this.width_px/3;
+			o.y = 2*this.TITLE_HEIGHT;	
 		}
 	}
 	p.updateCountText = function (material_name)
 	{
 		// update count
-		for (i = 0; i < GLOBAL_PARAMETERS.materials[material_name].block_max.length; i++)
-		{
-			this.blockTexts[i].setText(GLOBAL_PARAMETERS.materials[material_name].block_max[i] - GLOBAL_PARAMETERS.materials[material_name].block_count[i]);
-		}
+		this.blockText.setText(GLOBAL_PARAMETERS.materials[material_name].block_max[0] - GLOBAL_PARAMETERS.materials[material_name].block_count[0]);
 	}
+
 	/** When a block is pressed it should either be in the display area or on the volume viewer.
 		In the case of the volume viewer there are special rules that allow or do not allow it to be removed.
 	*/
@@ -326,7 +381,7 @@
 		this.dragging_object = evt.target;
 		var offset = evt.target.globalToLocal(evt.stageX, evt.stageY);
 		var source_parent = evt.target.parent;		
-		if (source_parent instanceof VolumeViewer)
+		if (source_parent instanceof RectPrismViewer)
 		{ // if this object is in the volume viewer remove it and place on this 	
 			if (source_parent.clearBlock(evt.target)){
 				this.addChild(evt.target);
@@ -336,7 +391,6 @@
 			}			
 		} else
 		{ 
-			var i = source_parent.blocks.indexOf(evt.target);
 			source_parent.addChild(evt.target);
 		}
 
@@ -348,7 +402,7 @@
 			newX = lpoint.x;
 			newY = lpoint.y;
 			// place within bounds of this object
-			if (parent instanceof ObjectBuildingPanel)
+			if (parent instanceof RectPrismBuildingPanel)
 			{
 				if (newX < 0){this.target.x = 0;
 				} else if (newX > parent.width_px){ this.target.x = parent.width_px;
@@ -360,12 +414,12 @@
 				} else {this.target.y = newY;
 				} 
 
-				parent.vv.placeBlock(this.target);
-			} else if (parent instanceof VolumeViewer)	
+				parent.vv.placeBlock(this.target, this.target.x, this.target.y);
+			} else if (parent instanceof RectPrismViewer)	
 			{
-				this.target.x = newX;
-				this.target.y = newY;
-				parent.placeBlock(this.target);
+				//this.target.x = newX;
+				//this.target.y = newY;
+				parent.placeBlock(this.target, newX, newY);
 			}
 			stage.needs_to_update = true;
 		}
@@ -374,31 +428,31 @@
 			var parent = this.target.parent;
 			var o = this.target; 
 			builder.dragging_object = null;
-			if (parent instanceof ObjectBuildingPanel)
+			if (parent instanceof RectPrismBuildingPanel)
 			{
 				// the source matters
-				if (source_parent instanceof VolumeViewer)
+				if (source_parent instanceof RectPrismViewer)
 				{
 					// if this object is on the volume viewer, and already been replaced, then remove it from display
 					GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]--;
 					o.orig_parent.updateCountText(o.material_name);
 					// if there is already an object in this spot we don't need to add a new one
-					if (parent.blocks[o.depth_array_index] == null)
+					if (parent.displayed_block == null)
 					{	
 						//parent.addChild(o);
-						parent.placeBlock(o, o.depth_array_index);
+						parent.placeBlock(o);
 					} else
 					{
 						parent.removeChild(o);
 					}
-				} else if (source_parent instanceof ObjectBuildingPanel)
+				} else if (source_parent instanceof RectPrismBuildingPanel)
 				{
 					// place object back
-					source_parent.placeBlock(o, o.depth_array_index);
+					source_parent.placeBlock(o);
 				}
-			} else if (parent instanceof VolumeViewer)	
+			} else if (parent instanceof RectPrismViewer)	
 			{
-				if (source_parent instanceof VolumeViewer)
+				if (source_parent instanceof RectPrismViewer)
 				{
 					// move within volume viewer, is this move valid?
 					if (parent.setBlock(o))
@@ -406,32 +460,29 @@
 						// yes, do nothing no change
 					} else
 					{
-						// no, we need to add this object back to the ObjectBuildingPanel
+						// no, we need to add this object back to the RectPrismBuildingPanel
 						GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]++;
-						var no = o.orig_parent.newBlock(o.material_name, o.depth_array_index);
-						o.orig_parent.placeBlock(no, o.depth_array_index);
+						var no = o.orig_parent.newBlock(o.material_name);
+						o.orig_parent.placeBlock(no);
 					}
-				} else if (source_parent instanceof ObjectBuildingPanel)
+				} else if (source_parent instanceof RectPrismBuildingPanel)
 				{
 					// move from outside to inside of volume viewer
 					// is the move valid
 					if (parent.setBlock(o))
 					{
 						// yes, update count and create a new object
-						var i = o.orig_parent.blocks.indexOf(o);
-						if (i >= 0)
-						{
-							GLOBAL_PARAMETERS.materials[o.material_name].block_count[i]++;
-							o.orig_parent.updateCountText(o.material_name);
-							var no = o.orig_parent.newBlock(o.material_name, i);
-							o.orig_parent.placeBlock(no, i);
-						}
+						GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]++;
+						o.orig_parent.updateCountText(o.material_name);
+						no = o.orig_parent.newBlock(o.material_name);
+						o.orig_parent.placeBlock(no);
+						
 					} else
 					{
-						// not valid move, place back in ObjectBuildingPanel area
+						// not valid move, place back in RectPrismBuildingPanel area
 						o.redraw();
 						o.orig_parent.addChild(o);
-						o.orig_parent.placeBlock(o, o.depth_array_index);
+						o.orig_parent.placeBlock(o);
 					}					
 				}
 			}
@@ -450,39 +501,24 @@
 	{
 		// go through the 2d array of volume viewer and replace objects with their depth arrays
 		var savedObject = {};
-		var blockArray3d = [];
 		var i_rev, i, j, k, block_count=0;
 		var is_container = true;
 
-		var blockArray2d = this.vv.blockArray2d;
-		for (i = 0; i < blockArray2d.length; i++)
+		var blockArray = this.vv.blockArray;
+		var rectPrismArrays = {}
+		rectPrismArrays.materials = [];
+		rectPrismArrays.heights = [];
+		rectPrismArrays.widths = [];
+		rectPrismArrays.depths = [];
+		for (i = 0; i < blockArray.length; i++)
 		{
-			i_rev = blockArray2d.length - 1 - i;
-			blockArray3d[i_rev] = [];
-			for (j = 0; j < blockArray2d[i].length; j++)
-			{
-				if (blockArray2d[i][j] != null)
-				{
-					blockArray3d[i_rev][j] = new Array();
-					for (k = 0; k < blockArray2d[i][j].depth_array.length; k++)
-					{
-						if (blockArray2d[i][j].depth_array[k] == 1)
-						{
-							blockArray3d[i_rev][j][k] = blockArray2d[i][j].material_name;
-							if (!GLOBAL_PARAMETERS.materials[blockArray2d[i][j].material_name].is_container) is_container = false;
-						} else 
-						{
-							blockArray3d[i_rev][j][k] = "";
-						}
-					}
-					block_count++;
-				} else
-				{
-					blockArray3d[i_rev][j] = ["", "", "", "", ""];
-				}
-			}
+			rectPrismArrays.heights[i] = blockArray[i].height_units;
+			rectPrismArrays.widths[i] = blockArray[i].width_units;
+			rectPrismArrays.depths[i] = blockArray[i].depth_units;
+			rectPrismArrays.materials[i] = blockArray[i].material_name;
+			if (!GLOBAL_PARAMETERS.materials[blockArray[i].material_name].is_container) is_container = false;
 		}
-		savedObject.blockArray3d = blockArray3d;
+		savedObject.rectPrismArrays = rectPrismArrays;
 		savedObject.is_container = is_container;
 		// some other parameters of the object we'll fill in later, when the object is put together
 		savedObject.max_height = 0;
@@ -496,7 +532,6 @@
 		savedObject.liquid_mass = 0;
 		savedObject.liquid_volume = 0;
 		savedObject.liquid_perc_volume = 0;
-
 
 		// clean up
 		// reset counts of blocks, remove object on screen
@@ -517,8 +552,5 @@
 	p._tick = function(){this.Container_tick();}
 
 	p.redraw = function(){stage.ready_to_update = true;}
-
-	
-
-	window.ObjectBuildingPanel = ObjectBuildingPanel;
+	window.RectPrismBuildingPanel = RectPrismBuildingPanel;
 }(window));

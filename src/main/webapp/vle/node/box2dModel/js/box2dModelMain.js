@@ -22,6 +22,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
         {
        		"DEBUG" : true,
 	       	"INCLUDE_BUILDER": true,
+	       	"INCLUDE_CYLINDER_BUILDER":false,
+  			"INCLUDE_RECTPRISM_BUILDER":false,
 			"INCLUDE_BALANCE": false,
 			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
@@ -123,14 +125,19 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.needs_to_update = true;
 				
 			// setup builder
-			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
-			{
-				builder = new ObjectBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
-				stage.addChild(builder);
-			}
 			var tester_y;
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
+				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				stage.addChild(builder);
+				tester_y = builder.height_px + 20;	
+			} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
+				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				stage.addChild(builder);
+				tester_y = builder.height_px + 20;	
+			}else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
+				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			} else
 			{
