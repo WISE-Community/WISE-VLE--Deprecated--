@@ -2,12 +2,12 @@
 {
 	/** A space for displaying the names of materials, clickable/draggable materials
 	and a grid space for putting them together */
-	function RectPrismBuildingPanel (width_px, height_px)
+	function CylinderBuildingPanel (width_px, height_px)
 	{
 		this.initialize(width_px, height_px);
 	}
-	var p = RectPrismBuildingPanel.prototype = new createjs.Container();
-	p.Container_initialize = RectPrismBuildingPanel.prototype.initialize;
+	var p = CylinderBuildingPanel.prototype = new createjs.Container();
+	p.Container_initialize = CylinderBuildingPanel.prototype.initialize;
 	p.Container_tick = p._tick;
 	p.BACKGROUND_COLOR = "rgba(225,225,255,1.0)";
 	p.TEXT_COLOR = "rgba(0, 0, 200, 1.0)";
@@ -17,6 +17,7 @@
 	
 	p.initialize = function(width_px, height_px)
 	{
+		
 		this.Container_initialize();
 		this.width_px = width_px;
 		this.height_px = height_px;
@@ -27,7 +28,7 @@
 		this.g = new createjs.Graphics();
 		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
-
+		
 		// the list of material names
 		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.BORDER_WIDTH-this.TITLE_HEIGHT);
 		this.addChild(this.materialsMenu);
@@ -35,7 +36,7 @@
 		this.materialsMenu.y = this.BORDER_WIDTH+this.TITLE_HEIGHT;
 
 		
-		this.vv = new RectPrismViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
+		this.vv = new CylinderViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
 		this.addChild(this.vv);
 		this.vv.x = this.width_px*3/4 - 30;
 		this.vv.y = (this.height_px-this.TITLE_HEIGHT) / 2 + this.TITLE_HEIGHT;
@@ -104,6 +105,7 @@
 		this.drawMaterial(this.materialsMenu.current_material_name);
 
 		var htmlText, htmlElement;
+
 		// jquery ui
 		if ($("#make-object").length == 0){
 			htmlText = '<input type="submit" id="make-object" value="Make"/>';
@@ -115,9 +117,9 @@
 	                builder.createObject();
 	            }).hide();  
 
-			htmlText = '<div id="slider-width" style="width: 100px"></div>';
+			htmlText = '<div id="slider-diameter" style="width: 100px"></div>';
 		    $("#builder-button-holder").append(htmlText);
-			$("#slider-width")
+			$("#slider-diameter")
 			    .slider({
                    orientation: "horizontal",
                    range: "min",
@@ -127,10 +129,10 @@
                    step: 0.1,
                    slide: function( event, ui ) {
                        $( "#amount" ).val( ui.value );
-                       builder.update_width(5-ui.value);
+                       builder.update_diameter(5-ui.value);
                    }
                }).hide();
-		     $("#slider-width").load(function (){$( "#amount" ).val( $( "#slider-width" ).slider( "value" ) );});
+		     $("#slider-diameter").load(function (){$( "#amount" ).val( $( "#slider-diameter" ).slider( "value" ) );});
 			
 			htmlText = '<div id="slider-height" style="height: 100px"></div>';
 		    $("#builder-button-holder").append(htmlText);
@@ -148,23 +150,6 @@
                    }
                }).hide();
 		     $("#slider-height").load(function (){$( "#amount" ).val( $( "#slider-height" ).slider( "value" ) );});
-			
-		    htmlText = '<div id="slider-depth" style="height: 100px"></div>';
-		    $("#builder-button-holder").append(htmlText);
-			$("#slider-depth")
-			    .slider({
-                   orientation: "vertical",
-                   range: "min",
-                   min: 0,
-                   max: 4.9,
-                   value: 4,
-                   step: 0.1,
-                   slide: function( event, ui ) {
-                       $( "#amount" ).val( ui.value );
-                       builder.update_depth(5-ui.value);
-                   }
-               }).hide();
-		     $("#slider-depth").load(function (){$( "#amount" ).val( $( "#slider-depth" ).slider( "value" ) );});
 			
 		    htmlText = '<div id="slider-topAngle" style="height: 100px"></div>';
 		    $("#builder-button-holder").append(htmlText);
@@ -205,7 +190,7 @@
 			this.addChild(element);
 			element.x = this.width_px - 100;
 			element.y = (this.height_px - this.TITLE_HEIGHT)/2;
-			element = new createjs.DOMElement($("#slider-width")[0]);
+			element = new createjs.DOMElement($("#slider-diameter")[0]);
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 10;
 			element.y = this.height_px - 50;
@@ -213,28 +198,22 @@
 			this.addChild(element);
 			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 + 150;
 			element.y = this.TITLE_HEIGHT*2;
-			element = new createjs.DOMElement($("#slider-depth")[0]);
-			this.addChild(element);
-			element.x = this.materialsMenu.x + this.materialsMenu.width_px + this.block_space_width / 2 - 60;
-			element.y = this.TITLE_HEIGHT*2;
 			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 			this.addChild(element);
-			element.x = this.width_px - 280 ;
+			element.x = this.width_px - 280;
 			element.y = this.height_px - 30;					
 			element = new createjs.DOMElement($("#slider-topAngle")[0]);
 			this.addChild(element);
-			element.x = this.width_px - 155;
-			element.y = 80;
+			element.x = this.width_px - 155; 
+			element.y = 80; 
 			$("#make-object").show();
-			$("#slider-width").show();
+			$("#slider-diameter").show();
 			$("#slider-height").show();
-			$("#slider-depth").show();
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
 		}
-
 		this.enabled = true;
-		stage.ready_to_update = true;
+		stage.ready_to_update = true; 
 	}
 
 	p.createObject = function() 
@@ -268,9 +247,8 @@
 			this.addChild(this.screenText);
 			this.enabled = false;
 			$("#make-object").hide();
-			$("#slider-width").hide();
+			$("#slider-diameter").hide();
 			$("#slider-height").hide();
-			$("#slider-depth").hide();
 			$("#slider-sideAngle").hide();
 			$("#slider-topAngle").hide();
 		}
@@ -283,25 +261,22 @@
 			this.removeChild(this.screenText);
 			this.enabled = true;
 			$("#make-object").show();
-			$("#slider-width").show();
+			$("#slider-diameter").show();
 			$("#slider-height").show();
-			$("#slider-depth").show();
 			$("#slider-sideAngle").show();
 			$("#slider-topAngle").show();
 		}
 	}
 
 	////////////////////// CLASS SPECIFIC ////////////////////
-	p.update_width = function (units){
-		if (this.displayed_block != null) this.displayed_block.set_width_units(units);
+	p.update_diameter = function (units)
+	{
+		if (this.displayed_block != null) this.displayed_block.set_diameter_units(units);
 	}
-	p.update_height = function (units){
+	p.update_height = function (units)
+	{
 		if (this.displayed_block != null) this.displayed_block.set_height_units(units);
 	}
-	p.update_depth = function (units){
-		if (this.displayed_block != null) this.displayed_block.set_depth_units(units);
-	}
-
 	p.update_view_sideAngle = function (degrees)
 	{
 		this.view_sideAngle = degrees * Math.PI / 180;
@@ -339,16 +314,15 @@
 	{
 		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
-			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
+			var o = new CylinderShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
 			this.displayed_block = o;
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
 			o.depth_array_index = 0;
 			this.updateCountText(material_name);
-			$("#slider-width").slider('value', 4);
+			$("#slider-diameter").slider('value', 4);
 			$("#slider-height").slider('value', 4);
-			$("#slider-depth").slider('value', 4);
 			return o;
 		} else
 		{
@@ -381,7 +355,7 @@
 		this.dragging_object = evt.target;
 		var offset = evt.target.globalToLocal(evt.stageX, evt.stageY);
 		var source_parent = evt.target.parent;		
-		if (source_parent instanceof RectPrismViewer)
+		if (source_parent instanceof CylinderViewer)
 		{ // if this object is in the volume viewer remove it and place on this 	
 			if (source_parent.clearBlock(evt.target)){
 				this.addChild(evt.target);
@@ -402,7 +376,7 @@
 			newX = lpoint.x;
 			newY = lpoint.y;
 			// place within bounds of this object
-			if (parent instanceof RectPrismBuildingPanel)
+			if (parent instanceof CylinderBuildingPanel)
 			{
 				if (newX < 0){this.target.x = 0;
 				} else if (newX > parent.width_px){ this.target.x = parent.width_px;
@@ -415,7 +389,7 @@
 				} 
 
 				parent.vv.placeBlock(this.target, this.target.x, this.target.y);
-			} else if (parent instanceof RectPrismViewer)	
+			} else if (parent instanceof CylinderViewer)	
 			{
 				//this.target.x = newX;
 				//this.target.y = newY;
@@ -428,10 +402,10 @@
 			var parent = this.target.parent;
 			var o = this.target; 
 			builder.dragging_object = null;
-			if (parent instanceof RectPrismBuildingPanel)
+			if (parent instanceof CylinderBuildingPanel)
 			{
 				// the source matters
-				if (source_parent instanceof RectPrismViewer)
+				if (source_parent instanceof CylinderViewer)
 				{
 					// if this object is on the volume viewer, and already been replaced, then remove it from display
 					GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]--;
@@ -445,14 +419,14 @@
 					{
 						parent.removeChild(o);
 					}
-				} else if (source_parent instanceof RectPrismBuildingPanel)
+				} else if (source_parent instanceof CylinderBuildingPanel)
 				{
 					// place object back
 					source_parent.placeBlock(o);
 				}
-			} else if (parent instanceof RectPrismViewer)	
+			} else if (parent instanceof CylinderViewer)	
 			{
-				if (source_parent instanceof RectPrismViewer)
+				if (source_parent instanceof CylinderViewer)
 				{
 					// move within volume viewer, is this move valid?
 					if (parent.setBlock(o))
@@ -460,12 +434,12 @@
 						// yes, do nothing no change
 					} else
 					{
-						// no, we need to add this object back to the RectPrismBuildingPanel
+						// no, we need to add this object back to the CylinderBuildingPanel
 						GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]++;
 						var no = o.orig_parent.newBlock(o.material_name);
 						o.orig_parent.placeBlock(no);
 					}
-				} else if (source_parent instanceof RectPrismBuildingPanel)
+				} else if (source_parent instanceof CylinderBuildingPanel)
 				{
 					// move from outside to inside of volume viewer
 					// is the move valid
@@ -479,7 +453,7 @@
 						
 					} else
 					{
-						// not valid move, place back in RectPrismBuildingPanel area
+						// not valid move, place back in CylinderBuildingPanel area
 						o.redraw();
 						o.orig_parent.addChild(o);
 						o.orig_parent.placeBlock(o);
@@ -504,21 +478,19 @@
 		var is_container = true;
 
 		var blockArray = this.vv.blockArray;
-		var rectPrismArrays = {}
-		rectPrismArrays.materials = [];
-		rectPrismArrays.heights = [];
-		rectPrismArrays.widths = [];
-		rectPrismArrays.depths = [];
+		var cylinderArrays = {}
+		cylinderArrays.materials = [];
+		cylinderArrays.heights = [];
+		cylinderArrays.diameters = [];
 		for (var i = blockArray.length-1; i >= 0; i--)
 		{
 			var index = blockArray.length - i - 1;
-			rectPrismArrays.heights[index] = blockArray[i].height_units;
-			rectPrismArrays.widths[index] = blockArray[i].width_units;
-			rectPrismArrays.depths[index] = blockArray[i].depth_units;
-			rectPrismArrays.materials[index] = blockArray[i].material_name;
+			cylinderArrays.heights[index] = blockArray[i].height_units;
+			cylinderArrays.diameters[index] = blockArray[i].depth_units;
+			cylinderArrays.materials[index] = blockArray[i].material_name;
 			if (!GLOBAL_PARAMETERS.materials[blockArray[i].material_name].is_container) is_container = false;
 		}
-		savedObject.rectPrismArrays = rectPrismArrays;
+		savedObject.cylinderArrays = cylinderArrays;
 		savedObject.is_container = is_container;
 		// some other parameters of the object we'll fill in later, when the object is put together
 		savedObject.max_height = 0;
@@ -552,5 +524,5 @@
 	p._tick = function(){this.Container_tick();}
 
 	p.redraw = function(){stage.ready_to_update = true;}
-	window.RectPrismBuildingPanel = RectPrismBuildingPanel;
+	window.CylinderBuildingPanel = CylinderBuildingPanel;
 }(window));

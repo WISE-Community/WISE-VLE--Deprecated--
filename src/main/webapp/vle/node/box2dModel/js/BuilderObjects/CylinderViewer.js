@@ -1,12 +1,12 @@
 (function (window)
 {
-	function RectPrismViewer (unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
+	function CylinderViewer (unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
 	{
 		
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units);
 	}
-	var p = RectPrismViewer.prototype = new createjs.Container();
-	p.Container_initialize = RectPrismViewer.prototype.initialize;
+	var p = CylinderViewer.prototype = new createjs.Container();
+	p.Container_initialize = CylinderViewer.prototype.initialize;
 
 	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
 	{
@@ -501,5 +501,5 @@
 		this.blockArray = [];	
 		this.resetBlocks();	
 	}
-	window.RectPrismViewer = RectPrismViewer;
+	window.CylinderViewer = CylinderViewer;
 }(window));

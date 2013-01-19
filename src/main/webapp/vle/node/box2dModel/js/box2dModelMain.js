@@ -132,7 +132,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
-				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			}else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
@@ -197,9 +197,9 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
 				} 
 			} else if (typeof savedObject.cylinderArrays != "undefined"){
-				compShape = new CylinderShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
 			} else if (typeof savedObject.rectPrismArrays != "undefined"){
-				compShape = new RectPrismShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
 			}
 			
 			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;

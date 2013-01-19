@@ -305,7 +305,7 @@
 		if (o != null)
 		{	
 			var material_block_count = GLOBAL_PARAMETERS.materials[o.material_name].block_max.length;
-			o.x = this.materialsMenu.width_px + i * this.width_px/3/material_block_count + (o.width_px);
+			o.x = this.materialsMenu.width_px + 90 + i * this.width_px/3/material_block_count + (o.width_px);
 			o.y = i * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + this.TITLE_HEIGHT;	
 		}
 	}
