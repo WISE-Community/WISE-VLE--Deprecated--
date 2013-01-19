@@ -98,6 +98,26 @@ var DrawScorer = function() {
         }
         svgFullObject.isCorrect = this.checkCorrect(svgFullObject);
         this.assignRubricScore(svgFullObject);
+        
+        /*
+         * remove variables set into the svgFullObject.snapshots that were used
+         * for calculating the score
+         */
+        for(var j = 0; j < svgFullObject.snapshots.length; j++) {
+        	delete svgFullObject.snapshots[j]['allMoleculesMatched'];
+        	delete svgFullObject.snapshots[j]['atoms'];
+        	delete svgFullObject.snapshots[j]['connectedComponents'];
+        	delete svgFullObject.snapshots[j]['molecules'];
+        	delete svgFullObject.snapshots[j]['unnamedComponents'];
+        	delete svgFullObject.snapshots[j]['xmlDoc'];
+        }
+        
+        //remove variables set into the svgFullObject used for calculating the score
+        delete svgFullObject['hasFrames'];
+        delete svgFullObject['hasAtoms'];
+        delete svgFullObject['hasMolecules'];
+        delete svgFullObject['isCorrect'];
+        
         return svgFullObject;
     }
     

@@ -5,6 +5,8 @@
    	"type": "Box2dModel",
 	"IN_WISE":true,
 	"DEBUG" : false,
+	"STAGE_WIDTH" : 810,
+	"STAGE_HEIGHT" : 730,
 	"INCLUDE_BUILDER": true,
 	"INCLUDE_BALANCE": false,
 	"INCLUDE_SCALE": true,
@@ -42,21 +44,6 @@
 			"block_count":[0, 0, 0, 0],
 			"is_container":false		
 		},
-		"Metal":
-		{
-			"display_name":"Metal",
-			"density":1.5,
-			"fill_colors":["#BBBCBE", "#989CA0", "#BFBEC2", "#9EA0A4", "#A7A9AC", "#C3C6CA", "#BBBCBE"],
-			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"fill_colors_shadow":["#8B8C8E", "#686C70", "#8F8E92", "#6E7074", "#77797C", "#93868A", "#8B8C8E"],
-			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
-			"stroke_colors":["#5F6163", "#5F6163"],
-			"stroke_ratios":[0, 1],
-			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
-			"block_max":[10, 10, 10, 10],
-			"block_count":[0, 0, 0, 0],
-			"is_container":false					
-		},
 		"LWood":
 		{
 			"display_name":"Wood B",
@@ -71,6 +58,37 @@
 			"block_max":[10, 10, 10, 10],
 			"block_count":[0, 0, 0, 0],
 			"is_container":false				
+		},
+		"Metal":
+		{
+			"display_name":"Metal",
+			"density":1.5,
+			"fill_colors":["#BBBCBE", "#989CA0", "#BFBEC2", "#9EA0A4", "#A7A9AC", "#C3C6CA", "#BBBCBE"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#8B8C8E", "#686C70", "#8F8E92", "#6E7074", "#77797C", "#93868A", "#8B8C8E"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#5F6163", "#5F6163"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false					
+		}, 
+		"CPlastic":
+		{
+			"display_name":"Clear Plastic",
+			"density":1.0,
+			"fill_colors":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
+			"fill_ratios":[0, 0.1, 0.4, 0.9, 1],
+			"fill_colors_shadow":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
+			"fill_ratios_shadow":[0, 0.1, 0.4, 0.9, 1],
+			"stroke_colors":["rgba(56,56,56,0.4)", "rgba(56,56,56,0.4)"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0]],
+			"block_max":[10, 10, 10],
+			"block_count":[0, 0, 0],
+			"is_container":true,
+			"container_thickness":1				
 		},
 		"Plastic":
 		{
@@ -90,7 +108,7 @@
 		"Rubber":
 		{
 		   "display_name":"Rubber",
-		   "density":0.75,
+		   "density":1.2,
 		   "fill_colors":["#202020", "#303030", "#202020", "#404040", "#303030", "#202020", "#303030"],
 		   "fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
 		   "fill_colors_shadow":["#000000", "#101010", "#000000", "#202020", "#101010", "#000000", "#101010"],
@@ -102,10 +120,25 @@
 		   "block_count":[0, 0, 0, 0],
 		   "is_container":false          
 		},
+		"Styrofoam":
+		{
+		   "display_name":"Styrofoam",
+		   "density":0.18,
+		   "fill_colors":["#D0D0D0", "#E0E0E0", "#D0D0D0", "#F0F0F0", "#E0E0E0", "#D0D0D0", "#E0E0E0"],
+		   "fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+		   "fill_colors_shadow":["#B0B0B0", "#C0C0C0", "#B0B0B0", "#D0D0D0", "#C0C0C0", "#B0B0B0", "#C0C0C0"],
+		   "fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+		   "stroke_colors":["#A0A0A0", "#A0A0A0"],
+		   "stroke_ratios":[0, 1],
+		   "depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+		   "block_max":[10, 10, 10, 10],
+		   "block_count":[0, 0, 0, 0],
+		   "is_container":false          
+		},
 		"Clay":
 	      {
 	         "display_name":"Clay",
-	         "density":1.1,
+	         "density":1.9,
 	         "fill_colors":["#F0540C", "#EB700B", "#EB500B", "#F0540C", "#EB700B", "#EB500B", "#F0746C"],
 	         "fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
 	         "fill_colors_shadow":["#C0540C", "#BB500B", "#BB500B", "#C0540C", "#BB500B", "#BB002B", "#C0443C"],
@@ -120,7 +153,7 @@
 	    "Gold":
 	    {
 	    	"display_name":"Gold",
-	    	"density":1.1,
+	    	"density":19.3,
 	    	"fill_colors":["#EDDC9E", "#C9BC80", "#EFDEA2", "#DEB084", "#D7C98C", "#F3E6AA", "#EBDC9E"],
 	    	"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
 	    	"fill_colors_shadow":["#ABAC6E", "#888C50", "#AFAE72", "#9E8054", "#97995C", "#B3B66A", "#ABAC6E"],
@@ -132,10 +165,86 @@
 	    	"block_count":[0, 0, 0, 0],
 	    	"is_container":false					
 	    },  
+	    "Aluminium":
+		{
+			"display_name":"Aluminium",
+			"density":2.7,
+			"fill_colors":["#CBCCCE", "#A8ACA0", "#CFCEC2", "#AEA0A4", "#A7A9AC", "#C3C6CA", "#CBCCCE"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#8B8C8E", "#686C60", "#8F8E82", "#6E6064", "#77797C", "#93969A", "#8B8C8E"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#5F6163", "#5F6163"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false					
+		},
+	    "Steel":
+		{
+			"display_name":"Steel",
+			"density":7.8,
+			"fill_colors":["#ABBCBE", "#989CA0", "#BFBEC2", "#9EA0A4", "#97999C", "#B3B6CA", "#BBBCBE"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#8B8C8E", "#686C70", "#8F8E92", "#6E7074", "#77797C", "#93868A", "#8B8C8E"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#5F6163", "#5F6163"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false					
+		}, 
+		"Bronze":
+	    {
+	    	"display_name":"Bronze",
+	    	"density":8.48,
+	    	"fill_colors":["#FDAC6E", "#D9AC60", "#FFBE82", "#EE9064", "#E7A96C", "#F3C68A", "#FBBC7E"],
+	    	"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"fill_colors_shadow":["#BBAC6E", "#988C50", "#BFAE72", "#AE8054", "#97995C", "#B3B66A", "#ABAC6E"],
+	    	"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"stroke_colors":["#8F7143", "#8F7143"],
+	    	"stroke_ratios":[0, 1],
+	    	"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+	    	"block_max":[10, 10, 10, 10],
+	    	"block_count":[0, 0, 0, 0],
+	    	"is_container":false					
+	    },  
+	    "Copper":
+	    {
+	    	"display_name":"Copper",
+	    	"density":8.92,
+	    	"fill_colors":["#FD8C4E", "#D98C40", "#FF9E62", "#EE7044", "#E7894C", "#F3A66A", "#FB9C5E"],
+	    	"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"fill_colors_shadow":["#BB8C4E", "#986C30", "#BF8E52", "#AE6034", "#97793C", "#B3964A", "#ABAC6E"],
+	    	"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"stroke_colors":["#8F7143", "#8F7143"],
+	    	"stroke_ratios":[0, 1],
+	    	"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+	    	"block_max":[10, 10, 10, 10],
+	    	"block_count":[0, 0, 0, 0],
+	    	"is_container":false					
+	    },  
 		"Glass":
 		{
 			"display_name":"Glass",
-			"density":1.0,
+			"density":2.4,
+			"fill_colors":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
+			"fill_ratios":[0, 0.1, 0.4, 0.9, 1],
+			"fill_colors_shadow":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
+			"fill_ratios_shadow":[0, 0.1, 0.4, 0.9, 1],
+			"stroke_colors":["rgba(56,56,56,0.4)", "rgba(56,56,56,0.4)"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0]],
+			"block_max":[10, 10, 10],
+			"block_count":[0, 0, 0],
+			"is_container":true,
+			"container_thickness":1				
+		},
+		"Pyrex":
+		{
+			"display_name":"Pyrex",
+			"density":2.21,
 			"fill_colors":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
 			"fill_ratios":[0, 0.1, 0.4, 0.9, 1],
 			"fill_colors_shadow":["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.4)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"],
@@ -171,6 +280,51 @@
 		}
 	},
 	"premades":{
+	    "5_Mix_rect":
+	    {
+	    	"rectPrismArrays":
+	    	{
+	    		"widths":[1, 2, 3, 4, 5],
+	    		"depths":[5, 4, 3, 2, 1],
+	    		"heights":[1, 1, 1, 1, 1],
+	    		"materials":["Steel", "Bronze", "Copper", "Aluminium", "Styrofoam"]
+	    	},
+ 			"is_container":false, 
+ 			"is_deletable":false
+	    },
+	    "5_Mix_cyl":
+	    {
+	    	"cylinderArrays":
+	    	{
+	    		"diameters":[1, 2, 3, 4, 5],
+	    		"heights": [1, 1, 1, 1, 1],
+	    		"materials":["Steel", "Bronze", "Copper", "Aluminium", "Styrofoam"]
+	    	},
+ 			"is_container":false, 
+ 			"is_deletable":false
+	    },
+	    "Mix_cyl":
+	    {
+	    	"cylinderArrays":
+	    	{
+	    		"diameters":[1, 2, 3, 4, 5],
+	    		"heights":[1, 1, 1, 1, 1],
+	    		"materials":["Steel", "Bronze", "Copper", "Aluminium", "Styrofoam"]
+	    	},
+ 			"is_container":false, 
+ 			"is_deletable":false
+	    },
+	    "5_DWood_LWood_cyl":
+	    {
+	    	"cylinderArrays":
+	    	{
+	    		"diameters":[1, 1],
+	    		"heights":[2.5, 2.5],
+	    		"materials":["DWood", "LWood"]
+	    	},
+ 			"is_container":false, 
+ 			"is_deletable":false
+	    },
  		"1x1x1_DWood":
  		{
  			"blockArray3d":
