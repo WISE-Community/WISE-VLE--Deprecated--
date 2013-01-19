@@ -19,6 +19,9 @@
 	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
 	{
 		this.Container_initialize();
+		this.is_blockComp = true;
+		this.is_cylinder = false
+		this.is_rectPrism = false;
 		this.mouseEnabled = true;
 		this.placed = false;
 		this.unit_width_px = unit_width_px;
@@ -648,7 +651,7 @@
 		rotation = (rotation + 360 * 10) % 360;
 		//this.rotation = 330;
 		//rotation = 330;	
-		var btr_x, btr_y, btl_x, btl_y, bb_r, ftr_x, ftr_y, ftl_x, ftl_y, fbr_x, fbr_y, fbl_x, fbl_y;
+		var btr_x, btr_y, btl_x, btl_y, bbr_x, bbr_y, bbl_x, bbl_y, ftr_x, ftr_y, ftl_x, ftl_y, fbr_x, fbr_y, fbl_x, fbl_y;
 		var g = this.g;
 		g.clear();
 		var i, j, k, row, col, ik, i_shift, j_shift;
@@ -659,7 +662,6 @@
 		var view_sideAngle = this.view_sideAngle * Math.cos(rotation * Math.PI / 180) - this.view_topAngle * Math.sin(rotation * Math.PI / 180);
 		var view_topAngle = this.view_topAngle * Math.cos(rotation * Math.PI / 180) +  this.view_sideAngle * Math.sin(rotation * Math.PI / 180);
 		var colarr = []; var index = 0;
-		
 		if (view_sideAngle < 0)
 		{
 			for (col = this.rightmostColumn; col >= this.leftmost_column; col--){colarr[index] = col; index++}

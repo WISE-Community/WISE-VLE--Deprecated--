@@ -41,7 +41,7 @@
 		this.contents_volume = 0;
 		this.spout_height_px = this.spilloff_volume_perc * this.beaker_height_px;
 		this.liquid_volume_released = 0;
-		this.beaker_x = 40 + beaker_width_px/2;
+		this.beaker_x = 60 + beaker_width_px/2;
 
 		this.liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
 		this.liquid_color = this.liquid.fill_color; 
@@ -103,7 +103,7 @@
 		this.spoutShape.x = this.beaker_x + this.beaker_width_px/2 + this.width_from_depth/2; this.spoutShape.y = this.height_px - this.beaker_bottom_dy - this.spout_height_px - this.height_from_depth/2;		
 		this.rulerShape.x = this.beaker_x + -this.beaker_width_px/2 - 10;
 		this.pointerShape.x = this.beaker_x - this.beaker_width_px/2;
-		this.pointerText.x = this.pointerShape.x - 33;
+		this.pointerText.x = this.pointerShape.x - 43;
 		this.puddle_width = 0;
 		this.spout_open = false;
 		this.draining = false;
@@ -189,8 +189,8 @@
 			g.moveTo(0, ry);
 			g.lineTo(10, ry);
 			vstr = Math.round(((this.height_px - this.beaker_bottom_dy) - ry) / GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE);
-			text = new createjs.Text(vstr, "1.0em Bold Arial", "#888");
-			text.x = this.beaker_x - this.beaker_width_px/2 - 33;
+			text = new createjs.Text(vstr, "1.0em Bold Arial", "#D66");
+			text.x = this.beaker_x - this.beaker_width_px/2 - 43;
 			text.y = ry - 10; 
 			this.addChild(text);
 		}
@@ -203,12 +203,7 @@
 		g.setStrokeStyle(1);
 		g.beginStroke("rgba(100, 100, 100, 1)");
 		g.beginFill("rgba(255,255,255, 1.0)");
-		g.moveTo(0, 0);
-		g.lineTo(-8, -10);
-		g.lineTo(-36, -10);
-		g.lineTo(-36, 10);
-		g.lineTo(-8, 10);
-		g.lineTo(0, 0);
+		g.moveTo(0, 0).lineTo(-8, -10).lineTo(-46, -10).lineTo(-46, 10).lineTo(-8, 10).lineTo(0, 0);
 		g.endFill();
 		g.endStroke();		
 		
@@ -255,7 +250,7 @@
 		rightWallFixture.density = 1;
 		rightWallFixture.restitution = 0.2;
 		rightWallFixture.filter.categoryBits = 2;
-		rightWallFixture.filter.maskBits = 2;
+		rightWallFixture.filter.maskBits = 3;
 		rightWallFixture.shape = new b2PolygonShape;
 		rightWallFixture.shape.SetAsBox(this.WALL_THICKNESS / 2 / GLOBAL_PARAMETERS.SCALE, this.height_px / 2 / GLOBAL_PARAMETERS.SCALE);
 		var rightWallBodyDef = new b2BodyDef;
@@ -550,13 +545,13 @@
 			if (typeof(fixDef.interiorSpaces) != "undefined"){f.interiorSpaces = fixDef.interiorSpaces;}else{f.interiorSpaces = 0;}
 			if (typeof(fixDef.protectedSpaces) != "undefined"){f.protectedSpaces = fixDef.protectedSpaces;}else{f.protectedSpaces = 0;}
 			// set density for the length of the entire depth
-			f.SetDensity(f.materialDensity * f.materialSpaces);
+			f.area = fixDef.area;
+			//f.SetDensity((f.materialDensity * f.materialSpaces)/f.area);
 
 			volume += f.materialSpaces + f.protectedSpaces + f.interiorSpaces;
 
 			var lowerBound = f.GetAABB().lowerBound;
 			var upperBound = f.GetAABB().upperBound;
-			f.area = Math.abs((upperBound.x - lowerBound.x) * (upperBound.y - lowerBound.y));
 			area += f.area;
 			if (typeof(f.emptySpaces) != "undefined") body.emptySpaces += f.emptySpaces;
 		}
@@ -912,7 +907,7 @@
 		// draw a pointer to the current position 
 		//this.pointerShape.x = this.beaker_width_px/2+2;
 		this.pointerShape.y = this.frontWaterLineShape.y;
-		this.pointerText.text = Math.round(this.liquid_height_px/ GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE);
+		this.pointerText.text = Math.round(10*this.liquid_height_px/ GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE)/10;
 		
 		this.pointerText.y = this.pointerShape.y - 10;
 	}

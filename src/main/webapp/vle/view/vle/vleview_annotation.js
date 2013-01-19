@@ -8,8 +8,17 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 	$('#nodeAnnotationsLink').css('color','#FFFFFF');
 	
 	var currentNode = this.getProject().getNodeById(nodeId);  //get the node
-	var currentNodeAnnotations = currentNode.getNodeAnnotations();
-	if (currentNodeAnnotations != null && currentNodeAnnotations.length > 0) {
+	var currentNodeAnnotations = [];
+	
+	if(currentNode.getNodeAnnotations() != null) {
+		//get the node annotations
+		currentNodeAnnotations = currentNode.getNodeAnnotations();		
+	}
+	
+	//get any persistent feedback we want to show from the step
+	var stepFeedback = currentNode.getFeedback();
+	
+	if (stepFeedback != null || (currentNodeAnnotations != null && currentNodeAnnotations.length > 0)) {
 
 		//check if the nodeAnnotationPanel exists
 		if($('#nodeAnnotationsPanel').size()==0){
@@ -52,7 +61,16 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 		var nodeAnnotationsString = "<div id='nodeAnnotations' style='line-height:150%'>";
 
 		// if the node is cRater-enabled and there's feedback, show it instead of teacher feedback.
-		if (currentNode.content.getContentJSON().cRater && 
+	
+		if(stepFeedback != null) {
+			//there is step feedback
+		
+			//replace all \n with <br>
+			stepFeedback = stepFeedback.replace(/\n/g, '<br>');
+
+			nodeAnnotationsString += stepFeedback;
+			nodeAnnotationsString += '<br><br>';
+		} else if (currentNode.content.getContentJSON().cRater && 
 				(currentNode.content.getContentJSON().cRater.displayCRaterScoreToStudent ||
 						currentNode.content.getContentJSON().cRater.displayCRaterFeedbackToStudent)) {
 			var cRaterFeedbackStringSoFar = "<span class='nodeAnnotationsCRater'>";
@@ -106,7 +124,11 @@ View.prototype.displayNodeAnnotation = function(nodeId){
 	 * */
 	var currentNode = this.getProject().getNodeById(nodeId); //get the node the student is currently on
 	var currentNodeAnnotations = currentNode.getNodeAnnotations();
-	if (currentNodeAnnotations != null && currentNodeAnnotations.length > 0) {
+	
+	//get any persistent feedback we want to show from the step
+	var stepFeedback = currentNode.getFeedback();
+	
+	if (stepFeedback != null || (currentNodeAnnotations != null && currentNodeAnnotations.length > 0)) {
     	var nodeAnnotationsLink = "<a id='nodeAnnotationsLink' onclick='eventManager.fire(\"showNodeAnnotations\",[\""+nodeId+"\"])' title='"+this.getI18NString("node_annotations_button_title")+"'>"+this.getI18NString("node_annotations_button_text")+"</a>";
     	$('#nodeAnnotations').empty().html(nodeAnnotationsLink);
 	

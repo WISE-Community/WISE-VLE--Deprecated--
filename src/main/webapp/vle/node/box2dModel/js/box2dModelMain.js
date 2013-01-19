@@ -183,13 +183,18 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		function createObject(savedObject, already_in_globals)
 		{
 			var compShape;
-			if (savedObject.is_container)
-			{
-				compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
-			} else
-			{
-				compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+			if (typeof savedObject.blockArray3d != "undefined"){
+				if (savedObject.is_container){
+					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				} else{
+					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				} 
+			} else if (typeof savedObject.cylinderArrays != "undefined"){
+				compShape = new CylinderShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+			} else if (typeof savedObject.rectPrismArrays != "undefined"){
+				compShape = new RectPrismShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
 			}
+			
 			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;
 			if (tester.createObjectForLibrary(compShape)){
 				GLOBAL_PARAMETERS.total_objects_made++;

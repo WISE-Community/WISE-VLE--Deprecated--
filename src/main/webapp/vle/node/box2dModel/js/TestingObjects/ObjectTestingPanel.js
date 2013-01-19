@@ -129,7 +129,16 @@
 	////////////////////// CLASS SPECIFIC ////////////////////
 	p.createObjectForLibrary = function (o)
 	{
-		var actor = new Blockb2Actor(o); 
+		var actor;
+		if (o.is_blockComp){
+			actor = new BlockCompb2Actor(o); 
+		} else if (o.is_cylinder){
+			actor = new Cylinderb2Actor(o); 
+		} else if (o.is_rectPrism){
+			actor = new RectPrismb2Actor(o); 
+		}
+		 
+		 
 		if (this.library.addObject(actor)){
 			actor.onPress = this.actorPressHandler.bind(this);
 			actor.orig_parent = this.library;

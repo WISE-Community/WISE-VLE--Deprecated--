@@ -378,6 +378,55 @@ SVGDrawNode.prototype.canSpecialExport = function() {
 	return true;
 };
 
+/**
+ * Get the feedback that will be displayed when the student clicks
+ * on the Feedback button at the upper right of the vle. This feedback
+ * will take precedence over feedback from the teacher.
+ */
+SVGDrawNode.prototype.getFeedback = function() {
+	var feedback = null;
+	
+	//check if this is an auto graded draw step
+	if(this.content.getContentJSON() != null &&
+			this.content.getContentJSON().autoScoring != null &&
+			this.content.getContentJSON().autoScoring.autoScoringCriteria != null &&
+			this.content.getContentJSON().autoScoring.autoScoringCriteria != "") {
+		//this step is an auto graded draw step
+		
+		//get all the node states
+		var nodeStates = this.view.getStudentWorkForNodeId(this.id);
+		
+		if(nodeStates != null) {
+			/*
+			 * loop through all the node states and get the autoFeedback
+			 * from the last node state that was auto graded
+			 */
+			for(var x=nodeStates.length - 1; x>=0; x--) {
+				//get a node state
+				var nodeState = nodeStates[x];
+				
+				if(nodeState.checkWork) {
+					/*
+					 * this node state was work that was auto graded so we will
+					 * get the autoFeedback and display it
+					 */
+					var autoFeedback = nodeState.autoFeedback;
+					
+					if(feedback == null || feedback == '') {
+						//this is the newest feedback the student has received
+						feedback = '<b>NEW FEEDBACK<br>' + autoFeedback + '</b><hr>';
+					} else {
+						//this is a previous feedback the student has received
+						feedback += 'PREVIOUS FEEDBACK<br>' + autoFeedback + '<hr>';
+					}
+				}
+			}		
+		}
+	}
+	
+	return feedback;
+};
+
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);
 	
 //used to notify scriptloader that this script has finished loading

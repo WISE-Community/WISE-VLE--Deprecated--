@@ -622,7 +622,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 		//get the number of check work chances the student has used
 		var checkWorkChancesUsed = this.getCheckWorkChancesUsed();
 		
-		if(maxCheckWorkChances == null || checkWorkChancesUsed < maxCheckWorkChances) {
+		if(maxCheckWorkChances == null || maxCheckWorkChances == "" || checkWorkChancesUsed < maxCheckWorkChances) {
 			/*
 			 * there is no max check work chances or the student still has 
 			 * check work chances left so we will score the work
@@ -714,11 +714,6 @@ SVGDRAW.prototype.autoGradeWork = function() {
 					message += feedback;
 				}
 				
-				if(message != '') {
-					//display the popup that may contain the score and the text feedback
-					alert(message);		
-				}
-				
 				//set the score and feedback so we can access them later when we save the svgdrawstate
 				this.autoScore = score;
 				this.autoFeedback = message;
@@ -727,10 +722,16 @@ SVGDRAW.prototype.autoGradeWork = function() {
 				
 				//save the student work with the score and feedback
 				this.saveToVLE();
+				
+				//show the Feedback button at the top right of the vle next to the previous and next arrows
+				this.view.displayNodeAnnotation(this.node.id);
+				
+				//display the feedback in a popup dialog
+				eventManager.fire("showNodeAnnotations",[this.node.id]);
 			}
 		} else {
 			//the student does not have anymore check work chances
-			alert('You have used all your chances to receive feedback.');
+			alert('Good Job!\n\nYou have used up all your chances to get feedback.\n\nYou can continue to edit your drawing if you need to.');
 		}
 	}
 };

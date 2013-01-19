@@ -368,7 +368,7 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		[mass_diff < -.001 ? -1 : (mass_diff > .001 ? 1 : 0), mass_diff];
  
 	} else if (evt.type == "test-release-beaker" || evt.type == "press-release-beaker"){
-		evt.perc_filled_in_spilloff_container = evt.args[1].perc_filled_in_spilloff_container;
+		evt.perc_filled_in_spilloff_container = typeof evt.args[1] == "undefined"? 0: evt.args[1].perc_filled_in_spilloff_container;
 	} else if (evt.type == "test-add-beaker"){
 		evt.displacement = evt.args[1].displacement;
 	} else if (evt.type == "gave-feedback"){
