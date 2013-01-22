@@ -183,6 +183,10 @@
 		"value":"Done",
 		"description":"Text 'done', to mean completed"
 	},
+	"stepTerm":{
+		"value":"Step",
+		"description":"Default term for a 'step' in a WISE project"
+	},
 	"insertImage":{
 		"value":"Insert Image",
 		"description":"Text 'Insert Image', to use for file upload"

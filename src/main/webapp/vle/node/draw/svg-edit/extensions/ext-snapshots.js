@@ -479,14 +479,10 @@ svgEditor.addExtension("Snapshots", function(S) {
 			function () {
 				if (!$(this).hasClass("active")){
 					$(this).addClass('hover');
-					$(this).children('.snap_delete').css("opacity",".75");
-					$(this).children('.snap_num').css("opacity",".75");
 				}
 			}, 
 			function () {
 				if (!$(this).hasClass("active")){
-					$(this).children('.snap_delete').css("opacity",".5");
-					$(this).children('.snap_num').css("opacity",".5");
 					$(this).removeClass('hover');
 				}
 			}
@@ -546,12 +542,8 @@ svgEditor.addExtension("Snapshots", function(S) {
 		$(".snap").each(function(i){
 			if(i != num){
 				$(this).removeClass("hover active");
-				$(this).children(".snap_delete").css("opacity",".5");
-				$(this).children(".snap_num").css("opacity",".5");
 			} else {
 				$(this).addClass("hover active");
-				$(this).children(".snap_delete").css("opacity","1");
-				$(this).children(".snap_num").css("opacity","1");
 			}
 			
 			if(!svgEditor.zeroSnapsAllowed){
