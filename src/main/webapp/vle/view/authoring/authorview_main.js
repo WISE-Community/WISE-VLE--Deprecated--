@@ -1628,9 +1628,10 @@ View.prototype.onProjectLoaded = function(){
 		if(this.project && this.project.getStepTerm()){
 			document.getElementById('stepTerm').value = this.project.getStepTerm();
 		} else {
-			document.getElementById('stepTerm').value = '';
+			var stepTerm = this.getI18NString('stepTerm');
+			document.getElementById('stepTerm').value = stepTerm;
 			this.project.setStepTerm('');
-			this.notificationManager.notify('stepTerm not set in project, setting default value: \"\"', 2);
+			this.notificationManager.notify('stepTerm not set in project, setting default value: \"' + stepTerm + '\"', 2);
 		};
 	
 		document.getElementById('postLevelSelect').selectedIndex = 0;
