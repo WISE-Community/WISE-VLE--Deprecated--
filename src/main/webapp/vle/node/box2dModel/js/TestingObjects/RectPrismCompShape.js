@@ -5,11 +5,11 @@
 	*   depthArray: an array of binary values indicating if a cube is in a space, back-to-front. example [1, 0, 0, 0, 1]
 	*	view_topAngle, view_sideAngle: the angle which the object is being viewed (radians).  0, 0, is front and center
 	*/
-	var RectPrismShape = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
+	var RectPrismCompShape = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
 	{
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, savedObject);
 	} 
-	var p = RectPrismShape.prototype = new createjs.Container();
+	var p = RectPrismCompShape.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;
@@ -309,5 +309,5 @@
 		stage.needs_to_update = true;
 	}
 
-	window.RectPrismShape = RectPrismShape;
+	window.RectPrismCompShape = RectPrismCompShape;
 }(window));
