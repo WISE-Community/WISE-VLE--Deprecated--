@@ -61,6 +61,16 @@
   </servlet-mapping>
   
   <servlet>
+   <servlet-name>rapache</servlet-name>
+   <servlet-class>vle.web.RApacheController</servlet-class>
+ </servlet>
+
+ <servlet-mapping>
+   <servlet-name>rapache</servlet-name>
+   <url-pattern>/rapache.html</url-pattern>
+ </servlet-mapping>
+  
+  <servlet>
     <servlet-name>vleannotations</servlet-name>
     <servlet-class>vle.web.VLEAnnotationController</servlet-class>
   </servlet>

@@ -1441,6 +1441,30 @@ View.prototype.utils.getImageDimensions = function(url,callback){
 	//return dimensions;
 };
 
+View.prototype.utils.executeRMethod = function(method, data, callback) {
+	var self = this;
+	var val = "text";
+	if(val == "text") {
+		var rdata = { method: method, data: data };
+		console.log('method %o data %o, json str %o', method, data, JSON.stringify(rdata));
+		$.post("/webapp/bridge/postdata.html", {"type": "rstat", "rdata": $.stringify(rdata)}, callback);
+	}
+	else {
+		// do something if it is invalid
+	}
+};
+
+View.prototype.utils.getRImageSourceString = function(format, width, height, data, callback) {
+	var rdata = {
+		format : format,
+		width : width,
+		height : height,
+		data : data
+	};
+	console.log('param is %o', $.stringify(rdata));
+	return "/webapp/bridge/getdata.html?type=rimage&rdata=" + encodeURIComponent($.stringify(rdata));
+};
+
 /**
  * Used in Show My Work for draw steps
  */
