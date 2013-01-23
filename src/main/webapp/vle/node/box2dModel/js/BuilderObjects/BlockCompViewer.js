@@ -1,12 +1,12 @@
 (function (window)
 {
-	function VolumeViewer (unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
+	function BlockCompViewer (unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
 	{
 		
 		this.initialize(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units);
 	}
-	var p = VolumeViewer.prototype = new createjs.Container();
-	p.Container_initialize = VolumeViewer.prototype.initialize;
+	var p = BlockCompViewer.prototype = new createjs.Container();
+	p.Container_initialize = BlockCompViewer.prototype.initialize;
 
 	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, width_units, height_units, depth_units)
 	{
@@ -630,10 +630,10 @@
 		{
 			this.removeChildAt(i);
 		}
-		this.blockArray2d = [];		
+		
 		for (i = 0; i < this.width_units; i++)
 		{
-			this.blockArray2d[i] = [];
+			
 			for (j = 0; j < this.height_units; j++)
 			{
 				if (this.blockArray2d[i][j] != null)
@@ -643,6 +643,8 @@
 				this.blockArray2d[i][j] = null;
 			}
 		}
+		for (i = 0; i < this.width_units; i++) this.blockArray2d[i] = [];
+		this.blockArray2d = [];
 	}
 
 	/** When a block is moved around, added or deleted we should be checking whether the spatial relations between blocks have been
@@ -728,5 +730,5 @@
 		}
 	}
 
-	window.VolumeViewer = VolumeViewer;
+	window.BlockCompViewer = BlockCompViewer;
 }(window));
