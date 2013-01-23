@@ -630,7 +630,7 @@ SVGDRAW.prototype.autoGradeWork = function() {
 			
 			var checkWork = false;
 			
-			if(maxCheckWorkChances == null) {
+			if(maxCheckWorkChances == null || maxCheckWorkChances == "") {
 				//max check work chances has not been set so we will check the work
 				checkWork = true;
 			} else {

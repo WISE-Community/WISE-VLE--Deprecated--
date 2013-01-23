@@ -132,14 +132,16 @@ ExplanationBuilder.prototype.render = function() {
 	if(this.content.isMustComplete){
     	//isMustComplete is true so we will create the constraint
 		
-		var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.node.id);
+		var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.node.id),
+			project = this.view.getProject();
+		var stepTerm = project.getStepTerm() ? project.getStepTerm() : this.view.getI18NString('stepTerm');
 		
 		// set constraint alert message depending on whether student text area is enabled
 		var message = '';
 		if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
-			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
+			message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
 		} else {
-			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
+			message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
 		}
 
 		/*

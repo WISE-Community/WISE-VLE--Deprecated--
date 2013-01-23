@@ -107,7 +107,10 @@ var DrawScorer = function() {
         	delete svgFullObject.snapshots[j]['allMoleculesMatched'];
         	delete svgFullObject.snapshots[j]['atoms'];
         	delete svgFullObject.snapshots[j]['connectedComponents'];
+        	delete svgFullObject.snapshots[j]['looselyMatchedComponents'];
         	delete svgFullObject.snapshots[j]['molecules'];
+        	delete svgFullObject.snapshots[j]['overlappingComponents'];
+        	delete svgFullObject.snapshots[j]['searchTerminated'];
         	delete svgFullObject.snapshots[j]['unnamedComponents'];
         	delete svgFullObject.snapshots[j]['xmlDoc'];
         }
@@ -569,7 +572,7 @@ var DrawScorer = function() {
                 svg.searchTerminated = true;
                 return null;//too big to compute quickly
             } else {
-                svg.searchTermnated = false;
+                svg.searchTerminated = false;
             }
             var moleculesArray = this.turnAtomSetIntoMoleculeList(atomSets[i]);
             var partialAssignments = new Array();
