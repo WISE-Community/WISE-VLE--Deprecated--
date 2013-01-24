@@ -394,98 +394,25 @@
  */
 View.prototype.generateAuthoring = function(){
 	var view = this;
-	//$('#projectButtons button').removeAttr('disabled');
+	$('#stepTerm').show(); // TODO: not sure why this is necessary but stepTerm input always seems to be hidden by default
 	
 	//remove any old elements and clear variables
-	//$parent.empty();
 	$('#activeContainer').empty();
 	$('#inactiveContainer').empty();
 	this.currentStepNum = 1;
 	this.currentSeqNum = 1;
-	
-	//set up project table
-	/*var tab = createElement(document, 'table', {id: 'projectTable'});
-	var tHead = createElement(document, 'thead', {id: 'projectTableHead'});
-	var tBod = createElement(document, 'tbody', {id: 'projectTableBody'});
-	var existingRow = createElement(document, 'tr', {id: 'existingRow'});
-	var unattachedSequenceRow = createElement(document, 'tr', {id: 'unattachedSequenceRow'});
-	var unattachedNodeRow = createElement(document, 'tr', {id: 'unattachedNodeRow'});
-	
-	$parent.append(tab);
-	tab.appendChild(tHead);
-	tab.appendChild(tBod);
-	tBod.appendChild(existingRow);
-	tBod.appendChild(unattachedSequenceRow);
-	tBod.appendChild(unattachedNodeRow);
-	
-	//generate existing project structure
-	var existingTable = createElement(document, 'table', {id: 'existingTable'});
-	var existingTH = createElement(document, 'thead', {id: 'existingTableHead'});
-	var existingTB = createElement(document, 'tbody', {id: 'existingTableBody'});
-	existingRow.appendChild(existingTable);
-	existingTable.appendChild(existingTH);
-	existingTable.appendChild(existingTB);*/
-	
-	// generate active project structure container
-	//var activeContainer = createElement(document,'ul',{id: 'activeContainer'});
-	//$parent.append(activeContainer);
 	
 	var activeContainer = $('#activeContainer');
 	if(this.project.getRootNode()){
 		this.generateNodeElement(this.project.getRootNode(), null, activeContainer, 0, 0);
 	};
 	
-	//generate unattached nodes
-	/*var uSeqTable = createElement(document, 'table', {id: 'unusedSequenceTable'});
-	var uSeqTH = createElement(document, 'thead');
-	var uSeqTB = createElement(document, 'tbody', {id: 'unusedSequenceTableBody'});
-	var uSeqTR = createElement(document, 'tr', {id: 'unusedSequenceTitleRow'});
-	var uSeqETD = createElement(document, 'td');
-	var uSeqTD = createElement(document, 'td');
-	
-	unattachedSequenceRow.appendChild(uSeqTable);
-	uSeqTable.appendChild(uSeqTH);
-	uSeqTable.appendChild(uSeqTB);
-	uSeqTB.appendChild(uSeqTR);
-	uSeqTR.appendChild(uSeqETD);
-	uSeqTR.appendChild(uSeqTD);
-	
-	var unusedSeqDiv = createElement(document, 'div', {id: 'uSeq', 'class': 'uSeq', onclick: 'eventManager.fire("selectClick","uSeq")', onMouseOver: 'eventManager.fire("checkAndSelect","uSeq")', onMouseOut: 'eventManager.fire("checkAndDeselect","uSeq")'});
-	var unusedSeqText = document.createTextNode('Inactive Activities');*/
 	var unusedSeqs = this.project.getUnattached('sequence');
 	
-	/*uSeqTD.appendChild(unusedSeqDiv);
-	unusedSeqDiv.appendChild(unusedSeqText);
-	unusedSeqDiv.innerHTML += ' <span>(Not Shown in Project)</span>';*/
 	var inactiveContainer = $('#inactiveContainer');
 	for(var d=0;d<unusedSeqs.length;d++){
 		this.generateNodeElement(unusedSeqs[d], null, inactiveContainer, 0, 0);
 	};
-	
-	/*var uNodeTable = createElement(document, 'table', {id: 'unusedNodeTable'});
-	var uNodeTH = createElement(document, 'thead');
-	var uNodeTB = createElement(document, 'tbody', {id: 'unusedNodeTableBody'});
-	var uNodeTR = createElement(document, 'tr', {id: 'unusedNodeTitleRow'});
-	var uNodeETD = createElement(document, 'td');
-	var uNodeTD = createElement(document, 'td');
-	
-	unattachedNodeRow.appendChild(uNodeTable);
-	uNodeTable.appendChild(uNodeTH);
-	uNodeTable.appendChild(uNodeTB);
-	uNodeTB.appendChild(uNodeTR);
-	uNodeTR.appendChild(uNodeETD);
-	uNodeTR.appendChild(uNodeTD);
-	
-	var unusedNodeDiv = createElement(document, 'div', {id: 'uNode', onclick: 'eventManager.fire("selectClick","uNode")', onMouseOver: 'eventManager.fire("checkAndSelect","uNode")', onMouseOut: 'eventManager.fire("checkAndDeselect","uNode")'});
-	var unusedNodesText = document.createTextNode('Inactive Steps');
-	var unusedNodes = this.project.getUnattached('node');
-	
-	uNodeTD.appendChild(unusedNodeDiv);
-	unusedNodeDiv.appendChild(unusedNodesText);
-	unusedNodeDiv.innerHTML += ' <span>(Not Shown in Project)</span>';
-	for(var e=0;e<unusedNodes.length;e++){
-		this.generateNodeElement(unusedNodes[e], null, uNodeTB, 0, 0);
-	};*/
 	
 	var unusedNodes = this.project.getUnattached('node');
 	if(unusedNodes.length>0){
@@ -518,9 +445,7 @@ View.prototype.generateAuthoring = function(){
 	// make sequences sortable
 	$('#activeContainer').sortable({
 		placeholder:'dragTarget',
-		//tolerance:'pointer',
 		revert:100
-		//opacity:.9
 	});
 	
 	// show number of nodes per sequence
@@ -528,11 +453,9 @@ View.prototype.generateAuthoring = function(){
 		view.initSequence($(this).get(0));
 	});
 	
-	//this.updateSelectCounts();
-	
 	if($('#sequenceEditor').is(':visible')){
 		// sequence is being edited, so update its content
-		var target = $('#sequenceEditor').attr('data-contentid');
+		var target = $('#sequenceEditor').attr('data-id');
 		view.editSequence($('#' + target).get(0));
 	}
 	
@@ -595,14 +518,14 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 	if(node.type=='sequence' && (this.getProject().getRootNode() && node.id!=this.project.getRootNode().id)){
 		var isActive = ($(el).attr('id')=='activeContainer');
 		
-		var sequenceEl = createElement(document, 'li', {id: absId, 'class': 'projectNode seq'}),
+		var sequenceEl = createElement(document, 'li', {id: node.id, 'class': 'projectNode seq'}),
 			sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
 			seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
 		
 		var titleText = view.utils.capitalize(view.getI18NString('activity'));
 		if(isActive){
 			titleText += ' ' + this.currentSeqNum + ': ';
-			$(sequenceEl).attr('data-pos',this.currentSeqNum);
+			$(sequenceEl).attr('data-pos',this.currentSeqNum).attr('data-absid',absId);
 			this.currentSeqNum++;
 			$(seqTitleEl).append('<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>');
 		} else {
@@ -785,7 +708,7 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 		$(el).append(nodeEl);
 		
 		// attach node data and absId to element
-		$(nodeEl).data('node',node).attr('data-id',absId).attr('data-nodeid',node.id);
+		$(nodeEl).data('node',node).attr('data-absid',absId).attr('data-nodeid',node.id);
 	}
 	
 	// create select checkbox for this node
@@ -815,9 +738,9 @@ View.prototype.initSequence = function(target){
 	//var split = seq.attr('id').split('--');
 	//var sequenceId = split[1];
 	var numNodes = $('.node',seq).length;
-	var stepTerm = view.getI18NString('step');
-	if(numNodes>1){
-		stepTerm = view.getI18NString('step_plural');
+	var stepTerm = view.getI18NString('step_plural');
+	if(numNodes===1){
+		stepTerm = view.getI18NString('step');
 	}
 	
 	// insert info element with number of steps/branches
@@ -826,14 +749,25 @@ View.prototype.initSequence = function(target){
 	// insert delete and hide/show links
 	if(seq.attr('id')!=='unusedNodes'){
 		var actionsEl = $('<div class="actions"></div>');
-		var hideLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/></a>');
+		var hideLink = $('<a class="tooltip" title="' + view.getI18NString('hide') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/hide.png"/ alt="hide"></a>');
 		if(!isActive){
 			// sequence is inactive, so add show link instead of hide link
-			hideLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/></a>');
+			hideLink = $('<a class="tooltip" title="' + view.getI18NString('show') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/show.png"/ alt="show"></a>');
 		}
-		var deleteLink = $('<a class="tooltip" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png"/></a>');
+		var deleteLink = $('<a class="tooltip" title="' + view.getI18NString('delete') + '"><img class="icon" src="/vlewrapper/vle/images/icons/dark/24x24/trash.png" alt="delete"/></a>');
 		
-		// TODO: bind click actions
+		// bind delete click action
+		deleteLink.on('click',function(e){
+			e.stopPropagation();
+			// remove "selected" class from all activities
+			$('.seq').removeClass('selected');
+			// add 'selected' class to current activity and execute delete function
+			seq.addClass('selected', function(){
+				view.deleteSelected();
+			});
+		})
+		
+		// TODO: bind hide click action
 		
 		actionsEl.append(hideLink).append(deleteLink);
 		infoEl.append(actionsEl);
@@ -876,7 +810,7 @@ View.prototype.editSequence = function(target){
 	}
 	
 	function populateSequence() {
-		$('#sequenceEditor').attr('data-contentid',seq.attr('id'));
+		$('#sequenceEditor').attr('data-absid',seq.attr('data-absid')).attr('data-id',seq.attr('id'));
 		
 		var contentEl = $('#sequenceContent');
 		
@@ -1160,10 +1094,29 @@ View.prototype.editSequence = function(target){
 		contentEl.fadeIn(function(){
 			// set step title widths to fit activity editing panel
 			
+			
+			// make controls scroll with activity
+			var offset = controls.offset(),
+				elTop = offset.top,
+				elLeft = offset.left;
+			var gap = elTop-$('#projectStructure .contentWrapper').offset().top;
+			var baseTop = $('#authoringContainer').offset().top;
+			$('#projectStructure .contentWrapper').on('scroll', (function() {
+		        var elWidth = controls.width(),
+		        	top = $('#authoringContainer').offset().top;
+		        if (baseTop-top>gap) {
+		        	controls.addClass('sticky');
+		        	var left = elLeft-parseInt(controls.css('margin-left'))/2-parseInt(controls.css('margin-right'))/2-parseInt(controls.css('border-left-width'))/2-parseInt(controls.css('border-right-width'))/2;
+		        	controls.css({'top':baseTop, 'left':left, 'width':elWidth});
+		        } else {
+		        	controls.removeClass('sticky');
+		        	controls.css({'top':'', 'left':'', 'width':''});
+		        }
+		    }));
 		});
 	};
 	
-	if($('#sequenceEditor').attr('data-contentid')===seq.attr('id')){
+	if($('#sequenceEditor').attr('data-absid')===seq.attr('data-absid')){
 		// get currently selected steps
 		selected = $('#sequenceEditor').data('selected');
 		// populate activity editor
@@ -2118,7 +2071,7 @@ View.prototype.onProjectLoaded = function(){
 			var stepTerm = this.getI18NString('stepTerm');
 			document.getElementById('stepTerm').value = stepTerm;
 			this.project.setStepTerm('');
-			this.notificationManager.notify('stepTerm not set in project, setting default value: \"' + stepTerm + '\"', 2);
+			this.notificationManager.notify('Step term not set in project, setting default value: \"' + stepTerm + '\"', 2);
 		};
 		
 		// clear out any data from the sequenceEditor
@@ -2176,8 +2129,6 @@ View.prototype.onProjectLoaded = function(){
 		}
 		
 		this.premadeCommentLists = null;
-		
-		$('#stepTerm').show(); // TODO: not sure why this is necessary
 		
 		// hide loading message and show the project content panel
 		$('#projectOverlay').hide();

@@ -1518,16 +1518,12 @@ View.prototype.utils.getSwfDimensions = function(url,callback){
  */
 View.prototype.utils.adjustDialogHeight = function(element){
 	var winH = $(window).height()-40,
-		minH = $(element).dialog("option","minHeight"),
-		dialogH = $(element).parent().outerHeight(),
-		contentH = $(element).outerHeight(),
-		nonContentH = dialogH - contentH;
+		minH = $(element).dialog("option","minHeight");
 	
 	// if window height is larger than dialog's minHeight option, resize to fit window height
 	// otherwise, do not resize because minHeight option should take precedent
 	if(winH > minH && $(element).parent().height() > winH){
-    	$(element).parent().height(winH);
-    	$(element).height($(element).parent().height()-nonContentH);
+		$(element).dialog({height: winH});
     	$(element).scrollTop(0);
 	    
 		if($(element).dialog("option","modal") === true){

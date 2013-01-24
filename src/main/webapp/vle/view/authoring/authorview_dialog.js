@@ -2,6 +2,7 @@
  * Functions specific to the creation and initialization of dialogs
  * 
  * @author patrick lawler
+ * @author jonathan lim-breitbart
  */
 
 /**
@@ -614,7 +615,8 @@ View.prototype.initializeEditIMSettingsDialog = function(){
 		},
 		buttons: [{text: this.getI18NString("cancel"), click: cancel, class: 'secondary'},
 		          {text: this.getI18NString("undo_changes"), click: undoIMSettings, class: 'secondary'},
-		          {text: this.getI18NString("save"), click: updateIMSettings}]});
+		          {text: this.getI18NString("save"), click: updateIMSettings}]
+	});
 };
 
 /**

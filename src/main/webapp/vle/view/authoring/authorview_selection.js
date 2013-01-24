@@ -93,6 +93,163 @@ View.prototype.selectStepsAll = function(onComplete){
 	}
 };
 
+/**
+ * Returns a custom object of nodes represented by the elements on the page
+ * that are currently 'selected'.
+ * 
+ * obj.master = node (master sequence)	- null if master seq is not selected
+ * obj.seqs = [seq 1, seq 2...]			- empty list if no seqs are selected
+ * obj.nodes = [node 1, node 2...]		- empty list if no nodes are selected
+ * 
+ * TODO: Remove master selection: not used anymore
+ */
+View.prototype.getSelected = function(){
+	var o = {master: null, seqs: [], nodes: []};
+	o.master = $('.selected.master');
+	o.seqs = $('.selected.seq');
+	o.nodes = $('.selected.node');
+	o.ordered = $('.projectNode.selected');
+	return o;
+};
+
+/**
+ * Removes the selected nodes and sequences from the project and refreshes authoring.
+ */
+View.prototype.deleteSelected = function(){
+	var selected = this.getSelected(),
+		view = this,
+		reviewAlert = '',
+		seqAlert = '',
+		warning = '',
+		seqMode = false;;
+	
+	if(selected.seqs.size()==1){ // an activity has been selected for deletion
+		seqMode = true;
+		
+		seqAlert = '<p>If you delete an activity, any steps that activity contains will be unattached and moved to the Inactive Content section (in "Unused Steps").<p>';
+		
+		var seq = $(selected.seqs[0]),
+			seqId = seq.attr('id'),
+			seqPos = '';
+			seqNode = view.getProject().getNodeById(seqId);
+		
+		if(!seq.hasClass('inactive')){
+			seqPos = 'Activity ' + seq.attr('data-pos') + ': ';
+		} else {
+			seqPos = 'Activity: ';
+		}
+		
+		message = '<p>Are you sure you want to delete ' + seqPos + seqNode.getTitle() + '?<p>';
+		
+		warning = '<p class="ui-state-error ui-corner-all">' + 
+			'<span class="ui-icon ui-icon-alert"></span>' + 
+			'WARNING: This operation is permanent and cannot be undone!</p>' + 
+			'<p>As an alternative, you can move activities to the Inactive Content section by clicking ' +
+			'<img src="/vlewrapper/vle/images/icons/dark/24x24/hide.png" class="icon" alt="hide"> (Hide). ' + 
+			'Inactive activities do not show up when viewing the project, but are saved for possible future use.</p>';
+		
+	} else if(selected.nodes.size>0){
+		if(selected.nodes.size()==1){ // one step has been selected for deletion
+			var node = $(selected.nodes[0]),
+				nodeId = node.attr('id'),
+				nodeTitle = view.getProject().getNodeById(nodeId).getTitle();
+			
+			message = '<p>Are you sure you want to delete Step: ' + nodeTitle + '?<p>';
+		}
+		if(selected.nodes.size()>1){ // more than one step has been selected for deletion
+			message = '<p>Are you sure you want to delete ' + selected.nodes.size() + ' Steps?';
+		}
+		
+		// check if any steps are part of a review sequence
+		for(var i=0;i<selected.nodes.size();i++){
+			var id = selected.nodes[i].id.split('--')[1];
+			var projectNode = view.getProject().getNodeById(id);
+			if(projectNode.reviewGroup){
+				reviewAlert = '<p>Also, deleting any steps that are part of a Student or Teacher Review Sequence will remove that review sequence.</p>';
+			}
+		}
+		
+		warning = '<p class="ui-state-error ui-corner-all">' + 
+			'<span class="ui-icon ui-icon-alert"></span>' + 
+			'WARNING: This operation is permanent and cannot be undone!</p>' + 
+			'<p>As an alternative, you can move steps to the Inactive Content section by clicking ' +
+			'the "Move" button in the activity\'s toolbar and then choosing an inactive activity or "Unused Steps" as your destination. ' + 
+			'Inactive steps do not show up when viewing the project, but are saved for possible future use.</p>';
+	} else {
+		return;
+	}
+	
+	dialogContent = message + warning + seqAlert + reviewAlert;
+	
+	var doDelete = function(){		
+		//remove selected sequences - any attached nodes will remain as leaf nodes in project
+		selected.seqs.each(function(){
+			var id = $(this).attr('id');
+			view.project.removeNodeById(id);
+		});
+		
+		//remove selected nodes
+		var reviewGroupNumbers = [];
+		selected.nodes.each(function(){
+			var id = view.id.split('--')[1];
+			var projectNode = view.getProject().getNodeById(id);
+			
+			/* if this is a regular node, we need to remove its file from the server as well
+			 * as any duplicate nodes from the project, otherwise, we just need to remove the
+			 * the duplicate node from the project */
+			if(projectNode.type=='DuplicateNode'){
+				/* this is a duplicate node, so just remove it from the project */
+				view.getProject().removeNodeById(id);
+			} else {
+				/* this is a regular node, remove file from server as well as project, also
+				 * need to remove any duplicates of this node from the project. */
+				
+				// if this node is part of review sequence, also remove the review sequence
+				if(projectNode.reviewGroup){
+					// check if we've already added this reviewGroup number to the array to be deleted
+					if(reviewGroupNumbers.indexOf(projectNode.reviewGroup)==-1){
+						reviewGroupNumbers.push(projectNode.reviewGroup); //add to array of reviewGroups to be deleted
+					}
+				}
+				
+				var dups = view.getProject().getDuplicatesOf(id, true);
+				
+				view.utils.removeNodeFileFromServer(view,id);
+				
+				for(var x=0;x<dups.length;x++){
+					view.getProject().removeNodeById(dups[x].id);
+				}
+			}
+		});
+		
+		// cancel reviewGroups to be deleted
+		for(var a=0;a<reviewGroupNumbers.length;a++){
+			view.project.cancelReviewSequenceGroup(reviewGroupNumbers[a]);
+		}
+		
+		view.saveProject();
+		$('#deleteContentDialog').dialog('close');
+		
+		if(seqMode){
+			// fade out deleted activity
+			$('.seq.selected').fadeOut(function(){
+				// refresh project display
+				view.generateAuthoring();
+			});
+		} else {
+			// refresh project display
+			view.generateAuthoring();
+		}
+	};
+	
+	// open confirmation dialog
+	$('#deleteContentDialog').html('').html(dialogContent).dialog({modal:true, resizable:false, draggable:false, width:500, dialogClass: 'alert',
+		title: 'Delete From Project',
+		buttons: [{text: this.getI18NString("cancel"), click: function(){ $(this).dialog('close'); }},
+		          {text: this.getI18NString("ok"), click: doDelete}]
+	});
+};
+
 
 /**
  * LEGACY FUNCTIONS - TODO: remove unused, update remaining
@@ -227,128 +384,6 @@ View.prototype.updateSelectCounts = function(){
 			}
 		}
 	}
-};
-
-/**
- * Returns a custom object of nodes represented by the elements on this page
- * that are currently 'selected'.
- * 
- * obj.master = node (master sequence)	- null if master seq is not selected
- * obj.seqs = [seq 1, seq 2...]			- empty list if no seqs are selected
- * obj.nodes = [node 1, node 2...]		- empty list if no nodes are selected
- */
-View.prototype.getSelected = function(){
-	var o = {master: null, seqs: [], nodes: []};
-	o.master = $('.selected.master');
-	o.seqs = $('.selected.seq');
-	o.nodes = $('.selected.node');
-	o.ordered = $('.projectNode.selected');
-	return o;
-};
-
-/**
- * Removes the selected nodes and sequences from the project and refreshes authoring.
- */
-View.prototype.deleteSelected = function(){
-	var selected = this.getSelected();
-	var view = this;
-	var reviewAlert = '';
-	var seqAlert = '';
-	
-	if(selected.nodes.size()>0){
-		for(var i=0;i<selected.nodes.size();i++){
-			var id = selected.nodes[i].id.split('--')[1];
-			var projectNode = view.getProject().getNodeById(id);
-			if(projectNode.reviewGroup){
-				reviewAlert = '\n\nAlso, deleting any Steps that are part of a Student or Teacher Review Sequence will also remove that Review Sequence.';
-			}
-		}
-	}
-	if(selected.seqs.size()<1 && selected.nodes.size()<1){//if none are selected, notify user
-		this.notificationManager.notify('Select one or more items before activating this tool.', 3);
-	} else {
-		var message = 'Are you sure you want to delete ';
-		if(selected.seqs.size()>0){
-			seqAlert = '\n\nIf you delete an Activity, any Steps that Activity contains will be unattached and will be moved to the Inactive Steps section.';
-			if(selected.seqs.size()==1){
-				message = message + '1 Activity';
-			}
-			if(selected.seqs.size()>1){
-				message = message + selected.seqs.size() + ' Activities';
-			}
-			if(selected.nodes.size()>0){
-				message = message + ' and ';
-			} else {
-				message = message + '?';
-			}
-		}
-		
-		if(selected.nodes.size()==1){
-			message = message + '1 Step?';
-		}
-		if(selected.nodes.size()>1){
-			message = message + selected.nodes.size() + ' Steps?';
-		}
-		
-		message = message + '\n\nWARNING: This operation is permanent!\n\nAs an alternative, you can move items to the Inactive Activities & Steps sections.  Those items do not show up when students run the project, but are saved for possible future use.' + seqAlert + reviewAlert;
-		
-		
-		if(confirm(message)){
-		
-			if(selected.master.size()>0){
-				this.notificationManager.notify('Deleting the master activity for a project is not allowed.');
-			};
-			
-			//remove selected seqs - any attached nodes will remain as leaf nodes in project
-			selected.seqs.each(function(ndx){
-				var id = this.id.split('--')[1];
-				view.project.removeNodeById(id);
-			});
-			
-			//remove selected nodes
-			var reviewGroupNumbers = [];
-			selected.nodes.each(function(ndx){
-				var id = this.id.split('--')[1];
-				var projectNode = view.getProject().getNodeById(id);
-				
-				/* if this is a regular node, we need to remove its file from the server as well
-				 * as any duplicate nodes from the project, otherwise, we just need to remove the
-				 * the duplicate node from the project */
-				if(projectNode.type=='DuplicateNode'){
-					/* this is a duplicate node, so just remove it from the project */
-					view.getProject().removeNodeById(id);
-				} else {
-					/* this is a regular node, remove file from server as well as project, also
-					 * need to remove any duplicates of this node from the project. */
-					
-					// if this node is part of review sequence, also remove the review sequence
-					if(projectNode.reviewGroup){
-						// check if we've already added this reviewGroup number to the array to be deleted
-						if(reviewGroupNumbers.indexOf(projectNode.reviewGroup)==-1){
-							reviewGroupNumbers.push(projectNode.reviewGroup); //add to array of reviewGroups to be deleted
-						}
-					}
-					
-					var dups = view.getProject().getDuplicatesOf(id, true);
-					
-					view.utils.removeNodeFileFromServer(view,id);
-					
-					for(var x=0;x<dups.length;x++){
-						view.getProject().removeNodeById(dups[x].id);
-					}
-				}
-			});
-			//cancel reviewGroups to be deleted
-			for(var a=0;a<reviewGroupNumbers.length;a++){
-				view.project.cancelReviewSequenceGroup(reviewGroupNumbers[a]);
-			}
-			
-			this.saveProject();
-			
-			//refresh
-			this.generateAuthoring();
-		}
-	};
 };
 
 /**

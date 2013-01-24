@@ -1223,10 +1223,6 @@
 		"value":"Last Updated: ",
 		"description":"Text for displaying last edited time for a project (will be followed by last edited date, e.g. 'Last Updated: Aug 24, 2010 11:26AM')."
 	},
-	"authoring_confirm_switch_authoring_mode": {
-		"value":"You are about to switch authoring mode but have not saved your changes. If you continue, your changes will be lost. Do you wish to continue?",
-		"description":"Message displayed in the Authoring Tool to authors when trying to switch between simple/advanced modes but their changes have not been saved."		
-	},
 	"authoring_hint_dialog_title": {
 		"value":"Add/Edit Hints for this Step",
 		"description":"Text for the title of the edit step hints dialog window."
