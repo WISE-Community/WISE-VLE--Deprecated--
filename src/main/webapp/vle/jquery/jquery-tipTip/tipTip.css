@@ -222,11 +222,12 @@
 #tiptip_holder.info #tiptip_content h3 {
 	color: #745A33;
 	border-bottom:1px solid #CCCCCC;
+    font-family: Helvetica,sans-serif;
+    font-size: 15px;
+    font-weight: 300;
     margin: 0 0 5px;
-    padding: 0 0 5px;
+    padding: 0 0 4px;
     text-decoration: none;
-    font-weight:bold;
-	font-size:13px;
 }
 
 #tiptip_holder #tiptip_content ul {
