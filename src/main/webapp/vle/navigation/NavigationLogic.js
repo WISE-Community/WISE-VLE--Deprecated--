@@ -179,7 +179,7 @@ NavigationLogic.prototype.getPrevStepNodeInProject = function(location){
  * This should be called when the vle loads.
  */
 NavigationLogic.prototype.addGlobalTagMapConstraints = function() {
-	if(this.tagMapConstraintManager != null) {
+	if(this.tagMapConstraintManager != null && !this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
 		this.tagMapConstraintManager.addGlobalTagMapConstraints();		
 	}
 };
@@ -188,7 +188,7 @@ NavigationLogic.prototype.addGlobalTagMapConstraints = function() {
  * Add tag map constraints for a node.
  */
 NavigationLogic.prototype.addTagMapConstraints = function(nodeId) {
-	if(this.tagMapConstraintManager != null) {
+	if(this.tagMapConstraintManager != null && !this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
 		this.tagMapConstraintManager.addTagMapConstraints(nodeId);		
 	}
 };
@@ -198,7 +198,7 @@ NavigationLogic.prototype.addTagMapConstraints = function(nodeId) {
  * have been satisfied and therefore removed.
  */
 NavigationLogic.prototype.updateActiveTagMapConstraints = function() {
-	if(this.tagMapConstraintManager != null) {
+	if(this.tagMapConstraintManager != null && !this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
 		this.tagMapConstraintManager.updateActiveTagMapConstraints();		
 	}
 };
@@ -207,7 +207,7 @@ NavigationLogic.prototype.updateActiveTagMapConstraints = function() {
  * Add a tag map constraint.
  */
 NavigationLogic.prototype.addActiveTagMapConstraint = function(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage) {
-	if(this.tagMapConstraintManager != null) {
+	if(this.tagMapConstraintManager != null && !this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
 		this.tagMapConstraintManager.addActiveTagMapConstraintIfNecessary(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);		
 	}
 };
@@ -216,7 +216,7 @@ NavigationLogic.prototype.addActiveTagMapConstraint = function(nodeId, tagName, 
  * Remove a tag map constraint.
  */
 NavigationLogic.prototype.removeActiveTagMapConstraint = function(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage) {
-	if(this.tagMapConstraintManager != null) {
+	if(this.tagMapConstraintManager != null && !this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
 		this.tagMapConstraintManager.removeActiveTagMapConstraint(nodeId, tagName, functionName, functionArgs, additionalFunctionArgs, customMessage);		
 	}
 };
@@ -230,7 +230,7 @@ NavigationLogic.prototype.removeActiveTagMapConstraint = function(nodeId, tagNam
 NavigationLogic.prototype.processTagMapConstraints = function(nodeId) {
 	var processTagMapConstraintResults = null;
 	
-	if(this.tagMapConstraintManager != null) {
+	if(this.tagMapConstraintManager != null && !this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
 		processTagMapConstraintResults = this.tagMapConstraintManager.processTagMapConstraints(nodeId);		
 	}
 

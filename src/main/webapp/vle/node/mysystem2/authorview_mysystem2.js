@@ -80,10 +80,10 @@ View.prototype.Mysystem2Node.getBuildInfoDiv = function() {
   var sc_build_time_div   = createElement(document, 'div', {id: 'sc_build_time'  }) ;
   var sc_build_number_div = createElement(document, 'div', {id: 'sc_build_number'}) ;
 
-  var git_sha         = document.createTextNode("commit sha  : 0cc30c0f10d6532c30a2df9b62fc904bc509e8a5 ");
-  var git_time        = document.createTextNode("commit time : Wed Jan 9 17:42:25 2013 -0500 ");
+  var git_sha         = document.createTextNode("commit sha  : 8def35bcff544c4041b5060b74912d2df302d72c ");
+  var git_time        = document.createTextNode("commit time : Wed Jan 23 18:23:24 2013 -0500 ");
   var git_branch      = document.createTextNode("git branch  : (HEAD, origin/master, origin/HEAD, master) ");
-  var sc_build_time   = document.createTextNode("build time  : 2013-01-09 17:54:21 -0500 ");
+  var sc_build_time   = document.createTextNode("build time  : 2013-01-23 18:28:29 -0500 ");
   var sc_build_number = document.createTextNode("build no.   : 90a0439bb6846e57b4eeaa8bfefcb628db75ec64 ");
   
   git_sha_div.appendChild(git_sha);
