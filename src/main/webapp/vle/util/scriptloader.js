@@ -737,17 +737,19 @@ var scriptloader = function(){
 						xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 					}
 
-					/*
-					 * open the path to the project json file, the path to the
-					 * project json file will be placed in the contentUrl variable
-					 * by the .jsp file
-					 */
-					xmlhttp.open("GET", parent.window.contentUrl, false);
-					
-					//perform the request
-					xmlhttp.send(null);
+					if(parent.window.contentUrl != null) {
+						/*
+						 * open the path to the project json file, the path to the
+						 * project json file will be placed in the contentUrl variable
+						 * by the .jsp file
+						 */
+						xmlhttp.open("GET", parent.window.contentUrl, false);
+						
+						//perform the request
+						xmlhttp.send(null);
+					}
 
-					if(xmlhttp.responseText != null) {
+					if(xmlhttp.responseText != null && xmlhttp.responseText != "") {
 						var projectJSONObj = null;
 						var nodeTypes = [];
 						
