@@ -632,8 +632,7 @@
 		}
 		
 		for (i = 0; i < this.width_units; i++)
-		{
-			
+		{			
 			for (j = 0; j < this.height_units; j++)
 			{
 				if (this.blockArray2d[i][j] != null)

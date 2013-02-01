@@ -5,18 +5,18 @@
 	*   depthArray: an array of binary values indicating if a cube is in a space, back-to-front. example [1, 0, 0, 0, 1]
 	*	view_topAngle, view_sideAngle: the angle which the object is being viewed (radians).  0, 0, is front and center
 	*/
-	var CylinderCompShape = function(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject)
+	var CylinderShape = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
 	{
-		this.initialize(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject);
+		this.initialize(unit_width_px, unit_height_px, unit_depth_px, savedObject);
 	} 
-	var p = CylinderCompShape.prototype = new createjs.Container();
+	var p = CylinderShape.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
 	p.Container_tick = p._tick;
 
-	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject)
+	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
 	{
 		this.Container_initialize();
 		this.mouseEnabled = true;
@@ -37,7 +37,6 @@
 		this.diameter_units = Math.max.apply(null, this.diameters);
 		this.width_units = this.diameter_units;
 		this.depth_units = this.diameter_units;
-		this.max_depth_units = Math.max(this.depth_units, max_depth_units);
 		this.height_units = this.heights.reduce(function(a, b) { return a + b; }, 0);  
 		this.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle;
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
@@ -179,7 +178,7 @@
 				var height_to = this.heights.slice(0, row).reduce(function(a, b) { return a + b; }, 0);  
 				
 				ftl_x = (this.diameter_units - diameter)/2 * this.unit_width_px;
-				ftl_y = height_to * this.unit_height_px - (this.max_depth_units - diameter)/2 * this.unit_depth_px * Math.sin(view_topAngle);
+				ftl_y = height_to * this.unit_height_px;
 				fbl_x = ftl_x;
 				fbl_y = ftl_y + height * this.unit_height_px;
 				ftr_x = (this.diameter_units - (this.diameter_units - diameter)/2) * this.unit_width_px;
@@ -215,53 +214,35 @@
 				
 				if (view_topAngle < 0)
 				{
-					// draw top
-					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
-					g.drawEllipse(btl_x, btl_y, ftr_x-btl_x, ftr_y-btl_y);
-					g.endStroke();
-					g.endFill();		
-
 					// draw front
 					g.setStrokeStyle(1);
 					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftr_x, ftr_y);
 					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftr_y);
-					g.moveTo(mtr_x, mtr_y).lineTo(mbr_x,mbr_y).lineTo(mbl_x,mbl_y).lineTo(mtl_x,mtl_y);
+					g.moveTo(mtr_x, mtr_y).lineTo(mbr_x,mbr_y).lineTo(mbl_x,mbl_y).lineTo(mtl_x,mtl_y).bezierCurveTo(ftl_x,ftl_y,ftr_x,ftr_y,mtr_x,mtr_y);
 					g.endStroke();
-					g.lineTo(mtr_x,mtr_y);
 					g.endFill();
 
 					// draw bottom
 					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y+(fbl_y+bbl_y)/2);
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y+(fbl_y+bbl_y)/2);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
 					g.drawEllipse(bbl_x, bbl_y, fbr_x-bbl_x, fbr_y-bbl_y);
 					g.endStroke();
 					g.endFill();
 				} else
 				{
-					// draw bottom
-					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-					g.drawEllipse(bbl_x, bbl_y, fbr_x-bbl_x, fbr_y-bbl_y);
-					g.endStroke();
-					g.endFill();
-
 					// draw front
 					g.setStrokeStyle(1);
 					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
 					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-					g.moveTo(mbl_x, mbl_y).lineTo(mtl_x,mtl_y).lineTo(mtr_x,mtr_y).lineTo(mbr_x,mbr_y);
+					g.moveTo(mbl_x, mbl_y).lineTo(mtl_x,mtl_y).lineTo(mtr_x,mtr_y).lineTo(mbr_x,mbr_y).bezierCurveTo(fbr_x,fbr_y,fbl_x,fbl_y,mbl_x,mbl_y);
 					g.endStroke();
-					g.lineTo(mbl_x,mbl_y);	
 					g.endFill();	
 
 					// draw top
 					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftr_x, ftl_y+(ftl_y-btl_y)/2);
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftl_y+(ftl_y-btl_y)/2);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
 					g.drawEllipse(btl_x, btl_y, ftr_x-btl_x, ftr_y-btl_y);
 					g.endStroke();
 					g.endFill();					
@@ -325,5 +306,5 @@
 		stage.needs_to_update = true;
 	}
 
-	window.CylinderCompShape = CylinderCompShape;
+	window.CylinderShape = CylinderShape;
 }(window));
