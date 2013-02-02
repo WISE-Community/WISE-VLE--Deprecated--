@@ -461,7 +461,7 @@ NavigationPanel.prototype.showNavigationTree = function() {
 	//check if the showflaggedwork div exists
     if($('#dropDownTreeNavigationDiv').size()==0){
     	//the show flaggedworkdiv does not exist so we will create it
-    	$('<div id="dropDownTreeNavigationDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:400,height:(document.height - 20),modal:false,title:'Project Navigator',zindex:9999, left:0, position:["left","top"]});
+    	$('<div id="dropDownTreeNavigationDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:400,height:(document.height - 20),modal:false,title:'Project Navigator',zindex:9999, left:0, position:{my:"left top", at:"left top"}});
     }
     
     //set the html into the div

@@ -502,22 +502,21 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		$('#ideaDialog').dialog('open');
 	});
 	
-	$('#toggleDeleted').toggle(
-			function() {
-				$('#trash').fadeIn();
-				$('#toggleDeleted').addClass('visible');
-				$('#showDeleted').text('(Click to hide)');
-				//$('#toggleDeleted img.arrow').attr('src','images/arrow-down.png');
-				return false;
-			},
-			function() {
-				$('#trash').fadeOut();
-				$('#toggleDeleted').removeClass('visible');
-				$('#showDeleted').text('(Click to show)');
-				//$('#toggleDeleted img.arrow').attr('src','images/arrow.png');
-				return false;
-			}
-	);
+	$('#toggleDeleted').click(function() {
+		if($(this).hasClass('visible')){
+			$('#trash').fadeOut();
+			$('#toggleDeleted').removeClass('visible');
+			$('#showDeleted').text('(Click to show)');
+			//$('#toggleDeleted img.arrow').attr('src','images/arrow.png');
+			//return false;
+		} else {
+			$('#trash').fadeIn();
+			$('#toggleDeleted').addClass('visible');
+			$('#showDeleted').text('(Click to hide)');
+			//$('#toggleDeleted img.arrow').attr('src','images/arrow-down.png');
+			//return false;
+		}
+	});
 	
 	$('textarea#text, textarea#editText, input#addAnIdeaText').keyup(function() {
         var len = this.value.length;

@@ -121,7 +121,8 @@ var css = [
        	"vle/css/ideaManager/blue/style.css",
        	"vle/css/ideaManager/basket.css",
        	"vle/css/ideaManager/jquery-validate/cmxformTemplate.css",
-       	"vle/node/ideabasket/ideaBasket.css"
+       	"vle/node/ideabasket/ideaBasket.css",
+       	"vle/node/common/css/stepContent.css",
 ];
 
 /*

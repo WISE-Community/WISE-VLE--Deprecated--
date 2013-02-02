@@ -48,9 +48,9 @@ var scriptloader = function(){
 	var scriptLoaderWait = 30000;
 	var callerId;
 	var loaded = [];
-	var jquerySrc = 'vle/jquery/js/jquery-1.6.1.min.js';
-	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.8.17.custom.min.js';
-	var jqueryUICss = 'vle/jquery/css/wise-theme/jquery-ui-1.8.17.custom.css';
+	var jquerySrc = 'vle/jquery/js/jquery-1.9.0.min.js';
+	var jqueryUISrc = 'vle/jquery/js/jquery-ui-1.10.0.custom.min.js';
+	var jqueryUICss = 'vle/jquery/css/wise-theme/jquery-ui-1.10.0.custom.css';
 	
 	/**
 	 * scriptLoader listener listens for all scriptLoaded events and
@@ -295,11 +295,12 @@ var scriptloader = function(){
 	 */
 	var scripts = {
         bootstrap: ['vle/util/componentloader.js',
+                  jquerySrc,
+    		      jqueryUISrc,
                   'vle/view/view.js',
                   'vle/node/nodefactory.js',
                   'vle/environment/environment.js',
-                  jquerySrc,
-  		          jqueryUISrc,
+  		          'vle/jquery/js/jquery-migrate-1.0.0.min.js', // TODO: remove when all instances of jQuery.browser are removed from VLE
   		          'vle/jquery/js/jsonplugin.js',
   		          'vle/jquery/js/jqueryhelper.js',
  			      'vle/node/Node.js',
@@ -530,11 +531,11 @@ var scriptloader = function(){
         'vle/jquery/js/jsonplugin.js':[jquerySrc],
         'vle/jquery/js/jqueryhelper.js':[jquerySrc],
         'vle/jquery/js/jquery.form.js':[jquerySrc],
-        'vle/jquery/js/jquery.tools.tooltip.min.js':[jquerySrc],
         'vle/jquery/js/jquery.tablesorter.min.js':[jquerySrc],
         'vle/jquery/jquery-validation/jquery.validate.min.js':[jquerySrc],
         'vle/jquery/miniTip/jquery.miniTip.min.js':[jquerySrc],
         'vle/jquery/js/jquery.editinplace.js':[jquerySrc],
+        'vle/jquery/js/jquery-migrate-1.0.0.min.js':[jquerySrc],
         'vle/navigation/constraints/nonvisitablexconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxafteryconstraint.js':['vle/navigation/constraints/constraint.js'],
         'vle/navigation/constraints/visitxbeforeyconstraint.js':['vle/navigation/constraints/constraint.js'],
