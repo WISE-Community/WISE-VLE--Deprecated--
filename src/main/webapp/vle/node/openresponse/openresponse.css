@@ -273,6 +273,7 @@ textarea:focus {
 
 #submitButtonsNote {
 	margin: 10px auto;
+	text-align:center;
 }
 
 #submitButtonsNote .buttonDiv {
@@ -286,20 +287,16 @@ textarea:focus {
 }
 
 .buttonDiv a, .buttonDiv input {
-	color: #FFFFFF;
-    display: inline-block;
+	display: inline-block;
     font-size: 0.8em;
     padding: 0.2em 0.75em;
     text-align: center;
     text-decoration: none;
     text-transform: uppercase;
-    border:none;
-    background:transparent;
     font-weight:bold;
 }
 
 .buttonDiv a:hover, .buttonDiv input:hover {
-	color: #FBCB09;
 	cursor:pointer;
 }
 

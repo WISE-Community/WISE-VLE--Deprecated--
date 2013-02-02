@@ -173,6 +173,15 @@ input.disabled[type="submit"], input.disabled[type="button"] {
     color: #999999;
 }
 
+table.wisetable th {
+	border-bottom: 2px solid #777;
+	color: #444;
+	font-weight: bold;
+	padding: .25em .5em;
+	text-align: center;
+	vertical-align:middle;
+}
+
 ::-webkit-input-placeholder {
     color: #999 !important;
 }

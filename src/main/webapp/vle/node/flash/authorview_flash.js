@@ -174,7 +174,7 @@ View.prototype.FlashNode.generatePage = function(view){
 	this.populateAdvancedOptions();
 	
 	// bind change events on key/value fields to updateFlashvars
-	$('.flashvarInput').live('keyup',function(){
+	$('.flashvarInput').on('keyup',function(){
 		eventManager.fire('flashFlashvarsChanged');
 	});
 	

@@ -91,7 +91,12 @@ ChallengeNode.prototype.visitedNavigateToNode = function(node, startTime){
 	return false;
 };
 
-ChallengeNode.prototype.showFeedbackDialog = function(feedback){
+/**
+ * Display the feedback in a popup dialog
+ * @param feedback the text to display in the popup dialog
+ * @param isCorrect whether the student answered correctly
+ */
+ChallengeNode.prototype.showFeedbackDialog = function(feedback, isCorrect){
 	var toVisitId = this.getContent().getContentJSON().assessmentItem.interaction.attempts.navigateTo;
 	var toVisitPosition = this.view.getProject().getPositionById(toVisitId);
 	var challengePosition = this.view.getProject().getPositionById(this.id);
@@ -99,29 +104,51 @@ ChallengeNode.prototype.showFeedbackDialog = function(feedback){
 	$('#feedbackDialog').html(feedback);
 	
 	var visited = false;
+	var buttonText = "";
+	
+	if(isCorrect) {
+		//the student answered correctly so the button will close the dialog
+		buttonText = "Close";
+	} else {
+		//the student answered incorrectly so the button will take them to the evidence step
+		buttonText = "Take me there!";
+	}
+	
 	var dialogButtons = [
 		{
-            text: "Take me there!",
+            text: buttonText,
             click: function() {
-            	if (!visited) {
-        			eventManager.fire("renderNode", toVisitPosition);
-        			$('.challenge-button > .ui-button-text').text('Back to Challenge Question');
-        			visited = true;
-        		} else {
-        			eventManager.fire("renderNode", challengePosition);
-        			$('.challenge-button > .ui-button-text').text('Take me there!');
-        			visited = false;
-        		}
+            	if(isCorrect) {
+            		//the student answered correctly so the button will close the feedback dialog
+            		$('#feedbackDialog').dialog('close')
+            	} else {
+            		/*
+            		 * the student answered incorrectly so the button will move the student between
+            		 * the evidence step and the challenge question step
+            		 */
+            		if (!visited) {
+            			eventManager.fire("renderNode", toVisitPosition);
+            			$('.challenge-button > .ui-button-text').text('Back to Challenge Question');
+            			visited = true;
+            		} else {
+            			eventManager.fire("renderNode", challengePosition);
+            			$('.challenge-button > .ui-button-text').text('Take me there!');
+            			visited = false;
+            		}            		
+            	}
             },
             'class': 'challenge-button'
         }
 	];
 
-	$('#feedbackDialog').dialog({buttons: dialogButtons});
-	$('#feedbackDialog').dialog('open');
-	
-	$(".ui-draggable").draggable( "option", "iframeFix", true );
-	$( ".ui-draggable" ).resizable( "option", "ghost", true );
+	if(toVisitId != null && toVisitId != "") {
+		//only display the popup dialog if a navigateTo step has been set
+		$('#feedbackDialog').dialog({buttons: dialogButtons});
+		$('#feedbackDialog').dialog('open');
+		
+		$(".ui-draggable").draggable( "option", "iframeFix", true );
+		$( ".ui-draggable" ).resizable( "option", "ghost", true );
+	}
 };
 
 NodeFactory.addNode('ChallengeNode', ChallengeNode);

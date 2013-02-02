@@ -402,6 +402,9 @@ MC.prototype.checkAnswer = function() {
 	var inputbuttons = radiobuttondiv.getElementsByTagName('input');
 	var mcState = (this.node.getType()=='MultipleChoiceNode') ? new MCSTATE() : (this.node.getType()=='BranchNode' ? new BRANCHSTATE() : new CHALLENGESTATE());
 	var isCorrect = true;
+	var showFeedbackDialog = false;
+	var choiceFeedback = "";
+	var resultMsg = "";
 	
 	if(!this.enforceMaxChoices(inputbuttons)){
 		return;
@@ -428,9 +431,11 @@ MC.prototype.checkAnswer = function() {
 					$('#feedback_' + choiceIdentifier).css('background-color', 'yellow');
 					
 					//show the feedback in popup style dialog as well
-					var resultMsg = this.getResultMessage(this.isCorrect(choice.identifier));
+					resultMsg = this.getResultMessage(this.isCorrect(choice.identifier));
 					if ((choice.feedback.length + resultMsg.length) != 0) {
-						this.node.showFeedbackDialog(choice.feedback + "<br\><br\>" + resultMsg);
+						//we will remember the feedback to display it in the popup dialog
+						choiceFeedback = choice.feedback;
+						showFeedbackDialog = true;
 					}
 				}
 				
@@ -513,6 +518,11 @@ MC.prototype.checkAnswer = function() {
 			 * the associated step in the menu yellow
 			 */
 			resultMessage = "<table style='background-color:yellow' align='center'><tr><td>" + resultMessage + "</td></tr></table>";
+		}
+		
+		if(showFeedbackDialog) {
+			//show the feedback in a popup dialog that will persist between steps
+			this.node.showFeedbackDialog(choiceFeedback + "<br\><br\>" + resultMsg, isCorrect);
 		}
 		
 		/* set feedback message */

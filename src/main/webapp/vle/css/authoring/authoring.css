@@ -25,6 +25,7 @@ p.warning {
 
 body#w4_author {
 	text-align:left;
+	overflow-y:hidden;
 }
 
 #centeredDiv {
@@ -298,9 +299,9 @@ button.mid, #centeredDiv button.mid, #centeredDiv input[type='button'].mid {
 	text-align:center;
 }
 
-#authorbuttons div {
-	display:inline-block;
+#authorbuttons > div {
 	margin:0 10px 0;
+	text-align:center;
 }
 
 #authorButtons #projectButtons {

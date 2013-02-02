@@ -705,7 +705,7 @@ View.prototype.initializeSnapshotInformationDialog = function(){
  * Initializes the constraint authoring dialog
  */
 View.prototype.initializeConstraintAuthoringDialog = function(){
-	$('#constraintAuthoringDialog').dialog({autoOpen:false,width:1000,resizable:false,draggable:false,position:'top',title:'Author Student Navigation Constraints', dialogClass:'constraintAuthoring',close:function(){eventManager.fire('closingConstraintDialog');},stack:false,modal:true});
+	$('#constraintAuthoringDialog').dialog({autoOpen:false,width:1000,resizable:false,draggable:false,title:'Author Student Navigation Constraints', dialogClass:'constraintAuthoring',close:function(){eventManager.fire('closingConstraintDialog');},stack:false,modal:true});
 };
 
 /**

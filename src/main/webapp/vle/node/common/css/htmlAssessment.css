@@ -51,6 +51,53 @@ h6 {
 	margin: 0px 0 12px 0;
 }*/
 
+input[type="submit"],input[type="button"] {
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background-color: #F9F9F9;
+	cursor: pointer;
+	padding: .25em .5em;
+	border: 1px solid #aaaaaa;
+	background: #eeeeee url(/vlewrapper/vle/images/ui/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x;
+	font-weight: normal;
+	color: #444444;
+	font-size: .85em;
+	font-weight:bold;
+	margin: .1em;
+	text-decoration: none !important;
+	cursor: pointer;
+	text-align: center;
+	zoom: 1;
+	overflow: visible;
+	line-height:1.2em;
+}
+
+input[type="submit"]:hover,input[type="button"]:hover {
+	-moz-box-shadow:0 0 1px #aaaaaa;
+	-webkit-box-shadow:0 0 1px #aaaaaa;
+	box-shadow:0 0 1px #aaaaaa;
+	border: 1px solid #888888;
+	background: #eeeeee url(/vlewrapper/vle/images/ui/ui-bg_highlight-hard_100_eeeeee_1x100.png) 50% 50% repeat-x;
+	color: #222222;
+}
+
+input[type="submit"]:active,input[type="button"]:active {
+	border: 1px solid #666666;
+	background: #555555 url(/vlewrapper/vle/images/ui/ui-bg_flat_50_555555_40x100.png) 50% 50% repeat-x;
+	color: #ffffff;
+}
+
+input[type="submit"][disabled="disabled"],input[type="button"][disabled="disabled"] {
+	color: #999999;
+	background: #F4F4F4;
+	border-color: #CCCCCC;
+	-moz-box-shadow:none;
+	-webkit-box-shadow:none;
+	box-shadow:none;
+	cursor:default;
+}
+
 /*    This is the middle toned 88.236 palette  */
 .color1 {color:#164CBA;}   /* vibrant blue */
 .color2 {color:#6883BA;}   /* mid blue */
@@ -191,8 +238,6 @@ h6 {
     text-align: center;
     text-decoration: none;
     text-transform: uppercase;
-    border:none;
-    background:transparent;
     font-weight:bold;
 }
 

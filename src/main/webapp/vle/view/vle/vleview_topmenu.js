@@ -711,7 +711,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
 				title = imSettings.addIdeaTerm;
 			}
 		}
-    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:'auto',resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:title,position:'center',
+    	$('<div id="addAnIdeaDiv" style="text-align:left"></div>').dialog({autoOpen:false,closeText:'',width:470,height:'auto',resizable:false,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:false,title:title,
     		buttons:[
     		         {text:this.getI18NString("cancel"), click:function() {$(this).dialog("close");}, class:'secondary'},
     		         {text:this.getI18NString("ok"), click:function() {eventManager.fire("addIdeaToBasket");}}
@@ -1045,7 +1045,7 @@ View.prototype.displayChatRoom = function() {
 		//it does not exist so we will create it
 		$('#w4_vle').append('<div id="chatRoomDiv"><div id="chatRoomTextDisplay" style="height:85%;overflow:auto"></div><textarea id="chatRoomTextEntry" style="width:95%;height:40px"></textarea></div>');
 		var title = this.getI18NString("chat_room");
-		$('#chatRoomDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},position:'center',title:title,open:this.chatRoomDivOpen,close:this.chatRoomDivClose});
+		$('#chatRoomDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:title,open:this.chatRoomDivOpen,close:this.chatRoomDivClose});
 		
 		$('#chatRoomTextEntry').keypress(function(event) {
 			if(event.which == 13) {
@@ -1104,7 +1104,7 @@ View.prototype.displayIdeaBasket = function() {
 			}
 		}
 		
-		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},position:'center',title:title,open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
+		$('#ideaBasketDiv').dialog({autoOpen:false,closeText:'',resizable:true,modal:true,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},title:title,open:this.ideaBasketDivOpen,close:this.ideaBasketDivClose,
 			// because idea basket content is delivered in an iframe
 			// need to show transparent div overlay when dragging/resizing dialog
 			// so that iframe does not catch mouse movements and interupt dragging/resizing

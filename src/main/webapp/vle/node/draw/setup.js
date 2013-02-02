@@ -50,7 +50,8 @@ var dependencies = [
 ];
 
 var css = [
-	scriptloader.jqueryUICss,
+	//scriptloader.jqueryUICss,
+	'vle/node/draw/svg-edit/jquery-ui/jquery-ui-1.8.17.custom.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jPicker-1.0.12.css',
 	'vle/node/draw/svg-edit/jgraduate/css/jgraduate.css',
 	'vle/node/draw/svg-edit/svg-editor.css',

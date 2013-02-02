@@ -340,7 +340,7 @@ ASSESSMENTLIST.prototype.render = function() {
 		 * so we will create a save draft button
 		 */
 		if ($("#saveDraftButton").size() == 0) {
-			$("#submitButtonDiv").before('<div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveDraftButton" onClick="javascript:save();" data-i18n="save_draft">SAVE DRAFT</a></div>&nbsp;');
+			$("#submitButtonDiv").before('<div class="buttonDiv"><input type="button" id="saveDraftButton" data-i18n="save_draft" value="SAVE DRAFT" onclick="javascript:save();" /></div>&nbsp;');
 			
 			/*
 			 * disable the save draft button initially. the save
