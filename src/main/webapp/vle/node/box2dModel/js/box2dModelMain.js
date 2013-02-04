@@ -24,6 +24,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 	       	"INCLUDE_BUILDER": true,
 	       	"INCLUDE_CYLINDER_BUILDER":false,
   			"INCLUDE_RECTPRISM_BUILDER":false,
+  			"INCLUDE_EMPTY": false,
 			"INCLUDE_BALANCE": false,
 			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
@@ -38,9 +39,11 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			"fill_spilloff_by_height": true,
 			"spilloff_volume_perc" : 0.50,
 			"total_objects_made" : 0,
+			"total_objects_made_in_world" : 0,
 			"materials_available":[],
 			"materials": {},
 			"premades_available":[],
+			"premades_in_world":[],
 			"premades":{},
 			"objectLibrary":[],
 			"MAX_OBJECTS_IN_LIBRARY":100,
@@ -166,10 +169,20 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				}
 			}
 			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;
-
 			// get maximum number of library objects, create computational inputs for each
 			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
 
+			// make premades in world
+			for (i = 0; i < GLOBAL_PARAMETERS.premades_in_world.length; i++){
+				var premade = GLOBAL_PARAMETERS.premades_in_world[i];
+				obj = typeof premade.premade != "undefined" ? premade.premade : "";
+				var px = typeof premade.x != "undefined" ? premade.x : 0;
+				var py = typeof premade.y != "undefined" ? premade.y : 0; 
+				var protation = typeof premade.rotation != "undefined" ? premade.rotation : 0; 
+				var pworld = typeof premade.world != "undefined" ? premade.world : "empty"; 
+				var ptype = typeof premade.type != "undefined" ? premade.type : "dynamic"; 
+				createObjectInWorld(GLOBAL_PARAMETERS.premades[obj], pworld, px, py, protation, ptype);
+			}
 
 			createjs.Ticker.setFPS(24);
 			createjs.Ticker.addListener(window);
@@ -185,8 +198,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			}
 		}
 
-		
-
+		/** This will create an object that will go in the library */
 		function createObject(savedObject, already_in_globals)
 		{
 			var compShape;
@@ -197,9 +209,9 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
 				} 
 			} else if (typeof savedObject.cylinderArrays != "undefined"){
-				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
 			} else if (typeof savedObject.rectPrismArrays != "undefined"){
-				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
 			}
 			
 			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;
@@ -208,6 +220,28 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				if (typeof already_in_globals === "undefined" || !already_in_globals)
 					GLOBAL_PARAMETERS.objectLibrary.push(savedObject);	
 				eventManager.fire("make-model", [savedObject]);
+			} else {} // too mancy shapes already			
+		}
+
+		/** This will create an object that will go directly in the world. */
+		function createObjectInWorld(savedObject, world, x, y, rotation, type)
+		{
+			var compShape;
+			if (typeof savedObject.blockArray3d != "undefined"){
+				if (savedObject.is_container){
+					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				} else{
+					compShape = new BlockCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
+				} 
+			} else if (typeof savedObject.cylinderArrays != "undefined"){
+				compShape = new CylinderCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5,  savedObject);
+			} else if (typeof savedObject.rectPrismArrays != "undefined"){
+				compShape = new RectPrismCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, 5, savedObject);
+			}
+			
+			savedObject.id = "w" + GLOBAL_PARAMETERS.total_objects_made_in_world;
+			if (tester.createObjectInWorld(compShape, world, x, y, rotation, type)){
+				GLOBAL_PARAMETERS.total_objects_made_in_world++;
 			} else {} // too mancy shapes already			
 		}
 

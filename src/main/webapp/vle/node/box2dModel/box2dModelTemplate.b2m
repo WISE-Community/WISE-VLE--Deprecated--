@@ -8,8 +8,9 @@
 	"STAGE_WIDTH" : 810,
 	"STAGE_HEIGHT" : 730,
 	"INCLUDE_BUILDER": false,
-	"INCLUDE_CYLINDER_BUILDER":true
-	"INCLUDE_RECTPRISM_BUILDER":false
+	"INCLUDE_CYLINDER_BUILDER":true,
+	"INCLUDE_RECTPRISM_BUILDER":false,
+	"INCLUDE_EMPTY": false,
 	"INCLUDE_BALANCE": false,
 	"INCLUDE_SCALE": true,
 	"INCLUDE_BEAKER": true,
@@ -28,6 +29,7 @@
 	"materials_available" : ["DWood", "Metal", "Plastic"],
 	"liquid_available":"Water",
 	"premades_available": [],
+	"premades_in_world":[],
 	"feedbackEvents": [],
 	"materials" :
 	{
