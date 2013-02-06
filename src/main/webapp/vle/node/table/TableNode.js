@@ -201,6 +201,9 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 		childDivIdPrefix += '_';
 	}
 	
+	//div to display the title
+	var tableTitleDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTitleDiv_' + stepWorkId});
+	
 	//div to display the table
 	var tableTableDataDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTableDataDiv_' + stepWorkId});
 	
@@ -227,6 +230,7 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 	//div to display the student response
 	var tableResponseDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableResponseDiv_' + stepWorkId});
 	
+	displayStudentWorkDiv.append(tableTitleDiv);
 	displayStudentWorkDiv.append(tableTableDataDiv);
 	displayStudentWorkDiv.append(newLineDiv);
 	
@@ -260,6 +264,11 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 
 	displayStudentWorkDiv.append(tableResponseDiv);
 
+	if(tableState.tableOptions != null && tableState.tableOptions.title != null) {
+		//set the title
+		$(tableTitleDiv).html(tableState.tableOptions.title);		
+	}
+	
 	//add the table
 	$(tableTableDataDiv).html(tableState.getTableHtml());
 	

@@ -67,6 +67,18 @@ View.prototype.tableDispatcher = function(type,args,obj){
 		obj.TableNode.tableUpdateGraphYMin();
 	} else if(type == 'tableUpdateGraphYMax') {
 		obj.TableNode.tableUpdateGraphYMax();
+	} else if(type == 'tableUpdateEnableDropDownTitleCheckBoxClicked') {
+		obj.TableNode.tableUpdateEnableDropDownTitleCheckBoxClicked();
+	} else if(type == 'tableUpdateAddDropDownTitleButtonClicked') {
+		obj.TableNode.tableUpdateAddDropDownTitleButtonClicked();
+	} else if(type == 'tableUpdateDropDownTitle') {
+		obj.TableNode.tableUpdateDropDownTitle(args[0]);
+	} else if(type == 'tableDeleteDropDownTitle') {
+		obj.TableNode.tableDeleteDropDownTitle(args[0]);
+	} else if(type == 'tableUpdateAllowStudentToAddRowsCheckBoxClicked') {
+		obj.TableNode.tableUpdateAllowStudentToAddRowsCheckBoxClicked();
+	} else if(type == 'tableUpdateAllowStudentToAddColumnsCheckBoxClicked') {
+		obj.TableNode.tableUpdateAllowStudentToAddColumnsCheckBoxClicked();
 	}
 };
 
@@ -102,7 +114,13 @@ var events = [
 	'tableUpdateGraphXMin',
 	'tableUpdateGraphXMax',
 	'tableUpdateGraphYMin',
-	'tableUpdateGraphYMax'
+	'tableUpdateGraphYMax',
+	'tableUpdateEnableDropDownTitleCheckBoxClicked',
+	'tableUpdateAddDropDownTitleButtonClicked',
+	'tableUpdateDropDownTitle',
+	'tableDeleteDropDownTitle',
+	'tableUpdateAllowStudentToAddRowsCheckBoxClicked',
+	'tableUpdateAllowStudentToAddColumnsCheckBoxClicked'
 ];
 
 /*
