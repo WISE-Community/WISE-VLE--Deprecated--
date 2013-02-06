@@ -642,8 +642,15 @@
 				this.blockArray2d[i][j] = null;
 			}
 		}
-		for (i = 0; i < this.width_units; i++) this.blockArray2d[i] = [];
-		this.blockArray2d = [];
+		this.blockArray2d = [];		
+		for (i = 0; i < this.width_units; i++)
+		{
+			this.blockArray2d[i] = [];
+			for (j = 0; j < this.height_units; j++)
+			{
+				this.blockArray2d[i][j] = null;
+			}
+		}
 	}
 
 	/** When a block is moved around, added or deleted we should be checking whether the spatial relations between blocks have been
