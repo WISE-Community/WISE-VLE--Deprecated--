@@ -701,11 +701,11 @@
 			if (contact.GetFixtureA().m_body == this.justAddedActor.body)
 			{	
 				contact.GetFixtureA().m_body.SetLinearDamping(1);
-				contact.GetFixtureA().m_body.SetFixedRotation(true);
+				//contact.GetFixtureA().m_body.SetFixedRotation(true);
 			} else if (contact.GetFixtureB().m_body == this.justAddedActor.body)
 			{
 				contact.GetFixtureB().m_body.SetLinearDamping(1);
-				contact.GetFixtureA().m_body.SetFixedRotation(true);
+				//contact.GetFixtureA().m_body.SetFixedRotation(true);
 			} 
 			//this.justAddedActor = null;
 		}

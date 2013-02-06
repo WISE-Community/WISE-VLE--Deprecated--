@@ -5,9 +5,9 @@
 	*   depthArray: an array of binary values indicating if a cube is in a space, back-to-front. example [1, 0, 0, 0, 1]
 	*	view_topAngle, view_sideAngle: the angle which the object is being viewed (radians).  0, 0, is front and center
 	*/
-	var CylinderCompShape = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
+	var CylinderCompShape = function(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject)
 	{
-		this.initialize(unit_width_px, unit_height_px, unit_depth_px, savedObject);
+		this.initialize(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject);
 	} 
 	var p = CylinderCompShape.prototype = new createjs.Container();
 	
@@ -16,7 +16,7 @@
 	p.Container_initialize = p.initialize;
 	p.Container_tick = p._tick;
 
-	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
+	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject)
 	{
 		this.Container_initialize();
 		this.mouseEnabled = true;
@@ -37,6 +37,7 @@
 		this.diameter_units = Math.max.apply(null, this.diameters);
 		this.width_units = this.diameter_units;
 		this.depth_units = this.diameter_units;
+		this.max_depth_units = Math.max(this.depth_units, max_depth_units);
 		this.height_units = this.heights.reduce(function(a, b) { return a + b; }, 0);  
 		this.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle;
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
@@ -178,7 +179,7 @@
 				var height_to = this.heights.slice(0, row).reduce(function(a, b) { return a + b; }, 0);  
 				
 				ftl_x = (this.diameter_units - diameter)/2 * this.unit_width_px;
-				ftl_y = height_to * this.unit_height_px - (this.diameter_units - diameter)/2 * this.unit_depth_px * Math.sin(view_topAngle);
+				ftl_y = height_to * this.unit_height_px - (this.max_depth_units - diameter)/2 * this.unit_depth_px * Math.sin(view_topAngle);
 				fbl_x = ftl_x;
 				fbl_y = ftl_y + height * this.unit_height_px;
 				ftr_x = (this.diameter_units - (this.diameter_units - diameter)/2) * this.unit_width_px;

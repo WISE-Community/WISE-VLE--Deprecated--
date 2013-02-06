@@ -92,10 +92,10 @@
 
 
 		<div id="submitButtonsNote">
-		   <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="saveButton" onClick="eventManager.fire('saveNote')" >Save Changes</a></div>
-		   <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a id="closeButton" onClick="eventManager.fire('saveAndCloseNote')" >Save & Close</a></div>
-		   <div class="buttonDiv ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" id="saveAndLockButtonDiv" style="display:none" disabled="true">
-		   		<a id="saveAndLockButton" onClick="eventManager.fire('saveAndLock')" >Save & Lock</a>
+		   <div class="buttonDiv"><input type="button" id="saveButton" data-i18n="save_changes" value="SAVE CHANGES" onclick="eventManager.fire('saveNote');" /></div>
+		   <div class="buttonDiv"><input type="button" id="closeButton" value="SAVE & CLOSE" onclick="eventManager.fire('saveAndCloseNote');" /></div>
+		   <div class="buttonDiv" id="saveAndLockButtonDiv" style="display:none" disabled="true">
+		   		<input type="button" id="saveAndLockButton" value="SAVE & LOCK" onclick="eventManager.fire('saveAndLock');" />
 		   </div>
 		</div>
 		

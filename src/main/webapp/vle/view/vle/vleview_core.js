@@ -917,7 +917,7 @@ View.prototype.importWork = function(fromNodeId,toNodeId) {
 View.prototype.setDialogEvents = function() {
 	// create iframe shim under dialog when opened
 	// Inspired by Dave Willkomm's Shim jQuery plug-in: http://sourceforge.net/projects/jqueryshim/ (copyright 2010, MIT License: http://www.opensource.org/licenses/mit-license.php)
-	/*$('.ui-dialog').live("dialogopen", function(event, ui) {
+	/*$('.ui-dialog').on("dialogopen", function(event, ui) {
 		var element = $(this),
 			offset = element.offset(),
 			zIndex = element.css('z-index') - 2;
@@ -939,24 +939,24 @@ View.prototype.setDialogEvents = function() {
 	});
 	
 	// remove iframe shim under dialog when closed
-	$('.ui-dialog').live("dialogclose", function(event, ui) {
+	$('.ui-dialog').on("dialogclose", function(event, ui) {
 		$(this).prev("iframe.shim").remove();
 	});*/
 	
 	// show transparent overlay div under dialog when drag/resize is initiated
-	$('.ui-dialog').live("dialogresizestart dialogdragstart", function(event, ui) {
+	$('.ui-dialog').on("dialogresizestart dialogdragstart", function(event, ui) {
 		$('body').append('<div id="vleOverlay></div>');
 		var zIndex = $(this).css('z-index') - 1;
 		$('#vleOverlay').css('z-index',zIndex);
 	});
 	
 	// adjust iframe shim dimensions and position when dragging/resizing dialog
-	/*$('.ui-dialog').live("dialogresize dialogdrag", function(event, ui) {
+	/*$('.ui-dialog').on("dialogresize dialogdrag", function(event, ui) {
 		
 	});*/
 	
 	// hide transparent overlay div under dialog when drag/resize is initiated
-	$('.ui-dialog').live("dialogresizestop dialogdragstop", function(event, ui) {
+	$('.ui-dialog').on("dialogresizestop dialogdragstop", function(event, ui) {
 		$('#vleOverlay').remove();
 	});
 };
