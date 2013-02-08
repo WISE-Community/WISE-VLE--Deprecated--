@@ -649,12 +649,18 @@
      */
      p.parseFunctionString = function (str){
          var returnObj = {};
-         var start = str.indexOf("(");
+         var start = -1, length = 0;
+         var curIndex = Number.MAX_VALUE;
+         if (str.indexOf("AND(")>-1 && str.indexOf("AND(") < curIndex){start = str.indexOf("AND("); length = 3; curIndex = start;}
+         if (str.indexOf("SEQ(")>-1 && str.indexOf("SEQ(") < curIndex){start = str.indexOf("SEQ("); length = 3; curIndex = start;}
+         if (str.indexOf("OR(")>-1 && str.indexOf("OR(") < curIndex){start = str.indexOf("OR("); length = 3; curIndex = start;}
+         if (str.indexOf("NOT(")>-1 && str.indexOf("NOT(") < curIndex){start = str.indexOf("NOT("); length = 3; curIndex = start;}
+          
          var finish = str.lastIndexOf(")");
          if (start > -1 && finish > -1 && start < finish){
-             var fname = str.substr(0,start).replace(/^\s*/,'').replace(/\s*$/,'');
+             var fname = str.substr(start,length).replace(/^\s*/,'').replace(/\s*$/,'');
              returnObj.functionName = fname;
-             returnObj.args = this.parseArguments(str.substring(start+1, finish));
+             returnObj.args = this.parseArguments(str.substring(start+length+1, finish));
             return returnObj;
             // if (print) console.log(sstr);
          } else {

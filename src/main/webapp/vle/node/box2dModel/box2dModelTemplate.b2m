@@ -8,8 +8,9 @@
 	"STAGE_WIDTH" : 810,
 	"STAGE_HEIGHT" : 730,
 	"INCLUDE_BUILDER": false,
-	"INCLUDE_CYLINDER_BUILDER":true
-	"INCLUDE_RECTPRISM_BUILDER":false
+	"INCLUDE_CYLINDER_BUILDER":true,
+	"INCLUDE_RECTPRISM_BUILDER":false,
+	"INCLUDE_EMPTY": false,
 	"INCLUDE_BALANCE": false,
 	"INCLUDE_SCALE": true,
 	"INCLUDE_BEAKER": true,
@@ -28,6 +29,7 @@
 	"materials_available" : ["DWood", "Metal", "Plastic"],
 	"liquid_available":"Water",
 	"premades_available": [],
+	"premades_in_world":[]
 	"feedbackEvents": [],
 	"materials" :
 	{
@@ -166,6 +168,21 @@
 	    	"block_max":[10, 10, 10, 10],
 	    	"block_count":[0, 0, 0, 0],
 	    	"is_container":false					
+	    }, 
+	    "Brass":
+	    {
+	    	"display_name":"Brass",
+	    	"density":8.4,
+	    	"fill_colors":["#FDECAE", "#D9CC90", "#EFDEA2", "#EEC094", "#D7C98C", "#F3E6AA", "#EBDC9E"],
+	    	"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"fill_colors_shadow":["#BBBC8E", "#989C60", "#BFAB82", "#9E8054", "#97995C", "#B3B66A", "#ABAC6E"],
+	    	"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+	    	"stroke_colors":["#8F7143", "#8F7143"],
+	    	"stroke_ratios":[0, 1],
+	    	"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+	    	"block_max":[10, 10, 10, 10],
+	    	"block_count":[0, 0, 0, 0],
+	    	"is_container":false					
 	    },  
 	    "Aluminium":
 		{
@@ -258,6 +275,51 @@
 			"block_count":[0, 0, 0],
 			"is_container":true,
 			"container_thickness":1				
+		},
+		"Oak":
+		{
+			"display_name":"Oak",
+			"density":0.75,
+			"fill_colors":["#7D4613", "#8D5925", "#743B18", "#8D5925", "#743B18", "#7C4412", "#743B18"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#4D1603", "#5D2905", "#440B08", "#5D2905", "#440B08", "#4C0402", "#440B08"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#3B0400", "#3B0400"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false		
+		},
+		"Pine":
+		{
+			"display_name":"Pine",
+			"density":0.5,
+			"fill_colors":["#7D4613", "#8D5925", "#743B18", "#8D5925", "#743B18", "#7C4412", "#743B18"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#4D1603", "#5D2905", "#440B08", "#5D2905", "#440B08", "#4C0402", "#440B08"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#3B0400", "#3B0400"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false		
+		},
+		"Balsa":
+		{
+			"display_name":"Balsa",
+			"density":0.16,
+			"fill_colors":["#FBEFD0", "#FADBA2", "#FAE3B0", "#E8CFA1", "#F0D3A1", "#FBEED2", "#F9E2BA"],
+			"fill_ratios":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"fill_colors_shadow":["#CBBFA0", "#CAAB72", "#CAB380", "#B89F71", "#C0A371", "#CBBEA2", "#C9B28A"],
+			"fill_ratios_shadow":[0, 0.236, 0.4607, 0.6292, 0.7697, 0.8708, 0.9944],
+			"stroke_colors":["#AB854C", "#AB854C"],
+			"stroke_ratios":[0, 1],
+			"depth_arrays":[[1, 1, 1, 1, 1], [0, 1, 1, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]],
+			"block_max":[10, 10, 10, 10],
+			"block_count":[0, 0, 0, 0],
+			"is_container":false				
 		}
 	},
 	"liquids" : 

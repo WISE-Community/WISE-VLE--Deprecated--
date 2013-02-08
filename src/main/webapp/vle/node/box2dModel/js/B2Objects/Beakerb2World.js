@@ -832,9 +832,9 @@
 					if (!body.soaked)
 					{
 						// change density of each fixture to include mass of liquid
-						for (f = body.GetFixtureList(); f; f = f.GetNext())
+						for (var f = body.GetFixtureList(); f; f = f.GetNext())
 						{
-							f.SetDensity(f.materialDensity * f.materialSpaces + (f.interiorSpaces) * this.liquid.density);
+							f.SetDensity((f.materialDensity * f.materialSpaces + (f.interiorSpaces) * this.liquid.density)/f.area);
 						}
 						body.soaked = true; // A permanent flag if the object is ever fully submerged
 					}

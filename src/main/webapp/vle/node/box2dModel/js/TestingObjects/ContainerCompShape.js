@@ -20,6 +20,9 @@
 	{
 		this.Container_initialize();
 		this.mouseEnabled = true;
+		this.is_blockComp = true;
+		this.is_cylinder = false
+		this.is_rectPrism = false;
 		this.placed = false;
 		this.liquid_unit_width_px = unit_width_px;
 		this.liquid_unit_height_px = unit_height_px;
