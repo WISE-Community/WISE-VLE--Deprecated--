@@ -1764,6 +1764,54 @@ Node.prototype.getFeedback = function() {
 	return null;
 };
 
+/**
+ * Get the status given the node state. This function should be
+ * overriden by child classes.
+ * @param nodeState the student work to get the status for
+ * @return the status for the node state
+ */
+Node.prototype.getStatus = function(nodeState) {
+	return null;
+};
+
+/**
+ * Get the step icon for the given status. This function should be
+ * overriden by child classes.
+ * @param status the status to get the step icon for
+ * @return the step icon for the given status
+ */
+Node.prototype.getStepIconForStatus = function(status) {
+	return null;
+};
+
+/**
+ * Get the status step icon from the content.
+ * @param status the status to get the step icon for
+ * @return the step icon for the given status from the authored
+ * step content
+ */
+Node.prototype.getStepIconForStatusFromContent = function(status) {
+	var stepIcon = null;
+	
+	if(status != null) {
+		//get the step content
+		var content = this.content.getContentJSON();
+		
+		if(content != null) {
+			//get the statusStepIcons object if it is present in this step
+			if(content.statusStepIcons != null) {
+				//get the entry for the status if it is present in this step
+				if(content.statusStepIcons[status] != null) {
+					//get the step icon path
+					stepIcon = content.statusStepIcons[status];
+				}
+			}
+		}		
+	}
+	
+	return stepIcon;
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/node/Node.js');

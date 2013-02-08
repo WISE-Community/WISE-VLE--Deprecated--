@@ -700,7 +700,7 @@ var componentloader = function(em, sl){
 				'ifrmLoaded':[null,null], 'processLoadViewStateResponseComplete':[null,null], 'saveNote':[null,null],
 				'saveAndLockNote':[null,null], 'noteHandleEditorKeyPress':[null,null], 'noteShowStarter':[null,null],
 				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null],
-				'assetUploaded':[null,null],'chatRoomTextEntrySubmitted':[null, null]
+				'assetUploaded':[null,null],'chatRoomTextEntrySubmitted':[null, null], 'setStepIcon':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -741,6 +741,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('scriptsLoaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
+						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);

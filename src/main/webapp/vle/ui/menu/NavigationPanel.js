@@ -391,7 +391,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 				nodeClass = this.view.nodeClasses[node.type][0].nodeClass;
 			}
 			var nodeIconPath = this.view.nodeIconPaths[node.type];
-			icon = '<img src=\'' + nodeIconPath + nodeClass + '16.png\'/> ';
+			icon = '<img id="stepIcon_' + node.id + '" src=\'' + nodeIconPath + nodeClass + '16.png\'/> ';
 		};
 		
 		//display the step

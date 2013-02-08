@@ -128,6 +128,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.assetCopiedForReference(args[0], args[1]);
 	} else if(type=="chatRoomTextEntrySubmitted") {
 		obj.sendChat(args[0]);
+	} else if(type=="setStepIcon") {
+		obj.setStepIcon(args[0], args[1]);
 	}
 };
 
@@ -986,6 +988,63 @@ View.prototype.processStudentWork = function() {
 			if(latestWork != null && latestWork != "") {
 				//tell the node to process the student work
 				node.processStudentWork(latestWork);
+			}
+		}
+	}
+};
+
+/**
+ * Set the step icon in that navigation
+ * @param nodeId the node id
+ * @param stepIconPath the path to the new icon
+ */
+View.prototype.setStepIcon = function(nodeId, stepIconPath) {
+	
+	if(nodeId != null && nodeId != '' && stepIconPath != null && stepIconPath != '') {
+		//the node id and step icon path were provided so we will use them
+		
+		/*
+		 * replace all the '.' with '\\.' so that the jquery id selector works
+		 * if we didn't do this, it would treat the '.' as a class selector and
+		 * would not be able to find the element by its id because almost all
+		 * of our ids contain a '.'
+		 * e.g. node_1.ht
+		 */
+		nodeId = nodeId.replace(/\./g, '\\.');
+		
+		//set the img src to the step icon path
+		$('#stepIcon_' + nodeId).attr('src', stepIconPath);
+	} else {
+		//get the current node
+		var currentNode = this.getCurrentNode();
+		
+		if(currentNode != null) {
+			//get the node id
+			nodeId = currentNode.id;
+			
+			//get the latest work for the step
+			var latestWork = this.state.getLatestWorkByNodeId(nodeId);
+			
+			//get the status for the latest work
+			var status = currentNode.getStatus(latestWork);
+			
+			if(status != null) {
+				//get the step icon for the status
+				var stepIconPath = currentNode.getStepIconForStatus(status);
+				
+				if(stepIconPath != null && stepIconPath != '') {
+					/*
+					 * replace all the '.' with '\\.' so that the jquery id selector works
+					 * if we didn't do this, it would treat the '.' as a class selector and
+					 * would not be able to find the element by its id because almost all
+					 * of our ids contain a '.'
+					 * e.g. node_1.ht
+					 */
+					nodeId = nodeId.replace(/\./g, '\\.');
+					
+					//set the img src to the step icon path
+					$('#stepIcon_' + nodeId).attr('src', stepIconPath);					
+				}
 			}
 		}
 	}

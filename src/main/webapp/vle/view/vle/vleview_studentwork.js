@@ -7,6 +7,7 @@
 View.prototype.pushStudentWork = function(nodeState){
 	this.state.getCurrentNodeVisit().nodeStates.push(nodeState);
 	this.updateActiveTagMapConstraints();
+	this.setStepIcon();
 };
 
 /**
