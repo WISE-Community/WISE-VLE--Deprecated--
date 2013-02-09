@@ -45,11 +45,13 @@
 		// create text
 		this.text = new createjs.Text(this.textString, this.font, this.textColor);
 		this.text.textBaseline = "top";
+		if (this.width_px > 0){ this.text.lineWidth = this.width_px;}
+		else {this.width_px = this.text.getMeasuredWidth(); this.text.lineWidth = this.width_px;}
 		this.text.mouseEnabled = false;
 		this.addChild(this.text);
 
 		// take max of text width and height and given width and height
-		this.width_px = Math.max(this.text.getMeasuredWidth(), this.width_px);
+		//this.width_px = Math.max(this.text.getMeasuredWidth(), this.width_px);
 		this.height_px = Math.max(this.text.getMeasuredLineHeight(), this.height_px);
 		this.original_width_px = this.width_px;
 		this.original_height_px = this.height_px;

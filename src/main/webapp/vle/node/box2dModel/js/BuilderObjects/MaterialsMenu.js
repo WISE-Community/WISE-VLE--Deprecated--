@@ -37,7 +37,7 @@
 			if (i == 0) this.default_material_name = key;
 			this.display_names[key] = GLOBAL_PARAMETERS.materials[key].display_name;
 			this.rev_materialNameDisplayMapping[this.display_names[key]] = key;
-			var tab = new TextContainer(this.display_names[key], "20px Arial", this.TEXT_COLOR, this.width_px, this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT, this.UNSELECTED_COLOR, this.UNSELECTED_COLOR, 0, "center", "center");
+			var tab = new TextContainer(this.display_names[key], "20px Arial", this.TEXT_COLOR, this.width_px, this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT, this.UNSELECTED_COLOR, this.SELECTED_COLOR, 2, "center", "center");
 			tab.x = 0;
 			tab.y = i * (this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT) + (this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT-tab.height_px)/2;
 			tab.onClick = this.clickHandler.bind(this);
@@ -52,7 +52,7 @@
 		this.addChild(this.projectedTextOutlineShape);
 		
 
-		this.projectedTextOutlineGraphics.setStrokeStyle(1);
+		this.projectedTextOutlineGraphics.setStrokeStyle(2);
 		this.projectedTextOutlineGraphics.beginStroke(this.TEXT_COLOR);
 		this.projectedTextOutlineGraphics.drawRect(0, 0, this.width_px, this.height_px/GLOBAL_PARAMETERS.MATERIAL_COUNT);
 			

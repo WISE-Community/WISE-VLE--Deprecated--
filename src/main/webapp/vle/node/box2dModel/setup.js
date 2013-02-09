@@ -34,8 +34,8 @@ var studentVLEScripts = [
      * 'vle/node/quiz/quizState.js'
 	 */
 	'vle/node/box2dModel/box2dModelState.js',
-	'vle/jquery/js/jquery-1.9.0.min.js',
-	'vle/jquery/js/jquery-ui-1.10.0.custom.min.js'
+	scriptloader.jquerySrc,
+	scriptloader.jqueryUISrc
 ];
 
 var authorScripts = [
@@ -129,7 +129,9 @@ componentloader.addNodeClasses('Box2dModelNode', nodeClasses);
  * 'vle/node/quiz/quiz.css'
  */
 var css = [
-       	"vle/node/box2dModel/box2dModel.css"
+       	"vle/node/box2dModel/box2dModel.css",
+       	"vle/node/box2dModel/libs/jquery-ui-1.9.0.custom.min.css"
+       	//scriptloader.jqueryUICss
 ];
 
 /*

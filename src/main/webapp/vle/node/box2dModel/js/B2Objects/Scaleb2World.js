@@ -47,13 +47,13 @@
 		this.shape = new createjs.Shape(g);
 		this.addChild(this.shape);
 
-		g.beginFill("rgba(220, 220, 255, 1.0)");
-		//g.drawRect(-this.width_px/2, -this.height_px/2, this.width_px, this.height_px);
+		//g.beginFill("rgba(240,220,230,1.0)");
+		g.beginLinearGradientFill(["rgba(250,250,250,1.0)","rgba(230,210,220,1.0)"],[0,1.0],0,0,this.width_px,this.height_px);
 		g.drawRect(0, 0, this.width_px, this.height_px);
 		g.endFill();
 		//draw floor
 		//g.beginFill("rgba(200, 200, 150, 1.0)");
-		g.beginFill("rgba(80, 80, 80, 1.0)");
+		g.beginLinearGradientFill(["rgba(120,120,120,1.0)","rgba(80,80,80,1.0)"],[0,1.0],0,this.height_px-100,this.width_px,this.height_px);
 		g.drawRect(0, this.height_px-100, this.width_px, 100);
 		g.endFill();
 
