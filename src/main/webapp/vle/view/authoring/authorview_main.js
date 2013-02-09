@@ -1371,9 +1371,6 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			$('.add', target).hide();
 		}
 		
-		// add new item to jquery-ui sortable
-		target.sortable('refresh');
-		
 		// bind delete link click event
 		$('.delete',newInput).click(function(){
 			if($('.option', target).length == 2){
