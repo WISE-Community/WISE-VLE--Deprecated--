@@ -1232,7 +1232,7 @@ View.prototype.editProjectMetadata = function(){
 			if ('ideaManagerSettings' in tools){
 				imSettings = tools.ideaManagerSettings;
 				if('version' in tools.ideaManagerSettings){
-					imVersion = tools.ideaManagerSettings;
+					imVersion = tools.ideaManagerSettings.version;
 				}
 			}
 		}
