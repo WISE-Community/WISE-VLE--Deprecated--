@@ -14,6 +14,7 @@
 	p.TITLE_COLOR = "rgba(40,40,40,1.0";
 	p.BORDER_WIDTH = 10;
 	p.TITLE_HEIGHT = 40;
+	p.EXPORT_HEIGHT = 20;
 	
 	p.initialize = function(width_px, height_px)
 	{
@@ -29,31 +30,34 @@
 		this.addChild(this.shape);
 
 		// the list of material names
-		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.BORDER_WIDTH-this.TITLE_HEIGHT);
+		this.materialsMenu = new MaterialsMenu(this.width_px/8, this.height_px-2*this.BORDER_WIDTH-this.TITLE_HEIGHT- this.EXPORT_HEIGHT-55);
 		this.addChild(this.materialsMenu);
-		this.materialsMenu.x = this.BORDER_WIDTH;
+		this.materialsMenu.x = this.BORDER_WIDTH+1;
 		this.materialsMenu.y = this.BORDER_WIDTH+this.TITLE_HEIGHT;
 
 		
 		this.vv = new BlockCompViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
 		this.addChild(this.vv);
-		this.vv.x = this.width_px*3/4 - 30;
-		this.vv.y = (this.height_px-this.TITLE_HEIGHT) / 2 + this.TITLE_HEIGHT;
+		this.vv.x = this.width_px - 150;
+		this.vv.y = this.TITLE_HEIGHT + 100;
 		
 		this.dragging_object = null;
 
-		this.block_space_width = this.width_px/2 - this.materialsMenu.x - this.materialsMenu.width_px;
+		this.block_space_width = GLOBAL_PARAMETERS.SCALE * 5 * 4;
 		this.block_space_height = this.height_px; 
 
+		var export_offsetL = 250;
+		var export_offsetR = 50;
 		this.g.beginFill("rgba(225,225,255,1.0)");
-		this.g.drawRect(0, 0, this.width_px, this.height_px);
+		this.g.drawRect(0, 0, this.width_px, this.height_px- this.EXPORT_HEIGHT);
+		this.g.drawRect(this.width_px-export_offsetL-this.BORDER_WIDTH, this.height_px- this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.BORDER_WIDTH, this.EXPORT_HEIGHT);
 		this.g.endFill();
 		// draw border
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,this.BORDER_WIDTH,0);
 		this.g.moveTo(0,0);
 		this.g.lineTo(this.BORDER_WIDTH,this.BORDER_WIDTH);
-		this.g.lineTo(this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH);
-		this.g.lineTo(0, this.height_px);
+		this.g.lineTo(this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(0, this.height_px- this.EXPORT_HEIGHT);
 		this.g.lineTo(0,0);
 		this.g.endFill();
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
@@ -66,29 +70,41 @@
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px,0,this.width_px-this.BORDER_WIDTH,0);
 		this.g.moveTo(this.width_px,0);
 		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH);
-		this.g.lineTo(this.width_px, this.height_px);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px - this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px, this.height_px- this.EXPORT_HEIGHT);
 		this.g.lineTo(this.width_px,0);
 		this.g.endFill();
-		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px,0,this.height_px-this.BORDER_WIDTH);
-		this.g.moveTo(0,this.height_px);
-		this.g.lineTo(this.width_px,this.height_px);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH);
-		this.g.lineTo(this.BORDER_WIDTH, this.height_px-this.BORDER_WIDTH);
-		this.g.lineTo(0,this.height_px);
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px- this.EXPORT_HEIGHT,0,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.moveTo(0,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH-export_offsetL,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.BORDER_WIDTH, this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(0,this.height_px- this.EXPORT_HEIGHT);
 		this.g.endFill();
-						
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetL-this.BORDER_WIDTH,0,this.width_px-export_offsetL,0);
+		this.g.moveTo(this.width_px-export_offsetL-this.BORDER_WIDTH,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.height_px-this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,this.height_px);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,this.height_px- this.EXPORT_HEIGHT);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,this.height_px- this.EXPORT_HEIGHT,0,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.moveTo(this.width_px-export_offsetR,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px,this.height_px- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH-export_offsetR, this.height_px-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,this.height_px- this.EXPORT_HEIGHT);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetR-this.BORDER_WIDTH,0,this.width_px-export_offsetR,0);
+		this.g.moveTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,this.height_px - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,this.height_px);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.endFill();
+		
 
-		// draw something under the volume viewer
-		/*
-		this.g.setStrokeStyle(1);
-		this.g.beginStroke("rgba(180,180,180,1.0)");
-		this.g.beginFill("rgba(220,220,220,1.0)");
-		this.g.drawRect(this.width_px / 2, GLOBAL_PARAMETERS.PADDING, this.width_px / 2 - GLOBAL_PARAMETERS.PADDING, this.height_px - 2 * GLOBAL_PARAMETERS.PADDING);
-		this.g.endFill();
-		this.g.endStroke();
-	*/
-		// titles
+			// titles
 		var ltitle  = new createjs.Text("Materials", "20px Arial", this.TITLE_COLOR);
 		this.addChild(ltitle);
 		ltitle.x = 20;
@@ -99,7 +115,6 @@
 		mtitle.x = (this.width_px/2 - 60)/2;
 		mtitle.y = this.BORDER_WIDTH + GLOBAL_PARAMETERS.PADDING;
 
-
 		var rtitle  = new TextContainer("Build your model", "20px Arial", this.TITLE_COLOR);
 		this.addChild(rtitle);
 		rtitle.x = this.width_px/2 + (this.width_px/2 - 60)/2;
@@ -107,13 +122,16 @@
 
 		// a set of text to display the number of blocks that can be used
 		this.blockTexts = [];
-		var current_material_block_count = GLOBAL_PARAMETERS.materials[this.materialsMenu.current_material_name].block_max.length;
+		var current_material_block_count = GLOBAL_PARAMETERS.materials[this.materialsMenu.current_material_name].block_max.length;	
+		var text = new TextContainer("Blocks remaining:", "20px Arial", this.BACKGROUND_COLOR, this.materialsMenu.width_px, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "left", "top", 4, 0);
+		text.x = this.materialsMenu.x;
+		text.y = this.height_px - text.height_px - this.BORDER_WIDTH- this.EXPORT_HEIGHT;
+		this.addChild(text);
 		for (i = 0; i < current_material_block_count; i++)
 		{
-			var text = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width / current_material_block_count, GLOBAL_PARAMETERS.SCALE, this.TEXT_COLOR, this.TEXT_COLOR, 0, "right", "center", -4, 0);
+			text = new TextContainer("0", "20px Arial", this.BACKGROUND_COLOR, this.block_space_width / current_material_block_count, 50, this.TEXT_COLOR, this.TEXT_COLOR, 0, "center", "center", -4, 0);
 			text.x = this.materialsMenu.x + this.materialsMenu.width_px + i * this.block_space_width / current_material_block_count;
-			//text.y = GLOBAL_PARAMETERS.PADDING+ this.TITLE_HEIGHT;
-			text.y = this.height_px - text.height_px - this.BORDER_WIDTH;
+			text.y = this.height_px - text.height_px - this.BORDER_WIDTH- this.EXPORT_HEIGHT;
 			this.addChild(text);
 			this.blockTexts.push(text);
 		}
@@ -124,7 +142,7 @@
 		var htmlText, htmlElement;
 		// jquery ui
 		if ($("#make-object").length == 0){
-			htmlText = '<input type="submit" id="make-object" value="Make"/>';
+			htmlText = '<input type="submit" id="make-object" value="Export Model"/>';
 	        //htmlElement = $( "input[id='make-object']" )
 	        $("#builder-button-holder").append(htmlText);
 	        $("#make-object")
@@ -157,29 +175,29 @@
 			$("#slider-sideAngle")
 			    .slider({
 			       orientation: "horizontal",	
-	               range: "min",
+	               range: "max",
 	               min: 0,
 	               max: 90,
-	               value: 10,
+	               value: 80,
 	               step: 10,
 	               slide: function( event, ui ) {
 	                   $( "#amount" ).val( ui.value );
-	                    builder.update_view_sideAngle(ui.value);
+	                    builder.update_view_sideAngle(90-ui.value);
 	               }
 	              }).hide();
 		       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
 			// setup buttons for volume viewer	
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
-			element.x = this.width_px - 100;
-			element.y = (this.height_px - this.TITLE_HEIGHT)/2;
+			element.x = this.width_px - export_offsetL + 10;
+			element.y = this.height_px - this.EXPORT_HEIGHT - 60;
 			element = new createjs.DOMElement($("#slider-sideAngle")[0]);
 			this.addChild(element);
-			element.x = this.width_px - 280 ;
-			element.y = this.height_px - 30;					
+			element.x = this.width_px - 200;
+			element.y =  this.BORDER_WIDTH + this.TITLE_HEIGHT + 2 * GLOBAL_PARAMETERS.SCALE * 5;					
 			element = new createjs.DOMElement($("#slider-topAngle")[0]);
 			this.addChild(element);
-			element.x = this.width_px - 155;
+			element.x = this.width_px - this.BORDER_WIDTH - 50;
 			element.y = 80;
 			$("#make-object").show();
 			$("#slider-sideAngle").show();
@@ -305,7 +323,7 @@
 		if (o != null)
 		{	
 			var material_block_count = GLOBAL_PARAMETERS.materials[o.material_name].block_max.length;
-			o.x = this.materialsMenu.width_px + 90 + i * this.width_px/3/material_block_count + (o.width_px);
+			o.x = this.materialsMenu.x + this.materialsMenu.width_px + (i+1) * this.block_space_width/material_block_count;
 			o.y = i * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + this.TITLE_HEIGHT;	
 		}
 	}
@@ -407,9 +425,12 @@
 					} else
 					{
 						// no, we need to add this object back to the BlockCompBuildingPanel
-						GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]++;
-						var no = o.orig_parent.newBlock(o.material_name, o.depth_array_index);
-						o.orig_parent.placeBlock(no, o.depth_array_index);
+						GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]--;
+						o.orig_parent.updateCountText(o.material_name);
+						if (GLOBAL_PARAMETERS.materials[o.material_name].block_count[o.depth_array_index]+1 >= GLOBAL_PARAMETERS.materials[o.material_name].block_max[o.depth_array_index]){
+							var no = o.orig_parent.newBlock(o.material_name, o.depth_array_index);
+							o.orig_parent.placeBlock(no, o.depth_array_index);
+						}
 					}
 				} else if (source_parent instanceof BlockCompBuildingPanel)
 				{

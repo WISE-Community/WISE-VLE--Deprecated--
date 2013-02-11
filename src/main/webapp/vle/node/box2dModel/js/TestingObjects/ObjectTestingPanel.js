@@ -11,6 +11,7 @@
 	p.Container_tick = p._tick;
 	p.TITLE_HEIGHT = 40;
 	p.BORDER_WIDTH = 10;
+	p.EXPORT_HEIGHT = 20;
 	
 	// constants
 	//p.MATERIAL_TYPES = ["full", "center3", "center1", "ends"];
@@ -60,6 +61,7 @@
 			//this.height_px = Math.max(this.height_px, current_y + this.balanceWorld.height_px)
 		}
 		//beakerWorld
+		var separation_x = 0;
 		if (GLOBAL_PARAMETERS.INCLUDE_BEAKER)
 		{
 			var beaker_world_width_px = this.width_px - this.BORDER_WIDTH - current_x;
@@ -70,6 +72,7 @@
 			this.addChild(this.beakerWorld);
 			this.beakerWorld.x = current_x;
 			this.beakerWorld.y = current_y;
+			separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
 			//this.height_px = Math.max(this.height_px, current_y + this.beakerWorld.height_px)
 		} else if (GLOBAL_PARAMETERS.INCLUDE_EMPTY)
 		{
@@ -78,10 +81,16 @@
 			this.addChild(this.emptyWorld);
 			this.emptyWorld.x = current_x;
 			this.emptyWorld.y = current_y;
+			separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
 		}
+		var export_offsetL = 250;
+		var export_offsetR = 50;
 
 		this.g.beginFill("rgba(255,255,255,1.0)");
 		this.g.drawRect(0, 0, this.width_px, this.height_px);
+		this.g.endFill();
+		this.g.beginFill("rgba(225,225,255,1.0)");
+		this.g.drawRect(this.width_px-export_offsetL-this.BORDER_WIDTH, -this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.BORDER_WIDTH, this.EXPORT_HEIGHT+this.BORDER_WIDTH);
 		this.g.endFill();
 
 		// draw border
@@ -94,10 +103,31 @@
 		this.g.endFill();
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
 		this.g.moveTo(0,0);
-		this.g.lineTo(this.width_px,0);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,0);
+		this.g.lineTo(this.width_px-export_offsetL,this.BORDER_WIDTH);
 		this.g.lineTo(this.BORDER_WIDTH, this.BORDER_WIDTH);
 		this.g.lineTo(0,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetL-this.BORDER_WIDTH,0,this.width_px-export_offsetL,0);
+		this.g.moveTo(this.width_px-export_offsetL-this.BORDER_WIDTH,-this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,0);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,-this.EXPORT_HEIGHT);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
+		this.g.moveTo(this.width_px-export_offsetR,0);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px,0);
+		this.g.lineTo(this.width_px-export_offsetR,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetR-this.BORDER_WIDTH,0,this.width_px-export_offsetR,0);
+		this.g.moveTo(this.width_px-export_offsetR-this.BORDER_WIDTH,-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,-this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,0);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
 		this.g.endFill();
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px,0,this.width_px-this.BORDER_WIDTH,0);
 		this.g.moveTo(this.width_px,0);
@@ -114,6 +144,15 @@
 		this.g.lineTo(0,this.height_px);
 		this.g.endFill();
 		
+		if (separation_x > 0){
+			this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],separation_x,this.height_px-this.BORDER_WIDTH,separation_x+GLOBAL_PARAMETERS.PADDING,this.height_px-this.BORDER_WIDTH);
+			this.g.moveTo(separation_x,this.height_px-this.BORDER_WIDTH);
+			this.g.lineTo(separation_x+GLOBAL_PARAMETERS.PADDING,this.height_px-this.BORDER_WIDTH);
+			this.g.lineTo(separation_x+GLOBAL_PARAMETERS.PADDING,this.height_px-this.BORDER_WIDTH-B2WORLD_HEIGHT);
+			this.g.lineTo(separation_x,this.height_px-this.BORDER_WIDTH-B2WORLD_HEIGHT);
+			this.g.lineTo(separation_x,this.height_px-this.BORDER_WIDTH);
+			this.g.endFill();
+		}
 
 		this.actors = new Array();
 

@@ -24,16 +24,15 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 	       	"INCLUDE_BUILDER": true,
 	       	"INCLUDE_CYLINDER_BUILDER":false,
   			"INCLUDE_RECTPRISM_BUILDER":false,
+  			"SHOW_VALUES_SLIDER_BUILDER":true,
+			"INCREMENT_UNITS_SLIDER_BUILDER":true,
   			"INCLUDE_EMPTY": false,
 			"INCLUDE_BALANCE": false,
 			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
-			"SCALE" : 20,
+			"SCALE" : 25,
 	        "PADDING" : 10,
-	        "STAGE_WIDTH" : 810,
-			"STAGE_HEIGHT" : 730,
-			"PADDING" : 8,
-			"view_sideAngle" : 10*Math.PI/180,
+	        "view_sideAngle" : 10*Math.PI/180,
 			"view_topAngle" : 20*Math.PI/180,
 			"liquid_volume_perc" : 0.50,
 			"fill_spilloff_by_height": true,
@@ -102,6 +101,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 						if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 						GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
+						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
+						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
 						start();
 					});     
 				});
@@ -115,6 +116,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
+				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
+				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
 				start(typeof makePremades=="undefined"? true:makePremades);
 			}	
 		}
@@ -131,22 +134,22 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			var tester_y;
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
-				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			}else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
-				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			} else
 			{
 				tester_y = GLOBAL_PARAMETERS.PADDING;	
 			}
-			tester = new ObjectTestingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.STAGE_HEIGHT-tester_y);
+			tester = new ObjectTestingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.TESTER_HEIGHT);
 			stage.addChild(tester);
 			tester.y = tester_y;
 

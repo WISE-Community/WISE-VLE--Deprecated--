@@ -121,7 +121,7 @@ Box2dModel.prototype.render = function() {
 		 * would like from the state object (look at box2dModelState.js)
 		 */
 		var latestResponse = latestState.response;
-		previousModels = previousModels.concat(latestResponse.savedModels);
+		if (typeof latestResponse != "undefined") previousModels = previousModels.concat(latestResponse.savedModels);
 		
 		
 		//set the previous student work into the text area

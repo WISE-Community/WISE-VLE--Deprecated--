@@ -303,7 +303,7 @@
 		g.clear();
 		g.setStrokeStyle(0.5);
 		g.beginStroke("rgba(100,100,100,1.0)");
-		g.beginFill("rgba(245,245,245,1.0)");
+		g.beginLinearGradientFill(["rgba(250,250,250,1.0)","rgba(230,210,220,1.0)"],[0,1.0],this.topRight_projected2d.x,this.topRight_projected2d.y,this.bottomLeft_projected2d.x,this.bottomLeft_projected2d.y);
 		var i, j, point;
 		for (i = 0; i < this.cubes_projected2d.length; i++)
 		{
@@ -324,6 +324,7 @@
 		g.endStroke();
 		g.beginStroke("rgba(0,0,0,1.0)");
 		g.beginFill("rgba(200,245,200,1.0)");
+		g.beginLinearGradientFill(["rgba(200,245,200,1.0)","rgba(180,210,180,1.0)"],[0,1.0],this.bottomRight_projected2d.x,this.bottomRight_projected2d.y,this.bottomLeft_projected2d.x,this.bottomLeft_projected2d.y);
 		for (i = 0; i < this.cubes_projected2d.length; i++)
 		{
 			if (this.cubes_projected2d[i].bottom != null)
