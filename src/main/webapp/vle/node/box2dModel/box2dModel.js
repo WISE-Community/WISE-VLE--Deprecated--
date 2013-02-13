@@ -85,6 +85,42 @@ Box2dModel.prototype.checkPreviousModelsForTags = function(tagName, functionArgs
 	return result;
 };
 
+/**
+ * Find a value from a table
+ * before the current step in the project
+ * @param tagName the tag name
+ * @param functionArgs the arguments to this function
+ * @returns the results from the check, the result object
+ * contains an array of previous saved models
+ */
+Box2dModel.prototype.checkTableForValue = function(tagName, functionArgs) {
+	//default values for the result
+	var result = -1;
+	
+	if (typeof this.view.getProject != "undefined")
+	{
+		//the node ids of the steps that come before the current step and have the given tag
+		var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.node.id);
+		if(nodeIds != null) {
+			//loop through all the node ids that come before the current step and have the given tag
+			for(var x=0; x<nodeIds.length; x++) {
+				//get a node id
+				var nodeId = nodeIds[x];
+				
+				if(nodeId != null) {
+					//get the latest work for the node
+					var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+					if (!isNaN(Number(functionArgs[0])) && !isNaN(Number(functionArgs[1]))){
+						var text = latestWork.tableData[Number(functionArgs[0])][Number(functionArgs[1])].text;
+						if (!isNaN(Number(text))) result = Number(text);
+					}
+				}
+			}
+		}		
+	}
+	return result;
+};
+
 
 /**
  * This function renders everything the student sees when they visit the step.
@@ -103,12 +139,13 @@ Box2dModel.prototype.render = function() {
 	$('#promptDiv').html(this.content.prompt);
 	
 	var previousModels = [];
+	var density = -2;
 	//process the tag maps if we are not in authoring mode
 	if(typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode) {
 		var tagMapResults = this.processTagMaps();
 		//get the result values
-		previousModels = tagMapResults.previousModels;
-		
+		if (typeof tagMapResults.previousModels != "undefined") previousModels = tagMapResults.previousModels;
+		if (typeof tagMapResults.density != "undefined") density = tagMapResults.density;		
 	}
 
 	//load any previous responses the student submitted for this step
@@ -138,7 +175,7 @@ Box2dModel.prototype.render = function() {
 	}
 
 	if (typeof tester == "undefined" || tester == null){ 
-		init(box2dModel.content, previousModels.length>0?false:true);
+		init(box2dModel.content, previousModels.length>0?false:true, density >= 0 ? density : undefined);
 	}
 	//eventManager.fire("box2dInit", [{}], this);
 	eventManager.fire('pushStudentWork', {});
@@ -183,15 +220,19 @@ Box2dModel.prototype.processTagMaps = function() {
 					//get the result of the check
 					var result = this.checkPreviousModelsForTags(tagName, functionArgs);					
 					previousModels = previousModels.concat(result.previousModels);
-				} 
+				} else if (functionName == "getValueFromTableForDensity"){
+					var density = this.checkTableForValue(tagName, functionArgs);
+				}
 			}
 		}
 	}
-	
-	//put the variables in an object so we can return multiple variables
-	var returnObject = {
-		"previousModels":previousModels
-	};
+	var returnObject = {};
+	if (previousModels.length > 0){ 
+		//put the variables in an object so we can return multiple variables
+		returnObject = {"previousModels":previousModels}; 
+	} else if (typeof density != "undefined"){
+		returnObject = {"density":density}; 
+	}
 	
 	return returnObject;
 };

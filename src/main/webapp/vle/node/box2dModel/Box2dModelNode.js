@@ -37,7 +37,8 @@ Box2dModelNode.authoringToolName = "Box2dModel";
 Box2dModelNode.authoringToolDescription = "This project allows students to create virtual objects and observe them in virtual worlds controlled by box2d - a physics engine.  Talk to Jonathan Vitale about how to use this step appropriately.";
 
 Box2dModelNode.tagMapFunctions = [
-	{functionName:'getPreviousModels', functionArgs:[]}
+	{functionName:'getPreviousModels', functionArgs:[]},
+	{functionName:'getValueFromTableForDensity', functionArgs:['column', 'row']}
 ];
 /**
  * This is the constructor for the Node
@@ -59,7 +60,7 @@ function Box2dModelNode(nodeType, view) {
 	this.customEventTypes = ['box2dInit','make-model', 'delete-model', 'add-balance-world', 'add-balance', 'remove-balance-world',
 		'remove-balance', 'add-beaker-world', 'add-scale-world', 'add-scale', 'remove-scale-world', 'remove-scale','add-beaker', 'add-beaker-spilloff', 'remove-beaker-world', 'remove-beaker', 
 		'remove-spilloff','press-refill-beaker', 'press-release-beaker','test-balance-1to1', 'test-balance-1toN', 'test-balance-Nto1',
-		'test-balance-NtoN', 'test-scale-1','test-scale-N','test-add-beaker','test-release-beaker', 'gave-feedback'
+		'test-balance-NtoN', 'test-scale-1','test-scale-N','test-add-beaker','test-release-beaker', 'gave-feedback', 'revise-model'
 	];
 	
 	

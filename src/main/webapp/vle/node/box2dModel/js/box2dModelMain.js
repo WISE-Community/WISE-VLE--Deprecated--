@@ -88,8 +88,9 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var builder;
 		var tester;
 		
-		function init(wiseData, makePremades)
+		function init(wiseData, makePremades, forceDensityValue)
 		{
+			var key;
 			if (typeof wiseData === "undefined")
 			{
 				// load parameters file to overwrite defaults
@@ -105,6 +106,11 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
 						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
 						GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
+						if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
+							for (var key in GLOBAL_PARAMETERS.materials){
+								GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
+							}
+						}
 						start();
 					});     
 				});
@@ -121,6 +127,11 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
 				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
 				GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
+				if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
+					for (var key in GLOBAL_PARAMETERS.materials){
+						GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
+					}
+				}
 				start(typeof makePremades=="undefined"? true:makePremades);
 			}	
 		}
