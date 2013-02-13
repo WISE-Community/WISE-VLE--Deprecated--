@@ -89,11 +89,10 @@
 			this.tabArray[this.current_material_name].setBackgroundColor(this.UNSELECTED_COLOR);
 		}
 		var key = this.rev_materialNameDisplayMapping[evt.target.textString];
-		this.parent.buttonClickHandler(key);
+		this.current_material_name = key;
 		this.projectedTextOutlineShape.y = this.tabArray[key].y;
 		this.tabArray[key].setBackgroundColor(this.SELECTED_COLOR);
-		this.current_material_name = key;
-		
+		this.parent.buttonClickHandler(key);
 	}
 
 	window.MaterialsMenu = MaterialsMenu;

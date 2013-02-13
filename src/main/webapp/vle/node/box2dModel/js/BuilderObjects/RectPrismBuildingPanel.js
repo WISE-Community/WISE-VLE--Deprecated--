@@ -284,6 +284,34 @@
 		}
 	}
 
+	/** Used to revise a model */
+	p.restoreSavedObject = function (savedObject){
+		if (typeof savedObject.rectPrismArrays != "undefined"){
+			this.resetMaterials();
+			var widths = savedObject.rectPrismArrays.widths;
+			var depths = savedObject.rectPrismArrays.depths;
+			var heights = savedObject.rectPrismArrays.heights;
+			var materials = savedObject.rectPrismArrays.materials;
+			var y_offset = 0;
+			for (var i=heights.length-1; i >= 0; i--){
+				var material_name = materials[i];
+				if (material_name != ""){
+					var o = this.newBlock(material_name, widths[i], depths[i], heights[i]);
+					// yes, update count and create a new object
+					GLOBAL_PARAMETERS.materials[material_name].block_count[o.depth_array_index]++;
+					this.updateCountText(material_name);
+					// place object in viewer
+					this.vv.placeBlockAtIndex(o, 1, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS-1 - y_offset);
+					this.vv.setBlock(o, true);
+					y_offset += heights[i];
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/** Disable is primarilly to be used when the library is full */
 	p.disableWithText = function (str){
 		if (this.enabled){
@@ -367,12 +395,16 @@
 		this.updateCountText(material_name);
 		stage.ready_to_update = true;
 	}
-	p.newBlock = function (material_name)
+	
+	/** Create a new block with the given material name and index along the depth_arrays array */
+	p.newBlock = function (material_name, initial_width, initial_depth, initial_height)
 	{
 		if (GLOBAL_PARAMETERS.materials[material_name].block_count[0] < GLOBAL_PARAMETERS.materials[material_name].block_max[0])
 		{
 			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,[1,0,0,0,0], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			this.displayed_block = o;
+			if (typeof initial_width != "undefined") o.set_width_units(initial_width);
+			if (typeof initial_depth != "undefined") o.set_depth_units(initial_depth);
+			if (typeof initial_height != "undefined") o.set_height_units(initial_height)
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
@@ -396,12 +428,15 @@
 		{	
 			o.x = this.materialsMenu.width_px + this.width_px/3;
 			o.y = 2*this.TITLE_HEIGHT;	
+			this.displayed_block = o;
 		}
 	}
 	p.updateCountText = function (material_name)
 	{
-		// update count
-		this.blockText.setText(GLOBAL_PARAMETERS.materials[material_name].block_max[0] - GLOBAL_PARAMETERS.materials[material_name].block_count[0]);
+		if (this.materialsMenu.current_material_name == material_name){
+			// update count
+			this.blockText.setText(GLOBAL_PARAMETERS.materials[material_name].block_max[0] - GLOBAL_PARAMETERS.materials[material_name].block_count[0]);
+		}
 	}
 
 	/** When a block is pressed it should either be in the display area or on the volume viewer.
@@ -568,6 +603,12 @@
 		savedObject.liquid_volume = 0;
 		savedObject.liquid_perc_volume = 0;
 
+		this.resetMaterials();
+		return savedObject;
+	}
+
+	p.resetMaterials = function (){
+
 		// clean up
 		// reset counts of blocks, remove object on screen
 		for (var key in GLOBAL_PARAMETERS.materials)
@@ -578,10 +619,7 @@
 			}
 		}
 		this.drawMaterial(this.materialsMenu.current_material_name);
-
-		this.vv.clearBlocks();
-		//console.log(blockArray3d);
-		return savedObject;
+		this.vv.clearBlocks();	
 	}
 
 	p._tick = function(){this.Container_tick();}

@@ -24,6 +24,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 	       	"INCLUDE_BUILDER": true,
 	       	"INCLUDE_CYLINDER_BUILDER":false,
   			"INCLUDE_RECTPRISM_BUILDER":false,
+  			"ALLOW_REVISION":true,
   			"SHOW_VALUES_SLIDER_BUILDER":true,
 			"INCREMENT_UNITS_SLIDER_BUILDER":true,
   			"INCLUDE_EMPTY": false,
@@ -103,6 +104,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
 						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
 						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
+						GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
 						start();
 					});     
 				});
@@ -118,6 +120,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
 				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
 				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
+				GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
 				start(typeof makePremades=="undefined"? true:makePremades);
 			}	
 		}
@@ -153,8 +156,6 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage.addChild(tester);
 			tester.y = tester_y;
 
-			var premade = GLOBAL_PARAMETERS.premades['1x1x1_DWood'];
-			
 			// make all objects given in parameters
 			if (makePremades){
 				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
@@ -164,10 +165,10 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						// is an array, pick one of array, replace original
 						GLOBAL_PARAMETERS.premades_available[i] = obj[Math.floor(Math.random()*obj.length)];
 						if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined"){
-							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]], false, true);
 						}
 					} else if (typeof obj == "string" && typeof GLOBAL_PARAMETERS.premades[obj] != "undefined"){
-						createObject(GLOBAL_PARAMETERS.premades[obj]);
+						createObject(GLOBAL_PARAMETERS.premades[obj], false, true);
 					}						
 				}
 			}
@@ -202,9 +203,10 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		}
 
 		/** This will create an object that will go in the library */
-		function createObject(savedObject, already_in_globals)
+		function createObject(savedObject, already_in_globals, is_premade)
 		{
 			var compShape;
+			is_premade = typeof is_premade != "undefined" ? is_premade : false; 
 			if (typeof savedObject.blockArray3d != "undefined"){
 				if (savedObject.is_container){
 					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
@@ -218,6 +220,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			}
 			
 			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;
+			savedObject.is_deletable = typeof savedObject.is_deletable != "undefined"? savedObject.is_deletable : is_premade ? false: true;
+			savedObject.is_revisable = typeof savedObject.is_revisable != "undefined"? savedObject.is_revisable : is_premade ? false: GLOBAL_PARAMETERS.ALLOW_REVISION;
 			if (tester.createObjectForLibrary(compShape)){
 				GLOBAL_PARAMETERS.total_objects_made++;
 				if (typeof already_in_globals === "undefined" || !already_in_globals)

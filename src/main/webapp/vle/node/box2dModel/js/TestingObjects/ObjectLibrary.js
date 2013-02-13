@@ -123,9 +123,17 @@
 			var b_id = "library-button-" + id;
 			var htmlText;
 			if (o.skin.savedObject.is_deletable){
-				htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li><li><a href="#">Delete</a></li></ul></div>';
+				if (o.skin.savedObject.is_revisable){
+					htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li><li><a href="#">Delete</a></li><li><a href="#">Revise</a></li></ul></div>';
+				} else {
+					htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li><li><a href="#">Delete</a></li></ul></div>';
+				}
 			} else {
-				htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li></ul></div>';			
+				if (o.skin.savedObject.is_revisable){
+					htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li><li><a href="#">Revise</a></li></ul></div>';	
+				} else {
+					htmlText = '<div id ="' + b_id + '" style="font-size:14px; position:absolute"><input type="submit"/><ul><li><a href="#">Duplicate</a></li></ul></div>';			
+				}
 			}
 
 			$('#library-button-holder').append(htmlText);id ="' + b_id + '"
@@ -152,6 +160,9 @@
                         } else if ($(event.target).text() == "Delete")
                         {
                         	tester.library.deleteObjectFromHTML($(event.target).parent().parent().parent());
+                        } else if ($(event.target).text() == "Revise")
+                        {
+                        	tester.library.reviseObjectFromHTML($(event.target).parent().parent().parent());
                         }
                         menu.hide();
                         return false;
@@ -177,6 +188,30 @@
 		}
 	}
 
+	p.reviseObjectFromHTML = function (html){
+		for (var i = 0; i < this.shapes.length; i++)
+		{
+			if (this.shapes[i].html.attr("id") == html.attr("id"))
+			{
+				eventManager.fire("revise-model", [this.shapes[i].skin.savedObject]);
+				this.reviseObject(this.shapes[i]);
+				return true;
+			}
+		}
+		return false;
+	}
+		p.reviseObject = function (o){
+			o.skin.savedObject.is_revisable = true;
+			var savedObject = o.skin.savedObject;
+			if (builder.restoreSavedObject(savedObject)){
+				o.skin.savedObject.is_deleted = true;
+				this.removeObject(o);
+				this.parent.removeObjectFromLibrary();
+				return true;
+			} else {
+				return false;
+			}
+		}
 
 	p.duplicateObjectFromHTML = function (html)
 	{
@@ -192,12 +227,12 @@
 		return false;
 	}
 
-	p.duplicateObject = function (o)
-	{
-		// always make duplicates deletable
-		o.skin.savedObject.is_deletable = true;
-		createObject(o.skin.savedObject);
-	}
+		p.duplicateObject = function (o)
+		{
+			// always make duplicates deletable
+			o.skin.savedObject.is_deletable = true;
+			createObject(o.skin.savedObject);
+		}
 
 	p.deleteObjectFromHTML = function (html)
 	{

@@ -95,8 +95,7 @@
 						{
 							this.cubes[index].bottom = null;
 						}
-					} else
-					{}
+					} else{}					
 				}
 			}
 		}
@@ -403,7 +402,9 @@
 		var y_index_p = ty/(cur_height/this.height_units);
 		var x_index = Math.round(x_index_p + this.width_units/2);
 		var y_index = Math.round(y_index_p + this.height_units/2);
-
+		this.placeBlockAtIndex (o, x_index, y_index);
+	} 
+	p.placeBlockAtIndex = function (o, x_index, y_index) {
 		// calculate an indices 0 to 5 from right to left, 0 to 5 top to bottom
 		var point = new Point3D(x_index-this.width_units/2, y_index-this.height_units/2, -this.depth_units/2);
 		var npoint = point.rotateY(this.view_sideAngle);
@@ -528,9 +529,9 @@
 			return goodLocation;
 		}
 
-	p.setBlock = function(o)
+	p.setBlock = function(o, overrideIsCorrect)
 	{
-		if (o.correct)
+		if (o.correct || (typeof overrideIsCorrect != "undefined" && overrideIsCorrect))
 		{
 			if (o.x_index >= 0 && o.x_index < this.width_units && o.y_index >= 0 && o.y_index < this.height_units)
 			{
@@ -623,8 +624,8 @@
 				}
 			}
 
-
-	p.clearBlocks = function ()
+	/**  Empty the viewer*/
+ 	p.clearBlocks = function ()
 	{
 		var i, j;
 		for (i = this.getNumChildren()-2; i > 1; i--)

@@ -34,7 +34,6 @@
 		this.addChild(this.materialsMenu);
 		this.materialsMenu.x = this.BORDER_WIDTH+1;
 		this.materialsMenu.y = this.BORDER_WIDTH+this.TITLE_HEIGHT;
-
 		
 		this.vv = new BlockCompViewer(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.MAX_WIDTH_UNITS, GLOBAL_PARAMETERS.MAX_HEIGHT_UNITS, GLOBAL_PARAMETERS.MAX_DEPTH_UNITS);
 		this.addChild(this.vv);
@@ -103,8 +102,7 @@
 		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.height_px-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
 		this.g.endFill();
 		
-
-			// titles
+		// titles
 		var ltitle  = new createjs.Text("Materials", "20px Arial", this.TITLE_COLOR);
 		this.addChild(ltitle);
 		ltitle.x = 20;
@@ -223,6 +221,44 @@
 		}
 	}
 
+	/** Used to revise a model */
+	p.restoreSavedObject = function (savedObject){
+		if (typeof savedObject.blockArray3d != "undefined"){
+			this.resetMaterials();
+			for (var i=0; i < savedObject.blockArray3d.length; i++){
+				for (var j=0; j < savedObject.blockArray3d[0].length; j++){
+					var depth_array = [];
+					var material_name = "";
+					for (var k=0; k < savedObject.blockArray3d[0][0].length; k++){
+						depth_array[k] = savedObject.blockArray3d[i][j][k] != "" ? 1 : 0;
+						if (material_name == "" && depth_array[k] == 1) material_name = savedObject.blockArray3d[i][j][k];
+					}
+					if (material_name != ""){
+						// get index of block where depth arrays match
+						var index = -1;
+						for (var l=0; l < GLOBAL_PARAMETERS.materials[material_name].depth_arrays.length; l++){
+							if (GLOBAL_PARAMETERS.materials[material_name].depth_arrays[l].join(",") == depth_array.join(",")){
+								index = l; break;
+							}
+						}
+						if (index >= 0){
+							// create a new object to match the depth count and material
+							var o = this.newBlock(material_name, index);
+							GLOBAL_PARAMETERS.materials[material_name].block_count[index]++;
+							this.updateCountText(material_name);
+							// place object in viewer
+							this.vv.placeBlockAtIndex(o, savedObject.blockArray3d.length - i - 1, j);
+							this.vv.setBlock(o, true);
+						}
+					}				
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/** Disable is primarilly to be used when the library is full */
 	p.disableWithText = function (str){
 		if (this.enabled){
@@ -238,9 +274,7 @@
 			this.screenText.y = (this.height_px - 20)/2;
 			this.addChild(this.screenText);
 			this.enabled = false;
-
-		}
-		
+		}	
 	}
 
 	/** Reverses disableWithText function */
@@ -273,11 +307,13 @@
 		this.vv.update_view_topAngle(this.view_topAngle);
 	}
 
+	/** User clicked on a tab along the materials menu */
 	p.buttonClickHandler  = function(material_name)
 	{
 		this.drawMaterial(material_name);
 	}
 
+	/** Place blocks in the "pick your block" area */
 	p.drawMaterial = function (material_name)
 	{
 		var o, i;
@@ -298,41 +334,45 @@
 		this.updateCountText(material_name);
 		stage.ready_to_update = true;
 	}
-	p.newBlock = function (material_name, i)
+
+	/** Create a new block with the given material name and index along the depth_arrays array */
+	p.newBlock = function (material_name, depth_arrays_index)
 	{
-		if (GLOBAL_PARAMETERS.materials[material_name].block_count[i] < GLOBAL_PARAMETERS.materials[material_name].block_max[i])
+		if (GLOBAL_PARAMETERS.materials[material_name].block_count[depth_arrays_index] < GLOBAL_PARAMETERS.materials[material_name].block_max[depth_arrays_index])
 		{
-			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,GLOBAL_PARAMETERS.materials[material_name].depth_arrays[i], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
-			this.blocks[i] = o;
+			var o = new RectBlockShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE,GLOBAL_PARAMETERS.materials[material_name].depth_arrays[depth_arrays_index], this.view_sideAngle, this.view_topAngle, material_name, GLOBAL_PARAMETERS.materials[material_name]);
 			o.onPress = this.blockPressHandler.bind(this);
 			this.addChild(o);
 			o.orig_parent = this;
-			o.depth_array_index = i;
+			o.depth_array_index = depth_arrays_index;
 			this.updateCountText(material_name);
 			return o;
 		} else
 		{
-			this.blocks[i] = null;
+			this.blocks[depth_arrays_index] = null;
 			this.updateCountText(material_name);
 			return null;
 		}
 	}
 	// WORKING WITH OBJECTS
-	p.placeBlock = function (o, i)
+	p.placeBlock = function (o, depth_arrays_index)
 	{
 		if (o != null)
 		{	
 			var material_block_count = GLOBAL_PARAMETERS.materials[o.material_name].block_max.length;
-			o.x = this.materialsMenu.x + this.materialsMenu.width_px + (i+1) * this.block_space_width/material_block_count;
-			o.y = i * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + this.TITLE_HEIGHT;	
+			o.x = this.materialsMenu.x + this.materialsMenu.width_px + (depth_arrays_index+1) * this.block_space_width/material_block_count;
+			o.y = depth_arrays_index * this.height_px/2/material_block_count + 2 * GLOBAL_PARAMETERS.PADDING + this.TITLE_HEIGHT;	
+			this.blocks[depth_arrays_index] = o;
 		}
 	}
 	p.updateCountText = function (material_name)
 	{
-		// update count
-		for (i = 0; i < GLOBAL_PARAMETERS.materials[material_name].block_max.length; i++)
-		{
-			this.blockTexts[i].setText(GLOBAL_PARAMETERS.materials[material_name].block_max[i] - GLOBAL_PARAMETERS.materials[material_name].block_count[i]);
+		if (this.materialsMenu.current_material_name == material_name){
+			// update count
+			for (i = 0; i < GLOBAL_PARAMETERS.materials[material_name].block_max.length; i++)
+			{
+				this.blockTexts[i].setText(GLOBAL_PARAMETERS.materials[material_name].block_max[i] - GLOBAL_PARAMETERS.materials[material_name].block_count[i]);
+			}
 		}
 	}
 	/** When a block is pressed it should either be in the display area or on the volume viewer.
@@ -439,7 +479,7 @@
 					if (parent.setBlock(o))
 					{
 						// yes, update count and create a new object
-						var i = o.orig_parent.blocks.indexOf(o);
+						i = o.orig_parent.blocks.indexOf(o);
 						if (i >= 0)
 						{
 							GLOBAL_PARAMETERS.materials[o.material_name].block_count[i]++;
@@ -517,7 +557,11 @@
 		savedObject.liquid_mass = 0;
 		savedObject.liquid_volume = 0;
 		savedObject.liquid_perc_volume = 0;
+		this.resetMaterials();
+		return savedObject;
+	}
 
+	p.resetMaterials = function (){
 
 		// clean up
 		// reset counts of blocks, remove object on screen
@@ -529,10 +573,7 @@
 			}
 		}
 		this.drawMaterial(this.materialsMenu.current_material_name);
-
-		this.vv.clearBlocks();
-		//console.log(blockArray3d);
-		return savedObject;
+		this.vv.clearBlocks();	
 	}
 
 	p._tick = function(){this.Container_tick();}
