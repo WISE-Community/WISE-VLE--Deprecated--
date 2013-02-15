@@ -31,16 +31,22 @@
 		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
-
+		var current_x = this.BORDER_WIDTH;
+		var current_y = GLOBAL_PARAMETERS.PADDING;
+		
 		//library
-		this.library = new ObjectLibrary(this.width_px-2*this.BORDER_WIDTH, this.max_shape_height_px, this.max_shape_width_px, this.max_shape_height_px, this.width_from_depth, this.height_from_depth);
-		this.addChild(this.library);
-		this.library.x = this.BORDER_WIDTH;
-		this.library.y = this.BORDER_WIDTH;
+		if (GLOBAL_PARAMETERS.INCLUDE_LIBRARY){
+			this.library = new ObjectLibrary(this.width_px-2*this.BORDER_WIDTH, this.max_shape_height_px, this.max_shape_width_px, this.max_shape_height_px, this.width_from_depth, this.height_from_depth);
+			this.addChild(this.library);
+			this.library.x = this.BORDER_WIDTH;
+			this.library.y = this.BORDER_WIDTH;
+			current_y += this.library.y + this.library.height_px;
+		} else {
+			this.library = null;
+		}
+
 		this.dragging_object = null;
 		//balanceWorld
-		var current_x = this.BORDER_WIDTH;
-		var current_y = this.library.y + this.library.height_px + GLOBAL_PARAMETERS.PADDING;
 		//this.height_px = current_y;
 		var B2WORLD_HEIGHT = this.height_px-this.BORDER_WIDTH-current_y;
 		if (GLOBAL_PARAMETERS.INCLUDE_SCALE)
@@ -185,7 +191,7 @@
 		}
 		 
 		 
-		if (this.library.addObject(actor)){
+		if (this.library != null && this.library.addObject(actor)){
 			actor.onPress = this.actorPressHandler.bind(this);
 			actor.orig_parent = this.library;
 			actor.can_switch_worlds = true;
@@ -331,7 +337,12 @@
 				parent.emptyWorld.addActor(this.target, wpoint.x, wpoint.y);
 			}else
 			{
-				parent.library.addObject(this.target);
+				if (parent.library != null){
+					parent.library.addObject(this.target);
+				} else {
+					wpoint = source_parent.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+					source_parent.addActor(this.target, wpoint.x, wpoint.y);
+				}
 			}
 			stage.needs_to_update = true;			
 		}

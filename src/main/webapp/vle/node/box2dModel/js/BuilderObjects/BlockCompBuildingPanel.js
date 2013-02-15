@@ -151,8 +151,7 @@
 	            }).hide();  
 	
 		    htmlText = '<div id="slider-topAngle" style="height: 100px;"></div>';
-		   //$( "#slider-topAngle" )
-			$("#builder-button-holder").append(htmlText);
+		    $("#builder-button-holder").append(htmlText);
 			$("#slider-topAngle")
 			    .slider({
                    orientation: "vertical",
@@ -167,9 +166,8 @@
                    }
                }).hide();
 		     $("#slider-topAngle").load(function (){$( "#amount" ).val( $( "#slider-topAngle" ).slider( "value" ) );});
-				 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
-		   //$( "#slider-topAngle" )
-			$("#builder-button-holder").append(htmlText);
+			 htmlText = '<div id="slider-sideAngle" style="width: 100px;"></div>';
+		    $("#builder-button-holder").append(htmlText);
 			$("#slider-sideAngle")
 			    .slider({
 			       orientation: "horizontal",	
@@ -185,6 +183,7 @@
 	              }).hide();
 		       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
 			// setup buttons for volume viewer	
+			console.log($("#make-object")[0]);
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
 			element.x = this.width_px - export_offsetL + 10;
