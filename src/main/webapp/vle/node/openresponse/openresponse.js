@@ -1749,6 +1749,9 @@ OPENRESPONSE.prototype.processTagMaps = function() {
 				} else if(functionName == "showPreviousWork") {
 					//show the previous work in the previousWorkDiv
 					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "showAggregateWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showAggregateWork($('#aggregateWorkDiv'), tagName, functionArgs);
 				} else if(functionName == "checkCompleted") {
 					//we will check that all the steps that are tagged have been completed
 					
