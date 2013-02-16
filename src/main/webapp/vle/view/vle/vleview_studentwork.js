@@ -582,12 +582,12 @@ View.prototype.checkStudentAssetSizeLimit = function(){
 		if(text >= o.MAX_ASSET_SIZE){
 			var maxUploadSize = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
 			var studentUsageSize = o.utils.appropriateSizeText(text);
-			var maxExceededMessage = o.getStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
+			var maxExceededMessage = o.getI18NStringWithParams("student_assets_student_usage_exceeded_message",[maxUploadSize,studentUsageSize]);
 			o.notificationManager.notify(maxExceededMessage, 3, 'uploadMessage', 'notificationDiv');
 		} else {				
 			var studentUsage = o.utils.appropriateSizeText(text);
 			var maxUsageLimit = o.utils.appropriateSizeText(o.MAX_ASSET_SIZE);
-			$('#sizeDiv').html(o.getStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
+			$('#sizeDiv').html(o.getI18NStringWithParams("student_assets_student_usage_message",[studentUsage,maxUsageLimit]));
 		} 
 	};
 	this.connectionManager.request('GET', 1,  this.getConfig().getConfigParam("studentAssetManagerUrl"), {forward:'assetmanager', command: 'getSize'}, callback, this);

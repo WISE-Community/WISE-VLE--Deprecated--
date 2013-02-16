@@ -171,6 +171,14 @@
 		"value":"Maximum space exceeded! Maximum allowed is {0}, total on server is {1}. Please delete some files.",
 		"description":"Text on a button in Student Asset Manager to delete a selected file"
 	},
+	"student_aggregate_view_intro_text":{
+		"value":"Summary View for step {0}",
+		"description":"Text above where the aggregate view would be displayed"
+	},
+	"student_aggregate_view_preview_mode_default_text": {
+		"value":"Aggregate view for this step will appear when you set up a run with real students.",
+		"description":"Default text to display for aggregate view when in preview mode."
+	},
 	"cancel":{
 		"value":"Cancel",
 		"description":"Text 'cancel'"

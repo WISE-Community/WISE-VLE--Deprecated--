@@ -69,7 +69,7 @@ View.prototype.getI18NString = function(key, componentName) {
  * Uses locale that was specified in config. To specify
  * locale, use View.prototype.i18n.getStringWithParam(key,locale,params) directly instead.
  */
-View.prototype.getStringWithParams = function(key,params, componentName) {
+View.prototype.getI18NStringWithParams = function(key,params, componentName) {
 	if (!componentName) {
 		componentName = "main";
 	}

@@ -210,10 +210,13 @@ MultipleChoiceNode.prototype.renderGradingView = function(displayStudentWorkDiv,
  * uses the same ids as the show flagged work div
  * @param workgroupId the id of the workgroup this work belongs to
  */
-MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork) {
+MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork, dom) {
 	var view = this.view;
 	var nodeId = this.id;
-	view.displayStepGraph(nodeId,"summaryContent",workgroupIdToWork);
+	if (dom == null) {
+		dom=$("#summaryContent");
+	}
+	view.displayStepGraph(nodeId,dom,workgroupIdToWork);
 };
 
 /**

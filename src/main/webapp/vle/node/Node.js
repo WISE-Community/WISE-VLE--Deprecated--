@@ -13,7 +13,7 @@ function Node(nodeType, view){
 	this.contentPanel;
 	this.baseHtmlContent;
 	this.hints = [];
-	
+
 	this.prevWorkNodeIds = [];
 	this.populatePreviousWorkNodeId = "";
 	this.tags = [];
@@ -21,32 +21,32 @@ function Node(nodeType, view){
 	this.links = [];
 	this.extraData;
 	this.view = view;
-	
+
 	//booleans used when we need to determine if a constraint is satisfied
 	this.isStepOpen = true;
 	this.isStepCompleted = false;
 	this.isStepPartOfReviewSequence = false;
-	
+
 	this.selfRendering = false;
-	
+
 	this.tagMapFunctions = [];
-	
+
 	if(nodeType == 'sequence') {
 		//node is an activity
 		this.tagMapFunctions = [
-			{functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
-			{functionName:'mustCompleteBeforeExiting', functionArgs:[]},
-			{functionName:'mustCompleteXBefore', functionArgs:[]},
-			{functionName:'mustVisitXBefore', functionArgs:[]}
-		];
+		                        {functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
+		                        {functionName:'mustCompleteBeforeExiting', functionArgs:[]},
+		                        {functionName:'mustCompleteXBefore', functionArgs:[]},
+		                        {functionName:'mustVisitXBefore', functionArgs:[]}
+		                        ];
 	} else {
 		//node is a step
 		this.tagMapFunctions = [
-			{functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
-			{functionName:'mustCompleteBeforeExiting', functionArgs:[]},
-			{functionName:'mustCompleteXBefore', functionArgs:[]},
-			{functionName:'mustVisitXBefore', functionArgs:[]}
-		];
+		                        {functionName:'mustCompleteBeforeAdvancing', functionArgs:[]},
+		                        {functionName:'mustCompleteBeforeExiting', functionArgs:[]},
+		                        {functionName:'mustCompleteXBefore', functionArgs:[]},
+		                        {functionName:'mustVisitXBefore', functionArgs:[]}
+		                        ];
 	}
 };
 
@@ -80,7 +80,7 @@ Node.prototype.getTitle = function() {
 	if (this.title != null) {
 		return this.title;
 	};
-	
+
 	return this.id;
 };
 
@@ -135,7 +135,7 @@ Node.prototype.getNodeAnnotations = function() {
  */
 Node.prototype.getPrompt = function() {
 	var prompt = "";
-	
+
 	if(this.content != null) {
 		//get the content for the node
 		var contentJSON = this.content.getContentJSON();
@@ -154,7 +154,7 @@ Node.prototype.getPrompt = function() {
 			}
 		}
 	}
-	
+
 	//return the prompt
 	return prompt;
 };
@@ -229,18 +229,18 @@ Node.prototype.preloadContent = function(){
 	if(!this.baseHtmlContent){
 		if(!this.selfRendering){
 			this.baseHtmlContent = this.view.getHTMLContentTemplate(this);
-			
+
 			/* call one of the getContent methods so it retrieves the content */
 			this.baseHtmlContent.getContentString();
 		} else {
 			/* create the content object */
 			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src, this));
-				
+
 			/* change filename url for the modules if this is a MySystemNode */
 			if(this.type == 'MySystemNode'){
 				this.baseHtmlContent.setContent(this.updateJSONContentPath(this.view.getConfig().getConfigParam('getContentBaseUrl'), this.baseHtmlContent.getContentString()));
 			};
-			
+
 			/* call one of the getContent methods so it retrieves the content */
 			this.baseHtmlContent.getContentString();
 		};
@@ -255,10 +255,10 @@ Node.prototype.preloadContent = function(){
  */
 Node.prototype.render = function(contentPanel, studentWork, disable) {
 	this.studentWork = studentWork;
-	
+
 	/* clean up any disabled panel that might exist from previous render */
 	$('#disabledPanel').remove();
-	
+
 	/*check if the user had clicked on an outside link in the previous step
 	 */
 	if(this.handlePreviousOutsideLink(this, contentPanel)) {
@@ -269,7 +269,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 		 */
 		return;
 	}
-	
+
 	/* if no content panel specified use default */
 	if(contentPanel){
 		/* make sure we use frame window and not frame element */
@@ -294,10 +294,10 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 			if(!this.baseHtmlContent){
 				this.baseHtmlContent = this.view.getHTMLContentTemplate(this);
 			}
-			
+
 			/* make nodeId available to the content panel, and hence, the html */
 			this.contentPanel.nodeId = this.id;
-			
+
 			/* inject urls and write html to content panel */
 			this.contentPanel.document.open();
 			this.contentPanel.document.write(this.injectBaseRef(this.baseHtmlContent.getContentString()));
@@ -310,45 +310,45 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 		/* if baseHtmlContent has not already been created, create it now */
 		if(!this.baseHtmlContent){
 			this.baseHtmlContent = createContent(this.view.getProject().makeUrl(this.content.getContentJSON().src, this));
-			
+
 			/* change filename url for the modules if this is a MySystemNode */
 			if(this.type == 'MySystemNode'){
 				this.baseHtmlContent.setContent(this.updateJSONContentPath(this.view.getConfig().getConfigParam('getContentBaseUrl'), this.baseHtmlContent.getContentString()));
 			}
 		}
-		
+
 		//write the content into the contentPanel, this will render the html in that panel
 		this.contentPanel.document.open();
 		this.contentPanel.document.write(this.injectBaseRef(this.baseHtmlContent.getContentString()));
 		this.contentPanel.document.close();
 	}
-	
+
 	if(this.contentPanel != null) {
 		//set the event manager into the content panel so the html has access to it
 		this.contentPanel.eventManager = eventManager;
 		this.contentPanel.nodeId = this.id;
 		this.contentPanel.node = this;
 		this.contentPanel.scriptloader = this.view.scriptloader;
-		
+
 		if(this.type == 'MySystemNode' || this.type == 'SVGDrawNode' || 
 				this.type == 'OpenResponseNode' || this.type == 'HtmlNode' ||
 				this.type == 'MWNode' || this.type == 'Box2dModelNode') {
 			this.contentPanel.vle = this.view;
 		}
 	}
-	
+
 	/* if there is a disable constraint, we want to set a semi-transparent panel over the content div */
 	if(disable==1){
 		/* get the position, height and width of the content panel */
 		var panelPosition = $('#contentDiv').offset();
 		var panelHeight = $('#contentDiv').height() + 2;
 		var panelWidth = $('#contentDiv').width() + 2;
-		
+
 		/* create the disabledPanel and append it to the given document */
 		var dynamicPanel = $('<div id="disabledPanel"></div>').css({opacity: 0.361, height:panelHeight, width:panelWidth, background:'#000', position:'absolute', 'z-index':999, top:panelPosition.top, left:panelPosition.left}).fadeIn(300);
 		$('body').append(dynamicPanel);
 	}
-	
+
 	if(this.view.config.getConfigParam('theme') == 'UCCP') {
 		/*
 		 * if this is a UCCP project then we will post the current step
@@ -358,7 +358,7 @@ Node.prototype.render = function(contentPanel, studentWork, disable) {
 		 */
 		this.extraData = "";
 		var blueJProjectPath = this.content.getContentJSON().blueJProjectPath;
-		
+
 		if(blueJProjectPath != null) {
 			this.extraData = blueJProjectPath;
 		}
@@ -386,15 +386,13 @@ Node.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisit, ch
  * Renders the summary of all students' work into the div. The grading tool will pass in a
  * div id to this function and this function will insert the student data
  * into the div.
- * 
- * @param divId the id of the div we will render the student work into
- * @param nodeVisit the student work
- * @param childDivIdPrefix (optional) a string that will be prepended to all the 
- * div ids use this to prevent DOM conflicts such as when the show all work div
- * uses the same ids as the show flagged work div
- * @param workgroupId the id of the workgroup this work belongs to
+ * @param workgroupIdToWork Object mapping from workgroupId to their work
+ * @param dom DOM element to render the summary in
+ *
+ * @param workgroupIdToWork
+ * @param dom where to render the summary view
  */
-Node.prototype.renderSummaryView = function() {
+Node.prototype.renderSummaryView = function(workgroupIdToWork,dom) {
 	// override by children
 };
 
@@ -418,10 +416,10 @@ Node.prototype.renderConstraints = function() {
 	if(this.content != null) {
 		//check if there is a getContentJSON function
 		if(this.content.getContentJSON) {
-			
+
 			//get the content JSON
 			var contentJSON = this.content.getContentJSON();
-			
+
 			/*
 			 * check if this step contains the constraint that it must
 			 * be completed before moving on to future steps. they
@@ -430,7 +428,7 @@ Node.prototype.renderConstraints = function() {
 			 */ 
 			if(contentJSON.workOnXBeforeAdvancing) {
 				var buttonName = null;
-				
+
 				if(this.isPartOfReviewSequence()) {
 					/*
 					 * if this step is a review sequence start or annotate node
@@ -443,7 +441,7 @@ Node.prototype.renderConstraints = function() {
 						buttonName = 'submit';
 					}
 				}
-				
+
 				//add the constraint
 				//this.view.eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.utils.generateKey(20), updateAfterAdd: true, buttonName: buttonName});				
 			}
@@ -519,64 +517,64 @@ Node.prototype.nodeJSON = function(contentBase){
 	if(this.type=='sequence'){
 		/* create and return sequence object */
 		var sequence = {
-			type:'sequence',
-			identifier:this.id,
-			title:this.title,
-			view:this.getView(),
-			tags:this.tags,
-			tagMaps:this.tagMaps,
-			refs:[]
+				type:'sequence',
+				identifier:this.id,
+				title:this.title,
+				view:this.getView(),
+				tags:this.tags,
+				tagMaps:this.tagMaps,
+				refs:[]
 		};
-		
+
 		/* add children ids to refs */
 		for(var l=0;l<this.children.length;l++){
 			sequence.refs.push(this.children[l].id);
 		};
-		
+
 		return sequence;
 	} else {
 		/* create and return node object */
 		var node = {
-			type:this.type,
-			identifier:this.id,
-			title:this.title,
-			hints:this.hints,
-			ref:this.content.getFilename(contentBase),
-			previousWorkNodeIds:this.prevWorkNodeIds,
-			populatePreviousWorkNodeId:this.populatePreviousWorkNodeId,
-			tags:this.tags,
-			tagMaps:this.tagMaps,
-			links:this.links
+				type:this.type,
+				identifier:this.id,
+				title:this.title,
+				hints:this.hints,
+				ref:this.content.getFilename(contentBase),
+				previousWorkNodeIds:this.prevWorkNodeIds,
+				populatePreviousWorkNodeId:this.populatePreviousWorkNodeId,
+				tags:this.tags,
+				tagMaps:this.tagMaps,
+				links:this.links
 		};
 
 		//set the peerReview attribute if needed
 		if(this.peerReview != null) {
 			node.peerReview = this.peerReview;
 		}
-		
+
 		//set the teacherReview attribute if needed
 		if(this.teacherReview != null) {
 			node.teacherReview = this.teacherReview;
 		}
-		
+
 		//set the reviewGroup attribute if needed
 		if(this.reviewGroup != null) {
 			node.reviewGroup = this.reviewGroup;
 		}
-		
+
 		//set the associatedStartNode attribute if needed
 		if(this.associatedStartNode != null) {
 			node.associatedStartNode = this.associatedStartNode;
 		}
-		
+
 		//set the associatedAnnotateNode attribute if needed
 		if(this.associatedAnnotateNode != null) {
 			node.associatedAnnotateNode = this.associatedAnnotateNode;
 		}
-		
+
 		/* set class */
 		node['class'] = this.className;
-		
+
 		return node;
 	}
 };
@@ -618,7 +616,7 @@ Node.prototype.injectBaseRef = function(content) {
 		// NATE did this...  to check for node specific base urls
 		// var contentBaseUrl = "";
 		var cbu = "";   
-		
+
 		if (this.ContentBaseUrl) {
 			// NATE screwed with this also
 			cbu = this.ContentBaseUrl;
@@ -633,37 +631,37 @@ Node.prototype.injectBaseRef = function(content) {
 			}
 		} else {
 			//set the content base url to the step type folder path 
-			
+
 			//get the content url e.g. "node/openresponse/openresponse.html"
 			var contentUrl = this.baseHtmlContent.getContentUrl();
-			
+
 			//get the content url path e.g. "node/openresponse"
 			contentUrlPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
-			
+
 			//get the window location e.g. "http://localhost:8080/vlewrapper/vle/vle.html"
 			var loc = window.location.toString();
-			
+
 			//get the vle location e.g. "http://localhost:8080/vlewrapper/vle/"
 			var vleLoc = loc.substring(0, loc.indexOf('/vle/')) + '/vle/';
-			
+
 			//create the base href path e.g. "http://localhost:8080/vlewrapper/vle/node/openresponse/"
 			cbu = vleLoc + contentUrlPath + '/';
 		}
 
 		//add any missing html, head or body tags
 		content = this.addMissingTags(content);
-		
+
 		//create the base tag
 		var baseRefTag = "<base href='" + cbu + "'/>";
 
 		//get the content in all lowercase
 		var contentToLowerCase = content.toLowerCase();
-		
+
 		//get the index of the open head tag
 		var indexOfHeadOpenTag = contentToLowerCase.indexOf("<head>");
-		
+
 		var newContent = "";
-		
+
 		//check if there is an open head tag
 		if(indexOfHeadOpenTag != -1) {
 			//insert the base tag after the head open tag
@@ -671,12 +669,12 @@ Node.prototype.injectBaseRef = function(content) {
 		} else {
 			newContent = content;
 		}
-		
+
 		// check for tinymce flv embed instances, inject baseURI into any 'url' flashvars
 		if(newContent.match('/vlewrapper/vle/jquery/tinymce/jscripts/tiny_mce/plugins/media/moxieplayer.swf')){
 			newContent = newContent.replace(/url=assets/g,'url=' + cbu + 'assets');
 		}
-		
+
 		//return the updated content
 		return newContent;
 	}
@@ -698,7 +696,7 @@ Node.prototype.addMissingTags = function(content) {
 	 * <html>
 	 * </html>
 	 */
-	
+
 	//check if the content contains the body open tag
 	if(!this.containsBodyOpenTag(content)) {
 		/*
@@ -706,13 +704,13 @@ Node.prototype.addMissingTags = function(content) {
 		 * by comparing them to lower case tags
 		 */
 		var contentToLowerCase = content.toLowerCase();
-		
+
 		//get the index of the html open tag
 		var indexOfHtmlOpenTag = contentToLowerCase.indexOf("<html>");
-		
+
 		//get the index of the head close tag
 		var indexOfHeadCloseTag = contentToLowerCase.indexOf("</head>");
-		
+
 		if(indexOfHeadCloseTag != -1) {
 			//head close tag was found so we will insert '<body>' right after it
 			content = this.insertString(content, indexOfHeadCloseTag + "</head>".length, "<body>");
@@ -730,7 +728,7 @@ Node.prototype.addMissingTags = function(content) {
 			content = "<body>" + content;
 		}
 	}
-	
+
 	//check if the content contains the body close tag
 	if(!this.containsBodyCloseTag(content)) {
 		/*
@@ -738,10 +736,10 @@ Node.prototype.addMissingTags = function(content) {
 		 * by comparing them to lower case tags
 		 */
 		var contentToLowerCase = content.toLowerCase();
-		
+
 		//get the index of the html close tag
 		var indexOfHtmlCloseTag = contentToLowerCase.indexOf("</html>");
-		
+
 		if(indexOfHtmlCloseTag != -1) {
 			//html close tag was found so we will insert '</body>' right before it
 			content = this.insertString(content, indexOfHtmlCloseTag, "</body>");
@@ -758,10 +756,10 @@ Node.prototype.addMissingTags = function(content) {
 		 * by comparing them to lower case tags
 		 */
 		var contentToLowerCase = content.toLowerCase();
-		
+
 		//get the index of the html open tag
 		var indexOfHtmlOpenTag = contentToLowerCase.indexOf("<html>");
-		
+
 		if(indexOfHtmlOpenTag != -1) {
 			//html open tag was found so we will insert '<head>' right after it
 			content = this.insertString(content, indexOfHtmlOpenTag + "<html>".length, "<head>");
@@ -773,7 +771,7 @@ Node.prototype.addMissingTags = function(content) {
 			content = "<head>" + content;			
 		}
 	}
-	
+
 	//check if the content contains the head close tag
 	if(!this.containsHeadCloseTag(content)) {
 		/*
@@ -781,10 +779,10 @@ Node.prototype.addMissingTags = function(content) {
 		 * by comparing them to lower case tags
 		 */
 		var contentToLowerCase = content.toLowerCase();
-		
+
 		//get the index of the body close tag (body open tag should always exist)
 		var indexOfBodyOpenTag = contentToLowerCase.indexOf("<body>");
-		
+
 		if(indexOfBodyOpenTag != -1) {
 			//we need to insert '</head>' right before the open body tag
 			content = this.insertString(content, indexOfBodyOpenTag, "</head>");
@@ -796,13 +794,13 @@ Node.prototype.addMissingTags = function(content) {
 		//add the html open tag to the beginning of the content
 		content = "<html>" + content;
 	}
-	
+
 	//check if the content contains the html close tag
 	if(!this.containsHtmlCloseTag(content)) {
 		//add the html close tag to the end of the content
 		content = content + "</html>";
 	}
-	
+
 	return content;
 };
 
@@ -816,13 +814,13 @@ Node.prototype.addMissingTags = function(content) {
 Node.prototype.insertString = function(content, position, stringToInsert) {
 	//get everything before the position
 	var beginning = content.substring(0, position);
-	
+
 	//get everything after the position
 	var end = content.substring(position);
-	
+
 	//combine everything with the stringToInsert inbetween
 	var newContent = beginning + stringToInsert + end;
-	
+
 	return newContent;
 };
 
@@ -838,16 +836,16 @@ Node.prototype.containsTags = function(content, tags) {
 	if(content != null) {
 		//make the content lowercase so we can compare the lowercase tags
 		var contentToLowerCase = content.toLowerCase();
-		
+
 		//loop through all the tags
 		for(var x=0; x<tags.length; x++) {
 			//get a tag
 			var tag = tags[x];
-			
+
 			if(tag != null) {
 				//make the tag lower case
 				tag = tag.toLowerCase();
-				
+
 				//check if we found the tag 
 				if(contentToLowerCase.indexOf(tag) == -1) {
 					//we did not find the tag
@@ -856,7 +854,7 @@ Node.prototype.containsTags = function(content, tags) {
 			}
 		}
 	}
-	
+
 	//we found all the tags
 	return true;
 };
@@ -933,9 +931,9 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 	 * http://localhost:8080/webapp/author/authorproject.html?forward=filemanager&projectId=96&command=retrieveFile&fileName=
 	 */
 	var contentBaseUrlString = this.view.getConfig().getConfigParam('getContentBaseUrl');
-	
+
 	var lastSlashIndex = -1;
-	
+
 	if(contentBaseUrlString) {
 		if(contentBaseUrlString.charAt(contentBaseUrlString.length - 1) == '/') {
 			/*
@@ -955,20 +953,20 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 			lastSlashIndex = contentBaseUrlString.lastIndexOf('/');
 		}
 	}
-	
+
 	var projectFolder = "";
-	
+
 	/*
 	 * get the vlewrapper base url
 	 * e.g.
 	 * http://localhost:8080/curriculum
 	 */
 	var vlewrapperBaseUrl = "";
-	
+
 	if(this.view.vlewrapperBaseUrl) {
 		vlewrapperBaseUrl = this.view.vlewrapperBaseUrl;
 	}
-	
+
 	//try to get the project folder from the relativeProjectUrl
 	if(this.view.relativeProjectUrl) {
 		/*
@@ -977,10 +975,10 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 		 * e.g.
 		 * /135/wise4.project.json
 		 */
-		
+
 		var indexFirstSlash = this.view.relativeProjectUrl.indexOf('/');
 		var indexSecondSlash = this.view.relativeProjectUrl.indexOf('/', indexFirstSlash + 1);
-		
+
 		/*
 		 * get the project folder
 		 * e.g.
@@ -988,12 +986,12 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 		 */
 		projectFolder = this.view.relativeProjectUrl.substring(0, indexSecondSlash);
 	}
-	
+
 	//add a '/' at the end of the project folder if it doesn't end with '/'
 	if(projectFolder.charAt(projectFolder.length - 1) != '/') {
 		projectFolder += '/';
 	}
-	
+
 	/*
 	 * combine the vlewrapper base url and the project folder
 	 * e.g.
@@ -1002,7 +1000,7 @@ Node.prototype.getAuthoringModeContentBaseUrl = function() {
 	 * contentBaseUrl=http://localhost:8080/curriculum/135/
 	 */
 	var contentBaseUrl = vlewrapperBaseUrl + projectFolder;
-	
+
 	return contentBaseUrl;
 };
 
@@ -1042,23 +1040,23 @@ Node.prototype.handlePreviousOutsideLink = function(thisObj, thisContentPanel) {
 			window.frames["ifrm"].host;
 		} catch(err) {
 			//content was from another domain
-			
+
 			/*
 			 * call back() to navigate back to the htmlnode page that contained
 			 * the link the student clicked on to access an outside page
 			 */
 			history.back();
-			
+
 			//call render to render the node we want to navigate to
 			setTimeout(function() {thisObj.render(thisContentPanel, thisObj.studentWork);}, 500);
-			
+
 			/*
 			 * tell the caller the student was at an outside link so
 			 * they don't need to call render()
 			 */
 			return true;
 		}
-		
+
 		//tell the caller the student was not at an outside link
 		return false;
 	};
@@ -1076,7 +1074,7 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 	//only do anything if there is anything to do
 	if(this.prevWorkNodeIds != null && this.prevWorkNodeIds.length>0){
 		var html = '';
-		
+
 		//loop through and add any previous work to html
 		for(var n=0;n<this.prevWorkNodeIds.length;n++){
 			if(this.view.state != null) {
@@ -1084,10 +1082,10 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 				if(work){
 					//get the node object
 					var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
-					
+
 					//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
 					var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(node.id);
-					
+
 					if(typeof work == "string") {
 						//replace all \n with <br>
 						work = work.replace(/\n/g, '<br>');
@@ -1095,19 +1093,19 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 						//get the html view for the work
 						work = node.getStudentWorkHtmlView(work);
 					}
-					
+
 					//display the previous work step number and title along with the work
 					html += 'Remember, your response to step ' + stepNumberAndTitle + ' was<br>' + work + '</br></br>';
 				};
 			}
 		};
-		
+
 		//add reminders to this node's html if div exists
 		var prevWorkDiv = doc.getElementById('previousWorkDiv');
 		if(prevWorkDiv){
 			if(html != null && html != "") {
 				prevWorkDiv.innerHTML = html;
-				
+
 				//make the div visible
 				prevWorkDiv.style.display = "block";
 			}
@@ -1132,13 +1130,13 @@ Node.prototype.copy = function(eventName, project){
 		/* fire event with arguments: event name, [initial node id, copied node id] */
 		o[0].view.eventManager.fire(o[1],[o[0].id,text]);
 	};
-	
+
 	/* failure callback */
 	var failureCreateCallback = function(obj, o){
 		/* fire event with initial node id as argument so that listener knows that copy failed */
 		o[0].view.eventManager.fire(o[1],o[0].id);
 	};
-	
+
 	if(this.type!='sequence'){
 		/* copy node section */
 		var project = this.view.getProject();
@@ -1148,7 +1146,7 @@ Node.prototype.copy = function(eventName, project){
 		} else {
 			var contentFile = '';
 		};
-		
+
 		if(this.type=='MySystemNode'){
 			this.view.notificationManager.notify('My System Nodes cannot be copied, ignoring', 3);
 			this.view.eventManager.fire(eventName,[this.id, null]);
@@ -1156,18 +1154,18 @@ Node.prototype.copy = function(eventName, project){
 		};
 
 		var contentString = encodeURIComponent(this.content.getContentString());
-		
+
 		/*
 		 * get the project file name
 		 * e.g.
 		 * /wise4.project.json
 		 */
 		var projectFileName = this.view.utils.getContentPath(this.view.authoringBaseUrl,project.getUrl());
-		
+
 		this.view.connectionManager.request('POST', 1, this.view.requestUrl, {forward:'filemanager', projectId:this.view.portalProjectId, command:'copyNode', projectFileName: projectFileName, data: contentString, type: this.type, title: project.generateUniqueTitle(this.title), nodeClass: this.className, contentFile: contentFile}, successCreateCallback, [this,eventName], failureCreateCallback);
 	} else {
 		/* copy sequence section */
-		
+
 		/* listener that listens for the event when all of its children have finished copying 
 		 * then copies itself and finally fires the event to let other listeners know that it
 		 * has finished copying */
@@ -1177,46 +1175,46 @@ Node.prototype.copy = function(eventName, project){
 			} else {
 				var idList = [];
 			};
-			
+
 			if(args[1]){
 				var  msg = args[1];
 			} else {
 				var msg = '';
 			};
-			
+
 			var node = obj[0];
 			var eventName = obj[1];
 			var project = node.view.getProject();
-			
+
 			var seqJSON = {
-				type:'sequence',
-				identifier: project.generateUniqueId(node.id),
-				title: project.generateUniqueTitle(node.title),
-				view: node.getView(),
-				refs:idList
+					type:'sequence',
+					identifier: project.generateUniqueId(node.id),
+					title: project.generateUniqueTitle(node.title),
+					view: node.getView(),
+					refs:idList
 			};
-			
+
 			/*
 			 * get the project file name
 			 * e.g.
 			 * /wise4.project.json
 			 */
 			var projectFileName = node.view.utils.getContentPath(node.view.authoringBaseUrl,node.view.getProject().getUrl());
-			
+
 			node.view.connectionManager.request('POST', 1, node.view.requestUrl, {forward:'filemanager',projectId:node.view.portalProjectId, command: 'createSequenceFromJSON', projectFileName: projectFileName, data: $.stringify(seqJSON)}, successCreateCallback, [node,eventName], failureCreateCallback);
 		};
-		
+
 		/* set up event to listen for when this sequences children finish copying */
 		var seqEventName = this.view.project.generateUniqueCopyEventName();
 		this.view.eventManager.addEvent(seqEventName);
 		this.view.eventManager.subscribe(seqEventName, listener, [this, eventName]);
-		
+
 		/* collect children ids in an array */
 		var childIds = [];
 		for(var w=0;w<this.children.length;w++){
 			childIds.push(this.children[w].id);
 		};
-		
+
 		/* process by passing childIds and created event name to copy in project */
 		this.view.getProject().copyNodes(childIds, seqEventName);
 	};
@@ -1242,73 +1240,73 @@ Node.prototype.showSmartFilter = function(doShow) {
  */
 Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 	var showAllWorkHtmlSoFar = "";
-	
+
 	if(divIdPrefix == null) {
 		divIdPrefix = "";
 	}
-	
-    var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
-    if (nodeVisitArray.length > 0) {
-        var states = [];
-        //get the latest node visit that has student work
-        var latestNodeVisit = vle.state.getLatestNodeVisitByNodeId(this.id);
-        for (var i = 0; i < nodeVisitArray.length; i++) {
-            var nodeVisit = nodeVisitArray[i];
-            for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
-                states.push(nodeVisit.nodeStates[j]);
-            }
-        }
-        var latestState = states[states.length - 1];
-        
-        if(latestState!=null){
-        	// TODO: i18n
-            showAllWorkHtmlSoFar += "<p class='info lastVisit'>Last visited on ";
-        } else {
-        	// TODO: i18n
-            showAllWorkHtmlSoFar += "<p class='info'>Last visited on ";
-        }
-        
-        if(latestNodeVisit!=null){
-        	showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString() + "</p>";
-        	
-        };
-        
-        if(latestState!=null){
-        	var divClass = "showallLatestWork";
-        	var divStyle = "";
-        	if (this.type == "MySystemNode") {
-        		divClass = "mysystem";
-        		divStyle = "height:350px";
-        	}
-        	if (this.type == "SVGDrawNode") {
-        		divClass = "svgdraw";
-        		//divStyle = "height:300px; width:375px; border:1px solid #aaa";
-        		divStyle = "width:375px; border:1px solid #aaa";
-        	} 
-        	//create the div id for where we will display the student work
-        	var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
-        	var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
-        	
-        	if(this.type == "MySystemNode") {
-        		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
-    			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
-        	} else if(this.hasGradingView()) {
-        		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
-        		'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\"></div>';
-        	} else {
-        		showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
-        			'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
-        	}
-        };
-    }
-    else {
-        showAllWorkHtmlSoFar += "<p class='info'>You haven't visited this step.</p>";
-    }
-    
-    for (var i = 0; i < this.children.length; i++) {
-        showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
-    }
-    return showAllWorkHtmlSoFar;
+
+	var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
+	if (nodeVisitArray.length > 0) {
+		var states = [];
+		//get the latest node visit that has student work
+		var latestNodeVisit = vle.state.getLatestNodeVisitByNodeId(this.id);
+		for (var i = 0; i < nodeVisitArray.length; i++) {
+			var nodeVisit = nodeVisitArray[i];
+			for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
+				states.push(nodeVisit.nodeStates[j]);
+			}
+		}
+		var latestState = states[states.length - 1];
+
+		if(latestState!=null){
+			// TODO: i18n
+			showAllWorkHtmlSoFar += "<p class='info lastVisit'>Last visited on ";
+		} else {
+			// TODO: i18n
+			showAllWorkHtmlSoFar += "<p class='info'>Last visited on ";
+		}
+
+		if(latestNodeVisit!=null){
+			showAllWorkHtmlSoFar += "" + new Date(parseInt(latestNodeVisit.visitStartTime)).toLocaleString() + "</p>";
+
+		};
+
+		if(latestState!=null){
+			var divClass = "showallLatestWork";
+			var divStyle = "";
+			if (this.type == "MySystemNode") {
+				divClass = "mysystem";
+				divStyle = "height:350px";
+			}
+			if (this.type == "SVGDrawNode") {
+				divClass = "svgdraw";
+				//divStyle = "height:300px; width:375px; border:1px solid #aaa";
+				divStyle = "width:375px; border:1px solid #aaa";
+			} 
+			//create the div id for where we will display the student work
+			var divId = divIdPrefix + "latestWork_"+latestNodeVisit.id;
+			var contentBaseUrl = this.view.getConfig().getConfigParam('getContentBaseUrl');
+
+			if(this.type == "MySystemNode") {
+				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+				'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
+			} else if(this.hasGradingView()) {
+				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+				'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\"></div>';
+			} else {
+				showAllWorkHtmlSoFar += '<div class=\"showallLatest\">Latest Work:' + '</div>' + 
+				'<div id=\"'+divId+'\" contentBaseUrl=\"'+contentBaseUrl+'\" class=\"'+divClass+'\" style=\"'+divStyle+'\">' + this.translateStudentWork(latestState.getStudentWork()) + '</div>';
+			}
+		};
+	}
+	else {
+		showAllWorkHtmlSoFar += "<p class='info'>You haven't visited this step.</p>";
+	}
+
+	for (var i = 0; i < this.children.length; i++) {
+		showAllWorkHtmlSoFar += this.children[i].getShowAllWorkHtml();
+	}
+	return showAllWorkHtmlSoFar;
 };
 
 /**
@@ -1317,7 +1315,7 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 Node.prototype.injectKeystrokeManagerScript = function(contentStr){
 	var loc = window.location.toString();
 	var keystrokeLoc = '<script type="text/javascript" src="' + loc.substring(0, loc.indexOf('/vle/')) + '/vle/util/keystrokemanager.js"></script></head>';
-	
+
 	return contentStr.replace('</head>', keystrokeLoc);
 };
 
@@ -1342,7 +1340,7 @@ Node.prototype.linkTo = function(key){
 		this.view.notificationManager.notify('Could not find link to step, aborting operation.',3);
 		return;
 	};
-	
+
 	var nodePosition = link.nodePosition;
 	var nodeIdentifier = link.nodeIdentifier;
 	if(nodePosition == null && nodeIdentifier == null){
@@ -1378,7 +1376,7 @@ Node.prototype.getLink = function(key){
 			return this.links[b];
 		}
 	}
-	
+
 	return null;
 };
 
@@ -1466,11 +1464,11 @@ Node.prototype.setNotCompleted = function() {
  */
 Node.prototype.isCompleted = function(nodeState) {
 	var result = false;
-	
+
 	if(nodeState != null && nodeState != '') {
 		result = true;
 	}
-	
+
 	return result;
 };
 
@@ -1535,7 +1533,7 @@ Node.prototype.getStudentWorkHtmlView = function(work) {
  * the latest student step state for the given step.
  */
 Node.prototype.processStudentWork = function(studentWork) {
-	
+
 };
 
 /**
@@ -1568,17 +1566,17 @@ Node.prototype.onBeforeCreateNavigationHtml = function() {
  */
 Node.prototype.getTagMapFunctionByName = function(functionName) {
 	var fun = null;
-	
+
 	//get all the tag map function for this step type
 	var tagMapFunctions = this.getTagMapFunctions();
-	
+
 	//loop through all the tag map functions
 	for(var x=0; x<tagMapFunctions.length; x++) {
 		//get a tag map function
 		var tagMapFunction = tagMapFunctions[x];
-		
+
 		if(tagMapFunction != null) {
-			
+
 			//check if the function name matches
 			if(functionName == tagMapFunction.functionName) {
 				//the function name matches so we have found what we want
@@ -1587,7 +1585,7 @@ Node.prototype.getTagMapFunctionByName = function(functionName) {
 			}			
 		}
 	};
-	
+
 	return fun;
 };
 
@@ -1637,7 +1635,7 @@ Node.prototype.getAutoGradedFields = function() {
  */
 Node.prototype.canImportWork = function(importFromNode) {
 	return this.importableFromNodes &&
-		this.importableFromNodes.indexOf(importFromNode.type) > -1;
+	this.importableFromNodes.indexOf(importFromNode.type) > -1;
 };
 
 /**
@@ -1665,24 +1663,24 @@ Node.prototype.canSpecialExport = function() {
 Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 	//default values for the importWork
 	var workToImport = [];
-	
+
 	//the node ids of the steps that come before the current step and have the given tag
 	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
-	
+
 	if(nodeIds != null) {
 		//loop through all the node ids that come before the current step and have the given tag
 		for(var x=0; x<nodeIds.length; x++) {
 			//get a node id
 			var nodeId = nodeIds[x];
-			
+
 			if(nodeId != null) {
 				//get the node
 				var node = this.view.getProject().getNodeById(nodeId);
-				
+
 				if(node != null) {
 					//get the latest work for the node
 					var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
-					
+
 					if(nodeState != null && nodeState != '') {
 						//add the work to the array of work to import
 						workToImport.push(nodeState);
@@ -1691,7 +1689,7 @@ Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 			}
 		}
 	}
-	
+
 	return workToImport;
 };
 
@@ -1705,49 +1703,163 @@ Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 Node.prototype.showPreviousWork = function(previousWorkDiv, tagName, functionArgs) {
 	//the node ids of the steps that come before the current step and have the given tag
 	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
-	
+
 	//the signed in workgroup id
 	var workgroupId = this.view.userAndClassInfo.getWorkgroupId();
-	
+
 	//clear out the previous work div
 	previousWorkDiv.html('');
-	
+
 	if(nodeIds != null) {
 		//loop through all the node ids that come before the current step and have the given tag
 		for(var x=0; x<nodeIds.length; x++) {
 			//get a node id
 			var nodeId = nodeIds[x];
-			
+
 			if(nodeId != null) {
 				//get the node object for the step we will retrieve work from
 				var node = this.view.getProject().getNodeById(nodeId);
-				
+
 				//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
 				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
-				
+
 				if(node != null) {
 					//get the latest work for the node
 					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
-					
+
 					//make the id for the div that we will show previous work in for the step
 					var showPreviousWorkDivId = 'showPreviousWork_' + nodeId;
-					
+
 					//create the div to display the work for the step
 					var showPreviousWorkForNodeDiv = $('<div id="' + showPreviousWorkDivId + '"></div>');
-					
+
 					//put the div into the parent previous work div
 					previousWorkDiv.append(showPreviousWorkForNodeDiv);
-					
+
 					if(nodeVisit != null) {
 						//render the grading view
 						node.renderGradingView(showPreviousWorkForNodeDiv, nodeVisit, null, workgroupId);
 					}
-					
+
 					//add a header so the student can tell what step the work was from
 					showPreviousWorkForNodeDiv.prepend('Your work from Step ' + stepNumberAndTitle + ' was<br>');
-					
+
 					//make the show previous work div visible
 					previousWorkDiv.show();
+				}
+			}
+		}
+	}
+};
+
+/**
+ * Show the aggregate work for all the steps with the given tag. Show it in the aggregateWorkDiv.
+ * @param aggregateWorkDiv the div that we will display all the aggregate work in
+ * @param tagName we will get all the steps with the given tag and
+ * display work from them
+ * @param functionArgs the arguments to this tag map function
+ */
+Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionArgs) {
+	//the node ids of the steps that come before the current step and have the given tag
+	var nodeIds = this.view.getProject().getPreviousNodeIdsByTag(tagName, this.id);
+
+	//the signed in workgroup id
+	var workgroupId = this.view.userAndClassInfo.getWorkgroupId();
+
+	//clear out the aggregate work div
+	aggregateWorkDiv.html('');
+
+	if(nodeIds != null) {
+		//loop through all the node ids that come before the current step and have the given tag
+		for(var x=0; x<nodeIds.length; x++) {
+			//get a node id
+			var nodeId = nodeIds[x];
+
+			if(nodeId != null) {
+				//get the node object for the step we will retrieve work from
+				var node = this.view.getProject().getNodeById(nodeId);
+
+				//get the step number and title e.g. "Step 1.3: Explain why the sun is hot"
+				var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(nodeId);
+
+				if(node != null) {
+					//get the latest work for the node
+					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
+
+					//make the id for the div that we will show previous work in for the step
+					var showAggregateWorkDivId = 'showAggregateWork_' + nodeId;
+
+					//create the div to display the work for the step
+					var showAggregateWorkForNodeDiv = $('<div id="' + showAggregateWorkDivId + '"></div>');
+
+					//put the div into the parent previous work div
+					aggregateWorkDiv.append(showAggregateWorkForNodeDiv);
+
+					if (this.view.getConfig().getConfigParam("mode") != "run") {
+						// if not in run mode, show each of the step titles and also say that aggregate will show up when a run is set up
+						showAggregateWorkForNodeDiv.append(this.view.getI18NString("student_aggregate_view_preview_mode_default_text"));
+						//make the show aggregate work div visible
+						aggregateWorkDiv.show();
+					} else {
+						showAggregateWorkForNodeDiv.prepend(this.view.getI18NStringWithParams("student_aggregate_view_intro_text", [stepNumberAndTitle]));
+						
+						// callback for when classmates' work has been returned.
+						function getClassmateResponsesCallback(responseText, responseXML, handlerArgs) {
+							var nodeIdOfAggregateWork = handlerArgs.nodeId;
+							var vle = handlerArgs.vle;
+							var nodeOfAggregateWork = vle.getProject().getNodeById(nodeIdOfAggregateWork);
+							var aggregateWorkDiv = handlerArgs.aggregateWorkDiv;
+
+							var vleStates = VLE_STATE.prototype.parseDataJSONString(responseText);
+							var workgroupIdToWork = {}; // maps workgroupId to their latest work.
+
+							//loop through all the vleStates, each vleState is for a workgroup
+							for(var x=0; x<vleStates.length; x++) {
+								//get a vleState
+								var vleState = vleStates[x];
+
+								//get the workgroup id
+								var workgroupId = vleState.dataId;
+
+								//get the revisions
+								var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
+
+								var latestNodeVisit = null;
+
+								if(nodeVisitRevisions.length > 0) {
+									//get the latest work for the current workgroup
+									latestNodeVisit = nodeVisitRevisions[nodeVisitRevisions.length - 1];
+								}
+
+								//check if the student submitted any work, and add to workgroupIdToWork array
+								if(latestNodeVisit != null) {
+									workgroupIdToWork[workgroupId] = latestNodeVisit.getLatestWork().response;
+								}
+							}
+							// now tell the Node to render the summary view.
+							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork,aggregateWorkDiv);
+						};
+						// make the request to get student work for this specific nodeId.
+						this.view.connectionManager.request(
+								'GET', 
+								2, 
+								this.view.config.getConfigParam('getStudentDataUrl'), 
+								{
+									type: 'aggregate', 
+									periodId: this.view.userAndClassInfo.getPeriodId(), 
+									userId: this.view.userAndClassInfo.getWorkgroupId() + ":" + this.view.userAndClassInfo.getClassmateIdsByPeriodId(this.view.userAndClassInfo.getPeriodId()), 
+									runId:  this.view.config.getConfigParam('runId'), 
+									nodeIds: nodeId,
+									useCachedWork:false
+								}, 
+								getClassmateResponsesCallback, 
+								{
+									vle: this.view,
+									nodeId: nodeId,
+									aggregateWorkDiv: aggregateWorkDiv
+								}
+						);
+					}
 				}
 			}
 		}
@@ -1792,11 +1904,11 @@ Node.prototype.getStepIconForStatus = function(status) {
  */
 Node.prototype.getStepIconForStatusFromContent = function(status) {
 	var stepIcon = null;
-	
+
 	if(status != null) {
 		//get the step content
 		var content = this.content.getContentJSON();
-		
+
 		if(content != null) {
 			//get the statusStepIcons object if it is present in this step
 			if(content.statusStepIcons != null) {
@@ -1808,7 +1920,7 @@ Node.prototype.getStepIconForStatusFromContent = function(status) {
 			}
 		}		
 	}
-	
+
 	return stepIcon;
 };
 
