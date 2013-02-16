@@ -502,10 +502,10 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		headerTD = createElement(document, 'td');
 		
 		var selectColumnToAxisMappingDropDownStyle = '';
-		
-		if(this.content.graphOptions != null && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+
+		if(this.content.graphOptions != null && this.content.graphOptions.enableGraphing && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
 			//the author will select the axes so we will show the drop downs to select the axis for the columns
-			selectColumnToAxisMappingDropDownStyle = 'display:block';
+			selectColumnToAxisMappingDropDownStyle = 'display:inline';
 		} else {
 			//the author will not select the axes so we will not show the drop downs to select the axis for the columns
 			selectColumnToAxisMappingDropDownStyle = 'display:none';
@@ -517,6 +517,10 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		
 		//create the drop down to select the axis for the columns
 		var selectAxisDropDown = createElement(document, 'select', {id: 'selectColumnToAxisMappingDropDown_' + x, name: 'selectColumnToAxisMappingDropDown_' + x, class:'selectColumnToAxisMappingDropDown', style: selectColumnToAxisMappingDropDownStyle, onchange: 'eventManager.fire("tableSelectColumnToAxisMappingDropDownChanged")'});
+		
+		//create the Axis text label
+		var axisTextLabel = createElement(document, 'p', {id: 'axisText_' + x, class: 'selectColumnToAxisMappingTextLabel', style:selectColumnToAxisMappingDropDownStyle});
+		axisTextLabel.innerHTML = 'Axis: ';
 		
 		//create the 'None' option for the drop down
 		var noneOption = createElement(document, 'option', {value:''});
@@ -548,6 +552,8 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		
 		headerTD.appendChild(insertColumnButton);
 		headerTD.appendChild(deleteColumnButton);
+		headerTD.appendChild(createBreak());
+		headerTD.appendChild(axisTextLabel);
 		headerTD.appendChild(selectAxisDropDown);
 		
 		headerTR.appendChild(headerTD);
@@ -1332,13 +1338,14 @@ View.prototype.TableNode.populateGraphOptions = function() {
 		if(this.content.graphOptions.graphSelectAxesType != null && this.content.graphOptions.graphSelectAxesType != '') {
 			//check the radio button for the select axes type
 			$('input[name=graphSelectAxesType][value=' + this.content.graphOptions.graphSelectAxesType + ']').attr('checked', true);
-			
-			if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+
+			if(this.content.graphOptions.enableGraphing && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
 				/*
 				 * show the drop downs in the columns to allow the author to select
 				 * which column will be used for which axis
 				 */
-				$('.selectColumnToAxisMappingDropDown').show();
+				$('.selectColumnToAxisMappingDropDown').css('display', 'inline');
+				$('.selectColumnToAxisMappingTextLabel').css('display', 'inline');
 			}
 		}
 		
@@ -1433,6 +1440,8 @@ View.prototype.TableNode.tableEnableGraphingClicked = function() {
 		//checkbox is not checked
 		this.content.graphOptions.enableGraphing = false;
 		$('#graphingOptionsDiv').hide();
+		$('.selectColumnToAxisMappingDropDown').hide();
+		$('.selectColumnToAxisMappingTextLabel').hide();
 	}		
 	
 	//fire source updated event, this will update the preview
@@ -1547,10 +1556,12 @@ View.prototype.TableNode.tableGraphSelectAxesTypeClicked = function() {
 		 * show the drop downs on each of the columns to let the author
 		 * select the axis for columns
 		 */
-		$('.selectColumnToAxisMappingDropDown').show();
+		$('.selectColumnToAxisMappingDropDown').css('display', 'inline');
+		$('.selectColumnToAxisMappingTextLabel').css('display', 'inline');
 	} else {
 		//hide the drop downs on each of the columns
 		$('.selectColumnToAxisMappingDropDown').hide();
+		$('.selectColumnToAxisMappingTextLabel').hide();
 	}
 	
 	//update the value in the content
