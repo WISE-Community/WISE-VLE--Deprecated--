@@ -30,7 +30,7 @@
 	     */
 	    function save() {
     	    //tell our cargraph object to save the data
-	    	cargraph.save();
+	    	if (typeof cargraph != "undefined") cargraph.save();
 	    }
 
 	    /*
@@ -108,8 +108,8 @@
 	     * Perform one frame of animation
 		 */
 	    function doOneFrame() {	
-	        var xValue = parseInt(cargraph.content.graphParams.xmin) + animationFrameIndex*animationFrameXIncrement;
-	        xValue = xValue.toFixed(numSignificantDigits);  // just need one significant digit	    		    
+	        var xValue = 1.0*parseInt(cargraph.content.graphParams.xmin) + animationFrameXIncrement*animationFrameIndex * 1.0*parseInt(cargraph.content.graphParams.xmax) / 60 *(typeof cargraph.content.animationTimeScaleFactor != "undefined" ? cargraph.content.animationTimeScaleFactor : 1.0);
+	        xValue = xValue.toFixed(numSignificantDigits);  // just need one significant digit	
 	        // 2011-05-02 Armin: important to multiply xmax with a number value to make
 	        // the comparison work, if not done xmax is a string and xValue 7.0 is bigger
 	        // than xmax 60
