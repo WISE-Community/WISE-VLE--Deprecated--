@@ -4,7 +4,7 @@
         "description": "Text on the File Manager button"
     },
     "ideas_button_text": {
-        "value": "Idee‘n",
+        "value": "IdeeÃ«n",
         "description": "Text on the Idea Manager button"
     },
     "addidea_button_text": {
@@ -12,11 +12,11 @@
         "description": "Text on the Add Idea button"
     },
     "grading_enlarge_student_work_text": {
-        "value": "Antwoorden van leerlingen vergroten ",
+        "value": "Vergroot antwoorden van leerlingen ",
         "description": "text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
     },
     "grading_show_all_revisions": {
-        "value": "Toon alle versies van het antwoord (niet enkel de laatste versie)",
+        "value": "Toon alle herzieningen van het antwoord (niet enkel de laatste versie)",
         "description": "text to show next to the 'Show All Revisions' checkbox in the grading tool"
     },
     "grading_hide_show_revisions": {
@@ -32,8 +32,8 @@
         "description": "Comment"
     },
     "flag": {
-        "value": "Op te volgen! ",
-        "description": "Flag, for flagging student's work using the flaggingtool"
+        "value": "Markeer met vlag",
+        "description": "Flag, for flagging student's work using the flagging tool"
     },
     "student_work": {
         "value": "LEERLINGENACTIVITEITEN ",
@@ -48,7 +48,7 @@
         "description": "TEAM"
     },
     "period": {
-        "value": "WISE-periode",
+        "value": "Periode",
         "description": "Period"
     },
     "grading_next_step": {
@@ -56,19 +56,19 @@
         "description": "'Next Step' button in the gradingtool that will show the next step in the project"
     },
     "mywork_button_text": {
-        "value": "Onze activiteiten/antwoorden",
-        "description": "Text on the My Work button"
+        "value": "Onze antwoorden",
+        "description": "Text on the My Work button for Student VLE"
     },
     "mywork_button_title": {
-        "value": "Onze antwoorden evalueren/herwerken",
+        "value": "Onze antwoorden herzien ",
         "description": "Text for mouse hover title on the My Work button"
     },
     "flagged_button_text": {
-        "value": "Op te volgen!",
+        "value": "Gemarkeerd met vlagje",
         "description": "Text on the Flagged button"
     },
     "flagged_button_title": {
-        "value": "Op te volgen antwoorden herwerken",
+        "value": "Gedeelde antwoorden met vlagje bekijken",
         "description": "Text for mouse hover title on the Flagged button"
     },
     "toggle_nav_button_text": {
@@ -76,11 +76,11 @@
         "description": "Text on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "toggle_nav_button_title": {
-        "value": "Kies volledig scherm (maak de navigatiebalk onzichtbaar) ",
+        "value": "Kies volledig scherm (=maak de navigatiebalk onzichtbaar) ",
         "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
     },
     "toggle_nav_button_text_off": {
-        "value": "Toon menu",
+        "value": "Toon navigatiebalk",
         "description": "Text on the Toggle Navigation button when navigation UI is off (hidden)"
     },
     "toggle_nav_button_title_off": {
@@ -120,7 +120,7 @@
         "description": "Text for mouse hover title on the Home button"
     },
     "gohome_button_text": {
-        "value": "Naar homepage",
+        "value": "Homepage",
         "description": "Text on the Home button"
     },
     "hint_button_text": {
@@ -128,16 +128,16 @@
         "description": "Text that shows up next to the Hint button"
     },
     "hint_button_title": {
-        "value": "Bekijk de tips",
-        "description": "Text for mouse hover title on the Hint button"
+        "value": "Bekijk de tips bij deze stap",
+        "description": "Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
     },
     "hint_title": {
-        "value": "Tips bij deze stap",
-        "description": "Title that shows up in the hint window"
+        "value": "Tips",
+        "description": "Title of the hint dialog window and the text that shows up next to the Hint button"
     },
     "hint_hint": {
-        "value": "Tip",
-        "description": "will be shown as Hint (1 of 2)"
+        "value": "tip",
+        "description": "Default Text label for 'hint'"
     },
     "hint_next": {
         "value": "Volgende",
@@ -168,7 +168,7 @@
         "description": "Text in Student Asset Manager when student is not allowed to remove a file"
     },
     "student_assets_import_success_message": {
-        "value": "Bestand succesvol ge•mporteerd",
+        "value": "Bestand succesvol geÃ¯mporteerd",
         "description": "Text 'Successfully imported file' in Student Asset Manager"
     },
     "student_assets_import_failure_message": {
@@ -200,7 +200,7 @@
         "description": "Text 'done', to mean completed"
     },
     "idea_basket": {
-        "value": "Onze idee‘n",
+        "value": "Onze ideeÃ«n",
         "description": "The text 'Idea Basket' in the Idea Manager"
     },
     "idea_basket_add_an_idea": {
@@ -208,7 +208,7 @@
         "description": "The text 'Add an Idea' in the Idea Manager"
     },
     "idea_basket_retrieval_error": {
-        "value": "Foutmelding: kan de idee‘n niet openen, klik vernieuwen (F5) om ze opnieuw te laden",
+        "value": "Foutmelding: kan de ideeÃ«n niet openen, klik vernieuwen (F5) om ze opnieuw te laden",
         "description": "Error message displayed when retrieving idea basket fails"
     },
     "grading_button_grade_by_step": {
@@ -220,7 +220,7 @@
         "description": "GradingTool: Text in the grade-by-team button"
     },
     "grading_button_view_student_uploaded_files": {
-        "value": "Bekijk de bestanden opgeladen door je leerlingen",
+        "value": "Bekijk de bestanden door je leerlingen opgeladen",
         "description": "GradingTool: Text in the View Student Uploaded Files button"
     },
     "grading_button_export_latest_student_work": {
@@ -232,7 +232,7 @@
         "description": "GradingTool: Text in the Export All Student Work button"
     },
     "grading_button_export_idea_baskets": {
-        "value": "Exporteer de idee‘n ",
+        "value": "Exporteer de ideeÃ«n ",
         "description": "GradingTool: Text in the Export Idea Baskets button"
     },
     "grading_button_export_explanation_builder_work": {
@@ -244,7 +244,7 @@
         "description": "GradingTool: Text in the Export Custom Student Work button"
     },
     "grading_button_export_student_names": {
-        "value": "Exporteer de deernemerslijst",
+        "value": "Exporteer de deelnemerslijst",
         "description": "GradingTool: Text in the Export Student Names button"
     },
     "grading_button_export_latest_student_work_description": {
@@ -256,15 +256,15 @@
         "description": "GradingTool: Description next the Export All Student Work button"
     },
     "grading_button_export_idea_baskets_description": {
-        "value": "(Exporteer alle herzieningen/aanvullingen mbt hun idee‘n)",
+        "value": "(Exporteer de opbouw en herzieningen van de ideeÃ«n)",
         "description": "GradingTool: Description next the Export Idea Baskets button"
     },
     "grading_button_export_explanation_builder_work_description": {
-        "value": "(Exporteer alle herzieningen/aanvullingen mbt het opbouwen van verklaringen)",
+        "value": "(Exporteer alle herzieningen mbt het opbouwen van verklaringen)",
         "description": "GradingTool: Description next the Export Explanation Builder Work button"
     },
     "student_assets_student_usage_exceeded_message": {
-        "value": "Limiet overschreden! Maximale ruimte bedraagt {0}, momenteel reeds {1} in gebruik. Gelieve enkele bestanden te verwijderen. ",
+        "value": "Limiet overschreden! Maximale ruimte bedraagt {0}, momenteel is reeds {1} in gebruik. Gelieve enkele bestanden te verwijderen. ",
         "description": "Text on a button in Student Asset Manager to delete a selected file"
     },
     "grading_button_export_custom_work_description": {
@@ -272,15 +272,15 @@
         "description": "GradingTool: Description next the Export Custom Student Work button"
     },
     "grading_button_export_student_names_description": {
-        "value": "(Exporteer deelnemerslijsten met de bijhorende gegevens: periode, groep, WISE ID en login) ",
+        "value": "(Exporteer deelnemerslijsten met de bijhorende gegevens: termijn, groep, WISE ID en login) ",
         "description": "GradingTool: Description next the Export Student Names button"
     },
     "grading_button_explanation": {
-        "value": "Uitleg",
+        "value": "Verklaring",
         "description": "GradingTool: Text in the Explanation button"
     },
     "grading_button_check_for_new_student_work": {
-        "value": "Controleer voor nieuwe leerlingenactiviteiten/antwoorden",
+        "value": "Controleer voor nieuwe leerlingenantwoorden",
         "description": "GradingTool: Text in the Check for New Student Work button"
     },
     "grading_button_save_changes": {
@@ -304,11 +304,11 @@
         "description": "text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
     },
     "grading_show_flagged_items_only": {
-        "value": "Enkel op te volgen activiteiten",
+        "value": "Enkel antwoorden met vlag",
         "description": "text to show next to the 'Show Flagged Items Only' checkbox in the grading tool"
     },
     "grading_hide_personal_info": {
-        "value": "Anonieme weergave zonder namen ",
+        "value": "Anonieme weergave",
         "description": "text to show next to the 'Hide Personal Info' checkbox in the grading tool"
     },
     "grading_sort_by_auto_graded_score_checkbox": {
@@ -324,8 +324,8 @@
         "description": "the text 'not available'"
     },
     "grading_open_premade_comments": {
-        "value": "Open vooraf opgemaakte feedback",
-        "description": "the text 'open premade comments' that will open the premadecomments window when clicked"
+        "value": "Open vooraf aangemaakte feedback",
+        "description": "the text 'open premade comments' that will open the premade comments window when clicked"
     },
     "score": {
         "value": "Score",
@@ -356,7 +356,7 @@
         "description": "the text 'question', to be shown next to the question that was presented to the student"
     },
     "grading_grade_by_team_percentage_project_completed": {
-        "value": "% van het project reeds afgerond",
+        "value": "% van het project reeds bezocht",
         "description": "GradingTool: grade by team % of project completed table column"
     },
     "grading_grade_by_team_header": {
@@ -364,15 +364,15 @@
         "description": "GradingTool: grade by team page header"
     },
     "grading_grade_by_step_all_periods": {
-        "value": "Alle WISE-perioden",
+        "value": "Alle perioden",
         "description": "GradingTool: grade by step All Periods select option when choosing whose work to filter by"
     },
     "grading_grade_by_step_percent_completed_step": {
-        "value": "% opende deze stap",
+        "value": "% Bezocht deze stap",
         "description": "GradingTool: grade by step % of Students Who Have Completed This Step table column"
     },
     "grading_grade_by_step_scored_items_only": {
-        "value": "enkel de ge‘valueerde stappen ",
+        "value": "enkel de geÃ«valueerde stappen ",
         "description": "GradingTool: grade by step scored items only table column"
     },
     "grading_grade_by_step_average_class_score": {
@@ -380,7 +380,7 @@
         "description": "GradingTool: grade by step Avg Class Score table column"
     },
     "grading_grade_by_step_items_to_review": {
-        "value": "Te evalueren activiteiten/antwoorden ",
+        "value": "Te evalueren antwoorden ",
         "description": "GradingTool: grade by step Items to Review table column"
     },
     "grading_grade_by_step_editable": {
@@ -412,11 +412,175 @@
         "description": "text to show in grading cells where only the latest revision is displayed"
     },
     "grading_no_work_warning": {
-        "value": "Deze groep heeft nog geen antwoord geformuleerd binnen deze stap. Evaluatie of feedback geven is niet mogelijk. ",
+        "value": "Deze groep heeft nog geen antwoord geformuleerd binnen deze stap. Evaluatie of feedback geven is nog niet mogelijk. ",
         "description": "text to show in grading cells that do not have students' work to display"
     },
     "timestamp": {
         "value": "Tijdsaanduiding",
         "description": "timestamp"
+    },
+    "display_chat_room": {
+        "value": "Chat ruimte",
+        "description": "Text on the Chat Room button for Student VLE"
+    },
+    "hint_num_separator": {
+        "value": "van de",
+        "description": "Text to be shown between current Hint number and total (e.g. 1 'of' 2)"
+    },
+    "hint_plural": {
+        "value": "tips",
+        "description": "Default Text label for 'hints' (plural)"
+    },
+    "node_annotations_title": {
+        "value": "Feedback bij deze stap",
+        "description": "Title of the step feedback dialog window"
+    },
+    "node_annotations_button_text": {
+        "value": "Feedback",
+        "description": "Text that shows up next to the Hint button"
+    },
+    "node_annotations_button_title": {
+        "value": "Bekijk de feedback bij deze stap",
+        "description": "Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
+    },
+    "stepTerm": {
+        "value": "Stap",
+        "description": "Default term for a 'step' in a WISE project"
+    },
+    "insertImage": {
+        "value": "Afbeelding invoegen",
+        "description": "Text 'Insert Image', to use for file upload"
+    },
+    "idea": {
+        "value": "idee",
+        "description": "The default text for an 'idea' in the Idea Manager tool."
+    },
+    "idea_plural": {
+        "value": "ideeÃ«n ",
+        "description": "The default text for 'ideas' in the Idea Manager tool."
+    },
+    "chat_room": {
+        "value": "Chat ruimte",
+        "description": "The text 'Chat Room' in the Chat Room popup"
+    },
+    "explanation_builder": {
+        "value": "Verklaring opbouwen",
+        "description": "The default text for the 'Explanation Builder' tool."
+    },
+    "grading_button_special_export": {
+        "value": "Speciale exportfuncties",
+        "description": "GradingTool: Text in the Special Export button"
+    },
+    "grading_button_special_export_description": {
+        "value": "(Exporteer het werk van bepaalde stappen als een zip file)",
+        "description": "GradingTool: Description next the Special Export button"
+    },
+    "workgroupId": {
+        "value": "Team ID ",
+        "description": "Workgroup Id"
+    },
+    "flag_as_inappropriate": {
+        "value": "Markeer als ongeschikt",
+        "description": "'Flag as inappropriate' text, for flagging inappropriate student's work using the flagging tool"
+    },
+    "grading_show_smart_filtered_items_only": {
+        "value": "Enkel 'smart-filtered' antwoorden",
+        "description": "text to show next to the 'Show Smart-Filtered Items Only' checkbox in the grading tool"
+    },
+    "grading_only_show_new_student_work": {
+        "value": "Toon enkel nieuwe antwoorden",
+        "description": "text to show next to the 'Only Show New Work' checkbox in the grading tool"
+    },
+    "authoring_confirm_switch_authoring_mode": {
+        "value": "U staat op het punt te switchen tussen eenvoudige/geavanceerde auteursmodus, maar de aangebrachte wijzigen werden nog niet opgeslagen. Als u verdergaat, gaan de wijzigingen verloren. Wenst u verdergaan?",
+        "description": "Message displayed in the Authoring Tool to authors when trying to switch between simple/advanced modes but their changes have not been saved."
+    },
+    "authoring_hint_dialog_title": {
+        "value": "Toevoegen/wijzigen van tips bij deze stap",
+        "description": "Text to display as the title of the edit step hints dialog window."
+    },
+    "authoring_hint_new": {
+        "value": "Nieuwe tip",
+        "description": "Default text for a new step hint."
+    },
+    "authoring_hint_forceShow": {
+        "value": "Forceer weergave:",
+        "description": "Text to display for the label of the 'Force Show: ' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_option_never": {
+        "value": "Nooit",
+        "description": "The text 'Never' to display in 'Force show:' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_option_firstTimeOnly": {
+        "value": "Enkel eerste maal",
+        "description": "The text 'First Time Only' to display in 'Force show:' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_option_always": {
+        "value": "Altijd",
+        "description": "The text 'Always' to display in 'force show:' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_modal": {
+        "value": "?????",
+        "description": "Text to display for the label of the 'Modal Dialog' checkbox in the step hint authoring panel"
+    },
+    "authoring_hint_isMustViewAllPartsBeforeClosing": {
+        "value": "Leerlingen moeten alles bekijken vooraleer te kunnen sluiten",
+        "description": "Text to display for the label of the 'Must View All Parts Before Closing' checkbox in the step hint authoring panel"
+    },
+    "authoring_hint_options_label": {
+        "value": "Opties",
+        "description": "The label for the 'Options' settings in the step hint authoring panel"
+    },
+    "authoring_hint_terminology_label": {
+        "value": "Labels/Terminologie ",
+        "description": "The label for the 'Labels/Terminology' settings in the step hint authoring panel"
+    },
+    "authoring_hint_terminology_instructions": {
+        "value": "Facultatief: pas de weergeven naam voor de 'tip(s)' bij deze stap aan.",
+        "description": "The instructions for the 'Labels/Terminology' settings in the step hint authoring panel"
+    },
+    "authoring_hint_term_label": {
+        "value": "Vervangwoord voor 'tip':",
+        "description": "The label for the 'hint' term input field in the step hint authoring panel"
+    },
+    "authoring_hint_term_plural_label": {
+        "value": "Vervangwoord voor 'tips':",
+        "description": "The label for the 'hints' term input field in the step hint authoring panel"
+    },
+    "authoring_hint_add": {
+        "value": "Voeg nieuwe tip toe",
+        "description": "The label for the 'add new hint' button in the step hint authoring panel"
+    },
+    "authoring_hint_delete": {
+        "value": "Verwijder deze tip",
+        "description": "The label for the 'delete current hint' button in the step hint authoring panel"
+    },
+    "authoring_imsettings_attribute_help": {
+        "value": "Help inhoud komt hier",
+        "description": ""
+    },
+    "authoring_imsettings_terminology_help": {
+        "value": "Help inhoud komt hier",
+        "description": ""
+    },
+    "common_click_here": {
+        "value": "klik hier",
+        "description": "the common text 'click here'"
+    },
+    "preview_project_constraint_disabled_message": {
+        "value": "Beperkingen in leerlingennavigatie zijn momenteel uitgeschakeld. Om het project te zien met beperkingen,",
+        "description": "The message shown in preview project mode when student navigation constraints are enabled."
+    },
+    "preview_project_constraint_enabled_message": {
+        "value": "Beperkingen in leerlingennavigatie zijn momenteel ingeschakeld. Om het project te zien zonder beperkingen,",
+        "description": "The message shown in preview project mode when student navigation constraints are enabled."
+    },
+    "project_error_has_no_steps": {
+        "value": "Foutmelding: Dit project heeft nog geen activiteiten/stappen. ",
+        "description": "The error text to be displayed when the project has no steps in it"
+    },
+    "authoring_imsettings_text_required": {
+        "value": "??????",
+        "description": "The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
     }
 }
