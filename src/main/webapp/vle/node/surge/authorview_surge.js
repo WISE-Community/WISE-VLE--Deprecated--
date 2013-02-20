@@ -28,7 +28,7 @@ View.prototype.SurgeNode = {};
  * 'richTextEditorToggleContainer'
  * 'starterSentenceAuthoringContainer'
  */
-View.prototype.SurgeNode.commonComponents = [];
+View.prototype.SurgeNode.commonComponents = ['StepIcons'];
 
 /**
  * Generates the authoring page. This function will create the authoring
@@ -41,7 +41,6 @@ View.prototype.SurgeNode.commonComponents = [];
  */
 View.prototype.SurgeNode.generatePage = function(view){
 
-	
 	this.view = view;
 	
 	//get the content of the step

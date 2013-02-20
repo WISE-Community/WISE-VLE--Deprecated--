@@ -24,6 +24,15 @@ SurgeNode.tagMapFunctions = [
 	{functionName:'getAccumulatedScore', functionArgs:[]}
 ];
 
+/*
+ * The statuses that this step can return
+ */
+SurgeNode.statuses = [
+	'bronze',
+	'silver',
+	'gold'
+];
+
 /**
  * This is the constructor for the Node
  * @constructor
@@ -236,7 +245,7 @@ SurgeNode.prototype.getStepIconForStatus = function(status) {
 	 * try to retrieve the step icon path from the step content
 	 * if it is available
 	 */
-	iconPath = this.getStepIconForStatusFromContent(status);
+	iconPath = this.getStepIconPathForStatusFromContent(status);
 	
 	if(iconPath == null) {
 		/*
@@ -253,6 +262,21 @@ SurgeNode.prototype.getStepIconForStatus = function(status) {
 	}
 	
 	return iconPath;
+};
+
+/**
+ * Get all the statuses that this step can return
+ */
+SurgeNode.prototype.getStatuses = function() {
+	var statuses = [];
+	
+	/*
+	 * get the statuses from the parent and combine it 
+	 * with the statuses from this step
+	 */
+	statuses = Node.statuses.concat(SurgeNode.statuses);
+	
+	return statuses;
 };
 
 //Add this node to the node factory so the vle knows it exists.

@@ -983,7 +983,8 @@ var componentloader = function(em, sl){
 				'cRaterAddFeedback':[null, null],
 				'cRaterRemoveFeedback':[null, null],
 				'cRaterMaxCheckAnswersChanged':[null, null],
-				'enableCRater':[null, null]
+				'enableCRater':[null, null],
+				'stepIconUpdated':[null, null]
 			},
 			methods:{},
 			initialize:{
@@ -1008,6 +1009,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('cRaterRemoveFeedback', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('cRaterMaxCheckAnswersChanged', view.cRaterManager.dispatcher, view);
 					view.eventManager.subscribe('enableCRater', view.cRaterManager.dispatcher, view);
+					view.eventManager.subscribe('stepIconUpdated', view.stepIconsManager.dispatcher, view);
 				}
 			}
 		}

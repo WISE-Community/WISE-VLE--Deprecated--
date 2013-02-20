@@ -50,6 +50,8 @@ function Node(nodeType, view){
 	}
 };
 
+Node.statuses = [];
+
 Node.prototype.getNodeId = function() {
 	return this.id;
 };
@@ -1902,26 +1904,52 @@ Node.prototype.getStepIconForStatus = function(status) {
  * @return the step icon for the given status from the authored
  * step content
  */
-Node.prototype.getStepIconForStatusFromContent = function(status) {
-	var stepIcon = null;
-
+Node.prototype.getStepIconPathForStatusFromContent = function(status) {
+	var iconPath = null;
+	
 	if(status != null) {
 		//get the step content
 		var content = this.content.getContentJSON();
-
+		
 		if(content != null) {
-			//get the statusStepIcons object if it is present in this step
-			if(content.statusStepIcons != null) {
-				//get the entry for the status if it is present in this step
-				if(content.statusStepIcons[status] != null) {
-					//get the step icon path
-					stepIcon = content.statusStepIcons[status];
+			//get the stepIcons object if it is present in this step
+			var stepIcons = content.stepIcons;
+			
+			if(stepIcons != null) {
+				
+				//loop through all the step icon objects
+				for(var x=0; x<stepIcons.length; x++) {
+					//get a step icon object
+					var stepIconObject = stepIcons[x];
+					
+					if(stepIconObject != null) {
+						//get the status and icon path
+						var tempStatus = stepIconObject.status;
+						var tempIconPath = stepIconObject.iconPath;
+						
+						if(status == tempStatus) {
+							//we have found the status we want
+							iconPath = tempIconPath;
+							break;
+						}
+					}
 				}
 			}
 		}		
 	}
+	
+	return iconPath;
+};
 
-	return stepIcon;
+/**
+ * Get the generic statuses for all nodes 
+ */
+Node.prototype.getStatuses = function() {
+	var statuses = [];
+	
+	statuses = Node.statuses;
+	
+	return statuses;
 };
 
 //used to notify scriptloader that this script has finished loading
