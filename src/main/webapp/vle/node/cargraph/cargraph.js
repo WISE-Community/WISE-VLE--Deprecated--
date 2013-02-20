@@ -62,6 +62,8 @@ function CARGRAPH(node) {
 			//get whether to lock the prediction when the student starts collecting data
 			this.lockPredictionOnCollectionStart = this.content.lockPredictionOnCollectionStart;			
 		}
+		// Edited by Jonathan Vitale!
+		this.tickSpacing = typeof this.content.tickSpacing != "undefined" ? this.content.tickSpacing : 1;
 	}
 	
 	/*
@@ -246,7 +248,7 @@ CARGRAPH.prototype.render = function() {
 	}));
 
 	// calculate how many pixels there are between the y ticks in the animation div
-	this.yTickSize = 800 / this.content.graphParams.ymax;  
+	this.yTickSize = 800 / (this.content.graphParams.ymax/this.tickSpacing);  
 
 	//find the position of the graph div so we can display the message in the center of it
 	var animationDivPosition = $('#animationDiv').position();
@@ -258,26 +260,40 @@ CARGRAPH.prototype.render = function() {
 	// display the static images (e.g. houses and schools)
 	for (var i=0; i < this.content.staticImages.length; i++) {
 		var staticImage = this.content.staticImages[i];		
-		var left = staticImage.tickIndex*this.yTickSize;
-		$("#animationDiv").append("<img class='staticImage' style='left:"+left+"' src='"+staticImage.img+"'></img>" +
-                "<span class='staticImageLabel' style='left: "+left+"'>"+staticImage.label+"</span>");
+		var left = staticImage.tickIndex/this.tickSpacing*this.yTickSize;
+		$("#animationDiv").append("<div class='staticImageLabel' style='position:absolute; top:" + (animationDivTop) + "px;left: "+left+";padding-bottom:20px'>"+staticImage.label+"</div>"+"<img class='staticImage' style='left:"+left+";padding-top:20px' src='"+staticImage.img+"'></img>");
 	}		
 	
 	// display the ticks in the animationDiv
-	for (var i=parseInt(this.content.graphParams.ymin); i <= parseInt(this.content.graphParams.ymax); i++) {
-		var yTickPosition = i*this.yTickSize;         // this tick's x position
-		$("#animationDiv").append("<div style='position:absolute; top:" + (animationDivTop + 40) + "px; left:"+yTickPosition+"'>"+i+"</div>");
+	for (var i=parseInt(this.content.graphParams.ymin); i <= parseInt(this.content.graphParams.ymax); i+=this.tickSpacing) {
+		var yTickPosition = i/this.tickSpacing*this.yTickSize;         // this tick's x position
+		$("#animationDiv").append("<div style='position:absolute; top:" + (animationDivTop + 60) + "px; left:"+yTickPosition+"'>"+i+"</div>");
 	}
 	
-	var topSoFar = 75;  // offset from the top of the screen, to ensure that the images don't overlap
+	var topSoFar = 90;  // offset from the top of the screen, to ensure that the images don't overlap
 	
 	// display the dynamic images (e.g. cars) at time=0 (starting point)
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
-		var dynamicImage = this.content.dynamicImages[i];		
+		var dynamicImage = this.content.dynamicImages[i];	
+
+		var predictionStartingYValue = this.content.graphParams.ymin-100;  // if no prediction at time=0, hide this car from the view.	
+		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
+	    var yValue = this.getYValue(0,predictionArr);
+	    var predictionStartingYValue = yValue*this.yTickSize;
+
+	    // find the first real y value
+	    dynamicImage.predictionInitialYValue = this.content.graphParams.ymin-100; // unlike predictionStartingValue, will search for the first actual value
+	    for (var xinc = 0; xinc <= this.content.graphParams.xmax; xinc += this.content.gatherXIncrement){
+	    	var yinc = this.getYValue(xinc,predictionArr);
+	    	if (yinc >= this.content.graphParams.ymin && yinc <= this.content.graphParams.ymax){
+	    		dynamicImage.predictionInitialYValue = yinc; break;
+	    	}
+	    }
+    		
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
 		if (this.content.runCorrectAnswer) {
 
-			var correctStartingYValue = -100;  // if there is no correct y-value at time=0, hide this car from the view.
+			var correctStartingYValue = this.content.graphParams.ymin-100;  // if there is no correct y-value at time=0, hide this car from the view.
 			
 			//get the expected results
 			var expectedResults = this.content.expectedResults;
@@ -291,22 +307,22 @@ CARGRAPH.prototype.render = function() {
 					if(dynamicImage.id == expectedResult.id) {
 						var expectedResultArray = expectedResult.expectedPoints;
 						var yValue = this.getYValueObj(0,expectedResultArray);
-						correctStartingYValue = yValue*this.yTickSize;
+						if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
+							correctStartingYValue = (yValue + dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
+							console.log("prediction start", dynamicImage.predictionInitialYValue, correctStartingYValue, yValue/this.tickSpacing*this.yTickSize );
+						} else {
+							correctStartingYValue = yValue/this.tickSpacing*this.yTickSize;
+						}
 					}
 				}
 			}
 
 			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ (animationDivTop + topSoFar) +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
-			$("#animationDiv").height($("#animationDiv").height()+dynamicImage.height+10);
+			$("#animationDiv").height($("#animationDiv").height()+dynamicImage.height+40);
 			// increment topSoFar
 			topSoFar += dynamicImage.height+10;
 		}
 		
-		var predictionStartingYValue = -100;  // if no prediction at time=0, hide this car from the view.	
-		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
-	    var yValue = this.getYValue(0,predictionArr);
-	    var predictionStartingYValue = yValue*this.yTickSize;
-    	
 		var dynamicImage = this.content.dynamicImages[i];		
 		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
 		
@@ -335,8 +351,8 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 	    var dynamicImage = this.content.dynamicImages[i];
 	    var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
 	    var yValue = this.getYValue(xValue,predictionArr);
-	    var leftValue = yValue*this.yTickSize;
-    	$("#"+dynamicImage.id).css("left",leftValue);
+	    var leftValue = yValue/this.tickSpacing*this.yTickSize;
+	    $("#"+dynamicImage.id).css("left",leftValue);
     	this.setCrosshair({x:xValue,y:yValue});  // show cross hair on current x
     }
     
@@ -357,8 +373,13 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
     				if(dynamicImage.id == expectedResult.id) {
     					var expectedResultArray = expectedResult.expectedPoints;
     		    	    var yValue = this.getYValueObj(xValue,expectedResultArray);
-    		    	    var leftValue = yValue*this.yTickSize;
-    		        	$("#"+dynamicImage.id+"-correct").css("left",leftValue);
+    		    	    var leftValue;
+    		    	    if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
+    		    	    	leftValue = (yValue+dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
+    		    	    } else {
+    		    	    	leftValue = yValue/this.tickSpacing*this.yTickSize;
+    		    	    }
+    		    	    $("#"+dynamicImage.id+"-correct").css("left",leftValue);
     				}
     			}
     		}
@@ -2380,6 +2401,9 @@ CARGRAPH.prototype.smarts = function() {
 	if (this.carGraphState.getPredictionObjByPredictionId("greenCar").predictions.length < 5) {
 		alert("More points needed");
 		return false;
+	} else if (this.carGraphState.getPredictionObjByPredictionId("hikers").predictions.length < 3) {
+		alert("More points needed");
+		return false;
 	}
 	
 	return true;
@@ -2449,7 +2473,7 @@ CARGRAPH.prototype.seriesIsPrediction = function(seriesName) {
 	var result = false;
 	
 	//check if the series name contains the word prediction or greenCar
-	if(seriesName.indexOf("prediction") != -1 || seriesName == "greenCar") {
+	if(seriesName.indexOf("prediction") != -1 || seriesName == "greenCar" || seriesName == "hikers") {
 		result = true;
 	}
 	

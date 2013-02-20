@@ -131,7 +131,6 @@ componentloader.addNodeClasses('Box2dModelNode', nodeClasses);
 var css = [
        	"vle/node/box2dModel/box2dModel.css",
        	"vle/node/box2dModel/libs/jquery-ui-1.9.0.custom.min.css"
-       	//scriptloader.jqueryUICss
 ];
 
 /*

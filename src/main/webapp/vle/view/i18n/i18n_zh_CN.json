@@ -1,0 +1,562 @@
+{
+    "file_button_text": {
+        "value": "文件",
+        "description": "Text on the File Manager button for Student VLE"
+    },
+    "ideas_button_text": {
+        "value": "想法",
+        "description": "Text on the Idea Manager button for Student VLE"
+    },
+    "addidea_button_text": {
+        "value": "添加新想法",
+        "description": "Text on Add Idea buttons for Student VLE"
+    },
+    "mywork_button_text": {
+        "value": "我的作业",
+        "description": "Text on the My Work button for Student VLE"
+    },
+    "display_chat_room": {
+        "value": "打开聊天室",
+        "description": "Text on the Chat Room button for Student VLE"
+    },
+    "mywork_button_title": {
+        "value": "检查我的作业",
+        "description": "Text for mouse hover title on the My Work button"
+    },
+    "flagged_button_text": {
+        "value": "标记",
+        "description": "Text on the Flagged button"
+    },
+    "flagged_button_title": {
+        "value": "浏览老师标记的作业",
+        "description": "Text for mouse hover title on the Flagged button"
+    },
+    "journal_button_text": {
+        "value": "笔记",
+        "description": "Text on the Journal button"
+    },
+    "toggle_nav_button_text": {
+        "value": "全屏",
+        "description": "Text on the Toggle Navigation button when navigation UI is on (visible)"
+    },
+    "toggle_nav_button_title": {
+        "value": "全屏模式（隐藏导航菜单）",
+        "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
+    },
+    "toggle_nav_button_text_off": {
+        "value": "显示菜单",
+        "description": "Text on the Toggle Navigation button when navigation UI is off (hidden)"
+    },
+    "toggle_nav_button_title_off": {
+        "value": "显示导航菜单",
+        "description": "Text for mouse hover title on the Toggle Navigation button when navigation UI is on (visible)"
+    },
+    "signout_button_text": {
+        "value": "退出",
+        "description": "Text on the Log out button"
+    },
+    "signout_button_title": {
+        "value": "保存&退出WISE",
+        "description": "Text for mouse hover title on the Log out button"
+    },
+    "previous_step_text": {
+        "value": "前一步",
+        "description": "Text on button in the project vle that will show the previous step in the project"
+    },
+    "previous_step_title": {
+        "value": "跳转到前面一步",
+        "description": "Text for mouse hover title on button in the project vle that will show the previous step in the project"
+    },
+    "next_step_text": {
+        "value": "下一步",
+        "description": "Text on button in the project vle that will show the next step in the project"
+    },
+    "next_step_title": {
+        "value": "跳转到下一步",
+        "description": "Text for mouse hover title on button in the project vle that will show the next step in the project"
+    },
+    "gohome_button_text": {
+        "value": "首页",
+        "description": "Text on the Home button"
+    },
+    "gohome_button_title": {
+        "value": "保存&退出学生主页",
+        "description": "Text for mouse hover title on the Home button"
+    },
+    "hint_title": {
+        "value": "提示",
+        "description": "Title of the hint dialog window and the text that shows up next to the Hint button"
+    },
+    "hint_button_text": {
+        "value": "提示信息",
+        "description": "Text that shows up next to the Hint button"
+    },
+    "hint_button_title": {
+        "value": "看这一步的提示信息",
+        "description": "Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
+    },
+    "hint_num_separator": {
+        "value": "第",
+        "description": "Text to be shown between current Hint number and total (e.g. 1 'of' 2)"
+    },
+    "hint_hint": {
+        "value": "提示",
+        "description": "Default Text label for 'hint'"
+    },
+    "hint_plural": {
+        "value": "提示",
+        "description": "Default Text label for 'hints' (plural)"
+    },
+    "hint_next": {
+        "value": "下一个提示",
+        "description": "next hint"
+    },
+    "hint_prev": {
+        "value": "上一个提示",
+        "description": "previous hint"
+    },
+    "node_annotations_title": {
+        "value": "进度反馈",
+        "description": "Title of the step feedback dialog window"
+    },
+    "node_annotations_button_text": {
+        "value": "反馈",
+        "description": "Text that shows up next to the Hint button"
+    },
+    "node_annotations_button_title": {
+        "value": "浏览这一步的反馈提示",
+        "description": "Text for mouse hover title on the Hint button (will be followed by the hint_title, e.g. 'View Hints')"
+    },
+    "navigation_expand_all": {
+        "value": "显示所有题目",
+        "description": "Text on a button to show all navigation items"
+    },
+    "navigation_collapse_all": {
+        "value": "隐藏所有题目",
+        "description": "Text on a button to hide all navigation items"
+    },
+    "student_assets_upload_new_file": {
+        "value": "上传新文件",
+        "description": "Text 'Upload New File' in Student Asset Manager"
+    },
+    "student_assets_my_files": {
+        "value": "我的文档",
+        "description": "Text 'My Files' in Student Asset Manager"
+    },
+    "student_assets_remove_file_warning": {
+        "value": "我的文档",
+        "description": "Text in Student Asset Manager when student is not allowed to remove a file"
+    },
+    "student_assets_import_success_message": {
+        "value": "成功导入文件",
+        "description": "Text 'Successfully imported file' in Student Asset Manager"
+    },
+    "student_assets_import_failure_message": {
+        "value": "导入失败，无法接受你选择的文件。请选择新的文件导入。",
+        "description": "Text in Student Asset Manager when importing file failed"
+    },
+    "student_assets_add_selected_file": {
+        "value": "添加所选文件",
+        "description": "Text on a button in Student Asset Manager to add the selected file to the current step"
+    },
+    "student_assets_delete_selected_file": {
+        "value": "删除所选文件",
+        "description": "Text on a button in Student Asset Manager to delete a selected file"
+    },
+    "student_assets_student_usage_message": {
+        "value": "你正在使用{1}存储空间 的{0}",
+        "description": "Text on a button in Student Asset Manager to delete a selected file"
+    },
+    "student_assets_student_usage_exceeded_message": {
+        "value": "超出最大空间！最大允许空间是{0}，服务器总空间为{1}，情删除一些文件。",
+        "description": "Text on a button in Student Asset Manager to delete a selected file"
+    },
+    "cancel": {
+        "value": "取消",
+        "description": "Text 'cancel'"
+    },
+    "ok": {
+        "value": "好了",
+        "description": "Text 'OK'"
+    },
+    "done": {
+        "value": "完成",
+        "description": "Text 'done', to mean completed"
+    },
+    "stepTerm": {
+        "value": "步骤",
+        "description": "Default term for a 'step' in a WISE project"
+    },
+    "insertImage": {
+        "value": "插入图片",
+        "description": "Text 'Insert Image', to use for file upload"
+    },
+    "idea": {
+        "value": "想法",
+        "description": "The default text for an 'idea' in the Idea Manager tool."
+    },
+    "idea_plural": {
+        "value": "想法",
+        "description": "The default text for 'ideas' in the Idea Manager tool."
+    },
+    "idea_basket": {
+        "value": "创意池",
+        "description": "The text 'Idea Basket' in the Idea Manager"
+    },
+    "idea_basket_add_an_idea": {
+        "value": "添加想法",
+        "description": "The text 'Add Idea' in the Idea Manager"
+    },
+    "idea_basket_retrieval_error": {
+        "value": "错误：不能打开创意池，刷新VLE再载入一次",
+        "description": "Error message displayed when retrieving idea basket fails"
+    },
+    "chat_room": {
+        "value": "聊天室",
+        "description": "The text 'Chat Room' in the Chat Room popup"
+    },
+    "grading_button_grade_by_step": {
+        "value": "按步骤评分",
+        "description": "GradingTool: Text in the grade-by-step button"
+    },
+    "grading_button_grade_by_team": {
+        "value": "按小组评分",
+        "description": "GradingTool: Text in the grade-by-team button"
+    },
+    "grading_button_view_student_uploaded_files": {
+        "value": "查看学生上传的文档",
+        "description": "GradingTool: Text in the View Student Uploaded Files button"
+    },
+    "grading_button_export_latest_student_work": {
+        "value": "导出最新的学生作品",
+        "description": "GradingTool: Text in the Export Latest Student Work button"
+    },
+    "grading_button_export_all_student_work": {
+        "value": "导出所有学生作品",
+        "description": "GradingTool: Text in the Export All Student Work button"
+    },
+    "grading_button_export_idea_baskets": {
+        "value": "导出创意池内容",
+        "description": "GradingTool: Text in the Export Idea Baskets button"
+    },
+    "grading_button_export_custom_work": {
+        "value": "导出个性化学生作品",
+        "description": "GradingTool: Text in the Export Custom Student Work button"
+    },
+    "grading_button_export_student_names": {
+        "value": "导出学生姓名",
+        "description": "GradingTool: Text in the Export Student Names button"
+    },
+    "grading_button_special_export": {
+        "value": "特殊专家",
+        "description": "GradingTool: Text in the Special Export button"
+    },
+    "grading_button_export_latest_student_work_description": {
+        "value": "（导出更新的学生信息）",
+        "description": "GradingTool: Description next the Export Student Names button"
+    },
+    "grading_button_export_all_student_work_description": {
+        "value": "（导出所有更新的学生作品和导航数据）",
+        "description": "GradingTool: Description next the Export All Student Work button"
+    },
+    "grading_button_export_idea_baskets_description": {
+        "value": "（导出所有创意池更新内容）",
+        "description": "GradingTool: Description next the Export Idea Baskets button"
+    },
+    "grading_button_export_student_names_description": {
+        "value": "（导出学生姓名、学习阶段、工作组编号、WISE编号以及登陆）",
+        "description": "GradingTool: Description next the Export Student Names button"
+    },
+    "grading_button_special_export_description": {
+        "value": "（以压缩文件导出特定步骤的作品）",
+        "description": "GradingTool: Description next the Special Export button"
+    },
+    "grading_button_explanation": {
+        "value": "解释",
+        "description": "GradingTool: Text in the Explanation button"
+    },
+    "grading_button_check_for_new_student_work": {
+        "value": "检查新作品",
+        "description": "GradingTool: Text in the Check for New Student Work button"
+    },
+    "grading_button_save_changes": {
+        "value": "保存修改",
+        "description": "GradingTool: Text in the Save Changes button"
+    },
+    "grading_grade_by_step_header": {
+        "value": "在选择下面的步骤开始新的评分（点值可修改）",
+        "description": "GradingTool: grade by step page header, tell teacher to select a step below"
+    },
+    "grading_grade_by_step_point_value": {
+        "value": "点值",
+        "description": "GradingTool: grade by step point value table column"
+    },
+    "grading_grade_by_step_editable": {
+        "value": "可编辑",
+        "description": "GradingTool: grade by step editable table column"
+    },
+    "grading_grade_by_step_items_to_review": {
+        "value": "查看项目",
+        "description": "GradingTool: grade by step Items to Review table column"
+    },
+    "grading_grade_by_step_average_class_score": {
+        "value": "平均分",
+        "description": "GradingTool: grade by step Avg Class Score table column"
+    },
+    "grading_grade_by_step_scored_items_only": {
+        "value": "只对项目计分",
+        "description": "GradingTool: grade by step scored items only table column"
+    },
+    "grading_grade_by_step_percent_completed_step": {
+        "value": "%的访问率",
+        "description": "GradingTool: grade by step % of Students Who Have Completed This Step table column"
+    },
+    "grading_grade_by_step_all_periods": {
+        "value": "所有阶段",
+        "description": "GradingTool: grade by step All Periods select option when choosing whose work to filter by"
+    },
+    "grading_grade_by_team_header": {
+        "value": "选择下面的学生小组开始评分",
+        "description": "GradingTool: grade by team page header"
+    },
+    "grading_grade_by_team_teacher_graded_score": {
+        "value": "教师评分的成绩",
+        "description": "GradingTool: grade by team teacher-graded score"
+    },
+    "grading_grade_by_team_percentage_project_completed": {
+        "value": "项目完成率%",
+        "description": "GradingTool: grade by team % of project completed table column"
+    },
+    "grading_question": {
+        "value": "问题",
+        "description": "the text 'question', to be shown next to the question that was presented to the student"
+    },
+    "grading_hide_show_question": {
+        "value": "隐藏/显示问题",
+        "description": "'hide/show question' link that toggles the question's visibility in the grading tool"
+    },
+    "grading_previous_step": {
+        "value": "<前一步",
+        "description": "'Previous Step' button in the grading tool that will show the previous step in the project"
+    },
+    "grading_previous_step_not_exist": {
+        "value": "前一步不存在：这是第一步",
+        "description": "Text to show when previous step does not exist because this is the first gradable step in the project"
+    },
+    "grading_change_step": {
+        "value": "转到另一步",
+        "description": "'Change Step' button in the grading tool that will show the select step page"
+    },
+    "grading_next_step": {
+        "value": "下一步",
+        "description": "'Next Step' button in the grading tool that will show the next step in the project"
+    },
+    "grading_next_step_not_exist": {
+        "value": "下一步不存在：这已经是最后一步",
+        "description": "Text to show when next step does not exist because this is the last gradable step in teh project"
+    },
+    "period": {
+        "value": "阶段",
+        "description": "Period"
+    },
+    "workgroupId": {
+        "value": "工作组号",
+        "description": "Workgroup Id"
+    },
+    "team": {
+        "value": "学生小组",
+        "description": "Student Team"
+    },
+    "team_caps": {
+        "value": "小组",
+        "description": "TEAM"
+    },
+    "student_work": {
+        "value": "学生作品",
+        "description": "student work column in the grading tool"
+    },
+    "teacher_comment_and_score": {
+        "value": "教师评论/分数",
+        "description": "Teacher comments / score column in the grading tool"
+    },
+    "tools": {
+        "value": "工具",
+        "description": "Tools"
+    },
+    "score": {
+        "value": "分数",
+        "description": "Score"
+    },
+    "comment": {
+        "value": "评论",
+        "description": "Comment"
+    },
+    "flag": {
+        "value": "标示",
+        "description": "Flag, for flagging student's work using the flagging tool"
+    },
+    "flag_as_inappropriate": {
+        "value": "不合标准的标示",
+        "description": "'Flag as inappropriate' text, for flagging inappropriate student's work using the flagging tool"
+    },
+    "timestamp": {
+        "value": "时间标示",
+        "description": "timestamp"
+    },
+    "last_annotation": {
+        "value": "最后评论",
+        "description": "the text 'last annotation'"
+    },
+    "grading_open_premade_comments": {
+        "value": "打开先前的评论",
+        "description": "the text 'open premade comments' that will open the premade comments window when clicked"
+    },
+    "not_available": {
+        "value": "不能访问",
+        "description": "the text 'not available'"
+    },
+    "grading_no_work_warning": {
+        "value": "学生没有提交这一步的作品，因此不能评分和反馈",
+        "description": "text to show in grading cells that do not have students' work to display"
+    },
+    "grading_no_revisions": {
+        "value": "（无更新）",
+        "description": "text to show in grading cells that do not have any revisions"
+    },
+    "grading_only_latest_revision_displayed": {
+        "value": "（仅显示最新修改）",
+        "description": "text to show in grading cells where only the latest revision is displayed"
+    },
+    "grading_hide_personal_info": {
+        "value": "隐藏个人信息",
+        "description": "text to show next to the 'Hide Personal Info' checkbox in the grading tool"
+    },
+    "grading_show_flagged_items_only": {
+        "value": "标示内容",
+        "description": "text to show next to the 'Show Flagged Items Only' checkbox in the grading tool"
+    },
+    "grading_show_smart_filtered_items_only": {
+        "value": "智能过滤标示内容",
+        "description": "text to show next to the 'Show Smart-Filtered Items Only' checkbox in the grading tool"
+    },
+    "grading_enlarge_student_work_text": {
+        "value": "扩充学生作品",
+        "description": "text to show next to the 'Enlarge Student Work Text' checkbox in the grading tool"
+    },
+    "grading_only_show_new_student_work": {
+        "value": "仅显示新作品",
+        "description": "text to show next to the 'Only Show New Work' checkbox in the grading tool"
+    },
+    "grading_show_all_revisions": {
+        "value": "显示所有修改内容",
+        "description": "text to show next to the 'Show All Revisions' checkbox in the grading tool"
+    },
+    "grading_sort_by_auto_graded_score_checkbox": {
+        "value": "按照自动评分数值排列",
+        "description": "text to show next to the 'Sort By Auto Graded Score' checkbox in the grading tool"
+    },
+    "grading_hide_show_revisions": {
+        "value": "修改内容",
+        "description": "text to show in the 'Hide/Show Revisions' link in the grading tool that toggles revisions visibility"
+    },
+    "grading_change_team": {
+        "value": "改变组别",
+        "description": "text to show in the 'Change Team' button in the grading tool that brings up the grade-by-team page"
+    },
+    "welcome": {
+        "value": "欢迎",
+        "description": "Text for 'Welcome'"
+    },
+    "welcome_users_default": {
+        "value": "欢迎测试用户！",
+        "description": "Text to display in VLE for user name in preview mode"
+    },
+    "note_title": {
+        "value": "反思笔记",
+        "description": "Text to display in the title bar of a note dialog window"
+    },
+    "authoring_confirm_switch_authoring_mode": {
+        "value": "你将会切换到开发模式，但还没有保存修改内容。假如继续，你所做的修改将丢失。你还想继续吗？",
+        "description": "Message displayed in the Authoring Tool to authors when trying to switch between simple/advanced modes but their changes have not been saved."
+    },
+    "authoring_hint_dialog_title": {
+        "value": "添加/编辑提示",
+        "description": "Text to display as the title of the edit step hints dialog window."
+    },
+    "authoring_hint_new": {
+        "value": "新提示",
+        "description": "Default text for a new step hint."
+    },
+    "authoring_hint_option_never": {
+        "value": "从不",
+        "description": "The text 'Never' to display in 'force show:' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_option_firstTimeOnly": {
+        "value": "仅第一次显示",
+        "description": "The text 'First Time Only' to display in 'force show:' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_option_always": {
+        "value": "一直",
+        "description": "The text 'Always' to display in 'force show:' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_forceShow": {
+        "value": "下拉菜单显示",
+        "description": "Text to display for the label of the 'Force Show: ' drop down in the step hint authoring panel"
+    },
+    "authoring_hint_modal": {
+        "value": "模态对话",
+        "description": "Text to display for the label of the 'Modal Dialog' checkbox in the step hint authoring panel"
+    },
+    "authoring_hint_isMustViewAllPartsBeforeClosing": {
+        "value": "在关闭前目的看到所有部分",
+        "description": "Text to display for the label of the 'Must View All Parts Before Closing' checkbox in the step hint authoring panel"
+    },
+    "authoring_hint_options_label": {
+        "value": "选项",
+        "description": "The label for the 'Options' settings in the step hint authoring panel"
+    },
+    "authoring_hint_terminology_label": {
+        "value": "标记/术语",
+        "description": "The label for the 'Labels/Terminology' settings in the step hint authoring panel"
+    },
+    "authoring_hint_terminology_instructions": {
+        "value": "可选：为这一步骤的提示定制显示名称",
+        "description": "The instructions for the 'Labels/Terminology' settings in the step hint authoring panel"
+    },
+    "authoring_hint_term_label": {
+        "value": "提示术语",
+        "description": "The label for the 'hint' term input field in the step hint authoring panel"
+    },
+    "authoring_hint_term_plural_label": {
+        "value": "多个提示术语",
+        "description": "The label for the 'hints' term input field in the step hint authoring panel"
+    },
+    "authoring_hint_add": {
+        "value": "添加新提示",
+        "description": "The label for the 'add new hint' button in the step hint authoring panel"
+    },
+    "authoring_hint_delete": {
+        "value": "删除当前提示",
+        "description": "The label for the 'delete current hint' button in the step hint authoring panel"
+    },
+    "authoring_imsettings_text_required": {
+        "value": "不能删除，因为这段文字是每个想法的基本组成部分",
+        "description": "The help text in the Idea Manager settings for the lock icon on the 'text' idea attribute."
+    },
+    "project_error_has_no_steps": {
+        "value": "错误：这个项目还没有步骤",
+        "description": "The error text to be displayed when the project has no steps in it"
+    },
+    "preview_project_constraint_enabled_message": {
+        "value": "当前启动学生导航限制。可无限制地预览项目（project）",
+        "description": "The message shown in preview project mode when student navigation constraints are enabled."
+    },
+    "preview_project_constraint_disabled_message": {
+        "value": "学生导航限制当前被禁止。在受限情况下预览项目",
+        "description": "The message shown in preview project mode when student navigation constraints are enabled."
+    },
+    "common_click_here": {
+        "value": "点击这里",
+        "description": "the common text 'click here'"
+    }
+}

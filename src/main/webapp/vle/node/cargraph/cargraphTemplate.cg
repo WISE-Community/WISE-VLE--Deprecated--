@@ -124,6 +124,8 @@
 	   ]
     }
    ],
+   "tickSpacing":1,
+   "animationTimeScaleFactor":1.0,
    "graphCorrectAnswer": false,
    "runCorrectAnswer": false,
    "showGraphOptions": false,
