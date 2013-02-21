@@ -101,7 +101,7 @@
     	     */
     	    function save() {
         	    //tell our sensor object to save the data
-    	    	sensor.save();
+    	    	if (typeof sensor != "undefined") sensor.save();
     	    }
 
     	    /*

@@ -248,7 +248,7 @@ CARGRAPH.prototype.render = function() {
 	}));
 
 	// calculate how many pixels there are between the y ticks in the animation div
-	this.yTickSize = 800 / (this.content.graphParams.ymax/this.tickSpacing);  
+	this.yTickSize = 700 / (this.content.graphParams.ymax/this.tickSpacing);  
 
 	//find the position of the graph div so we can display the message in the center of it
 	var animationDivPosition = $('#animationDiv').position();
@@ -309,7 +309,7 @@ CARGRAPH.prototype.render = function() {
 						var yValue = this.getYValueObj(0,expectedResultArray);
 						if (typeof expectedResult.useRelativeValues != "undefined" && expectedResult.useRelativeValues){
 							correctStartingYValue = (yValue + dynamicImage.predictionInitialYValue)/this.tickSpacing*this.yTickSize;
-							console.log("prediction start", dynamicImage.predictionInitialYValue, correctStartingYValue, yValue/this.tickSpacing*this.yTickSize );
+							//console.log("prediction start", dynamicImage.predictionInitialYValue, correctStartingYValue, yValue/this.tickSpacing*this.yTickSize );
 						} else {
 							correctStartingYValue = yValue/this.tickSpacing*this.yTickSize;
 						}
@@ -620,7 +620,13 @@ CARGRAPH.prototype.parseGraphParams = function(contentGraphParams) {
 	
 	//allow points to be hoverable and clickable
 	graphParams.grid = {hoverable:true, clickable:true};
-	
+	// if an easyClickExtremes variable exists and is true in params set up grid to have wide left and right margins to allow clicking of extremes
+	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+		graphParams.grid.borderWidth = 10;
+		// when we have the 0.8 version of flot use this:
+		//graphParams.grid.borderWidth = {"left":10, "right":10, "top":1, "bottom":1};
+	}
+
 	graphParams.crosshair = { mode: "x" };
 	return graphParams;
 };
@@ -876,13 +882,22 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 //get the x and y values from the point the mouse is over
                 var x = parseFloat(item.datapoint[0].toFixed(2));
                 var y = parseFloat(item.datapoint[1].toFixed(2));
-                
+                // if we are using the easy click option, only show points within domain
+                var contentGraphParams = event.data.thisCarGraph.content.graphParams;
+                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+					if (x < contentGraphParams.xmin && item.series.data.length > 1){
+						x = parseFloat(contentGraphParams.xmin).toFixed(1);
+						y = event.data.thisCarGraph.getYValue(x,item.series.data).toFixed(1);
+					} else if (x > contentGraphParams.xmax && item.series.data.length > 1){
+						x = parseFloat(contentGraphParams.xmax).toFixed(1);
+						y = event.data.thisCarGraph.getYValue(x,item.series.data).toFixed(1);
+					} 
+    			}            
         		//get the x and y values
         		var dataPointObject = {
         				x:item.datapoint[0],
         				y:item.datapoint[1]
         		};
-        		
         		//get the offset of the points relative to the plot div
                 var offsetObject = event.data.thisCarGraph.globalPlot.pointOffset(dataPointObject);
         		var plotOffsetX = offsetObject.left;

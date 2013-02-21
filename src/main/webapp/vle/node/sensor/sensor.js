@@ -333,6 +333,54 @@ SENSOR.prototype.render = function() {
 };
 
 /**
+ * Given xValue, returns yValue of a prediction graph whose points are stored in
+ * the given predictionArray.
+ * 
+ * Note that the predictionArray may not contain the given xValue.  For example, trying to find
+ * the yValue in (3,?) when your predictionArray only contains 
+ * [(1,2),(2,4),(7,3)]. In this case, algebra is used to calculate the y value.
+ * 
+ *  * If the array does not contain a value for x less than the specified xValue, return -100.
+ * e.g. xValue=4, predictionArray=[(5,6),(10,10),(7,3)]
+ * 
+ * @param xValue: x Value in the prediction graph
+ * @param predictionArray: array of points for one prediction graph
+ * @return: corresponding y-Value within the prediction graph.
+ */ 
+SENSOR.prototype.getYValue = function(xValue,predictionArray) {
+    var xSoFar = 0;
+    var ySoFar = 0;
+    if (predictionArray.length > 0) {
+    	// check if the array contains a value for x less than the specified xValue. If not, return -100.
+    	var firstPrediction = predictionArray[0];
+    	if (firstPrediction[0] > xValue) {
+    		return -100;
+    	}
+    }
+    for (var i=0; i< predictionArray.length; i++) {
+	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
+	    if (prediction[0] < xValue) {
+		    // x value not yet found, set ySoFar in case we'll need it for later
+		    xSoFar = prediction[0];
+		    ySoFar = prediction[1];				    
+	    } else if (prediction[0] == xValue) {
+		    // x match found, return it
+		    return prediction[1];
+	    } else {
+		    // there was no xValue in the prediction. we've reached a xValue in the prediction array
+		    // that is greater than xValue. 
+		    // calculate using the power of Algebra
+		    // magic formula: y2 = y1 + m(x2-x1)
+		    // m = (y2-y1) / (x2-x1)
+		    var slope = (prediction[1] - ySoFar) / (prediction[0] - xSoFar);
+		    var yValue = ySoFar + slope * (xValue-xSoFar);
+		    return yValue;
+	    }
+    }
+    return -1;
+};
+
+/**
  * Get the latest student work for this step
  * @return the latest student work state object
  */
@@ -704,7 +752,13 @@ SENSOR.prototype.parseGraphParams = function(contentGraphParams) {
 	
 	//allow points to be hoverable and clickable
 	graphParams.grid = {hoverable:true, clickable:true};
-	
+	// if an easyClickExtremes variable exists and is true in params set up grid to have wide left and right margins to allow clicking of extremes
+	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+		graphParams.grid.borderWidth = 10;
+		// when we have the 0.8 version of flot use this:
+		//graphParams.grid.borderWidth = {"left":10, "right":10, "top":1, "bottom":1};
+	}
+
 	return graphParams;
 };
 
@@ -1057,6 +1111,18 @@ SENSOR.prototype.setupPlotHover = function() {
                 var x = parseFloat(item.datapoint[0].toFixed(2));
                 var y = parseFloat(item.datapoint[1].toFixed(2));
                 
+                // if we are using the easy click option, only show points within domain
+                var contentGraphParams = event.data.thisSensor.content.graphParams;
+                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+					if (x < contentGraphParams.xmin && item.series.data.length > 1){
+						x = parseFloat(contentGraphParams.xmin).toFixed(1);
+						y = event.data.thisSensor.getYValue(x,item.series.data).toFixed(1);
+					} else if (x > contentGraphParams.xmax && item.series.data.length > 1){
+						x = parseFloat(contentGraphParams.xmax).toFixed(1);
+						y = event.data.thisSensor.getYValue(x,item.series.data).toFixed(1);
+					} 
+    			} 
+
         		//get the x and y values
         		var dataPointObject = {
         				x:item.datapoint[0],
