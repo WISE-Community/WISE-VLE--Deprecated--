@@ -1161,11 +1161,14 @@ SENSOR.prototype.setupPlotHover = function() {
         //check if the student is click dragging to create prediction points
         if(event.data.thisSensor.mouseDown) {
         	if(!event.data.thisSensor.predictionLocked) {
-        		//add prediction point
-            	event.data.thisSensor.predictionReceived(pos.x, pos.y);
-            	
-            	//plot the graph again so the new point is displayed
-            	event.data.thisSensor.plotData();        		
+        		// allow author to enable or disable draw while dragging
+        		if (typeof event.data.thisSensor.content.allowDragDraw == "undefined" && !event.data.thisSensor.content.allowDragDraw) {
+	        		//add prediction point
+	            	event.data.thisSensor.predictionReceived(pos.x, pos.y);
+	            	
+	            	//plot the graph again so the new point is displayed
+	            	event.data.thisSensor.plotData(); 
+	            }       		
         	}
         }
     });
