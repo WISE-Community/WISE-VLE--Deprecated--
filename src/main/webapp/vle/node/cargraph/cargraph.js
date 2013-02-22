@@ -666,7 +666,7 @@ CARGRAPH.prototype.save = function() {
 	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged) {
 		//set the student response into the state
 		this.carGraphState.response = response;
-			
+		
 		//fire the event to push this state to the global view.states object
 		eventManager.fire('pushStudentWork', this.carGraphState);
 
@@ -2545,6 +2545,10 @@ CARGRAPH.prototype.processTagMaps = function() {
 						//message is not an empty string so we will add a new line for formatting
 						message += '<br>' + result.message;
 					}
+				} else if (functionName == "mustNotExceedMaxErrorBeforeAdvancing"){
+					this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null,"Your graph needs some work before advancing."]);
+				} else if (functionName == "mustNotExceedAvgErrorBeforeAdvancing"){
+					this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null,"Your graph needs some work before advancing."]);
 				}
 			}
 		}

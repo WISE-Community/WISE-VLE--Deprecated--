@@ -34,7 +34,9 @@ CarGraphNode.authoringToolDescription = "Lets students draw graphs and have cars
 
 CarGraphNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
-	{functionName:'showPreviousWork', functionArgs:[]}
+	{functionName:'showPreviousWork', functionArgs:[]},
+	{functionName:'mustNotExceedMaxErrorBeforeAdvancing', functionArgs:['maxError']},
+	{functionName:'mustNotExceedAvgErrorBeforeAdvancing', functionArgs:['avgError']}
 ];
 
 /**
@@ -164,7 +166,7 @@ CarGraphNode.prototype.smartFilter = function(stateObj) {
 			}
 		}
 		
-		returnObj.avgError = allError / x;		
+		returnObj.avgError = allError / (parseInt(objJson.graphParams.xmax) - parseInt(objJson.graphParams.xmin));		
 		returnObj.filtered = filtered;
 		returnObj.errMargin = errMargin;
 	}
@@ -196,7 +198,7 @@ CarGraphNode.prototype.onExit = function() {
 	// run smart filter and flag if the smart filter returns true	
 	var carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
 	var smartFilterResult = this.smartFilter(carGraphState); // obj
-
+	
 	if (this.view.studentStatus == null) {
 		this.view.studentStatus = new StudentStatus();
 	}
@@ -437,6 +439,79 @@ CarGraphNode.prototype.showSmartFilter = function(doShow) {
 		$("#smartFilter").hide();
 	}
 	return true;
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+CarGraphNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = CarGraphNode.tagMapFunctions;
+	
+	return tagMapFunctions;
+};
+
+/**
+ * Get a tag map function given the function name
+ * @param functionName
+ * @return 
+ */
+CarGraphNode.prototype.getTagMapFunctionByName = function(functionName) {
+	var fun = null;
+	
+	//get all the tag map function for this step type
+	var tagMapFunctions = this.getTagMapFunctions();
+	
+	//loop through all the tag map functions
+	for(var x=0; x<tagMapFunctions.length; x++) {
+		//get a tag map function
+		var tagMapFunction = tagMapFunctions[x];
+		
+		if(tagMapFunction != null) {
+			
+			//check if the function name matches
+			if(functionName == tagMapFunction.functionName) {
+				//the function name matches so we have found what we want
+				fun = tagMapFunction;
+				break;
+			}			
+		}
+	};
+	
+	return fun;
+};
+
+/**
+ * Override of Node.overridesIsCompleted
+ * Specifies whether the node overrides Node.isCompleted
+ */
+CarGraphNode.prototype.overridesIsCompleted = function() {
+	return true;
+};
+
+/**
+ * Override of Node.isCompleted
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+CarGraphNode.prototype.isCompleted = function() {
+	// cycle through tag maps, if I get a custom tag map check student work to complete
+	var isCompleted = true;
+	for (var i = 0; i < this.tagMaps.length; i++){
+		var functionName = this.tagMaps[i].functionName;
+		var functionArgs = this.tagMaps[i].functionArgs;
+		if (functionName == "mustNotExceedMaxErrorBeforeAdvancing"){
+			var carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
+	        var smartFilterResult = this.smartFilter(carGraphState); // obj	
+	        if (carGraphState == "" || smartFilterResult.maxError > functionArgs[0]) isCompleted = false;		
+		} 
+		if (functionName == "mustNotExceedAvgErrorBeforeAdvancing"){
+			carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
+	        smartFilterResult = this.smartFilter(carGraphState); // obj
+	        if (carGraphState == "" || smartFilterResult.avgError > functionArgs[0]) isCompleted = false;				
+		}
+	}
+	return isCompleted;
 };
 
 /**

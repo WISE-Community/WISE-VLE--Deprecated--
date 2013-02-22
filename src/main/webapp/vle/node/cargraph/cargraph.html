@@ -141,6 +141,8 @@
 			    animationIntervalId = setInterval("doOneFrame()",200);
 				$("#startButton").val("Pause");
 				
+				// save so that we can update constraints
+				if (typeof cargraph != "undefined") cargraph.save();
 				/*
 				Armin: Do some check within the run
 				Maybe used later */
@@ -220,7 +222,7 @@
 			      <input id="stopButton" type="button" value="Stop" onclick="stopAnimation();" />
 			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction();" />
 			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange();" />
-			      <input id="startButton" type="button" value="Show table" onclick="showDialog();" />
+			      <input id="tableButton" type="button" value="Show table" onclick="showDialog();" style="visibility:hidden;"/>
 			      <input id="smartsButton" type="button" value="smarts" onclick="smarts();" style="visibility:hidden;" />
 			      <div id='dynamicImageRadioDiv'></div>
 	      		</td>
