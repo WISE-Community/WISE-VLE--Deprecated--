@@ -95,8 +95,7 @@
 						{
 							this.cubes[index].bottom = null;
 						}
-					} else
-					{}
+					} else{}					
 				}
 			}
 		}
@@ -303,7 +302,7 @@
 		g.clear();
 		g.setStrokeStyle(0.5);
 		g.beginStroke("rgba(100,100,100,1.0)");
-		g.beginFill("rgba(245,245,245,1.0)");
+		g.beginLinearGradientFill(["rgba(250,250,250,1.0)","rgba(230,210,220,1.0)"],[0,1.0],this.topRight_projected2d.x,this.topRight_projected2d.y,this.bottomLeft_projected2d.x,this.bottomLeft_projected2d.y);
 		var i, j, point;
 		for (i = 0; i < this.cubes_projected2d.length; i++)
 		{
@@ -324,6 +323,7 @@
 		g.endStroke();
 		g.beginStroke("rgba(0,0,0,1.0)");
 		g.beginFill("rgba(200,245,200,1.0)");
+		g.beginLinearGradientFill(["rgba(200,245,200,1.0)","rgba(180,210,180,1.0)"],[0,1.0],this.bottomRight_projected2d.x,this.bottomRight_projected2d.y,this.bottomLeft_projected2d.x,this.bottomLeft_projected2d.y);
 		for (i = 0; i < this.cubes_projected2d.length; i++)
 		{
 			if (this.cubes_projected2d[i].bottom != null)
@@ -402,7 +402,9 @@
 		var y_index_p = ty/(cur_height/this.height_units);
 		var x_index = Math.round(x_index_p + this.width_units/2);
 		var y_index = Math.round(y_index_p + this.height_units/2);
-
+		this.placeBlockAtIndex (o, x_index, y_index);
+	} 
+	p.placeBlockAtIndex = function (o, x_index, y_index) {
 		// calculate an indices 0 to 5 from right to left, 0 to 5 top to bottom
 		var point = new Point3D(x_index-this.width_units/2, y_index-this.height_units/2, -this.depth_units/2);
 		var npoint = point.rotateY(this.view_sideAngle);
@@ -527,9 +529,9 @@
 			return goodLocation;
 		}
 
-	p.setBlock = function(o)
+	p.setBlock = function(o, overrideIsCorrect)
 	{
-		if (o.correct)
+		if (o.correct || (typeof overrideIsCorrect != "undefined" && overrideIsCorrect))
 		{
 			if (o.x_index >= 0 && o.x_index < this.width_units && o.y_index >= 0 && o.y_index < this.height_units)
 			{
@@ -622,8 +624,8 @@
 				}
 			}
 
-
-	p.clearBlocks = function ()
+	/**  Empty the viewer*/
+ 	p.clearBlocks = function ()
 	{
 		var i, j;
 		for (i = this.getNumChildren()-2; i > 1; i--)

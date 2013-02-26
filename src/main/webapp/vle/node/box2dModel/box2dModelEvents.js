@@ -65,7 +65,8 @@ var events =
 	'test-scale-N',
 	'test-add-beaker',
 	'test-release-beaker',
-	'gave-feedback'
+	'gave-feedback',
+	'revise-model'
 ];
 
 

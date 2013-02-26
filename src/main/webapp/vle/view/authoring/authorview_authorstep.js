@@ -1122,6 +1122,20 @@ View.prototype.updateEnableCRater = function() {
 	}
 };
 
+/**
+ * Inserts the Step Icons authoring items
+ */
+View.prototype.insertStepIcons = function() {
+	this.stepIconsManager.insertStepIcons(this);
+};
+
+/**
+ * Inserts the Step Icons authoring items
+ */
+View.prototype.cleanupStepIcons = function() {
+	this.stepIconsManager.cleanupStepIcons(this);
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/authoring/authorview_authorstep.js');

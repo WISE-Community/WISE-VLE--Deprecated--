@@ -1672,9 +1672,39 @@ View.prototype.editIMSettings = function(){
 			imEnabled = tools.isIdeaManagerEnabled;
 		}
 		
-		// get whether public Idea Manager is enabled
-		if(typeof tools.isPublicIdeaManagerEnabled != 'undefined'){
-			$('#enablePublicIdeaManager').prop('checked',tools.isPublicIdeaManagerEnabled);
+		// initialize idea manager settings object and IM version
+		var imSettings = {}, imVersion = '1';
+		
+		if (this.projectMeta.tools != null) {
+			var tools = this.projectMeta.tools;
+			
+			//determine if enable idea manager needs to be checked
+			if (tools.isIdeaManagerEnabled != null && tools.isIdeaManagerEnabled) {
+				$("#enableIdeaManager").attr('checked', true);
+			}
+			
+			// get whether public Idea Manager is enabled
+			if(typeof tools.isPublicIdeaManagerEnabled != 'undefined'){
+				$('#enablePublicIdeaManager').prop('checked',tools.isPublicIdeaManagerEnabled);
+			}
+
+			//determine if enable student asset uploader needs to be checked
+			if (tools.isStudentAssetUploaderEnabled != null && tools.isStudentAssetUploaderEnabled) {
+				$("#enableStudentAssetUploader").attr('checked', true);
+			}
+			
+			// get Idea Manager version
+			if('ideaManagerVersion' in tools){
+				imVersion = tools.ideaManagerVersion;
+			}
+			
+			// get Idea Manager settings
+			if ('ideaManagerSettings' in tools){
+				imSettings = tools.ideaManagerSettings;
+				if('version' in tools.ideaManagerSettings){
+					imVersion = tools.ideaManagerSettings.version;
+				}
+			}
 		}
 		
 		// get Idea Manager settings

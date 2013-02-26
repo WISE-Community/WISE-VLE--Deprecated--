@@ -91,7 +91,7 @@ View.prototype.updateProjectMetaOnServer = function(publish, silent){
 		
 		//create a JSON string from the metadata and then escape the JSON string
 		//var metadataString = escape($.stringify(this.projectMeta));
-		var metadataString = $.stringify(this.projectMeta,null,3);
+		var metadataString = encodeURIComponent($.stringify(this.projectMeta,null,3));
 		
 		var postMetadataParams = {
 			"projectId":this.portalProjectId,

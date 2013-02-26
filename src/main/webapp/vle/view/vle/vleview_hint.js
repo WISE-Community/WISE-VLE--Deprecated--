@@ -2,6 +2,8 @@
  * Display hints for the current step.
  * Hints will popup in a dialog and each hint will
  * be in its own tab
+ * 
+ * TODO: Internationalize!
  */
 View.prototype.showStepHints = function() {
 	$('#hintsLink').stop();
@@ -91,12 +93,11 @@ View.prototype.displayHint = function(){
 				zindex:9999,
 				width:600,
 				height:'auto',
-				position:["center","middle"],
 				resizable:true    					
 			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
 				// check if isMustViewAllPartsBeforeClosing is true. If true, check if this is the first time they view the hints, and student has viewed all parts.
 				var currHints = event.data.view.getCurrentNode().getHints();
-				if ($(this).data("dialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.state) {
+				if ($(this).data("uiDialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.state) {
 					
 					var studentHasSeenAllParts = false;
 					var nodeVisitsForThisNode = event.data.view.state.getNodeVisitsByNodeId(event.data.view.getCurrentNode().id);
@@ -132,7 +133,7 @@ View.prototype.displayHint = function(){
 				};
 				
 			    // before the dialog closes, save hintstate
-		    	if ($(this).data("dialog").isOpen()) {	    		    		
+		    	if ($(this).data("uiDialog").isOpen()) {	    		    		
 		    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
 		    		event.data.view.pushHintState(hintState);
 		    		//$('#hintsHeader').html('&nbsp').addClass('visited');

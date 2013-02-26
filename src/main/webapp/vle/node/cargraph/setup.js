@@ -9,13 +9,18 @@ var coreMinScripts = [
 
 var studentVLEScripts = [
 	scriptloader.jquerySrc,
-	scriptloader.jqueryUISrc,
+	//scriptloader.jqueryUISrc,
+	'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
 	'vle/node/cargraph/cargraph.js',
 	'vle/node/cargraph/cargraphstate.js',	
 	'vle/jquery/js/flot/excanvas.js',
 	'vle/jquery/js/flot/jquery.js',
 	'vle/jquery/js/flot/jquery.flot.js',
 	'vle/jquery/js/flot/jquery.flot.crosshair.js'	
+];
+
+var css = [
+	'vle/jquery/css/custom-theme/jquery-ui-1.8.7.custom.css'
 ];
 
 var authorScripts = [

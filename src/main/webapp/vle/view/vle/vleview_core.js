@@ -128,6 +128,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.assetCopiedForReference(args[0], args[1]);
 	} else if(type=="chatRoomTextEntrySubmitted") {
 		obj.sendChat(args[0]);
+	} else if(type=="setStepIcon") {
+		obj.setStepIcon(args[0], args[1]);
 	}
 };
 
@@ -989,6 +991,15 @@ View.prototype.processStudentWork = function() {
 			}
 		}
 	}
+};
+
+/**
+ * Set the step icon in that navigation
+ * @param nodeId the node id
+ * @param stepIconPath the path to the new icon
+ */
+View.prototype.setStepIcon = function(nodeId, stepIconPath) {
+	this.navigationPanel.setStepIcon(nodeId, stepIconPath);
 };
 
 //used to notify scriptloader that this script has finished loading

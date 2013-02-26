@@ -350,6 +350,9 @@ Table.prototype.render = function() {
 			 */
 			this.displayGraphMessage(' <font color="red">Click "Make Graph" to graph the data</font>');
 		}
+	} else {
+		//graphing is not enabled
+		$('#graphParentDiv').hide();
 	}
 	
 	if(this.isDropDownTitleEnabled()) {
@@ -1954,17 +1957,25 @@ Table.prototype.studentDeleteColumn = function() {
 	 * that were originally authored in the step
 	 */
 	if(this.numColumns > this.content.numColumns) {
-		//decrement the number of columns
-		this.numColumns--;
+		//ask the student if they are sure they want to delete the column on the right
+		var answer = confirm('Are you sure you want to delete the column on the right?');
 		
-		//set the flag that says the student has changed the table
-		this.studentTableChanged();
-		
-		//save the student table data with the new number of columns
-		this.save();
-		
-		//render the table again to reflect the new number of columns
-		this.render();
+		if(answer) {
+			//decrement the number of columns
+			this.numColumns--;
+			
+			//set the flag that says the student has changed the table
+			this.studentTableChanged();
+			
+			//save the student table data with the new number of columns
+			this.save();
+			
+			//render the table again to reflect the new number of columns
+			this.render();			
+		}
+	} else {
+		//they are trying to delete a column that was originally authored
+		alert('Error: you may not delete any of the original columns');
 	}
 };
 
@@ -2007,17 +2018,25 @@ Table.prototype.studentDeleteRow = function() {
 	 * that were originally authored in the step
 	 */
 	if(this.numRows > this.content.numRows) {
-		//decrement the number of rows
-		this.numRows--;
+		//ask the student if they are sure they want to delete the bottom row
+		var answer = confirm('Are you sure you want to delete the bottom row?');
 		
-		//set the flag that says the student has changed the table
-		this.studentTableChanged();
-		
-		//save the student table data with the new number of rows
-		this.save();
-		
-		//render the table again to reflect the new number of rows
-		this.render();
+		if(answer) {
+			//decrement the number of rows
+			this.numRows--;
+			
+			//set the flag that says the student has changed the table
+			this.studentTableChanged();
+			
+			//save the student table data with the new number of rows
+			this.save();
+			
+			//render the table again to reflect the new number of rows
+			this.render();			
+		}
+	} else {
+		//they are trying to delete a row that was originally authored
+		alert('Error: you may not delete any of the original rows');
 	}
 };
 

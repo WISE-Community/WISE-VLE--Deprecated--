@@ -24,16 +24,17 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 	       	"INCLUDE_BUILDER": true,
 	       	"INCLUDE_CYLINDER_BUILDER":false,
   			"INCLUDE_RECTPRISM_BUILDER":false,
+  			"INCLUDE_LIBRARY":true,
+  			"ALLOW_REVISION":true,
+  			"SHOW_VALUES_SLIDER_BUILDER":true,
+			"INCREMENT_UNITS_SLIDER_BUILDER":true,
   			"INCLUDE_EMPTY": false,
 			"INCLUDE_BALANCE": false,
 			"INCLUDE_SCALE": true,
 			"INCLUDE_BEAKER": true,
-			"SCALE" : 20,
+			"SCALE" : 25,
 	        "PADDING" : 10,
-	        "STAGE_WIDTH" : 810,
-			"STAGE_HEIGHT" : 730,
-			"PADDING" : 8,
-			"view_sideAngle" : 10*Math.PI/180,
+	        "view_sideAngle" : 10*Math.PI/180,
 			"view_topAngle" : 20*Math.PI/180,
 			"liquid_volume_perc" : 0.50,
 			"fill_spilloff_by_height": true,
@@ -88,8 +89,9 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		var builder;
 		var tester;
 		
-		function init(wiseData, makePremades)
+		function init(wiseData, makePremades, forceDensityValue)
 		{
+			var key;
 			if (typeof wiseData === "undefined")
 			{
 				// load parameters file to overwrite defaults
@@ -102,6 +104,15 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 						if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 						GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
+						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
+						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
+						GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
+						GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
+						if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
+							for (var key in GLOBAL_PARAMETERS.materials){
+								GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
+							}
+						}
 						start();
 					});     
 				});
@@ -115,6 +126,15 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
+				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
+				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
+				GLOBAL_PARAMETERS.ALLOW_REVISION = GLOBAL_PARAMETERS.INCLUDE_BUILDER || GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER || GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.ALLOW_REVISION : false; 
+				GLOBAL_PARAMETERS.INCLUDE_LIBRARY = !GLOBAL_PARAMETERS.INCLUDE_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER && !GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER ? GLOBAL_PARAMETERS.INCLUDE_LIBRARY : true; 
+				if (typeof forceDensityValue != "undefined" && forceDensityValue > 0){
+					for (var key in GLOBAL_PARAMETERS.materials){
+						GLOBAL_PARAMETERS.materials[key].density = forceDensityValue;
+					}
+				}
 				start(typeof makePremades=="undefined"? true:makePremades);
 			}	
 		}
@@ -131,27 +151,25 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			var tester_y;
 			if (GLOBAL_PARAMETERS.INCLUDE_BUILDER)
 			{
-				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new BlockCompBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			} else if (GLOBAL_PARAMETERS.INCLUDE_CYLINDER_BUILDER){
-				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new CylinderBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			}else if (GLOBAL_PARAMETERS.INCLUDE_RECTPRISM_BUILDER){
-				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, 250);
+				builder = new RectPrismBuildingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.BUILDER_HEIGHT);
 				stage.addChild(builder);
 				tester_y = builder.height_px + 20;	
 			} else
 			{
 				tester_y = GLOBAL_PARAMETERS.PADDING;	
 			}
-			tester = new ObjectTestingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.STAGE_HEIGHT-tester_y);
+			tester = new ObjectTestingPanel(GLOBAL_PARAMETERS.STAGE_WIDTH, GLOBAL_PARAMETERS.TESTER_HEIGHT);
 			stage.addChild(tester);
 			tester.y = tester_y;
 
-			var premade = GLOBAL_PARAMETERS.premades['1x1x1_DWood'];
-			
 			// make all objects given in parameters
 			if (makePremades){
 				for (var i = 0; i < GLOBAL_PARAMETERS.premades_available.length; i++)
@@ -161,16 +179,16 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						// is an array, pick one of array, replace original
 						GLOBAL_PARAMETERS.premades_available[i] = obj[Math.floor(Math.random()*obj.length)];
 						if (typeof GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]] != "undefined"){
-							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]]);
+							createObject(GLOBAL_PARAMETERS.premades[GLOBAL_PARAMETERS.premades_available[i]], false, true);
 						}
 					} else if (typeof obj == "string" && typeof GLOBAL_PARAMETERS.premades[obj] != "undefined"){
-						createObject(GLOBAL_PARAMETERS.premades[obj]);
+						createObject(GLOBAL_PARAMETERS.premades[obj], false, true);
 					}						
 				}
 			}
 			GLOBAL_PARAMETERS.num_initial_objects = GLOBAL_PARAMETERS.premades_available.length;
 			// get maximum number of library objects, create computational inputs for each
-			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library.MAX_OBJECTS_IN_LIBRARY;
+			GLOBAL_PARAMETERS.MAX_OBJECTS_IN_LIBRARY = tester.library != null ? tester.library.MAX_OBJECTS_IN_LIBRARY : 0;
 
 			// make premades in world
 			for (i = 0; i < GLOBAL_PARAMETERS.premades_in_world.length; i++){
@@ -199,9 +217,10 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 		}
 
 		/** This will create an object that will go in the library */
-		function createObject(savedObject, already_in_globals)
+		function createObject(savedObject, already_in_globals, is_premade)
 		{
 			var compShape;
+			is_premade = typeof is_premade != "undefined" ? is_premade : false; 
 			if (typeof savedObject.blockArray3d != "undefined"){
 				if (savedObject.is_container){
 					compShape = new ContainerCompShape(GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, GLOBAL_PARAMETERS.SCALE, savedObject);
@@ -215,6 +234,8 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			}
 			
 			savedObject.id = GLOBAL_PARAMETERS.total_objects_made;
+			savedObject.is_deletable = typeof savedObject.is_deletable != "undefined"? savedObject.is_deletable : is_premade ? false: true;
+			savedObject.is_revisable = typeof savedObject.is_revisable != "undefined"? savedObject.is_revisable : is_premade ? false: GLOBAL_PARAMETERS.ALLOW_REVISION;
 			if (tester.createObjectForLibrary(compShape)){
 				GLOBAL_PARAMETERS.total_objects_made++;
 				if (typeof already_in_globals === "undefined" || !already_in_globals)
