@@ -33,6 +33,11 @@ function CARGRAPH(node) {
 	
 	//the default 
 	this.lockPredictionOnCollectionStart = false;
+
+	if(typeof this.content.createPrediction != "undefined" && !this.content.createPrediction) {
+		//hide the prediction buttons
+		this.hidePredictionButtons();
+	}
 	
 	if(node.studentWork != null) {
 		//the student has work from previous visits to this step
@@ -99,6 +104,12 @@ function CARGRAPH(node) {
 	if(this.carGraphState.predictionLocked) {
 		//the prediction should be locked
 		this.predictionLocked = true;
+	}
+
+	this.createPrediction = true;
+	if(typeof this.content.createPrediction != "undefined" && !this.content.createPrediction) {
+		//the prediction should be locked
+		this.createPrediction = false;
 	}
 	
 	//the last point the student has clicked on
@@ -859,18 +870,29 @@ CARGRAPH.prototype.setupPlotHover = function() {
      */
     $("#" + this.graphDivId).bind("plothover", {thisCarGraph:this}, function (event, pos, item) {
     	//get the position of the mouse in the graph
-    	var plotHoverPositionX = pos.x.toFixed(2);
-    	var plotHoverPositionY = pos.y.toFixed(2);
+    	
+    	// jv test with significant figures
+    	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+    		var plotHoverPositionX = pos.x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.xmax)))/Math.LN10)));
+    		var plotHoverPositionY = pos.y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+    	} else {
+    		plotHoverPositionX = pos.x.toFixed(2);
+    		plotHoverPositionY = pos.y.toFixed(2);
+    	}	
 
     	//get the x units
-    	var graphXUnits = "min";
+    	var graphXUnits = event.data.thisCarGraph.content.graphParams.xUnits;
     	
     	//get the y units
-    	var graphYUnits = "km";
+    	var graphYUnits = event.data.thisCarGraph.content.graphParams.yUnits;
     	
     	//display the position e.g. (10.52 min, 4.34 km)
     	var plotHoverPositionText = "(" + plotHoverPositionX + " " + graphXUnits + ", " + plotHoverPositionY + " " + graphYUnits + ")";
-    	$('#plotHoverPosition').html(plotHoverPositionText); 
+    	
+    	$('#plotHoverPosition').html(plotHoverPositionText);
+    	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+    		$('#plotHoverPosition').html(plotHoverPositionText).css({position: 'absolute', float: 'left', left: pos.pageX + 20, top: pos.pageY}); 
+   		 }
 
         if (item) {
             if (previousPoint != item.datapoint) {
@@ -921,7 +943,7 @@ CARGRAPH.prototype.setupPlotHover = function() {
         
         //check if the student is click dragging to create prediction points
         if(event.data.thisCarGraph.mouseDown) {
-        	if(!event.data.thisCarGraph.predictionLocked) {
+        	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
         		// allow author to enable or disable draw while dragging
         		if (event.data.thisCarGraph.content.allowDragDraw) {
 					//add prediction point
@@ -1011,7 +1033,7 @@ CARGRAPH.prototype.setupPlotClick = function() {
         	//student has clicked on an empty spot on the graph
         	
         	//check if this step allows the student to create a prediction
-        	if(!event.data.thisCarGraph.predictionLocked) {
+        	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
         		//create the prediction point
         		event.data.thisCarGraph.predictionReceived(pos.x, pos.y);
         		
@@ -1919,6 +1941,18 @@ CARGRAPH.prototype.predictionReceived = function(x, y) {
 		var xFactor = 1 / this.content.gatherXIncrement;
 		x = Math.round(x * xFactor) / xFactor;		
 		y = parseFloat(y.toFixed(2));
+		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
+			if (x < parseFloat(this.content.graphParams.xmin)){
+				x = parseFloat(this.content.graphParams.xmin);
+			} else if (x > parseFloat(this.content.graphParams.xmax)){
+				x = parseFloat(this.content.graphParams.xmax);
+			}
+			if (y < parseFloat(this.content.graphParams.ymin)){
+				y = parseFloat(this.content.graphParams.ymin);
+			} else if (y > parseFloat(this.content.graphParams.ymax)){
+				y = parseFloat(this.content.graphParams.ymax);
+			}
+		}
 		
 		//insert the point into the carGraph state
 		this.carGraphState.predictionReceived(this.currentDynamicImageId, x, y);
@@ -2067,8 +2101,9 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 				 * and that there was a prediction state from the previous
 				 * associated step before we try to retrieve that prediction and
 				 * set it into our prediction array
+				 * OR if cannot create prediction then always use previous prediction - jonathan vitale
 				 */
-				if(this.carGraphState.predictionArray.length == 0 && predictionState != null && predictionState != "") {
+				if(predictionState != null && predictionState != "" && (this.carGraphState.predictionArray.length == 0 || !this.createPrediction)) {
 
 					var predictionId = "";
 					
@@ -2100,8 +2135,13 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 						predictions:predictions
 					};
 					
-					//put the previous work into our state
-					this.carGraphState.predictionArray.push(predictionObject);
+					// if we cannot create a new prediction, set predictionArray to previous - jonathan vitale
+					if (this.createPrediction){
+						//put the previous work into our state
+						this.carGraphState.predictionArray.push(predictionObject);
+					} else {
+						this.carGraphState.predictionArray = [predictionObject]
+					}
 					
 					var predictionAnnotations = [];
 					

@@ -1074,9 +1074,15 @@ SENSOR.prototype.setupPlotHover = function() {
      * will be passed into the function and accessed through event.data.thisSensor
      */
     $("#" + this.graphDivId).bind("plothover", {thisSensor:this}, function (event, pos, item) {
-    	//get the position of the mouse in the graph
-    	var plotHoverPositionX = pos.x.toFixed(2);
-    	var plotHoverPositionY = pos.y.toFixed(2);
+    	// jv test with significant figures
+    	if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
+    		var plotHoverPositionX = pos.x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.xmax)))/Math.LN10)));
+    		var plotHoverPositionY = pos.y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+    	} else {
+    		//get the position of the mouse in the graph
+    		plotHoverPositionX = pos.x.toFixed(2);
+    		plotHoverPositionY = pos.y.toFixed(2);
+    	}	
 
     	var xLabel = "";
     	
@@ -1099,6 +1105,9 @@ SENSOR.prototype.setupPlotHover = function() {
     	//display the position e.g. (10.52 s, 4.34 m)
     	var plotHoverPositionText = "(" + plotHoverPositionX + " " + graphXUnits + ", " + plotHoverPositionY + " " + graphYUnits + ")";
     	$('#plotHoverPosition').html(plotHoverPositionText);
+    	if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
+    		$('#plotHoverPosition').html(plotHoverPositionText).css({position: 'absolute', float: 'left', left: pos.pageX + 20, top: pos.pageY}); 
+   		 }
 		
         if (item) {
             if (previousPoint != item.datapoint) {
@@ -2289,6 +2298,18 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 		x = Math.round(x * 5) / 5;
 		
 		y = parseFloat(y.toFixed(2));
+		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
+			if (x < parseFloat(this.content.graphParams.xmin)){
+				x = parseFloat(this.content.graphParams.xmin);
+			} else if (x > parseFloat(this.content.graphParams.xmax)){
+				x = parseFloat(this.content.graphParams.xmax);
+			}
+			if (y < parseFloat(this.content.graphParams.ymin)){
+				y = parseFloat(this.content.graphParams.ymin);
+			} else if (y > parseFloat(this.content.graphParams.ymax)){
+				y = parseFloat(this.content.graphParams.ymax);
+			}
+		}
 		
 		//insert the point into the sensor state
 		this.sensorState.predictionReceived(x, y);
