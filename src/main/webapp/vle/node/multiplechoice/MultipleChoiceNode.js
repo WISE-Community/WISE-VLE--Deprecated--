@@ -208,15 +208,17 @@ MultipleChoiceNode.prototype.renderGradingView = function(displayStudentWorkDiv,
  * @param childDivIdPrefix (optional) a string that will be prepended to all the 
  * div ids use this to prevent DOM conflicts such as when the show all work div
  * uses the same ids as the show flagged work div
- * @param workgroupId the id of the workgroup this work belongs to
+ * @param workgroupIdToWork the id of the workgroup to work mapping
+ * @param dom dom to render the summary into
+ * @param graphType bar|pie|barpie
  */
-MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork, dom) {
+MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphType) {
 	var view = this.view;
 	var nodeId = this.id;
 	if (dom == null) {
 		dom=$("#summaryContent");
 	}
-	view.displayStepGraph(nodeId,dom,workgroupIdToWork);
+	view.displayStepGraph(nodeId,dom,workgroupIdToWork,graphType);
 };
 
 /**
