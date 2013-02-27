@@ -36,7 +36,8 @@ CarGraphNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
 	{functionName:'showPreviousWork', functionArgs:[]},
 	{functionName:'mustNotExceedMaxErrorBeforeAdvancing', functionArgs:['maxError']},
-	{functionName:'mustNotExceedAvgErrorBeforeAdvancing', functionArgs:['avgError']}
+	{functionName:'mustNotExceedAvgErrorBeforeAdvancing', functionArgs:['avgError']},
+	{functionName:'mustSpanDomainBeforeAdvancing', functionArgs:[]}
 ];
 
 /**
@@ -509,6 +510,23 @@ CarGraphNode.prototype.isCompleted = function() {
 			carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
 	        smartFilterResult = this.smartFilter(carGraphState); // obj
 	        if (carGraphState == "" || smartFilterResult.avgError > functionArgs[0]) isCompleted = false;				
+		}
+		if (functionName == "mustSpanDomainBeforeAdvancing"){
+			carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
+			if (carGraphState != "" && carGraphState.predictionArray.length > 0 && carGraphState.predictionArray[0].predictions){
+				var predictions = carGraphState.predictionArray[0].predictions;
+				var foundMin = false;
+				var foundMax = false;
+				for (var i=0; i < predictions.length; i++){
+					var p = predictions[i];
+					var objJson = this.content.getContentJSON();
+					if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
+					if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+				}
+				if (!foundMin || !foundMax) isCompleted = false;
+			} else {
+				isCompleted = false;
+			}
 		}
 	}
 	return isCompleted;

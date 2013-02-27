@@ -81,7 +81,12 @@ public class VLEGetData extends VLEServlet {
 			String nodeIds = request.getParameter("nodeIds");
 			String getAllWorkStr = request.getParameter("getAllWork");
 			String getRevisionsStr = request.getParameter("getRevisions");
-	
+
+			// override userIdStr if user is requesting for aggregate and showAllStudents is requested
+			if ("aggregate".equals(type) && Boolean.parseBoolean(request.getParameter("allStudents"))) {
+				userIdStr = (String) request.getAttribute("userId");  // user id for the entire run is passed in the attribute
+			}
+			
 			//whether to get the work that has empty states
 			boolean getAllWork = false;
 			
