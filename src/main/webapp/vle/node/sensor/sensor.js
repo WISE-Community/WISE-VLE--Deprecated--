@@ -2964,6 +2964,8 @@ SENSOR.prototype.processTagMaps = function() {
 						//message is not an empty string so we will add a new line for formatting
 						message += '<br>' + result.message;
 					}
+				} else if (functionName == "mustSpanDomainBeforeAdvancing"){
+					this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null,"Your graph doesn't cover the entire x-axis."]);
 				}
 			}
 		}
