@@ -296,8 +296,8 @@ CARGRAPH.prototype.render = function() {
 		var predictionStartingYValue = this.content.graphParams.ymin-100;  // if no prediction at time=0, hide this car from the view.	
 		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
 	    var yValue = this.getYValue(0,predictionArr);
-	    var predictionStartingYValue = yValue*this.yTickSize;
-
+	    var predictionStartingYValue = yValue/this.tickSpacing*this.yTickSize;
+	    
 	    // find the first real y value
 	    dynamicImage.predictionInitialYValue = this.content.graphParams.ymin-100; // unlike predictionStartingValue, will search for the first actual value
 	    for (var xinc = 0; xinc <= this.content.graphParams.xmax; xinc += this.content.gatherXIncrement){
