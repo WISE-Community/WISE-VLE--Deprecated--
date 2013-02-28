@@ -1770,7 +1770,14 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 
 	//clear out the aggregate work div
 	aggregateWorkDiv.html('');
-
+	
+	var periodAll = functionArgs[0];  // are we showing just the data of students in the period, or for all periods? period=period only, all=all periods
+	var showAllStudents = false;
+	if (periodAll == "all") {
+		showAllStudents = true;
+	}
+	var graphType = functionArgs[1];  // bar|pie|barpie
+	
 	if(nodeIds != null) {
 		//loop through all the node ids that come before the current step and have the given tag
 		for(var x=0; x<nodeIds.length; x++) {
@@ -1799,7 +1806,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 
 					if (this.view.getConfig().getConfigParam("mode") != "run") {
 						// if not in run mode, show each of the step titles and also say that aggregate will show up when a run is set up
-						showAggregateWorkForNodeDiv.append(this.view.getI18NString("student_aggregate_view_preview_mode_default_text"));
+						showAggregateWorkForNodeDiv.append(this.view.getI18NStringWithParams("student_aggregate_view_preview_mode_default_text",[stepNumberAndTitle]));
 						//make the show aggregate work div visible
 						aggregateWorkDiv.show();
 					} else {
@@ -1839,8 +1846,9 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 								}
 							}
 							// now tell the Node to render the summary view.
-							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork,aggregateWorkDiv);
+							nodeOfAggregateWork.renderSummaryView(workgroupIdToWork,aggregateWorkDiv,graphType);
 						};
+						
 						// make the request to get student work for this specific nodeId.
 						this.view.connectionManager.request(
 								'GET', 
@@ -1852,6 +1860,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 									userId: this.view.userAndClassInfo.getWorkgroupId() + ":" + this.view.userAndClassInfo.getClassmateIdsByPeriodId(this.view.userAndClassInfo.getPeriodId()), 
 									runId:  this.view.config.getConfigParam('runId'), 
 									nodeIds: nodeId,
+									allStudents: showAllStudents,
 									useCachedWork:false
 								}, 
 								getClassmateResponsesCallback, 

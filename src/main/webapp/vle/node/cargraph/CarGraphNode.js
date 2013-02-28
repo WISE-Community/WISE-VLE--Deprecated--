@@ -36,7 +36,8 @@ CarGraphNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
 	{functionName:'showPreviousWork', functionArgs:[]},
 	{functionName:'mustNotExceedMaxErrorBeforeAdvancing', functionArgs:['maxError']},
-	{functionName:'mustNotExceedAvgErrorBeforeAdvancing', functionArgs:['avgError']}
+	{functionName:'mustNotExceedAvgErrorBeforeAdvancing', functionArgs:['avgError']},
+	{functionName:'mustSpanDomainBeforeAdvancing', functionArgs:[]}
 ];
 
 /**
@@ -494,21 +495,37 @@ CarGraphNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-CarGraphNode.prototype.isCompleted = function() {
+CarGraphNode.prototype.isCompleted = function(carGraphState) {
+	
 	// cycle through tag maps, if I get a custom tag map check student work to complete
+	if (typeof carGraphState === "undefined") carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
 	var isCompleted = true;
 	for (var i = 0; i < this.tagMaps.length; i++){
 		var functionName = this.tagMaps[i].functionName;
 		var functionArgs = this.tagMaps[i].functionArgs;
 		if (functionName == "mustNotExceedMaxErrorBeforeAdvancing"){
-			var carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
-	        var smartFilterResult = this.smartFilter(carGraphState); // obj	
+			var smartFilterResult = this.smartFilter(carGraphState); // obj	
 	        if (carGraphState == "" || smartFilterResult.maxError > functionArgs[0]) isCompleted = false;		
 		} 
 		if (functionName == "mustNotExceedAvgErrorBeforeAdvancing"){
-			carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
-	        smartFilterResult = this.smartFilter(carGraphState); // obj
+			smartFilterResult = this.smartFilter(carGraphState); // obj
 	        if (carGraphState == "" || smartFilterResult.avgError > functionArgs[0]) isCompleted = false;				
+		}
+		if (functionName == "mustSpanDomainBeforeAdvancing"){
+			if (carGraphState != "" && carGraphState.predictionArray.length > 0 && carGraphState.predictionArray[0].predictions){
+				var predictions = carGraphState.predictionArray[0].predictions;
+				var foundMin = false;
+				var foundMax = false;
+				for (var i=0; i < predictions.length; i++){
+					var p = predictions[i];
+					var objJson = this.content.getContentJSON();
+					if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
+					if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+				}
+				if (!foundMin || !foundMax) isCompleted = false;
+			} else {
+				isCompleted = false;
+			}
 		}
 	}
 	return isCompleted;

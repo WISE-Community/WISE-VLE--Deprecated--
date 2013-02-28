@@ -183,7 +183,6 @@
 	              }).hide();
 		       $("#slider-sideAngle").load(function (){$( "#amount" ).val( $( "#slider-sideAngle" ).slider( "value" ) );});
 			// setup buttons for volume viewer	
-			console.log($("#make-object")[0]);
 			var element = new createjs.DOMElement($("#make-object")[0]);
 			this.addChild(element);
 			element.x = this.width_px - export_offsetL + 10;

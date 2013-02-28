@@ -218,18 +218,23 @@ View.prototype.displayGlobalTools = function() {
 	if($('#userNames').html() == ''){
 		$('#userNames').html(this.getI18NString("welcome_users_default"));
 	}
+
+	var metadata = null;
+	var runInfo = null;
 	
-	/* show/hide studentAssets, ideaManager, addIdea buttons based on project.metadata.tools config */
+	//get the metadata if it exists
 	if (this.projectMetadata != null && this.projectMetadata.tools != null) {
-		this.showToolsBasedOnConfig(this.projectMetadata.tools);
+	    metadata = this.projectMetadata.tools;
 	}
 
-	/* show/hide studentAssets, ideaManager, addIdea buttons based on run.info config */
+	//get the run info if it exists
 	var runInfoStr = this.config.getConfigParam('runInfo');
 	if (runInfoStr != null && runInfoStr != "") {
-		var runInfo = JSON.parse(runInfoStr);
-		this.showToolsBasedOnConfig(runInfo);
+	    runInfo = JSON.parse(runInfoStr);
 	}
+	
+	//show/hide the top menu buttons
+	this.showToolsBasedOnConfigs(metadata, runInfo);
 	
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
@@ -293,6 +298,93 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		$("#ideaBasketLinks").hide();
 	}
 };
+
+/**
+ * Show the buttons in the top menu based on the metadata and runinfo
+ * @param metadata the metadata object
+ * @param runInfo the runInfo object
+ */
+View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
+    
+    var isStudentAssetUploaderEnabled = false;
+    
+    if(metadata != null) {
+	isStudentAssetUploaderEnabled = metadata.isStudentAssetUploaderEnabled;
+    }
+
+    if (isStudentAssetUploaderEnabled) {
+	/*
+	 * display student assets link if run has student asset uploader enabled
+	 */
+	var studentAssetsLink="<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\",null)' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
+	$('#viewMyFiles').html(studentAssetsLink);
+	$('#viewMyFiles').show().css('display','inline');
+    } else {
+	$('#viewMyFiles').hide();
+    }
+    
+    var isXMPPEnabled = false;
+    var isChatRoomEnabled = false;
+    
+    if(metadata != null) {
+	isXMPPEnabled = metadata.isXMPPEnabled;
+	isChatRoomEnabled = metadata.isChatRoomEnabled;
+    }
+    
+    if(runInfo != null) {
+	if(typeof runInfo.isXMPPEnabled != 'undefined') {
+	    isXMPPEnabled = runInfo.isXMPPEnabled;
+	}
+	
+	if(typeof runInfo.isChatRoomEnabled != 'undefined') {
+	    isChatRoomEnabled = runInfo.isChatRoomEnabled;
+	}
+    }
+    
+    if (isXMPPEnabled && isChatRoomEnabled) {
+	/*
+	 * display chatroom link if run has chatroom enabled
+	 */
+	var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+	$('#viewChatRoom').html(displayChatRoomLink);
+	$('#viewChatRoom').show().css('display','inline');
+    } else {
+	$('#viewChatRoom').hide();
+    }
+    
+    var isIdeaManagerEnabled = false;
+    
+    if(metadata != null) {
+	isIdeaManagerEnabled = metadata.isIdeaManagerEnabled;
+    }
+    
+    if (isIdeaManagerEnabled) {
+	// display the idea basket links if the run/project has idea basket enabled
+	// if project is using IM version > 1, set custom link text based on IM settings
+	var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
+	if (this.projectMetadata != null && this.projectMetadata.tools != null){
+	    if('ideaManagerSettings' in this.projectMetadata.tools){
+		var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if(imSettings.version > 1){
+		    if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
+			basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
+		    }
+		    if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+			addIdeaLinkText = imSettings.addIdeaTerm;
+		    }
+		}
+	    }
+	}
+	var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")'>"+basketLinktext+" <span id='ideaCount' class='count'>(0)</span></a>";
+	var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")'>"+addIdeaLinkText+"</a>";
+	$("#viewIdeaBasket").html(ideaBasketLink);
+	$("#addIdea").html(addIdeaLink);
+	$("#ideaBasketLinks").show().css('display','inline');
+    } else {
+	$("#ideaBasketLinks").hide();
+    }
+};
+
 /**
  * Loads the theme given theme in the VLE view. Default is the wise theme.
  * @param themeName the name of the theme to load

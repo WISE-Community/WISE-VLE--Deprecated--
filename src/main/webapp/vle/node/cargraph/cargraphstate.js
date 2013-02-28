@@ -317,8 +317,9 @@ CARGRAPHSTATE.prototype.setPredictionsForPredictionId = function(predictionId, p
  * Adds an element into the prediction array
  * @param x the x value of the point
  * @param y the y value of the point
+ * @param doSort whether array should be sorted, or kept in order given
  */
-CARGRAPHSTATE.prototype.predictionReceived = function(predictionId, x, y) {
+CARGRAPHSTATE.prototype.predictionReceived = function(predictionId, x, y, doSort) {
 	if (this.getPredictionObjByPredictionId(predictionId) == null) {
 		this.predictionArray.push({id:predictionId, predictions:[]});
 	}
@@ -342,12 +343,45 @@ CARGRAPHSTATE.prototype.predictionReceived = function(predictionId, x, y) {
 	//add the element to the array
 	predictionArray.push(predictionData);
 	
-	//sort the array by the x value
-	predictionArray.sort(this.sortPredictionArray);
-	
+	if (typeof doSort == "undefined" || doSort){
+		//sort the array by the x value
+		predictionArray.sort(this.sortPredictionArray);
+	}
+
 	// save 
 	this.setPredictionsForPredictionId(predictionId, predictionArray);	
 };
+
+/**
+ * Update a prediction based on the inputed x value to new y value
+ * @param x the x value of the point
+ * @param y the new y value
+ */
+CARGRAPHSTATE.prototype.predictionUpdateByX = function(predictionId, x, y) {
+	if (this.getPredictionObjByPredictionId(predictionId) == null) {
+		return false;
+	}
+	var predictionArray = this.getPredictionObjByPredictionId(predictionId).predictions;
+	//remove any existing point with the same x value
+	var predictionFound = false;
+	for(var i=0; i<predictionArray.length; i++) {
+		var predictionPoint = predictionArray[i];
+		
+		if(predictionPoint.x == x) {
+			predictionArray[i].y = y;
+			predictionFound = true;
+			break;
+		}
+	}
+
+	// save 
+	if (predictionFound){
+		this.setPredictionsForPredictionId(predictionId, predictionArray);	
+		return true;
+	} else {
+		return false;
+	}
+}
 
 /**
  * Remove the element with the given index from the prediction array
