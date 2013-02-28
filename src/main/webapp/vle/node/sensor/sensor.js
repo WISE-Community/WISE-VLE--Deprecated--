@@ -92,13 +92,16 @@ function SENSOR(node) {
 	
 	//the units for the different types of graphs
 	this.graphUnits = {
-			distance:"m",
-			velocity:"m/s",
-			acceleration:"m/s^2",
-			temperature:"C",
-			time:"s"
+		distance:"m",
+		velocity:"m/s",
+		acceleration:"m/s^2",
+		temperature:"C",
+		time:"s",
+		customY:typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "",
+		customX:typeof this.content.graphParams.xUnits != "undefined" ? this.content.graphParams.xUnits : "", 
 	};
 	
+
 	/*
 	 * the color for the graph lines
 	 * 0 yellow
@@ -169,6 +172,9 @@ function SENSOR(node) {
 	
 	//the last point the student has clicked on
 	this.lastPointClicked = null;
+
+	// a point being dragged
+	this.dragPoint = null;
 };
 
 /**
@@ -309,11 +315,14 @@ SENSOR.prototype.render = function() {
 		//listen for the mouse enter event on the graphDiv
 		$("#" + this.graphDivId).bind("mouseenter", {thisSensor:this}, function(event) {
 			event.data.thisSensor.mouseInsideGraphDiv = true;
+			if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").show();
 		});
 		
 		//listen for the mouse leave event on the graphDiv
 		$("#" + this.graphDivId).bind("mouseleave", {thisSensor:this}, function(event) {
 			event.data.thisSensor.mouseInsideGraphDiv = false;
+			if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").hide();
+			event.data.thisSensor.dragPoint = null;
 		});
 		
 		/*
@@ -1074,14 +1083,31 @@ SENSOR.prototype.setupPlotHover = function() {
      * will be passed into the function and accessed through event.data.thisSensor
      */
     $("#" + this.graphDivId).bind("plothover", {thisSensor:this}, function (event, pos, item) {
+    	var contentGraphParams = event.data.thisSensor.content.graphParams;
+        
+        var x = pos.x;
+    	var y = pos.y;
+    	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+			if (x < contentGraphParams.xmin){
+				x = parseFloat(contentGraphParams.xmin);
+			} else if (x > contentGraphParams.xmax){
+				x = parseFloat(contentGraphParams.xmax);
+			} 
+			if (y < contentGraphParams.ymin ){
+				y = parseFloat(contentGraphParams.ymin);
+			} else if (y > contentGraphParams.ymax){
+				y = parseFloat(contentGraphParams.ymax);
+			} 
+    	} 
+
     	// jv test with significant figures
     	if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
-    		var plotHoverPositionX = pos.x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.xmax)))/Math.LN10)));
-    		var plotHoverPositionY = pos.y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.xmax)))/Math.LN10)));
+    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
     	} else {
     		//get the position of the mouse in the graph
-    		plotHoverPositionX = pos.x.toFixed(2);
-    		plotHoverPositionY = pos.y.toFixed(2);
+    		plotHoverPositionX = x.toFixed(2);
+    		plotHoverPositionY = y.toFixed(2);
     	}	
 
     	var xLabel = "";
@@ -1094,6 +1120,9 @@ SENSOR.prototype.setupPlotHover = function() {
     	} else if(event.data.thisSensor.sensorType == "temperature") {
     		seriesType = "temperature";
     		xLabel = "time";
+    	} else if(event.data.thisSensor.sensorType == "custom") {
+    		seriesType = "customY";
+    		xLabel = "customX";
     	}
     	
     	//get the x units
@@ -1104,6 +1133,7 @@ SENSOR.prototype.setupPlotHover = function() {
     	
     	//display the position e.g. (10.52 s, 4.34 m)
     	var plotHoverPositionText = "(" + plotHoverPositionX + " " + graphXUnits + ", " + plotHoverPositionY + " " + graphYUnits + ")";
+    	
     	$('#plotHoverPosition').html(plotHoverPositionText);
     	if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
     		$('#plotHoverPosition').html(plotHoverPositionText).css({position: 'absolute', float: 'left', left: pos.pageX + 20, top: pos.pageY}); 
@@ -1117,18 +1147,17 @@ SENSOR.prototype.setupPlotHover = function() {
                 $("#tooltip").remove();
                 
                 //get the x and y values from the point the mouse is over
-                var x = parseFloat(item.datapoint[0].toFixed(2));
-                var y = parseFloat(item.datapoint[1].toFixed(2));
+                var x = parseFloat(item.datapoint[0]);
+                var y = parseFloat(item.datapoint[1]);
                 
                 // if we are using the easy click option, only show points within domain
-                var contentGraphParams = event.data.thisSensor.content.graphParams;
                 if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
 					if (x < contentGraphParams.xmin && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmin).toFixed(1);
-						y = event.data.thisSensor.getYValue(x,item.series.data).toFixed(1);
+						x = parseFloat(contentGraphParams.xmin);
+						y = event.data.thisSensor.getYValue(x,item.series.data);
 					} else if (x > contentGraphParams.xmax && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmax).toFixed(1);
-						y = event.data.thisSensor.getYValue(x,item.series.data).toFixed(1);
+						x = parseFloat(contentGraphParams.xmax);
+						y = event.data.thisSensor.getYValue(x,item.series.data);
 					} 
     			} 
 
@@ -1149,12 +1178,23 @@ SENSOR.prototype.setupPlotHover = function() {
             		xLabel = "time";
             	} else if(event.data.thisSensor.sensorType == "temperature") {
             		xLabel = "time";
-            	}
+            	} else if(event.data.thisSensor.sensorType == "custom") {
+		    		xLabel = "customX";
+    			}
         		
                 //get the units for the x and y values
                 var xUnits = event.data.thisSensor.getGraphUnits(xLabel);
-                var yUnits = event.data.thisSensor.getGraphUnits(item.series.name);
+                var yUnits = event.data.thisSensor.sensorType == "custom" ? event.data.thisSensor.getGraphUnits("customY") : event.data.thisSensor.getGraphUnits(item.series.name);
                 
+                // in hoverable coords clean up the tooltip text a bit
+                if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
+		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.xmax)))/Math.LN10)));
+		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+		    	} else {
+		    		x = x.toFixed(2);
+		    		y = y.toFixed(2);
+		    	}
+
                 //create the text that we will display in the tool tip
                 var toolTipText = item.series.label + ": " + x + " " + xUnits + ", " + y + " " + yUnits;
                 
@@ -1177,8 +1217,37 @@ SENSOR.prototype.setupPlotHover = function() {
 	            	
 	            	//plot the graph again so the new point is displayed
 	            	event.data.thisSensor.plotData(); 
-	            }       		
+	            }   // allow points to be dragged up or down along their x value
+				 else if (typeof event.data.thisSensor.content.allowDragPoint != "undefined" && event.data.thisSensor.content.allowDragPoint) {
+					if (item && event.data.thisSensor.dragPoint == null){
+						// if there is a point we are hovering over and there is no drag point, set it
+						 event.data.thisSensor.dragPoint = item;
+					} else if (event.data.thisSensor.dragPoint != null) {
+						// move the point
+						var y = pos.y;
+						// if we are using the easy click option, only show points within domain
+		                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+							if (y < contentGraphParams.ymin){
+								y = parseFloat(contentGraphParams.ymin);
+							} else if (y > contentGraphParams.ymax){
+								y = parseFloat(contentGraphParams.ymax);
+							} 
+   						} 
+    					// in hoverable coords clean up the tooltip text a bit
+		                if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
+				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+				    	} else {
+			    			y = y.toFixed(2);
+				    	}
+
+						event.data.thisSensor.predictionUpdateByX(parseFloat(event.data.thisSensor.dragPoint.datapoint[0]), pos.y);
+						//plot the graph again so the point is displayed
+						event.data.thisSensor.plotData();
+					}
+     			}
         	}
+        } else {
+        	event.data.thisSensor.dragPoint = null;
         }
     });
 };
@@ -1255,11 +1324,17 @@ SENSOR.prototype.setupPlotClick = function() {
         	
         	//check if this step allows the student to create a prediction
         	if(!event.data.thisSensor.predictionLocked) {
+        		var isCompleted = event.data.thisSensor.node.isCompleted();
         		//create the prediction point
         		event.data.thisSensor.predictionReceived(pos.x, pos.y);
         		
         		//plot the graph again so the point is displayed
             	event.data.thisSensor.plotData();
+
+            	// if this node is constrained and we are using easyClickExtremes, save data to release constraints (possibly)
+        		if (typeof event.data.thisSensor.content.graphParams.easyClickExtremes != "undefined" && event.data.thisSensor.content.graphParams.easyClickExtremes && isCompleted != event.data.thisSensor.node.isCompleted(event.data.thisSensor.sensorState)){
+        			event.data.thisSensor.save();
+        		}
         	}
         }
     });
@@ -2312,7 +2387,7 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 		}
 		
 		//insert the point into the sensor state
-		this.sensorState.predictionReceived(x, y);
+		this.sensorState.predictionReceived(x, y, typeof this.content.graphParams.allowNonFunctionalData != "undefined" ? !this.content.graphParams.allowNonFunctionalData : true);
 		
 		this.graphChanged = true;
 		
@@ -2360,6 +2435,85 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 			
 			//update the data text in the annotation in the UI
 			$("#" + domSeriesName + domXValue + "AnnotationDataText").html(seriesName + " [" + dataText + "]: ");
+		}
+	}
+};
+
+/**
+ * The student has created a prediction point
+ * @param x the x value for the point
+ * @param y the y value for the point
+ */
+SENSOR.prototype.predictionUpdateByX = function(x, y) {
+	
+	if(x != null && y != null) {
+		//round x down to the nearest 0.2
+		x = Math.round(x * 5) / 5;
+		
+		y = parseFloat(y.toFixed(2));
+		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
+			if (x < parseFloat(this.content.graphParams.xmin)){
+				x = parseFloat(this.content.graphParams.xmin);
+			} else if (x > parseFloat(this.content.graphParams.xmax)){
+				x = parseFloat(this.content.graphParams.xmax);
+			}
+			if (y < parseFloat(this.content.graphParams.ymin)){
+				y = parseFloat(this.content.graphParams.ymin);
+			} else if (y > parseFloat(this.content.graphParams.ymax)){
+				y = parseFloat(this.content.graphParams.ymax);
+			}
+		}
+		
+		//insert the point into the sensor state
+		this.graphChanged = this.sensorState.predictionUpdateByX(x, y);
+		
+		if (this.graphChanged){
+		
+			var seriesName = this.getGraphName("prediction");
+			
+			var annotation = this.sensorState.getAnnotationBySeriesXValue(seriesName, x);
+			
+			if(annotation != null) {
+				//annotation exists for this x value so we will update that annotation
+				
+				//get the y units
+				var graphYUnits = this.getGraphUnits(seriesName);
+				
+				//get the x label
+		    	var xLabel = "";
+		    	if(this.sensorType == "motion") {
+		    		xLabel = "time";
+		    	} else if(this.sensorType == "temperature") {
+		    		xLabel = "time";
+		    	}
+		    	
+				//get the x units
+				var graphXUnits = this.getGraphUnits(xLabel);
+				
+				//get the text representation of the data point
+				var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
+
+				//get the series name used in the dom
+				var domSeriesName = this.getDOMSeriesName(seriesName);
+
+				//get the series
+				var series = this.getSeriesByName(this.globalPlot, seriesName);
+				
+				//get the data index of the point with the given x value
+				var dataIndex = this.getDataIndexAtX(series, x);
+				
+				//set the new values into the annotation
+				annotation.x = x;
+				annotation.y = y;
+				annotation.dataText = dataText;
+				annotation.dataIndex = dataIndex;
+				
+				//get the x value we will use in the DOM id
+				var domXValue = this.getDOMXValue(x);
+				
+				//update the data text in the annotation in the UI
+				$("#" + domSeriesName + domXValue + "AnnotationDataText").html(seriesName + " [" + dataText + "]: ");
+			}
 		}
 	}
 };
@@ -2851,14 +3005,14 @@ SENSOR.prototype.hideGraphMessage = function() {
  * @param event the click event
  */
 SENSOR.prototype.handleKeyDown = function(event) {
-	if(event.keyCode == 8) {
-		//student pressed the backspace key
+	if(event.keyCode == 8 || event.keyCode == 46) {
+		//student pressed the delete or backspace key
 		
 		/*
 		 * check if the student clicked on a prediction point
 		 * just before pressing the backspace key
 		 */
-		if(this.lastPointClicked != null) {
+		if(this.lastPointClicked != null && (typeof this.content.createPrediction == "undefined" || this.content.createPrediction)) {
 			//get the data of the point
 			var seriesName = this.lastPointClicked.seriesName;
 			var dataIndex = this.lastPointClicked.dataIndex;

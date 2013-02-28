@@ -358,7 +358,7 @@ SENSORSTATE.prototype.getAnnotationsHtml = function() {
  * @param x the x value of the point
  * @param y the y value of the point
  */
-SENSORSTATE.prototype.predictionReceived = function(x, y) {
+SENSORSTATE.prototype.predictionReceived = function(x, y, doSort) {
 	//remove any existing point with the same x value
 	for(var i=0; i<this.predictionArray.length; i++) {
 		var predictionPoint = this.predictionArray[i];
@@ -378,8 +378,30 @@ SENSORSTATE.prototype.predictionReceived = function(x, y) {
 	//add the element to the array
 	this.predictionArray.push(predictionData);
 	
-	//sort the array by the x value
-	this.predictionArray.sort(this.sortPredictionArray);
+	if (typeof doSort == "undefined" || doSort){
+		//sort the array by the x value
+		this.predictionArray.sort(this.sortPredictionArray);
+	}
+};
+
+/**
+ * Adds an element into the prediction array
+ * @param x the x value of the point
+ * @param y the y value of the point
+ */
+SENSORSTATE.prototype.predictionUpdateByX = function(x, y) {
+	var predictionFound = false;
+	//remove any existing point with the same x value
+	for(var i=0; i<this.predictionArray.length; i++) {
+		var predictionPoint = this.predictionArray[i];
+		
+		if(predictionPoint.x == x) {
+			this.predictionArray[i].y = y;
+			predictionFound = true;
+			break;
+		}
+	}
+	return predictionFound;
 };
 
 /**
