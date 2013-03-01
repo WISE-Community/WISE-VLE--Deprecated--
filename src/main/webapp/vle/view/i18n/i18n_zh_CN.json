@@ -558,5 +558,37 @@
     "common_click_here": {
         "value": "点击这里",
         "description": "the common text 'click here'"
+    },
+    "student_aggregate_view_intro_text": {
+        "value": "步骤{0}概览",
+        "description": "Text above where the aggregate view would be displayed"
+    },
+    "student_aggregate_view_preview_mode_default_text": {
+        "value": "当你点击运行，这一步的所有学生观点将会显示",
+        "description": "Default text to display for aggregate view when in preview mode."
+    },
+    "explanation_builder": {
+        "value": "开发工具说明",
+        "description": "The default text for the 'Explanation Builder' tool."
+    },
+    "grading_button_export_explanation_builder_work": {
+        "value": "导出开发器工作",
+        "description": "GradingTool: Text in the Export Explanation Builder Work button"
+    },
+    "grading_button_export_explanation_builder_work_description": {
+        "value": "导出所有开发器更新",
+        "description": "GradingTool: Description next the Export Explanation Builder Work button"
+    },
+    "grading_button_export_custom_work_description": {
+        "value": "导出所有已选步骤的工作",
+        "description": "GradingTool: Description next the Export Custom Student Work button"
+    },
+    "authoring_imsettings_attribute_help": {
+        "value": "这里是帮助内容",
+        "description": ""
+    },
+    "authoring_imsettings_terminology_help": {
+        "value": "这里是帮助内容",
+        "description": ""
     }
 }
