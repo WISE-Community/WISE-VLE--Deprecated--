@@ -987,6 +987,8 @@ public class VLEGetXLS extends VLEServlet {
 			    	
 			    	//set the step work/visit number
 			    	tempRow.createCell(tempColumn).setCellValue(y + 1);
+			    	System.out.print(y + 1);
+			    	System.out.print("\t");
 			    	
 			    	String wiseId1 = "";
 					String wiseId2 = "";
@@ -1091,34 +1093,50 @@ public class VLEGetXLS extends VLEServlet {
 					//set the wise id 1
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(wiseId1);
+			    	System.out.print(wiseId1);
+			    	System.out.print("\t");
 			    	
 			    	//set the wise id 2
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(wiseId2);
+			    	System.out.print(wiseId2);
+			    	System.out.print("\t");
 			    	
 			    	//set the wise id 3
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(wiseId3);
+			    	System.out.print(wiseId3);
+			    	System.out.print("\t");
 			    	
 			    	//set the title
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(nodeIdToNodeTitlesMap.get(nodeId));
+			    	System.out.print(nodeIdToNodeTitlesMap.get(nodeId));
+			    	System.out.print("\t");
 			    	
 			    	//set the node type
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(getNodeTypeFromStepWork(stepWork));
+			    	System.out.print(getNodeTypeFromStepWork(stepWork));
+			    	System.out.print("\t");
 			    	
 			    	//set the prompt
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(getPromptFromNodeContent(nodeContent));
+			    	System.out.print(getPromptFromNodeContent(nodeContent));
+			    	System.out.print("\t");
 			    	
 			    	//set the node id
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(stepWork.getNode().getNodeId());
+			    	System.out.print(stepWork.getNode().getNodeId());
+			    	System.out.print("\t");
 			    	
 			    	//set the start time
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(startTime));
+			    	System.out.print(timestampToFormattedString(startTime));
+			    	System.out.print("\t");
 
 			    	tempColumn++;
 			    	
@@ -1130,9 +1148,13 @@ public class VLEGetXLS extends VLEServlet {
 			    	if(endTime != null) {
 			    		//set the end time
 			    		tempRow.createCell(tempColumn).setCellValue(timestampToFormattedString(endTime));	
+			    		System.out.print(timestampToFormattedString(endTime));
+			    		System.out.print("\t");
 			    	} else {
 			    		//there was no end time so we will leave it blank
 			    		tempRow.createCell(tempColumn).setCellValue("");
+			    		System.out.print("");
+			    		System.out.print("\t");
 			    	}
 			    	
 			    	long timeSpentOnStep = 0;
@@ -1154,8 +1176,12 @@ public class VLEGetXLS extends VLEServlet {
 			    	//set the time spent on the step
 			    	if(timeSpentOnStep == -1) {
 			    		tempRow.createCell(tempColumn).setCellValue("N/A");
+			    		System.out.print("N/A");
+			    		System.out.print("\t");
 			    	} else {
-			    		tempRow.createCell(tempColumn).setCellValue(timeSpentOnStep);	
+			    		tempRow.createCell(tempColumn).setCellValue(timeSpentOnStep);
+			    		System.out.print(timeSpentOnStep);
+			    		System.out.print("\t");
 			    	}
 			    	
 			    	tempColumn++;
@@ -1169,7 +1195,7 @@ public class VLEGetXLS extends VLEServlet {
 			    	
 			    	//set the latest annotation comment and timestamp
 			    	tempColumn = setLatestAnnotationCommentAndTimestamp(stepWorkList, tempRow, tempColumn);
-			    	
+			    	//geoff
 					int periodId = workgroupIdToPeriodId.get(Integer.parseInt(userId));
 					
 					/*
@@ -1177,9 +1203,10 @@ public class VLEGetXLS extends VLEServlet {
 					 * functionality, it will simply fill the cells with "N/A"
 					 */
 			    	tempColumn = setGetLatestStudentWorkReviewCells(teacherWorkgroupIds, stepWorksForWorkgroupId, runId, periodId, userInfo, nodeJSONObject, nodeContent, tempRow, tempColumn, "allStudentWork");
-			    	
+			    	System.out.print("N/A\tN/A\t");
 			    	//set the work into the cells
 			    	tempColumn = setStepWorkResponse(tempRow, tempColumn, stepWork, nodeId);
+			    	System.out.print("\n");
 			    }
 		    	
 		    	/*
@@ -2576,6 +2603,9 @@ public class VLEGetXLS extends VLEServlet {
 			String stepWorkResponse = getStepWorkResponse(stepWork);
 			
 			if(stepWorkResponse != null) {
+				String stepWorkResponseNoNewLines = stepWorkResponse.replaceAll("\r\n|[\r\n]", "");
+				System.out.print(stepWorkResponseNoNewLines);
+				//System.out.print("\t");
 				//check if the response has more characters than the max allowable 
 				if(stepWorkResponse.length() > 32767) {
 					//response has more characters than the max allowable so we will truncate it
@@ -6276,15 +6306,19 @@ public class VLEGetXLS extends VLEServlet {
 				
 				//set the timestamp
 				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
-				
+				System.out.print(timestampAnnotationPostTime);
+				System.out.print("\t");
 				//set the score
 				workgroupColumnCounter = setCellValue(rowForWorkgroupId, workgroupColumnCounter, score);
+				System.out.print(score);
+				System.out.print("\t");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		} else {
 			//there is no annotation so we will just increment the column counter
 			workgroupColumnCounter += 2;
+			System.out.print("\t\t");
 		}
 		
 		return workgroupColumnCounter;
@@ -6322,15 +6356,19 @@ public class VLEGetXLS extends VLEServlet {
 				
 				//set the timestamp
 				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(timestampAnnotationPostTime);
-				
+				System.out.print(timestampAnnotationPostTime);
+				System.out.print("\t");
 				//set the comment
 				rowForWorkgroupId.createCell(workgroupColumnCounter++).setCellValue(comment);
+				System.out.print(comment.replaceAll("\r\n|[\r\n]", ""));
+				System.out.print("\t");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 		} else {
 			//there is no annotation so we will just increment the column counter
 			workgroupColumnCounter += 2;
+			System.out.print("\t\t");
 		}
 		
 		return workgroupColumnCounter;

@@ -111,9 +111,9 @@ Node.prototype.getHints = function() {
  */
 Node.prototype.getNodeAnnotations = function() {
 	if (this.view &&
-			this.view.annotations && this.view.annotations != null &&
-			this.view.annotations.getAnnotationsByNodeId(this.id) != null) {
-		var allNodeAnnotations = this.view.annotations.getAnnotationsByNodeId(this.id);
+			this.view.getAnnotations() && this.view.getAnnotations() != null &&
+			this.view.getAnnotations().getAnnotationsByNodeId(this.id) != null) {
+		var allNodeAnnotations = this.view.getAnnotations().getAnnotationsByNodeId(this.id);
 		var filteredNodeAnnotations = [];
 		var loggedInWorkgroupId = this.view.getUserAndClassInfo().getWorkgroupId();
 		for (var i=0; i < allNodeAnnotations.length; i++) {
@@ -1079,8 +1079,8 @@ Node.prototype.insertPreviousWorkIntoPage = function(doc){
 
 		//loop through and add any previous work to html
 		for(var n=0;n<this.prevWorkNodeIds.length;n++){
-			if(this.view.state != null) {
-				var work = this.view.state.getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
+			if(this.view.getState() != null) {
+				var work = this.view.getState().getLatestWorkByNodeId(this.prevWorkNodeIds[n]);
 				if(work){
 					//get the node object
 					var node = this.view.getProject().getNodeById(this.prevWorkNodeIds[n]);
@@ -1207,7 +1207,7 @@ Node.prototype.copy = function(eventName, project){
 		};
 
 		/* set up event to listen for when this sequences children finish copying */
-		var seqEventName = this.view.project.generateUniqueCopyEventName();
+		var seqEventName = this.view.getProject().generateUniqueCopyEventName();
 		this.view.eventManager.addEvent(seqEventName);
 		this.view.eventManager.subscribe(seqEventName, listener, [this, eventName]);
 
@@ -1247,11 +1247,11 @@ Node.prototype.getShowAllWorkHtml = function(vle, divIdPrefix){
 		divIdPrefix = "";
 	}
 
-	var nodeVisitArray = vle.state.getNodeVisitsByNodeId(this.id);
+	var nodeVisitArray = vle.getState().getNodeVisitsByNodeId(this.id);
 	if (nodeVisitArray.length > 0) {
 		var states = [];
 		//get the latest node visit that has student work
-		var latestNodeVisit = vle.state.getLatestNodeVisitByNodeId(this.id);
+		var latestNodeVisit = vle.getState().getLatestNodeVisitByNodeId(this.id);
 		for (var i = 0; i < nodeVisitArray.length; i++) {
 			var nodeVisit = nodeVisitArray[i];
 			for (var j = 0; j < nodeVisit.nodeStates.length; j++) {
@@ -1681,7 +1681,7 @@ Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 
 				if(node != null) {
 					//get the latest work for the node
-					var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
+					var nodeState = this.view.getState().getLatestWorkByNodeId(nodeId);
 
 					if(nodeState != null && nodeState != '') {
 						//add the work to the array of work to import
@@ -1727,7 +1727,7 @@ Node.prototype.showPreviousWork = function(previousWorkDiv, tagName, functionArg
 
 				if(node != null) {
 					//get the latest work for the node
-					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
+					var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(nodeId);
 
 					//make the id for the div that we will show previous work in for the step
 					var showPreviousWorkDivId = 'showPreviousWork_' + nodeId;
@@ -1786,7 +1786,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 
 				if(node != null) {
 					//get the latest work for the node
-					var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId);
+					var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(nodeId);
 
 					//make the id for the div that we will show previous work in for the step
 					var showAggregateWorkDivId = 'showAggregateWork_' + nodeId;

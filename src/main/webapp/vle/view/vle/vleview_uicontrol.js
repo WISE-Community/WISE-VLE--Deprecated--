@@ -67,7 +67,7 @@ View.prototype.lockScreenAndShareWithClass = function(teacherShareWithClassObj) 
 	    $('#lockscreen').dialog('option', 'width', 800);
 	    $('#lockscreen').dialog('option', 'height', 600);
 	    
-	    var node = this.project.getNodeById(nodeId);
+	    var node = this.getProject().getNodeById(nodeId);
 	    var divId = 'teacherShareWithClassDiv_' + nodeVisit.id;
 	    var studentWorkDiv = $('#' + divId);
 	    

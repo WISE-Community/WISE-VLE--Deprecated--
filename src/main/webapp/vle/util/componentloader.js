@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		vle: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','vle','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
@@ -682,8 +682,9 @@ var componentloader = function(em, sl){
 				}
 			}
 		},
-		vle:{
+		student:{
 			variables:{
+				model:null,
 				allowedStudentAssetExtensions:['jpg', 'jpeg', 'gif', 'png', 'bmp', 'pdf', 'txt', 'doc'],
 				userAndClassInfoLoaded:false,
 				viewStateLoaded:false,
@@ -705,7 +706,6 @@ var componentloader = function(em, sl){
 			methods:{},
 			initialize:{
 				init:function(view){
-						view.setViewState(new VLE_STATE());
 						view.eventManager.subscribe('startVLEFromConfig',view.vleDispatcher, view);
 						view.eventManager.subscribe('startVLEFromParams', view.vleDispatcher, view);
 						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);

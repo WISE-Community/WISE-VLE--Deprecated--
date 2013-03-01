@@ -238,7 +238,7 @@ View.prototype.populateAddTagSelect = function(nodeId) {
  */
 View.prototype.populateAddTagMapSelect = function(nodeId) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the tag map functions for this step type
 	var tagMapFunctions = node.getTagMapFunctions();
@@ -349,7 +349,7 @@ View.prototype.tagMapToString = function(tagMap) {
  */
 View.prototype.addTag = function(nodeId) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the escaped nod id
 	nodeIdEscaped = this.escapeIdForJquery(nodeId);
@@ -437,7 +437,7 @@ View.prototype.tagMapChanged = function(nodeId, tagMapIndex) {
 	var nodeIdEscaped = this.escapeIdForJquery(nodeId);
 	
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the tag maps for this step
 	var tagMaps = node.tagMaps;
@@ -530,7 +530,7 @@ View.prototype.tagMapChanged = function(nodeId, tagMapIndex) {
  */
 View.prototype.getTagMapHtml = function(nodeId, tagName, functionName, functionArgs, tagMapIndex) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//check if tag map index was passed in
 	if(tagMapIndex == null) {
@@ -567,7 +567,7 @@ View.prototype.getTagMapHtml = function(nodeId, tagName, functionName, functionA
  */
 View.prototype.getTagMapInnerHtml = function(nodeId, tagName, functionName, functionArgs, tagMapIndex) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the tag map functions for this step type
 	var tagMapFunctions = node.getTagMapFunctions();
@@ -701,7 +701,7 @@ View.prototype.getTagMapInnerHtml = function(nodeId, tagName, functionName, func
  */
 View.prototype.removeTagMap = function(nodeId, tagMapIndex) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the escaped node id
 	var nodeIdEscaped = this.escapeIdForJquery(nodeId);
@@ -746,7 +746,7 @@ View.prototype.removeTagMap = function(nodeId, tagMapIndex) {
  */
 View.prototype.tagNameChanged = function(nodeId, tagIndex) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the escaped node id
 	var nodeIdEscaped = this.escapeIdForJquery(nodeId);
@@ -789,7 +789,7 @@ View.prototype.tagNameChanged = function(nodeId, tagIndex) {
  */
 View.prototype.removeTag = function(nodeId, tagIndex) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the escaped node id
 	var nodeIdEscaped = this.escapeIdForJquery(nodeId);
@@ -830,7 +830,7 @@ View.prototype.removeTag = function(nodeId, tagIndex) {
  */
 View.prototype.addTagMap = function(nodeId) {
 	//get the node
-	var node = this.project.getNodeById(nodeId);
+	var node = this.getProject().getNodeById(nodeId);
 	
 	//get the escaped node id
 	var nodeIdEscaped = this.escapeIdForJquery(nodeId);

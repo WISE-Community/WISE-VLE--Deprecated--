@@ -101,7 +101,7 @@ AssessmentListNode.prototype.overridesIsCompleted = function() {
  * @return a boolean value whether the step is completed or not
  */
 AssessmentListNode.prototype.isCompleted = function() {
-	var nodeVisitsForThisNode = this.view.state.getNodeVisitsByNodeId(this.id);
+	var nodeVisitsForThisNode = this.view.getState().getNodeVisitsByNodeId(this.id);
 	if (nodeVisitsForThisNode != null) {
 		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
 			var nodeVisitForThisNode = nodeVisitsForThisNode[i];
@@ -173,7 +173,7 @@ AssessmentListNode.prototype.addConstraints = function() {
  * If not, then we need to add a constraint.
  */
 AssessmentListNode.prototype.processStateConstraints = function() {
-	if(this.view.state.getLatestWorkByNodeId(this.id) == ''){
+	if(this.view.getState().getLatestWorkByNodeId(this.id) == ''){
 		/* no work found */
 		//this.addConstraints();
 	}

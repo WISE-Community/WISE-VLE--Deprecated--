@@ -75,7 +75,7 @@ Box2dModel.prototype.checkPreviousModelsForTags = function(tagName, functionArgs
 				
 				if(nodeId != null) {
 					//get the latest work for the node
-					var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+					var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 					//console.log(latestWork, latestWork.response.savedModels, result.previousModels,  result.previousModels.concat(latestWork.response.savedModels))
 					result.previousModels = result.previousModels.concat(latestWork.response.savedModels);					
 				}
@@ -109,7 +109,7 @@ Box2dModel.prototype.checkTableForValue = function(tagName, functionArgs) {
 				
 				if(nodeId != null) {
 					//get the latest work for the node
-					var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+					var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 					if (typeof functionArgs != "undefined" && !isNaN(Number(functionArgs[0])) && !isNaN(Number(functionArgs[1]))){
 						var text = latestWork.tableData[Number(functionArgs[0])][Number(functionArgs[1])].text;
 						if (!isNaN(Number(text))) result = Number(text);

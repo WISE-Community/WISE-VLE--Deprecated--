@@ -194,7 +194,7 @@ CarGraphNode.prototype.getResultObjByResultId = function(resultsId) {
 CarGraphNode.prototype.onExit = function() {
 	// run a smart filter and if student has done a bad job, save it in the status
 	// run smart filter and flag if the smart filter returns true	
-	var carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
+	var carGraphState = this.view.getState().getLatestWorkByNodeId(this.id);
 	var smartFilterResult = this.smartFilter(carGraphState); // obj
 
 	if (this.view.studentStatus == null) {
@@ -213,7 +213,7 @@ CarGraphNode.prototype.onExit = function() {
 		var type = "autoScoreResult";
 		var value = smartFilterResult.maxError;
 		
-		var stepNumberAndTitle = this.view.project.getStepNumberAndTitle(this.id);
+		var stepNumberAndTitle = this.view.getProject().getStepNumberAndTitle(this.id);
 		var nodeType = this.type;
 		var readableText = 'Autoscore returned '+smartFilterResult.maxError+'. This might mean that the student needs help.';
 		

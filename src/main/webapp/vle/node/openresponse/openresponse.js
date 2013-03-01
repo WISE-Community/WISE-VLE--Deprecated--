@@ -203,9 +203,11 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				}
 			}
 
+			var lock = false;
+
 			if(saveAndLock) {
 				//display a confirm message to make sure they want to submit and lock
-				var lock = confirm("You will not be able to make further edits after submitting this response.  Ready to submit?");
+				lock = confirm("You will not be able to make further edits after submitting this response.  Ready to submit?");
 				
 				//check if they answered yes
 				if(lock) {
@@ -259,8 +261,12 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 			//push the state object into this or object's own copy of states
 			this.states.push(orState);
 
-			// if we want to check answer immediately (e.g. for CRater), post answer immediately, before going to the next step
-			if (checkAnswer) {
+			/*
+			 * if we want to check answer immediately (e.g. for CRater), post answer immediately, before going to the next step.
+			 * if checkAnswer is true and saveAndLock is false, we will run the CRater check answer
+			 * if checkAnswer is true and saveAndLock is true and lock is true, we will run the CRater check answer
+			 */
+			if (checkAnswer && (!saveAndLock || (saveAndLock && lock))) {
 				//set the cRaterItemId into the node state if this step is a CRater item
 				if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
 						&& this.content.cRater.cRaterItemId != '') {
@@ -271,7 +277,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					this.node.view.postCurrentNodeVisit();					
 				}
 				
-				if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+				if((this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) || this.isLocked()) {
 					//student has used up all of their CRater check answer submits so we will disable the check answer button
 					this.setCheckAnswerUnavailable();
 				} else {
@@ -279,7 +285,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					this.setCheckAnswerAvailable();
 				}
 				
-				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
+				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
 					/*
 					 * move the current work to the previous work response box
 					 * because we want to display the previous work to the student
@@ -331,15 +337,15 @@ OPENRESPONSE.prototype.postAnnotation = function(response) {
 								  periodId:periodId};
 	
 	//create the view's annotations object if it does not exist
-	if(this.view.annotations == null) {
-		this.view.annotations = new Annotations();
+	if(this.view.getAnnotations() == null) {
+		this.view.setAnnotations(new Annotations());
 	}
 	
 	//create the annotation locally to keep our local copy up to date
 	var annotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, stepWorkId);
 	
 	//add the annotation to the view's annotations
-	this.view.annotations.updateOrAddAnnotation(annotation);
+	this.view.getAnnotations().updateOrAddAnnotation(annotation);
 	
 	//a callback function that does nothing
 	var postAnnotationsCallback = function(text, xml, args) {};
@@ -365,6 +371,11 @@ OPENRESPONSE.prototype.saveAndLock = function() {
 OPENRESPONSE.prototype.checkAnswer = function() {
 	var doSaveAndLock=false;
 	var doCheckAnswer=true;
+	
+	if(this.content.isLockAfterSubmit) {
+		doSaveAndLock = true;
+	}
+	
 	this.save(doSaveAndLock,doCheckAnswer);
 };
 
@@ -585,20 +596,20 @@ OPENRESPONSE.prototype.render = function() {
 			 */
 			$('#saveAndLockButton').show();
 		}
-	} else if (this.content.isLockAfterSubmit) {
-		// this node is set to lock after the student submits the answer. show saveAndLock button
-		$('#saveAndLockButton').show();
 	} else if (this.content.cRater && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
 		// if this is a CRater-enabled item and we are displaying the score or feedback to the student, also show the "check" button
 		$('#checkAnswerButton').show();
 		
-		if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+		if((this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) || this.isLocked()) {
 			//student has used up all of their CRater check answer submits so we will disable the check answer button
 			this.setCheckAnswerUnavailable();
 		} else {
 			//the student still has check answer submits available so we will enable the check answer button
 			this.setCheckAnswerAvailable();
 		}
+	} else if (this.content.isLockAfterSubmit) {
+		// this node is set to lock after the student submits the answer. show saveAndLock button
+		$('#saveAndLockButton').show();
 	}
 	
 	if(this.view != null && this.view.activeNode != null) {
@@ -779,20 +790,20 @@ OPENRESPONSE.prototype.showPreviousWorkThatHasAnnotation = function(previousResp
 		}
 		
 		//get the latest annotation for this step with the given parameters
-		var latestAnnotation = this.view.annotations.getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
+		var latestAnnotation = this.view.getAnnotations().getLatestAnnotation(runId, nodeId, toWorkgroup, fromWorkgroups, type, stepWorkId);
 		
 		if(latestAnnotation != null) {
 			//get the step work id that the annotation was for
 			var stepWorkId = latestAnnotation.stepWorkId;
 			
 			//get the node visit with the step work id
-			var annotationNodeVisit = this.view.state.getNodeVisitById(stepWorkId);
+			var annotationNodeVisit = this.view.getState().getNodeVisitById(stepWorkId);
 
 			//get the annotation post time
 			var annotationPostTime = latestAnnotation.postTime;
 			
 			//get all the node visits for this step
-			var nodeVisitsForNodeId = this.view.state.getNodeVisitsByNodeId(nodeId);
+			var nodeVisitsForNodeId = this.view.getState().getNodeVisitsByNodeId(nodeId);
 			
 			//whether to show the previous work
 			var showPreviousResponse = true;
@@ -1052,9 +1063,9 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
 		
 		var latestCommentAnnotationForStep = '';
 		
-		if(this.view.annotations != null) {
+		if(this.view.getAnnotations() != null) {
 			//get the latest comment annotation for the original step
-			var latestCommentAnnotationForStep = this.view.annotations.getLatestAnnotation(
+			var latestCommentAnnotationForStep = this.view.getAnnotations().getLatestAnnotation(
 					this.view.getConfig().getConfigParam('runId'),
 					this.associatedStartNode.id,
 					this.view.getUserAndClassInfo().getWorkgroupId(),
@@ -1151,13 +1162,13 @@ OPENRESPONSE.prototype.displayTeacherReview = function() {
  * to the student for them to revise their work.
  */
 OPENRESPONSE.prototype.retrieveTeacherReview = function() {
-	if(this.view.annotations == null) {
+	if(this.view.getAnnotations() == null) {
 		/*
 		 * retrieve the annotations. this OPENRESPONSE is subscribed to listen
 		 * for getAnnotationsComplete and when that event is fired it will
 		 * call getAnnotationsComplete() which calls displayTeacherReview()
 		 */
-		this.view.getAnnotations(this.node.id);
+		this.view.retrieveAnnotations(this.node.id);
 	} else {
 		//display the teacher review to the student
 		this.displayTeacherReview();

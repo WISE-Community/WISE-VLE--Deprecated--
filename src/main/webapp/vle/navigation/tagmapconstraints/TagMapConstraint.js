@@ -74,7 +74,7 @@ TagMapConstraint.prototype.isCompleted = function(nodeId) {
 			var node = this.view.getProject().getNodeById(tempNodeId);
 			
 			//get the latest work for the step
-			var nodeState = this.view.state.getLatestWorkByNodeId(tempNodeId);
+			var nodeState = this.view.getState().getLatestWorkByNodeId(tempNodeId);
 			
 			//check if the work is completed
 			if(!node.isCompleted(nodeState)) {
@@ -85,7 +85,7 @@ TagMapConstraint.prototype.isCompleted = function(nodeId) {
 		//node is a step
 
 		//get the latest work for the step
-		var nodeState = this.view.state.getLatestWorkByNodeId(nodeId);
+		var nodeState = this.view.getState().getLatestWorkByNodeId(nodeId);
 		
 		//check if the work is completed
 		if(!node.isCompleted(nodeState)) {
@@ -124,7 +124,7 @@ TagMapConstraint.prototype.isVisited = function(nodeId) {
 			
 			//get the latest node visit for the step
 			var canBeEmpty = true;
-			var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(tempNodeId, canBeEmpty);
+			var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(tempNodeId, canBeEmpty);
 			
 			if(nodeVisit == null) {
 				//the student has not visited this step
@@ -138,7 +138,7 @@ TagMapConstraint.prototype.isVisited = function(nodeId) {
 
 		//get the latest node visit for the step
 		var canBeEmpty = true;
-		var nodeVisit = this.view.state.getLatestNodeVisitByNodeId(nodeId, canBeEmpty);
+		var nodeVisit = this.view.getState().getLatestNodeVisitByNodeId(nodeId, canBeEmpty);
 		
 		if(nodeVisit != null) {
 			//the student has visited the step

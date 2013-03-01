@@ -109,7 +109,7 @@ VisitXBeforeYConstraint.prototype.getAffectedIds = function(){
  * @return boolean
  */
 VisitXBeforeYConstraint.prototype.isDeceased = function(position){
-	return this.patternMatches(this.constraintSatisfaction.satisfactionPattern, this.getEffectiveNodeVisits(this.view.state.visitedNodes.slice(), this.effective));
+	return this.patternMatches(this.constraintSatisfaction.satisfactionPattern, this.getEffectiveNodeVisits(this.view.getState().visitedNodes.slice(), this.effective));
 };
 
 /**

@@ -113,7 +113,7 @@ View.prototype.initializeCreateSequenceDialog = function(){
 		 * e.g.
 		 * /wise4.project.json
 		 */
-		var projectFileName = view.utils.getContentPath(view.authoringBaseUrl, view.project.getUrl());
+		var projectFileName = view.utils.getContentPath(view.authoringBaseUrl, view.getProject().getUrl());
 		var id = view.getProject().generateUniqueId('seq');
 		view.connectionManager.request('POST',1,view.requestUrl,{forward:'filemanager',projectId:view.portalProjectId,command:'createSequence',projectFileName:projectFileName,name:name,id:id},success,view,failure);
 
@@ -164,7 +164,7 @@ View.prototype.initializeCreateNodeDialog = function (){
 			} else {
 				thisView.placeNode = true;
 				thisView.placeNodeId = text;
-				thisView.loadProject(thisView.project.getContentBase() + thisView.utils.getSeparator(thisView.project.getContentBase()) + thisView.project.getProjectFilename(), thisView.project.getContentBase(), true);
+				thisView.loadProject(thisView.getProject().getContentBase() + thisView.utils.getSeparator(thisView.getProject().getContentBase()) + thisView.getProject().getProjectFilename(), thisView.getProject().getContentBase(), true);
 				
 				$('#createNodeDialog').dialog('close');				
 
@@ -184,7 +184,7 @@ View.prototype.initializeCreateNodeDialog = function (){
 			thisView.notificationManager.notify('unable to create Step on the WISE server', 3);
 		};
 
-		var path = view.utils.getContentPath(view.authoringBaseUrl,view.project.getUrl());
+		var path = view.utils.getContentPath(view.authoringBaseUrl,view.getProject().getUrl());
 		
 		//get the node template params
 		var nodeTemplateParams = view.nodeTemplateParams[type];
@@ -227,12 +227,12 @@ View.prototype.setHtmlSrc = function(nodeId) {
 	var retrieveFileParams = {
 		command:'retrieveFile',
 		forward:'filemanager',
-		fileName:this.utils.getSeparator(this.project.getContentBase()) + nodeId,
+		fileName:this.utils.getSeparator(this.getProject().getContentBase()) + nodeId,
 		projectId:this.portalProjectId
 	};
 
 	//obtain the content of the .ht file
-	this.connectionManager.request('GET', 3, this.project.getContentBase() + this.utils.getSeparator(this.project.getContentBase()) + nodeId, null,this.getHtmlSrcSuccess,{nodeId:nodeId,thisView:this},null);
+	this.connectionManager.request('GET', 3, this.getProject().getContentBase() + this.utils.getSeparator(this.getProject().getContentBase()) + nodeId, null,this.getHtmlSrcSuccess,{nodeId:nodeId,thisView:this},null);
 };
 
 /**
@@ -388,7 +388,7 @@ View.prototype.initializeAssetUploaderDialog = function(){
 				var frameId = 'assetUploadTarget_' + Math.floor(Math.random() * 1000001);
 				var frame = createElement(document, 'iframe', {id:frameId, name:frameId, src:'about:blank', style:'display:none;'});
 				var form = createElement(document, 'form', {id:'assetUploaderFrm', method:'POST', enctype:'multipart/form-data', action:view.assetRequestUrl, target:frameId, style:'display:none;'});
-				var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase());
+				var assetPath = view.utils.getContentPath(view.authoringBaseUrl,view.getProject().getContentBase());
 				
 				/* create and append elements */
 				document.body.appendChild(frame);

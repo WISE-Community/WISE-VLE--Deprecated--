@@ -128,7 +128,7 @@ View.prototype.getPeerReviewWork = function() {
  */
 View.prototype.getStudentWork = function() {
 	//clear the student work vle states to make sure we don't get duplicate data
-	this.vleStates = new Array();
+	this.setStates(Array());
 	
 	//get all node ids
 	var nodeIds = this.getProject().getNodeIds();
@@ -158,12 +158,12 @@ View.prototype.getStudentWork = function() {
 			//parse the json student work into an array of vle states
 			var newVLEStates = VLE_STATE.prototype.parseDataJSONString(text, alwaysReturnArray);
 
-			if(thisView.vleStates == null) {
+			if(thisView.getStates() == null) {
 				//set the array of vle states if it hasn't been set before
-				thisView.vleStates = newVLEStates;
+				thisView.setStates(newVLEStates);
 			} else {
 				//concatenate the new vle states with the previous vle states
-				thisView.vleStates = thisView.vleStates.concat(newVLEStates);
+				thisView.setStates(thisView.getStates().concat(newVLEStates));
 			}
 
 			/*
@@ -237,9 +237,9 @@ View.prototype.getStudentWork = function() {
 };
 
 View.prototype.getVleStateByWorkgroupId = function(workgroupId) {
-	if(this.vleStates != null) {
-		for(var x=0; x<this.vleStates.length; x++) {
-			var vleState = this.vleStates[x];
+	if(this.getStates() != null) {
+		for(var x=0; x<this.getStates().length; x++) {
+			var vleState = this.getStates()[x];
 			
 			if(vleState.dataId == workgroupId) {
 				return vleState;

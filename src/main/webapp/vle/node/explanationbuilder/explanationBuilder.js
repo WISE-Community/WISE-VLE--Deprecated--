@@ -63,9 +63,9 @@ function ExplanationBuilder(node, view) {
 	
 	// set version and Idea Manager settings if version > 1
 	this.version = 1;
-	if('ideaManagerSettings' in this.view.projectMetadata.tools){
-		this.settings = this.view.projectMetadata.tools.ideaManagerSettings;
-		this.version = Number(this.view.projectMetadata.tools.ideaManagerSettings.version);
+	if('ideaManagerSettings' in this.view.getProjectMetadata().tools){
+		this.settings = this.view.getProjectMetadata().tools.ideaManagerSettings;
+		this.version = Number(this.view.getProjectMetadata().tools.ideaManagerSettings.version);
 	}
 	
 	// set text for customizable terms based on settings or default i18n string
@@ -749,8 +749,8 @@ ExplanationBuilder.prototype.load = function(question, instructions, bg, explana
 	if(this.view.authoringMode) {
 		//we are in preview step so we will create a dummy idea basket
 		var settings = {};
-		if('ideaManagerSettings' in this.view.projectMetadata.tools){
-			settings = this.view.projectMetadata.tools.ideaManagerSettings;
+		if('ideaManagerSettings' in this.view.getProjectMetadata().tools){
+			settings = this.view.getProjectMetadata().tools.ideaManagerSettings;
 		}
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,settings);
 	}

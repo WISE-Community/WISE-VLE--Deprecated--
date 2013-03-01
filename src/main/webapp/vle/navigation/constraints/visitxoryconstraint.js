@@ -118,7 +118,7 @@ VisitXOrYConstraint.prototype.getYIds = function(){
 VisitXOrYConstraint.prototype.anyVisited = function(ids){
 	/* get the nodeVisits and iterate through looking up each id, when the first
 	 * is found, return the index at that position */
-	var nodeVisits = this.view.state.visitedNodes;
+	var nodeVisits = this.view.getState().visitedNodes;
 	for(var u=0;u<nodeVisits.length;u++){
 		if(ids.indexOf(nodeVisits[u].nodeId) != -1){
 			return u;

@@ -73,7 +73,7 @@ NavigationPanel.prototype.render = function(forceReRender) {
 			if(currentNavElement != null) {
 				currentNavElement.addClass('currentNode');
 
-				var child = this.view.getProject().getNodeById(this.view.state.getCurrentNodeVisit().getNodeId());
+				var child = this.view.getProject().getNodeById(this.view.getState().getCurrentNodeVisit().getNodeId());
 				if(child.parent.getView()=='glue'){//must be first step in glue
 					this.processGlue(currentNavElement, child);
 				};
@@ -92,7 +92,7 @@ NavigationPanel.prototype.render = function(forceReRender) {
 					 * if view is set for the glue, then change title to show which step
 					 * they are currently on
 					 */
-					var child = this.view.getProject().getNodeById(this.view.state.getCurrentNodeVisit().getNodeId());
+					var child = this.view.getProject().getNodeById(this.view.getState().getCurrentNodeVisit().getNodeId());
 					if(child.parent.getView()=='glue'){
 						this.processGlue(enclosingNavParentElement, child);
 					};
@@ -295,7 +295,7 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 	/* this might be rendered from duplicate node, so check the nodeVisit for this
 	 * node to see if it has a duplicateId, if so do not set this one as the current
 	 * node */
-	if (node.id == this.view.state.getCurrentNodeVisit().getNodeId() && !this.view.state.getCurrentNodeVisit().duplicateId) {
+	if (node.id == this.view.getState().getCurrentNodeVisit().getNodeId() && !this.view.getState().getCurrentNodeVisit().duplicateId) {
 		classString += " currentNode";
 	}
 	
@@ -303,8 +303,8 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 	 * its real node to see if it is the one being rendered but then set this duplicate node
 	 * as the current node in the html */
 	if(node.type=='DuplicateNode' && 
-			node.getNode().id == this.view.state.getCurrentNodeVisit().getNodeId() && 
-			this.view.state.getCurrentNodeVisit().duplicateId == node.id){
+			node.getNode().id == this.view.getState().getCurrentNodeVisit().getNodeId() && 
+			this.view.getState().getCurrentNodeVisit().duplicateId == node.id){
 		classString += " currentNode";
 	}
     
@@ -659,7 +659,7 @@ NavigationPanel.prototype.setStepIcon = function(nodeId, stepIconPath) {
 			nodeId = currentNode.id;
 			
 			//get the latest work for the step
-			var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+			var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 			
 			//get the status for the latest work
 			var status = currentNode.getStatus(latestWork);

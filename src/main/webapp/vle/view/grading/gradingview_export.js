@@ -206,7 +206,7 @@ View.prototype.setParamsForXLSExport = function() {
 	/*
 	 * set the project title to an element that will be passed back to the server
 	 */
-	document.getElementById('projectName').value = this.project.getTitle();
+	document.getElementById('projectName').value = this.getProject().getTitle();
 	
 	/*
 	 * set the type for the bridge controller to inspect
@@ -242,7 +242,7 @@ View.prototype.setParamsForSpecialExport = function() {
 	/*
 	 * set the project title to an element that will be passed back to the server
 	 */
-	document.getElementById('projectName').value = this.project.getTitle();
+	document.getElementById('projectName').value = this.getProject().getTitle();
 	
 	/*
 	 * set the type for the bridge controller to inspect

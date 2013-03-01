@@ -111,7 +111,7 @@ VisitXAfterYConstraint.prototype.getAffectedIds = function(){
  */
 VisitXAfterYConstraint.prototype.isDeceased = function(position){
 	if(this.liftOnSatisfaction){
-		var remaining = this.patternMatches(this.constraintSatisfaction.constraintPattern,this.view.state.visitedNodes.slice());
+		var remaining = this.patternMatches(this.constraintSatisfaction.constraintPattern,this.view.getState().visitedNodes.slice());
 		if(remaining){
 			return this.patternMatches(this.constraintSatisfaction.satisfactionPattern,remaining);
 		}

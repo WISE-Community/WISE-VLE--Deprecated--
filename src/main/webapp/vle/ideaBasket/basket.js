@@ -2011,7 +2011,7 @@ IdeaBasket.prototype.save = function(action, workgroupId, ideaId) {
  */
 IdeaBasket.prototype.loadIdeaBasket = function() {
 	var settings = null;
-	var projectMeta = this.view.projectMetadata;
+	var projectMeta = this.view.getProjectMetadata();
 	if(projectMeta != null && 'ideaManagerSettings' in projectMeta.tools){
 		settings = projectMeta.tools.ideaManagerSettings;
 	}
@@ -2289,7 +2289,7 @@ IdeaBasket.prototype.displayPublicIdeaBasket = function() {
 IdeaBasket.prototype.isPublicIdeaBasketEnabled = function() {
 	var result = false;
 	
-	if(this.version > 1 && this.view.projectMetadata.tools.isPublicIdeaManagerEnabled) {
+	if(this.version > 1 && this.view.getProjectMetadata().tools.isPublicIdeaManagerEnabled) {
 		/*
 		 * public idea basket is available if the idea versions are
 		 * greater than 1 and the public idea manager is enabled

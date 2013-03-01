@@ -2378,12 +2378,12 @@ SENSOR.prototype.setupAxisValues = function() {
  */
 SENSOR.prototype.getPreviousPrediction = function() {
 	if(this.node.prevWorkNodeIds.length > 0) {
-		if(this.view.state != null) {
+		if(this.view.getState() != null) {
 			
 			//make sure the previous work node is also a graph/sensor step
 			if(this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type == 'SensorNode') {
 				//get the state from the previous step that this step is linked to
-				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
+				var predictionState = this.view.getState().getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
 				
 				/*
 				 * make sure this step doesn't already have a prediction set 

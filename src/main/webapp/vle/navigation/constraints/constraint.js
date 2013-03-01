@@ -198,13 +198,13 @@ Constraint.prototype.getOptionsJSON = function(){
  */
 Constraint.prototype.nodeVisited = function(nodeId, workCompleted){
 	if(!workCompleted){
-		return this.view.state.getNodeVisitsByNodeId(nodeId).length > 0;
+		return this.view.getState().getNodeVisitsByNodeId(nodeId).length > 0;
 	} else {
 		/* if the node is a type without work, then we just need to return if it was visited */
 		if(this.NODES_WITHOUT_WORK.indexOf(this.view.getProject().getNodeById(nodeId).getType()) != -1){
 			return this.nodeVisited(nodeId);
 		} else {
-			return (this.view.state.getLatestWorkByNodeId(nodeId) == "") ? false : true;
+			return (this.view.getState().getLatestWorkByNodeId(nodeId) == "") ? false : true;
 		}
 	}
 };
@@ -220,7 +220,7 @@ Constraint.prototype.nodeVisited = function(nodeId, workCompleted){
  */
 Constraint.prototype._isConstraintSatisfied = function(constraintSatisfaction){
 	/* copy the current node visits of the state */
-	var nodeVisits = this.getEffectiveNodeVisits(this.view.state.visitedNodes.slice(), constraintSatisfaction.effective);
+	var nodeVisits = this.getEffectiveNodeVisits(this.view.getState().visitedNodes.slice(), constraintSatisfaction.effective);
 	
 	/* While there are nodeVisits, search for the constraint pattern, then
 	 * search for the satisfaction pattern. If the satisfaction pattern

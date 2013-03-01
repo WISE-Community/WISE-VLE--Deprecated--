@@ -110,7 +110,7 @@ WorkOnXConstraint.prototype.getAffectedIds = function(){
  * @return boolean
  */
 WorkOnXConstraint.prototype.isDeceased = function(position){
-	return this.patternMatches(this.constraintSatisfaction.satisfactionPattern,this.view.state.visitedNodes.slice());
+	return this.patternMatches(this.constraintSatisfaction.satisfactionPattern,this.view.getState().visitedNodes.slice());
 };
 
 /**

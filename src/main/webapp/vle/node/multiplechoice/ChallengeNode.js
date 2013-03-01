@@ -80,7 +80,7 @@ ChallengeNode.prototype.isConstraintNeededForChallenge = function(nodeVisits){
  */
 ChallengeNode.prototype.visitedNavigateToNode = function(node, startTime){
 	var toVisitId = node.getContent().getContentJSON().assessmentItem.interaction.attempts.navigateTo;
-	var nodeVisits = this.view.state.getNodeVisitsByNodeId(toVisitId);
+	var nodeVisits = this.view.getState().getNodeVisitsByNodeId(toVisitId);
 	var nodeVisits = Constraint.prototype.getEffectiveNodeVisits(nodeVisits.slice(), startTime);
 	for(var a=0;a<nodeVisits.length;a++){
 		if(nodeVisits[a].nodeId == toVisitId){

@@ -24,7 +24,7 @@ BranchNode.prototype.hasGradingView = function() {
  * Override of Node.processStateConstraints
  */
 BranchNode.prototype.processStateConstraints = function() {
-	var response = this.view.state.getLatestWorkByNodeId(this.id);
+	var response = this.view.getState().getLatestWorkByNodeId(this.id);
 	if(response != ''){
 		
 		/* we need to disallow further work on this branch node */

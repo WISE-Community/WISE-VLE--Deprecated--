@@ -78,7 +78,7 @@ SVGDrawNode.prototype.translateStudentWork = function(svgState) {
 SVGDrawNode.prototype.importWork = function(importFromNode) {
 	if (this.canImportWork(importFromNode)) {
 		if (importFromNode.type == "SVGDrawNode") {
-			var studentWork = this.view.state.getLatestWorkByNodeId(importFromNode.id);
+			var studentWork = this.view.getState().getLatestWorkByNodeId(importFromNode.id);
 			if (studentWork != null) {
 		        var studentWorkSVG = Utils.decode64(this.translateStudentWork(studentWork));
 		        
@@ -264,8 +264,13 @@ SVGDrawNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVi
 				var currDescription = snaps[i].description;
 				snapTxt += "<div id='"+snapId+"_description' class='snapDescription' style='display:none;'>"+currDescription+"</div>";
 			}
+			
 			snapTxt += "</div>";
 			studentWork += snapTxt;
+			
+			if(description != null){
+				studentWork += "<span>Description: </span><div id='"+innerDivId+"_description' class='drawDescription'>"+description+"</div>";
+			}
 		} else {
 			studentWork += "<div id='"+innerDivId+"' class='svgdrawCell'>"+svgString+"</div>";
 			if(description != null){
@@ -382,6 +387,7 @@ SVGDrawNode.prototype.canSpecialExport = function() {
  * Get the feedback that will be displayed when the student clicks
  * on the Feedback button at the upper right of the vle. This feedback
  * will take precedence over feedback from the teacher.
+ * @return the feedback html or null if there is no feedback
  */
 SVGDrawNode.prototype.getFeedback = function() {
 	var feedback = null;
@@ -398,29 +404,81 @@ SVGDrawNode.prototype.getFeedback = function() {
 		
 		if(nodeStates != null) {
 			/*
-			 * loop through all the node states and get the autoFeedback
-			 * from the last node state that was auto graded
+			 * keep track of how many of the node states were submits
+			 * to the draw auto grader
 			 */
-			for(var x=nodeStates.length - 1; x>=0; x--) {
+			var checkWorkCount = 0;
+			var previousFeedback = '';
+			
+			/*
+			 * loop through all the node states and get the autoFeedback
+			 * from the node states. each time we find a node state that
+			 * was auto graded we will remember that autoFeedback. then
+			 * the next time we find a node state that was auto graded
+			 * we will label the remembered autoFeedback as PREVIOUS
+			 * FEEDBACK and then add it to the overall feedback. this
+			 * way when we get to the last autoFeedback, we can label it
+			 * as NEW FEEDBACK.
+			 */
+			for(var x=0; x<nodeStates.length; x++) {
 				//get a node state
 				var nodeState = nodeStates[x];
 				
 				if(nodeState.checkWork) {
+					checkWorkCount++;
+					
 					/*
 					 * this node state was work that was auto graded so we will
 					 * get the autoFeedback and display it
 					 */
 					var autoFeedback = nodeState.autoFeedback;
 					
-					if(feedback == null || feedback == '') {
-						//this is the newest feedback the student has received
-						feedback = '<b>NEW FEEDBACK<br>' + autoFeedback + '</b><hr>';
-					} else {
-						//this is a previous feedback the student has received
-						feedback += 'PREVIOUS FEEDBACK<br>' + autoFeedback + '<hr>';
+					if(feedback == null) {
+						//initialize the feedback to empty string
+						feedback = '';
+					} else if(feedback != '') {
+						//separate the existing feedback with a horizontal line
+						feedback = '<hr>' + feedback;
 					}
+					
+					if(previousFeedback != '') {
+						/*
+						 * there is previous feedback from a previous student work
+						 * so we will add the previous feedback to the feedback
+						 */
+						feedback = 'PREVIOUS FEEDBACK<br>' + previousFeedback + feedback;	
+					}
+
+					/*
+					 * remember the auto feedback from this student work so we can add
+					 * it to the overall feedback later
+					 */
+					previousFeedback = autoFeedback;
 				}
-			}		
+			}
+			
+			if(previousFeedback != '') {
+				if(this.content.getContentJSON().autoScoring.autoScoringDoNotDisplayFeedbackToStudentOnLastChance &&
+						this.content.getContentJSON().autoScoring.autoScoringCheckWorkChances == checkWorkCount) {
+					/*
+					 * we do not want to show the feedback on the last submit
+					 * chance if the student has used all their submit chances.
+					 * for example if the student has 3 submit chances and they
+					 * have submitted 3 times, we will not show that last 3rd 
+					 * feedback.
+					 */
+				} else {
+					//this is the newest feedback the student has received
+					
+					if(feedback != '') {
+						//separate the existing feedback with a horizontal line
+						feedback = '<hr>' + feedback;
+					}
+					
+					//this is the newest feedback
+					feedback = '<b>NEW FEEDBACK<br>' + previousFeedback + '</b>' + feedback;					
+				}
+			}
 		}
 	}
 	

@@ -207,7 +207,7 @@ View.prototype.insertTranslations = function(componentName, onComplete){
 	var translatableElements = [];
 	if (componentName == "main") {
 		translatableElements = $('[data-i18n], [data-i18n-title], [data-i18n-placeholder]');
-	} else if (this.project.getUsedNodeTypes().indexOf(componentName) > -1) {
+	} else if (this.getProject().getUsedNodeTypes().indexOf(componentName) > -1) {
 		//component is a node. we're trying to translate strings in the content panel where nodes are rendered
 		if (this.currentNode && this.currentNode.contentPanel && this.currentNode.contentPanel.$) {
 			translatableElements = $(this.currentNode.contentPanel.$.find("[data-i18n], [data-i18n-title], [data-i18n-placeholder]"));			

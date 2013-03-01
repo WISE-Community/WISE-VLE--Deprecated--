@@ -74,7 +74,7 @@ Surge.prototype.checkScoreForTags = function(tagName, functionArgs) {
 			
 			if(nodeId != null) {
 				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 				
 				if(latestWork != "") {
 					//get the top score for the step
@@ -140,7 +140,7 @@ Surge.prototype.getAccumulatedScoreForTags = function(tagName, functionArgs) {
 			
 			if(nodeId != null) {
 				//get the latest work for the node
-				var latestWork = this.view.state.getLatestWorkByNodeId(nodeId);
+				var latestWork = this.view.getState().getLatestWorkByNodeId(nodeId);
 				
 				if(latestWork != "" && latestWork.response != null) {
 					

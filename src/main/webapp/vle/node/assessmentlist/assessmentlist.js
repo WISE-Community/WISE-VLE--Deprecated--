@@ -543,15 +543,15 @@ ASSESSMENTLIST.prototype.postAnnotation = function(response) {
 								  periodId:periodId};
 	
 	//create the view's annotations object if it does not exist
-	if(this.view.annotations == null) {
-		this.view.annotations = new Annotations();
+	if(this.view.getAnnotations() == null) {
+		this.view.setAnnotations(new Annotations());
 	}
 	
 	//create the annotation locally to keep our local copy up to date
 	var annotation = new Annotation(runId, nodeId, toWorkgroup, fromWorkgroup, type, value, stepWorkId);
 	
 	//add the annotation to the view's annotations
-	this.view.annotations.updateOrAddAnnotation(annotation);
+	this.view.getAnnotations().updateOrAddAnnotation(annotation);
 	
 	//a callback function that does nothing
 	var postAnnotationsCallback = function(text, xml, args) {};

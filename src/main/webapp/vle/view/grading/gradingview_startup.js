@@ -1,4 +1,5 @@
 View.prototype.getGradingConfig = function(gradingConfigUrl) {
+	this.model = new GradingModel();
 	var gradingConfigContent = createContent(gradingConfigUrl);
 	this.config = this.createConfig(gradingConfigContent);
 	eventManager.fire('getGradingConfigComplete', [this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), false]);

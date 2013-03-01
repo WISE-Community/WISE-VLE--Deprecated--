@@ -18,14 +18,16 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.retrieveThemeLocales();
 	} else if(type=='getUserAndClassInfoComplete'){
 		obj.renderStartNode();
-		obj.addGlobalTagMapConstraints();
-		obj.updateActiveTagMapConstraints();
+		//obj.addGlobalTagMapConstraints();
+		//obj.updateActiveTagMapConstraints();
 		// start the xmpp if xmpp is enabled
 		if (obj.isXMPPEnabled) {
 			obj.startXMPP();
 		}
 	} else if(type=='processLoadViewStateResponseComplete'){
 		obj.getAnnotationsToCheckForNewTeacherAnnotations();
+		obj.addGlobalTagMapConstraints();
+		obj.updateActiveTagMapConstraints();
 		obj.renderStartNode();
 	} else if(type=='navigationLoadingComplete'){
 		obj.renderStartNode();
@@ -170,6 +172,10 @@ View.prototype.startVLEFromParams = function(obj){
  * and set and that the config object contains AT LEAST a content url and content base url.
  */
 View.prototype.startVLE = function(){
+	console.log('startVLE');
+	this.model = new StudentModel();
+	this.setState(new VLE_STATE());
+	
 	/* load the project based on new config object parameters, lazy load */
 	this.loadProject(this.config.getConfigParam('getContentUrl'), this.config.getConfigParam('getContentBaseUrl'), true);
 	
@@ -219,17 +225,22 @@ View.prototype.displayGlobalTools = function() {
 		$('#userNames').html(this.getI18NString("welcome_users_default"));
 	}
 	
-	/* show/hide studentAssets, ideaManager, addIdea buttons based on project.metadata.tools config */
-	if (this.projectMetadata != null && this.projectMetadata.tools != null) {
-		this.showToolsBasedOnConfig(this.projectMetadata.tools);
+	var metadata = null;
+	var runInfo = null;
+	
+	//get the metadata if it exists
+	if (this.getProjectMetadata() != null && this.getProjectMetadata().tools != null) {
+		metadata = this.getProjectMetadata().tools;
 	}
 
-	/* show/hide studentAssets, ideaManager, addIdea buttons based on run.info config */
+	//get the run info if it exists
 	var runInfoStr = this.config.getConfigParam('runInfo');
 	if (runInfoStr != null && runInfoStr != "") {
-		var runInfo = JSON.parse(runInfoStr);
-		this.showToolsBasedOnConfig(runInfo);
+		runInfo = JSON.parse(runInfoStr);
 	}
+	
+	//show/hide the top menu buttons
+	this.showToolsBasedOnConfigs(metadata, runInfo);
 	
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
@@ -271,9 +282,9 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		// display the idea basket links if the run/project has idea basket enabled
 		// if project is using IM version > 1, set custom link text based on IM settings
 		var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
-		if (this.projectMetadata != null && this.projectMetadata.tools != null){
-			if('ideaManagerSettings' in this.projectMetadata.tools){
-				var imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if (this.getProjectMetadata() != null && this.getProjectMetadata().tools != null){
+			if('ideaManagerSettings' in this.getProjectMetadata().tools){
+				var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 				if(imSettings.version > 1){
 					if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
 						basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
@@ -293,6 +304,93 @@ View.prototype.showToolsBasedOnConfig = function(runInfo) {
 		$("#ideaBasketLinks").hide();
 	}
 };
+
+/**
+ * Show the buttons in the top menu based on the metadata and runinfo
+ * @param metadata the metadata object
+ * @param runInfo the runInfo object
+ */
+View.prototype.showToolsBasedOnConfigs = function(metadata, runInfo) {
+	
+	var isStudentAssetUploaderEnabled = false;
+	
+	if(metadata != null) {
+		isStudentAssetUploaderEnabled = metadata.isStudentAssetUploaderEnabled;
+	}
+
+	if (isStudentAssetUploaderEnabled) {
+		/*
+		 * display student assets link if run has student asset uploader enabled
+		 */
+		var studentAssetsLink=	"<a id='viewMyFilesLink' onclick='eventManager.fire(\"viewStudentAssets\",null)' title='View and Upload Files'>"+this.getI18NString("file_button_text")+"</a>";
+		$('#viewMyFiles').html(studentAssetsLink);
+		$('#viewMyFiles').show().css('display','inline');
+	} else {
+		$('#viewMyFiles').hide();
+	}
+	
+	var isXMPPEnabled = false;
+	var isChatRoomEnabled = false;
+	
+	if(metadata != null) {
+		isXMPPEnabled = metadata.isXMPPEnabled;
+		isChatRoomEnabled = metadata.isChatRoomEnabled;
+	}
+	
+	if(runInfo != null) {
+		if(typeof runInfo.isXMPPEnabled != 'undefined') {
+			isXMPPEnabled = runInfo.isXMPPEnabled;			
+		}
+		
+		if(typeof runInfo.isChatRoomEnabled != 'undefined') {
+			isChatRoomEnabled = runInfo.isChatRoomEnabled;			
+		}
+	}
+	
+	if (isXMPPEnabled && isChatRoomEnabled) {
+		/*
+		 * display chatroom link if run has chatroom enabled
+		 */
+		var displayChatRoomLink = "<a id='displayChatRoomLink' onclick='eventManager.fire(\"displayChatRoom\")' title='Open Chat Room'>"+this.getI18NString("display_chat_room")+"</a>";
+		$('#viewChatRoom').html(displayChatRoomLink);
+		$('#viewChatRoom').show().css('display','inline');
+	} else {
+		$('#viewChatRoom').hide();
+	}
+	
+	var isIdeaManagerEnabled = false;
+	
+	if(metadata != null) {
+		isIdeaManagerEnabled = metadata.isIdeaManagerEnabled;
+	}
+	
+	if (isIdeaManagerEnabled) {
+		// display the idea basket links if the run/project has idea basket enabled
+		// if project is using IM version > 1, set custom link text based on IM settings
+		var basketLinktext = this.getI18NString("ideas_button_text"), addIdeaLinkText = this.getI18NString("addidea_button_text");
+		if (this.getProjectMetadata() != null && this.getProjectMetadata().tools != null){
+			if('ideaManagerSettings' in this.getProjectMetadata().tools){
+				var imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
+				if(imSettings.version > 1){
+					if('ideaTermPlural' in imSettings && this.utils.isNonWSString(imSettings.ideaTermPlural)){
+						basketLinktext = this.utils.capitalize(imSettings.ideaTermPlural);
+					}
+					if('addIdeaTerm' in imSettings && this.utils.isNonWSString(imSettings.addIdeaTerm)){
+						addIdeaLinkText = imSettings.addIdeaTerm;
+					}
+				}
+			}
+		}
+		var ideaBasketLink = "<a id='viewIdeaBasketLink' onclick='eventManager.fire(\"displayIdeaBasket\")'>"+basketLinktext+" <span id='ideaCount' class='count'>(0)</span></a>";
+		var addIdeaLink = "<a id='addIdeaLink' onclick='eventManager.fire(\"displayAddAnIdeaDialog\")'>"+addIdeaLinkText+"</a>";
+		$("#viewIdeaBasket").html(ideaBasketLink);
+		$("#addIdea").html(addIdeaLink);
+		$("#ideaBasketLinks").show().css('display','inline');
+	} else {
+		$("#ideaBasketLinks").hide();
+	}
+};
+
 /**
  * Loads the theme given theme in the VLE view. Default is the wise theme.
  * @param themeName the name of the theme to load
@@ -314,7 +412,7 @@ View.prototype.loadTheme = function(themeName){
 		var currentTheme = [themeName.toLowerCase()]; // TODO: remove toLowerCase()
 		
 		// get navMode
-		var navMode = context.projectMetadata.navMode;
+		var navMode = context.getProjectMetadata().navMode;
 		if(navMode && context.themeNavModes[themeName].indexOf(navMode)>-1) {
 			// navMode is set and is in active navModes list for specified theme, so add to currentTheme
 			currentTheme.push(navMode);
@@ -387,26 +485,18 @@ View.prototype.loadVLEState = function(){
 View.prototype.processLoadViewStateResponse = function(responseText, responseXML, view){
 	if (responseText) {
 		var viewStateObj = VLE_STATE.prototype.parseDataJSONString(responseText);
-		view.setViewState(viewStateObj);
+		view.setState(viewStateObj);
 	};
 
 	view.viewStateLoaded = true;
 	view.eventManager.fire('processLoadViewStateResponseComplete');
 };
 
-
-/**
- * Set the vle state for this vle. For use mainly in ticker.
- * @param vleState a VLE_STATE object
- */
-View.prototype.setViewState = function(viewState) {
-	this.state = viewState;
-};
-
 /**
  * Sets the theme based on project parameters.
  */
 View.prototype.onProjectLoad = function(){
+	console.log('onProjectLoad');
 	this.notificationManager.notify('vleInitializerListener', 4);
 	
 	/* Set the VLE's current position as the project start position. This will be
@@ -416,7 +506,7 @@ View.prototype.onProjectLoad = function(){
 	
 	/* load the theme based on project parameters */
 	if(this.getProject()){
-		var themeName = this.projectMetadata.theme;
+		var themeName = this.getProjectMetadata().theme;
 		
 		if(themeName && this.activeThemes.indexOf(themeName)>-1){
 			// theme specified by project matches an active theme, so load specified theme
@@ -479,7 +569,7 @@ View.prototype.onThemeLoad = function(){
 		
 		/* if (TODO: check for any constraints in project) {*/
 			// we are in preview mode (and the project contains constraints)
-			var path = '/webapp/preview.html?projectId=' + this.projectMetadata.projectId;
+			var path = '/webapp/preview.html?projectId=' + this.getProjectMetadata().projectId;
 			if(this.getConfig().getConfigParam("isConstraintsDisabled")){
 				// constraints are disabled, so show enable constraints link
 				//this.notificationManager.notify('Student navigation constraints are currently disabled. To preview project with all constraints, <a href="' + path + '">click here</a>.', 3, 'keepMsg');
@@ -495,8 +585,8 @@ View.prototype.onThemeLoad = function(){
 	if(this.config.getConfigParam('mode') == "portalpreview") {
 		//we are previewing the project so we will create a dummy idea basket
 		var imSettings = null;
-		if(this.projectMetadata.tools && 'ideaManagerSettings' in this.projectMetadata.tools){
-			imSettings = this.projectMetadata.tools.ideaManagerSettings;
+		if(this.getProjectMetadata().tools && 'ideaManagerSettings' in this.getProjectMetadata().tools){
+			imSettings = this.getProjectMetadata().tools.ideaManagerSettings;
 		}
 		this.ideaBasket = new IdeaBasket('{"ideas":[],"deleted":[],"nextIdeaId":1,"id":-1,"runId":-1,"workgroupId":-1,"projectId":-1}',null,null,imSettings);
 	}
@@ -527,12 +617,12 @@ View.prototype.renderStartNode = function(){
 	
 	/* check to see if we can render the start node based on the current state of loading */
 	if(this.canRenderStartNode(mode) && this.isAnyNavigationLoadingCompleted()){
-		var currentNodeVisit = this.state.getCurrentNodeVisit();
+		var currentNodeVisit = this.getState().getCurrentNodeVisit();
 		
 		/* If we are in run mode, and the user has previously run the project we want to get
 		 * the position of the last step they visited, otherwise, just render the first node
 		 * in the project. */
-		if(mode == 'run' && (typeof this.state != 'undefined') && currentNodeVisit){
+		if(mode == 'run' && (typeof this.getState() != 'undefined') && currentNodeVisit){
 			
 			/* check to see if the currentNodeVisit has a duplicateId - meaning that
 			 * it was last rendered by a DuplicateNode so we would want to render at
@@ -658,8 +748,8 @@ View.prototype.renderNodePrep = function(position){
 		eventManager.fire('unhighlightStepInMenu', [nodeId]);
 		
 		prevNode.onExit();  
-		if(this.state) {
-			this.state.endCurrentNodeVisit();  // set endtime, etc.	
+		if(this.getState()) {
+			this.getState().endCurrentNodeVisit();  // set endtime, etc.	
 		}
 	};
 	
@@ -798,8 +888,8 @@ View.prototype.renderNode = function(position){
 	
     var nodeToVisit = null;
     if (position == null) {
-		if (this.state.visitedNodes.length > 0) {
-			nodeToVisit = this.state.visitedNodes[this.state.visitedNodes.length - 1];
+		if (this.getState().visitedNodes.length > 0) {
+			nodeToVisit = this.getState().visitedNodes[this.getState().visitedNodes.length - 1];
 			this.currentPosition = this.getProject().getPositionById(nodeToVisit.id);
 		};
     } else {
@@ -816,7 +906,7 @@ View.prototype.renderNode = function(position){
 	var studentWork = this.getStudentWorkForNodeId(nodeToVisit.id);
 	
 	/* set this node as current node visit */
-	this.state.setCurrentNodeVisit(nodeToVisit);
+	this.getState().setCurrentNodeVisit(nodeToVisit);
 	nodeToVisit.render(null, studentWork, status.value);
 	
 	//update the active tag map constraints to see if any have been satisfied and we need to remove any
@@ -846,8 +936,8 @@ View.prototype.setProjectPostLevel = function(){
 	var project = this.getProject();
 	if(project && this.config && this.config.getConfigParam('postLevel')){
 		project.setPostLevel(this.config.getConfigParam('postLevel'));
-	} else if(project && this.projectMetadata && this.projectMetadata.postLevel){
-		project.setPostLevel(this.projectMetadata.postLevel);
+	} else if(project && this.getProjectMetadata() && this.getProjectMetadata().postLevel){
+		project.setPostLevel(this.getProjectMetadata().postLevel);
 	}
 };
 
@@ -983,7 +1073,7 @@ View.prototype.processStudentWork = function() {
 			var node = this.getProject().getNodeById(nodeId);
 			
 			//get the latest work for the node
-			var latestWork = this.state.getLatestWorkByNodeId(nodeId);
+			var latestWork = this.getState().getLatestWorkByNodeId(nodeId);
 			
 			if(latestWork != null && latestWork != "") {
 				//tell the node to process the student work

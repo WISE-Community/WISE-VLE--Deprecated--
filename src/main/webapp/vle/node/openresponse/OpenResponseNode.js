@@ -90,7 +90,7 @@ OpenResponseNode.prototype.getPeerReviewOtherStudentWork = function(otherStudent
  */
 OpenResponseNode.prototype.importWork = function(importFromNode) {
 	if (this.canImportWork(importFromNode)) {
-		var studentWorkState = this.view.state.getLatestWorkByNodeId(importFromNode.id);
+		var studentWorkState = this.view.getState().getLatestWorkByNodeId(importFromNode.id);
 		if (studentWorkState != null) {
 			var studentWork = studentWorkState.response;
 
@@ -265,7 +265,7 @@ OpenResponseNode.prototype.getCRaterGradingView = function(nodeVisit) {
 	var contentJSON = this.content.getContentJSON();
 	
 	//get the CRater annotation for this step work
-	var cRaterAnnotation = this.view.annotations.getAnnotationByStepWorkIdType(stepWorkId, 'cRater');
+	var cRaterAnnotation = this.view.getAnnotations().getAnnotationByStepWorkIdType(stepWorkId, 'cRater');
 	
 	//get the node states
 	var nodeStates = nodeVisit.nodeStates;
@@ -462,13 +462,13 @@ OpenResponseNode.prototype.getAutoGradedFields = function(stepWorkId, runId, nod
 			 */
 			if(stepWorkId != null) {
 				//stepWorkId was provided
-				cRaterAnnotation = this.view.annotations.getAnnotationByStepWorkIdType(parseInt(stepWorkId), 'cRater');
+				cRaterAnnotation = this.view.getAnnotations().getAnnotationByStepWorkIdType(parseInt(stepWorkId), 'cRater');
 			} else {
 				/*
 				 * stepWorkId was not provided so we need to look 
 				 * up the annotation using the other fields
 				 */
-				cRaterAnnotation = this.view.annotations.getLatestAnnotationByAll(runId, nodeId, toWorkgroup, "-1", 'cRater');								
+				cRaterAnnotation = this.view.getAnnotations().getLatestAnnotationByAll(runId, nodeId, toWorkgroup, "-1", 'cRater');								
 			}
 			
 			if(cRaterAnnotation != null) {

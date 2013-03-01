@@ -49,7 +49,7 @@ View.prototype.gradingDispatcher = function(type, args, obj) {
 	} else if(type=='getStudentNamesExport') {
 		obj.getStudentNamesExport();
 	} else if(type=='getProjectMetaDataComplete') {
-		obj.getAnnotations();
+		obj.retrieveAnnotations();
 	} else if(type=='saveMaxScore') {
 		obj.saveMaxScore(args[0], args[1]);
 	} else if(type=='showScoreSummary') {

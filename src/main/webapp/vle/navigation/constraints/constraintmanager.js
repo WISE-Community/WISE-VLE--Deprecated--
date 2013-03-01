@@ -282,7 +282,7 @@ ConstraintManager.prototype.processStateConstraints = function(){
 		
 		for(var type in nodeTypes){
 			// for each node type, get all the nodeVisits
-			var nodeTypeVisits = this.view.state.getNodeVisitsByNodeType(type);
+			var nodeTypeVisits = this.view.getState().getNodeVisitsByNodeType(type);
 			// for each nodeVisit, process state constraints for that node
 			for(var nodeId in nodeTypeVisits){
 				var node = this.view.getProject().getNodeById(nodeId);

@@ -111,7 +111,7 @@ WorkOnXBeforeYConstraint.prototype.getAffectedIds = function(){
  * @return boolean
  */
 WorkOnXBeforeYConstraint.prototype.isDeceased = function(){
-	return this.patternMatches(this.constraintSatisfaction.satisfactionPattern, this.view.state.visitedNodes.slice());
+	return this.patternMatches(this.constraintSatisfaction.satisfactionPattern, this.view.getState().visitedNodes.slice());
 };
 
 /**
