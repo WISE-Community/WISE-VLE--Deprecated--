@@ -197,11 +197,11 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 			if('addIdeaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.addIdeaTerm)){
 				this.addIdeaTerm = this.settings.addIdeaTerm;
 			}
-			if('privatebasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.privatebasketTerm)){
-				this.privatebasketTerm = this.settings.basketTerm;
+			if('privateBasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.privateBasketTerm)){
+				this.privateBasketTerm = this.settings.privateBasketTerm;
 			}
-			if('publicbasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.publicbasketTerm)){
-				this.publicbasketTerm = this.settings.basketTerm;
+			if('publicBasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.publicBasketTerm)){
+				this.publicBasketTerm = this.settings.publicBasketTerm;
 			}
 		}
 	}
@@ -345,7 +345,6 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		
 		var settings = this.settings;
 		
-		$('#basketTitle').text(this.privateBasketTerm);
 		$('#privateBasketButton').attr('value', this.privateBasketTerm);
 		$('#publicBasketButton').attr('value', this.publicBasketTerm);
 		$('#addNew').attr('value', this.addIdeaTerm + ' +');
@@ -392,6 +391,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		deletedTable.append('<th class="delete">Restore</th>');
 		
 		if(this.isPublicIdeaBasketEnabled()) {
+			$('#basketTitle').text(this.privateBasketTerm);
 			//create the buttons to make an idea public or private
 			var makePublicButton = $('<input id="makePublicButton" type="button" name="makePublicButton" value="Make Public"></input>');
 			var makePrivateButton = $('<input id="makePrivateButton" type="button" name="makePrivateButton" value="Make Private"></input>');
@@ -403,6 +403,8 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			editDialog.append(makePublicButton);
 			editDialog.append(makePrivateButton);
 			editDialog.append(sharingStatusP);
+		} else {
+			$('#basketTitle').text(this.basketTerm);
 		}
 		
 		//set the onclick event when the private idea basket button is clicked
