@@ -179,6 +179,8 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 		this.basketTerm = this.view.getI18NString('idea_basket');
 		this.ebTerm = this.view.getI18NString('explanation_builder');
 		this.addIdeaTerm = this.view.getI18NString('idea_basket_add_an_idea');
+		this.privateBasketTerm = this.view.getI18NString('idea_basket_private');
+		this.publicBasketTerm = this.view.getI18NString('idea_basket_public');
 		if(this.version > 1){
 			if('ideaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.ideaTerm)){
 				this.ideaTerm = this.settings.ideaTerm;
@@ -194,6 +196,12 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 			}
 			if('addIdeaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.addIdeaTerm)){
 				this.addIdeaTerm = this.settings.addIdeaTerm;
+			}
+			if('privatebasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.privatebasketTerm)){
+				this.privatebasketTerm = this.settings.basketTerm;
+			}
+			if('publicbasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.publicbasketTerm)){
+				this.publicbasketTerm = this.settings.basketTerm;
 			}
 		}
 	}
@@ -337,8 +345,10 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		
 		var settings = this.settings;
 		
-		$('#basketTitle').text('Private Idea Basket');
-		$('#addNew > span').text(this.addIdeaTerm + ' +');
+		$('#basketTitle').text(this.privateBasketTerm);
+		$('#privateBasketButton').attr('value', this.privateBasketTerm);
+		$('#publicBasketButton').attr('value', this.publicBasketTerm);
+		$('#addNew').attr('value', this.addIdeaTerm + ' +');
 		$('#ideasEmpty').text('Your ' + this.basketTerm + ' is empty.  Click "' + this.addIdeaTerm + '" above to start adding ' + this.ideaTermPlural + '.');
 		
 		// clear add and edit idea forms, idea tables
@@ -404,7 +414,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			$('#main').show();
 			
 			//change the title to private
-			$('#basketTitle').html('Private Idea Basket');
+			$('#basketTitle').html(context.privateBasketTerm);
 		});
 
 		var thisView = this.view;
@@ -2279,7 +2289,7 @@ IdeaBasket.prototype.displayPublicIdeaBasket = function() {
 	$('#publicMain').show();
 	
 	//change the title to public
-	$('#basketTitle').html('Public Idea Basket');
+	$('#basketTitle').html(this.publicBasketTerm);
 };
 
 /**

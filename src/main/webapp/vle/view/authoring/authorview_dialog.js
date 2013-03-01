@@ -498,6 +498,15 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		}
 	});
 	
+	// setup public idea manager toggle change action
+	$('#enablePublicIdeaManager').click(function() {
+		if(this.checked){
+			view.enablePublicIdeaManager(true);
+		} else {
+			view.enablePublicIdeaManager(false);
+		}
+	});
+	
 	var updateProjectMetadata = function(){
 		var imVersion = $('#enableIdeaManager').attr('version');
 		
@@ -536,6 +545,8 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 					view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
 					view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.privateBasketTerm = $('#imPrivateBasketTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.publicBasketTerm = $('#imPublicBasketTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];

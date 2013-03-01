@@ -41,6 +41,14 @@
  
   <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects 
   <script src="js/libs/modernizr-1.6.min.js"></script> -->
+  
+  <!--[if gte IE 9]>
+	<style type="text/css">
+	  .gradient {
+	     filter: none;
+	  }
+	</style>
+  <![endif]-->
 
 </head>
 
@@ -50,18 +58,12 @@
 		<header>
 			<h3 id='basketTitle'>Private Idea Basket</h3>
 		</header>
-		<div id="buttonDiv">
-			<button id="privateBasketButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
-				<span class="ui-button-text">Private Basket</span>
-			</button>
-			<button id="publicBasketButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
-				<span class="ui-button-text">Public Basket</span>
-			</button>
+		<div id="buttonDiv">View: 
+			<input type="button" id="privateBasketButton" value="Private Basket" />
+			<input type="button" id="publicBasketButton" value="Public Basket" />
 		</div>
 		<div id="main" role="main">
-			<button id="addNew" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
-				<span class="ui-button-text">Add Idea +</span>
-			</button>
+			<input type="button" id="addNew" value="Add Idea +" />
 			<div id='ideas'>
 				<table id='basketIdeas' class='tablesorter'>
 					<thead>
