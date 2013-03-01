@@ -52,7 +52,11 @@ function SENSOR(node) {
 	
 	//flag to keep track of whether the student has change any axis range value this visit
 	this.axisRangeChanged = false;
+
+	//flag to keep track of whether the student has change any axis labels
+	this.axisLabelChanged = false;
 	
+
 	if(this.content != null) {
 		//get the graph parameters for displaying the data to the student
 		this.graphParams = this.parseGraphParams(this.content.graphParams);
@@ -132,7 +136,11 @@ function SENSOR(node) {
 		var graphName = "temperature prediction";
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "C";
-	} else {
+	} else if (this.sensorType == "custom"){
+		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
+		this.graphNames.prediction = graphName;
+		this.graphUnits[graphName] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
+    }else {
 		var graphName = "";
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "";
@@ -805,7 +813,7 @@ SENSOR.prototype.save = function() {
 	/*
 	 * check that the student has changed the response or the graph or any annotations
 	 */
-	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged) {
+	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged || this.axisLabelChanged) {
 		//set the student response into the state
 		this.sensorState.response = response;
 		
@@ -828,6 +836,7 @@ SENSOR.prototype.save = function() {
 	this.graphChanged = false;
 	this.annotationsChanged = false;
 	this.axisRangeChanged = false;
+	this.axisLabelChanged = false;
 };
 
 /**
@@ -1962,21 +1971,43 @@ SENSOR.prototype.insertApplet = function() {
 SENSOR.prototype.setupGraphLabels = function() {
 	if(this.content.graphParams != null) {
 		//get the x and y labels
-		var xLabel = "";
+		this.xlabel = "";
 		if(this.content.graphParams.xlabel) {
-			xLabel = this.content.graphParams.xlabel;	
+			this.xlabel = this.content.graphParams.xlabel;	
 		}
 		
-		var yLabel = "";
+		this.yLabel = "";
 		if(this.content.graphParams.ylabel) {
-			yLabel = this.content.graphParams.ylabel;
+			this.ylabel = this.content.graphParams.ylabel;
+		}
+
+		/*
+		 * if the sensor state contains axis values it will override
+		 * the axis values from the content
+		 */
+		if(this.sensorState != null) {
+			if(this.sensorState.xlabel != null && this.sensorState.xlabel != "")  {
+				this.xlabel = this.sensorState.xlabel;
+			}
+			if(this.sensorState.ylabel != null && this.sensorState.ylabel != "")  {
+				this.ylabel = this.sensorState.ylabel;
+			}
 		}
 		
 		//set the y label
-		$('#yLabelDiv').html(yLabel);
-		
+		$('#yLabelDiv').html(this.ylabel);
 		//set the x label
-		$('#xLabelDiv').html(xLabel);
+		$('#xLabelDiv').html(this.xlabel);
+		if (typeof this.content.graphParams.allowUpdateAxisLabel != "undefined" && this.content.graphParams.allowUpdateAxisLabel){
+			$('#yLabelDiv').attr('contentEditable', true); 
+			$("#yLabelDiv").bind('blur', {thisSensor:this}, (function(event) {
+				event.data.thisSensor.updateAxisLabel();
+			}));
+			$('#xLabelDiv').attr('contentEditable', true); 
+			$("#xLabelDiv").bind('blur', {thisSensor:this}, (function(event) {
+				event.data.thisSensor.updateAxisLabel();
+			}));
+		}
 	}
 };
 
@@ -2077,6 +2108,31 @@ SENSOR.prototype.updateAxisRange = function() {
 		this.sensorState.xMax = xMax;
 		this.sensorState.yMin = yMin;
 		this.sensorState.yMax = yMax;
+
+		//parse the graph params again to obtain the new values in the graph params
+		this.graphParams = this.parseGraphParams(this.content.graphParams);
+
+		//plot the graph again
+		this.plotData();
+	}
+};
+
+/**
+ * The student has changed the axis label so we will obtain those
+ * values and update state
+ */
+SENSOR.prototype.updateAxisLabel = function() {
+	if (typeof this.content.graphParams.allowUpdateAxisLabel != "undefined" && this.content.graphParams.allowUpdateAxisLabel && (this.xlabel != $('#xLabelDiv').text() || this.ylabel != $('#yLabelDiv').text())) {
+		//set this flag so we know the sensor state has changed
+		this.axisLabelChanged = true;
+
+		//get all the values from the text box inputs
+		this.xlabel = $('#xLabelDiv').text();
+		this.ylabel = $('#yLabelDiv').text();
+		
+		//set the value into the sensor state
+		this.sensorState.xlabel = this.xlabel;
+		this.sensorState.ylabel = this.ylabel;
 
 		//parse the graph params again to obtain the new values in the graph params
 		this.graphParams = this.parseGraphParams(this.content.graphParams);

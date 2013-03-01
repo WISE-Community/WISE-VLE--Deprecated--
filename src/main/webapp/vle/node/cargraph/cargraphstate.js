@@ -24,7 +24,7 @@
  *   "timestamp":1303406004861
  * }
  */
-function CARGRAPHSTATE(response, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked) {
+function CARGRAPHSTATE(response, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -65,6 +65,10 @@ function CARGRAPHSTATE(response, annotationArray, predictionArray, timestamp, xM
 	this.xMax = xMax;
 	this.yMin = yMin;
 	this.yMax = yMax;
+
+	//set the axis labels
+	this.xlabel = typeof xlabel !== "undefined" ? xlabel : "";
+	this.ylabel = typeof ylabel !== "undefined" ? ylabel : "";
 	
 	//set whether the prediction is locked
 	this.predictionLocked = predictionLocked;
@@ -93,12 +97,16 @@ CARGRAPHSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	var xMax = stateJSONObj.xMax;
 	var yMin = stateJSONObj.yMin;
 	var yMax = stateJSONObj.yMax;
+
+	//set the axis labels
+	var xlabel = typeof stateJSONObj.xlabel !== "undefined" ? stateJSONObj.xlabel : "";
+	var ylabel = typeof stateJSONObj.ylabel !== "undefined" ? stateJSONObj.ylabel : "";
 	
 	//get whether the prediction has been locked
 	var predictionLocked = stateJSONObj.predictionLocked;
 
 	//create a CARGRAPHSTATE object
-	var cargraphState = new CARGRAPHSTATE(response, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
+	var cargraphState = new CARGRAPHSTATE(response, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel);
 	
 	return cargraphState;
 };

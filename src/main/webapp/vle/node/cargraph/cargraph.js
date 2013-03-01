@@ -58,6 +58,8 @@ function CARGRAPH(node) {
 	
 	//flag to keep track of whether the student has change any axis range value this visit
 	this.axisRangeChanged = false;
+	//flag to keep track of whether the student has change any axis labels
+	this.axisLabelChanged = false;
 	
 	if(this.content != null) {
 		//get the graph parameters for displaying the data to the student
@@ -692,7 +694,7 @@ CARGRAPH.prototype.save = function(fromHtml) {
 	/*
 	 * check that the student has changed the response or the graph or any annotations
 	 */
-	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged) {
+	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged || this.axisLabelChanged) {
 		//set the student response into the state
 		this.carGraphState.response = response;
 		
@@ -710,6 +712,7 @@ CARGRAPH.prototype.save = function(fromHtml) {
 	this.graphChanged = false;
 	this.annotationsChanged = false;
 	this.axisRangeChanged = false;
+	this.axisLabelChanged = false;
 };
 
 /**
@@ -1571,11 +1574,25 @@ CARGRAPH.prototype.setupGraphLabels = function() {
 			yLabel = this.content.graphParams.ylabel;
 		}
 		
+		/*
+		 * if the sensor state contains axis values it will override
+		 * the axis values from the content
+		 */
+		if(this.carGraphState != null) {
+			if(this.carGraphState.xlabel != null && this.carGraphState.xlabel != "")  {
+				xLabel = this.carGraphState.xlabel;
+			}
+			if(this.carGraphState.ylabel != null && this.carGraphState.ylabel != "")  {
+				yLabel = this.carGraphState.ylabel;
+			}
+		}
+
 		//set the y label
 		$('#yLabelDiv').html(yLabel);
 		
 		//set the x label
 		$('#xLabelDiv').html(xLabel);
+
 	}
 };
 
@@ -2244,7 +2261,6 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 			if(prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
 				//get the state from the previous step that this step is linked to
 				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
-				
 				/*
 				 * make sure this step doesn't already have a prediction set 
 				 * and that there was a prediction state from the previous
@@ -2315,6 +2331,31 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 					}
 					
 					this.graphChanged = true;
+				}
+				// update axis and labels
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "") && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
+					this.carGraphState.xlabel = predictionState.xlabel;
+					this.axisLabelChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "") && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
+					this.carGraphState.ylabel = predictionState.ylabel;
+					this.axisLabelChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "") && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
+					this.carGraphState.xMin = predictionState.xMin;
+					this.axisRangeChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "") && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
+					this.carGraphState.yMin = predictionState.yMin;
+					this.axisRangeChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "") && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
+					this.carGraphState.xMax = predictionState.xMax;
+					this.axisRangeChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "") && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
+					this.carGraphState.yMax = predictionState.yMax;
+					this.axisRangeChanged = true;
 				}
 			}
 		}

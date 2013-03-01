@@ -234,8 +234,13 @@ SensorNode.prototype.isCompleted = function(sensorState) {
 				for (var i=0; i < predictions.length; i++){
 					var p = predictions[i];
 					var objJson = this.content.getContentJSON();
-					if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
-					if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					if (typeof sensorState.xMin != "undefined" && sensorState.xMin != "" && !isNaN(Number(sensorState.xMin)) && typeof sensorState.xMax != "undefined" && sensorState.xMax != "" && !isNaN(Number(sensorState.xMax))){
+						if (p.x <= parseFloat(sensorState.xMin)) foundMin = true;
+						if (p.x >= parseFloat(sensorState.xMax)) foundMax = true;
+					} else {
+						if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
+						if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					}
 				}
 				if (!foundMin || !foundMax) isCompleted = false;
 			} else {

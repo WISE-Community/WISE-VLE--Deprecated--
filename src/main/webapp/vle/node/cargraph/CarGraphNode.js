@@ -519,8 +519,14 @@ CarGraphNode.prototype.isCompleted = function(carGraphState) {
 				for (var i=0; i < predictions.length; i++){
 					var p = predictions[i];
 					var objJson = this.content.getContentJSON();
-					if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
-					if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					// first check state, if min and max are there use them, else use json values
+					if (typeof carGraphState.xMin != "undefined" && carGraphState.xMin != "" && !isNaN(Number(carGraphState.xMin)) && typeof carGraphState.xMax != "undefined" && carGraphState.xMax != "" && !isNaN(Number(carGraphState.xMax))){
+						if (p.x <= parseFloat(carGraphState.xMin)) foundMin = true;
+						if (p.x >= parseFloat(carGraphState.xMax)) foundMax = true;
+					} else {
+						if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
+						if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					}
 				}
 				if (!foundMin || !foundMax) isCompleted = false;
 			} else {
