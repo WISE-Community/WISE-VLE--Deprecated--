@@ -95,13 +95,19 @@ table.tablesorter tbody tr {
   line-height: 1.5em;
 }
 
-table.tablesorter tbody tr.drag td, table.tablesorter tbody tr.inuse td {
+table.tablesorter tbody tr.ui-draggable.drag td, table.tablesorter tbody tr.ui-draggable.inuse td {
   background-color:#eee;
   color: #777;
 }
 
-tr.ui-draggable-disabled:hover td {
-  background-color:#fff !important;
+table#activeIdeas tr td {
+	opacity:.35;
+	filter:Alpha(Opacity=35);
+}
+
+table#activeIdeas tr.ui-draggable td {
+	opacity:1;
+	filter:Alpha(Opacity=100);
 }
 
 .drag-idea table {

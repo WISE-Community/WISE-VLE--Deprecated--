@@ -17,8 +17,8 @@
  * @param yMax the max y value
  * @param predictionLocked whether to lock the prediction so the student can't modify it anymore
  */
-function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked) {
-	this.constructorHelper(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
+function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel) {
+	this.constructorHelper(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel);
 };
 
 /**
@@ -36,7 +36,7 @@ function SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray
  * @param predictionLocked whether to lock the prediction so the student can't modify it anymore
  * @return this SENSORSTATE object
  */
-SENSORSTATE.prototype.constructorHelper = function(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked) {
+SENSORSTATE.prototype.constructorHelper = function(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -81,6 +81,10 @@ SENSORSTATE.prototype.constructorHelper = function(response, sensorDataArray, an
 	this.xMax = xMax;
 	this.yMin = yMin;
 	this.yMax = yMax;
+
+	//set the axis labels
+	this.xlabel = typeof xlabel !== "undefined" ? xlabel : "";
+	this.ylabel = typeof ylabel !== "undefined" ? ylabel : "";
 	
 	//set whether the prediction is locked
 	this.predictionLocked = predictionLocked;
@@ -117,6 +121,10 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj, emptyState) {
 	var xMax = stateJSONObj.xMax;
 	var yMin = stateJSONObj.yMin;
 	var yMax = stateJSONObj.yMax;
+
+	//set the axis labels
+	var xlabel = typeof stateJSONObj.xlabel !== "undefined" ? stateJSONObj.xlabel : "";
+	var ylabel = typeof stateJSONObj.ylabel !== "undefined" ? stateJSONObj.ylabel : "";
 	
 	//get whether the prediction has been locked
 	var predictionLocked = stateJSONObj.predictionLocked;
@@ -125,10 +133,10 @@ SENSORSTATE.prototype.parseDataJSONObj = function(stateJSONObj, emptyState) {
 
 	if(emptyState == null) {
 		//create a SENSORSTATE object
-		sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);		
+		sensorState = new SENSORSTATE(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel);		
 	} else {
 		//populate the empty SENSORSTATE object
-		sensorState = emptyState.constructorHelper(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked);
+		sensorState = emptyState.constructorHelper(response, sensorDataArray, annotationArray, predictionArray, timestamp, xMin, xMax, yMin, yMax, predictionLocked, xlabel, ylabel);
 	}
 	
 	return sensorState;
@@ -358,7 +366,7 @@ SENSORSTATE.prototype.getAnnotationsHtml = function() {
  * @param x the x value of the point
  * @param y the y value of the point
  */
-SENSORSTATE.prototype.predictionReceived = function(x, y) {
+SENSORSTATE.prototype.predictionReceived = function(x, y, doSort) {
 	//remove any existing point with the same x value
 	for(var i=0; i<this.predictionArray.length; i++) {
 		var predictionPoint = this.predictionArray[i];
@@ -378,8 +386,30 @@ SENSORSTATE.prototype.predictionReceived = function(x, y) {
 	//add the element to the array
 	this.predictionArray.push(predictionData);
 	
-	//sort the array by the x value
-	this.predictionArray.sort(this.sortPredictionArray);
+	if (typeof doSort == "undefined" || doSort){
+		//sort the array by the x value
+		this.predictionArray.sort(this.sortPredictionArray);
+	}
+};
+
+/**
+ * Adds an element into the prediction array
+ * @param x the x value of the point
+ * @param y the y value of the point
+ */
+SENSORSTATE.prototype.predictionUpdateByX = function(x, y) {
+	var predictionFound = false;
+	//remove any existing point with the same x value
+	for(var i=0; i<this.predictionArray.length; i++) {
+		var predictionPoint = this.predictionArray[i];
+		
+		if(predictionPoint.x == x) {
+			this.predictionArray[i].y = y;
+			predictionFound = true;
+			break;
+		}
+	}
+	return predictionFound;
 };
 
 /**

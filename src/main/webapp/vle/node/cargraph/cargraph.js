@@ -58,6 +58,8 @@ function CARGRAPH(node) {
 	
 	//flag to keep track of whether the student has change any axis range value this visit
 	this.axisRangeChanged = false;
+	//flag to keep track of whether the student has change any axis labels
+	this.axisLabelChanged = false;
 	
 	if(this.content != null) {
 		//get the graph parameters for displaying the data to the student
@@ -114,6 +116,9 @@ function CARGRAPH(node) {
 	
 	//the last point the student has clicked on
 	this.lastPointClicked = null;
+
+	// a point being dragged
+	this.dragPoint = null;
 	
 	//whether we want to show the correct graph
 	this.showCorrectGraph = false;
@@ -232,11 +237,14 @@ CARGRAPH.prototype.render = function() {
 	//listen for the mouse enter event on the graphDiv
 	$("#" + this.graphDivId).bind("mouseenter", {thisCarGraph:this}, function(event) {
 		event.data.thisCarGraph.mouseInsideGraphDiv = true;
+		if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").show();
 	});
 	
 	//listen for the mouse leave event on the graphDiv
 	$("#" + this.graphDivId).bind("mouseleave", {thisCarGraph:this}, function(event) {
 		event.data.thisCarGraph.mouseInsideGraphDiv = false;
+		if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse && $("#plotHoverPosition").length > 0) $("#plotHoverPosition").hide();
+		event.data.thisCarGraph.dragPoint = null;
 	});
 	
 	/*
@@ -290,8 +298,8 @@ CARGRAPH.prototype.render = function() {
 		var predictionStartingYValue = this.content.graphParams.ymin-100;  // if no prediction at time=0, hide this car from the view.	
 		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
 	    var yValue = this.getYValue(0,predictionArr);
-	    var predictionStartingYValue = yValue*this.yTickSize;
-
+	    var predictionStartingYValue = yValue/this.tickSpacing*this.yTickSize;
+	    
 	    // find the first real y value
 	    dynamicImage.predictionInitialYValue = this.content.graphParams.ymin-100; // unlike predictionStartingValue, will search for the first actual value
 	    for (var xinc = 0; xinc <= this.content.graphParams.xmax; xinc += this.content.gatherXIncrement){
@@ -362,6 +370,15 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 	    var dynamicImage = this.content.dynamicImages[i];
 	    var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
 	    var yValue = this.getYValue(xValue,predictionArr);
+	    // yValue == -200 means the car is going back in time, which is a problem.
+	    if (yValue == -200){
+	    	if ($('#animationError').length == 0){
+		    	var x = $("#"+dynamicImage.id).position().left;
+		    	var y = $("#"+dynamicImage.id).position().top;
+		    	console.log(x,y);
+		    	$("#animationDiv").append("<div id='animationError' style='position:absolute;color:#FF0000;left:"+x+";top:"+y+"'>ERROR </div>");
+			}
+	    } 
 	    var leftValue = yValue/this.tickSpacing*this.yTickSize;
 	    $("#"+dynamicImage.id).css("left",leftValue);
     	this.setCrosshair({x:xValue,y:yValue});  // show cross hair on current x
@@ -425,10 +442,13 @@ CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
     }
     for (var i=0; i< predictionArray.length; i++) {
 	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
-	    if (prediction[0] < xValue) {
+	    if (prediction[0] < xValue && xSoFar == 0) {
 		    // x value not yet found, set ySoFar in case we'll need it for later
 		    xSoFar = prediction[0];
-		    ySoFar = prediction[1];				    
+		    ySoFar = prediction[1];				 
+		} else if (prediction[0] < xValue && xSoFar != 0){
+			// back in time - jv - return an error code
+			return -200;   
 	    } else if (prediction[0] == xValue) {
 		    // x match found, return it
 		    return prediction[1];
@@ -658,7 +678,7 @@ CARGRAPH.prototype.getGraphParams = function() {
  * Save the student work for this step. This includes the carGraph
  * data and the response the student typed. 
  */
-CARGRAPH.prototype.save = function() {
+CARGRAPH.prototype.save = function(fromHtml) {
 	//get the response the student typed
 	var response = ""
 	
@@ -674,7 +694,7 @@ CARGRAPH.prototype.save = function() {
 	/*
 	 * check that the student has changed the response or the graph or any annotations
 	 */
-	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged) {
+	if(response != previousResponse || this.graphChanged || this.annotationsChanged || this.axisRangeChanged || this.axisLabelChanged) {
 		//set the student response into the state
 		this.carGraphState.response = response;
 		
@@ -692,6 +712,7 @@ CARGRAPH.prototype.save = function() {
 	this.graphChanged = false;
 	this.annotationsChanged = false;
 	this.axisRangeChanged = false;
+	this.axisLabelChanged = false;
 };
 
 /**
@@ -869,16 +890,33 @@ CARGRAPH.prototype.setupPlotHover = function() {
      * will be passed into the function and accessed through event.data.thisCarGraph
      */
     $("#" + this.graphDivId).bind("plothover", {thisCarGraph:this}, function (event, pos, item) {
-    	//get the position of the mouse in the graph
     	
+    	var contentGraphParams = event.data.thisCarGraph.content.graphParams;
+        //get the position of the mouse in the graph	
+    	var x = pos.x;
+    	var y = pos.y;
+    	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+			if (x < contentGraphParams.xmin){
+				x = parseFloat(contentGraphParams.xmin);
+			} else if (x > contentGraphParams.xmax){
+				x = parseFloat(contentGraphParams.xmax);
+			} 
+			if (y < contentGraphParams.ymin ){
+				y = parseFloat(contentGraphParams.ymin);
+			} else if (y > contentGraphParams.ymax){
+				y = parseFloat(contentGraphParams.ymax);
+			} 
+    	} 
+
     	// jv test with significant figures
     	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-    		var plotHoverPositionX = pos.x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.xmax)))/Math.LN10)));
-    		var plotHoverPositionY = pos.y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.xmax)))/Math.LN10)));
+    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
     	} else {
-    		plotHoverPositionX = pos.x.toFixed(2);
-    		plotHoverPositionY = pos.y.toFixed(2);
-    	}	
+    		//get the position of the mouse in the graph
+    		plotHoverPositionX = x.toFixed(2);
+    		plotHoverPositionY = y.toFixed(2);
+    	}
 
     	//get the x units
     	var graphXUnits = event.data.thisCarGraph.content.graphParams.xUnits;
@@ -902,19 +940,20 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 $("#tooltip").remove();
                 
                 //get the x and y values from the point the mouse is over
-                var x = parseFloat(item.datapoint[0].toFixed(2));
-                var y = parseFloat(item.datapoint[1].toFixed(2));
+                var x = parseFloat(item.datapoint[0]);
+                var y = parseFloat(item.datapoint[1]);
+                
                 // if we are using the easy click option, only show points within domain
-                var contentGraphParams = event.data.thisCarGraph.content.graphParams;
                 if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
 					if (x < contentGraphParams.xmin && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmin).toFixed(1);
-						y = event.data.thisCarGraph.getYValue(x,item.series.data).toFixed(1);
+						x = parseFloat(contentGraphParams.xmin);
+						y = event.data.thisCarGraph.getYValue(x,item.series.data);
 					} else if (x > contentGraphParams.xmax && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmax).toFixed(1);
-						y = event.data.thisCarGraph.getYValue(x,item.series.data).toFixed(1);
+						x = parseFloat(contentGraphParams.xmax);
+						y = event.data.thisCarGraph.getYValue(x,item.series.data);
 					} 
-    			}            
+    			} 
+        
         		//get the x and y values
         		var dataPointObject = {
         				x:item.datapoint[0],
@@ -929,6 +968,15 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 var xUnits = event.data.thisCarGraph.content.graphParams.xUnits;
                 var yUnits = event.data.thisCarGraph.content.graphParams.yUnits;
                 
+                // in hoverable coords clean up the tooltip text a bit
+                if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.xmax)))/Math.LN10)));
+		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+		    	} else {
+		    		x = x.toFixed(2);
+		    		y = y.toFixed(2);
+		    	}
+
                 //create the text that we will display in the tool tip
                 var toolTipText = item.series.label + ": " + x + " " + xUnits + ", " + y + " " + yUnits;
                 
@@ -951,8 +999,37 @@ CARGRAPH.prototype.setupPlotHover = function() {
 					
 					//plot the graph again so the new point is displayed
 					event.data.thisCarGraph.plotData();        		
+				} // allow points to be dragged up or down along their x value
+				 else if (typeof event.data.thisCarGraph.content.allowDragPoint != "undefined" && event.data.thisCarGraph.content.allowDragPoint) {
+					if (item && event.data.thisCarGraph.dragPoint == null){
+						// if there is a point we are hovering over and there is no drag point, set it
+						 event.data.thisCarGraph.dragPoint = item;
+					} else if (event.data.thisCarGraph.dragPoint != null) {
+						// move the point
+						var y = pos.y;
+						// if we are using the easy click option, only show points within domain
+		                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
+							if (y < contentGraphParams.ymin){
+								y = parseFloat(contentGraphParams.ymin);
+							} else if (y > contentGraphParams.ymax){
+								y = parseFloat(contentGraphParams.ymax);
+							} 
+    					} 
+    					// in hoverable coords clean up the tooltip text a bit
+		                if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
+				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+				    	} else {
+				    		y = y.toFixed(2);
+				    	}
+
+						event.data.thisCarGraph.predictionUpdateByX(parseFloat(event.data.thisCarGraph.dragPoint.datapoint[0]), pos.y);
+						//plot the graph again so the point is displayed
+						event.data.thisCarGraph.plotData();
+					}
 				}
         	}
+        } else {
+        	event.data.thisCarGraph.dragPoint = null;
         }
     });
 };
@@ -1033,14 +1110,20 @@ CARGRAPH.prototype.setupPlotClick = function() {
         	//student has clicked on an empty spot on the graph
         	
         	//check if this step allows the student to create a prediction
-        	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction) {
+        	if(!event.data.thisCarGraph.predictionLocked && event.data.thisCarGraph.createPrediction && event.data.thisCarGraph.dragPoint == null) {
+        		var isCompleted = event.data.thisCarGraph.node.isCompleted();
         		//create the prediction point
         		event.data.thisCarGraph.predictionReceived(pos.x, pos.y);
-        		
         		//plot the graph again so the point is displayed
             	event.data.thisCarGraph.plotData();
+
+            	// if this node is constrained and we are using easyClickExtremes, save data to release constraints (possibly)
+        		if (typeof event.data.thisCarGraph.content.graphParams.easyClickExtremes != "undefined" && event.data.thisCarGraph.content.graphParams.easyClickExtremes && isCompleted != event.data.thisCarGraph.node.isCompleted(event.data.thisCarGraph.carGraphState)){
+        			event.data.thisCarGraph.save();
+        		}
         	}
         }
+        this.dragPoint = null;
     });
 };
 
@@ -1491,11 +1574,25 @@ CARGRAPH.prototype.setupGraphLabels = function() {
 			yLabel = this.content.graphParams.ylabel;
 		}
 		
+		/*
+		 * if the sensor state contains axis values it will override
+		 * the axis values from the content
+		 */
+		if(this.carGraphState != null) {
+			if(this.carGraphState.xlabel != null && this.carGraphState.xlabel != "")  {
+				xLabel = this.carGraphState.xlabel;
+			}
+			if(this.carGraphState.ylabel != null && this.carGraphState.ylabel != "")  {
+				yLabel = this.carGraphState.ylabel;
+			}
+		}
+
 		//set the y label
 		$('#yLabelDiv').html(yLabel);
 		
 		//set the x label
 		$('#xLabelDiv').html(xLabel);
+
 	}
 };
 
@@ -1955,7 +2052,7 @@ CARGRAPH.prototype.predictionReceived = function(x, y) {
 		}
 		
 		//insert the point into the carGraph state
-		this.carGraphState.predictionReceived(this.currentDynamicImageId, x, y);
+		this.carGraphState.predictionReceived(this.currentDynamicImageId, x, y, typeof this.content.graphParams.allowNonFunctionalData != "undefined" ? !this.content.graphParams.allowNonFunctionalData : true);
 		
 		this.graphChanged = true;
 		
@@ -1995,6 +2092,75 @@ CARGRAPH.prototype.predictionReceived = function(x, y) {
 			
 			//update the data text in the annotation in the UI
 			$("#" + domSeriesName + domXValue + "AnnotationDataText").html(seriesName + " [" + dataText + "]: ");
+		}
+	}
+};
+
+/**
+ * The student is updating a prediction point
+ * @param x the old x value for the point
+ * @param y the new y value for the point
+ */
+CARGRAPH.prototype.predictionUpdateByX = function(x, y) {
+	
+	if(x != null && y != null) {
+		//round x down to the nearest 0.01
+		var xFactor = 1 / this.content.gatherXIncrement;
+		x = Math.round(x * xFactor) / xFactor;		
+		y = parseFloat(y.toFixed(2));
+		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
+			if (x < parseFloat(this.content.graphParams.xmin)){
+				x = parseFloat(this.content.graphParams.xmin);
+			} else if (x > parseFloat(this.content.graphParams.xmax)){
+				x = parseFloat(this.content.graphParams.xmax);
+			}
+			if (y < parseFloat(this.content.graphParams.ymin)){
+				y = parseFloat(this.content.graphParams.ymin);
+			} else if (y > parseFloat(this.content.graphParams.ymax)){
+				y = parseFloat(this.content.graphParams.ymax);
+			}
+		}
+		
+		//insert the point into the carGraph state
+		this.graphChanged = this.carGraphState.predictionUpdateByX(this.currentDynamicImageId, x, y);
+		if (this.graphChanged){
+			var seriesName = this.currentDynamicImageId;
+			
+			var annotation = this.carGraphState.getAnnotationBySeriesXValue(seriesName, x);
+			
+			if(annotation != null) {
+				//annotation exists for this x value so we will update that annotation
+				
+				//get the y units
+				var graphYUnits = this.content.graphParams.yUnits;
+				
+				//get the x units
+				var graphXUnits = this.content.graphParams.xUnits;
+				
+				//get the text representation of the data point
+				var dataText = x + " " + graphXUnits + ", " + y + " " + graphYUnits;
+
+				//get the series name used in the dom
+				var domSeriesName = this.getDOMSeriesName(seriesName);
+
+				//get the series
+				var series = this.getSeriesByName(this.globalPlot, seriesName);
+				
+				//get the data index of the point with the given x value
+				var dataIndex = this.getDataIndexAtX(series, x);
+				
+				//set the new values into the annotation
+				annotation.x = x;
+				annotation.y = y;
+				annotation.dataText = dataText;
+				annotation.dataIndex = dataIndex;
+				
+				//get the x value we will use in the DOM id
+				var domXValue = this.getDOMXValue(x);
+				
+				//update the data text in the annotation in the UI
+				$("#" + domSeriesName + domXValue + "AnnotationDataText").html(seriesName + " [" + dataText + "]: ");
+			}
 		}
 	}
 };
@@ -2095,7 +2261,6 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 			if(prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
 				//get the state from the previous step that this step is linked to
 				var predictionState = this.view.state.getLatestWorkByNodeId(this.node.prevWorkNodeIds[0]);
-				
 				/*
 				 * make sure this step doesn't already have a prediction set 
 				 * and that there was a prediction state from the previous
@@ -2166,6 +2331,31 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 					}
 					
 					this.graphChanged = true;
+				}
+				// update axis and labels
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "") && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
+					this.carGraphState.xlabel = predictionState.xlabel;
+					this.axisLabelChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "") && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
+					this.carGraphState.ylabel = predictionState.ylabel;
+					this.axisLabelChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "") && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
+					this.carGraphState.xMin = predictionState.xMin;
+					this.axisRangeChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "") && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
+					this.carGraphState.yMin = predictionState.yMin;
+					this.axisRangeChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "") && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
+					this.carGraphState.xMax = predictionState.xMax;
+					this.axisRangeChanged = true;
+				}
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "") && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
+					this.carGraphState.yMax = predictionState.yMax;
+					this.axisRangeChanged = true;
 				}
 			}
 		}
@@ -2470,14 +2660,14 @@ CARGRAPH.prototype.smarts = function() {
  * @param event the click event
  */
 CARGRAPH.prototype.handleKeyDown = function(event) {
-	if(event.keyCode == 8) {
-		//student pressed the backspace key
+	if(event.keyCode == 8 || event.keyCode == 46) {
+		//student pressed the backspace or delete key
 		
 		/*
 		 * check if the student clicked on a prediction point
 		 * just before pressing the backspace key
 		 */
-		if(this.lastPointClicked != null) {
+		if(this.lastPointClicked != null && (typeof this.content.createPrediction == "undefined" || this.content.createPrediction)) {
 			//get the data of the point
 			var seriesName = this.lastPointClicked.seriesName;
 			var dataIndex = this.lastPointClicked.dataIndex;

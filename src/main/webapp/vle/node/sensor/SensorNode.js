@@ -219,14 +219,14 @@ SensorNode.prototype.overridesIsCompleted = function() {
  * Get whether the step is completed or not
  * @return a boolean value whether the step is completed or not
  */
-SensorNode.prototype.isCompleted = function() {
+SensorNode.prototype.isCompleted = function(sensorState) {
+	if (typeof sensorState === "undefined") sensorState = this.view.state.getLatestWorkByNodeId(this.id);
 	// cycle through tag maps, if I get a custom tag map check student work to complete
 	var isCompleted = true;
 	for (var i = 0; i < this.tagMaps.length; i++){
 		var functionName = this.tagMaps[i].functionName;
 		var functionArgs = this.tagMaps[i].functionArgs;
 		if (functionName == "mustSpanDomainBeforeAdvancing"){
-			var sensorState = this.view.state.getLatestWorkByNodeId(this.id);
 			if (sensorState != "" && sensorState.predictionArray.length > 0 ){
 				var predictions = sensorState.predictionArray;
 				var foundMin = false;
@@ -234,8 +234,13 @@ SensorNode.prototype.isCompleted = function() {
 				for (var i=0; i < predictions.length; i++){
 					var p = predictions[i];
 					var objJson = this.content.getContentJSON();
-					if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
-					if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					if (typeof sensorState.xMin != "undefined" && sensorState.xMin != "" && !isNaN(Number(sensorState.xMin)) && typeof sensorState.xMax != "undefined" && sensorState.xMax != "" && !isNaN(Number(sensorState.xMax))){
+						if (p.x <= parseFloat(sensorState.xMin)) foundMin = true;
+						if (p.x >= parseFloat(sensorState.xMax)) foundMax = true;
+					} else {
+						if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
+						if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					}
 				}
 				if (!foundMin || !foundMax) isCompleted = false;
 			} else {

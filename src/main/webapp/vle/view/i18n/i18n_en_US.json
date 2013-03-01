@@ -210,6 +210,14 @@
 	"idea_basket":{
 		"value":"Idea Basket",
 		"description":"The text 'Idea Basket' in the Idea Manager"
+	},
+	"idea_basket_public":{
+		"value":"Public Idea Basket",
+		"description":"Title text for the public Idea Basket in the Idea Manager"
+	},
+	"idea_basket_private":{
+		"value":"Private Idea Basket",
+		"description":"Title text for the private (personal) Idea Basket in the Idea Manager"
 	},	
 	"idea_basket_add_an_idea":{
 		"value":"Add Idea",

@@ -179,6 +179,8 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 		this.basketTerm = this.view.getI18NString('idea_basket');
 		this.ebTerm = this.view.getI18NString('explanation_builder');
 		this.addIdeaTerm = this.view.getI18NString('idea_basket_add_an_idea');
+		this.privateBasketTerm = this.view.getI18NString('idea_basket_private');
+		this.publicBasketTerm = this.view.getI18NString('idea_basket_public');
 		if(this.version > 1){
 			if('ideaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.ideaTerm)){
 				this.ideaTerm = this.settings.ideaTerm;
@@ -194,6 +196,12 @@ IdeaBasket.prototype.load = function(ideaBasketJSONObj, generateUI, settings, vi
 			}
 			if('addIdeaTerm' in this.settings && this.view.utils.isNonWSString(this.settings.addIdeaTerm)){
 				this.addIdeaTerm = this.settings.addIdeaTerm;
+			}
+			if('privateBasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.privateBasketTerm)){
+				this.privateBasketTerm = this.settings.privateBasketTerm;
+			}
+			if('publicBasketTerm' in this.settings && this.view.utils.isNonWSString(this.settings.publicBasketTerm)){
+				this.publicBasketTerm = this.settings.publicBasketTerm;
 			}
 		}
 	}
@@ -337,8 +345,9 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		
 		var settings = this.settings;
 		
-		$('#basketTitle').text('Private Idea Basket');
-		$('#addNew > span').text(this.addIdeaTerm + ' +');
+		$('#privateBasketButton').attr('value', this.privateBasketTerm);
+		$('#publicBasketButton').attr('value', this.publicBasketTerm);
+		$('#addNew').attr('value', this.addIdeaTerm + ' +');
 		$('#ideasEmpty').text('Your ' + this.basketTerm + ' is empty.  Click "' + this.addIdeaTerm + '" above to start adding ' + this.ideaTermPlural + '.');
 		
 		// clear add and edit idea forms, idea tables
@@ -382,6 +391,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		deletedTable.append('<th class="delete">Restore</th>');
 		
 		if(this.isPublicIdeaBasketEnabled()) {
+			$('#basketTitle').text(this.privateBasketTerm);
 			//create the buttons to make an idea public or private
 			var makePublicButton = $('<input id="makePublicButton" type="button" name="makePublicButton" value="Make Public"></input>');
 			var makePrivateButton = $('<input id="makePrivateButton" type="button" name="makePrivateButton" value="Make Private"></input>');
@@ -393,6 +403,8 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			editDialog.append(makePublicButton);
 			editDialog.append(makePrivateButton);
 			editDialog.append(sharingStatusP);
+		} else {
+			$('#basketTitle').text(this.basketTerm);
 		}
 		
 		//set the onclick event when the private idea basket button is clicked
@@ -404,7 +416,7 @@ IdeaBasket.prototype.processSettingsUI = function(){
 			$('#main').show();
 			
 			//change the title to private
-			$('#basketTitle').html('Private Idea Basket');
+			$('#basketTitle').html(context.privateBasketTerm);
 		});
 
 		var thisView = this.view;
@@ -2279,7 +2291,7 @@ IdeaBasket.prototype.displayPublicIdeaBasket = function() {
 	$('#publicMain').show();
 	
 	//change the title to public
-	$('#basketTitle').html('Public Idea Basket');
+	$('#basketTitle').html(this.publicBasketTerm);
 };
 
 /**
