@@ -54,6 +54,7 @@ FILLINSTATE.prototype.parseDataJSONObj = function(stateJSONObj) {
 	fillinState.textEntryInteractionIndex = stateJSONObj.textEntryInteractionIndex;
 	fillinState.response = stateJSONObj.response;
 	fillinState.timestamp = stateJSONObj.timestamp;
+	fillinState.isCompleted = stateJSONObj.isCompleted;
 	
 	//return the FILLINSTATE object
 	return fillinState;
