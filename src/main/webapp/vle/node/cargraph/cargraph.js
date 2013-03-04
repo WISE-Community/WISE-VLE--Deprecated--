@@ -442,11 +442,11 @@ CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
     }
     for (var i=0; i< predictionArray.length; i++) {
 	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
-	    if (prediction[0] < xValue && xSoFar == 0) {
+	    if (prediction[0] < xValue && xSoFar <= prediction[0]) {
 		    // x value not yet found, set ySoFar in case we'll need it for later
 		    xSoFar = prediction[0];
 		    ySoFar = prediction[1];				 
-		} else if (prediction[0] < xValue && xSoFar != 0){
+		} else if (prediction[0] < xValue && xSoFar > prediction[0]){
 			// back in time - jv - return an error code
 			return -200;   
 	    } else if (prediction[0] == xValue) {

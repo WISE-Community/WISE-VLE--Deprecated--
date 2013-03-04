@@ -8,7 +8,7 @@ var coreMinScripts = [
 ];
 
 var studentVLEScripts = [
-	scriptloader.jquerySrc,
+	//scriptloader.jquerySrc,
 	//scriptloader.jqueryUISrc,
 	//'vle/jquery/js/jquery-ui-1.8.17.custom.min.js',
 	'vle/node/cargraph/cargraph.js',

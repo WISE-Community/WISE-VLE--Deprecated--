@@ -496,7 +496,7 @@ CarGraphNode.prototype.overridesIsCompleted = function() {
  * @return a boolean value whether the step is completed or not
  */
 CarGraphNode.prototype.isCompleted = function(carGraphState) {
-	
+	if (typeof this.tagMaps == "undefined") return true;
 	// cycle through tag maps, if I get a custom tag map check student work to complete
 	if (typeof carGraphState === "undefined") carGraphState = this.view.state.getLatestWorkByNodeId(this.id);
 	var isCompleted = true;

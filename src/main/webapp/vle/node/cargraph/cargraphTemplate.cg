@@ -73,6 +73,7 @@
         "id": "greenCar",
         "numberOfLines": 7,
         "maxErrorMargin": 1.5,
+        "useRelativeValues":false,
         "expectedPoints": [
 		  {
 			 "x": 0,
@@ -108,6 +109,7 @@
         "id": "yellowCar",
         "numberOfLines": 3,
         "maxErrorMargin": 1.5,
+        "useRelativeValues":false,
         "expectedPoints": [
 		  {
 			 "x": 0,
