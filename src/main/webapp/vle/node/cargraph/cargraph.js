@@ -275,22 +275,23 @@ CARGRAPH.prototype.render = function() {
 	//get the position that will show the message in the center of the graph div
 	var animationDivTop = animationDivPosition.top;
 	var animationDivLeft = animationDivPosition.left;
-	
 	// display the static images (e.g. houses and schools)
 	for (var i=0; i < this.content.staticImages.length; i++) {
 		var staticImage = this.content.staticImages[i];		
 		var left = staticImage.tickIndex/this.tickSpacing*this.yTickSize;
-		$("#animationDiv").append("<div class='staticImageLabel' style='position:absolute; top:" + (animationDivTop) + "px;left: "+left+";padding-bottom:20px'>"+staticImage.label+"</div>"+"<img class='staticImage' style='left:"+left+";padding-top:20px' src='"+staticImage.img+"'></img>");
-	}		
+		// display labels above images
+		$("#animationDiv").append("<div class='staticImageLabel' style='top:"  + "px;left: "+left+"'>"+staticImage.label+"</div>");
+		$("#animationDiv").append("<img class='staticImage' style='top:" + 25 + "px;left:"+left+"' src='"+staticImage.img+"'></img>");
 	
+	}		
+
 	// display the ticks in the animationDiv
 	for (var i=parseInt(this.content.graphParams.ymin); i <= parseInt(this.content.graphParams.ymax); i+=this.tickSpacing) {
 		var yTickPosition = i/this.tickSpacing*this.yTickSize;         // this tick's x position
-		$("#animationDiv").append("<div style='position:absolute; top:" + (animationDivTop + 60) + "px; left:"+yTickPosition+"'>"+i+"</div>");
+		$("#animationDiv").append("<div class='tickGraphics' style='top:" + 60 + "px; left:"+yTickPosition+"'>"+i+"</div>");
 	}
 	
 	var topSoFar = 90;  // offset from the top of the screen, to ensure that the images don't overlap
-	
 	// display the dynamic images (e.g. cars) at time=0 (starting point)
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		var dynamicImage = this.content.dynamicImages[i];	
@@ -308,7 +309,12 @@ CARGRAPH.prototype.render = function() {
 	    		dynamicImage.predictionInitialYValue = yinc; break;
 	    	}
 	    }
-    		
+	    // display the user's car
+    	var dynamicImage = this.content.dynamicImages[i];		
+		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ topSoFar +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
+		
+		// increment topSoFar
+		topSoFar += dynamicImage.height+15;	
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
 		if (this.content.runCorrectAnswer) {
 
@@ -336,14 +342,11 @@ CARGRAPH.prototype.render = function() {
 				}
 			}
 
-			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ (animationDivTop + topSoFar) +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
-			$("#animationDiv").height($("#animationDiv").height()+dynamicImage.height+40);
-			// increment topSoFar
-			topSoFar += dynamicImage.height+10;
+			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ topSoFar +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
 		}
-		
-		var dynamicImage = this.content.dynamicImages[i];		
-		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
+		// increment topSoFar
+		topSoFar += dynamicImage.height+15;
+		$("#animationDiv").height(topSoFar);
 		
 		// add radio input so students can choose which car they're drawing the graph for
 		var checked = "";
@@ -352,8 +355,6 @@ CARGRAPH.prototype.render = function() {
 			checked = "checked";
 		}
 		$("#dynamicImageRadioDiv").append("<input class='dynamicImageRadio' name='dynamic' type='radio' "+checked+" onclick='dynamicImageChanged(\""+dynamicImage.id+"\")'>"+dynamicImage.graphLabel+"</input>");
-		// increment topSoFar
-		topSoFar += dynamicImage.height;
 	}	
 	
 };
