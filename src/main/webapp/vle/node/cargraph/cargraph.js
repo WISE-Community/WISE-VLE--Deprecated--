@@ -375,7 +375,6 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 	    	if ($('#animationError').length == 0){
 		    	var x = $("#"+dynamicImage.id).position().left;
 		    	var y = $("#"+dynamicImage.id).position().top;
-		    	console.log(x,y);
 		    	$("#animationDiv").append("<div id='animationError' style='position:absolute;color:#FF0000;left:"+x+";top:"+y+"'>ERROR </div>");
 			}
 	    } 
@@ -431,15 +430,15 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
  * @return: corresponding y-Value within the prediction graph.
  */ 
 CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
-    var xSoFar = 0;
-    var ySoFar = 0;
-    if (predictionArray.length > 0) {
+     if (predictionArray.length > 0) {
     	// check if the array contains a value for x less than the specified xValue. If not, return -100.
     	var firstPrediction = predictionArray[0];
     	if (firstPrediction[0] > xValue) {
     		return -100;
     	}
     }
+    var xSoFar = Math.min(0,predictionArray[0][0]);
+    var ySoFar = Math.min(0,predictionArray[0][1]);
     for (var i=0; i< predictionArray.length; i++) {
 	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
 	    if (prediction[0] < xValue && xSoFar <= prediction[0]) {

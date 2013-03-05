@@ -2441,10 +2441,10 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 		
 		y = parseFloat(y.toFixed(2));
 
-		var xmin = typeof this.sensorState.xMin != "undefined" ? parseFloat(this.sensorState.xMin) : parseFloat(this.content.xmin);
-		var xmax = typeof this.sensorState.xMax != "undefined" ? parseFloat(this.sensorState.xMax) : parseFloat(this.content.xmax);
-		var ymin = typeof this.sensorState.yMin != "undefined" ? parseFloat(this.sensorState.yMin) : parseFloat(this.content.ymin);
-		var ymax = typeof this.sensorState.yMax != "undefined" ? parseFloat(this.sensorState.yMax) : parseFloat(this.content.ymax);
+		var xmin = typeof this.sensorState.xMin != "undefined" ? parseFloat(this.sensorState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var xmax = typeof this.sensorState.xMax != "undefined" ? parseFloat(this.sensorState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var ymin = typeof this.sensorState.yMin != "undefined" ? parseFloat(this.sensorState.yMin) : parseFloat(this.content.graphParams.ymin);
+		var ymax = typeof this.sensorState.yMax != "undefined" ? parseFloat(this.sensorState.yMax) : parseFloat(this.content.graphParams.ymax);
 		
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
 			if (x < xmin){
@@ -2523,10 +2523,10 @@ SENSOR.prototype.predictionUpdateByX = function(x, y) {
 		//round x down to the nearest 0.2
 		x = Math.round(x * 5) / 5;
 		y = parseFloat(y.toFixed(2));
-		var xmin = typeof this.sensorState.xMin != "undefined" ? parseFloat(this.sensorState.xMin) : parseFloat(this.content.xmin);
-		var xmax = typeof this.sensorState.xMax != "undefined" ? parseFloat(this.sensorState.xMax) : parseFloat(this.content.xmax);
-		var ymin = typeof this.sensorState.yMin != "undefined" ? parseFloat(this.sensorState.yMin) : parseFloat(this.content.ymin);
-		var ymax = typeof this.sensorState.yMax != "undefined" ? parseFloat(this.sensorState.yMax) : parseFloat(this.content.ymax);
+		var xmin = typeof this.sensorState.xMin != "undefined" ? parseFloat(this.sensorState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var xmax = typeof this.sensorState.xMax != "undefined" ? parseFloat(this.sensorState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var ymin = typeof this.sensorState.yMin != "undefined" ? parseFloat(this.sensorState.yMin) : parseFloat(this.content.graphParams.ymin);
+		var ymax = typeof this.sensorState.yMax != "undefined" ? parseFloat(this.sensorState.yMax) : parseFloat(this.content.graphParams.ymax);
 		
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
 			if (x < xmin){
