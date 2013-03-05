@@ -2256,7 +2256,6 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 		if(this.view.state != null) {
 			//get the node type for the previous work
 			var prevWorkNodeType = this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type;
-
 			//we can only pre populate the work from a previous node if it is a graph step like this one
 			if(prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
 				//get the state from the previous step that this step is linked to
@@ -2333,27 +2332,27 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 					this.graphChanged = true;
 				}
 				// update axis and labels
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "") && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "" || !this.createPrediction) && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
 					this.carGraphState.xlabel = predictionState.xlabel;
 					this.axisLabelChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "") && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "" || !this.createPrediction) && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
 					this.carGraphState.ylabel = predictionState.ylabel;
 					this.axisLabelChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "") && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "" || !this.createPrediction) && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
 					this.carGraphState.xMin = predictionState.xMin;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "") && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "" || !this.createPrediction) && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
 					this.carGraphState.yMin = predictionState.yMin;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "") && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "" || !this.createPrediction) && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
 					this.carGraphState.xMax = predictionState.xMax;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "") && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "" || !this.createPrediction) && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
 					this.carGraphState.yMax = predictionState.yMax;
 					this.axisRangeChanged = true;
 				}
