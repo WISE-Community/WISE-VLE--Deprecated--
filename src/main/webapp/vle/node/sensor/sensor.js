@@ -136,14 +136,16 @@ function SENSOR(node) {
 		var graphName = "temperature prediction";
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "C";
-	} else if (this.sensorType == "custom"){
-		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
-		this.graphNames.prediction = graphName;
-		this.graphUnits[graphName] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
-    }else {
-		var graphName = "";
-		this.graphNames.prediction = graphName;
-		this.graphUnits[graphName] = "";
+	} else {
+		if (typeof this.content.useCustomUnitsAndGraphLabel != "undefined" && this.content.useCustomUnitsAndGraphLabel){
+    		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
+			this.graphNames.prediction = graphName;
+			this.graphUnits[graphName] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
+    	} else {
+			var graphName = "";
+			this.graphNames.prediction = graphName;
+			this.graphUnits[graphName] = "";
+		}
 	}
 	
 	/*
@@ -1129,9 +1131,11 @@ SENSOR.prototype.setupPlotHover = function() {
     	} else if(event.data.thisSensor.sensorType == "temperature") {
     		seriesType = "temperature";
     		xLabel = "time";
-    	} else if(event.data.thisSensor.sensorType == "custom") {
-    		seriesType = "customY";
-    		xLabel = "customX";
+    	} else {
+    		if ( typeof event.data.thisSensor.content.useCustomUnitsAndGraphLabel != "undefined" && event.data.thisSensor.content.useCustomUnitsAndGraphLabel) {
+	    		seriesType = "customY";
+	    		xLabel = "customX";
+	    	}
     	}
     	
     	//get the x units
@@ -1187,13 +1191,15 @@ SENSOR.prototype.setupPlotHover = function() {
             		xLabel = "time";
             	} else if(event.data.thisSensor.sensorType == "temperature") {
             		xLabel = "time";
-            	} else if(event.data.thisSensor.sensorType == "custom") {
-		    		xLabel = "customX";
+            	} else{
+            		if ( typeof event.data.thisSensor.content.useCustomUnitsAndGraphLabel != "undefined" && event.data.thisSensor.content.useCustomUnitsAndGraphLabel) {
+	    		   		xLabel = "customX";
+	    		   	}
     			}
         		
                 //get the units for the x and y values
                 var xUnits = event.data.thisSensor.getGraphUnits(xLabel);
-                var yUnits = event.data.thisSensor.sensorType == "custom" ? event.data.thisSensor.getGraphUnits("customY") : event.data.thisSensor.getGraphUnits(item.series.name);
+                var yUnits = typeof event.data.thisSensor.content.useCustomUnitsAndGraphLabel != "undefined" && event.data.thisSensor.content.useCustomUnitsAndGraphLabel ? event.data.thisSensor.getGraphUnits("customY") : event.data.thisSensor.getGraphUnits(item.series.name);
                 
                 // in hoverable coords clean up the tooltip text a bit
                 if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
