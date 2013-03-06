@@ -267,7 +267,10 @@ CARGRAPH.prototype.render = function() {
 	}));
 
 	// calculate how many pixels there are between the y ticks in the animation div
-	this.yTickSize = 700 / (this.content.graphParams.ymax/this.tickSpacing);  
+	var ymax = typeof this.carGraphState.yMax != "undefined" ? parseFloat(this.carGraphState.yMax) : parseFloat(this.content.graphParams.ymax);
+	var ymin = typeof this.carGraphState.yMin != "undefined" ? parseFloat(this.carGraphState.yMin) : parseFloat(this.content.graphParams.ymin);
+		
+	this.yTickSize = 700 / (ymax/this.tickSpacing);  
 
 	//find the position of the graph div so we can display the message in the center of it
 	var animationDivPosition = $('#animationDiv').position();
@@ -286,7 +289,7 @@ CARGRAPH.prototype.render = function() {
 	}		
 
 	// display the ticks in the animationDiv
-	for (var i=parseInt(this.content.graphParams.ymin); i <= parseInt(this.content.graphParams.ymax); i+=this.tickSpacing) {
+	for (var i=parseInt(ymin); i <= parseInt(ymax); i+=this.tickSpacing) {
 		var yTickPosition = i/this.tickSpacing*this.yTickSize;         // this tick's x position
 		$("#animationDiv").append("<div class='tickGraphics' style='top:" + 60 + "px; left:"+yTickPosition+"'>"+i+"</div>");
 	}
@@ -296,16 +299,16 @@ CARGRAPH.prototype.render = function() {
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		var dynamicImage = this.content.dynamicImages[i];	
 
-		var predictionStartingYValue = this.content.graphParams.ymin-100;  // if no prediction at time=0, hide this car from the view.	
+		var predictionStartingYValue = ymin-100;  // if no prediction at time=0, hide this car from the view.	
 		var predictionArr = this.getPredictionArrayByPredictionId(dynamicImage.id);
 	    var yValue = this.getYValue(0,predictionArr);
 	    var predictionStartingYValue = yValue/this.tickSpacing*this.yTickSize;
 	    
 	    // find the first real y value
-	    dynamicImage.predictionInitialYValue = this.content.graphParams.ymin-100; // unlike predictionStartingValue, will search for the first actual value
+	    dynamicImage.predictionInitialYValue = ymin-100; // unlike predictionStartingValue, will search for the first actual value
 	    for (var xinc = 0; xinc <= this.content.graphParams.xmax; xinc += this.content.gatherXIncrement){
 	    	var yinc = this.getYValue(xinc,predictionArr);
-	    	if (yinc >= this.content.graphParams.ymin && yinc <= this.content.graphParams.ymax){
+	    	if (yinc >= ymin && yinc <= ymax){
 	    		dynamicImage.predictionInitialYValue = yinc; break;
 	    	}
 	    }
@@ -318,7 +321,7 @@ CARGRAPH.prototype.render = function() {
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
 		if (this.content.runCorrectAnswer) {
 
-			var correctStartingYValue = this.content.graphParams.ymin-100;  // if there is no correct y-value at time=0, hide this car from the view.
+			var correctStartingYValue = ymin-100;  // if there is no correct y-value at time=0, hide this car from the view.
 			
 			//get the expected results
 			var expectedResults = this.content.expectedResults;
@@ -895,23 +898,28 @@ CARGRAPH.prototype.setupPlotHover = function() {
         //get the position of the mouse in the graph	
     	var x = pos.x;
     	var y = pos.y;
+    	var xmax = typeof event.data.thisCarGraph.carGraphState.xMax != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.xMax) : parseFloat(event.data.thisCarGraph.content.graphParams.xmax);
+		var xmin = typeof event.data.thisCarGraph.carGraphState.xMin != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.xMin) : parseFloat(event.data.thisCarGraph.content.graphParams.xmin);
+		var ymax = typeof event.data.thisCarGraph.carGraphState.yMax != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.yMax) : parseFloat(event.data.thisCarGraph.content.graphParams.ymax);
+		var ymin = typeof event.data.thisCarGraph.carGraphState.yMin != "undefined" ? parseFloat(event.data.thisCarGraph.carGraphState.yMin) : parseFloat(event.data.thisCarGraph.content.graphParams.ymin);
+	
     	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-			if (x < contentGraphParams.xmin){
-				x = parseFloat(contentGraphParams.xmin);
-			} else if (x > contentGraphParams.xmax){
-				x = parseFloat(contentGraphParams.xmax);
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = contentGraphParams.xmax;
 			} 
-			if (y < contentGraphParams.ymin ){
-				y = parseFloat(contentGraphParams.ymin);
-			} else if (y > contentGraphParams.ymax){
-				y = parseFloat(contentGraphParams.ymax);
+			if (y < ymin ){
+				y = contentGraphParams.ymin;
+			} else if (y > ymax){
+				y = ymax;
 			} 
     	} 
 
     	// jv test with significant figures
     	if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.xmax)))/Math.LN10)));
-    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
+    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
     	} else {
     		//get the position of the mouse in the graph
     		plotHoverPositionX = x.toFixed(2);
@@ -945,11 +953,11 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 
                 // if we are using the easy click option, only show points within domain
                 if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-					if (x < contentGraphParams.xmin && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmin);
+					if (x < xmin && item.series.data.length > 1){
+						x = xmin;
 						y = event.data.thisCarGraph.getYValue(x,item.series.data);
-					} else if (x > contentGraphParams.xmax && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmax);
+					} else if (x > xmax && item.series.data.length > 1){
+						x = xmax;
 						y = event.data.thisCarGraph.getYValue(x,item.series.data);
 					} 
     			} 
@@ -970,8 +978,8 @@ CARGRAPH.prototype.setupPlotHover = function() {
                 
                 // in hoverable coords clean up the tooltip text a bit
                 if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.xmax)))/Math.LN10)));
-		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
+		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
 		    	} else {
 		    		x = x.toFixed(2);
 		    		y = y.toFixed(2);
@@ -1009,15 +1017,15 @@ CARGRAPH.prototype.setupPlotHover = function() {
 						var y = pos.y;
 						// if we are using the easy click option, only show points within domain
 		                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-							if (y < contentGraphParams.ymin){
-								y = parseFloat(contentGraphParams.ymin);
-							} else if (y > contentGraphParams.ymax){
-								y = parseFloat(contentGraphParams.ymax);
+							if (y < ymin){
+								y = ymin;
+							} else if (y > ymax){
+								y = ymax;
 							} 
     					} 
     					// in hoverable coords clean up the tooltip text a bit
 		                if (typeof event.data.thisCarGraph.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisCarGraph.content.graphParams.coordsFollowMouse){
-				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisCarGraph.content.graphParams.ymax)))/Math.LN10)));
+				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
 				    	} else {
 				    		y = y.toFixed(2);
 				    	}
@@ -2038,16 +2046,21 @@ CARGRAPH.prototype.predictionReceived = function(x, y) {
 		var xFactor = 1 / this.content.gatherXIncrement;
 		x = Math.round(x * xFactor) / xFactor;		
 		y = parseFloat(y.toFixed(2));
+		var xmax = typeof this.carGraphState.xMax != "undefined" ? parseFloat(this.carGraphState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var xmin = typeof this.carGraphState.xMin != "undefined" ? parseFloat(this.carGraphState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var ymax = typeof this.carGraphState.yMax != "undefined" ? parseFloat(this.carGraphState.yMax) : parseFloat(this.content.graphParams.ymax);
+		var ymin = typeof this.carGraphState.yMin != "undefined" ? parseFloat(this.carGraphState.yMin) : parseFloat(this.content.graphParams.ymin);
+	
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
-			if (x < parseFloat(this.content.graphParams.xmin)){
-				x = parseFloat(this.content.graphParams.xmin);
-			} else if (x > parseFloat(this.content.graphParams.xmax)){
-				x = parseFloat(this.content.graphParams.xmax);
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = xmax;
 			}
-			if (y < parseFloat(this.content.graphParams.ymin)){
-				y = parseFloat(this.content.graphParams.ymin);
-			} else if (y > parseFloat(this.content.graphParams.ymax)){
-				y = parseFloat(this.content.graphParams.ymax);
+			if (y < ymin){
+				y = ymin;
+			} else if (y > ymax){
+				y = ymax;
 			}
 		}
 		
@@ -2108,16 +2121,21 @@ CARGRAPH.prototype.predictionUpdateByX = function(x, y) {
 		var xFactor = 1 / this.content.gatherXIncrement;
 		x = Math.round(x * xFactor) / xFactor;		
 		y = parseFloat(y.toFixed(2));
+		var xmax = typeof this.carGraphState.xMax != "undefined" ? parseFloat(this.carGraphState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var xmin = typeof this.carGraphState.xMin != "undefined" ? parseFloat(this.carGraphState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var ymax = typeof this.carGraphState.yMax != "undefined" ? parseFloat(this.carGraphState.yMax) : parseFloat(this.content.graphParams.ymax);
+		var ymin = typeof this.carGraphState.yMin != "undefined" ? parseFloat(this.carGraphState.yMin) : parseFloat(this.content.graphParams.ymin);
+	
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
-			if (x < parseFloat(this.content.graphParams.xmin)){
-				x = parseFloat(this.content.graphParams.xmin);
-			} else if (x > parseFloat(this.content.graphParams.xmax)){
-				x = parseFloat(this.content.graphParams.xmax);
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = xmax;
 			}
-			if (y < parseFloat(this.content.graphParams.ymin)){
-				y = parseFloat(this.content.graphParams.ymin);
-			} else if (y > parseFloat(this.content.graphParams.ymax)){
-				y = parseFloat(this.content.graphParams.ymax);
+			if (y < ymin){
+				y = ymin;
+			} else if (y > ymax){
+				y = ymax;
 			}
 		}
 		

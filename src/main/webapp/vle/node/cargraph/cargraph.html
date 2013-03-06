@@ -108,12 +108,15 @@
 	     * Perform one frame of animation
 		 */
 	    function doOneFrame() {	
-	        var xValue = 1.0*parseInt(cargraph.content.graphParams.xmin) + animationFrameXIncrement*animationFrameIndex * 1.0*parseInt(cargraph.content.graphParams.xmax) / 60 *(typeof cargraph.content.animationTimeScaleFactor != "undefined" ? cargraph.content.animationTimeScaleFactor : 1.0);
+	    	var xmax = typeof cargraph.carGraphState.xMax != "undefined" ? parseFloat(cargraph.carGraphState.xMax) : parseFloat(cargraph.content.graphParams.xmax);
+			var xmin = typeof cargraph.carGraphState.xMin != "undefined" ? parseFloat(cargraph.carGraphState.xMin) : parseFloat(cargraph.content.graphParams.xmin);
+			
+	        var xValue = 1.0*parseInt(xmin) + animationFrameXIncrement*animationFrameIndex * 1.0*parseInt(xmax) / 60 *(typeof cargraph.content.animationTimeScaleFactor != "undefined" ? cargraph.content.animationTimeScaleFactor : 1.0);
 	        xValue = xValue.toFixed(numSignificantDigits);  // just need one significant digit	
 	        // 2011-05-02 Armin: important to multiply xmax with a number value to make
 	        // the comparison work, if not done xmax is a string and xValue 7.0 is bigger
 	        // than xmax 60
-		    if (xValue <= (cargraph.content.graphParams.xmax*1.0)) {	    
+		    if (xValue <= (xmax*1.0)) {	    
 			    cargraph.displayOneFrame(xValue);
 		        animationFrameIndex++;
 		    } else {

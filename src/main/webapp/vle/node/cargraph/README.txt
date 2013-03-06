@@ -2,9 +2,9 @@ README
 
 Updates from Jonathan Vitale, 3/4/2013
 Tag Maps: (all set a mustCompleteBeforeAdvancing constraint)
- - If the average error (total deviation from expected results/points) is less than this threshold release constraint.
- - If the maximum error (largest deviation from expected results) is less than this threshold release constraint.
-mustSpanDomainBeforeAdvancing - If user graph spans from minimum to maximum x value release this constraint
+- mustNotExceedAvgErrorBeforeAdvancing - If the average error (total deviation from expected results/points) is less than this threshold release constraint.
+- mustNotExceedMaxErrorBeforeAdvancing - If the maximum error (largest deviation from expected results) is less than this threshold release constraint.
+- mustSpanDomainBeforeAdvancing - If user graph spans from minimum to maximum x value release this constraint
 
 New parameters in the json file:
 - @ allowDragPoint - if set to true points can be dragged up and down, remain on same x-value
