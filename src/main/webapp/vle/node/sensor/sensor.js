@@ -136,14 +136,16 @@ function SENSOR(node) {
 		var graphName = "temperature prediction";
 		this.graphNames.prediction = graphName;
 		this.graphUnits[graphName] = "C";
-	} else if (this.sensorType == "custom"){
-		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
-		this.graphNames.prediction = graphName;
-		this.graphUnits[graphName] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
-    }else {
-		var graphName = "";
-		this.graphNames.prediction = graphName;
-		this.graphUnits[graphName] = "";
+	} else {
+		if (typeof this.content.useCustomUnitsAndGraphLabel != "undefined" && this.content.useCustomUnitsAndGraphLabel){
+    		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
+			this.graphNames.prediction = graphName;
+			this.graphUnits[graphName] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
+    	} else {
+			var graphName = "";
+			this.graphNames.prediction = graphName;
+			this.graphUnits[graphName] = "";
+		}
 	}
 	
 	/*
@@ -1096,23 +1098,28 @@ SENSOR.prototype.setupPlotHover = function() {
         
         var x = pos.x;
     	var y = pos.y;
+    	var xmin = typeof event.data.thisSensor.sensorState.xMin != "undefined" ? parseFloat(event.data.thisSensor.sensorState.xMin) : parseFloat(contentGraphParams.xmin);
+		var xmax = typeof event.data.thisSensor.sensorState.xMax != "undefined" ? parseFloat(event.data.thisSensor.sensorState.xMax) : parseFloat(contentGraphParams.xmax);
+		var ymin = typeof event.data.thisSensor.sensorState.yMin != "undefined" ? parseFloat(event.data.thisSensor.sensorState.yMin) : parseFloat(contentGraphParams.ymin);
+		var ymax = typeof event.data.thisSensor.sensorState.yMax != "undefined" ? parseFloat(event.data.thisSensor.sensorState.yMax) : parseFloat(contentGraphParams.ymax);
+			
     	if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-			if (x < contentGraphParams.xmin){
-				x = parseFloat(contentGraphParams.xmin);
-			} else if (x > contentGraphParams.xmax){
-				x = parseFloat(contentGraphParams.xmax);
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = xmax;
 			} 
-			if (y < contentGraphParams.ymin ){
-				y = parseFloat(contentGraphParams.ymin);
-			} else if (y > contentGraphParams.ymax){
-				y = parseFloat(contentGraphParams.ymax);
+			if (y < ymin ){
+				y = ymin;
+			} else if (y > ymax){
+				y = ymax;
 			} 
     	} 
 
     	// jv test with significant figures
-    	if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
-    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.xmax)))/Math.LN10)));
-    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+    	if (typeof contentGraphParams.coordsFollowMouse != "undefined" && contentGraphParams.coordsFollowMouse){
+    		var plotHoverPositionX = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
+    		var plotHoverPositionY = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
     	} else {
     		//get the position of the mouse in the graph
     		plotHoverPositionX = x.toFixed(2);
@@ -1129,9 +1136,11 @@ SENSOR.prototype.setupPlotHover = function() {
     	} else if(event.data.thisSensor.sensorType == "temperature") {
     		seriesType = "temperature";
     		xLabel = "time";
-    	} else if(event.data.thisSensor.sensorType == "custom") {
-    		seriesType = "customY";
-    		xLabel = "customX";
+    	} else {
+    		if ( typeof event.data.thisSensor.content.useCustomUnitsAndGraphLabel != "undefined" && event.data.thisSensor.content.useCustomUnitsAndGraphLabel) {
+	    		seriesType = "customY";
+	    		xLabel = "customX";
+	    	}
     	}
     	
     	//get the x units
@@ -1161,12 +1170,12 @@ SENSOR.prototype.setupPlotHover = function() {
                 
                 // if we are using the easy click option, only show points within domain
                 if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-					if (x < contentGraphParams.xmin && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmin);
-						y = event.data.thisSensor.getYValue(x,item.series.data);
-					} else if (x > contentGraphParams.xmax && item.series.data.length > 1){
-						x = parseFloat(contentGraphParams.xmax);
-						y = event.data.thisSensor.getYValue(x,item.series.data);
+					if (x < xmin && item.series.data.length > 1){
+						x = xmin;
+						y = parseFloat(event.data.thisSensor.getYValue(x,item.series.data));
+					} else if (x > xmax && item.series.data.length > 1){
+						x = xmax;
+						y = parseFloat(event.data.thisSensor.getYValue(x,item.series.data));
 					} 
     			} 
 
@@ -1187,18 +1196,20 @@ SENSOR.prototype.setupPlotHover = function() {
             		xLabel = "time";
             	} else if(event.data.thisSensor.sensorType == "temperature") {
             		xLabel = "time";
-            	} else if(event.data.thisSensor.sensorType == "custom") {
-		    		xLabel = "customX";
+            	} else{
+            		if ( typeof event.data.thisSensor.content.useCustomUnitsAndGraphLabel != "undefined" && event.data.thisSensor.content.useCustomUnitsAndGraphLabel) {
+	    		   		xLabel = "customX";
+	    		   	}
     			}
         		
                 //get the units for the x and y values
                 var xUnits = event.data.thisSensor.getGraphUnits(xLabel);
-                var yUnits = event.data.thisSensor.sensorType == "custom" ? event.data.thisSensor.getGraphUnits("customY") : event.data.thisSensor.getGraphUnits(item.series.name);
+                var yUnits = typeof event.data.thisSensor.content.useCustomUnitsAndGraphLabel != "undefined" && event.data.thisSensor.content.useCustomUnitsAndGraphLabel ? event.data.thisSensor.getGraphUnits("customY") : event.data.thisSensor.getGraphUnits(item.series.name);
                 
                 // in hoverable coords clean up the tooltip text a bit
                 if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
-		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.xmax)))/Math.LN10)));
-		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+		    		x = x.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(xmax))/Math.LN10)));
+		    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
 		    	} else {
 		    		x = x.toFixed(2);
 		    		y = y.toFixed(2);
@@ -1236,20 +1247,20 @@ SENSOR.prototype.setupPlotHover = function() {
 						var y = pos.y;
 						// if we are using the easy click option, only show points within domain
 		                if (typeof contentGraphParams.easyClickExtremes != "undefined" && contentGraphParams.easyClickExtremes){
-							if (y < contentGraphParams.ymin){
-								y = parseFloat(contentGraphParams.ymin);
-							} else if (y > contentGraphParams.ymax){
-								y = parseFloat(contentGraphParams.ymax);
+							if (y < ymin){
+								y = ymin;
+							} else if (y > ymax){
+								y = ymax;
 							} 
    						} 
-    					// in hoverable coords clean up the tooltip text a bit
+    					// round
 		                if (typeof event.data.thisSensor.content.graphParams.coordsFollowMouse != "undefined" && event.data.thisSensor.content.graphParams.coordsFollowMouse){
-				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(parseFloat(event.data.thisSensor.content.graphParams.ymax)))/Math.LN10)));
+				    		y = y.toFixed(Math.min(0,3-Math.floor(Math.log(Math.abs(ymax))/Math.LN10)));
 				    	} else {
 			    			y = y.toFixed(2);
 				    	}
 
-						event.data.thisSensor.predictionUpdateByX(parseFloat(event.data.thisSensor.dragPoint.datapoint[0]), pos.y);
+						event.data.thisSensor.predictionUpdateByX(parseFloat(event.data.thisSensor.dragPoint.datapoint[0]), parseFloat(y));
 						//plot the graph again so the point is displayed
 						event.data.thisSensor.plotData();
 					}
@@ -2429,16 +2440,22 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 		x = Math.round(x * 5) / 5;
 		
 		y = parseFloat(y.toFixed(2));
+
+		var xmin = typeof this.sensorState.xMin != "undefined" ? parseFloat(this.sensorState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var xmax = typeof this.sensorState.xMax != "undefined" ? parseFloat(this.sensorState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var ymin = typeof this.sensorState.yMin != "undefined" ? parseFloat(this.sensorState.yMin) : parseFloat(this.content.graphParams.ymin);
+		var ymax = typeof this.sensorState.yMax != "undefined" ? parseFloat(this.sensorState.yMax) : parseFloat(this.content.graphParams.ymax);
+		
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
-			if (x < parseFloat(this.content.graphParams.xmin)){
-				x = parseFloat(this.content.graphParams.xmin);
-			} else if (x > parseFloat(this.content.graphParams.xmax)){
-				x = parseFloat(this.content.graphParams.xmax);
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = xmax;
 			}
-			if (y < parseFloat(this.content.graphParams.ymin)){
-				y = parseFloat(this.content.graphParams.ymin);
-			} else if (y > parseFloat(this.content.graphParams.ymax)){
-				y = parseFloat(this.content.graphParams.ymax);
+			if (y < ymin){
+				y = ymin;
+			} else if (y > ymax){
+				y = ymax;
 			}
 		}
 		
@@ -2505,18 +2522,22 @@ SENSOR.prototype.predictionUpdateByX = function(x, y) {
 	if(x != null && y != null) {
 		//round x down to the nearest 0.2
 		x = Math.round(x * 5) / 5;
-		
 		y = parseFloat(y.toFixed(2));
+		var xmin = typeof this.sensorState.xMin != "undefined" ? parseFloat(this.sensorState.xMin) : parseFloat(this.content.graphParams.xmin);
+		var xmax = typeof this.sensorState.xMax != "undefined" ? parseFloat(this.sensorState.xMax) : parseFloat(this.content.graphParams.xmax);
+		var ymin = typeof this.sensorState.yMin != "undefined" ? parseFloat(this.sensorState.yMin) : parseFloat(this.content.graphParams.ymin);
+		var ymax = typeof this.sensorState.yMax != "undefined" ? parseFloat(this.sensorState.yMax) : parseFloat(this.content.graphParams.ymax);
+		
 		if (typeof this.content.graphParams.easyClickExtremes != "undefined" && this.content.graphParams.easyClickExtremes ){
-			if (x < parseFloat(this.content.graphParams.xmin)){
-				x = parseFloat(this.content.graphParams.xmin);
-			} else if (x > parseFloat(this.content.graphParams.xmax)){
-				x = parseFloat(this.content.graphParams.xmax);
+			if (x < xmin){
+				x = xmin;
+			} else if (x > xmax){
+				x = xmax;
 			}
-			if (y < parseFloat(this.content.graphParams.ymin)){
-				y = parseFloat(this.content.graphParams.ymin);
-			} else if (y > parseFloat(this.content.graphParams.ymax)){
-				y = parseFloat(this.content.graphParams.ymax);
+			if (y < ymin){
+				y = ymin;
+			} else if (y > ymax){
+				y = ymax;
 			}
 		}
 		

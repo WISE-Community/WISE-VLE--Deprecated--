@@ -275,22 +275,23 @@ CARGRAPH.prototype.render = function() {
 	//get the position that will show the message in the center of the graph div
 	var animationDivTop = animationDivPosition.top;
 	var animationDivLeft = animationDivPosition.left;
-	
 	// display the static images (e.g. houses and schools)
 	for (var i=0; i < this.content.staticImages.length; i++) {
 		var staticImage = this.content.staticImages[i];		
 		var left = staticImage.tickIndex/this.tickSpacing*this.yTickSize;
-		$("#animationDiv").append("<div class='staticImageLabel' style='position:absolute; top:" + (animationDivTop) + "px;left: "+left+";padding-bottom:20px'>"+staticImage.label+"</div>"+"<img class='staticImage' style='left:"+left+";padding-top:20px' src='"+staticImage.img+"'></img>");
-	}		
+		// display labels above images
+		$("#animationDiv").append("<div class='staticImageLabel' style='top:"  + "px;left: "+left+"'>"+staticImage.label+"</div>");
+		$("#animationDiv").append("<img class='staticImage' style='top:" + 25 + "px;left:"+left+"' src='"+staticImage.img+"'></img>");
 	
+	}		
+
 	// display the ticks in the animationDiv
 	for (var i=parseInt(this.content.graphParams.ymin); i <= parseInt(this.content.graphParams.ymax); i+=this.tickSpacing) {
 		var yTickPosition = i/this.tickSpacing*this.yTickSize;         // this tick's x position
-		$("#animationDiv").append("<div style='position:absolute; top:" + (animationDivTop + 60) + "px; left:"+yTickPosition+"'>"+i+"</div>");
+		$("#animationDiv").append("<div class='tickGraphics' style='top:" + 60 + "px; left:"+yTickPosition+"'>"+i+"</div>");
 	}
 	
 	var topSoFar = 90;  // offset from the top of the screen, to ensure that the images don't overlap
-	
 	// display the dynamic images (e.g. cars) at time=0 (starting point)
 	for (var i=0; i< this.content.dynamicImages.length; i++) {
 		var dynamicImage = this.content.dynamicImages[i];	
@@ -308,7 +309,12 @@ CARGRAPH.prototype.render = function() {
 	    		dynamicImage.predictionInitialYValue = yinc; break;
 	    	}
 	    }
-    		
+	    // display the user's car
+    	var dynamicImage = this.content.dynamicImages[i];		
+		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ topSoFar +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
+		
+		// increment topSoFar
+		topSoFar += dynamicImage.height+15;	
 		// display the correct images (e.g. cars) if runCorrectAnswer is enabled
 		if (this.content.runCorrectAnswer) {
 
@@ -336,14 +342,11 @@ CARGRAPH.prototype.render = function() {
 				}
 			}
 
-			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ (animationDivTop + topSoFar) +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
-			$("#animationDiv").height($("#animationDiv").height()+dynamicImage.height+40);
-			// increment topSoFar
-			topSoFar += dynamicImage.height+10;
+			$("#animationDiv").append("<img id='"+dynamicImage.id+"-correct' style='top:"+ topSoFar +"; left:"+correctStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img.replace(".png","-correct.png")+"'></img>");
 		}
-		
-		var dynamicImage = this.content.dynamicImages[i];		
-		$("#animationDiv").append("<img id='"+dynamicImage.id+"' style='top:"+ (animationDivTop + topSoFar) +"; left: "+predictionStartingYValue+"' class='dynamicImage' src='"+dynamicImage.img+"'></img>");
+		// increment topSoFar
+		topSoFar += dynamicImage.height+15;
+		$("#animationDiv").height(topSoFar);
 		
 		// add radio input so students can choose which car they're drawing the graph for
 		var checked = "";
@@ -352,8 +355,6 @@ CARGRAPH.prototype.render = function() {
 			checked = "checked";
 		}
 		$("#dynamicImageRadioDiv").append("<input class='dynamicImageRadio' name='dynamic' type='radio' "+checked+" onclick='dynamicImageChanged(\""+dynamicImage.id+"\")'>"+dynamicImage.graphLabel+"</input>");
-		// increment topSoFar
-		topSoFar += dynamicImage.height;
 	}	
 	
 };
@@ -375,7 +376,6 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
 	    	if ($('#animationError').length == 0){
 		    	var x = $("#"+dynamicImage.id).position().left;
 		    	var y = $("#"+dynamicImage.id).position().top;
-		    	console.log(x,y);
 		    	$("#animationDiv").append("<div id='animationError' style='position:absolute;color:#FF0000;left:"+x+";top:"+y+"'>ERROR </div>");
 			}
 	    } 
@@ -431,15 +431,15 @@ CARGRAPH.prototype.displayOneFrame = function(xValue) {
  * @return: corresponding y-Value within the prediction graph.
  */ 
 CARGRAPH.prototype.getYValue = function(xValue,predictionArray) {
-    var xSoFar = 0;
-    var ySoFar = 0;
-    if (predictionArray.length > 0) {
+     if (predictionArray.length > 0) {
     	// check if the array contains a value for x less than the specified xValue. If not, return -100.
     	var firstPrediction = predictionArray[0];
     	if (firstPrediction[0] > xValue) {
     		return -100;
     	}
     }
+    var xSoFar = Math.min(0,predictionArray[0][0]);
+    var ySoFar = Math.min(0,predictionArray[0][1]);
     for (var i=0; i< predictionArray.length; i++) {
 	    var prediction = predictionArray[i];  // prediction[0] = x, prediction[1] = y
 	    if (prediction[0] < xValue && xSoFar <= prediction[0]) {
@@ -2256,7 +2256,6 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 		if(this.view.state != null) {
 			//get the node type for the previous work
 			var prevWorkNodeType = this.view.getProject().getNodeById(this.node.prevWorkNodeIds[0]).type;
-
 			//we can only pre populate the work from a previous node if it is a graph step like this one
 			if(prevWorkNodeType == 'SensorNode' || prevWorkNodeType == 'CarGraphNode') {
 				//get the state from the previous step that this step is linked to
@@ -2333,27 +2332,27 @@ CARGRAPH.prototype.getPreviousPrediction = function() {
 					this.graphChanged = true;
 				}
 				// update axis and labels
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "") && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xlabel == "undefined" || this.carGraphState.xlabel == "" || !this.createPrediction) && typeof predictionState.xlabel != "undefined" && predictionState.xlabel != "") {
 					this.carGraphState.xlabel = predictionState.xlabel;
 					this.axisLabelChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "") && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.ylabel == "undefined" || this.carGraphState.ylabel == "" || !this.createPrediction) && typeof predictionState.ylabel != "undefined" && predictionState.ylabel != "") {
 					this.carGraphState.ylabel = predictionState.ylabel;
 					this.axisLabelChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "") && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMin == "undefined" || this.carGraphState.xMin == "" || !this.createPrediction) && typeof predictionState.xMin != "undefined" && predictionState.xMin != "") {
 					this.carGraphState.xMin = predictionState.xMin;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "") && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMin == "undefined" || this.carGraphState.yMin == "" || !this.createPrediction) && typeof predictionState.yMin != "undefined" && predictionState.yMin != "") {
 					this.carGraphState.yMin = predictionState.yMin;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "") && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.xMax == "undefined" || this.carGraphState.xMax == "" || !this.createPrediction) && typeof predictionState.xMax != "undefined" && predictionState.xMax != "") {
 					this.carGraphState.xMax = predictionState.xMax;
 					this.axisRangeChanged = true;
 				}
-				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "") && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
+				if(predictionState != null && predictionState != "" && (typeof this.carGraphState.yMax == "undefined" || this.carGraphState.yMax == "" || !this.createPrediction) && typeof predictionState.yMax != "undefined" && predictionState.yMax != "") {
 					this.carGraphState.yMax = predictionState.yMax;
 					this.axisRangeChanged = true;
 				}
