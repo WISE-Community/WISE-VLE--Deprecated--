@@ -1557,14 +1557,20 @@ View.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphTyp
 		var workgroupIdInClass = workgroupIdsInClass[i];
 
 		//get the choice the student answered
-		var workByWorkgroup = workgroupIdToWork[workgroupIdInClass];
+		var workByWorkgroup = null
 
-		if (choiceToCount[workByWorkgroup] == null) {
-			choiceToCount[workByWorkgroup] = 0;
+		if(workgroupIdToWork[workgroupIdInClass] != null) {
+			workByWorkgroup = workgroupIdToWork[workgroupIdInClass].response;
+			
+			if(workByWorkgroup != null) {
+				if (choiceToCount[workByWorkgroup] == null) {
+					choiceToCount[workByWorkgroup] = 0;
+				}
+
+				//increment the choice
+				choiceToCount[workByWorkgroup] += 1;
+			}
 		}
-
-		//increment the choice
-		choiceToCount[workByWorkgroup] += 1;
 	}
 	var choicesCountArray = [];
 	var maxChoiceCountSoFar = 0;  // keep track of maximum count here

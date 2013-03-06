@@ -1821,6 +1821,16 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 
 							var vleStates = VLE_STATE.prototype.parseDataJSONString(responseText);
 							var workgroupIdToWork = {}; // maps workgroupId to their latest work.
+							
+							if(vleStates.constructor.toString().indexOf("Array") == -1) {
+								/*
+								 * if there is only one student in the run, we will need to place the vleState
+								 * in an array because if we only request the work for a single workgroup id
+								 * the server will return a JSONObject. if we request the work for multiple
+								 * workgroup ids, the server will return a JSONArray.
+								 */
+								vleStates = [vleStates];
+							}
 
 							//loop through all the vleStates, each vleState is for a workgroup
 							for(var x=0; x<vleStates.length; x++) {
@@ -1842,7 +1852,7 @@ Node.prototype.showAggregateWork = function(aggregateWorkDiv, tagName, functionA
 
 								//check if the student submitted any work, and add to workgroupIdToWork array
 								if(latestNodeVisit != null) {
-									workgroupIdToWork[workgroupId] = latestNodeVisit.getLatestWork().response;
+									workgroupIdToWork[workgroupId] = latestNodeVisit.getLatestWork();
 								}
 							}
 							// now tell the Node to render the summary view.

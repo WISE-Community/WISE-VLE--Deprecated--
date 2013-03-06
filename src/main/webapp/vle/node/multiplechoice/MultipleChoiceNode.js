@@ -218,7 +218,7 @@ MultipleChoiceNode.prototype.renderSummaryView = function(workgroupIdToWork, dom
 	if (dom == null) {
 		dom=$("#summaryContent");
 	}
-	view.displayStepGraph(nodeId,dom,workgroupIdToWork,graphType);
+	this.displayStepGraph(nodeId,dom,workgroupIdToWork,graphType);
 };
 
 /**
@@ -250,6 +250,127 @@ MultipleChoiceNode.prototype.isCompleted = function(nodeState) {
 	}
 	
 	return result;
+};
+
+/**
+ * Display graph (bar graph) for a particular step in step filter mode, like bar graph in MC node filter
+ * 
+ * @param nodeId ID of step that is filtered and should show the bar graph.
+ * @param dom dom to render the summary into
+ * @param workgroupIdToWork the id of the workgroup to work mapping
+ * @param graphType bar|pie|barpie
+ */
+MultipleChoiceNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphType) {
+
+	function translateChoiceTextToColorHex(choiceText, choiceIndex) {
+		if (choiceText == "red") {
+			return "FF0000";
+		} else if (choiceText == "green") {
+			return "00FF00";
+		} else if (choiceText == "blue") {
+			return "0000FF";
+		} else if (choiceText == "yellow") {
+			return "FFFF00";
+		} else if (choiceText == "black") {
+			return "FFFFFF";
+		} else if (choiceText == "purple") {
+			return "7D26CD";
+		} else if (choiceText == "orange") {
+			return "FFA500";
+		}
+		return ["b01717","0323cb","896161","ecb0b0","fbd685","b4bec3","cf33e1","37c855","7D26CD","FFFFFF"][choiceIndex];  // return default colors based on choice index to avoid collision
+	};
+	
+	var choiceToCount = {};
+	if (workgroupIdToWork === null) {
+		workgroupIdToWork = nodeIdToWork[nodeId];
+	}
+	var workgroupIdsInClass = this.view.userAndClassInfo.getWorkgroupIdsInClass();
+	var mcChoices = [];
+	var mcChoiceColors = [];  // display color for each choice.
+	var node = this.view.project.getNodeById(nodeId);
+	var mcContent = node.content.getContentJSON();
+	/* add each choice object from the content to the choices array */
+	for(var a=0;a<mcContent.assessmentItem.interaction.choices.length;a++){
+		var mcChoiceText = mcContent.assessmentItem.interaction.choices[a].text;
+		mcChoices.push(mcChoiceText);
+		mcChoiceColors.push(translateChoiceTextToColorHex(mcChoiceText, a));
+	}
+
+	//loop through all the students in the class
+	for (var i=0; i<workgroupIdsInClass.length; i++) {
+		var workgroupIdInClass = workgroupIdsInClass[i];
+
+		//get the choice the student answered
+		var workByWorkgroup = null
+
+		if(workgroupIdToWork[workgroupIdInClass] != null) {
+			workByWorkgroup = workgroupIdToWork[workgroupIdInClass].response;
+			
+			if(workByWorkgroup != null) {
+				if (choiceToCount[workByWorkgroup] == null) {
+					choiceToCount[workByWorkgroup] = 0;
+				}
+
+				//increment the choice
+				choiceToCount[workByWorkgroup] += 1;
+			}
+		}
+	}
+	var choicesCountArray = [];
+	var maxChoiceCountSoFar = 0;  // keep track of maximum count here
+	// now loop thru mcChoices and tally up 
+	for (var k=0; k<mcChoices.length; k++) {
+		var mcChoiceText = mcChoices[k];
+
+		//get the total count for this choice
+		var finalCount = choiceToCount[mcChoiceText];
+		if (typeof finalCount == "undefined") {
+			finalCount = 0;
+		}
+
+		/*
+		 * add the count for this choice so that the graphing utility
+		 * knows how many students chose this choice
+		 */
+		choicesCountArray.push(finalCount);
+
+		if (finalCount > maxChoiceCountSoFar) {
+			/*
+			 * update the highest count for any choice to determine the
+			 * max y value
+			 */
+			maxChoiceCountSoFar = finalCount;
+		}
+	}
+
+	var xLabelStr = "|"+mcChoices.join("|");
+	var xLabelStr2 = mcChoices.join("|");
+	var colorStr = mcChoiceColors.join("|");
+	var tallyStr = choicesCountArray.join(",");
+
+	/*
+	 * construct googlecharts url and set realTimeMonitorGraphImg src.
+	 * e.g.
+	 * http://chart.apis.google.com/chart?chxl=0:|Oscar|Monkey|Oski|Dodo&chxr=1,0,5&chxt=x,y&chbh=a&chs=300x225&cht=bvg&chco=A2C180&chd=t:1,5,0,0&chds=0,5&chp=0&chma=|2&chtt=Student+Responses
+	 */
+
+	var realTimeMonitorGraphImgSrc = "http://chart.apis.google.com/chart?chxl=0:"+xLabelStr+"&chxr=1,0,"+(maxChoiceCountSoFar+1)+"&chxt=x,y&chbh=a&chs=300x225&cht=bvg&chco=A2C180&chd=t:"+tallyStr+"&chds=0,"+(maxChoiceCountSoFar+1)+"&chco="+colorStr+"&chp=0&chma=|2&chtt=Student+Responses";
+	var realTimeMonitorGraphImgSrc2 = "http://chart.apis.google.com/chart?cht=p&chs=250x100&chd=t:"+tallyStr+"&chl="+xLabelStr2+"&chco="+colorStr;
+	//display the appropriated graph type(s) in the dom
+	if (graphType == "bar") {
+		$(dom).append('<img id="realTimeMonitorGraphImg" src="'+realTimeMonitorGraphImgSrc+'" width="300" height="225" alt="Student Responses"></img>');
+	} else if (graphType == "pie") {
+		$(dom).append('<img id="realTimeMonitorGraphImg2" src="'+realTimeMonitorGraphImgSrc2+'" width="500" height="200" alt="Student Responses"></img>');
+	} else if (graphType == "barpie") {
+		$(dom).append('<img id="realTimeMonitorGraphImg" src="'+realTimeMonitorGraphImgSrc+'" width="300" height="225" alt="Student Responses"></img>');
+		$(dom).append('<img id="realTimeMonitorGraphImg2" src="'+realTimeMonitorGraphImgSrc2+'" width="500" height="200" alt="Student Responses"></img>');
+	} else {
+		$(dom).append('<img id="realTimeMonitorGraphImg" src="'+realTimeMonitorGraphImgSrc+'" width="300" height="225" alt="Student Responses"></img>');
+		$(dom).append('<img id="realTimeMonitorGraphImg2" src="'+realTimeMonitorGraphImgSrc2+'" width="500" height="200" alt="Student Responses"></img>');
+	}
+
+	$(dom).show();
 };
 
 NodeFactory.addNode('MultipleChoiceNode', MultipleChoiceNode);
