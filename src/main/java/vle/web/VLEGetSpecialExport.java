@@ -548,10 +548,6 @@ public class VLEGetSpecialExport extends VLEServlet {
 					filesToCopy.add(vlewrapperBaseDir + "/vle/node/sensor/sensorstate.js");
 					filesToCopy.add(vlewrapperBaseDir + "/vle/node/sensor/viewStudentWork.html");
 					
-					//get the path to the step content file
-					String projectFolderPath = projectPath.substring(0, projectPath.lastIndexOf("/"));
-					filesToCopy.add(projectFolderPath + "/" + nodeId);
-					
 					//loop through all the file paths
 					for(int x=0; x<filesToCopy.size(); x++) {
 						//get a file path
@@ -560,6 +556,24 @@ public class VLEGetSpecialExport extends VLEServlet {
 						//copy the file to our zip folder
 						copyFileToFolder(filePath, zipFolder);
 					}
+					
+					//get the path to the step content file
+					String projectFolderPath = projectPath.substring(0, projectPath.lastIndexOf("/"));
+					
+					//get the original step content file
+					File originalStepContentFile = new File(projectFolderPath + "/" + nodeId);
+					
+					//get the content as a string
+					String stepContentString = FileUtils.readFileToString(originalStepContentFile);
+					
+					//make a variable definition for the step content object so we can access it as a variable
+					stepContentString = "var stepContent = " + stepContentString + ";";
+					
+					//create the new file
+					File newStepContentFile = new File(zipFolder, "stepContent.js");
+					
+					//write the step content to the stepContent.js file
+					FileUtils.writeStringToFile(newStepContentFile, stepContentString);
 				}
 			}
 			

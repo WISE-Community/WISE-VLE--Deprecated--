@@ -2,6 +2,7 @@
 <html>
 <head>
 <script type='text/javascript' src='data.js'></script>
+<script type='text/javascript' src='stepContent.js'></script>
 <script type='text/javascript' src='content.js'></script>
 <script type='text/javascript' src='helperfunctions.js'></script>
 <script type='text/javascript' src='jquery.js'></script>
@@ -14,9 +15,6 @@
 
 <script>
 
-//this will hold the step content as a JSON object
-var stepContent = null;
-
 /**
  * Populate the drop down with the workgroup ids and display the work from
  * the first workgroup id
@@ -24,16 +22,17 @@ var stepContent = null;
 function loadStudentData() {
 	if(data == null || typeof data == 'undefined') {
 		//we were unable to access the data in the data.js file
-		document.getElementById('metaDataDiv').innerHTML += 'Error: Unable to load data<br>';
+		document.getElementById('metaDataDiv').innerHTML += 'Error: Unable to load student data<br>';
+		return;
+	} else if(stepContent == null || typeof stepContent == 'undefined') {
+		//we were unable to access the content in the stepContent.js file
+		document.getElementById('metaDataDiv').innerHTML += 'Error: Unable to load step content<br>';
 		return;
 	}
 	
 	//get the node id for the step
 	var nodeId = data.nodeId;
 	
-	//get the step content as a JSON object
-	stepContent = getStepContent();
-
 	//display the project, run, and step information
 	document.getElementById('metaDataDiv').innerHTML += 'Project Name: ' + data.projectName + '<br>';
 	document.getElementById('metaDataDiv').innerHTML += 'Project Id: ' + data.projectId + '<br>';
@@ -355,35 +354,6 @@ function nodeStateHasWork(nodeState) {
 	}
 	
 	return hasWork;
-};
-
-/**
- * Get the step content from the step content file
- * @return the step content JSON object
- */
-function getStepContent() {
-	var stepContent = null;
-	
-	//get the node id for the step
-	var nodeId = data.nodeId;
-	
-	//retrieve the step content from the step content file that should be in the same folder as this file
-	$.ajax({
-		url:nodeId,
-		async:false,
-		dataType:"text",
-		success:function(data, text, xhr) {
-			stepContent = data;
-		},
-		error:function(xhr, text) {
-			console.log("Error: failed to retrieve step content file");
-		}
-	});
-	
-	//turn the JSON string into a JSON object
-	stepContent = JSON.parse(stepContent);
-	
-	return stepContent;
 };
 
 /**
