@@ -44,7 +44,7 @@ View.prototype.getMaxScoresSum = function(nodeIds) {
 /**
  * Get the project meta data such as max score values
  */
-View.prototype.getProjectMetaData = function() {
+View.prototype.retrieveProjectMetaData = function() {
 	//get the url to retrieve the project meta data
 	var projectMetaDataUrl = this.getConfig().getConfigParam('projectMetaDataUrl');
 	

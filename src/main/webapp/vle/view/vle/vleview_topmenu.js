@@ -571,7 +571,7 @@ View.prototype.getShowAllWorkData = function() {
 	
 	//make sure project meta data is retrieved
 	if(this.projectMetaDataRetrieved == null) {
-		this.getProjectMetaData();
+		this.retrieveProjectMetaData();
 	} else {
 		/*
 		 * the annotations were already retrieved so we will make sure
