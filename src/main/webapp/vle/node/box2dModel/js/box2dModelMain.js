@@ -147,6 +147,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage = new createjs.Stage(canvas);
 			stage.mouseEventsEnabled = true;
 			stage.enableMouseOver();
+			createjs.Touch.enable(stage);
 			stage.needs_to_update = true;
 				
 			// setup builder

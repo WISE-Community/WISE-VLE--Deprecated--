@@ -683,7 +683,7 @@
 		if (this.is_mystery && !this.reveal_mystery){
 			g.beginStroke("rgba(0,0,0,1.0)");
 			g.beginFill("rgba(60,60,60, 1.0)");
-			console.log(this.leftmost_column, this.rightmostColumn, this.highest_row, this.lowest_row)
+			//console.log(this.leftmost_column, this.rightmostColumn, this.highest_row, this.lowest_row)
 			var tl = new createjs.Point(0, -(this.height_units - (this.lowest_row - this.highest_row) - 1) * GLOBAL_PARAMETERS.SCALE)
 			g.drawRect(tl.x, tl.y, this.width_units * GLOBAL_PARAMETERS.SCALE, this.height_units * GLOBAL_PARAMETERS.SCALE);
 			g.endFill();
@@ -830,7 +830,7 @@
 
 							var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[i_shift][j_shift];
 							// draw liquid in front
-							if (percentSubmerged > 0 && percentSubmerged < 1){ 
+							if (percentSubmerged > 0 && percentSubmerged < 1 && (k != 0 || this.parent.body.soaked)){ 
 								var liquid = GLOBAL_PARAMETERS.liquids[GLOBAL_PARAMETERS.liquid_available];
 								var angle = rotation / 180 * Math.PI;
 								var pheightSubmerged;
