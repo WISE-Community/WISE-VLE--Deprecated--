@@ -20,6 +20,7 @@ View.prototype.i18n.defaultLocale = "en_US";
 View.prototype.i18n.supportedLocales = {
 		main: {
 			"en_US":"en_US",
+			"es":"es",
 			"ja":"ja",
 			"zh_CN":"zh_CN",
 			"zh_TW":"zh_TW",
