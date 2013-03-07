@@ -50,11 +50,12 @@
 		g = this.g = new createjs.Graphics();
 		this.shape = new createjs.Shape(g);
 		
-		g.beginFill("rgba(220, 220, 255, 1.0)");
-		g.drawRect(0, 0, this.width_px, this.height_px);
+		g.beginLinearGradientFill(["rgba(250,250,250,1.0)","rgba(230,210,220,1.0)"],[0,1.0],0,0,this.width_px,this.height_px-100);
+		g.drawRect(0, 0, this.width_px, this.height_px-100);
 		g.endFill();
 		//draw floor
-		g.beginFill("rgba(80, 80, 80, 1.0)");
+
+		g.beginLinearGradientFill(["rgba(120,120,120,1.0)","rgba(80,80,80,1.0)"],[0,1.0],0,this.height_px-100,this.width_px,this.height_px);
 		g.drawRect(0, this.height_px-100, this.width_px, 100);
 		g.endFill();
 
@@ -131,7 +132,7 @@
 		// cylinder
 		g.setStrokeStyle(this.BEAKER_WALL_THICKNESS);
 		g.beginLinearGradientFill(["rgba(127,127,127,0.4)", "rgba(200,200,200,0.4)","rgba(225,225,255,0.5)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.4)"], [0, 0.1, 0.5, 0.9, 1], -this.beaker_width_px/2, 0, this.beaker_width_px/2, 0);
-		g.beginLinearGradientStroke(["rgba(127,127,127,0.5)", "rgba(200,200,200,0.4)","rgba(255,255,255,0.3)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.5)"], [0, 0.1, 0.5, 0.9, 1], -this.beaker_width_px/2, 0, this.beaker_width_px/2, 0);
+		g.beginLinearGradientStroke(["rgba(127,127,127,0.5)", "rgba(150,150,150,0.5)","rgba(200,200,200,0.5)", "rgba(150,150,150,0.5)", "rgba(127,127,127,0.5)"], [0, 0.1, 0.5, 0.9, 1], -this.beaker_width_px/2, 0, this.beaker_width_px/2, 0);
 		g.drawRect(-this.beaker_width_px/2, -this.beaker_height_px, this.beaker_width_px, this.beaker_height_px);
 		g.endFill();
 		// draw left side wall
@@ -160,17 +161,13 @@
 		var g = this.frontGraphics;
 		// cylinder
 		g.setStrokeStyle(this.BEAKER_WALL_THICKNESS);
+		g.beginLinearGradientStroke(["rgba(127,127,127,0.5)", "rgba(150,150,150,0.5)","rgba(200,200,200,0.5)", "rgba(150,150,150,0.5)", "rgba(127,127,127,0.5)"], [0, 0.1, 0.5, 0.9, 1], -this.beaker_width_px/2, 0, this.beaker_width_px/2, 0);
 		g.beginLinearGradientFill(["rgba(127,127,127,0.2)", "rgba(200,200,200,0.2)","rgba(225,225,255,0.3)", "rgba(200,200,200,0.2)", "rgba(127,127,127,0.2)"], [0, 0.1, 0.5, 0.9, 1], -this.beaker_width_px/2, 0, this.beaker_width_px/2, 0);
-		g.beginLinearGradientStroke(["rgba(127,127,127,0.5)", "rgba(200,200,200,0.4)","rgba(255,255,255,0.3)", "rgba(200,200,200,0.4)", "rgba(127,127,127,0.5)"], [0, 0.1, 0.5, 0.9, 1], -this.beaker_width_px/2, 0, this.beaker_width_px/2, 0);
 		g.drawRect(-this.beaker_width_px/2, -this.beaker_height_px, this.beaker_width_px, this.beaker_height_px);
 		g.endFill();
 		// right side wall
 		g.beginLinearGradientFill(["rgba(127,127,127,0.2)", "rgba(200,200,200,0.2)","rgba(225,225,255,0.3)", "rgba(200,200,200,0.2)", "rgba(127,127,127,0.2)"], [0, 0.1, 0.5, 0.9, 1], this.beaker_width_px/2, 0, this.beaker_width_px/2 + this.width_from_depth, 0);
-		g.moveTo(this.beaker_width_px/2, -this.beaker_height_px);
-		g.lineTo(this.beaker_width_px/2 + this.width_from_depth, -this.beaker_height_px-this.height_from_depth);
-		g.lineTo(this.beaker_width_px/2 + this.width_from_depth, -this.height_from_depth);
-		g.lineTo(this.beaker_width_px/2, 0);
-		g.lineTo(this.beaker_width_px/2, -this.beaker_height_px);
+		g.moveTo(this.beaker_width_px/2, -this.beaker_height_px).lineTo(this.beaker_width_px/2 + this.width_from_depth, -this.beaker_height_px-this.height_from_depth).lineTo(this.beaker_width_px/2 + this.width_from_depth, -this.height_from_depth).lineTo(this.beaker_width_px/2, 0).lineTo(this.beaker_width_px/2, -this.beaker_height_px);
 		
 		g.endFill();
 		g.endStroke();
@@ -189,7 +186,7 @@
 			g.moveTo(0, ry);
 			g.lineTo(10, ry);
 			vstr = Math.round(((this.height_px - this.beaker_bottom_dy) - ry) / GLOBAL_PARAMETERS.SCALE * this.beaker_width_px/GLOBAL_PARAMETERS.SCALE * this.beaker_depth_px/GLOBAL_PARAMETERS.SCALE);
-			text = new createjs.Text(vstr, "1.0em Bold Arial", "#D66");
+			text = new createjs.Text(vstr, "1.0em Bold Arial", "#4D4");
 			text.x = this.beaker_x - this.beaker_width_px/2 - 43;
 			text.y = ry - 10; 
 			this.addChild(text);
@@ -832,9 +829,9 @@
 					if (!body.soaked)
 					{
 						// change density of each fixture to include mass of liquid
-						for (f = body.GetFixtureList(); f; f = f.GetNext())
+						for (var f = body.GetFixtureList(); f; f = f.GetNext())
 						{
-							f.SetDensity(f.materialDensity * f.materialSpaces + (f.interiorSpaces) * this.liquid.density);
+							f.SetDensity((f.materialDensity * f.materialSpaces + (f.interiorSpaces) * this.liquid.density)/f.area);
 						}
 						body.soaked = true; // A permanent flag if the object is ever fully submerged
 					}

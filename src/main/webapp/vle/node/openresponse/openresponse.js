@@ -203,9 +203,11 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 				}
 			}
 
+			var lock = false;
+
 			if(saveAndLock) {
 				//display a confirm message to make sure they want to submit and lock
-				var lock = confirm("You will not be able to make further edits after submitting this response.  Ready to submit?");
+				lock = confirm("You will not be able to make further edits after submitting this response.  Ready to submit?");
 				
 				//check if they answered yes
 				if(lock) {
@@ -259,8 +261,12 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 			//push the state object into this or object's own copy of states
 			this.states.push(orState);
 
-			// if we want to check answer immediately (e.g. for CRater), post answer immediately, before going to the next step
-			if (checkAnswer) {
+			/*
+			 * if we want to check answer immediately (e.g. for CRater), post answer immediately, before going to the next step.
+			 * if checkAnswer is true and saveAndLock is false, we will run the CRater check answer
+			 * if checkAnswer is true and saveAndLock is true and lock is true, we will run the CRater check answer
+			 */
+			if (checkAnswer && (!saveAndLock || (saveAndLock && lock))) {
 				//set the cRaterItemId into the node state if this step is a CRater item
 				if(this.content.cRater != null && this.content.cRater.cRaterItemId != null
 						&& this.content.cRater.cRaterItemId != '') {
@@ -271,7 +277,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					this.node.view.postCurrentNodeVisit();					
 				}
 				
-				if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+				if((this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) || this.isLocked()) {
 					//student has used up all of their CRater check answer submits so we will disable the check answer button
 					this.setCheckAnswerUnavailable();
 				} else {
@@ -279,7 +285,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 					this.setCheckAnswerAvailable();
 				}
 				
-				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
+				if(this.content.showPreviousWorkThatHasAnnotation && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent) && !this.isLocked()) {
 					/*
 					 * move the current work to the previous work response box
 					 * because we want to display the previous work to the student
@@ -365,6 +371,11 @@ OPENRESPONSE.prototype.saveAndLock = function() {
 OPENRESPONSE.prototype.checkAnswer = function() {
 	var doSaveAndLock=false;
 	var doCheckAnswer=true;
+	
+	if(this.content.isLockAfterSubmit) {
+		doSaveAndLock = true;
+	}
+	
 	this.save(doSaveAndLock,doCheckAnswer);
 };
 
@@ -585,20 +596,20 @@ OPENRESPONSE.prototype.render = function() {
 			 */
 			$('#saveAndLockButton').show();
 		}
-	} else if (this.content.isLockAfterSubmit) {
-		// this node is set to lock after the student submits the answer. show saveAndLock button
-		$('#saveAndLockButton').show();
 	} else if (this.content.cRater && (this.content.cRater.displayCRaterScoreToStudent || this.content.cRater.displayCRaterFeedbackToStudent)) {
 		// if this is a CRater-enabled item and we are displaying the score or feedback to the student, also show the "check" button
 		$('#checkAnswerButton').show();
 		
-		if(this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) {
+		if((this.content.cRater != null && this.content.cRater.maxCheckAnswers != null && this.isCRaterMaxCheckAnswersUsedUp()) || this.isLocked()) {
 			//student has used up all of their CRater check answer submits so we will disable the check answer button
 			this.setCheckAnswerUnavailable();
 		} else {
 			//the student still has check answer submits available so we will enable the check answer button
 			this.setCheckAnswerAvailable();
 		}
+	} else if (this.content.isLockAfterSubmit) {
+		// this node is set to lock after the student submits the answer. show saveAndLock button
+		$('#saveAndLockButton').show();
 	}
 	
 	if(this.view != null && this.view.activeNode != null) {
@@ -1749,6 +1760,9 @@ OPENRESPONSE.prototype.processTagMaps = function() {
 				} else if(functionName == "showPreviousWork") {
 					//show the previous work in the previousWorkDiv
 					this.node.showPreviousWork($('#previousWorkDiv'), tagName, functionArgs);
+				} else if(functionName == "showAggregateWork") {
+					//show the previous work in the previousWorkDiv
+					this.node.showAggregateWork($('#aggregateWorkDiv'), tagName, functionArgs);
 				} else if(functionName == "checkCompleted") {
 					//we will check that all the steps that are tagged have been completed
 					

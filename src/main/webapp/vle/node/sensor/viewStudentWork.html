@@ -433,7 +433,7 @@ function renderGraph(stepWorkId, data) {
 	nodeVisit.id = stepWorkId;
 	
 	//populate the student data into the div
-	sensorNode.renderGradingView(stepWorkGraphDivId, nodeVisit);
+	sensorNode.renderGradingView($('#' + stepWorkGraphDivId), nodeVisit);
 }
 
 </script>

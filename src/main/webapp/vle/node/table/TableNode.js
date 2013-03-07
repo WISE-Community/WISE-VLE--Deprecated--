@@ -201,6 +201,9 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 		childDivIdPrefix += '_';
 	}
 	
+	//div to display the title
+	var tableTitleDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTitleDiv_' + stepWorkId});
+	
 	//div to display the table
 	var tableTableDataDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableTableDataDiv_' + stepWorkId});
 	
@@ -227,6 +230,7 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 	//div to display the student response
 	var tableResponseDiv = createElement(document, 'div', {id: divId + '_' + childDivIdPrefix + 'tableResponseDiv_' + stepWorkId});
 	
+	displayStudentWorkDiv.append(tableTitleDiv);
 	displayStudentWorkDiv.append(tableTableDataDiv);
 	displayStudentWorkDiv.append(newLineDiv);
 	
@@ -260,6 +264,11 @@ TableNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVisi
 
 	displayStudentWorkDiv.append(tableResponseDiv);
 
+	if(tableState.tableOptions != null && tableState.tableOptions.title != null) {
+		//set the title
+		$(tableTitleDiv).html(tableState.tableOptions.title);		
+	}
+	
 	//add the table
 	$(tableTableDataDiv).html(tableState.getTableHtml());
 	
@@ -362,6 +371,325 @@ TableNode.prototype.getStudentWorkHtmlView = function(work) {
 	var html = table.getStudentWorkHtmlView(work);
 	
 	return html;
+};
+
+TableNode.prototype.renderSummaryView = function(workgroupIdToWork, dom, graphType) {
+	var view = this.view;
+	var nodeId = this.id;
+	if (dom == null) {
+		dom=$("#summaryContent");
+	}
+	this.displayStepGraph(nodeId,dom,workgroupIdToWork,graphType);
+};
+
+/**
+ * Display graph (bar graph) for a particular step in step filter mode, like bar graph in MC node filter
+ * 
+ * @param nodeId ID of step that is filtered and should show the bar graph.
+ * @param dom dom to render the summary into
+ * @param workgroupIdToWork the id of the workgroup to work mapping
+ * @param graphType bar|pie|barpie
+ */
+TableNode.prototype.displayStepGraph = function(nodeId,dom,workgroupIdToWork,graphType) {
+	//get all the workgroup ids in the class
+	var workgroupIdsInClass = this.view.userAndClassInfo.getWorkgroupIdsInClass();
+	
+	/*
+	 * an array that will contain the aggregate data objects.
+	 * if the student is allowed to choose a title for the table using the
+	 * drop down, this array will contain an aggregate data object
+	 * for each title.
+	 * if the student is not allowed to choose a title for the table using
+	 * the drop down, this array will only contain one aggregate data object.
+	 */
+	var aggregateDataArray = [];
+	
+	/*
+	 * loop through all the workgroup ids in the class and accumulate
+	 * the data
+	 */
+	for(var z=0; z<workgroupIdsInClass.length; z++) {
+		//get a workgroup id
+		var workgroupId = workgroupIdsInClass[z];
+
+		//get the work for this workgroup
+		var work = workgroupIdToWork[workgroupId];
+		
+		if(work != null) {
+			//get the table data and table and graph options from the student work
+			var tableData = work.tableData;
+			var tableOptions = work.tableOptions;
+			var graphOptions = work.graphOptions;
+			
+			//get the title, if any. this may be null
+			var title = tableOptions.title;
+			
+			//get the aggregate data object with the given title
+			var aggregateDataObject = this.getAggregateDataObjectByTitle(aggregateDataArray, title);
+
+			//get the column indexes for the x and y columns that are graphed
+			var columnToAxisMappings = graphOptions.columnToAxisMappings;
+			var xColumn = this.getColumnIndexByColumnAxis(columnToAxisMappings, 'x');
+			var yColumn = this.getColumnIndexByColumnAxis(columnToAxisMappings, 'y');
+			
+			aggregateDataObject.xHeader = tableData[xColumn][0];
+			aggregateDataObject.yHeader = tableData[yColumn][0];
+			
+			//get the number of columns and rows in the table
+			var numColumns = tableData.length;
+			var numRows = tableData[0].length;
+			
+			//get the label to count array for this aggregate data object
+			var labelToCountArray = aggregateDataObject.labelToCount;
+			
+			/*
+			 * loop through the rows. we will skip the first row because
+			 * that is the header row.
+			 */
+			for(var y=1; y<numRows; y++) {
+				//get the cell in the x column and the cell in the y column
+				var xCell = tableData[xColumn][y];
+				var yCell = tableData[yColumn][y];
+				
+				//get the text in the cells
+				var xText = xCell.text + '';
+				var yText = yCell.text;
+				
+				if(xText != null && xText != '' && yText != null && yText != '') {
+					if(graphType.indexOf('bar') != -1 || graphType.indexOf('pie') != -1) {
+						var firstChar = xText.charAt(0);
+						
+						if(!isNaN(firstChar)) {
+							//first char is a number
+							xText = 'Error: ' + xText;
+						}
+					}
+					
+					//get the label to count object
+					var labelToCountObject = this.getLabelToCountObjectByLabel(labelToCountArray, xText);
+					
+					//accumulate the count
+					labelToCountObject.count += parseFloat(yText);
+				}
+			}
+		}
+	}
+	
+	if(graphType.indexOf('Graph') == -1) {
+		graphType += 'Graph';
+	}
+	
+	//display the aggregate graph in the div
+	this.displayAggregateGraph(dom, aggregateDataArray, graphType);
+};
+
+/**
+ * Get the aggregate data object by the title. Create the aggregate data
+ * object if it does not exist.
+ * @param aggregateDataArray the array of aggregate data objects
+ * @param title the title of the aggregate data object
+ * @return the aggregate data object with the given title
+ */
+TableNode.prototype.getAggregateDataObjectByTitle = function(aggregateDataArray, title) {
+	var aggregateDataObject = null;
+	
+	//loop through all the aggregate data objects
+	for(var x=0; x<aggregateDataArray.length; x++) {
+		//get an aggregate data object
+		var tempAggregateDataObject = aggregateDataArray[x];
+		
+		if(tempAggregateDataObject.title == title) {
+			//we found the one with the title we want
+			aggregateDataObject = tempAggregateDataObject;
+			break;
+		}
+	}
+	
+	if(aggregateDataObject == null) {
+		//create the aggregate data object since it does not exist
+		aggregateDataObject = {
+			title:title,
+			labelToCount:[],
+			xHeader:'',
+			yHeader:''
+		};
+		
+		//add the new aggregate data object to the array
+		aggregateDataArray.push(aggregateDataObject);
+	}
+	
+	return aggregateDataObject;
+};
+
+/**
+ * Get the column index given the column axis
+ * @param columnToAxisMappings an array that contains the mappings between
+ * the column axis to column index
+ * @param columnAxis the column axis e.g. 'x' or 'y'
+ * @return the column index for the given column axis or null if not found
+ */
+TableNode.prototype.getColumnIndexByColumnAxis = function(columnToAxisMappings, columnAxis) {
+	var columnIndex = null;
+	
+	//loop through all the mappings
+	for(var x=0; x<columnToAxisMappings.length; x++) {
+		//get a mapping
+		var columnToAxisObject = columnToAxisMappings[x];
+		
+		//get the column axis
+		var tempColumnAxis = columnToAxisObject.columnAxis;
+		
+		//get the column index
+		var tempColumnIndex = columnToAxisObject.columnIndex;
+		
+		if(columnAxis == tempColumnAxis) {
+			/*
+			 * we have found the column axis we want so we will
+			 * get the column index
+			 */
+			columnIndex = tempColumnIndex;
+		}
+	}
+	
+	return columnIndex;
+};
+
+/**
+ * Get the label to count object by the label
+ * @param labelToCountArray the array that contains all the label to count objects
+ * @param label the label to retrieve the label to count object for
+ * @return the label to count object or null if not found
+ */
+TableNode.prototype.getLabelToCountObjectByLabel = function(labelToCountArray, label) {
+	var labelToCountObject = null;
+	
+	//loop through the label to count array
+	for(var x=0; x<labelToCountArray.length; x++) {
+		//get a label to count object
+		var tempLabelToCount = labelToCountArray[x];
+		
+		if(label != null && tempLabelToCount != null && tempLabelToCount.label != null) {
+			if(label.toLowerCase() == tempLabelToCount.label.toLowerCase()) {
+				//we found the object with the label we want
+				labelToCountObject = tempLabelToCount;
+				break;
+			}
+		}
+	}
+	
+	if(labelToCountObject == null) {
+		/*
+		 * we did not find a label to count object with the label we want
+		 * so we will create it
+		 */
+		labelToCountObject = {
+			label:label,
+			count:0
+		}
+		
+		//add the new label to count object to the array
+		labelToCountArray.push(labelToCountObject);
+	}
+	
+	return labelToCountObject;
+};
+
+/**
+ * Display the aggregate graph in the given dom element
+ * @param dom the dom element to render the graph in
+ * @param aggregateDataArray the aggregate data array. each element in
+ * this array contains the data for a single aggregate graph.
+ * @param graphType the graph type to display the aggregate data
+ */
+TableNode.prototype.displayAggregateGraph = function(dom, aggregateDataArray, graphType) {
+	//create a Table object so we can call the makeGraph() function
+	var table = new Table(this);
+	
+	//create the graph options to create the parameters for displaying the graph
+	var graphOptions = {
+		columnToAxisMappings:[
+			{columnIndex:0, columnAxis:'x'},
+			{columnIndex:1, columnAxis:'y'}
+		],
+		enableGraphing:true,
+		graphSelectAxesType:'authorSelect',
+		graphType:graphType,
+		graphWhoSetAxesLimitsType:'auto'
+	};
+	
+	/*
+	 * loop through all the aggregate data objects. if the student is allowed
+	 * to choose the table title using the drop down, there will be multiple
+	 * graphs to display. if the student is not allowed to choose the table
+	 * title using the drop down, there will only be on graph to display.
+	 */
+	for(var x=0; x<aggregateDataArray.length; x++) {
+		//get an aggregate data object
+		var tempAggregateData = aggregateDataArray[x];
+		
+		//get the data values from the aggregate data object
+		var title = tempAggregateData.title;
+		var labelToCount = tempAggregateData.labelToCount;
+		var xHeader = tempAggregateData.xHeader;
+		var yHeader = tempAggregateData.yHeader;
+		
+		var aggregateTableData = [];
+		
+		//create two columns in the table data
+		aggregateTableData[0] = [];
+		aggregateTableData[1] = [];
+		
+		//set the xHeader in the top cell in the x column
+		aggregateTableData[0][0] = xHeader;
+		
+		//set the yHeader in the top cell in the y column
+		aggregateTableData[1][0] = yHeader;
+		
+		//loop through all the label to count objects
+		for(var i=0; i<labelToCount.length; i++) {
+			//get a label to count object
+			var tempLabelToCount = labelToCount[i];
+			
+			//get the label
+			var label = tempLabelToCount.label;
+			
+			//get the count
+			var count = tempLabelToCount.count;
+			
+			/*
+			 * set the label and count in the row. in the example below
+			 * color and count are the header cells for the x and y column
+			 * and red and 1 are the label and count we are setting. we need
+			 * to use i + 1 because we do not want to overwrite the header
+			 * row values so we need to start inserting data into row 1 and
+			 * not row 0.
+			 * 
+			 * e.g.
+			 * 
+			 * color|count
+			 * -----------
+			 * red  |  1
+			 * 
+			 */
+			aggregateTableData[0][i + 1] = {text:label};
+			aggregateTableData[1][i + 1] = {text:count + ""};
+		}
+		
+		//create a new div to display the graph in
+		var tempAggregateDiv = $("<div id='aggregate_" + x + "'></div>");
+		
+		//append this new div into the aggregateWorkDiv div 
+		dom.append(tempAggregateDiv);
+		
+		//set the title of the graph
+		graphOptions.title = title;
+		
+		//render the graph in the div
+		table.makeGraph(tempAggregateDiv, aggregateTableData, graphOptions, true);
+	}
+	
+	//make the aggregateWorkDiv visible
+	dom.show();
 };
 
 /*

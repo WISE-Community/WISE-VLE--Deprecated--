@@ -513,18 +513,20 @@ public class VLEIdeaBasketController extends HttpServlet {
 		boolean isPrivileged = (Boolean) request.getAttribute("isPrivileged");
 		
 		if(action.equals("getIdeaBasket")) {
-			//get the IdeaBasket
-			IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(signedInWorkgroupId));
-			
-			if(ideaBasket == null) {
-				//make the IdeaBasket if it does not exist
-				ideaBasket = new IdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), new Long(signedInWorkgroupId));
-				ideaBasket.saveOrUpdate();
+			if(runId != null && signedInWorkgroupId != null) {
+				//get the IdeaBasket
+				IdeaBasket ideaBasket = IdeaBasket.getIdeaBasketByRunIdWorkgroupId(new Long(runId), new Long(signedInWorkgroupId));
+				
+				if(ideaBasket == null) {
+					//make the IdeaBasket if it does not exist
+					ideaBasket = new IdeaBasket(new Long(runId), new Long(periodId), new Long(projectId), new Long(signedInWorkgroupId));
+					ideaBasket.saveOrUpdate();
+				}
+				
+				//get the IdeaBasket JSONString
+				String ideaBasketJSONString = ideaBasket.toJSONString();
+				response.getWriter().print(ideaBasketJSONString);
 			}
-			
-			//get the IdeaBasket JSONString
-			String ideaBasketJSONString = ideaBasket.toJSONString();
-			response.getWriter().print(ideaBasketJSONString);
 		} else if(action.equals("getAllIdeaBaskets")) {
 			if(isPrivileged) {
 				//get all the idea baskets for a run

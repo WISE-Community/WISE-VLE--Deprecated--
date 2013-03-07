@@ -1,6 +1,5 @@
 <html>
 	<head>
-		<link rel="stylesheet" href="libs/jquery-ui-1.9.0.custom.min.css"></script>
 		<script type="text/javascript">
 			/*
 			 * TODO: Copy this file and rename it to
@@ -78,7 +77,7 @@
 				 *
 		         * TODO: rename box2dModel variable
 		         */
-				box2dModel.save();
+				if (box2dModel != "undefined") box2dModel.save();
 	        }
 		</script>
 	</head>
@@ -88,16 +87,20 @@
 		<script src="libs/Box2dWeb-2.1.a.3.min.js"></script>
 		<script src="js/GeneralObjects/Point3D.js"></script>
 		<script src="js/GeneralObjects/TextContainer.js"></script>		
-		<script src="js/BuilderObjects/VolumeViewer.js"></script>
 		<script src="js/BuilderObjects/MaterialsMenu.js"></script>
-		<script src="js/BuilderObjects/ObjectBuildingPanel.js"></script>		
+		<script src="js/BuilderObjects/BlockCompViewer.js"></script>
+		<script src="js/BuilderObjects/RectPrismViewer.js"></script>
+		<script src="js/BuilderObjects/CylinderViewer.js"></script>
+		<script src="js/BuilderObjects/BlockCompBuildingPanel.js"></script>		
+		<script src="js/BuilderObjects/RectPrismBuildingPanel.js"></script>		
+		<script src="js/BuilderObjects/CylinderBuildingPanel.js"></script>		
 		<script src="js/BuilderObjects/RectBlockShape.js"></script>
-		<script src="js/BuilderObjects/RectLiquidShape.js"></script>
+		<script src="js/BuilderObjects/CylinderShape.js"></script>
 		<script src="js/TestingObjects/ObjectLibrary.js"></script>
 		<script src="js/TestingObjects/ObjectTestingPanel.js"></script>
 		<script src="js/TestingObjects/BlockCompShape.js"></script>
-		<script src="js/TestingObjects/CylinderShape.js"></script>
-		<script src="js/TestingObjects/RectPrismShape.js"></script>
+		<script src="js/TestingObjects/CylinderCompShape.js"></script>
+		<script src="js/TestingObjects/RectPrismCompShape.js"></script>
 		<script src="js/TestingObjects/ContainerCompShape.js"></script>
 		<script src="js/B2Objects/Myb2BuoyancyController.js"></script>
 		<script src="js/B2Objects/Beakerb2World.js"></script>
@@ -117,6 +120,6 @@
 		<div id="library-button-holder"></div>
 		<div id="beaker-button-holder"></div>
 		<div id="beaker-button-holder"></div>
-		<canvas width=810 height=730 id="canvas" ></canvas>
+		<canvas width=750 height=940 id="canvas" ></canvas>
 		</body>
 </html>

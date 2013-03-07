@@ -498,6 +498,15 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 		}
 	});
 	
+	// setup public idea manager toggle change action
+	$('#enablePublicIdeaManager').click(function() {
+		if(this.checked){
+			view.enablePublicIdeaManager(true);
+		} else {
+			view.enablePublicIdeaManager(false);
+		}
+	});
+	
 	var updateProjectMetadata = function(){
 		var imVersion = $('#enableIdeaManager').attr('version');
 		
@@ -536,6 +545,8 @@ View.prototype.initializeEditProjectMetadataDialog = function(){
 					view.projectMeta.tools.ideaManagerSettings.ideaTerm = $('#imIdeaTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ideaTermPlural = $('#imIdeaTermPlural').val();
 					view.projectMeta.tools.ideaManagerSettings.basketTerm = $('#imBasketTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.privateBasketTerm = $('#imPrivateBasketTerm').val();
+					view.projectMeta.tools.ideaManagerSettings.publicBasketTerm = $('#imPublicBasketTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ebTerm = $('#imEBTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.addIdeaTerm = $('#imAddIdeaTerm').val();
 					view.projectMeta.tools.ideaManagerSettings.ideaAttributes = [];
@@ -676,7 +687,7 @@ View.prototype.initializeSnapshotInformationDialog = function(){
  * Initializes the constraint authoring dialog
  */
 View.prototype.initializeConstraintAuthoringDialog = function(){
-	$('#constraintAuthoringDialog').dialog({autoOpen:false,width:1000,resizable:false,draggable:false,position:'top',title:'Author Student Navigation Constraints', dialogClass:'constraintAuthoring',close:function(){eventManager.fire('closingConstraintDialog');},stack:false,modal:true});
+	$('#constraintAuthoringDialog').dialog({autoOpen:false,width:1000,resizable:false,draggable:false,title:'Author Student Navigation Constraints', dialogClass:'constraintAuthoring',close:function(){eventManager.fire('closingConstraintDialog');},stack:false,modal:true});
 };
 
 /**

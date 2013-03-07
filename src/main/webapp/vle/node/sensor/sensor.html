@@ -101,7 +101,7 @@
     	     */
     	    function save() {
         	    //tell our sensor object to save the data
-    	    	sensor.save();
+    	    	if (typeof sensor != "undefined") sensor.save();
     	    }
 
     	    /*
@@ -217,7 +217,7 @@
 		    				<td height="100%">
 		    					<table height="100%">
 		    						<tr valign="top"><td><div><input id="yMaxInput" type="text" size=3 onChange="updateAxisRange()"></input></div></td></tr>
-		    						<tr><td><div id="yLabelDiv"></div></td></tr>
+		    						<tr><td><div id="yLabelDiv" ></div></td></tr>
 		    						<tr valign="bottom"><td><div><input id="yMinInput" type="text" size=3 onChange="updateAxisRange()"></input></div></td></tr>
 		    					</table>
 		    				</td>

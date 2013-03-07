@@ -524,7 +524,7 @@ input#chooseTeamToGrade_search:focus {
 }
 
 .fixedHeader {
-	padding-top:.45em;
+	padding-top:.8em;
 	font-size: .85em;
 	background-color:#FFFFFF;
 }

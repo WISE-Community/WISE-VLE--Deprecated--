@@ -37,7 +37,7 @@
  * 
  * @constructor
  */
-function TableState(response, tableData, graphRendered, graphOptions) {
+function TableState(response, tableData, graphRendered, graphOptions, tableOptions) {
 	//the text response the student wrote
 	this.response = "";
 	
@@ -66,6 +66,11 @@ function TableState(response, tableData, graphRendered, graphOptions) {
 	if(graphOptions != null) {
 		//set the graph options used to render the graph
 		this.graphOptions = graphOptions;
+	}
+	
+	if(tableOptions != null) {
+		//set the tableOptions
+		this.tableOptions = tableOptions;
 	}
 };
 
@@ -96,11 +101,14 @@ TableState.prototype.parseDataJSONObj = function(stateJSONObj) {
 	//obtain the graph options used to render the graph
 	var graphOptions = stateJSONObj.graphOptions;
 	
+	//obtain the drop down title
+	var tableOptions = stateJSONObj.tableOptions;
+	
 	/*
 	 * create a state object with the student work
 	 * TODO: rename TEMPLATESTATE
 	 */
-	var tableState = new TableState(response, tableData, graphRendered, graphOptions);
+	var tableState = new TableState(response, tableData, graphRendered, graphOptions, tableOptions);
 	
 	//return the state object
 	return tableState;

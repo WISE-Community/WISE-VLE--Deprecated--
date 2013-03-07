@@ -5,38 +5,39 @@
 	*   depthArray: an array of binary values indicating if a cube is in a space, back-to-front. example [1, 0, 0, 0, 1]
 	*	view_topAngle, view_sideAngle: the angle which the object is being viewed (radians).  0, 0, is front and center
 	*/
-	var RectPrismShape = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
+	var CylinderCompShape = function(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject)
 	{
-		this.initialize(unit_width_px, unit_height_px, unit_depth_px, savedObject);
+		this.initialize(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject);
 	} 
-	var p = RectPrismShape.prototype = new createjs.Container();
+	var p = CylinderCompShape.prototype = new createjs.Container();
 	
 	// public properties
 	p.mouseEventsEnabled = true;
 	p.Container_initialize = p.initialize;
 	p.Container_tick = p._tick;
 
-	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, savedObject)
+	p.initialize = function(unit_width_px, unit_height_px, unit_depth_px, max_depth_units, savedObject)
 	{
 		this.Container_initialize();
 		this.mouseEnabled = true;
 		this.placed = false;
 		this.is_blockComp = false;
+		this.is_cylinder = true;
 		this.is_rectPrism = false;
-		this.is_rectPrism = true;
 		this.is_container = savedObject.is_container;
 		this.unit_width_px = unit_width_px;
 		this.unit_height_px = unit_height_px;
 		this.unit_depth_px = unit_depth_px;
 		this.unit_volume = this.unit_width_px/GLOBAL_PARAMETERS.SCALE * this.unit_depth_px/GLOBAL_PARAMETERS.SCALE * this.unit_height_px/GLOBAL_PARAMETERS.SCALE;
 		this.savedObject = savedObject;
-		this.rectPrismArrays = savedObject.rectPrismArrays;
-		this.widths = this.rectPrismArrays.widths;
-		this.depths = this.rectPrismArrays.depths;
-		this.heights = this.rectPrismArrays.heights;
-		this.materials = this.rectPrismArrays.materials;
-		this.width_units = Math.max.apply(null, this.widths);
-		this.depth_units = Math.max.apply(null, this.depths);
+		this.cylinderArrays = savedObject.cylinderArrays;
+		this.diameters = this.cylinderArrays.diameters;
+		this.heights = this.cylinderArrays.heights;
+		this.materials = this.cylinderArrays.materials;
+		this.diameter_units = Math.max.apply(null, this.diameters);
+		this.width_units = this.diameter_units;
+		this.depth_units = this.diameter_units;
+		this.max_depth_units = Math.max(this.depth_units, max_depth_units);
 		this.height_units = this.heights.reduce(function(a, b) { return a + b; }, 0);  
 		this.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle;
 		this.view_topAngle = GLOBAL_PARAMETERS.view_topAngle;
@@ -91,7 +92,7 @@
 			{
 				
 				var mass = 0, materialSpaces = 0, exteriorSpaces = 0, interiorSpaces = 0, protectedSpaces = 0;
-				materialSpaces = this.widths[i] * this.depths[i] * this.heights[i];
+				materialSpaces = Math.pow(this.diameters[i]/2, 2) * Math.PI * this.heights[i];
 				mass = GLOBAL_PARAMETERS.materials[this.materials[i]].density * materialSpaces;
 				o_mass += mass;
 				o_materialSpaces += materialSpaces;
@@ -99,7 +100,7 @@
 				o_interiorSpaces += interiorSpaces;
 				o_protectedSpaces += protectedSpaces;
 			
-				array2d[i] = {"mass":mass, "x_offset":(this.width_units-this.widths[i])/2, "y_offset":height_to,"width":this.widths[i], "height":this.heights[i], "depth":this.depths[i], "area":this.heights[i]*this.widths[i], "totalSpaces":materialSpaces, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
+				array2d[i] = {"mass":mass, "x_offset":(this.diameter_units-this.diameters[i])/2, "y_offset":height_to,"width":this.diameters[i], "height":this.heights[i], "depth":this.diameters[i], "diameter":this.diameters[i], "area":this.heights[i]*this.diameters[i], "totalSpaces":materialSpaces, "materialSpaces":materialSpaces, "exteriorSpaces":exteriorSpaces, "interiorSpaces":interiorSpaces, "protectedSpaces":protectedSpaces};
 				height_to += this.heights[i];
 			} 
 			this.savedObject.max_height = this.height_units;
@@ -173,28 +174,36 @@
 				row = rowarr[i];						
 				
 				var material = GLOBAL_PARAMETERS.materials[this.materials[row]];
-				var width = this.widths[row];
-				var depth = this.depths[row];
+				var diameter = this.diameters[row];
 				var height = this.heights[row];
 				var height_to = this.heights.slice(0, row).reduce(function(a, b) { return a + b; }, 0);  
 				
-				ftl_x = (this.width_units - width)/2 * this.unit_width_px;
-				ftl_y = height_to * this.unit_height_px - (this.depth_units - depth)/2 * this.unit_depth_px*Math.sin(view_topAngle);
+				ftl_x = (this.diameter_units - diameter)/2 * this.unit_width_px;
+				ftl_y = height_to * this.unit_height_px - (this.max_depth_units - diameter)/2 * this.unit_depth_px * Math.sin(view_topAngle);
 				fbl_x = ftl_x;
 				fbl_y = ftl_y + height * this.unit_height_px;
-				ftr_x = (this.width_units - (this.width_units - width)/2) * this.unit_width_px;
+				ftr_x = (this.diameter_units - (this.diameter_units - diameter)/2) * this.unit_width_px;
 				ftr_y = ftl_y;
 				fbr_x = ftr_x;
 				fbr_y = fbl_y;
 
-				btl_x = ftl_x + depth*this.unit_depth_px*Math.sin(view_sideAngle);
-				btl_y = ftl_y - depth*this.unit_depth_px*Math.sin(view_topAngle);
+				btl_x = ftl_x;
+				btl_y = ftl_y - diameter*this.unit_depth_px*Math.sin(view_topAngle);
 				bbl_x = btl_x;
 				bbl_y = btl_y + height * this.unit_height_px;
-				btr_x = ftr_x + depth*this.unit_depth_px*Math.sin(view_sideAngle);
+				btr_x = ftr_x;
 				btr_y = btl_y;
 				bbr_x = btr_x;
 				bbr_y = bbl_y;
+
+				mtl_x = ftl_x;
+				mtl_y = ftl_y - diameter*this.unit_depth_px/2*Math.sin(view_topAngle);
+				mbl_x = mtl_x;
+				mbl_y = mtl_y + height * this.unit_height_px;
+				mtr_x = ftr_x;
+				mtr_y = mtl_y;
+				mbr_x = mtr_x;
+				mbr_y = mbl_y;
 
 				// setup overall corners
 				if (isNaN(this.tr_x) || isNaN(this.tr_y))
@@ -203,54 +212,61 @@
 				}
 				// continuously override bottom left
 				this.bl_x = fbl_x; this.bl_y = fbl_y;
-				// draw front
-				g.setStrokeStyle(1);
-				g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-				g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
-				g.moveTo(fbl_x, fbl_y).lineTo(ftl_x,ftl_y).lineTo(ftr_x,ftr_y).lineTo(fbr_x,fbr_y).lineTo(fbl_x,fbl_y);
-				g.endStroke();
-				g.endFill();	
-
-				var ang = Math.atan((btl_y-ftl_y)/(btl_x-ftl_x))+ Math.PI/2;
 				
 				if (view_topAngle < 0)
 				{
+					// draw top
+					g.setStrokeStyle(1);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y);
+					g.drawEllipse(btl_x, btl_y, ftr_x-btl_x, ftr_y-btl_y);
+					g.endStroke();
+					g.endFill();		
+
+					// draw front
+					g.setStrokeStyle(1);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftr_x, ftr_y);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftr_y);
+					g.moveTo(mtr_x, mtr_y).lineTo(mbr_x,mbr_y).lineTo(mbl_x,mbl_y).lineTo(mtl_x,mtl_y);
+					g.endStroke();
+					g.lineTo(mtr_x,mtr_y);
+					g.endFill();
+
 					// draw bottom
 					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, fbl_x+width*this.unit_width_px*Math.cos(ang), fbl_y+width*this.unit_width_px*Math.sin(ang));
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, fbl_x+width*this.unit_width_px*Math.cos(ang), fbl_y+width*this.unit_width_px*Math.sin(ang));
-					g.moveTo(fbl_x, fbl_y).lineTo(bbl_x,bbl_y).lineTo(bbr_x,bbr_y).lineTo(fbr_x,fbr_y).lineTo(fbl_x,fbl_y);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, fbl_x, fbl_y, bbr_x, fbl_y+(fbl_y+bbl_y)/2);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, fbl_x, fbl_y, bbr_x, fbl_y+(fbl_y+bbl_y)/2);
+					g.drawEllipse(bbl_x, bbl_y, fbr_x-bbl_x, fbr_y-bbl_y);
 					g.endStroke();
 					g.endFill();
 				} else
 				{
+					// draw bottom
+					g.setStrokeStyle(1);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
+					g.drawEllipse(bbl_x, bbl_y, fbr_x-bbl_x, fbr_y-bbl_y);
+					g.endStroke();
+					g.endFill();
+
+					// draw front
+					g.setStrokeStyle(1);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, btr_x, ftl_y);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, btr_x, ftl_y);
+					g.moveTo(mbl_x, mbl_y).lineTo(mtl_x,mtl_y).lineTo(mtr_x,mtr_y).lineTo(mbr_x,mbr_y);
+					g.endStroke();
+					g.lineTo(mbl_x,mbl_y);	
+					g.endFill();	
+
 					// draw top
 					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftl_x+width*this.unit_width_px*Math.cos(ang), ftl_y+width*this.unit_width_px*Math.sin(ang));
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftl_x+width*this.unit_width_px*Math.cos(ang), ftl_y+width*this.unit_width_px*Math.sin(ang));
-					g.moveTo(ftl_x, ftl_y).lineTo(btl_x,btl_y).lineTo(btr_x,btr_y).lineTo(ftr_x,ftr_y).lineTo(ftl_x,ftl_y);
+					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftl_x, ftl_y, ftr_x, ftl_y+(ftl_y-btl_y)/2);
+					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftl_x, ftl_y, ftr_x, ftl_y+(ftl_y-btl_y)/2);
+					g.drawEllipse(btl_x, btl_y, ftr_x-btl_x, ftr_y-btl_y);
 					g.endStroke();
 					g.endFill();					
 				}
 
-				if (view_sideAngle < 0){
-					// draw left
-					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, btl_x, btl_y, ftl_x, btl_y);
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, btl_x, btl_y, ftl_x, btl_y);
-					g.moveTo(btl_x, btl_y).lineTo(ftl_x,ftl_y).lineTo(fbl_x,fbl_y).lineTo(bbl_x,bbl_y).lineTo(btl_x,btl_y);
-					g.endStroke();
-					g.endFill();
-				} else {
-					// draw right
-					// draw left
-					g.setStrokeStyle(1);
-					g.beginLinearGradientStroke(material.stroke_colors, material.stroke_ratios, ftr_x, ftr_y, btr_x, ftr_y);
-					g.beginLinearGradientFill(material.fill_colors, material.fill_ratios, ftr_x, ftr_y, btr_x, ftr_y);
-					g.moveTo(btr_x, btr_y).lineTo(ftr_x,ftr_y).lineTo(fbr_x,fbr_y).lineTo(bbr_x,bbr_y).lineTo(btr_x,btr_y);
-					g.endStroke();
-					g.endFill();
-				}
 				var percentSubmerged = typeof percentSubmerged2d == "undefined" ? 0 : percentSubmerged2d[row];
 				// draw liquid in front
 				if (percentSubmerged > 0 && percentSubmerged < 1){ 
@@ -309,5 +325,5 @@
 		stage.needs_to_update = true;
 	}
 
-	window.RectPrismShape = RectPrismShape;
+	window.CylinderCompShape = CylinderCompShape;
 }(window));

@@ -1024,7 +1024,6 @@ BRAINSTORM.prototype.processPostSuccessResponse = function(responseText, respons
 		$(".replyDiv[bsnodevisitid='"+replyToNodeVisitId+"'][bsnodestatetimestamp='"+replyToNodeStateTimestamp+"']").remove();
 
 		// also show this reply on the forum immediately so student doesn't have to refresh.
-		debugger;
 		bs.addStudentResponse(replyState, this.vle, content);		
 	}
 };

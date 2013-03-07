@@ -24,6 +24,15 @@ SurgeNode.tagMapFunctions = [
 	{functionName:'getAccumulatedScore', functionArgs:[]}
 ];
 
+/*
+ * The statuses that this step can return
+ */
+SurgeNode.statuses = [
+	'bronze',
+	'silver',
+	'gold'
+];
+
 /**
  * This is the constructor for the Node
  * @constructor
@@ -188,6 +197,86 @@ SurgeNode.prototype.processStudentWork = function(studentWork) {
 			eventManager.fire('updateStepStatusIcon', [this.id, imgPath, tooltip]);			
 		}
 	}
+};
+
+/**
+ * Get the status given the latest node state
+ * @param nodeState the latest student work
+ * @return the status for the node state
+ */
+SurgeNode.prototype.getStatus = function(nodeState) {
+	var status = '';
+	
+	if(nodeState != null) {
+		//get the best score
+		var topScore = nodeState.response.topScore;
+		var scoreAbsolute = nodeState.response.scoreAbsolute;
+		
+		var best;
+		
+		if(topScore >= scoreAbsolute) {
+			best = topScore;
+		} else {
+			best = scoreAbsolute;
+		}
+		
+		//get the status given the score
+		if(best == 10) {
+			status = 'bronze';
+		} else if(best == 20) {
+			status = 'silver';
+		} else if(best == 30) {
+			status = 'gold';
+		}
+	}
+	
+	return status;
+};
+
+/**
+ * Get the step icon for the status
+ * @param status the status to retrieve the step icon for
+ * @return the step icon path for the status
+ */
+SurgeNode.prototype.getStepIconForStatus = function(status) {
+	var iconPath = '';
+	
+	/*
+	 * try to retrieve the step icon path from the step content
+	 * if it is available
+	 */
+	iconPath = this.getStepIconPathForStatusFromContent(status);
+	
+	if(iconPath == null) {
+		/*
+		 * the step icon path was not authored in the step so
+		 * we will use the default step icons
+		 */
+		if(status == 'bronze') {
+			iconPath = '/vlewrapper/vle/node/surge/images/bronzeStar.gif';
+		} else if(status == 'silver') {
+			iconPath = '/vlewrapper/vle/node/surge/images/silverStar.png';
+		} else if(status == 'gold') {
+			iconPath = '/vlewrapper/vle/node/surge/images/goldStar.png';
+		}		
+	}
+	
+	return iconPath;
+};
+
+/**
+ * Get all the statuses that this step can return
+ */
+SurgeNode.prototype.getStatuses = function() {
+	var statuses = [];
+	
+	/*
+	 * get the statuses from the parent and combine it 
+	 * with the statuses from this step
+	 */
+	statuses = Node.statuses.concat(SurgeNode.statuses);
+	
+	return statuses;
 };
 
 //Add this node to the node factory so the vle knows it exists.

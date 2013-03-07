@@ -137,6 +137,41 @@ Table.prototype.render = function() {
 	//display the prompt2 which is between the table and the student textarea
 	$('#prompt2Div').html(this.content.prompt2);
 	
+	if(this.isDropDownTitleEnabled()) {
+		//drop down title is enabled
+		
+		/*
+		 * clear the drop down title div so we can re-populate it. this is
+		 * required for the authoring step preview.
+		 */
+		$('#dropDownTitleDiv').html('');
+		
+		var thisTable = this;
+		
+		//create the select element that will hold all the drop down title options
+		var dropDownTitleSelect = $('<select/>', {id:'dropDownTitleSelect'}).change(function() {
+			//call this function when the student changes the option that is selected
+			thisTable.dropDownTitleHasChanged();
+		});
+		
+		//get all the drop down titles
+		var dropDownTitles = this.getDropDownTitles();
+		
+		if(dropDownTitles != null) {
+			//loop through all the drop down titles
+			for(var x=0; x<dropDownTitles.length; x++) {
+				//get a drop down title
+				var dropDownTitle = dropDownTitles[x];
+				
+				//create a drop down title option and add it to the select element
+				$('<option/>', {id:'dropDownOption_' + x, value:dropDownTitle, text:dropDownTitle}).appendTo(dropDownTitleSelect);
+			}
+		}
+		
+		//add the select element to the div
+		$('#dropDownTitleDiv').append(dropDownTitleSelect);
+	}
+	
 	//make a table
 	var tableDisplay = document.createElement('table');
 	
@@ -154,27 +189,65 @@ Table.prototype.render = function() {
 		latestState = workToImport[workToImport.length - 1];
 	}
 	
+	//get the number of rows and columns from the content
+	this.numRows = this.content.numRows;
+	this.numColumns = this.content.numColumns;
+
+	if(latestState != null) {
+		if(latestState.tableOptions != null) {
+			
+			if(latestState.tableOptions.numRows != null) {
+				//get the number of rows from the student data
+				this.numRows = latestState.tableOptions.numRows;
+			}
+			
+			if(latestState.tableOptions.numColumns != null) {
+				//get the number of columns from the student data
+				this.numColumns = latestState.tableOptions.numColumns;
+			}
+		}
+	}
+	
 	//loop through all the rows
-	for(var y=0; y<this.content.numRows; y++) {
+	for(var y=0; y<this.numRows; y++) {
 		
 		//make a row
 		var tr = document.createElement('tr');
 		
 		//loop through all the columns in the row
-		for(var x=0; x<this.content.numColumns; x++) {	
+		for(var x=0; x<this.numColumns; x++) {	
 			
 			//make a cell
 			var td = document.createElement('td');
 			
-			//get the values for the cell from the content
-			var cellData = tableData[x][y];
-			var cellText = cellData.text;
-			var cellUneditable = cellData.uneditable;
-			var cellSize = cellData.cellSize;
+			var cellText = '';
+			var cellUneditable = null;
+			var cellSize = null;
 			
+			if(tableData[x] != null && tableData[x][y] != null) {
+				/*
+				 * the cell exists in the step content. it's possible for
+				 * the cell to not exist in the step content if the student
+				 * has added rows or columns.
+				 */
+				var cellData = tableData[x][y];
+				
+				if(cellData != null) {
+					//get the cell data values
+					cellText = cellData.text;
+					cellUneditable = cellData.uneditable;
+					cellSize = cellData.cellSize;
+				}
+			}
+
 			if(cellSize == null || cellSize == '') {
 				//cell size is not defined so we will just use the global cell size
 				cellSize = this.globalCellSize;
+			}
+			
+			if(cellUneditable == null) {
+				//set the default value of being editable
+				cellUneditable = false;
 			}
 			
 			if(latestState != null) {
@@ -277,6 +350,53 @@ Table.prototype.render = function() {
 			 */
 			this.displayGraphMessage(' <font color="red">Click "Make Graph" to graph the data</font>');
 		}
+	} else {
+		//graphing is not enabled
+		$('#graphParentDiv').hide();
+	}
+	
+	if(this.isDropDownTitleEnabled()) {
+		//drop down title is enabled
+		
+		if(latestState != null) {
+			
+			if(latestState.tableOptions != null) {
+				
+				if(latestState.tableOptions.title) {
+					//get the drop down title that was previously chosen
+					var dropDownTitle = latestState.tableOptions.title;
+					
+					if(dropDownTitle != null) {
+						//find the drop down option with the given title and make it selected in the drop down
+						$('#dropDownTitleSelect option').each(function() {
+							if($(this).text() == dropDownTitle) {
+								$(this).attr('selected', 'selected');
+							}
+						});
+					}
+				}
+			}
+		}
+	}
+	
+	if(this.allowStudentToAddColumns()) {
+		//we are allowing the student to add columns
+		$('#addColumnButton').show();
+		$('#deleteColumnButton').show();
+	} else {
+		//we are not allowing the student to add columns
+		$('#addColumnButton').hide();
+		$('#deleteColumnButton').hide();
+	}
+	
+	if(this.allowStudentToAddRows()) {
+		//we are allowing the student to add rows
+		$('#addRowButton').show();
+		$('#deleteRowButton').show();
+	} else {
+		//we are not allowing the student to add rows
+		$('#addRowButton').hide();
+		$('#deleteRowButton').hide();
 	}
 };
 
@@ -287,7 +407,7 @@ Table.prototype.render = function() {
  */
 Table.prototype.getStudentWorkHtmlView = function(work) {
 	//make a table
-	var html = "<table>";
+	var html = "";
 
 	//get the table data
 	var tableData = this.content.tableData;
@@ -295,14 +415,50 @@ Table.prototype.getStudentWorkHtmlView = function(work) {
 	//get the latest state
 	var latestState = work;
 	
+	var title = '';
+	var numRows = this.content.numRows;
+	var numColumns = this.content.numColumns;
+	
+	if(latestState != null) {
+		if(latestState.tableOptions != null) {
+			
+			if(latestState.tableOptions.title != null) {
+				//get the title from the student work
+				title = latestState.tableOptions.title;
+			}
+			
+			if(latestState.tableOptions.numRows != null) {
+				/*
+				 * get the number of rows from the previous work in case
+				 * the student has added rows
+				 */
+				numRows = latestState.tableOptions.numRows;
+			}
+			
+			if(latestState.tableOptions.numColumns != null) {
+				/*
+				 * get the number of columns from the previous work in case
+				 * the student has added columns
+				 */
+				numColumns = latestState.tableOptions.numColumns;
+			}
+		}
+	}
+	
+	if(title != null && title != '') {
+		html += title + '<br>';
+	}
+	
+	html += "<table>";
+	
 	//loop through all the rows
-	for(var y=0; y<this.content.numRows; y++) {
+	for(var y=0; y<numRows; y++) {
 		
 		//make a row
 		html += "<tr>";
 		
 		//loop through all the columns in the row
-		for(var x=0; x<this.content.numColumns; x++) {	
+		for(var x=0; x<numColumns; x++) {
 			
 			//make a cell
 			html += "<td>";
@@ -402,7 +558,7 @@ Table.prototype.getLatestState = function() {
  * the .html file for this step (look at template.html).
  */
 Table.prototype.save = function() {
-	if(this.responseChanged || this.tableChanged || this.graphRendered || this.graphOptionsChanged) {
+	if(this.responseChanged || this.tableChanged || this.graphRendered || this.graphOptionsChanged || this.dropDownTitleChanged) {
 		//get the answer the student wrote
 		var response = $('#studentResponseTextArea').val();
 		
@@ -411,9 +567,9 @@ Table.prototype.save = function() {
 		//get whether the student has rendered the graph for the recent table data
 		var graphRendered = this.graphRendered;
 		
-		if(this.responseChanged && !this.tableChanged && !this.graphRendered && !this.graphOptionsChanged) {
+		if((this.responseChanged || this.dropDownTitleChanged) && !this.tableChanged && !this.graphRendered && !this.graphOptionsChanged) {
 			/*
-			 * the response was changed, but nothing else was, so we will
+			 * the response or drop down title was changed, but nothing else was, so we will
 			 * use the previous value of graphRendered. this is needed
 			 * for the case when the graph was previously rendered and
 			 * the student came back to this step, and then changed the
@@ -431,6 +587,9 @@ Table.prototype.save = function() {
 		 * so that we can repopulate the graph when the student returns to this step
 		 */
 		var graphOptions = this.getGraphOptions();
+		
+		//get the table options
+		var tableOptions = this.getTableOptions();
 		
 		/*
 		 * create the student state that will store the new work the student
@@ -453,7 +612,7 @@ Table.prototype.save = function() {
 		 * and in that file you would define QUIZSTATE and therefore
 		 * would change the TEMPLATESTATE to QUIZSTATE below
 		 */
-		var tableState = new TableState(response, studentTableData, graphRendered, graphOptions);
+		var tableState = new TableState(response, studentTableData, graphRendered, graphOptions, tableOptions);
 		
 		/*
 		 * fire the event to push this state to the global view.states object.
@@ -469,6 +628,7 @@ Table.prototype.save = function() {
 	//set these boolean values back to false since we have just saved
 	this.tableChanged = false;
 	this.responseChanged = false;
+	this.dropDownTitleChanged = false;
 };
 
 /**
@@ -481,15 +641,39 @@ Table.prototype.getStudentTableData = function() {
 	var studentTableData = JSON.parse(JSON.stringify(this.content.tableData));
 	
 	//loop through all the columns
-	for(var x=0; x<this.content.numColumns; x++) {
+	for(var x=0; x<this.numColumns; x++) {
 	
+		if(studentTableData[x] == null) {
+			/*
+			 * this column does not exist because the student
+			 * has added a new column. we will now create the array
+			 * for the new column the student added.
+			 */
+			studentTableData[x] = [];
+		}
+		
 		//loop through all the rows
-		for(var y=0; y<this.content.numRows; y++) {
-			//get the text in the given x, y cell
-			var tableCellText = $('#tableCell_' + x + '-' + y).val();
+		for(var y=0; y<this.numRows; y++) {
 			
-			//update the cell in the table data
-			studentTableData[x][y].text = tableCellText;
+			if(studentTableData[x][y] == null) {
+				/*
+				 * this cell does not exist because the student
+				 * has added a new row. we will now create the cell
+				 * for the new cell the student added.
+				 */
+				studentTableData[x][y] = {
+					text:"",
+					uneditable:false
+				}
+			}
+			
+			if($('#tableCell_' + x + '-' + y).length > 0) {
+				//get the text in the given x, y cell
+				var tableCellText = $('#tableCell_' + x + '-' + y).val();
+				
+				//update the cell in the table data
+				studentTableData[x][y].text = tableCellText;
+			}
 		}
 	}
 	
@@ -500,39 +684,55 @@ Table.prototype.getStudentTableData = function() {
  * Reset the table back to the original value in the content
  */
 Table.prototype.reset = function() {
-	//get the original table values from the content
-	var tableData = this.content.tableData;
+	//ask the student if they are sure they want to reset
+	var answer = confirm('Are you sure you want to reset the table?');
 	
-	//check if there is a populatePreviousWorkNodeId
-	var populatePreviousWorkNodeId = this.node.populatePreviousWorkNodeId;
-	
-	if(populatePreviousWorkNodeId != null && populatePreviousWorkNodeId != "") {
-		//there is a populatePreviousWorkNodeId
+	if(answer) {
+		//the student is sure they want to reset
 		
-		//get the latest work from the populatePreviousWorkNodeId
-		var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
+		//get the original table values from the content
+		var tableData = this.content.tableData;
 		
-		if(previousWorkState != null && previousWorkState != "") {
-			//use the data from this populatePreviousWorkNodeId to reset the table
-			tableData = previousWorkState.tableData;		
+		//check if there is a populatePreviousWorkNodeId
+		var populatePreviousWorkNodeId = this.node.populatePreviousWorkNodeId;
+		
+		if(populatePreviousWorkNodeId != null && populatePreviousWorkNodeId != "") {
+			//there is a populatePreviousWorkNodeId
+			
+			//get the latest work from the populatePreviousWorkNodeId
+			var previousWorkState = this.view.state.getLatestWorkByNodeId(populatePreviousWorkNodeId);
+			
+			if(previousWorkState != null && previousWorkState != "") {
+				//use the data from this populatePreviousWorkNodeId to reset the table
+				tableData = previousWorkState.tableData;		
+			}
 		}
-	}
-	
-	//loop through all the columns
-	for(var x=0; x<this.content.numColumns; x++) {
 		
-		//loop through all the rows
-		for(var y=0; y<this.content.numRows; y++) {
-			/*
-			 * set the value in the cell back to the original value whether from the 
-			 * content or a previous step
-			 */
-			$('#tableCell_' + x + '-' + y).val(tableData[x][y].text);
+		this.numColumns = this.content.numColumns;
+		this.numRows = this.content.numRows;
+		
+		//loop through all the columns
+		for(var x=0; x<this.numColumns; x++) {
+			
+			//loop through all the rows
+			for(var y=0; y<this.numRows; y++) {
+				/*
+				 * set the value in the cell back to the original value whether from the 
+				 * content or a previous step
+				 */
+				$('#tableCell_' + x + '-' + y).val(tableData[x][y].text);
+			}
 		}
+		
+		//notify this Table object that the student has changed the table
+		this.studentTableChanged();
+		
+		//save the student table data with the reset table
+		this.save();
+		
+		//render the table again to reflect the reset table
+		this.render();
 	}
-	
-	//notify this Table object that the student has changed the table
-	this.studentTableChanged();
 };
 
 /**
@@ -681,7 +881,7 @@ Table.prototype.displayGraphOptions = function() {
 		});
 		
 		//loop through all the columns
-		for(var z=0; z<this.content.numColumns; z++) {
+		for(var z=0; z<this.numColumns; z++) {
 			//get a column header
 			var columnHeader = this.getColumnHeaderByIndex(z);
 			
@@ -974,10 +1174,17 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		//get the options that will be used to draw the chart
 		var options = this.getOptions(tableData, graphOptions);
 		
-		if(this.content.graphOptions != null) {
-			//get the graph type we will display
-			var graphType = this.content.graphOptions.graphType;
-
+		var graphType = null;
+		
+		if(graphOptions != null) {
+			//get the graph type from the passed in graph options
+			graphType = graphOptions.graphType;
+		} else if(this.content.graphOptions != null) {
+			//get the graph type from the content
+			graphType = this.content.graphOptions.graphType; //change this to look at graphOptions?
+		}
+		
+		if(graphType != null) {
 			if(graphType == 'scatterPlot') {
 				chart = new google.visualization.ScatterChart(graphDiv[0]);
 			} else if(graphType == 'lineGraph') {
@@ -1218,6 +1425,17 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 		}
 	}
 	
+	if(graphOptions.title != null) {
+		//get the title from the graph options
+		options.title = graphOptions.title;
+	} else if(this.isDropDownTitleEnabled()) {
+		/*
+		 * drop down title is enabled so we will use the the selected
+		 * title as the title for the graph
+		 */
+		options.title = this.getDropDownTitleSelected();
+	}
+	
 	return options;
 };
 
@@ -1311,6 +1529,31 @@ Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 	//get the columns to graph
 	var columnIndexesToGraph = this.getColumnIndexesToGraph(graphOptions);
 	
+	var numRows = 0;
+	var numColumns = 0;
+	
+	if(tableData != null) {
+		/*
+		 * tableData was passed into this function so we will retrieve
+		 * the number of columns from the tableData
+		 */
+		numColumns = tableData.length;
+	} else {
+		numColumns = this.numColumns;
+	}
+	
+	if(tableData != null) {
+		/*
+		 * tableData was passed into this function so we will retrieve
+		 * the number of rows from the tableData
+		 */
+		if(tableData.length > 0) {
+			numRows = tableData[0].length;
+		}
+	} else {
+		numRows = this.numRows;
+	}
+	
 	//create the array that we will return
 	var rows = [];
 	
@@ -1325,7 +1568,7 @@ Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 	 * 	[]
 	 * ]
 	 */ 
-	for(var y=0; y<this.content.numRows; y++) {
+	for(var y=0; y<numRows; y++) {
 		rows[y] = [];
 	}
 	
@@ -1346,7 +1589,7 @@ Table.prototype.getDataInGoogleFormat = function(tableData, graphOptions) {
 			 * loop through all the rows. basically we will
 			 * obtain all the elements in the current column.
 			 */
-			for(var r=0; r<this.content.numRows; r++) {
+			for(var r=0; r<numRows; r++) {
 				//get the cell value of one of the cells in the column
 				var cellValue = this.getCellValue(columnIndex, r, tableData);
 				
@@ -1601,6 +1844,232 @@ Table.prototype.processTagMaps = function() {
 	};
 	
 	return returnObject;
+};
+
+/**
+ * Get whether the drop down title is enabled for this step
+ */
+Table.prototype.isDropDownTitleEnabled = function() {
+	var enabled = false;
+	
+	if(this.content.dropDownTitleOptions != null) {
+		if(this.content.dropDownTitleOptions.enableDropDownTitle) {
+			enabled = true;
+		}
+	}
+	
+	return enabled;
+};
+
+/**
+ * Get all the drop down titles
+ */
+Table.prototype.getDropDownTitles = function() {
+	var dropDownTitles = null;
+	
+	if(this.content.dropDownTitleOptions != null) {
+		if(this.content.dropDownTitleOptions.dropDownTitles != null) {
+			dropDownTitles = this.content.dropDownTitleOptions.dropDownTitles;
+		}
+	}
+	
+	return dropDownTitles;
+};
+
+/**
+ * Get the drop down title the student has selected
+ */
+Table.prototype.getDropDownTitleSelected = function() {
+	var dropDownTitleSelected = null;
+	
+	if($('#dropDownTitleSelect option:selected') != null) {
+		dropDownTitleSelected = $('#dropDownTitleSelect option:selected').text();		
+	}
+	
+	return dropDownTitleSelected;
+};
+
+/**
+ * The student has changed which drop down title is selected
+ */
+Table.prototype.dropDownTitleHasChanged = function() {
+	this.dropDownTitleChanged = true;
+};
+
+/**
+ * Check whether this step allows the student to add rows
+ */
+Table.prototype.allowStudentToAddRows = function() {
+	var result = false;
+	
+	if(this.content.studentOptions != null) {
+		if(this.content.studentOptions.allowStudentToAddRows) {
+			//the student is allowed to add rows
+			result = true;
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Check whether this step allows the student to add columns
+ */
+Table.prototype.allowStudentToAddColumns = function() {
+	var result = false;
+	
+	if(this.content.studentOptions != null) {
+		if(this.content.studentOptions.allowStudentToAddColumns) {
+			//the student is allowed to add columns
+			result = true;
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Get the number of columns in the table
+ */
+Table.prototype.getNumColumns = function() {
+	return this.numColumns;
+};
+
+/**
+ * The student wants to add a new column to the table
+ */
+Table.prototype.studentAddColumn = function() {
+	/*
+	 * don't allow students to make more than 50 columns
+	 * as a safety measure
+	 */ 
+	if(this.numColumns < 50) {
+		//increment the number of columns
+		this.numColumns++;
+		
+		//set the flag that says the student has changed the table
+		this.studentTableChanged();
+		
+		//save the student table data with the new number of columns
+		this.save();
+		
+		//render the table again to refelect the new number of columns
+		this.render();
+	}
+};
+
+/**
+ * The student wants to remove a column from the table
+ */
+Table.prototype.studentDeleteColumn = function() {
+	/*
+	 * make sure the student never deletes any of the columns
+	 * that were originally authored in the step
+	 */
+	if(this.numColumns > this.content.numColumns) {
+		//ask the student if they are sure they want to delete the column on the right
+		var answer = confirm('Are you sure you want to delete the column on the right?');
+		
+		if(answer) {
+			//decrement the number of columns
+			this.numColumns--;
+			
+			//set the flag that says the student has changed the table
+			this.studentTableChanged();
+			
+			//save the student table data with the new number of columns
+			this.save();
+			
+			//render the table again to reflect the new number of columns
+			this.render();			
+		}
+	} else {
+		//they are trying to delete a column that was originally authored
+		alert('Error: you may not delete any of the original columns');
+	}
+};
+
+/**
+ * Get the number of rows in the table
+ */
+Table.prototype.getNumRows = function() {
+	return this.numRows;
+};
+
+/**
+ * The student wants to add a new row to the table
+ */
+Table.prototype.studentAddRow = function() {
+	/*
+	 * don't allow students to make more than 50 rows
+	 * as a safety measure
+	 */ 
+	if(this.numRows < 50) {
+		//increment the number of rows
+		this.numRows++;
+		
+		//set the flag that says the student has changed the table
+		this.studentTableChanged();
+		
+		//save the student table data with the new number of rows
+		this.save();
+		
+		//render the table again to reflect the new number of rows
+		this.render();
+	}
+};
+
+/**
+ * The student wants to delete a row from the table
+ */
+Table.prototype.studentDeleteRow = function() {
+	/*
+	 * make sure the student never deletes any of the rows
+	 * that were originally authored in the step
+	 */
+	if(this.numRows > this.content.numRows) {
+		//ask the student if they are sure they want to delete the bottom row
+		var answer = confirm('Are you sure you want to delete the bottom row?');
+		
+		if(answer) {
+			//decrement the number of rows
+			this.numRows--;
+			
+			//set the flag that says the student has changed the table
+			this.studentTableChanged();
+			
+			//save the student table data with the new number of rows
+			this.save();
+			
+			//render the table again to reflect the new number of rows
+			this.render();			
+		}
+	} else {
+		//they are trying to delete a row that was originally authored
+		alert('Error: you may not delete any of the original rows');
+	}
+};
+
+/**
+ * Get the table options
+ */
+Table.prototype.getTableOptions = function() {
+	var tableOptions = {};
+	
+	var title = null;
+	
+	if(this.isDropDownTitleEnabled()) {
+		//get the title from the drop down
+		title = this.getDropDownTitleSelected();
+	}
+	
+	tableOptions.title = title;
+	
+	//set the number of rows and columns
+	tableOptions.numRows = this.numRows;
+	tableOptions.numColumns = this.numColumns;
+	
+	return tableOptions;
 };
 
 //used to notify scriptloader that this script has finished loading

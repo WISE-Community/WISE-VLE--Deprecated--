@@ -372,19 +372,24 @@ View.prototype.editHints = function(tabIndex){
 			modal:false,
 			resizable:true,
 			title:title,
-			zIndex:3000, 
+			//zIndex:10000, 
 			left:0,
-			buttons:{"Save": function(){
+			open: function(){
+				$(this).parent().css('z-index',10000);
+			},
+			close: function(){
 				eventManager.fire('saveHints');
+			},
+			buttons:{"Save": function(){
 				$(this).dialog('close');
 			}}
-		}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+		}).on( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
 		    // before the dialog closes, save hintstate
-	    	if ($(this).data("dialog").isOpen()) {	    		    		
+	    	if ($(this).data("ui-dialog").isOpen()) {	    		    		
 	    		//var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
 	    		//event.data.view.pushHintState(hintState);
 	    	};
-	    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+	    }).on( "tabsselect", {view:currentNode.view}, function(event, ui) {
 	    	//var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
 	    	//event.data.view.pushHintState(hintState);
 	    });
@@ -472,7 +477,7 @@ View.prototype.editHints = function(tabIndex){
     }
 
     // instantiate tabs 
-	$("#hintsTabs").tabs({selected:tabIndex});		
+	$("#hintsTabs").tabs({active:tabIndex});		
 	
 	// set forceshow option
     var hintsForceShow = hints.forceShow;
@@ -1109,6 +1114,20 @@ View.prototype.updateEnableCRater = function() {
 	if(this.easyMode && this[this.resolveType(this.activeNode.type)] && this[this.resolveType(this.activeNode.type)].updateEnableCRater){
 		this[this.resolveType(this.activeNode.type)].updateEnableCRater();
 	}
+};
+
+/**
+ * Inserts the Step Icons authoring items
+ */
+View.prototype.insertStepIcons = function() {
+	this.stepIconsManager.insertStepIcons(this);
+};
+
+/**
+ * Inserts the Step Icons authoring items
+ */
+View.prototype.cleanupStepIcons = function() {
+	this.stepIconsManager.cleanupStepIcons(this);
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -409,17 +409,20 @@ ExplanationBuilderNode.prototype.overridesIsCompleted = function(){
  * student must complete work before exiting to another step
  */
 ExplanationBuilderNode.prototype.addConstraints = function() {
-	var content = this.content.getContentJSON();
-	var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.id);
+	var content = this.content.getContentJSON(),
+		project = this.view.getProject();
+	var stepNumAndTitle = project.getStepNumberAndTitle(this.id);
 	if('isMustComplete' in content && content.isMustComplete){
     	//isMustComplete is true so we will create the constraint
+		
+		var stepTerm = project.getStepTerm() ? project.getStepTerm() : this.view.getI18NString('stepTerm');
 		
 		// set constraint alert message depending on whether student text area is enabled
 		var message = '';
 		if(content.enableStudentTextArea == null || content.enableStudentTextArea) {
-			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
+			message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
 		} else {
-			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
+			message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
 		}
 		
     	//eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.id, mode:'node'}, id:this.constraintKey, workCorrect:false, msg:message});
@@ -470,11 +473,14 @@ ExplanationBuilderNode.prototype.isCompleted = function(nodeState) {
 			 * this step has a correct answer so we will check if the
 			 * student answered correctly
 			 */
-			if(nodeState.answer != null && 
-					nodeState.answer != '' &&
-					nodeState.explanationIdeas != null &&
-					nodeState.explanationIdeas.length > 0) {
-				result = true;
+			if (nodeState.explanationIdeas != null && nodeState.explanationIdeas.length > 0) {
+				if(content.enableStudentTextArea){
+					if(nodeState.answer != null && nodeState.answer != ''){
+						result = true;
+					}
+				} else {
+					result = true;
+				}
 			}
 		} else {
 			result = true;

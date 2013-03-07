@@ -2,6 +2,8 @@
  * Display hints for the current step.
  * Hints will popup in a dialog and each hint will
  * be in its own tab
+ * 
+ * TODO: Internationalize!
  */
 View.prototype.showStepHints = function() {
 	$('#hintsLink').stop();
@@ -88,15 +90,17 @@ View.prototype.displayHint = function(){
 				show:{effect:"fade",duration:200},
 				hide:{effect:"fade",duration:200},
 				title:hintTitle,
-				zindex:9999,
+				//zindex:9999,
 				width:600,
 				height:'auto',
-				position:["center","middle"],
+				open: function(){
+					$(this).parent().css('z-index',9999);
+				},
 				resizable:true    					
-			}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
+			}).on( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
 				// check if isMustViewAllPartsBeforeClosing is true. If true, check if this is the first time they view the hints, and student has viewed all parts.
 				var currHints = event.data.view.getCurrentNode().getHints();
-				if ($(this).data("dialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.state) {
+				if ($(this).data("uiDialog").isOpen() && currHints && currHints.isMustViewAllPartsBeforeClosing && event.data.view.state) {
 					
 					var studentHasSeenAllParts = false;
 					var nodeVisitsForThisNode = event.data.view.state.getNodeVisitsByNodeId(event.data.view.getCurrentNode().id);
@@ -132,12 +136,12 @@ View.prototype.displayHint = function(){
 				};
 				
 			    // before the dialog closes, save hintstate
-		    	if ($(this).data("dialog").isOpen()) {	    		    		
+		    	if ($(this).data("uiDialog").isOpen()) {	    		    		
 		    		var hintState = new HINTSTATE({"action":"hintclosed","nodeId":event.data.view.getCurrentNode().id});
 		    		event.data.view.pushHintState(hintState);
 		    		//$('#hintsHeader').html('&nbsp').addClass('visited');
 		    	};
-		    }).bind( "tabsselect", {view:currentNode.view}, function(event, ui) {
+		    }).on( "tabsselect", {view:currentNode.view}, function(event, ui) {
 	    		var hintState = new HINTSTATE({"action":"hintpartselected","nodeId":event.data.view.getCurrentNode().id,"partindex":ui.index});
 	    		event.data.view.pushHintState(hintState);
 		    });
@@ -161,7 +165,8 @@ View.prototype.displayHint = function(){
 	    	} else if (i==numHints-1){
 	    		nextLink = '';
 	    	}
-	    	hintsStringPart1 += "<li><a href='#tabs-"+i+"'>"+hintTitle+" "+(i+1)+"</a></li>";
+	    	var href = location.href;
+	    	hintsStringPart1 += "<li><a href='" + href + "#tabs-"+i+"'>"+hintTitle+" "+(i+1)+"</a></li>";
 	    	hintsStringPart2 += "<div id='tabs-"+i+"'>"+
 	    	    "<div class='hintMsg' id='hintMsg'></div>"+
 		    	"<div class='hintHeader'>"+ (i+1) + ' ' + this.getI18NString("hint_num_separator") + ' ' + numHints + "</div>"+
@@ -175,15 +180,15 @@ View.prototype.displayHint = function(){
 	    //set the html into the div
 	    $('#hintsPanel').html(hintsString);
 
-	    // instantiate tabs 
+	    // initialize tabs
 		var $tabs = $("#hintsTabs").tabs();
 		
 		// bind tab navigation link clicks
 		$('.tabPrev').click(function(){
 			$(".hintMsg").html("");
-			var selected = $tabs.tabs('option', 'selected');
+			var selected = $tabs.tabs('option', 'active');
 			if(selected != 0){
-				$tabs.tabs('select', selected-1);
+				$tabs.tabs('option', 'active', selected-1);
 			}
 			//eventManager.fire("adjustHintSize");
 		});
@@ -191,9 +196,9 @@ View.prototype.displayHint = function(){
 		// bind tab navigation links
 		$('.tabNext').click(function(){
 			$(".hintMsg").html("");
-			var selected = $tabs.tabs('option', 'selected');
+			var selected = $tabs.tabs('option', 'active');
 			if(selected < numHints-1){
-				$tabs.tabs('select', selected+1);
+				$tabs.tabs('option', 'active', selected+1);
 			}
 			//eventManager.fire("adjustHintSize");
 		});

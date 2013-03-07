@@ -1215,7 +1215,9 @@ View.prototype.editProjectMetadata = function(){
 			
 			//determine if enable public idea manager checkbox needs to be checked
 			if (tools.isPublicIdeaManagerEnabled != null && tools.isPublicIdeaManagerEnabled) {
-				$("#enablePublicIdeaManager").attr('checked', true);
+				this.enablePublicIdeaManager(true);
+			} else {
+				this.enablePublicIdeaManager(false);
 			}
 
 			//determine if enable student asset uploader needs to be checked
@@ -1232,7 +1234,7 @@ View.prototype.editProjectMetadata = function(){
 			if ('ideaManagerSettings' in tools){
 				imSettings = tools.ideaManagerSettings;
 				if('version' in tools.ideaManagerSettings){
-					imVersion = tools.ideaManagerSettings;
+					imVersion = tools.ideaManagerSettings.version;
 				}
 			}
 		}
@@ -1265,6 +1267,23 @@ View.prototype.editProjectMetadata = function(){
 	} else {
 		this.notificationManager.notify('Open a project before using this tool.', 3);
 	};
+};
+
+/**
+ * Activates or de-activates the public Idea Manager and updates IM settings options
+ * in DOM accordingly
+ * @param on Boolean indicating whether Public Idea Manager should be actiavted or not
+ */
+View.prototype.enablePublicIdeaManager = function(on) {
+	if(on){
+		$("#enablePublicIdeaManager").attr('checked', true);
+		$('#imSettings .public').show().addClass('required');
+		$('#imSettings .private').hide().removeClass('required');
+	} else {
+		$("#enablePublicIdeaManager").attr('checked', false);
+		$('#imSettings .private').show().addClass('required');
+		$('#imSettings .public').hide().removeClass('required');
+	}
 };
 
 /**
@@ -1303,6 +1322,18 @@ View.prototype.populateIMSettings = function(settings){
 		$('#imAddIdeaTerm').val(settings.addIdeaTerm);
 	} else {
 		$('#imAddIdeaTerm').val(this.getI18NString('idea_basket_add_an_idea'));
+	}
+	
+	if('privateBasketTerm' in settings && this.utils.isNonWSString(settings.privateBasketTerm)) {
+		$('#imPrivateBasketTerm').val(settings.privateBasketTerm);
+	} else {
+		$('#imPrivateBasketTerm').val(this.getI18NString('idea_basket_private'));
+	}
+	
+	if('publicBasketTerm' in settings && this.utils.isNonWSString(settings.publicBasketTerm)) {
+		$('#imPublicBasketTerm').val(settings.publicBasketTerm);
+	} else {
+		$('#imPublicBasketTerm').val(this.getI18NString('idea_basket_public'));
 	}
 	
 	// clear active idea attributes
@@ -1370,9 +1401,6 @@ View.prototype.addIdeaAttribute = function(type,options,name,isRequired,allowCus
 			// 10 option fields shown, so remove add more link
 			$('.add', target).hide();
 		}
-		
-		// add new item to jquery-ui sortable
-		target.sortable('refresh');
 		
 		// bind delete link click event
 		$('.delete',newInput).click(function(){
@@ -1628,9 +1656,10 @@ View.prototype.onProjectLoaded = function(){
 		if(this.project && this.project.getStepTerm()){
 			document.getElementById('stepTerm').value = this.project.getStepTerm();
 		} else {
-			document.getElementById('stepTerm').value = '';
+			var stepTerm = this.getI18NString('stepTerm');
+			document.getElementById('stepTerm').value = stepTerm;
 			this.project.setStepTerm('');
-			this.notificationManager.notify('stepTerm not set in project, setting default value: \"\"', 2);
+			this.notificationManager.notify('stepTerm not set in project, setting default value: \"' + stepTerm + '\"', 2);
 		};
 	
 		document.getElementById('postLevelSelect').selectedIndex = 0;

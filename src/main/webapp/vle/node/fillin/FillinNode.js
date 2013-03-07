@@ -90,6 +90,37 @@ FillinNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVis
 	displayStudentWorkDiv.html(studentWork);
 };
 
+/**
+ * Override of Node.overridesIsCompleted
+ * Specifies whether the node overrides Node.isCompleted
+ */
+FillinNode.prototype.overridesIsCompleted = function() {
+	return true;
+};
+
+/**
+ * Override of Node.isCompleted
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+FillinNode.prototype.isCompleted = function() {
+	var nodeVisitsForThisNode = this.view.state.getNodeVisitsByNodeId(this.id);
+	if (nodeVisitsForThisNode != null) {
+		for (var i=0; i < nodeVisitsForThisNode.length; i++) {
+			var nodeVisitForThisNode = nodeVisitsForThisNode[i];
+			if (nodeVisitForThisNode.nodeStates != null) {
+				for (var k=0;k<nodeVisitForThisNode.nodeStates.length;k++) {
+					var nodeState = nodeVisitForThisNode.nodeStates[k];
+					if (nodeState.isCompleted) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+};
+
 NodeFactory.addNode('FillinNode', FillinNode);
 
 //used to notify scriptloader that this script has finished loading

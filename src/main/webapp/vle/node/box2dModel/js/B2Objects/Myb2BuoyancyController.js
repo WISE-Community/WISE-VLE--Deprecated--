@@ -62,7 +62,7 @@ Box2D.inherit(Myb2BuoyancyController, Box2D.Dynamics.Controllers.b2Controller);
             var sarea = fixture.GetShape().ComputeSubmergedArea(this.normal, this.offset, body.GetTransform(), sc);
             if (sarea != fixture.percentSubmerged){
                body.percentSubmergedChangedFlag = true;
-               fixture.percentSubmerged = sarea;
+               fixture.percentSubmerged = sarea/fixture.area;
                body.percentSubmerged2d[fixture.x_index][fixture.y_index] = fixture.percentSubmerged;
              }
            

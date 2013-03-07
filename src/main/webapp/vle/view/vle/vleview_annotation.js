@@ -36,9 +36,7 @@ View.prototype.showNodeAnnotations = function(nodeId) {
 						position:["center","middle"],
 						resizable:true    					
 					}).bind( "dialogbeforeclose", {view:currentNode.view}, function(event, ui) {
-						if ($(this).data("dialog").isOpen()) {	    		    		
-							// before the dialog closes
-						};
+
 					});
 		};
 

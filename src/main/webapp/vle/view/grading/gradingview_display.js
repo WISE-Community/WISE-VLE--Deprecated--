@@ -1127,7 +1127,7 @@ View.prototype.displayStudentUploadedFiles = function() {
 		$('#studentAssetsDiv').dialog('close');			
 	};
 
-	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,position:['center',50],show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:true,title:'Students\' Uploaded Files',open:show,buttons:{'Done':done}});
+	$('#studentAssetsDiv').dialog({autoOpen:false,closeText:'',resizable:true,width:800,height:450,show:{effect:"fade",duration:200},hide:{effect:"fade",duration:200},modal:true,title:'Students\' Uploaded Files',open:show,buttons:{'Done':done}});
 
 	var displayStudentAssets = function(workgroupAssetListsStr, view) {
 		// clear out the panel
@@ -1992,7 +1992,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
     new FixedHeader( oTable2 ); */
 	
 	//also render summary view for this node
-	this.renderSummaryViewForNode(node);
+	this.renderSummaryViewForNode(node, $("#summaryContent"));
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
@@ -4631,60 +4631,6 @@ View.prototype.isWriteAllowed = function() {
 	
 	return writePermission;
 };
-
-/**
- * Render all the student work for a given node. This is used
- * by gradeByStep.
- * @param node the node for the step we are displaying in the
- * grade by step
- */
-View.prototype.renderSummaryViewForNode = function(node) {
-	/*
-	 * this new way of displaying student work in grading is only implemented
-	 * for new node types at the moment. we will convert all the other steps to
-	 * this way later.
-	 */
-	if(node.hasSummaryView()) {
-		
-		//get all the vleStates
-		var vleStates = this.getVleStatesSortedByUserName();
-
-		//get the node id
-		var nodeId = node.id;
-		
-		
-		var workgroupIdToWork = {};
-
-		//loop through all the vleStates, each vleState is for a workgroup
-		for(var x=0; x<vleStates.length; x++) {
-			//get a vleState
-			var vleState = vleStates[x];
-
-			//get the workgroup id
-			var workgroupId = vleState.dataId;
-
-			//get the revisions
-			var nodeVisitRevisions = vleState.getNodeVisitsWithWorkByNodeId(nodeId);
-
-			var latestNodeVisit = null;
-
-			if(nodeVisitRevisions.length > 0) {
-				//get the latest work for the current workgroup
-				latestNodeVisit = nodeVisitRevisions[nodeVisitRevisions.length - 1];
-			}
-
-			//check if the student submitted any work
-			if(latestNodeVisit != null) {
-				//render the student work for the node visit
-				//this.renderStudentWorkFromNodeVisit(latestNodeVisit, workgroupId);
-				//$("#summaryContent").append(latestNodeVisit.getLatestWork().response[0]);
-				workgroupIdToWork[workgroupId] = latestNodeVisit.getLatestWork().response;
-			}
-		}
-		node.renderSummaryView(workgroupIdToWork);
-	}
-};
-
 
 /**
  * Render all the student work for a given node. This is used

@@ -11,6 +11,7 @@
 	p.Container_tick = p._tick;
 	p.TITLE_HEIGHT = 40;
 	p.BORDER_WIDTH = 10;
+	p.EXPORT_HEIGHT = 20;
 	
 	// constants
 	//p.MATERIAL_TYPES = ["full", "center3", "center1", "ends"];
@@ -30,16 +31,22 @@
 		this.shape = new createjs.Shape(this.g);
 		this.addChild(this.shape);
 
-
+		var current_x = this.BORDER_WIDTH;
+		var current_y = GLOBAL_PARAMETERS.PADDING;
+		
 		//library
-		this.library = new ObjectLibrary(this.width_px-2*this.BORDER_WIDTH, this.max_shape_height_px, this.max_shape_width_px, this.max_shape_height_px, this.width_from_depth, this.height_from_depth);
-		this.addChild(this.library);
-		this.library.x = this.BORDER_WIDTH;
-		this.library.y = this.BORDER_WIDTH;
+		if (GLOBAL_PARAMETERS.INCLUDE_LIBRARY){
+			this.library = new ObjectLibrary(this.width_px-2*this.BORDER_WIDTH, this.max_shape_height_px, this.max_shape_width_px, this.max_shape_height_px, this.width_from_depth, this.height_from_depth);
+			this.addChild(this.library);
+			this.library.x = this.BORDER_WIDTH;
+			this.library.y = this.BORDER_WIDTH;
+			current_y += this.library.y + this.library.height_px;
+		} else {
+			this.library = null;
+		}
+
 		this.dragging_object = null;
 		//balanceWorld
-		var current_x = this.BORDER_WIDTH;
-		var current_y = this.library.y + this.library.height_px + GLOBAL_PARAMETERS.PADDING;
 		//this.height_px = current_y;
 		var B2WORLD_HEIGHT = this.height_px-this.BORDER_WIDTH-current_y;
 		if (GLOBAL_PARAMETERS.INCLUDE_SCALE)
@@ -60,6 +67,7 @@
 			//this.height_px = Math.max(this.height_px, current_y + this.balanceWorld.height_px)
 		}
 		//beakerWorld
+		var separation_x = 0;
 		if (GLOBAL_PARAMETERS.INCLUDE_BEAKER)
 		{
 			var beaker_world_width_px = this.width_px - this.BORDER_WIDTH - current_x;
@@ -70,11 +78,25 @@
 			this.addChild(this.beakerWorld);
 			this.beakerWorld.x = current_x;
 			this.beakerWorld.y = current_y;
+			separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
 			//this.height_px = Math.max(this.height_px, current_y + this.beakerWorld.height_px)
+		} else if (GLOBAL_PARAMETERS.INCLUDE_EMPTY)
+		{
+			var empty_world_width_px = this.width_px - this.BORDER_WIDTH - current_x;
+			this.emptyWorld = new Emptyb2World(empty_world_width_px, B2WORLD_HEIGHT, current_x , current_y) ;
+			this.addChild(this.emptyWorld);
+			this.emptyWorld.x = current_x;
+			this.emptyWorld.y = current_y;
+			separation_x = current_x - GLOBAL_PARAMETERS.PADDING;
 		}
+		var export_offsetL = 250;
+		var export_offsetR = 50;
 
 		this.g.beginFill("rgba(255,255,255,1.0)");
 		this.g.drawRect(0, 0, this.width_px, this.height_px);
+		this.g.endFill();
+		this.g.beginFill("rgba(225,225,255,1.0)");
+		this.g.drawRect(this.width_px-export_offsetL-this.BORDER_WIDTH, -this.EXPORT_HEIGHT, export_offsetL-export_offsetR+this.BORDER_WIDTH, this.EXPORT_HEIGHT+this.BORDER_WIDTH);
 		this.g.endFill();
 
 		// draw border
@@ -87,10 +109,31 @@
 		this.g.endFill();
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
 		this.g.moveTo(0,0);
-		this.g.lineTo(this.width_px,0);
-		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,0);
+		this.g.lineTo(this.width_px-export_offsetL,this.BORDER_WIDTH);
 		this.g.lineTo(this.BORDER_WIDTH, this.BORDER_WIDTH);
 		this.g.lineTo(0,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetL-this.BORDER_WIDTH,0,this.width_px-export_offsetL,0);
+		this.g.moveTo(this.width_px-export_offsetL-this.BORDER_WIDTH,-this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,-this.BORDER_WIDTH - this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetL,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,0);
+		this.g.lineTo(this.width_px-export_offsetL-this.BORDER_WIDTH,-this.EXPORT_HEIGHT);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],0,0,0,this.BORDER_WIDTH);
+		this.g.moveTo(this.width_px-export_offsetR,0);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px,0);
+		this.g.lineTo(this.width_px-export_offsetR,0);
+		this.g.endFill();
+		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px-export_offsetR-this.BORDER_WIDTH,0,this.width_px-export_offsetR,0);
+		this.g.moveTo(this.width_px-export_offsetR-this.BORDER_WIDTH,-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,-this.EXPORT_HEIGHT);
+		this.g.lineTo(this.width_px-export_offsetR,0);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,this.BORDER_WIDTH);
+		this.g.lineTo(this.width_px-export_offsetR-this.BORDER_WIDTH,-this.BORDER_WIDTH- this.EXPORT_HEIGHT);
 		this.g.endFill();
 		this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],this.width_px,0,this.width_px-this.BORDER_WIDTH,0);
 		this.g.moveTo(this.width_px,0);
@@ -107,6 +150,15 @@
 		this.g.lineTo(0,this.height_px);
 		this.g.endFill();
 		
+		if (separation_x > 0){
+			this.g.beginLinearGradientFill(["rgba(100,100,100,1.0)","rgba(150,150,150,1.0)","rgba(200,200,200,1.0)","rgba(150,150,150,1.0)","rgba(100,100,100,1.0)"],[0,0.2,0.5,0.8,1.0],separation_x,this.height_px-this.BORDER_WIDTH,separation_x+GLOBAL_PARAMETERS.PADDING,this.height_px-this.BORDER_WIDTH);
+			this.g.moveTo(separation_x,this.height_px-this.BORDER_WIDTH);
+			this.g.lineTo(separation_x+GLOBAL_PARAMETERS.PADDING,this.height_px-this.BORDER_WIDTH);
+			this.g.lineTo(separation_x+GLOBAL_PARAMETERS.PADDING,this.height_px-this.BORDER_WIDTH-B2WORLD_HEIGHT);
+			this.g.lineTo(separation_x,this.height_px-this.BORDER_WIDTH-B2WORLD_HEIGHT);
+			this.g.lineTo(separation_x,this.height_px-this.BORDER_WIDTH);
+			this.g.endFill();
+		}
 
 		this.actors = new Array();
 
@@ -139,9 +191,10 @@
 		}
 		 
 		 
-		if (this.library.addObject(actor)){
+		if (this.library != null && this.library.addObject(actor)){
 			actor.onPress = this.actorPressHandler.bind(this);
 			actor.orig_parent = this.library;
+			actor.can_switch_worlds = true;
 			this.actors.push(actor);
 			if (this.library.getIsFull() && typeof builder != "undefined" && builder != null){
 				builder.disableWithText('The library is full. To make a new model, first delete an old one.');
@@ -157,6 +210,45 @@
 	p.removeObjectFromLibrary = function (o){
 		builder.enable();
 	}
+
+	/** Place an object directly in the world */
+	p.createObjectInWorld = function (o, world, x, y, rotation, type)
+	{
+		
+		var b2world;
+		if (world == "empty" && typeof this.emptyWorld != "undefined" && this.emptyWorld != null){
+			b2world = this.emptyWorld;
+		} else if (world == "balance" && typeof this.balanceWorld != "undefined" && this.balanceWorld != null){
+			b2world = this.balanceWorld;
+		} else if (world == "scale" && typeof this.scaleWorld != "undefined" && this.scaleWorld != null){
+			b2world = this.scaleWorld;
+		} else if (world == "beaker" && typeof this.beakerWorld != "undefined" && this.beakerWorld != null){
+			b2world = this.beakerWorld;
+		} else {
+			return false;
+		}
+
+		var actor;
+		if (o.is_blockComp){
+			actor = new BlockCompb2Actor(o); 
+		} else if (o.is_cylinder){
+			actor = new Cylinderb2Actor(o); 
+		} else if (o.is_rectPrism){
+			actor = new RectPrismb2Actor(o); 
+		}
+		actor.can_switch_worlds = false;
+
+		var wpoint = b2world.globalToLocal(b2world.x + x * GLOBAL_PARAMETERS.SCALE + actor.skin.width_px_left, b2world.y + b2world.height_px - y * GLOBAL_PARAMETERS.SCALE - actor.skin.height_px_below);
+		//b2world.addActor(actor, wpoint.x, wpoint.y);
+		b2world.addActor(actor, x * GLOBAL_PARAMETERS.SCALE, b2world.height_px - y * GLOBAL_PARAMETERS.SCALE - actor.skin.height_px_below);
+		actor.orig_parent = b2world;
+		if (type == "dynamic"){
+			actor.onPress = this.actorPressHandler.bind(this);
+		}
+
+		return true;
+		
+	}	
 	
 	/** Removes object from its current parent, allows movement based on current*/
 	p.actorPressHandler = function (evt)
@@ -179,6 +271,9 @@
 		} else if (source_parent instanceof Beakerb2World)
 		{
 			source_parent.removeActor(evt.target);
+		} else if (source_parent instanceof Emptyb2World)
+		{
+			source_parent.removeActor(evt.target);
 		}
 		var lp = this.globalToLocal(gp.x, gp.y);
 		this.addChild(evt.target);
@@ -193,31 +288,25 @@
 			var newX = lpoint.x;
 			var newY = lpoint.y;
 			
+			
 			// place within bounds of this object
 			if (parent instanceof ObjectTestingPanel)
 			{
-				if (newX < 0)
-				{
-					this.target.x = 0;
-				} else if (newX > parent.width_px)
-				{
-					this.target.x = parent.width_px;
-				} else
-				{
-					this.target.x = newX;
-				}
-				if (newY < 0)
-				{
-					this.target.y = 0;
-				} else if (newY > parent.height_py)
-				{
-					this.target.y = parent.height_py;
-				} else
-				{
-					this.target.y = newY;
-				} 
+				if (this.target.can_switch_worlds){
+					if (newX < 0){this.target.x = 0;
+					} else if (newX > parent.width_px){	this.target.x = parent.width_px;
+					} else{	this.target.x = newX;
+					}
 
-				//parent.beakerWorld.placeObject(this.target, ev.stageX-offset.x, ev.stageY-offset.y);
+					if (newY < 0){this.target.y = 0;
+					} else if (newY > parent.height_py){this.target.y = parent.height_py;
+					} else{this.target.y = newY;
+					} 
+				} else {
+					// keep the target within the space of its source_parent object
+					if (newX > source_parent.x + this.target.width_px_left && newX < source_parent.x + source_parent.width_px - this.target.width_px_right) this.target.x = newX;
+					if (newY > source_parent.y + this.target.height_px_above && newY < source_parent.y + source_parent.height_px - this.target.height_px_below) this.target.y = newY;
+				}
 			} else if (parent instanceof Beakerb2World)
 			{
 				parent.placeObject(this.target, ev.stageX-offset.x, ev.stageY-offset.y);
@@ -228,22 +317,32 @@
 		{
 			tester.dragging_object = null;
 			var parent = this.target.parent;
+			var wpoint;
 			//
 			if (parent.balanceWorld != null && parent.balanceWorld.hitTestObject(this.target))
 			{
-				var wpoint = parent.balanceWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+				wpoint = parent.balanceWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
 				parent.balanceWorld.addActor(this.target, wpoint.x, wpoint.y);
 			} else if (parent.scaleWorld != null && parent.scaleWorld.hitTestObject(this.target))
 			{
-				var wpoint = parent.scaleWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+				wpoint = parent.scaleWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
 				parent.scaleWorld.addActor(this.target, wpoint.x, wpoint.y);
 			} else if (parent.beakerWorld != null && parent.beakerWorld.hitTestObject(this.target))
 			{
-				var wpoint = parent.beakerWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+				wpoint = parent.beakerWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
 				parent.beakerWorld.addActor(this.target, wpoint.x, wpoint.y);
+			} else if (parent.emptyWorld != null && parent.emptyWorld.hitTestObject(this.target))
+			{
+				wpoint = parent.emptyWorld.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+				parent.emptyWorld.addActor(this.target, wpoint.x, wpoint.y);
 			}else
 			{
-				parent.library.addObject(this.target);
+				if (parent.library != null){
+					parent.library.addObject(this.target);
+				} else {
+					wpoint = source_parent.globalToLocal(ev.stageX-offset.x, ev.stageY-offset.y);
+					source_parent.addActor(this.target, wpoint.x, wpoint.y);
+				}
 			}
 			stage.needs_to_update = true;			
 		}

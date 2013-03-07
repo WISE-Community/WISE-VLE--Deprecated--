@@ -78,6 +78,7 @@ table.wisetable th {
 	font-weight: bold;
 	padding: .25em .5em;
 	text-align: center;
+	vertical-align:middle;
 }
 
 table.wisetable td {

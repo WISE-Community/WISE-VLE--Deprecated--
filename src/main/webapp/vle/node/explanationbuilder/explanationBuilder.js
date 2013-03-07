@@ -131,22 +131,7 @@ ExplanationBuilder.prototype.render = function() {
 	
 	if(this.content.isMustComplete){
     	//isMustComplete is true so we will create the constraint
-		
-		var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.node.id);
-		
-		// set constraint alert message depending on whether student text area is enabled
-		var message = '';
-		if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
-			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
-		} else {
-			message = 'You must complete work for Step ' + stepNumAndTitle + ' before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
-		}
-
-		/*
-		 * create the constraint that the student must complete the step
-		 * before they can move forward in the project
-		 */
-		this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null, message]);
+		this.addConstraints();
 	}
 	
 	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
@@ -194,23 +179,14 @@ ExplanationBuilder.prototype.render = function() {
 		});
 		
 		// bind save button click action
-		$('#save').unbind('click');
-		$('#save').click(function(){
+		$('#save').off('click');
+		$('#save').on('click',function(){
 			if(!$(this).hasClass('disabled')){
 				$(this).addClass('disabled');
 				$('#cancel').addClass('disabled');
 				context.answer = $('#responseText').val();
-				if ((/\S/.test(context.answer))){
-					// a valid answer has been submitted, so set node completed and remove constraint
-					context.node.setCompleted();
-					//context.node.removeConstraints();
-				} else {
-					// a valid answer has not been submitted, so set node not completed and add constraint
-					context.node.setNotCompleted();
-					//context.node.addConstraints();
-				}
-				context.save();
 				// update constraints in navigation menu
+				context.save();
 			}
 		});
 		
@@ -280,6 +256,29 @@ ExplanationBuilder.prototype.render = function() {
 
 	//initialize the UI and load the idea basket
 	this.initializeUI();
+};
+
+/**
+ * Add the tag map constraint 'mustCompleteBeforeAdvancing' to the step
+ */
+ExplanationBuilder.prototype.addConstraints = function(){
+	var stepNumAndTitle = this.view.getProject().getStepNumberAndTitle(this.node.id),
+	project = this.view.getProject();
+	var stepTerm = project.getStepTerm() ? project.getStepTerm() : this.view.getI18NString('stepTerm');
+	
+	// set constraint alert message depending on whether student text area is enabled
+	var message = '';
+	if(this.content.enableStudentTextArea == null || this.content.enableStudentTextArea) {
+		message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some ideas in the Organizing Space. Then click the "Ready to Exlpain!" button and type your answer.  When you are finished, click the "Save Response" button.';
+	} else {
+		message = 'You must complete work for "' + stepTerm + ' ' + stepNumAndTitle + '" before moving ahead.\n\nArrange some of your ideas in the Organizing Space.';
+	}
+	
+	/*
+	 * create the constraint that the student must complete the step
+	 * before they can move forward in the project
+	 */
+	this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null, null, message]);
 };
 
 /**
@@ -550,7 +549,10 @@ ExplanationBuilder.prototype.save = function() {
 			 * would change the TEMPLATESTATE to QUIZSTATE below
 			 */
 			var explanationBuilderState = new ExplanationBuilderState(this.explanationIdeas, this.answer, Date.parse(new Date()));
-
+			
+			// re-add constraint
+			this.addConstraints();
+			
 			/*
 			 * fire the event to push this state to the global view.states object.
 			 * the student work is saved to the server once they move on to the
@@ -561,6 +563,12 @@ ExplanationBuilder.prototype.save = function() {
 			//push the state object into this or object's own copy of states
 			this.states.push(explanationBuilderState);
 			this.stateChanged = false;
+			
+			// check constraints and show success message if node has been completed
+			this.view.updateActiveTagMapConstraints();
+			if(this.node.isCompleted(explanationBuilderState)){
+					$('#saveConfirm').html('Saved!&nbsp;&nbsp;If you are finished, go to the next step.').fadeIn();
+			}
 		}
 		
 		if(this.basketChanged == true) {
@@ -569,13 +577,6 @@ ExplanationBuilder.prototype.save = function() {
 			
 			//set this back to false now that we have saved it
 			this.basketChanged = false;
-		}
-		
-		// show success message if node has been completed
-		if(this.node.isCompleted()){
-			//setTimeout(function(){
-				$('#saveConfirm').html('Saved!&nbsp;&nbsp;If you are finished, go to the next step.').fadeIn();
-			//},1000);
 		}
 	}
 };
@@ -640,6 +641,7 @@ ExplanationBuilder.prototype.init = function(context){
 		hoverClass: 'hover',
 		//tolerance: 'pointer',
 		drop: function(event, ui) {
+			ui.draggable.draggable('disable');
 			var id = ui.helper.find('tr').attr('id').replace('idea','');
 			var pos = ui.helper.position();
 			var left = pos.left;
@@ -657,7 +659,6 @@ ExplanationBuilder.prototype.init = function(context){
 			}
 			context.expIdeasChanged = true;
 			context.addExpIdea(context,false,true,id,left,top);
-			ui.draggable.draggable('disable');
 		}
 	});
 
@@ -1306,7 +1307,7 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 				break;
 			}
 		}
-		$('#idea' + id).draggable('disable');
+		//$('#idea' + id).draggable('disable');
 	} else {
 		for(var i=0; i<this.ideaBasket.deleted.length; i++){
 			if(this.ideaBasket.deleted[i].id == id){
@@ -1377,12 +1378,9 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		$('#showResponse').removeClass('disabled');
 	}
 	
-	if(!context.enableStudentTextArea || (/\S/.test(context.answer))){
-		// student text area is disabled or a valid answer has been submitted, so set node completed and remove constraint
-		context.node.setCompleted();
-		context.node.removeConstraints();
-		// update constraints in navigation menu
-		this.view.eventManager.fire('updateNavigationConstraints');
+	if(!isLoad){
+		// update constraints
+		context.save();
 	}
 
 	if (!isActive){
@@ -1649,8 +1647,7 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 	}
 	$('#explanationIdea' + id).remove();
 	if ($('#idea' + id)){
-		$('#idea' + id).draggable('enable');
-		//$('#idea' + id).effect("pulsate", { times:2 }, 500); 
+		context.makeDraggable(context,$('#idea' + id)); 
 	}
 
 	if(context.explanationIdeas.length<1){
@@ -1660,9 +1657,9 @@ ExplanationBuilder.prototype.removeExpIdea = function(context,id){
 			$('#save').addClass('disabled');
 		});
 		$('#showResponse').fadeIn().addClass('disabled');
-		// no ideas remain in organizing space, so set node not completed and add constraint
-		this.node.setNotCompleted();
 	}
+	// update constraints
+	context.save();
 };
 
 /**

@@ -102,13 +102,13 @@ View.prototype.TableNode.generatePage = function(view){
 	
 	//create the input boxes for columns and rows
 	var numColumnsText = document.createTextNode('Columns: ');
-	var numColumnsInput = createElement(document, 'input', {type: 'input', id: 'numColumnsInput', name: 'numColumnsInput', value: numColumns, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumColumns")'});
+	var numColumnsInput = createElement(document, 'input', {type: 'text', id: 'numColumnsInput', name: 'numColumnsInput', value: numColumns, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumColumns")'});
 	var numRowsText = document.createTextNode(' Rows: ');
-	var numRowsInput = createElement(document, 'input', {type: 'input', id: 'numRowsInput', name: 'numRowsInput', value: numRows, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumRows")'});
+	var numRowsInput = createElement(document, 'input', {type: 'text', id: 'numRowsInput', name: 'numRowsInput', value: numRows, size: 10, onkeyup: 'eventManager.fire("tableUpdateNumRows")'});
 	
 	//create the input box for the global cell size
 	var globalCellSizeText = document.createTextNode(' Global Cell Size: ');
-	var globalCellSizeInput = createElement(document, 'input', {type: 'input', id: 'globalCellSizeInput', name: 'numRowsInput', value: globalCellSize, size: 10, onkeyup: 'eventManager.fire("tableUpdateGlobalCellSize")'});
+	var globalCellSizeInput = createElement(document, 'input', {type: 'text', id: 'globalCellSizeInput', name: 'numRowsInput', value: globalCellSize, size: 10, onkeyup: 'eventManager.fire("tableUpdateGlobalCellSize")'});
 	
 	//add the input boxes for columns and rows
 	pageDiv.appendChild(numColumnsText);
@@ -117,6 +117,45 @@ View.prototype.TableNode.generatePage = function(view){
 	pageDiv.appendChild(numRowsInput);
 	pageDiv.appendChild(globalCellSizeText);
 	pageDiv.appendChild(globalCellSizeInput);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(createBreak());
+	
+	//create the checkbox to enable drop down title
+	var enableDropDownTitleCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'enableDropDownTitleCheckBox', name: 'enableDropDownTitleCheckBox', onchange: 'eventManager.fire("tableUpdateEnableDropDownTitleCheckBoxClicked")'});
+	
+	//create the label for the enable drop down title
+	var enableDropDownTitleCheckBoxText = document.createTextNode("Enable Drop Down Title");
+
+	//create the div that will hold the title drop down authoring
+	var titleDropDownDiv = createElement(document, 'div', {id: 'titleDropDownDiv'});
+	
+	//create the button to add more drop down title options
+	var addDropDownTitleButton = createElement(document, 'input', {type: 'button', id: 'addDropDownTitleButton', name: 'addDropDownTitleButton', value: 'Add Drop Down Title', onclick: 'eventManager.fire("tableUpdateAddDropDownTitleButtonClicked")'});
+	
+	//create the div that contains the add drop down title button and the drop down options
+	var titleDropDownListDiv = createElement(document, 'div', {id: 'titleDropDownListDiv'});
+	
+	//add the add drop down title button and the drop down list div
+	titleDropDownDiv.appendChild(addDropDownTitleButton);
+	titleDropDownDiv.appendChild(titleDropDownListDiv);
+	titleDropDownDiv.appendChild(createBreak());
+	
+	//add the drop down title elements
+	pageDiv.appendChild(enableDropDownTitleCheckBox);
+	pageDiv.appendChild(enableDropDownTitleCheckBoxText);
+	pageDiv.appendChild(titleDropDownDiv);
+	pageDiv.appendChild(createBreak());
+	
+	var allowStudentToAddRowsCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'allowStudentToAddRowsCheckBox', name: 'allowStudentToAddRowsCheckBox', onchange: 'eventManager.fire("tableUpdateAllowStudentToAddRowsCheckBoxClicked")'});
+	var allowStudentToAddRowsCheckBoxText = document.createTextNode("Allow Student To Add Rows");
+	var allowStudentToAddColumnsCheckBox = createElement(document, 'input', {type: 'checkbox', id: 'allowStudentToAddColumnsCheckBox', name: 'allowStudentToAddColumnsCheckBox', onchange: 'eventManager.fire("tableUpdateAllowStudentToAddColumnsCheckBoxClicked")'});
+	var allowStudentToAddColumnsCheckBoxText = document.createTextNode("Allow Student To Add Columns");
+	
+	pageDiv.appendChild(allowStudentToAddRowsCheckBox);
+	pageDiv.appendChild(allowStudentToAddRowsCheckBoxText);
+	pageDiv.appendChild(createBreak());
+	pageDiv.appendChild(allowStudentToAddColumnsCheckBox);
+	pageDiv.appendChild(allowStudentToAddColumnsCheckBoxText);
 	pageDiv.appendChild(createBreak());
 	pageDiv.appendChild(createBreak());
 	
@@ -234,6 +273,12 @@ View.prototype.TableNode.generatePage = function(view){
 	
 	//populate the graph options
 	this.populateGraphOptions();
+	
+	//populate the drop down title content
+	this.populateTitleDropDownContent();
+	
+	//populate the student options
+	this.populateStudentOptions();
 	
 	//set the checkbox
 	if(this.content.hideEverythingBelowTable) {
@@ -404,22 +449,22 @@ View.prototype.TableNode.generateGraphAxesLimitsInputs = function() {
 	
 	//create the X Min input
 	var xMinText = document.createTextNode('X Min: ');
-	var xMinInput = createElement(document, 'input', {type: 'input', id: 'graphXMinInput', name: 'graphXMinInput', value: xMin, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphXMin")'});
+	var xMinInput = createElement(document, 'input', {type: 'text', id: 'graphXMinInput', name: 'graphXMinInput', value: xMin, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphXMin")'});
 	
 	//create the X Max input
 	var xMaxText = document.createTextNode('X Max: ');
-	var xMaxInput = createElement(document, 'input', {type: 'input', id: 'graphXMaxInput', name: 'graphXMaxInput', value: xMax, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphXMax")'});
+	var xMaxInput = createElement(document, 'input', {type: 'text', id: 'graphXMaxInput', name: 'graphXMaxInput', value: xMax, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphXMax")'});
 	
 	var yMin = '';
 	var yMax = '';
 	
 	//create the Y Min input
 	var yMinText = document.createTextNode('Y Min: ');
-	var yMinInput = createElement(document, 'input', {type: 'input', id: 'graphYMinInput', name: 'graphYMinInput', value: yMin, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphYMin")'});
+	var yMinInput = createElement(document, 'input', {type: 'text', id: 'graphYMinInput', name: 'graphYMinInput', value: yMin, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphYMin")'});
 	
 	//create the Y Max input
 	var yMaxText = document.createTextNode('Y Max: ');
-	var yMaxInput = createElement(document, 'input', {type: 'input', id: 'graphYMaxInput', name: 'graphYMaxInput', value: yMax, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphYMax")'});
+	var yMaxInput = createElement(document, 'input', {type: 'text', id: 'graphYMaxInput', name: 'graphYMaxInput', value: yMax, size: 10, onkeyup: 'eventManager.fire("tableUpdateGraphYMax")'});
 	
 	//add the elements to the div
 	graphAxesLimitsInputsDiv.appendChild(xMinText);
@@ -457,10 +502,10 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		headerTD = createElement(document, 'td');
 		
 		var selectColumnToAxisMappingDropDownStyle = '';
-		
-		if(this.content.graphOptions != null && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+
+		if(this.content.graphOptions != null && this.content.graphOptions.enableGraphing && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
 			//the author will select the axes so we will show the drop downs to select the axis for the columns
-			selectColumnToAxisMappingDropDownStyle = 'display:block';
+			selectColumnToAxisMappingDropDownStyle = 'display:inline';
 		} else {
 			//the author will not select the axes so we will not show the drop downs to select the axis for the columns
 			selectColumnToAxisMappingDropDownStyle = 'display:none';
@@ -472,6 +517,10 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		
 		//create the drop down to select the axis for the columns
 		var selectAxisDropDown = createElement(document, 'select', {id: 'selectColumnToAxisMappingDropDown_' + x, name: 'selectColumnToAxisMappingDropDown_' + x, class:'selectColumnToAxisMappingDropDown', style: selectColumnToAxisMappingDropDownStyle, onchange: 'eventManager.fire("tableSelectColumnToAxisMappingDropDownChanged")'});
+		
+		//create the Axis text label
+		var axisTextLabel = createElement(document, 'p', {id: 'axisText_' + x, class: 'selectColumnToAxisMappingTextLabel', style:selectColumnToAxisMappingDropDownStyle});
+		axisTextLabel.innerHTML = 'Axis: ';
 		
 		//create the 'None' option for the drop down
 		var noneOption = createElement(document, 'option', {value:''});
@@ -503,6 +552,8 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 		
 		headerTD.appendChild(insertColumnButton);
 		headerTD.appendChild(deleteColumnButton);
+		headerTD.appendChild(createBreak());
+		headerTD.appendChild(axisTextLabel);
 		headerTD.appendChild(selectAxisDropDown);
 		
 		headerTR.appendChild(headerTD);
@@ -550,7 +601,7 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			}
 			
 			//create the input box for the cell
-			var cellTextInput = createElement(document, 'input', {type: 'input', id: 'cellTextInput_' + x + '-' + y, name: 'cellTextInput_' + x + '-' + y, value: cellText, size: 10, onkeyup: 'eventManager.fire("tableUpdateCellText", {x:' + x + ', y:' + y + '})'});
+			var cellTextInput = createElement(document, 'input', {type: 'text', id: 'cellTextInput_' + x + '-' + y, name: 'cellTextInput_' + x + '-' + y, value: cellText, size: 10, onkeyup: 'eventManager.fire("tableUpdateCellText", {x:' + x + ', y:' + y + '})'});
 			
 			var cellNewline = createElement(document, 'br');
 						
@@ -568,7 +619,7 @@ View.prototype.TableNode.generateAuthoringTable = function() {
 			var cellSizeText = document.createTextNode(' S ');
 			
 			//create the input for the cell size
-			var cellSizeInput = createElement(document, 'input', {type: 'input', id: 'cellSizeInput_' + x + '-' + y, name: 'cellSizeInput_' + x + '-' + y, value: cellSize, size: 1, onkeyup: 'eventManager.fire("tableUpdateCellSize", {x:' + x + ', y:' + y + '})'});
+			var cellSizeInput = createElement(document, 'input', {type: 'text', id: 'cellSizeInput_' + x + '-' + y, name: 'cellSizeInput_' + x + '-' + y, value: cellSize, size: 1, onkeyup: 'eventManager.fire("tableUpdateCellSize", {x:' + x + ', y:' + y + '})'});
 			
 			//add the elements to the td
 			td.appendChild(cellTextInput);
@@ -1287,13 +1338,14 @@ View.prototype.TableNode.populateGraphOptions = function() {
 		if(this.content.graphOptions.graphSelectAxesType != null && this.content.graphOptions.graphSelectAxesType != '') {
 			//check the radio button for the select axes type
 			$('input[name=graphSelectAxesType][value=' + this.content.graphOptions.graphSelectAxesType + ']').attr('checked', true);
-			
-			if(this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
+
+			if(this.content.graphOptions.enableGraphing && this.content.graphOptions.graphSelectAxesType == 'authorSelect') {
 				/*
 				 * show the drop downs in the columns to allow the author to select
 				 * which column will be used for which axis
 				 */
-				$('.selectColumnToAxisMappingDropDown').show();
+				$('.selectColumnToAxisMappingDropDown').css('display', 'inline');
+				$('.selectColumnToAxisMappingTextLabel').css('display', 'inline');
 			}
 		}
 		
@@ -1388,6 +1440,8 @@ View.prototype.TableNode.tableEnableGraphingClicked = function() {
 		//checkbox is not checked
 		this.content.graphOptions.enableGraphing = false;
 		$('#graphingOptionsDiv').hide();
+		$('.selectColumnToAxisMappingDropDown').hide();
+		$('.selectColumnToAxisMappingTextLabel').hide();
 	}		
 	
 	//fire source updated event, this will update the preview
@@ -1502,10 +1556,12 @@ View.prototype.TableNode.tableGraphSelectAxesTypeClicked = function() {
 		 * show the drop downs on each of the columns to let the author
 		 * select the axis for columns
 		 */
-		$('.selectColumnToAxisMappingDropDown').show();
+		$('.selectColumnToAxisMappingDropDown').css('display', 'inline');
+		$('.selectColumnToAxisMappingTextLabel').css('display', 'inline');
 	} else {
 		//hide the drop downs on each of the columns
 		$('.selectColumnToAxisMappingDropDown').hide();
+		$('.selectColumnToAxisMappingTextLabel').hide();
 	}
 	
 	//update the value in the content
@@ -1753,6 +1809,253 @@ View.prototype.TableNode.tableUpdateGraphYMax = function() {
 	
 	//fire source updated event, this will update the preview
 	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * The enable drop down title checkbox was clicked 
+ */
+View.prototype.TableNode.tableUpdateEnableDropDownTitleCheckBoxClicked = function() {
+	//create the drop down title in the step content if it does not already exist
+	this.populateDropDownTitleOptionsIfNotExist();
+	
+	//get the checked value
+	var checked = $('#enableDropDownTitleCheckBox').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox is checked
+		
+		//update the content
+		this.content.dropDownTitleOptions.enableDropDownTitle = true;
+		
+		//populate the drop down title options if there are any
+		this.populateTitleDropDownContent();
+		
+		//show the div that will display the drop down title options
+		$('#titleDropDownDiv').show();
+	} else {
+		//checkbox is not checked
+		
+		//update the content
+		this.content.dropDownTitleOptions.enableDropDownTitle = false;
+		
+		//hide the div that will display the drop down title options
+		$('#titleDropDownDiv').hide();
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * The add drop down title button was clicked
+ */
+View.prototype.TableNode.tableUpdateAddDropDownTitleButtonClicked = function() {
+	//create the drop down title in the step content if it does not already exist
+	this.populateDropDownTitleOptionsIfNotExist();
+	
+	//get the existing drop down titles
+	var dropDownTitles = this.content.dropDownTitleOptions.dropDownTitles;
+	
+	var dropDownTitle = '';
+	
+	//add a new blank title
+	dropDownTitles.push(dropDownTitle);
+	
+	//get the x index of the new title
+	var x = dropDownTitles.length - 1;
+	
+	//create an input and delete button for the new title
+	var dropDownTitleInput = createElement(document, 'input', {type: 'text', id: 'dropDownTitle_' + x, name: 'dropDownTitle_' + x, value: dropDownTitle, size: 30, onkeyup: 'eventManager.fire("tableUpdateDropDownTitle", ' + x + ')'});
+	var deleteDropDownTitle = createElement(document, 'input', {type: 'button', id: 'deleteDropDownTitle_' + x, name: 'deleteDropDownTitle_' + x, value: 'Delete', onclick: 'eventManager.fire("tableDeleteDropDownTitle", ' + x + ')'});
+	
+	//add the input and delete button
+	$('#titleDropDownListDiv').append(dropDownTitleInput);
+	$('#titleDropDownListDiv').append(deleteDropDownTitle);
+	$('#titleDropDownListDiv').append('<br>');
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Populate the drop down title options from the step content if this
+ * was previously authored
+ */
+View.prototype.TableNode.populateTitleDropDownContent = function() {
+	//create the drop down title in the step content if it does not already exist
+	this.populateDropDownTitleOptionsIfNotExist();
+	
+	//get whether drop down title is enabled
+	var enableDropDownTitle = this.content.dropDownTitleOptions.enableDropDownTitle;
+	
+	if(enableDropDownTitle) {
+		//check the checkbox
+		$('#enableDropDownTitleCheckBox').attr('checked', true);
+		
+		//clear the list div so we can re-populate it
+		$('#titleDropDownListDiv').html('');
+		
+		//get the drop down titles from the content
+		var dropDownTitles = this.content.dropDownTitleOptions.dropDownTitles;
+		
+		//loop through all the drop down titles
+		for(var x=0; x<dropDownTitles.length; x++) {
+			//get a drop down title
+			var dropDownTitle = dropDownTitles[x];
+			
+			//create the text input for the title
+			var dropDownTitleInput = createElement(document, 'input', {type: 'text', id: 'dropDownTitle_' + x, name: 'dropDownTitle_' + x, value: dropDownTitle, size: 30, onkeyup: 'eventManager.fire("tableUpdateDropDownTitle", ' + x + ')'});
+			
+			//create the delete button for the title
+			var deleteDropDownTitle = createElement(document, 'input', {type: 'button', id: 'deleteDropDownTitle_' + x, name: 'deleteDropDownTitle_' + x, value: 'Delete', onclick: 'eventManager.fire("tableDeleteDropDownTitle", ' + x + ')'});
+			
+			//add the text input and delete button
+			$('#titleDropDownListDiv').append(dropDownTitleInput);
+			$('#titleDropDownListDiv').append(deleteDropDownTitle);
+			$('#titleDropDownListDiv').append('<br>');
+		}
+		
+		//show the drop down div
+		$('#titleDropDownDiv').show();
+	} else {
+		//uncheck the checkbox
+		$('#enableDropDownTitleCheckBox').attr('checked', false);
+		
+		//hide the drop down div
+		$('#titleDropDownDiv').hide();
+	}
+	
+};
+
+/**
+ * One of the drop down titles has changed so we will update it
+ * in the content
+ * @param index the index of the title
+ */
+View.prototype.TableNode.tableUpdateDropDownTitle = function(index) {
+	//create the drop down title in the step content if it does not already exist
+	this.populateDropDownTitleOptionsIfNotExist();
+	
+	//get the text of the title
+	var dropDownTitle = $('#dropDownTitle_' + index).val();
+	
+	//get all the drop down titles
+	var dropDownTitles = this.content.dropDownTitleOptions.dropDownTitles;
+	
+	if(dropDownTitles[index] != null) {
+		//update the title at the given index
+		dropDownTitles[index] = dropDownTitle;
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
+ * Delete the drop down title at the given index
+ * @param index the index of the title to delete
+ */
+View.prototype.TableNode.tableDeleteDropDownTitle = function(index) {
+	//create the drop down title in the step content if it does not already exist
+	this.populateDropDownTitleOptionsIfNotExist();
+	
+	//get all the drop down titles
+	var dropDownTitles = this.content.dropDownTitleOptions.dropDownTitles;
+	
+	//remove the drop down title at the given index
+	dropDownTitles.splice(index, 1);
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+	
+	//refresh the content displayed in the authoring UI
+	this.populateTitleDropDownContent();
+};
+
+/**
+ * Create the drop down title options in the step content if it does
+ * not already exist
+ */
+View.prototype.TableNode.populateDropDownTitleOptionsIfNotExist = function() {
+	
+	if(this.content.dropDownTitleOptions == null) {
+		/*
+		 * the drop down title options does not already exist so
+		 * we will create it
+		 */
+		this.content.dropDownTitleOptions = {
+			enableDropDownTitle:false,
+			dropDownTitles:[]
+		};
+	}
+};
+
+View.prototype.TableNode.tableUpdateAllowStudentToAddRowsCheckBoxClicked = function() {
+	this.populateStudentOptionsIfNotExist();
+	
+	//get the checked value
+	var checked = $('#allowStudentToAddRowsCheckBox').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox is checked
+		this.content.studentOptions.allowStudentToAddRows = true;
+	} else {
+		//checkbox is not checked
+		this.content.studentOptions.allowStudentToAddRows = false;
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+View.prototype.TableNode.tableUpdateAllowStudentToAddColumnsCheckBoxClicked = function() {
+	this.populateStudentOptionsIfNotExist();
+	
+	//get the checked value
+	var checked = $('#allowStudentToAddColumnsCheckBox').attr('checked');
+	
+	if(checked == 'checked') {
+		//checkbox is checked
+		this.content.studentOptions.allowStudentToAddColumns = true;
+	} else {
+		//checkbox is not checked
+		this.content.studentOptions.allowStudentToAddColumns = false;
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+View.prototype.TableNode.populateStudentOptionsIfNotExist = function() {
+	
+	if(this.content.studentOptions == null) {
+		/*
+		 * the student options does not already exist so
+		 * we will create it
+		 */
+		this.content.studentOptions = {
+			allowStudentToAddColumns:false,
+			allowStudentToAddRows:false
+		};
+	}
+};
+
+View.prototype.TableNode.populateStudentOptions = function() {
+	
+	if(this.content.studentOptions != null) {
+		
+		if(this.content.studentOptions.allowStudentToAddRows) {
+			$('#allowStudentToAddRowsCheckBox').attr('checked', true);
+		} else {
+			$('#allowStudentToAddRowsCheckBox').attr('checked', false);
+		}
+
+		if(this.content.studentOptions.allowStudentToAddColumns) {
+			$('#allowStudentToAddColumnsCheckBox').attr('checked', true);
+		} else {
+			$('#allowStudentToAddColumnsCheckBox').attr('checked', false);
+		}
+	}
 };
 
 //used to notify scriptloader that this script has finished loading

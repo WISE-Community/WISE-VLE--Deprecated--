@@ -425,6 +425,15 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 	if(this.getAutoScoringField('autoScoringDisplayFeedbackToStudent')) {
 		displayFeedbackToStudentCheckbox.checked = true;
 	}
+
+	//create the text box to set whether we want to display the feedback to the student on the last chance
+	var doNotDisplayFeedbackToStudentOnLastChanceCheckbox = createElement(document, 'input', {id: 'autoScoringDoNotDisplayFeedbackToStudentOnLastChanceCheckbox', type: 'checkbox', onclick: 'eventManager.fire("svgdrawUpdateDoNotDisplayFeedbackToStudentOnLastChanceClicked")'});
+	var doNotDisplayFeedbackToStudentOnLastChanceText = document.createTextNode('Do Not Display Feedback to Student on Last Chance');
+	
+	//populate the checkbox if necessary
+	if(this.getAutoScoringField('autoScoringDoNotDisplayFeedbackToStudentOnLastChance')) {
+		doNotDisplayFeedbackToStudentOnLastChanceCheckbox.checked = true;
+	}
 	
 	//create the text and input field for the check work chances
 	var checkWorkChancesText = document.createTextNode('Check Work Chances (leave blank for unlimited tries)');
@@ -442,6 +451,9 @@ View.prototype.SVGDrawNode.generateAutoScoringFeedbackAuthoringDiv = function() 
 	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 	autoScoringFeedbackAuthoringDiv.appendChild(displayFeedbackToStudentCheckbox);
 	autoScoringFeedbackAuthoringDiv.appendChild(displayFeedbackToStudentText);
+	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
+	autoScoringFeedbackAuthoringDiv.appendChild(doNotDisplayFeedbackToStudentOnLastChanceCheckbox);
+	autoScoringFeedbackAuthoringDiv.appendChild(doNotDisplayFeedbackToStudentOnLastChanceText);
 	autoScoringFeedbackAuthoringDiv.appendChild(createBreak());
 	autoScoringFeedbackAuthoringDiv.appendChild(checkWorkChancesText);
 	autoScoringFeedbackAuthoringDiv.appendChild(checkWorkChancesInput);
@@ -1006,6 +1018,24 @@ View.prototype.SVGDrawNode.updateAutoScoringCheckWorkChances = function() {
 };
 
 /**
+ * Update the value that determines if the student will see the feedback
+ * when they submit their last chance
+ */
+View.prototype.SVGDrawNode.updateDoNotDisplayFeedbackToStudentOnLastChance = function() {
+	//get whether the checkbox was checked or not
+	var checked = $('#autoScoringDoNotDisplayFeedbackToStudentOnLastChanceCheckbox').attr('checked');
+	
+	if(checked == 'checked') {
+		this.setAutoScoringField('autoScoringDoNotDisplayFeedbackToStudentOnLastChance', true);
+	} else {
+		this.setAutoScoringField('autoScoringDoNotDisplayFeedbackToStudentOnLastChance', false);
+	}
+	
+	//fire source updated event, this will update the preview
+	this.view.eventManager.fire('sourceUpdated');
+};
+
+/**
  * Get the auto scoring feedback array
  */
 View.prototype.SVGDrawNode.getAutoScoringFeedback = function() {
@@ -1055,6 +1085,7 @@ View.prototype.SVGDrawNode.createAutoScoringObjectIfDoesNotExist = function() {
 			autoScoringCriteria:'',
 			autoScoringDisplayScoreToStudent:true,
 			autoScoringDisplayFeedbackToStudent:true,
+			autoScoringDoNotDisplayFeedbackToStudentOnLastChance:false,
 			autoScoringFeedback:[]
 		};
 	}

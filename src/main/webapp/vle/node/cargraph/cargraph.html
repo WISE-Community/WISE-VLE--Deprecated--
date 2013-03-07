@@ -30,7 +30,7 @@
 	     */
 	    function save() {
     	    //tell our cargraph object to save the data
-	    	cargraph.save();
+	    	if (typeof cargraph != "undefined") cargraph.save(true);
 	    }
 
 	    /*
@@ -108,12 +108,15 @@
 	     * Perform one frame of animation
 		 */
 	    function doOneFrame() {	
-	        var xValue = parseInt(cargraph.content.graphParams.xmin) + animationFrameIndex*animationFrameXIncrement;
-	        xValue = xValue.toFixed(numSignificantDigits);  // just need one significant digit	    		    
+	    	var xmax = typeof cargraph.carGraphState.xMax != "undefined" ? parseFloat(cargraph.carGraphState.xMax) : parseFloat(cargraph.content.graphParams.xmax);
+			var xmin = typeof cargraph.carGraphState.xMin != "undefined" ? parseFloat(cargraph.carGraphState.xMin) : parseFloat(cargraph.content.graphParams.xmin);
+			
+	        var xValue = 1.0*parseInt(xmin) + animationFrameXIncrement*animationFrameIndex * 1.0*parseInt(xmax) / 60 *(typeof cargraph.content.animationTimeScaleFactor != "undefined" ? cargraph.content.animationTimeScaleFactor : 1.0);
+	        xValue = xValue.toFixed(numSignificantDigits);  // just need one significant digit	
 	        // 2011-05-02 Armin: important to multiply xmax with a number value to make
 	        // the comparison work, if not done xmax is a string and xValue 7.0 is bigger
 	        // than xmax 60
-		    if (xValue <= (cargraph.content.graphParams.xmax*1.0)) {	    
+		    if (xValue <= (xmax*1.0)) {	    
 			    cargraph.displayOneFrame(xValue);
 		        animationFrameIndex++;
 		    } else {
@@ -134,6 +137,8 @@
 	     */
 	    function startPauseAnimation() {
 		    if (animationIntervalId < 0) {
+		    	// in case we had an error remove
+		    	if ($("#animationError").length > 0) $("#animationError").remove();
 			    // start the animation
 			    animationFrameXIncrement = cargraph.content.gatherXIncrement;
 			    numSignificantDigits = cargraph.content.gatherXNumSignificantDigits;
@@ -141,6 +146,8 @@
 			    animationIntervalId = setInterval("doOneFrame()",200);
 				$("#startButton").val("Pause");
 				
+				// save so that we can update constraints
+				if (typeof cargraph != "undefined") cargraph.save();
 				/*
 				Armin: Do some check within the run
 				Maybe used later */
@@ -191,12 +198,13 @@
 		</script>
 		<style>
 		   #animationDiv {
-		     height:100px;
+		   	 position:relative;
+		     height:164px;
 		   }
 		   .staticImage, .staticImageLabel {
 		     position:absolute;
 		   }
-			.dynamicImage {
+			.tickGraphics, .dynamicImage {
 			  position:absolute;
 			  left:0px;
 			}
@@ -220,7 +228,7 @@
 			      <input id="stopButton" type="button" value="Stop" onclick="stopAnimation();" />
 			      <input id="clearPredictionButton" type="button" value="Clear Prediction" onclick="clearPrediction();" />
 			      <input id="resetDefaultAxisLimitsButton" type="button" value="Reset Default Axis Limits" onclick="resetDefaultAxisRange();" />
-			      <input id="startButton" type="button" value="Show table" onclick="showDialog();" />
+			      <input id="tableButton" type="button" value="Show table" onclick="showDialog();" style="visibility:hidden;"/>
 			      <input id="smartsButton" type="button" value="smarts" onclick="smarts();" style="visibility:hidden;" />
 			      <div id='dynamicImageRadioDiv'></div>
 	      		</td>

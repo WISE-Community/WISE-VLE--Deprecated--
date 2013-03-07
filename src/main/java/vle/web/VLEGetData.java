@@ -3,6 +3,7 @@
  */
 package vle.web;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.json.JSONObject;
 import utils.SecurityUtils;
 import vle.VLEServlet;
 import vle.domain.node.Node;
+import vle.domain.project.Project;
 import vle.domain.user.UserInfo;
 import vle.domain.work.StepWork;
 import vle.domain.work.StepWorkCache;
@@ -51,6 +53,11 @@ public class VLEGetData extends VLEServlet {
 			this.modeRetrieved = true;
 		}
 		
+		boolean useCachedWork = true;
+		if (request.getParameter("useCachedWork") != null) {
+			useCachedWork = Boolean.valueOf(request.getParameter("useCachedWork"));
+		}
+		
 		/* make sure that this request is authenticated through the portal before proceeding */
 		if(this.standAlone || SecurityUtils.isAuthenticated(request)){
 			/* set headers so that browsers don't cache the data (due to ie problem */
@@ -74,7 +81,12 @@ public class VLEGetData extends VLEServlet {
 			String nodeIds = request.getParameter("nodeIds");
 			String getAllWorkStr = request.getParameter("getAllWork");
 			String getRevisionsStr = request.getParameter("getRevisions");
-	
+
+			// override userIdStr if user is requesting for aggregate and showAllStudents is requested
+			if ("aggregate".equals(type) && Boolean.parseBoolean(request.getParameter("allStudents"))) {
+				userIdStr = (String) request.getAttribute("userId");  // user id for the entire run is passed in the attribute
+			}
+			
 			//whether to get the work that has empty states
 			boolean getAllWork = false;
 			
@@ -131,10 +143,37 @@ public class VLEGetData extends VLEServlet {
 					}
 				}
 			}
-	
+			
+			// If we're retrieving data to be displayed for aggregate view, ensure that nodeIds are passed in
+			// and that we can access students' work for those nodes.
+			if ("aggregate".equals(type)) {
+				if (nodeList.isEmpty()) {
+					// node to aggregate from does not exist. exit.
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "get data node list is empty for aggregrate type");
+					return;
+				}
+				// now make sure that we can access students' work for all the nodes in the nodeList.
+				String projectPath = (String) request.getAttribute("projectPath"); 	// get the path of the project file on the server
+
+				
+				File projectFile = new File(projectPath); // create a file handle to the project file
+				Project project = new Project(projectFile); // create a Project object so we can easily get info about the project.
+				
+				boolean nodeWorkAccessibleForAggregate = true;
+				for (Node nodeToCheck : nodeList) {
+					// make sure that we can get the student work for all of the nodes that were requested to be aggregated
+					nodeWorkAccessibleForAggregate &= project.isNodeAggregatable(nodeToCheck);
+				}
+				if (!nodeWorkAccessibleForAggregate) {
+					// we cannot get data from at least one node in the nodeList. throw an error and exit.
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "specified node is allowed for aggregation");
+					return;
+				}
+			}
+			
 			try {
 				//this case is when userId is passed in as a GET argument
-				// this is currently only being used for brainstorm steps
+				// this is currently only being used for brainstorm steps and aggregate steps
 	
 				//the get request can be for multiple ids that are delimited by ':'
 				String[] userIdArray = userIdStr.split(":");
@@ -209,7 +248,7 @@ public class VLEGetData extends VLEServlet {
 								// Get student's cachedWork, if exists.
 								StepWorkCache cachedWork = StepWorkCache.getByUserInfoGetRevisions(userInfo, getRevisions);
 								
-								if (cachedWork != null 
+								if (useCachedWork && cachedWork != null 
 										&& cachedWork.getCacheTime() != null
 										&& latestWork.getPostTime().before(cachedWork.getCacheTime())) {
 										// lastPostTime happened before lastCachedTime, so cache is still valid.
@@ -233,7 +272,9 @@ public class VLEGetData extends VLEServlet {
 										cachedWork.setGetRevisions(getRevisions);
 										
 										try {
-											cachedWork.saveOrUpdate();
+											if (useCachedWork) {												
+												cachedWork.saveOrUpdate();  // save cachedWork if we're in useCacheMode
+											}
 										} catch(Exception e) {
 											/*
 											 * when the student's cached work is too large, an exception will be thrown.

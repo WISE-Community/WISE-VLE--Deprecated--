@@ -157,11 +157,6 @@ FILLIN.prototype.checkAnswer = function() {
 	var textEntryInteraction = this.textEntryInteractions[currentTextEntryInteractionIndex];
 	
 	var fillinState = new FILLINSTATE(currentTextEntryInteractionIndex, studentAnswerText);
-	// add a new STATE
-	this.states.push(fillinState);
-	
-	//fire the event to push this state to the global view.states object
-	eventManager.fire('pushStudentWork', fillinState);
 	
 	var feedbackDiv = document.getElementById("feedbackDiv");
 	if(this.customCheck!=null){
@@ -196,7 +191,10 @@ FILLIN.prototype.checkAnswer = function() {
 			feedbackDiv.innerHTML = "Correct.";
 			document.getElementsByName("activeBlank")[0].value = studentAnswerText;   // display activeBlank with correctAnswer
 			if (currentTextEntryInteractionIndex+1 < this.textEntryInteractions.length) {
+				// there are more boxes for student to fill in.
 			} else {
+				// there are no more boxes for student to fill in. show congratulations message and indicate that student has completed the step.
+				fillinState.isCompleted = true;
 				$('#nextButton').parent().addClass('ui-state-disabled');
 				//addClassToElement("nextButton", "disabledLink");
 				feedbackDiv.innerHTML += " You successfully filled all of the blanks.  Impressive work!";			
@@ -210,6 +208,13 @@ FILLIN.prototype.checkAnswer = function() {
 			feedbackDiv.innerHTML = "Not correct or misspelled";
 		};
 	};
+	
+	// add a new STATE
+	this.states.push(fillinState);
+	
+	//fire the event to push this state to the global view.states object
+	eventManager.fire('pushStudentWork', fillinState);
+
 };
 
 /**
