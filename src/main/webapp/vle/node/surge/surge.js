@@ -295,19 +295,6 @@ Surge.prototype.processTagMaps = function() {
 					
 					//display the accumulated score to the student
 					$('#accumulatedScoreDiv').html('Accumulated Score: ' + accumulatedScore);
-				} else if(functionName == "checkCompleted") {
-					//we will check that all the steps that are tagged have been completed
-					
-					//get the result of the check
-					var result = this.node.checkCompleted(tagName, functionArgs);
-					enableStep = enableStep && result.pass;
-					
-					if(message == '') {
-						message += result.message;
-					} else {
-						//message is not an empty string so we will add a new line for formatting
-						message += '<br>' + result.message;
-					}
 				}
 			}
 		}

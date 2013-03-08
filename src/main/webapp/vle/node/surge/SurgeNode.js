@@ -19,7 +19,6 @@ SurgeNode.authoringToolDescription = "This is a generic step only used by develo
 SurgeNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
 	{functionName:'showPreviousWork', functionArgs:[]},
-	{functionName:'checkCompleted', functionArgs:[]},
 	{functionName:'checkScore', functionArgs:['Min Score']},
 	{functionName:'getAccumulatedScore', functionArgs:[]}
 ];
