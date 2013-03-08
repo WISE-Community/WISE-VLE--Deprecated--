@@ -1766,20 +1766,22 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @return an array containing all the leaf nodes that contain the given tag
 		 */
 		var getNodeIdsByTag = function(tagName) {
-			//get the project content
-			var project = content.getContentJSON();
-			
-			//get the starting point of the project
-			var startPoint = project.startPoint;
-			
 			//create the array that we will store the nodeIds in
 			var nodeIds = [];
 			
-			//get the start node
-			var startNode = getNodeById(startPoint);
-			
-			//get the leaf nodeIds
-			nodeIds = getNodeIdsByTagHelper(nodeIds, startNode, tagName);
+			if(tagName != null && tagName != '') {
+				//get the project content
+				var project = content.getContentJSON();
+				
+				//get the starting point of the project
+				var startPoint = project.startPoint;
+				
+				//get the start node
+				var startNode = getNodeById(startPoint);
+				
+				//get the leaf nodeIds
+				nodeIds = getNodeIdsByTagHelper(nodeIds, startNode, tagName);
+			}
 			
 			//return the populated array containing nodeIds
 			return nodeIds;
@@ -1831,23 +1833,28 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		 * @param nodeId the node id we want to stop at
 		 */
 		var getPreviousNodeIdsByTag = function(tagName, nodeId) {
-			//get the project content
-			var project = content.getContentJSON();
-			
-			//get the starting point of the project
-			var startPoint = project.startPoint;
-			
 			//create the array that we will store the nodeIds in
 			var nodeIds = [];
 			
-			//get the start node
-			var startNode = getNodeById(startPoint);
-			
-			//whether we have found our node id yet
-			var foundNodeId = false;
-			
-			//get the leaf nodeIds
-			var nodeIdsAndFoundNodeId = getPreviousNodeIdsByTagHelper(nodeIds, startNode, tagName, nodeId, foundNodeId);
+			if(tagName != null && tagName != '') {
+				//get the project content
+				var project = content.getContentJSON();
+				
+				//get the starting point of the project
+				var startPoint = project.startPoint;
+				
+				//get the start node
+				var startNode = getNodeById(startPoint);
+				
+				//whether we have found our node id yet
+				var foundNodeId = false;
+				
+				/*
+				 * get previous node ids that have the tag. this function will update 
+				 * the nodeIds array refernce that is passed in.
+				 */
+				getPreviousNodeIdsByTagHelper(nodeIds, startNode, tagName, nodeId, foundNodeId);
+			}
 			
 			//return the populated array containing nodeIds
 			return nodeIds;
