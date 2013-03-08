@@ -178,7 +178,7 @@ Box2dModel.prototype.render = function() {
 		init(box2dModel.content, previousModels.length>0?false:true, density >= 0 ? density : undefined);
 	}
 	//eventManager.fire("box2dInit", [{}], this);
-	eventManager.fire('pushStudentWork', {});
+	this.view.pushStudentWork(this.node.id, {});
 	
 	for (var i = 0; i < previousModels.length; i++)
 	{
@@ -427,7 +427,7 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 
 		 isStepCompleted = obj.feedbackManager.completed;
 		 // trick to get student constraints to end
-		 if (isStepCompleted){eventManager.fire('pushStudentWork', {});}
+		 if (isStepCompleted){this.view.pushStudentWork(this.node.id, {});}
 	}
 
 	// save on a test
@@ -504,7 +504,7 @@ Box2dModel.prototype.save = function() {
 	 * the student work is saved to the server once they move on to the
 	 * next step.
 	 */
-	eventManager.fire('pushStudentWork', box2dModelState);
+	this.view.pushStudentWork(this.node.id, box2dModelState);
 
 	//push the state object into this or object's own copy of states
 	this.states.push(box2dModelState);

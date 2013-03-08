@@ -56,8 +56,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.utils.closeDialog(args[0]);
 	} else if(type=='postAllUnsavedNodeVisits') {
 		obj.postAllUnsavedNodeVisits();
-	} else if(type=='pushStudentWork') {
-		obj.pushStudentWork(args[0]);
 	} else if(type=='getAnnotationsComplete') {
 		if(args != null && args.length != 0) {
 			if(args[0] == 'displayShowAllWork') {
@@ -132,6 +130,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.sendChat(args[0]);
 	} else if(type=="setStepIcon") {
 		obj.setStepIcon(args[0], args[1]);
+	} else if(type=="studentWorkUpdated") {
+		obj.studentWorkUpdatedEventHandler();
 	}
 };
 
@@ -1085,8 +1085,8 @@ View.prototype.processStudentWork = function() {
 
 /**
  * Set the step icon in that navigation
- * @param nodeId the node id
- * @param stepIconPath the path to the new icon
+ * @param nodeId (optional) the node id to set the step icon for
+ * @param stepIconPath (optional) the path to the new icon
  */
 View.prototype.setStepIcon = function(nodeId, stepIconPath) {
 	this.navigationPanel.setStepIcon(nodeId, stepIconPath);

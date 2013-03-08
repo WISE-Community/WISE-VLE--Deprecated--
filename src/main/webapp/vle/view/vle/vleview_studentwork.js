@@ -4,10 +4,8 @@
  * Given the type and optional arguments, creates a new 
  * state of the type, passing in the arguments.
  */
-View.prototype.pushStudentWork = function(nodeState){
-	this.getState().getCurrentNodeVisit().nodeStates.push(nodeState);
-	this.updateActiveTagMapConstraints();
-	this.setStepIcon();
+View.prototype.pushStudentWork = function(nodeId, nodeState){
+	this.model.pushStudentWorkToLatestNodeVisit(nodeId, nodeState);
 };
 
 /**
@@ -891,6 +889,15 @@ View.prototype.getCRaterNodeStateAnnotationByNodeStateId = function(cRaterAnnota
 View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXML, args) {
 	//console.log("fail");
 	//console.log(responseText);
+};
+
+/**
+ * Gets called when student work is updated and the studentWorkUpdated event
+ * is fired.
+ */
+View.prototype.studentWorkUpdatedEventHandler = function() {
+	this.updateActiveTagMapConstraints();
+	this.setStepIcon();
 };
 
 //used to notify scriptloader that this script has finished loading

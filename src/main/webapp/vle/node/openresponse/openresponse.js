@@ -256,7 +256,7 @@ OPENRESPONSE.prototype.save = function(saveAndLock,checkAnswer) {
 			}
 
 			//fire the event to push this state to the global view.states object
-			eventManager.fire('pushStudentWork', orState);
+			this.view.pushStudentWork(this.node.id, orState);
 
 			//push the state object into this or object's own copy of states
 			this.states.push(orState);

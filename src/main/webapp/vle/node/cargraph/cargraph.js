@@ -662,7 +662,7 @@ CARGRAPH.prototype.save = function() {
 		this.carGraphState.response = response;
 			
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', this.carGraphState);
+		this.view.pushStudentWork(this.node.id, this.carGraphState);
 
 		//push the state object into the local copy of states
 		this.states.push(this.carGraphState);		

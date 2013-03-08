@@ -694,14 +694,33 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'startVLEFromConfig':[null,null],'startVLEFromParams':[null,null],'retrieveLocalesComplete':[null,null],'retrieveThemeLocalesComplete':[null,null],'renderNode':[null,null],
-				'renderNodeComplete':[null,null],'resizeNote':[null,null],'onNotePanelResized':[null,null],
-				'startVLEComplete':[null,null], 'setStyleOnElement':[null,null], 'closeDialogs':[null,null], 'closeDialog':[null,null],
-				'postAllUnsavedNodeVisits':[null,null], 'pushStudentWork':[null,null],
-				'ifrmLoaded':[null,null], 'processLoadViewStateResponseComplete':[null,null], 'saveNote':[null,null],
-				'saveAndLockNote':[null,null], 'noteHandleEditorKeyPress':[null,null], 'noteShowStarter':[null,null],
-				'renderConstraints':[null,null], 'saveAndCloseNote':[null,null], 'importWork':[null,null], 'loadingThemeComplete':[null,null],
-				'assetUploaded':[null,null],'chatRoomTextEntrySubmitted':[null, null], 'setStepIcon':[null, null]
+				'startVLEFromConfig':[null,null],
+				'startVLEFromParams':[null,null],
+				'retrieveLocalesComplete':[null,null],
+				'retrieveThemeLocalesComplete':[null,null],
+				'renderNode':[null,null],
+				'renderNodeComplete':[null,null],
+				'resizeNote':[null,null],
+				'onNotePanelResized':[null,null],
+				'startVLEComplete':[null,null],
+				'setStyleOnElement':[null,null],
+				'closeDialogs':[null,null],
+				'closeDialog':[null,null],
+				'postAllUnsavedNodeVisits':[null,null],
+				'ifrmLoaded':[null,null],
+				'processLoadViewStateResponseComplete':[null,null],
+				'saveNote':[null,null],
+				'saveAndLockNote':[null,null],
+				'noteHandleEditorKeyPress':[null,null],
+				'noteShowStarter':[null,null],
+				'renderConstraints':[null,null],
+				'saveAndCloseNote':[null,null],
+				'importWork':[null,null],
+				'loadingThemeComplete':[null,null],
+				'assetUploaded':[null,null],
+				'chatRoomTextEntrySubmitted':[null, null],
+				'setStepIcon':[null, null],
+				'studentWorkUpdated':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -723,7 +742,6 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('closeDialog', view.vleDispatcher, view);
 						view.eventManager.subscribe('closeDialogs', view.vleDispatcher, view);
 						view.eventManager.subscribe('postAllUnsavedNodeVisits', view.vleDispatcher, view);
-						view.eventManager.subscribe('pushStudentWork', view.vleDispatcher, view);
 						view.eventManager.subscribe('getAnnotationsComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getProjectMetaDataComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getRunExtrasComplete', view.vleDispatcher, view);
@@ -742,6 +760,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('assetUploaded', view.vleDispatcher, view);
 						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
 						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
+						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);

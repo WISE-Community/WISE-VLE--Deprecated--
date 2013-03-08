@@ -480,7 +480,8 @@ BRAINSTORM.prototype.saveReply = function(replyText, replyToNodeVisitId, replyTo
 		// create a reply brainstorm state
 		var postType = "reply";
 		var currentState = new BRAINSTORMSTATE(replyText, postType, replyToNodeVisitId, replyToNodeStateTimestamp);
-		eventManager.fire('pushStudentWork',currentState);
+		this.view.pushStudentWork(this.node.id, currentState);
+		
 		this.states.push(currentState);
 
 		this.recentResponses.push(replyText);
@@ -650,7 +651,7 @@ BRAINSTORM.prototype.savePost = function(frameDoc){
 	if(response && response!=""){
 		var postType = "new";
 		var currentState = new BRAINSTORMSTATE(response, postType);
-		eventManager.fire('pushStudentWork',currentState);
+		this.view.pushStudentWork(this.node.id, currentState);
 		this.states.push(currentState);
 
 		frameDoc.getElementById('saveMsg').innerHTML = "<font color='8B0000'>save successful</font>";

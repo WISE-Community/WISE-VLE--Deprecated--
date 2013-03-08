@@ -686,7 +686,7 @@ MS.prototype.checkAnswer = function() {
 		var state = this.getState();
 		
 		//save the student data
-		eventManager.fire('pushStudentWork', state.getJsonifiableState());
+		this.view.pushStudentWork(this.node.id, state.getJsonifiableState());
 	} else if(this.customCheck!=null){
 		var feedback = this.customCheck(ms.getState());
 		var message;
@@ -816,7 +816,7 @@ MS.prototype.checkAnswer = function() {
 		var tries = document.getElementById('numberAttemptsDiv');
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', state.getJsonifiableState());
+		this.view.pushStudentWork(this.node.id, state.getJsonifiableState());
 	};
 };
 
@@ -1154,7 +1154,7 @@ MS.prototype.saveState = function() {
 		var state = this.getState();
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', state.getJsonifiableState());		
+		this.view.pushStudentWork(this.node.id, state.getJsonifiableState());
 	}
 };
 

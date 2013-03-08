@@ -280,7 +280,7 @@ Branching.prototype.save = function() {
 	 * the student work is saved to the server once they move on to the
 	 * next step.
 	 */
-	eventManager.fire('pushStudentWork', branchingState);
+	this.view.pushStudentWork(this.node.id, branchingState);
 
 	//push the state object into this or object's own copy of states
 	this.states.push(branchingState);

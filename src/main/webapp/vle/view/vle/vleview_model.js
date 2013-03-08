@@ -69,6 +69,27 @@ StudentModel.prototype.setAnnotations = function(annotations) {
 	this.annotations = annotations;
 };
 
+/**
+ * Push the student work to the latest node visit if the node id matches
+ * the node id in the node visit
+ * @param nodeId the node id of the step that is pushing the student work
+ * @param nodeState the student work
+ */
+StudentModel.prototype.pushStudentWorkToLatestNodeVisit = function(nodeId, nodeState) {
+	var nodeVisit = this.getState().getCurrentNodeVisit();
+	
+	if(nodeVisit != null) {
+		var nodeVisitNodeId = nodeVisit.nodeId;
+		
+		if(nodeId == nodeVisitNodeId) {
+			nodeVisit.nodeStates.push(nodeState);
+			eventManager.fire('studentWorkUpdated');
+		} else {
+			//display some error message
+		}
+	}
+};
+
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
 	eventManager.fire('scriptLoaded', 'vle/view/vle/vleview_model.js');

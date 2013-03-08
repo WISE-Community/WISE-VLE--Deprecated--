@@ -161,7 +161,7 @@ FILLIN.prototype.checkAnswer = function() {
 	this.states.push(fillinState);
 	
 	//fire the event to push this state to the global view.states object
-	eventManager.fire('pushStudentWork', fillinState);
+	this.view.pushStudentWork(this.node.id, fillinState);
 	
 	var feedbackDiv = document.getElementById("feedbackDiv");
 	if(this.customCheck!=null){

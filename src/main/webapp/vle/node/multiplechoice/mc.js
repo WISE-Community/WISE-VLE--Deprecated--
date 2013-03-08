@@ -566,7 +566,7 @@ MC.prototype.checkAnswer = function() {
 	}
 	
 	//fire the event to push this state to the global view.states object
-	eventManager.fire('pushStudentWork', mcState);
+	this.view.pushStudentWork(this.node.id, mcState);
 	
 	//push the state object into this mc object's own copy of states
 	this.states.push(mcState);

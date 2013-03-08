@@ -728,7 +728,7 @@ Epigame.prototype.save = function(st) {
 	var epigameState = new EpigameState(stateJSON);
 	
 	//Push this state to the global view.states object.
-	eventManager.fire('pushStudentWork', epigameState);
+	this.view.pushStudentWork(this.node.id, epigameState);
 
 	//Push the state object into this or object's own copy of states
 	this.states.push(epigameState);

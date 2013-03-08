@@ -613,7 +613,7 @@ ASSESSMENTLIST.prototype.save = function(isSubmit) {
 		};
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', alState);
+		this.view.pushStudentWork(this.node.id, alState);
 		
 		this.states.push(alState);
 		

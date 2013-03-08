@@ -752,7 +752,7 @@ SENSOR.prototype.save = function() {
 		}
 		
 		//fire the event to push this state to the global view.states object
-		eventManager.fire('pushStudentWork', this.sensorState);
+		this.view.pushStudentWork(this.node.id, this.sensorState);
 
 		//push the state object into the local copy of states
 		this.states.push(this.sensorState);		
