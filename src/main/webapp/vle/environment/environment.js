@@ -13,7 +13,7 @@ function createEnvironment(name, em){
 		var componentloader = cl;
 		var eventManager = em;
 		var scriptloader = sl;
-		var view = new View();
+		view = new View();
 		view.eventManager = em;
 		view.scriptloader = sl;
 		var name = name;

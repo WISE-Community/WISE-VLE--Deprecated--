@@ -1004,7 +1004,7 @@ View.prototype.previewProject = function(){
  */
 View.prototype.startPreview = function(em){
 	var obj = {'mode':'standaloneauthorpreview','getContentUrl':this.getProject().getUrl(),'getContentBaseUrl':this.getProject().getContentBase(),'updateAudio':this.updateAudioInVLE};
-	em.fire('startVLEFromParams', obj);
+	this.startVLEFromParams(obj);
 	this.updateAudioInVLE = false;
 };
 

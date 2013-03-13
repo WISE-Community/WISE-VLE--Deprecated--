@@ -58,7 +58,7 @@ NavigationPanel.prototype.createStepHtml = function(classString, stepId, nodeId,
 	// *REQUIRED*: the id for this element should be the stepId param
 	// *REQUIRED*: the classString param should be added to the class attribute
 	// *SUGGESTED*: If you want to include an element that opens this step, add an onclick event that runs this javascript code: eventManager.fire('renderNode','" + position + "');	
-	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('renderNode','" + position + "');\">"; 
+	var html = "<li name='menuItem' class='" + classString + "'  id='" + stepId + "'><a onclick=\"eventManager.fire('navigationNodeClicked','" + position + "');\">";
 	
 	// create a table inside the anchor for each step
 	html += "<table>";
@@ -131,6 +131,9 @@ NavigationPanel.prototype.menuCreated = function() {
 	
 	// show project content
 	$('#vle_body').css('opacity',1);
+	
+	view.eventManager.subscribe('studentWorkUpdated', this.studentWorkUpdatedListener, this);
+	view.eventManager.subscribe('constraintStatusUpdated', this.constraintStatusUpdatedListener, this);
 };
 
 /**
@@ -290,6 +293,43 @@ NavigationPanel.prototype.resizeMenu = function() {
 	$('#navigation').css({'position':'absolute', 'top':top, 'left':0, 'right':0, 'bottom':0});
 };
 
+/**
+ * Listener for the studentWorkUpdated event
+ * @param type the event name
+ * @param args the arguments passed into the event when it is fired
+ * @param obj the view
+ */
+NavigationPanel.prototype.studentWorkUpdatedListener = function(type, args, obj) {
+	//update the step icon
+	obj.setStepIcon();
+};
+
+/**
+ * Listener for the constraintStatusUpdated event
+ * @param type the event name
+ * @param args the arguments passed into the event when it is fired
+ * @param obj the view
+ */
+NavigationPanel.prototype.constraintStatusUpdatedListener = function(type, args, obj) {
+	//get the node id that has been updated
+	var nodeId = args[0];
+	
+	//get the constraint status
+	var constraintStatus = args[1];
+	
+	//get the position of the step
+	var position = view.getProject().getPositionById(nodeId);
+	var positionEscaped = view.escapeIdForJquery(position);
+
+	//add or remove the constraintDisable class 
+	if(constraintStatus == 'disabled') {
+		//grey out the step
+		$('#node_' + positionEscaped).addClass('constraintDisable');
+	} else if(constraintStatus == 'enabled') {
+		//make the step available
+		$('#node_' + positionEscaped).removeClass('constraintDisable');
+	}
+};
 
 
 /**

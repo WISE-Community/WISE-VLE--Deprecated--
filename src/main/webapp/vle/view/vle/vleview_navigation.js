@@ -74,7 +74,7 @@ View.prototype.renderPrevNode = function() {
 	
 	//if current node is note, we are leaving and should 'close' note panel
 	if(currentNode.type=='NoteNode'){
-		this.eventManager.fire('closeDialog','notePanel_' + currentNode.id);
+		this.utils.closeDialog('notePanel_' + currentNode.id);
 	}
 	
 	//get the current location
@@ -127,7 +127,7 @@ View.prototype.renderNextNode = function() {
 	
 	//if current node is note, we are leaving and should 'close' note panel
 	if(currentNode.type=='NoteNode'){
-		this.eventManager.fire('closeDialog','notePanel_' + currentNode.id);
+		this.utils.closeDialog('notePanel_' + currentNode.id);
 	}
 	
 	//get the current location

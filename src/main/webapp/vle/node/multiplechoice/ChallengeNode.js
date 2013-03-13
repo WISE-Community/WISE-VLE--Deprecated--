@@ -127,11 +127,11 @@ ChallengeNode.prototype.showFeedbackDialog = function(feedback, isCorrect){
             		 * the evidence step and the challenge question step
             		 */
             		if (!visited) {
-            			eventManager.fire("renderNode", toVisitPosition);
+            			view.setCurrentNodePosition(toVisitPosition);
             			$('.challenge-button > .ui-button-text').text('Back to Challenge Question');
             			visited = true;
             		} else {
-            			eventManager.fire("renderNode", challengePosition);
+            			view.setCurrentNodePosition(challengePosition);
             			$('.challenge-button > .ui-button-text').text('Take me there!');
             			visited = false;
             		}            		

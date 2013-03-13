@@ -895,9 +895,8 @@ View.prototype.getCRaterResponseCallbackFail = function(responseText, responseXM
  * Gets called when student work is updated and the studentWorkUpdated event
  * is fired.
  */
-View.prototype.studentWorkUpdatedEventHandler = function() {
+View.prototype.studentWorkUpdatedListener = function() {
 	this.updateActiveTagMapConstraints();
-	this.setStepIcon();
 };
 
 //used to notify scriptloader that this script has finished loading

@@ -10,7 +10,7 @@ View.prototype.showStepHints = function() {
 	var currentNode = this.getCurrentNode();
 	
 	// hide all dialogs
-	this.eventManager.fire('closeDialogs');
+	this.utils.closeDialogs();
 	
 	// show the hints panel
     $('#hintsPanel').dialog('open');

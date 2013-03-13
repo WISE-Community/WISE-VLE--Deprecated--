@@ -89,10 +89,16 @@ var componentloader = function(em, sl){
 							// add transparent overlay to step content to disable editing of previous step when note is opened
 							var contentOverlay = $(document.createElement('div')).attr('id','contentOverlay').css({'position':'fixed', 'left':0, 'width':'100%', 'top':0, 'height':'100%', 'z-index':99999 });
 							$('body',$('#ifrm')[0].contentWindow.document).append(contentOverlay);
-							
+
 							// bind click event to X link in dialog that saves and closes note
 							$(this).parent().children().children("a.ui-dialog-titlebar-close").click(function(){
-								window.eventManager.fire('saveAndCloseNote');
+								//save the note
+								if(view.activeNote){
+									view.activeNote.save();
+								}
+								
+								//close the note dialog
+								view.utils.closeDialog('notePanel');
 							});
 						}
 					});
@@ -694,8 +700,6 @@ var componentloader = function(em, sl){
 				MAX_ASSET_SIZE:2097152				
 			},
 			events:{
-				'startVLEFromConfig':[null,null],
-				'startVLEFromParams':[null,null],
 				'retrieveLocalesComplete':[null,null],
 				'retrieveThemeLocalesComplete':[null,null],
 				'renderNode':[null,null],
@@ -704,12 +708,8 @@ var componentloader = function(em, sl){
 				'onNotePanelResized':[null,null],
 				'startVLEComplete':[null,null],
 				'setStyleOnElement':[null,null],
-				'closeDialogs':[null,null],
-				'closeDialog':[null,null],
-				'postAllUnsavedNodeVisits':[null,null],
 				'ifrmLoaded':[null,null],
 				'processLoadViewStateResponseComplete':[null,null],
-				'saveNote':[null,null],
 				'saveAndLockNote':[null,null],
 				'noteHandleEditorKeyPress':[null,null],
 				'noteShowStarter':[null,null],
@@ -720,13 +720,14 @@ var componentloader = function(em, sl){
 				'assetUploaded':[null,null],
 				'chatRoomTextEntrySubmitted':[null, null],
 				'setStepIcon':[null, null],
-				'studentWorkUpdated':[null,null]
+				'studentWorkUpdated':[null,null],
+				'currentNodePositionUpdated':[null,null],
+				'navigationNodeClicked':[null,null],
+				'constraintStatusUpdated':[null,null]
 			},
 			methods:{},
 			initialize:{
 				init:function(view){
-						view.eventManager.subscribe('startVLEFromConfig',view.vleDispatcher, view);
-						view.eventManager.subscribe('startVLEFromParams', view.vleDispatcher, view);
 						view.eventManager.subscribe('retrieveLocalesComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('retrieveThemeLocalesComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('loadingProjectStart', view.vleDispatcher, view);
@@ -739,14 +740,10 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('resizeNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('onNotePanelResized', view.vleDispatcher, view);
 						view.eventManager.subscribe('setStyleOnElement', view.vleDispatcher, view);
-						view.eventManager.subscribe('closeDialog', view.vleDispatcher, view);
-						view.eventManager.subscribe('closeDialogs', view.vleDispatcher, view);
-						view.eventManager.subscribe('postAllUnsavedNodeVisits', view.vleDispatcher, view);
 						view.eventManager.subscribe('getAnnotationsComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getProjectMetaDataComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('getRunExtrasComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('ifrmLoaded', view.vleDispatcher, view);
-						view.eventManager.subscribe('saveNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('saveAndLockNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('noteHandleEditorKeyPress', view.vleDispatcher, view);
 						view.eventManager.subscribe('noteShowStarter', view.vleDispatcher, view);
@@ -761,6 +758,9 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('chatRoomTextEntrySubmitted', view.vleDispatcher, view);
 						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
 						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
+						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
+						view.eventManager.subscribe('navigationNodeClicked', view.vleDispatcher, view);
+						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);

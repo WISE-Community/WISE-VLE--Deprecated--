@@ -810,7 +810,7 @@ View.prototype.displayAddAnIdeaDialog = function() {
     }
 	
     // close all dialogs
-    this.eventManager.fire('closeDialogs');
+    view.utils.closeDialogs();
     
 	//make the popup visible
 	$('#addAnIdeaDiv').dialog('open');
@@ -1129,7 +1129,7 @@ View.prototype.displayIdeaBasket = function() {
 	 */
 	if($('#ideaBasketDiv').is(':hidden')) {
 		// close all dialogs
-		this.eventManager.fire('closeDialogs');
+		view.utils.closeDialogs();
 		
 		//open the dialog
 		var docHeight = $(document).height()-25;

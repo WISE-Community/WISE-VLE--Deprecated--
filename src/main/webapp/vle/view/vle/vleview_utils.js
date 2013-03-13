@@ -32,15 +32,11 @@ View.prototype.utils.setStyleOnElement = function(elementToHighlight, styleName,
  * @name optional, name of the poup. if none specified, 
  * tries to close all popups. Choices: {notePanel, journalPanel, hintsPanel, addAnIdeaDiv}
  */
-View.prototype.utils.closeDialogs = function(name){
-	if (name != null) {
-		this.closeDialog(name);
-	} else {
-		this.closeDialog('journalPanel');
-		this.closeDialog('notePanel');
-		this.closeDialog('hintsPanel');
-		this.closeDialog('addAnIdeaDiv');
-	}
+View.prototype.utils.closeDialogs = function(){
+	this.closeDialog('journalPanel');
+	this.closeDialog('notePanel');
+	this.closeDialog('hintsPanel');
+	this.closeDialog('addAnIdeaDiv');
 };
 
 /**

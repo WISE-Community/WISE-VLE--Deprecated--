@@ -26,7 +26,7 @@
 	<script type="text/javascript">
 		function startWithConfig() {
 			var vleConfigUrl =  '<%= request.getAttribute("vleconfig_url") %>'; 
-			window.frames['topifrm'].eventManager.fire('startVLEFromConfig', vleConfigUrl);
+			window.frames['topifrm'].view.startVLEFromConfig(vleConfigUrl);
 		}
 	</script>
 </head>

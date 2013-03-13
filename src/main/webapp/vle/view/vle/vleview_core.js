@@ -2,11 +2,7 @@
  * Dispatches events to the appropriate functions for the vle view.
  */
 View.prototype.vleDispatcher = function(type,args,obj){
-	if(type=='startVLEFromConfig'){
-		obj.startVLEFromConfig(args[0]);
-	} else if(type=='startVLEFromParams'){
-		obj.startVLEFromParams(args[0]);
-	} else if (type=='retrieveLocalesComplete' && args[0]=="main") {
+	if (type=='retrieveLocalesComplete' && args[0]=="main") {
 		obj.startVLE();
 	} else if (type=='retrieveLocalesComplete' && args[0]=="theme") {
 		obj.onThemeLoad();
@@ -46,16 +42,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.utils.onNotePanelResized(args[0]);
 	} else if(type=='setStyleOnElement'){
 		obj.utils.setStyleOnElement(args[0],args[1],args[2]);
-	} else if(type=='closeDialogs'){
-		if(args){
-			obj.utils.closeDialogs(args[0]);
-		} else {
-			obj.utils.closeDialogs();
-		};
-	} else if(type=='closeDialog'){
-		obj.utils.closeDialog(args[0]);
-	} else if(type=='postAllUnsavedNodeVisits') {
-		obj.postAllUnsavedNodeVisits();
 	} else if(type=='getAnnotationsComplete') {
 		if(args != null && args.length != 0) {
 			if(args[0] == 'displayShowAllWork') {
@@ -72,10 +58,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='ifrmLoaded'){
 		obj.createKeystrokeManagerForFrame();
 		obj.onFrameLoaded();
-	} else if(type=='saveNote'){
-		if(obj.activeNote){
-			obj.activeNote.save();
-		}
 	} else if(type=='saveAndLockNote'){
 		
 	} else if(type=='noteHandleEditorKeyPress'){
@@ -99,22 +81,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		
 		//tell the node to render any constraints if applicable
 		//node.renderConstraints();
-	} else if(type=='saveAndCloseNote'){
-		//save the note
-		obj.eventManager.fire('saveNote');
-		
-		//close the note dialog
-		obj.eventManager.fire('closeDialog','notePanel');
-		// render previously visited node (so WISE will correctly save data if users interact with previous node before moving on to another step)
-		/*if(obj.state.visitedNodes && obj.state.visitedNodes.length>0){
-			var currNodeId = obj.state.visitedNodes[obj.state.visitedNodes.length-1].nodeId;
-			var prevNodeId = obj.state.visitedNodes[obj.state.visitedNodes.length-2].nodeId;
-			if(currNodeId!=prevNodeId){
-				var prevNode = obj.getProject().getPositionById(prevNodeId);
-				obj.eventManager.fire("renderNode", prevNode);
-			}
-		}*/
-		
 	} else if (type=='importWork') {
 		//get importFrom and importTo node
 		var fromNodeId = args[0];
@@ -131,7 +97,11 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=="setStepIcon") {
 		obj.setStepIcon(args[0], args[1]);
 	} else if(type=="studentWorkUpdated") {
-		obj.studentWorkUpdatedEventHandler();
+		obj.studentWorkUpdatedListener();
+	} else if(type=="currentNodePositionUpdated") {
+		obj.currentNodePositionUpdatedListener();
+	} else if(type=="navigationNodeClicked") {
+		obj.navigationNodeClickedListener(args[0]);
 	}
 };
 
@@ -731,23 +701,28 @@ View.prototype.isAnyNavigationLoadingCompleted = function(){
  * Handles cleanup of previously rendered node, specified by position argument.
  * Save nodevisit state for current position, close popups, remove highlighted steps, etc.
  */
-View.prototype.renderNodePrep = function(position){
+View.prototype.endCurrentNode = function(){
 	/* ensures that only one popup (any notes and journal) is open at any given time */
-	this.eventManager.fire('closeDialogs');
-		
-	/* retrieve previous node */
-	var prevNode = this.getProject().getNodeByPosition(position);
+	this.utils.closeDialogs();
+	
+	var currentNode = null;
+	
+	//get the current node we are on
+	var currentNodeVisit = this.getState().getCurrentNodeVisit();
+	if(currentNodeVisit != null) {
+		currentNode = this.getProject().getNodeById(currentNodeVisit.nodeId);		
+	}
 	
 	/* tell previous step (if exists) to clean up */ 
-	if(prevNode) {
+	if(currentNode) {
 		//get the node id
-		var nodeId = prevNode.id;
+		var nodeId = currentNode.id;
 		
 		//remove the bubble and remove the highlight for the step the student is now visiting
 		eventManager.fire('removeMenuBubble', [nodeId]);
 		eventManager.fire('unhighlightStepInMenu', [nodeId]);
 		
-		prevNode.onExit();  
+		currentNode.onExit();  
 		if(this.getState()) {
 			this.getState().endCurrentNodeVisit();  // set endtime, etc.	
 		}
@@ -757,7 +732,7 @@ View.prototype.renderNodePrep = function(position){
 	$('#showallwork').dialog('close');
 	
 	// save all unsaved nodes
-	this.eventManager.fire('postAllUnsavedNodeVisits');
+	this.postAllUnsavedNodeVisits();
 };
 
 /**
@@ -825,65 +800,6 @@ View.prototype.onRenderNodeComplete = function(position){
  * 4. Render Node Complete.
  */
 View.prototype.renderNode = function(position){
-	//get the next node id
-	var nextNode = this.getProject().getNodeByPosition(position);
-	var nextNodeId = nextNode.id;
-	
-	//perform any tag map processing
-	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
-	
-	if(processTagMapConstraintResults != null) {
-		if(processTagMapConstraintResults.canMove == false) {
-			/*
-			 * the student is not allowed to move to the next node
-			 * so we will display a message telling them so and also
-			 * prevent the next node from being rendered so that they
-			 * stay on the current node they are already on
-			 */
-			var message = processTagMapConstraintResults.message;
-			alert(message);
-			return;
-		}
-	}
-	
-	//add any tag map constraints for the next node we are about to visit
-	this.addTagMapConstraints(nextNodeId);
-	
-	//get the node
-	var node = this.getProject().getNodeByPosition(position);
-	
-	//get the previous node
-	var prevNode = this.getProject().getNodeByPosition(this.currentPosition);
-	
-	// if the previous node has exit restrictions set, return without rendering new node
-	if(prevNode != null && !prevNode.canExit()){
-		return;
-	}
-	
-	/* check to see if we can render the given position and if we should render it
-	 * fully or partly disabled. The return object will contain the status number
-	 * and any message related to the status. Status values: 0 = can visit without
-	 * restriction, 1 = can visit but step should be disabled, 2 = cannot visit. */
-	var status = this.navigationLogic.getVisitableStatus(position);
-	
-	/* if status value == 1 or 2, we need to display any messages to user, if 2 we also
-	 * need to exit here */
-	if(status.value != 0){
-		//this.notificationManager.notify(status.msg, 3);
-		
-		//display any navigation logic constraint messages in an alert
-		if(status.msg)
-		alert(status.msg);
-		
-		if(status.value==2){
-			return;
-		}
-	}
-	
-	// Prepare to move to the specified position. 
-	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.
-	this.renderNodePrep(this.currentPosition);
-	
 	this.notificationManager.notify('rendering  node, pos: ' + position,4);
 	
     var nodeToVisit = null;
@@ -1090,6 +1006,104 @@ View.prototype.processStudentWork = function() {
  */
 View.prototype.setStepIcon = function(nodeId, stepIconPath) {
 	this.navigationPanel.setStepIcon(nodeId, stepIconPath);
+};
+
+/**
+ * Go to the new node position if possible. The new node position may
+ * be disabled due to a constraint in which case we will not be able
+ * to go to the new node position.
+ * @param nodePosition the new node position to go to
+ */
+View.prototype.goToNodePosition = function(nodePosition) {
+	//get the next node id
+	var nextNode = this.getProject().getNodeByPosition(nodePosition);
+	var nextNodeId = nextNode.id;
+	
+	//perform any tag map processing
+	var processTagMapConstraintResults = this.processTagMapConstraints(nextNodeId);
+	
+	if(processTagMapConstraintResults != null) {
+		if(processTagMapConstraintResults.canMove == false) {
+			/*
+			 * the student is not allowed to move to the next node
+			 * so we will display a message telling them so and also
+			 * prevent the next node from being rendered so that they
+			 * stay on the current node they are already on
+			 */
+			var message = processTagMapConstraintResults.message;
+			alert(message);
+			return;
+		}
+	}
+	
+	//get the next node id
+	var nextNode = this.getProject().getNodeByPosition(nodePosition);
+	var nextNodeId = nextNode.id;
+	
+	//add any tag map constraints for the next node we are about to visit
+	this.addTagMapConstraints(nextNodeId);
+	
+	//get the node
+	var node = this.getProject().getNodeByPosition(nodePosition);
+	
+	//get the previous node
+	var prevNode = this.getProject().getNodeByPosition(this.model.getCurrentNodePosition());
+	
+	// if the previous node has exit restrictions set, return without rendering new node
+	if(prevNode != null && !prevNode.canExit()){
+		return;
+	}
+	
+	/* check to see if we can render the given position and if we should render it
+	 * fully or partly disabled. The return object will contain the status number
+	 * and any message related to the status. Status values: 0 = can visit without
+	 * restriction, 1 = can visit but step should be disabled, 2 = cannot visit. */
+	var status = this.navigationLogic.getVisitableStatus(nodePosition);
+	
+	/* if status value == 1 or 2, we need to display any messages to user, if 2 we also
+	 * need to exit here */
+	if(status.value != 0){
+		//this.notificationManager.notify(status.msg, 3);
+		
+		//display any navigation logic constraint messages in an alert
+		if(status.msg)
+		alert(status.msg);
+		
+		if(status.value==2){
+			return;
+		}
+	}
+	
+	// Prepare to move to the specified position. 
+	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.
+	this.endCurrentNode();
+	
+	//we are able to go to the new node position so we will set it as the current node position
+	this.setCurrentNodePosition(nodePosition);
+};
+
+/**
+ * Set the current node position into the model
+ */
+View.prototype.setCurrentNodePosition = function(nodePosition) {
+	this.model.setCurrentNodePosition(nodePosition);
+};
+
+/**
+ * Listens for the currentNodePositionUpdated event
+ */
+View.prototype.currentNodePositionUpdatedListener = function() {
+	//render the node at the current node position
+	this.renderNode(this.model.getCurrentNodePosition());
+};
+
+/**
+ * Listens for the navigationNodeClicked event
+ * @param nodePosition the node position that was clicked
+ */
+View.prototype.navigationNodeClickedListener = function(nodePosition) {
+	//go to the node position that was clicked if it is available
+	this.goToNodePosition(nodePosition);
 };
 
 //used to notify scriptloader that this script has finished loading

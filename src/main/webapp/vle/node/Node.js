@@ -48,6 +48,8 @@ function Node(nodeType, view){
 		                        {functionName:'mustVisitXBefore', functionArgs:[]}
 		                        ];
 	}
+	
+	this.constraintStatus = 'enabled';
 };
 
 Node.statuses = [];
@@ -1950,6 +1952,19 @@ Node.prototype.getStatuses = function() {
 	statuses = Node.statuses;
 	
 	return statuses;
+};
+
+/**
+ * Set the constraint status for this node
+ * @param constraintStatus the constraint status for the node
+ * e.g. 'disabled' or 'enabled'
+ */
+Node.prototype.setConstraintStatus = function(constraintStatus) {
+	//set the constraint status
+	this.constraintStatus = constraintStatus;
+	
+	//fire an event to notify listeners that this node's constraint status has updated
+	eventManager.fire('constraintStatusUpdated', [this.id, constraintStatus]);
 };
 
 //used to notify scriptloader that this script has finished loading

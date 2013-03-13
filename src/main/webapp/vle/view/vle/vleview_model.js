@@ -3,6 +3,7 @@ function StudentModel() {
 	this.projectMetadata;
 	this.state;
 	this.annotations;
+	this.currentNodePosition;
 }
 
 /**
@@ -88,6 +89,23 @@ StudentModel.prototype.pushStudentWorkToLatestNodeVisit = function(nodeId, nodeS
 			//display some error message
 		}
 	}
+};
+
+/**
+ * Get the currentNodePosition
+ * @return the currentNodePosition
+ */
+StudentModel.prototype.getCurrentNodePosition = function() {
+	return this.currentNodePosition;
+};
+
+/**
+ * Set the currentNodePosition
+ * @param project the currentNodePosition
+ */
+StudentModel.prototype.setCurrentNodePosition = function(currentNodePosition) {
+	this.currentNodePosition = currentNodePosition;
+	eventManager.fire('currentNodePositionUpdated');
 };
 
 //used to notify scriptloader that this script has finished loading
