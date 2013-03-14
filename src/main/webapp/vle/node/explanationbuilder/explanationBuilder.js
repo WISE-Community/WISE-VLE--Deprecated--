@@ -205,11 +205,9 @@ ExplanationBuilder.prototype.render = function() {
 				if ((/\S/.test(context.answer))){
 					// a valid answer has been submitted, so set node completed and remove constraint
 					context.node.setCompleted();
-					//context.node.removeConstraints();
 				} else {
 					// a valid answer has not been submitted, so set node not completed and add constraint
 					context.node.setNotCompleted();
-					//context.node.addConstraints();
 				}
 				context.save();
 				// update constraints in navigation menu
@@ -1383,8 +1381,6 @@ ExplanationBuilder.prototype.addExpIdea = function(context,isLoad,isActive,id,le
 		// student text area is disabled or a valid answer has been submitted, so set node completed and remove constraint
 		context.node.setCompleted();
 		context.node.removeConstraints();
-		// update constraints in navigation menu
-		this.view.eventManager.fire('updateNavigationConstraints');
 	}
 
 	if (!isActive){

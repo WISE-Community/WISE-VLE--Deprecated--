@@ -399,7 +399,6 @@ MS.prototype.render = function() {
     		
     	    if(this.isChallengeEnabled()) {
     	    	//challenge question is enabled so we will create the constraint
-    	    	//eventManager.fire('addConstraint',{type:'WorkOnXBeforeAdvancingConstraint', x:{id:this.node.id, mode:'node'}, id:this.node.utils.generateKey(20), workCorrect:true, buttonName:"Submit Answer"});
     	    	this.view.eventManager.fire('addActiveTagMapConstraint', [this.node.id, null, 'mustCompleteBeforeAdvancing', null]);
     	    }
     	}
@@ -774,10 +773,6 @@ MS.prototype.checkAnswer = function() {
 					
 					//create the message that will display in the alert
 					var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.'
-					
-					/* create the constraint to disable this step until students have gone to
-					 * the step specified by this attempts */
-					//this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:challengeSettings.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20), msg:optsMsg});
 					
 					//create the args to pass to the tag map constraint
 					var additionalFunctionArgs = {

@@ -174,7 +174,7 @@ Branching.prototype.render = function() {
 		this.view.updateNavigationLogic();
 
 		// render the next node, which should be the first node of the branched path
-		eventManager.fire("renderNextNode");
+		view.renderNextNode();
 	} else {
 		// show the splash page and let the user choose a branch to go down
 	}

@@ -277,7 +277,7 @@ EpigameNode.prototype.navHelper = function() {
 			};
 		},
 		toggleNav: function() {
-			eventManager.fire('toggleNavigationVisibility');
+			view.navigationPanel.toggleVisibility();
 		},
 		executeNode: function(sequenceIndex, stepIndex) {
 			var pos = String(sequenceIndex) + "." + String(stepIndex);

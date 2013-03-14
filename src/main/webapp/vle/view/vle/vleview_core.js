@@ -36,6 +36,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		} else {
 			obj.onRenderNodeComplete(null);
 		};
+		obj.renderNavigationPanel();
+		obj.expandActivity(args[0]);
 	} else if(type=='resizeNote'){
 		obj.utils.resizePanel('notePanel', args[0]);
 	} else if(type=='onNotePanelResized'){
@@ -100,10 +102,20 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.studentWorkUpdatedListener();
 	} else if(type=="currentNodePositionUpdated") {
 		obj.currentNodePositionUpdatedListener();
-	} else if(type=="navigationNodeClicked") {
-		obj.navigationNodeClickedListener(args[0]);
 	}
+
 };
+
+/**
+ * Renders the navigationPanel. Creates one if one does not yet exist
+ */
+View.prototype.renderNavigationPanel = function(){
+	if(!this.navigationPanel){
+		this.navigationPanel = new NavigationPanel(this);	
+	};
+	this.navigationPanel.render();
+};
+
 
 /**
  * Starts the VLE with the config object retrieved from the given url
@@ -172,12 +184,12 @@ View.prototype.displayGlobalTools = function() {
 	//var journalLink = "<li id='journalTD' style=\"display:none\"><a class=\"\" onclick='eventManager.fire(\"showJournal\")' title=\"Show Student Journal\"><img src=\"images/Journal28x28.png\" alt=\"Show My Journal\" border=\"0\" />&nbsp;"+this.getI18NString("journal_button_text")+"</a></li>";
 	
 	// Insert navigation toggle
-	var toggleNavLink = "<a id='toggleNavLink' onclick='eventManager.fire(\"toggleNavigationVisibility\")' title='"+this.getI18NString("toggle_nav_button_title")+"'>"+this.getI18NString("toggle_nav_button_text")+"</a>";
+	var toggleNavLink = "<a id='toggleNavLink' onclick='eventManager.fire(\"navigationPanelToggleVisibilityButtonClicked\")' title='"+this.getI18NString("toggle_nav_button_title")+"'>"+this.getI18NString("toggle_nav_button_text")+"</a>";
 	$('#toggleNav').html(toggleNavLink);
 	
 	// Insert previous and next step links 
-	var prevNodeLink = "<a id='previousStepLink' onclick='eventManager.fire(\"renderPrevNode\")' title='"+this.getI18NString("previous_step_title")+"'></a>";	
-	var nextNodeLink = "<a id='nextStepLink' onclick='eventManager.fire(\"renderNextNode\")' title='"+this.getI18NString("next_step_title")+"'></a>";
+	var prevNodeLink = "<a id='previousStepLink' onclick='eventManager.fire(\"navigationPanelPrevButtonClicked\")' title='"+this.getI18NString("previous_step_title")+"'></a>";	
+	var nextNodeLink = "<a id='nextStepLink' onclick='eventManager.fire(\"navigationPanelNextButtonClicked\")' title='"+this.getI18NString("next_step_title")+"'></a>";
 	$('#stepNav').html(prevNodeLink + ' ' + nextNodeLink);
 	
 	// Insert sign out and exit to home links
@@ -580,6 +592,7 @@ View.prototype.onThemeLoad = function(){
  * AND if the navigation component is present will only render when it is also loaded.
  */
 View.prototype.renderStartNode = function(){
+	
 	/* get the mode from the config */
 	var mode = this.config.getConfigParam('mode');
 
@@ -671,6 +684,7 @@ View.prototype.renderStartNode = function(){
  * @return boolean
  */
 View.prototype.canRenderStartNode = function(mode){
+	console.log('canrenderstartnode:' + this.getProject() != null && this.userAndClassInfoLoaded && this.viewStateLoaded);
 	switch (mode){
 	case 'run':
 		return this.getProject() != null && this.userAndClassInfoLoaded && this.viewStateLoaded;
@@ -1054,25 +1068,6 @@ View.prototype.goToNodePosition = function(nodePosition) {
 		return;
 	}
 	
-	/* check to see if we can render the given position and if we should render it
-	 * fully or partly disabled. The return object will contain the status number
-	 * and any message related to the status. Status values: 0 = can visit without
-	 * restriction, 1 = can visit but step should be disabled, 2 = cannot visit. */
-	var status = this.navigationLogic.getVisitableStatus(nodePosition);
-	
-	/* if status value == 1 or 2, we need to display any messages to user, if 2 we also
-	 * need to exit here */
-	if(status.value != 0){
-		//this.notificationManager.notify(status.msg, 3);
-		
-		//display any navigation logic constraint messages in an alert
-		if(status.msg)
-		alert(status.msg);
-		
-		if(status.value==2){
-			return;
-		}
-	}
 	
 	// Prepare to move to the specified position. 
 	// Save nodevisit state for current position, close popups, remove highlighted steps, etc.
@@ -1097,14 +1092,6 @@ View.prototype.currentNodePositionUpdatedListener = function() {
 	this.renderNode(this.model.getCurrentNodePosition());
 };
 
-/**
- * Listens for the navigationNodeClicked event
- * @param nodePosition the node position that was clicked
- */
-View.prototype.navigationNodeClickedListener = function(nodePosition) {
-	//go to the node position that was clicked if it is available
-	this.goToNodePosition(nodePosition);
-};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

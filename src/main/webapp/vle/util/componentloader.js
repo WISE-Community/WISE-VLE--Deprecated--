@@ -12,7 +12,7 @@ var componentloader = function(em, sl){
 	
 	//place components in the order you want them to load
 	var views = {
-		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','menu','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
+		student: ['topMenu','setup', 'core', 'keystroke', 'config', 'studentXMPP', 'user', 'session','studentwork','student','hint','navigation','audio','annotations','uicontrol', 'wise', 'maxscores', /*'journal',*/ 'peerreviewhelper', 'ideabasket', 'studentasset'],
 		grading: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		//grading_min: ['setup', 'core', 'config', 'teacherXMPP', 'studentwork', 'user', 'session', 'grading', 'annotations', 'maxscores', 'ideabasket'],
 		grading_min: ['setup', 'core_min', 'config', 'teacherXMPP_min', 'studentwork_min', 'user', 'session', 'grading_min', 'annotations_min', 'maxscores_min', 'ideabasket'],
@@ -722,7 +722,6 @@ var componentloader = function(em, sl){
 				'setStepIcon':[null, null],
 				'studentWorkUpdated':[null,null],
 				'currentNodePositionUpdated':[null,null],
-				'navigationNodeClicked':[null,null],
 				'constraintStatusUpdated':[null,null]
 			},
 			methods:{},
@@ -759,7 +758,6 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('setStepIcon', view.vleDispatcher, view);
 						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
-						view.eventManager.subscribe('navigationNodeClicked', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
@@ -770,7 +768,7 @@ var componentloader = function(em, sl){
 						$('#onUnloadSaveDiv').dialog({autoOpen:false,width:300,height:100,modal:true,draggable:false,resizable:false,closeText:'',dialogClass:'no-title'});
 					},
 				keystrokeManager:function(){
-						var keystrokes = [['renderNextNode', 39, ['shift']],['renderPrevNode', 37, ['shift']]];
+						var keystrokes = [];
 						return createKeystrokeManager(eventManager,keystrokes);
 					}
 			}
@@ -814,67 +812,25 @@ var componentloader = function(em, sl){
 				navigationLogic:undefined,
 				isNavigationComponentPresent:true,
 				isNavigationComponentLoaded:false,
-				isProjectConstraintProcessingComplete:false
+				isProjectConstraintProcessingComplete:false,
+				myMenu:undefined,
+				navigationPanel:undefined
 			},
 			events:{
-				'renderPrevNode':[null,null],
-				'renderNextNode':[null,null], 
-				'addConstraint':[null,null],
-				'removeConstraint':[null,null],
 				'navigationLoadingComplete':[null,null],
 				'updateNavigationConstraints':[null,null],
 				'addActiveTagMapConstraint':[null,null],
-				'removeActiveTagMapConstraint':[null,null]
+				'removeActiveTagMapConstraint':[null,null],
+				'logout':[null,null]
 			},
 			initialize:{
 				init:function(view){
-					view.eventManager.subscribe('renderNextNode', view.navigationDispatcher, view);
-					view.eventManager.subscribe('renderPrevNode', view.navigationDispatcher, view);
 					view.eventManager.subscribe('loadingProjectComplete', view.navigationDispatcher, view);
 					view.eventManager.subscribe('renderNodeComplete', view.navigationDispatcher, view);
-					view.eventManager.subscribe('addConstraint', view.navigationDispatcher, view);
-					view.eventManager.subscribe('removeConstraint', view.navigationDispatcher, view);
 					view.eventManager.subscribe('navigationLoadingComplete', view.vleDispatcher, view);
 					view.eventManager.subscribe('processLoadViewStateResponseComplete', view.navigationDispatcher, view);
 					view.eventManager.subscribe('addActiveTagMapConstraint', view.navigationDispatcher, view);
 					view.eventManager.subscribe('removeActiveTagMapConstraint', view.navigationDispatcher, view);
-				}
-			}
-		},
-		menu:{
-			variables:{myMenu:undefined,navigationPanel:undefined},
-			events:{//'toggleNavigationPanelVisibility':[null,null],
-				'menuExpandAll':[null,null],
-				'menuCollapseAll':[null,null],
-				'menuCollapseAllNonImmediate':[null,null],
-				'toggleSequence':[null,null],
-				'resizeMenu':[null,null],
-				'logout':[null,null],
-				'displayMenuBubble':[null,null],
-				'removeMenuBubble':[null,null],
-				'removeAllMenuBubbles':[null,null],
-				'highlightStepInMenu':[null,null],
-				'unhighlightStepInMenu':[null,null],
-				'updateStepStatusIcon':[null,null],
-				'menuCreated': [null,null]
-			},
-			initialize:{
-				init:function(view){
-					view.eventManager.subscribe('menuCreated', view.menuDispatcher, view);
-					view.eventManager.subscribe('renderNodeComplete', view.menuDispatcher, view);
-					//view.eventManager.subscribe('toggleNavigationPanelVisibility', view.menuDispatcher, view);
-					view.eventManager.subscribe('menuExpandAll', view.menuDispatcher, view);
-					view.eventManager.subscribe('menuCollapseAll', view.menuDispatcher, view);
-					view.eventManager.subscribe('menuCollapseAllNonImmediate', view.menuDispatcher, view);
-					view.eventManager.subscribe('toggleSequence', view.menuDispatcher, view);
-					view.eventManager.subscribe('resizeMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('updateNavigationConstraints', view.menuDispatcher, view);
-					view.eventManager.subscribe('displayMenuBubble', view.menuDispatcher, view);
-					view.eventManager.subscribe('removeMenuBubble', view.menuDispatcher, view);
-					view.eventManager.subscribe('removeAllMenuBubbles', view.menuDispatcher, view);
-					view.eventManager.subscribe('highlightStepInMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('unhighlightStepInMenu', view.menuDispatcher, view);
-					view.eventManager.subscribe('updateStepStatusIcon', view.menuDispatcher, view);
 				}
 			}
 		},

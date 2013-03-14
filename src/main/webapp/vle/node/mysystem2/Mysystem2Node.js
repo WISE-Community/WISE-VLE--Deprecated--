@@ -16,7 +16,8 @@ Mysystem2Node.authoringToolDescription = "This is a generic step only used by de
 
 Mysystem2Node.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
-	{functionName:'showPreviousWork', functionArgs:[]}
+	{functionName:'showPreviousWork', functionArgs:[]},
+	{functionName:'checkCompleted', functionArgs:[]}
 ];
 
 /**

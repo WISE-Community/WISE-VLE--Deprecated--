@@ -1,19 +1,9 @@
 function NavigationLogic(algorithm, view) {
 	this.algorithm = algorithm;
 	this.view = view;
-	this.constraintManager = new ConstraintManager(view);
 	this.tagMapConstraintManager = new TagMapConstraintManager(view);
 };
 
-/**
- * Tells the constraintManager to update its constraint whenever
- * a node is rendered.
- * 
- * @param position
- */
-NavigationLogic.prototype.nodeRendered = function(position){
-	this.constraintManager.nodeRendered(position);
-};
 
 /**
  * populates this.visitingOrder array
@@ -24,49 +14,6 @@ NavigationLogic.prototype.findVisitingOrder = function(node) {
 	for (var i=0; i < node.children.length; i++) {
 		this.findVisitingOrder(node.children[i]);
 	}
-};
-
-/**
- * Given the currentNode, the prospective nodeToVisit and the view
- * state, returns the visitable status (either 0 - can visit, 1 - can visit
- * but disable, 2 - cannot visit)
- * 
- * @return 0/1/2, default: 0
- */
-NavigationLogic.prototype.getVisitableStatus = function(position){
-	if (this.view.getConfig().getConfigParam("mode") == "portalpreview"
-		&& this.view.getConfig().getConfigParam("isConstraintsDisabled")) {
-		// if user is previewing and constraints are disabled...
-		// don't add any constraints so they can go on to next steps without having to answer all the questions.
-		// commented out since there were too many message popups
-		//this.view.notificationManager.notify('In the actual run, students must complete all parts on this step before moving on to the next step.', 3); 
-		return {value:0, msg:''};
-	} 
-
-	if(this.constraintManager){
-		return this.constraintManager.getVisitableStatus(position);	
-	}
-	
-	return {value:0, msg:''};
-};
-
-/**
- * Given a constraint options object, creates the constraint specified
- * by the options.
- * 
- * @param opts
- */
-NavigationLogic.prototype.addConstraint = function(opts){
-	this.constraintManager.addConstraint(opts);
-};
-
-/**
- * Removes the constraint with the given id.
- * 
- * @param string - constraintId
- */
-NavigationLogic.prototype.removeConstraint = function(constraintId){
-	this.constraintManager.removeConstraint(constraintId);
 };
 
 /**
@@ -106,8 +53,7 @@ NavigationLogic.prototype.getNextVisitableNode = function(location){
 	var nextNodeLoc = this.getNextNode(location);
 	while (nextNodeLoc != null && 
 			(this.view.getProject().getNodeByPosition(nextNodeLoc).isSequence() ||
-			 this.view.getProject().getNodeByPosition(nextNodeLoc).isHiddenFromNavigation() ||
-			 this.getVisitableStatus(nextNodeLoc).value !== 0)) {
+			 this.view.getProject().getNodeByPosition(nextNodeLoc).isHiddenFromNavigation())) {
 		nextNodeLoc = this.getNextNode(nextNodeLoc);
 	}
 	
@@ -146,8 +92,7 @@ NavigationLogic.prototype.getPrevVisitableNode = function(location){
 	var prevNodeLoc = this.getPrevNode(location);
 	while (prevNodeLoc != null && 
 			(this.view.getProject().getNodeByPosition(prevNodeLoc).isSequence() || 
-			 this.view.getProject().getNodeByPosition(prevNodeLoc).isHiddenFromNavigation() ||
-			 this.getVisitableStatus(prevNodeLoc).value !== 0)) {
+			 this.view.getProject().getNodeByPosition(prevNodeLoc).isHiddenFromNavigation())) {
 		prevNodeLoc = this.getPrevNode(prevNodeLoc);
 	}
 	

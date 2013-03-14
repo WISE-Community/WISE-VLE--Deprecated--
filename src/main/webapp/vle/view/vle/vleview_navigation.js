@@ -2,27 +2,17 @@
  * Dispatches events specific to the navigation
  */
 View.prototype.navigationDispatcher = function(type,args,obj){
-	if(type=='renderNextNode'){
-		obj.renderNextNode();
-	} else if(type=='renderPrevNode'){
-		obj.renderPrevNode();
-	} else if(type=='loadingProjectComplete'){
+	if(type=='loadingProjectComplete'){
 		obj.createNavigationLogicOnProjectLoad();
-		obj.processConstraintsOnProjectLoad();
 	} else if(type=='renderNodeComplete'){
 		obj.preloadNextNode(args[0]);
-		obj.updateNavigationConstraints();
-	} else if(type=='addConstraint'){
-		obj.addNavigationConstraint(args[0]);
-	} else if(type=='removeConstraint'){
-		obj.removeNavigationConstraint(args[0]);
 	} else if(type=='processLoadViewStateResponseComplete'){
-		obj.processStateConstraints();
+		obj.eventManager.fire('navigationLoadingComplete');
 	} else if(type=='addActiveTagMapConstraint') {
 		obj.addActiveTagMapConstraint(args[0], args[1], args[2], args[3], args[4], args[5]);
 	} else if(type=='removeActiveTagMapConstraint') {
 		obj.removeActiveTagMapConstraint(args[0], args[1], args[2], args[3], args[4], args[5]);
-	}
+	} 
 };
 
 /**
@@ -39,11 +29,6 @@ View.prototype.preloadNextNode = function(){
 	}
 };
 
-/* lets the navigation logic know that a node has rendered */
-View.prototype.updateNavigationConstraints = function(){
-	this.navigationLogic.nodeRendered(this.getCurrentPosition());
-};
-
 /**
  * Creates the navigation logic using the dfs algorithm
  */
@@ -55,7 +40,7 @@ View.prototype.updateNavigationLogic = function(){
  * Creates the navigation logic using the dfs algorithm
  */
 View.prototype.createNavigationLogicOnProjectLoad = function(){
-	//this.navigationLogic = new NavigationLogic(new DFS(this.getProject().getRootNode()), this);
+	this.isNavigationComponentLoaded = true;
 	this.updateNavigationLogic();
 };
 
@@ -168,98 +153,6 @@ View.prototype.renderNextNode = function() {
 	}
 };
 
-/**
- * Adds a constraint on navigation built from the given options object.
- * 
- * @param object- opts
- */
-View.prototype.addNavigationConstraint = function(opts){
-	if(this.navigationLogic && opts){
-		this.navigationLogic.addConstraint(opts);
-	}
-};
-
-/**
- * Removes the constraint with the given id.
- * 
- * @param string - constraintId
- */
-View.prototype.removeNavigationConstraint = function(constraintId){
-	this.navigationLogic.removeConstraint(constraintId);
-};
-
-/**
- * Adds the given constraints from the just loaded project into the
- * navigation and sets up any branching node constraints.
- */
-View.prototype.processConstraintsOnProjectLoad = function(){
-	/* get the constraints from the project */
-	var constraints = this.getProject().getConstraints().slice();
-	
-	/* iterate through the constraints and add to the navigation logic */
-	for(var c=0;c<constraints.length;c++){
-		this.navigationLogic.addConstraint(constraints[c]);
-	}
-	
-	/* loop through all of the project nodes used in the project and create
-	 * the constraints needed for any of the branch nodes */
-	var projectNodes = this.getProject().getDescendentNodeIds(this.getProject().getRootNode().id);
-	for(var d=0;d<projectNodes.length;d++){
-		var currentNode = this.getProject().getNodeById(projectNodes[d]);
-		if(currentNode.getType()=='BranchNode'){
-			var bNodeContent = currentNode.getContent().getContentJSON();
-			
-			/* get all branch node ids and set up notvisitablex constraints for all of them, add
-			 * the created constraintNodeIds to the content for use when constraints need to be lifted,
-			 * we need to keep track of the created constraints and ids because if an activity or step
-			 * is specified for more than one branch, we do not want to create multiple constraints because
-			 * then the student won't be able to navigate to it */
-			var nodeIdsToConstraintIds = {};
-			for(var e=0;e<bNodeContent.branches.length;e++){
-				var currentBranch = bNodeContent.branches[e];
-				currentBranch.constraintIds = [];
-				for(var f=0;f<currentBranch.branchIds.length;f++){
-					/* check to see if we already created a constraint for this node id in another
-					 * branch, if so, we only need to add the existing constraint id */
-					if(nodeIdsToConstraintIds[currentBranch.branchIds[f]]){
-						currentBranch.constraintIds.push(nodeIdsToConstraintIds[currentBranch.branchIds[f]]);
-					} else {
-						var cId = currentNode.utils.generateKey(20);
-						var mode = (this.getProject().getNodeById(currentBranch.branchIds[f]).isSequence() ? 'sequenceAll' : 'node');
-						currentBranch.constraintIds.push(cId);
-						this.navigationLogic.addConstraint({type:'NotVisitableXConstraint', x:{id:currentBranch.branchIds[f], mode:mode},status:2, menuStatus:2, id:cId});
-						nodeIdsToConstraintIds[currentBranch.branchIds[f]] = cId;
-					}
-				}
-			}
-		}
-	}
-	
-	/* have the navigation update its constraints and set variables that
-	 * complete its loading checking the mode to ensure that the constraints
-	 * from the state have also been loaded if required for that mode */
-	this.isProjectConstraintProcessingComplete = true;
-	
-	/* if the config mode is run, then we want to process state
-	 * constraints (which will set the navigation loading complete),
-	 * otherwise, we just want to set navigation loading complete */
-	if(this.config.getConfigParam('mode')=='run'){
-		this.processStateConstraints();
-	} else {
-		this.isNavigationComponentLoaded = true;
-		this.eventManager.fire('navigationLoadingComplete');
-	}
-};
-
-/**
- * If/When state is loaded, checks the state to see if any dynamically created
- * constraints need to be re-created.
- */
-View.prototype.processStateConstraints = function(){
-	if(this.navigationLogic){
-		this.navigationLogic.constraintManager.processStateConstraints();
-	}
-};
 
 /**
  * Add all the global tag map constraints that are not satisfied.

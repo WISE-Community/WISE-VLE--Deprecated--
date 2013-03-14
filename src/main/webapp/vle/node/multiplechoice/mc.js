@@ -532,11 +532,6 @@ MC.prototype.checkAnswer = function() {
 		//$('#tryAgainButton').addClass('disabledLink');
 		$('#tryAgainButton').parent().addClass('ui-state-disabled');
 	} else if(this.node.getType()=='BranchNode'){
-		/* this is a branch node, we will update the constraints so that students can
-		 * navigate to the appropriate branch given their answer, we also cannot allow
-		 * students to return and change their answer, so we need to create a constraint
-		 * so that students won't be able to change anything on this step */
-		//this.node.view.eventManager.fire('addConstraint', {type:'NotVisitableXConstraint', x:{id:this.node.id, mode:'node'}, status:1, menuStatus:0, msg:'You can only answer this question once.'});
 		
 		/* remove the notvisitablex constraints for the appropriate branch based
 		 * on the student response
@@ -549,7 +544,6 @@ MC.prototype.checkAnswer = function() {
 			 * we need to remove the specified constraints for this branch */
 			if(this.content.branches[v].choiceIds.indexOf(checkedId) != -1){
 				for(var w=0;w<this.content.branches[v].constraintIds.length;w++){
-					//this.node.view.eventManager.fire('removeConstraint', this.content.branches[v].constraintIds[w]);
 				}
 			}
 		}
@@ -653,10 +647,6 @@ MC.prototype.getResultMessage = function(isCorrect){
 				//create the message that will display in the alert
 				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';
 				
-				/* create the constraint to disable this step until students have gone to
-				 * the step specified by this attempt */
-				//this.node.view.eventManager.fire('addConstraint', {type:'VisitXBeforeYConstraint', x:{id:attempt.navigateTo, mode:'node'}, y:{id:this.node.id, mode:'node'}, status: 1, menuStatus:0, effective: Date.parse(new Date()), id:this.node.utils.generateKey(20), msg:optsMsg});
-
 				//create the args to pass to the tag map constraint
 				var additionalFunctionArgs = {
 					mustVisitNodeId:attempt.navigateTo,
