@@ -139,8 +139,8 @@ function SENSOR(node) {
 	} else {
 		if (typeof this.content.useCustomUnitsAndGraphLabel != "undefined" && this.content.useCustomUnitsAndGraphLabel){
     		var graphName = typeof this.content.graphLabel != "undefined" ? this.content.graphLabel : "prediction";
-			this.graphNames.prediction = graphName;
-			this.graphUnits[graphName] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
+			this.graphNames.prediction = graphName + " prediction";
+			this.graphUnits[graphName + " prediction"] = typeof this.content.graphParams.yUnits != "undefined" ? this.content.graphParams.yUnits : "";
     	} else {
 			var graphName = "";
 			this.graphNames.prediction = graphName;
@@ -1751,6 +1751,8 @@ SENSOR.prototype.createAnnotation = function(seriesName, dataIndex, dataPoint) {
 		xLabel = "time";
 	} else if(this.sensorType == "temperature") {
 		xLabel = "time";
+	} else if(this.content.useCustomUnitsAndGraphLabel != null) {
+		xLabel = "customX";
 	}
 	
 	//get the x units
@@ -2480,6 +2482,8 @@ SENSOR.prototype.predictionReceived = function(x, y) {
 	    		xLabel = "time";
 	    	} else if(this.sensorType == "temperature") {
 	    		xLabel = "time";
+	    	} else if(this.content.useCustomUnitsAndGraphLabel != null) {
+	    		xLabel = "customX";
 	    	}
 	    	
 			//get the x units
@@ -2562,6 +2566,8 @@ SENSOR.prototype.predictionUpdateByX = function(x, y) {
 		    		xLabel = "time";
 		    	} else if(this.sensorType == "temperature") {
 		    		xLabel = "time";
+		    	} else if(this.content.useCustomUnitsAndGraphLabel != null) {
+		    		xLabel = "customX";
 		    	}
 		    	
 				//get the x units
@@ -2852,54 +2858,56 @@ SENSOR.prototype.addAnnotationToolTipToUI = function(seriesName, dataIndex, x, y
 		//get the point in the series
 		var dataPointArray = series.data[dataIndex];
 		
-		//get the x and y values
-		var dataPointObject = {
-				x:dataPointArray[0],
-				y:dataPointArray[1]
-		};
-		
-		//find the pixel position of the point
-		var offsetObject = plot.pointOffset(dataPointObject);
-		var xOffset = offsetObject.left;
-		var yOffset = offsetObject.top;
-		
-		//get the class that we will give to the div
-		var annotationToolTipClass = "activeAnnotationToolTip " + this.graphDivId + "AnnotationToolTip";
-		
-		if(seriesName.indexOf("prediction") != -1) {
-			annotationToolTipClass += " annotationToolTipPrediction";
-		} else {
-			annotationToolTipClass += " annotationToolTipData";
-		}
-		
-		var domSeriesName = this.getDOMSeriesName(seriesName);
-		
-		//get the x value that we will use in the DOM id
-		var domXValue = this.getDOMXValue(x);
-		
-		//get the div id for the annotation tool tip
-		var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + domXValue;
+		if(dataPointArray != null) {
+			//get the x and y values
+			var dataPointObject = {
+					x:dataPointArray[0],
+					y:dataPointArray[1]
+			};
+			
+			//find the pixel position of the point
+			var offsetObject = plot.pointOffset(dataPointObject);
+			var xOffset = offsetObject.left;
+			var yOffset = offsetObject.top;
+			
+			//get the class that we will give to the div
+			var annotationToolTipClass = "activeAnnotationToolTip " + this.graphDivId + "AnnotationToolTip";
+			
+			if(seriesName.indexOf("prediction") != -1) {
+				annotationToolTipClass += " annotationToolTipPrediction";
+			} else {
+				annotationToolTipClass += " annotationToolTipData";
+			}
+			
+			var domSeriesName = this.getDOMSeriesName(seriesName);
+			
+			//get the x value that we will use in the DOM id
+			var domXValue = this.getDOMXValue(x);
+			
+			//get the div id for the annotation tool tip
+			var annotationToolTipDivId = this.graphDivId + '_annotationToolTip_' + domSeriesName + domXValue;
 
-		//check if the tool tip div for this annotation already exists
-		if($('#' + annotationToolTipDivId).length == 0) {
-			//it does not exist so we will make it
-		    $('<div id="' + annotationToolTipDivId + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
-		        position: 'absolute',
-		        //display: 'none',
-		        top: yOffset - 35,
-		        left: xOffset + 10,
-		        border: '1px solid #fdd',
-		        padding: '2px',
-		        'background-color': '#fee',
-		        opacity: 0.8
-		    }).appendTo("#" + this.graphDivId).fadeIn(200);
+			//check if the tool tip div for this annotation already exists
+			if($('#' + annotationToolTipDivId).length == 0) {
+				//it does not exist so we will make it
+			    $('<div id="' + annotationToolTipDivId + '" class="' + annotationToolTipClass + '">' + annotationText + '</div>').css( {
+			        position: 'absolute',
+			        //display: 'none',
+			        top: yOffset - 35,
+			        left: xOffset + 10,
+			        border: '1px solid #fdd',
+			        padding: '2px',
+			        'background-color': '#fee',
+			        opacity: 0.8
+			    }).appendTo("#" + this.graphDivId).fadeIn(200);
+			}
+			
+		    if(annotationText == null || annotationText == "") {
+		    	//hide the annotation tool tip if the annotation text is ""
+		    	$('#' + annotationToolTipDivId).hide();
+		    	$('#' + annotationToolTipDivId).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
+		    }			
 		}
-		
-	    if(annotationText == null || annotationText == "") {
-	    	//hide the annotation tool tip if the annotation text is ""
-	    	$('#' + annotationToolTipDivId).hide();
-	    	$('#' + annotationToolTipDivId).addClass("hiddenAnnotationToolTip").removeClass("activeAnnotationToolTip");
-	    }
 	}
 };
 
