@@ -577,9 +577,13 @@ OPENRESPONSE.prototype.render = function() {
 		this.setSaveAndLockUnavailable();
 		this.setCheckAnswerUnavailable();
 		
-		//display this message in the step frame
-		this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
-
+		if (typeof this.content.keepAnnotatedWork == "undefined" || !this.content.keepAnnotatedWork){
+			//display this message in the step frame
+			this.onlyDisplayMessage('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
+		} else {
+			// pop up message into a dialog.
+			$("#dialogDiv").dialog('<p>You have successfully reviewed the work submitted by <i>Team Anonymous</i>.</p><p>Well done!</p>');
+		}
 		return;
 	}
 	
