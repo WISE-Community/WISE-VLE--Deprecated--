@@ -642,7 +642,7 @@ MC.prototype.getResultMessage = function(isCorrect){
 				var stepNumberAndTitle = this.node.view.getProject().getStepNumberAndTitle(attempt.navigateTo);
 
 				// create the link to the revisit step
-				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"renderNode\", \"" + position + "\")'>Step " + stepNumberAndTitle + "</a> before trying again.";
+				msg += "<a style='color:blue;text-decoration:underline;font-weight:bold;cursor:pointer' onclick='eventManager.fire(\"nodeLinkClicked\", \"" + position + "\")'>Step " + stepNumberAndTitle + "</a> before trying again.";
 
 				//create the message that will display in the alert
 				var optsMsg = 'You must visit "Step ' + stepNumberAndTitle + '" before trying this step again.';

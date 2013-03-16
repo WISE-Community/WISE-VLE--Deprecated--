@@ -175,7 +175,7 @@ ASSESSMENTLIST.prototype.retrieveOtherStudentWorkCallback = function(text, xml, 
 		if(peerWorkToReview.error) {
 			if(peerWorkToReview.error == 'peerReviewUserHasNotSubmittedOwnWork') {
 				//the user has not submitted work for the original step
-				thisAl.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (link).</p>');
+				thisAl.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'' + thisAl.view.getProject().getPositionById(thisAl.associatedStartNode.id) + '\']) \">' + thisAl.view.getProject().getStepNumberAndTitle(thisAl.associatedStartNode.id) + '</a></b> (link).</p>');
 			} else if(peerWorkToReview.error == 'peerReviewNotAbleToAssignWork' || peerWorkToReview.error == 'peerReviewNotOpen') {
 				/*
 				 * server was unable to assign student any work to review, most likely because there was no available work to assign
@@ -261,7 +261,7 @@ ASSESSMENTLIST.prototype.displayTeacherWork = function() {
 		//original step is not locked
 		
 		//display message telling student to go back and submit that original step
-		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'renderNode\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
+		this.onlyDisplayMessage('<p>To start this step you must first submit a response in step <b><a style=\"color:blue\" onclick=\"eventManager.fire(\'goToNodePosition\', [\'' + this.view.getProject().getPositionById(this.associatedStartNode.id) + '\']) \">' + this.view.getProject().getStepNumberAndTitle(this.associatedStartNode.id) + '</a></b> (link).</p>');
 	} else {
 		//original step is locked
 		

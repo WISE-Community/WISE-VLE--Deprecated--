@@ -28,8 +28,6 @@ View.prototype.vleDispatcher = function(type,args,obj){
 	} else if(type=='navigationLoadingComplete'){
 		obj.renderStartNode();
 		obj.processStudentWork();
-	} else if(type=='renderNode'){
-		obj.renderNode(args[0]);		
 	} else if(type=='renderNodeComplete'){
 		if(args){
 			obj.onRenderNodeComplete(args[0]);
@@ -102,6 +100,8 @@ View.prototype.vleDispatcher = function(type,args,obj){
 		obj.studentWorkUpdatedListener();
 	} else if(type=="currentNodePositionUpdated") {
 		obj.currentNodePositionUpdatedListener();
+	} else if(type=="nodeLinkClicked") {
+		obj.nodeLinkClickedListener(args[0]);
 	}
 
 };
@@ -671,7 +671,7 @@ View.prototype.renderStartNode = function(){
 			this.currentPosition = startPos;
 			
 			/* render start node */
-			this.eventManager.fire('renderNode',startPos);
+			this.goToNodePosition(startPos);
 		}		
 	};
 };
@@ -1092,6 +1092,13 @@ View.prototype.currentNodePositionUpdatedListener = function() {
 	this.renderNode(this.model.getCurrentNodePosition());
 };
 
+/**
+ * Listens for the nodeLinkClicked event
+ * @param nodePosition the node position to go to
+ */
+View.prototype.nodeLinkClickedListener = function(nodePosition) {
+	this.goToNodePosition(nodePosition)
+};
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){

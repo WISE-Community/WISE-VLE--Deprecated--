@@ -281,7 +281,7 @@ EpigameNode.prototype.navHelper = function() {
 		},
 		executeNode: function(sequenceIndex, stepIndex) {
 			var pos = String(sequenceIndex) + "." + String(stepIndex);
-			eventManager.fire('renderNode', pos);
+			view.goToNodePosition(pos);
 		}
 	};
 }();

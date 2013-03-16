@@ -702,7 +702,6 @@ var componentloader = function(em, sl){
 			events:{
 				'retrieveLocalesComplete':[null,null],
 				'retrieveThemeLocalesComplete':[null,null],
-				'renderNode':[null,null],
 				'renderNodeComplete':[null,null],
 				'resizeNote':[null,null],
 				'onNotePanelResized':[null,null],
@@ -722,7 +721,8 @@ var componentloader = function(em, sl){
 				'setStepIcon':[null, null],
 				'studentWorkUpdated':[null,null],
 				'currentNodePositionUpdated':[null,null],
-				'constraintStatusUpdated':[null,null]
+				'constraintStatusUpdated':[null,null],
+				'nodeLinkClicked':[null,null]
 			},
 			methods:{},
 			initialize:{
@@ -734,7 +734,6 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('getUserAndClassInfoBegin', view.vleDispatcher, view);
 						view.eventManager.subscribe('getUserAndClassInfoComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('processLoadViewStateResponseComplete', view.vleDispatcher, view);
-						view.eventManager.subscribe('renderNode', view.vleDispatcher, view);
 						view.eventManager.subscribe('renderNodeComplete', view.vleDispatcher, view);
 						view.eventManager.subscribe('resizeNote', view.vleDispatcher, view);
 						view.eventManager.subscribe('onNotePanelResized', view.vleDispatcher, view);
@@ -759,6 +758,7 @@ var componentloader = function(em, sl){
 						view.eventManager.subscribe('studentWorkUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('currentNodePositionUpdated', view.vleDispatcher, view);
 						view.eventManager.subscribe('constraintStatusUpdated', view.vleDispatcher, view);
+						view.eventManager.subscribe('nodeLinkClicked', view.vleDispatcher, view);
 						view.eventManager.initializeLoading([['loadingProjectStart','loadingProjectComplete','Project'],
 						                                     ['getUserAndClassInfoBegin','getUserAndClassInfoComplete', 'Learner Data'], 
 						                                     ['getUserAndClassInfoBegin', 'renderNodeComplete', 'Learning Environment']]);

@@ -90,10 +90,10 @@ View.prototype.renderPrevNode = function() {
 			 * message from nodes that the student isn't ever supposed
 			 * to visit if in the future we utilize branching.
 			 */
-			eventManager.fire("renderNode", prevNode);
+			this.goToNodePosition(prevNode);
 		}
 	} else {
-		this.eventManager.fire('renderNode', prevNodeLoc);
+		this.goToNodePosition(prevNodeLoc);
 	}
 };
 
@@ -146,10 +146,10 @@ View.prototype.renderNextNode = function() {
 			 * message from nodes that the student isn't ever supposed
 			 * to visit if in the future we utilize branching.
 			 */
-			eventManager.fire("renderNode", nextNode);
+			this.goToNodePosition(nextNode);
 		}
 	} else {
-		this.eventManager.fire('renderNode', nextNodeLoc);
+		this.goToNodePosition(nextNodeLoc);
 	}
 };
 

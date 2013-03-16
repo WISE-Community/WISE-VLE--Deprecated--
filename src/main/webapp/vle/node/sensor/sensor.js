@@ -209,7 +209,7 @@ SENSOR.prototype.render = function() {
 		var prevWorkNodeTitle = this.view.getProject().getStepNumberAndTitle(prevWorkNodeId);
 		
 		//display the message to tell the student to create a prediction in the previously associated step
-		$('#promptDiv').html("You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'renderNode\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.");
+		$('#promptDiv').html("You must make a prediction in step <a style=\"color:blue;text-decoration:underline;cursor:pointer\" onclick=\"eventManager.fire(\'nodeLinkClicked\', [\'" + this.view.getProject().getPositionById(prevWorkNodeId) + "\'])\">" + prevWorkNodeTitle + "</a> before you can work on this step.");
 		this.hideAllInputFields();
 	} else {
 		//set the prompt into the step

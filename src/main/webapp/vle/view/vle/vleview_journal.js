@@ -428,7 +428,7 @@ View.prototype.addJournalPageToDisplay = function(journalPage, newPage) {
 	 * display the associated step, there may not be one in which 
 	 * case there will be no link
 	 */
-	journalPageHTML += "<td id='journalNodeId" + journalPageId + "'>Associated Step: <a onClick='eventManager.fire(\"renderNode\", [\"" + this.getProject().getPositionById(nodeId) + "\"]); return false;' href=''>" + title + "</a></td>";
+	journalPageHTML += "<td id='journalNodeId" + journalPageId + "'>Associated Step: <a onClick='eventManager.fire(\"nodeLinkClicked\", [\"" + this.getProject().getPositionById(nodeId) + "\"]); return false;' href=''>" + title + "</a></td>";
 	
 	journalPageHTML += "</tr>";
 	journalPageHTML += "</table>";
@@ -485,7 +485,7 @@ View.prototype.journalAssociateStep = function(id, associate) {
 		 * set the html to display a link for the associated step that will 
 		 * tell the vle to go to that step when clicked
 		 */
-		this.journalPanelGetElementById(getJournalNodeId(id)).innerHTML = "Associated Step: <a onClick='eventManager.fire(\"renderNode\", [\"" + associatedNodePosition + "\"]); return false;' href=''>" + title + "</a>";
+		this.journalPanelGetElementById(getJournalNodeId(id)).innerHTML = "Associated Step: <a onClick='eventManager.fire(\"nodeLinkClicked\", [\"" + associatedNodePosition + "\"]); return false;' href=''>" + title + "</a>";
 		
 		//add the new journal page node id class
 		className += " journalPage_" + associatedNodeId;
