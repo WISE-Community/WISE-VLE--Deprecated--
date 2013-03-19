@@ -260,7 +260,7 @@ View.prototype.displayResearcherToolsPage = function() {
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_explanation_builder_work")+"' onClick=\"eventManager.fire('getExplanationBuilderWorkExcelExport')\"></input></td><td>"+this.getI18NString("grading_button_export_explanation_builder_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['explanationBuilder'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_custom_work")+"' onClick=\"eventManager.fire('displayCustomExportPage')\"></input></td><td>"+this.getI18NString("grading_button_export_custom_work_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['custom'])\"></input></td></tr>";
 	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_special_export")+"' onClick=\"eventManager.fire('displaySpecialExportPage')\"></input></td><td>"+this.getI18NString("grading_button_special_export_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['special'])\"></input></td></tr>";
-	getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
+	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='"+this.getI18NString("grading_button_export_student_names")+"' onClick=\"eventManager.fire('getStudentNamesExport')\"></input></td><td>"+this.getI18NString("grading_button_export_student_names_description")+" <input class='blueButton' type='button' value='"+this.getI18NString("grading_button_explanation")+"' onClick=\"eventManager.fire('displayExportExplanation', ['studentNames'])\"></input></td></tr>";
 	//getResearcherToolsHtml += "<tr><td><input class='blueButton' type='button' value='Export Flash' onClick=\"eventManager.fire('getFlashExcelExport')\"></input></td><td>N/A <input class='blueButton' type='button' value='N/A' onClick=\"\"></input></td></tr>";
 	getResearcherToolsHtml += "</table>";
 	getResearcherToolsHtml += "</div></div>";	
@@ -1060,6 +1060,16 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 
 		//get the user names for the workgroup
 		var userNames = student.userName.replace(/:/g, "<br>");
+
+		if(!this.isSignedInUserRunOwner() && !this.isSignedInUserSharedTeacherWithGradingPrivilege()) {
+			/*
+			 * the signed in teacher is not the run owner and is 
+			 * not a shared teacher with grading privilege so we
+			 * will not show the user names to them. instead we
+			 * will display the workgroup id.
+			 */
+			userNames = workgroupId;
+		}
 		
 		//display the group assignments if any
 		var groupAssignmentsHtml = this.getGroupAssignmentsHtml('team', workgroupId);
@@ -1761,6 +1771,16 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 
 		//get the user names in the workgroup
 		var userNamesHtml = this.getUserNamesByWorkgroupId(workgroupId, 0);
+		
+		if(!this.isSignedInUserRunOwner() && !this.isSignedInUserSharedTeacherWithGradingPrivilege()) {
+			/*
+			 * the signed in teacher is not the run owner and is 
+			 * not a shared teacher with grading privilege so we
+			 * will not show the user names to them. instead we
+			 * will display the workgroup id.
+			 */
+			userNamesHtml = workgroupId;
+		}
 		
 		var stepWorkId = null;
 		var studentWork = null;
@@ -3190,6 +3210,16 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	gradeByTeamGradingPageHtml += this.getGradingHeaderTableHtml();
 	
 	var userNames = this.getUserNamesByWorkgroupId(workgroupId, 0);
+	
+	if(!this.isSignedInUserRunOwner() && !this.isSignedInUserSharedTeacherWithGradingPrivilege()) {
+		/*
+		 * the signed in teacher is not the run owner and is 
+		 * not a shared teacher with grading privilege so we
+		 * will not show the user names to them. instead we
+		 * will display the workgroup id.
+		 */
+		userNames = workgroupId;
+	}
 	
 	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames + " [" + this.getI18NString("workgroupId") + ": " + workgroupId + "]</span>";
 	gradeByTeamGradingPageHtml += "<div style='float:right;'>";
@@ -5231,6 +5261,83 @@ View.prototype.displayGroupAssignments = function(workgroupId) {
 		}
 	}
 };
+
+/**
+ * Check if the logged in user is the run owner
+ */
+View.prototype.isSignedInUserRunOwner = function() {
+	var result = false;
+	
+	//get the user and class info
+	var userAndClassInfo = this.getUserAndClassInfo();
+	
+	if(userAndClassInfo != null) {
+		//get the logged in user name
+		var userLoginName = userAndClassInfo.getUserLoginName();
+		
+		//get the info for the run owner
+		var teacherUserInfo = userAndClassInfo.getTeacherUserInfo();
+		
+		if(teacherUserInfo != null) {
+			//get the user name for the run owner
+			var runOwnerUserName = userAndClassInfo.getTeacherUserInfo().userName;
+			
+			//check if the logged in user name is the same as the run owner user name
+			if(userLoginName == runOwnerUserName) {
+				result = true;
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Check if the logged in user is a shared teacher with grading privilege
+ */
+View.prototype.isSignedInUserSharedTeacherWithGradingPrivilege = function() {
+	var result = false;
+	
+	//get the user and class info
+	var userAndClassInfo = this.getUserAndClassInfo();
+	
+	if(userAndClassInfo != null) {
+		//get the logged in user name and workgroup id
+		var userLoginName = userAndClassInfo.getUserLoginName();
+		var workgroupId = userAndClassInfo.getWorkgroupId();
+		
+		//get all the shared teacher infos
+		var sharedTeacherUserInfos = userAndClassInfo.getSharedTeacherUserInfos();
+		
+		if(sharedTeacherUserInfos != null) {
+			/*
+			 * loop through all the shared teacher infos to see if the logged
+			 * in user is a shared teacher
+			 */ 
+			for(var x=0; x<sharedTeacherUserInfos.length; x++) {
+				//get a shared teacher info
+				var sharedTeacherUserInfo = sharedTeacherUserInfos[x];
+				
+				if(sharedTeacherUserInfo != null) {
+					//get the workgroup id for the shared teacher
+					var tempWorkgroupId = sharedTeacherUserInfo.workgroupId;
+					
+					if(tempWorkgroupId == workgroupId) {
+						//the logged in user is a shared teacher
+						
+						if(sharedTeacherUserInfo.role == "grade") {
+							//the shared teacher has grading privilege
+							result = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return result;
+};
+
 
 /**
  * displays the mysystem diagram in the specified div
