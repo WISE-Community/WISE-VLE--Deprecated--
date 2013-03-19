@@ -1276,12 +1276,10 @@ View.prototype.editProjectMetadata = function(){
  */
 View.prototype.enablePublicIdeaManager = function(on) {
 	if(on){
-		$("#enablePublicIdeaManager").attr('checked', true);
+		$("#enablePublicIdeaManager").prop('checked', true);
 		$('#imSettings .public').show().addClass('required');
-		$('#imSettings .private').hide().removeClass('required');
 	} else {
-		$("#enablePublicIdeaManager").attr('checked', false);
-		$('#imSettings .private').show().addClass('required');
+		$("#enablePublicIdeaManager").prop('checked', false);
 		$('#imSettings .public').hide().removeClass('required');
 	}
 };
