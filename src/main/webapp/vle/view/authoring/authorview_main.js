@@ -1683,9 +1683,11 @@ View.prototype.editIMSettings = function(){
 				$("#enableIdeaManager").attr('checked', true);
 			}
 			
-			// get whether public Idea Manager is enabled
-			if(typeof tools.isPublicIdeaManagerEnabled != 'undefined'){
-				$('#enablePublicIdeaManager').prop('checked',tools.isPublicIdeaManagerEnabled);
+			//determine if enable public idea manager checkbox needs to be checked
+			if (tools.isPublicIdeaManagerEnabled != null && tools.isPublicIdeaManagerEnabled) {
+				this.enablePublicIdeaManager(true);
+			} else {
+				this.enablePublicIdeaManager(false);
 			}
 
 			//determine if enable student asset uploader needs to be checked
@@ -1747,6 +1749,21 @@ View.prototype.editIMSettings = function(){
 };
 
 /**
+ * Activates or de-activates the public Idea Manager and updates IM settings options
+ * in DOM accordingly
+ * @param on Boolean indicating whether Public Idea Manager should be actiavted or not
+ */
+View.prototype.enablePublicIdeaManager = function(on) {
+	if(on){
+		$("#enablePublicIdeaManager").prop('checked', true);
+		$('#imSettings .public').show().addClass('required');
+	} else {
+		$("#enablePublicIdeaManager").prop('checked', false);
+		$('#imSettings .public').hide().removeClass('required');
+	}
+};
+
+/**
  * Populates Idea Manager settings fields in the authoring DOM
  * @param settings Idea Manager settings object
  */
@@ -1782,6 +1799,18 @@ View.prototype.populateIMSettings = function(settings){
 		$('#imAddIdeaTerm').val(settings.addIdeaTerm);
 	} else {
 		$('#imAddIdeaTerm').val(this.getI18NString('idea_basket_add_an_idea'));
+	}
+	
+	if('privateBasketTerm' in settings && this.utils.isNonWSString(settings.privateBasketTerm)) {
+		$('#imPrivateBasketTerm').val(settings.privateBasketTerm);
+	} else {
+		$('#imPrivateBasketTerm').val(this.getI18NString('idea_basket_private'));
+	}
+	
+	if('publicBasketTerm' in settings && this.utils.isNonWSString(settings.publicBasketTerm)) {
+		$('#imPublicBasketTerm').val(settings.publicBasketTerm);
+	} else {
+		$('#imPublicBasketTerm').val(this.getI18NString('idea_basket_public'));
 	}
 	
 	// clear active idea attributes

@@ -15011,3 +15011,8 @@ $.widget( "ui.selectmenu", {
 });
 
 }( jQuery ));
+
+//used to notify scriptloader that this script has finished loading
+if(typeof eventManager != 'undefined'){
+	eventManager.fire('scriptLoaded', 'vle/jquery/js/jquery-ui-1.10.0.custom.js');
+}

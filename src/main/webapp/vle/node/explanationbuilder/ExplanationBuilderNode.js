@@ -473,11 +473,14 @@ ExplanationBuilderNode.prototype.isCompleted = function(nodeState) {
 			 * this step has a correct answer so we will check if the
 			 * student answered correctly
 			 */
-			if(nodeState.answer != null && 
-					nodeState.answer != '' &&
-					nodeState.explanationIdeas != null &&
-					nodeState.explanationIdeas.length > 0) {
-				result = true;
+			if (nodeState.explanationIdeas != null && nodeState.explanationIdeas.length > 0) {
+				if(content.enableStudentTextArea){
+					if(nodeState.answer != null && nodeState.answer != ''){
+						result = true;
+					}
+				} else {
+					result = true;
+				}
 			}
 		} else {
 			result = true;

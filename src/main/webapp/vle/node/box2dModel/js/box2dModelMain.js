@@ -103,6 +103,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 						}
 						if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 						if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
+						GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").attr("width");
 						GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
 						GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
 						GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
@@ -125,6 +126,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 				}
 				if (typeof GLOBAL_PARAMETERS.view_sideAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_sideAngle = GLOBAL_PARAMETERS.view_sideAngle_degrees * Math.PI / 180;
 				if (typeof GLOBAL_PARAMETERS.view_topAngle_degrees != "undefined") GLOBAL_PARAMETERS.view_topAngle = GLOBAL_PARAMETERS.view_topAngle_degrees * Math.PI / 180;
+				GLOBAL_PARAMETERS.STAGE_WIDTH = $("#canvas").attr("width");
 				GLOBAL_PARAMETERS.MATERIAL_COUNT = GLOBAL_PARAMETERS.materials_available.length;
 				GLOBAL_PARAMETERS.BUILDER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 4 * 5;
 				GLOBAL_PARAMETERS.TESTER_HEIGHT = GLOBAL_PARAMETERS.SCALE * 5 * 5;
@@ -145,6 +147,7 @@ var   b2Vec2 = Box2D.Common.Math.b2Vec2
 			stage = new createjs.Stage(canvas);
 			stage.mouseEventsEnabled = true;
 			stage.enableMouseOver();
+			createjs.Touch.enable(stage);
 			stage.needs_to_update = true;
 				
 			// setup builder

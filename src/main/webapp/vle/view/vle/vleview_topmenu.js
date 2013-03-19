@@ -919,7 +919,7 @@ View.prototype.addIdeaToBasket = function() {
 				alert('Please select a source for your idea.');
 			} else {
 				var tags = $('#addAnIdeaTags').val();
-				var flag = $("input[@name=addAnIdeaFlag]:checked").val();
+				var flag = $("input[name=addAnIdeaFlag]:checked").val();
 				
 				//create and add the new idea to the basket
 				ideaBasket.addIdeaToBasketArray(text,source,tags,flag,nodeId,nodeName);

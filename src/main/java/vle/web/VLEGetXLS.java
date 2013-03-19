@@ -881,6 +881,10 @@ public class VLEGetXLS extends VLEServlet {
 		    	headerRow.createCell(headerColumn).setCellValue("#");
 		    	headerColumn++;
 		    	
+		    	//the header column for the workgroup id
+		    	headerRow.createCell(headerColumn).setCellValue("Workgroup Id");
+		    	headerColumn++;
+		    	
 		    	//the header column for the first logged in student
 		    	headerRow.createCell(headerColumn).setCellValue("Wise id 1");
 		    	headerColumn++;
@@ -1087,6 +1091,10 @@ public class VLEGetXLS extends VLEServlet {
 							e.printStackTrace();
 						}		    		
 			    	}
+			    	
+			    	//set the workgroup id
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(workgroupId);
 			    	
 					//set the wise id 1
 			    	tempColumn++;

@@ -1174,10 +1174,17 @@ Table.prototype.makeGraph = function(graphDiv, tableData, graphOptions, isRender
 		//get the options that will be used to draw the chart
 		var options = this.getOptions(tableData, graphOptions);
 		
-		if(this.content.graphOptions != null) {
-			//get the graph type we will display
-			var graphType = this.content.graphOptions.graphType;
-
+		var graphType = null;
+		
+		if(graphOptions != null) {
+			//get the graph type from the passed in graph options
+			graphType = graphOptions.graphType;
+		} else if(this.content.graphOptions != null) {
+			//get the graph type from the content
+			graphType = this.content.graphOptions.graphType; //change this to look at graphOptions?
+		}
+		
+		if(graphType != null) {
 			if(graphType == 'scatterPlot') {
 				chart = new google.visualization.ScatterChart(graphDiv[0]);
 			} else if(graphType == 'lineGraph') {
@@ -1418,7 +1425,10 @@ Table.prototype.getOptions = function(tableData, graphOptions) {
 		}
 	}
 	
-	if(this.isDropDownTitleEnabled()) {
+	if(graphOptions.title != null) {
+		//get the title from the graph options
+		options.title = graphOptions.title;
+	} else if(this.isDropDownTitleEnabled()) {
 		/*
 		 * drop down title is enabled so we will use the the selected
 		 * title as the title for the graph

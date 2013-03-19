@@ -72,7 +72,7 @@ View.prototype.createUserAndClassInfo = function(myUserInfo, classmateUserInfos,
 		};
 		
 		var getSharedTeacherUserInfos = function() {
-			return shareTeacherUserInfos;
+			return sharedTeacherUserInfos;
 		};
 		
 		var getUsersInClass = function() {

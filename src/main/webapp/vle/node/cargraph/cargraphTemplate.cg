@@ -8,8 +8,12 @@
       "ymax": "21",
       "xUnits": "min",
       "yUnits": "km",
-      "allowUpdateAxisRange":false
+      "allowUpdateAxisRange":false,
+      "easyClickExtremes": false,
+      "coordsFollowMouse": false,
+      "allowNonFunctionalData": false
    },
+   "createPrediction": true,
    "gatherXIncrement": 0.5,
    "gatherXNumSignificantDigits": 1,
    "dynamicImages": [
@@ -69,6 +73,7 @@
         "id": "greenCar",
         "numberOfLines": 7,
         "maxErrorMargin": 1.5,
+        "useRelativeValues":false,
         "expectedPoints": [
 		  {
 			 "x": 0,
@@ -104,6 +109,7 @@
         "id": "yellowCar",
         "numberOfLines": 3,
         "maxErrorMargin": 1.5,
+        "useRelativeValues":false,
         "expectedPoints": [
 		  {
 			 "x": 0,
@@ -134,5 +140,6 @@
       "sentence": ""
    },
    "allowDragDraw": false,
+   "allowDragPoint": false,
    "type": "CarGraph"
 }

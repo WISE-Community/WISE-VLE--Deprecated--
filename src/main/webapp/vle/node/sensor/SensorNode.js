@@ -7,7 +7,8 @@ SensorNode.authoringToolDescription = "Students plot points on a graph and can u
 
 SensorNode.tagMapFunctions = [
 	{functionName:'importWork', functionArgs:[]},
-	{functionName:'showPreviousWork', functionArgs:[]}
+	{functionName:'showPreviousWork', functionArgs:[]},
+	{functionName:'mustSpanDomainBeforeAdvancing', functionArgs:[]}
 ];
 
 /**
@@ -163,6 +164,92 @@ SensorNode.prototype.renderGradingView = function(displayStudentWorkDiv, nodeVis
 	
 	//insert the response the student typed
 	$(sensorResponseDiv).html(response);
+};
+
+/**
+ * Get the tag map functions that are available for this step type
+ */
+SensorNode.prototype.getTagMapFunctions = function() {
+	//get all the tag map function for this step type
+	var tagMapFunctions = SensorNode.tagMapFunctions;
+	
+	return tagMapFunctions;
+};
+
+/**
+ * Get a tag map function given the function name
+ * @param functionName
+ * @return 
+ */
+SensorNode.prototype.getTagMapFunctionByName = function(functionName) {
+	var fun = null;
+	
+	//get all the tag map function for this step type
+	var tagMapFunctions = this.getTagMapFunctions();
+	
+	//loop through all the tag map functions
+	for(var x=0; x<tagMapFunctions.length; x++) {
+		//get a tag map function
+		var tagMapFunction = tagMapFunctions[x];
+		
+		if(tagMapFunction != null) {
+			
+			//check if the function name matches
+			if(functionName == tagMapFunction.functionName) {
+				//the function name matches so we have found what we want
+				fun = tagMapFunction;
+				break;
+			}			
+		}
+	};
+	
+	return fun;
+};
+
+/**
+ * Override of Node.overridesIsCompleted
+ * Specifies whether the node overrides Node.isCompleted
+ */
+SensorNode.prototype.overridesIsCompleted = function() {
+	return true;
+};
+
+/**
+ * Override of Node.isCompleted
+ * Get whether the step is completed or not
+ * @return a boolean value whether the step is completed or not
+ */
+SensorNode.prototype.isCompleted = function(sensorState) {
+	if (typeof this.tagMaps == "undefined") return true;
+	if (typeof sensorState === "undefined") sensorState = this.view.state.getLatestWorkByNodeId(this.id);
+	// cycle through tag maps, if I get a custom tag map check student work to complete
+	var isCompleted = true;
+	for (var i = 0; i < this.tagMaps.length; i++){
+		var functionName = this.tagMaps[i].functionName;
+		var functionArgs = this.tagMaps[i].functionArgs;
+		if (functionName == "mustSpanDomainBeforeAdvancing"){
+			if (sensorState != "" && sensorState.predictionArray.length > 0 ){
+				var predictions = sensorState.predictionArray;
+				var foundMin = false;
+				var foundMax = false;
+				for (var i=0; i < predictions.length; i++){
+					var p = predictions[i];
+					var objJson = this.content.getContentJSON();
+					if (typeof sensorState.xMin != "undefined" && sensorState.xMin != "" && !isNaN(Number(sensorState.xMin)) && typeof sensorState.xMax != "undefined" && sensorState.xMax != "" && !isNaN(Number(sensorState.xMax))){
+						if (p.x <= parseFloat(sensorState.xMin)) foundMin = true;
+						if (p.x >= parseFloat(sensorState.xMax)) foundMax = true;
+					} else {
+						if (p.x <= parseFloat(objJson.graphParams.xmin)) foundMin = true;
+						if (p.x >= parseFloat(objJson.graphParams.xmax)) foundMax = true;
+					}
+				}
+				if (!foundMin || !foundMax) isCompleted = false;
+			} else {
+				isCompleted = false;
+			}
+		}
+	}
+	return isCompleted;
 };
 
 SensorNode.prototype.getHTMLContentTemplate = function() {
