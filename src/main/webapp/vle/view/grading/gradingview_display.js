@@ -2012,7 +2012,7 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
     new FixedHeader( oTable2 ); */
 	
 	//also render summary view for this node
-	this.renderSummaryViewForNode(node, $("#summaryContent"));
+	//this.renderSummaryViewForNode(node, $("#summaryContent"));
 	
 	//perform scroll to top and page height resizing to remove scrollbars
 	this.displayFinished();
