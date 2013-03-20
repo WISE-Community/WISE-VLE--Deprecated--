@@ -41,7 +41,7 @@ function Branching(node) {
 	this.content = node.getContent().getContentJSON();
 	this.chosenPathId = null; // which path the student has chosen or was assigned to
 	this.chosenPathName = null; //the title of the path that was chosen
-	
+
 	if(node.studentWork != null) {
 		this.states = node.studentWork; 
 	} else {
@@ -77,7 +77,7 @@ Branching.prototype.annotationLookup = function(annotationKey) {
 	} else {
 		return [];
 	}
-	
+
 };	
 
 /**
@@ -114,9 +114,34 @@ Branching.prototype.getPathToVisit = function() {
 				}
 			}			
 		}
-
+	} else if (branchingFunction == "criteriaMapping") {
+		var result;
+		var criterias = branchingFunctionParams;
+		for (var i=0; i < criterias.length; i++) {
+			var criteria = criterias[i];
+			var criteriaNodeId = criteria.criteriaNodeId;
+			var criteriaMappingArray = criteria.criteriaMappingArray;
+			var criteriaNode = this.view.getProject().getNodeById(criteriaNodeId);
+			var criteriaValueForNode = criteriaNode.getCriteriaValue();
+			if (criteriaValueForNode != null) {
+				for (var x=0; x < criteriaMappingArray.length; x++) {
+					var criteriaMapping = criteriaMappingArray[x];
+					var criteriaValue = criteriaMapping.criteriaValue;
+					if (this.view.utils.recursiveCompare(criteriaValue, criteriaValueForNode)) {
+						var criteriaPathIdentifier = criteriaMapping.pathIdentifier;
+						for (var i=0; i<this.content.paths.length; i++) {
+							var path = this.content.paths[i];
+							if (path.identifier == criteriaPathIdentifier) {
+								pathToVisit = path;
+								break;
+							}
+						}			
+					}
+				}
+			}
+		}
 	}	
-	
+
 	return pathToVisit;
 };
 
@@ -143,13 +168,13 @@ Branching.prototype.render = function() {
 		}
 		// inject the nodes in the path into the Project
 		this.chosenPathId = pathToVisitJSONObj.identifier;
-		
+
 		var chosenSequenceId = pathToVisitJSONObj.sequenceRef;
 		var pathSequence = this.view.getProject().getNodeById(chosenSequenceId);  // get the sequence node
 
 		//get the title of the path
 		this.chosenPathName = pathSequence.title;
-		
+
 		// loop through the nodes in the sequence and add them to the current sequence after the branch node
 		for (var i=0; i < pathSequence.children.length; i++) {
 			var nodeInPath = pathSequence.children[i];
@@ -157,7 +182,7 @@ Branching.prototype.render = function() {
 
 			//display this sequence in the navigation panel
 			this.displayInNavigationIncludingChildren(nodeInPath);
-			
+
 			if(nodeInPath.type != 'sequence') {
 				// also preload the nodes in path
 				nodeInPath.preloadContent();
@@ -174,7 +199,7 @@ Branching.prototype.render = function() {
 		this.view.updateNavigationLogic();
 
 		// render the next node, which should be the first node of the branched path
-		view.renderNextNode();
+		this.view.renderNextNode();
 	} else {
 		// show the splash page and let the user choose a branch to go down
 	}
@@ -187,29 +212,29 @@ Branching.prototype.render = function() {
  */
 Branching.prototype.displayInNavigationIncludingChildren = function(node) {
 	var doDisplay = true;
-	
+
 	if(node == null) {
-		
+
 	} else if(node.type == 'sequence') {
 		//the node is a sequence
 
 		//make the sequence visible
 		node.displayInNavigation(doDisplay);
-		
+
 		//get the children of the sequence
 		var children = node.children;
-		
+
 		//loop through all the children of the sequence
 		for(var x=0; x<children.length; x++) {
 			//get a child
 			var child = children[x];
-			
+
 			//make the child visible
 			this.displayInNavigationIncludingChildren(child);
 		}
 	} else {
 		//the node is a step
-		
+
 		//make the step visible
 		node.displayInNavigation(doDisplay);
 	}
@@ -225,13 +250,13 @@ Branching.prototype.displayInNavigationIncludingChildren = function(node) {
  */
 Branching.prototype.getLatestState = function() {
 	var latestState = null;
-	
+
 	//check if the states array has any elements
 	if(this.states != null && this.states.length > 0) {
 		//get the last state
 		latestState = this.states[this.states.length - 1];
 	}
-	
+
 	return latestState;
 };
 
@@ -248,10 +273,10 @@ Branching.prototype.getLatestState = function() {
 Branching.prototype.save = function() {
 	//get the answer the student wrote
 	var response = {
-		"chosenPathId":this.chosenPathId,
-		"chosenPathName":this.chosenPathName
+			"chosenPathId":this.chosenPathId,
+			"chosenPathName":this.chosenPathName
 	};
-	
+
 	/*
 	 * create the student state that will store the new work the student
 	 * just submitted
@@ -274,7 +299,7 @@ Branching.prototype.save = function() {
 	 * would change the BranchingState to QuizState below
 	 */
 	var branchingState = new BranchingState(response);
-	
+
 	/*
 	 * fire the event to push this state to the global view.states object.
 	 * the student work is saved to the server once they move on to the

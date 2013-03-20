@@ -250,6 +250,18 @@ MultipleChoiceNode.prototype.isCompleted = function(nodeState) {
 	return result;
 };
 
+/**
+ * Returns the criteria value for this node based on student response.
+ */
+MultipleChoiceNode.prototype.getCriteriaValue = function() {
+	var result = null;
+	var latestState = view.getLatestStateForNode(this.id);
+	if(latestState != null && latestState != '' && latestState.choices != null) {
+		return latestState.choices;
+	}
+	return result;
+};
+
 NodeFactory.addNode('MultipleChoiceNode', MultipleChoiceNode);
 
 //used to notify scriptloader that this script has finished loading

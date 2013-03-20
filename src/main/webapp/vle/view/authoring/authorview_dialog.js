@@ -96,7 +96,7 @@ View.prototype.initializeCreateSequenceDialog = function(){
 			if(t){
 				o.placeNode = true;
 				o.placeNodeId = t;
-				o.loadProject(o.project.getContentBase() + o.utils.getSeparator(o.project.getContentBase()) + o.project.getProjectFilename(), o.project.getContentBase(), true);
+				o.loadProject(o.getProject().getContentBase() + o.utils.getSeparator(o.getProject().getContentBase()) + o.getProject().getProjectFilename(), o.getProject().getContentBase(), true);
 				$('#createSequenceDialog').dialog('close');
 			} else {
 				o.notificationManager.notify('Unable to create new Activity on the WISE server.', 3);

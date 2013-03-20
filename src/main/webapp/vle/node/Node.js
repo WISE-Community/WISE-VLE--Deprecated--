@@ -1695,6 +1695,13 @@ Node.prototype.getWorkToImport = function(tagName, functionArgs) {
 };
 
 /**
+ * Returns the criteria value for this node based on student response.
+ */
+Node.prototype.getCriteriaValue = function() {
+	// to be overridden by children nodes
+};
+
+/**
  * Show the previous work for all the steps with the given tag
  * @param previousWorkDiv the div that we will display all the previous work in
  * @param tagName we will get all the steps with the given tag and
