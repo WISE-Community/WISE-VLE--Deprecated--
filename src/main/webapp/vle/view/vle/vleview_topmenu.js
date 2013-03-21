@@ -1642,9 +1642,6 @@ View.prototype.copyPublicIdeaCallback = function(responseText, responseXML, args
 				
 				//set the updated public idea basket
 				basket.setPublicIdeaBasket(publicIdeaBasketJSONObj);
-				
-				//load the updated public idea basket
-				basket.loadPublicIdeaBasket();
 			}
 		}		
 	}

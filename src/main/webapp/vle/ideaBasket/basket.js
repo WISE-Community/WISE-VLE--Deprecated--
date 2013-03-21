@@ -373,6 +373,18 @@ IdeaBasket.prototype.processSettingsUI = function(){
 		publicIdeaTable.append("<th class='ideas' title='Click to sort'>Public " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
 		deletedTable.append("<th class='ideas' title='Click to sort'>Deleted " + this.view.utils.capitalize(this.ideaTermPlural) + "</th>");
 		
+		if(this.isPublicIdeaBasketEnabled()) {
+			/*
+			 * public idea basket is enabled so we will add the 'Origin' column
+			 * to the private basket and trash basket
+			 */
+			ideaTable.append("<th class='ideas' title='Origin'>Origin</th>");
+			deletedTable.append("<th class='ideas' title='Origin'>Origin</th>");
+		}
+		
+		//insert the 'Times Copied' column
+		publicIdeaTable.append("<th class='ideas' title='Times Copied'>Times Copied</th>");
+		
 		// insert attribute inputs for add and edit idea dialogs, as well as table attribute columns based on settings
 		for (var i=0;i<settings.ideaAttributes.length;i++){
 			var attribute = settings.ideaAttributes[i];
@@ -758,6 +770,31 @@ IdeaBasket.prototype.addRow = function(target,idea,load){
 		var imAttributes = this.settings.ideaAttributes;
 		html = $(document.createElement('tr')).attr('id',currTable + idea.id).attr('title',title);
 		html.append('<td><div id="ideaText' + idea.id + '" class="ideaText" style="display:inline">' + linkText + '</div>' + editLink + '</td>');
+		
+		if(this.isPublicIdeaBasketEnabled()) {
+			/*
+			 * the public idea basket is enabled so we will 
+			 * add the origin row that displays where this
+			 * idea came from
+			 */
+			
+			//find if the idea was copied from the public basket
+			var wasCopiedFromPublic = idea.wasCopiedFromPublic;
+			
+			var origin = '';
+			
+			if(wasCopiedFromPublic) {
+				//the idea was copied from the public basket
+				origin = 'Copied';
+			} else {
+				//the idea was not copied from the public basket
+				origin = 'Me';
+			}
+			
+			//display the origin column
+			html.append('<td><span class="ideaText" title="origin">' + origin + '</span></td>');
+		}
+		
 		for(var i=0;i<imAttributes.length;i++){
 			var attrId = imAttributes[i].id;
 			var type = imAttributes[i].type;
@@ -2133,17 +2170,19 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		 * have authorable attributes
 		 */
 		
+		var imAttributes = this.settings.ideaAttributes;
+		html = $(document.createElement('tr')).attr('id',currTable + publicIdea.id).addClass('publicRow');
+		html.append('<td><div class="ideaText">' + linkText + '</div></td>');
+		
 		var numberTimesCopied = 0;
 		
 		if(publicIdea.workgroupIdsThatHaveCopied != null) {
 			//get the number of times this public idea has been copied
 			numberTimesCopied = publicIdea.workgroupIdsThatHaveCopied.length;
-			linkText += ' (' + numberTimesCopied + ')';
 		}
 		
-		var imAttributes = this.settings.ideaAttributes;
-		html = $(document.createElement('tr')).attr('id',currTable + publicIdea.id).addClass('publicRow');
-		html.append('<td><div class="ideaText">' + linkText + '</div></td>');
+		//add the column that displays the number of times the public idea has been copied
+		html.append('<td><div class="ideaText" align="center">' + numberTimesCopied + '</div></td>');
 		
 		//add the attributes for the idea
 		for(var i=0;i<imAttributes.length;i++){
@@ -2203,9 +2242,31 @@ IdeaBasket.prototype.addPublicRow = function(publicIdea) {
 		var thisView = event.data.thisView;
 		var thisBasket = event.data.thisBasket;
 		
+		/*
+		 * check if the student is trying to copy their own idea.
+		 * we do not allow students to copy their own idea so if
+		 * they are, we will not change the button text to 'Copied'.
+		 */
+		if(thisBasket != null && thisBasket.workgroupId != workgroupId) {
+			/*
+			 * student is copying someone else's idea so we will 
+			 * change the button text from 'Copy' to 'Copied'
+			 */
+			$(this).val('Copied');			
+		}
+		
 		//copy the public idea
 		thisView.copyPublicIdea(thisBasket, workgroupId, ideaId);
 	});
+	
+	//check if the student has previously copied this public idea
+	if(basket.isPublicIdeaCopied(workgroupId, ideaId)) {
+		/*
+		 * the student has previously copied this public idea so we 
+		 * will change the button from 'Copy' to 'Copied'
+		 */
+		$('#copyPublicIdeaButton_' + ideaId).val('Copied');
+	}
 };
 
 /**
@@ -2260,6 +2321,63 @@ IdeaBasket.prototype.isPublicIdeaInPrivateBasket = function(ideaWorkgroupId, ide
 					 * public idea in our idea basket already
 					 */
 					result = true;
+					break;
+				}
+			}
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Check if the public idea with the given workgroup id and idea id was
+ * copied to our private basket
+ * @param ideaWorkgroupId the workgroup id of the public idea
+ * @param ideaId the idea id of the public idea
+ * @returns whether the public idea was copied to our private basket
+ */
+IdeaBasket.prototype.isPublicIdeaCopied = function(ideaWorkgroupId, ideaId) {
+	var result = false;
+	
+	var workgroupId = basket.workgroupId;
+	
+	/*
+	 * check if the student workgroup id is the same as the public idea workgroup id.
+	 * the student can't copy their own public idea so if they are the same,
+	 * we do not need to check if the student copied this public idea.
+	 */
+	if(workgroupId != ideaWorkgroupId) {
+		/*
+		 * loop through all the private ideas and check the publishers to
+		 * see if any of the ideas were copied from the given 
+		 * workgroup id and idea id
+		 */
+		for(var x=0; x<this.ideas.length; x++) {
+			//get an idea
+			var idea = this.ideas[x];
+			
+			//get the publishers of this idea if any
+			var publishers = idea.publishers;
+			
+			if(publishers != null && publishers.length > 0) {
+				
+				//get the last publisher
+				var lastPublisher = publishers[publishers.length - 1];
+				
+				if(lastPublisher != null) {
+					//get the workgroup id and idea id
+					var publisherWorkgroupId = lastPublisher.workgroupId;
+					var publisherIdeaId = lastPublisher.ideaId;
+					
+					if(ideaWorkgroupId == publisherWorkgroupId && ideaId == publisherIdeaId) {
+						/*
+						 * we found the workgroup id and idea id which means we have this
+						 * public idea in our idea basket already
+						 */
+						result = true;
+						break;
+					}
 				}
 			}
 		}
