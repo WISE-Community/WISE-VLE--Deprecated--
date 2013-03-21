@@ -822,11 +822,11 @@ View.prototype.cleanupRichTextEditorToggle = function() {
  * Adds links to show and hide a rich text editor for specified textarea and initializes
  * rich text editor on specified textarea
  * @param id The id of the textarea element on which to activate the rich text editor
- * @param callback A callback function to run when the rich text editor content changes
+ * @param update A callback function to run when the rich text editor content changes
  * @param disable A boolean to specify whether to disable the rich text editor by default (default is false)
  * @param fullpage A boolean to specify whether to allow full html page editing (default is false)
  */
-View.prototype.addRichTextAuthoring = function(id,callback,disable,fullpage){
+View.prototype.addRichTextAuthoring = function(id,update,disable,fullpage){
 	var view = this;
 	var target = $('#' + id); 
 	
@@ -845,7 +845,7 @@ View.prototype.addRichTextAuthoring = function(id,callback,disable,fullpage){
 	$("input[name='promptToggle_" + id + "']").unbind('change');
 	$("input[name='promptToggle_" + id + "']").change(function(){
 		if ($("input[name='promptToggle_" + id + "']:checked").val()=='showRichText'){
-			view.enableRichTextAuthoring(id,callback,fullpage);
+			view.enableRichTextAuthoring(id,update,fullpage);
 		} else if ($("input[name='promptToggle_" + id + "']:checked").val()=='hideRichText'){
 			if(typeof tinymce != 'undefined' && target.tinymce()){
 				target.tinymce().remove();
@@ -861,7 +861,7 @@ View.prototype.addRichTextAuthoring = function(id,callback,disable,fullpage){
 		$('#showRich_' + id).prop('checked',true);
 		
 		// enable rich text editor for textarea
-		this.enableRichTextAuthoring(id,callback,fullpage);
+		this.enableRichTextAuthoring(id,update,fullpage);
 	}
 	
 	// create jQuery UI buttonset on rich text toggle radios
@@ -872,10 +872,10 @@ View.prototype.addRichTextAuthoring = function(id,callback,disable,fullpage){
 /**
  * Enables rich text authoring for specified textarea
  * @param id The id of the textarea element on which to activate the rich text editor
- * @param callback A callback function to run when the rich text editor content changes
+ * @param update A function to run when the rich text editor content changes
  * @param fullpage A boolean to specify whether to allow full html page editing (default is false)
  */
-View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
+View.prototype.enableRichTextAuthoring = function(id,update,fullpage) {
 	var target = $('#' + id);
 	var view = this;
 	var plugins = "";
@@ -915,6 +915,7 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 		theme_advanced_resizing : true,
 
 		// Example content CSS (should be your site CSS)
+		// TODO: update this to use a WISE default
 		content_css : "/vlewrapper/vle/jquery/tinymce/examples/css/content.css",
 
 		// Drop lists for link/image/media/template dialogs
@@ -924,12 +925,12 @@ View.prototype.enableRichTextAuthoring = function(id,callback,fullpage) {
 		
 		//add onchange listener
 		onchange_callback : function(ed){
-			callback();
+			update();
 		},
 		setup : function(ed){
 			/* add keyUp listener*/
 	        ed.onKeyUp.add(function(){
-	        	callback();
+	        	update();
 	        });
 	        //ed.onSetContent.add(function(){
 	        	//callback();

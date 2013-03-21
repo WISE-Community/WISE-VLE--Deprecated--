@@ -1367,6 +1367,208 @@ View.prototype.exportProject = function(params){
 };
 
 /**
+ * Retrieves a list of any assets associated with the current project
+ * from the server, populates a list of the assets in the assetEditorDialog
+ * and displays the dialog.
+ * 
+ * @param params Object (optional) specifying asset editor options (type, extensions to show, optional text for new button, callback function)
+ */
+View.prototype.viewAssets = function(params){
+	if(this.project){
+		if (params){
+			this.assetEditorParams = params;
+		} else {
+			this.assetEditorParams = null;
+		}
+		showElement('assetEditorDialog');
+		var populateOptions = function(projectListText, args){
+			var view = args[0];
+			
+			if(projectListText && projectListText!=''){
+				//get the project list as JSON
+				var projectList = JSON.parse(projectListText);
+				
+				//get the first project (there will only be one anyway)
+				var projectAssetsInfo = projectList[0];
+				
+				var assets = [];
+				
+				if(projectAssetsInfo != null) {
+					//get the assets array
+					assets = projectAssetsInfo.assets;
+				}
+				
+				var parent = document.getElementById('assetSelect');
+				parent.innerHTML = '';
+				
+				//loop through all the assets
+				for(var d=0;d<assets.length;d++){
+					//get an asset
+					var asset = assets[d];
+					
+					//get the file name of the asset
+					var fileName = asset.assetFileName;
+					
+					var status = '';
+					
+					if(asset.activeStepsUsedIn.length > 0) {
+						//the asset is used in an active step
+						status = 'active';
+					} else if(asset.inactiveStepsUsedIn.length > 0) {
+						//the asset is used in an inactive step
+						status = 'inactive';
+					} else {
+						//the asset is not used in any step
+						status = 'notUsed';
+					}
+					
+					//check for type parameter and only show files with matching extensions
+					if(view.assetEditorParams && view.assetEditorParams.type == "image"){
+						var extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "flash"){
+						var extensions = ['swf', 'flv'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.type == "media"){
+						var extensions = ['swf', 'flv', 'mov', 'mp4', 'avi', 'wmv', 'mpg', 'mpeg', 'ogg'];
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					} else if(view.assetEditorParams && view.assetEditorParams.extensions 
+						&& view.assetEditorParams.extensions.length > 0){
+						var extensions = view.assetEditorParams.extensions;
+						if (!view.utils.fileFilter(extensions,fileName)){
+							continue;
+						}
+					}
+					
+					var text = '';
+					
+					if(status == 'inactive') {
+						//the asset is only used in an inactive step
+						text = fileName + ' (Only used in inactive steps)';
+					} else if(status == 'notUsed') {
+						//the asset is not used in any step
+						text = fileName + ' (Not used)';
+					} else {
+						//the asset is used in an active step
+						text = fileName;
+					}
+					
+					//create an entry for each file
+					var opt = createElement(document, 'option', {name: 'assetOpt', id: 'asset_' + fileName});
+					opt.text = text;
+					opt.value = fileName;
+					parent.appendChild(opt);
+				}
+			}
+
+			//call upload asset with 'true' to get total file size for assets
+			view.uploadAsset(true);
+			
+			// get default buttons for asset editor dialog
+			var buttons = $.extend({}, view.assetEditorButtons);
+			
+			// check whether parameters were sent
+			if(view.assetEditorParams && view.assetEditorParams.type){
+				var type = view.assetEditorParams.type;
+				var field_name = view.assetEditorParams.field_name;
+				var win = view.assetEditorParams.win;
+				var callback = view.assetEditorParams.callback;
+				
+				// set z-index to show dialog above tinymce popups
+				//$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
+				
+				// add new button depending on type param
+				if(type == "image"){
+					buttons['Insert Image'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select an image from the list.");
+						}
+					};
+				} else if (type == "media"){
+					buttons['Insert Media'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select a file from the list.");
+						}
+					};
+				} else if (type == "file"){
+					buttons['Insert Link'] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select a file to link to from the list.");
+						}
+					};
+				} else {
+					var buttonText = 'Choose Selected File';
+					if(view.assetEditorParams.buttontext && typeof view.assetEditorParams.buttontext == 'string'){
+						buttonText = view.assetEditorParams.buttontext;
+					}
+					buttons[buttonText] = function(){
+						var url = $('#assetSelect option:selected').val();
+						if(url){
+							callback(field_name, url, type, win);
+							$(this).dialog('close');
+						} else {
+							alert("Please select a file from the list.");
+						}
+					};
+				}
+			} else {
+				//reset z-index
+				$( "#assetEditorDialog" ).dialog( "option", "zIndex", {} );
+			}
+			
+			// set buttons
+			$( "#assetEditorDialog" ).dialog( "option", "buttons", buttons );
+			
+			//show dialog
+			$('#assetEditorDialog').dialog('open');
+			
+			eventManager.fire('browserResize');
+			
+			$('#uploadAssetFile').val('');
+		};
+		
+		//get the list of all assets and which steps those assets are used in
+		var analyzeType = 'findUnusedAssets';
+		
+		//get the project id
+		var projectId = this.portalProjectId;
+		
+		//get the url for making the request to retrieve the asset information
+		var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
+		
+		//the params for the request
+		var requestParams = {
+			analyzeType:analyzeType,
+			projectId:projectId,
+			html:false
+		};
+		
+		//make the request to retrieve the asset information
+		this.connectionManager.request('POST', 1, analyzeProjectUrl, requestParams, function(txt,xml,obj){populateOptions(txt,obj);}, [this, analyzeType]);
+	} else {
+		this.notificationManager.notify("Please open or create a project that you wish to view assets for.", 3);
+	}
+};
+
+/**
  * Launches the currently opened project in the vle.
  */
 View.prototype.previewProject = function(){

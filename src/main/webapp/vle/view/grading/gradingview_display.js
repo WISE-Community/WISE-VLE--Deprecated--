@@ -1061,14 +1061,14 @@ View.prototype.displayGradeByTeamSelectPage = function() {
 		//get the user names for the workgroup
 		var userNames = student.userName.replace(/:/g, "<br>");
 
-		if(!this.isSignedInUserRunOwner() && !this.isSignedInUserSharedTeacherWithGradingPrivilege()) {
+		if(!this.isSignedInUserRunOwner()) {
 			/*
 			 * the signed in teacher is not the run owner and is 
 			 * not a shared teacher with grading privilege so we
 			 * will not show the user names to them. instead we
-			 * will display the workgroup id.
+			 * will display the student ids.
 			 */
-			userNames = workgroupId;
+			userNames = this.getStudentIdsByWorkgroupId(workgroupId, 0);
 		}
 		
 		//display the group assignments if any
@@ -1772,14 +1772,14 @@ View.prototype.displayGradeByStepGradingPage = function(stepNumber, nodeId) {
 		//get the user names in the workgroup
 		var userNamesHtml = this.getUserNamesByWorkgroupId(workgroupId, 0);
 		
-		if(!this.isSignedInUserRunOwner() && !this.isSignedInUserSharedTeacherWithGradingPrivilege()) {
+		if(!this.isSignedInUserRunOwner()) {
 			/*
 			 * the signed in teacher is not the run owner and is 
 			 * not a shared teacher with grading privilege so we
 			 * will not show the user names to them. instead we
-			 * will display the workgroup id.
+			 * will display the student ids.
 			 */
-			userNamesHtml = workgroupId;
+			userNamesHtml = this.getStudentIdsByWorkgroupId(workgroupId, 0);
 		}
 		
 		var stepWorkId = null;
@@ -3211,14 +3211,14 @@ View.prototype.displayGradeByTeamGradingPage = function(workgroupId) {
 	
 	var userNames = this.getUserNamesByWorkgroupId(workgroupId, 0);
 	
-	if(!this.isSignedInUserRunOwner() && !this.isSignedInUserSharedTeacherWithGradingPrivilege()) {
+	if(!this.isSignedInUserRunOwner()) {
 		/*
 		 * the signed in teacher is not the run owner and is 
 		 * not a shared teacher with grading privilege so we
 		 * will not show the user names to them. instead we
-		 * will display the workgroup id.
+		 * will display the student ids.
 		 */
-		userNames = workgroupId;
+		userNames = this.getStudentIdsByWorkgroupId(workgroupId, 0);
 	}
 	
 	gradeByTeamGradingPageHtml += "<div class='gradingHeader'><span class='instructions'>Current Team: " + userNames + " [" + this.getI18NString("workgroupId") + ": " + workgroupId + "]</span>";
@@ -3631,7 +3631,7 @@ View.prototype.getUserNamesByWorkgroupId = function(workgroupId, numberOfLineBre
 		numberOfLineBreaks = 1;
 	}
 	
-	//the html that we will use to display in the left user column of the gradebystep page
+	//the html that we will use to display the student login names
 	var userNamesHtml = "";
 	
 	if(workgroupId != null) {
@@ -3647,7 +3647,7 @@ View.prototype.getUserNamesByWorkgroupId = function(workgroupId, numberOfLineBre
 
 			//loop through each name in the workgroup
 			for(var y=0; y<userNamesArray.length; y++) {
-				//add an empty line between each name
+				//add an empty line or comma between each name
 				if(userNamesHtml != "") {
 					if(numberOfLineBreaks == 0){
 						userNamesHtml += ", ";
@@ -3664,6 +3664,54 @@ View.prototype.getUserNamesByWorkgroupId = function(workgroupId, numberOfLineBre
 	}
 	
 	return userNamesHtml;
+};
+
+/**
+ * Get the student ids in a workgroup
+ * @param workgroupId the id of the workgroup
+ * @param numberOfLineBreaks the number of new line <br>'s to put between student ids
+ * @return a string containing student ids that are in the workgroup separated by
+ * new line <br>'s
+ */
+View.prototype.getStudentIdsByWorkgroupId = function(workgroupId, numberOfLineBreaks) {
+	//if number of line breaks is unspecified, just use 1
+	if(numberOfLineBreaks == null) {
+		numberOfLineBreaks = 1;
+	}
+	
+	//the html that we will use to display the student ids
+	var studentIdsHtml = "";
+	
+	if(workgroupId != null) {
+		//get the user in the class
+		var classmate = this.getUserAndClassInfo().getClassmateByWorkgroupId(workgroupId);
+		
+		if(classmate != null) {
+			//retrieve the : delimited student ids of the users in the workgroup
+			var studentIds = classmate.studentIds;
+
+			//split the string by :
+			var studentIdsArray = studentIds.split(":");
+
+			//loop through each name in the workgroup
+			for(var y=0; y<studentIdsArray.length; y++) {
+				//add an empty line or comma between each student id
+				if(studentIdsHtml != "") {
+					if(numberOfLineBreaks == 0){
+						studentIdsHtml += ", ";
+					}
+					for(var x=0; x<numberOfLineBreaks; x++) {
+						studentIdsHtml += "<br />";
+					}
+				}
+
+				//add the student ids
+				studentIdsHtml += studentIdsArray[y];
+			}
+		}
+	}
+	
+	return studentIdsHtml;
 };
 
 /**
