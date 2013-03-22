@@ -1173,6 +1173,63 @@ body .ui-tooltip {
 	border-radius: 4px;
 }
 
+/*!
+ * jQuery UI Selectmenu @VERSION
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Selectmenu#theming
+ */
+.ui-selectmenu-menu {
+	padding: 0;
+	margin: 0;
+	position:absolute;
+	top: 0;
+	display: none;
+}
+.ui-selectmenu-menu  ul.ui-menu {
+	overflow: auto;
+	overflow-y: auto ;
+	overflow-x: hidden;
+}
+.ui-selectmenu-menu .ui-menu .ui-menu-item a {
+	padding: 0.3em 1em 0.3em 1em;
+}
+.ui-selectmenu-menu .ui-menu li.ui-selectmenu-optgroup {
+	font-size: 1em;
+	font-weight: bold;
+	line-height: 1.5;
+	padding: 2px 0.4em;
+	margin: 0.5em 0 0 0;
+	height: auto;
+	border: 0;
+}
+.ui-selectmenu-open {
+	display: block;
+}
+.ui-selectmenu-button a.ui-button {
+	display: inline-block;
+	overflow: hidden;
+	position: relative;
+	text-decoration: none;
+}
+.ui-selectmenu-button span.ui-icon {
+	right: 0.5em;
+	left: auto;
+	margin-top: -8px;
+	position: absolute;
+	top: 50%;
+}
+.ui-selectmenu-button span.ui-selectmenu-text {
+	text-align: left;
+	padding: 0.4em 2.1em 0.4em 1em;
+	display: block;
+	line-height: 1.4;
+}
+
 /*
  * WISE Custom Style Overrides
  */
@@ -1340,7 +1397,7 @@ body .ui-tooltip {
 
 .ui-dialog .ui-dialog-content p {
 	font-size:1em;
-	margin-bottom:.5em;
+	margin: 0.5em 0;
 }
 
 .ui-dialog .ui-dialog-buttonpane { 
@@ -1437,31 +1494,25 @@ body .ui-tooltip {
 	border: 1px solid #1C8CA8;
 }
 
-/* Selectmenu
-----------------------------------*/
-.ui-selectmenu-menu { padding: 0; margin: 0; position:absolute; top: 0; display: none; }
-.ui-selectmenu-menu  ul.ui-menu { overflow: auto; overflow-y: auto ; overflow-x: hidden; }
-.ui-selectmenu-menu .ui-menu .ui-menu-item a { 
+/*
+ * jQuery UI Selectmenu
+ */
+ .ui-selectmenu-button a.button {
+ 	text-align:left;
+ 	position:relative;
+ }
+ .ui-selectmenu-button span.ui-icon {
+ 	position:absolute;
+ }
+.ui-selectmenu-menu .ui-menu .ui-menu-item a {
 	color: #444444;
     font-size: 0.8em;
     padding: 0.25em 0.35em;
-}
-.ui-selectmenu-menu .ui-menu .ui-menu-item a:hover,
-.ui-selectmenu-menu .ui-menu .ui-menu-item a.ui-state-focus {
-	margin:0;
-	color:#ffffff;
-	-o-border-radius:0;
-	-moz-border-radius:0;
-	-webkit-border-radius:0;
-	border-radius:0;
-}
-.ui-selectmenu-menu .ui-menu .ui-menu-item.ui-state-disabled {
-	display:none;
+    text-align:left;
 }
 .ui-selectmenu-menu .ui-menu li.ui-selectmenu-optgroup {
 	font-size: .85em;
 }
-.ui-selectmenu-open { display: block; }
 .ui-selectmenu-button a.ui-button {
 	background: #fcfcfc; /* Old browsers */
 	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -1475,6 +1526,7 @@ body .ui-tooltip {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#e2e2e2',GradientType=0 ); /* IE6-8 */
 	border:1px solid #aaaaaa;
 }
+
 .ui-selectmenu-button a.ui-button:focus, .ui-selectmenu-button a.ui-button.ui-state-hover,
 .ui-selectmenu-button a.ui-button.ui-state-focus {
 	-o-box-shadow: 0 0 2px #cccccc inset;
@@ -1482,8 +1534,25 @@ body .ui-tooltip {
     -webkit-box-shadow: 0 0 2px #cccccc inset;
     box-shadow: 0 0 2px #cccccc inset;
 }
-.ui-selectmenu-button span.ui-icon { 
-	right: 0.25em;
+
+.ui-selectmenu-menu .ui-menu .ui-menu-item a:hover,
+.ui-selectmenu-menu .ui-menu .ui-menu-item a.ui-state-focus {
+	margin:0;
+	color:#ffffff;
+	-o-border-radius:0;
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	border-radius:0;
+}
+.ui-selectmenu-menu .ui-menu .ui-menu-item.ui-state-disabled {
+	display:none;
+}
+.ui-selectmenu-button a.ui-button:focus, .ui-selectmenu-button a.ui-button.ui-state-hover,
+.ui-selectmenu-button a.ui-button.ui-state-focus {
+	-o-box-shadow: 0 0 2px #cccccc inset;
+    -moz-box-shadow: 0 0 2px #cccccc inset;
+    -webkit-box-shadow: 0 0 2px #cccccc inset;
+    box-shadow: 0 0 2px #cccccc inset;
 }
 .ui-selectmenu-button span.ui-selectmenu-text { 
 	color: #444444;
@@ -1611,10 +1680,6 @@ body .ui-tooltip {
 }
 
 .ui-dialog.alert .ui-dialog-content p, .ui-dialog.alert .ui-dialog-content div {
-}
-
-.ui-dialog.alert .ui-dialog-content p:last-child {
-	margin-bottom:0;
 }
 
 .dialog h3 {

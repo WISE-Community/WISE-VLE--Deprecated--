@@ -51,7 +51,7 @@ h6 {
 	margin: 0px 0 12px 0;
 }*/
 
-input[type="submit"],input[type="button"] {
+.buttonDiv input[type="submit"], .buttonDiv input[type="button"] {
 	border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -73,7 +73,7 @@ input[type="submit"],input[type="button"] {
 	line-height:1.2em;
 }
 
-input[type="submit"]:hover,input[type="button"]:hover {
+.buttonDiv input[type="submit"]:hover, .buttonDiv input[type="button"]:hover {
 	-moz-box-shadow:0 0 1px #aaaaaa;
 	-webkit-box-shadow:0 0 1px #aaaaaa;
 	box-shadow:0 0 1px #aaaaaa;
@@ -82,13 +82,13 @@ input[type="submit"]:hover,input[type="button"]:hover {
 	color: #222222;
 }
 
-input[type="submit"]:active,input[type="button"]:active {
+.buttonDiv input[type="submit"]:active, .buttonDiv input[type="button"]:active {
 	border: 1px solid #666666;
 	background: #555555 url(/vlewrapper/vle/images/ui/ui-bg_flat_50_555555_40x100.png) 50% 50% repeat-x;
 	color: #ffffff;
 }
 
-input[type="submit"][disabled="disabled"],input[type="button"][disabled="disabled"] {
+.buttonDiv input[type="submit"][disabled="disabled"], .buttonDiv input[type="button"][disabled="disabled"] {
 	color: #999999;
 	background: #F4F4F4;
 	border-color: #CCCCCC;

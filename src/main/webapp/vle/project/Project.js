@@ -10,6 +10,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 		var stepLevelNumbering;
 		var title;
 		var stepTerm;
+		var activityTerm;
 		var rootNode;
 		var view = view;
 		var copyIds = [];
@@ -1106,6 +1107,7 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 					autoStep: autoStep,
 					stepLevelNum: stepLevelNumbering,
 					stepTerm: stepTerm,
+					activityTerm: activityTerm,
 					title: title,
 					constraints: constraints,
 					nodes: [],
@@ -2270,6 +2272,9 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			/* set step term */
 			stepTerm = project.stepTerm;
 			
+			/* set activity term */
+			activityTerm = project.activityTerm;
+			
 			/* set title */
 			title = project.title;
 			
@@ -2311,8 +2316,12 @@ function createProject(content, contentBaseUrl, lazyLoading, view, totalProjectC
 			setStepLevelNumbering:function(bool){stepLevelNumbering = bool;},
 			/* returns the step term to be used when displaying nodes in the navigation for this project */
 			getStepTerm:function(){return stepTerm;},
+			/* returns the activity term to be used when displaying sequences in the navigation for this project */
+			getActivityTerm:function(){return activityTerm;},
 			/* sets the step term to be used when displaying nodes in this project */
 			setStepTerm:function(term){stepTerm = term;},
+			/* sets the step term to be used when displaying nodes in this project */
+			setActivityTerm:function(term){activityTerm = term;},
 			/* returns the title of this project */
 			getTitle:function(){return title;},
 			/* sets the title of this project */

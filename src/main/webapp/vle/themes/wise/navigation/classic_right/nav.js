@@ -34,7 +34,7 @@ NavigationPanel.prototype.createSequenceHtml = function(classString, stepId, tit
 	// (see sequenceOpened and sequenceClosed prototype functions below for more details on toggling activity displays)
 	// *SUGGESTED*: if you want to display the activity's title and position, include the title and position params (add 1 to the position to show the correct sequence number)
 	var html = "<ul name='menuItem' class='"+ classString + "' id='" + stepId + "'>" +
-			"<li class='sequenceTitle'><a onclick='eventManager.fire(\"toggleSequence\", \"" + position + "\")'>" + (position+1) + ": " + title + "</a></li>" +
+			"<li class='sequenceTitle'><a onclick='eventManager.fire(\"toggleSequence\", \"" + position + "\")'>" + title + "</a></li>" +
 			"</ul>";
 	return html;
 };

@@ -91,7 +91,7 @@ SessionManager.prototype.checkSession = function() {
 			};
 			$('#sessionMessageDiv').html("You have been inactive for a long time. If you do not renew your session now, you will be logged out of WISE.");
 			$('#sessionMessageDiv').dialog(
-					{autoOpen:true, draggable:true, class:'alert', modal:true, title:'Session Timeout', width:400, position:['center','center'], zIndex:10000, buttons: {'STAY LOGGED IN!':renewSessionSubmit}, close:renewSessionClose}
+					{autoOpen:true, draggable:true, dialogClass:'alert', modal:true, title:'Session Timeout', width:400, zIndex:10000, buttons: {'STAY LOGGED IN!':renewSessionSubmit}, close:renewSessionClose}
 			);
 		} else {
 			// they're fine, within the timeout interval. no need to renew session or logout.
