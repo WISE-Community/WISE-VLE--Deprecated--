@@ -133,7 +133,7 @@ Branching.prototype.getPathToVisit = function() {
 							var path = this.content.paths[i];
 							if (path.identifier == criteriaPathIdentifier) {
 								pathToVisit = path;
-								break;
+								return pathToVisit;
 							}
 						}			
 					}

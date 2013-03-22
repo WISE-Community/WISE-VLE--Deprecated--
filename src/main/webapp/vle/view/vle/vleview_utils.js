@@ -94,7 +94,9 @@ View.prototype.utils.recursiveCompare = function(obj, reference){
              else if(obj[i] !== reference[i]) return false;
          }
     }
-    else {
+    else if (!isNaN(obj) && !isNaN(reference)) {
+    	return obj == reference;
+    } else {
         var objListCounter = 0;
         var refListCounter = 0;
         for(var i in obj){

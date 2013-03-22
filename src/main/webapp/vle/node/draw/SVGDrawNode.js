@@ -485,6 +485,29 @@ SVGDrawNode.prototype.getFeedback = function() {
 	return feedback;
 };
 
+/**
+ * Returns the criteria value for this node based on student response.
+ * For the SVGDrawNode for now, it's the top score that the student has gotten.
+ */
+SVGDrawNode.prototype.getCriteriaValue = function() {
+	var studentStates = view.getStudentWorkForNodeId(this.id);
+	var topScoreSoFar = -1;
+	if(studentStates != null && studentStates != '') {
+		for (var i=0; i<studentStates.length; i++) {
+			var studentState = studentStates[i];
+			if (studentState.autoScore != null && studentState.autoScore > topScoreSoFar) {
+				topScoreSoFar = studentState.autoScore;
+			}
+		}
+	}
+	if (topScoreSoFar != -1) {
+		return topScoreSoFar;
+	} else {
+		return null;
+	}
+
+};
+
 NodeFactory.addNode('SVGDrawNode', SVGDrawNode);
 	
 //used to notify scriptloader that this script has finished loading
