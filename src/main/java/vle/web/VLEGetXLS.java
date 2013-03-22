@@ -896,6 +896,10 @@ public class VLEGetXLS extends VLEServlet {
 		    	//the header column for the third logged in student
 		    	headerRow.createCell(headerColumn).setCellValue("Wise id 3");
 		    	headerColumn++;
+		    	
+		    	//the header column for the step work id
+		    	headerRow.createCell(headerColumn).setCellValue("Step Work Id");
+		    	headerColumn++;
 
 		    	//header step title column which already includes numbering
 		    	headerRow.createCell(headerColumn).setCellValue("Step Title");
@@ -965,6 +969,9 @@ public class VLEGetXLS extends VLEServlet {
 					 * performed for a single step visit
 					 */
 			    	StepWork stepWork = stepWorks.get(y);
+			    	
+			    	//get the step work id
+			    	Long stepWorkId = stepWork.getId();
 			    	
 			    	//get the start and end time
 			    	Timestamp startTime = stepWork.getStartTime();
@@ -1107,6 +1114,10 @@ public class VLEGetXLS extends VLEServlet {
 			    	//set the wise id 3
 			    	tempColumn++;
 			    	tempRow.createCell(tempColumn).setCellValue(wiseId3);
+			    	
+			    	//set the step work id
+			    	tempColumn++;
+			    	tempRow.createCell(tempColumn).setCellValue(stepWorkId);
 			    	
 			    	//set the title
 			    	tempColumn++;
