@@ -176,7 +176,7 @@
 		"description":"Text above where the aggregate view would be displayed"
 	},
 	"student_aggregate_view_preview_mode_default_text": {
-		"value":"Aggregate view for step {0} will appear here when you set up a run with real students.",
+		"value":"Aggregate view for this step will appear when you set up a run with real students.",
 		"description":"Default text to display for aggregate view when in preview mode."
 	},
 	"cancel":{
@@ -210,14 +210,6 @@
 	"idea_basket":{
 		"value":"Idea Basket",
 		"description":"The text 'Idea Basket' in the Idea Manager"
-	},
-	"idea_basket_public":{
-		"value":"Public Idea Basket",
-		"description":"Title text for the public Idea Basket in the Idea Manager"
-	},
-	"idea_basket_private":{
-		"value":"Private Idea Basket",
-		"description":"Title text for the private (personal) Idea Basket in the Idea Manager"
 	},	
 	"idea_basket_add_an_idea":{
 		"value":"Add Idea",
@@ -429,7 +421,7 @@
 	},
 	"flag_as_inappropriate":{
 		"value":"Flag as inappropriate",
-		"description":"'Flag as inappropriate' text, for flagging inappropriate student's work using the flagging tool"
+		"description":"\"Flag as inappropriate\" text, for flagging inappropriate student's work using the flagging tool"
 	},	
 	"timestamp":{
 		"value":"Timestamp",
@@ -521,27 +513,27 @@
 	},
 	"authoring_hint_forceShow": {
 		"value":"Force Show:",
-		"description":"Text to display for the label of the 'Force Show:' drop down in the step hint authoring panel"
+		"description":"Text to display for the label of the \"Force Show: \" drop down in the step hint authoring panel"
 	},
 	"authoring_hint_option_never": {
 		"value":"Never",
-		"description":"The text 'Never' to display in 'Force Show:' drop down in the step hint authoring panel"
+		"description":"The text \"Never\" to display in \"force show:\" drop down in the step hint authoring panel"
 	},		
 	"authoring_hint_option_firstTimeOnly": {
 		"value":"First Time Only",
-		"description":"The text 'First Time Only' to display in 'Force Show:' drop down in the step hint authoring panel"
+		"description":"The text \"First Time Only\" to display in \"force show:\" drop down in the step hint authoring panel"
 	},
 	"authoring_hint_option_always": {
 		"value":"Always",
-		"description":"The text 'Always' to display in Force show:' drop down in the step hint authoring panel"
+		"description":"The text \"Always\" to display in \"force show:\" drop down in the step hint authoring panel"
 	},
 	"authoring_hint_modal": {
 		"value":"Modal Dialog",
-		"description":"Text to display for the label of the 'Modal Dialog' checkbox in the step hint authoring panel"
+		"description":"Text to display for the label of the \"Modal Dialog\" checkbox in the step hint authoring panel"
 	},
 	"authoring_hint_isMustViewAllPartsBeforeClosing": {
 		"value":"Must View All Parts Before Closing",
-		"description":"Text to display for the label of the 'Must View All Parts Before Closing' checkbox in the step hint authoring panel"
+		"description":"Text to display for the label of the \"Must View All Parts Before Closing\" checkbox in the step hint authoring panel"
 	},
 	"authoring_hint_options_label": {
 		"value":"Options",
