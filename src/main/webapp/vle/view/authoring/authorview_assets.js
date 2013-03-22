@@ -24,7 +24,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 	},false);
 	
 	// insert info (help) icon tooltip content
-	$('#assetsHelp').addClass('tooltip').data({'tooltip-class':'info', 'tooltip-anchor':'left', 'tooltip-event':'click', 'tooltip-content':view.getStringWithParams('help_authoring_assets_info', [maxAssetSize,view.allowedAssetExtensionsByType['image'].join(', '),view.allowedAssetExtensionsByType['video'].join(', '),view.allowedAssetExtensionsByType['audio'].join(', '),view.allowedAssetExtensionsByType['flash'].concat(view.allowedAssetExtensionsByType['flashvideo']).join(', '),view.allowedAssetExtensionsByType['java'].join(', '),view.allowedAssetExtensionsByType['misc'].join(', ')])});
+	$('#assetsHelp').addClass('tooltip').data({'tooltip-class':'info', 'tooltip-anchor':'left', 'tooltip-event':'click', 'tooltip-content':view.getI18NStringWithParams('help_authoring_assets_info', [maxAssetSize,view.allowedAssetExtensionsByType['image'].join(', '),view.allowedAssetExtensionsByType['video'].join(', '),view.allowedAssetExtensionsByType['audio'].join(', '),view.allowedAssetExtensionsByType['flash'].concat(view.allowedAssetExtensionsByType['flashvideo']).join(', '),view.allowedAssetExtensionsByType['java'].join(', '),view.allowedAssetExtensionsByType['misc'].join(', ')])});
 	// insert tooltip
 	view.insertTooltips($('#assetsHelp'));
 	
@@ -111,7 +111,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 			// if user selected more than 5 files alert user that only the first 5 will be uploaded
 			var count = files.length, max = 5;
 			if(count>max){
-				alert(view.getStringWithParams('authoring_dialog_assets_max_upload_limit',[max.toString(),(count-max).toString()]));
+				alert(view.getI18NStringWithParams('authoring_dialog_assets_max_upload_limit',[max.toString(),(count-max).toString()]));
 			}
 			
 			// hide drop and notifications areas, show progress area
@@ -149,7 +149,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 					
 					if(isDupe){
 						// file is a duplicate of existing asset, so confirm overwrite before uploading
-						doPost = confirm(view.getStringWithParams('authoring_dialog_assets_confirm_overwrite',[file.name]));
+						doPost = confirm(view.getI18NStringWithParams('authoring_dialog_assets_confirm_overwrite',[file.name]));
 						//if (!doPost) { addFile = false; };
 					}
 					
@@ -229,7 +229,7 @@ View.prototype.initializeAssetEditorDialog = function(){
 		
 		if(response.response.indexOf("server has encountered an error") != -1) {
 			//the server returned a generic error page
-			message = view.getStringWithParams('authoring_dialog_assets_upload_size_error',[view.utils.appropriateSizeText(o.MAX_ASSET_SIZE)]);
+			message = view.getI18NStringWithParams('authoring_dialog_assets_upload_size_error',[view.utils.appropriateSizeText(o.MAX_ASSET_SIZE)]);
 			msgClass = 'error';
 		} else if(response.response.indexOf("exceed the maximum storage capacity") != -1) {
 			//the server returned a file space error
@@ -257,8 +257,8 @@ View.prototype.initializeAssetEditorDialog = function(){
 				var fixedFileName = file.name.replace(/ /g, '%20');
 				
 				//add to message
-				//message += '<span style="font-weight:normal;">' + view.getStringWithParams('authoring_dialog_assets_upload_space_warning',[fixedFileName]) + '</span>';
-				message += ' <span class="extra">' + view.getStringWithParams('authoring_dialog_assets_upload_space_warning',[fixedFileName]) + '</span>';
+				//message += '<span style="font-weight:normal;">' + view.getI18NStringWithParams('authoring_dialog_assets_upload_space_warning',[fixedFileName]) + '</span>';
+				message += ' <span class="extra">' + view.getI18NStringWithParams('authoring_dialog_assets_upload_space_warning',[fixedFileName]) + '</span>';
 			}
 		} else {
 			// there was some other error, so show generic error message
@@ -537,7 +537,7 @@ View.prototype.viewAssets = function(params){
 		//get the project id
 		var projectId = this.portalProjectId;
 		// set header text with project id
-		$('#assetsHeader').html(this.getStringWithParams('authoring_dialog_assets_header',[this.portalProjectId]));
+		$('#assetsHeader').html(this.getI18NStringWithParams('authoring_dialog_assets_header',[this.portalProjectId]));
 		
 		//get the url for making the request to retrieve the asset information
 		var analyzeProjectUrl = this.getConfig().getConfigParam('analyzeProjectUrl');
@@ -734,7 +734,7 @@ View.prototype.previewAsset = function(filename,mimetype){
 	var wrapper = $('<div class="mediaWrapper"></div>');
 	
 	function insertDimensions(dimensions){
-		$('#previewDimensions').html(view.getStringWithParams('authoring_dialog_assets_file_dimensions',[dimensions.width,dimensions.height]));
+		$('#previewDimensions').html(view.getI18NStringWithParams('authoring_dialog_assets_file_dimensions',[dimensions.width,dimensions.height]));
 	}
 	
 	if(mimetype.match(/^image/)){
@@ -854,7 +854,7 @@ View.prototype.getAssetStorage = function(){
 			
 			var percentUsed = assetsSizeUsed/assetsSizeTotalMax*100;
 			(percentUsed > 80) ? $('#assetUsage').addClass('full') : $('#assetUsage').removeClass('full');
-			$('#sizeDiv').html(o.getStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(assetsSizeUsed), o.utils.appropriateSizeText(assetsSizeTotalMax)]));
+			$('#sizeDiv').html(o.getI18NStringWithParams("authoring_dialog_assets_storage_label", [o.utils.appropriateSizeText(assetsSizeUsed), o.utils.appropriateSizeText(assetsSizeTotalMax)]));
 			$('#sizeBar').progressbar({ value: percentUsed });
 		};
 		this.connectionManager.request('POST', 1, this.assetRequestUrl, {forward:'assetmanager', projectId:this.portalProjectId, command: 'getAssetsUsageAndMax', path: this.utils.getContentPath(this.authoringBaseUrl,this.project.getContentBase())}, callback, this);
@@ -886,7 +886,7 @@ View.prototype.submitUpload = function() {
 			files.push(filename);
 			if(isDupe){
 				// file is a duplicate of existing asset, so confirm overwrite before uploading
-				var doPost = confirm(view.getStringWithParams('authoring_dialog_assets_confirm_overwrite',[filename]));
+				var doPost = confirm(view.getI18NStringWithParams('authoring_dialog_assets_confirm_overwrite',[filename]));
 				if (doPost) { view.assetUploadDownload('upload',files); };
 			} else {
 				// file is new, so proceed with upload
@@ -997,7 +997,7 @@ View.prototype.removeAsset = function(filename){
 			o.notificationManager.notify(o.getI18NString('authoring_dialog_assets_delete_perm_error'), 3, 'error', 'assetNotifications');
 		} else {
 			// show success message
-			o.notificationManager.notify(o.getStringWithParams('authoring_dialog_assets_delete_success',[$('#assetSelect tr.selected').data('filename')]), 3, 'success', 'assetNotifications');
+			o.notificationManager.notify(o.getI18NStringWithParams('authoring_dialog_assets_delete_success',[$('#assetSelect tr.selected').data('filename')]), 3, 'success', 'assetNotifications');
 			
 			// remove row for deleted file
 			$('#assetSelect').dataTable().fnDeleteRow($('#assetSelect tr.selected')[0],null,true);
@@ -1022,7 +1022,7 @@ View.prototype.removeAsset = function(filename){
 		}
 	};
 	
-	var remove = confirm(view.getStringWithParams('authoring_dialog_assets_delete_confirm',[filename]));
+	var remove = confirm(view.getI18NStringWithParams('authoring_dialog_assets_delete_confirm',[filename]));
 	if(remove){
 		view.connectionManager.request('POST', 1, view.assetRequestUrl, {forward:'assetmanager', projectId:view.portalProjectId, command: 'remove', path: view.utils.getContentPath(view.authoringBaseUrl,view.project.getContentBase()), asset: filename}, success, view, success);
 	}
@@ -1106,7 +1106,7 @@ View.prototype.clearAssetPreview = function(){
 	if(selected.length > 1){
 		var wrapper = $('<div class="mediaWrapper files"></div>');
 		$('#previewContent').append(wrapper);
-		$('#previewDimensions').html(view.getStringWithParams('authoring_dialog_assets_multi_select',[selected.length]));
+		$('#previewDimensions').html(view.getI18NStringWithParams('authoring_dialog_assets_multi_select',[selected.length]));
 		$('#assetView').hide();
 		
 		var files = [];

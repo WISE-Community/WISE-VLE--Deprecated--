@@ -376,7 +376,7 @@ View.prototype.editProjectMetadata = function(show){
 		
 		if(doShow){
 			// set header text with project id
-			$('#metaHeader').html(this.getStringWithParams('authoring_dialog_meta_header',[this.portalProjectId]));
+			$('#metaHeader').html(this.getI18NStringWithParams('authoring_dialog_meta_header',[this.portalProjectId]));
 			
 			if ($('#editProjectMetadataDialog').is(':visible')){
 				// refresh jQuery UI selectmenus
