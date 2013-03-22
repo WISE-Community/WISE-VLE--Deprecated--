@@ -974,7 +974,7 @@ button.mid, #centeredDiv button.mid, #centeredDiv input[type='button'].mid {
 	left:5px;
 	right:5px;
 	bottom:5px;
-	z-index: 1001;
+	z-index: 1;
 	border:1px solid #777;
 	border-radius:10px;
 	-moz-border-radius:10px;
@@ -1985,4 +1985,8 @@ table#ideaAttributes {
 
 #ideaAttributes .attribute .newLinks ul li {
 	margin:.25em 0;
+}
+
+.ui-dialog-tinymce .ui-dialog-titlebar {
+	display:none;
 }

@@ -893,7 +893,7 @@ View.prototype.viewAssets = function(params){
 				var callback = view.assetEditorParams.callback;
 				
 				// set z-index to show dialog above tinymce popups
-				$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
+				//$( "#assetEditorDialog" ).dialog( "option", "zIndex", 400000 );
 				
 				// add new button depending on type param
 				if(type == "image"){
