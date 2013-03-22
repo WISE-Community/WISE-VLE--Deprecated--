@@ -250,6 +250,35 @@ ExplanationBuilderNode.prototype.renderGradingView = function(displayStudentWork
 	
 	//set the path of the background image
 	backgroundImage.src = backgroundPath;
+
+	//create the enlarge button
+	var enlargeButton = $('<button/>', {id:'enlargeExplanationBuilderButton_' + stepWorkId, text:'Enlarge'});
+	
+	//create the function to call when the 'Enlarge' button is clicked
+	var enlargeFunction = function() {
+		//open the html page that will display the enlarged view of the student work
+		var newWindow = window.open("/vlewrapper/vle/node/explanationbuilder/enlargeExplanationBuilder.html");
+		
+		/*
+		 * send the necessary ids to the new window so we can reference 
+		 * and increase the dimension sizes of the necessary div and also
+		 * remove the 'Enlarge' button. the processing will only occur
+		 * on the html page that opens in the new tab, it will not change
+		 * any of the elements in the grading tool page.
+		 */
+		newWindow.explanationBuilderContainerDivId = $(explanationBuilderContainerDiv).attr('id');
+		newWindow.explanationBuilderIdeasDivId = $(explanationBuilderIdeasDiv).attr('id');
+		newWindow.enlargeButtonId = $(enlargeButton).attr('id');
+		
+		//copy the html in the grading view so we can display it in the enlarged view
+		newWindow.html = $(displayStudentWorkDiv).html();
+	}
+	
+	//add the 'Enlarge' button to the UI
+	displayStudentWorkDiv.append(enlargeButton);
+	
+	//bind the enlargeFunction to the click event
+	enlargeButton.click(enlargeFunction);
 	
 	//add the explanationBuilderContainerDiv to the grading div
 	displayStudentWorkDiv.append(explanationBuilderContainerDiv);
