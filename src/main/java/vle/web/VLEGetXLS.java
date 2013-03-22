@@ -886,15 +886,15 @@ public class VLEGetXLS extends VLEServlet {
 		    	headerColumn++;
 		    	
 		    	//the header column for the first logged in student
-		    	headerRow.createCell(headerColumn).setCellValue("Wise id 1");
+		    	headerRow.createCell(headerColumn).setCellValue("WISE Id 1");
 		    	headerColumn++;
 		    	
 		    	//the header column for the second logged in student
-		    	headerRow.createCell(headerColumn).setCellValue("Wise id 2");
+		    	headerRow.createCell(headerColumn).setCellValue("WISE Id 2");
 		    	headerColumn++;
 		    	
 		    	//the header column for the third logged in student
-		    	headerRow.createCell(headerColumn).setCellValue("Wise id 3");
+		    	headerRow.createCell(headerColumn).setCellValue("WISE Id 3");
 		    	headerColumn++;
 		    	
 		    	//the header column for the step work id
