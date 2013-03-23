@@ -394,7 +394,8 @@ var componentloader = function(em, sl){
 				'stepLevelChanged':[null,null], 
 				'autoStepChanged':[null,null], 
 				'stepNumberChanged':[null,null],
-				'stepTermChanged':[null,null], 
+				'stepTermChanged':[null,null],
+				'activityTermChanged':[null,null],
 				'author':[null,null],
 				'nodeIconUpdated':[null,null], 
 				'nodeTitleChanged':[null,null], 
@@ -526,6 +527,7 @@ var componentloader = function(em, sl){
 					view.eventManager.subscribe('stepLevelChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('autoStepChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('stepTermChanged', view.authorDispatcher, view);
+					view.eventManager.subscribe('activityTermChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('stepNumberChanged', view.authorDispatcher, view);
 					view.eventManager.subscribe('author', view.authorDispatcher, view);
 					view.eventManager.subscribe('nodeIconUpdated', view.authorDispatcher, view);

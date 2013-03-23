@@ -390,6 +390,15 @@ View.prototype.bindGeneralEvents = function(){
 		}
 	});
 	
+	// activity term input
+	$('#activityTerm').on('change',function(){
+		eventManager.fire("activityTermChanged");
+	}).on('keyup',function(e){
+		if (e.keyCode === 13) {
+			$(this).blur();
+		}
+	});
+	
 	// project tools
 	$('#editInfo, #moreDetails').on('click',function(){
 		eventManager.fire('editProjectMetadata');

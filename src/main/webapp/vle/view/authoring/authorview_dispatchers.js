@@ -29,6 +29,8 @@ View.prototype.authorDispatcher = function(type,args,obj){
 		obj.projectTitleChanged(args[0]);
 	} else if(type=='stepLevelChanged'){
 		obj.stepLevelChanged();
+	} else if(type=='activityTermChanged'){
+		obj.activityTermChanged();
 	} else if(type=='stepTermChanged'){
 		obj.stepTermChanged();
 	} else if(type=='autoStepChanged'){

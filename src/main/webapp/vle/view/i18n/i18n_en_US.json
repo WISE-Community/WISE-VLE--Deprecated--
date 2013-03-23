@@ -307,6 +307,10 @@
 		"value":"Step",
 		"description":"Default term for a 'step' in a WISE project"
 	},
+	"activityTerm":{
+		"value":"Activity",
+		"description":"Default term for an 'activity' (collection of steps) in a WISE project"
+	},
 	"insertImage":{
 		"value":"Insert Image",
 		"description":"Text 'Insert Image', to use for file upload"
@@ -723,6 +727,10 @@
 		"value":"Edit Step Term",
 		"description":"Text for the title/tooltip of the edit step term text input in the project authoring panel."
 	},
+	"authoring_project_panel_edit_activityterm":{
+		"value":"Edit Activity Term",
+		"description":"Text for the title/tooltip of the edit activity term text input in the project authoring panel."
+	},
 	"authoring_project_panel_edit_info":{
 		"value":"Edit Project Details",
 		"description":"Text for the title/tooltip of the edit project info button in the project authoring panel."
@@ -742,6 +750,10 @@
 	"authoring_project_panel_stepterm_label":{
 		"value":"Step Term",
 		"description":"Label text for the step term input in the project authoring panel."
+	},
+	"authoring_project_panel_activityterm_label":{
+		"value":"Activity Term",
+		"description":"Label text for the activity term input in the project authoring panel."
 	},
 	"authoring_project_panel_theme_label":{
 		"value":"Theme",

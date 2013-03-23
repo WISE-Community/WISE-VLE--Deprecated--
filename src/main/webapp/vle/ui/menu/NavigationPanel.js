@@ -3,7 +3,8 @@ function NavigationPanel(view) {
 	this.rootNode = this.view.getProject().getRootNode();
 	this.autoStep = this.view.getProject().useAutoStep(); //boolean value whether to automatically number the steps
 	this.stepLevelNumbering = this.view.getProject().useStepLevelNumbering(); //boolean value whether to use tree level numbering e.g. 1, 1.1, 1.1.2
-	this.stepTerm = this.view.getProject().getStepTerm(); //The term to precede a step (i.e. Step or Page) when autoStep=true
+	this.stepTerm = this.view.getProject().getStepTerm(); //The term to precede a step (i.e. Step or Page)
+	this.activityTerm = this.view.getProject().getActivityTerm(); //The term to precede an activity (i.e. Activity or Section)
 	this.currentStepNum;
 }
 
@@ -247,22 +248,6 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
 	node.onBeforeCreateNavigationHtml();
 
 	var nodeTitle = node.getTitle();
-	var currentStepNum = this.getStudentViewPosition(position);
-	if(this.autoStep) {
-		title += this.stepTerm + " " + currentStepNum + ": "; 
-	} else {
-		if(this.stepTerm && this.stepTerm != ''){
-			title += this.stepTerm + ': ';
-		};
-	};
-	
-	var titlePosition = position;
-	
-	if(!this.stepLevelNumbering){
-		titlePosition = '';
-	};
-	
-	title += this.getTitlePositionFromLocation(titlePosition.toString()) + " " + nodeTitle;
 
 	if (node.isHiddenFromNavigation()) {
 		// hide the node if node.isHidden is true
@@ -360,9 +345,12 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     			classString += " hidden";
     		}
     		
+    		title += this.view.utils.isNonWSString(this.activityTerm) ? this.activityTerm + ' ' : '';
+    		title += this.getTitlePositionFromLocation(position.toString()) + ': ' + node.getTitle();
+    		
     		// create the DOM object for this sequence
        		//htmlSoFar += this.createSequenceHtml(classString, deep, node.id, node.getTitle(), position);
-    		var sequence = $(this.createSequenceHtml(classString, stepId, node.getTitle(), position));
+    		var sequence = $(this.createSequenceHtml(classString, stepId, title, position));
         	
         	// add the steps to this sequence
         	for (var i = 0; i < node.children.length; i++) {
@@ -375,6 +363,24 @@ NavigationPanel.prototype.getNavigationHtml = function(node, depth, position) {
     	}
 	} else {
 		//the node is a step
+		var currentStepNum = this.getStudentViewPosition(position);
+		
+		if(this.autoStep) {
+			title += this.stepTerm + " " + currentStepNum + ": "; 
+		} else {
+			if(this.stepTerm && this.view.utils.isNonWSString(this.stepTerm)){
+				title += this.stepTerm + ': ';
+			};
+		};
+		
+		var titlePosition = position;
+		
+		if(!this.stepLevelNumbering){
+			titlePosition = '';
+		};
+		
+		title += this.getTitlePositionFromLocation(titlePosition.toString()) + " " + nodeTitle;
+		
 		var icon = '';
 		
 		if(node.getNodeClass() && node.getNodeClass()!='null' && node.getNodeClass()!=''){

@@ -394,7 +394,7 @@
  */
 View.prototype.generateAuthoring = function(){
 	var view = this;
-	$('#stepTerm').show(); // TODO: not sure why this is necessary but stepTerm input always seems to be hidden by default
+	$('#stepTerm, #activityTerm').show(); // TODO: not sure why this is necessary but stepTerm and activityTerm inputs always seems to be hidden by default
 	
 	//remove any old elements and clear variables
 	$('#activeContainer').empty();
@@ -522,9 +522,10 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 			sequenceWrap = createElement(document, 'div', {'class': 'seqWrap'}),
 			seqTitleEl = createElement(document, 'div', {'class': 'sequenceTitle ui-widget-header'});
 		
-		var titleText = view.utils.capitalize(view.getI18NString('activity'));
+		var activityTerm = view.getProject().getActivityTerm();
+		var titleText = view.utils.isNonWSString(activityTerm) ? activityTerm + ' ' : '';
 		if(isActive){
-			titleText += ' ' + this.currentSeqNum + ': ';
+			titleText += this.currentSeqNum + ': ';
 			$(sequenceEl).attr('data-pos',this.currentSeqNum).attr('data-absid',absId);
 			this.currentSeqNum++;
 			$(seqTitleEl).append('<span class="ui-icon ui-icon-grip-dotted-vertical move"></span>');
@@ -650,8 +651,11 @@ View.prototype.generateNodeElement = function(node, parentNode, el, depth, pos){
 				}
 				this.currentStepNum++;
 			}
-			if (stepTerm == '' && stepNum == 'NaN'){
-				titleText = titleText.replace(/:\s$/,'');
+			if (!view.utils.isNonWSString(stepTerm)){
+				titleText = titleText.replace(/\s+$/,'');
+				if(stepNum === 'NaN'){
+					titleText = titleText.replace(/:$/,'');
+				}
 			}
 		}
 		$(nodeTitleTextEl).text(titleText);
@@ -1238,6 +1242,17 @@ View.prototype.stepTermChanged = function(){
 		this.generateAuthoring();
 		this.populateMaxScores();
 	};
+
+/**
+ * Updates the project's activityTerm value
+ */
+View.prototype.activityTermChanged = function(){
+	if(this.project){
+		this.project.setActivityTerm(document.getElementById('activityTerm').value);
+		this.saveProject();
+		this.generateAuthoring();
+		this.populateMaxScores();
+	}
 };
 
 /**
@@ -2324,16 +2339,25 @@ View.prototype.onProjectLoaded = function(){
 		
 		if(this.selectModeEngaged){
 			this.disengageSelectMode(-1);
-		};
+		}
 	
 		if(this.project && this.project.getStepTerm()){
 			document.getElementById('stepTerm').value = this.project.getStepTerm();
 		} else {
 			var stepTerm = this.getI18NString('stepTerm');
 			document.getElementById('stepTerm').value = stepTerm;
-			this.project.setStepTerm('');
+			this.project.setStepTerm(stepTerm);
 			this.notificationManager.notify('Step term not set in project, setting default value: \"' + stepTerm + '\"', 2);
-		};
+		}
+
+		if(this.project && this.project.getActivityTerm()){
+			document.getElementById('activityTerm').value = this.project.getActivityTerm();
+		} else {
+			var activityTerm = this.getI18NString('activityTerm');
+			document.getElementById('activityTerm').value = activityTerm;
+			this.project.setActivityTerm(activityTerm);
+			this.notificationManager.notify('Activity term not set in project, setting default value: \"' + activityTerm + '\"', 2);
+		}
 		
 		// clear out any data from the sequenceEditor
 		$('#sequenceEditor').removeData();

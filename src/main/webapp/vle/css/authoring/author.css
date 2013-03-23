@@ -439,6 +439,7 @@ table.wisetable th, table.wisetable td {
     color: #444;
     font-size:100%;
     padding: 0 .4em .1em;
+    margin-right: 0.5em;
     height:1.6em;
     -o-box-shadow: 0 0 2px #cccccc inset;
     -moz-box-shadow: 0 0 2px #cccccc inset;
